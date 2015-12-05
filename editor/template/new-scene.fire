@@ -1,0 +1,49 @@
+[
+  {
+    "__type__": "cc.SceneAsset",
+    "_name": "",
+    "_objFlags": 0,
+    "_rawFiles": null,
+    "scene": {
+      "__id__": 1
+    }
+  },
+  {
+    "__type__": "cc.Scene",
+    "_children": [
+      {
+        "__id__": 2
+      }
+    ]
+  },
+  {
+    "__type__": "cc.Node",
+    "_name": "Canvas",
+    "_parent": {
+      "__id__": 1
+    },
+    "_anchorPoint": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_position": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 0
+    },
+    "_components": [
+      {
+        "__id__": 3
+      }
+    ]
+  },
+  {
+    "__type__": "cc.Canvas",
+    "node": {
+      "__id__": 2
+    },
+    "_fitWidth": false,
+    "_fitHeight": false
+  }
+]

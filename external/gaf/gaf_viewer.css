@@ -1,0 +1,42 @@
+#drop_zone {    
+    border: 2px dashed #bbb;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    padding: 25px;
+    text-align: center;
+    font: 20pt bold 'Vollkorn';
+    color: #bbb;
+    
+}
+.renderjson a {
+    text-decoration: none; 
+}
+.renderjson .disclosure {
+    color: crimson;
+    font-size: 150%; 
+}
+.renderjson .syntax {
+    color: grey; 
+}
+.renderjson .string {
+    color: darkred; 
+}
+.renderjson .number {
+    color: darkcyan; 
+}
+.renderjson .boolean {
+    color: blueviolet; 
+}
+.renderjson .key    {
+    color: darkblue; 
+}
+.renderjson .keyword {
+    color: blue; 
+}
+.renderjson .object.syntax {
+    color: lightseagreen; 
+}
+.renderjson .array.syntax  {
+    color: orange; 
+}
