@@ -915,6 +915,8 @@ cc._fntLoader = {
         //common
         var commonObj = self._parseStrToObj(fntStr.match(self.COMMON_EXP)[0]);
         fnt.commonHeight = commonObj["lineHeight"];
+        //font size
+        fnt.fontSize = infoObj["size"];
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
             var texSize = cc.configuration.getMaxTextureSize();
             if (commonObj["scaleW"] > texSize.width || commonObj["scaleH"] > texSize.height)
