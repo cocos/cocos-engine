@@ -28,9 +28,8 @@ Running the tests (version <3)
 ------------------
 
 ```shell
-$ git clone git://github.com/cocos2d/cocos2d-html5.git
-$ cd cocos2d-html5
-$ git submodule update --init
+$ git clone git://github.com/fireball-x/engine.git
+$ cd engine
 $ python -m SimpleHTTPServer
 ```
 ... and then open a browser and go to `http://localhost:8000/tests`

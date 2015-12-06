@@ -26,6 +26,6 @@ describe('test cocos', function () {
             'show': true,
             'resizable': false,
         });
-        win.load('app://cocos2d/cocos2d-html5/test/page.html');
+        win.load('app://engine/test/page.html');
     });
 });

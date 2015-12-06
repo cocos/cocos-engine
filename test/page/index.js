@@ -25,7 +25,7 @@ Editor.inspectors = {};
 Editor.require('app://builtin/fire-assets/init');
 
 // cocos
-Editor.require('app://cocos2d/cocos2d-html5');
+Editor.require('app://engine');
 
 // init asset library
 cc.AssetLibrary.init( Path.resolve(Path.join(__dirname, 'fixtures/library')) );
