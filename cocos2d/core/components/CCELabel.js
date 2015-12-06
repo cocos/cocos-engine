@@ -22,10 +22,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+function MonitorSize(target) {
+    this._target = target;
+}
+MonitorSize.prototype = {
+    getContentSize: function () {
+        return this._target._sgNode.getContentSize();
+    },
+    setContentSize: function (size) {
+        this._target._useOriginalSize = false;
+        this._target._sgNode.setContentSize(size);
+    },
+    _getWidth: function () {
+        return this.getContentSize().width;
+    },
+    _getHeight: function () {
+        return this.getContentSize().height;
+    }
+};
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
 var Overflow = cc.Label.Overflow;
-
+var LabelType = cc.Label.Type;
 /**
  *
  * @class ELabel
@@ -40,13 +58,14 @@ var Label = cc.Class({
     },
 
     properties: {
-
+        _useOriginalSize: true,
         /**
          * Content string of label
          * @property {String} string
          */
         string: {
-            default: '',
+            default: 'Label',
+            multiline: true,
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
@@ -85,23 +104,51 @@ var Label = cc.Class({
             },
         },
 
+        _fontSize: 40,
         /**
          * Font size of label
          * @property {Number} fontSize
          */
         fontSize: {
-            default: 18,
-            notify: function () {
+            get: function(){
                 var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.setFontSize( this.fontSize );
+                if(sgNode){
+                    this._fontSize = sgNode.getFontSize();
+                }
+                return this._fontSize;
+            },
+            set: function(value){
+                this._fontSize = value;
+
+                var sgNode = this._sgNode;
+                if(sgNode){
+                    sgNode.setFontSize(value);
                 }
             }
         },
 
+        _lineHeight: 20,
+
+        lineHeight: {
+            get: function(){
+                var sgNode = this._sgNode;
+                if(sgNode){
+                    this._lineHeight = sgNode.getLineHeight();
+                }
+                return this._lineHeight;
+            },
+            set: function(value){
+                this._lineHeight = value;
+
+                var sgNode = this._sgNode;
+                if(sgNode){
+                    sgNode.setLineHeight(value);
+                }
+            }
+        },
         /**
          * Overflow of label
-         * @property {Overflow} overflow
+         * @property {Overflow} overFlow
          */
         overflow: {
             default: Overflow.CLAMP,
@@ -109,36 +156,75 @@ var Label = cc.Class({
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
-                    sgNode.setOverflow( this.overFlow );
+                    sgNode.setOverflow( this.overflow );
                 }
             }
         },
 
+        _enableWrapText: true,
         /**
          * Whether auto wrap label when string width is large than label width
          * @property {Boolean} enableWrapText
          */
         enableWrapText: {
-            default: false,
-            notify: function () {
+            get: function(){
                 var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.enableWrapText( this.enableWrapText );
+                if(sgNode){
+                    this._enableWrapText = sgNode.isWrapTextEnabled();
+                }
+                return this._enableWrapText;
+            },
+            set: function(value){
+                this._enableWrapText = value;
+
+                var sgNode = this._sgNode;
+                if(sgNode){
+                    sgNode.enableWrapText(value);
                 }
             }
         },
 
-        // TODO
-        // file: {
-        //     default: null,
-        //     type: cc.TTFFont,
-        //     notify: function () {
-        //         var sgNode = this._sgNode;
-        //         if (sgNode) {
-        //             sgNode.file = this.file;
-        //         }
-        //     }
-        // },
+        /**
+         * The font URL of label.
+         * @property {URL} file
+         */
+        file: {
+            default: "Arial",
+            url: cc.Font,
+            notify: function () {
+                var sgNode = this._sgNode;
+                if (sgNode) {
+                    sgNode.setFontFileOrFamily(this.file);
+                }
+            }
+        },
+
+        _isSystemFontUsed: true,
+
+        /**
+         * Whether use system font name or not.
+         * @property {Boolean} isSystemFontUsed
+         */
+        useSystemFont: {
+            get: function(){
+                var sgNode = this._sgNode;
+                if(sgNode){
+                    this._isSystemFontUsed = sgNode.isSystemFontUsed();
+                }
+                return this._isSystemFontUsed;
+            },
+            set: function(value){
+                var sgNode = this._sgNode;
+                this._isSystemFontUsed = value;
+                if(value){
+                    if(sgNode){
+                        this.file = "";
+                        sgNode.setSystemFontUsed(value);
+                    }
+                }
+
+            }
+        }
 
         // TODO
         // enableRichText: {
@@ -153,23 +239,33 @@ var Label = cc.Class({
 
     },
 
+    onLoad: function () {
+        this._super();
+        this.node._sizeProvider = new MonitorSize(this);
+    },
+
+    onDestroy: function () {
+        this._super();
+        this.node._sizeProvider = null;
+    },
     _createSgNode: function () {
-        var sgNode = new cc.Label();
+        var sgNode = new cc.Label(this.string, this.file, cc.Label.Type.TTF);
 
         // TODO
-        // sgNode.file = this.file;
         // sgNode.enableRichText = this.enableRichText;
 
-        sgNode.setString( this.string );
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
         sgNode.setFontSize( this.fontSize );
         sgNode.setOverflow( this.overflow );
         sgNode.enableWrapText( this.enableWrapText );
-        sgNode.setContentSize( this.node.getContentSize() );
+        if(!this._useOriginalSize){
+            sgNode.setContentSize(this.node.getContentSize());
+        }
+        sgNode.setColor(this.node.color);
 
         return sgNode;
-    },
+    }
  });
 
  cc.ELabel = module.exports = Label;

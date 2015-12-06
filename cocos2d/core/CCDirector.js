@@ -552,7 +552,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             if (!sceneName.endsWith('.fire')) {
                 sceneName += '.fire';
             }
-            if (sceneName[0] !== '/' && !sceneName.startsWith('assets://')) {
+            if (sceneName[0] !== '/' && !sceneName.startsWith('db://assets/')) {
                 sceneName = '/' + sceneName;    // 使用全名匹配
             }
             // search scene

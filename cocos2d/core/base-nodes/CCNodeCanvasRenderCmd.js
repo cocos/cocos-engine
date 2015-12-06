@@ -41,6 +41,7 @@ cc.Node._dirtyFlags = {transformDirty: 1 << 0, visibleDirty: 1 << 1, colorDirty:
 //-------------------------Base -------------------------
 cc.Node.RenderCmd = function(renderable){
     this._dirtyFlag = 1;                           //need update the transform at first.
+    cc.renderer.pushDirtyNode(this);
 
     this._node = renderable;
     this._needDraw = false;

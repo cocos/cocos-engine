@@ -1,4 +1,7 @@
 /**
+ * @module cc
+ */
+/**
  * Class for BitmapFont handling.
  * @class BitmapFont
  * @extends RawAsset
@@ -6,7 +9,7 @@
  */
 var BitmapFont = cc.Class({
     name: 'cc.BitmapFont',
-    extends: cc.RawAsset,
+    extends: cc.Font
 });
 
 cc.BitmapFont = BitmapFont;

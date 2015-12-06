@@ -26,6 +26,7 @@
 
 require('./CCRawAsset');
 require('./CCAsset');
+require('./CCFont');
 require('./CCPrefab');
 require('./CCAudioClip');
 require('./CCBitmapFont');

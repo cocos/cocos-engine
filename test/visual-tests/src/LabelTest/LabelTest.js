@@ -2047,12 +2047,347 @@ var labelTTFDrawModeTest = AtlasDemo.extend({
     }
 });
 
+var LabelLayoutBaseTest = AtlasDemo.extend({
+    _drawNode: null,
+    _label: null,
+    _labelType: 0,
+
+    ctor: function(){
+        this._super();
+
+        var size = cc.director.getVisibleSize();
+        this._initTestLabel(size);
+        this._initFontSizeChange(size);
+        this._initToggleLabelTypeOption(size);
+        this._initWrapOption(size);
+        this._initAlignmentOption(size);
+        this._initDrawNode(size);
+        this._initSlider(size);
+        this._initLineBreakMode(size);
+    },
+    _initLineBreakMode: function(winSize){
+        var label = new cc.LabelTTF("char break mode:", "Arial", 20);
+        label.setPosition(cc.p(winSize.width * 0.2 - 80, winSize.height * 0.9));
+        this.addChild(label);
+
+        var checkBox = new ccui.CheckBox("ccs-res/cocosui/check_box_normal.png", "ccs-res/cocosui/check_box_normal_press.png", "ccs-res/cocosui/check_box_active.png", "ccs-res/cocosui/check_box_normal_disable.png", "ccs-res/cocosui/check_box_active_disable.png");
+        checkBox.setPosition(cc.p(winSize.width * 0.2 + 20, winSize.height * 0.9));
+        checkBox.addEventListener(function(sender, type){
+            if(type === ccui.CheckBox.EVENT_UNSELECTED){
+                this._label.setLineBreakWithoutSpace(false);
+            }else if(type === ccui.CheckBox.EVENT_SELECTED){
+                this._label.setLineBreakWithoutSpace(true);
+            }
+            this._updateDrawNodeSize(this._label.getContentSize(true));
+        }, this);
+
+        checkBox.setSelected(true);
+        checkBox.setName("toggleCharBreakMode");
+        this.addChild(checkBox);
+    },
+    _makeControlStepper: function(){
+        var button = new ccui.Button();
+        button.setTouchEnabled(true);
+        button.loadTextures("extensions/stepper-minus.png", "extensions/stepper-minus.png", "");
+        button.setTitleText("-");
+        button.setPressedActionEnabled(true);
+        button.setName("-");
+        button.setScale(1.2);
+        button.setTitleColor(cc.Color.BLACK);
+        button.addTouchEventListener(this._minusButtonClicked.bind(this), this);
+
+        var plusButton = new ccui.Button();
+        plusButton.setTouchEnabled(true);
+        plusButton.loadTextures("extensions/stepper-plus.png", "extensions/stepper-plus.png", "");
+        plusButton.setTitleText("+");
+        plusButton.setPressedActionEnabled(true);
+        plusButton.setTitleColor(cc.Color.BLACK);
+        plusButton.addTouchEventListener(this._minusButtonClicked.bind(this), this);
+        plusButton.setPosition(cc.p(40,0));
+        plusButton.setScale(1.2);
+        plusButton.setName("+");
+
+        var node = new cc.Node();
+        node.addChild(button);
+        node.addChild(plusButton);
+        node.setName("stepper");
+        node.setTag(40);
+
+        return node;
+    },
+    _minusButtonClicked:function (sender, type) {
+        var fontSizeLabel = this.getChildByName("fontSize");
+        var stepper = this.getChildByName("stepper");
+        var fontSize = stepper.getTag();
+
+        switch (type) {
+            case ccui.Widget.TOUCH_BEGAN:
+                break;
+            case ccui.Widget.TOUCH_MOVED:
+                break;
+            case ccui.Widget.TOUCH_ENDED:
+                if(sender.getName() === "-"){
+                    fontSize = fontSize - 1;
+                }else if(sender.getName() === "+"){
+                    fontSize = fontSize + 1;
+                }
+                if(fontSize <= 0){
+                    fontSize = 0;
+                }
+                stepper.setTag(fontSize);
+                fontSizeLabel.setString("font size:" + fontSize);
+                this._label.setFontSize(fontSize);
+                this._updateDrawNodeSize(this._label.getContentSize(true));
+                break;
+            case ccui.Widget.TOUCH_CANCELED:
+                break;
+
+            default:
+                break;
+        }
+
+    },
+
+    _updateDrawNodeSize: function(drawNodesize){
+        var origin = cc.director.getWinSize();
+        var labelSize = this._label.getContentSize(true);
+        origin.width = origin.width / 2 - (labelSize.width / 2);
+        origin.height = origin.height / 2 - (labelSize.height / 2);
+
+        var vertices = [cc.p(origin.width, origin.height),
+                        cc.p(drawNodesize.width + origin.width, origin.height),
+                        cc.p(drawNodesize.width + origin.width, drawNodesize.height + origin.height),
+                        cc.p(origin.width, drawNodesize.height + origin.height)];
+        this._drawNode.clear();
+        this._drawNode.drawSegment(vertices[0], vertices[1],1, cc.Color(1, 1, 1, 1));
+        this._drawNode.drawSegment(vertices[0], vertices[3],1, cc.Color(1, 1, 1, 1));
+        this._drawNode.drawSegment(vertices[2], vertices[3],1, cc.Color(1, 1, 1, 1));
+        this._drawNode.drawSegment(vertices[1], vertices[2],1, cc.Color(1, 1, 1, 1));
+        var renderingFontSize = this._label._getRenderingFontSize();
+        this.getChildByName("stepper").setTag(renderingFontSize);
+        var fontSizeLabel = this.getChildByName("fontSize");
+        fontSizeLabel.setString("font size:" + renderingFontSize);
+    },
+
+    _setAlignmentLeft: function(sender){
+        this._label.setHorizontalAlign(cc.TextAlignment.LEFT);
+    },
+
+    _setAlignmentCenter: function(sender){
+        this._label.setHorizontalAlign(cc.TextAlignment.CENTER);
+    },
+
+    _setAlignmentRight: function(sender){
+        this._label.setHorizontalAlign(cc.TextAlignment.RIGHT);
+    },
+
+    _setAlignmentTop: function(sender){
+        this._label.setVerticalAlign(cc.VerticalTextAlignment.TOP);
+    },
+
+    _setAlignmentMiddle: function(sender){
+        this._label.setVerticalAlign(cc.VerticalTextAlignment.CENTER);
+    },
+
+    _setAlignmentBottom: function(sender){
+        this._label.setVerticalAlign(cc.VerticalTextAlignment.BOTTOM);
+    },
+
+    _initWrapOption: function(winSize){
+        var label = new cc.LabelTTF("Enable Wrap:", "Arial", 20);
+        label.setPosition(cc.p(winSize.width * 0.6, winSize.height * 0.9));
+        this.addChild(label);
+
+        var checkBox = new ccui.CheckBox("ccs-res/cocosui/check_box_normal.png", "ccs-res/cocosui/check_box_normal_press.png", "ccs-res/cocosui/check_box_active.png", "ccs-res/cocosui/check_box_normal_disable.png", "ccs-res/cocosui/check_box_active_disable.png");
+        checkBox.setPosition(cc.pAdd(label.getPosition(), cc.p(80,0)));
+        checkBox.addEventListener(function(sender, type){
+            if(type === ccui.CheckBox.EVENT_UNSELECTED){
+                this._label.enableWrapText(false);
+            }else if(type === ccui.CheckBox.EVENT_SELECTED){
+                this._label.enableWrapText(true);
+            }
+            this._updateDrawNodeSize(this._label.getContentSize(true));
+        }, this);
+
+        checkBox.setSelected(true);
+        checkBox.setName("toggleWrap");
+        this.addChild(checkBox);
+    },
+
+    _initToggleLabelTypeOption: function(winSize){
+        var label = new cc.LabelTTF("Toggle Label:", "Arial", 20);
+        label.setPosition(cc.p(winSize.width * 0.8, winSize.height * 0.9));
+        this.addChild(label);
+
+        var checkBox = new ccui.CheckBox("ccs-res/cocosui/check_box_normal.png", "ccs-res/cocosui/check_box_normal_press.png", "ccs-res/cocosui/check_box_active.png", "ccs-res/cocosui/check_box_normal_disable.png", "ccs-res/cocosui/check_box_active_disable.png");
+        checkBox.setPosition(cc.pAdd(label.getPosition(), cc.p(100,0)));
+        checkBox.addEventListener(function(sender, type){
+            if(type === ccui.CheckBox.EVENT_UNSELECTED){
+                this._label.setLabelType(cc.Label.Type.BMFont);
+            }else if(type === ccui.CheckBox.EVENT_SELECTED){
+                this._label.setLabelType(cc.Label.Type.TTF);
+            }
+            this._updateDrawNodeSize(this._label.getContentSize(true));
+        }, this);
+
+        checkBox.setSelected(false);
+        checkBox.setName("toggleLabel");
+        this.addChild(checkBox);
+    },
+
+    _initAlignmentOption: function(winSize){
+        cc.MenuItemFont.setFontSize(30);
+        var s = winSize;
+        var menu = new cc.Menu(
+            new cc.MenuItemFont("Left", this._setAlignmentLeft, this),
+            new cc.MenuItemFont("Center", this._setAlignmentCenter, this),
+            new cc.MenuItemFont("Right", this._setAlignmentRight, this));
+        menu.alignItemsVerticallyWithPadding(4);
+        menu.x = 50;
+        menu.y = s.height / 2 - 20;
+        this.addChild(menu);
+
+        menu = new cc.Menu(
+            new cc.MenuItemFont("Top", this._setAlignmentTop, this),
+            new cc.MenuItemFont("Middle", this._setAlignmentMiddle, this),
+            new cc.MenuItemFont("Bottom", this._setAlignmentBottom, this));
+        menu.alignItemsVerticallyWithPadding(4);
+        menu.x = s.width - 50;
+        menu.y = s.height / 2 - 20;
+        this.addChild(menu);
+    },
+
+    _initFontSizeChange: function(winSize){
+        var fontSizeLabel = new cc.LabelTTF("font size:40", "Arial", 20);
+        fontSizeLabel.setName("fontSize");
+
+        var stepper = this._makeControlStepper();
+        stepper.setPosition(cc.p(winSize.width * 0.4 - stepper.getContentSize().width / 2 + 20,
+                                    winSize.height * 0.9));
+
+        this.addChild(stepper);
+
+        stepper.setName("stepper");
+        stepper.setScale(0.5);
+
+        fontSizeLabel.setPosition(cc.pSub(stepper.getPosition(),
+                                          cc.p(stepper.getContentSize().width/2 + fontSizeLabel.getContentSize().width/2 + 10, 0)));
+        this.addChild(fontSizeLabel);
+    },
+
+    _initSlider: function(winSize){
+        var slider = new ccui.Slider();
+        slider.setTag(1);
+        slider.setTouchEnabled(true);
+        slider.loadBarTexture("ccs-res/cocosui/sliderTrack.png");
+        slider.loadSlidBallTextures("ccs-res/cocosui/sliderThumb.png", "ccs-res/cocosui/sliderThumb.png", "");
+        slider.loadProgressBarTexture("ccs-res/cocosui/sliderProgress.png");
+        slider.setPosition(cc.p(winSize.width/2, winSize.height * 0.15 + slider.getContentSize().height * 2 + 10));
+        slider.setPercent(52);
+        this.addChild(slider);
+
+        var slider2 = new ccui.Slider();
+        slider2.setTag(2);
+        slider2.loadBarTexture("ccs-res/cocosui/sliderTrack.png");
+        slider2.loadSlidBallTextures("ccs-res/cocosui/sliderThumb.png", "ccs-res/cocosui/sliderThumb.png", "");
+        slider2.loadProgressBarTexture("ccs-res/cocosui/sliderProgress.png");
+        slider2.setPosition(cc.p(winSize.width * 0.2, winSize.height / 2));
+        slider2.setRotation(90);
+        slider2.setPercent(52);
+        slider2.setName("slider2");
+        this.addChild(slider2);
+
+        slider.addEventListener(function(sender, type){
+            var percent = slider.getPercent();
+            var labelSize = this._label.getContentSize();
+            var drawNodesize = cc.size(percent / 100 * winSize.width, labelSize.height);
+            if(drawNodesize.width <= 0){
+                drawNodesize.width = 0.1;
+            }
+            this._label.setContentSize(drawNodesize.width, drawNodesize.height);
+            this._updateDrawNodeSize(drawNodesize);
+        }, this);
+
+
+        slider2.addEventListener(function(sender, type){
+            var percent = slider2.getPercent();
+            var labelSize = this._label.getContentSize();
+            var drawNodesize = cc.size(labelSize.width, percent / 100 * winSize.height);
+            if(drawNodesize.width <= 0){
+                drawNodesize.width = 0.1;
+            }
+            this._label.setContentSize(drawNodesize.width, drawNodesize.height);
+            this._updateDrawNodeSize(drawNodesize);
+        }, this);
+
+    },
+
+    _initTestLabel: function(winSize){
+        var center = cc.visibleRect.center;
+        this._label = new cc.Label("Hello World. This is a very long sentence Hehe.", s_resprefix + "fonts/bitmapFontTest2.fnt", cc.Label.Type.BMFont);
+        this._label.setDimensions(winSize.width/2, winSize.height/2);
+        this._label.setLineBreakWithoutSpace(true);
+        this._label.setPosition(center);
+        this._label.setName("Label");
+        this._label.setFontSize(30);
+        this.addChild(this._label);
+        this._labelType = 1;
+    },
+
+    _initDrawNode: function(winSize){
+        this._drawNode = new cc.DrawNode();
+        this.addChild(this._drawNode);
+        this._updateDrawNodeSize(this._label.getContentSize(true));
+    }
+});
+
+var NewLabelBMFontClampTest = LabelLayoutBaseTest.extend({
+    ctor:function () {
+        this._super();
+
+    },
+    title: function(){
+
+    },
+    subtitle:function() {
+        return "Clamp Layout Test";
+    }
+});
+
+var NewLabelBMFontShrinkTest = LabelLayoutBaseTest.extend({
+    ctor:function () {
+        this._super();
+        this._label.setOverflow(cc.Label.Overflow.SHRINK);
+    },
+    title: function(){
+
+    },
+    subtitle:function() {
+        return "Shrink Layout Test";
+    }
+});
+
+var NewLabelBMFontResizeTest = LabelLayoutBaseTest.extend({
+    ctor:function () {
+        this._super();
+        this._label.setOverflow(cc.Label.Overflow.RESIZE);
+        this.getChildByName("slider2").setVisible(false);
+        this._updateDrawNodeSize(this._label.getContentSize(true));
+    },
+    title: function(){
+
+    },
+    subtitle:function() {
+        return "Resize Layout Test";
+    }
+});
+
 var NewLabelTest = AtlasDemo.extend({
     _testLabel: null,
     _labelAlignCode: 0,
     ctor:function () {
         this._super();
-        var testLabel = new cc.Label("Times");
+        var testLabel = new cc.Label("", "Times", cc.Label.Type.TTF);
         testLabel.setFontSize(40);
         testLabel.setContentSize(cc.size(480,320));
         testLabel.enableWrapText(false);
@@ -2098,6 +2433,9 @@ var NewLabelTest = AtlasDemo.extend({
 // Flow control
 //
 var arrayOfLabelTest = [
+    NewLabelBMFontClampTest,
+    NewLabelBMFontShrinkTest,
+    NewLabelBMFontResizeTest,
     NewLabelTest,
     LabelAtlasOpacityTest,
     LabelAtlasOpacityColorTest,

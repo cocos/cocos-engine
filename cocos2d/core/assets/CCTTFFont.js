@@ -1,4 +1,7 @@
 /**
+ * @module cc
+ */
+/**
  * Class for TTFFont handling.
  * @class TTFFont
  * @extends Asset
@@ -6,13 +9,7 @@
  */
 var TTFFont = cc.Class({
     name: 'cc.TTFFont',
-    extends: cc.Asset,
-
-    properties: {
-        fontFamily: {
-            default: ''
-        }
-    },
+    extends: cc.Font
 });
 
 cc.TTFFont = TTFFont;
