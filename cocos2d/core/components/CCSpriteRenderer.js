@@ -502,7 +502,7 @@ var SpriteRenderer = cc.Class({
             this._sprite.once('load', function () {
                 this._applyCapInset();
                 this._applySpriteSize();
-            }, this)
+            }, this);
         }
         else {
             this._applyCapInset(node);
