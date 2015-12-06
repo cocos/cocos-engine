@@ -21,6 +21,6 @@ describe('core level', function () {
         });
 
         Editor.require( 'app://builtin/fire-assets/init' );
-        Editor.require( 'app://cocos2d/cocos2d-html5' );
+        Editor.require( 'app://engine' );
     });
 });
