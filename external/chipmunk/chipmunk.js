@@ -28,17 +28,6 @@ Object.create = Object.create || function(o) {
  
 //var VERSION = CP_VERSION_MAJOR + "." + CP_VERSION_MINOR + "." + CP_VERSION_RELEASE;
 
-var cp;
-if(typeof exports === 'undefined'){
-	cp = {};
-
-	if(typeof window === 'object'){
-		window["cp"] = cp;
-	}
-} else {
-	cp = exports;
-}
-
 var assert = function(value, message)
 {
 	if (!value) {

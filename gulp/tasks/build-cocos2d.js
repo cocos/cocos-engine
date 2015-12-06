@@ -205,7 +205,13 @@ var srcs = [
     "./extensions/spine/CCSkeletonWebGLRenderCmd.js",
     "./extensions/spine/CCSkeletonAnimation.js",
 
-    "./extensions/ccpool/CCPool.js"
+    "./extensions/ccpool/CCPool.js",
+
+    "./cocos2d/physics/CCPhysicsDebugNode.js",
+    "./cocos2d/physics/CCPhysicsDebugNodeCanvasRenderCmd.js",
+    "./cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js",
+
+    "./external/chipmunk/chipmunk.js"
 ];
 
 gulp.task('compile-cocos2d', function (done) {
