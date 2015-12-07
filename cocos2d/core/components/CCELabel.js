@@ -54,7 +54,7 @@ var Label = cc.Class({
     extends: cc._ComponentInSG,
 
     editor: CC_EDITOR && {
-        menu: 'UI/Label'
+        menu: 'Graphics/Label'
     },
 
     properties: {

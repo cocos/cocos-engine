@@ -1,5 +1,9 @@
 (function () {
 
+    if (!TestEditorExtends) {
+        return;
+    }
+
     var Script;
 
     module('test scene serialization', {

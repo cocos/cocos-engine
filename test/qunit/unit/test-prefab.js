@@ -1,5 +1,9 @@
 (function () {
 
+    if (!TestEditorExtends) {
+        return;
+    }
+
     //var testingCompCallback = false;
 
     var MyComponent = cc.Class({

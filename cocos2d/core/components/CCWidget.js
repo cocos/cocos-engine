@@ -43,7 +43,7 @@ var Widget = cc.Class({
     name: 'cc.Widget', extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'Widget',
+        menu: 'UI/Widget',
         executeInEditMode: true,
         disallowMultiple: true,
         inspector: 'app://editor/page/inspector/widget/index.html'
