@@ -1,9 +1,7 @@
 
-var bezier = require('./bezier').bezier;
 var bezierByTime = require('./bezier').bezierByTime;
 
 var binarySearch = require('./binary-search');
-var WrapMode = require('./types').WrapMode;
 var WrapModeMask = require('./types').WrapModeMask;
 
 /**
@@ -74,7 +72,7 @@ var DynamicAnimCurve = cc.Class({
         // The name of the property being animated.
         // @property prop
         // @type {string}
-        prop: "",
+        prop: '',
 
         // The values of the keyframes. (y)
         // @property values
@@ -102,6 +100,7 @@ var DynamicAnimCurve = cc.Class({
         var fromVal = values[frameIndex - 1];
         var toVal = values[frameIndex];
 
+        var value;
         // lerp
         if (typeof fromVal === 'number') {
             value = fromVal + (toVal - fromVal) * ratio;
