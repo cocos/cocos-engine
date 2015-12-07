@@ -315,7 +315,7 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
             startRatioOffset = 0;
     }
 
-    addNewDatas(values[values.length - 1], DynamicAnimCurve.Linear, 1);
+    addNewDatas(values[values.length - 1], DynamicAnimCurve.Linear, ratios[ratios.length - 1]);
 }
 
 if (CC_TEST) {
