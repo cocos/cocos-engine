@@ -555,6 +555,27 @@ test('CCAnimation._updateClip', function () {
 
     animation._updateClip(newClip);
     strictEqual(animation._clips.indexOf(newClip), 0, 'clip index should be 0');
+
+    newClip.wrapMode = cc.WrapMode.PingPong;
+    var state = animation.getAnimationState(newClip.name);
+    state.time = 0.9;
+
+    animation._updateClip(newClip);
+    animation._updateClip(newClip);
+
+    strictEqual(state.time, 0.9, 'time should not changed when update clip twice');
+
+    newClip = new cc.AnimationClip();
+    newClip.wrapMode = cc.WrapMode.Reverse;
+    animation._updateClip(newClip);
+
+    close(state.time, 0.1, 0.0001, 'time should reversed when update clip wrapMode changed');
+
+    newClip = new cc.AnimationClip();
+    newClip.wrapMode = cc.WrapMode.LoopReverse;
+    animation._updateClip(newClip);
+
+    close(state.time, 0.1, 0.0001, 'time should not changed if clip wrapMode also has Reverse mask');
 });
 
 test('sampleMotionPaths', function () {
@@ -609,6 +630,50 @@ test('sampleMotionPaths', function () {
         close(ratios[i + 1] - ratios[i], betweenRatio, 0.0001, 'betweenRatio should be same');
     }
 });
+
+test('SampledAnimCurve', function () {
+    var initClipData = cc._Test.initClipData;
+
+    var entity = new cc.ENode();
+
+    var clip = new cc.AnimationClip();
+    clip._name = 'test';
+    clip._duration = 1;
+    clip.sample = 60;
+    clip.curveData = {
+        props: {
+            position: [
+                {frame: 0.2, value: [0, 0]},
+                {frame: 0.7, value: [100, 100]}
+            ],
+            test: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+
+    state = new cc.AnimationState(clip);
+    initClipData(entity, state);
+
+    strictEqual(state.curves[0] instanceof cc._Test.SampledAnimCurve, true, 'should create SampledAnimCurve');
+
+    state.time = 0.2;
+    state.sample();
+
+    deepEqual(entity.position, v2(0, 0), 'entity position should be (0,0)');
+
+    state.time = 0.7;
+    state.sample();
+
+    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+
+    state.time = 0.9;
+    state.sample();
+
+    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+});
+
 
 test('EventAnimCurve', function () {
     var initClipData = cc._Test.initClipData;
