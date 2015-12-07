@@ -72,37 +72,20 @@ function callOnEnable (self, enable) {
 }
 
 function _registerEvent (self, on) {
-    if (CC_EDITOR) {
-        if (self.constructor._executeInEditMode || cc.engine._isPlaying) {
-            if (on && self.start && !(self._objFlags & IsOnStartCalled)) {
-                cc.engine.once('before-update', _callStart, self);
-            }
+    if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) return;
 
-            if (self.update) {
-                if (on) cc.engine.on('post-update', _callUpdate, self);
-                else cc.engine.off('post-update', _callUpdate, self);
-            }
-
-            if (self.lateUpdate) {
-                if (on) cc.engine.on('late-update', _callLateUpdate, self);
-                else cc.engine.off('late-update', _callLateUpdate, self);
-            }
-        }
+    if (on && self.start && !(self._objFlags & IsOnStartCalled)) {
+        cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
     }
-    else {
-        if (on && self.start && !(self._objFlags & IsOnStartCalled)) {
-            cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
-        }
 
-        if (self.update) {
-            if (on) cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-            else cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-        }
+    if (self.update) {
+        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+        else cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+    }
 
-        if (self.lateUpdate) {
-            if (on) cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
-            else cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
-        }
+    if (self.lateUpdate) {
+        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
+        else cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
     }
 }
 

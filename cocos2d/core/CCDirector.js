@@ -257,7 +257,22 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      *  Draw the scene. This method is called every frame. Don't call it manually.
      */
-    drawScene: function () {
+    drawScene: CC_EDITOR ? function (deltaTime, updateAnimate) {
+        if (!this._paused) {
+            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+            this.emit(cc.Director.EVENT_COMPONENT_UPDATE, deltaTime);
+
+            if (updateAnimate) {
+                cc.director.engineUpdate(deltaTime);
+            }
+
+            this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, deltaTime);
+            this.emit(cc.Director.EVENT_AFTER_UPDATE);
+        }
+
+        this.visit();
+        this.render();
+    } : function () {
         // calculate "global" dt
         this.calculateDeltaTime();
 
