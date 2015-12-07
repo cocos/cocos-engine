@@ -477,7 +477,7 @@ cc.BMFontHelper = {
 
             if (!this._updateQuads()) {
                 ret = false;
-                if (!this._isWrapText && this._overFlow === cc.Label.Overflow.SHRINK) {
+                if (this._overFlow === cc.Label.Overflow.SHRINK) {
                     this._shrinkLabelToContentSize(this._isHorizontalClamp.bind(this));
                 }
                 break;
@@ -486,33 +486,15 @@ cc.BMFontHelper = {
 
         return ret;
     },
-    _calculateClamp: function(ctr, letterDef){
-        var lineIndex = this._lettersInfo[ctr]._lineIndex;
-        var px = this._lettersInfo[ctr]._positionX + letterDef._width / 2 * this._bmfontScale + this._linesOffsetX[lineIndex];
 
-        if (!this._isWrapText) {
-            if (this._labelWidth > 0) {
-                if (px > this._contentSize.width || px < 0) {
-                    if (this._overFlow === cc.Label.Overflow.CLAMP) {
-                        this._reusedRect.width = 0;
-                    } else if (this._overFlow === cc.Label.Overflow.SHRINK) {
-                        if (letterDef._width > 0 && this._contentSize.width > letterDef._width) {
-                            return true;
-                        } else {
-                            //clamp
-                            this._reusedRect.width = 0;
-                        }
-                    }
-                }
-            }
+    _isHorizontalClamped : function(px, lineIndex){
+        var wordWidth = this._linesWidth[lineIndex];
+        var letterOverClamp = (px > this._contentSize.width || px < 0);
+
+        if(!this._isWrapText){
+            return letterOverClamp;
         }else{
-            var wordWidth = this._linesWidth[lineIndex];
-            if(wordWidth > this._contentSize.width && (px > this._contentSize.width || px < 0)){
-                if(this._overFlow === cc.Label.Overflow.CLAMP){
-                    this._reusedRect.width = 0;
-                }
-            }
-
+            return (wordWidth > this._contentSize.width && letterOverClamp);
         }
     },
 
@@ -547,10 +529,24 @@ cc.BMFontHelper = {
                     }
                 }
 
-                letterClamp =  this._calculateClamp(ctr, letterDef);
-                if(letterClamp){
-                    ret = false;
-                    break;
+                var lineIndex = this._lettersInfo[ctr]._lineIndex;
+                var px = this._lettersInfo[ctr]._positionX + letterDef._width / 2 * this._bmfontScale + this._linesOffsetX[lineIndex];
+
+
+                if (this._labelWidth > 0) {
+                    if (this._isHorizontalClamped(px, lineIndex)) {
+                        if (this._overFlow === cc.Label.Overflow.CLAMP) {
+                            this._reusedRect.width = 0;
+                        } else if (this._overFlow === cc.Label.Overflow.SHRINK) {
+                            if (this._contentSize.width > letterDef._width) {
+                                letterClamp = true;
+                                ret = false;
+                                break;
+                            } else {
+                                this._reusedRect.width = 0;
+                            }
+                        }
+                    }
                 }
 
 
@@ -802,10 +798,19 @@ cc.BMFontHelper = {
                 var letterDef = this._fontAtlas._letterDefinitions[this._lettersInfo[ctr]._char];
 
                 var px = this._lettersInfo[ctr]._positionX + letterDef._width / 2 * this._bmfontScale;
+                var lineIndex = this._lettersInfo[ctr]._lineIndex;
                 if (this._labelWidth > 0) {
-                    if (px > this._contentSize.width) {
-                        letterClamp = true;
-                        break;
+                    if (!this._isWrapText) {
+                        if(px > this._contentSize.width){
+                            letterClamp = true;
+                            break;
+                        }
+                    }else{
+                        var wordWidth = this._linesWidth[lineIndex];
+                        if(wordWidth > this._contentSize.width && (px > this._contentSize.width || px < 0)){
+                            letterClamp = true;
+                            break;
+                        }
                     }
                 }
             }
