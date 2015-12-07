@@ -100,6 +100,7 @@
         }
         return lines;
     };
+    
     proto._updateDisplayOpacity = function(parentOpacity) {
         cc.Node.RenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
         //specify opacity to quad
@@ -111,7 +112,13 @@
         quad._tr.colors = color;
         this._quadDirty = true;
     };
-
+    
+    proto._updateDisplayColor = function (parentColor) {
+        cc.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
+        var node = this._node;
+        node._labelSkinDirty = true;
+    };
+    
     proto._bakeLabel = function() {
         var node = this._node;
         this._drawFontsize = node._fontSize;
