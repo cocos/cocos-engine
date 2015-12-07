@@ -631,6 +631,50 @@ test('sampleMotionPaths', function () {
     }
 });
 
+test('SampledAnimCurve', function () {
+    var initClipData = cc._Test.initClipData;
+
+    var entity = new cc.ENode();
+
+    var clip = new cc.AnimationClip();
+    clip._name = 'test';
+    clip._duration = 1;
+    clip.sample = 60;
+    clip.curveData = {
+        props: {
+            position: [
+                {frame: 0.2, value: [0, 0]},
+                {frame: 0.7, value: [100, 100]}
+            ],
+            test: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+
+    state = new cc.AnimationState(clip);
+    initClipData(entity, state);
+
+    strictEqual(state.curves[0] instanceof cc._Test.SampledAnimCurve, true, 'should create SampledAnimCurve');
+
+    state.time = 0.2;
+    state.sample();
+
+    deepEqual(entity.position, v2(0, 0), 'entity position should be (0,0)');
+
+    state.time = 0.7;
+    state.sample();
+
+    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+
+    state.time = 0.9;
+    state.sample();
+
+    deepEqual(entity.position, v2(100, 100), 'entity position should be (100, 100)');
+});
+
+
 test('EventAnimCurve', function () {
     var initClipData = cc._Test.initClipData;
 
