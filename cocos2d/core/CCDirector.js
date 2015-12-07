@@ -254,40 +254,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.emit(cc.Director.EVENT_AFTER_DRAW);
     },
 
-    /**
-     *  Draw the scene. This method is called every frame. Don't call it manually.
-     */
-    drawScene: function () {
-        // calculate "global" dt
-        this.calculateDeltaTime();
-
-        if (!this._paused) {
-            // Call start for new added components
-            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
-            // Update for components
-            this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
-            // Destroy entities that have been removed recently
-            CCObject._deferredDestroy();
-            // Engine update with scheduler
-            this.engineUpdate(this._deltaTime);
-            // Late update for components
-            this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
-            // User can use this event to do things after update
-            this.emit(cc.Director.EVENT_AFTER_UPDATE);
-        }
-
-        /* to avoid flickr, nextScene MUST be here: after tick and before draw.
-         XXX: Which bug is this one. It seems that it can't be reproduced with v0.9 */
-        if (this._nextScene) {
-            this.setNextScene();
-        }
-
-        this.visit(this._deltaTime);
-        this.render(this._deltaTime);
-
-        this._calculateMPF();
-    },
-
     _beforeVisitScene: null,
     _afterVisitScene: null,
 
@@ -1085,13 +1051,55 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
     /**
      * Run main loop of director
      */
-    mainLoop: function () {
+    mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
+        if (!this._paused) {
+            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+            this.emit(cc.Director.EVENT_COMPONENT_UPDATE, deltaTime);
+
+            if (updateAnimate) {
+                cc.director.engineUpdate(deltaTime);
+            }
+
+            this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, deltaTime);
+            this.emit(cc.Director.EVENT_AFTER_UPDATE);
+        }
+
+        this.visit();
+        this.render();
+    } : function () {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
         }
         else if (!this.invalid) {
-            this.drawScene();
+            // calculate "global" dt
+            this.calculateDeltaTime();
+
+            if (!this._paused) {
+                // Call start for new added components
+                this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+                // Update for components
+                this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
+                // Destroy entities that have been removed recently
+                CCObject._deferredDestroy();
+                // Engine update with scheduler
+                this.engineUpdate(this._deltaTime);
+                // Late update for components
+                this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
+                // User can use this event to do things after update
+                this.emit(cc.Director.EVENT_AFTER_UPDATE);
+            }
+
+            /* to avoid flickr, nextScene MUST be here: after tick and before draw.
+             XXX: Which bug is this one. It seems that it can't be reproduced with v0.9 */
+            if (this._nextScene) {
+                this.setNextScene();
+            }
+
+            this.visit(this._deltaTime);
+            this.render(this._deltaTime);
+
+            this._calculateMPF();
         }
     },
 
