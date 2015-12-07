@@ -40,4 +40,5 @@ var Prefab = cc.Class({
     }
 });
 
-cc._Prefab = module.exports = Prefab;
+cc.Prefab = module.exports = Prefab;
+cc.js.obsolete(cc, 'cc._Prefab', 'Prefab');

@@ -266,22 +266,6 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         },
 
         /**
-         * position of node.
-         * @property position
-         * @type {Vec2}
-         */
-        position: {
-            get: SGProto.getPosition,
-            set: function (value) {
-                this._position.x = value.x;
-                this._sgNode.x = value.x;
-
-                this._position.y = value.y;
-                this._sgNode.y = value.y;
-            }
-        },
-
-        /**
          * x axis position of node.
          * @property x
          * @type {Number}
@@ -1224,7 +1208,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
     // Define public getter and setter methods to ensure api compatibility.
 
-    var SameNameGetSets = ['name', 'skewX', 'skewY', 'rotation', 'rotationX', 'rotationY',
+    var SameNameGetSets = ['name', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
                            'scale', 'scaleX', 'scaleY', 'children', 'childrenCount', 'parent', 'running',
                            /*'actionManager',*/ 'scheduler', /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
     var DiffNameGetSets = {
@@ -1267,6 +1251,12 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         }
     }
 })();
+
+/**
+ * position of node.
+ * @property position
+ * @type {Vec2}
+ */
 
 /**
  * Scale of node

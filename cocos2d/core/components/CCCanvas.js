@@ -50,7 +50,7 @@ var Canvas = cc.Class({
     name: 'cc.Canvas', extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'Canvas',
+        menu: 'UI/Canvas',
         executeInEditMode: true,
         disallowMultiple: true
     },
