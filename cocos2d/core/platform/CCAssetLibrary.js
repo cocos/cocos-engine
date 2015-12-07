@@ -468,11 +468,11 @@ var AssetLibrary = {
      *
      * @method init
      * @param {String} libraryPath - 能接收的任意类型的路径，通常在编辑器里使用绝对的，在网页里使用相对的。
-     * @param {String} rawAssetsBase - base of raw asset's urls (only used in runtime)
-     * @param {Object} rawAssets - uuid to raw asset's urls (only used in runtime)
+     * @param {Object} mountPaths - mount point of actual urls for raw assets
+     * @param {Object} [rawAssets] - uuid to raw asset's urls (only used in runtime)
      */
-    init: function (libraryPath, rawAssetsBase, rawAssets) {
-        if (CC_EDITOR && _libraryBase && !CC_TEST) {
+    init: function (libraryPath, mountPaths, rawAssets) {
+        if (CC_EDITOR && _libraryBase) {
             cc.error('AssetLibrary has already been initialized!');
             return;
         }
@@ -482,8 +482,9 @@ var AssetLibrary = {
         libraryPath = libraryPath.replace(/\\/g, '/');
 
         _libraryBase = cc.path._setEndWithSep(libraryPath, '/');
-        cc.url._rawAssets = cc.path._setEndWithSep(rawAssetsBase || '', '/');
         _uuidToRawAssets = rawAssets || {};
+
+        cc.url._init(mountPaths);
     }
 };
 
