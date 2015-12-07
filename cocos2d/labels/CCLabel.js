@@ -158,12 +158,11 @@ cc.Label = cc.Node.extend({
         this._cascadeOpacityEnabled = true;
         this._fontAtlas = null;
         this._config = null;
-        this._initFontSizeFromFile = true;
         this._numberOfLines =  0;
         this._lettersInfo =  [];
         this._linesWidth =  [];
         this._linesOffsetX =  [];
-        this._originalFontSize =  0;
+        this._bmFontSize =  0;
         this._textDesiredHeight =  0;
         this._letterOffsetY =  0;
         this._tailoredTopY =  0;
@@ -248,6 +247,7 @@ cc.Label = cc.Node.extend({
     },
     setFontSize: function(fntSize) {
         this._fontSize = fntSize;
+        this._bmFontSize = fntSize;
         this._notifyLabelSkinDirty();
     },
 
@@ -260,7 +260,7 @@ cc.Label = cc.Node.extend({
         this._overFlow = overflow;
         if (this._overFlow === cc.Label.Overflow.RESIZE) {
             this._setDimensions(this._labelDimensions.width, 0);
-            this.enableWrapText(true);
+            this._isWrapText = true;
         }
         this._rescaleWithOriginalFontSize();
         this._notifyLabelSkinDirty();
@@ -486,6 +486,29 @@ cc.BMFontHelper = {
 
         return ret;
     },
+    _calculateClamp: function(ctr, letterDef){
+        var lineIndex = this._lettersInfo[ctr]._lineIndex;
+        var px = this._lettersInfo[ctr]._positionX + letterDef._width / 2 * this._bmfontScale + this._linesOffsetX[lineIndex];
+
+        if (!this._isWrapText) {
+            if (this._labelWidth > 0) {
+                if (px > this._contentSize.width || px < 0) {
+                    if (this._overFlow === cc.Label.Overflow.CLAMP) {
+                        this._reusedRect.width = 0;
+                    } else if (this._overFlow === cc.Label.Overflow.SHRINK) {
+                        if (letterDef._width > 0 && this._contentSize.width > letterDef._width) {
+                            return true;
+                        } else {
+                            //clamp
+                            this._reusedRect.width = 0;
+                        }
+                    }
+                }
+            }
+        }else{
+
+        }
+    },
 
     _updateQuad: function() {
         var ret = true;
@@ -518,26 +541,12 @@ cc.BMFontHelper = {
                     }
                 }
 
-                if (!this._isWrapText) {
-                    var px = this._lettersInfo[ctr]._positionX + letterDef._width / 2 * this._bmfontScale + this._linesOffsetX[this._lettersInfo[ctr]._lineIndex];
-
-                    if (this._labelWidth > 0) {
-                        if (px > this._contentSize.width || px < 0) {
-                            if (this._overFlow === cc.Label.Overflow.CLAMP) {
-                                this._reusedRect.width = 0;
-                            } else if (this._overFlow === cc.Label.Overflow.SHRINK) {
-                                if (letterDef._width > 0 && this._contentSize.width > letterDef._width) {
-                                    letterClamp = true;
-                                    ret = false;
-                                    break;
-                                } else {
-                                    //clamp
-                                    this._reusedRect.width = 0;
-                                }
-                            }
-                        }
-                    }
+                letterClamp =  this._calculateClamp(ctr, letterDef);
+                if(letterClamp){
+                    ret = false;
+                    break;
                 }
+
 
                 if (this._reusedRect.height > 0 && this._reusedRect.width > 0) {
                     var fontChar = this.getChildByTag(ctr);
@@ -612,7 +621,7 @@ cc.BMFontHelper = {
 
             this._maxLineWidth = width;
             if (this._overFlow === cc.Label.Overflow.SHRINK) {
-                if (this._originalFontSize > 0) {
+                if (this._bmFontSize > 0) {
                     this._restoreFontSize();
                 }
             }
@@ -622,7 +631,7 @@ cc.BMFontHelper = {
 
     _restoreFontSize: function() {
         if (this._labelType === cc.Label.Type.BMFont) {
-            this._fontSize = this._originalFontSize;
+            this._fontSize = this._bmFontSize;
         }
     },
 
@@ -935,7 +944,8 @@ cc.BMFontHelper = {
 
     _updateBMFontScale: function() {
         if (this._labelType === cc.Label.Type.BMFont) {
-            this._bmfontScale = this._fontSize * cc.contentScaleFactor() / this._originalFontSize;
+            var originalFontSize = this._fontAtlas._fontSize;
+            this._bmfontScale = this._fontSize * cc.contentScaleFactor() / originalFontSize;
         } else {
             this._bmfontScale = 1;
         }
@@ -972,12 +982,6 @@ cc.BMFontHelper = {
 
         this._lineHeight = this._fontAtlas._lineHeight;
 
-        if(this._labelType === cc.Label.Type.BMFont && this._initFontSizeFromFile){
-            this._originalFontSize = this._fontAtlas._fontSize;
-            this._initFontSizeFromFile = false;
-        }
-
-
         var locCfg = this._config;
         var locFontDict = locCfg.fontDefDictionary;
 
@@ -1005,8 +1009,8 @@ cc.BMFontHelper = {
 
     _rescaleWithOriginalFontSize: function() {
         var renderingFontSize = this.getFontSize();
-        if (this._originalFontSize - renderingFontSize >= 1) {
-            this._scaleFontSizeDown(this._originalFontSize);
+        if (this._bmFontSize - renderingFontSize >= 1 && this._overFlow === cc.Label.Overflow.SHRINK) {
+            this._scaleFontSizeDown(this._bmFontSize);
         }
     },
 
