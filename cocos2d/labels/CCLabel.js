@@ -475,7 +475,7 @@ cc.BMFontHelper = {
                 }
             }
 
-            if (!this._updateQuad()) {
+            if (!this._updateQuads()) {
                 ret = false;
                 if (!this._isWrapText && this._overFlow === cc.Label.Overflow.SHRINK) {
                     this._shrinkLabelToContentSize(this._isHorizontalClamp.bind(this));
@@ -506,11 +506,17 @@ cc.BMFontHelper = {
                 }
             }
         }else{
+            var wordWidth = this._linesWidth[lineIndex];
+            if(wordWidth > this._contentSize.width && (px > this._contentSize.width || px < 0)){
+                if(this._overFlow === cc.Label.Overflow.CLAMP){
+                    this._reusedRect.width = 0;
+                }
+            }
 
         }
     },
 
-    _updateQuad: function() {
+    _updateQuads: function() {
         var ret = true;
 
         this._spriteBatchNode.removeAllChildren();
@@ -687,7 +693,12 @@ cc.BMFontHelper = {
                 }
 
                 var letterX = (nextLetterX + letterDef._offsetX * this._bmfontScale) / contentScaleFactor;
-                if (this._isWrapText && this._maxLineWidth > 0 && nextTokenX > 0 && letterX + letterDef._width * this._bmfontScale > this._maxLineWidth) {
+
+                if (this._isWrapText
+                    && this._maxLineWidth > 0
+                    && nextTokenX > 0
+                    && letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
+                    && !this._isspace_unicode(character)) {
                     this._linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
