@@ -555,6 +555,27 @@ test('CCAnimation._updateClip', function () {
 
     animation._updateClip(newClip);
     strictEqual(animation._clips.indexOf(newClip), 0, 'clip index should be 0');
+
+    newClip.wrapMode = cc.WrapMode.PingPong;
+    var state = animation.getAnimationState(newClip.name);
+    state.time = 0.9;
+
+    animation._updateClip(newClip);
+    animation._updateClip(newClip);
+
+    strictEqual(state.time, 0.9, 'time should not changed when update clip twice');
+
+    newClip = new cc.AnimationClip();
+    newClip.wrapMode = cc.WrapMode.Reverse;
+    animation._updateClip(newClip);
+
+    close(state.time, 0.1, 0.0001, 'time should reversed when update clip wrapMode changed');
+
+    newClip = new cc.AnimationClip();
+    newClip.wrapMode = cc.WrapMode.LoopReverse;
+    animation._updateClip(newClip);
+
+    close(state.time, 0.1, 0.0001, 'time should not changed if clip wrapMode also has Reverse mask');
 });
 
 test('sampleMotionPaths', function () {
