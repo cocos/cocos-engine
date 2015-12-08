@@ -259,6 +259,7 @@ var Label = cc.Class({
         sgNode.setFontSize( this.fontSize );
         sgNode.setOverflow( this.overflow );
         sgNode.enableWrapText( this.enableWrapText );
+        sgNode.setLineHeight(this.lineHeight);
         if(!this._useOriginalSize){
             sgNode.setContentSize(this.node.getContentSize());
         }

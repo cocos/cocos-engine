@@ -299,8 +299,6 @@ cc.Label = cc.Node.extend({
         var extName = cc.path.extname(fontHandle);
 
         this._resetBMFont();
-        this.setLineHeight(40);
-        this.setFontSize(40);
         //specify font family name directly
         if (extName === null) {
             this._fontHandle = fontHandle;
@@ -996,7 +994,9 @@ cc.BMFontHelper = {
 
         this._fontAtlas = new cc.FontAtlas(this._config);
 
-        this._lineHeight = this._fontAtlas._lineHeight;
+        if(!this._lineHeight){
+            this._lineHeight = this._fontAtlas._lineHeight;
+        }
 
         var locCfg = this._config;
         var locFontDict = locCfg.fontDefDictionary;
