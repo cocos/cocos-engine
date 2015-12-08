@@ -106,16 +106,17 @@ var Mask = cc.Class({
         // }
         this._super();
         this._clippingNode = new cc.ClippingNode(this._sgNode);
-        //this._sizeProvider = new MonitorSize(this);
+        this._sizeProvider = new MonitorSize(this);
     },
     onEnable: function () {
         // if (this._sgNode) {
         //     this._sgNode.visible = true;
         // }
         this._super();
-        //this.node._sizeProvider = this._sizeProvider;
+        this.node._sizeProvider = this._sizeProvider;
         var oldNode = this.node._sgNode;
         this.node._sgNode = this._clippingNode;
+        this.node._sgNode.setContentSize(this.node._contentSize);
         this._rebuildSceneGraph(this._clippingNode,oldNode);
         //this.node._sizeProvider = this._sizeProvider;
         //this.node.width = this.node.height = 100;
@@ -126,16 +127,17 @@ var Mask = cc.Class({
         //     this._sgNode.visible = false;
         // }
         this._super();
-        //this.node._sizeProvider = null;
+        this.node._sizeProvider = null;
         var oldNode = this.node._sgNode;
         this.node._sgNode = new cc.Node();
+        this.node._sgNode.setContentSize(this.node._contentSize);
         this._rebuildSceneGraph(this.node._sgNode, oldNode);
 
     },
     
     onDestroy: function () {
         this._super();
-        //this._sizeProvider = null;
+        this._sizeProvider = null;
     },
     
     _createSgNode: function () {
