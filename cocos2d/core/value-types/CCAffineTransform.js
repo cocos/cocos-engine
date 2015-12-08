@@ -63,6 +63,17 @@ cc.affineTransformMake = function (a, b, c, d, tx, ty) {
 };
 
 /**
+ * Clone a cc.AffineTransform object from the specified transform
+ * @method affineTransformClone
+ *
+ * @param {AffineTransform} t
+ * @return {AffineTransform}
+ */
+cc.affineTransformClone = function (t) {
+    return {a: t.a, b: t.b, c: t.c, d: t.d, tx: t.tx, ty: t.ty};
+};
+
+/**
  * Apply the affine transformation on a point.
  * @method pointApplyAffineTransform
  * 
