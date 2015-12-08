@@ -58,10 +58,6 @@ var SpriteRenderer = cc.Class({
     },
 
     properties: {
-        _atlas: {
-            default: '',
-            url: cc.SpriteAtlas
-        },
         _sprite: {
             default: null,
             type: cc.SpriteFrame
@@ -73,18 +69,13 @@ var SpriteRenderer = cc.Class({
 
         /**
          * The Sprite Atlas.
-         * @property atlas
+         * @property _atlas
          * @type {SpriteAtlas}
          */
-        atlas: {
-            get: function () {
-                return this._atlas;
-            },
-            set: function (value) {
-                this._atlas = value;
-                //TODO Sprite Atlas
-            },
-            url: cc.SpriteAtlas
+        _atlas: {
+            default: '',
+            url: cc.SpriteAtlas,
+            editorOnly: true
         },
 
         /**
