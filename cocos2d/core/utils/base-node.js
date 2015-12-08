@@ -930,6 +930,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
     /**
      * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.<br/>
      * The matrix is in Pixels.
+     * The returned transform is readonly and cannot be changed.
      * @method getParentToNodeTransform
      * @return {AffineTransform}
      */
