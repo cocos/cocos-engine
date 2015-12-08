@@ -57,8 +57,10 @@ var Mask = cc.Class({
         menu: 'UI/Mask'
     },
 
+    _clippingNode: null,
+    _clippingStencil: null,
+    _sizeProvider: null,
     properties: {
-        _useOriginalSize: true,
 
         // _aheheValue: 30,
         // ahehe: {
@@ -97,32 +99,75 @@ var Mask = cc.Class({
     },
 
     onLoad: function () {
+        // var sgNode = this._createSgNode();
+        // this._appendSgNode(sgNode);
+        // if ( !this.node._sizeProvider ) {
+        //     this.node._sizeProvider = sgNode;
+        // }
         this._super();
-        this.node._sizeProvider = new MonitorSize(this);
+        this._clippingNode = new cc.ClippingNode(this._sgNode);
+        //this._sizeProvider = new MonitorSize(this);
     },
+    onEnable: function () {
+        // if (this._sgNode) {
+        //     this._sgNode.visible = true;
+        // }
+        this._super();
+        //this.node._sizeProvider = this._sizeProvider;
+        var oldNode = this.node._sgNode;
+        this.node._sgNode = this._clippingNode;
+        this._rebuildSceneGraph(this._clippingNode,oldNode);
+        //this.node._sizeProvider = this._sizeProvider;
+        //this.node.width = this.node.height = 100;
 
+    },
+    onDisable: function () {
+        // if (this._sgNode) {
+        //     this._sgNode.visible = false;
+        // }
+        this._super();
+        //this.node._sizeProvider = null;
+        var oldNode = this.node._sgNode;
+        this.node._sgNode = new cc.Node();
+        this._rebuildSceneGraph(this.node._sgNode, oldNode);
+
+    },
+    
     onDestroy: function () {
         this._super();
-        this.node._sizeProvider = null;
+        //this._sizeProvider = null;
     },
+    
     _createSgNode: function () {
-        var sgNode = new cc.Label(this.string, this.file, cc.Label.Type.TTF);
+        return new cc.LayerColor(new cc.Color(255,255,255,255),100,100);
+    },
+    
+    _rebuildSceneGraph: function (newNode, oldNode) {
 
-        // TODO
-        // sgNode.enableRichText = this.enableRichText;
-
-        sgNode.setHorizontalAlign( this.horizontalAlign );
-        sgNode.setVerticalAlign( this.verticalAlign );
-        sgNode.setFontSize( this.fontSize );
-        sgNode.setOverflow( this.overflow );
-        sgNode.enableWrapText( this.enableWrapText );
-        if(!this._useOriginalSize){
-            sgNode.setContentSize(this.node.getContentSize());
+        var children = [];
+        children = children.concat(oldNode.getChildren());
+    
+        for(var index = 0; index < children.length; ++index) {
+            children[index].removeFromParent();
+            newNode.addChild(children[index]);
         }
-        sgNode.setColor(this.node.color);
+        var parentNode = oldNode.getParent();
+        oldNode.removeFromParent();
+        parentNode.addChild(newNode);
 
-        return sgNode;
-    }
+        this.node.position = this.node._position;
+        this.node.rotationX = this.node._rotationX;
+        this.node.rotationY = this.node._rotationY;
+        this.node.scaleX = this.node._scaleX;
+        this.node.scaleY = this.node._scaleY;
+        this.node.anchorX = this.node._anchorPoint.x;
+        this.node.anchorY = this.node._anchorPoint.y;
+        this.node.width = this.node._contentSize.width;
+        this.node.height = this.node._contentSize.height;
+        this.node.opacity = this.node._opacity;
+        this.node.color = this.node._color;
+    },
+
  });
 
  cc.Mask = module.exports = Mask;
