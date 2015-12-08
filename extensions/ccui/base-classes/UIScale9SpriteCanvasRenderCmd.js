@@ -136,6 +136,6 @@
             }
 
         }
-        cc.g_NumberOfDraws = cc.g_NumberOfDraws + 9;
+        cc.g_NumberOfDraws += quads.length;
     }
 })();
