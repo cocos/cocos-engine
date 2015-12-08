@@ -17,6 +17,7 @@ cc.AsyncPool = function(srcObj, limit, iterator, onEnd, target){
     self._iteratorTarget = target;
     self._onEnd = onEnd;
     self._onEndTarget = target;
+    self._errors = [];
     self._results = srcObj instanceof Array ? [] : {};
 
     cc.each(srcObj, function(value, index){
@@ -48,16 +49,18 @@ cc.AsyncPool = function(srcObj, limit, iterator, onEnd, target){
         var value = item.value, index = item.index;
         self._workingSize++;
         self._iterator.call(self._iteratorTarget, value, index,
-            function(err) {
-
+            function(err, res){
                 self.finishedSize++;
                 self._workingSize--;
 
-                var arr = Array.prototype.slice.call(arguments, 1);
-                self._results[this.index] = arr[0];
+                if (err) {
+                    self._errors.push(err);
+                }
+                self._results[this.index] = res;
+
                 if (self.finishedSize === self.size) {
                     if (self._onEnd)
-                        self._onEnd.call(self._onEndTarget, err, self._results);
+                        self._onEnd.call(self._onEndTarget, self._errors.length > 0 ? self._errors : null, self._results);
                     return;
                 }
                 self._handleItem();
