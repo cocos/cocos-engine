@@ -75,7 +75,8 @@ var SpriteRenderer = cc.Class({
         _atlas: {
             default: '',
             url: cc.SpriteAtlas,
-            editorOnly: true
+            editorOnly: true,
+            visible: true
         },
 
         /**
