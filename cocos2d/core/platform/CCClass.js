@@ -33,16 +33,16 @@ var Attr = require('./attribute');
 var getTypeChecker = Attr.getTypeChecker;
 var preprocessAttrs = require('./preprocess-attrs');
 
-var BUILTIN_ENTRIES = ['name', 'extends', 'ctor', 'properties', 'statics', 'editor'];
+var BUILTIN_ENTRIES = ['name', 'extends', 'mixins', 'ctor', 'properties', 'statics', 'editor'];
 
-var TYPO_TO_CORRECT = (CC_EDITOR || CC_TEST) && {
+var TYPO_TO_CORRECT = CC_DEV && {
     extend: 'extends',
     property: 'properties',
     static: 'statics',
     constructor: 'ctor'
 };
 
-var INVALID_STATICS = (CC_EDITOR || CC_TEST) && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
+var INVALID_STATICS = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
 
 ///**
@@ -351,8 +351,8 @@ cc.isChildClassOf = function (subclass, superclass) {
     return false;
 };
 
-function doDefine (className, baseClass, constructor, options) {
-    var fireClass = _createCtor(constructor, baseClass, className, options);
+function doDefine (className, baseClass, mixins, constructor, options) {
+    var fireClass = _createCtor(constructor, baseClass, mixins, className, options);
 
     // occupy some non-inherited static members
     for (var staticMember in _metaClass) {
@@ -365,27 +365,42 @@ function doDefine (className, baseClass, constructor, options) {
     if (baseClass) {
         // inherit
         JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
+        //
         fireClass.$super = baseClass;
-
-        if (baseClass.__props__ && baseClass.__props__.length > 0) {
-            // copy __props__
-            fireClass.__props__ = baseClass.__props__.slice();
-        }
-        else {
-            fireClass.__props__ = [];
-        }
-    }
-    else {
-        fireClass.__props__ = [];
+        // inherit __props__
+        fireClass.__props__ = baseClass.__props__ ? baseClass.__props__.slice() : [];
     }
 
+    if (mixins) {
+        for (var m = 0; m < mixins.length; ++m) {
+            var mixin = mixins[m];
+            // mixin prototype
+            JS.mixin(fireClass.prototype, mixin.prototype);
+
+            // mixin statics (this will also copy editor attributes for component)
+            for (var p in mixin)
+                if (mixin.hasOwnProperty(p) && INVALID_STATICS.indexOf(p) < 0)
+                    fireClass[p] = mixin[p];
+
+            // mixin __props__
+            fireClass.__props__ = fireClass.__props__ || [];
+            if (mixin.__props__) {
+                fireClass.__props__ = fireClass.__props__.concat(mixin.__props__.filter(function (x) {
+                    return fireClass.__props__.indexOf(x) < 0;
+                }));
+            }
+        }
+        // restore constuctor overridden by mixin
+        fireClass.prototype.constructor = fireClass;
+    }
+
+    fireClass.__props__ = fireClass.__props__ || [];
     JS.setClassName(className, fireClass);
-
     return fireClass;
 }
 
-function define (className, baseClass, constructor, options) {
-    if (cc.isChildClassOf(baseClass, cc.Component)) {
+function define (className, baseClasses, mixins, constructor, options) {
+    if (cc.isChildClassOf(baseClasses, cc.Component)) {
         var frame = cc._RFpeek();
         if (frame) {
             if (CC_DEV && constructor) {
@@ -405,7 +420,7 @@ function define (className, baseClass, constructor, options) {
             //    builtin
             //}
             className = className || frame.script;
-            var cls = doDefine(className, baseClass, constructor, options);
+            var cls = doDefine(className, baseClasses, mixins, constructor, options);
             if (uuid) {
                 JS._setClassId(uuid, cls);
                 if (CC_EDITOR) {
@@ -418,7 +433,7 @@ function define (className, baseClass, constructor, options) {
         }
     }
     // not project component
-    return doDefine(className, baseClass, constructor, options);
+    return doDefine(className, baseClasses, mixins, constructor, options);
 }
 
 function _checkCtor (ctor) {
@@ -469,7 +484,7 @@ function normalizeClassName (className) {
     }
 }
 
-function _createCtor (ctor, baseClass, className, options) {
+function _createCtor (ctor, baseClass, mixins, className, options) {
     var useTryCatch = ! (className && className.startsWith('cc.'));
     var shouldAddProtoCtor;
     if (CC_EDITOR && ctor && baseClass) {
@@ -477,6 +492,7 @@ function _createCtor (ctor, baseClass, className, options) {
         var originCtor = ctor;
         if (SuperCallReg.test(ctor)) {
             cc.warn(cc._LogInfos.Editor.Class.callSuperCtor, className);
+            // suppresss super call
             ctor = function () {
                 this._super = function () {};
                 var ret = originCtor.apply(this, arguments);
@@ -495,25 +511,28 @@ function _createCtor (ctor, baseClass, className, options) {
         _checkCtor(ctor);
     }
     // get base user constructors
-    var ctors;
-    if (FireClass._isCCClass(baseClass)) {
-        ctors = baseClass.__ctors__;
-        if (ctors) {
-            ctors = ctors.slice();
+    var ctors = [];
+    var baseOrMixins = [baseClass].concat(mixins);
+    for (var b = 0; b < baseOrMixins.length; b++) {
+        var baseOrMixin = baseOrMixins[b];
+        if (baseOrMixin) {
+            if (FireClass._isCCClass(baseOrMixin)) {
+                var baseCtors = baseOrMixin.__ctors__;
+                if (baseCtors) {
+                    ctors = ctors.concat(baseCtors);
+                }
+            }
+            else if (baseOrMixin) {
+                ctors.push(baseOrMixin);
+            }
         }
     }
-    else if (baseClass) {
-        ctors = [baseClass];
-    }
+
     // append subclass user constructors
-    if (ctors) {
-        if (ctor) {
-            ctors.push(ctor);
-        }
+    if (ctor) {
+        ctors.push(ctor);
     }
-    else if (ctor) {
-        ctors = [ctor];
-    }
+
     // create class constructor
     var body;
     if (CC_EDITOR || CC_TEST) {
@@ -522,20 +541,13 @@ function _createCtor (ctor, baseClass, className, options) {
     else {
         body = '(function(){\n';
     }
-    //if (CC_EDITOR) {
-    //    body += 'this._observing=false;\n';
-    //}
     if (superCallBounded) {
         body += 'this._super=null;\n';
     }
     body += 'instantiateProps(this,fireClass);\n';
 
     // call user constructors
-    if (ctors) {
-        if (CC_EDITOR || CC_TEST) {
-            console.assert(ctors.length > 0);
-        }
-
+    if (ctors.length > 0) {
         body += 'var cs=fireClass.__ctors__;\n';
 
         if (useTryCatch) {
@@ -563,7 +575,7 @@ function _createCtor (ctor, baseClass, className, options) {
     // jshint evil: false
 
     Object.defineProperty(fireClass, '__ctors__', {
-        value: ctors || null,
+        value: ctors.length > 0 ? ctors : null,
         writable: false,
         enumerable: false
     });
@@ -687,17 +699,16 @@ function FireClass (options) {
         return define();
     }
     if ( !options ) {
-        cc.error('[cc.Class] Option must be non-nil');
+        cc.error('cc.Class: Option must be non-nil');
         return define();
     }
 
     var name = options.name;
     var base = options.extends/* || CCObject*/;
-    var ctor = (options.hasOwnProperty('ctor') && options.ctor) || undefined;
 
     // create constructor
     var cls;
-    cls = define(name, base, ctor, options);
+    cls = define(name, base, options.mixins, options.ctor, options);
     if (!name) {
         name = cc.js.getClassName(cls);
     }
@@ -712,13 +723,13 @@ function FireClass (options) {
         for (var propName in properties) {
             var val = properties[propName];
             var attrs = parseAttributes(val, name, propName);
-            if (val.hasOwnProperty('default')) {
+            if ('default' in val) {
                 cls.prop.apply(cls, [propName, val.default].concat(attrs));
             }
             else {
                 var getter = val.get;
                 var setter = val.set;
-                if (CC_EDITOR || CC_TEST) {
+                if (CC_DEV) {
                     if (!getter && !setter) {
                         cc.error('Property %s.%s must define at least one of "default", "get" or "set".', name,
                             propName);
@@ -738,7 +749,7 @@ function FireClass (options) {
     var statics = options.statics;
     if (statics) {
         var staticPropName;
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_DEV) {
             for (staticPropName in statics) {
                 if (INVALID_STATICS.indexOf(staticPropName) !== -1) {
                     cc.error('Cannot define %s.%s because static member name can not be "%s".', name, staticPropName,
@@ -772,10 +783,10 @@ function FireClass (options) {
         }
     }
 
-    if (CC_EDITOR || CC_TEST) {
+    if (CC_DEV) {
         var editor = options.editor;
         if (editor) {
-            if ( cc.isChildClassOf(base, cc.Component) ) {
+            if (cc.isChildClassOf(base, cc.Component)) {
                 cc.Component._registerEditorProps(cls, editor);
             }
             else {
