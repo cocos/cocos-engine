@@ -281,7 +281,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Useful to hook a notification object.
      *
      * @method getNotificationNode
-     * @return {ENode}
+     * @return {Node}
      */
     getNotificationNode: function () {
         return this._notificationNode;
@@ -421,7 +421,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Try to avoid big stacks of pushed scenes to reduce memory allocation.<br/>
      * ONLY call it if there is a running scene.
      * @method pushScene
-     * @param {EScene} scene
+     * @param {Scene} scene
      */
     pushScene: function (scene) {
 
@@ -436,7 +436,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
      * @method runScene
-     * @param {EScene} scene - The need run scene.
+     * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function at the scene before loading.
      */
     runScene: function (scene, onBeforeLoadScene) {
@@ -467,7 +467,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var sgScene = scene;
 
         // Run an Entity Scene
-        if (scene instanceof cc.EScene) {
+        if (scene instanceof cc.Scene) {
             // ensure scene initialized
             scene._load();
 
@@ -493,7 +493,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Activate
-        if (scene instanceof cc.EScene) {
+        if (scene instanceof cc.Scene) {
             scene._activate();
         }
     },
@@ -574,7 +574,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             else {
                 var uuid = sceneAsset._uuid;
                 scene = sceneAsset.scene;
-                if (scene instanceof cc.EScene) {
+                if (scene instanceof cc.Scene) {
                     scene._id = uuid;
                     cc.director.runScene(scene, onUnloaded);
                 }
@@ -687,7 +687,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * Sets Notification Node
-     * @param {ENode} node
+     * @param {Node} node
      */
     setNotificationNode: function (node) {
         cc.renderer.childrenOrderDirty = true;
@@ -780,7 +780,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      * Returns current running Scene. Director can only run one Scene at the time.
      * @method getRunningScene
-     * @return {EScene}
+     * @return {Scene}
      */
     getRunningScene: function () {
         return this._runningScene;
@@ -789,7 +789,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      * Returns current running Scene. Director can only run one Scene at the time.
      * @method getScene
-     * @return {EScene}
+     * @return {Scene}
      */
     getScene: function () {
         return this._scene;

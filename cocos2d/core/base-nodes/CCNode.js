@@ -125,7 +125,7 @@ cc.s_globalOrderOfArrival = 1;
  * @property {Number}               glServerState       - The state of OpenGL server side
  * @property {cc.Scheduler}         scheduler           - cc.Scheduler used to schedule all "updates" and timers
  */
-_ccsg.Node = cc.Class(/** @lends _ccsg.Node# */{
+_ccsg.Node = cc.Class({
     name: 'ccsg.Node',
 
     properties: {

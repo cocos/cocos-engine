@@ -7,8 +7,8 @@
  * @method find
  * @static
  * @param {String} path
- * @param {ENode} [referenceNode]
- * @return {ENode} the node or null if not found
+ * @param {Node} [referenceNode]
+ * @return {Node} the node or null if not found
  */
 cc.find = module.exports = function (path, referenceNode) {
     if (path == null) {

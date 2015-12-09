@@ -28,10 +28,10 @@ var NIL = function () {};
  * <p>cc.Scene is a subclass of ccsg.Node that is used only as an abstract concept.</p>
  * <p>cc.Scene and ccsg.Node are almost identical with the difference that users can not modify cc.Scene manually. </p>
  *
- * @class EScene
+ * @class Scene
  * @extends _BaseNode
  */
-cc.EScene = cc.Class({
+cc.Scene = cc.Class({
     name: 'cc.Scene',
     extends: require('./utils/base-node'),
 
@@ -96,11 +96,11 @@ cc.EScene = cc.Class({
     }
 });
 
-module.exports = cc.EScene;
+module.exports = cc.Scene;
 
 if (CC_EDITOR) {
     var ERR = '"%s" is not defined in the Scene, it is only defined in child nodes.';
-    Object.defineProperties(cc.EScene.prototype, {
+    Object.defineProperties(cc.Scene.prototype, {
         active: {
             get: function () {
                 cc.error(ERR, 'active');

@@ -154,8 +154,8 @@
     });
 
     test('node', function () {
-        var node = new cc.ENode();
-        var child = new cc.ENode();
+        var node = new cc.Node();
+        var child = new cc.Node();
         child.parent = node;
         cc.director.getScene().addChild(node);
 
@@ -171,7 +171,7 @@
             extends: cc.Component,
         });
 
-        var node = new cc.ENode();
+        var node = new cc.Node();
         node.addComponent(Script);
 
         var clone = cc.instantiate(node);
@@ -188,24 +188,24 @@
             properties: {
                 nodeInComp: {
                     default: null,
-                    type: cc.ENode
+                    type: cc.Node
                 },
                 nodeArrayInComp: {
                     default: [],
-                    type: cc.ENode
+                    type: cc.Node
                 },
                 otherNodeInComp: {
                     default: null,
-                    type: cc.ENode
+                    type: cc.Node
                 },
                 childComp: null,
                 otherComp: null,
             }
         });
 
-        var parent = new cc.ENode('parent');
-        var child = new cc.ENode('child');
-        var other = new cc.ENode('other');
+        var parent = new cc.Node('parent');
+        var child = new cc.Node('child');
+        var other = new cc.Node('other');
         parent.addChild(child);
         child.parent = parent;
         var parentComp = parent.addComponent(Script);

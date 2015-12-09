@@ -8,7 +8,7 @@ test('curve types', function () {
     var initClipData = cc._Test.initClipData;
     var bezierByTime = cc._Test.bezierByTime;
 
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
 
     var clip = new cc.AnimationClip();
     clip._duration = 3;
@@ -91,7 +91,7 @@ test('computeNullRatios', function () {
 test('EntityAnimator.animate', function () {
 
     var EntityAnimator = cc._Test.EntityAnimator;
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
     var renderer = entity.addComponent(cc.SpriteRenderer);
     renderer.colorProp = Color.BLACK;
 
@@ -177,7 +177,7 @@ test('DynamicAnimCurve', function () {
 test('AnimationNode', function () {
     var EntityAnimator = cc._Test.EntityAnimator;
 
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
     entity.x = 321;
     var renderer = entity.addComponent(cc.SpriteRenderer);
     renderer.colorProp = Color.BLACK;
@@ -290,7 +290,7 @@ test('AnimationNode.getWrappedInfo', function () {
 test('wrapMode', function () {
     var EntityAnimator = cc._Test.EntityAnimator;
 
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
 
     var animator = new EntityAnimator(entity);
     var animation = animator.animate([
@@ -362,12 +362,12 @@ test('createBatchedProperty', function () {
 test('initClipData', function () {
     var initClipData = cc._Test.initClipData;
 
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
     entity.name = 'foo';
     var renderer = entity.addComponent(cc.SpriteRenderer);
     renderer.testColor = Color.BLACK;
 
-    var childEntity = new cc.ENode();
+    var childEntity = new cc.Node();
     childEntity.name = 'bar';
     var childRenderer = childEntity.addComponent(cc.SpriteRenderer);
     childRenderer.testColor = Color.BLACK;
@@ -458,7 +458,7 @@ test('initClipData', function () {
 
 
 test('Animation Component', function () {
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
     var animation = entity.addComponent(cc.AnimationComponent);
 
     entity.x = 400;
@@ -502,7 +502,7 @@ test('Animation Component', function () {
 
 
 test('CCAnimation._updateClip', function () {
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
     var animation = entity.addComponent(cc.AnimationComponent);
 
     entity.x = 400;
@@ -634,7 +634,7 @@ test('sampleMotionPaths', function () {
 test('SampledAnimCurve', function () {
     var initClipData = cc._Test.initClipData;
 
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
 
     var clip = new cc.AnimationClip();
     clip._name = 'test';
@@ -707,7 +707,7 @@ test('EventAnimCurve', function () {
         }
    });
 
-    var entity = new cc.ENode();
+    var entity = new cc.Node();
     entity.addComponent(MyComp);
 
     var clip = new cc.AnimationClip();

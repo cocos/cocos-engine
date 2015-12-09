@@ -142,7 +142,7 @@ function initClipData (root, state) {
     function createPropCurve (target, propPath, keyframes) {
         var curve;
 
-        var isMotionPathProp = (target instanceof cc.ENode) && (propPath === 'position');
+        var isMotionPathProp = (target instanceof cc.Node) && (propPath === 'position');
         var motionPaths = [];
         var curve;
 

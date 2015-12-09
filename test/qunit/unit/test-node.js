@@ -3,9 +3,9 @@
 largeModule('Node', SetupEngine);
 
 test('basic test', function () {
-    var node = new cc.ENode();
+    var node = new cc.Node();
     ok(node.name, 'node has default name');
-    strictEqual(new cc.ENode('myNode').name, 'myNode', 'can specify node name');
+    strictEqual(new cc.Node('myNode').name, 'myNode', 'can specify node name');
 
     strictEqual(node.active, true, 'node is active');
 
@@ -18,9 +18,9 @@ test('basic test', function () {
 });
 
 test('test hierarchy', function () {
-    var parent = new cc.ENode();
-    var child1 = new cc.ENode();
-    var child2 = new cc.ENode();
+    var parent = new cc.Node();
+    var child1 = new cc.Node();
+    var child2 = new cc.Node();
 
     strictEqual(parent.parent, null, 'node\'s default parent is null');
     strictEqual(parent.childrenCount, 0, 'node\'s default child count is 0');
@@ -49,8 +49,8 @@ test('test hierarchy', function () {
 });
 
 test('activeInHierarchy', function () {
-    var parent = new cc.ENode();
-    var child = new cc.ENode();
+    var parent = new cc.Node();
+    var child = new cc.Node();
     child.parent = parent;
 
     strictEqual(parent.activeInHierarchy, false, 'parent should not activeInHierarchy before add to scene');
@@ -114,7 +114,7 @@ test('activation logic for component', function () {
     });
     MyComponent.start = "MyCompStart";
 
-    var obj = new cc.ENode();
+    var obj = new cc.Node();
     cc.director.getScene().addChild(obj);
 
     var comp = obj.addComponent(MyComponent); // onEnable
@@ -166,7 +166,7 @@ test('life cycle logic for component', function () {
         }
     });
 
-    var obj = new cc.ENode();
+    var obj = new cc.Node();
     cc.director.getScene().addChild(obj);
 
     var comp = obj.addComponent(MyComponent); // onEnable
@@ -212,8 +212,8 @@ test('life cycle logic for component', function () {
 });
 
 test('activation logic for component in hierarchy', function () {
-    var parent = new cc.ENode();
-    var child = new cc.ENode();
+    var parent = new cc.Node();
+    var child = new cc.Node();
     child.parent = parent;
     parent.active = false;
     parent.parent = cc.director.getScene();
@@ -243,12 +243,12 @@ test('activation logic for component in hierarchy', function () {
     comp.expect(CallbackTester.OnDisable, 'should disable when node detached from its parent');
     child.parent = null;
 
-    var activeParent = new cc.ENode();
+    var activeParent = new cc.Node();
     activeParent.parent = cc.director.getScene();
     comp.expect(CallbackTester.OnEnable, 'should enable when add to active parent');
     child.parent = activeParent;
 
-    var inactiveParent = new cc.ENode();
+    var inactiveParent = new cc.Node();
     inactiveParent.active = false;
     inactiveParent.parent = cc.director.getScene();
     comp.expect(CallbackTester.OnDisable, 'should disable when add to inactive parent');
@@ -258,8 +258,8 @@ test('activation logic for component in hierarchy', function () {
 });
 
 test('destroy', function () {
-    var parent = new cc.ENode();
-    var child = new cc.ENode();
+    var parent = new cc.Node();
+    var child = new cc.Node();
     parent.addChild(child);
     cc.director.getScene().addChild(parent);
 
@@ -321,7 +321,7 @@ test('destroy', function () {
                          CallbackTester.OnDestroy]);
         }
     });
-    var newChildNode = new cc.ENode();
+    var newChildNode = new cc.Node();
     parent.addChild(newChildNode);
     var newChildNodeComp = newChildNode.addComponent(NewChildNodeComp);
 
@@ -341,9 +341,9 @@ test('destroy', function () {
 });
 
 test('isChildOf', function () {
-    var ent1 = new cc.ENode();
-    var ent2 = new cc.ENode();
-    var ent3 = new cc.ENode();
+    var ent1 = new cc.Node();
+    var ent2 = new cc.Node();
+    var ent3 = new cc.Node();
 
     ent1.addChild(ent2);
     ent2.addChild(ent3);
@@ -357,8 +357,8 @@ test('isChildOf', function () {
 
 test('attach events', function () {
     var scene = cc.director.getScene();
-    var parent = new cc.ENode();
-    var child = new cc.ENode();
+    var parent = new cc.Node();
+    var child = new cc.Node();
 
     var attachedNodes = {};
 
