@@ -401,6 +401,7 @@ if (CC_DEV) {
         nodeToWorldTransform: 'getNodeToWorlshaderProgramdTransform',
         worldToNodeTransform: 'getWorldToNodeTransform',
         nodeToParentTransform: 'getNodeToParentTransform',
+        removeAllComponents: 'removeComponent',
         getNodeToParentAffineTransform: 'getNodeToParentTransform',
     });
 

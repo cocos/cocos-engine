@@ -23,12 +23,10 @@
  ****************************************************************************/
 
 /**
+ * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace
  * @module cc
  * @main cc
  */
-
-// define cc
-
 cc = {};
 
 // The namespace for original nodes rendering in scene graph.

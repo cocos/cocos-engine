@@ -476,6 +476,13 @@ var Component = cc.Class({
     // OVERRIDES
 
     destroy: function () {
+        if (CC_EDITOR) {
+            var depend = this.node._getDependComponent(this);
+            if (depend) {
+                return cc.error("Can't remove '%s' because '%s' depends on it.",
+                    cc.js.getClassName(this), cc.js.getClassName(depend));
+            }
+        }
         if (this._super()) {
             if (this._enabled && this.node._activeInHierarchy) {
                 callOnEnable(this, false);
@@ -553,7 +560,19 @@ var Component = cc.Class({
     }
 });
 
-if (CC_EDITOR || CC_TEST) {
+/**
+ * Automatically add required component as a dependency.
+ *
+ * @property _requireComponent
+ * @type {Function}
+ * @default null
+ * @static
+ * @readonly
+ * @private
+ */
+Component._requireComponent = null;
+
+if (CC_DEV) {
 
     // INHERITABLE STATIC MEMBERS
 
@@ -590,7 +609,7 @@ if (CC_EDITOR || CC_TEST) {
      *
      * @property _disallowMultiple
      * @type {Function}
-     * @default false
+     * @default null
      * @static
      * @readonly
      * @private
@@ -634,10 +653,16 @@ if (CC_EDITOR || CC_TEST) {
             priority: priority
         });
     };
+}
 
-    // use defineProperty to prevent inherited by sub classes
-    Object.defineProperty(Component, '_registerEditorProps', {
-        value: function (cls, props) {
+// use defineProperty to prevent inherited by sub classes
+Object.defineProperty(Component, '_registerEditorProps', {
+    value: function (cls, props) {
+        var reqComp = props.requireComponent;
+        if (reqComp) {
+            cls._requireComponent = reqComp;
+        }
+        if (CC_DEV) {
             var name = cc.js.getClassName(cls);
             for (var key in props) {
                 var val = props[key];
@@ -677,12 +702,8 @@ if (CC_EDITOR || CC_TEST) {
                         cls._disallowMultiple = cls;
                         break;
 
-                    // {Number} menuPriority
-                    // the order which the menu item are displayed
-                    case 'menuPriority':
-                        if (!props.menu) {
-                            cc.warn('The editor property "menuPriority" should be used with "menu" in class "%s".', name);
-                        }
+                    case 'requireComponent':
+                        // skip here
                         break;
 
                     default:
@@ -691,8 +712,8 @@ if (CC_EDITOR || CC_TEST) {
                 }
             }
         }
-    });
-}
+    }
+});
 
 Component.prototype.__scriptUuid = '';
 

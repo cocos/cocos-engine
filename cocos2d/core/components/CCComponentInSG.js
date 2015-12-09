@@ -14,7 +14,8 @@ var ComponentInSG = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        executeInEditMode: true
+        executeInEditMode: true,
+        disallowMultiple: true
     },
 
     ctor: function () {

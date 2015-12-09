@@ -51,6 +51,7 @@ function setMaxZOrder (node) {
  *
  * @class _BaseNode
  * @extends Object
+ * @private
  */
 var BaseNode = cc.Class(/** @lends cc.Node# */{
     extends: cc.Object,
@@ -97,9 +98,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         /**
-         * Parent node
+         * The parent of the node.
          * @property name
          * @type {Node}
+         * @default null
          */
         parent: {
             get: function () {
@@ -930,6 +932,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     /**
      * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.<br/>
      * The matrix is in Pixels.
+     * The returned transform is readonly and cannot be changed.
      * @method getParentToNodeTransform
      * @return {AffineTransform}
      */

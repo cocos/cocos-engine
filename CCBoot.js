@@ -23,11 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace
- * @namespace
- * @name cc
- */
 var cc = cc || {};
 cc._tmp = cc._tmp || {};
 cc._LogInfos = cc._LogInfos || {};

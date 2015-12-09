@@ -244,9 +244,16 @@ var Node = cc.Class({
     },
 
     _checkMultipleComp: CC_EDITOR && function (ctor) {
-        if (this.getComponent(ctor._disallowMultiple)) {
-            cc.error("The component %s can't be added because %s already contains the same (or subtype) component.",
-                JS.getClassName(typeOrClassName), this._name);
+        var err, existing = this.getComponent(ctor._disallowMultiple);
+        if (existing) {
+            if (existing.constructor === ctor) {
+                err = "Can't add component '%s' because %s already contains the same component.";
+                cc.error(err, JS.getClassName(ctor), this._name);
+            }
+            else {
+                err = "Can't add component '%s' to %s because it conflicts with the existing '%s' derived component.";
+                cc.error(err, JS.getClassName(ctor), this._name, JS.getClassName(existing));
+            }
             return false;
         }
         return true;
@@ -295,6 +302,14 @@ var Node = cc.Class({
                 return null;
             }
         }
+        var ReqComp = constructor._requireComponent;
+        if (ReqComp && !this.getComponent(ReqComp)) {
+            var depended = this.addComponent(ReqComp);
+            if (!depended) {
+                // depend conflicts
+                return null;
+            }
+        }
 
         //
 
@@ -328,10 +343,18 @@ var Node = cc.Class({
             return cc.error("_addComponentAt: Index out of range");
         }
 
+        // recheck attributes because script may changed
         var ctor = comp.constructor;
         if (ctor._disallowMultiple) {
             if (!this._checkMultipleComp(ctor)) {
                 return;
+            }
+        }
+        if (ctor._requireComponent) {
+            var depend = this.addComponent(ctor._requireComponent);
+            if (!depend) {
+                // depend conflicts
+                return null;
             }
         }
 
@@ -354,7 +377,7 @@ var Node = cc.Class({
     removeComponent: function (component) {
         if ( !component ) {
             cc.error('removeComponent: Component must be non-nil');
-            return null;
+            return;
         }
         if (typeof component !== 'object') {
             component = this.getComponent(component);
@@ -365,14 +388,22 @@ var Node = cc.Class({
     },
 
     /**
-     * Removes all components of cc.Node.
-     * @method removeAllComponents
+     * @method _getDependComponent
+     * @param {cc.Component} depended
+     * @return {cc.Component}
+     * @private
      */
-    removeAllComponents: function () {
+    _getDependComponent: CC_EDITOR && function (depended) {
         for (var i = 0; i < this._components.length; i++) {
             var comp = this._components[i];
-            comp.destroy();
+            if (comp !== depended && comp.isValid && !cc.Object._willDestroy(comp)) {
+                var depend = comp.constructor._requireComponent;
+                if (depend && depended instanceof depend) {
+                    return comp;
+                }
+            }
         }
+        return null;
     },
 
     // do remove component, only used internally
@@ -381,6 +412,7 @@ var Node = cc.Class({
             cc.error('Argument must be non-nil');
             return;
         }
+
         if (!(this._objFlags & Destroying)) {
             var i = this._components.indexOf(component);
             if (i !== -1) {
@@ -468,7 +500,7 @@ var Node = cc.Class({
     },
 
     _deactivateChildComponents: function () {
-        // 和 _onActivatedInHierarchy 类似但不修改 this._activeInHierarchy
+        // �_onActivatedInHierarchy 类似但不修改 this._activeInHierarchy
         var originCount = this._components.length;
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
@@ -542,5 +574,5 @@ var Node = cc.Class({
 
 });
 
-// TODO - 这个类名是临时的，之后要改名成 cc.Node，再对外屏蔽原 cc.Node
+// TODO - 这个类名是临时的，之后要改名�cc.Node，再对外屏蔽�cc.Node
 cc.Node = module.exports = Node;

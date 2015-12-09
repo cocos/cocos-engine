@@ -419,7 +419,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 cc.textureCache.cacheImage(url, locTexture);
                 cc.loader.load(url, function (err) {
                     if (err) {
-                        cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', url, err);
+                        cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', url, err[0]);
                         return;
                     }
                     var premultiplied = cc.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG && cc.path.extname(url) === '.png';
