@@ -49,16 +49,12 @@ var ProgressBar = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'UI/ProgressBar',
-        executeInEditMode: true
+        menu: 'UI/ProgressBar'
     },
 
     _initBarSprite: function () {
         var targetEntity = this.barSprite;
         if (targetEntity) {
-            this._originalAnchor = targetEntity.getAnchorPoint();
-            this._originalPosition = targetEntity.getPosition();
-            this._originalSize = targetEntity.getContentSize();
 
             var barSpriteSize = targetEntity.getContentSize();
             if(this.mode === Mode.HORIZONTAL){
@@ -66,15 +62,19 @@ var ProgressBar = cc.Class({
             }else{
                 this.totalLength = barSpriteSize.height;
             }
-            this._updateBarStatus(true);
+            this._updateBarStatus();
         }
     },
-    _updateBarStatus: function(isResetPosition){
+
+    _updateBarStatus: function(){
         var entity = this.barSprite;
         if(entity) {
+            var entityAnchorPoint = entity.getAnchorPoint();
+            var entitySize = entity.getContentSize();
+            var entityPosition = entity.getPosition();
+
             var anchorPoint = cc.p(0, 0.5);
             var actualLenth = this.totalLength * this.progress;
-            var spriteSize = this._originalSize;
             var finalContentSize;
             var totalWidth;
             var totalHeight;
@@ -83,9 +83,9 @@ var ProgressBar = cc.Class({
                     if(this.reverse){
                         anchorPoint = cc.p(1, 0.5);
                     }
-                    finalContentSize = cc.size(actualLenth, spriteSize.height);
+                    finalContentSize = cc.size(actualLenth, entitySize.height);
                     totalWidth = this.totalLength;
-                    totalHeight = spriteSize.height;
+                    totalHeight = entitySize.height;
                     break;
                 case Mode.VERTICAL:
                     if(this.reverse){
@@ -93,19 +93,17 @@ var ProgressBar = cc.Class({
                     }else{
                         anchorPoint = cc.p(0.5, 0);
                     }
-                    finalContentSize = cc.size(spriteSize.width, actualLenth);
-                    totalWidth = spriteSize.width;
+                    finalContentSize = cc.size(entitySize.width, actualLenth);
+                    totalWidth = entitySize.width;
                     totalHeight = this.totalLength;
             }
 
-            if(isResetPosition){
-                var anchorOffsetX = anchorPoint.x - this._originalAnchor.x;
-                var anchorOffsetY = anchorPoint.y - this._originalAnchor.y;
+            var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
+            var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
 
-                var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
+            var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
 
-                entity.setPosition(cc.pAdd(this._originalPosition, finalPosition));
-            }
+            entity.setPosition(cc.pAdd(entityPosition, finalPosition));
 
             entity.setAnchorPoint(anchorPoint);
             entity.setContentSize(finalContentSize);
@@ -114,9 +112,6 @@ var ProgressBar = cc.Class({
     },
 
     properties: {
-        _originalAnchor: null,
-        _originalPosition: null,
-        _originalSize: null,
 
         barSprite: {
             default: null,
@@ -131,13 +126,17 @@ var ProgressBar = cc.Class({
             default: Mode.HORIZONTAL,
             type: Mode,
             notify: function(value){
-                //value is the old value
-                if(value === Mode.HORIZONTAL){
-                    this.totalLength = this._originalSize.height;
-                }else if(value === Mode.VERTICAL){
-                    this.totalLength = this._originalSize.width;
+                var targetEntity = this.barSprite;
+                if(targetEntity){
+                    var targetEntitySize = targetEntity.getContentSize();
+                    if(value === Mode.HORIZONTAL){
+                        this.totalLength = targetEntitySize.height;
+                    }else if(value === Mode.VERTICAL){
+                        this.totalLength = targetEntitySize.width;
+                    }
                 }
-                this._updateBarStatus(true);
+
+                this._updateBarStatus();
             }
         },
 
@@ -161,7 +160,7 @@ var ProgressBar = cc.Class({
         reverse: {
             default: false,
             notify: function(){
-                this._updateBarStatus(true);
+                this._updateBarStatus();
             }
         }
     }
