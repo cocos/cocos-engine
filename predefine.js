@@ -23,12 +23,10 @@
  ****************************************************************************/
 
 /**
+ * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace
  * @module cc
  * @main cc
  */
-
-// define cc
-
 cc = {};
 
 //to make sure the cc.log, cc.warn, cc.error, cc._throw and cc.assert would not throw error before init by debugger mode.
