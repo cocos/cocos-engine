@@ -131,7 +131,9 @@ if (CC_DEV) {
      * @see cc.Vec2
      */
     js.obsoletes(cc, 'cc', {
-        "Point": 'Vec2'
+        'Point': 'Vec2',
+        //'EScene': 'Scene',
+        //'ENode': 'Node'
     });
 
     /**
