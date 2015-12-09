@@ -483,3 +483,48 @@ test('__cid__', function () {
 
     cc.js.unregisterClass(Dog, Husky, Labrador);
 });
+
+test('mixins', function () {
+    var Mixin1 = cc.Class({
+        properties: {
+            p2: 'Defined by Mixin1',
+            p3: 'Defined by Mixin1',
+        },
+        eat: function () {},
+        drink: function () {},
+        run: function () {},
+    });
+    var Mixin2 = cc.Class({
+        properties: {
+            p1: 'Defined by Mixin2',
+            p2: 'Defined by Mixin2',
+        },
+        run: function () {},
+        stop: function () {},
+    });
+    var Dog = cc.Class({
+        properties: {
+            p3: 'Defined by Dog',
+        },
+        play: function () {},
+        drink: function () {},
+    });
+    var BigDog = cc.Class({
+        extends: Dog,
+        mixins: [Mixin1, Mixin2],
+        properties: {
+            p1: 'Defined by BigDog',
+            p4: 'Defined by BigDog',
+        },
+        stop: function () {},
+    });
+
+    ok(BigDog.prototype.play === Dog.prototype.play, "should inherit normal function");
+    ok(BigDog.prototype.drink === Mixin1.prototype.drink, "mixin's function should override base's");
+    ok(BigDog.prototype.run === Mixin2.prototype.run, "last mixin function should override previous");
+    ok(BigDog.prototype.stop !== Mixin2.prototype.stop, "should override base functions");
+
+    deepEqual(BigDog.__props__, ['p3', 'p2', 'p1', 'p4'], 'should inherit properties');
+    strictEqual(cc.Class.attr(BigDog, 'p2').default, 'Defined by Mixin2', 'last mixin property should override previous');
+    strictEqual(cc.Class.attr(BigDog, 'p1').default, 'Defined by BigDog', "should override base property");
+});

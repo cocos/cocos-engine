@@ -166,7 +166,7 @@ cc.REPEAT_FOREVER = Number.MAX_VALUE - 1;
 
 /**
  * Helpful macro that setups the GL server state, the correct GL program and sets the Model View Projection matrix
- * @param {ENode} node setup node
+ * @param {Node} node setup node
  * @method nodeDrawSetup
  */
 cc.nodeDrawSetup = function (node) {

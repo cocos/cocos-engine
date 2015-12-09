@@ -3,7 +3,7 @@ largeModule('SpriteRenderer');
 asyncTest('basic test', function () {
     var url = assetDir + '/button.png';
 
-    var node = new cc.ENode();
+    var node = new cc.Node();
     cc.director.getScene().addChild(node);
 
     node.color = Color.RED;
