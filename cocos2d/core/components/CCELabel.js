@@ -22,24 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function MonitorSize(target) {
-    this._target = target;
-}
-MonitorSize.prototype = {
-    getContentSize: function () {
-        return this._target._sgNode.getContentSize();
-    },
-    setContentSize: function (size) {
-        this._target._useOriginalSize = false;
-        this._target._sgNode.setContentSize(size);
-    },
-    _getWidth: function () {
-        return this.getContentSize().width;
-    },
-    _getHeight: function () {
-        return this.getContentSize().height;
-    }
-};
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
 var Overflow = cc.Label.Overflow;
@@ -241,13 +223,14 @@ var Label = cc.Class({
 
     onLoad: function () {
         this._super();
-        this.node._sizeProvider = new MonitorSize(this);
+        this.node.on('size-changed', this._resized, this);
     },
 
     onDestroy: function () {
         this._super();
-        this.node._sizeProvider = null;
+        this.node.off('size-changed', this._resized, this);
     },
+
     _createSgNode: function () {
         var sgNode = new cc.Label(this.string, this.file, cc.Label.Type.TTF);
 
@@ -266,6 +249,10 @@ var Label = cc.Class({
         sgNode.setColor(this.node.color);
 
         return sgNode;
+    },
+
+    _resized: function () {
+        this._useOriginalSize = false;
     }
  });
 
