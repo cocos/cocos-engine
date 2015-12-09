@@ -27,12 +27,12 @@
  */
 (function(){
     cc.PhysicsDebugNode.CanvasRenderCmd = function(renderableObject){
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._buffer = renderableObject._buffer;
         this._needDraw = true;
     };
 
-    var proto = cc.PhysicsDebugNode.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.PhysicsDebugNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.PhysicsDebugNode.CanvasRenderCmd;
 
     proto.rendering = function(ctx, scaleX, scaleY){

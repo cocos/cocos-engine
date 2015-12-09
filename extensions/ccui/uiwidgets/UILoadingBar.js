@@ -320,7 +320,7 @@ ccui.LoadingBar = ccui.Widget.extend(/** @lends ccui.LoadingBar# */{
     /**
      * Returns the renderer of ccui.LoadingBar
      * @override
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getVirtualRenderer: function () {
         return this._barRenderer;

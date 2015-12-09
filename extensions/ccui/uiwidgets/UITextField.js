@@ -757,7 +757,7 @@ ccui.TextField = ccui.Widget.extend(/** @lends ccui.TextField# */{
 
     /**
      * Returns the renderer of ccui.TextField.
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getVirtualRenderer: function () {
         return this._textFieldRenderer;

@@ -46,7 +46,7 @@ var UIMainLayer = BaseTestLayer.extend({
         this._super();
 
         var winSize = cc.winSize;
-        var mainNode = new cc.Node();
+        var mainNode = new _ccsg.Node();
         var scale = winSize.height/320;
         mainNode.attr({anchorX: 0, anchorY: 0, scale: scale, x: (winSize.width - 480 * scale) / 2, y: (winSize.height - 320 * scale) / 2});
         this.addChild(mainNode);

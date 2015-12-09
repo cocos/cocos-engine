@@ -328,12 +328,12 @@ var HoleDemo = BaseClippingNodeTest.extend({
 
         holesClipper.addChild(target);
 
-        this._holes = new cc.Node();
+        this._holes = new _ccsg.Node();
         this._holes.retain();
 
         holesClipper.addChild(this._holes);
 
-        this._holesStencil = new cc.Node();
+        this._holesStencil = new _ccsg.Node();
         this._holesStencil.retain();
 
         holesClipper.stencil = this._holesStencil;

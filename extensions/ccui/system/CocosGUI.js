@@ -39,16 +39,16 @@ ccui.Class = ccui.Class || cc._Class;
 ccui.Class.extend = ccui.Class.extend || cc._Class.extend;
 
 /**
- * that same as cc.Node
+ * that same as _ccsg.Node
  * @class
  * @extends ccui.Class
  */
-ccui.Node = ccui.Node || cc.Node;
-ccui.Node.extend = ccui.Node.extend || cc.Node.extend;
+ccui.Node = ccui.Node || _ccsg.Node;
+ccui.Node.extend = ccui.Node.extend || _ccsg.Node.extend;
 
 
 /**
- * that same as cc.Node
+ * that same as _ccsg.Node
  * @class
  * @extends ccui.Node
  */

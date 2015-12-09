@@ -24,7 +24,7 @@
 
 (function() {
     cc.Sprite.CanvasRenderCmd = function (renderable) {
-        cc.Node.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._textureCoord = {
             renderX: 0,                             //the x of texture coordinate for render, when texture tinted, its value doesn't equal x.
@@ -41,7 +41,7 @@
         this._textureToRender = null;
     };
 
-    var proto = cc.Sprite.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.Sprite.CanvasRenderCmd;
 
     proto._init = function () {};
@@ -64,7 +64,7 @@
     };
 
     proto._setColorDirty = function () {
-        this.setDirtyFlag(cc.Node._dirtyFlags.colorDirty | cc.Node._dirtyFlags.opacityDirty);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty | _ccsg.Node._dirtyFlags.opacityDirty);
     };
 
     proto.isFrameDisplayed = function (frame) {      //TODO there maybe has a bug
@@ -75,7 +75,7 @@
     };
 
     proto.updateBlendFunc = function (blendFunc) {
-        this._blendFuncStr = cc.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(blendFunc);
+        this._blendFuncStr = _ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(blendFunc);
     };
 
     proto._setBatchNodeForAddChild = function (child) {
@@ -232,11 +232,11 @@
 
         // recursively iterate over children
         if (node._hasChildren)
-            node._arrayMakeObjectsPerformSelector(node._children, cc.Node._stateCallbackType.updateTransform);
+            node._arrayMakeObjectsPerformSelector(node._children, _ccsg.Node._stateCallbackType.updateTransform);
     };
 
     proto._updateDisplayColor = function (parentColor) {
-        cc.Node.CanvasRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
+        _ccsg.Node.CanvasRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         //this._updateColor();
     };
 

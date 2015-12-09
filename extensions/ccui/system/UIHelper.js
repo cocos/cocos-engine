@@ -122,7 +122,7 @@ ccui.helper = {
     _activeLayout: true,
     /**
      * Refresh object and it's children layout state
-     * @param {cc.Node} rootNode
+     * @param {_ccsg.Node} rootNode
      */
     doLayout: function(rootNode){
         if(!this._activeLayout)

@@ -126,7 +126,7 @@ var LayerExtended = cc.Layer.extend({
     }
 });
 
-window.JSBExtendTest = cc.Scene.extend({
+window.JSBExtendTest = _ccsg.Scene.extend({
     label: null,
     ui: null,
     onEnter: function () {

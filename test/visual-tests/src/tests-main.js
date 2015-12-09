@@ -43,7 +43,7 @@ var PLATFROM_APPLE = PLATFROM_IOS | PLATFORM_MAC;
 var autoTestEnabled = autoTestEnabled || false;
 var autoTestCurrentTestName = autoTestCurrentTestName || "N/A";
 
-var TestScene = cc.Scene.extend({
+var TestScene = _ccsg.Scene.extend({
     ctor:function (bPortrait) {
         this._super();
         this.init();
@@ -62,7 +62,7 @@ var TestScene = cc.Scene.extend({
         }
     },
     onMainMenuCallback:function () {
-        var scene = new cc.Scene();
+        var scene = new _ccsg.Scene();
         var layer = new TestController();
         scene.addChild(layer);
         director.runScene(scene);

@@ -214,7 +214,7 @@ ccui.RichElementCustomNode = ccui.RichElement.extend(/** @lends ccui.RichElement
      * @param {Number} tag
      * @param {cc.Color} color
      * @param {Number} opacity
-     * @param {cc.Node} customNode
+     * @param {_ccsg.Node} customNode
      */
     ctor: function (tag, color, opacity, customNode) {
         ccui.RichElement.prototype.ctor.call(this);
@@ -229,7 +229,7 @@ ccui.RichElementCustomNode = ccui.RichElement.extend(/** @lends ccui.RichElement
      * @param {Number} tag
      * @param {cc.Color} color
      * @param {Number} opacity
-     * @param {cc.Node} customNode
+     * @param {_ccsg.Node} customNode
      * @override
      */
     init: function (tag, color, opacity, customNode) {
@@ -244,7 +244,7 @@ ccui.RichElementCustomNode = ccui.RichElement.extend(/** @lends ccui.RichElement
  * @param {Number} tag
  * @param {Number} color
  * @param {Number} opacity
- * @param {cc.Node} customNode
+ * @param {_ccsg.Node} customNode
  * @returns {ccui.RichElementCustomNode}
  */
 ccui.RichElementCustomNode.create = function (tag, color, opacity, customNode) {
@@ -285,7 +285,7 @@ ccui.RichText = ccui.Widget.extend(/** @lends ccui.RichText# */{
     },
 
     _initRenderer: function () {
-        this._elementRenderersContainer = new cc.Node();
+        this._elementRenderersContainer = new _ccsg.Node();
         this._elementRenderersContainer.setAnchorPoint(0.5, 0.5);
         this.addProtectedChild(this._elementRenderersContainer, 0, -1);
     },
@@ -633,15 +633,15 @@ ccui.RichText = ccui.Widget.extend(/** @lends ccui.RichText# */{
      */
     getContentSize: function(){
         this.formatText();
-        return cc.Node.prototype.getContentSize.call(this);
+        return _ccsg.Node.prototype.getContentSize.call(this);
     },
     _getWidth: function() {
         this.formatText();
-        return cc.Node.prototype._getWidth.call(this);
+        return _ccsg.Node.prototype._getWidth.call(this);
     },
     _getHeight: function() {
         this.formatText();
-        return cc.Node.prototype._getHeight.call(this);
+        return _ccsg.Node.prototype._getHeight.call(this);
     },
 
     setContentSize: function(contentSize, height){

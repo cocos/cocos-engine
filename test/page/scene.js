@@ -9,7 +9,7 @@ describe( 'test scene wrapper', function () {
     ];
 
     beforeEach(function () {
-        scene = new cc.Scene();
+        scene = new _ccsg.Scene();
         wrapper = cc.getWrapper(scene);
     });
 
@@ -24,8 +24,8 @@ describe( 'test scene wrapper', function () {
     it( 'childrenN', function () {
         assert( wrapper.childrenN );
 
-        var node  = new cc.Node();
-        var node2 = new cc.Node();
+        var node  = new _ccsg.Node();
+        var node2 = new _ccsg.Node();
 
         scene.addChild(node);
         scene.addChild(node2);
@@ -104,7 +104,7 @@ describe( 'test scene wrapper', function () {
     it( 'createNode', function () {
         var node = wrapper.createNode();
 
-        assert( node instanceof cc.Scene );
+        assert( node instanceof _ccsg.Scene );
 
         expect( node.x ).equal( 0 );
         expect( node.y ).equal( 0 );
@@ -120,7 +120,7 @@ describe( 'test scene wrapper', function () {
 
         var node = wrapper.createNode();
 
-        assert( node instanceof cc.Scene );
+        assert( node instanceof _ccsg.Scene );
 
         expect( wrapper._position ).to.deep.equal( [11, 22] );
         expect( wrapper._scale ).to.deep.equal( [2, 3] );

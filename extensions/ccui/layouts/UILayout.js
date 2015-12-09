@@ -310,7 +310,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
      *     If clippingEnabled is true, it will clip/scissor area.
      * </p>
      * @override
-     * @param {cc.Node.RenderCmd} [parentCmd]
+     * @param {_ccsg.Node.RenderCmd} [parentCmd]
      */
     visit: function (parentCmd) {
         if (!this._visible)

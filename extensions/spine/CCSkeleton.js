@@ -67,9 +67,9 @@ sp.ATTACHMENT_TYPE = {
  *     Multiple skeletons can use the same SkeletonData (which includes all animations, skins, and attachments).     <br/>
  * </p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  */
-sp.Skeleton = cc.Node.extend(/** @lends sp.Skeleton# */{
+sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     _skeleton: null,
     _rootBone: null,
     _timeScale: 1,
@@ -84,7 +84,7 @@ sp.Skeleton = cc.Node.extend(/** @lends sp.Skeleton# */{
      * The constructor of sp.Skeleton. override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
      */
     ctor:function(skeletonDataFile, atlasFile, scale){
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
 
         if(arguments.length === 0)
@@ -104,7 +104,7 @@ sp.Skeleton = cc.Node.extend(/** @lends sp.Skeleton# */{
      * Initializes a sp.Skeleton. please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
      */
     init: function () {
-        cc.Node.prototype.init.call(this);
+        _ccsg.Node.prototype.init.call(this);
         //this.setOpacityModifyRGB(true);
         this._blendFunc.src = cc.ONE;
         this._blendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
@@ -355,7 +355,7 @@ sp.Skeleton = cc.Node.extend(/** @lends sp.Skeleton# */{
     /**
      * Return the renderer of attachment.
      * @param {spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getTextureAtlas: function (regionAttachment) {
         return regionAttachment.rendererObject.page.rendererObject;

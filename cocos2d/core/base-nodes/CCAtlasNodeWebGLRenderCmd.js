@@ -27,7 +27,7 @@
  */
 (function(){
     cc.AtlasNode.WebGLRenderCmd = function(renderableObject){
-        cc.Node.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
         this._textureAtlas = null;
         this._colorUnmodified = cc.Color.WHITE;
@@ -39,7 +39,7 @@
         this._uniformColor = cc._renderContext.getUniformLocation(this._shaderProgram.getProgram(), "u_color");
     };
 
-    var proto = cc.AtlasNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.AtlasNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.AtlasNode.WebGLRenderCmd;
 
     proto._updateBlendFunc = function () {
@@ -104,12 +104,12 @@
             temp.g = temp.g * locDisplayedOpacity / 255;
             temp.b = temp.b * locDisplayedOpacity / 255;
         }
-        cc.Node.prototype.setColor.call(node, temp);
+        _ccsg.Node.prototype.setColor.call(node, temp);
     };
 
     proto.setOpacity = function(opacity){
         var node = this._node;
-        cc.Node.prototype.setOpacity.call(node, opacity);
+        _ccsg.Node.prototype.setOpacity.call(node, opacity);
         // special opacity for premultiplied textures
         if (node._opacityModifyRGB) {
             node.color = this._colorUnmodified;

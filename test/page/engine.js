@@ -38,14 +38,14 @@ describe( 'cc.engine.getIntersectionList', function () {
     });
 
     beforeEach(function () {
-        scene = new cc.Scene();
+        scene = new _ccsg.Scene();
         cc.director.runScene(scene);
 
         nodes = [];
         wrappers = [];
 
         for(var i = 0; i<2; i++) {
-            var node = new cc.Node();
+            var node = new _ccsg.Node();
             var wrapper = cc.getWrapper(node);
             node.setAnchorPoint(0.5, 0.5);
 

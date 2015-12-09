@@ -104,7 +104,7 @@ cc.LetterInfo = function() {
     this._lineIndex = 0;
 };
 
-cc.Label = cc.Node.extend({
+cc.Label = _ccsg.Node.extend({
     _hAlign: cc.TextAlignment.LEFT, //0 left, 1 center, 2 right
     _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
     _string: "",
@@ -138,7 +138,7 @@ cc.Label = cc.Node.extend({
         string = string || "";
         this._string = string;
 
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this.setAnchorPoint(cc.p(0.5, 0.5));
         this.setContentSize(cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
@@ -371,7 +371,7 @@ cc.Label = cc.Node.extend({
         var oldWidth = this._contentSize.width;
         var oldHeight = this._contentSize.height;
         if (this._labelType === cc.Label.Type.TTF) {
-            cc.Node.prototype.setContentSize.call(this, size, height);
+            _ccsg.Node.prototype.setContentSize.call(this, size, height);
             if (oldWidth === this._contentSize.width && oldHeight === this._contentSize.height) {
                 return;
             }
@@ -442,7 +442,7 @@ cc.Label = cc.Node.extend({
                 this._updateContent();
             }
         }
-        return cc.Node.prototype.getContentSize.call(this);
+        return _ccsg.Node.prototype.getContentSize.call(this);
     }
 });
 
@@ -758,7 +758,7 @@ cc.BMFontHelper = {
         if (this._labelHeight <= 0) {
             contentSize.height = this._textDesiredHeight;
         }
-        cc.Node.prototype.setContentSize.call(this, contentSize);
+        _ccsg.Node.prototype.setContentSize.call(this, contentSize);
 
         this._tailoredTopY = contentSize.height;
         this._tailoredBottomY = 0;

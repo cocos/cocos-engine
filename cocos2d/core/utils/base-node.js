@@ -24,7 +24,7 @@
 
 var JS = cc.js;
 var SceneGraphHelper = require('./scene-graph-helper');
-var SGProto = cc.Node.prototype;
+var SGProto = _ccsg.Node.prototype;
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
 
@@ -488,7 +488,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
             enumerable: false
         });
 
-        var sgNode = this._sgNode = new cc.Node();
+        var sgNode = this._sgNode = new _ccsg.Node();
         if (!cc.game._isCloning) {
             sgNode.cascadeOpacity = true;
         }
@@ -499,7 +499,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
          * Current active scene graph node which provides content size.
          *
          * @property _sizeProvider
-         * @type {cc.Node}
+         * @type {_ccsg.Node}
          * @private
          */
         this._sizeProvider = null;
@@ -758,7 +758,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         //cc.eventManager.removeListeners(this);
 
         // children
-        SGProto._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.cleanup);
+        SGProto._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.cleanup);
     },
 
     // composition: GET
@@ -1087,7 +1087,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
     /**
      * Set whether color should be changed with the opacity value,
-     * useless in cc.Node, but this function is override in some class to have such behavior.
+     * useless in ccsg.Node, but this function is override in some class to have such behavior.
      * @method setOpacityModifyRGB
      * @param {Boolean} opacityValue
      */

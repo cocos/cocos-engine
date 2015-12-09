@@ -25,7 +25,7 @@ gaf._stateHasCtx = function(state)
     return false;
 };
 
-gaf.Object = cc.Node.extend
+gaf.Object = _ccsg.Node.extend
 ({
     _asset : null,
     _className : "GAFObject",

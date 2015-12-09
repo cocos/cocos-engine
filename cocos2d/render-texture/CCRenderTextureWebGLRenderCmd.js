@@ -24,7 +24,7 @@
 
 (function(){
     cc.RenderTexture.WebGLRenderCmd = function(renderableObject){
-        cc.Node.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
         this._fBO = null;
@@ -37,7 +37,7 @@
         this._fullViewport = new cc.Rect();
     };
 
-    var proto = cc.RenderTexture.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.RenderTexture.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.RenderTexture.WebGLRenderCmd;
 
     proto.setVirtualViewport = function(rtBegin, fullRect, fullViewport) {

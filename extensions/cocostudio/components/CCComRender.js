@@ -32,7 +32,7 @@ ccs.ComRender = ccs.Component.extend(/** @lends ccs.ComRender# */{
     _render: null,
     /**
      * Construction of ccs.ComRender
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      * @param {String} comName
      */
     ctor: function (node, comName) {
@@ -63,7 +63,7 @@ ccs.ComRender = ccs.Component.extend(/** @lends ccs.ComRender# */{
 
     /**
      * Returns a render node
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getNode: function () {
         return this._render;
@@ -71,7 +71,7 @@ ccs.ComRender = ccs.Component.extend(/** @lends ccs.ComRender# */{
 
     /**
      * Sets a render node to component.
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      */
     setNode: function (node) {
         this._render = node;

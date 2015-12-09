@@ -25,13 +25,13 @@
 (function(){
     //SpriteBatchNode's canvas render command
     cc.SpriteBatchNode.CanvasRenderCmd = function(renderable){
-        cc.Node.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
 
         this._texture = null;
         this._textureToRender = null;
     };
 
-    var proto = cc.SpriteBatchNode.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.SpriteBatchNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.SpriteBatchNode.CanvasRenderCmd;
 
     proto.checkAtlasCapacity = function(){};

@@ -35,7 +35,7 @@
  * @class
  * @extends cc.TransitionScene
  * @param {Number} t time in seconds
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @param {Boolean} backwards
  * @example
  * var trans = new cc.TransitionPageTurn(t, scene, backwards);
@@ -44,7 +44,7 @@ cc.TransitionPageTurn = cc.TransitionScene.extend(/** @lends cc.TransitionPageTu
 
     /**
      * @param {Number} t time in seconds
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      * @param {Boolean} backwards
      */
     ctor:function (t, scene, backwards) {
@@ -65,7 +65,7 @@ cc.TransitionPageTurn = cc.TransitionScene.extend(/** @lends cc.TransitionPageTu
      * If back is true then the effect is reversed to appear as if the incoming<br/>
      * scene is being turned from left over the outgoing scene.
      * @param {Number} t time in seconds
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      * @param {Boolean} backwards
      * @return {Boolean}
      */
@@ -143,7 +143,7 @@ cc.TransitionPageTurn = cc.TransitionScene.extend(/** @lends cc.TransitionPageTu
  * scene is being turned from left over the outgoing scene.
  * @deprecated since v3.0,please use new cc.TransitionPageTurn(t, scene, backwards) instead.
  * @param {Number} t time in seconds
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @param {Boolean} backwards
  * @return {cc.TransitionPageTurn}
  */

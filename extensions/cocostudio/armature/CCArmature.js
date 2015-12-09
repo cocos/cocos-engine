@@ -62,7 +62,7 @@ ccs.Armature = ccs.Node.extend(/** @lends ccs.Armature# */{
      * var armature = new ccs.Armature();
      */
     ctor: function (name, parentBone) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._name = "";
         this._topBoneList = [];
         this._armatureIndexDic = {};
@@ -79,7 +79,7 @@ ccs.Armature = ccs.Node.extend(/** @lends ccs.Armature# */{
      * @return {Boolean}
      */
     init: function (name, parentBone) {
-        cc.Node.prototype.init.call(this);
+        _ccsg.Node.prototype.init.call(this);
         if (parentBone)
             this._parentBone = parentBone;
         this.removeAllChildren();
@@ -155,7 +155,7 @@ ccs.Armature = ccs.Node.extend(/** @lends ccs.Armature# */{
             cc.log("Armature doesn't support to add Widget as its child, it will be fix soon.");
             return;
         }
-        cc.Node.prototype.addChild.call(this, child, localZOrder, tag);
+        _ccsg.Node.prototype.addChild.call(this, child, localZOrder, tag);
     },
 
     /**
@@ -328,7 +328,7 @@ ccs.Armature = ccs.Node.extend(/** @lends ccs.Armature# */{
      * @override
      */
     onEnter: function () {
-        cc.Node.prototype.onEnter.call(this);
+        _ccsg.Node.prototype.onEnter.call(this);
         this.scheduleUpdate();
     },
 
@@ -337,7 +337,7 @@ ccs.Armature = ccs.Node.extend(/** @lends ccs.Armature# */{
      * @override
      */
     onExit: function () {
-        cc.Node.prototype.onExit.call(this);
+        _ccsg.Node.prototype.onExit.call(this);
         this.unscheduleUpdate();
     },
 

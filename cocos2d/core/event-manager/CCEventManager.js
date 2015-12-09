@@ -799,7 +799,7 @@ cc.eventManager = /** @lends cc.eventManager# */{
      */
     removeListeners: function (listenerType, recursive) {
         var _t = this;
-        if (listenerType instanceof cc.Node) {
+        if (listenerType instanceof _ccsg.Node) {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
             delete _t._nodePriorityMap[listenerType.__instanceId];

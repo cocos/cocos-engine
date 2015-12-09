@@ -298,7 +298,7 @@ var SchedulerSchedulesAndRemove = SchedulerTestLayer.extend({
 /*
     SchedulerUpdate
 */
-var TestNode = cc.Node.extend({
+var TestNode = _ccsg.Node.extend({
     _pString:"",
 
     ctor:function (str, priority) {

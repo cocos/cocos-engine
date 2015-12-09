@@ -55,7 +55,7 @@ describe('test wrappers', function () {
         cc.game.run(option, function () {
             cc.view.resizeWithBrowserSize(true);
 
-            var scene = new cc.Scene();
+            var scene = new _ccsg.Scene();
 
             // scene anchor point need be 0,0
             scene.setAnchorPoint(0.0, 0.0);

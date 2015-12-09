@@ -53,7 +53,7 @@ cc.ControlHuePicker = cc.Control.extend(/** @lends cc.ControlHuePicker# */{
 
     /**
      * The constructor of cc.ControlHuePicker
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @param {cc.Vec2} pos position
      */
     ctor:function(target, pos) {

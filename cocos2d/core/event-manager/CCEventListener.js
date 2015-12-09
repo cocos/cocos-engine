@@ -142,7 +142,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 
     /**
      * Sets scene graph priority for this listener
-     * @param {cc.Node|cc.ENode} node
+     * @param {_ccsg.Node|cc.ENode} node
      * @private
      */
     _setSceneGraphPriority: function (node) {
@@ -162,7 +162,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 
     /**
      * Gets scene graph priority of this listener
-     * @returns {cc.Node|cc.ENode} if it's a fixed priority listener, non-null for scene graph priority listener
+     * @returns {_ccsg.Node|cc.ENode} if it's a fixed priority listener, non-null for scene graph priority listener
      * @private
      */
     _getSceneGraphPriority: function () {

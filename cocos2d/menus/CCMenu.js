@@ -117,7 +117,7 @@ cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
         var locListener = this._touchListener;
         if (!locListener._isRegistered())
             cc.eventManager.addListener(locListener, this);
-        cc.Node.prototype.onEnter.call(this);
+        _ccsg.Node.prototype.onEnter.call(this);
     },
 
     /**
@@ -188,7 +188,7 @@ cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
 
     /**
      * add a child for  cc.Menu
-     * @param {cc.Node} child
+     * @param {_ccsg.Node} child
      * @param {Number|Null} [zOrder=] zOrder for the child
      * @param {Number|Null} [tag=] tag for the child
      */
@@ -436,7 +436,7 @@ cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
 
     /**
      * remove a child from cc.Menu
-     * @param {cc.Node} child the child you want to remove
+     * @param {_ccsg.Node} child the child you want to remove
      * @param {boolean} cleanup whether to cleanup
      */
     removeChild: function (child, cleanup) {
@@ -449,7 +449,7 @@ cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
 
         if (this._selectedItem === child)
             this._selectedItem = null;
-        cc.Node.prototype.removeChild.call(this, child, cleanup);
+        _ccsg.Node.prototype.removeChild.call(this, child, cleanup);
     },
 
     _onTouchBegan: function (touch, event) {
@@ -535,7 +535,7 @@ cc.Menu = cc.Layer.extend(/** @lends cc.Menu# */{
             }
             this._state = cc.MENU_STATE_WAITING;
         }
-        cc.Node.prototype.onExit.call(this);
+        _ccsg.Node.prototype.onExit.call(this);
     },
     /**
      * only use for jsbinding

@@ -613,7 +613,7 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     /**
      * Gets the Virtual Renderer of widget.
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getVirtualRenderer: function () {
         if (this._bright) {

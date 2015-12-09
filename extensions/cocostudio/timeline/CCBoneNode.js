@@ -31,7 +31,7 @@
  */
 ccs.BoneNode = (function () {
 
-    var Node = cc.Node;
+    var Node = _ccsg.Node;
     var SkinNode = ccs.SkinNode;
     var BlendFunc = cc.BlendFunc;
     var type = {

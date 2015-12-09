@@ -1006,7 +1006,7 @@ var SpriteZVertex = SpriteTestDemo.extend({
 
             var step = winSize.width / 12;
 
-            var node = new cc.Node();
+            var node = new _ccsg.Node();
             // camera uses the center of the image as the pivoting point
             node.width = winSize.width;
 	        node.height = winSize.height;
@@ -1726,7 +1726,7 @@ var SpriteNewTexture = SpriteTestDemo.extend({
                 }
             }, this);
 
-        var node = new cc.Node();
+        var node = new _ccsg.Node();
         this.addChild(node, 0, TAG_SPRITE_BATCH_NODE);
 
         this._texture1 = cc.textureCache.addImage(s_grossini_dance_atlas);
@@ -3169,7 +3169,7 @@ var SpriteHybrid = SpriteTestDemo.extend({
         //----start28----ctor
         this._super();
         // parents
-        var parent1 = new cc.Node();
+        var parent1 = new _ccsg.Node();
         var parent2 = new cc.SpriteBatchNode(s_grossini, 50);
 
         this.addChild(parent1, 0, TAG_NODE);
@@ -3536,7 +3536,7 @@ var SpriteChildrenVisibility = SpriteTestDemo.extend({
         //
         // Sprite
         //
-        aParent = new cc.Node();
+        aParent = new _ccsg.Node();
         aParent.x = 2 * winSize.width / 3;
         aParent.y = winSize.height / 2;
         this.addChild(aParent, 0);
@@ -3636,7 +3636,7 @@ var SpriteChildrenVisibilityIssue665 = SpriteTestDemo.extend({
         //
         // Sprite
         //
-        aParent = new cc.Node();
+        aParent = new _ccsg.Node();
         aParent.x = 2 * winSize.width / 3;
         aParent.y = winSize.height / 2;
         this.addChild(aParent, 0);
@@ -3692,7 +3692,7 @@ var SpriteChildrenAnchorPoint = SpriteTestDemo.extend({
         this._super();
         spriteFrameCache.addSpriteFrames(s_grossiniPlist);
 
-        var aParent = new cc.Node();
+        var aParent = new _ccsg.Node();
         this.addChild(aParent, 0);
 
         // anchor (0,0)
@@ -3962,7 +3962,7 @@ var SpriteBatchNodeChildrenScale = SpriteTestDemo.extend({
         // Children + Scale using Sprite
         // Test 1
         //
-        var aParent = new cc.Node();
+        var aParent = new _ccsg.Node();
         var sprite1 = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossinis_sister1.png"));
         sprite1.x = winSize.width / 4;
         sprite1.y = winSize.height / 4;
@@ -4007,7 +4007,7 @@ var SpriteBatchNodeChildrenScale = SpriteTestDemo.extend({
         // Children + Scale using Sprite
         // Test 3
         //
-        aParent = new cc.Node();
+        aParent = new _ccsg.Node();
         sprite1 = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossinis_sister1.png"));
         sprite1.x = winSize.width / 4;
         sprite1.y = 2 * winSize.height / 3;
@@ -4092,7 +4092,7 @@ var SpriteChildrenChildren = SpriteTestDemo.extend({
         //
         // SpriteBatchNode: 3 levels of children
         //
-        var aParent = new cc.Node();
+        var aParent = new _ccsg.Node();
         this.addChild(aParent);
 
         // parent
@@ -4540,7 +4540,7 @@ var NodeSort = SpriteTestDemo.extend({
     ctor:function () {
         //----start49----ctor
         this._super();
-        this._node = new cc.Node();
+        this._node = new _ccsg.Node();
         this.addChild(this._node, 0, 0);
 
         this._sprite1 = new cc.Sprite(s_piece, cc.rect(128, 0, 64, 64));
@@ -4865,7 +4865,7 @@ var SpriteSkewNegativeScaleChildren = SpriteTestDemo.extend({
         cache.addSpriteFrames(s_grossiniPlist);
         cache.addSpriteFrames(s_grossini_grayPlist, s_grossini_gray);
 
-        var parent = new cc.Node();
+        var parent = new _ccsg.Node();
         this.addChild(parent);
 
         for (var i = 0; i < 2; i++) {

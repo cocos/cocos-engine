@@ -114,7 +114,7 @@ var XHRArrayBufferTestLayer = cc.Layer.extend({
 });
 
 var runXHRArrayBufferTest = function () {
-    var pScene = new cc.Scene();
+    var pScene = new _ccsg.Scene();
     var pLayer = new XHRArrayBufferTestLayer();
     pScene.addChild(pLayer);
     cc.director.runScene(pScene);

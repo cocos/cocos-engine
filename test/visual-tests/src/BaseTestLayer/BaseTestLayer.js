@@ -217,7 +217,7 @@ var BaseTestLayerProps = {
 
     runNextTest:function() {
         if( this.numberOfPendingTests() <= 0 ) {
-            var scene = new cc.Scene();
+            var scene = new _ccsg.Scene();
             var layer = new TestController();
             scene.addChild(layer);
             director.runScene(scene);
@@ -320,7 +320,7 @@ var FlowControl = function (testArray) {
         },
         start: function() {
             sceneIdx = 0;
-            var s = new cc.Scene();
+            var s = new _ccsg.Scene();
             s.addChild(this.current());
             cc.director.runScene(s);
         }

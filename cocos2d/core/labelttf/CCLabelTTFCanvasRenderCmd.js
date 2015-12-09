@@ -286,7 +286,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     };
 
     proto.updateStatus = function () {
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
 
@@ -302,12 +302,12 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
 
         if (this._dirtyFlag & flags.transformDirty){
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
         }
     };
 
     proto._syncStatus = function (parentCmd) {
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
         if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
@@ -395,7 +395,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     proto.constructor = cc.LabelTTF.CacheRenderCmd;
 
     proto._updateTexture = function () {
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
         var node = this._node;
         var locContentSize = node._contentSize;
         this._updateTTF();
@@ -473,7 +473,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     };
 
     proto._updateTexture = function () {
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
         var node = this._node;
         var locContentSize = node._contentSize;
         this._updateTTF();

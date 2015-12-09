@@ -79,17 +79,17 @@ var EaseSpriteDemo = BaseTestLayer.extend({
     },
 
     onRestartCallback:function (sender) {
-        var s = new EaseActionsTestScene();//cc.Scene.create();
+        var s = new EaseActionsTestScene();//_ccsg.Scene.create();
         s.addChild(restartEaseActionsTest());
         director.runScene(s);
     },
     onNextCallback:function (sender) {
-        var s = new EaseActionsTestScene();//cc.Scene.create();
+        var s = new EaseActionsTestScene();//_ccsg.Scene.create();
         s.addChild(nextEaseActionsTest());
         director.runScene(s);
     },
     onBackCallback:function (sender) {
-        var s = new EaseActionsTestScene();//cc.Scene.create();
+        var s = new EaseActionsTestScene();//_ccsg.Scene.create();
         s.addChild(previousEaseActionsTest());
         director.runScene(s);
     },

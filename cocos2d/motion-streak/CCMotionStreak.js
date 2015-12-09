@@ -34,7 +34,7 @@
  * length is the how many pixels the texture is stretched across. The texture               <br/>
  * is vertically aligned along the streak segment.
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @property {cc.Texture2D} texture                         - Texture used for the motion streak.
  * @property {Boolean}      fastMode                        - Indicate whether use fast mode.
@@ -43,7 +43,7 @@
  * //example
  * new cc.MotionStreak(2, 3, 32, cc.Color.GREEN, s_streak);
  */
-cc.MotionStreak = cc.Node.extend(/** @lends cc.MotionStreak# */{
+cc.MotionStreak = _ccsg.Node.extend(/** @lends cc.MotionStreak# */{
     texture:null,
     fastMode:false,
     startingPositionInitialized:false,
@@ -82,7 +82,7 @@ cc.MotionStreak = cc.Node.extend(/** @lends cc.MotionStreak# */{
      * @param {string|cc.Texture2D} texture texture filename or texture
      */
     ctor: function (fade, minSeg, stroke, color, texture) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._positionR = cc.p(0, 0);
         this._blendFunc = new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
 
@@ -254,7 +254,7 @@ cc.MotionStreak = cc.Node.extend(/** @lends cc.MotionStreak# */{
         if (cc.js.isString(texture))
             texture = cc.textureCache.addImage(texture);
 
-        cc.Node.prototype.setPosition.call(this, cc.p(0,0));
+        _ccsg.Node.prototype.setPosition.call(this, cc.p(0,0));
         this.anchorX = 0;
         this.anchorY = 0;
         this.ignoreAnchor = true;

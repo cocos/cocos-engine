@@ -339,7 +339,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
     },
     /**
      * Add child to ccui.ScrollView.
-     * @param {cc.Node} widget
+     * @param {_ccsg.Node} widget
      * @param {Number} [zOrder]
      * @param {Number|string} [tag] tag or name
      * @returns {boolean}
@@ -1760,7 +1760,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
     /**
      * Returns a node by tag
      * @param {Number} tag
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      * @deprecated  since v3.0, please use getChildByTag instead.
      */
     getNodeByTag: function (tag) {
@@ -1778,7 +1778,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
 
     /**
      * Removes a node from ccui.ScrollView.
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      * @deprecated since v3.0, please use removeChild instead.
      */
     removeNode: function (node) {
@@ -1804,7 +1804,7 @@ ccui.ScrollView = ccui.Layout.extend(/** @lends ccui.ScrollView# */{
 
     /**
      * Add node for scrollView
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      * @param {Number} zOrder
      * @param {Number} tag
      * @deprecated since v3.0, please use addChild instead.

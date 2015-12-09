@@ -23,11 +23,11 @@
  ****************************************************************************/
 
 /**
- * A class inhert from cc.Node, use for saving some protected children in other list.
+ * A class inhert from ccsg.Node, use for saving some protected children in other list.
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  */
-cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
+cc.ProtectedNode = _ccsg.Node.extend(/** @lends cc.ProtectedNode# */{
     _protectedChildren: null,
     _reorderProtectedChildDirty: false,
 
@@ -42,7 +42,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
      * @function
      */
     ctor: function(){
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._protectedChildren = [];
     },
 
@@ -51,7 +51,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
      *  Adds a child to the container with z order and tag                                                                         <br/>
      *  If the child is added to a 'running' node, then 'onEnter' and 'onEnterTransitionDidFinish' will be called immediately.     <br/>
      *  </p>
-     * @param {cc.Node} child  A child node
+     * @param {_ccsg.Node} child  A child node
      * @param {Number} [localZOrder]  Z order for drawing priority. Please refer to `setLocalZOrder(int)`
      * @param {Number} [tag]  An integer to identify the node easily. Please refer to `setTag(int)`
      */
@@ -82,7 +82,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
     /**
      * Gets a child from the container with its tag
      * @param {Number} tag An identifier to find the child node.
-     * @return {cc.Node} a Node object whose tag equals to the input parameter
+     * @return {_ccsg.Node} a Node object whose tag equals to the input parameter
      */
     getProtectedChildByTag: function(tag){
         cc.assert(tag !== cc.NODE_TAG_INVALID, "Invalid tag");
@@ -95,7 +95,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
 
     /**
      * Removes a child from the container. It will also cleanup all running actions depending on the cleanup parameter.
-     * @param {cc.Node} child  The child node which will be removed.
+     * @param {_ccsg.Node} child  The child node which will be removed.
      * @param {Boolean} [cleanup=true] true if all running actions and callbacks on the child node will be cleanup, false otherwise.
      */
     removeProtectedChild: function(child,  cleanup){
@@ -179,7 +179,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
 
     /**
      * Reorders a child according to a new z value.
-     * @param {cc.Node} child An already added child node. It MUST be already added.
+     * @param {_ccsg.Node} child An already added child node. It MUST be already added.
      * @param {Number} localZOrder Z order for drawing priority. Please refer to setLocalZOrder(int)
      */
     reorderProtectedChild: function(child, localZOrder){
@@ -231,8 +231,8 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
      * @override
      */
     cleanup: function(){
-       cc.Node.prototype.cleanup.call(this);
-       var locChildren = this._protectedChildren;
+        _ccsg.Node.prototype.cleanup.call(this);
+        var locChildren = this._protectedChildren;
         for(var i = 0 , len = locChildren.length; i  < len; i++)
             locChildren[i].cleanup();
     },
@@ -242,7 +242,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
      * @override
      */
     onEnter: function(){
-        cc.Node.prototype.onEnter.call(this);
+        _ccsg.Node.prototype.onEnter.call(this);
         var locChildren = this._protectedChildren;
         for(var i = 0, len = locChildren.length;i< len;i++)
             locChildren[i].onEnter();
@@ -257,7 +257,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
      *  @override
      */
     onEnterTransitionDidFinish: function(){
-        cc.Node.prototype.onEnterTransitionDidFinish.call(this);
+        _ccsg.Node.prototype.onEnterTransitionDidFinish.call(this);
         var locChildren = this._protectedChildren;
         for(var i = 0, len = locChildren.length;i< len;i++)
             locChildren[i].onEnterTransitionDidFinish();
@@ -268,7 +268,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
      * @override
      */
     onExit:function(){
-        cc.Node.prototype.onExit.call(this);
+        _ccsg.Node.prototype.onExit.call(this);
         var locChildren = this._protectedChildren;
         for(var i = 0, len = locChildren.length;i< len;i++)
             locChildren[i].onExit();
@@ -281,7 +281,7 @@ cc.ProtectedNode = cc.Node.extend(/** @lends cc.ProtectedNode# */{
      * </p>
      */
     onExitTransitionDidStart: function(){
-        cc.Node.prototype.onExitTransitionDidStart.call(this);
+        _ccsg.Node.prototype.onExitTransitionDidStart.call(this);
         var locChildren = this._protectedChildren;
         for(var i = 0, len = locChildren.length;i< len;i++)
             locChildren[i].onExitTransitionDidStart();

@@ -511,7 +511,7 @@ ccui.CheckBox = ccui.Widget.extend(/** @lends ccui.CheckBox# */{
     /**
      * override "getVirtualRenderer" method of widget.
      * @override
-     * @returns {cc.Node} the renderer of ccui.CheckBox.
+     * @returns {_ccsg.Node} the renderer of ccui.CheckBox.
      */
     getVirtualRenderer: function () {
         return this._backGroundBoxRenderer;

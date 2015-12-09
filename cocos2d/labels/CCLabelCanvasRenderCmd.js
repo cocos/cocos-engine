@@ -102,7 +102,7 @@
     };
     
     proto._updateDisplayOpacity = function(parentOpacity) {
-        cc.Node.RenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
+        _ccsg.Node.RenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
         //specify opacity to quad
         var color = cc.color(255, 255, 255, this._displayedOpacity);
         var quad = this._quad;
@@ -114,7 +114,7 @@
     };
     
     proto._updateDisplayColor = function (parentColor) {
-        cc.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
+        _ccsg.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
         node._labelSkinDirty = true;
     };
@@ -264,7 +264,7 @@
 
 (function() {
     cc.Label.CanvasRenderCmd = function(renderableObject) {
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
         this._labelTexture = new cc.Texture2D();
         this._labelCanvas = document.createElement("canvas");
@@ -278,7 +278,7 @@
         this._drawFontsize = 0;
     };
 
-    var proto = cc.Label.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.Label.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     cc.js.mixin(proto, cc.Label.TTFLabelBaker.prototype);
 
     proto.constructor = cc.Label.CanvasRenderCmd;
@@ -298,7 +298,7 @@
             var wrapper = ctx || cc._renderContext,
                 context = wrapper.getContext();
             wrapper.setTransform(this._worldTransform, scaleX, scaleY);
-            wrapper.setCompositeOperation(cc.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(node._blendFunc));
+            wrapper.setCompositeOperation(_ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(node._blendFunc));
             wrapper.setGlobalAlpha(alpha);
 
             if (this._labelTexture) {

@@ -25,13 +25,13 @@
 (function(){
 
     ccs.Armature.WebGLRenderCmd = function(renderableObject){
-        cc.Node.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
         this._realAnchorPointInPoints = new cc.Vec2(0,0);
     };
 
-    var proto = ccs.Armature.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = ccs.Armature.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     cc.js.mixin(proto, ccs.Armature.RenderCmd);
     proto.constructor = ccs.Armature.WebGLRenderCmd;
 
@@ -80,7 +80,7 @@
                         selNode._renderCmd.rendering(ctx);
                         break;
                 }
-            } else if (selBone instanceof cc.Node) {
+            } else if (selBone instanceof _ccsg.Node) {
                 selBone.setShaderProgram(this._shaderProgram);
                 selBone._renderCmd.transform();
                 if(selBone._renderCmd.rendering)
@@ -102,7 +102,7 @@
     proto._updateColorAndOpacity = function(skinRenderCmd, bone){
         //update displayNode's color and opacity
         var parentColor = bone._renderCmd._displayedColor, parentOpacity = bone._renderCmd._displayedOpacity;
-        var flags = cc.Node._dirtyFlags, locFlag = skinRenderCmd._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = skinRenderCmd._dirtyFlag;
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
         if(colorDirty)
@@ -131,7 +131,7 @@
     };
 
     proto.updateStatus = function () {
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
         if(colorDirty)

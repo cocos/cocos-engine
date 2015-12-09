@@ -140,7 +140,7 @@ cc.LabelTTF = cc.Sprite.extend(/** @lends cc.LabelTTF# */{
 
     _setUpdateTextureDirty: function () {
         this._needUpdateTexture = true;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.textDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
     },
 
     ctor: function (text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
@@ -531,7 +531,7 @@ cc.LabelTTF = cc.Sprite.extend(/** @lends cc.LabelTTF# */{
 
         if (mustUpdateTexture)
             this._renderCmd._updateTexture();
-        var flags = cc.Node._dirtyFlags;
+        var flags = _ccsg.Node._dirtyFlags;
         this._renderCmd.setDirtyFlag(flags.colorDirty|flags.opacityDirty|flags.textDirty);
     },
 
@@ -592,7 +592,7 @@ cc.LabelTTF = cc.Sprite.extend(/** @lends cc.LabelTTF# */{
 
             // Force update
             this._setUpdateTextureDirty();
-            this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         }
     },
     _updateString: function () {

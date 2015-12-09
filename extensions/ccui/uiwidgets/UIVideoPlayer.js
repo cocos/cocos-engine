@@ -339,13 +339,13 @@ ccui.VideoPlayer.EventType = {
 
 (function(polyfill){
     ccui.VideoPlayer.RenderCmd = function(node){
-        cc.Node.CanvasRenderCmd.call(this, node);
+        _ccsg.Node.CanvasRenderCmd.call(this, node);
         this._listener = null;
         this._url = "";
         this.initStyle();
     };
 
-    var proto = ccui.VideoPlayer.RenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = ccui.VideoPlayer.RenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = ccui.VideoPlayer.RenderCmd;
 
     proto.visit = function(){
@@ -375,12 +375,12 @@ ccui.VideoPlayer.EventType = {
 
     proto.updateStatus = function(){
         polyfill.devicePixelRatio = cc.view.isRetinaEnabled();
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         if(locFlag & flags.transformDirty){
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
             this.updateMatrix(this._worldTransform, cc.view._scaleX, cc.view._scaleY);
-            this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
         }
     };
 
@@ -449,7 +449,7 @@ ccui.VideoPlayer.EventType = {
                 return;
             self._loaded = true;
             self.changeSize();
-            self.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+            self.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
             video.removeEventListener(polyfill.event, cb);
             video.currentTime = 0;
             video.style["visibility"] = "visible";

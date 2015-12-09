@@ -70,7 +70,7 @@ cc.PARTICLE_DEFAULT_CAPACITY = 500;
  * var texture = cc.TextureCache.getInstance().addImage("res/grossini_dance.png");
  * var particleBatchNode = new cc.ParticleBatchNode(texture, 30);
  */
-cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
+cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 	textureAtlas:null,
     //the blend function used for drawing the quads
     _blendFunc:null,
@@ -92,7 +92,7 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
      * var particleBatchNode = new cc.ParticleBatchNode(texture, 30);
      */
     ctor:function (fileImage, capacity) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._blendFunc = {src:cc.BLEND_SRC, dst:cc.BLEND_DST};
         if (cc.js.isString(fileImage)) {
             this.init(fileImage, capacity);
@@ -234,7 +234,7 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
             return;
         }
 
-        cc.Node.prototype.removeChild.call(this, child, cleanup);
+        _ccsg.Node.prototype.removeChild.call(this, child, cleanup);
 
         var locTextureAtlas = this.textureAtlas;
         // remove child helper
@@ -318,7 +318,7 @@ cc.ParticleBatchNode = cc.Node.extend(/** @lends cc.ParticleBatchNode# */{
         for (var i = 0; i < locChildren.length; i++) {
             locChildren[i].setBatchNode(null);
         }
-        cc.Node.prototype.removeAllChildren.call(this, doCleanup);
+        _ccsg.Node.prototype.removeAllChildren.call(this, doCleanup);
         this.textureAtlas.removeAllQuads();
     },
 
