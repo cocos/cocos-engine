@@ -169,7 +169,7 @@ cc.Event.prototype = {
      *          It returns 0 when the listener is associated with fixed priority.
      * </p>
      * @method getCurrentTarget
-     * @returns {ENode}  The target with which the event associates.
+     * @returns {Node}  The target with which the event associates.
      */
     getCurrentTarget: function () {
         return this.currentTarget;

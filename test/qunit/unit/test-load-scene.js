@@ -16,7 +16,7 @@
                 properties: {
                     target: {
                         default: null,
-                        type: cc.ENode
+                        type: cc.Node
                     }
                 },
                 getName: function () {
@@ -31,16 +31,16 @@
     });
 
     test('basic test', function () {
-        var newScene = new cc.EScene();
-        var root1 = new cc.ENode();
+        var newScene = new cc.Scene();
+        var root1 = new cc.Node();
         root1.parent = newScene;
 
         var serialized = Editor.serialize(newScene, {stringify: false});
-        strictEqual(serialized[0].__type__, cc.js._getClassId(cc.EScene), 'scene should be serialized');
+        strictEqual(serialized[0].__type__, cc.js._getClassId(cc.Scene), 'scene should be serialized');
         ok(serialized[0]._children instanceof Array, 'children should be serialized');
 
         var loaded = cc.deserialize(serialized);
-        ok(loaded instanceof cc.EScene, 'deserialization');
+        ok(loaded instanceof cc.Scene, 'deserialization');
         strictEqual(loaded._children.length, 1, 'children should be loaded');
 
         ok(cc.engine.getInstanceById(root1.uuid) == null, 'should not register uuid to engine before scene launch');

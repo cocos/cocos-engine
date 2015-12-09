@@ -33,7 +33,7 @@ test('Inheritance of editor properties', function () {
 //    });
 //    cc.executeInEditMode(MyComp);
 //
-//    var ent = new cc.ENode();
+//    var ent = new cc.Node();
 //    var comp = ent.addComponent(MyComp);
 //
 //    cb.enable();
@@ -58,7 +58,7 @@ test('Inheritance of editor properties', function () {
 //        myCallback1: cb1,
 //    });
 //    cc.executeInEditMode(MyComp);
-//    var ent = new cc.ENode();
+//    var ent = new cc.Node();
 //    var comp = ent.addComponent(MyComp);
 //
 //    comp.invoke('myCallback1', 0.001);
@@ -83,7 +83,7 @@ test('Inheritance of editor properties', function () {
 //    });
 //    cc.executeInEditMode(MyComp);
 //
-//    var ent = new cc.ENode();
+//    var ent = new cc.Node();
 //    var comp = ent.addComponent(MyComp);
 //
 //    cb.enable();
@@ -108,7 +108,7 @@ test('Inheritance of editor properties', function () {
 //        myCallback1: cb1,
 //    });
 //    cc.executeInEditMode(MyComp);
-//    var ent = new cc.ENode();
+//    var ent = new cc.Node();
 //    var comp = ent.addComponent(MyComp);
 //
 //    var id1 = comp.invoke(comp.myCallback1, 0.001);
@@ -134,7 +134,7 @@ test('Inheritance of editor properties', function () {
 //    });
 //    cc.executeInEditMode(MyComp);
 //
-//    var ent = new cc.ENode();
+//    var ent = new cc.Node();
 //    var comp = ent.addComponent(MyComp);
 //
 //    comp.repeat('myCallback', 0);
@@ -162,7 +162,7 @@ test('Inheritance of editor properties', function () {
 //    });
 //    cc.executeInEditMode(MyComp);
 //
-//    var ent = new cc.ENode();
+//    var ent = new cc.Node();
 //    var comp = ent.addComponent(MyComp);
 //
 //    var repeatId = comp.repeat(cb, 0);

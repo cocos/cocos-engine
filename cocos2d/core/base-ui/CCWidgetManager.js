@@ -24,7 +24,7 @@
 
 // returns a readonly size of the parent node
 function getParentSize (parent) {
-    if (parent instanceof cc.EScene) {
+    if (parent instanceof cc.Scene) {
         if (CC_EDITOR) {
             return cc.engine.getDesignResolutionSize();
         }
