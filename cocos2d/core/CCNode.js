@@ -500,7 +500,7 @@ var Node = cc.Class({
     },
 
     _deactivateChildComponents: function () {
-        // �_onActivatedInHierarchy 类似但不修改 this._activeInHierarchy
+        // 和 _onActivatedInHierarchy 类似但不修改 this._activeInHierarchy
         var originCount = this._components.length;
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
@@ -574,5 +574,5 @@ var Node = cc.Class({
 
 });
 
-// TODO - 这个类名是临时的，之后要改名�cc.Node，再对外屏蔽�cc.Node
+// TODO - 这个类名是临时的，之后要改名成 cc.Node，再对外屏蔽原 cc.Node
 cc.Node = module.exports = Node;
