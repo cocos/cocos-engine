@@ -53,7 +53,7 @@ var ProgressBar = cc.Class({
         executeInEditMode: true
     },
 
-    _updateBarSprite: function () {
+    _initBarSprite: function () {
         var targetEntity = this.barSprite;
         if (targetEntity) {
             this._originalAnchor = targetEntity.getAnchorPoint();
@@ -66,10 +66,10 @@ var ProgressBar = cc.Class({
             }else{
                 this.totalLength = barSpriteSize.height;
             }
-            this._updateBarStatus();
+            this._updateBarStatus(true);
         }
     },
-    _updateBarStatus: function(){
+    _updateBarStatus: function(isResetPosition){
         var entity = this.barSprite;
         if(entity) {
             var anchorPoint = cc.p(0, 0.5);
@@ -98,12 +98,14 @@ var ProgressBar = cc.Class({
                     totalHeight = this.totalLength;
             }
 
-            var anchorOffsetX = anchorPoint.x - this._originalAnchor.x;
-            var anchorOffsetY = anchorPoint.y - this._originalAnchor.y;
+            if(isResetPosition){
+                var anchorOffsetX = anchorPoint.x - this._originalAnchor.x;
+                var anchorOffsetY = anchorPoint.y - this._originalAnchor.y;
 
-            var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
+                var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
 
-            entity.setPosition(cc.pAdd(this._originalPosition, finalPosition));
+                entity.setPosition(cc.pAdd(this._originalPosition, finalPosition));
+            }
 
             entity.setAnchorPoint(anchorPoint);
             entity.setContentSize(finalContentSize);
@@ -111,13 +113,6 @@ var ProgressBar = cc.Class({
         }
     },
 
-    onDestroy: function () {
-        if(this.barSprite){
-            this.barSprite.setAnchorPoint(this._originalAnchor);
-            this.barSprite.setContentSize(this._originalSize);
-            this.barSprite.setPosition(this._originalPosition);
-        }
-    },
     properties: {
         _originalAnchor: null,
         _originalPosition: null,
@@ -128,7 +123,7 @@ var ProgressBar = cc.Class({
             type: cc.ENode,
 
             notify: function () {
-                this._updateBarSprite();
+                this._initBarSprite();
             }
         },
 
@@ -142,7 +137,7 @@ var ProgressBar = cc.Class({
                 }else if(value === Mode.VERTICAL){
                     this.totalLength = this._originalSize.width;
                 }
-                this._updateBarStatus();
+                this._updateBarStatus(true);
             }
         },
 
@@ -166,7 +161,7 @@ var ProgressBar = cc.Class({
         reverse: {
             default: false,
             notify: function(){
-                this._updateBarStatus();
+                this._updateBarStatus(true);
             }
         }
     }
