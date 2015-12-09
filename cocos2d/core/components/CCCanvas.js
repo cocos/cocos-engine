@@ -109,8 +109,7 @@ var Canvas = cc.Class({
             cc.error('CCCanvas: Node can only have one size.');
         }
 
-        this.node.position = cc.Vec2.ZERO;
-        this.node.setAnchorPoint(0, 0);
+        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
 
         if (CC_EDITOR) {
             cc.engine.on('design-resolution-changed', this._thisOnResized);
@@ -133,6 +132,8 @@ var Canvas = cc.Class({
             this.node._sizeProvider = null;
         }
 
+        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);
+
         if (CC_EDITOR) {
             cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
@@ -148,8 +149,15 @@ var Canvas = cc.Class({
 
     //
 
+    alignWithScreen: function () {
+        var screenSize = designResolutionWrapper.getContentSize();
+        var anchor = this.node.getAnchorPoint();
+        this.node.setPosition(screenSize.width * anchor.x, screenSize.height * anchor.y);
+    },
+
     onResized: function () {
         // TODO - size dirty
+        this.alignWithScreen();
     },
 
     applyPolicy: function () {
