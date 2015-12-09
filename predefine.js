@@ -31,6 +31,7 @@
 
 cc = {};
 
+// The namespace for original nodes rendering in scene graph.
 _ccsg = {};
 
 //to make sure the cc.log, cc.warn, cc.error, cc._throw and cc.assert would not throw error before init by debugger mode.

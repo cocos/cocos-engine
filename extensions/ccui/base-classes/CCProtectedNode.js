@@ -232,7 +232,7 @@ cc.ProtectedNode = _ccsg.Node.extend(/** @lends cc.ProtectedNode# */{
      */
     cleanup: function(){
         _ccsg.Node.prototype.cleanup.call(this);
-       var locChildren = this._protectedChildren;
+        var locChildren = this._protectedChildren;
         for(var i = 0 , len = locChildren.length; i  < len; i++)
             locChildren[i].cleanup();
     },
