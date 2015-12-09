@@ -302,6 +302,14 @@ var Node = cc.Class({
                 return null;
             }
         }
+        var ReqComp = constructor._requireComponent;
+        if (ReqComp && !this.getComponent(ReqComp)) {
+            var depended = this.addComponent(ReqComp);
+            if (!depended) {
+                // depend conflicts
+                return null;
+            }
+        }
 
         //
 
@@ -335,10 +343,18 @@ var Node = cc.Class({
             return cc.error("_addComponentAt: Index out of range");
         }
 
+        // recheck attributes because script may changed
         var ctor = comp.constructor;
         if (ctor._disallowMultiple) {
             if (!this._checkMultipleComp(ctor)) {
                 return;
+            }
+        }
+        if (ctor._requireComponent) {
+            var depend = this.addComponent(ctor._requireComponent);
+            if (!depend) {
+                // depend conflicts
+                return null;
             }
         }
 
@@ -361,7 +377,7 @@ var Node = cc.Class({
     removeComponent: function (component) {
         if ( !component ) {
             cc.error('removeComponent: Component must be non-nil');
-            return null;
+            return;
         }
         if (typeof component !== 'object') {
             component = this.getComponent(component);
@@ -372,14 +388,22 @@ var Node = cc.Class({
     },
 
     /**
-     * Removes all components of cc.ENode.
-     * @method removeAllComponents
+     * @method _getDependComponent
+     * @param {cc.Component} depended
+     * @return {cc.Component}
+     * @private
      */
-    removeAllComponents: function () {
+    _getDependComponent: CC_EDITOR && function (depended) {
         for (var i = 0; i < this._components.length; i++) {
             var comp = this._components[i];
-            comp.destroy();
+            if (comp !== depended && comp.isValid && !cc.Object._willDestroy(comp)) {
+                var depend = comp.constructor._requireComponent;
+                if (depend && depended instanceof depend) {
+                    return comp;
+                }
+            }
         }
+        return null;
     },
 
     // do remove component, only used internally
@@ -388,6 +412,7 @@ var Node = cc.Class({
             cc.error('Argument must be non-nil');
             return;
         }
+
         if (!(this._objFlags & Destroying)) {
             var i = this._components.indexOf(component);
             if (i !== -1) {
