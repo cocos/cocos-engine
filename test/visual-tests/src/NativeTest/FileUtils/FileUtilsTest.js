@@ -47,17 +47,17 @@ var fileUtilsBase = BaseTestLayer.extend({
         new NativeTestScene().runThisTest();
     },
     onRestartCallback:function (sender) {
-        var s = new cc.Scene();
+        var s = new _ccsg.Scene();
         s.addChild(restartfileUtils());
         director.runScene(s);
     },
     onNextCallback:function (sender) {
-        var s = new cc.Scene();
+        var s = new _ccsg.Scene();
         s.addChild(nextfileUtils());
         director.runScene(s);
     },
     onBackCallback:function (sender) {
-        var s = new cc.Scene();
+        var s = new _ccsg.Scene();
         s.addChild(previousfileUtils());
         director.runScene(s);
     },
@@ -392,7 +392,7 @@ var restartfileUtils = function () {
 var startFileUtilsTest = function()
 {
     fileUtilsSceneIdx = 0;
-    var s = new cc.Scene();
+    var s = new _ccsg.Scene();
     s.addChild(restartfileUtils());
     director.runScene(s);
 }

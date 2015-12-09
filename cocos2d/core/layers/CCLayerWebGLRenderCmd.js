@@ -33,10 +33,10 @@
  */
 (function(){
     cc.Layer.WebGLRenderCmd = function(renderable){
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
     };
 
-    var proto = cc.Layer.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.Layer.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.Layer.WebGLRenderCmd;
 
     proto.bake = function(){};
@@ -168,7 +168,7 @@
     proto.constructor = cc.LayerGradient.WebGLRenderCmd;
 
     proto._syncStatus = function (parentCmd) {
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
         if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
@@ -202,7 +202,7 @@
     };
 
     proto._updateColor = function(){
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.gradientDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.gradientDirty ^ this._dirtyFlag;
         var node = this._node, stops = node._colorStops;
         if(!stops || stops.length < 2)
             return;

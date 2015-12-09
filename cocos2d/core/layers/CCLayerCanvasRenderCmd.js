@@ -34,13 +34,13 @@
 (function(){
     //Layer's canvas render command
     cc.Layer.CanvasRenderCmd = function(renderable){
-        cc.Node.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._isBaked = false;
         this._bakeSprite = null;
         this._updateCache = 2; // 2: Updated child visit 1: Rendering 0: Nothing to do
     };
 
-    var proto = cc.Layer.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.Layer.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.Layer.CanvasRenderCmd;
 
     proto._setCacheDirty = function(child){
@@ -56,7 +56,7 @@
     proto.transform = function (parentCmd, recursive) {
         var wt = this._worldTransform;
         var a = wt.a, b = wt.b, c = wt.c, d = wt.d, tx = wt.tx, ty = wt.ty;
-        cc.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
         if(( wt.a !== a || wt.b !== b || wt.c !== c || wt.d !== d ) && this._updateCache === 0)
             this._updateCache = 2;
     };
@@ -137,7 +137,7 @@
 
     proto.visit = function(parentCmd){
         if(!this._isBaked){
-            cc.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
+            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
             return;
         }
 
@@ -230,7 +230,7 @@
     };
 
     proto.updateBlendFunc = function(blendFunc){
-        this._blendFuncStr = cc.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(blendFunc);
+        this._blendFuncStr = _ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(blendFunc);
     };
 
     proto._updateSquareVertices =
@@ -289,7 +289,7 @@
 
     proto.visit = function(parentCmd){
         if(!this._isBaked){
-            cc.Node.CanvasRenderCmd.prototype.visit.call(this);
+            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this);
             return;
         }
 
@@ -303,7 +303,7 @@
         cc.renderer.pushRenderCommand(this._bakeRenderCmd);
 
         //the bakeSprite is drawing
-        this._bakeSprite._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._bakeSprite._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         this._bakeSprite.visit(this);
         this._dirtyFlag = 0;
     };
@@ -334,7 +334,7 @@
 (function () {
     cc.LayerGradient.RenderCmd = {
         updateStatus: function () {
-            var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+            var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
             var colorDirty = locFlag & flags.colorDirty,
                 opacityDirty = locFlag & flags.opacityDirty;
             if(colorDirty)
@@ -402,7 +402,7 @@
     };
 
     proto._syncStatus = function (parentCmd) {
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
         if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
@@ -439,7 +439,7 @@
         var node = this._node;
         var contentSize = node._contentSize;
         var tWidth = contentSize.width * 0.5, tHeight = contentSize.height * 0.5;
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.gradientDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.gradientDirty ^ this._dirtyFlag;
 
         //fix the bug of gradient layer
         var angle = cc.pAngleSigned(cc.p(0, -1), node._alongVector);

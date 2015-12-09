@@ -24,7 +24,7 @@
 
 (function(){
     cc.RenderTexture.CanvasRenderCmd = function(renderableObject){
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
         this._clearColorStr = "rgba(255,255,255,1)";
 
@@ -32,7 +32,7 @@
         this._cacheContext = new cc.CanvasContextWrapper(this._cacheCanvas.getContext('2d'));
     };
 
-    var proto = cc.RenderTexture.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.RenderTexture.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.RenderTexture.CanvasRenderCmd;
 
     proto.cleanup = function(){

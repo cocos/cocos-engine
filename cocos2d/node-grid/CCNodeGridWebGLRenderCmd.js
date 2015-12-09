@@ -24,13 +24,13 @@
 
 (function(){
     cc.NodeGrid.WebGLRenderCmd = function(renderable){
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = false;
         this._gridBeginCommand = new cc.CustomRenderCmd(this, this.onGridBeginDraw);
         this._gridEndCommand = new cc.CustomRenderCmd(this, this.onGridEndDraw);
     };
 
-    var proto = cc.NodeGrid.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.NodeGrid.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.NodeGrid.WebGLRenderCmd;
 
     proto.visit = function(parentCmd) {

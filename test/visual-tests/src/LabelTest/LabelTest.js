@@ -2107,7 +2107,7 @@ var LabelLayoutBaseTest = AtlasDemo.extend({
         plusButton.setScale(1.2);
         plusButton.setName("+");
 
-        var node = new cc.Node();
+        var node = new _ccsg.Node();
         node.addChild(button);
         node.addChild(plusButton);
         node.setName("stepper");

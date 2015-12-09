@@ -32,7 +32,7 @@
 
             this._realAnchorPointInPoints.x = contentSize.width * anchorPoint.x;
             this._realAnchorPointInPoints.y = contentSize.height * anchorPoint.y;
-            this.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+            this.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         },
 
         getAnchorPointInPoints: function(){
@@ -43,7 +43,7 @@
 
 (function(){
     ccs.Armature.CanvasRenderCmd = function(renderableObject){
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
         this._realAnchorPointInPoints = new cc.Vec2(0,0);
@@ -51,7 +51,7 @@
         this._RestoreRenderCmd = new cc.CustomRenderCmd(this, this._RestoreCmdCallback);
     };
 
-    var proto = ccs.Armature.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = ccs.Armature.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     cc.js.mixin(proto, ccs.Armature.RenderCmd);
     proto.constructor = ccs.Armature.CanvasRenderCmd;
 
@@ -80,7 +80,7 @@
 
                     //update displayNode's color and opacity, because skin didn't call visit()
                     var parentColor = selBone._renderCmd._displayedColor, parentOpacity = selBone._renderCmd._displayedOpacity;
-                    var flags = cc.Node._dirtyFlags, locFlag = cmd._dirtyFlag;
+                    var flags = _ccsg.Node._dirtyFlags, locFlag = cmd._dirtyFlag;
                     var colorDirty = locFlag & flags.colorDirty,
                         opacityDirty = locFlag & flags.opacityDirty;
                     if(colorDirty)
@@ -129,7 +129,7 @@
                         selNode.visit(this);
                         break;
                 }
-            } else if(selBone instanceof cc.Node) {
+            } else if(selBone instanceof _ccsg.Node) {
                 this._visitNormalChild(selBone);
                 //selBone.visit(this);
             }

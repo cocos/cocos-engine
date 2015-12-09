@@ -108,7 +108,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
         this._slidBallPressedRenderer.setVisible(false);
         this._slidBallDisabledRenderer = new cc.Sprite();
         this._slidBallDisabledRenderer.setVisible(false);
-        this._slidBallRenderer = new cc.Node();
+        this._slidBallRenderer = new _ccsg.Node();
         this._slidBallRenderer.addChild(this._slidBallNormalRenderer);
         this._slidBallRenderer.addChild(this._slidBallPressedRenderer);
         this._slidBallRenderer.addChild(this._slidBallDisabledRenderer);
@@ -583,7 +583,7 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     /**
      * Returns the bar renderer.
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getVirtualRenderer: function () {
         return this._barRenderer;

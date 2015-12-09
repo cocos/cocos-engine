@@ -27,11 +27,11 @@
      * cc.ParticleBatchNode's rendering objects of WebGL
      */
     cc.ParticleBatchNode.WebGLRenderCmd = function(renderable){
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
     };
 
-    var proto = cc.ParticleBatchNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.ParticleBatchNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ParticleBatchNode.WebGLRenderCmd;
 
     proto.rendering = function (ctx) {
@@ -52,7 +52,7 @@
     proto.visit = function(parentCmd){
         var node = this._node;
         // CAREFUL:
-        // This visit is almost identical to cc.Node#visit
+        // This visit is almost identical to _ccsg.Node#visit
         // with the exception that it doesn't call visit on it's children
         //
         // The alternative is to have a void cc.Sprite#visit, but

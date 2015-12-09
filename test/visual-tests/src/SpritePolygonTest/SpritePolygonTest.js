@@ -81,7 +81,7 @@ var SpritePolygonTestDemo = BaseTestLayer.extend({
     }
 });
 
-var SpritePolygonTestScene = cc.Scene.extend({
+var SpritePolygonTestScene = _ccsg.Scene.extend({
     ctor:function () {
         this._super();
 
@@ -96,7 +96,7 @@ var SpritePolygonTestScene = cc.Scene.extend({
         this.addChild(menu, 99);
     },
     onMainMenuCallback:function () {
-        var scene = new cc.Scene();
+        var scene = new _ccsg.Scene();
         var layer = new TestController();
         scene.addChild(layer);
         director.runScene(scene);
@@ -356,7 +356,7 @@ var SpritePolygonPerformance = SpritePolygonTestDemo.extend({
             this.perfLabel.string = temp;
     },
     makeSprite: function () {
-        return new cc.Node();
+        return new _ccsg.Node();
     },
     update: function (dt) {
         dt = dt*0.3 + this.prevDt*0.7;

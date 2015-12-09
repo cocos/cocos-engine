@@ -1,6 +1,6 @@
 ccs.SkinNode = (function(){
 
-    var Node = cc.Node;
+    var Node = _ccsg.Node;
 
     var proto = {
     };

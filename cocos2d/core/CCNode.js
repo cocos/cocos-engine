@@ -32,7 +32,7 @@ var DontDestroy = Flags.DontDestroy;
 
 /**
  * Class of all entities in Fireball scenes.
- * @class ENode
+ * @class Node
  * @extends _BaseNode
  */
 var Node = cc.Class({
@@ -474,7 +474,7 @@ var Node = cc.Class({
     },
 
     _onHierarchyChanged: function (oldParent) {
-        if (this._persistNode && !(this._parent instanceof cc.EScene)) {
+        if (this._persistNode && !(this._parent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
             if (CC_EDITOR) {
                 cc.warn('Set "%s" to normal node (not persist root node).');
@@ -576,4 +576,4 @@ var Node = cc.Class({
 });
 
 // TODO - 这个类名是临时的，之后要改名成 cc.Node，再对外屏蔽原 cc.Node
-cc.ENode = module.exports = Node;
+cc.Node = module.exports = Node;

@@ -681,7 +681,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
      * @param {Number} [scaleY=null] default is scale
      */
     setScale: function (scale, scaleY) {
-        cc.Node.prototype.setScale.call(this, scale, scaleY);
+        _ccsg.Node.prototype.setScale.call(this, scale, scaleY);
         this.updateLabel();
     },
 
@@ -692,7 +692,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
      * @param {Number} scaleX
      */
     setScaleX: function (scaleX) {
-        cc.Node.prototype.setScaleX.call(this, scaleX);
+        _ccsg.Node.prototype.setScaleX.call(this, scaleX);
         this.updateLabel();
     },
 
@@ -703,7 +703,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
      * @param {Number} scaleY
      */
     setScaleY: function (scaleY) {
-        cc.Node.prototype.setScaleY.call(this, scaleY);
+        _ccsg.Node.prototype.setScaleY.call(this, scaleY);
         this.updateLabel();
     },
 
@@ -766,17 +766,17 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
      * @param {Number} [y] The anchor point.y of labelBMFont.
      */
     setAnchorPoint: function (point, y) {
-        cc.Node.prototype.setAnchorPoint.call(this, point, y);
+        _ccsg.Node.prototype.setAnchorPoint.call(this, point, y);
         this.updateLabel();
     },
 
     _setAnchorX: function (x) {
-        cc.Node.prototype._setAnchorX.call(this, x);
+        _ccsg.Node.prototype._setAnchorX.call(this, x);
         this.updateLabel();
     },
 
     _setAnchorY: function (y) {
-        cc.Node.prototype._setAnchorY.call(this, y);
+        _ccsg.Node.prototype._setAnchorY.call(this, y);
         this.updateLabel();
     },
 

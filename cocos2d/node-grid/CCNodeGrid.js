@@ -25,21 +25,21 @@
  ****************************************************************************/
 
 /**
- * <p>NodeGrid class is a class serves as a decorator of cc.Node,<br/>
+ * <p>NodeGrid class is a class serves as a decorator of ccsg.Node,<br/>
  * Grid node can run grid actions over all its children   (WebGL only)
  * </p>
  * @type {Class}
  *
  * @property {cc.GridBase}  grid    - Grid object that is used when applying effects
- * @property {cc.Node}      target  - <@writeonly>Target
+ * @property {_ccsg.Node}      target  - <@writeonly>Target
  */
-cc.NodeGrid = cc.Node.extend({
+cc.NodeGrid = _ccsg.Node.extend({
     grid: null,
     _target: null,
     _gridRect:null,
 
     ctor: function (rect) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         if(rect === undefined) rect = cc.rect();
         this._gridRect = rect;
     },
@@ -76,7 +76,7 @@ cc.NodeGrid = cc.Node.extend({
 
     /**
      * Set the target
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     setTarget: function (target) {
         this._target = target;
@@ -126,7 +126,7 @@ cc.NodeGrid = cc.Node.extend({
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL)
             return new cc.NodeGrid.WebGLRenderCmd(this);
         else
-            return new cc.Node.CanvasRenderCmd(this);            // cc.NodeGrid doesn't support Canvas mode.
+            return new _ccsg.Node.CanvasRenderCmd(this);            // cc.NodeGrid doesn't support Canvas mode.
     }
 });
 

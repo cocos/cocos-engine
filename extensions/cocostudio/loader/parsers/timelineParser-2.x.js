@@ -163,10 +163,10 @@
     /**
      * SingleNode
      * @param json
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     parser.initSingleNode = function(json){
-        var node = new cc.Node();
+        var node = new _ccsg.Node();
 
         this.generalAttributes(node, json);
         var color = json["CColor"];

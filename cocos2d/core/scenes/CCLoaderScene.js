@@ -26,11 +26,11 @@
  * <p>cc.LoaderScene is a scene that you can load it when you loading files</p>
  * <p>cc.LoaderScene can present thedownload progress </p>
  * @class
- * @extends cc.Scene
+ * @extends _ccsg.Scene
  * @example
  * var lc = new cc.LoaderScene();
  */
-cc.LoaderScene = cc.Scene.extend({
+cc.LoaderScene = _ccsg.Scene.extend({
     _interval : null,
     _label : null,
     _className:"LoaderScene",
@@ -88,7 +88,7 @@ cc.LoaderScene = cc.Scene.extend({
      */
     onEnter: function () {
         var self = this;
-        cc.Node.prototype.onEnter.call(self);
+        _ccsg.Node.prototype.onEnter.call(self);
         self.schedule(self._startLoading, 0.3);
         this._onProjectionChange = function(){
             self._updateTransform();
@@ -100,7 +100,7 @@ cc.LoaderScene = cc.Scene.extend({
      */
     onExit: function () {
         cc.director.off(cc.Director.EVENT_PROJECTION_CHANGED, this._onProjectionChange);
-        cc.Node.prototype.onExit.call(this);
+        _ccsg.Node.prototype.onExit.call(this);
         var tmpStr = "Loading... 0%";
         this._label.setString(tmpStr);
     },
@@ -135,10 +135,10 @@ cc.LoaderScene = cc.Scene.extend({
     },
 
     _updateTransform: function(){
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-        this._bgLayer._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-        this._label._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-        this._logo._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        this._bgLayer._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        this._label._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        this._logo._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     }
 });
 /**

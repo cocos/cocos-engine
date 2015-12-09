@@ -662,7 +662,7 @@ _p = null;
 /**
  * get the rect of a node in world coordinate frame
  * @function
- * @param {cc.Node} node
+ * @param {_ccsg.Node} node
  * @return {cc.Rect}
  */
 cc.EditBox.getRect = function (node) {

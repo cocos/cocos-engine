@@ -24,7 +24,7 @@
 
 var JS = cc.js;
 var SceneGraphHelper = require('./scene-graph-helper');
-var SGProto = cc.Node.prototype;
+var SGProto = _ccsg.Node.prototype;
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
 
@@ -41,19 +41,19 @@ function setMaxZOrder (node) {
 }
 
 /**
- * A base node for CCENode and CCEScene, it will:
+ * A base node for CCNode and CCEScene, it will:
  * - provide the same api with origin cocos2d rendering node (SGNode)
  * - maintains properties of the internal SGNode
  * - retain and release the SGNode
  * - serialize datas for SGNode (but SGNode itself will not being serialized)
  * - notifications if some properties changed
- * - define some interfaces shares between CCENode and CCEScene
+ * - define some interfaces shares between CCNode and CCEScene
  *
  * @class _BaseNode
  * @extends Object
  * @private
  */
-var BaseNode = cc.Class(/** @lends cc.ENode# */{
+var BaseNode = cc.Class(/** @lends cc.Node# */{
     extends: cc.Object,
 
     properties: {
@@ -100,7 +100,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         /**
          * The parent of the node.
          * @property name
-         * @type {ENode}
+         * @type {Node}
          * @default null
          */
         parent: {
@@ -296,7 +296,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         /**
          * All children nodes
          * @property children
-         * @type {ENode[]}
+         * @type {Node[]}
          * @readOnly
          */
         children: {
@@ -488,7 +488,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
             enumerable: false
         });
 
-        var sgNode = this._sgNode = new cc.Node();
+        var sgNode = this._sgNode = new _ccsg.Node();
         if (!cc.game._isCloning) {
             sgNode.cascadeOpacity = true;
         }
@@ -499,7 +499,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
          * Current active scene graph node which provides content size.
          *
          * @property _sizeProvider
-         * @type {cc.Node}
+         * @type {_ccsg.Node}
          * @private
          */
         this._sizeProvider = null;
@@ -520,7 +520,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
 
     /**
-     * Initializes the instance of cc.ENode
+     * Initializes the instance of cc.Node
      * @method init
      * @returns {Boolean} Whether the initialization was successful.
      * @deprecated, no need anymore
@@ -679,7 +679,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
     /**
      * Returns a copy of the anchor point in absolute pixels.  <br/>
      * you can only read it. If you wish to modify it, use setAnchorPoint
-     * @see cc.ENode#getAnchorPoint
+     * @see cc.Node#getAnchorPoint
      * @method getAnchorPointInPoints
      * @return {Vec2} The anchor point in absolute pixels.
      */
@@ -758,7 +758,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         //cc.eventManager.removeListeners(this);
 
         // children
-        SGProto._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.cleanup);
+        SGProto._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.cleanup);
     },
 
     // composition: GET
@@ -767,7 +767,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * Returns a child from the container given its tag
      * @method getChildByTag
      * @param {Number} aTag - An identifier to find the child node.
-     * @return {ENode} a CCNode object whose tag equals to the input parameter
+     * @return {Node} a CCNode object whose tag equals to the input parameter
      */
     getChildByTag: SGProto.getChildByTag,
 
@@ -775,7 +775,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * Returns a child from the container given its name
      * @method getChildByName
      * @param {String} name - A name to find the child node.
-     * @return {ENode} a CCNode object whose name equals to the input parameter
+     * @return {Node} a CCNode object whose name equals to the input parameter
      */
     getChildByName: SGProto.getChildByName,
 
@@ -785,7 +785,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      *
      * <p>If the child is added to a 'running' node, then 'onEnter' and 'onEnterTransitionDidFinish' will be called immediately.</p>
      * @method addChild
-     * @param {ENode} child - A child node
+     * @param {Node} child - A child node
      * @param {Number} [localZOrder=] - Z order for drawing priority. Please refer to setZOrder(int)
      * @param {Number|String} [tag=] - An integer or a name to identify the node easily. Please refer to setTag(int) and setName(string)
      */
@@ -830,7 +830,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * If the node orphan, then nothing happens.
      * @method removeFromParent
      * @param {Boolean} [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
-     * @see cc.ENode#removeFromParentAndCleanup
+     * @see cc.Node#removeFromParentAndCleanup
      */
     removeFromParent: function (cleanup) {
         if (this._parent) {
@@ -846,7 +846,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * If a class wants to extend the 'removeChild' behavior it only needs <br/>
      * to override this method </p>
      * @method removeChild
-     * @param {ENode} child - The child node which will be removed.
+     * @param {Node} child - The child node which will be removed.
      * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
      */
     removeChild: function (child, cleanup) {
@@ -866,7 +866,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * @method removeChildByTag
      * @param {Number} tag - An integer number that identifies a child node
      * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @see cc.ENode#removeChildByTag
+     * @see cc.Node#removeChildByTag
      */
     removeChildByTag: function (tag, cleanup) {
         if (tag === cc.NODE_TAG_INVALID)
@@ -1087,7 +1087,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
     /**
      * Set whether color should be changed with the opacity value,
-     * useless in cc.Node, but this function is override in some class to have such behavior.
+     * useless in ccsg.Node, but this function is override in some class to have such behavior.
      * @method setOpacityModifyRGB
      * @param {Boolean} opacityValue
      */
@@ -1161,7 +1161,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * Is this node a child of the given node?
      *
      * @method isChildOf
-     * @param {ENode} parent
+     * @param {Node} parent
      * @return {Boolean} - Returns true if this node is a child, deep child or identical to the given node.
      */
     isChildOf: function (parent) {

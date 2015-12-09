@@ -98,11 +98,11 @@ var TestScript = cc.Class({
     properties: {
         target: {
             default: null,
-            type: cc.ENode
+            type: cc.Node
         },
         target2: {
             default: null,
-            type: cc.ENode
+            type: cc.Node
         },
     }
 });
@@ -177,7 +177,7 @@ function _resetGame (w, h) {
     }
     cc.director.purgeDirector();
     cc.loader.releaseAll();
-    cc.director.runScene(new cc.EScene());
+    cc.director.runScene(new cc.Scene());
     //cc.director.pause();
 }
 

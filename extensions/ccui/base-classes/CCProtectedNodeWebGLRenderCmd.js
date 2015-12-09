@@ -23,13 +23,13 @@
  ****************************************************************************/
 
 (function(){
-    if(!cc.Node.WebGLRenderCmd)
+    if(!_ccsg.Node.WebGLRenderCmd)
         return;
     cc.ProtectedNode.WebGLRenderCmd = function (renderable) {
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
     };
 
-    var proto = cc.ProtectedNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.ProtectedNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     cc.js.mixin(proto, cc.ProtectedNode.RenderCmd);
     proto.constructor = cc.ProtectedNode.WebGLRenderCmd;
 

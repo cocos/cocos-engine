@@ -102,7 +102,7 @@ var CCB_SIZETYPE_MULTIPLY_RESOLUTION = 5;
 var CCB_SCALETYPE_ABSOLUTE = 0;
 var CCB_SCALETYPE_MULTIPLY_RESOLUTION = 1;
 
-cc.BuilderFile = cc.Node.extend({
+cc.BuilderFile = _ccsg.Node.extend({
     _ccbFileNode:null,
 
     getCCBFileNode:function () {
@@ -305,7 +305,7 @@ cc.BuilderReader = cc._Class.extend({
 
     createSceneWithNodeGraphFromFile:function (ccbFileName, owner, parentSize, animationManager) {
         var node = this.readNodeGraphFromFile(ccbFileName, owner, parentSize, animationManager);
-        var scene = new cc.Scene();
+        var scene = new _ccsg.Scene();
         scene.addChild(node);
         return scene;
     },
@@ -964,7 +964,7 @@ cc.BuilderReader.loadAsScene = function (ccbFilePath, owner, parentSize, ccbRoot
 
     var getNode = cc.BuilderReader.load(ccbFilePath, owner, parentSize, ccbRootPath);
 
-    var scene = new cc.Scene();
+    var scene = new _ccsg.Scene();
     scene.addChild(getNode);
     return scene;
 };

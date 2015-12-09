@@ -92,7 +92,7 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
     /**
      * Add texture loaded event listener.
      * @param {Function} callback
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @deprecated since 3.1, please use EventTarget API instead
      */
     addLoadedEventListener: function (callback, target) {
@@ -178,7 +178,7 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
 
     addChild: function(child, localZOrder, tag){
         this._renderCmd._addChild(child);
-        cc.Node.prototype.addChild.call(this, child, localZOrder, tag);
+        _ccsg.Node.prototype.addChild.call(this, child, localZOrder, tag);
     },
 
     /**

@@ -26,11 +26,11 @@
  ****************************************************************************/
 
 /**
- * cc.Progresstimer is a subclass of cc.Node.   <br/>
+ * cc.Progresstimer is a subclass of ccsg.Node.   <br/>
  * It renders the inner sprite according to the percentage.<br/>
  * The progress can be Radial, Horizontal or vertical.
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @property {cc.Vec2}     midPoint        <p>- Midpoint is used to modify the progress start position.<br/>
  *                                          If you're using radials type then the midpoint changes the center point<br/>
@@ -47,7 +47,7 @@
  * @property {Boolean}      reverseDir      - Indicate whether the direction is reversed.
  *
  */
-cc.ProgressTimer = cc.Node.extend(/** @lends cc.ProgressTimer# */{
+cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     _type:null,
     _percentage:0.0,
     _sprite:null,
@@ -63,7 +63,7 @@ cc.ProgressTimer = cc.Node.extend(/** @lends cc.ProgressTimer# */{
      * @param {cc.Sprite} sprite
      */
     ctor: function(sprite){
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
 
         this._type = cc.ProgressTimer.Type.RADIAL;
         this._percentage = 0.0;
@@ -177,7 +177,7 @@ cc.ProgressTimer = cc.Node.extend(/** @lends cc.ProgressTimer# */{
      */
     setColor:function (color) {
         this._sprite.color = color;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
     },
 
     /**
@@ -187,7 +187,7 @@ cc.ProgressTimer = cc.Node.extend(/** @lends cc.ProgressTimer# */{
     setOpacity:function (opacity) {
         this._sprite.opacity = opacity;
         //this._renderCmd._updateColor();
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
     },
 
     /**

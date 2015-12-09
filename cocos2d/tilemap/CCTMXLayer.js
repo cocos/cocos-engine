@@ -112,7 +112,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
      * @param {Number} [height] The untransformed size's height of the TMXLayer.
      */
     setContentSize:function (size, height) {
-	    cc.Node.prototype.setContentSize.call(this, size, height);
+        _ccsg.Node.prototype.setContentSize.call(this, size, height);
         this._renderCmd._updateCacheContext(size, height);
     },
 
@@ -602,7 +602,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
     /**
      * cc.TMXLayer doesn't support adding a cc.Sprite manually.
      * @warning addChild(child); is not supported on cc.TMXLayer. Instead of setTileGID.
-     * @param {cc.Node} child
+     * @param {_ccsg.Node} child
      * @param {number} zOrder
      * @param {number} tag
      */

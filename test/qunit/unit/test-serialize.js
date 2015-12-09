@@ -422,14 +422,14 @@
             properties: {
                 nodes: {
                     default: [],
-                    type: [cc.ENode]
+                    type: [cc.Node]
                 }
             }
         });
 
         var data = new Data();
-        var node1 = new cc.ENode();
-        var node2 = new cc.ENode();
+        var node1 = new cc.Node();
+        var node2 = new cc.Node();
         data.nodes = [node1, node2];
 
         var actual = JSON.parse(Editor.serialize(data));

@@ -181,7 +181,7 @@ var XHRTestLayer = cc.Layer.extend({
 });
 
 var runXHRTest = function () {
-    var pScene = new cc.Scene();
+    var pScene = new _ccsg.Scene();
     var pLayer = new XHRTestLayer();
     pScene.addChild(pLayer);
     cc.director.runScene(pScene);

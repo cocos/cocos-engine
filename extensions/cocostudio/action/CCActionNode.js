@@ -202,10 +202,10 @@ ccs.ActionNode = ccs.Class.extend(/** @lends ccs.ActionNode# */{
 
     /**
      * Returns the target node of ccs.ActionNode
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getActionNode: function () {
-        if (this._object instanceof cc.Node)
+        if (this._object instanceof _ccsg.Node)
             return this._object;
         return null;
     },

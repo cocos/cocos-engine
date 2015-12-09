@@ -37,8 +37,8 @@ cc.ACTION_TAG_INVALID = -1;
  *
  * @extends cc._Class
  *
- * @property {cc.Node}  target          - The target will be set with the 'startWithTarget' method. When the 'stop' method is called, target will be set to nil.
- * @property {cc.Node}  originalTarget  - The original target of the action.
+ * @property {_ccsg.Node}  target          - The target will be set with the 'startWithTarget' method. When the 'stop' method is called, target will be set to nil.
+ * @property {_ccsg.Node}  originalTarget  - The original target of the action.
  * @property {Number}   tag             - The tag of the action, can be used to find the action.
  */
 cc.Action = cc._Class.extend(/** @lends cc.Action# */{
@@ -96,7 +96,7 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
     /**
      * called before the action start. It will also set the target.
      *
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         this.originalTarget = target;
@@ -133,7 +133,7 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
     /**
      * get the target.
      *
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      */
     getTarget:function () {
         return this.target;
@@ -142,7 +142,7 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
     /**
      * The action will modify the target properties.
      *
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     setTarget:function (target) {
         this.target = target;
@@ -151,7 +151,7 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
     /**
      * get the original target.
      *
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      */
     getOriginalTarget:function () {
         return this.originalTarget;
@@ -162,7 +162,7 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
      * Is the target that were used to run the action.  <br/>
      * Unless you are doing something complex, like cc.ActionManager, you should NOT call this method. <br/>
      * The target is 'assigned', it is not 'retained'. <br/>
-     * @param {cc.Node} originalTarget
+     * @param {_ccsg.Node} originalTarget
      */
     setOriginalTarget:function (originalTarget) {
         this.originalTarget = originalTarget;
@@ -370,7 +370,7 @@ cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
     /**
      * called before the action start. It will also set the target.
      *
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.Action.prototype.startWithTarget.call(this, target);
@@ -474,7 +474,7 @@ cc.Speed.create = cc.speed;
  * @property {Number}  topBoundary - world topBoundary.
  * @property {Number}  bottomBoundary - world bottomBoundary.
  *
- * @param {cc.Node} followedNode
+ * @param {_ccsg.Node} followedNode
  * @param {cc.Rect} rect
  * @example
  * // creates the action with a set boundary
@@ -511,7 +511,7 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * creates the action with a set boundary. <br/>
 	 * creates the action with no boundary set.
-     * @param {cc.Node} followedNode
+     * @param {_ccsg.Node} followedNode
      * @param {cc.Rect} rect
 	 */
     ctor:function (followedNode, rect) {
@@ -569,7 +569,7 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
     /**
      * initializes the action with a set boundary.
      *
-     * @param {cc.Node} followedNode
+     * @param {_ccsg.Node} followedNode
      * @param {cc.Rect} [rect=]
      * @return {Boolean}
      */
@@ -662,7 +662,7 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
  * creates the action with no boundary set.
  *
  * @function
- * @param {cc.Node} followedNode
+ * @param {_ccsg.Node} followedNode
  * @param {cc.Rect} rect
  * @return {cc.Follow|Null} returns the cc.Follow object on success
  * @example
@@ -685,7 +685,7 @@ cc.follow = function (followedNode, rect) {
  * Please use cc.follow instead.
  * creates the action with a set boundary. <br/>
  * creates the action with no boundary set.
- * @param {cc.Node} followedNode
+ * @param {_ccsg.Node} followedNode
  * @param {cc.Rect} rect
  * @return {cc.Follow|Null} returns the cc.Follow object on success
  * @static

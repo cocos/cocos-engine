@@ -816,7 +816,7 @@ var ParticleSystem = cc.Class({
                 cc.assert(!sgNode.onExit);
                 var self = this;
                 sgNode.onExit = function () {
-                    cc.Node.prototype.onExit.call(this);
+                    _ccsg.Node.prototype.onExit.call(this);
                     self.node.destroy();
                 };
             }

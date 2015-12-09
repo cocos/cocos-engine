@@ -56,12 +56,12 @@ var ClickEvent = cc.Class({
     properties: {
         /**
          * Event target
-         * @property {cc.ENode}
+         * @property {cc.Node}
          * @default null
          */
         target: {
             default: null,
-            type: cc.ENode
+            type: cc.Node
         },
         /**
          * Component name
@@ -271,11 +271,11 @@ var Button = cc.Class({
          *  If Transition type is EButton.Transition.NONE, Button will do nothing
          *  If Transition type is EButton.Transition.COLOR, Button will change target's color
          *  If Transition type is EButton.Transition.SPRITE, Button will change target SpriteRenderer's sprite
-         * @property {cc.ENode} target
+         * @property {cc.Node} target
          */
         target: {
             default: null,
-            type: cc.ENode,
+            type: cc.Node,
 
             notify: function () {
                 this._applyTarget();

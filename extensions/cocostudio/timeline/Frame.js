@@ -94,7 +94,7 @@ ccs.Frame = ccs.Class.extend({
 
     /**
      * Set Node
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      */
     setNode: function(node){
         this._node = node;
@@ -337,7 +337,7 @@ ccs.TextureFrame = ccs.Frame.extend({
 
     /**
      * Set the node element to draw texture
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      */
     setNode: function(node){
         ccs.Frame.prototype.setNode.call(this, node);

@@ -321,7 +321,7 @@ gaf.TimeLine = gaf.Object.extend
         this._currentSequenceEnd = this._gafproto.getTotalFrames();
         this._totalFrameCount = this._currentSequenceEnd;
         this.setFps(this._gafproto.getFps());
-        this._container = new cc.Node();
+        this._container = new _ccsg.Node();
         this.addChild(this._container);
 
         var self = this;

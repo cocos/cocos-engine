@@ -70,7 +70,7 @@ ccs.DisplayManager = ccs.Class.extend(/** @lends ccs.DisplayManager */{
      *     If index already have a display, then replace it.                                <br/>
      *     If index is current display index, then also change display to _index            <br/>
      * </p>
-     * @param {ccs.DisplayData|cc.Node} display it include the display information, like DisplayType. If you want to create a sprite display, then create a SpriteDisplayData param
+     * @param {ccs.DisplayData|_ccsg.Node} display it include the display information, like DisplayType. If you want to create a sprite display, then create a SpriteDisplayData param
      * @param {Number} index  the index of the display you want to replace or add to. -1 : append display from back
      */
     addDisplay: function (display, index) {
@@ -308,7 +308,7 @@ ccs.DisplayManager = ccs.Class.extend(/** @lends ccs.DisplayManager */{
 
     /**
      *  Returns the current display render node.
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getDisplayRenderNode:function () {
         return this._displayRenderNode;

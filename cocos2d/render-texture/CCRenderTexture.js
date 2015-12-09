@@ -67,7 +67,7 @@ cc.NextPOT = function (x) {
  * the render texture to your scene and treat it like any other CocosNode.<br/>
  * There are also functions for saving the render texture to disk in PNG or JPG format.
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @property {cc.Sprite}    sprite          - The sprite.
  * @property {cc.Sprite}    clearFlags      - Code for "auto" update.
@@ -76,7 +76,7 @@ cc.NextPOT = function (x) {
  * @property {Number}       clearStencilVal - Clear stencil value.
  * @property {cc.Color}     clearColorVal   - Clear color value, valid only when "autoDraw" is true.
  */
-cc.RenderTexture = cc.Node.extend(/** @lends cc.RenderTexture# */{
+cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
 	sprite:null,
 
 	//
@@ -111,7 +111,7 @@ cc.RenderTexture = cc.Node.extend(/** @lends cc.RenderTexture# */{
      * @function
      */
     ctor: function(width, height, format, depthStencilFormat){
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._cascadeColorEnabled = true;
         this._cascadeOpacityEnabled = true;
         this._pixelFormat = cc.Texture2D.PIXEL_FORMAT_RGBA8888;
@@ -137,7 +137,7 @@ cc.RenderTexture = cc.Node.extend(/** @lends cc.RenderTexture# */{
      * @function
      */
     cleanup: function(){
-        cc.Node.prototype.onExit.call(this);
+        _ccsg.Node.prototype.onExit.call(this);
         this._renderCmd.cleanup();
     },
 

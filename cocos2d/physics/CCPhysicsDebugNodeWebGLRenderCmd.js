@@ -27,11 +27,11 @@
  */
 (function(){
     cc.PhysicsDebugNode.WebGLRenderCmd = function (renderableObject) {
-        cc.Node.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
     };
 
-    cc.PhysicsDebugNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    cc.PhysicsDebugNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     cc.PhysicsDebugNode.WebGLRenderCmd.prototype.constructor = cc.PhysicsDebugNode.WebGLRenderCmd;
 
     cc.PhysicsDebugNode.WebGLRenderCmd.prototype.rendering = function (ctx) {

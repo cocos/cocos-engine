@@ -25,7 +25,7 @@
 //Sprite's WebGL render command
 (function() {
     cc.Sprite.WebGLRenderCmd = function (renderable) {
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
 
         this._quad = new cc.V3F_C4B_T2F_Quad();
@@ -35,13 +35,13 @@
         this._recursiveDirty = false;
     };
 
-    var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.Sprite.WebGLRenderCmd;
 
     proto.updateBlendFunc = function (blendFunc) {};
 
     proto.setDirtyFlag = function(dirtyFlag){
-        cc.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
+        _ccsg.Node.WebGLRenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag);
         this._dirty = true;
     };
 
@@ -229,7 +229,7 @@
     };
 
     proto.transform = function(parentCmd, recursive){
-        cc.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        _ccsg.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
         this._dirty = true;     //use for batching
     };
 
@@ -391,7 +391,7 @@
 
         // recursively iterate over children
         if (node._hasChildren)
-            node._arrayMakeObjectsPerformSelector(node._children, cc.Node._stateCallbackType.updateTransform);
+            node._arrayMakeObjectsPerformSelector(node._children, _ccsg.Node._stateCallbackType.updateTransform);
 
         /*if (cc.SPRITE_DEBUG_DRAW) {               //TODO
             // draw bounding box

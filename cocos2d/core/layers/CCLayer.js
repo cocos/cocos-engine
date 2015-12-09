@@ -24,19 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/** cc.Layer is a subclass of cc.Node that implements the TouchEventsDelegate protocol.<br/>
- * All features from cc.Node are valid, plus the bake feature: Baked layer can cache a static layer to improve performance
+/** cc.Layer is a subclass of ccsg.Node that implements the TouchEventsDelegate protocol.<br/>
+ * All features from ccsg.Node are valid, plus the bake feature: Baked layer can cache a static layer to improve performance
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  */
-cc.Layer = cc.Node.extend(/** @lends cc.Layer# */{
+cc.Layer = _ccsg.Node.extend(/** @lends cc.Layer# */{
     _className: "Layer",
 
     /**
      * <p>Constructor of cc.Layer, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor: function () {
-        var nodep = cc.Node.prototype;
+        var nodep = _ccsg.Node.prototype;
         nodep.ctor.call(this);
         this._ignoreAnchorPointForPosition = true;
         nodep.setAnchorPoint.call(this, 0.5, 0.5);
@@ -87,7 +87,7 @@ cc.Layer = cc.Node.extend(/** @lends cc.Layer# */{
     },
 
     addChild: function(child, localZOrder, tag){
-        cc.Node.prototype.addChild.call(this, child, localZOrder, tag);
+        _ccsg.Node.prototype.addChild.call(this, child, localZOrder, tag);
         this._renderCmd._bakeForAddChild(child);
     },
 
@@ -146,7 +146,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
     /**
      * Changes width and height
      * @deprecated since v3.0 please use setContentSize instead
-     * @see cc.Node#setContentSize
+     * @see _ccsg.Node#setContentSize
      * @param {Number} w width
      * @param {Number} h height
      */
@@ -158,7 +158,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
     /**
      * Changes width in Points
      * @deprecated since v3.0 please use setContentSize instead
-     * @see cc.Node#setContentSize
+     * @see _ccsg.Node#setContentSize
      * @param {Number} w width
      */
     changeWidth: function (w) {
@@ -168,7 +168,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
     /**
      * change height in Points
      * @deprecated since v3.0 please use setContentSize instead
-     * @see cc.Node#setContentSize
+     * @see _ccsg.Node#setContentSize
      * @param {Number} h height
      */
     changeHeight: function (h) {
@@ -216,7 +216,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
         locRealColor.g = color.g;
         locRealColor.b = color.b;
         this._realOpacity = color.a;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty|cc.Node._dirtyFlags.opacityDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty|_ccsg.Node._dirtyFlags.opacityDirty);
 
         cc.LayerColor.prototype.setContentSize.call(this, width, height);
         return true;
@@ -240,12 +240,12 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
     },
 
     _setWidth: function(width){
-        cc.Node.prototype._setWidth.call(this, width);
+        _ccsg.Node.prototype._setWidth.call(this, width);
         this._renderCmd._updateSquareVerticesWidth(width);
     },
 
     _setHeight: function(height){
-        cc.Node.prototype._setHeight.call(this, height);
+        _ccsg.Node.prototype._setHeight.call(this, height);
         this._renderCmd._updateSquareVerticesHeight(height);
     },
 
@@ -384,7 +384,7 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
         _t._compressedInterpolation = true;
 
         cc.LayerColor.prototype.init.call(_t, cc.color(start.r, start.g, start.b, 255));
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty|cc.Node._dirtyFlags.opacityDirty|cc.Node._dirtyFlags.gradientDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty|_ccsg.Node._dirtyFlags.opacityDirty|_ccsg.Node._dirtyFlags.gradientDirty);
         return true;
     },
 
@@ -395,16 +395,16 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
      */
     setContentSize: function (size, height) {
         cc.LayerColor.prototype.setContentSize.call(this, size, height);
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.gradientDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.gradientDirty);
     },
 
     _setWidth: function (width) {
         cc.LayerColor.prototype._setWidth.call(this, width);
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.gradientDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.gradientDirty);
     },
     _setHeight: function (height) {
         cc.LayerColor.prototype._setHeight.call(this, height);
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.gradientDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.gradientDirty);
     },
 
     /**
@@ -456,7 +456,7 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
             selColor.g = color.g;
             selColor.b = color.b;
         }
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
     },
 
     /**
@@ -477,7 +477,7 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
         var stops = this._colorStops;
         if(stops && stops.length > 0)
             stops[0].color.a = o;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
     },
 
     /**
@@ -497,7 +497,7 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
         var stops = this._colorStops;
         if(stops && stops.length > 0)
             stops[stops.length -1].color.a = o;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
     },
 
     /**
@@ -515,7 +515,7 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
     setVector: function (Var) {
         this._alongVector.x = Var.x;
         this._alongVector.y = Var.y;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.gradientDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.gradientDirty);
     },
 
     /**
@@ -540,7 +540,7 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
      */
     setCompressedInterpolation: function (compress) {
         this._compressedInterpolation = compress;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.gradientDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.gradientDirty);
     },
 
     /**
@@ -570,7 +570,7 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
     setColorStops: function(colorStops){
         this._colorStops = colorStops;
         //todo need update  the start color and end color
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty|cc.Node._dirtyFlags.opacityDirty|cc.Node._dirtyFlags.gradientDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty|_ccsg.Node._dirtyFlags.opacityDirty|_ccsg.Node._dirtyFlags.gradientDirty);
     },
 
     _createRenderCmd: function(){

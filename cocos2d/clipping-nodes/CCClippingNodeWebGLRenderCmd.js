@@ -25,7 +25,7 @@
 // ------------------------------- ClippingNode's WebGL render cmd ------------------------------
 (function(){
     cc.ClippingNode.WebGLRenderCmd = function(renderable){
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = false;
 
         this._beforeVisitCmd = new cc.CustomRenderCmd(this, this._onBeforeVisit);
@@ -44,7 +44,7 @@
         this._mask_layer_le = null;
     };
 
-    var proto = cc.ClippingNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.ClippingNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ClippingNode.WebGLRenderCmd;
 
     cc.ClippingNode.WebGLRenderCmd._init_once = null;
@@ -64,7 +64,7 @@
 
     proto.transform = function(parentCmd, recursive){
         var node = this._node;
-        cc.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        _ccsg.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
         if(node._stencil)
             node._stencil._renderCmd.transform(this, recursive);
     };
@@ -81,13 +81,13 @@
         // if stencil buffer disabled
         if (cc.stencilBits < 1) {
             // draw everything, as if there where no stencil
-            cc.Node.WebGLRenderCmd.prototype.visit.call(this, parentCmd);
+            _ccsg.Node.WebGLRenderCmd.prototype.visit.call(this, parentCmd);
             return;
         }
 
         if (!node._stencil || !node._stencil.visible) {
             if (node.inverted)
-                cc.Node.WebGLRenderCmd.prototype.visit.call(this, parentCmd);   // draw everything
+                _ccsg.Node.WebGLRenderCmd.prototype.visit.call(this, parentCmd);   // draw everything
             return;
         }
 
@@ -98,7 +98,7 @@
                 cc.ClippingNode.WebGLRenderCmd._visit_once = false;
             }
             // draw everything, as if there where no stencil
-            cc.Node.WebGLRenderCmd.prototype.visit.call(this, parentCmd);
+            _ccsg.Node.WebGLRenderCmd.prototype.visit.call(this, parentCmd);
             return;
         }
 

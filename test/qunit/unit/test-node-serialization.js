@@ -66,7 +66,7 @@ if (TestEditorExtends) {
     }
 
     function createNode(nodeName) {
-        var ret = new cc.ENode();
+        var ret = new cc.Node();
 
         ret._localZOrder = getRandomInt();
         ret._globalZOrder = getRandomInt();

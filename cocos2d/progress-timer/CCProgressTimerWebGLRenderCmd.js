@@ -27,7 +27,7 @@
  */
 (function(){
     cc.ProgressTimer.WebGLRenderCmd = function(renderableObject){
-        cc.Node.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
         this._vertexWebGLBuffer = cc._renderContext.createBuffer();
@@ -37,7 +37,7 @@
         this._vertexDataDirty = false;
     };
 
-    var proto = cc.ProgressTimer.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.ProgressTimer.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ProgressTimer.WebGLRenderCmd;
 
     proto.rendering = function (ctx) {
@@ -84,7 +84,7 @@
         var node = this._node;
         if(!node._sprite)
             return;
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
         if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
@@ -126,7 +126,7 @@
         var node = this._node;
         if(!node._sprite)
             return;
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var spriteCmd = node._sprite._renderCmd;
         var spriteFlag = spriteCmd._dirtyFlag;
 

@@ -41,7 +41,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @see http://yannickloriot.com/library/ios/cccontrolextension/Classes/CCScale9Sprite.html            <br/>
  * </p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @property {cc.Size}  preferredSize   - The preferred size of the 9-slice sprite
  * @property {cc.Rect}  capInsets       - The cap insets of the 9-slice sprite
@@ -51,7 +51,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
 
-ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprite# */{
+ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sprite# */{
 
     _textureInited:false,
     _spriteRect: null,
@@ -94,7 +94,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
     _quadsDirty : true,
 
     ctor: function(file, rect, capInsets) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         EventTarget.call(this);
 
         this._nonSliceSpriteAnchor = cc.p(0.5,0.5);
@@ -411,14 +411,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         {
             return;
         }
-        cc.Node.prototype.setContentSize.call(this, size);
+        _ccsg.Node.prototype.setContentSize.call(this, size);
         this._preferredSize = size;
         this._quadsDirty = true;
         this._adjustScale9ImagePosition();
     },
 
     setAnchorPoint : function(anchorPoint){
-        cc.Node.prototype.setAnchorPoint.call(this, anchorPoint);
+        _ccsg.Node.prototype.setAnchorPoint.call(this, anchorPoint);
         if (!this._scale9Enabled)
         {
             if (this._scale9Image !== null)
@@ -690,14 +690,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
         if (this._flippedX) {
             scaleX = scaleX * -1;
         }
-        cc.Node.prototype.setScaleX.call(this,scaleX);
+        _ccsg.Node.prototype.setScaleX.call(this,scaleX);
     },
 
     setScaleY : function(scaleY){
         if (this._flippedY) {
             scaleY = scaleY * -1;
         }
-        cc.Node.prototype.setScaleY.call(this,scaleY);
+        _ccsg.Node.prototype.setScaleY.call(this,scaleY);
     },
 
     setScale : function(scaleX, scaleY){
@@ -707,7 +707,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
     },
 
     getScaleX : function(){
-        var originalScale = cc.Node.prototype.getScaleX.call(this);
+        var originalScale = _ccsg.Node.prototype.getScaleX.call(this);
         if (this._flippedX)
         {
             originalScale = originalScale * -1.0;
@@ -716,7 +716,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
     },
 
     getScaleY : function() {
-        var originalScale = cc.Node.prototype.getScaleY.call(this);
+        var originalScale = _ccsg.Node.prototype.getScaleY.call(this);
         if (this._flippedY)
         {
             originalScale = originalScale * -1.0;
@@ -729,7 +729,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = cc.Node.extend(/** @lends ccui.Scale9Sprit
     },
 
     setCameraMask : function(mask,applyChildren/** = true**/){
-        cc.Node.prototype.setCameraMask.call(this,mask,applyChildren);
+        _ccsg.Node.prototype.setCameraMask.call(this,mask,applyChildren);
         if(this._scale9Image)
             this._scale9Image.setCameraMask(mask,applyChildren);
     },

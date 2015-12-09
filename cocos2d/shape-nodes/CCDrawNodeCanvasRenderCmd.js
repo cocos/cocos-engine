@@ -25,14 +25,14 @@
 (function(){
 
     cc.DrawNode.CanvasRenderCmd = function(renderableObject){
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
         this._buffer = null;
         this._drawColor = null;
         this._blendFunc = null;
     };
 
-    cc.DrawNode.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    cc.DrawNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     cc.DrawNode.CanvasRenderCmd.prototype.constructor = cc.DrawNode.CanvasRenderCmd;
     cc.js.mixin( cc.DrawNode.CanvasRenderCmd.prototype, {
         rendering: function (ctx, scaleX, scaleY) {

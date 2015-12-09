@@ -180,7 +180,7 @@
                 ccui.Layout.WebGLRenderCmd._visit_once = false;
             }
             // draw everything, as if there where no stencil
-            cc.Node.prototype.visit.call(node, parentCmd);
+            _ccsg.Node.prototype.visit.call(node, parentCmd);
             return;
         }
 
