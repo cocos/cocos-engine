@@ -131,6 +131,8 @@ cc.Label = _ccsg.Node.extend({
 
     //fontHandle it is a font name or bmfont file.
     ctor: function(string, fontHandle, type) {
+        EventTarget.call(this);
+
         fontHandle = fontHandle || "";
         this._fontHandle = fontHandle;
         type = type || 0;
@@ -1087,7 +1089,7 @@ cc.BMFontHelper = {
 
 
 var _p = cc.Label.prototype;
-EventTarget.polyfill(_p);
+cc.js.addon(_p, EventTarget.prototype);
 cc.js.mixin(_p, cc.BMFontHelper);
 
 cc.Label.Type = cc.Enum({

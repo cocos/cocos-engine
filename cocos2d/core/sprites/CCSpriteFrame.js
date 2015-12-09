@@ -49,6 +49,7 @@ var EventTarget = require("../event/event-target");
 cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name:'cc.SpriteFrame',
     extends:require('../assets/CCAsset'),
+    mixins: [EventTarget],
 
     //properties:{
     //    /**
@@ -559,8 +560,6 @@ proto.copyWithZone = proto.clone;
  * @returns {cc.SpriteFrame}
  */
 proto.copy = proto.clone;
-
-EventTarget.polyfill(proto);
 
 /**
  * <p>

@@ -242,6 +242,8 @@ gaf.Asset = cc._Class.extend
 
     ctor : function()
     {
+        EventTarget.call(this);
+
         this._header = {};
         this._timeLines = [];
         this._textFields = [];
@@ -425,4 +427,4 @@ gaf.Asset.createWithBundle = function (zipFilePath, entryFile, delegate)
     return asset;
 };
 
-EventTarget.polyfill(gaf.Asset.prototype);
+cc.js.addon(gaf.Asset.prototype, EventTarget.prototype);

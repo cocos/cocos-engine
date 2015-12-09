@@ -163,6 +163,8 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
      */
     ctor: function () {
         cc.ProtectedNode.prototype.ctor.call(this);
+        EventTarget.call(this);
+
         this._brightStyle = ccui.Widget.BRIGHT_STYLE_NONE;
         this._touchBeganPosition = cc.p(0, 0);
         this._touchMovePosition = cc.p(0, 0);
@@ -1903,7 +1905,7 @@ ccui.Widget.create = function () {
     return new ccui.Widget();
 };
 
-EventTarget.polyfill(ccui.Widget.prototype);
+cc.js.addon(ccui.Widget.prototype, EventTarget.prototype);
 
 ccui.Widget._focusedWidget = null;                        //both layout & widget will be stored in this variable
 ccui.Widget._focusNavigationController = null;

@@ -106,6 +106,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     ctor: function () {
         var self = this;
+
+        EventTarget.call(self);
         self._lastUpdate = Date.now();
         cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
             self._lastUpdate = Date.now();
@@ -155,9 +157,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         else {
             this._animationManager = null;
         }
-
-        // Event target
-        EventTarget.polyfill(this);
 
         // WidgetManager
         cc._widgetManager.init(this);
@@ -966,6 +965,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._secondsPerFrame = (now - this._lastUpdate) / 1000;
     }
 });
+
+// Event target
+cc.js.addon(cc.Director.prototype, EventTarget.prototype);
 
 /**
  * The event projection changed of cc.Director

@@ -95,6 +95,8 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
 
     ctor: function(file, rect, capInsets) {
         _ccsg.Node.prototype.ctor.call(this);
+        EventTarget.call(this);
+
         this._nonSliceSpriteAnchor = cc.p(0.5,0.5);
         this._originalSize = cc.size(0,0);
         this._preferredSize = cc.rect(0,0,0,0);
@@ -1043,7 +1045,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
 });
 
 var _p = ccui.Scale9Sprite.prototype;
-EventTarget.polyfill(_p);
+cc.js.addon(_p, EventTarget.prototype);
 
 // Extended properties
 /** @expose */

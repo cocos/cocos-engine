@@ -22,6 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var EventTarget = require("../event/event-target");
+
 /**
  * Enum for transition type
  * @enum EButton.Transition
@@ -117,6 +119,8 @@ var Button = cc.Class({
     extends: require('./CCComponent'),
 
     ctor: function () {
+        EventTarget.call(this);
+
         this._touchListener = null;
         this._mouseListener = null;
 
@@ -490,7 +494,6 @@ var Button = cc.Class({
 
 });
 
-var EventTarget = require("../event/event-target");
-EventTarget.polyfill(Button.prototype);
+cc.js.addon(Button.prototype, EventTarget.prototype);
 
 cc.EButton = module.exports = Button;
