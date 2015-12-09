@@ -22,25 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function MonitorSize(target) {
-    this._target = target;
-}
-MonitorSize.prototype = {
-    getContentSize: function () {
-        return this._target._sgNode.getContentSize();
-    },
-    setContentSize: function (size) {
-        this._target.useOriginalSize = false;
-        this._target._sgNode.setPreferredSize(size);
-    },
-    _getWidth: function () {
-        return this.getContentSize().width;
-    },
-    _getHeight: function () {
-        return this.getContentSize().height;
-    }
-};
-
 var SpriteType = cc.SpriteType;
 
 /**
@@ -449,12 +430,12 @@ var SpriteRenderer = cc.Class({
 
     onLoad: function () {
         this._super();
-        this.node._sizeProvider = new MonitorSize(this);
+        this.node.on('size-changed', this._resized, this);
     },
 
     onDestroy: function () {
         this._super();
-        this.node._sizeProvider = null;
+        this.node.off('size-changed', this._resized, this);
     },
 
     _applyCapInset: function (node) {
@@ -507,6 +488,10 @@ var SpriteRenderer = cc.Class({
         sgNode.setRenderingType(this._type);
         this._applySprite(sgNode, null);
         return sgNode;
+    },
+
+    _resized: function () {
+        this.useOriginalSize = false;
     },
 });
 

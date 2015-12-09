@@ -40,6 +40,8 @@ function setMaxZOrder (node) {
     return z;
 }
 
+var SIZE_CHANGED = 'size-changed';
+
 /**
  * A base node for CCNode and CCEScene, it will:
  * - provide the same api with origin cocos2d rendering node (SGNode)
@@ -48,6 +50,8 @@ function setMaxZOrder (node) {
  * - serialize datas for SGNode (but SGNode itself will not being serialized)
  * - notifications if some properties changed
  * - define some interfaces shares between CCNode and CCEScene
+ *
+ * @event size-changed
  *
  * @class _BaseNode
  * @extends Object
@@ -360,10 +364,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 }
             },
             set: function (value) {
-                if (this._sizeProvider) {
-                    this._sizeProvider.setContentSize(new cc.Size(value, this._sizeProvider._getHeight()));
+                if (value !== this._contentSize.width) {
+                    if (this._sizeProvider) {
+                        this._sizeProvider.setContentSize(new cc.Size(value, this._sizeProvider._getHeight()));
+                    }
+                    this._contentSize.width = value;
+                    this.emit(SIZE_CHANGED);
                 }
-                this._contentSize.width = value;
             },
         },
 
@@ -384,10 +391,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 }
             },
             set: function (value) {
-                if (this._sizeProvider) {
-                    this._sizeProvider.setContentSize(new cc.Size(this._sizeProvider._getWidth(), value));
+                if (value !== this._contentSize.height) {
+                    if (this._sizeProvider) {
+                        this._sizeProvider.setContentSize(new cc.Size(this._sizeProvider._getWidth(), value));
+                    }
+                    this._contentSize.height = value;
+                    this.emit(SIZE_CHANGED);
                 }
-                this._contentSize.height = value;
             },
         },
 
@@ -733,6 +743,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (this._sizeProvider) {
             this._sizeProvider.setContentSize(locContentSize);
         }
+        this.emit(SIZE_CHANGED);
     },
 
     /**
