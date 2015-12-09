@@ -33,20 +33,20 @@ cc.stencilBits = -1;
 
 /**
  * <p>
- *     cc.ClippingNode is a subclass of cc.Node.                                                            <br/>
+ *     cc.ClippingNode is a subclass of ccsg.Node.                                                            <br/>
  *     It draws its content (children) clipped using a stencil.                                               <br/>
- *     The stencil is an other cc.Node that will not be drawn.                                               <br/>
+ *     The stencil is an other ccsg.Node that will not be drawn.                                               <br/>
  *     The clipping is done using the alpha part of the stencil (adjusted with an alphaThreshold).
  * </p>
  * @class
- * @extends cc.Node
- * @param {cc.Node} [stencil=null]
+ * @extends _ccsg.Node
+ * @param {_ccsg.Node} [stencil=null]
  *
  * @property {Number}   alphaThreshold  - Threshold for alpha value.
  * @property {Boolean}  inverted        - Indicate whether in inverted mode.
- * @property {cc.Node}  stencil         - he cc.Node to use as a stencil to do the clipping.
+ * @property {_ccsg.Node}  stencil         - he ccsg.Node to use as a stencil to do the clipping.
  */
-cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
+cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     alphaThreshold: 0,
     inverted: false,
 
@@ -55,11 +55,11 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
 
     /**
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
-     * @param {cc.Node} [stencil=null]
+     * @param {_ccsg.Node} [stencil=null]
      */
     ctor: function (stencil) {
         stencil = stencil || null;
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._stencil = stencil;
         this.alphaThreshold = 1;
         this.inverted = false;
@@ -69,7 +69,7 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
     /**
      * Initialization of the node, please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
      * @function
-     * @param {cc.Node} [stencil=null]
+     * @param {_ccsg.Node} [stencil=null]
      */
     init: function (stencil) {
         this._stencil = stencil;
@@ -89,7 +89,7 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onEnter: function () {
-        cc.Node.prototype.onEnter.call(this);
+        _ccsg.Node.prototype.onEnter.call(this);
         this._stencil.onEnter();
     },
 
@@ -102,7 +102,7 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
      * @function
      */
     onEnterTransitionDidFinish: function () {
-        cc.Node.prototype.onEnterTransitionDidFinish.call(this);
+        _ccsg.Node.prototype.onEnterTransitionDidFinish.call(this);
         this._stencil.onEnterTransitionDidFinish();
     },
 
@@ -116,7 +116,7 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
      */
     onExitTransitionDidStart: function () {
         this._stencil.onExitTransitionDidStart();
-        cc.Node.prototype.onExitTransitionDidStart.call(this);
+        _ccsg.Node.prototype.onExitTransitionDidStart.call(this);
     },
 
     /**
@@ -130,7 +130,7 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
      */
     onExit: function () {
         this._stencil.onExit();
-        cc.Node.prototype.onExit.call(this);
+        _ccsg.Node.prototype.onExit.call(this);
     },
 
     /**
@@ -175,9 +175,9 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
     },
 
     /**
-     * The cc.Node to use as a stencil to do the clipping.                                   <br/>
+     * The ccsg.Node to use as a stencil to do the clipping.                                   <br/>
      * The stencil node will be retained. This default to nil.
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      */
     getStencil: function () {
         return this._stencil;
@@ -186,7 +186,7 @@ cc.ClippingNode = cc.Node.extend(/** @lends cc.ClippingNode# */{
     /**
      * Set stencil.
      * @function
-     * @param {cc.Node} stencil
+     * @param {_ccsg.Node} stencil
      */
     setStencil: function (stencil) {
         if(this._stencil === stencil)
@@ -213,7 +213,7 @@ _p.stencil;
  * Creates and initializes a clipping node with an other node as its stencil. <br/>
  * The stencil node will be retained.
  * @deprecated since v3.0, please use "new cc.ClippingNode(stencil)" instead
- * @param {cc.Node} [stencil=null]
+ * @param {_ccsg.Node} [stencil=null]
  * @return {cc.ClippingNode}
  * @example
  * //example

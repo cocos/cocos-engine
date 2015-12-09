@@ -194,7 +194,7 @@
         /**
          * Get a node by tag.
          * @param {Number} tag
-         * @returns {cc.Node|null}
+         * @returns {_ccsg.Node|null}
          */
         getNodeByTag: function(tag){
             if (this._node == null)

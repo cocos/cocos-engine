@@ -225,7 +225,7 @@ ccui.ListView = ccui.ScrollView.extend(/** @lends ccui.ListView# */{
     /**
      * add child to ListView
      * @override
-     * @param {cc.Node} widget
+     * @param {_ccsg.Node} widget
      * @param {Number} [zOrder]
      * @param {Number|String} [tag]  tag or name
      */
@@ -242,7 +242,7 @@ ccui.ListView = ccui.ScrollView.extend(/** @lends ccui.ListView# */{
     /**
      * remove child from ListView
      * @override
-     * @param {cc.Node} widget
+     * @param {_ccsg.Node} widget
      * @param {Boolean} [cleanup=true]
      */
     removeChild: function(widget, cleanup){

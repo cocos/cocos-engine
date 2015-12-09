@@ -23,12 +23,12 @@
  ****************************************************************************/
 
 cc.MotionStreak.WebGLRenderCmd = function(renderableObject){
-    cc.Node.WebGLRenderCmd.call(this, renderableObject);
+    _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
     this._needDraw = true;
     this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
 };
 
-cc.MotionStreak.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+cc.MotionStreak.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
 cc.MotionStreak.WebGLRenderCmd.prototype.constructor = cc.Sprite.WebGLRenderCmd;
 
 cc.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){

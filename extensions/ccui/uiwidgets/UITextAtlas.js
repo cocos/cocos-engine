@@ -162,7 +162,7 @@ ccui.TextAtlas = ccui.Widget.extend(/** @lends ccui.TextAtlas# */{
 
     /**
      * Returns the renderer of ccui.TextAtlas.
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getVirtualRenderer: function () {
         return this._labelAtlasRenderer;

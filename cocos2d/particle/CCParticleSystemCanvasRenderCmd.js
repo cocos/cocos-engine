@@ -27,7 +27,7 @@
  */
 (function(){
     cc.ParticleSystem.CanvasRenderCmd = function(renderable){
-        cc.Node.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
 
         this._drawMode = cc.ParticleSystem.TEXTURE_MODE;
@@ -36,7 +36,7 @@
         this._pointRect = cc.rect(0, 0, 0, 0);
         this._tintCache = document.createElement("canvas");
     };
-    var proto = cc.ParticleSystem.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.ParticleSystem.CanvasRenderCmd;
 
     proto.getDrawMode = function(){

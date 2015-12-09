@@ -37,21 +37,21 @@ cc.NODE_TAG_INVALID = -1;
 cc.s_globalOrderOfArrival = 1;
 
 /**
- * <p>cc.Node is the root class of all node. Anything that gets drawn or contains things that get drawn is a cc.Node.<br/>
- * The most popular cc.Nodes are: cc.Scene, cc.Layer, cc.Sprite, cc.Menu.</p>
+ * <p>ccsg.Node is the root class of all node. Anything that gets drawn or contains things that get drawn is a ccsg.Node.<br/>
+ * The most popular ccsg.Nodes are: ccsg.Scene, cc.Layer, cc.Sprite, cc.Menu.</p>
  *
- * <p>The main features of a cc.Node are: <br/>
- * - They can contain other cc.Node nodes (addChild, getChildByTag, removeChild, etc) <br/>
+ * <p>The main features of a ccsg.Node are: <br/>
+ * - They can contain other ccsg.Node nodes (addChild, getChildByTag, removeChild, etc) <br/>
  * - They can schedule periodic callback (schedule, unschedule, etc) <br/>
  * - They can execute actions (runAction, stopAction, etc) <br/></p>
  *
- * <p>Some cc.Node nodes provide extra functionality for them or their children.</p>
+ * <p>Some ccsg.Node nodes provide extra functionality for them or their children.</p>
  *
- * <p>Subclassing a cc.Node usually means (one/all) of: <br/>
+ * <p>Subclassing a ccsg.Node usually means (one/all) of: <br/>
  * - overriding constructor function "ctor" to initialize resources and schedule callbacks<br/>
  * - create callbacks to handle the advancement of time<br/></p>
  *
- * <p>Features of cc.Node: <br/>
+ * <p>Features of ccsg.Node: <br/>
  * - position  <br/>
  * - scale (x, y) <br/>
  * - rotation (in degrees, clockwise)<br/>
@@ -73,7 +73,7 @@ cc.s_globalOrderOfArrival = 1;
  * - opacity: 255</p>
  *
  * <p> Limitations:<br/>
- * - A cc.Node is a "void" object. It doesn't have a texture <br/></P>
+ * - A ccsg.Node is a "void" object. It doesn't have a texture <br/></P>
  *
  * <p>Order in transformations with grid disabled <br/>
  * -# The node will be translated (position)  <br/>
@@ -116,7 +116,7 @@ cc.s_globalOrderOfArrival = 1;
  * @property {Boolean}              cascadeOpacity      - Indicate whether node's opacity value affect its child nodes, default value is false
  * @property {Array}                children            - <@readonly> All children nodes
  * @property {Number}               childrenCount       - <@readonly> Number of children
- * @property {cc.Node}              parent              - Parent node
+ * @property {_ccsg.Node}           parent              - Parent node
  * @property {Boolean}              running             - <@readonly> Indicate whether node is running or not
  * @property {Number}               tag                 - Tag of node
  * @property {Number}               arrivalOrder        - The arrival order, indicates which children is added previously
@@ -125,8 +125,8 @@ cc.s_globalOrderOfArrival = 1;
  * @property {Number}               glServerState       - The state of OpenGL server side
  * @property {cc.Scheduler}         scheduler           - cc.Scheduler used to schedule all "updates" and timers
  */
-cc.Node = cc.Class(/** @lends cc.Node# */{
-    name: 'cc._Node',
+_ccsg.Node = cc.Class(/** @lends _ccsg.Node# */{
+    name: 'ccsg.Node',
 
     properties: {
         _localZOrder: 0,    ///< Local order (relative to its siblings) used to sort the node
@@ -180,7 +180,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     },
 
     /**
-     * Initializes the instance of cc.Node
+     * Initializes the instance of ccsg.Node
      * @function
      * @returns {boolean} Whether the initialization was successful.
      */
@@ -194,7 +194,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
             return;
 
         var i, len = array.length, node;
-        var nodeCallbackType = cc.Node._stateCallbackType;
+        var nodeCallbackType = _ccsg.Node._stateCallbackType;
         switch (callbackType) {
             case nodeCallbackType.onEnter:
                 for (i = 0; i < len; i++) {
@@ -293,7 +293,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setSkewX: function (newSkewX) {
         this._skewX = newSkewX;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -323,7 +323,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setSkewY: function (newSkewY) {
         this._skewY = newSkewY;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -472,7 +472,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setRotation: function (newRotation) {
         this._rotationX = this._rotationY = newRotation;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -497,7 +497,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setRotationX: function (rotationX) {
         this._rotationX = rotationX;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -522,7 +522,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setRotationY: function (rotationY) {
         this._rotationY = rotationY;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -546,7 +546,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     setScale: function (scale, scaleY) {
         this._scaleX = scale;
         this._scaleY = (scaleY || scaleY === 0) ? scaleY : scale;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -568,7 +568,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setScaleX: function (newScaleX) {
         this._scaleX = newScaleX;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -590,7 +590,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setScaleY: function (newScaleY) {
         this._scaleY = newScaleY;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -620,7 +620,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
             locPosition.x = newPosOrxValue;
             locPosition.y = yValue;
         }
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -648,7 +648,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setPositionX: function (x) {
         this._position.x = x;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -667,7 +667,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setPositionY: function (y) {
         this._position.y = y;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -698,7 +698,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Returns if the node is visible
      * @function
-     * @see cc.Node#setVisible
+     * @see _ccsg.Node#setVisible
      * @return {Boolean} true if the node is visible, false if the node is hidden.
      */
     isVisible: function () {
@@ -715,7 +715,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
         if(this._visible !== visible){
             this._visible = visible;
             //if(visible)
-            this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
             cc.renderer.childrenOrderDirty = true;
         }
     },
@@ -784,7 +784,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Returns a copy of the anchor point in absolute pixels.  <br/>
      * you can only read it. If you wish to modify it, use setAnchorPoint
-     * @see cc.Node#getAnchorPoint
+     * @see _ccsg.Node#getAnchorPoint
      * @function
      * @return {cc.Vec2} The anchor point in absolute pixels.
      */
@@ -860,7 +860,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Returns a reference to the parent node
      * @function
-     * @return {cc.Node} A reference to the parent node
+     * @return {_ccsg.Node} A reference to the parent node
      */
     getParent: function () {
         return this._parent;
@@ -868,7 +868,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
 
     /**
      * Sets the parent node
-     * @param {cc.Node} parent A reference to the parent node
+     * @param {_ccsg.Node} parent A reference to the parent node
      */
     setParent: function (parent) {
         this._parent = parent;
@@ -878,7 +878,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * Returns whether the anchor point will be ignored when you position this node.<br/>
      * When anchor point ignored, position will be calculated based on the origin point (0, 0) in parent's coordinates.
      * @function
-     * @see cc.Node#ignoreAnchorPointForPosition
+     * @see _ccsg.Node#ignoreAnchorPointForPosition
      * @return {Boolean} true if the anchor point will be ignored when you position this node.
      */
     isIgnoreAnchorPointForPosition: function () {
@@ -898,7 +898,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     ignoreAnchorPointForPosition: function (newValue) {
         if (newValue !== this._ignoreAnchorPointForPosition) {
             this._ignoreAnchorPointForPosition = newValue;
-            this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         }
     },
 
@@ -936,7 +936,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * Changes the tag that is used to identify the node easily. <br/>
      * Please refer to getTag for the sample code.
      * @function
-     * @see cc.Node#getTag
+     * @see _ccsg.Node#getTag
      * @param {Number} tag A integer that identifies the node.
      */
     setTag: function (tag) {
@@ -989,7 +989,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * <p>Returns the CCActionManager object that is used by all actions.<br/>
      * (IMPORTANT: If you set a new cc.ActionManager, then previously created actions are going to be removed.)</p>
      * @function
-     * @see cc.Node#setActionManager
+     * @see _ccsg.Node#setActionManager
      * @return {cc.ActionManager} A CCActionManager object.
      */
     getActionManager: function () {
@@ -1074,7 +1074,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
         cc.eventManager.removeListeners(this);
 
         // timers
-        this._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.cleanup);
+        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.cleanup);
     },
 
     // composition: GET
@@ -1082,7 +1082,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * Returns a child from the container given its tag
      * @function
      * @param {Number} aTag An identifier to find the child node.
-     * @return {cc.Node} a CCNode object whose tag equals to the input parameter
+     * @return {_ccsg.Node} a CCNode object whose tag equals to the input parameter
      */
     getChildByTag: function (aTag) {
         var __children = this._children;
@@ -1100,7 +1100,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * Returns a child from the container given its name
      * @function
      * @param {String} name A name to find the child node.
-     * @return {cc.Node} a CCNode object whose name equals to the input parameter
+     * @return {_ccsg.Node} a CCNode object whose name equals to the input parameter
      */
     getChildByName: function(name){
         if(!name){
@@ -1122,7 +1122,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      *
      * <p>If the child is added to a 'running' node, then 'onEnter' and 'onEnterTransitionDidFinish' will be called immediately.</p>
      * @function
-     * @param {cc.Node} child  A child node
+     * @param {_ccsg.Node} child  A child node
      * @param {Number} [localZOrder=]  Z order for drawing priority. Please refer to setZOrder(int)
      * @param {Number|String} [tag=]  An integer or a name to identify the node easily. Please refer to setTag(int) and setName(string)
      */
@@ -1166,9 +1166,9 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
                 child.onEnterTransitionDidFinish();
         }
         if (this._cascadeColorEnabled)
-            child._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+            child._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
         if (this._cascadeOpacityEnabled)
-            child._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+            child._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
     },
 
     // composition: REMOVE
@@ -1178,7 +1178,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * If the node orphan, then nothing happens.
      * @function
      * @param {Boolean} [cleanup=true] true if all actions and callbacks on this node should be removed, false otherwise.
-     * @see cc.Node#removeFromParentAndCleanup
+     * @see _ccsg.Node#removeFromParentAndCleanup
      */
     removeFromParent: function (cleanup) {
         if (this._parent) {
@@ -1205,7 +1205,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * If a class wants to extend the 'removeChild' behavior it only needs <br/>
      * to override this method </p>
      * @function
-     * @param {cc.Node} child  The child node which will be removed.
+     * @param {_ccsg.Node} child  The child node which will be removed.
      * @param {Boolean} [cleanup=true]  true if all running actions and callbacks on the child node will be cleanup, false otherwise.
      */
     removeChild: function (child, cleanup) {
@@ -1218,7 +1218,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
         if (this._children.indexOf(child) > -1)
             this._detachChild(child, cleanup);
 
-        //this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.visibleDirty);
+        //this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.visibleDirty);
         cc.renderer.childrenOrderDirty = true;
     },
 
@@ -1228,7 +1228,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * @function
      * @param {Number} tag An integer number that identifies a child node
      * @param {Boolean} [cleanup=true] true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @see cc.Node#removeChildByTag
+     * @see _ccsg.Node#removeChildByTag
      */
     removeChildByTag: function (tag, cleanup) {
         if (tag === cc.NODE_TAG_INVALID)
@@ -1309,13 +1309,13 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     },
 
     setNodeDirty: function(){
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /** Reorders a child according to a new z value. <br/>
      * The child MUST be already added.
      * @function
-     * @param {cc.Node} child An already added child node. It MUST be already added.
+     * @param {_ccsg.Node} child An already added child node. It MUST be already added.
      * @param {Number} zOrder Z order for drawing priority. Please refer to setZOrder(int)
      */
     reorderChild: function (child, zOrder) {
@@ -1395,7 +1395,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     onEnter: function () {
         this._isTransitionFinished = false;
         this._running = true;//should be running before resumeSchedule
-        this._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.onEnter);
+        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onEnter);
         this.resume();
     },
 
@@ -1409,23 +1409,23 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     onEnterTransitionDidFinish: function () {
         this._isTransitionFinished = true;
-        this._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.onEnterTransitionDidFinish);
+        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onEnterTransitionDidFinish);
     },
 
     /**
-     * <p>callback that is called every time the cc.Node leaves the 'stage'.  <br/>
-     * If the cc.Node leaves the 'stage' with a transition, this callback is called when the transition starts. <br/>
+     * <p>callback that is called every time the ccsg.Node leaves the 'stage'.  <br/>
+     * If the ccsg.Node leaves the 'stage' with a transition, this callback is called when the transition starts. <br/>
      * If you override onExitTransitionDidStart, you shall call its parent's onExitTransitionDidStart with this._super()</p>
      * @function
      */
     onExitTransitionDidStart: function () {
-        this._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.onExitTransitionDidStart);
+        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onExitTransitionDidStart);
     },
 
     /**
      * <p>
-     * callback that is called every time the cc.Node leaves the 'stage'.                                         <br/>
-     * If the cc.Node leaves the 'stage' with a transition, this callback is called when the transition finishes. <br/>
+     * callback that is called every time the ccsg.Node leaves the 'stage'.                                         <br/>
+     * If the ccsg.Node leaves the 'stage' with a transition, this callback is called when the transition finishes. <br/>
      * During onExit you can't access a sibling node.                                                             <br/>
      * If you override onExit, you shall call its parent's onExit with this._super().
      * </p>
@@ -1434,7 +1434,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     onExit: function () {
         this._running = false;
         this.pause();
-        this._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.onExit);
+        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.onExit);
     },
 
     // actions
@@ -1486,7 +1486,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Returns an action from the running action list by its tag.
      * @function
-     * @see cc.Node#getTag and cc.Node#setTag
+     * @see _ccsg.Node#getTag and _ccsg.Node#setTag
      * @param {Number} tag
      * @return {cc.Action} The action object with the given tag.
      */
@@ -1509,7 +1509,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
         return this.actionManager.numberOfRunningActionsInTarget(this);
     },
 
-    // cc.Node - Callbacks
+    // _ccsg.Node - Callbacks
     // timers
     /**
      * <p>schedules the "update" method.                                                                           <br/>
@@ -1539,7 +1539,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Unschedules the "update" method.
      * @function
-     * @see cc.Node#scheduleUpdate
+     * @see _ccsg.Node#scheduleUpdate
      */
     unscheduleUpdate: function () {
         this.scheduler.unscheduleUpdate(this);
@@ -1618,7 +1618,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Schedules a callback function that runs only once, with a delay of 0 or larger
      * @function
-     * @see cc.Node#schedule
+     * @see _ccsg.Node#schedule
      * @param {function} callback  A function wrapped as a selector
      * @param {Number} delay  The amount of time that the first tick will wait before execution.
      * @param {String} key The only string identifying the callback
@@ -1634,7 +1634,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * unschedules a custom callback function.
      * @function
-     * @see cc.Node#schedule
+     * @see _ccsg.Node#schedule
      * @param {function} callback_fn  A function wrapped as a selector
      */
     unschedule: function (callback_fn) {
@@ -1751,7 +1751,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
         if(additionalTransform === undefined)
             return this._additionalTransformDirty = false;
         this._additionalTransform = additionalTransform;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         this._additionalTransformDirty = true;
     },
 
@@ -1894,7 +1894,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     updateTransform: function () {
         // Recursively iterate over children
-        this._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.updateTransform);
+        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.updateTransform);
     },
 
     /**
@@ -1908,7 +1908,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * you need to manually invoke release function when you think this object is no longer needed, otherwise, there will be memory learks.<br/>
      * retain and release function call should be paired in developer's game code.</p>
      * @function
-     * @see cc.Node#release
+     * @see _ccsg.Node#release
      */
     retain: function () {
     },
@@ -1923,7 +1923,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      * you need to manually invoke release function when you think this object is no longer needed, otherwise, there will be memory learks.<br/>
      * retain and release function call should be paired in developer's game code.</p>
      * @function
-     * @see cc.Node#retain
+     * @see _ccsg.Node#retain
      */
     release: function () {
     },
@@ -1931,7 +1931,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Recursive method that visit its children and draw them
      * @function
-     * @param {cc.Node.RenderCmd} parentCmd
+     * @param {_ccsg.Node.RenderCmd} parentCmd
      */
     visit: function(parentCmd){
         this._renderCmd.visit(parentCmd);
@@ -1940,7 +1940,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
     /**
      * Performs view-matrix transformation based on position, scale, rotation and other attributes.
      * @function
-     * @param {cc.Node.RenderCmd} parentCmd parent's render command
+     * @param {_ccsg.Node.RenderCmd} parentCmd parent's render command
      * @param {boolean} recursive whether call its children's transform
      */
     transform: function(parentCmd, recursive){
@@ -2098,7 +2098,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
      */
     setOpacity: function (opacity) {
         this._realOpacity = opacity;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
     },
 
     /**
@@ -2164,7 +2164,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
         locRealColor.r = color.r;
         locRealColor.g = color.g;
         locRealColor.b = color.b;
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
     },
 
     /**
@@ -2199,7 +2199,7 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
 
     /**
      * Set whether color should be changed with the opacity value,
-     * useless in cc.Node, but this function is override in some class to have such behavior.
+     * useless in ccsg.Node, but this function is override in some class to have such behavior.
      * @function
      * @param {Boolean} opacityValue
      */
@@ -2221,30 +2221,30 @@ cc.Node = cc.Class(/** @lends cc.Node# */{
 
     _createRenderCmd: function(){
         if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
-            return new cc.Node.CanvasRenderCmd(this);
+            return new _ccsg.Node.CanvasRenderCmd(this);
         else
-            return new cc.Node.WebGLRenderCmd(this);
+            return new _ccsg.Node.WebGLRenderCmd(this);
     }
 });
 
-cc.Node.extend = function (options) {
-    return cc._Class.extend.call(cc.Node, options);
+_ccsg.Node.extend = function (options) {
+    return cc._Class.extend.call(_ccsg.Node, options);
 };
 
 // to support calling this._super in sub class
-cc.Node.prototype.ctor = cc.Node;
+_ccsg.Node.prototype.ctor = _ccsg.Node;
 
 /**
  * Allocates and initializes a node.
  * @deprecated since v3.0, please use new construction instead.
- * @see cc.Node
- * @return {cc.Node}
+ * @see _ccsg.Node
+ * @return {_ccsg.Node}
  */
-cc.Node.create = function () {
-    return new cc.Node();
+_ccsg.Node.create = function () {
+    return new _ccsg.Node();
 };
 
-cc.Node._stateCallbackType = {onEnter: 1, onExit: 2, cleanup: 3, onEnterTransitionDidFinish: 4, updateTransform: 5, onExitTransitionDidStart: 6, sortAllChildren: 7};
+_ccsg.Node._stateCallbackType = {onEnter: 1, onExit: 2, cleanup: 3, onEnterTransitionDidFinish: 4, updateTransform: 5, onExitTransitionDidStart: 6, sortAllChildren: 7};
 
 cc.assert(cc.js.isFunction(cc._tmp.PrototypeCCNode), cc._LogInfos.MissingFile, "BaseNodesPropertyDefine.js");
 cc._tmp.PrototypeCCNode();

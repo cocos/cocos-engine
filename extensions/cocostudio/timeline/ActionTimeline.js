@@ -450,7 +450,7 @@ ccs.ActionTimeline = cc.Action.extend({
 
     /**
      * start with node.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget: function(target){
         cc.Action.prototype.startWithTarget.call(this, target);

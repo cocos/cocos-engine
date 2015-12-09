@@ -153,7 +153,7 @@
         testChild.scale = cc.Vec2.ZERO;
         testChild.addComponent(TestScript);
 
-        var newNode = new cc.Node();
+        var newNode = new _ccsg.Node();
         newNode.parent = testChild;
 
         //testingCompCallback = true;

@@ -91,7 +91,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * If the target is not present, a new instance of this target will be created either paused or not, and the action will be added to the newly created target.
      * When the target is paused, the queued actions won't be 'ticked'.
      * @param {cc.Action} action
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @param {Boolean} paused
      */
     addAction:function (action, target, paused) {

@@ -36,7 +36,7 @@ cc.SCENE_RADIAL = 0xc001;
  * @class
  * @extends cc.TransitionScene
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @example
  * var trans = new cc.TransitionProgress(time,scene);
  */
@@ -48,7 +48,7 @@ cc.TransitionProgress = cc.TransitionScene.extend(/** @lends cc.TransitionProgre
 
     /**
      * @param {Number} t time
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      */
     ctor:function (t, scene) {
         cc.TransitionScene.prototype.ctor.call(this);
@@ -137,7 +137,7 @@ cc.TransitionProgress = cc.TransitionScene.extend(/** @lends cc.TransitionProgre
  * @deprecated since v3.0,please use new cc.TransitionProgress(t, scene) instead.
  * @function
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @return {cc.TransitionProgress}
  */
 cc.TransitionProgress.create = function (t, scene) {
@@ -150,7 +150,7 @@ cc.TransitionProgress.create = function (t, scene) {
  * @class
  * @extends cc.TransitionProgress
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @example
  * var trans = new cc.TransitionProgressRadialCCW(t, scene);
  */
@@ -158,7 +158,7 @@ cc.TransitionProgressRadialCCW = cc.TransitionProgress.extend(/** @lends cc.Tran
 
     /**
      * @param {Number} t time
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      */
     ctor:function (t, scene) {
         cc.TransitionProgress.prototype.ctor.call(this);
@@ -188,7 +188,7 @@ cc.TransitionProgressRadialCCW = cc.TransitionProgress.extend(/** @lends cc.Tran
  * create a cc.TransitionProgressRadialCCW object
  * @deprecated since v3.0,please use new cc.TransitionProgressRadialCCW(t, scene) instead.
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @return {cc.TransitionProgressRadialCCW}
  * @example
  * var trans = new cc.TransitionProgressRadialCCW(time,scene);
@@ -203,14 +203,14 @@ cc.TransitionProgressRadialCCW.create = function (t, scene) {
  * @class
  * @extends cc.TransitionProgress
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @example
  * var trans = new cc.TransitionProgressRadialCW(t, scene);
  */
 cc.TransitionProgressRadialCW = cc.TransitionProgress.extend(/** @lends cc.TransitionProgressRadialCW# */{
     /**
      * @param {Number} t time
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      */
     ctor:function (t, scene) {
         cc.TransitionProgress.prototype.ctor.call(this);
@@ -240,7 +240,7 @@ cc.TransitionProgressRadialCW = cc.TransitionProgress.extend(/** @lends cc.Trans
  * create a cc.TransitionProgressRadialCW object
  * @deprecated since v3.0,please use cc.TransitionProgressRadialCW(t, scene) instead.
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @return {cc.TransitionProgressRadialCW}
  */
 cc.TransitionProgressRadialCW.create = function (t, scene) {
@@ -257,14 +257,14 @@ cc.TransitionProgressRadialCW.create = function (t, scene) {
  * @class
  * @extends cc.TransitionProgress
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @example
  * var trans = new cc.TransitionProgressHorizontal(t, scene);
  */
 cc.TransitionProgressHorizontal = cc.TransitionProgress.extend(/** @lends cc.TransitionProgressHorizontal# */{
     /**
      * @param {Number} t time
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      */
     ctor:function (t, scene) {
         cc.TransitionProgress.prototype.ctor.call(this);
@@ -295,7 +295,7 @@ cc.TransitionProgressHorizontal = cc.TransitionProgress.extend(/** @lends cc.Tra
  * create a cc.TransitionProgressHorizontal object
  * @deprecated since v3.0,please use new cc.TransitionProgressHorizontal(t, scene) instead.
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @return {cc.TransitionProgressHorizontal}
  */
 cc.TransitionProgressHorizontal.create = function (t, scene) {
@@ -307,7 +307,7 @@ cc.TransitionProgressHorizontal.create = function (t, scene) {
  * @class
  * @extends cc.TransitionProgress
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @example
  * var trans = new cc.TransitionProgressVertical(t, scene);
  */
@@ -315,7 +315,7 @@ cc.TransitionProgressVertical = cc.TransitionProgress.extend(/** @lends cc.Trans
 
     /**
      * @param {Number} t time
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      */
     ctor:function (t, scene) {
         cc.TransitionProgress.prototype.ctor.call(this);
@@ -346,7 +346,7 @@ cc.TransitionProgressVertical = cc.TransitionProgress.extend(/** @lends cc.Trans
  * create a cc.TransitionProgressVertical object
  * @deprecated since v3.0,please use new cc.TransitionProgressVertical(t, scene) instead.
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @return {cc.TransitionProgressVertical}
  */
 cc.TransitionProgressVertical.create = function (t, scene) {
@@ -363,7 +363,7 @@ cc.TransitionProgressInOut = cc.TransitionProgress.extend(/** @lends cc.Transiti
     /**
      * The constructor of cc.TransitionProgressInOut. override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
      * @param {Number} t time
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      */
     ctor:function (t, scene) {
         cc.TransitionProgress.prototype.ctor.call(this);
@@ -402,7 +402,7 @@ cc.TransitionProgressInOut = cc.TransitionProgress.extend(/** @lends cc.Transiti
  * @function
  * @deprecated
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @return {cc.TransitionProgressInOut}
  */
 cc.TransitionProgressInOut.create = function (t, scene) {
@@ -419,7 +419,7 @@ cc.TransitionProgressOutIn = cc.TransitionProgress.extend(/** @lends cc.Transiti
     /**
      * The constructor of cc.TransitionProgressOutIn. override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
      * @param {Number} t time
-     * @param {cc.Scene} scene
+     * @param {_ccsg.Scene} scene
      */
     ctor:function (t, scene) {
         cc.TransitionProgress.prototype.ctor.call(this);
@@ -450,7 +450,7 @@ cc.TransitionProgressOutIn = cc.TransitionProgress.extend(/** @lends cc.Transiti
  * @function
  * @deprecated
  * @param {Number} t time
- * @param {cc.Scene} scene
+ * @param {_ccsg.Scene} scene
  * @return {cc.TransitionProgressOutIn}
  */
 cc.TransitionProgressOutIn.create = function (t, scene) {

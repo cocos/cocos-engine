@@ -35,7 +35,7 @@ var OpenGLTestScene = TestScene.extend({
     }
 });
 
-cc.GLNode = cc.GLNode || cc.Node.extend({
+cc.GLNode = cc.GLNode || _ccsg.Node.extend({
     ctor:function(){
         this._super();
         this.init();

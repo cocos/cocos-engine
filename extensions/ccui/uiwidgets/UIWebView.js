@@ -238,7 +238,7 @@ ccui.WebView.EventType = {
 (function(polyfill){
 
     ccui.WebView.RenderCmd = function(node){
-        cc.Node.CanvasRenderCmd.call(this, node);
+        _ccsg.Node.CanvasRenderCmd.call(this, node);
 
         this._div = null;
         this._iframe = null;
@@ -270,17 +270,17 @@ ccui.WebView.EventType = {
         this.initStyle();
     };
 
-    var proto = ccui.WebView.RenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = ccui.WebView.RenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = ccui.WebView.RenderCmd;
 
     proto.updateStatus = function(){
         polyfill.devicePixelRatio = cc.view.isRetinaEnabled();
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         if(locFlag & flags.transformDirty){
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
             this.updateMatrix(this._worldTransform, cc.view._scaleX, cc.view._scaleY);
-            this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
         }
     };
 

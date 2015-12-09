@@ -478,8 +478,8 @@ if (CC_DEV) {
         Mode: 'EmitterMode'
     });
 
-    // cc.Node
-    markAsRemoved(cc.Node, [
+    // _ccsg.Node
+    markAsRemoved(_ccsg.Node, [
         '_normalizedPositionDirty',
         '_normalizedPosition',
         '_usingNormalizedPosition',
@@ -498,6 +498,6 @@ if (CC_DEV) {
         'removeComponent',
         'removeAllComponents',
         'enumerateChildren'
-    ], 'cc.Node');
+    ], '_ccsg.Node');
 
 }

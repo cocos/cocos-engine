@@ -207,7 +207,7 @@ cc.game.run({
         if(window.sideIndexBar && typeof sideIndexBar.start === 'function'){
             sideIndexBar.start();
         }else{
-            var scene = new cc.Scene();
+            var scene = new _ccsg.Scene();
             scene.addChild(new TestController());
             cc.director.runScene(scene);
         }

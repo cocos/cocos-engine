@@ -57,19 +57,19 @@ ccs._load = (function(){
 
         if(!parse){
             cc.log("Can't find the parser : %s", file);
-            return new cc.Node();
+            return new _ccsg.Node();
         }
         var version = json["version"] || json["Version"];
         if(!version && json["armature_data"]){
             cc.warn("%s is armature. please use:", file);
             cc.warn("    ccs.armatureDataManager.addArmatureFileInfoAsync(%s);", file);
             cc.warn("    var armature = new ccs.Armature('name');");
-            return new cc.Node();
+            return new _ccsg.Node();
         }
         var currentParser = getParser(parse, version);
         if(!currentParser){
             cc.log("Can't find the parser : %s", file);
-            return new cc.Node();
+            return new _ccsg.Node();
         }
 
         return currentParser.parse(file, json, path) || null;
@@ -178,7 +178,7 @@ ccs._parser = cc._Class.extend({
  *   scene 0.* - 1.*
  * @param {String} file
  * @param {String} [path=] Resource path
- * @returns {{node: cc.Node, action: cc.Action}}
+ * @returns {{node: _ccsg.Node, action: cc.Action}}
  */
 ccs.load = function(file, path){
     var object = {
@@ -204,7 +204,7 @@ ccs.load.validate = {};
  *   scene 0.* - 1.*
  * @param {String} file
  * @param {String} [path=] Resource path
- * @returns {{node: cc.Node, action: cc.Action}}
+ * @returns {{node: _ccsg.Node, action: cc.Action}}
  */
 ccs.loadWithVisibleSize = function(file, path){
     var object = ccs.load(file, path);

@@ -68,7 +68,7 @@ cc.GridAction = cc.ActionInterval.extend(/** @lends cc.GridAction# */{
     /**
      * called before the action start. It will also set the target.
      *
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -338,7 +338,7 @@ cc.StopGrid = cc.ActionInstant.extend(/** @lends cc.StopGrid# */{
     /**
      * called before the action start. It will also set the target.
      *
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInstant.prototype.startWithTarget.call(this, target);
@@ -397,7 +397,7 @@ cc.ReuseGrid = cc.ActionInstant.extend(/** @lends cc.ReuseGrid# */{
     /**
      * called before the action start. It will also set the target.
      *
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInstant.prototype.startWithTarget.call(this, target);

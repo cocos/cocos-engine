@@ -25,13 +25,13 @@
 (function(){
     //SpriteBatchNode's WebGL render command
     cc.SpriteBatchNode.WebGLRenderCmd = function(renderable){
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
 
         this._textureAtlas = null;
     };
 
-    var proto = cc.SpriteBatchNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.SpriteBatchNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.SpriteBatchNode.WebGLRenderCmd;
 
     proto.isValidChild = function(child){
@@ -53,7 +53,7 @@
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        node._arrayMakeObjectsPerformSelector(node._children, cc.Node._stateCallbackType.updateTransform);
+        node._arrayMakeObjectsPerformSelector(node._children, _ccsg.Node._stateCallbackType.updateTransform);
         cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
 
         this._textureAtlas.drawQuads();
@@ -73,7 +73,7 @@
         //optimize performance for javascript
         currentStack.stack.push(currentStack.top);
 
-        if(!(this._dirtyFlag & cc.Node._dirtyFlags.transformDirty))  //batchNode's transform must update in visit
+        if(!(this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty))  //batchNode's transform must update in visit
             this.transform(parentCmd);
         this.updateStatus(parentCmd);                       //because batchNode doesn't visit its children.
         currentStack.top = this._stackMatrix;

@@ -25,7 +25,7 @@
 //-------------------------- ClippingNode's canvas render cmd --------------------------------
 (function(){
     cc.ClippingNode.CanvasRenderCmd = function(renderable){
-        cc.Node.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = false;
 
         this._godhelpme = false;
@@ -35,7 +35,7 @@
         this._rendererClipCmd = new cc.CustomRenderCmd(this, this._clipCmdCallback);
         this._rendererRestoreCmd = new cc.CustomRenderCmd(this, this._restoreCmdCallback);
     };
-    var proto = cc.ClippingNode.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.ClippingNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.ClippingNode.CanvasRenderCmd;
 
     proto.initStencilBits = function(){};
@@ -147,7 +147,7 @@
     };
 
     proto.transform = function(parentCmd, recursive){
-        cc.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
         var node = this._node;
         if(node._stencil && node._stencil._renderCmd)
             node._stencil._renderCmd.transform(this, recursive);
@@ -174,7 +174,7 @@
         this._clipElemType = !(!this._cangodhelpme() && node._stencil instanceof cc.DrawNode);
         if (!node._stencil || !node._stencil.visible) {
             if (this.inverted)
-                cc.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);   // draw everything
+                _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);   // draw everything
             return;
         }
 
@@ -182,7 +182,7 @@
         cc.renderer.pushRenderCommand(this._rendererSaveCmd);
         if(this._clipElemType){
             // Draw everything first using node visit function
-            cc.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
+            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
         }else{
             node._stencil.visit(this);
         }

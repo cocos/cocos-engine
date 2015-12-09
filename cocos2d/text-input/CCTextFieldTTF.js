@@ -85,7 +85,7 @@ cc.TextFieldDelegate = cc._Class.extend(/** @lends cc.TextFieldDelegate# */{
  * @class
  * @extends cc.LabelTTF
  *
- * @property {cc.Node}      delegate            - Delegate
+ * @property {_ccsg.Node}      delegate            - Delegate
  * @property {Number}       charCount           - <@readonly> Characators count
  * @property {String}       placeHolder         - Place holder for the field
  * @property {cc.Color}     colorSpaceHolder
@@ -151,7 +151,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
 
     /**
      * Gets the delegate.
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      */
     getDelegate:function () {
         return this.delegate;
@@ -159,7 +159,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
 
     /**
      * Set the delegate.
-     * @param {cc.Node} value
+     * @param {_ccsg.Node} value
      */
     setDelegate:function (value) {
         this.delegate = value;

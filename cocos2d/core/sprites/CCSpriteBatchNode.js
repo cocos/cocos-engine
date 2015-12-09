@@ -39,7 +39,7 @@
  *          This is because "alias" is a property of the texture, and all the sprites share the same texture. </br>
  * </p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @param {String|cc.Texture2D} fileImage
  * @param {Number} capacity
@@ -55,14 +55,14 @@
  * @property {cc.TextureAtlas}  textureAtlas    - The texture atlas
  * @property {Array}            descendants     - <@readonly> Descendants of sprite batch node
  */
-cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
+cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     _blendFunc: null,
     // all descendants: chlidren, gran children, etc...
     _descendants: null,
     _className: "SpriteBatchNode",
 
     ctor: function (fileImage, capacity) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._descendants = [];
         this._blendFunc = new cc.BlendFunc(cc.BLEND_SRC, cc.BLEND_DST);
 
@@ -111,7 +111,7 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
         locDescendants.splice(i, 0, child);
 
         // IMPORTANT: Call super, and not self. Avoid adding it to the texture atlas array
-        cc.Node.prototype.addChild.call(this, child, z, aTag);
+        _ccsg.Node.prototype.addChild.call(this, child, z, aTag);
 
         //#issue 1262 don't use lazy sorting, tiles are added as quads not as sprites, so sprites need to be added in order
         this.reorderBatch(false);
@@ -329,7 +329,7 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
     },
 
     /**
-     * Reorder children (override reorderChild of cc.Node)
+     * Reorder children (override reorderChild of ccsg.Node)
      * @override
      * @param {cc.Sprite} child
      * @param {Number} zOrder
@@ -344,12 +344,12 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
             return;
 
         //set the z-order and sort later
-        cc.Node.prototype.reorderChild.call(this, child, zOrder);
+        _ccsg.Node.prototype.reorderChild.call(this, child, zOrder);
         //this.setNodeDirty();
     },
 
     /**
-     * Removes a child from cc.SpriteBatchNode (override removeChild of cc.Node)
+     * Removes a child from cc.SpriteBatchNode (override removeChild of ccsg.Node)
      * @param {cc.Sprite} child
      * @param {Boolean} cleanup
      */
@@ -364,7 +364,7 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
         // cleanup before removing
         this.removeSpriteFromAtlas(child);
-        cc.Node.prototype.removeChild.call(this, child, cleanup);
+        _ccsg.Node.prototype.removeChild.call(this, child, cleanup);
     },
 
     /**
@@ -552,7 +552,7 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
     },
 
     /**
-     * Add child to the sprite batch node (override addChild of cc.Node)
+     * Add child to the sprite batch node (override addChild of ccsg.Node)
      * @function
      * @override
      * @param {cc.Sprite} child
@@ -567,14 +567,14 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
         zOrder = (zOrder == null) ? child.zIndex : zOrder;
         tag = (tag == null) ? child.tag : tag;
-        cc.Node.prototype.addChild.call(this, child, zOrder, tag);
+        _ccsg.Node.prototype.addChild.call(this, child, zOrder, tag);
         this.appendChild(child);
         //this.setNodeDirty();
     },
 
     /**
      * Removes all children from the container and do a cleanup all running actions depending on the cleanup parameter. <br/>
-     * (override removeAllChildren of cc.Node)
+     * (override removeAllChildren of ccsg.Node)
      * @function
      * @param {Boolean} cleanup
      */
@@ -588,13 +588,13 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
                     locDescendants[i].batchNode = null;
             }
         }
-        cc.Node.prototype.removeAllChildren.call(this, cleanup);
+        _ccsg.Node.prototype.removeAllChildren.call(this, cleanup);
         this._descendants.length = 0;
         this._renderCmd.removeAllQuads();
     },
 
     /**
-     * Sort all children nodes (override draw of cc.Node)
+     * Sort all children nodes (override draw of ccsg.Node)
      */
     sortAllChildren: function () {
         if (this._reorderChildDirty) {
@@ -619,7 +619,7 @@ cc.SpriteBatchNode = cc.Node.extend(/** @lends cc.SpriteBatchNode# */{
             //sorted now check all children
             if (childrenArr.length > 0) {
                 //first sort all children recursively based on zOrder
-                this._arrayMakeObjectsPerformSelector(childrenArr, cc.Node._stateCallbackType.sortAllChildren);
+                this._arrayMakeObjectsPerformSelector(childrenArr, _ccsg.Node._stateCallbackType.sortAllChildren);
                 this._renderCmd.updateChildrenAtlasIndex(childrenArr);
             }
             this._reorderChildDirty = false;

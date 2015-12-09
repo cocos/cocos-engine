@@ -750,7 +750,7 @@ cc.GLProgram._isHighpSupported = function(){
  *     It should be set in initialize phase.
  * </p>
  * @function
- * @param {cc.Node} node
+ * @param {_ccsg.Node} node
  * @param {cc.GLProgram} program The shader program which fetches from CCShaderCache.
  * @example
  * cc.setGLProgram(node, cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));

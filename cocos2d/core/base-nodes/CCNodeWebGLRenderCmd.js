@@ -21,10 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-// ------------------------------ The cc.Node's render command for WebGL ----------------------------------
+// ------------------------------ The ccsg.Node's render command for WebGL ----------------------------------
 (function() {
-    cc.Node.WebGLRenderCmd = function (renderable) {
-        cc.Node.RenderCmd.call(this, renderable);
+    _ccsg.Node.WebGLRenderCmd = function (renderable) {
+        _ccsg.Node.RenderCmd.call(this, renderable);
 
         var mat4 = new cc.math.Matrix4(), mat = mat4.mat;
         mat[2] = mat[3] = mat[6] = mat[7] = mat[8] = mat[9] = mat[11] = mat[14] = 0.0;
@@ -36,8 +36,8 @@
         this._camera = null;
     };
 
-    var proto = cc.Node.WebGLRenderCmd.prototype = Object.create(cc.Node.RenderCmd.prototype);
-    proto.constructor = cc.Node.WebGLRenderCmd;
+    var proto = _ccsg.Node.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
+    proto.constructor = _ccsg.Node.WebGLRenderCmd;
 
     proto._updateColor = function(){};
 
@@ -70,7 +70,7 @@
         // Convert 3x3 into 4x4 matrix
         var trans = this.getNodeToParentTransform();
 
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
 
         var t4x4Mat = t4x4.mat;
         t4x4Mat[0] = trans.a;

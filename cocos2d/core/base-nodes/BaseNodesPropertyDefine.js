@@ -26,7 +26,7 @@
 
 cc._tmp.PrototypeCCNode = function () {
 
-    var _p = cc.Node.prototype;
+    var _p = _ccsg.Node.prototype;
 
     cc.defineGetterSetter(_p, "x", _p.getPositionX, _p.setPositionX);
     cc.defineGetterSetter(_p, "y", _p.getPositionY, _p.setPositionY);

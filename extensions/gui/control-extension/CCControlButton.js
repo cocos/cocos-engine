@@ -500,7 +500,7 @@ cc.ControlButton = cc.Control.extend(/** @lends cc.ControlButton# */{
      * Returns the title label used for a state.
      *
      * @param state The state that uses the title label. Possible values are described in "CCControlState".
-     * @return {cc.Node} the title label used for a state.
+     * @return {_ccsg.Node} the title label used for a state.
      */
     getTitleLabelForState: function (state) {
         var locTable = this._titleLabelDispatchTable;
@@ -514,7 +514,7 @@ cc.ControlButton = cc.Control.extend(/** @lends cc.ControlButton# */{
      * <p>Sets the title label to use for the specified state.                                          <br/>
      * If a property is not specified for a state, the default is to use the CCButtonStateNormal value. </p>
      *
-     * @param {cc.Node} titleLabel The title label to use for the specified state.
+     * @param {_ccsg.Node} titleLabel The title label to use for the specified state.
      * @param {Number} state The state that uses the specified title. The values are described in "CCControlState".
      */
     setTitleLabelForState: function (titleLabel, state) {

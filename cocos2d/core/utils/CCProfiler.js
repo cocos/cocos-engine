@@ -95,9 +95,9 @@ cc.profiler = (function () {
     };
 
     var afterProjection = function(){
-        _FPSLabel._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-        _SPFLabel._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
-        _drawsLabel._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        _FPSLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        _SPFLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        _drawsLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     };
 
     var profiler = {

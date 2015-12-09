@@ -7,7 +7,7 @@ describe( 'test node wrapper', function () {
 
     beforeEach(function () {
 
-        node    = new cc.Node();
+        node    = new _ccsg.Node();
         wrapper = cc.getWrapper(node);
 
         scene = cc.director.getRunningScene();
@@ -43,7 +43,7 @@ describe( 'test node wrapper', function () {
     });
 
     it( 'childrenN', function () {
-        var child = new cc.Node();
+        var child = new _ccsg.Node();
         var childWrapper = cc.getWrapper(child);
 
         childWrapper.parentN = node;
@@ -269,11 +269,11 @@ describe( 'NodeWrapper siblingIndex', function () {
     var scene;
 
     beforeEach(function () {
-        scene = new cc.Scene();
+        scene = new _ccsg.Scene();
         nodes = [];
 
         for(var i=0; i<5; i++) {
-            var node = new cc.Node();
+            var node = new _ccsg.Node();
             nodes.push(node);
             scene.addChild(node);
         }

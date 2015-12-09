@@ -44,7 +44,7 @@ cc.BuilderMemberVariableAssigner = cc._Class.extend({
      * @note The member variable must be CCNode or its subclass.
      * @param {Object} target The custom class
      * @param {string} memberVariableName The name of the member variable.
-     * @param {cc.Node} node The member variable.
+     * @param {_ccsg.Node} node The member variable.
      * @return {Boolean} Whether the assignment was successful.
      */
     onAssignCCBMemberVariable:function(target,memberVariableName, node){ return false;},

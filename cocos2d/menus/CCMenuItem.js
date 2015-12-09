@@ -31,11 +31,11 @@ cc._globalFontNameRelease = false;
 /**
  * Subclass cc.MenuItem (or any subclass) to create your custom cc.MenuItem objects.
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  * @param {function|String} callback
- * @param  {cc.Node} target
+ * @param  {_ccsg.Node} target
  */
-cc.MenuItem = cc.Node.extend(/** @lends cc.MenuItem# */{
+cc.MenuItem = _ccsg.Node.extend(/** @lends cc.MenuItem# */{
     _enabled: false,
     _target: null,
     _callback: null,
@@ -45,10 +45,10 @@ cc.MenuItem = cc.Node.extend(/** @lends cc.MenuItem# */{
     /**
      * Constructor of cc.MenuItem
      * @param {function|String} callback
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     ctor: function (callback, target) {
-        var nodeP = cc.Node.prototype;
+        var nodeP = _ccsg.Node.prototype;
         nodeP.ctor.call(this);
         this._target = null;
         this._callback = null;
@@ -87,7 +87,7 @@ cc.MenuItem = cc.Node.extend(/** @lends cc.MenuItem# */{
     /**
      * set the target/selector of the menu item
      * @param {function|String} selector
-     * @param {cc.Node} rec
+     * @param {_ccsg.Node} rec
      * @deprecated since v3.0
      */
     setTarget: function (selector, rec) {
@@ -114,7 +114,7 @@ cc.MenuItem = cc.Node.extend(/** @lends cc.MenuItem# */{
     /**
      * initializes a cc.MenuItem with callback
      * @param {function|String} callback
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @return {Boolean}
      */
     initWithCallback: function (callback, target) {
@@ -155,7 +155,7 @@ cc.MenuItem = cc.Node.extend(/** @lends cc.MenuItem# */{
     /**
      * set the callback to the menu item
      * @param {function|String} callback
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     setCallback: function (callback, target) {
         this._target = target;
@@ -192,7 +192,7 @@ cc.defineGetterSetter(_p, "enabled", _p.isEnabled, _p.setEnabled);
  * Not recommended to use the base class, should use more defined menu item classes
  * @deprecated since v3.0, please use new cc.MenuItem(callback,target) instead
  * @param {function|String} callback callback
- * @param {cc.Node} target
+ * @param {_ccsg.Node} target
  * @return {cc.MenuItem}
  */
 cc.MenuItem.create = function (callback, target) {
@@ -200,21 +200,21 @@ cc.MenuItem.create = function (callback, target) {
 };
 
 /**
- *  Any cc.Node that supports the cc.LabelProtocol protocol can be added.<br/>
+ *  Any ccsg.Node that supports the cc.LabelProtocol protocol can be added.<br/>
  * Supported nodes:<br/>
  * - cc.BitmapFontAtlas<br/>
  * - cc.LabelAtlas<br/>
  * - cc.LabelTTF<br/>
  * @class
  * @extends cc.MenuItem
- * @param {cc.Node} label
+ * @param {_ccsg.Node} label
  * @param {function|String} selector
- * @param {cc.Node} target
+ * @param {_ccsg.Node} target
  * @example
  * var menuitemLabel = new cc.MenuItemLabel(label,selector,target);
  *
  * @property {String}   string          - Content string of label item
- * @property {cc.Node}  label           - Label of label item
+ * @property {_ccsg.Node}  label           - Label of label item
  * @property {cc.Color} disabledColor   - Color of label when it's disabled
  */
 cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
@@ -225,9 +225,9 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
 
     /**
      * Constructor of cc.MenuItemLabel
-     * @param {cc.Node} label
+     * @param {_ccsg.Node} label
      * @param {function|String} selector
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     ctor: function (label, selector, target) {
         cc.MenuItem.prototype.ctor.call(this, selector, target);
@@ -264,7 +264,7 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
 
     /**
      * return label of cc.MenuItemLabel
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      */
     getLabel: function () {
         return this._label;
@@ -272,7 +272,7 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
 
     /**
      * set a label for cc.MenuItemLabel
-     * @param {cc.Node} label
+     * @param {_ccsg.Node} label
      */
     setLabel: function (label) {
         if (label) {
@@ -309,9 +309,9 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
 
     /**
      * initializes a cc.MenuItemLabel with a label
-     * @param {cc.Node} label
+     * @param {_ccsg.Node} label
      * @param {function|String} selector
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @return {Boolean}
      */
     initWithLabel: function (label, selector, target) {
@@ -404,9 +404,9 @@ cc.defineGetterSetter(_p, "label", _p.getLabel, _p.setLabel);
 
 /**
  * @deprecated since v3.0 ,please use new cc.MenuItemLabel(label,selector,target) instead
- * @param {cc.Node} label
+ * @param {_ccsg.Node} label
  * @param {function|String|Null} [selector=]
- * @param {cc.Node|Null} [target=]
+ * @param {_ccsg.Node|Null} [target=]
  * @return {cc.MenuItemLabel}
  */
 cc.MenuItemLabel.create = function (label, selector, target) {
@@ -423,7 +423,7 @@ cc.MenuItemLabel.create = function (label, selector, target) {
  * @param {Number} itemHeight
  * @param {String} startCharMap a single character
  * @param {function|String|Null} callback
- * @param {cc.Node|Null} target
+ * @param {_ccsg.Node|Null} target
  * @example
  * var menuItem = new cc.MenuItemAtlasFont(param1,param2...);
  */
@@ -437,7 +437,7 @@ cc.MenuItemAtlasFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemAtlasFont# 
      * @param {Number} itemHeight
      * @param {String} startCharMap a single character
      * @param {function|String|Null} callback
-     * @param {cc.Node|Null} target
+     * @param {_ccsg.Node|Null} target
      */
     ctor: function (value, charMapFile, itemWidth, itemHeight, startCharMap, callback, target) {
         var label;
@@ -456,7 +456,7 @@ cc.MenuItemAtlasFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemAtlasFont# 
      * @param {Number} itemHeight
      * @param {String} startCharMap a single character
      * @param {function|String|Null} callback
-     * @param {cc.Node|Null} target
+     * @param {_ccsg.Node|Null} target
      * @return {Boolean}
      */
     initWithString: function (value, charMapFile, itemWidth, itemHeight, startCharMap, callback, target) {
@@ -481,7 +481,7 @@ cc.MenuItemAtlasFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemAtlasFont# 
  * @param {Number} itemHeight
  * @param {String} startCharMap a single character
  * @param {function|String|Null} [callback=null]
- * @param {cc.Node|Null} [target=]
+ * @param {_ccsg.Node|Null} [target=]
  * @return {cc.MenuItemAtlasFont}
  */
 cc.MenuItemAtlasFont.create = function (value, charMapFile, itemWidth, itemHeight, startCharMap, callback, target) {
@@ -494,7 +494,7 @@ cc.MenuItemAtlasFont.create = function (value, charMapFile, itemWidth, itemHeigh
  * @extends cc.MenuItemLabel
  * @param {String} value text for the menu item
  * @param {function|String} callback
- * @param {cc.Node} target
+ * @param {_ccsg.Node} target
  * @example
  * var menuItem = new cc.MenuItemFont(value, callback, target);
  *
@@ -509,7 +509,7 @@ cc.MenuItemFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemFont# */{
      * Constructor of cc.MenuItemFont
      * @param {String} value text for the menu item
      * @param {function|String} callback
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     ctor: function (value, callback, target) {
         var label;
@@ -530,7 +530,7 @@ cc.MenuItemFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemFont# */{
      * initializes cc.MenuItemFont with  string
      * @param {String} value text for the menu item
      * @param {function|String} callback
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @return {Boolean}
      */
     initWithString: function (value, callback, target) {
@@ -639,7 +639,7 @@ cc.MenuItemFont.fontName = function () {
  * @deprecated since v3.0, please use new construction instead
  * @param {String} value the text to display
  * @param {String|function|Null} callback the callback to run, either in function name or pass in the actual function
- * @param {cc.Node|Null} target the target to run callback
+ * @param {_ccsg.Node|Null} target the target to run callback
  * @return {cc.MenuItemFont}
  */
 cc.MenuItemFont.create = function (value, callback, target) {
@@ -657,8 +657,8 @@ cc.MenuItemFont.create = function (value, callback, target) {
  * @extends cc.MenuItem
  * @param {Image|Null} normalSprite normal state image
  * @param {Image|Null} selectedSprite selected state image
- * @param {Image|cc.Node|Null} three disabled state image OR target node
- * @param {String|function|cc.Node|Null} four callback function name in string or actual function, OR target Node
+ * @param {Image|_ccsg.Node|Null} three disabled state image OR target node
+ * @param {String|function|_ccsg.Node|Null} four callback function name in string or actual function, OR target Node
  * @param {String|function|Null} five callback function name in string or actual function
  *
  * @example
@@ -682,8 +682,8 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
      * Constructor of cc.MenuItemSprite
      * @param {Image|Null} normalSprite normal state image
      * @param {Image|Null} selectedSprite selected state image
-     * @param {Image|cc.Node|Null} three disabled state image OR target node
-     * @param {String|function|cc.Node|Null} four callback function name in string or actual function, OR target Node
+     * @param {Image|_ccsg.Node|Null} three disabled state image OR target node
+     * @param {String|function|_ccsg.Node|Null} four callback function name in string or actual function, OR target Node
      * @param {String|function|Null} five callback function name in string or actual function
      */
     ctor: function (normalSprite, selectedSprite, three, four, five) {
@@ -817,11 +817,11 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
 
     /**
      * initializes cc.MenuItemSprite with a cc.Sprite
-     * @param {cc.Node} normalSprite
-     * @param {cc.Node} selectedSprite
-     * @param {cc.Node} disabledSprite
+     * @param {_ccsg.Node} normalSprite
+     * @param {_ccsg.Node} selectedSprite
+     * @param {_ccsg.Node} disabledSprite
      * @param {function|String} callback
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @return {Boolean}
      */
     initWithNormalSprite: function (normalSprite, selectedSprite, disabledSprite, callback, target) {
@@ -937,8 +937,8 @@ cc.defineGetterSetter(_p, "disabledImage", _p.getDisabledImage, _p.setDisabledIm
  * @deprecated since v3.0 please use new cc.MenuItemSprite(normalSprite, selectedSprite, three, four, five) instead
  * @param {Image} normalSprite normal state image
  * @param {Image|Null} selectedSprite selected state image
- * @param {Image|cc.Node|Null} three disabled state image OR target node
- * @param {String|function|cc.Node|Null} four callback function name in string or actual function, OR target Node
+ * @param {Image|_ccsg.Node|Null} three disabled state image OR target node
+ * @param {String|function|_ccsg.Node|Null} four callback function name in string or actual function, OR target Node
  * @param {String|function|Null} five callback function name in string or actual function
  * @return {cc.MenuItemSprite}
  */
@@ -960,7 +960,7 @@ cc.MenuItemSprite.create = function (normalSprite, selectedSprite, three, four, 
  * @param {string|null} selectedImage
  * @param {string|null} disabledImage
  * @param {function|string|null} callback
- * @param {cc.Node|null} target
+ * @param {_ccsg.Node|null} target
  * @example
  * var menuItem = new cc.MenuItemImage(normalImage, selectedImage, three, four, five);
  */
@@ -972,7 +972,7 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
      * @param {string|null} selectedImage
      * @param {string|null} disabledImage
      * @param {function|string|null} callback
-     * @param {cc.Node|null} target
+     * @param {_ccsg.Node|null} target
      */
     ctor: function (normalImage, selectedImage, three, four, five) {
         var normalSprite = null,
@@ -1034,7 +1034,7 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
      * @param {string|null} selectedImage
      * @param {string|null} disabledImage
      * @param {function|string|null} callback
-     * @param {cc.Node|null} target
+     * @param {_ccsg.Node|null} target
      * @returns {boolean}
      */
     initWithNormalImage: function (normalImage, selectedImage, disabledImage, callback, target) {
@@ -1060,9 +1060,9 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
  * @deprecated since v3.0, please use new cc.MenuItemImage(normalImage, selectedImage, three, four, five) instead.
  * @param {String} normalImage file name for normal state
  * @param {String} selectedImage image for selected state
- * @param {String|cc.Node} three Disabled image OR callback function
+ * @param {String|_ccsg.Node} three Disabled image OR callback function
  * @param {String|function|Null} [four] callback function, either name in string or pass the whole function OR the target
- * @param {cc.Node|String|function|Null} [five] cc.Node target to run callback when clicked
+ * @param {_ccsg.Node|String|function|Null} [five] _ccsg.Node target to run callback when clicked
  * @return {cc.MenuItemImage}
  */
 cc.MenuItemImage.create = function (normalImage, selectedImage, three, four, five) {
@@ -1213,7 +1213,7 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
      * initializes a cc.MenuItemToggle with items
      * @param {cc.MenuItem} args[0...last-2] the rest in the array are cc.MenuItems
      * @param {function|String} args[last-1] the second item in the args array is the callback
-     * @param {cc.Node} args[last] the first item in the args array is a target
+     * @param {_ccsg.Node} args[last] the first item in the args array is a target
      * @return {Boolean}
      */
     initWithItems: function (args) {
@@ -1320,7 +1320,7 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
      * </p>
      */
     onEnter: function () {
-        cc.Node.prototype.onEnter.call(this);
+        _ccsg.Node.prototype.onEnter.call(this);
         this.setSelectedIndex(this._selectedIndex);
     }
 });

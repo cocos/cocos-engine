@@ -26,21 +26,21 @@
 
 (function(){
     cc.ParallaxNode.CanvasRenderCmd = function(renderable){
-        cc.Node.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = false;
     };
 
-    var proto = cc.ParallaxNode.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.ParallaxNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.ParallaxNode.CanvasRenderCmd;
 
     proto.updateStatus = function(){
         this._node._updateParallaxPosition();
-        cc.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
+        _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
     };
 
     proto._syncStatus = function(parentCmd){
         this._node._updateParallaxPosition();
-        cc.Node.CanvasRenderCmd.prototype._syncStatus.call(this, parentCmd);
+        _ccsg.Node.CanvasRenderCmd.prototype._syncStatus.call(this, parentCmd);
     }
 })();
 
@@ -49,21 +49,21 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         return;
 
     cc.ParallaxNode.WebGLRenderCmd = function(renderable){
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = false;
     };
 
-    var proto = cc.ParallaxNode.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.ParallaxNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ParallaxNode.WebGLRenderCmd;
 
     proto.updateStatus = function(){
         this._node._updateParallaxPosition();
-        cc.Node.WebGLRenderCmd.prototype.updateStatus.call(this);
+        _ccsg.Node.WebGLRenderCmd.prototype.updateStatus.call(this);
     };
 
     proto._syncStatus = function(parentCmd){
         this._node._updateParallaxPosition();
-        cc.Node.WebGLRenderCmd.prototype._syncStatus.call(this, parentCmd);
+        _ccsg.Node.WebGLRenderCmd.prototype._syncStatus.call(this, parentCmd);
     }
 });
 

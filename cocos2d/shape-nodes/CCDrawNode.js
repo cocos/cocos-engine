@@ -86,9 +86,9 @@ cc.__t = function (v) {
  * Faster than the "drawing primitives" since they it draws everything in one single batch.</p>
  * @class
  * @name cc.DrawNode
- * @extends cc.Node
+ * @extends _ccsg.Node
  */
-cc.DrawNode = cc.Node.extend(/** @lends cc.DrawNode# */{
+cc.DrawNode = _ccsg.Node.extend(/** @lends cc.DrawNode# */{
 //TODO need refactor
 
     _buffer:null,
@@ -194,7 +194,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
              * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
              */
             ctor: function () {
-                cc.Node.prototype.ctor.call(this);
+                _ccsg.Node.prototype.ctor.call(this);
                 var locCmd = this._renderCmd;
                 locCmd._buffer = this._buffer = [];
                 locCmd._drawColor = this._drawColor = cc.color(255, 255, 255, 255);
@@ -525,7 +525,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
             _className:"DrawNodeWebGL",
 
             ctor:function () {
-                cc.Node.prototype.ctor.call(this);
+                _ccsg.Node.prototype.ctor.call(this);
                 this._buffer = [];
                 this._blendFunc = new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
                 this._drawColor = new cc.WebGLColor(255,255,255,255);
@@ -534,7 +534,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
             },
 
             init:function () {
-                if (cc.Node.prototype.init.call(this)) {
+                if (_ccsg.Node.prototype.init.call(this)) {
                     this.shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_LENGTHTEXTURECOLOR);
                     this._ensureCapacity(64);
                     this._trianglesWebBuffer = cc._renderContext.createBuffer();

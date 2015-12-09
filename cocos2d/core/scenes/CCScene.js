@@ -26,26 +26,26 @@
 
 
 /**
- * <p>cc.Scene is a subclass of cc.Node that is used only as an abstract concept.</p>
- *  <p>cc.Scene and cc.Node are almost identical with the difference that cc.Scene has it's
+ * <p>ccsg.Scene is a subclass of ccsg.Node that is used only as an abstract concept.</p>
+ *  <p>ccsg.Scene and ccsg.Node are almost identical with the difference that ccsg.Scene has it's
  * anchor point (by default) at the center of the screen.</p>
  *
- * <p>For the moment cc.Scene has no other logic than that, but in future releases it might have
+ * <p>For the moment ccsg.Scene has no other logic than that, but in future releases it might have
  * additional logic.</p>
  *
- * <p>It is a good practice to use and cc.Scene as the parent of all your nodes.</p>
+ * <p>It is a good practice to use and ccsg.Scene as the parent of all your nodes.</p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  * @example
- * var scene = new cc.Scene();
+ * var scene = new _ccsg.Scene();
  */
-cc.Scene = cc.Node.extend(/** @lends cc.Scene# */{
+_ccsg.Scene = _ccsg.Node.extend(/** @lends _ccsg.Scene# */{
     /**
-     * Constructor of cc.Scene
+     * Constructor of _ccsg.Scene
      */
     _className:"Scene",
     ctor:function () {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._ignoreAnchorPointForPosition = true;
         this.setAnchorPoint(0.5, 0.5);
         this.setContentSize(cc.director.getWinSize());
@@ -54,9 +54,9 @@ cc.Scene = cc.Node.extend(/** @lends cc.Scene# */{
 
 /**
  * creates a scene
- * @deprecated since v3.0,please use new cc.Scene() instead.
- * @return {cc.Scene}
+ * @deprecated since v3.0,please use new _ccsg.Scene() instead.
+ * @return {_ccsg.Scene}
  */
-cc.Scene.create = function () {
-    return new cc.Scene();
+_ccsg.Scene.create = function () {
+    return new _ccsg.Scene();
 };

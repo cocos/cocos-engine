@@ -205,7 +205,7 @@ cc.clone = function (obj) {
         var copy = obj[key];
         // Beware that typeof null == "object" !
         if (((typeof copy) === "object") && copy &&
-            !(copy instanceof cc.Node) && !(copy instanceof HTMLElement)) {
+            !(copy instanceof _ccsg.Node) && !(copy instanceof HTMLElement)) {
             newObj[key] = cc.clone(copy);
         } else {
             newObj[key] = copy;

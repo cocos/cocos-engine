@@ -185,6 +185,7 @@ var Component = cc.Class({
         /**
          * The node this component is attached to. A component is always attached to a node.
          * @property node
+         *
          * @type {ENode}
          */
         node: {

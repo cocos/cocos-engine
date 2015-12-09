@@ -16,7 +16,7 @@
         this._hasTintOffset = false;
         this._hasCtx = false;
         this._textureDirty = true;
-        this.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
         this._tintMult = cc.color(255,255,255,255);
         this._tintOffset = cc.color(0,0,0,0);
     };
@@ -70,7 +70,7 @@
         this._textureDirty = multDirty || offfsetDirty;
         if(this._textureDirty)
         {
-            this.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+            this.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
         }
 
 

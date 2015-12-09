@@ -43,11 +43,11 @@ cc.TABLEVIEW_FILL_BOTTOMUP = 1;
  * Abstract class for SWTableView cell node
  * @class
  * @abstract
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @property {Number}   objectId    - The index used internally by SWTableView and its subclasses
  */
-cc.TableViewCell = cc.Node.extend(/** @lends cc.TableViewCell# */{
+cc.TableViewCell = _ccsg.Node.extend(/** @lends cc.TableViewCell# */{
     _idx:0,
     _className:"TableViewCell",
 
@@ -712,7 +712,7 @@ _p = null;
  * @deprecated
  * @param {cc.TableViewDataSource} dataSource data source;
  * @param {cc.Size} size view size
- * @param {cc.Node} [container] parent object for cells
+ * @param {_ccsg.Node} [container] parent object for cells
  * @return {cc.TableView} table view
  */
 cc.TableView.create = function (dataSource, size, container) {

@@ -338,7 +338,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
 
     /**
      * replace set Parent of ccNode
-     * @param {cc.Node} p
+     * @param {_ccsg.Node} p
      */
     setParent:function (p) {
         this._parent = p;
@@ -394,7 +394,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
         this.unscheduleAllCallbacks();
 
         // timers
-        this._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.cleanup);
+        this._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.cleanup);
         if (this.dom) {
             this.dom.remove();
         }

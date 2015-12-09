@@ -66,7 +66,7 @@
                 } else
                     fontChar.initWithTexture(texture, rect);
 
-                cc.Node.prototype.addChild.call(node, fontChar, 0, i);
+                _ccsg.Node.prototype.addChild.call(node, fontChar, 0, i);
             } else {
                 if (c === 32) {
                     fontChar.init();

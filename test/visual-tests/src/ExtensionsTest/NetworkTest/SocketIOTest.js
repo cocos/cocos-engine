@@ -271,7 +271,7 @@ var SocketIOTestLayer = cc.Layer.extend({
 });
 
 var runSocketIOTest = function () {
-    var pScene = new cc.Scene();
+    var pScene = new _ccsg.Scene();
     var pLayer = new SocketIOTestLayer();
     pScene.addChild(pLayer);
     cc.director.runScene(pScene);

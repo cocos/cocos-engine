@@ -42,14 +42,14 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  *        - The Blending function property belongs to CCSpriteBatchNode, so you can't individually set the blending function property. <br/>
  *        - Parallax scroller is not supported, but can be simulated with a "proxy" sprite.        <br/>
  *
- *  If the parent is an standard cc.Node, then cc.Sprite behaves like any other cc.Node:      <br/>
+ *  If the parent is an standard ccsg.Node, then cc.Sprite behaves like any other ccsg.Node:      <br/>
  *    - It supports blending functions    <br/>
  *    - It supports aliasing / antialiasing    <br/>
  *    - But the rendering will be slower: 1 draw per children.   <br/>
  *
  * The default anchorPoint in cc.Sprite is (0.5, 0.5). </p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @param {String|cc.SpriteFrame|HTMLImageElement|cc.Texture2D} fileName  The string which indicates a path to image file, e.g., "scene1/monster.png".
  * @param {cc.Rect} rect  Only the contents inside rect of pszFileName's texture will be applied for this sprite.
@@ -85,7 +85,7 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @property {cc.SpriteBatchNode}   batchNode           - The batch node object if this sprite is rendered by cc.SpriteBatchNode.
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
-cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
+cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
 	dirty:false,
 	atlasIndex:0,
     textureAtlas:null,
@@ -124,7 +124,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
 
     ctor: function (fileName, rect, rotated) {
         var self = this;
-        cc.Node.prototype.ctor.call(self);
+        _ccsg.Node.prototype.ctor.call(self);
         self._shouldBeHidden = false;
         self._offsetPosition = cc.p(0, 0);
         self._unflippedOffsetPositionFromCenter = cc.p(0, 0);
@@ -337,7 +337,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             }
 
             if (this._batchNode) {
-                this._arrayMakeObjectsPerformSelector(_children, cc.Node._stateCallbackType.sortAllChildren);
+                this._arrayMakeObjectsPerformSelector(_children, _ccsg.Node._stateCallbackType.sortAllChildren);
             }
 
             //don't need to check children recursively, that's done in visit of each child
@@ -347,8 +347,8 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
     },
 
     /**
-     * Reorders a child according to a new z value.  (override cc.Node )
-     * @param {cc.Node} child
+     * Reorders a child according to a new z value.  (override ccsg.Node )
+     * @param {_ccsg.Node} child
      * @param {Number} zOrder
      * @override
      */
@@ -366,7 +366,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             this._setReorderChildDirtyRecursively();
             this._batchNode.reorderBatch(true);
         }
-        cc.Node.prototype.reorderChild.call(this, child, zOrder);
+        _ccsg.Node.prototype.reorderChild.call(this, child, zOrder);
     },
 
     /**
@@ -378,7 +378,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
     removeChild:function (child, cleanup) {
         if (this._batchNode)
             this._batchNode.removeSpriteFromAtlas(child);
-        cc.Node.prototype.removeChild.call(this, child, cleanup);
+        _ccsg.Node.prototype.removeChild.call(this, child, cleanup);
     },
 
     /**
@@ -387,7 +387,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
      * @override
      */
     setVisible:function (visible) {
-        cc.Node.prototype.setVisible.call(this, visible);
+        _ccsg.Node.prototype.setVisible.call(this, visible);
         this._renderCmd.setDirtyRecursively(true);
     },
 
@@ -403,12 +403,12 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
                 locBatchNode.removeSpriteFromAtlas(locChildren[i]);
         }
 
-        cc.Node.prototype.removeAllChildren.call(this, cleanup);
+        _ccsg.Node.prototype.removeAllChildren.call(this, cleanup);
         this._hasChildren = false;
     },
 
     //
-    // cc.Node property overloads
+    // _ccsg.Node property overloads
     //
 
     /**
@@ -421,7 +421,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             cc.log(cc._LogInfos.Sprite.ignoreAnchorPointForPosition);
             return;
         }
-        cc.Node.prototype.ignoreAnchorPointForPosition.call(this, relative);
+        _ccsg.Node.prototype.ignoreAnchorPointForPosition.call(this, relative);
     },
 
     /**
@@ -622,7 +622,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
         if (arguments.length > 0)
             return _t.initWithFile(arguments[0], arguments[1]);
 
-        cc.Node.prototype.init.call(_t);
+        _ccsg.Node.prototype.init.call(_t);
         _t.dirty = _t._recursiveDirty = false;
 
         _t._blendFunc.src = cc.BLEND_SRC;
@@ -694,7 +694,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
         rotated = rotated || false;
         texture = this._renderCmd._handleTextureForRotatedTexture(texture, rect, rotated, counterclockwise);
 
-        if (!cc.Node.prototype.init.call(_t))
+        if (!_ccsg.Node.prototype.init.call(_t))
             return false;
 
         _t._batchNode = null;
@@ -796,7 +796,7 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
     },
 
     /**
-     * Add child to sprite (override cc.Node)
+     * Add child to sprite (override ccsg.Node)
      * @function
      * @param {cc.Sprite} child
      * @param {Number} localZOrder  child's zOrder
@@ -812,8 +812,8 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
             tag = child.tag;
 
         if(this._renderCmd._setBatchNodeForAddChild(child)){
-            //cc.Node already sets isReorderChildDirty_ so this needs to be after batchNode check
-            cc.Node.prototype.addChild.call(this, child, localZOrder, tag);
+            //_ccsg.Node already sets isReorderChildDirty_ so this needs to be after batchNode check
+            _ccsg.Node.prototype.addChild.call(this, child, localZOrder, tag);
             this._hasChildren = true;
         }
     },

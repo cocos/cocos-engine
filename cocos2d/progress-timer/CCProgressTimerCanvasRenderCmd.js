@@ -27,7 +27,7 @@
  */
 (function(){
     cc.ProgressTimer.CanvasRenderCmd = function(renderableObject){
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
         this._PI180 = Math.PI / 180;
@@ -39,7 +39,7 @@
         this._counterClockWise = false;
     };
 
-    var proto = cc.ProgressTimer.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.ProgressTimer.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.ProgressTimer.CanvasRenderCmd;
 
     proto.rendering = function (ctx, scaleX, scaleY) {
@@ -198,7 +198,7 @@
         var node = this._node;
         if(!node._sprite)
             return;
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
         if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
@@ -241,7 +241,7 @@
         var node = this._node;
         if(!node._sprite)
             return;
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var spriteCmd = node._sprite._renderCmd;
         var spriteFlag = spriteCmd._dirtyFlag;
 

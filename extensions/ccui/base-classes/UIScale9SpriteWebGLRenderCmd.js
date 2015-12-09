@@ -23,10 +23,10 @@
  ****************************************************************************/
 
 (function() {
-    if(!cc.Node.WebGLRenderCmd)
+    if(!_ccsg.Node.WebGLRenderCmd)
         return;
     ccui.Scale9Sprite.WebGLRenderCmd = function (renderable) {
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._cachedParent = null;
         this._cacheDirty = false;
@@ -34,7 +34,7 @@
         this._colorOpacityDirty = false;
     };
 
-    var proto = ccui.Scale9Sprite.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = ccui.Scale9Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = ccui.Scale9Sprite.WebGLRenderCmd;
 
     proto.rendering = function (ctx){
@@ -102,7 +102,7 @@
     };
 
     proto._updateDisplayOpacity = function(parentOpacity){
-        cc.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
+        _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
         var node = this._node;
         var scale9Image = node._scale9Image;
         if(scale9Image) {
@@ -115,7 +115,7 @@
     };
 
     proto._updateDisplayColor = function(parentColor){
-        cc.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
+        _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
         var scale9Image = node._scale9Image;
         if(scale9Image){

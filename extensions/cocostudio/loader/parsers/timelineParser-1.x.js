@@ -159,7 +159,7 @@
     };
 
     parser.initNode = function(options){
-        var node = new cc.Node();
+        var node = new _ccsg.Node();
         this.generalAttributes(node, options);
         return node;
     };

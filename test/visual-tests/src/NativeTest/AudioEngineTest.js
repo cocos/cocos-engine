@@ -48,17 +48,17 @@ var AudioEngineBase = BaseTestLayer.extend({
         new NativeTestScene().runThisTest();
     },
     onRestartCallback:function (sender) {
-        var s = new cc.Scene();
+        var s = new _ccsg.Scene();
         s.addChild(AudioTestFlow.current());
         director.runScene(s);
     },
     onNextCallback:function (sender) {
-        var s = new cc.Scene();
+        var s = new _ccsg.Scene();
         s.addChild(AudioTestFlow.next());
         director.runScene(s);
     },
     onBackCallback:function (sender) {
-        var s = new cc.Scene();
+        var s = new _ccsg.Scene();
         s.addChild(AudioTestFlow.previous());
         director.runScene(s);
     },

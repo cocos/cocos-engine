@@ -25,8 +25,8 @@
 var NIL = function () {};
 
 /**
- * <p>cc.Scene is a subclass of cc.Node that is used only as an abstract concept.</p>
- * <p>cc.Scene and cc.Node are almost identical with the difference that users can not modify cc.Scene manually. </p>
+ * <p>cc.Scene is a subclass of ccsg.Node that is used only as an abstract concept.</p>
+ * <p>cc.Scene and ccsg.Node are almost identical with the difference that users can not modify cc.Scene manually. </p>
  *
  * @class EScene
  * @extends _BaseNode
@@ -36,7 +36,7 @@ cc.EScene = cc.Class({
     extends: require('./utils/base-node'),
 
     ctor: function () {
-        var sgNode = this._sgNode = new cc.Scene();
+        var sgNode = this._sgNode = new _ccsg.Scene();
         sgNode.setAnchorPoint(0.0, 0.0);
 
         this._activeInHierarchy = false;

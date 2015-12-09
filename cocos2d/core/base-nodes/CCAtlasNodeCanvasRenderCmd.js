@@ -27,13 +27,13 @@
  */
 (function(){
     cc.AtlasNode.CanvasRenderCmd = function(renderableObject){
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = false;
         this._colorUnmodified = cc.Color.WHITE;
         this._textureToRender = null;
     };
 
-    var proto = cc.AtlasNode.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.AtlasNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = cc.AtlasNode.CanvasRenderCmd;
 
     proto.initWithTexture = function(texture, tileWidth, tileHeight, itemsToRender){
@@ -77,7 +77,7 @@
 
     proto.setOpacity = function(opacity){
         var node = this._node;
-        cc.Node.prototype.setOpacity.call(node, opacity);
+        _ccsg.Node.prototype.setOpacity.call(node, opacity);
     };
 
     proto._calculateMaxItems = function(){

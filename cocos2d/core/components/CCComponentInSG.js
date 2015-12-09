@@ -50,7 +50,7 @@ var ComponentInSG = cc.Class({
      * You should call the setContentSize of the SGNode if its size should be the same with the node's.
      *
      * @method _createSgNode
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      * @private
      */
     _createSgNode: null,

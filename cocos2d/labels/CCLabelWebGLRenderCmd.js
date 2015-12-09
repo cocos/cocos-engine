@@ -32,7 +32,7 @@
 
 (function(){
     cc.Label.WebGLRenderCmd = function(renderableObject){
-        cc.Node.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
         this._labelTexture = new cc.Texture2D();
@@ -51,7 +51,7 @@
         this._drawFontsize = 0;
     };
 
-    var proto = cc.Label.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.Label.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     cc.js.mixin(proto, cc.Label.TTFLabelBaker.prototype);
 
     proto.constructor = cc.Label.WebGLRenderCmd;
