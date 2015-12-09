@@ -51,6 +51,7 @@ function setMaxZOrder (node) {
  *
  * @class _BaseNode
  * @extends Object
+ * @private
  */
 var BaseNode = cc.Class(/** @lends cc.ENode# */{
     extends: cc.Object,
@@ -97,9 +98,10 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         },
 
         /**
-         * Parent node
+         * The parent of the node.
          * @property name
          * @type {ENode}
+         * @default null
          */
         parent: {
             get: function () {

@@ -590,7 +590,7 @@ if (CC_EDITOR || CC_TEST) {
      *
      * @property _disallowMultiple
      * @type {Function}
-     * @default false
+     * @default null
      * @static
      * @readonly
      * @private

@@ -244,9 +244,16 @@ var Node = cc.Class({
     },
 
     _checkMultipleComp: CC_EDITOR && function (ctor) {
-        if (this.getComponent(ctor._disallowMultiple)) {
-            cc.error("The component %s can't be added because %s already contains the same (or subtype) component.",
-                JS.getClassName(typeOrClassName), this._name);
+        var err, existing = this.getComponent(ctor._disallowMultiple);
+        if (existing) {
+            if (existing.constructor === ctor) {
+                err = "Can't add component '%s' because %s already contains the same component.";
+                cc.error(err, JS.getClassName(ctor), this._name);
+            }
+            else {
+                err = "Can't add component '%s' to %s because it conflicts with the existing '%s' derived component.";
+                cc.error(err, JS.getClassName(ctor), this._name, JS.getClassName(existing));
+            }
             return false;
         }
         return true;
