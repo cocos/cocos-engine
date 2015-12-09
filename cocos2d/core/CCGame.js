@@ -598,6 +598,7 @@ var game = /** @lends cc.game# */{
     }
 };
 
-EventTarget.polyfill(game);
+EventTarget.call(game);
+cc.js.addon(game, EventTarget.prototype);
 
 cc.game = module.exports = game;

@@ -536,7 +536,7 @@ var Component = cc.Class({
         // Remove all listeners
         for (i = 0, l = this.__eventTargets.length; i < l; ++i) {
             target = this.__eventTargets[i];
-            target && target.targetOff && target.targetOff(this);
+            target && target.targetOff(this);
         }
         this.__eventTargets.length = 0;
         // onDestroy

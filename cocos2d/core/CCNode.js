@@ -38,6 +38,7 @@ var DontDestroy = Flags.DontDestroy;
 var Node = cc.Class({
     name: 'cc.Node',
     extends: require('./utils/base-node'),
+    mixins: [cc.EventTarget],
 
     properties: {
         /**
@@ -185,7 +186,7 @@ var Node = cc.Class({
         // Remove all listeners
         for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
             var target = this.__eventTargets[i];
-            target && target.targetOff && target.targetOff(this);
+            target && target.targetOff(this);
         }
         this.__eventTargets.length = 0;
 

@@ -155,6 +155,8 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
      */
     ctor: function (str, fntFile, width, alignment, imageOffset) {
         cc.SpriteBatchNode.prototype.ctor.call(this);
+        EventTarget.call(this);
+
         this._imageOffset = cc.p(0, 0);
         this._reusedChar = [];
         this._cascadeColorEnabled = true;
@@ -841,7 +843,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
 
 (function(){
     var p = cc.LabelBMFont.prototype;
-    EventTarget.polyfill(p);
+    cc.js.addon(p, EventTarget.prototype);
 
     /** @expose */
     p.string;

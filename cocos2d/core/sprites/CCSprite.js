@@ -125,6 +125,8 @@ cc.Sprite = cc.Node.extend(/** @lends cc.Sprite# */{
     ctor: function (fileName, rect, rotated) {
         var self = this;
         cc.Node.prototype.ctor.call(self);
+        EventTarget.call(this);
+
         self._shouldBeHidden = false;
         self._offsetPosition = cc.p(0, 0);
         self._unflippedOffsetPositionFromCenter = cc.p(0, 0);
@@ -1025,7 +1027,8 @@ cc.Sprite.createWithSpriteFrame = cc.Sprite.create;
  */
 cc.Sprite.INDEX_NOT_INITIALIZED = -1;
 
-EventTarget.polyfill(cc.Sprite.prototype);
+cc.js.addon(cc.Sprite.prototype, EventTarget.prototype);
+
 
 cc.assert(cc.js.isFunction(cc._tmp.PrototypeSprite), cc._LogInfos.MissingFile, "SpritesPropertyDefine.js");
 cc._tmp.PrototypeSprite();

@@ -82,6 +82,8 @@ cc.AtlasNode = cc.Node.extend(/** @lends cc.AtlasNode# */{
      */
     ctor: function (tile, tileWidth, tileHeight, itemsToRender) {
         cc.Node.prototype.ctor.call(this);
+        EventTarget.call(this);
+
         this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
         this._ignoreContentScaleFactor = false;
         itemsToRender !== undefined && this.initWithTileFile(tile, tileWidth, tileHeight, itemsToRender);
@@ -279,7 +281,7 @@ _p.textureAtlas;
 /** @expose */
 _p.quadsToDraw;
 
-EventTarget.polyfill(_p);
+cc.js.addon(_p, EventTarget.prototype);
 
 /**
  * Creates a cc.AtlasNode with an Atlas file the width and height of each item and the quantity of items to render
