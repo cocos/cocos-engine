@@ -39,12 +39,7 @@ var EventTarget = require("../event/event-target");
  * @class SpriteFrame
  * @extends Asset
  * @constructor
- * @param {String|Texture2D} filename
- * @param {Rect} rect - If parameters' length equal 2, rect in points, else rect in pixels
- * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
- * @param {Vec2} [offset] - The offset of the frame in the texture
- * @param {Size} [originalSize] - The size of the frame in the texture
- * @example {@link utils/api/cocos/docs/cocos2d/core/sprites/SpriteFrame.js}
+
  */
 cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name:'cc.SpriteFrame',
@@ -64,7 +59,17 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     //                 'But you can use values higher than (1,1) and lower than (0,0) too.'
     //    },
     //},
-
+/**
+ * @method SpriteFrame
+ * @constructor
+ * @param {String|Texture2D} filename
+ * @param {Rect} rect - If parameters' length equal 2, rect in points, else rect in pixels
+ * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
+ * @param {Vec2} [offset] - The offset of the frame in the texture
+ * @param {Size} [originalSize] - The size of the frame in the texture
+ * @return {cc.SpriteFrame}
+ * @example {@link utils/api/engine/docs/cocos2d/core/sprites/SpriteFrame.js}
+ */
     ctor:function () {
         var filename = arguments[0];
         var rect = arguments[1];
@@ -135,6 +140,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     /**
      * Returns whether the texture have been loaded
+     * @method textureLoaded
      * @returns {boolean}
      */
     textureLoaded:function(){
@@ -143,6 +149,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     /**
      * Add a event listener for texture loaded event.
+     * @method addLoadedEventListener
      * @param {Function} callback
      * @param {Object} target
      * @deprecated since 3.1, please use EventTarget API instead
@@ -374,6 +381,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     /**
      * Initializes SpriteFrame with Texture, rect, rotated, offset and originalSize in pixels.<br/>
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
+     * @method initWithTexture
      * @param {String|cc.Texture2D} texture
      * @param {Rect} rect - if parameters' length equal 2, rect in points, else rect in pixels
      * @param {Boolean} [rotated=false]
@@ -551,12 +559,14 @@ var proto = cc.SpriteFrame.prototype;
 
 /**
  * Copy the sprite frame
+ * @method copyWithZone
  * @return {SpriteFrame}
  */
 proto.copyWithZone = proto.clone;
 
 /**
  * Copy the sprite frame
+ * @method copy
  * @returns {cc.SpriteFrame}
  */
 proto.copy = proto.clone;
@@ -566,8 +576,8 @@ proto.copy = proto.clone;
  *    Create a cc.SpriteFrame with a texture filename, rect, rotated, offset and originalSize in pixels.<br/>
  *    The originalSize is the size in pixels of the frame before being trimmed.
  * </p>
- * @deprecated since v3.0, please use new construction instead
- * @see cc.SpriteFrame
+ * since v3.0, please use new constructor {{#crossLink "SpriteFrame/SpriteFrame:method"}}{{/crossLink}} instead.
+ * @method cc.SpriteFrame.create
  * @param {String|cc.Texture2D} filename
  * @param {cc.Rect} rect if parameters' length equal 2, rect in points, else rect in pixels
  * @param {Boolean} rotated
@@ -580,9 +590,9 @@ cc.SpriteFrame.create = function (filename, rect, rotated, offset, originalSize)
 };
 
 /**
- * @deprecated since v3.0, please use new construction instead
- * @see cc.SpriteFrame
- * @function
+ * deprecated since v3.0, please use new construction instead
+ * @method cc.SpriteFrame.createWithTexture
+ * @deprecated
  */
 cc.SpriteFrame.createWithTexture = cc.SpriteFrame.create;
 

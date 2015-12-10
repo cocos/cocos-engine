@@ -5,10 +5,15 @@ var FireClass = require('../platform/CCClass');
 /**
  * Representation of 2D vectors and points.
  *
- * see {% crosslink cc.Vec2 cc.v2 %}
+ * see {{#crossLink Vec2 }}cc.Vec2{{/crossLink}}
  * @class Vec2
  * @extends ValueType
  * @constructor
+ */
+
+ /**
+ * Constructor
+ * @method Vec2
  * @param {number} [x=0]
  * @param {number} [y=0]
  */
@@ -440,9 +445,15 @@ JS.get(Vec2, 'RIGHT', function () {
 cc.Vec2 = Vec2;
 var proto = Vec2.prototype;
 
+/**
+ *
+ * @module cc
+ *
+ */
+
 
 /**
- * The convenience method to create a new {% crosslink Vec2 Vec2 %}
+ * The convenience method to create a new {{#crossLink Vec2/Vec2 }}{{/crossLink}}
  * @method v2
  * @param {Number|Object} [x=0]
  * @param {Number} [y=0]
@@ -454,7 +465,7 @@ cc.v2 = function v2 (x, y) {
 
 /**
  * Helper function that creates a cc.Vec2.
- * @function
+ * @method p
  * @param {Number|Object} [x=0] a Number or a size object
  * @param {Number} [y=0]
  * @return {cc.Vec2}
@@ -471,7 +482,7 @@ cc.p = cc.v2;
 
 /**
  * Check whether a point's value equals to another
- * @function
+ * @method pointEqualToPoint
  * @param {cc.Vec2} point1
  * @param {cc.Vec2} point2
  * @return {Boolean}

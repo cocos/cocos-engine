@@ -7,9 +7,7 @@ var WrapModeMask = require('./types').WrapModeMask;
 /**
  * Compute a new ratio by curve type
  * @param {Number} ratio - The origin ratio
- * @param {any}
- *  - If it's Array, then ratio will be computed with bezierByTime
- *  - If it's string, then ratio will be computed with cc.Easing function
+ * @param {Array|String} type - If it's Array, then ratio will be computed with bezierByTime. If it's string, then ratio will be computed with cc.Easing function
  */
 function computeRatioByType (ratio, type) {
     if (typeof type === 'string') {
