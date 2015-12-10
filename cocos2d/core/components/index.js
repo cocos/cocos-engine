@@ -8,5 +8,6 @@ module.exports = [
     require('./CCAudioSource'),
     require('./CCAnimation'),
     require('./CCButton'),
-    require('./CCELabel')
+    require('./CCELabel'),
+    require('./CCProgressBar')
 ];
