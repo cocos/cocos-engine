@@ -209,7 +209,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
      * @method addSpriteFrames
      * @param {String} url - file path
      * @param {HTMLImageElement|Texture2D|string} texture
-     * @example {@link utils/api/cocos/docs/cocos2d/core/sprites/addSpriteFrames.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/sprites/addSpriteFrames.js}
      */
     addSpriteFrames: function (url, texture) {
         cc.assert(url, cc._LogInfos.spriteFrameCache.addSpriteFrames_2);
@@ -338,7 +338,7 @@ cc.spriteFrameCache = /** @lends cc.spriteFrameCache# */{
      * @method getSpriteFrame
      * @param {String} name - name of SpriteFrame
      * @return {SpriteFrame}
-     * @example {@link utils/api/cocos/docs/cocos2d/core/sprites/getSpriteFrame.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/sprites/getSpriteFrame.js}
      */
     getSpriteFrame: function (name) {
         var self = this, frame = self._spriteFrames[name];

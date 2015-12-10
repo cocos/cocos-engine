@@ -64,7 +64,7 @@ cc.HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
  *
  * @class ActionManager
  * @extends _Class
- * @example {@link utils/api/cocos/docs/cocos2d/core/CCActionManager/ActionManager.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/CCActionManager/ActionManager.js}
  */
 cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     _hashTargets:null,

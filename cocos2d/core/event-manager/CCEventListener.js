@@ -464,7 +464,7 @@ cc._EventListenerTouchAllAtOnce.create = function(){
  * @param {Object} argObj a json object
  * @returns {EventListener}
  * todo: It should be the direct use new
- * @example {@link utils/api/cocos/docs/cocos2d/core/event-manager/CCEventListener/create.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventListener/create.js}
  */
 cc.EventListener.create = function(argObj){
 

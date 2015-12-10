@@ -54,7 +54,7 @@ cc.pNeg = function (point) {
  * @param {Vec2} v1
  * @param {Vec2} v2
  * @return {Vec2}
- * @examples {@link utils/api/cocos/docs/cocos2d/core/support/pAdd.js}
+ * @examples {@link utils/api/engine/docs/cocos2d/core/support/pAdd.js}
  */
 cc.pAdd = function (v1, v2) {
     return cc.p(v1.x + v2.x, v1.y + v2.y);
@@ -298,7 +298,7 @@ cc.pFromSize = function (s) {
  * @param {Vec2} p
  * @param {Function} opFunc
  * @return {Vec2}
- * @example {@link utils/api/cocos/docs/cocos2d/core/support/pCompOp.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/support/pCompOp.js}
  */
 cc.pCompOp = function (p, opFunc) {
     return cc.p(opFunc(p.x), opFunc(p.y));

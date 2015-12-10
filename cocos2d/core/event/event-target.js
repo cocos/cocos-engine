@@ -297,7 +297,7 @@ JS.mixin(EventTarget.prototype, {
      * @method _getCapturingTargets
      * @param {String} type - the event type
      * @param {Array} array - the array to receive targets
-     * @example {@link utils/api/cocos/docs/cocos2d/core/event/_getCapturingTargets.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/event/_getCapturingTargets.js}
      */
     _getCapturingTargets: function (type, array) {
 
