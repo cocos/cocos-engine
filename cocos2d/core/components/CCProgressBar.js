@@ -29,18 +29,18 @@
  */
 var Mode = cc.Enum({
     /**
-     * @property {Number} Horizontal
+     * @property {Number} HORIZONTAL
      */
     HORIZONTAL: 0,
 
     /**
-     * @property {Number} Vertical
+     * @property {Number} VERTICAL
      */
     VERTICAL: 1
 });
 
 /**
- * Visual indicator of progress in some operation. Displays a bar to the user representing how far the operation has progressed;
+ * Visual indicator of progress in some operation. Displays a bar to the user representing how far the operation has progressed
  * @class ProgressBar
  * @extends Component
  */
@@ -52,23 +52,22 @@ var ProgressBar = cc.Class({
         menu: 'UI/ProgressBar'
     },
 
-    _initBarSprite: function () {
-        var targetEntity = this.barSprite;
-        if (targetEntity) {
-
-            var barSpriteSize = targetEntity.getContentSize();
-            if(this.mode === Mode.HORIZONTAL){
+    _initBarSprite: function() {
+        var entity = this.barSprite.node;
+        if (entity) {
+            var barSpriteSize = entity.getContentSize();
+            if (this.mode === Mode.HORIZONTAL) {
                 this.totalLength = barSpriteSize.width;
-            }else{
+            } else {
                 this.totalLength = barSpriteSize.height;
             }
             this._updateBarStatus();
         }
     },
 
-    _updateBarStatus: function(){
-        var entity = this.barSprite;
-        if(entity) {
+    _updateBarStatus: function() {
+        var entity = this.barSprite.node;
+        if (entity) {
             var entityAnchorPoint = entity.getAnchorPoint();
             var entitySize = entity.getContentSize();
             var entityPosition = entity.getPosition();
@@ -78,9 +77,9 @@ var ProgressBar = cc.Class({
             var finalContentSize;
             var totalWidth;
             var totalHeight;
-            switch(this.mode){
+            switch (this.mode) {
                 case Mode.HORIZONTAL:
-                    if(this.reverse){
+                    if (this.reverse) {
                         anchorPoint = cc.p(1, 0.5);
                     }
                     finalContentSize = cc.size(actualLenth, entitySize.height);
@@ -88,9 +87,9 @@ var ProgressBar = cc.Class({
                     totalHeight = entitySize.height;
                     break;
                 case Mode.VERTICAL:
-                    if(this.reverse){
+                    if (this.reverse) {
                         anchorPoint = cc.p(0.5, 1);
-                    }else{
+                    } else {
                         anchorPoint = cc.p(0.5, 0);
                     }
                     finalContentSize = cc.size(entitySize.width, actualLenth);
@@ -112,54 +111,71 @@ var ProgressBar = cc.Class({
     },
 
     properties: {
-
+        /**
+         * The targeted SpriteRenderer which will be changed progressively.
+         *@property {cc.SpriteRenderer} barSprite
+         */
         barSprite: {
             default: null,
-            type: cc.ENode,
+            type: cc.SpriteRenderer,
 
-            notify: function () {
+            notify: function() {
                 this._initBarSprite();
             }
         },
 
+        /**
+         * The progress mode, there are two modes supported now: horizontal and vertical.
+         *@property {Mode} mode
+         */
         mode: {
             default: Mode.HORIZONTAL,
             type: Mode,
-            notify: function(value){
+            notify: function(value) {
                 var targetEntity = this.barSprite;
-                if(targetEntity){
+                if (targetEntity) {
                     var targetEntitySize = targetEntity.getContentSize();
-                    if(value === Mode.HORIZONTAL){
+                    if (value === Mode.HORIZONTAL) {
                         this.totalLength = targetEntitySize.height;
-                    }else if(value === Mode.VERTICAL){
+                    } else if (value === Mode.VERTICAL) {
                         this.totalLength = targetEntitySize.width;
                     }
                 }
-
-                this._updateBarStatus();
             }
         },
 
+        /**
+         * The total width or height of the bar sprite.
+         *@property {Number} totalLength
+         */
         totalLength: {
             default: 1,
             range: [0, Number.MAX_VALUE],
-            notify: function(value){
+            notify: function(value) {
                 this._updateBarStatus();
             }
         },
 
+        /**
+         * The current progress of the bar sprite. The valid value is between 0-1.
+         *@property {Float} progress
+         */
         progress: {
             default: 1,
             type: 'Float',
-            range: [0, 1],
-            notify: function(){
+            range: [0, 1, 0.1],
+            notify: function() {
                 this._updateBarStatus();
             }
         },
 
+        /**
+         * Whether reverse the progress direction of the bar sprite.
+         *@property {Boolean} reverse
+         */
         reverse: {
             default: false,
-            notify: function(){
+            notify: function() {
                 this._updateBarStatus();
             }
         }
