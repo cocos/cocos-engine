@@ -132,8 +132,8 @@ if (CC_DEV) {
      */
     js.obsoletes(cc, 'cc', {
         'Point': 'Vec2',
-        //'EScene': 'Scene',
-        //'ENode': 'Node'
+        'EScene': 'Scene',
+        'ENode': 'Node'
     });
 
     /**

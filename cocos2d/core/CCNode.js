@@ -575,5 +575,4 @@ var Node = cc.Class({
 
 });
 
-// TODO - 这个类名是临时的，之后要改名成 cc.Node，再对外屏蔽原 cc.Node
-cc.ENode = cc.Node = module.exports = Node;
+cc.Node = module.exports = Node;
