@@ -433,7 +433,7 @@ cc.Color = Color;
  * @param {Number} [a=255]
  * @return {Color}
  *
- * @examples {@link utils/api/cocos/docs/cocos2d/core/value-types/CCColor/color.js}
+ * @examples {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
  */
 cc.color = function color (r, g, b, a) {
     if (JS.isString(r)) {

@@ -549,7 +549,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @param {Number} repeat
      * @param {Number} delay
      * @param {Boolean} paused
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/scheduleCallbackForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/scheduleCallbackForTarget.js}
      */
     scheduleCallbackForTarget: function(target, callback_fn, interval, repeat, delay, paused){
         //cc.log("scheduleCallbackForTarget is deprecated. Please use schedule.");
@@ -566,7 +566,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @param {Number} delay
      * @param {Boolean} paused
      * @param {Number} key
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/schedule.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/schedule.js}
      */
     schedule: function(callback, target, interval, repeat, delay, paused, key){
         var isSelector = false;
@@ -990,7 +990,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @param {_Class} target
      * @param {Number} priority
      * @param {Boolean} paused
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/scheduleUpdateForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/scheduleUpdateForTarget.js}
      */
     scheduleUpdateForTarget: function(target, priority, paused){
         //cc.log("scheduleUpdateForTarget is deprecated. Please use scheduleUpdate.");
@@ -1006,7 +1006,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @deprecated since v3.4 please use .unschedule
      * @param {_Class} target
      * @param {Function} callback - callback[Function] or key[String]
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/unscheduleCallbackForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/unscheduleCallbackForTarget.js}
      */
     unscheduleCallbackForTarget:function (target, callback) {
         //cc.log("unscheduleCallbackForTarget is deprecated. Please use unschedule.");
@@ -1018,7 +1018,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @method unscheduleUpdateForTarget
      * @param {_Class} target
      * @deprecated since v3.4 please use .unschedule
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/unscheduleUpdateForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/unscheduleUpdateForTarget.js}
      */
     unscheduleUpdateForTarget:function (target) {
         //cc.log("unscheduleUpdateForTarget is deprecated. Please use unschedule.");

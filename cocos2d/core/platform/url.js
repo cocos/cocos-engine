@@ -29,7 +29,7 @@ cc.url = {
      * @method raw
      * @param {String} url
      * @return {String}
-     * @example {@link utils/api/cocos/docs/cocos2d/core/platform/url/raw.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/platform/url/raw.js}
      */
     raw: function (url) {
         if (!this._rawAssets && CC_EDITOR) {
@@ -53,7 +53,7 @@ cc.url = {
      * @method builtinRaw
      * @param {String} url
      * @return {String}
-     * @example {@link utils/api/cocos/docs/cocos2d/core/platform/url/builtinRaw.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/platform/url/builtinRaw.js}
      */
     builtinRaw: function (url) {
         if (!this._rawAssets && CC_EDITOR) {

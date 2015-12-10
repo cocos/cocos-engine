@@ -106,7 +106,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         /**
          * The parent of the node.
-         * @property name
+         * @property parent
          * @type {Node}
          * @default null
          */
@@ -160,6 +160,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         /**
          * The uuid for editor, will be stripped before building project
+         * @property uuid
          * @type {String}
          * @readOnly
          */
@@ -589,7 +590,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     /**
      * Returns the scale factor of the node.
-     * @warning: Assertion will fail when _scaleX != _scaleY.
+     * Assertion will fail when _scaleX != _scaleY.
      * @method getScale
      * @return {Number} The scale factor
      */
@@ -629,7 +630,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method setPosition
      * @param {Vec2|Number} newPosOrxValue - The position (x,y) of the node in coordinates or the X coordinate for position
      * @param {Number} [yValue] - Y coordinate for position
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/node-wrapper/setPosition.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/node-wrapper/setPosition.js}
      */
     setPosition: function (newPosOrxValue, yValue) {
         var locPosition = this._position;
