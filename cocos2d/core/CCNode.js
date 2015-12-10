@@ -274,7 +274,7 @@ var Node = cc.Class({
             return null;
         }
 
-        // check component
+        // get component
 
         var constructor;
         if (typeof typeOrClassName === 'string') {
@@ -294,15 +294,26 @@ var Node = cc.Class({
             }
             constructor = typeOrClassName;
         }
+
+        // check component
+
         if (typeof constructor !== 'function') {
             cc.error("addComponent: The component to add must be a constructor");
             return null;
         }
+        if (!cc.isChildClassOf(constructor, cc.Component)) {
+            cc.error("addComponent: The component to add must be child class of cc.Component");
+            return null;
+        }
+
         if (constructor._disallowMultiple && CC_EDITOR) {
             if (!this._checkMultipleComp(constructor)) {
                 return null;
             }
         }
+
+        // check requirement
+
         var ReqComp = constructor._requireComponent;
         if (ReqComp && !this.getComponent(ReqComp)) {
             var depended = this.addComponent(ReqComp);

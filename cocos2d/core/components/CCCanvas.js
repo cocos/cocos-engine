@@ -55,10 +55,35 @@ var Canvas = cc.Class({
         disallowMultiple: true
     },
 
+    statics: {
+        /**
+         * Current active canvas, the scene should only have one active canvas at the same time.
+         * @property {Canvas} instance
+         */
+        instance: null
+    },
+
     properties: {
 
+        /**
+         * The desigin resolution for current scene.
+         * @property {cc.Size} designResolution
+         * @default new cc.Size(960, 640)
+         */
+        _designResolution: cc.size(960, 640),
+        designResolution: {
+            get: function () {
+                return cc.size(this._designResolution);
+            },
+            set: function (value) {
+                this._designResolution.width = value.width;
+                this._designResolution.height = value.height;
+                this.applySettings();
+            }
+        },
+
         _fitWidth: false,
-        _fitHeight: false,
+        _fitHeight: true,
 
         /**
          * !#zh: 是否优先将设计分辨率高度撑满视图高度
@@ -73,7 +98,7 @@ var Canvas = cc.Class({
             set: function (value) {
                 if (this._fitHeight !== value) {
                     this._fitHeight = value;
-                    this.applyPolicy();
+                    this.applySettings();
                 }
             }
         },
@@ -91,7 +116,7 @@ var Canvas = cc.Class({
             set: function (value) {
                 if (this._fitWidth !== value) {
                     this._fitWidth = value;
-                    this.applyPolicy();
+                    this.applySettings();
                 }
             }
         }
@@ -102,6 +127,12 @@ var Canvas = cc.Class({
     },
 
     onLoad: function () {
+        if (Canvas.instance) {
+            return cc.error("Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time",
+                this.node.name, Canvas.instance.node.name);
+        }
+        Canvas.instance = this;
+
         if ( !this.node._sizeProvider ) {
             this.node._sizeProvider = designResolutionWrapper;
         }
@@ -124,7 +155,7 @@ var Canvas = cc.Class({
         }
 
         this.onResized();
-        this.applyPolicy();
+        this.applySettings();
     },
 
     onDestroy: function () {
@@ -145,6 +176,10 @@ var Canvas = cc.Class({
                 cc.eventManager.removeCustomListeners('canvas-resize', this._thisOnResized);
             }
         }
+
+        if (Canvas.instance === this) {
+            Canvas.instance = null;
+        }
     },
 
     //
@@ -160,7 +195,7 @@ var Canvas = cc.Class({
         this.alignWithScreen();
     },
 
-    applyPolicy: function () {
+    applySettings: function () {
         var ResolutionPolicy = cc.ResolutionPolicy;
         var policy;
 
@@ -177,8 +212,13 @@ var Canvas = cc.Class({
             policy = ResolutionPolicy.FIXED_HEIGHT;
         }
 
-        var size = cc.view.getDesignResolutionSize();
-        cc.view.setDesignResolutionSize(size.width, size.height, policy);
+        var designRes = this._designResolution;
+        if (CC_EDITOR) {
+            cc.engine.setDesignResolutionSize(designRes.width, designRes.height);
+        }
+        else {
+            cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
+        }
     }
 });
 
