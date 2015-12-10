@@ -42,7 +42,8 @@ var AnimationComponent = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'Animation'
+        menu: 'Animation',
+        executeInEditMode: true
     },
 
     ctor: function () {
@@ -109,6 +110,8 @@ var AnimationComponent = cc.Class({
     },
 
     onLoad: function () {
+        if (CC_EDITOR) return;
+
         this._init();
 
         if (this.playAutomatically && this.defaultClip) {
