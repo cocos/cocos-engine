@@ -416,7 +416,7 @@ var _Deserializer = (function () {
                 obj = new klass();
             }
 
-            if (obj instanceof CCObject && obj._deserialize) {
+            if (obj._deserialize) {
                 obj._deserialize(serialized.content, self);
                 return obj;
             }

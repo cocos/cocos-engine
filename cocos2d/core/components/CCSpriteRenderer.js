@@ -217,7 +217,7 @@ var SpriteRenderer = cc.Class({
         if (initialized === false) {
             return;
         }
-        this._sprite = this._sgNode._scale9Image;
+        this._sprite = this._sgNode.getSprite();
     },
 
     /**
@@ -452,7 +452,7 @@ var SpriteRenderer = cc.Class({
         var node = node || this._sgNode;
         if (this._useOriginalSize) {
             var rect = this._sprite.getRect();
-            node.setPreferredSize(rect.size);
+            node.setPreferredSize(cc.size(rect.width, rect.height));
         }
         else {
             node.setPreferredSize(this.node.getContentSize(true));
