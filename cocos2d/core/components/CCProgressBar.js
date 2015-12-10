@@ -55,13 +55,28 @@ var ProgressBar = cc.Class({
     _initBarSprite: function() {
         if (this.barSprite) {
             var entity = this.barSprite.node;
+
+            var nodeSize = this.node.getContentSize();
+            var nodeAnchor = this.node.getAnchorPoint();
+
+            var entitySize = entity.getContentSize();
+
+            if(entity.parent === this.node){
+                this.node.setContentSize(entitySize);
+            }
+
             var barSpriteSize = entity.getContentSize();
             if (this.mode === Mode.HORIZONTAL) {
                 this.totalLength = barSpriteSize.width;
             } else {
                 this.totalLength = barSpriteSize.height;
             }
-            this._updateBarStatus();
+
+            if(entity.parent === this.node){
+                var x = - nodeSize.width * nodeAnchor.x;
+                var y = 0;
+                entity.setPosition(cc.p(x, y));
+            }
         }
     },
 
