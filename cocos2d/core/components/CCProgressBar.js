@@ -131,14 +131,14 @@ var ProgressBar = cc.Class({
         mode: {
             default: Mode.HORIZONTAL,
             type: Mode,
-            notify: function(value) {
+            notify: function() {
                 if (this.barSprite) {
                     var entity = this.barSprite.node;
                     var entitySize = entity.getContentSize();
-                    if (value === Mode.HORIZONTAL) {
-                        this.totalLength = entitySize.height;
-                    } else if (value === Mode.VERTICAL) {
+                    if (this.mode === Mode.HORIZONTAL) {
                         this.totalLength = entitySize.width;
+                    } else if (this.mode === Mode.VERTICAL) {
+                        this.totalLength = entitySize.height;
                     }
                 }
             }
