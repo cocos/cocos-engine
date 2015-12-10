@@ -110,6 +110,8 @@ var AnimationComponent = cc.Class({
     },
 
     onLoad: function () {
+        if (CC_EDITOR) return;
+
         this._init();
 
         if (this.playAutomatically && this.defaultClip) {
