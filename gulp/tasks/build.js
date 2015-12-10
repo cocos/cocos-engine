@@ -191,15 +191,13 @@ function rebundle_jsb(bundler, minify, suffix) {
 }
 
 gulp.task('build-jsb-extends-min', function () {
-    var jsbExtends = rebundle_jsb(createBundler(paths.JSBEntryExtends), true, '_extends');
-    var jsbPredefine = rebundle_jsb(createBundler(paths.JSBEntryPredefine), true, '_predefine');
-    return es.merge(jsbExtends, jsbPredefine);
+    var jsbPolyfill = rebundle_jsb(createBundler(paths.JSBEntries), true, '_polyfill');
+    return jsbPolyfill;
 });
 
 gulp.task('build-jsb-extends-dev', function () {
-    var jsbExtends = rebundle_jsb(createBundler(paths.JSBEntryExtends), false, '_extends');
-    var jsbPredefine = rebundle_jsb(createBundler(paths.JSBEntryPredefine), false, '_predefine');
-    return es.merge(jsbExtends, jsbPredefine);
+    var jsbPolyfill = rebundle_jsb(createBundler(paths.JSBEntries), false, '_polyfill');
+    return jsbPolyfill;
 });
 
 
