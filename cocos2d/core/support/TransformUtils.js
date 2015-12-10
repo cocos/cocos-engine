@@ -24,12 +24,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/**
+ *
+ * @module cc
+ *
+ */
+
 
 /**
  * convert an affine transform object to a kmMat4 object
+ * @method CGAffineToGL
  * @param {cc.AffineTransform} trans
  * @param {cc.kmMat4} mat
- * @function
  */
 cc.CGAffineToGL = function (trans, mat) {
     // | m[0] m[4] m[8]  m[12] |     | m11 m21 m31 m41 |     | a c 0 tx |
@@ -48,9 +54,9 @@ cc.CGAffineToGL = function (trans, mat) {
 
 /**
  * Convert a kmMat4 object to an affine transform object
+ * @method GLToCGAffine
  * @param {cc.kmMat4} mat
  * @param {cc.AffineTransform} trans
- * @function
  */
 cc.GLToCGAffine = function (mat, trans) {
     trans.a = mat[0];

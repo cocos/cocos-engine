@@ -3,6 +3,7 @@
  * @class _Script
  * @extends Asset
  * @constructor
+ * @private
  */
 var Script = cc.Class({
     name: 'cc.Script',
@@ -15,6 +16,7 @@ cc._Script = Script;
  * Class for JavaScript handling.
  * @class _JavaScript
  * @extends Asset
+ * @private
  * @constructor
  */
 var JavaScript = cc.Class({

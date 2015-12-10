@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * @class
+ * @class HashElement
  * @extends cc._Class
  * @example
  * var element = new cc.HashElement();
@@ -40,6 +40,7 @@ cc.HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
     hh:null, //ut hash handle
     /**
      * Constructor
+     * @method HashElement
      */
     ctor:function () {
         this.actions = [];
@@ -90,6 +91,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * If the target is already present, then the action will be added to the existing target.
      * If the target is not present, a new instance of this target will be created either paused or not, and the action will be added to the newly created target.
      * When the target is paused, the queued actions won't be 'ticked'.
+     * @method addAction
      * @param {cc.Action} action
      * @param {_ccsg.Node} target
      * @param {Boolean} paused
@@ -119,6 +121,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
     /**
      * Removes all actions from all the targets.
+     * @method removeAllActions
      */
     removeAllActions:function () {
         var locTargets = this._arrayTargets;
@@ -130,6 +133,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     },
     /** Removes all actions from a certain target. <br/>
      * All the actions that belongs to the target will be removed.
+     * @method removeAllActionsFromTarget
      * @param {object} target
      * @param {boolean} forceDelete
      */
@@ -151,6 +155,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
         }
     },
     /** Removes an action given an action reference.
+     * @method removeAction 
      * @param {cc.Action} action
      */
     removeAction:function (action) {
@@ -173,6 +178,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     },
 
     /** Removes an action given its tag and the target
+     * @method removeActionByTag
      * @param {Number} tag
      * @param {object} target
      */
@@ -197,6 +203,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     },
 
     /** Gets an action given its tag an a target
+     * @method getActionByTag
      * @param {Number} tag
      * @param {object} target
      * @return {cc.Action|Null}  return the Action with the given tag on success
@@ -225,6 +232,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * Example: <br/>
      * - If you are running 1 Sequence of 7 actions, it will return 1. <br/>
      * - If you are running 7 Sequences of 2 actions, it will return 7.
+     * @method numberOfRunningActionsInTarget
      * @param {object} target
      * @return {Number}
      */
@@ -236,6 +244,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
         return 0;
     },
     /** Pauses the target: all running actions and newly added actions will be paused.
+     * @method pauseTarget
      * @param {object} target
      */
     pauseTarget:function (target) {
@@ -244,6 +253,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
             element.paused = true;
     },
     /** Resumes the target. All queued actions will be resumed.
+     * @method resumeTarget
      * @param {object} target
      */
     resumeTarget:function (target) {
@@ -254,6 +264,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
     /**
      * Pauses all running actions, returning a list of targets whose actions were paused.
+     * @method pauseAllRunningActions
      * @return {Array}  a list of targets whose actions were paused.
      */
     pauseAllRunningActions:function(){
@@ -271,6 +282,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
     /**
      * Resume a set of targets (convenience function to reverse a pauseAllRunningActions call)
+     * @method resumeTargets
      * @param {Array} targetsToResume
      */
     resumeTargets:function(targetsToResume){
@@ -285,6 +297,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
 
     /** purges the shared action manager. It releases the retained instance. <br/>
      * because it uses this, so it can not be static
+     * @method purgeSharedManager
      */
     purgeSharedManager:function () {
         cc.director.getScheduler().unscheduleUpdate(this);
@@ -334,6 +347,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     },
 
     /**
+     * @method update
      * @param {Number} dt delta time in seconds
      */
     update:function (dt) {

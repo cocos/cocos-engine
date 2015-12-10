@@ -9,6 +9,7 @@ var SceneGraphHelper = require('../utils/scene-graph-helper');
  *
  * @class _ComponentInSG
  * @extends Component
+ * @private
  */
 var ComponentInSG = cc.Class({
     extends: require('./CCComponent'),

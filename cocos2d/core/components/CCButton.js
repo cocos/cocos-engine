@@ -56,7 +56,8 @@ var ClickEvent = cc.Class({
     properties: {
         /**
          * Event target
-         * @property {cc.Node}
+         * @property target
+         * @type cc.Node
          * @default null
          */
         target: {
@@ -65,7 +66,8 @@ var ClickEvent = cc.Class({
         },
         /**
          * Component name
-         * @property {String}
+         * @property component
+         * @type {String}
          * @default ''
          */
         component: {
@@ -73,7 +75,8 @@ var ClickEvent = cc.Class({
         },
         /**
          * Event handler
-         * @property {String}
+         * @property handler
+         * @type {String}
          * @default ''
          */
         handler: {

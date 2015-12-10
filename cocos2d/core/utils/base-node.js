@@ -39,6 +39,10 @@ function setMaxZOrder (node) {
     node.setOrderOfArrival(z);
     return z;
 }
+/**
+ * fired when node size changed
+ * @event size-changed
+ */
 
 var SIZE_CHANGED = 'size-changed';
 
@@ -51,7 +55,6 @@ var SIZE_CHANGED = 'size-changed';
  * - notifications if some properties changed
  * - define some interfaces shares between CCNode and CCEScene
  *
- * @event size-changed
  *
  * @class _BaseNode
  * @extends Object

@@ -25,16 +25,25 @@
  ****************************************************************************/
 
 // define some types with ArrayBuffer for WebGL
+/**
+ *
+ * @module cc
+ *
+ */
 
 /**
  * @class WebGLColor
+ * @constructor
+ */
+/**
+ * @method WebGLColor
  * @param {Number} r
  * @param {Number} g
  * @param {Number} b
  * @param {Number} a
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {WebGLColor}
  */
 cc.WebGLColor = function (r, g, b, a, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.WebGLColor.BYTES_PER_ELEMENT);
@@ -55,7 +64,8 @@ cc.WebGLColor = function (r, g, b, a, arrayBuffer, offset) {
         this.a_undefined = true;
 };
 /**
- * @constant
+ * @property BYTES_PER_ELEMENT
+ * @final
  * @type {Number}
  */
 cc.WebGLColor.BYTES_PER_ELEMENT = 4;
@@ -100,11 +110,15 @@ cc.js.getset(_p, "a", _p._getA, _p._setA);
 //redefine cc.Vertex2F
 /**
  * @class Vertex2F
+ * @contructor
+ */
+/**
+ * @method Vertex2F 
  * @param {Number} x
  * @param {Number}y
  * @param {Array} arrayBuffer
  * @param {Number}offset
- * @constructor
+ * @return {Vertex2F}
  */
 cc.Vertex2F = function (x, y, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.Vertex2F.BYTES_PER_ELEMENT);
@@ -116,7 +130,8 @@ cc.Vertex2F = function (x, y, arrayBuffer, offset) {
     this._yF32[0] = y || 0;
 };
 /**
- * @constant
+ * @property BYTES_PER_ELEMENT
+ * @final
  * @type {Number}
  */
 cc.Vertex2F.BYTES_PER_ELEMENT = 8;
@@ -144,12 +159,16 @@ cc.js.getset(_p, "y", _p._getY, _p._setY);
 // redefine cc.Vertex3F
 /**
  * @class Vertex3F
+ * @constructor
+ */
+/** 
+ * @method Vertex3F
  * @param {Number} x
  * @param {Number} y
  * @param {Number}z
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {Vertex3F}
  */
 cc.Vertex3F = function (x, y, z, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.Vertex3F.BYTES_PER_ELEMENT);
@@ -164,7 +183,8 @@ cc.Vertex3F = function (x, y, z, arrayBuffer, offset) {
     this._zF32[0] = z || 0;
 };
 /**
- * @constant
+ * @property BYTES_PER_ELEMENT
+ * @final
  * @type {Number}
  */
 cc.Vertex3F.BYTES_PER_ELEMENT = 12;
@@ -201,11 +221,15 @@ cc.js.getset(_p, "z", _p._getZ, _p._setZ);
 // redefine cc.Tex2F
 /**
  * @class Tex2F
+ * @constructor
+ */
+/** 
+ * @method Tex2F
  * @param {Number} u
  * @param {Number} v
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {Tex2F}
  */
 cc.Tex2F = function (u, v, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.Tex2F.BYTES_PER_ELEMENT);
@@ -217,7 +241,8 @@ cc.Tex2F = function (u, v, arrayBuffer, offset) {
     this._vF32[0] = v || 0;
 };
 /**
- * @constants
+ * @property BYTES_PER_ELEMENT 
+ * @final
  * @type {Number}
  */
 cc.Tex2F.BYTES_PER_ELEMENT = 8;
@@ -245,13 +270,18 @@ cc.js.getset(_p, "v", _p._getV, _p._setV);
 //redefine cc.Quad2
 /**
  * @class Quad2
+ * @constructor
+ */
+
+/** 
+ * @method Quad2
  * @param {Vertex2F} tl
  * @param {Vertex2F} tr
  * @param {Vertex2F} bl
  * @param {Vertex2F} br
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {Quad2}
  */
 cc.Quad2 = function (tl, tr, bl, br, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.Quad2.BYTES_PER_ELEMENT);
@@ -264,7 +294,8 @@ cc.Quad2 = function (tl, tr, bl, br, arrayBuffer, offset) {
     this._br = br ? new cc.Vertex2F(br.x, br.y, locArrayBuffer, locElementLen * 3) : new cc.Vertex2F(0, 0, locArrayBuffer, locElementLen * 3);
 };
 /**
- * @constant
+ * @property BYTES_PER_ELEMENT
+ * @final
  * @type {number}
  */
 cc.Quad2.BYTES_PER_ELEMENT = 32;
@@ -316,10 +347,14 @@ cc.js.getset(_p, "br", _p._getBR, _p._setBR);
  * A 3D Quad. 4 * 3 floats
  * @Class Quad3
  * @Construct
+ */
+/**
+ * @method Quad3 
  * @param {Vertex3F} bl1
  * @param {Vertex3F} br1
  * @param {Vertex3F} tl1
  * @param {Vertex3F} tr1
+ * @return {Quad3}
  */
 cc.Quad3 = function (bl1, br1, tl1, tr1) {
     this.bl = bl1 || new cc.Vertex3F(0, 0, 0);
@@ -331,12 +366,16 @@ cc.Quad3 = function (bl1, br1, tl1, tr1) {
 //redefine cc.V3F_C4B_T2F
 /**
  * @class V3F_C4B_T2F
+ * @constructor
+ */
+/** 
+ * @method V3F_C4B_T2F
  * @param {Vertex3F} vertices
  * @param {Color} colors
  * @param {Tex2F} texCoords
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {V3F_C4B_T2F}
  */
 cc.V3F_C4B_T2F = function (vertices, colors, texCoords, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.V3F_C4B_T2F.BYTES_PER_ELEMENT);
@@ -351,7 +390,8 @@ cc.V3F_C4B_T2F = function (vertices, colors, texCoords, arrayBuffer, offset) {
         new cc.Tex2F(0, 0, locArrayBuffer, locOffset + locElementLen + cc.WebGLColor.BYTES_PER_ELEMENT);
 };
 /**
- * @constant
+ * @method BYTES_PER_ELEMENT
+ * @final
  * @type {Number}
  */
 cc.V3F_C4B_T2F.BYTES_PER_ELEMENT = 24;
@@ -396,13 +436,17 @@ cc.js.getset(_p, "texCoords", _p._getTexCoords, _p._setTexCoords);
 //redefine cc.V3F_C4B_T2F_Quad
 /**
  * @class V3F_C4B_T2F_Quad
+ * @constructor
+ */
+/**
+ * @method V3F_C4B_T2F_Quad 
  * @param {V3F_C4B_T2F} tl
  * @param {V3F_C4B_T2F} bl
  * @param {V3F_C4B_T2F} tr
  * @param {V3F_C4B_T2F} br
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {V3F_C4B_T2F_Quad}
  */
 cc.V3F_C4B_T2F_Quad = function (tl, bl, tr, br, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT);
@@ -419,7 +463,8 @@ cc.V3F_C4B_T2F_Quad = function (tl, bl, tr, br, arrayBuffer, offset) {
         new cc.V3F_C4B_T2F(null, null, null, locArrayBuffer, locOffset + locElementLen * 3);
 };
 /**
- * @constant
+ * @property BYTES_PER_ELEMENT
+ * @final
  * @type {Number}
  */
 cc.V3F_C4B_T2F_Quad.BYTES_PER_ELEMENT = 96;
@@ -481,6 +526,12 @@ _p.arrayBuffer;
 cc.js.get(_p, "arrayBuffer", _p._getArrayBuffer);
 
 /**
+ *
+ * @module cc
+ *
+ */
+
+/**
  * @method V3F_C4B_T2F_QuadZero
  * @returns {V3F_C4B_T2F_Quad}
  */
@@ -534,12 +585,16 @@ cc.V3F_C4B_T2F_QuadsCopy = function (sourceQuads) {
 //redefine cc.V2F_C4B_T2F
 /**
  * @class V2F_C4B_T2F
+ * @constructor
+ */
+/** 
+ * @method V2F_C4B_T2F
  * @param {Vertex2F} vertices
  * @param {Color} colors
  * @param {Tex2F} texCoords
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {V2F_C4B_T2F}
  */
 cc.V2F_C4B_T2F = function (vertices, colors, texCoords, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.V2F_C4B_T2F.BYTES_PER_ELEMENT);
@@ -555,7 +610,8 @@ cc.V2F_C4B_T2F = function (vertices, colors, texCoords, arrayBuffer, offset) {
 };
 
 /**
- * @constant
+ * @property BYTES_PER_ELEMENT
+ * @final
  * @type {Number}
  */
 cc.V2F_C4B_T2F.BYTES_PER_ELEMENT = 20;
@@ -598,12 +654,16 @@ cc.js.getset(_p, "texCoords", _p._getTexCoords, _p._setTexCoords);
 //redefine cc.V2F_C4B_T2F_Triangle
 /**
  * @class V2F_C4B_T2F_Triangle
+ * @constructor
+ */
+ /**
+ * @method V2F_C4B_T2F_Triangle
  * @param {V2F_C4B_T2F} a
  * @param {V2F_C4B_T2F} b
  * @param {V2F_C4B_T2F} c
  * @param {Array} arrayBuffer
  * @param {Number} offset
- * @constructor
+ * @return {V2F_C4B_T2F_Triangle}
  */
 cc.V2F_C4B_T2F_Triangle = function (a, b, c, arrayBuffer, offset) {
     this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.V2F_C4B_T2F_Triangle.BYTES_PER_ELEMENT);
@@ -618,7 +678,8 @@ cc.V2F_C4B_T2F_Triangle = function (a, b, c, arrayBuffer, offset) {
         new cc.V2F_C4B_T2F(null, null, null, locArrayBuffer, locOffset + locElementLen * 2);
 };
 /**
- * @constant
+ * property BYTES_PER_ELEMENT
+ * @final
  * @type {Number}
  */
 cc.V2F_C4B_T2F_Triangle.BYTES_PER_ELEMENT = 60;

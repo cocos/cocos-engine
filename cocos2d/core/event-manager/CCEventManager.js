@@ -23,9 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * @ignore
- */
 cc._EventListenerVector = cc._Class.extend({
     _fixedListeners: null,
     _sceneGraphListeners: null,
@@ -100,7 +97,7 @@ cc.__getListenerID = function (event) {
  * </p>
  * @class eventManager
  */
-cc.eventManager = /** @lends cc.eventManager# */{
+cc.eventManager = {
     //Priority dirty flag
     DIRTY_NONE:0,
     DIRTY_FIXED_PRIORITY:1 <<0,
@@ -860,6 +857,7 @@ cc.eventManager = /** @lends cc.eventManager# */{
 
     /**
      * Removes all listeners
+     * @method removeAllListeners
      */
     removeAllListeners: function () {
         var locListeners = this._listenersMap, locInternalCustomEventIDs = this._internalCustomListenerIDs;
