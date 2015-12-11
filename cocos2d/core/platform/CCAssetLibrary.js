@@ -356,7 +356,7 @@ var AssetLibrary = {
          */
 
         // load depends assets
-        for (var i = 0, len = _tdInfo.uuidList.length; i < len; i++) {
+        for (var i = 0; i < _tdInfo.uuidList.length; i++) {
             var dependsUuid = _tdInfo.uuidList[i];
             (function (dependsUuid, obj, prop) {
                 AssetLibrary.queryAssetInfo(dependsUuid, function (err, dependsUrl, isRawAsset) {
