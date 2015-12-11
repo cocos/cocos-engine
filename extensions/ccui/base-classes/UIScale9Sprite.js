@@ -54,8 +54,16 @@ EventTarget = require("../cocos2d/core/event/event-target");
 ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sprite# */{
 
     _textureInited:false,
+    
+    //spriteRect in sprite frame, or the total rect in raw texture
     _spriteRect: null,
+    //the sprite rect is rotated or not
     _spriteFrameRotated:false,
+    //in sprite frame, the sprite rect could be trimed
+    _trimmedOffset: null,
+    /** Original size of the sprite in sprite frame(before trimed). Or the size of texture
+    */
+    _originalSize:null,
 
     //To keep backward compatibility
     //this member is just used for secondary usage, instead, insetTop/Bottom/Left/right is the key value.
@@ -66,8 +74,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
     _scale9Enabled: true,
     _blendFunc:null,
 
-    /** Original sprite's size. */
-    _originalSize:null,
     /** Preferred sprite's size. By default the preferred size is the original size. */
 
     //if the preferredSize component is given as -1, it is ignored
@@ -99,7 +105,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
 
         this._nonSliceSpriteAnchor = cc.p(0.5,0.5);
         this._originalSize = cc.size(0,0);
-        this._preferredSize = cc.rect(0,0,0,0);
         this._spriteRect = cc.rect(0,0,0,0);
         this._blendFunc = cc.BlendFunc._disable();
         this.setAnchorPoint(cc.p(0.5,0.5));
@@ -310,7 +315,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
         if (cc.sizeEqualToSize(this._originalSize, cc.size(0, 0))) {
             this._originalSize = cc.size(size);
         }
-        if (cc.sizeEqualToSize(this._preferredSize, cc.size(0, 0))) {
+        if (this._preferredSize === null) {
             this.setPreferredSize(this._originalSize);
         }
 
@@ -475,7 +480,11 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
      * @return Scale9Sprite's preferred size.
      */
     getPreferredSize : function(){
-        return cc.size(this._preferredSize);
+        if(this._preferredSize === null) {
+            return null;
+        } else {
+            return cc.size(this._preferredSize);
+        }
     },
 
 
@@ -1043,6 +1052,89 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
             return new ccui.Scale9Sprite.WebGLRenderCmd(this);
     },
 });
+
+ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = function()
+{
+    this._texture = null;
+    this._spriteRect = null;
+    this._rotated = null;
+    this._trimmedOffset = null;
+    this._originalSize = null;
+    this._loaded = false;
+
+    this.loaded = function() {
+        return _loaded;
+    };
+
+    /**
+    textureOrTextureFile: texture handle or texture file image;
+    Other params is optional
+    */
+    this.initWithTexture = function(textureOrTextureFile, spriteRect, rotated, trimmedOffset, originalSize){
+        var texture;
+        if(textureOrTextureFile instanceof cc.Texture2D) {
+            texture = textureOrTextureFile;
+        } else {
+            texture = cc.textureCache.addImage(textureOrTextureFile);
+        }
+        if(!texture) {
+            throw new Error("Scale9 Sprite can not be inited with a null texture");
+        }
+        this._texture = texture;
+        this._spriteRect = spriteRect || null;
+        this._rotated = rotated || false;
+        this._trimmedOffset = trimmedOffset || cc.p(0,0);
+        this._originalSize = originalSize || null;
+        if(texture) {
+                var self = this;
+                var textureLoadedCallback = function() {
+                    self._loaded = true;
+                    var texturesize = texture.getContentSize();
+                    if(self._spriteRect === null) {
+                        self._spriteRect = cc.rect(0,0, texturesize.width, texturesize.height);
+                    }
+                    if(self._originalSize === null) {
+                        self._originalSize = cc.size(texturesize);
+                    }
+                };
+            if(texture.isLoaded()) {
+                textureLoadedCallback();
+            } else {
+                texture.once("load",textureLoadedCallback);
+            }
+        }
+        return true;
+    };
+
+    this.initWithSpriteFrame = function(fileOrSpriteFrame){
+        var spriteFrame;
+        if(fileOrSpriteFrame instanceof cc.SpriteFrame) {
+            spriteFrame = fileOrSpriteFrame;
+        }
+        else {
+            spriteFrame = cc.spriteFrameCache.getSpriteFrame(fileOrSpriteFrame);
+        }
+        
+        if(spriteFrame) {
+            var self = this;
+            var spriteFrameLoadedCallback = function() {
+                self._loaded = true;
+                self._texture = spriteFrame.getTexture();
+                self._spriteRect = spriteFrame.getRect();
+                self._rotated = spriteFrame.isRotated();
+                self._trimmedOffset = spriteFrame.getOffset();
+                self._originalSize = spriteFrame.getOriginalSize();
+
+            };
+            if(spriteFrame.textureLoaded()){
+                spriteFrameLoadedCallback();
+            } else {
+                spriteFrame.once("load",spriteFrameLoadedCallback);
+            }
+        }
+        return false;
+    };
+};
 
 var _p = ccui.Scale9Sprite.prototype;
 cc.js.addon(_p, EventTarget.prototype);
