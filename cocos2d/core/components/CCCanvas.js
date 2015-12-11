@@ -24,7 +24,7 @@
 
 var designResolutionWrapper = {
     getContentSize: function () {
-        return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.size(cc.visibleRect);
+        return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.view.getDesignResolutionSize();
     },
     setContentSize: function (size) {
         // NYI
