@@ -460,7 +460,7 @@ var SpriteRenderer = cc.Class({
     },
 
     _applySprite: function (sgNode, oldSprite) {
-        if (oldSprite) {
+        if (oldSprite && oldSprite.off) {
             oldSprite.off('load', this._applyCapInset, this);
         }
         if (!this._sprite) { return; }

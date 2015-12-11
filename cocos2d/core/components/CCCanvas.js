@@ -145,7 +145,7 @@ var Canvas = cc.Class({
         if (CC_EDITOR) {
             cc.engine.on('design-resolution-changed', this._thisOnResized);
         }
-        else {
+        else if (!cc.sys.isNative) {
             if (cc.sys.isMobile) {
                 window.addEventListener('resize', this._thisOnResized);
             }
@@ -168,7 +168,7 @@ var Canvas = cc.Class({
         if (CC_EDITOR) {
             cc.engine.off('design-resolution-changed', this._thisOnResized);
         }
-        else {
+        else if (!cc.sys.isNative) {
             if (cc.sys.isMobile) {
                 window.removeEventListener('resize', this._thisOnResized);
             }

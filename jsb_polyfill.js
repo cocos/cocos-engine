@@ -1,3 +1,4 @@
+'use strict';
 
 cc.ParticleSystem.Mode = cc.Enum({
     /** The gravity mode (A mode) */
@@ -317,7 +318,7 @@ cc.js.mixin(cc.path, {
         //removing all ../
         do {
             oldUrl = url;
-            url = url.replace(this.normalizeRE, "");
+            url = url.replace(this.normalizeRE, '');
         } while(oldUrl.length !== url.length);
         return url;
     },
@@ -356,6 +357,17 @@ cc.EventTarget.call(cc.director);
 cc.js.addon(cc.director, cc.EventTarget.prototype);
 
 // cc.Label
+cc._Label = cc.Label;
+cc.Label = function (string, fontHandle, type) {
+    var label;
+    if (type === cc.Label.Type.TTF) {
+        label = cc._Label.createWithSystemFont(string, fontHandle, 40);
+    }
+    else if (type === cc.Label.Type.BMFont) {
+        label = cc._Label.createWithBMFont(fontHandle, string);
+    }
+    return label;
+};
 cc.Label.Type = cc.Enum({
     TTF: 0,
     BMFont: 1

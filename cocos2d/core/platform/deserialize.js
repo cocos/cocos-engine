@@ -414,6 +414,10 @@ var _Deserializer = (function () {
             else {
                 // instantiate a new object
                 obj = new klass();
+                // Temporary solution
+                if (cc.sys.isNative && klass === cc.SpriteFrame) {
+                    obj.retain();
+                }
             }
 
             if (obj._deserialize) {
