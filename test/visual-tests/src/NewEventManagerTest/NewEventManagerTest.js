@@ -74,7 +74,7 @@ var TouchableSpriteTest =  EventDispatcherTestDemo.extend({
         var origin = director.getVisibleOrigin();
         var size = director.getVisibleSize();
 
-        var containerForSprite1 = new cc.Node();
+        var containerForSprite1 = new _ccsg.Node();
         var sprite1 = new cc.Sprite("Images/CyanSquare.png");
         sprite1.setPosition(origin.x + size.width/2 - 80, origin.y + size.height/2 + 80);
         containerForSprite1.addChild(sprite1);
@@ -1210,7 +1210,7 @@ var Issue9898 = EventDispatcherTestDemo.extend({
         var origin = cc.director.getVisibleOrigin();
         var size = cc.director.getVisibleSize();
 
-        var node = new cc.Node();
+        var node = new _ccsg.Node();
         this.addChild(node);
 
         var _listener = cc.EventListener.create({

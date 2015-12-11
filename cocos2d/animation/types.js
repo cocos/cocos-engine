@@ -77,6 +77,7 @@ cc.WrapMode = WrapMode;
  * @class AnimationNodeBase
  * @constructor
  * @extends Playable
+ * @private
  */
 var AnimationNodeBase = function () {
     Playable.call(this);

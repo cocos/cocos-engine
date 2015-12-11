@@ -36,7 +36,7 @@ var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
  * @param {String} propertyName - the name of property or function, used to retrieve the attributes
  * @param {Object} [attributes] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
  * @return {Object|Undefined} return all attributes associated with the property. if none undefined will be returned
- * @example {@link utils/api/cocos/docs/cocos2d/core/platform/attribute/attr.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/attribute/attr.js}
  */
 function attr (constructor, propertyName, attributes) {
     var key = '_attr$' + propertyName;

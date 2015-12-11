@@ -1,17 +1,13 @@
 
-var bezier = require('./bezier').bezier;
 var bezierByTime = require('./bezier').bezierByTime;
 
 var binarySearch = require('./binary-search');
-var WrapMode = require('./types').WrapMode;
 var WrapModeMask = require('./types').WrapModeMask;
 
 /**
  * Compute a new ratio by curve type
  * @param {Number} ratio - The origin ratio
- * @param {any}
- *  - If it's Array, then ratio will be computed with bezierByTime
- *  - If it's string, then ratio will be computed with cc.Easing function
+ * @param {Array|String} type - If it's Array, then ratio will be computed with bezierByTime. If it's string, then ratio will be computed with cc.Easing function
  */
 function computeRatioByType (ratio, type) {
     if (typeof type === 'string') {
@@ -74,7 +70,7 @@ var DynamicAnimCurve = cc.Class({
         // The name of the property being animated.
         // @property prop
         // @type {string}
-        prop: "",
+        prop: '',
 
         // The values of the keyframes. (y)
         // @property values
@@ -102,6 +98,7 @@ var DynamicAnimCurve = cc.Class({
         var fromVal = values[frameIndex - 1];
         var toVal = values[frameIndex];
 
+        var value;
         // lerp
         if (typeof fromVal === 'number') {
             value = fromVal + (toVal - fromVal) * ratio;
@@ -217,6 +214,17 @@ var SampledAnimCurve = cc.Class({
 
     _findFrameIndex: function (ratios, ratio) {
         var length = ratios.length - 1;
+
+        if (length === 0) return 0;
+
+        var start = ratios[0];
+        if (ratio < start) return 0;
+
+        var end = ratios[length];
+        if (ratio > end) return length;
+
+        ratio = (ratio - start) / (end - start);
+
         var eachLength = 1 / length;
 
         var index = (ratio / eachLength) | 0;

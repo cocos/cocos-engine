@@ -24,7 +24,7 @@
 
 var JS = cc.js;
 var SceneGraphHelper = require('./scene-graph-helper');
-var SGProto = cc.Node.prototype;
+var SGProto = _ccsg.Node.prototype;
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
 
@@ -39,20 +39,28 @@ function setMaxZOrder (node) {
     node.setOrderOfArrival(z);
     return z;
 }
+/**
+ * fired when node size changed
+ * @event size-changed
+ */
+
+var SIZE_CHANGED = 'size-changed';
 
 /**
- * A base node for CCENode and CCEScene, it will:
+ * A base node for CCNode and CCEScene, it will:
  * - provide the same api with origin cocos2d rendering node (SGNode)
  * - maintains properties of the internal SGNode
  * - retain and release the SGNode
  * - serialize datas for SGNode (but SGNode itself will not being serialized)
  * - notifications if some properties changed
- * - define some interfaces shares between CCENode and CCEScene
+ * - define some interfaces shares between CCNode and CCEScene
+ *
  *
  * @class _BaseNode
  * @extends Object
+ * @private
  */
-var BaseNode = cc.Class(/** @lends cc.ENode# */{
+var BaseNode = cc.Class(/** @lends cc.Node# */{
     extends: cc.Object,
 
     properties: {
@@ -97,9 +105,10 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         },
 
         /**
-         * Parent node
-         * @property name
-         * @type {ENode}
+         * The parent of the node.
+         * @property parent
+         * @type {Node}
+         * @default null
          */
         parent: {
             get: function () {
@@ -151,6 +160,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
         /**
          * The uuid for editor, will be stripped before building project
+         * @property uuid
          * @type {String}
          * @readOnly
          */
@@ -266,22 +276,6 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         },
 
         /**
-         * position of node.
-         * @property position
-         * @type {Vec2}
-         */
-        position: {
-            get: SGProto.getPosition,
-            set: function (value) {
-                this._position.x = value.x;
-                this._sgNode.x = value.x;
-
-                this._position.y = value.y;
-                this._sgNode.y = value.y;
-            }
-        },
-
-        /**
          * x axis position of node.
          * @property x
          * @type {Number}
@@ -310,7 +304,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         /**
          * All children nodes
          * @property children
-         * @type {ENode[]}
+         * @type {Node[]}
          * @readOnly
          */
         children: {
@@ -374,10 +368,13 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
                 }
             },
             set: function (value) {
-                if (this._sizeProvider) {
-                    this._sizeProvider.setContentSize(new cc.Size(value, this._sizeProvider._getHeight()));
+                if (value !== this._contentSize.width) {
+                    if (this._sizeProvider) {
+                        this._sizeProvider.setContentSize(new cc.Size(value, this._sizeProvider._getHeight()));
+                    }
+                    this._contentSize.width = value;
+                    this.emit(SIZE_CHANGED);
                 }
-                this._contentSize.width = value;
             },
         },
 
@@ -398,10 +395,13 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
                 }
             },
             set: function (value) {
-                if (this._sizeProvider) {
-                    this._sizeProvider.setContentSize(new cc.Size(this._sizeProvider._getWidth(), value));
+                if (value !== this._contentSize.height) {
+                    if (this._sizeProvider) {
+                        this._sizeProvider.setContentSize(new cc.Size(this._sizeProvider._getWidth(), value));
+                    }
+                    this._contentSize.height = value;
+                    this.emit(SIZE_CHANGED);
                 }
-                this._contentSize.height = value;
             },
         },
 
@@ -502,7 +502,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
             enumerable: false
         });
 
-        var sgNode = this._sgNode = new cc.Node();
+        var sgNode = this._sgNode = new _ccsg.Node();
         if (!cc.game._isCloning) {
             sgNode.cascadeOpacity = true;
         }
@@ -513,7 +513,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
          * Current active scene graph node which provides content size.
          *
          * @property _sizeProvider
-         * @type {cc.Node}
+         * @type {_ccsg.Node}
          * @private
          */
         this._sizeProvider = null;
@@ -534,7 +534,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
 
     /**
-     * Initializes the instance of cc.ENode
+     * Initializes the instance of cc.Node
      * @method init
      * @returns {Boolean} Whether the initialization was successful.
      * @deprecated, no need anymore
@@ -590,7 +590,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
     /**
      * Returns the scale factor of the node.
-     * @warning: Assertion will fail when _scaleX != _scaleY.
+     * Assertion will fail when _scaleX != _scaleY.
      * @method getScale
      * @return {Number} The scale factor
      */
@@ -630,7 +630,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * @method setPosition
      * @param {Vec2|Number} newPosOrxValue - The position (x,y) of the node in coordinates or the X coordinate for position
      * @param {Number} [yValue] - Y coordinate for position
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/node-wrapper/setPosition.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/node-wrapper/setPosition.js}
      */
     setPosition: function (newPosOrxValue, yValue) {
         var locPosition = this._position;
@@ -693,7 +693,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
     /**
      * Returns a copy of the anchor point in absolute pixels.  <br/>
      * you can only read it. If you wish to modify it, use setAnchorPoint
-     * @see cc.ENode#getAnchorPoint
+     * @see cc.Node#getAnchorPoint
      * @method getAnchorPointInPoints
      * @return {Vec2} The anchor point in absolute pixels.
      */
@@ -747,6 +747,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         if (this._sizeProvider) {
             this._sizeProvider.setContentSize(locContentSize);
         }
+        this.emit(SIZE_CHANGED);
     },
 
     /**
@@ -772,7 +773,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         //cc.eventManager.removeListeners(this);
 
         // children
-        SGProto._arrayMakeObjectsPerformSelector(this._children, cc.Node._stateCallbackType.cleanup);
+        SGProto._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.cleanup);
     },
 
     // composition: GET
@@ -781,7 +782,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * Returns a child from the container given its tag
      * @method getChildByTag
      * @param {Number} aTag - An identifier to find the child node.
-     * @return {ENode} a CCNode object whose tag equals to the input parameter
+     * @return {Node} a CCNode object whose tag equals to the input parameter
      */
     getChildByTag: SGProto.getChildByTag,
 
@@ -789,7 +790,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * Returns a child from the container given its name
      * @method getChildByName
      * @param {String} name - A name to find the child node.
-     * @return {ENode} a CCNode object whose name equals to the input parameter
+     * @return {Node} a CCNode object whose name equals to the input parameter
      */
     getChildByName: SGProto.getChildByName,
 
@@ -799,7 +800,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      *
      * <p>If the child is added to a 'running' node, then 'onEnter' and 'onEnterTransitionDidFinish' will be called immediately.</p>
      * @method addChild
-     * @param {ENode} child - A child node
+     * @param {Node} child - A child node
      * @param {Number} [localZOrder=] - Z order for drawing priority. Please refer to setZOrder(int)
      * @param {Number|String} [tag=] - An integer or a name to identify the node easily. Please refer to setTag(int) and setName(string)
      */
@@ -844,7 +845,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * If the node orphan, then nothing happens.
      * @method removeFromParent
      * @param {Boolean} [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
-     * @see cc.ENode#removeFromParentAndCleanup
+     * @see cc.Node#removeFromParentAndCleanup
      */
     removeFromParent: function (cleanup) {
         if (this._parent) {
@@ -860,7 +861,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * If a class wants to extend the 'removeChild' behavior it only needs <br/>
      * to override this method </p>
      * @method removeChild
-     * @param {ENode} child - The child node which will be removed.
+     * @param {Node} child - The child node which will be removed.
      * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
      */
     removeChild: function (child, cleanup) {
@@ -880,7 +881,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * @method removeChildByTag
      * @param {Number} tag - An integer number that identifies a child node
      * @param {Boolean} [cleanup=true] - true if all running actions and callbacks on the child node will be cleanup, false otherwise.
-     * @see cc.ENode#removeChildByTag
+     * @see cc.Node#removeChildByTag
      */
     removeChildByTag: function (tag, cleanup) {
         if (tag === cc.NODE_TAG_INVALID)
@@ -946,6 +947,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
     /**
      * Returns the matrix that transform parent's space coordinates to the node's (local) space coordinates.<br/>
      * The matrix is in Pixels.
+     * The returned transform is readonly and cannot be changed.
      * @method getParentToNodeTransform
      * @return {AffineTransform}
      */
@@ -1100,7 +1102,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
     /**
      * Set whether color should be changed with the opacity value,
-     * useless in cc.Node, but this function is override in some class to have such behavior.
+     * useless in ccsg.Node, but this function is override in some class to have such behavior.
      * @method setOpacityModifyRGB
      * @param {Boolean} opacityValue
      */
@@ -1174,7 +1176,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
      * Is this node a child of the given node?
      *
      * @method isChildOf
-     * @param {ENode} parent
+     * @param {Node} parent
      * @return {Boolean} - Returns true if this node is a child, deep child or identical to the given node.
      */
     isChildOf: function (parent) {
@@ -1224,7 +1226,7 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
 
     // Define public getter and setter methods to ensure api compatibility.
 
-    var SameNameGetSets = ['name', 'skewX', 'skewY', 'rotation', 'rotationX', 'rotationY',
+    var SameNameGetSets = ['name', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
                            'scale', 'scaleX', 'scaleY', 'children', 'childrenCount', 'parent', 'running',
                            /*'actionManager',*/ 'scheduler', /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
     var DiffNameGetSets = {
@@ -1267,6 +1269,12 @@ var BaseNode = cc.Class(/** @lends cc.ENode# */{
         }
     }
 })();
+
+/**
+ * position of node.
+ * @property position
+ * @type {Vec2}
+ */
 
 /**
  * Scale of node

@@ -10,4 +10,5 @@ module.exports = [
     require('./CCButton'),
     require('./CCELabel'),
     require('./CCMask')
+    require('./CCProgressBar')
 ];

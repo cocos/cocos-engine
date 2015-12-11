@@ -24,13 +24,13 @@
 
 (function(){
     sp.Skeleton.WebGLRenderCmd = function (renderableObject) {
-        cc.Node.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
         this.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
         this._tmpQuad = new cc.V3F_C4B_T2F_Quad();
     };
 
-    var proto = sp.Skeleton.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = sp.Skeleton.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = sp.Skeleton.WebGLRenderCmd;
 
     proto.rendering = function (ctx) {

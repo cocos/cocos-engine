@@ -134,7 +134,7 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
     /**
      * initialized whether success or fail
      * @param {cc.Size} size
-     * @param {cc.Node} container
+     * @param {_ccsg.Node} container
      * @return {Boolean}
      */
     initWithViewSize:function (size, container) {
@@ -289,7 +289,7 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
 
     /**
      * Determines if a given node's bounding box is in visible bounds
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      * @return {Boolean} YES if it is in visible bounds
      */
     isNodeVisible:function (node) {
@@ -352,7 +352,7 @@ cc.ScrollView = cc.Layer.extend(/** @lends cc.ScrollView# */{
 
     setViewSize:function (size) {
         this._viewSize = size;
-        cc.Node.prototype.setContentSize.call(this,size);
+        _ccsg.Node.prototype.setContentSize.call(this,size);
     },
 
     getContainer:function () {
@@ -818,7 +818,7 @@ _p = null;
  * Returns an autoreleased scroll view object.
  * @deprecated
  * @param {cc.Size} size view size
- * @param {cc.Node} container parent object
+ * @param {_ccsg.Node} container parent object
  * @return {cc.ScrollView} scroll view object
  */
 cc.ScrollView.create = function (size, container) {

@@ -94,7 +94,7 @@ var objsToClearTmpVar = [];   // 用于重设临时变量
 // * 值得注意的是，这个方法不可重入，不支持 mixin。
 // *
 // * @param {Object} obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
-// * @param {ENode} [parent] - 只有在该对象下的场景物体会被克隆。
+// * @param {Node} [parent] - 只有在该对象下的场景物体会被克隆。
 // * @return {Object}
 // * @private
 // */

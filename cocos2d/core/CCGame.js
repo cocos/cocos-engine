@@ -277,10 +277,10 @@ var game = /** @lends cc.game# */{
     /**
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition
      * @method addPersistRootNode
-     * @param {ENode} node - The node to be made persistent
+     * @param {Node} node - The node to be made persistent
      */
     addPersistRootNode: function (node) {
-        if (!node instanceof cc.ENode)
+        if (!node instanceof cc.Node)
             return;
         var index = this._persistRootNodes.indexOf(node);
         if (index === -1) {
@@ -302,7 +302,7 @@ var game = /** @lends cc.game# */{
     /**
      * Remove a persistent root node
      * @method removePersistRootNode
-     * @param {ENode} node - The node to be removed from persistent node list
+     * @param {Node} node - The node to be removed from persistent node list
      */
     removePersistRootNode: function (node) {
         var index = this._persistRootNodes.indexOf(node);
@@ -315,7 +315,7 @@ var game = /** @lends cc.game# */{
     /**
      * Check whether the node is a persistent root node
      * @method isPersistRootNode
-     * @param {ENode} node - The node to be checked
+     * @param {Node} node - The node to be checked
      * @return {Boolean}
      */
     isPersistRootNode: function (node) {
@@ -598,6 +598,7 @@ var game = /** @lends cc.game# */{
     }
 };
 
-EventTarget.polyfill(game);
+EventTarget.call(game);
+cc.js.addon(game, EventTarget.prototype);
 
 cc.game = module.exports = game;

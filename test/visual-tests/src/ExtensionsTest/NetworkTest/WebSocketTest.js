@@ -257,7 +257,7 @@ WebSocketTestLayer.create = function () {
 
 
 var runWebSocketTest = function () {
-    var pScene = new cc.Scene();
+    var pScene = new _ccsg.Scene();
     var pLayer = WebSocketTestLayer.create();
     pScene.addChild(pLayer);
     cc.director.runScene(pScene);

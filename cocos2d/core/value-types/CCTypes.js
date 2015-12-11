@@ -28,10 +28,14 @@
  * the device accelerometer reports values for each axis in units of g-force.
  * @class Acceleration
  * @constructor
+ */
+/**
+ * @method Acceleration 
  * @param {Number} x
  * @param {Number} y
  * @param {Number} z
  * @param {Number} timestamp
+ * @return {Acceleration}
  */
 cc.Acceleration = function (x, y, z, timestamp) {
     this.x = x || 0;
@@ -42,10 +46,14 @@ cc.Acceleration = function (x, y, z, timestamp) {
 
 /**
  * Blend Function used for textures.
- * @Class BlendFunc
+ * @class BlendFunc
  * @Constructor
+ */
+/**
+ * @method BlendFunc 
  * @param {Number} src1 source blend function
  * @param {Number} dst1 destination blend function
+ * @return {BlendFunc}
  */
 cc.BlendFunc = function (src1, dst1) {
     this.src = src1;
@@ -102,8 +110,12 @@ cc.blendFuncDisable = function () {
  * });
  *
  * @class FontDefinition
- * @param {Object} properties - (OPTIONAL) Allow inline FontDefinition
  * @constructor
+ */
+/**
+ * @method FontDefinition 
+ * @param {Object} properties - (OPTIONAL) Allow inline FontDefinition
+ * @return {FontDefinition}
  */
 cc.FontDefinition = function (properties) {
     var _t = this;

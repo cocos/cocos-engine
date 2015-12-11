@@ -130,7 +130,7 @@ var TableViewTestLayer = cc.Layer.extend({
 });
 
 var runTableViewTest = function () {
-    var pScene = new cc.Scene();
+    var pScene = new _ccsg.Scene();
     var pLayer = new TableViewTestLayer();
     pScene.addChild(pLayer);
     cc.director.runScene(pScene);

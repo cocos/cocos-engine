@@ -196,7 +196,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend(/** @lends cc.ActionInterval# */{
 
     /**
      * Start this action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.Action.prototype.startWithTarget.call(this, target);
@@ -400,7 +400,7 @@ cc.Sequence = cc.ActionInterval.extend(/** @lends cc.Sequence# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -607,7 +607,7 @@ cc.Repeat = cc.ActionInterval.extend(/** @lends cc.Repeat# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         this._total = 0;
@@ -777,7 +777,7 @@ cc.RepeatForever = cc.ActionInterval.extend(/** @lends cc.RepeatForever# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -943,7 +943,7 @@ cc.Spawn = cc.ActionInterval.extend(/** @lends cc.Spawn# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -1031,7 +1031,7 @@ cc.Spawn._actionOneTwo = function (action1, action2) {
 
 
 /**
- * Rotates a cc.Node object to a certain angle by modifying it's.
+ * Rotates a ccsg.Node object to a certain angle by modifying it's.
  * rotation attribute. <br/>
  * The direction will be decided by the shortest angle.
  * @class
@@ -1093,7 +1093,7 @@ cc.RotateTo = cc.ActionInterval.extend(/** @lends cc.RotateTo# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -1170,7 +1170,7 @@ cc.RotateTo.create = cc.rotateTo;
 
 
 /**
- * Rotates a cc.Node object clockwise a number of degrees by modifying it's rotation attribute.
+ * Rotates a ccsg.Node object clockwise a number of degrees by modifying it's rotation attribute.
  * Relative to its properties to modify.
  * @class
  * @extends  cc.ActionInterval
@@ -1227,7 +1227,7 @@ cc.RotateBy = cc.ActionInterval.extend(/** @lends cc.RotateBy# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -1260,7 +1260,7 @@ cc.RotateBy = cc.ActionInterval.extend(/** @lends cc.RotateBy# */{
 });
 
 /**
- * Rotates a cc.Node object clockwise a number of degrees by modifying it's rotation attribute.
+ * Rotates a ccsg.Node object clockwise a number of degrees by modifying it's rotation attribute.
  * Relative to its properties to modify.
  * @function
  * @param {Number} duration duration in seconds
@@ -1276,7 +1276,7 @@ cc.rotateBy = function (duration, deltaAngleX, deltaAngleY) {
 };
 /**
  * Please use cc.rotateBy instead.
- * Rotates a cc.Node object clockwise a number of degrees by modifying it's rotation attribute.
+ * Rotates a ccsg.Node object clockwise a number of degrees by modifying it's rotation attribute.
  * Relative to its properties to modify.
  * @static
  * @deprecated since v3.0 <br /> Please use cc.rotateBy instead.
@@ -1358,7 +1358,7 @@ cc.MoveBy = cc.ActionInterval.extend(/** @lends cc.MoveBy# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -1500,7 +1500,7 @@ cc.MoveTo = cc.MoveBy.extend(/** @lends cc.MoveTo# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.MoveBy.prototype.startWithTarget.call(this, target);
@@ -1537,7 +1537,7 @@ cc.moveTo = function (duration, position, y) {
 cc.MoveTo.create = cc.moveTo;
 
 /**
- * Skews a cc.Node object to given angles by modifying it's skewX and skewY attributes
+ * Skews a ccsg.Node object to given angles by modifying it's skewX and skewY attributes
  * @class
  * @extends cc.ActionInterval
  * @param {Number} t time in seconds
@@ -1598,7 +1598,7 @@ cc.SkewTo = cc.ActionInterval.extend(/** @lends cc.SkewTo# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -1630,7 +1630,7 @@ cc.SkewTo = cc.ActionInterval.extend(/** @lends cc.SkewTo# */{
 });
 /**
  * Create new action.
- * Skews a cc.Node object to given angles by modifying it's skewX and skewY attributes.
+ * Skews a ccsg.Node object to given angles by modifying it's skewX and skewY attributes.
  * Changes to the specified value.
  * @function
  * @param {Number} t time in seconds
@@ -1646,7 +1646,7 @@ cc.skewTo = function (t, sx, sy) {
 };
 /**
  * Please use cc.skewTo instead.
- * Skews a cc.Node object to given angles by modifying it's skewX and skewY attributes。
+ * Skews a ccsg.Node object to given angles by modifying it's skewX and skewY attributes。
  * Changes to the specified value.
  * @static
  * @deprecated since v3.0 <br /> Please use cc.skewTo instead.
@@ -1658,7 +1658,7 @@ cc.skewTo = function (t, sx, sy) {
 cc.SkewTo.create = cc.skewTo;
 
 /**
- * Skews a cc.Node object by skewX and skewY degrees.
+ * Skews a ccsg.Node object by skewX and skewY degrees.
  * Relative to its attribute modification.
  * @class
  * @extends cc.SkewTo
@@ -1709,7 +1709,7 @@ cc.SkewBy = cc.SkewTo.extend(/** @lends cc.SkewBy# */{
 
     /**
      * Start the action width target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.SkewTo.prototype.startWithTarget.call(this, target);
@@ -1732,7 +1732,7 @@ cc.SkewBy = cc.SkewTo.extend(/** @lends cc.SkewBy# */{
 });
 
 /**
- * Skews a cc.Node object by skewX and skewY degrees. <br />
+ * Skews a ccsg.Node object by skewX and skewY degrees. <br />
  * Relative to its attribute modification.
  * @function
  * @param {Number} t time in seconds
@@ -1748,7 +1748,7 @@ cc.skewBy = function (t, sx, sy) {
 };
 /**
  * Please use cc.skewBy instead. <br />
- * Skews a cc.Node object by skewX and skewY degrees. <br />
+ * Skews a ccsg.Node object by skewX and skewY degrees. <br />
  * Relative to its attribute modification.
  * @static
  * @deprecated since v3.0 please use cc.skewBy instead.
@@ -1761,7 +1761,7 @@ cc.SkewBy.create = cc.skewBy;
 
 
 /**
- * Moves a cc.Node object simulating a parabolic jump movement by modifying it's position attribute.
+ * Moves a ccsg.Node object simulating a parabolic jump movement by modifying it's position attribute.
  * Relative to its movement.
  * @class
  * @extends cc.ActionInterval
@@ -1839,7 +1839,7 @@ cc.JumpBy = cc.ActionInterval.extend(/** @lends cc.JumpBy# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -1895,7 +1895,7 @@ cc.JumpBy = cc.ActionInterval.extend(/** @lends cc.JumpBy# */{
 });
 
 /**
- * Moves a cc.Node object simulating a parabolic jump movement by modifying it's position attribute.
+ * Moves a ccsg.Node object simulating a parabolic jump movement by modifying it's position attribute.
  * Relative to its movement.
  * @function
  * @param {Number} duration
@@ -1914,7 +1914,7 @@ cc.jumpBy = function (duration, position, y, height, jumps) {
 };
 /**
  * Please use cc.jumpBy instead. <br />
- * Moves a cc.Node object simulating a parabolic jump movement by modifying it's position attribute. <br />
+ * Moves a ccsg.Node object simulating a parabolic jump movement by modifying it's position attribute. <br />
  * Relative to its movement.
  * @static
  * @deprecated since v3.0 please use cc.jumpBy instead.
@@ -1928,7 +1928,7 @@ cc.jumpBy = function (duration, position, y, height, jumps) {
 cc.JumpBy.create = cc.jumpBy;
 
 /**
- * Moves a cc.Node object to a parabolic position simulating a jump movement by modifying it's position attribute. <br />
+ * Moves a ccsg.Node object to a parabolic position simulating a jump movement by modifying it's position attribute. <br />
  * Jump to the specified location.
  * @class
  * @extends cc.JumpBy
@@ -1984,7 +1984,7 @@ cc.JumpTo = cc.JumpBy.extend(/** @lends cc.JumpTo# */{
     },
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.JumpBy.prototype.startWithTarget.call(this, target);
@@ -2005,7 +2005,7 @@ cc.JumpTo = cc.JumpBy.extend(/** @lends cc.JumpTo# */{
 });
 
 /**
- * Moves a cc.Node object to a parabolic position simulating a jump movement by modifying it's position attribute. <br />
+ * Moves a ccsg.Node object to a parabolic position simulating a jump movement by modifying it's position attribute. <br />
  * Jump to the specified location.
  * @function
  * @param {Number} duration
@@ -2024,7 +2024,7 @@ cc.jumpTo = function (duration, position, y, height, jumps) {
 };
 /**
  * Please use cc.jumpTo instead.
- * Moves a cc.Node object to a parabolic position simulating a jump movement by modifying it's position attribute. <br />
+ * Moves a ccsg.Node object to a parabolic position simulating a jump movement by modifying it's position attribute. <br />
  * Jump to the specified location.
  * @static
  * @deprecated since v3.0 please use cc.jumpTo instead.
@@ -2114,7 +2114,7 @@ cc.BezierBy = cc.ActionInterval.extend(/** @lends cc.BezierBy# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -2262,7 +2262,7 @@ cc.BezierTo = cc.BezierBy.extend(/** @lends cc.BezierTo# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.BezierBy.prototype.startWithTarget.call(this, target);
@@ -2300,7 +2300,7 @@ cc.bezierTo = function (t, c) {
 cc.BezierTo.create = cc.bezierTo;
 
 
-/** Scales a cc.Node object to a zoom factor by modifying it's scale attribute.
+/** Scales a ccsg.Node object to a zoom factor by modifying it's scale attribute.
  * @warning This action doesn't support "reverse"
  * @class
  * @extends cc.ActionInterval
@@ -2364,7 +2364,7 @@ cc.ScaleTo = cc.ActionInterval.extend(/** @lends cc.ScaleTo# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -2387,7 +2387,7 @@ cc.ScaleTo = cc.ActionInterval.extend(/** @lends cc.ScaleTo# */{
     }
 });
 /**
- * Scales a cc.Node object to a zoom factor by modifying it's scale attribute.
+ * Scales a ccsg.Node object to a zoom factor by modifying it's scale attribute.
  * @function
  * @param {Number} duration
  * @param {Number} sx  scale parameter in X
@@ -2406,7 +2406,7 @@ cc.scaleTo = function (duration, sx, sy) { //function overload
 };
 /**
  * Please use cc.scaleTo instead.
- * Scales a cc.Node object to a zoom factor by modifying it's scale attribute.
+ * Scales a ccsg.Node object to a zoom factor by modifying it's scale attribute.
  * @static
  * @deprecated since v3.0 please use cc.scaleTo instead.
  * @param {Number} duration
@@ -2417,7 +2417,7 @@ cc.scaleTo = function (duration, sx, sy) { //function overload
 cc.ScaleTo.create = cc.scaleTo;
 
 
-/** Scales a cc.Node object a zoom factor by modifying it's scale attribute.
+/** Scales a ccsg.Node object a zoom factor by modifying it's scale attribute.
  * Relative to its changes.
  * @class
  * @extends cc.ScaleTo
@@ -2425,7 +2425,7 @@ cc.ScaleTo.create = cc.scaleTo;
 cc.ScaleBy = cc.ScaleTo.extend(/** @lends cc.ScaleBy# */{
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ScaleTo.prototype.startWithTarget.call(this, target);
@@ -2456,7 +2456,7 @@ cc.ScaleBy = cc.ScaleTo.extend(/** @lends cc.ScaleBy# */{
     }
 });
 /**
- * Scales a cc.Node object a zoom factor by modifying it's scale attribute.
+ * Scales a ccsg.Node object a zoom factor by modifying it's scale attribute.
  * Relative to its changes.
  * @function
  * @param {Number} duration duration in seconds
@@ -2475,7 +2475,7 @@ cc.scaleBy = function (duration, sx, sy) {
 };
 /**
  * Please use cc.scaleBy instead.
- * Scales a cc.Node object a zoom factor by modifying it's scale attribute.
+ * Scales a ccsg.Node object a zoom factor by modifying it's scale attribute.
  * Relative to its changes.
  * @static
  * @deprecated since v3.0 please use cc.scaleBy() instead.
@@ -2486,7 +2486,7 @@ cc.scaleBy = function (duration, sx, sy) {
  */
 cc.ScaleBy.create = cc.scaleBy;
 
-/** Blinks a cc.Node object by modifying it's visible attribute
+/** Blinks a ccsg.Node object by modifying it's visible attribute
  * @class
  * @extends cc.ActionInterval
  * @param {Number} duration  duration in seconds
@@ -2548,7 +2548,7 @@ cc.Blink = cc.ActionInterval.extend(/** @lends cc.Blink# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -2575,7 +2575,7 @@ cc.Blink = cc.ActionInterval.extend(/** @lends cc.Blink# */{
     }
 });
 /**
- * Blinks a cc.Node object by modifying it's visible attribute.
+ * Blinks a ccsg.Node object by modifying it's visible attribute.
  * @function
  * @param {Number} duration  duration in seconds
  * @param blinks blinks in times
@@ -2589,7 +2589,7 @@ cc.blink = function (duration, blinks) {
 };
 /**
  * Please use cc.blink instead.
- * Blinks a cc.Node object by modifying it's visible attribute.
+ * Blinks a ccsg.Node object by modifying it's visible attribute.
  * @static
  * @deprecated since v3.0 please use cc.blink instead.
  * @param {Number} duration  duration in seconds
@@ -2658,7 +2658,7 @@ cc.FadeTo = cc.ActionInterval.extend(/** @lends cc.FadeTo# */{
 
     /**
      * Start this action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -2735,7 +2735,7 @@ cc.FadeIn = cc.FadeTo.extend(/** @lends cc.FadeIn# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         if(this._reverseAction)
@@ -2833,7 +2833,7 @@ cc.fadeOut = function (d) {
  */
 cc.FadeOut.create = cc.fadeOut;
 
-/** Tints a cc.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+/** Tints a ccsg.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * @warning This action doesn't support "reverse"
  * @class
  * @extends cc.ActionInterval
@@ -2893,7 +2893,7 @@ cc.TintTo = cc.ActionInterval.extend(/** @lends cc.TintTo# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -2920,7 +2920,7 @@ cc.TintTo = cc.ActionInterval.extend(/** @lends cc.TintTo# */{
 });
 
 /**
- * Tints a cc.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+ * Tints a ccsg.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * @function
  * @param {Number} duration
  * @param {Number} red 0-255
@@ -2936,7 +2936,7 @@ cc.tintTo = function (duration, red, green, blue) {
 };
 /**
  * Please use cc.tintTo instead.
- * Tints a cc.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+ * Tints a ccsg.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * @static
  * @deprecated since v3.0 please use cc.tintTo instead.
  * @param {Number} duration
@@ -2948,7 +2948,7 @@ cc.tintTo = function (duration, red, green, blue) {
 cc.TintTo.create = cc.tintTo;
 
 
-/**  Tints a cc.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+/**  Tints a ccsg.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * Relative to their own color change.
  * @class
  * @extends cc.ActionInterval
@@ -3011,7 +3011,7 @@ cc.TintBy = cc.ActionInterval.extend(/** @lends cc.TintBy# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -3049,7 +3049,7 @@ cc.TintBy = cc.ActionInterval.extend(/** @lends cc.TintBy# */{
 });
 
 /**
- * Tints a cc.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+ * Tints a ccsg.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * Relative to their own color change.
  * @function
  * @param {Number} duration  duration in seconds
@@ -3066,7 +3066,7 @@ cc.tintBy = function (duration, deltaRed, deltaGreen, deltaBlue) {
 };
 /**
  * Please use cc.tintBy instead.
- * Tints a cc.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+ * Tints a ccsg.Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * Relative to their own color change.
  * @static
  * @deprecated since v3.0 please use cc.tintBy instead.
@@ -3193,7 +3193,7 @@ cc.ReverseTime = cc.ActionInterval.extend(/** @lends cc.ReverseTime# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -3458,7 +3458,7 @@ cc.Animate.create = cc.animate;
  * </p>
  * @class
  * @extends cc.ActionInterval
- * @param {cc.Node} target
+ * @param {_ccsg.Node} target
  * @param {cc.FiniteTimeAction} action
  */
 cc.TargetedAction = cc.ActionInterval.extend(/** @lends cc.TargetedAction# */{
@@ -3468,7 +3468,7 @@ cc.TargetedAction = cc.ActionInterval.extend(/** @lends cc.TargetedAction# */{
 	/**
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * Create an action with the specified action and forced target.
-	 * @param {cc.Node} target
+	 * @param {_ccsg.Node} target
 	 * @param {cc.FiniteTimeAction} action
 	 */
     ctor: function (target, action) {
@@ -3478,7 +3478,7 @@ cc.TargetedAction = cc.ActionInterval.extend(/** @lends cc.TargetedAction# */{
 
     /**
      * Init an action with the specified action and forced target
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @param {cc.FiniteTimeAction} action
      * @return {Boolean}
      */
@@ -3504,7 +3504,7 @@ cc.TargetedAction = cc.ActionInterval.extend(/** @lends cc.TargetedAction# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -3529,7 +3529,7 @@ cc.TargetedAction = cc.ActionInterval.extend(/** @lends cc.TargetedAction# */{
 
     /**
      * return the target that the action will be forced to run with
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      */
     getForcedTarget:function () {
         return this._forcedTarget;
@@ -3537,7 +3537,7 @@ cc.TargetedAction = cc.ActionInterval.extend(/** @lends cc.TargetedAction# */{
 
     /**
      * set the target that the action will be forced to run with
-     * @param {cc.Node} forcedTarget
+     * @param {_ccsg.Node} forcedTarget
      */
     setForcedTarget:function (forcedTarget) {
         if (this._forcedTarget !== forcedTarget)
@@ -3548,7 +3548,7 @@ cc.TargetedAction = cc.ActionInterval.extend(/** @lends cc.TargetedAction# */{
 /**
  * Create an action with the specified action and forced target
  * @function
- * @param {cc.Node} target
+ * @param {_ccsg.Node} target
  * @param {cc.FiniteTimeAction} action
  * @return {cc.TargetedAction}
  */
@@ -3560,7 +3560,7 @@ cc.targetedAction = function (target, action) {
  * Create an action with the specified action and forced target
  * @static
  * @deprecated since v3.0 please use cc.targetedAction instead.
- * @param {cc.Node} target
+ * @param {_ccsg.Node} target
  * @param {cc.FiniteTimeAction} action
  * @return {cc.TargetedAction}
  */

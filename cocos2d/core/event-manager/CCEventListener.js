@@ -142,11 +142,11 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 
     /**
      * Sets scene graph priority for this listener
-     * @param {cc.Node|cc.ENode} node
+     * @param {_ccsg.Node|cc.Node} node
      * @private
      */
     _setSceneGraphPriority: function (node) {
-        if (cc.ENode && node instanceof cc.ENode) {
+        if (cc.Node && node instanceof cc.Node) {
             this._target = node;
             this._node = node._sgNode;
         }
@@ -162,7 +162,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 
     /**
      * Gets scene graph priority of this listener
-     * @returns {cc.Node|cc.ENode} if it's a fixed priority listener, non-null for scene graph priority listener
+     * @returns {_ccsg.Node|cc.Node} if it's a fixed priority listener, non-null for scene graph priority listener
      * @private
      */
     _getSceneGraphPriority: function () {
@@ -464,7 +464,7 @@ cc._EventListenerTouchAllAtOnce.create = function(){
  * @param {Object} argObj a json object
  * @returns {EventListener}
  * todo: It should be the direct use new
- * @example {@link utils/api/cocos/docs/cocos2d/core/event-manager/CCEventListener/create.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventListener/create.js}
  */
 cc.EventListener.create = function(argObj){
 

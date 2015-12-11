@@ -27,7 +27,7 @@
      * ParticleSystem's WebGL render command
      */
     cc.ParticleSystem.WebGLRenderCmd = function(renderable){
-        cc.Node.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
 
         this._buffersVBO = [0, 0];
@@ -35,7 +35,7 @@
         this._indices = [];
         this._quadsArrayBuffer = null;
     };
-    var proto = cc.ParticleSystem.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
+    var proto = cc.ParticleSystem.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ParticleSystem.WebGLRenderCmd;
 
     proto.getDrawMode = function(){};

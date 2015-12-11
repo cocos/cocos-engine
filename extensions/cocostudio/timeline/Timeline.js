@@ -45,7 +45,7 @@ ccs.Timeline = ccs.Class.extend({
     _actionTag: null,
     //{ccs.ActionTimeline}
     _ActionTimeline: null,
-    //{cc.Node}
+    //{_ccsg.Node}
     _node: null,
 
     ctor: function(){
@@ -131,7 +131,7 @@ ccs.Timeline = ccs.Class.extend({
 
     /**
      * Set the node
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      */
     setNode: function(node){
         for (var i=0; i<this._frames.length; i++){
@@ -142,7 +142,7 @@ ccs.Timeline = ccs.Class.extend({
 
     /**
      * Gets the node
-     * return {cc.Node}
+     * return {_ccsg.Node}
      */
     getNode: function(){
         return this._node;

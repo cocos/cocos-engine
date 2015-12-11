@@ -534,7 +534,7 @@ var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
     extends: cc._ComponentInSG,
     editor: CC_EDITOR && {
-        menu: 'ParticleSystem',
+        menu: 'Graphics/ParticleSystem',
         inspector: 'app://editor/page/inspector/particle-system/index.html',
         playOnFocus: true,
     },
@@ -816,7 +816,7 @@ var ParticleSystem = cc.Class({
                 cc.assert(!sgNode.onExit);
                 var self = this;
                 sgNode.onExit = function () {
-                    cc.Node.prototype.onExit.call(this);
+                    _ccsg.Node.prototype.onExit.call(this);
                     self.node.destroy();
                 };
             }

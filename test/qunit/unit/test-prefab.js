@@ -1,5 +1,9 @@
 (function () {
 
+    if (!TestEditorExtends) {
+        return;
+    }
+
     //var testingCompCallback = false;
 
     var MyComponent = cc.Class({
@@ -28,7 +32,7 @@
     });
 
     test('basic test', function() {
-        var node = new cc.ENode();
+        var node = new cc.Node();
         ok(node.hasOwnProperty('_prefab'), '"_prefab" defines in node');
         ok(!node._prefab, "but the default value should be null");
     });
@@ -36,11 +40,11 @@
     var UUID = '19851210';
     var OUTPUT_PREFAB = 0;
 
-    var parent = new cc.ENode('parent');
-    var child = new cc.ENode('child');
-    var child2 = new cc.ENode('child2');
+    var parent = new cc.Node('parent');
+    var child = new cc.Node('child');
+    var child2 = new cc.Node('child2');
     child2.addComponent(MyComponent);
-    var otherNode = new cc.ENode('other');
+    var otherNode = new cc.Node('other');
 
     child.parent = parent;
     child2.parent = parent;
@@ -76,7 +80,7 @@
         strictEqual(prefabInfo.asset._uuid, UUID, "the prefab asset should be preserved");
 
         var nodeToSave = prefab.data;
-        ok(nodeToSave instanceof cc.ENode, 'Checking prefab data');
+        ok(nodeToSave instanceof cc.Node, 'Checking prefab data');
         ok(!nodeToSave._id, 'The id in prefab data should be cleared');
         strictEqual(nodeToSave.scaleX, 123, 'Checking prefab data');
         strictEqual(nodeToSave.scaleY, 432, 'Checking prefab data');
@@ -101,7 +105,7 @@
         ok(prefabInfo.asset === prefab, "should reference to origin prefab asset in prefab info");
         notEqual(newNode, newNode2, 'The new nodes should be different');
 
-        ok(newNode instanceof cc.ENode, 'Checking instance');
+        ok(newNode instanceof cc.Node, 'Checking instance');
         notEqual(newNode.uuid, newNode2.uuid, 'The id of instances should be different');
         ok(newNode.scaleX === 123, 'Checking instance');
         ok(newNode.scaleY === 432, 'Checking instance');
@@ -149,7 +153,7 @@
         testChild.scale = cc.Vec2.ZERO;
         testChild.addComponent(TestScript);
 
-        var newNode = new cc.Node();
+        var newNode = new _ccsg.Node();
         newNode.parent = testChild;
 
         //testingCompCallback = true;

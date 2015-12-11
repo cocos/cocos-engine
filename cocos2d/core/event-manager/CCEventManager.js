@@ -23,9 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * @ignore
- */
 cc._EventListenerVector = cc._Class.extend({
     _fixedListeners: null,
     _sceneGraphListeners: null,
@@ -100,7 +97,7 @@ cc.__getListenerID = function (event) {
  * </p>
  * @class eventManager
  */
-cc.eventManager = /** @lends cc.eventManager# */{
+cc.eventManager = {
     //Priority dirty flag
     DIRTY_NONE:0,
     DIRTY_FIXED_PRIORITY:1 <<0,
@@ -132,7 +129,7 @@ cc.eventManager = /** @lends cc.eventManager# */{
     /**
      * Pauses all listeners which are associated the specified target.
      * @method pauseTarget
-     * @param {ENode} node
+     * @param {Node} node
      * @param {Boolean} [recursive=false]
      */
     pauseTarget: function (node, recursive) {
@@ -151,7 +148,7 @@ cc.eventManager = /** @lends cc.eventManager# */{
     /**
      * Resumes all listeners which are associated the specified target.
      * @method resumeTarget
-     * @param {ENode} node
+     * @param {Node} node
      * @param {Boolean} [recursive=false]
      */
     resumeTarget: function (node, recursive) {
@@ -647,7 +644,7 @@ cc.eventManager = /** @lends cc.eventManager# */{
      * </p>
      * @method addListener
      * @param {EventListener|Object} listener - The listener of a specified event or a object of some event parameters.
-     * @param {ENode|Number} nodeOrPriority - The priority of the listener is based on the draw order of this node or fixedPriority The fixed priority of the listener.
+     * @param {Node|Number} nodeOrPriority - The priority of the listener is based on the draw order of this node or fixedPriority The fixed priority of the listener.
      * @note  The priority of scene graph will be fixed value 0. So the order of listener item in the vector will be ' <0, scene graph (0 priority), >0'.
      *         A lower priority will be called before the ones that have a higher value. 0 priority is forbidden for fixed priority since it's used for scene graph based priority.
      *         The listener must be a cc.EventListener object when adding a fixed priority listener, because we can't remove a fixed priority listener without the listener handler,
@@ -794,12 +791,12 @@ cc.eventManager = /** @lends cc.eventManager# */{
     /**
      * Removes all listeners with the same event listener type or removes all listeners of a node
      * @method removeListeners
-     * @param {Number|ENode} listenerType - listenerType or a node
+     * @param {Number|Node} listenerType - listenerType or a node
      * @param {Boolean} [recursive=false]
      */
     removeListeners: function (listenerType, recursive) {
         var _t = this;
-        if (listenerType instanceof cc.Node) {
+        if (listenerType instanceof _ccsg.Node) {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
             delete _t._nodePriorityMap[listenerType.__instanceId];
@@ -860,6 +857,7 @@ cc.eventManager = /** @lends cc.eventManager# */{
 
     /**
      * Removes all listeners
+     * @method removeAllListeners
      */
     removeAllListeners: function () {
         var locListeners = this._listenersMap, locInternalCustomEventIDs = this._internalCustomListenerIDs;

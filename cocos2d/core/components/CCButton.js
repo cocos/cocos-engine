@@ -22,6 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var EventTarget = require("../event/event-target");
+
 /**
  * Enum for transition type
  * @enum EButton.Transition
@@ -54,16 +56,18 @@ var ClickEvent = cc.Class({
     properties: {
         /**
          * Event target
-         * @property {cc.ENode}
+         * @property target
+         * @type cc.Node
          * @default null
          */
         target: {
             default: null,
-            type: cc.ENode
+            type: cc.Node
         },
         /**
          * Component name
-         * @property {String}
+         * @property component
+         * @type {String}
          * @default ''
          */
         component: {
@@ -71,7 +75,8 @@ var ClickEvent = cc.Class({
         },
         /**
          * Event handler
-         * @property {String}
+         * @property handler
+         * @type {String}
          * @default ''
          */
         handler: {
@@ -117,6 +122,8 @@ var Button = cc.Class({
     extends: require('./CCComponent'),
 
     ctor: function () {
+        EventTarget.call(this);
+
         this._touchListener = null;
         this._mouseListener = null;
 
@@ -267,11 +274,11 @@ var Button = cc.Class({
          *  If Transition type is EButton.Transition.NONE, Button will do nothing
          *  If Transition type is EButton.Transition.COLOR, Button will change target's color
          *  If Transition type is EButton.Transition.SPRITE, Button will change target SpriteRenderer's sprite
-         * @property {cc.ENode} target
+         * @property {cc.Node} target
          */
         target: {
             default: null,
-            type: cc.ENode,
+            type: cc.Node,
 
             notify: function () {
                 this._applyTarget();
@@ -490,7 +497,6 @@ var Button = cc.Class({
 
 });
 
-var EventTarget = require("../event/event-target");
-EventTarget.polyfill(Button.prototype);
+cc.js.addon(Button.prototype, EventTarget.prototype);
 
 cc.EButton = module.exports = Button;

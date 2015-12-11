@@ -61,7 +61,7 @@ cc.ControlSaturationBrightnessPicker = cc.Control.extend(/** @lends cc.ControlSa
 
     /**
      * The constructor of cc.ControlSaturationBrightnessPicker
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      * @param {cc.Vec2} pos position
      */
     ctor:function (target, pos) {
@@ -248,7 +248,7 @@ _p = null;
 
 /**
  * Creates a cc.ControlSaturationBrightnessPicker
- * @param {cc.Node} target
+ * @param {_ccsg.Node} target
  * @param {cc.Vec2} pos position
  * @returns {ControlSaturationBrightnessPicker}
  */

@@ -52,6 +52,7 @@ var js = {
 
     /**
      * Check the obj whether is function or not
+     * @method isFunction
      * @param {*} obj
      * @returns {Boolean}
      */
@@ -61,6 +62,7 @@ var js = {
 
     /**
      * Check the obj whether is number or not
+     * @method isNumber
      * @param {*} obj
      * @returns {Boolean}
      */
@@ -70,6 +72,7 @@ var js = {
 
     /**
      * Check the obj whether is string or not
+     * @method isString
      * @param {*} obj
      * @returns {Boolean}
      */
@@ -79,6 +82,7 @@ var js = {
 
     /**
      * Check the obj whether is array or not
+     * @method isArray
      * @param {*} obj
      * @returns {Boolean}
      */
@@ -89,6 +93,7 @@ var js = {
 
     /**
      * Check the obj whether is undefined or not
+     * @method isUndefined
      * @param {*} obj
      * @returns {Boolean}
      */
@@ -98,6 +103,7 @@ var js = {
 
     /**
      * Check the obj whether is object or not
+     * @method isObject
      * @param {*} obj
      * @returns {Boolean}
      */
@@ -569,10 +575,10 @@ js.array = {
 
     /**
      * Verify array's Type
+     * @method verifyType
      * @param {array} array
      * @param {Function} type
      * @return {Boolean}
-     * @method
      */
     verifyType: function (array, type) {
         if (array && array.length > 0) {
@@ -588,7 +594,7 @@ js.array = {
 
     /**
      * Removes from array all values in minusArr. For each Value in minusArr, the first matching instance in array will be removed.
-     * @method
+     * @method removeArray
      * @param {Array} array Source Array
      * @param {Array} minusArr minus Array
      */
@@ -600,7 +606,7 @@ js.array = {
 
     /**
      * Inserts some objects at index
-     * @method
+     * @method appendObjectsAt
      * @param {Array} array
      * @param {Array} addObjs
      * @param {Number} index
@@ -613,6 +619,7 @@ js.array = {
 
     /**
      * Copy an array's item to a new array (its performance is better than Array.slice)
+     * @method copy
      * @param {Array} array
      * @return {Array}
      */

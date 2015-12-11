@@ -24,11 +24,11 @@
 
 (function(){
     sp.Skeleton.CanvasRenderCmd = function(renderableObject){
-        cc.Node.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
     };
 
-    var proto = sp.Skeleton.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = sp.Skeleton.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = sp.Skeleton.CanvasRenderCmd;
 
     proto.rendering = function (wrapper, scaleX, scaleY) {
@@ -114,7 +114,7 @@
         var locSkeleton = node._skeleton, spriteName, sprite;
         for (var i = 0, n = locSkeleton.slots.length; i < n; i++) {
             var slot = locSkeleton.slots[i], attachment = slot.attachment;
-            var slotNode = new cc.Node();
+            var slotNode = new _ccsg.Node();
             slot._slotNode = slotNode;
 
             if(attachment instanceof spine.RegionAttachment){

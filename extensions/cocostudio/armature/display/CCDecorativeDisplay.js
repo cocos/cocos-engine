@@ -51,7 +51,7 @@ ccs.DecorativeDisplay = ccs.Class.extend(/** @lends ccs.DecorativeDisplay# */{
 
     /**
      * Sets display node to decorative
-     * @param {cc.Node} display
+     * @param {_ccsg.Node} display
      */
     setDisplay:function (display) {
         if(display._parent){
@@ -63,7 +63,7 @@ ccs.DecorativeDisplay = ccs.Class.extend(/** @lends ccs.DecorativeDisplay# */{
 
     /**
      * Returns the display node
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getDisplay:function () {
         return this._display;

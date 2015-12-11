@@ -427,6 +427,8 @@ cc.loader = cc.loader || (function () {
          * @return {AsyncPool}
          */
         load: function(resources, option, loadCallback){
+            'use strict';
+
             var self = this;
             var len = arguments.length;
             if(len === 0)
@@ -451,11 +453,10 @@ cc.loader = cc.loader || (function () {
             var asyncPool = new cc.AsyncPool(
                 resources, 0,
                 function (value, index, AsyncPoolCallback, aPool) {
-                    self._loadResIterator(value, index, function (err) {
-                        var arr = Array.prototype.slice.call(arguments, 1);
+                    self._loadResIterator(value, index, function (err, res) {
                         if (option.trigger)
-                            option.trigger.call(option.triggerTarget, arr[0], aPool.size, aPool.finishedSize);   //call trigger
-                        AsyncPoolCallback(err, arr[0]);
+                            option.trigger.call(option.triggerTarget, res, aPool.size, aPool.finishedSize);   //call trigger
+                        AsyncPoolCallback(err, res);
                     });
                 },
                 option.cb, option.cbTarget);

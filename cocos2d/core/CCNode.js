@@ -32,12 +32,13 @@ var DontDestroy = Flags.DontDestroy;
 
 /**
  * Class of all entities in Fireball scenes.
- * @class ENode
+ * @class Node
  * @extends _BaseNode
  */
 var Node = cc.Class({
     name: 'cc.Node',
     extends: require('./utils/base-node'),
+    mixins: [cc.EventTarget],
 
     properties: {
         /**
@@ -185,7 +186,7 @@ var Node = cc.Class({
         // Remove all listeners
         for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
             var target = this.__eventTargets[i];
-            target && target.targetOff && target.targetOff(this);
+            target && target.targetOff(this);
         }
         this.__eventTargets.length = 0;
 
@@ -244,9 +245,16 @@ var Node = cc.Class({
     },
 
     _checkMultipleComp: CC_EDITOR && function (ctor) {
-        if (this.getComponent(ctor._disallowMultiple)) {
-            cc.error("The component %s can't be added because %s already contains the same (or subtype) component.",
-                JS.getClassName(typeOrClassName), this._name);
+        var err, existing = this.getComponent(ctor._disallowMultiple);
+        if (existing) {
+            if (existing.constructor === ctor) {
+                err = "Can't add component '%s' because %s already contains the same component.";
+                cc.error(err, JS.getClassName(ctor), this._name);
+            }
+            else {
+                err = "Can't add component '%s' to %s because it conflicts with the existing '%s' derived component.";
+                cc.error(err, JS.getClassName(ctor), this._name, JS.getClassName(existing));
+            }
             return false;
         }
         return true;
@@ -266,7 +274,7 @@ var Node = cc.Class({
             return null;
         }
 
-        // check component
+        // get component
 
         var constructor;
         if (typeof typeOrClassName === 'string') {
@@ -286,12 +294,31 @@ var Node = cc.Class({
             }
             constructor = typeOrClassName;
         }
+
+        // check component
+
         if (typeof constructor !== 'function') {
             cc.error("addComponent: The component to add must be a constructor");
             return null;
         }
+        if (!cc.isChildClassOf(constructor, cc.Component)) {
+            cc.error("addComponent: The component to add must be child class of cc.Component");
+            return null;
+        }
+
         if (constructor._disallowMultiple && CC_EDITOR) {
             if (!this._checkMultipleComp(constructor)) {
+                return null;
+            }
+        }
+
+        // check requirement
+
+        var ReqComp = constructor._requireComponent;
+        if (ReqComp && !this.getComponent(ReqComp)) {
+            var depended = this.addComponent(ReqComp);
+            if (!depended) {
+                // depend conflicts
                 return null;
             }
         }
@@ -328,10 +355,18 @@ var Node = cc.Class({
             return cc.error("_addComponentAt: Index out of range");
         }
 
+        // recheck attributes because script may changed
         var ctor = comp.constructor;
         if (ctor._disallowMultiple) {
             if (!this._checkMultipleComp(ctor)) {
                 return;
+            }
+        }
+        if (ctor._requireComponent) {
+            var depend = this.addComponent(ctor._requireComponent);
+            if (!depend) {
+                // depend conflicts
+                return null;
             }
         }
 
@@ -354,7 +389,7 @@ var Node = cc.Class({
     removeComponent: function (component) {
         if ( !component ) {
             cc.error('removeComponent: Component must be non-nil');
-            return null;
+            return;
         }
         if (typeof component !== 'object') {
             component = this.getComponent(component);
@@ -365,14 +400,22 @@ var Node = cc.Class({
     },
 
     /**
-     * Removes all components of cc.ENode.
-     * @method removeAllComponents
+     * @method _getDependComponent
+     * @param {cc.Component} depended
+     * @return {cc.Component}
+     * @private
      */
-    removeAllComponents: function () {
+    _getDependComponent: CC_EDITOR && function (depended) {
         for (var i = 0; i < this._components.length; i++) {
             var comp = this._components[i];
-            comp.destroy();
+            if (comp !== depended && comp.isValid && !cc.Object._willDestroy(comp)) {
+                var depend = comp.constructor._requireComponent;
+                if (depend && depended instanceof depend) {
+                    return comp;
+                }
+            }
         }
+        return null;
     },
 
     // do remove component, only used internally
@@ -381,6 +424,7 @@ var Node = cc.Class({
             cc.error('Argument must be non-nil');
             return;
         }
+
         if (!(this._objFlags & Destroying)) {
             var i = this._components.indexOf(component);
             if (i !== -1) {
@@ -441,7 +485,7 @@ var Node = cc.Class({
     },
 
     _onHierarchyChanged: function (oldParent) {
-        if (this._persistNode && !(this._parent instanceof cc.EScene)) {
+        if (this._persistNode && !(this._parent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
             if (CC_EDITOR) {
                 cc.warn('Set "%s" to normal node (not persist root node).');
@@ -542,5 +586,4 @@ var Node = cc.Class({
 
 });
 
-// TODO - 这个类名是临时的，之后要改名成 cc.Node，再对外屏蔽原 cc.Node
-cc.ENode = module.exports = Node;
+cc.Node = module.exports = Node;

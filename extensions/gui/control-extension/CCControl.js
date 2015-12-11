@@ -177,7 +177,7 @@ cc.Control = cc.Layer.extend(/** @lends cc.Control# */{
         var locListener = this._touchListener;
         if (!locListener._isRegistered())
             cc.eventManager.addListener(locListener, this);
-        cc.Node.prototype.onEnter.call(this);
+        _ccsg.Node.prototype.onEnter.call(this);
     },
 
     /**

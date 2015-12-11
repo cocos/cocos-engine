@@ -80,7 +80,7 @@ cc.ActionEase = cc.ActionInterval.extend(/** @lends cc.ActionEase# */{
     /**
      * called before the action start. It will also set the target.
      *
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);

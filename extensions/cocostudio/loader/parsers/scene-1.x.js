@@ -245,7 +245,7 @@
     };
 
     parser.registerParser("CCNode", function(options, resourcePath){
-        var node = new cc.Node();
+        var node = new _ccsg.Node();
         this.setPropertyFromJsonDict(node, options);
         this.parseChild.call(this, node, options["gameobjects"], resourcePath);
         this.parseComponents(node, options["components"], resourcePath);

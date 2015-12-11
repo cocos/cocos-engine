@@ -73,7 +73,7 @@ cc.PointObject = cc._Class.extend(/** @lends cc.PointObject# */{
 
     /**
      * Gets the child.
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      */
     getChild:function () {
         return this._child;
@@ -81,7 +81,7 @@ cc.PointObject = cc._Class.extend(/** @lends cc.PointObject# */{
 
     /**
      * Set the child.
-     * @param  {cc.Node} value
+     * @param  {_ccsg.Node} value
      */
     setChild:function (value) {
         this._child = value;
@@ -116,11 +116,11 @@ cc.PointObject.create = function (ratio, offset) {
  * <p>cc.ParallaxNode: A node that simulates a parallax scroller<br />
  * The children will be moved faster / slower than the parent according the the parallax ratio. </p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @property {Array}    parallaxArray   - Parallax nodes array
  */
-cc.ParallaxNode = cc.Node.extend(/** @lends cc.ParallaxNode# */{
+cc.ParallaxNode = _ccsg.Node.extend(/** @lends cc.ParallaxNode# */{
 	parallaxArray:null,
 
     _lastPosition:null,
@@ -146,7 +146,7 @@ cc.ParallaxNode = cc.Node.extend(/** @lends cc.ParallaxNode# */{
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
      */
     ctor:function () {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this.parallaxArray = [];
         this._lastPosition = cc.p(-100, -100);
     },
@@ -154,7 +154,7 @@ cc.ParallaxNode = cc.Node.extend(/** @lends cc.ParallaxNode# */{
     /**
      * Adds a child to the container with a z-order, a parallax ratio and a position offset
      * It returns self, so you can chain several addChilds.
-     * @param {cc.Node} child
+     * @param {_ccsg.Node} child
      * @param {Number} z
      * @param {cc.Vec2} ratio
      * @param {cc.Vec2} offset
@@ -175,12 +175,12 @@ cc.ParallaxNode = cc.Node.extend(/** @lends cc.ParallaxNode# */{
 
 	    child.setPosition(this._position.x * ratio.x + offset.x, this._position.y * ratio.y + offset.y);
 
-        cc.Node.prototype.addChild.call(this, child, z, child.tag);
+        _ccsg.Node.prototype.addChild.call(this, child, z, child.tag);
     },
 
     /**
      *  Remove Child
-     * @param {cc.Node} child
+     * @param {_ccsg.Node} child
      * @param {Boolean} cleanup
      * @example
      * //example
@@ -195,7 +195,7 @@ cc.ParallaxNode = cc.Node.extend(/** @lends cc.ParallaxNode# */{
                 break;
             }
         }
-        cc.Node.prototype.removeChild.call(this, child, cleanup);
+        _ccsg.Node.prototype.removeChild.call(this, child, cleanup);
     },
 
     /**
@@ -204,7 +204,7 @@ cc.ParallaxNode = cc.Node.extend(/** @lends cc.ParallaxNode# */{
      */
     removeAllChildren:function (cleanup) {
         this.parallaxArray.length = 0;
-        cc.Node.prototype.removeAllChildren.call(this, cleanup);
+        _ccsg.Node.prototype.removeAllChildren.call(this, cleanup);
     },
 
     _updateParallaxPosition: function(){

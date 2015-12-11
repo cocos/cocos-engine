@@ -361,7 +361,7 @@ cc.ShuffleTiles = cc.TiledGrid3DAction.extend(/** @lends cc.ShuffleTiles# */{
 
     /**
      * Start with target
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.TiledGrid3DAction.prototype.startWithTarget.call(this, target);
@@ -780,7 +780,7 @@ cc.TurnOffTiles = cc.TiledGrid3DAction.extend(/** @lends cc.TurnOffTiles# */{
 
     /**
      * called before the action start. It will also set the target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.TiledGrid3DAction.prototype.startWithTarget.call(this, target);
@@ -1175,7 +1175,7 @@ cc.SplitRows = cc.TiledGrid3DAction.extend(/** @lends cc.SplitRows# */{
 
     /**
      * called before the action start. It will also set the target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.TiledGrid3DAction.prototype.startWithTarget.call(this, target);
@@ -1267,7 +1267,7 @@ cc.SplitCols = cc.TiledGrid3DAction.extend(/** @lends cc.SplitCols# */{
 
     /**
      * called before the action start. It will also set the target.
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.TiledGrid3DAction.prototype.startWithTarget.call(this, target);

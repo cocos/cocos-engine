@@ -12,7 +12,7 @@ var PrefabInfo = cc.Class({
             default: null,
         },
 
-        // 所属的 prefab 资源对象 (cc._Prefab)
+        // 所属的 prefab 资源对象 (cc.Prefab)
         // （这个属性在场景中是会保存的，但是不会保存在 prefab 里面，因为创建 prefab 时还不知道自己的 uuid 是多少。）
         asset: {
             default: null,

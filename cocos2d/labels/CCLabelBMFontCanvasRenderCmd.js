@@ -57,9 +57,9 @@
     proto._updateCharColorAndOpacity = function(fontChar){
         // Color MUST be set before opacity, since opacity might change color if OpacityModifyRGB is on
         fontChar._displayedColor = this._displayedColor;
-        fontChar._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        fontChar._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
         fontChar._displayedOpacity = this._displayedOpacity;
-        fontChar._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+        fontChar._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
     };
 
     proto.setTexture = function (texture) {
@@ -95,11 +95,11 @@
     };
 
     proto._updateChildrenDisplayedOpacity = function(locChild){
-        cc.Node.prototype.updateDisplayedOpacity.call(locChild, this._displayedOpacity);
+        _ccsg.Node.prototype.updateDisplayedOpacity.call(locChild, this._displayedOpacity);
     };
 
     proto._updateChildrenDisplayedColor = function(locChild){
-        cc.Node.prototype.updateDisplayedColor.call(locChild, this._displayedColor);
+        _ccsg.Node.prototype.updateDisplayedColor.call(locChild, this._displayedColor);
     };
 
     proto._initBatchTexture = function(){};

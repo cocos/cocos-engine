@@ -9,7 +9,7 @@ cc.path = /** @lends cc.path# */{
     /**
      * Join strings to be a path.
      * @method join
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/CCPath/join.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/join.js}
      * @returns {String}
      */
     join: function () {
@@ -24,7 +24,7 @@ cc.path = /** @lends cc.path# */{
     /**
      * Get the ext name of a path.
      * @method extname
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/CCPath/extname.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/extname.js}
      * @param {String} pathStr
      * @returns {*}
      */
@@ -52,7 +52,7 @@ cc.path = /** @lends cc.path# */{
     /**
      * Get the file name of a file path.
      * @method basename
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/CCPath/basename.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/basename.js}
      * @param {String} pathStr
      * @param {String} [extname]
      * @returns {*}
@@ -72,7 +72,7 @@ cc.path = /** @lends cc.path# */{
     /**
      * Get dirname of a file path.
      * @method dirname
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/CCPath/dirname.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/dirname.js}
      * @param {String} pathStr
      * @returns {*}
      */
@@ -83,7 +83,7 @@ cc.path = /** @lends cc.path# */{
     /**
      * Change extname of a file path.
      * @method changeExtname
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/CCPath/changeExtname.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/changeExtname.js}
      * @param {String} pathStr
      * @param {String} [extname]
      * @returns {String}
@@ -102,7 +102,7 @@ cc.path = /** @lends cc.path# */{
     },
     /**
      * Change file name of a file path.
-     * @example {@link utils/api/cocos/docs/cocos2d/core/utils/CCPath/changeBasename.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/changeBasename.js}
      * @param {String} pathStr
      * @param {String} basename
      * @param {Boolean} [isSameExt]

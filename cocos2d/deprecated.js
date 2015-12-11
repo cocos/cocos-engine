@@ -131,7 +131,9 @@ if (CC_DEV) {
      * @see cc.Vec2
      */
     js.obsoletes(cc, 'cc', {
-        "Point": 'Vec2'
+        'Point': 'Vec2',
+        'EScene': 'Scene',
+        'ENode': 'Node'
     });
 
     /**
@@ -292,9 +294,9 @@ if (CC_DEV) {
 
     function shouldNotUseNodeProp (component) {
         var compName = cc.js.getClassName(component);
-        var Info = 'Sorry, ' + compName + '.%s is removed, please use cc.ENode.%s instead.';
+        var Info = 'Sorry, ' + compName + '.%s is removed, please use cc.Node.%s instead.';
         var compProto = component.prototype;
-        for (var prop in cc.ENode.prototype) {
+        for (var prop in cc.Node.prototype) {
             (function (prop) {
                 if (!(prop in compProto) && prop[0] !== '_') {
                     js.getset(compProto, prop,
@@ -310,9 +312,9 @@ if (CC_DEV) {
         }
     }
 
-    // cc.ENode
+    // cc.Node
 
-    markAsRemoved(cc.ENode, [
+    markAsRemoved(cc.Node, [
         '_componentContainer',
         '_camera',
         '_additionalTransform',
@@ -383,7 +385,7 @@ if (CC_DEV) {
         '_cascadeColorEnabled',
         'cascadeColor'
     ]);
-    provideClearError(cc.ENode.prototype, {
+    provideClearError(cc.Node.prototype, {
         arrivalOrder: 'getSiblingIndex, setSiblingIndex',
         _visible: '_activeInHierarchy, active',
         _running: '_activeInHierarchy, active',
@@ -401,6 +403,7 @@ if (CC_DEV) {
         nodeToWorldTransform: 'getNodeToWorlshaderProgramdTransform',
         worldToNodeTransform: 'getWorldToNodeTransform',
         nodeToParentTransform: 'getNodeToParentTransform',
+        removeAllComponents: 'removeComponent',
         getNodeToParentAffineTransform: 'getNodeToParentTransform',
     });
 
@@ -478,8 +481,8 @@ if (CC_DEV) {
         Mode: 'EmitterMode'
     });
 
-    // cc.Node
-    markAsRemoved(cc.Node, [
+    // _ccsg.Node
+    markAsRemoved(_ccsg.Node, [
         '_normalizedPositionDirty',
         '_normalizedPosition',
         '_usingNormalizedPosition',
@@ -498,6 +501,6 @@ if (CC_DEV) {
         'removeComponent',
         'removeAllComponents',
         'enumerateChildren'
-    ], 'cc.Node');
+    ], '_ccsg.Node');
 
 }

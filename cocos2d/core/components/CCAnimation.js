@@ -42,7 +42,8 @@ var AnimationComponent = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'Animation'
+        menu: 'Animation',
+        executeInEditMode: true
     },
 
     ctor: function () {
@@ -109,6 +110,8 @@ var AnimationComponent = cc.Class({
     },
 
     onLoad: function () {
+        if (CC_EDITOR) return;
+
         this._init();
 
         if (this.playAutomatically && this.defaultClip) {
@@ -414,13 +417,19 @@ var AnimationComponent = cc.Class({
             oldState._name = clipName;
         }
 
-        // wrap time for change wrapMode
-        if ((clip.wrapMode & cc.WrapMode.Loop) === 0) {
-            oldState.time = oldState.getWrappedInfo(oldState.time).time;
+        var oldClip = oldState.clip;
+
+        // wrap time when change wrapMode
+        if (oldClip.wrapMode !== clip.wrapMode) {
+            var wrappedInfo = oldState.getWrappedInfo(oldState.time);
+
+            oldState.time = wrappedInfo.time;
+
+            if ((clip.wrapMode & cc.WrapMode.Reverse) === cc.WrapMode.Reverse) {
+                oldState.time = Math.abs(oldState.time - oldState.duration);
+            }
         }
-        if ((clip.wrapMode & cc.WrapMode.Reverse) !== 0) {
-            oldState.time = Math.abs(oldState.time - oldState.duration);
-        }
+
 
         oldState._clip = clip;
         this._animator.reloadClip(oldState);

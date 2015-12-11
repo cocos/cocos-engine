@@ -9,12 +9,14 @@ var SceneGraphHelper = require('../utils/scene-graph-helper');
  *
  * @class _ComponentInSG
  * @extends Component
+ * @private
  */
 var ComponentInSG = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        executeInEditMode: true
+        executeInEditMode: true,
+        disallowMultiple: true
     },
 
     ctor: function () {
@@ -50,7 +52,7 @@ var ComponentInSG = cc.Class({
      * You should call the setContentSize of the SGNode if its size should be the same with the node's.
      *
      * @method _createSgNode
-     * @return {cc.Node}
+     * @return {_ccsg.Node}
      * @private
      */
     _createSgNode: null,

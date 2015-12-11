@@ -70,7 +70,7 @@
                     }
                 }
             }
-            this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
         },
 
         _updateDisplayOpacity: function (parentOpacity) {
@@ -112,13 +112,13 @@
                     }
                 }
             }
-            this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
         },
 
         _changeProtectedChild: function (child) {
             var cmd = child._renderCmd,
                 dirty = cmd._dirtyFlag,
-                flags = cc.Node._dirtyFlags;
+                flags = _ccsg.Node._dirtyFlags;
 
             if (this._dirtyFlag & flags.colorDirty)
                 dirty |= flags.colorDirty;
@@ -139,12 +139,12 @@
     };
 
     cc.ProtectedNode.CanvasRenderCmd = function (renderable) {
-        cc.Node.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._cachedParent = null;
         this._cacheDirty = false;
     };
 
-    var proto = cc.ProtectedNode.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
+    var proto = cc.ProtectedNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     cc.js.mixin(proto, cc.ProtectedNode.RenderCmd);
     proto.constructor = cc.ProtectedNode.CanvasRenderCmd;
 

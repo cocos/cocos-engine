@@ -96,7 +96,7 @@ cc.TMX_ORIENTATION_ISO = 2;
  * objectGroup.getProperty(name_of_the_property); <br />
  * object.getProperty(name_of_the_property);</p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  * @param {String} tmxFile tmxFile fileName or content string
  * @param {String} resourcePath   If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
 
@@ -121,7 +121,7 @@ cc.TMX_ORIENTATION_ISO = 2;
  * var xmlStr = cc.loader.getRes(filePath);
  * var tmxTiledMap = new cc.TMXTiledMap(xmlStr, resources);
  */
-cc.TMXTiledMap = cc.Node.extend(/** @lends cc.TMXTiledMap# */{
+cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
 	properties: null,
 	mapOrientation: null,
 	objectGroups: null,
@@ -140,7 +140,7 @@ cc.TMXTiledMap = cc.Node.extend(/** @lends cc.TMXTiledMap# */{
      * @param {String} resourcePath   If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
      */
     ctor:function(tmxFile,resourcePath){
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._mapSize = cc.size(0, 0);
         this._tileSize = cc.size(0, 0);
 

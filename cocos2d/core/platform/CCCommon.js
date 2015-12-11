@@ -41,7 +41,7 @@ cc.associateWithNative = function (jsObj, superclass) {
  *
  * @constant
  * @type {Object}
- * @example {@link utils/api/cocos/docs/cocos2d/core/platform/CCCommon/KEY.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
  */
 cc.KEY = {
     none:0,

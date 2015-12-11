@@ -23,10 +23,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/**
+ * @module cc
+ */
 
 /**
  * Minimum priority level for user scheduling.
- * @constant
+ * @property PRIORITY_NON_SYSTEM
+ * @final
  * @type Number
  */
 cc.PRIORITY_NON_SYSTEM = cc.PRIORITY_SYSTEM + 1;
@@ -34,8 +38,7 @@ cc.PRIORITY_NON_SYSTEM = cc.PRIORITY_SYSTEM + 1;
 //data structures
 /**
  * A list double-linked list used for "updates with priority"
- * @Class
- * @name cc.ListEntry
+ * @class ListEntry
  * @param {cc.ListEntry} prev
  * @param {cc.ListEntry} next
  * @param {function} callback
@@ -59,8 +62,7 @@ cc.ListEntry.prototype.trigger = function (dt) {
 
 /**
  * A update entry list
- * @Class
- * @name cc.HashUpdateEntry
+ * @class HashUpdateEntry
  * @param {Array} list Which list does it belong to ?
  * @param {cc.ListEntry} entry entry in the list
  * @param {cc._Class} target hash key (retained)
@@ -78,7 +80,7 @@ cc.HashUpdateEntry = function (list, entry, target, callback, hh) {
 //
 /**
  * Hash Element used for "selectors with interval"
- * @Class
+ * @class HashTimerEntry
  * @param {Array} timers
  * @param {cc._Class} target  hash key (retained)
  * @param {Number} timerIndex
@@ -114,10 +116,12 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
     _interval:0.0,
 
     /**
+     * @method getInterval
      * @return {Number} returns interval of timer
      */
     getInterval : function(){return this._interval;},
     /**
+     * @method setInterval
      * @param {Number} interval set interval in seconds
      */
     setInterval : function(interval){this._interval = interval;},
@@ -141,7 +145,8 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
 
     /**
      * cc.Timer's Constructor
-     * Constructor of cc.Timer
+     * @method cc.Timer
+     * @return {cc.Timer} 
      */
     ctor:function () {
         this._scheduler = null;
@@ -156,6 +161,7 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
 
     /**
      * triggers the timer
+     * @method update
      * @param {Number} dt delta time
      */
     update:function (dt) {
@@ -543,7 +549,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @param {Number} repeat
      * @param {Number} delay
      * @param {Boolean} paused
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/scheduleCallbackForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/scheduleCallbackForTarget.js}
      */
     scheduleCallbackForTarget: function(target, callback_fn, interval, repeat, delay, paused){
         //cc.log("scheduleCallbackForTarget is deprecated. Please use schedule.");
@@ -560,7 +566,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @param {Number} delay
      * @param {Boolean} paused
      * @param {Number} key
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/schedule.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/schedule.js}
      */
     schedule: function(callback, target, interval, repeat, delay, paused, key){
         var isSelector = false;
@@ -984,7 +990,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @param {_Class} target
      * @param {Number} priority
      * @param {Boolean} paused
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/scheduleUpdateForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/scheduleUpdateForTarget.js}
      */
     scheduleUpdateForTarget: function(target, priority, paused){
         //cc.log("scheduleUpdateForTarget is deprecated. Please use scheduleUpdate.");
@@ -1000,7 +1006,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @deprecated since v3.4 please use .unschedule
      * @param {_Class} target
      * @param {Function} callback - callback[Function] or key[String]
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/unscheduleCallbackForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/unscheduleCallbackForTarget.js}
      */
     unscheduleCallbackForTarget:function (target, callback) {
         //cc.log("unscheduleCallbackForTarget is deprecated. Please use unschedule.");
@@ -1012,7 +1018,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @method unscheduleUpdateForTarget
      * @param {_Class} target
      * @deprecated since v3.4 please use .unschedule
-     * @example {@link utils/api/cocos/docs/cocos2d/core/CCScheduler/unscheduleUpdateForTarget.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/unscheduleUpdateForTarget.js}
      */
     unscheduleUpdateForTarget:function (target) {
         //cc.log("unscheduleUpdateForTarget is deprecated. Please use unschedule.");
@@ -1059,7 +1065,8 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
 });
 /**
  * Priority level reserved for system services.
- * @constant
+ * @property PRIORITY_SYSTEM
+ * @final
  * @type Number
  */
 cc.Scheduler.PRIORITY_SYSTEM = (-2147483647 - 1);

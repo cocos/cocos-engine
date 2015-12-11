@@ -163,6 +163,8 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
      */
     ctor: function () {
         cc.ProtectedNode.prototype.ctor.call(this);
+        EventTarget.call(this);
+
         this._brightStyle = ccui.Widget.BRIGHT_STYLE_NONE;
         this._touchBeganPosition = cc.p(0, 0);
         this._touchMovePosition = cc.p(0, 0);
@@ -365,7 +367,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     setContentSize: function(contentSize, height){
         var locWidth = (height === undefined) ? contentSize.width : contentSize;
         var locHeight = (height === undefined) ? contentSize.height : height;
-        cc.Node.prototype.setContentSize.call(this, locWidth, locHeight);
+        _ccsg.Node.prototype.setContentSize.call(this, locWidth, locHeight);
 
         this._customSize.width = locWidth;
         this._customSize.height = locHeight;
@@ -384,7 +386,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     },
 
     _setWidth: function (w) {
-        cc.Node.prototype._setWidth.call(this, w);
+        _ccsg.Node.prototype._setWidth.call(this, w);
         this._customSize.width = w;
         if(this._unifySize){
             //unify size logic
@@ -400,7 +402,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
         this._onSizeChanged();
     },
     _setHeight: function (h) {
-        cc.Node.prototype._setHeight.call(this, h);
+        _ccsg.Node.prototype._setHeight.call(this, h);
         this._customSize.height = h;
         if(this._unifySize){
             //unify size logic
@@ -1155,7 +1157,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
             }
         }
 
-        cc.Node.prototype.setPosition.call(this, pos, posY);
+        _ccsg.Node.prototype.setPosition.call(this, pos, posY);
         //this._positionType = ccui.Widget.POSITION_ABSOLUTE;
     },
 
@@ -1171,7 +1173,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
             }
         }
 
-        cc.Node.prototype.setPositionX.call(this, x);
+        _ccsg.Node.prototype.setPositionX.call(this, x);
     },
     setPositionY: function (y) {
         if (this._running) {
@@ -1185,7 +1187,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
             }
         }
 
-        cc.Node.prototype.setPositionY.call(this, y);
+        _ccsg.Node.prototype.setPositionY.call(this, y);
     },
 
     /**
@@ -1203,7 +1205,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
             this._setXPercent(percent.x);
             this._setYPercent(percent.y);
         }
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
     _setXPercent: function (percent) {
         if (this._usingLayoutComponent){
@@ -1270,7 +1272,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
                 component.setPositionPercentYEnabled(true);
             }
         }
-        this._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     /**
@@ -1629,7 +1631,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
 
     /**
      * Adds a node for widget (this function is deleted in -x)
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      * @param {Number} zOrder
      * @param {Number} tag
      * @deprecated since v3.0, please use addChild instead.
@@ -1639,7 +1641,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
             cc.log("Please use addChild to add a Widget.");
             return;
         }
-        cc.Node.prototype.addChild.call(this, node, zOrder, tag);
+        _ccsg.Node.prototype.addChild.call(this, node, zOrder, tag);
         this._nodes.push(node);
     },
 
@@ -1647,7 +1649,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
      * Gets node by tag
      * @deprecated since v3.0, please use getChildByTag instead.
      * @param {Number} tag
-     * @returns {cc.Node}
+     * @returns {_ccsg.Node}
      */
     getNodeByTag: function (tag) {
         var _nodes = this._nodes;
@@ -1672,11 +1674,11 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     /**
      * Removes a node from ccui.Widget
      * @deprecated since v3.0, please use removeChild instead.
-     * @param {cc.Node} node
+     * @param {_ccsg.Node} node
      * @param {Boolean} cleanup
      */
     removeNode: function (node, cleanup) {
-        cc.Node.prototype.removeChild.call(this, node, cleanup);
+        _ccsg.Node.prototype.removeChild.call(this, node, cleanup);
         cc.js.array.remove(this._nodes, node);
     },
 
@@ -1701,7 +1703,7 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     removeAllNodes: function () {
         for (var i = 0; i < this._nodes.length; i++) {
             var node = this._nodes[i];
-            cc.Node.prototype.removeChild.call(this, node);
+            _ccsg.Node.prototype.removeChild.call(this, node);
         }
         this._nodes.length = 0;
     },
@@ -1749,12 +1751,12 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     setScaleX: function(scaleX){
         if (this._flippedX)
             scaleX = scaleX * -1;
-        cc.Node.prototype.setScaleX.call(this, scaleX);
+        _ccsg.Node.prototype.setScaleX.call(this, scaleX);
     },
     setScaleY: function(scaleY){
         if (this._flippedY)
             scaleY = scaleY * -1;
-        cc.Node.prototype.setScaleY.call(this, scaleY);
+        _ccsg.Node.prototype.setScaleY.call(this, scaleY);
     },
     setScale: function(scaleX, scaleY){
         if(scaleY === undefined)
@@ -1764,13 +1766,13 @@ ccui.Widget = ccui.ProtectedNode.extend(/** @lends ccui.Widget# */{
     },
 
     getScaleX: function(){
-        var originalScale = cc.Node.prototype.getScaleX.call(this);
+        var originalScale = _ccsg.Node.prototype.getScaleX.call(this);
         if (this._flippedX)
             originalScale = originalScale * -1.0;
         return originalScale;
     },
     getScaleY: function(){
-        var originalScale = cc.Node.prototype.getScaleY.call(this);
+        var originalScale = _ccsg.Node.prototype.getScaleY.call(this);
         if (this._flippedY)
             originalScale = originalScale * -1.0;
         return originalScale;
@@ -1903,7 +1905,7 @@ ccui.Widget.create = function () {
     return new ccui.Widget();
 };
 
-EventTarget.polyfill(ccui.Widget.prototype);
+cc.js.addon(ccui.Widget.prototype, EventTarget.prototype);
 
 ccui.Widget._focusedWidget = null;                        //both layout & widget will be stored in this variable
 ccui.Widget._focusNavigationController = null;

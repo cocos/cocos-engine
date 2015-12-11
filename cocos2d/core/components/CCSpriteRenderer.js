@@ -22,25 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function MonitorSize(target) {
-    this._target = target;
-}
-MonitorSize.prototype = {
-    getContentSize: function () {
-        return this._target._sgNode.getContentSize();
-    },
-    setContentSize: function (size) {
-        this._target.useOriginalSize = false;
-        this._target._sgNode.setPreferredSize(size);
-    },
-    _getWidth: function () {
-        return this.getContentSize().width;
-    },
-    _getHeight: function () {
-        return this.getContentSize().height;
-    }
-};
-
 var SpriteType = cc.SpriteType;
 
 /**
@@ -53,15 +34,11 @@ var SpriteRenderer = cc.Class({
     extends: require('./CCComponentInSG'),
 
     editor: CC_EDITOR && {
-        menu: 'Sprite',
+        menu: 'Graphics/Sprite',
         inspector: 'app://editor/page/inspector/sprite.html'
     },
 
     properties: {
-        _atlas: {
-            default: '',
-            url: cc.SpriteAtlas
-        },
         _sprite: {
             default: null,
             type: cc.SpriteFrame
@@ -73,18 +50,14 @@ var SpriteRenderer = cc.Class({
 
         /**
          * The Sprite Atlas.
-         * @property atlas
+         * @property _atlas
          * @type {SpriteAtlas}
          */
-        atlas: {
-            get: function () {
-                return this._atlas;
-            },
-            set: function (value) {
-                this._atlas = value;
-                //TODO Sprite Atlas
-            },
-            url: cc.SpriteAtlas
+        _atlas: {
+            default: '',
+            url: cc.SpriteAtlas,
+            editorOnly: true,
+            visible: true
         },
 
         /**
@@ -244,7 +217,7 @@ var SpriteRenderer = cc.Class({
         if (initialized === false) {
             return;
         }
-        this._sprite = this._sgNode._scale9Image;
+        this._sprite = this._sgNode.getSprite();
     },
 
     /**
@@ -457,12 +430,12 @@ var SpriteRenderer = cc.Class({
 
     onLoad: function () {
         this._super();
-        this.node._sizeProvider = new MonitorSize(this);
+        this.node.on('size-changed', this._resized, this);
     },
 
     onDestroy: function () {
         this._super();
-        this.node._sizeProvider = null;
+        this.node.off('size-changed', this._resized, this);
     },
 
     _applyCapInset: function (node) {
@@ -479,7 +452,7 @@ var SpriteRenderer = cc.Class({
         var node = node || this._sgNode;
         if (this._useOriginalSize) {
             var rect = this._sprite.getRect();
-            node.setPreferredSize(rect.size);
+            node.setPreferredSize(cc.size(rect.width, rect.height));
         }
         else {
             node.setPreferredSize(this.node.getContentSize(true));
@@ -515,6 +488,10 @@ var SpriteRenderer = cc.Class({
         sgNode.setRenderingType(this._type);
         this._applySprite(sgNode, null);
         return sgNode;
+    },
+
+    _resized: function () {
+        this.useOriginalSize = false;
     },
 });
 

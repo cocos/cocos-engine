@@ -63,7 +63,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @constructor
      * @param {String|Texture2D} fileName
      * @param {Number} capacity
-     * @example {@link utils/api/cocos/docs/cocos2d/core/textures/TextureAtlas.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/textures/TextureAtlas.js}
      */
     ctor: function (fileName, capacity) {
         this._buffersVBO = [];
@@ -209,7 +209,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @param {String} file
      * @param {Number} capacity
      * @return {Boolean}
-     * @example {@link utils/api/cocos/docs/cocos2d/core/textures/initWithFile.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/textures/initWithFile.js}
      */
     initWithFile: function (file, capacity) {
         // retained in property
@@ -231,7 +231,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * @param {Image} texture
      * @param {Number} capacity
      * @return {Boolean}
-     * @example {@link utils/api/cocos/docs/cocos2d/core/textures/initWithTexture.js}
+     * @example {@link utils/api/engine/docs/cocos2d/core/textures/initWithTexture.js}
      */
     initWithTexture: function (texture, capacity) {
         cc.assert(texture, cc._LogInfos.TextureAtlas.initWithTexture);

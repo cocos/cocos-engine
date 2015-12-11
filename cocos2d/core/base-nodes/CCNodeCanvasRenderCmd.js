@@ -35,11 +35,11 @@ cc.CustomRenderCmd = function (target, func) {
     }
 };
 
-cc.Node._dirtyFlags = {transformDirty: 1 << 0, visibleDirty: 1 << 1, colorDirty: 1 << 2, opacityDirty: 1 << 3, cacheDirty: 1 << 4,
+_ccsg.Node._dirtyFlags = {transformDirty: 1 << 0, visibleDirty: 1 << 1, colorDirty: 1 << 2, opacityDirty: 1 << 3, cacheDirty: 1 << 4,
     orderDirty: 1 << 5, textDirty: 1 << 6, gradientDirty:1 << 7, all: (1 << 8) - 1};
 
 //-------------------------Base -------------------------
-cc.Node.RenderCmd = function(renderable){
+_ccsg.Node.RenderCmd = function(renderable){
     this._dirtyFlag = 1;                           //need update the transform at first.
     cc.renderer.pushDirtyNode(this);
 
@@ -59,8 +59,8 @@ cc.Node.RenderCmd = function(renderable){
     this._curLevel = -1;
 };
 
-cc.Node.RenderCmd.prototype = {
-    constructor: cc.Node.RenderCmd,
+_ccsg.Node.RenderCmd.prototype = {
+    constructor: _ccsg.Node.RenderCmd,
 
     getAnchorPointInPoints: function(){
         return cc.p(this._anchorPointInPoints);
@@ -77,16 +77,16 @@ cc.Node.RenderCmd.prototype = {
 
     setCascadeColorEnabledDirty: function(){
         this._cascadeColorEnabledDirty = true;
-        this.setDirtyFlag(cc.Node._dirtyFlags.colorDirty);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
     },
 
     setCascadeOpacityEnabledDirty:function(){
         this._cascadeOpacityEnabledDirty = true;
-        this.setDirtyFlag(cc.Node._dirtyFlags.opacityDirty);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
     },
 
     getParentToNodeTransform: function(){
-        if(this._dirtyFlag & cc.Node._dirtyFlags.transformDirty)
+        if(this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty)
             this._inverse = cc.affineTransformInvert(this.getNodeToParentTransform());
         return this._inverse;
     },
@@ -97,7 +97,7 @@ cc.Node.RenderCmd.prototype = {
         var locAPP = this._anchorPointInPoints, locSize = this._node._contentSize, locAnchorPoint = this._node._anchorPoint;
         locAPP.x = locSize.width * locAnchorPoint.x;
         locAPP.y = locSize.height * locAnchorPoint.y;
-        this.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     },
 
     setDirtyFlag: function(dirtyFlag){
@@ -150,7 +150,7 @@ cc.Node.RenderCmd.prototype = {
                }
            }
        }
-       this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
+       this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
    },
 
     _updateDisplayOpacity: function (parentOpacity) {
@@ -184,7 +184,7 @@ cc.Node.RenderCmd.prototype = {
                 }
             }
         }
-        this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
     },
 
     _syncDisplayColor : function (parentColor) {
@@ -215,7 +215,7 @@ cc.Node.RenderCmd.prototype = {
     _updateColor: function(){},
 
     updateStatus: function () {
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
         if(colorDirty)
@@ -230,13 +230,13 @@ cc.Node.RenderCmd.prototype = {
         if(locFlag & flags.transformDirty){
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
         }
     },
 
     getNodeToParentTransform: function () {
         var node = this._node;
-        if (this._dirtyFlag & cc.Node._dirtyFlags.transformDirty) {
+        if (this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty) {
             var t = this._transform;// quick reference
 
             // base position
@@ -316,7 +316,7 @@ cc.Node.RenderCmd.prototype = {
     _syncStatus: function (parentCmd) {
         //  In the visit logic does not restore the _dirtyFlag
         //  Because child elements need parent's _dirtyFlag to change himself
-        var flags = cc.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
         //  There is a possibility:
@@ -383,16 +383,16 @@ cc.Node.RenderCmd.prototype = {
 //-----------------------Canvas ---------------------------
 
 (function() {
-//The cc.Node's render command for Canvas
-    cc.Node.CanvasRenderCmd = function (renderable) {
-        cc.Node.RenderCmd.call(this, renderable);
+//The _ccsg.Node's render command for Canvas
+    _ccsg.Node.CanvasRenderCmd = function (renderable) {
+        _ccsg.Node.RenderCmd.call(this, renderable);
         this._cachedParent = null;
         this._cacheDirty = false;
 
     };
 
-    var proto = cc.Node.CanvasRenderCmd.prototype = Object.create(cc.Node.RenderCmd.prototype);
-    proto.constructor = cc.Node.CanvasRenderCmd;
+    var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
+    proto.constructor = _ccsg.Node.CanvasRenderCmd;
 
     proto.transform = function (parentCmd, recursive) {
         // transform for canvas
@@ -442,7 +442,7 @@ cc.Node.RenderCmd.prototype = {
     };
 
     proto.setDirtyFlag = function (dirtyFlag, child) {
-        cc.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
+        _ccsg.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
         this._setCacheDirty(child);                  //TODO it should remove from here.
         if(this._cachedParent)
             this._cachedParent.setDirtyFlag(dirtyFlag, true);
@@ -485,7 +485,7 @@ cc.Node.RenderCmd.prototype = {
     };
 
     //util functions
-    cc.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc = function (blendFunc) {
+    _ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc = function (blendFunc) {
         if (!blendFunc)
             return "source-over";
         else {

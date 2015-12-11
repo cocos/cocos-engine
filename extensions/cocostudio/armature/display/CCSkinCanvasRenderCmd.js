@@ -31,7 +31,7 @@
                 node._skinTransform,
                 node.bone.getNodeToArmatureTransform()
             );
-            this._dirtyFlag = this._dirtyFlag & cc.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
         },
 
         getNodeToWorldTransform: function () {

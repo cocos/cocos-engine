@@ -27,16 +27,16 @@
 EventTarget = require("../cocos2d/core/event/event-target");
 
 /**
- * <p>cc.AtlasNode is a subclass of cc.Node, it knows how to render a TextureAtlas object. </p>
+ * <p>cc.AtlasNode is a subclass of ccsg.Node, it knows how to render a TextureAtlas object. </p>
  *
  * <p>If you are going to render a TextureAtlas consider subclassing cc.AtlasNode (or a subclass of cc.AtlasNode)</p>
  *
- * <p>All features from cc.Node are valid</p>
+ * <p>All features from ccsg.Node are valid</p>
  *
  * <p>You can create a cc.AtlasNode with an Atlas file, the width, the height of each item and the quantity of items to render</p>
  *
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @param {String} tile
  * @param {Number} tileWidth
@@ -49,7 +49,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {cc.TextureAtlas}  textureAtlas    - Texture atlas for cc.AtlasNode
  * @property {Number}           quadsToDraw     - Number of quads to draw
  */
-cc.AtlasNode = cc.Node.extend(/** @lends cc.AtlasNode# */{
+cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
     textureAtlas: null,
     quadsToDraw: 0,
 
@@ -81,7 +81,9 @@ cc.AtlasNode = cc.Node.extend(/** @lends cc.AtlasNode# */{
      * @param {Number} itemsToRender
      */
     ctor: function (tile, tileWidth, tileHeight, itemsToRender) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
+        EventTarget.call(this);
+
         this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
         this._ignoreContentScaleFactor = false;
         itemsToRender !== undefined && this.initWithTileFile(tile, tileWidth, tileHeight, itemsToRender);
@@ -111,7 +113,7 @@ cc.AtlasNode = cc.Node.extend(/** @lends cc.AtlasNode# */{
     getColor: function () {
         if (this._opacityModifyRGB)
             return this._renderCmd._colorUnmodified;
-        return cc.Node.prototype.getColor.call(this);
+        return _ccsg.Node.prototype.getColor.call(this);
     },
 
     /**
@@ -279,7 +281,7 @@ _p.textureAtlas;
 /** @expose */
 _p.quadsToDraw;
 
-EventTarget.polyfill(_p);
+cc.js.addon(_p, EventTarget.prototype);
 
 /**
  * Creates a cc.AtlasNode with an Atlas file the width and height of each item and the quantity of items to render

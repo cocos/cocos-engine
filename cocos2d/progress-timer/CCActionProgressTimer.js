@@ -84,7 +84,7 @@ cc.ProgressTo = cc.ActionInterval.extend(/** @lends cc.ProgressTo# */{
 
     /**
      * start with a target
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
@@ -187,7 +187,7 @@ cc.ProgressFromTo = cc.ActionInterval.extend(/** @lends cc.ProgressFromTo# */{
 
     /**
      * start with a target
-     * @param {cc.Node} target
+     * @param {_ccsg.Node} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);

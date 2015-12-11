@@ -143,6 +143,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
 
     name: 'cc.Texture2D',
     extends: require('../assets/CCRawAsset'),
+    mixins: [EventTarget],
 
     ctor: function () {
         this.url = null;
@@ -591,8 +592,6 @@ cc.defineGetterSetter(_p, "width", _p._getWidth);
 /** @expose */
 _p.height;
 cc.defineGetterSetter(_p, "height", _p._getHeight);
-
-EventTarget.polyfill(Texture2D.prototype);
 
 game.once(game.EVENT_RENDERER_INITED, function () {
     if(cc._renderType === game.RENDER_TYPE_CANVAS) {

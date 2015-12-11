@@ -332,7 +332,7 @@ cc.NodeLoader = cc._Class.extend({
     },
 
     _createCCNode:function (parent, ccbReader) {
-        return new cc.Node();
+        return new _ccsg.Node();
     },
 
     parsePropTypePosition:function (node, parent, ccbReader, propertyName) {

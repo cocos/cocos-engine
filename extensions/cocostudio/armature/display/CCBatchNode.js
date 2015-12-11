@@ -26,9 +26,9 @@
 /**
  * A batchNode to Armature
  * @class ccs.BatchNode
- * @extends cc.Node
+ * @extends _ccsg.Node
  */
-ccs.BatchNode = cc.Node.extend(/** @lends ccs.BatchNode# */{
+ccs.BatchNode = _ccsg.Node.extend(/** @lends ccs.BatchNode# */{
     _atlas:null,
     _className:"BatchNode",
 
@@ -39,13 +39,13 @@ ccs.BatchNode = cc.Node.extend(/** @lends ccs.BatchNode# */{
     },
 
     init:function () {
-        var ret = cc.Node.prototype.init.call(this);
+        var ret = _ccsg.Node.prototype.init.call(this);
         this.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURE_UCOLOR));
         return ret;
     },
 
     addChild:function (child, zOrder, tag) {
-        cc.Node.prototype.addChild.call(this, child, zOrder, tag);
+        _ccsg.Node.prototype.addChild.call(this, child, zOrder, tag);
         if (child instanceof cc.Armature){
             child.setBatchNode(this);
         }
@@ -54,7 +54,7 @@ ccs.BatchNode = cc.Node.extend(/** @lends ccs.BatchNode# */{
     removeChild: function(child, cleanup){
         if (child instanceof cc.Armature)
             child.setBatchNode(null);
-        cc.Node.prototype.removeChild.call(this, child, cleanup);
+        _ccsg.Node.prototype.removeChild.call(this, child, cleanup);
     },
 
     visit:function (renderer, parentTransform, parentTransformUpdated) {

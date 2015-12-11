@@ -2,7 +2,7 @@ if (!isPhantomJS) {
     largeModule('AudioScource');
 
     test('basic test', function () {
-        var node = new cc.ENode();
+        var node = new cc.Node();
         cc.director.getScene().addChild(node);
 
         var audioSource = node.addComponent(cc.AudioSource);

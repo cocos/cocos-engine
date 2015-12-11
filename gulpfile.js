@@ -8,10 +8,11 @@ MinifyOriginCocos2d = false;     // true - compile by closure, false - just conc
 paths = {
     src: './src',
     jsEntry: './index.js',
-    //JSBEntryPredefine: './gulp/jsb-build-entry-predefine',
-    //JSBEntryExtends: './gulp/jsb-build-entry-extends',
-    JSBEntryPredefine: './jsb_predefine.js',
-    JSBEntryExtends: './extends.js',
+    JSBEntries: [
+        './jsb_predefine.js',
+        '../editor/static/build-templates/runtime/jsb_polyfill.js',
+        './extends.js'
+    ],
     outDir: './bin',
     outFile: 'cocos2d-js.js',
     JSBOutFile: 'jsb.js',
@@ -25,7 +26,7 @@ paths = {
     test: {
         src: 'test/qunit/unit/**/*.js',
         runner: 'test/qunit/lib/qunit-runner.html',
-        jsEntryEditorExtends: '../../editor/share/engine-extends/index.js',     // only available in editor
+        jsEntryEditorExtends: '../editor/share/engine-extends/index.js',     // only available in editor
         dest: 'bin/cocos2d-js-for-test.js',
         destEditorExtends: 'bin/cocos2d-js-extends-for-test.js'
     },

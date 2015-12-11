@@ -97,7 +97,7 @@ cc.swap = function (x, y, ref) {
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
  * @method lerp
- * @example {@link utils/api/cocos/docs/cocos2d/core/platform/CCMacro/.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/.js}
  */
 cc.lerp = function (a, b, r) {
     return a + (b - a) * r;
@@ -166,7 +166,7 @@ cc.REPEAT_FOREVER = Number.MAX_VALUE - 1;
 
 /**
  * Helpful macro that setups the GL server state, the correct GL program and sets the Model View Projection matrix
- * @param {ENode} node setup node
+ * @param {Node} node setup node
  * @method nodeDrawSetup
  */
 cc.nodeDrawSetup = function (node) {

@@ -98,32 +98,33 @@ var TestScript = cc.Class({
     properties: {
         target: {
             default: null,
-            type: cc.ENode
+            type: cc.Node
         },
         target2: {
             default: null,
-            type: cc.ENode
+            type: cc.Node
         },
     }
 });
 
 // polyfills to test engine extends
 
-cc.engine = {
-    attachedObjsForEditor: {},
+cc.engine = new (cc.Class({
+    extends: cc.EventTarget,
+    properties: {
+        attachedObjsForEditor: {
+            default: {}
+        },
+    },
     getInstanceById: function (uuid) {
         return this.attachedObjsForEditor[uuid] || null;
-    },
-};
+    }
+}))();
 
 Editor.log = cc.log;
 Editor.warn = cc.warn;
 Editor.error = cc.error;
 Editor.info = cc.info;
-
-//
-
-cc.EventTarget.polyfill(cc.engine);
 
 var assetDir = '../test/qunit/assets';
 
@@ -176,7 +177,7 @@ function _resetGame (w, h) {
     }
     cc.director.purgeDirector();
     cc.loader.releaseAll();
-    cc.director.runScene(new cc.EScene());
+    cc.director.runScene(new cc.Scene());
     //cc.director.pause();
 }
 

@@ -106,6 +106,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     ctor: function () {
         var self = this;
+
+        EventTarget.call(self);
         self._lastUpdate = Date.now();
         cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
             self._lastUpdate = Date.now();
@@ -155,9 +157,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         else {
             this._animationManager = null;
         }
-
-        // Event target
-        EventTarget.polyfill(this);
 
         // WidgetManager
         cc._widgetManager.init(this);
@@ -254,40 +253,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.emit(cc.Director.EVENT_AFTER_DRAW);
     },
 
-    /**
-     *  Draw the scene. This method is called every frame. Don't call it manually.
-     */
-    drawScene: function () {
-        // calculate "global" dt
-        this.calculateDeltaTime();
-
-        if (!this._paused) {
-            // Call start for new added components
-            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
-            // Update for components
-            this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
-            // Destroy entities that have been removed recently
-            CCObject._deferredDestroy();
-            // Engine update with scheduler
-            this.engineUpdate(this._deltaTime);
-            // Late update for components
-            this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
-            // User can use this event to do things after update
-            this.emit(cc.Director.EVENT_AFTER_UPDATE);
-        }
-
-        /* to avoid flickr, nextScene MUST be here: after tick and before draw.
-         XXX: Which bug is this one. It seems that it can't be reproduced with v0.9 */
-        if (this._nextScene) {
-            this.setNextScene();
-        }
-
-        this.visit(this._deltaTime);
-        this.render(this._deltaTime);
-
-        this._calculateMPF();
-    },
-
     _beforeVisitScene: null,
     _afterVisitScene: null,
 
@@ -315,7 +280,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Useful to hook a notification object.
      *
      * @method getNotificationNode
-     * @return {ENode}
+     * @return {Node}
      */
     getNotificationNode: function () {
         return this._notificationNode;
@@ -455,7 +420,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Try to avoid big stacks of pushed scenes to reduce memory allocation.<br/>
      * ONLY call it if there is a running scene.
      * @method pushScene
-     * @param {EScene} scene
+     * @param {Scene} scene
      */
     pushScene: function (scene) {
 
@@ -470,7 +435,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
      * @method runScene
-     * @param {EScene} scene - The need run scene.
+     * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function at the scene before loading.
      */
     runScene: function (scene, onBeforeLoadScene) {
@@ -501,7 +466,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var sgScene = scene;
 
         // Run an Entity Scene
-        if (scene instanceof cc.EScene) {
+        if (scene instanceof cc.Scene) {
             // ensure scene initialized
             scene._load();
 
@@ -527,7 +492,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Activate
-        if (scene instanceof cc.EScene) {
+        if (scene instanceof cc.Scene) {
             scene._activate();
         }
     },
@@ -608,7 +573,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             else {
                 var uuid = sceneAsset._uuid;
                 scene = sceneAsset.scene;
-                if (scene instanceof cc.EScene) {
+                if (scene instanceof cc.Scene) {
                     scene._id = uuid;
                     cc.director.runScene(scene, onUnloaded);
                 }
@@ -721,7 +686,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * Sets Notification Node
-     * @param {ENode} node
+     * @param {Node} node
      */
     setNotificationNode: function (node) {
         cc.renderer.childrenOrderDirty = true;
@@ -814,7 +779,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      * Returns current running Scene. Director can only run one Scene at the time.
      * @method getRunningScene
-     * @return {EScene}
+     * @return {Scene}
      */
     getRunningScene: function () {
         return this._runningScene;
@@ -823,7 +788,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      * Returns current running Scene. Director can only run one Scene at the time.
      * @method getScene
-     * @return {EScene}
+     * @return {Scene}
      */
     getScene: function () {
         return this._scene;
@@ -1001,6 +966,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     }
 });
 
+// Event target
+cc.js.addon(cc.Director.prototype, EventTarget.prototype);
+
 /**
  * The event projection changed of cc.Director
  * @constant
@@ -1085,13 +1053,55 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
     /**
      * Run main loop of director
      */
-    mainLoop: function () {
+    mainLoop: CC_EDITOR ? function (deltaTime, updateAnimate) {
+        if (!this._paused) {
+            this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+            this.emit(cc.Director.EVENT_COMPONENT_UPDATE, deltaTime);
+
+            if (updateAnimate) {
+                cc.director.engineUpdate(deltaTime);
+            }
+
+            this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, deltaTime);
+            this.emit(cc.Director.EVENT_AFTER_UPDATE);
+        }
+
+        this.visit();
+        this.render();
+    } : function () {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
         }
         else if (!this.invalid) {
-            this.drawScene();
+            // calculate "global" dt
+            this.calculateDeltaTime();
+
+            if (!this._paused) {
+                // Call start for new added components
+                this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+                // Update for components
+                this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
+                // Destroy entities that have been removed recently
+                CCObject._deferredDestroy();
+                // Engine update with scheduler
+                this.engineUpdate(this._deltaTime);
+                // Late update for components
+                this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
+                // User can use this event to do things after update
+                this.emit(cc.Director.EVENT_AFTER_UPDATE);
+            }
+
+            /* to avoid flickr, nextScene MUST be here: after tick and before draw.
+             XXX: Which bug is this one. It seems that it can't be reproduced with v0.9 */
+            if (this._nextScene) {
+                this.setNextScene();
+            }
+
+            this.visit(this._deltaTime);
+            this.render(this._deltaTime);
+
+            this._calculateMPF();
         }
     },
 

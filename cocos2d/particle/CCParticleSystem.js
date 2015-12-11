@@ -158,7 +158,7 @@ cc.Particle.TemporaryPoints = [
  *     It is possible to customize any of the above mentioned properties in runtime. Example:   <br/>
  * </p>
  * @class
- * @extends cc.Node
+ * @extends _ccsg.Node
  *
  * @property {Boolean}              opacityModifyRGB    - Indicate whether the alpha value modify color.
  * @property {cc.SpriteBatchNode}   batchNode           - Weak reference to the sprite batch node.
@@ -210,7 +210,7 @@ cc.Particle.TemporaryPoints = [
  *  emitter.radialAccel = 15;
  *  emitter.startSpin = 0;
  */
-cc.ParticleSystem = cc.Node.extend(/** @lends cc.ParticleSystem# */{
+cc.ParticleSystem = _ccsg.Node.extend(/** @lends cc.ParticleSystem# */{
     _className:"ParticleSystem",
     //***********variables*************
     _plistFile: "",
@@ -286,7 +286,7 @@ cc.ParticleSystem = cc.Node.extend(/** @lends cc.ParticleSystem# */{
      * @param {String|Number} plistFile
      */
     ctor:function (plistFile) {
-        cc.Node.prototype.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this.emitterMode = cc.ParticleSystem.Mode.GRAVITY;
         this.modeA = new cc.ParticleSystem.ModeA();
         this.modeB = new cc.ParticleSystem.ModeB();
@@ -805,22 +805,22 @@ cc.ParticleSystem = cc.Node.extend(/** @lends cc.ParticleSystem# */{
     //don't use a transform matrix, this is faster
     setScale:function (scale, scaleY) {
         this._transformSystemDirty = true;
-        cc.Node.prototype.setScale.call(this, scale, scaleY);
+        _ccsg.Node.prototype.setScale.call(this, scale, scaleY);
     },
 
     setRotation:function (newRotation) {
         this._transformSystemDirty = true;
-        cc.Node.prototype.setRotation.call(this, newRotation);
+        _ccsg.Node.prototype.setRotation.call(this, newRotation);
     },
 
     setScaleX:function (newScaleX) {
         this._transformSystemDirty = true;
-        cc.Node.prototype.setScaleX.call(this, newScaleX);
+        _ccsg.Node.prototype.setScaleX.call(this, newScaleX);
     },
 
     setScaleY:function (newScaleY) {
         this._transformSystemDirty = true;
-        cc.Node.prototype.setScaleY.call(this, newScaleY);
+        _ccsg.Node.prototype.setScaleY.call(this, newScaleY);
     },
 
     /**

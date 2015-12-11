@@ -62,7 +62,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
     var recursiveChild = function(node){
         if(node && node._renderCmd){
-            node._renderCmd.setDirtyFlag(cc.Node._dirtyFlags.transformDirty);
+            node._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
             var i, children = node._children;
             for(i=0; i<children.length; i++){
                 recursiveChild(children[i]);
