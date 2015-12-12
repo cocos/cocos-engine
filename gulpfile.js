@@ -20,7 +20,9 @@ paths = {
     JSBSkipModules: [
         '../../cocos2d/core/CCGame', 
         '../../cocos2d/core/textures/CCTexture2D',
-        '../../cocos2d/core/sprites/CCSpriteFrame'
+        '../../cocos2d/core/sprites/CCSpriteFrame',
+        '../../cocos2d/core/platform/CCLoader',
+        '../../cocos2d/core/platform/CCLoaders'
     ],
 
     test: {
