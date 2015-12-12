@@ -180,7 +180,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._skewX = value;
-                this._sgNode.setSkewX(value);
+                this._sgNode.skewX = value;
             }
         },
 
@@ -195,7 +195,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._skewY = value;
-                this._sgNode.setSkewY(value);
+                this._sgNode.skewY = value;
             }
         },
 
@@ -210,7 +210,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._localZOrder = value;
-                this._sgNode.setLocalZOrder(value);
+                this._sgNode.zIndex = value;
             }
         },
 
@@ -227,7 +227,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._rotationX = this._rotationY = value;
-                this._sgNode.setRotation(value);
+                this._sgNode.rotation = value;
             },
             tooltip: "The clockwise degrees of rotation relative to the parent"
         },
@@ -243,7 +243,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._rotationX = value;
-                this._sgNode.setRotationX(value);
+                this._sgNode.rotationX = value;
             },
         },
 
@@ -258,7 +258,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._rotationY = value;
-                this._sgNode.setRotationY(value);
+                this._sgNode.rotationY = value;
             },
         },
 
@@ -273,7 +273,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._scaleX = value;
-                this._sgNode.setScaleX(value);
+                this._sgNode.scaleX = value;
             },
         },
 
@@ -288,7 +288,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._scaleY = value;
-                this._sgNode.setScaleY(value);
+                this._sgNode.scaleY = value;
             },
         },
 
@@ -303,7 +303,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._position.x = value;
-                this._sgNode.setPositionX(value);
+                this._sgNode.x = value;
             },
         },
 
@@ -318,7 +318,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._position.y = value;
-                this._sgNode.setPositionY(value);
+                this._sgNode.y = value;
             },
         },
 
@@ -445,7 +445,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._ignoreAnchorPointForPosition = value;
-                this._sgNode.ignoreAnchorPointForPosition(value);
+                this._sgNode.ignoreAnchor = value;
                 this._onAnchorChanged();
             },
         },
@@ -461,7 +461,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._tag = value;
-                this._sgNode.setTag(value);
+                this._sgNode.tag = value;
             },
         },
 
@@ -476,7 +476,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 this._opacity = value;
-                this._sgNode.setOpacity(value);
+                this._sgNode.opacity = value;
                 this._onColorChanged();
             },
             range: [0, 255]
@@ -494,7 +494,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if (this._cascadeOpacityEnabled !== value) {
                     this._cascadeOpacityEnabled = value;
-                    this._sgNode.setCascadeOpacityEnabled(value);
+                    this._sgNode.cascadeOpacity = value;
                     this._onCascadeChanged();
                 }
             },
@@ -534,7 +534,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var sgNode = this._sgNode = new _ccsg.Node();
         sgNode.retain();
         if (!cc.game._isCloning) {
-            sgNode.setCascadeOpacityEnabled(true);
+            sgNode.cascadeOpacity = true;
         }
 
         this._dirtyFlags = DirtyFlags.ALL;
