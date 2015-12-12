@@ -440,7 +440,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         /**
          * Opacity of node, default value is 255.
-         * @property tag
+         * @property opacity
          * @type {Number}
          */
         opacity: {
