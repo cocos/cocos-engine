@@ -42,7 +42,19 @@ function getParentSize (parent) {
 
 function alignToParent (node, widget) {
     var parent = node._parent;
-    var parentAnchor = parent._anchorPoint;
+    var parentAnchor;
+    if (parent instanceof cc.Scene) {
+        if (cc.visibleRect.width > 0 && cc.visibleRect.height > 0) {
+            parentAnchor = new cc.Vec2(-cc.visibleRect.bottomLeft.x / cc.visibleRect.width,
+                                       -cc.visibleRect.bottomLeft.y / cc.visibleRect.height);
+        }
+        else {
+            parentAnchor = cc.Vec2.ZERO;
+        }
+    }
+    else {
+        parentAnchor = parent._anchorPoint;
+    }
     var parentSize = getParentSize(parent);
     var parentWidth = parentSize.width;
     var parentHeight = parentSize.height;

@@ -38,6 +38,8 @@ cc.Scene = cc.Class({
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
         sgNode.setAnchorPoint(0.0, 0.0);
+        this._anchorPoint.x = 0.0;
+        this._anchorPoint.y = 0.0;
 
         this._activeInHierarchy = false;
         this._inited = !cc.game._isCloning;

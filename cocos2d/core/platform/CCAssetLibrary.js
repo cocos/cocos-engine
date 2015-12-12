@@ -335,12 +335,15 @@ var AssetLibrary = {
                 --pendingCount;
                 if (pendingCount === 0) {
                     callback();
+                    callback = null;
                 }
             });
         }
 
         if (pendingCount === 0) {
-            callback();
+            if (callback) {
+                callback();
+            }
             return;
         }
 
