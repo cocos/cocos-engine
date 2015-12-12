@@ -10,7 +10,7 @@ paths = {
     jsEntry: './index.js',
     JSBEntries: [
         './jsb_predefine.js',
-        '../editor/static/build-templates/runtime/jsb_polyfill.js',
+        // '../editor/static/build-templates/runtime/jsb_polyfill.js',
         './extends.js'
     ],
     outDir: './bin',
