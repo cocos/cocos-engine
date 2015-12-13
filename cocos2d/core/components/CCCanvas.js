@@ -185,9 +185,24 @@ var Canvas = cc.Class({
     //
 
     alignWithScreen: function () {
-        var screenSize = designResolutionWrapper.getContentSize();
         var anchor = this.node.getAnchorPoint();
-        this.node.setPosition(screenSize.width * anchor.x, screenSize.height * anchor.y);
+        if (CC_EDITOR) {
+            var designSize = cc.engine.getDesignResolutionSize();
+            this.node.setPosition(designSize.width * anchor.x, designSize.height * anchor.y);
+        }
+        else {
+            var canvasSize = cc.view.getDesignResolutionSize();
+            var clipTopRight = this.fitHeight !== this.fitWidth;
+            var offsetX = 0;
+            var offsetY = 0;
+            if (clipTopRight) {
+                var screenSize = cc.visibleRect;
+                // offset the canvas to make it in the center of screen
+                offsetX = (screenSize.width - canvasSize.width) * 0.5;
+                offsetY = (screenSize.height - canvasSize.height) * 0.5;
+            }
+            this.node.setPosition(canvasSize.width * anchor.x + offsetX, canvasSize.height * anchor.y + offsetY);
+        }
     },
 
     onResized: function () {
