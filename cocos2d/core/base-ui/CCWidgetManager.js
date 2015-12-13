@@ -25,12 +25,7 @@
 // returns a readonly size of the parent node
 function getParentSize (parent) {
     if (parent instanceof cc.Scene) {
-        if (CC_EDITOR) {
-            return cc.engine.getDesignResolutionSize();
-        }
-        else {
-            return cc.visibleRect;
-        }
+        return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
     }
     else if (!parent._sizeProvider || (parent._sizeProvider instanceof _ccsg.Node)) {
         return parent._contentSize;
@@ -42,27 +37,24 @@ function getParentSize (parent) {
 
 function alignToParent (node, widget) {
     var parent = node._parent;
-    var parentAnchor;
-    if (parent instanceof cc.Scene) {
-        if (cc.visibleRect.width > 0 && cc.visibleRect.height > 0) {
-            parentAnchor = new cc.Vec2(-cc.visibleRect.bottomLeft.x / cc.visibleRect.width,
-                                       -cc.visibleRect.bottomLeft.y / cc.visibleRect.height);
-        }
-        else {
-            parentAnchor = cc.Vec2.ZERO;
-        }
-    }
-    else {
-        parentAnchor = parent._anchorPoint;
-    }
     var parentSize = getParentSize(parent);
     var parentWidth = parentSize.width;
     var parentHeight = parentSize.height;
-
-    var localLeft = -parentAnchor.x * parentWidth;
-    var localRight = localLeft + parentWidth;
-    var localBottom = -parentAnchor.y * parentHeight;
-    var localTop = localBottom + parentHeight;
+    var parentAnchor = parent._anchorPoint;
+    var localLeft, localRight, localTop, localBottom;
+    if (parent instanceof cc.Scene) {
+        var visibleRect = cc.visibleRect;
+        localLeft = visibleRect.left.x;
+        localRight = visibleRect.right.x;
+        localBottom = visibleRect.bottom.y;
+        localTop = visibleRect.top.y;
+    }
+    else {
+        localLeft = -parentAnchor.x * parentWidth;
+        localRight = localLeft + parentWidth;
+        localBottom = -parentAnchor.y * parentHeight;
+        localTop = localBottom + parentHeight;
+    }
 
     // adjust borders according to offsets
 
