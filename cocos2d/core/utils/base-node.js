@@ -904,7 +904,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     _insertChild: function (child, z) {
         child.parent = this;
-        child._setLocalZOrder(z);
+        child.zIndex = z;
     },
 
     // composition: REMOVE
