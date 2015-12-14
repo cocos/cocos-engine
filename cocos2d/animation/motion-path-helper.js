@@ -327,5 +327,7 @@ if (CC_TEST) {
 }
 
 module.exports = {
-    sampleMotionPaths: sampleMotionPaths
+    sampleMotionPaths: sampleMotionPaths,
+    Curve: Curve,
+    Bezier: Bezier
 };
