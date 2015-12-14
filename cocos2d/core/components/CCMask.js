@@ -86,11 +86,9 @@ var Mask = cc.Class({
         newNode.setOpacity(this.node._opacity);
         newNode.setColor(this.node._color);
 
-        var children = [];
-        children = children.concat(oldNode.getChildren());
-    
+        var children = oldNode.getChildren().slice(0);
+        oldNode.removeAllChildren();
         for(var index = 0; index < children.length; ++index) {
-            oldNode.removeChild(children[index])
             newNode.addChild(children[index]);
         }
         
