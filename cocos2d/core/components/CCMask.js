@@ -85,7 +85,9 @@ var Mask = cc.Class({
     //when the content size of stencil is changed, the rendering will be wrong, because of the transform is called
     //by no parent render command, in fact the parent rendercommand should be the render command of clippingNode
     _dirtySgNodeTransform: function() {
-        this.node._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        if(!cc.sys.isNative) {
+            this.node._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        }
     },
 
     _rebuildSceneGraph: function (newNode, oldNode) {
