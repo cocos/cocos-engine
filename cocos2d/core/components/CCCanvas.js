@@ -24,7 +24,9 @@
 
 var designResolutionWrapper = {
     getContentSize: function () {
-        return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.view.getDesignResolutionSize();
+        // The canvas size will always the same with the screen,
+        // so its anchor should be (0.5, 0.5), otherwise its children will appear biased.
+        return CC_EDITOR ? cc.engine.getDesignResolutionSize() : cc.visibleRect;
     },
     setContentSize: function (size) {
         // NYI
@@ -40,8 +42,8 @@ var designResolutionWrapper = {
 };
 
 /**
- * !#zh: 作为 UI 根节点，从项目配置或运行时 design resolution 设置中获取自身节点尺寸，
- * 为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
+ * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
+ * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
  *
  * @class Canvas
  * @extends Component
@@ -185,23 +187,23 @@ var Canvas = cc.Class({
     //
 
     alignWithScreen: function () {
-        var anchor = this.node.getAnchorPoint();
+        var designSize;
         if (CC_EDITOR) {
-            var designSize = cc.engine.getDesignResolutionSize();
-            this.node.setPosition(designSize.width * anchor.x, designSize.height * anchor.y);
+            designSize = cc.engine.getDesignResolutionSize();
+            this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
         }
         else {
-            var canvasSize = cc.view.getDesignResolutionSize();
-            var clipTopRight = this.fitHeight !== this.fitWidth;
+            var canvasSize = cc.visibleRect;
+            var clipTopRight = !this.fitHeight && !this.fitWidth;
             var offsetX = 0;
             var offsetY = 0;
             if (clipTopRight) {
-                var screenSize = cc.visibleRect;
+                designSize = cc.view.getDesignResolutionSize();
                 // offset the canvas to make it in the center of screen
-                offsetX = (screenSize.width - canvasSize.width) * 0.5;
-                offsetY = (screenSize.height - canvasSize.height) * 0.5;
+                offsetX = (designSize.width - canvasSize.width) * 0.5;
+                offsetY = (designSize.height - canvasSize.height) * 0.5;
             }
-            this.node.setPosition(canvasSize.width * anchor.x + offsetX, canvasSize.height * anchor.y + offsetY);
+            this.node.setPosition(canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY);
         }
     },
 
