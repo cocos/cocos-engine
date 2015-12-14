@@ -406,7 +406,10 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
     },
 
     // overrides
-    setContentSize : function(size){
+    setContentSize : function(size, y){
+        if (y !== undefined) {
+            size = new cc.Size(size, y);
+        }
         if (cc.sizeEqualToSize(this._contentSize,size))
         {
             return;
