@@ -790,7 +790,7 @@ function FireClass (options) {
                 cc.Component._registerEditorProps(cls, editor);
             }
             else {
-                cc.warn('Can only define "editor" attribute for sub class of Components.');
+                cc.warn('Can not use "editor" attribute, "%s" not inherits from Components.', name);
             }
         }
     }
@@ -840,7 +840,7 @@ FireClass.attr = Attr.attr;
 
 var tmpAttrs = [];
 function parseAttributes (attrs, className, propName) {
-    var ERR_Type = (CC_EDITOR || CC_TEST) ? 'The %s of %s must be type %s' : '';
+    var ERR_Type = CC_DEV ? 'The %s of %s must be type %s' : '';
 
     tmpAttrs.length = 0;
     var result = tmpAttrs;
@@ -906,13 +906,6 @@ function parseAttributes (attrs, className, propName) {
                 break;
         }
     }
-    //else {
-    //    if (attrs.default != null) {
-    //        result.push({
-    //            expectedTypeOf: typeof attrs.default,
-    //        });
-    //    }
-    //}
 
     function parseSimpleAttr (attrName, expectType, attrCreater) {
         var val = attrs[attrName];
