@@ -36,11 +36,16 @@ var Mask = cc.Class({
         executeInEditMode: true
     },
 
-    _clippingNode: null,
-    _clippingStencil: null,
-    // properties: {
-
-    // },
+    properties: {
+        _clippingNode: {
+            default: null,
+            serializable: false,
+        },
+        _clippingStencil: {
+            default: null,
+            serializable: false,
+        },
+    },
 
     onLoad: function () {
         this._clippingStencil = new cc.LayerColor(cc.Color.WHITE, 200,200);
@@ -81,8 +86,7 @@ var Mask = cc.Class({
         newNode.setPosition(this.node._position);
         newNode.setRotationX(this.node._rotationX);
         newNode.setRotationY(this.node._rotationY);
-        newNode.setScaleX(this.node._scaleX);
-        newNode.setScaleY(this.node._scaleY);
+        newNode.setScale(this.node._scaleX, this.node._scaleY);
         newNode.setOpacity(this.node._opacity);
         newNode.setColor(this.node._color);
 
