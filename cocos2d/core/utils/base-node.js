@@ -310,7 +310,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     localPosition.x = value;
                     this._sgNode.x = value;
 
-                    if (CC_EDITOR && this.emit) {
+                    if (this.emit) {
                         this.emit(POSITION_CHANGED, cc.v2(oldValue, localPosition.y));
                     }
                 }
@@ -334,7 +334,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     localPosition.y = value;
                     this._sgNode.y = value;
 
-                    if (CC_EDITOR && this.emit) {
+                    if (this.emit) {
                         this.emit(POSITION_CHANGED, cc.v2(localPosition.x, oldValue));
                     }
                 }
@@ -694,11 +694,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var locPosition = this._position;
-        var oldPosition;
-
-        if (CC_EDITOR) {
-            oldPosition = locPosition.clone();
-        }
+        var oldPosition = locPosition.clone();
 
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
@@ -713,7 +709,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         this._sgNode.setPosition(newPosOrxValue, yValue);
 
-        if (CC_EDITOR && this.emit) {
+        if (this.emit) {
             this.emit(POSITION_CHANGED, oldPosition);
         }
     },
