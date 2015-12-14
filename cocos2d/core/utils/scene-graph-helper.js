@@ -5,6 +5,7 @@ var SceneGraphUtils = {
     removeSgNode: function () {
         var node = this._sgNode;
         if (node) {
+            node.release();
             if (node._parent) {
                 node._parent.removeChild(node);
             }
