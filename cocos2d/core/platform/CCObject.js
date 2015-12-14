@@ -25,8 +25,9 @@ var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy |
 
 /**
  * The base class of most of all the objects in Fireball.
- * @class CCObject
+ * @class Object
  * @constructor
+ * @main
  * @private
  */
 function CCObject () {
@@ -168,6 +169,10 @@ if (CC_EDITOR) {
 }
 
 // MEMBER
+
+/**
+ * @class Object
+ */
 
 var prototype = CCObject.prototype;
 

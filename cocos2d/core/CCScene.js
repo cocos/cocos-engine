@@ -37,7 +37,10 @@ cc.Scene = cc.Class({
 
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
+        sgNode.retain();
         sgNode.setAnchorPoint(0.0, 0.0);
+        this._anchorPoint.x = 0.0;
+        this._anchorPoint.y = 0.0;
 
         this._activeInHierarchy = false;
         this._inited = !cc.game._isCloning;
@@ -46,6 +49,8 @@ cc.Scene = cc.Class({
     destroy: function () {
         var children = this._children;
         var DontDestroy = cc.Object.Flags.DontDestroy;
+
+        this._sgNode.release();
 
         for (var i = 0, len = children.length; i < len; ++i) {
             var child = children[i];

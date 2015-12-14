@@ -24,7 +24,6 @@
 
 var JS = cc.js;
 var SceneGraphHelper = require('./scene-graph-helper');
-var SGProto = _ccsg.Node.prototype;
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
 
@@ -45,6 +44,7 @@ function setMaxZOrder (node) {
  */
 
 var SIZE_CHANGED = 'size-changed';
+var POSITION_CHANGED = 'position-changed';
 
 /**
  * A base node for CCNode and CCEScene, it will:
@@ -176,7 +176,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         skewX: {
-            get: SGProto.getSkewX,
+            get: function () {
+                return this._skewX;
+            },
             set: function (value) {
                 this._skewX = value;
                 this._sgNode.skewX = value;
@@ -189,10 +191,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         skewY: {
-            get: SGProto.getSkewY,
+            get: function () {
+                return this._skewY;
+            },
             set: function (value) {
                 this._skewY = value;
-                this._sgNode._skewY = value;
+                this._sgNode.skewY = value;
             }
         },
 
@@ -202,7 +206,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         zIndex: {
-            get: SGProto.getLocalZOrder,
+            get: function () {
+                return this._localZOrder;
+            },
             set: function (value) {
                 this._localZOrder = value;
                 this._sgNode.zIndex = value;
@@ -215,7 +221,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         rotation: {
-            get: SGProto.getRotation,
+            get: function () {
+                if (this._rotationX !== this._rotationY)
+                    cc.log(cc._LogInfos.Node.getRotation);
+                return this._rotationX;
+            },
             set: function (value) {
                 this._rotationX = this._rotationY = value;
                 this._sgNode.rotation = value;
@@ -229,7 +239,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         rotationX: {
-            get: SGProto.getRotationX,
+            get: function () {
+                return this._rotationX;
+            },
             set: function (value) {
                 this._rotationX = value;
                 this._sgNode.rotationX = value;
@@ -242,7 +254,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         rotationY: {
-            get: SGProto.getRotationY,
+            get: function () {
+                return this._rotationY;
+            },
             set: function (value) {
                 this._rotationY = value;
                 this._sgNode.rotationY = value;
@@ -255,7 +269,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         scaleX: {
-            get: SGProto.getScaleX,
+            get: function () {
+                return this._scaleX;
+            },
             set: function (value) {
                 this._scaleX = value;
                 this._sgNode.scaleX = value;
@@ -268,7 +284,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         scaleY: {
-            get: SGProto.getScaleY,
+            get: function () {
+                return this._scaleY;
+            },
             set: function (value) {
                 this._scaleY = value;
                 this._sgNode.scaleY = value;
@@ -281,10 +299,21 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         x: {
-            get: SGProto.getPositionX,
+            get: function () {
+                return this._position.x;
+            },
             set: function (value) {
-                this._position.x = value;
-                this._sgNode.x = value;
+                var localPosition = this._position;
+                if (value !== localPosition.x) {
+                    var oldValue = localPosition.x;
+
+                    localPosition.x = value;
+                    this._sgNode.x = value;
+
+                    if (this.emit) {
+                        this.emit(POSITION_CHANGED, cc.v2(oldValue, localPosition.y));
+                    }
+                }
             },
         },
 
@@ -294,10 +323,21 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         y: {
-            get: SGProto.getPositionY,
+            get: function () {
+                return this._position.y;
+            },
             set: function (value) {
-                this._position.y = value;
-                this._sgNode.y = value;
+                var localPosition = this._position;
+                if (value !== localPosition.y) {
+                    var oldValue = localPosition.y;
+
+                    localPosition.y = value;
+                    this._sgNode.y = value;
+
+                    if (this.emit) {
+                        this.emit(POSITION_CHANGED, cc.v2(localPosition.x, oldValue));
+                    }
+                }
             },
         },
 
@@ -331,7 +371,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         anchorX: {
-            get: SGProto._getAnchorX,
+            get: function () {
+                return this._anchorPoint.x;
+            },
             set: function (value) {
                 this._anchorPoint.x = value;
                 this._onAnchorChanged();
@@ -344,7 +386,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Number}
          */
         anchorY: {
-            get: SGProto._getAnchorY,
+            get: function () {
+                return this._anchorPoint.y;
+            },
             set: function (value) {
                 this._anchorPoint.y = value;
                 this._onAnchorChanged();
@@ -370,7 +414,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if (value !== this._contentSize.width) {
                     if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(new cc.Size(value, this._sizeProvider._getHeight()));
+                        this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
                     }
                     this._contentSize.width = value;
                     this.emit(SIZE_CHANGED);
@@ -397,7 +441,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if (value !== this._contentSize.height) {
                     if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(new cc.Size(this._sizeProvider._getWidth(), value));
+                        this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
                     }
                     this._contentSize.height = value;
                     this.emit(SIZE_CHANGED);
@@ -406,7 +450,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         //running: {
-        //    get: SGProto.isRunning
+        //    get: 
         //},
 
         /**
@@ -415,7 +459,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Boolean}
          */
         ignoreAnchor: {
-            get: SGProto.isIgnoreAnchorPointForPosition,
+            get: function () {
+                return this._ignoreAnchorPointForPosition;
+            },
             set: function (value) {
                 this._ignoreAnchorPointForPosition = value;
                 this._sgNode.ignoreAnchor = value;
@@ -440,7 +486,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         /**
          * Opacity of node, default value is 255.
-         * @property tag
+         * @property opacity
          * @type {Number}
          */
         opacity: {
@@ -461,7 +507,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @type {Boolean}
          */
         cascadeOpacity: {
-            get: SGProto.isCascadeOpacityEnabled,
+            get: function () {
+                return this._cascadeOpacityEnabled;
+            },
             set: function (value) {
                 if (this._cascadeOpacityEnabled !== value) {
                     this._cascadeOpacityEnabled = value;
@@ -503,6 +551,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         });
 
         var sgNode = this._sgNode = new _ccsg.Node();
+        sgNode.retain();
         if (!cc.game._isCloning) {
             sgNode.cascadeOpacity = true;
         }
@@ -517,6 +566,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @private
          */
         this._sizeProvider = null;
+    },
+
+    destroy: function () {
+        this._sgNode.release();
+        this._super();
     },
 
     // ABSTRACT INTERFACES
@@ -552,12 +606,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method attr
      * @param {Object} attrs - Properties to be set to node
      */
-    attr: SGProto.attr,
-
-    //Helper function used by `setLocalZOrder`. Don't use it unless you know what you are doing.
-    _setLocalZOrder: function (localZOrder) {
-        this._localZOrder = localZOrder;
-        this._sgNode._localZOrder = localZOrder;
+    attr: function (attrs) {
+        for (var key in attrs) {
+            this[key] = attrs[key];
+        }
     },
 
     /**
@@ -586,7 +638,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method getGlobalZOrder
      * @returns {number} The node's global Z order
      */
-    getGlobalZOrder: SGProto.getGlobalZOrder,
+    getGlobalZOrder: function () {
+        return this._globalZOrder;
+    },
 
     /**
      * Returns the scale factor of the node.
@@ -594,7 +648,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method getScale
      * @return {Number} The scale factor
      */
-    getScale: SGProto.getScale,
+    getScale: function () {
+        if (this._scaleX !== this._scaleY)
+            cc.log(cc._LogInfos.Node.getScale);
+        return this._scaleX;
+    },
 
     /**
      * Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
@@ -618,7 +676,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method getPosition
      * @return {Vec2} The position (x,y) of the node in OpenGL coordinates
      */
-    getPosition: SGProto.getPosition,
+    getPosition: function () {
+        return cc.p(this._position);
+    },
 
     /**
      * <p>
@@ -634,6 +694,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var locPosition = this._position;
+        var oldPosition = locPosition.clone();
+
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
@@ -646,6 +708,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             locPosition.y = yValue;
         }
         this._sgNode.setPosition(newPosOrxValue, yValue);
+
+        if (this.emit) {
+            this.emit(POSITION_CHANGED, oldPosition);
+        }
     },
 
     /**
@@ -658,7 +724,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method getAnchorPoint
      * @return {Vec2} The anchor point of node.
      */
-    getAnchorPoint: SGProto.getAnchorPoint,
+    getAnchorPoint: function () {
+        return cc.p(this._anchorPoint);
+    },
 
     /**
      * <p>
@@ -773,7 +841,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         //cc.eventManager.removeListeners(this);
 
         // children
-        SGProto._arrayMakeObjectsPerformSelector(this._children, _ccsg.Node._stateCallbackType.cleanup);
+        var i, len = this._children.length, node;
+        for (i = 0; i < len; ++i) {
+            node = this._children[i];
+            if (node)
+                node.cleanup();
+        }
     },
 
     // composition: GET
@@ -784,7 +857,17 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @param {Number} aTag - An identifier to find the child node.
      * @return {Node} a CCNode object whose tag equals to the input parameter
      */
-    getChildByTag: SGProto.getChildByTag,
+    getChildByTag: function (aTag) {
+        var children = this._children;
+        if (children !== null) {
+            for (var i = 0; i < children.length; i++) {
+                var node = children[i];
+                if (node && node.tag === aTag)
+                    return node;
+            }
+        }
+        return null;
+    },
 
     /**
      * Returns a child from the container given its name
@@ -792,7 +875,19 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @param {String} name - A name to find the child node.
      * @return {Node} a CCNode object whose name equals to the input parameter
      */
-    getChildByName: SGProto.getChildByName,
+    getChildByName: function(name){
+        if(!name){
+            cc.log("Invalid name");
+            return null;
+        }
+
+        var locChildren = this._children;
+        for(var i = 0, len = locChildren.length; i < len; i++){
+           if(locChildren[i]._name === name)
+            return locChildren[i];
+        }
+        return null;
+    },
 
     // composition: ADD
 
@@ -834,7 +929,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     _insertChild: function (child, z) {
         child.parent = this;
-        child._setLocalZOrder(z);
+        child.zIndex = z;
     },
 
     // composition: REMOVE
@@ -1015,9 +1110,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._sgNode.convertToWorldSpaceAR(nodePoint);
     },
 
-    _convertToWindowSpace: function (nodePoint) {
-        return this._sgNode._convertToWindowSpace(nodePoint);
-    },
+    // _convertToWindowSpace: function (nodePoint) {
+    //     return this._sgNode._convertToWindowSpace(nodePoint);
+    // },
 
     /**
      * convenience methods which take a cc.Touch instead of cc.Vec2
@@ -1058,10 +1153,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._sgNode.getBoundingBoxToWorld();
     },
 
-    _getBoundingBoxToCurrentNode: function (parentTransform) {
-        return this._sgNode._getBoundingBoxToCurrentNode(parentTransform);
-    },
-
     /**
      * Returns the displayed opacity of Node,
      * the difference between displayed opacity and opacity is that displayed opacity is calculated based on opacity and parent node's opacity when cascade opacity enabled.
@@ -1089,15 +1180,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     getDisplayedColor: function () {
         return this._sgNode.getDisplayedColor();
-    },
-
-    /**
-     * Update the displayed color of Node
-     * @method
-     * @param {Color} parentColor
-     */
-    _updateDisplayedColor: function (parentColor) {
-        this._sgNode._updateDisplayedColor(parentColor);
     },
 
     /**
