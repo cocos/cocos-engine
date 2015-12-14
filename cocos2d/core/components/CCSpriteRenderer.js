@@ -73,8 +73,22 @@ var SpriteRenderer = cc.Class({
                 var lastSprite = this._sprite;
                 this._sprite = value;
                 if (this._sgNode) {
-                    if (CC_EDITOR && force) {
-                        this._sgNode._scale9Image = null;
+                    if (CC_EDITOR) {
+                        if (force) {
+                            this._sgNode._scale9Image = null;
+                        }
+                        // Set atlas
+                        if (value._atlasUuid !== undefined) {
+                            var self = this;
+                            cc.AssetLibrary.queryAssetInfo(value._atlasUuid, function(err, url) {
+                                if (url) {
+                                    self._atlas = url;
+                                }
+                                else {
+                                    self._atlas = '';
+                                }
+                            });
+                        }
                     }
                     this._applySprite(this._sgNode, lastSprite);
                     // color cleared after reset texture, should reapply color
