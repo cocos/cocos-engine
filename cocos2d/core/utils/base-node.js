@@ -44,6 +44,7 @@ function setMaxZOrder (node) {
  */
 
 var SIZE_CHANGED = 'size-changed';
+var POSITION_CHANGED = 'position-changed';
 
 /**
  * A base node for CCNode and CCEScene, it will:
@@ -302,8 +303,17 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._position.x;
             },
             set: function (value) {
-                this._position.x = value;
-                this._sgNode.x = value;
+                var localPosition = this._position;
+                if (value !== localPosition.x) {
+                    var oldValue = localPosition.x;
+
+                    localPosition.x = value;
+                    this._sgNode.x = value;
+
+                    if (this.emit) {
+                        this.emit(POSITION_CHANGED, cc.v2(oldValue, localPosition.y));
+                    }
+                }
             },
         },
 
@@ -317,8 +327,17 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._position.y;
             },
             set: function (value) {
-                this._position.y = value;
-                this._sgNode.y = value;
+                var localPosition = this._position;
+                if (value !== localPosition.y) {
+                    var oldValue = localPosition.y;
+
+                    localPosition.y = value;
+                    this._sgNode.y = value;
+
+                    if (this.emit) {
+                        this.emit(POSITION_CHANGED, cc.v2(localPosition.x, oldValue));
+                    }
+                }
             },
         },
 
@@ -675,6 +694,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var locPosition = this._position;
+        var oldPosition = locPosition.clone();
+
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
@@ -687,6 +708,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             locPosition.y = yValue;
         }
         this._sgNode.setPosition(newPosOrxValue, yValue);
+
+        if (this.emit) {
+            this.emit(POSITION_CHANGED, oldPosition);
+        }
     },
 
     /**
