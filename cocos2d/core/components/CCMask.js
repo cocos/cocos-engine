@@ -22,152 +22,99 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-function MonitorSize(target) {
-    this._target = target;
-}
-MonitorSize.prototype = {
-    getContentSize: function () {
-        return this._target._sgNode.getContentSize();
-    },
-    setContentSize: function (size) {
-        this._target._useOriginalSize = false;
-        this._target._sgNode.setContentSize(size);
-    },
-    _getWidth: function () {
-        return this.getContentSize().width;
-    },
-    _getHeight: function () {
-        return this.getContentSize().height;
-    }
-};
-var HorizontalAlign = cc.TextAlignment;
-var VerticalAlign = cc.VerticalTextAlignment;
-var Overflow = cc.Label.Overflow;
-var LabelType = cc.Label.Type;
 /**
  *
- * @class ELabel
- * @extends _ComponentInSG
+ * @class Mask
+ * @extends Component
  */
 var Mask = cc.Class({
     name: 'cc.Mask',
-    extends: cc._ComponentInSG,
+    extends: cc.Component,
 
     editor: CC_EDITOR && {
-        menu: 'UI/Mask'
+        menu: 'UI/Mask',
+        executeInEditMode: true
     },
 
     _clippingNode: null,
     _clippingStencil: null,
-    _sizeProvider: null,
-    properties: {
+    // properties: {
 
-        // _aheheValue: 30,
-        // ahehe: {
-        //     get: function() {
-        //         return this._aheheValue;
-        //     },
-        //     set: function(value) {
-        //         this._aheheValue = value;
-        //     },
-        // },
-
-        // _fontSize: 40,
-        // /**
-        //  * Font size of label
-        //  * @property {Number} fontSize
-        //  */
-        // fontSize: {
-        //     get: function(){
-        //         var sgNode = this._sgNode;
-        //         if(sgNode){
-        //             this._fontSize = sgNode.getFontSize();
-        //         }
-        //         return this._fontSize;
-        //     },
-        //     set: function(value){
-        //         this._fontSize = value;
-
-        //         var sgNode = this._sgNode;
-        //         if(sgNode){
-        //             sgNode.setFontSize(value);
-        //         }
-        //     }
-        // },
-
-
-    },
+    // },
 
     onLoad: function () {
-        // var sgNode = this._createSgNode();
-        // this._appendSgNode(sgNode);
-        // if ( !this.node._sizeProvider ) {
-        //     this.node._sizeProvider = sgNode;
-        // }
-        this._super();
-        this._clippingNode = new cc.ClippingNode(this._sgNode);
-        this._sizeProvider = new MonitorSize(this);
+        this._clippingStencil = new cc.LayerColor(cc.Color.WHITE, 200,200);
+        this._clippingStencil.ignoreAnchorPointForPosition(false);
+        this._clippingNode = new cc.ClippingNode(this._clippingStencil);
+        this.node.on('size-changed',this._onContentResize, this);
     },
+    
     onEnable: function () {
-        // if (this._sgNode) {
-        //     this._sgNode.visible = true;
-        // }
-        this._super();
-        this.node._sizeProvider = this._sizeProvider;
         var oldNode = this.node._sgNode;
-        this.node._sgNode = this._clippingNode;
-        this.node._sgNode.setContentSize(this.node._contentSize);
+        this._clippingStencil.setContentSize(this.node._contentSize);
+        this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
         this._rebuildSceneGraph(this._clippingNode,oldNode);
-        //this.node._sizeProvider = this._sizeProvider;
-        //this.node.width = this.node.height = 100;
-
+        this.node._sgNode = this._clippingNode;
     },
-    onDisable: function () {
-        // if (this._sgNode) {
-        //     this._sgNode.visible = false;
-        // }
-        this._super();
-        this.node._sizeProvider = null;
-        var oldNode = this.node._sgNode;
-        this.node._sgNode = new cc.Node();
-        this.node._sgNode.setContentSize(this.node._contentSize);
-        this._rebuildSceneGraph(this.node._sgNode, oldNode);
 
+    onDisable: function () {
+        var oldNode = this.node._sgNode;
+        var newNode = new _ccsg.Node();
+        //this.node._sgNode.setContentSize(this.node._contentSize);
+        this._rebuildSceneGraph(newNode, oldNode);
+        this.node._sgNode = newNode;
     },
     
     onDestroy: function () {
-        this._super();
-        this._sizeProvider = null;
+        // this.node._sgNode.removeChild(this._clippingStencil);
+        this.node.off('size-changed', this._onContentResize, this);
     },
     
-    _createSgNode: function () {
-        return new cc.LayerColor(new cc.Color(255,255,255,255),100,100);
+    _onContentResize: function() {
+        if(this._clippingNode) {
+            this._clippingNode.setContentSize(this.node._contentSize);
+        }
+        if(this._clippingStencil) {
+            this._clippingStencil.setContentSize(this.node._contentSize);
+            this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
+        }
     },
-    
+
     _rebuildSceneGraph: function (newNode, oldNode) {
+
+        newNode.setPosition(this.node._position);
+        newNode.setRotationX(this.node._rotationX);
+        newNode.setRotationY(this.node._rotationY);
+        newNode.setScaleX(this.node._scaleX);
+        newNode.setScaleY(this.node._scaleY);
+        newNode.setAnchorPoint(this.node._anchorPoint);
+        newNode.setContentSize(this.node._contentSize);
+        newNode.setOpacity(this.node._opacity);
+        newNode.setColor(this.node._color);
 
         var children = [];
         children = children.concat(oldNode.getChildren());
     
         for(var index = 0; index < children.length; ++index) {
-            children[index].removeFromParent();
+            oldNode.removeChild(children[index])
             newNode.addChild(children[index]);
         }
+        
         var parentNode = oldNode.getParent();
-        oldNode.removeFromParent();
         parentNode.addChild(newNode);
+        parentNode.removeChild(oldNode);
 
-        this.node.position = this.node._position;
-        this.node.rotationX = this.node._rotationX;
-        this.node.rotationY = this.node._rotationY;
-        this.node.scaleX = this.node._scaleX;
-        this.node.scaleY = this.node._scaleY;
-        this.node.anchorX = this.node._anchorPoint.x;
-        this.node.anchorY = this.node._anchorPoint.y;
-        this.node.width = this.node._contentSize.width;
-        this.node.height = this.node._contentSize.height;
-        this.node.opacity = this.node._opacity;
-        this.node.color = this.node._color;
+    //     this.node.position = ;
+    //     this.node.rotationX = this.node._rotationX;
+    //     this.node.rotationY = this.node._rotationY;
+    //     this.node.scaleX = ;
+    //     this.node.scaleY = this.node._scaleY;
+    //     this.node.anchorX = this.node._anchorPoint.x;
+    //     this.node.anchorY = this.node._anchorPoint.y;
+    //     this.node.width = this.node._contentSize.width;
+    //     this.node.height = this.node._contentSize.height;
+    //     this.node.opacity = this.node._opacity;
+    //     this.node.color = this.node._color;
     },
 
  });
