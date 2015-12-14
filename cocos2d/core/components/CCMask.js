@@ -46,7 +46,6 @@ var Mask = cc.Class({
         this._clippingStencil = new cc.LayerColor(cc.Color.WHITE, 200,200);
         this._clippingStencil.ignoreAnchorPointForPosition(false);
         this._clippingNode = new cc.ClippingNode(this._clippingStencil);
-        this.node.on('size-changed',this._onContentResize, this);
     },
     
     onEnable: function () {
@@ -55,25 +54,22 @@ var Mask = cc.Class({
         this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
         this._rebuildSceneGraph(this._clippingNode,oldNode);
         this.node._sgNode = this._clippingNode;
+        this.node.on('size-changed',this._onContentResize, this);
     },
 
     onDisable: function () {
         var oldNode = this.node._sgNode;
         var newNode = new _ccsg.Node();
-        //this.node._sgNode.setContentSize(this.node._contentSize);
         this._rebuildSceneGraph(newNode, oldNode);
         this.node._sgNode = newNode;
-    },
-    
-    onDestroy: function () {
-        // this.node._sgNode.removeChild(this._clippingStencil);
         this.node.off('size-changed', this._onContentResize, this);
     },
     
+    onDestroy: function () {
+
+    },
+    
     _onContentResize: function() {
-        if(this._clippingNode) {
-            this._clippingNode.setContentSize(this.node._contentSize);
-        }
         if(this._clippingStencil) {
             this._clippingStencil.setContentSize(this.node._contentSize);
             this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
@@ -87,8 +83,6 @@ var Mask = cc.Class({
         newNode.setRotationY(this.node._rotationY);
         newNode.setScaleX(this.node._scaleX);
         newNode.setScaleY(this.node._scaleY);
-        newNode.setAnchorPoint(this.node._anchorPoint);
-        newNode.setContentSize(this.node._contentSize);
         newNode.setOpacity(this.node._opacity);
         newNode.setColor(this.node._color);
 
@@ -104,17 +98,6 @@ var Mask = cc.Class({
         parentNode.addChild(newNode);
         parentNode.removeChild(oldNode);
 
-    //     this.node.position = ;
-    //     this.node.rotationX = this.node._rotationX;
-    //     this.node.rotationY = this.node._rotationY;
-    //     this.node.scaleX = ;
-    //     this.node.scaleY = this.node._scaleY;
-    //     this.node.anchorX = this.node._anchorPoint.x;
-    //     this.node.anchorY = this.node._anchorPoint.y;
-    //     this.node.width = this.node._contentSize.width;
-    //     this.node.height = this.node._contentSize.height;
-    //     this.node.opacity = this.node._opacity;
-    //     this.node.color = this.node._color;
     },
 
  });
