@@ -42,7 +42,7 @@ function alignToParent (node, widget) {
     var parentHeight = parentSize.height;
     var parentAnchor = parent._anchorPoint;
     var localLeft, localRight, localTop, localBottom;
-    if (parent instanceof cc.Scene) {
+    if (!CC_EDITOR && parent instanceof cc.Scene) {
         var visibleRect = cc.visibleRect;
         localLeft = visibleRect.left.x;
         localRight = visibleRect.right.x;
