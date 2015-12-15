@@ -179,7 +179,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
             throw new Error("ccui.Scale9Sprite.initWithSpriteFrame(): spriteFrame should be non-null and its texture should be non-null");
         this._spriteRect = cc.rect(0,0,0,0);
         this._originalSize = cc.size(0,0);
-        this._preferredSize = cc.size(0,0);
+        this._preferredSize = null;
         
         var locLoaded = spriteFrame.textureLoaded();
 
@@ -430,8 +430,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
         }
 
         _ccsg.Node.prototype.setContentSize.call(this, width, height);
-        this._preferredSize.width = width;
-        this._preferredSize.height = height;
+        this._preferredSize = this._contentSize;
         this._quadsDirty = true;
         this._adjustScale9ImagePosition();
     },
