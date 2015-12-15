@@ -26,21 +26,21 @@
 
 /**
  * <p>
- *     cc.animationCache is a singleton object that manages the Animations.<br/>
+ *     cc.spriteFrameAnimationCache is a singleton object that manages the Animations.<br/>
  *     It saves in a cache the animations. You should use this class if you want to save your animations in a cache.<br/>
  * <br/>
  * example<br/>
- * cc.animationCache.addAnimation(animation,"animation1");<br/>
+ * cc.spriteFrameAnimationCache.addAnimation(animation,"animation1");<br/>
  * </p>
  * @class
- * @name cc.animationCache
+ * @name cc.spriteFrameAnimationCache
  */
-cc.animationCache = /** @lends cc.animationCache# */{
+cc.spriteFrameAnimationCache = {
 	_animations: {},
 
     /**
-     * Adds a cc.Animation with a name.
-     * @param {cc.Animation} animation
+     * Adds a cc.SpriteFrameAnimation with a name.
+     * @param {cc.SpriteFrameAnimation} animation
      * @param {String} name
      */
     addAnimation:function (animation, name) {
@@ -48,7 +48,7 @@ cc.animationCache = /** @lends cc.animationCache# */{
     },
 
     /**
-     * Deletes a cc.Animation from the cache.
+     * Deletes a cc.SpriteFrameAnimation from the cache.
      * @param {String} name
      */
     removeAnimation:function (name) {
@@ -62,12 +62,12 @@ cc.animationCache = /** @lends cc.animationCache# */{
 
     /**
      * <p>
-     *     Returns a cc.Animation that was previously added.<br/>
+     *     Returns a cc.SpriteFrameAnimation that was previously added.<br/>
      *      If the name is not found it will return nil.<br/>
      *      You should retain the returned copy if you are going to use it.</br>
      * </p>
      * @param {String} name
-     * @return {cc.Animation}
+     * @return {cc.SpriteFrameAnimation}
      */
     getAnimation:function (name) {
         if (this._animations[name])
@@ -78,7 +78,7 @@ cc.animationCache = /** @lends cc.animationCache# */{
     _addAnimationsWithDictionary:function (dictionary,plist) {
         var animations = dictionary["animations"];
         if (!animations) {
-            cc.log(cc._LogInfos.animationCache._addAnimationsWithDictionary);
+            cc.log(cc._LogInfos.spriteFrameAnimationCache._addAnimationsWithDictionary);
             return;
         }
 
@@ -102,7 +102,7 @@ cc.animationCache = /** @lends cc.animationCache# */{
                 this._parseVersion2(animations);
                 break;
             default :
-                cc.log(cc._LogInfos.animationCache._addAnimationsWithDictionary_2);
+                cc.log(cc._LogInfos.spriteFrameAnimationCache._addAnimationsWithDictionary_2);
                 break;
         }
     },
@@ -116,12 +116,12 @@ cc.animationCache = /** @lends cc.animationCache# */{
      */
     addAnimations:function (plist) {
 
-        cc.assert(plist, cc._LogInfos.animationCache.addAnimations_2);
+        cc.assert(plist, cc._LogInfos.spriteFrameAnimationCache.addAnimations_2);
 
         var dict = cc.loader.getRes(plist);
 
         if(!dict){
-            cc.log(cc._LogInfos.animationCache.addAnimations);
+            cc.log(cc._LogInfos.spriteFrameAnimationCache.addAnimations);
             return;
         }
 
@@ -137,7 +137,7 @@ cc.animationCache = /** @lends cc.animationCache# */{
             var delay = parseFloat(animationDict["delay"]) || 0;
             var animation = null;
             if (!frameNames) {
-                cc.log(cc._LogInfos.animationCache._parseVersion1, key);
+                cc.log(cc._LogInfos.spriteFrameAnimationCache._parseVersion1, key);
                 continue;
             }
 
@@ -145,7 +145,7 @@ cc.animationCache = /** @lends cc.animationCache# */{
             for (var i = 0; i < frameNames.length; i++) {
                 var spriteFrame = frameCache.getSpriteFrame(frameNames[i]);
                 if (!spriteFrame) {
-                    cc.log(cc._LogInfos.animationCache._parseVersion1_2, key, frameNames[i]);
+                    cc.log(cc._LogInfos.spriteFrameAnimationCache._parseVersion1_2, key, frameNames[i]);
                     continue;
                 }
                 var animFrame = new cc.AnimationFrame();
@@ -154,13 +154,13 @@ cc.animationCache = /** @lends cc.animationCache# */{
             }
 
             if (frames.length === 0) {
-                cc.log(cc._LogInfos.animationCache._parseVersion1_3, key);
+                cc.log(cc._LogInfos.spriteFrameAnimationCache._parseVersion1_3, key);
                 continue;
             } else if (frames.length !== frameNames.length) {
-                cc.log(cc._LogInfos.animationCache._parseVersion1_4, key);
+                cc.log(cc._LogInfos.spriteFrameAnimationCache._parseVersion1_4, key);
             }
-            animation = new cc.Animation(frames, delay, 1);
-            cc.animationCache.addAnimation(animation, key);
+            animation = new cc.SpriteFrameAnimation(frames, delay, 1);
+            cc.spriteFrameAnimationCache.addAnimation(animation, key);
         }
     },
 
@@ -177,7 +177,7 @@ cc.animationCache = /** @lends cc.animationCache# */{
             var frameArray = animationDict["frames"];
 
             if (!frameArray) {
-                cc.log(cc._LogInfos.animationCache._parseVersion2, key);
+                cc.log(cc._LogInfos.spriteFrameAnimationCache._parseVersion2, key);
                 continue;
             }
 
@@ -188,7 +188,7 @@ cc.animationCache = /** @lends cc.animationCache# */{
                 var spriteFrameName = entry["spriteframe"];
                 var spriteFrame = frameCache.getSpriteFrame(spriteFrameName);
                 if (!spriteFrame) {
-                    cc.log(cc._LogInfos.animationCache._parseVersion2_2, key, spriteFrameName);
+                    cc.log(cc._LogInfos.spriteFrameAnimationCache._parseVersion2_2, key, spriteFrameName);
                     continue;
                 }
 
@@ -200,10 +200,10 @@ cc.animationCache = /** @lends cc.animationCache# */{
             }
 
             var delayPerUnit = parseFloat(animationDict["delayPerUnit"]) || 0;
-            var animation = new cc.Animation();
+            var animation = new cc.SpriteFrameAnimation();
             animation.initWithAnimationFrames(arr, delayPerUnit, loops);
             animation.setRestoreOriginalFrame(restoreOriginalFrame);
-            cc.animationCache.addAnimation(animation, key);
+            cc.spriteFrameAnimationCache.addAnimation(animation, key);
         }
     },
 

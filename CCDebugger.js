@@ -134,17 +134,17 @@ cc._LogInfos = {
 
     checkGLErrorDebug: "WebGL error %s",
 
-    animationCache: {
-        _addAnimationsWithDictionary: "cocos2d: cc.AnimationCache: No animations were found in provided dictionary.",
-        _addAnimationsWithDictionary_2: "cc.AnimationCache. Invalid animation format",
-        addAnimations: "cc.AnimationCache.addAnimations(): File could not be found",
-        _parseVersion1: "cocos2d: cc.AnimationCache: Animation '%s' found in dictionary without any frames - cannot add to animation cache.",
-        _parseVersion1_2: "cocos2d: cc.AnimationCache: Animation '%s' refers to frame '%s' which is not currently in the cc.SpriteFrameCache. This frame will not be added to the animation.",
-        _parseVersion1_3: "cocos2d: cc.AnimationCache: None of the frames for animation '%s' were found in the cc.SpriteFrameCache. Animation is not being added to the Animation Cache.",
-        _parseVersion1_4: "cocos2d: cc.AnimationCache: An animation in your dictionary refers to a frame which is not in the cc.SpriteFrameCache. Some or all of the frames for the animation '%s' may be missing.",
+    spriteFrameAnimationCache: {
+        _addAnimationsWithDictionary: "cocos2d: cc.SpriteFrameAnimationCache: No animations were found in provided dictionary.",
+        _addAnimationsWithDictionary_2: "cc.SpriteFrameAnimationCache. Invalid animation format",
+        addAnimations: "cc.SpriteFrameAnimationCache.addAnimations(): File could not be found",
+        _parseVersion1: "cocos2d: cc.SpriteFrameAnimationCache: Animation '%s' found in dictionary without any frames - cannot add to animation cache.",
+        _parseVersion1_2: "cocos2d: cc.SpriteFrameAnimationCache: Animation '%s' refers to frame '%s' which is not currently in the cc.SpriteFrameCache. This frame will not be added to the animation.",
+        _parseVersion1_3: "cocos2d: cc.SpriteFrameAnimationCache: None of the frames for animation '%s' were found in the cc.SpriteFrameCache. Animation is not being added to the Animation Cache.",
+        _parseVersion1_4: "cocos2d: cc.SpriteFrameAnimationCache: An animation in your dictionary refers to a frame which is not in the cc.SpriteFrameCache. Some or all of the frames for the animation '%s' may be missing.",
         _parseVersion2: "cocos2d: CCAnimationCache: Animation '%s' found in dictionary without any frames - cannot add to animation cache.",
-        _parseVersion2_2: "cocos2d: cc.AnimationCache: Animation '%s' refers to frame '%s' which is not currently in the cc.SpriteFrameCache. This frame will not be added to the animation.",
-        addAnimations_2: "cc.AnimationCache.addAnimations(): Invalid texture file name",
+        _parseVersion2_2: "cocos2d: cc.SpriteFrameAnimationCache: Animation '%s' refers to frame '%s' which is not currently in the cc.SpriteFrameCache. This frame will not be added to the animation.",
+        addAnimations_2: "cc.SpriteFrameAnimationCache.addAnimations(): Invalid texture file name",
     },
 
     Sprite: {
