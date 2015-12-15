@@ -155,10 +155,10 @@ cc.AnimationFrame.create = function(spriteFrame,delayUnits,userInfo){
 
 /**
  * <p>
- *     A cc.Animation object is used to perform animations on the cc.Sprite objects.<br/>
+ *     A cc.SpriteFrameAnimation object is used to perform animations on the cc.Sprite objects.<br/>
  *     <br/>
- *      The cc.Animation object contains cc.SpriteFrame objects, and a possible delay between the frames. <br/>
- *      You can animate a cc.Animation object by using the cc.Animate action.
+ *      The cc.SpriteFrameAnimation object contains cc.SpriteFrame objects, and a possible delay between the frames. <br/>
+ *      You can animate a cc.SpriteFrameAnimation object by using the cc.Animate action.
  * </p>
  * @class
  * @extends cc._Class
@@ -168,23 +168,23 @@ cc.AnimationFrame.create = function(spriteFrame,delayUnits,userInfo){
  *
  * @example
  * // 1. Creates an empty animation
- * var animation1 = new cc.Animation();
+ * var animation1 = new cc.SpriteFrameAnimation();
  *
  * // 2. Create an animation with sprite frames, delay and loops.
  * var spriteFrames = [];
  * var frame = cc.spriteFrameCache.getSpriteFrame("grossini_dance_01.png");
  * spriteFrames.push(frame);
- * var animation1 = new cc.Animation(spriteFrames);
- * var animation2 = new cc.Animation(spriteFrames, 0.2);
- * var animation2 = new cc.Animation(spriteFrames, 0.2, 2);
+ * var animation1 = new cc.SpriteFrameAnimation(spriteFrames);
+ * var animation2 = new cc.SpriteFrameAnimation(spriteFrames, 0.2);
+ * var animation2 = new cc.SpriteFrameAnimation(spriteFrames, 0.2, 2);
  *
  * // 3. Create an animation with animation frames, delay and loops.
  * var animationFrames = [];
  * var frame =  new cc.AnimationFrame();
  * animationFrames.push(frame);
- * var animation1 = new cc.Animation(animationFrames);
- * var animation2 = new cc.Animation(animationFrames, 0.2);
- * var animation3 = new cc.Animation(animationFrames, 0.2, 2);
+ * var animation1 = new cc.SpriteFrameAnimation(animationFrames);
+ * var animation2 = new cc.SpriteFrameAnimation(animationFrames, 0.2);
+ * var animation3 = new cc.SpriteFrameAnimation(animationFrames, 0.2, 2);
  *
  * //create an animate with this animation
  * var action = cc.animate(animation1);
@@ -192,7 +192,7 @@ cc.AnimationFrame.create = function(spriteFrame,delayUnits,userInfo){
  * //run animate
  * sprite.runAction(action);
  */
-cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
+cc.SpriteFrameAnimation = cc._Class.extend({
     _frames:null,
     _loops:0,
     _restoreOriginalFrame:false,
@@ -238,7 +238,7 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
     },
 
     /**
-     * Adds a frame to a cc.Animation, the frame will be added with one "delay unit".
+     * Adds a frame to a cc.SpriteFrameAnimation, the frame will be added with one "delay unit".
      * @param {cc.SpriteFrame} frame
      */
     addSpriteFrame:function (frame) {
@@ -274,7 +274,7 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
     },
 
     /**
-     * Initializes a cc.Animation with cc.AnimationFrame, do not call this method yourself, please pass parameters to constructor to initialize.
+     * Initializes a cc.SpriteFrameAnimation with cc.AnimationFrame, do not call this method yourself, please pass parameters to constructor to initialize.
      * @param {Array} arrayOfAnimationFrames
      * @param {Number} delayPerUnit
      * @param {Number} [loops=1]
@@ -299,10 +299,10 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
 
     /**
      * Clone the current animation
-     * @return {cc.Animation}
+     * @return {cc.SpriteFrameAnimation}
      */
     clone: function(){
-        var animation = new cc.Animation();
+        var animation = new cc.SpriteFrameAnimation();
         animation.initWithAnimationFrames(this._copyFrames(), this._delayPerUnit, this._loops);
         animation.setRestoreOriginalFrame(this._restoreOriginalFrame);
         return animation;
@@ -310,10 +310,10 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
 
     /**
      * Clone the current animation
-     * @return {cc.Animation}
+     * @return {cc.SpriteFrameAnimation}
      */
     copyWithZone:function (pZone) {
-        var pCopy = new cc.Animation();
+        var pCopy = new cc.SpriteFrameAnimation();
         pCopy.initWithAnimationFrames(this._copyFrames(), this._delayPerUnit, this._loops);
         pCopy.setRestoreOriginalFrame(this._restoreOriginalFrame);
         return pCopy;
@@ -329,7 +329,7 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
     /**
      * Clone the current animation
      * @param pZone
-     * @returns {cc.Animation}
+     * @returns {cc.SpriteFrameAnimation}
      */
     copy:function (pZone) {
         return this.copyWithZone(null);
@@ -392,7 +392,7 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
     },
 
     /**
-     * Returns total delay units of the cc.Animation.
+     * Returns total delay units of the cc.SpriteFrameAnimation.
      * @return {Number}
      */
     getTotalDelayUnits:function () {
@@ -400,7 +400,7 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
     },
 
     /**
-     * Initializes a cc.Animation with frames and a delay between frames, do not call this method yourself, please pass parameters to constructor to initialize.
+     * Initializes a cc.SpriteFrameAnimation with frames and a delay between frames, do not call this method yourself, please pass parameters to constructor to initialize.
      * @param {Array} frames
      * @param {Number} delay
      * @param {Number} [loops=1]
@@ -435,7 +435,7 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
      * you need to manually invoke release function when you think this object is no longer needed, otherwise, there will be memory learks.<br/>
      * retain and release function call should be paired in developer's game code.</p>
      * @function
-     * @see cc.Animation#release
+     * @see cc.SpriteFrameAnimation#release
      */
     retain:function () {
     },
@@ -450,7 +450,7 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
      * you need to manually invoke release function when you think this object is no longer needed, otherwise, there will be memory learks.<br/>
      * retain and release function call should be paired in developer's game code.</p>
      * @function
-     * @see cc.Animation#retain
+     * @see cc.SpriteFrameAnimation#retain
      */
     release:function () {
     }
@@ -459,19 +459,19 @@ cc.Animation = cc._Class.extend(/** @lends cc.Animation# */{
 /**
  * Creates an animation.
  * @deprecated since v3.0, please use new construction instead
- * @see cc.Animation
+ * @see cc.SpriteFrameAnimation
  * @param {Array} frames
  * @param {Number} delay
  * @param {Number} [loops=1]
- * @return {cc.Animation}
+ * @return {cc.SpriteFrameAnimation}
  */
-cc.Animation.create = function (frames, delay, loops) {
-    return new cc.Animation(frames, delay, loops);
+cc.SpriteFrameAnimation.create = function (frames, delay, loops) {
+    return new cc.SpriteFrameAnimation(frames, delay, loops);
 };
 
 /**
  * @deprecated since v3.0, please use new construction instead
- * @see cc.Animation
+ * @see cc.SpriteFrameAnimation
  * @type {Function}
  */
-cc.Animation.createWithAnimationFrames = cc.Animation.create;
+cc.SpriteFrameAnimation.createWithAnimationFrames = cc.SpriteFrameAnimation.create;

@@ -3253,7 +3253,7 @@ cc.ReverseTime.create = cc.reverseTime;
 /**  Animates a sprite given the name of an Animation
  * @class
  * @extends cc.ActionInterval
- * @param {cc.Animation} animation
+ * @param {cc.SpriteFrameAnimation} animation
  * @example
  * // create the animation with animation
  * var anim = new cc.Animate(dance_grey);
@@ -3269,7 +3269,7 @@ cc.Animate = cc.ActionInterval.extend(/** @lends cc.Animate# */{
 	/**
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * create the animate with animation.
-	 * @param {cc.Animation} animation
+	 * @param {cc.SpriteFrameAnimation} animation
 	 */
     ctor:function (animation) {
         cc.ActionInterval.prototype.ctor.call(this);
@@ -3279,14 +3279,14 @@ cc.Animate = cc.ActionInterval.extend(/** @lends cc.Animate# */{
     },
 
     /**
-     * @return {cc.Animation}
+     * @return {cc.SpriteFrameAnimation}
      */
     getAnimation:function () {
         return this._animation;
     },
 
     /**
-     * @param {cc.Animation} animation
+     * @param {cc.SpriteFrameAnimation} animation
      */
     setAnimation:function (animation) {
         this._animation = animation;
@@ -3301,7 +3301,7 @@ cc.Animate = cc.ActionInterval.extend(/** @lends cc.Animate# */{
     },
 
     /**
-     * @param {cc.Animation} animation
+     * @param {cc.SpriteFrameAnimation} animation
      * @return {Boolean}
      */
     initWithAnimation:function (animation) {
@@ -3409,7 +3409,7 @@ cc.Animate = cc.ActionInterval.extend(/** @lends cc.Animate# */{
                 newArray.push(element.clone());
             }
         }
-        var newAnim = new cc.Animation(newArray, locAnimation.getDelayPerUnit(), locAnimation.getLoops());
+        var newAnim = new cc.SpriteFrameAnimation(newArray, locAnimation.getDelayPerUnit(), locAnimation.getLoops());
         newAnim.setRestoreOriginalFrame(locAnimation.getRestoreOriginalFrame());
         var action = new cc.Animate(newAnim);
         this._cloneDecoration(action);
@@ -3431,7 +3431,7 @@ cc.Animate = cc.ActionInterval.extend(/** @lends cc.Animate# */{
 /**
  * create the animate with animation
  * @function
- * @param {cc.Animation} animation
+ * @param {cc.SpriteFrameAnimation} animation
  * @return {cc.Animate}
  * @example
  * // example
@@ -3446,7 +3446,7 @@ cc.animate = function (animation) {
  * create the animate with animation
  * @static
  * @deprecated since v3.0 please use cc.animate instead.
- * @param {cc.Animation} animation
+ * @param {cc.SpriteFrameAnimation} animation
  * @return {cc.Animate}
  */
 cc.Animate.create = cc.animate;
