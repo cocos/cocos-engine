@@ -1067,7 +1067,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
     },
 });
 
-ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = function()
+ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = function ()
 {
     this._texture = null;
     this._spriteRect = null;
@@ -1110,6 +1110,7 @@ ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = func
                     if(self._originalSize === null) {
                         self._originalSize = cc.size(texturesize);
                     }
+                    self.emit('load');
                 };
             if(texture.isLoaded()) {
                 textureLoadedCallback();
@@ -1138,7 +1139,7 @@ ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = func
                 self._rotated = spriteFrame.isRotated();
                 self._trimmedOffset = spriteFrame.getOffset();
                 self._originalSize = spriteFrame.getOriginalSize();
-
+                self.emit('load');
             };
             if(spriteFrame.textureLoaded()){
                 spriteFrameLoadedCallback();
@@ -1149,6 +1150,7 @@ ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = func
         return false;
     };
 };
+cc.js.mixin(ccui.Scale9Sprite.Scale9ResourceData.prototype, cc.EventTarget.prototype);
 
 var _p = ccui.Scale9Sprite.prototype;
 cc.js.addon(_p, EventTarget.prototype);
