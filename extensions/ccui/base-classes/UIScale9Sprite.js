@@ -177,7 +177,10 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
     initWithSpriteFrame : function(spriteFrame, capInsets){
         if(!spriteFrame || !spriteFrame.getTexture())
             throw new Error("ccui.Scale9Sprite.initWithSpriteFrame(): spriteFrame should be non-null and its texture should be non-null");
-
+        this._spriteRect = cc.rect(0,0,0,0);
+        this._originalSize = cc.size(0,0);
+        this._preferredSize = cc.size(0,0);
+        
         var locLoaded = spriteFrame.textureLoaded();
 
         if(capInsets!== undefined) this._derivedCapInsets = capInsets;
