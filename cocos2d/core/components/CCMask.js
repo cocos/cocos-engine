@@ -57,26 +57,32 @@ var Mask = cc.Class({
         var oldNode = this.node._sgNode;
         this._clippingStencil.setContentSize(this.node._contentSize);
         this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
-        this._rebuildSceneGraph(this._clippingNode,oldNode);
-        this.node._sgNode = this._clippingNode;
-        this.node.on('size-changed',this._onContentResize, this);
+        this.node._replaceSgNode(this._clippingNode);
+        this.node.on('size-changed',this._onContentSizeChanged, this);
+        this.node.on('anchor-changed',this._onAnchorChanged,this);
     },
 
     onDisable: function () {
         var oldNode = this.node._sgNode;
         var newNode = new _ccsg.Node();
-        this._rebuildSceneGraph(newNode, oldNode);
-        this.node._sgNode = newNode;
-        this.node.off('size-changed', this._onContentResize, this);
+        this.node._replaceSgNode(newNode);
+        this.node.off('size-changed', this._onContentSizeChanged, this);
+        this.node.off('anchor-changed',this._onAnchorChanged,this);
     },
     
     onDestroy: function () {
 
     },
     
-    _onContentResize: function() {
+    _onContentSizeChanged: function() {
         if(this._clippingStencil) {
             this._clippingStencil.setContentSize(this.node._contentSize);
+            this._dirtySgNodeTransform();
+        }
+    },
+
+    _onAnchorChanged: function() {
+        if(this._clippingStencil) {
             this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
             this._dirtySgNodeTransform();
         }
@@ -88,27 +94,6 @@ var Mask = cc.Class({
         if(!cc.sys.isNative) {
             this.node._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         }
-    },
-
-    _rebuildSceneGraph: function (newNode, oldNode) {
-
-        newNode.setPosition(this.node._position);
-        newNode.setRotationX(this.node._rotationX);
-        newNode.setRotationY(this.node._rotationY);
-        newNode.setScale(this.node._scaleX, this.node._scaleY);
-        newNode.setOpacity(this.node._opacity);
-        newNode.setColor(this.node._color);
-
-        var children = oldNode.getChildren().slice(0);
-        oldNode.removeAllChildren();
-        for(var index = 0; index < children.length; ++index) {
-            newNode.addChild(children[index]);
-        }
-        
-        var parentNode = oldNode.getParent();
-        parentNode.addChild(newNode);
-        parentNode.removeChild(oldNode);
-
     },
 
  });
