@@ -950,7 +950,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     /**replace sgNode*/
 
-    replaceSgNode: function(sgNode) {
+    _replaceSgNode: function(sgNode) {
         if(sgNode instanceof _ccsg.Node) {
             //apply property
             var siblingIndex = this.getSiblingIndex();

@@ -57,7 +57,7 @@ var Mask = cc.Class({
         var oldNode = this.node._sgNode;
         this._clippingStencil.setContentSize(this.node._contentSize);
         this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
-        this.node.replaceSgNode(this._clippingNode);
+        this.node._replaceSgNode(this._clippingNode);
         this.node.on('size-changed',this._onContentSizeChanged, this);
         this.node.on('anchor-changed',this._onAnchorChanged,this);
     },
@@ -65,7 +65,7 @@ var Mask = cc.Class({
     onDisable: function () {
         var oldNode = this.node._sgNode;
         var newNode = new _ccsg.Node();
-        this.node.replaceSgNode(newNode);
+        this.node._replaceSgNode(newNode);
         this.node.off('size-changed', this._onContentSizeChanged, this);
         this.node.off('anchor-changed',this._onAnchorChanged,this);
     },
