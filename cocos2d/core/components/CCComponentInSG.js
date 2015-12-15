@@ -80,6 +80,7 @@ var ComponentInSG = cc.Class({
         sgParent.addChild(sgNode);
 
         // retain immediately
+        // will be released in SceneGraphHelper.removeSgNode
         sgNode.retain();
         this._sgNode = sgNode;
     }

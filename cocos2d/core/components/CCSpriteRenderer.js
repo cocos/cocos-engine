@@ -73,8 +73,22 @@ var SpriteRenderer = cc.Class({
                 var lastSprite = this._sprite;
                 this._sprite = value;
                 if (this._sgNode) {
-                    if (CC_EDITOR && force) {
-                        this._sgNode._scale9Image = null;
+                    if (CC_EDITOR) {
+                        if (force) {
+                            this._sgNode._scale9Image = null;
+                        }
+                        // Set atlas
+                        if (value._atlasUuid !== undefined) {
+                            var self = this;
+                            cc.AssetLibrary.queryAssetInfo(value._atlasUuid, function(err, url) {
+                                if (url) {
+                                    self._atlas = url;
+                                }
+                                else {
+                                    self._atlas = '';
+                                }
+                            });
+                        }
                     }
                     this._applySprite(this._sgNode, lastSprite);
                     // color cleared after reset texture, should reapply color
@@ -459,18 +473,16 @@ var SpriteRenderer = cc.Class({
         }
     },
 
-    _applySprite: function (node, oldSprite) {
-        if (oldSprite) {
+    _applySprite: function (sgNode, oldSprite) {
+        if (oldSprite && oldSprite.off) {
             oldSprite.off('load', this._applyCapInset, this);
         }
         if (!this._sprite) { return; }
-        node._spriteRect = cc.rect(0, 0);
-        node._originalSize = cc.size(0, 0);
-        node.initWithSpriteFrame(this._sprite);
+        sgNode.initWithSpriteFrame(this._sprite, cc.rect(0, 0, 0, 0));
         var locLoaded = this._sprite.textureLoaded();
         if (!locLoaded) {
             if ( !this._useOriginalSize ) {
-                node.setPreferredSize(this.node.getContentSize(true));
+                sgNode.setPreferredSize(this.node.getContentSize(true));
             }
             this._sprite.once('load', function () {
                 this._applyCapInset();
@@ -478,8 +490,8 @@ var SpriteRenderer = cc.Class({
             }, this);
         }
         else {
-            this._applyCapInset(node);
-            this._applySpriteSize(node);
+            this._applyCapInset(sgNode);
+            this._applySpriteSize(sgNode);
         }
     },
 

@@ -10,7 +10,7 @@ paths = {
     jsEntry: './index.js',
     JSBEntries: [
         './jsb_predefine.js',
-        '../editor/static/build-templates/runtime/jsb_polyfill.js',
+        // '../editor/static/build-templates/runtime/jsb_polyfill.js',
         './extends.js'
     ],
     outDir: './bin',
@@ -20,7 +20,9 @@ paths = {
     JSBSkipModules: [
         '../../cocos2d/core/CCGame', 
         '../../cocos2d/core/textures/CCTexture2D',
-        '../../cocos2d/core/sprites/CCSpriteFrame'
+        '../../cocos2d/core/sprites/CCSpriteFrame',
+        '../../cocos2d/core/platform/CCLoader',
+        '../../cocos2d/core/platform/CCLoaders'
     ],
 
     test: {

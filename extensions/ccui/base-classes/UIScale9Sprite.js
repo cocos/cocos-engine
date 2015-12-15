@@ -267,9 +267,15 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
      * @js NA
      * @lua NA
      */
-    setBlendFunc : function(blendFunc){
-        this._blendFunc.src = blendFunc.src;
-        this._blendFunc.dst = blendFunc.dst;
+    setBlendFunc : function(blendFunc, dst) {
+        if (dst === undefined) {
+            this._blendFunc.src = blendFunc.src || cc.BLEND_SRC;
+            this._blendFunc.dst = blendFunc.dst || cc.BLEND_DST;
+        }
+        else {
+            this._blendFunc.src = blendFunc || cc.BLEND_SRC;
+            this._blendFunc.dst = dst || cc.BLEND_DST;
+        }
         this._applyBlendFunc();
     },
 
@@ -411,25 +417,33 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
     },
 
     // overrides
-    setContentSize : function(size){
-        if (cc.sizeEqualToSize(this._contentSize,size))
-        {
+    setContentSize : function(width, height){
+        if (height === undefined) {
+            height = width.height;
+            width = width.width;
+        }
+        if (width === this._contentSize.width && height === this._contentSize.height) {
             return;
         }
-        _ccsg.Node.prototype.setContentSize.call(this, size);
-        this._preferredSize = size;
+
+        _ccsg.Node.prototype.setContentSize.call(this, width, height);
+        this._preferredSize.width = width;
+        this._preferredSize.height = height;
         this._quadsDirty = true;
         this._adjustScale9ImagePosition();
     },
 
-    setAnchorPoint : function(anchorPoint){
-        _ccsg.Node.prototype.setAnchorPoint.call(this, anchorPoint);
-        if (!this._scale9Enabled)
-        {
-            if (this._scale9Image !== null)
-            {
-                this._nonSliceSpriteAnchor = anchorPoint;
-                this._scale9Image.setAnchorPoint(anchorPoint);
+    setAnchorPoint : function(x, y){
+        if (y === undefined) {
+            y = x.y || 0;
+            x = x.x || 0;
+        }
+        _ccsg.Node.prototype.setAnchorPoint.call(this, x, y);
+        if (!this._scale9Enabled) {
+            if (this._scale9Image !== null) {
+                this._nonSliceSpriteAnchor.x = x;
+                this._nonSliceSpriteAnchor.y = y;
+                this._scale9Image.setAnchorPoint(x, y);
                 this._adjustScale9ImagePosition();
             }
         }

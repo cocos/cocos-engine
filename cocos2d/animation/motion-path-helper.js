@@ -163,7 +163,7 @@ Bezier.prototype.getUtoTmapping = function ( u, distance ) {
 
     //console.log('b' , i, low, high, Date.now()- time);
 
-    if ( arcLengths[ i ] == targetArcLength ) {
+    if ( arcLengths[ i ] === targetArcLength ) {
 
         var t = i / ( il - 1 );
         return t;
@@ -215,6 +215,10 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
     }
 
     var values = data.values;
+
+    if (motionPaths.length === 0 || values.length === 0) {
+        return;
+    }
 
     values = values.map(function (value) {
         return v2(value[0], value[1]);
@@ -323,5 +327,7 @@ if (CC_TEST) {
 }
 
 module.exports = {
-    sampleMotionPaths: sampleMotionPaths
+    sampleMotionPaths: sampleMotionPaths,
+    Curve: Curve,
+    Bezier: Bezier
 };

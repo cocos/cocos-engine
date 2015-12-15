@@ -26,7 +26,7 @@ var AnimationAnimator = require('../../animation/animation-animator');
 var AnimationClip = require('../../animation/animation-clip');
 
 function equalClips (clip1, clip2) {
-    if (clip1 !== clip2) {
+    if (clip1 === clip2) {
         return true;
     }
 
