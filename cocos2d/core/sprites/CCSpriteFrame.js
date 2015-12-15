@@ -502,7 +502,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     // SERIALIZATION
 
-    _serialize:  function () {
+    _serialize:  function (exporting) {
         if (CC_EDITOR) {
             var rect = this._rect;
             var offset = this._offset;
@@ -525,7 +525,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             return {
                 name: this._name,
                 texture: uuid,
-                atlas: this._atlasUuid,
+                atlas: exporting ? this._atlasUuid : undefined,  // strip from json if exporting
                 rect: [rect.x, rect.y, rect.width, rect.height],
                 offset: [offset.x, offset.y],
                 originalSize: [size.width, size.height],
