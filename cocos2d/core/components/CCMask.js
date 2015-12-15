@@ -57,16 +57,14 @@ var Mask = cc.Class({
         var oldNode = this.node._sgNode;
         this._clippingStencil.setContentSize(this.node._contentSize);
         this._clippingStencil.setAnchorPoint(this.node._anchorPoint);
-        this._rebuildSceneGraph(this._clippingNode,oldNode);
-        this.node._sgNode = this._clippingNode;
+        this.node.replaceSgNode(this._clippingNode);
         this.node.on('size-changed',this._onContentResize, this);
     },
 
     onDisable: function () {
         var oldNode = this.node._sgNode;
         var newNode = new _ccsg.Node();
-        this._rebuildSceneGraph(newNode, oldNode);
-        this.node._sgNode = newNode;
+        this.node.replaceSgNode(newNode);
         this.node.off('size-changed', this._onContentResize, this);
     },
     
