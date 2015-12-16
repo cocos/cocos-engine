@@ -116,7 +116,7 @@ cc.pCross = function (v1, v2) {
 };
 
 /**
- * Calculates perpendicular of v, rotated 90 degrees counter-clockwise -- cross(v, perp(v)) >= 0
+ * Calculates perpendicular of v, rotated 90 degrees counter-clockwise -- cross(v, perp(v)) greater than 0
  * @method pPerp
  * @param {Vec2} point
  * @return {Vec2}
@@ -126,7 +126,7 @@ cc.pPerp = function (point) {
 };
 
 /**
- * Calculates perpendicular of v, rotated 90 degrees clockwise -- cross(v, rperp(v)) <= 0
+ * Calculates perpendicular of v, rotated 90 degrees clockwise -- cross(v, rperp(v)) smaller than 0
  * @method pRPerp
  * @param {Vec2} point
  * @return Vec2}

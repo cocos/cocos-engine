@@ -124,7 +124,7 @@ function rebundle_test(bundler, suffix) {
 function createBundler(entryFiles) {
     // https://github.com/substack/node-browserify#methods
     var options = {
-        debug: false, //temporarily disable due to an asar packing bug
+        debug: true, //temporarily disable due to an asar packing bug
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
         bundleExternal: false    // dont bundle external modules
         //standalone: 'engine-framework',
