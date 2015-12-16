@@ -34,7 +34,7 @@ var SpriteRenderer = cc.Class({
     extends: require('./CCComponentInSG'),
 
     editor: CC_EDITOR && {
-        menu: 'Graphics/Sprite',
+        menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         inspector: 'app://editor/page/inspector/sprite.html'
     },
 

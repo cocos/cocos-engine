@@ -424,7 +424,7 @@ function define (className, baseClasses, mixins, constructor, options) {
             if (uuid) {
                 JS._setClassId(uuid, cls);
                 if (CC_EDITOR) {
-                    cc.Component._addMenuItem(cls, 'Scripts/' + className, -1);
+                    cc.Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
                     cls.prototype.__scriptUuid = Editor.decompressUuid(uuid);
                 }
             }

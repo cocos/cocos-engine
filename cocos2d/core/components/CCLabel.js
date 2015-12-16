@@ -36,7 +36,7 @@ var Label = cc.Class({
     extends: cc._ComponentInSG,
 
     editor: CC_EDITOR && {
-        menu: 'Graphics/Label'
+        menu: 'i18n:MAIN_MENU.component.renderers/Label'
     },
 
     properties: {
