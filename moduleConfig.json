@@ -178,10 +178,10 @@
 
             "cocos2d/particle/CCPNGReader.js",
             "cocos2d/particle/CCTIFFReader.js",
-            "cocos2d/particle/CCParticleSystem.js",
-            "cocos2d/particle/CCParticleSystemCanvasRenderCmd.js",
-            "cocos2d/particle/CCParticleSystemWebGLRenderCmd.js",
-            "cocos2d/particle/CCParticleExamples.js",
+            "cocos2d/particle/CCSGParticleSystem.js",
+            "cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js",
+            "cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js",
+            "cocos2d/particle/CCSGParticleExamples.js",
             "cocos2d/particle/CCParticleBatchNode.js",
             "cocos2d/particle/CCParticleBatchNodeCanvasRenderCmd.js",
             "cocos2d/particle/CCParticleBatchNodeWebGLRenderCmd.js"
