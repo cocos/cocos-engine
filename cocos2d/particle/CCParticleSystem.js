@@ -25,7 +25,7 @@
 /**
  * Enum for emitter modes
  * @enum EmitterMode
- * @namespace EParticleSystem
+ * @namespace ParticleSystem
  */
 var EmitterMode = cc.Enum({
     /**
@@ -41,7 +41,7 @@ var EmitterMode = cc.Enum({
 /**
  * Enum for particles movement type
  * @enum PositionType
- * @namespace EParticleSystem
+ * @namespace ParticleSystem
  */
 var PositionType = cc.Enum({
     /**
@@ -226,7 +226,7 @@ var properties = {
 };
 
 /**
- * @class EParticleSystem
+ * @class ParticleSystem
  */
 var CustomProps = (function () {
     var DefaultValues = {
@@ -237,7 +237,7 @@ var CustomProps = (function () {
         totalParticles: 150,
         /**
          * @property {Number} duration - How many seconds the emitter wil run. -1 means 'forever'
-         * @default EParticleSystem.DURATION_INFINITY
+         * @default ParticleSystem.DURATION_INFINITY
          */
         duration: -1,
         /**
@@ -342,14 +342,14 @@ var CustomProps = (function () {
 
         /**
          * Particles movement type.
-         * @property {EParticleSystem.PositionType} positionType
-         * @default EParticleSystem.PositionType.FREE
+         * @property {ParticleSystem.PositionType} positionType
+         * @default ParticleSystem.PositionType.FREE
          */
         positionType: PositionType.FREE,
         /**
          * Particles emitter modes.
-         * @property {EParticleSystem.EmitterMode} emitterMode
-         * @default EParticleSystem.EmitterMode.GRAVITY
+         * @property {ParticleSystem.EmitterMode} emitterMode
+         * @default ParticleSystem.EmitterMode.GRAVITY
          */
         emitterMode: EmitterMode.GRAVITY,
 
@@ -527,7 +527,7 @@ properties.emitterMode.type = EmitterMode;
  *     - radius direction (Radius mode) (Particle Designer supports outwards to inwards direction only) <br/>
  *     It is possible to customize any of the above mentioned properties in runtime. Example:   <br/>
  * </p>
- * @class EParticleSystem
+ * @class ParticleSystem
  * @extends cc._ComponentInSG
  */
 var ParticleSystem = cc.Class({
@@ -827,4 +827,4 @@ var ParticleSystem = cc.Class({
     }
 });
 
-cc.EParticleSystem = module.exports = ParticleSystem;
+cc.ParticleSystem = module.exports = ParticleSystem;
