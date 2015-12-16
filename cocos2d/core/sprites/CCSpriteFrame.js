@@ -581,7 +581,7 @@ proto.copy = proto.clone;
  *    Create a cc.SpriteFrame with a texture filename, rect, rotated, offset and originalSize in pixels.<br/>
  *    The originalSize is the size in pixels of the frame before being trimmed.
  * </p>
- * since v3.0, please use new constructor {{#crossLink "SpriteFrame/SpriteFrame:method"}}{{/crossLink}} instead.
+ * since v3.0, please use new constructor {{#crossLink "SpriteFrame/SpriteFrame:method"}}SpriteFrame(){{/crossLink}} instead.
  * @method cc.SpriteFrame.create
  * @param {String|cc.Texture2D} filename
  * @param {cc.Rect} rect if parameters' length equal 2, rect in points, else rect in pixels
