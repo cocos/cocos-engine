@@ -56,9 +56,9 @@ cc.LABEL_AUTOMATIC_WIDTH = -1;
  * - All inner characters are using an anchorPoint of (0.5, 0.5) and it is not recommend to change it
  * because it might affect the rendering</p>
  *
- * <p>cc.LabelBMFont implements the protocol cc.LabelProtocol, like cc.Label and cc.LabelAtlas.<br/>
- * cc.LabelBMFont has the flexibility of cc.Label, the speed of cc.LabelAtlas and all the features of cc.Sprite.<br/>
- * If in doubt, use cc.LabelBMFont instead of cc.LabelAtlas / cc.Label.</p>
+ * <p>cc.LabelBMFont implements the protocol cc.LabelProtocol, like _ccsg.Label and cc.LabelAtlas.<br/>
+ * cc.LabelBMFont has the flexibility of _ccsg.Label, the speed of cc.LabelAtlas and all the features of cc.Sprite.<br/>
+ * If in doubt, use cc.LabelBMFont instead of cc.LabelAtlas / _ccsg.Label.</p>
  *
  * <p>Supported editors:<br/>
  * http://glyphdesigner.71squared.com/ (Commercial, Mac OS X)<br/>

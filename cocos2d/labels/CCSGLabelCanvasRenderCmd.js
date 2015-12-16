@@ -30,10 +30,10 @@
  http://www.angelcode.com/products/bmfont/ (Free, Windows only)
  ****************************************************************************/
 (function() {
-    cc.Label.TTFLabelBaker = function() {
+    _ccsg.Label.TTFLabelBaker = function() {
 
     };
-    var proto = cc.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
+    var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
     proto._getLineHeight = function() {
         //todo refine it
         var nodeSpacingY = this._node.getLineHeight();
@@ -139,7 +139,7 @@
             paragraphLength.push(textMetric.width);
         }
 
-        if (cc.Label.Overflow.CLAMP == node._overFlow) {
+        if (_ccsg.Label.Overflow.CLAMP == node._overFlow) {
             if (node._isWrapText) {
                 this._splitedStrings = [];
                 for (var i = 0; i < paragraphedStrings.length; ++i) {
@@ -148,7 +148,7 @@
             } else {
                 this._splitedStrings = paragraphedStrings;
             }
-        } else if (cc.Label.Overflow.RESIZE == node._overFlow) {
+        } else if (_ccsg.Label.Overflow.RESIZE == node._overFlow) {
             //todo fix it
             if (node._isWrapText) {
                 this._splitedStrings = [];
@@ -251,7 +251,7 @@
     proto._rebuildLabelSkin = function() {
         var node = this._node;
         if (node._labelSkinDirty) {
-            if(node._labelType === cc.Label.Type.TTF){
+            if(node._labelType === _ccsg.Label.Type.TTF){
                 this._bakeLabel();
                 this._prepareQuad();
             }else {
@@ -263,7 +263,7 @@
 })();
 
 (function() {
-    cc.Label.CanvasRenderCmd = function(renderableObject) {
+    _ccsg.Label.CanvasRenderCmd = function(renderableObject) {
         _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
         this._labelTexture = new cc.Texture2D();
@@ -278,17 +278,17 @@
         this._drawFontsize = 0;
     };
 
-    var proto = cc.Label.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-    cc.js.mixin(proto, cc.Label.TTFLabelBaker.prototype);
+    var proto = _ccsg.Label.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+    cc.js.mixin(proto, _ccsg.Label.TTFLabelBaker.prototype);
 
-    proto.constructor = cc.Label.CanvasRenderCmd;
+    proto.constructor = _ccsg.Label.CanvasRenderCmd;
 
     proto.rendering = function(ctx, scaleX, scaleY) {
         this._rebuildLabelSkin();
 
         var node = this._node;
 
-        if (node._labelType === cc.Label.Type.TTF) {
+        if (node._labelType === _ccsg.Label.Type.TTF) {
             var locDisplayOpacity = this._displayedOpacity;
             var alpha = locDisplayOpacity / 255;
             //var locTexture = this._labelTexture;
