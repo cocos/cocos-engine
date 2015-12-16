@@ -393,91 +393,12 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Boolean}
      */
     initWithTexture:function (texture, rect, rotated, offset, originalSize, _uuid) {
-
-        function check(texture) {
-            if (texture && texture.url && texture.isLoaded()) {
-                var _x, _y;
-                if (rotated) {
-                    _x = rect.x + rect.height;
-                    _y = rect.y + rect.width;
-                }
-                else {
-                    _x = rect.x + rect.width;
-                    _y = rect.y + rect.height;
-                }
-                if (_x > texture.getPixelWidth()) {
-                    cc.error(cc._LogInfos.RectWidth, texture.url);
-                }
-                if (_y > texture.getPixelHeight()) {
-                    cc.error(cc._LogInfos.RectHeight, texture.url);
-                }
-            }
-        }
-
-        if (!texture && _uuid) {
-            this._texture = new cc.Texture2D();
-            // deserialize texture from uuid
-            cc.AssetLibrary.queryAssetInfo(_uuid, function (err, url) {
-                if (err) {
-                    cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', _uuid, err);
-                    return;
-                }
-
-                this._textureFilename = url;
-                this._loadingUuid = '';
-
-                var locTexture = new cc.Texture2D();
-                locTexture.url = url;
-                cc.textureCache.cacheImage(url, locTexture);
-                cc.loader.load(url, function (err) {
-                    if (err) {
-                        cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', url, err[0]);
-                        return;
-                    }
-                    var premultiplied = cc.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG && cc.path.extname(url) === '.png';
-
-                    var img = cc.loader.getRes(url);
-                    var loaded = img.width > 0 || img.height > 0;
-                    if (loaded) {
-                        locTexture.handleLoadedTexture(premultiplied);
-                    }
-                    else {
-                        // if not yet loaded, we have to register onLoad
-                        // see https://github.com/fireball-x/fireball/issues/668
-                        function loadCallback () {
-                            img.removeEventListener('load', loadCallback, false);
-                            img.removeEventListener('error', errorCallback, false);
-
-                            locTexture.handleLoadedTexture(premultiplied);
-                        }
-                        function errorCallback () {
-                            img.removeEventListener('load', loadCallback, false);
-                            img.removeEventListener('error', errorCallback, false);
-                        }
-                        img.addEventListener('load', loadCallback);
-                        img.addEventListener('error', errorCallback);
-                    }
-                });
-                this.setTexture(locTexture);
-
-                if (locTexture.isLoaded()) {
-                    this.emit('load');
-                }
-
-                check(locTexture);
-
-            }.bind(this));
-        }
-        else {
-            if (cc.js.isString(texture)){
-                this._texture = null;
-                this._textureFilename = texture;
-                this._loadingUuid = '';
-            } else if (texture instanceof cc.Texture2D) {
-                this.setTexture(texture);
-            }
-
-            check(this.getTexture());
+        if (cc.js.isString(texture)){
+            this._texture = null;
+            this._textureFilename = texture;
+            this._loadingUuid = '';
+        } else if (texture instanceof cc.Texture2D) {
+            this.setTexture(texture);
         }
 
         if(arguments.length === 2)
@@ -497,7 +418,31 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._originalSizeInPixels.height = originalSize.height;
         cc._sizePixelsToPointsOut(originalSize, this._originalSize);
         this._rotated = rotated;
+
+        this._checkRect(this.getTexture());
+
         return true;
+    },
+
+    _checkRect: function (texture) {
+        if (texture && texture.url && texture.isLoaded()) {
+            var rect = this._rectInPixels;
+            var maxX = rect.x, maxY = rect.y;
+            if (this._rotated) {
+                maxX += rect.height;
+                maxY += rect.width;
+            }
+            else {
+                maxX += rect.width;
+                maxY += rect.height;
+            }
+            if (maxX > texture.getPixelWidth()) {
+                cc.error(cc._LogInfos.RectWidth, texture.url);
+            }
+            if (maxY > texture.getPixelHeight()) {
+                cc.error(cc._LogInfos.RectHeight, texture.url);
+            }
+        }
     },
 
     // SERIALIZATION
@@ -537,14 +482,13 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     _deserialize: function (data) {
         var rect = data.rect;
-        rect = new cc.Rect(rect[0], rect[1], rect[2], rect[3]);
-        var rectInP = cc.rectPointsToPixels(rect);
-        var offset = new cc.Vec2(data.offset[0], data.offset[1]);
-        var offsetInP = cc.pointPointsToPixels(offset);
-        var size = new cc.Size(data.originalSize[0], data.originalSize[1]);
-        var sizeInP = cc.sizePointsToPixels(size);
-        var rotated = data.rotated === 1;
-        // init properties not included in this.initWithTexture()
+        this._rect = new cc.Rect(rect[0], rect[1], rect[2], rect[3]);
+        this._rectInPixels = cc.rectPointsToPixels(this._rect);
+        this._offset = new cc.Vec2(data.offset[0], data.offset[1]);
+        this._offsetInPixels = cc.pointPointsToPixels(this._offset);
+        this._originalSize = new cc.Size(data.originalSize[0], data.originalSize[1]);
+        this._originalSizeInPixels = cc.sizePointsToPixels(this._originalSize);
+        this._rotated = data.rotated === 1;
         this._name = data.name;
         var capInsets = data.capInsets;
         if (capInsets) {
@@ -554,9 +498,64 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this.insetBottom = capInsets[3];
         }
         this._atlasUuid = data.atlas;
-        var uuid = data.texture;
-        this._loadingUuid = uuid;
-        this.initWithTexture(null, rectInP, rotated, offsetInP, sizeInP, uuid);
+        var textureUuid = data.texture;
+
+        // pre-alloc a texture to help loading process
+        this._texture = new cc.Texture2D();
+
+        var self = this;
+        this._loadingUuid = textureUuid;
+        cc.AssetLibrary.queryAssetInfo(textureUuid, function (err, url) {
+            if (err) {
+                cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', textureUuid, err);
+                return;
+            }
+
+            self._textureFilename = url;
+            self._loadingUuid = '';
+
+            var locTexture = self._texture;
+            locTexture.url = url;
+            cc.textureCache.cacheImage(url, locTexture);
+            cc.loader.load(url, function (err) {
+                if (err) {
+                    cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', url, err[0]);
+                    return;
+                }
+                var premultiplied = cc.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG && cc.path.extname(url) === '.png';
+
+                var img = cc.loader.getRes(url);
+                var loaded = img.width > 0 || img.height > 0;
+                if (loaded) {
+                    locTexture.handleLoadedTexture(premultiplied);
+                }
+                else {
+                    // if not yet loaded, we have to register onLoad
+                    // see https://github.com/fireball-x/fireball/issues/668
+                    function loadCallback () {
+                        img.removeEventListener('load', loadCallback, false);
+                        img.removeEventListener('error', errorCallback, false);
+
+                        locTexture.handleLoadedTexture(premultiplied);
+                    }
+                    function errorCallback () {
+                        img.removeEventListener('load', loadCallback, false);
+                        img.removeEventListener('error', errorCallback, false);
+                    }
+                    img.addEventListener('load', loadCallback);
+                    img.addEventListener('error', errorCallback);
+                }
+            });
+
+            // did init texture
+            self._texture = null;
+            self.setTexture(locTexture);
+            //
+            if (locTexture.isLoaded()) {
+                self.emit('load');
+            }
+            self._checkRect(locTexture);
+        });
     },
 });
 
