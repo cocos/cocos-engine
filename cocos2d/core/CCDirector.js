@@ -551,6 +551,45 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
     },
 
+    // load raw assets
+    _loadRawAssets: function (assetObjects, rawAssetUrls, done) {
+        var urls = assetObjects.map(function (asset) {
+            return asset.url;
+        });
+
+        urls = urls.concat(rawAssetUrls);
+
+        //var info = 'preload ' + urls;
+        //console.time(info);
+
+        // currently cocos jsb 3.3 not support preload too much assets
+        // so we divide assets to 30 a group
+        var index = 0;
+        var count = 30;
+        var total = urls.length;
+
+        function preload () {
+            if (index + count > total) {
+                // the last time
+                count = total - index;
+            }
+
+            var assets = urls.slice(index, count);
+
+            index += count;
+
+            if (index < total) {
+                cc.loader.load(assets, preload);
+            }
+            else {
+                //console.timeEnd(info);
+                done();
+            }
+        }
+
+        preload();
+    },
+
     /**
      * Loads the scene by its uuid.
      * @method _loadSceneByUuid
@@ -561,7 +600,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     _loadSceneByUuid: function (uuid, onLaunched, onUnloaded) {
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
-        cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
+        var handle = cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
+            var self = cc.director;
             var scene;
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -575,7 +615,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 scene = sceneAsset.scene;
                 if (scene instanceof cc.Scene) {
                     scene._id = uuid;
-                    cc.director.runScene(scene, onUnloaded);
+                    self._loadRawAssets(handle.assetsNeedPostLoad,
+                                        Object.keys(handle.urlsNeedPreload),
+                                        function () {
+                                            self.runScene(scene, onUnloaded);
+                                        });
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
@@ -583,11 +627,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = null;
                 }
             }
-            cc.director._loadingScene = '';
+            self._loadingScene = '';
             if (onLaunched) {
                 onLaunched(error, scene);
             }
-        });
+        }, { recordAssets: true });
     },
 
     /**
