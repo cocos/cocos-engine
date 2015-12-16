@@ -92,20 +92,20 @@ var AssetLibrary = {
      * @param {Boolean} options.readMainCache - Default is true. If false, the asset and all its depends assets will reload and create new instances from library.
      * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
      * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
+     * @param {Boolean} options.recordAssets - Default is false. If true, tracking statistics associated with the assets which needs to preload（All the assets contains "urls" but dont have "_rawFiles"）
      * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want
      * @private
      */
     loadAsset: function (uuid, callback, options) {
         var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
         var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
-        var existingAsset, deserializeInfo;
-        if (options) {
-            existingAsset = options.existingAsset;
-            deserializeInfo = options.deserializeInfo;
-        }
 
-        var handle = new LoadingHandle(readMainCache, writeMainCache, null, deserializeInfo);
-        this._loadAssetByUuid(uuid, callback, handle, existingAsset);
+        var handle = new LoadingHandle(readMainCache,
+                                       writeMainCache,
+                                       options && options.recordAssets,
+                                       options && options.deserializeInfo);
+        this._loadAssetByUuid(uuid, callback, handle, options && options.existingAsset);
+        return handle;
     },
 
     _LoadingHandle: LoadingHandle,
