@@ -26,7 +26,7 @@
     /**
      * ParticleSystem's WebGL render command
      */
-    cc.ParticleSystem.WebGLRenderCmd = function(renderable){
+    _ccsg.ParticleSystem.WebGLRenderCmd = function(renderable){
         _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
 
@@ -35,8 +35,8 @@
         this._indices = [];
         this._quadsArrayBuffer = null;
     };
-    var proto = cc.ParticleSystem.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-    proto.constructor = cc.ParticleSystem.WebGLRenderCmd;
+    var proto = _ccsg.ParticleSystem.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+    proto.constructor = _ccsg.ParticleSystem.WebGLRenderCmd;
 
     proto.getDrawMode = function(){};
     proto.setDrawMode = function(drawMode){};
@@ -342,7 +342,7 @@
         var node  = this._node;
         //cc.assert((!this._quads && !this._indices), "Memory already allocated");
         if(node._batchNode){
-            cc.log("cc.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode");
+            cc.log("_ccsg.ParticleSystem._allocMemory(): Memory should not be allocated when not using batchNode");
             return false;
         }
 

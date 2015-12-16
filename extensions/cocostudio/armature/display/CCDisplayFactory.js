@@ -194,7 +194,7 @@ ccs.displayFactory = {
 
     createParticleDisplay: function (bone, decoDisplay) {
         var displayData = decoDisplay.getDisplayData();
-        var system = new cc.ParticleSystem(displayData.displayName);
+        var system = new _ccsg.ParticleSystem(displayData.displayName);
 
         system.removeFromParent();
         system.cleanup();

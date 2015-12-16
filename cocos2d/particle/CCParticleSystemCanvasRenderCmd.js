@@ -26,18 +26,18 @@
  * ParticleSystem's canvas render command
  */
 (function(){
-    cc.ParticleSystem.CanvasRenderCmd = function(renderable){
+    _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
         _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
 
-        this._drawMode = cc.ParticleSystem.TEXTURE_MODE;
-        this._shapeType = cc.ParticleSystem.BALL_SHAPE;
+        this._drawMode = _ccsg.ParticleSystem.TEXTURE_MODE;
+        this._shapeType = _ccsg.ParticleSystem.BALL_SHAPE;
 
         this._pointRect = cc.rect(0, 0, 0, 0);
         this._tintCache = document.createElement("canvas");
     };
-    var proto = cc.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-    proto.constructor = cc.ParticleSystem.CanvasRenderCmd;
+    var proto = _ccsg.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+    proto.constructor = _ccsg.ParticleSystem.CanvasRenderCmd;
 
     proto.getDrawMode = function(){
         return this._drawMode;
@@ -83,7 +83,7 @@
 
         var i, particle, lpx, alpha;
         var particleCount = this._node.particleCount, particles = this._node._particles;
-        if (node.drawMode !== cc.ParticleSystem.SHAPE_MODE && node._texture) {
+        if (node.drawMode !== _ccsg.ParticleSystem.SHAPE_MODE && node._texture) {
             // Delay drawing until the texture is fully loaded by the browser
             if (!node._texture._textureLoaded) {
                 wrapper.restore();
@@ -130,7 +130,7 @@
 
                 context.save();
                 context.translate(0 | particle.drawPos.x, -(0 | particle.drawPos.y));
-                if (node.shapeType === cc.ParticleSystem.STAR_SHAPE) {
+                if (node.shapeType === _ccsg.ParticleSystem.STAR_SHAPE) {
                     if (particle.rotation)
                         context.rotate(cc.degreesToRadians(particle.rotation));
                     drawTool.drawStar(wrapper, lpx, particle.color);

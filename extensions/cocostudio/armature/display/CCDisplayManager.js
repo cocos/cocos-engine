@@ -117,7 +117,7 @@ ccs.DisplayManager = ccs.Class.extend(/** @lends ccs.DisplayManager */{
                 if (!find)
                     display.setSkinData(new ccs.BaseData());
             }
-        } else if (display instanceof cc.ParticleSystem){
+        } else if (display instanceof _ccsg.ParticleSystem){
             displayData = new ccs.ParticleDisplayData();
             display.removeFromParent();
             display.cleanup();
@@ -170,7 +170,7 @@ ccs.DisplayManager = ccs.Class.extend(/** @lends ccs.DisplayManager */{
             }
                 
         }
-        else if (display instanceof cc.ParticleSystem){
+        else if (display instanceof _ccsg.ParticleSystem){
             displayData = new ccs.ParticleDisplayData();
             displayData.displayName = display._plistFile;
         }
@@ -286,11 +286,11 @@ ccs.DisplayManager = ccs.Class.extend(/** @lends ccs.DisplayManager */{
             if (displayRenderNode instanceof ccs.Armature) {
                 this._bone.setChildArmature(displayRenderNode);
                 displayRenderNode.setParentBone(this._bone);
-            } else if (displayRenderNode instanceof cc.ParticleSystem) {
+            } else if (displayRenderNode instanceof _ccsg.ParticleSystem) {
                 if (displayRenderNode instanceof ccs.Armature) {
                     locBone.setChildArmature(displayRenderNode);
                     displayRenderNode.setParentBone(locBone);
-                } else if (displayRenderNode instanceof cc.ParticleSystem)
+                } else if (displayRenderNode instanceof _ccsg.ParticleSystem)
                     displayRenderNode.resetSystem();
             }
 
