@@ -429,7 +429,7 @@ var PROPERTY_ROTATEPERSECOND = "rotatePerSecond";
 
 cc.ParticleSystemLoader = cc.NodeLoader.extend({
     _createCCNode:function (parent, ccbReader) {
-        return new cc.ParticleSystem();
+        return new _ccsg.ParticleSystem();
     },
 
     onHandlePropTypeIntegerLabeled:function (node, parent, propertyName, integerLabeled, ccbReader) {

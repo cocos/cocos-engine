@@ -27,19 +27,19 @@
 /**
  * A fire particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleFire();
  */
-cc.ParticleFire = cc.ParticleSystem.extend(/** @lends cc.ParticleFire# */{
+cc.ParticleFire = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleFire# */{
     /**
      * <p>The cc.ParticleFire's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.ParticleFire()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 300 : 150);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 300 : 150);
     },
 
     /**
@@ -48,12 +48,12 @@ cc.ParticleFire = cc.ParticleSystem.extend(/** @lends cc.ParticleFire# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
 
             // Gravity Mode: gravity
@@ -84,7 +84,7 @@ cc.ParticleFire = cc.ParticleSystem.extend(/** @lends cc.ParticleFire# */{
             // size, in pixels
             this.setStartSize(54.0);
             this.setStartSizeVar(10.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per frame
             this.setEmissionRate(this.getTotalParticles() / this.getLife());
@@ -115,19 +115,19 @@ cc.ParticleFire.create = function () {
 /**
  * A fireworks particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleFireworks();
  */
-cc.ParticleFireworks = cc.ParticleSystem.extend(/** @lends cc.ParticleFireworks# */{
+cc.ParticleFireworks = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleFireworks# */{
     /**
      * <p>The cc.ParticleFireworks's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.ParticleFireworks()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 1500 : 150);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 1500 : 150);
     },
 
     /**
@@ -136,12 +136,12 @@ cc.ParticleFireworks = cc.ParticleSystem.extend(/** @lends cc.ParticleFireworks#
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, -90));
@@ -178,7 +178,7 @@ cc.ParticleFireworks = cc.ParticleSystem.extend(/** @lends cc.ParticleFireworks#
             // size, in pixels
             this.setStartSize(8.0);
             this.setStartSizeVar(2.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // additive
             this.setBlendAdditive(false);
@@ -200,19 +200,19 @@ cc.ParticleFireworks.create = function () {
 /**
  * A sun particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleSun();
  */
-cc.ParticleSun = cc.ParticleSystem.extend(/** @lends cc.ParticleSun# */{
+cc.ParticleSun = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleSun# */{
     /**
      * <p>The cc.ParticleSun's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.ParticleSun()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 350 : 150);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 350 : 150);
     },
 
     /**
@@ -221,15 +221,15 @@ cc.ParticleSun = cc.ParticleSystem.extend(/** @lends cc.ParticleSun# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // additive
             this.setBlendAdditive(true);
 
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, 0));
@@ -258,7 +258,7 @@ cc.ParticleSun = cc.ParticleSystem.extend(/** @lends cc.ParticleSun# */{
             // size, in pixels
             this.setStartSize(30.0);
             this.setStartSizeVar(10.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per seconds
             this.setEmissionRate(this.getTotalParticles() / this.getLife());
@@ -288,19 +288,19 @@ cc.ParticleSun.create = function () {
 /**
  * A galaxy particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleGalaxy();
  */
-cc.ParticleGalaxy = cc.ParticleSystem.extend(/** @lends cc.ParticleGalaxy# */{
+cc.ParticleGalaxy = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleGalaxy# */{
     /**
      * <p>The cc.ParticleGalaxy's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.ParticleGalaxy()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 200 : 100);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 200 : 100);
     },
 
     /**
@@ -309,12 +309,12 @@ cc.ParticleGalaxy = cc.ParticleSystem.extend(/** @lends cc.ParticleGalaxy# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, 0));
@@ -347,7 +347,7 @@ cc.ParticleGalaxy = cc.ParticleSystem.extend(/** @lends cc.ParticleGalaxy# */{
             // size, in pixels
             this.setStartSize(37.0);
             this.setStartSizeVar(10.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per second
             this.setEmissionRate(this.getTotalParticles() / this.getLife());
@@ -377,19 +377,19 @@ cc.ParticleGalaxy.create = function () {
 /**
  * A flower particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleFlower();
  */
-cc.ParticleFlower = cc.ParticleSystem.extend(/** @lends cc.ParticleFlower# */{
+cc.ParticleFlower = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleFlower# */{
     /**
      * <p>The cc.ParticleFlower's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.ParticleFlower()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor : function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 250 : 100);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 250 : 100);
     },
 
     /**
@@ -398,12 +398,12 @@ cc.ParticleFlower = cc.ParticleSystem.extend(/** @lends cc.ParticleFlower# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, 0));
@@ -436,7 +436,7 @@ cc.ParticleFlower = cc.ParticleSystem.extend(/** @lends cc.ParticleFlower# */{
             // size, in pixels
             this.setStartSize(30.0);
             this.setStartSizeVar(10.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per second
             this.setEmissionRate(this.getTotalParticles() / this.getLife());
@@ -468,19 +468,19 @@ cc.ParticleFlower.create = function () {
 /**
  * A meteor particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleMeteor();
  */
-cc.ParticleMeteor = cc.ParticleSystem.extend(/** @lends cc.ParticleMeteor# */{
+cc.ParticleMeteor = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleMeteor# */{
     /**
      * <p>The cc.ParticleMeteor's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.ParticleMeteor()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 150 : 100);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 150 : 100);
     },
 
     /**
@@ -489,12 +489,12 @@ cc.ParticleMeteor = cc.ParticleSystem.extend(/** @lends cc.ParticleMeteor# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(-200, 200));
@@ -527,7 +527,7 @@ cc.ParticleMeteor = cc.ParticleSystem.extend(/** @lends cc.ParticleMeteor# */{
             // size, in pixels
             this.setStartSize(60.0);
             this.setStartSizeVar(10.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per second
             this.setEmissionRate(this.getTotalParticles() / this.getLife());
@@ -558,12 +558,12 @@ cc.ParticleMeteor.create = function () {
 /**
  * A spiral particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleSpiral();
  */
-cc.ParticleSpiral = cc.ParticleSystem.extend(/** @lends cc.ParticleSpiral# */{
+cc.ParticleSpiral = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleSpiral# */{
 
     /**
      * <p>The cc.ParticleSpiral's constructor. <br/>
@@ -571,7 +571,7 @@ cc.ParticleSpiral = cc.ParticleSystem.extend(/** @lends cc.ParticleSpiral# */{
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function() {
-        cc.ParticleSystem.prototype.ctor.call(this,(cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 500 : 100);
+        _ccsg.ParticleSystem.prototype.ctor.call(this,(cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 500 : 100);
     },
 
     /**
@@ -580,12 +580,12 @@ cc.ParticleSpiral = cc.ParticleSystem.extend(/** @lends cc.ParticleSpiral# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, 0));
@@ -618,7 +618,7 @@ cc.ParticleSpiral = cc.ParticleSystem.extend(/** @lends cc.ParticleSpiral# */{
             // size, in pixels
             this.setStartSize(20.0);
             this.setStartSizeVar(0.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per second
             this.setEmissionRate(this.getTotalParticles() / this.getLife());
@@ -649,19 +649,19 @@ cc.ParticleSpiral.create = function () {
 /**
  * An explosion particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleExplosion();
  */
-cc.ParticleExplosion = cc.ParticleSystem.extend(/** @lends cc.ParticleExplosion# */{
+cc.ParticleExplosion = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleExplosion# */{
     /**
      * <p>The cc.ParticleExplosion's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.ParticleExplosion()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 700 : 300);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 700 : 300);
     },
 
     /**
@@ -670,11 +670,11 @@ cc.ParticleExplosion = cc.ParticleSystem.extend(/** @lends cc.ParticleExplosion#
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
             this.setDuration(0.1);
 
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, 0));
@@ -707,7 +707,7 @@ cc.ParticleExplosion = cc.ParticleSystem.extend(/** @lends cc.ParticleExplosion#
             // size, in pixels
             this.setStartSize(15.0);
             this.setStartSizeVar(10.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per second
             this.setEmissionRate(this.getTotalParticles() / this.getDuration());
@@ -738,12 +738,12 @@ cc.ParticleExplosion.create = function () {
 /**
  * A smoke particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleSmoke();
  */
-cc.ParticleSmoke = cc.ParticleSystem.extend(/** @lends cc.ParticleSmoke# */{
+cc.ParticleSmoke = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleSmoke# */{
 
     /**
      * <p>The cc.ParticleSmoke's constructor. <br/>
@@ -751,7 +751,7 @@ cc.ParticleSmoke = cc.ParticleSystem.extend(/** @lends cc.ParticleSmoke# */{
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 200 : 100);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 200 : 100);
     },
 
     /**
@@ -760,12 +760,12 @@ cc.ParticleSmoke = cc.ParticleSystem.extend(/** @lends cc.ParticleSmoke# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // Emitter mode: Gravity Mode
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, 0));
@@ -794,7 +794,7 @@ cc.ParticleSmoke = cc.ParticleSystem.extend(/** @lends cc.ParticleSmoke# */{
             // size, in pixels
             this.setStartSize(60.0);
             this.setStartSizeVar(10.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per frame
             this.setEmissionRate(this.getTotalParticles() / this.getLife());
@@ -825,12 +825,12 @@ cc.ParticleSmoke.create = function () {
 /**
  * A snow particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleSnow();
  */
-cc.ParticleSnow = cc.ParticleSystem.extend(/** @lends cc.ParticleSnow# */{
+cc.ParticleSnow = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleSnow# */{
 
     /**
      * <p>The cc.ParticleSnow's constructor. <br/>
@@ -838,7 +838,7 @@ cc.ParticleSnow = cc.ParticleSystem.extend(/** @lends cc.ParticleSnow# */{
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 700 : 250);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 700 : 250);
     },
 
     /**
@@ -847,12 +847,12 @@ cc.ParticleSnow = cc.ParticleSystem.extend(/** @lends cc.ParticleSnow# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
             // set gravity mode.
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(0, -1));
@@ -885,7 +885,7 @@ cc.ParticleSnow = cc.ParticleSystem.extend(/** @lends cc.ParticleSnow# */{
             // size, in pixels
             this.setStartSize(10.0);
             this.setStartSizeVar(5.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per second
             this.setEmissionRate(10);
@@ -917,12 +917,12 @@ cc.ParticleSnow.create = function () {
 /**
  * A rain particle system
  * @class
- * @extends cc.ParticleSystem
+ * @extends _ccsg.ParticleSystem
  *
  * @example
  * var emitter = new cc.ParticleRain();
  */
-cc.ParticleRain = cc.ParticleSystem.extend(/** @lends cc.ParticleRain# */{
+cc.ParticleRain = _ccsg.ParticleSystem.extend(/** @lends cc.ParticleRain# */{
 
     /**
      * <p>The cc.ParticleRain's constructor. <br/>
@@ -930,7 +930,7 @@ cc.ParticleRain = cc.ParticleSystem.extend(/** @lends cc.ParticleRain# */{
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor:function () {
-        cc.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 1000 : 300);
+        _ccsg.ParticleSystem.prototype.ctor.call(this, (cc._renderType === cc.game.RENDER_TYPE_WEBGL) ? 1000 : 300);
     },
 
     /**
@@ -939,11 +939,11 @@ cc.ParticleRain = cc.ParticleSystem.extend(/** @lends cc.ParticleRain# */{
      * @return {Boolean}
      */
     initWithTotalParticles:function (numberOfParticles) {
-        if (cc.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
+        if (_ccsg.ParticleSystem.prototype.initWithTotalParticles.call(this, numberOfParticles)) {
             // duration
-            this.setDuration(cc.ParticleSystem.DURATION_INFINITY);
+            this.setDuration(_ccsg.ParticleSystem.DURATION_INFINITY);
 
-            this.setEmitterMode(cc.ParticleSystem.Mode.GRAVITY);
+            this.setEmitterMode(_ccsg.ParticleSystem.Mode.GRAVITY);
 
             // Gravity Mode: gravity
             this.setGravity(cc.p(10, -10));
@@ -977,7 +977,7 @@ cc.ParticleRain = cc.ParticleSystem.extend(/** @lends cc.ParticleRain# */{
             // size, in pixels
             this.setStartSize(4.0);
             this.setStartSizeVar(2.0);
-            this.setEndSize(cc.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
+            this.setEndSize(_ccsg.ParticleSystem.START_SIZE_EQUAL_TO_END_SIZE);
 
             // emits per second
             this.setEmissionRate(20);

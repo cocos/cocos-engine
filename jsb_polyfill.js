@@ -387,5 +387,6 @@ cc.js.setClassName('cc.SpriteFrame', cc.SpriteFrame);
 // ccsg
 window._ccsg = {
     Node: cc.Node,
-    Scene: cc.Scene
+    Scene: cc.Scene,
+    ParticleSystem: cc.ParticleSystem,
 };

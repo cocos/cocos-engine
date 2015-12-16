@@ -227,8 +227,8 @@ if (CC_DEV) {
 
     deprecateEnum(cc, 'cc.TEXT_ALIGNMENT', 'cc.TextAlignment');
     deprecateEnum(cc, 'cc.VERTICAL_TEXT_ALIGNMENT', 'cc.VerticalTextAlignment');
-    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.TYPE', 'cc.ParticleSystem.Type');
-    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.Mode');
+    deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.TYPE', '_ccsg.ParticleSystem.Type');
+    deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.MODE', '_ccsg.ParticleSystem.Mode');
     deprecateEnum(cc.EParticleSystem, 'cc.EParticleSystem.TYPE', 'cc.EParticleSystem.PositionType');
     deprecateEnum(cc.EParticleSystem, 'cc.EParticleSystem.MODE', 'cc.EParticleSystem.EmitterMode');
     deprecateEnum(ccui.ScrollView, 'ccui.ScrollView.DIR', 'ccui.ScrollView.Dir');

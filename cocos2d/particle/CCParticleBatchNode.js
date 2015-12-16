@@ -45,7 +45,7 @@ cc.PARTICLE_DEFAULT_CAPACITY = 500;
  *    If the cc.ParticleSystems are not added to a cc.ParticleBatchNode then an OpenGL ES draw call will be needed for each one, which is less efficient.</br>
  *
  *    Limitations:<br/>
- *    - At the moment only cc.ParticleSystem is supported<br/>
+ *    - At the moment only ccsg.ParticleSystem is supported<br/>
  *    - All systems need to be drawn with the same parameters, blend function, aliasing, texture<br/>
  *
  *    Most efficient usage<br/>
@@ -53,7 +53,7 @@ cc.PARTICLE_DEFAULT_CAPACITY = 500;
  *    - Initialize all particle systems and add them as child to the batch node<br/>
  * </p>
  * @class
- * @extends cc.ParticleSystem
+ * @extends ccsg.ParticleSystem
  * @param {String|cc.Texture2D} fileImage
  * @param {Number} capacity
  *
@@ -149,20 +149,20 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     /**
      * Add a child into the cc.ParticleBatchNode
-     * @param {cc.ParticleSystem} child
+     * @param {ccsg.ParticleSystem} child
      * @param {Number} zOrder
      * @param {Number} tag
      */
     addChild:function (child, zOrder, tag) {
         if(!child)
             throw new Error("cc.ParticleBatchNode.addChild() : child should be non-null");
-        if(!(child instanceof cc.ParticleSystem))
-            throw new Error("cc.ParticleBatchNode.addChild() : only supports cc.ParticleSystem as children");
+        if(!(child instanceof _ccsg.ParticleSystem))
+            throw new Error("cc.ParticleBatchNode.addChild() : only supports _ccsg.ParticleSystem as children");
         zOrder = (zOrder == null) ? child.zIndex : zOrder;
         tag = (tag == null) ? child.tag : tag;
 
         if(child.getTexture() !== this.textureAtlas.texture)
-            throw new Error("cc.ParticleSystem.addChild() : the child is not using the same texture id");
+            throw new Error("_ccsg.ParticleSystem.addChild() : the child is not using the same texture id");
 
         // If this is the 1st children, then copy blending function
         var childBlendFunc = child.getBlendFunc();
@@ -170,7 +170,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
             this.setBlendFunc(childBlendFunc);
         else{
             if((childBlendFunc.src !== this._blendFunc.src) || (childBlendFunc.dst !== this._blendFunc.dst)){
-                cc.log("cc.ParticleSystem.addChild() : Can't add a ParticleSystem that uses a different blending function");
+                cc.log("_ccsg.ParticleSystem.addChild() : Can't add a ParticleSystem that uses a different blending function");
                 return;
             }
         }
@@ -195,7 +195,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     /**
      * Inserts a child into the cc.ParticleBatchNode
-     * @param {cc.ParticleSystem} pSystem
+     * @param {ccsg.ParticleSystem} pSystem
      * @param {Number} index
      */
     insertChild:function (pSystem, index) {
@@ -219,7 +219,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
     },
 
     /**
-     * @param {cc.ParticleSystem} child
+     * @param {ccsg.ParticleSystem} child
      * @param {Boolean} cleanup
      */
     removeChild:function (child, cleanup) {
@@ -227,8 +227,8 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
         if (child == null)
             return;
 
-        if(!(child instanceof cc.ParticleSystem))
-            throw new Error("cc.ParticleBatchNode.removeChild(): only supports cc.ParticleSystem as children");
+        if(!(child instanceof _ccsg.ParticleSystem))
+            throw new Error("cc.ParticleBatchNode.removeChild(): only supports _ccsg.ParticleSystem as children");
         if(this._children.indexOf(child) === -1){
             cc.log("cc.ParticleBatchNode.removeChild(): doesn't contain the sprite. Can't remove it");
             return;
@@ -251,13 +251,13 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     /**
      * Reorder will be done in this function, no "lazy" reorder to particles
-     * @param {cc.ParticleSystem} child
+     * @param {ccsg.ParticleSystem} child
      * @param {Number} zOrder
      */
     reorderChild:function (child, zOrder) {
         if(!child)
             throw new Error("cc.ParticleBatchNode.reorderChild(): child should be non-null");
-        if(!(child instanceof cc.ParticleSystem))
+        if(!(child instanceof _ccsg.ParticleSystem))
             throw new Error("cc.ParticleBatchNode.reorderChild(): only supports cc.QuadParticleSystems as children");
         if(this._children.indexOf(child) === -1){
             cc.log("cc.ParticleBatchNode.reorderChild(): Child doesn't belong to batch");
@@ -451,7 +451,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
     //     XXX or possibly using vertexZ for reordering, that would be fastest                                                              <br/>
     //     this helper is almost equivalent to CCNode's addChild, but doesn't make use of the lazy sorting                                  <br/>
     // </p>
-    // @param {cc.ParticleSystem} child
+    // @param {ccsg.ParticleSystem} child
     // @param {Number} z
     // @param {Number} aTag
     // @return {Number}

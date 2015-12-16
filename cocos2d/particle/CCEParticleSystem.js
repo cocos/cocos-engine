@@ -646,7 +646,7 @@ var ParticleSystem = cc.Class({
     // OVERRIDE METHODS
 
     _createSgNode: function () {
-        var sgNode = this._sgNode = new cc.ParticleSystem();
+        var sgNode = this._sgNode = new _ccsg.ParticleSystem();
 
         var loadCustomAfterFile = false;
         if (this._file) {

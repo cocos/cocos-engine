@@ -230,10 +230,10 @@
         loadTexture(json["FileData"], resourcePath, function(path, type){
             if(!cc.loader.getRes(path))
                 cc.log("%s need to be preloaded", path);
-            node = new cc.ParticleSystem(path);
+            node = new _ccsg.ParticleSystem(path);
             self.generalAttributes(node, json);
-            node.setPositionType(cc.ParticleSystem.Type.GROUPED);
-            !cc.sys.isNative && node.setDrawMode(cc.ParticleSystem.TEXTURE_MODE);
+            node.setPositionType(_ccsg.ParticleSystem.Type.GROUPED);
+            !cc.sys.isNative && node.setDrawMode(_ccsg.ParticleSystem.TEXTURE_MODE);
 
             var blendData = json["BlendFunc"];
             if(json["BlendFunc"]){
