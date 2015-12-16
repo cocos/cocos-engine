@@ -19,23 +19,23 @@ var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_
 var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditMode'));
 
 function callOnEnable (self, enable) {
-    //if (CC_EDITOR) {
-    //    if (enable ) {
-    //        if ( !(self._objFlags & IsEditorOnEnabledCalled) ) {
-    //            editorCallback.onComponentEnabled(self);
-    //            self._objFlags |= IsEditorOnEnabledCalled;
-    //        }
-    //    }
-    //    else {
-    //        if (self._objFlags & IsEditorOnEnabledCalled) {
-    //            editorCallback.onComponentDisabled(self);
-    //            self._objFlags &= ~IsEditorOnEnabledCalled;
-    //        }
-    //    }
-    //    if ( !(cc.game.isPlaying || self.constructor._executeInEditMode) ) {
-    //        return;
-    //    }
-    //}
+    if (CC_EDITOR) {
+        //if (enable ) {
+        //    if ( !(self._objFlags & IsEditorOnEnabledCalled) ) {
+        //        editorCallback.onComponentEnabled(self);
+        //        self._objFlags |= IsEditorOnEnabledCalled;
+        //    }
+        //}
+        //else {
+        //    if (self._objFlags & IsEditorOnEnabledCalled) {
+        //        editorCallback.onComponentDisabled(self);
+        //        self._objFlags &= ~IsEditorOnEnabledCalled;
+        //    }
+        //}
+        if ( !(cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
+            return;
+        }
+    }
     var enableCalled = self._objFlags & IsOnEnableCalled;
     if (enable) {
         if (!enableCalled) {

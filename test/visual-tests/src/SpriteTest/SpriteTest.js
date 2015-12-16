@@ -1966,7 +1966,7 @@ var SpriteFrameTest = SpriteTestDemo.extend({
         spriteFrameCache.addSpriteFrames(s_grossini_bluePlist, s_grossini_blue);
 
         //
-        // Animation using Sprite BatchNode
+        // SpriteFrameAnimation using Sprite BatchNode
         //
         this._sprite1 = new cc.Sprite("#grossini_dance_01.png");
         this._sprite1.x = winSize.width / 2 - 80;
@@ -1985,7 +1985,7 @@ var SpriteFrameTest = SpriteTestDemo.extend({
             animFrames.push(frame);
         }
 
-        var animation = new cc.Animation(animFrames, 0.3);
+        var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
         this._sprite1.runAction(cc.animate(animation).repeatForever());
 
         // to test issue #732, uncomment the following line
@@ -1993,7 +1993,7 @@ var SpriteFrameTest = SpriteTestDemo.extend({
         this._sprite1.flippedY = false;
 
         //
-        // Animation using standard Sprite
+        // SpriteFrameAnimation using standard Sprite
         //
         this._sprite2 = new cc.Sprite("#grossini_dance_01.png");
         this._sprite2.x = winSize.width / 2 + 80;
@@ -2015,7 +2015,7 @@ var SpriteFrameTest = SpriteTestDemo.extend({
 
         // append frames from another batch
         moreFrames = moreFrames.concat(animFrames);
-        var animMixed = new cc.Animation(moreFrames, 0.3);
+        var animMixed = new cc.SpriteFrameAnimation(moreFrames, 0.3);
 
         this._sprite2.runAction(cc.animate(animMixed).repeatForever());
 
@@ -2112,7 +2112,7 @@ var SpriteFrameAliasNameTest = SpriteTestDemo.extend({
         spriteFrameCache.addSpriteFrames(s_grossini_aliasesPlist, s_grossini_aliases);
 
         //
-        // Animation using Sprite batch
+        // SpriteFrameAnimation using Sprite batch
         //
         // A cc.SpriteBatchNode can reference one and only one texture (one .png file)
         // Sprites that are contained in that texture can be instantiatied as cc.Sprites and then added to the cc.SpriteBatchNode
@@ -2141,7 +2141,7 @@ var SpriteFrameAliasNameTest = SpriteTestDemo.extend({
             animFrames.push(frame);
         }
 
-        var animation = new cc.Animation(animFrames, 0.3);
+        var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
         // 14 frames * 1sec = 14 seconds
         sprite.runAction(cc.animate(animation).repeatForever());
         this.testSprite = sprite;
@@ -2183,7 +2183,7 @@ var SpriteOffsetAnchorRotation = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite BatchNode
+            // SpriteFrameAnimation using Sprite BatchNode
             //
             var sprite = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossini_dance_01.png"));
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2222,7 +2222,7 @@ var SpriteOffsetAnchorRotation = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
             sprite.runAction(cc.rotateBy(10, 360).repeatForever());
 
@@ -2275,7 +2275,7 @@ var SpriteBatchNodeOffsetAnchorRotation = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite BatchNode
+            // SpriteFrameAnimation using Sprite BatchNode
             //
             var sprite = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossini_dance_01.png"));
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2312,7 +2312,7 @@ var SpriteBatchNodeOffsetAnchorRotation = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
             sprite.runAction(cc.rotateBy(10, 360).repeatForever());
 
@@ -2360,7 +2360,7 @@ var SpriteOffsetAnchorScale = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite BatchNode
+            // SpriteFrameAnimation using Sprite BatchNode
             //
             var sprite = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossini_dance_01.png"));
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2399,7 +2399,7 @@ var SpriteOffsetAnchorScale = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             var scale = cc.scaleBy(2, 2);
@@ -2458,7 +2458,7 @@ var SpriteBatchNodeOffsetAnchorScale = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite BatchNode
+            // SpriteFrameAnimation using Sprite BatchNode
             //
             var sprite = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossini_dance_01.png"));
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2496,7 +2496,7 @@ var SpriteBatchNodeOffsetAnchorScale = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             var scale = cc.scaleBy(2, 2);
@@ -2548,7 +2548,7 @@ var SpriteOffsetAnchorSkew = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite batch
+            // SpriteFrameAnimation using Sprite batch
             //
             var sprite = new cc.Sprite("#grossini_dance_01.png");
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2586,7 +2586,7 @@ var SpriteOffsetAnchorSkew = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             var skewX = cc.skewBy(2, 45, 0);
@@ -2637,7 +2637,7 @@ var SpriteBatchNodeOffsetAnchorSkew = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite batch
+            // SpriteFrameAnimation using Sprite batch
             //
             var sprite = new cc.Sprite("#grossini_dance_01.png");
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2675,7 +2675,7 @@ var SpriteBatchNodeOffsetAnchorSkew = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             animFrames = null;
@@ -2724,7 +2724,7 @@ var SpriteOffsetAnchorSkewScale = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite batch
+            // SpriteFrameAnimation using Sprite batch
             //
             var sprite = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossini_dance_01.png"));
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2762,7 +2762,7 @@ var SpriteOffsetAnchorSkewScale = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             animFrames = null;
@@ -2825,7 +2825,7 @@ var SpriteBatchNodeOffsetAnchorSkewScale = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite batch
+            // SpriteFrameAnimation using Sprite batch
             //
             var sprite = new cc.Sprite("#grossini_dance_01.png");
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2863,7 +2863,7 @@ var SpriteBatchNodeOffsetAnchorSkewScale = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             animFrames = null;
@@ -2923,7 +2923,7 @@ var SpriteOffsetAnchorFlip = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite batch
+            // SpriteFrameAnimation using Sprite batch
             //
             var sprite = new cc.Sprite("#grossini_dance_01.png");
             sprite.x = winSize.width / 4 * (i + 1);
@@ -2961,7 +2961,7 @@ var SpriteOffsetAnchorFlip = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             animFrames = null;
@@ -3014,7 +3014,7 @@ var SpriteBatchNodeOffsetAnchorFlip = SpriteTestDemo.extend({
 
         for (var i = 0; i < 3; i++) {
             //
-            // Animation using Sprite batch
+            // SpriteFrameAnimation using Sprite batch
             //
             var sprite = new cc.Sprite(spriteFrameCache.getSpriteFrame("grossini_dance_01.png"));
             sprite.x = winSize.width / 4 * (i + 1);
@@ -3052,7 +3052,7 @@ var SpriteBatchNodeOffsetAnchorFlip = SpriteTestDemo.extend({
                 animFrames.push(frame);
             }
 
-            var animation = new cc.Animation(animFrames, 0.3);
+            var animation = new cc.SpriteFrameAnimation(animFrames, 0.3);
             sprite.runAction(cc.animate(animation).repeatForever());
 
             animFrames = null;
@@ -3092,7 +3092,7 @@ var SpriteBatchNodeOffsetAnchorFlip = SpriteTestDemo.extend({
 //------------------------------------------------------------------
 var SpriteAnimationSplit = SpriteTestDemo.extend({
 
-    _title:"Sprite: Animation + flip",
+    _title:"Sprite: SpriteFrameAnimation + flip",
     ctor:function () {
         //----start10----ctor
         this._super();
@@ -3107,7 +3107,7 @@ var SpriteAnimationSplit = SpriteTestDemo.extend({
         var frame5 = new cc.SpriteFrame(texture, cc.rect(132 * 1, 132 * 1, 132, 132));
 
         //
-        // Animation using Sprite BatchNode
+        // SpriteFrameAnimation using Sprite BatchNode
         //
         var sprite = new cc.Sprite(frame0);
         sprite.x = winSize.width / 2;
@@ -3122,7 +3122,7 @@ var SpriteAnimationSplit = SpriteTestDemo.extend({
         animFrames.push(frame4);
         animFrames.push(frame5);
 
-        var animation = new cc.Animation(animFrames, 0.2);
+        var animation = new cc.SpriteFrameAnimation(animFrames, 0.2);
         var animate = cc.animate(animation);
         var delay = cc.delayTime(0.5);
         var seq = cc.sequence(animate,
@@ -3338,7 +3338,7 @@ var SpriteBatchNodeChildren = SpriteTestDemo.extend({
             animFrames.push(frame);
         }
 
-        var animation = new cc.Animation(animFrames, 0.2);
+        var animation = new cc.SpriteFrameAnimation(animFrames, 0.2);
         sprite1.runAction(cc.animate(animation).repeatForever());
         // END NEW CODE
 
@@ -4398,12 +4398,12 @@ var SpriteSubclass = SpriteTestDemo.extend({
 
 //------------------------------------------------------------------
 //
-// AnimationCache
+// spriteFrameAnimationCache
 //
 //------------------------------------------------------------------
-var AnimationCacheTest = SpriteTestDemo.extend({
+var SpriteFrameAnimationCacheTest = SpriteTestDemo.extend({
 
-    _title:"AnimationCache",
+    _title:"SpriteFrameAnimationCache",
     _subtitle:"Sprite should be animated",
 
     ctor:function () {
@@ -4426,10 +4426,10 @@ var AnimationCacheTest = SpriteTestDemo.extend({
             animFrames.push(animFrame);
         }
 
-        var animation = new cc.Animation(animFrames, 0.2);
+        var animation = new cc.SpriteFrameAnimation(animFrames, 0.2);
 
         // Add an animation to the Cache
-        cc.animationCache.addAnimation(animation, "dance");
+        cc.spriteFrameAnimationCache.addAnimation(animation, "dance");
 
         //
         // create animation "dance gray"
@@ -4441,10 +4441,10 @@ var AnimationCacheTest = SpriteTestDemo.extend({
             animFrames.push(frame);
         }
 
-        animation = new cc.Animation(animFrames, 0.2);
+        animation = new cc.SpriteFrameAnimation(animFrames, 0.2);
 
         // Add an animation to the Cache
-        cc.animationCache.addAnimation(animation, "dance_gray");
+        cc.spriteFrameAnimationCache.addAnimation(animation, "dance_gray");
 
         //
         // create animation "dance blue"
@@ -4456,12 +4456,12 @@ var AnimationCacheTest = SpriteTestDemo.extend({
             animFrames.push(frame);
         }
 
-        animation = new cc.Animation(animFrames, 0.2);
+        animation = new cc.SpriteFrameAnimation(animFrames, 0.2);
 
         // Add an animation to the Cache
-        cc.animationCache.addAnimation(animation, "dance_blue");
+        cc.spriteFrameAnimationCache.addAnimation(animation, "dance_blue");
 
-        var animCache = cc.animationCache;
+        var animCache = cc.spriteFrameAnimationCache;
 
         var normal = animCache.getAnimation("dance");
         normal.setRestoreOriginalFrame(true);
@@ -5021,9 +5021,9 @@ var SpriteDoubleResolution = SpriteTestDemo.extend({
     }
 });
 
-var AnimationCacheFile = SpriteTestDemo.extend({
+var SpriteFrameAnimationCacheFile = SpriteTestDemo.extend({
 
-    _title:"AnimationCache - Load file",
+    _title:"SpriteFrameAnimationCache - Load file",
     _subtitle:"Sprite should be animated",
 
     ctor:function () {
@@ -5035,9 +5035,9 @@ var AnimationCacheFile = SpriteTestDemo.extend({
         frameCache.addSpriteFrames(s_grossini_bluePlist);
 
         // Purge previously loaded animation
-        if(cc.animationCache._clear)
-	        cc.animationCache._clear();
-        var animCache = cc.animationCache;
+        if(cc.spriteFrameAnimationCache._clear)
+	        cc.spriteFrameAnimationCache._clear();
+        var animCache = cc.spriteFrameAnimationCache;
 
         // Add an animation to the Cache
         // XXX API-FIX XXX

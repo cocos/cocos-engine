@@ -19,6 +19,21 @@ test('Inheritance of editor properties', function () {
     strictEqual(child._playOnFocus, true, 'should inherit playOnFocus from base component');
 });
 
+//test('should not call lifecycle methods if not executeInEditMode', function () {
+//    var Comp = cc.Class({
+//        extends: CallbackTester,
+//        ctor: function () {
+//            this.notExpect(CallbackTester.OnLoad, 'onLoad');
+//            this.notExpect(CallbackTester.OnEnable, 'onEnable');
+//        }
+//    });
+//
+//    var parent = new cc.Node();
+//    cc.director.getScene().addChild(parent);
+//    var comp = parent.addComponent(Comp);
+//    comp.stopTest();
+//});
+
 //asyncTest('invoke using name', function () {
 //    var cb = new Callback().setDisabledMessage('method should not invokes in this frame');
 //    var cb2 = new Callback().disable('method should not being called after destroyed');

@@ -38,13 +38,14 @@ function setMaxZOrder (node) {
     node.setOrderOfArrival(z);
     return z;
 }
-/**
- * fired when node size changed
- * @event size-changed
- */
 
-var SIZE_CHANGED = 'size-changed';
 var POSITION_CHANGED = 'position-changed';
+var ROTATION_CHANGED = 'rotation-changed';
+var SCALE_CHANGED = 'scale-changed';
+var SIZE_CHANGED = 'size-changed';
+var ANCHOR_CHANGED = 'anchor-changed';
+var COLOR_CHANGED = 'color-changed';
+var OPACITY_CHANGED = 'opacity-changed';
 
 /**
  * A base node for CCNode and CCEScene, it will:
@@ -62,6 +63,7 @@ var POSITION_CHANGED = 'position-changed';
  */
 var BaseNode = cc.Class(/** @lends cc.Node# */{
     extends: cc.Object,
+    mixins: [cc.EventTarget],
 
     properties: {
 
@@ -227,8 +229,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._rotationX;
             },
             set: function (value) {
-                this._rotationX = this._rotationY = value;
-                this._sgNode.rotation = value;
+                if (this._rotationX !== value || this._rotationY !== value ) {
+                    var old = this._rotationX;
+                    this._rotationX = this._rotationY = value;
+                    this._sgNode.rotation = value;
+                    this.emit(ROTATION_CHANGED, old);
+                }
             },
             tooltip: "The clockwise degrees of rotation relative to the parent"
         },
@@ -243,8 +249,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._rotationX;
             },
             set: function (value) {
-                this._rotationX = value;
-                this._sgNode.rotationX = value;
+                if (this._rotationX !== value) {
+                    var old = this._rotationX;
+                    this._rotationX = value;
+                    this._sgNode.rotationX = value;
+                    this.emit(ROTATION_CHANGED, old);
+                }
             },
         },
 
@@ -258,8 +268,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._rotationY;
             },
             set: function (value) {
-                this._rotationY = value;
-                this._sgNode.rotationY = value;
+                if (this._rotationX !== value) {
+                    // yes, ROTATION_CHANGED always send last rotation x...
+                    var oldX = this._rotationX;
+
+                    this._rotationY = value;
+                    this._sgNode.rotationY = value;
+                    this.emit(ROTATION_CHANGED, oldX);
+                }
             },
         },
 
@@ -273,8 +289,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._scaleX;
             },
             set: function (value) {
-                this._scaleX = value;
-                this._sgNode.scaleX = value;
+                if (this._scaleX !== value) {
+                    var oldX = this._scaleX;
+                    this._scaleX = value;
+                    this._sgNode.scaleX = value;
+                    this.emit(SCALE_CHANGED, new cc.Vec2(oldX, this._scaleY));
+                }
             },
         },
 
@@ -288,8 +308,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._scaleY;
             },
             set: function (value) {
-                this._scaleY = value;
-                this._sgNode.scaleY = value;
+                if (this._scaleY !== value) {
+                    var oldY = this._scaleY;
+                    this._scaleY = value;
+                    this._sgNode.scaleY = value;
+                    this.emit(SCALE_CHANGED, new cc.Vec2(this._scaleX, oldY));
+                }
             },
         },
 
@@ -311,7 +335,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     this._sgNode.x = value;
 
                     if (this.emit) {
-                        this.emit(POSITION_CHANGED, cc.v2(oldValue, localPosition.y));
+                        this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
                     }
                 }
             },
@@ -335,7 +359,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     this._sgNode.y = value;
 
                     if (this.emit) {
-                        this.emit(POSITION_CHANGED, cc.v2(localPosition.x, oldValue));
+                        this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
                     }
                 }
             },
@@ -375,8 +399,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.x;
             },
             set: function (value) {
-                this._anchorPoint.x = value;
-                this._onAnchorChanged();
+                if (this._anchorPoint.x !== value) {
+                    var old = this._anchorPoint.clone();
+                    this._anchorPoint.x = value;
+                    this._onAnchorChanged();
+                    this.emit(ANCHOR_CHANGED, old);
+                }
             },
         },
 
@@ -390,8 +418,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.y;
             },
             set: function (value) {
-                this._anchorPoint.y = value;
-                this._onAnchorChanged();
+                if (this._anchorPoint.y !== value) {
+                    var old = this._anchorPoint.clone();
+                    this._anchorPoint.y = value;
+                    this._onAnchorChanged();
+                    this.emit(ANCHOR_CHANGED, old);
+                }
             },
         },
 
@@ -416,8 +448,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
                     }
+                    var clone = this._contentSize.clone();
                     this._contentSize.width = value;
-                    this.emit(SIZE_CHANGED);
+                    this.emit(SIZE_CHANGED, clone);
                 }
             },
         },
@@ -443,8 +476,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
                     }
+                    var clone = this._contentSize.clone();
                     this._contentSize.height = value;
-                    this.emit(SIZE_CHANGED);
+                    this.emit(SIZE_CHANGED, clone);
                 }
             },
         },
@@ -463,9 +497,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._ignoreAnchorPointForPosition;
             },
             set: function (value) {
-                this._ignoreAnchorPointForPosition = value;
-                this._sgNode.ignoreAnchor = value;
-                this._onAnchorChanged();
+                if (this._ignoreAnchorPointForPosition !== value) {
+                    this._ignoreAnchorPointForPosition = value;
+                    this._sgNode.ignoreAnchor = value;
+                    this._onAnchorChanged();
+                    this.emit(ANCHOR_CHANGED, this._anchorPoint);
+                }
             },
         },
 
@@ -494,9 +531,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._opacity;
             },
             set: function (value) {
-                this._opacity = value;
-                this._sgNode.opacity = value;
-                this._onColorChanged();
+                if (this._opacity !== value) {
+                    var old = this._opacity;
+                    this._opacity = value;
+                    this._sgNode.opacity = value;
+                    this._onColorChanged();
+                    this.emit(OPACITY_CHANGED, old);
+                }
             },
             range: [0, 255]
         },
@@ -530,15 +571,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return new cc.Color(color.r, color.g, color.b, color.a);
             },
             set: function (value) {
-                var color = this._color;
-                color.r = value.r;
-                color.g = value.g;
-                color.b = value.b;
-                if (CC_DEV && value.a !== 255) {
-                    cc.warn('Should not set alpha via "color", use "opacity" please.');
+                if ( !this._color.equals(value) ) {
+                    var color = this._color;
+                    var old = color.clone();
+                    color.r = value.r;
+                    color.g = value.g;
+                    color.b = value.b;
+                    if (CC_DEV && value.a !== 255) {
+                        cc.warn('Should not set alpha via "color", use "opacity" please.');
+                    }
+                    this._onColorChanged();
+                    this.emit(COLOR_CHANGED, old);
                 }
-                //this._sgNode.color = value;
-                this._onColorChanged();
             },
         },
     },
@@ -657,18 +701,24 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     /**
      * Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
      * @method setScale
-     * @param {Number} scale - or scaleX value
-     * @param {Number} [scaleY=]
+     * @param {Number|Vec2} scale - scaleX or scale
+     * @param {Number} [scaleY=scale]
      */
     setScale: function (scale, scaleY) {
         if (scale instanceof cc.Vec2) {
             scaleY = scale.y;
             scale = scale.x
         }
-
-        this._scaleX = scale;
-        this._scaleY = (scaleY || scaleY === 0) ? scaleY : scale;
-        this._sgNode.setScale(scale, scaleY);
+        else {
+            scaleY = (scaleY || scaleY === 0) ? scaleY : scale;
+        }
+        if (this._scaleX !== scale || this._scaleY !== scaleY) {
+            var old = new cc.Vec2(this._scaleX, this._scaleY);
+            this._scaleX = scale;
+            this._scaleY = scaleY;
+            this._sgNode.setScale(scale, scaleY);
+            this.emit(SCALE_CHANGED, old);
+        }
     },
 
     /**
@@ -694,16 +744,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var locPosition = this._position;
-        var oldPosition = locPosition.clone();
+        var oldPosition;
 
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
+            oldPosition = locPosition.clone();
             locPosition.x = newPosOrxValue.x;
             locPosition.y = newPosOrxValue.y;
         } else {
             if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
                 return;
+            oldPosition = locPosition.clone();
             locPosition.x = newPosOrxValue;
             locPosition.y = yValue;
         }
@@ -744,18 +796,22 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setAnchorPoint: function (point, y) {
         var locAnchorPoint = this._anchorPoint;
+        var old;
         if (y === undefined) {
             if ((point.x === locAnchorPoint.x) && (point.y === locAnchorPoint.y))
                 return;
+            old = locAnchorPoint.clone();
             locAnchorPoint.x = point.x;
             locAnchorPoint.y = point.y;
         } else {
             if ((point === locAnchorPoint.x) && (y === locAnchorPoint.y))
                 return;
+            old = locAnchorPoint.clone();
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
         this._onAnchorChanged();
+        this.emit(ANCHOR_CHANGED, old);
     },
 
     /**
@@ -801,21 +857,24 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setContentSize: function (size, height) {
         var locContentSize = this._contentSize;
+        var clone;
         if (height === undefined) {
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
                 return;
+            clone = locContentSize.clone();
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
             if ((size === locContentSize.width) && (height === locContentSize.height))
                 return;
+            clone = locContentSize.clone();
             locContentSize.width = size;
             locContentSize.height = height;
         }
         if (this._sizeProvider) {
             this._sizeProvider.setContentSize(locContentSize);
         }
-        this.emit(SIZE_CHANGED);
+        this.emit(SIZE_CHANGED, clone);
     },
 
     /**
@@ -1301,6 +1360,51 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     _removeSgNode: SceneGraphHelper.removeSgNode,
+
+    _replaceSgNode: function(sgNode) {
+        if(sgNode instanceof _ccsg.Node) {
+            var oldSgNode = this._sgNode;
+
+            //apply property
+            sgNode.setPosition(this._position);
+            sgNode.setRotationX(this._rotationX);
+            sgNode.setRotationY(this._rotationY);
+            sgNode.setScale(this._scaleX, this._scaleY);
+            sgNode.setSkewX(this._skewX);
+            sgNode.setSkewY(this._skewY);
+
+            sgNode.setLocalZOrder(this._localZOrder);
+            sgNode.setGlobalZOrder(this._globalZOrder);
+
+            sgNode.setOpacity(this._opacity);
+            sgNode.setCascadeOpacityEnabled(this._cascadeOpacityEnabled);
+            sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
+            sgNode.setTag(this._tag);
+            sgNode.setColor(this._color);
+            sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
+
+            //rebuild scenegraph
+            var children = oldSgNode.getChildren().slice(0);
+            oldSgNode.removeAllChildren();
+
+            for(var index = 0; index < children.length; ++index) {
+                sgNode.addChild(children[index]);
+            }
+
+            var parentNode = oldSgNode.getParent();
+            parentNode.removeChild(oldSgNode);
+
+            // insert node
+            parentNode.addChild(sgNode);
+            sgNode.arrivalOrder = oldSgNode.arrivalOrder;
+            cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+
+            this._sgNode = sgNode;
+
+        } else {
+            throw new Error("Invalid sgNode. It must an instance of _ccsg.Node");
+        }
+    },
 });
 
 

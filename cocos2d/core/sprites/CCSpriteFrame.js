@@ -127,6 +127,9 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._textureFilename = '';
         this._textureLoaded = false;
 
+        // Atlas asset uuid
+        this._atlasUuid = '';
+
         // The current parsing uuid for editor
         this._loadingUuid = '';
 
@@ -451,14 +454,14 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                             img.removeEventListener('load', loadCallback, false);
                             img.removeEventListener('error', errorCallback, false);
                         }
-                        img.addEventListener("load", loadCallback);
-                        img.addEventListener("error", errorCallback);
+                        img.addEventListener('load', loadCallback);
+                        img.addEventListener('error', errorCallback);
                     }
                 });
                 this.setTexture(locTexture);
 
                 if (locTexture.isLoaded()) {
-                    this.emit("load");
+                    this.emit('load');
                 }
 
                 check(locTexture);
@@ -499,7 +502,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     // SERIALIZATION
 
-    _serialize:  function () {
+    _serialize:  function (exporting) {
         if (CC_EDITOR) {
             var rect = this._rect;
             var offset = this._offset;
@@ -522,6 +525,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             return {
                 name: this._name,
                 texture: uuid,
+                atlas: exporting ? this._atlasUuid : undefined,  // strip from json if exporting
                 rect: [rect.x, rect.y, rect.width, rect.height],
                 offset: [offset.x, offset.y],
                 originalSize: [size.width, size.height],
@@ -549,6 +553,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this.insetRight = capInsets[2];
             this.insetBottom = capInsets[3];
         }
+        this._atlasUuid = data.atlas;
         var uuid = data.texture;
         this._loadingUuid = uuid;
         this.initWithTexture(null, rectInP, rotated, offsetInP, sizeInP, uuid);

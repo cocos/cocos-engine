@@ -512,7 +512,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
     setDisplayFrameWithAnimationName:function (animationName, frameIndex) {
         cc.assert(animationName, cc._LogInfos.Sprite.setDisplayFrameWithAnimationName_3);
 
-        var cache = cc.animationCache.getAnimation(animationName);
+        var cache = cc.spriteFrameAnimationCache.getAnimation(animationName);
         if(!cache){
             cc.log(cc._LogInfos.Sprite.setDisplayFrameWithAnimationName);
             return;

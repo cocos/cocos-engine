@@ -32,13 +32,13 @@ var DontDestroy = Flags.DontDestroy;
 
 /**
  * Class of all entities in Fireball scenes.
+ *
  * @class Node
  * @extends _BaseNode
  */
 var Node = cc.Class({
     name: 'cc.Node',
     extends: require('./utils/base-node'),
-    mixins: [cc.EventTarget],
 
     properties: {
         /**
@@ -585,5 +585,27 @@ var Node = cc.Class({
     }
 
 });
+
+/**
+ * @event position-changed
+ */
+/**
+ * @event rotation-changed
+ */
+/**
+ * @event scale-changed
+ */
+/**
+ * @event size-changed
+ */
+/**
+ * @event anchor-changed
+ */
+/**
+ * @event color-changed
+ */
+/**
+ * @event opacity-changed
+ */
 
 cc.Node = module.exports = Node;
