@@ -42,7 +42,7 @@ var Animation = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'Animation',
+        menu: 'i18n:MAIN_MENU.component.others/Animation',
         executeInEditMode: true
     },
 
