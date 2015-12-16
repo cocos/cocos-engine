@@ -2223,9 +2223,9 @@ var LabelLayoutBaseTest = AtlasDemo.extend({
         checkBox.setPosition(cc.pAdd(label.getPosition(), cc.p(100,0)));
         checkBox.addEventListener(function(sender, type){
             if(type === ccui.CheckBox.EVENT_UNSELECTED){
-                this._label.setLabelType(cc.Label.Type.BMFont);
+                this._label.setLabelType(_ccsg.Label.Type.BMFont);
             }else if(type === ccui.CheckBox.EVENT_SELECTED){
-                this._label.setLabelType(cc.Label.Type.TTF);
+                this._label.setLabelType(_ccsg.Label.Type.TTF);
             }
             this._updateDrawNodeSize(this._label.getContentSize(true));
         }, this);
@@ -2324,7 +2324,7 @@ var LabelLayoutBaseTest = AtlasDemo.extend({
 
     _initTestLabel: function(winSize){
         var center = cc.visibleRect.center;
-        this._label = new cc.Label("Hello World. This is a very long sentence Hehe.", s_resprefix + "fonts/bitmapFontTest2.fnt", cc.Label.Type.BMFont);
+        this._label = new _ccsg.Label("Hello World. This is a very long sentence Hehe.", s_resprefix + "fonts/bitmapFontTest2.fnt", _ccsg.Label.Type.BMFont);
         this._label.setDimensions(winSize.width/2, winSize.height/2);
         this._label.setLineBreakWithoutSpace(true);
         this._label.setPosition(center);
@@ -2357,7 +2357,7 @@ var NewLabelBMFontClampTest = LabelLayoutBaseTest.extend({
 var NewLabelBMFontShrinkTest = LabelLayoutBaseTest.extend({
     ctor:function () {
         this._super();
-        this._label.setOverflow(cc.Label.Overflow.SHRINK);
+        this._label.setOverflow(_ccsg.Label.Overflow.SHRINK);
     },
     title: function(){
 
@@ -2370,7 +2370,7 @@ var NewLabelBMFontShrinkTest = LabelLayoutBaseTest.extend({
 var NewLabelBMFontResizeTest = LabelLayoutBaseTest.extend({
     ctor:function () {
         this._super();
-        this._label.setOverflow(cc.Label.Overflow.RESIZE);
+        this._label.setOverflow(_ccsg.Label.Overflow.RESIZE);
         this.getChildByName("slider2").setVisible(false);
         this._updateDrawNodeSize(this._label.getContentSize(true));
     },
@@ -2387,11 +2387,11 @@ var NewLabelTest = AtlasDemo.extend({
     _labelAlignCode: 0,
     ctor:function () {
         this._super();
-        var testLabel = new cc.Label("", "Times", cc.Label.Type.TTF);
+        var testLabel = new _ccsg.Label("", "Times", _ccsg.Label.Type.TTF);
         testLabel.setFontSize(40);
         testLabel.setContentSize(cc.size(480,320));
         testLabel.enableWrapText(false);
-        testLabel.setOverflow(cc.Label.Overflow.CLAMP);
+        testLabel.setOverflow(_ccsg.Label.Overflow.CLAMP);
         this._testLabel = testLabel;
         testLabel.x = 100;
         testLabel.y = 50;
@@ -2404,7 +2404,7 @@ var NewLabelTest = AtlasDemo.extend({
         this.schedule(this.scheduleLabel,2);
         this.addChild(testLabel);
 
-        //testLabel = new cc.Label();
+        //testLabel = new _ccsg.Label();
         //testLabel.x = 200;
         //testLabel.y = 300;
         //testLabel.setString("  Test   Label");

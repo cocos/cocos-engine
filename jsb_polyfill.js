@@ -389,4 +389,6 @@ window._ccsg = {
     Node: cc.Node,
     Scene: cc.Scene,
     ParticleSystem: cc.ParticleSystem,
+    Label: cc.Label,
+
 };

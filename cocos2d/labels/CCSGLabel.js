@@ -104,7 +104,7 @@ cc.LetterInfo = function() {
     this._lineIndex = 0;
 };
 
-cc.Label = _ccsg.Node.extend({
+_ccsg.Label = _ccsg.Node.extend({
     _hAlign: cc.TextAlignment.LEFT, //0 left, 1 center, 2 right
     _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
     _string: "",
@@ -233,7 +233,7 @@ cc.Label = _ccsg.Node.extend({
     enableWrapText: function(enabled) {
         if (this._isWrapText === enabled) return;
         //when label is in resize mode, wrap is disabled.
-        if (this._overFlow === cc.Label.Overflow.RESIZE) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE) {
             return;
         }
         this._isWrapText = enabled;
@@ -260,7 +260,7 @@ cc.Label = _ccsg.Node.extend({
     setOverflow: function(overflow) {
         if (this._overFlow === overflow) return;
         this._overFlow = overflow;
-        if (this._overFlow === cc.Label.Overflow.RESIZE) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE) {
             this._setDimensions(this._labelDimensions.width, 0);
             this._isWrapText = true;
         }
@@ -304,7 +304,7 @@ cc.Label = _ccsg.Node.extend({
         //specify font family name directly
         if (extName === null) {
             this._fontHandle = fontHandle;
-            this._labelType = cc.Label.Type.TTF;
+            this._labelType = _ccsg.Label.Type.TTF;
             this._notifyLabelSkinDirty();
             this._isUseSystemFont = true;
             return;
@@ -314,11 +314,11 @@ cc.Label = _ccsg.Node.extend({
 
         this._isUseSystemFont = false;
         if (extName === ".ttf") {
-            this._labelType = cc.Label.Type.TTF;
+            this._labelType = _ccsg.Label.Type.TTF;
             this._fontHandle = this._loadTTFFont(fontHandle);
         } else if (extName === ".fnt") {
             //todo add bmfont here
-            this._labelType = cc.Label.Type.BMFont;
+            this._labelType = _ccsg.Label.Type.BMFont;
             this._initBMFontWithString(this._string, fontHandle);
         }
     },
@@ -372,7 +372,7 @@ cc.Label = _ccsg.Node.extend({
     setContentSize: function(size, height) {
         var oldWidth = this._contentSize.width;
         var oldHeight = this._contentSize.height;
-        if (this._labelType === cc.Label.Type.TTF) {
+        if (this._labelType === _ccsg.Label.Type.TTF) {
             _ccsg.Node.prototype.setContentSize.call(this, size, height);
             if (oldWidth === this._contentSize.width && oldHeight === this._contentSize.height) {
                 return;
@@ -387,7 +387,7 @@ cc.Label = _ccsg.Node.extend({
             this._maxLineWidth = newWidth;
 
             this._notifyLabelSkinDirty();
-        } else if (this._labelType === cc.Label.Type.BMFont) {
+        } else if (this._labelType === _ccsg.Label.Type.BMFont) {
             if (!height) {
                 if (oldWidth === size.width && oldHeight === size.height) {
                     return;
@@ -420,11 +420,11 @@ cc.Label = _ccsg.Node.extend({
 
     _notifyLabelSkinDirty: function() {
         if (CC_EDITOR) {
-            if (this._labelType === cc.Label.Type.BMFont) {
+            if (this._labelType === _ccsg.Label.Type.BMFont) {
                 this._updateContent();
                 this.setColor(this.color);
                 this._labelSkinDirty = false;
-            } else if (this._labelType === cc.Label.Type.TTF) {
+            } else if (this._labelType === _ccsg.Label.Type.TTF) {
                 this._labelSkinDirty = true;
             }
         } else {
@@ -433,14 +433,14 @@ cc.Label = _ccsg.Node.extend({
     },
     _createRenderCmd: function() {
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL)
-            return new cc.Label.WebGLRenderCmd(this);
+            return new _ccsg.Label.WebGLRenderCmd(this);
         else
-            return new cc.Label.CanvasRenderCmd(this);
+            return new _ccsg.Label.CanvasRenderCmd(this);
     },
 
     getContentSize: function(foreceUpdate) {
         if (foreceUpdate) {
-            if (this._labelType === cc.Label.Type.BMFont && this._labelSkinDirty) {
+            if (this._labelType === _ccsg.Label.Type.BMFont && this._labelSkinDirty) {
                 this._updateContent();
             }
         }
@@ -467,7 +467,7 @@ cc.BMFontHelper = {
             this._computeAlignmentOffset();
 
             //shrink
-            if (this._overFlow === cc.Label.Overflow.SHRINK) {
+            if (this._overFlow === _ccsg.Label.Overflow.SHRINK) {
                 var fontSize = this.getFontSize();
 
                 if (fontSize > 0 && this._isVerticalClamp()) {
@@ -477,7 +477,7 @@ cc.BMFontHelper = {
 
             if (!this._updateQuads()) {
                 ret = false;
-                if (this._overFlow === cc.Label.Overflow.SHRINK) {
+                if (this._overFlow === _ccsg.Label.Overflow.SHRINK) {
                     this._shrinkLabelToContentSize(this._isHorizontalClamp.bind(this));
                 }
                 break;
@@ -535,9 +535,9 @@ cc.BMFontHelper = {
 
                 if (this._labelWidth > 0) {
                     if (this._isHorizontalClamped(px, lineIndex)) {
-                        if (this._overFlow === cc.Label.Overflow.CLAMP) {
+                        if (this._overFlow === _ccsg.Label.Overflow.CLAMP) {
                             this._reusedRect.width = 0;
-                        } else if (this._overFlow === cc.Label.Overflow.SHRINK) {
+                        } else if (this._overFlow === _ccsg.Label.Overflow.SHRINK) {
                             if (this._contentSize.width > letterDef._width) {
                                 letterClamp = true;
                                 ret = false;
@@ -582,7 +582,7 @@ cc.BMFontHelper = {
     },
 
     _updateLetterSpriteScale: function(sprite) {
-        if (this._labelType === cc.Label.Type.BMFont && this._fontSize > 0) {
+        if (this._labelType === _ccsg.Label.Type.BMFont && this._fontSize > 0) {
             sprite.setScale(this._bmfontScale);
         }
     },
@@ -612,7 +612,7 @@ cc.BMFontHelper = {
     },
 
     _setDimensions: function(width, height) {
-        if (this._overFlow === cc.Label.Overflow.RESIZE) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE) {
             height = 0;
         }
         if (height !== this._labelHeight || width !== this._labelWidth) {
@@ -622,7 +622,7 @@ cc.BMFontHelper = {
             this._labelDimensions.height = height;
 
             this._maxLineWidth = width;
-            if (this._overFlow === cc.Label.Overflow.SHRINK) {
+            if (this._overFlow === _ccsg.Label.Overflow.SHRINK) {
                 if (this._bmFontSize > 0) {
                     this._restoreFontSize();
                 }
@@ -632,7 +632,7 @@ cc.BMFontHelper = {
     },
 
     _restoreFontSize: function() {
-        if (this._labelType === cc.Label.Type.BMFont) {
+        if (this._labelType === _ccsg.Label.Type.BMFont) {
             this._fontSize = this._bmFontSize;
         }
     },
@@ -861,7 +861,7 @@ cc.BMFontHelper = {
     _scaleFontSizeDown: function(fontSize) {
         var shouldUpdateContent = true;
         //1 is BMFont
-        if (this._labelType === cc.Label.Type.BMFont) {
+        if (this._labelType === _ccsg.Label.Type.BMFont) {
             if (!fontSize) {
                 fontSize = 0.1;
                 shouldUpdateContent = false;
@@ -959,7 +959,7 @@ cc.BMFontHelper = {
     },
 
     _updateBMFontScale: function() {
-        if (this._labelType === cc.Label.Type.BMFont) {
+        if (this._labelType === _ccsg.Label.Type.BMFont) {
             var originalFontSize = this._fontAtlas._fontSize;
             this._bmfontScale = this._fontSize * cc.contentScaleFactor() / originalFontSize;
         } else {
@@ -971,7 +971,7 @@ cc.BMFontHelper = {
     _initBMFontWithString: function(str, fntFile) {
         var self = this;
         if (self._config) {
-            cc.log("cc.Label._initBMFontWithString(): re-init is no longer supported");
+            cc.log("_ccsg.Label._initBMFontWithString(): re-init is no longer supported");
             return false;
         }
         this._string = str;
@@ -1027,7 +1027,7 @@ cc.BMFontHelper = {
 
     _rescaleWithOriginalFontSize: function() {
         var renderingFontSize = this.getFontSize();
-        if (this._bmFontSize - renderingFontSize >= 1 && this._overFlow === cc.Label.Overflow.SHRINK) {
+        if (this._bmFontSize - renderingFontSize >= 1 && this._overFlow === _ccsg.Label.Overflow.SHRINK) {
             this._scaleFontSizeDown(this._bmFontSize);
         }
     },
@@ -1053,14 +1053,14 @@ cc.BMFontHelper = {
         if (filename) {
             this._fontHandle = filename;
             var self = this;
-            if (this._labelType === cc.Label.Type.BMFont) {
+            if (this._labelType === _ccsg.Label.Type.BMFont) {
 
                 this._resetBMFont();
 
                 var texture;
                 cc.loader.load(this._fontHandle, function(err, results) {
                     if (err) {
-                        cc.log("cc.Label._initBMFontWithString(): Impossible to create font. Please check file");
+                        cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
                     }
 
                     self._config = results[0];
@@ -1088,15 +1088,15 @@ cc.BMFontHelper = {
 };
 
 
-var _p = cc.Label.prototype;
+var _p = _ccsg.Label.prototype;
 cc.js.addon(_p, EventTarget.prototype);
 cc.js.mixin(_p, cc.BMFontHelper);
 
-cc.Label.Type = cc.Enum({
+_ccsg.Label.Type = cc.Enum({
     TTF: 0,
     BMFont: 1
 });
-cc.Label.Overflow = cc.Enum({
+_ccsg.Label.Overflow = cc.Enum({
     CLAMP: 0,
     SHRINK: 1,
     RESIZE: 2

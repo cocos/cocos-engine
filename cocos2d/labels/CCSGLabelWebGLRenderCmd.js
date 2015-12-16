@@ -31,7 +31,7 @@
  ****************************************************************************/
 
 (function(){
-    cc.Label.WebGLRenderCmd = function(renderableObject){
+    _ccsg.Label.WebGLRenderCmd = function(renderableObject){
         _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
 
@@ -51,16 +51,16 @@
         this._drawFontsize = 0;
     };
 
-    var proto = cc.Label.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-    cc.js.mixin(proto, cc.Label.TTFLabelBaker.prototype);
+    var proto = _ccsg.Label.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+    cc.js.mixin(proto, _ccsg.Label.TTFLabelBaker.prototype);
 
-    proto.constructor = cc.Label.WebGLRenderCmd;
+    proto.constructor = _ccsg.Label.WebGLRenderCmd;
 
     proto.rendering = function (ctx) {
         var node = this._node;
         this._rebuildLabelSkin();
 
-        if(node._labelType === cc.Label.Type.TTF){
+        if(node._labelType === _ccsg.Label.Type.TTF){
             var gl = ctx || cc._renderContext ;
 
             this._shaderProgram.use();

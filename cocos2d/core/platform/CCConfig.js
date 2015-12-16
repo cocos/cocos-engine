@@ -82,7 +82,7 @@ cc.DIRECTOR_FPS_INTERVAL = 0.5;
 
 /**
  * <p>
- *    If enabled, the ccsg.Node objects (cc.Sprite, cc.Label,etc) will be able to render in subpixels.<br/>
+ *    If enabled, the ccsg.Node objects (cc.Sprite, _ccsg.Label,etc) will be able to render in subpixels.<br/>
  *    If disabled, integer pixels will be used.<br/>
  *    <br/>
  *    To enable set it to 1. Enabled by default.<br/>
