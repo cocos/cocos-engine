@@ -378,6 +378,8 @@ cc.Label.Overflow = cc.Enum({
     RESIZE: 2
 });
 
+cc.spriteFrameAnimationCache = cc.animationCache;
+cc.SpriteFrameAnimation = cc.Animation;
 
 // Assets
 cc.js.setClassName('cc.SpriteFrame', cc.SpriteFrame);

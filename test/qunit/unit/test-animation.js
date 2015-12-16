@@ -459,7 +459,7 @@ test('initClipData', function () {
 
 test('Animation Component', function () {
     var entity = new cc.Node();
-    var animation = entity.addComponent(cc.AnimationComponent);
+    var animation = entity.addComponent(cc.Animation);
 
     entity.x = 400;
 
@@ -503,7 +503,7 @@ test('Animation Component', function () {
 
 test('CCAnimation._updateClip', function () {
     var entity = new cc.Node();
-    var animation = entity.addComponent(cc.AnimationComponent);
+    var animation = entity.addComponent(cc.Animation);
 
     entity.x = 400;
 
