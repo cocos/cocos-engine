@@ -163,6 +163,7 @@ cc.Particle.TemporaryPoints = [
  * @property {Boolean}              opacityModifyRGB    - Indicate whether the alpha value modify color.
  * @property {cc.SpriteBatchNode}   batchNode           - Weak reference to the sprite batch node.
  * @property {Boolean}              active              - <@readonly> Indicate whether the particle system is activated.
+ * @property {Number}               shapeType           - ShapeType of ParticleSystem : ccsg.ParticleSystem.BALL_SHAPE | ccsg.ParticleSystem.STAR_SHAPE.
  * @property {Number}               atlasIndex          - Index of system in batch node array.
  * @property {Number}               particleCount       - Current quantity of particles that are being simulated.
  * @property {Number}               duration            - How many seconds the emitter wil run. -1 means 'forever'
