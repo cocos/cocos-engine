@@ -77,7 +77,7 @@
             "cocos2d/core/textures/CCTextureCache.js",
             "cocos2d/core/textures/CCTextureAtlas.js",
 
-            "cocos2d/core/scenes/CCScene.js",
+            "cocos2d/core/scenes/CCSGScene.js",
             "cocos2d/core/scenes/CCLoaderScene.js",
 
             "cocos2d/core/layers/CCLayer.js",
