@@ -307,51 +307,92 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
 
-        //var resourceData = this._resourceData;
-
+        var resourceData = this._resourceData;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        //centerWidth = resourceData._originalSize.width - leftWidth - rightWidth;
+        centerWidth = resourceData._originalSize.width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        //centerHeight = resourceData._originalSize.height - topHeight - bottomHeight;
-
-        leftWidth = leftWidth / cc.contentScaleFactor();
-        rightWidth = rightWidth / cc.contentScaleFactor();
-        topHeight = topHeight / cc.contentScaleFactor();
-        bottomHeight = bottomHeight / cc.contentScaleFactor();
+        centerHeight = resourceData._originalSize.height - topHeight - bottomHeight;
 
         var preferSize = this.getContentSize();
         var sizableWidth = preferSize.width - leftWidth - rightWidth;
         var sizableHeight = preferSize.height - topHeight - bottomHeight;
+        var xScale = preferSize.width / (leftWidth + rightWidth);
+        var yScale = preferSize.height / (topHeight + bottomHeight);
+        xScale = xScale > 1 ? 1 : xScale;
+        yScale = yScale > 1 ? 1 : yScale;
+        sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
+        sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
         var x0, x1, x2, x3;
         var y0, y1, y2, y3;
-        if (sizableWidth >= 0) {
-            x0 = 0;
-            x1 = leftWidth;
-            x2 = leftWidth + sizableWidth;
-            x3 = preferSize.width;
-        }
-        else {
-            var xScale = preferSize.width / (leftWidth + rightWidth);
-            x0 = 0;
-            x1 = x2 = leftWidth * xScale;
-            x3 = (leftWidth + rightWidth) * xScale;
+        x0 = 0;
+        x1 = leftWidth * xScale;
+        x2 = x1 + sizableWidth;
+        x3 = preferSize.width;
+
+        y0 = 0;
+        y1 = bottomHeight * yScale;
+        y2 = y1 + sizableHeight;
+        y3 = preferSize.height;
+
+        //apply trim
+        var resourceData = this._resourceData;
+        var trimmedLeft = resourceData.getTrimmedLeft();
+        var trimmedRight = resourceData.getTrimmedRight();
+        var trimmedBottom = resourceData.getTrimmedBottom();
+        var trimmedTop = resourceData.getTrimmedTop();
+
+        if(trimmedLeft >= 0 && trimmedLeft <= leftWidth) {
+            x0 += trimmedLeft * xScale;
+        } else if (trimmedLeft > leftWidth && trimmedLeft <= leftWidth + centerWidth) {
+            x1 += (trimmedLeft - leftWidth) * sizableWidth / centerWidth;
+            x0 = x1;
+        } else {
+            x2 += (trimmedLeft - (leftWidth + centerWidth)) * xScale;
+            x0 = x1 = x2;
         }
 
-        if (sizableHeight >= 0) {
-            y0 = 0;
-            y1 = bottomHeight;
-            y2 = bottomHeight + sizableHeight;
-            y3 = preferSize.height;
+        if(trimmedRight >= 0 && trimmedRight <= rightWidth) {
+            x3 -= trimmedRight * xScale;
+        } else if( trimmedRight > rightWidth && trimmedRight <= rightWidth + centerWidth) {
+            x2 -= (trimmedRight - rightWidth) * sizableWidth / centerWidth;
+            x3 = x2;
+        } else {
+            x1 -= (trimmedRight - (rightWidth + centerWidth)) * xScale;
+            x3 = x2 = x1;
         }
-        else {
-            var yScale = preferSize.height / (topHeight + bottomHeight);
-            y0 = 0;
-            y1 = y2 = bottomHeight * yScale;
-            y3 = (bottomHeight + topHeight) * yScale;
+
+        if(trimmedTop >= 0 && trimmedTop <= topHeight) {
+            y3 -= trimmedTop * yScale;
+        } else if(trimmedTop > topHeight && trimmedTop <= topHeight + centerHeight) {
+            y2 -= (trimmedTop - topHeight) * sizableHeight / centerHeight;
+            y3 = y2;
+        } else {
+            y1 -= (trimmedTop - (topHeight + centerHeight)) * yScale;
+            y3 = y2 = y1;
         }
+
+        if(trimmedBottom >= 0 && trimmedBottom <= bottomHeight) {
+            y0 += trimmedBottom * yScale;
+        } else if(trimmedBottom > bottomHeight && trimmedBottom <= bottomHeight + centerHeight) {
+            y1 += (trimmedBottom - bottomHeight) * sizableHeight / centerHeight;
+            y0 = y1;
+        } else {
+            y2 += (trimmedBottom - (bottomHeight + centerHeight)) * yScale;
+            y0 = y1 = y2;
+        }
+
+        //apply contentscale factor
+        x0 = x0 / cc.contentScaleFactor();
+        x1 = x1 / cc.contentScaleFactor();
+        x2 = x2 / cc.contentScaleFactor();
+        x3 = x3 / cc.contentScaleFactor();
+        y0 = y0 / cc.contentScaleFactor();
+        y1 = y1 / cc.contentScaleFactor();
+        y2 = y2 / cc.contentScaleFactor();
+        y3 = y3 / cc.contentScaleFactor();
 
         var vertices = [];
         vertices.push(cc.p(x0, y0));
@@ -370,7 +411,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         //caculate texture coordinate
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
-
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
         centerWidth = resourceData._originalSize.width - leftWidth - rightWidth;
@@ -379,11 +419,60 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         bottomHeight = this._insetBottom;
         centerHeight = resourceData._originalSize.height - topHeight - bottomHeight;
 
+        //apply trim
+        var trimmedLeft = this._resourceData.getTrimmedLeft();
+        var trimmedRight = this._resourceData.getTrimmedRight();
+        var trimmedBottom = this._resourceData.getTrimmedBottom();
+        var trimmedTop = this._resourceData.getTrimmedTop();
+        //left
+        leftWidth -= trimmedLeft;
+        if(leftWidth < 0) {
+            centerWidth += leftWidth;
+            leftWidth = 0;
+        }
+        if (centerWidth < 0) {
+            rightWidth += centerWidth;
+            centerWidth = 0;
+        }
+        //right
+        rightWidth -= trimmedRight;
+        if(rightWidth <0) {
+            centerWidth += rightWidth;
+            rightWidth = 0;
+        }
+        if(centerWidth < 0) {
+            leftWidth += centerWidth;
+            centerWidth = 0;
+        }
+
+        //bottom
+        bottomHeight -= trimmedBottom;
+        if(bottomHeight < 0) {
+            centerHeight += bottomHeight;
+            bottomHeight = 0;
+        }
+        if(centerHeight < 0) {
+            topHeight += centerHeight;
+            centerHeight = 0;
+        }
+
+        //top
+        topHeight -= trimmedTop;
+        if(topHeight < 0) {
+            centerHeight += topHeight;
+            topHeight = 0;
+        }
+        if(centerHeight <0) {
+            bottomHeight += centerHeight;
+            centerHeight = 0;
+        }
+
         var textureRect = cc.rectPointsToPixels(resourceData._spriteRect);
 
         //uv computation should take spritesheet into account.
         var u0, u1, u2, u3;
         var v0, v1, v2, v3;
+
         if (this._spriteFrameRotated) {
             u0 = textureRect.x / atlasWidth;
             u1 = (bottomHeight + textureRect.x) / atlasWidth;
@@ -439,56 +528,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
 
 });
 
-ccui.Scale9Spriteold = cc.Scale9Spriteold = _ccsg.Node.extend(/** @lends ccui.Scale9Sprite# */{
-
-
-    _onScale9ResourcesLoaded: function (sprite, rotated, rect, size) {
-        this._spriteFrameRotated = rotated;
-        this._textureLoaded = true;
-        var opacity = this.getOpacity();
-        var color = this.getColor();
-        this._updateBlendFunc(sprite.getTexture());
-        this._scale9Image = sprite;
-        this._scale9Image.setAnchorPoint(cc.p(0, 0));
-        this._scale9Image.setPosition(cc.p(0, 0));
-        if (this._spriteRect.equals(cc.rect(0, 0, 0, 0))) {
-            this._spriteRect = cc.rect(rect);
-        }
-        if (cc.sizeEqualToSize(this._originalSize, cc.size(0, 0))) {
-            this._originalSize = cc.size(size);
-        }
-        if (this._preferredSize === null) {
-            this.setPreferredSize(this._originalSize);
-        }
-
-        if (!this._scale9Enabled) {
-            this.addChild(this._scale9Image);
-            this._adjustScale9ImagePosition();
-        }
-
-        this._applyBlendFunc();
-        this.setState(this._brightState);
-        if (this._textureInited) {
-            // Restore color and opacity
-            this.setOpacity(opacity);
-            this.setColor(color);
-        }
-        this._textureInited = true;
-
-        if(this._derivedCapInsets)
-        {
-            this._insetLeft = this._derivedCapInsets.x;
-            this._insetTop = this._derivedCapInsets.y;
-            this._insetRight = this._originalSize.width-this._insetLeft-this._derivedCapInsets.width;
-            this._insetBottom = this._originalSize.height-this._insetTop-this._derivedCapInsets.height;
-            this._derivedCapInsets = null;
-        }
-
-        this._quadsDirty = true;
-    },
-
-});
-
 ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = function ()
 {
     this._texture = null;
@@ -498,10 +537,49 @@ ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = func
     this._originalSize = null;
     this._loaded = false;
 
+    var trimmedResult = [0,0,0,0]; //left, right, bottom, top
+    var trimmedDirty = true;
+
     this.loaded = function() {
         return this._loaded;
     };
 
+    this.computeTrimmed = function () {
+        if(this._loaded && trimmedDirty) {
+            trimmedResult = [];
+            var result = trimmedResult;
+            var leftTrim = (this._originalSize.width + (2 * this._trimmedOffset.x) - this._spriteRect.width)/2;
+            var rightTrim = this._originalSize.width - leftTrim - this._spriteRect.width;
+
+            var bottomTrim = (this._originalSize.height + (2 * this._trimmedOffset.y) - this._spriteRect.height) /2;
+            var topTrim = this._originalSize.height - bottomTrim - this._spriteRect.height;
+            result.push(leftTrim);
+            result.push(rightTrim);
+            result.push(bottomTrim);
+            result.push(topTrim);
+            trimmedDirty = false;
+        }
+    };
+
+    this.getTrimmedLeft = function () {
+        this.computeTrimmed();
+        return trimmedResult[0];
+    };
+
+    this.getTrimmedRight = function () {
+        this.computeTrimmed();
+        return trimmedResult[1];
+    };
+
+    this.getTrimmedBottom = function () {
+        this.computeTrimmed();
+        return trimmedResult[2];
+    };
+
+    this.getTrimmedTop = function () {
+        this.computeTrimmed();
+        return trimmedResult[3];
+    };
     /**
     textureOrTextureFile: texture handle or texture file image;
     Other params is optional
@@ -539,6 +617,7 @@ ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = func
             } else {
                 texture.once("load",textureLoadedCallback);
             }
+            trimmedDirty = true;
         }
         return true;
     };
@@ -568,8 +647,9 @@ ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = func
             } else {
                 spriteFrame.once("load",spriteFrameLoadedCallback);
             }
+            trimmedDirty = true;
         }
-        return false;
+        return true;
     };
 };
 
