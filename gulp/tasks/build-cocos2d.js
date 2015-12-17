@@ -45,7 +45,7 @@ var srcs = [
     "./cocos2d/core/base-nodes/CCAtlasNodeCanvasRenderCmd.js",
     "./cocos2d/core/base-nodes/CCAtlasNodeWebGLRenderCmd.js",
 
-    "./cocos2d/core/scenes/CCScene.js",
+    "./cocos2d/core/scenes/CCSGScene.js",
     "./cocos2d/core/scenes/CCLoaderScene.js",
 
     "./cocos2d/core/layers/CCLayer.js",
