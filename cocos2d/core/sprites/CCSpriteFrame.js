@@ -470,7 +470,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             return {
                 name: this._name,
                 texture: uuid,
-                atlas: exporting ? this._atlasUuid : undefined,  // strip from json if exporting
+                atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
                 rect: [rect.x, rect.y, rect.width, rect.height],
                 offset: [offset.x, offset.y],
                 originalSize: [size.width, size.height],
