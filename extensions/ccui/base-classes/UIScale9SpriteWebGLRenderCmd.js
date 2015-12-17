@@ -21,7 +21,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 (function() {
     if(!_ccsg.Node.WebGLRenderCmd)
         return;
@@ -39,18 +38,15 @@
 
     proto.rendering = function (ctx){
         var node = this._node;
-        if(!node._scale9Enabled)
-            return;
 
         var locTexture = null;
-        if(node.getSprite()) locTexture = node.getSprite()._texture;
-        if (!node.textureLoaded() || this._displayedOpacity === 0)
+        if(node._resourceData) locTexture = node._resourceData._texture;
+        if (!node.loaded() || this._displayedOpacity === 0)
             return;
         var needRebuildWebBuffer = false;
+
         if(node._quadsDirty){
-            node._cleanupQuads();
-            node._buildQuads();
-            node._quadsDirty = false;
+            node._rebuildQuads();
             this._colorOpacityDirty = false;
             needRebuildWebBuffer = true;
         }
@@ -104,48 +100,21 @@
     proto._updateDisplayOpacity = function(parentOpacity){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
         var node = this._node;
-        var scale9Image = node._scale9Image;
-        if(scale9Image) {
-            var opacity = 255;
-            if (node._cascadeOpacityEnabled) opacity = this._displayedOpacity;
-            scale9Image._renderCmd._updateDisplayOpacity(opacity);
-        }
-
         this._colorOpacityDirty = true;
     };
 
     proto._updateDisplayColor = function(parentColor){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
-        var scale9Image = node._scale9Image;
-        if(scale9Image){
-            var color = cc.Color.WHITE;
-            if(this._cascadeColorEnabled) color = node._displayedColor;
-            scale9Image._renderCmd._updateDisplayColor(color);
-            scale9Image._renderCmd._updateColor();
-        }
-
         this._colorOpacityDirty = true;
     };
 
     proto.setState = function (state) {
         var node = this._node;
-        var scale9Image = this._node._scale9Image;
-        if(!node.isScale9Enabled)
-        {
-            if (state === ccui.Scale9Sprite.state.NORMAL) {
-                scale9Image.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
-            } else if (state === ccui.Scale9Sprite.state.GRAY) {
-                scale9Image.setShaderProgram(ccui.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram());
-            }
-        }
-        else
-        {
-            if (state === ccui.Scale9Sprite.state.NORMAL) {
-                node.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
-            } else if (state === ccui.Scale9Sprite.state.GRAY) {
-                node.setShaderProgram(ccui.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram());
-            }
+        if (state === ccui.Scale9Sprite.state.NORMAL) {
+            node.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
+        } else if (state === ccui.Scale9Sprite.state.GRAY) {
+            node.setShaderProgram(ccui.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram());
         }
     };
 
