@@ -55,7 +55,7 @@ var SpriteRenderer = cc.Class({
          */
         _atlas: {
             default: '',
-            url: cc.SpriteAtlas,
+            type: cc.SpriteAtlas,
             editorOnly: true,
             visible: true
         },
@@ -77,18 +77,9 @@ var SpriteRenderer = cc.Class({
                         if (force) {
                             this._sgNode._scale9Image = null;
                         }
+
                         // Set atlas
-                        if (value._atlasUuid !== undefined) {
-                            var self = this;
-                            cc.AssetLibrary.queryAssetInfo(value._atlasUuid, function(err, url) {
-                                if (url) {
-                                    self._atlas = url;
-                                }
-                                else {
-                                    self._atlas = '';
-                                }
-                            });
-                        }
+                        this._applyAtlas(value);
                     }
                     this._applySprite(this._sgNode, lastSprite);
                     // color cleared after reset texture, should reapply color
@@ -450,6 +441,22 @@ var SpriteRenderer = cc.Class({
     onDestroy: function () {
         this._super();
         this.node.off('size-changed', this._resized, this);
+    },
+
+    _applyAtlas: CC_EDITOR && function ( sprite ) {
+        // Set atlas
+        if (sprite._atlasUuid !== undefined) {
+            var self = this;
+            cc.AssetLibrary.loadAsset(sprite._atlasUuid, function(err, asset) {
+                if (!asset) {
+                    self._atlas = null;
+                    return;
+                }
+                self._atlas = asset;
+            });
+        } else {
+            this._atlas = null;
+        }
     },
 
     _applyCapInset: function (node) {
