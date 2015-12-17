@@ -148,6 +148,17 @@ Details.prototype.assignAssetsBy = function (getter) {
     }
     return success;
 };
+/**
+ * @method push
+ * @param {Object} obj
+ * @param {String} propName
+ * @param {String} uuid
+ */
+Details.prototype.push = function (obj, propName, uuid) {
+    this.uuidList.push(uuid);
+    this.uuidObjList.push(obj);
+    this.uuidPropList.push(propName);
+};
 
 // IMPLEMENT OF DESERIALIZATION
 
