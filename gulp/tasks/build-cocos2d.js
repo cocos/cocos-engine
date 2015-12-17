@@ -33,9 +33,9 @@ var srcs = [
     "./cocos2d/core/renderer/RendererWebGL.js",
 
     "./cocos2d/core/base-nodes/BaseNodesPropertyDefine.js",
-    "./cocos2d/core/base-nodes/CCNode.js",
-    "./cocos2d/core/base-nodes/CCNodeCanvasRenderCmd.js",
-    "./cocos2d/core/base-nodes/CCNodeWebGLRenderCmd.js",
+    "./cocos2d/core/base-nodes/CCSGNode.js",
+    "./cocos2d/core/base-nodes/CCSGNodeCanvasRenderCmd.js",
+    "./cocos2d/core/base-nodes/CCSGNodeWebGLRenderCmd.js",
 
     "./extensions/ccui/base-classes/CCProtectedNode.js",
     "./extensions/ccui/base-classes/CCProtectedNodeCanvasRenderCmd.js",
