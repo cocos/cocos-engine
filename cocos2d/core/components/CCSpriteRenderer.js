@@ -77,9 +77,6 @@ var SpriteRenderer = cc.Class({
                         if (force) {
                             this._sgNode._scale9Image = null;
                         }
-
-                        // Set atlas
-                        this._applyAtlas(value);
                     }
                     this._applySprite(this._sgNode, lastSprite);
                     // color cleared after reset texture, should reapply color
@@ -445,13 +442,9 @@ var SpriteRenderer = cc.Class({
 
     _applyAtlas: CC_EDITOR && function ( sprite ) {
         // Set atlas
-        if (sprite._atlasUuid !== undefined) {
+        if (sprite._atlasUuid) {
             var self = this;
             cc.AssetLibrary.loadAsset(sprite._atlasUuid, function(err, asset) {
-                if (!asset) {
-                    self._atlas = null;
-                    return;
-                }
                 self._atlas = asset;
             });
         } else {
@@ -499,6 +492,10 @@ var SpriteRenderer = cc.Class({
         else {
             this._applyCapInset(sgNode);
             this._applySpriteSize(sgNode);
+        }
+        if (CC_EDITOR) {
+            // Set atlas
+            this._applyAtlas(this._sprite);
         }
     },
 
