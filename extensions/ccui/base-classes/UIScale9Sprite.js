@@ -244,7 +244,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
 
         //build quads
         var quad;
-        if (this._renderingType == cc.Scale9Sprite.SIMPLE) {
+        if (this._renderingType == cc.Scale9Sprite.RenderingType.SIMPLE) {
             quad = new cc.V3F_C4B_T2F_Quad();
 
             quad._bl.colors = color;
