@@ -1134,7 +1134,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertToNodeSpace: function (worldPoint) {
-        return this._sgNode.convertToNodeSpace(worldPoint);
+        var nodePositionIgnoreAnchorPoint = this._sgNode.convertToNodeSpace(worldPoint);
+        return cc.pAdd(nodePositionIgnoreAnchorPoint, cc.p(this._anchorPoint.x * this._contentSize.width, this._anchorPoint.y * this._contentSize.height));
     },
 
     /**
@@ -1144,7 +1145,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertToWorldSpace: function (nodePoint) {
-        return this._sgNode.convertToWorldSpace(nodePoint);
+        var worldPositionIgnoreAnchorPoint = this._sgNode.convertToWorldSpace(nodePoint);
+        return cc.pSub(worldPositionIgnoreAnchorPoint, cc.p(this._anchorPoint.x * this._contentSize.width, this._anchorPoint.y * this._contentSize.height));
     },
 
     /**
@@ -1180,7 +1182,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertTouchToNodeSpace: function (touch) {
-        return this._sgNode.convertTouchToNodeSpace(touch)
+        return this.convertToNodeSpace(touch.getPosition());
     },
 
     /**
@@ -1190,7 +1192,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertTouchToNodeSpaceAR: function (touch) {
-        return this._sgNode.convertTouchToNodeSpaceAR(touch);
+        return this.convertToNodeSpaceAR(touch.getPosition());
     },
 
     /**
