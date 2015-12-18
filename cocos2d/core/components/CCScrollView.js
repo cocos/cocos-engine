@@ -111,19 +111,19 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * When momentum is set, the content will continue to move when touch ended.
-         *@property {Boolean} momentum
+         * When inertia is set, the content will continue to move when touch ended.
+         *@property {Boolean} inertia
          */
-        momentum: {
+        inertia: {
             default: true
         },
 
         /**
          * It determines how quickly the content stop moving. A value of 0 will stop the movement immediately.
-         * When the brake is very large, it will takes up too much time to stop the movement.
-         *@property {Float} brake
+         * When the deceleration rate is very large, it will takes up too much time to stop the movement.
+         *@property {Float} decelerationRate
          */
-        brake: {
+        decelerationRate: {
             default: 0.5
         },
 
@@ -171,12 +171,20 @@ var ScrollView = cc.Class({
     },
 
     setContentPosition: function(position) {
+        if (cc.pFuzzyEqual(position, this.getContentPosition(), EPSILON)) {
+            return;
+        }
+
         var worldSpacePos = this.node.convertToWorldSpace(position);
         var contentParent = this.content.parent;
 
         var localPositionInParent = contentParent.convertToNodeSpaceAR(worldSpacePos);
 
         this.content.setPosition(localPositionInParent);
+
+        this._outOfBoundaryAmountDirty = true;
+
+        //TODO: process bouncing and container move event
     },
 
     getContentPosition: function() {
@@ -284,7 +292,7 @@ var ScrollView = cc.Class({
             realMove = cc.pAdd(realMove, outOfBoundary);
         }
 
-        this._moveInnerContainer(realMove, false);
+        this._moveContent(realMove, false);
     },
 
     _handlePressLogic: function(touch) {
@@ -344,9 +352,9 @@ var ScrollView = cc.Class({
 
 
         var bounceBackStarted = this._startBounceBackIfNeeded();
-        if (!bounceBackStarted && this.momentum) {
+        if (!bounceBackStarted && this.inertia) {
             var touchMoveVelocity = this._calculateTouchMoveVelocity();
-            if (!cc.pFuzzyEqual(touchMoveVelocity, cc.p(0, 0), EPSILON) && this.brake > 0) {
+            if (!cc.pFuzzyEqual(touchMoveVelocity, cc.p(0, 0), EPSILON) && this.decelerationRate > 0) {
                 this._startInertiaScroll(touchMoveVelocity);
             }
         }
@@ -382,7 +390,7 @@ var ScrollView = cc.Class({
 
     _processAutoScrolling: function(dt) {
         var isAutoScrollBrake = this._isNecessaryAutoScrollBrake();
-        var brakingFactor = isAutoScrollBrake ? OUT_OF_BOUNDARY_BREAKING_FACTOR : this.brake * 5;
+        var brakingFactor = isAutoScrollBrake ? OUT_OF_BOUNDARY_BREAKING_FACTOR : this.decelerationRate * 5;
         this._autoScrollAccumulatedTime += dt * (1 / brakingFactor);
 
         var percentage = Math.min(1, this._autoScrollAccumulatedTime / this._autoScrollTotalTime);
@@ -413,7 +421,7 @@ var ScrollView = cc.Class({
         }
 
         var contentPos = cc.pSub(newPosition, this.getContentPosition());
-        this._moveInnerContainer(contentPos, reachedEnd);
+        this._moveContent(contentPos, reachedEnd);
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
@@ -486,23 +494,12 @@ var ScrollView = cc.Class({
         return this.node.convertToNodeSpace(contentWorldPosition);
     },
 
-
-    _setInnerContainerPosition: function(position) {
-        if (cc.pFuzzyEqual(position, this.getContentPosition(), EPSILON)) {
-            return;
-        }
-        this.setContentPosition(position);
-        this._outOfBoundaryAmountDirty = true;
-
-        //TODO: process bouncing and container move event
-    },
-
-    _moveInnerContainer: function(deltaMove, canStartBounceBack) {
+    _moveContent: function(deltaMove, canStartBounceBack) {
         var adjustedMove = this._flattenVectorByDirection(deltaMove);
 
         var newPosition = cc.pAdd(this.getContentPosition(), adjustedMove);
 
-        this._setInnerContainerPosition(newPosition);
+        this.setContentPosition(newPosition);
 
         var outOfBoundary = this._getHowMuchOutOfBoundary();
         this._updateScrollBar(outOfBoundary);
