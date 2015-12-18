@@ -43,8 +43,6 @@ function LoadingHandle (readMainCache, writeMainCache, recordAssets, deserialize
 
     // 需要让场景 preload 的 asset（所有包含 raw file 后缀名的 asset 并且不含 rawType 属性的 asset）
     this.assetsNeedPostLoad = recordAssets ? [] : null;
-    // 需要让场景 preload 的 url
-    this.urlsNeedPreload = {};
 
     // 可以提供一个反序列化句柄，用来在执行反序列化任务时，做一些特殊处理
     this.deserializeInfo = deserializeInfo;
@@ -362,18 +360,28 @@ var AssetLibrary = {
                 AssetLibrary.queryAssetInfo(dependsUuid, function (err, dependsUrl, isRawAsset) {
                     if (err) {
                         cc.error('[AssetLibrary] Failed to load "%s", %s', dependsUuid, err);
-                    }
-                    else if (isRawAsset) {
-                        // update url
-                        obj[prop] = dependsUrl;
-                        handle.urlsNeedPreload[dependsUrl] = true;
-                    }
-                    if (err || isRawAsset) {
                         --pendingCount;
                         if (callback && pendingCount === 0) {
                             callback();
                             callback = null;
                         }
+                        return;
+                    }
+                    else if (isRawAsset) {
+                        cc.loader.load(dependsUrl, function (err) {
+                            if (err) {
+                                cc.error('[AssetLibrary] Failed to load "%s"', dependsUrl);
+                                obj[prop] = '';
+                            }
+                            else {
+                                obj[prop] = dependsUrl;
+                            }
+                            --pendingCount;
+                            if (callback && pendingCount === 0) {
+                                callback();
+                                callback = null;
+                            }
+                        });
                         return;
                     }
 

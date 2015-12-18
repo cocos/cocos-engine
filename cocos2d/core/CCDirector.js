@@ -552,12 +552,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     // load raw assets
-    _loadRawAssets: function (assetObjects, rawAssetUrls, done) {
+    _loadRawAssets: function (assetObjects, done) {
         var urls = assetObjects.map(function (asset) {
             return asset.url;
         });
-
-        urls = urls.concat(rawAssetUrls);
 
         //var info = 'preload ' + urls;
         //console.time(info);
@@ -616,7 +614,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 if (scene instanceof cc.Scene) {
                     scene._id = uuid;
                     self._loadRawAssets(handle.assetsNeedPostLoad,
-                                        Object.keys(handle.urlsNeedPreload),
                                         function () {
                                             self.runScene(scene, onUnloaded);
                                         });
