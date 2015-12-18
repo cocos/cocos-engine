@@ -62,7 +62,7 @@ var ClickEvent = cc.Class({
          */
         target: {
             default: null,
-            type: cc.Node
+            type: cc.Node,
         },
         /**
          * Component name
@@ -279,6 +279,7 @@ var Button = cc.Class({
         target: {
             default: null,
             type: cc.Node,
+            tooltip: "i18n:COMPONENT.button.target",
 
             notify: function () {
                 this._applyTarget();
