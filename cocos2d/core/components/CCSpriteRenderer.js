@@ -477,8 +477,9 @@ var SpriteRenderer = cc.Class({
         if (oldSprite && oldSprite.off) {
             oldSprite.off('load', this._applyCapInset, this);
         }
-        if (!this._sprite) { return; }
-        sgNode.initWithSpriteFrame(this._sprite, cc.rect(0, 0, 0, 0));
+        if (!this._sprite) return;
+
+        sgNode.setSpriteFrame(this._sprite);
         var locLoaded = this._sprite.textureLoaded();
         if (!locLoaded) {
             if ( !this._useOriginalSize ) {
@@ -493,6 +494,7 @@ var SpriteRenderer = cc.Class({
             this._applyCapInset(sgNode);
             this._applySpriteSize(sgNode);
         }
+
         if (CC_EDITOR) {
             // Set atlas
             this._applyAtlas(this._sprite);
