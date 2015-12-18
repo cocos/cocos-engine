@@ -39,37 +39,45 @@ var EventTarget = require("../event/event-target");
  * @class SpriteFrame
  * @extends Asset
  * @constructor
-
+ * @param {String|Texture2D} filename
+ * @param {Rect} rect - If parameters' length equal 2, rect in points, else rect in pixels
+ * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
+ * @param {Vec2} [offset] - The offset of the frame in the texture
+ * @param {Size} [originalSize] - The size of the frame in the texture
+ * @example {@link utils/api/engine/docs/cocos2d/core/sprites/SpriteFrame.js}
  */
 cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name:'cc.SpriteFrame',
     extends:require('../assets/CCAsset'),
     mixins: [EventTarget],
 
-    //properties:{
-    //    /**
-    //     * @property pivot
-    //     * @type {cc.Vec2}
-    //     * @default new cc.Vec2(0.5, 0.5)
-    //     */
-    //    pivot: {
-    //        default: new cc.Vec2(0.5, 0.5),
-    //        tooltip: 'The pivot is normalized, like a percentage.\n' +
-    //                 '(0,0) means the bottom-left corner and (1,1) means the top-right corner.\n' +
-    //                 'But you can use values higher than (1,1) and lower than (0,0) too.'
-    //    },
-    //},
-/**
- * @method SpriteFrame
- * @constructor
- * @param {String|Texture2D} filename
- * @param {Rect} rect - If parameters' length equal 2, rect in points, else rect in pixels
- * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
- * @param {Vec2} [offset] - The offset of the frame in the texture
- * @param {Size} [originalSize] - The size of the frame in the texture
- * @return {cc.SpriteFrame}
- * @example {@link utils/api/engine/docs/cocos2d/core/sprites/SpriteFrame.js}
- */
+    properties: {
+        /**
+         * Use this property to set raw texture url during loading
+         * @property {String} _textureFilenameSetter
+         * @readOnly
+         * @private
+         */
+        _textureFilenameSetter: {
+            set: function (url) {
+                this._textureFilename = url;
+                if (url) {
+                    // texture will be init in getTexture()
+                    var texture = this.getTexture();
+                    if (this._textureLoaded) {
+                        this._checkRect(texture);
+                        this.emit('load');
+                    }
+                    else {
+                        // register event in setTexture()
+                        this._texture = null;
+                        this.setTexture(texture);
+                    }
+                }
+            }
+        },
+    },
+
     ctor:function () {
         var filename = arguments[0];
         var rect = arguments[1];
@@ -127,11 +135,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._textureFilename = '';
         this._textureLoaded = false;
 
-        // Atlas asset uuid
-        this._atlasUuid = '';
-
-        // The current parsing uuid for editor
-        this._loadingUuid = '';
+        if (CC_EDITOR) {
+            // Atlas asset uuid
+            this._atlasUuid = '';
+        }
 
         if(filename !== undefined && rect !== undefined ){
             if(rotated === undefined || offset === undefined || originalSize === undefined)
@@ -212,8 +219,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Rect}
      */
     getRect:function () {
-        var locRect = this._rect;
-        return cc.rect(locRect.x, locRect.y, locRect.width, locRect.height);
+        return this._rect.clone();
     },
 
     /**
@@ -298,8 +304,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     getTexture:function () {
         if (this._texture)
             return this._texture;
-        if (this._textureFilename !== "") {
-            var locTexture = cc.textureCache.addImage(this._textureFilename);
+        if (this._textureFilename) {
+            var locTexture = this._texture = cc.textureCache.addImage(this._textureFilename);
             if (locTexture)
                 this._textureLoaded = locTexture.isLoaded();
             return locTexture;
@@ -392,15 +398,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */
-    initWithTexture:function (texture, rect, rotated, offset, originalSize, _uuid) {
-        if (cc.js.isString(texture)){
-            this._texture = null;
-            this._textureFilename = texture;
-            this._loadingUuid = '';
-        } else if (texture instanceof cc.Texture2D) {
-            this.setTexture(texture);
-        }
-
+    initWithTexture:function (texture, rect, rotated, offset, originalSize) {
         if(arguments.length === 2)
             rect = cc.rectPointsToPixels(rect);
 
@@ -408,9 +406,18 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         originalSize = originalSize || rect;
         rotated = rotated || false;
 
-        this._rectInPixels = rect;
-        rect = this._rect = cc.rectPixelsToPoints(rect);
+        if (cc.js.isString(texture)){
+            this._texture = null;
+            this._textureFilename = texture;
+        } else if (texture instanceof cc.Texture2D) {
+            this.setTexture(texture);
+        }
 
+        // texture will be init in getTexture()
+        texture = this.getTexture();
+
+        this._rectInPixels = rect;
+        this._rect = cc.rectPixelsToPoints(rect);
         this._offsetInPixels.x = offset.x;
         this._offsetInPixels.y = offset.y;
         cc._pointPixelsToPointsOut(offset, this._offset);
@@ -419,68 +426,59 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         cc._sizePixelsToPointsOut(originalSize, this._originalSize);
         this._rotated = rotated;
 
-        this._checkRect(this.getTexture());
+        if(texture && texture.url && texture.isLoaded()) {
+            this._checkRect(texture);
+        }
 
         return true;
     },
 
     _checkRect: function (texture) {
-        if (texture && texture.url && texture.isLoaded()) {
-            var rect = this._rectInPixels;
-            var maxX = rect.x, maxY = rect.y;
-            if (this._rotated) {
-                maxX += rect.height;
-                maxY += rect.width;
-            }
-            else {
-                maxX += rect.width;
-                maxY += rect.height;
-            }
-            if (maxX > texture.getPixelWidth()) {
-                cc.error(cc._LogInfos.RectWidth, texture.url);
-            }
-            if (maxY > texture.getPixelHeight()) {
-                cc.error(cc._LogInfos.RectHeight, texture.url);
-            }
+        var rect = this._rectInPixels;
+        var maxX = rect.x, maxY = rect.y;
+        if (this._rotated) {
+            maxX += rect.height;
+            maxY += rect.width;
+        }
+        else {
+            maxX += rect.width;
+            maxY += rect.height;
+        }
+        if (maxX > texture.getPixelWidth()) {
+            cc.error(cc._LogInfos.RectWidth, texture.url);
+        }
+        if (maxY > texture.getPixelHeight()) {
+            cc.error(cc._LogInfos.RectHeight, texture.url);
         }
     },
 
     // SERIALIZATION
 
-    _serialize:  function (exporting) {
-        if (CC_EDITOR) {
-            var rect = this._rect;
-            var offset = this._offset;
-            var size = this._originalSize;
-            var url = this._textureFilename;
-            var uuid;
-            if (url) {
-                uuid = Editor.urlToUuid(url);
-            }
-            else {
-                uuid = this._loadingUuid;
-            }
-            var capInsets = undefined;
-            if (this.insetLeft !== 0 ||
-                this.insetTop !== 0 ||
-                this.insetRight !== 0 ||
-                this.insetBottom !== 0) {
-                capInsets = [this.insetLeft, this.insetTop, this.insetRight, this.insetBottom];
-            }
-            return {
-                name: this._name,
-                texture: uuid,
-                atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
-                rect: [rect.x, rect.y, rect.width, rect.height],
-                offset: [offset.x, offset.y],
-                originalSize: [size.width, size.height],
-                rotated: this._rotated ? 1 : 0,
-                capInsets: capInsets
-            };
+    _serialize: CC_EDITOR && function (exporting) {
+        var rect = this._rect;
+        var offset = this._offset;
+        var size = this._originalSize;
+        var url = this._textureFilename;
+        var capInsets = undefined;
+        if (this.insetLeft !== 0 ||
+            this.insetTop !== 0 ||
+            this.insetRight !== 0 ||
+            this.insetBottom !== 0) {
+            capInsets = [this.insetLeft, this.insetTop, this.insetRight, this.insetBottom];
         }
+        return {
+            name: this._name,
+            texture: url && Editor.urlToUuid(url),
+            atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
+            rect: [rect.x, rect.y, rect.width, rect.height],
+            offset: [offset.x, offset.y],
+            originalSize: [size.width, size.height],
+            rotated: this._rotated ? 1 : 0,
+            capInsets: capInsets
+        };
     },
 
-    _deserialize: function (data) {
+    _deserialize: function (data, handle) {
         var rect = data.rect;
         this._rect = new cc.Rect(rect[0], rect[1], rect[2], rect[3]);
         this._rectInPixels = cc.rectPointsToPixels(this._rect);
@@ -497,65 +495,15 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this.insetRight = capInsets[2];
             this.insetBottom = capInsets[3];
         }
-        this._atlasUuid = data.atlas;
+        if (CC_EDITOR) {
+            this._atlasUuid = data.atlas;
+        }
+
+        // load texture via _textureFilenameSetter
         var textureUuid = data.texture;
-
-        // pre-alloc a texture to help loading process
-        this._texture = new cc.Texture2D();
-
-        var self = this;
-        this._loadingUuid = textureUuid;
-        cc.AssetLibrary.queryAssetInfo(textureUuid, function (err, url) {
-            if (err) {
-                cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', textureUuid, err);
-                return;
-            }
-
-            self._textureFilename = url;
-            self._loadingUuid = '';
-
-            var locTexture = self._texture;
-            locTexture.url = url;
-            cc.textureCache.cacheImage(url, locTexture);
-            cc.loader.load(url, function (err) {
-                if (err) {
-                    cc.error('SpriteFrame: Failed to load sprite texture "%s", %s', url, err[0]);
-                    return;
-                }
-                var premultiplied = cc.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG && cc.path.extname(url) === '.png';
-
-                var img = cc.loader.getRes(url);
-                var loaded = img.width > 0 || img.height > 0;
-                if (loaded) {
-                    locTexture.handleLoadedTexture(premultiplied);
-                }
-                else {
-                    // if not yet loaded, we have to register onLoad
-                    // see https://github.com/fireball-x/fireball/issues/668
-                    function loadCallback () {
-                        img.removeEventListener('load', loadCallback, false);
-                        img.removeEventListener('error', errorCallback, false);
-
-                        locTexture.handleLoadedTexture(premultiplied);
-                    }
-                    function errorCallback () {
-                        img.removeEventListener('load', loadCallback, false);
-                        img.removeEventListener('error', errorCallback, false);
-                    }
-                    img.addEventListener('load', loadCallback);
-                    img.addEventListener('error', errorCallback);
-                }
-            });
-
-            // did init texture
-            self._texture = null;
-            self.setTexture(locTexture);
-            //
-            if (locTexture.isLoaded()) {
-                self.emit('load');
-            }
-            self._checkRect(locTexture);
-        });
+        if (textureUuid) {
+            handle.result.push(this, '_textureFilenameSetter', textureUuid);
+        }
     },
 });
 
