@@ -338,7 +338,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         y3 = preferSize.height;
 
         //apply trim
-        var resourceData = this._resourceData;
         var trimmedLeft = resourceData.getTrimmedLeft();
         var trimmedRight = resourceData.getTrimmedRight();
         var trimmedBottom = resourceData.getTrimmedBottom();
@@ -473,7 +472,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var u0, u1, u2, u3;
         var v0, v1, v2, v3;
 
-        if (this._spriteFrameRotated) {
+        if (resourceData._rotated) {
             u0 = textureRect.x / atlasWidth;
             u1 = (bottomHeight + textureRect.x) / atlasWidth;
             u2 = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
