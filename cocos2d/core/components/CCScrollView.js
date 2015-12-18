@@ -268,7 +268,7 @@ var ScrollView = cc.Class({
     _handleMoveLogic: function(touch) {
         var currPt = touch.getLocation();
         var prevPt = touch.getPreviousLocation();
-        if (!this._isCurrAndPrevTouchPositionHitTest(currPt, prevPt)) {
+        if (!this._hitTest(currPt) || !this._hitTest(prevPt)) {
             return;
         }
 
@@ -305,13 +305,6 @@ var ScrollView = cc.Class({
         this._onScrollBarTouchBegan();
     },
 
-    _isCurrAndPrevTouchPositionHitTest: function(currPt, prevPt) {
-        if (!this._hitTest(currPt) || !this._hitTest(prevPt)) {
-            return false;
-        }
-        return true;
-    },
-
     _gatherTouchMove: function(delta) {
         while (this._touchMoveDisplacements.length >= NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED) {
             this._touchMoveDisplacements.shift();
@@ -345,7 +338,7 @@ var ScrollView = cc.Class({
         var currPt = touch.getLocation();
         var prevPt = touch.getPreviousLocation();
 
-        if (this._isCurrAndPrevTouchPositionHitTest(currPt, prevPt)) {
+        if (this._hitTest(currPt) && this._hitTest(prevPt)) {
             var delta = cc.pSub(currPt, prevPt);
             this._gatherTouchMove(delta);
         }
