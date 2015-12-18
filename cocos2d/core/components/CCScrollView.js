@@ -86,7 +86,7 @@ var ScrollView = cc.Class({
 
     properties: {
         /**
-         *This is a reference to the UI element to be scrolled.
+         * This is a reference to the UI element to be scrolled.
          *@property {cc.Node} content
          */
         content: {

@@ -22,6 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var GETTINGSHORTERFACTOR = 20;
 
 /**
  * Enum for Scrollbar direction
@@ -211,7 +212,6 @@ var Scrollbar = cc.Class({
     _calculateLength: function(contentMeasure, scrollViewMeasure, outOfBoundary) {
         var denominatorValue = contentMeasure;
         if (outOfBoundary) {
-            var GETTINGSHORTERFACTOR = 20;
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
         }
 
