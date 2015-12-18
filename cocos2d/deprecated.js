@@ -227,10 +227,10 @@ if (CC_DEV) {
 
     deprecateEnum(cc, 'cc.TEXT_ALIGNMENT', 'cc.TextAlignment');
     deprecateEnum(cc, 'cc.VERTICAL_TEXT_ALIGNMENT', 'cc.VerticalTextAlignment');
-    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.TYPE', 'cc.ParticleSystem.Type');
-    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.Mode');
-    deprecateEnum(cc.EParticleSystem, 'cc.EParticleSystem.TYPE', 'cc.EParticleSystem.PositionType');
-    deprecateEnum(cc.EParticleSystem, 'cc.EParticleSystem.MODE', 'cc.EParticleSystem.EmitterMode');
+    deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.TYPE', '_ccsg.ParticleSystem.Type');
+    deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.MODE', '_ccsg.ParticleSystem.Mode');
+    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.TYPE', 'cc.ParticleSystem.PositionType');
+    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.EmitterMode');
     deprecateEnum(ccui.ScrollView, 'ccui.ScrollView.DIR', 'ccui.ScrollView.Dir');
     deprecateEnum(ccui.ScrollView, 'ccui.ScrollView.EVENT', 'ccui.ScrollView.Event');
     deprecateEnum(ccui.Layout, 'ccui.Layout', 'ccui.Layout.Type', false);
@@ -428,7 +428,7 @@ if (CC_DEV) {
     shouldNotUseNodeProp(cc.SpriteRenderer);
 
     // Particle
-    markAsRemoved(cc.EParticleSystem, [
+    markAsRemoved(cc.ParticleSystem, [
         'batchNode',
         'drawMode',
         'getDrawMode',
@@ -441,12 +441,12 @@ if (CC_DEV) {
         'initParticle',
         'updateWithNoTime',
     ]);
-    provideClearError(cc.EParticleSystem, {
+    provideClearError(cc.ParticleSystem, {
         initWithFile: 'instance.file',
         initWithDictionary: 'instance.file',
         initWithTotalParticles: 'instance.totalParticles'
     });
-    provideClearError(cc.EParticleSystem.prototype, {
+    provideClearError(cc.ParticleSystem.prototype, {
         destroyParticleSystem: 'destroy',
         clone: 'cc.instantiate',
         isActive: 'active',
@@ -475,8 +475,8 @@ if (CC_DEV) {
         '*etTotalParticles': 'totalParticles',
         '*etTexture': 'texture',
     });
-    shouldNotUseNodeProp(cc.EParticleSystem);
-    js.obsoletes(cc.EParticleSystem, 'cc.EParticleSystem', {
+    shouldNotUseNodeProp(cc.ParticleSystem);
+    js.obsoletes(cc.ParticleSystem, 'cc.ParticleSystem', {
         Type: 'PositionType',
         Mode: 'EmitterMode'
     });

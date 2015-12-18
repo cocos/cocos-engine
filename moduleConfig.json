@@ -66,9 +66,9 @@
             "cocos2d/core/renderer/RendererWebGL.js",
 
             "cocos2d/core/base-nodes/BaseNodesPropertyDefine.js",
-            "cocos2d/core/base-nodes/CCNode.js",
-            "cocos2d/core/base-nodes/CCNodeCanvasRenderCmd.js",
-            "cocos2d/core/base-nodes/CCNodeWebGLRenderCmd.js",
+            "cocos2d/core/base-nodes/CCSGNode.js",
+            "cocos2d/core/base-nodes/CCSGNodeCanvasRenderCmd.js",
+            "cocos2d/core/base-nodes/CCSGNodeWebGLRenderCmd.js",
             "cocos2d/core/base-nodes/CCAtlasNode.js",
             "cocos2d/core/base-nodes/CCAtlasNodeCanvasRenderCmd.js",
             "cocos2d/core/base-nodes/CCAtlasNodeWebGLRenderCmd.js",
@@ -77,7 +77,7 @@
             "cocos2d/core/textures/CCTextureCache.js",
             "cocos2d/core/textures/CCTextureAtlas.js",
 
-            "cocos2d/core/scenes/CCScene.js",
+            "cocos2d/core/scenes/CCSGScene.js",
             "cocos2d/core/scenes/CCLoaderScene.js",
 
             "cocos2d/core/layers/CCLayer.js",
@@ -178,10 +178,10 @@
 
             "cocos2d/particle/CCPNGReader.js",
             "cocos2d/particle/CCTIFFReader.js",
-            "cocos2d/particle/CCParticleSystem.js",
-            "cocos2d/particle/CCParticleSystemCanvasRenderCmd.js",
-            "cocos2d/particle/CCParticleSystemWebGLRenderCmd.js",
-            "cocos2d/particle/CCParticleExamples.js",
+            "cocos2d/particle/CCSGParticleSystem.js",
+            "cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js",
+            "cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js",
+            "cocos2d/particle/CCSGParticleExamples.js",
             "cocos2d/particle/CCParticleBatchNode.js",
             "cocos2d/particle/CCParticleBatchNodeCanvasRenderCmd.js",
             "cocos2d/particle/CCParticleBatchNodeWebGLRenderCmd.js"

@@ -337,8 +337,8 @@ _ccsg.Node = cc.Class({
      * <br/>
      * Also, the Scene Graph is traversed using the "In-Order" tree traversal algorithm ( http://en.wikipedia.org/wiki/Tree_traversal#In-order )
      * <br/>
-     * And Nodes that have LocalZOder values < 0 are the "left" subtree                                                 <br/>
-     * While Nodes with LocalZOder >=0 are the "right" subtree.    </p>
+     * And Nodes that have LocalZOder values smaller than 0 are the "left" subtree                                                 <br/>
+     * While Nodes with LocalZOder greater than 0 are the "right" subtree.    </p>
      * @function
      * @param {Number} localZOrder
      */

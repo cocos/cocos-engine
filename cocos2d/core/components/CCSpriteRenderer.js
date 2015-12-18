@@ -34,7 +34,7 @@ var SpriteRenderer = cc.Class({
     extends: require('./CCComponentInSG'),
 
     editor: CC_EDITOR && {
-        menu: 'Graphics/Sprite',
+        menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         inspector: 'app://editor/page/inspector/sprite.html'
     },
 
@@ -55,7 +55,7 @@ var SpriteRenderer = cc.Class({
          */
         _atlas: {
             default: '',
-            url: cc.SpriteAtlas,
+            type: cc.SpriteAtlas,
             editorOnly: true,
             visible: true
         },
@@ -76,18 +76,6 @@ var SpriteRenderer = cc.Class({
                     if (CC_EDITOR) {
                         if (force) {
                             this._sgNode._scale9Image = null;
-                        }
-                        // Set atlas
-                        if (value._atlasUuid !== undefined) {
-                            var self = this;
-                            cc.AssetLibrary.queryAssetInfo(value._atlasUuid, function(err, url) {
-                                if (url) {
-                                    self._atlas = url;
-                                }
-                                else {
-                                    self._atlas = '';
-                                }
-                            });
                         }
                     }
                     this._applySprite(this._sgNode, lastSprite);
@@ -452,6 +440,18 @@ var SpriteRenderer = cc.Class({
         this.node.off('size-changed', this._resized, this);
     },
 
+    _applyAtlas: CC_EDITOR && function ( sprite ) {
+        // Set atlas
+        if (sprite._atlasUuid) {
+            var self = this;
+            cc.AssetLibrary.loadAsset(sprite._atlasUuid, function(err, asset) {
+                self._atlas = asset;
+            });
+        } else {
+            this._atlas = null;
+        }
+    },
+
     _applyCapInset: function (node) {
         if (this._type === SpriteType.SLICED) {
             var node = node || this._sgNode;
@@ -477,8 +477,9 @@ var SpriteRenderer = cc.Class({
         if (oldSprite && oldSprite.off) {
             oldSprite.off('load', this._applyCapInset, this);
         }
-        if (!this._sprite) { return; }
-        sgNode.initWithSpriteFrame(this._sprite, cc.rect(0, 0, 0, 0));
+        if (!this._sprite) return;
+
+        sgNode.setSpriteFrame(this._sprite);
         var locLoaded = this._sprite.textureLoaded();
         if (!locLoaded) {
             if ( !this._useOriginalSize ) {
@@ -492,6 +493,11 @@ var SpriteRenderer = cc.Class({
         else {
             this._applyCapInset(sgNode);
             this._applySpriteSize(sgNode);
+        }
+
+        if (CC_EDITOR) {
+            // Set atlas
+            this._applyAtlas(this._sprite);
         }
     },
 

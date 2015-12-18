@@ -378,6 +378,8 @@ cc.Label.Overflow = cc.Enum({
     RESIZE: 2
 });
 
+cc.spriteFrameAnimationCache = cc.animationCache;
+cc.SpriteFrameAnimation = cc.Animation;
 
 // Assets
 cc.js.setClassName('cc.SpriteFrame', cc.SpriteFrame);
@@ -385,5 +387,8 @@ cc.js.setClassName('cc.SpriteFrame', cc.SpriteFrame);
 // ccsg
 window._ccsg = {
     Node: cc.Node,
-    Scene: cc.Scene
+    Scene: cc.Scene,
+    ParticleSystem: cc.ParticleSystem,
+    Label: cc.Label,
+
 };

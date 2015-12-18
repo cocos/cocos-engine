@@ -226,9 +226,15 @@ var SampledAnimCurve = cc.Class({
         ratio = (ratio - start) / (end - start);
 
         var eachLength = 1 / length;
+        var index = ratio / eachLength;
+        var floorIndex = index | 0;
+        var EPSILON = 1e-6;
 
-        var index = (ratio / eachLength) | 0;
-        return index;
+        if ((index - floorIndex) < EPSILON) {
+            return floorIndex;
+        }
+
+        return ~(floorIndex + 1);
     }
 });
 

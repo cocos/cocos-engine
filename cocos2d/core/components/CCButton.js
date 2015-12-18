@@ -26,7 +26,7 @@ var EventTarget = require("../event/event-target");
 
 /**
  * Enum for transition type
- * @enum EButton.Transition
+ * @enum Button.Transition
  */
 var Transition = cc.Enum({
     /**
@@ -49,7 +49,7 @@ var Transition = cc.Enum({
  * Click event will register a event to target component's handler.
  * And will trigger when a click event emit
  *
- * @class EButton.ClickEvent
+ * @class Button.ClickEvent
  */
 var ClickEvent = cc.Class({
     name: 'cc.ClickEvent',
@@ -103,18 +103,18 @@ var EVENT_HOVER_OUT = 'hover-out';
 /**
  * Button has 3 Transition types
  * When Button state changed:
- *  If Transition type is EButton.Transition.NONE, Button will do nothing
- *  If Transition type is EButton.Transition.COLOR, Button will change target's color
- *  If Transition type is EButton.Transition.SPRITE, Button will change target SpriteRenderer's sprite
+ *  If Transition type is Button.Transition.NONE, Button will do nothing
+ *  If Transition type is Button.Transition.COLOR, Button will change target's color
+ *  If Transition type is Button.Transition.SPRITE, Button will change target SpriteRenderer's sprite
  *
  * Button will trigger 5 events:
- *  EButton.EVENT_TOUCH_DOWN
- *  EButton.EVENT_TOUCH_UP
- *  EButton.EVENT_HOVER_IN
- *  EButton.EVENT_HOVER_MOVE
- *  EButton.EVENT_HOVER_OUT
+ *  Button.EVENT_TOUCH_DOWN
+ *  Button.EVENT_TOUCH_UP
+ *  Button.EVENT_HOVER_IN
+ *  Button.EVENT_HOVER_MOVE
+ *  Button.EVENT_HOVER_OUT
  *
- * @class EButton
+ * @class Button
  * @extends Component
  */
 var Button = cc.Class({
@@ -139,7 +139,7 @@ var Button = cc.Class({
     },
 
     editor: CC_EDITOR && {
-        menu: 'UI/Button',
+        menu: 'i18n:MAIN_MENU.component.ui/Button',
         inspector: 'app://editor/page/inspector/button/button.html',
         executeInEditMode: true
     },
@@ -160,8 +160,8 @@ var Button = cc.Class({
 
         /**
          * Transition type
-         * @property {EButton.Transition} transition
-         * @default EButton.Transition.Node
+         * @property {Button.Transition} transition
+         * @default Button.Transition.Node
          */
         transition: {
             default: Transition.NONE,
@@ -271,9 +271,9 @@ var Button = cc.Class({
         /**
          * Transition target.
          * When Button state changed:
-         *  If Transition type is EButton.Transition.NONE, Button will do nothing
-         *  If Transition type is EButton.Transition.COLOR, Button will change target's color
-         *  If Transition type is EButton.Transition.SPRITE, Button will change target SpriteRenderer's sprite
+         *  If Transition type is Button.Transition.NONE, Button will do nothing
+         *  If Transition type is Button.Transition.COLOR, Button will change target's color
+         *  If Transition type is Button.Transition.SPRITE, Button will change target SpriteRenderer's sprite
          * @property {cc.Node} target
          */
         target: {
@@ -287,7 +287,7 @@ var Button = cc.Class({
 
         /**
          * If Button is clicked, will trigger event's handler
-         * @property {[EButton.ClickEvent]} clickEvents
+         * @property {[Button.ClickEvent]} clickEvents
          */
         clickEvents: {
             default: [],
@@ -499,4 +499,4 @@ var Button = cc.Class({
 
 cc.js.addon(Button.prototype, EventTarget.prototype);
 
-cc.EButton = module.exports = Button;
+cc.Button = module.exports = Button;

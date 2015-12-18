@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * using image file to print text label on the screen, might be a bit slower than cc.Label, similar to cc.LabelBMFont
+ * using image file to print text label on the screen, might be a bit slower than _ccsg.Label, similar to cc.LabelBMFont
  * @class
  * @extends cc.AtlasNode
  *

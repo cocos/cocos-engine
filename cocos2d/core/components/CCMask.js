@@ -32,7 +32,7 @@ var Mask = cc.Class({
     extends: cc.Component,
 
     editor: CC_EDITOR && {
-        menu: 'UI/Mask',
+        menu: 'i18n:MAIN_MENU.component.renderers/Mask',
         executeInEditMode: true
     },
 

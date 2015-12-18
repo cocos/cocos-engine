@@ -972,7 +972,7 @@ var ActionAnimate = ActionsDemo.extend({
         //
         // Manual animation
         //
-        var animation = new cc.Animation();
+        var animation = new cc.SpriteFrameAnimation();
         for (var i = 1; i < 15; i++) {
             var frameName = "Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
             animation.addSpriteFrameWithFile(frameName);
@@ -987,7 +987,7 @@ var ActionAnimate = ActionsDemo.extend({
         // File animation
         //
         // With 2 loops and reverse
-        var animCache = cc.animationCache;
+        var animCache = cc.spriteFrameAnimationCache;
 
         animCache.addAnimations(s_animations2Plist);
         var animation2 = animCache.getAnimation("dance_1");
@@ -2510,7 +2510,7 @@ var Issue1438 = ActionsDemo.extend({
         //
         // manual animation
         //
-        var animation = new cc.Animation();
+        var animation = new cc.SpriteFrameAnimation();
 
         // Add 60 frames
         for (var j = 0; j < 4; j++) {
@@ -2529,7 +2529,7 @@ var Issue1438 = ActionsDemo.extend({
         //
         // File animation
         //
-        var animCache = cc.animationCache;
+        var animCache = cc.spriteFrameAnimationCache;
         animCache.addAnimations(s_animations2Plist);
         var animation2 = animCache.getAnimation("dance_1");
         animation2.setDelayPerUnit(1 / 60);
@@ -2835,7 +2835,7 @@ var ActionCustomTest = ActionsDemo.extend({
         spriteTemp.runAction(tintBy);
 
         spriteTemp = this.addandCreateSpriteTemp("cc.Animate");
-        var animation = new cc.Animation();
+        var animation = new cc.SpriteFrameAnimation();
         for (var i = 1; i < 15; i++) {
             var frameName = "Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
             animation.addSpriteFrameWithFile(frameName);

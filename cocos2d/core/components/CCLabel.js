@@ -24,11 +24,11 @@
 
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
-var Overflow = cc.Label.Overflow;
-var LabelType = cc.Label.Type;
+var Overflow = _ccsg.Label.Overflow;
+var LabelType = _ccsg.Label.Type;
 /**
  *
- * @class ELabel
+ * @class Label
  * @extends _ComponentInSG
  */
 var Label = cc.Class({
@@ -36,7 +36,7 @@ var Label = cc.Class({
     extends: cc._ComponentInSG,
 
     editor: CC_EDITOR && {
-        menu: 'Graphics/Label'
+        menu: 'i18n:MAIN_MENU.component.renderers/Label'
     },
 
     properties: {
@@ -232,7 +232,7 @@ var Label = cc.Class({
     },
 
     _createSgNode: function () {
-        var sgNode = new cc.Label(this.string, this.file, cc.Label.Type.TTF);
+        var sgNode = new _ccsg.Label(this.string, this.file, _ccsg.Label.Type.TTF);
 
         // TODO
         // sgNode.enableRichText = this.enableRichText;
@@ -256,4 +256,4 @@ var Label = cc.Class({
     }
  });
 
- cc.ELabel = module.exports = Label;
+ cc.Label = module.exports = Label;

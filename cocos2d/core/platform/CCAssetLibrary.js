@@ -43,8 +43,6 @@ function LoadingHandle (readMainCache, writeMainCache, recordAssets, deserialize
 
     // 需要让场景 preload 的 asset（所有包含 raw file 后缀名的 asset 并且不含 rawType 属性的 asset）
     this.assetsNeedPostLoad = recordAssets ? [] : null;
-    // 需要让场景 preload 的 url
-    this.urlsNeedPreload = {};
 
     // 可以提供一个反序列化句柄，用来在执行反序列化任务时，做一些特殊处理
     this.deserializeInfo = deserializeInfo;
@@ -92,20 +90,20 @@ var AssetLibrary = {
      * @param {Boolean} options.readMainCache - Default is true. If false, the asset and all its depends assets will reload and create new instances from library.
      * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
      * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
+     * @param {Boolean} options.recordAssets - Default is false. If true, tracking statistics associated with the assets which needs to preload（All the assets contains "urls" but dont have "_rawFiles"）
      * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want
      * @private
      */
     loadAsset: function (uuid, callback, options) {
         var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
         var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
-        var existingAsset, deserializeInfo;
-        if (options) {
-            existingAsset = options.existingAsset;
-            deserializeInfo = options.deserializeInfo;
-        }
 
-        var handle = new LoadingHandle(readMainCache, writeMainCache, null, deserializeInfo);
-        this._loadAssetByUuid(uuid, callback, handle, existingAsset);
+        var handle = new LoadingHandle(readMainCache,
+                                       writeMainCache,
+                                       options && options.recordAssets,
+                                       options && options.deserializeInfo);
+        this._loadAssetByUuid(uuid, callback, handle, options && options.existingAsset);
+        return handle;
     },
 
     _LoadingHandle: LoadingHandle,
@@ -362,18 +360,28 @@ var AssetLibrary = {
                 AssetLibrary.queryAssetInfo(dependsUuid, function (err, dependsUrl, isRawAsset) {
                     if (err) {
                         cc.error('[AssetLibrary] Failed to load "%s", %s', dependsUuid, err);
-                    }
-                    else if (isRawAsset) {
-                        // update url
-                        obj[prop] = dependsUrl;
-                        handle.urlsNeedPreload[dependsUrl] = true;
-                    }
-                    if (err || isRawAsset) {
                         --pendingCount;
                         if (callback && pendingCount === 0) {
                             callback();
                             callback = null;
                         }
+                        return;
+                    }
+                    else if (isRawAsset) {
+                        cc.loader.load(dependsUrl, function (err) {
+                            if (err) {
+                                cc.error('[AssetLibrary] Failed to load "%s"', dependsUrl);
+                                obj[prop] = '';
+                            }
+                            else {
+                                obj[prop] = dependsUrl;
+                            }
+                            --pendingCount;
+                            if (callback && pendingCount === 0) {
+                                callback();
+                                callback = null;
+                            }
+                        });
                         return;
                     }
 

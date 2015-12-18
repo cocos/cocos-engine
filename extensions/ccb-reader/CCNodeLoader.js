@@ -518,10 +518,10 @@ cc.NodeLoader = cc._Class.extend({
         animationFile = cc.BuilderReader.lastPathComponent(animationFile);
 
         if (animation != null && animation !== "") {
-            var animationCache = cc.animationCache;
-            animationCache.addAnimations(animationFile);
+            var spriteFrameAnimationCache = cc.spriteFrameAnimationCache;
+            spriteFrameAnimationCache.addAnimations(animationFile);
 
-            ccAnimation = animationCache.getAnimation(animation);
+            ccAnimation = spriteFrameAnimationCache.getAnimation(animation);
         }
         return ccAnimation;
     },

@@ -34,15 +34,15 @@ function equalClips (clip1, clip2) {
 }
 
 /**
- * @class AnimationComponent
+ * @class Animation
  * @extends CCComponent
  */
-var AnimationComponent = cc.Class({
-    name: 'cc.AnimationComponent',
+var Animation = cc.Class({
+    name: 'cc.Animation',
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'Animation',
+        menu: 'i18n:MAIN_MENU.component.others/Animation',
         executeInEditMode: true
     },
 
@@ -439,4 +439,4 @@ var AnimationComponent = cc.Class({
 });
 
 
-cc.AnimationComponent = module.exports = AnimationComponent;
+cc.Animation = module.exports = Animation;

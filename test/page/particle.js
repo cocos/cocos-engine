@@ -9,7 +9,7 @@ describe( 'test Particle wrapper', function () {
 
 
     beforeEach(function () {
-        node = new cc.ParticleSystem();
+        node = new _ccsg.ParticleSystem();
         wrapper = cc.getWrapper(node);
     });
 
@@ -35,11 +35,11 @@ describe( 'test Particle wrapper', function () {
         wrapper.endSpinVariance = 200;
         wrapper.sourcePosition = new cc.Vec2(100, 100);
         wrapper.sourcePositionVariance = new cc.Vec2(100, 100);
-        wrapper.positionType = cc.ParticleSystem.Type.FREE;
+        wrapper.positionType = _ccsg.ParticleSystem.Type.FREE;
     }
 
     function setGravityModeProperties () {
-        wrapper.emitterMode = cc.ParticleSystem.Mode.GRAVITY;
+        wrapper.emitterMode = _ccsg.ParticleSystem.Mode.GRAVITY;
         wrapper.gravity = new cc.Vec2(100, 100);
         wrapper.speed = 1;
         wrapper.speedVariance = 2;
@@ -51,7 +51,7 @@ describe( 'test Particle wrapper', function () {
     }
 
     function setRadiusProperties () {
-        wrapper.emitterMode = cc.ParticleSystem.Mode.RADIUS;
+        wrapper.emitterMode = _ccsg.ParticleSystem.Mode.RADIUS;
         wrapper.startRadius = 8;
         wrapper.startRadiusVariance = 9;
         wrapper.endRadius = 10;

@@ -117,7 +117,7 @@
             var child = null;
             loadTexture(component["fileData"], resourcePath, function(path, type){
                 if(type === 0)
-                    child = new cc.ParticleSystem(path);
+                    child = new _ccsg.ParticleSystem(path);
                 else
                     cc.log("unknown resourcetype on CCParticleSystemQuad!");
                 child.setPosition(0, 0);

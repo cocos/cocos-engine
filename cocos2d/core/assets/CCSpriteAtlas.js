@@ -6,7 +6,7 @@
  */
 var SpriteAtlas = cc.Class({
     name: 'cc.SpriteAtlas',
-    extends: cc.RawAsset,
+    extends: cc.Asset,
 });
 
 cc.SpriteAtlas = SpriteAtlas;
