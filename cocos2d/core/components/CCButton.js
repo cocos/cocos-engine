@@ -413,7 +413,7 @@ var Button = cc.Class({
 
     // touch event handler
     _onTouchBegan: function (touch) {
-        if (!this.interactable) return false;
+        if (!this.interactable || !this.node.active) return false;
 
         var hit = this._hitTest(touch.getLocation());
         if (hit) {
@@ -436,7 +436,7 @@ var Button = cc.Class({
     },
 
     _onMouseMove: function (event) {
-        if (this._pressed || !this.interactable) return;
+        if (this._pressed || !this.interactable || !this.node.active) return;
 
         var hit = this._hitTest(event.getLocation());
         if (hit) {
