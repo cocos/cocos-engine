@@ -392,3 +392,180 @@ window._ccsg = {
     Label: cc.Label,
 
 };
+
+// rename cc.Class to cc._Class
+cc._Class = cc.Class;
+
+// cc.textureCache.cacheImage
+cc.textureCache._textures = {};
+cc.textureCache.cacheImage = function (key, texture) {
+    if (texture instanceof cc.Texture2D) {
+        this._textures[key] = texture;
+    }
+};
+cc.textureCache._getTextureForKey = cc.textureCache.getTextureForKey;
+cc.textureCache.getTextureForKey = function (key) {
+    var tex = this._getTextureForKey(key);
+    if (!tex)
+        tex = this._textures[key];
+    return tex || null;
+};
+
+// cc.Texture2D
+cc.Texture2D.prototype.isLoaded = function () {
+    return true;
+};
+cc.Texture2D.prototype.getPixelWidth = cc.Texture2D.prototype.getPixelsWide;
+cc.Texture2D.prototype.getPixelHeight = cc.Texture2D.prototype.getPixelsHigh;
+
+// cc.SpriteFrame
+cc.SpriteFrame.prototype.textureLoaded = function () {
+    return this.getTexture() !== null;
+};
+cc.SpriteFrame.prototype._initWithTexture = cc.SpriteFrame.prototype.initWithTexture;
+cc.SpriteFrame.prototype.initWithTexture = function (texture, rect, rotated, offset, originalSize, _uuid) {
+    function check(texture) {
+        if (texture && texture.isLoaded()) {
+            var _x, _y;
+            if (rotated) {
+                _x = rect.x + rect.height;
+                _y = rect.y + rect.width;
+            }
+            else {
+                _x = rect.x + rect.width;
+                _y = rect.y + rect.height;
+            }
+            if (_x > texture.getPixelWidth()) {
+                cc.error(cc._LogInfos.RectWidth, _uuid);
+            }
+            if (_y > texture.getPixelHeight()) {
+                cc.error(cc._LogInfos.RectHeight, _uuid);
+            }
+        }
+    }
+
+    if(arguments.length === 2)
+        rect = cc.rectPointsToPixels(rect);
+
+    offset = offset || cc.p(0, 0);
+    originalSize = originalSize || rect;
+    rotated = rotated || false;
+
+    if (this.insetTop === undefined) {
+        this.insetTop = 0;
+        this.insetBottom = 0;
+        this.insetLeft = 0;
+        this.insetRight = 0;
+    }
+
+    var locTexture;
+    if (!texture && _uuid) {
+        // deserialize texture from uuid
+        var info = cc.AssetLibrary._getAssetInfoInRuntime(_uuid);
+        if (!info) {
+            cc.error('SpriteFrame: Failed to load sprite texture "%s"', _uuid);
+            return;
+        }
+
+        this._textureFilename = info.url;
+
+        locTexture = cc.textureCache.addImage(info.url);
+        this._initWithTexture(locTexture, rect, rotated, offset, originalSize);
+
+        // this.emit('load');
+    }
+    else {
+        if (cc.js.isString(texture)){
+            this._textureFilename = texture;
+            locTexture = cc.textureCache.addImage(this._textureFilename);
+            this._initWithTexture(locTexture, rect, rotated, offset, originalSize);
+        } else if (texture instanceof cc.Texture2D) {
+            this._textureFilename = '';
+            this._initWithTexture(texture, rect, rotated, offset, originalSize);
+        }
+    }
+    check(this.getTexture());
+    return true;
+};
+cc.SpriteFrame.prototype._deserialize = function (data) {
+    var rect = data.rect;
+    rect = new cc.Rect(rect[0], rect[1], rect[2], rect[3]);
+    var rectInP = cc.rectPointsToPixels(rect);
+    var offset = new cc.Vec2(data.offset[0], data.offset[1]);
+    var offsetInP = cc.pointPointsToPixels(offset);
+    var size = new cc.Size(data.originalSize[0], data.originalSize[1]);
+    var sizeInP = cc.sizePointsToPixels(size);
+    var rotated = data.rotated === 1;
+    // init properties not included in this._initWithTexture()
+    this._name = data.name;
+    var capInsets = data.capInsets;
+    if (capInsets) {
+        this.insetLeft = capInsets[0];
+        this.insetTop = capInsets[1];
+        this.insetRight = capInsets[2];
+        this.insetBottom = capInsets[3];
+    }
+    var uuid = data.texture;
+    this._loadingUuid = uuid;
+    this.initWithTexture(null, rectInP, rotated, offsetInP, sizeInP, uuid);
+};
+
+// cc.Label
+cc.Label.prototype.setHorizontalAlign = cc.Label.prototype.setHorizontalAlignment;
+cc.Label.prototype.setVerticalAlign = cc.Label.prototype.setVerticalAlignment;
+cc.Label.prototype.setFontSize = cc.Label.prototype.setSystemFontSize;
+cc.Label.prototype.setOverflow = function () {};
+cc.Label.prototype.enableWrapText = function () {};
+cc.Label.prototype.setLineHeight = function () {};
+
+// cc.eventManager.addListener
+cc.eventManager.addListener = function(listener, nodeOrPriority) {
+    if(!(listener instanceof cc.EventListener)) {
+        listener = cc.EventListener.create(listener);
+    }
+
+    if (typeof nodeOrPriority == "number") {
+        if (nodeOrPriority == 0) {
+            cc.log("0 priority is forbidden for fixed priority since it's used for scene graph based priority.");
+            return;
+        }
+
+        cc.eventManager.addEventListenerWithFixedPriority(listener, nodeOrPriority);
+    } else {
+        if (nodeOrPriority instanceof cc.Component) {
+            nodeOrPriority = nodeOrPriority.node._sgNode;
+        }
+        if (nodeOrPriority instanceof cc.Node) {
+            nodeOrPriority = nodeOrPriority._sgNode;
+        }
+        cc.eventManager.addEventListenerWithSceneGraphPriority(listener, nodeOrPriority);
+    }
+
+    return listener;
+};
+
+// cc.Scale9Sprite
+cc.Scale9Sprite.prototype._setBlendFunc = cc.Scale9Sprite.prototype.setBlendFunc;
+cc.Scale9Sprite.prototype.setBlendFunc = function(blendFunc, dst) {
+    if (dst !== undefined) {
+        blendFunc = {
+            src : blendFunc,
+            dst : dst
+        };
+    }
+    this._setBlendFunc(blendFunc);
+};
+cc.Scale9Sprite.prototype._setContentSize = cc.Scale9Sprite.prototype.setContentSize;
+cc.Scale9Sprite.prototype.setContentSize = function(size, height){
+    if (height !== undefined) {
+        size = new cc.Size(size, height);
+    }
+    this._setContentSize(size);
+};
+cc.Scale9Sprite.prototype._setAnchorPoint = cc.Scale9Sprite.prototype.setAnchorPoint;
+cc.Scale9Sprite.prototype.setAnchorPoint = function(anchorPoint, y){
+    if (y !== undefined) {
+        anchorPoint = new cc.Vec2(anchorPoint, y);
+    }
+    this._setAnchorPoint(anchorPoint);
+};

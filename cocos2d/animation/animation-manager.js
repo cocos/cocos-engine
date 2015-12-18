@@ -1,6 +1,6 @@
 var JS = cc.js;
 
-var AnimationManager = cc._Class.extend({
+var AnimationManager = cc.Class({
     ctor: function () {
         this.animators = [];
     },
