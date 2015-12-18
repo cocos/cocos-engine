@@ -219,8 +219,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Rect}
      */
     getRect:function () {
-        var locRect = this._rect;
-        return cc.rect(locRect.x, locRect.y, locRect.width, locRect.height);
+        return this._rect.clone();
     },
 
     /**
