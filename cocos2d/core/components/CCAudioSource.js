@@ -27,7 +27,7 @@
 /**
  * Audio Source.
  * @class AudioScource
- * @extends CCComponent
+ * @extends Component
  */
 
 var audioEngine = cc.audioEngine;
@@ -80,7 +80,8 @@ var AudioSource = cc.Class({
             set: function (value) {
                 this._clip = value;
             },
-            url: cc.AudioClip
+            url: cc.AudioClip,
+            tooltip: 'i18n.COMPONENT.audio.clip',
         },
 
         /**
@@ -96,7 +97,8 @@ var AudioSource = cc.Class({
             set: function (value) {
                 this._volume = value;
                 if (this.audio) this.audio.setVolume(value);
-            }
+            },
+            tooltip: 'i18n.COMPONENT.audio.volume'
         },
 
         /**
@@ -119,7 +121,8 @@ var AudioSource = cc.Class({
                         this.audio.setVolume(this._volume);
                     }
                 }
-            }
+            },
+            tooltip: 'i18n.COMPONENT.audio.mute'
         },
 
         /**
@@ -135,7 +138,8 @@ var AudioSource = cc.Class({
             set: function (value) {
                 this._loop = value;
                 if (this.audio) this.audio.loop = this._loop;
-            }
+            },
+            tooltip: 'i18n.COMPONENT.audio.loop'
         },
 
         /**
@@ -144,8 +148,9 @@ var AudioSource = cc.Class({
          * @type {Boolean}
          * @default true
          */
-        playOnLoad: true
-
+        playOnLoad: {
+            default: false,
+            tooltip: 'i18n.COMPONENT.audio.play_on_load'
     },
 
     onLoad: function () {

@@ -65,7 +65,8 @@ var Animation = cc.Class({
         defaultClip: {
             default: null,
             type: AnimationClip,
-            displayName: 'Animation'
+            displayName: 'Animation',
+            tooltip: 'i18n:COMPONENT.animation.default_clip'
         },
 
         /**
@@ -97,6 +98,7 @@ var Animation = cc.Class({
             default: [],
             type: [AnimationClip],
             displayName: 'Animations',
+            tooltip: 'i18n:COMPONENT.animation.clips',
             visible: true
         },
 
@@ -106,7 +108,10 @@ var Animation = cc.Class({
          * @type {bool}
          * @default true
          */
-        playAutomatically: true,
+        playAutomatically: {
+            default: false,
+            tooltip: 'i18n:COMPONENT.animation.play_on_load'
+        }
     },
 
     onLoad: function () {
