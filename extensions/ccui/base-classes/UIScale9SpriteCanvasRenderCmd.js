@@ -36,46 +36,28 @@
     proto._updateDisplayOpacity = function(parentOpacity){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
         var node = this._node;
-        var scale9Image = node._scale9Image;
-        if(scale9Image) {
-            var opacity = 255;
-            if (node._cascadeOpacityEnabled) opacity = this._displayedOpacity;
-            scale9Image._renderCmd._updateDisplayOpacity(opacity);
-        }
     };
 
     proto._updateDisplayColor = function(parentColor){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
-        var scale9Image = node._scale9Image;
-        if(scale9Image){
-            var color = cc.Color.WHITE;
-            if(this._cascadeColorEnabled) color = node._displayedColor;
-            scale9Image._renderCmd._updateDisplayColor(color);
-            scale9Image._renderCmd._updateColor();
-        }
         this._textureToRender = null;
     };
 
     proto.setState = function(state){
         if(this._state === state) return;
 
-        var locScale9Image = this._node._scale9Image;
-        if(!locScale9Image)
-            return;
         this._state = state;
         this._textureToRender = null;
     };
 
     proto.rendering = function (ctx, scaleX, scaleY) {
         var node = this._node;
-        if(!node._scale9Enabled)
-            return;
         var locDisplayOpacity = this._displayedOpacity;
         var alpha =  locDisplayOpacity/ 255;
         var locTexture = null;
-        if(node.getSprite()) locTexture = node.getSprite()._texture;
-        if (!node._textureLoaded || locDisplayOpacity === 0)
+        if(node._resourceData) locTexture = node._resourceData._texture;
+        if (!node.loaded() || locDisplayOpacity === 0)
             return;
         if(this._textureToRender === null){
             this._textureToRender = locTexture;
@@ -94,9 +76,7 @@
 
         if(this._textureToRender) {
             if(node._quadsDirty){
-                node._cleanupQuads();
-                node._buildQuads();
-                node._quadsDirty = false;
+                node._rebuildQuads();
             }
 
             var quads = node._quads;
