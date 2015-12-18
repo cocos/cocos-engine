@@ -59,6 +59,10 @@ var Scrollbar = cc.Class({
         _autoHideRemainingTime: 0,
         _opacity: 255,
 
+        /**
+         * The "handle" part of the scrollbar.
+         * @property {cc.SpriteRenderer} handle
+         */
         handle: {
             default: null,
             type: cc.SpriteRenderer,
@@ -68,6 +72,10 @@ var Scrollbar = cc.Class({
             }
         },
 
+        /**
+         * The direction of scrollbar.
+         *@property {Scrollbar.Direction} direction
+         */
         direction: {
             default: Direction.HORIZONTAL,
             type: Direction,
@@ -76,10 +84,19 @@ var Scrollbar = cc.Class({
             }
         },
 
+        /**
+         * Whehter enable auto hide or not.
+         *@property {Boolean} enableAutoHide
+         */
         enableAutoHide: {
             default: true
         },
 
+        /**
+         * The time to hide scrollbar when scroll finished.
+         * Note: This value is only useful when enableAutoHide is true.
+         *@property {Float} autoHideTime
+         */
         autoHideTime: {
             default: 1.0
         }
@@ -109,32 +126,34 @@ var Scrollbar = cc.Class({
             }
 
             var content = this._scrollView.content;
-            var contentSize = content.getContentSize();
-            var scrollViewSize = this._scrollView.node.getContentSize();
+            if(content){
+                var contentSize = content.getContentSize();
+                var scrollViewSize = this._scrollView.node.getContentSize();
 
-            var contentMeasure = 0;
-            var scrollViewMeasure = 0;
-            var outOfBoundaryValue = 0;
-            var contentPosition = 0;
+                var contentMeasure = 0;
+                var scrollViewMeasure = 0;
+                var outOfBoundaryValue = 0;
+                var contentPosition = 0;
 
-            if (this.direction === Direction.HORIZONTAL) {
-                contentMeasure = contentSize.width;
-                scrollViewMeasure = scrollViewSize.width;
-                outOfBoundaryValue = outOfBoundary.x;
+                if (this.direction === Direction.HORIZONTAL) {
+                    contentMeasure = contentSize.width;
+                    scrollViewMeasure = scrollViewSize.width;
+                    outOfBoundaryValue = outOfBoundary.x;
 
-                contentPosition = -this._convertToScrollViewSpace(content).x;
-            } else if (this.direction === Direction.VERTICAL) {
-                contentMeasure = contentSize.height;
-                scrollViewMeasure = scrollViewSize.height;
-                outOfBoundaryValue = outOfBoundary.y;
+                    contentPosition = -this._convertToScrollViewSpace(content).x;
+                } else if (this.direction === Direction.VERTICAL) {
+                    contentMeasure = contentSize.height;
+                    scrollViewMeasure = scrollViewSize.height;
+                    outOfBoundaryValue = outOfBoundary.y;
 
-                contentPosition = -this._convertToScrollViewSpace(content).y;
+                    contentPosition = -this._convertToScrollViewSpace(content).y;
+                }
+
+                var length = this._calculateLength(contentMeasure, scrollViewMeasure, outOfBoundaryValue);
+                var position = this._calculatePosition(contentMeasure, scrollViewMeasure, contentPosition, outOfBoundaryValue, length);
+                this._updateLength(length);
+                this._updateHanlderPosition(position);
             }
-
-            var length = this._calculateLength(contentMeasure, scrollViewMeasure, outOfBoundaryValue);
-            var position = this._calculatePosition(contentMeasure, scrollViewMeasure, contentPosition, outOfBoundaryValue, length);
-            this._updateLength(length);
-            this._updateHanlderPosition(position);
         }
     },
 
@@ -209,8 +228,7 @@ var Scrollbar = cc.Class({
         var positionRatio = 0;
         if (denominatorValue) {
             positionRatio = contentPosition / denominatorValue;
-            positionRatio = Math.max(positionRatio, 0);
-            positionRatio = Math.min(positionRatio, 1);
+            positionRatio = cc.clamp01(positionRatio);
         }
 
         var position = (scrollViewMeasure - actualLenth) * positionRatio;

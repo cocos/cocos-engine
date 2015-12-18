@@ -27,7 +27,18 @@ var EventTarget = require("../event/event-target");
 var NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 var OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
 var BOUNCE_BACK_DURATION = 1.0;
-var FLOAT_COMPARE_TOLERANCE = 0.0000001;
+var EPSILON = 1e-7;
+var MOVEMENT_FACTOR = 0.7;
+
+var quintEaseOut = function(time) {
+    time -= 1;
+    return (time * time * time * time * time + 1);
+};
+
+var getTimeInMilliseconds = function() {
+    var currentTime = new Date();
+    return currentTime.getMilliseconds();
+};
 
 /**
  * Layout container for a view hierarchy that can be scrolled by the user, allowing it to be larger than the physical display.
@@ -38,6 +49,7 @@ var FLOAT_COMPARE_TOLERANCE = 0.0000001;
 var ScrollView = cc.Class({
     name: 'cc.ScrollView',
     extends: require('./CCComponent'),
+    mixins: [EventTarget],
 
     editor: CC_EDITOR && {
         menu: 'UI/ScrollView',
@@ -45,7 +57,6 @@ var ScrollView = cc.Class({
     },
 
     ctor: function() {
-        EventTarget.call(this);
 
         this._touchListener = null;
 
@@ -74,48 +85,68 @@ var ScrollView = cc.Class({
     },
 
     properties: {
+        /**
+         *This is a reference to the UI element to be scrolled.
+         *@property {cc.Node} content
+         */
         content: {
             default: null,
-            type: cc.Node,
-
-            notify: function() {
-
-            }
+            type: cc.Node
         },
 
+        /**
+         * Enable horizontal scroll.
+         *@property {Boolean} horizontal
+         */
         horizontal: {
-            default: true,
-            notify: function() {
-
-            }
+            default: true
         },
 
+        /**
+         * Enable vertical scroll.
+         *@property {Boolean} vertical
+         */
         vertical: {
-            default: true,
-            notify: function() {
-
-            }
+            default: true
         },
 
+        /**
+         * When momentum is set, the content will continue to move when touch ended.
+         *@property {Boolean} momentum
+         */
         momentum: {
-            default: true,
-            notify: function() {
-
-            }
+            default: true
         },
 
+        /**
+         * It determines how quickly the content stop moving. A value of 0 will stop the movement immediately.
+         * When the brake is very large, it will takes up too much time to stop the movement.
+         *@property {Float} brake
+         */
         brake: {
             default: 0.5
         },
 
+        /**
+         * When spring is set, the content will be bounce back when move out of boundary.
+         *@property {Boolean} spring
+         */
         spring: {
             default: true
         },
 
+        /**
+         * The elapse time of bouncing back. A value of 0 will bouncing back immediately.
+         *@property {Float} elastic
+         */
         elastic: {
             default: 0.1
         },
 
+        /**
+         * The horizontal scrollbar reference.
+         *@property {cc.Scrollbar} horizontalScrollBar
+         */
         horizontalScrollBar: {
             default: null,
             type: cc.Scrollbar,
@@ -125,6 +156,10 @@ var ScrollView = cc.Class({
             }
         },
 
+        /**
+         * The vertical scrollbar reference.
+         *@property {cc.Scrollbar} verticalScrollBar
+         */
         verticalScrollBar: {
             default: null,
             type: cc.Scrollbar,
@@ -135,6 +170,22 @@ var ScrollView = cc.Class({
         }
     },
 
+    setContentPosition: function(position) {
+        var worldSpacePos = this.node.convertToWorldSpace(position);
+        var contentParent = this.content.parent;
+
+        var localPositionInParent = contentParent.convertToNodeSpaceAR(worldSpacePos);
+
+        this.content.setPosition(localPositionInParent);
+    },
+
+    getContentPosition: function() {
+        var contentSize = this.content.getContentSize();
+        var contentAnchor = this.content.getAnchorPoint();
+        return this._convertToScrollViewSpace(cc.p(-contentSize.width * contentAnchor.x, -contentSize.height * contentAnchor.y));
+    },
+
+    //private methods
     _registerEvent: function() {
         this._touchListener = cc.EventListener.create({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -189,7 +240,6 @@ var ScrollView = cc.Class({
             this._handlePressLogic(touch);
         }
 
-
         return hit;
     },
 
@@ -205,11 +255,6 @@ var ScrollView = cc.Class({
     },
     _onTouchCancelled: function(touch) {
         this._handlePressLogic(touch);
-    },
-
-    _getTimeInMilliseconds: function() {
-        var currentTime = new Date();
-        return currentTime.getMilliseconds();
     },
 
     _handleMoveLogic: function(touch) {
@@ -245,7 +290,7 @@ var ScrollView = cc.Class({
     _handlePressLogic: function(touch) {
         this._autoScrolling = false;
 
-        this._touchMovePreviousTimestamp = this._getTimeInMilliseconds();
+        this._touchMovePreviousTimestamp = getTimeInMilliseconds();
         this._touchMoveDisplacements = [];
         this._touchMoveTimeDeltas = [];
 
@@ -267,7 +312,7 @@ var ScrollView = cc.Class({
 
         this._touchMoveDisplacements.push(delta);
 
-        var timeStamp = this._getTimeInMilliseconds();
+        var timeStamp = getTimeInMilliseconds();
         this._touchMoveTimeDeltas.push((timeStamp - this._touchMovePreviousTimestamp) / 1000);
         this._touchMovePreviousTimestamp = timeStamp;
     },
@@ -278,7 +323,7 @@ var ScrollView = cc.Class({
         }
 
         var bounceBackAmount = this._getHowMuchOutOfBoundary();
-        if (cc.pFuzzyEqual(bounceBackAmount, cc.p(0, 0), FLOAT_COMPARE_TOLERANCE)) {
+        if (cc.pFuzzyEqual(bounceBackAmount, cc.p(0, 0), EPSILON)) {
             return false;
         }
 
@@ -301,7 +346,7 @@ var ScrollView = cc.Class({
         var bounceBackStarted = this._startBounceBackIfNeeded();
         if (!bounceBackStarted && this.momentum) {
             var touchMoveVelocity = this._calculateTouchMoveVelocity();
-            if (!cc.pFuzzyEqual(touchMoveVelocity, cc.p(0, 0), FLOAT_COMPARE_TOLERANCE) && this.brake > 0) {
+            if (!cc.pFuzzyEqual(touchMoveVelocity, cc.p(0, 0), EPSILON) && this.brake > 0) {
                 this._startInertiaScroll(touchMoveVelocity);
             }
         }
@@ -311,7 +356,7 @@ var ScrollView = cc.Class({
 
     _isOutOfBoundary: function() {
         var outOfBoundary = this._getHowMuchOutOfBoundary();
-        return !cc.pFuzzyEqual(outOfBoundary, cc.p(0, 0), FLOAT_COMPARE_TOLERANCE);
+        return !cc.pFuzzyEqual(outOfBoundary, cc.p(0, 0), EPSILON);
     },
 
     _isNecessaryAutoScrollBrake: function() {
@@ -334,10 +379,6 @@ var ScrollView = cc.Class({
         return false;
     },
 
-    _quintEaseOut: function(time) {
-        time -= 1;
-        return (time * time * time * time * time + 1);
-    },
 
     _processAutoScrolling: function(dt) {
         var isAutoScrollBrake = this._isNecessaryAutoScrollBrake();
@@ -346,7 +387,7 @@ var ScrollView = cc.Class({
 
         var percentage = Math.min(1, this._autoScrollAccumulatedTime / this._autoScrollTotalTime);
         if (this._autoScrollAttenuate) {
-            percentage = this._quintEaseOut(percentage);
+            percentage = quintEaseOut(percentage);
         }
 
         var newPosition = cc.pAdd(this._autoScrollStartPosition, cc.pMult(this._autoScrollTargetDelta, percentage));
@@ -361,7 +402,7 @@ var ScrollView = cc.Class({
         } else {
             var moveDelta = cc.pSub(newPosition, this.getContentPosition());
             var outOfBoundary = this._getHowMuchOutOfBoundary(moveDelta);
-            if (!cc.pFuzzyEqual(outOfBoundary, cc.p(0, 0), FLOAT_COMPARE_TOLERANCE)) {
+            if (!cc.pFuzzyEqual(outOfBoundary, cc.p(0, 0), EPSILON)) {
                 newPosition = cc.pAdd(newPosition, outOfBoundary);
                 reachedEnd = true;
             }
@@ -376,7 +417,6 @@ var ScrollView = cc.Class({
     },
 
     _startInertiaScroll: function(touchMoveVelocity) {
-        var MOVEMENT_FACTOR = 0.7;
         var inertiaTotalMovement = cc.pMult(touchMoveVelocity, MOVEMENT_FACTOR);
         this._startAttenuatingAutoScroll(inertiaTotalMovement, touchMoveVelocity);
     },
@@ -405,12 +445,11 @@ var ScrollView = cc.Class({
         this._autoScrollBrakingStartPosition = cc.p(0, 0);
 
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
-        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), FLOAT_COMPARE_TOLERANCE)) {
+        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
             this._autoScrollCurrentlyOutOfBoundary = true;
             var afterOutOfBoundary = this._getHowMuchOutOfBoundary(adjustedDeltaMove);
             if (currentOutOfBoundary.x * afterOutOfBoundary.x > 0 || currentOutOfBoundary.y * afterOutOfBoundary.y > 0) {
                 this._autoScrollBraking = true;
-                console.log("auto scroll braking");
             }
         }
 
@@ -418,18 +457,18 @@ var ScrollView = cc.Class({
 
     _calculateTouchMoveVelocity: function() {
         var totalTime = 0;
-        this._touchMoveTimeDeltas.map(function(dt) {
-            totalTime += dt;
-        });
+        totalTime = this._touchMoveTimeDeltas.reduce(function(a, b) {
+            return a + b;
+        }, totalTime);
 
         if (totalTime === 0 || totalTime >= 0.5) {
             return cc.p(0, 0);
         }
 
         var totalMovement = cc.p(0, 0);
-        this._touchMoveDisplacements.map(function(pt) {
-            totalMovement = cc.pAdd(totalMovement, pt);
-        });
+        totalMovement = this._touchMoveDisplacements.reduce(function(a, b) {
+            return cc.pAdd(a, b);
+        }, totalMovement);
 
         return cc.p(totalMovement.x / totalTime, totalMovement.y / totalTime);
     },
@@ -440,14 +479,6 @@ var ScrollView = cc.Class({
         result.y = this.vertical ? result.y : 0;
         return result;
     },
-    setContentPosition: function(position) {
-        var worldSpacePos = this.node.convertToWorldSpace(position);
-        var contentParent = this.content.parent;
-
-        var localPositionInParent = contentParent.convertToNodeSpaceAR(worldSpacePos);
-
-        this.content.setPosition(localPositionInParent);
-    },
 
     _convertToScrollViewSpace: function(position) {
         var contentWorldPosition = this.content.convertToWorldSpaceAR(position);
@@ -455,14 +486,9 @@ var ScrollView = cc.Class({
         return this.node.convertToNodeSpace(contentWorldPosition);
     },
 
-    getContentPosition: function() {
-        var contentSize = this.content.getContentSize();
-        var contentAnchor = this.content.getAnchorPoint();
-        return this._convertToScrollViewSpace(cc.p(-contentSize.width * contentAnchor.x, -contentSize.height * contentAnchor.y));
-    },
 
     _setInnerContainerPosition: function(position) {
-        if (cc.pFuzzyEqual(position, this.getContentPosition(), FLOAT_COMPARE_TOLERANCE)) {
+        if (cc.pFuzzyEqual(position, this.getContentPosition(), EPSILON)) {
             return;
         }
         this.setContentPosition(position);
@@ -508,7 +534,7 @@ var ScrollView = cc.Class({
 
     _getHowMuchOutOfBoundary: function(addition) {
         addition = addition || cc.p(0, 0);
-        if (cc.pFuzzyEqual(addition, cc.p(0, 0), FLOAT_COMPARE_TOLERANCE) && !this._outOfBoundaryAmountDirty) {
+        if (cc.pFuzzyEqual(addition, cc.p(0, 0), EPSILON) && !this._outOfBoundaryAmountDirty) {
             return this._outOfBoundaryAmount;
         }
 
@@ -525,7 +551,7 @@ var ScrollView = cc.Class({
             outOfBoundaryAmount.y = this._bottomBoundary - (this._getContentBottomBoundary() + addition.y);
         }
 
-        if (cc.pFuzzyEqual(addition, cc.p(0, 0), FLOAT_COMPARE_TOLERANCE)) {
+        if (cc.pFuzzyEqual(addition, cc.p(0, 0), EPSILON)) {
             this._outOfBoundaryAmount = outOfBoundaryAmount;
             this._outOfBoundaryAmountDirty = false;
         }
@@ -568,7 +594,5 @@ var ScrollView = cc.Class({
         if (this._touchListener) cc.eventManager.removeListener(this._touchListener);
     }
 });
-
-cc.js.addon(ScrollView.prototype, EventTarget.prototype);
 
 cc.ScrollView = module.exports = ScrollView;
