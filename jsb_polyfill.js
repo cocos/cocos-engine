@@ -392,3 +392,160 @@ window._ccsg = {
     Label: cc.Label,
 
 };
+
+// rename cc.Class to cc._Class
+cc._Class = cc.Class;
+
+// cc.textureCache.cacheImage
+cc.textureCache._textures = {};
+cc.textureCache.cacheImage = function (key, texture) {
+    if (texture instanceof cc.Texture2D) {
+        this._textures[key] = texture;
+    }
+};
+cc.textureCache._getTextureForKey = cc.textureCache.getTextureForKey;
+cc.textureCache.getTextureForKey = function (key) {
+    var tex = this._getTextureForKey(key);
+    if (!tex)
+        tex = this._textures[key];
+    return tex || null;
+};
+
+// cc.Texture2D
+cc.Texture2D.prototype.isLoaded = function () {
+    return true;
+};
+cc.Texture2D.prototype.getPixelWidth = cc.Texture2D.prototype.getPixelsWide;
+cc.Texture2D.prototype.getPixelHeight = cc.Texture2D.prototype.getPixelsHigh;
+
+// cc.SpriteFrame
+cc.SpriteFrame.prototype.textureLoaded = function () {
+    return this.getTexture() !== null;
+};
+cc.SpriteFrame.prototype._deserialize = function (data, handle) {
+    var rect = data.rect;
+    rect = new cc.Rect(rect[0], rect[1], rect[2], rect[3]);
+    var rectInP = cc.rectPointsToPixels(rect);
+    var offset = new cc.Vec2(data.offset[0], data.offset[1]);
+    var offsetInP = cc.pointPointsToPixels(offset);
+    var size = new cc.Size(data.originalSize[0], data.originalSize[1]);
+    var sizeInP = cc.sizePointsToPixels(size);
+    var rotated = data.rotated === 1;
+    // init properties not included in this._initWithTexture()
+    this._name = data.name;
+    var capInsets = data.capInsets;
+    if (capInsets) {
+        this.insetLeft = capInsets[0];
+        this.insetTop = capInsets[1];
+        this.insetRight = capInsets[2];
+        this.insetBottom = capInsets[3];
+    }
+
+    // load texture via _textureFilenameSetter
+    var textureUuid = data.texture;
+    if (textureUuid) {
+        handle.result.push(this, '_textureFilenameSetter', textureUuid);
+    }
+
+    this.initWithTexture(null, rectInP, rotated, offsetInP, sizeInP);
+};
+cc.SpriteFrame.prototype._checkRect = function (texture) {
+    var rect = this._rectInPixels;
+    var maxX = rect.x, maxY = rect.y;
+    if (this._rotated) {
+        maxX += rect.height;
+        maxY += rect.width;
+    }
+    else {
+        maxX += rect.width;
+        maxY += rect.height;
+    }
+    if (maxX > texture.getPixelWidth()) {
+        cc.error(cc._LogInfos.RectWidth, texture.url);
+    }
+    if (maxY > texture.getPixelHeight()) {
+        cc.error(cc._LogInfos.RectHeight, texture.url);
+    }
+};
+var getTextureJSB = cc.SpriteFrame.prototype.getTexture;
+cc.SpriteFrame.prototype.getTexture = function () {
+    var tex = getTextureJSB.call(this);
+    this._texture = tex;
+    return tex;
+};
+cc.js.set(cc.SpriteFrame.prototype, '_textureFilenameSetter', function (url) {
+    this._textureFilename = url;
+    if (url) {
+        // texture will be init in getTexture()
+        var texture = this.getTexture();
+        if (this.textureLoaded()) {
+            this._checkRect(texture);
+            this.emit('load');
+        }
+        else {
+            // register event in setTexture()
+            this._texture = null;
+            this.setTexture(texture);
+        }
+    }
+});
+
+// cc.Label
+cc.Label.prototype.setHorizontalAlign = cc.Label.prototype.setHorizontalAlignment;
+cc.Label.prototype.setVerticalAlign = cc.Label.prototype.setVerticalAlignment;
+cc.Label.prototype.setFontSize = cc.Label.prototype.setSystemFontSize;
+cc.Label.prototype.setOverflow = function () {};
+cc.Label.prototype.enableWrapText = function () {};
+cc.Label.prototype.setLineHeight = function () {};
+
+// cc.eventManager.addListener
+cc.eventManager.addListener = function(listener, nodeOrPriority) {
+    if(!(listener instanceof cc.EventListener)) {
+        listener = cc.EventListener.create(listener);
+    }
+
+    if (typeof nodeOrPriority == "number") {
+        if (nodeOrPriority == 0) {
+            cc.log("0 priority is forbidden for fixed priority since it's used for scene graph based priority.");
+            return;
+        }
+
+        cc.eventManager.addEventListenerWithFixedPriority(listener, nodeOrPriority);
+    } else {
+        if (nodeOrPriority instanceof cc.Component) {
+            nodeOrPriority = nodeOrPriority.node._sgNode;
+        }
+        if (nodeOrPriority instanceof cc.Node) {
+            nodeOrPriority = nodeOrPriority._sgNode;
+        }
+        cc.eventManager.addEventListenerWithSceneGraphPriority(listener, nodeOrPriority);
+    }
+
+    return listener;
+};
+
+// cc.Scale9Sprite
+cc.Scale9Sprite.prototype._setBlendFunc = cc.Scale9Sprite.prototype.setBlendFunc;
+cc.Scale9Sprite.prototype.setBlendFunc = function(blendFunc, dst) {
+    if (dst !== undefined) {
+        blendFunc = {
+            src : blendFunc,
+            dst : dst
+        };
+    }
+    this._setBlendFunc(blendFunc);
+};
+cc.Scale9Sprite.prototype._setContentSize = cc.Scale9Sprite.prototype.setContentSize;
+cc.Scale9Sprite.prototype.setContentSize = function(size, height){
+    if (height !== undefined) {
+        size = new cc.Size(size, height);
+    }
+    this._setContentSize(size);
+};
+cc.Scale9Sprite.prototype._setAnchorPoint = cc.Scale9Sprite.prototype.setAnchorPoint;
+cc.Scale9Sprite.prototype.setAnchorPoint = function(anchorPoint, y){
+    if (y !== undefined) {
+        anchorPoint = new cc.Vec2(anchorPoint, y);
+    }
+    this._setAnchorPoint(anchorPoint);
+};
