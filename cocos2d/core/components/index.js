@@ -9,6 +9,8 @@ module.exports = [
     require('./CCAnimation'),
     require('./CCButton'),
     require('./CCLabel'),
+    require('./CCProgressBar'),
     require('./CCMask'),
-    require('./CCProgressBar')
+    require('./CCScrollBar'),
+    require('./CCScrollView'),
 ];
