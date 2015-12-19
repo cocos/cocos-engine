@@ -69,36 +69,92 @@
         this._quadDirty = true;
     };
 
-    proto._fragmentText = function fragmentText(text, maxWidth, ctx) {
-        var words = text.split(' '),
-            lines = [],
-            line = "";
-        if (ctx.measureText(text).width < maxWidth) {
-            return [text];
-        }
-        while (words.length > 0) {
-            while (ctx.measureText(words[0]).width >= maxWidth && words[0].length > 1) {
-                var tmp = words[0];
-                words[0] = tmp.slice(0, -1);
-                if (words.length > 1) {
-                    words[1] = tmp.slice(-1) + words[1];
-                } else {
-                    words.push(tmp.slice(-1));
+    var label_wrapinspection = true;
+
+    //Support: English French German
+    //Other as Oriental Language
+    var label_wordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)/;
+    var label_symbolRex = /^[!,.:;}\]%\?>、‘“》？。，！]/;
+    var label_lastWordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)$/;
+    var label_lastEnglish = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+$/;
+    var label_firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
+    proto._fragmentText = function (strArr, maxWidth, ctx) {
+        //check the first character
+
+
+        var wrappedWords = [];
+        var text = strArr;
+        var allWidth = ctx.measureText(text).width;
+        while(allWidth > maxWidth && text.length > 1){
+
+            var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
+            var tmpText = text.substr(fuzzyLen);
+            var width = allWidth - ctx.measureText(tmpText).width;
+            var sLine;
+            var pushNum = 0;
+
+            //Increased while cycle maximum ceiling. default 100 time
+            var checkWhile = 0;
+
+            //Exceeded the size
+            while (width > maxWidth && checkWhile++ < 100) {
+                fuzzyLen *= maxWidth / width;
+                fuzzyLen = fuzzyLen | 0;
+                tmpText = text.substr(fuzzyLen);
+                width = allWidth - ctx.measureText(tmpText).width;
+            }
+
+            checkWhile = 0;
+
+            //Find the truncation point
+            while (width < maxWidth && checkWhile++ < 100) {
+                if (tmpText) {
+                    var exec = label_wordRex.exec(tmpText);
+                    pushNum = exec ? exec[0].length : 1;
+                    sLine = tmpText;
+                }
+
+                fuzzyLen = fuzzyLen + pushNum;
+                tmpText = text.substr(fuzzyLen);
+                width = allWidth - ctx.measureText(tmpText).width;
+            }
+
+            fuzzyLen -= pushNum;
+            if (fuzzyLen === 0) {
+                fuzzyLen = 1;
+                sLine = sLine.substr(1);
+            }
+
+            var sText = text.substr(0, fuzzyLen), result;
+
+            //symbol in the first
+            if (label_wrapinspection) {
+                if (label_symbolRex.test(sLine || tmpText)) {
+                    result = label_lastWordRex.exec(sText);
+                    fuzzyLen -= result ? result[0].length : 0;
+
+                    sLine = text.substr(fuzzyLen);
+                    sText = text.substr(0, fuzzyLen);
                 }
             }
-            if (ctx.measureText(line + words[0]).width < maxWidth) {
-                line += words.shift() + " ";
-            } else if (line.length === 0 && words[0].length === 1) {
-                lines.push(words.shift());
-            } else {
-                lines.push(line.slice(0, -1));
-                line = "";
+
+            //To judge whether a English words are truncated
+            if (label_firsrEnglish.test(sLine)) {
+                result = label_lastEnglish.exec(sText);
+                if (result && sText !== result[0]) {
+                    fuzzyLen -= result[0].length;
+                    sLine = text.substr(fuzzyLen);
+                    sText = text.substr(0, fuzzyLen);
+                }
             }
-            if (words.length === 0 && line.length > 0) {
-                lines.push(line);
-            }
+            wrappedWords.push(sText);
+            text = sLine || tmpText;
+            allWidth = ctx.measureText(text).width;
         }
-        return lines;
+        if(text.length > 0) {
+            wrappedWords.push(text);
+        }
+        return wrappedWords;
     };
     
     proto._updateDisplayOpacity = function(parentOpacity) {
