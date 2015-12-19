@@ -63,6 +63,7 @@ var ClickEvent = cc.Class({
         target: {
             default: null,
             type: cc.Node,
+            tooltip: 'i18n:COMPONENT.button.click_event.target'
         },
         /**
          * Component name
@@ -71,7 +72,8 @@ var ClickEvent = cc.Class({
          * @default ''
          */
         component: {
-            default: ''
+            default: '',
+            tooltip: 'i18n:COMPONENT.button.click_event.component'
         },
         /**
          * Event handler
@@ -80,7 +82,8 @@ var ClickEvent = cc.Class({
          * @default ''
          */
         handler: {
-            default: ''
+            default: '',
+            tooltip: 'i18n:COMPONENT.button.click_event.handler'
         }
     }
 });
@@ -153,6 +156,7 @@ var Button = cc.Class({
          */
         interactable: {
             default: true,
+            tooltip: 'i18n:COMPONENT.button.interactable',
             notify: function () {
                 this._initState();
             }
@@ -165,6 +169,7 @@ var Button = cc.Class({
          */
         transition: {
             default: Transition.NONE,
+            tooltip: 'i18n:COMPONENT.button.transition',
             type: Transition
         },
 
@@ -177,6 +182,7 @@ var Button = cc.Class({
         normalColor: {
             default: WHITE,
             displayName: 'Normal',
+            tooltip: 'i18n:COMPONENT.button.normal_color',
             notify: function () {
                 this._initState();
             }
@@ -188,7 +194,8 @@ var Button = cc.Class({
          */
         pressedColor: {
             default: WHITE,
-            displayName: 'Pressed'
+            displayName: 'Pressed',
+            tooltip: 'i18n:COMPONENT.button.pressed_color',
         },
 
         /**
@@ -197,7 +204,8 @@ var Button = cc.Class({
          */
         hoverColor: {
             default: WHITE,
-            displayName: 'Hover'
+            displayName: 'Hover',
+            tooltip: 'i18n:COMPONENT.button.hover_color',
         },
 
         /**
@@ -207,6 +215,7 @@ var Button = cc.Class({
         disabledColor: {
             default: WHITE,
             displayName: 'Disabled',
+            tooltip: 'i18n:COMPONENT.button.diabled_color',
             notify: function () {
                 this._initState();
             }
@@ -218,7 +227,8 @@ var Button = cc.Class({
          */
         duration: {
             default: 0.1,
-            range: [0, Number.MAX_VALUE]
+            range: [0, Number.MAX_VALUE],
+            tooltip: 'i18n:COMPONENT.button.duration',
         },
 
         // sprite transition
@@ -230,6 +240,7 @@ var Button = cc.Class({
             default: null,
             type: cc.SpriteFrame,
             displayName: 'Normal',
+            tooltip: 'i18n:COMPONENT.button.normal_sprite',
             notify: function () {
                 this._initState();
             }
@@ -243,6 +254,7 @@ var Button = cc.Class({
             default: null,
             type: cc.SpriteFrame,
             displayName: 'Pressed',
+            tooltip: 'i18n:COMPONENT.button.pressed_sprite',
         },
 
         /**
@@ -253,6 +265,7 @@ var Button = cc.Class({
             default: null,
             type: cc.SpriteFrame,
             displayName: 'Hover',
+            tooltip: 'i18n:COMPONENT.button.hover_sprite',
         },
 
         /**
@@ -263,6 +276,7 @@ var Button = cc.Class({
             default: null,
             type: cc.SpriteFrame,
             displayName: 'Disabled',
+            tooltip: 'i18n:COMPONENT.button.disabled_sprite',
             notify: function () {
                 this._initState();
             }
@@ -280,7 +294,6 @@ var Button = cc.Class({
             default: null,
             type: cc.Node,
             tooltip: "i18n:COMPONENT.button.target",
-
             notify: function () {
                 this._applyTarget();
             }
@@ -292,7 +305,8 @@ var Button = cc.Class({
          */
         clickEvents: {
             default: [],
-            type: ClickEvent
+            type: ClickEvent,
+            tooltip: 'i18n:COMPONENT.button.click_events',
         }
     },
 

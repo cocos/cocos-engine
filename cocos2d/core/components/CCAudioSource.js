@@ -151,6 +151,7 @@ var AudioSource = cc.Class({
         playOnLoad: {
             default: false,
             tooltip: 'i18n.COMPONENT.audio.play_on_load'
+        }
     },
 
     onLoad: function () {
