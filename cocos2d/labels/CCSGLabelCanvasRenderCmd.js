@@ -69,7 +69,19 @@
         this._quadDirty = true;
     };
 
+    var label_wrapinspection = true;
+
+    //Support: English French German
+    //Other as Oriental Language
+    var label_wordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)/;
+    var label_symbolRex = /^[!,.:;}\]%\?>、‘“》？。，！]/;
+    var label_lastWordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)$/;
+    var label_lastEnglish = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+$/;
+    var label_firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     proto._fragmentText = function (strArr, maxWidth, ctx) {
+        //check the first character
+
+
         var wrappedWords = [];
         var text = strArr;
         var allWidth = ctx.measureText(text).width;
@@ -97,7 +109,7 @@
             //Find the truncation point
             while (width < maxWidth && checkWhile++ < 100) {
                 if (tmpText) {
-                    var exec = cc.LabelTTF._wordRex.exec(tmpText);
+                    var exec = label_wordRex.exec(tmpText);
                     pushNum = exec ? exec[0].length : 1;
                     sLine = tmpText;
                 }
@@ -116,9 +128,9 @@
             var sText = text.substr(0, fuzzyLen), result;
 
             //symbol in the first
-            if (cc.LabelTTF.wrapInspection) {
-                if (cc.LabelTTF._symbolRex.test(sLine || tmpText)) {
-                    result = cc.LabelTTF._lastWordRex.exec(sText);
+            if (label_wrapinspection) {
+                if (label_symbolRex.test(sLine || tmpText)) {
+                    result = label_lastWordRex.exec(sText);
                     fuzzyLen -= result ? result[0].length : 0;
 
                     sLine = text.substr(fuzzyLen);
@@ -127,8 +139,8 @@
             }
 
             //To judge whether a English words are truncated
-            if (cc.LabelTTF._firsrEnglish.test(sLine)) {
-                result = cc.LabelTTF._lastEnglish.exec(sText);
+            if (label_firsrEnglish.test(sLine)) {
+                result = label_lastEnglish.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
                     sLine = text.substr(fuzzyLen);
