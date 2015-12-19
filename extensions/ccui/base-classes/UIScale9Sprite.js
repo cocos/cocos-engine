@@ -102,8 +102,8 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         this.setTexture(textureOrTextureFile);
     },
 
-    initWithSpriteFrame: function (spriteFrameOrSFFile) {
-        this.setSpriteFrame(spriteFrameOrSFFile);
+    initWithSpriteFrame: function (spriteFrameOrSFName) {
+        this.setSpriteFrame(spriteFrameOrSFName);
     },
 
     initWithResourceData: function (s9ResData) {
@@ -116,9 +116,9 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         this.setResourceData(resourceData);
     },
 
-    setSpriteFrame: function (spriteFrameOrSFFile) {
+    setSpriteFrame: function (spriteFrameOrSFFileName) {
         var resourceData = new cc.Scale9Sprite.Scale9ResourceData();
-        resourceData.initWithSpriteFrame(spriteFrameOrSFFile);
+        resourceData.initWithSpriteFrame(spriteFrameOrSFFileName);
         this.setResourceData(resourceData);
     },
 
@@ -621,13 +621,13 @@ ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = func
         return true;
     };
 
-    this.initWithSpriteFrame = function(fileOrSpriteFrame){
+    this.initWithSpriteFrame = function(SpriteFrameOrSFName){
         var spriteFrame;
-        if(fileOrSpriteFrame instanceof cc.SpriteFrame) {
-            spriteFrame = fileOrSpriteFrame;
+        if(SpriteFrameOrSFName instanceof cc.SpriteFrame) {
+            spriteFrame = SpriteFrameOrSFName;
         }
         else {
-            spriteFrame = cc.spriteFrameCache.getSpriteFrame(fileOrSpriteFrame);
+            spriteFrame = cc.spriteFrameCache.getSpriteFrame(SpriteFrameOrSFName);
         }
         
         if(spriteFrame) {
