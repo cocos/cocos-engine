@@ -72,7 +72,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     ctor: function (fileOrData) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
-        this._blendFunc = cc.BlendFunc._disable();
+        this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
         this.setAnchorPoint(cc.p(0.5,0.5));
         //todo
         if(fileOrData instanceof  cc.Scale9Sprite.Scale9ResourceData) {
