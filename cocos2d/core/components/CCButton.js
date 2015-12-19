@@ -489,9 +489,8 @@ var Button = cc.Class({
 
         var w = target.width;
         var h = target.height;
-        var anchor = target.getAnchorPoint();
 
-        var rect = cc.rect(-anchor.x*w, -anchor.y*h, w, h);
+        var rect = cc.rect(0, 0, w, h);
         return cc.rectContainsPoint(rect, target.convertToNodeSpace(pos));
     }
 
