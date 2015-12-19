@@ -64,8 +64,7 @@ var Animation = cc.Class({
          */
         defaultClip: {
             default: null,
-            type: AnimationClip,
-            displayName: 'Animation'
+            type: AnimationClip
         },
 
         /**
@@ -90,23 +89,22 @@ var Animation = cc.Class({
 
         /**
          * All the clips used in this animation
-         * @property _clips
+         * @property clips
          * @type {[cc.AnimationClip]}
          */
-        _clips: {
+        clips: {
             default: [],
             type: [AnimationClip],
-            displayName: 'Animations',
             visible: true
         },
 
         /**
          * Whether the animation should auto play the default clip when start game.
-         * @property playAutomatically
+         * @property playOnLoad
          * @type {bool}
          * @default true
          */
-        playAutomatically: true,
+        playOnLoad: true,
     },
 
     onLoad: function () {
@@ -114,7 +112,7 @@ var Animation = cc.Class({
 
         this._init();
 
-        if (this.playAutomatically && this.defaultClip) {
+        if (this.playOnLoad && this.defaultClip) {
             var state = this.getAnimationState(this.defaultClip.name);
             this._animator.playState(state);
         }
@@ -280,8 +278,8 @@ var Animation = cc.Class({
         this._init();
 
         // add clip
-        if (!cc.js.array.contains(this._clips, clip)) {
-            this._clips.push(clip);
+        if (!cc.js.array.contains(this.clips, clip)) {
+            this.clips.push(clip);
         }
 
         // replace same name clip
@@ -292,7 +290,7 @@ var Animation = cc.Class({
                 return oldState;
             }
             else {
-                this._clips.splice(this._clips.indexOf(oldState.clip), 1);
+                this.clips.splice(this.clips.indexOf(oldState.clip), 1);
             }
         }
 
@@ -303,7 +301,7 @@ var Animation = cc.Class({
     },
 
     _removeStateIfNotUsed: function (state, force) {
-        var needRemove = state.clip !== this.defaultClip && !cc.js.array.contains(this._clips, state.clip);
+        var needRemove = state.clip !== this.defaultClip && !cc.js.array.contains(this.clips, state.clip);
         if (force || needRemove) {
             if (state.isPlaying) {
                 this.stop(state.name);
@@ -325,7 +323,7 @@ var Animation = cc.Class({
         }
         this._init();
 
-        this._clips = this._clips.filter(function (item) {
+        this.clips = this.clips.filter(function (item) {
             return item !== clip;
         });
 
@@ -369,8 +367,8 @@ var Animation = cc.Class({
         // create animation states
         var state = null;
         var defaultClipState = false;
-        for (var i = 0; i < this._clips.length; ++i) {
-            var clip = this._clips[i];
+        for (var i = 0; i < this.clips.length; ++i) {
+            var clip = this.clips[i];
             if (clip) {
                 state = new cc.AnimationState(clip);
                 this._nameToState[state.name] = state;
@@ -406,7 +404,7 @@ var Animation = cc.Class({
             return;
         }
 
-        var clips = this._clips;
+        var clips = this.clips;
         var index = clips.indexOf(oldState.clip);
         clips[index] = clip;
 
