@@ -69,11 +69,11 @@
         this._quadDirty = true;
     };
 
-    proto._checkWarp = function (strArr, maxWidth, ctx) {
-        var result = [];
+    proto._fragmentText = function (strArr, maxWidth, ctx) {
+        var wrappedWords = [];
         var text = strArr;
         var allWidth = ctx.measureText(text).width;
-        if (allWidth > maxWidth && text.length > 1) {
+        while(allWidth > maxWidth && text.length > 1){
 
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
             var tmpText = text.substr(fuzzyLen);
@@ -135,46 +135,14 @@
                     sText = text.substr(0, fuzzyLen);
                 }
             }
-
-            strArr[i] = sLine || tmpText;
-            strArr.splice(i, 0, sText);
-        } else {
-            result.push(text);
+            wrappedWords.push(sText);
+            text = sLine || tmpText;
+            allWidth = ctx.measureText(text).width;
         }
-
-        return result;
-    };
-
-    proto._fragmentText = function fragmentText(text, maxWidth, ctx) {
-        var words = text.split(' '),
-            lines = [],
-            line = "";
-        if (ctx.measureText(text).width < maxWidth) {
-            return [text];
+        if(text.length > 0) {
+            wrappedWords.push(text);
         }
-        while (words.length > 0) {
-            while (ctx.measureText(words[0]).width >= maxWidth && words[0].length > 1) {
-                var tmp = words[0];
-                words[0] = tmp.slice(0, -1);
-                if (words.length > 1) {
-                    words[1] = tmp.slice(-1) + words[1];
-                } else {
-                    words.push(tmp.slice(-1));
-                }
-            }
-            if (ctx.measureText(line + words[0]).width < maxWidth) {
-                line += words.shift() + " ";
-            } else if (line.length === 0 && words[0].length === 1) {
-                lines.push(words.shift());
-            } else {
-                lines.push(line.slice(0, -1));
-                line = "";
-            }
-            if (words.length === 0 && line.length > 0) {
-                lines.push(line);
-            }
-        }
-        return lines;
+        return wrappedWords;
     };
     
     proto._updateDisplayOpacity = function(parentOpacity) {
