@@ -48,6 +48,7 @@ var Label = cc.Class({
         string: {
             default: 'Label',
             multiline: true,
+            tooltip: 'i18n:COMPONENT.label.string',
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
@@ -63,6 +64,7 @@ var Label = cc.Class({
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
             type: HorizontalAlign,
+            tooltip: 'i18n:COMPONENT.label.horizontal_align',
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
@@ -78,6 +80,7 @@ var Label = cc.Class({
         verticalAlign: {
             default: VerticalAlign.TOP,
             type: VerticalAlign,
+            tooltip: 'i18n:COMPONENT.label.vertical_align',
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
@@ -106,7 +109,8 @@ var Label = cc.Class({
                 if(sgNode){
                     sgNode.setFontSize(value);
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.label.font_size',
         },
 
         _lineHeight: 20,
@@ -126,7 +130,8 @@ var Label = cc.Class({
                 if(sgNode){
                     sgNode.setLineHeight(value);
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.label.line_height',
         },
         /**
          * Overflow of label
@@ -135,6 +140,7 @@ var Label = cc.Class({
         overflow: {
             default: Overflow.CLAMP,
             type: Overflow,
+            tooltip: 'i18n:COMPONENT.label.overflow',
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
@@ -163,7 +169,8 @@ var Label = cc.Class({
                 if(sgNode){
                     sgNode.enableWrapText(value);
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.label.wrap',
         },
 
         /**
@@ -173,6 +180,7 @@ var Label = cc.Class({
         file: {
             default: "Arial",
             url: cc.Font,
+            tooltip: 'i18n:COMPONENT.label.file',
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
@@ -205,7 +213,8 @@ var Label = cc.Class({
                     }
                 }
 
-            }
+            },
+            tooltip: 'i18n:COMPONENT.label.system_font',
         }
 
         // TODO
