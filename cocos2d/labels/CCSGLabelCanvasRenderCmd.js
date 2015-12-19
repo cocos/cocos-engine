@@ -69,6 +69,82 @@
         this._quadDirty = true;
     };
 
+    proto._checkWarp = function (strArr, maxWidth, ctx) {
+        var result = [];
+        var text = strArr;
+        var allWidth = ctx.measureText(text).width;
+        if (allWidth > maxWidth && text.length > 1) {
+
+            var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
+            var tmpText = text.substr(fuzzyLen);
+            var width = allWidth - ctx.measureText(tmpText).width;
+            var sLine;
+            var pushNum = 0;
+
+            //Increased while cycle maximum ceiling. default 100 time
+            var checkWhile = 0;
+
+            //Exceeded the size
+            while (width > maxWidth && checkWhile++ < 100) {
+                fuzzyLen *= maxWidth / width;
+                fuzzyLen = fuzzyLen | 0;
+                tmpText = text.substr(fuzzyLen);
+                width = allWidth - ctx.measureText(tmpText).width;
+            }
+
+            checkWhile = 0;
+
+            //Find the truncation point
+            while (width < maxWidth && checkWhile++ < 100) {
+                if (tmpText) {
+                    var exec = cc.LabelTTF._wordRex.exec(tmpText);
+                    pushNum = exec ? exec[0].length : 1;
+                    sLine = tmpText;
+                }
+
+                fuzzyLen = fuzzyLen + pushNum;
+                tmpText = text.substr(fuzzyLen);
+                width = allWidth - ctx.measureText(tmpText).width;
+            }
+
+            fuzzyLen -= pushNum;
+            if (fuzzyLen === 0) {
+                fuzzyLen = 1;
+                sLine = sLine.substr(1);
+            }
+
+            var sText = text.substr(0, fuzzyLen), result;
+
+            //symbol in the first
+            if (cc.LabelTTF.wrapInspection) {
+                if (cc.LabelTTF._symbolRex.test(sLine || tmpText)) {
+                    result = cc.LabelTTF._lastWordRex.exec(sText);
+                    fuzzyLen -= result ? result[0].length : 0;
+
+                    sLine = text.substr(fuzzyLen);
+                    sText = text.substr(0, fuzzyLen);
+                }
+            }
+
+            //To judge whether a English words are truncated
+            if (cc.LabelTTF._firsrEnglish.test(sLine)) {
+                result = cc.LabelTTF._lastEnglish.exec(sText);
+                if (result && sText !== result[0]) {
+                    fuzzyLen -= result[0].length;
+                    sLine = text.substr(fuzzyLen);
+                    sText = text.substr(0, fuzzyLen);
+                }
+            }
+
+            strArr[i] = sLine || tmpText;
+            strArr.splice(i, 0, sText);
+        } else {
+            result.push(text);
+        }
+
+        return result;
+    };
+
     proto._fragmentText = function fragmentText(text, maxWidth, ctx) {
         var words = text.split(' '),
             lines = [],
