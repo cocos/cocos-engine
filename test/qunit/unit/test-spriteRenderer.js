@@ -11,18 +11,11 @@ asyncTest('basic test', function () {
 
     deepEqual(render._sgNode.color, Color.RED, 'color set success');
 
-    var texture = new cc.Texture2D();
-    texture.url = url;
-    cc.loader.load(texture.url, function (err) {
-        texture.handleLoadedTexture(cc.path.extname(url) === '.png');
-    });
-    cc.textureCache.cacheImage(url, texture);
-
     var newSprite = new cc.SpriteFrame();
-    newSprite.setTexture(texture);
+    newSprite.initWithTexture(url, cc.rect(0, 0, 10, 10));
     render.sprite = newSprite;
-
-    render.sprite.on('load', function () {
+    var tex = newSprite.getTexture();
+    tex.once('load', function () {
         strictEqual(render._sgNode._scale9Image.texture.url, url, 'texture set success');
         start();
     });
