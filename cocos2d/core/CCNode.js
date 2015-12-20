@@ -346,11 +346,11 @@ var Node = cc.Class({
      */
     _addComponentAt: CC_EDITOR && function (comp, index) {
         if (this._objFlags & Destroying) {
-            return cc.error('isDestroying');;
+            return cc.error('isDestroying');
         }
-        // if (typeof comp !== 'function') {
-        //     return cc.error("_addComponentAt: The component to add must be a constructor");
-        // }
+        if ( !(comp instanceof cc.Component) ) {
+            return cc.error("_addComponentAt: The component to add must be a constructor");
+        }
         if (index > this._components.length) {
             return cc.error("_addComponentAt: Index out of range");
         }
