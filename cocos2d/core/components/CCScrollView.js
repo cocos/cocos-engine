@@ -52,7 +52,7 @@ var ScrollView = cc.Class({
     mixins: [EventTarget],
 
     editor: CC_EDITOR && {
-        menu: 'UI/ScrollView',
+        menu: 'i18n:MAIN_MENU.component.ui/ScrollView',
         executeInEditMode: true
     },
 
