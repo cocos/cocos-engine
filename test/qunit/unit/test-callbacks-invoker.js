@@ -59,6 +59,23 @@ test('remove self during invoking', function () {
     ci.invoke('eve');
 });
 
+test('remove self with target during invoking', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+    var cb1 = new Callback(function () {
+        ci.remove('eve', cb1, target);
+    }).enable();
+    var cb2 = new Callback().enable();
+    var target = {};
+
+    ci.add('eve', cb1, target);
+    ci.add('eve', cb2, target);
+    ci.invoke('eve');
+    cb2.once('it should be called correctly if previous callback deregistered itself');
+
+    cb1.disable('should not call after removed');
+    ci.invoke('eve');
+});
+
 test('remove previous during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
     var cb1 = new Callback().enable();
@@ -74,6 +91,22 @@ test('remove previous during invoking', function () {
     strictEqual(ci.has('eve', cb2), true, 'self callback should not be removed');
 });
 
+test('remove previous with target during invoking', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+    var cb1 = new Callback().enable();
+    var cb2 = new Callback(function () {
+        ci.remove('eve', cb1, target);
+    }).enable();
+    var target = {};
+
+    ci.add('eve', cb1, target);
+    ci.add('eve', cb2, target);
+    ci.invoke('eve');
+
+    strictEqual(ci.has('eve', cb1, target), false, 'previous callback should be removed');
+    strictEqual(ci.has('eve', cb2, target), true, 'self callback should not be removed');
+});
+
 test('remove last during invoking', function () {
     var ci = new cc._Test.CallbacksInvoker();
     var cb1 = new Callback().enable();
@@ -87,6 +120,21 @@ test('remove last during invoking', function () {
 
     strictEqual(ci.has('eve', cb1), true, 'previous callback should not be removed');
     strictEqual(ci.has('eve', cb2), false, 'self callback should be removed');
+});
+
+test('remove last with target during invoking', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+    var cb1 = new Callback().enable();
+    var cb2 = new Callback(function () {
+        ci.remove('eve', cb2, target);
+    }).enable();
+    var target = {};
+    ci.add('eve', cb1, target);
+    ci.add('eve', cb2, target);
+    ci.invoke('eve');
+
+    strictEqual(ci.has('eve', cb1, target), true, 'previous callback should not be removed');
+    strictEqual(ci.has('eve', cb2, target), false, 'self callback should be removed');
 });
 
 test('CallbacksInvoker support target', function () {
