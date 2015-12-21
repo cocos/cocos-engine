@@ -26,7 +26,6 @@ var EventTarget = require("../event/event-target");
 
 var NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 var OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
-var BOUNCE_BACK_DURATION = 1.0;
 var EPSILON = 1e-7;
 var MOVEMENT_FACTOR = 0.7;
 
@@ -41,7 +40,8 @@ var getTimeInMilliseconds = function() {
 };
 
 /**
- * Layout container for a view hierarchy that can be scrolled by the user, allowing it to be larger than the physical display.
+ * Layout container for a view hierarchy that can be scrolled by the user,
+ * allowing it to be larger than the physical display.
  *
  * @class ScrollView
  * @extends Component
@@ -177,6 +177,169 @@ var ScrollView = cc.Class({
                 this._updateScrollBar(0);
             }
         }
+    },
+
+
+    _calculateMoveToBottomDelta: function() {
+        var moveDelta = cc.p(0, this._bottomBoundary - this._getContentBottomBoundary());
+        return moveDelta;
+    },
+
+    scrollToBottom: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToBottomDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMoveToTopDelta: function() {
+        var moveDelta = cc.p(0, this._topBoundary - this._getContentTopBoundary());
+        return moveDelta;
+    },
+
+    scrollToTop: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToTopDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMoveToLeftDelta: function() {
+        var moveDelta = cc.p(this._leftBoundary - this._getContentLeftBoundary(), 0);
+        return moveDelta;
+    },
+
+    scrollToLeft: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToLeftDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMoveToRightDelta: function() {
+        var moveDelta = cc.p(this._rightBoundary - this._getContentRightBoundary(), 0);
+        return moveDelta;
+    },
+
+    scrollToRight: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToRightDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMoveToTopLeftDelta: function() {
+        var moveDelta = cc.p(this._leftBoundary - this._getContentLeftBoundary(),
+            this._topBoundary - this._getContentTopBoundary());
+        return moveDelta;
+    },
+
+    scrollToTopLeft: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToTopLeftDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMoveToTopRightDelta: function() {
+        var moveDelta = cc.p(this._rightBoundary - this._getContentRightBoundary(),
+            this._topBoundary - this._getContentTopBoundary());
+        return moveDelta;
+    },
+
+    scrollToTopRight: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToTopRightDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMoveToBottomLeftDelta: function() {
+        var moveDelta = cc.p(this._leftBoundary - this._getContentLeftBoundary(),
+            this._bottomBoundary - this._getContentBottomBoundary());
+        return moveDelta;
+    },
+
+    scrollToBottomLeft: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToBottomLeftDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMoveToBottomRightDelta: function() {
+        var moveDelta = cc.p(this._rightBoundary - this._getContentRightBoundary(),
+            this._bottomBoundary - this._getContentBottomBoundary());
+        return moveDelta;
+    },
+
+    scrollToBottomRight: function(timeInSecond, attenuated) {
+        var moveDelta = this._calculateMoveToBottomRightDelta();
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMovePercentHorizontalDelta: function(percent) {
+        var scrollSize = this.node.getContentSize();
+        var contentSize = this.content.getContentSize();
+        var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
+        var moveDelta = cc.p((contentSize.width - scrollSize.width) * percent / 100 - leftDeta, 0);
+        moveDelta = cc.pNeg(moveDelta);
+        return moveDelta;
+    },
+
+    scrollToPercentHorizontal: function(percent, timeInSecond, attenuated) {
+        var moveDelta = this._calculateMovePercentHorizontalDelta(percent);
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    _calculateMovePercentVerticalDelta: function(percent) {
+        var scrollSize = this.node.getContentSize();
+        var contentSize = this.content.getContentSize();
+        var bottomDeta = Math.abs(this._getContentBottomBoundary() - this._bottomBoundary);
+        var moveDelta = cc.p(0, (contentSize.height - scrollSize.height) * percent / 100 - bottomDeta);
+        moveDelta = cc.pNeg(moveDelta);
+        return moveDelta;
+    },
+
+    scrollToPercentVertical: function(percent, timeInSecond, attenuated) {
+        var moveDelta = this._calculateMovePercentVerticalDelta(percent);
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    jumpToPercentHorizontal: function(percent) {
+        var moveDelta = this._calculateMovePercentHorizontalDelta(percent);
+        this._moveContent(moveDelta);
+    },
+
+    jumpToPercentVertical: function(percent) {
+        var moveDelta = this._calculateMovePercentVerticalDelta(percent);
+        this._moveContent(moveDelta);
+    },
+
+    jumpToTop: function() {
+        var moveDelta = this._calculateMoveToTopDelta();
+        this._moveContent(moveDelta, true);
+    },
+
+    jumpToBottom: function() {
+        var moveDelta = this._calculateMoveToBottomDelta();
+        this._moveContent(moveDelta, true);
+    },
+
+    jumpToLeft: function() {
+        var moveDelta = this._calculateMoveToLeftDelta();
+        this._moveContent(moveDelta, true);
+    },
+
+    jumpToRight: function() {
+        var moveDelta = this._calculateMoveToRightDelta();
+        this._moveContent(moveDelta, true);
+    },
+
+    jumpToTopLeft: function() {
+        var moveDelta = this._calculateMoveToTopLeftDelta();
+        this._moveContent(moveDelta, true);
+    },
+
+    jumpToTopRight: function() {
+        var moveDelta = this._calculateMoveToTopRightDelta();
+        this._moveContent(moveDelta, true);
+    },
+
+    jumpToBottomLeft: function() {
+        var moveDelta = this._calculateMoveToBottomLeftDelta();
+        this._moveContent(moveDelta, true);
+    },
+
+    jumpToBottomRight: function() {
+        var moveDelta = this._calculateMoveToBottomRightDelta();
+        this._moveContent(moveDelta, true);
     },
 
     setContentPosition: function(position) {
@@ -322,7 +485,7 @@ var ScrollView = cc.Class({
         this._onScrollBarTouchBegan();
     },
 
-    _clampDelta: function(delta){
+    _clampDelta: function(delta) {
         var contentSize = this.content.getContentSize();
         var scrollViewSize = this.node.getContentSize();
         if (contentSize.width <= scrollViewSize.width) {
@@ -466,7 +629,7 @@ var ScrollView = cc.Class({
         var scrollviewSize = this.node.getContentSize();
 
         targetDelta = cc.p(targetDelta.x * (contentSize.width - scrollviewSize.width) * (1 - this.brake),
-                           targetDelta.y * (contentSize.height - scrollviewSize.height) * (1 - this.brake));
+            targetDelta.y * (contentSize.height - scrollviewSize.height) * (1 - this.brake));
 
         targetDelta = cc.pAdd(deltaMove, targetDelta);
         var factor = cc.pLength(targetDelta) / originalMoveLength;
@@ -497,7 +660,8 @@ var ScrollView = cc.Class({
         if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
             this._autoScrollCurrentlyOutOfBoundary = true;
             var afterOutOfBoundary = this._getHowMuchOutOfBoundary(adjustedDeltaMove);
-            if (currentOutOfBoundary.x * afterOutOfBoundary.x > 0 || currentOutOfBoundary.y * afterOutOfBoundary.y > 0) {
+            if (currentOutOfBoundary.x * afterOutOfBoundary.x > 0 ||
+                currentOutOfBoundary.y * afterOutOfBoundary.y > 0) {
                 this._autoScrollBraking = true;
             }
         }
