@@ -67,7 +67,20 @@ var Animation = cc.Class({
             default: null,
             type: AnimationClip,
             tooltip: 'i18n:COMPONENT.animation.default_clip',
-            visible: true
+            visible: true,
+
+            notify: function () {
+                var defaultClip = this._defaultClip;
+                var clips = this._clips;
+
+                for (var i = 0, l = clips.length; i < l; i++) {
+                    if (equalClips(defaultClip, clips[i])) {
+                        return;
+                    }
+                }
+
+                this.addClip(defaultClip);
+            }
         },
 
         /**
