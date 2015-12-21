@@ -66,7 +66,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._setAlign(TOP, value);
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.align_top',
         },
 
         /**
@@ -89,7 +90,8 @@ var Widget = cc.Class({
                 else {
                     this._alignFlags &= ~MID;
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.align_v_center',
         },
 
         /**
@@ -105,7 +107,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._setAlign(BOT, value);
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.align_bottom',
         },
 
         /**
@@ -121,7 +124,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._setAlign(LEFT, value);
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.align_left',
         },
 
         /**
@@ -144,7 +148,8 @@ var Widget = cc.Class({
                 else {
                     this._alignFlags &= ~CENTER;
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.align_h_center',
         },
 
         /**
@@ -160,7 +165,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._setAlign(RIGHT, value);
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.align_right',
         },
 
         /**
@@ -207,7 +213,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._top = value;
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.top',
         },
 
         /**
@@ -223,7 +230,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._bottom = value;
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.bottom',
         },
 
         /**
@@ -239,7 +247,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._left = value;
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.left',
         },
 
         /**
@@ -255,7 +264,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._right = value;
-            }
+            },
+            tooltip: 'i18n:COMPONENT.widget.right',
         },
 
         // PARCENTAGE OR ABSOLUTE

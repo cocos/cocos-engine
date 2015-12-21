@@ -67,7 +67,7 @@ var Scrollbar = cc.Class({
         handle: {
             default: null,
             type: cc.SpriteRenderer,
-
+            tooltip: 'i18n:COMPONENT.scrollbar.handle',
             notify: function() {
                 this._onScroll(cc.p(0, 0));
             }
@@ -80,6 +80,7 @@ var Scrollbar = cc.Class({
         direction: {
             default: Direction.HORIZONTAL,
             type: Direction,
+            tooltip: 'i18n:COMPONENT.scrollbar.direction',
             notify: function() {
                 this._onScroll(cc.p(0, 0));
             }
@@ -90,7 +91,8 @@ var Scrollbar = cc.Class({
          *@property {Boolean} enableAutoHide
          */
         enableAutoHide: {
-            default: true
+            default: true,
+            tooltip: 'i18n:COMPONENT.scrollbar.auto_hide',
         },
 
         /**
@@ -99,7 +101,8 @@ var Scrollbar = cc.Class({
          *@property {Float} autoHideTime
          */
         autoHideTime: {
-            default: 1.0
+            default: 1.0,
+            tooltip: 'i18n:COMPONENT.scrollbar.auto_hide_time',
         }
     },
 
