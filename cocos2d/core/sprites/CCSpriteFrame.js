@@ -62,6 +62,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             set: function (url) {
                 this._textureFilename = url;
                 if (url) {
+                    if (CC_EDITOR && url instanceof cc.Asset) {
+                        // just packing
+                        return;
+                    }
                     // texture will be init in getTexture()
                     var texture = this.getTexture();
                     if (this._textureLoaded) {
@@ -458,7 +462,16 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         var rect = this._rect;
         var offset = this._offset;
         var size = this._originalSize;
+        var uuid;
         var url = this._textureFilename;
+        if (url) {
+            if (url instanceof cc.Asset) {
+                uuid = url._uuid;
+            }
+            else {
+                uuid = Editor.urlToUuid(url);
+            }
+        }
         var capInsets = undefined;
         if (this.insetLeft !== 0 ||
             this.insetTop !== 0 ||
@@ -468,7 +481,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         return {
             name: this._name,
-            texture: url && Editor.urlToUuid(url),
+            texture: uuid || undefined,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
             rect: [rect.x, rect.y, rect.width, rect.height],
             offset: [offset.x, offset.y],
