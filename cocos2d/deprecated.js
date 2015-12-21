@@ -505,7 +505,7 @@ if (CC_DEV) {
         'getCameraMask'
     ], '_ccsg.Node');
 
-    js.obsoletes(cc.Scale9Sprite, 'cc.Scale9Sprite', {
+    js.obsoletes(cc.Scale9Sprite.prototype, 'cc.Scale9Sprite', {
         setPreferredSize: 'setContentSize',
         getPreferredSize: 'getContentSize',
     });

@@ -555,36 +555,36 @@ _ccsg.Sprite = _ccsg.Node.extend({
     },
 
 	_softInit: function (fileName, rect, rotated) {
-		if (fileName === undefined)
+        if (fileName === undefined)
             _ccsg.Sprite.prototype.init.call(this);
-		else if (cc.js.isString(fileName)) {
-			if (fileName[0] === "#") {
-				// Init with a sprite frame name
-				var frameName = fileName.substr(1, fileName.length - 1);
-				var spriteFrame = cc.spriteFrameCache.getSpriteFrame(frameName);
-				if (spriteFrame)
-					this.initWithSpriteFrame(spriteFrame);
-				else
-					cc.log("%s does not exist", fileName);
-			} else {
-				// Init  with filename and rect
+        else if (cc.js.isString(fileName)) {
+            if (fileName[0] === "#") {
+                // Init with a sprite frame name
+                var frameName = fileName.substr(1, fileName.length - 1);
+                var spriteFrame = cc.spriteFrameCache.getSpriteFrame(frameName);
+                if (spriteFrame)
+                    this.initWithSpriteFrame(spriteFrame);
+                else
+                    cc.log("%s does not exist", fileName);
+            } else {
+                // Init  with filename and rect
                 _ccsg.Sprite.prototype.init.call(this, fileName, rect);
-			}
-		} else if (typeof fileName === "object") {
-			if (fileName instanceof cc.Texture2D) {
-				// Init  with texture and rect
-				this.initWithTexture(fileName, rect, rotated);
-			} else if (fileName instanceof cc.SpriteFrame) {
-				// Init with a sprite frame
-				this.initWithSpriteFrame(fileName);
-			} else if ((fileName instanceof HTMLImageElement) || (fileName instanceof HTMLCanvasElement)) {
-				// Init with a canvas or image element
-				var texture2d = new cc.Texture2D();
-				texture2d.initWithElement(fileName);
-				texture2d.handleLoadedTexture();
-				this.initWithTexture(texture2d);
-			}
-		}
+            }
+        } else if (typeof fileName === "object") {
+            if (fileName instanceof cc.Texture2D) {
+                // Init  with texture and rect
+                this.initWithTexture(fileName, rect, rotated);
+            } else if (fileName instanceof cc.SpriteFrame) {
+                // Init with a sprite frame
+                this.initWithSpriteFrame(fileName);
+            } else if ((fileName instanceof HTMLImageElement) || (fileName instanceof HTMLCanvasElement)) {
+                // Init with a canvas or image element
+                var texture2d = new cc.Texture2D();
+                texture2d.initWithElement(fileName);
+                texture2d.handleLoadedTexture();
+                this.initWithTexture(texture2d);
+            }
+        }
 	},
 
     /**
