@@ -6,7 +6,7 @@ var JS = cc.js;
 var cachedArray = new Array(16);
 cachedArray.length = 0;
 
-var _doDispatchEvent = function (owner, event, args) {
+var _doDispatchEvent = function (owner, event) {
     var target, i;
     event.target = owner;
 

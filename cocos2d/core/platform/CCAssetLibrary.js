@@ -380,8 +380,8 @@ var AssetLibrary = {
                                     var loaded = img.width > 0 || img.height > 0;
                                     if ( !loaded ) {
                                         function loadCallback () {
-                                            img.removeEventListener('load', loadCallback, false);
-                                            img.removeEventListener('error', errorCallback, false);
+                                            img.removeEventListener('load', loadCallback);
+                                            img.removeEventListener('error', errorCallback);
 
                                             obj[prop] = dependsUrl;
                                             --pendingCount;
@@ -391,8 +391,15 @@ var AssetLibrary = {
                                             }
                                         }
                                         function errorCallback () {
-                                            img.removeEventListener('load', loadCallback, false);
-                                            img.removeEventListener('error', errorCallback, false);
+                                            img.removeEventListener('load', loadCallback);
+                                            img.removeEventListener('error', errorCallback);
+
+                                            obj[prop] = '';
+                                            --pendingCount;
+                                            if (callback && pendingCount === 0) {
+                                                callback();
+                                                callback = null;
+                                            }
                                         }
                                         img.addEventListener('load', loadCallback);
                                         img.addEventListener('error', errorCallback);
