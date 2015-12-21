@@ -61,7 +61,7 @@ var Sprite = cc.Class({
 
         /**
          * The sprite frame of the sprite.
-         * @property sprite
+         * @property spriteFrame
          * @type {SpriteFrame}
          */
         spriteFrame: {
@@ -79,7 +79,6 @@ var Sprite = cc.Class({
                 }
             },
             type: cc.SpriteFrame,
-            tooltip: 'i18n:COMPONENT.sprite.sprite_frame',
         },
 
         /**
