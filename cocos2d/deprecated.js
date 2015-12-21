@@ -435,7 +435,9 @@ if (CC_DEV) {
         ignoreAnchorPointForPosition: 'instance.ignoreAnchor',
         getPreferredSize: 'node.getContentSize',
         setPreferredSize: 'node.setContentSize',
-        updateWithSprite: 'spriteFrame'
+        updateWithSprite: 'spriteFrame',
+        getSpriteFrame: 'spriteFrame',
+        setSpriteFrame: 'spriteFrame',
     });
     shouldNotUseNodeProp(cc.Sprite);
 

@@ -159,15 +159,6 @@ var Sprite = cc.Class({
     },
 
     /**
-     * Get the original no 9-sliced sprite.
-     * @method getSprite
-     * @return {SpriteFrame} A sprite instance.
-     */
-    getSprite : function(){
-        return this._spriteFrame;
-    },
-
-    /**
      * Initializes a 9-slice sprite with a texture file, a delimitation zone and
      * with the specified cap insets.
      * Once the sprite is created, you can then call its "setContentSize:" method
@@ -216,17 +207,7 @@ var Sprite = cc.Class({
         if (initialized === false) {
             return;
         }
-        this._spriteFrame = this._sgNode.getSprite();
-    },
-
-    /**
-     * Sets a new sprite frame to the sprite.
-     * @method setSpriteFrame
-     * @param {SpriteFrame} spriteFrame
-     * @param {Rect} capInsets
-     */
-    setSpriteFrame: function (spriteFrame) {
-        this.spriteFrame = spriteFrame;
+        this._spriteFrame = this._sgNode.getSpriteFrame();
     },
 
     /**
@@ -396,8 +377,7 @@ var Sprite = cc.Class({
 var misc = require('../utils/misc');
 var SameNameGetSets = ['atlas', 'capInsets', 'insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
 var DiffNameGetSets = {
-    type: [ null, 'setRenderingType'],
-    spriteFrame: ['getSprite', null],
+    type: [ null, 'setRenderingType']
 };
 misc.propertyDefine(Sprite, SameNameGetSets, DiffNameGetSets);
 

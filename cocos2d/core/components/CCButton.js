@@ -493,7 +493,7 @@ var Button = cc.Class({
             }
         }
         else if (transition === Transition.SPRITE && this._sprite && sprite) {
-            this._sprite.spriteframe = sprite;
+            this._sprite.spriteFrame = sprite;
         }
     },
 
