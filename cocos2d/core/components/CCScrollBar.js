@@ -62,11 +62,11 @@ var Scrollbar = cc.Class({
 
         /**
          * The "handle" part of the scrollbar.
-         * @property {cc.SpriteRenderer} handle
+         * @property {cc.Sprite} handle
          */
         handle: {
             default: null,
-            type: cc.SpriteRenderer,
+            type: cc.Sprite,
             tooltip: 'i18n:COMPONENT.scrollbar.handle',
             notify: function() {
                 this._onScroll(cc.p(0, 0));
