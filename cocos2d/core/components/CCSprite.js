@@ -340,7 +340,6 @@ var Sprite = cc.Class({
         }
         if (!this._spriteFrame) return;
 
-        sgNode.setSpriteFrame(this._spriteFrame);
         var locLoaded = this._spriteFrame.textureLoaded();
         if (!locLoaded) {
             if ( !this._useOriginalSize ) {
