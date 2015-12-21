@@ -55,7 +55,7 @@
         // This visit is almost identical to _ccsg.Node#visit
         // with the exception that it doesn't call visit on it's children
         //
-        // The alternative is to have a void cc.Sprite#visit, but
+        // The alternative is to have a void _ccsg.Sprite#visit, but
         // although this is less mantainable, is faster
         //
         if (!node._visible)

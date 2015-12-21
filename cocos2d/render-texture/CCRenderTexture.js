@@ -69,8 +69,8 @@ cc.NextPOT = function (x) {
  * @class
  * @extends _ccsg.Node
  *
- * @property {cc.Sprite}    sprite          - The sprite.
- * @property {cc.Sprite}    clearFlags      - Code for "auto" update.
+ * @property {_ccsg.Sprite}    sprite          - The sprite.
+ * @property {_ccsg.Sprite}    clearFlags      - Code for "auto" update.
  * @property {Number}       clearDepthVal   - Clear depth value.
  * @property {Boolean}      autoDraw        - Indicate auto draw mode activate or not.
  * @property {Number}       clearStencilVal - Clear stencil value.
@@ -143,7 +143,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
 
     /**
      * Gets the sprite
-     * @return {cc.Sprite}
+     * @return {_ccsg.Sprite}
      */
     getSprite:function () {
         return this.sprite;
@@ -151,7 +151,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
 
     /**
      * Set the sprite
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      */
     setSprite:function (sprite) {
         this.sprite = sprite;

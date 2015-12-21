@@ -94,7 +94,7 @@ var TextureLoadImgTest = TextureCacheTestBase.extend({
         if (this.sprite) {
             this.removeChild(this.sprite);
         }
-        this.sprite = new cc.Sprite(texture);
+        this.sprite = new _ccsg.Sprite(texture);
         this.sprite.x = cc.winSize.width/2;
         this.sprite.y = cc.winSize.height/2;
         this.addChild(this.sprite);
@@ -113,7 +113,7 @@ var TextureLoadImgTest = TextureCacheTestBase.extend({
         if (this.sprite2) {
             this.removeChild(this.sprite2);
         }
-        this.sprite2 = new cc.Sprite(texture);
+        this.sprite2 = new _ccsg.Sprite(texture);
         this.sprite2.x = cc.winSize.width/2;
         this.sprite2.y = cc.winSize.height/2 + 70;
         this.addChild(this.sprite2);
@@ -172,32 +172,32 @@ var TextureCacheTest = TextureCacheTestBase.extend({
         var size = cc.director.getWinSize();
 
         // create sprites
-        var bg = new cc.Sprite("Images/HelloWorld.png");
+        var bg = new _ccsg.Sprite("Images/HelloWorld.png");
         bg.x = size.width / 2;
         bg.y = size.height / 2;
         //bg.scale = 1.7;
 
-        var s1 = new cc.Sprite("Images/grossini.png");
-        var s2 = new cc.Sprite("Images/grossini_dance_01.png");
-        var s3 = new cc.Sprite("Images/grossini_dance_02.png");
-        var s4 = new cc.Sprite("Images/grossini_dance_03.png");
-        var s5 = new cc.Sprite("Images/grossini_dance_04.png");
-        var s6 = new cc.Sprite("Images/grossini_dance_05.png");
-        var s7 = new cc.Sprite("Images/grossini_dance_06.png");
-        var s8 = new cc.Sprite("Images/grossini_dance_07.png");
-        var s9 = new cc.Sprite("Images/grossini_dance_08.png");
-        var s10 = new cc.Sprite("Images/grossini_dance_09.png");
-        var s11 = new cc.Sprite("Images/grossini_dance_10.png");
-        var s12 = new cc.Sprite("Images/grossini_dance_11.png");
-        var s13 = new cc.Sprite("Images/grossini_dance_12.png");
-        var s14 = new cc.Sprite("Images/grossini_dance_13.png");
-        var s15 = new cc.Sprite("Images/grossini_dance_14.png");
+        var s1 = new _ccsg.Sprite("Images/grossini.png");
+        var s2 = new _ccsg.Sprite("Images/grossini_dance_01.png");
+        var s3 = new _ccsg.Sprite("Images/grossini_dance_02.png");
+        var s4 = new _ccsg.Sprite("Images/grossini_dance_03.png");
+        var s5 = new _ccsg.Sprite("Images/grossini_dance_04.png");
+        var s6 = new _ccsg.Sprite("Images/grossini_dance_05.png");
+        var s7 = new _ccsg.Sprite("Images/grossini_dance_06.png");
+        var s8 = new _ccsg.Sprite("Images/grossini_dance_07.png");
+        var s9 = new _ccsg.Sprite("Images/grossini_dance_08.png");
+        var s10 = new _ccsg.Sprite("Images/grossini_dance_09.png");
+        var s11 = new _ccsg.Sprite("Images/grossini_dance_10.png");
+        var s12 = new _ccsg.Sprite("Images/grossini_dance_11.png");
+        var s13 = new _ccsg.Sprite("Images/grossini_dance_12.png");
+        var s14 = new _ccsg.Sprite("Images/grossini_dance_13.png");
+        var s15 = new _ccsg.Sprite("Images/grossini_dance_14.png");
 
         // just loading textures to slow down
-        var s16 = new cc.Sprite("Images/background1.png");
-        var s17 = new cc.Sprite("Images/background2.png");
-        var s18 = new cc.Sprite("Images/background3.png");
-        var s19 = new cc.Sprite("Images/blocks.png");
+        var s16 = new _ccsg.Sprite("Images/background1.png");
+        var s17 = new _ccsg.Sprite("Images/background2.png");
+        var s18 = new _ccsg.Sprite("Images/background3.png");
+        var s19 = new _ccsg.Sprite("Images/blocks.png");
 
         s1.x = 50;
         s1.y = 50;
@@ -288,7 +288,7 @@ var RemoteTextureTest = TextureCacheTestBase.extend({
         if (texture instanceof cc.Texture2D) {
             cc.log("Remote texture loaded");
             
-            var sprite = new cc.Sprite(texture);
+            var sprite = new _ccsg.Sprite(texture);
             sprite.x = cc.winSize.width/2;
             sprite.y = cc.winSize.height/2;
             this.addChild(sprite);

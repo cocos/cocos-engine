@@ -75,7 +75,7 @@ var Parallax1 = ParallaxDemo.extend({
         this._super();
 
         // Top Layer, a simple image
-        this._cocosimage = new cc.Sprite(s_power);
+        this._cocosimage = new _ccsg.Sprite(s_power);
         // scale the image (optional)
         this._cocosimage.scale = 1.5;
         // change the transform anchor point to 0,0 (optional)
@@ -94,7 +94,7 @@ var Parallax1 = ParallaxDemo.extend({
         //tilemap.texture.setAntiAliasTexParameters();
 
         // background layer: another image
-        this._background = new cc.Sprite(s_back);
+        this._background = new _ccsg.Sprite(s_back);
         // scale the image (optional)
         //background.scale = 1.5;
         // change the transform anchor point (optional)
@@ -188,7 +188,7 @@ var Parallax2 = ParallaxDemo.extend({
 
 
         // Top Layer, a simple image
-        var cocosImage = new cc.Sprite(s_power);
+        var cocosImage = new _ccsg.Sprite(s_power);
         // scale the image (optional)
         cocosImage.scale = 1.5;
         // change the transform anchor point to 0,0 (optional)
@@ -207,7 +207,7 @@ var Parallax2 = ParallaxDemo.extend({
         //tilemap.texture.setAntiAliasTexParameters();
 
         // background layer: another image
-        var background = new cc.Sprite(s_back);
+        var background = new _ccsg.Sprite(s_back);
         // scale the image (optional)
         //background.scale = 1.5;
         // change the transform anchor point (optional)

@@ -71,7 +71,7 @@ ccui.ImageView = ccui.Widget.extend(/** @lends ccui.ImageView# */{
 
     _initRenderer: function () {
         //todo create Scale9Sprite and setScale9Enabled(false)
-        this._imageRenderer = new cc.Sprite();
+        this._imageRenderer = new _ccsg.Sprite();
         this.addProtectedChild(this._imageRenderer, ccui.ImageView.RENDERER_ZORDER, -1);
     },
 
@@ -155,7 +155,7 @@ ccui.ImageView = ccui.Widget.extend(/** @lends ccui.ImageView# */{
         if (this._scale9Enabled) {
             this._imageRenderer = new ccui.Scale9Sprite();
         } else {
-            this._imageRenderer = new cc.Sprite();
+            this._imageRenderer = new _ccsg.Sprite();
         }
         this.loadTexture(this._textureFile, this._imageTexType);
         this.addProtectedChild(this._imageRenderer, ccui.ImageView.RENDERER_ZORDER, -1);

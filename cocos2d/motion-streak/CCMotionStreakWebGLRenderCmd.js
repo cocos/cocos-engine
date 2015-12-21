@@ -29,7 +29,7 @@ cc.MotionStreak.WebGLRenderCmd = function(renderableObject){
 };
 
 cc.MotionStreak.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-cc.MotionStreak.WebGLRenderCmd.prototype.constructor = cc.Sprite.WebGLRenderCmd;
+cc.MotionStreak.WebGLRenderCmd.prototype.constructor = _ccsg.Sprite.WebGLRenderCmd;
 
 cc.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
     var node = this._node;

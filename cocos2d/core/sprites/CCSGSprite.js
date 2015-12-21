@@ -27,9 +27,9 @@
 var EventTarget = require("../cocos2d/core/event/event-target");
 
 /**
- * <p>cc.Sprite is a 2d image ( http://en.wikipedia.org/wiki/Sprite_(computer_graphics) )  <br/>
+ * <p>_ccsg.Sprite is a 2d image ( http://en.wikipedia.org/wiki/Sprite_(computer_graphics) )  <br/>
  *
- * cc.Sprite can be created with an image, or with a sub-rectangle of an image.  <br/>
+ * _ccsg.Sprite can be created with an image, or with a sub-rectangle of an image.  <br/>
  *
  * If the parent or any of its ancestors is a cc.SpriteBatchNode then the following features/limitations are valid   <br/>
  *    - Features when the parent is a cc.BatchNode: <br/>
@@ -42,12 +42,12 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  *        - The Blending function property belongs to CCSpriteBatchNode, so you can't individually set the blending function property. <br/>
  *        - Parallax scroller is not supported, but can be simulated with a "proxy" sprite.        <br/>
  *
- *  If the parent is an standard ccsg.Node, then cc.Sprite behaves like any other ccsg.Node:      <br/>
+ *  If the parent is an standard ccsg.Node, then _ccsg.Sprite behaves like any other ccsg.Node:      <br/>
  *    - It supports blending functions    <br/>
  *    - It supports aliasing / antialiasing    <br/>
  *    - But the rendering will be slower: 1 draw per children.   <br/>
  *
- * The default anchorPoint in cc.Sprite is (0.5, 0.5). </p>
+ * The default anchorPoint in _ccsg.Sprite is (0.5, 0.5). </p>
  * @class
  * @extends _ccsg.Node
  *
@@ -57,21 +57,21 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @example
  *
  * 1.Create a sprite with image path and rect
- * var sprite1 = new cc.Sprite("res/HelloHTML5World.png");
- * var sprite2 = new cc.Sprite("res/HelloHTML5World.png",cc.rect(0,0,480,320));
+ * var sprite1 = new _ccsg.Sprite("res/HelloHTML5World.png");
+ * var sprite2 = new _ccsg.Sprite("res/HelloHTML5World.png",cc.rect(0,0,480,320));
  *
  * 2.Create a sprite with a sprite frame name. Must add "#" before frame name.
- * var sprite = new cc.Sprite('#grossini_dance_01.png');
+ * var sprite = new _ccsg.Sprite('#grossini_dance_01.png');
  *
  * 3.Create a sprite with a sprite frame
  * var spriteFrame = cc.spriteFrameCache.getSpriteFrame("grossini_dance_01.png");
- * var sprite = new cc.Sprite(spriteFrame);
+ * var sprite = new _ccsg.Sprite(spriteFrame);
  *
  * 4.Create a sprite with an existing texture contained in a CCTexture2D object
  *      After creation, the rect will be the size of the texture, and the offset will be (0,0).
  * var texture = cc.textureCache.addImage("HelloHTML5World.png");
- * var sprite1 = new cc.Sprite(texture);
- * var sprite2 = new cc.Sprite(texture, cc.rect(0,0,480,320));
+ * var sprite1 = new _ccsg.Sprite(texture);
+ * var sprite2 = new _ccsg.Sprite(texture, cc.rect(0,0,480,320));
  *
  * @property {Boolean}              dirty               - Indicates whether the sprite needs to be updated.
  * @property {Boolean}              flippedX            - Indicates whether or not the sprite is flipped on x axis.
@@ -85,7 +85,7 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @property {cc.SpriteBatchNode}   batchNode           - The batch node object if this sprite is rendered by cc.SpriteBatchNode.
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
-cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
+_ccsg.Sprite = _ccsg.Node.extend({
 	dirty:false,
 	atlasIndex:0,
     textureAtlas:null,
@@ -196,7 +196,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
     },
 
     /**
-     * Returns the rect of the cc.Sprite in points
+     * Returns the rect of the _ccsg.Sprite in points
      * @return {cc.Rect}
      */
     getTextureRect:function () {
@@ -273,7 +273,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
      * @param {String} spriteFrameName A key string that can fected a valid cc.SpriteFrame from cc.SpriteFrameCache
      * @return {Boolean} true if the sprite is initialized properly, false otherwise.
      * @example
-     * var sprite = new cc.Sprite();
+     * var sprite = new _ccsg.Sprite();
      * sprite.initWithSpriteFrameName("grossini_dance_01.png");
      */
     initWithSpriteFrameName:function (spriteFrameName) {
@@ -556,7 +556,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
 
 	_softInit: function (fileName, rect, rotated) {
 		if (fileName === undefined)
-			cc.Sprite.prototype.init.call(this);
+            _ccsg.Sprite.prototype.init.call(this);
 		else if (cc.js.isString(fileName)) {
 			if (fileName[0] === "#") {
 				// Init with a sprite frame name
@@ -568,7 +568,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
 					cc.log("%s does not exist", fileName);
 			} else {
 				// Init  with filename and rect
-				cc.Sprite.prototype.init.call(this, fileName, rect);
+                _ccsg.Sprite.prototype.init.call(this, fileName, rect);
 			}
 		} else if (typeof fileName === "object") {
 			if (fileName instanceof cc.Texture2D) {
@@ -800,7 +800,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
     /**
      * Add child to sprite (override ccsg.Node)
      * @function
-     * @param {cc.Sprite} child
+     * @param {_ccsg.Sprite} child
      * @param {Number} localZOrder  child's zOrder
      * @param {String} [tag] child's tag
      * @override
@@ -909,7 +909,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
      * @param {cc.SpriteBatchNode|null} spriteBatchNode
      * @example
      *  var batch = new cc.SpriteBatchNode("Images/grossini_dance_atlas.png", 15);
-     *  var sprite = new cc.Sprite(batch.texture, cc.rect(0, 0, 57, 57));
+     *  var sprite = new _ccsg.Sprite(batch.texture, cc.rect(0, 0, 57, 57));
      *  batch.addChild(sprite);
      *  layer.addChild(batch);
      */
@@ -919,7 +919,7 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
 
         // self render
         if (!_t._batchNode) {
-            _t.atlasIndex = cc.Sprite.INDEX_NOT_INITIALIZED;
+            _t.atlasIndex = _ccsg.Sprite.INDEX_NOT_INITIALIZED;
             _t.textureAtlas = null;
             _t._recursiveDirty = false;
             _t.dirty = false;
@@ -981,53 +981,53 @@ cc.Sprite = _ccsg.Node.extend(/** @lends cc.Sprite# */{
 
     _createRenderCmd: function(){
         if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
-            return new cc.Sprite.CanvasRenderCmd(this);
+            return new _ccsg.Sprite.CanvasRenderCmd(this);
         else
-            return new cc.Sprite.WebGLRenderCmd(this);
+            return new _ccsg.Sprite.WebGLRenderCmd(this);
     }
 });
 
 /**
  * Create a sprite with image path or frame name or texture or spriteFrame.
  * @deprecated since v3.0, please use new construction instead
- * @see cc.Sprite
+ * @see _ccsg.Sprite
  * @param {String|cc.SpriteFrame|HTMLImageElement|cc.Texture2D} fileName  The string which indicates a path to image file, e.g., "scene1/monster.png".
  * @param {cc.Rect} rect  Only the contents inside rect of pszFileName's texture will be applied for this sprite.
  * @param {Boolean} [rotated] Whether or not the texture rectangle is rotated.
- * @return {cc.Sprite} A valid sprite object
+ * @return {_ccsg.Sprite} A valid sprite object
  */
-cc.Sprite.create = function (fileName, rect, rotated) {
-    return new cc.Sprite(fileName, rect, rotated);
+_ccsg.Sprite.create = function (fileName, rect, rotated) {
+    return new _ccsg.Sprite(fileName, rect, rotated);
 };
 
 /**
  * @deprecated since v3.0, please use new construction instead
- * @see cc.Sprite
+ * @see _ccsg.Sprite
  * @function
  */
-cc.Sprite.createWithTexture = cc.Sprite.create;
+_ccsg.Sprite.createWithTexture = _ccsg.Sprite.create;
 
 /**
  * @deprecated since v3.0, please use new construction instead
- * @see cc.Sprite
+ * @see _ccsg.Sprite
  * @function
  */
-cc.Sprite.createWithSpriteFrameName = cc.Sprite.create;
+_ccsg.Sprite.createWithSpriteFrameName = _ccsg.Sprite.create;
 
 /**
  * @deprecated since v3.0, please use new construction instead
- * @see cc.Sprite
+ * @see _ccsg.Sprite
  * @function
  */
-cc.Sprite.createWithSpriteFrame = cc.Sprite.create;
+_ccsg.Sprite.createWithSpriteFrame = _ccsg.Sprite.create;
 /**
- * cc.Sprite invalid index on the cc.SpriteBatchNode
+ * _ccsg.Sprite invalid index on the cc.SpriteBatchNode
  * @constant
  * @type {Number}
  */
-cc.Sprite.INDEX_NOT_INITIALIZED = -1;
+_ccsg.Sprite.INDEX_NOT_INITIALIZED = -1;
 
-cc.js.addon(cc.Sprite.prototype, EventTarget.prototype);
+cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
 
 cc.assert(cc.js.isFunction(cc._tmp.PrototypeSprite), cc._LogInfos.MissingFile, "SpritesPropertyDefine.js");

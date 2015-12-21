@@ -38,7 +38,7 @@ cc.s_globalOrderOfArrival = 1;
 
 /**
  * <p>ccsg.Node is the root class of all node. Anything that gets drawn or contains things that get drawn is a ccsg.Node.<br/>
- * The most popular ccsg.Nodes are: ccsg.Scene, cc.Layer, cc.Sprite, cc.Menu.</p>
+ * The most popular ccsg.Nodes are: ccsg.Scene, cc.Layer, _ccsg.Sprite, cc.Menu.</p>
  *
  * <p>The main features of a ccsg.Node are: <br/>
  * - They can contain other ccsg.Node nodes (addChild, getChildByTag, removeChild, etc) <br/>
@@ -1713,8 +1713,8 @@ _ccsg.Node = cc.Class({
      * this.addChild(batch);
      *
      * // create two sprites, spriteA will be added to batchNode, they are using different textures.
-     * var spriteA = new cc.Sprite(batch->getTexture());
-     * var spriteB = new cc.Sprite("Icon-72.png");
+     * var spriteA = new _ccsg.Sprite(batch->getTexture());
+     * var spriteB = new _ccsg.Sprite("Icon-72.png");
      *
      * batch.addChild(spriteA);
      *

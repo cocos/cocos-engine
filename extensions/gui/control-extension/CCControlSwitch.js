@@ -166,7 +166,7 @@ cc.ControlSwitch.create = function (maskSprite, onSprite, offSprite, thumbSprite
 /**
  * ControlSwitchSprite: Sprite switch control ui component
  * @class
- * @extends cc.Sprite
+ * @extends _ccsg.Sprite
  *
  * @property {Number}           sliderX         - Slider's x position
  * @property {cc.Vec2}         onPos           - The position of slider when switch is on
@@ -174,15 +174,15 @@ cc.ControlSwitch.create = function (maskSprite, onSprite, offSprite, thumbSprite
  * @property {cc.Texture2D}     maskTexture     - The texture of the mask
  * @property {cc.Vec2}         texturePos      - The position of the texture
  * @property {cc.Vec2}         maskPos         - The position of the mask
- * @property {cc.Sprite}        onSprite        - The sprite of switch on
- * @property {cc.Sprite}        offSprite       - The sprite of switch off
- * @property {cc.Sprite}        thumbSprite     - The thumb sprite of the switch control
+ * @property {_ccsg.Sprite}        onSprite        - The sprite of switch on
+ * @property {_ccsg.Sprite}        offSprite       - The sprite of switch off
+ * @property {_ccsg.Sprite}        thumbSprite     - The thumb sprite of the switch control
  * @property {cc.LabelTTF}      onLabel         - The sprite of switch on
  * @property {cc.LabelTTF}      offLabel        - The sprite of switch off
  * @property {Number}           onSideWidth     - <@readonly> The width of the on side of the switch control
  * @property {Number}           offSideWidth    - <@readonly> The width of the off side of the switch control
  */
-cc.ControlSwitchSprite = cc.Sprite.extend({
+cc.ControlSwitchSprite = _ccsg.Sprite.extend({
     _sliderXPosition:0,
     _onPosition:0,
     _offPosition:0,
@@ -201,7 +201,7 @@ cc.ControlSwitchSprite = cc.Sprite.extend({
     _backRT:null,
 
     ctor:function () {
-        cc.Sprite.prototype.ctor.call(this);
+        _ccsg.Sprite.prototype.ctor.call(this);
         this._sliderXPosition = 0;
         this._onPosition = 0;
         this._offPosition = 0;
@@ -215,7 +215,7 @@ cc.ControlSwitchSprite = cc.Sprite.extend({
     },
 
     initWithMaskSprite:function (maskSprite, onSprite, offSprite, thumbSprite, onLabel, offLabel) {
-        if (cc.Sprite.prototype.init.call(this)) {
+        if (_ccsg.Sprite.prototype.init.call(this)) {
             this.setSpriteFrame(maskSprite.displayFrame());
             // Sets the default values
             this._onPosition = 0;

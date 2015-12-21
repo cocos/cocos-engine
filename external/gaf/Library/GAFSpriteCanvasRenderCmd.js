@@ -1,7 +1,7 @@
 
 (function() {
     gaf.Sprite.CanvasRenderCmd = function (renderable) {
-        cc.Sprite.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Sprite.CanvasRenderCmd.call(this, renderable);
         this._hasTintMult = false;
         this._hasTintOffset = false;
         this._hasCtx = false;
@@ -9,7 +9,7 @@
         this._tintOffset = cc.color(0,0,0,0);
         this._textureDirty = false;
     };
-    var proto = gaf.Sprite.CanvasRenderCmd.prototype = Object.create(cc.Sprite.CanvasRenderCmd.prototype);
+    var proto = gaf.Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Sprite.CanvasRenderCmd.prototype);
     proto.constructor = gaf.Sprite.CanvasRenderCmd;
 
     proto._disableCtx = function(){
@@ -158,7 +158,7 @@
                     this._colorized = true;
                     if (this._hasTintOffset || this._hasCtx) displayedColor = this._tintMult;
 
-                    locElement = cc.Sprite.CanvasRenderCmd._generateTintImageWithMultiply(this._originalTexture._htmlElementObj, displayedColor, locRect);
+                    locElement = _ccsg.Sprite.CanvasRenderCmd._generateTintImageWithMultiply(this._originalTexture._htmlElementObj, displayedColor, locRect);
                     locTexture = new cc.Texture2D();
                     locTexture.initWithElement(locElement);
                     locTexture.handleLoadedTexture();

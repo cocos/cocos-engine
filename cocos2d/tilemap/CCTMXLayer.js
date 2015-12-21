@@ -28,9 +28,9 @@
  * <p>cc.TMXLayer represents the TMX layer. </p>
  *
  * <p>It is a subclass of cc.SpriteBatchNode. By default the tiles are rendered using a cc.TextureAtlas. <br />
- * If you modify a tile on runtime, then, that tile will become a cc.Sprite, otherwise no cc.Sprite objects are created. <br />
- * The benefits of using cc.Sprite objects as tiles are: <br />
- * - tiles (cc.Sprite) can be rotated/scaled/moved with a nice API </p>
+ * If you modify a tile on runtime, then, that tile will become a _ccsg.Sprite, otherwise no _ccsg.Sprite objects are created. <br />
+ * The benefits of using _ccsg.Sprite objects as tiles are: <br />
+ * - tiles (_ccsg.Sprite) can be rotated/scaled/moved with a nice API </p>
  *
  * <p>If the layer contains a property named "cc.vertexz" with an integer (in can be positive or negative), <br />
  * then all the tiles belonging to the layer will use that value as their OpenGL vertex Z for depth. </p>
@@ -311,15 +311,15 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
     },
 
     /**
-     * <p>Returns the tile (cc.Sprite) at a given a tile coordinate. <br/>
-     * The returned cc.Sprite will be already added to the cc.TMXLayer. Don't add it again.<br/>
-     * The cc.Sprite can be treated like any other cc.Sprite: rotated, scaled, translated, opacity, color, etc. <br/>
+     * <p>Returns the tile (_ccsg.Sprite) at a given a tile coordinate. <br/>
+     * The returned _ccsg.Sprite will be already added to the cc.TMXLayer. Don't add it again.<br/>
+     * The _ccsg.Sprite can be treated like any other _ccsg.Sprite: rotated, scaled, translated, opacity, color, etc. <br/>
      * You can remove either by calling: <br/>
      * - layer.removeChild(sprite, cleanup); <br/>
      * - or layer.removeTileAt(ccp(x,y)); </p>
      * @param {cc.Vec2|Number} pos or x
      * @param {Number} [y]
-     * @return {cc.Sprite}
+     * @return {_ccsg.Sprite}
      */
     getTileAt: function (pos, y) {
         if(!pos)
@@ -346,7 +346,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
             var rect = this.tileset.rectForGID(gid);
             rect = cc.rectPixelsToPoints(rect);
 
-            tile = new cc.Sprite();
+            tile = new _ccsg.Sprite();
             tile.initWithTexture(this.texture, rect);
             tile.batchNode = this;
             tile.setPosition(this.getPositionAt(pos));
@@ -600,7 +600,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
     },
 
     /**
-     * cc.TMXLayer doesn't support adding a cc.Sprite manually.
+     * cc.TMXLayer doesn't support adding a _ccsg.Sprite manually.
      * @warning addChild(child); is not supported on cc.TMXLayer. Instead of setTileGID.
      * @param {_ccsg.Node} child
      * @param {number} zOrder
@@ -612,7 +612,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
 
     /**
      * Remove child
-     * @param  {cc.Sprite} sprite
+     * @param  {_ccsg.Sprite} sprite
      * @param  {Boolean} cleanup
      */
     removeChild:function (sprite, cleanup) {

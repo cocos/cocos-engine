@@ -123,7 +123,7 @@ var BasicTest = BaseClippingNodeTest.extend({
     },
 
     grossini:function () {
-        var grossini = new cc.Sprite(s_pathGrossini);
+        var grossini = new _ccsg.Sprite(s_pathGrossini);
         grossini.scale = 1.5;
         return grossini;
     },
@@ -269,7 +269,7 @@ var NestedTest = BaseClippingNodeTest.extend({
             clipper.runAction(cc.rotateBy((i % 3) ? 1.33 : 1.66, (i % 2) ? 90 : -90).repeatForever());
             parent.addChild(clipper);
 
-            var stencil = new cc.Sprite(s_pathGrossini);
+            var stencil = new _ccsg.Sprite(s_pathGrossini);
             stencil.attr({
 	            scale: 2.5 - (i * (2.5 / depth)),
 	            anchorX: 0.5,
@@ -293,7 +293,7 @@ var HoleDemo = BaseClippingNodeTest.extend({
     _holesStencil:null,
 
     setup:function () {
-        var target = new cc.Sprite(s_pathBlock);
+        var target = new _ccsg.Sprite(s_pathBlock);
         target.anchorX = 0;
         target.anchorY = 0;
         target.scale = 3;
@@ -366,7 +366,7 @@ var HoleDemo = BaseClippingNodeTest.extend({
         var scale = Math.random() * 0.2 + 0.9;
         var rotation = Math.random() * 360;
 
-        var hole = new cc.Sprite(s_hole_effect_png);
+        var hole = new _ccsg.Sprite(s_hole_effect_png);
         hole.attr({
 	        x: point.x,
 	        y: point.y,
@@ -376,7 +376,7 @@ var HoleDemo = BaseClippingNodeTest.extend({
 
         this._holes.addChild(hole);
 
-        var holeStencil = new cc.Sprite(s_hole_stencil_png);
+        var holeStencil = new _ccsg.Sprite(s_hole_stencil_png);
         holeStencil.attr({
 	        x: point.x,
 	        y: point.y,
@@ -422,7 +422,7 @@ var ScrollViewDemo = BaseClippingNodeTest.extend({
         stencil.drawPoly(rectangle, white, 1, white);
         clipper.stencil = stencil;
 
-        var content = new cc.Sprite(s_back2);
+        var content = new _ccsg.Sprite(s_back2);
         content.tag = TAG_CONTENTNODE;
         content.anchorX = 0.5;
         content.anchorY = 0.5;
@@ -506,7 +506,7 @@ var RawStencilBufferTest = BaseClippingNodeTest.extend({
         if (_stencilBits < 3)
             cc.log("Stencil must be enabled for the current CCGLView.");
 
-        this._sprite = new cc.Sprite(s_pathGrossini);
+        this._sprite = new _ccsg.Sprite(s_pathGrossini);
         this._sprite.anchorX = 0.5;
         this._sprite.anchorY = 0;
         this._sprite.scale = 2.5;

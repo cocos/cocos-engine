@@ -669,9 +669,9 @@ cc.MenuItemFont.create = function (value, callback, target) {
  * var item = new cc.MenuItemSprite(normalImage, SelectedImage, disabledImage, targetNode.callback, targetNode)
  * //same as above, but with disabled image, and passing in callback function
  *
- * @property {cc.Sprite}    normalImage     - Sprite in normal state
- * @property {cc.Sprite}    selectedImage     - Sprite in selected state
- * @property {cc.Sprite}    disabledImage     - Sprite in disabled state
+ * @property {_ccsg.Sprite}    normalImage     - Sprite in normal state
+ * @property {_ccsg.Sprite}    selectedImage     - Sprite in selected state
+ * @property {_ccsg.Sprite}    disabledImage     - Sprite in disabled state
  */
 cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
     _normalImage: null,
@@ -716,16 +716,16 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
     },
 
     /**
-     * return the normal status image(cc.Sprite)
-     * @return {cc.Sprite}
+     * return the normal status image(_ccsg.Sprite)
+     * @return {_ccsg.Sprite}
      */
     getNormalImage: function () {
         return this._normalImage;
     },
 
     /**
-     * set the normal status image(cc.Sprite)
-     * @param {cc.Sprite} normalImage
+     * set the normal status image(_ccsg.Sprite)
+     * @param {_ccsg.Sprite} normalImage
      */
     setNormalImage: function (normalImage) {
         if (this._normalImage === normalImage) {
@@ -757,16 +757,16 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
     },
 
     /**
-     * return the selected status image(cc.Sprite) of cc.MenuItemSprite
-     * @return {cc.Sprite}
+     * return the selected status image(_ccsg.Sprite) of cc.MenuItemSprite
+     * @return {_ccsg.Sprite}
      */
     getSelectedImage: function () {
         return this._selectedImage;
     },
 
     /**
-     * set the selected status image(cc.Sprite)
-     * @param {cc.Sprite} selectedImage
+     * set the selected status image(_ccsg.Sprite)
+     * @param {_ccsg.Sprite} selectedImage
      */
     setSelectedImage: function (selectedImage) {
         if (this._selectedImage === selectedImage)
@@ -788,15 +788,15 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
 
     /**
      * return the disabled status of cc.MenuItemSprite
-     * @return {cc.Sprite}
+     * @return {_ccsg.Sprite}
      */
     getDisabledImage: function () {
         return this._disabledImage;
     },
 
     /**
-     * set the disabled status image(cc.Sprite)
-     * @param {cc.Sprite} disabledImage
+     * set the disabled status image(_ccsg.Sprite)
+     * @param {_ccsg.Sprite} disabledImage
      */
     setDisabledImage: function (disabledImage) {
         if (this._disabledImage === disabledImage)
@@ -816,7 +816,7 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
     },
 
     /**
-     * initializes cc.MenuItemSprite with a cc.Sprite
+     * initializes cc.MenuItemSprite with a _ccsg.Sprite
      * @param {_ccsg.Node} normalSprite
      * @param {_ccsg.Node} selectedSprite
      * @param {_ccsg.Node} disabledSprite
@@ -985,9 +985,9 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
             cc.MenuItemSprite.prototype.ctor.call(this);
         }
         else {
-            normalSprite = new cc.Sprite(normalImage);
+            normalSprite = new _ccsg.Sprite(normalImage);
             selectedImage &&
-            (selectedSprite = new cc.Sprite(selectedImage));
+            (selectedSprite = new _ccsg.Sprite(selectedImage));
             if (four === undefined) {
                 callback = three;
             }
@@ -996,7 +996,7 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
                 target = four;
             }
             else if (five) {
-                disabledSprite = new cc.Sprite(three);
+                disabledSprite = new _ccsg.Sprite(three);
                 callback = four;
                 target = five;
             }
@@ -1009,7 +1009,7 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
      * @param {cc.SpriteFrame} frame
      */
     setNormalSpriteFrame: function (frame) {
-        this.setNormalImage(new cc.Sprite(frame));
+        this.setNormalImage(new _ccsg.Sprite(frame));
     },
 
     /**
@@ -1017,7 +1017,7 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
      * @param {cc.SpriteFrame} frame
      */
     setSelectedSpriteFrame: function (frame) {
-        this.setSelectedImage(new cc.Sprite(frame));
+        this.setSelectedImage(new _ccsg.Sprite(frame));
     },
 
     /**
@@ -1025,7 +1025,7 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
      * @param {cc.SpriteFrame} frame
      */
     setDisabledSpriteFrame: function (frame) {
-        this.setDisabledImage(new cc.Sprite(frame));
+        this.setDisabledImage(new _ccsg.Sprite(frame));
     },
 
     /**
@@ -1043,13 +1043,13 @@ cc.MenuItemImage = cc.MenuItemSprite.extend(/** @lends cc.MenuItemImage# */{
         var disabledSprite = null;
 
         if (normalImage) {
-            normalSprite = new cc.Sprite(normalImage);
+            normalSprite = new _ccsg.Sprite(normalImage);
         }
         if (selectedImage) {
-            selectedSprite = new cc.Sprite(selectedImage);
+            selectedSprite = new _ccsg.Sprite(selectedImage);
         }
         if (disabledImage) {
-            disabledSprite = new cc.Sprite(disabledImage);
+            disabledSprite = new _ccsg.Sprite(disabledImage);
         }
         return this.initWithNormalSprite(normalSprite, selectedSprite, disabledSprite, callback, target);
     }

@@ -51,9 +51,9 @@ var ActionsDemo = BaseTestLayer.extend({
     ctor:function () {
         this._super(cc.color(0,0,0,255), cc.color(98,99,117,255) );
 
-        this._grossini = new cc.Sprite(s_pathGrossini);
-        this._tamara = new cc.Sprite(s_pathSister1);
-        this._kathia = new cc.Sprite(s_pathSister2);
+        this._grossini = new _ccsg.Sprite(s_pathGrossini);
+        this._tamara = new _ccsg.Sprite(s_pathSister1);
+        this._kathia = new _ccsg.Sprite(s_pathSister2);
         this.addChild(this._grossini, SPRITE_GROSSINI_TAG);
         this.addChild(this._tamara, SPRITE_TAMARA_TAG);
         this.addChild(this._kathia, SPRITE_KATHIA_TAG);
@@ -2313,7 +2313,7 @@ var Issue1305 = ActionsDemo.extend({
         this._super();
         this.centerSprites(0);
 
-        this._spriteTmp = new cc.Sprite(s_pathGrossini);
+        this._spriteTmp = new _ccsg.Sprite(s_pathGrossini);
         /* c++ can't support block, so we use CCCallFuncN instead.
          [spriteTmp_ runAction:[CCCallBlockN actionWithBlock:^(CCNode* node) {
          NSLog(@"This message SHALL ONLY appear when the sprite is added to the scene, NOT BEFORE");
@@ -2354,7 +2354,7 @@ var Issue1305_2 = ActionsDemo.extend({
         this._super();
         this.centerSprites(0);
 
-        var spr = new cc.Sprite(s_pathGrossini);
+        var spr = new _ccsg.Sprite(s_pathGrossini);
         spr.x = 200;
 		spr.y = 200;
         this.addChild(spr);
@@ -2406,7 +2406,7 @@ var Issue1288 = ActionsDemo.extend({
         this._super();
         this.centerSprites(0);
 
-        var spr = new cc.Sprite(s_pathGrossini);
+        var spr = new _ccsg.Sprite(s_pathGrossini);
         spr.x = 100;
 		spr.y = 100;
         this.addChild(spr);
@@ -2438,7 +2438,7 @@ var Issue1288_2 = ActionsDemo.extend({
         this._super();
         this.centerSprites(0);
 
-        var spr = new cc.Sprite(s_pathGrossini);
+        var spr = new _ccsg.Sprite(s_pathGrossini);
         spr.x = 100;
 		spr.y = 100;
         this.addChild(spr);
@@ -2466,7 +2466,7 @@ var Issue1327 = ActionsDemo.extend({
         this._super();
         this.centerSprites(0);
 
-        var spr = new cc.Sprite(s_pathGrossini);
+        var spr = new _ccsg.Sprite(s_pathGrossini);
         spr.x = 100;
         spr.y = 100;
         this.addChild(spr);
@@ -2846,7 +2846,7 @@ var ActionCustomTest = ActionsDemo.extend({
         spriteTemp.runAction(animate);
     },
     addandCreateSpriteTemp:function(actionTypeName, addLabelInLayerFlag){
-        var spriteTemp = new cc.Sprite(s_pathGrossini);
+        var spriteTemp = new _ccsg.Sprite(s_pathGrossini);
         this._layer.addChild(spriteTemp);
         spriteTemp.setPosition(this._spritePos);
         var spriteContentSize = spriteTemp.getContentSize();

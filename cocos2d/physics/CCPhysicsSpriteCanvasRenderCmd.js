@@ -27,11 +27,11 @@
  */
 (function(){
     cc.PhysicsSprite.CanvasRenderCmd = function(renderableObject){
-        cc.Sprite.CanvasRenderCmd.call(this, renderableObject);
+        _ccsg.Sprite.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
     };
 
-    var proto = cc.PhysicsSprite.CanvasRenderCmd.prototype = Object.create(cc.Sprite.CanvasRenderCmd.prototype);
+    var proto = cc.PhysicsSprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Sprite.CanvasRenderCmd.prototype);
     proto.constructor = cc.PhysicsSprite.CanvasRenderCmd;
 
     proto.rendering = function(ctx, scaleX, scaleY){
@@ -44,7 +44,7 @@
             node._syncRotation();
         this.transform(this.getParentRenderCmd());
 
-        cc.Sprite.CanvasRenderCmd.prototype.rendering.call(this, ctx, scaleX, scaleY);
+        _ccsg.Sprite.CanvasRenderCmd.prototype.rendering.call(this, ctx, scaleX, scaleY);
     };
 
     proto.getNodeToParentTransform = function(){

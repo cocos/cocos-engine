@@ -375,7 +375,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
     },
 
     /**
-     * return weak reference to the cc.SpriteBatchNode that renders the cc.Sprite
+     * return weak reference to the cc.SpriteBatchNode that renders the _ccsg.Sprite
      * @return {cc.ParticleBatchNode}
      */
     getBatchNode:function () {
@@ -383,7 +383,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
     },
 
     /**
-     *  set weak reference to the cc.SpriteBatchNode that renders the cc.Sprite
+     *  set weak reference to the cc.SpriteBatchNode that renders the _ccsg.Sprite
      * @param {cc.ParticleBatchNode} batchNode
      */
     setBatchNode:function (batchNode) {

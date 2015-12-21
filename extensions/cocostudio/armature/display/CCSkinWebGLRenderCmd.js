@@ -25,10 +25,10 @@
 
 (function(){
     ccs.Skin.WebGLRenderCmd = function(renderable){
-        cc.Sprite.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Sprite.WebGLRenderCmd.call(this, renderable);
     };
 
-    var proto = ccs.Skin.WebGLRenderCmd.prototype = Object.create(cc.Sprite.WebGLRenderCmd.prototype);
+    var proto = ccs.Skin.WebGLRenderCmd.prototype = Object.create(_ccsg.Sprite.WebGLRenderCmd.prototype);
     cc.js.mixin(proto, ccs.Skin.RenderCmd);
     proto.constructor = ccs.Skin.WebGLRenderCmd;
 

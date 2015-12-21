@@ -179,7 +179,7 @@ var S9LaterUpdate = S9SpriteTestDemo.extend({
             s9sprite1.x = x/4; s9sprite1.y = y;
 
             s9sprite2.x = 3 * x/4; s9sprite2.y = y;
-            var sprite1 = cc.Sprite.create("Images/blocks9.png");
+            var sprite1 = _ccsg.Sprite.create("Images/blocks9.png");
             s9sprite1.updateWithSprite(sprite1,sprite1.getTextureRect(),sprite1.textureRectRotated,cc.p(0,0),cc.size(0,0),cc.rect(20,20,30,30));
 
             var frame = cc.spriteFrameCache.getSpriteFrame("blocks9.png");

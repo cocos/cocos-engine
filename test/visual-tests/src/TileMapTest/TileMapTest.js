@@ -956,7 +956,7 @@ var TMXIsoZorder = TileDemo.extend({
         map.x = -map.width / 2;
         map.y = 0;
 
-        this.tamara = new cc.Sprite(s_pathSister1);
+        this.tamara = new _ccsg.Sprite(s_pathSister1);
         map.addChild(this.tamara, map.children.length);
         var mapWidth = map.getMapSize().width * map.getTileSize().width;
         this.tamara.x = mapWidth / 2;
@@ -1022,7 +1022,7 @@ var TMXOrthoZorder = TileDemo.extend({
         var map = new cc.TMXTiledMap(s_resprefix + "TileMaps/orthogonal-test-zorder.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
-        this.tamara = new cc.Sprite(s_pathSister1);
+        this.tamara = new _ccsg.Sprite(s_pathSister1);
         map.addChild(this.tamara, map.children.length, TAG_TILE_MAP);
         this.tamara.anchorX = 0.5;
         this.tamara.anchorY = 0;
@@ -1089,7 +1089,7 @@ var TMXIsoVertexZ = TMXFixBugLayer.extend({
         map.y = 0;
 
         // because I'm lazy, I'm reusing a tile as an sprite, but since this method uses vertexZ, you
-        // can use any cc.Sprite and it will work OK.
+        // can use any _ccsg.Sprite and it will work OK.
         var layer = map.getLayer("Trees");
         this.tamara = layer.getTileAt(cc.p(29, 29));
 
@@ -1161,7 +1161,7 @@ var TMXOrthoVertexZ = TMXFixBugLayer.extend({
         this.addChild(map, 0, TAG_TILE_MAP);
 
         // because I'm lazy, I'm reusing a tile as an sprite, but since this method uses vertexZ, you
-        // can use any cc.Sprite and it will work OK.
+        // can use any _ccsg.Sprite and it will work OK.
         var layer = map.getLayer("trees");
         this.tamara = layer.getTileAt(cc.p(0, 11));
         this.log("vertexZ: " + this.tamara.vertexZ);

@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 (function() {
-    cc.Sprite.CanvasRenderCmd = function (renderable) {
+    _ccsg.Sprite.CanvasRenderCmd = function (renderable) {
         _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._textureCoord = {
@@ -41,8 +41,8 @@
         this._textureToRender = null;
     };
 
-    var proto = cc.Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-    proto.constructor = cc.Sprite.CanvasRenderCmd;
+    var proto = _ccsg.Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+    proto.constructor = _ccsg.Sprite.CanvasRenderCmd;
 
     proto._init = function () {};
 
@@ -85,7 +85,7 @@
     proto._handleTextureForRotatedTexture = function (texture, rect, rotated, counterclockwise) {
         if (rotated && texture.isLoaded()) {
             var tempElement = texture.getHtmlElementObj();
-            tempElement = cc.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, rect, counterclockwise);
+            tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, rect, counterclockwise);
             var tempTexture = new cc.Texture2D();
             tempTexture.initWithElement(tempElement);
             tempTexture.handleLoadedTexture();
@@ -222,7 +222,7 @@
                 if (!locParent || locParent === node._batchNode) {
                     node._transformToBatch = _t.getNodeToParentTransform();
                 } else {
-                    //cc.assert(_t._parent instanceof cc.Sprite, "Logic error in CCSprite. Parent must be a CCSprite");
+                    //cc.assert(_t._parent instanceof _ccsg.Sprite, "Logic error in CCSprite. Parent must be a CCSprite");
                     node._transformToBatch = cc.affineTransformConcat(_t.getNodeToParentTransform(), locParent._transformToBatch);
                 }
             }
@@ -289,7 +289,7 @@
         locTextureRect.validRect = !(locTextureRect.width === 0 || locTextureRect.height === 0 || locTextureRect.x < 0 || locTextureRect.y < 0);
     };
 
-    cc.Sprite.CanvasRenderCmd._cutRotateImageToCanvas = function (texture, rect, counterclockwise) {
+    _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas = function (texture, rect, counterclockwise) {
         if (!texture)
             return null;
 

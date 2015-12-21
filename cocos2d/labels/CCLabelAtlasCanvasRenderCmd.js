@@ -59,7 +59,7 @@
             var c = locString.charCodeAt(i);
             var fontChar = node.getChildByTag(i);
             if (!fontChar) {
-                fontChar = new cc.Sprite();
+                fontChar = new _ccsg.Sprite();
                 if (c === 32) {
                     fontChar.init();
                     fontChar.setTextureRect(cc.rect(0, 0, 10, 10), false, cc.size(0, 0));
