@@ -133,7 +133,7 @@
         var rendererObject = attachment.rendererObject;
         var texture = rendererObject.page._texture;
         var rect = new cc.Rect(rendererObject.x, rendererObject.y, rendererObject.width, rendererObject.height);
-        var sprite = new cc.Sprite();
+        var sprite = new _ccsg.Sprite();
         sprite.initWithTexture(rendererObject.page._texture, rect, rendererObject.rotate, false);
         sprite._rect.width = attachment.width;
         sprite._rect.height = attachment.height;

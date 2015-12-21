@@ -45,7 +45,7 @@ ccs.Skin = ccs.Sprite.extend(/** @lends ccs.Skin# */{
     _className: "Skin",
 
     ctor: function (fileName, rect) {
-        cc.Sprite.prototype.ctor.call(this);
+        _ccsg.Sprite.prototype.ctor.call(this);
         this._skinData = null;
         this.bone = null;
         this._displayName = "";
@@ -90,8 +90,8 @@ ccs.Skin = ccs.Sprite.extend(/** @lends ccs.Skin# */{
      * @returns {Boolean}
      */
     initWithFile: function (fileName, rect) {
-        var ret = rect ? cc.Sprite.prototype.initWithFile.call(this, fileName, rect)
-                       : cc.Sprite.prototype.initWithFile.call(this, fileName);
+        var ret = rect ? _ccsg.Sprite.prototype.initWithFile.call(this, fileName, rect)
+                       : _ccsg.Sprite.prototype.initWithFile.call(this, fileName);
         this._displayName = fileName;
         return ret;
     },

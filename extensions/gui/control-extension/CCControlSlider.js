@@ -46,8 +46,8 @@ cc.SLIDER_MARGIN_V = 8;
  * @property {Number}       minAllowedValue     - The minimum allowed value of the slider
  * @property {Number}       maxAllowedValue     - The maximum allowed value of the slider
  * @property {Number}       thumbSprite         - <@readonly> Brightness value of the picker
- * @property {cc.Sprite}    progressSprite      - <@readonly> The background sprite
- * @property {cc.Sprite}    backgroundSprite    - <@readonly> The overlay sprite
+ * @property {_ccsg.Sprite}    progressSprite      - <@readonly> The background sprite
+ * @property {_ccsg.Sprite}    backgroundSprite    - <@readonly> The overlay sprite
  */
 cc.ControlSlider = cc.Control.extend(/** @lends cc.ControlSlider# */{
     _value:0,
@@ -65,13 +65,13 @@ cc.ControlSlider = cc.Control.extend(/** @lends cc.ControlSlider# */{
         cc.Control.prototype.ctor.call(this);
         if (thumbFile != undefined) {
             // Prepare background for slider
-            var bgSprite = new cc.Sprite(bgFile);
+            var bgSprite = new _ccsg.Sprite(bgFile);
 
             // Prepare progress for slider
-            var progressSprite = new cc.Sprite(progressFile);
+            var progressSprite = new _ccsg.Sprite(progressFile);
 
             // Prepare thumb (menuItem) for slider
-            var thumbSprite = new cc.Sprite(thumbFile);
+            var thumbSprite = new _ccsg.Sprite(thumbFile);
 
             this.initWithSprites(bgSprite, progressSprite, thumbSprite);
         }
@@ -161,9 +161,9 @@ cc.ControlSlider = cc.Control.extend(/** @lends cc.ControlSlider# */{
      * Initializes a slider with a background sprite, a progress bar and a thumb
      * item.
      *
-     * @param {cc.Sprite} backgroundSprite  CCSprite, that is used as a background.
-     * @param {cc.Sprite} progressSprite    CCSprite, that is used as a progress bar.
-     * @param {cc.Sprite} thumbSprite         CCMenuItem, that is used as a thumb.
+     * @param {_ccsg.Sprite} backgroundSprite  CCSprite, that is used as a background.
+     * @param {_ccsg.Sprite} progressSprite    CCSprite, that is used as a progress bar.
+     * @param {_ccsg.Sprite} thumbSprite         CCMenuItem, that is used as a thumb.
      */
     initWithSprites:function (backgroundSprite, progressSprite, thumbSprite) {
         if (cc.Control.prototype.init.call(this)) {

@@ -204,7 +204,7 @@
 
         locTexture.setAliasTexParameters();
 
-        var locSprite = node.sprite = new cc.Sprite(locTexture);
+        var locSprite = node.sprite = new _ccsg.Sprite(locTexture);
         locSprite.scaleY = -1;
         locSprite.setBlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 

@@ -35,7 +35,7 @@
  * @class
  * @extends cc.Control
  *
- * @property {cc.Sprite}  background   - <@readonly> The background sprite
+ * @property {_ccsg.Sprite}  background   - <@readonly> The background sprite
  */
 cc.ControlColourPicker = cc.Control.extend(/** @lends cc.ControlColourPicker# */{
     _hsv:null,

@@ -155,7 +155,7 @@ cc.AnimationFrame.create = function(spriteFrame,delayUnits,userInfo){
 
 /**
  * <p>
- *     A cc.SpriteFrameAnimation object is used to perform animations on the cc.Sprite objects.<br/>
+ *     A cc.SpriteFrameAnimation object is used to perform animations on the _ccsg.Sprite objects.<br/>
  *     <br/>
  *      The cc.SpriteFrameAnimation object contains cc.SpriteFrame objects, and a possible delay between the frames. <br/>
  *      You can animate a cc.SpriteFrameAnimation object by using the cc.Animate action.

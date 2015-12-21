@@ -477,7 +477,7 @@ var BMFontSubSpriteTest = AtlasDemo.extend({
         return "cc.LabelBMFont BMFontSubSpriteTest";
     },
     subtitle:function () {
-        return "Using fonts as cc.Sprite objects. Some characters should rotate.";
+        return "Using fonts as _ccsg.Sprite objects. Some characters should rotate.";
     },
 
     //
@@ -1450,8 +1450,8 @@ var BMFontMultiLineAlignmentTest = AtlasDemo.extend({
 
         // create and initialize a Label
         this.labelShouldRetain = new cc.LabelBMFont(LongSentencesExample, s_resprefix + "fonts/markerFelt.fnt", size.width / 2, cc.TextAlignment.CENTER, cc.p(0, 0));
-        this.arrowsBarShouldRetain = new cc.Sprite(s_resprefix + "Images/arrowsBar.png");
-        this.arrowsShouldRetain = new cc.Sprite(s_resprefix + "Images/arrows.png");
+        this.arrowsBarShouldRetain = new _ccsg.Sprite(s_resprefix + "Images/arrowsBar.png");
+        this.arrowsShouldRetain = new _ccsg.Sprite(s_resprefix + "Images/arrows.png");
 
         cc.MenuItemFont.setFontSize(20);
         var longSentences = new cc.MenuItemFont("Long Flowing Sentences", this.onStringChanged, this);

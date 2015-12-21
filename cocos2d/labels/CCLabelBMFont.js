@@ -42,7 +42,7 @@ cc.LABEL_AUTOMATIC_WIDTH = -1;
  * <p>cc.LabelBMFont is a subclass of cc.SpriteBatchNode.</p>
  *
  * <p>Features:<br/>
- * <ul><li>- Treats each character like a cc.Sprite. This means that each individual character can be:</li>
+ * <ul><li>- Treats each character like a _ccsg.Sprite. This means that each individual character can be:</li>
  * <li>- rotated</li>
  * <li>- scaled</li>
  * <li>- translated</li>
@@ -57,7 +57,7 @@ cc.LABEL_AUTOMATIC_WIDTH = -1;
  * because it might affect the rendering</p>
  *
  * <p>cc.LabelBMFont implements the protocol cc.LabelProtocol, like _ccsg.Label and cc.LabelAtlas.<br/>
- * cc.LabelBMFont has the flexibility of _ccsg.Label, the speed of cc.LabelAtlas and all the features of cc.Sprite.<br/>
+ * cc.LabelBMFont has the flexibility of _ccsg.Label, the speed of cc.LabelAtlas and all the features of _ccsg.Sprite.<br/>
  * If in doubt, use cc.LabelBMFont instead of cc.LabelAtlas / _ccsg.Label.</p>
  *
  * <p>Supported editors:<br/>
@@ -354,7 +354,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
             var fontChar = self.getChildByTag(i);
 
             if(!fontChar){
-                fontChar = new cc.Sprite();
+                fontChar = new _ccsg.Sprite();
                 fontChar.initWithTexture(locTexture, rect, false);
                 fontChar._newTextureWhenChangeColor = true;
                 this.addChild(fontChar, 0, i);

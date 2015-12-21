@@ -133,7 +133,7 @@ var ProgressTimerWrapper = cc.Class({
     },
 
     createNode: function (node) {
-        node = node || new cc.ProgressTimer(new cc.Sprite());
+        node = node || new cc.ProgressTimer(new _ccsg.Sprite());
 
         var sp = node.getSprite();
         if (this._texture) {

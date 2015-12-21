@@ -48,7 +48,7 @@ var AssetsManagerTestLayer = BaseTestLayer.extend({
 
     onEnter : function() {
         this._super();
-        this._background = new cc.Sprite(this._spritePath);
+        this._background = new _ccsg.Sprite(this._spritePath);
         this.addChild(this._background, 1);
         this._background.x = cc.winSize.width/2;
         this._background.y = cc.winSize.height/2;
@@ -110,7 +110,7 @@ var AssetsManagerLoaderScene = TestScene.extend({
         var layer = new cc.Layer();
         this.addChild(layer);
 
-        var icon = new cc.Sprite(s_image_icon);
+        var icon = new _ccsg.Sprite(s_image_icon);
         icon.x = cc.winSize.width/2;
         icon.y = cc.winSize.height/2;
         layer.addChild(icon);

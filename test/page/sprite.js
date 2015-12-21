@@ -5,7 +5,7 @@ describe( 'test sprite wrapper', function () {
         url = window.getAssetsPath('sprite.jpg');
 
     beforeEach(function () {
-        sprite = new cc.Sprite();
+        sprite = new _ccsg.Sprite();
         wrapper = cc.getWrapper(sprite);
     });
 
@@ -67,7 +67,7 @@ describe( 'test sprite wrapper', function () {
     it( 'simple createNode', function () {
         var node = wrapper.createNode();
 
-        assert( node instanceof cc.Sprite );
+        assert( node instanceof _ccsg.Sprite );
 
         expect( node.texture ).equal( null );
 
@@ -88,7 +88,7 @@ describe( 'test sprite wrapper', function () {
 
         var node = wrapper.createNode();
 
-        assert( node instanceof cc.Sprite );
+        assert( node instanceof _ccsg.Sprite );
         expect( node.x ).equal( 11 );
         expect( node.y ).equal( 22 );
 

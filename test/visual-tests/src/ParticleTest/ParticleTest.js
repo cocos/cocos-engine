@@ -204,17 +204,17 @@ var ParticleDemo = BaseTestLayer.extend({
 
         var s = director.getWinSize();
 
-        var freeBtnNormal = new cc.Sprite(s_MovementMenuItem, cc.rect(0, 23 * 2, 123, 23));
-        var freeBtnSelected = new cc.Sprite(s_MovementMenuItem, cc.rect(0, 23, 123, 23));
-        var freeBtnDisabled = new cc.Sprite(s_MovementMenuItem, cc.rect(0, 0, 123, 23));
+        var freeBtnNormal = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(0, 23 * 2, 123, 23));
+        var freeBtnSelected = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(0, 23, 123, 23));
+        var freeBtnDisabled = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(0, 0, 123, 23));
 
-        var relativeBtnNormal = new cc.Sprite(s_MovementMenuItem, cc.rect(123, 23 * 2, 138, 23));
-        var relativeBtnSelected = new cc.Sprite(s_MovementMenuItem, cc.rect(123, 23, 138, 23));
-        var relativeBtnDisabled = new cc.Sprite(s_MovementMenuItem, cc.rect(123, 0, 138, 23));
+        var relativeBtnNormal = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(123, 23 * 2, 138, 23));
+        var relativeBtnSelected = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(123, 23, 138, 23));
+        var relativeBtnDisabled = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(123, 0, 138, 23));
 
-        var groupBtnNormal = new cc.Sprite(s_MovementMenuItem, cc.rect(261, 23 * 2, 136, 23));
-        var groupBtnSelected = new cc.Sprite(s_MovementMenuItem, cc.rect(261, 23, 136, 23));
-        var groupBtnDisabled = new cc.Sprite(s_MovementMenuItem, cc.rect(261, 0, 136, 23));
+        var groupBtnNormal = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(261, 23 * 2, 136, 23));
+        var groupBtnSelected = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(261, 23, 136, 23));
+        var groupBtnDisabled = new _ccsg.Sprite(s_MovementMenuItem, cc.rect(261, 0, 136, 23));
 
         var selfPoint = this;
         this._freeMovementButton = new cc.MenuItemSprite(freeBtnNormal, freeBtnSelected, freeBtnDisabled,
@@ -252,9 +252,9 @@ var ParticleDemo = BaseTestLayer.extend({
         this._groupMovementButton.y = 150;
         this._groupMovementButton.setAnchorPoint(0, 0);
 
-        var spriteNormal = new cc.Sprite(s_shapeModeMenuItem, cc.rect(0, 23 * 2, 115, 23));
-        var spriteSelected = new cc.Sprite(s_shapeModeMenuItem, cc.rect(0, 23, 115, 23));
-        var spriteDisabled = new cc.Sprite(s_shapeModeMenuItem, cc.rect(0, 0, 115, 23));
+        var spriteNormal = new _ccsg.Sprite(s_shapeModeMenuItem, cc.rect(0, 23 * 2, 115, 23));
+        var spriteSelected = new _ccsg.Sprite(s_shapeModeMenuItem, cc.rect(0, 23, 115, 23));
+        var spriteDisabled = new _ccsg.Sprite(s_shapeModeMenuItem, cc.rect(0, 0, 115, 23));
 
         this._shapeModeButton = new cc.MenuItemSprite(spriteNormal, spriteSelected, spriteDisabled,
             function () {
@@ -268,9 +268,9 @@ var ParticleDemo = BaseTestLayer.extend({
         this._shapeModeButton.y = 100;
         this._shapeModeButton.setAnchorPoint(0, 0);
 
-        var spriteNormal_t = new cc.Sprite(s_textureModeMenuItem, cc.rect(0, 23 * 2, 115, 23));
-        var spriteSelected_t = new cc.Sprite(s_textureModeMenuItem, cc.rect(0, 23, 115, 23));
-        var spriteDisabled_t = new cc.Sprite(s_textureModeMenuItem, cc.rect(0, 0, 115, 23));
+        var spriteNormal_t = new _ccsg.Sprite(s_textureModeMenuItem, cc.rect(0, 23 * 2, 115, 23));
+        var spriteSelected_t = new _ccsg.Sprite(s_textureModeMenuItem, cc.rect(0, 23, 115, 23));
+        var spriteDisabled_t = new _ccsg.Sprite(s_textureModeMenuItem, cc.rect(0, 0, 115, 23));
 
         this._textureModeButton = new cc.MenuItemSprite(spriteNormal_t, spriteSelected_t, spriteDisabled_t,
             function () {
@@ -301,7 +301,7 @@ var ParticleDemo = BaseTestLayer.extend({
         labelAtlas.y = 50;
 
         // moving background
-        this._background = new cc.Sprite(s_back3);
+        this._background = new _ccsg.Sprite(s_back3);
         this.addChild(this._background, 5);
         this._background.x = s.width / 2;
         this._background.y = s.height - 180;
@@ -840,8 +840,8 @@ var ParallaxParticle = ParticleDemo.extend({
         var p = new cc.ParallaxNode();
         this.addChild(p, 5);
 
-        var p1 = new cc.Sprite(s_back3);
-        var p2 = new cc.Sprite(s_back3);
+        var p1 = new _ccsg.Sprite(s_back3);
+        var p2 = new _ccsg.Sprite(s_back3);
 
         p.addChild(p1, 1, cc.p(0.5, 1), cc.p(0, 250));
         p.addChild(p2, 2, cc.p(1.5, 1), cc.p(0, 50));

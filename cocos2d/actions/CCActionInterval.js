@@ -3347,7 +3347,7 @@ cc.Animate = cc.ActionInterval.extend(/** @lends cc.Animate# */{
 
     /**
      * Start the action with target.
-     * @param {cc.Sprite} target
+     * @param {_ccsg.Sprite} target
      */
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);

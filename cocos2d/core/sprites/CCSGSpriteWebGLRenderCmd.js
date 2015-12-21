@@ -24,7 +24,7 @@
 
 //Sprite's WebGL render command
 (function() {
-    cc.Sprite.WebGLRenderCmd = function (renderable) {
+    _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
         _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
 
@@ -35,8 +35,8 @@
         this._recursiveDirty = false;
     };
 
-    var proto = cc.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-    proto.constructor = cc.Sprite.WebGLRenderCmd;
+    var proto = _ccsg.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+    proto.constructor = _ccsg.Sprite.WebGLRenderCmd;
 
     proto.updateBlendFunc = function (blendFunc) {};
 
@@ -52,14 +52,14 @@
         var locChildren = this._node._children, child, l = locChildren ? locChildren.length : 0;
         for (var i = 0; i < l; i++) {
             child = locChildren[i];
-            (child instanceof cc.Sprite) && child._renderCmd.setDirtyRecursively(value);
+            (child instanceof _ccsg.Sprite) && child._renderCmd.setDirtyRecursively(value);
         }
     };
 
     proto._setBatchNodeForAddChild = function (child) {
         var node = this._node;
         if (node._batchNode) {
-            if (!(child instanceof cc.Sprite)) {
+            if (!(child instanceof _ccsg.Sprite)) {
                 cc.log(cc._LogInfos.Sprite.addChild);
                 return false;
             }
@@ -261,7 +261,7 @@
 
         // renders using Sprite Manager
         if (node._batchNode) {
-            if (node.atlasIndex !== cc.Sprite.INDEX_NOT_INITIALIZED) {
+            if (node.atlasIndex !== _ccsg.Sprite.INDEX_NOT_INITIALIZED) {
                 node.textureAtlas.updateQuad(locQuad, node.atlasIndex)
             } else {
                 // no need to set it recursively
@@ -430,7 +430,7 @@
             return;
 
         var gl = ctx || cc._renderContext ;
-        //cc.assert(!_t._batchNode, "If cc.Sprite is being rendered by cc.SpriteBatchNode, cc.Sprite#draw SHOULD NOT be called");
+        //cc.assert(!_t._batchNode, "If _ccsg.Sprite is being rendered by cc.SpriteBatchNode, _ccsg.Sprite#draw SHOULD NOT be called");
 
         if (locTexture) {
             if (locTexture._textureLoaded) {

@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 cc._tmp.PrototypeSprite = function () {
-    var _p = cc.Sprite.prototype;
+    var _p = _ccsg.Sprite.prototype;
 
     // Override properties
     cc.defineGetterSetter(_p, "opacityModifyRGB", _p.isOpacityModifyRGB, _p.setOpacityModifyRGB);

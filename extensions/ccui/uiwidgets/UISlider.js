@@ -98,15 +98,15 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
 
     _initRenderer: function () {
         //todo use Scale9Sprite
-        this._barRenderer = new cc.Sprite();
-        this._progressBarRenderer = new cc.Sprite();
+        this._barRenderer = new _ccsg.Sprite();
+        this._progressBarRenderer = new _ccsg.Sprite();
         this._progressBarRenderer.setAnchorPoint(0.0, 0.5);
         this.addProtectedChild(this._barRenderer, ccui.Slider.BASEBAR_RENDERER_ZORDER, -1);
         this.addProtectedChild(this._progressBarRenderer, ccui.Slider.PROGRESSBAR_RENDERER_ZORDER, -1);
-        this._slidBallNormalRenderer = new cc.Sprite();
-        this._slidBallPressedRenderer = new cc.Sprite();
+        this._slidBallNormalRenderer = new _ccsg.Sprite();
+        this._slidBallPressedRenderer = new _ccsg.Sprite();
         this._slidBallPressedRenderer.setVisible(false);
-        this._slidBallDisabledRenderer = new cc.Sprite();
+        this._slidBallDisabledRenderer = new _ccsg.Sprite();
         this._slidBallDisabledRenderer.setVisible(false);
         this._slidBallRenderer = new _ccsg.Node();
         this._slidBallRenderer.addChild(this._slidBallNormalRenderer);
@@ -220,8 +220,8 @@ ccui.Slider = ccui.Widget.extend(/** @lends ccui.Slider# */{
             this._barRenderer = new ccui.Scale9Sprite();
             this._progressBarRenderer = new ccui.Scale9Sprite();
         } else {
-            this._barRenderer = new cc.Sprite();
-            this._progressBarRenderer = new cc.Sprite();
+            this._barRenderer = new _ccsg.Sprite();
+            this._progressBarRenderer = new _ccsg.Sprite();
         }
         this.loadBarTexture(this._textureFile, this._barTexType);
         this.loadProgressBarTexture(this._progressBarTextureFile, this._progressBarTexType);
