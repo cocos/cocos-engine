@@ -191,7 +191,9 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         this._renderingType = type;
         this._quadsDirty = true;
     },
-
+    getRenderingType: function() {
+        return this._renderingType;
+    },
     setInsetLeft : function(insetLeft){
         this._insetLeft = insetLeft;
         this._quadsDirty = true;
