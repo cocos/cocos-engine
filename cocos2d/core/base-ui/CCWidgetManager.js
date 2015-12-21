@@ -133,7 +133,7 @@ function visit () {
     }
 }
 
-var adjustWidgetToFitPositionInEditor = CC_EDITOR && function (event) {
+var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
     if (widgetManager.isAligning) {
         return;
     }
@@ -164,6 +164,40 @@ var adjustWidgetToFitPositionInEditor = CC_EDITOR && function (event) {
     }
 };
 
+var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
+    if (widgetManager.isAligning) {
+        return;
+    }
+    var oldSize = event.detail;
+    var newSize = this.node.getContentSize();
+    var sizeDelta = cc.p(newSize.width - oldSize.width, newSize.height - oldSize.height);
+    var anchor = this.node.getAnchorPoint();
+
+    if (this.isAlignTop) {
+        this.top -= sizeDelta.y * (1 - anchor.y);
+    }
+    if (this.isAlignBottom) {
+        this.bottom -= sizeDelta.y * anchor.y;
+    }
+    if (this.isAlignLeft) {
+        this.left -= sizeDelta.x * anchor.x;
+    }
+    if (this.isAlignRight) {
+        this.right -= sizeDelta.x * (1 - anchor.x);
+    }
+    if (this.isAlignHorizontalCenter) {
+        if (sizeDelta.x !== 0 && anchor.x !== 0.5) {
+            this.isAlignHorizontalCenter = false;
+        }
+    }
+    if (this.isAlignVerticalCenter) {
+        if (sizeDelta.y !== 0 && anchor.y !== 0.5) {
+            this.isAlignVerticalCenter = false;
+        }
+    }
+};
+
+
 var widgetManager = cc._widgetManager = {
     isAligning: false,
     init: function (director) {
@@ -172,13 +206,15 @@ var widgetManager = cc._widgetManager = {
     add: function (widget) {
         widget.node._widget = widget;
         if (CC_EDITOR && !cc.engine.isPlaying) {
-            widget.node.on('position-changed', adjustWidgetToFitPositionInEditor, widget);
+            widget.node.on('position-changed', adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.on('size-changed', adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     remove: function (widget) {
         widget.node._widget = null;
         if (CC_EDITOR && !cc.engine.isPlaying) {
-            widget.node.off('position-changed', adjustWidgetToFitPositionInEditor, widget);
+            widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);
+            widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
         }
     },
     _getParentSize: getParentSize

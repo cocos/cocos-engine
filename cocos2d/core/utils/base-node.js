@@ -235,8 +235,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     this._sgNode.rotation = value;
                     this.emit(ROTATION_CHANGED, old);
                 }
-            },
-            tooltip: "The clockwise degrees of rotation relative to the parent"
+            }
         },
 
         /**
