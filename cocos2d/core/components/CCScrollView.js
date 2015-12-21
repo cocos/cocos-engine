@@ -91,7 +91,8 @@ var ScrollView = cc.Class({
          */
         content: {
             default: null,
-            type: cc.Node
+            type: cc.Node,
+            tooltip: 'i18n:COMPONENT.scrollview.content',
         },
 
         /**
@@ -99,7 +100,8 @@ var ScrollView = cc.Class({
          *@property {Boolean} horizontal
          */
         horizontal: {
-            default: true
+            default: true,
+            tooltip: 'i18n:COMPONENT.scrollview.horizontal',
         },
 
         /**
@@ -107,7 +109,8 @@ var ScrollView = cc.Class({
          *@property {Boolean} vertical
          */
         vertical: {
-            default: true
+            default: true,
+            tooltip: 'i18n:COMPONENT.scrollview.vertical',
         },
 
         /**
@@ -115,7 +118,8 @@ var ScrollView = cc.Class({
          *@property {Boolean} inertia
          */
         inertia: {
-            default: true
+            default: true,
+            tooltip: 'i18n:COMPONENT.scrollview.inertia',
         },
 
         /**
@@ -132,7 +136,7 @@ var ScrollView = cc.Class({
          *@property {Boolean} spring
          */
         spring: {
-            default: true
+            default: true,
         },
 
         /**
@@ -150,6 +154,7 @@ var ScrollView = cc.Class({
         horizontalScrollBar: {
             default: null,
             type: cc.Scrollbar,
+            tooltip: 'i18n:COMPONENT.scrollview.horizontal_bar',
             notify: function() {
                 this.horizontalScrollBar.setTargetScrollView(this);
                 this._updateScrollBar(0);
@@ -163,6 +168,7 @@ var ScrollView = cc.Class({
         verticalScrollBar: {
             default: null,
             type: cc.Scrollbar,
+            tooltip: 'i18n:COMPONENT.scrollview.vertical_bar',
             notify: function() {
                 this.verticalScrollBar.setTargetScrollView(this);
                 this._updateScrollBar(0);

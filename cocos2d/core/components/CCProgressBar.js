@@ -133,7 +133,7 @@ var ProgressBar = cc.Class({
         barSprite: {
             default: null,
             type: cc.SpriteRenderer,
-
+            tooltip: 'i18n:COMPONENT.progress.bar_sprite',
             notify: function() {
                 this._initBarSprite();
             }
@@ -146,6 +146,7 @@ var ProgressBar = cc.Class({
         mode: {
             default: Mode.HORIZONTAL,
             type: Mode,
+            tooltip: 'i18n:COMPONENT.progress.mode',
             notify: function() {
                 if (this.barSprite) {
                     var entity = this.barSprite.node;
@@ -166,6 +167,7 @@ var ProgressBar = cc.Class({
         totalLength: {
             default: 1,
             range: [0, Number.MAX_VALUE],
+            tooltip: 'i18n:COMPONENT.progress.total_length',
             notify: function(value) {
                 this._updateBarStatus();
             }
@@ -179,6 +181,7 @@ var ProgressBar = cc.Class({
             default: 1,
             type: 'Float',
             range: [0, 1, 0.1],
+            tooltip: 'i18n:COMPONENT.progress.progress',
             notify: function() {
                 this._updateBarStatus();
             }
@@ -190,6 +193,7 @@ var ProgressBar = cc.Class({
          */
         reverse: {
             default: false,
+            tooltip: 'i18n:COMPONENT.progress.reverse',
             notify: function() {
                 this._updateBarStatus();
             }
