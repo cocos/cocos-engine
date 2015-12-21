@@ -59,19 +59,21 @@ var Animation = cc.Class({
     properties: {
         /**
          * Animation will play the default clip when start game
-         * @property defaultClip
-         * @type {cc.AnimationClip}
+         * @property _defaultClip
+         * @type {AnimationClip}
+         * @private
          */
-        defaultClip: {
+        _defaultClip: {
             default: null,
             type: AnimationClip,
-            tooltip: 'i18n:COMPONENT.animation.default_clip'
+            tooltip: 'i18n:COMPONENT.animation.default_clip',
+            visible: true
         },
 
         /**
          * Current played clip
          * @property currentClip
-         * @type {cc.AnimationClip}
+         * @type {AnimationClip}
          */
         currentClip: {
             get: function () {
@@ -90,10 +92,11 @@ var Animation = cc.Class({
 
         /**
          * All the clips used in this animation
-         * @property clips
-         * @type {[cc.AnimationClip]}
+         * @property _clips
+         * @type {AnimationClip[]}
+         * @private
          */
-        clips: {
+        _clips: {
             default: [],
             type: [AnimationClip],
             tooltip: 'i18n:COMPONENT.animation.clips',
@@ -117,8 +120,8 @@ var Animation = cc.Class({
 
         this._init();
 
-        if (this.playOnLoad && this.defaultClip) {
-            var state = this.getAnimationState(this.defaultClip.name);
+        if (this.playOnLoad && this._defaultClip) {
+            var state = this.getAnimationState(this._defaultClip.name);
             this._animator.playState(state);
         }
     },
@@ -133,6 +136,24 @@ var Animation = cc.Class({
     ///////////////////////////////////////////////////////////////////////////////
 
     /**
+     * Get the default clip. Animation will play the default clip when start game
+     * @method getDefaultClip
+     * @return {AnimationClip}
+     */
+    getDefaultClip: function () {
+        return this._defaultClip;
+    },
+
+    /**
+     * Get all the clips used in this animation
+     * @method getClips
+     * @return {AnimationClip[]}
+     */
+    getClips: function () {
+        return this._clips;
+    },
+
+    /**
      * Plays an animation.
      * @method play
      * @param {String} [name] - The name of animation to play. If no name is supplied then the default animation will be played.
@@ -141,7 +162,7 @@ var Animation = cc.Class({
      */
     play: function (name, startTime) {
         this._init();
-        var state = this.getAnimationState(name || this.defaultClip.name);
+        var state = this.getAnimationState(name || this._defaultClip.name);
         if (state) {
             if (state.isPlaying) {
                 if (state.isPaused) {
@@ -283,8 +304,8 @@ var Animation = cc.Class({
         this._init();
 
         // add clip
-        if (!cc.js.array.contains(this.clips, clip)) {
-            this.clips.push(clip);
+        if (!cc.js.array.contains(this._clips, clip)) {
+            this._clips.push(clip);
         }
 
         // replace same name clip
@@ -295,7 +316,7 @@ var Animation = cc.Class({
                 return oldState;
             }
             else {
-                this.clips.splice(this.clips.indexOf(oldState.clip), 1);
+                this._clips.splice(this._clips.indexOf(oldState.clip), 1);
             }
         }
 
@@ -306,7 +327,7 @@ var Animation = cc.Class({
     },
 
     _removeStateIfNotUsed: function (state, force) {
-        var needRemove = state.clip !== this.defaultClip && !cc.js.array.contains(this.clips, state.clip);
+        var needRemove = state.clip !== this._defaultClip && !cc.js.array.contains(this._clips, state.clip);
         if (force || needRemove) {
             if (state.isPlaying) {
                 this.stop(state.name);
@@ -318,8 +339,8 @@ var Animation = cc.Class({
     /**
      * Remove clip from the animation list. This will remove the clip and any animation states based on it.
      * @method removeClip
-     * @param {Boolean} force If force is true, then will always remove the clip and any animation states based on it.
      * @param {AnimationClip} clip
+     * @param {Boolean} force If force is true, then will always remove the clip and any animation states based on it.
      */
     removeClip: function (clip, force) {
         if (!clip) {
@@ -328,7 +349,7 @@ var Animation = cc.Class({
         }
         this._init();
 
-        this.clips = this.clips.filter(function (item) {
+        this._clips = this._clips.filter(function (item) {
             return item !== clip;
         });
 
@@ -372,18 +393,18 @@ var Animation = cc.Class({
         // create animation states
         var state = null;
         var defaultClipState = false;
-        for (var i = 0; i < this.clips.length; ++i) {
-            var clip = this.clips[i];
+        for (var i = 0; i < this._clips.length; ++i) {
+            var clip = this._clips[i];
             if (clip) {
                 state = new cc.AnimationState(clip);
                 this._nameToState[state.name] = state;
-                if (equalClips(this.defaultClip, clip)) {
+                if (equalClips(this._defaultClip, clip)) {
                     defaultClipState = state;
                 }
             }
         }
-        if (this.defaultClip && !defaultClipState) {
-            state = new cc.AnimationState(this.defaultClip);
+        if (this._defaultClip && !defaultClipState) {
+            state = new cc.AnimationState(this._defaultClip);
             this._nameToState[state.name] = state;
         }
     },
@@ -409,7 +430,7 @@ var Animation = cc.Class({
             return;
         }
 
-        var clips = this.clips;
+        var clips = this._clips;
         var index = clips.indexOf(oldState.clip);
         clips[index] = clip;
 

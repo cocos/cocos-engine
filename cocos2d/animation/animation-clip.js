@@ -1,4 +1,10 @@
 
+/**
+ * Class for animation data handling.
+ * @class AnimationClip
+ * @extends Asset
+ * @constructor
+ */
 var AnimationClip = cc.Class({
     name: 'cc.AnimationClip',
     extends: cc.Asset,
