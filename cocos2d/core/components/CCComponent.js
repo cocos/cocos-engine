@@ -239,7 +239,8 @@ var Component = cc.Class({
                 }
             },
             displayName: 'Script',
-            type: cc._Script
+            type: cc._Script,
+            tooltip: 'i18n:INSPECTOR.component.script'
         },
 
         /**
