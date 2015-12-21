@@ -415,6 +415,15 @@ if (CC_DEV) {
         'getBlendFunc',
         'setState',
         'getState',
+        'resizableSpriteWithCapInsets',
+        'flippedX',
+        'flippedY',
+        'setFlippedX',
+        'setFlippedY',
+        'isFlippedX',
+        'isFlippedY',
+        'getCapInsets',
+        'setCapInsets',
     ]);
     provideClearError(cc.SpriteRenderer, {
         create: 'node.addComponent',
@@ -424,6 +433,9 @@ if (CC_DEV) {
     });
     provideClearError(cc.SpriteRenderer.prototype, {
         ignoreAnchorPointForPosition: 'instance.ignoreAnchor',
+        getPreferredSize: 'node.getContentSize',
+        setPreferredSize: 'node.setContentSize',
+        updateWithSprite: 'spriteFrame'
     });
     shouldNotUseNodeProp(cc.SpriteRenderer);
 
