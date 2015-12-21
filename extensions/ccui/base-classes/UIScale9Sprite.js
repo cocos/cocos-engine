@@ -98,10 +98,19 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         }
     },
 
+    /**
+     * Initializes a 9-slice sprite with a texture file
+     *
+     * @param textureOrTextureFile The name of the texture file.
+     */
     initWithTexture: function (textureOrTextureFile) {
         this.setTexture(textureOrTextureFile);
     },
 
+    /**
+     * Initializes a 9-slice sprite with an sprite frame
+     * @param spriteFrameOrSFName The sprite frame object.
+     */
     initWithSpriteFrame: function (spriteFrameOrSFName) {
         this.setSpriteFrame(spriteFrameOrSFName);
     },
@@ -110,12 +119,22 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         this.setResourceData(s9ResData);
     },
 
+    /**
+     * Change the texture file of 9 slice sprite
+     *
+     * @param textureOrTextureFile The name of the texture file.
+     */
     setTexture: function (textureOrTextureFile) {
         var resourceData = new cc.Scale9Sprite.Scale9ResourceData();
         resourceData.initWithTexture(textureOrTextureFile);
         this.setResourceData(resourceData);
     },
 
+    /**
+     * Change the sprite frame of 9 slice sprite
+     *
+     * @param spriteFrameOrSFFileName The name of the texture file.
+     */
     setSpriteFrame: function (spriteFrameOrSFFileName) {
         var resourceData = new cc.Scale9Sprite.Scale9ResourceData();
         resourceData.initWithSpriteFrame(spriteFrameOrSFFileName);
@@ -141,6 +160,11 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
 
     },
 
+    /**
+     * Sets the source blending function.
+     *
+     * @param blendFunc A structure with source and destination factor to specify pixel arithmetic. e.g. {GL_ONE, GL_ONE}, {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}.
+     */
     setBlendFunc: function (blendFunc, dst) {
         if (dst === undefined) {
             this._blendFunc.src = blendFunc.src || cc.BLEND_SRC;
@@ -152,10 +176,16 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         }
     },
 
+    /**
+     * Returns the blending function that is currently being used.
+     *
+     * @return A BlendFunc structure with source and destination factor which specified pixel arithmetic.
+     */
     getBlendFunc: function () {
         return new cc.BlendFunc(this._blendFunc.src, this._blendFunc.dst);
     },
 
+    // overrides
     setContentSize : function(width, height){
         if (height === undefined) {
             height = width.height;
@@ -177,56 +207,102 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         return this._contentSize;
     },
 
+    /**
+     * Change the state of 9-slice sprite.
+     * @see `State`
+     * @param state A enum value in State.
+     */
     setState : function(state){
         this._brightState = state;
         this._renderCmd.setState(state);
     },
 
+    /**
+     * Query the current bright state.
+     * @return @see `State`
+     */
     getState : function(){
         return this._brightState;
     },
 
+    /**
+     * change the rendering type, could be simple or slice
+     * @return @see `RenderingType`
+     */
     setRenderingType: function(type) {
         if(this._renderingType == type) return;
         this._renderingType = type;
         this._quadsDirty = true;
     },
+    /**
+     * get the rendering type, could be simple or slice
+     * @return @see `RenderingType`
+     */
     getRenderingType: function() {
         return this._renderingType;
     },
+    /**
+     * change the left border of 9 slice sprite, it should be specified before trimmed.
+     * @param insetLeft left border.
+     */
     setInsetLeft : function(insetLeft){
         this._insetLeft = insetLeft;
         this._quadsDirty = true;
     },
-
+    /**
+     * get the left border of 9 slice sprite, the result is specified before trimmed.
+     * @return left border.
+     */
     getInsetLeft : function(){
         return this._insetLeft;
     },
-
+    /**
+     * change the top border of 9 slice sprite, it should be specified before trimmed.
+     * @param insetTop top border.
+     */
     setInsetTop : function(insetTop){
         this._insetTop = insetTop;
         this._quadsDirty = true;
     },
 
+    /**
+     * get the top border of 9 slice sprite, the result is specified before trimmed.
+     * @return top border.
+     */
     getInsetTop : function(){
         return this._insetTop;
     },
 
+    /**
+     * change the right border of 9 slice sprite, it should be specified before trimmed.
+     * @param insetRight right border.
+     */
     setInsetRight : function(insetRight){
         this._insetRight = insetRight;
         this._quadsDirty = true;
     },
 
+    /**
+     * get the right border of 9 slice sprite, the result is specified before trimmed.
+     * @return right border.
+     */
     getInsetRight : function(){
         return this._insetRight;
     },
 
+    /**
+     * change the bottom border of 9 slice sprite, it should be specified before trimmed.
+     * @param insetBottom bottom border.
+     */
     setInsetBottom : function(insetBottom)
     {
         this._insetBottom = insetBottom;
         this._quadsDirty = true;
     },
-
+    /**
+     * get the bottom border of 9 slice sprite, the result is specified before trimmed.
+     * @return bottom border.
+     */
     getInsetBottom : function(){
         return this._insetBottom;
     },
