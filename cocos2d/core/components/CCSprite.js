@@ -29,7 +29,7 @@ var SpriteType = cc.SpriteType;
  * @class Sprite
  * @extends _ComponentInSG
  */
-var SpriteRenderer = cc.Class({
+var Sprite = cc.Class({
     name: 'cc.Sprite',
     extends: require('./CCComponentInSG'),
 
@@ -39,7 +39,7 @@ var SpriteRenderer = cc.Class({
     },
 
     properties: {
-        _sprite: {
+        _spriteFrame: {
             default: null,
             type: cc.SpriteFrame
         },
@@ -64,13 +64,13 @@ var SpriteRenderer = cc.Class({
          * @property sprite
          * @type {SpriteFrame}
          */
-        sprite: {
+        spriteFrame: {
             get: function () {
-                return this._sprite;
+                return this._spriteFrame;
             },
             set: function (value, force) {
-                var lastSprite = this._sprite;
-                this._sprite = value;
+                var lastSprite = this._spriteFrame;
+                this._spriteFrame = value;
                 if (this._sgNode) {
                     this._applySprite(this._sgNode, lastSprite);
                     // color cleared after reset texture, should reapply color
@@ -159,15 +159,6 @@ var SpriteRenderer = cc.Class({
     },
 
     /**
-     * Get the original no 9-sliced sprite.
-     * @method getSprite
-     * @return {SpriteFrame} A sprite instance.
-     */
-    getSprite : function(){
-        return this._sprite;
-    },
-
-    /**
      * Initializes a 9-slice sprite with a texture file, a delimitation zone and
      * with the specified cap insets.
      * Once the sprite is created, you can then call its "setContentSize:" method
@@ -196,7 +187,7 @@ var SpriteRenderer = cc.Class({
      * @param {Rect} capInsets - The values to use for the cap insets.
      */
     initWithSpriteFrame: function (spriteFrame) {
-        this._sprite = spriteFrame;
+        this._spriteFrame = spriteFrame;
         this._sgNode.initWithSpriteFrame(spriteFrame);
     },
 
@@ -216,17 +207,7 @@ var SpriteRenderer = cc.Class({
         if (initialized === false) {
             return;
         }
-        this._sprite = this._sgNode.getSprite();
-    },
-
-    /**
-     * Sets a new sprite frame to the sprite.
-     * @method setSpriteFrame
-     * @param {SpriteFrame} spriteFrame
-     * @param {Rect} capInsets
-     */
-    setSpriteFrame: function (spriteFrame) {
-        this.sprite = spriteFrame;
+        this._spriteFrame = this._sgNode.getSpriteFrame();
     },
 
     /**
@@ -236,24 +217,6 @@ var SpriteRenderer = cc.Class({
      */
     getOriginalSize: function () {
         return this._sgNode.getOriginalSize();
-    },
-
-    /**
-     * Change the preferred size of Scale9Sprite.
-     * @method setPreferredSize
-     * @param {Size} size - A delimitation zone.
-     */
-    setPreferredSize: function (size) {
-        this.node.setContentSize(size);
-    },
-
-    /**
-     * Query the Scale9Sprite's preferred size.
-     * @method getPreferredSize
-     * @return {Size} Scale9Sprite's preferred size.
-     */
-    getPreferredSize: function () {
-        return this._sgNode.getContentSize();
     },
 
     /**
@@ -338,11 +301,11 @@ var SpriteRenderer = cc.Class({
         this.node.off('size-changed', this._resized, this);
     },
 
-    _applyAtlas: CC_EDITOR && function ( sprite ) {
+    _applyAtlas: CC_EDITOR && function ( spriteFrame ) {
         // Set atlas
-        if (sprite._atlasUuid) {
+        if (spriteFrame._atlasUuid) {
             var self = this;
-            cc.AssetLibrary.loadAsset(sprite._atlasUuid, function(err, asset) {
+            cc.AssetLibrary.loadAsset(spriteFrame._atlasUuid, function(err, asset) {
                 self._atlas = asset;
             });
         } else {
@@ -353,17 +316,17 @@ var SpriteRenderer = cc.Class({
     _applyCapInset: function (node) {
         if (this._type === SpriteType.SLICED) {
             var node = node || this._sgNode;
-            node.setInsetTop(this._sprite.insetTop);
-            node.setInsetBottom(this._sprite.insetBottom);
-            node.setInsetRight(this._sprite.insetRight);
-            node.setInsetLeft(this._sprite.insetLeft);
+            node.setInsetTop(this._spriteFrame.insetTop);
+            node.setInsetBottom(this._spriteFrame.insetBottom);
+            node.setInsetRight(this._spriteFrame.insetRight);
+            node.setInsetLeft(this._spriteFrame.insetLeft);
         }
     },
 
     _applySpriteSize: function (node) {
         var node = node || this._sgNode;
         if (this._useOriginalSize) {
-            var rect = this._sprite.getOriginalSize();
+            var rect = this._spriteFrame.getOriginalSize();
             node.setContentSize(cc.size(rect.width, rect.height));
         }
         else {
@@ -375,15 +338,15 @@ var SpriteRenderer = cc.Class({
         if (oldSprite && oldSprite.off) {
             oldSprite.off('load', this._applyCapInset, this);
         }
-        if (!this._sprite) return;
+        if (!this._spriteFrame) return;
 
-        sgNode.setSpriteFrame(this._sprite);
-        var locLoaded = this._sprite.textureLoaded();
+        sgNode.setSpriteFrame(this._spriteFrame);
+        var locLoaded = this._spriteFrame.textureLoaded();
         if (!locLoaded) {
             if ( !this._useOriginalSize ) {
-                sgNode.setPreferredSize(this.node.getContentSize(true));
+                sgNode.setContentSize(this.node.getContentSize(true));
             }
-            this._sprite.once('load', function () {
+            this._spriteFrame.once('load', function () {
                 this._applyCapInset();
                 this._applySpriteSize();
             }, this);
@@ -395,7 +358,7 @@ var SpriteRenderer = cc.Class({
 
         if (CC_EDITOR) {
             // Set atlas
-            this._applyAtlas(this._sprite);
+            this._applyAtlas(this._spriteFrame);
         }
     },
 
@@ -414,11 +377,8 @@ var SpriteRenderer = cc.Class({
 var misc = require('../utils/misc');
 var SameNameGetSets = ['atlas', 'capInsets', 'insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
 var DiffNameGetSets = {
-    type: [ null, 'setRenderingType'],
-    sprite: ['getSprite', null],
-    flippedX: ['isFlippedX', 'setFlippedX'],
-    flippedY: ['isFlippedY', 'setFlippedY'],
+    type: [ null, 'setRenderingType']
 };
-misc.propertyDefine(SpriteRenderer, SameNameGetSets, DiffNameGetSets);
+misc.propertyDefine(Sprite, SameNameGetSets, DiffNameGetSets);
 
-cc.SpriteRenderer = module.exports = SpriteRenderer;
+cc.Sprite = module.exports = Sprite;

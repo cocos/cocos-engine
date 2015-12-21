@@ -2,7 +2,7 @@ require('./CCComponent');
 require('./CCComponentInSG');
 
 module.exports = [
-    require('./CCSpriteRenderer'),
+    require('./CCSprite'),
     require('./CCWidget'),
     require('./CCCanvas'),
     require('./CCAudioSource'),

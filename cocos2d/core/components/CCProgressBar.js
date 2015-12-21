@@ -127,12 +127,12 @@ var ProgressBar = cc.Class({
 
     properties: {
         /**
-         * The targeted SpriteRenderer which will be changed progressively.
-         *@property {cc.SpriteRenderer} barSprite
+         * The targeted Sprite which will be changed progressively.
+         *@property {cc.Sprite} barSprite
          */
         barSprite: {
             default: null,
-            type: cc.SpriteRenderer,
+            type: cc.Sprite,
             tooltip: 'i18n:COMPONENT.progress.bar_sprite',
             notify: function() {
                 this._initBarSprite();
