@@ -409,23 +409,37 @@ if (CC_DEV) {
 
     // cc.SpriteRenderer
 
-    markAsRemoved(cc.SpriteRenderer, [
+    markAsRemoved(cc.Sprite, [
         'textureLoaded',
         'setBlendFunc',
         'getBlendFunc',
         'setState',
         'getState',
+        'resizableSpriteWithCapInsets',
+        'flippedX',
+        'flippedY',
+        'setFlippedX',
+        'setFlippedY',
+        'isFlippedX',
+        'isFlippedY',
+        'getCapInsets',
+        'setCapInsets',
     ]);
-    provideClearError(cc.SpriteRenderer, {
+    provideClearError(cc.Sprite, {
         create: 'node.addComponent',
         createWithTexture: 'node.addComponent',
         createWithSpriteFrameName: 'node.addComponent',
         createWithSpriteFrame: 'node.addComponent',
     });
-    provideClearError(cc.SpriteRenderer.prototype, {
+    provideClearError(cc.Sprite.prototype, {
         ignoreAnchorPointForPosition: 'instance.ignoreAnchor',
+        getPreferredSize: 'node.getContentSize',
+        setPreferredSize: 'node.setContentSize',
+        updateWithSprite: 'spriteFrame',
+        getSpriteFrame: 'spriteFrame',
+        setSpriteFrame: 'spriteFrame',
     });
-    shouldNotUseNodeProp(cc.SpriteRenderer);
+    shouldNotUseNodeProp(cc.Sprite);
 
     // Particle
     markAsRemoved(cc.ParticleSystem, [

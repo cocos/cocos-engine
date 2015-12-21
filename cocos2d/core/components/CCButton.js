@@ -108,7 +108,7 @@ var EVENT_HOVER_OUT = 'hover-out';
  * When Button state changed:
  *  If Transition type is Button.Transition.NONE, Button will do nothing
  *  If Transition type is Button.Transition.COLOR, Button will change target's color
- *  If Transition type is Button.Transition.SPRITE, Button will change target SpriteRenderer's sprite
+ *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite
  *
  * Button will trigger 5 events:
  *  Button.EVENT_TOUCH_DOWN
@@ -287,7 +287,7 @@ var Button = cc.Class({
          * When Button state changed:
          *  If Transition type is Button.Transition.NONE, Button will do nothing
          *  If Transition type is Button.Transition.COLOR, Button will change target's color
-         *  If Transition type is Button.Transition.SPRITE, Button will change target SpriteRenderer's sprite
+         *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite
          * @property {cc.Node} target
          */
         target: {
@@ -414,7 +414,7 @@ var Button = cc.Class({
     _applyTarget: function () {
         var target = this.target;
         if (target) {
-            this._sprite = target.getComponent(cc.SpriteRenderer);
+            this._sprite = target.getComponent(cc.Sprite);
         }
         else {
             this._sprite = null;
@@ -493,7 +493,7 @@ var Button = cc.Class({
             }
         }
         else if (transition === Transition.SPRITE && this._sprite && sprite) {
-            this._sprite.sprite = sprite;
+            this._sprite.spriteFrame = sprite;
         }
     },
 

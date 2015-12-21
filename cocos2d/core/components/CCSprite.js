@@ -29,7 +29,7 @@ var SpriteType = cc.SpriteType;
  * @class Sprite
  * @extends _ComponentInSG
  */
-var SpriteRenderer = cc.Class({
+var Sprite = cc.Class({
     name: 'cc.Sprite',
     extends: require('./CCComponentInSG'),
 
@@ -39,13 +39,11 @@ var SpriteRenderer = cc.Class({
     },
 
     properties: {
-        _sprite: {
+        _spriteFrame: {
             default: null,
             type: cc.SpriteFrame
         },
         _type: SpriteType.SIMPLE,
-        _isFlippedX: false,
-        _isFlippedY: false,
         _useOriginalSize: true,
 
         /**
@@ -66,19 +64,14 @@ var SpriteRenderer = cc.Class({
          * @property sprite
          * @type {SpriteFrame}
          */
-        sprite: {
+        spriteFrame: {
             get: function () {
-                return this._sprite;
+                return this._spriteFrame;
             },
             set: function (value, force) {
-                var lastSprite = this._sprite;
-                this._sprite = value;
+                var lastSprite = this._spriteFrame;
+                this._spriteFrame = value;
                 if (this._sgNode) {
-                    if (CC_EDITOR) {
-                        if (force) {
-                            this._sgNode._scale9Image = null;
-                        }
-                    }
                     this._applySprite(this._sgNode, lastSprite);
                     // color cleared after reset texture, should reapply color
                     this._sgNode.setColor(this.node._color);
@@ -166,15 +159,6 @@ var SpriteRenderer = cc.Class({
     },
 
     /**
-     * Get the original no 9-sliced sprite.
-     * @method getSprite
-     * @return {SpriteFrame} A sprite instance.
-     */
-    getSprite : function(){
-        return this._sprite;
-    },
-
-    /**
      * Initializes a 9-slice sprite with a texture file, a delimitation zone and
      * with the specified cap insets.
      * Once the sprite is created, you can then call its "setContentSize:" method
@@ -187,8 +171,8 @@ var SpriteRenderer = cc.Class({
      * is the whole image. If the shape is the whole texture, set this to the texture's full rect.
      * @param {Rect} capInsets - The values to use for the cap insets.
      */
-    initWithFile: function (file, rect, capInsets) {
-        this._sgNode.initWithFile(file, rect, capInsets);
+    initWithFile: function (file) {
+        this._sgNode.initWithFile(file);
     },
 
     /**
@@ -202,9 +186,9 @@ var SpriteRenderer = cc.Class({
      * @param {SpriteFrame} spriteFrame - The sprite frame object.
      * @param {Rect} capInsets - The values to use for the cap insets.
      */
-    initWithSpriteFrame: function (spriteFrame, capInsets) {
-        this._sprite = spriteFrame;
-        this._sgNode.initWithSpriteFrame(spriteFrame, capInsets);
+    initWithSpriteFrame: function (spriteFrame) {
+        this._spriteFrame = spriteFrame;
+        this._sgNode.initWithSpriteFrame(spriteFrame);
     },
 
     /**
@@ -218,54 +202,12 @@ var SpriteRenderer = cc.Class({
      * @param {String} spriteFrameName - The sprite frame name.
      * @param {Rect} capInsets - The values to use for the cap insets.
      */
-    initWithSpriteFrameName: function (spriteFrameName, capInsets) {
-        var initialized = this._sgNode.initWithSpriteFrame(spriteFrameName, capInsets);
+    initWithSpriteFrameName: function (spriteFrameName) {
+        var initialized = this._sgNode.initWithSpriteFrame(spriteFrameName);
         if (initialized === false) {
             return;
         }
-        this._sprite = this._sgNode.getSprite();
-    },
-
-    /**
-     * Creates and returns a new sprite object with the specified cap insets.
-     * You use this method to add cap insets to a sprite or to change the existing
-     * cap insets of a sprite. In both cases, you get back a new image and the
-     * original sprite remains untouched.
-     *
-     * @method resizableSpriteWithCapInsets
-     * @param {Rect} capInsets - The values to use for the cap insets.
-     * @return {Scale9Sprite} A Scale9Sprite instance.
-     */
-    resizableSpriteWithCapInsets: function (capInsets) {
-        return this._sgNode.resizableSpriteWithCapInsets(capInsets);
-    },
-
-    /**
-     * Update Scale9Sprite with a specified sprite.
-     *
-     * @method updateWithSprite
-     * @param {SpriteFrame} sprite - A sprite pointer.
-     * @param {Rect} rect - A delimitation zone.
-     * @param {Number} rotated - Whether the sprite is rotated or not.
-     * @param {Size} offset - The offset when slice the sprite.
-     * @param {Size} originalSize - The origial size of the sprite.
-     * @param {Rect} capInsets - The Values to use for the cap insets.
-     * @return {Boolean} True if update success, false otherwise.
-     */
-    updateWithSprite: function (sprite, textureRect, rotated, offset, originalSize, capInsets) {
-        this._sprite = sprite;
-        return this._sgNode.updateWithSprite(sprite, textureRect, rotated, offset, originalSize, capInsets);
-    },
-
-    /**
-     * Sets a new sprite frame to the sprite.
-     * @method setSpriteFrame
-     * @param {SpriteFrame} spriteFrame
-     * @param {Rect} capInsets
-     */
-    setSpriteFrame: function (spriteFrame, capInsets) {
-        this.sprite = spriteFrame;
-        this.setCapInsets(capInsets);
+        this._spriteFrame = this._sgNode.getSpriteFrame();
     },
 
     /**
@@ -275,41 +217,6 @@ var SpriteRenderer = cc.Class({
      */
     getOriginalSize: function () {
         return this._sgNode.getOriginalSize();
-    },
-
-    /**
-     * Change the preferred size of Scale9Sprite.
-     * @method setPreferredSize
-     * @param {Size} size - A delimitation zone.
-     */
-    setPreferredSize: function (size) {
-        this.node.setContentSize(size);
-    },
-
-    /**
-     * Query the Scale9Sprite's preferred size.
-     * @method getPreferredSize
-     * @return {Size} Scale9Sprite's preferred size.
-     */
-    getPreferredSize: function () {
-        return this._sgNode.getPreferredSize();
-    },
-
-    /**
-     * Change the cap inset size.
-     * @method setCapInsets
-     * @param {Rect} capInsets - A delimitation zone.
-     */
-    setCapInsets: function (capInsets) {
-        this._sgNode.setCapInsets(capInsets);
-    },
-    /**
-     * Query the Scale9Sprite's preferred size.
-     * @method getCapInsets
-     * @return {Rect} Scale9Sprite's cap inset.
-     */
-    getCapInsets: function () {
-        return this._sgNode.getCapInsets();
     },
 
     /**
@@ -384,56 +291,6 @@ var SpriteRenderer = cc.Class({
         return this._sgNode.getInsetBottom();
     },
 
-    /**
-     * Sets whether the widget should be flipped horizontally or not.
-     * @method setFlippedX
-     * @param {Boolean} flippedX - true if the sprite should be flipped horizontally, false otherwise.
-     */
-    setFlippedX: function (flippedX) {
-        this._isFlippedX = flippedX;
-        this._sgNode.setFlippedX(flippedX);
-    },
-
-    /**
-     * Returns the flag which indicates whether the widget is flipped horizontally or not.
-     *
-     * It only flips the texture of the widget, and not the texture of the widget's children.
-     * Also, flipping the texture doesn't alter the anchorPoint.
-     * If you want to flip the anchorPoint too, and/or to flip the children too use:
-     * widget->setScaleX(sprite->getScaleX() * -1);
-     *
-     * @method isFlippedX
-     * @return {Boolean} true if the sprite is flipped horizontally, false otherwise.
-     */
-    isFlippedX: function () {
-        return this._isFlippedX;
-    },
-
-    /**
-     * Sets whether the sprite should be flipped vertically or not.
-     * @method setFlippedY
-     * @param {Boolean} flippedY - true if the sprite should be flipped vertically, false otherwise.
-     */
-    setFlippedY: function (flippedY) {
-        this._isFlippedY = flippedY;
-        this._sgNode.setFlippedY(flippedY);
-    },
-
-    /**
-     * Return the flag which indicates whether the widget is flipped vertically or not.
-     *
-     * It only flips the texture of the widget, and not the texture of the widget's children.
-     * Also, flipping the texture doesn't alter the anchorPoint.
-     * If you want to flip the anchorPoint too, and/or to flip the children too use:
-     * widget->setScaleY(widget->getScaleY() * -1);
-     *
-     * @method isFlippedY
-     * @return {Boolean} true if the sprite is flipped vertically, false otherwise.
-     */
-    isFlippedY: function () {
-        return this._isFlippedY;
-    },
-
     onLoad: function () {
         this._super();
         this.node.on('size-changed', this._resized, this);
@@ -444,11 +301,11 @@ var SpriteRenderer = cc.Class({
         this.node.off('size-changed', this._resized, this);
     },
 
-    _applyAtlas: CC_EDITOR && function ( sprite ) {
+    _applyAtlas: CC_EDITOR && function ( spriteFrame ) {
         // Set atlas
-        if (sprite._atlasUuid) {
+        if (spriteFrame._atlasUuid) {
             var self = this;
-            cc.AssetLibrary.loadAsset(sprite._atlasUuid, function(err, asset) {
+            cc.AssetLibrary.loadAsset(spriteFrame._atlasUuid, function(err, asset) {
                 self._atlas = asset;
             });
         } else {
@@ -459,21 +316,21 @@ var SpriteRenderer = cc.Class({
     _applyCapInset: function (node) {
         if (this._type === SpriteType.SLICED) {
             var node = node || this._sgNode;
-            node.setInsetTop(this._sprite.insetTop);
-            node.setInsetBottom(this._sprite.insetBottom);
-            node.setInsetRight(this._sprite.insetRight);
-            node.setInsetLeft(this._sprite.insetLeft);
+            node.setInsetTop(this._spriteFrame.insetTop);
+            node.setInsetBottom(this._spriteFrame.insetBottom);
+            node.setInsetRight(this._spriteFrame.insetRight);
+            node.setInsetLeft(this._spriteFrame.insetLeft);
         }
     },
 
     _applySpriteSize: function (node) {
         var node = node || this._sgNode;
         if (this._useOriginalSize) {
-            var rect = this._sprite.getRect();
-            node.setPreferredSize(cc.size(rect.width, rect.height));
+            var rect = this._spriteFrame.getOriginalSize();
+            node.setContentSize(cc.size(rect.width, rect.height));
         }
         else {
-            node.setPreferredSize(this.node.getContentSize(true));
+            node.setContentSize(this.node.getContentSize(true));
         }
     },
 
@@ -481,15 +338,15 @@ var SpriteRenderer = cc.Class({
         if (oldSprite && oldSprite.off) {
             oldSprite.off('load', this._applyCapInset, this);
         }
-        if (!this._sprite) return;
+        if (!this._spriteFrame) return;
 
-        sgNode.setSpriteFrame(this._sprite);
-        var locLoaded = this._sprite.textureLoaded();
+        sgNode.setSpriteFrame(this._spriteFrame);
+        var locLoaded = this._spriteFrame.textureLoaded();
         if (!locLoaded) {
             if ( !this._useOriginalSize ) {
-                sgNode.setPreferredSize(this.node.getContentSize(true));
+                sgNode.setContentSize(this.node.getContentSize(true));
             }
-            this._sprite.once('load', function () {
+            this._spriteFrame.once('load', function () {
                 this._applyCapInset();
                 this._applySpriteSize();
             }, this);
@@ -501,7 +358,7 @@ var SpriteRenderer = cc.Class({
 
         if (CC_EDITOR) {
             // Set atlas
-            this._applyAtlas(this._sprite);
+            this._applyAtlas(this._spriteFrame);
         }
     },
 
@@ -520,11 +377,8 @@ var SpriteRenderer = cc.Class({
 var misc = require('../utils/misc');
 var SameNameGetSets = ['atlas', 'capInsets', 'insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
 var DiffNameGetSets = {
-    type: [ null, 'setRenderingType'],
-    sprite: ['getSprite', null],
-    flippedX: ['isFlippedX', 'setFlippedX'],
-    flippedY: ['isFlippedY', 'setFlippedY'],
+    type: [ null, 'setRenderingType']
 };
-misc.propertyDefine(SpriteRenderer, SameNameGetSets, DiffNameGetSets);
+misc.propertyDefine(Sprite, SameNameGetSets, DiffNameGetSets);
 
-cc.SpriteRenderer = module.exports = SpriteRenderer;
+cc.Sprite = module.exports = Sprite;

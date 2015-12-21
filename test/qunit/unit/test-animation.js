@@ -92,7 +92,7 @@ test('EntityAnimator.animate', function () {
 
     var EntityAnimator = cc._Test.EntityAnimator;
     var entity = new cc.Node();
-    var renderer = entity.addComponent(cc.SpriteRenderer);
+    var renderer = entity.addComponent(cc.Sprite);
     renderer.colorProp = Color.BLACK;
 
     var animator = new EntityAnimator(entity);
@@ -179,7 +179,7 @@ test('AnimationNode', function () {
 
     var entity = new cc.Node();
     entity.x = 321;
-    var renderer = entity.addComponent(cc.SpriteRenderer);
+    var renderer = entity.addComponent(cc.Sprite);
     renderer.colorProp = Color.BLACK;
 
     var animator = new EntityAnimator(entity);
@@ -364,12 +364,12 @@ test('initClipData', function () {
 
     var entity = new cc.Node();
     entity.name = 'foo';
-    var renderer = entity.addComponent(cc.SpriteRenderer);
+    var renderer = entity.addComponent(cc.Sprite);
     renderer.testColor = Color.BLACK;
 
     var childEntity = new cc.Node();
     childEntity.name = 'bar';
-    var childRenderer = childEntity.addComponent(cc.SpriteRenderer);
+    var childRenderer = childEntity.addComponent(cc.Sprite);
     childRenderer.testColor = Color.BLACK;
 
     entity.addChild(childEntity);
