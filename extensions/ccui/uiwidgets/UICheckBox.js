@@ -127,11 +127,11 @@ ccui.CheckBox = ccui.Widget.extend(/** @lends ccui.CheckBox# */{
     },
 
     _initRenderer: function () {
-        this._backGroundBoxRenderer = new cc.Sprite();
-        this._backGroundSelectedBoxRenderer = new cc.Sprite();
-        this._frontCrossRenderer = new cc.Sprite();
-        this._backGroundBoxDisabledRenderer = new cc.Sprite();
-        this._frontCrossDisabledRenderer = new cc.Sprite();
+        this._backGroundBoxRenderer = new _ccsg.Sprite();
+        this._backGroundSelectedBoxRenderer = new _ccsg.Sprite();
+        this._frontCrossRenderer = new _ccsg.Sprite();
+        this._backGroundBoxDisabledRenderer = new _ccsg.Sprite();
+        this._frontCrossDisabledRenderer = new _ccsg.Sprite();
 
         this.addProtectedChild(this._backGroundBoxRenderer, ccui.CheckBox.BOX_RENDERER_ZORDER, -1);
         this.addProtectedChild(this._backGroundSelectedBoxRenderer, ccui.CheckBox.BOX_SELECTED_RENDERER_ZORDER, -1);

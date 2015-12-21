@@ -32,7 +32,7 @@ var PROPERTY_BLENDFUNC = "blendFunc";
 
 cc.SpriteLoader = cc.NodeLoader.extend({
     _createCCNode:function (parent, ccbReader) {
-        return new cc.Sprite();
+        return new _ccsg.Sprite();
     },
 
     onHandlePropTypeColor3:function (node, parent, propertyName, ccColor3B, ccbReader) {

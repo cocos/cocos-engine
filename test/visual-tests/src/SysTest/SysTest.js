@@ -72,7 +72,7 @@ var setClearColorTest = SysTestBase.extend({
     ctor:function()
     {
         this._super();
-        var bg = new cc.Sprite(s_back,cc.rect(0,0, 200, 200));
+        var bg = new _ccsg.Sprite(s_back,cc.rect(0,0, 200, 200));
         bg.x = winSize.width/2;
         bg.y = winSize.height/2;
         this.addChild(bg);

@@ -31,10 +31,10 @@ var EventTarget = require("../event/event-target");
 /**
  * <p>
  *    A cc.SpriteFrame has:<br/>
- *      - texture: A cc.Texture2D that will be used by the cc.Sprite<br/>
+ *      - texture: A cc.Texture2D that will be used by the _ccsg.Sprite<br/>
  *      - rectangle: A rectangle of the texture<br/>
  *    <br/>
- *    You can modify the frame of a cc.Sprite by doing:<br/>
+ *    You can modify the frame of a _ccsg.Sprite by doing:<br/>
  * </p>
  * @class SpriteFrame
  * @extends Asset
@@ -62,6 +62,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             set: function (url) {
                 this._textureFilename = url;
                 if (url) {
+                    if (CC_EDITOR && url instanceof cc.Asset) {
+                        // just packing
+                        return;
+                    }
                     // texture will be init in getTexture()
                     var texture = this.getTexture();
                     if (this._textureLoaded) {
@@ -329,7 +333,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     this._textureLoaded = true;
                     if(this._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS){
                         var tempElement = sender.getHtmlElementObj();
-                        tempElement = cc.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, this.getRect());
+                        tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, this.getRect());
                         var tempTexture = new cc.Texture2D();
                         tempTexture.initWithElement(tempElement);
                         tempTexture.handleLoadedTexture();
@@ -458,7 +462,16 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         var rect = this._rect;
         var offset = this._offset;
         var size = this._originalSize;
+        var uuid;
         var url = this._textureFilename;
+        if (url) {
+            if (url instanceof cc.Asset) {
+                uuid = url._uuid;
+            }
+            else {
+                uuid = Editor.urlToUuid(url);
+            }
+        }
         var capInsets = undefined;
         if (this.insetLeft !== 0 ||
             this.insetTop !== 0 ||
@@ -468,7 +481,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
         return {
             name: this._name,
-            texture: url && Editor.urlToUuid(url),
+            texture: uuid || undefined,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
             rect: [rect.x, rect.y, rect.width, rect.height],
             offset: [offset.x, offset.y],

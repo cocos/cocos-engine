@@ -53,9 +53,9 @@ var srcs = [
     "./cocos2d/core/layers/CCLayerWebGLRenderCmd.js",
 
     "./cocos2d/core/sprites/SpritesPropertyDefine.js",
-    "./cocos2d/core/sprites/CCSprite.js",
-    "./cocos2d/core/sprites/CCSpriteCanvasRenderCmd.js",
-    "./cocos2d/core/sprites/CCSpriteWebGLRenderCmd.js",
+    "./cocos2d/core/sprites/CCSGSprite.js",
+    "./cocos2d/core/sprites/CCSGSpriteCanvasRenderCmd.js",
+    "./cocos2d/core/sprites/CCSGSpriteWebGLRenderCmd.js",
     "./cocos2d/core/sprites/CCBakeSprite.js",
     "./cocos2d/core/sprites/CCAnimation.js",
     "./cocos2d/core/sprites/CCAnimationCache.js",

@@ -342,7 +342,7 @@ ccui.RichText = ccui.Widget.extend(/** @lends ccui.RichText# */{
                                 elementRenderer = new cc.LabelTTF(element._text, element._fontName, element._fontSize);
                             break;
                         case ccui.RichElement.IMAGE:
-                            elementRenderer = new cc.Sprite(element._filePath);
+                            elementRenderer = new _ccsg.Sprite(element._filePath);
                             break;
                         case ccui.RichElement.CUSTOM:
                             elementRenderer = element._customNode;
@@ -444,7 +444,7 @@ ccui.RichText = ccui.Widget.extend(/** @lends ccui.RichText# */{
     },
 
     _handleImageRenderer: function (filePath, color, opacity) {
-        var imageRenderer = new cc.Sprite(filePath);
+        var imageRenderer = new _ccsg.Sprite(filePath);
         this._handleCustomRenderer(imageRenderer);
     },
 

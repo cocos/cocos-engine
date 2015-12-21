@@ -75,7 +75,7 @@ cc.LoaderLayer = cc.Layer.extend({
         this._scaleFactor = !cc.LoaderLayer._useDefaultSource ? 1 : cc.winSize.width > cc.winSize.height ? cc.winSize.width / 720 : cc.winSize.width / 480;
 
         //background
-        this.backgroundSprite = new cc.Sprite(config.background.res);
+        this.backgroundSprite = new _ccsg.Sprite(config.background.res);
         this.addChild(this.backgroundSprite);
         this.backgroundSprite.x = 0, this.backgroundSprite.y = 0, this.backgroundSprite.anchorX = 0, this.backgroundSprite.anchorY = 0;
         if (cc.LoaderLayer._useDefaultSource) {
@@ -85,7 +85,7 @@ cc.LoaderLayer = cc.Layer.extend({
 
         //title
         if (config.title.show) {
-            this.titleSprite = new cc.Sprite(config.title.res);
+            this.titleSprite = new _ccsg.Sprite(config.title.res);
             var defaultTitlePosition = cc.pAdd(cc.visibleRect.center, cc.p(0, this._scaleFactor < 1 ? 0 : this._isLandScape ? -80 : 30));
             this.titleSprite.setPosition(config.title.position ? config.title.position : defaultTitlePosition);
             this._contentLayer.addChild(this.titleSprite);
@@ -96,7 +96,7 @@ cc.LoaderLayer = cc.Layer.extend({
 
         //logo
         if (config.logo.show) {
-            this.logoSprite = new cc.Sprite(config.logo.res);
+            this.logoSprite = new _ccsg.Sprite(config.logo.res);
             var defaultLogoPosition = cc.pAdd(cc.visibleRect.top, cc.p(0, this._scaleFactor < 1 ? 0 : -this.logoSprite.height / 2 - (this._isLandScape ? 56 : 76)));
             this.logoSprite.setPosition(config.logo.position ? config.logo.position : defaultLogoPosition);
             this._contentLayer.addChild(this.logoSprite);
@@ -107,13 +107,13 @@ cc.LoaderLayer = cc.Layer.extend({
 
         //progressbar
         if (config.progressBar.show) {
-            this.progressBarSprite = new cc.Sprite(config.progressBar.res);
+            this.progressBarSprite = new _ccsg.Sprite(config.progressBar.res);
             this._progressOriginalWidth = this.progressBarSprite.width;
-            this.progressBackgroundSprite = new cc.Sprite(config.progressBar.barBackgroundRes);
+            this.progressBackgroundSprite = new _ccsg.Sprite(config.progressBar.barBackgroundRes);
             this.progressBarSprite.anchorX = 0;
             this.progressBarSprite.anchorY = 0;
             if (cc.LoaderLayer._isDefaultProgress) {
-                this._barPoint = new cc.Sprite(config.progressBar.barPoint);
+                this._barPoint = new _ccsg.Sprite(config.progressBar.barPoint);
                 this.progressBarSprite.addChild(this._barPoint);
             }
             if (config.progressBar.barBackgroundRes == null) {

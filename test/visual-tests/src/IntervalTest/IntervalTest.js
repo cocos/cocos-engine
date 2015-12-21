@@ -87,7 +87,7 @@ var IntervalLayer = cc.LayerGradient.extend({
         this.addChild(this.label4);
 
         // Sprite
-        var sprite = new cc.Sprite(s_pathGrossini);
+        var sprite = new _ccsg.Sprite(s_pathGrossini);
         sprite.x = 40;
         sprite.y = 50;
 

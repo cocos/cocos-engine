@@ -48,7 +48,7 @@
     proto._reusedTileWithRect = function(rect){
         var node = this._node;
         if (!node._reusedTile) {
-            node._reusedTile = new cc.Sprite();
+            node._reusedTile = new _ccsg.Sprite();
             node._reusedTile.initWithTexture(node.texture, rect, false);
             node._reusedTile.batchNode = node;
         } else {

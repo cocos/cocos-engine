@@ -51,8 +51,8 @@ cc.AUTOREPEAT_INCREASETIME_INCREMENT = 12;
  * @property {Number}       maxValue    - The maximum value of the stepper control
  * @property {Number}       stepValue   - The interval value for each step of the stepper control
  * @property {Boolean}      continuous  - <@readonly> Indicate whether the stepper value is continuous
- * @property {cc.Sprite}    minusSprite - The sprite for minus button of the stepper control
- * @property {cc.Sprite}    plusSprite  - The sprite for plus button of the stepper control
+ * @property {_ccsg.Sprite}    minusSprite - The sprite for minus button of the stepper control
+ * @property {_ccsg.Sprite}    plusSprite  - The sprite for plus button of the stepper control
  * @property {cc.LabelTTF}  minusLabel  - The label for minus button of the stepper control
  * @property {cc.LabelTTF}  plusSLabel  - The label for plus button of the stepper control
  */
@@ -381,8 +381,8 @@ _p = null;
 
 /**
  * Creates a cc.ControlStepper
- * @param {cc.Sprite} minusSprite
- * @param {cc.Sprite} plusSprite
+ * @param {_ccsg.Sprite} minusSprite
+ * @param {_ccsg.Sprite} plusSprite
  * @returns {ControlStepper}
  */
 cc.ControlStepper.create = function (minusSprite, plusSprite) {

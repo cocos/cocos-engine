@@ -102,7 +102,7 @@ var TableViewTestLayer = cc.Layer.extend({
 
 
 
-            var sprite = new cc.Sprite(s_image_icon);
+            var sprite = new _ccsg.Sprite(s_image_icon);
             sprite.anchorX = 0;
             sprite.anchorY = 0;
             sprite.x = 0;

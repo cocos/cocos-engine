@@ -39,8 +39,8 @@
  *
  * @property {Number}       hue         - The hue value
  * @property {Number}       huePercent  - The hue value in percentage
- * @property {cc.Sprite}    background  - <@readonly> The background sprite
- * @property {cc.Sprite}    slider      - <@readonly> The slider sprite
+ * @property {_ccsg.Sprite}    background  - <@readonly> The background sprite
+ * @property {_ccsg.Sprite}    slider      - <@readonly> The slider sprite
  * @property {cc.Vec2}     startPos    - <@readonly> The start position of the picker
  */
 cc.ControlHuePicker = cc.Control.extend(/** @lends cc.ControlHuePicker# */{

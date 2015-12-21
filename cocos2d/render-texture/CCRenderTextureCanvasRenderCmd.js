@@ -58,7 +58,7 @@
         texture.initWithElement(locCacheCanvas);
         texture.handleLoadedTexture();
 
-        var locSprite = node.sprite = new cc.Sprite(texture);
+        var locSprite = node.sprite = new _ccsg.Sprite(texture);
         locSprite.setBlendFunc(cc.ONE, cc.ONE_MINUS_SRC_ALPHA);
         // Disabled by default.
         node.autoDraw = false;

@@ -153,7 +153,7 @@ var runCCPoolTest = function () {
     pScene.addChild(pLayer);
     cc.director.runScene(pScene);
 };
-var MySprite = cc.Sprite.extend({
+var MySprite = _ccsg.Sprite.extend({
     _hp: 0,
     _sp: 0,
     _mp: 0,

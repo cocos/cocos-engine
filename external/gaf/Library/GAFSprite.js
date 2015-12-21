@@ -21,7 +21,7 @@ gaf.Sprite = gaf.Object.extend
         cc.assert(frame instanceof cc.SpriteFrame, "Error. Wrong object type.");
 
         // Create sprite with custom render command from frame
-        this._sprite = new cc.Sprite();
+        this._sprite = new _ccsg.Sprite();
         this._sprite._renderCmd = this._gafCreateRenderCmd(this._sprite);
         this._sprite.initWithSpriteFrame(frame);
 

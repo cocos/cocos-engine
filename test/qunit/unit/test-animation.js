@@ -478,7 +478,8 @@ test('Animation Component', function () {
 
     animation.addClip(clip);
 
-    strictEqual(animation._clips.length, 1, 'should add 1 clip');
+    var clips = animation.getClips();
+    strictEqual(clips.length, 1, 'should add 1 clip');
 
     var state = animation.getAnimationState('test');
     strictEqual(state.clip, clip, 'should create state with clip');
@@ -496,7 +497,7 @@ test('Animation Component', function () {
     strictEqual(entity.x, 100, 'target property should equals value in frame 10s');
 
     animation.removeClip(clip);
-    strictEqual(animation._clips.length, 0, 'should remove clip');
+    strictEqual(clips.length, 0, 'should remove clip');
     strictEqual(animation.getAnimationState('test'), null, 'should remove state');
 });
 
@@ -543,8 +544,10 @@ test('CCAnimation._updateClip', function () {
 
     animation._updateClip(newClip);
 
-    strictEqual(animation._clips.length, 1, 'animation clips length should be 1 after update clip');
-    strictEqual(animation._clips[0], newClip, 'animation clips should only include new clip');
+    var clips = animation.getClips();
+
+    strictEqual(clips.length, 1, 'animation clips length should be 1 after update clip');
+    strictEqual(clips[0], newClip, 'animation clips should only include new clip');
     strictEqual(animation.getAnimationState(newClip.name).clip, newClip, 'new animation state\'s clip should be new clip');
 
     strictEqual(entity.x, 0, 'entity x should be 0');
@@ -554,7 +557,7 @@ test('CCAnimation._updateClip', function () {
     animation.addClip(clip);
 
     animation._updateClip(newClip);
-    strictEqual(animation._clips.indexOf(newClip), 0, 'clip index should be 0');
+    strictEqual(clips.indexOf(newClip), 0, 'clip index should be 0');
 
     newClip.wrapMode = cc.WrapMode.PingPong;
     var state = animation.getAnimationState(newClip.name);

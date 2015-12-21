@@ -25,14 +25,14 @@
 /**
  * cc.BakeSprite is a type of sprite that will be cached.
  * @class
- * @extends cc.Sprite
+ * @extends _ccsg.Sprite
  */
-cc.BakeSprite = cc.Sprite.extend(/** @lends cc.BakeSprite# */{
+cc.BakeSprite = _ccsg.Sprite.extend(/** @lends cc.BakeSprite# */{
     _cacheCanvas: null,
     _cacheContext: null,
 
     ctor: function(){
-        cc.Sprite.prototype.ctor.call(this);
+        _ccsg.Sprite.prototype.ctor.call(this);
         var canvasElement = document.createElement("canvas");
         canvasElement.width = canvasElement.height = 10;
         this._cacheCanvas = canvasElement;

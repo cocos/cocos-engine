@@ -90,7 +90,7 @@
 
     var componentsParser = {
         "CCSprite": function(node, component, resourcePath){
-            var child = new cc.Sprite();
+            var child = new _ccsg.Sprite();
             loadTexture(component["fileData"], resourcePath, function(path, type){
                 if(type === 0)
                     child.setTexture(path);

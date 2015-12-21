@@ -161,7 +161,7 @@ var RenderTextureSave = RenderTextureBaseLayer.extend({
                 var diffX = locLastLocation.x - location.x;
                 var diffY = locLastLocation.y - location.y;
                 var delta = i / distance;
-                var sprite = new cc.Sprite(s_fire);
+                var sprite = new _ccsg.Sprite(s_fire);
                 sprite.attr({
                     x: location.x + diffX * delta,
                     y: location.y + diffY * delta,
@@ -205,11 +205,11 @@ var RenderTextureIssue937 = RenderTextureBaseLayer.extend({
         var background = new cc.LayerColor(cc.color(200, 200, 200, 255));
         this.addChild(background);
 
-        var spr_premulti = new cc.Sprite(s_fire);
+        var spr_premulti = new _ccsg.Sprite(s_fire);
         spr_premulti.x = 16;
         spr_premulti.y = 48;
 
-        var spr_nonpremulti = new cc.Sprite(s_fire);
+        var spr_nonpremulti = new _ccsg.Sprite(s_fire);
         spr_nonpremulti.x = 16;
         spr_nonpremulti.y = 16;
 
@@ -294,15 +294,15 @@ var RenderTextureZbuffer = RenderTextureBaseLayer.extend({
         cc.spriteFrameCache.addSpriteFrames(s_circle_plist);
         this.mgr = new cc.SpriteBatchNode(s_circle_png, 9);
         this.addChild(this.mgr);
-        this.sp1 = new cc.Sprite("#circle.png");
-        this.sp2 = new cc.Sprite("#circle.png");
-        this.sp3 = new cc.Sprite("#circle.png");
-        this.sp4 = new cc.Sprite("#circle.png");
-        this.sp5 = new cc.Sprite("#circle.png");
-        this.sp6 = new cc.Sprite("#circle.png");
-        this.sp7 = new cc.Sprite("#circle.png");
-        this.sp8 = new cc.Sprite("#circle.png");
-        this.sp9 = new cc.Sprite("#circle.png");
+        this.sp1 = new _ccsg.Sprite("#circle.png");
+        this.sp2 = new _ccsg.Sprite("#circle.png");
+        this.sp3 = new _ccsg.Sprite("#circle.png");
+        this.sp4 = new _ccsg.Sprite("#circle.png");
+        this.sp5 = new _ccsg.Sprite("#circle.png");
+        this.sp6 = new _ccsg.Sprite("#circle.png");
+        this.sp7 = new _ccsg.Sprite("#circle.png");
+        this.sp8 = new _ccsg.Sprite("#circle.png");
+        this.sp9 = new _ccsg.Sprite("#circle.png");
 
         this.mgr.addChild(this.sp1, 9);
         this.mgr.addChild(this.sp2, 8);
@@ -408,7 +408,7 @@ var RenderTextureZbuffer = RenderTextureBaseLayer.extend({
         this.visit();
         texture.end();
 
-        var sprite = new cc.Sprite(texture.getSprite().texture);
+        var sprite = new _ccsg.Sprite(texture.getSprite().texture);
 
         sprite.x = winSize.width/2;
         sprite.y = winSize.width/2;
@@ -429,7 +429,7 @@ var RenderTextureTestDepthStencil = RenderTextureBaseLayer.extend({
         this._super();
         var winSize = cc.director.getWinSize();
 
-        this._spriteDraw = new cc.Sprite(s_fire);
+        this._spriteDraw = new _ccsg.Sprite(s_fire);
         this._spriteDraw.x = winSize.width * 0.25;
         this._spriteDraw.y = 0;
         this._spriteDraw.scale = 10;
@@ -511,14 +511,14 @@ var RenderTextureTargetNode = RenderTextureBaseLayer.extend({
         this._winSize = winSize;
 
         // sprite 1
-        var sprite1 = new cc.Sprite(s_fire);
+        var sprite1 = new _ccsg.Sprite(s_fire);
         sprite1.x = winSize.width;
         sprite1.y = winSize.height;
         this._sprite1 = sprite1;
 
         // sprite 2
         //todo Images/fire_rgba8888.pvr
-        var sprite2 = new cc.Sprite(s_fire);
+        var sprite2 = new _ccsg.Sprite(s_fire);
         sprite2.x = winSize.width;
         sprite2.y = winSize.height;
         this._sprite2 = sprite2;
@@ -599,7 +599,7 @@ var Issue1464 = RenderTextureBaseLayer.extend({
     ctor:function() {
         this._super();
 
-        var sprite = new cc.Sprite(s_grossini);
+        var sprite = new _ccsg.Sprite(s_grossini);
 
         // create a render texture
         var rend = new cc.RenderTexture( winSize.width/2, winSize.height/2 );

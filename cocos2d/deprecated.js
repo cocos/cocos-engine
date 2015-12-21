@@ -500,7 +500,29 @@ if (CC_DEV) {
         'addComponent',
         'removeComponent',
         'removeAllComponents',
-        'enumerateChildren'
+        'enumerateChildren',
+        'setCameraMask',
+        'getCameraMask'
     ], '_ccsg.Node');
 
+    js.obsoletes(cc.Scale9Sprite.prototype, 'cc.Scale9Sprite', {
+        setPreferredSize: 'setContentSize',
+        getPreferredSize: 'getContentSize',
+    });
+
+    markAsRemoved(cc.Scale9Sprite, [
+        'init',
+        'resizableSpriteWithCapInsets',
+        'updateWithSprite',
+        'getOriginalSize',
+        'setCapInsets',
+        'getCapInsets',
+        'setScale9Enabled',
+        'isScale9Enabled',
+        'getSprite',
+        'setFlippedX',
+        'isFlippedX',
+        'setFlippedY',
+        'isFlippedY'
+    ]);
 }

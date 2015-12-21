@@ -56,6 +56,7 @@ var SpriteRenderer = cc.Class({
         _atlas: {
             default: '',
             type: cc.SpriteAtlas,
+            tooltip: 'i18n:COMPONENT.sprite.atlas',
             editorOnly: true,
             visible: true
         },
@@ -84,7 +85,8 @@ var SpriteRenderer = cc.Class({
                     this._sgNode.setOpacity(this.node._opacity);
                 }
             },
-            type: cc.SpriteFrame
+            type: cc.SpriteFrame,
+            tooltip: 'i18n:COMPONENT.sprite.sprite_frame',
         },
 
         /**
@@ -102,7 +104,8 @@ var SpriteRenderer = cc.Class({
                 // manual settings inset top, bttom, right, left.
                 this._applyCapInset();
             },
-            type: SpriteType
+            type: SpriteType,
+            tooltip: 'i18n:COMPONENT.sprite.type',
         },
 
         useOriginalSize: {
@@ -114,7 +117,8 @@ var SpriteRenderer = cc.Class({
                 if (value) {
                     this._applySpriteSize();
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.sprite.original_size',
         },
 
         /**
@@ -128,7 +132,7 @@ var SpriteRenderer = cc.Class({
                 }
                 return cc.size(sgNode.width, sgNode.height);
             },
-            visible: false
+            visible: false,
         }
     },
 

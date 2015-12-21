@@ -890,7 +890,7 @@ var ShaderOutlineEffect = OpenGLTestLayer.extend({
                 this.shader.setUniformLocationWith3f(this.shader.getUniformLocationForName('u_outlineColor'), 0 / 255, 255 / 255, 0 / 255);
             }
 
-            this.sprite = new cc.Sprite('Images/grossini.png');
+            this.sprite = new _ccsg.Sprite('Images/grossini.png');
             this.sprite.attr({
                 x: winSize.width / 2,
                 y: winSize.height / 2
@@ -1019,7 +1019,7 @@ var GLGetActiveTest = OpenGLTestLayer.extend({
         this._super();
 
         if( 'opengl' in cc.sys.capabilities ) {
-            var sprite = this.sprite = new cc.Sprite("Images/grossini.png");
+            var sprite = this.sprite = new _ccsg.Sprite("Images/grossini.png");
             sprite.x = winSize.width/2;
             sprite.y = winSize.height/2;
             this.addChild( sprite );

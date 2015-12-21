@@ -26,7 +26,7 @@
 var PADDLE_STATE_GRABBED = 0;
 var PADDLE_STATE_UNGRABBED = 1;
 
-var Paddle = cc.Sprite.extend({
+var Paddle = _ccsg.Sprite.extend({
     _state:PADDLE_STATE_UNGRABBED,
     _rect:null,
 

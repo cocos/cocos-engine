@@ -1,7 +1,7 @@
 
 (function(){
     gaf.Sprite.WebGLRenderCmd = function (renderable) {
-        cc.Sprite.WebGLRenderCmd.call(this, renderable);
+        _ccsg.Sprite.WebGLRenderCmd.call(this, renderable);
         this._defualtShader = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
         this._customShader = gaf._Shaders.Alpha;
 
@@ -13,7 +13,7 @@
         this._ctxMatrixAppendix = null;
     };
 
-    var proto = gaf.Sprite.WebGLRenderCmd.prototype = Object.create(cc.Sprite.WebGLRenderCmd.prototype);
+    var proto = gaf.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Sprite.WebGLRenderCmd.prototype);
     proto.constructor = gaf.Sprite.WebGLRenderCmd;
 
     proto._identityVec = [1.0, 1.0, 1.0, 1.0];
@@ -126,7 +126,7 @@
         this._setUniforms();
 
         // Super call
-        cc.Sprite.WebGLRenderCmd.prototype.rendering.call(this, ctx);
+        _ccsg.Sprite.WebGLRenderCmd.prototype.rendering.call(this, ctx);
     };
 
 })();

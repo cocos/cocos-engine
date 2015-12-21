@@ -87,7 +87,7 @@ var CrashTest = ActionManagerTest.extend({
         //----start0----onEnter
         this._super();
 
-        var child = new cc.Sprite(s_pathGrossini);
+        var child = new _ccsg.Sprite(s_pathGrossini);
         child.x = 200;
         child.y = 200;
         this.addChild(child, 1);
@@ -138,7 +138,7 @@ var LogicTest = ActionManagerTest.extend({
         //----start1----onEnter
         this._super();
 
-        var grossini = new cc.Sprite(s_pathGrossini);
+        var grossini = new _ccsg.Sprite(s_pathGrossini);
         this.addChild(grossini, 0, 2);
         grossini.x = 200;
 	    grossini.y = 200;
@@ -204,7 +204,7 @@ var PauseTest = ActionManagerTest.extend({
         //
         // Also, this test MUST be done, after [super onEnter]
         //
-        var grossini = new cc.Sprite(s_pathGrossini);
+        var grossini = new _ccsg.Sprite(s_pathGrossini);
         this.addChild(grossini, 0, TAG_GROSSINI);
         grossini.x = 200;
 	    grossini.y = 200;
@@ -279,7 +279,7 @@ var RemoveTest = ActionManagerTest.extend({
         var sequence = cc.sequence(move, callback);
         sequence.tag = TAG_SEQUENCE;
 
-        var child = new cc.Sprite(s_pathGrossini);
+        var child = new _ccsg.Sprite(s_pathGrossini);
         child.x = 200;
 	    child.y = 200;
 
@@ -326,7 +326,7 @@ var ResumeTest = ActionManagerTest.extend({
         l.x = s.width / 2;
 	    l.y = 245;
 
-        var grossini = new cc.Sprite(s_pathGrossini);
+        var grossini = new _ccsg.Sprite(s_pathGrossini);
         this._grossini = grossini;
         this.addChild(grossini, 0, TAG_GROSSINI);
         grossini.x = s.width / 2;

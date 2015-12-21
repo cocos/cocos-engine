@@ -75,16 +75,16 @@ var TouchableSpriteTest =  EventDispatcherTestDemo.extend({
         var size = director.getVisibleSize();
 
         var containerForSprite1 = new _ccsg.Node();
-        var sprite1 = new cc.Sprite("Images/CyanSquare.png");
+        var sprite1 = new _ccsg.Sprite("Images/CyanSquare.png");
         sprite1.setPosition(origin.x + size.width/2 - 80, origin.y + size.height/2 + 80);
         containerForSprite1.addChild(sprite1);
         this.addChild(containerForSprite1, 10);
 
-        var sprite2 = new cc.Sprite("Images/MagentaSquare.png");
+        var sprite2 = new _ccsg.Sprite("Images/MagentaSquare.png");
         sprite2.setPosition(origin.x + size.width/2, origin.y + size.height/2);
         this.addChild(sprite2, 20);
 
-        var sprite3 = new cc.Sprite("Images/YellowSquare.png");
+        var sprite3 = new _ccsg.Sprite("Images/YellowSquare.png");
         sprite3.setPosition(0,0);
         sprite2.addChild(sprite3, 1);
 
@@ -174,7 +174,7 @@ TouchableSpriteTest.create = function(){
     return test;
 };
 
-var TouchableSprite = cc.Sprite.extend({
+var TouchableSprite = _ccsg.Sprite.extend({
     _listener:null,
     _fixedPriority:0,
     _removeListenerOnTouchEnded: false,
@@ -296,7 +296,7 @@ var RemoveListenerWhenDispatching =  EventDispatcherTestDemo.extend({
         var origin = director.getVisibleOrigin();
         var size = director.getVisibleSize();
 
-        var sprite1 = new cc.Sprite("Images/CyanSquare.png");
+        var sprite1 = new _ccsg.Sprite("Images/CyanSquare.png");
         sprite1.setPosition(origin.x + size.width/2, origin.y + size.height/2);
         this.addChild(sprite1, 10);
 
@@ -516,7 +516,7 @@ var SpriteAccelerationEventTest =  EventDispatcherTestDemo.extend({
 
         cc.inputManager.setAccelerometerEnabled(true);
 
-        var sprite = new cc.Sprite("Images/ball.png");
+        var sprite = new _ccsg.Sprite("Images/ball.png");
         sprite.setPosition(origin.x + size.width/2, origin.y + size.height/2);
         this.addChild(sprite);
 
@@ -580,7 +580,7 @@ var RemoveAndRetainNodeTest =  EventDispatcherTestDemo.extend({
         var origin = director.getVisibleOrigin();
         var size = director.getVisibleSize();
 
-        this._sprite = new cc.Sprite("Images/CyanSquare.png");
+        this._sprite = new _ccsg.Sprite("Images/CyanSquare.png");
         this._sprite.setPosition(origin.x + size.width/2, origin.y + size.height/2);
         this.addChild(this._sprite, 10);
 
@@ -878,11 +878,11 @@ var GlobalZTouchTest = EventDispatcherTestDemo.extend({
         var SPRITE_COUNT = 8, sprite;
         for (var i = 0; i < SPRITE_COUNT; i++) {
             if(i==4) {
-                sprite = new cc.Sprite("Images/CyanSquare.png");
+                sprite = new _ccsg.Sprite("Images/CyanSquare.png");
                 this._sprite = sprite;
                 this._sprite.setGlobalZOrder(-1);
             } else
-                sprite = new cc.Sprite("Images/YellowSquare.png");
+                sprite = new _ccsg.Sprite("Images/YellowSquare.png");
 
             cc.eventManager.addListener(listener.clone(), sprite);
             this.addChild(sprite);
@@ -998,17 +998,17 @@ var StopPropagationTest = EventDispatcherTestDemo.extend({
 
         for (var i = 0; i < SPRITE_COUNT; i++) {
             if(i==4) {
-                sprite1 = new cc.Sprite("Images/CyanSquare.png");
+                sprite1 = new _ccsg.Sprite("Images/CyanSquare.png");
                 sprite1.setTag(StopPropagationTest._TAG_BLUE_SPRITE);
                 this.addChild(sprite1, 100);
 
-                sprite2 = new cc.Sprite("Images/CyanSquare.png");
+                sprite2 = new _ccsg.Sprite("Images/CyanSquare.png");
                 sprite2.setTag(StopPropagationTest._TAG_BLUE_SPRITE2);
                 this.addChild(sprite2, 100);
             } else {
-                sprite1 = new cc.Sprite("Images/YellowSquare.png");
+                sprite1 = new _ccsg.Sprite("Images/YellowSquare.png");
                 this.addChild(sprite1, 0);
-                sprite2 = new cc.Sprite("Images/YellowSquare.png");
+                sprite2 = new _ccsg.Sprite("Images/YellowSquare.png");
                 this.addChild(sprite2, 0);
             }
 

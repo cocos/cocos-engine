@@ -99,7 +99,7 @@ var BakeLayerTest1 = BakeLayerBaseTest.extend({
         rootLayer.addChild(bakeLayer);
 
         for(var i = 0; i < 9; i++){
-            var sprite1 = new cc.Sprite(s_pathGrossini);
+            var sprite1 = new _ccsg.Sprite(s_pathGrossini);
             if (i % 2 === 0) {
                 sprite1.setPosition(90 + i * 80, winSize.height / 2 - 50);
             } else {
@@ -166,7 +166,7 @@ var BakeLayerColorTest = BakeLayerBaseTest.extend({
         rootLayer.addChild(bakeLayer);
 
         for(var i = 0; i < 9; i++){
-            var sprite1 = new cc.Sprite(s_pathGrossini);
+            var sprite1 = new _ccsg.Sprite(s_pathGrossini);
             if (i % 2 === 0) {
                 sprite1.setPosition(20 + i * 80, 100);
             } else {

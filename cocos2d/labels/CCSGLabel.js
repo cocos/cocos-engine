@@ -555,7 +555,7 @@ cc.BMFontHelper = {
                     var locTexture = this._spriteBatchNode._renderCmd._texture || this._spriteBatchNode.textureAtlas.texture;
 
                     if (!fontChar) {
-                        fontChar = new cc.Sprite();
+                        fontChar = new _ccsg.Sprite();
                         fontChar.initWithTexture(locTexture);
                         fontChar.setAnchorPoint(cc.p(0, 1));
                     }

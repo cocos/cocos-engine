@@ -27,11 +27,11 @@
  */
 (function(){
     cc.PhysicsSprite.WebGLRenderCmd = function(renderableObject){
-        cc.Sprite.WebGLRenderCmd.call(this, renderableObject);
+        _ccsg.Sprite.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
     };
 
-    var proto = cc.PhysicsSprite.WebGLRenderCmd.prototype = Object.create(cc.Sprite.WebGLRenderCmd.prototype);
+    var proto = cc.PhysicsSprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Sprite.WebGLRenderCmd.prototype);
     proto.constructor = cc.PhysicsSprite.WebGLRenderCmd;
 
     proto.rendering = function(ctx){
@@ -44,7 +44,7 @@
             node._syncRotation();
         this.transform(this.getParentRenderCmd(), true);
 
-        cc.Sprite.WebGLRenderCmd.prototype.rendering.call(this, ctx);
+        _ccsg.Sprite.WebGLRenderCmd.prototype.rendering.call(this, ctx);
     };
 
     proto.getNodeToParentTransform = function(){
@@ -87,6 +87,6 @@
             var cmd = node._renderCmd;
             cmd && cmd.setDirtyRecursively(true);
         }
-        cc.Sprite.WebGLRenderCmd.prototype.updateTransform.call(this);
+        _ccsg.Sprite.WebGLRenderCmd.prototype.updateTransform.call(this);
     };
 })();

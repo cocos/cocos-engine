@@ -37,7 +37,7 @@
  * @property {Number}           minValue        - The minimum value of the potentionmeter
  * @property {Number}           maxValue        - The maximum value of the potentionmeter
  * @property {cc.ProgressTimer} progressTimer   - The progress timer of the potentionmeter
- * @property {cc.Sprite}        thumbSprite     - The thumb sprite of the potentionmeter
+ * @property {_ccsg.Sprite}        thumbSprite     - The thumb sprite of the potentionmeter
  * @property {cc.Vec2}         prevLocation    - The previous location of the potentionmeter
  */
 cc.ControlPotentiometer = cc.Control.extend(/** @lends cc.ControlPotentiometer# */{
@@ -58,22 +58,22 @@ cc.ControlPotentiometer = cc.Control.extend(/** @lends cc.ControlPotentiometer# 
         cc.Control.prototype.ctor.call(this);
         if (thumbFile != undefined) {
             // Prepare track for potentiometer
-            var backgroundSprite = new cc.Sprite(backgroundFile);
+            var backgroundSprite = new _ccsg.Sprite(backgroundFile);
 
             // Prepare thumb for potentiometer
-            var thumbSprite = new cc.Sprite(thumbFile);
+            var thumbSprite = new _ccsg.Sprite(thumbFile);
 
             // Prepare progress for potentiometer
-            var progressTimer = new cc.ProgressTimer(new cc.Sprite(progressFile));
+            var progressTimer = new cc.ProgressTimer(new _ccsg.Sprite(progressFile));
             this.initWithTrackSprite_ProgressTimer_ThumbSprite(backgroundSprite, progressTimer, thumbSprite);
         }
     },
 
     /**
      *
-     * @param {cc.Sprite} trackSprite
+     * @param {_ccsg.Sprite} trackSprite
      * @param {cc.ProgressTimer}  progressTimer
-     * @param {cc.Sprite}  thumbSprite
+     * @param {_ccsg.Sprite}  thumbSprite
      * @return {Boolean}
      */
     initWithTrackSprite_ProgressTimer_ThumbSprite:function (trackSprite, progressTimer, thumbSprite) {

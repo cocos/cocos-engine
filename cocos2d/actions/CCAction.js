@@ -478,12 +478,12 @@ cc.Speed.create = cc.speed;
  * @param {cc.Rect} rect
  * @example
  * // creates the action with a set boundary
- * var sprite = new cc.Sprite("spriteFileName");
+ * var sprite = new _ccsg.Sprite("spriteFileName");
  * var followAction = new cc.Follow(sprite, cc.rect(0, 0, s.width * 2 - 100, s.height));
  * this.runAction(followAction);
  *
  * // creates the action with no boundary set
- * var sprite = new cc.Sprite("spriteFileName");
+ * var sprite = new _ccsg.Sprite("spriteFileName");
  * var followAction = new cc.Follow(sprite);
  * this.runAction(followAction);
  *
@@ -668,12 +668,12 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
  * @example
  * // example
  * // creates the action with a set boundary
- * var sprite = new cc.Sprite("spriteFileName");
+ * var sprite = new _ccsg.Sprite("spriteFileName");
  * var followAction = cc.follow(sprite, cc.rect(0, 0, s.width * 2 - 100, s.height));
  * this.runAction(followAction);
  *
  * // creates the action with no boundary set
- * var sprite = new cc.Sprite("spriteFileName");
+ * var sprite = new _ccsg.Sprite("spriteFileName");
  * var followAction = cc.follow(sprite);
  * this.runAction(followAction);
  */

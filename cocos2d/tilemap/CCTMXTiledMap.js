@@ -54,9 +54,9 @@ cc.TMX_ORIENTATION_ISO = 2;
  * It also supports object groups, objects, and properties.</p>
  *
  * <p>Features: <br />
- * - Each tile will be treated as an cc.Sprite<br />
+ * - Each tile will be treated as an _ccsg.Sprite<br />
  * - The sprites are created on demand. They will be created only when you call "layer.getTileAt(position)" <br />
- * - Each tile can be rotated / moved / scaled / tinted / "opacitied", since each tile is a cc.Sprite<br />
+ * - Each tile can be rotated / moved / scaled / tinted / "opacitied", since each tile is a _ccsg.Sprite<br />
  * - Tiles can be added/removed in runtime<br />
  * - The z-order of the tiles can be modified in runtime<br />
  * - Each tile has an anchorPoint of (0,0) <br />
