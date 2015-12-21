@@ -443,22 +443,22 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
 
 (function(){
     cc.LabelTTF.CacheCanvasRenderCmd = function (renderable) {
-        cc.Sprite.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Sprite.CanvasRenderCmd.call(this, renderable);
         cc.LabelTTF.CacheRenderCmd.call(this);
     };
 
-    var proto = cc.LabelTTF.CacheCanvasRenderCmd.prototype = Object.create(cc.Sprite.CanvasRenderCmd.prototype);
+    var proto = cc.LabelTTF.CacheCanvasRenderCmd.prototype = Object.create(_ccsg.Sprite.CanvasRenderCmd.prototype);
     cc.js.mixin(proto, cc.LabelTTF.CacheRenderCmd.prototype);
     proto.constructor = cc.LabelTTF.CacheCanvasRenderCmd;
 })();
 
 (function(){
     cc.LabelTTF.CanvasRenderCmd = function (renderable) {
-        cc.Sprite.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Sprite.CanvasRenderCmd.call(this, renderable);
         cc.LabelTTF.RenderCmd.call(this);
     };
 
-    cc.LabelTTF.CanvasRenderCmd.prototype = Object.create(cc.Sprite.CanvasRenderCmd.prototype);
+    cc.LabelTTF.CanvasRenderCmd.prototype = Object.create(_ccsg.Sprite.CanvasRenderCmd.prototype);
     cc.js.mixin(cc.LabelTTF.CanvasRenderCmd.prototype, cc.LabelTTF.RenderCmd.prototype);
 
     var proto = cc.LabelTTF.CanvasRenderCmd.prototype;

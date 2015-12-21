@@ -48,11 +48,11 @@
     };
 
     ccs.Skin.CanvasRenderCmd = function(renderable){
-        cc.Sprite.CanvasRenderCmd.call(this, renderable);
+        _ccsg.Sprite.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
     };
 
-    var proto = ccs.Skin.CanvasRenderCmd.prototype = Object.create(cc.Sprite.CanvasRenderCmd.prototype);
+    var proto = ccs.Skin.CanvasRenderCmd.prototype = Object.create(_ccsg.Sprite.CanvasRenderCmd.prototype);
     cc.js.mixin(proto, ccs.Skin.RenderCmd);
     proto.constructor = ccs.Skin.CanvasRenderCmd;
 })();

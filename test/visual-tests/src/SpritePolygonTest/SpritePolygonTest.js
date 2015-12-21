@@ -112,7 +112,7 @@ var SpritePolygonTestScene = _ccsg.Scene.extend({
 
 var SpritePolygonTest1 = SpritePolygonTestDemo.extend({
     _title:"PolygonSprite Creation",
-    _subtitle:"new cc.Sprite(jsb.AutoPolygon.generatePolygon(filename))",
+    _subtitle:"new _ccsg.Sprite(jsb.AutoPolygon.generatePolygon(filename))",
 
     ctor:function () {
         this._super();
@@ -120,11 +120,11 @@ var SpritePolygonTest1 = SpritePolygonTestDemo.extend({
     },
     make2Sprites: function() {
         var polygons = jsb.AutoPolygon.generatePolygon(s_pathGrossini);
-        this._spp = new cc.Sprite(polygons);
+        this._spp = new _ccsg.Sprite(polygons);
         this._spp.setPosition((0.5+0.15) * winSize.width, 0.5 * winSize.height);
         this.addChild(this._spp);
 
-        this._sp = new cc.Sprite(s_pathGrossini);
+        this._sp = new _ccsg.Sprite(s_pathGrossini);
         this.addChild(this._sp);
         this._sp.setPosition((0.5-0.15) * winSize.width, 0.5 * winSize.height);
 
@@ -152,7 +152,7 @@ var SpritePolygonTest1 = SpritePolygonTestDemo.extend({
 
 var SpritePolygonTest2 = SpritePolygonTestDemo.extend({
     _title:"PolygonSprite Creation with a rect",
-    _subtitle:"new cc.Sprite(jsb.AutoPolygon.generatePolygon(filename, rect))",
+    _subtitle:"new _ccsg.Sprite(jsb.AutoPolygon.generatePolygon(filename, rect))",
 
     ctor:function(){
         this._super();
@@ -161,11 +161,11 @@ var SpritePolygonTest2 = SpritePolygonTestDemo.extend({
     make2Sprites: function() {
         var head = cc.rect(30, 25, 25, 25);
         var polygons = jsb.AutoPolygon.generatePolygon(s_pathGrossini, head);
-        this._spp = new cc.Sprite(polygons);
+        this._spp = new _ccsg.Sprite(polygons);
         this._spp.setPosition((0.5+0.15) * winSize.width, 0.5 * winSize.height);
         this.addChild(this._spp);
 
-        this._sp = new cc.Sprite(s_pathGrossini, head);
+        this._sp = new _ccsg.Sprite(s_pathGrossini, head);
         this.addChild(this._sp);
         this._sp.setPosition((0.5-0.15) * winSize.width, 0.5 * winSize.height);
 
@@ -233,11 +233,11 @@ var SpritePolygonTestSlider = SpritePolygonTestDemo.extend({
         }
     },
     makeSprite: function (filename, x, y) {
-        var sp = new cc.Sprite(filename);
+        var sp = new _ccsg.Sprite(filename);
         var quadSize = sp.getContentSize();
         var originalSize = quadSize.width * quadSize.height;
         var polygons = jsb.AutoPolygon.generatePolygon(filename);
-        var ret = new cc.Sprite(polygons);
+        var ret = new _ccsg.Sprite(polygons);
         ret.setPosition(x, y);
         
         var pixels = polygons.getArea()/originalSize*100;
@@ -433,7 +433,7 @@ var SpritePolygonPerformanceTestDynamic = SpritePolygonPerformance.extend({
         this._incPix = this._polygons.getArea();
     },
     makeSprite: function () {
-        var ret = new cc.Sprite(this._polygons);
+        var ret = new _ccsg.Sprite(this._polygons);
         ret.runAction(cc.rotateBy(1,360).repeatForever());
         return ret;
     }
@@ -447,13 +447,13 @@ var SpritePerformanceTestDynamic = SpritePolygonPerformance.extend({
         this.initIncrementStats();
     },
     initIncrementStats: function () {
-        var t = new cc.Sprite(s_pathGrossini);
+        var t = new _ccsg.Sprite(s_pathGrossini);
         this._incVert = 4;
         this._incTri = 2;
         this._incPix = t.width * t.height;
     },
     makeSprite: function () {
-        var ret = new cc.Sprite(s_pathGrossini);
+        var ret = new _ccsg.Sprite(s_pathGrossini);
         ret.runAction(cc.rotateBy(1,360).repeatForever());
         return ret;
     }

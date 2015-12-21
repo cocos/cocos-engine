@@ -188,7 +188,7 @@
             }
 
             if(!sprite){
-                sprite = new cc.Sprite();
+                sprite = new _ccsg.Sprite();
                 cc.log("filePath is empty. Create a sprite with no texture");
             }
         }else{

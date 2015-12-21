@@ -396,8 +396,8 @@ var LayerTestBlend = LayerTest.extend({
         this._super();
         var layer1 = new cc.LayerColor(cc.color(255, 255, 255, 80));
 
-        var sister1 = new cc.Sprite(s_pathSister1);
-        var sister2 = new cc.Sprite(s_pathSister2);
+        var sister1 = new _ccsg.Sprite(s_pathSister1);
+        var sister2 = new _ccsg.Sprite(s_pathSister2);
 
         this.addChild(sister1);
         this.addChild(sister2);

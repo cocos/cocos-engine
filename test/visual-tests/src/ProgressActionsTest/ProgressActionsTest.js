@@ -71,14 +71,14 @@ var SpriteProgressToRadial = SpriteDemo.extend({
         var to1 = cc.progressFromTo(2, 0, 100);
         var to2 = cc.progressFromTo(2, 0, 100);
 
-        var left = new cc.ProgressTimer(new cc.Sprite(s_pathSister1));
+        var left = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister1));
         left.type = cc.ProgressTimer.Type.RADIAL;
         this.addChild(left);
         left.x = 200;
         left.y = winSize.height / 2;
         left.runAction(to1.repeatForever());
 
-        var right = new cc.ProgressTimer(new cc.Sprite(s_pathBlock));
+        var right = new cc.ProgressTimer(new _ccsg.Sprite(s_pathBlock));
         right.type = cc.ProgressTimer.Type.RADIAL;
         right.setReverseDirection(true);
         this.addChild(right);
@@ -101,7 +101,7 @@ var SpriteProgressToHorizontal = SpriteDemo.extend({
         var to1 = cc.sequence(cc.progressTo(2, 100), cc.progressTo(0, 0));
         var to2 = cc.sequence(cc.progressTo(2, 100), cc.progressTo(0, 0));
 
-        var left = new cc.ProgressTimer(new cc.Sprite(s_pathSister1));
+        var left = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister1));
         left.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the left since the midpoint is 0 for the x
         left.midPoint = cc.p(0, 0);
@@ -112,7 +112,7 @@ var SpriteProgressToHorizontal = SpriteDemo.extend({
         left.y = winSize.height / 2;
         left.runAction(to1.repeatForever());
 
-        var right = new cc.ProgressTimer(new cc.Sprite(s_pathSister2));
+        var right = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister2));
         right.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the left since the midpoint is 1 for the x
         right.midPoint = cc.p(1, 0);
@@ -137,7 +137,7 @@ var SpriteProgressToVertical = SpriteDemo.extend({
         var to1 = cc.sequence(cc.progressTo(2, 100), cc.progressTo(0, 0));
         var to2 = cc.sequence(cc.progressTo(2, 100), cc.progressTo(0, 0));
 
-        var left = new cc.ProgressTimer(new cc.Sprite(s_pathSister1));
+        var left = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister1));
         left.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         left.midPoint = cc.p(0, 0);
@@ -148,7 +148,7 @@ var SpriteProgressToVertical = SpriteDemo.extend({
         left.y = winSize.height / 2;
         left.runAction(to1.repeatForever());
 
-        var right = new cc.ProgressTimer(new cc.Sprite(s_pathSister2));
+        var right = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister2));
         right.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         right.midPoint = cc.p(0, 1);
@@ -175,7 +175,7 @@ var SpriteProgressToRadialMidpointChanged = SpriteDemo.extend({
         /**
          *  Our image on the left should be a radial progress indicator, clockwise
          */
-        var left = new cc.ProgressTimer(new cc.Sprite(s_pathBlock));
+        var left = new cc.ProgressTimer(new _ccsg.Sprite(s_pathBlock));
         left.type = cc.ProgressTimer.Type.RADIAL;
         this.addChild(left);
         left.midPoint = cc.p(0.25, 0.75);
@@ -186,7 +186,7 @@ var SpriteProgressToRadialMidpointChanged = SpriteDemo.extend({
         /**
          *  Our image on the left should be a radial progress indicator, counter clockwise
          */
-        var right = new cc.ProgressTimer(new cc.Sprite(s_pathBlock));
+        var right = new cc.ProgressTimer(new _ccsg.Sprite(s_pathBlock));
         right.type = cc.ProgressTimer.Type.RADIAL;
         right.midPoint = cc.p(0.75, 0.25);
         /**
@@ -212,7 +212,7 @@ var SpriteProgressBarVarious = SpriteDemo.extend({
 
         var to = cc.progressFromTo(2, 0, 100);
 
-        var left = new cc.ProgressTimer(new cc.Sprite(s_pathSister1));
+        var left = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister1));
         left.type = cc.ProgressTimer.Type.BAR;
 
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
@@ -224,7 +224,7 @@ var SpriteProgressBarVarious = SpriteDemo.extend({
         left.y = winSize.height / 2;
         left.runAction(to.clone().repeatForever());
 
-        var middle = new cc.ProgressTimer(new cc.Sprite(s_pathSister2));
+        var middle = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister2));
         middle.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         middle.midPoint = cc.p(0.5, 0.5);
@@ -235,7 +235,7 @@ var SpriteProgressBarVarious = SpriteDemo.extend({
         middle.y = winSize.height / 2;
         middle.runAction(to.clone().repeatForever());
 
-        var right = new cc.ProgressTimer(new cc.Sprite(s_pathSister2));
+        var right = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister2));
         right.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         right.midPoint = cc.p(0.5, 0.5);
@@ -267,7 +267,7 @@ var SpriteProgressBarTintAndFade = SpriteDemo.extend({
 
         var fade = cc.sequence(cc.fadeTo(1.0, 0), cc.fadeTo(1.0, 255));
 
-        var left = new cc.ProgressTimer(new cc.Sprite(s_pathSister1));
+        var left = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister1));
         left.type = cc.ProgressTimer.Type.BAR;
 
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
@@ -282,7 +282,7 @@ var SpriteProgressBarTintAndFade = SpriteDemo.extend({
 
         left.addChild(new cc.LabelTTF("Tint", "Marker Felt", 20.0));
 
-        var middle = new cc.ProgressTimer(new cc.Sprite(s_pathSister2));
+        var middle = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister2));
         middle.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         middle.midPoint = cc.p(0.5, 0.5);
@@ -296,7 +296,7 @@ var SpriteProgressBarTintAndFade = SpriteDemo.extend({
 
         middle.addChild(new cc.LabelTTF("Fade", "Marker Felt", 20.0));
 
-        var right = new cc.ProgressTimer(new cc.Sprite(s_pathSister2));
+        var right = new cc.ProgressTimer(new _ccsg.Sprite(s_pathSister2));
         right.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         right.midPoint = cc.p(0.5, 0.5);
@@ -327,7 +327,7 @@ var SpriteProgressWithSpriteFrame = SpriteDemo.extend({
 
         cc.spriteFrameCache.addSpriteFrames(s_grossiniPlist);
 
-        var left = new cc.ProgressTimer(new cc.Sprite("#grossini_dance_01.png"));
+        var left = new cc.ProgressTimer(new _ccsg.Sprite("#grossini_dance_01.png"));
         left.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         left.midpoint = cc.p(0.5, 0.5);
@@ -338,7 +338,7 @@ var SpriteProgressWithSpriteFrame = SpriteDemo.extend({
         left.y = winSize.height / 2;
         left.runAction(to.clone().repeatForever());
 
-        var middle = new cc.ProgressTimer(new cc.Sprite("#grossini_dance_02.png"));
+        var middle = new cc.ProgressTimer(new _ccsg.Sprite("#grossini_dance_02.png"));
         middle.type = cc.ProgressTimer.Type.BAR;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         middle.midpoint = cc.p(0.5, 0.5);
@@ -349,7 +349,7 @@ var SpriteProgressWithSpriteFrame = SpriteDemo.extend({
         middle.y = winSize.height / 2;
         middle.runAction(to.clone().repeatForever());
 
-        var right = new cc.ProgressTimer(new cc.Sprite("#grossini_dance_03.png"));
+        var right = new cc.ProgressTimer(new _ccsg.Sprite("#grossini_dance_03.png"));
         right.type = cc.ProgressTimer.Type.RADIAL;
         //    Setup for a bar starting from the bottom since the midpoint is 0 for the y
         right.midPoint = cc.p(0.5, 0.5);

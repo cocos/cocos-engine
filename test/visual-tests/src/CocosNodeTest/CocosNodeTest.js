@@ -103,10 +103,10 @@ var CCNodeTest2 = TestNodeDemo.extend({
         //----start0----onEnter
         this._super();
 
-        var sp1 = new cc.Sprite(s_pathSister1);
-        var sp2 = new cc.Sprite(s_pathSister2);
-        var sp3 = new cc.Sprite(s_pathSister1);
-        var sp4 = new cc.Sprite(s_pathSister2);
+        var sp1 = new _ccsg.Sprite(s_pathSister1);
+        var sp2 = new _ccsg.Sprite(s_pathSister2);
+        var sp3 = new _ccsg.Sprite(s_pathSister1);
+        var sp4 = new _ccsg.Sprite(s_pathSister2);
 
         sp1.x = winSize.width / 4;
         sp1.y = winSize.height / 2;
@@ -163,8 +163,8 @@ var CCNodeTest4 = TestNodeDemo.extend({
     ctor:function () {
         //----start1----ctor
         this._super();
-        var sp1 = new cc.Sprite(s_pathSister1);
-        var sp2 = new cc.Sprite(s_pathSister2);
+        var sp1 = new _ccsg.Sprite(s_pathSister1);
+        var sp2 = new _ccsg.Sprite(s_pathSister2);
         sp1.x = 150;
         sp1.y = winSize.height / 2;
         sp2.x = winSize.width - 150;
@@ -213,8 +213,8 @@ var CCNodeTest5 = TestNodeDemo.extend({
     ctor:function () {
         //----start2----ctor
         this._super();
-        var sp1 = new cc.Sprite(s_pathSister1);
-        var sp2 = new cc.Sprite(s_pathSister2);
+        var sp1 = new _ccsg.Sprite(s_pathSister1);
+        var sp2 = new _ccsg.Sprite(s_pathSister2);
         sp1.x = 150;
         sp1.y = winSize.height / 2;
         sp2.x = winSize.width - 150;
@@ -288,11 +288,11 @@ var CCNodeTest6 = TestNodeDemo.extend({
     ctor:function () {
         //----start3----ctor
         this._super();
-        var sp1 = new cc.Sprite(s_pathSister1);
-        var sp11 = new cc.Sprite(s_pathSister1);
+        var sp1 = new _ccsg.Sprite(s_pathSister1);
+        var sp11 = new _ccsg.Sprite(s_pathSister1);
 
-        var sp2 = new cc.Sprite(s_pathSister2);
-        var sp21 = new cc.Sprite(s_pathSister2);
+        var sp2 = new _ccsg.Sprite(s_pathSister2);
+        var sp21 = new _ccsg.Sprite(s_pathSister2);
 
         sp1.x = 150;
         sp1.y = winSize.height / 2;
@@ -367,7 +367,7 @@ var StressTest1 = TestNodeDemo.extend({
         //----start4----ctor
         this._super();
 
-        var sp1 = new cc.Sprite(s_pathSister1);
+        var sp1 = new _ccsg.Sprite(s_pathSister1);
         this.addChild(sp1, 0, TAG_SPRITE1);
         this.width = 0
 	    this.height = 0;
@@ -434,7 +434,7 @@ var StressTest2 = TestNodeDemo.extend({
 
         var sublayer = new cc.Layer();
 
-        var sp1 = new cc.Sprite(s_pathSister1);
+        var sp1 = new _ccsg.Sprite(s_pathSister1);
         sp1.x = 80;
         sp1.y = winSize.height / 2;
 
@@ -479,7 +479,7 @@ var NodeToWorld = TestNodeDemo.extend({
         //  - It tests different anchor Points
         //  - It tests different children anchor points
         this._super();
-        var back = new cc.Sprite(s_back3);
+        var back = new _ccsg.Sprite(s_back3);
         this.addChild(back, 5);
         back.anchorX = 0;
         back.anchorY = 0;
@@ -562,10 +562,10 @@ var ConvertToNode = TestNodeDemo.extend({
         var rotate = cc.rotateBy(10, 360);
         var action = rotate.repeatForever();
         for (var i = 0; i < 3; i++) {
-            var sprite = new cc.Sprite(s_pathGrossini);
+            var sprite = new _ccsg.Sprite(s_pathGrossini);
             sprite.x = winSize.width / 4 * (i + 1);
             sprite.y = winSize.height / 2;
-            var point = new cc.Sprite(s_pathR1);
+            var point = new _ccsg.Sprite(s_pathR1);
             point.scale = 0.25;
 	        point.x = sprite.x;
 	        point.y = sprite.y;
@@ -653,7 +653,7 @@ var BoundingBoxTest = TestNodeDemo.extend({
     ctor:function () {
         //----start8----ctor
         this._super();
-        var sprite = new cc.Sprite(s_pathGrossini);
+        var sprite = new _ccsg.Sprite(s_pathGrossini);
         this.addChild(sprite);
         sprite.x = winSize.width / 2;
         sprite.y = winSize.height / 2;
@@ -739,7 +739,7 @@ var NodeOpaqueTest = TestNodeDemo.extend({
         var winSize = cc.director.getWinSize();
         var background;
         for (var i = 0; i < 50; i++) {
-            background = new cc.Sprite(s_back1);
+            background = new _ccsg.Sprite(s_back1);
             background.setBlendFunc(cc.ONE, cc.ONE_MINUS_SRC_ALPHA);
             background.x = winSize.width / 2;
             background.y = winSize.height / 2;
@@ -764,7 +764,7 @@ var NodeNonOpaqueTest = TestNodeDemo.extend({
         var winSize = cc.director.getWinSize();
         var background;
         for (var i = 0; i < 50; i++) {
-            background = new cc.Sprite(s_back1);
+            background = new _ccsg.Sprite(s_back1);
             background.setBlendFunc(cc.ONE, cc.ZERO);
             background.x = winSize.width / 2;
             background.y = winSize.height / 2;

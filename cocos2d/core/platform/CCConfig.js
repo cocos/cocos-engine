@@ -45,7 +45,7 @@ window["CocosEngine"] = cc.ENGINE_VERSION = "Cocos2d-JS v3.9 Beta";
  *  The "correct" way to prevent artifacts is by using the spritesheet-artifact-fixer.py or a similar tool.<br/>
  *                                                                                  <br/>
  *  Affected nodes:                                                                 <br/>
- *      - cc.Sprite / cc.SpriteBatchNode and subclasses: cc.LabelBMFont, cc.TMXTiledMap <br/>
+ *      - _ccsg.Sprite / cc.SpriteBatchNode and subclasses: cc.LabelBMFont, cc.TMXTiledMap <br/>
  *      - cc.LabelAtlas                                                              <br/>
  *      - cc.QuadParticleSystem                                                      <br/>
  *      - cc.TileMap                                                                 <br/>
@@ -82,7 +82,7 @@ cc.DIRECTOR_FPS_INTERVAL = 0.5;
 
 /**
  * <p>
- *    If enabled, the ccsg.Node objects (cc.Sprite, _ccsg.Label,etc) will be able to render in subpixels.<br/>
+ *    If enabled, the ccsg.Node objects (_ccsg.Sprite, _ccsg.Label,etc) will be able to render in subpixels.<br/>
  *    If disabled, integer pixels will be used.<br/>
  *    <br/>
  *    To enable set it to 1. Enabled by default.<br/>
@@ -95,7 +95,7 @@ cc.COCOSNODE_RENDER_SUBPIXEL = 1;
 
 /**
  * <p>
- *   If enabled, the cc.Sprite objects rendered with cc.SpriteBatchNode will be able to render in subpixels.<br/>
+ *   If enabled, the _ccsg.Sprite objects rendered with cc.SpriteBatchNode will be able to render in subpixels.<br/>
  *   If disabled, integer pixels will be used.<br/>
  *   <br/>
  *   To enable set it to 1. Enabled by default.<br/>
@@ -220,7 +220,7 @@ cc.USE_LA88_LABELS = 1;
 
 /**
  * <p>
- *   If enabled, all subclasses of cc.Sprite will draw a bounding box<br/>
+ *   If enabled, all subclasses of _ccsg.Sprite will draw a bounding box<br/>
  *   Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
  *   <br/>
  *   To enable set it to a value different than 0. Disabled by default:<br/>
@@ -235,7 +235,7 @@ cc.SPRITE_DEBUG_DRAW = 0;
 
 /**
  * <p>
- *    If enabled, all subclasses of cc.Sprite that are rendered using an cc.SpriteBatchNode draw a bounding box.<br/>
+ *    If enabled, all subclasses of _ccsg.Sprite that are rendered using an cc.SpriteBatchNode draw a bounding box.<br/>
  *    Useful for debugging purposes only. It is recommend to leave it disabled.<br/>
  *    <br/>
  *    To enable set it to a value different than 0. Disabled by default.

@@ -26,12 +26,12 @@
 
 /**
  * <p>cc.LabelTTF is a subclass of cc.TextureNode that knows how to render text labels with system font or a ttf font file<br/>
- * All features from cc.Sprite are valid in cc.LabelTTF<br/>
+ * All features from _ccsg.Sprite are valid in cc.LabelTTF<br/>
  * cc.LabelTTF objects are slow for js-binding on mobile devices.<br/>
  * Consider using cc.LabelAtlas or cc.LabelBMFont instead.<br/>
  * You can create a cc.LabelTTF from a font name, alignment, dimension and font size or a cc.FontDefinition object.</p>
  * @class
- * @extends cc.Sprite
+ * @extends _ccsg.Sprite
  *
  * @param {String} text
  * @param {String|cc.FontDefinition} [fontName="Arial"]
@@ -63,7 +63,7 @@
  * @property {Number}       shadowOpacity   - The opacity of shadow
  * @property {Number}       shadowBlur      - The blur size of shadow
  */
-cc.LabelTTF = cc.Sprite.extend(/** @lends cc.LabelTTF# */{
+cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
     _dimensions: null,
     _hAlignment: cc.TextAlignment.CENTER,
     _vAlignment: cc.VerticalTextAlignment.TOP,
@@ -144,7 +144,7 @@ cc.LabelTTF = cc.Sprite.extend(/** @lends cc.LabelTTF# */{
     },
 
     ctor: function (text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
-        cc.Sprite.prototype.ctor.call(this);
+        _ccsg.Sprite.prototype.ctor.call(this);
 
         this._dimensions = cc.size(0, 0);
         this._hAlignment = cc.TextAlignment.LEFT;
@@ -720,23 +720,23 @@ cc.LabelTTF = cc.Sprite.extend(/** @lends cc.LabelTTF# */{
     getContentSize: function () {
         if (this._needUpdateTexture)
             this._renderCmd._updateTTF();
-        return cc.Sprite.prototype.getContentSize.call(this);
+        return _ccsg.Sprite.prototype.getContentSize.call(this);
     },
 
     _getWidth: function () {
         if (this._needUpdateTexture)
             this._renderCmd._updateTTF();
-        return cc.Sprite.prototype._getWidth.call(this);
+        return _ccsg.Sprite.prototype._getWidth.call(this);
     },
     _getHeight: function () {
         if (this._needUpdateTexture)
             this._renderCmd._updateTTF();
-        return cc.Sprite.prototype._getHeight.call(this);
+        return _ccsg.Sprite.prototype._getHeight.call(this);
     },
 
     setTextureRect: function (rect, rotated, untrimmedSize) {
         //set needConvert to false
-        cc.Sprite.prototype.setTextureRect.call(this, rect, rotated, untrimmedSize, false);
+        _ccsg.Sprite.prototype.setTextureRect.call(this, rect, rotated, untrimmedSize, false);
     },
 
     /**

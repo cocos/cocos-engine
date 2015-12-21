@@ -23,7 +23,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var Ball = cc.Sprite.extend({
+var Ball = _ccsg.Sprite.extend({
     _velocity:cc.p(0,0),
     _radius:0,
     radius:function () {

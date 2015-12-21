@@ -37,7 +37,7 @@
     proto.checkAtlasCapacity = function(){};
 
     proto.isValidChild = function(child){
-        if (!(child instanceof cc.Sprite)) {
+        if (!(child instanceof _ccsg.Sprite)) {
             cc.log(cc._LogInfos.Sprite.addChild_4);
             return false;
         }

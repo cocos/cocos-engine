@@ -131,7 +131,7 @@
         if (!node._clippingStencil || !node._clippingStencil.isVisible())
             return;
 
-        this._clipElemType = node._stencil instanceof cc.Sprite;
+        this._clipElemType = node._stencil instanceof _ccsg.Sprite;
         this._syncStatus(parentCmd);
 
         cc.renderer.pushRenderCommand(this._rendererSaveCmd);

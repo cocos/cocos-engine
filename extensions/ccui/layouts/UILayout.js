@@ -585,7 +585,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
             this._backGroundImage = new ccui.Scale9Sprite();
             this._backGroundImage.setPreferredSize(contentSize);
         } else
-            this._backGroundImage = new cc.Sprite();
+            this._backGroundImage = new _ccsg.Sprite();
         this.addProtectedChild(this._backGroundImage, ccui.Layout.BACKGROUND_IMAGE_ZORDER, -1);
         this._backGroundImage.setPosition(contentSize.width * 0.5, contentSize.height * 0.5);
     },

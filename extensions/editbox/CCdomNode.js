@@ -416,11 +416,11 @@ cc.DOM.methods = /** @lends cc.DOM# */{
         if (this.isSprite) {
             var tmp = this._children;
             this._children = [];
-            cc.Sprite.prototype.visit.call(this, this.ctx);
+            _ccsg.Sprite.prototype.visit.call(this, this.ctx);
             this._children = tmp;
         }
         else {
-            cc.Sprite.prototype.visit.call(this, this.ctx);
+            _ccsg.Sprite.prototype.visit.call(this, this.ctx);
         }
     }
 };
@@ -552,11 +552,11 @@ cc.DOM.setTransform = function (x) {
         if (x.isSprite) {
             var tmp = x._children;
             x._children = [];
-            cc.Sprite.prototype.visit.call(x);
+            _ccsg.Sprite.prototype.visit.call(x);
             x._children = tmp;
         }
         else {
-            cc.Sprite.prototype.visit.call(x);
+            _ccsg.Sprite.prototype.visit.call(x);
         }
     }
     if (x.dom) {
@@ -616,10 +616,10 @@ cc.DOM.placeHolder = function (x) {
 };
 
 /**
- * Converts cc.Sprite or cc.MenuItem to DOM elements <br/>
- * It currently only supports cc.Sprite and cc.MenuItem
+ * Converts _ccsg.Sprite or cc.MenuItem to DOM elements <br/>
+ * It currently only supports _ccsg.Sprite and cc.MenuItem
  * @function
- * @param {cc.Sprite|cc.MenuItem|Array} nodeObject
+ * @param {_ccsg.Sprite|cc.MenuItem|Array} nodeObject
  * @example
  * // example
  * cc.DOM.convert(Sprite1, Sprite2, Menuitem);
@@ -639,7 +639,7 @@ cc.DOM.convert = function (nodeObject) {
     var args = arguments[0];
     for (var i = 0; i < args.length; i++) {
         //first check if its sprite
-        if (args[i] instanceof cc.Sprite) {
+        if (args[i] instanceof _ccsg.Sprite) {
             // create a canvas
             if (!args[i].dom)
                 cc.DOM.forSprite(args[i]);

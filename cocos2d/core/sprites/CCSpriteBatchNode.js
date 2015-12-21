@@ -33,7 +33,7 @@
  *     If the cc.Sprites are not added to a cc.SpriteBatchNode then an WebGL draw call will be needed for each one, which is less efficient. <br/>
  *     <br/>
  *     Limitations:<br/>
- *       - The only object that is accepted as child (or grandchild, grand-grandchild, etc...) is cc.Sprite or any subclass of cc.Sprite. <br/>
+ *       - The only object that is accepted as child (or grandchild, grand-grandchild, etc...) is _ccsg.Sprite or any subclass of _ccsg.Sprite. <br/>
  *          eg: particles, labels and layer can't be added to a cc.SpriteBatchNode. <br/>
  *       - Either all its children are Aliased or Antialiased. It can't be a mix. <br/>
  *          This is because "alias" is a property of the texture, and all the sprites share the same texture. </br>
@@ -83,7 +83,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
      *    This is the opposite of "addQuadFromSprite.<br/>
      *    It add the sprite to the children and descendants array, but it doesn't update add it to the texture atlas<br/>
      * </p>
-     * @param {cc.Sprite} child
+     * @param {_ccsg.Sprite} child
      * @param {Number} z zOrder
      * @param {Number} aTag
      * @return {cc.SpriteBatchNode}
@@ -91,7 +91,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     addSpriteWithoutQuad: function (child, z, aTag) {
         cc.assert(child, cc._LogInfos.SpriteBatchNode.addSpriteWithoutQuad_2);
 
-        if (!(child instanceof cc.Sprite)) {
+        if (!(child instanceof _ccsg.Sprite)) {
             cc.log(cc._LogInfos.SpriteBatchNode.addSpriteWithoutQuad);
             return null;
         }
@@ -203,7 +203,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     /**
      * Rebuild index in order for child
-     * @param {cc.Sprite} pobParent
+     * @param {_ccsg.Sprite} pobParent
      * @param {Number} index
      * @return {Number}
      */
@@ -233,7 +233,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     /**
      * Returns highest atlas index in child
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      * @return {Number}
      */
     highestAtlasIndexInChild: function (sprite) {
@@ -247,7 +247,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     /**
      * Returns lowest atlas index in child
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      * @return {Number}
      */
     lowestAtlasIndexInChild: function (sprite) {
@@ -260,7 +260,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     /**
      * Returns atlas index for child
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      * @param {Number} nZ
      * @return {Number}
      */
@@ -282,8 +282,8 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
             return this.highestAtlasIndexInChild(previous) + 1;
         }
 
-        // parent is a cc.Sprite, so, it must be taken into account
-        // first child of an cc.Sprite ?
+        // parent is a _ccsg.Sprite, so, it must be taken into account
+        // first child of an _ccsg.Sprite ?
         if (childIndex === 0) {
             // less than parent and brothers
             if (nZ < 0)
@@ -331,7 +331,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     /**
      * Reorder children (override reorderChild of ccsg.Node)
      * @override
-     * @param {cc.Sprite} child
+     * @param {_ccsg.Sprite} child
      * @param {Number} zOrder
      */
     reorderChild: function (child, zOrder) {
@@ -350,7 +350,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     /**
      * Removes a child from cc.SpriteBatchNode (override removeChild of ccsg.Node)
-     * @param {cc.Sprite} child
+     * @param {_ccsg.Sprite} child
      * @param {Boolean} cleanup
      */
     removeChild: function (child, cleanup) {
@@ -370,16 +370,16 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     /**
      * <p>
      *   Updates a quad at a certain index into the texture atlas. The CCSprite won't be added into the children array.                 <br/>
-     *   This method should be called only when you are dealing with very big AtlasSrite and when most of the cc.Sprite won't be updated.<br/>
+     *   This method should be called only when you are dealing with very big AtlasSrite and when most of the _ccsg.Sprite won't be updated.<br/>
      *   For example: a tile map (cc.TMXMap) or a label with lots of characters (BitmapFontAtlas)<br/>
      * </p>
      * @function
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      * @param {Number} index
      */
     updateQuadFromSprite: function (sprite, index) {
         cc.assert(sprite, cc._LogInfos.SpriteBatchNode.updateQuadFromSprite_2);
-        if (!(sprite instanceof cc.Sprite)) {
+        if (!(sprite instanceof _ccsg.Sprite)) {
             cc.log(cc._LogInfos.SpriteBatchNode.updateQuadFromSprite);
             return;
         }
@@ -397,17 +397,17 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     /**
      * <p>
-     *    Inserts a quad at a certain index into the texture atlas. The cc.Sprite won't be added into the children array.                    <br/>
-     *    This method should be called only when you are dealing with very big AtlasSprite and when most of the cc.Sprite won't be updated.  <br/>
+     *    Inserts a quad at a certain index into the texture atlas. The _ccsg.Sprite won't be added into the children array.                    <br/>
+     *    This method should be called only when you are dealing with very big AtlasSprite and when most of the _ccsg.Sprite won't be updated.  <br/>
      *    For example: a tile map (cc.TMXMap) or a label with lots of characters (cc.LabelBMFont)
      * </p>
      * @function
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      * @param {Number} index
      */
     insertQuadFromSprite: function (sprite, index) {
         cc.assert(sprite, cc._LogInfos.SpriteBatchNode.insertQuadFromSprite_2);
-        if (!(sprite instanceof cc.Sprite)) {
+        if (!(sprite instanceof _ccsg.Sprite)) {
             cc.log(cc._LogInfos.SpriteBatchNode.insertQuadFromSprite);
             return;
         }
@@ -448,7 +448,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
 
     /**
      * Insert a child
-     * @param {cc.Sprite} sprite The child sprite
+     * @param {_ccsg.Sprite} sprite The child sprite
      * @param {Number} index The insert index
      */
     insertChild: function (sprite, index) {
@@ -483,7 +483,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     /**
      * Add child at the end, faster than insert child
      * @function
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      */
     appendChild: function (sprite) {
         this._reorderChildDirty = true;
@@ -505,7 +505,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     /**
      * Removes sprite from TextureAtlas
      * @function
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      */
     removeSpriteFromAtlas: function (sprite) {
         this._renderCmd.removeQuadAtIndex(sprite.atlasIndex);
@@ -555,7 +555,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
      * Add child to the sprite batch node (override addChild of ccsg.Node)
      * @function
      * @override
-     * @param {cc.Sprite} child
+     * @param {_ccsg.Sprite} child
      * @param {Number} [zOrder]
      * @param {Number} [tag]
      */

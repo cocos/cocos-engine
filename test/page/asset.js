@@ -13,7 +13,7 @@ describe( 'test asset', function () {
             assert( node );
             assert( node.texture );
             expect( node.texture.url ).equal( _assetUrls[0].url );
-            expect( node instanceof cc.Sprite );
+            expect( node instanceof _ccsg.Sprite );
 
             done();
         });

@@ -69,7 +69,7 @@ ccui.LoadingBar = ccui.Widget.extend(/** @lends ccui.LoadingBar# */{
 
     _initRenderer: function () {
         //todo use Scale9Sprite
-        this._barRenderer = new cc.Sprite();
+        this._barRenderer = new _ccsg.Sprite();
         this.addProtectedChild(this._barRenderer, ccui.LoadingBar.RENDERER_ZORDER, -1);
         this._barRenderer.setAnchorPoint(0.0, 0.5);
     },
@@ -177,7 +177,7 @@ ccui.LoadingBar = ccui.Widget.extend(/** @lends ccui.LoadingBar# */{
         this._scale9Enabled = enabled;
         this.removeProtectedChild(this._barRenderer);
 
-        this._barRenderer = this._scale9Enabled ? new ccui.Scale9Sprite() : new cc.Sprite();
+        this._barRenderer = this._scale9Enabled ? new ccui.Scale9Sprite() : new _ccsg.Sprite();
 
         this.loadTexture(this._textureFile, this._renderBarTexType);
         this.addProtectedChild(this._barRenderer, ccui.LoadingBar.RENDERER_ZORDER, -1);

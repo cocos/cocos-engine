@@ -180,10 +180,10 @@
      * Sprite
      * @param json
      * @param resourcePath
-     * @returns {cc.Sprite}
+     * @returns {_ccsg.Sprite}
      */
     parser.initSprite = function(json, resourcePath){
-        var node =  new cc.Sprite();
+        var node =  new _ccsg.Sprite();
 
         loadTexture(json["FileData"], resourcePath, function(path, type){
             if(type === 0)

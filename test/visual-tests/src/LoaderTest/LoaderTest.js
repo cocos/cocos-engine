@@ -43,7 +43,7 @@ var LoaderTestLayer = BaseTestLayer.extend({
             }
             cc.log(s_helloWorld + "--->");
             cc.log(results[0]);
-            var bg = new cc.Sprite(s_helloWorld);
+            var bg = new _ccsg.Sprite(s_helloWorld);
             self.addChild(bg);
             bg.x = winSize.width/2;
             bg.y = winSize.height/2;
@@ -60,7 +60,7 @@ var LoaderTestLayer = BaseTestLayer.extend({
         //     cc.log(s_Cowboy_png + "--->");
         //     cc.log(results[1]);
         //     cc.spriteFrameCache.addSpriteFrames(s_Cowboy_plist);
-        //     var frame = new cc.Sprite("#testAnimationResource/1.png");
+        //     var frame = new _ccsg.Sprite("#testAnimationResource/1.png");
         //     self.addChild(frame);
         //     frame.x = winSize.width/4;
         //     frame.y = winSize.height/4;
@@ -76,7 +76,7 @@ var LoaderTestLayer = BaseTestLayer.extend({
         }
 
         cc.loader.loadAliases(str, function(){
-            var sprite = new cc.Sprite("grossini.bmp");
+            var sprite = new _ccsg.Sprite("grossini.bmp");
             self.addChild( sprite );
             sprite.x = winSize.width/2;
             sprite.y = winSize.height/2;

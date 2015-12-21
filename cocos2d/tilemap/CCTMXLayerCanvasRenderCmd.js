@@ -210,7 +210,7 @@
 
     proto._reusedTileWithRect = function(rect){
         var node = this._node;
-        node._reusedTile = new cc.Sprite();
+        node._reusedTile = new _ccsg.Sprite();
         node._reusedTile.initWithTexture(this._texture, rect, false);
         node._reusedTile.batchNode = node;
         node._reusedTile.parent = node;

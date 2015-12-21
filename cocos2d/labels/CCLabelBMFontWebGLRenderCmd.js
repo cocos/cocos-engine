@@ -61,7 +61,7 @@
         var locTexture = node.textureAtlas.texture;
         node._opacityModifyRGB = locTexture.hasPremultipliedAlpha();
 
-        var reusedChar = node._reusedChar = new cc.Sprite();
+        var reusedChar = node._reusedChar = new _ccsg.Sprite();
         reusedChar.initWithTexture(locTexture, cc.rect(0, 0, 0, 0), false);
         reusedChar.batchNode = node;
     };

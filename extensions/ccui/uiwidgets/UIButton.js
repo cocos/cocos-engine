@@ -126,9 +126,9 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
 
     _initRenderer: function () {
         //todo create Scale9Sprite
-        this._buttonNormalRenderer = new cc.Sprite();
-        this._buttonClickedRenderer = new cc.Sprite();
-        this._buttonDisableRenderer = new cc.Sprite();
+        this._buttonNormalRenderer = new _ccsg.Sprite();
+        this._buttonClickedRenderer = new _ccsg.Sprite();
+        this._buttonDisableRenderer = new _ccsg.Sprite();
         this._titleRenderer = new cc.LabelTTF("");
         this._titleRenderer.setAnchorPoint(0.5, 0.5);
 
@@ -159,9 +159,9 @@ ccui.Button = ccui.Widget.extend(/** @lends ccui.Button# */{
             this._buttonClickedRenderer = new ccui.Scale9Sprite();
             this._buttonDisableRenderer = new ccui.Scale9Sprite();
         } else {
-            this._buttonNormalRenderer = new cc.Sprite();
-            this._buttonClickedRenderer = new cc.Sprite();
-            this._buttonDisableRenderer = new cc.Sprite();
+            this._buttonNormalRenderer = new _ccsg.Sprite();
+            this._buttonClickedRenderer = new _ccsg.Sprite();
+            this._buttonDisableRenderer = new _ccsg.Sprite();
         }
 
         this._buttonClickedRenderer.setVisible(false);

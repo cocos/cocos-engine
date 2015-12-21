@@ -59,9 +59,9 @@ var EaseSpriteDemo = BaseTestLayer.extend({
         this._super();
 
         // Or you can create an sprite using a filename. PNG and BMP files are supported. Probably TIFF too
-        this._grossini = new cc.Sprite(s_pathGrossini);
-        this._tamara = new cc.Sprite(s_pathSister1);
-        this._kathia = new cc.Sprite(s_pathSister2);
+        this._grossini = new _ccsg.Sprite(s_pathGrossini);
+        this._tamara = new _ccsg.Sprite(s_pathSister1);
+        this._kathia = new _ccsg.Sprite(s_pathSister2);
 
         this.addChild(this._grossini, 3);
         this.addChild(this._kathia, 2);

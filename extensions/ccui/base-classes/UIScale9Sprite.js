@@ -153,7 +153,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
             throw new Error("ccui.Scale9Sprite.initWithFile(): file should be non-null");
         }
 
-        var sprite = cc.Sprite.create(file,rect);
+        var sprite = _ccsg.Sprite.create(file,rect);
 
         this.init(sprite, rect, capInsets);
     },
@@ -181,7 +181,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
         if(capInsets!== undefined) this._derivedCapInsets = capInsets;
         this._textureLoaded = false;
         var _onTextureLoadedCallback = function () {
-            var sprite = cc.Sprite.createWithSpriteFrame(spriteFrame);
+            var sprite = _ccsg.Sprite.createWithSpriteFrame(spriteFrame);
             this._onScale9ResourcesLoaded(sprite,spriteFrame.isRotated(),spriteFrame.getRect(),spriteFrame.getOriginalSize());
         };
 
@@ -405,7 +405,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend(/** @lends ccui.Scale9Sp
      * @param capInsets The values to use for the cap insets.
      */
     setSpriteFrame : function(spriteFrame, capInsets){
-        var sprite = cc.Sprite.createWithTexture(spriteFrame.getTexture());
+        var sprite = _ccsg.Sprite.createWithTexture(spriteFrame.getTexture());
         this.updateWithSprite(sprite,
             spriteFrame.getRect(),
             spriteFrame.isRotated(),
@@ -1090,7 +1090,7 @@ _p = null;
  * Creates a 9-slice sprite with a texture file, a delimitation zone and
  * with the specified cap insets.
  * @deprecated since v3.0, please use new ccui.Scale9Sprite(file, rect, capInsets) instead.
- * @param {String|cc.SpriteFrame} file file name of texture or a cc.Sprite object
+ * @param {String|cc.SpriteFrame} file file name of texture or a _ccsg.Sprite object
  * @param {cc.Rect} rect the rect of the texture
  * @param {cc.Rect} capInsets the cap insets of ccui.Scale9Sprite
  * @returns {ccui.Scale9Sprite}

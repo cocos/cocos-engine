@@ -67,7 +67,7 @@
          *
          */
         ctor:function(fileName, rect){
-            cc.Sprite.prototype.ctor.call(this);
+            _ccsg.Sprite.prototype.ctor.call(this);
 
             if (fileName === undefined) {
                 cc.PhysicsSprite.prototype.init.call(this);
@@ -95,7 +95,7 @@
         },
 
         //visit: function(){
-        //    cc.Sprite.prototype.visit.call(this);
+        //    _ccsg.Sprite.prototype.visit.call(this);
         //    cc.rendererCanvas.pushRenderCommand(this._transformCmd);
         //},
 
@@ -238,7 +238,7 @@
          *
          */
         ctor:function(fileName, rect){
-            cc.Sprite.prototype.ctor.call(this);
+            _ccsg.Sprite.prototype.ctor.call(this);
 
             if (fileName === undefined) {
                 cc.PhysicsSprite.prototype.init.call(this);
@@ -267,7 +267,7 @@
 
         visit: function(){
             cc.renderer.pushRenderCommand(this._renderCmd);
-            cc.Sprite.prototype.visit.call(this);
+            _ccsg.Sprite.prototype.visit.call(this);
         },
 
         /**
@@ -348,7 +348,7 @@
         _syncPosition:function () {
             var locPosition = this._position, locBody = this._body;
             if (locPosition.x !== locBody.p.x || locPosition.y !== locBody.p.y) {
-                cc.Sprite.prototype.setPosition.call(this, locBody.p.x, locBody.p.y);
+                _ccsg.Sprite.prototype.setPosition.call(this, locBody.p.x, locBody.p.y);
             }
         },
 
@@ -366,7 +366,7 @@
          */
         setRotation:function (r) {
             if (this._ignoreBodyRotation) {
-                cc.Sprite.prototype.setRotation.call(this, r);
+                _ccsg.Sprite.prototype.setRotation.call(this, r);
             } else {
                 this._body.a = -cc.degreesToRadians(r);
                 //this._syncRotation();
@@ -374,7 +374,7 @@
         },
         _syncRotation:function () {
             if (this._rotationX !== -cc.radiansToDegrees(this._body.a)) {
-                cc.Sprite.prototype.setRotation.call(this, -cc.radiansToDegrees(this._body.a));
+                _ccsg.Sprite.prototype.setRotation.call(this, -cc.radiansToDegrees(this._body.a));
             }
         },
 
@@ -410,7 +410,7 @@
                 return new cc.PhysicsSprite.WebGLRenderCmd(this);
         }
     };
-    cc.PhysicsSprite = cc.Sprite.extend(chipmunkAPI);
+    cc.PhysicsSprite = _ccsg.Sprite.extend(chipmunkAPI);
     cc.PhysicsSprite._className = "PhysicsSprite";
     var _p = cc.PhysicsSprite.prototype;
     // Extended properties

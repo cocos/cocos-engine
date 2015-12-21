@@ -43,7 +43,7 @@
  * @property {cc.Vec2}     barChangeRate   - This allows the bar type to move the component at a specific rate.
  * @property {cc.ProgressTimer.Type} type   - Type of the progress timer.
  * @property {Number}       percentage      - Percentage to change progress, from 0 to 100.
- * @property {cc.Sprite}    sprite          - The sprite to show the progress percentage.
+ * @property {_ccsg.Sprite}    sprite          - The sprite to show the progress percentage.
  * @property {Boolean}      reverseDir      - Indicate whether the direction is reversed.
  *
  */
@@ -60,7 +60,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     /**
      * constructor of cc.ProgressTimer
      * @function
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      */
     ctor: function(sprite){
         _ccsg.Node.prototype.ctor.call(this);
@@ -134,7 +134,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
 
     /**
      * The image to show the progress percentage, retain
-     * @return {cc.Sprite}
+     * @return {_ccsg.Sprite}
      */
     getSprite:function () {
         return this._sprite;
@@ -221,7 +221,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     /**
      * set sprite for cc.ProgressTimer
      * @function
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      */
     setSprite: function(sprite){
         if (this._sprite !== sprite) {
@@ -261,7 +261,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     /**
      * Initializes a progress timer with the sprite as the shape the timer goes through
      * @function
-     * @param {cc.Sprite} sprite
+     * @param {_ccsg.Sprite} sprite
      * @return {Boolean}
      */
     initWithSprite: function(sprite){
@@ -311,7 +311,7 @@ cc.defineGetterSetter(_p, "reverseDir", _p.isReverseDirection, _p.setReverseDire
 /**
  * create a progress timer object with image file name that renders the inner sprite according to the percentage
  * @deprecated since v3.0,please use new cc.ProgressTimer(sprite) instead.
- * @param {cc.Sprite} sprite
+ * @param {_ccsg.Sprite} sprite
  * @return {cc.ProgressTimer}
  */
 cc.ProgressTimer.create = function (sprite) {

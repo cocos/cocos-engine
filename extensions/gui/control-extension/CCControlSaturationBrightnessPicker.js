@@ -39,10 +39,10 @@
  *
  * @property {Number}       saturation  - <@readonly> Saturation value of the picker
  * @property {Number}       brightness  - <@readonly> Brightness value of the picker
- * @property {cc.Sprite}    background  - <@readonly> The background sprite
- * @property {cc.Sprite}    overlay     - <@readonly> The overlay sprite
- * @property {cc.Sprite}    shadow      - <@readonly> The shadow sprite
- * @property {cc.Sprite}    slider      - <@readonly> The slider sprite
+ * @property {_ccsg.Sprite}    background  - <@readonly> The background sprite
+ * @property {_ccsg.Sprite}    overlay     - <@readonly> The overlay sprite
+ * @property {_ccsg.Sprite}    shadow      - <@readonly> The shadow sprite
+ * @property {_ccsg.Sprite}    slider      - <@readonly> The slider sprite
  * @property {cc.Vec2}     startPos    - <@readonly> The start position of the picker
  */
 cc.ControlSaturationBrightnessPicker = cc.Control.extend(/** @lends cc.ControlSaturationBrightnessPicker# */{
