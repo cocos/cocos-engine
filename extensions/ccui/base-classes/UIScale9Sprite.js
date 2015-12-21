@@ -199,14 +199,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         this._quadsDirty = true;
     },
 
-    setPreferredSize : function(width, height) {
-        this.setContentSize(width, height);
-    },
-
-    getPreferredSize : function() {
-        return this._contentSize;
-    },
-
     /**
      * Change the state of 9-slice sprite.
      * @see `State`
