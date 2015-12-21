@@ -165,18 +165,45 @@ if (CC_TEST) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
-    var list = this._callbackTable[key], i, l, target;
+    var list = this._callbackTable[key];
     if (list) {
-        for (i = 0, l = list.length; i < l;) {
-            target = list[i+1];
-            if (target && typeof target === 'object') {
+        var endIndex = list.length - 1;
+        var lastItem = list[endIndex];
+        for (var i = 0; i <= endIndex;) {
+            var callingFunc = list[i];
+            var target = list[i + 1];
+            var hasTarget = target && typeof target === 'object';
+            var increment;
+            if (hasTarget) {
                 list[i].call(target, p1, p2, p3, p4, p5);
-                i += 2;
+                increment = 2;
             }
             else {
-                list[i](p1, p2, p3, p4, p5);
-                ++i;
+                callingFunc(p1, p2, p3, p4, p5);
+                increment = 1;
             }
+
+            // TODO: check in remove
+            // check last one to see if any one removed
+            if (list[endIndex] !== lastItem && i + increment <= endIndex) {          // 如果变短
+                if (list[endIndex - 1] === lastItem) {
+                    // 只支持删一个
+                    endIndex -= 1;
+                }
+                else if (list[endIndex - 2] === lastItem) {
+                    // 只支持删一个 + target
+                    endIndex -= 2;
+                }
+                else {
+                    // 只允许在一个回调里面移除一个回调
+                    return cc.error('Can remove only a callback at a time.');
+                }
+                if (list[i] !== callingFunc) {      // 如果删了前面的回调，索引不加
+                    continue;
+                }
+            }
+
+            i += increment;
         }
     }
 };
