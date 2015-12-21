@@ -15,8 +15,13 @@ asyncTest('basic test', function () {
     var texture = cc.textureCache.addImage(url);
     newSprite.setTexture(texture);
     render.spriteFrame = newSprite;
-    render.spriteFrame.once('load', function () {
+    if (!texture.isLoaded()) {
+        render.spriteFrame.once('load', function () {
+            strictEqual(render._sgNode._resourceData._texture.url, url, 'texture set success');
+            start();
+        });
+    }
+    else {
         strictEqual(render._sgNode._resourceData._texture.url, url, 'texture set success');
-        start();
-    });
+    }
 });
