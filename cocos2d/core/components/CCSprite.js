@@ -326,7 +326,7 @@ var Sprite = cc.Class({
     _applySpriteSize: function (node) {
         var node = node || this._sgNode;
         if (this._useOriginalSize) {
-            var rect = this._spriteFrame.getOriginalSize();
+            var rect = this._spriteFrame.getRect();
             node.setContentSize(cc.size(rect.width, rect.height));
         }
         else {
