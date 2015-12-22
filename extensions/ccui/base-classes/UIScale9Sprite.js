@@ -52,7 +52,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  */
 ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
-    _resourceData: null,
+    _spriteFrame: null,
 
     //scale 9 data
     _insetLeft: 0,
@@ -91,10 +91,10 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     loaded: function () {
-        if (this._resourceData === null) {
+        if (this._spriteFrame === null) {
             return false;
         } else {
-            return this._resourceData.textureLoaded();
+            return this._spriteFrame.textureLoaded();
         }
     },
 
@@ -140,12 +140,12 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         }
 
         if(spriteFrame) {
-            this._resourceData = spriteFrame;
+            this._spriteFrame = spriteFrame;
             this._quadsDirty = true;
             var self = this;
             var onResourceDataLoaded = function() {
                 if(cc.sizeEqualToSize(self._contentSize, cc.size(0,0))) {
-                    self.setContentSize(self._resourceData.getRect());
+                    self.setContentSize(self._spriteFrame.getRect());
                 }
             };
             if(spriteFrame.textureLoaded()) {
@@ -297,7 +297,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
 
     _rebuildQuads: function () {
         if (!this.loaded() || this._quadsDirty === false) return;
-        var spriteFrame = this._resourceData;
+        var spriteFrame = this._spriteFrame;
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
 
@@ -373,7 +373,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
 
-        var spriteFrame = this._resourceData;
+        var spriteFrame = this._spriteFrame;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
         centerWidth = spriteFrame.getRect().width - leftWidth - rightWidth;
@@ -423,28 +423,28 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     _calculateUVs: function () {
-        var resourceData = this._resourceData;
-        var atlasWidth = resourceData._texture.getPixelWidth();
-        var atlasHeight = resourceData._texture.getPixelHeight();
+        var spriteFrame = this._spriteFrame;
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
 
         //caculate texture coordinate
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        centerWidth = resourceData.getRect().width - leftWidth - rightWidth;
+        centerWidth = spriteFrame.getRect().width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        centerHeight = resourceData.getRect().height - topHeight - bottomHeight;
+        centerHeight = spriteFrame.getRect().height - topHeight - bottomHeight;
 
-        var textureRect = cc.rectPointsToPixels(resourceData.getRect());
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
 
         //uv computation should take spritesheet into account.
         var u0, u1, u2, u3;
         var v0, v1, v2, v3;
 
-        if (resourceData._rotated) {
+        if (spriteFrame._rotated) {
             u0 = textureRect.x / atlasWidth;
             u1 = (bottomHeight + textureRect.x) / atlasWidth;
             u2 = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;

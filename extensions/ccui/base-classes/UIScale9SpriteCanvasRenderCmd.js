@@ -56,7 +56,7 @@
         var locDisplayOpacity = this._displayedOpacity;
         var alpha =  locDisplayOpacity/ 255;
         var locTexture = null;
-        if(node._resourceData) locTexture = node._resourceData._texture;
+        if(node._spriteFrame) locTexture = node._spriteFrame._texture;
         if (!node.loaded() || locDisplayOpacity === 0)
             return;
         if(this._textureToRender === null){

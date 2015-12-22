@@ -40,7 +40,7 @@
         var node = this._node;
 
         var locTexture = null;
-        if(node._resourceData) locTexture = node._resourceData._texture;
+        if(node._spriteFrame) locTexture = node._spriteFrame._texture;
         if (!node.loaded() || this._displayedOpacity === 0)
             return;
         var needRebuildWebBuffer = false;
