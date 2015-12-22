@@ -322,7 +322,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
             quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[3].y, 0);
             quad._tr.vertices = new cc.Vertex3F(vertices[3].x, vertices[3].y, 0);
 
-            if (!spriteFrame.isRotated()) {
+            if (!spriteFrame._rotated) {
                 quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
                 quad._br.texCoords = new cc.Tex2F(uvs[3].x, uvs[0].y);
                 quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[3].y);
@@ -349,7 +349,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
                     quad._tl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j + 1].y, 0);
                     quad._tr.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j + 1].y, 0);
 
-                    if (!spriteFrame.isRotated()) {
+                    if (!spriteFrame._rotated) {
                         quad._bl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j].y);
                         quad._br.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j].y);
                         quad._tl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j + 1].y);
@@ -373,13 +373,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var topHeight, centerHeight, bottomHeight;
 
         var spriteFrame = this._spriteFrame;
+        var rect = spriteFrame._rect;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        centerWidth = spriteFrame.getRect().width - leftWidth - rightWidth;
+        centerWidth = rect.width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        centerHeight = spriteFrame.getRect().height - topHeight - bottomHeight;
+        centerHeight = rect.height - topHeight - bottomHeight;
 
         var preferSize = this.getContentSize();
         var sizableWidth = preferSize.width - leftWidth - rightWidth;
@@ -423,6 +424,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
 
     _calculateUVs: function () {
         var spriteFrame = this._spriteFrame;
+        var rect = spriteFrame._rect;
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
@@ -431,11 +433,11 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var topHeight, centerHeight, bottomHeight;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        centerWidth = spriteFrame.getRect().width - leftWidth - rightWidth;
+        centerWidth = rect.width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        centerHeight = spriteFrame.getRect().height - topHeight - bottomHeight;
+        centerHeight = rect.height - topHeight - bottomHeight;
 
         var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
 
