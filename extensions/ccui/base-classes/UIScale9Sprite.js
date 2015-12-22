@@ -73,19 +73,19 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
-        this.setAnchorPoint(cc.p(0.5,0.5));
+        this.setAnchorPoint(cc.p(0.5, 0.5));
         //
-        if(typeof textureOrSpriteFrame === 'string') {
+        if (typeof textureOrSpriteFrame === 'string') {
             var frame = cc.spriteFrameCache.getSpriteFrame(textureOrSpriteFrame);
-            if(frame) {
+            if (frame) {
                 this.initWithSpriteFrame(frame);
             } else {
                 this.initWithTexture(textureOrSpriteFrame);
             }
-        } else if(textureOrSpriteFrame instanceof  cc.SpriteFrame) {
+        } else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
             this.initWithSpriteFrame(textureOrSpriteFrame);
         }
-        else if(textureOrSpriteFrame instanceof cc.Texture2D){
+        else if (textureOrSpriteFrame instanceof cc.Texture2D) {
             this.initWithTexture(textureOrSpriteFrame);
         }
     },
@@ -132,23 +132,23 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      */
     setSpriteFrame: function (spriteFrameOrSFName) {
         var spriteFrame;
-        if(spriteFrameOrSFName instanceof cc.SpriteFrame) {
+        if (spriteFrameOrSFName instanceof cc.SpriteFrame) {
             spriteFrame = spriteFrameOrSFName;
         }
         else {
             spriteFrame = cc.spriteFrameCache.getSpriteFrame(spriteFrameOrSFName);
         }
 
-        if(spriteFrame) {
+        if (spriteFrame) {
             this._spriteFrame = spriteFrame;
             this._quadsDirty = true;
             var self = this;
-            var onResourceDataLoaded = function() {
-                if(cc.sizeEqualToSize(self._contentSize, cc.size(0,0))) {
+            var onResourceDataLoaded = function () {
+                if (cc.sizeEqualToSize(self._contentSize, cc.size(0, 0))) {
                     self.setContentSize(self._spriteFrame.getRect());
                 }
             };
-            if(spriteFrame.textureLoaded()) {
+            if (spriteFrame.textureLoaded()) {
                 onResourceDataLoaded();
             } else {
                 spriteFrame.once('load', onResourceDataLoaded, this);
@@ -182,7 +182,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     // overrides
-    setContentSize : function(width, height){
+    setContentSize: function (width, height) {
         if (height === undefined) {
             height = width.height;
             width = width.width;
@@ -200,7 +200,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * @see `State`
      * @param state A enum value in State.
      */
-    setState : function(state){
+    setState: function (state) {
         this._brightState = state;
         this._renderCmd.setState(state);
     },
@@ -209,7 +209,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * Query the current bright state.
      * @return @see `State`
      */
-    getState : function(){
+    getState: function () {
         return this._brightState;
     },
 
@@ -217,8 +217,8 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * change the rendering type, could be simple or slice
      * @return @see `RenderingType`
      */
-    setRenderingType: function(type) {
-        if(this._renderingType == type) return;
+    setRenderingType: function (type) {
+        if (this._renderingType == type) return;
         this._renderingType = type;
         this._quadsDirty = true;
     },
@@ -226,14 +226,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the rendering type, could be simple or slice
      * @return @see `RenderingType`
      */
-    getRenderingType: function() {
+    getRenderingType: function () {
         return this._renderingType;
     },
     /**
      * change the left border of 9 slice sprite, it should be specified before trimmed.
      * @param insetLeft left border.
      */
-    setInsetLeft : function(insetLeft){
+    setInsetLeft: function (insetLeft) {
         this._insetLeft = insetLeft;
         this._quadsDirty = true;
     },
@@ -241,14 +241,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the left border of 9 slice sprite, the result is specified before trimmed.
      * @return left border.
      */
-    getInsetLeft : function(){
+    getInsetLeft: function () {
         return this._insetLeft;
     },
     /**
      * change the top border of 9 slice sprite, it should be specified before trimmed.
      * @param insetTop top border.
      */
-    setInsetTop : function(insetTop){
+    setInsetTop: function (insetTop) {
         this._insetTop = insetTop;
         this._quadsDirty = true;
     },
@@ -257,7 +257,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the top border of 9 slice sprite, the result is specified before trimmed.
      * @return top border.
      */
-    getInsetTop : function(){
+    getInsetTop: function () {
         return this._insetTop;
     },
 
@@ -265,7 +265,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * change the right border of 9 slice sprite, it should be specified before trimmed.
      * @param insetRight right border.
      */
-    setInsetRight : function(insetRight){
+    setInsetRight: function (insetRight) {
         this._insetRight = insetRight;
         this._quadsDirty = true;
     },
@@ -274,7 +274,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the right border of 9 slice sprite, the result is specified before trimmed.
      * @return right border.
      */
-    getInsetRight : function(){
+    getInsetRight: function () {
         return this._insetRight;
     },
 
@@ -282,8 +282,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * change the bottom border of 9 slice sprite, it should be specified before trimmed.
      * @param insetBottom bottom border.
      */
-    setInsetBottom : function(insetBottom)
-    {
+    setInsetBottom: function (insetBottom) {
         this._insetBottom = insetBottom;
         this._quadsDirty = true;
     },
@@ -291,7 +290,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the bottom border of 9 slice sprite, the result is specified before trimmed.
      * @return bottom border.
      */
-    getInsetBottom : function(){
+    getInsetBottom: function () {
         return this._insetBottom;
     },
 
@@ -476,12 +475,12 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         return uvCoordinates;
     },
 
-    _onColorOpacityDirty : function() {
+    _onColorOpacityDirty: function () {
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
         var index;
         var quadLength = this._quads.length;
-        for(index = 0; index < quadLength; ++index) {
+        for (index = 0; index < quadLength; ++index) {
             //svar quad = this._quads[index];
             this._quads[index]._bl.colors = color;
             this._quads[index]._br.colors = color;
