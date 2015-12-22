@@ -149,6 +149,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._actionManager = null;
         }
 
+        this.sharedInit();
+
+        return true;
+    },
+
+    /**
+     * Manage all init process shared between the web engine and jsb engine.
+     * All platform independent init process should be occupied here.
+     */
+    sharedInit: function () {
         // Animation manager
         if (cc.AnimationManager) {
             this._animationManager = new cc.AnimationManager();
@@ -160,8 +170,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         // WidgetManager
         cc._widgetManager.init(this);
-
-        return true;
     },
 
     /**
