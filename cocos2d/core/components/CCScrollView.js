@@ -265,9 +265,12 @@ var ScrollView = cc.Class({
     },
 
     _calculateMovePercentHorizontalDelta: function(percent) {
+        percent = cc.clampf(percent, 0, 100);
+
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();
         var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
+
         var moveDelta = cc.p((contentSize.width - scrollSize.width) * percent / 100 - leftDeta, 0);
         moveDelta = cc.pNeg(moveDelta);
         return moveDelta;
@@ -279,9 +282,12 @@ var ScrollView = cc.Class({
     },
 
     _calculateMovePercentVerticalDelta: function(percent) {
+        percent = cc.clampf(percent, 0, 100);
+
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();
         var bottomDeta = Math.abs(this._getContentBottomBoundary() - this._bottomBoundary);
+
         var moveDelta = cc.p(0, (contentSize.height - scrollSize.height) * percent / 100 - bottomDeta);
         moveDelta = cc.pNeg(moveDelta);
         return moveDelta;
