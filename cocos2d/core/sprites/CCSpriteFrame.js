@@ -67,7 +67,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     }
 
                     var texture = cc.textureCache.addImage(url);
-                    this.setTexture(texture);
+                    this._refreshTexture(texture);
                     if (this._textureLoaded) {
                         this._checkRect(texture);
                     }
@@ -349,10 +349,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     /**
      * Sets the texture of the frame, the texture is retained automatically.
-     * @method setTexture
+     * @method _refreshTexture
      * @param {Texture2D} texture
      */
-    setTexture: function (texture) {
+    _refreshTexture: function (texture) {
         if (this._texture !== texture) {
             var locLoaded = texture.isLoaded();
             this._textureLoaded = locLoaded;
@@ -443,8 +443,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Boolean}
      */
     initWithTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
-        if (arguments.length === 2)
-            rect = cc.rectPointsToPixels(rect);
+        this.setTexture(textureOrTextureFile, rect, rotated, offset, originalSize);
+    },
+
+    setTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
 
         rect = rect || null;
         offset = offset || null;
@@ -479,7 +481,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             texture = cc.textureCache.addImage(texture);
         }
         if (texture instanceof cc.Texture2D) {
-            this.setTexture(texture);
+            this._refreshTexture(texture);
         } else {
             //todo log error
         }
@@ -547,7 +549,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     _deserialize: function (data, handle) {
         var rect = data.rect;
-        if (data.rect) {
+        if (rect) {
             this.setRect(new cc.Rect(rect[0], rect[1], rect[2], rect[3]));
         }
         if (data.offset) {
