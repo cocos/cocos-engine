@@ -1,6 +1,7 @@
 var Fs = require('fire-fs');
 var gulp = require('gulp');
 var fb = require('gulp-fb');
+var shell = require('gulp-shell');
 
 var TimeOutInSeconds = 5;
 
@@ -33,4 +34,7 @@ function test () {
 }
 
 gulp.task('test', ['build-test', 'unit-runner'], test);
+gulp.task('visual-test', ['build-test'], shell.task([
+    'sh ./test/visual-tests/run.sh'
+]));
 gulp.task('rerun-test', test);

@@ -110,15 +110,20 @@ var S9CreationBasic = S9SpriteTestDemo.extend({
 
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
+        var texture = cc.textureCache.addImage("Images/blocks9.png");
+        var spriteFrame = cc.SpriteFrame.createWithTexture(texture);
+        texture.once('load', function() {
+            cc.log("sprite frame is loaded");
+        });
 
         var s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-        var s9sprite2 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+        var s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-        var s9sprite3 = cc.Scale9Sprite.create("Images/blocks9.png", cc.rect(0,0,60,60), cc.rect(20,20,30,30));
-        s9sprite1.setPreferredSize(cc.size(150,150));
-        s9sprite2.setPreferredSize(cc.size(150,150));
-        s9sprite3.setPreferredSize(cc.size(150,150));
+        var s9sprite3 = cc.Scale9Sprite.create("Images/blocks9.png");
+        s9sprite1.setContentSize(cc.size(150,150));
+        s9sprite2.setContentSize(cc.size(150,150));
+        s9sprite3.setContentSize(cc.size(150,150));
         s9sprite1.x = x/6; s9sprite1.y = y;
 
         s9sprite2.x = x/2; s9sprite2.y = y;
@@ -145,10 +150,10 @@ var S9creationSpriteFrame = S9SpriteTestDemo.extend({
 
         var s9sprite1 = cc.Scale9Sprite.create("blocks9.png");
 
-        var s9sprite2 = cc.Scale9Sprite.create("blocks9.png",cc.rect(20,20,30,30));
+        var s9sprite2 = cc.Scale9Sprite.create("blocks9.png");
 
-        s9sprite1.setPreferredSize(cc.size(150,150));
-        s9sprite2.setPreferredSize(cc.size(150,150));
+        s9sprite1.setContentSize(cc.size(150,150));
+        s9sprite2.setContentSize(cc.size(150,150));
 
         s9sprite1.x = x/4; s9sprite1.y = y;
 
@@ -173,17 +178,16 @@ var S9LaterUpdate = S9SpriteTestDemo.extend({
 
             var s9sprite2 = cc.Scale9Sprite.create();
 
-            s9sprite1.setPreferredSize(cc.size(150,150));
-            s9sprite2.setPreferredSize(cc.size(150,150));
+            s9sprite1.setContentSize(cc.size(150,150));
+            s9sprite2.setContentSize(cc.size(150,150));
 
             s9sprite1.x = x/4; s9sprite1.y = y;
 
             s9sprite2.x = 3 * x/4; s9sprite2.y = y;
-            var sprite1 = _ccsg.Sprite.create("Images/blocks9.png");
-            s9sprite1.updateWithSprite(sprite1,sprite1.getTextureRect(),sprite1.textureRectRotated,cc.p(0,0),cc.size(0,0),cc.rect(20,20,30,30));
-
+            //s9sprite1.updateWithSprite(sprite1,sprite1.getTextureRect(),sprite1.textureRectRotated,cc.p(0,0),cc.size(0,0),cc.rect(20,20,30,30));
+            s9sprite1.setTexture("Images/blocks9.png");
             var frame = cc.spriteFrameCache.getSpriteFrame("blocks9.png");
-            s9sprite2.setSpriteFrame(frame,cc.rect(20,20,30,30));
+            s9sprite2.setSpriteFrame(frame);
 
             this.addChild(s9sprite1);
             this.addChild(s9sprite2);
@@ -203,12 +207,12 @@ var S9RenderingTypeTest = S9SpriteTestDemo.extend({
             var x = winSize.width;
             var y = 0 + (winSize.height/2);
 
-            var s9sprite1 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+            var s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-            var s9sprite2 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+            var s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-            s9sprite1.setPreferredSize(cc.size(150,150));
-            s9sprite2.setPreferredSize(cc.size(150,150));
+            s9sprite1.setContentSize(cc.size(150,150));
+            s9sprite2.setContentSize(cc.size(150,150));
 
             s9sprite2.setRenderingType(ccui.Scale9Sprite.RenderingType.SIMPLE);
 
@@ -233,12 +237,12 @@ var S9StateTest = S9SpriteTestDemo.extend({
             var x = winSize.width;
             var y = 0 + (winSize.height/2);
 
-            var s9sprite1 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+            var s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-            var s9sprite2 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+            var s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-            s9sprite1.setPreferredSize(cc.size(150,150));
-            s9sprite2.setPreferredSize(cc.size(150,150));
+            s9sprite1.setContentSize(cc.size(150,150));
+            s9sprite2.setContentSize(cc.size(150,150));
 
             s9sprite2.setState(ccui.Scale9Sprite.state.GRAY);
 
@@ -264,8 +268,8 @@ var S9Actiontest = S9SpriteTestDemo.extend({
         var x = winSize.width ;
         var y = 0 + (winSize.height / 2);
 
-        var s9sprite1 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
-        s9sprite1.setPreferredSize(cc.size(150,150));
+        var s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+        s9sprite1.setContentSize(cc.size(150,150));
         s9sprite1.x = x/4; s9sprite1.y = y;
 
         this.addChild(s9sprite1);
@@ -290,9 +294,9 @@ var S9ChangeFiletest = S9SpriteTestDemo.extend({
         var x = winSize.width ;
         var y = 0 + (winSize.height / 2);
 
-        _s9sprite1 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
-        _s9sprite1.setPreferredSize(cc.size(150,150));
-        _s9sprite1.x = x/4; _s9sprite1.y = y;
+        _s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+        _s9sprite1.setContentSize(cc.size(300,200));
+        _s9sprite1.x = x/2; _s9sprite1.y = y;
 
         this.addChild(_s9sprite1);
         var actionArray = [];
@@ -310,7 +314,7 @@ var S9ChangeFiletest = S9SpriteTestDemo.extend({
     },
     changeFile: function(file) {
         console.log("I'am going to change a new file");
-        _s9sprite1.initWithFile(file);
+        _s9sprite1.initWithTexture(file);
         _s9sprite1.setInsetTop(10);
         _s9sprite1.setInsetBottom(10);
         _s9sprite1.setInsetLeft(10);
@@ -332,13 +336,13 @@ var S9ChangePreferredSizeTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        this._s9sprite1 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+        this._s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-        this._s9sprite2 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+        this._s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
         var s9sprite1 = this._s9sprite1;
         var s9sprite2 = this._s9sprite2;
-        s9sprite1.setPreferredSize(cc.size(96,96));
-        s9sprite2.setPreferredSize(cc.size(96,96));
+        s9sprite1.setContentSize(cc.size(96,96));
+        s9sprite2.setContentSize(cc.size(96,96));
         this.scheduleUpdate();
 
         s9sprite2.setRenderingType(ccui.Scale9Sprite.RenderingType.SIMPLE);
@@ -355,15 +359,15 @@ var S9ChangePreferredSizeTest = S9SpriteTestDemo.extend({
         this._dt += dt;
         if(this._dt > 3) this._dt = 3;
         var newSize = cc.size(96 + this._dt * 20, 96 + this._dt * 20);
-        this._s9sprite1.setPreferredSize(newSize);
-        this._s9sprite2.setPreferredSize(newSize);
+        this._s9sprite1.setContentSize(newSize);
+        this._s9sprite2.setContentSize(newSize);
         if(this._dt === 3) this.unscheduleUpdate();
     },
 });
 
 //S9ChangeCapInsetsTest
 var S9ChangeCapInsetsTest = S9SpriteTestDemo.extend({
-
+    //todo add a new test case
     _title:"Scale9 Change CapInsets Test",
     _subtitle:"Slice and Simple s9sprite will behave differently",
     _s9sprite1: null,
@@ -375,14 +379,14 @@ var S9ChangeCapInsetsTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        this._s9sprite1 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+        this._s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-        this._s9sprite2 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+        this._s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
         var s9sprite1 = this._s9sprite1;
         var s9sprite2 = this._s9sprite2;
-        s9sprite1.setPreferredSize(cc.size(150,150));
-        s9sprite2.setPreferredSize(cc.size(150,150));
-        this.scheduleUpdate();
+        s9sprite1.setContentSize(cc.size(150,150));
+        s9sprite2.setContentSize(cc.size(150,150));
+        //this.scheduleUpdate();
 
         s9sprite2.setRenderingType(ccui.Scale9Sprite.RenderingType.SIMPLE);
 
@@ -395,20 +399,20 @@ var S9ChangeCapInsetsTest = S9SpriteTestDemo.extend({
     },
 
     update: function(dt) {
-        var rect = cc.rect(20,20,30,30);
-        this._dt += dt;
-        if(this._dt > 3) this._dt = 3;
-        rect.x = rect.x + this._dt * 20;
-        this._s9sprite1.setCapInsets(rect);
-        this._s9sprite2.setCapInsets(rect);
-        if(this._dt === 3) this.unscheduleUpdate();
+        //var rect = cc.rect(20,20,30,30);
+        //this._dt += dt;
+        //if(this._dt > 3) this._dt = 3;
+        //rect.x = rect.x + this._dt * 20;
+        //this._s9sprite1.setCapInsets(rect);
+        //this._s9sprite2.setCapInsets(rect);
+        //if(this._dt === 3) this.unscheduleUpdate();
     },
 });
 
 //S9ChangeColorOpacityTest
 var S9ChangeColorOpacityTest = S9SpriteTestDemo.extend({
 
-    _title:"Scale9 Change CapInsets Test",
+    _title:"Scale9 Change Color Opacity Test",
     _subtitle:"Slice and Simple s9sprite will behave differently",
     _s9sprite1: null,
     _s9sprite2: null,
@@ -419,13 +423,13 @@ var S9ChangeColorOpacityTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        this._s9sprite1 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+        this._s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
 
-        this._s9sprite2 = cc.Scale9Sprite.create(cc.rect(20,20,30,30),"Images/blocks9.png");
+        this._s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
         var s9sprite1 = this._s9sprite1;
         var s9sprite2 = this._s9sprite2;
-        s9sprite1.setPreferredSize(cc.size(150,150));
-        s9sprite2.setPreferredSize(cc.size(150,150));
+        s9sprite1.setContentSize(cc.size(150,150));
+        s9sprite2.setContentSize(cc.size(150,150));
         s9sprite1.setBlendFunc(cc.BlendFunc.ALPHA_NON_PREMULTIPLIED);
         s9sprite2.setBlendFunc(cc.BlendFunc.ALPHA_NON_PREMULTIPLIED);
         this.scheduleUpdate();

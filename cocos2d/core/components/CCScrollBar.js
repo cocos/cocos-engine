@@ -57,7 +57,10 @@ var Scrollbar = cc.Class({
     properties: {
         _scrollView: null,
         _touching: false,
-        _autoHideRemainingTime: 0,
+        _autoHideRemainingTime: {
+            default: 0,
+            serializable: false
+        },
         _opacity: 255,
 
         /**
@@ -124,15 +127,20 @@ var Scrollbar = cc.Class({
 
     _onScroll: function(outOfBoundary) {
         if (this._scrollView) {
-            if (this.enableAutoHide) {
-                this._autoHideRemainingTime = this.autoHideTime;
-                this._setOpacity(this._opacity);
-            }
 
             var content = this._scrollView.content;
             if(content){
                 var contentSize = content.getContentSize();
                 var scrollViewSize = this._scrollView.node.getContentSize();
+
+                if(this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
+                    return;
+                }
+
+                if (this.enableAutoHide) {
+                    this._autoHideRemainingTime = this.autoHideTime;
+                    this._setOpacity(this._opacity);
+                }
 
                 var contentMeasure = 0;
                 var scrollViewMeasure = 0;
@@ -195,7 +203,17 @@ var Scrollbar = cc.Class({
             return;
         }
         this._touching = true;
+    },
 
+    _conditionalDisableScrollBar: function (contentSize, scrollViewSize) {
+        if(contentSize.width <= scrollViewSize.width && this.direction === Direction.HORIZONTAL){
+            return true;
+        }
+
+        if(contentSize.height <= scrollViewSize.height && this.direction === Direction.VERTICAL){
+            return true;
+        }
+        return false;
     },
 
     _onTouchEnded: function() {
@@ -207,6 +225,19 @@ var Scrollbar = cc.Class({
 
         if (this.autoHideTime <= 0) {
             return;
+        }
+
+
+        if (this._scrollView) {
+            var content = this._scrollView.content;
+            if(content){
+                var contentSize = content.getContentSize();
+                var scrollViewSize = this._scrollView.node.getContentSize();
+
+                if(this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
+                    return;
+                }
+            }
         }
 
         this._autoHideRemainingTime = this.autoHideTime;

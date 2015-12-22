@@ -149,6 +149,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._actionManager = null;
         }
 
+        this.sharedInit();
+
+        return true;
+    },
+
+    /**
+     * Manage all init process shared between the web engine and jsb engine.
+     * All platform independent init process should be occupied here.
+     */
+    sharedInit: function () {
         // Animation manager
         if (cc.AnimationManager) {
             this._animationManager = new cc.AnimationManager();
@@ -160,8 +170,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         // WidgetManager
         cc._widgetManager.init(this);
-
-        return true;
     },
 
     /**
@@ -397,6 +405,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._runningScene.onExitTransitionDidStart();
             this._runningScene.onExit();
             this._runningScene.cleanup();
+
+            cc.renderer.clearRenderCommands();
         }
 
         this._runningScene = null;
@@ -412,6 +422,28 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.purgeCachedData();
 
         cc.checkGLErrorDebug();
+    },
+
+    /**
+     * Reset the cc.director, can be used to restart the director after purge
+     */
+    reset: function () {
+        this.purgeDirector();
+
+        if (cc.eventManager)
+            cc.eventManager.setEnabled(true);
+
+        // Action manager
+        if(this._actionManager){
+            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
+        // Animation manager
+        if (this._animationManager) {
+            this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
+        this.startAnimation();
     },
 
     /**
