@@ -182,9 +182,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the bottom boundary of ScrollView.
      * @method scrollToBottom
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the bottom boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToBottom: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -203,9 +203,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the top boundary of ScrollView.
      * @method scrollToTop
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the top boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToTop: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -224,9 +224,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the left boundary of ScrollView.
      * @method scrollToLeft
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the left boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -245,9 +245,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the right boundary of ScrollView.
      * @method scrollToRight
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the right boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -266,9 +266,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the top left boundary of ScrollView.
      * @method scrollToTopLeft
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the top left boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToTopLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -287,9 +287,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the top right boundary of ScrollView.
      * @method scrollToTopRight
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the top right boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToTopRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -308,9 +308,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the bottom left boundary of ScrollView.
      * @method scrollToBottomLeft
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the bottom left boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToBottomLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -329,9 +329,9 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the bottom right boundary of ScrollView.
      * @method scrollToBottomRight
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the bottom right boundary immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToBottomRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -351,9 +351,9 @@ var ScrollView = cc.Class({
      * Scroll the content to the horizontal percent position  of ScrollView.
      * @method scrollToPercentHorizontal
      * @param {Number} percent - A value between 0 and 1.
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the horizontal percent position of ScrollView immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToPercentHorizontal: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -373,9 +373,9 @@ var ScrollView = cc.Class({
      * Scroll the content to the percent position of ScrollView in any direction.
      * @method scrollTo
      * @param {Point} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the percent position of ScrollView immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollTo: function(anchor, timeInSecond, attenuated){
         var moveDelta = this._calculateMovePercentDelta({
@@ -395,9 +395,9 @@ var ScrollView = cc.Class({
      * Scroll the content to the vertical percent position of ScrollView.
      * @method scrollToPercentVertical
      * @param {Number} percent - A value between 0 and 1.
-     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the vertical percent position of ScrollView immediately.
-     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
      */
     scrollToPercentVertical: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -415,6 +415,7 @@ var ScrollView = cc.Class({
 
     /**
      * Modify the content position.
+     * @method setContentPosition
      * @param {Point} position - The position in content's parent space.
      */
     setContentPosition: function(position) {
@@ -431,6 +432,7 @@ var ScrollView = cc.Class({
 
     /**
      * Query the content's position in its parent space.
+     * @method getContentPosition
      * @returns {Position} - The content's position in its parent space.
      */
     getContentPosition: function() {
