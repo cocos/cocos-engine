@@ -467,7 +467,12 @@ var Node = cc.Class({
             if (! (component instanceof cc.Component) && CC_EDITOR) {
                 cc.error('Sorry, the component of entity "%s" which with an index of %s is corrupted! It has been removed.\nSee DevTools for details.', this.name, c);
                 console.log('Corrupted component value:', component);
-                this._removeComponent(component);
+                if (component) {
+                    this._removeComponent(component);
+                }
+                else {
+                    this._components.splice(c, 1);
+                }
                 --c;
                 --originCount;
             }
