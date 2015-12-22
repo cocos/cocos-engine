@@ -18,17 +18,21 @@ JS.extend(AnimationAnimator, Animator);
 var p = AnimationAnimator.prototype;
 
 p.playState = function (state, startTime) {
-    var clip = state.clip;
-    if (!clip) {
+    if (!state.clip) {
         return;
     }
-    var curves = state.curves;
+
     if (!state.curveLoaded) {
         initClipData(this.target, state);
     }
+
     this.playingAnims.push(state);
     state.play();
-    state.time = startTime || 0;
+
+    if (typeof startTime === 'number') {
+        state.time = startTime;
+    }
+
     this.play();
 };
 

@@ -151,7 +151,6 @@ var Animation = cc.Class({
     },
 
     onDisable: function () {
-        this.setCurrentTime(0);
         this.stop();
     },
 
@@ -179,17 +178,19 @@ var Animation = cc.Class({
         this._init();
         var state = this.getAnimationState(name || this._defaultClip.name);
         if (state) {
-            if (state.isPlaying) {
+            var animator = this._animator;
+
+            if (animator.isPlaying && state.isPlaying) {
                 if (state.isPaused) {
-                    this._animator.resumeState(state);
+                    animator.resumeState(state);
                 }
                 else {
-                    this._animator.stopState(state);
-                    this._animator.playState(state, startTime);
+                    animator.stopState(state);
+                    animator.playState(state, startTime);
                 }
             }
             else {
-                this._animator.playState(state, startTime);
+                animator.playState(state, startTime);
             }
 
             this.currentClip = state.clip;
@@ -412,6 +413,11 @@ var Animation = cc.Class({
             var clip = this._clips[i];
             if (clip) {
                 state = new cc.AnimationState(clip);
+
+                if (CC_EDITOR) {
+                    this._animator.reloadClip(state);
+                }
+
                 this._nameToState[state.name] = state;
                 if (equalClips(this._defaultClip, clip)) {
                     defaultClipState = state;
@@ -420,6 +426,11 @@ var Animation = cc.Class({
         }
         if (this._defaultClip && !defaultClipState) {
             state = new cc.AnimationState(this._defaultClip);
+
+            if (CC_EDITOR) {
+                this._animator.reloadClip(state);
+            }
+
             this._nameToState[state.name] = state;
         }
     },
