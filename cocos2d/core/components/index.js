@@ -13,4 +13,5 @@ module.exports = [
     require('./CCMask'),
     require('./CCScrollBar'),
     require('./CCScrollView'),
+    require('./CCLayout'),
 ];
