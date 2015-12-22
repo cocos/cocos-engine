@@ -52,7 +52,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  */
 ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
-    _resourceData: null,
+    _spriteFrame: null,
 
     //scale 9 data
     _insetLeft: 0,
@@ -69,32 +69,32 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     _quads: [],
     _quadsDirty: true,
 
-    ctor: function (fileOrData) {
+    ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
-        this.setAnchorPoint(cc.p(0.5,0.5));
-        //todo
-        if(fileOrData instanceof  cc.Scale9Sprite.Scale9ResourceData) {
-            this.initWithResourceData(fileOrData);
-        }
-        else {
-            if(typeof fileOrData === 'string') {
-                var frame = cc.spriteFrameCache.getSpriteFrame(fileOrData);
-                if(frame) {
-                    this.initWithSpriteFrame(frame);
-                } else {
-                    this.initWithTexture(fileOrData);
-                }
+        this.setAnchorPoint(cc.p(0.5, 0.5));
+        //
+        if (typeof textureOrSpriteFrame === 'string') {
+            var frame = cc.spriteFrameCache.getSpriteFrame(textureOrSpriteFrame);
+            if (frame) {
+                this.initWithSpriteFrame(frame);
+            } else {
+                this.initWithTexture(textureOrSpriteFrame);
             }
+        } else if (textureOrSpriteFrame instanceof cc.SpriteFrame) {
+            this.initWithSpriteFrame(textureOrSpriteFrame);
+        }
+        else if (textureOrSpriteFrame instanceof cc.Texture2D) {
+            this.initWithTexture(textureOrSpriteFrame);
         }
     },
 
     loaded: function () {
-        if (this._resourceData === null) {
+        if (this._spriteFrame === null) {
             return false;
         } else {
-            return this._resourceData.loaded();
+            return this._spriteFrame.textureLoaded();
         }
     },
 
@@ -115,19 +115,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         this.setSpriteFrame(spriteFrameOrSFName);
     },
 
-    initWithResourceData: function (s9ResData) {
-        this.setResourceData(s9ResData);
-    },
-
     /**
      * Change the texture file of 9 slice sprite
      *
      * @param textureOrTextureFile The name of the texture file.
      */
     setTexture: function (textureOrTextureFile) {
-        var resourceData = new cc.Scale9Sprite.Scale9ResourceData();
-        resourceData.initWithTexture(textureOrTextureFile);
-        this.setResourceData(resourceData);
+        var spriteFrame = cc.SpriteFrame.createWithTexture(textureOrTextureFile);
+        this.setSpriteFrame(spriteFrame);
     },
 
     /**
@@ -135,29 +130,30 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      *
      * @param spriteFrameOrSFFileName The name of the texture file.
      */
-    setSpriteFrame: function (spriteFrameOrSFFileName) {
-        var resourceData = new cc.Scale9Sprite.Scale9ResourceData();
-        resourceData.initWithSpriteFrame(spriteFrameOrSFFileName);
-        this.setResourceData(resourceData);
-    },
-
-    setResourceData: function (s9ResData) {
-        if (s9ResData instanceof cc.Scale9Sprite.Scale9ResourceData) {
-            this._resourceData = s9ResData;
-            this._quadsDirty = true;
-            var self = this;
-            var onResourceDataLoaded = function() {
-                if(cc.sizeEqualToSize(self._contentSize, cc.size(0,0))) {
-                    self.setContentSize(self._resourceData._originalSize);
-                }
-            };
-            if(s9ResData.loaded()) {
-                onResourceDataLoaded();
-            } else {
-                s9ResData.once('load', onResourceDataLoaded, this);
-            }
+    setSpriteFrame: function (spriteFrameOrSFName) {
+        var spriteFrame;
+        if (spriteFrameOrSFName instanceof cc.SpriteFrame) {
+            spriteFrame = spriteFrameOrSFName;
+        }
+        else {
+            spriteFrame = cc.spriteFrameCache.getSpriteFrame(spriteFrameOrSFName);
         }
 
+        if (spriteFrame) {
+            this._spriteFrame = spriteFrame;
+            this._quadsDirty = true;
+            var self = this;
+            var onResourceDataLoaded = function () {
+                if (cc.sizeEqualToSize(self._contentSize, cc.size(0, 0))) {
+                    self.setContentSize(self._spriteFrame.getRect());
+                }
+            };
+            if (spriteFrame.textureLoaded()) {
+                onResourceDataLoaded();
+            } else {
+                spriteFrame.once('load', onResourceDataLoaded, this);
+            }
+        }
     },
 
     /**
@@ -186,7 +182,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     // overrides
-    setContentSize : function(width, height){
+    setContentSize: function (width, height) {
         if (height === undefined) {
             height = width.height;
             width = width.width;
@@ -204,7 +200,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * @see `State`
      * @param state A enum value in State.
      */
-    setState : function(state){
+    setState: function (state) {
         this._brightState = state;
         this._renderCmd.setState(state);
     },
@@ -213,7 +209,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * Query the current bright state.
      * @return @see `State`
      */
-    getState : function(){
+    getState: function () {
         return this._brightState;
     },
 
@@ -221,8 +217,8 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * change the rendering type, could be simple or slice
      * @return @see `RenderingType`
      */
-    setRenderingType: function(type) {
-        if(this._renderingType == type) return;
+    setRenderingType: function (type) {
+        if (this._renderingType == type) return;
         this._renderingType = type;
         this._quadsDirty = true;
     },
@@ -230,14 +226,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the rendering type, could be simple or slice
      * @return @see `RenderingType`
      */
-    getRenderingType: function() {
+    getRenderingType: function () {
         return this._renderingType;
     },
     /**
      * change the left border of 9 slice sprite, it should be specified before trimmed.
      * @param insetLeft left border.
      */
-    setInsetLeft : function(insetLeft){
+    setInsetLeft: function (insetLeft) {
         this._insetLeft = insetLeft;
         this._quadsDirty = true;
     },
@@ -245,14 +241,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the left border of 9 slice sprite, the result is specified before trimmed.
      * @return left border.
      */
-    getInsetLeft : function(){
+    getInsetLeft: function () {
         return this._insetLeft;
     },
     /**
      * change the top border of 9 slice sprite, it should be specified before trimmed.
      * @param insetTop top border.
      */
-    setInsetTop : function(insetTop){
+    setInsetTop: function (insetTop) {
         this._insetTop = insetTop;
         this._quadsDirty = true;
     },
@@ -261,7 +257,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the top border of 9 slice sprite, the result is specified before trimmed.
      * @return top border.
      */
-    getInsetTop : function(){
+    getInsetTop: function () {
         return this._insetTop;
     },
 
@@ -269,7 +265,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * change the right border of 9 slice sprite, it should be specified before trimmed.
      * @param insetRight right border.
      */
-    setInsetRight : function(insetRight){
+    setInsetRight: function (insetRight) {
         this._insetRight = insetRight;
         this._quadsDirty = true;
     },
@@ -278,7 +274,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the right border of 9 slice sprite, the result is specified before trimmed.
      * @return right border.
      */
-    getInsetRight : function(){
+    getInsetRight: function () {
         return this._insetRight;
     },
 
@@ -286,8 +282,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * change the bottom border of 9 slice sprite, it should be specified before trimmed.
      * @param insetBottom bottom border.
      */
-    setInsetBottom : function(insetBottom)
-    {
+    setInsetBottom: function (insetBottom) {
         this._insetBottom = insetBottom;
         this._quadsDirty = true;
     },
@@ -295,13 +290,13 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      * get the bottom border of 9 slice sprite, the result is specified before trimmed.
      * @return bottom border.
      */
-    getInsetBottom : function(){
+    getInsetBottom: function () {
         return this._insetBottom;
     },
 
     _rebuildQuads: function () {
         if (!this.loaded() || this._quadsDirty === false) return;
-        var resourceData = this._resourceData;
+        var spriteFrame = this._spriteFrame;
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
 
@@ -327,7 +322,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
             quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[3].y, 0);
             quad._tr.vertices = new cc.Vertex3F(vertices[3].x, vertices[3].y, 0);
 
-            if (!resourceData._rotated) {
+            if (!spriteFrame._rotated) {
                 quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
                 quad._br.texCoords = new cc.Tex2F(uvs[3].x, uvs[0].y);
                 quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[3].y);
@@ -354,7 +349,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
                     quad._tl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j + 1].y, 0);
                     quad._tr.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j + 1].y, 0);
 
-                    if (!resourceData._rotated) {
+                    if (!spriteFrame._rotated) {
                         quad._bl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j].y);
                         quad._br.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j].y);
                         quad._tl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j + 1].y);
@@ -377,14 +372,15 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
 
-        var resourceData = this._resourceData;
+        var spriteFrame = this._spriteFrame;
+        var rect = spriteFrame._rect;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        centerWidth = resourceData._spriteRect.width - leftWidth - rightWidth;
+        centerWidth = rect.width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        centerHeight = resourceData._spriteRect.height - topHeight - bottomHeight;
+        centerHeight = rect.height - topHeight - bottomHeight;
 
         var preferSize = this.getContentSize();
         var sizableWidth = preferSize.width - leftWidth - rightWidth;
@@ -427,28 +423,29 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     _calculateUVs: function () {
-        var resourceData = this._resourceData;
-        var atlasWidth = resourceData._texture.getPixelWidth();
-        var atlasHeight = resourceData._texture.getPixelHeight();
+        var spriteFrame = this._spriteFrame;
+        var rect = spriteFrame._rect;
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
 
         //caculate texture coordinate
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        centerWidth = resourceData._spriteRect.width - leftWidth - rightWidth;
+        centerWidth = rect.width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        centerHeight = resourceData._spriteRect.height - topHeight - bottomHeight;
+        centerHeight = rect.height - topHeight - bottomHeight;
 
-        var textureRect = cc.rectPointsToPixels(resourceData._spriteRect);
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
 
         //uv computation should take spritesheet into account.
         var u0, u1, u2, u3;
         var v0, v1, v2, v3;
 
-        if (resourceData._rotated) {
+        if (spriteFrame._rotated) {
             u0 = textureRect.x / atlasWidth;
             u1 = (bottomHeight + textureRect.x) / atlasWidth;
             u2 = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
@@ -480,12 +477,12 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         return uvCoordinates;
     },
 
-    _onColorOpacityDirty : function() {
+    _onColorOpacityDirty: function () {
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
         var index;
         var quadLength = this._quads.length;
-        for(index = 0; index < quadLength; ++index) {
+        for (index = 0; index < quadLength; ++index) {
             //svar quad = this._quads[index];
             this._quads[index]._bl.colors = color;
             this._quads[index]._br.colors = color;
@@ -502,133 +499,6 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     }
 
 });
-
-ccui.Scale9Sprite.Scale9ResourceData = cc.Scale9Sprite.Scale9ResourceData = function ()
-{
-    this._texture = null;
-    this._spriteRect = null;
-    this._rotated = false;
-    this._trimmedOffset = null;
-    this._originalSize = null;
-    this._loaded = false;
-
-    var trimmedResult = [0,0,0,0]; //left, right, bottom, top
-    var trimmedDirty = true;
-
-    this.loaded = function() {
-        return this._loaded;
-    };
-
-    this.computeTrimmed = function () {
-        if(this._loaded && trimmedDirty) {
-            trimmedResult = [];
-            var result = trimmedResult;
-            var leftTrim = (this._originalSize.width + (2 * this._trimmedOffset.x) - this._spriteRect.width)/2;
-            var rightTrim = this._originalSize.width - leftTrim - this._spriteRect.width;
-
-            var bottomTrim = (this._originalSize.height + (2 * this._trimmedOffset.y) - this._spriteRect.height) /2;
-            var topTrim = this._originalSize.height - bottomTrim - this._spriteRect.height;
-            result.push(leftTrim);
-            result.push(rightTrim);
-            result.push(bottomTrim);
-            result.push(topTrim);
-            trimmedDirty = false;
-        }
-    };
-
-    this.getTrimmedLeft = function () {
-        this.computeTrimmed();
-        return trimmedResult[0];
-    };
-
-    this.getTrimmedRight = function () {
-        this.computeTrimmed();
-        return trimmedResult[1];
-    };
-
-    this.getTrimmedBottom = function () {
-        this.computeTrimmed();
-        return trimmedResult[2];
-    };
-
-    this.getTrimmedTop = function () {
-        this.computeTrimmed();
-        return trimmedResult[3];
-    };
-    /**
-    textureOrTextureFile: texture handle or texture file image;
-    Other params is optional
-    */
-    this.initWithTexture = function(textureOrTextureFile, spriteRect, rotated, trimmedOffset, originalSize){
-        var texture;
-        if(textureOrTextureFile instanceof cc.Texture2D) {
-            texture = textureOrTextureFile;
-        } else {
-            texture = cc.textureCache.addImage(textureOrTextureFile);
-        }
-        if(!texture) {
-            throw new Error("Scale9 Sprite can not be inited with a null texture");
-        }
-        this._texture = texture;
-        this._spriteRect = spriteRect || null;
-        this._rotated = rotated || false;
-        this._trimmedOffset = trimmedOffset || cc.p(0,0);
-        this._originalSize = originalSize || null;
-        if(texture) {
-                var self = this;
-                var textureLoadedCallback = function() {
-                    self._loaded = true;
-                    var texturesize = texture.getContentSize();
-                    if(self._spriteRect === null) {
-                        self._spriteRect = cc.rect(0,0, texturesize.width, texturesize.height);
-                    }
-                    if(self._originalSize === null) {
-                        self._originalSize = cc.size(texturesize);
-                    }
-                    self.emit('load');
-                };
-            if(texture.isLoaded()) {
-                textureLoadedCallback();
-            } else {
-                texture.once("load",textureLoadedCallback);
-            }
-            trimmedDirty = true;
-        }
-        return true;
-    };
-
-    this.initWithSpriteFrame = function(SpriteFrameOrSFName){
-        var spriteFrame;
-        if(SpriteFrameOrSFName instanceof cc.SpriteFrame) {
-            spriteFrame = SpriteFrameOrSFName;
-        }
-        else {
-            spriteFrame = cc.spriteFrameCache.getSpriteFrame(SpriteFrameOrSFName);
-        }
-        
-        if(spriteFrame) {
-            var self = this;
-            var spriteFrameLoadedCallback = function() {
-                self._loaded = true;
-                self._texture = spriteFrame.getTexture();
-                self._spriteRect = spriteFrame.getRect();
-                self._rotated = spriteFrame.isRotated();
-                self._trimmedOffset = spriteFrame.getOffset();
-                self._originalSize = spriteFrame.getOriginalSize();
-                self.emit('load');
-            };
-            if(spriteFrame.textureLoaded()){
-                spriteFrameLoadedCallback();
-            } else {
-                spriteFrame.once("load",spriteFrameLoadedCallback);
-            }
-            trimmedDirty = true;
-        }
-        return true;
-    };
-};
-
-cc.js.mixin(ccui.Scale9Sprite.Scale9ResourceData.prototype, cc.EventTarget.prototype);
 
 var _p = ccui.Scale9Sprite.prototype;
 cc.js.addon(_p, EventTarget.prototype);
