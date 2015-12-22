@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require("../event/event-target");
+var EventTarget = require('../event/event-target');
 
 var NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 var OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -179,109 +179,281 @@ var ScrollView = cc.Class({
         }
     },
 
+    /**
+     * Scroll the content to the bottom boundary of ScrollView.
+     * @method scrollToBottom
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the bottom boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToBottom: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(0, 0),
             applyToHorizontal: false,
             applyToVertical: true,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta, true);
+        }
     },
 
+    /**
+     * Scroll the content to the top boundary of ScrollView.
+     * @method scrollToTop
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the top boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToTop: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(0, 1),
             applyToHorizontal: false,
             applyToVertical: true,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the left boundary of ScrollView.
+     * @method scrollToLeft
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the left boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(0, 0),
             applyToHorizontal: true,
             applyToVertical: false,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the right boundary of ScrollView.
+     * @method scrollToRight
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the right boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(1, 0),
             applyToHorizontal: true,
             applyToVertical: false,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the top left boundary of ScrollView.
+     * @method scrollToTopLeft
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the top left boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToTopLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(0, 1),
             applyToHorizontal: true,
             applyToVertical: true,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the top right boundary of ScrollView.
+     * @method scrollToTopRight
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the top right boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToTopRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(1, 1),
             applyToHorizontal: true,
             applyToVertical: true,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the bottom left boundary of ScrollView.
+     * @method scrollToBottomLeft
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the bottom left boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToBottomLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(0, 0),
             applyToHorizontal: true,
             applyToVertical: true,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the bottom right boundary of ScrollView.
+     * @method scrollToBottomRight
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the bottom right boundary immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToBottomRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(1, 0),
             applyToHorizontal: true,
             applyToVertical: true,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the horizontal percent position  of ScrollView.
+     * @method scrollToPercentHorizontal
+     * @param {Number} percent - A value between 0 and 1.
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the horizontal percent position of ScrollView immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollToPercentHorizontal: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
             anchor: cc.p(percent, 0),
             applyToHorizontal: true,
             applyToVertical: false,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
+    /**
+     * Scroll the content to the percent position of ScrollView in any direction.
+     * @method scrollTo
+     * @param {Point} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the percent position of ScrollView immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
     scrollTo: function(anchor, timeInSecond, attenuated){
         var moveDelta = this._calculateMovePercentDelta({
             anchor: anchor,
             applyToHorizontal: true,
             applyToVertical: true,
         });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
-    jumpTo: function(anchor){
+    /**
+     * Scroll the content to the vertical percent position of ScrollView.
+     * @method scrollToPercentVertical
+     * @param {Number} percent - A value between 0 and 1.
+     * @param {Number} timeInSecond - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the vertical percent position of ScrollView immediately.
+     * @param {Boolean} attenuated - Whether the scroll acceleration attenuated, default is true.
+     */
+    scrollToPercentVertical: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
-            anchor: anchor,
-            applyToHorizontal: true,
+            anchor: cc.p(0, percent),
+            applyToHorizontal: false,
             applyToVertical: true,
         });
-        this._moveContent(moveDelta);
+
+        if(timeInSecond) {
+            this._startAutoScroll(moveDelta, timeInSecond, attenuated !== false);
+        }else {
+            this._moveContent(moveDelta);
+        }
     },
 
-    _calculateMovePercentDelta: function(arguments) {
-        var anchor = arguments.anchor;
-        var applyToHorizontal = arguments.applyToHorizontal;
-        var applyToVertical = arguments.applyToVertical;
+    /**
+     * Modify the content position.
+     * @param {Point} position - The position in content's parent space.
+     */
+    setContentPosition: function(position) {
+        if (cc.pFuzzyEqual(position, this.getContentPosition(), EPSILON)) {
+            return;
+        }
+
+        this.content.setPosition(position);
+
+        this._outOfBoundaryAmountDirty = true;
+
+        //TODO: process bouncing and container move event
+    },
+
+    /**
+     * Query the content's position in its parent space.
+     * @returns {Position} - The content's position in its parent space.
+     */
+    getContentPosition: function() {
+        return this.content.getPosition();
+    },
+
+    //private methods
+    _registerEvent: function() {
+        this._touchListener = cc.EventListener.create({
+            event: cc.EventListener.TOUCH_ONE_BY_ONE,
+            swallowTouches: true,
+            onTouchBegan: this._onTouchBegan.bind(this),
+            onTouchEnded: this._onTouchEnded.bind(this),
+            onTouchMoved: this._onTouchMoved.bind(this),
+            onTouchCancelled: this._onTouchCancelled.bind(this)
+        });
+        cc.eventManager.addListener(this._touchListener, this.node._sgNode);
+    },
+
+    _calculateMovePercentDelta: function(options) {
+        var anchor = options.anchor;
+        var applyToHorizontal = options.applyToHorizontal;
+        var applyToVertical = options.applyToVertical;
 
         anchor = cc.pClamp(anchor, cc.p(0, 0), cc.p(1, 1));
 
@@ -303,140 +475,6 @@ var ScrollView = cc.Class({
         return moveDelta;
     },
 
-    scrollToPercentVertical: function(percent, timeInSecond, attenuated) {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, percent),
-            applyToHorizontal: false,
-            applyToVertical: true,
-        });
-        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    jumpToPercentHorizontal: function(percent) {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(percent, 0),
-            applyToHorizontal: true,
-            applyToVertical: false,
-        });
-        this._moveContent(moveDelta);
-    },
-
-    jumpToPercentVertical: function(percent) {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, percent),
-            applyToHorizontal: false,
-            applyToVertical: true,
-        });
-        this._moveContent(moveDelta);
-    },
-
-    jumpToTop: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 1),
-            applyToHorizontal: false,
-            applyToVertical: true,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    jumpToBottom: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 0),
-            applyToHorizontal: false,
-            applyToVertical: true,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    jumpToLeft: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 0),
-            applyToHorizontal: true,
-            applyToVertical: false,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    jumpToRight: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(1, 0),
-            applyToHorizontal: true,
-            applyToVertical: false,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    jumpToTopLeft: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 1),
-            applyToHorizontal: true,
-            applyToVertical: true,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    jumpToTopRight: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(1, 1),
-            applyToHorizontal: true,
-            applyToVertical: true,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    jumpToBottomLeft: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(0, 0),
-            applyToHorizontal: true,
-            applyToVertical: true,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    jumpToBottomRight: function() {
-        var moveDelta = this._calculateMovePercentDelta({
-            anchor: cc.p(1, 0),
-            applyToHorizontal: true,
-            applyToVertical: true,
-        });
-        this._moveContent(moveDelta, true);
-    },
-
-    setContentPosition: function(position) {
-        if (cc.pFuzzyEqual(position, this.getContentPosition(), EPSILON)) {
-            return;
-        }
-
-        this.content.setPosition(position);
-
-        this._outOfBoundaryAmountDirty = true;
-
-        //TODO: process bouncing and container move event
-    },
-
-    getContentPosition: function() {
-        return this.content.getPosition();
-    },
-
-    //private methods
-    _registerEvent: function() {
-        this._touchListener = cc.EventListener.create({
-            event: cc.EventListener.TOUCH_ONE_BY_ONE,
-            swallowTouches: true,
-            onTouchBegan: this._onTouchBegan.bind(this),
-            onTouchEnded: this._onTouchEnded.bind(this),
-            onTouchMoved: this._onTouchMoved.bind(this),
-            onTouchCancelled: this._onTouchCancelled.bind(this)
-        });
-        cc.eventManager.addListener(this._touchListener, this.node._sgNode);
-    },
-
-    onLoad: function() {
-        if (!CC_EDITOR) {
-            this._registerEvent();
-        }
-    },
-
     _calculateBoundary: function() {
         var scrollViewSize = this.node.getContentSize();
 
@@ -456,15 +494,6 @@ var ScrollView = cc.Class({
         return contentParent.convertToNodeSpaceAR(scrollViewPositionInWorldSpace);
     },
 
-    start: function() {
-        this._calculateBoundary();
-    },
-
-    update: function(dt) {
-        if (this._autoScrolling) {
-            this._processAutoScrolling(dt);
-        }
-    },
 
     _hitTest: function(pos) {
         var target = this.node;
@@ -849,6 +878,22 @@ var ScrollView = cc.Class({
         }
     },
 
+    //component life cycle methods
+    onLoad: function() {
+        if (!CC_EDITOR) {
+            this._registerEvent();
+        }
+    },
+
+    start: function() {
+        this._calculateBoundary();
+    },
+
+    update: function(dt) {
+        if (this._autoScrolling) {
+            this._processAutoScrolling(dt);
+        }
+    },
 
     onDestroy: function() {
         if (this._touchListener) cc.eventManager.removeListener(this._touchListener);
