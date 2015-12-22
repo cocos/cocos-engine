@@ -478,8 +478,7 @@ test('Animation Component', function () {
 
     animation.addClip(clip);
 
-    var clips = animation.getClips();
-    strictEqual(clips.length, 1, 'should add 1 clip');
+    strictEqual(animation.getClips().length, 1, 'should add 1 clip');
 
     var state = animation.getAnimationState('test');
     strictEqual(state.clip, clip, 'should create state with clip');
@@ -497,7 +496,7 @@ test('Animation Component', function () {
     strictEqual(entity.x, 100, 'target property should equals value in frame 10s');
 
     animation.removeClip(clip);
-    strictEqual(clips.length, 0, 'should remove clip');
+    strictEqual(animation.getClips().length, 0, 'should remove clip');
     strictEqual(animation.getAnimationState('test'), null, 'should remove state');
 });
 
@@ -521,7 +520,6 @@ test('CCAnimation._updateClip', function () {
     };
 
     animation.addClip(clip);
-    animation.defaultClip = clip;
     animation._init();
 
     animation.play('test');

@@ -57,17 +57,41 @@ var Animation = cc.Class({
     },
 
     properties: {
-        /**
-         * Animation will play the default clip when start game
-         * @property _defaultClip
-         * @type {AnimationClip}
-         * @private
-         */
+
         _defaultClip: {
             default: null,
             type: AnimationClip,
-            tooltip: 'i18n:COMPONENT.animation.default_clip',
-            visible: true
+        },
+
+        /**
+         * Animation will play the default clip when start game
+         * @property defaultClip
+         * @type {AnimationClip}
+         */
+        defaultClip: {
+            type: AnimationClip,
+            get: function () {
+                return this._defaultClip;
+            },
+            set: function (value) {
+                var engine = cc.engine;
+                if (!CC_EDITOR || (engine && engine.isPlaying)) {
+                    return;
+                }
+
+                this._defaultClip = value;
+
+                var clips = this._clips;
+
+                for (var i = 0, l = clips.length; i < l; i++) {
+                    if (equalClips(value, clips[i])) {
+                        return;
+                    }
+                }
+
+                this.addClip(value);
+            },
+            tooltip: 'i18n:COMPONENT.animation.default_clip'
         },
 
         /**
@@ -134,15 +158,6 @@ var Animation = cc.Class({
     ///////////////////////////////////////////////////////////////////////////////
     // Public Methods
     ///////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Get the default clip. Animation will play the default clip when start game
-     * @method getDefaultClip
-     * @return {AnimationClip}
-     */
-    getDefaultClip: function () {
-        return this._defaultClip;
-    },
 
     /**
      * Get all the clips used in this animation
