@@ -65,7 +65,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                         // just packing
                         return;
                     }
-                    // texture will be init in getTexture()
+
                     var texture = cc.textureCache.addImage(url);
                     this.setTexture(texture);
                     if (this._textureLoaded) {
@@ -537,9 +537,9 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             name: this._name,
             texture: uuid || undefined,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
-            rect: [rect.x, rect.y, rect.width, rect.height],
-            offset: [offset.x, offset.y],
-            originalSize: [size.width, size.height],
+            rect: rect ? [rect.x, rect.y, rect.width, rect.height] : undefined,
+            offset: offset ? [offset.x, offset.y] : undefined,
+            originalSize: size ? [size.width, size.height] : undefined,
             rotated: this._rotated ? 1 : 0,
             capInsets: capInsets
         };
@@ -547,12 +547,15 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     _deserialize: function (data, handle) {
         var rect = data.rect;
-        this._rect = new cc.Rect(rect[0], rect[1], rect[2], rect[3]);
-        this._rectInPixels = cc.rectPointsToPixels(this._rect);
-        this._offset = new cc.Vec2(data.offset[0], data.offset[1]);
-        this._offsetInPixels = cc.pointPointsToPixels(this._offset);
-        this._originalSize = new cc.Size(data.originalSize[0], data.originalSize[1]);
-        this._originalSizeInPixels = cc.sizePointsToPixels(this._originalSize);
+        if (data.rect) {
+            this.setRect(new cc.Rect(rect[0], rect[1], rect[2], rect[3]));
+        }
+        if (data.offset) {
+            this.setOffset(new cc.Vec2(data.offset[0], data.offset[1]));
+        }
+        if (data.originalSize) {
+            this.setOriginalSize(new cc.Size(data.originalSize[0], data.originalSize[1]));
+        }
         this._rotated = data.rotated === 1;
         this._name = data.name;
         var capInsets = data.capInsets;
