@@ -404,8 +404,6 @@ var ScrollView = cc.Class({
 
     start: function() {
         this._calculateBoundary();
-
-        this._updateScrollBar(0);
     },
 
     update: function(dt) {
