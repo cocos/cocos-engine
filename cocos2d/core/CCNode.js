@@ -24,12 +24,125 @@
 
 'use strict';
 
+var EventTarget = require('./event/event-target');
+
 var JS = cc.js;
 var Flags = cc.Object.Flags;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
+/**
+ * The event type supported by Node
+ * @class Node.EventType
+ * @static
+ * @namespace Node
+ */
+var EventType = cc.Enum({
+    /**
+     * The event type for touch begin event
+     * @property TOUCH_BEGAN
+     * @type {String}
+     * @readonly
+     */
+    TOUCH_BEGAN: 'touch_began',
+    /**
+     * The event type for touch move event
+     * @property TOUCH_MOVED
+     * @type {String}
+     * @value 1
+     * @readonly
+     */
+    TOUCH_MOVED: 'touch_moved',
+    /**
+     * The event type for touch end event
+     * @property TOUCH_ENDED
+     * @type {String}
+     * @readonly
+     */
+    TOUCH_ENDED: 'touch_ended',
+
+    /**
+     * The event type for mouse down events
+     * @property MOUSE_DOWN
+     * @type {String}
+     * @readonly
+     */
+    MOUSE_DOWN: 'mouse_down',
+    /**
+     * The event type for mouse move events
+     * @property MOUSE_MOVED
+     * @type {String}
+     * @readonly
+     */
+    MOUSE_MOVED: 'mouse_moved',
+    /**
+     * The event type for mouse up events
+     * @property MOUSE_UP
+     * @type {String}
+     * @readonly
+     */
+    MOUSE_UP: 'mouse_up',
+});
+
+var _touchBeganHandler = function (touch, event) {
+    var pos = touch.getLocation();
+    var node = this.owner;
+
+    if (node._hitTest(pos)) {
+        event.type = EventType.TOUCH_BEGAN;
+        event.touch = touch;
+        event.bubbles = true;
+        node.dispatchEvent(event);
+        return true;
+    }
+    return false;
+};
+var _touchMovedHandler = function (touch, event) {
+    var node = this.owner;
+    event.type = EventType.TOUCH_MOVED;
+    event.touch = touch;
+    event.bubbles = true;
+    node.dispatchEvent(event);
+};
+var _touchEndedHandler = function (touch, event) {
+    var node = this.owner;
+    event.type = EventType.TOUCH_ENDED;
+    event.touch = touch;
+    event.bubbles = true;
+    node.dispatchEvent(event);
+};
+
+var _mouseDownHandler = function (event) {
+    var pos = event.getLocation();
+    var node = this.owner;
+
+    if (node._hitTest(pos)) {
+        event.type = EventType.MOUSE_DOWN;
+        node.dispatchEvent(event);
+        event.stopPropagation();
+    }
+};
+var _mouseMovedHandler = function (event) {
+    var pos = event.getLocation();
+    var node = this.owner;
+
+    if (node._hitTest(pos)) {
+        event.type = EventType.MOUSE_MOVED;
+        node.dispatchEvent(event);
+        event.stopPropagation();
+    }
+};
+var _mouseUpHandler = function (event) {
+    var pos = event.getLocation();
+    var node = this.owner;
+
+    if (node._hitTest(pos)) {
+        event.type = EventType.MOUSE_UP;
+        node.dispatchEvent(event);
+        event.stopPropagation();
+    }
+};
 
 
 /**
@@ -131,6 +244,14 @@ var Node = cc.Class({
         // cache component
         this._widget = null;
 
+        // Touch event listener
+        this._touchListener = null;
+
+        // Mouse event listener
+        this._mouseListener = null;
+
+        EventTarget.call(this);
+
         /**
          * Register all related EventTargets,
          * all event callbacks will be removed in _onPreDestroy
@@ -192,6 +313,13 @@ var Node = cc.Class({
         }
         this.__eventTargets.length = 0;
 
+        if (this._touchListener) {
+            cc.eventManager.removeListener(this._touchListener);
+        }
+        if (this._mouseListener) {
+            cc.eventManager.removeListener(this._mouseListener);
+        }
+
         // remove from persist
         if (this._persistNode) {
             cc.game.removePersistRootNode(this);
@@ -250,11 +378,11 @@ var Node = cc.Class({
         var err, existing = this.getComponent(ctor._disallowMultiple);
         if (existing) {
             if (existing.constructor === ctor) {
-                err = 'Can\'t add component \'%s\' because %s already contains the same component.';
+                err = 'Can\'t add component "%s" because %s already contains the same component.';
                 cc.error(err, JS.getClassName(ctor), this._name);
             }
             else {
-                err = 'Can\'t add component \'%s\' to %s because it conflicts with the existing \'%s\' derived component.';
+                err = 'Can\'t add component "%s" to %s because it conflicts with the existing "%s" derived component.';
                 cc.error(err, JS.getClassName(ctor), this._name, JS.getClassName(existing));
             }
             return false;
@@ -589,9 +717,130 @@ var Node = cc.Class({
                 comp._sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
             }
         }
-    }
+    },
+
+// EVENTS
+    /**
+     * Register an callback of a specific event type on Node.
+     * Use this method to register touch or mouse event permit propagation based on scene graph,
+     * you can propagate the event to the parents or swallow it by calling stopPropagation on the event.
+     * It's the recommended way to register touch/mouse event for Node, 
+     * please do not use cc.eventManager directly for Node.
+     *
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {Event} callback.param event
+     * @param {Object} [target] - The target to invoke the callback, can be null
+     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     */
+    on: function (type, callback, target) {
+        if (type === EventType.TOUCH_BEGAN || type === EventType.TOUCH_MOVED || type === EventType.TOUCH_ENDED) {
+            if (!this._touchListener) {
+                this._touchListener = cc.EventListener.create({
+                    event: cc.EventListener.TOUCH_ONE_BY_ONE,
+                    swallowTouches: true,
+                    owner: this,
+                    onTouchBegan: _touchBeganHandler,
+                    onTouchMoved: _touchMovedHandler,
+                    onTouchEnded: _touchEndedHandler
+                });
+                cc.eventManager.addListener(this._touchListener, this);
+            }
+        }
+        else if (type === EventType.MOUSE_DOWN || type === EventType.MOUSE_MOVED || type === EventType.MOUSE_UP) {
+            if (!this._mouseListener) {
+                this._mouseListener = cc.EventListener.create({
+                    event: cc.EventListener.MOUSE,
+                    owner: this,
+                    onMouseDown: _mouseDownHandler,
+                    onMouseMove: _mouseMovedHandler,
+                    onMouseUp: _mouseUpHandler
+                });
+                cc.eventManager.addListener(this._mouseListener, this);
+            }
+        }
+        EventTarget.prototype.on.call(this, type, callback, target);
+    },
+
+    off: function (type, callback, target) {
+        EventTarget.prototype.off.call(this, type, callback, target);
+
+        if (type === EventType.TOUCH_BEGAN || type === EventType.TOUCH_MOVED || type === EventType.TOUCH_ENDED) {
+            this._checkTouchListeners();
+        }
+        else if (type === EventType.MOUSE_DOWN || type === EventType.MOUSE_MOVED || type === EventType.MOUSE_UP) {
+            this._checkMouseListeners();
+        }
+    },
+
+    targetOff: function (target) {
+        EventTarget.prototype.targetOff.call(this, target);
+
+        this._checkTouchListeners();
+        this._checkMouseListeners();
+    },
+
+    _checkTouchListeners: function () {
+        if (this._bubblingListeners &&
+            !this._bubblingListeners.has(EventType.TOUCH_BEGAN) &&
+            !this._bubblingListeners.has(EventType.TOUCH_MOVED) &&
+            !this._bubblingListeners.has(EventType.TOUCH_UP) &&
+            this._touchListener) 
+        {
+            cc.eventManager.removeListener(this._touchListener);
+            this._touchListener = null;
+        }
+    },
+    _checkMouseListeners: function () {
+        if (this._bubblingListeners &&
+            !this._bubblingListeners.has(EventType.MOUSE_DOWN) &&
+            !this._bubblingListeners.has(EventType.MOUSE_MOVED) &&
+            !this._bubblingListeners.has(EventType.MOUSE_UP) &&
+            this._mouseListener) 
+        {
+            cc.eventManager.removeListener(this._mouseListener);
+            this._mouseListener = null;
+        }
+    },
+
+    _hitTest: function (point) {
+        var apx = this._anchorPoint.x,
+            apy = this._anchorPoint.y,
+            w = this.width,
+            h = this.height;
+        var rect = cc.rect(-apx * w, -apy * h, w, h);
+        var trans = this.getNodeToWorldTransform();
+        cc._rectApplyAffineTransformIn(rect, trans);
+        var left = point.x - rect.x,
+            right = rect.x + rect.width - point.x,
+            bottom = point.y - rect.y,
+            top = rect.y + rect.height - point.y;
+        if (left >= 0 && right >= 0 && top >= 0 && bottom >= 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    },
+
+    // Store all bubbling parents that are listening to the same event in the array
+    _getBubblingTargets: function (type, array) {
+        var parent = this.parent;
+        while (parent) {
+            if (parent.hasEventListener(type)) {
+                array.push(parent);
+            }
+            parent = parent.parent;
+        }
+    },
 
 });
+
+Node.EventType = EventType;
+
+cc.js.addon(Node.prototype, EventTarget.prototype);
 
 /**
  * @event position-changed

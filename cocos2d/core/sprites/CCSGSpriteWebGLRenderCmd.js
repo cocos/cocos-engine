@@ -429,7 +429,7 @@
         if ((locTexture &&!locTexture._textureLoaded) || this._displayedOpacity === 0)
             return;
 
-        var gl = ctx || cc._renderContext ;
+        var gl = ctx || cc._renderContext;
         //cc.assert(!_t._batchNode, "If _ccsg.Sprite is being rendered by cc.SpriteBatchNode, _ccsg.Sprite#draw SHOULD NOT be called");
 
         if (locTexture) {

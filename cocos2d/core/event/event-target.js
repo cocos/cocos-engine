@@ -122,7 +122,11 @@ JS.mixin(EventTarget.prototype, {
      * @param {Boolean} A value of true if a callback of the specified type is registered; false otherwise.
      */
     hasEventListener: function (type) {
-        return this._bubblingListeners.has(type) || this._capturingListeners.has(type);
+        if (this._bubblingListeners && this._bubblingListeners.has(type))
+            return true;
+        if (this._capturingListeners && this._capturingListeners.has(type))
+            return true;
+        return false;
     },
 
     /**
