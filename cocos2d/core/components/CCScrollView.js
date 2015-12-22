@@ -179,172 +179,226 @@ var ScrollView = cc.Class({
         }
     },
 
-
-    _calculateMoveToBottomDelta: function() {
-        var moveDelta = cc.p(0, this._bottomBoundary - this._getContentBottomBoundary());
-        return moveDelta;
-    },
-
     scrollToBottom: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToBottomDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 0),
+            applyToHorizontal: false,
+            applyToVertical: true,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMoveToTopDelta: function() {
-        var moveDelta = cc.p(0, this._topBoundary - this._getContentTopBoundary());
-        return moveDelta;
     },
 
     scrollToTop: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToTopDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 1),
+            applyToHorizontal: false,
+            applyToVertical: true,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMoveToLeftDelta: function() {
-        var moveDelta = cc.p(this._leftBoundary - this._getContentLeftBoundary(), 0);
-        return moveDelta;
     },
 
     scrollToLeft: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToLeftDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 0),
+            applyToHorizontal: true,
+            applyToVertical: false,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMoveToRightDelta: function() {
-        var moveDelta = cc.p(this._rightBoundary - this._getContentRightBoundary(), 0);
-        return moveDelta;
     },
 
     scrollToRight: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToRightDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(1, 0),
+            applyToHorizontal: true,
+            applyToVertical: false,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMoveToTopLeftDelta: function() {
-        var moveDelta = cc.p(this._leftBoundary - this._getContentLeftBoundary(),
-            this._topBoundary - this._getContentTopBoundary());
-        return moveDelta;
     },
 
     scrollToTopLeft: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToTopLeftDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 1),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMoveToTopRightDelta: function() {
-        var moveDelta = cc.p(this._rightBoundary - this._getContentRightBoundary(),
-            this._topBoundary - this._getContentTopBoundary());
-        return moveDelta;
     },
 
     scrollToTopRight: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToTopRightDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(1, 1),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMoveToBottomLeftDelta: function() {
-        var moveDelta = cc.p(this._leftBoundary - this._getContentLeftBoundary(),
-            this._bottomBoundary - this._getContentBottomBoundary());
-        return moveDelta;
     },
 
     scrollToBottomLeft: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToBottomLeftDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 0),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMoveToBottomRightDelta: function() {
-        var moveDelta = cc.p(this._rightBoundary - this._getContentRightBoundary(),
-            this._bottomBoundary - this._getContentBottomBoundary());
-        return moveDelta;
     },
 
     scrollToBottomRight: function(timeInSecond, attenuated) {
-        var moveDelta = this._calculateMoveToBottomRightDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(1, 0),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
-    },
-
-    _calculateMovePercentHorizontalDelta: function(percent) {
-        percent = cc.clampf(percent, 0, 100);
-
-        var scrollSize = this.node.getContentSize();
-        var contentSize = this.content.getContentSize();
-        var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
-
-        var moveDelta = cc.p((contentSize.width - scrollSize.width) * percent / 100 - leftDeta, 0);
-        moveDelta = cc.pNeg(moveDelta);
-        return moveDelta;
     },
 
     scrollToPercentHorizontal: function(percent, timeInSecond, attenuated) {
-        var moveDelta = this._calculateMovePercentHorizontalDelta(percent);
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(percent, 0),
+            applyToHorizontal: true,
+            applyToVertical: false,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
     },
 
-    _calculateMovePercentVerticalDelta: function(percent) {
-        percent = cc.clampf(percent, 0, 100);
+    scrollTo: function(anchor, timeInSecond, attenuated){
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: anchor,
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
+        this._startAutoScroll(moveDelta, timeInSecond, attenuated);
+    },
+
+    jumpTo: function(anchor){
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: anchor,
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
+        this._moveContent(moveDelta);
+    },
+
+    _calculateMovePercentDelta: function(arguments) {
+        var anchor = arguments.anchor;
+        var applyToHorizontal = arguments.applyToHorizontal;
+        var applyToVertical = arguments.applyToVertical;
+
+        anchor = cc.pClamp(anchor, cc.p(0, 0), cc.p(1, 1));
 
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();
         var bottomDeta = Math.abs(this._getContentBottomBoundary() - this._bottomBoundary);
+        var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
 
-        var moveDelta = cc.p(0, (contentSize.height - scrollSize.height) * percent / 100 - bottomDeta);
+        var moveDelta = cc.p(0, 0);
+        if(applyToHorizontal) {
+            moveDelta.x = (contentSize.width - scrollSize.width) * anchor.x - leftDeta;
+        }
+
+        if(applyToVertical) {
+            moveDelta.y = (contentSize.height - scrollSize.height) * anchor.y  - bottomDeta;
+        }
+
         moveDelta = cc.pNeg(moveDelta);
         return moveDelta;
     },
 
     scrollToPercentVertical: function(percent, timeInSecond, attenuated) {
-        var moveDelta = this._calculateMovePercentVerticalDelta(percent);
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, percent),
+            applyToHorizontal: false,
+            applyToVertical: true,
+        });
         this._startAutoScroll(moveDelta, timeInSecond, attenuated);
     },
 
     jumpToPercentHorizontal: function(percent) {
-        var moveDelta = this._calculateMovePercentHorizontalDelta(percent);
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(percent, 0),
+            applyToHorizontal: true,
+            applyToVertical: false,
+        });
         this._moveContent(moveDelta);
     },
 
     jumpToPercentVertical: function(percent) {
-        var moveDelta = this._calculateMovePercentVerticalDelta(percent);
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, percent),
+            applyToHorizontal: false,
+            applyToVertical: true,
+        });
         this._moveContent(moveDelta);
     },
 
     jumpToTop: function() {
-        var moveDelta = this._calculateMoveToTopDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 1),
+            applyToHorizontal: false,
+            applyToVertical: true,
+        });
         this._moveContent(moveDelta, true);
     },
 
     jumpToBottom: function() {
-        var moveDelta = this._calculateMoveToBottomDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 0),
+            applyToHorizontal: false,
+            applyToVertical: true,
+        });
         this._moveContent(moveDelta, true);
     },
 
     jumpToLeft: function() {
-        var moveDelta = this._calculateMoveToLeftDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 0),
+            applyToHorizontal: true,
+            applyToVertical: false,
+        });
         this._moveContent(moveDelta, true);
     },
 
     jumpToRight: function() {
-        var moveDelta = this._calculateMoveToRightDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(1, 0),
+            applyToHorizontal: true,
+            applyToVertical: false,
+        });
         this._moveContent(moveDelta, true);
     },
 
     jumpToTopLeft: function() {
-        var moveDelta = this._calculateMoveToTopLeftDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 1),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._moveContent(moveDelta, true);
     },
 
     jumpToTopRight: function() {
-        var moveDelta = this._calculateMoveToTopRightDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(1, 1),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._moveContent(moveDelta, true);
     },
 
     jumpToBottomLeft: function() {
-        var moveDelta = this._calculateMoveToBottomLeftDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(0, 0),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._moveContent(moveDelta, true);
     },
 
     jumpToBottomRight: function() {
-        var moveDelta = this._calculateMoveToBottomRightDelta();
+        var moveDelta = this._calculateMovePercentDelta({
+            anchor: cc.p(1, 0),
+            applyToHorizontal: true,
+            applyToVertical: true,
+        });
         this._moveContent(moveDelta, true);
     },
 
