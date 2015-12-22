@@ -73,7 +73,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     }
                 }
             }
-        },
+        }
     },
 
     ctor: function () {
@@ -448,12 +448,6 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
     setTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
 
-        rect = rect || null;
-        offset = offset || null;
-        originalSize = originalSize || null;
-        rotated = rotated || false;
-
-
         if (rect) {
             this.setRectInPixels(rect);
         } else {
@@ -472,7 +466,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._originalSize = this._originalSizeInPixels = null;
         }
 
-        this._rotated = rotated;
+        this._rotated = rotated || false;
 
         //loading texture
         var texture = textureOrTextureFile;
@@ -620,6 +614,6 @@ cc.SpriteFrame.create = function (filename, rect, rotated, offset, originalSize)
  */
 cc.SpriteFrame.createWithTexture = cc.SpriteFrame.create;
 
-cc.SpriteFrame._frameWithTextureForCanvas = function () {
+cc.SpriteFrame._frameWithTextureForCanvas = function (texture, rect, rotated, offset, originalSize) {
     return new cc.SpriteFrame(texture, rect, rotated, offset, originalSize);
 };
