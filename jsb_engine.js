@@ -279,13 +279,14 @@ mixin(cc.director, {
             cc.eventManager.setEnabled(true);
 
         // Action manager
-        if(this._actionManager){
-            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        var actionManager = this.getActionManager();
+        if (actionManager) {
+            this.getScheduler().scheduleUpdate(actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
         // Animation manager
         if (this._animationManager) {
-            this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+            this.getScheduler().scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
         this.startAnimation();

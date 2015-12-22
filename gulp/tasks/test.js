@@ -34,7 +34,7 @@ function test () {
 }
 
 gulp.task('test', ['build-test', 'unit-runner'], test);
-gulp.task('visual-test', ['build-test', 'unit-runner'], shell.task([
+gulp.task('visual-test', ['build-test'], shell.task([
     'sh ./test/visual-tests/run.sh'
 ]));
 gulp.task('rerun-test', test);
