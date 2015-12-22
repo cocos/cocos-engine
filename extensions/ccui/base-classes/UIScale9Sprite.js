@@ -69,24 +69,24 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
     _quads: [],
     _quadsDirty: true,
 
-    ctor: function (fileOrData) {
+    ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
         this.setAnchorPoint(cc.p(0.5,0.5));
-        //todo
-        if(fileOrData instanceof  cc.Scale9Sprite.Scale9ResourceData) {
-            this.initWithResourceData(fileOrData);
-        }
-        else {
-            if(typeof fileOrData === 'string') {
-                var frame = cc.spriteFrameCache.getSpriteFrame(fileOrData);
-                if(frame) {
-                    this.initWithSpriteFrame(frame);
-                } else {
-                    this.initWithTexture(fileOrData);
-                }
+        //
+        if(typeof textureOrSpriteFrame === 'string') {
+            var frame = cc.spriteFrameCache.getSpriteFrame(textureOrSpriteFrame);
+            if(frame) {
+                this.initWithSpriteFrame(frame);
+            } else {
+                this.initWithTexture(textureOrSpriteFrame);
             }
+        } else if(textureOrSpriteFrame instanceof  cc.SpriteFrame) {
+            this.initWithSpriteFrame(textureOrSpriteFrame);
+        }
+        else if(textureOrSpriteFrame instanceof cc.Texture2D){
+            this.initWithTexture(textureOrSpriteFrame);
         }
     },
 
@@ -94,7 +94,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         if (this._resourceData === null) {
             return false;
         } else {
-            return this._resourceData.loaded();
+            return this._resourceData.textureLoaded();
         }
     },
 
@@ -115,19 +115,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         this.setSpriteFrame(spriteFrameOrSFName);
     },
 
-    initWithResourceData: function (s9ResData) {
-        this.setResourceData(s9ResData);
-    },
-
     /**
      * Change the texture file of 9 slice sprite
      *
      * @param textureOrTextureFile The name of the texture file.
      */
     setTexture: function (textureOrTextureFile) {
-        var resourceData = new cc.Scale9Sprite.Scale9ResourceData();
-        resourceData.initWithTexture(textureOrTextureFile);
-        this.setResourceData(resourceData);
+        var spriteFrame = cc.SpriteFrame.createWithTexture(textureOrTextureFile);
+        this.setSpriteFrame(spriteFrame);
     },
 
     /**
@@ -135,29 +130,30 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
      *
      * @param spriteFrameOrSFFileName The name of the texture file.
      */
-    setSpriteFrame: function (spriteFrameOrSFFileName) {
-        var resourceData = new cc.Scale9Sprite.Scale9ResourceData();
-        resourceData.initWithSpriteFrame(spriteFrameOrSFFileName);
-        this.setResourceData(resourceData);
-    },
+    setSpriteFrame: function (spriteFrameOrSFName) {
+        var spriteFrame;
+        if(spriteFrameOrSFName instanceof cc.SpriteFrame) {
+            spriteFrame = spriteFrameOrSFName;
+        }
+        else {
+            spriteFrame = cc.spriteFrameCache.getSpriteFrame(spriteFrameOrSFName);
+        }
 
-    setResourceData: function (s9ResData) {
-        if (s9ResData instanceof cc.Scale9Sprite.Scale9ResourceData) {
-            this._resourceData = s9ResData;
+        if(spriteFrame) {
+            this._resourceData = spriteFrame;
             this._quadsDirty = true;
             var self = this;
             var onResourceDataLoaded = function() {
                 if(cc.sizeEqualToSize(self._contentSize, cc.size(0,0))) {
-                    self.setContentSize(self._resourceData._originalSize);
+                    self.setContentSize(self._resourceData.getRect());
                 }
             };
-            if(s9ResData.loaded()) {
+            if(spriteFrame.textureLoaded()) {
                 onResourceDataLoaded();
             } else {
-                s9ResData.once('load', onResourceDataLoaded, this);
+                spriteFrame.once('load', onResourceDataLoaded, this);
             }
         }
-
     },
 
     /**
@@ -301,7 +297,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
 
     _rebuildQuads: function () {
         if (!this.loaded() || this._quadsDirty === false) return;
-        var resourceData = this._resourceData;
+        var spriteFrame = this._resourceData;
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
 
@@ -327,7 +323,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
             quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[3].y, 0);
             quad._tr.vertices = new cc.Vertex3F(vertices[3].x, vertices[3].y, 0);
 
-            if (!resourceData._rotated) {
+            if (!spriteFrame.isRotated()) {
                 quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
                 quad._br.texCoords = new cc.Tex2F(uvs[3].x, uvs[0].y);
                 quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[3].y);
@@ -354,7 +350,7 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
                     quad._tl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j + 1].y, 0);
                     quad._tr.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j + 1].y, 0);
 
-                    if (!resourceData._rotated) {
+                    if (!spriteFrame.isRotated()) {
                         quad._bl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j].y);
                         quad._br.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j].y);
                         quad._tl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j + 1].y);
@@ -377,14 +373,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
 
-        var resourceData = this._resourceData;
+        var spriteFrame = this._resourceData;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        centerWidth = resourceData._spriteRect.width - leftWidth - rightWidth;
+        centerWidth = spriteFrame.getRect().width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        centerHeight = resourceData._spriteRect.height - topHeight - bottomHeight;
+        centerHeight = spriteFrame.getRect().height - topHeight - bottomHeight;
 
         var preferSize = this.getContentSize();
         var sizableWidth = preferSize.width - leftWidth - rightWidth;
@@ -436,13 +432,13 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
         var topHeight, centerHeight, bottomHeight;
         leftWidth = this._insetLeft;
         rightWidth = this._insetRight;
-        centerWidth = resourceData._spriteRect.width - leftWidth - rightWidth;
+        centerWidth = resourceData.getRect().width - leftWidth - rightWidth;
 
         topHeight = this._insetTop;
         bottomHeight = this._insetBottom;
-        centerHeight = resourceData._spriteRect.height - topHeight - bottomHeight;
+        centerHeight = resourceData.getRect().height - topHeight - bottomHeight;
 
-        var textureRect = cc.rectPointsToPixels(resourceData._spriteRect);
+        var textureRect = cc.rectPointsToPixels(resourceData.getRect());
 
         //uv computation should take spritesheet into account.
         var u0, u1, u2, u3;
