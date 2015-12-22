@@ -32,11 +32,11 @@ var BASE_TEST_SUBTITLE_TAG = 12;
 
 
 var autoTestEnabled = autoTestEnabled || false;
-var autoTestCurrentTestName = autoTestCurrentTestName || "N/A";
+var autoTestCurrentTestName = autoTestCurrentTestName || 'N/A';
 
 var BaseTestLayerProps = {
 
-    ctor:function(colorA, colorB ) {
+    ctor:function(colorA, colorB, backHandler, flowControler) {
 
         cc.sys.garbageCollect();
 
@@ -46,7 +46,7 @@ var BaseTestLayerProps = {
 
         if( arguments.length >= 1 )
             a = colorA;
-        if( arguments.length == 2 )
+        if( arguments.length >= 2 )
             b = colorB;
 
         // for automation, no gradient. helps for grabbing the screen if needed
@@ -57,15 +57,25 @@ var BaseTestLayerProps = {
 
         this._super( a, b );
 
-        // Update winsize in case it was resized
-        winSize = director.getWinSize();
-
         if( autoTestEnabled ) {
             this.totalNumberOfTests = this.numberOfPendingTests();
             this.scheduleOnce( this.endTest, this.testDuration );
 
             this.setupAutomation();
         }
+
+        if (backHandler) {
+            var label = new cc.LabelTTF('Back', 'Arial', 20);
+            var menuItem = new cc.MenuItemLabel(label, backHandler, this);
+            var menu = new cc.Menu(menuItem);
+            menu.x = 0;
+            menu.y = 0;
+            menuItem.x = cc.winSize.width - 50;
+            menuItem.y = 25;
+            this.addChild(menu, 1);
+        }
+
+        this._flowControler = flowControler || null;
     },
 
     setupAutomation:function() {
@@ -74,7 +84,7 @@ var BaseTestLayerProps = {
     },
 
     getTitle:function() {
-        var t = "";
+        var t = '';
 
         // some tests use "this.title()" and others use "this._title";
         if( 'title' in this )
@@ -84,7 +94,7 @@ var BaseTestLayerProps = {
         return t;
     },
     getSubtitle:function() {
-        var st = "";
+        var st = '';
         // some tests use "this.subtitle()" and others use "this._subtitle";
         if(this.subtitle)
             st = this.subtitle();
@@ -104,17 +114,17 @@ var BaseTestLayerProps = {
         this._super();
 
         var t = this.getTitle();
-        var label = new cc.LabelTTF(t, "Arial", 28);
+        var label = new cc.LabelTTF(t, 'Arial', 28);
         this.addChild(label, 100, BASE_TEST_TITLE_TAG);
-        label.x = winSize.width / 2;
-        label.y = winSize.height - 50;
+        label.x = cc.winSize.width / 2;
+        label.y = cc.winSize.height - 50;
 
         var st = this.getSubtitle();
         if (st) {
-            var l = new cc.LabelTTF(st.toString(), "Thonburi", 16);
+            var l = new cc.LabelTTF(st.toString(), 'Thonburi', 16);
             this.addChild(l, 101, BASE_TEST_SUBTITLE_TAG);
-            l.x = winSize.width / 2;
-            l.y = winSize.height - 80;
+            l.x = cc.winSize.width / 2;
+            l.y = cc.winSize.height - 80;
         }
 
         var item1 = new cc.MenuItemImage(s_pathB1, s_pathB2, this.onBackCallback, this);
@@ -130,23 +140,35 @@ var BaseTestLayerProps = {
         menu.x = 0;
         menu.y = 0;
         var width = item2.width, height = item2.height;
-        item1.x =  winSize.width/2 - width*2;
+        item1.x =  cc.winSize.width/2 - width*2;
         item1.y = height/2 ;
-        item2.x =  winSize.width/2;
+        item2.x =  cc.winSize.width/2;
         item2.y = height/2 ;
-        item3.x =  winSize.width/2 + width*2;
+        item3.x =  cc.winSize.width/2 + width*2;
         item3.y = height/2 ;
 
         this.addChild(menu, 102, BASE_TEST_MENU_TAG);
     },
     onRestartCallback:function (sender) {
-        // override me
+        if (this._flowControler) {
+            var s = new _ccsg.Scene();
+            s.addChild(this._flowControler.current());
+            cc.director.runScene(s);
+        }
     },
     onNextCallback:function (sender) {
-        // override me
+        if (this._flowControler) {
+            var s = new _ccsg.Scene();
+            s.addChild(this._flowControler.next());
+            cc.director.runScene(s);
+        }
     },
     onBackCallback:function (sender) {
-        // override me
+        if (this._flowControler) {
+            var s = new _ccsg.Scene();
+            s.addChild(this._flowControler.previous());
+            cc.director.runScene(s);
+        }
     },
     //------------------------------------------
     //
@@ -160,17 +182,17 @@ var BaseTestLayerProps = {
     // Automated test
     getExpectedResult:function() {
         // Override me
-        throw "Not Implemented";
+        throw 'Not Implemented';
     },
 
     // Automated test
     getCurrentResult:function() {
         // Override me
-        throw "Not Implemented";
+        throw 'Not Implemented';
     },
 
     compareResults:function(current, expected) {
-        return (current == expected);
+        return (current === expected);
     },
 
     tearDown:function(dt) {
@@ -181,38 +203,44 @@ var BaseTestLayerProps = {
 
         var ret = this.compareResults(current, expected);
         if( ! ret )
-            this.errorDescription = "Expected value: '" + expected + "'. Current value'" + current +  "'.";
+            this.errorDescription = 'Expected value: \'' + expected + '\'. Current value\'' + current +  '\'.';
 
         return ret;
     },
 
     endTest:function(dt) {
 
-        this.errorDescription = "";
+        this.errorDescription = '';
         var title = this.getTitle();
 
         try {
             if( this.tearDown(dt) ) {
                 // Test OK
-                cc.log( autoTestCurrentTestName + " - " + this.getTestNumber() + ": Test '" + title + "':' OK");
+                cc.log( autoTestCurrentTestName + ' - ' + this.getTestNumber() + ': Test \'' + title + '\':\' OK');
             } else {
                 // Test failed
-                cc.log( autoTestCurrentTestName + " - " +this.getTestNumber() + ": Test '" + title + "': Error: " + this.errorDescription );
+                cc.log( autoTestCurrentTestName + ' - ' +this.getTestNumber() + ': Test \'' + title + '\': Error: ' + this.errorDescription );
             }
         } catch(err) {
-            cc.log( autoTestCurrentTestName + " - " +this.getTestNumber() + ": Test '" + title + "':'" + err);
+            cc.log( autoTestCurrentTestName + ' - ' +this.getTestNumber() + ': Test \'' + title + '\':\'' + err);
         }
 
         this.runNextTest();
     },
 
+    // automation
     numberOfPendingTests:function() {
-        // override me. Should return true if the last test was executed
-        throw "Override me: numberOfPendingTests";
+        if (this._flowControler) 
+            return ( (this._flowControler.length-1) - this._flowControler.getId() );
+        else 
+            throw 'Override me: numberOfPendingTests';
     },
-
     getTestNumber:function() {
-        throw "Override me: getTestNumber";
+        if (this._flowControler) 
+            return this._flowControler.getId();
+        else 
+            throw 'Override me: getTestNumber';
+        
     },
 
     runNextTest:function() {
@@ -220,21 +248,20 @@ var BaseTestLayerProps = {
             var scene = new _ccsg.Scene();
             var layer = new TestController();
             scene.addChild(layer);
-            director.runScene(scene);
+            cc.director.runScene(scene);
         } else
             try {
                 this.onNextCallback(this);
             } catch (err) {
-                cc.log( autoTestCurrentTestName + " - " +this.getTestNumber() + ": Test '" + this.getTitle() + "':'" + err);
+                cc.log( autoTestCurrentTestName + ' - ' +this.getTestNumber() + ': Test \'' + this.getTitle() + '\':\'' + err);
                 this.runNextTest();
             }
     },
 
 
     containsPixel: function(arr, pix, approx, range) {
-
-    range = range || 50.0;
-    approx = approx || false;
+        range = range || 50.0;
+        approx = approx || false;
 
         var abs = function(a,b) {
         return ((a-b) > 0) ? (a-b) : (b-a);
@@ -242,7 +269,7 @@ var BaseTestLayerProps = {
 
     var pixelEqual = function(pix1, pix2) {
         if(approx && abs(pix1, pix2) < range) return true;
-        else if(!approx && pix1 == pix2) return true;
+        else if(!approx && pix1 === pix2) return true;
         return false;
     };
 
@@ -257,14 +284,14 @@ var BaseTestLayerProps = {
     },
 
     readPixels:function(x,y,w,h) {
-        if( 'opengl' in cc.sys.capabilities) {
+        if ( 'opengl' in cc.sys.capabilities) {
             var size = 4 * w * h;
             var array = new Uint8Array(size);
             gl.readPixels(x, y, w, h, gl.RGBA, gl.UNSIGNED_BYTE, array);
             return array;
         } else {
             // implement a canvas-html5 readpixels
-            return cc._renderContext.getImageData(x, winSize.height-y-h, w, h).data;
+            return cc._renderContext.getImageData(x, cc.winSize.height-y-h, w, h).data;
         }
     },
 
@@ -293,7 +320,33 @@ var BaseTestLayerProps = {
 
 var BaseTestLayer = cc.LayerGradient.extend(BaseTestLayerProps);
 
-var FlowControl = function (testArray) {
+cc.js.mixin(BaseTestLayerProps, {
+    onRestartCallback:function () {
+        if (this._flowControler) {
+            var s = new cc.Scene();
+            s._sgNode.addChild(this._flowControler.current());
+            cc.director.runScene(s);
+        }
+    },
+    onNextCallback:function () {
+        if (this._flowControler) {
+            var s = new cc.Scene();
+            s._sgNode.addChild(this._flowControler.next());
+            cc.director.runScene(s);
+        }
+    },
+    onBackCallback:function () {
+        if (this._flowControler) {
+            var s = new cc.Scene();
+            s._sgNode.addChild(this._flowControler.previous());
+            cc.director.runScene(s);
+        }
+    },
+});
+
+var ECSTestLayer = cc.LayerGradient.extend(BaseTestLayerProps);
+
+var FlowControl = function (testArray, forECS) {
 
     var sceneIdx = 0;
 
@@ -320,9 +373,16 @@ var FlowControl = function (testArray) {
         },
         start: function() {
             sceneIdx = 0;
-            var s = new _ccsg.Scene();
-            s.addChild(this.current());
-            cc.director.runScene(s);
+            if (forECS) {
+                var s = new cc.Scene();
+                s._sgNode.addChild(this.current());
+                cc.director.runScene(s);
+            }
+            else {
+                var s = new _ccsg.Scene();
+                s.addChild(this.current());
+                cc.director.runScene(s);
+            }
         }
-    }
+    };
 };
