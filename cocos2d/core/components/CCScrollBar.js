@@ -133,7 +133,7 @@ var Scrollbar = cc.Class({
                 var contentSize = content.getContentSize();
                 var scrollViewSize = this._scrollView.node.getContentSize();
 
-                if(this._conditionaldisableScrollBar(contentSize, scrollViewSize)) {
+                if(this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
                 }
 
@@ -205,7 +205,7 @@ var Scrollbar = cc.Class({
         this._touching = true;
     },
 
-    _conditionaldisableScrollBar: function (contentSize, scrollViewSize) {
+    _conditionalDisableScrollBar: function (contentSize, scrollViewSize) {
         if(contentSize.width <= scrollViewSize.width && this.direction === Direction.HORIZONTAL){
             return true;
         }
@@ -234,7 +234,7 @@ var Scrollbar = cc.Class({
                 var contentSize = content.getContentSize();
                 var scrollViewSize = this._scrollView.node.getContentSize();
 
-                if(this._conditionaldisableScrollBar(contentSize, scrollViewSize)) {
+                if(this._conditionalDisableScrollBar(contentSize, scrollViewSize)) {
                     return;
                 }
             }
