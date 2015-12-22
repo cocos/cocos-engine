@@ -22,6 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+'use strict';
+
 var JS = cc.js;
 var Flags = cc.Object.Flags;
 var Destroying = Flags.Destroying;
@@ -248,11 +250,11 @@ var Node = cc.Class({
         var err, existing = this.getComponent(ctor._disallowMultiple);
         if (existing) {
             if (existing.constructor === ctor) {
-                err = "Can't add component '%s' because %s already contains the same component.";
+                err = 'Can\'t add component \'%s\' because %s already contains the same component.';
                 cc.error(err, JS.getClassName(ctor), this._name);
             }
             else {
-                err = "Can't add component '%s' to %s because it conflicts with the existing '%s' derived component.";
+                err = 'Can\'t add component \'%s\' to %s because it conflicts with the existing \'%s\' derived component.';
                 cc.error(err, JS.getClassName(ctor), this._name, JS.getClassName(existing));
             }
             return false;
@@ -298,11 +300,11 @@ var Node = cc.Class({
         // check component
 
         if (typeof constructor !== 'function') {
-            cc.error("addComponent: The component to add must be a constructor");
+            cc.error('addComponent: The component to add must be a constructor');
             return null;
         }
         if (!cc.isChildClassOf(constructor, cc.Component)) {
-            cc.error("addComponent: The component to add must be child class of cc.Component");
+            cc.error('addComponent: The component to add must be child class of cc.Component');
             return null;
         }
 
@@ -349,10 +351,10 @@ var Node = cc.Class({
             return cc.error('isDestroying');
         }
         if ( !(comp instanceof cc.Component) ) {
-            return cc.error("_addComponentAt: The component to add must be a constructor");
+            return cc.error('_addComponentAt: The component to add must be a constructor');
         }
         if (index > this._components.length) {
-            return cc.error("_addComponentAt: Index out of range");
+            return cc.error('_addComponentAt: Index out of range');
         }
 
         // recheck attributes because script may changed
@@ -432,7 +434,7 @@ var Node = cc.Class({
                 component.node = null;
             }
             else if (component.node !== this) {
-                cc.error("Component not owned by this entity");
+                cc.error('Component not owned by this entity');
             }
         }
     },
