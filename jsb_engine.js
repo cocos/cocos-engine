@@ -270,6 +270,28 @@ mixin(cc.director, {
     },
 
     /**
+     * Reset the cc.director, can be used to restart the director after purge
+     */
+    reset: function () {
+        this.purgeDirector();
+
+        if (cc.eventManager)
+            cc.eventManager.setEnabled(true);
+
+        // Action manager
+        if(this._actionManager){
+            this._scheduler.scheduleUpdate(this._actionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
+        // Animation manager
+        if (this._animationManager) {
+            this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
+        this.startAnimation();
+    },
+
+    /**
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
      * @method runScene
      * @param {EScene} scene - The need run scene.
