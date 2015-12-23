@@ -300,6 +300,15 @@ var testNames = [
         }
     },
     {
+        title:"Event Node Test",
+        resource:g_eventDispatcher,
+        platforms: PLATFORM_ALL,
+        linksrc:"src/NodeEventTest/NodeEventTest.js",
+        testScene:function () {
+            NodeEventTestFlow.start();
+        }
+    },
+    {
         title:"Extensions Test",
         resource:g_extensions,
         platforms: PLATFORM_ALL,

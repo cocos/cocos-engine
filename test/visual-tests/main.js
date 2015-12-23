@@ -167,7 +167,9 @@ cc.game.run({
         "src/NativeTest/NativeTest.js",
         "src/NativeTest/FileUtils/FileUtilsTest.js",
         "src/NativeTest/JSBExtendTest.js",
-        "src/NativeTest/AudioEngineTest.js"
+        "src/NativeTest/AudioEngineTest.js",
+
+        "src/NodeEventTest/NodeEventTest.js"
     ]
 }, function(){
     cc.view.enableRetina(false);

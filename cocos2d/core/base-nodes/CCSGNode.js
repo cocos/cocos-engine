@@ -1782,9 +1782,16 @@ _ccsg.Node = cc.Class({
      */
     getNodeToWorldTransform: function () {
         //TODO renderCmd has a WorldTransform
-        var t = this.getNodeToParentTransform();
-        for (var p = this._parent; p !== null; p = p.parent)
-            t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
+        var t;
+        if (this._renderCmd && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            t = this._renderCmd._worldTransform;
+        }
+        else {
+            t = this.getNodeToParentTransform();
+            for (var p = this._parent; p !== null; p = p.parent) {
+                t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
+            }
+        }
         return t;
     },
 
@@ -2035,7 +2042,7 @@ _ccsg.Node = cc.Class({
     getBoundingBoxToWorld: function () {
         var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
         var trans = this.getNodeToWorldTransform();
-        rect = cc.rectApplyAffineTransform(rect, trans);
+        cc._rectApplyAffineTransformIn(rect, trans);
 
         //query child's BoundingBox
         if (!this._children)
@@ -2056,7 +2063,7 @@ _ccsg.Node = cc.Class({
     _getBoundingBoxToCurrentNode: function (parentTransform) {
         var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
         var trans = (parentTransform === undefined) ? this.getNodeToParentTransform() : cc.affineTransformConcat(this.getNodeToParentTransform(), parentTransform);
-        rect = cc.rectApplyAffineTransform(rect, trans);
+        cc._rectApplyAffineTransformIn(rect, trans);
 
         //query child's BoundingBox
         if (!this._children)
