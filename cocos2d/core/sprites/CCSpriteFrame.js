@@ -244,7 +244,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Vec2}
      */
     getOffsetInPixels: function () {
-        return cc.p(this._offsetInPixels);
+        return cc.v2(this._offsetInPixels);
     },
 
     /**
@@ -254,7 +254,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setOffsetInPixels: function (offsetInPixels) {
         if (!this._offsetInPixels) {
-            this._offsetInPixels = cc.p(offsetInPixels);
+            this._offsetInPixels = cc.v2(offsetInPixels);
         } else {
             this._offsetInPixels.x = offsetInPixels.x;
             this._offsetInPixels.y = offsetInPixels.y;
@@ -354,7 +354,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     self.setOriginalSize(cc.size(w, h));
                 }
                 if (!self._offset) {
-                    self.setOffset(cc.p(0, 0));
+                    self.setOffset(cc.v2(0, 0));
                 }
                 //dispatch 'load' event of cc.SpriteFrame
                 self.emit("load");
@@ -374,7 +374,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Vec2}
      */
     getOffset: function () {
-        return cc.p(this._offset);
+        return cc.v2(this._offset);
     },
 
     /**
@@ -384,7 +384,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setOffset: function (offsets) {
         if (!this._offset) {
-            this._offset = cc.p(offsets);
+            this._offset = cc.v2(offsets);
         } else {
             this._offset.x = offsets.x;
             this._offset.y = offsets.y;
@@ -408,7 +408,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {String|cc.Texture2D} texture
      * @param {Rect} rect - if parameters' length equal 2, rect in points, else rect in pixels
      * @param {Boolean} [rotated=false]
-     * @param {Vec2} [offset=cc.p(0,0)]
+     * @param {Vec2} [offset=cc.v2(0,0)]
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */
