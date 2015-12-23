@@ -838,6 +838,90 @@ var Node = cc.Class({
         }
     },
 
+    isRunning: function () {
+        return this.active;
+    },
+
+// Scheduler
+    
+    /**
+     * <p>Schedules a custom selector.         <br/>
+     * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.</p>
+     * @function
+     * @param {function} callback The callback function
+     * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame. If interval = 0, it's recommended to use scheduleUpdate() instead.
+     * @param {Number} [repeat=cc.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
+     * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
+     */
+    schedule: function (callback, interval, repeat, delay) {
+        cc.assert(callback, cc._LogInfos.Node.schedule);
+        cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
+
+        var key = this.__instanceId;
+        interval = interval || 0;
+        repeat = isNaN(repeat) ? cc.REPEAT_FOREVER : repeat;
+        delay = delay || 0;
+
+        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.active, key);
+    },
+
+    /**
+     * <p>
+     * schedules the "update" callback function with a custom priority.
+     * This callback function will be called every frame.<br/>
+     * Scheduled callback functions with a lower priority will be called before the ones that have a higher value.<br/>
+     * Only one "update" callback function could be scheduled per node (You can't have 2 'update' callback functions).<br/>
+     * </p>
+     * @function
+     * @param {Number} [priority=0] The priority of the update callback
+     */
+    scheduleUpdate: function (priority) {
+        priority = priority || 0;
+        cc.director.getScheduler().scheduleUpdate(this, priority, !this.active);
+    },
+
+    /**
+     * Schedules a callback function that runs only once, with a delay of 0 or larger
+     * @function
+     * @see cc.Node#schedule
+     * @param {function} callback  A function wrapped as a selector
+     * @param {Number} [delay=0]  The amount of time that the first tick will wait before execution.
+     */
+    scheduleOnce: function (callback, delay) {
+        this.schedule(callback, 0, 0, delay);
+    },
+
+    /**
+     * Unschedules a custom callback function.
+     * @function
+     * @see cc.Node#schedule
+     * @param {function} callback_fn  A function wrapped as a selector
+     */
+    unschedule: function (callback_fn) {
+        if (!callback_fn)
+            return;
+
+        cc.director.getScheduler().unschedule(callback_fn, this);
+    },
+
+    /**
+     * Unschedules the "update" method.
+     * @function
+     * @see cc.Node#scheduleUpdate
+     */
+    unscheduleUpdate: function () {
+        cc.director.getScheduler().unscheduleUpdate(this);
+    },
+
+    /**
+     * <p>unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
+     * Actions are not affected by this method.</p>
+     * @function
+     */
+    unscheduleAllCallbacks: function () {
+        cc.director.getScheduler().unscheduleAllForTarget(this);
+    },
+
 });
 
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.

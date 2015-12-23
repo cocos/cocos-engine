@@ -553,6 +553,9 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
     return listener;
 };
 
+// cc.Scheduler
+cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
+
 // cc.Scale9Sprite
 cc.Scale9Sprite.prototype._setBlendFunc = cc.Scale9Sprite.prototype.setBlendFunc;
 cc.Scale9Sprite.prototype.setBlendFunc = function(blendFunc, dst) {
