@@ -240,8 +240,7 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
     // ensure every ratio section's length is the same
     var startRatioOffset = 0;
 
-    // from es6 Number.EPSILON
-    var EPSILON = 2.220446049250313e-16;
+    var EPSILON = 1e-6;
 
     // do not need to compute last path
     for (var i = 0, l = motionPaths.length; i < l-1; i++) {
