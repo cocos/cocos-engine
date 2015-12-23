@@ -327,7 +327,9 @@ var Node = cc.Class({
         if ( !destroyByParent ) {
             // remove from parent
             if (parent) {
-                parent._children.splice(parent._children.indexOf(this), 1);
+                var childIndex = parent._children.indexOf(this);
+                parent._children.splice(childIndex, 1);
+                parent.emit('child-removed', this);
             }
 
             this._removeSgNode();

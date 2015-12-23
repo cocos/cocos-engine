@@ -43,18 +43,38 @@ var LayoutType = cc.Enum({
     VERTICAL: 2,
 });
 
+/**
+ * Enum for vertical layout direction.
+ * @enum Layout.VerticalDirection
+ */
 var VerticalDirection = cc.Enum({
+    /**
+     * @property {Number} BOTTOM_TO_TOP
+     */
     BOTTOM_TO_TOP: 0,
+    /**
+     * @property {Number} TOP_TO_BOTTOM
+     */
     TOP_TO_BOTTOM: 1,
 });
 
+/**
+ * Enum for horizontal layout direction.
+ * @enum Layout.HorizontalDirection
+ */
 var HorizontalDirection = cc.Enum({
+    /**
+     * @property {Number} LEFT_TO_RIGHT
+     */
     LEFT_TO_RIGHT: 0,
+    /**
+     *@property {Number} RIGHT_TO_LEFT
+     */
     RIGHT_TO_LEFT: 1,
 });
 
 /**
- * The Layout is a container component, it could arrange all its children conveniently.
+ * The Layout is a container component, use it to arrange child elements easily.
  *
  * @class Layout
  * @extends Component
@@ -71,41 +91,203 @@ var Layout = cc.Class({
 
     properties: {
         _layoutSize: cc.size(300, 200),
+        _layoutDirty: {
+            default: true,
+            serializable: false,
+        },
 
+        /**
+         * The layout type.
+         * @property {LayoutType} layoutType
+         * @default Layout.LayoutType.BASIC
+         */
         layoutType: {
             default: LayoutType.BASIC,
-            type: LayoutType
+            type: LayoutType,
+            notify: function() {
+                this._layoutDirty = true;
+            }
         },
 
+        /**
+         * The margin of layout, it only effect the layout in one direction.
+         * @property {Number} margin
+         */
         margin: {
             default: 0,
+            notify: function() {
+                this._layoutDirty = true;
+            }
         },
 
+        /**
+         * The distance between each element in layout.
+         * @property {Number} spacing
+         */
         spacing: {
             default: 0,
+            notify: function() {
+                this._layoutDirty = true;
+            }
         },
 
+        /**
+         * Only take effect in Vertical layout mode.
+         * This option changes the start element's positioning.
+         * @property {VerticalDirection} verticalDirection
+         */
         verticalDirection: {
             default: VerticalDirection.TOP_TO_BOTTOM,
-            type: VerticalDirection
+            type: VerticalDirection,
+            notify: function() {
+                this._layoutDirty = true;
+            }
         },
 
+        /**
+         * Only take effect in Horizontal layout mode.
+         * This option changes the start element's positioning.
+         * @property {HorizontalDirection} horizontalDirection
+         */
         horizontalDirection: {
             default: HorizontalDirection.LEFT_TO_RIGHT,
-            type: HorizontalDirection
+            type: HorizontalDirection,
+            notify: function() {
+                this._layoutDirty = true;
+            }
         },
     },
 
-    onLoad: function () {
+    onLoad: function() {
         this.node.setContentSize(this._layoutSize);
         this.node.on('size-changed', this._resized, this);
+        this.node.on('anchor-changed', function() {
+            this._layoutDirty = true;
+        }.bind(this), this);
+        this.node.on('child-added', this._childrenAddOrDeleted, this);
+        this.node.on('child-removed', this._childrenAddOrDeleted, this);;
+        this._updateChildrenEventListener();
     },
 
-    onDestroy: function () {
-        this.node.off('size-changed', this._resized, this);
+    _registerChildrenSizeAndPositionChangeEvent: function(child) {
+        var layoutDirtyFunc = function(event) {
+            this._layoutDirty = true;
+        }.bind(this);
+
+        child.on('size-changed', layoutDirtyFunc, this);
+
+        child.on('position-changed', layoutDirtyFunc, this);
     },
-    _resized: function(){
+
+    _updateChildrenEventListener: function() {
+        var children = this.node.children;
+        children.forEach(function(child) {
+            this._registerChildrenSizeAndPositionChangeEvent(child);
+        }.bind(this));
+    },
+
+    _childrenAddOrDeleted: function(event) {
+        this._updateChildrenEventListener();
+        this._layoutDirty = true;
+    },
+
+    _resized: function() {
         this._layoutSize = this.node.getContentSize();
+        this._layoutDirty = true;
+    },
+
+    _doLayoutHorizontally: function(layoutAnchor, layoutSize, children) {
+        var newWidth = 0;
+        var sign = 1;
+
+        children.forEach(function(child) {
+            var childSize = child.getContentSize();
+            newWidth += childSize.width;
+        }.bind(this));
+
+        newWidth += (children.length - 1) * this.spacing + 2 * this.margin;
+        this.node.setContentSize(newWidth, layoutSize.height);
+
+        var leftBoundaryOfLayout = -layoutAnchor.x * newWidth;
+        if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+            sign = -1;
+            leftBoundaryOfLayout = (1 - layoutAnchor.x) * newWidth;
+        }
+
+        var nextX = leftBoundaryOfLayout + sign * this.margin - sign * this.spacing;
+
+        children.forEach(function(child) {
+            var childAnchor = child.getAnchorPoint();
+            var childSize = child.getContentSize();
+            var childPosition = child.getPosition();
+
+            var anchorX = childAnchor.x;
+            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+                anchorX = 1 - childAnchor.x;
+            }
+            nextX = nextX + sign * anchorX * childSize.width + sign * this.spacing;
+
+            child.setPosition(cc.p(nextX, childPosition.y));
+
+            nextX += sign * (1 - anchorX) * childSize.width;
+        }.bind(this));
+    },
+
+    _doLayoutVertically: function(layoutAnchor, layoutSize, children) {
+        var newHeight = 0;
+        var sign = 1;
+
+        children.forEach(function(child) {
+            var childSize = child.getContentSize();
+            newHeight += childSize.height;
+        }.bind(this));
+
+        newHeight += (children.length - 1) * this.spacing + 2 * this.margin;
+        this.node.setContentSize(layoutSize.width, newHeight);
+
+        var bottomBoundaryOfLayout = -layoutAnchor.y * newHeight;
+        if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+            sign = -1;
+            bottomBoundaryOfLayout = (1 - layoutAnchor.y) * newHeight;
+        }
+
+        var nextY = bottomBoundaryOfLayout + sign * this.margin - sign * this.spacing;
+
+        children.forEach(function(child) {
+            var childAnchor = child.getAnchorPoint();
+            var childSize = child.getContentSize();
+            var childPosition = child.getPosition();
+
+            var anchorY = childAnchor.y;
+            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+                anchorY = 1 - childAnchor.y;
+            }
+            nextY = nextY + sign * anchorY * childSize.height + sign * this.spacing;
+
+            child.setPosition(cc.p(childPosition.x, nextY));
+
+            nextY += sign * (1 - anchorY) * childSize.height;
+        }.bind(this));
+    },
+
+    _doLayout: function() {
+        var children = this.node.children;
+        var layoutAnchor = this.node.getAnchorPoint();
+        var layoutSize = this.node.getContentSize();
+
+        if (this.layoutType === LayoutType.HORIZONTAL) {
+            this._doLayoutHorizontally(layoutAnchor, layoutSize, children);
+        } else if (this.layoutType === LayoutType.VERTICAL) {
+            this._doLayoutVertically(layoutAnchor, layoutSize, children);
+        }
+    },
+
+    update: function() {
+
+        if (this._layoutDirty) {
+            this._doLayout();
+            this._layoutDirty = false;
+        }
     }
 
 });
