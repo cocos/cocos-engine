@@ -171,12 +171,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Rect}
      */
     getRectInPixels: function () {
-        var locRectInPixels = this._rectInPixels;
-        if (locRectInPixels) {
-            return cc.rect(locRectInPixels);
-        } else {
-            return cc.rect(0, 0, 0, 0);
-        }
+        return cc.rect(this._rectInPixels);
     },
 
     /**
@@ -222,12 +217,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Rect}
      */
     getRect: function () {
-        var locRect = this._rect;
-        if (locRect) {
-            return cc.rect(locRect);
-        } else {
-            return cc.rect(0, 0, 0, 0);
-        }
+        return cc.rect(this._rect);
     },
 
     /**
@@ -254,12 +244,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Vec2}
      */
     getOffsetInPixels: function () {
-        var offsetPixels = this._offsetInPixels;
-        if (offsetPixels) {
-            return cc.p(offsetPixels);
-        } else {
-            return cc.p(0, 0);
-        }
+        return cc.p(this._offsetInPixels);
     },
 
     /**
@@ -284,12 +269,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Size}
      */
     getOriginalSizeInPixels: function () {
-        var locSizeInPixels = this._originalSizeInPixels;
-        if (locSizeInPixels) {
-            return cc.size(locSizeInPixels);
-        } else {
-            return cc.size(0, 0);
-        }
+        return cc.size(this._originalSizeInPixels);
     },
 
     /**
@@ -314,12 +294,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Size}
      */
     getOriginalSize: function () {
-        var locSize = this._originalSize;
-        if (locSize) {
-            return cc.size(locSize);
-        } else {
-            return cc.size(0, 0);
-        }
+        return cc.size(this._originalSize);
     },
 
     /**
@@ -399,12 +374,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Vec2}
      */
     getOffset: function () {
-        var offset = this._offset;
-        if (offset) {
-            return cc.p(offset);
-        } else {
-            return cc.p(0, 0);
-        }
+        return cc.p(this._offset);
     },
 
     /**
