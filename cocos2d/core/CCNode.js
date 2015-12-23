@@ -242,6 +242,9 @@ var Node = cc.Class({
         this._name = typeof name !== 'undefined' ? name : 'New Node';
         this._activeInHierarchy = false;
 
+        // Support for Scheduler, ActionManager and EventManager
+        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+
         // cache component
         this._widget = null;
 
@@ -837,7 +840,23 @@ var Node = cc.Class({
 
 });
 
-Node.EventType = EventType;
+// In JSB, when inner sg node being replaced, the system event listeners will be cleared.
+// We need a mechanisme to guarentee the persistence of system event listeners.
+if (cc.sys.isNative) {
+    cc.js.getset(Node.prototype, '_sgNode', function () {
+        return this.__sgNode;
+    }, function (value) {
+        this.__sgNode = value;
+        if (this._touchListener) {
+            cc.eventManager.removeListener(this._touchListener);
+            cc.eventManager.addListener(this._touchListener, this);
+        }
+        if (this._mouseListener) {
+            cc.eventManager.removeListener(this._mouseListener);
+            cc.eventManager.addListener(this._mouseListener, this);
+        }
+    }, true);
+}
 
 /**
  * @event position-changed
@@ -860,5 +879,7 @@ Node.EventType = EventType;
 /**
  * @event opacity-changed
  */
+
+Node.EventType = EventType;
 
 cc.Node = module.exports = Node;
