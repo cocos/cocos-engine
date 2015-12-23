@@ -478,15 +478,17 @@ var ScrollView = cc.Class({
     },
 
     _calculateBoundary: function() {
-        var scrollViewSize = this.node.getContentSize();
+        if(this.content){
+            var scrollViewSize = this.node.getContentSize();
 
-        var leftBottomPosition = this._convertToContentParentSpace(cc.p(0, 0));
-        this._leftBoundary = leftBottomPosition.x;
-        this._bottomBoundary = leftBottomPosition.y;
+            var leftBottomPosition = this._convertToContentParentSpace(cc.p(0, 0));
+            this._leftBoundary = leftBottomPosition.x;
+            this._bottomBoundary = leftBottomPosition.y;
 
-        var topRightPosition = this._convertToContentParentSpace(cc.p(scrollViewSize.width, scrollViewSize.height));
-        this._rightBoundary = topRightPosition.x;
-        this._topBoundary = topRightPosition.y;
+            var topRightPosition = this._convertToContentParentSpace(cc.p(scrollViewSize.width, scrollViewSize.height));
+            this._rightBoundary = topRightPosition.x;
+            this._topBoundary = topRightPosition.y;
+        }
     },
 
     _convertToContentParentSpace: function(position) {
@@ -511,7 +513,7 @@ var ScrollView = cc.Class({
     // touch event handler
     _onTouchBegan: function(touch) {
         var hit = this._hitTest(touch.getLocation());
-        if (hit) {
+        if (hit && this.content) {
             this._handlePressLogic(touch);
         }
 
@@ -525,7 +527,9 @@ var ScrollView = cc.Class({
     },
 
     _onTouchEnded: function(touch) {
-        this._handleReleaseLogic(touch);
+        if(this.content){
+            this._handleReleaseLogic(touch);
+        }
 
     },
     _onTouchCancelled: function(touch) {
