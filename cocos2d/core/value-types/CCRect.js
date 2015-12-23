@@ -15,7 +15,7 @@ var JS = require('../platform/js');
  * @param {Number} [h=0]
  */
 function Rect (x, y, w, h) {
-    if (typeof x === 'object') {
+    if (x && typeof x === 'object') {
         y = x.y;
         w = x.width;
         h = x.height;

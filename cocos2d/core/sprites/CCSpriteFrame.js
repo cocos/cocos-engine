@@ -171,12 +171,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Rect}
      */
     getRectInPixels: function () {
-        var locRectInPixels = this._rectInPixels;
-        if (locRectInPixels) {
-            return cc.rect(locRectInPixels);
-        } else {
-            return cc.rect(0, 0, 0, 0);
-        }
+        return cc.rect(this._rectInPixels);
     },
 
     /**
@@ -222,12 +217,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Rect}
      */
     getRect: function () {
-        var locRect = this._rect;
-        if (locRect) {
-            return cc.rect(locRect);
-        } else {
-            return cc.rect(0, 0, 0, 0);
-        }
+        return cc.rect(this._rect);
     },
 
     /**
@@ -254,12 +244,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Vec2}
      */
     getOffsetInPixels: function () {
-        var offsetPixels = this._offsetInPixels;
-        if (offsetPixels) {
-            return cc.p(offsetPixels);
-        } else {
-            return cc.p(0, 0);
-        }
+        return cc.v2(this._offsetInPixels);
     },
 
     /**
@@ -269,7 +254,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setOffsetInPixels: function (offsetInPixels) {
         if (!this._offsetInPixels) {
-            this._offsetInPixels = cc.p(offsetInPixels);
+            this._offsetInPixels = cc.v2(offsetInPixels);
         } else {
             this._offsetInPixels.x = offsetInPixels.x;
             this._offsetInPixels.y = offsetInPixels.y;
@@ -284,12 +269,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Size}
      */
     getOriginalSizeInPixels: function () {
-        var locSizeInPixels = this._originalSizeInPixels;
-        if (locSizeInPixels) {
-            return cc.size(locSizeInPixels);
-        } else {
-            return cc.size(0, 0);
-        }
+        return cc.size(this._originalSizeInPixels);
     },
 
     /**
@@ -314,12 +294,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Size}
      */
     getOriginalSize: function () {
-        var locSize = this._originalSize;
-        if (locSize) {
-            return cc.size(locSize);
-        } else {
-            return cc.size(0, 0);
-        }
+        return cc.size(this._originalSize);
     },
 
     /**
@@ -379,7 +354,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     self.setOriginalSize(cc.size(w, h));
                 }
                 if (!self._offset) {
-                    self.setOffset(cc.p(0, 0));
+                    self.setOffset(cc.v2(0, 0));
                 }
                 //dispatch 'load' event of cc.SpriteFrame
                 self.emit("load");
@@ -399,12 +374,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {Vec2}
      */
     getOffset: function () {
-        var offset = this._offset;
-        if (offset) {
-            return cc.p(offset);
-        } else {
-            return cc.p(0, 0);
-        }
+        return cc.v2(this._offset);
     },
 
     /**
@@ -414,7 +384,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     setOffset: function (offsets) {
         if (!this._offset) {
-            this._offset = cc.p(offsets);
+            this._offset = cc.v2(offsets);
         } else {
             this._offset.x = offsets.x;
             this._offset.y = offsets.y;
@@ -438,7 +408,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {String|cc.Texture2D} texture
      * @param {Rect} rect - if parameters' length equal 2, rect in points, else rect in pixels
      * @param {Boolean} [rotated=false]
-     * @param {Vec2} [offset=cc.p(0,0)]
+     * @param {Vec2} [offset=cc.v2(0,0)]
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */

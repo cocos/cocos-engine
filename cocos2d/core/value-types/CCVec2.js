@@ -18,7 +18,7 @@ var FireClass = require('../platform/CCClass');
  * @param {number} [y=0]
  */
 function Vec2 (x, y) {
-    if (typeof x === 'object') {
+    if (x && typeof x === 'object') {
         y = x.y;
         x = x.x;
     }
