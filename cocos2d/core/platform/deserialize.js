@@ -27,7 +27,7 @@
 var JS = require('./js');
 var CCObject = require('./CCObject');
 
-var EDITOR = CC_EDITOR || CC_TEST;
+var EDITOR = CC_DEV;
 var ENABLE_TARGET = EDITOR;
 
 // HELPERS

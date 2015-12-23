@@ -32,7 +32,7 @@ var Prefab = cc.Class({
         // instantiate
         var node = cc.instantiate(this.data);
 
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_DEV) {
             Editor.PrefabUtils.onPrefabInstantiated(this, node);
         }
 

@@ -286,7 +286,7 @@ var Node = cc.Class({
         var parent = this._parent;
         var destroyByParent = parent && (parent._objFlags & Destroying);
         if ( !destroyByParent ) {
-            if (CC_EDITOR || CC_TEST) {
+            if (CC_DEV) {
                 this._registerIfAttached(false);
             }
         }
@@ -568,7 +568,7 @@ var Node = cc.Class({
 
     // INTERNAL
 
-    _registerIfAttached: (CC_EDITOR || CC_TEST) && function (register) {
+    _registerIfAttached: CC_DEV && function (register) {
         if (register) {
             cc.engine.attachedObjsForEditor[this.uuid] = this;
             cc.engine.emit('node-attach-to-scene', {target: this});
@@ -630,7 +630,7 @@ var Node = cc.Class({
         if (activeInHierarchyBefore !== shouldActiveNow) {
             this._onActivatedInHierarchy(shouldActiveNow);
         }
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_DEV) {
             var scene = cc.director.getScene();
             var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             var inCurrentSceneNow = this._parent && this._parent.isChildOf(scene);

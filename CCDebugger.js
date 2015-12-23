@@ -267,7 +267,7 @@ cc._LogInfos = {
     }
 };
 
-if (CC_EDITOR || CC_TEST) {
+if (CC_DEV) {
     cc._LogInfos.Editor = {
         Class: {
             callSuperCtor: "cc.Class will automatically call super constructor of %s, you should not call it manually."

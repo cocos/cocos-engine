@@ -183,7 +183,7 @@ var _metaClass = {
         if ( !forceSerializable ) {
             Attr.attr(this, name, Attr.NonSerialized);
         }
-        if (forceSerializable || (CC_EDITOR || CC_TEST)) {
+        if (forceSerializable || CC_DEV) {
             // 不论是否 hide in inspector 都要添加到 props，否则 asset watcher 不能正常工作
             _appendProp(this, name/*, true*/);
         }
@@ -201,7 +201,7 @@ var _metaClass = {
             });
         }
 
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_DEV) {
             Attr.attr(this, name, {hasGetter: true}); // 方便 editor 做判断
         }
         return this;
@@ -216,7 +216,7 @@ var _metaClass = {
             }
         }
 
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_DEV) {
             Object.defineProperty(this.prototype, name, {
                 //set: function setter_editorWrapper (value) {
                 //    if (this._observing) {
@@ -457,7 +457,7 @@ function _checkCtor (ctor) {
 }
 
 function normalizeClassName (className) {
-    if (CC_EDITOR || CC_TEST) {
+    if (CC_DEV) {
         var DefaultName = 'CCClass';
         if (className) {
             className = className.replace(/\./g, '_');
@@ -535,7 +535,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
 
     // create class constructor
     var body;
-    if (CC_EDITOR || CC_TEST) {
+    if (CC_DEV) {
         body = '(function ' + normalizeClassName(className) + '(){\n';
     }
     else {
@@ -772,7 +772,7 @@ function FireClass (options) {
         if (typeof func === 'function' || func === null) {
             cls.prototype[funcName] = func;
         }
-        else if (CC_EDITOR || CC_TEST) {
+        else if (CC_DEV) {
             var correct = TYPO_TO_CORRECT[funcName];
             if (correct) {
                 cc.warn('Unknown parameter of %s.%s, maybe you want is "%s".', name, funcName, correct);
@@ -872,7 +872,7 @@ function parseAttributes (attrs, className, propName) {
                 });
                 break;
             case 'Object':
-                if (CC_EDITOR || CC_TEST) {
+                if (CC_DEV) {
                     cc.error('Please define "type" parameter of %s.%s as the actual constructor.', className, propName);
                 }
                 break;
@@ -891,7 +891,7 @@ function parseAttributes (attrs, className, propName) {
                                 enumList: Enum.getList(type)
                             });
                         }
-                        else if (CC_EDITOR || CC_TEST) {
+                        else if (CC_DEV) {
                             cc.error('Please define "type" parameter of %s.%s as the constructor of %s.', className, propName, type);
                         }
                     }
@@ -899,7 +899,7 @@ function parseAttributes (attrs, className, propName) {
                         result.push(Attr.ObjectType(type));
                         //result.push( { expectedTypeOf: 'object' } );
                     }
-                    else if (CC_EDITOR || CC_TEST) {
+                    else if (CC_DEV) {
                         cc.error('Unknown "type" parameter of %s.%s：%s', className, propName, type);
                     }
                 }
@@ -920,7 +920,7 @@ function parseAttributes (attrs, className, propName) {
                     result.push(typeof attrCreater === 'function' ? attrCreater(val) : attrCreater);
                 }
             }
-            else if (CC_EDITOR || CC_TEST) {
+            else if (CC_DEV) {
                 cc.error('The %s of %s.%s must be type %s', attrName, className, propName, expectType);
             }
         }
@@ -928,7 +928,7 @@ function parseAttributes (attrs, className, propName) {
 
     parseSimpleAttr('rawType', 'string', Attr.RawType);
     parseSimpleAttr('editorOnly', 'boolean', Attr.EditorOnly);
-    if (CC_EDITOR || CC_TEST) {
+    if (CC_DEV) {
         parseSimpleAttr('displayName', 'string');
         parseSimpleAttr('multiline', 'boolean', {multiline: true});
         parseSimpleAttr('readonly', 'boolean', {readonly: true});
@@ -942,7 +942,7 @@ function parseAttributes (attrs, className, propName) {
         result.push(Attr.NonSerialized);
     }
 
-    if (CC_EDITOR || CC_TEST) {
+    if (CC_DEV) {
         var visible = attrs.visible;
         if (typeof visible !== 'undefined') {
             if (!attrs.visible) {
@@ -967,11 +967,11 @@ function parseAttributes (attrs, className, propName) {
             if (range.length >= 2) {
                 result.push(Attr.Range(range[0], range[1]));
             }
-            else if (CC_EDITOR || CC_TEST) {
+            else if (CC_DEV) {
                 cc.error('The length of range array must be 2');
             }
         }
-        else if (CC_EDITOR || CC_TEST) {
+        else if (CC_DEV) {
             cc.error(ERR_Type, '"range"', className + '.' + propName, 'array');
         }
     }
@@ -985,20 +985,20 @@ function parseAttributes (attrs, className, propName) {
                 if (typeof def === 'boolean') {
                     result.push(Attr.Nullable(boolPropName, def));
                 }
-                else if (CC_EDITOR || CC_TEST) {
+                else if (CC_DEV) {
                     cc.error(ERR_Type, '"default"', 'nullable object', 'boolean');
                 }
             }
-            else if (CC_EDITOR || CC_TEST) {
+            else if (CC_DEV) {
                 cc.error(ERR_Type, '"propName"', 'nullable object', 'string');
             }
         }
-        else if (CC_EDITOR || CC_TEST) {
+        else if (CC_DEV) {
             cc.error(ERR_Type, '"nullable"', className + '.' + propName, 'object');
         }
     }
 
-    if (CC_EDITOR || CC_TEST) {
+    if (CC_DEV) {
         var watch = attrs.watch;
         if (watch) {
             if (typeof watch === 'object') {

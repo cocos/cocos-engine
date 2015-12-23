@@ -81,7 +81,7 @@ cc.Scene = cc.Class({
     _activate: function () {
         var i, child, children = this._children, len = children.length;
 
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_DEV) {
             // register all nodes to editor
             for (i = 0; i < len; ++i) {
                 child = children[i];
