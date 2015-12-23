@@ -260,7 +260,7 @@ function getTempCID () {
 }
 
 js._isTempClassId = function (id) {
-    return (CC_EDITOR || CC_TEST) && (typeof id !== 'string' || id.startsWith(TCID_PREFIX));
+    return CC_DEV && (typeof id !== 'string' || id.startsWith(TCID_PREFIX));
 };
 
 // id 注册

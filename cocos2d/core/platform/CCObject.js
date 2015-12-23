@@ -232,7 +232,7 @@ prototype.destroy = function () {
     return true;
 };
 
-if (CC_EDITOR || CC_TEST) {
+if (CC_DEV) {
     /**
      * In fact, Object's "destroy" will not trigger the destruct operation in Firebal Editor.
      * The destruct operation will be executed by Undo system later.
@@ -347,7 +347,7 @@ cc.isValid = function (value) {
     }
 };
 
-if (CC_EDITOR || CC_TEST) {
+if (CC_DEV) {
     Object.defineProperty(CCObject, '_willDestroy', {
         value: function (obj) {
             return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;

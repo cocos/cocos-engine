@@ -150,8 +150,8 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
 // Yes, the id might have a conflict problem once every 365 days
 // if the game runs at 60 FPS and each frame 4760273 counts of new HashObject's id are requested.
 var CompId = 0;
-var IdPrefix = (CC_EDITOR || CC_TEST) && ('Comp' + Editor.NonUuidMark);
-var getNewId = (CC_EDITOR || CC_TEST) && function () {
+var IdPrefix = CC_DEV && ('Comp' + Editor.NonUuidMark);
+var getNewId = CC_DEV && function () {
     return IdPrefix + (++CompId);
 };
 
@@ -169,7 +169,7 @@ var Component = cc.Class({
     name: 'cc.Component',
     extends: cc.Object,
 
-    ctor: (CC_EDITOR || CC_TEST) && function () {
+    ctor: CC_DEV && function () {
         if (CC_EDITOR) {
             Editor._AssetsWatcher.initComponent(this);
         }
@@ -209,7 +209,7 @@ var Component = cc.Class({
                 if (id) {
                     return id;
                 }
-                if (CC_EDITOR || CC_TEST) {
+                if (CC_DEV) {
                     id = this._id = getNewId();
                     cc.engine.attachedObjsForEditor[id] = this;
                     return id;
@@ -555,7 +555,7 @@ var Component = cc.Class({
         // do remove component
         this.node._removeComponent(this);
 
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_DEV) {
             delete cc.engine.attachedObjsForEditor[this._id];
         }
     }
