@@ -28,7 +28,9 @@ Editor.require('app://builtin/fire-assets/init');
 Editor.require('app://engine');
 
 // init asset library
-cc.AssetLibrary.init( Path.resolve(Path.join(__dirname, 'fixtures/library')) );
+cc.AssetLibrary.init({
+    libraryPath: Path.resolve(Path.join(__dirname, 'fixtures/library'))
+});
 
 describe('test wrappers', function () {
     // test wrappers

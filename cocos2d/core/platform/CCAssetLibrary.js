@@ -14,7 +14,8 @@ var CallbacksInvoker = require('./callbacks-invoker');
 // configs
 
 var _libraryBase = '';
-var _uuidToRawAssets = {};
+var _rawAssetsBase = '';     // The base dir for raw assets in runtime
+var _uuidToRawAssets;
 
 // variables
 
@@ -137,7 +138,7 @@ var AssetLibrary = {
         var info = _uuidToRawAssets[uuid];
         if (info) {
             return {
-                url: cc.url._rawAssets + info.url,
+                url: _rawAssetsBase + info.url,
                 raw: info.raw,
             };
         }
@@ -510,11 +511,12 @@ var AssetLibrary = {
      * init the asset library
      *
      * @method init
-     * @param {String} libraryPath - 能接收的任意类型的路径，通常在编辑器里使用绝对的，在网页里使用相对的。
-     * @param {Object} mountPaths - mount point of actual urls for raw assets
-     * @param {Object} [rawAssets] - uuid to raw asset's urls (only used in runtime)
+     * @param {String} options.libraryPath - 能接收的任意类型的路径，通常在编辑器里使用绝对的，在网页里使用相对的。
+     * @param {Object} options.mountPaths - mount point of actual urls for raw assets (only used in editor)
+     * @param {Object} [options.rawAssets] - uuid to raw asset's urls (only used in runtime)
+     * @param {String} [options.rawAssetsBase] - base of raw asset's urls (only used in runtime)
      */
-    init: function (libraryPath, mountPaths, rawAssets) {
+    init: function (options) {
         if (CC_EDITOR && _libraryBase) {
             cc.error('AssetLibrary has already been initialized!');
             return;
@@ -522,11 +524,34 @@ var AssetLibrary = {
 
         // 这里将路径转 url，不使用路径的原因是有的 runtime 不能解析 "\" 符号。
         // 不使用 url.format 的原因是 windows 不支持 file:// 和 /// 开头的协议，所以只能用 replace 操作直接把路径转成 URL。
+        var libraryPath = options.libraryPath;
         libraryPath = libraryPath.replace(/\\/g, '/');
-
         _libraryBase = cc.path._setEndWithSep(libraryPath, '/');
-        _uuidToRawAssets = rawAssets || {};
 
+        _rawAssetsBase = options.rawAssetsBase;
+
+        _uuidToRawAssets = {};
+        var rawAssets = options.rawAssets;
+        if (rawAssets) {
+            for (var mountPoint in rawAssets) {
+                var assets = rawAssets[mountPoint];
+                for (var uuid in assets) {
+                    var info = assets[uuid];
+                    _uuidToRawAssets[uuid] = {
+                        url: mountPoint + '/' + info.url,
+                        raw: !!info.raw,
+                    };
+                }
+            }
+        }
+
+        var mountPaths = options.mountPaths;
+        if (!mountPaths) {
+            mountPaths = {
+                assets: _rawAssetsBase + 'assets',
+                internal: _rawAssetsBase + 'internal',
+            }
+        }
         cc.url._init(mountPaths);
     }
 };

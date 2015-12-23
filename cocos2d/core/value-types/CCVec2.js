@@ -443,7 +443,6 @@ JS.get(Vec2, 'RIGHT', function () {
 });
 
 cc.Vec2 = Vec2;
-var proto = Vec2.prototype;
 
 /**
  *

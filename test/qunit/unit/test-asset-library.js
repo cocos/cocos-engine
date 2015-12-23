@@ -9,7 +9,7 @@
     largeModule('AssetLibrary', {
         setup: function () {
             _resetGame();
-            AssetLibrary.init(libPath);
+            AssetLibrary.init({libraryPath: libPath});
         }
     });
 
