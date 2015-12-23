@@ -227,19 +227,10 @@ var PropagationTest = ECSTestLayer.extend({
     }
 });
 
-var HitTest = ECSTestLayer.extend({
-    _title: 'Node Event Test',
-
-    ctor: function () {
-        this._super(cc.color(0,0,0,255), cc.color(98,99,117,255), backHandler, NodeEventTestFlow);
-    }
-});
-
 var NodeEventTestFlow = new FlowControl([
     TouchEventTest,
     MouseEventTest,
     PropagationTest,
-    HitTest,
 ], true);
 
 window.NodeEventTestFlow = NodeEventTestFlow;
