@@ -455,21 +455,6 @@ var arrayOfS9SpriteTest = [
     S9ChangeCapInsetsTest,
     S9ChangeColorOpacityTest,
     S9ChangeFiletest,
-    //old ones
-    //S9BatchNodeBasic,
-    //S9FrameNameSpriteSheet,
-    //S9FrameNameSpriteSheetRotated,
-    //S9BatchNodeScaledNoInsets,
-    //S9FrameNameSpriteSheetScaledNoInsets,
-    //S9FrameNameSpriteSheetRotatedScaledNoInsets,
-    //S9BatchNodeScaleWithCapInsets,
-    //S9FrameNameSpriteSheetInsets,
-    //S9FrameNameSpriteSheetInsetsScaled,
-    //S9FrameNameSpriteSheetRotatedInsets,
-    //S9FrameNameSpriteSheetRotatedInsetsScaled,
-    //S9_TexturePacker,
-    //S9SpriteActionTest,
-    //S9SpriteColorOpacityTest
 ];
 
 var nextS9SpriteTest = function () {
