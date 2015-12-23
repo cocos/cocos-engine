@@ -273,19 +273,19 @@ cc.EventListener.MOUSE = 4;
 /**
  * The type code of focus event listener.
  * @constant
- * @type {number}
+ * @type {Number}
  */
 cc.EventListener.ACCELERATION = 6;
 /**
  * The type code of Focus change event listener.
  * @constant
- * @type {number}
+ * @type {Number}
  */
 cc.EventListener.FOCUS = 7;
 /**
  * The type code of custom event listener.
  * @constant
- * @type {number}
+ * @type {Number}
  */
 cc.EventListener.CUSTOM = 8;
 

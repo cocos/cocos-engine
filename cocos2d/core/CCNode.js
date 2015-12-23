@@ -154,6 +154,7 @@ var _mouseUpHandler = function (event) {
 var Node = cc.Class({
     name: 'cc.Node',
     extends: require('./utils/base-node'),
+    mixins: [EventTarget],
 
     properties: {
         /**
@@ -249,8 +250,6 @@ var Node = cc.Class({
 
         // Mouse event listener
         this._mouseListener = null;
-
-        EventTarget.call(this);
 
         /**
          * Register all related EventTargets,
@@ -839,8 +838,6 @@ var Node = cc.Class({
 });
 
 Node.EventType = EventType;
-
-cc.js.addon(Node.prototype, EventTarget.prototype);
 
 /**
  * @event position-changed
