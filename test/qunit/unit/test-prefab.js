@@ -22,7 +22,7 @@
     largeModule('Prefab', {
         setup: function () {
             _resetGame();
-            AssetLibrary.init('../assets/library');
+            AssetLibrary.init({libraryPath: '../assets/library'});
         },
         //teardownOnce: function () {
         //    console.log('teardownOnce');
