@@ -10,7 +10,7 @@ var JS = require('../platform/js');
  * @see cc.size
  */
 function Size (width, height) {
-    if (typeof width === 'object') {
+    if (width && typeof width === 'object') {
         height = width.height;
         width = width.width;
     }
