@@ -619,6 +619,23 @@ var Node = cc.Class({
                 child._onActivatedInHierarchy(newActive);
             }
         }
+        // activate or desactivate ActionManager, Scheduler, EventManager
+        var target = this;
+        if (cc.sys.isNative) {
+            target = this._sgNode;
+        }
+        // Activate
+        if (newActive) {
+            cc.director.getScheduler().resumeTarget(this);
+            cc.director.getActionManager().resumeTarget(target);
+            cc.eventManager.resumeTarget(target);
+        }
+        // Desactivate
+        else {
+            cc.director.getScheduler().pauseTarget(this);
+            cc.director.getActionManager().pauseTarget(target);
+            cc.eventManager.pauseTarget(target);
+        }
     },
 
     _onHierarchyChanged: function (oldParent) {
@@ -840,6 +857,85 @@ var Node = cc.Class({
 
     isRunning: function () {
         return this.active;
+    },
+
+// ACTIONS
+    /**
+     * Executes an action, and returns the action that is executed.<br/>
+     * The node becomes the action's target. Refer to cc.Action's getTarget()
+     * Calling runAction while the node is not active won't have any effect
+     * @function
+     * @param {cc.Action} action
+     * @return {cc.Action} An Action pointer
+     */
+    runAction: function (action) {
+        if (!this.active) 
+            return;
+        cc.assert(action, cc._LogInfos.Node.runAction);
+
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().addAction(action, target, false);
+        return action;
+    },
+
+    /**
+     * Stops and removes all actions from the running action list .
+     * @function
+     */
+    stopAllActions: function () {
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().removeAllActionsFromTarget(target);
+    },
+
+    /**
+     * Stops and removes an action from the running action list.
+     * @function
+     * @param {cc.Action} action An action object to be removed.
+     */
+    stopAction: function (action) {
+        cc.director.getActionManager().removeAction(action);
+    },
+
+    /**
+     * Removes an action from the running action list by its tag.
+     * @function
+     * @param {Number} tag A tag that indicates the action to be removed.
+     */
+    stopActionByTag: function (tag) {
+        if (tag === cc.ACTION_TAG_INVALID) {
+            cc.log(cc._LogInfos.Node.stopActionByTag);
+            return;
+        }
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().removeActionByTag(tag, target);
+    },
+
+    /**
+     * Returns an action from the running action list by its tag.
+     * @function
+     * @see cc.Action#getTag and cc.Action#setTag
+     * @param {Number} tag
+     * @return {cc.Action} The action object with the given tag.
+     */
+    getActionByTag: function (tag) {
+        if (tag === cc.ACTION_TAG_INVALID) {
+            cc.log(cc._LogInfos.Node.getActionByTag);
+            return null;
+        }
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().getActionByTag(tag, target);
+    },
+
+    /** <p>Returns the numbers of actions that are running plus the ones that are schedule to run (actions in actionsToAdd and actions arrays).<br/>
+     *    Composable actions are counted as 1 action. Example:<br/>
+     *    If you are running 1 Sequence of 7 actions, it will return 1. <br/>
+     *    If you are running 7 Sequences of 2 actions, it will return 7.</p>
+     * @function
+     * @return {Number} The number of actions that are running plus the ones that are schedule to run
+     */
+    getNumberOfRunningActions: function () {
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().numberOfRunningActionsInTarget(target);
     },
 
 // Scheduler
