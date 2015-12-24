@@ -33,7 +33,7 @@
 var audioEngine = cc.audioEngine;
 
 var AudioSource = cc.Class({
-    name: 'cc.Audio',
+    name: 'cc.AudioSource',
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
