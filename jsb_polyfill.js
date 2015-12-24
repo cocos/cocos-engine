@@ -308,7 +308,7 @@ ccui.ScrollView.Dir = cc.Enum({
     BOTH: 3
 });
 
-
+require("CCDebugger");
 
 cc.js.mixin(cc.path, {
     //todo make public after verification
