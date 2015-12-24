@@ -93,6 +93,11 @@
         ok(childToSave, 'Should save child');
         strictEqual(childToSave.scaleX, 22, 'Checking child wrapper');
         strictEqual(childToSave.scaleY, 11, 'Checking child wrapper');
+
+        // change parent
+
+        child2.parent = null;
+        strictEqual(child2._prefab, null, 'Prefab info should be cleared if detached from parent');
     });
 
     test('instantiate prefab', function () {
@@ -153,10 +158,12 @@
         testChild.scale = cc.Vec2.ZERO;
         testChild.addComponent(TestScript);
 
-        var newNode = new _ccsg.Node();
+        var newNode = new cc.Node();
         newNode.parent = testChild;
 
-        //testingCompCallback = true;
+        var newNode2 = new cc.Node();
+        newNode2.parent = testNode;
+        newNode2.setSiblingIndex(0);
 
         Editor.PrefabUtils.revertPrefab(testNode, function () {
             cc.loader.loadJson = restore;
@@ -181,6 +188,9 @@
             cc.director.getScene().addChild(testNode);
 
             comp.stopTest();
+
+            strictEqual(newNode2.isValid, false, 'should remove new node which is not the last sibling');
+
             start();
         });
     });
