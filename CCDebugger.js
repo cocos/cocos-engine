@@ -231,6 +231,7 @@ cc._LogInfos = {
         dumpCachedTextureInfo_2: "cocos2d: '%s' id= HTMLCanvasElement %s x %s",
         dumpCachedTextureInfo_3: "cocos2d: TextureCache dumpDebugInfo: %s textures, HTMLCanvasElement for %s KB (%s MB)",
         addUIImage_2: "cc.Texture.addUIImage(): image should be non-null",
+        invalidKey: "TextureCache: url should be non-null",
     },
 
     Texture2D: {

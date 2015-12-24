@@ -199,6 +199,8 @@ var textureCache = /** @lends cc.textureCache# */{
      * @param {Image|HTMLImageElement|HTMLCanvasElement} texture
      */
     cacheImage: function (path, texture) {
+        cc.assert(path, cc._LogInfos.textureCache.invalidKey);
+
         if (texture instanceof Texture2D) {
             this._textures[path] = texture;
             return;
@@ -223,9 +225,8 @@ var textureCache = /** @lends cc.textureCache# */{
     addUIImage: function (image, key) {
         cc.assert(image, cc._LogInfos.textureCache.addUIImage_2);
 
-        if (key) {
-            if (this._textures[key])
-                return this._textures[key];
+        if (key && this._textures[key]) {
+            return this._textures[key];
         }
 
         // prevents overloading the autorelease pool
@@ -287,6 +288,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             //remove judge
             var tex = locTexs[url];
             if (!tex) {
+                cc.assert(url, cc._LogInfos.textureCache.invalidKey);
                 tex = locTexs[url] = new Texture2D();
                 tex.url = url;
             }
@@ -341,6 +343,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             }
             tex = locTexs[url];
             if (!tex) {
+                cc.assert(url, cc._LogInfos.textureCache.invalidKey);
                 tex = locTexs[url] = new Texture2D();
                 tex.url = url;
             }

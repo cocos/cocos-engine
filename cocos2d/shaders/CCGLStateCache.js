@@ -266,10 +266,10 @@ if (!cc.ENABLE_GL_STATE_CACHE){
  * It will delete a given texture. If the texture was bound, it will invalidate the cached. <br/>
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
  * @function
- * @param {WebGLTexture} textureId
+ * @param {cc.Texture2D} textureId
  */
-cc.glDeleteTexture = function (textureId) {
-    cc.glDeleteTextureN(0, textureId);
+cc.glDeleteTexture2D = function (textureId) {
+    cc.glDeleteTexture2DN(0, textureId);
 };
 
 /**
@@ -277,14 +277,14 @@ cc.glDeleteTexture = function (textureId) {
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
  * @function
  * @param {Number} textureUnit
- * @param {WebGLTexture} textureId
+ * @param {cc.Texture2D} textureId
  */
-cc.glDeleteTextureN = function (textureUnit, textureId) {
+cc.glDeleteTexture2DN = function (textureUnit, textureId) {
     if (cc.ENABLE_GL_STATE_CACHE) {
         if (textureId === cc._currentBoundTexture[ textureUnit ])
             cc._currentBoundTexture[ textureUnit ] = -1;
     }
-    cc._renderContext.deleteTexture(textureId);
+    cc._renderContext.deleteTexture(textureId._webTextureObj);
 };
 
 /**
