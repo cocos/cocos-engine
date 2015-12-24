@@ -242,6 +242,9 @@ var Node = cc.Class({
         this._name = typeof name !== 'undefined' ? name : 'New Node';
         this._activeInHierarchy = false;
 
+        // Support for Scheduler, ActionManager and EventManager
+        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+
         // cache component
         this._widget = null;
 
@@ -616,6 +619,23 @@ var Node = cc.Class({
                 child._onActivatedInHierarchy(newActive);
             }
         }
+        // activate or desactivate ActionManager, Scheduler, EventManager
+        var target = this;
+        if (cc.sys.isNative) {
+            target = this._sgNode;
+        }
+        // Activate
+        if (newActive) {
+            cc.director.getScheduler().resumeTarget(this);
+            cc.director.getActionManager().resumeTarget(target);
+            cc.eventManager.resumeTarget(target);
+        }
+        // Desactivate
+        else {
+            cc.director.getScheduler().pauseTarget(this);
+            cc.director.getActionManager().pauseTarget(target);
+            cc.eventManager.pauseTarget(target);
+        }
     },
 
     _onHierarchyChanged: function (oldParent) {
@@ -835,9 +855,188 @@ var Node = cc.Class({
         }
     },
 
+    isRunning: function () {
+        return this.active;
+    },
+
+// ACTIONS
+    /**
+     * Executes an action, and returns the action that is executed.<br/>
+     * The node becomes the action's target. Refer to cc.Action's getTarget()
+     * Calling runAction while the node is not active won't have any effect
+     * @method runAction
+     * @param {cc.Action} action
+     * @return {cc.Action} An Action pointer
+     */
+    runAction: function (action) {
+        if (!this.active) 
+            return;
+        cc.assert(action, cc._LogInfos.Node.runAction);
+
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().addAction(action, target, false);
+        return action;
+    },
+
+    /**
+     * Stops and removes all actions from the running action list .
+     * @method stopAllActions
+     */
+    stopAllActions: function () {
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().removeAllActionsFromTarget(target);
+    },
+
+    /**
+     * Stops and removes an action from the running action list.
+     * @method stopAction
+     * @param {cc.Action} action An action object to be removed.
+     */
+    stopAction: function (action) {
+        cc.director.getActionManager().removeAction(action);
+    },
+
+    /**
+     * Removes an action from the running action list by its tag.
+     * @method stopActionByTag
+     * @param {Number} tag A tag that indicates the action to be removed.
+     */
+    stopActionByTag: function (tag) {
+        if (tag === cc.ACTION_TAG_INVALID) {
+            cc.log(cc._LogInfos.Node.stopActionByTag);
+            return;
+        }
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().removeActionByTag(tag, target);
+    },
+
+    /**
+     * Returns an action from the running action list by its tag.
+     * @method getActionByTag
+     * @see cc.Action#getTag and cc.Action#setTag
+     * @param {Number} tag
+     * @return {cc.Action} The action object with the given tag.
+     */
+    getActionByTag: function (tag) {
+        if (tag === cc.ACTION_TAG_INVALID) {
+            cc.log(cc._LogInfos.Node.getActionByTag);
+            return null;
+        }
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().getActionByTag(tag, target);
+    },
+
+    /** <p>Returns the numbers of actions that are running plus the ones that are schedule to run (actions in actionsToAdd and actions arrays).<br/>
+     *    Composable actions are counted as 1 action. Example:<br/>
+     *    If you are running 1 Sequence of 7 actions, it will return 1. <br/>
+     *    If you are running 7 Sequences of 2 actions, it will return 7.</p>
+     * @method getNumberOfRunningActions
+     * @return {Number} The number of actions that are running plus the ones that are schedule to run
+     */
+    getNumberOfRunningActions: function () {
+        var target = cc.sys.isNative ? this._sgNode : this;
+        cc.director.getActionManager().numberOfRunningActionsInTarget(target);
+    },
+
+// Scheduler
+    
+    /**
+     * <p>Schedules a custom selector.         <br/>
+     * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.</p>
+     * @method schedule
+     * @param {function} callback The callback function
+     * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame. If interval = 0, it's recommended to use scheduleUpdate() instead.
+     * @param {Number} [repeat=cc.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
+     * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
+     */
+    schedule: function (callback, interval, repeat, delay) {
+        cc.assert(callback, cc._LogInfos.Node.schedule);
+        cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
+
+        var key = this.__instanceId;
+        interval = interval || 0;
+        repeat = isNaN(repeat) ? cc.REPEAT_FOREVER : repeat;
+        delay = delay || 0;
+
+        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.active, key);
+    },
+
+    /**
+     * <p>
+     * schedules the "update" callback function with a custom priority.
+     * This callback function will be called every frame.<br/>
+     * Scheduled callback functions with a lower priority will be called before the ones that have a higher value.<br/>
+     * Only one "update" callback function could be scheduled per node (You can't have 2 'update' callback functions).<br/>
+     * </p>
+     * @method scheduleUpdate
+     * @param {Number} [priority=0] The priority of the update callback
+     */
+    scheduleUpdate: function (priority) {
+        priority = priority || 0;
+        cc.director.getScheduler().scheduleUpdate(this, priority, !this.active);
+    },
+
+    /**
+     * Schedules a callback function that runs only once, with a delay of 0 or larger
+     * @method scheduleOnce
+     * @see cc.Node#schedule
+     * @param {function} callback  A function wrapped as a selector
+     * @param {Number} [delay=0]  The amount of time that the first tick will wait before execution.
+     */
+    scheduleOnce: function (callback, delay) {
+        this.schedule(callback, 0, 0, delay);
+    },
+
+    /**
+     * Unschedules a custom callback function.
+     * @method unschedule
+     * @see cc.Node#schedule
+     * @param {function} callback_fn  A function wrapped as a selector
+     */
+    unschedule: function (callback_fn) {
+        if (!callback_fn)
+            return;
+
+        cc.director.getScheduler().unschedule(callback_fn, this);
+    },
+
+    /**
+     * Unschedules the "update" method.
+     * @method unscheduleUpdate
+     * @see cc.Node#scheduleUpdate
+     */
+    unscheduleUpdate: function () {
+        cc.director.getScheduler().unscheduleUpdate(this);
+    },
+
+    /**
+     * <p>unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
+     * Actions are not affected by this method.</p>
+     * @method unscheduleAllCallbacks
+     */
+    unscheduleAllCallbacks: function () {
+        cc.director.getScheduler().unscheduleAllForTarget(this);
+    },
+
 });
 
-Node.EventType = EventType;
+// In JSB, when inner sg node being replaced, the system event listeners will be cleared.
+// We need a mechanisme to guarentee the persistence of system event listeners.
+if (cc.sys.isNative) {
+    cc.js.getset(Node.prototype, '_sgNode', function () {
+        return this.__sgNode;
+    }, function (value) {
+        this.__sgNode = value;
+        if (this._touchListener) {
+            cc.eventManager.removeListener(this._touchListener);
+            cc.eventManager.addListener(this._touchListener, this);
+        }
+        if (this._mouseListener) {
+            cc.eventManager.removeListener(this._mouseListener);
+            cc.eventManager.addListener(this._mouseListener, this);
+        }
+    }, true);
+}
 
 /**
  * @event position-changed
@@ -860,5 +1059,7 @@ Node.EventType = EventType;
 /**
  * @event opacity-changed
  */
+
+Node.EventType = EventType;
 
 cc.Node = module.exports = Node;

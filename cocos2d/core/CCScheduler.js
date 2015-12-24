@@ -277,8 +277,8 @@ cc.TimerTargetCallback = cc.Timer.extend({
 });
 
 var getTargetId = function (target) {
-    return target.uuid || target.__instanceId;
-}
+    return target.__instanceId || target.uuid;
+};
 
 /**
  * <p>

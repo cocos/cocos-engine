@@ -499,6 +499,12 @@ cc.Label.prototype.setOverflow = function () {};
 cc.Label.prototype.enableWrapText = function () {};
 cc.Label.prototype.setLineHeight = function () {};
 
+// cc.Event#getCurrentTarget
+cc.Event.prototype._getCurrentTarget = cc.Event.prototype.getCurrentTarget;
+cc.Event.prototype.getCurrentTarget = function () {
+    return this._currentTarget || this._getCurrentTarget();
+};
+
 // cc.eventManager.addListener
 cc.eventManager.addListener = function(listener, nodeOrPriority) {
     if(!(listener instanceof cc.EventListener)) {
@@ -513,17 +519,42 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
 
         cc.eventManager.addEventListenerWithFixedPriority(listener, nodeOrPriority);
     } else {
+        var node = nodeOrPriority;
         if (nodeOrPriority instanceof cc.Component) {
-            nodeOrPriority = nodeOrPriority.node._sgNode;
+            node = nodeOrPriority.node._sgNode;
         }
         if (nodeOrPriority instanceof cc.Node) {
-            nodeOrPriority = nodeOrPriority._sgNode;
+            node = nodeOrPriority._sgNode;
         }
-        cc.eventManager.addEventListenerWithSceneGraphPriority(listener, nodeOrPriority);
+        // rebind target
+        if (node !== nodeOrPriority) {
+            var keys = Object.keys(listener);
+            // Overwrite all functions
+            for (var i = 0; i < keys.length; ++i) {
+                var key = keys[i];
+                var value = listener[key];
+                if (typeof value === 'function') {
+                    // var _value = value;
+                    listener[key] = function (event1, event2) {
+                        // event must be the last argument, and arguments count could be 1 or 2 
+                        var event = event2 || event1;
+                        // Replace event's _currentTarget
+                        if (event) {
+                            event._currentTarget = nodeOrPriority;
+                        }
+                        value.call(this, event1, event2);
+                    };
+                }
+            }
+        }
+        cc.eventManager.addEventListenerWithSceneGraphPriority(listener, node);
     }
 
     return listener;
 };
+
+// cc.Scheduler
+cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
 
 // cc.Scale9Sprite
 cc.Scale9Sprite.prototype._setBlendFunc = cc.Scale9Sprite.prototype.setBlendFunc;

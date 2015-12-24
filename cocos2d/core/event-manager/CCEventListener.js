@@ -146,18 +146,8 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
      * @private
      */
     _setSceneGraphPriority: function (node) {
-        if (cc.Node && node instanceof cc.Node) {
-            this._target = node;
-            this._node = node._sgNode;
-        }
-        else if (cc.Component && node instanceof cc.Component) {
-            this._target = node;
-            this._node = node.node._sgNode;
-        }
-        else {
-            this._target = node;
-            this._node = node;
-        }
+        this._target = node;
+        this._node = node;
     },
 
     /**
