@@ -105,7 +105,7 @@ var Layout = cc.Class({
             default: LayoutType.BASIC,
             type: LayoutType,
             notify: function() {
-                this._layoutDirty = true;
+                this._doLayoutDirty();
             }
         },
 
@@ -116,7 +116,7 @@ var Layout = cc.Class({
         margin: {
             default: 0,
             notify: function() {
-                this._layoutDirty = true;
+                this._doLayoutDirty();
             }
         },
 
@@ -127,7 +127,7 @@ var Layout = cc.Class({
         spacing: {
             default: 0,
             notify: function() {
-                this._layoutDirty = true;
+                this._doLayoutDirty();
             }
         },
 
@@ -140,7 +140,7 @@ var Layout = cc.Class({
             default: VerticalDirection.TOP_TO_BOTTOM,
             type: VerticalDirection,
             notify: function() {
-                this._layoutDirty = true;
+                this._doLayoutDirty();
             }
         },
 
@@ -153,47 +153,41 @@ var Layout = cc.Class({
             default: HorizontalDirection.LEFT_TO_RIGHT,
             type: HorizontalDirection,
             notify: function() {
-                this._layoutDirty = true;
+                this._doLayoutDirty();
             }
         },
     },
 
     onLoad: function() {
         this.node.setContentSize(this._layoutSize);
+
         this.node.on('size-changed', this._resized, this);
-        this.node.on('anchor-changed', function() {
-            this._layoutDirty = true;
-        }.bind(this), this);
+        this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
         this.node.on('child-removed', this._childrenAddOrDeleted, this);;
         this._updateChildrenEventListener();
     },
 
-    _registerChildrenSizeAndPositionChangeEvent: function(child) {
-        var layoutDirtyFunc = function(event) {
-            this._layoutDirty = true;
-        }.bind(this);
-
-        child.on('size-changed', layoutDirtyFunc, this);
-
-        child.on('position-changed', layoutDirtyFunc, this);
+    _doLayoutDirty : function() {
+        this._layoutDirty = true;
     },
 
     _updateChildrenEventListener: function() {
         var children = this.node.children;
         children.forEach(function(child) {
-            this._registerChildrenSizeAndPositionChangeEvent(child);
+            child.on('size-changed', this._doLayoutDirty, this);
+            child.on('position-changed', this._doLayoutDirty, this);
         }.bind(this));
     },
 
     _childrenAddOrDeleted: function(event) {
         this._updateChildrenEventListener();
-        this._layoutDirty = true;
+        this._doLayoutDirty();
     },
 
     _resized: function() {
         this._layoutSize = this.node.getContentSize();
-        this._layoutDirty = true;
+        this._doLayoutDirty();
     },
 
     _doLayoutHorizontally: function(layoutAnchor, layoutSize, children) {
@@ -201,9 +195,8 @@ var Layout = cc.Class({
         var sign = 1;
 
         children.forEach(function(child) {
-            var childSize = child.getContentSize();
-            newWidth += childSize.width;
-        }.bind(this));
+            newWidth += child.width;
+        });
 
         newWidth += (children.length - 1) * this.spacing + 2 * this.margin;
         this.node.setContentSize(newWidth, layoutSize.height);
@@ -217,19 +210,15 @@ var Layout = cc.Class({
         var nextX = leftBoundaryOfLayout + sign * this.margin - sign * this.spacing;
 
         children.forEach(function(child) {
-            var childAnchor = child.getAnchorPoint();
-            var childSize = child.getContentSize();
-            var childPosition = child.getPosition();
-
-            var anchorX = childAnchor.x;
+            var anchorX = child.anchorX;
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
-                anchorX = 1 - childAnchor.x;
+                anchorX = 1 - child.anchorX;
             }
-            nextX = nextX + sign * anchorX * childSize.width + sign * this.spacing;
+            nextX = nextX + sign * anchorX * child.width + sign * this.spacing;
 
-            child.setPosition(cc.p(nextX, childPosition.y));
+            child.setPosition(cc.p(nextX, child.y));
 
-            nextX += sign * (1 - anchorX) * childSize.width;
+            nextX += sign * (1 - anchorX) * child.width;
         }.bind(this));
     },
 
@@ -238,9 +227,8 @@ var Layout = cc.Class({
         var sign = 1;
 
         children.forEach(function(child) {
-            var childSize = child.getContentSize();
-            newHeight += childSize.height;
-        }.bind(this));
+            newHeight += child.height;
+        });
 
         newHeight += (children.length - 1) * this.spacing + 2 * this.margin;
         this.node.setContentSize(layoutSize.width, newHeight);
@@ -254,19 +242,15 @@ var Layout = cc.Class({
         var nextY = bottomBoundaryOfLayout + sign * this.margin - sign * this.spacing;
 
         children.forEach(function(child) {
-            var childAnchor = child.getAnchorPoint();
-            var childSize = child.getContentSize();
-            var childPosition = child.getPosition();
-
-            var anchorY = childAnchor.y;
+            var anchorY = child.anchorY;
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                anchorY = 1 - childAnchor.y;
+                anchorY = 1 - child.anchorY;
             }
-            nextY = nextY + sign * anchorY * childSize.height + sign * this.spacing;
+            nextY = nextY + sign * anchorY * child.height + sign * this.spacing;
 
-            child.setPosition(cc.p(childPosition.x, nextY));
+            child.setPosition(cc.p(child.x, nextY));
 
-            nextY += sign * (1 - anchorY) * childSize.height;
+            nextY += sign * (1 - anchorY) * child.height;
         }.bind(this));
     },
 
@@ -282,8 +266,7 @@ var Layout = cc.Class({
         }
     },
 
-    update: function() {
-
+    lateUpdate: function() {
         if (this._layoutDirty) {
             this._doLayout();
             this._layoutDirty = false;
