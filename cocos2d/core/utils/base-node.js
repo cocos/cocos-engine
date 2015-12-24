@@ -46,6 +46,8 @@ var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
 var COLOR_CHANGED = 'color-changed';
 var OPACITY_CHANGED = 'opacity-changed';
+var CHILD_ADDED = 'child-added';
+var CHILD_REMOVED = 'child-removed';
 
 /**
  * A base node for CCNode and CCEScene, it will:
@@ -129,6 +131,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     parent.addChild(node);
                     setMaxZOrder(node);
                     value._children.push(this);
+                    value.emit(CHILD_ADDED, this);
                 }
                 //
                 var oldParent = this._parent;
@@ -140,6 +143,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                             return cc.error('Internal error, should not remove unknown node from parent.');
                         }
                         oldParent._children.splice(removeAt, 1);
+                        oldParent.emit(CHILD_REMOVED, removeAt);
                         this._onHierarchyChanged(oldParent);
                     }
                 }
@@ -1091,6 +1095,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         child.parent = null;
         cc.js.array.remove(this._children, child);
+        this.emit(CHILD_REMOVED, child);
     },
 
     setNodeDirty: function(){
