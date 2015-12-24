@@ -92,7 +92,8 @@ cc._LogInfos = {
         runAction: "cc.Node.runAction(): action must be non-null",
         schedule: "callback function must be non-null",
         schedule_2: "interval must be positive",
-        initWithTexture: "cocos2d: Could not initialize cc.AtlasNode. Invalid Texture."
+        initWithTexture: "cocos2d: Could not initialize cc.AtlasNode. Invalid Texture.",
+        _requestDirtyFlag: "_ccsg.Node._requestDirtyFlag: failed to satisfy the request, key (%s) for flag have already been taken"
     },
 
     AtlasNode: {
