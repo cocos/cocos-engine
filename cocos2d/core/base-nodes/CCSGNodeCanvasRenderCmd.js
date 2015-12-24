@@ -35,8 +35,32 @@ cc.CustomRenderCmd = function (target, func) {
     }
 };
 
-_ccsg.Node._dirtyFlags = {transformDirty: 1 << 0, visibleDirty: 1 << 1, colorDirty: 1 << 2, opacityDirty: 1 << 3, cacheDirty: 1 << 4,
-    orderDirty: 1 << 5, textDirty: 1 << 6, gradientDirty:1 << 7, all: (1 << 8) - 1};
+_ccsg.Node._dirtyFlags = {
+    transformDirty: 1 << 0, 
+    visibleDirty: 1 << 1, 
+    colorDirty: 1 << 2, 
+    opacityDirty: 1 << 3, 
+    cacheDirty: 1 << 4,
+    orderDirty: 1 << 5, 
+    textDirty: 1 << 6, 
+    gradientDirty:1 << 7, 
+    all: (1 << 8) - 1
+};
+cc.js.get(_ccsg.Node._dirtyFlags, 'all', function () {
+    var count = Object.keys(_ccsg.Node._dirtyFlags).length;
+    return (1 << count) - 1;
+}, false);
+_ccsg.Node._requestDirtyFlag = function (key) {
+    if (_ccsg.Node._dirtyFlags[key]) {
+        return _ccsg.Node._dirtyFlags[key];
+    }
+    else {
+        var count = Object.keys(_ccsg.Node._dirtyFlags).length;
+        var value = 1 << count;
+        _ccsg.Node._dirtyFlags[key] = value;
+        return value;
+    }
+};
 
 //-------------------------Base -------------------------
 _ccsg.Node.RenderCmd = function(renderable){
