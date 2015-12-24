@@ -641,21 +641,22 @@ var Node = cc.Class({
     },
 
     _onHierarchyChanged: function (oldParent) {
-        if (this._persistNode && !(this._parent instanceof cc.Scene)) {
+        var newParent = this._parent;
+        if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
             if (CC_EDITOR) {
                 cc.warn('Set "%s" to normal node (not persist root node).');
             }
         }
         var activeInHierarchyBefore = this._active && !!(oldParent && oldParent._activeInHierarchy);
-        var shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
+        var shouldActiveNow = this._active && !!(newParent && newParent._activeInHierarchy);
         if (activeInHierarchyBefore !== shouldActiveNow) {
             this._onActivatedInHierarchy(shouldActiveNow);
         }
         if (CC_DEV) {
             var scene = cc.director.getScene();
             var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
-            var inCurrentSceneNow = this._parent && this._parent.isChildOf(scene);
+            var inCurrentSceneNow = newParent && newParent.isChildOf(scene);
             if (!inCurrentSceneBefore && inCurrentSceneNow) {
                 // attached
                 this._registerIfAttached(true);
@@ -663,6 +664,24 @@ var Node = cc.Class({
             else if (inCurrentSceneBefore && !inCurrentSceneNow) {
                 // detached
                 this._registerIfAttached(false);
+            }
+
+            // update prefab
+            var newPrefabRoot = newParent && newParent._prefab && newParent._prefab.root;
+            var myPrefabInfo = this._prefab;
+            if (myPrefabInfo) {
+                if (newPrefabRoot) {
+                    // change prefab
+                    Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                }
+                else if (myPrefabInfo.root !== this) {
+                    // detach from prefab
+                    Editor.PrefabUtils.unlinkPrefab(this);
+                }
+            }
+            else if (newPrefabRoot) {
+                // attach to prefab
+                Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
             }
         }
     },
