@@ -686,6 +686,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @returns {number} The node's global Z order
      */
     getGlobalZOrder: function () {
+        this._globalZOrder = this._sgNode.getGlobalZOrder();
         return this._globalZOrder;
     },
 
