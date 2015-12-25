@@ -109,6 +109,10 @@ var Scrollbar = cc.Class({
         }
     },
 
+    statics: {
+        Direction: Direction
+    },
+
     setTargetScrollView: function(scrollView) {
         this._scrollView = scrollView;
     },

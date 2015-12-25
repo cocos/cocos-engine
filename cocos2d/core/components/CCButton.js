@@ -123,9 +123,9 @@ var EVENT_HOVER_OUT = 'hover-out';
 var Button = cc.Class({
     name: 'cc.Button',
     extends: require('./CCComponent'),
+    mixins: [EventTarget],
 
     ctor: function () {
-        EventTarget.call(this);
 
         this._touchListener = null;
         this._mouseListener = null;
@@ -510,7 +510,5 @@ var Button = cc.Class({
     }
 
 });
-
-cc.js.addon(Button.prototype, EventTarget.prototype);
 
 cc.Button = module.exports = Button;

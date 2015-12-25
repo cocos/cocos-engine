@@ -141,7 +141,7 @@ var ProgressBar = cc.Class({
 
         /**
          * The progress mode, there are two modes supported now: horizontal and vertical.
-         *@property {Mode} mode
+         *@property {ProgressBar.Mode} mode
          */
         mode: {
             default: Mode.HORIZONTAL,
@@ -198,6 +198,10 @@ var ProgressBar = cc.Class({
                 this._updateBarStatus();
             }
         }
+    },
+
+    statics: {
+        Mode: Mode
     }
 });
 
