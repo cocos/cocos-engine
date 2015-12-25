@@ -59,7 +59,7 @@ var Label = cc.Class({
 
         /**
          * Horizontal Alignment of label
-         * @property {TextAlignment} horizontalAlign
+         * @property {Label.HorizontalAlign} horizontalAlign
          */
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
@@ -75,7 +75,7 @@ var Label = cc.Class({
 
         /**
          * Vertical Alignment of label
-         * @property {VerticalTextAlignment} verticalAlign
+         * @property {Label.VerticalAlign} verticalAlign
          */
         verticalAlign: {
             default: VerticalAlign.TOP,
@@ -135,7 +135,7 @@ var Label = cc.Class({
         },
         /**
          * Overflow of label
-         * @property {Overflow} overFlow
+         * @property {Label.Overflow} overFlow
          */
         overflow: {
             default: Overflow.CLAMP,
@@ -228,6 +228,26 @@ var Label = cc.Class({
         //     }
         // }
 
+    },
+
+    statics: {
+        /**
+         * The horizontal alignment of label.
+         * @property {cc.TextAlignment} HorizontalAlign
+         */
+        HorizontalAlign: HorizontalAlign,
+
+        /**
+         * The vertical alignment of label.
+         * @property {cc.VerticalTextAlignment} VerticalAlign
+         */
+        VerticalAlign: VerticalAlign,
+
+        /**
+         * Label overflow type, currently three types are supported: Clamp, Shrink and ResizeHeight.
+         * @property {Overflow} Overflow
+         */
+        Overflow: Overflow,
     },
 
     onLoad: function () {

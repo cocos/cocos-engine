@@ -98,7 +98,7 @@ var Layout = cc.Class({
 
         /**
          * The layout type.
-         * @property {LayoutType} layoutType
+         * @property {Layout.LayoutType} layoutType
          * @default Layout.LayoutType.BASIC
          */
         layoutType: {
@@ -134,7 +134,7 @@ var Layout = cc.Class({
         /**
          * Only take effect in Vertical layout mode.
          * This option changes the start element's positioning.
-         * @property {VerticalDirection} verticalDirection
+         * @property {Layout.VerticalDirection} verticalDirection
          */
         verticalDirection: {
             default: VerticalDirection.TOP_TO_BOTTOM,
@@ -147,7 +147,7 @@ var Layout = cc.Class({
         /**
          * Only take effect in Horizontal layout mode.
          * This option changes the start element's positioning.
-         * @property {HorizontalDirection} horizontalDirection
+         * @property {Layout.HorizontalDirection} horizontalDirection
          */
         horizontalDirection: {
             default: HorizontalDirection.LEFT_TO_RIGHT,
@@ -156,6 +156,12 @@ var Layout = cc.Class({
                 this._doLayoutDirty();
             }
         },
+    },
+
+    statics: {
+        LayoutType: LayoutType,
+        VerticalDirection: VerticalDirection,
+        HorizontalDirection: HorizontalDirection
     },
 
     onLoad: function() {

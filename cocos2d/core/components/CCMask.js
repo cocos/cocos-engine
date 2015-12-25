@@ -52,7 +52,7 @@ var Mask = cc.Class({
         this._clippingStencil.ignoreAnchorPointForPosition(false);
         this._clippingNode = new cc.ClippingNode(this._clippingStencil);
     },
-    
+
     onEnable: function () {
         var oldNode = this.node._sgNode;
         this._clippingStencil.setContentSize(this.node._contentSize);
@@ -69,11 +69,11 @@ var Mask = cc.Class({
         this.node.off('size-changed', this._onContentSizeChanged, this);
         this.node.off('anchor-changed',this._onAnchorChanged,this);
     },
-    
+
     onDestroy: function () {
 
     },
-    
+
     _onContentSizeChanged: function() {
         if(this._clippingStencil) {
             this._clippingStencil.setContentSize(this.node._contentSize);
