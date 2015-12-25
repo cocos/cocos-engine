@@ -483,8 +483,6 @@ var Animation = cc.Class({
 
         oldState._clip = clip;
         this._animator.reloadClip(oldState);
-
-        this.sample();
     }
 });
 
