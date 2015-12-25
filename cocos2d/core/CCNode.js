@@ -307,20 +307,20 @@ var Node = cc.Class({
             // destroy immediate so its _onPreDestroy can be called
             component._destroyImmediate();
         }
+        
+        // Actions
+        this.stopAllActions();
+
+        // Schedules
+        this.unscheduleAllCallbacks();
 
         // Remove all listeners
+        cc.eventManager.removeListeners(this);
         for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
             var target = this.__eventTargets[i];
             target && target.targetOff(this);
         }
         this.__eventTargets.length = 0;
-
-        if (this._touchListener) {
-            cc.eventManager.removeListener(this._touchListener);
-        }
-        if (this._mouseListener) {
-            cc.eventManager.removeListener(this._mouseListener);
-        }
 
         // remove from persist
         if (this._persistNode) {
