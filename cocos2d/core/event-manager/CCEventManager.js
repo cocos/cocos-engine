@@ -119,11 +119,14 @@ cc.eventManager = {
 
     _setDirtyForNode: function (node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        if (this._nodeListenersMap[node.__instanceId] != null)
+        if (this._nodeListenersMap[node.__instanceId] !== undefined) {
             this._dirtyNodes.push(node);
-        var _children = node.getChildren();
-        for(var i = 0, len = _children.length; i < len; i++)
-            this._setDirtyForNode(_children[i]);
+        }
+        if (node.getChildren) {
+            var _children = node.getChildren();
+            for(var i = 0, len = _children.length; i < len; i++)
+                this._setDirtyForNode(_children[i]);
+        }
     },
 
     /**
@@ -158,7 +161,7 @@ cc.eventManager = {
                 listeners[i]._setPaused(false);
         }
         this._setDirtyForNode(node);
-        if (recursive === true) {
+        if (recursive === true && node.getChildren) {
             var locChildren = node.getChildren();
             for ( i = 0, len = locChildren.length; i< len; i++)
                 this.resumeTarget(locChildren[i], true);
