@@ -316,14 +316,14 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             tex = locTexs[url] = new Texture2D();
             tex.url = url;
-            var loadFunc = cc.loader._checkIsImageURL(url) ? cc.loader.load : cc.loader.loadImg;
-            loadFunc.call(cc.loader, url, function (err, img) {
+            cc.loader.loadImg(url, function (err, img) {
                 if (err)
                     return cb && cb.call(target, err);
+
+                tex.initWithElement(img);
                 textureCache.handleLoadedTexture(url);
 
-                var texResult = locTexs[url];
-                cb && cb.call(target, texResult);
+                cb && cb.call(target, tex);
             });
 
             return tex;
@@ -373,14 +373,14 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             tex = locTexs[url] = new Texture2D();
             tex.url = url;
-            var loadFunc = cc.loader._checkIsImageURL(url) ? cc.loader.load : cc.loader.loadImg;
-            loadFunc.call(cc.loader, url, function (err, img) {
+            cc.loader.loadImg(url, function (err, img) {
                 if (err)
                     return cb && cb.call(target, err);
+
+                tex.initWithElement(img);
                 textureCache.handleLoadedTexture(url);
 
-                var texResult = locTexs[url];
-                cb && cb.call(target, texResult);
+                cb && cb.call(target, tex);
             });
 
             return tex;
