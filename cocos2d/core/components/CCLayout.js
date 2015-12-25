@@ -25,9 +25,9 @@
 
 /**
  * Enum for Layout type
- * @enum Layout.LayoutType
+ * @enum Layout.Type
  */
-var LayoutType = cc.Enum({
+var Type = cc.Enum({
     /**
      *@property {Number} BASIC
      */
@@ -98,12 +98,12 @@ var Layout = cc.Class({
 
         /**
          * The layout type.
-         * @property {Layout.LayoutType} layoutType
-         * @default Layout.LayoutType.BASIC
+         * @property {Layout.Type} layoutType
+         * @default Layout.Type.BASIC
          */
         layoutType: {
-            default: LayoutType.BASIC,
-            type: LayoutType,
+            default: Type.BASIC,
+            type: Type,
             notify: function() {
                 this._doLayoutDirty();
             }
@@ -159,7 +159,7 @@ var Layout = cc.Class({
     },
 
     statics: {
-        LayoutType: LayoutType,
+        Type: Type,
         VerticalDirection: VerticalDirection,
         HorizontalDirection: HorizontalDirection
     },
@@ -265,9 +265,9 @@ var Layout = cc.Class({
         var layoutAnchor = this.node.getAnchorPoint();
         var layoutSize = this.node.getContentSize();
 
-        if (this.layoutType === LayoutType.HORIZONTAL) {
+        if (this.layoutType === Type.HORIZONTAL) {
             this._doLayoutHorizontally(layoutAnchor, layoutSize, children);
-        } else if (this.layoutType === LayoutType.VERTICAL) {
+        } else if (this.layoutType === Type.VERTICAL) {
             this._doLayoutVertically(layoutAnchor, layoutSize, children);
         }
     },
