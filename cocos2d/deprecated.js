@@ -133,7 +133,9 @@ if (CC_DEV) {
     js.obsoletes(cc, 'cc', {
         'Point': 'Vec2',
         'EScene': 'Scene',
-        'ENode': 'Node'
+        'ENode': 'Node',
+        "glDeleteTexture": 'glDeleteTexture2D',
+        "glDeleteTextureN": 'glDeleteTexture2DN'
     });
 
     /**
