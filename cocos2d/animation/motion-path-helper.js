@@ -2,8 +2,6 @@ var DynamicAnimCurve = require('./animation-curves').DynamicAnimCurve;
 var computeRatioByType = require('./animation-curves').computeRatioByType;
 
 var bezier = require('./bezier').bezier;
-var bezierByTime = require('./bezier').bezierByTime;
-
 var binarySearch = require('./binary-search');
 
 var v2 = cc.v2;
@@ -24,10 +22,12 @@ Curve.prototype.computeBeziers = function () {
     this.progresses.length = 0;
     this.length = 0;
 
+    var bezier;
+
     for (var i = 1; i < this.points.length; i++) {
         var startPoint = this.points[i - 1];
         var endPoint = this.points[i];
-        var bezier = new Bezier();
+        bezier = new Bezier();
         bezier.start = startPoint.pos;
         bezier.startCtrlPoint = startPoint.out;
         bezier.end = endPoint.pos;
@@ -39,7 +39,7 @@ Curve.prototype.computeBeziers = function () {
 
     var current = 0;
     for (var i = 0; i < this.beziers.length; i++) {
-        var bezier = this.beziers[i];
+        bezier = this.beziers[i];
         this.ratios[i] = bezier.getLength() / this.length;
         this.progresses[i] = current = current + this.ratios[i];
     }
@@ -224,6 +224,11 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
         return v2(value[0], value[1]);
     });
 
+    if (values.length === 1) {
+        data.values = values;
+        return;
+    }
+
     var types = data.types;
     var ratios = data.ratios;
 
@@ -258,8 +263,9 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
         var results = [];
         var progress = startRatioOffset / betweenRatio;
         var speed = 1 / (betweenRatio * duration * fps);
+        var finalProgress;
 
-        if (motionPath) {
+        if (motionPath && motionPath.length > 0) {
             var points = [];
             points.push(createControlPoints(value));
 
@@ -278,26 +284,42 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
             var progresses = curve.progresses;
 
             while ( 1 - progress > EPSILON) {
-                var finalProgress = progress;
+                finalProgress = progress;
 
                 finalProgress = computeRatioByType(finalProgress, type);
 
-                var bezierIndex = binarySearch(progresses, finalProgress);
-                if (bezierIndex < 0) bezierIndex = ~bezierIndex;
+                var pos, bezier, normal, length;
 
-                finalProgress -= bezierIndex > 0 ? progresses[bezierIndex - 1] : 0;
-                finalProgress = finalProgress / curve.ratios[bezierIndex];
+                if (finalProgress < 0) {
+                    bezier = curve.beziers[0];
+                    length =  (0 - finalProgress) * bezier.getLength();
+                    normal = bezier.start.sub(bezier.endCtrlPoint).normalize();
+                    pos = bezier.start.add(normal.mul(length));
+                }
+                else if (finalProgress > 1) {
+                    bezier = curve.beziers[curve.beziers.length - 1];
+                    length =  (finalProgress - 1) * bezier.getLength();
+                    normal = bezier.end.sub(bezier.startCtrlPoint).normalize();
+                    pos = bezier.end.add(normal.mul(length));
+                }
+                else {
+                    var bezierIndex = binarySearch(progresses, finalProgress);
+                    if (bezierIndex < 0) bezierIndex = ~bezierIndex;
 
-                var pos = curve.beziers[bezierIndex].getPointAt(finalProgress);
+                    finalProgress -= bezierIndex > 0 ? progresses[bezierIndex - 1] : 0;
+                    finalProgress = finalProgress / curve.ratios[bezierIndex];
+
+                    pos = curve.beziers[bezierIndex].getPointAt(finalProgress);
+                }
+
                 results.push(pos);
-
                 progress += speed;
             }
 
         }
         else {
             while ( 1 - progress > EPSILON) {
-                var finalProgress = progress;
+                finalProgress = progress;
 
                 finalProgress = computeRatioByType(finalProgress, type);
 
