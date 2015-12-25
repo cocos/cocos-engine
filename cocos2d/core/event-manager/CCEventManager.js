@@ -795,7 +795,7 @@ cc.eventManager = {
      * @param {Boolean} [recursive=false]
      */
     removeListeners: function (listenerType, recursive) {
-        var _t = this;
+        var i, _t = this;
         if (listenerType instanceof _ccsg.Node) {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
@@ -806,7 +806,7 @@ cc.eventManager = {
                 var listenersCopy = cc.js.array.copy(listeners);
                 for (i = 0; i < listenersCopy.length; i++)
                     _t.removeListener(listenersCopy[i]);
-                listenersCopy.length = 0;
+                delete _t._nodeListenersMap[listenerType.__instanceId];
             }
 
             // Bug fix: ensure there are no references to the node in the list of listeners to be added.
