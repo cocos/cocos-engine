@@ -140,17 +140,20 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
     var oldPos = event.detail;
     var newPos = this.node.position;
     var delta = newPos.sub(oldPos);
+    var parentSize = getParentSize(this.node._parent);
+    var deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+
     if (this.isAlignTop) {
-        this.top -= delta.y;
+        this.top -= (this.isAbsTop ? delta.y : deltaInPercent.y);
     }
     if (this.isAlignBottom) {
-        this.bottom += delta.y;
+        this.bottom += (this.isAbsBottom ? delta.y : deltaInPercent.y);
     }
     if (this.isAlignLeft) {
-        this.left += delta.x;
+        this.left += (this.isAbsLeft ? delta.x : deltaInPercent.x);
     }
     if (this.isAlignRight) {
-        this.right -= delta.x;
+        this.right -= (this.isAbsRight ? delta.x : deltaInPercent.x);
     }
     if (this.isAlignHorizontalCenter) {
         if (oldPos.x !== newPos.x) {
@@ -170,28 +173,32 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
     }
     var oldSize = event.detail;
     var newSize = this.node.getContentSize();
-    var sizeDelta = cc.p(newSize.width - oldSize.width, newSize.height - oldSize.height);
+    // delta size
+    var delta = cc.p(newSize.width - oldSize.width, newSize.height - oldSize.height);
+    var parentSize = getParentSize(this.node._parent);
+    var deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+
     var anchor = this.node.getAnchorPoint();
 
     if (this.isAlignTop) {
-        this.top -= sizeDelta.y * (1 - anchor.y);
+        this.top -= (this.isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y);
     }
     if (this.isAlignBottom) {
-        this.bottom -= sizeDelta.y * anchor.y;
+        this.bottom -= (this.isAbsBottom ? delta.y : deltaInPercent.y) * anchor.y;
     }
     if (this.isAlignLeft) {
-        this.left -= sizeDelta.x * anchor.x;
+        this.left -= (this.isAbsLeft ? delta.x : deltaInPercent.x) * anchor.x;
     }
     if (this.isAlignRight) {
-        this.right -= sizeDelta.x * (1 - anchor.x);
+        this.right -= (this.isAbsRight ? delta.x : deltaInPercent.x) * (1 - anchor.x);
     }
     if (this.isAlignHorizontalCenter) {
-        if (sizeDelta.x !== 0 && anchor.x !== 0.5) {
+        if (delta.x !== 0 && anchor.x !== 0.5) {
             this.isAlignHorizontalCenter = false;
         }
     }
     if (this.isAlignVerticalCenter) {
-        if (sizeDelta.y !== 0 && anchor.y !== 0.5) {
+        if (delta.y !== 0 && anchor.y !== 0.5) {
             this.isAlignVerticalCenter = false;
         }
     }
