@@ -796,7 +796,7 @@ cc.eventManager = {
      */
     removeListeners: function (listenerType, recursive) {
         var i, _t = this;
-        if (listenerType instanceof _ccsg.Node) {
+        if (listenerType.__instanceId !== undefined) {
             // Ensure the node is removed from these immediately also.
             // Don't want any dangling pointers or the possibility of dealing with deleted objects..
             delete _t._nodePriorityMap[listenerType.__instanceId];
