@@ -303,7 +303,7 @@ var Sprite = cc.Class({
 
     _applyAtlas: CC_EDITOR && function ( spriteFrame ) {
         // Set atlas
-        if (spriteFrame._atlasUuid) {
+        if (spriteFrame && spriteFrame._atlasUuid) {
             var self = this;
             cc.AssetLibrary.loadAsset(spriteFrame._atlasUuid, function(err, asset) {
                 self._atlas = asset;
@@ -338,22 +338,30 @@ var Sprite = cc.Class({
         if (oldSprite && oldSprite.off) {
             oldSprite.off('load', this._applyCapInset, this);
         }
-        if (!this._spriteFrame) return;
 
-        sgNode.setSpriteFrame(this._spriteFrame);
-        var locLoaded = this._spriteFrame.textureLoaded();
-        if (!locLoaded) {
-            if ( !this._useOriginalSize ) {
-                sgNode.setContentSize(this.node.getContentSize(true));
+        if (this._spriteFrame) {
+            if (!sgNode.isVisible()) {
+                sgNode.setVisible(true);
             }
-            this._spriteFrame.once('load', function () {
-                this._applyCapInset();
-                this._applySpriteSize();
-            }, this);
+
+            sgNode.setSpriteFrame(this._spriteFrame);
+            var locLoaded = this._spriteFrame.textureLoaded();
+            if (!locLoaded) {
+                if (!this._useOriginalSize) {
+                    sgNode.setContentSize(this.node.getContentSize(true));
+                }
+                this._spriteFrame.once('load', function () {
+                    this._applyCapInset();
+                    this._applySpriteSize();
+                }, this);
+            }
+            else {
+                this._applyCapInset(sgNode);
+                this._applySpriteSize(sgNode);
+            }
         }
         else {
-            this._applyCapInset(sgNode);
-            this._applySpriteSize(sgNode);
+            sgNode.setVisible(false);
         }
 
         if (CC_EDITOR) {
