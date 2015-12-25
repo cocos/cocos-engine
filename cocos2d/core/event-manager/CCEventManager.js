@@ -596,7 +596,7 @@ cc.eventManager = {
                     break;
             }
 
-            if (locNodeListenersMap[node.__instanceId] !== null) {
+            if (locNodeListenersMap[node.__instanceId] !== undefined) {
                 if (!locGlobalZOrderNodeMap[node.getGlobalZOrder()])
                     locGlobalZOrderNodeMap[node.getGlobalZOrder()] = [];
                 locGlobalZOrderNodeMap[node.getGlobalZOrder()].push(node.__instanceId);
@@ -608,7 +608,7 @@ cc.eventManager = {
                     this._visitTarget(child, false);
             }
         } else {
-            if (locNodeListenersMap[node.__instanceId] !== null) {
+            if (locNodeListenersMap[node.__instanceId] !== undefined) {
                 if (!locGlobalZOrderNodeMap[node.getGlobalZOrder()])
                     locGlobalZOrderNodeMap[node.getGlobalZOrder()] = [];
                 locGlobalZOrderNodeMap[node.getGlobalZOrder()].push(node.__instanceId);
