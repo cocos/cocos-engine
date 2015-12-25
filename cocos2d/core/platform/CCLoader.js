@@ -1,3 +1,15 @@
+'use strict';
+
+var _noCacheRex = /\?/;
+function urlAppendTimestamp (url) {
+    if (cc.game.config['noCache'] && typeof url === 'string') {
+        if(_noCacheRex.test(url))
+            url += '&_t=' + (new Date() - 0);
+        else
+            url += '?_t=' + (new Date() - 0);
+    }
+    return url;
+}
 
 /**
  * Loader for resource loading process. It's a singleton object.
@@ -123,14 +135,7 @@ cc.loader = cc.loader || (function () {
             var d = document, self = this, s = document.createElement('script');
             s.async = isAsync;
             _jsCache[jsPath] = true;
-            if(cc.game.config["noCache"] && typeof jsPath === "string"){
-                if(self._noCacheRex.test(jsPath))
-                    s.src = jsPath + "&_t=" + (new Date() - 0);
-                else
-                    s.src = jsPath + "?_t=" + (new Date() - 0);
-            }else{
-                s.src = jsPath;
-            }
+            s.src = urlAppendTimestamp(jsPath);
             s.addEventListener('load', function () {
                 s.parentNode.removeChild(s);
                 s.removeEventListener('load', arguments.callee, false);
@@ -186,6 +191,9 @@ cc.loader = cc.loader || (function () {
         loadTxt: function (url, cb) {
             var xhr = this.getXMLHttpRequest(),
                 errInfo = "load " + url + " failed!";
+
+            url = urlAppendTimestamp(url);
+
             xhr.open("GET", url, true);
             if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
                 // IE-specific logic here
@@ -226,6 +234,9 @@ cc.loader = cc.loader || (function () {
         loadCsb: function(url, cb){
             var xhr = new XMLHttpRequest(),
                 errInfo = "load " + url + " failed!";
+
+            url = urlAppendTimestamp(url);
+
             xhr.open("GET", url, true);
             xhr.responseType = "arraybuffer";
 
@@ -289,6 +300,8 @@ cc.loader = cc.loader || (function () {
                 opt.isCrossOrigin = option.isCrossOrigin === null ? opt.isCrossOrigin : option.isCrossOrigin;
             else if (option !== undefined)
                 callback = option;
+
+            url = urlAppendTimestamp(url);
 
             var img = this.getRes(url);
             if (img) {
@@ -367,12 +380,6 @@ cc.loader = cc.loader || (function () {
                 realUrl = self.getUrl(basePath, url);
             }
 
-            if(cc.game.config["noCache"] && typeof realUrl === "string"){
-                if(self._noCacheRex.test(realUrl))
-                    realUrl += "&_t=" + (new Date() - 0);
-                else
-                    realUrl += "?_t=" + (new Date() - 0);
-            }
             loader.load(realUrl, url, item, function (err, data) {
                 if (err) {
                     cc.log(err);
@@ -385,7 +392,6 @@ cc.loader = cc.loader || (function () {
                 }
             });
         },
-        _noCacheRex: /\?/,
 
         /**
          * Get url with basePath.
