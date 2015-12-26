@@ -281,6 +281,10 @@ cc.eventManager = {
                 this._sortListenersOfFixedPriority(listenerID);
 
             if (dirtyFlag & this.DIRTY_SCENE_GRAPH_PRIORITY){
+                var rootEntity = cc.director.getScene();
+                if(rootEntity)
+                    this._sortListenersOfSceneGraphPriority(listenerID, rootEntity);
+                
                 var rootNode = cc.director.getRunningScene();
                 if(rootNode)
                     this._sortListenersOfSceneGraphPriority(listenerID, rootNode);
