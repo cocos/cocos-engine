@@ -78,14 +78,14 @@ var TouchEventTest = ECSTestLayer.extend({
         this._node = createEntity(s_pathGrossini, cc.winSize.width/2, cc.winSize.height/2);
         cc.director.getScene().addChild(this._node);
 
-        this._node.on(cc.Node.EventType.TOUCH_BEGAN, function () {
-            this._label.string = 'Touch began - Grossini';
+        this._node.on(cc.Node.EventType.TOUCH_START, function () {
+            this._label.string = 'Touch start - Grossini';
         }, this);
-        this._node.on(cc.Node.EventType.TOUCH_MOVED, function () {
-            this._label.string = 'Touch moved - Grossini';
+        this._node.on(cc.Node.EventType.TOUCH_MOVE, function () {
+            this._label.string = 'Touch move - Grossini';
         }, this);
-        this._node.on(cc.Node.EventType.TOUCH_ENDED, function () {
-            this._label.string = 'Touch ended - Grossini';
+        this._node.on(cc.Node.EventType.TOUCH_END, function () {
+            this._label.string = 'Touch end - Grossini';
         }, this);
     }
 });
@@ -113,7 +113,7 @@ var MouseEventTest = ECSTestLayer.extend({
             },
             onMouseMove: function () {
                 var layer = this.owner;
-                layer._label.string = 'Mouse moved - outside';
+                layer._label.string = 'Mouse move - outside';
             },
             onMouseUp: function () {
                 var layer = this.owner;
@@ -127,8 +127,8 @@ var MouseEventTest = ECSTestLayer.extend({
         node.on(cc.Node.EventType.MOUSE_DOWN, function () {
             this._label.string = 'Mouse down - Grossini';
         }, this);
-        node.on(cc.Node.EventType.MOUSE_MOVED, function () {
-            this._label.string = 'Mouse moved - Grossini';
+        node.on(cc.Node.EventType.MOUSE_MOVE, function () {
+            this._label.string = 'Mouse move - Grossini';
         }, this);
         node.on(cc.Node.EventType.MOUSE_UP, function () {
             this._label.string = 'Mouse up - Grossini';
@@ -151,19 +151,19 @@ var PropagationTest = ECSTestLayer.extend({
         cc.director.getScene().addChild(node);
 
         var self = this;
-        node.on(cc.Node.EventType.TOUCH_BEGAN, function (event) {
+        node.on(cc.Node.EventType.TOUCH_START, function (event) {
             this.opacity = 180;
             if (self.propagate)
                 event.stopPropagation();
         }, node);
-        node.on(cc.Node.EventType.TOUCH_MOVED, function (event) {
+        node.on(cc.Node.EventType.TOUCH_MOVE, function (event) {
             var delta = event.touch.getDelta();
             this.x += delta.x;
             this.y += delta.y;
             if (self.propagate)
                 event.stopPropagation();
         }, node);
-        node.on(cc.Node.EventType.TOUCH_ENDED, function (event) {
+        node.on(cc.Node.EventType.TOUCH_END, function (event) {
             this.opacity = 255;
             if (self.propagate)
                 event.stopPropagation();
@@ -172,19 +172,19 @@ var PropagationTest = ECSTestLayer.extend({
         var magenta = createEntity('Images/MagentaSquare.png', 50, -50);
         node.addChild(magenta);
 
-        magenta.on(cc.Node.EventType.TOUCH_BEGAN, function (event) {
+        magenta.on(cc.Node.EventType.TOUCH_START, function (event) {
             this.opacity = 180;
             if (self.propagate)
                 event.stopPropagation();
         }, magenta);
-        magenta.on(cc.Node.EventType.TOUCH_MOVED, function (event) {
+        magenta.on(cc.Node.EventType.TOUCH_MOVE, function (event) {
             var delta = event.touch.getDelta();
             this.x += delta.x;
             this.y += delta.y;
             if (self.propagate)
                 event.stopPropagation();
         }, magenta);
-        magenta.on(cc.Node.EventType.TOUCH_ENDED, function (event) {
+        magenta.on(cc.Node.EventType.TOUCH_END, function (event) {
             this.opacity = 255;
             if (self.propagate)
                 event.stopPropagation();
@@ -193,19 +193,19 @@ var PropagationTest = ECSTestLayer.extend({
         var yellow = createEntity('Images/YellowSquare.png', 50, 80);
         magenta.addChild(yellow);
 
-        yellow.on(cc.Node.EventType.TOUCH_BEGAN, function (event) {
+        yellow.on(cc.Node.EventType.TOUCH_START, function (event) {
             this.opacity = 180;
             if (self.propagate)
                 event.stopPropagation();
         }, yellow);
-        yellow.on(cc.Node.EventType.TOUCH_MOVED, function (event) {
+        yellow.on(cc.Node.EventType.TOUCH_MOVE, function (event) {
             var delta = event.touch.getDelta();
             this.x += delta.x;
             this.y += delta.y;
             if (self.propagate)
                 event.stopPropagation();
         }, yellow);
-        yellow.on(cc.Node.EventType.TOUCH_ENDED, function (event) {
+        yellow.on(cc.Node.EventType.TOUCH_END, function (event) {
             this.opacity = 255;
             if (self.propagate)
                 event.stopPropagation();
