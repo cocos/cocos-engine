@@ -71,7 +71,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         // SERIALIZABLE
 
-        _name: '',
         _opacity: 255,
         _color: cc.Color.WHITE,
         _cascadeOpacityEnabled: true,
