@@ -122,8 +122,7 @@ function parseType (val, type, className, propName) {
     }
     if (CC_EDITOR) {
         if (typeof type === 'function') {
-            var isRaw = cc.isChildClassOf(type, cc.RawAsset) && !cc.isChildClassOf(type, cc.Asset);
-            if (isRaw) {
+            if (cc.RawAsset.isRawAssetType(type)) {
                 cc.warn('The "type" attribute of "%s.%s" must be child class of cc.Asset, ' +
                           'otherwise you should use "url: %s" instead', className, propName,
                     cc.js.getClassName(type));
@@ -149,13 +148,34 @@ function postCheckType (val, type, className, propName) {
 module.exports = function (properties, className) {
     for (var propName in properties) {
         var val = properties[propName];
-        
-        var isObj = val && typeof val === 'object' && !Array.isArray(val);
-        var isLiteral = isObj && val.constructor === Object;
+        var isLiteral = val && val.constructor === Object;
         if ( !isLiteral ) {
-            properties[propName] = val = {
-                default: val
-            };
+            if (Array.isArray(val) && val.length > 0) {
+                val = {
+                    default: [],
+                    type: val
+                };
+            }
+            else if (typeof val === 'function') {
+                if (cc.isChildClassOf(val, cc.ValueType)) {
+                    val = {
+                        default: new val(),
+                        type: val
+                    };
+                }
+                else {
+                    val = {
+                        default: cc.RawAsset.isRawAssetType(val) ? '' : null,
+                        type: val
+                    };
+                }
+            }
+            else {
+                val = {
+                    default: val
+                };
+            }
+            properties[propName] = val;
         }
         if (val) {
             var notify = val.notify;

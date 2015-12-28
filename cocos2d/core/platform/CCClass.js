@@ -819,15 +819,12 @@ FireClass._isCCClass = function (constructor) {
 //    constructor.prop = _metaClass.prop;
 //};
 
+// Optimized define function only for internal base classes
 //
-// Specially optimized define function only for internal base classes
-//
-// @method _fastDefine
 // @param {String} className
 // @param {Function} constructor
 // @param {string[]} serializableFields
 // @private
-//
 function fastDefine (className, constructor, serializableFields) {
     JS.setClassName(className, constructor);
     constructor.__props__ = serializableFields;

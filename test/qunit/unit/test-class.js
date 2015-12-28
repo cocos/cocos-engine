@@ -12,9 +12,11 @@ test('test', function () {
                 tooltip: 'Float',
                 displayName: 'displayName'
             },
-            eat: function () {
-                return function () {
-                    return 'eating';
+            eat: {
+                default: function () {
+                    return function () {
+                        return 'eating';
+                    }
                 }
             },
             weight: {
@@ -108,6 +110,33 @@ test('test', function () {
     labradorConstructor.once('call constructor of child class');
 
     cc.js.unregisterClass(Animal, Labrador);
+});
+
+test('define property in quick way', function () {
+    var Class = cc.Class({
+        properties: {
+            undefinedVal: undefined,
+            nullVal: null,
+            string: '...',
+            array: [],
+            node: cc.Node,
+            rawAsset: cc.Texture2D,
+            asset: cc.SpriteFrame,
+            vec2: cc.Vec2,
+            vec2_one: cc.Vec2.ONE,
+        }
+    });
+    var obj = new Class();
+
+    strictEqual(obj.undefinedVal, undefined, 'could define default value of undefined');
+    strictEqual(obj.nullVal, null, 'could define default value of null');
+    strictEqual(obj.string, '...', 'could define default value of string');
+    deepEqual(obj.array, [], 'could define default value of array');
+    strictEqual(obj.node, null, 'could define default value of cc.Node');
+    strictEqual(obj.rawAsset, '', 'could define default value of raw asset');
+    strictEqual(obj.asset, null, 'could define default value of asset');
+    ok(obj.vec2.equals(cc.Vec2.ZERO), 'could define default value by using cc.Vec2');
+    ok(obj.vec2_one.equals(cc.Vec2.ONE), 'could define default value by using cc.Vec2.ONE');
 });
 
 test('Inherit', function () {
