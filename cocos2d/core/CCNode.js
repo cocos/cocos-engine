@@ -376,6 +376,10 @@ var Node = cc.Class({
                 this._parent = null;
             }
         }
+        else {
+            this._sgNode.release();
+            this._sgNode = null;
+        }
     },
 
     // COMPONENT
