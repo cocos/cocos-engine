@@ -158,6 +158,7 @@ module.exports = function (properties, className) {
             }
             else if (typeof val === 'function') {
                 if (cc.isChildClassOf(val, cc.ValueType)) {
+                    //noinspection JSUnresolvedFunction
                     val = {
                         default: new val(),
                         type: val
