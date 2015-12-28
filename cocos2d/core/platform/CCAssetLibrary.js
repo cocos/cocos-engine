@@ -369,44 +369,15 @@ var AssetLibrary = {
                         return;
                     }
                     else if (isRawAsset) {
-                        cc.loader.load(dependsUrl, function (err, assets) {
+                        // HACK - https://github.com/fireball-x/fireball/issues/668
+                        var isImg = cc.loader._checkIsImageURL(dependsUrl);
+                        var loadFunc = isImg ? cc.loader.loadImg : cc.loader.load;
+                        loadFunc.call(cc.loader, dependsUrl, function (err, assets) {
                             if (err) {
                                 cc.error('[AssetLibrary] Failed to load "%s"', dependsUrl);
                                 obj[prop] = '';
                             }
                             else {
-                                var img = assets[0];
-                                if (typeof Image !== 'undefined' && img instanceof Image) {
-                                    // HACK - https://github.com/fireball-x/fireball/issues/668
-                                    var loaded = img.width > 0 || img.height > 0;
-                                    if ( !loaded ) {
-                                        function loadCallback () {
-                                            img.removeEventListener('load', loadCallback);
-                                            img.removeEventListener('error', errorCallback);
-
-                                            obj[prop] = dependsUrl;
-                                            --pendingCount;
-                                            if (callback && pendingCount === 0) {
-                                                callback();
-                                                callback = null;
-                                            }
-                                        }
-                                        function errorCallback () {
-                                            img.removeEventListener('load', loadCallback);
-                                            img.removeEventListener('error', errorCallback);
-
-                                            obj[prop] = '';
-                                            --pendingCount;
-                                            if (callback && pendingCount === 0) {
-                                                callback();
-                                                callback = null;
-                                            }
-                                        }
-                                        img.addEventListener('load', loadCallback);
-                                        img.addEventListener('error', errorCallback);
-                                        return;
-                                    }
-                                }
                                 obj[prop] = dependsUrl;
                             }
                             --pendingCount;
