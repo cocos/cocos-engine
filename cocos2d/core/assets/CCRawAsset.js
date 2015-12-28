@@ -24,6 +24,16 @@ cc.RawAsset = cc.Class({
          * @param {Object} callback.node - the created node or null
          */
         createNodeByInfo: null,
+
+        /**
+         * @method isRawAssetType
+         * @param {Function} ctor
+         * @returns {Boolean}
+         * @private
+         */
+        isRawAssetType: function (ctor) {
+            return cc.isChildClassOf(ctor, cc.RawAsset) && !cc.isChildClassOf(ctor, cc.Asset);
+        }
     }
 });
 
