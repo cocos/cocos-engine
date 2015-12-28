@@ -541,6 +541,7 @@ test('CCAnimation._updateClip', function () {
     };
 
     animation._updateClip(newClip);
+    animation.sample();
 
     var clips = animation.getClips();
 
