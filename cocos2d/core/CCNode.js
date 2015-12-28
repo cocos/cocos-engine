@@ -61,6 +61,13 @@ var EventType = cc.Enum({
      * @readonly
      */
     TOUCH_END: 'touchend',
+    /**
+     * The event type for touch end event, you can use its value directly: 'touchcancel'
+     * @property TOUCH_CANCEL
+     * @type {String}
+     * @readonly
+     */
+    TOUCH_CANCEL: 'touchcancel',
 
     /**
      * The event type for mouse down events, you can use its value directly: 'mousedown'
@@ -103,6 +110,7 @@ var _touchEvents = [
     EventType.TOUCH_START,
     EventType.TOUCH_MOVE,
     EventType.TOUCH_END,
+    EventType.TOUCH_CANCEL,
 ];
 var _mouseEvents = [
     EventType.MOUSE_DOWN,
@@ -133,8 +141,15 @@ var _touchMoveHandler = function (touch, event) {
     node.dispatchEvent(event);
 };
 var _touchEndHandler = function (touch, event) {
+    var pos = touch.getLocation();
     var node = this.owner;
-    event.type = EventType.TOUCH_END;
+
+    if (node._hitTest(pos)) {
+        event.type = EventType.TOUCH_END;
+    }
+    else {
+        event.type = EventType.TOUCH_CANCEL;
+    }
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
