@@ -40,63 +40,63 @@ var DontDestroy = Flags.DontDestroy;
  */
 var EventType = cc.Enum({
     /**
-     * The event type for touch start event
+     * The event type for touch start event, you can use its value directly: 'touchstart'
      * @property TOUCH_START
      * @type {String}
      * @readonly
      */
-    TOUCH_START: 'touch_start',
+    TOUCH_START: 'touchstart',
     /**
-     * The event type for touch move event
+     * The event type for touch move event, you can use its value directly: 'touchmove'
      * @property TOUCH_MOVE
      * @type {String}
      * @value 1
      * @readonly
      */
-    TOUCH_MOVE: 'touch_move',
+    TOUCH_MOVE: 'touchmove',
     /**
-     * The event type for touch end event
+     * The event type for touch end event, you can use its value directly: 'touchend'
      * @property TOUCH_END
      * @type {String}
      * @readonly
      */
-    TOUCH_END: 'touch_end',
+    TOUCH_END: 'touchend',
 
     /**
-     * The event type for mouse down events
+     * The event type for mouse down events, you can use its value directly: 'mousedown'
      * @property MOUSE_DOWN
      * @type {String}
      * @readonly
      */
-    MOUSE_DOWN: 'mouse_down',
+    MOUSE_DOWN: 'mousedown',
     /**
-     * The event type for mouse move events
+     * The event type for mouse move events, you can use its value directly: 'mousemove'
      * @property MOUSE_MOVE
      * @type {String}
      * @readonly
      */
-    MOUSE_MOVE: 'mouse_move',
+    MOUSE_MOVE: 'mousemove',
     /**
-     * The event type for mouse enter target events
+     * The event type for mouse enter target events, you can use its value directly: 'mouseenter'
      * @property MOUSE_ENTER
      * @type {String}
      * @readonly
      */
-    MOUSE_ENTER: 'mouse_enter',
+    MOUSE_ENTER: 'mouseenter',
     /**
-     * The event type for mouse leave target events
+     * The event type for mouse leave target events, you can use its value directly: 'mouseleave'
      * @property MOUSE_LEAVE
      * @type {String}
      * @readonly
      */
-    MOUSE_LEAVE: 'mouse_leave',
+    MOUSE_LEAVE: 'mouseleave',
     /**
-     * The event type for mouse up events
+     * The event type for mouse up events, you can use its value directly: 'mouseup'
      * @property MOUSE_UP
      * @type {String}
      * @readonly
      */
-    MOUSE_UP: 'mouse_up',
+    MOUSE_UP: 'mouseup',
 });
 
 var _touchEvents = [
@@ -106,7 +106,9 @@ var _touchEvents = [
 ];
 var _mouseEvents = [
     EventType.MOUSE_DOWN,
+    EventType.MOUSE_ENTER,
     EventType.MOUSE_MOVE,
+    EventType.MOUSE_LEAVE,
     EventType.MOUSE_UP,
 ];
 
