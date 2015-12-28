@@ -106,7 +106,9 @@ var _touchEvents = [
 ];
 var _mouseEvents = [
     EventType.MOUSE_DOWN,
+    EventType.MOUSE_ENTER,
     EventType.MOUSE_MOVE,
+    EventType.MOUSE_LEAVE,
     EventType.MOUSE_UP,
 ];
 
