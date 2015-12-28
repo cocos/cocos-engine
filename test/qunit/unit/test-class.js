@@ -123,7 +123,8 @@ test('Inherit', function () {
         properties: {
             myName: {
                 default: 'doge',
-                tooltip: 'String'
+                tooltip: 'String',
+                override: true
             }
         }
     });
@@ -187,7 +188,10 @@ test('Inherit + constructor', function () {
         name: 'cc.Dog',
         extends: Animal,
         properties: {
-            myName: 'doge'
+            myName: {
+                default: 'doge',
+                override: true
+            },
         }
     });
     var Husky = cc.Class({
@@ -317,7 +321,10 @@ test('isChildClassOf', function () {
         name: 'cc.Dog',
         extends: Animal,
         properties: {
-            name: 'doge'
+            name: {
+                default: 'doge',
+                override: true
+            }
         }
     });
     var Husky = cc.Class({
@@ -513,7 +520,10 @@ test('mixins', function () {
         extends: Dog,
         mixins: [Mixin1, Mixin2],
         properties: {
-            p1: 'Defined by BigDog',
+            p1: {
+                default: 'Defined by BigDog',
+                override: true
+            },
             p4: 'Defined by BigDog',
         },
         stop: function () {},

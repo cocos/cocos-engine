@@ -126,6 +126,7 @@ var Sprite = cc.Class({
                 return cc.size(sgNode.width, sgNode.height);
             },
             visible: false,
+            override: true
         }
     },
 

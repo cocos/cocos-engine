@@ -718,7 +718,7 @@ function FireClass (options) {
     if (properties) {
 
         // 预处理属性
-        preprocessAttrs(properties, name);
+        preprocessAttrs(properties, name, cls);
 
         for (var propName in properties) {
             var val = properties[propName];
