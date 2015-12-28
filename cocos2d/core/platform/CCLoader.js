@@ -1,5 +1,3 @@
-'use strict';
-
 var _noCacheRex = /\?/;
 function urlAppendTimestamp (url) {
     if (cc.game.config['noCache'] && typeof url === 'string') {

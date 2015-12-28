@@ -600,21 +600,6 @@ var Component = cc.Class({
     },
 
     /**
-     * <p>
-     * schedules the "update" callback function with a custom priority.
-     * This callback function will be called every frame.<br/>
-     * Scheduled callback functions with a lower priority will be called before the ones that have a higher value.<br/>
-     * Only one "update" callback function could be scheduled per node (You can't have 2 'update' callback functions).<br/>
-     * </p>
-     * @method scheduleUpdate
-     * @param {Number} [priority=0] The priority of the update callback
-     */
-    scheduleUpdate: function (priority) {
-        priority = priority || 0;
-        cc.director.getScheduler().scheduleUpdate(this, priority, !this.enabledInHierarchy);
-    },
-
-    /**
      * Schedules a callback function that runs only once, with a delay of 0 or larger
      * @method scheduleOnce
      * @see cc.Node#schedule
@@ -636,15 +621,6 @@ var Component = cc.Class({
             return;
 
         cc.director.getScheduler().unschedule(callback_fn, this);
-    },
-
-    /**
-     * Unschedules the "update" method.
-     * @method unscheduleUpdate
-     * @see cc.Node#scheduleUpdate
-     */
-    unscheduleUpdate: function () {
-        cc.director.getScheduler().unscheduleUpdate(this);
     },
 
     /**
