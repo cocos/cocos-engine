@@ -282,6 +282,20 @@ var Layout = cc.Class({
         }.bind(this));
     },
 
+    _doLayoutBasic: function(layoutAnchor, layoutSize, children) {
+        // var allChildrenBoundingBox = null;
+
+        // children.forEach(function(child){
+        //     if(!allChildrenBoundingBox){
+        //         allChildrenBoundingBox = child.getBoundingBoxToWorld();
+        //     } else {
+        //         allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+        //     }
+        // });
+
+        // this.node.setContentSize(cc.size(allChildrenBoundingBox.width, allChildrenBoundingBox.height));
+    },
+
     _doLayout: function() {
         var children = this.node.children;
         var layoutAnchor = this.node.getAnchorPoint();
@@ -291,6 +305,8 @@ var Layout = cc.Class({
             this._doLayoutHorizontally(layoutAnchor, layoutSize, children);
         } else if (this.layoutType === Type.VERTICAL) {
             this._doLayoutVertically(layoutAnchor, layoutSize, children);
+        } else if (this.layoutType === Type.BASIC) {
+            this._doLayoutBasic(layoutAnchor, layoutSize, children);
         }
     },
 
