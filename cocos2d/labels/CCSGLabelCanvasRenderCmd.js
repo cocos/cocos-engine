@@ -218,7 +218,15 @@
                 canvasSizeY = this._splitedStrings.length * this._getLineHeight();
                 node.setContentSize(cc.size(canvasSizeX, canvasSizeY));
             }
-        } else {
+        } else if(_ccsg.Label.Overflow.NONE == node._overFlow) {
+            this._splitedStrings = paragraphedStrings;
+            for (var i = 0; i < paragraphedStrings.length; ++i) {
+                var paraLength = ctx.measureText(paragraphedStrings[i]).width;
+                canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
+            }
+            canvasSizeY = this._splitedStrings.length * this._getLineHeight();
+            node.setContentSize(cc.size(canvasSizeX, canvasSizeY));
+        } else{
             this._splitedStrings = paragraphedStrings;
             //shrink
             if (node._isWrapText) {

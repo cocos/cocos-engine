@@ -1099,5 +1099,6 @@ _ccsg.Label.Type = cc.Enum({
 _ccsg.Label.Overflow = cc.Enum({
     CLAMP: 0,
     SHRINK: 1,
-    RESIZE: 2
+    RESIZE: 2,
+    NONE: 3
 });
