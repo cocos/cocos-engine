@@ -106,7 +106,7 @@ var Animation = cc.Class({
             set: function (value, force) {
                 this._currentClip = value;
 
-                if (CC_EDITOR && force) {
+                if (CC_EDITOR && force && value) {
                     this._updateClip(value);
                 }
             },

@@ -224,7 +224,9 @@ var game = /** @lends cc.game# */{
              */
             cc.winSize = cc.director.getWinSize();
 
-            this._initEvents();
+            if (!CC_EDITOR) {
+                this._initEvents();
+            }
 
             this._setAnimFrame();
             this._runMainLoop();
