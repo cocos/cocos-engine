@@ -199,7 +199,7 @@ var _searchMaskParent = function (node) {
     if (cc.Mask) {
         var index = 0;
         var mask = null;
-        for (var curr = node; curr; curr = curr.parent, ++index) {
+        for (var curr = node; curr && curr instanceof cc.Node; curr = curr.parent, ++index) {
             mask = curr.getComponent(cc.Mask);
             if (mask) {
                 return {
