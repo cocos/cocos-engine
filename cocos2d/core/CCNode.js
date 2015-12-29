@@ -104,6 +104,13 @@ var EventType = cc.Enum({
      * @readonly
      */
     MOUSE_UP: 'mouseup',
+    /**
+     * The event type for mouse wheel events, you can use its value directly: 'mousewheel'
+     * @property MOUSE_WHEEL
+     * @type {String}
+     * @readonly
+     */
+    MOUSE_WHEEL: 'mousewheel',
 });
 
 var _touchEvents = [
@@ -118,6 +125,7 @@ var _mouseEvents = [
     EventType.MOUSE_MOVE,
     EventType.MOUSE_LEAVE,
     EventType.MOUSE_UP,
+    EventType.MOUSE_WHEEL,
 ];
 
 var _touchStartHandler = function (touch, event) {
@@ -190,6 +198,16 @@ var _mouseUpHandler = function (event) {
 
     if (node._hitTest(pos, this)) {
         event.type = EventType.MOUSE_UP;
+        node.dispatchEvent(event);
+        event.stopPropagation();
+    }
+};
+var _mouseWheelHandler = function (event) {
+    var pos = event.getLocation();
+    var node = this.owner;
+
+    if (node._hitTest(pos, this)) {
+        event.type = EventType.MOUSE_WHEEL;
         node.dispatchEvent(event);
         event.stopPropagation();
     }
@@ -863,7 +881,8 @@ var Node = cc.Class({
                     mask: _searchMaskParent(this),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
-                    onMouseUp: _mouseUpHandler
+                    onMouseUp: _mouseUpHandler,
+                    onMouseScroll: _mouseWheelHandler,
                 });
                 cc.eventManager.addListener(this._mouseListener, this);
             }
