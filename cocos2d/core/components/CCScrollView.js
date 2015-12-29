@@ -771,7 +771,7 @@ var ScrollView = cc.Class({
             return a + b;
         }, totalTime);
 
-        if (totalTime === 0 || totalTime >= 0.5) {
+        if (totalTime <= 0 || totalTime >= 0.5) {
             return cc.p(0, 0);
         }
 
