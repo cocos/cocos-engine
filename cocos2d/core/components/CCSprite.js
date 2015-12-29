@@ -314,24 +314,24 @@ var Sprite = cc.Class({
         }
     },
 
-    _applyCapInset: function (node) {
+    _applyCapInset: function (sgNode) {
         if (this._type === SpriteType.SLICED) {
-            var node = node || this._sgNode;
-            node.setInsetTop(this._spriteFrame.insetTop);
-            node.setInsetBottom(this._spriteFrame.insetBottom);
-            node.setInsetRight(this._spriteFrame.insetRight);
-            node.setInsetLeft(this._spriteFrame.insetLeft);
+            sgNode = sgNode || this._sgNode;
+            sgNode.setInsetTop(this._spriteFrame.insetTop);
+            sgNode.setInsetBottom(this._spriteFrame.insetBottom);
+            sgNode.setInsetRight(this._spriteFrame.insetRight);
+            sgNode.setInsetLeft(this._spriteFrame.insetLeft);
         }
     },
 
-    _applySpriteSize: function (node) {
-        var node = node || this._sgNode;
+    _applySpriteSize: function (sgNode) {
+        sgNode = sgNode || this._sgNode;
         if (this._useOriginalSize) {
             var rect = this._spriteFrame.getRect();
-            node.setContentSize(cc.size(rect.width, rect.height));
+            this.node.setContentSize(cc.size(rect.width, rect.height));
         }
         else {
-            node.setContentSize(this.node.getContentSize(true));
+            this.node.setContentSize(this.node.getContentSize(true));
         }
     },
 
