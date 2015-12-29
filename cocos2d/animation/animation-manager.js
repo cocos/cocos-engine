@@ -3,6 +3,7 @@ var JS = cc.js;
 var AnimationManager = cc.Class({
     ctor: function () {
         this.animators = [];
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
     },
 
     // for manager

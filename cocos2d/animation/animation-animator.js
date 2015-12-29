@@ -60,13 +60,40 @@ p.resumeState = function (state) {
     if (state) {
         state.resume();
     }
+
+    if (this.isPaused) {
+        this.resume();
+    }
 };
 
 p.setStateTime = function (state, time) {
     if (state) {
         state.setTime(time);
     }
-}
+};
+
+p.onStop = function () {
+    var anims = this.playingAnims;
+    for (var i = 0, l = anims.length; i < l; i++) {
+        anims[i].stop();
+    }
+
+    Animator.prototype.onStop.call(this);
+};
+
+p.onPause = function () {
+    var anims = this.playingAnims;
+    for (var i = 0, l = anims.length; i < l; i++) {
+        anims[i].pause();
+    }
+};
+
+p.onResume = function () {
+    var anims = this.playingAnims;
+    for (var i = 0, l = anims.length; i < l; i++) {
+        anims[i].resume();
+    }
+};
 
 if (CC_DEV) {
     p.reloadClip = function (state) {
