@@ -775,10 +775,10 @@ function FireClass (options) {
         else if (CC_DEV) {
             var correct = TYPO_TO_CORRECT[funcName];
             if (correct) {
-                cc.warn('Unknown parameter of %s.%s, maybe you want is "%s".', name, funcName, correct);
+                cc.warn('Unknown type of %s.%s, maybe you want is "%s".', name, funcName, correct);
             }
             else if (func) {
-                cc.error('Unknown parameter of %s.%s, property should be defined in "properties" or "ctor"', name, funcName);
+                cc.error('Unknown type of %s.%s, property should be defined in "properties" or "ctor"', name, funcName);
             }
         }
     }
@@ -819,15 +819,12 @@ FireClass._isCCClass = function (constructor) {
 //    constructor.prop = _metaClass.prop;
 //};
 
+// Optimized define function only for internal base classes
 //
-// Specially optimized define function only for internal base classes
-//
-// @method _fastDefine
 // @param {String} className
 // @param {Function} constructor
 // @param {string[]} serializableFields
 // @private
-//
 function fastDefine (className, constructor, serializableFields) {
     JS.setClassName(className, constructor);
     constructor.__props__ = serializableFields;

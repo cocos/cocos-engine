@@ -17,6 +17,12 @@ var IsOnEnableCalled = 1 << 12;
 var IsOnLoadCalled = 1 << 13;
 var IsOnStartCalled = 1 << 14;
 
+var IsPositionLocked = 1 << 15;
+var IsRotationLocked = 1 << 16;
+var IsScaleLocked = 1 << 17;
+var IsAnchorLocked = 1 << 18;
+var IsSizeLocked = 1 << 19;
+
 var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy |
@@ -120,7 +126,13 @@ CCObject.Flags = {
 
     IsOnLoadCalled: IsOnLoadCalled,
     IsOnEnableCalled: IsOnEnableCalled,
-    IsOnStartCalled: IsOnStartCalled
+    IsOnStartCalled: IsOnStartCalled,
+
+    IsPositionLocked: IsPositionLocked,
+    IsRotationLocked: IsRotationLocked,
+    IsScaleLocked: IsScaleLocked,
+    IsAnchorLocked: IsAnchorLocked,
+    IsSizeLocked: IsSizeLocked,
 };
 
 require('./CCClass').fastDefine('cc.Object', CCObject, ['_name', '_objFlags']);
