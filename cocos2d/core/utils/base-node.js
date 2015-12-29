@@ -887,7 +887,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Rect} The calculated bounding box of the node
      */
     getBoundingBox: function () {
-        return this._sgNode.getBoundingBox();
+        var boundingBox = this._sgNode.getBoundingBox();
+        boundingBox.width = this._contentSize.width;
+        boundingBox.height = this._contentSize.height;
+        return boundingBox;
     },
 
     /**

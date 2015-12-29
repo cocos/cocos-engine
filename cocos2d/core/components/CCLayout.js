@@ -29,9 +29,9 @@
  */
 var Type = cc.Enum({
     /**
-     *@property {Number} BASIC
+     *@property {Number} NONE
      */
-    BASIC: 0,
+    NONE: 0,
     /**
      * @property {Number} HORIZONTAL
      */
@@ -99,10 +99,10 @@ var Layout = cc.Class({
         /**
          * The layout type.
          * @property {Layout.Type} layoutType
-         * @default Layout.Type.BASIC
+         * @default Layout.Type.NONE
          */
         layoutType: {
-            default: Type.BASIC,
+            default: Type.NONE,
             type: Type,
             notify: function() {
                 this._doLayoutDirty();
@@ -283,17 +283,26 @@ var Layout = cc.Class({
     },
 
     _doLayoutBasic: function(layoutAnchor, layoutSize, children) {
-        // var allChildrenBoundingBox = null;
+        var allChildrenBoundingBox = null;
 
-        // children.forEach(function(child){
-        //     if(!allChildrenBoundingBox){
-        //         allChildrenBoundingBox = child.getBoundingBoxToWorld();
-        //     } else {
-        //         allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
-        //     }
-        // });
+        children.forEach(function(child){
+            if(!allChildrenBoundingBox){
+                allChildrenBoundingBox = child.getBoundingBoxToWorld();
+            } else {
+                allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+            }
+        });
+        var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+        var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+                                                                               allChildrenBoundingBox.y + allChildrenBoundingBox.height));
+        var newSize = cc.size(rightTopInParentSpace.x - leftBottomInParentSpace.x,
+                             rightTopInParentSpace.y - leftBottomInParentSpace.y);
+        var layoutPosition = this.node.getPosition();
+        var newAnchor = cc.p((layoutPosition.x - leftBottomInParentSpace.x) / newSize.width,
+                             (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height);
 
-        // this.node.setContentSize(cc.size(allChildrenBoundingBox.width, allChildrenBoundingBox.height));
+        this.node.setAnchorPoint(newAnchor);
+        this.node.setContentSize(newSize);
     },
 
     _doLayout: function() {
@@ -305,7 +314,7 @@ var Layout = cc.Class({
             this._doLayoutHorizontally(layoutAnchor, layoutSize, children);
         } else if (this.layoutType === Type.VERTICAL) {
             this._doLayoutVertically(layoutAnchor, layoutSize, children);
-        } else if (this.layoutType === Type.BASIC) {
+        } else if (this.layoutType === Type.NONE) {
             this._doLayoutBasic(layoutAnchor, layoutSize, children);
         }
     },
