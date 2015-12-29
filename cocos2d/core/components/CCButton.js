@@ -22,8 +22,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require("../event/event-target");
-
 /**
  * Enum for transition type
  * @enum Button.Transition
@@ -97,12 +95,6 @@ var ButtonState = {
     Disabled: 'disabled'
 };
 
-var EVENT_TOUCH_DOWN = 'touch-down';
-var EVENT_TOUCH_UP = 'touch-up';
-var EVENT_HOVER_IN = 'hover-in';
-var EVENT_HOVER_MOVE = 'hover-move';
-var EVENT_HOVER_OUT = 'hover-out';
-
 /**
  * Button has 3 Transition types
  * When Button state changed:
@@ -123,13 +115,8 @@ var EVENT_HOVER_OUT = 'hover-out';
 var Button = cc.Class({
     name: 'cc.Button',
     extends: require('./CCComponent'),
-    mixins: [EventTarget],
 
     ctor: function () {
-
-        this._touchListener = null;
-        this._mouseListener = null;
-
         this._pressed = false;
         this._hovered = false;
 
@@ -138,7 +125,7 @@ var Button = cc.Class({
         this._fromColor = null;
         this._toColor = null;
         this._time = 0;
-        this._tarnsitionFinished = true;
+        this._transitionFinished = true;
     },
 
     editor: CC_EDITOR && {
@@ -300,7 +287,7 @@ var Button = cc.Class({
         },
 
         /**
-         * If Button is clicked, will trigger event's handler
+         * If Button is clicked, it will trigger event's handler
          * @property {[Button.ClickEvent]} clickEvents
          */
         clickEvents: {
@@ -311,32 +298,6 @@ var Button = cc.Class({
     },
 
     statics: {
-        /**
-         * Touch down event
-         * @property {String} EVENT_TOUCH_DOWN
-         */
-        EVENT_TOUCH_DOWN: EVENT_TOUCH_DOWN,
-        /**
-         * Touch up event
-         * @property {String} EVENT_TOUCH_UP
-         */
-        EVENT_TOUCH_UP: EVENT_TOUCH_UP,
-        /**
-         * Hover in event
-         * @property {String} EVENT_HOVER_IN
-         */
-        EVENT_HOVER_IN: EVENT_HOVER_IN,
-        /**
-         * Hover move event
-         * @property {String} EVENT_HOVER_MOVE
-         */
-        EVENT_HOVER_MOVE: EVENT_HOVER_MOVE,
-        /**
-         * Hover out event
-         * @property {String} EVENT_HOVER_OUT
-         */
-        EVENT_HOVER_OUT: EVENT_HOVER_OUT,
-
         Transition: Transition,
         ClickEvent: ClickEvent
     },
@@ -348,7 +309,6 @@ var Button = cc.Class({
 
         if (!CC_EDITOR) {
             this._registerEvent();
-            this._registerListeners();
         }
     },
 
@@ -357,44 +317,31 @@ var Button = cc.Class({
         this._initState();
     },
 
-    onDestroy: function () {
-        if (this._touchListener) cc.eventManager.removeListener(this._touchListener);
-        if (this._mouseListener) cc.eventManager.removeListener(this._mouseListener);
-    },
-
     update: function (dt) {
         var target = this.target;
-        if (!this.transition === Transition.COLOR || !target || this._tarnsitionFinished) return;
+        if (!this.transition === Transition.COLOR || !target || this._transitionFinished) return;
 
         this.time += dt;
         var ratio = this.time / this.duration;
         if (ratio > 1) {
             ratio = 1;
-            this._tarnsitionFinished = true;
+            this._transitionFinished = true;
         }
 
         target.color = this._fromColor.lerp(this._toColor, ratio);
     },
 
     _registerEvent: function () {
-        this._touchListener = cc.EventListener.create({
-            event: cc.EventListener.TOUCH_ONE_BY_ONE,
-            swallowTouches: true,
-            onTouchBegan: this._onTouchBegan.bind(this),
-            onTouchEnded: this._onTouchEnded.bind(this)
-        });
-        cc.eventManager.addListener(this._touchListener, this.node._sgNode);
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-        if (!cc.sys.isMobile) {
-            this._mouseListener = cc.EventListener.create({
-                event: cc.EventListener.MOUSE,
-                onMouseMove: this._onMouseMove.bind(this)
-            });
-            cc.eventManager.addListener(this._mouseListener, this.node._sgNode);
-        }
+        this.node.on(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     },
 
-    _registerListeners: function () {
+    _handleClickEvent: function () {
         var events = this.clickEvents;
         for (var i = 0, l = events.length; i < l; i++) {
             var event = events[i];
@@ -406,9 +353,12 @@ var Button = cc.Class({
 
             var handler = comp[event.handler];
             if (!handler) continue;
-
-            this.on(EVENT_TOUCH_UP, handler.bind(comp));
+            handler.call(comp)
         }
+    },
+
+    _cancelButtonClick: function(){
+        this._pressed = false;
     },
 
     _applyTarget: function () {
@@ -427,45 +377,63 @@ var Button = cc.Class({
     },
 
     // touch event handler
-    _onTouchBegan: function (touch) {
+    _onTouchBegan: function (event) {
+        var touch = event.touch;
         if (!this.interactable || !this.enabledInHierarchy) return false;
 
         var hit = this._hitTest(touch.getLocation());
         if (hit) {
             this._pressed = true;
             this._applyState(ButtonState.Pressed);
-            this.emit(EVENT_TOUCH_DOWN);
         }
 
         return hit;
     },
 
+    _onTouchMove: function (event) {
+        var touch = event.touch;
+
+        var hit = this._hitTest(touch.getLocation());
+        if (hit && this._pressed) {
+            this._applyState(ButtonState.Pressed);
+        }else{
+            this._applyState(ButtonState.Normal);
+        }
+    },
+
     _onTouchEnded: function () {
         if (this._hovered)
+        {
             this._applyState(ButtonState.Hover);
-        else
-            this._applyState(ButtonState.Normal);
+        }
 
-        this.emit(EVENT_TOUCH_UP);
+        if(this._pressed){
+            this._applyState(ButtonState.Normal);
+            this._handleClickEvent();
+        }
+
         this._pressed = false;
     },
 
-    _onMouseMove: function (event) {
+    _onTouchCancel: function () {
+        this._pressed = false;
+    },
+
+    _onMouseMoveIn: function (event) {
         if (this._pressed || !this.interactable || !this.enabledInHierarchy) return;
 
-        var hit = this._hitTest(event.getLocation());
-        if (hit) {
-            if (!this._hovered) {
-                this._hovered = true;
-                this._applyState(ButtonState.Hover);
-                this.emit(EVENT_HOVER_IN);
-            }
-            this.emit(EVENT_HOVER_MOVE);
+        if (!this._hovered) {
+            this._hovered = true;
+            this._applyState(ButtonState.Hover);
         }
-        else if (this._hovered) {
+    },
+
+    _onMouseMoveOut: function(){
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
+        if (this._hovered) {
             this._hovered = false;
             this._applyState(ButtonState.Normal);
-            this.emit(EVENT_HOVER_OUT);
         }
     },
 
@@ -489,7 +457,7 @@ var Button = cc.Class({
                 this._fromColor = target.color.clone();
                 this._toColor = color;
                 this.time = 0;
-                this._tarnsitionFinished = false;
+                this._transitionFinished = false;
             }
         }
         else if (transition === Transition.SPRITE && this._sprite && sprite) {

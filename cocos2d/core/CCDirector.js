@@ -492,6 +492,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var persistNodes = cc.game._persistRootNodes;
         for (var i = 0; i < persistNodes.length; ++i) {
             var node = persistNodes[i];
+            node._parent = null;
             node.parent = scene;
         }
 

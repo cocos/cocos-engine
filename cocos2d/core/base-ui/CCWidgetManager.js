@@ -144,16 +144,16 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
     var deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
 
     if (this.isAlignTop) {
-        this.top -= (this.isAbsTop ? delta.y : deltaInPercent.y);
+        this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y);
     }
     if (this.isAlignBottom) {
-        this.bottom += (this.isAbsBottom ? delta.y : deltaInPercent.y);
+        this.bottom += (this.isAbsoluteBottom ? delta.y : deltaInPercent.y);
     }
     if (this.isAlignLeft) {
-        this.left += (this.isAbsLeft ? delta.x : deltaInPercent.x);
+        this.left += (this.isAbsoluteLeft ? delta.x : deltaInPercent.x);
     }
     if (this.isAlignRight) {
-        this.right -= (this.isAbsRight ? delta.x : deltaInPercent.x);
+        this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x);
     }
     if (this.isAlignHorizontalCenter) {
         if (oldPos.x !== newPos.x) {
