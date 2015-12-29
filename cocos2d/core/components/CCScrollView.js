@@ -511,7 +511,7 @@ var ScrollView = cc.Class({
     },
 
     _cancelButtonClick: function(touch) {
-        var deltaMove = this._calculateTouchMoveDelta(touch);
+        var deltaMove = touch.getDelta();
         var needCancelTouch = false;
         if (cc.sys.isMobile) {
             //FIXME: touch move delta should be calculated by DPI.
@@ -546,22 +546,13 @@ var ScrollView = cc.Class({
     },
     _onTouchCancelled: function(event) {
         var touch = event.touch;
-        this._handlePressLogic(touch);
-    },
-
-    _calculateTouchMoveDelta: function(touch) {
-        var currPt = touch.getLocation();
-        var prevPt = touch.getPreviousLocation();
-        if (!this._hitTest(currPt) || !this._hitTest(prevPt)) {
-            return cc.p(0,0);
+        if(this.content){
+            this._handleReleaseLogic(touch);
         }
-
-        var deltaMove = cc.pSub(currPt, prevPt);
-        return deltaMove;
     },
 
     _handleMoveLogic: function(touch) {
-        var deltaMove = this._calculateTouchMoveDelta(touch);
+        var deltaMove = touch.getDelta();
 
         this._scrollChildren(deltaMove);
         this._gatherTouchMove(deltaMove);
@@ -643,13 +634,8 @@ var ScrollView = cc.Class({
     },
 
     _handleReleaseLogic: function(touch) {
-        var currPt = touch.getLocation();
-        var prevPt = touch.getPreviousLocation();
-
-        if (this._hitTest(currPt) && this._hitTest(prevPt)) {
-            var delta = cc.pSub(currPt, prevPt);
-            this._gatherTouchMove(delta);
-        }
+        var delta = touch.getDelta();
+        this._gatherTouchMove(delta);
 
 
         var bounceBackStarted = this._startBounceBackIfNeeded();

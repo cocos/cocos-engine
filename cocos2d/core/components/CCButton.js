@@ -353,7 +353,7 @@ var Button = cc.Class({
 
             var handler = comp[event.handler];
             if (!handler) continue;
-            handler.bind(comp)();
+            handler.call(comp)
         }
     },
 
