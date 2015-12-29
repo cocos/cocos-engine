@@ -132,6 +132,9 @@ var Canvas = cc.Class({
     },
 
     onLoad: function () {
+        var Flags = cc.Object.Flags;
+        this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
+
         if (Canvas.instance) {
             return cc.error("Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time",
                 this.node.name, Canvas.instance.node.name);
