@@ -205,6 +205,7 @@ var Layout = cc.Class({
         children.forEach(function(child) {
             child.on('size-changed', this._doLayoutDirty, this);
             child.on('position-changed', this._doLayoutDirty, this);
+            child.on('anchor-changed', this._doLayoutDirty, this);
         }.bind(this));
     },
 
