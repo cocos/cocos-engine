@@ -29,9 +29,9 @@
  */
 var Type = cc.Enum({
     /**
-     *@property {Number} BASIC
+     *@property {Number} NONE
      */
-    BASIC: 0,
+    NONE: 0,
     /**
      * @property {Number} HORIZONTAL
      */
@@ -99,14 +99,25 @@ var Layout = cc.Class({
         /**
          * The layout type.
          * @property {Layout.Type} layoutType
-         * @default Layout.Type.BASIC
+         * @default Layout.Type.NONE
          */
         layoutType: {
-            default: Type.BASIC,
+            default: Type.NONE,
             type: Type,
             notify: function() {
                 this._doLayoutDirty();
             }
+        },
+
+        /**
+         * Whether allow layout to adjust size.
+         * @property {Boolean} autoResize
+         * @default true
+         * @readonly
+         */
+        autoResize: {
+            default: true,
+            readonly: true
         },
 
         /**
@@ -121,10 +132,21 @@ var Layout = cc.Class({
         },
 
         /**
-         * The distance between each element in layout.
-         * @property {Number} spacing
+         * The distance in x-axis between each element in layout.
+         * @property {Number} spacingX
          */
-        spacing: {
+        spacingX: {
+            default: 0,
+            notify: function() {
+                this._doLayoutDirty();
+            }
+        },
+
+        /**
+         * The distance in y-axis between each element in layout.
+         * @property {Number} spacingY
+         */
+        spacingY: {
             default: 0,
             notify: function() {
                 this._doLayoutDirty();
@@ -183,6 +205,7 @@ var Layout = cc.Class({
         children.forEach(function(child) {
             child.on('size-changed', this._doLayoutDirty, this);
             child.on('position-changed', this._doLayoutDirty, this);
+            child.on('anchor-changed', this._doLayoutDirty, this);
         }.bind(this));
     },
 
@@ -204,7 +227,7 @@ var Layout = cc.Class({
             newWidth += child.width;
         });
 
-        newWidth += (children.length - 1) * this.spacing + 2 * this.margin;
+        newWidth += (children.length - 1) * this.spacingX + 2 * this.margin;
         this.node.setContentSize(newWidth, layoutSize.height);
 
         var leftBoundaryOfLayout = -layoutAnchor.x * newWidth;
@@ -213,14 +236,14 @@ var Layout = cc.Class({
             leftBoundaryOfLayout = (1 - layoutAnchor.x) * newWidth;
         }
 
-        var nextX = leftBoundaryOfLayout + sign * this.margin - sign * this.spacing;
+        var nextX = leftBoundaryOfLayout + sign * this.margin - sign * this.spacingX;
 
         children.forEach(function(child) {
             var anchorX = child.anchorX;
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 anchorX = 1 - child.anchorX;
             }
-            nextX = nextX + sign * anchorX * child.width + sign * this.spacing;
+            nextX = nextX + sign * anchorX * child.width + sign * this.spacingX;
 
             child.setPosition(cc.p(nextX, child.y));
 
@@ -236,7 +259,7 @@ var Layout = cc.Class({
             newHeight += child.height;
         });
 
-        newHeight += (children.length - 1) * this.spacing + 2 * this.margin;
+        newHeight += (children.length - 1) * this.spacingY + 2 * this.margin;
         this.node.setContentSize(layoutSize.width, newHeight);
 
         var bottomBoundaryOfLayout = -layoutAnchor.y * newHeight;
@@ -245,19 +268,42 @@ var Layout = cc.Class({
             bottomBoundaryOfLayout = (1 - layoutAnchor.y) * newHeight;
         }
 
-        var nextY = bottomBoundaryOfLayout + sign * this.margin - sign * this.spacing;
+        var nextY = bottomBoundaryOfLayout + sign * this.margin - sign * this.spacingY;
 
         children.forEach(function(child) {
             var anchorY = child.anchorY;
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 anchorY = 1 - child.anchorY;
             }
-            nextY = nextY + sign * anchorY * child.height + sign * this.spacing;
+            nextY = nextY + sign * anchorY * child.height + sign * this.spacingY;
 
             child.setPosition(cc.p(child.x, nextY));
 
             nextY += sign * (1 - anchorY) * child.height;
         }.bind(this));
+    },
+
+    _doLayoutBasic: function(layoutAnchor, layoutSize, children) {
+        var allChildrenBoundingBox = null;
+
+        children.forEach(function(child){
+            if(!allChildrenBoundingBox){
+                allChildrenBoundingBox = child.getBoundingBoxToWorld();
+            } else {
+                allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
+            }
+        });
+        var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+        var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+                                                                               allChildrenBoundingBox.y + allChildrenBoundingBox.height));
+        var newSize = cc.size(rightTopInParentSpace.x - leftBottomInParentSpace.x,
+                             rightTopInParentSpace.y - leftBottomInParentSpace.y);
+        var layoutPosition = this.node.getPosition();
+        var newAnchor = cc.p((layoutPosition.x - leftBottomInParentSpace.x) / newSize.width,
+                             (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height);
+
+        this.node.setAnchorPoint(newAnchor);
+        this.node.setContentSize(newSize);
     },
 
     _doLayout: function() {
@@ -269,6 +315,8 @@ var Layout = cc.Class({
             this._doLayoutHorizontally(layoutAnchor, layoutSize, children);
         } else if (this.layoutType === Type.VERTICAL) {
             this._doLayoutVertically(layoutAnchor, layoutSize, children);
+        } else if (this.layoutType === Type.NONE) {
+            this._doLayoutBasic(layoutAnchor, layoutSize, children);
         }
     },
 
