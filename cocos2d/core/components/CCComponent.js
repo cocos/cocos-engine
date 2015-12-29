@@ -47,8 +47,8 @@ function callOnEnable (self, enable) {
                     self.onEnable();
                 }
             }
-        
-            cc.director.getScheduler().resumeTarget(this);
+
+            cc.director.getScheduler().resumeTarget(self);
 
             _registerEvent(self, true);
 
@@ -66,7 +66,7 @@ function callOnEnable (self, enable) {
                 }
             }
 
-            cc.director.getScheduler().pauseTarget(this);
+            cc.director.getScheduler().pauseTarget(self);
 
             _registerEvent(self, false);
 
@@ -577,7 +577,7 @@ var Component = cc.Class({
     isRunning: function () {
         return this.enabledInHierarchy;
     },
-    
+
     /**
      * <p>Schedules a custom selector.         <br/>
      * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.</p>
