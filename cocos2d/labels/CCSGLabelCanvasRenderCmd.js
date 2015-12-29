@@ -81,6 +81,7 @@
     proto._fragmentText = function (strArr, maxWidth, ctx) {
         //check the first character
 
+
         var wrappedWords = [];
         var text = strArr;
         var allWidth = ctx.measureText(text).width;
@@ -89,7 +90,7 @@
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
             var tmpText = text.substr(fuzzyLen);
             var width = allWidth - ctx.measureText(tmpText).width;
-            var sLine = tmpText;
+            var sLine;
             var pushNum = 0;
 
             //Increased while cycle maximum ceiling. default 100 time
@@ -153,7 +154,6 @@
         if(text.length > 0) {
             wrappedWords.push(text);
         }
-        
         return wrappedWords;
     };
     
