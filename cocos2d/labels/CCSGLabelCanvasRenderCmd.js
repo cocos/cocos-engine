@@ -131,6 +131,7 @@
                 if (label_symbolRex.test(sLine || tmpText)) {
                     result = label_lastWordRex.exec(sText);
                     fuzzyLen -= result ? result[0].length : 0;
+                    if (fuzzyLen === 0) fuzzyLen = 1;
 
                     sLine = text.substr(fuzzyLen);
                     sText = text.substr(0, fuzzyLen);
