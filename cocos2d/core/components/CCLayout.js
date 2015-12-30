@@ -106,7 +106,8 @@ var Layout = cc.Class({
             type: Type,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            tooltip: 'i18n:COMPONENT.layout.layout_type'
         },
 
         /**
@@ -117,7 +118,8 @@ var Layout = cc.Class({
          */
         autoResize: {
             default: true,
-            readonly: true
+            readonly: true,
+            tooltip: 'i18n:COMPONENT.layout.auto_resize'
         },
 
         /**
@@ -128,7 +130,8 @@ var Layout = cc.Class({
             default: 0,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            tooltip: 'i18n:COMPONENT.layout.margin'
         },
 
         /**
@@ -139,7 +142,8 @@ var Layout = cc.Class({
             default: 0,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            tooltip: 'i18n:COMPONENT.layout.space_x'
         },
 
         /**
@@ -150,7 +154,8 @@ var Layout = cc.Class({
             default: 0,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            tooltip: 'i18n:COMPONENT.layout.space_y'
         },
 
         /**
@@ -163,7 +168,8 @@ var Layout = cc.Class({
             type: VerticalDirection,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            tooltip: 'i18n:COMPONENT.layout.vertical_direction'
         },
 
         /**
@@ -176,7 +182,8 @@ var Layout = cc.Class({
             type: HorizontalDirection,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            tooltip: 'i18n:COMPONENT.layout.horizontal_direction'
         },
     },
 
