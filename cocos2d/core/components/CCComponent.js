@@ -3,6 +3,7 @@ require('../CCNode');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
+var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
 var IsOnStartCalled = Flags.IsOnStartCalled;
 
@@ -299,8 +300,7 @@ var Component = cc.Class({
         _isOnLoadCalled: {
             get: function () {
                 return this._objFlags & IsOnLoadCalled;
-            },
-            visible: false
+            }
         },
 
         /**
@@ -499,24 +499,24 @@ var Component = cc.Class({
     },
 
     __onNodeActivated: CC_EDITOR ? function (active) {
-        if (!(this._objFlags & IsOnLoadCalled) &&
+        if (!(this._objFlags & IsOnLoadStarted) &&
             (cc.engine._isPlaying || this.constructor._executeInEditMode)) {
+            this._objFlags |= IsOnLoadStarted;
+
             if (this.onLoad) {
                 callOnLoadInTryCatch(this);
-                this._objFlags |= IsOnLoadCalled;
-
-                if (!cc.engine._isPlaying) {
-                    var focused = Editor.Selection.curActivate('node') === this.node.uuid;
-                    if (focused && this.onFocusInEditMode) {
-                        callOnFocusInTryCatch(this);
-                    }
-                    else if (this.onLostFocusInEditMode) {
-                        callOnLostFocusInTryCatch(this);
-                    }
-                }
             }
-            else {
-                this._objFlags |= IsOnLoadCalled;
+
+            this._objFlags |= IsOnLoadCalled;
+
+            if (this.onLoad && !cc.engine._isPlaying) {
+                var focused = Editor.Selection.curActivate('node') === this.node.uuid;
+                if (focused && this.onFocusInEditMode) {
+                    callOnFocusInTryCatch(this);
+                }
+                else if (this.onLostFocusInEditMode) {
+                    callOnLostFocusInTryCatch(this);
+                }
             }
             Editor._AssetsWatcher.start(this);
         }
@@ -525,7 +525,8 @@ var Component = cc.Class({
             callOnEnable(this, active);
         }
     } : function (active) {
-        if (!(this._objFlags & IsOnLoadCalled)) {
+        if (!(this._objFlags & IsOnLoadStarted)) {
+            this._objFlags |= IsOnLoadStarted;
             if (this.onLoad) {
                 this.onLoad();
             }

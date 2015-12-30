@@ -19,6 +19,39 @@ test('Inheritance of editor properties', function () {
     strictEqual(child._playOnFocus, true, 'should inherit playOnFocus from base component');
 });
 
+test('_isOnLoadCalled', function () {
+    var Comp = cc.Class({
+        extends: cc.Component,
+        onLoad: function () {
+            this.updateSprite();
+        },
+        updateSprite: function () {
+            equal(!!this._isOnLoadCalled, false, 'it should be false during onLoad');
+        },
+    });
+
+    var node = new cc.Node();
+    cc.director.getScene().addChild(node);
+    var comp = node.addComponent(Comp);
+
+    equal(!!comp._isOnLoadCalled, true, 'it should be true after onLoad');
+});
+
+test('should not cause an infinite loops if re-activated in onLoad', function () {
+    var Comp = cc.Class({
+        extends: cc.Component,
+        onLoad: function () {
+            this.node.active = false;
+            this.node.active = true;
+        }
+    });
+
+    var node = new cc.Node();
+    cc.director.getScene().addChild(node);
+    var comp = node.addComponent(Comp);
+    ok('done');
+});
+
 //test('should not call lifecycle methods if not executeInEditMode', function () {
 //    var Comp = cc.Class({
 //        extends: CallbackTester,
