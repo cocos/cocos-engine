@@ -1063,7 +1063,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var children = this._children;
         if (cleanup === undefined)
             cleanup = true;
-        for (var i = 0; i < children.length; i++) {
+        for (var i = children.length - 1; i >= 0; i--) {
             var node = children[i];
             if (node) {
                 //if (this._running) {

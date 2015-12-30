@@ -341,7 +341,7 @@ var Sprite = cc.Class({
         sgNode.setSpriteFrame(self._spriteFrame);
         self._applyCapInset(sgNode);
         self._applySpriteSize();
-        if ( !sgNode.isVisible() ) {
+        if ( this.enabledInHierarchy && !sgNode.isVisible() ) {
             sgNode.setVisible(true);
         }
     },
