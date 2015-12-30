@@ -1187,7 +1187,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertTouchToNodeSpace: function (touch) {
-        return this.convertToNodeSpace(touch.getPosition());
+        return this.convertToNodeSpace(touch.getLocation());
     },
 
     /**
@@ -1197,7 +1197,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertTouchToNodeSpaceAR: function (touch) {
-        return this.convertToNodeSpaceAR(touch.getPosition());
+        return this.convertToNodeSpaceAR(touch.getLocation());
     },
 
     /**
