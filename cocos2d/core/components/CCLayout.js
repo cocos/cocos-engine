@@ -293,17 +293,22 @@ var Layout = cc.Class({
                 allChildrenBoundingBox = cc.rectUnion(allChildrenBoundingBox, child.getBoundingBoxToWorld());
             }
         });
-        var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
-        var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
-                                                                               allChildrenBoundingBox.y + allChildrenBoundingBox.height));
-        var newSize = cc.size(rightTopInParentSpace.x - leftBottomInParentSpace.x,
-                             rightTopInParentSpace.y - leftBottomInParentSpace.y);
-        var layoutPosition = this.node.getPosition();
-        var newAnchor = cc.p((layoutPosition.x - leftBottomInParentSpace.x) / newSize.width,
-                             (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height);
 
-        this.node.setAnchorPoint(newAnchor);
-        this.node.setContentSize(newSize);
+        if(allChildrenBoundingBox) {
+            var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
+            var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
+                                                                                   allChildrenBoundingBox.y + allChildrenBoundingBox.height));
+
+            var newSize = cc.size(rightTopInParentSpace.x - leftBottomInParentSpace.x,
+                                  rightTopInParentSpace.y - leftBottomInParentSpace.y);
+
+            var layoutPosition = this.node.getPosition();
+            var newAnchor = cc.p((layoutPosition.x - leftBottomInParentSpace.x) / newSize.width,
+                                 (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height);
+
+            this.node.setAnchorPoint(newAnchor);
+            this.node.setContentSize(newSize);
+        }
     },
 
     _doLayout: function() {
