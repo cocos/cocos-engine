@@ -321,7 +321,7 @@ var Layout = cc.Class({
     },
 
     lateUpdate: function() {
-        if (this._layoutDirty) {
+        if (this._layoutDirty && this.node.children.length > 0) {
             this._doLayout();
             this._layoutDirty = false;
         }
