@@ -10,7 +10,7 @@ paths = {
     jsEntry: './index.js',
     JSBEntries: [
         './jsb_predefine.js',
-        './jsb_polyfill.js',
+        './jsb_engine.js',
         './extends.js'
     ],
     outDir: './bin',
