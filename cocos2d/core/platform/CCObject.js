@@ -15,18 +15,19 @@ var HideInEditor = 1 << 10;
 
 var IsOnEnableCalled = 1 << 12;
 var IsOnLoadCalled = 1 << 13;
-var IsOnStartCalled = 1 << 14;
+var IsOnLoadStarted = 1 << 14;
+var IsOnStartCalled = 1 << 15;
 
-var IsPositionLocked = 1 << 15;
 var IsRotationLocked = 1 << 16;
 var IsScaleLocked = 1 << 17;
 var IsAnchorLocked = 1 << 18;
 var IsSizeLocked = 1 << 19;
+var IsPositionLocked = 1 << 20;
 
 var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy |
-                       IsOnEnableCalled | IsOnLoadCalled | IsOnStartCalled
+                       IsOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
                        /*RegisteredInEditor*/);
 
 /**
@@ -125,6 +126,7 @@ CCObject.Flags = {
     // FLAGS FOR COMPONENT
 
     IsOnLoadCalled: IsOnLoadCalled,
+    IsOnLoadStarted: IsOnLoadStarted,
     IsOnEnableCalled: IsOnEnableCalled,
     IsOnStartCalled: IsOnStartCalled,
 
