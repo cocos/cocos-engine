@@ -384,7 +384,15 @@ var Sprite = cc.Class({
     },
 
     _resized: function () {
-        this.useOriginalSize = false;
+        if (this._useOriginalSize && this._spriteFrame) {
+            var rect = this._spriteFrame.getRect();
+            var expectedW = rect.width;
+            var expectedH = rect.height;
+            var actualSize = this.node.getContentSize();
+            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
+                this.useOriginalSize = false;
+            }
+        }
     },
 });
 
