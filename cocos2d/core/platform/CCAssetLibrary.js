@@ -366,6 +366,8 @@ var AssetLibrary = {
                             callback();
                             callback = null;
                         }
+
+                        obj[prop] = obj[prop]; // ensures forEach worked
                         return;
                     }
                     else if (isRawAsset) {
