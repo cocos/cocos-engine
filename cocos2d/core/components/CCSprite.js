@@ -315,7 +315,7 @@ var Sprite = cc.Class({
     },
 
     _applyCapInset: function (sgNode) {
-        if (this._type === SpriteType.SLICED) {
+        if (this._type === SpriteType.SLICED && this._spriteFrame) {
             sgNode = sgNode || this._sgNode;
             sgNode.setInsetTop(this._spriteFrame.insetTop);
             sgNode.setInsetBottom(this._spriteFrame.insetBottom);
