@@ -373,16 +373,13 @@ var AssetLibrary = {
                         return;
                     }
                     else if (isRawAsset) {
-                        cc.loader.loadImg(dependsUrl, function (err, assets) {
+                        cc.loader.load(dependsUrl, function (err, assets) {
                             if (err) {
                                 cc.error('[AssetLibrary] Failed to load "%s"', dependsUrl);
                                 obj[prop] = '';
                             }
                             else {
                                 obj[prop] = dependsUrl;
-                                if (!cc.sys.isNative) {
-                                    cc.textureCache.handleLoadedTexture(dependsUrl);
-                                }
                             }
                             --pendingCount;
                             if (callback && pendingCount === 0) {
