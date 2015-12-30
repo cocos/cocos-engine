@@ -29,7 +29,7 @@ var DirtyFlags = require('./misc').DirtyFlags;
 
 // called after changing parent
 function setMaxZOrder (node) {
-    var siblings = node._parent.getChildren();
+    var siblings = node.parent.getChildren();
     var z = 0;
     if (siblings.length >= 2) {
         var prevNode = siblings[siblings.length - 2];
@@ -1316,7 +1316,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 var sibling = siblings[i];
                 sibling._sgNode.arrivalOrder = i;
             }
-            cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            if (cc.renderer) {
+                cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            }
         }
     },
 
@@ -1404,7 +1406,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             // insert node
             parentNode.addChild(sgNode);
             sgNode.arrivalOrder = oldSgNode.arrivalOrder;
-            cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            if (cc.renderer) {
+                cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            }
 
             this._sgNode = sgNode;
 
