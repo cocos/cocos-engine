@@ -217,6 +217,11 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     setString: function(string) {
+        //convert param to string
+        if (typeof string !== 'string') {
+            string = '' + string;
+        }
+
         if (this._string === string) return;
         this._string = string;
         this._notifyLabelSkinDirty();
