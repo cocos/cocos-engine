@@ -25,6 +25,24 @@
 
 // define cc
 
+// Run jsb.js before all polyfills
+cc.initEngine({
+    debugMode: cc.game.DEBUG_MODE_INFO
+});
+
+if (!cc.ClassManager) {
+    cc.ClassManager = window.ClassManager || {
+        id : (0|(Math.random()*998)),
+        instanceId : (0|(Math.random()*998)),
+        getNewID : function(){
+            return this.id++;
+        },
+        getNewInstanceId : function(){
+            return this.instanceId++;
+        }
+    };
+}
+
 if (CC_DEV) {
     /**
      * contains internal apis for unit tests
@@ -35,7 +53,7 @@ if (CC_DEV) {
 
 // predefine some modules for cocos
 
-require('./polyfill');
 require('./cocos2d/core/platform/js');
 require('./cocos2d/core/value-types');
 require('./cocos2d/core/event');
+require('./CCDebugger');
