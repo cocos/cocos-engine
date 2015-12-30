@@ -218,11 +218,8 @@ _ccsg.Label = _ccsg.Node.extend({
 
     setString: function(string) {
         //convert param to string
-        if (typeof string === 'string') {
-        } else if (string.toString) {
-            string = string.toString();
-        } else {
-            cc.error("could not set param as a string to Label!");
+        if (typeof string !== 'string') {
+            string = '' + string;
         }
 
         if (this._string === string) return;
