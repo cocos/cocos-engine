@@ -405,6 +405,10 @@ cc._initDebugSetting = function (mode) {
     } else if(console && console.log.apply){//console is null when user doesn't open dev tool on IE9
         //log to console
 
+        // For JSB
+        if (!console.error) console.error = console.log;
+        if (!console.warn) console.warn = console.log;
+
         /**
          * Outputs an error message to the Fireball Console (editor) or Web Console (runtime).
          * - In Fireball, error is red.
