@@ -340,7 +340,7 @@ var Sprite = cc.Class({
         sgNode.setSpriteFrame(self._spriteFrame);
         self._applyCapInset(sgNode);
         self._applySpriteSize();
-        if ( !sgNode.isVisible() ) {
+        if ( this.enabledInHierarchy && !sgNode.isVisible() ) {
             sgNode.setVisible(true);
         }
     },
@@ -371,13 +371,13 @@ var Sprite = cc.Class({
     _createSgNode: function () {
         var sgNode = new cc.Scale9Sprite();
 
+        sgNode.setRenderingType(this._type);
+        this._applySpriteFrame(sgNode, null);
+
         // should keep the size of the sg node the same as entity,
         // otherwise setContentSize may not take effect
         sgNode.setContentSize(this.node.getContentSize(true));
-
         this._applySpriteSize(sgNode);
-        sgNode.setRenderingType(this._type);
-        this._applySpriteFrame(sgNode, null);
 
         return sgNode;
     },

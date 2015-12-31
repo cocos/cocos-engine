@@ -25,6 +25,8 @@ var _uuidToCallbacks = new CallbacksInvoker();
 // temp deserialize info
 var _tdInfo = new cc.deserialize.Details();
 
+var _cc_loader_loadJson = cc.loader.loadJson.bind(cc.loader);
+
 // create a loading context which reserves all relevant parameters
 function LoadingHandle (readMainCache, writeMainCache, recordAssets, deserializeInfo) {
     //this.readMainCache = readMainCache;
@@ -274,7 +276,7 @@ var AssetLibrary = {
                     if (!shouldLoadByEngine) {
                         return callback(new Error('Should not load raw file in AssetLibrary, uuid: ' + uuid));
                     }
-                    LoadManager.loadByLoader(cc.loader.loadJson.bind(cc.loader), url, function (error, json) {
+                    LoadManager.loadByLoader(_cc_loader_loadJson, url, function (error, json) {
                         onload(error, json, url);
                     });
                 }
@@ -285,7 +287,7 @@ var AssetLibrary = {
             if (info.raw) {
                 return callback(new Error('Should not load raw file in AssetLibrary, uuid: ' + uuid));
             }
-            LoadManager.loadByLoader(cc.loader.loadJson.bind(cc.loader), info.url, function (error, json) {
+            LoadManager.loadByLoader(_cc_loader_loadJson, info.url, function (error, json) {
                 onload(error, json, info.url);
             });
         }
@@ -366,13 +368,12 @@ var AssetLibrary = {
                             callback();
                             callback = null;
                         }
+
+                        obj[prop] = obj[prop]; // ensures forEach worked
                         return;
                     }
                     else if (isRawAsset) {
-                        // HACK - https://github.com/fireball-x/fireball/issues/668
-                        var isImg = cc.loader._checkIsImageURL(dependsUrl);
-                        var loadFunc = isImg ? cc.loader.loadImg : cc.loader.load;
-                        loadFunc.call(cc.loader, dependsUrl, function (err, assets) {
+                        cc.loader.load(dependsUrl, function (err, assets) {
                             if (err) {
                                 cc.error('[AssetLibrary] Failed to load "%s"', dependsUrl);
                                 obj[prop] = '';
@@ -442,7 +443,7 @@ var AssetLibrary = {
             return Object;
         };
 
-        var tdInfo = handle.deserializeInfo || _tdInfo;
+        var tdInfo = cc.sys.isNative ? new cc.deserialize.Details() : (handle.deserializeInfo || _tdInfo);
 
         var asset = cc.deserialize(json, tdInfo, {
             classFinder: classFinder,
