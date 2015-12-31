@@ -51,3 +51,45 @@
         ok(cc.engine.getInstanceById(root1.uuid) === root1, 'should register uuid to engine after scene launch');
     });
 })();
+
+module('load scene', SetupEngine);
+
+test('persist node with dynamic scene', function () {
+    var oldScene = new cc.Scene();
+    cc.director.runScene(oldScene);
+
+    var globalNode = new cc.Node();
+    globalNode.parent = oldScene;
+    var childNode = new cc.Node();
+    childNode.parent = globalNode;
+
+    cc.game.addPersistRootNode(globalNode);
+
+    var newScene = new cc.Scene();
+    cc.director.runScene(newScene);
+
+    ok(globalNode.parent === newScene, 'persist node should not be destoryed automatically when loading a new scene');
+});
+
+(function () {
+    if (!TestEditorExtends) {
+        return;
+    }
+    test('persist node with loaded scene', function () {
+        var oldScene = new cc.Scene();
+        cc.director.runScene(oldScene);
+
+        var globalNode = new cc.Node();
+        globalNode.parent = oldScene;
+        var childNode = new cc.Node();
+        childNode.parent = globalNode;
+
+        cc.game.addPersistRootNode(globalNode);
+
+        var newScene = cc.deserialize(Editor.serialize(new cc.Scene(), {stringify: false}));
+
+        cc.director.runScene(newScene);
+
+        ok(globalNode.parent === newScene, 'persist node should not be destoryed automatically when loading a new scene');
+    });
+})();
