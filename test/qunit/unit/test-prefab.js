@@ -139,10 +139,10 @@
 
     asyncTest('revert prefab', function () {
         // stub
-        var restore = cc.loader.loadJson;
-        cc.loader.loadJson = function (url, callback) {
+        var restore = cc.loader.loadTxt;
+        cc.loader.loadTxt = function (url, callback) {
             if (url.endsWith(UUID + '.json')) {
-                callback(null, prefabJson);
+                callback(null, JSON.stringify(prefabJson));
             }
             else {
                 restore(url, callback);
@@ -166,7 +166,7 @@
         newNode2.setSiblingIndex(0);
 
         Editor.PrefabUtils.revertPrefab(testNode, function () {
-            cc.loader.loadJson = restore;
+            cc.loader.loadTxt = restore;
             ok(testNode.getScaleX() === 123 && testNode.getScaleY() === 432, 'Revert property of the parent node');
             ok(testNode.getComponent(TestScript).constructor === TestScript, 'Restore removed component');
             var c = testNode.children[0];
