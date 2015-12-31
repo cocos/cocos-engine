@@ -20,7 +20,6 @@ var srcs = [
     "./cocos2d/core/platform/CCScreen.js",
     "./cocos2d/core/platform/CCVisibleRect.js",
 
-    "./cocos2d/core/support/CCPointExtension.js",
     "./cocos2d/core/support/CCVertex.js",
     "./cocos2d/core/support/TransformUtils.js",
 
