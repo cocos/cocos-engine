@@ -122,8 +122,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     return;
                 }
                 var node = this._sgNode;
-                if (node._parent) {
-                    node._parent.removeChild(node, false);
+                if (node.parent) {
+                    node.parent.removeChild(node, false);
                 }
                 if (value) {
                     var parent = value._sgNode;
@@ -171,7 +171,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          */
         uuid: {
             get: function () {
-                return this._id || (this._id = Editor.uuid());
+                return this._id || (this._id = window.Editor ? Editor.uuid() : cc.ClassManager.getNewInstanceId());
             }
         },
 

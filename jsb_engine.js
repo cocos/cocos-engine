@@ -1134,6 +1134,16 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
 
     return listener;
 };
+cc.eventManager._removeListeners = cc.eventManager.removeListeners;
+cc.eventManager.removeListeners = function (target, recursive) {
+    if (target instanceof cc.Component) {
+        target = target.node._sgNode;
+    }
+    if (target instanceof cc.Node) {
+        target = target._sgNode;
+    }
+    this._removeListeners(target, recursive);
+};
 
 // cc.Scheduler
 cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
