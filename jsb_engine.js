@@ -299,6 +299,15 @@ cc.js.mixin(cc.director, {
     },
 
     /**
+     * Returns the cc.AnimationManager associated with this director.
+     * @method getAnimationManager
+     * @return {AnimationManager}
+     */
+    getAnimationManager: function () {
+        return this._animationManager;
+    },
+
+    /**
      * Returns current running Scene. Director can only run one Scene at the time.
      * @method getScene
      * @return {Scene}
