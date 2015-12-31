@@ -171,7 +171,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          */
         uuid: {
             get: function () {
-                return this._id || (this._id = window.Editor ? Editor.uuid() : cc.ClassManager.getNewInstanceId());
+                return this._id || (this._id = window.Editor ? Editor.uuid() : '');
             }
         },
 
