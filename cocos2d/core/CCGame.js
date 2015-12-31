@@ -283,7 +283,7 @@ var game = /** @lends cc.game# */{
      * @param {Node} node - The node to be made persistent
      */
     addPersistRootNode: function (node) {
-        if (!node instanceof cc.Node)
+        if (!(node instanceof cc.Node))
             return;
         var index = this._persistRootNodes.indexOf(node);
         if (index === -1) {

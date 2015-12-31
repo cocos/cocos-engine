@@ -61,6 +61,7 @@ cc.js.mixin(cc.game, {
     _sceneInfos: [],
 
     _persistRootNodes: [],
+    _ignoreRemovePersistNode: null,
 
     CONFIG_KEY: {
         width: 'width',
@@ -179,8 +180,12 @@ cc.js.mixin(cc.game, {
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if (node.parent !== scene) {
+                else if ( !(node.parent instanceof cc.Scene) ) {
                     cc.warn('The node can not be made persist because it\'s not under root node.');
+                    return;
+                }
+                else if (node.parent !== scene) {
+                    cc.warn('The node can not be made persist because it\'s not in current scene.');
                     return;
                 }
                 this._persistRootNodes.push(node);
@@ -195,11 +200,13 @@ cc.js.mixin(cc.game, {
      * @param {ENode} node - The node to be removed from persistent node list
      */
     removePersistRootNode: function (node) {
-        var index = this._persistRootNodes.indexOf(node);
-        if (index !== -1) {
-            this._persistRootNodes.splice(index, 1);
+        if (node !== this._ignoreRemovePersistNode) {
+            var index = this._persistRootNodes.indexOf(node);
+            if (index !== -1) {
+                this._persistRootNodes.splice(index, 1);
+            }
+            node._persistNode = false;
         }
-        node._persistNode = false;
     },
 
     /**
@@ -325,6 +332,16 @@ cc.js.mixin(cc.director, {
     runScene: function (scene, onBeforeLoadScene) {
         cc.assert(scene, cc._LogInfos.Director.pushScene);
 
+        // detach persist nodes
+        var i, node, game = cc.game;
+        var persistNodes = game._persistRootNodes;
+        for (i = persistNodes.length - 1; i >= 0; --i) {
+            node = persistNodes[i];
+            game._ignoreRemovePersistNode = node;
+            node.parent = null;
+            game._ignoreRemovePersistNode = null;
+        }
+
         // unload scene
         var oldScene = this._scene;
         if (cc.isValid(oldScene)) {
@@ -340,13 +357,6 @@ cc.js.mixin(cc.director, {
         }
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
-        // Re-add persist node root
-        var persistNodes = cc.game._persistRootNodes;
-        for (var i = 0; i < persistNodes.length; ++i) {
-            var node = persistNodes[i];
-            node.parent = scene;
-        }
-
         var sgScene = scene;
 
         // Run an Entity Scene
@@ -356,6 +366,12 @@ cc.js.mixin(cc.director, {
 
             this._scene = scene;
             sgScene = scene._sgNode;
+            
+            // Re-attach persist nodes
+            for (i = 0; i < persistNodes.length; ++i) {
+                node = persistNodes[i];
+                node.parent = scene;
+            }
         }
 
         // Run or replace rendering scene
