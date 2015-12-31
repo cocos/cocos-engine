@@ -388,6 +388,8 @@ var Component = cc.Class({
      */
     onLostFocusInEditMode: null,
 
+    //
+
     /**
      * Adds a component class to the entity. You can also add component to entity by passing in the name of the
      * script.
