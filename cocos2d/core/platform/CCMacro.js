@@ -162,7 +162,7 @@ cc.radiansToDegress = function (angle) {
  * @constant
  * @type Number
  */
-cc.REPEAT_FOREVER = Number.MAX_VALUE - 1;
+cc.REPEAT_FOREVER = cc.sys.isNative ? 0xffffffff : (Number.MAX_VALUE - 1);
 
 /**
  * Helpful macro that setups the GL server state, the correct GL program and sets the Model View Projection matrix
