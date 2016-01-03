@@ -533,28 +533,28 @@ cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 // Overwrite main loop
 if (_engineNumberVersion && _engineNumberVersion >= 3.9) {
     var scheduleTarget = {
-        update: function (_frameRate) {
+        update: function (dt) {
             // Call start for new added components
             cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
             // Update for components
-            cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, _frameRate);
+            cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
         }
     };
     cc.Director.getInstance().getScheduler().scheduleUpdateForTarget(scheduleTarget, -1000, false);
 }
 else {
     cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
-       var _frameRate = cc.game.config[cc.game.CONFIG_KEY.frameRate];
+       var dt = 1 / cc.game.config[cc.game.CONFIG_KEY.frameRate];
        // Call start for new added components
        cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
        // Update for components
-       cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, _frameRate);
+       cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
     });
 }
 cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
-    var _frameRate = cc.game.config[cc.game.CONFIG_KEY.frameRate];
+    var dt = 1 / cc.game.config[cc.game.CONFIG_KEY.frameRate];
     // Late update for components
-    cc.director.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _frameRate);
+    cc.director.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, dt);
     // User can use this event to do things after update
     cc.director.emit(cc.Director.EVENT_AFTER_UPDATE);
     
@@ -1172,6 +1172,15 @@ cc.eventManager.removeListeners = function (target, recursive) {
 
 // cc.Scheduler
 cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
+cc.Scheduler.prototype._unschedule = cc.Scheduler.prototype.unschedule;
+cc.Scheduler.prototype.unschedule = function (callback, target) {
+    if (typeof target === 'function') {
+        var tmp = target;
+        target = callback;
+        callback = tmp;
+    }
+    this._unschedule(target, callback);
+};
 
 // cc.Scale9Sprite
 cc.Scale9Sprite.prototype.setRenderingType = function (type) {
