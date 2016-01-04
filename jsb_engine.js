@@ -1183,14 +1183,6 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
 };
 
 // cc.Scale9Sprite
-cc.Scale9Sprite.prototype.setRenderingType = function (type) {
-    if (type === cc.SpriteType.SIMPLE) {
-        this.setScale9Enabled(false);
-    }
-    else {
-        this.setScale9Enabled(true);
-    }
-};
 cc.Scale9Sprite.prototype._setBlendFunc = cc.Scale9Sprite.prototype.setBlendFunc;
 cc.Scale9Sprite.prototype.setBlendFunc = function(blendFunc, dst) {
     if (dst !== undefined) {
