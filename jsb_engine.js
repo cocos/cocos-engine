@@ -1104,11 +1104,74 @@ cc.Label.prototype.setOverflow = function () {};
 cc.Label.prototype.enableWrapText = function () {};
 cc.Label.prototype.setLineHeight = function () {};
 
-// cc.Event#getCurrentTarget
+// cc.Event
+cc.Event.NO_TYPE = 'no_type';
+cc.Event.NONE = 0;
+cc.Event.CAPTURING_PHASE = 1;
+cc.Event.AT_TARGET = 2;
+cc.Event.BUBBLING_PHASE = 3;
+
 cc.Event.prototype._getCurrentTarget = cc.Event.prototype.getCurrentTarget;
 cc.Event.prototype.getCurrentTarget = function () {
-    return this._currentTarget || this._getCurrentTarget();
+    return this.currentTarget || this._getCurrentTarget();
 };
+cc.Event.prototype._stopPropagation = cc.Event.prototype.stopPropagation;
+cc.Event.prototype.stopPropagation = function () {
+    this._propagationStopped = true;
+    this._stopPropagation();
+};
+cc.Event.prototype._isStopped = cc.Event.prototype.isStopped;
+cc.Event.prototype.isStopped = function () {
+    return this._propagationStopped || this._propagationImmediateStopped || this._isStopped();
+};
+cc.js.mixin(cc.Event.prototype, {
+    type: 'no_type',
+    target: null,
+    currentTarget: null,
+    eventPhase: 0,
+    bubbles: false,
+    _defaultPrevented: false,
+    _propagationStopped: false,
+    _propagationImmediateStopped: false,
+
+    unuse: function () {
+        this.type = cc.Event.NO_TYPE;
+        this.target = null;
+        this.currentTarget = null;
+        this.eventPhase = cc.Event.NONE;
+        this._defaultPrevented = false;
+        this._propagationStopped = false;
+        this._propagationImmediateStopped = false;
+    },
+    reuse: function (type, bubbles) {
+        this.type = type;
+        this.bubbles = bubbles || false;
+    },
+    preventDefault: function () {
+        this._defaultPrevented = true;
+    },
+    stopPropagationImmediate: function () {
+        this._propagationImmediateStopped = true;
+    },
+});
+
+// cc.Event.EventCustom
+cc.Event.EventCustom = function (type, bubbles) {
+    cc.Event.call(this, cc.Event.CUSTOM);
+    this.type = type;
+    this.bubbles = bubbles || false;
+    this.detail = null;
+};
+cc.js.extend(cc.Event.EventCustom, cc.Event);
+cc.js.mixin(cc.Event.EventCustom.prototype, {
+    setUserData: function (data) {
+        this.detail = data;
+    },
+    getUserData: function () {
+        return this.detail;
+    },
+    getEventName: cc.Event.prototype.getType
+});
 
 // cc.eventManager.addListener
 cc.eventManager.addListener = function(listener, nodeOrPriority) {
@@ -1116,9 +1179,9 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
         listener = cc.EventListener.create(listener);
     }
 
-    if (typeof nodeOrPriority == "number") {
-        if (nodeOrPriority == 0) {
-            cc.log("0 priority is forbidden for fixed priority since it's used for scene graph based priority.");
+    if (typeof nodeOrPriority === 'number') {
+        if (nodeOrPriority === 0) {
+            cc.log('0 priority is forbidden for fixed priority since it\'s used for scene graph based priority.');
             return;
         }
 
@@ -1144,9 +1207,15 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
                         return function (event1, event2) {
                             // event must be the last argument, and arguments count could be 1 or 2 
                             var event = event2 || event1;
-                            // Replace event's _currentTarget
+                            // Augment event object to fit cc.Event
                             if (event) {
-                                event._currentTarget = nodeOrPriority;
+                                event.target = nodeOrPriority;
+                                event.currentTarget = nodeOrPriority;
+                                event.bubbles = false;
+                                event.eventPhase = 0;
+                                event._defaultPrevented = false;
+                                event._propagationStopped = false;
+                                event._propagationImmediateStopped = false;
                             }
                             return realCallback.call(this, event1, event2);
                         };

@@ -1,6 +1,5 @@
 ﻿var EventListeners = require('./event-listeners');
-var Event = require('./event');
-var EventCustom = Event.EventCustom;
+require('./event');
 var JS = cc.js;
 
 var cachedArray = new Array(16);
@@ -270,7 +269,7 @@ JS.mixin(EventTarget.prototype, {
      */
     emit: function (message, detail) {
         if ( typeof message === 'string' ) {
-            var event = new EventCustom(message);
+            var event = new cc.Event.EventCustom(message);
             event.detail = detail;
             _doSendEvent(this, event);
         }
