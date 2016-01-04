@@ -50,8 +50,6 @@ cc.Scene = cc.Class({
         var children = this._children;
         var DontDestroy = cc.Object.Flags.DontDestroy;
 
-        this._sgNode.release();
-
         for (var i = 0, len = children.length; i < len; ++i) {
             var child = children[i];
             if (child.isValid) {

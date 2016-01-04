@@ -1,6 +1,7 @@
 require('./CCValueType');
 require('./CCEnum');
 require('./CCVec2');
+require('./CCPointExtension');
 require('./CCSize');
 require('./CCRect');
 require('./CCColor');
