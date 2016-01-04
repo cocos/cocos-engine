@@ -200,6 +200,22 @@ var Component = cc.Class({
             visible: false
         },
 
+        name: {
+            get: function () {
+                return this._name || this.node.name;
+                //var className = cc.js.getClassName(this);
+                //var index = className.lastIndexOf('.');
+                //if (index >= 0) {
+                //    // strip prefix
+                //    className = className.slice(index + 1);
+                //}
+                //return this.node.name + '<' + className + '>';
+            },
+            set: function (value) {
+                this._name = value;
+            }
+        },
+
         _id: {
             default: '',
             serializable: false
