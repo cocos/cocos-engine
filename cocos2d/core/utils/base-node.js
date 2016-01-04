@@ -122,8 +122,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     return;
                 }
                 var node = this._sgNode;
-                if (node._parent) {
-                    node._parent.removeChild(node, false);
+                if (node.parent) {
+                    node.parent.removeChild(node, false);
                 }
                 if (value) {
                     var parent = value._sgNode;
@@ -171,7 +171,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          */
         uuid: {
             get: function () {
-                return this._id || (this._id = Editor.uuid());
+                return this._id || (this._id = window.Editor ? Editor.uuid() : '');
             }
         },
 
@@ -402,7 +402,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._anchorPoint.x !== value) {
-                    var old = this._anchorPoint.clone();
+                    var old = cc.v2(this._anchorPoint);
                     this._anchorPoint.x = value;
                     this._onAnchorChanged();
                     this.emit(ANCHOR_CHANGED, old);
@@ -421,7 +421,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._anchorPoint.y !== value) {
-                    var old = this._anchorPoint.clone();
+                    var old = cc.v2(this._anchorPoint);
                     this._anchorPoint.y = value;
                     this._onAnchorChanged();
                     this.emit(ANCHOR_CHANGED, old);
@@ -450,7 +450,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
                     }
-                    var clone = this._contentSize.clone();
+                    var clone = cc.v2(this._contentSize);
                     this._contentSize.width = value;
                     this.emit(SIZE_CHANGED, clone);
                 }
@@ -478,7 +478,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
                     }
-                    var clone = this._contentSize.clone();
+                    var clone = cc.v2(this._contentSize);
                     this._contentSize.height = value;
                     this.emit(SIZE_CHANGED, clone);
                 }
@@ -575,7 +575,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if ( !this._color.equals(value) ) {
                     var color = this._color;
-                    var old = color.clone();
+                    var old = cc.color(color);
                     color.r = value.r;
                     color.g = value.g;
                     color.b = value.b;
@@ -752,17 +752,17 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
-            oldPosition = locPosition.clone();
+            oldPosition = cc.v2(locPosition);
             locPosition.x = newPosOrxValue.x;
             locPosition.y = newPosOrxValue.y;
         } else {
             if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
                 return;
-            oldPosition = locPosition.clone();
+            oldPosition = cc.v2(locPosition);
             locPosition.x = newPosOrxValue;
             locPosition.y = yValue;
         }
-        this._sgNode.setPosition(newPosOrxValue, yValue);
+        this._sgNode.setPosition(locPosition);
 
         if (this.emit) {
             this.emit(POSITION_CHANGED, oldPosition);
@@ -803,13 +803,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (y === undefined) {
             if ((point.x === locAnchorPoint.x) && (point.y === locAnchorPoint.y))
                 return;
-            old = locAnchorPoint.clone();
+            old = cc.v2(locAnchorPoint);
             locAnchorPoint.x = point.x;
             locAnchorPoint.y = point.y;
         } else {
             if ((point === locAnchorPoint.x) && (y === locAnchorPoint.y))
                 return;
-            old = locAnchorPoint.clone();
+            old = cc.v2(locAnchorPoint);
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
@@ -864,13 +864,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (height === undefined) {
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
                 return;
-            clone = locContentSize.clone();
+            clone = cc.size(locContentSize);
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
             if ((size === locContentSize.width) && (height === locContentSize.height))
                 return;
-            clone = locContentSize.clone();
+            clone = cc.size(locContentSize);
             locContentSize.width = size;
             locContentSize.height = height;
         }

@@ -19,6 +19,7 @@ var game = /** @lends cc.game# */{
     _eventShow: null,
 
     _persistRootNodes: [],
+    _ignoreRemovePersistNode: null,
 
     /**
      * Key of config
@@ -282,7 +283,7 @@ var game = /** @lends cc.game# */{
      * @param {Node} node - The node to be made persistent
      */
     addPersistRootNode: function (node) {
-        if (!node instanceof cc.Node)
+        if (!(node instanceof cc.Node))
             return;
         var index = this._persistRootNodes.indexOf(node);
         if (index === -1) {
@@ -291,8 +292,12 @@ var game = /** @lends cc.game# */{
                 if (!node.parent) {
                     node.parent = scene;
                 }
-                else if (node.parent !== scene) {
+                else if ( !(node.parent instanceof cc.Scene) ) {
                     cc.warn('The node can not be made persist because it\'s not under root node.');
+                    return;
+                }
+                else if (node.parent !== scene) {
+                    cc.warn('The node can not be made persist because it\'s not in current scene.');
                     return;
                 }
                 this._persistRootNodes.push(node);
@@ -307,11 +312,13 @@ var game = /** @lends cc.game# */{
      * @param {Node} node - The node to be removed from persistent node list
      */
     removePersistRootNode: function (node) {
-        var index = this._persistRootNodes.indexOf(node);
-        if (index !== -1) {
-            this._persistRootNodes.splice(index, 1);
+        if (node !== this._ignoreRemovePersistNode) {
+            var index = this._persistRootNodes.indexOf(node);
+            if (index !== -1) {
+                this._persistRootNodes.splice(index, 1);
+            }
+            node._persistNode = false;
         }
-        node._persistNode = false;
     },
 
     /**

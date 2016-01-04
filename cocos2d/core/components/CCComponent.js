@@ -200,6 +200,22 @@ var Component = cc.Class({
             visible: false
         },
 
+        name: {
+            get: function () {
+                return this._name || this.node.name;
+                //var className = cc.js.getClassName(this);
+                //var index = className.lastIndexOf('.');
+                //if (index >= 0) {
+                //    // strip prefix
+                //    className = className.slice(index + 1);
+                //}
+                //return this.node.name + '<' + className + '>';
+            },
+            set: function (value) {
+                this._name = value;
+            }
+        },
+
         _id: {
             default: '',
             serializable: false
@@ -594,12 +610,11 @@ var Component = cc.Class({
         cc.assert(callback, cc._LogInfos.Node.schedule);
         cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
 
-        var key = this.__instanceId;
         interval = interval || 0;
         repeat = isNaN(repeat) ? cc.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy, key);
+        cc.director.getScheduler().scheduleCallbackForTarget(this, callback, interval, repeat, delay, !this.enabledInHierarchy);
     },
 
     /**
