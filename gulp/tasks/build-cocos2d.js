@@ -1,9 +1,9 @@
+'use strict';
+
 var Path = require('path');
 var gulp = require('gulp');
-var rename = require('gulp-rename');
 var concat = require('gulp-concat');
-var Spawn = require('child_process').spawn;
-var Chalk = require('chalk');
+var uglify = require('gulp-uglify');
 var es = require('event-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
@@ -213,38 +213,6 @@ var srcs = [
     "./external/chipmunk/chipmunk.js"
 ];
 
-gulp.task('compile-cocos2d', function (done) {
-    console.log('Spawn ant in ' + paths.originCocos2dCompileDir);
-
-    var spawn = require('child_process').spawn;
-    var cmdStr = process.platform === 'win32' ? 'ant.bat' : 'ant';
-    var child = Spawn(cmdStr, {
-        cwd: paths.originCocos2dCompileDir,
-        stdio: [0, 1, 'pipe']
-    });
-    child.on('error', function (err) {
-        var ANT = Chalk.inverse('ant');
-        if (err.code === 'ENOENT') {
-            console.error(Chalk.red('You should install %s to build cocos2d-html5'), ANT);
-        }
-        else {
-            console.error(Chalk.red('Failed to start %s') + ': %s', ANT, err.code);
-        }
-        process.exit(1);
-    });
-    child.stderr.on('data', function (data) {
-        process.stderr.write(Chalk.red(data.toString()));
-    });
-    child.on('exit', function (code) {
-        if (code === 0) {
-            done();
-        }
-        else {
-            process.exit(1);
-        }
-    });
-});
-
 var header = new Buffer('(function (cc, ccui, ccs, sp, cp) {\n');
 var footer = new Buffer('\n}).call(window, cc, ccui, ccs, sp, cp);\n');
 
@@ -286,38 +254,22 @@ function wrapFile (header, footer) {
     );
 }
 
-if (MinifyOriginCocos2d) {
-    gulp.task('build-modular-cocos2d', ['compile-cocos2d'], function () {
-        return gulp.src(paths.originCocos2dDev)
-            .pipe(wrap(header, footer))
-            .pipe(rename(Path.basename(paths.modularCocos2d)))
-            .pipe(gulp.dest(Path.dirname(paths.modularCocos2d)));
-        // gulp.src(paths.originCocos2d)
-        //     .pipe(wrap(header, footer))
-        //     .pipe(rename(Path.basename(paths.modularCocos2d)))
-        //     .pipe(gulp.dest(Path.dirname(paths.modularCocos2d)));
-        // gulp.src(paths.originSourcemap)
-        //     .pipe(gulp.dest(Path.dirname(paths.modularCocos2d)));
-    });
-}
-else {
-    gulp.task('build-modular-cocos2d', function () {
-        return gulp.src(srcs)
-            .pipe(wrapFile(header, footer))
-            .pipe(sourcemaps.init())
-                .pipe(concat(Path.basename(paths.modularCocos2d)))
-            .pipe(sourcemaps.write('./'))
-            //.pipe(wrap(header, footer))
+gulp.task('build-modular-cocos2d', function () {
+    return gulp.src(srcs)
+        .pipe(wrapFile(header, footer))
+        .pipe(sourcemaps.init())
+            .pipe(concat(Path.basename(paths.modularCocos2d)))
+        .pipe(sourcemaps.write('./'))
+        //.pipe(wrap(header, footer))
 
-            .pipe(es.through(
-                function (file) {
-                    var content = file.contents.toString();
-                    content = content.replace(/\r\n/g , '\n');
-                    file.contents = new Buffer(content);
-                    this.emit('data', file);
-                }
-            ))
+        .pipe(es.through(
+            function (file) {
+                var content = file.contents.toString();
+                content = content.replace(/\r\n/g , '\n');
+                file.contents = new Buffer(content);
+                this.emit('data', file);
+            }
+        ))
 
-            .pipe(gulp.dest(Path.dirname(paths.modularCocos2d)));
-    });
-}
+        .pipe(gulp.dest(Path.dirname(paths.modularCocos2d)));
+});
