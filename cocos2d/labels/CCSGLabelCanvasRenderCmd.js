@@ -196,7 +196,8 @@
             paragraphLength.push(textMetric.width);
         }
 
-        if (_ccsg.Label.Overflow.CLAMP == node._overFlow) {
+        //FIXME: add normal overflow
+        if (_ccsg.Label.Overflow.CLAMP === node._overFlow) {
             if (node._isWrapText) {
                 this._splitedStrings = [];
                 for (var i = 0; i < paragraphedStrings.length; ++i) {
@@ -205,7 +206,7 @@
             } else {
                 this._splitedStrings = paragraphedStrings;
             }
-        } else if (_ccsg.Label.Overflow.RESIZE == node._overFlow) {
+        } else if (_ccsg.Label.Overflow.RESIZE_HEIGHT === node._overFlow) {
             //todo fix it
             if (node._isWrapText) {
                 this._splitedStrings = [];
@@ -219,7 +220,7 @@
                 canvasSizeY = this._splitedStrings.length * this._getLineHeight();
                 node.setContentSize(cc.size(canvasSizeX, canvasSizeY));
             }
-        } else {
+        } else if(_ccsg.Label.Overflow.SHRINK === node._overFlow) {
             this._splitedStrings = paragraphedStrings;
             //shrink
             if (node._isWrapText) {
@@ -308,7 +309,8 @@
     proto._rebuildLabelSkin = function() {
         var node = this._node;
         if (node._labelSkinDirty) {
-            if(node._labelType === _ccsg.Label.Type.TTF){
+            if(node._labelType === _ccsg.Label.Type.TTF ||
+              node._labelType === _ccsg.Label.Type.SystemFont){
                 this._bakeLabel();
                 this._prepareQuad();
             }else {
@@ -345,7 +347,8 @@
 
         var node = this._node;
 
-        if (node._labelType === _ccsg.Label.Type.TTF) {
+        if (node._labelType === _ccsg.Label.Type.TTF ||
+           node._labelType === _ccsg.Label.Type.SystemFont) {
             var locDisplayOpacity = this._displayedOpacity;
             var alpha = locDisplayOpacity / 255;
             //var locTexture = this._labelTexture;

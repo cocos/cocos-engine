@@ -130,13 +130,11 @@ _ccsg.Label = _ccsg.Node.extend({
     _className: "Label",
 
     //fontHandle it is a font name or bmfont file.
-    ctor: function(string, fontHandle, type) {
+    ctor: function(string, fontHandle) {
         EventTarget.call(this);
 
         fontHandle = fontHandle || "";
         this._fontHandle = fontHandle;
-        type = type || 0;
-        this._labelType = type;
         string = string || "";
         this._string = string;
 
@@ -145,13 +143,8 @@ _ccsg.Label = _ccsg.Node.extend({
         this.setContentSize(cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
-        //init bmfont
-        if (type === 1) {
-            this._initBMFontWithString(this._string, this._fontHandle);
-        } else {
-            this.setFontFileOrFamily(fontHandle);
-            this.setString(this._string);
-        }
+        this.setFontFileOrFamily(fontHandle);
+        this.setString(this._string);
     },
 
     _resetBMFont: function() {
@@ -238,7 +231,7 @@ _ccsg.Label = _ccsg.Node.extend({
     enableWrapText: function(enabled) {
         if (this._isWrapText === enabled) return;
         //when label is in resize mode, wrap is disabled.
-        if (this._overFlow === _ccsg.Label.Overflow.RESIZE) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
             return;
         }
         this._isWrapText = enabled;
@@ -265,7 +258,7 @@ _ccsg.Label = _ccsg.Node.extend({
     setOverflow: function(overflow) {
         if (this._overFlow === overflow) return;
         this._overFlow = overflow;
-        if (this._overFlow === _ccsg.Label.Overflow.RESIZE) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
             this._setDimensions(this._labelDimensions.width, 0);
             this._isWrapText = true;
         }
@@ -309,7 +302,7 @@ _ccsg.Label = _ccsg.Node.extend({
         //specify font family name directly
         if (extName === null) {
             this._fontHandle = fontHandle;
-            this._labelType = _ccsg.Label.Type.TTF;
+            this._labelType = _ccsg.Label.Type.SystemFont;
             this._notifyLabelSkinDirty();
             this._isUseSystemFont = true;
             return;
@@ -377,7 +370,8 @@ _ccsg.Label = _ccsg.Node.extend({
     setContentSize: function(size, height) {
         var oldWidth = this._contentSize.width;
         var oldHeight = this._contentSize.height;
-        if (this._labelType === _ccsg.Label.Type.TTF) {
+        if (this._labelType === _ccsg.Label.Type.TTF ||
+           this._labelType === _ccsg.Label.Type.SystemFont) {
             _ccsg.Node.prototype.setContentSize.call(this, size, height);
             if (oldWidth === this._contentSize.width && oldHeight === this._contentSize.height) {
                 return;
@@ -429,7 +423,8 @@ _ccsg.Label = _ccsg.Node.extend({
                 this._updateContent();
                 this.setColor(this.color);
                 this._labelSkinDirty = false;
-            } else if (this._labelType === _ccsg.Label.Type.TTF) {
+            } else if (this._labelType === _ccsg.Label.Type.TTF
+                       || this._labelType === _ccsg.Label.Type.SystemFont) {
                 this._labelSkinDirty = true;
             }
         } else {
@@ -617,7 +612,7 @@ cc.BMFontHelper = {
     },
 
     _setDimensions: function(width, height) {
-        if (this._overFlow === _ccsg.Label.Overflow.RESIZE) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
             height = 0;
         }
         if (height !== this._labelHeight || width !== this._labelWidth) {
@@ -1099,10 +1094,13 @@ cc.js.mixin(_p, cc.BMFontHelper);
 
 _ccsg.Label.Type = cc.Enum({
     TTF: 0,
-    BMFont: 1
+    BMFont: 1,
+    SystemFont: 2
 });
 _ccsg.Label.Overflow = cc.Enum({
-    CLAMP: 0,
-    SHRINK: 1,
-    RESIZE: 2
+    //TODO: uncomment this if normal is implemented.
+    // NONE: 0,
+    CLAMP: 1,
+    SHRINK: 2,
+    RESIZE_HEIGHT: 3
 });

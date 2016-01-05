@@ -60,7 +60,8 @@
         var node = this._node;
         this._rebuildLabelSkin();
 
-        if(node._labelType === _ccsg.Label.Type.TTF){
+        if(node._labelType === _ccsg.Label.Type.TTF ||
+          node._labelType === _ccsg.Label.Type.SystemFont){
             var gl = ctx || cc._renderContext ;
 
             this._shaderProgram.use();

@@ -261,7 +261,7 @@ var Label = cc.Class({
     },
 
     _createSgNode: function () {
-        var sgNode = new _ccsg.Label(this.string, this.file, _ccsg.Label.Type.TTF);
+        var sgNode = new _ccsg.Label(this.string, this.file);
 
         // TODO
         // sgNode.enableRichText = this.enableRichText;
