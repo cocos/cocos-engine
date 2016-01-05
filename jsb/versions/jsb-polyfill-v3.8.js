@@ -22,39 +22,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+'use strict';
 
-// define cc
-
-// Run jsb.js before all polyfills
-cc.initEngine({
-    debugMode: cc.game.DEBUG_MODE_INFO
-});
-
-if (!cc.ClassManager) {
-    cc.ClassManager = window.ClassManager || {
-        id : (0|(Math.random()*998)),
-        instanceId : (0|(Math.random()*998)),
-        getNewID : function(){
-            return this.id++;
-        },
-        getNewInstanceId : function(){
-            return this.instanceId++;
-        }
-    };
-}
-
-if (CC_DEV) {
-    /**
-     * contains internal apis for unit tests
-     * @expose
-     */
-    cc._Test = {};
-}
-
-// predefine some modules for cocos
-
-require('./cocos2d/core/platform/js');
-require('./cocos2d/core/value-types');
-require('./cocos2d/core/utils/find');
-require('./cocos2d/core/event');
-require('./CCDebugger');
+// Overwrite main loop
+var scheduleTarget = {
+    update: function (dt) {
+        // Call start for new added components
+        cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
+        // Update for components
+        cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
+    }
+};
+cc.Director.getInstance().getScheduler().scheduleUpdateForTarget(scheduleTarget, -1000, false);
