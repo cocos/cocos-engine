@@ -250,7 +250,6 @@
                 fontDesc = this._drawFontsize.toString() + "px " + fontFamily;
                 this._splitedStrings = paragraphedStrings;
             }
-
         }
 
         this._labelCanvas.width = canvasSizeX;

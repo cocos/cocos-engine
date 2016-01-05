@@ -111,11 +111,11 @@ var S9CreationTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        var s9sprite1 = cc.Scale9Sprite.create("Images/blocks.png");
+        var s9sprite1 = new cc.Scale9Sprite("Images/blocks.png");
 
-        var s9sprite2 = cc.Scale9Sprite.create("blocks9.png");
+        var s9sprite2 = new cc.Scale9Sprite("blocks9.png");
 
-        var s9sprite3 = cc.Scale9Sprite.create("blocks9r.png");
+        var s9sprite3 = new cc.Scale9Sprite("blocks9r.png");
 
         s9sprite1.setContentSize(cc.size(150,150));
         s9sprite2.setContentSize(cc.size(150,150));
@@ -143,9 +143,9 @@ var S9RenderingTypeTest = S9SpriteTestDemo.extend({
             var x = winSize.width;
             var y = 0 + (winSize.height/2);
 
-            var s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+            var s9sprite1 = new cc.Scale9Sprite("res/Images/blocks9.png");
 
-            var s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
+            var s9sprite2 = new cc.Scale9Sprite("res/Images/blocks9.png");
             s9sprite1.setInsetLeft(20);
             s9sprite1.setInsetRight(20);
             s9sprite1.setInsetTop(30);
@@ -159,7 +159,7 @@ var S9RenderingTypeTest = S9SpriteTestDemo.extend({
             s9sprite1.setContentSize(cc.size(150,150));
             s9sprite2.setContentSize(cc.size(150,150));
 
-            s9sprite2.setRenderingType(ccui.Scale9Sprite.RenderingType.SIMPLE);
+            s9sprite2.setRenderingType(cc.Scale9Sprite.RenderingType.SIMPLE);
 
             s9sprite1.x = x/4; s9sprite1.y = y;
 
@@ -182,14 +182,14 @@ var S9StateTest = S9SpriteTestDemo.extend({
             var x = winSize.width;
             var y = 0 + (winSize.height/2);
 
-            var s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+            var s9sprite1 = new cc.Scale9Sprite("res/Images/blocks9.png");
 
-            var s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
+            var s9sprite2 = new cc.Scale9Sprite("res/Images/blocks9.png");
 
             s9sprite1.setContentSize(cc.size(150,150));
             s9sprite2.setContentSize(cc.size(150,150));
 
-            s9sprite2.setState(ccui.Scale9Sprite.state.GRAY);
+            s9sprite2.setState(cc.Scale9Sprite.state.GRAY);
 
             s9sprite1.x = x/4; s9sprite1.y = y;
 
@@ -213,7 +213,7 @@ var S9Actiontest = S9SpriteTestDemo.extend({
         var x = winSize.width ;
         var y = 0 + (winSize.height / 2);
 
-        var s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+        var s9sprite1 = new cc.Scale9Sprite("res/Images/blocks9.png");
         s9sprite1.setContentSize(cc.size(150,150));
         s9sprite1.x = x/4; s9sprite1.y = y;
 
@@ -239,7 +239,7 @@ var S9ChangeFiletest = S9SpriteTestDemo.extend({
         var x = winSize.width ;
         var y = 0 + (winSize.height / 2);
 
-        _s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+        _s9sprite1 = new cc.Scale9Sprite("res/Images/blocks9.png");
         _s9sprite1.setContentSize(cc.size(300,200));
         _s9sprite1.x = x/2; _s9sprite1.y = y;
 
@@ -252,10 +252,10 @@ var S9ChangeFiletest = S9SpriteTestDemo.extend({
         _s9sprite1.runAction(cc.Sequence.create(actionArray));
     },
     changeFile1: function() {
-        this.changeFile("Images/btn-highscores-normal.png");
+        this.changeFile("res/Images/btn-highscores-normal.png");
     },
     changeFile2: function() {
-        this.changeFile("Images/blocks9.png");
+        this.changeFile("res/Images/blocks9.png");
     },
     changeFile: function(file) {
         console.log("I'am going to change a new file");
@@ -281,9 +281,9 @@ var S9ChangePreferredSizeTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        this._s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+        this._s9sprite1 = new cc.Scale9Sprite("res/Images/blocks9.png");
 
-        this._s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
+        this._s9sprite2 = new cc.Scale9Sprite("res/Images/blocks9.png");
         var s9sprite1 = this._s9sprite1;
         var s9sprite2 = this._s9sprite2;
         s9sprite1.setContentSize(cc.size(96,96));
@@ -301,7 +301,7 @@ var S9ChangePreferredSizeTest = S9SpriteTestDemo.extend({
 
         this.scheduleUpdate();
 
-        s9sprite2.setRenderingType(ccui.Scale9Sprite.RenderingType.SIMPLE);
+        s9sprite2.setRenderingType(cc.Scale9Sprite.RenderingType.SIMPLE);
 
         s9sprite1.x = x/4; s9sprite1.y = y;
 
@@ -335,9 +335,9 @@ var S9ChangeCapInsetsTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        this._s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+        this._s9sprite1 = new cc.Scale9Sprite("res/Images/blocks9.png");
 
-        this._s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
+        this._s9sprite2 = new cc.Scale9Sprite("res/Images/blocks9.png");
         var s9sprite1 = this._s9sprite1;
         var s9sprite2 = this._s9sprite2;
         s9sprite1.setContentSize(cc.size(150,150));
@@ -393,9 +393,9 @@ var S9ChangeColorOpacityTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        this._s9sprite1 = cc.Scale9Sprite.create("Images/blocks9.png");
+        this._s9sprite1 = new cc.Scale9Sprite("res/Images/blocks9.png");
 
-        this._s9sprite2 = cc.Scale9Sprite.create("Images/blocks9.png");
+        this._s9sprite2 = new cc.Scale9Sprite("res/Images/blocks9.png");
         var s9sprite1 = this._s9sprite1;
         var s9sprite2 = this._s9sprite2;
         s9sprite1.setContentSize(cc.size(150,150));

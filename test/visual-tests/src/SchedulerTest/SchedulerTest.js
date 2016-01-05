@@ -710,7 +710,7 @@ var SchedulerTestScene = TestScene.extend({
 //
 
 var arrayOfSchedulerTest = [
-    SchedulerTimeScale,
+    // SchedulerTimeScale,
     SchedulerAutoremove,
     SchedulerPauseResume,
     SchedulerUnscheduleAll,
