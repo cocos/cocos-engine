@@ -109,7 +109,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
     _string: "",
     _fontSize: 40,
-    _overFlow: 1, // 1 clamp, 2 shrink, 3 resize to content
+    _overFlow: 1, //see _ccsg.Label.Overflow
     _isWrapText: true,
     _spacingX: 0,
 
@@ -1098,8 +1098,8 @@ _ccsg.Label.Type = cc.Enum({
     SystemFont: 2
 });
 _ccsg.Label.Overflow = cc.Enum({
-    //TODO: uncomment this if normal is implemented.
-    // NONE: 0,
+    //TODO: NONE is not implemented yet
+    NONE: 0,
     CLAMP: 1,
     SHRINK: 2,
     RESIZE_HEIGHT: 3

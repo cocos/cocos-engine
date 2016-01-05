@@ -250,6 +250,16 @@
                 fontDesc = this._drawFontsize.toString() + "px " + fontFamily;
                 this._splitedStrings = paragraphedStrings;
             }
+        } else {
+            //others treat it as clamp
+            if (node._isWrapText) {
+                this._splitedStrings = [];
+                for (var i = 0; i < paragraphedStrings.length; ++i) {
+                    this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], canvasSizeX, ctx));
+                }
+            } else {
+                this._splitedStrings = paragraphedStrings;
+            }
         }
 
         this._labelCanvas.width = canvasSizeX;
