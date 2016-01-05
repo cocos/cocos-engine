@@ -144,7 +144,8 @@ var Label = cc.Class({
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
-                    sgNode.setOverflow( this.overflow );
+                    //FIXME change this hack if _ccsg.Label.Overflow.NONE is implemented
+                    sgNode.setOverflow( (this.overflow === _ccsg.Label.Overflow.NONE) ?  _ccsg.Label.Overflow.CLAMP : this.overflow);
                 }
             }
         },
