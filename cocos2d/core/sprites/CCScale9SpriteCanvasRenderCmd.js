@@ -23,15 +23,15 @@
  ****************************************************************************/
 
 (function() {
-    ccui.Scale9Sprite.CanvasRenderCmd = function (renderable) {
+    cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
         _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
-        this._state = ccui.Scale9Sprite.state.NORMAL;
+        this._state = cc.Scale9Sprite.state.NORMAL;
         this._textureToRender = null;
     };
 
-    var proto = ccui.Scale9Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-    proto.constructor = ccui.Scale9Sprite.CanvasRenderCmd;
+    var proto = cc.Scale9Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+    proto.constructor = cc.Scale9Sprite.CanvasRenderCmd;
 
     proto._updateDisplayOpacity = function(parentOpacity){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);

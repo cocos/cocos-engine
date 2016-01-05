@@ -109,7 +109,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
     _string: "",
     _fontSize: 40,
-    _overFlow: 0, //0 clamp, 1 shrink 2, resize to content
+    _overFlow: 1, // 1 clamp, 2 shrink, 3 resize to content
     _isWrapText: true,
     _spacingX: 0,
 

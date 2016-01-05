@@ -30,8 +30,6 @@
  http://www.angelcode.com/products/bmfont/ (Free, Windows only)
  ****************************************************************************/
 
-EventTarget = require("../cocos2d/core/event/event-target");
-
 /**
  * @constant
  * @type Number
@@ -155,7 +153,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
      */
     ctor: function (str, fntFile, width, alignment, imageOffset) {
         cc.SpriteBatchNode.prototype.ctor.call(this);
-        EventTarget.call(this);
+        cc.EventTarget.call(this);
 
         this._imageOffset = cc.p(0, 0);
         this._reusedChar = [];
@@ -843,7 +841,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
 
 (function(){
     var p = cc.LabelBMFont.prototype;
-    cc.js.addon(p, EventTarget.prototype);
+    cc.js.addon(p, cc.EventTarget.prototype);
 
     /** @expose */
     p.string;

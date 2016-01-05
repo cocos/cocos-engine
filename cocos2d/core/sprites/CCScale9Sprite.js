@@ -50,7 +50,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}   insetRight      - The right inset of the 9-slice sprite
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
-ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
+cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
     _spriteFrame: null,
 
@@ -493,14 +493,14 @@ ccui.Scale9Sprite = cc.Scale9Sprite = _ccsg.Node.extend({
 
     _createRenderCmd: function () {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS)
-            return new ccui.Scale9Sprite.CanvasRenderCmd(this);
+            return new cc.Scale9Sprite.CanvasRenderCmd(this);
         else
-            return new ccui.Scale9Sprite.WebGLRenderCmd(this);
+            return new cc.Scale9Sprite.WebGLRenderCmd(this);
     }
 
 });
 
-var _p = ccui.Scale9Sprite.prototype;
+var _p = cc.Scale9Sprite.prototype;
 cc.js.addon(_p, EventTarget.prototype);
 
 // Extended properties
@@ -520,31 +520,31 @@ cc.defineGetterSetter(_p, "insetBottom", _p.getInsetBottom, _p.setInsetBottom);
 _p = null;
 
 
-ccui.Scale9Sprite.create = function (file) {
+cc.Scale9Sprite.create = function (file) {
     return new cc.Scale9Sprite(file);
 };
 
 /**
- * create a ccui.Scale9Sprite with Sprite frame.
- * @deprecated since v3.0, please use "new ccui.Scale9Sprite(spriteFrame, capInsets)" instead.
+ * create a cc.Scale9Sprite with Sprite frame.
+ * @deprecated since v3.0, please use "new cc.Scale9Sprite(spriteFrame, capInsets)" instead.
  * @param {cc.SpriteFrame} spriteFrame
  * @param {cc.Rect} capInsets
- * @returns {ccui.Scale9Sprite}
+ * @returns {cc.Scale9Sprite}
  */
-ccui.Scale9Sprite.createWithSpriteFrame = function (spriteFrame) {
+cc.Scale9Sprite.createWithSpriteFrame = function (spriteFrame) {
     return new cc.Scale9Sprite(spriteFrame);
 };
 
 /**
- * create a ccui.Scale9Sprite with a Sprite frame name
- * @deprecated since v3.0, please use "new ccui.Scale9Sprite(spriteFrameName, capInsets)" instead.
+ * create a cc.Scale9Sprite with a Sprite frame name
+ * @deprecated since v3.0, please use "new cc.Scale9Sprite(spriteFrameName, capInsets)" instead.
  * @param {string} spriteFrameName
  * @param {cc.Rect} capInsets
  * @returns {Scale9Sprite}
  */
-ccui.Scale9Sprite.createWithSpriteFrameName = function (spriteFrameName) {
+cc.Scale9Sprite.createWithSpriteFrameName = function (spriteFrameName) {
     return new cc.Scale9Sprite(spriteFrameName);
 };
 
-ccui.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
-ccui.Scale9Sprite.RenderingType = {SIMPLE: 0, SLICE: 1};
+cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
+cc.Scale9Sprite.RenderingType = {SIMPLE: 0, SLICE: 1};

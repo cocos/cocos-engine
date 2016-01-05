@@ -28,8 +28,8 @@ var s_pathF1 = "Images/f1.png";
 var s_pathF2 = "Images/f2.png";
 var s_pathBlock = "Images/blocks.png";
 var s_back = "Images/background.png";
-var s_back1 = "Images/background1.png";
-var s_back2 = "Images/background2.png";
+var s_back1 = "res/Images/background1.png";
+var s_back2 = "res/Images/background2.png";
 var s_back3 = "Images/background3.png";
 var s_stars1 = "Images/stars.png";
 var s_stars2 = "Images/stars2.png";
@@ -112,7 +112,7 @@ var s_testEasing0_png = "ccs-res/armature/testEasing0.png";
 
 var s_s9s_blocks9 = "Images/blocks9ss.png";
 var s_s9s_blocks9_plist = "Images/blocks9ss.plist";
-var s_blocks9 = "Images/blocks9.png";
+var s_blocks9 = "res/Images/blocks9.png";
 
 var s_s9s_ui = "Images/ui.png";
 var s_s9s_ui_plist = "Images/ui.plist";

@@ -31,7 +31,7 @@
  * @type {String}
  * @name cc.ENGINE_VERSION
  */
-window["CocosEngine"] = cc.ENGINE_VERSION = "Cocos2d-JS v3.9 Beta";
+window['CocosEngine'] = cc.ENGINE_VERSION = 'Cocos Creator v0.7';
 
 /**
  * <p>
@@ -203,7 +203,7 @@ cc.RETINA_DISPLAY_SUPPORT = 1;
  * @constant
  * @type {String}
  */
-cc.RETINA_DISPLAY_FILENAME_SUFFIX = "-hd";
+cc.RETINA_DISPLAY_FILENAME_SUFFIX = '-hd';
 
 /**
  * <p>
@@ -281,7 +281,7 @@ cc.IS_RETINA_DISPLAY_SUPPORTED = 1;
  * @constant
  * @type {String}
  */
-cc.DEFAULT_ENGINE = cc.ENGINE_VERSION + "-canvas";
+cc.DEFAULT_ENGINE = cc.ENGINE_VERSION + '-canvas';
 
 /**
  * <p>
