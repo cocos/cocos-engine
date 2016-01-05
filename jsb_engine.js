@@ -1336,3 +1336,12 @@ cc.Scale9Sprite.prototype.setAnchorPoint = function(anchorPoint, y){
     }
     this._setAnchorPoint(anchorPoint);
 };
+
+cc.Scale9Sprite.prototype._setSpriteFrame = cc.Scale9Sprite.prototype.setSpriteFrame;
+cc.Scale9Sprite.prototype.setSpriteFrame = function(spriteFrame) {
+    var contentSize = this.getContentSize();
+    this._setSpriteFrame(spriteFrame);
+    if (!cc.sizeEqualToSize(contentSize, cc.size(0, 0))) {
+        this.setContentSize(contentSize);
+    }
+};
