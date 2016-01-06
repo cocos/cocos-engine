@@ -156,7 +156,7 @@ var Sprite = cc.Class({
      * @return {Boolean} True if 9-slice is enabled, false otherwise.
      */
     isScale9Enabled: function(){
-        return this.type === cc.SpriteType.SLICED
+        return this.type === cc.SpriteType.SLICED;
     },
 
     /**
@@ -372,13 +372,14 @@ var Sprite = cc.Class({
     _createSgNode: function () {
         var sgNode = new cc.Scale9Sprite();
 
-        sgNode.setRenderingType(this._type);
         this._applySpriteFrame(sgNode, null);
 
         // should keep the size of the sg node the same as entity,
         // otherwise setContentSize may not take effect
         sgNode.setContentSize(this.node.getContentSize(true));
         this._applySpriteSize(sgNode);
+        
+        sgNode.setRenderingType(this._type);
 
         return sgNode;
     },

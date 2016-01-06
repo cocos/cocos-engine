@@ -12,9 +12,12 @@ require('./jsb-etc');
 
 // Check version
 var _engineNumberVersion = (function () {
-    var result = /Cocos2d\-JS\sv([\.\d]+)/.exec(cc.ENGINE_VERSION);
+    var result = /Cocos2d\-JS\sv([\d]+)\.([\d]+)/.exec(cc.ENGINE_VERSION);
     if (result && result[1]) {
-        return parseFloat(result[1]);
+        return {
+            major: parseInt(result[1]),
+            minor: parseInt(result[2])
+        };
     }
     else {
         return null;
@@ -23,7 +26,12 @@ var _engineNumberVersion = (function () {
 
 // Version polyfills
 if (_engineNumberVersion) {
-    if (_engineNumberVersion < 3.9) {
-        require('./versions/jsb-polyfill-v3.8');
+    if (_engineNumberVersion.major === 3) {
+        if (_engineNumberVersion.minor < 9) {
+            require('./versions/jsb-polyfill-v3.8');
+        }
+        if (_engineNumberVersion.minor < 10) {
+            require('./versions/jsb-polyfill-v3.9');
+        }
     }
 }
