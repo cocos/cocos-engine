@@ -38,176 +38,622 @@ cc.associateWithNative = function (jsObj, superclass) {
 
 /**
  * Key map for keyboard event
- *
- * @constant
+ * @enum KEY
+ * @readonly
  * @type {Object}
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCCommon/KEY.js}
  */
 cc.KEY = {
+    /**
+     * @property {Number} none
+     * @readonly
+     */
     none:0,
 
     // android
+    /**
+     * @property {Number} back
+     * @readonly
+     */
     back:6,
+    /**
+     * @property {Number} menu
+     * @readonly
+     */
     menu:18,
 
+    /**
+     * @property {Number} backspace
+     * @readonly
+     */
     backspace:8,
+    /**
+     * @property {Number} tab
+     * @readonly
+     */
     tab:9,
 
+    /**
+     * @property {Number} enter
+     * @readonly
+     */
     enter:13,
 
+    /**
+     * @property {Number} shift
+     * @readonly
+     */
     shift:16, //should use shiftkey instead
+    /**
+     * @property {Number} ctrl
+     * @readonly
+     */
     ctrl:17, //should use ctrlkey
+    /**
+     * @property {Number} alt
+     * @readonly
+     */
     alt:18, //should use altkey
+    /**
+     * @property {Number} pause
+     * @readonly
+     */
     pause:19,
+    /**
+     * @property {Number} capslock
+     * @readonly
+     */
     capslock:20,
-
+    /**
+     * @property {Number} escape
+     * @readonly
+     */
     escape:27,
+    /**
+     * @property {Number} space
+     * @readonly
+     */
     space:32,
+    /**
+     * @property {Number} pageup
+     * @readonly
+     */
     pageup:33,
+    /**
+     * @property {Number} pagedown
+     * @readonly
+     */
     pagedown:34,
+    /**
+     * @property {Number} end
+     * @readonly
+     */
     end:35,
+    /**
+     * @property {Number} home
+     * @readonly
+     */
     home:36,
+    /**
+     * @property {Number} left
+     * @readonly
+     */
     left:37,
+    /**
+     * @property {Number} up
+     * @readonly
+     */
     up:38,
+    /**
+     * @property {Number} right
+     * @readonly
+     */
     right:39,
+    /**
+     * @property {Number} down
+     * @readonly
+     */
     down:40,
+    /**
+     * @property {Number} select
+     * @readonly
+     */
     select:41,
 
+    /**
+     * @property {Number} insert
+     * @readonly
+     */
     insert:45,
+    /**
+     * @property {Number} Delete
+     * @readonly
+     */
     Delete:46,
+    /**
+     * @property {Number} 0
+     * @readonly
+     */
     0:48,
+    /**
+     * @property {Number} 1
+     * @readonly
+     */
     1:49,
+    /**
+     * @property {Number} 2
+     * @readonly
+     */
     2:50,
+    /**
+     * @property {Number} 3
+     * @readonly
+     */
     3:51,
+    /**
+     * @property {Number} 4
+     * @readonly
+     */
     4:52,
+    /**
+     * @property {Number} 5
+     * @readonly
+     */
     5:53,
+    /**
+     * @property {Number} 6
+     * @readonly
+     */
     6:54,
+    /**
+     * @property {Number} 7
+     * @readonly
+     */
     7:55,
+    /**
+     * @property {Number} 8
+     * @readonly
+     */
     8:56,
+    /**
+     * @property {Number} 9
+     * @readonly
+     */
     9:57,
+    /**
+     * @property {Number} a
+     * @readonly
+     */
     a:65,
+    /**
+     * @property {Number} b
+     * @readonly
+     */
     b:66,
+    /**
+     * @property {Number} c
+     * @readonly
+     */
     c:67,
+    /**
+     * @property {Number} d
+     * @readonly
+     */
     d:68,
+    /**
+     * @property {Number} e
+     * @readonly
+     */
     e:69,
+    /**
+     * @property {Number} f
+     * @readonly
+     */
     f:70,
+    /**
+     * @property {Number} g
+     * @readonly
+     */
     g:71,
+    /**
+     * @property {Number} h
+     * @readonly
+     */
     h:72,
+    /**
+     * @property {Number} i
+     * @readonly
+     */
     i:73,
+    /**
+     * @property {Number} j
+     * @readonly
+     */
     j:74,
+    /**
+     * @property {Number} k
+     * @readonly
+     */
     k:75,
+    /**
+     * @property {Number} l
+     * @readonly
+     */
     l:76,
+    /**
+     * @property {Number} m
+     * @readonly
+     */
     m:77,
+    /**
+     * @property {Number} n
+     * @readonly
+     */
     n:78,
+    /**
+     * @property {Number} o
+     * @readonly
+     */
     o:79,
+    /**
+     * @property {Number} p
+     * @readonly
+     */
     p:80,
+    /**
+     * @property {Number} q
+     * @readonly
+     */
     q:81,
+    /**
+     * @property {Number} r
+     * @readonly
+     */
     r:82,
+    /**
+     * @property {Number} s
+     * @readonly
+     */
     s:83,
+    /**
+     * @property {Number} t
+     * @readonly
+     */
     t:84,
+    /**
+     * @property {Number} u
+     * @readonly
+     */
     u:85,
+    /**
+     * @property {Number} v
+     * @readonly
+     */
     v:86,
+    /**
+     * @property {Number} w
+     * @readonly
+     */
     w:87,
+    /**
+     * @property {Number} x
+     * @readonly
+     */
     x:88,
+    /**
+     * @property {Number} y
+     * @readonly
+     */
     y:89,
+    /**
+     * @property {Number} z
+     * @readonly
+     */
     z:90,
 
+    /**
+     * @property {Number} num0
+     * @readonly
+     */
     num0:96,
+    /**
+     * @property {Number} num1
+     * @readonly
+     */
     num1:97,
+    /**
+     * @property {Number} num2
+     * @readonly
+     */
     num2:98,
+    /**
+     * @property {Number} num3
+     * @readonly
+     */
     num3:99,
+    /**
+     * @property {Number} num4
+     * @readonly
     num4:100,
+    /**
+     * @property {Number} num5
+     * @readonly
+     */
     num5:101,
+    /**
+     * @property {Number} num6
+     * @readonly
+     */
     num6:102,
+    /**
+     * @property {Number} num7
+     * @readonly
+     */
     num7:103,
+    /**
+     * @property {Number} num8
+     * @readonly
+     */
     num8:104,
+    /**
+     * @property {Number} num9
+     * @readonly
+     */
     num9:105,
+    /**
+     * @property {Number} *
+     * @readonly
+     */
     '*':106,
+    /**
+     * @property {Number} +
+     * @readonly
+     */
     '+':107,
+    /**
+     * @property {Number} -
+     * @readonly
+     */
     '-':109,
+    /**
+     * @property {Number} numdel
+     * @readonly
+     */
     'numdel':110,
+    /**
+     * @property {Number} /
+     * @readonly
+     */
     '/':111,
+    /**
+     * @property {Number} f1
+     * @readonly
+     */
     f1:112, //f1-f12 dont work on ie
+    /**
+     * @property {Number} f2
+     * @readonly
+     */
     f2:113,
+    /**
+     * @property {Number} f3
+     * @readonly
+     */
     f3:114,
+    /**
+     * @property {Number} f4
+     * @readonly
+     */
     f4:115,
+    /**
+     * @property {Number} f5
+     * @readonly
+     */
     f5:116,
+    /**
+     * @property {Number} f6
+     * @readonly
+     */
     f6:117,
+    /**
+     * @property {Number} f7
+     * @readonly
+     */
     f7:118,
+    /**
+     * @property {Number} f8
+     * @readonly
+     */
     f8:119,
+    /**
+     * @property {Number} f9
+     * @readonly
+     */
     f9:120,
+    /**
+     * @property {Number} f10
+     * @readonly
+     */
     f10:121,
+    /**
+     * @property {Number} f11
+     * @readonly
+     */
     f11:122,
+    /**
+     * @property {Number} f12
+     * @readonly
+     */
     f12:123,
 
+    /**
+     * @property {Number} numlock
+     * @readonly
+     */
     numlock:144,
+    /**
+     * @property {Number} scrolllock
+     * @readonly
+     */
     scrolllock:145,
 
+    /**
+     * @property {Number} ;
+     * @readonly
+     */
     ';':186,
+    /**
+     * @property {Number} semicolon
+     * @readonly
+     */
     semicolon:186,
+    /**
+     * @property {Number} equal
+     * @readonly
+     */
     equal:187,
+    /**
+     * @property {Number} =
+     * @readonly
+     */
     '=':187,
+    /**
+     * @property {Number} ,
+     * @readonly
+     */
     ',':188,
+    /**
+     * @property {Number} comma
+     * @readonly
+     */
     comma:188,
+    /**
+     * @property {Number} dash
+     * @readonly
+     */
     dash:189,
+    /**
+     * @property {Number} .
+     * @readonly
+     */
     '.':190,
+    /**
+     * @property {Number} period
+     * @readonly
+     */
     period:190,
+    /**
+     * @property {Number} forwardslash
+     * @readonly
+     */
     forwardslash:191,
+    /**
+     * @property {Number} grave
+     * @readonly
+     */
     grave:192,
+    /**
+     * @property {Number} [
+     * @readonly
+     */
     '[':219,
+    /**
+     * @property {Number} openbracket
+     * @readonly
+     */
     openbracket:219,
+    /**
+     * @property {Number} backslash
+     * @readonly
+     */
     backslash:220,
+    /**
+     * @property {Number} ]
+     * @readonly
+     */
     ']':221,
+    /**
+     * @property {Number} closebracket
+     * @readonly
+     */
     closebracket:221,
+    /**
+     * @property {Number} quote
+     * @readonly
+     */
     quote:222,
 
     // gamepad controll
+    /**
+     * @property {Number} dpadLeft
+     * @readonly
+     */
     dpadLeft:1000,
+    /**
+     * @property {Number} dpadRight
+     * @readonly
+     */
     dpadRight:1001,
+    /**
+     * @property {Number} dpadUp
+     * @readonly
+     */
     dpadUp:1003,
+    /**
+     * @property {Number} dpadDown
+     * @readonly
+     */
     dpadDown:1004,
+    /**
+     * @property {Number} dpadCenter
+     * @readonly
+     */
     dpadCenter:1005
 };
 
 /**
+ * @module cc
+ */
+
+/**
  * Image Format:JPG
- * @constant
- * @type {Number}
+ * @property {Number} FMT_JPG
+ * @readonly
  */
 cc.FMT_JPG = 0;
 
 /**
  * Image Format:PNG
- * @constant
- * @type {Number}
+ * @property {Number} FMT_PNG
+ * @readonly
  */
 cc.FMT_PNG = 1;
 
 /**
  * Image Format:TIFF
- * @constant
- * @type {Number}
+ * @property {Number} FMT_TIFF
+ * @readonly
  */
 cc.FMT_TIFF = 2;
 
 /**
  * Image Format:RAWDATA
- * @constant
- * @type {Number}
+ * @property {Number} FMT_RAWDATA
+ * @readonly
  */
 cc.FMT_RAWDATA = 3;
 
 /**
  * Image Format:WEBP
- * @constant
- * @type {Number}
+ * @property {Number} FMT_WEBP
+ * @readonly
  */
 cc.FMT_WEBP = 4;
 
 /**
  * Image Format:UNKNOWN
- * @constant
- * @type {Number}
+ * @property {Number} FMT_UNKNOWN
+ * @readonly
  */
 cc.FMT_UNKNOWN = 5;
 

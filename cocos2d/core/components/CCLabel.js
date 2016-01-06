@@ -144,7 +144,8 @@ var Label = cc.Class({
             notify: function () {
                 var sgNode = this._sgNode;
                 if (sgNode) {
-                    sgNode.setOverflow( this.overflow );
+                    //FIXME change this hack if _ccsg.Label.Overflow.NONE is implemented
+                    sgNode.setOverflow( (this.overflow === _ccsg.Label.Overflow.NONE) ?  _ccsg.Label.Overflow.CLAMP : this.overflow);
                 }
             }
         },
@@ -261,7 +262,7 @@ var Label = cc.Class({
     },
 
     _createSgNode: function () {
-        var sgNode = new _ccsg.Label(this.string, this.file, _ccsg.Label.Type.TTF);
+        var sgNode = new _ccsg.Label(this.string, this.file);
 
         // TODO
         // sgNode.enableRichText = this.enableRichText;

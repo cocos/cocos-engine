@@ -266,7 +266,7 @@ var testNames = [
         }
     },
     {
-        title:"CocosDenshion Test",
+        title:"AudioEngine Test",
         resource:g_cocosdeshion,
         platforms: PLATFORM_ALL,
         linksrc:"src/CocosDenshionTest/CocosDenshionTest.js",
@@ -318,37 +318,11 @@ var testNames = [
         }
     },
     {
-        title:"Native Test",
-        platforms: PLATFORM_JSB,
-        linksrc:"src/NativeTest/NativeTest.js",
-        testScene:function () {
-            return new NativeTestScene();
-        }
-    },
-    {
-        title:"UI Test",
-        resource:g_ui,
-        platforms: PLATFORM_ALL,
-        linksrc:"",
-        testScene:function () {
-            return new GUITestScene();
-        }
-    },
-    {
         title:"Interval Test",
         platforms: PLATFORM_ALL,
         linksrc:"src/IntervalTest/IntervalTest.js",
         testScene:function () {
             return new IntervalTestScene();
-        }
-    },
-    {
-        title:"Label Test",
-        resource:g_label,
-        platforms: PLATFORM_ALL,
-        linksrc:"src/LabelTest/LabelTest.js",
-        testScene:function () {
-            return new LabelTestScene();
         }
     },
     {

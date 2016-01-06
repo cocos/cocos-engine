@@ -47,27 +47,23 @@ var Details = function () {
 
     /**
      * list of the depends assets' uuid
-     * @property uuidList
-     * @type {String[]}
+     * @property {String[]} uuidList
      */
     this.uuidList = [];
     /**
      * the obj list whose field needs to load asset by uuid
-     * @property uuidObjList
-     * @type {Object[]}
+     * @property {Object[]} uuidObjList
      */
     this.uuidObjList = [];
     /**
      * the corresponding field name which referenced to the asset
-     * @property uuidPropList
-     * @type {String[]}
+     * @property {String[]} uuidPropList
      */
     this.uuidPropList = [];
 
     /**
      * the corresponding field name which referenced to the raw object
-     * @property rawProp
-     * @type {String}
+     * @property {String} rawProp
      */
     this.rawProp = '';
 
@@ -500,6 +496,7 @@ var _Deserializer = (function () {
  * @param {deserialize.Details} [result] - additional loading result
  * @param {Object} [options]
  * @return {object} the main data(asset)
+ * @module cc
  */
 cc.deserialize = function (data, result, options) {
     var classFinder = (options && options.classFinder) || JS._getClassById;

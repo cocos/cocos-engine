@@ -94,6 +94,22 @@ cc.game.run({
     "renderMode"    : 0,
 
     "jsList"        : [
+        '../../cocos2d/core/base-nodes/CCAtlasNode.js',
+        '../../cocos2d/core/base-nodes/CCAtlasNodeCanvasRenderCmd.js',
+        '../../cocos2d/core/base-nodes/CCAtlasNodeWebGLRenderCmd.js',
+
+        "../../cocos2d/core/labelttf/LabelTTFPropertyDefine.js",
+        "../../cocos2d/core/labelttf/CCLabelTTF.js",
+        "../../cocos2d/core/labelttf/CCLabelTTFCanvasRenderCmd.js",
+        "../../cocos2d/core/labelttf/CCLabelTTFWebGLRenderCmd.js",
+
+        "../../cocos2d/labels/CCLabelAtlas.js",
+        "../../cocos2d/labels/CCLabelAtlasCanvasRenderCmd.js",
+        "../../cocos2d/labels/CCLabelAtlasWebGLRenderCmd.js",
+        "../../cocos2d/labels/CCLabelBMFont.js",
+        "../../cocos2d/labels/CCLabelBMFontCanvasRenderCmd.js",
+        "../../cocos2d/labels/CCLabelBMFontWebGLRenderCmd.js",
+
         "src/BaseTestLayer/BaseTestLayer.js",
 
         "src/tests_resources.js",
@@ -135,39 +151,12 @@ cc.game.run({
         "src/ExtensionsTest/NetworkTest/WebSocketTest.js",
         "src/ExtensionsTest/NetworkTest/SocketIOTest.js",
 
-        "src/GUITest/UIScene.js",
-        "src/GUITest/UIButtonTest/UIButtonTest.js",
-        "src/GUITest/UICheckBoxTest/UICheckBoxTest.js",
-        "src/GUITest/UIFocusTest/UIFocusTest.js",
-        "src/GUITest/UIImageViewTest/UIImageViewTest.js",
-        "src/GUITest/UILabelAtlasTest/UILabelAtlasTest.js",
-        "src/GUITest/UILabelBMFontTest/UILabelBMFontTest.js",
-        "src/GUITest/UILabelTest/UILabelTest.js",
-        "src/GUITest/UILayoutTest/UILayoutTest.js",
-        "src/GUITest/UIListViewTest/UIListViewTest.js",
-        "src/GUITest/UILoadingBarTest/UILoadingBarTest.js",
-        "src/GUITest/UINodeContainerTest/UINodeContainerTest.js",
-        "src/GUITest/UIPageViewTest/UIPageViewTest.js",
-        "src/GUITest/UISceneManager.js",
-        "src/GUITest/UIScrollViewTest/UIScrollViewTest.js",
-        "src/GUITest/UISliderTest/UISliderTest.js",
-        "src/GUITest/UITextFieldTest/UITextFieldTest.js",
-        "src/GUITest/UIRichTextTest/UIRichTextTest.js",
-        "src/GUITest/UITextTest/UITextTest.js",
-        "src/GUITest/UIWebViewTest/UIWebViewTest.js",
-        "src/GUITest/UIS9NinePatchTest/UIS9NinePatchTest.js",
-
         "src/XHRTest/XHRTest.js",
         "src/XHRTest/XHRArrayBufferTest.js",
 
         "src/ReflectionTest/ReflectionTest.js",
 
         "src/SpritePolygonTest/SpritePolygonTest.js",
-
-        "src/NativeTest/NativeTest.js",
-        "src/NativeTest/FileUtils/FileUtilsTest.js",
-        "src/NativeTest/JSBExtendTest.js",
-        "src/NativeTest/AudioEngineTest.js",
 
         "src/NodeEventTest/NodeEventTest.js"
     ]

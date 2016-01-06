@@ -94,7 +94,8 @@ var AssetLibrary = {
      * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
      * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
      * @param {Boolean} options.recordAssets - Default is false. If true, tracking statistics associated with the assets which needs to preload（All the assets contains "urls" but dont have "_rawFiles"）
-     * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want
+     * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want,
+     *                                                        this parameter is only available in editor.
      * @private
      */
     loadAsset: function (uuid, callback, options) {
@@ -541,8 +542,7 @@ var AssetLibrary = {
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
  * https://github.com/TooTallNate/node-weak
  *
- * @property _uuidToAsset
- * @type {object}
+ * @property {object} _uuidToAsset
  * @private
  */
 AssetLibrary._uuidToAsset = {};

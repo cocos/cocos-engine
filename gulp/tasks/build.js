@@ -17,7 +17,8 @@ var handleErrors = require('../util/handleErrors');
 
 require('./build-cocos2d');
 
-function getUglifyOptions (minify, global_defs) {
+function getUglifyOptions (minify, global_defs, preserveComments) {
+    preserveComments = preserveComments || false;
     if (minify) {
         return {
             compress: {
@@ -51,7 +52,7 @@ function getUglifyOptions (minify, global_defs) {
         // http://lisperator.net/uglifyjs/codegen
         return {
             mangle: false,
-            preserveComments: 'all',
+            preserveComments: preserveComments,
             output: {
                 beautify: true,
                 bracketize: true

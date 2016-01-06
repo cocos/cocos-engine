@@ -163,8 +163,8 @@ var TextureCacheTest = TextureCacheTestBase.extend({
         texCache.addImageAsync("Images/grossini_dance_12.png", this.loadingCallBack, this);
         texCache.addImageAsync("Images/grossini_dance_13.png", this.loadingCallBack, this);
         texCache.addImageAsync("Images/grossini_dance_14.png", this.loadingCallBack, this);
-        texCache.addImageAsync("Images/background1.png", this.loadingCallBack, this);
-        texCache.addImageAsync("Images/background2.png", this.loadingCallBack, this);
+        texCache.addImageAsync("res/Images/background1.png", this.loadingCallBack, this);
+        texCache.addImageAsync("res/Images/background2.png", this.loadingCallBack, this);
         texCache.addImageAsync("Images/background3.png", this.loadingCallBack, this);
         texCache.addImageAsync("Images/blocks.png", this.loadingCallBack, this);
     },
@@ -194,8 +194,8 @@ var TextureCacheTest = TextureCacheTestBase.extend({
         var s15 = new _ccsg.Sprite("Images/grossini_dance_14.png");
 
         // just loading textures to slow down
-        var s16 = new _ccsg.Sprite("Images/background1.png");
-        var s17 = new _ccsg.Sprite("Images/background2.png");
+        var s16 = new _ccsg.Sprite("res/Images/background1.png");
+        var s17 = new _ccsg.Sprite("res/Images/background2.png");
         var s18 = new _ccsg.Sprite("Images/background3.png");
         var s19 = new _ccsg.Sprite("Images/blocks.png");
 

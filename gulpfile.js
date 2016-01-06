@@ -9,8 +9,7 @@ paths = {
     src: './src',
     jsEntry: './index.js',
     JSBEntries: [
-        './jsb_predefine.js',
-        './jsb_engine.js',
+        './jsb/index.js',
         './extends.js'
     ],
     outDir: './bin',
@@ -34,9 +33,6 @@ paths = {
         destEditorExtends: 'bin/cocos2d-js-extends-for-test.js'
     },
 
-    originCocos2dCompileDir: './tools',
-    originCocos2d: './lib/cocos2d-js-v3.9-min.js',
-    //originSourcemap: './lib/cocos2d-js-v3.9-sourcemap',
     modularCocos2d: './bin/modular-cocos2d.js',
 };
 
