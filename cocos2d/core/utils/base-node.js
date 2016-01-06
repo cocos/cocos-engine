@@ -450,7 +450,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
                     }
-                    var clone = cc.v2(this._contentSize);
+                    var clone = cc.size(this._contentSize);
                     this._contentSize.width = value;
                     this.emit(SIZE_CHANGED, clone);
                 }
@@ -478,7 +478,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
                     }
-                    var clone = cc.v2(this._contentSize);
+                    var clone = cc.size(this._contentSize);
                     this._contentSize.height = value;
                     this.emit(SIZE_CHANGED, clone);
                 }

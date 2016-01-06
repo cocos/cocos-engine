@@ -28,7 +28,7 @@
 
 /**
  * Define an enum type. If a enum item has a value of -1, it will be given an Integer number according to it's order in the list. Otherwise it will use the value specified by user who writes the enum definition.
- * @method defineEnum
+ * @method Enum
  * @param {object} obj - a JavaScript literal object containing enum names and values
  * @return {object} the defined enum type
  *
