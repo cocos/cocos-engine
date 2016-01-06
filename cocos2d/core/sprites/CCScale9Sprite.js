@@ -218,7 +218,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
      * @return @see `RenderingType`
      */
     setRenderingType: function (type) {
-        if (this._renderingType == type) return;
+        if (this._renderingType === type) return;
         this._renderingType = type;
         this._quadsDirty = true;
     },
