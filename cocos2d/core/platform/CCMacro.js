@@ -25,46 +25,46 @@
  ****************************************************************************/
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} INVALID_INDEX
+ * @readonly
  */
 cc.INVALID_INDEX = -1;
 
 /**
  * PI is the ratio of a circle's circumference to its diameter.
- * @constant
- * @type {Number}
+ * @property {Number} PI
+ * @readonly
  */
 cc.PI = Math.PI;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} FLT_MAX
+ * @readonly
  */
 cc.FLT_MAX = parseFloat('3.402823466e+38F');
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} FLT_MIN
+ * @readonly
  */
 cc.FLT_MIN = parseFloat("1.175494351e-38F");
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} RAD
+ * @readonly
  */
 cc.RAD = cc.PI / 180;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} DEG
+ * @readonly
  */
 cc.DEG = 180 / cc.PI;
 
 /**
  * maximum unsigned int value
- * @constant
- * @type {Number}
+ * @property {Number} UINT_MAX
+ * @readonly
  */
 cc.UINT_MAX = 0xffffffff;
 
@@ -159,8 +159,8 @@ cc.radiansToDegress = function (angle) {
 };
 
 /**
- * @constant
- * @type Number
+ * @property {Number} REPEAT_FOREVER
+ * @readonly
  */
 cc.REPEAT_FOREVER = cc.sys.isNative ? 0xffffffff : (Number.MAX_VALUE - 1);
 
@@ -229,8 +229,8 @@ cc.incrementGLDraws = function (addNumber) {
 };
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} FLT_EPSILON
+ * @readonly
  */
 cc.FLT_EPSILON = 0.0000001192092896;
 
@@ -334,95 +334,94 @@ cc.rectPointsToPixels = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (point) {
 
 //some gl constant variable
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ONE
+ * @readonly
  */
 cc.ONE = 1;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ZERO
+ * @readonly
  */
 cc.ZERO = 0;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} SRC_ALPHA
+ * @readonly
  */
 cc.SRC_ALPHA = 0x0302;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} SRC_ALPHA_SATURATE
+ * @readonly
  */
 cc.SRC_ALPHA_SATURATE = 0x308;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} SRC_COLOR
+ * @readonly
  */
 cc.SRC_COLOR = 0x300;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} DST_ALPHA
+ * @readonly
  */
 cc.DST_ALPHA = 0x304;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} DST_COLOR
+ * @readonly
  */
 cc.DST_COLOR = 0x306;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ONE_MINUS_SRC_ALPHA
+ * @readonly
  */
 cc.ONE_MINUS_SRC_ALPHA = 0x0303;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ONE_MINUS_SRC_COLOR
+ * @readonly
  */
 cc.ONE_MINUS_SRC_COLOR = 0x301;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ONE_MINUS_DST_ALPHA
+ * @readonly
  */
 cc.ONE_MINUS_DST_ALPHA = 0x305;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ONE_MINUS_DST_COLOR
+ * @readonly
  */
 cc.ONE_MINUS_DST_COLOR = 0x0307;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ONE_MINUS_CONSTANT_ALPHA
+ * @readonly
  */
 cc.ONE_MINUS_CONSTANT_ALPHA	= 0x8004;
 
 /**
- * @constant
- * @type {Number}
+ * @property {Number} ONE_MINUS_CONSTANT_COLOR
+ * @readonly
  */
 cc.ONE_MINUS_CONSTANT_COLOR	= 0x8002;
 
 /**
  * the constant variable equals gl.LINEAR for texture
- * @constant
- * @type {Number}
+ * @property {Number} LINEAR
+ * @readonly
  */
 cc.LINEAR	= 0x2601;
 
 /**
  * default gl blend src function. Compatible with premultiplied alpha images.
- * @constant
- * @name BLEND_SRC
- * @type {Number}
+ * @property {Number} BLEND_SRC
+ * @readonly
  */
 cc.defineGetterSetter(cc, "BLEND_SRC", function (){
     if (cc._renderType === cc.game.RENDER_TYPE_WEBGL
@@ -436,8 +435,8 @@ cc.defineGetterSetter(cc, "BLEND_SRC", function (){
 
 /**
  * default gl blend dst function. Compatible with premultiplied alpha images.
- * @constant
- * @type {Number}
+ * @property {Number} BLEND_DST
+ * @readonly
  */
 cc.BLEND_DST = 0x0303;
 
@@ -457,286 +456,286 @@ cc.checkGLErrorDebug = function () {
 //Possible device orientations
 /**
  * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
- * @constant
- * @type {Number}
+ * @property {Number} DEVICE_ORIENTATION_PORTRAIT
+ * @readonly
  */
 cc.DEVICE_ORIENTATION_PORTRAIT = 0;
 
 /**
  * Device oriented horizontally, home button on the right (UIDeviceOrientationLandscapeLeft)
- * @constant
- * @type {Number}
+ * @property {Number} DEVICE_ORIENTATION_LANDSCAPE_LEFT
+ * @readonly
  */
 cc.DEVICE_ORIENTATION_LANDSCAPE_LEFT = 1;
 
 /**
  * Device oriented vertically, home button on the top (UIDeviceOrientationPortraitUpsideDown)
- * @constant
- * @type {Number}
+ * @property {Number} DEVICE_ORIENTATION_PORTRAIT_UPSIDE_DOWN
+ * @readonly
  */
 cc.DEVICE_ORIENTATION_PORTRAIT_UPSIDE_DOWN = 2;
 
 /**
  * Device oriented horizontally, home button on the left (UIDeviceOrientationLandscapeRight)
- * @constant
- * @type {Number}
+ * @property {Number} DEVICE_ORIENTATION_LANDSCAPE_RIGHT
+ * @readonly
  */
 cc.DEVICE_ORIENTATION_LANDSCAPE_RIGHT = 3;
 
 /**
  * In browsers, we only support 2 orientations by change window size.
- * @constant
- * @type {Number}
+ * @property {Number} DEVICE_MAX_ORIENTATIONS
+ * @readonly
  */
 cc.DEVICE_MAX_ORIENTATIONS = 2;
 
 
 // ------------------- vertex attrib flags -----------------------------
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_FLAG_NONE
+ * @readonly
  */
 cc.VERTEX_ATTRIB_FLAG_NONE = 0;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_FLAG_POSITION
+ * @readonly
  */
 cc.VERTEX_ATTRIB_FLAG_POSITION = 1 << 0;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_FLAG_COLOR
+ * @readonly
  */
 cc.VERTEX_ATTRIB_FLAG_COLOR = 1 << 1;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_FLAG_TEX_COORDS
+ * @readonly
  */
 cc.VERTEX_ATTRIB_FLAG_TEX_COORDS = 1 << 2;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_FLAG_POS_COLOR_TEX
+ * @readonly
  */
 cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX = ( cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_COLOR | cc.VERTEX_ATTRIB_FLAG_TEX_COORDS );
 
 /**
  * GL server side states
- * @constant
- * @type {Number}
+ * @property {Number} GL_ALL
+ * @readonly
  */
 cc.GL_ALL = 0;
 
 //-------------Vertex Attributes-----------
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_POSITION
+ * @readonly
  */
 cc.VERTEX_ATTRIB_POSITION = 0;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_COLOR
+ * @readonly
  */
 cc.VERTEX_ATTRIB_COLOR = 1;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_TEX_COORDS
+ * @readonly
  */
 cc.VERTEX_ATTRIB_TEX_COORDS = 2;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} VERTEX_ATTRIB_MAX
+ * @readonly
  */
 cc.VERTEX_ATTRIB_MAX = 3;
 
 //------------Uniforms------------------
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_PMATRIX
+ * @readonly
  */
 cc.UNIFORM_PMATRIX = 0;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_MVMATRIX
+ * @readonly
  */
 cc.UNIFORM_MVMATRIX = 1;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_MVPMATRIX
+ * @readonly
  */
 cc.UNIFORM_MVPMATRIX = 2;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_TIME
+ * @readonly
  */
 cc.UNIFORM_TIME = 3;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_SINTIME
+ * @readonly
  */
 cc.UNIFORM_SINTIME = 4;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_COSTIME
+ * @readonly
  */
 cc.UNIFORM_COSTIME = 5;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_RANDOM01
+ * @readonly
  */
 cc.UNIFORM_RANDOM01 = 6;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_SAMPLER
+ * @readonly
  */
 cc.UNIFORM_SAMPLER = 7;
 /**
- * @constant
- * @type {Number}
+ * @property {Number} UNIFORM_MAX
+ * @readonly
  */
 cc.UNIFORM_MAX = 8;
 
 //------------Shader Name---------------
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_TEXTURECOLOR
+ * @readonly
  */
 cc.SHADER_POSITION_TEXTURECOLOR = "ShaderPositionTextureColor";
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_TEXTURECOLORALPHATEST
+ * @readonly
  */
 cc.SHADER_POSITION_TEXTURECOLORALPHATEST = "ShaderPositionTextureColorAlphaTest";
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_COLOR
+ * @readonly
  */
 cc.SHADER_POSITION_COLOR = "ShaderPositionColor";
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_TEXTURE
+ * @readonly
  */
 cc.SHADER_POSITION_TEXTURE = "ShaderPositionTexture";
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_TEXTURE_UCOLOR
+ * @readonly
  */
 cc.SHADER_POSITION_TEXTURE_UCOLOR = "ShaderPositionTexture_uColor";
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_TEXTUREA8COLOR
+ * @readonly
  */
 cc.SHADER_POSITION_TEXTUREA8COLOR = "ShaderPositionTextureA8Color";
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_UCOLOR
+ * @readonly
  */
 cc.SHADER_POSITION_UCOLOR = "ShaderPosition_uColor";
 /**
- * @constant
- * @type {String}
+ * @property {String} SHADER_POSITION_LENGTHTEXTURECOLOR
+ * @readonly
  */
 cc.SHADER_POSITION_LENGTHTEXTURECOLOR = "ShaderPositionLengthTextureColor";
 
 //------------uniform names----------------
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_PMATRIX_S
+ * @readonly
  */
 cc.UNIFORM_PMATRIX_S = "CC_PMatrix";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_MVMATRIX_S
+ * @readonly
  */
 cc.UNIFORM_MVMATRIX_S = "CC_MVMatrix";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_MVPMATRIX_S
+ * @readonly
  */
 cc.UNIFORM_MVPMATRIX_S = "CC_MVPMatrix";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_TIME_S
+ * @readonly
  */
 cc.UNIFORM_TIME_S = "CC_Time";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_SINTIME_S
+ * @readonly
  */
 cc.UNIFORM_SINTIME_S = "CC_SinTime";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_COSTIME_S
+ * @readonly
  */
 cc.UNIFORM_COSTIME_S = "CC_CosTime";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_RANDOM01_S
+ * @readonly
  */
 cc.UNIFORM_RANDOM01_S = "CC_Random01";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_SAMPLER_S
+ * @readonly
  */
 cc.UNIFORM_SAMPLER_S = "CC_Texture0";
 /**
- * @constant
- * @type {String}
+ * @property {String} UNIFORM_ALPHA_TEST_VALUE_S
+ * @readonly
  */
 cc.UNIFORM_ALPHA_TEST_VALUE_S = "CC_alpha_value";
 
 //------------Attribute names--------------
 /**
- * @constant
- * @type {String}
+ * @property {String} ATTRIBUTE_NAME_COLOR
+ * @readonly
  */
 cc.ATTRIBUTE_NAME_COLOR = "a_color";
 /**
- * @constant
- * @type {String}
+ * @property {String} ATTRIBUTE_NAME_POSITION
+ * @readonly
  */
 cc.ATTRIBUTE_NAME_POSITION = "a_position";
 /**
- * @constant
- * @type {String}
+ * @property {String} ATTRIBUTE_NAME_TEX_COORD
+ * @readonly
  */
 cc.ATTRIBUTE_NAME_TEX_COORD = "a_texCoord";
 
 
 /**
  * default size for font size
- * @constant
- * @type {Number}
+ * @property {Number} ITEM_SIZE
+ * @readonly
  */
 cc.ITEM_SIZE = 32;
 
 /**
  * default tag for current item
- * @constant
- * @type {Number}
+ * @property {Number} CURRENT_ITEM
+ * @readonly
  */
 cc.CURRENT_ITEM = 0xc0c05001;
 /**
  * default tag for zoom action tag
- * @constant
- * @type {Number}
+ * @property {Number} ZOOM_ACTION_TAG
+ * @readonly
  */
 cc.ZOOM_ACTION_TAG = 0xc0c05002;
 /**
  * default tag for normal
- * @constant
- * @type {Number}
+ * @property {Number} NORMAL_TAG
+ * @readonly
  */
 cc.NORMAL_TAG = 8801;
 
 /**
  * default selected tag
- * @constant
- * @type {Number}
+ * @property {Number} SELECTED_TAG
+ * @readonly
  */
 cc.SELECTED_TAG = 8802;
 
 /**
  * default disabled tag
- * @constant
- * @type {Number}
+ * @property {Number} DISABLE_TAG
+ * @readonly
  */
 cc.DISABLE_TAG = 8803;

@@ -1318,70 +1318,58 @@ cc.js.get(cc.ResolutionPolicy.prototype, "canvasSize", function () {
 });
 
 /**
- * @memberOf cc.ResolutionPolicy#
- * @name EXACT_FIT
- * @constant
- * @type {Number}
- * @static
  * The entire application is visible in the specified area without trying to preserve the original aspect ratio.<br/>
  * Distortion can occur, and the application may appear stretched or compressed.
+ * @property {Number} EXACT_FIT
+ * @readonly
+ * @static
  */
 cc.ResolutionPolicy.EXACT_FIT = 0;
 
 /**
- * @memberOf cc.ResolutionPolicy#
- * @name NO_BORDER
- * @constant
- * @type {Number}
- * @static
  * The entire application fills the specified area, without distortion but possibly with some cropping,<br/>
  * while maintaining the original aspect ratio of the application.
+ * @property {Number} NO_BORDER
+ * @readonly
+ * @static
  */
 cc.ResolutionPolicy.NO_BORDER = 1;
 
 /**
- * @memberOf cc.ResolutionPolicy#
- * @name SHOW_ALL
- * @constant
- * @type {Number}
- * @static
  * The entire application is visible in the specified area without distortion while maintaining the original<br/>
  * aspect ratio of the application. Borders can appear on two sides of the application.
+ * @property {Number} SHOW_ALL
+ * @readonly
+ * @static
  */
 cc.ResolutionPolicy.SHOW_ALL = 2;
 
 /**
- * @memberOf cc.ResolutionPolicy#
- * @name FIXED_HEIGHT
- * @constant
- * @type {Number}
- * @static
  * The application takes the height of the design resolution size and modifies the width of the internal<br/>
  * canvas so that it fits the aspect ratio of the device<br/>
  * no distortion will occur however you must make sure your application works on different<br/>
  * aspect ratios
+ * @property {Number} FIXED_HEIGHT
+ * @readonly
+ * @static
  */
 cc.ResolutionPolicy.FIXED_HEIGHT = 3;
 
 /**
- * @memberOf cc.ResolutionPolicy#
- * @name FIXED_WIDTH
- * @constant
- * @type {Number}
- * @static
  * The application takes the width of the design resolution size and modifies the height of the internal<br/>
  * canvas so that it fits the aspect ratio of the device<br/>
  * no distortion will occur however you must make sure your application works on different<br/>
  * aspect ratios
+ * @property {Number} FIXED_WIDTH
+ * @readonly
+ * @static
  */
 cc.ResolutionPolicy.FIXED_WIDTH = 4;
 
 /**
- * @memberOf cc.ResolutionPolicy#
- * @name UNKNOWN
- * @constant
- * @type {Number}
- * @static
  * Unknow policy
+ * @property {Number} UNKNOWN
+ * @readonly
+ * @static
  */
 cc.ResolutionPolicy.UNKNOWN = 5;

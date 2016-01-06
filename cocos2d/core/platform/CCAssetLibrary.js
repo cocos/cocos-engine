@@ -542,8 +542,7 @@ var AssetLibrary = {
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
  * https://github.com/TooTallNate/node-weak
  *
- * @property _uuidToAsset
- * @type {object}
+ * @property {object} _uuidToAsset
  * @private
  */
 AssetLibrary._uuidToAsset = {};
