@@ -95,7 +95,7 @@ function checkUrl (val, className, propName, url) {
             return cc.error('The "url" type of "%s.%s" must be child class of cc.RawAsset.', className, propName);
         }
         if (cc.isChildClassOf(url, cc.Asset)) {
-            return cc.error('The "url" type of "%s.%s" must not be child class of cc.Asset,' +
+            return cc.error('The "url" type of "%s.%s" must not be child class of cc.Asset, ' +
                        'otherwise you should use "type: %s" instead.', className, propName, cc.js.getClassName(url));
         }
         if (val.type) {
