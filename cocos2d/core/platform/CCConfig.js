@@ -53,16 +53,17 @@ window['CocosEngine'] = cc.ENGINE_VERSION = 'Cocos Creator v0.7';
  *  To enabled set it to 1. Disabled by default.<br/>
  *  To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
- * @type {Number}
+ *
+ * @property {Number} FIX_ARTIFACTS_BY_STRECHING_TEXEL
+ * @readonly
  */
 cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL = 0;
 
 /**
  * Position of the FPS (Default: 0,0 (bottom-left corner))<br/>
  * To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
- * @constant
- * @type {Vec2}
+ * @property {Vec2} DIRECTOR_STATS_POSITION
+ * @readonly
  */
 cc.DIRECTOR_STATS_POSITION = cc.p(0, 0);
 
@@ -75,8 +76,8 @@ cc.DIRECTOR_STATS_POSITION = cc.p(0, 0);
  *   Default value: 0.1f<br/>
  *   To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} DIRECTOR_FPS_INTERVAL
+ * @readonly
  */
 cc.DIRECTOR_FPS_INTERVAL = 0.5;
 
@@ -88,8 +89,8 @@ cc.DIRECTOR_FPS_INTERVAL = 0.5;
  *    To enable set it to 1. Enabled by default.<br/>
  *    To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} COCOSNODE_RENDER_SUBPIXEL
+ * @readonly
  */
 cc.COCOSNODE_RENDER_SUBPIXEL = 1;
 
@@ -101,8 +102,8 @@ cc.COCOSNODE_RENDER_SUBPIXEL = 1;
  *   To enable set it to 1. Enabled by default.<br/>
  *   To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} SPRITEBATCHNODE_RENDER_SUBPIXEL
+ * @readonly
  */
 cc.SPRITEBATCHNODE_RENDER_SUBPIXEL = 1;
 
@@ -110,8 +111,8 @@ cc.SPRITEBATCHNODE_RENDER_SUBPIXEL = 1;
  * <p>
  *     Automatically premultiply alpha for PNG resources
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} AUTO_PREMULTIPLIED_ALPHA_FOR_PNG
+ * @readonly
  */
 cc.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG = 0;
 
@@ -123,8 +124,8 @@ cc.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG = 0;
  *     To enable set it to a value different than 0. Enabled by default.<br/>
  *     To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA
+ * @readonly
  */
 cc.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA = 0;
 
@@ -136,8 +137,8 @@ cc.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA = 0;
  *   To enable set it to a value different than 0. Disabled by default.<br/>
  *   To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} TEXTURE_ATLAS_USE_TRIANGLE_STRIP
+ * @readonly
  */
 cc.TEXTURE_ATLAS_USE_TRIANGLE_STRIP = 0;
 
@@ -150,8 +151,8 @@ cc.TEXTURE_ATLAS_USE_TRIANGLE_STRIP = 0;
  *    To disable it set it to 0. disable by default.(Not Supported on WebGL)<br/>
  *    To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} TEXTURE_ATLAS_USE_VAO
+ * @readonly
  */
 cc.TEXTURE_ATLAS_USE_VAO = 0;
 
@@ -168,7 +169,7 @@ cc.TEXTURE_ATLAS_USE_VAO = 0;
  *  This value DOES NOT govern the PVR (PVR.GZ, PVR.CCZ) files. If NPOT PVR is loaded, then it will create an NPOT texture ignoring this value.<br/>
  *  To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
+ * @readonly
  * @type {Number}
  * @deprecated This value will be removed in 1.1 and NPOT textures will be loaded by default if the device supports it.
  */
@@ -185,7 +186,7 @@ cc.TEXTURE_NPOT_SUPPORT = 0;
  *    This value DOES NOT govern the PVR (PVR.GZ, PVR.CCZ) files. If NPOT PVR is loaded, then it will create an NPOT texture ignoring this value.<br/>
  *    To modify it, in Web engine please refer to CCConfig.js, in JSB please refer to CCConfig.h
  * </p>
- * @constant
+ * @readonly
  * @type {Number}
  * @deprecated This value will be removed in 1.1 and NPOT textures will be loaded by default if the device supports it.
  */
@@ -200,8 +201,8 @@ cc.RETINA_DISPLAY_SUPPORT = 1;
  *    <br/>
  *    Platforms: Only used on Retina Display devices like iPhone 4.
  * </p>
- * @constant
- * @type {String}
+ * @property {String} RETINA_DISPLAY_FILENAME_SUFFIX
+ * @readonly
  */
 cc.RETINA_DISPLAY_FILENAME_SUFFIX = '-hd';
 
@@ -213,8 +214,8 @@ cc.RETINA_DISPLAY_FILENAME_SUFFIX = '-hd';
  *                                                                                            <br/>
  *     This feature is enabled by default.
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} USE_LA88_LABELS
+ * @readonly
  */
 cc.USE_LA88_LABELS = 1;
 
@@ -228,8 +229,8 @@ cc.USE_LA88_LABELS = 1;
  *      1 -- draw bounding box<br/>
  *      2 -- draw texture box
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} SPRITE_DEBUG_DRAW
+ * @readonly
  */
 cc.SPRITE_DEBUG_DRAW = 0;
 
@@ -240,8 +241,8 @@ cc.SPRITE_DEBUG_DRAW = 0;
  *    <br/>
  *    To enable set it to a value different than 0. Disabled by default.
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} SPRITEBATCHNODE_DEBUG_DRAW
+ * @readonly
  */
 cc.SPRITEBATCHNODE_DEBUG_DRAW = 0;
 
@@ -252,8 +253,8 @@ cc.SPRITEBATCHNODE_DEBUG_DRAW = 0;
  *   <br/>
  *   To enable set it to a value different than 0. Disabled by default.<br/>
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} LABELBMFONT_DEBUG_DRAW
+ * @readonly
  */
 cc.LABELBMFONT_DEBUG_DRAW = 0;
 
@@ -264,22 +265,22 @@ cc.LABELBMFONT_DEBUG_DRAW = 0;
  *    <br/>
  *    To enable set it to a value different than 0. Disabled by default.
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} LABELATLAS_DEBUG_DRAW
+ * @readonly
  */
 cc.LABELATLAS_DEBUG_DRAW = 0;
 
 /**
  * Whether or not support retina display
- * @constant
- * @type {Number}
+ * @property {Number} IS_RETINA_DISPLAY_SUPPORTED
+ * @readonly
  */
 cc.IS_RETINA_DISPLAY_SUPPORTED = 1;
 
 /**
  * Default engine
- * @constant
- * @type {String}
+ * @property {String} DEFAULT_ENGINE
+ * @readonly
  */
 cc.DEFAULT_ENGINE = cc.ENGINE_VERSION + '-canvas';
 
@@ -289,8 +290,8 @@ cc.DEFAULT_ENGINE = cc.ENGINE_VERSION + '-canvas';
  *    If you run 2 or more 'position' actions at the same time on a node, then end position will be the sum of all the positions.        <br/>
  *    If disabled, only the last run action will take effect.
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} ENABLE_STACKABLE_ACTIONS
+ * @readonly
  */
 cc.ENABLE_STACKABLE_ACTIONS = 1;
 
@@ -306,7 +307,7 @@ cc.ENABLE_STACKABLE_ACTIONS = 1;
  *      It is recommend to enable whenever possible to improve speed.                                                                        <br/>
  *      If you are migrating your code from GL ES 1.1, then keep it disabled. Once all your code works as expected, turn it on.
  * </p>
- * @constant
- * @type {Number}
+ * @property {Number} ENABLE_GL_STATE_CACHE
+ * @readonly
  */
 cc.ENABLE_GL_STATE_CACHE = 1;

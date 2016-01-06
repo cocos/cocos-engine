@@ -45,6 +45,7 @@ cc.visibleRect = {
 
     /**
      * initialize
+     * @method init
      * @param {Rect} visibleRect
      */
     init:function(visibleRect){
@@ -88,67 +89,56 @@ cc.visibleRect = {
 
 /**
  * Top left coordinate of the screen related to the game scene.
- * @property topLeft
- * @type {Vec2}
+ * @property {Vec2} topLeft
  */
 
 /**
  * Top right coordinate of the screen related to the game scene.
- * @property topRight
- * @type {Vec2}
+ * @property {Vec2} topRight
  */
 
 /**
  * Top center coordinate of the screen related to the game scene.
- * @property top
- * @type {Vec2}
+ * @property {Vec2} top
  */
 
 /**
  * Bottom left coordinate of the screen related to the game scene.
- * @property bottomLeft
- * @type {Vec2}
+ * @property {Vec2} bottomLeft
  */
 
 /**
  * Bottom right coordinate of the screen related to the game scene.
- * @property bottomRight
- * @type {Vec2}
+ * @property {Vec2} bottomRight
  */
 
 /**
  * Bottom center coordinate of the screen related to the game scene.
- * @property bottom
- * @type {Vec2}
+ * @property {Vec2} bottom
  */
 
 /**
  * Center coordinate of the screen related to the game scene.
- * @property center
- * @type {Vec2}
+ * @property {Vec2} center
  */
 
 /**
  * Left center coordinate of the screen related to the game scene.
- * @property left
- * @type {Vec2}
+ * @property {Vec2} left
  */
 
 /**
  * Right center coordinate of the screen related to the game scene.
- * @property right
- * @type {Vec2}
+ * @property {Vec2} right
  */
 
 /**
  * Width of the screen.
- * @property width
- * @type {Number}
+ * @property {Number} width
  */
 
 /**
  * Height of the screen.
- * @property height
- * @type {Number}
+ * @property {Number} height
  */
 

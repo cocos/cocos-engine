@@ -32,16 +32,14 @@ var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy |
  */
 function CCObject () {
     /**
-     * @property _name
-     * @type string
+     * @property {String} _name
      * @default ""
      * @private
      */
     this._name = '';
 
     /**
-     * @property _objFlags
-     * @type number
+     * @property {Number} _objFlags
      * @default 0
      * @private
      */
@@ -61,15 +59,13 @@ CCObject.Flags = {
 
     /**
      * The object will not be saved.
-     * @property DontSave
-     * @type {Number}
+     * @property {Number} DontSave
      */
     DontSave: DontSave,
 
     /**
      * The object will not be saved when building a player.
-     * @property EditorOnly
-     * @type {Number}
+     * @property {Number} EditorOnly
      */
     EditorOnly: EditorOnly,
 
@@ -91,8 +87,7 @@ CCObject.Flags = {
     /**
      * Hide in game and hierarchy.
      * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
-     * @property HideInGame
-     * @type {Number}
+     * @property {Number} HideInGame
      */
     HideInGame: HideInGame,
 
@@ -100,16 +95,14 @@ CCObject.Flags = {
 
     /**
      * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
-     * @property HideInEditor
-     * @type {Number}
+     * @property {Number} HideInEditor
      */
     HideInEditor: HideInEditor,
 
     /**
      * Hide in game view, hierarchy, and scene view... etc.
      * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
-     * @property Hide
-     * @type {Number}
+     * @property {Number} Hide
      */
     Hide: Hide,
 
@@ -178,8 +171,7 @@ var prototype = CCObject.prototype;
 
 /**
  * The name of the object.
- * @property name
- * @type {String}
+ * @property {String} name
  * @default ""
  */
 JS.getset(prototype, 'name',
@@ -193,8 +185,7 @@ JS.getset(prototype, 'name',
 
 /**
  * Indicates whether the object is not yet destroyed
- * @property isValid
- * @type {Boolean}
+ * @property {Boolean} isValid
  * @default true
  * @readOnly
  */

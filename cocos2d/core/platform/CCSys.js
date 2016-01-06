@@ -10,301 +10,258 @@ var sys = cc.sys;
 
 /**
  * English language code
- * @property LANGUAGE_ENGLISH
- * @type {String}
+ * @property {String} LANGUAGE_ENGLISH
  * @readOnly
  */
 sys.LANGUAGE_ENGLISH = "en";
 
 /**
  * Chinese language code
- * @property LANGUAGE_CHINESE
- * @type {String}
+ * @property {String} LANGUAGE_CHINESE
  * @readOnly
  */
 sys.LANGUAGE_CHINESE = "zh";
 
 /**
  * French language code
- * @property LANGUAGE_FRENCH
- * @type {String}
+ * @property {String} LANGUAGE_FRENCH
  * @readOnly
  */
 sys.LANGUAGE_FRENCH = "fr";
 
 /**
  * Italian language code
- * @property LANGUAGE_ITALIAN
- * @type {String}
+ * @property {String} LANGUAGE_ITALIAN
  * @readOnly
  */
 sys.LANGUAGE_ITALIAN = "it";
 
 /**
  * German language code
- * @property LANGUAGE_GERMAN
- * @type {String}
+ * @property {String} LANGUAGE_GERMAN
  * @readOnly
  */
 sys.LANGUAGE_GERMAN = "de";
 
 /**
  * Spanish language code
- * @property LANGUAGE_SPANISH
- * @type {String}
+ * @property {String} LANGUAGE_SPANISH
  * @readOnly
  */
 sys.LANGUAGE_SPANISH = "es";
 
 /**
  * Spanish language code
- * @property LANGUAGE_DUTCH
- * @type {String}
+ * @property {String} LANGUAGE_DUTCH
  * @readOnly
  */
 sys.LANGUAGE_DUTCH = "du";
 
 /**
  * Russian language code
- * @property LANGUAGE_RUSSIAN
- * @type {String}
+ * @property {String} LANGUAGE_RUSSIAN
  * @readOnly
  */
 sys.LANGUAGE_RUSSIAN = "ru";
 
 /**
  * Korean language code
- * @property LANGUAGE_KOREAN
- * @type {String}
+ * @property {String} LANGUAGE_KOREAN
  * @readOnly
  */
 sys.LANGUAGE_KOREAN = "ko";
 
 /**
  * Japanese language code
- * @property LANGUAGE_JAPANESE
- * @type {String}
+ * @property {String} LANGUAGE_JAPANESE
  * @readOnly
  */
 sys.LANGUAGE_JAPANESE = "ja";
 
 /**
  * Hungarian language code
- * @property LANGUAGE_HUNGARIAN
- * @constant
- * @type {String}
- * @readOnly
+ * @property {String} LANGUAGE_HUNGARIAN
+ * @readonly
  */
 sys.LANGUAGE_HUNGARIAN = "hu";
 
 /**
  * Portuguese language code
- * @property LANGUAGE_PORTUGUESE
- * @type {String}
+ * @property {String} LANGUAGE_PORTUGUESE
  * @readOnly
  */
 sys.LANGUAGE_PORTUGUESE = "pt";
 
 /**
  * Arabic language code
- * @property LANGUAGE_ARABIC
- * @type {String}
+ * @property {String} LANGUAGE_ARABIC
  * @readOnly
  */
 sys.LANGUAGE_ARABIC = "ar";
 
 /**
  * Norwegian language code
- * @property LANGUAGE_NORWEGIAN
- * @type {String}
+ * @property {String} LANGUAGE_NORWEGIAN
  * @readOnly
  */
 sys.LANGUAGE_NORWEGIAN = "no";
 
 /**
  * Polish language code
- * @property LANGUAGE_POLISH
- * @type {String}
+ * @property {String} LANGUAGE_POLISH
  * @readOnly
  */
 sys.LANGUAGE_POLISH = "pl";
 
 /**
  * Unknown language code
- * @property LANGUAGE_UNKNOWN
- * @type {String}
+ * @property {String} LANGUAGE_UNKNOWN
  * @readOnly
  */
 sys.LANGUAGE_UNKNOWN = "unkonwn";
 
 /**
- * @property OS_IOS
- * @type {String}
+ * @property {String} OS_IOS
  * @readOnly
  */
 sys.OS_IOS = "iOS";
 /**
- * @property OS_ANDROID
- * @type {String}
+ * @property {String} OS_ANDROID
  * @readOnly
  */
 sys.OS_ANDROID = "Android";
 /**
- * @property OS_WINDOWS
- * @type {String}
+ * @property {String} OS_WINDOWS
  * @readOnly
  */
 sys.OS_WINDOWS = "Windows";
 /**
- * @property OS_MARMALADE
- * @type {String}
+ * @property {String} OS_MARMALADE
  * @readOnly
  */
 sys.OS_MARMALADE = "Marmalade";
 /**
- * @property OS_LINUX
- * @type {String}
+ * @property {String} OS_LINUX
  * @readOnly
  */
 sys.OS_LINUX = "Linux";
 /**
- * @property OS_BADA
- * @type {String}
+ * @property {String} OS_BADA
  * @readOnly
  */
 sys.OS_BADA = "Bada";
 /**
- * @property OS_BLACKBERRY
- * @type {String}
+ * @property {String} OS_BLACKBERRY
  * @readOnly
  */
 sys.OS_BLACKBERRY = "Blackberry";
 /**
- * @property OS_OSX
- * @type {String}
+ * @property {String} OS_OSX
  * @readOnly
  */
 sys.OS_OSX = "OS X";
 /**
- * @property OS_WP8
- * @type {String}
+ * @property {String} OS_WP8
  * @readOnly
  */
 sys.OS_WP8 = "WP8";
 /**
- * @property OS_WINRT
- * @type {String}
+ * @property {String} OS_WINRT
  * @readOnly
  */
 sys.OS_WINRT = "WINRT";
 /**
- * @property OS_UNKNOWN
- * @type {String}
+ * @property {String} OS_UNKNOWN
  * @readOnly
  */
 sys.OS_UNKNOWN = "Unknown";
 
 /**
- * @property UNKNOWN
- * @type {Number}
+ * @property {Number} UNKNOWN
  * @readOnly
  * @default -1
  */
 sys.UNKNOWN = -1;
 /**
- * @property WIN32
- * @type {Number}
+ * @property {Number} WIN32
  * @readOnly
  * @default 0
  */
 sys.WIN32 = 0;
 /**
- * @property LINUX
- * @type {Number}
+ * @property {Number} LINUX
  * @readOnly
  * @default 1
  */
 sys.LINUX = 1;
 /**
- * @property MACOS
- * @type {Number}
+ * @property {Number} MACOS
  * @readOnly
  * @default 2
  */
 sys.MACOS = 2;
 /**
- * @property ANDROID
- * @type {Number}
+ * @property {Number} ANDROID
  * @readOnly
  * @default 3
  */
 sys.ANDROID = 3;
 /**
- * @property IOS
- * @type {Number}
+ * @property {Number} IOS
  * @readOnly
  * @default 4
  */
 sys.IPHONE = 4;
 /**
- * @property IPAD
- * @type {Number}
+ * @property {Number} IPAD
  * @readOnly
  * @default 5
  */
 sys.IPAD = 5;
 /**
- * @property BLACKBERRY
- * @type {Number}
+ * @property {Number} BLACKBERRY
  * @readOnly
  * @default 6
  */
 sys.BLACKBERRY = 6;
 /**
- * @property NACL
- * @type {Number}
+ * @property {Number} NACL
  * @readOnly
  * @default 7
  */
 sys.NACL = 7;
 /**
- * @property EMSCRIPTEN
- * @type {Number}
+ * @property {Number} EMSCRIPTEN
  * @readOnly
  * @default 8
  */
 sys.EMSCRIPTEN = 8;
 /**
- * @property TIZEN
- * @type {Number}
+ * @property {Number} TIZEN
  * @readOnly
  * @default 9
  */
 sys.TIZEN = 9;
 /**
- * @property WINRT
- * @type {Number}
+ * @property {Number} WINRT
  * @readOnly
  * @default 10
  */
 sys.WINRT = 10;
 /**
- * @property WP8
- * @type {Number}
+ * @property {Number} WP8
  * @readOnly
  * @default 11
  */
 sys.WP8 = 11;
 /**
- * @property MOBILE_BROWSER
- * @type {Number}
+ * @property {Number} MOBILE_BROWSER
  * @readOnly
  * @default 100
  */
 sys.MOBILE_BROWSER = 100;
 /**
- * @property DESKTOP_BROWSER
- * @type {Number}
+ * @property {Number} DESKTOP_BROWSER
  * @readOnly
  * @default 101
  */
@@ -312,53 +269,169 @@ sys.DESKTOP_BROWSER = 101;
 
 /**
  * Indicates whether executes in editor's window process (Electron's renderer context)
- * @property EDITOR_PAGE
- * @type {Number}
+ * @property {Number} EDITOR_PAGE
  * @readOnly
  * @default 102
  */
 sys.EDITOR_PAGE = 102;
 /**
  * Indicates whether executes in editor's main process (Electron's browser context)
- * @property EDITOR_CORE
- * @type {Number}
+ * @property {Number} EDITOR_CORE
  * @readOnly
  * @default 103
  */
 sys.EDITOR_CORE = 103;
 
+/**
+ * BROWSER_TYPE_WECHAT
+ * @property {String} BROWSER_TYPE_WECHAT
+ * @readOnly
+ * @default "wechat"
+ */
 sys.BROWSER_TYPE_WECHAT = "wechat";
+/**
+ *
+ * @property {String} BROWSER_TYPE_ANDROID
+ * @readOnly
+ * @default "androidbrowser"
+ */
 sys.BROWSER_TYPE_ANDROID = "androidbrowser";
+/**
+ *
+ * @property {String} BROWSER_TYPE_IE
+ * @readOnly
+ * @default "ie"
+ */
 sys.BROWSER_TYPE_IE = "ie";
+/**
+ *
+ * @property {String} BROWSER_TYPE_QQ
+ * @readOnly
+ * @default "qqbrowser"
+ */
 sys.BROWSER_TYPE_QQ = "qqbrowser";
+/**
+ *
+ * @property {String} BROWSER_TYPE_MOBILE_QQ
+ * @readOnly
+ * @default "mqqbrowser"
+ */
 sys.BROWSER_TYPE_MOBILE_QQ = "mqqbrowser";
+/**
+ *
+ * @property {String} BROWSER_TYPE_UC
+ * @readOnly
+ * @default "ucbrowser"
+ */
 sys.BROWSER_TYPE_UC = "ucbrowser";
+/**
+ *
+ * @property {String} BROWSER_TYPE_360
+ * @readOnly
+ * @default "360browser"
+ */
 sys.BROWSER_TYPE_360 = "360browser";
+/**
+ *
+ * @property {String} BROWSER_TYPE_BAIDU_APP
+ * @readOnly
+ * @default "baiduboxapp"
+ */
 sys.BROWSER_TYPE_BAIDU_APP = "baiduboxapp";
+/**
+ *
+ * @property {String} BROWSER_TYPE_BAIDU
+ * @readOnly
+ * @default "baidubrowser"
+ */
 sys.BROWSER_TYPE_BAIDU = "baidubrowser";
+/**
+ *
+ * @property {String} BROWSER_TYPE_MAXTHON
+ * @readOnly
+ * @default "maxthon"
+ */
 sys.BROWSER_TYPE_MAXTHON = "maxthon";
+/**
+ *
+ * @property {String} BROWSER_TYPE_OPERA
+ * @readOnly
+ * @default "opera"
+ */
 sys.BROWSER_TYPE_OPERA = "opera";
+/**
+ *
+ * @property {String} BROWSER_TYPE_OUPENG
+ * @readOnly
+ * @default "oupeng"
+ */
 sys.BROWSER_TYPE_OUPENG = "oupeng";
+/**
+ *
+ * @property {String} BROWSER_TYPE_MIUI
+ * @readOnly
+ * @default "miuibrowser"
+ */
 sys.BROWSER_TYPE_MIUI = "miuibrowser";
+/**
+ *
+ * @property {String} BROWSER_TYPE_FIREFOX
+ * @readOnly
+ * @default "firefox"
+ */
 sys.BROWSER_TYPE_FIREFOX = "firefox";
+/**
+ *
+ * @property {String} BROWSER_TYPE_SAFARI
+ * @readOnly
+ * @default "safari"
+ */
 sys.BROWSER_TYPE_SAFARI = "safari";
+/**
+ *
+ * @property {String} BROWSER_TYPE_CHROME
+ * @readOnly
+ * @default "chrome"
+ */
 sys.BROWSER_TYPE_CHROME = "chrome";
+/**
+ *
+ * @property {String} BROWSER_TYPE_LIEBAO
+ * @readOnly
+ * @default "liebao"
+ */
 sys.BROWSER_TYPE_LIEBAO = "liebao";
+/**
+ *
+ * @property {String} BROWSER_TYPE_QZONE
+ * @readOnly
+ * @default "qzone"
+ */
 sys.BROWSER_TYPE_QZONE = "qzone";
+/**
+ *
+ * @property {String} BROWSER_TYPE_SOUGOU
+ * @readOnly
+ * @default "sogou"
+ */
 sys.BROWSER_TYPE_SOUGOU = "sogou";
+/**
+ *
+ * @property {String} BROWSER_TYPE_UNKNOWN
+ * @readOnly
+ * @default "unknown"
+ */
 sys.BROWSER_TYPE_UNKNOWN = "unknown";
 
 /**
  * Is native ? This is set to be true in jsb auto.
- * @property isNative
- * @type {Boolean}
+ * @property {Boolean} isNative
  */
 sys.isNative = false;
 
 /**
  * Is web browser ?
- * @property isBrowser
- * @type {Boolean}
+ * @property {Boolean} isBrowser
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object';
 
@@ -390,15 +463,13 @@ else {
     else {
         /**
          * Indicate whether system is mobile system
-         * @property isMobile
-         * @type {Boolean}
+         * @property {Boolean} isMobile
          */
         sys.isMobile = ua.indexOf('mobile') !== -1 || ua.indexOf('android') !== -1;
 
         /**
          * Indicate the running platform
-         * @property platform
-         * @type {Number}
+         * @property {Number} platform
          */
         sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
     }
@@ -409,8 +480,7 @@ else {
 
     /**
      * Indicate the current language of the running system
-     * @property language
-     * @type {String}
+     * @property {String} language
      */
     sys.language = currLanguage;
 
@@ -427,15 +497,13 @@ else {
 
     /**
      * Indicate the running os name
-     * @property os
-     * @type {String}
+     * @property {String} os
      */
     sys.os = osName;
 
     /**
      * Indicate the running browser type
-     * @property browserType
-     * @type {String}
+     * @property {String} browserType
      */
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
@@ -463,8 +531,7 @@ else {
 
     /**
      * Indicate the running browser version
-     * @property browserVersion
-     * @type {Number}
+     * @property {Number} browserVersion
      */
     sys.browserVersion = "";
     /* Determine the browser version number */
@@ -482,8 +549,7 @@ else {
 
     /**
      * Indicate the real pixel resolution of the whole game window
-     * @property windowPixelResolution
-     * @type {Number}
+     * @property {Number} windowPixelResolution
      */
     sys.windowPixelResolution = {
         width: ratio * w,
@@ -546,8 +612,7 @@ else {
 
     /**
      * cc.sys.localStorage is a local storage component.
-     * @property localStorage
-     * @type {Object}
+     * @property {Object} localStorage
      */
     try {
         var localStorage = sys.localStorage = win.localStorage;
@@ -581,8 +646,7 @@ else {
 
     /**
      * The capabilities of the current platform
-     * @property capabilities
-     * @type {Object}
+     * @property {Object} capabilities
      */
     var capabilities = sys.capabilities = {
         "canvas": _supportCanvas,
