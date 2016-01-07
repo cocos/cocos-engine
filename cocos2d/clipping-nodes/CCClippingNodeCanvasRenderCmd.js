@@ -86,8 +86,10 @@
         if (this._clipElemType) {
             var locCache = cc.ClippingNode.CanvasRenderCmd._getSharedCache();
             var canvas = context.canvas;
-            locCache.width = canvas.width;
-            locCache.height = canvas.height;                     //note: on some browser, it can't clear the canvas, e.g. baidu
+            if (locCache.width !== canvas.width)
+                locCache.width = canvas.width;
+            if (locCache.height !== canvas.height)
+                locCache.height = canvas.height;                     //note: on some browser, it can't clear the canvas, e.g. baidu
             var locCacheCtx = locCache.getContext("2d");
             locCacheCtx.drawImage(canvas, 0, 0);                //save the result to shareCache canvas
         } else {
