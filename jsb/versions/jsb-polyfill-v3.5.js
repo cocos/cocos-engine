@@ -29,3 +29,7 @@ if (!cc.Scheduler.prototype.unscheduleAllForTarget) {
         this.unscheduleAllCallbacksForTarget(target);
     };
 }
+
+if (!cc.Scheduler.prototype._unschedule) {
+    cc.Scheduler.prototype._unschedule = cc.Scheduler.prototype.unscheduleCallbackForTarget;
+}
