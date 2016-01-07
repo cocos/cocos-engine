@@ -30,6 +30,10 @@ if (!cc.Scheduler.prototype.unscheduleAllForTarget) {
     };
 }
 
+if (!cc.Scheduler.prototype._unschedule) {
+    cc.Scheduler.prototype._unschedule = cc.Scheduler.prototype.unscheduleCallbackForTarget;
+}
+
 cc.SpriteFrame.prototype.initWithTexture = function (texture, rect, rotated, offset, originalSize, _uuid) {
     function check(texture) {
         if (texture && texture.isLoaded()) {
