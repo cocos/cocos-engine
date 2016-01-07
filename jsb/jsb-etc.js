@@ -78,6 +78,113 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
     this._unschedule(target, callback);
 };
 
+// Independent Action from retain/release
+var actionArr = [
+    cc.ActionEase,
+    cc.EaseExponentialIn,
+    cc.EaseExponentialOut,
+    cc.EaseExponentialInOut,
+    cc.EaseSineIn,
+    cc.EaseSineOut,
+    cc.EaseSineInOut,
+    cc.EaseBounce,
+    cc.EaseBounceIn,
+    cc.EaseBounceOut,
+    cc.EaseBounceInOut,
+    cc.EaseBackIn,
+    cc.EaseBackOut,
+    cc.EaseBackInOut,
+    cc.EaseRateAction,
+    cc.EaseIn,
+    cc.EaseElastic,
+    cc.EaseElasticIn,
+    cc.EaseElasticOut,
+    cc.EaseElasticInOut,
+    cc.RemoveSelf,
+    cc.FlipX,
+    cc.FlipY,
+    cc.Place,
+    cc.CallFunc,
+    cc.DelayTime,
+    cc.Sequence,
+    cc.Spawn,
+    cc.Speed,
+    cc.Repeat,
+    cc.RepeatForever,
+    cc.Follow,
+    cc.TargetedAction,
+    cc.Animate,
+    cc.OrbitCamera,
+    cc.GridAction,
+    cc.ProgressTo,
+    cc.ProgressFromTo,
+    cc.ActionInterval,
+    cc.RotateTo,
+    cc.RotateBy,
+    cc.MoveBy,
+    cc.MoveTo,
+    cc.SkewTo,
+    cc.SkewBy,
+    cc.JumpTo,
+    cc.JumpBy,
+    cc.ScaleTo,
+    cc.ScaleBy,
+    cc.Blink,
+    cc.FadeTo,
+    cc.FadeIn,
+    cc.FadeOut,
+    cc.TintTo,
+    cc.TintBy,
+];
+
+function getCtorReplacer (proto) {
+    var ctor = proto._ctor;
+    return function () {
+        ctor.apply(this, arguments);
+        this.retain();
+        this._retained = true;
+    };
+}
+
+for (var i = 0; i < actionArr.length; ++i) {
+    var proto = actionArr[i].prototype;
+    proto._ctor = getCtorReplacer(proto);
+}
+
+function setChainFuncReplacer (proto, name) {
+    var oldFunc = proto[name];
+    proto[name] = function () {
+        if (this._retained) {
+            this.release();
+            this._retained = false;
+        }
+        var newAction = oldFunc.apply(this, arguments);
+        newAction.retain();
+        newAction._retained = true;
+    };
+}
+
+setChainFuncReplacer(cc.ActionInterval.prototype, 'repeat');
+setChainFuncReplacer(cc.ActionInterval.prototype, 'repeatForever');
+setChainFuncReplacer(cc.ActionInterval.prototype, 'easing');
+
+var jsbRunAction = cc.Node.prototype.runAction;
+cc.Node.prototype.runAction = function (action) {
+    if (action._retained) {
+        action.release();
+        action._retained = false;
+    }
+    jsbRunAction.call(this, action);
+};
+var jsbAddAction = cc.ActionManager.prototype.addAction;
+cc.ActionManager.prototype.addAction = function (action, target, paused) {
+    if (action._retained) {
+        action.release();
+        action._retained = false;
+    }
+    jsbAddAction.call(this, action, target, paused);
+};
+
 // ccsg
 window._ccsg = {
     Node: cc.Node,

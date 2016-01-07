@@ -869,6 +869,7 @@ var Node = cc.Class({
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler
                 });
+                this._touchListener.retain();
                 cc.eventManager.addListener(this._touchListener, this);
             }
         }
@@ -884,6 +885,7 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
+                this._mouseListener.retain();
                 cc.eventManager.addListener(this._mouseListener, this);
             }
         }
@@ -917,6 +919,7 @@ var Node = cc.Class({
             }
 
             cc.eventManager.removeListener(this._touchListener);
+            this._touchListener.release();
             this._touchListener = null;
         }
     },
@@ -929,6 +932,7 @@ var Node = cc.Class({
             }
 
             cc.eventManager.removeListener(this._mouseListener);
+            this._mouseListener.release();
             this._mouseListener = null;
         }
     },
