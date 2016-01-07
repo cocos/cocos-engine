@@ -14,6 +14,7 @@ require('./jsb-predefine');
 require('./jsb-game');
 require('./jsb-director');
 require('./jsb-tex-sprite-frame');
+require('./jsb-scale9sprite');
 require('./jsb-label');
 require('./jsb-particle');
 require('./jsb-enums');
