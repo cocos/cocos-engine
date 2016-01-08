@@ -20,9 +20,15 @@ cc.profiler = (function () {
         else
             fontSize = 0 | (w / 320 * 24);
 
-        _FPSLabel = new cc.LabelTTF("000.0", "Arial", fontSize);
-        _SPFLabel = new cc.LabelTTF("0.000", "Arial", fontSize);
-        _drawsLabel = new cc.LabelTTF("0000", "Arial", fontSize);
+        _FPSLabel = new _ccsg.Label("000.0", "Arial");
+        _SPFLabel = new _ccsg.Label("0.000", "Arial");
+        _drawsLabel = new _ccsg.Label("0000", "Arial");
+        _FPSLabel.setFontSize(fontSize);
+        _SPFLabel.setFontSize(fontSize);
+        _drawsLabel.setFontSize(fontSize);
+        _FPSLabel.setContentSize(120, 40);
+        _SPFLabel.setContentSize(120, 40);
+        _drawsLabel.setContentSize(120, 40);
 
         _drawsLabel.setPosition(_drawsLabel.width / 2 + locStatsPosition.x, _drawsLabel.height * 5 / 2 + locStatsPosition.y);
         _SPFLabel.setPosition(_SPFLabel.width / 2 + locStatsPosition.x, _SPFLabel.height * 3 / 2 + locStatsPosition.y);
@@ -81,9 +87,9 @@ cc.profiler = (function () {
             }
 
             if (_showFPS) {
-                _SPFLabel.string = _lastSPF.toFixed(3);
-                _FPSLabel.string = _frameRate.toFixed(1);
-                _drawsLabel.string = (0 | cc.g_NumberOfDraws).toString();
+                _SPFLabel.setString(_lastSPF.toFixed(3));
+                _FPSLabel.setString(_frameRate.toFixed(1));
+                _drawsLabel.setString((0 | cc.g_NumberOfDraws).toString());
             }
         }
 
@@ -131,14 +137,14 @@ cc.profiler = (function () {
         },
 
         showStats: function () {
-            if (!_inited) {
-                this.init();
-            }
-            if (cc.LabelTTF && !_FPSLabel) {
+            if (_ccsg.Label && !_FPSLabel) {
                 createStatsLabel();
             }
             if (_FPSLabel) {
                 _showFPS = true;
+            }
+            if (!_inited) {
+                this.init();
             }
         },
 

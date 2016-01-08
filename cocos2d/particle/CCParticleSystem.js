@@ -820,8 +820,8 @@ var ParticleSystem = cc.Class({
                     self.node.destroy();
                 };
             }
-            else {
-                sgNode.onExit = null;
+            else if (sgNode.hasOwnProperty('onExit')) {
+                sgNode.onExit = _ccsg.Node.prototype.onExit;
             }
         }
     }

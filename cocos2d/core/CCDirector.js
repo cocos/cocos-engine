@@ -90,8 +90,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     _projectionDelegate: null,
 
     _loadingScene: '',
-    // The root of rendering scene graph
-    _runningScene: null,
+    _runningScene: null,    // The root of rendering scene graph
 
     // The entity-component scene
     _scene: null,
@@ -473,6 +472,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     runScene: function (scene, onBeforeLoadScene) {
         cc.assert(scene, cc._LogInfos.Director.pushScene);
 
+        // detach persist nodes
+        var i, node, game = cc.game;
+        var persistNodes = game._persistRootNodes;
+        for (i = persistNodes.length - 1; i >= 0; --i) {
+            node = persistNodes[i];
+            game._ignoreRemovePersistNode = node;
+            node.parent = null;
+            game._ignoreRemovePersistNode = null;
+        }
+
         // unload scene
         var oldScene = this._scene;
         if (cc.isValid(oldScene)) {
@@ -488,13 +497,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
-        // Re-add persist node root
-        var persistNodes = cc.game._persistRootNodes;
-        for (var i = 0; i < persistNodes.length; ++i) {
-            var node = persistNodes[i];
-            node.parent = scene;
-        }
-
         var sgScene = scene;
 
         // Run an Entity Scene
@@ -504,6 +506,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
             this._scene = scene;
             sgScene = scene._sgNode;
+
+            // Re-attach persist nodes
+            for (i = 0; i < persistNodes.length; ++i) {
+                node = persistNodes[i];
+                node.parent = scene;
+            }
         }
 
         // Run or replace rendering scene

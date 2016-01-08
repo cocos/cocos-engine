@@ -17,7 +17,8 @@ var handleErrors = require('../util/handleErrors');
 
 require('./build-cocos2d');
 
-function getUglifyOptions (minify, global_defs) {
+function getUglifyOptions (minify, global_defs, preserveComments) {
+    preserveComments = preserveComments || false;
     if (minify) {
         return {
             compress: {
@@ -51,7 +52,7 @@ function getUglifyOptions (minify, global_defs) {
         // http://lisperator.net/uglifyjs/codegen
         return {
             mangle: false,
-            preserveComments: 'all',
+            preserveComments: preserveComments,
             output: {
                 beautify: true,
                 bracketize: true
@@ -196,13 +197,13 @@ gulp.task('build-jsb-extends-min', function () {
 });
 
 gulp.task('build-jsb-extends-dev', function () {
-    var jsbPolyfill = rebundle_jsb(createBundler(paths.JSBEntries), false, '_polyfill');
+    var jsbPolyfill = rebundle_jsb(createBundler(paths.JSBEntries), false, '_polyfill.dev');
     return jsbPolyfill;
 });
 
 
-gulp.task('build', ['build-html5', 'build-jsb-extends-min']);
+gulp.task('build', ['build-html5', 'build-jsb-extends-min', 'build-jsb-extends-dev']);
 
-gulp.task('fast-build', ['build-test', 'build-jsb-extends-min'], function (done) {
+gulp.task('fast-build', ['build-test', 'build-jsb-extends-min', 'build-jsb-extends-dev'], function (done) {
     Del(['./bin/cocos2d-js.js', './bin/cocos2d-js-min.js',], done);
 });

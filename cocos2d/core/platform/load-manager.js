@@ -63,16 +63,14 @@ var LoadManager = {
 
     /**
      * Max allowed concurrent request count
-     * @property maxConcurrent
-     * @type {Number}
+     * @property {Number} maxConcurrent
      * @default 2
      */
     maxConcurrent: 2,
 
     /**
      * Current concurrent request count
-     * @property _curConcurrent
-     * @type {Number}
+     * @property {Number} _curConcurrent
      * @readOnly
      */
     _curConcurrent: 0,

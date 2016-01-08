@@ -61,6 +61,13 @@ var EventType = cc.Enum({
      * @readonly
      */
     TOUCH_END: 'touchend',
+    /**
+     * The event type for touch end event, you can use its value directly: 'touchcancel'
+     * @property TOUCH_CANCEL
+     * @type {String}
+     * @readonly
+     */
+    TOUCH_CANCEL: 'touchcancel',
 
     /**
      * The event type for mouse down events, you can use its value directly: 'mousedown'
@@ -97,12 +104,20 @@ var EventType = cc.Enum({
      * @readonly
      */
     MOUSE_UP: 'mouseup',
+    /**
+     * The event type for mouse wheel events, you can use its value directly: 'mousewheel'
+     * @property MOUSE_WHEEL
+     * @type {String}
+     * @readonly
+     */
+    MOUSE_WHEEL: 'mousewheel',
 });
 
 var _touchEvents = [
     EventType.TOUCH_START,
     EventType.TOUCH_MOVE,
     EventType.TOUCH_END,
+    EventType.TOUCH_CANCEL,
 ];
 var _mouseEvents = [
     EventType.MOUSE_DOWN,
@@ -110,13 +125,14 @@ var _mouseEvents = [
     EventType.MOUSE_MOVE,
     EventType.MOUSE_LEAVE,
     EventType.MOUSE_UP,
+    EventType.MOUSE_WHEEL,
 ];
 
 var _touchStartHandler = function (touch, event) {
     var pos = touch.getLocation();
     var node = this.owner;
 
-    if (node._hitTest(pos)) {
+    if (node._hitTest(pos, this)) {
         event.type = EventType.TOUCH_START;
         event.touch = touch;
         event.bubbles = true;
@@ -133,8 +149,15 @@ var _touchMoveHandler = function (touch, event) {
     node.dispatchEvent(event);
 };
 var _touchEndHandler = function (touch, event) {
+    var pos = touch.getLocation();
     var node = this.owner;
-    event.type = EventType.TOUCH_END;
+
+    if (node._hitTest(pos, this)) {
+        event.type = EventType.TOUCH_END;
+    }
+    else {
+        event.type = EventType.TOUCH_CANCEL;
+    }
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
@@ -144,7 +167,7 @@ var _mouseDownHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
 
-    if (node._hitTest(pos)) {
+    if (node._hitTest(pos, this)) {
         event.type = EventType.MOUSE_DOWN;
         node.dispatchEvent(event);
         event.stopPropagation();
@@ -153,7 +176,7 @@ var _mouseDownHandler = function (event) {
 var _mouseMoveHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
-    if (node._hitTest(pos)) {
+    if (node._hitTest(pos, this)) {
         event.stopPropagation();
         if (!this._previousIn) {
             event.type = EventType.MOUSE_ENTER;
@@ -173,11 +196,39 @@ var _mouseUpHandler = function (event) {
     var pos = event.getLocation();
     var node = this.owner;
 
-    if (node._hitTest(pos)) {
+    if (node._hitTest(pos, this)) {
         event.type = EventType.MOUSE_UP;
         node.dispatchEvent(event);
         event.stopPropagation();
     }
+};
+var _mouseWheelHandler = function (event) {
+    var pos = event.getLocation();
+    var node = this.owner;
+
+    if (node._hitTest(pos, this)) {
+        event.type = EventType.MOUSE_WHEEL;
+        node.dispatchEvent(event);
+        event.stopPropagation();
+    }
+};
+
+var _searchMaskParent = function (node) {
+    if (cc.Mask) {
+        var index = 0;
+        var mask = null;
+        for (var curr = node; curr && curr instanceof cc.Node; curr = curr.parent, ++index) {
+            mask = curr.getComponent(cc.Mask);
+            if (mask) {
+                return {
+                    index: index,
+                    node: curr
+                };
+            }
+        }
+    }
+
+    return null;
 };
 
 
@@ -817,6 +868,7 @@ var Node = cc.Class({
                     event: cc.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this,
+                    mask: _searchMaskParent(this),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler
@@ -830,9 +882,11 @@ var Node = cc.Class({
                     event: cc.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this,
+                    mask: _searchMaskParent(this),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
-                    onMouseUp: _mouseUpHandler
+                    onMouseUp: _mouseUpHandler,
+                    onMouseScroll: _mouseWheelHandler,
                 });
                 cc.eventManager.addListener(this._mouseListener, this);
             }
@@ -883,7 +937,7 @@ var Node = cc.Class({
         }
     },
 
-    _hitTest: function (point) {
+    _hitTest: function (point, listener) {
         var apx = this._anchorPoint.x,
             apy = this._anchorPoint.y,
             w = this.width,
@@ -896,7 +950,23 @@ var Node = cc.Class({
             bottom = point.y - rect.y,
             top = rect.y + rect.height - point.y;
         if (left >= 0 && right >= 0 && top >= 0 && bottom >= 0) {
-            return true;
+            if (listener && listener.mask) {
+                var mask = listener.mask;
+                var parent = this;
+                for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {}
+                // find mask parent, should hit test it
+                if (parent === mask.node) {
+                    return parent._hitTest(point);
+                }
+                // mask parent no longer exists
+                else {
+                    listener.mask = null;
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
         }
         else {
             return false;

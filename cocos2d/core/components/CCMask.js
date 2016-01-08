@@ -70,10 +70,6 @@ var Mask = cc.Class({
         this.node.off('anchor-changed',this._onAnchorChanged,this);
     },
 
-    onDestroy: function () {
-
-    },
-
     _onContentSizeChanged: function() {
         if(this._clippingStencil) {
             this._clippingStencil.setContentSize(this.node._contentSize);
@@ -96,6 +92,6 @@ var Mask = cc.Class({
         }
     },
 
- });
+});
 
- cc.Mask = module.exports = Mask;
+cc.Mask = module.exports = Mask;

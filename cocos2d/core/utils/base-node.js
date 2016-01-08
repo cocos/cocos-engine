@@ -29,7 +29,7 @@ var DirtyFlags = require('./misc').DirtyFlags;
 
 // called after changing parent
 function setMaxZOrder (node) {
-    var siblings = node._parent.getChildren();
+    var siblings = node.parent.getChildren();
     var z = 0;
     if (siblings.length >= 2) {
         var prevNode = siblings[siblings.length - 2];
@@ -71,7 +71,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         // SERIALIZABLE
 
-        _name: '',
         _opacity: 255,
         _color: cc.Color.WHITE,
         _cascadeOpacityEnabled: true,
@@ -123,8 +122,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     return;
                 }
                 var node = this._sgNode;
-                if (node._parent) {
-                    node._parent.removeChild(node, false);
+                if (node.parent) {
+                    node.parent.removeChild(node, false);
                 }
                 if (value) {
                     var parent = value._sgNode;
@@ -172,7 +171,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          */
         uuid: {
             get: function () {
-                return this._id || (this._id = Editor.uuid());
+                return this._id || (this._id = window.Editor ? Editor.uuid() : '');
             }
         },
 
@@ -403,7 +402,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._anchorPoint.x !== value) {
-                    var old = this._anchorPoint.clone();
+                    var old = cc.v2(this._anchorPoint);
                     this._anchorPoint.x = value;
                     this._onAnchorChanged();
                     this.emit(ANCHOR_CHANGED, old);
@@ -422,7 +421,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._anchorPoint.y !== value) {
-                    var old = this._anchorPoint.clone();
+                    var old = cc.v2(this._anchorPoint);
                     this._anchorPoint.y = value;
                     this._onAnchorChanged();
                     this.emit(ANCHOR_CHANGED, old);
@@ -451,7 +450,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
                     }
-                    var clone = this._contentSize.clone();
+                    var clone = cc.size(this._contentSize);
                     this._contentSize.width = value;
                     this.emit(SIZE_CHANGED, clone);
                 }
@@ -479,7 +478,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (this._sizeProvider) {
                         this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
                     }
-                    var clone = this._contentSize.clone();
+                    var clone = cc.size(this._contentSize);
                     this._contentSize.height = value;
                     this.emit(SIZE_CHANGED, clone);
                 }
@@ -576,7 +575,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if ( !this._color.equals(value) ) {
                     var color = this._color;
-                    var old = color.clone();
+                    var old = cc.color(color);
                     color.r = value.r;
                     color.g = value.g;
                     color.b = value.b;
@@ -753,17 +752,17 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (yValue === undefined) {
             if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
                 return;
-            oldPosition = locPosition.clone();
+            oldPosition = cc.v2(locPosition);
             locPosition.x = newPosOrxValue.x;
             locPosition.y = newPosOrxValue.y;
         } else {
             if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
                 return;
-            oldPosition = locPosition.clone();
+            oldPosition = cc.v2(locPosition);
             locPosition.x = newPosOrxValue;
             locPosition.y = yValue;
         }
-        this._sgNode.setPosition(newPosOrxValue, yValue);
+        this._sgNode.setPosition(locPosition);
 
         if (this.emit) {
             this.emit(POSITION_CHANGED, oldPosition);
@@ -804,13 +803,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (y === undefined) {
             if ((point.x === locAnchorPoint.x) && (point.y === locAnchorPoint.y))
                 return;
-            old = locAnchorPoint.clone();
+            old = cc.v2(locAnchorPoint);
             locAnchorPoint.x = point.x;
             locAnchorPoint.y = point.y;
         } else {
             if ((point === locAnchorPoint.x) && (y === locAnchorPoint.y))
                 return;
-            old = locAnchorPoint.clone();
+            old = cc.v2(locAnchorPoint);
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
@@ -865,13 +864,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (height === undefined) {
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
                 return;
-            clone = locContentSize.clone();
+            clone = cc.size(locContentSize);
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
             if ((size === locContentSize.width) && (height === locContentSize.height))
                 return;
-            clone = locContentSize.clone();
+            clone = cc.size(locContentSize);
             locContentSize.width = size;
             locContentSize.height = height;
         }
@@ -888,7 +887,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Rect} The calculated bounding box of the node
      */
     getBoundingBox: function () {
-        return this._sgNode.getBoundingBox();
+        var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
+        return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
     },
 
     /**
@@ -1063,7 +1063,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var children = this._children;
         if (cleanup === undefined)
             cleanup = true;
-        for (var i = 0; i < children.length; i++) {
+        for (var i = children.length - 1; i >= 0; i--) {
             var node = children[i];
             if (node) {
                 //if (this._running) {
@@ -1187,7 +1187,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertTouchToNodeSpace: function (touch) {
-        return this.convertToNodeSpace(touch.getPosition());
+        return this.convertToNodeSpace(touch.getLocation());
     },
 
     /**
@@ -1197,7 +1197,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertTouchToNodeSpaceAR: function (touch) {
-        return this.convertToNodeSpaceAR(touch.getPosition());
+        return this.convertToNodeSpaceAR(touch.getLocation());
     },
 
     /**
@@ -1316,7 +1316,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 var sibling = siblings[i];
                 sibling._sgNode.arrivalOrder = i;
             }
-            cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            if (cc.renderer) {
+                cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            }
         }
     },
 
@@ -1404,7 +1406,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             // insert node
             parentNode.addChild(sgNode);
             sgNode.arrivalOrder = oldSgNode.arrivalOrder;
-            cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            if (cc.renderer) {
+                cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+            }
 
             this._sgNode = sgNode;
 

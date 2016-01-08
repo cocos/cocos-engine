@@ -645,9 +645,9 @@ function boundSuperCalls (baseClass, options) {
  * !#en Defines a FireClass using the given specification, please see [Class](/en/scripting/class/) for details.
  * !#zh 定义一个 FireClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
  *
+ * @class Class
  * @param {Object} options
  * @return {Function} - the created class
- * @memberof cc
  *
  * @example
  // define base class
@@ -718,7 +718,7 @@ function FireClass (options) {
     if (properties) {
 
         // 预处理属性
-        preprocessAttrs(properties, name);
+        preprocessAttrs(properties, name, cls);
 
         for (var propName in properties) {
             var val = properties[propName];

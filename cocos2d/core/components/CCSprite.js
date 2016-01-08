@@ -61,7 +61,7 @@ var Sprite = cc.Class({
 
         /**
          * The sprite frame of the sprite.
-         * @property sprite
+         * @property spriteFrame
          * @type {SpriteFrame}
          */
         spriteFrame: {
@@ -72,14 +72,13 @@ var Sprite = cc.Class({
                 var lastSprite = this._spriteFrame;
                 this._spriteFrame = value;
                 if (this._sgNode) {
-                    this._applySprite(this._sgNode, lastSprite);
+                    this._applySpriteFrame(this._sgNode, lastSprite);
                     // color cleared after reset texture, should reapply color
                     this._sgNode.setColor(this.node._color);
                     this._sgNode.setOpacity(this.node._opacity);
                 }
             },
             type: cc.SpriteFrame,
-            tooltip: 'i18n:COMPONENT.sprite.sprite_frame',
         },
 
         /**
@@ -126,6 +125,7 @@ var Sprite = cc.Class({
                 return cc.size(sgNode.width, sgNode.height);
             },
             visible: false,
+            override: true
         }
     },
 
@@ -155,7 +155,7 @@ var Sprite = cc.Class({
      * @return {Boolean} True if 9-slice is enabled, false otherwise.
      */
     isScale9Enabled: function(){
-        return this.type === cc.SpriteType.SLICED
+        return this.type === cc.SpriteType.SLICED;
     },
 
     /**
@@ -313,51 +313,49 @@ var Sprite = cc.Class({
         }
     },
 
-    _applyCapInset: function (node) {
-        if (this._type === SpriteType.SLICED) {
-            var node = node || this._sgNode;
-            node.setInsetTop(this._spriteFrame.insetTop);
-            node.setInsetBottom(this._spriteFrame.insetBottom);
-            node.setInsetRight(this._spriteFrame.insetRight);
-            node.setInsetLeft(this._spriteFrame.insetLeft);
+    _applyCapInset: function (sgNode) {
+        if (this._type === SpriteType.SLICED && this._spriteFrame) {
+            sgNode = sgNode || this._sgNode;
+            sgNode.setInsetTop(this._spriteFrame.insetTop);
+            sgNode.setInsetBottom(this._spriteFrame.insetBottom);
+            sgNode.setInsetRight(this._spriteFrame.insetRight);
+            sgNode.setInsetLeft(this._spriteFrame.insetLeft);
         }
     },
 
-    _applySpriteSize: function (node) {
-        var node = node || this._sgNode;
-        if (this._useOriginalSize) {
+    _applySpriteSize: function (sgNode) {
+        sgNode = sgNode || this._sgNode;
+        if (this._useOriginalSize && this._spriteFrame) {
             var rect = this._spriteFrame.getRect();
-            node.setContentSize(cc.size(rect.width, rect.height));
+            this.node.setContentSize(cc.size(rect.width, rect.height));
         }
         else {
-            node.setContentSize(this.node.getContentSize(true));
+            this.node.setContentSize(this.node.getContentSize(true));
         }
     },
 
-    _applySprite: function (sgNode, oldSprite) {
-        if (oldSprite && oldSprite.off) {
-            oldSprite.off('load', this._applyCapInset, this);
+    _onSpriteFrameLoaded: function (event, sgNode) {
+        var self = this;
+        sgNode = sgNode || this._sgNode;
+        sgNode.setSpriteFrame(self._spriteFrame);
+        self._applyCapInset(sgNode);
+        self._applySpriteSize();
+        if ( this.enabledInHierarchy && !sgNode.isVisible() ) {
+            sgNode.setVisible(true);
+        }
+    },
+
+    _applySpriteFrame: function (sgNode, oldFrame) {
+        if (oldFrame && oldFrame.off) {
+            oldFrame.off('load', this._onSpriteFrameLoaded, this);
         }
 
         if (this._spriteFrame) {
-            if (!sgNode.isVisible()) {
-                sgNode.setVisible(true);
-            }
-
-            sgNode.setSpriteFrame(this._spriteFrame);
-            var locLoaded = this._spriteFrame.textureLoaded();
-            if (!locLoaded) {
-                if (!this._useOriginalSize) {
-                    sgNode.setContentSize(this.node.getContentSize(true));
-                }
-                this._spriteFrame.once('load', function () {
-                    this._applyCapInset();
-                    this._applySpriteSize();
-                }, this);
+            if (this._spriteFrame.textureLoaded()) {
+                this._onSpriteFrameLoaded(null, sgNode);
             }
             else {
-                this._applyCapInset(sgNode);
-                this._applySpriteSize(sgNode);
+                this._spriteFrame.once('load', this._onSpriteFrameLoaded, this);
             }
         }
         else {
@@ -372,13 +370,29 @@ var Sprite = cc.Class({
 
     _createSgNode: function () {
         var sgNode = new cc.Scale9Sprite();
+
+        this._applySpriteFrame(sgNode, null);
+
+        // should keep the size of the sg node the same as entity,
+        // otherwise setContentSize may not take effect
+        sgNode.setContentSize(this.node.getContentSize(true));
+        this._applySpriteSize(sgNode);
+        
         sgNode.setRenderingType(this._type);
-        this._applySprite(sgNode, null);
+
         return sgNode;
     },
 
     _resized: function () {
-        this.useOriginalSize = false;
+        if (this._useOriginalSize && this._spriteFrame) {
+            var rect = this._spriteFrame.getRect();
+            var expectedW = rect.width;
+            var expectedH = rect.height;
+            var actualSize = this.node.getContentSize();
+            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
+                this.useOriginalSize = false;
+            }
+        }
     },
 });
 

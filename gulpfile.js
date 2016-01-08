@@ -9,8 +9,7 @@ paths = {
     src: './src',
     jsEntry: './index.js',
     JSBEntries: [
-        './jsb_predefine.js',
-        './jsb_polyfill.js',
+        './jsb/index.js',
         './extends.js'
     ],
     outDir: './bin',
@@ -22,7 +21,8 @@ paths = {
         '../../cocos2d/core/textures/CCTexture2D',
         '../../cocos2d/core/sprites/CCSpriteFrame',
         '../../cocos2d/core/platform/CCLoader',
-        '../../cocos2d/core/platform/CCLoaders'
+        '../../cocos2d/core/platform/CCLoaders',
+        '../../cocos2d/core/event/event',
     ],
 
     test: {
@@ -33,9 +33,6 @@ paths = {
         destEditorExtends: 'bin/cocos2d-js-extends-for-test.js'
     },
 
-    originCocos2dCompileDir: './tools',
-    originCocos2d: './lib/cocos2d-js-v3.9-min.js',
-    //originSourcemap: './lib/cocos2d-js-v3.9-sourcemap',
     modularCocos2d: './bin/modular-cocos2d.js',
 };
 

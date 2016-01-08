@@ -3,6 +3,7 @@ require('../CCNode');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
+var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
 var IsOnStartCalled = Flags.IsOnStartCalled;
 
@@ -199,6 +200,22 @@ var Component = cc.Class({
             visible: false
         },
 
+        name: {
+            get: function () {
+                return this._name || this.node.name;
+                //var className = cc.js.getClassName(this);
+                //var index = className.lastIndexOf('.');
+                //if (index >= 0) {
+                //    // strip prefix
+                //    className = className.slice(index + 1);
+                //}
+                //return this.node.name + '<' + className + '>';
+            },
+            set: function (value) {
+                this._name = value;
+            }
+        },
+
         _id: {
             default: '',
             serializable: false
@@ -299,8 +316,7 @@ var Component = cc.Class({
         _isOnLoadCalled: {
             get: function () {
                 return this._objFlags & IsOnLoadCalled;
-            },
-            visible: false
+            }
         },
 
         /**
@@ -387,6 +403,8 @@ var Component = cc.Class({
      * @method onLostFocusInEditMode
      */
     onLostFocusInEditMode: null,
+
+    //
 
     /**
      * Adds a component class to the entity. You can also add component to entity by passing in the name of the
@@ -499,24 +517,24 @@ var Component = cc.Class({
     },
 
     __onNodeActivated: CC_EDITOR ? function (active) {
-        if (!(this._objFlags & IsOnLoadCalled) &&
+        if (!(this._objFlags & IsOnLoadStarted) &&
             (cc.engine._isPlaying || this.constructor._executeInEditMode)) {
+            this._objFlags |= IsOnLoadStarted;
+
             if (this.onLoad) {
                 callOnLoadInTryCatch(this);
-                this._objFlags |= IsOnLoadCalled;
-
-                if (!cc.engine._isPlaying) {
-                    var focused = Editor.Selection.curActivate('node') === this.node.uuid;
-                    if (focused && this.onFocusInEditMode) {
-                        callOnFocusInTryCatch(this);
-                    }
-                    else if (this.onLostFocusInEditMode) {
-                        callOnLostFocusInTryCatch(this);
-                    }
-                }
             }
-            else {
-                this._objFlags |= IsOnLoadCalled;
+
+            this._objFlags |= IsOnLoadCalled;
+
+            if (this.onLoad && !cc.engine._isPlaying) {
+                var focused = Editor.Selection.curActivate('node') === this.node.uuid;
+                if (focused && this.onFocusInEditMode) {
+                    callOnFocusInTryCatch(this);
+                }
+                else if (this.onLostFocusInEditMode) {
+                    callOnLostFocusInTryCatch(this);
+                }
             }
             Editor._AssetsWatcher.start(this);
         }
@@ -525,7 +543,8 @@ var Component = cc.Class({
             callOnEnable(this, active);
         }
     } : function (active) {
-        if (!(this._objFlags & IsOnLoadCalled)) {
+        if (!(this._objFlags & IsOnLoadStarted)) {
+            this._objFlags |= IsOnLoadStarted;
             if (this.onLoad) {
                 this.onLoad();
             }
@@ -591,27 +610,11 @@ var Component = cc.Class({
         cc.assert(callback, cc._LogInfos.Node.schedule);
         cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
 
-        var key = this.__instanceId;
         interval = interval || 0;
         repeat = isNaN(repeat) ? cc.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy, key);
-    },
-
-    /**
-     * <p>
-     * schedules the "update" callback function with a custom priority.
-     * This callback function will be called every frame.<br/>
-     * Scheduled callback functions with a lower priority will be called before the ones that have a higher value.<br/>
-     * Only one "update" callback function could be scheduled per node (You can't have 2 'update' callback functions).<br/>
-     * </p>
-     * @method scheduleUpdate
-     * @param {Number} [priority=0] The priority of the update callback
-     */
-    scheduleUpdate: function (priority) {
-        priority = priority || 0;
-        cc.director.getScheduler().scheduleUpdate(this, priority, !this.enabledInHierarchy);
+        cc.director.getScheduler().scheduleCallbackForTarget(this, callback, interval, repeat, delay, !this.enabledInHierarchy);
     },
 
     /**
@@ -636,15 +639,6 @@ var Component = cc.Class({
             return;
 
         cc.director.getScheduler().unschedule(callback_fn, this);
-    },
-
-    /**
-     * Unschedules the "update" method.
-     * @method unscheduleUpdate
-     * @see cc.Node#scheduleUpdate
-     */
-    unscheduleUpdate: function () {
-        cc.director.getScheduler().unscheduleUpdate(this);
     },
 
     /**

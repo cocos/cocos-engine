@@ -15,18 +15,19 @@ var HideInEditor = 1 << 10;
 
 var IsOnEnableCalled = 1 << 12;
 var IsOnLoadCalled = 1 << 13;
-var IsOnStartCalled = 1 << 14;
+var IsOnLoadStarted = 1 << 14;
+var IsOnStartCalled = 1 << 15;
 
-var IsPositionLocked = 1 << 15;
 var IsRotationLocked = 1 << 16;
 var IsScaleLocked = 1 << 17;
 var IsAnchorLocked = 1 << 18;
 var IsSizeLocked = 1 << 19;
+var IsPositionLocked = 1 << 20;
 
 var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy |
-                       IsOnEnableCalled | IsOnLoadCalled | IsOnStartCalled
+                       IsOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
                        /*RegisteredInEditor*/);
 
 /**
@@ -38,16 +39,14 @@ var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy |
  */
 function CCObject () {
     /**
-     * @property _name
-     * @type string
+     * @property {String} _name
      * @default ""
      * @private
      */
     this._name = '';
 
     /**
-     * @property _objFlags
-     * @type number
+     * @property {Number} _objFlags
      * @default 0
      * @private
      */
@@ -67,15 +66,13 @@ CCObject.Flags = {
 
     /**
      * The object will not be saved.
-     * @property DontSave
-     * @type {Number}
+     * @property {Number} DontSave
      */
     DontSave: DontSave,
 
     /**
      * The object will not be saved when building a player.
-     * @property EditorOnly
-     * @type {Number}
+     * @property {Number} EditorOnly
      */
     EditorOnly: EditorOnly,
 
@@ -97,8 +94,7 @@ CCObject.Flags = {
     /**
      * Hide in game and hierarchy.
      * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
-     * @property HideInGame
-     * @type {Number}
+     * @property {Number} HideInGame
      */
     HideInGame: HideInGame,
 
@@ -106,16 +102,14 @@ CCObject.Flags = {
 
     /**
      * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
-     * @property HideInEditor
-     * @type {Number}
+     * @property {Number} HideInEditor
      */
     HideInEditor: HideInEditor,
 
     /**
      * Hide in game view, hierarchy, and scene view... etc.
      * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
-     * @property Hide
-     * @type {Number}
+     * @property {Number} Hide
      */
     Hide: Hide,
 
@@ -125,6 +119,7 @@ CCObject.Flags = {
     // FLAGS FOR COMPONENT
 
     IsOnLoadCalled: IsOnLoadCalled,
+    IsOnLoadStarted: IsOnLoadStarted,
     IsOnEnableCalled: IsOnEnableCalled,
     IsOnStartCalled: IsOnStartCalled,
 
@@ -190,8 +185,7 @@ var prototype = CCObject.prototype;
 
 /**
  * The name of the object.
- * @property name
- * @type {String}
+ * @property {String} name
  * @default ""
  */
 JS.getset(prototype, 'name',
@@ -205,8 +199,7 @@ JS.getset(prototype, 'name',
 
 /**
  * Indicates whether the object is not yet destroyed
- * @property isValid
- * @type {Boolean}
+ * @property {Boolean} isValid
  * @default true
  * @readOnly
  */
