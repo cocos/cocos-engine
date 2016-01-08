@@ -302,40 +302,41 @@ cc.loader = cc.loader || (function () {
             url = urlAppendTimestamp(url);
 
             var img = this.getRes(url);
-            if (img) {
-                callback && callback(null, img);
-                return img;
+            if (!img) {
+                img = new Image();
+                if (opt.isCrossOrigin && location.origin !== "file://")
+                    img.crossOrigin = "Anonymous";
+                img.src = url;
             }
 
-            img = new Image();
-            if (opt.isCrossOrigin && location.origin !== "file://")
-                img.crossOrigin = "Anonymous";
+            if(img.complete) {
+                callback && callback(null, img);
+            } else {
+                var loadCallback = function () {
+                    img.removeEventListener('load', loadCallback, false);
+                    img.removeEventListener('error', errorCallback, false);
 
-            var loadCallback = function () {
-                img.removeEventListener('load', loadCallback, false);
-                img.removeEventListener('error', errorCallback, false);
+                    if (callback)
+                        callback(null, img);
+                };
 
-                if (callback)
-                    callback(null, img);
-            };
+                var self = this;
+                var errorCallback = function () {
+                    img.removeEventListener('load', loadCallback, false);
+                    img.removeEventListener('error', errorCallback, false);
 
-            var self = this;
-            var errorCallback = function () {
-                img.removeEventListener('load', loadCallback, false);
-                img.removeEventListener('error', errorCallback, false);
+                    if(img.crossOrigin && img.crossOrigin.toLowerCase() === "anonymous"){
+                        opt.isCrossOrigin = false;
+                        self.release(url);
+                        cc.loader.loadImg(url, opt, callback);
+                    }else{
+                        typeof callback === "function" && callback("load image failed");
+                    }
+                };
 
-                if(img.crossOrigin && img.crossOrigin.toLowerCase() === "anonymous"){
-                    opt.isCrossOrigin = false;
-                    self.release(url);
-                    cc.loader.loadImg(url, opt, callback);
-                }else{
-                    typeof callback === "function" && callback("load image failed");
-                }
-            };
-
-            img.addEventListener("load", loadCallback);
-            img.addEventListener("error", errorCallback);
-            img.src = url;
+                img.addEventListener("load", loadCallback);
+                img.addEventListener("error", errorCallback);
+            }
             return img;
         },
 
