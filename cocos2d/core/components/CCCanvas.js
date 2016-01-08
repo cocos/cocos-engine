@@ -61,6 +61,7 @@ var Canvas = cc.Class({
         /**
          * Current active canvas, the scene should only have one active canvas at the same time.
          * @property {Canvas} instance
+         * @static
          */
         instance: null
     },

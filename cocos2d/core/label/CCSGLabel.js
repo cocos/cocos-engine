@@ -329,7 +329,7 @@ _ccsg.Label = _ccsg.Node.extend({
         if (slashPos === -1) fontFamilyName = fontHandle.substring(0, ttfIndex) + "_LABEL";
         else fontFamilyName = fontHandle.substring(slashPos + 1, ttfIndex) + "_LABEL";
         var self = this;
-        if (FontFace) {
+        if (window.FontFace) {
             var fontFace = new FontFace(fontFamilyName, "url('" + fontHandle + "')");
             fontFace.load().then(function(loadedFace) {
                 document.fonts.add(loadedFace);

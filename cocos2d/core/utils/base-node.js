@@ -270,7 +270,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._rotationY;
             },
             set: function (value) {
-                if (this._rotationX !== value) {
+                if (this._rotationY !== value) {
                     // yes, ROTATION_CHANGED always send last rotation x...
                     var oldX = this._rotationX;
 

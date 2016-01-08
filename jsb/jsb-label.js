@@ -26,6 +26,10 @@
 
 // cc.Label
 var jsbLabel = cc.Label;
+// v3.3 bug fix
+if (!jsbLabel.createWithTTF && jsbLabel.prototype.createWithTTF) {
+    jsbLabel.createWithTTF = jsbLabel.prototype.createWithTTF;
+}
 jsbLabel.prototype.setHorizontalAlign = jsbLabel.prototype.setHorizontalAlignment;
 jsbLabel.prototype.setVerticalAlign = jsbLabel.prototype.setVerticalAlignment;
 //for back compatibility

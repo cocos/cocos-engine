@@ -467,9 +467,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
      * @method runScene
      * @param {Scene} scene - The need run scene.
-     * @param {Function} [onBeforeLoadScene] - The function at the scene before loading.
      */
-    runScene: function (scene, onBeforeLoadScene) {
+    runScene: function (scene, _onBeforeLoadScene) {
         cc.assert(scene, cc._LogInfos.Director.pushScene);
 
         // detach persist nodes
@@ -492,8 +491,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // purge destroyed nodes belongs to old scene
         cc.Object._deferredDestroy();
 
-        if (onBeforeLoadScene) {
-            onBeforeLoadScene();
+        if (_onBeforeLoadScene) {
+            _onBeforeLoadScene();
         }
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
@@ -544,10 +543,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @method loadScene
      * @param {String} sceneName - The name of the scene to load.
      * @param {Function} [onLaunched] - callback, will be called after scene launched.
-     * @param {Function} [onUnloaded] - callback, will be called when the previous scene was unloaded.
      * @return {Boolean} if error, return false
      */
-    loadScene: function (sceneName, onLaunched, onUnloaded) {
+    loadScene: function (sceneName, onLaunched, _onUnloaded) {
         var uuid, info;
         if (this._loadingScene) {
             cc.error('[loadScene] Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
@@ -582,7 +580,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
         if (uuid) {
             this._loadingScene = sceneName;
-            this._loadSceneByUuid(uuid, onLaunched, onUnloaded);
+            this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
             return true;
         }
         else {
