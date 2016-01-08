@@ -1098,7 +1098,6 @@ _ccsg.Label.Type = cc.Enum({
     SystemFont: 2
 });
 _ccsg.Label.Overflow = cc.Enum({
-    //TODO: NONE is not implemented yet
     NONE: 0,
     CLAMP: 1,
     SHRINK: 2,

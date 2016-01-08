@@ -250,6 +250,14 @@
                 fontDesc = this._drawFontsize.toString() + "px " + fontFamily;
                 this._splitedStrings = paragraphedStrings;
             }
+        } else if(_ccsg.Label.Overflow.NONE == node._overFlow) {
+            this._splitedStrings = paragraphedStrings;
+            for (var i = 0; i < paragraphedStrings.length; ++i) {
+                var paraLength = ctx.measureText(paragraphedStrings[i]).width;
+                canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
+            }
+            canvasSizeY = this._splitedStrings.length * this._getLineHeight();
+            node.setContentSize(cc.size(canvasSizeX, canvasSizeY));
         } else {
             //others treat it as clamp
             if (node._isWrapText) {
