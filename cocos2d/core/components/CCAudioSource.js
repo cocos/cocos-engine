@@ -62,7 +62,7 @@ var AudioSource = cc.Class({
          */
         isPlaying: {
             get: function () {
-                return (this.audio && this.audio.getPlaying());
+                return (!cc.sys.isNative && this.audio && this.audio.getPlaying());
             },
             visible: false
         },
@@ -96,7 +96,14 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._volume = value;
-                if (this.audio) this.audio.setVolume(value);
+                if (this.audio) {
+                    if (cc.sys.isNative) {
+                        cc.audioEngine.setEffectsVolume(value);
+                    }
+                    else {
+                        this.audio.setVolume(value);
+                    }
+                }
             },
             tooltip: 'i18n.COMPONENT.audio.volume'
         },
@@ -115,10 +122,20 @@ var AudioSource = cc.Class({
                 this._mute = value;
                 if (this.audio) {
                     if (this._mute) {
-                        this.audio.setVolume(0);
+                        if (cc.sys.isNative) {
+                            cc.audioEngine.setEffectsVolume(0);
+                        }
+                        else {
+                            this.audio.setVolume(0);
+                        }
                     }
                     else {
-                        this.audio.setVolume(this._volume);
+                        if (cc.sys.isNative) {
+                            cc.audioEngine.setEffectsVolume(this._volume);
+                        }
+                        else {
+                            this.audio.setVolume(this._volume);
+                        }
                     }
                 }
             },
@@ -137,7 +154,7 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._loop = value;
-                if (this.audio) this.audio.loop = this._loop;
+                if (typeof this.audio === 'object') this.audio.loop = this._loop;
             },
             tooltip: 'i18n.COMPONENT.audio.loop'
         },
@@ -181,7 +198,7 @@ var AudioSource = cc.Class({
     play: function () {
         if ( this._clip ) {
             this.audio = audioEngine.playEffect(this._clip, this._loop);
-            this.audio.play()
+            // this.audio.play();
         }
     },
 
@@ -190,7 +207,7 @@ var AudioSource = cc.Class({
      * @method stop
      */
     stop: function () {
-        if ( this.audio ) this.audio.stop();
+        if ( this.audio ) cc.audioEngine.stopEffect(this.audio);
     },
 
     /**
@@ -198,7 +215,7 @@ var AudioSource = cc.Class({
      * @method pause
      */
     pause: function () {
-        if ( this.audio ) this.audio.pause();
+        if ( this.audio ) cc.audioEngine.pauseEffect(this.audio);
     },
 
     /**
@@ -206,7 +223,7 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        if ( this.audio ) this.audio.resume();
+        if ( this.audio ) cc.audioEngine.resumeEffect(this.audio);
     },
 
     /**
@@ -215,8 +232,8 @@ var AudioSource = cc.Class({
      */
     rewind: function(){
         if ( this.audio ) {
-            this.audio.stop();
-            this.audio.play();
+            cc.audioEngine.stopEffect(this.audio);
+            cc.audioEngine.playEffect(this.audio);
         }
     },
 
