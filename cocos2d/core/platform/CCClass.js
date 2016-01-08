@@ -218,16 +218,6 @@ var _metaClass = {
 
         if (CC_DEV) {
             Object.defineProperty(this.prototype, name, {
-                //set: function setter_editorWrapper (value) {
-                //    if (this._observing) {
-                //        Object.getNotifier(this).notify({
-                //            type: 'update',
-                //            name: name,
-                //            oldValue: this[name]
-                //        });
-                //    }
-                //    setter.call(this, value);
-                //},
                 set: setter,
                 configurable: true,
                 enumerable: true

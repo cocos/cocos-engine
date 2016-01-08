@@ -1089,24 +1089,38 @@ if (cc.sys.isNative) {
 
 /**
  * @event position-changed
+ * @param {cc.Event} event
+ * @param {cc.Vec2} event.detail - old position
  */
 /**
  * @event rotation-changed
+ * @param {cc.Event} event
+ * @param {Number} event.detail - old rotation x
  */
 /**
  * @event scale-changed
+ * @param {cc.Event} event
+ * @param {cc.Vec2} event.detail - old scale
  */
 /**
  * @event size-changed
+ * @param {cc.Event} event
+ * @param {cc.Size} event.detail - old size
  */
 /**
  * @event anchor-changed
+ * @param {cc.Event} event
+ * @param {cc.Vec2} event.detail - old anchor
  */
 /**
  * @event color-changed
+ * @param {cc.Event} event
+ * @param {cc.Color} event.detail - old color
  */
 /**
  * @event opacity-changed
+ * @param {cc.Event} event
+ * @param {Number} event.detail - old opacity
  */
 
 Node.EventType = EventType;
