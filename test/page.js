@@ -20,11 +20,11 @@ describe('test cocos', function () {
         });
 
         win = new Editor.Window('main', {
-            'title': 'Test Cocos',
-            'width': 800,
-            'height': 800,
-            'show': true,
-            'resizable': false,
+            title: 'Test Cocos',
+            width: 800,
+            height: 800,
+            show: true,
+            resizable: false,
         });
         win.load('app://engine/test/page.html');
     });
