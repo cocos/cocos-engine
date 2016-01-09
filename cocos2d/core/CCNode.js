@@ -349,6 +349,11 @@ var Node = cc.Class({
          * @private
          */
         this.__eventTargets = [];
+
+        // Retained actions for JSB
+        if (cc.sys.isNative) {
+            this._retainedActions = [];
+        }
     },
 
     statics: {
@@ -397,6 +402,7 @@ var Node = cc.Class({
         
         // Actions
         this.stopAllActions();
+        this._releaseAllActions();
 
         // Remove all listeners
         cc.eventManager.removeListeners(this);
@@ -1002,7 +1008,11 @@ var Node = cc.Class({
             return;
         cc.assert(action, cc._LogInfos.Node.runAction);
 
-        var target = cc.sys.isNative ? this._sgNode : this;
+        var target = this;
+        if (cc.sys.isNative) {
+            target = this._sgNode;
+            this._retainAction(action);
+        }
         cc.director.getActionManager().addAction(action, target, false);
         return action;
     },
@@ -1065,6 +1075,22 @@ var Node = cc.Class({
     getNumberOfRunningActions: function () {
         var target = cc.sys.isNative ? this._sgNode : this;
         cc.director.getActionManager().numberOfRunningActionsInTarget(target);
+    },
+
+    _retainAction: function (action) {
+        if (cc.sys.isNative && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
+            this._retainedActions.push(action);
+            action.retain();
+        }
+    },
+
+    _releaseAllActions: function () {
+        if (cc.sys.isNative) {
+            for (var i = 0; i < this._retainedActions.length; ++i) {
+                this._retainedActions[i].release();
+            }
+            this._retainedActions.length = 0;
+        }
     },
 
 });

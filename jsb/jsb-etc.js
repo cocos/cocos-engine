@@ -148,7 +148,10 @@ function setCtorReplacer (proto) {
 function setAliasReplacer (name, type) {
     var aliasName = name[0].toLowerCase() + name.substr(1);
     cc[aliasName] = function () {
-        return new type();
+        var action = type.create.apply(this, arguments);
+        action.retain();
+        action._retained = true;
+        return action;
     };
 }
 
