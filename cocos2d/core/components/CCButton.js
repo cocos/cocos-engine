@@ -334,7 +334,6 @@ var Button = cc.Class({
     _registerEvent: function () {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
         this.node.on(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
@@ -378,27 +377,10 @@ var Button = cc.Class({
 
     // touch event handler
     _onTouchBegan: function (event) {
-        var touch = event.touch;
-        if (!this.interactable || !this.enabledInHierarchy) return false;
+        if (!this.interactable || !this.enabledInHierarchy) return;
 
-        var hit = this._hitTest(touch.getLocation());
-        if (hit) {
-            this._pressed = true;
-            this._applyState(ButtonState.Pressed);
-        }
-
-        return hit;
-    },
-
-    _onTouchMove: function (event) {
-        var touch = event.touch;
-
-        var hit = this._hitTest(touch.getLocation());
-        if (hit && this._pressed) {
-            this._applyState(ButtonState.Pressed);
-        }else{
-            this._applyState(ButtonState.Normal);
-        }
+        this._pressed = true;
+        this._applyState(ButtonState.Pressed);
     },
 
     _onTouchEnded: function () {
@@ -464,18 +446,6 @@ var Button = cc.Class({
             this._sprite.spriteFrame = sprite;
         }
     },
-
-    // hit test
-    _hitTest: function (pos) {
-        var target = this.target;
-        if (!target) return false;
-
-        var w = target.width;
-        var h = target.height;
-
-        var rect = cc.rect(0, 0, w, h);
-        return cc.rectContainsPoint(rect, target.convertToNodeSpace(pos));
-    }
 
 });
 
