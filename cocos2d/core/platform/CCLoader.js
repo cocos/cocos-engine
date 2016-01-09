@@ -309,7 +309,7 @@ cc.loader = cc.loader || (function () {
                 img.src = url;
             }
 
-            if(img.complete) {
+            if (img.complete && img.naturalWidth > 0) {
                 callback && callback(null, img);
             } else {
                 var loadCallback = function () {
