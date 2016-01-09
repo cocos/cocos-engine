@@ -138,7 +138,7 @@ var Label = cc.Class({
          * @property {Label.Overflow} overFlow
          */
         overflow: {
-            default: Overflow.CLAMP,
+            default: Overflow.NONE,
             type: Overflow,
             tooltip: 'i18n:COMPONENT.label.overflow',
             notify: function () {
