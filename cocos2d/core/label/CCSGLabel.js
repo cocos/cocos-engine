@@ -258,16 +258,22 @@ _ccsg.Label = _ccsg.Node.extend({
 
     setOverflow: function(overflow) {
         if (this._overFlow === overflow) return;
+
         this._overFlow = overflow;
-        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
-            this._setDimensions(this._labelDimensions.width, 0);
-            this._isWrapText = true;
+
+        if (this._labelType === _ccsg.Label.Type.BMFont) {
+
+            if ( this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+                this._setDimensions(this._labelDimensions.width, 0);
+                this._isWrapText = true;
+            }
+
+            if (this._overFlow === _ccsg.Label.Overflow.NONE) {
+                this._isWrapText = false;
+                this._setDimensions(0, 0);
+            }
         }
 
-        if (this._overFlow === _ccsg.Label.Overflow.NONE) {
-            this._isWrapText = false;
-            this._setDimensions(0, 0);
-        }
 
         this._rescaleWithOriginalFontSize();
         this._notifyLabelSkinDirty();
@@ -325,9 +331,6 @@ _ccsg.Label = _ccsg.Node.extend({
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
             this._initBMFontWithString(this._string, fontHandle);
-            if(this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
-                this._setDimensions(this._labelDimensions.width, 0);
-            }
         }
     },
 
@@ -599,17 +602,22 @@ cc.BMFontHelper = {
         var newWidth = size.width || size;
         var newHeight = size.height || height;
 
-        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
-            newHeight = 0;
+        _ccsg.Node.prototype.setContentSize.call(this, size, height);
+
+        if (this._labelType === _ccsg.Label.Type.BMFont) {
+
+            if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+                newHeight = 0;
+            }
+
+            if (this._overFlow === _ccsg.Label.Overflow.NONE) {
+                newWidth = 0;
+                newHeight = 0;
+            }
         }
 
-        if (this._overFlow === _ccsg.Label.Overflow.NONE) {
-            newWidth = 0;
-            newHeight = 0;
-        }
 
         if (newHeight !== this._labelHeight || newWidth !== this._labelWidth) {
-            _ccsg.Node.prototype.setContentSize.call(this, size, height);
 
             this._labelWidth = newWidth;
             this._labelHeight = newHeight;
@@ -618,8 +626,7 @@ cc.BMFontHelper = {
 
             this._maxLineWidth = newWidth;
 
-            if (this._labelType === _ccsg.Label.Type.BMFont
-                && this._overFlow === _ccsg.Label.Overflow.SHRINK) {
+            if (this._labelType === _ccsg.Label.Type.BMFont && this._overFlow === _ccsg.Label.Overflow.SHRINK) {
                 if (this._bmFontSize > 0) {
                     this._restoreFontSize();
                 }
