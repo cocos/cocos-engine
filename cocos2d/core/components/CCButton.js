@@ -386,7 +386,7 @@ var Button = cc.Class({
 
     _onTouchMove: function (event) {
         var touch = event.touch;
-        var hit = this._hitTest(touch.getLocation());
+        var hit = this.node._hitTest(touch.getLocation());
         if (hit && this._pressed) {
             this._applyState(ButtonState.Pressed);
         }
