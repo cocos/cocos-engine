@@ -720,7 +720,9 @@ var ScrollView = cc.Class({
         if(this.brake <= 0){
             return (1 - this.brake);
         }
-        var attenuatedFactor = (1 - this.brake) * (1 / (1 + distance * 0.0000014 + distance * distance * 0.000000008) );
+
+        //attenuate formula from: http://learnopengl.com/#!Lighting/Light-casters
+        var attenuatedFactor = (1 - this.brake) * (1 / (1 + distance * 0.000014 + distance * distance * 0.000000008) );
         return attenuatedFactor;
     },
 
