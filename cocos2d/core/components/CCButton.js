@@ -333,6 +333,7 @@ var Button = cc.Class({
 
     _registerEvent: function () {
         this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
@@ -381,6 +382,17 @@ var Button = cc.Class({
 
         this._pressed = true;
         this._applyState(ButtonState.Pressed);
+    },
+
+    _onTouchMove: function (event) {
+        var touch = event.touch;
+        var hit = this.node._hitTest(touch.getLocation());
+        if (hit && this._pressed) {
+            this._applyState(ButtonState.Pressed);
+        }
+        else {
+            this._applyState(ButtonState.Normal);
+        }
     },
 
     _onTouchEnded: function () {

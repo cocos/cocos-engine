@@ -490,7 +490,9 @@ var ScrollView = cc.Class({
     // touch event handler
     _onTouchBegan: function(event) {
         var touch = event.touch;
-        this._handlePressLogic(touch);
+        if (this.content) {
+            this._handlePressLogic(touch);
+        }
         event.stopPropagation();
     },
 

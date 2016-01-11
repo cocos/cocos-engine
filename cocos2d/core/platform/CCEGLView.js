@@ -52,8 +52,7 @@ cc.__BrowserGetter = {
             return frame.clientHeight;
     },
     meta: {
-        "width": "device-width",
-        "user-scalable": "no"
+        "width": "device-width"
     },
     adaptationType: cc.sys.browserType
 };
@@ -744,7 +743,7 @@ cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
      */
     setRealPixelResolution: function (width, height, resolutionPolicy) {
         // Set viewport's width
-        this._setViewportMeta({"width": width, "user-scalable": "no"}, true);
+        this._setViewportMeta({"width": width}, true);
 
         // Set body width to the exact pixel resolution
         document.body.style.width = width + "px";
