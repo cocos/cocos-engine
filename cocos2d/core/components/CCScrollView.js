@@ -716,6 +716,16 @@ var ScrollView = cc.Class({
         this._startAttenuatingAutoScroll(inertiaTotalMovement, touchMoveVelocity);
     },
 
+    _calculateAttenuatedFactor: function (distance) {
+        if(this.brake <= 0){
+            return (1 - this.brake);
+        }
+
+        //attenuate formula from: http://learnopengl.com/#!Lighting/Light-casters
+        var attenuatedFactor = (1 - this.brake) * (1 / (1 + distance * 0.000014 + distance * distance * 0.000000008) );
+        return attenuatedFactor;
+    },
+
     _startAttenuatingAutoScroll: function(deltaMove, initialVelocity) {
         var time = this._calculateAutoScrollTimeByInitalSpeed(cc.pLength(initialVelocity));
 
@@ -725,8 +735,13 @@ var ScrollView = cc.Class({
         var contentSize = this.content.getContentSize();
         var scrollviewSize = this.node.getContentSize();
 
-        targetDelta = cc.p(targetDelta.x * (contentSize.width - scrollviewSize.width) * (1 - this.brake),
-            targetDelta.y * (contentSize.height - scrollviewSize.height) * (1 - this.brake));
+        var totalMoveWidth = (contentSize.width - scrollviewSize.width);
+        var totalMoveHeight = (contentSize.height - scrollviewSize.height);
+
+        var attenuatedFactorX = this._calculateAttenuatedFactor(totalMoveWidth);
+        var attenuatedFactorY = this._calculateAttenuatedFactor(totalMoveHeight);
+
+        targetDelta = cc.p(targetDelta.x * totalMoveWidth * (1 - this.brake) * attenuatedFactorX, targetDelta.y * totalMoveHeight * attenuatedFactorY * (1 - this.brake));
 
         targetDelta = cc.pAdd(deltaMove, targetDelta);
         var factor = cc.pLength(targetDelta) / originalMoveLength;
