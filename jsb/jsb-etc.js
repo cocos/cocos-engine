@@ -168,14 +168,14 @@ for (var i = 0; i < actionArr.length; ++i) {
 function setChainFuncReplacer (proto, name) {
     var oldFunc = proto[name];
     proto[name] = function () {
-        var oldThis = this;
-        var newAction = oldFunc.apply(this, arguments);
-        if (oldThis._retained) {
-            oldThis.release();
-            oldThis._retained = false;
+        if (this._retained) {
+            this.release();
+            this._retained = false;
         }
+        var newAction = oldFunc.apply(this, arguments);
         newAction.retain();
         newAction._retained = true;
+        return newAction;
     };
 }
 
