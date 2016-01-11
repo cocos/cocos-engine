@@ -209,9 +209,7 @@ cc._engineLoaded = false;
 
 function _determineRenderType(config) {
     var CONFIG_KEY = cc.game.CONFIG_KEY,
-        userRenderMode = parseInt(config[CONFIG_KEY.renderMode]) || 0,
-        shieldOs = [cc.sys.OS_ANDROID],
-        shieldBrowser = [];
+        userRenderMode = parseInt(config[CONFIG_KEY.renderMode]) || 0;
 
     // Adjust RenderType
     if (isNaN(userRenderMode) || userRenderMode > 2 || userRenderMode < 0)
@@ -219,29 +217,25 @@ function _determineRenderType(config) {
 
     // Determine RenderType
     cc._renderType = cc.game.RENDER_TYPE_CANVAS;
-    cc._supportRender = true;
+    cc._supportRender = false;
 
-    if ( userRenderMode === 2 || 
-        (   userRenderMode === 0 && 
-            shieldOs.indexOf(cc.sys.os) === -1 && 
-            shieldBrowser.indexOf(cc.sys.browserType) === -1 )) {
-        if (cc.sys.capabilities["opengl"]) {
+    if (userRenderMode === 0) {
+        if (cc.sys.capabilities['opengl']) {
             cc._renderType = cc.game.RENDER_TYPE_WEBGL;
             cc._supportRender = true;
         }
-        else {
-            cc._supportRender = false;
-        }
-    }
-    if (userRenderMode === 1
-        || (userRenderMode === 0 && !cc._supportRender)) {
-        if (cc.sys.capabilities["canvas"]) {
+        else if (cc.sys.capabilities['canvas']) {
             cc._renderType = cc.game.RENDER_TYPE_CANVAS;
             cc._supportRender = true;
         }
-        else {
-            cc._supportRender = false;
-        }
+    }
+    else if (userRenderMode === 1 && cc.sys.capabilities['canvas']) {
+        cc._renderType = cc.game.RENDER_TYPE_CANVAS;
+        cc._supportRender = true;
+    }
+    else if (userRenderMode === 2 && cc.sys.capabilities['opengl']) {
+        cc._renderType = cc.game.RENDER_TYPE_WEBGL;
+        cc._supportRender = true;
     }
 }
 
