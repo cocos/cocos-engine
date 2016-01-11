@@ -58,7 +58,10 @@ var Mask = cc.Class({
         var x = contentSize.width * anchorPoint.x;
         var y = contentSize.height * anchorPoint.y;
         this._clippingStencil.clear();
-        this._clippingStencil.drawRect(cc.v2(-x, -y), cc.v2(contentSize.width - x, contentSize.height - y), cc.Color.WHITE);
+        var rectangle = [cc.v2(-x, -y), cc.v2(contentSize.width - x, -y),
+            cc.v2(contentSize.width - x, contentSize.height - y),
+            cc.v2(-x, contentSize.height - y)];
+        this._clippingStencil.drawPoly(rectangle, cc.color(255, 255, 255, 0), 0, cc.color(255, 255, 255, 0));
     },
 
     onEnable: function () {
