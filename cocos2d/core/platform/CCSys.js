@@ -508,7 +508,7 @@ else {
     sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
     /* Determine the browser type */
     (function(){
-        var typeReg1 = /sogou|qzone|liebao|micromessenger|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|trident|miuibrowser/i;
+        var typeReg1 = /mqqbrowser|sogou|qzone|liebao|micromessenger|ucbrowser|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|trident|miuibrowser/i;
         var typeReg2 = /qqbrowser|chrome|safari|firefox|opr|oupeng|opera/i;
         var browserTypes = typeReg1.exec(ua);
         if(!browserTypes) browserTypes = typeReg2.exec(ua);
@@ -536,8 +536,8 @@ else {
     sys.browserVersion = "";
     /* Determine the browser version number */
     (function(){
-        var versionReg1 = /(micromessenger|mx|maxthon|baidu|sogou)(mobile)?(browser)?\/?([\d.]+)/i;
-        var versionReg2 = /(msie |rv:|firefox|chrome|ucbrowser|qq|oupeng|opera|opr|safari|miui)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg1 = /(micromessenger|qq|mx|maxthon|baidu|sogou)(mobile)?(browser)?\/?([\d.]+)/i;
+        var versionReg2 = /(msie |rv:|firefox|chrome|ucbrowser|oupeng|opera|opr|safari|miui)(mobile)?(browser)?\/?([\d.]+)/i;
         var tmp = ua.match(versionReg1);
         if(!tmp) tmp = ua.match(versionReg2);
         sys.browserVersion = tmp ? tmp[4] : "";
@@ -640,6 +640,14 @@ else {
             if(context) {
                 _supportWebGL = true;
             }
+
+            // Ruled out Android 4- except for QQ Brwoser 6.2+
+            if (sys.os === sys.OS_ANDROID && sys.osMainVersion < 5) {
+                var browserVer = parseFloat(sys.browserVersion);
+                if (sys.browserType !== sys.BROWSER_TYPE_MOBILE_QQ || browserVer < 6.2) {
+                    _supportWebGL = false;
+                }
+            }
         }
         catch (e) {}
     }
@@ -721,9 +729,12 @@ sys.dump = function () {
     str += "isMobile : " + self.isMobile + "\r\n";
     str += "language : " + self.language + "\r\n";
     str += "browserType : " + self.browserType + "\r\n";
+    str += "browserVersion : " + self.browserVersion + "\r\n";
     str += "capabilities : " + JSON.stringify(self.capabilities) + "\r\n";
     str += "os : " + self.os + "\r\n";
+    str += "osVersion : " + self.osVersion + "\r\n";
     str += "platform : " + self.platform + "\r\n";
+    str += "Using " + (cc._renderType === cc.game.RENDER_TYPE_WEBGL ? "WEBGL" : "CANVAS") + " renderer." + "\r\n";
     cc.log(str);
 };
 
