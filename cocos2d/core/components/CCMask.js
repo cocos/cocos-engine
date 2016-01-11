@@ -49,7 +49,6 @@ var Mask = cc.Class({
 
     onLoad: function () {
         this._clippingStencil = new cc.DrawNode();
-        //this._clippingStencil.ignoreAnchorPointForPosition(false);
         this._clippingNode = new cc.ClippingNode(this._clippingStencil);
     },
 
@@ -59,15 +58,15 @@ var Mask = cc.Class({
         var x = contentSize.width * anchorPoint.x;
         var y = contentSize.height * anchorPoint.y;
         this._clippingStencil.clear();
-        this._clippingStencil.drawRect(cc.v2(-x,-y),cc.v2(contentSize.width -x, contentSize.height - y),cc.Color.WHITE);
+        this._clippingStencil.drawRect(cc.v2(-x, -y), cc.v2(contentSize.width - x, contentSize.height - y), cc.Color.WHITE);
     },
 
     onEnable: function () {
         var oldNode = this.node._sgNode;
         this._refreshStencil();
         this.node._replaceSgNode(this._clippingNode);
-        this.node.on('size-changed',this._onContentSizeChanged, this);
-        this.node.on('anchor-changed',this._onAnchorChanged,this);
+        this.node.on('size-changed', this._onContentSizeChanged, this);
+        this.node.on('anchor-changed', this._onAnchorChanged, this);
     },
 
     onDisable: function () {
@@ -75,30 +74,20 @@ var Mask = cc.Class({
         var newNode = new _ccsg.Node();
         this.node._replaceSgNode(newNode);
         this.node.off('size-changed', this._onContentSizeChanged, this);
-        this.node.off('anchor-changed',this._onAnchorChanged,this);
+        this.node.off('anchor-changed', this._onAnchorChanged, this);
     },
 
-    _onContentSizeChanged: function() {
-        if(this._clippingStencil) {
+    _onContentSizeChanged: function () {
+        if (this._clippingStencil) {
             this._refreshStencil();
-            //this._dirtySgNodeTransform();
         }
     },
 
-    _onAnchorChanged: function() {
-        if(this._clippingStencil) {
+    _onAnchorChanged: function () {
+        if (this._clippingStencil) {
             this._refreshStencil();
-            //this._dirtySgNodeTransform();
         }
-    },
-
-    ////when the content size of stencil is changed, the rendering will be wrong, because of the transform is called
-    ////by no parent render command, in fact the parent rendercommand should be the render command of clippingNode
-    //_dirtySgNodeTransform: function() {
-    //    if(!cc.sys.isNative) {
-    //        this.node._sgNode._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-    //    }
-    //},
+    }
 
 });
 
