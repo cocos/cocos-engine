@@ -256,26 +256,41 @@ _ccsg.Label = _ccsg.Node.extend({
         return this._fontSize;
     },
 
+    _updateWrapText: function(overflow){
+        if ( overflow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+            this._isWrapText = true;
+        }
+
+        if (overflow === _ccsg.Label.Overflow.NONE) {
+            this._isWrapText = false;
+        }
+    },
+
+
+    _setOverflowBMFont: function () {
+        if (this._labelType === _ccsg.Label.Type.BMFont) {
+
+            if ( this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+                this._setDimensions(this._labelDimensions.width, 0);
+            }
+
+            if (this._overFlow === _ccsg.Label.Overflow.NONE) {
+                this._setDimensions(0, 0);
+            }
+
+            this._rescaleWithOriginalFontSize();
+        }
+    },
+
     setOverflow: function(overflow) {
         if (this._overFlow === overflow) return;
 
         this._overFlow = overflow;
 
-        if (this._labelType === _ccsg.Label.Type.BMFont) {
+        this._updateWrapText(this._overFlow);
 
-            if ( this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
-                this._setDimensions(this._labelDimensions.width, 0);
-                this._isWrapText = true;
-            }
+        this._setOverflowBMFont();
 
-            if (this._overFlow === _ccsg.Label.Overflow.NONE) {
-                this._isWrapText = false;
-                this._setDimensions(0, 0);
-            }
-        }
-
-
-        this._rescaleWithOriginalFontSize();
         this._notifyLabelSkinDirty();
     },
 
