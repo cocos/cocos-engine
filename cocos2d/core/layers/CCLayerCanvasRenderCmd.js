@@ -289,7 +289,7 @@
 
     proto.visit = function(parentCmd){
         if(!this._isBaked){
-            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this);
+            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
             return;
         }
 
