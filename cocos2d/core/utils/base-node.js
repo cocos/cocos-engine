@@ -1411,7 +1411,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             }
 
             this._sgNode = sgNode;
-
+            if (cc.sys.isNative) {
+                oldSgNode.release();
+                sgNode.retain();
+            }
         } else {
             throw new Error("Invalid sgNode. It must an instance of _ccsg.Node");
         }

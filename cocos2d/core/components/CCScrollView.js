@@ -487,27 +487,13 @@ var ScrollView = cc.Class({
         return contentParent.convertToNodeSpaceAR(scrollViewPositionInWorldSpace);
     },
 
-
-    _hitTest: function(pos) {
-        var target = this.node;
-
-        var w = target.width;
-        var h = target.height;
-        var anchor = target.getAnchorPoint();
-
-        var rect = cc.rect(-anchor.x * w, -anchor.y * h, w, h);
-        return cc.rectContainsPoint(rect, target.convertToNodeSpaceAR(pos));
-    },
-
     // touch event handler
     _onTouchBegan: function(event) {
         var touch = event.touch;
-        var hit = this._hitTest(touch.getLocation());
-        if (hit && this.content) {
+        if (this.content) {
             this._handlePressLogic(touch);
         }
-
-        return hit;
+        event.stopPropagation();
     },
 
     _cancelButtonClick: function(touch) {
@@ -535,6 +521,7 @@ var ScrollView = cc.Class({
             }
             this._handleMoveLogic(touch);
         }
+        event.stopPropagation();
     },
 
     _onTouchEnded: function(event) {
@@ -542,13 +529,14 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handleReleaseLogic(touch);
         }
-
+        event.stopPropagation();
     },
     _onTouchCancelled: function(event) {
         var touch = event.touch;
         if(this.content){
             this._handleReleaseLogic(touch);
         }
+        event.stopPropagation();
     },
 
     _handleMoveLogic: function(touch) {
@@ -904,7 +892,7 @@ var ScrollView = cc.Class({
     },
 
     //component life cycle methods
-    onLoad: function() {
+    onLoad: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
         }

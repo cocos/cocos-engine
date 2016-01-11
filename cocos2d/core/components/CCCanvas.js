@@ -52,7 +52,7 @@ var Canvas = cc.Class({
     name: 'cc.Canvas', extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/Canvas',
+        menu: 'i18n:MAIN_MENU.component.ui/Canvas',
         executeInEditMode: true,
         disallowMultiple: true
     },

@@ -80,75 +80,89 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
 
 // Independent Action from retain/release
 var actionArr = [
-    cc.ActionEase,
-    cc.EaseExponentialIn,
-    cc.EaseExponentialOut,
-    cc.EaseExponentialInOut,
-    cc.EaseSineIn,
-    cc.EaseSineOut,
-    cc.EaseSineInOut,
-    cc.EaseBounce,
-    cc.EaseBounceIn,
-    cc.EaseBounceOut,
-    cc.EaseBounceInOut,
-    cc.EaseBackIn,
-    cc.EaseBackOut,
-    cc.EaseBackInOut,
-    cc.EaseRateAction,
-    cc.EaseIn,
-    cc.EaseElastic,
-    cc.EaseElasticIn,
-    cc.EaseElasticOut,
-    cc.EaseElasticInOut,
-    cc.RemoveSelf,
-    cc.FlipX,
-    cc.FlipY,
-    cc.Place,
-    cc.CallFunc,
-    cc.DelayTime,
-    cc.Sequence,
-    cc.Spawn,
-    cc.Speed,
-    cc.Repeat,
-    cc.RepeatForever,
-    cc.Follow,
-    cc.TargetedAction,
-    cc.Animate,
-    cc.OrbitCamera,
-    cc.GridAction,
-    cc.ProgressTo,
-    cc.ProgressFromTo,
-    cc.ActionInterval,
-    cc.RotateTo,
-    cc.RotateBy,
-    cc.MoveBy,
-    cc.MoveTo,
-    cc.SkewTo,
-    cc.SkewBy,
-    cc.JumpTo,
-    cc.JumpBy,
-    cc.ScaleTo,
-    cc.ScaleBy,
-    cc.Blink,
-    cc.FadeTo,
-    cc.FadeIn,
-    cc.FadeOut,
-    cc.TintTo,
-    cc.TintBy,
+    'ActionEase',
+    'EaseExponentialIn',
+    'EaseExponentialOut',
+    'EaseExponentialInOut',
+    'EaseSineIn',
+    'EaseSineOut',
+    'EaseSineInOut',
+    'EaseBounce',
+    'EaseBounceIn',
+    'EaseBounceOut',
+    'EaseBounceInOut',
+    'EaseBackIn',
+    'EaseBackOut',
+    'EaseBackInOut',
+    'EaseRateAction',
+    'EaseIn',
+    'EaseElastic',
+    'EaseElasticIn',
+    'EaseElasticOut',
+    'EaseElasticInOut',
+    'RemoveSelf',
+    'FlipX',
+    'FlipY',
+    'Place',
+    'CallFunc',
+    'DelayTime',
+    'Sequence',
+    'Spawn',
+    'Speed',
+    'Repeat',
+    'RepeatForever',
+    'Follow',
+    'TargetedAction',
+    'Animate',
+    'OrbitCamera',
+    'GridAction',
+    'ProgressTo',
+    'ProgressFromTo',
+    'ActionInterval',
+    'RotateTo',
+    'RotateBy',
+    'MoveBy',
+    'MoveTo',
+    'SkewTo',
+    'SkewBy',
+    'JumpTo',
+    'JumpBy',
+    'ScaleTo',
+    'ScaleBy',
+    'Blink',
+    'FadeTo',
+    'FadeIn',
+    'FadeOut',
+    'TintTo',
+    'TintBy',
 ];
 
-function getCtorReplacer (proto) {
+function setCtorReplacer (proto) {
     var ctor = proto._ctor;
-    return function () {
+    proto._ctor = function () {
         ctor.apply(this, arguments);
         this.retain();
         this._retained = true;
     };
 }
+function setAliasReplacer (name, type) {
+    var aliasName = name[0].toLowerCase() + name.substr(1);
+    cc[aliasName] = function () {
+        var action = type.create.apply(this, arguments);
+        action.retain();
+        action._retained = true;
+        return action;
+    };
+}
 
 for (var i = 0; i < actionArr.length; ++i) {
-    var proto = actionArr[i].prototype;
-    proto._ctor = getCtorReplacer(proto);
+    var name = actionArr[i];
+    var type = cc[name];
+    if (!type) 
+        continue;
+    var proto = type.prototype;
+    setCtorReplacer(proto);
+    setAliasReplacer(name, type);
 }
 
 function setChainFuncReplacer (proto, name) {
@@ -161,6 +175,7 @@ function setChainFuncReplacer (proto, name) {
         var newAction = oldFunc.apply(this, arguments);
         newAction.retain();
         newAction._retained = true;
+        return newAction;
     };
 }
 
@@ -170,19 +185,19 @@ setChainFuncReplacer(cc.ActionInterval.prototype, 'easing');
 
 var jsbRunAction = cc.Node.prototype.runAction;
 cc.Node.prototype.runAction = function (action) {
+    jsbRunAction.call(this, action);
     if (action._retained) {
         action.release();
         action._retained = false;
     }
-    jsbRunAction.call(this, action);
 };
 var jsbAddAction = cc.ActionManager.prototype.addAction;
 cc.ActionManager.prototype.addAction = function (action, target, paused) {
+    jsbAddAction.call(this, action, target, paused);
     if (action._retained) {
         action.release();
         action._retained = false;
     }
-    jsbAddAction.call(this, action, target, paused);
 };
 
 // ccsg

@@ -284,12 +284,6 @@ cc.eventManager = {
                 var rootEntity = cc.director.getScene();
                 if(rootEntity)
                     this._sortListenersOfSceneGraphPriority(listenerID, rootEntity);
-                
-                var rootNode = cc.director.getRunningScene();
-                if(rootNode)
-                    this._sortListenersOfSceneGraphPriority(listenerID, rootNode);
-                else
-                    locFlagMap[listenerID] = this.DIRTY_SCENE_GRAPH_PRIORITY;
             }
         }
     },
