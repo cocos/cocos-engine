@@ -20,7 +20,6 @@ describe('core level', function () {
             'library': 'library',
         });
 
-        Editor.require( 'app://builtin/fire-assets/init' );
         Editor.require( 'app://engine' );
     });
 });

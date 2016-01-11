@@ -22,8 +22,6 @@ Editor.metas = {
 Editor.assets = {};
 Editor.inspectors = {};
 
-Editor.require('app://builtin/fire-assets/init');
-
 // cocos
 Editor.require('app://engine');
 
