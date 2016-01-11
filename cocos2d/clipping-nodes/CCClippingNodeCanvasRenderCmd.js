@@ -84,6 +84,8 @@
         var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
 
         if (this._clipElemType) {
+            context.save();
+            context.globalAlpha = this._displayedOpacity/ 255;
             var locCache = cc.ClippingNode.CanvasRenderCmd._getSharedCache();
             var canvas = context.canvas;
             if (locCache.width !== canvas.width)
@@ -143,6 +145,7 @@
             context.drawImage(locCache, 0, 0);
             context.restore();
             this._dirtyFlag = 0;
+            context.restore();
         } else {
             wrapper.restore();                             //use for restore clip operation
         }
