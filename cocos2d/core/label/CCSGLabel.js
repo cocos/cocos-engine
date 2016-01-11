@@ -231,7 +231,8 @@ _ccsg.Label = _ccsg.Node.extend({
     enableWrapText: function(enabled) {
         if (this._isWrapText === enabled) return;
         //when label is in resize mode, wrap is disabled.
-        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT ||
+           this._overFlow === _ccsg.Label.Overflow.NONE) {
             return;
         }
         this._isWrapText = enabled;
@@ -262,6 +263,12 @@ _ccsg.Label = _ccsg.Node.extend({
             this._setDimensions(this._labelDimensions.width, 0);
             this._isWrapText = true;
         }
+
+        if (this._overFlow === _ccsg.Label.Overflow.NONE) {
+            this._isWrapText = false;
+            this._setDimensions(0, 0);
+        }
+
         this._rescaleWithOriginalFontSize();
         this._notifyLabelSkinDirty();
     },
@@ -318,6 +325,9 @@ _ccsg.Label = _ccsg.Node.extend({
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
             this._initBMFontWithString(this._string, fontHandle);
+            if(this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+                this._setDimensions(this._labelDimensions.width, 0);
+            }
         }
     },
 
@@ -368,6 +378,10 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     setContentSize: function(size, height) {
+        if (this._overFlow === _ccsg.Label.Overflow.NONE) {
+            return;
+        }
+
         var oldWidth = this._contentSize.width;
         var oldHeight = this._contentSize.height;
         if (this._labelType === _ccsg.Label.Type.TTF ||
