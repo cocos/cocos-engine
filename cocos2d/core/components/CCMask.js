@@ -49,14 +49,18 @@ var Mask = cc.Class({
 
     onLoad: function () {
         this._clippingStencil = new cc.DrawNode();
-        this._clippingStencil.retain();
         this._clippingNode = new cc.ClippingNode(this._clippingStencil);
-        this._clippingNode.retain();
+        if (cc.sys.isNative) {
+            this._clippingStencil.retain();
+            this._clippingNode.retain();
+        }
     },
 
     onDestroy: function () {
-        this._clippingStencil.release();
-        this._clippingNode.release();
+        if (cc.sys.isNative) {
+            this._clippingStencil.release();
+            this._clippingNode.release();
+        }
     },
 
     _refreshStencil: function () {

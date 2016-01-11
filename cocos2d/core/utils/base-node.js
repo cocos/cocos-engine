@@ -1410,9 +1410,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
             }
 
-            oldSgNode.release();
             this._sgNode = sgNode;
-            sgNode.retain();
+            if (cc.sys.isNative) {
+                oldSgNode.release();
+                sgNode.retain();
+            }
         } else {
             throw new Error("Invalid sgNode. It must an instance of _ccsg.Node");
         }
