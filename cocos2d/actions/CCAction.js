@@ -24,6 +24,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * @module actions
+ */
+
 /** Default Action tag
  * @constant
  * @type {Number}
@@ -32,16 +36,12 @@
 cc.ACTION_TAG_INVALID = -1;
 
 /**
- * Base class for cc.Action objects.
- * @class
+ * Base class cc.Action for action classes.
+ * @class Action
  *
- * @extends cc._Class
- *
- * @property {_ccsg.Node}  target          - The target will be set with the 'startWithTarget' method. When the 'stop' method is called, target will be set to nil.
- * @property {_ccsg.Node}  originalTarget  - The original target of the action.
- * @property {Number}   tag             - The tag of the action, can be used to find the action.
+ * @extends _Class
  */
-cc.Action = cc._Class.extend(/** @lends cc.Action# */{
+cc.Action = cc._Class.extend({
     //***********variables*************
     originalTarget:null,
     target:null,
@@ -49,9 +49,6 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
 
     //**************Public Functions***********
 
-    /**
-     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
-     */
     ctor:function () {
         this.originalTarget = null;
         this.target = null;
@@ -60,21 +57,9 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
 
     /**
      * to copy object with deep copy.
-     *
-     * @deprecated since v3.0 please use .clone
-     *
-     * @return {cc.Action}
-     */
-    copy:function () {
-        cc.log("copy is deprecated. Please use clone instead.");
-        return this.clone();
-    },
-
-    /**
-     * to copy object with deep copy.
      * returns a clone of action.
-     *
-     * @return {cc.Action}
+     * @method clone
+     * @return {Action}
      */
     clone:function () {
         var action = new cc.Action();
@@ -86,54 +71,38 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
 
     /**
      * return true if the action has finished.
-     *
+     * @method isDone
      * @return {Boolean}
      */
     isDone:function () {
         return true;
     },
 
-    /**
-     * called before the action start. It will also set the target.
-     *
-     * @param {_ccsg.Node} target
-     */
+    // called before the action start. It will also set the target.
     startWithTarget:function (target) {
         this.originalTarget = target;
         this.target = target;
     },
 
-    /**
-     * called after the action has finished. It will set the 'target' to nil. <br />
-     * IMPORTANT: You should never call "action stop" manually. Instead, use: "target.stopAction(action);"
-     */
+    // called after the action has finished. It will set the 'target' to nil.
     stop:function () {
         this.target = null;
     },
 
-    /**
-     * called every frame with it's delta time. <br />
-     * DON'T override unless you know what you are doing.
-     *
-     * @param {Number} dt
-     */
+    // called every frame with it's delta time. <br />
     step:function (dt) {
         cc.log("[Action step]. override me");
     },
 
-    /**
-     * Called once per frame. Time is the number of seconds of a frame interval.
-     *
-     * @param {Number}  dt
-     */
+    // Called once per frame. Time is the number of seconds of a frame interval.
     update:function (dt) {
         cc.log("[Action update]. override me");
     },
 
     /**
      * get the target.
-     *
-     * @return {_ccsg.Node}
+     * @method getTarget
+     * @return {Node}
      */
     getTarget:function () {
         return this.target;
@@ -141,8 +110,8 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
 
     /**
      * The action will modify the target properties.
-     *
-     * @param {_ccsg.Node} target
+     * @method setTarget
+     * @param {Node} target
      */
     setTarget:function (target) {
         this.target = target;
@@ -150,26 +119,23 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
 
     /**
      * get the original target.
-     *
-     * @return {_ccsg.Node}
+     * @method getOriginalTarget
+     * @return {Node}
      */
     getOriginalTarget:function () {
         return this.originalTarget;
     },
 
-    /**
-     * Set the original target, since target can be nil. <br/>
-     * Is the target that were used to run the action.  <br/>
-     * Unless you are doing something complex, like cc.ActionManager, you should NOT call this method. <br/>
-     * The target is 'assigned', it is not 'retained'. <br/>
-     * @param {_ccsg.Node} originalTarget
-     */
+    // Set the original target, since target can be nil.
+    // Is the target that were used to run the action.
+    // Unless you are doing something complex, like cc.ActionManager, you should NOT call this method.
     setOriginalTarget:function (originalTarget) {
         this.originalTarget = originalTarget;
     },
 
     /**
      * get tag number.
+     * @method getTag
      * @return {Number}
      */
     getTag:function () {
@@ -178,52 +144,30 @@ cc.Action = cc._Class.extend(/** @lends cc.Action# */{
 
     /**
      * set tag number.
+     * @method setTag
      * @param {Number} tag
      */
     setTag:function (tag) {
         this.tag = tag;
     },
 
-    /**
-     * Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB, <br/>
-     * and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB. <br/>
-     * This is a hack, and should be removed once JSB fixes the retain/release bug.
-     */
+    // Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
+    // and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
+    // This is a hack, and should be removed once JSB fixes the retain/release bug.
     retain:function () {
     },
 
-    /**
-     * Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB, <br/>
-     * and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB. <br/>
-     * This is a hack, and should be removed once JSB fixes the retain/release bug.
-     */
+    // Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
+    // and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
+    // This is a hack, and should be removed once JSB fixes the retain/release bug.
     release:function () {
     }
 });
 
-/**
- * Allocates and initializes the action.
- *
- * @function cc.action
- * @static
- * @return {cc.Action}
- *
- * @example
- * // return {cc.Action}
- * var action = cc.action();
- */
 cc.action = function () {
     return new cc.Action();
 };
 
-/**
- * Please use cc.action instead. <br/>
- * Allocates and initializes the action.
- *
- * @deprecated since v3.0 please use cc.action() instead.
- * @static
- * @returns {cc.Action}
- */
 cc.Action.create = cc.action;
 
 
@@ -234,16 +178,13 @@ cc.Action.create = cc.action;
  * - An action with a duration of 35.5 seconds.
  *
  * Infinite time actions are valid
- * @class
- * @extends cc.Action
+ * @class FiniteTimeAction
+ * @extends Action
  */
-cc.FiniteTimeAction = cc.Action.extend(/** @lends cc.FiniteTimeAction# */{
+cc.FiniteTimeAction = cc.Action.extend({
     //! duration in seconds
     _duration:0,
 
-    /**
-     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
-     */
     ctor:function () {
         cc.Action.prototype.ctor.call(this);
         this._duration = 0;
@@ -251,7 +192,7 @@ cc.FiniteTimeAction = cc.Action.extend(/** @lends cc.FiniteTimeAction# */{
 
     /**
      * get duration of the action. (seconds)
-     *
+     * @method getDuration
      * @return {Number}
      */
     getDuration:function () {
@@ -260,7 +201,7 @@ cc.FiniteTimeAction = cc.Action.extend(/** @lends cc.FiniteTimeAction# */{
 
     /**
      * set duration of the action. (seconds)
-     *
+     * @method setDuration
      * @param {Number} duration
      */
     setDuration:function (duration) {
@@ -273,7 +214,7 @@ cc.FiniteTimeAction = cc.Action.extend(/** @lends cc.FiniteTimeAction# */{
      * - The action will be x coordinates of 0 move to 100. <br />
      * - The reversed action will be x of 100 move to 0.
      * - Will be rewritten
-     *
+     * @method reverse
      * @return {Null}
      */
     reverse:function () {
@@ -284,8 +225,8 @@ cc.FiniteTimeAction = cc.Action.extend(/** @lends cc.FiniteTimeAction# */{
     /**
      * to copy object with deep copy.
      * returns a clone of action.
-     *
-     * @return {cc.FiniteTimeAction}
+     * @method clone
+     * @return {FiniteTimeAction}
      */
     clone:function () {
         return new cc.FiniteTimeAction();
@@ -293,23 +234,27 @@ cc.FiniteTimeAction = cc.Action.extend(/** @lends cc.FiniteTimeAction# */{
 });
 
 /**
+ * @module actions
+ */
+
+/*
  * Changes the speed of an action, making it take longer (speed > 1)
  * or less (speed < 1) time. <br/>
  * Useful to simulate 'slow motion' or 'fast forward' effect.
  *
  * @warning This action can't be Sequenceable because it is not an cc.IntervalAction
  * @class
- * @extends cc.Action
- * @param {cc.ActionInterval} action
+ * @extends Action
+ * @param {ActionInterval} action
  * @param {Number} speed
  */
-cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
+cc.Speed = cc.Action.extend({
     _speed:0.0,
     _innerAction:null,
 
-	/**
+	/*
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
-	 * @param {cc.ActionInterval} action
+	 * @param {ActionInterval} action
 	 * @param {Number} speed
 	 */
     ctor:function (action, speed) {
@@ -320,7 +265,7 @@ cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
 		action && this.initWithAction(action, speed);
     },
 
-    /**
+    /*
      * Gets the current running speed. <br />
      * Will get a percentage number, compared to the original speed.
      *
@@ -330,7 +275,7 @@ cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
         return this._speed;
     },
 
-    /**
+    /*
      * alter the speed of the inner function in runtime.
      *
      * @param {Number} speed
@@ -339,10 +284,10 @@ cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
         this._speed = speed;
     },
 
-    /**
+    /*
      * initializes the action.
      *
-     * @param {cc.ActionInterval} action
+     * @param {ActionInterval} action
      * @param {Number} speed
      * @return {Boolean}
      */
@@ -355,71 +300,37 @@ cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
         return true;
     },
 
-    /**
-     * to copy object with deep copy.
-     * returns a clone of action.
-     *
-     * @returns {cc.Speed}
-     */
     clone:function () {
         var action = new cc.Speed();
         action.initWithAction(this._innerAction.clone(), this._speed);
         return action;
     },
 
-    /**
-     * called before the action start. It will also set the target.
-     *
-     * @param {_ccsg.Node} target
-     */
     startWithTarget:function (target) {
         cc.Action.prototype.startWithTarget.call(this, target);
         this._innerAction.startWithTarget(target);
     },
 
-    /**
-     *  Stop the action.
-     */
     stop:function () {
         this._innerAction.stop();
         cc.Action.prototype.stop.call(this);
     },
 
-    /**
-     * called every frame with it's delta time. <br />
-     * DON'T override unless you know what you are doing.
-     *
-     * @param {Number} dt
-     */
     step:function (dt) {
         this._innerAction.step(dt * this._speed);
     },
 
-    /**
-     * return true if the action has finished.
-     *
-     * @return {Boolean}
-     */
     isDone:function () {
         return this._innerAction.isDone();
     },
 
-    /**
-     * returns a reversed action. <br />
-     * For example: <br />
-     * - The action will be x coordinates of 0 move to 100. <br />
-     * - The reversed action will be x of 100 move to 0.
-     * - Will be rewritten
-     *
-     * @return {cc.Speed}
-     */
     reverse:function () {
         return new cc.Speed(this._innerAction.reverse(), this._speed);
     },
 
-    /**
+    /*
      * Set inner Action.
-     * @param {cc.ActionInterval} action
+     * @param {ActionInterval} action
      */
     setInnerAction:function (action) {
         if (this._innerAction !== action) {
@@ -427,10 +338,10 @@ cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
         }
     },
 
-    /**
+    /*
      * Get inner Action.
      *
-     * @return {cc.ActionInterval}
+     * @return {ActionInterval}
      */
     getInnerAction:function () {
         return this._innerAction;
@@ -438,31 +349,25 @@ cc.Speed = cc.Action.extend(/** @lends cc.Speed# */{
 });
 
 /**
- * creates the speed action.
+ * Creates the speed action which changes the speed of an action, making it take longer (speed > 1)
+ * or less (speed < 1) time. <br/>
+ * Useful to simulate 'slow motion' or 'fast forward' effect.
  *
- * @function cc.speed
- * @param {cc.ActionInterval} action
+ * @warning This action can't be Sequenceable because it is not an cc.IntervalAction
+ *
+ * @method cc.speed
+ * @param {ActionInterval} action
  * @param {Number} speed
- * @return {cc.Speed}
+ * @return {Speed}
  */
 cc.speed = function (action, speed) {
     return new cc.Speed(action, speed);
 };
 
-/**
- * Please use cc.speed instead.
- * creates the action.
- *
- * @param {cc.ActionInterval} action
- * @param {Number} speed
- * @return {cc.Speed}
- * @static
- * @deprecated since v3.0 please use cc.speed() instead.
- */
 cc.Speed.create = cc.speed;
 
-/**
- * cc.Follow is an action that "follows" a node.
+/*
+ * cc.Follow is a follow action which makes its target follows another node.
  *
  * @example
  * //example
@@ -475,7 +380,7 @@ cc.Speed.create = cc.speed;
  * @property {Number}  bottomBoundary - world bottomBoundary.
  *
  * @param {_ccsg.Node} followedNode
- * @param {cc.Rect} rect
+ * @param {Rect} rect
  * @example
  * // creates the action with a set boundary
  * var sprite = new _ccsg.Sprite("spriteFileName");
@@ -488,9 +393,9 @@ cc.Speed.create = cc.speed;
  * this.runAction(followAction);
  *
  * @class
- * @extends cc.Action
+ * @extends Action
  */
-cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
+cc.Follow = cc.Action.extend({
     // node to follow
     _followedNode:null,
     // whether camera should be limited to certain area
@@ -512,7 +417,7 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
 	 * creates the action with a set boundary. <br/>
 	 * creates the action with no boundary set.
      * @param {_ccsg.Node} followedNode
-     * @param {cc.Rect} rect
+     * @param {Rect} rect
 	 */
     ctor:function (followedNode, rect) {
         cc.Action.prototype.ctor.call(this);
@@ -534,12 +439,6 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
 				 : this.initWithTarget(followedNode);
     },
 
-    /**
-     * to copy object with deep copy.
-     * returns a clone of action.
-     *
-     * @return {cc.Follow}
-     */
     clone:function () {
         var action = new cc.Follow();
         var locRect = this._worldRect;
@@ -548,7 +447,7 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
         return action;
     },
 
-    /**
+    /*
      * Get whether camera should be limited to certain area.
      *
      * @return {Boolean}
@@ -557,7 +456,7 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
         return this._boundarySet;
     },
 
-    /**
+    /*
      * alter behavior - turn on/off boundary.
      *
      * @param {Boolean} value
@@ -566,11 +465,11 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
         this._boundarySet = value;
     },
 
-    /**
+    /*
      * initializes the action with a set boundary.
      *
      * @param {_ccsg.Node} followedNode
-     * @param {cc.Rect} [rect=]
+     * @param {Rect} [rect=]
      * @return {Boolean}
      */
     initWithTarget:function (followedNode, rect) {
@@ -613,12 +512,6 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
         return true;
     },
 
-    /**
-     * called every frame with it's delta time. <br />
-     * DON'T override unless you know what you are doing.
-     *
-     * @param {Number} dt
-     */
     step:function (dt) {
         var tempPosX = this._followedNode.x;
         var tempPosY = this._followedNode.y;
@@ -639,18 +532,10 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
         }
     },
 
-    /**
-     * Return true if the action has finished.
-     *
-     * @return {Boolean}
-     */
     isDone:function () {
         return ( !this._followedNode.running );
     },
 
-    /**
-     * Stop the action.
-     */
     stop:function () {
         this.target = null;
         cc.Action.prototype.stop.call(this);
@@ -658,37 +543,24 @@ cc.Follow = cc.Action.extend(/** @lends cc.Follow# */{
 });
 
 /**
- * creates the action with a set boundary. <br/>
- * creates the action with no boundary set.
+ * Create a follow action which makes its target follows another node.
  *
- * @function
- * @param {_ccsg.Node} followedNode
- * @param {cc.Rect} rect
- * @return {cc.Follow|Null} returns the cc.Follow object on success
+ * @method
+ * @param {Node} followedNode
+ * @param {Rect} rect
+ * @return {Follow|Null} returns the cc.Follow object on success
  * @example
  * // example
  * // creates the action with a set boundary
- * var sprite = new _ccsg.Sprite("spriteFileName");
- * var followAction = cc.follow(sprite, cc.rect(0, 0, s.width * 2 - 100, s.height));
- * this.runAction(followAction);
+ * var followAction = cc.follow(targetNode, cc.rect(0, 0, screenWidth * 2 - 100, screenHeight));
+ * node.runAction(followAction);
  *
  * // creates the action with no boundary set
- * var sprite = new _ccsg.Sprite("spriteFileName");
- * var followAction = cc.follow(sprite);
- * this.runAction(followAction);
+ * var followAction = cc.follow(targetNode);
+ * node.runAction(followAction);
  */
 cc.follow = function (followedNode, rect) {
     return new cc.Follow(followedNode, rect);
 };
 
-/**
- * Please use cc.follow instead.
- * creates the action with a set boundary. <br/>
- * creates the action with no boundary set.
- * @param {_ccsg.Node} followedNode
- * @param {cc.Rect} rect
- * @return {cc.Follow|Null} returns the cc.Follow object on success
- * @static
- * @deprecated since v3.0 please cc.follow() instead.
- */
 cc.Follow.create = cc.follow;
