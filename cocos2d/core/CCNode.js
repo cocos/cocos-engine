@@ -718,11 +718,13 @@ var Node = cc.Class({
         }
         // Activate
         if (newActive) {
-            target.resume();
+            cc.director.getActionManager().resumeTarget(target);
+            cc.eventManager.resumeTarget(target);
         }
         // Desactivate
         else {
-            target.pause();
+            cc.director.getActionManager().pauseTarget(target);
+            cc.eventManager.pauseTarget(target);
         }
     },
 
