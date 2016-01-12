@@ -647,10 +647,15 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 }
             }
             else {
-                var uuid = sceneAsset._uuid;
-                scene = sceneAsset.scene;
+                if (sceneAsset instanceof cc.SceneAsset) {
+                    scene = sceneAsset.scene;
+                    scene._id = sceneAsset._uuid;
+                }
+                else {
+                    // hack for preview
+                    scene = sceneAsset;
+                }
                 if (scene instanceof cc.Scene) {
-                    scene._id = uuid;
                     self._loadRawAssets(handle.assetsNeedPostLoad,
                                         function () {
                                             self.runScene(scene, onUnloaded);
