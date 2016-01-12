@@ -141,7 +141,10 @@ cc.js.mixin(cc.director, {
             this.runWithScene(sgScene);
         }
         else {
-            this.replaceScene(sgScene);
+            // Delay to avoid issues like transition in event callback
+            this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+                this.replaceScene(sgScene);
+            });
         }
 
         // Activate
