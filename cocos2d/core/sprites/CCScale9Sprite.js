@@ -50,6 +50,249 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}   insetRight      - The right inset of the 9-slice sprite
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
+cc.SimpleQuadGenerator = {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity) {
+        var quads = [];
+        //build vertices
+        var vertices = this._calculateVertices(spriteFrame, contentSize);
+
+        //build uvs
+        var uvs = this._calculateUVs(spriteFrame);
+
+        //build quads
+        var quad;
+        quad = new cc.V3F_C4B_T2F_Quad();
+
+        quad._bl.colors = colorOpacity;
+        quad._br.colors = colorOpacity;
+        quad._tl.colors = colorOpacity;
+        quad._tr.colors = colorOpacity;
+
+        quad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
+        quad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
+        quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
+        quad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+
+        if (!spriteFrame._rotated) {
+            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quad._br.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+        } else {
+            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quad._br.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quad._tl.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+        }
+        quads.push(quad);
+        return quads;
+    },
+
+    _calculateVertices : function (spriteFrame, contentSize) {
+
+        var x0,x3;
+        var y0,y3;
+        x0 = 0;
+        x3 = contentSize.width;
+
+        y0 = 0;
+        y3 = contentSize.height;
+
+        //apply contentscale factor
+        x0 = x0 / cc.contentScaleFactor();
+        x3 = x3 / cc.contentScaleFactor();
+        y0 = y0 / cc.contentScaleFactor();
+        y3 = y3 / cc.contentScaleFactor();
+
+        var vertices = [];
+        vertices.push(cc.p(x0, y0));
+        vertices.push(cc.p(x3, y3));
+
+        return vertices;
+    },
+
+    _calculateUVs : function (spriteFrame) {
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+
+        //uv computation should take spritesheet into account.
+        var u0, u3;
+        var v0, v3;
+
+        if (spriteFrame._rotated) {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+        }
+        else {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+        }
+
+        var uvCoordinates = [];
+        uvCoordinates.push(cc.p(u0, v3));
+        uvCoordinates.push(cc.p(u3, v0));
+
+        return uvCoordinates;
+    }
+};
+cc.Scale9QuadGenerator = {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity,insetLeft, insetRight, insetTop, insetBottom) {
+        var quads = [];
+        //build vertices
+        var vertices = this._calculateVertices(spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom);
+
+        //build uvs
+        var uvs = this._calculateUVs(spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
+
+        //build quads
+        var quad;
+        for (var i = 0; i < 3; ++i) {
+            for (var j = 0; j < 3; ++j) {
+                quad = new cc.V3F_C4B_T2F_Quad();
+                quad._bl.colors = colorOpacity;
+                quad._br.colors = colorOpacity;
+                quad._tl.colors = colorOpacity;
+                quad._tr.colors = colorOpacity;
+
+                quad._bl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j].y, 0);
+                quad._br.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j].y, 0);
+                quad._tl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j + 1].y, 0);
+                quad._tr.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j + 1].y, 0);
+
+                if (!spriteFrame._rotated) {
+                    quad._bl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j].y);
+                    quad._br.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j].y);
+                    quad._tl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j + 1].y);
+                    quad._tr.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j + 1].y);
+                } else {
+                    quad._bl.texCoords = new cc.Tex2F(uvs[j].x, uvs[3 - i].y);
+                    quad._br.texCoords = new cc.Tex2F(uvs[j].x, uvs[3 - (i + 1)].y);
+                    quad._tl.texCoords = new cc.Tex2F(uvs[j + 1].x, uvs[3 - i].y);
+                    quad._tr.texCoords = new cc.Tex2F(uvs[j + 1].x, uvs[3 - (i + 1)].y);
+                }
+                quads.push(quad);
+            }
+        }
+
+        return quads;
+    },
+
+    _calculateVertices : function (spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
+        var leftWidth, centerWidth, rightWidth;
+        var topHeight, centerHeight, bottomHeight;
+
+        var rect = spriteFrame._rect;
+        leftWidth = insetLeft;
+        rightWidth = insetRight;
+        centerWidth = rect.width - leftWidth - rightWidth;
+
+        topHeight = insetTop;
+        bottomHeight = insetBottom;
+        centerHeight = rect.height - topHeight - bottomHeight;
+
+        var preferSize = contentSize;
+        var sizableWidth = preferSize.width - leftWidth - rightWidth;
+        var sizableHeight = preferSize.height - topHeight - bottomHeight;
+        var xScale = preferSize.width / (leftWidth + rightWidth);
+        var yScale = preferSize.height / (topHeight + bottomHeight);
+        xScale = xScale > 1 ? 1 : xScale;
+        yScale = yScale > 1 ? 1 : yScale;
+        sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
+        sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
+        var x0, x1, x2, x3;
+        var y0, y1, y2, y3;
+        x0 = 0;
+        x1 = leftWidth * xScale;
+        x2 = x1 + sizableWidth;
+        x3 = preferSize.width;
+
+        y0 = 0;
+        y1 = bottomHeight * yScale;
+        y2 = y1 + sizableHeight;
+        y3 = preferSize.height;
+
+        //apply contentscale factor
+        x0 = x0 / cc.contentScaleFactor();
+        x1 = x1 / cc.contentScaleFactor();
+        x2 = x2 / cc.contentScaleFactor();
+        x3 = x3 / cc.contentScaleFactor();
+        y0 = y0 / cc.contentScaleFactor();
+        y1 = y1 / cc.contentScaleFactor();
+        y2 = y2 / cc.contentScaleFactor();
+        y3 = y3 / cc.contentScaleFactor();
+
+        var vertices = [];
+        vertices.push(cc.p(x0, y0));
+        vertices.push(cc.p(x1, y1));
+        vertices.push(cc.p(x2, y2));
+        vertices.push(cc.p(x3, y3));
+
+        return vertices;
+    },
+
+    _calculateUVs : function (spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
+        var rect = spriteFrame._rect;
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+
+        //caculate texture coordinate
+        var leftWidth, centerWidth, rightWidth;
+        var topHeight, centerHeight, bottomHeight;
+        leftWidth = insetLeft;
+        rightWidth = insetRight;
+        centerWidth = rect.width - leftWidth - rightWidth;
+
+        topHeight = insetTop;
+        bottomHeight = insetBottom;
+        centerHeight = rect.height - topHeight - bottomHeight;
+
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+
+        //uv computation should take spritesheet into account.
+        var u0, u1, u2, u3;
+        var v0, v1, v2, v3;
+
+        if (spriteFrame._rotated) {
+            u0 = textureRect.x / atlasWidth;
+            u1 = (bottomHeight + textureRect.x) / atlasWidth;
+            u2 = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
+            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v1 = (leftWidth + textureRect.y) / atlasHeight;
+            v2 = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
+            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+        }
+        else {
+            u0 = textureRect.x / atlasWidth;
+            u1 = (leftWidth + textureRect.x) / atlasWidth;
+            u2 = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
+            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v1 = (topHeight + textureRect.y) / atlasHeight;
+            v2 = (topHeight + centerHeight + textureRect.y) / atlasHeight;
+            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+        }
+
+        var uvCoordinates = [];
+        uvCoordinates.push(cc.p(u0, v3));
+        uvCoordinates.push(cc.p(u1, v2));
+        uvCoordinates.push(cc.p(u2, v1));
+        uvCoordinates.push(cc.p(u3, v0));
+
+        return uvCoordinates;
+    }
+};
+
 cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
     _spriteFrame: null,
@@ -294,189 +537,6 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         return this._insetBottom;
     },
 
-    _rebuildQuads: function () {
-        if (!this.loaded() || this._quadsDirty === false) return;
-        var spriteFrame = this._spriteFrame;
-        var color = this.getDisplayedColor();
-        color.a = this.getDisplayedOpacity();
-
-        this._quads = [];
-        //build vertices
-        var vertices = this._calculateVertices();
-
-        //build uvs
-        var uvs = this._calculateUVs();
-
-        //build quads
-        var quad;
-        if (this._renderingType == cc.Scale9Sprite.RenderingType.SIMPLE) {
-            quad = new cc.V3F_C4B_T2F_Quad();
-
-            quad._bl.colors = color;
-            quad._br.colors = color;
-            quad._tl.colors = color;
-            quad._tr.colors = color;
-
-            quad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
-            quad._br.vertices = new cc.Vertex3F(vertices[3].x, vertices[0].y, 0);
-            quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[3].y, 0);
-            quad._tr.vertices = new cc.Vertex3F(vertices[3].x, vertices[3].y, 0);
-
-            if (!spriteFrame._rotated) {
-                quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-                quad._br.texCoords = new cc.Tex2F(uvs[3].x, uvs[0].y);
-                quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[3].y);
-                quad._tr.texCoords = new cc.Tex2F(uvs[3].x, uvs[3].y);
-            } else {
-                quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[3].y);
-                quad._br.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-                quad._tl.texCoords = new cc.Tex2F(uvs[3].x, uvs[3].y);
-                quad._tr.texCoords = new cc.Tex2F(uvs[3].x, uvs[0].y);
-            }
-            this._quads.push(quad);
-
-        } else {
-            for (var i = 0; i < 3; ++i) {
-                for (var j = 0; j < 3; ++j) {
-                    quad = new cc.V3F_C4B_T2F_Quad();
-                    quad._bl.colors = color;
-                    quad._br.colors = color;
-                    quad._tl.colors = color;
-                    quad._tr.colors = color;
-
-                    quad._bl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j].y, 0);
-                    quad._br.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j].y, 0);
-                    quad._tl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j + 1].y, 0);
-                    quad._tr.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j + 1].y, 0);
-
-                    if (!spriteFrame._rotated) {
-                        quad._bl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j].y);
-                        quad._br.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j].y);
-                        quad._tl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j + 1].y);
-                        quad._tr.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j + 1].y);
-                    } else {
-                        quad._bl.texCoords = new cc.Tex2F(uvs[j].x, uvs[3 - i].y);
-                        quad._br.texCoords = new cc.Tex2F(uvs[j].x, uvs[3 - (i + 1)].y);
-                        quad._tl.texCoords = new cc.Tex2F(uvs[j + 1].x, uvs[3 - i].y);
-                        quad._tr.texCoords = new cc.Tex2F(uvs[j + 1].x, uvs[3 - (i + 1)].y);
-                    }
-                    this._quads.push(quad);
-                }
-            }
-        }
-        this._quadsDirty = false;
-    },
-
-
-    _calculateVertices: function () {
-        var leftWidth, centerWidth, rightWidth;
-        var topHeight, centerHeight, bottomHeight;
-
-        var spriteFrame = this._spriteFrame;
-        var rect = spriteFrame._rect;
-        leftWidth = this._insetLeft;
-        rightWidth = this._insetRight;
-        centerWidth = rect.width - leftWidth - rightWidth;
-
-        topHeight = this._insetTop;
-        bottomHeight = this._insetBottom;
-        centerHeight = rect.height - topHeight - bottomHeight;
-
-        var preferSize = this.getContentSize();
-        var sizableWidth = preferSize.width - leftWidth - rightWidth;
-        var sizableHeight = preferSize.height - topHeight - bottomHeight;
-        var xScale = preferSize.width / (leftWidth + rightWidth);
-        var yScale = preferSize.height / (topHeight + bottomHeight);
-        xScale = xScale > 1 ? 1 : xScale;
-        yScale = yScale > 1 ? 1 : yScale;
-        sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
-        sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
-        var x0, x1, x2, x3;
-        var y0, y1, y2, y3;
-        x0 = 0;
-        x1 = leftWidth * xScale;
-        x2 = x1 + sizableWidth;
-        x3 = preferSize.width;
-
-        y0 = 0;
-        y1 = bottomHeight * yScale;
-        y2 = y1 + sizableHeight;
-        y3 = preferSize.height;
-
-        //apply contentscale factor
-        x0 = x0 / cc.contentScaleFactor();
-        x1 = x1 / cc.contentScaleFactor();
-        x2 = x2 / cc.contentScaleFactor();
-        x3 = x3 / cc.contentScaleFactor();
-        y0 = y0 / cc.contentScaleFactor();
-        y1 = y1 / cc.contentScaleFactor();
-        y2 = y2 / cc.contentScaleFactor();
-        y3 = y3 / cc.contentScaleFactor();
-
-        var vertices = [];
-        vertices.push(cc.p(x0, y0));
-        vertices.push(cc.p(x1, y1));
-        vertices.push(cc.p(x2, y2));
-        vertices.push(cc.p(x3, y3));
-
-        return vertices;
-    },
-
-    _calculateUVs: function () {
-        var spriteFrame = this._spriteFrame;
-        var rect = spriteFrame._rect;
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
-
-        //caculate texture coordinate
-        var leftWidth, centerWidth, rightWidth;
-        var topHeight, centerHeight, bottomHeight;
-        leftWidth = this._insetLeft;
-        rightWidth = this._insetRight;
-        centerWidth = rect.width - leftWidth - rightWidth;
-
-        topHeight = this._insetTop;
-        bottomHeight = this._insetBottom;
-        centerHeight = rect.height - topHeight - bottomHeight;
-
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
-
-        //uv computation should take spritesheet into account.
-        var u0, u1, u2, u3;
-        var v0, v1, v2, v3;
-
-        if (spriteFrame._rotated) {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (bottomHeight + textureRect.x) / atlasWidth;
-            u2 = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
-            u3 = (textureRect.x + textureRect.height) / atlasWidth;
-
-            v0 = textureRect.y / atlasHeight;
-            v1 = (leftWidth + textureRect.y) / atlasHeight;
-            v2 = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
-            v3 = (textureRect.y + textureRect.width) / atlasHeight;
-        }
-        else {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (leftWidth + textureRect.x) / atlasWidth;
-            u2 = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
-            u3 = (textureRect.x + textureRect.width) / atlasWidth;
-
-            v0 = textureRect.y / atlasHeight;
-            v1 = (topHeight + textureRect.y) / atlasHeight;
-            v2 = (topHeight + centerHeight + textureRect.y) / atlasHeight;
-            v3 = (textureRect.y + textureRect.height) / atlasHeight;
-        }
-
-        var uvCoordinates = [];
-        uvCoordinates.push(cc.p(u0, v3));
-        uvCoordinates.push(cc.p(u1, v2));
-        uvCoordinates.push(cc.p(u2, v1));
-        uvCoordinates.push(cc.p(u3, v0));
-
-        return uvCoordinates;
-    },
-
     _onColorOpacityDirty: function () {
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
@@ -490,7 +550,20 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._quads[index]._tr.colors = color;
         }
     },
-
+    _rebuildQuads : function () {
+        if (!this.loaded() || this._quadsDirty === false) return;
+        var color = this.getDisplayedColor();
+        color.a = this.getDisplayedOpacity();
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
+            this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+        } else if(this._renderingType === cc.Scale9Sprite.RenderingType.SLICE) {
+            this._quads = cc.Scale9QuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+        } else {
+            this._quads = [];
+            cc.error("Can not generate quad");
+        }
+        this._quadsDirty = false;
+    },
     _createRenderCmd: function () {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS)
             return new cc.Scale9Sprite.CanvasRenderCmd(this);
@@ -502,7 +575,6 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
 var _p = cc.Scale9Sprite.prototype;
 cc.js.addon(_p, EventTarget.prototype);
-
 // Extended properties
 /** @expose */
 _p.insetLeft;
