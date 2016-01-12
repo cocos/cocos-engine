@@ -27,9 +27,9 @@
 /**
  * Base class for cc.Camera actions
  * @class
- * @extends cc.ActionInterval
+ * @extends ActionInterval
  */
-cc.ActionCamera = cc.ActionInterval.extend(/** @lends cc.ActionCamera# */{
+cc.ActionCamera = cc.ActionInterval.extend({
     _centerXOrig:0,
     _centerYOrig:0,
     _centerZOrig:0,
@@ -88,7 +88,7 @@ cc.ActionCamera = cc.ActionInterval.extend(/** @lends cc.ActionCamera# */{
      * to copy object with deep copy.
      * returns a new clone of the action
      *
-     * @returns {cc.ActionCamera}
+     * @returns {ActionCamera}
      */
     clone:function(){
        return new cc.ActionCamera();
@@ -119,9 +119,9 @@ cc.ActionCamera = cc.ActionInterval.extend(/** @lends cc.ActionCamera# */{
  * @param {Number} deltaAngleX
  *
  * @class
- * @extends cc.ActionCamera
+ * @extends ActionCamera
  */
-cc.OrbitCamera = cc.ActionCamera.extend(/** @lends cc.OrbitCamera# */{
+cc.OrbitCamera = cc.ActionCamera.extend({
     _radius: 0.0,
     _deltaRadius: 0.0,
     _angleZ: 0.0,
@@ -232,7 +232,7 @@ cc.OrbitCamera = cc.ActionCamera.extend(/** @lends cc.OrbitCamera# */{
      * to copy object with deep copy.
      * returns a new clone of the action
      *
-     * @returns {cc.ActionCamera}
+     * @returns {ActionCamera}
      */
     clone:function(){
         var a = new cc.OrbitCamera(), _t = this;
@@ -262,7 +262,7 @@ cc.OrbitCamera = cc.ActionCamera.extend(/** @lends cc.OrbitCamera# */{
 
 /**
  * creates a cc.OrbitCamera action with radius, delta-radius,  z, deltaZ, x, deltaX
- * @function
+ * @method
  * @param {Number} t time
  * @param {Number} radius
  * @param {Number} deltaRadius
@@ -270,7 +270,7 @@ cc.OrbitCamera = cc.ActionCamera.extend(/** @lends cc.OrbitCamera# */{
  * @param {Number} deltaAngleZ
  * @param {Number} angleX
  * @param {Number} deltaAngleX
- * @return {cc.OrbitCamera}
+ * @return {OrbitCamera}
  */
 cc.orbitCamera = function (t, radius, deltaRadius, angleZ, deltaAngleZ, angleX, deltaAngleX) {
     return new cc.OrbitCamera(t, radius, deltaRadius, angleZ, deltaAngleZ, angleX, deltaAngleX);
@@ -286,7 +286,7 @@ cc.orbitCamera = function (t, radius, deltaRadius, angleZ, deltaAngleZ, angleX, 
  * @param {Number} deltaAngleZ
  * @param {Number} angleX
  * @param {Number} deltaAngleX
- * @return {cc.OrbitCamera}
+ * @return {OrbitCamera}
  * @static
  * @deprecated since v3.0 please use cc.orbitCamera() instead.
  */

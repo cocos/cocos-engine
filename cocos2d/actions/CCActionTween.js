@@ -27,7 +27,7 @@
 /**
  *
  * @class
- * @extends cc._Class
+ * @extends _Class
  */
 cc.ActionTweenDelegate = cc._Class.extend(/** @lends cc.ActionTweenDelegate */{
 
@@ -44,7 +44,7 @@ cc.ActionTweenDelegate = cc._Class.extend(/** @lends cc.ActionTweenDelegate */{
  * cc.ActionTween is an action that lets you update any property of an object.
  *
  * @class
- * @extends cc.ActionInterval
+ * @extends ActionInterval
  * @example
  * //For example, if you want to modify the "width" property of a target from 200 to 300 in 2 seconds, then:
  *  var modifyWidth = cc.actionTween(2,"width",200,300)
@@ -100,7 +100,7 @@ cc.ActionTween = cc.ActionInterval.extend(/** @lends cc.ActionTween */{
 
     /**
      * Start this tween with target.
-     * @param {cc.ActionTweenDelegate} target
+     * @param {ActionTweenDelegate} target
      */
     startWithTarget:function (target) {
         if(!target || !target.updateTweenAction)
@@ -120,7 +120,7 @@ cc.ActionTween = cc.ActionInterval.extend(/** @lends cc.ActionTween */{
 
     /**
      * returns a reversed action.
-     * @return {cc.ActionTween}
+     * @return {ActionTween}
      */
     reverse:function () {
         return new cc.ActionTween(this.duration, this.key, this.to, this.from);
@@ -130,7 +130,7 @@ cc.ActionTween = cc.ActionInterval.extend(/** @lends cc.ActionTween */{
      * to copy object with deep copy.
      * returns a clone of action.
      *
-     * @return {cc.ActionTween}
+     * @return {ActionTween}
      */
     clone:function(){
         var action = new cc.ActionTween();
@@ -141,12 +141,12 @@ cc.ActionTween = cc.ActionInterval.extend(/** @lends cc.ActionTween */{
 
 /**
  * Creates an initializes the action with the property name (key), and the from and to parameters.
- * @function
+ * @method
  * @param {Number} duration
  * @param {String} key
  * @param {Number} from
  * @param {Number} to
- * @return {cc.ActionTween}
+ * @return {ActionTween}
  */
 cc.actionTween = function (duration, key, from, to) {
     return new cc.ActionTween(duration, key, from, to);
@@ -161,6 +161,6 @@ cc.actionTween = function (duration, key, from, to) {
  * @param {String} key
  * @param {Number} from
  * @param {Number} to
- * @return {cc.ActionTween}
+ * @return {ActionTween}
  */
 cc.ActionTween.create = cc.actionTween;
