@@ -597,7 +597,17 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         });
 
         var sgNode = this._sgNode = new _ccsg.Node();
-        sgNode.retain();
+        if (cc.sys.isNative) {
+            sgNode.retain();
+            var entity = this;
+            sgNode.onEnter = function () {
+                _ccsg.Node.prototype.onEnter.call(this);
+                if (!entity._active) {
+                    cc.director.getActionManager().pauseTarget(this);
+                    cc.eventManager.pauseTarget(this);
+                }
+            };
+        }
         if (!cc.game._isCloning) {
             sgNode.cascadeOpacity = true;
         }
