@@ -925,7 +925,6 @@ var Node = cc.Class({
             }
 
             cc.eventManager.removeListener(this._touchListener);
-            this._touchListener.release();
             this._touchListener = null;
         }
     },
@@ -938,7 +937,6 @@ var Node = cc.Class({
             }
 
             cc.eventManager.removeListener(this._mouseListener);
-            this._mouseListener.release();
             this._mouseListener = null;
         }
     },
