@@ -26,7 +26,7 @@
 
 var Attr = require('./attribute');
 
-// 增加预处理属性这个步骤的目的是降低 FireClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
+// 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
 var SerializableAttrs = {
     url: {

@@ -402,7 +402,7 @@ var _Deserializer = (function () {
         var klass = null;
         if (serialized.__type__) {
 
-            // Type Object (including FireClass)
+            // Type Object (including CCClass)
 
             klass = self._classFinder(serialized.__type__);
             if (!klass) {
