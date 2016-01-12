@@ -374,8 +374,158 @@ cc.TiledQuadGenerator = {
         return uvCoordinates;
     }
 };
-//todo
-cc.FilledQuadGenerator = cc.SimpleQuadGenerator;
+
+cc.FilledQuadGeneratorBar = {
+    //percentage from 0 to 1;
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, percentage) {
+        var quads = [];
+        //build vertices
+        var vertices = this._calculateVertices(spriteFrame, contentSize);
+
+        //build uvs
+        var uvs = this._calculateUVs(spriteFrame);
+
+        //build quads
+        var quad;
+        quad = new cc.V3F_C4B_T2F_Quad();
+
+        quad._bl.colors = colorOpacity;
+        quad._br.colors = colorOpacity;
+        quad._tl.colors = colorOpacity;
+        quad._tr.colors = colorOpacity;
+
+        quad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
+        quad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
+        quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
+        quad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+
+        if (!spriteFrame._rotated) {
+            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quad._br.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+        } else {
+            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quad._br.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quad._tl.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+        }
+
+        //do clamp
+        percentage = percentage > 1 ? 1 : percentage;
+        percentage = percentage < 0 ? 0 : percentage;
+        var progress;
+        switch (fillType) {
+            case cc.FillType.LEFT:
+                progress = vertices[0].x + (vertices[1].x - vertices[0].x) * percentage;
+                quad._br.vertices.x = progress;
+                quad._tr.vertices.x = progress;
+
+                quad._br.texCoords.u = quad._bl.texCoords.u + (quad._br.texCoords.u - quad._bl.texCoords.u) * percentage;
+                quad._br.texCoords.v = quad._bl.texCoords.v + (quad._br.texCoords.v - quad._bl.texCoords.v) * percentage;
+
+                quad._tr.texCoords.u = quad._tl.texCoords.u + (quad._tr.texCoords.u - quad._tl.texCoords.u) * percentage;
+                quad._tr.texCoords.v = quad._tl.texCoords.v + (quad._tr.texCoords.v - quad._tl.texCoords.v) * percentage;
+                break;
+            case cc.FillType.RIGHT:
+                progress = vertices[1].x + (vertices[0].x - vertices[1].x) * percentage;
+                quad._bl.vertices.x = progress;
+                quad._tl.vertices.x = progress;
+
+                quad._bl.texCoords.u = quad._br.texCoords.u + (quad._bl.texCoords.u - quad._br.texCoords.u) * percentage;
+                quad._bl.texCoords.v = quad._br.texCoords.v + (quad._bl.texCoords.v - quad._br.texCoords.v) * percentage;
+
+                quad._tl.texCoords.u = quad._tr.texCoords.u + (quad._tl.texCoords.u - quad._tr.texCoords.u) * percentage;
+                quad._tl.texCoords.v = quad._tr.texCoords.v + (quad._tl.texCoords.v - quad._tr.texCoords.v) * percentage;
+                break;
+            case cc.FillType.TOP:
+                progress = vertices[1].y + (vertices[0].y - vertices[1].y) * percentage;
+                quad._bl.vertices.y = progress;
+                quad._br.vertices.y = progress;
+
+                quad._bl.texCoords.u = quad._tl.texCoords.u + (quad._bl.texCoords.u - quad._tl.texCoords.u) * percentage;
+                quad._bl.texCoords.v = quad._tl.texCoords.v + (quad._bl.texCoords.v - quad._tl.texCoords.v) * percentage;
+
+                quad._br.texCoords.u = quad._tr.texCoords.u + (quad._br.texCoords.u - quad._tr.texCoords.u) * percentage;
+                quad._br.texCoords.v = quad._tr.texCoords.v + (quad._br.texCoords.v - quad._tr.texCoords.v) * percentage;
+                break;
+            case cc.FillType.BOTTOM:
+                progress = vertices[0].y + (vertices[1].y - vertices[0].y) * percentage;
+                quad._tl.vertices.y = progress;
+                quad._tr.vertices.y = progress;
+
+                quad._tl.texCoords.u = quad._bl.texCoords.u + (quad._tl.texCoords.u - quad._bl.texCoords.u) * percentage;
+                quad._tl.texCoords.v = quad._bl.texCoords.v + (quad._tl.texCoords.v - quad._bl.texCoords.v) * percentage;
+
+                quad._tr.texCoords.u = quad._br.texCoords.u + (quad._tr.texCoords.u - quad._br.texCoords.u) * percentage;
+                quad._tr.texCoords.v = quad._br.texCoords.v + (quad._tr.texCoords.v - quad._br.texCoords.v) * percentage;
+                break;
+            default:
+                cc.error("Unrecognized fill type in bar fill");
+                break;
+        }
+
+        quads.push(quad);
+        return quads;
+    },
+
+    _calculateVertices : function (spriteFrame, contentSize) {
+
+        var x0,x3;
+        var y0,y3;
+        x0 = 0;
+        x3 = contentSize.width;
+
+        y0 = 0;
+        y3 = contentSize.height;
+
+        //apply contentscale factor
+        x0 = x0 / cc.contentScaleFactor();
+        x3 = x3 / cc.contentScaleFactor();
+        y0 = y0 / cc.contentScaleFactor();
+        y3 = y3 / cc.contentScaleFactor();
+
+        var vertices = [];
+        vertices.push(cc.p(x0, y0));
+        vertices.push(cc.p(x3, y3));
+
+        return vertices;
+    },
+
+    _calculateUVs : function (spriteFrame) {
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+
+        //uv computation should take spritesheet into account.
+        var u0, u3;
+        var v0, v3;
+
+        if (spriteFrame._rotated) {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+        }
+        else {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+        }
+
+        var uvCoordinates = [];
+        uvCoordinates.push(cc.p(u0, v3));
+        uvCoordinates.push(cc.p(u3, v0));
+
+        return uvCoordinates;
+    }
+};
+//todo implement radial
+cc.FilledQuadGeneratorRadial = cc.SimpleQuadGenerator;
 
 cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
@@ -646,7 +796,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._quads = cc.TiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             cc.error("Filled sprite not implemented.");
-            this._quads = cc.FilledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+            this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else {
             this._quads = [];
             cc.error("Can not generate quad");
@@ -733,3 +883,12 @@ cc.SpriteType = cc.Enum({
 });
 
 cc.Scale9Sprite.RenderingType = cc.SpriteType;
+
+cc.FillType = cc.Enum({
+    LEFT: 0,
+    RIGHT: 1,
+    TOP: 2,
+    BOTTOM: 3,
+    //todo implement this
+    RADIAL:4,
+});
