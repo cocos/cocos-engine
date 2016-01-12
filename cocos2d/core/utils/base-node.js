@@ -603,7 +603,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             sgNode.onEnter = function () {
                 _ccsg.Node.prototype.onEnter.call(this);
                 if (!entity._active) {
-                    this.pause();
+                    cc.director.getActionManager().pauseTarget(this);
+                    cc.eventManager.pauseTarget(this);
                 }
             };
         }
