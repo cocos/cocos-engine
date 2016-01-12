@@ -718,13 +718,11 @@ var Node = cc.Class({
         }
         // Activate
         if (newActive) {
-            cc.director.getActionManager().resumeTarget(target);
-            cc.eventManager.resumeTarget(target);
+            target.resume();
         }
         // Desactivate
         else {
-            cc.director.getActionManager().pauseTarget(target);
-            cc.eventManager.pauseTarget(target);
+            target.pause();
         }
     },
 
@@ -1101,12 +1099,16 @@ if (cc.sys.isNative) {
     }, function (value) {
         this.__sgNode = value;
         if (this._touchListener) {
+            this._touchListener.retain();
             cc.eventManager.removeListener(this._touchListener);
             cc.eventManager.addListener(this._touchListener, this);
+            this._touchListener.release();
         }
         if (this._mouseListener) {
+            this._mouseListener.retain();
             cc.eventManager.removeListener(this._mouseListener);
             cc.eventManager.addListener(this._mouseListener, this);
+            this._mouseListener.release();
         }
     }, true);
 }
