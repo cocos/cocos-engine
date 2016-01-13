@@ -641,8 +641,11 @@ else {
                 _supportWebGL = true;
             }
 
-            // Ruled out Android 4- except for QQ Brwoser 6.2+
-            if (sys.os === sys.OS_ANDROID && sys.osMainVersion < 5) {
+            // Accept only Android 5+ and QQ Brwoser 6.2+
+            if (sys.os === sys.OS_ANDROID) {
+                if (!sys.osMainVersion || sys.osMainVersion < 5) {
+                    _supportWebGL = false;
+                }
                 var browserVer = parseFloat(sys.browserVersion);
                 if (sys.browserType !== sys.BROWSER_TYPE_MOBILE_QQ || browserVer < 6.2) {
                     _supportWebGL = false;
