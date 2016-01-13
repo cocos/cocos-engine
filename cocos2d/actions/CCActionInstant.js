@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * @module actions
+ * @module cc
  */
 
 /**
@@ -63,7 +63,7 @@ cc.ActionInstant = cc.FiniteTimeAction.extend({
 });
 
 /**
- * @module actions
+ * @module cc
  */
 
 /*
@@ -88,7 +88,7 @@ cc.Show = cc.ActionInstant.extend({
 
 /**
  * Show the Node.
- * @method cc.show
+ * @method show
  * @return {Show}
  * @example
  * // example
@@ -122,7 +122,7 @@ cc.Hide = cc.ActionInstant.extend({
 
 /**
  * Hide the node.
- * @method cc.hide
+ * @method hide
  * @return {Hide}
  * @example
  * // example
@@ -156,7 +156,7 @@ cc.ToggleVisibility = cc.ActionInstant.extend({
 
 /**
  * Toggles the visibility of a node.
- * @method cc.toggleVisibility
+ * @method toggleVisibility
  * @return {ToggleVisibility}
  * @example
  * // example
@@ -208,7 +208,7 @@ cc.RemoveSelf = cc.ActionInstant.extend({
 /**
  * Create a RemoveSelf object with a flag indicate whether the target should be cleaned up while removing.
  *
- * @method cc.removeSelf
+ * @method removeSelf
  * @param {Boolean} [isNeedCleanUp=true]
  * @return {RemoveSelf}
  *
@@ -268,7 +268,7 @@ cc.FlipX = cc.ActionInstant.extend({
 /**
  * Create a FlipX action to flip or unflip the target.
  *
- * @method cc.flipX
+ * @method flipX
  * @param {Boolean} flip Indicate whether the target should be flipped or not
  * @return {FlipX}
  * @example
@@ -326,7 +326,7 @@ cc.FlipY = cc.ActionInstant.extend({
 /**
  * Create a FlipY action to flip or unflip the target.
  *
- * @method cc.flipY
+ * @method flipY
  * @param {Boolean} flip
  * @return {FlipY}
  * @example
@@ -391,7 +391,7 @@ cc.Place = cc.ActionInstant.extend({
 
 /**
  * Creates a Place action with a position.
- * @method cc.place
+ * @method place
  * @param {Vec2|Number} pos
  * @param {Number} [y]
  * @return {Place}
@@ -502,7 +502,7 @@ cc.CallFunc = cc.ActionInstant.extend({
 
 /**
  * Creates the action with the callback
- * @method cc.callFunc
+ * @method callFunc
  * @param {function} selector
  * @param {object|null} [selectorTarget]
  * @param {*|null} [data] data for function, it accepts all data types.
