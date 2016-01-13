@@ -261,7 +261,11 @@ var Label = cc.Class({
     },
 
     _createSgNode: function () {
-        var sgNode = new _ccsg.Label(this.string, this.file);
+        return new _ccsg.Label(this.string, this.file);
+    },
+
+    _initSgNode: function () {
+        var sgNode = this._sgNode;
 
         // TODO
         // sgNode.enableRichText = this.enableRichText;
@@ -276,8 +280,6 @@ var Label = cc.Class({
             sgNode.setContentSize(this.node.getContentSize());
         }
         sgNode.setColor(this.node.color);
-
-        return sgNode;
     },
 
     _resized: function () {
