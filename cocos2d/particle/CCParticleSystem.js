@@ -646,7 +646,11 @@ var ParticleSystem = cc.Class({
     // OVERRIDE METHODS
 
     _createSgNode: function () {
-        var sgNode = this._sgNode = new _ccsg.ParticleSystem();
+        return new _ccsg.ParticleSystem();
+    },
+
+    _initSgNode: function () {
+        var sgNode = this._sgNode;
 
         var loadCustomAfterFile = false;
         if (this._file) {
@@ -660,7 +664,6 @@ var ParticleSystem = cc.Class({
 
         // stop by default
         sgNode.stopSystem();
-        return sgNode;
     },
 
     // APIS

@@ -40,7 +40,6 @@ var createEntity = function (file, x, y) {
         var spriteFrame = new cc.SpriteFrame(tex, cc.rect(0, 0, tex.getPixelWidth(), tex.getPixelHeight()));
         var spriteRenderer = node.addComponent(cc.Sprite);
         spriteRenderer.spriteFrame = spriteFrame;
-        spriteRenderer._createSgNode();
     }
     node.x = x;
     node.y = y;

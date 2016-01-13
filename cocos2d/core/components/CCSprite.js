@@ -72,7 +72,7 @@ var Sprite = cc.Class({
                 var lastSprite = this._spriteFrame;
                 this._spriteFrame = value;
                 if (this._sgNode) {
-                    this._applySpriteFrame(this._sgNode, lastSprite);
+                    this._applySpriteFrame(lastSprite);
                     // color cleared after reset texture, should reapply color
                     this._sgNode.setColor(this.node._color);
                     this._sgNode.setOpacity(this.node._opacity);
@@ -313,9 +313,9 @@ var Sprite = cc.Class({
         }
     },
 
-    _applyCapInset: function (sgNode) {
+    _applyCapInset: function () {
         if (this._type === SpriteType.SLICED && this._spriteFrame) {
-            sgNode = sgNode || this._sgNode;
+            var sgNode = this._sgNode;
             sgNode.setInsetTop(this._spriteFrame.insetTop);
             sgNode.setInsetBottom(this._spriteFrame.insetBottom);
             sgNode.setInsetRight(this._spriteFrame.insetRight);
@@ -323,8 +323,7 @@ var Sprite = cc.Class({
         }
     },
 
-    _applySpriteSize: function (sgNode) {
-        sgNode = sgNode || this._sgNode;
+    _applySpriteSize: function () {
         if (this._useOriginalSize && this._spriteFrame) {
             var rect = this._spriteFrame.getRect();
             this.node.setContentSize(cc.size(rect.width, rect.height));
@@ -334,25 +333,26 @@ var Sprite = cc.Class({
         }
     },
 
-    _onSpriteFrameLoaded: function (event, sgNode) {
+    _onSpriteFrameLoaded: function (event) {
         var self = this;
-        sgNode = sgNode || this._sgNode;
+        var sgNode = this._sgNode;
         sgNode.setSpriteFrame(self._spriteFrame);
-        self._applyCapInset(sgNode);
+        self._applyCapInset();
         self._applySpriteSize();
         if ( this.enabledInHierarchy && !sgNode.isVisible() ) {
             sgNode.setVisible(true);
         }
     },
 
-    _applySpriteFrame: function (sgNode, oldFrame) {
+    _applySpriteFrame: function (oldFrame) {
+        var sgNode = this._sgNode;
         if (oldFrame && oldFrame.off) {
             oldFrame.off('load', this._onSpriteFrameLoaded, this);
         }
 
         if (this._spriteFrame) {
             if (this._spriteFrame.textureLoaded()) {
-                this._onSpriteFrameLoaded(null, sgNode);
+                this._onSpriteFrameLoaded(null);
             }
             else {
                 this._spriteFrame.once('load', this._onSpriteFrameLoaded, this);
@@ -369,18 +369,20 @@ var Sprite = cc.Class({
     },
 
     _createSgNode: function () {
-        var sgNode = new cc.Scale9Sprite();
+        return new cc.Scale9Sprite();
+    },
 
-        this._applySpriteFrame(sgNode, null);
+    _initSgNode: function () {
+        var sgNode = this._sgNode;
+
+        this._applySpriteFrame(null);
 
         // should keep the size of the sg node the same as entity,
         // otherwise setContentSize may not take effect
         sgNode.setContentSize(this.node.getContentSize(true));
-        this._applySpriteSize(sgNode);
+        this._applySpriteSize();
         
         sgNode.setRenderingType(this._type);
-
-        return sgNode;
     },
 
     _resized: function () {
