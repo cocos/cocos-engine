@@ -485,6 +485,10 @@ var _Deserializer = (function () {
 // FACADE
 
 /**
+ * @module cc
+ */
+
+/**
  * !#en Deserialize json to cc.Asset
  * !#zh 将 JSON 反序列化为对象实例。
  *
@@ -496,7 +500,6 @@ var _Deserializer = (function () {
  * @param {deserialize.Details} [result] - additional loading result
  * @param {Object} [options]
  * @return {object} the main data(asset)
- * @module cc
  */
 cc.deserialize = function (data, result, options) {
     var classFinder = (options && options.classFinder) || JS._getClassById;
