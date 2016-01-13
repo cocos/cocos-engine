@@ -58,8 +58,8 @@ var Mask = cc.Class({
 
     onDestroy: function () {
         if (cc.sys.isNative) {
-            this._clippingStencil.release();
-            this._clippingNode.release();
+            this._clippingStencil && this._clippingStencil.release();
+            this._clippingNode && this._clippingNode.release();
         }
     },
 
