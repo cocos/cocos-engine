@@ -144,6 +144,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                         oldParent._children.splice(removeAt, 1);
                         oldParent.emit(CHILD_REMOVED, removeAt);
                         this._onHierarchyChanged(oldParent);
+
+                        if (CC_EDITOR) {
+                            _Scene.DetectConflict.afterAddChild(this);
+                        }
                     }
                 }
                 else if (value) {
