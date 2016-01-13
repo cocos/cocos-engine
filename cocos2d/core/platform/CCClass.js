@@ -66,10 +66,6 @@ var _appendProp = function (cls, name/*, isGetter*/) {
     if (index < 0) {
         cls.__props__.push(name);
     }
-    // 这里不进行报错，因为重写 prop 可以是一个合法的行为，可以用于设置新的默认值。
-    //else {
-    //    cc.error(cc.getClassName(cls) + '.' + name + ' is already defined!');
-    //}
 };
 
 var _metaClass = {
@@ -170,10 +166,6 @@ var _metaClass = {
                         cc.warn('No need to use "serializable: false" or "editorOnly: true" for the getter of %s.%s, ' +
                                   'every getter is actually non-serialized.',
                             JS.getClassName(this), name);
-                    }
-                    if (attr.hasOwnProperty('default')) {
-                        cc.error('%s: Can not set default value of a getter!', JS.getClassName(this));
-                        return this;
                     }
                 }
             }

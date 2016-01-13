@@ -193,6 +193,14 @@ module.exports = function (properties, className, cls) {
             properties[propName] = val;
         }
         if (val) {
+            if (CC_EDITOR && 'default' in val) {
+                if (val.get) {
+                    cc.error('The "default" value of "%s.%s" should not be used with a "get" function.', className, propName);
+                }
+                else if (val.set) {
+                    cc.error('The "default" value of "%s.%s" should not be used with a "set" function.', className, propName);
+                }
+            }
             if (!val.override && cls.__props__.indexOf(propName) !== -1 && CC_DEV) {
                 // check override
                 var baseClass = cc.js.getClassName(getBaseClassWherePropertyDefined(propName, cls));
