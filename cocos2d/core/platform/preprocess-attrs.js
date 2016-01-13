@@ -26,7 +26,7 @@
 
 var Attr = require('./attribute');
 
-// 增加预处理属性这个步骤的目的是降低 FireClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
+// 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
 var SerializableAttrs = {
     url: {
@@ -193,6 +193,14 @@ module.exports = function (properties, className, cls) {
             properties[propName] = val;
         }
         if (val) {
+            if (CC_EDITOR && 'default' in val) {
+                if (val.get) {
+                    cc.error('The "default" value of "%s.%s" should not be used with a "get" function.', className, propName);
+                }
+                else if (val.set) {
+                    cc.error('The "default" value of "%s.%s" should not be used with a "set" function.', className, propName);
+                }
+            }
             if (!val.override && cls.__props__.indexOf(propName) !== -1 && CC_DEV) {
                 // check override
                 var baseClass = cc.js.getClassName(getBaseClassWherePropertyDefined(propName, cls));
