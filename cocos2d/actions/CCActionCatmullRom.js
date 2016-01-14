@@ -33,7 +33,7 @@
  ****************************************************************************/
 
 /**
- * @module actions
+ * @module cc
  */
 
 /*
@@ -267,7 +267,7 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
 /**
  * creates an action with a Cardinal Spline array of points and tension.
  *
- * @method cc.cardinalSplineTo
+ * @method cardinalSplineTo
  * @param {Number} duration
  * @param {Array} points array of control points
  * @param {Number} tension
@@ -378,7 +378,7 @@ cc.CardinalSplineBy = cc.CardinalSplineTo.extend({
 /**
  * creates an action with a Cardinal Spline array of points and tension.
  *
- * @method cc.cardinalSplineBy
+ * @method cardinalSplineBy
  * @param {Number} duration
  * @param {Array} points
  * @param {Number} tension
@@ -430,7 +430,7 @@ cc.CatmullRomTo = cc.CardinalSplineTo.extend({
 /**
  * creates an action with a Cardinal Spline array of points and tension.
  *
- * @method cc.catmullRomTo
+ * @method catmullRomTo
  * @param {Number} dt
  * @param {Array} points
  * @return {CatmullRomTo}
@@ -484,7 +484,7 @@ cc.CatmullRomBy = cc.CardinalSplineBy.extend({
 
 /**
  * Creates an action with a Cardinal Spline array of points and tension
- * @method cc.catmullRomBy
+ * @method catmullRomBy
  * @param {Number} dt
  * @param {Array} points
  * @return {CatmullRomBy}

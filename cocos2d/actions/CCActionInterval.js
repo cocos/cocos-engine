@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * @module actions
+ * @module cc
  */
 
 /**
@@ -279,7 +279,7 @@ cc.actionInterval = function (d) {
 cc.ActionInterval.create = cc.actionInterval;
 
 /**
- * @module actions
+ * @module cc
  */
 
 /*
@@ -418,7 +418,7 @@ cc.Sequence = cc.ActionInterval.extend({
 /** 
  * Helper constructor to create an array of sequenceable actions
  * The created action will run actions sequentially, one after another.
- * @method cc.sequence
+ * @method sequence
  * @param {Array|FiniteTimeAction} tempArray
  * @return {Sequence}
  * @example
@@ -595,7 +595,7 @@ cc.Repeat = cc.ActionInterval.extend({
 
 /**
  * Creates a Repeat action. Times is an unsigned integer between 1 and pow(2,30)
- * @method cc.repeat
+ * @method repeat
  * @param {FiniteTimeAction} action
  * @param {Number} times
  * @return {Repeat}
@@ -699,7 +699,7 @@ cc.RepeatForever = cc.ActionInterval.extend({
 
 /**
  * Create a acton which repeat forever
- * @method cc.repeatForever
+ * @method repeatForever
  * @param {FiniteTimeAction} action
  * @return {RepeatForever}
  * @example
@@ -810,7 +810,7 @@ cc.Spawn = cc.ActionInterval.extend({
 
 /**
  * Create a spawn action which runs several actions in parallel.
- * @method cc.spawn
+ * @method spawn
  * @param {Array|FiniteTimeAction}tempArray
  * @return {FiniteTimeAction}
  * @example
@@ -928,7 +928,7 @@ cc.RotateTo = cc.ActionInterval.extend({
 /**
  * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
  * The direction will be decided by the shortest angle.
- * @method cc.rotateTo
+ * @method rotateTo
  * @param {Number} duration duration in seconds
  * @param {Number} deltaAngleX deltaAngleX in degrees.
  * @param {Number} [deltaAngleY] deltaAngleY in degrees.
@@ -1015,7 +1015,7 @@ cc.RotateBy = cc.ActionInterval.extend({
 /**
  * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
  * Relative to its properties to modify.
- * @method cc.rotateBy
+ * @method rotateBy
  * @param {Number} duration duration in seconds
  * @param {Number} deltaAngleX deltaAngleX in degrees
  * @param {Number} [deltaAngleY] deltaAngleY in degrees
@@ -1136,7 +1136,7 @@ cc.MoveBy = cc.ActionInterval.extend({
  * x and y are relative to the position of the object.                                                     <br/>
  * Several MoveBy actions can be concurrently called, and the resulting                                  <br/>
  * movement will be the sum of individual movements.
- * @method cc.moveBy
+ * @method moveBy
  * @param {Number} duration duration in seconds
  * @param {Vec2|Number} deltaPos
  * @param {Number} deltaY
@@ -1213,7 +1213,7 @@ cc.MoveTo = cc.MoveBy.extend({
  * Moves a Node object to the position x,y. x and y are absolute coordinates by modifying its position property. <br/>
  * Several MoveTo actions can be concurrently called, and the resulting                                            <br/>
  * movement will be the sum of individual movements.
- * @method cc.moveTo
+ * @method moveTo
  * @param {Number} duration duration in seconds
  * @param {Vec2} position
  * @param {Number} y
@@ -1306,7 +1306,7 @@ cc.SkewTo = cc.ActionInterval.extend({
 /**
  * Create a action which skews a Node object to given angles by modifying its skewX and skewY properties.
  * Changes to the specified value.
- * @method cc.skewTo
+ * @method skewTo
  * @param {Number} t time in seconds
  * @param {Number} sx
  * @param {Number} sy
@@ -1380,7 +1380,7 @@ cc.SkewBy = cc.SkewTo.extend({
 /**
  * Skews a Node object by skewX and skewY degrees. <br />
  * Relative to its property modification.
- * @method cc.skewBy
+ * @method skewBy
  * @param {Number} t time in seconds
  * @param {Number} sx sx skew in degrees for X axis
  * @param {Number} sy sy skew in degrees for Y axis
@@ -1508,7 +1508,7 @@ cc.JumpBy = cc.ActionInterval.extend({
 /**
  * Moves a Node object simulating a parabolic jump movement by modifying it's position property.
  * Relative to its movement.
- * @method cc.jumpBy
+ * @method jumpBy
  * @param {Number} duration
  * @param {Vec2|Number} position
  * @param {Number} [y]
@@ -1590,7 +1590,7 @@ cc.JumpTo = cc.JumpBy.extend({
 /**
  * Moves a Node object to a parabolic position simulating a jump movement by modifying its position property. <br />
  * Jump to the specified location.
- * @method cc.jumpTo
+ * @method jumpTo
  * @param {Number} duration
  * @param {Vec2|Number} position
  * @param {Number} [y]
@@ -1609,7 +1609,7 @@ cc.jumpTo = function (duration, position, y, height, jumps) {
 cc.JumpTo.create = cc.jumpTo;
 
 /*
- * @method cc.bezierAt
+ * @method bezierAt
  * @param {Number} a
  * @param {Number} b
  * @param {Number} c
@@ -1736,7 +1736,7 @@ cc.BezierBy = cc.ActionInterval.extend({
 /**
  * An action that moves the target with a cubic Bezier curve by a certain distance.
  * Relative to its movement.
- * @method cc.bezierBy
+ * @method bezierBy
  * @param {Number} t time in seconds
  * @param {Array} c Array of points
  * @return {BezierBy}
@@ -1803,7 +1803,7 @@ cc.BezierTo = cc.BezierBy.extend({
 });
 /**
  * An action that moves the target with a cubic Bezier curve to a destination point.
- * @method cc.bezierTo
+ * @method bezierTo
  * @param {Number} t
  * @param {Array} c array of points
  * @return {BezierTo}
@@ -1888,7 +1888,7 @@ cc.ScaleTo = cc.ActionInterval.extend({
 });
 /**
  * Scales a Node object to a zoom factor by modifying it's scale property.
- * @method cc.scaleTo
+ * @method scaleTo
  * @param {Number} duration
  * @param {Number} sx  scale parameter in X
  * @param {Number} [sy] scale parameter in Y, if Null equal to sx
@@ -1936,7 +1936,7 @@ cc.ScaleBy = cc.ScaleTo.extend({
 /**
  * Scales a Node object a zoom factor by modifying it's scale property.
  * Relative to its changes.
- * @method cc.scaleBy
+ * @method scaleBy
  * @param {Number} duration duration in seconds
  * @param {Number} sx sx  scale parameter in X
  * @param {Number|Null} [sy=] sy scale parameter in Y, if Null equal to sx
@@ -2019,7 +2019,7 @@ cc.Blink = cc.ActionInterval.extend({
 });
 /**
  * Blinks a Node object by modifying it's visible property.
- * @method cc.blink
+ * @method blink
  * @param {Number} duration  duration in seconds
  * @param blinks blinks in times
  * @return {Blink}
@@ -2085,7 +2085,7 @@ cc.FadeTo = cc.ActionInterval.extend({
 
 /**
  * Fades an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from the current value to a custom one.
- * @method cc.fadeTo
+ * @method fadeTo
  * @param {Number} duration
  * @param {Number} opacity 0-255, 0 is transparent
  * @return {FadeTo}
@@ -2138,7 +2138,7 @@ cc.FadeIn = cc.FadeTo.extend({
 
 /**
  * Fades In an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 0 to 255.
- * @method cc.fadeIn
+ * @method fadeIn
  * @param {Number} duration duration in seconds
  * @return {FadeIn}
  * @example
@@ -2185,7 +2185,7 @@ cc.FadeOut = cc.FadeTo.extend({
 
 /**
  * Fades Out an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 255 to 0.
- * @method cc.fadeOut
+ * @method fadeOut
  * @param {Number} d  duration in seconds
  * @return {FadeOut}
  * @example
@@ -2266,7 +2266,7 @@ cc.TintTo = cc.ActionInterval.extend({
 
 /**
  * Tints a Node that implements the cc.NodeRGB protocol from current tint to a custom one.
- * @method cc.tintTo
+ * @method tintTo
  * @param {Number} duration
  * @param {Number} red 0-255
  * @param {Number} green  0-255
@@ -2360,7 +2360,7 @@ cc.TintBy = cc.ActionInterval.extend({
 /**
  * Tints a Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * Relative to their own color change.
- * @method cc.tintBy
+ * @method tintBy
  * @param {Number} duration  duration in seconds
  * @param {Number} deltaRed
  * @param {Number} deltaGreen
@@ -2399,7 +2399,7 @@ cc.DelayTime = cc.ActionInterval.extend({
 
 /**
  * Delays the action a certain amount of seconds
- * @method cc.delayTime
+ * @method delayTime
  * @param {Number} d duration in seconds
  * @return {DelayTime}
  * @example
@@ -2482,7 +2482,7 @@ cc.ReverseTime = cc.ActionInterval.extend({
 
 /**
  * Executes an action in reverse order, from time=duration to time=0.
- * @method cc.reverseTime
+ * @method reverseTime
  * @param {FiniteTimeAction} action
  * @return {ReverseTime}
  * @example
@@ -2651,7 +2651,7 @@ cc.Animate = cc.ActionInterval.extend({
 
 /**
  * create the animate with animation
- * @method cc.animate
+ * @method animate
  * @param {SpriteFrameAnimation} animation
  * @return {Animate}
  * @example
@@ -2739,7 +2739,7 @@ cc.TargetedAction = cc.ActionInterval.extend({
 
 /**
  * Create an action with the specified action and forced target
- * @method cc.targetedAction
+ * @method targetedAction
  * @param {Node} target
  * @param {FiniteTimeAction} action
  * @return {TargetedAction}
