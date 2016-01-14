@@ -920,6 +920,11 @@ function parseAttributes (attrs, className, propName) {
     if (attrs.serializable === false) {
         result.push(Attr.NonSerialized);
     }
+    if (CC_EDITOR) {
+        if ('animatable' in attrs && !attrs.animatable) {
+            result.push({ animatable: false });
+        }
+    }
 
     if (CC_DEV) {
         var visible = attrs.visible;
