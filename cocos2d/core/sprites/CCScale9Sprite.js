@@ -524,8 +524,178 @@ cc.FilledQuadGeneratorBar = {
         return uvCoordinates;
     }
 };
-//todo implement radial
-cc.FilledQuadGeneratorRadial = cc.SimpleQuadGenerator;
+
+cc.FilledQuadGeneratorRadial = {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, radialCenter, radianBegin, radian) {
+        var verts = [new V3F_C4B_T2F(),new V3F_C4B_T2F(),new V3F_C4B_T2F(),new V3F_C4B_T2F()];
+        //build vertices
+        var vertices = this._calculateVertices(spriteFrame, contentSize);
+
+        //build uvs
+        var uvs = this._calculateUVs(spriteFrame);
+
+        verts[0].colors = colorOpacity;
+        verts[1].colors = colorOpacity;
+        verts[3].colors = colorOpacity;
+        verts[2].colors = colorOpacity;
+
+        verts[0].vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
+        verts[1].vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
+        verts[3].vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
+        verts[2].vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+
+        if (!spriteFrame._rotated) {
+            verts[0].texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            verts[1].texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            verts[3].texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            verts[2].texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+        } else {
+            verts[0].texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            verts[1].texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            verts[3].texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            verts[2].texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+        }
+
+        if(radian >= Math.PI * 2)
+            return verts;
+
+        //do radian calculation
+        var center = cc.v2(contentSize.width * radialCenter.x, contentSize.height * radialCenter.y);
+        //calculate line
+        if(radian > Math.PI) {
+            //todo add line
+
+            //calculate remaining
+            radian -= Math.PI;
+            radianBegin += Math.PI;
+        }
+
+        var polygonVerts = {};
+        //line
+        //a * x + b * y + c = 0
+        var lineStart = new cc.math.Vec3();
+        lineStart.x = Math.cos(radianBegin + Math.PI / 4);
+        lineStart.y = Math.sin(radianBegin + Math.PI / 4);
+        lineStart.z = -(lineStart.a * center.x + lineStart.b * center.y);
+        var startIntection = this._lineIntersectBox(lineStart, 0, contentSize.width, 0, contentSize.height);
+
+        var lineEnd = new cc.math.Vec3();
+        lineEnd.x = Math.cos(radianBegin + radian + Math.PI / 4);
+        lineEnd.y = Math.sin(radianBegin + radian + Math.PI / 4);
+        lineEnd.z = -(lineStart.a * center.x + lineStart.b * center.y);
+        var endIntection = this._lineIntersectBox(lineEnd, 0, contentSize.width, 0, contentSize.height);
+
+        //test center
+        if(center.x >= 0 || center.y >= 0 || center.x <= contentSize.width || center.y <= contentSize.height) {
+            var vert = new V3F_C4B_T2F();
+            polygonVerts.push(vert);
+            vert.colors = colorOpacity;
+            vert.vertices = new cc.Vertex3F(center.x, center.y, 0);
+            vert.texCoords = this._generateUV(radialCenter,verts[0].texCoords,verts[1].texCoords,verts[2].texCoords,verts[3].texCoords);
+        }
+
+        //test startIntection
+        for(var intersectPoint in startIntection) {
+            if(intersectPoint && intersectPoint.x && intersectPoint.y) {
+                //test against line end
+                
+                if(intersectPoint.x >= 0 || intersectPoint.y >= 0 || intersectPoint.x <= contentSize.width || intersectPoint.y <= contentSize.height) {
+                    var vert = new V3F_C4B_T2F();
+                    polygonVerts.push(vert);
+                    vert.colors = colorOpacity;
+                    vert.vertices = new cc.Vertex3F(center.x, center.y, 0);
+                    vert.texCoords = this._generateUV(radialCenter,verts[0].texCoords,verts[1].texCoords,verts[2].texCoords,verts[3].texCoords);
+                }
+            }
+        }
+
+    },
+
+    _generateUV : function(progress, uvbl, uvbr, uvtr, uvtl) {
+        var result = new cc.Tex2F(0,0);
+        var px1 = uvbl.u + (uvbr.u-uvbl.u) * px;
+        var px2 = uvtl.u + (uvtr.u-uvtl.u) * px;
+        var py1 = uvbl.v + (uvbr.v-uvbl.v) * px;
+        var py2 = uvtl.v + (uvtr.v-uvtl.v) * px;
+        result.u = px1 + (px2 - px1) * progress.y;
+        result.v = py1 + (py2 - py1) * progress.y;
+        return result;
+    },
+
+    _lineIntersectBox: function(line, left, right, bottom, top) {
+        var result = [NaN,NaN,NaN,NaN];
+        if(line.x !== 0) {
+            result[2] = -(line.y * bottom + line.z) / line.x;
+            result[3] = -(line.y * top + line.z) / line.x;
+        }
+        if(line.y !==0) {
+            result[0] = -(line.x * left + line.z) / line.y;
+            result[1] = -(line.x * right + line.z) / line.y;
+        }
+        //ignore result out of bourdary
+        if(result[0] >= top || result[0] <= bottom) result[0] = NaN;
+        if(result[1] >= top || result[1] <= bottom) result[0] = NaN;
+        if(result[2] >= right || result[2] <= left) result[2] = NaN;
+        if(result[3] >= right || result[3] <= left) result[3] = NaN;
+
+        return result;
+    },
+
+    _calculateVertices : function (spriteFrame, contentSize) {
+
+        var x0,x3;
+        var y0,y3;
+        x0 = 0;
+        x3 = contentSize.width;
+
+        y0 = 0;
+        y3 = contentSize.height;
+
+        //apply contentscale factor
+        x0 = x0 / cc.contentScaleFactor();
+        x3 = x3 / cc.contentScaleFactor();
+        y0 = y0 / cc.contentScaleFactor();
+        y3 = y3 / cc.contentScaleFactor();
+
+        var vertices = [];
+        vertices.push(cc.p(x0, y0));
+        vertices.push(cc.p(x3, y3));
+
+        return vertices;
+    },
+
+    _calculateUVs : function (spriteFrame) {
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+
+        //uv computation should take spritesheet into account.
+        var u0, u3;
+        var v0, v3;
+
+        if (spriteFrame._rotated) {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+        }
+        else {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+        }
+
+        var uvCoordinates = [];
+        uvCoordinates.push(cc.p(u0, v3));
+        uvCoordinates.push(cc.p(u3, v0));
+
+        return uvCoordinates;
+    }
+};
 
 cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
