@@ -628,7 +628,9 @@ js.array = {
         for (i = 0; i < len; i += 1)
             arr_clone[i] = array[i];
         return arr_clone;
-    }
+    },
+
+    indexOf: Array.prototype.indexOf,
 };
 
 cc.js = js;
