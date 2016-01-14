@@ -17,18 +17,18 @@ var handleErrors = require('../util/handleErrors');
 
 require('./build-cocos2d');
 
-function getUglifyOptions (minify, global_defs, preserveComments) {
-    preserveComments = preserveComments || false;
+function getUglifyOptions (minify, global_defs) {
     if (minify) {
         return {
             compress: {
-                global_defs: global_defs
+                global_defs: global_defs,
+                conditionals: false,    // 如果为 true, 会把 if 压缩成 bool 表达式, 但 sourcemap 的行号就会乱掉
             }
         };
     }
     else {
-        // http://lisperator.net/uglifyjs/compress
         var compress = {
+            // http://lisperator.net/uglifyjs/compress
             global_defs: global_defs,
             sequences: false,  // join consecutive statements with the “comma operator”
             properties: false,  // optimize property access: a["foo"] → a.foo
@@ -49,11 +49,11 @@ function getUglifyOptions (minify, global_defs, preserveComments) {
             side_effects: false  // drop side-effect-free statements
             //warnings: true  // warn about potentially dangerous optimizations/code
         };
-        // http://lisperator.net/uglifyjs/codegen
         return {
             mangle: false,
-            preserveComments: preserveComments,
+            //preserveComments: 'all',
             output: {
+                // http://lisperator.net/uglifyjs/codegen
                 beautify: true,
                 bracketize: true
             },
@@ -63,32 +63,28 @@ function getUglifyOptions (minify, global_defs, preserveComments) {
 }
 
 function rebundle(bundler) {
-    var bundle = bundler.bundle()
-        .on('error', handleErrors.handler)
-        .pipe(handleErrors())
-        .pipe(source(paths.outFile))
-        .pipe(buffer());
-
-    var dev = sourcemaps.init({loadMaps: true})
-        .pipe(uglify(getUglifyOptions(false, {
-            CC_EDITOR: false,
-            CC_DEV: true,
-            CC_TEST: false
-        })))
-        .pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}))
-        .pipe(gulp.dest(paths.outDir));
+    var dev = uglify(getUglifyOptions(false, {
+        CC_EDITOR: false,
+        CC_DEV: false,
+        CC_TEST: false
+    }));
 
     var min = rename({ suffix: '-min' });
-    min.pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(uglify(getUglifyOptions(true, {
+    min.pipe(uglify(getUglifyOptions(true, {
             CC_EDITOR: false,
             CC_DEV: false,
             CC_TEST: false
-        })))
+        })));
+
+    return bundler.bundle()
+        .on('error', handleErrors.handler)
+        .pipe(handleErrors())
+        .pipe(source(paths.outFile))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(mirror(dev, min))
         .pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}))
         .pipe(gulp.dest(paths.outDir));
-
-    return bundle.pipe(mirror(dev, min));
 }
 
 function rebundle_test(bundler, suffix) {
