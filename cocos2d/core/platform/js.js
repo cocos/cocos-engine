@@ -630,6 +630,22 @@ js.array = {
         return arr_clone;
     },
 
+    /**
+     * Exact same function as Array.prototype.indexOf.
+     * HACK: ugliy hack for Baidu mobile browser compatibility,
+     * stupid Baidu guys modify Array.prototype.indexOf for all pages loaded,
+     * their version changes strict comparison to non-strict comparison, 
+     * it also ignores the second parameter of the original API, 
+     * and this will cause event handler enter infinite loop.
+     * Baidu developers, if you ever see this documentation, 
+     * here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+     * Seriously !
+     * 
+     * @method indexOf
+     * @param {any} searchElement Element to locate in the array.
+     * @param {Number} [fromIndex=0] The index to start the search at
+     * @return {Number} returns the first index at which a given element can be found in the array, or -1 if it is not present.
+     */
     indexOf: Array.prototype.indexOf,
 };
 
