@@ -82,6 +82,11 @@
         //check the first character
 
         var wrappedWords = [];
+        //fast return if strArr is empty
+        if(strArr.length === 0) {
+            wrappedWords.push("");
+            return wrappedWords;
+        }
         var text = strArr;
         var allWidth = ctx.measureText(text).width;
         while(allWidth > maxWidth && text.length > 1){
