@@ -398,9 +398,11 @@
                     wrapper.setFillStyle(context.createPattern(image, this._labelTexture._pattern));
                     context.fillRect(x, y, w, h);
                 } else {
-                    context.drawImage(image,
-                        sx, sy, sw, sh,
-                        x, y, w, h);
+                    if(sw !== 0 && sh !== 0 && w !== 0 && h !== 0) {
+                        context.drawImage(image,
+                            sx, sy, sw, sh,
+                            x, y, w, h);
+                    }
                 }
             }
             cc.g_NumberOfDraws = cc.g_NumberOfDraws + 1;
