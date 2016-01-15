@@ -375,9 +375,10 @@
                 var x, y, w, h;
 
                 x = 0;
-                y = 0;
+                y = -this._node._contentSize.height;
                 w = this._node._contentSize.width;
                 h = this._node._contentSize.height;
+
 
                 var textureWidth = this._labelTexture.getPixelWidth();
                 var textureHeight = this._labelTexture.getPixelHeight();
