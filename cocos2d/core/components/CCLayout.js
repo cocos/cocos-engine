@@ -47,6 +47,10 @@ var Type = cc.Enum({
     GRID: 3,
 });
 
+/**
+ * Enum for Layout Resize Type
+ * @enum Layout.ResizeType
+ */
 var ResizeType = cc.Enum({
     /**
      * @property {Number} NONE
@@ -62,6 +66,10 @@ var ResizeType = cc.Enum({
     CHILDREN: 2
 });
 
+/**
+ * Enum for Grid Layout start axis direction.
+ * @enum Layout.AxisDirection
+ */
 var AxisDirection = cc.Enum({
     /**
      * @property {Number} HORIZONTAL
@@ -143,10 +151,10 @@ var Layout = cc.Class({
         _resize: ResizeType.NONE,
 
         /**
-         * Whether allow layout to adjust size.
-         * @property {Boolean} autoResize
-         * @default true
-         * @readonly
+         * The are three resize types for Layout.
+         * None, resize Container and resize children.
+         * @property {Layout.ResizeType} resize
+         * @default ResizeType.NONE
          */
         resize: {
             type: ResizeType,
@@ -164,6 +172,11 @@ var Layout = cc.Class({
             }
         },
 
+        /**
+         * The cell size for grid layout.
+         * @property {cc.Size} cellSize
+         * @default cc.size(40, 40)
+         */
         cellSize: {
             default: cc.size(40, 40),
             type: cc.Size,
@@ -172,6 +185,11 @@ var Layout = cc.Class({
             }
         },
 
+        /**
+         * The start axis for grid layout. If you choose horizontal, then children will layout horizontally at first,
+         * and then break line on demand. Choose vertical if you want to layout vertically at first .
+         * @property {Layout.AxisDirection} startAxis
+         */
         startAxis: {
             default: AxisDirection.HORIZONTAL,
             type: AxisDirection,
