@@ -372,6 +372,10 @@ var Sprite = cc.Class({
     _createSgNode: function () {
         var sgNode = new cc.Scale9Sprite();
 
+        if ( !this.enabledInHierarchy ) {
+            sgNode.setVisible(false);
+        }
+
         this._applySpriteFrame(sgNode, null);
 
         // should keep the size of the sg node the same as entity,
