@@ -71,7 +71,7 @@
 
         var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
         wrapper.setTransform(this._worldTransform, scaleX, scaleY);
-        wrapper.setCompositeOperation(node._blendFunc);
+        wrapper.setCompositeOperation(_ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(node._blendFunc));
         wrapper.setGlobalAlpha(alpha);
 
         if(this._textureToRender) {
@@ -94,10 +94,10 @@
                 var textureWidth = this._textureToRender.getPixelWidth();
                 var textureHeight = this._textureToRender.getPixelHeight();
 
-                sx = quads[i]._bl.texCoords.u * textureWidth;
-                sy = quads[i]._bl.texCoords.v * textureHeight;
+                sx = quads[i]._tl.texCoords.u * textureWidth;
+                sy = quads[i]._tl.texCoords.v * textureHeight;
                 sw = (quads[i]._tr.texCoords.u - quads[i]._bl.texCoords.u) * textureWidth;
-                sh = (quads[i]._tr.texCoords.v - quads[i]._bl.texCoords.v) * textureHeight;
+                sh = (quads[i]._bl.texCoords.v - quads[i]._tr.texCoords.v) * textureHeight;
 
                 x = x * scaleX;
                 y = y * scaleY;
@@ -109,9 +109,11 @@
                     wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));
                     context.fillRect(x, y, w, h);
                 } else {
-                    context.drawImage(image,
-                        sx, sy, sw, sh,
-                        x, y, w, h);
+                    if(sw !== 0 && sh !== 0 && w !== 0 && h !== 0) {
+                        context.drawImage(image,
+                            sx, sy, sw, sh,
+                            x, y, w, h);
+                    }
                 }
             }
 

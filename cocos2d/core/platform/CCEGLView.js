@@ -114,7 +114,7 @@ switch(cc.__BrowserGetter.adaptationType){
  * the standard way to use it is by calling:<br/>
  *  - cc.view.methodName(); <br/>
  *
- * @class EGLView
+ * @class view
  * @extends _Class
  */
 cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
