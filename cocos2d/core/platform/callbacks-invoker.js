@@ -76,7 +76,7 @@ CallbacksHandler.prototype.has = function (key, callback, target) {
             if (callbackTarget === target) {
                 return true;
             }
-            index = list.indexOf(callback, index + 1);
+            index = cc.js.array.indexOf.call(list, callback, index + 1);
         }
         // callback given but not found
         return false;
@@ -131,7 +131,7 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
                 break;
             }
 
-            index = list.indexOf(callback, index + 1);
+            index = cc.js.array.indexOf.call(list, callback, index + 1);
         }
         return true;
     }
