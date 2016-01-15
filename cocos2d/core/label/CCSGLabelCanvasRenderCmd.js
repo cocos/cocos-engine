@@ -29,12 +29,12 @@
  http://slick.cokeandcode.com/demos/hiero.jnlp (Free, Java)
  http://www.angelcode.com/products/bmfont/ (Free, Windows only)
  ****************************************************************************/
-(function() {
-    _ccsg.Label.TTFLabelBaker = function() {
+(function () {
+    _ccsg.Label.TTFLabelBaker = function () {
 
     };
     var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
-    proto._getLineHeight = function() {
+    proto._getLineHeight = function () {
         //todo refine it
         var nodeSpacingY = this._node.getLineHeight();
         if (nodeSpacingY === 0) {
@@ -45,7 +45,7 @@
         return nodeSpacingY | 0;
     };
 
-    proto._prepareQuad = function() {
+    proto._prepareQuad = function () {
         var quad = this._quad;
         var white = cc.color(255, 255, 255, this._displayedOpacity);
         var width = this._node._contentSize.width;
@@ -84,7 +84,7 @@
         var wrappedWords = [];
         var text = strArr;
         var allWidth = ctx.measureText(text).width;
-        while(allWidth > maxWidth && text.length > 1){
+        while (allWidth > maxWidth && text.length > 1) {
 
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
             var tmpText = text.substr(fuzzyLen);
@@ -151,14 +151,14 @@
             text = sLine || tmpText;
             allWidth = ctx.measureText(text).width;
         }
-        if(text.length > 0) {
+        if (text.length > 0) {
             wrappedWords.push(text);
         }
-        
+
         return wrappedWords;
     };
-    
-    proto._updateDisplayOpacity = function(parentOpacity) {
+
+    proto._updateDisplayOpacity = function (parentOpacity) {
         _ccsg.Node.RenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
         //specify opacity to quad
         var color = cc.color(255, 255, 255, this._displayedOpacity);
@@ -169,14 +169,14 @@
         quad._tr.colors = color;
         this._quadDirty = true;
     };
-    
+
     proto._updateDisplayColor = function (parentColor) {
         _ccsg.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
         node._labelSkinDirty = true;
     };
-    
-    proto._bakeLabel = function() {
+
+    proto._bakeLabel = function () {
         var node = this._node;
         this._drawFontsize = node._fontSize;
         var ctx = this._labelContext;
@@ -220,7 +220,7 @@
                 canvasSizeY = this._splitedStrings.length * this._getLineHeight();
                 node.setContentSize(cc.size(canvasSizeX, canvasSizeY));
             }
-        } else if(_ccsg.Label.Overflow.SHRINK === node._overFlow) {
+        } else if (_ccsg.Label.Overflow.SHRINK === node._overFlow) {
             this._splitedStrings = paragraphedStrings;
             //shrink
             if (node._isWrapText) {
@@ -315,14 +315,14 @@
         this._labelTexture.handleLoadedTexture();
     };
 
-    proto._rebuildLabelSkin = function() {
+    proto._rebuildLabelSkin = function () {
         var node = this._node;
         if (node._labelSkinDirty) {
-            if(node._labelType === _ccsg.Label.Type.TTF ||
-              node._labelType === _ccsg.Label.Type.SystemFont){
+            if (node._labelType === _ccsg.Label.Type.TTF ||
+                node._labelType === _ccsg.Label.Type.SystemFont) {
                 this._bakeLabel();
                 this._prepareQuad();
-            }else {
+            } else {
                 node._updateContent();
             }
             this._node._labelSkinDirty = false;
@@ -330,8 +330,8 @@
     };
 })();
 
-(function() {
-    _ccsg.Label.CanvasRenderCmd = function(renderableObject) {
+(function () {
+    _ccsg.Label.CanvasRenderCmd = function (renderableObject) {
         _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
         this._labelTexture = new cc.Texture2D();
@@ -351,13 +351,13 @@
 
     proto.constructor = _ccsg.Label.CanvasRenderCmd;
 
-    proto.rendering = function(ctx, scaleX, scaleY) {
+    proto.rendering = function (ctx, scaleX, scaleY) {
         this._rebuildLabelSkin();
 
         var node = this._node;
 
         if (node._labelType === _ccsg.Label.Type.TTF ||
-           node._labelType === _ccsg.Label.Type.SystemFont) {
+            node._labelType === _ccsg.Label.Type.SystemFont) {
             var locDisplayOpacity = this._displayedOpacity;
             var alpha = locDisplayOpacity / 255;
             //var locTexture = this._labelTexture;
@@ -371,41 +371,37 @@
             wrapper.setGlobalAlpha(alpha);
 
             if (this._labelTexture) {
+                var sx, sy, sw, sh;
+                var x, y, w, h;
 
-                var quad = this._quad; {
-                    var sx, sy, sw, sh;
-                    var x, y, w, h;
+                x = 0;
+                y = -this._node._contentSize.height;
+                w = this._node._contentSize.width;
+                h = this._node._contentSize.height;
 
-                    x = quad._bl.vertices.x;
-                    y = quad._bl.vertices.y;
-                    w = quad._tr.vertices.x - quad._bl.vertices.x;
-                    h = quad._tr.vertices.y - quad._bl.vertices.y;
-                    y = -y - h;
 
-                    var textureWidth = this._labelTexture.getPixelWidth();
-                    var textureHeight = this._labelTexture.getPixelHeight();
+                var textureWidth = this._labelTexture.getPixelWidth();
+                var textureHeight = this._labelTexture.getPixelHeight();
 
-                    sx = quad._bl.texCoords.u * textureWidth;
-                    sy = quad._bl.texCoords.v * textureHeight;
-                    sw = (quad._tr.texCoords.u - quad._bl.texCoords.u) * textureWidth;
-                    sh = (quad._tr.texCoords.v - quad._bl.texCoords.v) * textureHeight;
+                sx = 0;
+                sy = 0;
+                sw = textureWidth;
+                sh = textureHeight;
 
-                    x = x * scaleX;
-                    y = y * scaleY;
-                    w = w * scaleX;
-                    h = h * scaleY;
+                x = x * scaleX;
+                y = y * scaleY;
+                w = w * scaleX;
+                h = h * scaleY;
 
-                    var image = this._labelTexture._htmlElementObj;
-                    if (this._labelTexture._pattern !== "") {
-                        wrapper.setFillStyle(context.createPattern(image, this._labelTexture._pattern));
-                        context.fillRect(x, y, w, h);
-                    } else {
-                        context.drawImage(image,
-                                          sx, sy, sw, sh,
-                                          x, y, w, h);
-                    }
+                var image = this._labelTexture._htmlElementObj;
+                if (this._labelTexture._pattern !== "") {
+                    wrapper.setFillStyle(context.createPattern(image, this._labelTexture._pattern));
+                    context.fillRect(x, y, w, h);
+                } else {
+                    context.drawImage(image,
+                        sx, sy, sw, sh,
+                        x, y, w, h);
                 }
-
             }
             cc.g_NumberOfDraws = cc.g_NumberOfDraws + 1;
         }
