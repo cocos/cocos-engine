@@ -411,6 +411,18 @@ test('statics', function () {
     cc.js.unregisterClass(Animal, Dog, Labrador);
 });
 
+test('_isCCClass', function () {
+    strictEqual(cc.Class._isCCClass(cc.Class({})), true, 'should be CCClass');
+
+    function ctor () {
+        this.foo = 0;
+    }
+    cc.Class._fastDefine('T', ctor, ['foo']);
+    strictEqual(cc.Class._isCCClass(ctor), false, 'fastDefined ctor should not recognized as CCClass');
+
+    cc.js.unregisterClass(ctor);
+});
+
 test('try catch', function () {
     var originThrow = cc._throw;
 

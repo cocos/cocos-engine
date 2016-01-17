@@ -287,25 +287,6 @@ function RawType (typename) {
     };
 }
 
-function Nullable (boolPropName, hasValueByDefault) {
-    return {
-        nullable: boolPropName,
-
-        _onAfterProp: function (constructor, mainPropName) {
-            // declare boolean
-            constructor.prop(boolPropName, hasValueByDefault, { visible: false });
-            // copy attributes from main property
-            var mainPropAttr = cc.Class.attr(constructor, mainPropName) || {};
-            if (mainPropAttr.serializable === false) {
-                cc.Class.attr(constructor, boolPropName, NonSerialized);
-            }
-            else if (mainPropAttr.editorOnly) {
-                cc.Class.attr(constructor, boolPropName, EditorOnly);
-            }
-        }
-    };
-}
-
 function Range (min, max) {
    return { min: min, max: max };
 }
@@ -318,6 +299,5 @@ module.exports = {
     ObjectType: ObjectType,
     RawType: RawType,
     ScriptUuid: {},      // the value will be represented as a uuid string
-    Nullable: Nullable,
     Range: Range
 };
