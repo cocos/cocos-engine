@@ -281,12 +281,13 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      */
     handleLoadedTexture: function () {
         var self = this;
-        if (self._textureLoaded) return;
         if (!self._htmlElementObj) {
             var img = cc.loader.getRes(self.url);
             if (!img) return;
             self.initWithElement(img);
         }
+        if (!self._htmlElementObj.width || !self._htmlElementObj.height)
+            return;
 
         var locElement = self._htmlElementObj;
         self._contentSize.width = locElement.width;
