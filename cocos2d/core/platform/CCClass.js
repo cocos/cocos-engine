@@ -49,7 +49,7 @@ var INVALID_STATICS = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 
 // * both getter and prop must register the name into __props__ array
 // * @param {String} name - prop name
 // */
-var _appendProp = function (cls, name/*, isGetter*/) {
+function appendProp (cls, name/*, isGetter*/) {
     if (CC_DEV) {
         //var JsVarReg = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
         //if (!JsVarReg.test(name)) {
@@ -66,127 +66,118 @@ var _appendProp = function (cls, name/*, isGetter*/) {
     if (index < 0) {
         cls.__props__.push(name);
     }
-};
+}
 
-var _metaClass = {
-
-    prop: function (name, defaultValue, attribute) {
-        'use strict';
-        if (CC_DEV) {
-            // check default object value
-            if (typeof defaultValue === 'object' && defaultValue) {
-                if (Array.isArray(defaultValue)) {
-                    // check array empty
-                    if (defaultValue.length > 0) {
-                        cc.error('Default array must be empty, set default value of %s.%s to [], ' +
-                                   'and initialize in "onLoad" or "ctor" please. (just like "this.%s = [...];")',
-                                    JS.getClassName(this), name, name);
-                        return this;
-                    }
-                }
-                else if (!_isPlainEmptyObj_DEV(defaultValue)) {
-                    // check cloneable
-                    if (!_cloneable_DEV(defaultValue)) {
-                        cc.error('Do not set default value to non-empty object, ' +
-        'unless the object defines its own "clone" function. Set default value of %s.%s to null or {}, ' +
-        'and initialize in "onLoad" or "ctor" please. (just like "this.%s = {foo: bar};")',
-                            JS.getClassName(this), name, name);
-                        return this;
-                    }
+function defineProp (cls, className, propName, defaultValue, attrs) {
+    if (CC_DEV) {
+        // check default object value
+        if (typeof defaultValue === 'object' && defaultValue) {
+            if (Array.isArray(defaultValue)) {
+                // check array empty
+                if (defaultValue.length > 0) {
+                    cc.error('Default array must be empty, set default value of %s.%s to [], ' +
+                               'and initialize in "onLoad" or "ctor" please. (just like "this.%s = [...];")',
+                        className, propName, propName);
+                    return;
                 }
             }
-
-            // check base prototype to avoid name collision
-            for (var base = this.$super; base; base = base.$super) {
-                // 这个循环只能检测到最上面的FireClass的父类，如果再上还有父类，将不做检测。
-                if (base.prototype.hasOwnProperty(name)) {
-                    cc.error('Can not declare %s.%s, it is already defined in the prototype of %s',
-                        JS.getClassName(this), name, JS.getClassName(base));
+            else if (!_isPlainEmptyObj_DEV(defaultValue)) {
+                // check cloneable
+                if (!_cloneable_DEV(defaultValue)) {
+                    cc.error('Do not set default value to non-empty object, ' +
+    'unless the object defines its own "clone" function. Set default value of %s.%s to null or {}, ' +
+    'and initialize in "onLoad" or "ctor" please. (just like "this.%s = {foo: bar};")',
+                        className, propName, propName);
                     return;
                 }
             }
         }
 
-        // set default value
-        Attr.attr(this, name, { 'default': defaultValue });
-
-        _appendProp(this, name);
-
-        // apply attributes
-        if (attribute) {
-            var onAfterProp = null;
-            var AttrArgStart = 2;
-            for (var i = AttrArgStart; i < arguments.length; i++) {
-                var attr = arguments[i];
-                Attr.attr(this, name, attr);
-                // register callback
-                if (attr._onAfterProp) {
-                    onAfterProp = onAfterProp || [];
-                    onAfterProp.push(attr._onAfterProp);
-                }
+        // check base prototype to avoid name collision
+        for (var base = cls.$super; base; base = base.$super) {
+            // 这个循环只能检测到最上面的FireClass的父类，如果再上还有父类，将不做检测。
+            if (base.prototype.hasOwnProperty(propName)) {
+                cc.error('Can not declare %s.%s, it is already defined in the prototype of %s',
+                    className, propName, className);
+                return;
             }
-            // call callback
-            if (onAfterProp) {
-                for (var c = 0; c < onAfterProp.length; c++) {
-                    onAfterProp[c](this, name);
+        }
+    }
+
+    // set default value
+    Attr.attr(cls, propName, { 'default': defaultValue });
+
+    appendProp(cls, propName);
+
+    // apply attributes
+    if (attrs) {
+        var onAfterProp = null;
+        for (var i = 0; i < attrs.length; i++) {
+            var attr = attrs[i];
+            Attr.attr(cls, propName, attr);
+            // register callback
+            if (attr._onAfterProp) {
+                onAfterProp = onAfterProp || [];
+                onAfterProp.push(attr._onAfterProp);
+            }
+        }
+        // call callback
+        if (onAfterProp) {
+            for (var c = 0; c < onAfterProp.length; c++) {
+                onAfterProp[c](cls, propName);
+            }
+        }
+    }
+}
+
+function defineGetSet (cls, name, propName, val, attrs) {
+    var getter = val.get;
+    var setter = val.set;
+    var proto = cls.prototype;
+    var d = Object.getOwnPropertyDescriptor(proto, propName);
+
+    if (getter) {
+        if (d && d.get && CC_DEV) {
+            cc.error('"%s": the getter of "%s" is already defined!', name, propName);
+            return;
+        }
+
+        if (attrs) {
+            for (var i = 0; i < attrs.length; ++i) {
+                var attr = attrs[i];
+                if (attr._canUsedInGetter === false && CC_DEV) {
+                    cc.error('Can not apply the specified attribute to the getter of "%s.%s", ' +
+                             'attribute index: %s', name, propName, i);
+                    continue;
+                }
+
+                Attr.attr(cls, propName, attr);
+
+                // check attributes
+                if ((attr.serializable === false || attr.editorOnly === true) && CC_DEV) {
+                    cc.warn('No need to use "serializable: false" or "editorOnly: true" for ' +
+                            'the getter of "%s.%s", every getter is actually non-serialized.',
+                        name, propName);
                 }
             }
         }
-        return this;
-    },
 
-    get: function (name, getter, attribute) {
-        'use strict';
-
-        if (CC_DEV) {
-            var d = Object.getOwnPropertyDescriptor(this.prototype, name);
-            if (d && d.get) {
-                cc.error('%s: the getter of "%s" is already defined!', JS.getClassName(this), name);
-                return this;
-            }
+        var ForceSerializable = false;
+        if (!ForceSerializable) {
+            Attr.attr(cls, propName, Attr.NonSerialized);
         }
-
-        if (attribute) {
-            var AttrArgStart = 2;
-            for (var i = AttrArgStart; i < arguments.length; i++) {
-                var attr = arguments[i];
-                if (CC_DEV) {
-                    if (attr._canUsedInGetter === false) {
-                        cc.error('Can not apply the specified attribute to the getter of "%s.%s", attribute index: %s',
-                            JS.getClassName(this), name, (i - AttrArgStart));
-                        continue;
-                    }
-                }
-
-                Attr.attr(this, name, attr);
-
-                if (CC_DEV) {
-                    // check attributes
-                    if (attr.serializable === false || attr.editorOnly === true) {
-                        cc.warn('No need to use "serializable: false" or "editorOnly: true" for the getter of %s.%s, ' +
-                                  'every getter is actually non-serialized.',
-                            JS.getClassName(this), name);
-                    }
-                }
-            }
-        }
-
-        var forceSerializable = false;
-        if ( !forceSerializable ) {
-            Attr.attr(this, name, Attr.NonSerialized);
-        }
-        if (forceSerializable || CC_DEV) {
+        if (ForceSerializable || CC_DEV) {
             // 不论是否 hide in inspector 都要添加到 props，否则 asset watcher 不能正常工作
-            _appendProp(this, name/*, true*/);
+            appendProp(cls, propName/*, true*/);
         }
 
-        if (Object.getOwnPropertyDescriptor(this.prototype, name)) {
-            Object.defineProperty(this.prototype, name, {
+        if (d) {
+            Object.defineProperty(proto, propName, {
                 get: getter
             });
         }
         else {
-            Object.defineProperty(this.prototype, name, {
+            Object.defineProperty(proto, propName, {
                 get: getter,
                 configurable: true,
                 enumerable: true
@@ -194,57 +185,39 @@ var _metaClass = {
         }
 
         if (CC_DEV) {
-            Attr.attr(this, name, {hasGetter: true}); // 方便 editor 做判断
+            Attr.attr(cls, propName, {hasGetter: true}); // 方便 editor 做判断
         }
-        return this;
-    },
+    }
 
-    set: function (name, setter) {
+    if (setter) {
         if (CC_DEV) {
-            var d = Object.getOwnPropertyDescriptor(this.prototype, name);
             if (d && d.set) {
-                cc.error('%s: the setter of "%s" is already defined!', JS.getClassName(this), name);
-                return this;
+                return cc.error('"%s": the setter of "%s" is already defined!', name, propName);
             }
-        }
 
-        if (CC_DEV) {
-            Object.defineProperty(this.prototype, name, {
+            Object.defineProperty(proto, propName, {
                 set: setter,
                 configurable: true,
                 enumerable: true
             });
-            Attr.attr(this, name, { hasSetter: true }); // 方便 editor 做判断
+            Attr.attr(cls, propName, {hasSetter: true}); // 方便 editor 做判断
         }
         else {
-            if (Object.getOwnPropertyDescriptor(this.prototype, name)) {
-                Object.defineProperty(this.prototype, name, {
+            if (d) {
+                Object.defineProperty(proto, propName, {
                     set: setter
                 });
             }
             else {
-                Object.defineProperty(this.prototype, name, {
+                Object.defineProperty(proto, propName, {
                     set: setter,
                     configurable: true,
                     enumerable: true
                 });
             }
         }
-
-        return this;
-    },
-
-    /**
-     * Create a new Class that inherits from this Class
-     * @param {Object} options
-     * @return {Function}
-     * @deprecated
-     */
-    extend: function (options) {
-        options.extends = this;
-        return CCClass(options);
     }
-};
+}
 
 function getDefault (defaultVal) {
     if (typeof defaultVal === 'function') {
@@ -336,13 +309,14 @@ cc.isChildClassOf = function (subclass, superclass) {
 function doDefine (className, baseClass, mixins, constructor, options) {
     var fireClass = _createCtor(constructor, baseClass, mixins, className, options);
 
-    // occupy some non-inherited static members
-    for (var staticMember in _metaClass) {
-        Object.defineProperty(fireClass, staticMember, {
-            value: _metaClass[staticMember],
-            writable: true
-        });
-    }
+    // (NON-INHERITED) Create a new Class that inherits from this Class
+    Object.defineProperty(fireClass, 'extend', {
+        value: function (options) {
+            options.extends = this;
+            return CCClass(options);
+        },
+        writable: true
+    });
 
     if (baseClass) {
         // inherit
@@ -443,7 +417,7 @@ function normalizeClassName (className) {
         var DefaultName = 'CCClass';
         if (className) {
             className = className.replace(/\./g, '_');
-            className = className.split('').filter(function (x) { return /^[a-zA-Z0-9_$]/.test(x) }).join('');
+            className = className.split('').filter(function (x) { return /^[a-zA-Z0-9_$]/.test(x); }).join('');
             if (/^[0-9]/.test(className[0])) {
                 className = '_' + className;
             }
@@ -558,8 +532,8 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
 
     Object.defineProperty(fireClass, '__ctors__', {
         value: ctors.length > 0 ? ctors : null,
-        writable: false,
-        enumerable: false
+        // writable should be false,
+        // enumerable should be false
     });
 
     if (shouldAddProtoCtor && CC_EDITOR) {
@@ -695,7 +669,7 @@ function CCClass (options) {
         name = cc.js.getClassName(cls);
     }
 
-    // define properties
+    // define Properties
     var properties = options.properties;
     if (properties) {
 
@@ -706,23 +680,10 @@ function CCClass (options) {
             var val = properties[propName];
             var attrs = parseAttributes(val, name, propName);
             if ('default' in val) {
-                cls.prop.apply(cls, [propName, val.default].concat(attrs));
+                defineProp(cls, name, propName, val.default, attrs);
             }
             else {
-                var getter = val.get;
-                var setter = val.set;
-                if (CC_DEV) {
-                    if (!getter && !setter) {
-                        cc.error('Property %s.%s must define at least one of "default", "get" or "set".', name,
-                            propName);
-                    }
-                }
-                if (getter) {
-                    cls.get.apply(cls, [propName, getter].concat(attrs));
-                }
-                if (setter) {
-                    cls.set(propName, setter);
-                }
+                defineGetSet(cls, name, propName, val, attrs);
             }
         }
     }
@@ -789,31 +750,17 @@ function CCClass (options) {
  * @private
  */
 CCClass._isCCClass = function (constructor) {
-    return !!constructor && (constructor.prop === _metaClass.prop);
+    return !!constructor && typeof constructor.__ctors__ !== 'undefined';
 };
 
-//
-// @method _convertToFireClass
-// @param {Function} constructor
-// @private
-//
-//CCClass._convertToFireClass = function (constructor) {
-//    constructor.prop = _metaClass.prop;
-//};
-
-// Optimized define function only for internal base classes
-//
-// @param {String} className
-// @param {Function} constructor
-// @param {string[]} serializableFields
-// @private
-function fastDefine (className, constructor, serializableFields) {
+// Optimized define function only for internal classes
+CCClass._fastDefine = function (className, constructor, serializableFields) {
     JS.setClassName(className, constructor);
     constructor.__props__ = serializableFields;
     for (var i = 0; i < serializableFields.length; i++) {
         Attr.attr(constructor, serializableFields[i], { visible: false });
     }
-}
+};
 
 CCClass.attr = Attr.attr;
 
@@ -960,37 +907,8 @@ function parseAttributes (attrs, className, propName) {
         }
     }
 
-    var nullable = attrs.nullable;
-    if (nullable) {
-        if (typeof nullable === 'object') {
-            var boolPropName = nullable.propName;
-            if (typeof boolPropName === 'string') {
-                var def = nullable.default;
-                if (typeof def === 'boolean') {
-                    result.push(Attr.Nullable(boolPropName, def));
-                }
-                else if (CC_DEV) {
-                    cc.error(ERR_Type, '"default"', 'nullable object', 'boolean');
-                }
-            }
-            else if (CC_DEV) {
-                cc.error(ERR_Type, '"propName"', 'nullable object', 'string');
-            }
-        }
-        else if (CC_DEV) {
-            cc.error(ERR_Type, '"nullable"', className + '.' + propName, 'object');
-        }
-    }
-
     return result;
 }
-
-/**
- * @param {Object} options
- * @return {Function}
- * @deprecated
- */
-CCClass.extend = CCClass;
 
 cc.Class = CCClass;
 
@@ -1000,5 +918,5 @@ module.exports = {
         defaultVal = getDefault(defaultVal);
         return Array.isArray(defaultVal);
     },
-    fastDefine: fastDefine
+    fastDefine: CCClass._fastDefine
 };
