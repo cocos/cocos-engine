@@ -275,7 +275,7 @@ var Layout = cc.Class({
         this.node.on('size-changed', this._resized, this);
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
-        this.node.on('child-removed', this._childrenAddOrDeleted, this);;
+        this.node.on('child-removed', this._childrenAddOrDeleted, this);
         this._updateChildrenEventListener();
     },
 
@@ -292,7 +292,7 @@ var Layout = cc.Class({
         }.bind(this));
     },
 
-    _childrenAddOrDeleted: function(event) {
+    _childrenAddOrDeleted: function() {
         this._updateChildrenEventListener();
         this._doLayoutDirty();
     },
@@ -318,7 +318,7 @@ var Layout = cc.Class({
         var tempMaxHeight = 0;
         var secondMaxHeight = 0;
         var row = 0;
-        var containerResizeBoundary = 0;
+        var containerResizeBoundary;
 
         var maxHeightChildAnchor;
 
@@ -386,12 +386,24 @@ var Layout = cc.Class({
             }
 
             var signX = 1;
-            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
-                signX = -1;
-            }
-
+            var tempFinalPositionY;
             var topMarign = (tempMaxHeight === 0) ? child.height : tempMaxHeight;
-            containerResizeBoundary = finalPositionY +  signX * (topMarign * maxHeightChildAnchor.y + this.padding);
+
+            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
+                signX = -1;
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchor.y + this.padding);
+                if (tempFinalPositionY < containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionY;
+                }
+            }
+            else {
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchor.y + this.padding);
+                if (tempFinalPositionY > containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionY;
+                }
+            }
 
             nextX += rightBoundaryOfChild;
         }.bind(this));
@@ -430,7 +442,7 @@ var Layout = cc.Class({
         var tempMaxWidth = 0;
         var secondMaxWidth = 0;
         var column = 0;
-        var containerResizeBoundary = 0;
+        var containerResizeBoundary;
         var maxWidthChildAnchor;
 
         var newChildHeight = this.cellSize.height;
@@ -496,13 +508,26 @@ var Layout = cc.Class({
             }
 
             var signX = 1;
-            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
-                signX = -1;
-            }
-
+            var tempFinalPositionX;
             //when the item is the last column break item, the tempMaxWidth will be 0.
             var rightMarign = (tempMaxWidth === 0) ? child.width : tempMaxWidth;
-            containerResizeBoundary = finalPositionX + signX * (rightMarign * maxWidthChildAnchor.x + this.padding);
+
+            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+                signX = -1;
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.width;
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchor.x + this.padding);
+                if (tempFinalPositionX < containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionX;
+                }
+            }
+            else {
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.width;
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchor.x + this.padding);
+                if (tempFinalPositionX > containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionX;
+                }
+
+            }
 
             nextY += topBoundaryOfChild;
         }.bind(this));
@@ -511,7 +536,6 @@ var Layout = cc.Class({
     },
 
     _doLayoutBasic: function() {
-        var layoutAnchor = this.node.getAnchorPoint();
         var children = this.node.children;
 
         var allChildrenBoundingBox = null;
@@ -561,7 +585,7 @@ var Layout = cc.Class({
         if (this.resize === ResizeType.CONTAINER) {
             //calculate the new height of container, it won't change the position of it's children
             var boundary = this._doLayoutHorizontally(baseWidth, true, fnPositionY, false);
-            newHeight = bottomBoundaryOfLayout - boundary
+            newHeight = bottomBoundaryOfLayout - boundary;
             if (newHeight < 0) {
                 newHeight *= -1;
             }
@@ -576,7 +600,7 @@ var Layout = cc.Class({
 
         this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
 
-        if (this.resize == ResizeType.CONTAINER) {
+        if (this.resize === ResizeType.CONTAINER) {
             this.node.setContentSize(baseWidth, newHeight);
         }
     },
@@ -652,7 +676,7 @@ var Layout = cc.Class({
         if (this.layoutType === Type.HORIZONTAL) {
             var newWidth = this._getHorizontalBaseWidth(this.node.children);
 
-            var fnPositionY = function(child, topOffset) {
+            var fnPositionY = function(child) {
                 return child.y;
             };
 
@@ -663,7 +687,7 @@ var Layout = cc.Class({
         else if (this.layoutType === Type.VERTICAL) {
             var newHeight = this._getVerticalBaseHeight(this.node.children);
 
-            var fnPositionX = function(child, leftOffset) {
+            var fnPositionX = function(child) {
                 return child.x;
             };
 
