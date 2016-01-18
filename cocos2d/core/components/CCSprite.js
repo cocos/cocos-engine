@@ -107,11 +107,11 @@ var Sprite = cc.Class({
         },
 
         isTrimmedMode: {
-            get: function() {
+            get: function () {
                 return this._isTrimmedMode;
             },
-            set: function(value) {
-                if(this._isTrimmedMode !== value) {
+            set: function (value) {
+                if (this._isTrimmedMode !== value) {
                     this._isTrimmedMode = value;
                     this._sgNode.enableTrimmedContentSize(value);
                 }
@@ -132,13 +132,13 @@ var Sprite = cc.Class({
             tooltip: 'i18n:COMPONENT.sprite.original_size',
         },
 
-        sizeMode : {
-            get: function() {
+        sizeMode: {
+            get: function () {
                 return this._sizeMode;
             },
-            set: function(value) {
+            set: function (value) {
                 this._sizeMode = value;
-                if(value !== SizeMode.Custom_Size) {
+                if (value !== SizeMode.Custom_Size) {
                     this._applySpriteSize();
                 }
             },
@@ -176,7 +176,7 @@ var Sprite = cc.Class({
      * @method setScale9Enabled
      * @param {Boolean} enabled - True to enable 9-slice, false otherwise.
      */
-    setScale9Enabled: function(enabled) {
+    setScale9Enabled: function (enabled) {
         this.type = enabled ? cc.SpriteType.SLICED : cc.SpriteType.SIMPLE;
     },
 
@@ -185,7 +185,7 @@ var Sprite = cc.Class({
      * @method isScale9Enabled
      * @return {Boolean} True if 9-slice is enabled, false otherwise.
      */
-    isScale9Enabled: function(){
+    isScale9Enabled: function () {
         return this.type === cc.SpriteType.SLICED;
     },
 
@@ -255,7 +255,7 @@ var Sprite = cc.Class({
      * @method setInsetLeft
      * @param {Number} leftInset - The values to use for the cap inset.
      */
-    setInsetLeft: function(insetLeft){
+    setInsetLeft: function (insetLeft) {
         this._sgNode.setInsetLeft(insetLeft);
     },
 
@@ -264,7 +264,7 @@ var Sprite = cc.Class({
      * @method getInsetLeft
      * @return {Number} The left sprite's cap inset.
      */
-    getInsetLeft: function(){
+    getInsetLeft: function () {
         return this._sgNode.getInsetLeft();
     },
 
@@ -273,7 +273,7 @@ var Sprite = cc.Class({
      * @method setInsetTop
      * @param {Number} topInset - The values to use for the cap inset.
      */
-    setInsetTop: function(insetTop){
+    setInsetTop: function (insetTop) {
         this._sgNode.setInsetTop(insetTop);
     },
 
@@ -282,7 +282,7 @@ var Sprite = cc.Class({
      * @method getInsetTop
      * @return {Number} The top sprite's cap inset.
      */
-    getInsetTop: function(){
+    getInsetTop: function () {
         return this._sgNode.getInsetTop();
     },
 
@@ -291,7 +291,7 @@ var Sprite = cc.Class({
      * @method setInsetRight
      * @param {Number} rightInset - The values to use for the cap inset.
      */
-    setInsetRight: function(insetRight){
+    setInsetRight: function (insetRight) {
         this._sgNode.setInsetRight(insetRight);
     },
 
@@ -300,7 +300,7 @@ var Sprite = cc.Class({
      * @method getInsetRight
      * @return {Number} The right sprite's cap inset.
      */
-    getInsetRight: function(){
+    getInsetRight: function () {
         return this._sgNode.getInsetRight();
     },
 
@@ -309,7 +309,7 @@ var Sprite = cc.Class({
      * @method setInsetBottom
      * @param {Number} bottomInset - The values to use for the cap inset.
      */
-    setInsetBottom: function(insetBottom) {
+    setInsetBottom: function (insetBottom) {
         this._sgNode.setInsetBottom(insetBottom);
     },
 
@@ -318,16 +318,16 @@ var Sprite = cc.Class({
      * @method getInsetBottom
      * @return {Number} The bottom sprite's cap inset.
      */
-    getInsetBottom: function(){
+    getInsetBottom: function () {
         return this._sgNode.getInsetBottom();
     },
 
     onLoad: function () {
         this._super();
         //do processing
-        if(-1 === this._sizeMode) {
+        if (-1 === this._sizeMode) {
             //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
-            if(this._useOriginalSize) {
+            if (this._useOriginalSize) {
                 this._sizeMode = SizeMode.Trimmed_Size;
                 this._isTrimmedMode = true;
             } else {
@@ -343,11 +343,11 @@ var Sprite = cc.Class({
         this.node.off('size-changed', this._resized, this);
     },
 
-    _applyAtlas: CC_EDITOR && function ( spriteFrame ) {
+    _applyAtlas: CC_EDITOR && function (spriteFrame) {
         // Set atlas
         if (spriteFrame && spriteFrame._atlasUuid) {
             var self = this;
-            cc.AssetLibrary.loadAsset(spriteFrame._atlasUuid, function(err, asset) {
+            cc.AssetLibrary.loadAsset(spriteFrame._atlasUuid, function (err, asset) {
                 self._atlas = asset;
             });
         } else {
@@ -366,12 +366,12 @@ var Sprite = cc.Class({
     },
 
     _applySpriteSize: function () {
-        if(SizeMode.Custom_Size === this._sizeMode || !this._spriteFrame) {
+        if (SizeMode.Custom_Size === this._sizeMode || !this._spriteFrame) {
             this.node.setContentSize(this.node.getContentSize(true));
-        } else if(SizeMode.Raw_Size == this._sizeMode) {
+        } else if (SizeMode.Raw_Size == this._sizeMode) {
             var size = this._spriteFrame.getOriginalSize();
             this.node.setContentSize(cc.size(size.width, size.height));
-        } else if(SizeMode.Trimmed_Size == this._sizeMode) {
+        } else if (SizeMode.Trimmed_Size == this._sizeMode) {
             var rect = this._spriteFrame.getRect();
             this.node.setContentSize(cc.size(rect.width, rect.height));
         } else {
@@ -385,7 +385,7 @@ var Sprite = cc.Class({
         sgNode.setSpriteFrame(self._spriteFrame);
         self._applyCapInset();
         self._applySpriteSize();
-        if ( this.enabledInHierarchy && !sgNode.isVisible() ) {
+        if (this.enabledInHierarchy && !sgNode.isVisible()) {
             sgNode.setVisible(true);
         }
     },
@@ -421,7 +421,7 @@ var Sprite = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
 
-        if ( !this.enabledInHierarchy ) {
+        if (!this.enabledInHierarchy) {
             sgNode.setVisible(false);
         }
 
@@ -431,13 +431,13 @@ var Sprite = cc.Class({
         // otherwise setContentSize may not take effect
         sgNode.setContentSize(this.node.getContentSize(true));
         this._applySpriteSize();
-        
+
         sgNode.setRenderingType(this._type);
     },
 
     _resized: function () {
         if (SizeMode.Custom_Size !== this._sizeMode && this._spriteFrame) {
-            if(this._sizeMode === SizeMode.Raw_Size) {
+            if (this._sizeMode === SizeMode.Raw_Size) {
                 var size = this._spriteFrame.getOriginalSize();
                 var expectedW = size.width;
                 var expectedH = size.height;
@@ -445,7 +445,7 @@ var Sprite = cc.Class({
                 if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
                     this._sizeMode = SizeMode.Custom_Size;
                 }
-            } else if(this._sizeMode === SizeMode.Trimmed_Size) {
+            } else if (this._sizeMode === SizeMode.Trimmed_Size) {
                 var rect = this._spriteFrame.getRect();
                 var expectedW = rect.width;
                 var expectedH = rect.height;
@@ -463,7 +463,7 @@ var Sprite = cc.Class({
 var misc = require('../utils/misc');
 var SameNameGetSets = ['atlas', 'capInsets', 'insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
 var DiffNameGetSets = {
-    type: [ null, 'setRenderingType']
+    type: [null, 'setRenderingType']
 };
 misc.propertyDefine(Sprite, SameNameGetSets, DiffNameGetSets);
 
