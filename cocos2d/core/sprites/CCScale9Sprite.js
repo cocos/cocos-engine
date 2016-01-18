@@ -51,10 +51,10 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
 cc.SimpleQuadGenerator = {
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity) {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, isTrimmedContentSize) {
         var quads = [];
         //build vertices
-        var vertices = this._calculateVertices(spriteFrame, contentSize);
+        var vertices = this._calculateVertices(spriteFrame, contentSize, isTrimmedContentSize);
 
         //build uvs
         var uvs = this._calculateUVs(spriteFrame);
@@ -88,15 +88,31 @@ cc.SimpleQuadGenerator = {
         return quads;
     },
 
-    _calculateVertices : function (spriteFrame, contentSize) {
-
+    _calculateVertices : function (spriteFrame, contentSize, isTrimmedContentSize) {
         var x0,x3;
         var y0,y3;
-        x0 = 0;
-        x3 = contentSize.width;
+        if(isTrimmedContentSize) {
+            x0 = 0;
+            x3 = contentSize.width;
 
-        y0 = 0;
-        y3 = contentSize.height;
+            y0 = 0;
+            y3 = contentSize.height;
+        } else {
+            var originalSize = spriteFrame.getOriginalSize();
+            var rect = spriteFrame.getRect();
+            var offset = spriteFrame.getOffset();
+            var scaleX = contentSize.width / originalSize.width;
+            var scaleY = contentSize.height / originalSize.height;
+            var trimmLeft = offset.x + (originalSize.width - rect.width) / 2;
+            var trimmRight = offset.x - (originalSize.width - rect.width) / 2;
+            var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
+            var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
+            x0 = trimmLeft * scaleX;
+            x3 = contentSize.width + trimmRight * scaleX;
+            y0 = trimmedBottom * scaleY;
+            y3 = contentSize.height + trimmedTop * scaleY;
+        }
 
         //apply contentscale factor
         x0 = x0 / cc.contentScaleFactor();
@@ -396,6 +412,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _quads: [],
     _quadsDirty: true,
 
+    _isTrimmedContentSize: true,
+
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
@@ -522,6 +540,18 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._quadsDirty = true;
     },
 
+    //
+    enableTrimmedContentSize: function(isTrimmed) {
+        isTrimmed = isTrimmed || true;
+        if(this._isTrimmedContentSize !== isTrimmed) {
+            this._isTrimmedContentSize = isTrimmed;
+            this._quadsDirty = true;
+        }
+    },
+
+    isTrimmedContentSizeEnabled: function() {
+        return this._isTrimmedContentSize;
+    },
     /**
      * Change the state of 9-slice sprite.
      * @see `State`
@@ -634,12 +664,13 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._quads[index]._tr.colors = color;
         }
     },
+
     _rebuildQuads : function () {
         if (!this.loaded() || this._quadsDirty === false) return;
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
         if (this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
-            this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+            this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
             this._quads = cc.Scale9QuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
