@@ -24,9 +24,9 @@
 
 var SpriteType = cc.SpriteType;
 var SizeMode = cc.Enum({
-    Custom_Size: 0,
-    Trimmed_Size: 1,
-    Raw_Size: 2
+    CUSTOM: 0,
+    TRIMMED: 1,
+    RAW: 2
 });
 /**
  * Renders a sprite in the scene.
@@ -138,7 +138,7 @@ var Sprite = cc.Class({
             },
             set: function (value) {
                 this._sizeMode = value;
-                if (value !== SizeMode.Custom_Size) {
+                if (value !== SizeMode.CUSTOM) {
                     this._applySpriteSize();
                 }
             },
@@ -328,10 +328,10 @@ var Sprite = cc.Class({
         if (-1 === this._sizeMode) {
             //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
             if (this._useOriginalSize) {
-                this._sizeMode = SizeMode.Trimmed_Size;
+                this._sizeMode = SizeMode.TRIMMED;
                 this._isTrimmedMode = true;
             } else {
-                this._sizeMode = SizeMode.Custom_Size;
+                this._sizeMode = SizeMode.CUSTOM;
                 this._isTrimmedMode = true;
             }
         }
@@ -366,12 +366,12 @@ var Sprite = cc.Class({
     },
 
     _applySpriteSize: function () {
-        if (SizeMode.Custom_Size === this._sizeMode || !this._spriteFrame) {
+        if (SizeMode.CUSTOM === this._sizeMode || !this._spriteFrame) {
             this.node.setContentSize(this.node.getContentSize(true));
-        } else if (SizeMode.Raw_Size == this._sizeMode) {
+        } else if (SizeMode.RAW == this._sizeMode) {
             var size = this._spriteFrame.getOriginalSize();
             this.node.setContentSize(cc.size(size.width, size.height));
-        } else if (SizeMode.Trimmed_Size == this._sizeMode) {
+        } else if (SizeMode.TRIMMED == this._sizeMode) {
             var rect = this._spriteFrame.getRect();
             this.node.setContentSize(cc.size(rect.width, rect.height));
         } else {
@@ -436,22 +436,22 @@ var Sprite = cc.Class({
     },
 
     _resized: function () {
-        if (SizeMode.Custom_Size !== this._sizeMode && this._spriteFrame) {
-            if (this._sizeMode === SizeMode.Raw_Size) {
+        if (SizeMode.CUSTOM !== this._sizeMode && this._spriteFrame) {
+            if (this._sizeMode === SizeMode.RAW) {
                 var size = this._spriteFrame.getOriginalSize();
                 var expectedW = size.width;
                 var expectedH = size.height;
                 var actualSize = this.node.getContentSize();
                 if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-                    this._sizeMode = SizeMode.Custom_Size;
+                    this._sizeMode = SizeMode.CUSTOM;
                 }
-            } else if (this._sizeMode === SizeMode.Trimmed_Size) {
+            } else if (this._sizeMode === SizeMode.TRIMMED) {
                 var rect = this._spriteFrame.getRect();
                 var expectedW = rect.width;
                 var expectedH = rect.height;
                 var actualSize = this.node.getContentSize();
                 if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-                    this._sizeMode = SizeMode.Custom_Size;
+                    this._sizeMode = SizeMode.CUSTOM;
                 }
             } else {
                 //do nothing
