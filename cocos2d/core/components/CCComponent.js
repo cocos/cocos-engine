@@ -213,7 +213,8 @@ var Component = cc.Class({
             },
             set: function (value) {
                 this._name = value;
-            }
+            },
+            visible: false
         },
 
         _id: {
