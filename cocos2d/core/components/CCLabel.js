@@ -272,10 +272,10 @@ var Label = cc.Class({
 
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
-        sgNode.setFontSize( this.fontSize );
+        sgNode.setFontSize( this._fontSize );
         sgNode.setOverflow( this.overflow );
-        sgNode.enableWrapText( this.enableWrapText );
-        sgNode.setLineHeight(this.lineHeight);
+        sgNode.enableWrapText( this._enableWrapText );
+        sgNode.setLineHeight(this._lineHeight);
         if(!this._useOriginalSize){
             sgNode.setContentSize(this.node.getContentSize());
         }
