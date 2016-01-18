@@ -542,7 +542,6 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
     //
     enableTrimmedContentSize: function(isTrimmed) {
-        isTrimmed = isTrimmed || true;
         if(this._isTrimmedContentSize !== isTrimmed) {
             this._isTrimmedContentSize = isTrimmed;
             this._quadsDirty = true;
