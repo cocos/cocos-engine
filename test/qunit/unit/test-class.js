@@ -579,3 +579,53 @@ test('mixins', function () {
     strictEqual(cc.Class.attr(BigDog, 'p2').default, 'Defined by Mixin2', 'last mixin property should override previous');
     strictEqual(cc.Class.attr(BigDog, 'p1').default, 'Defined by BigDog', "should override base property");
 });
+
+asyncTest('instantiate properties in the next frame', function () {
+    var Dog = cc.Class({
+        extends: cc.Object,
+        properties: function () {
+            return {
+                like: 'shit'
+            };
+        }
+    });
+    var Husky = cc.Class({
+        extends: Dog,
+        properties: {
+            weight: 100
+        }
+    });
+
+    throws(
+        function () {
+            Husky.__props__.length;
+        },
+        'should raised error if accessing to props via Class'
+    );
+
+    setTimeout(function () {
+        deepEqual(Husky.__props__, ['like', 'weight'], 'should get properties in the correct order');
+        equal(cc.Class.attr(Dog, '_name').visible, false, 'Should not override fast defined properties');
+
+        start();
+    }, 0);
+});
+
+test('lazy instantiate properties', function () {
+    var Dog = cc.Class({
+        properties: function () {
+            return {
+                like: 'shit'
+            };
+        }
+    });
+    var Husky = cc.Class({
+        extends: Dog,
+        properties: {
+            weight: 100
+        }
+    });
+
+    var dog = new Husky();
+    deepEqual(Husky.__props__, ['like', 'weight'], 'could get properties in the correct order after instantiating');
+});

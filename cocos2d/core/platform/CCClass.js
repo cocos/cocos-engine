@@ -45,6 +45,50 @@ var TYPO_TO_CORRECT = CC_DEV && {
 var INVALID_STATICS = CC_DEV && ['name', '__ctors__', '__props__', 'arguments', 'call', 'apply', 'caller',
                        'length', 'prototype'];
 
+var deferredInitializer = {
+
+    // Configs for classes which needs deferred initialization
+    datas: null,
+
+    // register new class
+    // data - {cls: cls, cb: properties, mixins: options.mixins}
+    push: function (data) {
+        if (this.datas) {
+            this.datas.push(data);
+        }
+        else {
+            this.datas = [data];
+            // start a new timer to initialize
+            var self = this;
+            setTimeout(function () {
+                self.init();
+            }, 0);
+        }
+    },
+
+    init: function () {
+        var datas = this.datas;
+        if (datas) {
+            for (var i = 0; i < datas.length; ++i) {
+                var data = datas[i];
+                var cls = data.cls;
+                var properties = data.props;
+                if (typeof properties === 'function') {
+                    properties = properties();
+                }
+                var name = JS.getClassName(cls);
+                if (properties) {
+                    declareProperties(cls, name, properties, cls.$super, data.mixins);
+                }
+                else {
+                    cc.error('Properties function of "%s" should return an object!', name);
+                }
+            }
+            this.datas = null;
+        }
+    }
+};
+
 ///**
 // * both getter and prop must register the name into __props__ array
 // * @param {String} name - prop name
@@ -239,6 +283,10 @@ function getDefault (defaultVal) {
 
 function instantiateProps (instance, itsClass) {
     var propList = itsClass.__props__;
+    if (propList === null) {
+        deferredInitializer.init();
+        propList = itsClass.__props__;
+    }
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
         var attrs = Attr.attr(itsClass, prop);
@@ -309,22 +357,19 @@ cc.isChildClassOf = function (subclass, superclass) {
 function doDefine (className, baseClass, mixins, constructor, options) {
     var fireClass = _createCtor(constructor, baseClass, mixins, className, options);
 
-    // (NON-INHERITED) Create a new Class that inherits from this Class
+    // extend - (NON-INHERITED) Create a new Class that inherits from this Class
     Object.defineProperty(fireClass, 'extend', {
         value: function (options) {
             options.extends = this;
             return CCClass(options);
         },
-        writable: true
+        writable: true,
+        configurable: true
     });
 
     if (baseClass) {
-        // inherit
         JS.extend(fireClass, baseClass);    // 这里会把父类的 __props__ 复制给子类
-        //
         fireClass.$super = baseClass;
-        // inherit __props__
-        fireClass.__props__ = baseClass.__props__ ? baseClass.__props__.slice() : [];
     }
 
     if (mixins) {
@@ -337,20 +382,11 @@ function doDefine (className, baseClass, mixins, constructor, options) {
             for (var p in mixin)
                 if (mixin.hasOwnProperty(p) && INVALID_STATICS.indexOf(p) < 0)
                     fireClass[p] = mixin[p];
-
-            // mixin __props__
-            fireClass.__props__ = fireClass.__props__ || [];
-            if (mixin.__props__) {
-                fireClass.__props__ = fireClass.__props__.concat(mixin.__props__.filter(function (x) {
-                    return fireClass.__props__.indexOf(x) < 0;
-                }));
-            }
         }
         // restore constuctor overridden by mixin
         fireClass.prototype.constructor = fireClass;
     }
 
-    fireClass.__props__ = fireClass.__props__ || [];
     JS.setClassName(className, fireClass);
     return fireClass;
 }
@@ -597,6 +633,41 @@ function boundSuperCalls (baseClass, options) {
     return hasSuperCall;
 }
 
+function declareProperties (cls, className, properties, baseClass, mixins) {
+    cls.__props__ = [];
+
+    if (baseClass && baseClass.__props__) {
+        cls.__props__ = baseClass.__props__.slice();
+    }
+
+    if (mixins) {
+        for (var m = 0; m < mixins.length; ++m) {
+            var mixin = mixins[m];
+            if (mixin.__props__) {
+                cls.__props__ = cls.__props__.concat(mixin.__props__.filter(function (x) {
+                    return cls.__props__.indexOf(x) < 0;
+                }));
+            }
+        }
+    }
+
+    if (properties) {
+        // 预处理属性
+        preprocessAttrs(properties, className, cls);
+
+        for (var propName in properties) {
+            var val = properties[propName];
+            var attrs = parseAttributes(val, className, propName);
+            if ('default' in val) {
+                defineProp(cls, className, propName, val.default, attrs);
+            }
+            else {
+                defineGetSet(cls, className, propName, val, attrs);
+            }
+        }
+    }
+}
+
 /**
  * !#en Defines a CCClass using the given specification, please see [Class](/en/scripting/class/) for details.
  * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
@@ -661,31 +732,28 @@ function CCClass (options) {
 
     var name = options.name;
     var base = options.extends/* || CCObject*/;
+    var mixins = options.mixins;
 
     // create constructor
     var cls;
-    cls = define(name, base, options.mixins, options.ctor, options);
+    cls = define(name, base, mixins, options.ctor, options);
     if (!name) {
         name = cc.js.getClassName(cls);
     }
 
     // define Properties
     var properties = options.properties;
-    if (properties) {
-
-        // 预处理属性
-        preprocessAttrs(properties, name, cls);
-
-        for (var propName in properties) {
-            var val = properties[propName];
-            var attrs = parseAttributes(val, name, propName);
-            if ('default' in val) {
-                defineProp(cls, name, propName, val.default, attrs);
-            }
-            else {
-                defineGetSet(cls, name, propName, val, attrs);
-            }
-        }
+    if (typeof properties === 'function' ||
+        (base && base.__props__ === null) ||
+        (mixins && mixins.some(function (x) {
+            return x.__props__ === null;
+        }))
+    ) {
+        deferredInitializer.push({cls: cls, props: properties, mixins: mixins});
+        cls.__props__ = null;
+    }
+    else {
+        declareProperties(cls, name, properties, base, options.mixins);
     }
 
     // define statics
