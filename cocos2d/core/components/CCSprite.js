@@ -45,7 +45,7 @@ var Sprite = cc.Class({
         },
         _type: SpriteType.SIMPLE,
         _useOriginalSize: true,
-
+        _isTrimmedMode: true,
         /**
          * The Sprite Atlas.
          * @property _atlas
@@ -98,6 +98,17 @@ var Sprite = cc.Class({
             },
             type: SpriteType,
             tooltip: 'i18n:COMPONENT.sprite.type',
+        },
+
+        isTrimmedMode: {
+            get: function() {
+                return this._isTrimmedMode;
+            },
+            set: function(value) {
+                this._isTrimmedMode = value;
+                this._sgNode.enableTrimmedContentSize(value);
+                this._applySpriteSize();
+            }
         },
 
         useOriginalSize: {
@@ -326,6 +337,9 @@ var Sprite = cc.Class({
     _applySpriteSize: function () {
         if (this._useOriginalSize && this._spriteFrame) {
             var rect = this._spriteFrame.getRect();
+            if(!this._isTrimmedMode && this._type == SpriteType.SIMPLE) {
+                rect = this._spriteFrame.getOriginalSize();
+            }
             this.node.setContentSize(cc.size(rect.width, rect.height));
         }
         else {
