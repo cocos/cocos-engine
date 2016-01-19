@@ -36,25 +36,25 @@ cc.DOM = {};
  */
 cc.DOM._addMethods = function (node) {
     for (var funcs in cc.DOM.methods) {
-	    node[funcs] = cc.DOM.methods[funcs];
+        node[funcs] = cc.DOM.methods[funcs];
     }
 
-	// Redefine getter setter
-	cc.defineGetterSetter(node, "x", node.getPositionX, node.setPositionX);
-	cc.defineGetterSetter(node, "y", node.getPositionY, node.setPositionY);
-	cc.defineGetterSetter(node, "width", node._getWidth, node._setWidth);
-	cc.defineGetterSetter(node, "height", node._getHeight, node._setHeight);
-	cc.defineGetterSetter(node, "anchorX", node._getAnchorX, node._setAnchorX);
-	cc.defineGetterSetter(node, "anchorY", node._getAnchorY, node._setAnchorY);
-	cc.defineGetterSetter(node, "scale", node.getScale, node.setScale);
-	cc.defineGetterSetter(node, "scaleX", node.getScaleX, node.setScaleX);
-	cc.defineGetterSetter(node, "scaleY", node.getScaleY, node.setScaleY);
-	cc.defineGetterSetter(node, "rotation", node.getRotation, node.setRotation);
- 	cc.defineGetterSetter(node, "skewX", node.getSkewX, node.setSkewX);
-	cc.defineGetterSetter(node, "skewY", node.getSkewY, node.setSkewY);
-	cc.defineGetterSetter(node, "visible", node.isVisible, node.setVisible);
-	cc.defineGetterSetter(node, "parent", node.getParent, node.setParent);
-	cc.defineGetterSetter(node, "opacity", node.getOpacity, node.setOpacity);
+    // Redefine getter setter
+    cc.defineGetterSetter(node, "x", node.getPositionX, node.setPositionX);
+    cc.defineGetterSetter(node, "y", node.getPositionY, node.setPositionY);
+    cc.defineGetterSetter(node, "width", node._getWidth, node._setWidth);
+    cc.defineGetterSetter(node, "height", node._getHeight, node._setHeight);
+    cc.defineGetterSetter(node, "anchorX", node._getAnchorX, node._setAnchorX);
+    cc.defineGetterSetter(node, "anchorY", node._getAnchorY, node._setAnchorY);
+    cc.defineGetterSetter(node, "scale", node.getScale, node.setScale);
+    cc.defineGetterSetter(node, "scaleX", node.getScaleX, node.setScaleX);
+    cc.defineGetterSetter(node, "scaleY", node.getScaleY, node.setScaleY);
+    cc.defineGetterSetter(node, "rotation", node.getRotation, node.setRotation);
+    cc.defineGetterSetter(node, "skewX", node.getSkewX, node.setSkewX);
+    cc.defineGetterSetter(node, "skewY", node.getSkewY, node.setSkewY);
+    cc.defineGetterSetter(node, "visible", node.isVisible, node.setVisible);
+    cc.defineGetterSetter(node, "parent", node.getParent, node.setParent);
+    cc.defineGetterSetter(node, "opacity", node.getOpacity, node.setOpacity);
 };
 cc.DOM.methods = /** @lends cc.DOM# */{
     /**
@@ -64,11 +64,11 @@ cc.DOM.methods = /** @lends cc.DOM# */{
      */
     setPosition:function (x, y) {
         if (y === undefined) {
-	        this._position.x = x.x;
-	        this._position.y = x.y;
+            this._position.x = x.x;
+            this._position.y = x.y;
         } else {
-	        this._position.x = x;
-	        this._position.y = y;
+            this._position.x = x;
+            this._position.y = y;
         }
         this.setNodeDirty();
         this.dom.translates(this._position.x, -this._position.y);
@@ -141,11 +141,11 @@ cc.DOM.methods = /** @lends cc.DOM# */{
 
         var locAnchorPoint = this._anchorPoint;
         if (y === undefined) {
-	        locAnchorPoint.x = point.x;
-	        locAnchorPoint.y = point.y;
+            locAnchorPoint.x = point.x;
+            locAnchorPoint.y = point.y;
         } else {
-	        locAnchorPoint.x = point;
-	        locAnchorPoint.y = y;
+            locAnchorPoint.x = point;
+            locAnchorPoint.y = y;
         }
         var locAPP = cmd._anchorPointInPoints, locSize = this._contentSize;
         locAPP.x = locSize.width * locAnchorPoint.x;
@@ -162,55 +162,55 @@ cc.DOM.methods = /** @lends cc.DOM# */{
         this.setNodeDirty();
     },
 
-	/**
-	 * replace set anchorpoint x of ccNode
-	 * @param {Number} x The anchor x of node.
-	 */
-	_setAnchorX:function (x) {
-		var locAnchorPoint = this._anchorPoint;
+    /**
+     * replace set anchorpoint x of ccNode
+     * @param {Number} x The anchor x of node.
+     */
+    _setAnchorX:function (x) {
+        var locAnchorPoint = this._anchorPoint;
         var cmd = this._renderCmd;
 
-		if (x === locAnchorPoint.x)
-			return;
-		locAnchorPoint.x = x;
+        if (x === locAnchorPoint.x)
+            return;
+        locAnchorPoint.x = x;
 
-		var locAPP = cmd._anchorPointInPoints, locSize = this._contentSize;
-		locAPP.x = locSize.width * locAnchorPoint.x;
+        var locAPP = cmd._anchorPointInPoints, locSize = this._contentSize;
+        locAPP.x = locSize.width * locAnchorPoint.x;
 
-		this.dom.style[cc.$.pfx + 'TransformOrigin'] = '' + locAPP.x + 'px ' + -locAPP.y + 'px';
-		if (this.ignoreAnchor) {
-			this.dom.style.marginLeft = 0;
-			this.dom.style.marginBottom = 0;
-		} else {
-			this.dom.style.marginLeft = (this.isToggler) ? 0 : -locAPP.x + 'px';
-		}
-		this.setNodeDirty();
-	},
+        this.dom.style[cc.$.pfx + 'TransformOrigin'] = '' + locAPP.x + 'px ' + -locAPP.y + 'px';
+        if (this.ignoreAnchor) {
+            this.dom.style.marginLeft = 0;
+            this.dom.style.marginBottom = 0;
+        } else {
+            this.dom.style.marginLeft = (this.isToggler) ? 0 : -locAPP.x + 'px';
+        }
+        this.setNodeDirty();
+    },
 
-	/**
-	 * replace set anchorpoint y of ccNode
-	 * @param {Number} y The anchor y of node.
-	 */
-	_setAnchorY:function (y) {
-		var locAnchorPoint = this._anchorPoint;
+    /**
+     * replace set anchorpoint y of ccNode
+     * @param {Number} y The anchor y of node.
+     */
+    _setAnchorY:function (y) {
+        var locAnchorPoint = this._anchorPoint;
         var cmd = this._renderCmd;
 
-		if (y === locAnchorPoint.y)
-			return;
-		locAnchorPoint.y = y;
+        if (y === locAnchorPoint.y)
+            return;
+        locAnchorPoint.y = y;
 
-		var locAPP = cmd._anchorPointInPoints, locSize = this._contentSize;
-		locAPP.y = locSize.height * locAnchorPoint.y;
+        var locAPP = cmd._anchorPointInPoints, locSize = this._contentSize;
+        locAPP.y = locSize.height * locAnchorPoint.y;
 
-		this.dom.style[cc.$.pfx + 'TransformOrigin'] = '' + locAPP.x + 'px ' + -locAPP.y + 'px';
-		if (this.ignoreAnchor) {
-			this.dom.style.marginLeft = 0;
-			this.dom.style.marginBottom = 0;
-		} else {
-			this.dom.style.marginBottom = -locAPP.y + 'px';
-		}
-		this.setNodeDirty();
-	},
+        this.dom.style[cc.$.pfx + 'TransformOrigin'] = '' + locAPP.x + 'px ' + -locAPP.y + 'px';
+        if (this.ignoreAnchor) {
+            this.dom.style.marginLeft = 0;
+            this.dom.style.marginBottom = 0;
+        } else {
+            this.dom.style.marginBottom = -locAPP.y + 'px';
+        }
+        this.setNodeDirty();
+    },
 
     /**
      * replace set ContentSize of ccNode
@@ -222,11 +222,11 @@ cc.DOM.methods = /** @lends cc.DOM# */{
 
         var locContentSize = this._contentSize;
         if (height === undefined) {
-	        locContentSize.width = size.width;
-	        locContentSize.height = size.height;
+            locContentSize.width = size.width;
+            locContentSize.height = size.height;
         } else {
-	        locContentSize.width = size;
-	        locContentSize.height = height;
+            locContentSize.width = size;
+            locContentSize.height = height;
         }
         var locAPP = cmd._anchorPointInPoints, locAnchorPoint = this._anchorPoint;
         locAPP.x = locContentSize.width * locAnchorPoint.x;
@@ -242,49 +242,49 @@ cc.DOM.methods = /** @lends cc.DOM# */{
         this.redraw();
     },
 
-	/**
-	 * replace set width of ccNode
-	 * @param {Number} width The untransformed size's width of the node.
-	 */
-	_setWidth:function (width) {
-		var locContentSize = this._contentSize;
+    /**
+     * replace set width of ccNode
+     * @param {Number} width The untransformed size's width of the node.
+     */
+    _setWidth:function (width) {
+        var locContentSize = this._contentSize;
         var cmd = this._renderCmd;
-		if (width === locContentSize.width)
-			return;
-		locContentSize.width = width;
+        if (width === locContentSize.width)
+            return;
+        locContentSize.width = width;
 
-		var locAPP = cmd._anchorPointInPoints, locAnchorPoint = this._anchorPoint;
-		locAPP.x = locContentSize.width * locAnchorPoint.x;
-		this.dom.width = locContentSize.width;
-		this.anchorX = locAnchorPoint.x;
-		if (this.canvas) {
-			this.canvas.width = locContentSize.width;
-		}
-		this.setNodeDirty();
-		this.redraw();
-	},
+        var locAPP = cmd._anchorPointInPoints, locAnchorPoint = this._anchorPoint;
+        locAPP.x = locContentSize.width * locAnchorPoint.x;
+        this.dom.width = locContentSize.width;
+        this.anchorX = locAnchorPoint.x;
+        if (this.canvas) {
+            this.canvas.width = locContentSize.width;
+        }
+        this.setNodeDirty();
+        this.redraw();
+    },
 
-	/**
-	 * replace set height of ccNode
-	 * @param {Number} height The untransformed size's height of the node.
-	 */
-	_setHeight:function (height) {
-		var locContentSize = this._contentSize;
+    /**
+     * replace set height of ccNode
+     * @param {Number} height The untransformed size's height of the node.
+     */
+    _setHeight:function (height) {
+        var locContentSize = this._contentSize;
         var cmd = this._renderCmd;
-		if (height === locContentSize.height)
-			return;
-		locContentSize.height = height;
+        if (height === locContentSize.height)
+            return;
+        locContentSize.height = height;
 
-		var locAPP = cmd._anchorPointInPoints, locAnchorPoint = this._anchorPoint;
-		locAPP.y = locContentSize.height * locAnchorPoint.y;
-		this.dom.height = locContentSize.height;
-		this.anchorY = locAnchorPoint.y;
-		if (this.canvas) {
-			this.canvas.height = locContentSize.height;
-		}
-		this.setNodeDirty();
-		this.redraw();
-	},
+        var locAPP = cmd._anchorPointInPoints, locAnchorPoint = this._anchorPoint;
+        locAPP.y = locContentSize.height * locAnchorPoint.y;
+        this.dom.height = locContentSize.height;
+        this.anchorY = locAnchorPoint.y;
+        if (this.canvas) {
+            this.canvas.height = locContentSize.height;
+        }
+        this.setNodeDirty();
+        this.redraw();
+    },
 
     /**
      * replace set Rotation of ccNode
@@ -432,7 +432,7 @@ cc.DOM._resetEGLViewDiv = function(){
         var designSize = view.getDesignResolutionSize();
         var viewPortRect = view.getViewPortRect();
         var screenSize = view.getFrameSize();
-	    var pixelRatio = view.getDevicePixelRatio();
+        var pixelRatio = view.getDevicePixelRatio();
         var designSizeWidth = designSize.width, designSizeHeight = designSize.height;
         if((designSize.width === 0) && (designSize.height === 0)){
             designSizeWidth = screenSize.width;

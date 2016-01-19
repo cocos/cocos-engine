@@ -70,6 +70,9 @@ var srcs = [
     './cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
     './cocos2d/core/label/CCSGLabelWebGLRenderCmd.js',
 
+    './cocos2d/core/editbox/CCSGEditBox.js',
+    './cocos2d/core/editBox/CCdomNode.js',
+
     './cocos2d/kazmath/utility.js',
     './cocos2d/kazmath/vec2.js',
     './cocos2d/kazmath/vec3.js',

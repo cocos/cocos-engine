@@ -43,48 +43,6 @@ var Transition = cc.Enum({
     SPRITE: 2
 });
 
-/**
- * Click event will register a event to target component's handler.
- * And will trigger when a click event emit
- *
- * @class Button.ClickEvent
- */
-var ClickEvent = cc.Class({
-    name: 'cc.ClickEvent',
-    properties: {
-        /**
-         * Event target
-         * @property target
-         * @type cc.Node
-         * @default null
-         */
-        target: {
-            default: null,
-            type: cc.Node,
-            tooltip: 'i18n:COMPONENT.button.click_event.target'
-        },
-        /**
-         * Component name
-         * @property component
-         * @type {String}
-         * @default ''
-         */
-        component: {
-            default: '',
-            tooltip: 'i18n:COMPONENT.button.click_event.component'
-        },
-        /**
-         * Event handler
-         * @property handler
-         * @type {String}
-         * @default ''
-         */
-        handler: {
-            default: '',
-            tooltip: 'i18n:COMPONENT.button.click_event.handler'
-        }
-    }
-});
 
 var WHITE = cc.Color.WHITE;
 
@@ -288,18 +246,17 @@ var Button = cc.Class({
 
         /**
          * If Button is clicked, it will trigger event's handler
-         * @property {[Button.ClickEvent]} clickEvents
+         * @property {[cc.Component.EventHandler]} clickEvents
          */
         clickEvents: {
             default: [],
-            type: ClickEvent,
+            type: cc.Component.EventHandler,
             tooltip: 'i18n:COMPONENT.button.click_events',
         }
     },
 
     statics: {
         Transition: Transition,
-        ClickEvent: ClickEvent
     },
 
     onLoad: function () {

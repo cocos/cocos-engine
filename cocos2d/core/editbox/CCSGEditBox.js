@@ -158,7 +158,7 @@ cc.EditBoxDelegate = cc._Class.extend({
  * You can use this widget to gather small amounts of text from the user.</p>
  *
  * @class
- * @extends cc.ControlButton
+ * @extends cc.Node
  *
  * @property {String}   string                  - Content string of edit box
  * @property {String}   maxLength               - Max length of the content string
@@ -177,8 +177,10 @@ cc.EditBoxDelegate = cc._Class.extend({
  * @property {Number}   returnType              - <@writeonly> Return type of edit box, value should be one of the KeyboardReturnType constants.
  *
  */
-cc.EditBox = cc.ControlButton.extend({
+_ccsg.EditBox = _ccsg.Node.extend({
     _domInputSprite: null,
+    _backgroundSprite: null,
+    _spriteDOM: null,
 
     _delegate: null,
     _editBoxInputMode: InputMode.ANY,
@@ -202,22 +204,7 @@ cc.EditBox = cc.ControlButton.extend({
     _tooltip: false,
     _className: "EditBox",
 
-    /**
-     * constructor of cc.EditBox
-     * @param {cc.Size} size
-     * @param {cc.Scale9Sprite} normal9SpriteBg
-     * @param {cc.Scale9Sprite} press9SpriteBg
-     * @param {cc.Scale9Sprite} disabled9SpriteBg
-     */
-    ctor: function (size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) {
-        cc.ControlButton.prototype.ctor.call(this);
-
-        this._textColor = cc.Color.WHITE;
-        this._placeholderColor = cc.Color.GRAY;
-        this.setContentSize(size);
-        var tmpDOMSprite = this._domInputSprite = new _ccsg.Sprite();
-        tmpDOMSprite.draw = function () {};  //redefine draw function
-        this.addChild(tmpDOMSprite);
+    _createDomInput: function () {
         var selfPointer = this;
         var tmpEdTxt = this._edTxt = document.createElement("input");
         tmpEdTxt.type = "text";
@@ -231,8 +218,9 @@ cc.EditBox = cc.ControlButton.extend({
         tmpEdTxt.style.active = 0;
         tmpEdTxt.style.outline = "medium";
         tmpEdTxt.style.padding = "0";
+        tmpEdTxt.style.textTransform = "uppercase";
         var onCanvasClick = function() { tmpEdTxt.blur();};
-        
+
         // TODO the event listener will be remove when EditBox removes from parent.
         tmpEdTxt.addEventListener("input", function () {
             if (selfPointer._delegate && selfPointer._delegate.editBoxTextChanged)
@@ -272,24 +260,118 @@ cc.EditBox = cc.ControlButton.extend({
                 selfPointer._delegate.editBoxEditingDidEnd(selfPointer);
             cc._canvas.removeEventListener('click', onCanvasClick);
         });
+        return tmpEdTxt;
+    },
+
+    _createDomTextArea: function () {
+        var selfPointer = this;
+        var tmpEdTxt = this._edTxt = document.createElement("textarea");
+        tmpEdTxt.type = "text";
+        tmpEdTxt.style.fontSize = this._edFontSize + "px";
+        tmpEdTxt.style.color = "#000000";
+        tmpEdTxt.style.border = 0;
+        tmpEdTxt.style.background = "transparent";
+        //tmpEdTxt.style.paddingLeft = "2px";
+        tmpEdTxt.style.width = "100%";
+        tmpEdTxt.style.height = "100%";
+        tmpEdTxt.style.active = 0;
+        tmpEdTxt.style.outline = "medium";
+        tmpEdTxt.style.padding = "0";
+        tmpEdTxt.style.textTransform = "uppercase";
+        var onCanvasClick = function() { tmpEdTxt.blur();};
+
+        // TODO the event listener will be remove when EditBox removes from parent.
+        tmpEdTxt.addEventListener("input", function () {
+            if (selfPointer._delegate && selfPointer._delegate.editBoxTextChanged)
+                selfPointer._delegate.editBoxTextChanged(selfPointer, this.value);
+        });
+
+        tmpEdTxt.addEventListener("focus", function () {
+            if (this.value === selfPointer._placeholderText) {
+                this.value = "";
+                this.style.fontSize = selfPointer._edFontSize + "px";
+                this.style.color = cc.colorToHex(selfPointer._textColor);
+            }
+            if (selfPointer._delegate && selfPointer._delegate.editBoxEditingDidBegin)
+                selfPointer._delegate.editBoxEditingDidBegin(selfPointer);
+            cc._canvas.addEventListener("click", onCanvasClick);
+        });
+        tmpEdTxt.addEventListener("blur", function () {
+            if (this.value === "") {
+                this.value = selfPointer._placeholderText;
+                this.style.fontSize = selfPointer._placeholderFontSize + "px";
+                this.style.color = cc.colorToHex(selfPointer._placeholderColor);
+            }
+            if (selfPointer._delegate && selfPointer._delegate.editBoxEditingDidEnd)
+                selfPointer._delegate.editBoxEditingDidEnd(selfPointer);
+            cc._canvas.removeEventListener('click', onCanvasClick);
+        });
+        return tmpEdTxt;
+    },
+
+    _removeDomInputControl: function() {
+        this._domInputSprite.dom.removeChild(this._edTxt);
+    },
+
+
+
+    /**
+     * constructor of cc.EditBox
+     * @param {cc.Size} size
+     * @param {cc.Scale9Sprite} normal9SpriteBg
+     * @param {cc.Scale9Sprite} press9SpriteBg
+     * @param {cc.Scale9Sprite} disabled9SpriteBg
+     */
+    _addDomInputControl: function (size) {
+        this._domInputSprite.dom.appendChild(this._edTxt);
+    },
+
+    ctor: function (size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) {
+        _ccsg.Node.prototype.ctor.call(this);
+
+        this._textColor = cc.Color.WHITE;
+        this._placeholderColor = cc.Color.GRAY;
+        _ccsg.Node.prototype.setContentSize.call(this, size);
+
+        var tmpDOMSprite = this._domInputSprite = new _ccsg.Sprite();
+        tmpDOMSprite.draw = function () {};  //redefine draw function
+        this.addChild(tmpDOMSprite);
+        this._spriteDOM = tmpDOMSprite;
+
+        this._createDomTextArea();
 
         cc.DOM.convert(tmpDOMSprite);
-        tmpDOMSprite.dom.appendChild(tmpEdTxt);
-        tmpDOMSprite.dom.showTooltipDiv = false;
-        tmpDOMSprite.dom.style.width = (size.width - 6) + "px";
-        tmpDOMSprite.dom.style.height = (size.height - 6) + "px";
 
-        //this._domInputSprite.dom.style.borderWidth = "1px";
-        //this._domInputSprite.dom.style.borderStyle = "solid";
-        //this._domInputSprite.dom.style.borderRadius = "8px";
+        this._addDomInputControl();
+
+        this._domInputSprite.dom.showTooltipDiv = false;
+        this._domInputSprite.dom.style.width = (size.width - 6) + "px";
+        this._domInputSprite.dom.style.height = (size.height - 6) + "px";
+
         tmpDOMSprite.canvas.remove();
 
-        if (this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg)) {
-            if (press9SpriteBg)
-                this.setBackgroundSpriteForState(press9SpriteBg, cc.CONTROL_STATE_HIGHLIGHTED);
-            if (disabled9SpriteBg)
-                this.setBackgroundSpriteForState(disabled9SpriteBg, cc.CONTROL_STATE_DISABLED);
+        this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
+    },
+
+    _updateBackgroundSpriteSizeAndPosition: function (width, height) {
+        if(this._backgroundSprite) {
+            this._backgroundSprite.setContentSize(width, height);
+            this._backgroundSprite.setPosition(cc.p(width/2, height/2));
         }
+    },
+
+    setSize: function(size, height) {
+        _ccsg.Node.prototype.setContentSize.call(this, size, height);
+
+        var newWidth = size.width || size;
+        var newHeight = size.height || height;
+
+        this._updateBackgroundSpriteSizeAndPosition(newWidth, newHeight);
+
+        this._spriteDOM.dom.style.width = (newWidth - 6) + "px";
+        this._spriteDOM.dom.style.height = (newHeight - 6) + "px";
+
+        this.setFontSize(height * 2 / 3);
     },
 
     /**
@@ -310,6 +392,10 @@ cc.EditBox = cc.ControlButton.extend({
             this._edFontName = res[2];
             this._setFontToEditBox();
         }
+    },
+
+    getBackgroundSprite: function() {
+        return this._backgroundSprite;
     },
 
     /**
@@ -362,6 +448,9 @@ cc.EditBox = cc.ControlButton.extend({
                 this._edTxt.style.color = cc.colorToHex(this._placeholderColor);
                 this._edTxt.type = "text";
             } else {
+                if (text.length >= this._maxLength) {
+                    text = text.slice(0, this._maxLength);
+                }
                 this._edTxt.value = text;
                 this._edTxt.style.color = cc.colorToHex(this._textColor);
                 if (this._editBoxInputFlag === InputFlag.PASSWORD)
@@ -488,6 +577,16 @@ cc.EditBox = cc.ControlButton.extend({
             this._edTxt.type = "password";
         else
             this._edTxt.type = "text";
+
+        if (inputFlag === InputFlag.SENSITIVE || inputFlag === InputFlag.PASSWORD) {
+            this._edTxt.style.textTransform = "none";
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+            this._edTxt.style.textTransform = "uppercase";
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE || inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+            this._edTxt.style.textTransform = "capitalize";
+        }
     },
 
     /**
@@ -516,18 +615,20 @@ cc.EditBox = cc.ControlButton.extend({
      * @param {cc.Color | cc.Scale9Sprite} normal9SpriteBg
      */
     initWithSizeAndBackgroundSprite: function (size, normal9SpriteBg) {
-        if (this.initWithBackgroundSprite(normal9SpriteBg)) {
-            this._domInputSprite.x = 3;
-            this._domInputSprite.y = 3;
+        this._backgroundSprite = normal9SpriteBg;
 
-            this.setZoomOnTouchDown(false);
-            this.setPreferredSize(size);
-            this.x = 0;
-            this.y = 0;
-            this._addTargetWithActionForControlEvent(this, this.touchDownAction, cc.CONTROL_EVENT_TOUCH_UP_INSIDE);
-            return true;
+        if(this._backgroundSprite) {
+            this.addChild(this._backgroundSprite);
+
+            this._updateBackgroundSpriteSizeAndPosition(size.width, size.height);
         }
-        return false;
+
+        this._domInputSprite.x = 3;
+        this._domInputSprite.y = 3;
+
+        this.x = 0;
+        this.y = 0;
+        return true;
     },
 
     /* override functions */
@@ -553,6 +654,19 @@ cc.EditBox = cc.ControlButton.extend({
      * @param {Number} inputMode One of the EditBoxInputMode constants.
      */
     setInputMode: function (inputMode) {
+        if (this._editBoxInputMode === inputMode) return;
+
+        if (inputMode === InputMode.ANY) {
+            this._removeDomInputControl();
+            this._createDomTextArea();
+            this._addDomInputControl();
+        }
+        else if(this._editBoxInputMode === InputMode.ANY) {
+            this._removeDomInputControl();
+            this._createDomInput();
+            this._addDomInputControl();
+        }
+
         this._editBoxInputMode = inputMode;
     },
 
@@ -565,7 +679,7 @@ cc.EditBox = cc.ControlButton.extend({
     },
 
     keyboardWillShow: function (info) {
-        var rectTracked = cc.EditBox.getRect(this);
+        var rectTracked = _ccsg.EditBox.getRect(this);
         // some adjustment for margin between the keyboard and the edit box.
         rectTracked.y -= 4;
         // if the keyboard area doesn't intersect with the tracking node area, nothing needs to be done.
@@ -576,22 +690,8 @@ cc.EditBox = cc.ControlButton.extend({
 
         // assume keyboard at the bottom of screen, calculate the vertical adjustment.
         this._adjustHeight = info.end.getMaxY() - rectTracked.getMinY();
-        // CCLOG("CCEditBox:needAdjustVerticalPosition(%f)", m_fAdjustHeight);
 
         //callback
-    },
-    keyboardDidShow: function (info) {
-    },
-    keyboardWillHide: function (info) {
-        //if (m_pEditBoxImpl != NULL) {
-        //    m_pEditBoxImpl->doAnimationWhenKeyboardMove(info.duration, -m_fAdjustHeight);
-        //}
-    },
-    keyboardDidHide: function (info) {
-    },
-
-    touchDownAction: function (sender, controlEvent) {
-        //this._editBoxImpl.openKeyboard();
     },
 
     /**
@@ -608,7 +708,7 @@ cc.EditBox = cc.ControlButton.extend({
     }
 });
 
-var _p = cc.EditBox.prototype;
+var _p = _ccsg.EditBox.prototype;
 
 // Extended properties
 /** @expose */
@@ -665,7 +765,7 @@ _p = null;
  * @param {_ccsg.Node} node
  * @return {cc.Rect}
  */
-cc.EditBox.getRect = function (node) {
+_ccsg.EditBox.getRect = function (node) {
     var contentSize = node.getContentSize();
     var rect = cc.rect(0, 0, contentSize.width, contentSize.height);
     return cc.rectApplyAffineTransform(rect, node.getNodeToWorldTransform());
@@ -680,9 +780,9 @@ cc.EditBox.getRect = function (node) {
  * @param {cc.Scale9Sprite } [disabled9SpriteBg]
  * @return {cc.EditBox}
  */
-cc.EditBox.create = function (size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) {
-    return new cc.EditBox(size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg);
+_ccsg.EditBox.create = function (size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) {
+    return new _ccsg.EditBox(size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg);
 };
 
-cc.EditBox.InputMode = InputMode;
-cc.EditBox.InputFlag = InputFlag;
+_ccsg.EditBox.InputMode = InputMode;
+_ccsg.EditBox.InputFlag = InputFlag;
