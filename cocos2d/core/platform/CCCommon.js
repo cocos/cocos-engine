@@ -374,6 +374,7 @@ cc.KEY = {
     /**
      * @property {Number} num4
      * @readonly
+     */
     num4:100,
     /**
      * @property {Number} num5
