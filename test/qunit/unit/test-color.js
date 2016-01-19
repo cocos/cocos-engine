@@ -2,7 +2,7 @@ module('color');
 
 test('basic test', function() {
     var testColor = new cc.Color( 255, 255, 0, 127.5 );
-    notEqual ( testColor.toHEX('#rrggbb'), "ffff00", "The value must be ffff00" );
+    equal ( testColor.toHEX('#rrggbb'), "ffff00", "The value must be ffff00" );
     equal ( testColor.toHEX('#rgb'), "ff0", "The value must be ff0" );
     equal ( testColor.toCSS('#rrggbb'), "#ffff00", "The value must be #ffff00" );
     equal ( testColor.toCSS('#rgb'), "#ff0", "The value must be #ff0" );
