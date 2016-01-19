@@ -582,7 +582,6 @@ test('mixins', function () {
 
 asyncTest('instantiate properties in the next frame', function () {
     var Dog = cc.Class({
-        extends: cc.Object,
         properties: function () {
             return {
                 like: 'shit'
@@ -605,7 +604,6 @@ asyncTest('instantiate properties in the next frame', function () {
 
     setTimeout(function () {
         deepEqual(Husky.__props__, ['like', 'weight'], 'should get properties in the correct order');
-        equal(cc.Class.attr(Dog, '_name').visible, false, 'Should not override fast defined properties');
 
         start();
     }, 0);
