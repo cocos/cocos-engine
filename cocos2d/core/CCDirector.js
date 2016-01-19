@@ -64,7 +64,7 @@ cc.g_NumberOfDraws = 0;
  *      - Scheduled timers & drawing are synchronizes with the refresh rate of the display<br/>
  *      - Only supports animation intervals of 1/60 1/30 & 1/15<br/>
  * </p>
- * @class Director
+ * @class director
  */
 cc.Director = Class.extend(/** @lends cc.Director# */{
     //Variables

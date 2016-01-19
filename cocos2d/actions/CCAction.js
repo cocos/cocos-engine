@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * @module actions
+ * @module cc
  */
 
 /** Default Action tag
@@ -234,7 +234,7 @@ cc.FiniteTimeAction = cc.Action.extend({
 });
 
 /**
- * @module actions
+ * @module cc
  */
 
 /*
@@ -355,7 +355,7 @@ cc.Speed = cc.Action.extend({
  *
  * @warning This action can't be Sequenceable because it is not an cc.IntervalAction
  *
- * @method cc.speed
+ * @method speed
  * @param {ActionInterval} action
  * @param {Number} speed
  * @return {Speed}
@@ -545,7 +545,7 @@ cc.Follow = cc.Action.extend({
 /**
  * Create a follow action which makes its target follows another node.
  *
- * @method
+ * @method follow
  * @param {Node} followedNode
  * @param {Rect} rect
  * @return {Follow|Null} returns the cc.Follow object on success

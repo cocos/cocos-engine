@@ -261,23 +261,25 @@ var Label = cc.Class({
     },
 
     _createSgNode: function () {
-        var sgNode = new _ccsg.Label(this.string, this.file);
+        return new _ccsg.Label(this.string, this.file);
+    },
+
+    _initSgNode: function () {
+        var sgNode = this._sgNode;
 
         // TODO
         // sgNode.enableRichText = this.enableRichText;
 
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
-        sgNode.setFontSize( this.fontSize );
+        sgNode.setFontSize( this._fontSize );
         sgNode.setOverflow( this.overflow );
-        sgNode.enableWrapText( this.enableWrapText );
-        sgNode.setLineHeight(this.lineHeight);
+        sgNode.enableWrapText( this._enableWrapText );
+        sgNode.setLineHeight(this._lineHeight);
         if(!this._useOriginalSize){
             sgNode.setContentSize(this.node.getContentSize());
         }
         sgNode.setColor(this.node.color);
-
-        return sgNode;
     },
 
     _resized: function () {

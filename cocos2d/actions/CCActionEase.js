@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * @module actions
+ * @module cc
  */
 
 /**
@@ -163,7 +163,7 @@ cc.easeRateAction = function (action, rate) {
 cc.EaseRateAction.create = cc.easeRateAction;
 
 /**
- * @module actions
+ * @module cc
  */
 
 /*
@@ -205,7 +205,7 @@ cc.EaseIn.create = function (action, rate) {
  * Creates the action easing object with the rate parameter. <br />
  * From slow to fast.
  *
- * @method cc.easeIn
+ * @method easeIn
  * @param {Number} rate
  * @return {Object}
  * @example
@@ -262,7 +262,7 @@ cc.EaseOut.create = function (action, rate) {
  * Creates the action easing object with the rate parameter. <br />
  * From fast to slow.
  *
- * @method cc.easeOut
+ * @method easeOut
  * @param {Number} rate
  * @return {Object}
  * @example
@@ -322,7 +322,7 @@ cc.EaseInOut.create = function (action, rate) {
 /**
  * Creates the action easing object with the rate parameter. <br />
  * Slow to fast then to slow.
- * @method cc.easeInOut
+ * @method easeInOut
  * @param {Number} rate
  * @return {Object}
  *
@@ -394,7 +394,7 @@ cc._easeExponentialInObj = {
  * Creates the action easing object with the rate parameter. <br />
  * Reference easeInExpo: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeExponentialIn
+ * @method easeExponentialIn
  * @return {Object}
  * @example
  * // example
@@ -452,7 +452,7 @@ cc._easeExponentialOutObj = {
  * creates the action easing object. <br />
  * Reference easeOutExpo: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeExponentialOut
+ * @method easeExponentialOut
  * @return {Object}
  * @example
  * // example
@@ -525,7 +525,7 @@ cc._easeExponentialInOutObj = {
  * creates an EaseExponentialInOut action easing object. <br />
  * Reference easeInOutExpo: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeExponentialInOut
+ * @method easeExponentialInOut
  * @return {Object}
  * @example
  * // example
@@ -583,7 +583,7 @@ cc._easeSineInObj = {
  * creates an EaseSineIn action. <br />
  * Reference easeInSine: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeSineIn
+ * @method easeSineIn
  * @return {Object}
  * @example
  * // example
@@ -642,7 +642,7 @@ cc._easeSineOutObj = {
  * Creates an EaseSineOut action easing object. <br />
  * Reference easeOutSine: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeSineOut
+ * @method easeSineOut
  * @return {Object}
  * @example
  * // example
@@ -701,7 +701,7 @@ cc._easeSineInOutObj = {
  * creates the action easing object. <br />
  * Reference easeInOutSine: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeSineInOut
+ * @method easeSineInOut
  * @return {Object}
  * @example
  * // example
@@ -772,7 +772,7 @@ cc.EaseElastic.create = function (action, period) {
 };
 
 /**
- * @module actions
+ * @module cc
  */
 
 /*
@@ -836,7 +836,7 @@ cc._easeElasticInObj = {
  * Creates the action easing obejct with the period in radians (default is 0.3). <br />
  * Reference easeInElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeElasticIn
+ * @method easeElasticIn
  * @param {Number} [period=0.3]
  * @return {Object}
  * @example
@@ -918,7 +918,7 @@ cc._easeElasticOutObj = {
  * Creates the action easing object with the period in radians (default is 0.3). <br />
  * Reference easeOutElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeElasticOut
+ * @method easeElasticOut
  * @param {Number} [period=0.3]
  * @return {Object}
  * @example
@@ -996,7 +996,7 @@ cc.EaseElasticInOut.create = function (action, period) {
  * Creates the action easing object with the period in radians (default is 0.3). <br />
  * Reference easeInOutElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeElasticInOut
+ * @method easeElasticInOut
  * @param {Number} [period=0.3]
  * @return {Object}
  * @example
@@ -1073,7 +1073,7 @@ cc.EaseBounce.create = function (action) {
 };
 
 /**
- * @module actions
+ * @module cc
  */
 
 /*
@@ -1139,7 +1139,7 @@ cc._easeBounceInObj = {
 /**
  * Creates the action easing object. <br />
  * Eased bounce effect at the beginning.
- * @method cc.easeBounceIn
+ * @method easeBounceIn
  * @return {Object}
  * @example
  * // example
@@ -1197,7 +1197,7 @@ cc._easeBounceOutObj = {
 /**
  * Creates the action easing object. <br />
  * Eased bounce effect at the ending.
- * @method cc.easeBounceOut
+ * @method easeBounceOut
  * @return {Object}
  * @example
  * // example
@@ -1268,7 +1268,7 @@ cc._easeBounceInOutObj = {
 /**
  * Creates the action easing object. <br />
  * Eased bounce effect at the begining and ending.
- * @method cc.easeBounceInOut
+ * @method easeBounceInOut
  * @return {Object}
  * @example
  * // example
@@ -1328,7 +1328,7 @@ cc._easeBackInObj = {
 /**
  * Creates the action easing object. <br />
  * In the opposite direction to move slowly, and then accelerated to the right direction.
- * @method cc.easeBackIn
+ * @method easeBackIn
  * @return {Object}
  * @example
  * // example
@@ -1389,7 +1389,7 @@ cc._easeBackOutObj = {
 /**
  * Creates the action easing object. <br />
  * Fast moving more than the finish, and then slowly back to the finish.
- * @method cc.easeBackOut
+ * @method easeBackOut
  * @return {Object}
  * @example
  * // example
@@ -1460,7 +1460,7 @@ cc._easeBackInOutObj = {
 /**
  * Creates the action easing object. <br />
  * Begining of cc.EaseBackIn. Ending of cc.EaseBackOut.
- * @method cc.easeBackInOut
+ * @method easeBackInOut
  * @return {Object}
  * @example
  * // example
@@ -1548,7 +1548,7 @@ cc.EaseBezierAction.create = function(action){
  * Creates the action easing object. <br />
  * Into the 4 reference point. <br />
  * To calculate the motion curve.
- * @method cc.easeBezierAction
+ * @method easeBezierAction
  * @param {Number} p0 The first bezier parameter
  * @param {Number} p1 The second bezier parameter
  * @param {Number} p2 The third bezier parameter
@@ -1621,7 +1621,7 @@ cc._easeQuadraticActionIn = {
  * Creates the action easing object. <br />
  * Reference easeInQuad: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuadraticActionIn
+ * @method easeQuadraticActionIn
  * @returns {Object}
  * @example
  * //example
@@ -1681,7 +1681,7 @@ cc._easeQuadraticActionOut = {
  * Creates the action easing object. <br />
  * Reference easeOutQuad: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuadraticActionOut
+ * @method easeQuadraticActionOut
  * @returns {Object}
  * @example
  * //example
@@ -1749,7 +1749,7 @@ cc._easeQuadraticActionInOut = {
  * Creates the action easing object. <br />
  * Reference easeInOutQuad: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuadraticActionInOut
+ * @method easeQuadraticActionInOut
  * @returns {Object}
  * @example
  * //example
@@ -1808,7 +1808,7 @@ cc._easeQuarticActionIn = {
  * Creates the action easing object. <br />
  * Reference easeIntQuart: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuarticActionIn
+ * @method easeQuarticActionIn
  * @returns {Object}
  * @example
  * //example
@@ -1869,7 +1869,7 @@ cc._easeQuarticActionOut = {
  * Creates the action easing object. <br />
  * Reference easeOutQuart: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuarticActionOut
+ * @method easeQuarticActionOut
  * @returns {Object}
  * @example
  * //example
@@ -1932,7 +1932,7 @@ cc._easeQuarticActionInOut = {
  * Creates the action easing object.  <br />
  * Reference easeInOutQuart: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuarticActionInOut
+ * @method easeQuarticActionInOut
  * @returns {Object}
  */
 cc.easeQuarticActionInOut = function(){
@@ -1989,7 +1989,7 @@ cc._easeQuinticActionIn = {
  * Creates the action easing object. <br />
  * Reference easeInQuint: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuinticActionIn
+ * @method easeQuinticActionIn
  * @returns {Object}
  * @example
  * //example
@@ -2050,7 +2050,7 @@ cc._easeQuinticActionOut = {
  * Creates the action easing object. <br />
  * Reference easeOutQuint: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuinticActionOut
+ * @method easeQuinticActionOut
  * @returns {Object}
  * @example
  * //example
@@ -2114,7 +2114,7 @@ cc._easeQuinticActionInOut = {
  * Creates the action easing object. <br />
  * Reference easeInOutQuint: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeQuinticActionInOut
+ * @method easeQuinticActionInOut
  * @returns {Object}
  * @example
  * //example
@@ -2174,7 +2174,7 @@ cc._easeCircleActionIn = {
  * Creates the action easing object. <br />
  * Reference easeInCirc: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeCircleActionIn
+ * @method easeCircleActionIn
  * @returns {Object}
  * @example
  * //example
@@ -2235,7 +2235,7 @@ cc._easeCircleActionOut = {
  * Creates the action easing object. <br />
  * Reference easeOutCirc: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeCircleActionOut
+ * @method easeCircleActionOut
  * @returns {Object}
  * @exampple
  * //example
@@ -2299,7 +2299,7 @@ cc._easeCircleActionInOut = {
  * Creates the action easing object. <br />
  * Reference easeInOutCirc: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeCircleActionInOut
+ * @method easeCircleActionInOut
  * @returns {Object}
  * @example
  * //example
@@ -2359,7 +2359,7 @@ cc._easeCubicActionIn = {
  * Creates the action easing object. <br />
  * Reference easeInCubic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeCubicActionIn
+ * @method easeCubicActionIn
  * @returns {Object}
  * @example
  * //example
@@ -2420,7 +2420,7 @@ cc._easeCubicActionOut = {
  * Creates the action easing object. <br />
  * Reference easeOutCubic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeCubicActionOut
+ * @method easeCubicActionOut
  * @returns {Object}
  * @example
  * //example
@@ -2484,7 +2484,7 @@ cc._easeCubicActionInOut = {
  * Creates the action easing object. <br />
  * Reference easeInOutCubic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
- * @method cc.easeCubicActionInOut
+ * @method easeCubicActionInOut
  * @returns {Object}
  */
 cc.easeCubicActionInOut = function(){

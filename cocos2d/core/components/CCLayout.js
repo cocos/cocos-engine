@@ -41,6 +41,44 @@ var Type = cc.Enum({
      * @property {Number} VERTICAL
      */
     VERTICAL: 2,
+    /**
+     * @property {Number} GRID
+     */
+    GRID: 3,
+});
+
+/**
+ * Enum for Layout Resize Type
+ * @enum Layout.ResizeType
+ */
+var ResizeType = cc.Enum({
+    /**
+     * @property {Number} NONE
+     */
+    NONE: 0,
+    /**
+     * @property {Number} CONTAINER
+     */
+    CONTAINER: 1,
+    /**
+     * @property {Number} CHILDREN
+     */
+    CHILDREN: 2
+});
+
+/**
+ * Enum for Grid Layout start axis direction.
+ * @enum Layout.AxisDirection
+ */
+var AxisDirection = cc.Enum({
+    /**
+     * @property {Number} HORIZONTAL
+     */
+    HORIZONTAL: 0,
+    /**
+     * @property {Number} VERTICAL
+     */
+    VERTICAL: 1,
 });
 
 /**
@@ -110,28 +148,64 @@ var Layout = cc.Class({
             tooltip: 'i18n:COMPONENT.layout.layout_type'
         },
 
+        _resize: ResizeType.NONE,
+
         /**
-         * Whether allow layout to adjust size.
-         * @property {Boolean} autoResize
-         * @default true
-         * @readonly
+         * The are three resize types for Layout.
+         * None, resize Container and resize children.
+         * @property {Layout.ResizeType} resize
+         * @default ResizeType.NONE
          */
-        autoResize: {
-            default: true,
-            readonly: true,
-            tooltip: 'i18n:COMPONENT.layout.auto_resize'
+        resize: {
+            type: ResizeType,
+            tooltip: 'i18n:COMPONENT.layout.auto_resize',
+            get: function() {
+                return this._resize;
+            },
+            set: function(value) {
+                if (this.layoutType === Type.NONE && value === ResizeType.CHILDREN) {
+                    return;
+                }
+
+                this._doLayoutDirty();
+                this._resize = value;
+            }
         },
 
         /**
-         * The margin of layout, it only effect the layout in one direction.
-         * @property {Number} margin
+         * The cell size for grid layout.
+         * @property {cc.Size} cellSize
+         * @default cc.size(40, 40)
          */
-        margin: {
+        cellSize: {
+            default: cc.size(40, 40),
+            type: cc.Size,
+            notify: function() {
+                this._doLayoutDirty();
+            }
+        },
+
+        /**
+         * The start axis for grid layout. If you choose horizontal, then children will layout horizontally at first,
+         * and then break line on demand. Choose vertical if you want to layout vertically at first .
+         * @property {Layout.AxisDirection} startAxis
+         */
+        startAxis: {
+            default: AxisDirection.HORIZONTAL,
+            type: AxisDirection,
+            notify: function() {
+                this._doLayoutDirty();
+            }
+        },
+        /**
+         * The padding of layout, it only effect the layout in one direction.
+         * @property {Number} padding
+         */
+        padding: {
             default: 0,
             notify: function() {
                 this._doLayoutDirty();
             },
-            tooltip: 'i18n:COMPONENT.layout.margin'
         },
 
         /**
@@ -190,7 +264,9 @@ var Layout = cc.Class({
     statics: {
         Type: Type,
         VerticalDirection: VerticalDirection,
-        HorizontalDirection: HorizontalDirection
+        HorizontalDirection: HorizontalDirection,
+        ResizeType: ResizeType,
+        AxisDirection: AxisDirection,
     },
 
     onLoad: function() {
@@ -199,7 +275,7 @@ var Layout = cc.Class({
         this.node.on('size-changed', this._resized, this);
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
-        this.node.on('child-removed', this._childrenAddOrDeleted, this);;
+        this.node.on('child-removed', this._childrenAddOrDeleted, this);
         this._updateChildrenEventListener();
     },
 
@@ -216,7 +292,7 @@ var Layout = cc.Class({
         }.bind(this));
     },
 
-    _childrenAddOrDeleted: function(event) {
+    _childrenAddOrDeleted: function() {
         this._updateChildrenEventListener();
         this._doLayoutDirty();
     },
@@ -226,71 +302,242 @@ var Layout = cc.Class({
         this._doLayoutDirty();
     },
 
-    _doLayoutHorizontally: function(layoutAnchor, layoutSize, children) {
-        var newWidth = 0;
+    _doLayoutHorizontally: function(baseWidth, rowBreak, fnPositionY, applyChildren) {
+        var layoutAnchor = this.node.getAnchorPoint();
+        var children = this.node.children;
+
         var sign = 1;
-
-        children.forEach(function(child) {
-            newWidth += child.width;
-        });
-
-        newWidth += (children.length - 1) * this.spacingX + 2 * this.margin;
-        this.node.setContentSize(newWidth, layoutSize.height);
-
-        var leftBoundaryOfLayout = -layoutAnchor.x * newWidth;
+        var leftBoundaryOfLayout = -layoutAnchor.x * baseWidth;
         if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
             sign = -1;
-            leftBoundaryOfLayout = (1 - layoutAnchor.x) * newWidth;
+            leftBoundaryOfLayout = (1 - layoutAnchor.x) * baseWidth;
         }
 
-        var nextX = leftBoundaryOfLayout + sign * this.margin - sign * this.spacingX;
+        var nextX = leftBoundaryOfLayout + sign * this.padding - sign * this.spacingX;
+        var rowMaxHeight = 0;
+        var tempMaxHeight = 0;
+        var secondMaxHeight = 0;
+        var row = 0;
+        var containerResizeBoundary;
+
+        var maxHeightChildAnchor;
+
+        var newChildWidth = this.cellSize.width;
+        if (this.layoutType !== Type.GRID) {
+            newChildWidth = (baseWidth - 2 * this.padding - (children.length - 1) * this.spacingX) / children.length;
+        }
 
         children.forEach(function(child) {
+            //for resizing children
+            if (this._resize === ResizeType.CHILDREN) {
+                child.width = newChildWidth;
+                if (this.layoutType === Type.GRID) {
+                    child.height = this.cellSize.height;
+                }
+            }
+
             var anchorX = child.anchorX;
+
+            if (secondMaxHeight > tempMaxHeight) {
+                tempMaxHeight = secondMaxHeight;
+            }
+
+            if (child.height >= tempMaxHeight) {
+                secondMaxHeight = tempMaxHeight;
+                tempMaxHeight = child.height;
+                maxHeightChildAnchor = child.getAnchorPoint();
+            }
+
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 anchorX = 1 - child.anchorX;
             }
             nextX = nextX + sign * anchorX * child.width + sign * this.spacingX;
+            var rightBoundaryOfChild = sign * (1 - anchorX) * child.width;
 
-            child.setPosition(cc.p(nextX, child.y));
+            if (rowBreak) {
+                var rowBreakBoundary = nextX + rightBoundaryOfChild + sign * this.padding;
+                var leftToRightRowBreak = this.horizontalDirection === HorizontalDirection.LEFT_TO_RIGHT && rowBreakBoundary > (1 - layoutAnchor.x) * baseWidth;
+                var rightToLeftRowBreak = this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT && rowBreakBoundary < -layoutAnchor.x * baseWidth;
 
-            nextX += sign * (1 - anchorX) * child.width;
+                if (leftToRightRowBreak || rightToLeftRowBreak) {
+
+                    if (child.height >= tempMaxHeight) {
+                        if (secondMaxHeight === 0) {
+                            secondMaxHeight = tempMaxHeight;
+                        }
+                        rowMaxHeight += secondMaxHeight;
+                        secondMaxHeight = tempMaxHeight;
+                    }
+                    else {
+                        rowMaxHeight += tempMaxHeight;
+                        secondMaxHeight = child.height;
+                        tempMaxHeight = 0;
+                    }
+                    nextX = leftBoundaryOfLayout + sign * (this.padding  + anchorX * child.width);
+                    row++;
+                }
+            }
+
+            var finalPositionY = fnPositionY(child, rowMaxHeight, row);
+            if(baseWidth > (child.width + 2 * this.padding)) {
+                if (applyChildren) {
+                    child.setPosition(cc.p(nextX, finalPositionY));
+                }
+            }
+
+            var signX = 1;
+            var tempFinalPositionY;
+            var topMarign = (tempMaxHeight === 0) ? child.height : tempMaxHeight;
+
+            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
+                signX = -1;
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchor.y + this.padding);
+                if (tempFinalPositionY < containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionY;
+                }
+            }
+            else {
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchor.y + this.padding);
+                if (tempFinalPositionY > containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionY;
+                }
+            }
+
+            nextX += rightBoundaryOfChild;
         }.bind(this));
+
+        return containerResizeBoundary;
     },
 
-    _doLayoutVertically: function(layoutAnchor, layoutSize, children) {
+    _getVerticalBaseHeight: function (children) {
         var newHeight = 0;
+        if (this.resize === ResizeType.CONTAINER) {
+            children.forEach(function(child) {
+                newHeight += child.height;
+            });
+
+            newHeight += (children.length - 1) * this.spacingY + 2 * this.padding;
+        }
+        else {
+            newHeight = this.node.getContentSize().height;
+        }
+        return newHeight;
+    },
+
+    _doLayoutVertically: function(baseHeight, columnBreak, fnPositionX, applyChildren) {
+        var layoutAnchor = this.node.getAnchorPoint();
+        var children = this.node.children;
+
         var sign = 1;
-
-        children.forEach(function(child) {
-            newHeight += child.height;
-        });
-
-        newHeight += (children.length - 1) * this.spacingY + 2 * this.margin;
-        this.node.setContentSize(layoutSize.width, newHeight);
-
-        var bottomBoundaryOfLayout = -layoutAnchor.y * newHeight;
+        var bottomBoundaryOfLayout = -layoutAnchor.y * baseHeight;
         if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
             sign = -1;
-            bottomBoundaryOfLayout = (1 - layoutAnchor.y) * newHeight;
+            bottomBoundaryOfLayout = (1 - layoutAnchor.y) * baseHeight;
         }
 
-        var nextY = bottomBoundaryOfLayout + sign * this.margin - sign * this.spacingY;
+        var nextY = bottomBoundaryOfLayout + sign * this.padding - sign * this.spacingY;
+        var columnMaxWidth = 0;
+        var tempMaxWidth = 0;
+        var secondMaxWidth = 0;
+        var column = 0;
+        var containerResizeBoundary;
+        var maxWidthChildAnchor;
+
+        var newChildHeight = this.cellSize.height;
+        if (this.layoutType !== Type.GRID) {
+            newChildHeight = (baseHeight - 2 * this.padding - (children.length - 1) * this.spacingY) / children.length;
+        }
 
         children.forEach(function(child) {
+            //for resizing children
+            if (this.resize === ResizeType.CHILDREN) {
+                child.height = newChildHeight;
+                if (this.layoutType === Type.GRID) {
+                    child.width = this.cellSize.width;
+                }
+            }
+
             var anchorY = child.anchorY;
+
+            if (secondMaxWidth > tempMaxWidth) {
+                tempMaxWidth = secondMaxWidth;
+            }
+
+            if (child.width >= tempMaxWidth) {
+                secondMaxWidth = tempMaxWidth;
+                tempMaxWidth = child.width;
+                maxWidthChildAnchor = child.getAnchorPoint();
+            }
+
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 anchorY = 1 - child.anchorY;
             }
             nextY = nextY + sign * anchorY * child.height + sign * this.spacingY;
+            var topBoundaryOfChild = sign * (1 - anchorY) * child.height;
 
-            child.setPosition(cc.p(child.x, nextY));
+            if (columnBreak) {
+                var columnBreakBoundary = nextY + topBoundaryOfChild + sign * this.padding;
+                var bottomToTopColumnBreak = this.verticalDirection === VerticalDirection.BOTTOM_TO_TOP && columnBreakBoundary > (1 - layoutAnchor.y) * baseHeight;
+                var topToBottomColumnBreak = this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM && columnBreakBoundary < -layoutAnchor.y * baseHeight;
 
-            nextY += sign * (1 - anchorY) * child.height;
+                if (bottomToTopColumnBreak || topToBottomColumnBreak) {
+                    if (child.width >= tempMaxWidth) {
+                        if (secondMaxWidth === 0) {
+                            secondMaxWidth = tempMaxWidth;
+                        }
+                        columnMaxWidth += secondMaxWidth;
+                        secondMaxWidth = tempMaxWidth;
+                    }
+                    else {
+                        columnMaxWidth += tempMaxWidth;
+                        secondMaxWidth = child.width;
+                        tempMaxWidth = 0;
+                    }
+                    nextY = bottomBoundaryOfLayout + sign * (this.padding + anchorY * child.height);
+                    column++;
+                }
+            }
+
+            var finalPositionX = fnPositionX(child, columnMaxWidth, column);
+            if (baseHeight > (child.height + 2 * this.padding)) {
+                if (applyChildren) {
+                    child.setPosition(cc.p(finalPositionX, nextY));
+                }
+            }
+
+            var signX = 1;
+            var tempFinalPositionX;
+            //when the item is the last column break item, the tempMaxWidth will be 0.
+            var rightMarign = (tempMaxWidth === 0) ? child.width : tempMaxWidth;
+
+            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+                signX = -1;
+                containerResizeBoundary = containerResizeBoundary || this.node._contentSize.width;
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchor.x + this.padding);
+                if (tempFinalPositionX < containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionX;
+                }
+            }
+            else {
+                containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.width;
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchor.x + this.padding);
+                if (tempFinalPositionX > containerResizeBoundary) {
+                    containerResizeBoundary = tempFinalPositionX;
+                }
+
+            }
+
+            nextY += topBoundaryOfChild;
         }.bind(this));
+
+        return containerResizeBoundary;
     },
 
-    _doLayoutBasic: function(layoutAnchor, layoutSize, children) {
+    _doLayoutBasic: function() {
+        var children = this.node.children;
+
         var allChildrenBoundingBox = null;
 
         children.forEach(function(child){
@@ -301,7 +548,7 @@ var Layout = cc.Class({
             }
         });
 
-        if(allChildrenBoundingBox) {
+        if (allChildrenBoundingBox) {
             var leftBottomInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x, allChildrenBoundingBox.y));
             var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                                                                                    allChildrenBoundingBox.y + allChildrenBoundingBox.height));
@@ -318,17 +565,143 @@ var Layout = cc.Class({
         }
     },
 
-    _doLayout: function() {
-        var children = this.node.children;
+    _doLayoutGridAxisHorizontal: function (layoutAnchor, layoutSize) {
+        var baseWidth = layoutSize.width;
+
+        var sign = 1;
+        var bottomBoundaryOfLayout = -layoutAnchor.y * layoutSize.height;
+
+        if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+            sign = -1;
+            bottomBoundaryOfLayout = (1 - layoutAnchor.y) * layoutSize.height;
+        }
+
+        var fnPositionY = function(child, topOffset, row) {
+            return bottomBoundaryOfLayout + sign * (topOffset + child.anchorY * child.height + this.padding + row * this.spacingY);
+        }.bind(this);
+
+
+        var newHeight = 0;
+        if (this.resize === ResizeType.CONTAINER) {
+            //calculate the new height of container, it won't change the position of it's children
+            var boundary = this._doLayoutHorizontally(baseWidth, true, fnPositionY, false);
+            newHeight = bottomBoundaryOfLayout - boundary;
+            if (newHeight < 0) {
+                newHeight *= -1;
+            }
+
+            bottomBoundaryOfLayout = -layoutAnchor.y * newHeight;
+
+            if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
+                sign = -1;
+                bottomBoundaryOfLayout = (1 - layoutAnchor.y) * newHeight;
+            }
+        }
+
+        this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
+
+        if (this.resize === ResizeType.CONTAINER) {
+            this.node.setContentSize(baseWidth, newHeight);
+        }
+    },
+
+    _doLayoutGridAxisVertical: function (layoutAnchor, layoutSize) {
+        var baseHeight = layoutSize.height;
+
+        var sign = 1;
+        var leftBoundaryOfLayout = -layoutAnchor.x * layoutSize.width;
+
+        if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+            sign = -1;
+            leftBoundaryOfLayout = (1 - layoutAnchor.x) * layoutSize.width;
+        }
+
+        var fnPositionX = function(child, leftOffset, column) {
+            return leftBoundaryOfLayout + sign * (leftOffset + child.anchorX * child.width + this.padding + column * this.spacingX);
+        }.bind(this);
+
+        var newWidth = 0;
+        if (this.resize === ResizeType.CONTAINER) {
+            var boundary = this._doLayoutVertically(baseHeight, true, fnPositionX, false);
+            newWidth = leftBoundaryOfLayout - boundary;
+            if (newWidth < 0) {
+                newWidth *= -1;
+            }
+
+            leftBoundaryOfLayout = -layoutAnchor.x * newWidth;
+
+            if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
+                sign = -1;
+                leftBoundaryOfLayout = (1 - layoutAnchor.x) * newWidth;
+            }
+        }
+
+        this._doLayoutVertically(baseHeight, true, fnPositionX, true);
+
+        if (this.resize === ResizeType.CONTAINER) {
+            this.node.setContentSize(newWidth, baseHeight);
+        }
+    },
+
+    _doLayoutGrid: function() {
         var layoutAnchor = this.node.getAnchorPoint();
         var layoutSize = this.node.getContentSize();
 
+        if (this.startAxis === AxisDirection.HORIZONTAL) {
+            this._doLayoutGridAxisHorizontal(layoutAnchor, layoutSize);
+
+        }
+        else if(this.startAxis === AxisDirection.VERTICAL) {
+            this._doLayoutGridAxisVertical(layoutAnchor, layoutSize);
+        }
+
+    },
+
+    _getHorizontalBaseWidth: function (children) {
+        var newWidth = 0;
+        if (this.resize === ResizeType.CONTAINER) {
+            children.forEach(function(child) {
+                newWidth += child.width;
+            });
+            newWidth += (children.length - 1) * this.spacingX + 2 * this.padding;
+        }
+        else {
+            newWidth = this.node.getContentSize().width;
+        }
+        return newWidth;
+    },
+
+    _doLayout: function() {
+
         if (this.layoutType === Type.HORIZONTAL) {
-            this._doLayoutHorizontally(layoutAnchor, layoutSize, children);
-        } else if (this.layoutType === Type.VERTICAL) {
-            this._doLayoutVertically(layoutAnchor, layoutSize, children);
-        } else if (this.layoutType === Type.NONE) {
-            this._doLayoutBasic(layoutAnchor, layoutSize, children);
+            var newWidth = this._getHorizontalBaseWidth(this.node.children);
+
+            var fnPositionY = function(child) {
+                return child.y;
+            };
+
+            this._doLayoutHorizontally( newWidth, false, fnPositionY, true);
+
+            this.node.width = newWidth;
+        }
+        else if (this.layoutType === Type.VERTICAL) {
+            var newHeight = this._getVerticalBaseHeight(this.node.children);
+
+            var fnPositionX = function(child) {
+                return child.x;
+            };
+
+            this._doLayoutVertically(newHeight, false, fnPositionX, true);
+
+            this.node.height = newHeight;
+        }
+        else if (this.layoutType === Type.NONE) {
+            if (this.resize === ResizeType.CONTAINER) {
+                this._doLayoutBasic();
+            }
+        }
+        else if(this.layoutType === Type.GRID) {
+            this._doLayoutGrid();
         }
     },
 

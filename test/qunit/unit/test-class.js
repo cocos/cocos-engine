@@ -411,6 +411,18 @@ test('statics', function () {
     cc.js.unregisterClass(Animal, Dog, Labrador);
 });
 
+test('_isCCClass', function () {
+    strictEqual(cc.Class._isCCClass(cc.Class({})), true, 'should be CCClass');
+
+    function ctor () {
+        this.foo = 0;
+    }
+    cc.Class._fastDefine('T', ctor, ['foo']);
+    strictEqual(cc.Class._isCCClass(ctor), false, 'fastDefined ctor should not recognized as CCClass');
+
+    cc.js.unregisterClass(ctor);
+});
+
 test('try catch', function () {
     var originThrow = cc._throw;
 
@@ -566,4 +578,52 @@ test('mixins', function () {
     deepEqual(BigDog.__props__, ['p3', 'p2', 'p1', 'p4'], 'should inherit properties');
     strictEqual(cc.Class.attr(BigDog, 'p2').default, 'Defined by Mixin2', 'last mixin property should override previous');
     strictEqual(cc.Class.attr(BigDog, 'p1').default, 'Defined by BigDog', "should override base property");
+});
+
+asyncTest('instantiate properties in the next frame', function () {
+    var Dog = cc.Class({
+        properties: function () {
+            return {
+                like: 'shit'
+            };
+        }
+    });
+    var Husky = cc.Class({
+        extends: Dog,
+        properties: {
+            weight: 100
+        }
+    });
+
+    throws(
+        function () {
+            Husky.__props__.length;
+        },
+        'should raised error if accessing to props via Class'
+    );
+
+    setTimeout(function () {
+        deepEqual(Husky.__props__, ['like', 'weight'], 'should get properties in the correct order');
+
+        start();
+    }, 0);
+});
+
+test('lazy instantiate properties', function () {
+    var Dog = cc.Class({
+        properties: function () {
+            return {
+                like: 'shit'
+            };
+        }
+    });
+    var Husky = cc.Class({
+        extends: Dog,
+        properties: {
+            weight: 100
+        }
+    });
+
+    var dog = new Husky();
+    deepEqual(Husky.__props__, ['like', 'weight'], 'could get properties in the correct order after instantiating');
 });
