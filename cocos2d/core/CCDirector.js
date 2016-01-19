@@ -533,6 +533,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // Activate
         if (scene instanceof cc.Scene) {
             scene._activate();
+            this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
         }
     },
 
@@ -1070,6 +1071,12 @@ cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
  * @type {string}
  */
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
+
+/**
+ * @event EVENT_AFTER_SCENE_LAUNCH
+ * @param {cc.Scene} newScene
+ */
+cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 
 /**
  * The event after update of cc.Director
