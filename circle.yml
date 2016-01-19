@@ -5,4 +5,4 @@ machine:
 dependencies:
   pre:
     - npm install -g gulp
-    - npm install gulp-quint
+    - npm install gulp-qunit
