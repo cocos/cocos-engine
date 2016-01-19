@@ -117,7 +117,11 @@ var Sprite = cc.Class({
             type: SpriteType,
             tooltip: 'i18n:COMPONENT.sprite.type',
         },
-
+        /**
+         * specify the rendering mode
+         * @property isTrimmedMode
+         * @type {Boolean}
+         */
         isTrimmedMode: {
             get: function () {
                 return this._isTrimmedMode;
@@ -143,7 +147,11 @@ var Sprite = cc.Class({
             },
             tooltip: 'i18n:COMPONENT.sprite.original_size',
         },
-
+        /**
+         * specify the size tracing mode
+         * @property sizeMode
+         * @type {SizeMode}
+         */
         sizeMode: {
             get: function () {
                 return this._sizeMode;
@@ -461,7 +469,7 @@ var Sprite = cc.Class({
                 expectedH = rect.height;
 
             } else {
-                
+
             }
 
             if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
