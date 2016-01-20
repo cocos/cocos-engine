@@ -76,24 +76,25 @@ cc.Scene = cc.Class({
         }
     },
 
-    _activate: function () {
+    _activate: function (active) {
+        active = (active !== false);
         var i, child, children = this._children, len = children.length;
 
         if (CC_DEV) {
             // register all nodes to editor
             for (i = 0; i < len; ++i) {
                 child = children[i];
-                child._registerIfAttached(true);
+                child._registerIfAttached(active);
             }
         }
 
-        this._activeInHierarchy = true;
+        this._activeInHierarchy = active;
 
         // invoke onLoad and onEnable
         for (i = 0; i < len; ++i) {
             child = children[i];
             if (child._active) {
-                child._onActivatedInHierarchy(true);
+                child._onActivatedInHierarchy(active);
             }
         }
     }

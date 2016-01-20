@@ -204,10 +204,9 @@ var properties = {
         set: function (value) {
             if (this._autoRemoveOnFinish !== value) {
                 this._autoRemoveOnFinish = value;
-                if (CC_EDITOR && !cc.engine.isPlaying) {
-                    return;
+                if (!CC_EDITOR || cc.engine.isPlaying) {
+                    this._applyAutoRemove();
                 }
-                this._applyAutoRemove();
             }
         },
     },
@@ -584,12 +583,7 @@ var ParticleSystem = cc.Class({
     onLoad: function () {
         this._super();
         // auto play
-        if (CC_EDITOR && !cc.engine.isPlaying) {
-            if (this.preview) {
-                this.resetSystem();
-            }
-        }
-        else {
+        if (!CC_EDITOR || cc.engine.isPlaying) {
             if (this.playOnLoad) {
                 this.resetSystem();
             }
