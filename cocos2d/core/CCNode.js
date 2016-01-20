@@ -722,19 +722,15 @@ var Node = cc.Class({
             }
         }
         // activate or desactivate ActionManager, EventManager
-        var target = this;
-        if (cc.sys.isNative) {
-            target = this._sgNode;
-        }
         // Activate
         if (newActive) {
-            cc.director.getActionManager().resumeTarget(target);
-            cc.eventManager.resumeTarget(target);
+            cc.director.getActionManager().resumeTarget(this);
+            cc.eventManager.resumeTarget(this);
         }
         // Desactivate
         else {
-            cc.director.getActionManager().pauseTarget(target);
-            cc.eventManager.pauseTarget(target);
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
         }
     },
 
@@ -1016,12 +1012,10 @@ var Node = cc.Class({
             return;
         cc.assert(action, cc._LogInfos.Node.runAction);
 
-        var target = this;
         if (cc.sys.isNative) {
-            target = this._sgNode;
             this._retainAction(action);
         }
-        cc.director.getActionManager().addAction(action, target, false);
+        cc.director.getActionManager().addAction(action, this, false);
         return action;
     },
 
@@ -1030,8 +1024,7 @@ var Node = cc.Class({
      * @method stopAllActions
      */
     stopAllActions: function () {
-        var target = cc.sys.isNative ? this._sgNode : this;
-        cc.director.getActionManager().removeAllActionsFromTarget(target);
+        cc.director.getActionManager().removeAllActionsFromTarget(this);
     },
 
     /**
@@ -1053,8 +1046,7 @@ var Node = cc.Class({
             cc.log(cc._LogInfos.Node.stopActionByTag);
             return;
         }
-        var target = cc.sys.isNative ? this._sgNode : this;
-        cc.director.getActionManager().removeActionByTag(tag, target);
+        cc.director.getActionManager().removeActionByTag(tag, this);
     },
 
     /**
@@ -1069,8 +1061,7 @@ var Node = cc.Class({
             cc.log(cc._LogInfos.Node.getActionByTag);
             return null;
         }
-        var target = cc.sys.isNative ? this._sgNode : this;
-        cc.director.getActionManager().getActionByTag(tag, target);
+        cc.director.getActionManager().getActionByTag(tag, this);
     },
 
     /** <p>Returns the numbers of actions that are running plus the ones that are schedule to run (actions in actionsToAdd and actions arrays).<br/>
@@ -1081,8 +1072,7 @@ var Node = cc.Class({
      * @return {Number} The number of actions that are running plus the ones that are schedule to run
      */
     getNumberOfRunningActions: function () {
-        var target = cc.sys.isNative ? this._sgNode : this;
-        cc.director.getActionManager().numberOfRunningActionsInTarget(target);
+        cc.director.getActionManager().numberOfRunningActionsInTarget(this);
     },
 
     _retainAction: function (action) {

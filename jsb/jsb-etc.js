@@ -191,12 +191,65 @@ cc.Node.prototype.runAction = function (action) {
         action._retained = false;
     }
 };
+
+function getSGTarget (target) {
+    if (target instanceof cc.Component) {
+        target = target.node._sgNode;
+    }
+    if (target instanceof cc.Node) {
+        target = target._sgNode;
+    }
+    return target;
+}
 var jsbAddAction = cc.ActionManager.prototype.addAction;
 cc.ActionManager.prototype.addAction = function (action, target, paused) {
+    target = getSGTarget(target);
     jsbAddAction.call(this, action, target, paused);
     if (action._retained) {
         action.release();
         action._retained = false;
+    }
+};
+
+function actionMgrFuncReplacer (funcName, targetPos) {
+    var proto = cc.ActionManager.prototype;
+    var oldFunc = proto[funcName];
+    proto[funcName] = function () {
+        arguments[targetPos] = getSGTarget(arguments[targetPos]);
+        return oldFunc.apply(this, arguments);
+    };
+}
+
+var targetRelatedFuncs = [
+    ['removeAllActionsFromTarget', 0],
+    ['removeActionByTag', 1],
+    ['getActionByTag', 1],
+    ['numberOfRunningActionsInTarget', 0],
+    ['pauseTarget', 0],
+    ['resumeTarget', 0]
+];
+
+for (var i = 0; i < targetRelatedFuncs.length; ++i) {
+    actionMgrFuncReplacer.apply(null, targetRelatedFuncs[i]);
+}
+
+cc.ActionManager.prototype.resumeTargets = function (targetsToResume) {
+    if (!targetsToResume)
+        return;
+
+    for (var i = 0; i< targetsToResume.length; i++) {
+        if (targetsToResume[i])
+            this.resumeTarget(targetsToResume[i]);
+    }
+};
+
+cc.ActionManager.prototype.pauseTargets = function (targetsToPause) {
+    if (!targetsToPause)
+        return;
+
+    for (var i = 0; i< targetsToPause.length; i++) {
+        if (targetsToPause[i])
+            this.pauseTarget(targetsToPause[i]);
     }
 };
 
