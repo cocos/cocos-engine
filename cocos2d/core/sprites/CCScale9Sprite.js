@@ -577,6 +577,9 @@ cc.FilledQuadGeneratorRadial = {
 
         //do radian calculation
         var center = cc.v2(contentSize.width * radialCenter.x, contentSize.height * radialCenter.y);
+        var line1 = this._getLine(center,radianBegin);
+        var line2 = this._getLine(center,radianBegin + radian);
+
         //calculate line
         if(radian > Math.PI) {
             //todo add line
@@ -627,6 +630,45 @@ cc.FilledQuadGeneratorRadial = {
 
     },
 
+    _getInsectedPoints: function(left, right, top, bottom, line1) {
+        var result;
+        if(line.a !== 0) {
+
+            var x = -(line.b * bottom + line.c) / line.a;
+            if(x >= left && x <= right) {
+                result.push(cc.v2(x, bottom));
+            }
+            x = -(line.b * top + line.c) / line.a;
+            if(x >= left && x <= right) {
+                result.push(cc.v2(x, top));
+            }
+        }
+
+        if(line.b !==0) {
+            var y = -(line.a * left + line.c) / line.b;
+            if(y >= bottom && y <= top) {
+                result.push(cc.v2(left, y));
+            }
+
+            var y = -(line.a * right + line.c) / line.b;
+            if(y >= bottom && y <= top) {
+                result.push(cc.v2(right, y));
+            }
+        }
+
+        return result;
+    },
+
+    //return ax + by + c = 0
+    _getLine : function(point, angle) {
+        var result = { a: 0, b: 0, c: 0};
+        result.a = Math.cos(angle + Math.PI / 4);
+        result.b = Math.sin(angle + Math.PI / 4);
+        result.c = -(result.a * point.x + result.b * point.y);
+
+        return result;
+    },
+
     _generateUV : function(progress, uvbl, uvbr, uvtr, uvtl) {
         var result = new cc.Tex2F(0,0);
         var px1 = uvbl.u + (uvbr.u-uvbl.u) * px;
@@ -640,14 +682,7 @@ cc.FilledQuadGeneratorRadial = {
 
     _lineIntersectBox: function(line, left, right, bottom, top) {
         var result = [NaN,NaN,NaN,NaN];
-        if(line.x !== 0) {
-            result[2] = -(line.y * bottom + line.z) / line.x;
-            result[3] = -(line.y * top + line.z) / line.x;
-        }
-        if(line.y !==0) {
-            result[0] = -(line.x * left + line.z) / line.y;
-            result[1] = -(line.x * right + line.z) / line.y;
-        }
+
         //ignore result out of bourdary
         if(result[0] >= top || result[0] <= bottom) result[0] = NaN;
         if(result[1] >= top || result[1] <= bottom) result[0] = NaN;
