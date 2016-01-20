@@ -344,6 +344,15 @@ var Sprite = cc.Class({
 
     onLoad: function () {
         this._super();
+        this.node.on('size-changed', this._resized, this);
+    },
+
+    onDestroy: function () {
+        this._super();
+        this.node.off('size-changed', this._resized, this);
+    },
+
+    _validateSizeMode: function() {
         //do processing
         if (-1 === this._sizeMode) {
             //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
@@ -354,12 +363,6 @@ var Sprite = cc.Class({
             }
             this._isTrimmedMode = true;
         }
-        this.node.on('size-changed', this._resized, this);
-    },
-
-    onDestroy: function () {
-        this._super();
-        this.node.off('size-changed', this._resized, this);
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
@@ -444,6 +447,8 @@ var Sprite = cc.Class({
             sgNode.setVisible(false);
         }
 
+        this._validateSizeMode();
+
         this._applySpriteFrame(null);
 
         // should keep the size of the sg node the same as entity,
@@ -452,6 +457,7 @@ var Sprite = cc.Class({
         this._applySpriteSize();
 
         sgNode.setRenderingType(this._type);
+        sgNode.enableTrimmedContentSize(this._isTrimmedMode);
     },
 
     _resized: function () {
