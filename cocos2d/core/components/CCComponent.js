@@ -16,8 +16,8 @@ var callOnDisableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUN
 var callOnLoadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLoad'));
 var callStartInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'start'));
 var callOnDestroyInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDestroy'));
-var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onFocusInEditMode'));
-var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditMode'));
+var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onFocusInEditor'));
+var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditor'));
 
 function callOnEnable (self, enable) {
     if (CC_EDITOR) {
@@ -397,13 +397,13 @@ var Component = cc.Class({
     //onPreRender: null,
 
     /**
-     * @method onFocusInEditMode
+     * @method onFocusInEditor
      */
-    onFocusInEditMode: null,
+    onFocusInEditor: null,
     /**
-     * @method onLostFocusInEditMode
+     * @method onLostFocusInEditor
      */
-    onLostFocusInEditMode: null,
+    onLostFocusInEditor: null,
 
     //
 
@@ -530,10 +530,10 @@ var Component = cc.Class({
 
             if (this.onLoad && !cc.engine._isPlaying) {
                 var focused = Editor.Selection.curActivate('node') === this.node.uuid;
-                if (focused && this.onFocusInEditMode) {
+                if (focused && this.onFocusInEditor) {
                     callOnFocusInTryCatch(this);
                 }
-                else if (this.onLostFocusInEditMode) {
+                else if (this.onLostFocusInEditor) {
                     callOnLostFocusInTryCatch(this);
                 }
             }

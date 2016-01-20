@@ -471,9 +471,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     runScene: function (scene, _onBeforeLoadScene) {
         cc.assert(scene, cc._LogInfos.Director.pushScene);
 
-        // detach persist nodes
         var i, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
+
+        // detach persist nodes
         for (i = persistNodes.length - 1; i >= 0; --i) {
             node = persistNodes[i];
             game._ignoreRemovePersistNode = node;
@@ -486,6 +487,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (cc.isValid(oldScene)) {
             oldScene.destroy();
         }
+
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
@@ -514,11 +516,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Run or replace rendering scene
-        if (!this._runningScene) {
+        if ( !this._runningScene ) {
             //start scene
             this.pushScene(sgScene);
             this.startAnimation();
-        } else {
+        }
+        else {
             //replace scene
             var i = this._scenesStack.length;
             this._scenesStack[Math.max(i - 1, 0)] = sgScene;
@@ -535,6 +538,30 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             scene._activate();
             this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
         }
+    },
+
+    _replaceScene: CC_EDITOR && function (scene) {
+        if (this._scene) {
+            this._scene._activate(false);
+        }
+        if (this._runningScene) {
+            this._runningScene.onExit();
+        }
+
+        this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+
+        // ensure scene initialized
+        scene._load();
+
+        // replace scene
+        this._scene = scene;
+        this._runningScene = scene._sgNode;
+
+        // Activate
+        cc.renderer.childrenOrderDirty = true;
+        scene._sgNode.onEnter();
+        scene._activate();
+        this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     },
 
     //  @Scene loading section
