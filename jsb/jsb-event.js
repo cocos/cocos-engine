@@ -166,7 +166,7 @@ cc.eventManager.pauseTarget = function (target, recursive) {
     if (target instanceof cc.Node) {
         target = target._sgNode;
     }
-    this._pauseTarget(this, target, recursive || false);
+    this._pauseTarget(target, recursive || false);
 };
 cc.eventManager._resumeTarget = cc.eventManager.resumeTarget;
 cc.eventManager.resumeTarget = function (target, recursive) {
@@ -176,5 +176,5 @@ cc.eventManager.resumeTarget = function (target, recursive) {
     if (target instanceof cc.Node) {
         target = target._sgNode;
     }
-    this._resumeTarget(this, target, recursive || false);
+    this._resumeTarget(target, recursive || false);
 };

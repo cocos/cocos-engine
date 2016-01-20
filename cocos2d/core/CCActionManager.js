@@ -281,17 +281,32 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     },
 
     /**
-     * Resume a set of targets (convenience function to reverse a pauseAllRunningActions call)
+     * Resume a set of targets (convenience function to reverse a pauseAllRunningActions or pauseTargets call)
      * @method resumeTargets
      * @param {Array} targetsToResume
      */
     resumeTargets:function(targetsToResume){
-        if(!targetsToResume)
+        if (!targetsToResume)
             return;
 
-        for(var i = 0 ; i< targetsToResume.length; i++){
+        for (var i = 0; i< targetsToResume.length; i++) {
             if(targetsToResume[i])
                 this.resumeTarget(targetsToResume[i]);
+        }
+    },
+
+    /**
+     * Pause a set of targets
+     * @method pauseTargets
+     * @param {Array} targetsToPause
+     */
+    pauseTargets:function(targetsToPause){
+        if (!targetsToPause)
+            return;
+
+        for (var i = 0; i< targetsToPause.length; i++) {
+            if (targetsToPause[i])
+                this.pauseTarget(targetsToPause[i]);
         }
     },
 
