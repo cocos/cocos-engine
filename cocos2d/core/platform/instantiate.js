@@ -187,6 +187,10 @@ function instantiateObj (obj, parent, ownerObj, ownerKey) {
         return clone;
     }
 
+    if ( !cc.isValid(obj) ) {
+        return null;
+    }
+
     if (obj instanceof cc.Asset) {
         // 所有资源直接引用，不需要拷贝
         return obj;

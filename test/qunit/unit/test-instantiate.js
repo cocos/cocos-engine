@@ -181,6 +181,27 @@
         cc.js.unregisterClass(Script);
     });
 
+    test('destroyed', function () {
+        var Script = cc.Class({
+            extends: cc.Component,
+            properties: {
+                compRef: null
+            }
+        });
+
+        var node = new cc.Node();
+        var comp = node.addComponent(Script);
+        var otherComp = node.addComponent(cc.Sprite);
+        comp.compRef = otherComp;
+        otherComp.destroy();
+
+        cc.Object._deferredDestroy();
+
+        var clone = cc.instantiate(node);
+
+        strictEqual(clone.getComponent(Script).compRef, null, 'deleted object should be nullify');
+    });
+
     test('redirect reference', function () {
         var Script = cc.Class({
             name: '2154648724566',
