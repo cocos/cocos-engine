@@ -165,7 +165,7 @@ function getTypeChecker (type, attrName, objectTypeCtor) {
                         attrName, JS.getClassName(constructor), mainPropName, type);
                 }
             }
-            else {
+            else if (defaultType !== 'function') {
                 cc.warn('Can not indicate the "%s" attribute for %s.%s, which its default value is type of %s.',
                     attrName, JS.getClassName(constructor), mainPropName, defaultType);
             }
