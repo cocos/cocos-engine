@@ -61,7 +61,7 @@ function CCObject () {
  */
 CCObject.Flags = {
 
-    //Destroyed: Destroyed,
+    Destroyed: Destroyed,
     //ToDestroy: ToDestroy,
 
     /**

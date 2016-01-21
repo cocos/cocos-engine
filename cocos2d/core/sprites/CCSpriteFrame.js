@@ -336,7 +336,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             var textureLoadedCallback = function () {
                 self._textureLoaded = true;
                 if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-                    var tempElement = sender.getHtmlElementObj();
+                    var tempElement = texture.getHtmlElementObj();
                     tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, self.getRect());
                     var tempTexture = new cc.Texture2D();
                     tempTexture.initWithElement(tempElement);
