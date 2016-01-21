@@ -540,29 +540,29 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
     },
 
-    _replaceScene: CC_EDITOR && function (scene) {
-        if (this._scene) {
-            this._scene._activate(false);
-        }
-        if (this._runningScene) {
-            this._runningScene.onExit();
-        }
-
-        this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
-
-        // ensure scene initialized
-        scene._load();
-
-        // replace scene
-        this._scene = scene;
-        this._runningScene = scene._sgNode;
-
-        // Activate
-        cc.renderer.childrenOrderDirty = true;
-        scene._sgNode.onEnter();
-        scene._activate();
-        this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
-    },
+    //_replaceScene: CC_EDITOR && function (scene) {
+    //    if (this._scene) {
+    //        this._scene._activate(false);
+    //    }
+    //    if (this._runningScene) {
+    //        this._runningScene.onExit();
+    //    }
+    //
+    //    this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+    //
+    //    // ensure scene initialized
+    //    scene._load();
+    //
+    //    // replace scene
+    //    this._scene = scene;
+    //    this._runningScene = scene._sgNode;
+    //
+    //    // Activate
+    //    cc.renderer.childrenOrderDirty = true;
+    //    scene._sgNode.onEnter();
+    //    scene._activate();
+    //    this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
+    //},
 
     //  @Scene loading section
 
