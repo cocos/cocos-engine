@@ -542,155 +542,233 @@ cc.FilledQuadGeneratorBar = {
 };
 
 cc.FilledQuadGeneratorRadial = {
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, radialCenter, radianBegin, radian) {
-        var verts = [new V3F_C4B_T2F(),new V3F_C4B_T2F(),new V3F_C4B_T2F(),new V3F_C4B_T2F()];
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, center, start, angle) {
+        var vertPos = [null, null,null,null];
+        var vertUV = [null,null,null,null];
         //build vertices
         var vertices = this._calculateVertices(spriteFrame, contentSize);
-
         //build uvs
         var uvs = this._calculateUVs(spriteFrame);
 
-        verts[0].colors = colorOpacity;
-        verts[1].colors = colorOpacity;
-        verts[3].colors = colorOpacity;
-        verts[2].colors = colorOpacity;
-
-        verts[0].vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
-        verts[1].vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
-        verts[3].vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
-        verts[2].vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+        vertPos[0] = cc.v2(vertices[0].x, vertices[0].y);
+        vertPos[1] = cc.v2(vertices[1].x, vertices[0].y);
+        vertPos[3] = cc.v2(vertices[0].x, vertices[1].y);
+        vertPos[2] = cc.v2(vertices[1].x, vertices[1].y);
 
         if (!spriteFrame._rotated) {
-            verts[0].texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            verts[1].texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
-            verts[3].texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            verts[2].texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            vertUV[0] = cc.v2(uvs[0].x, uvs[0].y);
+            vertUV[1] = cc.v2(uvs[1].x, uvs[0].y);
+            vertUV[3] = cc.v2(uvs[0].x, uvs[1].y);
+            vertUV[2] = cc.v2(uvs[1].x, uvs[1].y);
         } else {
-            verts[0].texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            verts[1].texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            verts[3].texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
-            verts[2].texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            vertUV[0] = cc.v2(uvs[0].x, uvs[1].y);
+            vertUV[1] = cc.v2(uvs[0].x, uvs[0].y);
+            vertUV[3] = cc.v2(uvs[1].x, uvs[1].y);
+            vertUV[2] = cc.v2(uvs[1].x, uvs[0].y);
         }
 
-        if(radian >= Math.PI * 2)
-            return verts;
+        //get vertex Angle
+        var triangleIndex = 0;
+        var vertsIn = [0,0,0,0];
+        vertsIn[0] = this._isAngleIn(this._getVertAngle(center,vertPos[0]), start, angle);
+        vertsIn[1] = this._isAngleIn(this._getVertAngle(center,vertPos[1]), start, angle);
+        vertsIn[2] = this._isAngleIn(this._getVertAngle(center,vertPos[2]), start, angle);
+        vertsIn[3] = this._isAngleIn(this._getVertAngle(center,vertPos[3]), start, angle);
 
-        //do radian calculation
-        var center = cc.v2(contentSize.width * radialCenter.x, contentSize.height * radialCenter.y);
-        var line1 = this._getLine(center,radianBegin);
-        var line2 = this._getLine(center,radianBegin + radian);
-
-        //calculate line
-        if(radian > Math.PI) {
-            //todo add line
-
-            //calculate remaining
-            radian -= Math.PI;
-            radianBegin += Math.PI;
+        var intersectPoint_1,intersectPoint_2;
+        intersectPoint_1 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start);
+        intersectPoint_2 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start + angle);
+        var polygons = [];
+        var triangles = [null, null, null, null];
+        //fallback
+        //todo remove it if outside is implemented
+        if(center.x > vertices[1].x) {
+            center.x = vertices[1].x;
         }
-
-        var polygonVerts = {};
-        //line
-        //a * x + b * y + c = 0
-        var lineStart = new cc.math.Vec3();
-        lineStart.x = Math.cos(radianBegin + Math.PI / 4);
-        lineStart.y = Math.sin(radianBegin + Math.PI / 4);
-        lineStart.z = -(lineStart.a * center.x + lineStart.b * center.y);
-        var startIntection = this._lineIntersectBox(lineStart, 0, contentSize.width, 0, contentSize.height);
-
-        var lineEnd = new cc.math.Vec3();
-        lineEnd.x = Math.cos(radianBegin + radian + Math.PI / 4);
-        lineEnd.y = Math.sin(radianBegin + radian + Math.PI / 4);
-        lineEnd.z = -(lineStart.a * center.x + lineStart.b * center.y);
-        var endIntection = this._lineIntersectBox(lineEnd, 0, contentSize.width, 0, contentSize.height);
-
-        //test center
-        if(center.x >= 0 || center.y >= 0 || center.x <= contentSize.width || center.y <= contentSize.height) {
-            var vert = new V3F_C4B_T2F();
-            polygonVerts.push(vert);
-            vert.colors = colorOpacity;
-            vert.vertices = new cc.Vertex3F(center.x, center.y, 0);
-            vert.texCoords = this._generateUV(radialCenter,verts[0].texCoords,verts[1].texCoords,verts[2].texCoords,verts[3].texCoords);
+        if(center.x < vertices[0].x) {
+            center.x = vertices[0].x;
         }
+        if(center.y < vertices[0].y) {
+            center.y = vertices[0].y;
+        }
+        if(center.y > vertices[1].y) {
+            center.y = vertices[1].y;
+        }
+        //in boudary
+        if(center.x <= vertices[1].x && center.x >= vertices[0].x && center.y <= vertices[1].y && center.y >= vertices[0].y) {
+            if(center.x !== vertices[0].x) {
+                triangles[0] = [3,0];
+            }
+            if(center.x !== vertices[1].x) {
+                triangles[2] = [1,2];
+            }
+            if(center.y !== vertices[0].y) {
+                triangles[1] = [0,1];
+            }
+            if(center.y !== vertices[1].y) {
+                triangles[3] = [2,3];
+            }
+            for(triangleIndex = 0; triangleIndex < 4; ++triangleIndex ) {
+                var triangle = triangles[triangleIndex];
+                if(triangle === null) {
+                    continue;
+                }
+                //do triangle processing
 
-        //test startIntection
-        for(var intersectPoint in startIntection) {
-            if(intersectPoint && intersectPoint.x && intersectPoint.y) {
-                //test against line end
-                
-                if(intersectPoint.x >= 0 || intersectPoint.y >= 0 || intersectPoint.x <= contentSize.width || intersectPoint.y <= contentSize.height) {
-                    var vert = new V3F_C4B_T2F();
-                    polygonVerts.push(vert);
-                    vert.colors = colorOpacity;
-                    vert.vertices = new cc.Vertex3F(center.x, center.y, 0);
-                    vert.texCoords = this._generateUV(radialCenter,verts[0].texCoords,verts[1].texCoords,verts[2].texCoords,verts[3].texCoords);
+                if(intersectPoint_1[triangleIndex] === null && intersectPoint_2[triangleIndex] === null) {
+                    //no intersect
+                    if(vertsIn[triangle[0]]) {
+                        polygons.push([center, vertPos[triangle[0]], vertPos[triangle[1]]]);
+                    }
+                } else if(intersectPoint_1[triangleIndex] === null) {
+                    //no start intersect
+                    if(vertsIn[triangle[1]] === true) {
+                        polygons.push([center, vertPos[triangle[0]], vertPos[triangle[1]]]);
+                    } else {
+                        polygons.push([center, vertPos[triangle[0]], intersectPoint_2[triangleIndex]]);
+                    }
+
+                } else if(intersectPoint_2[triangleIndex] === null) {
+                    //no end intersect
+                    if(vertsIn[triangle[0]] === true) {
+                        polygons.push([center,  vertPos[triangle[0]], vertPos[triangle[1]]]);
+                    } else {
+                        polygons.push([center, intersectPoint_1[triangleIndex], vertPos[triangle[1]]]);
+                    }
+
+                } else {
+                    //two intersects
+                    if(vertsIn[triangle[0]]) {
+                        //push two triangles
+                        polygons.push([center, vertPos[triangle[0]], intersectPoint_2[triangleIndex]]);
+                        polygons.push([center, intersectPoint_1[triangleIndex], vertPos[triangle[1]]]);
+                    } else {
+                        polygons.push([center, intersectPoint_1[triangleIndex], intersectPoint_2[triangleIndex]]);
+                    }
                 }
             }
+
+        } else {
+            //todo add outside implementation
         }
+        var quads = [];
+        for(var polyindex = 0; polyindex < polygons.length; ++polyindex) {
+            var quad = new cc.V3F_C4B_T2F_Quad();
+            quads.push(quad);
+            var polygon = polygons[polyindex];
+            quad._tl.vertices = new cc.Vertex3F(polygon[0].x, polygon[0].y, 0);
+            quad._bl.vertices = new cc.Vertex3F(polygon[1].x, polygon[1].y, 0);
+            quad._tr.vertices = new cc.Vertex3F(polygon[2].x, polygon[2].y, 0);
+            quad._tl.colors = colorOpacity;
+            quad._bl.colors = colorOpacity;
+            quad._tr.colors = colorOpacity;
+            var progess = cc.v2(0,0);
+            progess.x = (polygon[0].x - vertices[0].x) / (vertices[1].x - vertices[0].x);
+            progess.y = (polygon[0].y - vertices[0].y) / (vertices[1].y - vertices[0].y);
+            quad._tl.texCoords = this._generateUV(progess, vertUV[0],vertUV[1],vertUV[2],vertUV[3]);
+
+            progess.x = (polygon[1].x - vertices[0].x) / (vertices[1].x - vertices[0].x);
+            progess.y = (polygon[1].y - vertices[0].y) / (vertices[1].y - vertices[0].y);
+            quad._bl.texCoords = this._generateUV(progess, vertUV[0],vertUV[1],vertUV[2],vertUV[3]);
+
+            progess.x = (polygon[2].x - vertices[0].x) / (vertices[1].x - vertices[0].x);
+            progess.y = (polygon[2].y - vertices[0].y) / (vertices[1].y - vertices[0].y);
+            quad._tr.texCoords = this._generateUV(progess, vertUV[0],vertUV[1],vertUV[2],vertUV[3]);
+        }
+        return quads;
 
     },
 
-    _getInsectedPoints: function(left, right, top, bottom, line1) {
-        var result;
-        if(line.a !== 0) {
-
-            var x = -(line.b * bottom + line.c) / line.a;
-            if(x >= left && x <= right) {
-                result.push(cc.v2(x, bottom));
+    _isAngleIn : function(angle, start, rangeAngle) {
+        var pi_2 = Math.PI * 2;
+        while(angle < start || angle >= start + pi_2) {
+            if(angle < start) {
+                angle += pi_2;
             }
-            x = -(line.b * top + line.c) / line.a;
-            if(x >= left && x <= right) {
-                result.push(cc.v2(x, top));
+            if(angle >= start + pi_2) {
+                angle -= pi_2;
             }
         }
 
-        if(line.b !==0) {
-            var y = -(line.a * left + line.c) / line.b;
-            if(y >= bottom && y <= top) {
-                result.push(cc.v2(left, y));
-            }
-
-            var y = -(line.a * right + line.c) / line.b;
-            if(y >= bottom && y <= top) {
-                result.push(cc.v2(right, y));
-            }
-        }
-
-        return result;
+        return angle <= start + rangeAngle;
     },
 
-    //return ax + by + c = 0
-    _getLine : function(point, angle) {
-        var result = { a: 0, b: 0, c: 0};
-        result.a = Math.cos(angle + Math.PI / 4);
-        result.b = Math.sin(angle + Math.PI / 4);
-        result.c = -(result.a * point.x + result.b * point.y);
+    _getVertAngle: function(start, end) {
+        var placement = cc.v2(end.x - start.x, end.y - start.y);
+        if(placement.x === 0 && placement.y === 0) {
+            return undefined;
+        } else if(placement.x === 0) {
+            if(placement.y > 0) {
+                return Math.PI / 2;
+            } else {
+                return - Math.PI / 2;
+            }
+        } else {
+            var angle = Math.atan(placement.y / placement.x);
+            if(placement.x < 0) {
+                angle += Math.PI;
+            }
 
+            return angle;
+        }
+    },
+
+    _getInsectedPoints: function(left, right, bottom, top, start, angle) {
+        //left bottom, right, top
+        var result = [null, null, null, null];
+        var sinAngle = Math.sin(angle);
+        var cosAngle = Math.cos(angle);
+        var tanAngle,cotAngle;
+        if(Math.cos(angle) !== 0) {
+            tanAngle = sinAngle / cosAngle;
+            //calculate right and left
+            if((left - start.x) * cosAngle > 0) {
+                var yleft = start.y + tanAngle * (left - start.x);
+                if(yleft > bottom && yleft < top) {
+                    result[0] = cc.v2(left, yleft);
+                }
+            }
+            if((right - start.x) * cosAngle > 0) {
+                var yright = start.y + tanAngle * (right - start.x);
+
+                if(yright > bottom && yright < top) {
+                    result[2] = cc.v2(right, yright);
+                }
+            }
+
+        }
+
+        if(Math.sin(angle) !== 0) {
+            cotAngle = cosAngle / sinAngle;
+            //calculate  top and bottom
+            if((top - start.y) * sinAngle > 0) {
+                var xtop = start.x  + cotAngle * (top-start.y);
+                if(xtop > left && xtop < right) {
+                    result[3] = cc.v2(xtop, top);
+                }
+            }
+            if((bottom - start.y) * sinAngle > 0) {
+                var xbottom = start.x  + cotAngle * (bottom-start.y);
+                if(xbottom > left && xbottom < right) {
+                    result[1] = cc.v2(xbottom, bottom);
+                }
+            }
+
+        }
         return result;
     },
 
     _generateUV : function(progress, uvbl, uvbr, uvtr, uvtl) {
         var result = new cc.Tex2F(0,0);
-        var px1 = uvbl.u + (uvbr.u-uvbl.u) * px;
-        var px2 = uvtl.u + (uvtr.u-uvtl.u) * px;
-        var py1 = uvbl.v + (uvbr.v-uvbl.v) * px;
-        var py2 = uvtl.v + (uvtr.v-uvtl.v) * px;
+        var px1 = uvbl.x + (uvbr.x-uvbl.x) * progress.x;
+        var px2 = uvtl.x + (uvtr.x-uvtl.x) * progress.x;
+        var py1 = uvbl.y + (uvbr.y-uvbl.y) * progress.x;
+        var py2 = uvtl.y + (uvtr.y-uvtl.y) * progress.x;
         result.u = px1 + (px2 - px1) * progress.y;
         result.v = py1 + (py2 - py1) * progress.y;
         return result;
     },
 
-    _lineIntersectBox: function(line, left, right, bottom, top) {
-        var result = [NaN,NaN,NaN,NaN];
-
-        //ignore result out of bourdary
-        if(result[0] >= top || result[0] <= bottom) result[0] = NaN;
-        if(result[1] >= top || result[1] <= bottom) result[0] = NaN;
-        if(result[2] >= right || result[2] <= left) result[2] = NaN;
-        if(result[3] >= right || result[3] <= left) result[3] = NaN;
-
-        return result;
-    },
 
     _calculateVertices : function (spriteFrame, contentSize) {
 
@@ -766,8 +844,12 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     //rendering quads
     _quads: [],
     _quadsDirty: true,
-
+    _isTriangle: false,
     _isTrimmedContentSize: true,
+    //for filled
+    _center: null,
+    _start: null,
+    _angle: null,
 
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
@@ -1023,6 +1105,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (!this.loaded() || this._quadsDirty === false) return;
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
+        this._isTriangle = false;
         if (this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
             this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
@@ -1032,6 +1115,19 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             cc.error("Filled sprite not implemented.");
             this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+            this._isTriangle = true;
+            {
+                this._center = cc.v2(0,0);
+                var random = Math.random();
+                this._center.x = random * this.getContentSize().width * 2 - this.getContentSize().width;
+                random = Math.random();
+                this._center.y = random * this.getContentSize().height * 2 - this.getContentSize().height;
+                random = Math.random();
+                this._start = random * Math.PI * 2;
+                random = Math.random();
+                this._angle = random * Math.PI * 2;
+            }
+            this._quads = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._start,this._angle);
         } else {
             this._quads = [];
             cc.error("Can not generate quad");
