@@ -617,7 +617,7 @@ cc.FilledQuadGeneratorRadial = {
 
                 if(intersectPoint_1[triangleIndex] === null && intersectPoint_2[triangleIndex] === null) {
                     //no intersect
-                    if(vertsIn[triangle[0]]) {
+                    if(vertsIn[triangle[0]] && vertsIn[triangle[1]]) {
                         polygons.push([center, vertPos[triangle[0]], vertPos[triangle[1]]]);
                     }
                 } else if(intersectPoint_1[triangleIndex] === null) {
@@ -846,15 +846,20 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _quadsDirty: true,
     _isTriangle: false,
     _isTrimmedContentSize: true,
-    //for filled
+    //filled type
+    _filledType: 0,
+    //for filled radial
     _center: null,
-    _start: null,
-    _angle: null,
+    _start: 0,
+    _angle: Math.PI * 2,
+    //for filled left/right/top/bottom
+    _percentage: 0,
 
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
+        this._center = cc.v2(0,0);
         this.setAnchorPoint(cc.p(0.5, 0.5));
         //
         if (typeof textureOrSpriteFrame === 'string') {
@@ -1113,21 +1118,12 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
             this._quads = cc.TiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
-            cc.error("Filled sprite not implemented.");
-            this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
-            this._isTriangle = true;
-            {
-                this._center = cc.v2(0,0);
-                var random = Math.random();
-                this._center.x = random * this.getContentSize().width * 2 - this.getContentSize().width;
-                random = Math.random();
-                this._center.y = random * this.getContentSize().height * 2 - this.getContentSize().height;
-                random = Math.random();
-                this._start = random * Math.PI * 2;
-                random = Math.random();
-                this._angle = random * Math.PI * 2;
+            if(this._filledType !== cc.FillType.RADIAL) {
+                this._quads = cc.FilledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._percentage);
+            } else {
+                this._isTriangle = true;
+                this._quads = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._start,this._angle);
             }
-            this._quads = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._start,this._angle);
         } else {
             this._quads = [];
             cc.error("Can not generate quad");
