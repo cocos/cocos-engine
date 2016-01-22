@@ -1,7 +1,7 @@
 ﻿/****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2015 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -250,7 +250,7 @@ var _metaClass = {
      */
     extend: function (options) {
         options.extends = this;
-        return FireClass(options);
+        return CCClass(options);
     }
 };
 
@@ -428,7 +428,7 @@ function define (className, baseClasses, mixins, constructor, options) {
 
 function _checkCtor (ctor) {
     if (CC_DEV) {
-        if (FireClass._isCCClass(ctor)) {
+        if (CCClass._isCCClass(ctor)) {
             cc.error("Constructor can not be another CCClass");
             return;
         }
@@ -437,8 +437,8 @@ function _checkCtor (ctor) {
             return;
         }
         if (ctor.length > 0) {
-            // fireball-x/dev#138: To make a unified FireClass serialization process,
-            // we don't allow parameters for constructor when creating instances of FireClass.
+            // fireball-x/dev#138: To make a unified CCClass serialization process,
+            // we don't allow parameters for constructor when creating instances of CCClass.
             // For advance user, construct arguments can still get from 'arguments'.
             cc.warn("Can not instantiate CCClass with arguments.");
             return;
@@ -506,7 +506,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     for (var b = 0; b < baseOrMixins.length; b++) {
         var baseOrMixin = baseOrMixins[b];
         if (baseOrMixin) {
-            if (FireClass._isCCClass(baseOrMixin)) {
+            if (CCClass._isCCClass(baseOrMixin)) {
                 var baseCtors = baseOrMixin.__ctors__;
                 if (baseCtors) {
                     ctors = ctors.concat(baseCtors);
@@ -632,8 +632,8 @@ function boundSuperCalls (baseClass, options) {
 }
 
 /**
- * !#en Defines a FireClass using the given specification, please see [Class](/en/scripting/class/) for details.
- * !#zh 定义一个 FireClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
+ * !#en Defines a CCClass using the given specification, please see [Class](/en/scripting/class/) for details.
+ * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
  *
  * @class Class
  * @param {Object} options
@@ -684,7 +684,7 @@ function boundSuperCalls (baseClass, options) {
         // ...
     };
  */
-function FireClass (options) {
+function CCClass (options) {
     if (arguments.length === 0) {
         return define();
     }
@@ -796,7 +796,7 @@ function FireClass (options) {
  * @return {Boolean}
  * @private
  */
-FireClass._isCCClass = function (constructor) {
+CCClass._isCCClass = function (constructor) {
     return !!constructor && (constructor.prop === _metaClass.prop);
 };
 
@@ -805,7 +805,7 @@ FireClass._isCCClass = function (constructor) {
 // @param {Function} constructor
 // @private
 //
-//FireClass._convertToFireClass = function (constructor) {
+//CCClass._convertToFireClass = function (constructor) {
 //    constructor.prop = _metaClass.prop;
 //};
 
@@ -826,7 +826,7 @@ function fastDefine (className, constructor, serializableFields) {
     }
 }
 
-FireClass.attr = Attr.attr;
+CCClass.attr = Attr.attr;
 
 var tmpAttrs = [];
 function parseAttributes (attrs, className, propName) {
@@ -988,26 +988,6 @@ function parseAttributes (attrs, className, propName) {
         }
     }
 
-    if (CC_DEV) {
-        var watch = attrs.watch;
-        if (watch) {
-            if (typeof watch === 'object') {
-                for (var watchKey in watch) {
-                    var watchCallback = watch[watchKey];
-                    if (typeof watchCallback === 'function') {
-                        result.push(Attr.Watch(watchKey.split(' '), watchCallback));
-                    }
-                    else {
-                        cc.error(ERR_Type, 'value', 'watch object', 'function');
-                    }
-                }
-            }
-            else {
-                cc.error(ERR_Type, 'watch', className + '.' + propName, 'object');
-            }
-        }
-    }
-
     return result;
 }
 
@@ -1016,9 +996,9 @@ function parseAttributes (attrs, className, propName) {
  * @return {Function}
  * @deprecated
  */
-FireClass.extend = FireClass;
+CCClass.extend = CCClass;
 
-cc.Class = FireClass;
+cc.Class = CCClass;
 
 module.exports = {
     instantiateProps: instantiateProps,

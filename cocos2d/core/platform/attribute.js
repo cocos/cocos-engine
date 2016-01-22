@@ -1,7 +1,7 @@
 ﻿/****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -28,6 +28,10 @@ var JS = require('./js');
 var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
 
 /**
+ * @class Class
+ */
+
+/**
  * Tag the class with any meta attributes, then return all current attributes assigned to it.
  * This function holds only the attributes, not their implementations.
  *
@@ -36,6 +40,8 @@ var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
  * @param {String} propertyName - the name of property or function, used to retrieve the attributes
  * @param {Object} [attributes] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
  * @return {Object|Undefined} return all attributes associated with the property. if none undefined will be returned
+ * @static
+ * @private
  * @example {@link utils/api/engine/docs/cocos2d/core/platform/attribute/attr.js}
  */
 function attr (constructor, propertyName, attributes) {
@@ -100,6 +106,39 @@ function attr (constructor, propertyName, attributes) {
         }
     }
 }
+
+/**
+ * @module cc
+ */
+
+/**
+ * Specify that the input value must be integer in Inspector.
+ * Also used to indicates that the elements in array should be type integer.
+ * @property {string} Integer
+ * @readonly
+ */
+cc.Integer = 'Integer';
+
+/**
+ * Indicates that the elements in array should be type double.
+ * @property {string} Float
+ * @readonly
+ */
+cc.Float = 'Float';
+
+/**
+ * Indicates that the elements in array should be type boolean.
+ * @property {string} Boolean
+ * @readonly
+ */
+cc.Boolean = 'Boolean';
+
+/**
+ * Indicates that the elements in array should be type string.
+ * @property {string} String
+ * @readonly
+ */
+cc.String = 'String';
 
 /*
 BuiltinAttributes: {
@@ -267,22 +306,6 @@ function Nullable (boolPropName, hasValueByDefault) {
     };
 }
 
-//
-// @method Watch
-// @param {String} names - the name of target property to watch, array is also acceptable.
-// @param {Function} callback - the callback function to invoke when target property(s) is changed.
-// @param {Object} callback.param object - the instance object which contains watching property(s).
-// @param {Object} callback.param element - the property element which displays watching property(s).
-// @return {object} the attribute
-// @private
-//
-function Watch (names, callback) {
-    return {
-        watch: [].concat(names),  // array of property name to watch
-        watchCallback: callback
-    };
-}
-
 function Range (min, max) {
    return { min: min, max: max };
 }
@@ -296,6 +319,5 @@ module.exports = {
     RawType: RawType,
     ScriptUuid: {},      // the value will be represented as a uuid string
     Nullable: Nullable,
-    Watch: Watch,
     Range: Range
 };
