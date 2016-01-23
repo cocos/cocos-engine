@@ -42,7 +42,7 @@ cc.Asset = cc.Class({
                     if (cc.AssetLibrary) {
                         var url = cc.AssetLibrary.getImportedDir(this._uuid);
                         var filename = this._rawFiles[0];
-                        return url + cc.path.sep + filename;
+                        return url + '/' + filename;
                     }
                     else {
                         cc.error('asset.url is not usable in core process');
@@ -67,7 +67,7 @@ cc.Asset = cc.Class({
                     if (cc.AssetLibrary) {
                         var url = cc.AssetLibrary.getImportedDir(this._uuid);
                         return this._rawFiles.map(function (filename) {
-                            return url + cc.path.sep + filename;
+                            return url + '/' + filename;
                         });
                     }
                     else {
