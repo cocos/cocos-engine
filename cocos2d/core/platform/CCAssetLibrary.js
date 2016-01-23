@@ -146,7 +146,7 @@ var AssetLibrary = {
             };
         }
         else {
-            var url = this.getImportedDir(uuid) + cc.path.sep + uuid + '.json';
+            var url = this.getImportedDir(uuid) + '/' + uuid + '.json';
             return {
                 url: url,
                 raw: false,
