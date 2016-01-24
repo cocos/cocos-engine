@@ -821,7 +821,24 @@ CCClass._isCCClass = function (constructor) {
     return !!constructor && typeof constructor.__ctors__ !== 'undefined';
 };
 
+//
+// @method _convertToFireClass
+// @param {Function} constructor
+// @private
+//
+//CCClass._convertToFireClass = function (constructor) {
+//    constructor.prop = _metaClass.prop;
+//};
+
+//
 // Optimized define function only for internal classes
+//
+// @method _fastDefine
+// @param {String} className
+// @param {Function} constructor
+// @param {string[]} serializableFields
+// @private
+//
 CCClass._fastDefine = function (className, constructor, serializableFields) {
     JS.setClassName(className, constructor);
     constructor.__props__ = serializableFields;
