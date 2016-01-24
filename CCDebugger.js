@@ -23,12 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- *
- * @module cc
- *
- */
-
 cc._LogInfos = {
 
     ActionManager: {
@@ -369,9 +363,13 @@ cc.DebugMode = cc.Enum({
 });
 
 /**
+ * @module cc
+ */
+
+/**
  * Init Debug setting.
  * @method _initDebugSetting
- * @param {cc.DebugMode} mode
+ * @param {DebugMode} mode
  */
 cc._initDebugSetting = function (mode) {
     if(mode === cc.DebugMode.NONE)
@@ -410,10 +408,10 @@ cc._initDebugSetting = function (mode) {
         if (!console.warn) console.warn = console.log;
 
         /**
-         * Outputs an error message to the Fireball Console (editor) or Web Console (runtime).
-         * - In Fireball, error is red.
+         * Outputs an error message to the Cocos Creator Console (editor) or Web Console (runtime).
+         * - In Cocos Creator, error is red.
          * - In Chrome, error have a red icon along with red message text.
-         * @method cc.error
+         * @method error
          * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
          * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
@@ -435,10 +433,10 @@ cc._initDebugSetting = function (mode) {
         };
         if(mode !== cc.DebugMode.ERROR)
             /**
-             * Outputs a warning message to the Fireball Console (editor) or Web Console (runtime).
-             * - In Fireball, warning is yellow.
+             * Outputs a warning message to the Cocos Creator Console (editor) or Web Console (runtime).
+             * - In Cocos Creator, warning is yellow.
              * - In Chrome, warning have a yellow warning icon with the message text.
-             * @method cc.warn
+             * @method warn
              * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
@@ -447,8 +445,8 @@ cc._initDebugSetting = function (mode) {
             };
             if(mode === cc.DebugMode.INFO) {
                 /**
-                 * Outputs a message to the Fireball Console (editor) or Web Console (runtime).
-                 * @method cc.log
+                 * Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
+                 * @method log
                  * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
                  * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
                  */
@@ -456,10 +454,10 @@ cc._initDebugSetting = function (mode) {
                     return console.log.apply(console, arguments);
                 };
                 /**
-                 * Outputs an informational message to the Fireball Console (editor) or Web Console (runtime).
-                 * - In Fireball, info is blue.
+                 * Outputs an informational message to the Cocos Creator Console (editor) or Web Console (runtime).
+                 * - In Cocos Creator, info is blue.
                  * - In Firefox and Chrome, a small "i" icon is displayed next to these items in the Web Console's log.
-                 * @method cc.info
+                 * @method info
                  * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
                  * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
                  */
