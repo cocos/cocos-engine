@@ -23,6 +23,8 @@
  ****************************************************************************/
 
 var SpriteType = cc.SpriteType;
+
+var FilledType = cc.FillType;
 /**
  * Sprite Size can track trimmed size, raw size or none
  */
@@ -63,6 +65,11 @@ var Sprite = cc.Class({
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
         _useOriginalSize: true,
         _sizeMode: -1,
+        _filledType: 0,
+        _percentage: 0,
+        _center: cc.v2(0,0),
+        _start: 0,
+        _angle: 0,
         _isTrimmedMode: true,
         /**
          * The Sprite Atlas.
@@ -116,6 +123,61 @@ var Sprite = cc.Class({
             },
             type: SpriteType,
             tooltip: 'i18n:COMPONENT.sprite.type',
+        },
+
+        /**
+         * Filled type
+         *  @property
+         */
+        filledType : {
+            get: function () {
+                return this._filledType;
+            },
+            set: function(value) {
+                this._filledType = value;
+                this._sgNode.setFilledType(value);
+            },
+            type: FilledType
+        },
+
+        percentage: {
+            get: function() {
+                return this._percentage;
+            },
+            set: function(value) {
+                this._percentage = value;
+                this._sgNode.setPercentage(value);
+            },
+        },
+
+        filledCenter: {
+            get: function() {
+                return this._center;
+            },
+            set: function(value) {
+                this._center = cc.v2(value);
+                this._sgNode.setCenter(this._center);
+            },
+        },
+
+        filledStart: {
+            get: function() {
+                return this._start;
+            },
+            set: function(value) {
+                this._start = value;
+                this._sgNode.setStart(value);
+            },
+        },
+
+        filledAngle: {
+            get: function() {
+                return this._angle;
+            },
+            set: function(value) {
+                this._angle = value;
+                this._sgNode.setAngle(value);
+            },
         },
         /**
          * specify the rendering mode
@@ -457,6 +519,11 @@ var Sprite = cc.Class({
         this._applySpriteSize();
 
         sgNode.setRenderingType(this._type);
+        sgNode.setFilledType(this._filledType);
+        sgNode.setPercentage(this._percentage);
+        sgNode.setCenter(this._center);
+        sgNode.setStart(this._start);
+        sgNode.setAngle(this._angle);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
     },
 
