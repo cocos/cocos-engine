@@ -74,7 +74,8 @@ var Sprite = cc.Class({
             type: cc.SpriteAtlas,
             tooltip: 'i18n:COMPONENT.sprite.atlas',
             editorOnly: true,
-            visible: true
+            visible: true,
+            animatable: false
         },
 
         /**
@@ -115,6 +116,7 @@ var Sprite = cc.Class({
                 this._applyCapInset();
             },
             type: SpriteType,
+            animatable: false,
             tooltip: 'i18n:COMPONENT.sprite.type',
         },
         /**
@@ -131,7 +133,8 @@ var Sprite = cc.Class({
                     this._isTrimmedMode = value;
                     this._sgNode.enableTrimmedContentSize(value);
                 }
-            }
+            },
+            animatable: false
         },
 
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
@@ -145,6 +148,7 @@ var Sprite = cc.Class({
                     this._applySpriteSize();
                 }
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.sprite.original_size',
         },
         /**
@@ -162,6 +166,7 @@ var Sprite = cc.Class({
                     this._applySpriteSize();
                 }
             },
+            animatable: false,
             type: SizeMode
         },
         /**

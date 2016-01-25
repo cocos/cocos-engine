@@ -146,7 +146,8 @@ var Button = cc.Class({
             tooltip: 'i18n:COMPONENT.button.interactable',
             notify: function () {
                 this._initState();
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -157,7 +158,8 @@ var Button = cc.Class({
         transition: {
             default: Transition.NONE,
             tooltip: 'i18n:COMPONENT.button.transition',
-            type: Transition
+            type: Transition,
+            animatable: false
         },
 
         // color transition

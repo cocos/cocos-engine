@@ -136,7 +136,8 @@ var ProgressBar = cc.Class({
             tooltip: 'i18n:COMPONENT.progress.bar_sprite',
             notify: function() {
                 this._initBarSprite();
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -157,7 +158,8 @@ var ProgressBar = cc.Class({
                         this.totalLength = entitySize.height;
                     }
                 }
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -196,7 +198,8 @@ var ProgressBar = cc.Class({
             tooltip: 'i18n:COMPONENT.progress.reverse',
             notify: function() {
                 this._updateBarStatus();
-            }
+            },
+            animatable: false
         }
     },
 

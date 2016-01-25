@@ -145,6 +145,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.layout.layout_type'
         },
 
@@ -169,7 +170,8 @@ var Layout = cc.Class({
 
                 this._doLayoutDirty();
                 this._resize = value;
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -182,7 +184,8 @@ var Layout = cc.Class({
             type: cc.Size,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -195,7 +198,8 @@ var Layout = cc.Class({
             type: AxisDirection,
             notify: function() {
                 this._doLayoutDirty();
-            }
+            },
+            animatable: false
         },
         /**
          * The padding of layout, it only effect the layout in one direction.
@@ -206,6 +210,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
+            animatable: false,
         },
 
         /**
@@ -217,6 +222,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.layout.space_x'
         },
 
@@ -229,6 +235,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.layout.space_y'
         },
 
@@ -243,6 +250,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.layout.vertical_direction'
         },
 
@@ -257,6 +265,7 @@ var Layout = cc.Class({
             notify: function() {
                 this._doLayoutDirty();
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.layout.horizontal_direction'
         },
     },
