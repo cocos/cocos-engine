@@ -143,12 +143,6 @@ var srcs = [
 
     './cocos2d/audio/CCAudio.js',
 
-    './extensions/spine/Spine.js',
-    './extensions/spine/CCSkeleton.js',
-    './extensions/spine/CCSkeletonCanvasRenderCmd.js',
-    './extensions/spine/CCSkeletonWebGLRenderCmd.js',
-    './extensions/spine/CCSkeletonAnimation.js',
-
     './extensions/ccpool/CCPool.js',
 
     './cocos2d/physics/CCPhysicsDebugNode.js',
@@ -158,8 +152,8 @@ var srcs = [
     './external/chipmunk/chipmunk.js'
 ];
 
-var header = new Buffer('(function (cc, ccui, ccs, sp, cp) {\n');
-var footer = new Buffer('\n}).call(window, cc, ccui, ccs, sp, cp);\n');
+var header = new Buffer('(function (cc, ccui, ccs, cp) {\n');
+var footer = new Buffer('\n}).call(window, cc, ccui, ccs, cp);\n');
 
 //function wrap (header, footer) {
 //    return es.through(function (file) {

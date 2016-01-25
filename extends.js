@@ -30,6 +30,7 @@ require('./cocos2d/particle/CCParticleAsset');
 if (!(CC_EDITOR && Editor.isCoreLevel)) {
 
     require('./cocos2d/particle/CCParticleSystem');
+    require('./extensions/spine');
 
     if (cc.sys.isNative) {
         // TODO - add to jsb ?

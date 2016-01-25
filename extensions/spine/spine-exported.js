@@ -2634,3 +2634,5 @@ spine.SkeletonBounds.prototype = {
         return this.maxY - this.minY;
     }
 };
+
+module.exports = spine;
