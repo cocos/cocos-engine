@@ -567,19 +567,6 @@ cc.FilledQuadGeneratorRadial = {
             vertUV[2] = cc.v2(uvs[1].x, uvs[0].y);
         }
 
-        //get vertex Angle
-        var triangleIndex = 0;
-        var vertsIn = [0,0,0,0];
-        vertsIn[0] = this._isAngleIn(this._getVertAngle(center,vertPos[0]), start, angle);
-        vertsIn[1] = this._isAngleIn(this._getVertAngle(center,vertPos[1]), start, angle);
-        vertsIn[2] = this._isAngleIn(this._getVertAngle(center,vertPos[2]), start, angle);
-        vertsIn[3] = this._isAngleIn(this._getVertAngle(center,vertPos[3]), start, angle);
-
-        var intersectPoint_1,intersectPoint_2;
-        intersectPoint_1 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start);
-        intersectPoint_2 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start + angle);
-        var polygons = [];
-        var triangles = [null, null, null, null];
         //fallback
         //todo remove it if outside is implemented
         if(center.x > vertices[1].x) {
@@ -594,6 +581,20 @@ cc.FilledQuadGeneratorRadial = {
         if(center.y > vertices[1].y) {
             center.y = vertices[1].y;
         }
+
+        //get vertex Angle
+        var triangleIndex = 0;
+        var vertsIn = [0,0,0,0];
+        vertsIn[0] = this._isAngleIn(this._getVertAngle(center,vertPos[0]), start, angle);
+        vertsIn[1] = this._isAngleIn(this._getVertAngle(center,vertPos[1]), start, angle);
+        vertsIn[2] = this._isAngleIn(this._getVertAngle(center,vertPos[2]), start, angle);
+        vertsIn[3] = this._isAngleIn(this._getVertAngle(center,vertPos[3]), start, angle);
+
+        var intersectPoint_1,intersectPoint_2;
+        intersectPoint_1 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start);
+        intersectPoint_2 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start + angle);
+        var polygons = [];
+        var triangles = [null, null, null, null];
         //in boudary
         if(center.x <= vertices[1].x && center.x >= vertices[0].x && center.y <= vertices[1].y && center.y >= vertices[0].y) {
             if(center.x !== vertices[0].x) {
@@ -1090,6 +1091,68 @@ cc.Scale9Sprite = _ccsg.Node.extend({
      */
     getInsetBottom: function () {
         return this._insetBottom;
+    },
+
+    setFilledType: function(value) {
+        if(this._filledType === value)
+            return;
+        this._filledType = value;
+        if(this._renderingType === cc.SpriteType.FILLED) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getFilledType: function() {
+        return this._filledType;
+    },
+
+    setCenter: function(value,y) {
+        this._center = cc.v2(value,y);
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.FillType.RADIAL) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getCenter: function() {
+        return cc.v2(this._center);
+    },
+
+    setStart: function(value) {
+        if(this._start === value)
+            return;
+        this._start = value;
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.FillType.RADIAL) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getStart: function() {
+        return this._start;
+    },
+
+    setAngle: function(value) {
+        if(this._angle === value)
+            return;
+        this._angle = value;
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.FillType.RADIAL) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getAngle: function() {
+        return this._angle;
+    },
+
+    setPercentage: function(value) {
+        if(this._percentage === value)
+            return;
+        this._percentage = value;
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType !== cc.FillType.RADIAL) {
+            this._quadsDirty = true;
+        }
+    },
+    getPercentage: function() {
+        return this._percentage;
     },
 
     _onColorOpacityDirty: function () {
