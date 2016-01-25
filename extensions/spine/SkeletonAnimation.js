@@ -2,6 +2,7 @@
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2014 Chukong Technologies Inc.
  Copyright (c) 2014 Shengxiang Chen (Nero Chan)
+ Copyright (c) 2015-2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -27,8 +28,9 @@
 var spine = require('./spine-exported');
 
 /**
- * @ignore
+ * @module sp
  */
+
 sp._atlasPage_createTexture_webGL = function (self, path) {
     var texture = cc.textureCache.addImage(path);
     self.rendererObject = new cc.TextureAtlas(texture, 128);
