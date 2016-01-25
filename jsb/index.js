@@ -49,3 +49,12 @@ if (_engineNumberVersion) {
         }
     }
 }
+
+function log () {
+    var text = cc.formatStr.apply(this, arguments);
+    console.log(text);
+}
+cc.log   = log;
+cc.error = log;
+cc.warn  = log;
+cc.info  = log;
