@@ -67,6 +67,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._setAlign(TOP, value);
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.widget.align_top',
         },
 
@@ -91,6 +92,7 @@ var Widget = cc.Class({
                     this._alignFlags &= ~MID;
                 }
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.widget.align_v_center',
         },
 
@@ -108,6 +110,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._setAlign(BOT, value);
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.widget.align_bottom',
         },
 
@@ -125,6 +128,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._setAlign(LEFT, value);
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.widget.align_left',
         },
 
@@ -149,6 +153,7 @@ var Widget = cc.Class({
                     this._alignFlags &= ~CENTER;
                 }
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.widget.align_h_center',
         },
 
@@ -166,6 +171,7 @@ var Widget = cc.Class({
             set: function (value) {
                 this._setAlign(RIGHT, value);
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.widget.align_right',
         },
 
@@ -283,7 +289,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._isAbsTop = value;
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -299,7 +306,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._isAbsBottom = value;
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -315,7 +323,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._isAbsLeft = value;
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -331,7 +340,8 @@ var Widget = cc.Class({
             },
             set: function (value) {
                 this._isAbsRight = value;
-            }
+            },
+            animatable: false
         },
 
         //

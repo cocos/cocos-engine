@@ -73,7 +73,8 @@ var Scrollbar = cc.Class({
             tooltip: 'i18n:COMPONENT.scrollbar.handle',
             notify: function() {
                 this._onScroll(cc.p(0, 0));
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -86,7 +87,8 @@ var Scrollbar = cc.Class({
             tooltip: 'i18n:COMPONENT.scrollbar.direction',
             notify: function() {
                 this._onScroll(cc.p(0, 0));
-            }
+            },
+            animatable: false
         },
 
         /**
@@ -95,6 +97,7 @@ var Scrollbar = cc.Class({
          */
         enableAutoHide: {
             default: true,
+            animatable: false,
             tooltip: 'i18n:COMPONENT.scrollbar.auto_hide',
         },
 
@@ -105,6 +108,7 @@ var Scrollbar = cc.Class({
          */
         autoHideTime: {
             default: 1.0,
+            animatable: false,
             tooltip: 'i18n:COMPONENT.scrollbar.auto_hide_time',
         }
     },

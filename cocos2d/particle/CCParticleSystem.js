@@ -82,7 +82,8 @@ var properties = {
                 }
                 cc.engine.repaintInEditMode();
             }
-        }
+        },
+        animatable: false
     },
 
     /**
@@ -115,6 +116,7 @@ var properties = {
                 }
             }
         },
+        animatable: false
     },
 
     /**
@@ -145,6 +147,7 @@ var properties = {
                 }
             }
         },
+        animatable: false,
         url: cc.ParticleAsset
     },
 
@@ -209,6 +212,7 @@ var properties = {
                 }
             }
         },
+        animatable: false
     },
 
     /**

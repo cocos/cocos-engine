@@ -71,6 +71,7 @@ var Label = cc.Class({
                     sgNode.setHorizontalAlign( this.horizontalAlign );
                 }
             },
+            animatable: false
         },
 
         /**
@@ -87,6 +88,7 @@ var Label = cc.Class({
                     sgNode.setVerticalAlign( this.verticalAlign );
                 }
             },
+            animatable: false
         },
 
         _fontSize: 40,
@@ -146,7 +148,8 @@ var Label = cc.Class({
                 if (sgNode) {
                     sgNode.setOverflow(this.overflow);
                 }
-            }
+            },
+            animatable: false
         },
 
         _enableWrapText: true,
@@ -170,6 +173,7 @@ var Label = cc.Class({
                     sgNode.enableWrapText(value);
                 }
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.label.wrap',
         },
 
@@ -186,7 +190,8 @@ var Label = cc.Class({
                 if (sgNode) {
                     sgNode.setFontFileOrFamily(this.file);
                 }
-            }
+            },
+            animatable: false
         },
 
         _isSystemFontUsed: true,
@@ -214,6 +219,7 @@ var Label = cc.Class({
                 }
 
             },
+            animatable: false,
             tooltip: 'i18n:COMPONENT.label.system_font',
         }
 
