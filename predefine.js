@@ -66,5 +66,4 @@ require('./cocos2d/core/textures');
 
 ccui = {};
 ccs = {};
-sp = {};
 cp = {};

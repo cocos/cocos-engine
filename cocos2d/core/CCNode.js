@@ -663,7 +663,6 @@ var Node = cc.Class({
             var i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
-                component.node = null;
             }
             else if (component.node !== this) {
                 cc.error('Component not owned by this entity');

@@ -24,12 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * The main namespace of Spine, all classes, functions, properties and constants of Spine are defined in this namespace
- * @namespace
- * @name sp
- */
-var sp = sp || {};
+var spine = require('./spine-exported');
 
 /**
  * The vertex index of spine.
