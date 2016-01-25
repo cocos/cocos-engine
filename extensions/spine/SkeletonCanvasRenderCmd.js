@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -23,6 +23,10 @@
  ****************************************************************************/
 
 var spine = require('./spine-exported');
+
+/**
+ * @module sp
+ */
 
 sp.Skeleton.CanvasRenderCmd = function(renderableObject){
     _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);

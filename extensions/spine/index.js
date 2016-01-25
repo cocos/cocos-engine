@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -22,12 +22,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./cocos2d/core');
-require('./cocos2d/animation');
+/**
+ * The global main namespace of Spine, all classes, functions, properties and constants of Spine are defined in this namespace
+ * @module sp
+ * @main sp
+ */
 
-require('./cocos2d/particle/CCParticleAsset');
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
-    require('./cocos2d/particle/CCParticleSystem');
+sp = {};
+
+if (!CC_EDITOR || !Editor.isCoreLevel) {
+    require('./Skeleton');
+    require('./SkeletonCanvasRenderCmd');
+    require('./SkeletonWebGLRenderCmd');
+    require('./SkeletonAnimation');
 }
 
-require('./extensions/spine');
+require('./SpineAsset');

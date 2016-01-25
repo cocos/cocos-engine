@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2015 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -22,12 +22,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./cocos2d/core');
-require('./cocos2d/animation');
+/**
+ * @module sp
+ */
 
-require('./cocos2d/particle/CCParticleAsset');
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
-    require('./cocos2d/particle/CCParticleSystem');
-}
+/**
+ * The skeleton data of spine.
+ * @class SpineAsset
+ * @extends RawAsset
+ * @constructor
+ */
+var SpineAsset = cc.Class({
+    name: 'sp.SpineAsset',
+    extends: cc.RawAsset,
+});
 
-require('./extensions/spine');
+sp.SpineAsset = module.exports = SpineAsset;
