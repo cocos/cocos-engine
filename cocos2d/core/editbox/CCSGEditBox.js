@@ -344,6 +344,11 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
         this._addDomInputControl();
 
+        //because cc.DOM.convert will replace editbox's setContentSize method.
+        //here is a hack to provide a better version of setContentSize.
+        this._oldSetContentSize = this.setContentSize;
+        this.setContentSize = this._updateEditBoxSize;
+
         this._domInputSprite.dom.showTooltipDiv = false;
         this._domInputSprite.dom.style.width = (size.width - 6) + "px";
         this._domInputSprite.dom.style.height = (size.height - 6) + "px";
@@ -360,8 +365,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
         }
     },
 
-    setSize: function(size, height) {
-        _ccsg.Node.prototype.setContentSize.call(this, size, height);
+    _updateEditBoxSize: function(size, height) {
+        this._oldSetContentSize(size, height);
 
         var newWidth = size.width || size;
         var newHeight = size.height || height;

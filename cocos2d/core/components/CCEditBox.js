@@ -1,3 +1,5 @@
+/*global _ccsg */
+
 /****************************************************************************
  Copyright (c) 2015 Chukong Technologies Inc.
 
@@ -42,8 +44,6 @@ var EditBox = cc.Class({
     },
 
     properties: {
-        _editboxSize: cc.size(300, 200),
-
         _backgroundSprite: {
             default: null,
             serializable: false,
@@ -64,7 +64,7 @@ var EditBox = cc.Class({
                 return this._string;
             },
 
-            set: function (value) {
+            set: function(value) {
                 this._string = value;
 
                 var sgNode = this._sgNode;
@@ -174,7 +174,7 @@ var EditBox = cc.Class({
          * @property {String} placeHolder
          */
         placeHolder: {
-            default: "Enter text here...",
+            default: 'Enter text here...',
             notify: function() {
                 var sgNode = this._sgNode;
                 if (sgNode) {
@@ -256,8 +256,8 @@ var EditBox = cc.Class({
 
     statics: {
         KeyboardReturnType: KeyboardReturnType,
-        InputFlag, InputFlag,
-        InputMode, InputMode
+        InputFlag: InputFlag,
+        InputMode: InputMode
     },
 
     _createBackgroundSprite: function() {
@@ -266,29 +266,17 @@ var EditBox = cc.Class({
         }
     },
 
-    onLoad: function () {
-        this._super();
-        this.node.on('size-changed', this._resized, this);
-
-
-        this.node.setContentSize(this._editboxSize);
+    _createSgNode: function() {
+        return new _ccsg.EditBox(cc.size(300, 100));
     },
 
-    onDestroy: function () {
-        this._super();
-        this.node.off('size-changed', this._resized, this);
-    },
-    _createSgNode: function () {
-        return new _ccsg.EditBox(cc.size(300,100));
-    },
-
-    _initSgNode: function () {
+    _initSgNode: function() {
         var sgNode = this._sgNode;
 
         if (sgNode) {
             this._createBackgroundSprite();
             sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), this._backgroundSprite);
-            sgNode.setSize(this.node.getContentSize());
+            sgNode.setContentSize(this.node.getContentSize());
 
             sgNode.inputMode = this.inputMode;
             sgNode.maxLength = this.maxLength;
@@ -306,45 +294,35 @@ var EditBox = cc.Class({
         }
     },
 
-    _handleComponentEvent: function (events, text) {
+    _handleComponentEvent: function(events, text) {
         for (var i = 0, l = events.length; i < l; i++) {
             var event = events[i];
             var target = event.target;
-            if (!target) continue;
+            if (!cc.isValid(target)) continue;
 
             var comp = target.getComponent(event.component);
-            if (!comp) continue;
+            if (!cc.isValid(comp)) continue;
 
             var handler = comp[event.handler];
             if (!handler) continue;
-            handler.call(comp, text)
+            handler.call(comp, text);
         }
     },
 
-    editBoxEditingDidBegin: function(editbox) {
+    editBoxEditingDidBegin: function() {
         var events = this.editingDidBegin;
         this._handleComponentEvent(events);
     },
 
-    editBoxEditingDidEnd: function (editBox) {
+    editBoxEditingDidEnd: function() {
         var events = this.editingDidEnd;
         this._handleComponentEvent(events);
     },
 
-    editBoxTextChanged: function (editBox, text) {
+    editBoxTextChanged: function(editBox, text) {
         var events = this.textChanged;
         this._handleComponentEvent(events, text);
     },
-
-    _resized: function () {
-        var sgNode = this._sgNode;
-
-        if (sgNode) {
-            sgNode.setSize(this.node.getContentSize());
-        }
-
-        this._editboxSize = this.node.getContentSize();
-    }
 });
 
 cc.EditBox = module.exports = EditBox;
