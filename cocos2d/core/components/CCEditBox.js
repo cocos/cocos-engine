@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var KeyboardReturnType = cc.KeyboardReturnType;
+var KeyboardReturnType = _ccsg.EditBox.KeyboardReturnType;
 var InputMode = _ccsg.EditBox.InputMode;
 var InputFlag = _ccsg.EditBox.InputFlag;
 
@@ -44,32 +44,16 @@ var EditBox = cc.Class({
     },
 
     properties: {
-        _backgroundSprite: {
-            default: null,
-            serializable: false,
-        },
-
-        _string: '',
-
         /**
          * Input string of EditBox.
          * @property {String} string
          */
         string: {
-            get: function() {
+            default: '',
+            notify: function() {
                 var sgNode = this._sgNode;
                 if (sgNode) {
-                    this._string = sgNode.string;
-                }
-                return this._string;
-            },
-
-            set: function(value) {
-                this._string = value;
-
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.setString(value);
+                    sgNode.string = this.string;
                 }
             }
         },
@@ -229,7 +213,7 @@ var EditBox = cc.Class({
          * The event handler to be called when EditBox began to edit text.
          * @property {cc.Component.EventHandler} editingDidBegin
          */
-        editingDidBegin: {
+        editingDidBegan: {
             default: [],
             type: cc.Component.EventHandler,
         },
@@ -247,7 +231,7 @@ var EditBox = cc.Class({
          * The event handler to be called when EditBox edit ends.
          * @property {cc.Component.EventHandler} editingDidEnd
          */
-        editingDidEnd: {
+        editingDidEnded: {
             default: [],
             type: cc.Component.EventHandler,
         }
@@ -260,12 +244,6 @@ var EditBox = cc.Class({
         InputMode: InputMode
     },
 
-    _createBackgroundSprite: function() {
-        if (!this._backgroundSprite) {
-            this._backgroundSprite = new cc.Scale9Sprite(this.backgroundImage);
-        }
-    },
-
     _createSgNode: function() {
         return new _ccsg.EditBox(cc.size(300, 100));
     },
@@ -274,14 +252,14 @@ var EditBox = cc.Class({
         var sgNode = this._sgNode;
 
         if (sgNode) {
-            this._createBackgroundSprite();
-            sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), this._backgroundSprite);
+            var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
+            sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), bgSprite);
             sgNode.setContentSize(this.node.getContentSize());
 
             sgNode.inputMode = this.inputMode;
             sgNode.maxLength = this.maxLength;
 
-            sgNode.string = this._string;
+            sgNode.string = this.string;
             sgNode.fontSize = this.fontSize;
             sgNode.fontColor = this.fontColor;
             sgNode.placeHolder = this.placeHolder;
@@ -309,12 +287,12 @@ var EditBox = cc.Class({
         }
     },
 
-    editBoxEditingDidBegin: function() {
+    editBoxEditingDidBegan: function() {
         var events = this.editingDidBegin;
         this._handleComponentEvent(events);
     },
 
-    editBoxEditingDidEnd: function() {
+    editBoxEditingDidEnded: function() {
         var events = this.editingDidEnd;
         this._handleComponentEvent(events);
     },

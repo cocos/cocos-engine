@@ -234,7 +234,7 @@ if (CC_DEV) {
     deprecateEnum(cc.ProgressTimer, 'cc.ProgressTimer.TYPE', 'cc.ProgressTimer.Type');
     deprecateEnum(cc.game, 'cc.game.DEBUG_MODE', 'cc.DebugMode');
     if (_ccsg.EditBox) {
-        deprecateEnum(cc, 'cc.KEYBOARD_RETURNTYPE', 'cc.KeyboardReturnType');
+        deprecateEnum(cc, 'cc.KEYBOARD_RETURNTYPE', '_ccsg.EditBox.KeyboardReturnType');
         deprecateEnum(cc, 'cc.EDITBOX_INPUT_MODE', '_ccsg.EditBox.InputMode');
         deprecateEnum(cc, 'cc.EDITBOX_INPUT_FLAG', '_ccsg.EditBox.InputFlag');
     }
