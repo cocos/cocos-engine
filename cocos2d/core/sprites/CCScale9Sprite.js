@@ -432,7 +432,7 @@ cc.FilledQuadGeneratorBar = {
         percentage = percentage < 0 ? 0 : percentage;
         var progress;
         switch (fillType) {
-            case cc.FillType.LEFT:
+            case cc.Scale9Sprite.FillType.LEFT:
                 progress = vertices[0].x + (vertices[1].x - vertices[0].x) * percentage;
                 quad._br.vertices.x = progress;
                 quad._tr.vertices.x = progress;
@@ -443,7 +443,7 @@ cc.FilledQuadGeneratorBar = {
                 quad._tr.texCoords.u = quad._tl.texCoords.u + (quad._tr.texCoords.u - quad._tl.texCoords.u) * percentage;
                 quad._tr.texCoords.v = quad._tl.texCoords.v + (quad._tr.texCoords.v - quad._tl.texCoords.v) * percentage;
                 break;
-            case cc.FillType.RIGHT:
+            case cc.Scale9Sprite.FillType.RIGHT:
                 progress = vertices[1].x + (vertices[0].x - vertices[1].x) * percentage;
                 quad._bl.vertices.x = progress;
                 quad._tl.vertices.x = progress;
@@ -454,7 +454,7 @@ cc.FilledQuadGeneratorBar = {
                 quad._tl.texCoords.u = quad._tr.texCoords.u + (quad._tl.texCoords.u - quad._tr.texCoords.u) * percentage;
                 quad._tl.texCoords.v = quad._tr.texCoords.v + (quad._tl.texCoords.v - quad._tr.texCoords.v) * percentage;
                 break;
-            case cc.FillType.TOP:
+            case cc.Scale9Sprite.FillType.TOP:
                 progress = vertices[1].y + (vertices[0].y - vertices[1].y) * percentage;
                 quad._bl.vertices.y = progress;
                 quad._br.vertices.y = progress;
@@ -465,7 +465,7 @@ cc.FilledQuadGeneratorBar = {
                 quad._br.texCoords.u = quad._tr.texCoords.u + (quad._br.texCoords.u - quad._tr.texCoords.u) * percentage;
                 quad._br.texCoords.v = quad._tr.texCoords.v + (quad._br.texCoords.v - quad._tr.texCoords.v) * percentage;
                 break;
-            case cc.FillType.BOTTOM:
+            case cc.Scale9Sprite.FillType.BOTTOM:
                 progress = vertices[0].y + (vertices[1].y - vertices[0].y) * percentage;
                 quad._tl.vertices.y = progress;
                 quad._tr.vertices.y = progress;
@@ -1108,7 +1108,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
     setCenter: function(value,y) {
         this._center = cc.v2(value,y);
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.FillType.RADIAL) {
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.Scale9Sprite.FillType.RADIAL) {
             this._quadsDirty = true;
         }
     },
@@ -1121,7 +1121,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._start === value)
             return;
         this._start = value;
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.FillType.RADIAL) {
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.Scale9Sprite.FillType.RADIAL) {
             this._quadsDirty = true;
         }
     },
@@ -1134,7 +1134,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._angle === value)
             return;
         this._angle = value;
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.FillType.RADIAL) {
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.Scale9Sprite.FillType.RADIAL) {
             this._quadsDirty = true;
         }
     },
@@ -1147,7 +1147,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._percentage === value)
             return;
         this._percentage = value;
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType !== cc.FillType.RADIAL) {
+        if(this._renderingType === cc.SpriteType.FILLED && this._filledType !== cc.Scale9Sprite.FillType.RADIAL) {
             this._quadsDirty = true;
         }
     },
@@ -1181,7 +1181,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
             this._quads = cc.TiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
-            if(this._filledType !== cc.FillType.RADIAL) {
+            if(this._filledType !== cc.Scale9Sprite.FillType.RADIAL) {
                 this._quads = cc.FilledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._percentage);
             } else {
                 this._isTriangle = true;
@@ -1274,7 +1274,7 @@ cc.SpriteType = cc.Enum({
 
 cc.Scale9Sprite.RenderingType = cc.SpriteType;
 
-cc.FillType = cc.Enum({
+cc.Scale9Sprite.FillType = cc.Enum({
     LEFT: 0,
     RIGHT: 1,
     TOP: 2,

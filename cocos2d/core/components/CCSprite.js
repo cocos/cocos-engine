@@ -24,7 +24,7 @@
 
 var SpriteType = cc.SpriteType;
 
-var FilledType = cc.FillType;
+var FilledType = cc.Scale9Sprite.FillType;
 /**
  * Sprite Size can track trimmed size, raw size or none
  */
