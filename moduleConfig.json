@@ -273,12 +273,6 @@
             "extensions/ccb-reader/CCBRelativePositioning.js",
             "extensions/ccb-reader/CCBAnimationManager.js"
         ],
-        "editbox" : [
-            "core", "gui",
-
-            "extensions/editbox/CCdomNode.js",
-            "extensions/editbox/CCEditBox.js"
-        ],
         "ccpool" : [
             "core",
 
