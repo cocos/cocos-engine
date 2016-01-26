@@ -582,6 +582,31 @@ cc.FilledQuadGeneratorRadial = {
             center.y = vertices[1].y;
         }
 
+        var rawQuad;
+        rawQuad = new cc.V3F_C4B_T2F_Quad();
+
+        rawQuad._bl.colors = colorOpacity;
+        rawQuad._br.colors = colorOpacity;
+        rawQuad._tl.colors = colorOpacity;
+        rawQuad._tr.colors = colorOpacity;
+
+        rawQuad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
+        rawQuad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
+        rawQuad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
+        rawQuad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+
+        if (!spriteFrame._rotated) {
+            rawQuad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            rawQuad._br.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            rawQuad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            rawQuad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+        } else {
+            rawQuad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            rawQuad._br.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            rawQuad._tl.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            rawQuad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+        }
+
         //get vertex Angle
         var triangleIndex = 0;
         var vertsIn = [0,0,0,0];
@@ -676,7 +701,10 @@ cc.FilledQuadGeneratorRadial = {
             progess.y = (polygon[2].y - vertices[0].y) / (vertices[1].y - vertices[0].y);
             quad._tr.texCoords = this._generateUV(progess, vertUV[0],vertUV[1],vertUV[2],vertUV[3]);
         }
-        return quads;
+        var result = {};
+        result.quad = quads;
+        result.rawQuad = rawQuad;
+        return result;
 
     },
 
@@ -845,6 +873,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     //rendering quads
     _quads: [],
     _quadsDirty: true,
+    _rawQuad: null,
     _isTriangle: false,
     _isTrimmedContentSize: true,
     //filled type
@@ -1185,7 +1214,9 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 this._quads = cc.FilledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._percentage);
             } else {
                 this._isTriangle = true;
-                this._quads = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._start,this._angle);
+                var fillResult = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._start,this._angle);
+                this._quads = fillResult.quad;
+                this._rawQuad = fillResult.rawQuad;
             }
         } else {
             this._quads = [];
