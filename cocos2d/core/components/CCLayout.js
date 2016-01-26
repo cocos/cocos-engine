@@ -332,7 +332,7 @@ var Layout = cc.Class({
         var maxHeightChildAnchor;
 
         var newChildWidth = this.cellSize.width;
-        if (this.layoutType !== Type.GRID) {
+        if (this.layoutType !== Type.GRID && this.resize === ResizeType.CHILDREN) {
             newChildWidth = (baseWidth - 2 * this.padding - (children.length - 1) * this.spacingX) / children.length;
         }
 
@@ -388,7 +388,7 @@ var Layout = cc.Class({
             }
 
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
-            if(baseWidth > (child.width + 2 * this.padding)) {
+            if(baseWidth >= (child.width + 2 * this.padding)) {
                 if (applyChildren) {
                     child.setPosition(cc.p(nextX, finalPositionY));
                 }
@@ -455,7 +455,7 @@ var Layout = cc.Class({
         var maxWidthChildAnchor;
 
         var newChildHeight = this.cellSize.height;
-        if (this.layoutType !== Type.GRID) {
+        if (this.layoutType !== Type.GRID && this.resize === ResizeType.CHILDREN) {
             newChildHeight = (baseHeight - 2 * this.padding - (children.length - 1) * this.spacingY) / children.length;
         }
 
@@ -510,7 +510,7 @@ var Layout = cc.Class({
             }
 
             var finalPositionX = fnPositionX(child, columnMaxWidth, column);
-            if (baseHeight > (child.height + 2 * this.padding)) {
+            if (baseHeight >= (child.height + 2 * this.padding)) {
                 if (applyChildren) {
                     child.setPosition(cc.p(finalPositionX, nextY));
                 }
