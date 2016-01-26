@@ -467,15 +467,16 @@ var Animation = cc.Class({
             oldState._name = clipName;
         }
 
-        var oldClip = oldState.clip;
-
         // wrap time when change wrapMode
-        if (oldClip.wrapMode !== clip.wrapMode) {
+        if (oldState.wrapMode !== clip.wrapMode) {
             var wrappedInfo = oldState.getWrappedInfo(oldState.time);
 
             oldState.time = wrappedInfo.time;
 
-            if ((clip.wrapMode & cc.WrapMode.Reverse) === cc.WrapMode.Reverse) {
+            var isNewReverseMode = (clip.wrapMode & cc.WrapMode.Reverse) === cc.WrapMode.Reverse;
+            var isOldReverseMode = (oldState.wrapMode & cc.WrapMode.Reverse) === cc.WrapMode.Reverse;
+
+            if (isNewReverseMode !== isOldReverseMode) {
                 oldState.time = Math.abs(oldState.time - oldState.duration);
             }
         }
