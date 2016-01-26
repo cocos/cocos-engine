@@ -319,23 +319,32 @@ var EventAnimCurve = cc.Class({
         }
 
         var lastWrappedInfo = this._lastWrappedInfo;
-        var lastIndex = lastWrappedInfo ? lastWrappedInfo.frameIndex : currentWrappedInfo.frameIndex;
+
+        currentWrappedInfo.frameIndex = currentIndex;
+        this._lastWrappedInfo = currentWrappedInfo;
 
         if (!lastWrappedInfo) {
             this._fireEvent(currentIndex);
+            return;
         }
-        else if (lastIndex !== currentIndex) {
 
-            var wrapMode = animationNode.wrapMode;
+        var lastIndex = lastWrappedInfo.frameIndex;
+        var wrapMode = animationNode.wrapMode;
 
-            var currentIterations = this._wrapIterations(currentWrappedInfo.iterations);
-            var lastIntIterations = this._wrapIterations(lastWrappedInfo.iterations);
+        var currentIterations = this._wrapIterations(currentWrappedInfo.iterations);
+        var lastIterations = this._wrapIterations(lastWrappedInfo.iterations);
 
+        var interationsChanged = lastIterations !== -1 && currentIterations !== lastIterations;
+
+        if (lastIndex === currentIndex && interationsChanged && length === 1) {
+            this._fireEvent(0);
+        }
+        else if (lastIndex !== currentIndex || interationsChanged) {
             direction = lastWrappedInfo.direction;
 
             do {
-                if (lastIntIterations <= currentIterations) {
-                    if (direction === -1 && lastIndex === 0) {
+                if (lastIndex !== currentIndex) {
+                    if (direction === -1 && lastIndex === 0 && currentIndex > 0) {
                         if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
                             direction *= -1;
                         }
@@ -343,9 +352,9 @@ var EventAnimCurve = cc.Class({
                             lastIndex = length;
                         }
 
-                        lastIntIterations ++;
+                        lastIterations ++;
                     }
-                    else if (direction === 1 && lastIndex === length - 1) {
+                    else if (direction === 1 && lastIndex === length - 1 && currentIndex < length - 1) {
                         if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
                             direction *= -1;
                         }
@@ -353,20 +362,18 @@ var EventAnimCurve = cc.Class({
                             lastIndex = -1;
                         }
 
-                        lastIntIterations ++;
+                        lastIterations ++;
                     }
 
                     if (lastIndex === currentIndex) break;
+                    if (lastIterations > currentIterations) break;
                 }
 
                 lastIndex += direction;
 
                 this._fireEvent(lastIndex);
-            } while (lastIndex !== currentIndex);
+            } while (lastIndex !== currentIndex && lastIndex > -1 && lastIndex < length);
         }
-
-        currentWrappedInfo.frameIndex = currentIndex;
-        this._lastWrappedInfo = currentWrappedInfo;
     },
 
     _fireEvent: function (index) {
