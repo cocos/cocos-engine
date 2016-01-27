@@ -61,7 +61,7 @@ var simpleQuadGenerator = {
 
         //build quads
         var quad;
-        quad = new cc.V3F_C4B_T2F_Quad();
+        quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad)|| new cc.V3F_C4B_T2F_Quad();
 
         quad._bl.colors = colorOpacity;
         quad._br.colors = colorOpacity;
@@ -173,7 +173,7 @@ var scale9QuadGenerator = {
         var quad;
         for (var i = 0; i < 3; ++i) {
             for (var j = 0; j < 3; ++j) {
-                quad = new cc.V3F_C4B_T2F_Quad();
+                quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
                 quad._bl.colors = colorOpacity;
                 quad._br.colors = colorOpacity;
                 quad._tl.colors = colorOpacity;
@@ -328,7 +328,7 @@ var tiledQuadGenerator = {
         for (var hindex = 0; hindex < Math.ceil(hRepeat); ++hindex) {
             for (var vindex = 0; vindex < Math.ceil(vRepeat); ++vindex) {
                 var quad;
-                quad = new cc.V3F_C4B_T2F_Quad();
+                quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
 
                 quad._bl.colors = colorOpacity;
                 quad._br.colors = colorOpacity;
@@ -402,7 +402,7 @@ var filledQuadGeneratorBar = {
         var uvs = this._calculateUVs(spriteFrame);
 
         //build quads
-        var quad = new cc.V3F_C4B_T2F_Quad();
+        var quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
 
         quad._bl.colors = colorOpacity;
         quad._br.colors = colorOpacity;
@@ -589,7 +589,7 @@ var filledQuadGeneratorRadial = {
         }
 
         var rawQuad;
-        rawQuad = new cc.V3F_C4B_T2F_Quad();
+        rawQuad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
 
         rawQuad._bl.colors = colorOpacity;
         rawQuad._br.colors = colorOpacity;
@@ -685,7 +685,7 @@ var filledQuadGeneratorRadial = {
         }
         var quads = new Array(polygons.length);
         for(var polyindex = 0; polyindex < polygons.length; ++polyindex) {
-            var quad = quads[polyindex] = new cc.V3F_C4B_T2F_Quad();
+            var quad = quads[polyindex] = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
 
             var polygon = polygons[polyindex];
             quad._tl.vertices = new cc.Vertex3F(polygon[0].x, polygon[0].y, 0);
@@ -1193,6 +1193,11 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
     _rebuildQuads: function () {
         if (!this.loaded() || this._quadsDirty === false) return;
+        //put quads back
+        for(var quadIndex = 0; quadIndex < this._quads.length; ++quadIndex) {
+            cc.pool.putInPool(this._quads[quadIndex]);
+        }
+        this._quads = [];
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
         this._isTriangle = false;
