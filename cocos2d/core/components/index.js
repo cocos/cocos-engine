@@ -1,5 +1,6 @@
 require('./CCComponent');
 require('./CCComponentInSG');
+require('./CCComponentEventHandler')
 
 module.exports = [
     require('./CCSprite'),
@@ -14,4 +15,5 @@ module.exports = [
     require('./CCScrollBar'),
     require('./CCScrollView'),
     require('./CCLayout'),
+    require('./CCEditBox'),
 ];

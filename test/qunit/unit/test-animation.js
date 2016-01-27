@@ -800,7 +800,7 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 5 Event triggered']
         }
-    ], 'should only triggered last event if wraperMode is Loop');
+    ], 'should only triggered last event if wrapMode is Loop');
 
     calls = [];
     state.update(0.1);
@@ -823,7 +823,7 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 0 Event triggered']
         }
-    ], 'should triggered last and first event if wraperMode is Loop');
+    ], 'should triggered last and first event if wrapMode is Loop');
 
 
     state.stop();
@@ -832,7 +832,7 @@ test('EventAnimCurve', function () {
     state.repeatCount = 1;
     calls = [];
     state.update(0.1);
-    deepEqual(calls, [], 'should triggered no events if wraperMode is Reverse');
+    deepEqual(calls, [], 'should triggered no events if wrapMode is Reverse');
 
     calls = [];
     state.update(0.1);
@@ -841,11 +841,11 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 5 Event triggered']
         }
-    ], 'should triggered last event if wraperMode is Reverse');
+    ], 'should triggered last event if wrapMode is Reverse');
 
     calls = [];
     state.update(0.1);
-    deepEqual(calls, [], 'should triggered no events if wraperMode is Reverse');
+    deepEqual(calls, [], 'should triggered no events if wrapMode is Reverse');
 
     calls = [];
     state.update(1);
@@ -862,7 +862,7 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 2 Event triggered'],
         }
-    ], 'should triggered no events if wraperMode is Reverse');
+    ], 'should triggered no events if wrapMode is Reverse');
 
     calls = [];
     state.update(10);
@@ -879,7 +879,7 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 0 Event triggered']
         }
-    ], 'should triggered no events if wraperMode is Reverse');
+    ], 'should triggered no events if wrapMode is Reverse');
 
 
     state.stop();
@@ -894,11 +894,11 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 5 Event triggered']
         }
-    ], 'should triggered frame 5 event once if wraperMode is PingPong');
+    ], 'should triggered frame 5 event once if wrapMode is PingPong');
 
     calls = [];
     state.update(0.2);
-    deepEqual(calls, [], 'should triggered no events if wraperMode is PingPong');
+    deepEqual(calls, [], 'should triggered no events if wrapMode is PingPong');
 
     calls = [];
     state.update(0.3);
@@ -907,7 +907,7 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 4 Event triggered']
         }
-    ], 'should triggered frame 4 event once if wraperMode is PingPong');
+    ], 'should triggered frame 4 event once if wrapMode is PingPong');
 
     state.stop();
     state.play();
@@ -921,7 +921,7 @@ test('EventAnimCurve', function () {
             func: 'func1',
             args: ['Frame 0 Event triggered']
         }
-    ], 'should triggered frame 0 event once if wraperMode is PingPongReverse');
+    ], 'should triggered frame 0 event once if wrapMode is PingPongReverse');
 
     state.stop();
     state.play();
@@ -953,5 +953,162 @@ test('EventAnimCurve', function () {
             args: ['Frame 5 Event triggered']
         }
     ], 'should triggered frame 5 event once if speed is -1');
+
+
+    // new clip
+    clip = new cc.AnimationClip();
+    clip._duration = 2;
+    clip._name = 'test';
+    clip.sample = 10;
+    clip.events = [
+        {frame: 2, func: 'func1', params: ['Frame 0 Event triggered']},
+    ];
+
+    state = new cc.AnimationState(clip);
+    initClipData(entity, state);
+
+    // loop and single frame at last
+    state.wrapMode = cc.WrapMode.Loop;
+    state.repeatCount = Infinity;
+    state.play();
+    state.update(0);
+
+    calls = [];
+    state.update(1);
+    state.update(2);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ]);
+
+    // pingpong and single frame at last
+    state.stop();
+    state.play();
+    state.wrapMode = cc.WrapMode.PingPong;
+    state.setTime(0);
+    calls = [];
+    state.update(1);
+    state.update(2);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ]);
+
+    calls = [];
+    state.update(2);
+    deepEqual(calls, [
+    ]);
+
+    // loop reverse and single frame at last
+    state.stop();
+    state.play();
+    state.wrapMode = cc.WrapMode.LoopReverse;
+    state.setTime(0);
+    calls = [];
+    state.update(2);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ]);
+
+    calls = [];
+    state.update(2);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ]);
+
+
+    // new clip
+    clip = new cc.AnimationClip();
+    clip._duration = 1;
+    clip._name = 'test';
+    clip.sample = 10;
+    clip.events = [
+        {frame: 0, func: 'func1', params: ['Frame 0 Event triggered']},
+    ];
+
+    state = new cc.AnimationState(clip);
+    initClipData(entity, state);
+
+    // loop and single frame at 0
+    state.wrapMode = cc.WrapMode.Loop;
+    state.repeatCount = Infinity;
+    state.play();
+    state.update(0);
+    state.update(0.5);
+
+    calls = [];
+    state.update(1);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ]);
+
+    calls = [];
+    state.update(1);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ]);
+
+
+    // new clip
+    clip = new cc.AnimationClip();
+    clip._duration = 1;
+    clip._name = 'test';
+    clip.sample = 10;
+    clip.events = [
+        {frame: 0.5, func: 'func1', params: ['Frame 0 Event triggered']},
+        {frame: 1, func: 'func1', params: ['Frame 1 Event triggered']},
+    ];
+
+    state = new cc.AnimationState(clip);
+    initClipData(entity, state);
+
+    // loop and single frame at 0
+    state.wrapMode = cc.WrapMode.PingPong;
+    state.repeatCount = Infinity;
+    state.play();
+    state.update(0);
+
+    calls = [];
+    state.update(0.4);
+    state.update(0.4);
+    state.update(0.4);
+    state.update(0.4);
+    state.update(0.4);
+    state.update(0.4);
+    state.update(0.4);
+    deepEqual(calls, [
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        },
+        {
+            func: 'func1',
+            args: ['Frame 1 Event triggered']
+        },
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        },
+        {
+            func: 'func1',
+            args: ['Frame 0 Event triggered']
+        }
+    ]);
 });
 

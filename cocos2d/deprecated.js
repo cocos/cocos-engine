@@ -233,10 +233,10 @@ if (CC_DEV) {
     deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.EmitterMode');
     deprecateEnum(cc.ProgressTimer, 'cc.ProgressTimer.TYPE', 'cc.ProgressTimer.Type');
     deprecateEnum(cc.game, 'cc.game.DEBUG_MODE', 'cc.DebugMode');
-    if (cc.EditBox) {
-        deprecateEnum(cc, 'cc.KEYBOARD_RETURNTYPE', 'cc.KeyboardReturnType');
-        deprecateEnum(cc, 'cc.EDITBOX_INPUT_MODE', 'cc.EditBox.InputMode');
-        deprecateEnum(cc, 'cc.EDITBOX_INPUT_FLAG', 'cc.EditBox.InputFlag');
+    if (_ccsg.EditBox) {
+        deprecateEnum(cc, 'cc.KEYBOARD_RETURNTYPE', '_ccsg.EditBox.KeyboardReturnType');
+        deprecateEnum(cc, 'cc.EDITBOX_INPUT_MODE', '_ccsg.EditBox.InputMode');
+        deprecateEnum(cc, 'cc.EDITBOX_INPUT_FLAG', '_ccsg.EditBox.InputFlag');
     }
     cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         deprecateEnum(cc, 'cc', 'cc.Texture2D.WrapMode', false);
