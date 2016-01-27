@@ -409,14 +409,11 @@ var filledQuadGeneratorBar = {
         quad._tl.colors = colorOpacity;
         quad._tr.colors = colorOpacity;
 
-        quad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
-        quad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
-        quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
-        quad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
-        quad._bl.texCoords = new cc.Tex2F(0, 0);
-        quad._br.texCoords = new cc.Tex2F(0, 0);
-        quad._tl.texCoords = new cc.Tex2F(0, 0);
-        quad._tr.texCoords = new cc.Tex2F(0, 0);
+        quad._bl.vertices.x = quad._tl.vertices.x = vertices[0].x;
+        quad._br.vertices.x = quad._tr.vertices.x = vertices[1].x;
+
+        quad._bl.vertices.y = quad._br.vertices.y = vertices[0].y;
+        quad._tl.vertices.y = quad._tr.vertices.y = vertices[1].y;
 
         var quadUV = [null,null,null,null];
 
@@ -596,10 +593,12 @@ var filledQuadGeneratorRadial = {
         rawQuad._tl.colors = colorOpacity;
         rawQuad._tr.colors = colorOpacity;
 
-        rawQuad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
-        rawQuad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
-        rawQuad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
-        rawQuad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+        rawQuad._bl.vertices.x = rawQuad._tl.vertices.x = vertices[0].x;
+        rawQuad._br.vertices.x = rawQuad._tr.vertices.x = vertices[1].x;
+
+        rawQuad._bl.vertices.y = rawQuad._br.vertices.y = vertices[0].y;
+        rawQuad._tl.vertices.y = rawQuad._tr.vertices.y = vertices[1].y;
+
 
         if (!spriteFrame._rotated) {
             rawQuad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
