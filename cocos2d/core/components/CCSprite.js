@@ -65,11 +65,10 @@ var Sprite = cc.Class({
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
         _useOriginalSize: true,
         _sizeMode: -1,
-        _filledType: 0,
-        _percentage: 0,
-        _center: cc.v2(0,0),
-        _start: 0,
-        _angle: 0,
+        _fillType: 0,
+        _fillCenter: cc.v2(0,0),
+        _fillStart: 0,
+        _fillRange: 0,
         _isTrimmedMode: true,
         /**
          * The Sprite Atlas.
@@ -129,43 +128,43 @@ var Sprite = cc.Class({
          * Filled type
          *  @property
          */
-        filledType : {
+        fillType : {
             get: function () {
-                return this._filledType;
+                return this._fillType;
             },
             set: function(value) {
-                this._filledType = value;
+                this._fillType = value;
                 this._sgNode && this._sgNode.setFilledType(value);
             },
             type: FillType
         },
 
-        filledCenter: {
+        fillCenter: {
             get: function() {
-                return this._center;
+                return this._fillCenter;
             },
             set: function(value) {
-                this._center = cc.v2(value);
-                this._sgNode && this._sgNode.setCenter(this._center);
+                this._fillCenter = cc.v2(value);
+                this._sgNode && this._sgNode.setCenter(this._fillCenter);
             },
         },
 
-        filledStart: {
+        fillStart: {
             get: function() {
-                return this._start;
+                return this._fillStart;
             },
             set: function(value) {
-                this._start = value;
+                this._fillStart = value;
                 this._sgNode && this._sgNode.setFilledStart(value);
             },
         },
 
-        filledAngle: {
+        fillRange: {
             get: function() {
-                return this._angle;
+                return this._fillRange;
             },
             set: function(value) {
-                this._angle = value;
+                this._fillRange = value;
                 this._sgNode && this._sgNode.setFilledRange(value);
             },
         },
@@ -509,10 +508,10 @@ var Sprite = cc.Class({
         this._applySpriteSize();
 
         sgNode.setRenderingType(this._type);
-        sgNode.setFilledType(this._filledType);
-        sgNode.setCenter(this._center);
-        sgNode.setFilledStart(this._start);
-        sgNode.setFilledRange(this._angle);
+        sgNode.setFilledType(this._fillType);
+        sgNode.setCenter(this._fillCenter);
+        sgNode.setFilledStart(this._fillStart);
+        sgNode.setFilledRange(this._fillRange);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
     },
 
