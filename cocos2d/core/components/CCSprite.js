@@ -140,16 +140,6 @@ var Sprite = cc.Class({
             type: FilledType
         },
 
-        percentage: {
-            get: function() {
-                return this._percentage;
-            },
-            set: function(value) {
-                this._percentage = value;
-                this._sgNode.setPercentage(value);
-            },
-        },
-
         filledCenter: {
             get: function() {
                 return this._center;
@@ -166,7 +156,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._start = value;
-                this._sgNode.setStart(value);
+                this._sgNode.setFilledStart(value);
             },
         },
 
@@ -176,7 +166,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._angle = value;
-                this._sgNode.setAngle(value);
+                this._sgNode.setFilledRange(value);
             },
         },
         /**
@@ -520,10 +510,9 @@ var Sprite = cc.Class({
 
         sgNode.setRenderingType(this._type);
         sgNode.setFilledType(this._filledType);
-        sgNode.setPercentage(this._percentage);
         sgNode.setCenter(this._center);
-        sgNode.setStart(this._start);
-        sgNode.setAngle(this._angle);
+        sgNode.setFilledStart(this._start);
+        sgNode.setFilledRange(this._angle);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
     },
 

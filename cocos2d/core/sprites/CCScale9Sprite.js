@@ -393,7 +393,8 @@ cc.TiledQuadGenerator = {
 
 cc.FilledQuadGeneratorBar = {
     //percentage from 0 to 1;
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, percentage) {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, filledStart, filledRange) {
+        var filledEnd;
         var quads = [];
         //build vertices
         var vertices = this._calculateVertices(spriteFrame, contentSize);
@@ -414,67 +415,80 @@ cc.FilledQuadGeneratorBar = {
         quad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
         quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
         quad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+        quad._bl.texCoords = new cc.Tex2F(0, 0);
+        quad._br.texCoords = new cc.Tex2F(0, 0);
+        quad._tl.texCoords = new cc.Tex2F(0, 0);
+        quad._tr.texCoords = new cc.Tex2F(0, 0);
+
+        var quadUV = [null,null,null,null];
 
         if (!spriteFrame._rotated) {
-            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            quad._br.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
-            quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            quadUV[0] = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quadUV[1] = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            quadUV[2] = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quadUV[3] = new cc.Tex2F(uvs[1].x, uvs[1].y);
         } else {
-            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            quad._br.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            quad._tl.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
-            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            quadUV[0] = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quadUV[1] = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quadUV[2]= new cc.Tex2F(uvs[1].x, uvs[1].y);
+            quadUV[3]= new cc.Tex2F(uvs[1].x, uvs[0].y);
         }
 
         //do clamp
-        percentage = percentage > 1 ? 1 : percentage;
-        percentage = percentage < 0 ? 0 : percentage;
-        var progress;
+        filledStart = filledStart > 1 ? 1 : filledStart;
+        filledStart = filledStart < 0 ? 0 : filledStart;
+
+        filledRange = filledRange < 0 ? 0 : filledRange;
+
+        filledEnd = filledStart + filledRange;
+
+        filledEnd = filledEnd > 1 ? 1 : filledEnd;
+
+        var progressStart, progressEnd;
         switch (fillType) {
-            case cc.Scale9Sprite.FillType.LEFT:
-                progress = vertices[0].x + (vertices[1].x - vertices[0].x) * percentage;
-                quad._br.vertices.x = progress;
-                quad._tr.vertices.x = progress;
+            case cc.Scale9Sprite.FillType.Horizontal:
+                progressStart = vertices[0].x + (vertices[1].x - vertices[0].x) * filledStart;
+                progressEnd = vertices[0].x + (vertices[1].x - vertices[0].x) * filledEnd;
 
-                quad._br.texCoords.u = quad._bl.texCoords.u + (quad._br.texCoords.u - quad._bl.texCoords.u) * percentage;
-                quad._br.texCoords.v = quad._bl.texCoords.v + (quad._br.texCoords.v - quad._bl.texCoords.v) * percentage;
+                quad._bl.vertices.x = progressStart;
+                quad._tl.vertices.x = progressStart;
 
-                quad._tr.texCoords.u = quad._tl.texCoords.u + (quad._tr.texCoords.u - quad._tl.texCoords.u) * percentage;
-                quad._tr.texCoords.v = quad._tl.texCoords.v + (quad._tr.texCoords.v - quad._tl.texCoords.v) * percentage;
+                quad._br.vertices.x = progressEnd;
+                quad._tr.vertices.x = progressEnd;
+
+                quad._bl.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * filledStart;
+                quad._bl.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * filledStart;
+
+                quad._tl.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * filledStart;
+                quad._tl.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * filledStart;
+
+                quad._br.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * filledEnd;
+                quad._br.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * filledEnd;
+
+                quad._tr.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * filledEnd;
+                quad._tr.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * filledEnd;
                 break;
-            case cc.Scale9Sprite.FillType.RIGHT:
-                progress = vertices[1].x + (vertices[0].x - vertices[1].x) * percentage;
-                quad._bl.vertices.x = progress;
-                quad._tl.vertices.x = progress;
+            case cc.Scale9Sprite.FillType.Vertical:
+                progressStart = vertices[0].y + (vertices[1].y - vertices[0].y) * filledStart;
+                progressEnd = vertices[0].y + (vertices[1].y - vertices[0].y) * filledEnd;
 
-                quad._bl.texCoords.u = quad._br.texCoords.u + (quad._bl.texCoords.u - quad._br.texCoords.u) * percentage;
-                quad._bl.texCoords.v = quad._br.texCoords.v + (quad._bl.texCoords.v - quad._br.texCoords.v) * percentage;
+                quad._bl.vertices.y = progressStart;
+                quad._br.vertices.y = progressStart;
 
-                quad._tl.texCoords.u = quad._tr.texCoords.u + (quad._tl.texCoords.u - quad._tr.texCoords.u) * percentage;
-                quad._tl.texCoords.v = quad._tr.texCoords.v + (quad._tl.texCoords.v - quad._tr.texCoords.v) * percentage;
-                break;
-            case cc.Scale9Sprite.FillType.TOP:
-                progress = vertices[1].y + (vertices[0].y - vertices[1].y) * percentage;
-                quad._bl.vertices.y = progress;
-                quad._br.vertices.y = progress;
+                quad._tl.vertices.y = progressEnd;
+                quad._tr.vertices.y = progressEnd;
 
-                quad._bl.texCoords.u = quad._tl.texCoords.u + (quad._bl.texCoords.u - quad._tl.texCoords.u) * percentage;
-                quad._bl.texCoords.v = quad._tl.texCoords.v + (quad._bl.texCoords.v - quad._tl.texCoords.v) * percentage;
+                quad._bl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * filledStart;
+                quad._bl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * filledStart;
 
-                quad._br.texCoords.u = quad._tr.texCoords.u + (quad._br.texCoords.u - quad._tr.texCoords.u) * percentage;
-                quad._br.texCoords.v = quad._tr.texCoords.v + (quad._br.texCoords.v - quad._tr.texCoords.v) * percentage;
-                break;
-            case cc.Scale9Sprite.FillType.BOTTOM:
-                progress = vertices[0].y + (vertices[1].y - vertices[0].y) * percentage;
-                quad._tl.vertices.y = progress;
-                quad._tr.vertices.y = progress;
+                quad._br.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * filledStart;
+                quad._br.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * filledStart;
 
-                quad._tl.texCoords.u = quad._bl.texCoords.u + (quad._tl.texCoords.u - quad._bl.texCoords.u) * percentage;
-                quad._tl.texCoords.v = quad._bl.texCoords.v + (quad._tl.texCoords.v - quad._bl.texCoords.v) * percentage;
+                quad._tl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * filledEnd;
+                quad._tl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * filledEnd;
 
-                quad._tr.texCoords.u = quad._br.texCoords.u + (quad._tr.texCoords.u - quad._br.texCoords.u) * percentage;
-                quad._tr.texCoords.v = quad._br.texCoords.v + (quad._tr.texCoords.v - quad._br.texCoords.v) * percentage;
+                quad._tr.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * filledEnd;
+                quad._tr.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * filledEnd;
                 break;
             default:
                 cc.error("Unrecognized fill type in bar fill");
@@ -542,7 +556,10 @@ cc.FilledQuadGeneratorBar = {
 };
 
 cc.FilledQuadGeneratorRadial = {
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, center, start, angle) {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, center, filledStart, filledRange) {
+
+        filledStart *= Math.PI * 2;
+        filledRange *= Math.PI * 2;
         var vertPos = [null, null,null,null];
         var vertUV = [null,null,null,null];
         //build vertices
@@ -610,14 +627,14 @@ cc.FilledQuadGeneratorRadial = {
         //get vertex Angle
         var triangleIndex = 0;
         var vertsIn = [0,0,0,0];
-        vertsIn[0] = this._isAngleIn(this._getVertAngle(center,vertPos[0]), start, angle);
-        vertsIn[1] = this._isAngleIn(this._getVertAngle(center,vertPos[1]), start, angle);
-        vertsIn[2] = this._isAngleIn(this._getVertAngle(center,vertPos[2]), start, angle);
-        vertsIn[3] = this._isAngleIn(this._getVertAngle(center,vertPos[3]), start, angle);
+        vertsIn[0] = this._isAngleIn(this._getVertAngle(center,vertPos[0]), filledStart, filledRange);
+        vertsIn[1] = this._isAngleIn(this._getVertAngle(center,vertPos[1]), filledStart, filledRange);
+        vertsIn[2] = this._isAngleIn(this._getVertAngle(center,vertPos[2]), filledStart, filledRange);
+        vertsIn[3] = this._isAngleIn(this._getVertAngle(center,vertPos[3]), filledStart, filledRange);
 
         var intersectPoint_1,intersectPoint_2;
-        intersectPoint_1 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start);
-        intersectPoint_2 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, start + angle);
+        intersectPoint_1 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, filledStart);
+        intersectPoint_2 = this._getInsectedPoints(vertices[0].x, vertices[1].x, vertices[0].y, vertices[1].y, center, filledStart + filledRange);
         var polygons = [];
         var triangles = [null, null, null, null];
         //in boudary
@@ -880,10 +897,9 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _filledType: 0,
     //for filled radial
     _center: null,
-    _start: 0,
-    _angle: Math.PI * 2,
-    //for filled left/right/top/bottom
-    _percentage: 0,
+    //normalized filled start and range
+    _filledStart: 0,
+    _filledRange: Math.PI * 2,
 
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
@@ -1146,42 +1162,30 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         return cc.v2(this._center);
     },
 
-    setStart: function(value) {
-        if(this._start === value)
+    setFilledStart: function(value) {
+        if(this._filledStart === value)
             return;
-        this._start = value;
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.Scale9Sprite.FillType.RADIAL) {
+        this._filledStart = value;
+        if(this._renderingType === cc.SpriteType.FILLED) {
             this._quadsDirty = true;
         }
     },
 
-    getStart: function() {
-        return this._start;
+    getFilledStart: function() {
+        return this._filledStart;
     },
 
-    setAngle: function(value) {
-        if(this._angle === value)
+    setFilledRange: function(value) {
+        if(this._filledRange === value)
             return;
-        this._angle = value;
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.Scale9Sprite.FillType.RADIAL) {
+        this._filledRange = value;
+        if(this._renderingType === cc.SpriteType.FILLED ) {
             this._quadsDirty = true;
         }
     },
 
-    getAngle: function() {
-        return this._angle;
-    },
-
-    setPercentage: function(value) {
-        if(this._percentage === value)
-            return;
-        this._percentage = value;
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType !== cc.Scale9Sprite.FillType.RADIAL) {
-            this._quadsDirty = true;
-        }
-    },
-    getPercentage: function() {
-        return this._percentage;
+    getFilledRange: function() {
+        return this._filledRange;
     },
 
     _onColorOpacityDirty: function () {
@@ -1211,10 +1215,10 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._quads = cc.TiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             if(this._filledType !== cc.Scale9Sprite.FillType.RADIAL) {
-                this._quads = cc.FilledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._percentage);
+                this._quads = cc.FilledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._filledStart,this._filledRange);
             } else {
                 this._isTriangle = true;
-                var fillResult = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._start,this._angle);
+                var fillResult = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._filledStart,this._filledRange);
                 this._quads = fillResult.quad;
                 this._rawQuad = fillResult.rawQuad;
             }
@@ -1306,10 +1310,8 @@ cc.SpriteType = cc.Enum({
 cc.Scale9Sprite.RenderingType = cc.SpriteType;
 
 cc.Scale9Sprite.FillType = cc.Enum({
-    LEFT: 0,
-    RIGHT: 1,
-    TOP: 2,
-    BOTTOM: 3,
+    Horizontal: 0,
+    Vertical: 1,
     //todo implement this
-    RADIAL:4,
+    RADIAL:2,
 });
