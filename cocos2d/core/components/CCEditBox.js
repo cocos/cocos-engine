@@ -51,10 +51,7 @@ var EditBox = cc.Class({
         string: {
             default: '',
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.string = this.string;
-                }
+                this._sgNode.string = this.string;
             }
         },
 
@@ -67,11 +64,9 @@ var EditBox = cc.Class({
             type: cc.SpriteFrame,
             notify: function() {
                 var sgNode = this._sgNode;
-                if (sgNode) {
-                    var backgroundSprite = sgNode.getBackgroundSprite();
-                    backgroundSprite.setSpriteFrame(this.backgroundImage);
-                    backgroundSprite.setContentSize(sgNode.getContentSize());
-                }
+                var backgroundSprite = sgNode.getBackgroundSprite();
+                backgroundSprite.setSpriteFrame(this.backgroundImage);
+                backgroundSprite.setContentSize(sgNode.getContentSize());
             }
         },
 
@@ -85,10 +80,7 @@ var EditBox = cc.Class({
             default: KeyboardReturnType.DEFAULT,
             type: KeyboardReturnType,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.returnType = this.returnType;
-                }
+                this._sgNode.returnType = this.returnType;
             }
         },
 
@@ -101,10 +93,7 @@ var EditBox = cc.Class({
             default: InputFlag.INITIAL_CAPS_ALL_CHARACTERS,
             type: InputFlag,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.inputFlag = this.inputFlag;
-                }
+                this._sgNode.inputFlag = this.inputFlag;
             }
         },
 
@@ -118,10 +107,7 @@ var EditBox = cc.Class({
             default: InputMode.ANY,
             type: InputMode,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.inputMode = this.inputMode;
-                }
+                this._sgNode.inputMode = this.inputMode;
             }
         },
 
@@ -132,10 +118,7 @@ var EditBox = cc.Class({
         fontSize: {
             default: 20,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.fontSize = this.fontSize;
-                }
+                this._sgNode.fontSize = this.fontSize;
             }
         },
 
@@ -146,10 +129,7 @@ var EditBox = cc.Class({
         fontColor: {
             default: cc.Color.WHITE,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.fontColor = this.fontColor;
-                }
+                this._sgNode.fontColor = this.fontColor;
             }
         },
 
@@ -160,10 +140,7 @@ var EditBox = cc.Class({
         placeHolder: {
             default: 'Enter text here...',
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.placeHolder = this.placeHolder;
-                }
+                this._sgNode.placeHolder = this.placeHolder;
             }
         },
 
@@ -174,10 +151,7 @@ var EditBox = cc.Class({
         placeHolderFontSize: {
             default: 20,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.placeHolderFontSize = this.placeHolderFontSize;
-                }
+                this._sgNode.placeHolderFontSize = this.placeHolderFontSize;
             }
         },
 
@@ -188,10 +162,7 @@ var EditBox = cc.Class({
         placeHolderFontColor: {
             default: cc.Color.GRAY,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.placeHolderFontColor = this.placeHolderFontColor;
-                }
+                this._sgNode.placeHolderFontColor = this.placeHolderFontColor;
             }
         },
 
@@ -202,10 +173,7 @@ var EditBox = cc.Class({
         maxLength: {
             default: 20,
             notify: function() {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.maxLength = this.maxLength;
-                }
+                this._sgNode.maxLength = this.maxLength;
             }
         },
 
@@ -251,25 +219,23 @@ var EditBox = cc.Class({
     _initSgNode: function() {
         var sgNode = this._sgNode;
 
-        if (sgNode) {
-            var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
-            sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), bgSprite);
-            sgNode.setContentSize(this.node.getContentSize());
+        var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
+        sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), bgSprite);
+        sgNode.setContentSize(this.node.getContentSize());
 
-            sgNode.inputMode = this.inputMode;
-            sgNode.maxLength = this.maxLength;
+        sgNode.inputMode = this.inputMode;
+        sgNode.maxLength = this.maxLength;
 
-            sgNode.string = this.string;
-            sgNode.fontSize = this.fontSize;
-            sgNode.fontColor = this.fontColor;
-            sgNode.placeHolder = this.placeHolder;
-            sgNode.placeHolderFontSize = this.placeHolderFontSize;
-            sgNode.placeHolderFontColor = this.placeHolderFontColor;
-            sgNode.inputFlag = this.inputFlag;
-            sgNode.returnType = this.returnType;
+        sgNode.string = this.string;
+        sgNode.fontSize = this.fontSize;
+        sgNode.fontColor = this.fontColor;
+        sgNode.placeHolder = this.placeHolder;
+        sgNode.placeHolderFontSize = this.placeHolderFontSize;
+        sgNode.placeHolderFontColor = this.placeHolderFontColor;
+        sgNode.inputFlag = this.inputFlag;
+        sgNode.returnType = this.returnType;
 
-            sgNode.setDelegate(this);
-        }
+        sgNode.setDelegate(this);
     },
 
     _handleComponentEvent: function(events, text) {
