@@ -2,7 +2,7 @@
  * Component will register a event to target component's handler.
  * And it will trigger the handler when a certain event occurs.
  *
- * @class cc.Component.EventHandler
+ * @class Component.EventHandler
  */
 cc.Component.EventHandler = cc.Class({
     name: 'cc.CompEventHandler',
