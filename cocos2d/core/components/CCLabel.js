@@ -223,7 +223,7 @@ var Label = cc.Class({
     },
 
     _createSgNode: function () {
-        return new _ccsg.Label(this.string, this.file);
+        return new _ccsg.Label();
     },
 
     _initSgNode: function () {
@@ -238,6 +238,8 @@ var Label = cc.Class({
         sgNode.setOverflow( this.overflow );
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
+        sgNode.setString(this.string);
+        sgNode.setFontFileOrFamily(this.file);
         if(!this._useOriginalSize){
             sgNode.setContentSize(this.node.getContentSize());
         }
