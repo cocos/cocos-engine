@@ -435,7 +435,6 @@ var Node = cc.Class({
         }
         else {
             this._sgNode.release();
-            this._sgNode = null;
         }
     },
 
