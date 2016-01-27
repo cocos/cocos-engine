@@ -24,7 +24,7 @@
 
 var SpriteType = cc.SpriteType;
 
-var FilledType = cc.Scale9Sprite.FillType;
+var FillType = cc.Scale9Sprite.FillType;
 /**
  * Sprite Size can track trimmed size, raw size or none
  */
@@ -137,7 +137,7 @@ var Sprite = cc.Class({
                 this._filledType = value;
                 this._sgNode && this._sgNode.setFilledType(value);
             },
-            type: FilledType
+            type: FillType
         },
 
         filledCenter: {
