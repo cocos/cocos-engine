@@ -135,7 +135,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._filledType = value;
-                this._sgNode.setFilledType(value);
+                this._sgNode && this._sgNode.setFilledType(value);
             },
             type: FilledType
         },
@@ -146,7 +146,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._center = cc.v2(value);
-                this._sgNode.setCenter(this._center);
+                this._sgNode && this._sgNode.setCenter(this._center);
             },
         },
 
@@ -156,7 +156,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._start = value;
-                this._sgNode.setFilledStart(value);
+                this._sgNode && this._sgNode.setFilledStart(value);
             },
         },
 
@@ -166,7 +166,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._angle = value;
-                this._sgNode.setFilledRange(value);
+                this._sgNode && this._sgNode.setFilledRange(value);
             },
         },
         /**
