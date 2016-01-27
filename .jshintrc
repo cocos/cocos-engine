@@ -23,7 +23,6 @@
     "EditorUI",
     "Helper",
     "_Scene",
-    "Mousetrap",
     "Polymer",
     "sinon",
     "after",
@@ -38,7 +37,8 @@
     "it",
     "cc",
     "CC_EDITOR",
+    "CC_DEV",
     "CC_TEST",
-    "_ccsg",
+    "_ccsg"
   ]
 }
