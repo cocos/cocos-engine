@@ -50,7 +50,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}   insetRight      - The right inset of the 9-slice sprite
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
-cc.SimpleQuadGenerator = {
+var simpleQuadGenerator = {
     _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, isTrimmedContentSize) {
         var quads = [];
         //build vertices
@@ -160,7 +160,7 @@ cc.SimpleQuadGenerator = {
     }
 };
 
-cc.Scale9QuadGenerator = {
+var scale9QuadGenerator = {
     _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, insetLeft, insetRight, insetTop, insetBottom) {
         var quads = [];
         //build vertices
@@ -310,7 +310,7 @@ cc.Scale9QuadGenerator = {
     }
 };
 
-cc.TiledQuadGenerator = {
+var tiledQuadGenerator = {
     _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity) {
         var quads = [];
 
@@ -391,7 +391,7 @@ cc.TiledQuadGenerator = {
     }
 };
 
-cc.FilledQuadGeneratorBar = {
+var filledQuadGeneratorBar = {
     //percentage from 0 to 1;
     _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, filledStart, filledRange) {
         var filledEnd;
@@ -544,7 +544,7 @@ cc.FilledQuadGeneratorBar = {
     }
 };
 
-cc.FilledQuadGeneratorRadial = {
+var filledQuadGeneratorRadial = {
     _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, center, filledStart, filledRange) {
 
         filledStart *= Math.PI * 2;
@@ -1197,17 +1197,17 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         color.a = this.getDisplayedOpacity();
         this._isTriangle = false;
         if (this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
-            this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
+            this._quads = simpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
-            this._quads = cc.Scale9QuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+            this._quads = scale9QuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
-            this._quads = cc.TiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+            this._quads = tiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             if(this._filledType !== cc.Scale9Sprite.FillType.RADIAL) {
-                this._quads = cc.FilledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._filledStart,this._filledRange);
+                this._quads = filledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._filledStart,this._filledRange);
             } else {
                 this._isTriangle = true;
-                var fillResult = cc.FilledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._filledStart,this._filledRange);
+                var fillResult = filledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._filledStart,this._filledRange);
                 this._quads = fillResult.quad;
                 this._rawQuad = fillResult.rawQuad;
             }
