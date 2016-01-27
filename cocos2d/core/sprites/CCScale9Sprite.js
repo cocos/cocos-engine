@@ -395,7 +395,6 @@ cc.FilledQuadGeneratorBar = {
     //percentage from 0 to 1;
     _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, filledStart, filledRange) {
         var filledEnd;
-        var quads = [];
         //build vertices
         var vertices = this._calculateVertices(spriteFrame, contentSize);
 
@@ -403,8 +402,7 @@ cc.FilledQuadGeneratorBar = {
         var uvs = this._calculateUVs(spriteFrame);
 
         //build quads
-        var quad;
-        quad = new cc.V3F_C4B_T2F_Quad();
+        var quad = new cc.V3F_C4B_T2F_Quad();
 
         quad._bl.colors = colorOpacity;
         quad._br.colors = colorOpacity;
@@ -495,8 +493,7 @@ cc.FilledQuadGeneratorBar = {
                 break;
         }
 
-        quads.push(quad);
-        return quads;
+        return [quad];
     },
 
     _calculateVertices : function (spriteFrame, contentSize) {
@@ -515,11 +512,7 @@ cc.FilledQuadGeneratorBar = {
         y0 = y0 / cc.contentScaleFactor();
         y3 = y3 / cc.contentScaleFactor();
 
-        var vertices = [];
-        vertices.push(cc.p(x0, y0));
-        vertices.push(cc.p(x3, y3));
-
-        return vertices;
+        return [cc.p(x0, y0), cc.p(x3, y3)];
     },
 
     _calculateUVs : function (spriteFrame) {
@@ -547,11 +540,7 @@ cc.FilledQuadGeneratorBar = {
             v3 = (textureRect.y + textureRect.height) / atlasHeight;
         }
 
-        var uvCoordinates = [];
-        uvCoordinates.push(cc.p(u0, v3));
-        uvCoordinates.push(cc.p(u3, v0));
-
-        return uvCoordinates;
+        return [cc.p(u0, v3),cc.p(u3, v0)];
     }
 };
 
@@ -694,10 +683,10 @@ cc.FilledQuadGeneratorRadial = {
         } else {
             //todo add outside implementation
         }
-        var quads = [];
+        var quads = new Array(polygons.length);
         for(var polyindex = 0; polyindex < polygons.length; ++polyindex) {
-            var quad = new cc.V3F_C4B_T2F_Quad();
-            quads.push(quad);
+            var quad = quads[polyindex] = new cc.V3F_C4B_T2F_Quad();
+
             var polygon = polygons[polyindex];
             quad._tl.vertices = new cc.Vertex3F(polygon[0].x, polygon[0].y, 0);
             quad._bl.vertices = new cc.Vertex3F(polygon[1].x, polygon[1].y, 0);
