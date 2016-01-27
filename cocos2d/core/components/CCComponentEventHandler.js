@@ -5,7 +5,7 @@
  * @class Component.EventHandler
  */
 cc.Component.EventHandler = cc.Class({
-    name: 'cc.CompEventHandler',
+    name: 'cc.ClickEvent',
     properties: {
         /**
          * Event target
