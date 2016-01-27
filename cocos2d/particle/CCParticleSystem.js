@@ -75,13 +75,11 @@ var properties = {
         default: true,
         editorOnly: true,
         notify: CC_EDITOR && function () {
-            if (this._sgNode) {
-                this._sgNode.resetSystem();
-                if ( !this.preview ) {
-                    this._sgNode.stopSystem();
-                }
-                cc.engine.repaintInEditMode();
+            this._sgNode.resetSystem();
+            if ( !this.preview ) {
+                this._sgNode.stopSystem();
             }
+            cc.engine.repaintInEditMode();
         },
         animatable: false
     },
@@ -102,18 +100,16 @@ var properties = {
             }
             if (this._custom !== value) {
                 this._custom = value;
-                if (this._sgNode) {
-                    if (value) {
-                        this._applyCustoms();
-                    }
-                    else {
-                        this._applyFile();
-                    }
-                    cc.engine.repaintInEditMode();
-                    //if (CC_EDITOR) {
-                    //    self.preview = self.preview;
-                    //}
+                if (value) {
+                    this._applyCustoms();
                 }
+                else {
+                    this._applyFile();
+                }
+                cc.engine.repaintInEditMode();
+                //if (CC_EDITOR) {
+                //    self.preview = self.preview;
+                //}
             }
         },
         animatable: false
@@ -135,7 +131,7 @@ var properties = {
         set: function (value, force) {
             if (this._file !== value || (CC_EDITOR && force)) {
                 this._file = value;
-                if (this._sgNode && value) {
+                if (value) {
                     this._applyFile();
                     cc.engine.repaintInEditMode();
                     //if (CC_EDITOR) {
@@ -164,10 +160,7 @@ var properties = {
         },
         set: function (value) {
             this._texture = value;
-
-            if (this._sgNode) {
-                this._sgNode.texture = value ? cc.textureCache.addImage( value ) : null;
-            }
+            this._sgNode.texture = value ? cc.textureCache.addImage( value ) : null;
         },
         url: cc.Texture2D
     },
@@ -177,12 +170,10 @@ var properties = {
      */
     particleCount: {
         get: function () {
-            return this._sgNode ? this._sgNode.particleCount : 0;
+            return this._sgNode.particleCount;
         },
         set: function (value) {
-            if (this._sgNode) {
-                this._sgNode.particleCount = value;
-            }
+            this._sgNode.particleCount = value;
         },
         visible: false
     },
@@ -459,18 +450,14 @@ var CustomProps = (function () {
             if (cc.isChildClassOf(type, cc.ValueType)) {
                 propDef.set = function (value) {
                     this[internalProp] = new type(value);
-                    if (this._sgNode) {
-                        this._sgNode[prop] = value;
-                    }
+                    this._sgNode[prop] = value;
                 };
             }
             else if (CC_EDITOR && typeof defaultValue === "number") {
                 propDef.set = function (value) {
                     this[internalProp] = value;
                     if (!isNaN(value)) {
-                        if (this._sgNode) {
-                            this._sgNode[prop] = value;
-                        }
+                        this._sgNode[prop] = value;
                     }
                     else {
                         cc.error('The new %s must not be NaN', prop);
@@ -480,9 +467,7 @@ var CustomProps = (function () {
             else {
                 propDef.set = function (value) {
                     this[internalProp] = value;
-                    if (this._sgNode) {
-                        this._sgNode[prop] = value;
-                    }
+                    this._sgNode[prop] = value;
                 };
             }
         })(prop, DefaultValues[prop]);
@@ -609,7 +594,7 @@ var ParticleSystem = cc.Class({
 
     onFocusInEditor: CC_EDITOR && function () {
         this._focused = true;
-        if (this.preview && this._sgNode) {
+        if (this.preview) {
             this._sgNode.resetSystem();
 
             var self = this;
@@ -630,7 +615,7 @@ var ParticleSystem = cc.Class({
 
     onLostFocusInEditor: CC_EDITOR && function () {
         this._focused = false;
-        if (this.preview && this._sgNode) {
+        if (this.preview) {
             this._sgNode.resetSystem();
             this._sgNode.stopSystem();
             this._sgNode.update();
@@ -672,12 +657,7 @@ var ParticleSystem = cc.Class({
      * @return {Boolean}
      */
     addParticle: function () {
-        if (this._sgNode) {
-            return this._sgNode.addParticle();
-        }
-        else {
-            return false;
-        }
+        return this._sgNode.addParticle();
     },
 
     /**
@@ -685,9 +665,7 @@ var ParticleSystem = cc.Class({
      * @method stopSystem
      */
     stopSystem: function () {
-        if (this._sgNode) {
-            this._sgNode.stopSystem();
-        }
+        this._sgNode.stopSystem();
     },
 
     /**
@@ -695,9 +673,7 @@ var ParticleSystem = cc.Class({
      * @method resetSystem
      */
     resetSystem: function () {
-        if (this._sgNode) {
-            this._sgNode.resetSystem();
-        }
+        this._sgNode.resetSystem();
     },
 
     /**
@@ -724,9 +700,7 @@ var ParticleSystem = cc.Class({
         if (texture) {
             this._texture = texture.url;
         }
-        if (this._sgNode) {
-            this._sgNode.setDisplayFrame(spriteFrame);
-        }
+        this._sgNode.setDisplayFrame(spriteFrame);
     },
 
     /**
@@ -739,42 +713,37 @@ var ParticleSystem = cc.Class({
         if (texture instanceof cc.Texture2D) {
             this._texture = texture.url;
         }
-        if (this._sgNode) {
-            this._sgNode.setTextureWithRect(texture, rect);
-        }
+        this._sgNode.setTextureWithRect(texture, rect);
     },
 
     // PRIVATE METHODS
 
     _applyFile: function (done) {
-        var node = this._sgNode;
-        if (!node) {
-            return;
-        }
+        var sgNode = this._sgNode;
         var file = this._file;
         if (file) {
             var self = this;
             cc.loader.load(file, function (err, results) {
                 if (err) throw err;
 
-                node.particleCount = 0;
+                sgNode.particleCount = 0;
 
-                var active = node.isActive();
-                node.initWithFile(file);
+                var active = sgNode.isActive();
+                sgNode.initWithFile(file);
 
                 // recover sgNode properties
 
                 if (!active) {
-                    node.stopSystem();
+                    sgNode.stopSystem();
                 }
 
-                var sourcePos = node.getPosition();
+                var sourcePos = sgNode.getPosition();
                 if (CC_EDITOR && (sourcePos.x !== 0 || sourcePos.y !== 0)) {
                     cc.log('Discard sourcePosition: %s from "%s", you can set position in the node directly.', sourcePos, cc.path.basename(file));
                 }
-                node.setPosition(0, 0);
+                sgNode.setPosition(0, 0);
 
-                node.autoRemoveOnFinish = self._autoRemoveOnFinish;
+                sgNode.autoRemoveOnFinish = self._autoRemoveOnFinish;
 
                 //
                 
@@ -786,44 +755,38 @@ var ParticleSystem = cc.Class({
     },
 
     _applyCustoms: function () {
-        var node = this._sgNode;
-        if (!node) {
-            return;
-        }
-
-        var active = node.isActive();
+        var sgNode = this._sgNode;
+        var active = sgNode.isActive();
 
         for (var i = 0; i < CustomProps.length; i++) {
             var prop = CustomProps[i];
-            node[prop] = this['_' + prop];
+            sgNode[prop] = this['_' + prop];
         }
         if (this._texture) {
-            node.texture = cc.textureCache.addImage(this._texture);
+            sgNode.texture = cc.textureCache.addImage(this._texture);
         }
 
         // recover sgNode properties
         if (!active) {
-            node.stopSystem();
+            sgNode.stopSystem();
         }
-        node.autoRemoveOnFinish = this._autoRemoveOnFinish;
+        sgNode.autoRemoveOnFinish = this._autoRemoveOnFinish;
     },
 
     _applyAutoRemove: function () {
         var sgNode = this._sgNode;
-        if (sgNode) {
-            var autoRemove = this._autoRemoveOnFinish;
-            sgNode.autoRemoveOnFinish = autoRemove;
-            if (autoRemove) {
-                cc.assert(!sgNode.onExit);
-                var self = this;
-                sgNode.onExit = function () {
-                    _ccsg.Node.prototype.onExit.call(this);
-                    self.node.destroy();
-                };
-            }
-            else if (sgNode.hasOwnProperty('onExit')) {
-                sgNode.onExit = _ccsg.Node.prototype.onExit;
-            }
+        var autoRemove = this._autoRemoveOnFinish;
+        sgNode.autoRemoveOnFinish = autoRemove;
+        if (autoRemove) {
+            cc.assert(!sgNode.onExit);
+            var self = this;
+            sgNode.onExit = function () {
+                _ccsg.Node.prototype.onExit.call(this);
+                self.node.destroy();
+            };
+        }
+        else if (sgNode.hasOwnProperty('onExit')) {
+            sgNode.onExit = _ccsg.Node.prototype.onExit;
         }
     }
 });

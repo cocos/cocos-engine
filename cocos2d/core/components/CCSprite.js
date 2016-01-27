@@ -90,12 +90,10 @@ var Sprite = cc.Class({
             set: function (value, force) {
                 var lastSprite = this._spriteFrame;
                 this._spriteFrame = value;
-                if (this._sgNode) {
-                    this._applySpriteFrame(lastSprite);
-                    // color cleared after reset texture, should reapply color
-                    this._sgNode.setColor(this.node._color);
-                    this._sgNode.setOpacity(this.node._opacity);
-                }
+                this._applySpriteFrame(lastSprite);
+                // color cleared after reset texture, should re-apply color
+                this._sgNode.setColor(this.node._color);
+                this._sgNode.setOpacity(this.node._opacity);
             },
             type: cc.SpriteFrame,
         },
@@ -175,9 +173,6 @@ var Sprite = cc.Class({
         localSize: {
             get: function () {
                 var sgNode = this._sgNode;
-                if (!sgNode) {
-                    return cc.size(0, 0);
-                }
                 return cc.size(sgNode.width, sgNode.height);
             },
             visible: false,

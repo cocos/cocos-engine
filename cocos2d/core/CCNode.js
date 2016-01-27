@@ -812,7 +812,7 @@ var Node = cc.Class({
         // update components if also in scene graph
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid) {
+            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
                 comp._sgNode.setColor(this._color);
                 if ( !this._cascadeOpacityEnabled ) {
                     comp._sgNode.setOpacity(this._opacity);
@@ -826,7 +826,7 @@ var Node = cc.Class({
         var opacity = this._cascadeOpacityEnabled ? 255 : this._opacity;
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid) {
+            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
                 comp._sgNode.setOpacity(opacity);
             }
         }
@@ -836,7 +836,7 @@ var Node = cc.Class({
         // update components if also in scene graph
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid) {
+            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
                 comp._sgNode.setAnchorPoint(this._anchorPoint);
                 comp._sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
             }
@@ -846,7 +846,7 @@ var Node = cc.Class({
     _onOpacityModifyRGBChanged: function () {
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid) {
+            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
                 comp._sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
             }
         }
@@ -1095,23 +1095,27 @@ var Node = cc.Class({
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.
 // We need a mechanisme to guarentee the persistence of system event listeners.
 if (cc.sys.isNative) {
-    cc.js.getset(Node.prototype, '_sgNode', function () {
-        return this.__sgNode;
-    }, function (value) {
-        this.__sgNode = value;
-        if (this._touchListener) {
-            this._touchListener.retain();
-            cc.eventManager.removeListener(this._touchListener);
-            cc.eventManager.addListener(this._touchListener, this);
-            this._touchListener.release();
-        }
-        if (this._mouseListener) {
-            this._mouseListener.retain();
-            cc.eventManager.removeListener(this._mouseListener);
-            cc.eventManager.addListener(this._mouseListener, this);
-            this._mouseListener.release();
-        }
-    }, true);
+    cc.js.getset(Node.prototype, '_sgNode',
+        function () {
+            return this.__sgNode;
+        },
+        function (value) {
+            this.__sgNode = value;
+            if (this._touchListener) {
+                this._touchListener.retain();
+                cc.eventManager.removeListener(this._touchListener);
+                cc.eventManager.addListener(this._touchListener, this);
+                this._touchListener.release();
+            }
+            if (this._mouseListener) {
+                this._mouseListener.retain();
+                cc.eventManager.removeListener(this._mouseListener);
+                cc.eventManager.addListener(this._mouseListener, this);
+                this._mouseListener.release();
+            }
+        },
+        true
+    );
 }
 
 /**
