@@ -42,7 +42,7 @@ cc.Event = function(type, bubbles) {
 
     /**
      * A reference to the target to which the event was originally dispatched.
-     * @property target
+     * @property bubbles
      * @type {Object}
      */
     this.bubbles = bubbles || false;
