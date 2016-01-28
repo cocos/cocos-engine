@@ -448,7 +448,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     getContentSize: function() {
         if (!CC_EDITOR) {
-           if (!cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+            if (!cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
                 this._updateLabel();
             }
         }

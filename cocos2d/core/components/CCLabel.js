@@ -217,7 +217,7 @@ var Label = cc.Class({
         this.node.on('size-changed', this._resized, this);
         this._sgNode.on('load', function() {
             this.node.setContentSize(this._sgNode.getContentSize());
-        }.bind(this));
+        },this);
     },
 
     onDestroy: function () {
