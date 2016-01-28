@@ -56,7 +56,7 @@ cc.Event = function(type, bubbles) {
 
     /**
      * A reference to the currently registered target for the event.
-     * @property currentTarget;
+     * @property currentTarget
      * @type {Object}
      */
     this.currentTarget = null;
