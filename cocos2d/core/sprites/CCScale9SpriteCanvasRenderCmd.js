@@ -78,33 +78,41 @@
             if(node._quadsDirty){
                 node._rebuildQuads();
             }
+            var sx,sy,sw,sh;
+            var x, y, w,h;
+            var textureWidth = this._textureToRender.getPixelWidth();
+            var textureHeight = this._textureToRender.getPixelHeight();
+            var image = this._textureToRender._htmlElementObj;
 
-            var quads = node._quads;
-            for( var i = 0; i < quads.length; ++i)
-            {
-                var sx,sy,sw,sh;
-                var x, y, w,h;
-
-                x = quads[i]._bl.vertices.x;
-                y = quads[i]._bl.vertices.y;
-                w = quads[i]._tr.vertices.x - quads[i]._bl.vertices.x;
-                h = quads[i]._tr.vertices.y - quads[i]._bl.vertices.y;
+            if(node._isTriangle) {
+                var rawQuad = node._rawQuad;
+                x = rawQuad._bl.vertices.x;
+                y = rawQuad._bl.vertices.y;
+                w = rawQuad._tr.vertices.x - rawQuad._bl.vertices.x;
+                h = rawQuad._tr.vertices.y - rawQuad._bl.vertices.y;
                 y = - y - h;
 
-                var textureWidth = this._textureToRender.getPixelWidth();
-                var textureHeight = this._textureToRender.getPixelHeight();
-
-                sx = quads[i]._tl.texCoords.u * textureWidth;
-                sy = quads[i]._tl.texCoords.v * textureHeight;
-                sw = (quads[i]._tr.texCoords.u - quads[i]._bl.texCoords.u) * textureWidth;
-                sh = (quads[i]._bl.texCoords.v - quads[i]._tr.texCoords.v) * textureHeight;
+                sx = rawQuad._tl.texCoords.u * textureWidth;
+                sy = rawQuad._tl.texCoords.v * textureHeight;
+                sw = (rawQuad._tr.texCoords.u - rawQuad._bl.texCoords.u) * textureWidth;
+                sh = (rawQuad._bl.texCoords.v - rawQuad._tr.texCoords.v) * textureHeight;
 
                 x = x * scaleX;
                 y = y * scaleY;
                 w = w * scaleX;
                 h = h * scaleY;
 
-                var image = this._textureToRender._htmlElementObj;
+                wrapper.save();
+                context.beginPath();
+
+                var quads = node._quads;
+                for( var i = 0; i < quads.length; ++i) {
+                    context.moveTo(quads[i]._tl.vertices.x * scaleX, -quads[i]._tl.vertices.y * scaleY);
+                    context.lineTo(quads[i]._bl.vertices.x * scaleX, -quads[i]._bl.vertices.y * scaleY);
+                    context.lineTo(quads[i]._tr.vertices.x * scaleX, -quads[i]._tr.vertices.y * scaleY);
+                }
+
+                context.clip();
                 if (this._textureToRender._pattern !== "") {
                     wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));
                     context.fillRect(x, y, w, h);
@@ -115,9 +123,43 @@
                             x, y, w, h);
                     }
                 }
-            }
 
-        }
+                wrapper.restore();
+
+            } else {
+                var quads = node._quads;
+                for( var i = 0; i < quads.length; ++i)
+                {
+                    x = quads[i]._bl.vertices.x;
+                    y = quads[i]._bl.vertices.y;
+                    w = quads[i]._tr.vertices.x - quads[i]._bl.vertices.x;
+                    h = quads[i]._tr.vertices.y - quads[i]._bl.vertices.y;
+                    y = - y - h;
+
+                    sx = quads[i]._tl.texCoords.u * textureWidth;
+                    sy = quads[i]._tl.texCoords.v * textureHeight;
+                    sw = (quads[i]._tr.texCoords.u - quads[i]._bl.texCoords.u) * textureWidth;
+                    sh = (quads[i]._bl.texCoords.v - quads[i]._tr.texCoords.v) * textureHeight;
+
+                    x = x * scaleX;
+                    y = y * scaleY;
+                    w = w * scaleX;
+                    h = h * scaleY;
+
+                    if (this._textureToRender._pattern !== "") {
+                        wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));
+                        context.fillRect(x, y, w, h);
+                    } else {
+                        if(sw !== 0 && sh !== 0 && w !== 0 && h !== 0) {
+                            context.drawImage(image,
+                                sx, sy, sw, sh,
+                                x, y, w, h);
+                        }
+                    }
+                }
+
+            }
+            }
         cc.g_NumberOfDraws += quads.length;
     }
 })();

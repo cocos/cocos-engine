@@ -23,6 +23,8 @@
  ****************************************************************************/
 
 var SpriteType = cc.SpriteType;
+
+var FillType = cc.Scale9Sprite.FillType;
 /**
  * Sprite Size can track trimmed size, raw size or none
  */
@@ -63,6 +65,10 @@ var Sprite = cc.Class({
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
         _useOriginalSize: true,
         _sizeMode: -1,
+        _fillType: 0,
+        _fillCenter: cc.v2(0,0),
+        _fillStart: 0,
+        _fillRange: 0,
         _isTrimmedMode: true,
         /**
          * The Sprite Atlas.
@@ -116,6 +122,51 @@ var Sprite = cc.Class({
             type: SpriteType,
             animatable: false,
             tooltip: 'i18n:COMPONENT.sprite.type',
+        },
+
+        /**
+         * Filled type
+         *  @property
+         */
+        fillType : {
+            get: function () {
+                return this._fillType;
+            },
+            set: function(value) {
+                this._fillType = value;
+                this._sgNode && this._sgNode.setFillType(value);
+            },
+            type: FillType
+        },
+
+        fillCenter: {
+            get: function() {
+                return this._fillCenter;
+            },
+            set: function(value) {
+                this._fillCenter = cc.v2(value);
+                this._sgNode && this._sgNode.setFillCenter(this._fillCenter);
+            },
+        },
+
+        fillStart: {
+            get: function() {
+                return this._fillStart;
+            },
+            set: function(value) {
+                this._fillStart = value;
+                this._sgNode && this._sgNode.setFillStart(value);
+            },
+        },
+
+        fillRange: {
+            get: function() {
+                return this._fillRange;
+            },
+            set: function(value) {
+                this._fillRange = value;
+                this._sgNode && this._sgNode.setFillRange(value);
+            },
         },
         /**
          * specify the rendering mode
@@ -457,6 +508,10 @@ var Sprite = cc.Class({
         this._applySpriteSize();
 
         sgNode.setRenderingType(this._type);
+        sgNode.setFillType(this._fillType);
+        sgNode.setFillCenter(this._fillCenter);
+        sgNode.setFillStart(this._fillStart);
+        sgNode.setFillRange(this._fillRange);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
     },
 
