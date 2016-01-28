@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var SpriteType = cc.SpriteType;
+var SpriteType = cc.Scale9Sprite.RenderingType;
 
 var FillType = cc.Scale9Sprite.FillType;
 /**
@@ -248,7 +248,7 @@ var Sprite = cc.Class({
      * @param {Boolean} enabled - True to enable 9-slice, false otherwise.
      */
     setScale9Enabled: function (enabled) {
-        this.type = enabled ? cc.SpriteType.SLICED : cc.SpriteType.SIMPLE;
+        this.type = enabled ? cc.Scale9Sprite.RenderingType.SLICED : cc.Scale9Sprite.RenderingType.SIMPLE;
     },
 
     /**
@@ -257,7 +257,7 @@ var Sprite = cc.Class({
      * @return {Boolean} True if 9-slice is enabled, false otherwise.
      */
     isScale9Enabled: function () {
-        return this.type === cc.SpriteType.SLICED;
+        return this.type === cc.Scale9Sprite.RenderingType.SLICED;
     },
 
     /**

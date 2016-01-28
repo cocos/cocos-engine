@@ -114,12 +114,6 @@ var simpleQuadGenerator = {
             y3 = contentSize.height + trimmedTop * scaleY;
         }
 
-        //apply contentscale factor
-        x0 = x0 / cc.contentScaleFactor();
-        x3 = x3 / cc.contentScaleFactor();
-        y0 = y0 / cc.contentScaleFactor();
-        y3 = y3 / cc.contentScaleFactor();
-
         var vertices = [];
         vertices.push(cc.p(x0, y0));
         vertices.push(cc.p(x3, y3));
@@ -235,16 +229,6 @@ var scale9QuadGenerator = {
         y1 = bottomHeight * yScale;
         y2 = y1 + sizableHeight;
         y3 = preferSize.height;
-
-        //apply contentscale factor
-        x0 = x0 / cc.contentScaleFactor();
-        x1 = x1 / cc.contentScaleFactor();
-        x2 = x2 / cc.contentScaleFactor();
-        x3 = x3 / cc.contentScaleFactor();
-        y0 = y0 / cc.contentScaleFactor();
-        y1 = y1 / cc.contentScaleFactor();
-        y2 = y2 / cc.contentScaleFactor();
-        y3 = y3 / cc.contentScaleFactor();
 
         var vertices = [];
         vertices.push(cc.p(x0, y0));
@@ -502,12 +486,6 @@ var fillQuadGeneratorBar = {
 
         y0 = 0;
         y3 = contentSize.height;
-
-        //apply contentscale factor
-        x0 = x0 / cc.contentScaleFactor();
-        x3 = x3 / cc.contentScaleFactor();
-        y0 = y0 / cc.contentScaleFactor();
-        y3 = y3 / cc.contentScaleFactor();
 
         return [cc.p(x0, y0), cc.p(x3, y3)];
     },
@@ -850,12 +828,6 @@ var fillQuadGeneratorRadial = {
         y0 = 0;
         y3 = contentSize.height;
 
-        //apply contentscale factor
-        x0 = x0 / cc.contentScaleFactor();
-        x3 = x3 / cc.contentScaleFactor();
-        y0 = y0 / cc.contentScaleFactor();
-        y3 = y3 / cc.contentScaleFactor();
-
         this._vertices[0].x = x0;
         this._vertices[0].y = y0;
         this._vertices[1].x = x3;
@@ -1165,7 +1137,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._fillType === value)
             return;
         this._fillType = value;
-        if(this._renderingType === cc.SpriteType.FILLED) {
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             this._quadsDirty = true;
         }
     },
@@ -1176,7 +1148,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
     setFillCenter: function(value, y) {
         this._fillCenter = cc.v2(value,y);
-        if(this._renderingType === cc.SpriteType.FILLED && this._fillType === cc.Scale9Sprite.FillType.RADIAL) {
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED && this._fillType === cc.Scale9Sprite.FillType.RADIAL) {
             this._quadsDirty = true;
         }
     },
@@ -1189,7 +1161,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._fillStart === value)
             return;
         this._fillStart = value;
-        if(this._renderingType === cc.SpriteType.FILLED) {
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             this._quadsDirty = true;
         }
     },
@@ -1202,7 +1174,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._fillRange === value)
             return;
         this._fillRange = value;
-        if(this._renderingType === cc.SpriteType.FILLED ) {
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED ) {
             this._quadsDirty = true;
         }
     },
@@ -1318,7 +1290,7 @@ cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
  * Enum for sprite type
  * @enum SpriteType
  */
-cc.SpriteType = cc.Enum({
+cc.Scale9Sprite.RenderingType = cc.Enum({
     /**
      * @property {Number} SIMPLE
      */
@@ -1336,8 +1308,6 @@ cc.SpriteType = cc.Enum({
      */
     FILLED: 3
 });
-
-cc.Scale9Sprite.RenderingType = cc.SpriteType;
 
 cc.Scale9Sprite.FillType = cc.Enum({
     Horizontal: 0,
