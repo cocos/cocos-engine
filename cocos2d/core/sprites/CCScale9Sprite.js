@@ -391,10 +391,10 @@ var tiledQuadGenerator = {
     }
 };
 
-var filledQuadGeneratorBar = {
+var fillQuadGeneratorBar = {
     //percentage from 0 to 1;
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, filledStart, filledRange) {
-        var filledEnd;
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, fillStart, fillRange) {
+        var fillEnd;
         //build vertices
         var vertices = this._calculateVertices(spriteFrame, contentSize);
 
@@ -430,20 +430,20 @@ var filledQuadGeneratorBar = {
         }
 
         //do clamp
-        filledStart = filledStart > 1 ? 1 : filledStart;
-        filledStart = filledStart < 0 ? 0 : filledStart;
+        fillStart = fillStart > 1 ? 1 : fillStart;
+        fillStart = fillStart < 0 ? 0 : fillStart;
 
-        filledRange = filledRange < 0 ? 0 : filledRange;
+        fillRange = fillRange < 0 ? 0 : fillRange;
 
-        filledEnd = filledStart + filledRange;
+        fillEnd = fillStart + fillRange;
 
-        filledEnd = filledEnd > 1 ? 1 : filledEnd;
+        fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
         var progressStart, progressEnd;
         switch (fillType) {
             case cc.Scale9Sprite.FillType.Horizontal:
-                progressStart = vertices[0].x + (vertices[1].x - vertices[0].x) * filledStart;
-                progressEnd = vertices[0].x + (vertices[1].x - vertices[0].x) * filledEnd;
+                progressStart = vertices[0].x + (vertices[1].x - vertices[0].x) * fillStart;
+                progressEnd = vertices[0].x + (vertices[1].x - vertices[0].x) * fillEnd;
 
                 quad._bl.vertices.x = progressStart;
                 quad._tl.vertices.x = progressStart;
@@ -451,21 +451,21 @@ var filledQuadGeneratorBar = {
                 quad._br.vertices.x = progressEnd;
                 quad._tr.vertices.x = progressEnd;
 
-                quad._bl.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * filledStart;
-                quad._bl.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * filledStart;
+                quad._bl.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * fillStart;
+                quad._bl.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * fillStart;
 
-                quad._tl.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * filledStart;
-                quad._tl.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * filledStart;
+                quad._tl.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillStart;
+                quad._tl.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillStart;
 
-                quad._br.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * filledEnd;
-                quad._br.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * filledEnd;
+                quad._br.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * fillEnd;
+                quad._br.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * fillEnd;
 
-                quad._tr.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * filledEnd;
-                quad._tr.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * filledEnd;
+                quad._tr.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillEnd;
+                quad._tr.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillEnd;
                 break;
             case cc.Scale9Sprite.FillType.Vertical:
-                progressStart = vertices[0].y + (vertices[1].y - vertices[0].y) * filledStart;
-                progressEnd = vertices[0].y + (vertices[1].y - vertices[0].y) * filledEnd;
+                progressStart = vertices[0].y + (vertices[1].y - vertices[0].y) * fillStart;
+                progressEnd = vertices[0].y + (vertices[1].y - vertices[0].y) * fillEnd;
 
                 quad._bl.vertices.y = progressStart;
                 quad._br.vertices.y = progressStart;
@@ -473,17 +473,17 @@ var filledQuadGeneratorBar = {
                 quad._tl.vertices.y = progressEnd;
                 quad._tr.vertices.y = progressEnd;
 
-                quad._bl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * filledStart;
-                quad._bl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * filledStart;
+                quad._bl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * fillStart;
+                quad._bl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * fillStart;
 
-                quad._br.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * filledStart;
-                quad._br.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * filledStart;
+                quad._br.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * fillStart;
+                quad._br.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * fillStart;
 
-                quad._tl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * filledEnd;
-                quad._tl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * filledEnd;
+                quad._tl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * fillEnd;
+                quad._tl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * fillEnd;
 
-                quad._tr.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * filledEnd;
-                quad._tr.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * filledEnd;
+                quad._tr.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * fillEnd;
+                quad._tr.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * fillEnd;
                 break;
             default:
                 cc.error("Unrecognized fill type in bar fill");
@@ -541,11 +541,11 @@ var filledQuadGeneratorBar = {
     }
 };
 
-var filledQuadGeneratorRadial = {
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, center, filledStart, filledRange) {
+var fillQuadGeneratorRadial = {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, center, fillStart,fillRange) {
 
-        filledStart *= Math.PI * 2;
-        filledRange *= Math.PI * 2;
+        fillStart *= Math.PI * 2;
+        fillRange *= Math.PI * 2;
         if(!this._inited) {
             this._inited = true;
             this._vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
@@ -612,13 +612,13 @@ var filledQuadGeneratorRadial = {
 
         //get vertex Angle
         var triangleIndex = 0;
-        this._vertsIn[0] = this._isAngleIn(this._getVertAngle(center,rawQuad._bl.vertices), filledStart, filledRange);
-        this._vertsIn[1] = this._isAngleIn(this._getVertAngle(center,rawQuad._br.vertices), filledStart, filledRange);
-        this._vertsIn[2] = this._isAngleIn(this._getVertAngle(center,rawQuad._tr.vertices), filledStart, filledRange);
-        this._vertsIn[3] = this._isAngleIn(this._getVertAngle(center,rawQuad._tl.vertices), filledStart, filledRange);
+        this._vertsIn[0] = this._isAngleIn(this._getVertAngle(center,rawQuad._bl.vertices), fillStart, fillRange);
+        this._vertsIn[1] = this._isAngleIn(this._getVertAngle(center,rawQuad._br.vertices), fillStart, fillRange);
+        this._vertsIn[2] = this._isAngleIn(this._getVertAngle(center,rawQuad._tr.vertices), fillStart, fillRange);
+        this._vertsIn[3] = this._isAngleIn(this._getVertAngle(center,rawQuad._tl.vertices), fillStart, fillRange);
 
-        this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, filledStart, this._intersectPoint_1);
-        this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, filledStart + filledRange, this._intersectPoint_2);
+        this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart, this._intersectPoint_1);
+        this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart + fillRange, this._intersectPoint_2);
         var triangles = [null, null, null, null];
         //in boudary
         if(center.x <= this._vertices[1].x && center.x >= this._vertices[0].x && center.y <= this._vertices[1].y && center.y >= this._vertices[0].y) {
@@ -916,19 +916,19 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _rawQuad: null,
     _isTriangle: false,
     _isTrimmedContentSize: true,
-    //filled type
-    _filledType: 0,
-    //for filled radial
-    _center: null,
+    //fill type
+    _fillType: 0,
+    //for fill radial
+    _fillCenter: null,
     //normalized filled start and range
-    _filledStart: 0,
-    _filledRange: Math.PI * 2,
+    _fillStart: 0,
+    _fillRange: Math.PI * 2,
 
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
-        this._center = cc.v2(0,0);
+        this._fillCenter = cc.v2(0,0);
         this.setAnchorPoint(cc.p(0.5, 0.5));
         //
         if (typeof textureOrSpriteFrame === 'string') {
@@ -1161,54 +1161,54 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         return this._insetBottom;
     },
 
-    setFilledType: function(value) {
-        if(this._filledType === value)
+    setFillType: function(value) {
+        if(this._fillType === value)
             return;
-        this._filledType = value;
+        this._fillType = value;
         if(this._renderingType === cc.SpriteType.FILLED) {
             this._quadsDirty = true;
         }
     },
 
-    getFilledType: function() {
-        return this._filledType;
+    getFillType: function() {
+        return this._fillType;
     },
 
-    setCenter: function(value,y) {
-        this._center = cc.v2(value,y);
-        if(this._renderingType === cc.SpriteType.FILLED && this._filledType === cc.Scale9Sprite.FillType.RADIAL) {
+    setFillCenter: function(value, y) {
+        this._fillCenter = cc.v2(value,y);
+        if(this._renderingType === cc.SpriteType.FILLED && this._fillType === cc.Scale9Sprite.FillType.RADIAL) {
             this._quadsDirty = true;
         }
     },
 
-    getCenter: function() {
-        return cc.v2(this._center);
+    getFillCenter: function() {
+        return cc.v2(this._fillCenter);
     },
 
-    setFilledStart: function(value) {
-        if(this._filledStart === value)
+    setFillStart: function(value) {
+        if(this._fillStart === value)
             return;
-        this._filledStart = value;
+        this._fillStart = value;
         if(this._renderingType === cc.SpriteType.FILLED) {
             this._quadsDirty = true;
         }
     },
 
-    getFilledStart: function() {
-        return this._filledStart;
+    getFillStart: function() {
+        return this._fillStart;
     },
 
-    setFilledRange: function(value) {
-        if(this._filledRange === value)
+    setFillRange: function(value) {
+        if(this._fillRange === value)
             return;
-        this._filledRange = value;
+        this._fillRange = value;
         if(this._renderingType === cc.SpriteType.FILLED ) {
             this._quadsDirty = true;
         }
     },
 
-    getFilledRange: function() {
-        return this._filledRange;
+    getFillRange: function() {
+        return this._fillRange;
     },
 
     _onColorOpacityDirty: function () {
@@ -1244,11 +1244,11 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
             this._quads = tiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
-            if(this._filledType !== cc.Scale9Sprite.FillType.RADIAL) {
-                this._quads = filledQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._filledType, this._filledStart,this._filledRange);
+            if(this._fillType !== cc.Scale9Sprite.FillType.RADIAL) {
+                this._quads = fillQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._fillType, this._fillStart,this._fillRange);
             } else {
                 this._isTriangle = true;
-                var fillResult = filledQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._center,this._filledStart,this._filledRange);
+                var fillResult = fillQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._fillCenter,this._fillStart,this._fillRange);
                 this._quads = fillResult.quad;
                 this._rawQuad = fillResult.rawQuad;
             }

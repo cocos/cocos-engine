@@ -134,7 +134,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillType = value;
-                this._sgNode && this._sgNode.setFilledType(value);
+                this._sgNode && this._sgNode.setFillType(value);
             },
             type: FillType
         },
@@ -145,7 +145,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillCenter = cc.v2(value);
-                this._sgNode && this._sgNode.setCenter(this._fillCenter);
+                this._sgNode && this._sgNode.setFillCenter(this._fillCenter);
             },
         },
 
@@ -155,7 +155,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillStart = value;
-                this._sgNode && this._sgNode.setFilledStart(value);
+                this._sgNode && this._sgNode.setFillStart(value);
             },
         },
 
@@ -165,7 +165,7 @@ var Sprite = cc.Class({
             },
             set: function(value) {
                 this._fillRange = value;
-                this._sgNode && this._sgNode.setFilledRange(value);
+                this._sgNode && this._sgNode.setFillRange(value);
             },
         },
         /**
@@ -508,10 +508,10 @@ var Sprite = cc.Class({
         this._applySpriteSize();
 
         sgNode.setRenderingType(this._type);
-        sgNode.setFilledType(this._fillType);
-        sgNode.setCenter(this._fillCenter);
-        sgNode.setFilledStart(this._fillStart);
-        sgNode.setFilledRange(this._fillRange);
+        sgNode.setFillType(this._fillType);
+        sgNode.setFillCenter(this._fillCenter);
+        sgNode.setFillStart(this._fillStart);
+        sgNode.setFillRange(this._fillRange);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
     },
 
