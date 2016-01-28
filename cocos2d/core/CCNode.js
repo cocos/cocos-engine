@@ -261,6 +261,7 @@ var Node = cc.Class({
                     var canActiveInHierarchy = (this._parent && this._parent._activeInHierarchy);
                     if (canActiveInHierarchy) {
                         this._onActivatedInHierarchy(value);
+                        this.emit('active-in-hierarchy-changed', this);
                     }
                 }
             }
