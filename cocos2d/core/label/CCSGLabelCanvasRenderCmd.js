@@ -271,7 +271,7 @@
 
         if (_ccsg.Label.Overflow.RESIZE_HEIGHT === node._overFlow) {
             canvasSize.height = this._splitedStrings.length * this._getLineHeight();
-            node._setDimensions(canvasSize);
+            _ccsg.Node.prototype.setContentSize.call(node, canvasSize);
         }
         else if(_ccsg.Label.Overflow.NONE === node._overFlow) {
             this._splitedStrings = paragraphedStrings;
@@ -285,7 +285,7 @@
 
             canvasSize.width = canvasSizeX;
             canvasSize.height = canvasSizeY;
-            node._setDimensions(canvasSize);
+            _ccsg.Node.prototype.setContentSize.call(node, canvasSize);
         }
 
         this._labelCanvas.width = canvasSize.width;
@@ -413,6 +413,7 @@
         this._quadDirty = true;
         this._splitedStrings = null;
         this._drawFontsize = 0;
+        this._realRenderingSize = cc.size(-10, -10);
     };
 
     var proto = _ccsg.Label.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
@@ -424,6 +425,7 @@
         this._rebuildLabelSkin();
 
         var node = this._node;
+        this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
 
         if (node._labelType === _ccsg.Label.Type.TTF ||
             node._labelType === _ccsg.Label.Type.SystemFont) {

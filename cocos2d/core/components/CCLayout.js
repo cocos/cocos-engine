@@ -285,6 +285,7 @@ var Layout = cc.Class({
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
         this.node.on('child-removed', this._childrenAddOrDeleted, this);
+
         this._updateChildrenEventListener();
     },
 
@@ -298,6 +299,7 @@ var Layout = cc.Class({
             child.on('size-changed', this._doLayoutDirty, this);
             child.on('position-changed', this._doLayoutDirty, this);
             child.on('anchor-changed', this._doLayoutDirty, this);
+            child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }.bind(this));
     },
 
@@ -337,6 +339,11 @@ var Layout = cc.Class({
         }
 
         children.forEach(function(child) {
+            if (!child.activeInHierarchy) {
+                return;
+            }
+            //hacking for label
+            child.getContentSize();
             //for resizing children
             if (this._resize === ResizeType.CHILDREN) {
                 child.width = newChildWidth;
@@ -460,6 +467,12 @@ var Layout = cc.Class({
         }
 
         children.forEach(function(child) {
+            if (!child.activeInHierarchy) {
+                return;
+            }
+
+            //hacking for label
+            child.getContentSize();
             //for resizing children
             if (this.resize === ResizeType.CHILDREN) {
                 child.height = newChildHeight;

@@ -215,6 +215,9 @@ var Label = cc.Class({
     onLoad: function () {
         this._super();
         this.node.on('size-changed', this._resized, this);
+        this._sgNode.on('load', function() {
+            this.node.setContentSize(this._sgNode.getContentSize());
+        },this);
     },
 
     onDestroy: function () {

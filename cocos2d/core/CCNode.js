@@ -261,6 +261,7 @@ var Node = cc.Class({
                     var canActiveInHierarchy = (this._parent && this._parent._activeInHierarchy);
                     if (canActiveInHierarchy) {
                         this._onActivatedInHierarchy(value);
+                        this.emit('active-in-hierarchy-changed', this);
                     }
                 }
             }
@@ -1152,7 +1153,12 @@ if (cc.sys.isNative) {
  * @param {cc.Event} event
  * @param {Number} event.detail - old opacity
  */
-
+/**
+ * Note: This event is only emitted from the top most node whose active value did changed,
+ * not including its child nodes.
+ * @event active-in-hierarchy-changed
+ * @param {cc.Event} event
+ */
 Node.EventType = EventType;
 
 cc.Node = module.exports = Node;

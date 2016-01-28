@@ -109,7 +109,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
     _string: "",
     _fontSize: 40,
-    _overFlow: 1, //see _ccsg.Label.Overflow
+    _overFlow: 0, //see _ccsg.Label.Overflow
     _isWrapText: true,
     _spacingX: 0,
 
@@ -140,7 +140,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
         _ccsg.Node.prototype.ctor.call(this);
         this.setAnchorPoint(cc.p(0.5, 0.5));
-        this.setContentSize(cc.size(128, 128));
+        _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
         this.setFontFileOrFamily(fontHandle);
@@ -347,6 +347,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this._labelType = _ccsg.Label.Type.BMFont;
             this._initBMFontWithString(this._string, fontHandle);
         }
+        this._notifyLabelSkinDirty();
     },
 
     _loadTTFFont: function(fontHandle) {
@@ -419,16 +420,21 @@ _ccsg.Label = _ccsg.Node.extend({
         return new cc.BlendFunc(this._blendFunc.src, this._blendFunc.dst);
     },
 
+    _updateLabel: function () {
+        if (this._labelType === _ccsg.Label.Type.BMFont) {
+            this._updateContent();
+            this.setColor(this.color);
+        } else if (this._labelType === _ccsg.Label.Type.TTF
+                   || this._labelType === _ccsg.Label.Type.SystemFont) {
+            this._renderCmd._bakeLabel();
+            this._renderCmd._prepareQuad();
+        }
+    },
+
     _notifyLabelSkinDirty: function() {
         if (CC_EDITOR) {
-            if (this._labelType === _ccsg.Label.Type.BMFont) {
-                this._updateContent();
-                this.setColor(this.color);
-                this._labelSkinDirty = false;
-            } else if (this._labelType === _ccsg.Label.Type.TTF
-                       || this._labelType === _ccsg.Label.Type.SystemFont) {
-                this._labelSkinDirty = true;
-            }
+            this._updateLabel();
+            this._labelSkinDirty = false;
         } else {
             this._labelSkinDirty = true;
         }
@@ -440,10 +446,10 @@ _ccsg.Label = _ccsg.Node.extend({
             return new _ccsg.Label.CanvasRenderCmd(this);
     },
 
-    getContentSize: function(foreceUpdate) {
-        if (foreceUpdate) {
-            if (this._labelType === _ccsg.Label.Type.BMFont && this._labelSkinDirty) {
-                this._updateContent();
+    getContentSize: function() {
+        if (!CC_EDITOR) {
+            if (!cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+                this._updateLabel();
             }
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
