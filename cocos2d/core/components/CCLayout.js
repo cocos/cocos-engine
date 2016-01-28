@@ -337,6 +337,8 @@ var Layout = cc.Class({
         }
 
         children.forEach(function(child) {
+            //hacking for label
+            child.getContentSize();
             //for resizing children
             if (this._resize === ResizeType.CHILDREN) {
                 child.width = newChildWidth;
@@ -460,6 +462,8 @@ var Layout = cc.Class({
         }
 
         children.forEach(function(child) {
+            //hacking for label
+            child.getContentSize();
             //for resizing children
             if (this.resize === ResizeType.CHILDREN) {
                 child.height = newChildHeight;

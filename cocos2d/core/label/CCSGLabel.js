@@ -109,7 +109,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
     _string: "",
     _fontSize: 40,
-    _overFlow: 1, //see _ccsg.Label.Overflow
+    _overFlow: 0, //see _ccsg.Label.Overflow
     _isWrapText: true,
     _spacingX: 0,
 
@@ -140,7 +140,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
         _ccsg.Node.prototype.ctor.call(this);
         this.setAnchorPoint(cc.p(0.5, 0.5));
-        this.setContentSize(cc.size(128, 128));
+        _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
         this.setFontFileOrFamily(fontHandle);
@@ -448,7 +448,9 @@ _ccsg.Label = _ccsg.Node.extend({
 
     getContentSize: function() {
         if (!CC_EDITOR) {
-            this._updateLabel();
+           if (!cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+                this._updateLabel();
+            }
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
     }
