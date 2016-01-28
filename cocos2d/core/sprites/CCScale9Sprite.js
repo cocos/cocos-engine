@@ -520,7 +520,12 @@ var fillQuadGeneratorBar = {
 };
 
 var fillQuadGeneratorRadial = {
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, center, fillStart,fillRange) {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillCenter, fillStart,fillRange) {
+
+        var center = cc.v2(fillCenter);
+
+        center.x *= contentSize.width;
+        center.y *= contentSize.height;
 
         fillStart *= Math.PI * 2;
         fillRange *= Math.PI * 2;
