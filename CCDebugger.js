@@ -412,7 +412,7 @@ cc._initDebugSetting = function (mode) {
          * - In Cocos Creator, error is red.
          * - In Chrome, error have a red icon along with red message text.
          * @method error
-         * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
+         * @param {any} obj - A JavaScript string containing zero or more substitution strings.
          * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
         if (console.error.bind) {
@@ -437,7 +437,7 @@ cc._initDebugSetting = function (mode) {
              * - In Cocos Creator, warning is yellow.
              * - In Chrome, warning have a yellow warning icon with the message text.
              * @method warn
-             * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
+             * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
             cc.warn = function(){
@@ -447,7 +447,7 @@ cc._initDebugSetting = function (mode) {
                 /**
                  * Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
                  * @method log
-                 * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
+                 * @param {any} obj - A JavaScript string containing zero or more substitution strings.
                  * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
                  */
                 cc.log = function () {
@@ -458,7 +458,7 @@ cc._initDebugSetting = function (mode) {
                  * - In Cocos Creator, info is blue.
                  * - In Firefox and Chrome, a small "i" icon is displayed next to these items in the Web Console's log.
                  * @method info
-                 * @param {any|string} obj - A JavaScript string containing zero or more substitution strings.
+                 * @param {any} obj - A JavaScript string containing zero or more substitution strings.
                  * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
                  */
                 cc.info = function () {
