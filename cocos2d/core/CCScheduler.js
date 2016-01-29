@@ -145,7 +145,7 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
 
     /**
      * cc.Timer's Constructor
-     * @method cc.Timer
+     * @method Timer
      * @return {cc.Timer} 
      */
     ctor:function () {
