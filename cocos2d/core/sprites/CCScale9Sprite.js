@@ -50,7 +50,7 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}   insetRight      - The right inset of the 9-slice sprite
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
-cc.SimpleQuadGenerator = {
+var simpleQuadGenerator = {
     _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, isTrimmedContentSize) {
         var quads = [];
         //build vertices
@@ -61,7 +61,7 @@ cc.SimpleQuadGenerator = {
 
         //build quads
         var quad;
-        quad = new cc.V3F_C4B_T2F_Quad();
+        quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad)|| new cc.V3F_C4B_T2F_Quad();
 
         quad._bl.colors = colorOpacity;
         quad._br.colors = colorOpacity;
@@ -114,12 +114,6 @@ cc.SimpleQuadGenerator = {
             y3 = contentSize.height + trimmedTop * scaleY;
         }
 
-        //apply contentscale factor
-        x0 = x0 / cc.contentScaleFactor();
-        x3 = x3 / cc.contentScaleFactor();
-        y0 = y0 / cc.contentScaleFactor();
-        y3 = y3 / cc.contentScaleFactor();
-
         var vertices = [];
         vertices.push(cc.p(x0, y0));
         vertices.push(cc.p(x3, y3));
@@ -160,7 +154,7 @@ cc.SimpleQuadGenerator = {
     }
 };
 
-cc.Scale9QuadGenerator = {
+var scale9QuadGenerator = {
     _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, insetLeft, insetRight, insetTop, insetBottom) {
         var quads = [];
         //build vertices
@@ -173,7 +167,7 @@ cc.Scale9QuadGenerator = {
         var quad;
         for (var i = 0; i < 3; ++i) {
             for (var j = 0; j < 3; ++j) {
-                quad = new cc.V3F_C4B_T2F_Quad();
+                quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
                 quad._bl.colors = colorOpacity;
                 quad._br.colors = colorOpacity;
                 quad._tl.colors = colorOpacity;
@@ -235,16 +229,6 @@ cc.Scale9QuadGenerator = {
         y1 = bottomHeight * yScale;
         y2 = y1 + sizableHeight;
         y3 = preferSize.height;
-
-        //apply contentscale factor
-        x0 = x0 / cc.contentScaleFactor();
-        x1 = x1 / cc.contentScaleFactor();
-        x2 = x2 / cc.contentScaleFactor();
-        x3 = x3 / cc.contentScaleFactor();
-        y0 = y0 / cc.contentScaleFactor();
-        y1 = y1 / cc.contentScaleFactor();
-        y2 = y2 / cc.contentScaleFactor();
-        y3 = y3 / cc.contentScaleFactor();
 
         var vertices = [];
         vertices.push(cc.p(x0, y0));
@@ -310,7 +294,7 @@ cc.Scale9QuadGenerator = {
     }
 };
 
-cc.TiledQuadGenerator = {
+var tiledQuadGenerator = {
     _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity) {
         var quads = [];
 
@@ -328,7 +312,7 @@ cc.TiledQuadGenerator = {
         for (var hindex = 0; hindex < Math.ceil(hRepeat); ++hindex) {
             for (var vindex = 0; vindex < Math.ceil(vRepeat); ++vindex) {
                 var quad;
-                quad = new cc.V3F_C4B_T2F_Quad();
+                quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
 
                 quad._bl.colors = colorOpacity;
                 quad._br.colors = colorOpacity;
@@ -390,8 +374,503 @@ cc.TiledQuadGenerator = {
         return uvCoordinates;
     }
 };
-//todo
-cc.FilledQuadGenerator = cc.SimpleQuadGenerator;
+
+var fillQuadGeneratorBar = {
+    //percentage from 0 to 1;
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, fillStart, fillRange) {
+        var fillEnd;
+        //build vertices
+        var vertices = this._calculateVertices(spriteFrame, contentSize);
+
+        //build uvs
+        var uvs = this._calculateUVs(spriteFrame);
+
+        //build quads
+        var quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
+
+        quad._bl.colors = colorOpacity;
+        quad._br.colors = colorOpacity;
+        quad._tl.colors = colorOpacity;
+        quad._tr.colors = colorOpacity;
+
+        quad._bl.vertices.x = quad._tl.vertices.x = vertices[0].x;
+        quad._br.vertices.x = quad._tr.vertices.x = vertices[1].x;
+
+        quad._bl.vertices.y = quad._br.vertices.y = vertices[0].y;
+        quad._tl.vertices.y = quad._tr.vertices.y = vertices[1].y;
+
+        var quadUV = [null,null,null,null];
+
+        if (!spriteFrame._rotated) {
+            quadUV[0] = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quadUV[1] = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            quadUV[2] = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quadUV[3] = new cc.Tex2F(uvs[1].x, uvs[1].y);
+        } else {
+            quadUV[0] = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quadUV[1] = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quadUV[2]= new cc.Tex2F(uvs[1].x, uvs[1].y);
+            quadUV[3]= new cc.Tex2F(uvs[1].x, uvs[0].y);
+        }
+
+        //do clamp
+        fillStart = fillStart > 1 ? 1 : fillStart;
+        fillStart = fillStart < 0 ? 0 : fillStart;
+
+        fillRange = fillRange < 0 ? 0 : fillRange;
+
+        fillEnd = fillStart + fillRange;
+
+        fillEnd = fillEnd > 1 ? 1 : fillEnd;
+
+        var progressStart, progressEnd;
+        switch (fillType) {
+            case cc.Scale9Sprite.FillType.Horizontal:
+                progressStart = vertices[0].x + (vertices[1].x - vertices[0].x) * fillStart;
+                progressEnd = vertices[0].x + (vertices[1].x - vertices[0].x) * fillEnd;
+
+                quad._bl.vertices.x = progressStart;
+                quad._tl.vertices.x = progressStart;
+
+                quad._br.vertices.x = progressEnd;
+                quad._tr.vertices.x = progressEnd;
+
+                quad._bl.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * fillStart;
+                quad._bl.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * fillStart;
+
+                quad._tl.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillStart;
+                quad._tl.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillStart;
+
+                quad._br.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * fillEnd;
+                quad._br.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * fillEnd;
+
+                quad._tr.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillEnd;
+                quad._tr.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillEnd;
+                break;
+            case cc.Scale9Sprite.FillType.Vertical:
+                progressStart = vertices[0].y + (vertices[1].y - vertices[0].y) * fillStart;
+                progressEnd = vertices[0].y + (vertices[1].y - vertices[0].y) * fillEnd;
+
+                quad._bl.vertices.y = progressStart;
+                quad._br.vertices.y = progressStart;
+
+                quad._tl.vertices.y = progressEnd;
+                quad._tr.vertices.y = progressEnd;
+
+                quad._bl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * fillStart;
+                quad._bl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * fillStart;
+
+                quad._br.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * fillStart;
+                quad._br.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * fillStart;
+
+                quad._tl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * fillEnd;
+                quad._tl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * fillEnd;
+
+                quad._tr.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * fillEnd;
+                quad._tr.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * fillEnd;
+                break;
+            default:
+                cc.error("Unrecognized fill type in bar fill");
+                break;
+        }
+
+        return [quad];
+    },
+
+    _calculateVertices : function (spriteFrame, contentSize) {
+
+        var x0,x3;
+        var y0,y3;
+        x0 = 0;
+        x3 = contentSize.width;
+
+        y0 = 0;
+        y3 = contentSize.height;
+
+        return [cc.p(x0, y0), cc.p(x3, y3)];
+    },
+
+    _calculateUVs : function (spriteFrame) {
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+
+        //uv computation should take spritesheet into account.
+        var u0, u3;
+        var v0, v3;
+
+        if (spriteFrame._rotated) {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+        }
+        else {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+        }
+
+        return [cc.p(u0, v3),cc.p(u3, v0)];
+    }
+};
+
+var fillQuadGeneratorRadial = {
+    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillCenter, fillStart,fillRange) {
+
+        var center = cc.v2(fillCenter);
+
+        center.x *= contentSize.width;
+        center.y *= contentSize.height;
+
+        fillStart *= Math.PI * 2;
+        fillRange *= Math.PI * 2;
+        if(!this._inited) {
+            this._inited = true;
+            this._vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
+            this._vertices = [cc.v2(0,0),cc.v2(0,0)];
+            this._uvs = [cc.v2(0,0),cc.v2(0,0)];
+            this._vertsIn = [false,false,false,false];
+            this._intersectPoint_1 = [null,null,null,null,cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
+            this._intersectPoint_2 = [null,null,null,null,cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
+        }
+
+        //build vertices
+        this._calculateVertices(spriteFrame, contentSize);
+        //build uvs
+        this._calculateUVs(spriteFrame);
+
+        this._vertPos[0].x = this._vertPos[3].x = this._vertices[0].x;
+        this._vertPos[1].x = this._vertPos[2].x = this._vertices[1].x;
+        this._vertPos[0].y = this._vertPos[1].y = this._vertices[0].y;
+        this._vertPos[2].y = this._vertPos[3].y = this._vertices[1].y;
+
+        //fallback
+        //todo remove it if outside is implemented
+        if(center.x > this._vertices[1].x) {
+            center.x = this._vertices[1].x;
+        }
+        if(center.x < this._vertices[0].x) {
+            center.x = this._vertices[0].x;
+        }
+        if(center.y < this._vertices[0].y) {
+            center.y = this._vertices[0].y;
+        }
+        if(center.y > this._vertices[1].y) {
+            center.y = this._vertices[1].y;
+        }
+
+        var rawQuad;
+        rawQuad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
+
+        rawQuad._bl.colors = colorOpacity;
+        rawQuad._br.colors = colorOpacity;
+        rawQuad._tl.colors = colorOpacity;
+        rawQuad._tr.colors = colorOpacity;
+
+        rawQuad._bl.vertices.x = rawQuad._tl.vertices.x = this._vertices[0].x;
+        rawQuad._br.vertices.x = rawQuad._tr.vertices.x = this._vertices[1].x;
+
+        rawQuad._bl.vertices.y = rawQuad._br.vertices.y = this._vertices[0].y;
+        rawQuad._tl.vertices.y = rawQuad._tr.vertices.y = this._vertices[1].y;
+
+
+        if (!spriteFrame._rotated) {
+            rawQuad._bl.texCoords.u = rawQuad._tl.texCoords.u = this._uvs[0].x;
+            rawQuad._bl.texCoords.v = rawQuad._br.texCoords.v = this._uvs[0].y;
+            rawQuad._br.texCoords.u = rawQuad._tr.texCoords.u = this._uvs[1].x;
+            rawQuad._tl.texCoords.v = rawQuad._tr.texCoords.v = this._uvs[1].y;
+
+        } else {
+            rawQuad._bl.texCoords.u = rawQuad._br.texCoords.u = this._uvs[0].x;
+            rawQuad._tl.texCoords.u = rawQuad._tr.texCoords.u = this._uvs[1].x;
+            rawQuad._br.texCoords.v = rawQuad._tr.texCoords.v = this._uvs[0].y;
+            rawQuad._bl.texCoords.v = rawQuad._tl.texCoords.v = this._uvs[1].y;
+
+        }
+
+        //get vertex Angle
+        var triangleIndex = 0;
+        this._vertsIn[0] = this._isAngleIn(this._getVertAngle(center,rawQuad._bl.vertices), fillStart, fillRange);
+        this._vertsIn[1] = this._isAngleIn(this._getVertAngle(center,rawQuad._br.vertices), fillStart, fillRange);
+        this._vertsIn[2] = this._isAngleIn(this._getVertAngle(center,rawQuad._tr.vertices), fillStart, fillRange);
+        this._vertsIn[3] = this._isAngleIn(this._getVertAngle(center,rawQuad._tl.vertices), fillStart, fillRange);
+
+        this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart, this._intersectPoint_1);
+        this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart + fillRange, this._intersectPoint_2);
+        var triangles = [null, null, null, null];
+        //in boudary
+        if(center.x <= this._vertices[1].x && center.x >= this._vertices[0].x && center.y <= this._vertices[1].y && center.y >= this._vertices[0].y) {
+            if(center.x !== this._vertices[0].x) {
+                triangles[0] = [3,0];
+            }
+            if(center.x !== this._vertices[1].x) {
+                triangles[2] = [1,2];
+            }
+            if(center.y !== this._vertices[0].y) {
+                triangles[1] = [0,1];
+            }
+            if(center.y !== this._vertices[1].y) {
+                triangles[3] = [2,3];
+            }
+            var quads = [];
+            for(triangleIndex = 0; triangleIndex < 4; ++triangleIndex ) {
+                var triangle = triangles[triangleIndex];
+                if(triangle === null) {
+                    continue;
+                }
+                //do triangle processing
+
+                if(this._intersectPoint_1[triangleIndex] === null && this._intersectPoint_2[triangleIndex] === null) {
+                    //no intersect
+                    if(this._vertsIn[triangle[0]] && this._vertsIn[triangle[1]]) {
+                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
+                    }
+                } else if(this._intersectPoint_1[triangleIndex] === null) {
+                    //no start intersect
+                    if(this._vertsIn[triangle[1]] === true) {
+                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
+                    } else {
+                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex],colorOpacity));
+                    }
+
+                } else if(this._intersectPoint_2[triangleIndex] === null) {
+                    //no end intersect
+                    if(this._vertsIn[triangle[0]] === true) {
+                        quads.push(this._generateTriangle(rawQuad, center,  this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
+                    } else {
+                        quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]],colorOpacity));
+                    }
+
+                } else {
+                    //two intersects
+                    if(this._vertsIn[triangle[0]]) {
+                        //push two triangles
+                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex],colorOpacity));
+                        quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]],colorOpacity));
+                    } else {
+                        quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex],colorOpacity));
+                    }
+                }
+            }
+
+        } else {
+            //todo add outside implementation
+        }
+
+        var result = {};
+        result.quad = quads;
+        result.rawQuad = rawQuad;
+        return result;
+
+    },
+
+    _generateTriangle: function(rawQuad, vert0, vert1, vert2 , colorOpacity) {
+        var rawQuad_bl = rawQuad._bl;
+        var rawQuad_br = rawQuad._br;
+        var rawQuad_tl = rawQuad._tl;
+        var rawQuad_tr = rawQuad._tr;
+
+        var v0x = rawQuad_bl.vertices.x;
+        var v0y = rawQuad_bl.vertices.y;
+        var v1x = rawQuad_tr.vertices.x;
+        var v1y = rawQuad_tr.vertices.y;
+        var progressX, progressY;
+        var quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
+        quad._tl.vertices.x  = vert0.x;
+        quad._tl.vertices.y  = vert0.y;
+
+        quad._bl.vertices.x  = vert1.x;
+        quad._bl.vertices.y  = vert1.y;
+
+        quad._tr.vertices.x  = vert2.x;
+        quad._tr.vertices.y  = vert2.y;
+        quad._tl.colors = colorOpacity;
+        quad._bl.colors = colorOpacity;
+        quad._tr.colors = colorOpacity;
+
+        progressX = (vert0.x - v0x) / (v1x - v0x);
+        progressY = (vert0.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, rawQuad_bl.texCoords,rawQuad_br.texCoords,rawQuad_tr.texCoords,rawQuad_tl.texCoords, quad._tl.texCoords);
+
+        progressX = (vert1.x - v0x) / (v1x - v0x);
+        progressY = (vert1.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, rawQuad_bl.texCoords,rawQuad_br.texCoords,rawQuad_tr.texCoords,rawQuad_tl.texCoords,quad._bl.texCoords);
+
+        progressX = (vert2.x - v0x) / (v1x - v0x);
+        progressY = (vert2.y - v0y) / (v1y - v0y);
+        this._generateUV(progressX, progressY, rawQuad_bl.texCoords,rawQuad_br.texCoords,rawQuad_tr.texCoords,rawQuad_tl.texCoords,quad._tr.texCoords);
+
+        return quad;
+    },
+
+    _isAngleIn : function(angle, start, rangeAngle) {
+        var pi_2 = Math.PI * 2;
+        while(angle < start || angle >= start + pi_2) {
+            if(angle < start) {
+                angle += pi_2;
+            }
+            if(angle >= start + pi_2) {
+                angle -= pi_2;
+            }
+        }
+
+        return angle <= start + rangeAngle;
+    },
+
+    _getVertAngle: function(start, end) {
+        var placementX, placementY;
+        placementX = end.x - start.x;
+        placementY = end.y - start.y;
+
+        if(placementX === 0 && placementY === 0) {
+            return undefined;
+        } else if(placementX === 0) {
+            if(placementY > 0) {
+                return Math.PI / 2;
+            } else {
+                return - Math.PI / 2;
+            }
+        } else {
+            var angle = Math.atan(placementY / placementX);
+            if(placementX < 0) {
+                angle += Math.PI;
+            }
+
+            return angle;
+        }
+    },
+
+    _getInsectedPoints: function(left, right, bottom, top, center, angle, intersectPoints) {
+        //reset to(null, null, null,null, cc.v2,cc.v2...)
+        intersectPoints[4] = intersectPoints[4] || intersectPoints[0];
+        intersectPoints[5] = intersectPoints[5] || intersectPoints[1];
+        intersectPoints[6] = intersectPoints[6] || intersectPoints[2];
+        intersectPoints[7] = intersectPoints[7] || intersectPoints[3];
+        intersectPoints[0] = intersectPoints[1] = intersectPoints[2] = intersectPoints[3] = null;
+        //left bottom, right, top
+        var result = [null, null, null, null];
+        var sinAngle = Math.sin(angle);
+        var cosAngle = Math.cos(angle);
+        var tanAngle,cotAngle;
+        if(Math.cos(angle) !== 0) {
+            tanAngle = sinAngle / cosAngle;
+            //calculate right and left
+            if((left - center.x) * cosAngle > 0) {
+                var yleft = center.y + tanAngle * (left - center.x);
+                if(yleft > bottom && yleft < top) {
+                    intersectPoints[0] = intersectPoints[4];
+                    intersectPoints[5] = null;
+                    intersectPoints[0].x = left;
+                    intersectPoints[0].y = yleft;
+                }
+            }
+            if((right - center.x) * cosAngle > 0) {
+                var yright = center.y + tanAngle * (right - center.x);
+
+                if(yright > bottom && yright < top) {
+                    intersectPoints[2] = intersectPoints[6];
+                    intersectPoints[6] = null;
+
+                    intersectPoints[2].x = right;
+                    intersectPoints[2].y = yright;
+
+                }
+            }
+
+        }
+
+        if(Math.sin(angle) !== 0) {
+            cotAngle = cosAngle / sinAngle;
+            //calculate  top and bottom
+            if((top - center.y) * sinAngle > 0) {
+                var xtop = center.x  + cotAngle * (top-center.y);
+                if(xtop > left && xtop < right) {
+                    intersectPoints[3] = intersectPoints[7];
+                    intersectPoints[7] = null;
+
+                    intersectPoints[3].x = xtop;
+                    intersectPoints[3].y = top;
+                }
+            }
+            if((bottom - center.y) * sinAngle > 0) {
+                var xbottom = center.x  + cotAngle * (bottom-center.y);
+                if(xbottom > left && xbottom < right) {
+                    intersectPoints[1] = intersectPoints[5];
+                    intersectPoints[5] = null;
+
+                    intersectPoints[1].x = xbottom;
+                    intersectPoints[1].y = bottom;
+
+                }
+            }
+
+        }
+        return result;
+    },
+
+    _generateUV : function(progressX, progressY, uvbl, uvbr, uvtr, uvtl, result) {
+        var px1 = uvbl.u + (uvbr.u-uvbl.u) * progressX;
+        var px2 = uvtl.u + (uvtr.u-uvtl.u) * progressX;
+        var py1 = uvbl.v + (uvbr.v-uvbl.v) * progressX;
+        var py2 = uvtl.v + (uvtr.v-uvtl.v) * progressX;
+        result.u = px1 + (px2 - px1) * progressY;
+        result.v = py1 + (py2 - py1) * progressY;
+    },
+
+
+    _calculateVertices : function (spriteFrame, contentSize) {
+
+        var x0,x3;
+        var y0,y3;
+        x0 = 0;
+        x3 = contentSize.width;
+
+        y0 = 0;
+        y3 = contentSize.height;
+
+        this._vertices[0].x = x0;
+        this._vertices[0].y = y0;
+        this._vertices[1].x = x3;
+        this._vertices[1].y = y3;
+    },
+
+    _calculateUVs : function (spriteFrame) {
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+
+        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+
+        //uv computation should take spritesheet into account.
+        var u0, u3;
+        var v0, v3;
+
+        if (spriteFrame._rotated) {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+        }
+        else {
+            u0 = textureRect.x / atlasWidth;
+            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+
+            v0 = textureRect.y / atlasHeight;
+            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+        }
+
+        this._uvs[0].x = u0;
+        this._uvs[0].y = v3;
+        this._uvs[1].x = u3;
+        this._uvs[1].y = v0;
+
+    }
+};
 
 cc.Scale9Sprite = _ccsg.Node.extend({
     //resource data, could be async loaded.
@@ -411,13 +890,22 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     //rendering quads
     _quads: [],
     _quadsDirty: true,
-
+    _rawQuad: null,
+    _isTriangle: false,
     _isTrimmedContentSize: true,
+    //fill type
+    _fillType: 0,
+    //for fill radial
+    _fillCenter: null,
+    //normalized filled start and range
+    _fillStart: 0,
+    _fillRange: Math.PI * 2,
 
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
         this._renderCmd.setState(this._brightState);
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
+        this._fillCenter = cc.v2(0,0);
         this.setAnchorPoint(cc.p(0.5, 0.5));
         //
         if (typeof textureOrSpriteFrame === 'string') {
@@ -650,6 +1138,56 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         return this._insetBottom;
     },
 
+    setFillType: function(value) {
+        if(this._fillType === value)
+            return;
+        this._fillType = value;
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getFillType: function() {
+        return this._fillType;
+    },
+
+    setFillCenter: function(value, y) {
+        this._fillCenter = cc.v2(value,y);
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED && this._fillType === cc.Scale9Sprite.FillType.RADIAL) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getFillCenter: function() {
+        return cc.v2(this._fillCenter);
+    },
+
+    setFillStart: function(value) {
+        if(this._fillStart === value)
+            return;
+        this._fillStart = value;
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getFillStart: function() {
+        return this._fillStart;
+    },
+
+    setFillRange: function(value) {
+        if(this._fillRange === value)
+            return;
+        this._fillRange = value;
+        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED ) {
+            this._quadsDirty = true;
+        }
+    },
+
+    getFillRange: function() {
+        return this._fillRange;
+    },
+
     _onColorOpacityDirty: function () {
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
@@ -666,17 +1204,31 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
     _rebuildQuads: function () {
         if (!this.loaded() || this._quadsDirty === false) return;
+        //put quads back
+        for(var quadIndex = 0; quadIndex < this._quads.length; ++quadIndex) {
+            cc.pool.putInPool(this._quads[quadIndex]);
+        }
+        this._rawQuad && cc.pool.putInPool(this._rawQuad);
+        this._rawQuad = null;
+        this._quads = [];
         var color = this.getDisplayedColor();
         color.a = this.getDisplayedOpacity();
+        this._isTriangle = false;
         if (this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
-            this._quads = cc.SimpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
+            this._quads = simpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
-            this._quads = cc.Scale9QuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+            this._quads = scale9QuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
-            this._quads = cc.TiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+            this._quads = tiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
-            cc.error("Filled sprite not implemented.");
-            this._quads = cc.FilledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+            if(this._fillType !== cc.Scale9Sprite.FillType.RADIAL) {
+                this._quads = fillQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._fillType, this._fillStart,this._fillRange);
+            } else {
+                this._isTriangle = true;
+                var fillResult = fillQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._fillCenter,this._fillStart,this._fillRange);
+                this._quads = fillResult.quad;
+                this._rawQuad = fillResult.rawQuad;
+            }
         } else {
             this._quads = [];
             cc.error("Can not generate quad");
@@ -743,7 +1295,7 @@ cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
  * Enum for sprite type
  * @enum SpriteType
  */
-cc.SpriteType = cc.Enum({
+cc.Scale9Sprite.RenderingType = cc.Enum({
     /**
      * @property {Number} SIMPLE
      */
@@ -762,4 +1314,9 @@ cc.SpriteType = cc.Enum({
     FILLED: 3
 });
 
-cc.Scale9Sprite.RenderingType = cc.SpriteType;
+cc.Scale9Sprite.FillType = cc.Enum({
+    Horizontal: 0,
+    Vertical: 1,
+    //todo implement this
+    RADIAL:2,
+});

@@ -285,6 +285,7 @@ var Layout = cc.Class({
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
         this.node.on('child-removed', this._childrenAddOrDeleted, this);
+
         this._updateChildrenEventListener();
     },
 
@@ -298,6 +299,7 @@ var Layout = cc.Class({
             child.on('size-changed', this._doLayoutDirty, this);
             child.on('position-changed', this._doLayoutDirty, this);
             child.on('anchor-changed', this._doLayoutDirty, this);
+            child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
         }.bind(this));
     },
 
@@ -332,11 +334,16 @@ var Layout = cc.Class({
         var maxHeightChildAnchor;
 
         var newChildWidth = this.cellSize.width;
-        if (this.layoutType !== Type.GRID) {
+        if (this.layoutType !== Type.GRID && this.resize === ResizeType.CHILDREN) {
             newChildWidth = (baseWidth - 2 * this.padding - (children.length - 1) * this.spacingX) / children.length;
         }
 
         children.forEach(function(child) {
+            if (!child.activeInHierarchy) {
+                return;
+            }
+            //hacking for label
+            child.getContentSize();
             //for resizing children
             if (this._resize === ResizeType.CHILDREN) {
                 child.width = newChildWidth;
@@ -388,7 +395,7 @@ var Layout = cc.Class({
             }
 
             var finalPositionY = fnPositionY(child, rowMaxHeight, row);
-            if(baseWidth > (child.width + 2 * this.padding)) {
+            if(baseWidth >= (child.width + 2 * this.padding)) {
                 if (applyChildren) {
                     child.setPosition(cc.p(nextX, finalPositionY));
                 }
@@ -455,11 +462,17 @@ var Layout = cc.Class({
         var maxWidthChildAnchor;
 
         var newChildHeight = this.cellSize.height;
-        if (this.layoutType !== Type.GRID) {
+        if (this.layoutType !== Type.GRID && this.resize === ResizeType.CHILDREN) {
             newChildHeight = (baseHeight - 2 * this.padding - (children.length - 1) * this.spacingY) / children.length;
         }
 
         children.forEach(function(child) {
+            if (!child.activeInHierarchy) {
+                return;
+            }
+
+            //hacking for label
+            child.getContentSize();
             //for resizing children
             if (this.resize === ResizeType.CHILDREN) {
                 child.height = newChildHeight;
@@ -510,7 +523,7 @@ var Layout = cc.Class({
             }
 
             var finalPositionX = fnPositionX(child, columnMaxWidth, column);
-            if (baseHeight > (child.height + 2 * this.padding)) {
+            if (baseHeight >= (child.height + 2 * this.padding)) {
                 if (applyChildren) {
                     child.setPosition(cc.p(finalPositionX, nextY));
                 }

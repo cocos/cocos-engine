@@ -20,12 +20,19 @@ var ComponentInSG = cc.Class({
     },
 
     ctor: function () {
-        this._sgNode = null;
+        /**
+         * Reference to the instance of _ccsg.Node
+         * If it is possible to return null from your overloaded _createSgNode,
+         * then you should always check for null before using this property.
+         *
+         * @property {_ccsg.Node} _sgNode
+         * @private
+         */
+        this._sgNode = this._createSgNode();
     },
 
     onLoad: function () {
-        var sgNode = this._createSgNode();
-        this._sgNode = sgNode;
+        var sgNode = this._sgNode;
         this._initSgNode();
         this._appendSgNode(sgNode);
         if ( !this.node._sizeProvider ) {

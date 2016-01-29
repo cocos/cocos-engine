@@ -87,7 +87,11 @@
                 gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, bufferOffset);                   //cc.VERTEX_ATTRIB_POSITION
                 gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12 + bufferOffset);           //cc.VERTEX_ATTRIB_COLOR
                 gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16 + bufferOffset);                  //cc.VERTEX_ATTRIB_TEX_COORDS
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                if(node._isTriangle) {
+                    gl.drawArrays(gl.TRIANGLES, 0, 3);
+                } else {
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                }
                 bufferOffset = bufferOffset + quads[i].arrayBuffer.byteLength;
             }
 

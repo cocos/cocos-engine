@@ -22,7 +22,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var SpriteType = cc.SpriteType;
+var SpriteType = cc.Scale9Sprite.RenderingType;
+
+var FillType = cc.Scale9Sprite.FillType;
 /**
  * Sprite Size can track trimmed size, raw size or none
  */
@@ -63,6 +65,10 @@ var Sprite = cc.Class({
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
         _useOriginalSize: true,
         _sizeMode: -1,
+        _fillType: 0,
+        _fillCenter: cc.v2(0,0),
+        _fillStart: 0,
+        _fillRange: 0,
         _isTrimmedMode: true,
         /**
          * The Sprite Atlas.
@@ -90,12 +96,10 @@ var Sprite = cc.Class({
             set: function (value, force) {
                 var lastSprite = this._spriteFrame;
                 this._spriteFrame = value;
-                if (this._sgNode) {
-                    this._applySpriteFrame(lastSprite);
-                    // color cleared after reset texture, should reapply color
-                    this._sgNode.setColor(this.node._color);
-                    this._sgNode.setOpacity(this.node._opacity);
-                }
+                this._applySpriteFrame(lastSprite);
+                // color cleared after reset texture, should re-apply color
+                this._sgNode.setColor(this.node._color);
+                this._sgNode.setOpacity(this.node._opacity);
             },
             type: cc.SpriteFrame,
         },
@@ -118,6 +122,51 @@ var Sprite = cc.Class({
             type: SpriteType,
             animatable: false,
             tooltip: 'i18n:COMPONENT.sprite.type',
+        },
+
+        /**
+         * Filled type
+         *  @property
+         */
+        fillType : {
+            get: function () {
+                return this._fillType;
+            },
+            set: function(value) {
+                this._fillType = value;
+                this._sgNode && this._sgNode.setFillType(value);
+            },
+            type: FillType
+        },
+
+        fillCenter: {
+            get: function() {
+                return this._fillCenter;
+            },
+            set: function(value) {
+                this._fillCenter = cc.v2(value);
+                this._sgNode && this._sgNode.setFillCenter(this._fillCenter);
+            },
+        },
+
+        fillStart: {
+            get: function() {
+                return this._fillStart;
+            },
+            set: function(value) {
+                this._fillStart = value;
+                this._sgNode && this._sgNode.setFillStart(value);
+            },
+        },
+
+        fillRange: {
+            get: function() {
+                return this._fillRange;
+            },
+            set: function(value) {
+                this._fillRange = value;
+                this._sgNode && this._sgNode.setFillRange(value);
+            },
         },
         /**
          * specify the rendering mode
@@ -175,9 +224,6 @@ var Sprite = cc.Class({
         localSize: {
             get: function () {
                 var sgNode = this._sgNode;
-                if (!sgNode) {
-                    return cc.size(0, 0);
-                }
                 return cc.size(sgNode.width, sgNode.height);
             },
             visible: false,
@@ -202,7 +248,7 @@ var Sprite = cc.Class({
      * @param {Boolean} enabled - True to enable 9-slice, false otherwise.
      */
     setScale9Enabled: function (enabled) {
-        this.type = enabled ? cc.SpriteType.SLICED : cc.SpriteType.SIMPLE;
+        this.type = enabled ? cc.Scale9Sprite.RenderingType.SLICED : cc.Scale9Sprite.RenderingType.SIMPLE;
     },
 
     /**
@@ -211,7 +257,7 @@ var Sprite = cc.Class({
      * @return {Boolean} True if 9-slice is enabled, false otherwise.
      */
     isScale9Enabled: function () {
-        return this.type === cc.SpriteType.SLICED;
+        return this.type === cc.Scale9Sprite.RenderingType.SLICED;
     },
 
     /**
@@ -462,6 +508,10 @@ var Sprite = cc.Class({
         this._applySpriteSize();
 
         sgNode.setRenderingType(this._type);
+        sgNode.setFillType(this._fillType);
+        sgNode.setFillCenter(this._fillCenter);
+        sgNode.setFillStart(this._fillStart);
+        sgNode.setFillRange(this._fillRange);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
     },
 

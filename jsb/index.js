@@ -50,10 +50,11 @@ if (_engineNumberVersion) {
     }
 }
 
-function log () {
-    var text = cc.formatStr.apply(this, arguments);
-    console.log(text);
-}
+var originLog = console.log;
+var log = console.log = function () {
+    originLog.call(console, cc.formatStr.apply(null, arguments));
+};
+
 cc.log   = log;
 cc.error = log;
 cc.warn  = log;

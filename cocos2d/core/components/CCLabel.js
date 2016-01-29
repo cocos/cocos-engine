@@ -50,10 +50,7 @@ var Label = cc.Class({
             multiline: true,
             tooltip: 'i18n:COMPONENT.label.string',
             notify: function () {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.setString(this.string);
-                }
+                this._sgNode.setString(this.string);
             }
         },
 
@@ -66,10 +63,7 @@ var Label = cc.Class({
             type: HorizontalAlign,
             tooltip: 'i18n:COMPONENT.label.horizontal_align',
             notify: function () {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.setHorizontalAlign( this.horizontalAlign );
-                }
+                this._sgNode.setHorizontalAlign( this.horizontalAlign );
             },
             animatable: false
         },
@@ -83,10 +77,7 @@ var Label = cc.Class({
             type: VerticalAlign,
             tooltip: 'i18n:COMPONENT.label.vertical_align',
             notify: function () {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.setVerticalAlign( this.verticalAlign );
-                }
+                this._sgNode.setVerticalAlign( this.verticalAlign );
             },
             animatable: false
         },
@@ -98,19 +89,12 @@ var Label = cc.Class({
          */
         fontSize: {
             get: function(){
-                var sgNode = this._sgNode;
-                if(sgNode){
-                    this._fontSize = sgNode.getFontSize();
-                }
+                this._fontSize = this._sgNode.getFontSize();
                 return this._fontSize;
             },
             set: function(value){
                 this._fontSize = value;
-
-                var sgNode = this._sgNode;
-                if(sgNode){
-                    sgNode.setFontSize(value);
-                }
+                this._sgNode.setFontSize(value);
             },
             tooltip: 'i18n:COMPONENT.label.font_size',
         },
@@ -119,19 +103,13 @@ var Label = cc.Class({
 
         lineHeight: {
             get: function(){
-                var sgNode = this._sgNode;
-                if(sgNode){
-                    this._lineHeight = sgNode.getLineHeight();
-                }
+                this._lineHeight = this._sgNode.getLineHeight();
                 return this._lineHeight;
             },
             set: function(value){
                 this._lineHeight = value;
 
-                var sgNode = this._sgNode;
-                if(sgNode){
-                    sgNode.setLineHeight(value);
-                }
+                this._sgNode.setLineHeight(value);
             },
             tooltip: 'i18n:COMPONENT.label.line_height',
         },
@@ -144,10 +122,7 @@ var Label = cc.Class({
             type: Overflow,
             tooltip: 'i18n:COMPONENT.label.overflow',
             notify: function () {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.setOverflow(this.overflow);
-                }
+                this._sgNode.setOverflow(this.overflow);
             },
             animatable: false
         },
@@ -159,19 +134,12 @@ var Label = cc.Class({
          */
         enableWrapText: {
             get: function(){
-                var sgNode = this._sgNode;
-                if(sgNode){
-                    this._enableWrapText = sgNode.isWrapTextEnabled();
-                }
+                this._enableWrapText = this._sgNode.isWrapTextEnabled();
                 return this._enableWrapText;
             },
             set: function(value){
                 this._enableWrapText = value;
-
-                var sgNode = this._sgNode;
-                if(sgNode){
-                    sgNode.enableWrapText(value);
-                }
+                this._sgNode.enableWrapText(value);
             },
             animatable: false,
             tooltip: 'i18n:COMPONENT.label.wrap',
@@ -186,10 +154,7 @@ var Label = cc.Class({
             url: cc.Font,
             tooltip: 'i18n:COMPONENT.label.file',
             notify: function () {
-                var sgNode = this._sgNode;
-                if (sgNode) {
-                    sgNode.setFontFileOrFamily(this.file);
-                }
+                this._sgNode.setFontFileOrFamily(this.file);
             },
             animatable: false
         },
@@ -202,20 +167,14 @@ var Label = cc.Class({
          */
         useSystemFont: {
             get: function(){
-                var sgNode = this._sgNode;
-                if(sgNode){
-                    this._isSystemFontUsed = sgNode.isSystemFontUsed();
-                }
+                this._isSystemFontUsed = this._sgNode.isSystemFontUsed();
                 return this._isSystemFontUsed;
             },
             set: function(value){
-                var sgNode = this._sgNode;
                 this._isSystemFontUsed = value;
-                if(value){
-                    if(sgNode){
-                        this.file = "";
-                        sgNode.setSystemFontUsed(value);
-                    }
+                if (value) {
+                    this.file = "";
+                    this._sgNode.setSystemFontUsed(value);
                 }
 
             },
@@ -227,10 +186,7 @@ var Label = cc.Class({
         // enableRichText: {
         //     default: false,
         //     notify: function () {
-        //         var sgNode = this._sgNode;
-        //         if (sgNode) {
-        //             sgNode.enableRichText = this.enableRichText;
-        //         }
+        //         this._sgNode.enableRichText = this.enableRichText;
         //     }
         // }
 
@@ -259,6 +215,9 @@ var Label = cc.Class({
     onLoad: function () {
         this._super();
         this.node.on('size-changed', this._resized, this);
+        this._sgNode.on('load', function() {
+            this.node.setContentSize(this._sgNode.getContentSize());
+        },this);
     },
 
     onDestroy: function () {
@@ -267,7 +226,7 @@ var Label = cc.Class({
     },
 
     _createSgNode: function () {
-        return new _ccsg.Label(this.string, this.file);
+        return new _ccsg.Label();
     },
 
     _initSgNode: function () {
@@ -282,6 +241,8 @@ var Label = cc.Class({
         sgNode.setOverflow( this.overflow );
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
+        sgNode.setString(this.string);
+        sgNode.setFontFileOrFamily(this.file);
         if(!this._useOriginalSize){
             sgNode.setContentSize(this.node.getContentSize());
         }
