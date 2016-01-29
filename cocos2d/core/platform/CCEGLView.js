@@ -115,7 +115,6 @@ switch(cc.__BrowserGetter.adaptationType){
  *  - cc.view.methodName(); <br/>
  *
  * @class view
- * @extends _Class
  */
 cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
     _delegate: null,
@@ -914,7 +913,6 @@ cc.EGLView._getInstance = function () {
  * it controls the behavior of how to scale the cc.container and cc.game.canvas object</p>
  *
  * @class ContainerStrategy
- * @extends _Class
  */
 cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
     /**
@@ -1002,7 +1000,6 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
  * it controls the behavior of how to scale the scene and setup the viewport for the game</p>
  *
  * @class ContentStrategy
- * @extends _Class
  */
 cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
 
@@ -1239,7 +1236,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
  * its main task is to maintain the compatibility with Cocos2d-x</p>
  *
  * @class ResolutionPolicy
- * @extends _Class
+ */
+/**
+ * @method ResolutionPolicy
  * @param {ContainerStrategy} containerStg The container strategy
  * @param {ContentStrategy} contentStg The content strategy
  */

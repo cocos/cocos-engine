@@ -26,7 +26,6 @@
 /**
  * The touch event class
  * @class Touch
- * @extends _Class
  *
  * @param {Number} x
  * @param {Number} y

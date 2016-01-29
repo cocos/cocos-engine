@@ -25,8 +25,7 @@
  ****************************************************************************/
 
 /**
- * @namespace
- * @name ClassManager
+ * ClassManager
  */
 var ClassManager = cc.ClassManager = {
     id : (0|(Math.random()*998)),
@@ -51,6 +50,7 @@ var fnTest = /\b_super\b/;
 /**
  * The base Class implementation (does nothing)
  * @class Class
+ * @private
  */
 var Class = function () {
 };

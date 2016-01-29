@@ -38,7 +38,6 @@ var game = require('../CCGame');
  * Quads can be re-ordered in runtime <br />
  * The TextureAtlas capacity can be increased or decreased in runtime.</p>
  * @class TextureAtlas
- * @extends _Class
  * @constructor
  */
 
@@ -60,7 +59,7 @@ var TextureAtlas = Class.extend(/** @lends cc.TextureAtlas# */{  //WebGL only
      * <p>Creates a TextureAtlas with an filename and with an initial capacity for Quads. <br />
      * The TextureAtlas capacity can be increased in runtime. </p>
      * Constructor of cc.TextureAtlas
-     * @constructor
+     * @method TextureAtlas
      * @param {String|Texture2D} fileName
      * @param {Number} capacity
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/TextureAtlas.js}

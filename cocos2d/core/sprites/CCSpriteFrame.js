@@ -38,6 +38,11 @@ var EventTarget = require("../event/event-target");
  * @class SpriteFrame
  * @extends Asset
  * @constructor
+ */
+
+ /**
+ * Constructor of SpriteFrame class
+ * @method SpriteFrame
  * @param {String|Texture2D} filename
  * @param {Rect} rect - If parameters' length equal 2, rect in points, else rect in pixels
  * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
