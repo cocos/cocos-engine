@@ -86,7 +86,7 @@ JS.extend(AnimationNodeBase, Playable);
 
 /**
  * @method update
- * @param deltaTime
+ * @param {Number} deltaTime
  * @private
  */
 AnimationNodeBase.prototype.update = function (deltaTime) {};

@@ -2021,7 +2021,7 @@ cc.Blink = cc.ActionInterval.extend({
  * Blinks a Node object by modifying it's visible property.
  * @method blink
  * @param {Number} duration  duration in seconds
- * @param blinks blinks in times
+ * @param {Number} blinks blinks in times
  * @return {Blink}
  * @example
  * // example

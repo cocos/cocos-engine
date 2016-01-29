@@ -548,7 +548,7 @@ cc.loader = cc.loader || (function () {
          * Get resource data by url.
          *
          * @method getRes
-         * @param url
+         * @param {String} url
          * @returns {*}
          */
         getRes: function (url) {
@@ -559,7 +559,7 @@ cc.loader = cc.loader || (function () {
          * Get aliase by url.
          *
          * @method getAliase
-         * @param url
+         * @param {String} url
          * @returns {*}
          */
         getAliase: function (url) {
@@ -570,7 +570,7 @@ cc.loader = cc.loader || (function () {
          * Release the cache of resource by url.
          *
          * @method release
-         * @param url
+         * @param {String} url
          */
         release: function (url) {
             var cache = this.cache;
