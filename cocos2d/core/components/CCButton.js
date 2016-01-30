@@ -43,14 +43,6 @@ var Transition = cc.Enum({
     SPRITE: 2
 });
 
-
-var ButtonState = {
-    Normal: 'normal',
-    Pressed: 'pressed',
-    Hover: 'hover',
-    Disabled: 'disabled'
-};
-
 /**
  * Button has 3 Transition types
  * When Button state changed:
@@ -101,7 +93,7 @@ var Button = cc.Class({
             default: true,
             tooltip: 'i18n:COMPONENT.button.interactable',
             notify: function () {
-                this._initState();
+                this._updateState();
             },
             animatable: false
         },
@@ -129,7 +121,7 @@ var Button = cc.Class({
             displayName: 'Normal',
             tooltip: 'i18n:COMPONENT.button.normal_color',
             notify: function () {
-                this._initState();
+                this._updateState();
             }
         },
 
@@ -162,7 +154,7 @@ var Button = cc.Class({
             displayName: 'Disabled',
             tooltip: 'i18n:COMPONENT.button.diabled_color',
             notify: function () {
-                this._initState();
+                this._updateState();
             }
         },
 
@@ -187,7 +179,7 @@ var Button = cc.Class({
             displayName: 'Normal',
             tooltip: 'i18n:COMPONENT.button.normal_sprite',
             notify: function () {
-                this._initState();
+                this._updateState();
             }
         },
 
@@ -223,7 +215,7 @@ var Button = cc.Class({
             displayName: 'Disabled',
             tooltip: 'i18n:COMPONENT.button.disabled_sprite',
             notify: function () {
-                this._initState();
+                this._updateState();
             }
         },
 
@@ -271,7 +263,7 @@ var Button = cc.Class({
 
     start: function () {
         this._applyTarget();
-        this._initState();
+        this._updateState();
     },
 
     update: function (dt) {
@@ -328,46 +320,36 @@ var Button = cc.Class({
         }
     },
 
-    _initState: function () {
-        var state = this.interactable ? ButtonState.Normal : ButtonState.Disabled;
-        this._applyState(state);
-    },
-
     // touch event handler
     _onTouchBegan: function (event) {
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = true;
-        this._applyState(ButtonState.Pressed);
+        this._updateState();
     },
 
     _onTouchMove: function (event) {
+        // mobile phone will not emit _onMouseMoveOut,
+        // so we have to do hit test when touch moving
         var touch = event.touch;
         var hit = this.node._hitTest(touch.getLocation());
-        if (hit && this._pressed) {
-            this._applyState(ButtonState.Pressed);
-        }
-        else {
-            this._applyState(ButtonState.Normal);
+        if (this._hovered !== hit) {
+            this._hovered = hit;
+            this._updateState();
         }
     },
 
     _onTouchEnded: function () {
-        if (this._hovered)
-        {
-            this._applyState(ButtonState.Hover);
-        }
-
-        if(this._pressed){
-            this._applyState(ButtonState.Normal);
+        if (this._pressed) {
             this._handleClickEvent();
         }
-
         this._pressed = false;
+        this._updateState();
     },
 
     _onTouchCancel: function () {
         this._pressed = false;
+        this._updateState();
     },
 
     _onMouseMoveIn: function (event) {
@@ -375,7 +357,7 @@ var Button = cc.Class({
 
         if (!this._hovered) {
             this._hovered = true;
-            this._applyState(ButtonState.Hover);
+            this._updateState();
         }
     },
 
@@ -384,12 +366,25 @@ var Button = cc.Class({
 
         if (this._hovered) {
             this._hovered = false;
-            this._applyState(ButtonState.Normal);
+            this._updateState();
         }
     },
 
     // state handler
-    _applyState: function (state) {
+    _updateState: function () {
+        var state;
+        if (!this.interactable) {
+            state = 'disabled';
+        }
+        else if (this._pressed) {
+            state = 'pressed';
+        }
+        else if (this._hovered) {
+            state = 'hover';
+        }
+        else {
+            state = 'normal';
+        }
         var color  = this[state + 'Color'];
         var sprite = this[state + 'Sprite'];
 
