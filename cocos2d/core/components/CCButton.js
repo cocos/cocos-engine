@@ -44,8 +44,6 @@ var Transition = cc.Enum({
 });
 
 
-var WHITE = cc.Color.WHITE;
-
 var ButtonState = {
     Normal: 'normal',
     Pressed: 'pressed',
@@ -127,7 +125,7 @@ var Button = cc.Class({
          * @property {cc.Color} normalColor
          */
         normalColor: {
-            default: WHITE,
+            default: cc.color(214, 214, 214),
             displayName: 'Normal',
             tooltip: 'i18n:COMPONENT.button.normal_color',
             notify: function () {
@@ -140,7 +138,7 @@ var Button = cc.Class({
          * @property {cc.Color} pressedColor
          */
         pressedColor: {
-            default: WHITE,
+            default: cc.color(211, 211, 211),
             displayName: 'Pressed',
             tooltip: 'i18n:COMPONENT.button.pressed_color',
         },
@@ -150,7 +148,7 @@ var Button = cc.Class({
          * @property {cc.Color} hoverColor
          */
         hoverColor: {
-            default: WHITE,
+            default: cc.Color.WHITE,
             displayName: 'Hover',
             tooltip: 'i18n:COMPONENT.button.hover_color',
         },
@@ -160,7 +158,7 @@ var Button = cc.Class({
          * @property {cc.Color} disabledColor
          */
         disabledColor: {
-            default: WHITE,
+            default: cc.color(124, 124, 124),
             displayName: 'Disabled',
             tooltip: 'i18n:COMPONENT.button.diabled_color',
             notify: function () {
