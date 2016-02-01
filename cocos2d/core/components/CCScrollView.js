@@ -122,7 +122,7 @@ var ScrollView = cc.Class({
         /**
          * It determines how quickly the content stop moving. A value of 1 will stop the movement immediately.
          * A value of 0 will never stop the movement until it reaches to the boundary of scrollview.
-         *@property {Float} brake
+         *@property {Number} brake
          */
         brake: {
             default: 0.5,
@@ -142,7 +142,7 @@ var ScrollView = cc.Class({
 
         /**
          * The elapse time of bouncing back. A value of 0 will bounce back immediately.
-         *@property {Float} bounceDuration
+         *@property {Number} bounceDuration
          */
         bounceDuration: {
             default: 1,
