@@ -338,9 +338,13 @@ if (CC_EDITOR) {
 prototype._deserialize = null;
 
 /**
+ * @module cc
+ */
+
+/**
  * Checks whether the object is non-nil and not yet destroyed
  * @method isValid
- * @param {Object|any} value
+ * @param {any} value
  * @return {Boolean} whether is valid
  */
 cc.isValid = function (value) {

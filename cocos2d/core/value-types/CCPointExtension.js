@@ -129,7 +129,7 @@ cc.pPerp = function (point) {
  * Calculates perpendicular of v, rotated 90 degrees clockwise -- cross(v, rperp(v)) smaller than 0
  * @method pRPerp
  * @param {Vec2} point
- * @return Vec2}
+ * @return {Vec2}
  */
 cc.pRPerp = function (point) {
     return cc.p(point.y, -point.x);

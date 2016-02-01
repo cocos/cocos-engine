@@ -92,7 +92,7 @@ var Canvas = cc.Class({
         /**
          * !#zh: 是否优先将设计分辨率高度撑满视图高度
          *
-         * @property {Boolean} fitWidth
+         * @property {Boolean} fitHeight
          * @default false
          */
         fitHeight: {

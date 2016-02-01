@@ -170,7 +170,7 @@ var Button = cc.Class({
 
         /**
          * Color transition duration
-         * @property {float} duration
+         * @property {Number} duration
          */
         duration: {
             default: 0.1,

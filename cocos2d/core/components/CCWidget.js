@@ -178,7 +178,7 @@ var Widget = cc.Class({
         /**
          * !#zh: 是否水平拉伸，当同时启用左右对齐时，将会水平拉伸，此时宽度设置无效（只读）
          *
-         * @property isStretchHeight
+         * @property isStretchWidth
          * @type {Boolean}
          * @default false
          * @readOnly
