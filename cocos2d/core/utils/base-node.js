@@ -1189,7 +1189,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertToWorldSpaceAR: function (nodePoint) {
-        return this._sgNode.convertToWorldSpaceAR(nodePoint);
+        return cc.v2(this._sgNode.convertToWorldSpaceAR(nodePoint));
     },
 
     // _convertToWindowSpace: function (nodePoint) {
