@@ -87,7 +87,7 @@ cc.pMult = function (point, floatVar) {
  * @method pMidpoint
  * @param {Vec2} v1
  * @param {Vec2} v2
- * @return {pMult}
+ * @return {Vec2}
  */
 cc.pMidpoint = function (v1, v2) {
     return cc.pMult(cc.pAdd(v1, v2), 0.5);
@@ -140,7 +140,7 @@ cc.pRPerp = function (point) {
  * @method pProject
  * @param {Vec2} v1
  * @param {Vec2} v2
- * @return {pMult}
+ * @return {Vec2}
  */
 cc.pProject = function (v1, v2) {
     return cc.pMult(v2, cc.pDot(v1, v2) / cc.pDot(v2, v2));
@@ -314,7 +314,7 @@ cc.pCompOp = function (p, opFunc) {
  * @param {Vec2} a
  * @param {Vec2} b
  * @param {Number} alpha
- * @return {pAdd}
+ * @return {Vec2}
  */
 cc.pLerp = function (a, b, alpha) {
     return cc.pAdd(cc.pMult(a, 1 - alpha), cc.pMult(b, alpha));
