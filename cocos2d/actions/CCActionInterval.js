@@ -420,7 +420,7 @@ cc.Sequence = cc.ActionInterval.extend({
  * The created action will run actions sequentially, one after another.
  * @method sequence
  * @param {Array|FiniteTimeAction} tempArray
- * @return {Sequence}
+ * @return {ActionInterval}
  * @example
  * // example
  * // create sequence with actions
@@ -598,7 +598,7 @@ cc.Repeat = cc.ActionInterval.extend({
  * @method repeat
  * @param {FiniteTimeAction} action
  * @param {Number} times
- * @return {Repeat}
+ * @return {ActionInterval}
  * @example
  * // example
  * var rep = cc.repeat(cc.sequence(jump2, jump1), 5);
@@ -701,7 +701,7 @@ cc.RepeatForever = cc.ActionInterval.extend({
  * Create a acton which repeat forever
  * @method repeatForever
  * @param {FiniteTimeAction} action
- * @return {RepeatForever}
+ * @return {ActionInterval}
  * @example
  * // example
  * var repeat = cc.repeatForever(cc.rotateBy(1.0, 360));
