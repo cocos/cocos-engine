@@ -932,7 +932,7 @@ cc.RotateTo = cc.ActionInterval.extend({
  * @param {Number} duration duration in seconds
  * @param {Number} deltaAngleX deltaAngleX in degrees.
  * @param {Number} [deltaAngleY] deltaAngleY in degrees.
- * @return {RotateTo}
+ * @return {ActionInterval}
  * @example
  * // example
  * var rotateTo = cc.rotateTo(2, 61.0);
@@ -1019,7 +1019,7 @@ cc.RotateBy = cc.ActionInterval.extend({
  * @param {Number} duration duration in seconds
  * @param {Number} deltaAngleX deltaAngleX in degrees
  * @param {Number} [deltaAngleY] deltaAngleY in degrees
- * @return {RotateBy}
+ * @return {ActionInterval}
  * @example
  * // example
  * var actionBy = cc.rotateBy(2, 360);
@@ -1140,7 +1140,7 @@ cc.MoveBy = cc.ActionInterval.extend({
  * @param {Number} duration duration in seconds
  * @param {Vec2|Number} deltaPos
  * @param {Number} deltaY
- * @return {MoveBy}
+ * @return {ActionInterval}
  * @example
  * // example
  * var actionTo = cc.moveBy(2, cc.p(windowSize.width - 40, windowSize.height - 40));
@@ -1217,7 +1217,7 @@ cc.MoveTo = cc.MoveBy.extend({
  * @param {Number} duration duration in seconds
  * @param {Vec2} position
  * @param {Number} y
- * @return {MoveBy}
+ * @return {ActionInterval}
  * @example
  * // example
  * var actionBy = cc.moveTo(2, cc.p(80, 80));
@@ -1310,7 +1310,7 @@ cc.SkewTo = cc.ActionInterval.extend({
  * @param {Number} t time in seconds
  * @param {Number} sx
  * @param {Number} sy
- * @return {SkewTo}
+ * @return {ActionInterval}
  * @example
  * // example
  * var actionTo = cc.skewTo(2, 37.2, -37.2);
@@ -1384,7 +1384,7 @@ cc.SkewBy = cc.SkewTo.extend({
  * @param {Number} t time in seconds
  * @param {Number} sx sx skew in degrees for X axis
  * @param {Number} sy sy skew in degrees for Y axis
- * @return {SkewBy}
+ * @return {ActionInterval}
  * @example
  * // example
  * var actionBy = cc.skewBy(2, 0, -90);
@@ -1514,7 +1514,7 @@ cc.JumpBy = cc.ActionInterval.extend({
  * @param {Number} [y]
  * @param {Number} height
  * @param {Number} jumps
- * @return {JumpBy}
+ * @return {ActionInterval}
  * @example
  * // example
  * var actionBy = cc.jumpBy(2, cc.p(300, 0), 50, 4);
@@ -1596,7 +1596,7 @@ cc.JumpTo = cc.JumpBy.extend({
  * @param {Number} [y]
  * @param {Number} height
  * @param {Number} jumps
- * @return {JumpTo}
+ * @return {ActionInterval}
  * @example
  * // example
  * var actionTo = cc.jumpTo(2, cc.p(300, 300), 50, 4);
@@ -1739,7 +1739,7 @@ cc.BezierBy = cc.ActionInterval.extend({
  * @method bezierBy
  * @param {Number} t time in seconds
  * @param {Array} c Array of points
- * @return {BezierBy}
+ * @return {ActionInterval}
  * @example
  * // example
  * var bezier = [cc.p(0, windowSize.height / 2), cc.p(300, -windowSize.height / 2), cc.p(300, 100)];
@@ -1806,7 +1806,7 @@ cc.BezierTo = cc.BezierBy.extend({
  * @method bezierTo
  * @param {Number} t
  * @param {Array} c array of points
- * @return {BezierTo}
+ * @return {ActionInterval}
  * @example
  * // example
  * var bezier = [cc.p(0, windowSize.height / 2), cc.p(300, -windowSize.height / 2), cc.p(300, 100)];
@@ -1892,7 +1892,7 @@ cc.ScaleTo = cc.ActionInterval.extend({
  * @param {Number} duration
  * @param {Number} sx  scale parameter in X
  * @param {Number} [sy] scale parameter in Y, if Null equal to sx
- * @return {ScaleTo}
+ * @return {ActionInterval}
  * @example
  * // example
  * // It scales to 0.5 in both X and Y.
@@ -1940,7 +1940,7 @@ cc.ScaleBy = cc.ScaleTo.extend({
  * @param {Number} duration duration in seconds
  * @param {Number} sx sx  scale parameter in X
  * @param {Number|Null} [sy=] sy scale parameter in Y, if Null equal to sx
- * @return {ScaleBy}
+ * @return {ActionInterval}
  * @example
  * // example without sy, it scales by 2 both in X and Y
  * var actionBy = cc.scaleBy(2, 2);
@@ -2022,7 +2022,7 @@ cc.Blink = cc.ActionInterval.extend({
  * @method blink
  * @param {Number} duration  duration in seconds
  * @param {Number} blinks blinks in times
- * @return {Blink}
+ * @return {ActionInterval}
  * @example
  * // example
  * var action = cc.blink(2, 10);
@@ -2088,7 +2088,7 @@ cc.FadeTo = cc.ActionInterval.extend({
  * @method fadeTo
  * @param {Number} duration
  * @param {Number} opacity 0-255, 0 is transparent
- * @return {FadeTo}
+ * @return {ActionInterval}
  * @example
  * // example
  * var action = cc.fadeTo(1.0, 0);
@@ -2140,7 +2140,7 @@ cc.FadeIn = cc.FadeTo.extend({
  * Fades In an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 0 to 255.
  * @method fadeIn
  * @param {Number} duration duration in seconds
- * @return {FadeIn}
+ * @return {ActionInterval}
  * @example
  * //example
  * var action = cc.fadeIn(1.0);
@@ -2187,7 +2187,7 @@ cc.FadeOut = cc.FadeTo.extend({
  * Fades Out an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 255 to 0.
  * @method fadeOut
  * @param {Number} d  duration in seconds
- * @return {FadeOut}
+ * @return {ActionInterval}
  * @example
  * // example
  * var action = cc.fadeOut(1.0);
@@ -2271,7 +2271,7 @@ cc.TintTo = cc.ActionInterval.extend({
  * @param {Number} red 0-255
  * @param {Number} green  0-255
  * @param {Number} blue 0-255
- * @return {TintTo}
+ * @return {ActionInterval}
  * @example
  * // example
  * var action = cc.tintTo(2, 255, 0, 255);
@@ -2365,7 +2365,7 @@ cc.TintBy = cc.ActionInterval.extend({
  * @param {Number} deltaRed
  * @param {Number} deltaGreen
  * @param {Number} deltaBlue
- * @return {TintBy}
+ * @return {ActionInterval}
  * @example
  * // example
  * var action = cc.tintBy(2, -127, -255, -127);
@@ -2401,7 +2401,7 @@ cc.DelayTime = cc.ActionInterval.extend({
  * Delays the action a certain amount of seconds
  * @method delayTime
  * @param {Number} d duration in seconds
- * @return {DelayTime}
+ * @return {ActionInterval}
  * @example
  * // example
  * var delay = cc.delayTime(1);
@@ -2484,7 +2484,7 @@ cc.ReverseTime = cc.ActionInterval.extend({
  * Executes an action in reverse order, from time=duration to time=0.
  * @method reverseTime
  * @param {FiniteTimeAction} action
- * @return {ReverseTime}
+ * @return {ActionInterval}
  * @example
  * // example
  *  var reverse = cc.reverseTime(this);
@@ -2653,7 +2653,7 @@ cc.Animate = cc.ActionInterval.extend({
  * create the animate with animation
  * @method animate
  * @param {SpriteFrameAnimation} animation
- * @return {Animate}
+ * @return {ActionInterval}
  * @example
  * // example
  * // create the animation with animation
@@ -2742,7 +2742,7 @@ cc.TargetedAction = cc.ActionInterval.extend({
  * @method targetedAction
  * @param {Node} target
  * @param {FiniteTimeAction} action
- * @return {TargetedAction}
+ * @return {ActionInterval}
  */
 cc.targetedAction = function (target, action) {
     return new cc.TargetedAction(target, action);
