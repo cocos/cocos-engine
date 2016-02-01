@@ -49,6 +49,8 @@ var OPACITY_CHANGED = 'opacity-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 
+var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
+
 /**
  * A base node for CCNode and CCEScene, it will:
  * - provide the same api with origin cocos2d rendering node (SGNode)
@@ -335,13 +337,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.x) {
-                    var oldValue = localPosition.x;
+                    if (isFinite(value) || !CC_EDITOR) {
+                        var oldValue = localPosition.x;
 
-                    localPosition.x = value;
-                    this._sgNode.x = value;
+                        localPosition.x = value;
+                        this._sgNode.x = value;
 
-                    if (this.emit) {
-                        this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                        if (this.emit) {
+                            this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                        }
+                    }
+                    else {
+                        cc.error(ERR_INVALID_NUMBER, 'new x');
                     }
                 }
             },
@@ -359,13 +366,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.y) {
-                    var oldValue = localPosition.y;
+                    if (isFinite(value) || !CC_EDITOR) {
+                        var oldValue = localPosition.y;
 
-                    localPosition.y = value;
-                    this._sgNode.y = value;
+                        localPosition.y = value;
+                        this._sgNode.y = value;
 
-                    if (this.emit) {
-                        this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                        if (this.emit) {
+                            this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                        }
+                    }
+                    else {
+                        cc.error(ERR_INVALID_NUMBER, 'new y');
                     }
                 }
             },
@@ -762,22 +774,36 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/node-wrapper/setPosition.js}
      */
     setPosition: function (newPosOrxValue, yValue) {
-        var locPosition = this._position;
-        var oldPosition;
-
+        var xValue;
         if (yValue === undefined) {
-            if(locPosition.x === newPosOrxValue.x && locPosition.y === newPosOrxValue.y)
-                return;
-            oldPosition = cc.v2(locPosition);
-            locPosition.x = newPosOrxValue.x;
-            locPosition.y = newPosOrxValue.y;
-        } else {
-            if(locPosition.x === newPosOrxValue && locPosition.y === yValue)
-                return;
-            oldPosition = cc.v2(locPosition);
-            locPosition.x = newPosOrxValue;
+            xValue = newPosOrxValue.x;
+            yValue = newPosOrxValue.y;
+        }
+        else {
+            xValue = newPosOrxValue;
+            yValue = yValue;
+        }
+
+        var locPosition = this._position;
+        if(locPosition.x === xValue && locPosition.y === yValue) {
+            return;
+        }
+
+        var oldPosition = new cc.Vec2(locPosition);
+
+        if (isFinite(xValue) || !CC_EDITOR) {
+            locPosition.x = xValue;
+        }
+        else {
+            return cc.error(ERR_INVALID_NUMBER, 'x of new position');
+        }
+        if (isFinite(yValue) || !CC_EDITOR) {
             locPosition.y = yValue;
         }
+        else {
+            return cc.error(ERR_INVALID_NUMBER, 'y of new position');
+        }
+
         this._sgNode.setPosition(locPosition);
 
         if (this.emit) {

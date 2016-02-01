@@ -141,7 +141,13 @@ var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
     var newPos = this.node.position;
     var delta = newPos.sub(oldPos);
     var parentSize = getParentSize(this.node._parent);
-    var deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+    var deltaInPercent;
+    if (parentSize.width !== 0 && parentSize.height !== 0) {
+        deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+    }
+    else {
+        deltaInPercent = cc.v2();
+    }
 
     if (this.isAlignTop) {
         this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y);
@@ -176,21 +182,27 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
     // delta size
     var delta = cc.p(newSize.width - oldSize.width, newSize.height - oldSize.height);
     var parentSize = getParentSize(this.node._parent);
-    var deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+    var deltaInPercent;
+    if (parentSize.width !== 0 && parentSize.height !== 0) {
+        deltaInPercent = cc.v2(delta.x / parentSize.width, delta.y / parentSize.height);
+    }
+    else {
+        deltaInPercent = cc.v2();
+    }
 
     var anchor = this.node.getAnchorPoint();
 
     if (this.isAlignTop) {
-        this.top -= (this.isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y);
+        this.top -= (this.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y);
     }
     if (this.isAlignBottom) {
-        this.bottom -= (this.isAbsBottom ? delta.y : deltaInPercent.y) * anchor.y;
+        this.bottom -= (this.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y;
     }
     if (this.isAlignLeft) {
-        this.left -= (this.isAbsLeft ? delta.x : deltaInPercent.x) * anchor.x;
+        this.left -= (this.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x;
     }
     if (this.isAlignRight) {
-        this.right -= (this.isAbsRight ? delta.x : deltaInPercent.x) * (1 - anchor.x);
+        this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x);
     }
     if (this.isAlignHorizontalCenter) {
         if (delta.x !== 0 && anchor.x !== 0.5) {
