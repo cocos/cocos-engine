@@ -26,7 +26,7 @@
 
 /**
  *
- * @class
+ * @class ActionTweenDelegate
  * @extends _Class
  */
 cc.ActionTweenDelegate = cc._Class.extend(/** @lends cc.ActionTweenDelegate */{

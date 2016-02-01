@@ -63,7 +63,6 @@ cc.HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
  * - When you want to pause / resume the actions<br/>
  *
  * @class ActionManager
- * @extends _Class
  * @example {@link utils/api/engine/docs/cocos2d/core/CCActionManager/ActionManager.js}
  */
 cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{

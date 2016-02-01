@@ -8,7 +8,7 @@ var Color = (function () {
      *
      * Each color component is a floating point value with a range from 0 to 1.
      *
-     * You can also use the convenience method <% crosslink cc.fireColor cc.fireColor %> to create a new Color.
+     * You can also use the convenience method <% crosslink cc.Color cc.Color %> to create a new Color.
      *
      * @class Color
      * @extends ValueType

@@ -100,6 +100,10 @@ cc.HashTimerEntry = cc.hashSelectorEntry = function (timers, target, timerIndex,
     _t.hh = hh;
 };
 
+/**
+ * Light weight timer
+ * @class Timer
+ */
 
 cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
     _scheduler: null,
@@ -270,7 +274,6 @@ var getTargetId = function (target) {
  *    The 'custom selectors' should be avoided when possible. It is faster, and consumes less memory to use the 'update callback'. *
  * </p>
  * @class Scheduler
- * @extends _Class
  */
 cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
     _timeScale:1.0,

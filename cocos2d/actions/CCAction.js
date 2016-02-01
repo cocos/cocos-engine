@@ -38,8 +38,6 @@ cc.ACTION_TAG_INVALID = -1;
 /**
  * Base class cc.Action for action classes.
  * @class Action
- *
- * @extends _Class
  */
 cc.Action = cc._Class.extend({
     //***********variables*************

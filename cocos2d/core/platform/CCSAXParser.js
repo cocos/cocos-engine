@@ -27,7 +27,6 @@
 /**
  * A SAX Parser
  * @class saxParser
- * @extends _Class
  */
 cc.SAXParser = cc._Class.extend(/** @lends cc.saxParser# */{
     _parser: null,
