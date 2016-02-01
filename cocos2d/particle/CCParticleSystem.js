@@ -106,10 +106,10 @@ var properties = {
                 else {
                     this._applyFile();
                 }
-                cc.engine.repaintInEditMode();
-                //if (CC_EDITOR) {
+                if (CC_EDITOR) {
+                    cc.engine.repaintInEditMode();
                 //    self.preview = self.preview;
-                //}
+                }
             }
         },
         animatable: false
@@ -743,7 +743,9 @@ var ParticleSystem = cc.Class({
                 }
                 sgNode.setPosition(0, 0);
 
-                sgNode.autoRemoveOnFinish = self._autoRemoveOnFinish;
+                if (!CC_EDITOR || cc.engine.isPlaying) {
+                    self._applyAutoRemove();
+                }
 
                 //
                 
@@ -770,7 +772,10 @@ var ParticleSystem = cc.Class({
         if (!active) {
             sgNode.stopSystem();
         }
-        sgNode.autoRemoveOnFinish = this._autoRemoveOnFinish;
+
+        if (!CC_EDITOR || cc.engine.isPlaying) {
+            this._applyAutoRemove();
+        }
     },
 
     _applyAutoRemove: function () {
