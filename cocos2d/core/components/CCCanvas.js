@@ -163,8 +163,8 @@ var Canvas = cc.Class({
             }
         }
 
-        this.onResized();
         this.applySettings();
+        this.onResized();
     },
 
     onDestroy: function () {
