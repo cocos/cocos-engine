@@ -89,7 +89,7 @@ cc.Show = cc.ActionInstant.extend({
 /**
  * Show the Node.
  * @method show
- * @return {Show}
+ * @return {ActionInstant}
  * @example
  * // example
  * var showAction = cc.show();
@@ -123,7 +123,7 @@ cc.Hide = cc.ActionInstant.extend({
 /**
  * Hide the node.
  * @method hide
- * @return {Hide}
+ * @return {ActionInstant}
  * @example
  * // example
  * var hideAction = cc.hide();
@@ -157,7 +157,7 @@ cc.ToggleVisibility = cc.ActionInstant.extend({
 /**
  * Toggles the visibility of a node.
  * @method toggleVisibility
- * @return {ToggleVisibility}
+ * @return {ActionInstant}
  * @example
  * // example
  * var toggleVisibilityAction = cc.toggleVisibility();
@@ -210,7 +210,7 @@ cc.RemoveSelf = cc.ActionInstant.extend({
  *
  * @method removeSelf
  * @param {Boolean} [isNeedCleanUp=true]
- * @return {RemoveSelf}
+ * @return {ActionInstant}
  *
  * @example
  * // example
@@ -270,7 +270,7 @@ cc.FlipX = cc.ActionInstant.extend({
  *
  * @method flipX
  * @param {Boolean} flip Indicate whether the target should be flipped or not
- * @return {FlipX}
+ * @return {ActionInstant}
  * @example
  * var flipXAction = cc.flipX(true);
  */
@@ -328,7 +328,7 @@ cc.FlipY = cc.ActionInstant.extend({
  *
  * @method flipY
  * @param {Boolean} flip
- * @return {FlipY}
+ * @return {ActionInstant}
  * @example
  * var flipYAction = cc.flipY(true);
  */
@@ -394,7 +394,7 @@ cc.Place = cc.ActionInstant.extend({
  * @method place
  * @param {Vec2|Number} pos
  * @param {Number} [y]
- * @return {Place}
+ * @return {ActionInstant}
  * @example
  * // example
  * var placeAction = cc.place(cc.p(200, 200));
@@ -506,7 +506,7 @@ cc.CallFunc = cc.ActionInstant.extend({
  * @param {function} selector
  * @param {object|null} [selectorTarget]
  * @param {*|null} [data] data for function, it accepts all data types.
- * @return {CallFunc}
+ * @return {ActionInstant}
  * @example
  * // example
  * // CallFunc without data

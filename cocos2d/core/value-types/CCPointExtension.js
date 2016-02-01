@@ -271,7 +271,7 @@ cc.clamp01 = function (value) {
 /**
  * Clamp a point between from and to.
  * @method pClamp
- * @param {Point} p
+ * @param {Vec2} p
  * @param {Number} min_inclusive
  * @param {Number} max_inclusive
  * @return {Vec2}
@@ -543,7 +543,7 @@ cc.pSubIn = function(v1, v2) {
  * adds one point to another (inplace).
  * @method pAddIn
  * @param {Vec2} v1
- * @param {point} v2
+ * @param {Vec2} v2
  */
 cc.pAddIn = function(v1, v2) {
     v1.x += v2.x;

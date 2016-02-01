@@ -374,7 +374,7 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the percent position of ScrollView in any direction.
      * @method scrollTo
-     * @param {Point} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
+     * @param {Vec2} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the percent position of ScrollView immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
@@ -418,7 +418,7 @@ var ScrollView = cc.Class({
     /**
      * Modify the content position.
      * @method setContentPosition
-     * @param {Point} position - The position in content's parent space.
+     * @param {Vec2} position - The position in content's parent space.
      */
     setContentPosition: function(position) {
         if (cc.pFuzzyEqual(position, this.getContentPosition(), EPSILON)) {
