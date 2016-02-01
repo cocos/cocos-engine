@@ -104,6 +104,7 @@ cc.HashTimerEntry = cc.hashSelectorEntry = function (timers, target, timerIndex,
  * Light weight timer
  * @class Timer
  */
+
 cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
     _scheduler: null,
     _elapsed:0.0,
@@ -114,15 +115,7 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
     _delay:0,
     _interval:0.0,
 
-    /**
-     * @method getInterval
-     * @return {Number} returns interval of timer
-     */
     getInterval : function(){return this._interval;},
-    /**
-     * @method setInterval
-     * @param {Number} interval set interval in seconds
-     */
     setInterval : function(interval){this._interval = interval;},
 
     setupTimerWithInterval: function(seconds, repeat, delay){
@@ -142,11 +135,6 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
         return 0;
     },
 
-    /**
-     * cc.Timer's Constructor
-     * @method cc.Timer
-     * @return {cc.Timer} 
-     */
     ctor:function () {
         this._scheduler = null;
         this._elapsed = -1;
@@ -158,11 +146,6 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
         this._interval = 0;
     },
 
-    /**
-     * triggers the timer
-     * @method update
-     * @param {Number} dt delta time
-     */
     update:function (dt) {
         if (this._elapsed === -1) {
             this._elapsed = 0;

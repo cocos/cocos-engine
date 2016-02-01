@@ -24,17 +24,17 @@
 
 // MACROS
 
-// if "global_defs" not preprocessed by uglify, just declare them globally
-// (use eval to prevent the uglify from renaming symbols)
-if (typeof CC_TEST === 'undefined') {
-    eval('CC_TEST=typeof describe!=="undefined"||typeof QUnit=="object"');
-}
-if (typeof CC_EDITOR === 'undefined') {
-    eval('CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions');
-}
-if (typeof CC_DEV === 'undefined') {
-    eval('CC_DEV=CC_EDITOR||CC_TEST');
-}
+// if "global_defs" not preprocessed by uglify, just declare them globally,
+// this may happened in release version's preview page.
+eval(
+    /* use EVAL to prevent the uglify from renaming symbols */
+    'if(typeof CC_TEST=="undefined")' +
+        'CC_TEST=typeof describe!="undefined"||typeof QUnit=="object";' +
+    'if(typeof CC_EDITOR=="undefined")' +
+        'CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions;' +
+    'if(typeof CC_DEV=="undefined")' +
+        'CC_DEV=CC_EDITOR||CC_TEST;'
+);
 
 // PREDEFINE
 

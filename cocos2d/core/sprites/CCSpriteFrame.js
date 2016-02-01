@@ -570,7 +570,7 @@ proto.copy = proto.clone;
  *    The originalSize is the size in pixels of the frame before being trimmed.
  * </p>
  * since v3.0, please use new constructor {{#crossLink "SpriteFrame/SpriteFrame:method"}}SpriteFrame(){{/crossLink}} instead.
- * @method cc.SpriteFrame.create
+ * @method create
  * @param {String|cc.Texture2D} filename
  * @param {cc.Rect} rect if parameters' length equal 2, rect in points, else rect in pixels
  * @param {Boolean} rotated
@@ -584,7 +584,7 @@ cc.SpriteFrame.create = function (filename, rect, rotated, offset, originalSize)
 
 /**
  * deprecated since v3.0, please use new construction instead
- * @method cc.SpriteFrame.createWithTexture
+ * @method createWithTexture
  * @deprecated
  */
 cc.SpriteFrame.createWithTexture = cc.SpriteFrame.create;

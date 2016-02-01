@@ -266,7 +266,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         /**
          * Rotation on y axis
-         * @property rotationX
+         * @property rotationY
          * @type {Number}
          */
         rotationY: {
@@ -622,10 +622,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * Current active scene graph node which provides content size.
          *
          * @property _sizeProvider
-         * @type {_ccsg.Node}
+         * @type {Object}
          * @private
          */
+        // _ccsg.Node
         this._sizeProvider = null;
+
     },
 
     destroy: function () {

@@ -104,7 +104,7 @@ var game = /** @lends cc.game# */{
     /**
      * Set frameRate of game.
      * @method setFrameRate
-     * @param frameRate
+     * @param {Number} frameRate
      */
     setFrameRate: function (frameRate) {
         var self = this, config = self.config, CONFIG_KEY = self.CONFIG_KEY;
@@ -176,7 +176,7 @@ var game = /** @lends cc.game# */{
 //  @Game loading
     /**
      * Prepare game.
-     * @param cb
+     * @param {Function} cb
      * @method prepare
      */
     prepare: function (cb) {

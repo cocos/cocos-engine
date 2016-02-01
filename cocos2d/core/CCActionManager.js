@@ -92,7 +92,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * When the target is paused, the queued actions won't be 'ticked'.
      * @method addAction
      * @param {cc.Action} action
-     * @param {_ccsg.Node} target
+     * @param {cc.Node} target
      * @param {Boolean} paused
      */
     addAction:function (action, target, paused) {
