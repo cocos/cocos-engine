@@ -243,8 +243,9 @@ cc.FiniteTimeAction = cc.Action.extend({
  * Useful to simulate 'slow motion' or 'fast forward' effect.
  *
  * @warning This action can't be Sequenceable because it is not an cc.IntervalAction
- * @class
+ * @class Speed
  * @extends Action
+ * @constructor
  * @param {ActionInterval} action
  * @param {Number} speed
  */
@@ -252,11 +253,6 @@ cc.Speed = cc.Action.extend({
     _speed:0.0,
     _innerAction:null,
 
-	/*
-     * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
-	 * @param {ActionInterval} action
-	 * @param {Number} speed
-	 */
     ctor:function (action, speed) {
         cc.Action.prototype.ctor.call(this);
         this._speed = 0;
@@ -265,28 +261,29 @@ cc.Speed = cc.Action.extend({
 		action && this.initWithAction(action, speed);
     },
 
-    /*
+    /**
      * Gets the current running speed. <br />
      * Will get a percentage number, compared to the original speed.
      *
+     * @method getSpeed
      * @return {Number}
      */
     getSpeed:function () {
         return this._speed;
     },
 
-    /*
+    /**
      * alter the speed of the inner function in runtime.
-     *
+     * @method setSpeed
      * @param {Number} speed
      */
     setSpeed:function (speed) {
         this._speed = speed;
     },
 
-    /*
+    /**
      * initializes the action.
-     *
+     * @method initWithAction
      * @param {ActionInterval} action
      * @param {Number} speed
      * @return {Boolean}
@@ -328,8 +325,9 @@ cc.Speed = cc.Action.extend({
         return new cc.Speed(this._innerAction.reverse(), this._speed);
     },
 
-    /*
+    /**
      * Set inner Action.
+     * @method setInnerAction
      * @param {ActionInterval} action
      */
     setInnerAction:function (action) {
@@ -338,9 +336,9 @@ cc.Speed = cc.Action.extend({
         }
     },
 
-    /*
+    /**
      * Get inner Action.
-     *
+     * @method getInnerAction
      * @return {ActionInterval}
      */
     getInnerAction:function () {
