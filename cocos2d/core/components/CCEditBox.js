@@ -31,7 +31,7 @@ var InputFlag = _ccsg.EditBox.InputFlag;
 /**
  * cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
  * @class EditBox
- * @extends ComponentInSG
+ * @extends _ComponentInSG
  */
 var EditBox = cc.Class({
     name: 'cc.EditBox',

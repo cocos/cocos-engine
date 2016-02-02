@@ -160,7 +160,7 @@ cc.AnimationFrame.create = function(spriteFrame,delayUnits,userInfo){
  *      The cc.SpriteFrameAnimation object contains cc.SpriteFrame objects, and a possible delay between the frames. <br/>
  *      You can animate a cc.SpriteFrameAnimation object by using the cc.Animate action.
  * </p>
- * @class
+ * @class SpriteFrameAnimation
  * @extends cc._Class
  * @param {Array} frames
  * @param {Number} delay

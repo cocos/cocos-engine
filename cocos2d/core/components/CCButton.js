@@ -238,7 +238,7 @@ var Button = cc.Class({
 
         /**
          * If Button is clicked, it will trigger event's handler
-         * @property {[cc.Component.EventHandler]} clickEvents
+         * @property {cc.Component.EventHandler[]} clickEvents
          */
         clickEvents: {
             default: [],

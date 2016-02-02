@@ -29,13 +29,28 @@
 /**
  * Enum for keyboard return types
  * @readonly
- * @enum {number}
+ * @enum cc.EditBox.KeyboardReturnType
  */
 var KeyboardReturnType = cc.Enum({
+    /**
+     * @property {Number} DEFAULT
+     */
     DEFAULT: 0,
+    /**
+     * @property {Number} DONE
+     */
     DONE: 1,
+    /**
+     * @property {Number} SEND
+     */
     SEND: 2,
+    /**
+     * @property {Number} SEARCH
+     */
     SEARCH: 3,
+    /**
+     * @property {Number} GO
+     */
     GO: 4
 });
 
@@ -43,40 +58,49 @@ var KeyboardReturnType = cc.Enum({
  * The EditBox's InputMode defines the type of text that the user is allowed to enter
  * @readonly
  * @enum {number}
- * @memberof cc.EditBox
+ * @memberof cc.EditBox.InputMode
  */
 var InputMode = cc.Enum({
 
+    /**
+     * @property {Number} ANY
+     */
     ANY: 0,
 
     /**
      * The user is allowed to enter an e-mail address.
+     * @property {Number} EMAILADDR
      */
     EMAILADDR: 1,
 
     /**
      * The user is allowed to enter an integer value.
+     * @property {Number} NUMERIC
      */
     NUMERIC: 2,
 
     /**
      * The user is allowed to enter a phone number.
+     * @property {Number} PHONENUMBER
      */
     PHONENUMBER: 3,
 
     /**
      * The user is allowed to enter a URL.
+     * @property {Number} URL
      */
     URL: 4,
 
     /**
      * The user is allowed to enter a real number value.
      * This extends kEditBoxInputModeNumeric by allowing a decimal point.
+     * @property {Number} DECIMAL
      */
     DECIMAL: 5,
 
     /**
      * The user is allowed to enter any text, except for line breaks.
+     * @property {Number} SINGLELINE
      */
     SINGLELINE: 6
 });
@@ -84,13 +108,14 @@ var InputMode = cc.Enum({
 /**
  * Enum for the EditBox's input flags
  * @readonly
- * @enum {number}
- * @memberof cc.EditBox
+ * @enum cc.EditBox.InputFlag
  */
 var InputFlag = cc.Enum({
     /**
      * Indicates that the text entered is confidential data that should be
      * obscured whenever possible. This implies EDIT_BOX_INPUT_FLAG_SENSITIVE.
+     * 
+     * @property {Number} PASSWORD
      */
     PASSWORD: 0,
 
@@ -99,23 +124,31 @@ var InputFlag = cc.Enum({
      * implementation must never store into a dictionary or table for use
      * in predictive, auto-completing, or other accelerated input schemes.
      * A credit card number is an example of sensitive data.
+     *
+     * @property {Number} SENSITIVE
      */
     SENSITIVE: 1,
 
     /**
      * This flag is a hint to the implementation that during text editing,
      * the initial letter of each word should be capitalized.
+     *
+     * @property {Number} INITIAL_CAPS_WORD
      */
     INITIAL_CAPS_WORD: 2,
 
     /**
      * This flag is a hint to the implementation that during text editing,
      * the initial letter of each sentence should be capitalized.
+     *
+     * @property {Number} INITIAL_CAPS_SENTENCE
      */
     INITIAL_CAPS_SENTENCE: 3,
 
     /**
      * Capitalize all characters automatically.
+     *
+     * @property {Number} INITIAL_CAPS_ALL_CHARACTERS
      */
     INITIAL_CAPS_ALL_CHARACTERS: 4
 });
