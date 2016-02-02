@@ -333,6 +333,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this._labelType = _ccsg.Label.Type.SystemFont;
             this._notifyLabelSkinDirty();
             this._isUseSystemFont = true;
+            this.emit('load');
             return;
         }
         //add resource path
@@ -363,6 +364,7 @@ _ccsg.Label = _ccsg.Node.extend({
             fontFace.load().then(function(loadedFace) {
                 document.fonts.add(loadedFace);
                 self._notifyLabelSkinDirty();
+                self.emit('load');
             });
         } else {
             //fall back implementations
@@ -390,7 +392,10 @@ _ccsg.Label = _ccsg.Node.extend({
             _divStyle.left = "-100px";
             _divStyle.top = "-100px";
             doc.body.appendChild(preloadDiv);
-            self.scheduleOnce(self._notifyLabelSkinDirty, 2);
+            self.scheduleOnce(function () {
+                self._notifyLabelSkinDirty();
+                self.emit("load");
+            }, 2);
         }
 
         return fontFamilyName;
@@ -447,13 +452,23 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     getContentSize: function() {
-        if (!CC_EDITOR) {
-            if (!cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
-                this._updateLabel();
-            }
+        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+            this._updateLabel();
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
-    }
+    },
+    _getWidth: function () {
+        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+            this._updateLabel();
+        }
+        return _ccsg.Node.prototype._getWidth.call(this);
+    },
+    _getHeight: function () {
+        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+            this._updateLabel();
+        }
+        return _ccsg.Node.prototype._getHeight.call(this);
+    },
 });
 
 cc.BMFontHelper = {

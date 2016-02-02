@@ -51,6 +51,7 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.string',
             notify: function () {
                 this._sgNode.setString(this.string);
+                this._updateNodeSize();
             }
         },
 
@@ -95,6 +96,7 @@ var Label = cc.Class({
             set: function(value){
                 this._fontSize = value;
                 this._sgNode.setFontSize(value);
+                this._updateNodeSize();
             },
             tooltip: 'i18n:COMPONENT.label.font_size',
         },
@@ -110,6 +112,7 @@ var Label = cc.Class({
                 this._lineHeight = value;
 
                 this._sgNode.setLineHeight(value);
+                this._updateNodeSize();
             },
             tooltip: 'i18n:COMPONENT.label.line_height',
         },
@@ -123,6 +126,7 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.overflow',
             notify: function () {
                 this._sgNode.setOverflow(this.overflow);
+                this._updateNodeSize();
             },
             animatable: false
         },
@@ -214,10 +218,20 @@ var Label = cc.Class({
 
     onLoad: function () {
         this._super();
+
         this.node.on('size-changed', this._resized, this);
-        this._sgNode.on('load', function() {
-            this.node.setContentSize(this._sgNode.getContentSize());
-        },this);
+
+        var sgSizeInitialized = this._sgNode._isUseSystemFont;
+        if (sgSizeInitialized) {
+            this._updateNodeSize();
+        }
+        else if (this.node._sizeProvider === this._sgNode) {
+            // should not provide size for node if size not ready (#853)
+            this.node._sizeProvider = null;
+        }
+
+        // node should be resize whenever font changed
+        this._sgNode.on('load', this._updateNodeSize, this);
     },
 
     onDestroy: function () {
@@ -251,6 +265,16 @@ var Label = cc.Class({
 
     _resized: function () {
         this._useOriginalSize = false;
+    },
+
+    // update node size (this will also invoke the size-changed event)
+    _updateNodeSize: function () {
+        if (this.overflow === Overflow.NONE) {
+            this.node.setContentSize(this._sgNode.getContentSize());
+        }
+        if ( !this.node._sizeProvider ) {
+            this.node._sizeProvider = this._sgNode;
+        }
     }
  });
 
