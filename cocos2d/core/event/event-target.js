@@ -95,7 +95,7 @@ var _doSendEvent = function (owner, event) {
  * @class EventTarget
  */
 var EventTarget = function () {
-    /**
+    /*
      * @property _capturingListeners
      * @type {EventListeners}
      * @default null
@@ -103,7 +103,7 @@ var EventTarget = function () {
      */
     this._capturingListeners = null;
 
-    /**
+    /*
      * @property _bubblingListeners
      * @type {EventListeners}
      * @default null

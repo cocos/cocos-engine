@@ -130,7 +130,7 @@ var Animation = cc.Class({
         /**
          * Whether the animation should auto play the default clip when start game.
          * @property playOnLoad
-         * @type {bool}
+         * @type {Boolean}
          * @default true
          */
         playOnLoad: {

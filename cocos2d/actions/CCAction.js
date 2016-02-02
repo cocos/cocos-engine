@@ -345,6 +345,10 @@ cc.Speed = cc.Action.extend({
 });
 
 /**
+ * @module cc
+ */
+
+/**
  * Creates the speed action which changes the speed of an action, making it take longer (speed > 1)
  * or less (speed < 1) time. <br/>
  * Useful to simulate 'slow motion' or 'fast forward' effect.
@@ -354,7 +358,7 @@ cc.Speed = cc.Action.extend({
  * @method speed
  * @param {ActionInterval} action
  * @param {Number} speed
- * @return {Speed}
+ * @return {Action}
  */
 cc.speed = function (action, speed) {
     return new cc.Speed(action, speed);
@@ -544,7 +548,7 @@ cc.Follow = cc.Action.extend({
  * @method follow
  * @param {Node} followedNode
  * @param {Rect} rect
- * @return {Follow|Null} returns the cc.Follow object on success
+ * @return {Action|Null} returns the cc.Follow object on success
  * @example
  * // example
  * // creates the action with a set boundary

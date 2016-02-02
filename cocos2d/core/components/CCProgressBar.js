@@ -177,7 +177,7 @@ var ProgressBar = cc.Class({
 
         /**
          * The current progress of the bar sprite. The valid value is between 0-1.
-         *@property {Float} progress
+         *@property {Number} progress
          */
         progress: {
             default: 1,

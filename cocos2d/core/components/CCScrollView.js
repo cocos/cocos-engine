@@ -122,7 +122,7 @@ var ScrollView = cc.Class({
         /**
          * It determines how quickly the content stop moving. A value of 1 will stop the movement immediately.
          * A value of 0 will never stop the movement until it reaches to the boundary of scrollview.
-         *@property {Float} brake
+         *@property {Number} brake
          */
         brake: {
             default: 0.5,
@@ -142,7 +142,7 @@ var ScrollView = cc.Class({
 
         /**
          * The elapse time of bouncing back. A value of 0 will bounce back immediately.
-         *@property {Float} bounceDuration
+         *@property {Number} bounceDuration
          */
         bounceDuration: {
             default: 1,
@@ -374,7 +374,7 @@ var ScrollView = cc.Class({
     /**
      * Scroll the content to the percent position of ScrollView in any direction.
      * @method scrollTo
-     * @param {Point} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
+     * @param {Vec2} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the percent position of ScrollView immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
@@ -418,7 +418,7 @@ var ScrollView = cc.Class({
     /**
      * Modify the content position.
      * @method setContentPosition
-     * @param {Point} position - The position in content's parent space.
+     * @param {Vec2} position - The position in content's parent space.
      */
     setContentPosition: function(position) {
         if (cc.pFuzzyEqual(position, this.getContentPosition(), EPSILON)) {

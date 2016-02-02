@@ -104,7 +104,7 @@ var Scrollbar = cc.Class({
         /**
          * The time to hide scrollbar when scroll finished.
          * Note: This value is only useful when enableAutoHide is true.
-         *@property {Float} autoHideTime
+         *@property {Number} autoHideTime
          */
         autoHideTime: {
             default: 1.0,

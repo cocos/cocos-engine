@@ -87,7 +87,7 @@ cc.pMult = function (point, floatVar) {
  * @method pMidpoint
  * @param {Vec2} v1
  * @param {Vec2} v2
- * @return {pMult}
+ * @return {Vec2}
  */
 cc.pMidpoint = function (v1, v2) {
     return cc.pMult(cc.pAdd(v1, v2), 0.5);
@@ -129,7 +129,7 @@ cc.pPerp = function (point) {
  * Calculates perpendicular of v, rotated 90 degrees clockwise -- cross(v, rperp(v)) smaller than 0
  * @method pRPerp
  * @param {Vec2} point
- * @return Vec2}
+ * @return {Vec2}
  */
 cc.pRPerp = function (point) {
     return cc.p(point.y, -point.x);
@@ -140,7 +140,7 @@ cc.pRPerp = function (point) {
  * @method pProject
  * @param {Vec2} v1
  * @param {Vec2} v2
- * @return {pMult}
+ * @return {Vec2}
  */
 cc.pProject = function (v1, v2) {
     return cc.pMult(v2, cc.pDot(v1, v2) / cc.pDot(v2, v2));
@@ -271,7 +271,7 @@ cc.clamp01 = function (value) {
 /**
  * Clamp a point between from and to.
  * @method pClamp
- * @param {Point} p
+ * @param {Vec2} p
  * @param {Number} min_inclusive
  * @param {Number} max_inclusive
  * @return {Vec2}
@@ -314,7 +314,7 @@ cc.pCompOp = function (p, opFunc) {
  * @param {Vec2} a
  * @param {Vec2} b
  * @param {Number} alpha
- * @return {pAdd}
+ * @return {Vec2}
  */
 cc.pLerp = function (a, b, alpha) {
     return cc.pAdd(cc.pMult(a, 1 - alpha), cc.pMult(b, alpha));
@@ -543,7 +543,7 @@ cc.pSubIn = function(v1, v2) {
  * adds one point to another (inplace).
  * @method pAddIn
  * @param {Vec2} v1
- * @param {point} v2
+ * @param {Vec2} v2
  */
 cc.pAddIn = function(v1, v2) {
     v1.x += v2.x;
