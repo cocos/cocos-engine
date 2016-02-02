@@ -210,18 +210,20 @@ var game = /** @lends cc.game# */{
             cc.view = cc.EGLView._getInstance();
 
             /**
-             * @type {cc.Director}
-             * @name cc.director
-             * @memberof cc
+             * @module cc
+             */
+
+            /**
+             * @property director
+             * @type cc.Director
              */
             cc.director = cc.Director._getInstance();
             if (cc.director.setOpenGLView)
                 cc.director.setOpenGLView(cc.view);
             /**
-             * @type {cc.Size}
-             * @name cc.winSize
-             * @memberof cc
              * cc.winSize is the alias object for the size of the current game window.
+             * @property winSize
+             * @type cc.Size
              */
             cc.winSize = cc.director.getWinSize();
 
@@ -253,6 +255,10 @@ var game = /** @lends cc.game# */{
             self.prepare(cb);
         });
     },
+
+    /**
+     * @class game
+     */
 
     /**
      * Run game with configuration object and onStart function.
