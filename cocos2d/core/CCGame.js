@@ -214,7 +214,7 @@ var game = /** @lends cc.game# */{
              */
 
             /**
-             * @property cc.director
+             * @property director
              * @type cc.Director
              */
             cc.director = cc.Director._getInstance();
@@ -222,7 +222,7 @@ var game = /** @lends cc.game# */{
                 cc.director.setOpenGLView(cc.view);
             /**
              * cc.winSize is the alias object for the size of the current game window.
-             * @property cc.winSize
+             * @property winSize
              * @type cc.Size
              */
             cc.winSize = cc.director.getWinSize();
