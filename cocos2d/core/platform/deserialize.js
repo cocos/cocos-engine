@@ -497,7 +497,7 @@ var _Deserializer = (function () {
  *
  * @method deserialize
  * @param {String|Object} data - the serialized cc.Asset json string or json object.
- * @param {deserialize.Details} [result] - additional loading result
+ * @param {Details} [result] - additional loading result
  * @param {Object} [options]
  * @return {object} the main data(asset)
  */

@@ -484,6 +484,7 @@ var AssetLibrary = {
      * init the asset library
      *
      * @method init
+     * @param {Object} options
      * @param {String} options.libraryPath - 能接收的任意类型的路径，通常在编辑器里使用绝对的，在网页里使用相对的。
      * @param {Object} options.mountPaths - mount point of actual urls for raw assets (only used in editor)
      * @param {Object} [options.rawAssets] - uuid to raw asset's urls (only used in runtime)

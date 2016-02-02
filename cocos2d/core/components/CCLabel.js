@@ -56,7 +56,7 @@ var Label = cc.Class({
 
         /**
          * Horizontal Alignment of label
-         * @property {Label.HorizontalAlign} horizontalAlign
+         * @property {cc.TextAlignment} horizontalAlign
          */
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
@@ -70,7 +70,7 @@ var Label = cc.Class({
 
         /**
          * Vertical Alignment of label
-         * @property {Label.VerticalAlign} verticalAlign
+         * @property {cc.VerticalTextAlignment} verticalAlign
          */
         verticalAlign: {
             default: VerticalAlign.TOP,
