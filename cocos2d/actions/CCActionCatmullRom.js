@@ -257,7 +257,7 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
         return this._points;
     },
 
-    /**
+    /*
      * Points setter
      * @method setPoints
      * @param {Array} points
