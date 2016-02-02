@@ -342,8 +342,6 @@ var Layout = cc.Class({
             if (!child.activeInHierarchy) {
                 return;
             }
-            //hacking for label
-            child.getContentSize();
             //for resizing children
             if (this._resize === ResizeType.CHILDREN) {
                 child.width = newChildWidth;
@@ -471,8 +469,6 @@ var Layout = cc.Class({
                 return;
             }
 
-            //hacking for label
-            child.getContentSize();
             //for resizing children
             if (this.resize === ResizeType.CHILDREN) {
                 child.height = newChildHeight;
