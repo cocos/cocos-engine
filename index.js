@@ -33,7 +33,8 @@ eval(
     'if(typeof CC_EDITOR=="undefined")' +
         'CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions;' +
     'if(typeof CC_DEV=="undefined")' +
-        'CC_DEV=CC_EDITOR||CC_TEST;'
+        'CC_DEV=CC_EDITOR||CC_TEST;' +
+        'CC_JSB=false;'
 );
 
 // PREDEFINE

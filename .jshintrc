@@ -36,6 +36,7 @@
     "expect",
     "it",
     "cc",
+    "CC_JSB",
     "CC_EDITOR",
     "CC_DEV",
     "CC_TEST",

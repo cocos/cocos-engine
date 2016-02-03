@@ -26,7 +26,47 @@
 
 // cc.Scale9Sprite
 
-cc.Scale9Sprite.prototype._lazyInit = function () {
+cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
+
+/**
+ * Enum for sprite type
+ * @enum SpriteType
+ */
+cc.Scale9Sprite.RenderingType = cc.Enum({
+    /**
+     * @property {Number} SIMPLE
+     */
+    SIMPLE: 0,
+    /**
+     * @property {Number} SLICED
+     */
+    SLICED: 1,
+    /*
+     * @property {Number} TILED
+     */
+    TILED: 2,
+    /*
+     * @property {Number} FILLED
+     */
+    FILLED: 3
+});
+
+cc.Scale9Sprite.FillType = cc.Enum({
+    Horizontal: 0,
+    Vertical: 1,
+    //todo implement this
+    RADIAL:2,
+});
+
+var s9sPrototype = cc.Scale9Sprite.prototype;
+
+s9sPrototype.setFillType = function () {};
+s9sPrototype.setFillCenter = function () {};
+s9sPrototype.setFillStart = function () {};
+s9sPrototype.setFillRange = function () {};
+s9sPrototype.enableTrimmedContentSize = function () {};
+
+s9sPrototype._lazyInit = function () {
     if (this._onceInit) return;
     this._onceInit = true;
     this._insets = {left: 0, right: 0, top: 0, bottom: 0};
@@ -36,11 +76,11 @@ cc.Scale9Sprite.prototype._lazyInit = function () {
     this._sizeAfterTrimmed = new cc.Size(0, 0);
 };
 
-cc.Scale9Sprite.prototype._applyInsetsContentAnchor = function () {
+s9sPrototype._applyInsetsContentAnchor = function () {
     var renderingType = this._renderingType || (this.getRenderingType && this.getRenderingType());
     var trimScaleX = 1;
     var trimScaleY = 1;
-    if (renderingType === cc.SpriteType.SIMPLE) {
+    if (renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
         trimScaleX = this._contentSizeTrimmed.width / this._sizeAfterTrimmed.width;
         trimScaleY = this._contentSizeTrimmed.height / this._sizeAfterTrimmed.height;
     }
@@ -68,8 +108,8 @@ cc.Scale9Sprite.prototype._applyInsetsContentAnchor = function () {
     this.setCapInsets(capinsets);
 };
 
-cc.Scale9Sprite.prototype._setBlendFunc = cc.Scale9Sprite.prototype.setBlendFunc;
-cc.Scale9Sprite.prototype.setBlendFunc = function (blendFunc, dst) {
+s9sPrototype._setBlendFunc = s9sPrototype.setBlendFunc;
+s9sPrototype.setBlendFunc = function (blendFunc, dst) {
     if (void 0 !== dst) {
         blendFunc = {
             src: blendFunc,
@@ -78,13 +118,13 @@ cc.Scale9Sprite.prototype.setBlendFunc = function (blendFunc, dst) {
     }
     this._setBlendFunc(blendFunc);
 };
-cc.Scale9Sprite.prototype._getContentSize = cc.Scale9Sprite.prototype.getContentSize;
-cc.Scale9Sprite.prototype.getContentSize = function () {
+s9sPrototype._getContentSize = s9sPrototype.getContentSize;
+s9sPrototype.getContentSize = function () {
     return new cc.Size(this._contentSizeTrimmed);
 };
 
-cc.Scale9Sprite.prototype._setContentSize = cc.Scale9Sprite.prototype.setContentSize;
-cc.Scale9Sprite.prototype.setContentSize = function (size, height) {
+s9sPrototype._setContentSize = s9sPrototype.setContentSize;
+s9sPrototype.setContentSize = function (size, height) {
     this._lazyInit();
     if (void 0 !== height) {
         size = new cc.Size(size, height);
@@ -93,13 +133,13 @@ cc.Scale9Sprite.prototype.setContentSize = function (size, height) {
     this._applyInsetsContentAnchor();
 };
 
-cc.Scale9Sprite.prototype._getAnchorPoint = cc.Scale9Sprite.prototype.getAnchorPoint;
-cc.Scale9Sprite.prototype.getAnchorPoint = function () {
+s9sPrototype._getAnchorPoint = s9sPrototype.getAnchorPoint;
+s9sPrototype.getAnchorPoint = function () {
     return new cc.Vec2(this._anchorPointTrimmed);
 };
 
-cc.Scale9Sprite.prototype._setAnchorPoint = cc.Scale9Sprite.prototype.setAnchorPoint;
-cc.Scale9Sprite.prototype.setAnchorPoint = function (anchorPoint, y) {
+s9sPrototype._setAnchorPoint = s9sPrototype.setAnchorPoint;
+s9sPrototype.setAnchorPoint = function (anchorPoint, y) {
     this._lazyInit();
     if (void 0 !== y) {
         anchorPoint = new cc.Vec2(anchorPoint, y);
@@ -108,53 +148,53 @@ cc.Scale9Sprite.prototype.setAnchorPoint = function (anchorPoint, y) {
     this._applyInsetsContentAnchor();
 };
 
-cc.Scale9Sprite.prototype._getInsetLeft = cc.Scale9Sprite.prototype.getInsetLeft;
-cc.Scale9Sprite.prototype._getInsetRight = cc.Scale9Sprite.prototype.getInsetRight;
-cc.Scale9Sprite.prototype._getInsetBottom = cc.Scale9Sprite.prototype.getInsetBottom;
-cc.Scale9Sprite.prototype._getInsetTop = cc.Scale9Sprite.prototype.getInsetTop;
-cc.Scale9Sprite.prototype.getInsetLeft = function () {
+s9sPrototype._getInsetLeft = s9sPrototype.getInsetLeft;
+s9sPrototype._getInsetRight = s9sPrototype.getInsetRight;
+s9sPrototype._getInsetBottom = s9sPrototype.getInsetBottom;
+s9sPrototype._getInsetTop = s9sPrototype.getInsetTop;
+s9sPrototype.getInsetLeft = function () {
     return this._insets.left;
 };
-cc.Scale9Sprite.prototype.getInsetRight = function () {
+s9sPrototype.getInsetRight = function () {
     return this._insets.right;
 };
-cc.Scale9Sprite.prototype.getInsetBottom = function () {
+s9sPrototype.getInsetBottom = function () {
     return this._insets.bottom;
 };
-cc.Scale9Sprite.prototype.getInsetTop = function () {
+s9sPrototype.getInsetTop = function () {
     return this._insets.top;
 };
 
-cc.Scale9Sprite.prototype._setInsetLeft = cc.Scale9Sprite.prototype.setInsetLeft;
-cc.Scale9Sprite.prototype.setInsetLeft = function (insetLeft) {
+s9sPrototype._setInsetLeft = s9sPrototype.setInsetLeft;
+s9sPrototype.setInsetLeft = function (insetLeft) {
     this._lazyInit();
     this._insets.left = insetLeft;
     this._applyInsetsContentAnchor();
 };
 
-cc.Scale9Sprite.prototype._setInsetRight = cc.Scale9Sprite.prototype.setInsetRight;
-cc.Scale9Sprite.prototype.setInsetRight = function (insetRight) {
+s9sPrototype._setInsetRight = s9sPrototype.setInsetRight;
+s9sPrototype.setInsetRight = function (insetRight) {
     this._lazyInit();
     this._insets.right = insetRight;
     this._applyInsetsContentAnchor();
 };
 
-cc.Scale9Sprite.prototype._setInsetTop = cc.Scale9Sprite.prototype.setInsetTop;
-cc.Scale9Sprite.prototype.setInsetTop = function (insetTop) {
+s9sPrototype._setInsetTop = s9sPrototype.setInsetTop;
+s9sPrototype.setInsetTop = function (insetTop) {
     this._lazyInit();
     this._insets.top = insetTop;
     this._applyInsetsContentAnchor();
 };
 
-cc.Scale9Sprite.prototype._setInsetBottom = cc.Scale9Sprite.prototype.setInsetBottom;
-cc.Scale9Sprite.prototype.setInsetBottom = function (insetBottom) {
+s9sPrototype._setInsetBottom = s9sPrototype.setInsetBottom;
+s9sPrototype.setInsetBottom = function (insetBottom) {
     this._lazyInit();
     this._insets.bottom = insetBottom;
     this._applyInsetsContentAnchor();
 };
 
-cc.Scale9Sprite.prototype._setSpriteFrame = cc.Scale9Sprite.prototype.setSpriteFrame;
-cc.Scale9Sprite.prototype.setSpriteFrame = function (spriteFrame) {
+s9sPrototype._setSpriteFrame = s9sPrototype.setSpriteFrame;
+s9sPrototype.setSpriteFrame = function (spriteFrame) {
     this._lazyInit();
     var originalSize = spriteFrame.getOriginalSize();
     var spriteRect = spriteFrame.getRect();

@@ -32,7 +32,7 @@ cc.Scale9Sprite.prototype.setRenderingType = function (type) {
         this.setScale9Enabled(true);
     }
 
-    if (type === cc.SpriteType.SIMPLE) {
+    if (type === cc.Scale9Sprite.RenderingType.SIMPLE) {
         // Should modify based on trim size
         this.setInsetLeft(0);
         this.setInsetTop(0);

@@ -23,6 +23,7 @@ paths = {
         '../../cocos2d/core/platform/CCLoader',
         '../../cocos2d/core/platform/CCLoaders',
         '../../cocos2d/core/event/event',
+        '../../extensions/spine/spine-exported',
     ],
 
     test: {

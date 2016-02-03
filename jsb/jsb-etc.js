@@ -260,7 +260,7 @@ window._ccsg = {
     Sprite: cc.Sprite,
     ParticleSystem: cc.ParticleSystem,
     Label: cc.Label,
-
+    EditBox: cc.EditBox
 };
 
 // rename cc.Class to cc._Class
