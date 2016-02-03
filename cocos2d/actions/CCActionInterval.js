@@ -245,6 +245,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
     /*
      * Repeats an action a number of times.
      * To repeat an action forever use the CCRepeatForever action.
+     * @method repeat
      * @param times
      * @returns {ActionInterval}
      */
@@ -262,6 +263,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
     /*
      * Repeats an action for ever.  <br/>
      * To repeat the an action for a limited number of times use the Repeat action. <br/>
+     * @method repeatForever
      * @returns {ActionInterval}
      */
     repeatForever: function(){
@@ -415,7 +417,7 @@ cc.Sequence = cc.ActionInterval.extend({
     }
 });
 
-/** 
+/**
  * Helper constructor to create an array of sequenceable actions
  * The created action will run actions sequentially, one after another.
  * @method sequence

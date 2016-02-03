@@ -29,8 +29,13 @@ var JS = require("../platform/js");
  * Base class of all kinds of events.
  * @class Event
  * @constructor
+ */
+
+/**
+ * @method Event
  * @param {string} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
  * @param {boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
+ * @return Event
  */
 cc.Event = function(type, bubbles) {
     /**
@@ -174,7 +179,7 @@ cc.Event.prototype = {
     getCurrentTarget: function () {
         return this.currentTarget;
     },
-    
+
     /**
      * Gets the event type.
      * @method getType
@@ -188,7 +193,8 @@ cc.Event.prototype = {
 //event type
 /**
  * Code for event without type.
- * @constant
+ * @property NO_TYPE
+ * @final
  * @type {string}
  */
 cc.Event.NO_TYPE = 'no_type';
@@ -198,7 +204,6 @@ cc.Event.NO_TYPE = 'no_type';
  * Events not currently dispatched are in this phase
  * @property NONE
  * @type {Number}
- * @static
  * @final
  */
 cc.Event.NONE = 0;
@@ -207,7 +212,6 @@ cc.Event.NONE = 0;
  * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
  * @property CAPTURING_PHASE
  * @type {Number}
- * @static
  * @final
  */
 cc.Event.CAPTURING_PHASE = 1;
@@ -216,7 +220,6 @@ cc.Event.CAPTURING_PHASE = 1;
  * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
  * @property AT_TARGET
  * @type {Number}
- * @static
  * @final
  */
 cc.Event.AT_TARGET = 2;
@@ -225,7 +228,6 @@ cc.Event.AT_TARGET = 2;
  * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
  * @property BUBBLING_PHASE
  * @type {Number}
- * @static
  * @final
  */
 cc.Event.BUBBLING_PHASE = 3;
@@ -235,8 +237,13 @@ cc.Event.BUBBLING_PHASE = 3;
  * @class Event.EventCustom
  * @constructor
  * @extends Event
+ */
+
+/**
+ * @method EventCustom
  * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
  * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
+ * @return EventCustom
  */
 var EventCustom = function (type, bubbles) {
     cc.Event.call(this, type, bubbles);
@@ -253,6 +260,7 @@ JS.extend(EventCustom, cc.Event);
 JS.mixin(EventCustom.prototype, {
     /**
      * Sets user data
+     * @method setUserData
      * @param {*} data
      */
     setUserData: function (data) {
@@ -261,6 +269,7 @@ JS.mixin(EventCustom.prototype, {
 
     /**
      * Gets user data
+     * @method getUserData
      * @returns {*}
      */
     getUserData: function () {
@@ -269,6 +278,7 @@ JS.mixin(EventCustom.prototype, {
 
     /**
      * Gets event name
+     * @method getEventName
      * @returns {String}
      */
     getEventName: cc.Event.prototype.getType
