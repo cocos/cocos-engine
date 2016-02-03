@@ -672,8 +672,9 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * !#en Defines a CCClass using the given specification, please see [Class](/en/scripting/class/) for details.
  * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
  *
- * @class Class
+ * @method Class
  * @param {Object} options
+ * TODO: add properties of options
  * @return {Function} - the created class
  *
  * @example
