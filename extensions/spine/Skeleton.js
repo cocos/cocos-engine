@@ -25,9 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-if (!CC_JSB) {
-    var spine = require('./spine-exported');
-}
+var spine = require('./spine-exported');
 
 /**
  * @module sp
