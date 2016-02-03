@@ -66,14 +66,16 @@ function rebundle(bundler) {
     var dev = uglify(getUglifyOptions(false, {
         CC_EDITOR: false,
         CC_DEV: false,
-        CC_TEST: false
+        CC_TEST: false,
+        CC_JSB: false
     }));
 
     var min = rename({ suffix: '-min' });
     min.pipe(uglify(getUglifyOptions(true, {
             CC_EDITOR: false,
             CC_DEV: false,
-            CC_TEST: false
+            CC_TEST: false,
+            CC_JSB: false
         })));
 
     return bundler.bundle()
@@ -107,7 +109,8 @@ function rebundle_test(bundler, suffix) {
         bundle = bundle.pipe(uglify(getUglifyOptions(false, {
                 CC_EDITOR: TestEditorExtends,
                 CC_DEV: TestEditorExtends || true,
-                CC_TEST: true
+                CC_TEST: true,
+                CC_JSB: false
             })));
         if (SourceMap) {
             bundle = bundle.pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}));
@@ -179,7 +182,8 @@ function rebundle_jsb(bundler, minify, suffix) {
     bundle = bundle.pipe(uglify(getUglifyOptions(minify, {
         CC_EDITOR: false,
         CC_DEV: false,
-        CC_TEST: false
+        CC_TEST: false,
+        CC_JSB: true
     })));
     if (SourceMap) {
         bundle = bundle.pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}));

@@ -30,7 +30,7 @@
 
 sp = {};
 
-if (!CC_EDITOR || !Editor.isCoreLevel) {
+if (!CC_JSB && (!CC_EDITOR || !Editor.isCoreLevel)) {
     require('./Skeleton');
     require('./SkeletonCanvasRenderCmd');
     require('./SkeletonWebGLRenderCmd');

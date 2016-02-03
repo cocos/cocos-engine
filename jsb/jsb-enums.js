@@ -113,7 +113,7 @@ cc.EditBox.InputFlag = cc.Enum({
  * @readonly
  * @enum {number}
  */
-cc.KeyboardReturnType = cc.Enum({
+cc.EditBox.KeyboardReturnType = cc.Enum({
     DEFAULT: 0,
     DONE: 1,
     SEND: 2,
