@@ -230,8 +230,10 @@ var Label = cc.Class({
             this.node._sizeProvider = null;
         }
 
-        // node should be resize whenever font changed
-        this._sgNode.on('load', this._updateNodeSize, this);
+        // node should be resize whenever font changed, needed only on web
+        if (!cc.sys.Native) {
+            this._sgNode.on('load', this._updateNodeSize, this);
+        }
     },
 
     onDestroy: function () {

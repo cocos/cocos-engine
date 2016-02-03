@@ -63,10 +63,6 @@ cc.Scene = cc.Class({
         this._activeInHierarchy = false;
     },
 
-    _onPreDestroy: function () {
-        this._sgNode.release();
-    },
-
     _onHierarchyChanged: NIL,
     _onColorChanged: NIL,
     _onAnchorChanged: NIL,
