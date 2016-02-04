@@ -642,9 +642,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     },
 
-    destroy: function () {
+    _onPreDestroy: function () {
         this._sgNode.release();
-        this._super();
     },
 
     // ABSTRACT INTERFACES

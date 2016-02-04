@@ -29,6 +29,9 @@ var ComponentInSG = cc.Class({
          * @private
          */
         this._sgNode = this._createSgNode();
+        // retain immediately
+        // will be released in SceneGraphHelper.removeSgNode
+        this._sgNode.retain();
     },
 
     onLoad: function () {
@@ -93,10 +96,6 @@ var ComponentInSG = cc.Class({
 
         var sgParent = node._sgNode;
         sgParent.addChild(sgNode);
-
-        // retain immediately
-        // will be released in SceneGraphHelper.removeSgNode
-        sgNode.retain();
     }
 });
 

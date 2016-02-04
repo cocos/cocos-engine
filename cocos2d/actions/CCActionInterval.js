@@ -117,7 +117,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
         return action;
     },
 
-    /*
+    /**
      * Implementation of ease motion.
      *
      * @example
@@ -205,7 +205,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
         return 0;
     },
 
-    /*
+    /**
      * Changes the speed of an action, making it take longer (speed>1)
      * or less (speed<1) time. <br/>
      * Useful to simulate 'slow motion' or 'fast forward' effect.
@@ -224,7 +224,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
         return this;
     },
 
-    /*
+    /**
      * Get this action speed.
      * @return {Number}
      */
@@ -232,7 +232,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
         return this._speed;
     },
 
-    /*
+    /**
      * Set this action speed.
      * @param {Number} speed
      * @returns {ActionInterval}
@@ -242,7 +242,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
         return this;
     },
 
-    /*
+    /**
      * Repeats an action a number of times.
      * To repeat an action forever use the CCRepeatForever action.
      * @method repeat
@@ -260,7 +260,7 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
         return this;
     },
 
-    /*
+    /**
      * Repeats an action for ever.  <br/>
      * To repeat the an action for a limited number of times use the Repeat action. <br/>
      * @method repeatForever
