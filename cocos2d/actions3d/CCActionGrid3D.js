@@ -638,7 +638,7 @@ cc.Ripple3D = cc.Grid3DAction.extend(/** @lends cc.Ripple3D# */{
 
     /**
      * get Amplitude rate
-     * @return {*}
+     * @return {Number}
      */
     getAmplitudeRate:function () {
         return this._amplitudeRate;

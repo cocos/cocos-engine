@@ -9,8 +9,13 @@ var AnimationNode = require('./types').AnimationNode;
  * @class AnimationState
  * @extends AnimationNode
  * @constructor
+ */
+
+/**
+ * @method AnimationState
  * @param {AnimationClip} clip
  * @param {String} [name]
+ * @return AnimationState
  */
 function AnimationState (clip, name) {
     AnimationNode.call(this, null, null, {
@@ -28,7 +33,7 @@ var state = AnimationState.prototype;
  * The clip that is being played by this animation state.
  * @property clip
  * @type {AnimationClip}
- * @readOnly
+ * @final
  */
 JS.get(state, 'clip', function () {
     return this._clip;
