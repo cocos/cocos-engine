@@ -13,10 +13,10 @@ var Color = (function () {
      * @class Color
      * @extends ValueType
      * @constructor
-     * @param {Number} [r] - red component of the color, default value is 0.
-     * @param {Number} [g] - green component of the color, defualt value is 0.
-     * @param {Number} [b] - blue component of the color, default value is 0.
-     * @param {Number} [a] - alpha component of the color, default value is 255.
+     * @param {Number} [r=0] - red component of the color, default value is 0.
+     * @param {Number} [g=0] - green component of the color, defualt value is 0.
+     * @param {Number} [b=0] - blue component of the color, default value is 0.
+     * @param {Number} [a=255] - alpha component of the color, default value is 255.
      */
     function Color( r, g, b, a ) {
         if (typeof r === 'object') {
