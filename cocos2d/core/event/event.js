@@ -35,7 +35,7 @@ var JS = require("../platform/js");
  * @method Event
  * @param {string} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
  * @param {boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
- * @return Event
+ * @return {Event}
  */
 cc.Event = function(type, bubbles) {
     /**
@@ -243,7 +243,7 @@ cc.Event.BUBBLING_PHASE = 3;
  * @method EventCustom
  * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
  * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
- * @return EventCustom
+ * @return {EventCustom}
  */
 var EventCustom = function (type, bubbles) {
     cc.Event.call(this, type, bubbles);
