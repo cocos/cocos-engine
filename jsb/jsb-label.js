@@ -79,7 +79,7 @@ jsbLabel.prototype.getTTFConfig = function () {
     return this._ttfConfig;
 };
 
-jsbLabel.prototype.setContentSize = function(size, height) {
+jsbLabel.prototype.setContentSize = function (size, height) {
     if(height !== undefined){
         this.setDimensions(size, height);
     }
@@ -87,6 +87,32 @@ jsbLabel.prototype.setContentSize = function(size, height) {
         this.setDimensions(size.width, size.height);
     }
 };
+
+jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
+    fontHandle = fontHandle || '';
+    var extName = cc.path.extname(fontHandle);
+
+    //specify font family name directly
+    if (extName === null) {
+        this._labelType = _ccsg.Label.Type.SystemFont;
+        this.setSystemFontName(fontHandle);
+    }
+    else {
+        //add resource path
+        fontHandle = cc.path.join(cc.loader.resPath, fontHandle);
+
+        if (extName === '.ttf') {
+            this._labelType = _ccsg.Label.Type.TTF;
+            this._ttfConfig.fontFilePath = fontHandle;
+            this.setTTFConfig(this._ttfConfig);
+        } else if (extName === '.fnt') {
+            //todo add bmfont here
+            this._labelType = _ccsg.Label.Type.BMFont;
+            this.setBMFontFilePath(fontHandle, cc.v2(0, 0), this.getBMFontSize());
+        }
+    }
+};
+
 cc.Label = function (string, fontHandle) {
     fontHandle = fontHandle || "Arial";
     var extName = cc.path.extname(fontHandle);
@@ -111,7 +137,7 @@ cc.Label = function (string, fontHandle) {
         type = _ccsg.Label.Type.BMFont;
     }
     else {
-        label = jsbLabel.createWithSystemFont(string, fontHandle, 40);
+        label = jsbLabel.createWithSystemFont(string || '', fontHandle, 40);
         type = _ccsg.Label.Type.SystemFont;
     }
     label._labelType = type;
