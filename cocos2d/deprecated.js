@@ -540,4 +540,22 @@ if (CC_DEV) {
         'setFlippedY',
         'isFlippedY'
     ]);
+
+    // SPINE
+
+    if (typeof sp !== 'undefined') {
+        deprecateEnum(sp, 'sp.ANIMATION_EVENT_TYPE', 'sp.AnimationEventType');
+        js.obsolete(sp, 'SkeletonAnimation', 'Skeleton');
+        provideClearError(sp.Skeleton, {
+            create: 'node.addComponent',
+        });
+        provideClearError(sp.Skeleton.prototype, {
+            '*etDebugSlotsEnabled': 'debugSlots',
+            '*etDebugBonesEnabled': 'debugBones',
+            'setDebugSolots': 'debugSlots',
+            'setDebugBones': 'debugBones',
+            '*etTimeScale': 'timeScale',
+        });
+    }
 }
+

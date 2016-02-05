@@ -25,51 +25,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var spine = require('./spine-exported');
+var spine = sp.spine;
 
-/**
- * @module sp
- */
-
-/**
- * The vertex index of spine.
- * @constant
- * @type {{X1: number, Y1: number, X2: number, Y2: number, X3: number, Y3: number, X4: number, Y4: number}}
- */
-sp.VERTEX_INDEX = {
-    X1: 0,
-    Y1: 1,
-    X2: 2,
-    Y2: 3,
-    X3: 4,
-    Y3: 5,
-    X4: 6,
-    Y4: 7
-};
-
-/**
- * The attachment type of spine.  It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
- * @constant
- * @type {{REGION: number, BOUNDING_BOX: number, REGION_SEQUENCE: number, MESH: number}}
- */
-sp.ATTACHMENT_TYPE = {
-    REGION: 0,
-    BOUNDING_BOX: 1,
-    MESH: 2,
-    SKINNED_MESH:3
-};
-
-/**
- * <p>
- *     The skeleton of Spine.                                                                          <br/>
- *     Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
- *     which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible.           <br/>
- *     Multiple skeletons can use the same SkeletonData (which includes all animations, skins, and attachments).     <br/>
- * </p>
- * @class
- * @extends _ccsg.Node
- */
-sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
+sp._SGSkeleton = _ccsg.Node.extend({
     _skeleton: null,
     _rootBone: null,
     _timeScale: 1,
@@ -80,10 +38,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     _atlas: null,
     _blendFunc: null,
 
-    /**
-     * The constructor of sp.Skeleton. override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
-     */
-    ctor:function(skeletonDataFile, atlasFile, scale){
+    ctor: function(skeletonDataFile, atlasFile, scale) {
         _ccsg.Node.prototype.ctor.call(this);
         this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
 
@@ -93,38 +48,19 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
             this.initWithArgs(skeletonDataFile, atlasFile, scale);
     },
 
-    _createRenderCmd:function () {
+    _createRenderCmd: function () {
         if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
-            return new sp.Skeleton.CanvasRenderCmd(this);
+            return new sp._SGSkeleton.CanvasRenderCmd(this);
         else
-            return new sp.Skeleton.WebGLRenderCmd(this);
+            return new sp._SGSkeleton.WebGLRenderCmd(this);
     },
 
-    /**
-     * Initializes a sp.Skeleton. please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
-     */
     init: function () {
         _ccsg.Node.prototype.init.call(this);
         //this.setOpacityModifyRGB(true);
         this._blendFunc.src = cc.ONE;
         this._blendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
         this.scheduleUpdate();
-    },
-
-    /**
-     * Sets whether open debug slots.
-     * @param {boolean} enable true to open, false to close.
-     */
-    setDebugSolots:function(enable){
-        this._debugSlots = enable;
-    },
-
-    /**
-     * Sets whether open debug bones.
-     * @param {boolean} enable
-     */
-    setDebugBones:function(enable){
-        this._debugBones = enable;
     },
 
     /**
@@ -160,7 +96,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     },
 
     /**
-     * Sets the time scale of sp.Skeleton.
+     * Sets the time scale of sp._SGSkeleton.
      * @param {Number} scale
      */
     setTimeScale:function(scale){
@@ -172,7 +108,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     },
 
     /**
-     * Initializes sp.Skeleton with Data.
+     * Initializes sp._SGSkeleton with Data.
      * @param {spine.SkeletonData|String} skeletonDataFile
      * @param {String|spine.Atlas|spine.SkeletonData} atlasFile atlas filename or atlas data or owns SkeletonData
      * @param {Number} [scale] scale can be specified on the JSON or binary loader which will scale the bone positions, image sizes, and animation translations.
@@ -208,7 +144,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     },
 
     /**
-     * Returns the bounding box of sp.Skeleton.
+     * Returns the bounding box of sp._SGSkeleton.
      * @returns {cc.Rect}
      */
     getBoundingBox: function () {
@@ -320,7 +256,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     },
 
     /**
-     * Sets the premultiplied alpha value to sp.Skeleton.
+     * Sets the premultiplied alpha value to sp._SGSkeleton.
      * @param {Number} alpha
      */
     setOpacityModifyRGB: function (alpha) {
@@ -336,7 +272,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     },
 
     /**
-     * Sets skeleton data to sp.Skeleton.
+     * Sets skeleton data to sp._SGSkeleton.
      * @param {spine.SkeletonData} skeletonData
      * @param {spine.SkeletonData} ownsSkeletonData
      */
@@ -362,7 +298,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     },
 
     /**
-     * Returns the blendFunc of sp.Skeleton.
+     * Returns the blendFunc of sp._SGSkeleton.
      * @returns {cc.BlendFunc}
      */
     getBlendFunc: function () {
@@ -370,7 +306,7 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
     },
 
     /**
-     * Sets the blendFunc of sp.Skeleton.
+     * Sets the blendFunc of sp._SGSkeleton.
      * @param {cc.BlendFunc|Number} src
      * @param {Number} [dst]
      */
@@ -393,15 +329,3 @@ sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
         this._skeleton.update(dt);
     }
 });
-
-/**
- * Creates a skeleton object.
- * @deprecated since v3.0, please use new sp.Skeleton(skeletonDataFile, atlasFile, scale) instead.
- * @param {spine.SkeletonData|String} skeletonDataFile
- * @param {String|spine.Atlas|spine.SkeletonData} atlasFile atlas filename or atlas data or owns SkeletonData
- * @param {Number} [scale] scale can be specified on the JSON or binary loader which will scale the bone positions, image sizes, and animation translations.
- * @returns {sp.Skeleton}
- */
-sp.Skeleton.create = function (skeletonDataFile, atlasFile/* or atlas*/, scale) {
-    return new sp.Skeleton(skeletonDataFile, atlasFile, scale);
-};

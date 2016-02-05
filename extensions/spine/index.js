@@ -28,13 +28,73 @@
  * @main sp
  */
 
+/*
+ * Reference:
+ * http://esotericsoftware.com/spine-runtime-terminology
+ * http://esotericsoftware.com/files/runtime-diagram.png
+ */
+
 sp = {};
 
-if (!CC_JSB && (!CC_EDITOR || !Editor.isCoreLevel)) {
-    require('./Skeleton');
-    require('./SkeletonCanvasRenderCmd');
-    require('./SkeletonWebGLRenderCmd');
-    require('./SkeletonAnimation');
-}
+// The vertex index of spine.
+sp.VERTEX_INDEX = {
+    X1: 0,
+    Y1: 1,
+    X2: 2,
+    Y2: 3,
+    X3: 4,
+    Y3: 5,
+    X4: 6,
+    Y4: 7
+};
 
-require('./SpineAsset');
+// The attachment type of spine. It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
+sp.ATTACHMENT_TYPE = {
+    REGION: 0,
+    BOUNDING_BOX: 1,
+    MESH: 2,
+    SKINNED_MESH:3
+};
+
+/**
+ * The event type of spine skeleton animation.
+ * @enum AnimationEventType
+ */
+sp.AnimationEventType = cc.Enum({
+    /**
+     * @property {Number} START
+     */
+    START: 0,
+    /**
+     * @property {Number} END
+     */
+    END: 1,
+    /**
+     * @property {Number} COMPLETE
+     */
+    COMPLETE: 2,
+    /**
+     * @property {Number} EVENT
+     */
+    EVENT: 3
+});
+
+
+if (!CC_JSB && (!CC_EDITOR || !Editor.isCoreLevel)) {
+
+    /**
+     * @property {spine} spine - The official spine runtime.
+     */
+    sp.spine = require('./lib/spine');
+
+    require('./SGSkeleton');
+    require('./SGSkeletonCanvasRenderCmd');
+    require('./SGSkeletonWebGLRenderCmd');
+    require('./SGSkeletonAnimation');
+
+    require('./SkeletonData');
+    require('./Skeleton');
+}
+else {
+    require('./SkeletonData');
+}
