@@ -43,9 +43,11 @@ if (CC_DEV) {
     cc._Test = {};
 }
 
-// predefine some modules for cocos
+// polyfills
+/* require('./polyfill/bind'); */
+require('./polyfill/string');
 
-require('./polyfill');
+// predefine some modules for cocos
 require('./cocos2d/core/platform/js');
 require('./cocos2d/core/value-types');
 require('./cocos2d/core/utils');

@@ -1,2 +1,0 @@
-require('./bind');
-require('./string');

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-EventTarget = require("../cocos2d/core/event/event-target");
+var EventTarget = cc.EventTarget;
 
 /**
  * <p>cc.AtlasNode is a subclass of ccsg.Node, it knows how to render a TextureAtlas object. </p>

@@ -241,7 +241,7 @@ var Animation = cc.Class({
 
     /**
      * Resumes an animation named name. If no name is supplied then resumes all paused animations that were started with this Animation.
-     * @method pause
+     * @method resume
      * @param {String} [name] - The animation to resumes, if not supplied then resumes all paused animations.
      */
     resume: function (name) {
