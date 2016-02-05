@@ -26,7 +26,7 @@
 
 /**
  * Audio Source.
- * @class AudioScource
+ * @class AudioSource
  * @extends Component
  */
 
