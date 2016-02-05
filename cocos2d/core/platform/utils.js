@@ -32,13 +32,22 @@ module.exports = {
         );
     },
 
-    callInNextTick: function (callback, p1, p2) {
-        if (callback) {
-            setTimeout(function () {
-                callback(p1, p2);
-            }, 1);
+    callInNextTick: CC_EDITOR ?
+        function (callback, p1, p2) {
+            if (callback) {
+                process.nextTick(function () {
+                    callback(p1, p2);
+                });
+            }
         }
-    }
+        :
+        function (callback, p1, p2) {
+            if (callback) {
+                setTimeout(function () {
+                    callback(p1, p2);
+                }, 0);
+            }
+        }
 };
 
 if (CC_DEV) {
