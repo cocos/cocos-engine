@@ -18,23 +18,7 @@ qunit references:
     <script src="../test/qunit/lib/assert-deep-close.js"></script>
     <script src="../test/qunit/lib/qunit-assert-callback.js"></script>
     <script src="../test/qunit/lib/qunit-large-module.js"></script>
-    <script>
-        var isPhantomJS = window.navigator.userAgent.indexOf('PhantomJS') !== -1;
-        if (isPhantomJS) {
-            QUnit.config.notrycatch = true;
-            window.onerror = function (msg, url, line, column, error) {
-                if (error) {
-                    console.error(error.stack);
-                }
-                else {
-                    console.error(msg + '.\n' + url + ':' + line);
-                }
-            };
-            // polyfill
-            var video = document.createElement("video");
-            video.constructor.prototype.canPlayType = function () { return ''; };
-        }
-    </script>
+    <script src="../test/qunit/lib/polyfill-for-phantom.js"></script>
 </head>
 <body>
     <div id="qunit"></div>

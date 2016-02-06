@@ -46,7 +46,7 @@ function _copyprop(name, source, target) {
 /**
  * This module provides some JavaScript utilities.
  *
- * @module js
+ * @module cc.js
  */
 var js = {
 

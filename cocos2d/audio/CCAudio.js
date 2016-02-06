@@ -626,7 +626,8 @@ cc.Audio = cc._Class.extend({
 
     /**
      * cc.audioEngine is the singleton object, it provide simple audio APIs.
-     * @namespace
+     * @class audioEngine
+     * @static
      */
     cc.audioEngine = {
         _currMusic: null,
@@ -636,12 +637,14 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Indicates whether any background music can be played or not.
+         * @method willPlayMusic
          * @returns {boolean} <i>true</i> if the background music is playing, otherwise <i>false</i>
          */
         willPlayMusic: function(){return false;},
 
         /**
          * Play music.
+         * @method playMusic
          * @param {String} url The path of the music file without filename extension.
          * @param {Boolean} loop Whether the music loop or not.
          * @example
@@ -666,6 +669,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Stop playing music.
+         * @method stopMusic
          * @param {Boolean} [releaseData] If release the music data or not.As default value is false.
          * @example
          * //example
@@ -682,6 +686,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Pause playing music.
+         * @method pauseMusic
          * @example
          * //example
          * cc.audioEngine.pauseMusic();
@@ -694,6 +699,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Resume playing music.
+         * @method resumeMusic
          * @example
          * //example
          * cc.audioEngine.resumeMusic();
@@ -706,6 +712,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Rewind playing music.
+         * @method rewindMusic
          * @example
          * //example
          * cc.audioEngine.rewindMusic();
@@ -720,6 +727,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * The volume of the music max value is 1.0,the min value is 0.0 .
+         * @method getMusicVolume
          * @return {Number}
          * @example
          * //example
@@ -731,6 +739,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Set the volume of music.
+         * @method setMusicVolume
          * @param {Number} volume Volume must be in 0.0~1.0 .
          * @example
          * //example
@@ -751,6 +760,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Whether the music is playing.
+         * @method isMusicPlaying
          * @return {Boolean} If is playing return true,or return false.
          * @example
          * //example
@@ -775,6 +785,7 @@ cc.Audio = cc._Class.extend({
         _effectVolume: 1,
         /**
          * Play sound effect.
+         * @method playEffect
          * @param {String} url The path of the sound effect with filename extension.
          * @param {Boolean} loop Whether to loop the effect playing, default value is false
          * @return {Number|null} the audio id
@@ -827,6 +838,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Set the volume of sound effects.
+         * @method setEffectsVolume
          * @param {Number} volume Volume must be in 0.0~1.0 .
          * @example
          * //example
@@ -851,6 +863,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * The volume of the effects max value is 1.0,the min value is 0.0 .
+         * @method getEffectsVolume
          * @return {Number}
          * @example
          * //example
@@ -862,6 +875,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Pause playing sound effect.
+         * @method pauseEffect
          * @param {Number} cc.Audio The return value of function playEffect.
          * @example
          * //example
@@ -875,6 +889,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Pause all playing sound effect.
+         * @method pauseAllEffects
          * @example
          * //example
          * cc.audioEngine.pauseAllEffects();
@@ -893,6 +908,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Resume playing sound effect.
+         * @method resumeEffect
          * @param {Number} cc.Audio The return value of function playEffect.
          * @audioID
          * //example
@@ -905,6 +921,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Resume all playing sound effect
+         * @method resumeAllEffects
          * @example
          * //example
          * cc.audioEngine.resumeAllEffects();
@@ -921,6 +938,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Stop playing sound effect.
+         * @method stopEffect
          * @param {Number} cc.Audio The return value of function playEffect.
          * @example
          * //example
@@ -933,6 +951,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Stop all playing sound effects.
+         * @method stopAllEffects
          * @example
          * //example
          * cc.audioEngine.stopAllEffects();
@@ -949,6 +968,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * Unload the preloaded effect from internal buffer
+         * @method unloadEffect
          * @param {String} url
          * @example
          * //example
@@ -968,6 +988,7 @@ cc.Audio = cc._Class.extend({
 
         /**
          * End music and effects.
+         * @method end
          */
         end: function(){
             this.stopMusic();
