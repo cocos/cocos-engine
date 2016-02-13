@@ -25,11 +25,17 @@
 var JS = require('../platform/js');
 var LoadingItems = require('loading-items');
 
-var asyncFLow = function (item) {
+var ItemState = {
+    WORKING: 1,
+    COMPLETE: 2,
+    ERROR: 3
+};
+
+function asyncFlow (item) {
     var pipeId = this.id;
     var itemState = item[pipeId];
     
-    if (itemState === Pipeline.ItemState.COMPLETE) {
+    if (itemState === ItemState.COMPLETE) {
         if (this.next) {
             this.next.flow(item);
         }
@@ -37,19 +43,19 @@ var asyncFLow = function (item) {
             this.pipeline.flowOut(item);
         }
     }
-    else if (itemState === Pipeline.ItemState.WORKING) {
+    else if (itemState === ItemState.WORKING) {
         return;
     }
     else {
-        item[pipeId] = Pipeline.ItemState.WORKING;
+        item[pipeId] = ItemState.WORKING;
         this.handle(item, function (err) {
             if (err) {
-                item[pipeId] = Pipeline.ItemState.ERROR;
+                item[pipeId] = ItemState.ERROR;
                 item.error = err;
                 this.pipeline.flowOut(item);
             }
             else {
-                item[pipeId] = Pipeline.ItemState.COMPLETE;
+                item[pipeId] = ItemState.COMPLETE;
                 if (this.next) {
                     this.next.flow(item);
                 }
@@ -59,12 +65,12 @@ var asyncFLow = function (item) {
             }
         });
     }
-};
-var syncFlow = function (item) {
+}
+function syncFlow (item) {
     var pipeId = this.id;
     var itemState = item[pipeId];
     
-    if (itemState === Pipeline.ItemState.COMPLETE) {
+    if (itemState === ItemState.COMPLETE) {
         if (this.next) {
             this.next.flow(item);
         }
@@ -72,13 +78,13 @@ var syncFlow = function (item) {
             this.pipeline.flowOut(item);
         }
     }
-    else if (itemState === Pipeline.ItemState.WORKING) {
+    else if (itemState === ItemState.WORKING) {
         return;
     }
     else {
-        item[pipeId] = Pipeline.ItemState.WORKING;
+        item[pipeId] = ItemState.WORKING;
         this.handle(item);
-        item[pipeId] = Pipeline.ItemState.COMPLETE;
+        item[pipeId] = ItemState.COMPLETE;
         if (this.next) {
             this.next.flow(item);
         }
@@ -86,7 +92,7 @@ var syncFlow = function (item) {
             this.pipeline.flowOut(item);
         }
     }
-};
+}
 
 var Pipeline = function (pipes) {
     this._pipes = pipes;
@@ -104,7 +110,7 @@ var Pipeline = function (pipes) {
         pipe.next = i < pipes.length - 1 ? pipes[i+1] : null;
 
         if (pipe.isAsync) {
-            pipe.flow = asyncFLow;
+            pipe.flow = asyncFlow;
         }
         else {
             pipe.flow = syncFlow;
@@ -112,11 +118,7 @@ var Pipeline = function (pipes) {
     }
 };
 
-Pipeline.ItemState = new cc.Enum({
-    WORKING: 1,
-    COMPLETE: 2,
-    ERROR: 3
-});
+Pipeline.ItemState = new cc.Enum(ItemState);
 
 JS.mixin(Pipeline.prototype, {
     flow: function (urlList) {

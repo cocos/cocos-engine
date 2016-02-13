@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventTarget = require('../event/event-target');
+var CallbacksInvoker = require('../event/callbacks-invoker');
 var JS = require('../platform/js');
 
 function createItem (url) {
@@ -35,14 +35,14 @@ function createItem (url) {
 }
 
 var LoadingItems = function () {
-    EventTarget.call(this);
+    CallbacksInvoker.call(this);
 
     this.map = {};
     this.completed = {};
     // this.list = [];
 };
 
-JS.mixin(LoadingItems.prototype, EventTarget.prototype, {
+JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     append: function (urlList) {
         var list = [];
         for (var i = 0; i < urlList.length; ++i) {
@@ -56,7 +56,10 @@ JS.mixin(LoadingItems.prototype, EventTarget.prototype, {
         return list;
     },
     isCompleted: function () {
-        return Object.keys(this.map).length === 0;
+        for (var any in this.map) {
+            return false;
+        }
+        return true;
     },
     itemDone: function (url) {
         if (!this.map[url]) {
