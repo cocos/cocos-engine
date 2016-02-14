@@ -32,6 +32,7 @@
  * Reference:
  * http://esotericsoftware.com/spine-runtime-terminology
  * http://esotericsoftware.com/files/runtime-diagram.png
+ * http://en.esotericsoftware.com/spine-using-runtimes
  */
 
 sp = {};
@@ -79,11 +80,16 @@ sp.AnimationEventType = cc.Enum({
     EVENT: 3
 });
 
+/**
+ * @module sp
+ */
 
 if (!CC_JSB && (!CC_EDITOR || !Editor.isCoreLevel)) {
 
     /**
-     * @property {spine} spine - The official spine runtime.
+     * The official spine runtime.
+     * See http://en.esotericsoftware.com/spine-using-runtimes
+     * @property {object} spine
      */
     sp.spine = require('./lib/spine');
 

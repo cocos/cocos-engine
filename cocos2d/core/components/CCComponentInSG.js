@@ -29,14 +29,16 @@ var ComponentInSG = cc.Class({
          * @private
          */
         this._sgNode = this._createSgNode();
-        // retain immediately
-        // will be released in SceneGraphHelper.removeSgNode
-        this._sgNode.retain();
+        if (this._sgNode) {
+            // retain immediately
+            // will be released in SceneGraphHelper.removeSgNode
+            this._sgNode.retain();
+        }
     },
 
     onLoad: function () {
-        var sgNode = this._sgNode;
         this._initSgNode();
+        var sgNode = this._sgNode;
         this._appendSgNode(sgNode);
         if ( !this.node._sizeProvider ) {
             this.node._sizeProvider = sgNode;
@@ -78,6 +80,10 @@ var ComponentInSG = cc.Class({
     _removeSgNode: SceneGraphHelper.removeSgNode,
 
     _appendSgNode: function (sgNode) {
+        if ( !sgNode ) {
+            return;
+        }
+
         var node = this.node;
 
         sgNode.setColor(node._color);
