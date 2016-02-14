@@ -29,7 +29,7 @@
 
 EventTarget = require("../cocos2d/core/event/event-target");
 
-/**
+/*
  * <p>
  * A 9-slice sprite for cocos2d UI.                                                                    <br/>
  *                                                                                                     <br/>

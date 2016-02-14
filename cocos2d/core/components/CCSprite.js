@@ -21,12 +21,28 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+/**
+ * Enum for sprite type
+ * @enum SpriteType
+ */
+ /**
+ * @property {Number} SIMPLE
+ */
+/**
+ * @property {Number} SLICED
+ */
+/**
+ * @property {Number} TILED
+ */
+/**
+ * @property {Number} FILLED
+ */
 var SpriteType = cc.Scale9Sprite.RenderingType;
 
 var FillType = cc.Scale9Sprite.FillType;
 /**
  * Sprite Size can track trimmed size, raw size or none
+ * @enum SizeMode
  */
 var SizeMode = cc.Enum({
     /**

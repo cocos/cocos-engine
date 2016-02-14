@@ -215,7 +215,7 @@ var game = /** @lends cc.game# */{
 
             /**
              * @property director
-             * @type cc.Director
+             * @type Director
              */
             cc.director = cc.Director._getInstance();
             if (cc.director.setOpenGLView)
