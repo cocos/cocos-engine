@@ -15,7 +15,7 @@ var AnimationNode = require('./types').AnimationNode;
  * @method AnimationState
  * @param {AnimationClip} clip
  * @param {String} [name]
- * @return AnimationState
+ * @return {AnimationState}
  */
 function AnimationState (clip, name) {
     AnimationNode.call(this, null, null, {
