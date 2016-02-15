@@ -53,8 +53,9 @@ function setEnumAttr (obj, propName, enumDef) {
 sp.Skeleton = cc.Class({
     name: 'sp.Skeleton',
     extends: cc._ComponentInSG,
-    editor: {
-        playOnFocus: true
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.others/Spine Skeleton',
+        //playOnFocus: true
     },
 
     properties: {
@@ -66,7 +67,7 @@ sp.Skeleton = cc.Class({
          * @property {sp.SkeletonData} skeletonData
          */
         skeletonData: {
-            default: '',
+            default: null,
             type: sp.SkeletonData,
             notify: function () {
                 this.defaultSkin = '';
@@ -291,7 +292,7 @@ sp.Skeleton = cc.Class({
         return null;
     },
 
-    _initSgNode: function (onSuccess) {
+    _initSgNode: function () {
         var self = this;
         if ( !self.skeletonData/* || !self.atlasFile*/) {
             return;
@@ -335,8 +336,6 @@ sp.Skeleton = cc.Class({
             sgNode.setDebugSlotsEnabled(self.debugSlots);
             sgNode.setDebugBonesEnabled(self.debugBones);
         }
-
-        onSuccess();
     },
 
     // RENDERER
@@ -688,20 +687,23 @@ sp.Skeleton = cc.Class({
             self._sgNode = null;
         }
         // recreate sgnode...
-        self._initSgNode(function () {
-            var sgNode = self._sgNode;
+        self._initSgNode();
+
+        var sgNode = self._sgNode;
+        if (sgNode) {
             self._appendSgNode(sgNode);
             if ( !self.node._sizeProvider ) {
                 self.node._sizeProvider = sgNode;
             }
-            if (CC_EDITOR) {
-                self._updateAnimEnum();
-                self._updateSkinEnum();
-                self._refreshInspector();
-            }
             if (self.enabled) {
                 self.animation = self.defaultAnimation;
             }
-        });
+        }
+
+        if (CC_EDITOR) {
+            self._updateAnimEnum();
+            self._updateSkinEnum();
+            self._refreshInspector();
+        }
     }
 });

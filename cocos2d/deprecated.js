@@ -265,7 +265,7 @@ if (CC_DEV) {
 
     function provideClearError (owner, obj) {
         var className = cc.js.getClassName(owner);
-        var Info = 'Sorry,' + className + '.%s is removed, please use %s instead.';
+        var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
             function define (prop, getset) {
                 function accessor (newProp) {
