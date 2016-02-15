@@ -289,24 +289,18 @@ sp.Skeleton = cc.Class({
     //},
 
     _createSgNode: function () {
+        if (this.skeletonData/* && self.atlasFile*/) {
+            var data = this.skeletonData.getRuntimeData();
+            if (data) {
+                return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+            }
+        }
         return null;
     },
 
     _initSgNode: function () {
-        var self = this;
-        if ( !self.skeletonData/* || !self.atlasFile*/) {
-            return;
-        }
-        //cc.loader.load([self.skeletonData, self.atlasFile], function (err) {
-        //    if (err) {
-        //        return;
-        //    }
-
-        var data = self.skeletonData.getRuntimeData();
-
-        var sgNode = self._sgNode = new sp._SGSkeletonAnimation(data, null, self.skeletonData.scale);
-        sgNode.retain();
-        sgNode.setTimeScale(self.timeScale);
+        var sgNode = this._sgNode;
+        sgNode.setTimeScale(this.timeScale);
         //if (!CC_EDITOR) {
         //    function animationCallback (ccObj, trackIndex, type, event, loopCount) {
         //        var eventType = AnimEvents[type];3
@@ -324,17 +318,18 @@ sp.Skeleton = cc.Class({
         //    }
         //    sgNode.setAnimationListener(target, animationCallback);
         //}
-        if (self.defaultSkin) {
+        if (this.defaultSkin) {
             try {
-                sgNode.setSkin(self.defaultSkin);
+                sgNode.setSkin(this.defaultSkin);
             }
             catch (e) {
                 cc._throw(e);
             }
         }
+        this.animation = this.defaultAnimation;
         if (CC_EDITOR) {
-            sgNode.setDebugSlotsEnabled(self.debugSlots);
-            sgNode.setDebugBonesEnabled(self.debugBones);
+            sgNode.setDebugSlotsEnabled(this.debugSlots);
+            sgNode.setDebugBonesEnabled(this.debugBones);
         }
     },
 
@@ -682,25 +677,29 @@ sp.Skeleton = cc.Class({
 
     _refresh: function () {
         var self = this;
+
+        // discard exists sgNode
         if (self._sgNode) {
+            if ( self.node._sizeProvider === self._sgNode ) {
+                self.node._sizeProvider = null;
+            }
             self._removeSgNode();
             self._sgNode = null;
         }
-        // recreate sgnode...
-        self._initSgNode();
 
-        var sgNode = self._sgNode;
+        // recreate sgNode...
+        var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
+            sgNode.retain();
+            self._initSgNode();
             self._appendSgNode(sgNode);
             if ( !self.node._sizeProvider ) {
                 self.node._sizeProvider = sgNode;
             }
-            if (self.enabled) {
-                self.animation = self.defaultAnimation;
-            }
         }
 
         if (CC_EDITOR) {
+            // update inspector
             self._updateAnimEnum();
             self._updateSkinEnum();
             self._refreshInspector();
