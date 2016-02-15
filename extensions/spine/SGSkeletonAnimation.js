@@ -25,11 +25,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var spine = require('./spine-exported');
-
-/**
- * @module sp
- */
+var spine = sp.spine;
+var animEventType = sp.AnimationEventType;
 
 sp._atlasPage_createTexture_webGL = function (self, path) {
     var texture = cc.textureCache.addImage(path);
@@ -62,17 +59,6 @@ sp._atlasLoader = {
     }
 };
 
-/**
- * The event type of spine skeleton animation. It contains event types: START(0), END(1), COMPLETE(2), EVENT(3).
- * @constant
- * @type {{START: number, END: number, COMPLETE: number, EVENT: number}}
- */
-sp.ANIMATION_EVENT_TYPE = {
-    START: 0,
-    END: 1,
-    COMPLETE: 2,
-    EVENT: 3
-};
 
 sp.TrackEntryListeners = function(startListener, endListener, completeListener, eventListener){
     this.startListener = startListener || null;
@@ -93,15 +79,8 @@ sp.trackEntryCallback = function(state, trackIndex, type, event, loopCount) {
     state.rendererObject.onTrackEntryEvent(trackIndex, type, event, loopCount);
 };
 
-/**
- * The skeleton animation of spine. It updates animation's state and skeleton's world transform.
- * @class
- * @extends sp.Skeleton
- * @example
- * var spineBoy = new sp.SkeletonAnimation('res/skeletons/spineboy.json', 'res/skeletons/spineboy.atlas');
- * this.addChild(spineBoy, 4);
- */
-sp.SkeletonAnimation = sp.Skeleton.extend(/** @lends sp.SkeletonAnimation# */{
+
+sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
     _state: null,
     _target: null,
     _callback: null,
@@ -113,17 +92,17 @@ sp.SkeletonAnimation = sp.Skeleton.extend(/** @lends sp.SkeletonAnimation# */{
     _eventListener: null,
 
     /**
-     * Initializes a sp.SkeletonAnimation. please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
+     * Initializes a sp._SGSkeletonAnimation. please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
      * @override
      */
     init: function () {
-        sp.Skeleton.prototype.init.call(this);
+        sp._SGSkeleton.prototype.init.call(this);
         this._ownsAnimationStateData = true;
         this.setAnimationStateData(new spine.AnimationStateData(this._skeleton.data));
     },
 
     /**
-     * Sets animation state data to sp.SkeletonAnimation.
+     * Sets animation state data to sp._SGSkeletonAnimation.
      * @param {spine.AnimationStateData} stateData
      */
     setAnimationStateData: function (stateData) {
@@ -147,7 +126,7 @@ sp.SkeletonAnimation = sp.Skeleton.extend(/** @lends sp.SkeletonAnimation# */{
     },
 
     /**
-     * Sets event listener of sp.SkeletonAnimation.
+     * Sets event listener of sp._SGSkeletonAnimation.
      * @param {Object} target
      * @param {Function} callback
      */
@@ -275,19 +254,19 @@ sp.SkeletonAnimation = sp.Skeleton.extend(/** @lends sp.SkeletonAnimation# */{
             return;
         var listeners = entry.rendererObject;
         switch (type){
-            case sp.ANIMATION_EVENT_TYPE.START:
+            case animEventType.START:
                 if(listeners.startListener)
                     listeners.startListener(traceIndex);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.END:
+            case animEventType.END:
                 if(listeners.endListener)
                     listeners.endListener(traceIndex);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.COMPLETE:
+            case animEventType.COMPLETE:
                 if(listeners.completeListener)
                     listeners.completeListener(traceIndex, loopCount);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.EVENT:
+            case animEventType.EVENT:
                 if(listeners.eventListener)
                     listeners.eventListener(traceIndex, event);
                 break;
@@ -296,19 +275,19 @@ sp.SkeletonAnimation = sp.Skeleton.extend(/** @lends sp.SkeletonAnimation# */{
 
     onAnimationStateEvent: function(trackIndex, type, event, loopCount) {
         switch(type){
-            case sp.ANIMATION_EVENT_TYPE.START:
+            case animEventType.START:
                 if(this._startListener)
                     this._startListener(trackIndex);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.END:
+            case animEventType.END:
                 if(this._endListener)
                     this._endListener(trackIndex);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.COMPLETE:
+            case animEventType.COMPLETE:
                 if(this._completeListener)
                     this._completeListener(trackIndex, loopCount);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.EVENT:
+            case animEventType.EVENT:
                 if(this._eventListener)
                     this._eventListener(trackIndex, event);
                 break;
@@ -320,16 +299,16 @@ sp.SkeletonAnimation = sp.Skeleton.extend(/** @lends sp.SkeletonAnimation# */{
     },
 
     _onAnimationStateStart: function (trackIndex) {
-        this._animationStateCallback(trackIndex, sp.ANIMATION_EVENT_TYPE.START, null, 0);
+        this._animationStateCallback(trackIndex, animEventType.START, null, 0);
     },
     _onAnimationStateEnd: function (trackIndex) {
-        this._animationStateCallback(trackIndex, sp.ANIMATION_EVENT_TYPE.END, null, 0);
+        this._animationStateCallback(trackIndex, animEventType.END, null, 0);
     },
     _onAnimationStateComplete: function (trackIndex, count) {
-        this._animationStateCallback(trackIndex, sp.ANIMATION_EVENT_TYPE.COMPLETE, null, count);
+        this._animationStateCallback(trackIndex, animEventType.COMPLETE, null, count);
     },
     _onAnimationStateEvent: function (trackIndex, event) {
-        this._animationStateCallback(trackIndex, sp.ANIMATION_EVENT_TYPE.EVENT, event, 0);
+        this._animationStateCallback(trackIndex, animEventType.EVENT, event, 0);
     },
     _animationStateCallback: function (trackIndex, type, event, loopCount) {
         this.onAnimationStateEvent(trackIndex, type, event, loopCount);
@@ -338,15 +317,3 @@ sp.SkeletonAnimation = sp.Skeleton.extend(/** @lends sp.SkeletonAnimation# */{
         }
     }
 });
-
-/**
- * Creates a skeleton animation object.
- * @deprecated since v3.0, please use new sp.SkeletonAnimation(skeletonDataFile, atlasFile, scale) instead.
- * @param {spine.SkeletonData|String} skeletonDataFile
- * @param {String|spine.Atlas|spine.SkeletonData} atlasFile atlas filename or atlas data or owns SkeletonData
- * @param {Number} [scale] scale can be specified on the JSON or binary loader which will scale the bone positions, image sizes, and animation translations.
- * @returns {sp.Skeleton}
- */
-sp.SkeletonAnimation.create = function (skeletonDataFile, atlasFile/* or atlas*/, scale) {
-    return new sp.SkeletonAnimation(skeletonDataFile, atlasFile, scale);
-};

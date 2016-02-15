@@ -203,6 +203,19 @@ if (CC_DEV) {
         return cc.js.array.copy;
     });
 
+
+
+    Object.defineProperty(cc._ComponentInSG.prototype, 'visible', {
+        get: function () {
+            cc.warn('The "visible" property of %s is deprecated, use "enabled" instead please.', cc.js.getClassName(this));
+            return this.enabled;
+        },
+        set: function (value) {
+            var printWarning = this.visible;
+            this.enabled = value;
+        }
+    });
+
     function deprecateEnum (obj, oldPath, newPath, hasTypePrefixBefore) {
         hasTypePrefixBefore = hasTypePrefixBefore !== false;
         var enumDef = eval(newPath);
@@ -233,14 +246,12 @@ if (CC_DEV) {
     deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.EmitterMode');
     deprecateEnum(cc.ProgressTimer, 'cc.ProgressTimer.TYPE', 'cc.ProgressTimer.Type');
     deprecateEnum(cc.game, 'cc.game.DEBUG_MODE', 'cc.DebugMode');
+    deprecateEnum(cc, 'cc', 'cc.Texture2D.WrapMode', false);
     if (_ccsg.EditBox) {
         deprecateEnum(cc, 'cc.KEYBOARD_RETURNTYPE', '_ccsg.EditBox.KeyboardReturnType');
         deprecateEnum(cc, 'cc.EDITBOX_INPUT_MODE', '_ccsg.EditBox.InputMode');
         deprecateEnum(cc, 'cc.EDITBOX_INPUT_FLAG', '_ccsg.EditBox.InputFlag');
     }
-    cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
-        deprecateEnum(cc, 'cc', 'cc.Texture2D.WrapMode', false);
-    });
 
     function markAsRemoved (ownerCtor, removedProps, ownerName) {
         ownerName = ownerName || js.getClassName(ownerCtor);
@@ -254,7 +265,7 @@ if (CC_DEV) {
 
     function provideClearError (owner, obj) {
         var className = cc.js.getClassName(owner);
-        var Info = 'Sorry,' + className + '.%s is removed, please use %s instead.';
+        var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
             function define (prop, getset) {
                 function accessor (newProp) {
@@ -529,4 +540,22 @@ if (CC_DEV) {
         'setFlippedY',
         'isFlippedY'
     ]);
+
+    // SPINE
+
+    if (typeof sp !== 'undefined') {
+        deprecateEnum(sp, 'sp.ANIMATION_EVENT_TYPE', 'sp.AnimationEventType');
+        js.obsolete(sp, 'SkeletonAnimation', 'Skeleton');
+        provideClearError(sp.Skeleton, {
+            create: 'node.addComponent',
+        });
+        provideClearError(sp.Skeleton.prototype, {
+            '*etDebugSlotsEnabled': 'debugSlots',
+            '*etDebugBonesEnabled': 'debugBones',
+            'setDebugSolots': 'debugSlots',
+            'setDebugBones': 'debugBones',
+            '*etTimeScale': 'timeScale',
+        });
+    }
 }
+

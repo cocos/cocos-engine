@@ -329,7 +329,6 @@ cc._formatString = function (arg) {
 /**
  * Enum for debug modes.
  * @enum DebugMode
- * @readOnly
  */
 cc.DebugMode = cc.Enum({
     /**
@@ -440,9 +439,15 @@ cc._initDebugSetting = function (mode) {
              * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
-            cc.warn = function(){
-                return console.warn.apply(console, arguments);
-            };
+            if (console.warn.bind) {
+                // use bind to avoid pollute call stacks
+                cc.warn = console.warn.bind(console);
+            }
+            else {
+                cc.warn = function() {
+                    return console.warn.apply(console, arguments);
+                };
+            }
             if(mode === cc.DebugMode.INFO) {
                 /**
                  * Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).

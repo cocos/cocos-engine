@@ -644,6 +644,12 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
                 return key === timer.getSelector();
         }
     },
+
+    /** Unschedules a callback for a callback and a given target.
+     * If you want to unschedule the "update", use `unscheudleUpdate()`
+     * @param {Function|String} key The callback to be unscheduled
+     * @param {Object} target The target bound to the callback.
+     */
     unschedule: function(key, target){
         //key, target
         //selector, target
@@ -681,6 +687,10 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         }
     },
 
+    /** 
+     * Unschedules the update callback for a given target
+     * @param {Object} target The target to be unscheduled.
+     */
     unscheduleUpdate: function(target){
         if (target == null)
             return;
@@ -696,6 +706,11 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         }
     },
 
+    /** 
+     * Unschedules all scheduled callbacks for a given target.
+     * This also includes the "update" callback.
+     * @param {Object} target The target to be unscheduled.
+     */
     unscheduleAllForTarget: function(target){
         // explicit nullptr handling
         if (target == null){
@@ -724,10 +739,20 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         this.unscheduleUpdate(target);
     },
 
+    /** 
+     * Unschedules all scheduled callbacks from all targets including the system callbacks.
+     * You should NEVER call this method, unless you know what you are doing.
+     */
     unscheduleAll: function(){
         this.unscheduleAllWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
     },
 
+    /** 
+     * Unschedules all callbacks from all targets with a minimum priority.
+     * You should only call this with `PRIORITY_NON_SYSTEM_MIN` or higher.
+     * @param {Number} minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
+     *        priority is higher than minPriority will be unscheduled.
+     */
     unscheduleAllWithMinPriority: function(minPriority){
         // Custom Selectors
         var i, element, arr = this._arrayForTimers;
@@ -771,6 +796,11 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         }
     },
 
+    /** Checks whether a callback for a given target is scheduled.
+     * @param {Function|String} key The callback to check.
+     * @param {Object} target The target of the callback.
+     * @return {Boolean} True if the specified callback is invoked, false if not.
+     */
     isScheduled: function(key, target){
         //key, target
         //selector, target
