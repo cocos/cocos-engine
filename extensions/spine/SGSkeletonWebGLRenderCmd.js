@@ -22,21 +22,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var spine = require('./spine-exported');
+var spine = sp.spine;
 
-/**
- * @module sp
- */
 
-sp.Skeleton.WebGLRenderCmd = function (renderableObject) {
+sp._SGSkeleton.WebGLRenderCmd = function (renderableObject) {
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
     this._needDraw = true;
     this.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
     this._tmpQuad = new cc.V3F_C4B_T2F_Quad();
 };
 
-var proto = sp.Skeleton.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-proto.constructor = sp.Skeleton.WebGLRenderCmd;
+var proto = sp._SGSkeleton.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+proto.constructor = sp._SGSkeleton.WebGLRenderCmd;
 
 proto.rendering = function (ctx) {
     var node = this._node, tmpQuad = this._tmpQuad;

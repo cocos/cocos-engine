@@ -265,7 +265,7 @@ if (CC_DEV) {
 
     function provideClearError (owner, obj) {
         var className = cc.js.getClassName(owner);
-        var Info = 'Sorry,' + className + '.%s is removed, please use %s instead.';
+        var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
             function define (prop, getset) {
                 function accessor (newProp) {
@@ -540,4 +540,22 @@ if (CC_DEV) {
         'setFlippedY',
         'isFlippedY'
     ]);
+
+    // SPINE
+
+    if (typeof sp !== 'undefined') {
+        deprecateEnum(sp, 'sp.ANIMATION_EVENT_TYPE', 'sp.AnimationEventType');
+        js.obsolete(sp, 'SkeletonAnimation', 'Skeleton');
+        provideClearError(sp.Skeleton, {
+            create: 'node.addComponent',
+        });
+        provideClearError(sp.Skeleton.prototype, {
+            '*etDebugSlotsEnabled': 'debugSlots',
+            '*etDebugBonesEnabled': 'debugBones',
+            'setDebugSolots': 'debugSlots',
+            'setDebugBones': 'debugBones',
+            '*etTimeScale': 'timeScale',
+        });
+    }
 }
+
