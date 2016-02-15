@@ -208,7 +208,7 @@ var game = /** @lends cc.game# */{
             /**
              * cc.view is the shared view object.
              * @property view
-             * @type cc.EGLView
+             * @type cc.View
              */
             cc.view = cc.EGLView._getInstance();
 
