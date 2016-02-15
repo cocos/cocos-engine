@@ -90,7 +90,7 @@ var SkeletonData = cc.Class({
         _skeletonJson: null,
 
         /**
-         * @see http://en.esotericsoftware.com/spine-json-format
+         * See http://en.esotericsoftware.com/spine-json-format
          * @property {object} skeletonJson
          */
         skeletonJson: {

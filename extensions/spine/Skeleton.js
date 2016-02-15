@@ -229,9 +229,9 @@ sp.Skeleton = cc.Class({
 
         /**
          * @property {boolean} loop
-         * @default false
+         * @default true
          */
-        loop: false,
+        loop: true,
 
         /**
          * The time scale of this skeleton.
@@ -281,6 +281,8 @@ sp.Skeleton = cc.Class({
     // IMPLEMENT
 
     onLoad: function () {
+        var Flags = cc.Object.Flags;
+        this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
         this._refresh();
     },
 
@@ -330,6 +332,22 @@ sp.Skeleton = cc.Class({
         if (CC_EDITOR) {
             sgNode.setDebugSlotsEnabled(this.debugSlots);
             sgNode.setDebugBonesEnabled(this.debugBones);
+        }
+    },
+
+    _getLocalBounds: CC_EDITOR && function (out_rect) {
+        if (this._sgNode) {
+            var rect = this._sgNode.getBoundingBox();
+            out_rect.x = rect.x;
+            out_rect.y = rect.y;
+            out_rect.width = rect.width;
+            out_rect.height = rect.height;
+        }
+        else {
+            out_rect.x = 0;
+            out_rect.y = 0;
+            out_rect.width = 0;
+            out_rect.height = 0;
         }
     },
 
@@ -697,6 +715,9 @@ sp.Skeleton = cc.Class({
                 self.node._sizeProvider = sgNode;
             }
         }
+
+        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好先强制尺寸为零
+        self.node.setContentSize(0, 0);
 
         if (CC_EDITOR) {
             // update inspector
