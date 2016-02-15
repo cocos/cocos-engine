@@ -72,6 +72,10 @@ var Sprite = cc.Class({
         inspector: 'app://editor/page/inspector/sprite.html'
     },
 
+    ctor: function() {
+        this._blendFunc = cc.BlendFunc.ALPHA_NON_PREMULTIPLIED;
+    },
+
     properties: {
         _spriteFrame: {
             default: null,
@@ -200,6 +204,33 @@ var Sprite = cc.Class({
                 }
             },
             animatable: false
+        },
+
+        /**
+         * specify the blend function
+         * */
+        srcBlendFactor: {
+            get: function() {
+                return this._blendFunc.src;
+            },
+            set: function(value) {
+                this._blendFunc.src = value;
+                this._sgNode.setBlendFunc(this._blendFunc);
+            },
+            animatable: false,
+            type:cc.BlendFunc.BlendFactor
+        },
+
+        dstBlendFactor: {
+            get: function() {
+                return this._blendFunc.dst;
+            },
+            set: function(value) {
+                this._blendFunc.dst = value;
+                this._sgNode.setBlendFunc(this._blendFunc);
+            },
+            animatable: false,
+            type:cc.BlendFunc.BlendFactor
         },
 
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
@@ -529,6 +560,7 @@ var Sprite = cc.Class({
         sgNode.setFillStart(this._fillStart);
         sgNode.setFillRange(this._fillRange);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
+        sgNode.setBlendFunc(this._blendFunc);
     },
 
     _resized: function () {
