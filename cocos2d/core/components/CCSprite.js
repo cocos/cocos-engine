@@ -217,17 +217,6 @@ var Sprite = cc.Class({
             },
             animatable: false,
             type: SizeMode
-        },
-        /**
-         * Only for editor to calculate bounding box.
-         */
-        localSize: {
-            get: function () {
-                var sgNode = this._sgNode;
-                return cc.size(sgNode.width, sgNode.height);
-            },
-            visible: false,
-            override: true
         }
     },
 

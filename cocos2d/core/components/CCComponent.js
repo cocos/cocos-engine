@@ -330,16 +330,6 @@ var Component = cc.Class({
         __eventTargets: {
             default: [],
             serializable: false
-        },
-
-        /**
-         * Only for editor to calculate bounding box
-         */
-        localSize: {
-            get: function () {
-                return cc.size(0, 0);
-            },
-            visible: false
         }
     },
 
@@ -405,7 +395,7 @@ var Component = cc.Class({
      */
     onLostFocusInEditor: null,
 
-    //
+    // PUBLIC
 
     /**
      * Adds a component class to the entity. You can also add component to entity by passing in the name of the
@@ -501,6 +491,15 @@ var Component = cc.Class({
     //},
 
     // OVERRIDES
+
+    /**
+     * If the component's bounding box is different from the node's, you can implement this method to supply
+     * a custom axis aligned bounding box (AABB), so the editor's scene view can perform hit test properly.
+     *
+     * @method _getLocalBounds
+     * @param {Rect} out_rect - the Rect to receive the bounding box
+     */
+    _getLocalBounds: null,
 
     destroy: function () {
         if (CC_EDITOR) {
