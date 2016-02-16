@@ -110,7 +110,30 @@ function syncFlow (item) {
 }
 
 /**
- *
+ * A pipeline describes a sequence of manipulations, each manipulation is called a pipe.
+ * It's designed for loading process, so items should be urls, and the url will be the identity of each item during the process.
+ * A list of items can flow in the pipeline and it will output the results of all pipes. 
+ * They flow in the pipeline like water in tubes, they go through pipe by pipe separately.
+ * Finally all items will flow out the pipeline and the process is finished.
+ * 
+ * @class Pipeline
+ */
+/**
+ * Constructor, pass an array of pipes to construct a new Pipeline, the pipes will be chained in the given order.
+ * A pipe is an object which must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
+ * It can also include `isAsync` property to identify whether it's an asynchronous process.
+ * @example
+ *  var pipeline = new Pipeline([
+ *      {
+ *          id: 'Downloader', 
+ *          handle: function (item, callback) {}, 
+ *          isAsync: true
+ *      },
+ *      {id: 'Parser', handle: function (item) {}, isAsync: false}
+ *  ]);
+ * 
+ * @method Pipeline
+ * @param {Array} pipes
  */
 var Pipeline = function (pipes) {
     this._pipes = pipes;
@@ -139,6 +162,25 @@ var Pipeline = function (pipes) {
 Pipeline.ItemState = new cc.Enum(ItemState);
 
 JS.mixin(Pipeline.prototype, {
+    /**
+     * Let new items flow into the pipeline.
+     * Each item can be a simple url string or an object, 
+     * if it's an object, it must contain `src` property. 
+     * You can also specify its type by `type` property, by default, the type is the extension name in `src`.
+     * The object can contain any supplementary property as you want.
+     * @example
+     *  pipeline.flowIn([
+     *      'res/Background.png',
+     *      {
+     *          src: 'res/scene.json',
+     *          type: 'scene',
+     *          name: 'scene'
+     *      }
+     *  ]);
+     * 
+     * @method flowIn
+     * @param {Array} urlList
+     */
     flowIn: function (urlList) {
         if (!this._flowing) {
             this._flowing = true;
@@ -154,6 +196,7 @@ JS.mixin(Pipeline.prototype, {
             }
         }
     },
+
     flowOut: function (item) {
         this._items.itemDone(item.src);
         // All completed

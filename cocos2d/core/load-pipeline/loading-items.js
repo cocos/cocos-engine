@@ -30,7 +30,7 @@ function createItem (url) {
     var result;
     if (typeof url === 'object' && url.src) {
         if (!url.type) {
-            url.type = Path.extname(url.src);
+            url.type = Path.extname(url.src).toLowerCase();
         }
         result = {
             error: null,

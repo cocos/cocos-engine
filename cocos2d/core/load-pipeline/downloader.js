@@ -201,7 +201,27 @@ var defaultMap = {
     'default' : downloadText
 };
 
-
+/**
+ * The downloader pipe, it can download several types of files:
+ * 1. Text
+ * 2. Image
+ * 3. Script
+ * 4. Audio
+ * All unknown type will be downloaded as plain text.
+ * You can pass custom supported types in the constructor.
+ * @class Downloader
+ */
+/**
+ * Constructor of Downloader, you can pass custom supported types.
+ * @example
+ *  var downloader = new Downloader({
+ *      // This will match all url with `.scene` extension or all url with `scene` type
+ *      'scene' : function (url, callback) {}
+ *  });
+ * 
+ * @method Downloader
+ * @param {Object} extMap
+ */
 var Downloader = function (extMap) {
     this.id = 'Downloader';
     this.isAsync = true;

@@ -105,7 +105,29 @@ var defaultMap = {
     'default' : loadNothing
 };
 
-
+/**
+ * The loader pipe, it can load several types of files:
+ * 1. Images
+ * 2. JSON
+ * 3. Plist
+ * 4. Audio
+ * 5. Font
+ * 6. Cocos Creator scene
+ * It will not interfere with items of unknown type.
+ * You can pass custom supported types in the constructor.
+ * @class Loader
+ */
+/**
+ * Constructor of Loader, you can pass custom supported types.
+ * @example
+ *  var loader = new Loader({
+ *      // This will match all url with `.scene` extension or all url with `scene` type
+ *      'scene' : function (url, callback) {}
+ *  });
+ * 
+ * @method Loader
+ * @param {Object} extMap
+ */
 var Loader = function (extMap) {
     this.id = 'Loader';
     this.isAsync = true;
