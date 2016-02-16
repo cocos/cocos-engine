@@ -37,7 +37,7 @@ function asyncFlow (item) {
     
     if (itemState === ItemState.COMPLETE) {
         if (this.next) {
-            this.next.flow(item);
+            this.next.flowIn(item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -48,16 +48,20 @@ function asyncFlow (item) {
     }
     else {
         item[pipeId] = ItemState.WORKING;
-        this.handle(item, function (err) {
+        this.handle(item, function (err, result) {
             if (err) {
-                item[pipeId] = ItemState.ERROR;
                 item.error = err;
+                item[pipeId] = ItemState.ERROR;
                 this.pipeline.flowOut(item);
             }
             else {
+                // Result can be null, then it means no result for this pipe
+                if (result) {
+                    item.content = result;
+                }
                 item[pipeId] = ItemState.COMPLETE;
                 if (this.next) {
-                    this.next.flow(item);
+                    this.next.flowIn(item);
                 }
                 else {
                     this.pipeline.flowOut(item);
@@ -72,7 +76,7 @@ function syncFlow (item) {
     
     if (itemState === ItemState.COMPLETE) {
         if (this.next) {
-            this.next.flow(item);
+            this.next.flowIn(item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -83,17 +87,31 @@ function syncFlow (item) {
     }
     else {
         item[pipeId] = ItemState.WORKING;
-        this.handle(item);
-        item[pipeId] = ItemState.COMPLETE;
-        if (this.next) {
-            this.next.flow(item);
+        var result = this.handle(item);
+        if (result instanceof Error) {
+            item.error = result;
+            item[pipeId] = ItemState.ERROR;
+            this.pipeline.flowOut(item);
         }
         else {
-            this.pipeline.flowOut(item);
+            // Result can be null, then it means no result for this pipe
+            if (result) {
+                item.content = result;
+            }
+            item[pipeId] = ItemState.COMPLETE;
+            if (this.next) {
+                this.next.flowIn(item);
+            }
+            else {
+                this.pipeline.flowOut(item);
+            }
         }
     }
 }
 
+/**
+ *
+ */
 var Pipeline = function (pipes) {
     this._pipes = pipes;
     this._items = new LoadingItems();
@@ -110,10 +128,10 @@ var Pipeline = function (pipes) {
         pipe.next = i < pipes.length - 1 ? pipes[i+1] : null;
 
         if (pipe.isAsync) {
-            pipe.flow = asyncFlow;
+            pipe.flowIn = asyncFlow;
         }
         else {
-            pipe.flow = syncFlow;
+            pipe.flowIn = syncFlow;
         }
     }
 };
@@ -121,7 +139,7 @@ var Pipeline = function (pipes) {
 Pipeline.ItemState = new cc.Enum(ItemState);
 
 JS.mixin(Pipeline.prototype, {
-    flow: function (urlList) {
+    flowIn: function (urlList) {
         if (!this._flowing) {
             this._flowing = true;
         }
@@ -132,7 +150,7 @@ JS.mixin(Pipeline.prototype, {
         if (this._pipes.length > 0) {
             for (var i = 0; i < appendedUrls.length; i++) {
                 var url = appendedUrls[i];
-                this._pipes[0].flow(items[url]);
+                this._pipes[0].flowIn(items[url]);
             }
         }
     },

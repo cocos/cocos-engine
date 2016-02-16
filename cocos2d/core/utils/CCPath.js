@@ -1,4 +1,7 @@
 require('../platform/CCSys');
+
+const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
+
 /**
  * @class path
  * @static
@@ -29,7 +32,7 @@ cc.path = /** @lends cc.path# */{
      * @returns {*}
      */
     extname: function (pathStr) {
-        var temp = /(\.[^\.\/\?\\]*)(\?.*)?$/.exec(pathStr);
+        var temp = EXTNAME_RE.exec(pathStr);
         return temp ? temp[1] : null;
     },
 

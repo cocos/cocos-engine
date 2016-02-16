@@ -24,14 +24,32 @@
 
 var CallbacksInvoker = require('../event/callbacks-invoker');
 var JS = require('../platform/js');
+var Path = require('../utils/CCPath');
 
 function createItem (url) {
-    return {
-        src: url,
-        error: null,
-        content: null,
-        complete: false
-    };
+    var result;
+    if (typeof url === 'object' && url.src) {
+        if (!url.type) {
+            url.type = Path.extname(url.src);
+        }
+        result = {
+            error: null,
+            content: null,
+            complete: false
+        };
+        JS.mixin(result, url);
+    }
+    else if (typeof url === 'string') {
+        result = {
+            src: url,
+            type: Path.extname(url),
+            error: null,
+            content: null,
+            complete: false
+        };
+    }
+
+    return result;
 }
 
 var LoadingItems = function () {
@@ -49,8 +67,11 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             var url = urlList[i];
             // No duplicated url
             if (!this.map[url]) {
-                this.map[url] = createItem(url);
-                list.push(url);
+                var item = createItem(url);
+                if (item) {
+                    this.map[url] = item;
+                    list.push(url);
+                }
             }
         }
         return list;
