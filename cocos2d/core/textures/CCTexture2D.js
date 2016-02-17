@@ -701,6 +701,8 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 var textureImage = this._htmlElementObj;
                 if(!rect)
                     rect = cc.rect(0, 0, textureImage.width, textureImage.height);
+                if(!rect.width || !rect.height)
+                    return;
 
                 canvas.width = rect.width;
                 canvas.height = rect.height;
@@ -737,6 +739,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 if(!rect)
                     rect = cc.rect(0, 0, textureImage.width, textureImage.height);
 
+                if(!rect.width || !rect.height)
+                    return;
+
                 canvas.width = rect.width;
                 canvas.height = rect.height;
 
@@ -747,9 +752,6 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                     rect.x, rect.y, rect.width, rect.height,
                     0, 0, rect.width, rect.height
                 );
-
-                if(onlyCanvas)
-                    return canvas;
 
                 var imageData = context.getImageData(0,0,canvas.width, canvas.height);
                 var data = imageData.data;
@@ -763,6 +765,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 }
 
                 context.putImageData(imageData, 0, 0);
+
+                if(onlyCanvas)
+                    return canvas;
 
                 var newTexture = new Texture2D();
                 newTexture.initWithElement(canvas);
