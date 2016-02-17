@@ -81,6 +81,10 @@ var Animation = cc.Class({
 
                 this._defaultClip = value;
 
+                if (!value) {
+                    return;
+                }
+
                 var clips = this._clips;
 
                 for (var i = 0, l = clips.length; i < l; i++) {
