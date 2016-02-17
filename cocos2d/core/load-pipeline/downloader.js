@@ -234,12 +234,7 @@ JS.mixin(Downloader.prototype, {
     handle: function (item, callback) {
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
         downloadFunc(item.src, function (err, result) {
-            if (err) {
-                callback && callback(err);
-            }
-            else {
-                callback && callback(null, result);
-            }
+            callback && callback(err, result);
         });
     }
 });

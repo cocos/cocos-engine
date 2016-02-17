@@ -209,6 +209,28 @@ JS.mixin(Pipeline.prototype, {
     },
 
     /**
+     * Copy the item states from one source item to all destination items.
+     * It's quite useful when a pipe generate new items from one source item,
+     * then you should flowIn these generated items into pipeline, 
+     * but you probably want them to skip all pipes the source item already go through,
+     * you can achieve it with this API. 
+     *
+     * For example, an unzip pipe will generate more items, but you won't want them to pass unzip or download pipe again.
+     * @method copyItemStates
+     * @param {Object} srcItem The source item
+     * @param {Array|Object} dstItems A single destination item or an array of destination items
+     */
+    copyItemStates: function (srcItem, dstItems) {
+        if (!(dstItems instanceof Array)) {
+            dstItems.states = srcItem.states;
+            return;
+        }
+        for (var i = 0; i < dstItems.length; ++i) {
+            dstItems[i].states = srcItem.states;
+        }
+    },
+
+    /**
      * Returns whether the pipeline is flowing (contains item) currently.
      * @method isFlowing
      * @return {Boolean}
