@@ -490,7 +490,7 @@ var Component = cc.Class({
     //    return Timer.hasTimeoutKey(key);
     //},
 
-    // OVERRIDES
+    // VIRTUAL
 
     /**
      * If the component's bounding box is different from the node's, you can implement this method to supply
@@ -500,6 +500,34 @@ var Component = cc.Class({
      * @param {Rect} out_rect - the Rect to receive the bounding box
      */
     _getLocalBounds: null,
+
+    /**
+     * onRestore is called after the user clicks the Reset item in the Inspector's context menu or performs
+     * an undo operation on this component.
+     *
+     * If the component contains the "internal state", short for "temporary member variables which not included
+     * in its CCClass properties", then you may need to implement this function.
+     *
+     * The editor will call the getset accessors of your component to record/restore the component's state
+     * for undo/redo operation. However, in extreme cases, it may not works well. Then you should implement
+     * this function to manually synchronize your component's "internal states" with its public properties.
+     * Once you implement this function, all the getset accessors of your component will not be called when
+     * the user performs an undo/redo operation. Which means that only the properties with default value
+     * will be recorded or restored by editor.
+     *
+     * Similarly, the editor may failed to reset your component correctly in extreme cases. Then if you need
+     * to support the reset menu, you should manually synchronize your component's "internal states" with its
+     * properties in this function. Once you implement this function, all the getset accessors of your component
+     * will not be called during reset operation. Which means that only the properties with default value
+     * will be reset by editor.
+     *
+     * This function is only called in editor mode.
+     *
+     * @method onRestore
+     */
+    onRestore: null,
+
+    // OVERRIDE
 
     destroy: function () {
         if (CC_EDITOR) {
