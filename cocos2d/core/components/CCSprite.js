@@ -403,6 +403,14 @@ var Sprite = cc.Class({
         this.node.on('size-changed', this._resized, this);
     },
 
+    onEnable: function () {
+        if (this._sgNode) {
+            if (this._spriteFrame && this._spriteFrame.textureLoaded()) {
+                this._sgNode.setVisible(true);
+            }
+        }
+    },
+
     onDestroy: function () {
         this._super();
         this.node.off('size-changed', this._resized, this);
@@ -463,7 +471,7 @@ var Sprite = cc.Class({
         sgNode.setSpriteFrame(self._spriteFrame);
         self._applyCapInset();
         self._applySpriteSize();
-        if (this.enabledInHierarchy && !sgNode.isVisible()) {
+        if (self.enabledInHierarchy && !sgNode.isVisible()) {
             sgNode.setVisible(true);
         }
     },
