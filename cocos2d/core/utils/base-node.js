@@ -144,7 +144,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                             return cc.error('Internal error, should not remove unknown node from parent.');
                         }
                         oldParent._children.splice(removeAt, 1);
-                        oldParent.emit(CHILD_REMOVED, removeAt);
+                        oldParent.emit(CHILD_REMOVED, this);
                         this._onHierarchyChanged(oldParent);
 
                         if (CC_EDITOR) {

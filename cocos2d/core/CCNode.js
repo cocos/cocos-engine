@@ -1169,6 +1169,16 @@ if (cc.sys.isNative) {
  * @param {Number} event.detail - old opacity
  */
 /**
+ * @event child-added
+ * @param {cc.Event} event
+ * @param {cc.Node} event.detail - child
+ */
+/**
+ * @event child-removed
+ * @param {cc.Event} event
+ * @param {cc.Node} event.detail - child
+ */
+/**
  * Note: This event is only emitted from the top most node whose active value did changed,
  * not including its child nodes.
  * @event active-in-hierarchy-changed
