@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
+var Pipeline = require('./pipeline');
 
 function loadNothing (item, callback) {
     callback(null, null);
@@ -148,3 +149,5 @@ JS.mixin(Loader.prototype, {
         });
     }
 });
+
+Pipeline.Loader = module.exports = Loader;

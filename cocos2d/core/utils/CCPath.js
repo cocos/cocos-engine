@@ -25,7 +25,7 @@ cc.path = /** @lends cc.path# */{
     },
 
     /**
-     * Get the ext name of a path.
+     * Get the ext name of a path including '.', like '.png'.
      * @method extname
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/extname.js}
      * @param {String} pathStr
@@ -33,7 +33,7 @@ cc.path = /** @lends cc.path# */{
      */
     extname: function (pathStr) {
         var temp = EXTNAME_RE.exec(pathStr);
-        return temp ? temp[1] : null;
+        return temp ? temp[1] : '';
     },
 
     /**
@@ -163,3 +163,5 @@ cc.path = /** @lends cc.path# */{
         return path;
     }
 };
+
+module.exports = cc.path;

@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
-var LoadingItems = require('loading-items');
+var LoadingItems = require('./loading-items');
 
 var ItemState = {
     WORKING: 1,
@@ -33,9 +33,12 @@ var ItemState = {
 
 function asyncFlow (item) {
     var pipeId = this.id;
-    var itemState = item[pipeId];
-    
-    if (itemState === ItemState.COMPLETE) {
+    var itemState = item.states[pipeId];
+
+    if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
+        return;
+    }
+    else if (itemState === ItemState.COMPLETE) {
         if (this.next) {
             this.next.flowIn(item);
         }
@@ -43,28 +46,26 @@ function asyncFlow (item) {
             this.pipeline.flowOut(item);
         }
     }
-    else if (itemState === ItemState.WORKING) {
-        return;
-    }
     else {
-        item[pipeId] = ItemState.WORKING;
+        item.states[pipeId] = ItemState.WORKING;
+        var pipe = this;
         this.handle(item, function (err, result) {
             if (err) {
                 item.error = err;
-                item[pipeId] = ItemState.ERROR;
-                this.pipeline.flowOut(item);
+                item.states[pipeId] = ItemState.ERROR;
+                pipe.pipeline.flowOut(item);
             }
             else {
                 // Result can be null, then it means no result for this pipe
                 if (result) {
                     item.content = result;
                 }
-                item[pipeId] = ItemState.COMPLETE;
-                if (this.next) {
-                    this.next.flowIn(item);
+                item.states[pipeId] = ItemState.COMPLETE;
+                if (pipe.next) {
+                    pipe.next.flowIn(item);
                 }
                 else {
-                    this.pipeline.flowOut(item);
+                    pipe.pipeline.flowOut(item);
                 }
             }
         });
@@ -72,9 +73,12 @@ function asyncFlow (item) {
 }
 function syncFlow (item) {
     var pipeId = this.id;
-    var itemState = item[pipeId];
+    var itemState = item.states[pipeId];
     
-    if (itemState === ItemState.COMPLETE) {
+    if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
+        return;
+    }
+    else if (itemState === ItemState.COMPLETE) {
         if (this.next) {
             this.next.flowIn(item);
         }
@@ -82,15 +86,12 @@ function syncFlow (item) {
             this.pipeline.flowOut(item);
         }
     }
-    else if (itemState === ItemState.WORKING) {
-        return;
-    }
     else {
-        item[pipeId] = ItemState.WORKING;
+        item.states[pipeId] = ItemState.WORKING;
         var result = this.handle(item);
         if (result instanceof Error) {
             item.error = result;
-            item[pipeId] = ItemState.ERROR;
+            item.states[pipeId] = ItemState.ERROR;
             this.pipeline.flowOut(item);
         }
         else {
@@ -98,7 +99,7 @@ function syncFlow (item) {
             if (result) {
                 item.content = result;
             }
-            item[pipeId] = ItemState.COMPLETE;
+            item.states[pipeId] = ItemState.COMPLETE;
             if (this.next) {
                 this.next.flowIn(item);
             }
@@ -199,11 +200,55 @@ JS.mixin(Pipeline.prototype, {
 
     flowOut: function (item) {
         this._items.itemDone(item.src);
+        this.onProgress(this._items.getCompletedCount(), this._items.getTotalCount(), item);
         // All completed
-        if (this._items.isCompleted) {
-            // this.onComplete(this._items);
+        if (this._items.isCompleted()) {
+            this._flowing = false;
+            this.onComplete(this._items);
         }
-    }
+    },
+
+    /**
+     * Returns whether the pipeline is flowing (contains item) currently.
+     * @method isFlowing
+     * @return {Boolean}
+     */
+    isFlowing: function () {
+        return this._flowing;
+    },
+
+    /**
+     * Clear the current pipeline, this function will clean up the items.
+     * @method clear
+     */
+    clear: function () {
+        if (this._flowing) {
+            var items = this._items.map;
+            for (var url in items) {
+                var item = items[url];
+                if (!item.complete) {
+                    item.error = new Error('Canceled manually');
+                }
+            }
+        }
+
+        this._items = new LoadingItems();
+        this._flowing = false;
+    },
+
+    /* This is a callback which will be invoked while an item flow out the pipeline.
+     * @method onProgress
+     * @param {Number} completedCount The number of the items that are already completed.
+     * @param {Number} totalCount The total number of the items.
+     * @param {Object} item The latest item which flow out the pipeline.
+     */
+    onProgress: function (completedCount, totalCount, item) {},
+
+    /* This is a callback which will be invoked while all items flow out the pipeline.
+     * @method onComplete
+     * @param {LoadingItems} items All items.
+     */
+    onComplete: function (items) {}
 });
 
-module.exports = Pipeline;
+cc.Pipeline = module.exports = Pipeline;

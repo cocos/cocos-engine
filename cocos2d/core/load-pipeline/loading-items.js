@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var CallbacksInvoker = require('../event/callbacks-invoker');
+var CallbacksInvoker = require('../platform/callbacks-invoker');
 var JS = require('../platform/js');
 var Path = require('../utils/CCPath');
 
@@ -30,22 +30,24 @@ function createItem (url) {
     var result;
     if (typeof url === 'object' && url.src) {
         if (!url.type) {
-            url.type = Path.extname(url.src).toLowerCase();
+            url.type = Path.extname(url.src).toLowerCase().substr(1);
         }
         result = {
             error: null,
             content: null,
-            complete: false
+            complete: false,
+            states: {}
         };
         JS.mixin(result, url);
     }
     else if (typeof url === 'string') {
         result = {
             src: url,
-            type: Path.extname(url),
+            type: Path.extname(url).toLowerCase().substr(1),
             error: null,
             content: null,
-            complete: false
+            complete: false,
+            states: {}
         };
     }
 
@@ -57,6 +59,8 @@ var LoadingItems = function () {
 
     this.map = {};
     this.completed = {};
+    this.totalCount = 0;
+    this.completeCount = 0;
     // this.list = [];
 };
 
@@ -69,30 +73,38 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             if (!this.map[url]) {
                 var item = createItem(url);
                 if (item) {
-                    this.map[url] = item;
-                    list.push(url);
+                    this.map[item.src] = item;
+                    list.push(item.src);
                 }
             }
         }
+        this.totalCount += list.length;
         return list;
     },
-    isCompleted: function () {
-        for (var any in this.map) {
-            return false;
-        }
-        return true;
+
+    getCompletedCount: function () {
+        return this.completeCount;
     },
+    getTotalCount: function () {
+        return this.totalCount;
+    },
+
+    isCompleted: function () {
+        return this.completeCount >= this.totalCount;
+    },
+
     itemDone: function (url) {
-        if (!this.map[url]) {
+        // Not exist or already completed
+        if (!this.map[url] || this.completed[url]) {
             return;
         }
 
         var item = this.map[url];
         item.complete = true;
         this.completed[url] = item;
-        delete this.map[url];
 
-        this.emit(url, item);
+        this.invoke(url, item);
+        this.completeCount++;
     }
 });
 

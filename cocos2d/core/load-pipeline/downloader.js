@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
+var Pipeline = require('./pipeline');
 
 // var downloadBinary = require('binary-downloader');
 
@@ -242,3 +243,5 @@ JS.mixin(Downloader.prototype, {
         });
     }
 });
+
+Pipeline.Downloader = module.exports = Downloader;
