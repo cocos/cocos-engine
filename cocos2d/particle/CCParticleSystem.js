@@ -731,6 +731,16 @@ var ParticleSystem = cc.Class({
                 var active = sgNode.isActive();
                 sgNode.initWithFile(file);
 
+                if (results[0].textureUuid) {
+                    Editor.assetdb.queryPathByUuid(results[0].textureUuid, function (url) {
+                        self.texture = url;
+                    });
+                }
+
+                if (results[0].emissionRate) {
+                    sgNode.emissionRate = results[0].emissionRate;
+                }
+
                 // recover sgNode properties
                 
                 sgNode.setPosition(0, 0);
