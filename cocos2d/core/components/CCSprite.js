@@ -170,7 +170,7 @@ var Sprite = cc.Class({
                 return this._fillStart;
             },
             set: function(value) {
-                this._fillStart = value;
+                this._fillStart = cc.clamp01(value);
                 this._sgNode && this._sgNode.setFillStart(value);
             },
         },
@@ -180,7 +180,7 @@ var Sprite = cc.Class({
                 return this._fillRange;
             },
             set: function(value) {
-                this._fillRange = value;
+                this._fillRange = cc.clamp01(value);
                 this._sgNode && this._sgNode.setFillRange(value);
             },
         },
@@ -234,6 +234,12 @@ var Sprite = cc.Class({
             animatable: false,
             type: SizeMode
         }
+    },
+
+    statics: {
+        FillType: FillType,
+        Type: SpriteType,
+        SizeMode: SizeMode,
     },
 
     /**
