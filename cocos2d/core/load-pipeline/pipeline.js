@@ -200,11 +200,11 @@ JS.mixin(Pipeline.prototype, {
 
     flowOut: function (item) {
         this._items.itemDone(item.src);
-        this.onProgress(this._items.completedCount, this._items.totalCount, item);
+        this.onProgress && this.onProgress(this._items.completedCount, this._items.totalCount, item);
         // All completed
         if (this._items.isCompleted()) {
             this._flowing = false;
-            this.onComplete(this._items);
+            this.onComplete && this.onComplete(this._items);
         }
     },
 
