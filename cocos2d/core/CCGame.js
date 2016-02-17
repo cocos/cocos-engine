@@ -2,7 +2,7 @@ var EventTarget = require('./event/event-target');
 
 /**
  * An object to boot the game.
- * @class game
+ * @class Game
  */
 var game = /** @lends cc.game# */{
 
@@ -202,16 +202,15 @@ var game = /** @lends cc.game# */{
             this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
 
             /**
-             * @type {cc.EGLView}
-             * @name cc.view
-             * @memberof cc
-             * cc.view is the shared view object.
-             */
-            cc.view = cc.EGLView._getInstance();
-
-            /**
              * @module cc
              */
+
+            /**
+             * cc.view is the shared view object.
+             * @property view
+             * @type cc.View
+             */
+            cc.view = cc.EGLView._getInstance();
 
             /**
              * @property director
@@ -257,7 +256,7 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * @class game
+     * @class Game
      */
 
     /**
@@ -616,4 +615,12 @@ var game = /** @lends cc.game# */{
 EventTarget.call(game);
 cc.js.addon(game, EventTarget.prototype);
 
+/**
+ * @module cc
+ */
+
+/**
+ * @property game
+ * @type Game
+ */
 cc.game = module.exports = game;

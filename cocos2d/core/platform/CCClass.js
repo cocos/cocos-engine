@@ -674,7 +674,6 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  *
  * @method Class
  * @param {Object} options
- * TODO: add properties of options
  * @return {Function} - the created class
  *
  * @example
