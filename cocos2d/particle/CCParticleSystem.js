@@ -731,14 +731,17 @@ var ParticleSystem = cc.Class({
                 var active = sgNode.isActive();
                 sgNode.initWithFile(file);
 
+                // To avoid it export custom particle data textureImageData too large,
+                // so use the texutreUuid instead of textureImageData
                 if (results[0].textureUuid) {
-                    Editor.assetdb.queryPathByUuid(results[0].textureUuid, function (url) {
+                    cc.AssetLibrary.queryAssetInfo(results[0].textureUuid, function (err, url, raw) {
                         self.texture = url;
                     });
                 }
 
+                // For custom data export
                 if (results[0].emissionRate) {
-                    sgNode.emissionRate = results[0].emissionRate;
+                    self.emissionRate = results[0].emissionRate;
                 }
 
                 // recover sgNode properties
