@@ -764,7 +764,7 @@ var fillQuadGeneratorRadial = {
                 var yleft = center.y + tanAngle * (left - center.x);
                 if(yleft > bottom && yleft < top) {
                     intersectPoints[0] = intersectPoints[4];
-                    intersectPoints[5] = null;
+                    intersectPoints[4] = null;
                     intersectPoints[0].x = left;
                     intersectPoints[0].y = yleft;
                 }
