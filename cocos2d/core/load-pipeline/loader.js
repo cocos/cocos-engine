@@ -131,7 +131,7 @@ var defaultMap = {
  */
 var Loader = function (extMap) {
     this.id = 'Loader';
-    this.isAsync = true;
+    this.async = true;
     this.pipeline = null;
 
     this.extMap = JS.addon(extMap, defaultMap);

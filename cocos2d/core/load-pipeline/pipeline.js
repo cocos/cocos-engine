@@ -122,15 +122,15 @@ function syncFlow (item) {
 /**
  * Constructor, pass an array of pipes to construct a new Pipeline, the pipes will be chained in the given order.
  * A pipe is an object which must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
- * It can also include `isAsync` property to identify whether it's an asynchronous process.
+ * It can also include `async` property to identify whether it's an asynchronous process.
  * @example
  *  var pipeline = new Pipeline([
  *      {
  *          id: 'Downloader', 
  *          handle: function (item, callback) {}, 
- *          isAsync: true
+ *          async: true
  *      },
- *      {id: 'Parser', handle: function (item) {}, isAsync: false}
+ *      {id: 'Parser', handle: function (item) {}, async: false}
  *  ]);
  * 
  * @method Pipeline
@@ -151,7 +151,7 @@ var Pipeline = function (pipes) {
         pipe.pipeline = this;
         pipe.next = i < pipes.length - 1 ? pipes[i+1] : null;
 
-        if (pipe.isAsync) {
+        if (pipe.async) {
             pipe.flowIn = asyncFlow;
         }
         else {
@@ -200,7 +200,7 @@ JS.mixin(Pipeline.prototype, {
 
     flowOut: function (item) {
         this._items.itemDone(item.src);
-        this.onProgress(this._items.getCompletedCount(), this._items.getTotalCount(), item);
+        this.onProgress(this._items.completedCount, this._items.totalCount, item);
         // All completed
         if (this._items.isCompleted()) {
             this._flowing = false;
@@ -236,7 +236,13 @@ JS.mixin(Pipeline.prototype, {
         this._flowing = false;
     },
 
-    /* This is a callback which will be invoked while an item flow out the pipeline.
+    /**
+     * This is a callback which will be invoked while an item flow out the pipeline, you should overwrite this function.
+     * @example
+     *  pipeline.onProgress = function (completedCount, totalCount, item) {
+     *      var progress = (100 * completedCount / totalCount).toFixed(2);
+     *      cc.log(progress + '%');
+     *  }
      * @method onProgress
      * @param {Number} completedCount The number of the items that are already completed.
      * @param {Number} totalCount The total number of the items.
@@ -244,7 +250,12 @@ JS.mixin(Pipeline.prototype, {
      */
     onProgress: function (completedCount, totalCount, item) {},
 
-    /* This is a callback which will be invoked while all items flow out the pipeline.
+    /**
+     * This is a callback which will be invoked while all items flow out the pipeline, you should overwirte this function.
+     * @example
+     *  pipeline.onComplete = function (items) {
+     *      cc.log('Completed ' + items.totalCount + ' items');
+     *  }
      * @method onComplete
      * @param {LoadingItems} items All items.
      */

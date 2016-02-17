@@ -10,12 +10,12 @@ var pipeline = new cc.Pipeline([
     {
         id: 'Downloader',
         handle: download,
-        isAsync: true
+        async: true
     },
     {
         id: 'Loader',
         handle: load,
-        isAsync: false
+        async: false
     }
 ]);
 
@@ -26,8 +26,8 @@ test('construction', function () {
     strictEqual(pipes[1].id, 'Loader', 'should have second pipe id equal to Loader');
     strictEqual(pipes[0].handle, download, 'should have first pipe use download function as handle');
     strictEqual(pipes[1].handle, load, 'should have second pipe use load function as handle');
-    strictEqual(pipes[0].isAsync, true, 'should set first pipe asynchronous');
-    strictEqual(pipes[1].isAsync, false, 'should set second pipe synchronous');
+    strictEqual(pipes[0].async, true, 'should set first pipe asynchronous');
+    strictEqual(pipes[1].async, false, 'should set second pipe synchronous');
     strictEqual(pipes[0].pipeline, pipeline, 'should set first pipe\'s pipeline property');
     strictEqual(pipes[1].pipeline, pipeline, 'should set second pipe\'s pipeline property');
     strictEqual(pipes[0].next, pipes[1], 'should set first pipe\'s next as second pipe');
@@ -64,10 +64,11 @@ test('items', function () {
 
     ok(role, 'can append items');
     strictEqual(scene2, scene, 'shouldn\'t add new item for existing url');
-    strictEqual(pipeline._items.getTotalCount(), 4, 'should now hold 4 items in total');
+    strictEqual(scene2.name, 'scene', 'should be able to set custom property of item');
+    strictEqual(pipeline._items.totalCount, 4, 'should now hold 4 items in total');
 
     pipeline.clear();
-    strictEqual(pipeline._items.getTotalCount(), 0, 'should hold 0 item after clear');
+    strictEqual(pipeline._items.totalCount, 0, 'should hold 0 item after clear');
 });
 
 test('pipeline flow', function () {
@@ -86,12 +87,12 @@ test('pipeline flow', function () {
         {
             id: 'Downloader',
             handle: download,
-            isAsync: true
+            async: true
         },
         {
             id: 'Loader',
             handle: load,
-            isAsync: false
+            async: false
         }
     ]);
 
@@ -114,8 +115,8 @@ test('pipeline flow', function () {
         'res/role'
     ]);
 
-    strictEqual(pipeline._items.getTotalCount(), 4, 'should now hold 4 items in total');
-    strictEqual(pipeline._items.getCompletedCount(), 4, 'should complete all 4 items');
+    strictEqual(pipeline._items.totalCount, 4, 'should now hold 4 items in total');
+    strictEqual(pipeline._items.completedCount, 4, 'should complete all 4 items');
     strictEqual(pipeline._items.isCompleted(), true, 'should be completed');
     strictEqual(pipeline.isFlowing(), false, 'should not be flowing now');
     download.expect(4, 'should call download for each item');
@@ -145,23 +146,23 @@ asyncTest('content manipulation', function () {
         {
             id: 'DataIniter',
             handle: init,
-            isAsync: false
+            async: false
         },
         {
             id: 'Downloader',
             handle: download,
-            isAsync: true
+            async: true
         },
         {
             id: 'Loader',
             handle: load,
-            isAsync: false
+            async: false
         }
     ]);
 
     pipeline.onComplete = function (items) {
         ok(true, 'should call onComplete at the end');
-        strictEqual(items.getCompletedCount(), 4, 'should complete all 4 items');
+        strictEqual(items.completedCount, 4, 'should complete all 4 items');
         strictEqual(items.isCompleted(), true, 'should be completed');
         strictEqual(pipeline.isFlowing(), false, 'should not be flowing now');
 
@@ -205,8 +206,7 @@ asyncTest('content manipulation', function () {
         'res/Background.png',
         {
             src: 'res/scene.json',
-            type: 'scene',
-            name: 'scene'
+            type: 'scene'
         },
         'res/role.plist',
         'res/role'

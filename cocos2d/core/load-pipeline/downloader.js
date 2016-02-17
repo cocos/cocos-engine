@@ -225,7 +225,7 @@ var defaultMap = {
  */
 var Downloader = function (extMap) {
     this.id = 'Downloader';
-    this.isAsync = true;
+    this.async = true;
     this.pipeline = null;
 
     this.extMap = JS.addon(extMap, defaultMap);
