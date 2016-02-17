@@ -1179,6 +1179,10 @@ if (cc.sys.isNative) {
  * @param {cc.Node} event.detail - child
  */
 /**
+ * @event child-reorder
+ * @param {cc.Event} event
+ */
+/**
  * Note: This event is only emitted from the top most node whose active value did changed,
  * not including its child nodes.
  * @event active-in-hierarchy-changed

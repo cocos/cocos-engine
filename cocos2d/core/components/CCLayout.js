@@ -285,6 +285,7 @@ var Layout = cc.Class({
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
         this.node.on('child-removed', this._childrenAddOrDeleted, this);
+        this.node.on('child-reorder', this._doLayoutDirty, this);
 
         this._updateChildrenEventListener();
     },

@@ -48,6 +48,7 @@ var COLOR_CHANGED = 'color-changed';
 var OPACITY_CHANGED = 'opacity-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
+var CHILD_REORDER = 'child-reorder';
 
 var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 
@@ -1364,6 +1365,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             if (cc.renderer) {
                 cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
             }
+            this._parent.emit(CHILD_REORDER);
         }
     },
 
