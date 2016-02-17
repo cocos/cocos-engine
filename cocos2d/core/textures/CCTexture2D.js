@@ -701,6 +701,8 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 var textureImage = this._htmlElementObj;
                 if(!rect)
                     rect = cc.rect(0, 0, textureImage.width, textureImage.height);
+                if(!rect.width || !rect.height)
+                    return;
 
                 canvas.width = rect.width;
                 canvas.height = rect.height;
@@ -733,50 +735,37 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                     onlyCanvas = true;
                 else
                     canvas = document.createElement("canvas");
-
                 var textureImage = this._htmlElementObj;
                 if(!rect)
                     rect = cc.rect(0, 0, textureImage.width, textureImage.height);
-                var x, y, w, h;
-                x = rect.x; y = rect.y; w = rect.width; h = rect.height;
-                if(!w || !h)
+
+                if(!rect.width || !rect.height)
                     return;
 
-                canvas.width = w;
-                canvas.height = h;
-                
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+
                 var context = canvas.getContext("2d");
-                var tintedImgCache = cc.textureCache.getTextureColors(this);
-                context.globalCompositeOperation = 'lighter';
+
                 context.drawImage(
-                    tintedImgCache[3],
-                    x, y, w, h,
-                    0, 0, w, h
+                    textureImage,
+                    rect.x, rect.y, rect.width, rect.height,
+                    0, 0, rect.width, rect.height
                 );
-                if (r > 0) {
-                    context.globalAlpha = r / 255;
-                    context.drawImage(
-                        tintedImgCache[0],
-                        x, y, w, h,
-                        0, 0, w, h
-                    );
+
+                var imageData = context.getImageData(0,0,canvas.width, canvas.height);
+                var data = imageData.data;
+                r = r/255;
+                g = g/255;
+                b = b/255;
+                for (var i = 0; i < data.length; i += 4) {
+                    data[i]     = data[i] * r;
+                    data[i + 1] = data[i+1] * g;
+                    data[i + 2] = data[i+2] * b;
                 }
-                if (g > 0) {
-                    context.globalAlpha = g / 255;
-                    context.drawImage(
-                        tintedImgCache[1],
-                        x, y, w, h,
-                        0, 0, w, h
-                    );
-                }
-                if (b > 0) {
-                    context.globalAlpha = b / 255;
-                    context.drawImage(
-                        tintedImgCache[2],
-                        x, y, w, h,
-                        0, 0, w, h
-                    );
-                }
+
+                context.putImageData(imageData, 0, 0);
+
                 if(onlyCanvas)
                     return canvas;
 
