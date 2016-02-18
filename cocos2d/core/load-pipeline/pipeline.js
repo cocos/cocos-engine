@@ -284,17 +284,16 @@ JS.mixin(Pipeline.prototype, {
     flowOut: function (item) {
         var url = item.src;
         var items = this._items;
+        var exists = items.map[url];
         // Not exist or already completed
-        if (!items.map[url] || items.completed[url]) {
+        if (!exists || exists.complete) {
             return;
         }
 
-        item.complete = true;
-        items.completed[url] = item;
-        items.completedCount++;
+        items.complete(item);
 
         this.onProgress && this.onProgress(this._items.completedCount, this._items.totalCount, item);
-        
+
         // All completed
         if (this._items.isCompleted()) {
             this._flowing = false;

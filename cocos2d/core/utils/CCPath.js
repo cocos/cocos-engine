@@ -1,14 +1,13 @@
 require('../platform/CCSys');
 
-const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
+var EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
+var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
 
 /**
  * @class path
  * @static
  */
 cc.path = /** @lends cc.path# */{
-    normalizeRE: /[^\.\/]+\/\.\.\//,
-
     /**
      * Join strings to be a path.
      * @method join
@@ -131,7 +130,7 @@ cc.path = /** @lends cc.path# */{
         //removing all ../
         do {
             oldUrl = url;
-            url = url.replace(this.normalizeRE, "");
+            url = url.replace(NORMALIZE_RE, "");
         } while(oldUrl.length !== url.length);
         return url;
     },

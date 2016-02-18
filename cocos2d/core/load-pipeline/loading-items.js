@@ -51,13 +51,6 @@ var LoadingItems = function () {
     this.map = {};
 
     /**
-     * The map of all completed items
-     * @property completed
-     * @type {Object}
-     */
-    this.completed = {};
-
-    /**
      * Total count of all items
      * @property totalCount
      * @type {Number}
@@ -100,7 +93,15 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      * @return {Boolean}
      */
     isItemCompleted: function (url) {
-        return !!this.completed[url];
+        var item = this.map[url];
+        return item && item.complete;
+    },
+
+    complete: function (item) {
+        if (this.map[item.src] === item) {
+            item.complete = true;
+            this.completedCount++;
+        }
     }
 });
 
