@@ -1221,11 +1221,24 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
             this._quads = tiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
+            var fillstart = this._fillStart;
+            var fillRange = this._fillRange;
+            if(fillRange < 0) {
+                fillstart += fillRange;
+                fillRange = -fillRange;
+            }
             if(this._fillType !== cc.Scale9Sprite.FillType.RADIAL) {
-                this._quads = fillQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._fillType, this._fillStart,this._fillRange);
+                fillRange = fillstart + fillRange;
+                fillstart = fillstart > 1.0 ? 1.0 : fillstart;
+                fillstart = fillstart < 0.0 ? 0.0 : fillstart;
+
+                fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+                fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+                fillRange = fillRange - fillstart;
+                this._quads = fillQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._fillType, fillstart,fillRange);
             } else {
                 this._isTriangle = true;
-                var fillResult = fillQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._fillCenter,this._fillStart,this._fillRange);
+                var fillResult = fillQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._fillCenter,fillstart,fillRange);
                 this._quads = fillResult.quad;
                 this._rawQuad = fillResult.rawQuad;
             }
