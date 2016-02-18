@@ -56,6 +56,7 @@ require('./cocos2d/core/platform/CCInputExtension');
 require('./cocos2d/core/event');
 require('./cocos2d/core/platform/CCSys');
 require('./cocos2d/core/platform/CCLoader');
+require('./cocos2d/core/load-pipeline');
 require('./CCDebugger');
 if (CC_DEV) {
     // output all errors before initialized

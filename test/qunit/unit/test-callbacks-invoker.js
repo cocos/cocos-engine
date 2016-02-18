@@ -1,4 +1,4 @@
-module('CallbacksInvoker');
+largeModule('CallbacksInvoker');
 
 test('test', function () {
     var ci = new cc._Test.CallbacksInvoker();
