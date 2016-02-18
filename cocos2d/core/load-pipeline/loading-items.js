@@ -24,35 +24,6 @@
 
 var CallbacksInvoker = require('../platform/callbacks-invoker');
 var JS = require('../platform/js');
-var Path = require('../utils/CCPath');
-
-function createItem (url) {
-    var result;
-    if (typeof url === 'object' && url.src) {
-        if (!url.type) {
-            url.type = Path.extname(url.src).toLowerCase().substr(1);
-        }
-        result = {
-            error: null,
-            content: null,
-            complete: false,
-            states: {}
-        };
-        JS.mixin(result, url);
-    }
-    else if (typeof url === 'string') {
-        result = {
-            src: url,
-            type: Path.extname(url).toLowerCase().substr(1),
-            error: null,
-            content: null,
-            complete: false,
-            states: {}
-        };
-    }
-
-    return result;
-}
 
 /**
  * LoadingItems is the manager of items in pipeline.
@@ -102,21 +73,18 @@ var LoadingItems = function () {
 };
 
 JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
-    append: function (urlList) {
-        var list = [];
-        for (var i = 0; i < urlList.length; ++i) {
-            var url = urlList[i];
+    append: function (items) {
+        var count = 0;
+        for (var i = 0; i < items.length; ++i) {
+            var item = items[i];
+            var url = item.src;
             // No duplicated url
             if (!this.map[url]) {
-                var item = createItem(url);
-                if (item) {
-                    this.map[item.src] = item;
-                    list.push(item.src);
-                }
+                this.map[item.src] = item;
+                count++;
             }
         }
-        this.totalCount += list.length;
-        return list;
+        this.totalCount += count;
     },
 
     /**
@@ -127,18 +95,12 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         return this.completedCount >= this.totalCount;
     },
 
-    itemDone: function (url) {
-        // Not exist or already completed
-        if (!this.map[url] || this.completed[url]) {
-            return;
-        }
-
-        var item = this.map[url];
-        item.complete = true;
-        this.completed[url] = item;
-
-        this.invoke(url, item);
-        this.completedCount++;
+    /**
+     * Check whether an item is completed
+     * @return {Boolean}
+     */
+    isItemCompleted: function (url) {
+        return !!this.completed[url];
     }
 });
 

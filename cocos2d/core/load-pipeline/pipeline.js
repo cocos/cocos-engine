@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
+var Path = require('../utils/CCPath');
 var LoadingItems = require('./loading-items');
 
 var ItemState = {
@@ -110,6 +111,38 @@ function syncFlow (item) {
     }
 }
 
+function isUrlValid (url) {
+    var realUrl = url.src || url;
+    return (typeof realUrl === 'string');
+}
+function createItem (url) {
+    var result;
+    if (typeof url === 'object' && url.src) {
+        if (!url.type) {
+            url.type = Path.extname(url.src).toLowerCase().substr(1);
+        }
+        result = {
+            error: null,
+            content: null,
+            complete: false,
+            states: {}
+        };
+        JS.mixin(result, url);
+    }
+    else if (typeof url === 'string') {
+        result = {
+            src: url,
+            type: Path.extname(url).toLowerCase().substr(1),
+            error: null,
+            content: null,
+            complete: false,
+            states: {}
+        };
+    }
+
+    return result;
+}
+
 /**
  * A pipeline describes a sequence of manipulations, each manipulation is called a pipe.
  * It's designed for loading process, so items should be urls, and the url will be the identity of each item during the process.
@@ -181,31 +214,94 @@ JS.mixin(Pipeline.prototype, {
      * 
      * @method flowIn
      * @param {Array} urlList
+     * @return {Array} Items accepted by the pipeline
      */
     flowIn: function (urlList) {
         if (!this._flowing) {
             this._flowing = true;
         }
-        
-        var appendedUrls = this._items.append(urlList);
-        var items = this._items.map;
 
-        if (this._pipes.length > 0) {
-            for (var i = 0; i < appendedUrls.length; i++) {
-                var url = appendedUrls[i];
-                this._pipes[0].flowIn(items[url]);
+        var items = [], i, url, item;
+        for (i = 0; i < urlList.length; ++i) {
+            url = urlList[i];
+            if (isUrlValid(url)) {
+                item = createItem(url);
+                items.push(item);
+            }
+            else {
+                throw new Error('Pipeline flowIn: Invalid url: ' + (url.src || url));
             }
         }
+        this._items.append(items);
+
+        // Flow in after appended to loading items
+        if (this._pipes.length > 0) {
+            for (i = 0; i < items.length; i++) {
+                this._pipes[0].flowIn(items[i]);
+            }
+        }
+        return items;
+    },
+
+    /**
+     * Let new items flow into the pipeline and give a callback when the list of items are all completed.
+     * This is for loading dependencies for an existing item in flow, usually used in a pipe logic.
+     * For example, we have a loader for scene configuration file in JSON, the scene will only be fully loaded 
+     * after all its dependencies are loaded, then you will need to use function to flow in all dependencies 
+     * found in the configuration file, and finish the loader pipe only after all dependencies are loaded (in the callback).
+     *
+     * @method flowInDeps
+     * @param {Array} urlList
+     * @param {Function} callback
+     * @return {Array} Items accepted by the pipeline
+     */
+    flowInDeps: function (urlList, callback) {
+        var checker = {};
+
+        function loadedCheck (item) {
+            checker[item.src] = item;
+
+            for (var url in checker) {
+                // Not done yet
+                if (!checker[url]) {
+                    return;
+                }
+            }
+            // All url completed
+            callback(checker);
+        }
+        // Add loaded listeners
+        for (var i = 0; i < urlList.length; ++i) {
+            var url = urlList[i].src || urlList[i];
+            if (isUrlValid(url)) {
+                this._items.add(url, loadedCheck);
+                checker[url] = null;
+            }
+        }
+        return this.flowIn(urlList);
     },
 
     flowOut: function (item) {
-        this._items.itemDone(item.src);
+        var url = item.src;
+        var items = this._items;
+        // Not exist or already completed
+        if (!items.map[url] || items.completed[url]) {
+            return;
+        }
+
+        item.complete = true;
+        items.completed[url] = item;
+        items.completedCount++;
+
         this.onProgress && this.onProgress(this._items.completedCount, this._items.totalCount, item);
+        
         // All completed
         if (this._items.isCompleted()) {
             this._flowing = false;
             this.onComplete && this.onComplete(this._items);
         }
+
+        items.invoke(url, item);
     },
 
     /**

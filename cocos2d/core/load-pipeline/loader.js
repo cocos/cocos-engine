@@ -139,7 +139,7 @@ var Loader = function (extMap) {
 JS.mixin(Loader.prototype, {
     handle: function (item, callback) {
         var loadFunc = this.extMap[item.type] || this.extMap['default'];
-        loadFunc(item, function (err, result) {
+        loadFunc.call(this, item, function (err, result) {
             if (err) {
                 callback && callback(err);
             }

@@ -233,7 +233,7 @@ var Downloader = function (extMap) {
 JS.mixin(Downloader.prototype, {
     handle: function (item, callback) {
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
-        downloadFunc(item.src, function (err, result) {
+        downloadFunc.call(this, item.src, function (err, result) {
             callback && callback(err, result);
         });
     }
