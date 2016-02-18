@@ -133,7 +133,7 @@ cc.js.mixin(cc.game, {
                 cc.game.onStart = onStart;
             }
         }
-
+        cc.director.startAnimation();
         this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
     },
 

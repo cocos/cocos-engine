@@ -46,9 +46,9 @@ cc.Event = function(type, bubbles) {
     this.type = type;
 
     /**
-     * A reference to the target to which the event was originally dispatched.
+     * Indicate whether the event bubbles up through the tree or not.
      * @property bubbles
-     * @type {Object}
+     * @type {Boolean}
      */
     this.bubbles = bubbles || false;
 

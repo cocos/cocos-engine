@@ -77,7 +77,13 @@ cc.js.mixin(cc.Event.prototype, {
 
 // cc.Event.EventCustom
 cc.Event.EventCustom = function (type, bubbles) {
-    cc.Event.call(this, cc.Event.CUSTOM);
+    this.target = null;
+    this.currentTarget = null;
+    this.eventPhase = 0;
+    this._defaultPrevented = false;
+    this._propagationStopped = false;
+    this._propagationImmediateStopped = false;
+
     this.type = type;
     this.bubbles = bubbles || false;
     this.detail = null;
