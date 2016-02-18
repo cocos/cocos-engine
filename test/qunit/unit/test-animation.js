@@ -483,6 +483,8 @@ test('Animation Component', function () {
     var state = animation.getAnimationState('test');
     strictEqual(state.clip, clip, 'should create state with clip');
 
+    strictEqual(state.duration, 10, 'should get state duration');
+
     animation.play('test');
     animation.sample();
     strictEqual(entity.x, 0, 'target property should equals value in frame 0s');
