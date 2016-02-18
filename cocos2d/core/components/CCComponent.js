@@ -155,7 +155,7 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
 // Yes, the id might have a conflict problem once every 365 days
 // if the game runs at 60 FPS and each frame 4760273 counts of new HashObject's id are requested.
 var CompId = 0;
-var IdPrefix = CC_DEV && ('Comp' + Editor.NonUuidMark);
+var IdPrefix = CC_DEV && ('Comp' + Editor.UuidUtils.NonUuidMark);
 var getNewId = CC_DEV && function () {
     return IdPrefix + (++CompId);
 };
@@ -175,8 +175,8 @@ var Component = cc.Class({
     extends: cc.Object,
 
     ctor: function () {
-        if (CC_EDITOR) {
-            Editor._AssetsWatcher.initComponent(this);
+        if (CC_EDITOR && !CC_TEST) {
+            _Scene.AssetsWatcher.initComponent(this);
         }
 
         // dont reset _id when destroyed
@@ -247,8 +247,8 @@ var Component = cc.Class({
             get: function () {},
             set: function (value) {
                 if (this.__scriptUuid !== value) {
-                    if (value && Editor.isUuid(value._uuid)) {
-                        var classId = Editor.compressUuid(value._uuid);
+                    if (value && Editor.UuidUtils.isUuid(value._uuid)) {
+                        var classId = Editor.UuidUtils.compressUuid(value._uuid);
                         var NewComp = cc.js._getClassById(classId);
                         if (cc.isChildClassOf(NewComp, cc.Component)) {
                             cc.warn('Sorry, replacing component script is not yet implemented.');
@@ -564,7 +564,7 @@ var Component = cc.Class({
                     callOnLostFocusInTryCatch(this);
                 }
             }
-            Editor._AssetsWatcher.start(this);
+            _Scene.AssetsWatcher.start(this);
         }
 
         if (this._enabled) {
@@ -604,7 +604,7 @@ var Component = cc.Class({
 
         // onDestroy
         if (CC_EDITOR) {
-            Editor._AssetsWatcher.stop(this);
+            _Scene.AssetsWatcher.stop(this);
             if (cc.engine._isPlaying || this.constructor._executeInEditMode) {
                 if (this.onDestroy) {
                     callOnDestroyInTryCatch(this);

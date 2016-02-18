@@ -385,8 +385,8 @@
                 }
             }
         });
-        var restore = Editor.urlToUuid;
-        Editor.urlToUuid = function (url) {
+        var restore = Editor.UuidCache.urlToUuid;
+        Editor.UuidCache.urlToUuid = function (url) {
             return {
                 foo: '01',
                 bar: '02'
@@ -412,7 +412,7 @@
         };
         deepEqual(actual, expected, 'could be serialized');
 
-        Editor.urlToUuid = restore;
+        Editor.UuidCache.urlToUuid = restore;
         cc.js.unregisterClass(Data);
     });
 

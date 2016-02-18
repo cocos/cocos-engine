@@ -77,10 +77,13 @@ if (CC_DEV) {
 if (CC_TEST) {
     // editor mocks using in unit tests
     if (typeof Editor === 'undefined') {
-        Editor = {};
+        Editor = {
+            UuidUtils: {
+                NonUuidMark: '.',
+                uuid: function () {
+                    return '' + ((new Date()).getTime() + Math.random());
+                }
+            }
+        };
     }
-    Editor.uuid = function () {
-        return '' + ((new Date()).getTime() + Math.random());
-    };
-    Editor.NonUuidMark = '.';
 }
