@@ -78,7 +78,31 @@ var game = /** @lends cc.game# */{
     canvas: null,
 
     /**
-     * Config of game
+     * The current game configuration, including:
+     * 1. debugMode
+     *      "debugMode" possible values :
+     *      0 - No message will be printed.
+     *      1 - cc.error, cc.assert, cc.warn, cc.log will print in console.
+     *      2 - cc.error, cc.assert, cc.warn will print in console.
+     *      3 - cc.error, cc.assert will print in console.
+     *      4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.
+     *      5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.
+     *      6 - cc.error, cc.assert will print on canvas, available only on web.
+     * 2. showFPS
+     *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
+     * 3. frameRate
+     *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
+     * 4. id
+     *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.
+     * 5. renderMode
+     *      "renderMode" sets the renderer type, only useful on web :
+     *      0 - Automatically chosen by engine
+     *      1 - Forced to use canvas renderer
+     *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers
+     * 6. scenes
+     *      "scenes" include available scenes in the current bundle.
+     *
+     * Please DO NOT modify this object directly, it won't have any effect.
      * @property config
      * @type {Object}
      */

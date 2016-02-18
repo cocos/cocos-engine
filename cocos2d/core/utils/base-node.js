@@ -1270,9 +1270,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._sgNode.getDisplayedOpacity();
     },
 
-    /**
+    /*
      * Update displayed opacity
-     * @method
+     * @method _updateDisplayedOpacity
      * @param {Number} parentOpacity
      */
     _updateDisplayedOpacity: function (parentOpacity) {
@@ -1524,13 +1524,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
  */
 
 /**
- * <p>Sets the x axis position of the node in cocos2d coordinates.</p>
+ * <p>Returns the x axis position of the node in cocos2d coordinates.</p>
  * @method getPositionX
  * @param {Number} x - The new position in x axis
  */
 
 /**
- * <p>Returns the x axis position of the node in cocos2d coordinates.</p>
+ * <p>Sets the x axis position of the node in cocos2d coordinates.</p>
  * @method setPositionX
  * @return {Number}
  */
