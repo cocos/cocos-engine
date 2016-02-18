@@ -765,16 +765,16 @@ var Node = cc.Class({
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
                     // change prefab
-                    Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab
-                    Editor.PrefabUtils.unlinkPrefab(this);
+                    _Scene.PrefabUtils.unlinkPrefab(this);
                 }
             }
             else if (newPrefabRoot) {
                 // attach to prefab
-                Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
             }
         }
     },

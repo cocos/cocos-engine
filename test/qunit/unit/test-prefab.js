@@ -59,8 +59,8 @@
     var prefabJson;
 
     (function savePrefab () {
-        prefab = Editor.PrefabUtils.createPrefabFrom(parent);
-        Editor.PrefabUtils.savePrefabUuid(parent, UUID);
+        prefab = _Scene.PrefabUtils.createPrefabFrom(parent);
+        _Scene.PrefabUtils.savePrefabUuid(parent, UUID);
 
         // 已经加载好的 prefab，去除类型，去除 runtime node
         prefabJson = Editor.serialize(prefab);
@@ -165,7 +165,7 @@
         newNode2.parent = testNode;
         newNode2.setSiblingIndex(0);
 
-        Editor.PrefabUtils.revertPrefab(testNode, function () {
+        _Scene.PrefabUtils.revertPrefab(testNode, function () {
             cc.loader.loadTxt = restore;
             ok(testNode.getScaleX() === 123 && testNode.getScaleY() === 432, 'Revert property of the parent node');
             ok(testNode.getComponent(TestScript).constructor === TestScript, 'Restore removed component');

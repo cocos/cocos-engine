@@ -175,7 +175,7 @@ var Component = cc.Class({
     extends: cc.Object,
 
     ctor: function () {
-        if (CC_EDITOR && !CC_TEST) {
+        if (CC_EDITOR && !CC_TEST && window._Scene) {
             _Scene.AssetsWatcher.initComponent(this);
         }
 
