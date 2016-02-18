@@ -701,28 +701,29 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 var textureImage = this._htmlElementObj;
                 if(!rect)
                     rect = cc.rect(0, 0, textureImage.width, textureImage.height);
-                if(!rect.width || !rect.height)
-                    return;
 
                 canvas.width = rect.width;
                 canvas.height = rect.height;
 
-                var context = canvas.getContext("2d");
-                context.globalCompositeOperation = "source-over";
-                context.fillStyle = "rgb(" + (r|0) + "," + (g|0) + "," + (b|0) + ")";
-                context.fillRect(0, 0, rect.width, rect.height);
-                context.globalCompositeOperation = "multiply";
-                context.drawImage(
-                    textureImage,
-                    rect.x, rect.y, rect.width, rect.height,
-                    0, 0, rect.width, rect.height
-                );
-                context.globalCompositeOperation = "destination-atop";
-                context.drawImage(
-                    textureImage,
-                    rect.x, rect.y, rect.width, rect.height,
-                    0, 0, rect.width, rect.height
-                );
+                if(rect.width && rect.height) {
+                    var context = canvas.getContext("2d");
+                    context.globalCompositeOperation = "source-over";
+                    context.fillStyle = "rgb(" + (r|0) + "," + (g|0) + "," + (b|0) + ")";
+                    context.fillRect(0, 0, rect.width, rect.height);
+                    context.globalCompositeOperation = "multiply";
+                    context.drawImage(
+                        textureImage,
+                        rect.x, rect.y, rect.width, rect.height,
+                        0, 0, rect.width, rect.height
+                    );
+                    context.globalCompositeOperation = "destination-atop";
+                    context.drawImage(
+                        textureImage,
+                        rect.x, rect.y, rect.width, rect.height,
+                        0, 0, rect.width, rect.height
+                    );
+                }
+
                 if(onlyCanvas)
                     return canvas;
                 var newTexture = new Texture2D();
@@ -739,36 +740,33 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 if(!rect)
                     rect = cc.rect(0, 0, textureImage.width, textureImage.height);
 
-                if(!rect.width || !rect.height)
-                    return;
-
                 canvas.width = rect.width;
                 canvas.height = rect.height;
 
-                var context = canvas.getContext("2d");
+                if(rect.width && rect.height) {
+                    var context = canvas.getContext("2d");
+                    context.drawImage(
+                        textureImage,
+                        rect.x, rect.y, rect.width, rect.height,
+                        0, 0, rect.width, rect.height
+                    );
 
-                context.drawImage(
-                    textureImage,
-                    rect.x, rect.y, rect.width, rect.height,
-                    0, 0, rect.width, rect.height
-                );
+                    var imageData = context.getImageData(0,0,canvas.width, canvas.height);
+                    var data = imageData.data;
+                    r = r/255;
+                    g = g/255;
+                    b = b/255;
+                    for (var i = 0; i < data.length; i += 4) {
+                        data[i]     = data[i] * r;
+                        data[i + 1] = data[i+1] * g;
+                        data[i + 2] = data[i+2] * b;
+                    }
 
-                var imageData = context.getImageData(0,0,canvas.width, canvas.height);
-                var data = imageData.data;
-                r = r/255;
-                g = g/255;
-                b = b/255;
-                for (var i = 0; i < data.length; i += 4) {
-                    data[i]     = data[i] * r;
-                    data[i + 1] = data[i+1] * g;
-                    data[i + 2] = data[i+2] * b;
+                    context.putImageData(imageData, 0, 0);
                 }
-
-                context.putImageData(imageData, 0, 0);
 
                 if(onlyCanvas)
                     return canvas;
-
                 var newTexture = new Texture2D();
                 newTexture.initWithElement(canvas);
                 newTexture.handleLoadedTexture();
