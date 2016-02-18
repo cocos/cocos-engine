@@ -33,7 +33,7 @@ paths = {
     test: {
         src: 'test/qunit/unit/**/*.js',
         runner: 'test/qunit/lib/qunit-runner.html',
-        jsEntryEditorExtends: '../editor/share/engine-extends/index.js',     // only available in editor
+        jsEntryEditorExtends: '../editor/test-utils/engine-extends-entry.js',     // only available in editor
         dest: 'bin/cocos2d-js-for-test.js',
         destEditorExtends: 'bin/cocos2d-js-extends-for-test.js'
     },
