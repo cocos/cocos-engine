@@ -95,11 +95,9 @@ p.onResume = function () {
     }
 };
 
-if (CC_DEV) {
-    p.reloadClip = function (state) {
-        initClipData(this.target, state);
-    };
-}
+p._reloadClip = function (state) {
+    initClipData(this.target, state);
+};
 
 // 这个方法应该是 SampledAnimCurve 才能用
 function createBatchedProperty (propPath, firstDotIndex, mainValue, animValue) {
