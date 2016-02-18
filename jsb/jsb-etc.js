@@ -24,6 +24,8 @@
 
 'use strict';
 
+var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
+
 // cc.path
 cc.js.mixin(cc.path, {
     //todo make public after verification
@@ -33,7 +35,7 @@ cc.js.mixin(cc.path, {
         //removing all ../
         do {
             oldUrl = url;
-            url = url.replace(this.normalizeRE, '');
+            url = url.replace(NORMALIZE_RE, '');
         } while (oldUrl.length !== url.length);
         return url;
     },
