@@ -24,18 +24,23 @@
 
 /**
  * Renders a TMX Tile Map in the scene.
- * @class TMXTiledMap
+ * @class TiledMap
  * @extends _ComponentInSG
  */
-var TMXTiledMap = cc.Class({
-    name: 'cc.TMXTiledMap',
-    extends: require('./CCComponentInSG'),
+var TiledMap = cc.Class({
+    name: 'cc.TiledMap',
+    extends: require('./../core/components/CCComponentInSG'),
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/TileMap'
+        menu: 'i18n:MAIN_MENU.component.renderers/TiledMap'
     },
 
     properties: {
+        /**
+         * The tmx file.
+         * @property {string} file
+         * @default ""
+         */
         _tmxFile: {
             default: '',
             url: cc.TiledMapAsset
@@ -57,6 +62,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Gets the map size.
+     * @method getMapSize
      * @return {cc.Size}
      */
     getMapSize:function () {
@@ -65,6 +71,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Set the map size.
+     * @method setMapSize
      * @param {cc.Size} Var
      */
     setMapSize:function (Var) {
@@ -73,6 +80,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Gets the tile size.
+     * @method getTileSize
      * @return {cc.Size}
      */
     getTileSize:function () {
@@ -81,6 +89,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Set the tile size
+     * @method setTileSize
      * @param {cc.Size} Var
      */
     setTileSize:function (Var) {
@@ -89,6 +98,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * map orientation
+     * @method getMapOrientation
      * @return {Number}
      */
     getMapOrientation:function () {
@@ -97,6 +107,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * map orientation
+     * @method setMapOrientation
      * @param {Number} Var
      */
     setMapOrientation:function (Var) {
@@ -105,6 +116,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * object groups
+     * @method getObjectGroups
      * @return {Array}
      */
     getObjectGroups:function () {
@@ -113,6 +125,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * object groups
+     * @method setObjectGroups
      * @param {Array} Var
      */
     setObjectGroups:function (Var) {
@@ -121,6 +134,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Gets the map properties
+     * @method getProperties
      * @return {object}
      */
     getProperties:function () {
@@ -129,6 +143,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Set the map properties
+     * @method setProperties
      * @param {object} Var
      */
     setProperties:function (Var) {
@@ -136,7 +151,8 @@ var TMXTiledMap = cc.Class({
     },
 
     /**
-     * Initializes the instance of cc.TMXTiledMap with tmxFile
+     * Initializes the instance of cc.TiledMap with tmxFile
+     * @method initWithTMXFile
      * @param {String} tmxFile
      * @return {Boolean} Whether the initialization was successful.
      */
@@ -145,7 +161,8 @@ var TMXTiledMap = cc.Class({
     },
 
     /**
-     * Initializes the instance of cc.TMXTiledMap with tmxString
+     * Initializes the instance of cc.TiledMap with tmxString
+     * @method initWithXML
      * @param {String} tmxString
      * @param {String} resourcePath
      * @return {Boolean} Whether the initialization was successful.
@@ -156,6 +173,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Return All layers array.
+     * @method allLayers
      * @returns {Array}
      */
     allLayers: function () {
@@ -164,6 +182,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * return the TMXLayer for the specific layer
+     * @method getLayer
      * @param {String} layerName
      * @return {cc.TMXLayer}
      */
@@ -173,6 +192,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Return the TMXObjectGroup for the specific group
+     * @method getObjectGroup
      * @param {String} groupName
      * @return {cc.TMXObjectGroup}
      */
@@ -182,6 +202,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Return the value for the specific property name
+     * @method getProperty
      * @param {String} propertyName
      * @return {String}
      */
@@ -191,6 +212,7 @@ var TMXTiledMap = cc.Class({
 
     /**
      * Return properties dictionary for tile GID
+     * @method getPropertiesForGID
      * @param {Number} GID
      * @return {object}
      */
@@ -256,4 +278,4 @@ var TMXTiledMap = cc.Class({
     }
 });
 
-cc.TMXTiledMap = module.exports = TMXTiledMap;
+cc.TiledMap = module.exports = TiledMap;
