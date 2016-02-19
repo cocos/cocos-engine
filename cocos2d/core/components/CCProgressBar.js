@@ -38,9 +38,9 @@ var Mode = cc.Enum({
      */
     VERTICAL: 1,
     /**
-     * @property {Number} RADIAL
+     * @property {Number} FILLED
      */
-    RADIAL: 2,
+    FILLED: 2,
 });
 
 /**
@@ -71,7 +71,7 @@ var ProgressBar = cc.Class({
             }
 
             if (this.barSprite.fillType === cc.Sprite.FillType.RADIAL) {
-                this.mode = Mode.RADIAL;
+                this.mode = Mode.FILLED;
             }
 
             var barSpriteSize = entity.getContentSize();
@@ -127,7 +127,10 @@ var ProgressBar = cc.Class({
                     totalWidth = entitySize.width;
                     totalHeight = this.totalLength;
                     break;
-                case Mode.RADIAL:
+                case Mode.FILLED:
+                    if (this.reverse) {
+                        actualLenth = actualLenth * -1;
+                    }
                     this.barSprite.fillRange = actualLenth;
                     break;
             }
@@ -181,7 +184,7 @@ var ProgressBar = cc.Class({
                         this.totalLength = entitySize.width;
                     } else if (this.mode === Mode.VERTICAL) {
                         this.totalLength = entitySize.height;
-                    } else if (this.mode === Mode.RADIAL) {
+                    } else if (this.mode === Mode.FILLED) {
                         this.totalLength = this.barSprite.fillRange;
                     }
                 }
