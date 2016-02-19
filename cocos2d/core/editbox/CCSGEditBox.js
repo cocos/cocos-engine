@@ -312,7 +312,9 @@ _ccsg.EditBox = _ccsg.Node.extend({
         tmpEdTxt.style.active = 0;
         tmpEdTxt.style.outline = 'medium';
         tmpEdTxt.style.padding = '0';
+        tmpEdTxt.style.resize = 'none';
         tmpEdTxt.style.textTransform = 'uppercase';
+        tmpEdTxt.style.overflow_y = 'scroll';
         var onCanvasClick = function() { tmpEdTxt.blur();};
 
         // TODO the event listener will be remove when EditBox removes from parent.
