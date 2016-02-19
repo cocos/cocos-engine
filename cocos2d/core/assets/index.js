@@ -37,4 +37,3 @@ require('../textures/CCTexture2D');
 require('./CCTTFFont');
 require('./CCSpriteAnimation');
 require('./CCSpriteAtlas');
-require('./CCTiledMapAsset');

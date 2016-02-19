@@ -30,4 +30,7 @@ if (!(CC_EDITOR && Editor.isCoreLevel)) {
     require('./cocos2d/particle/CCParticleSystem');
 }
 
+require('./cocos2d/tilemap/CCTiledMapAsset');
+require('./cocos2d/tilemap/CCTiledMap');
+
 require('./extensions/spine');

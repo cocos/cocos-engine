@@ -44,14 +44,17 @@ var EditBox = cc.Class({
     },
 
     properties: {
+        _string: '',
         /**
          * Input string of EditBox.
          * @property {String} string
          */
         string: {
-            default: '',
-            notify: function() {
-                this._sgNode.string = this.string;
+            get: function () {
+                return this._sgNode.string;
+            },
+            set: function(value) {
+                this._sgNode.string = this._string = value;
             }
         },
 
@@ -226,7 +229,7 @@ var EditBox = cc.Class({
         sgNode.inputMode = this.inputMode;
         sgNode.maxLength = this.maxLength;
 
-        sgNode.string = this.string;
+        sgNode.string = this._string;
         sgNode.fontSize = this.fontSize;
         sgNode.fontColor = this.fontColor;
         sgNode.placeHolder = this.placeHolder;
