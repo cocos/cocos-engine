@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var JS = require('../core/platform/js');
+
 /**
  * Audio support in the browser
  *
@@ -131,40 +133,39 @@
 /**
  * Encapsulate DOM and webAudio
  */
-cc.Audio = cc._Class.extend({
+cc.Audio = function (context, volume, url) {
     //TODO Maybe loader shift in will be better
-    volume: 1,
-    loop: false,
-    src: null,
-    _touch: false,
+    this.volume = 1;
+    this.loop = false;
+    this._touch = false;
 
-    _playing: false,
-    _AUDIO_TYPE: "AUDIO",
-    _pause: false,
+    this._playing = false;
+    this._AUDIO_TYPE = "AUDIO";
+    this._pause = false;
 
     //Web Audio
-    _buffer: null,
-    _currentSource: null,
-    _startTime: null,
-    _currentTime: null,
-    _context: null,
-    _volume: null,
+    this._buffer = null;
+    this._currentSource = null;
+    this._startTime = null;
+    this._currentTime = null;
+    this._context = null;
+    this._volume = null;
 
-    _ignoreEnded: false,
-    _manualLoop: false,
+    this._ignoreEnded = false;
+    this._manualLoop = false;
 
     //DOM Audio
-    _element: null,
+    this._element = null;
 
-    ctor: function(context, volume, url){
-        context && (this._context = context);
-        volume && (this._volume = volume);
-        if(context && volume){
-            this._AUDIO_TYPE = "WEBAUDIO";
-        }
-        this.src = url;
-    },
+    context && (this._context = context);
+    volume && (this._volume = volume);
+    if (context && volume) {
+        this._AUDIO_TYPE = "WEBAUDIO";
+    }
+    this.src = url;
+};
 
+JS.mixin(cc.Audio.prototype, {
     _setBufferCallback: null,
     setBuffer: function(buffer){
         if(!buffer) return;

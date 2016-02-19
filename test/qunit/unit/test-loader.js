@@ -1,22 +1,8 @@
 largeModule('Loader');
 
+var loader = cc._loader;
+
 asyncTest('Load', function () {
-    var loader = new cc.Pipeline([
-        new cc.Pipeline.Downloader(),
-        new cc.Pipeline.Loader()
-    ]);
-    loader.load = function (resources, progressCallback, completeCallback) {
-        if (completeCallback === undefined) {
-            completeCallback = progressCallback;
-            progressCallback = null;
-        }
-
-        this.onProgress = progressCallback;
-        this.onComplete = completeCallback;
-
-        this.flowIn(resources);
-    };
-
     var image1 = assetDir + '/button.png';
     var json1 = assetDir + '/library/12/123200.json';
     var json2 = assetDir + '/library/deferred-loading/74/748321.json';
@@ -27,7 +13,6 @@ asyncTest('Load', function () {
     ];
 
     loader.load(resources, function (completedCount, totalCount, item) {
-        console.log((100 * completedCount / totalCount).toFixed(2) + '%');
         if (item.src === image1) {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
@@ -42,6 +27,10 @@ asyncTest('Load', function () {
         }
     }, function (items) {
         ok(items.isCompleted(), 'Able to load all resources');
+
+        loader.releaseAll();
+        strictEqual(Object.keys(this.getItems().map).length, 0, 'should clear loading items after releaseAll called');
+
         clearTimeout(timeoutId);
         start();
     });
@@ -74,44 +63,35 @@ asyncTest('Load with dependencies', function () {
         });
     }
 
-    var loader = new cc.Pipeline([
-        new cc.Pipeline.Downloader(),
-        new cc.Pipeline.Loader({
-            'deps': loadWithDeps
-        })
-    ]);
-    loader.load = function (resources, progressCallback, completeCallback) {
-        if (completeCallback === undefined) {
-            completeCallback = progressCallback;
-            progressCallback = null;
-        }
-
-        this.onProgress = new Callback(progressCallback).enable();
-        this.onComplete = completeCallback;
-
-        this.flowIn(resources);
-    };
+    loader.addLoadHandlers({
+        'deps': loadWithDeps
+    });
 
     var json1 = {
         src: assetDir + '/library/65/6545543',
         type: 'deps'
     };
     var json2 = assetDir + '/library/deferred-loading/74/748321.json';
+    var audio = assetDir + '/background.mp3';
     var resources = [
         json1,
         json2,
+        audio
     ];
+
+    var total = resources.length + 3;
 
     var dep1Loaded = false;
     var dep2Loaded = false;
     var dep3Loaded = false;
 
-    loader.load(resources, function (completedCount, totalCount, item) {
-        console.log((100 * completedCount / totalCount).toFixed(2) + '%');
+    var items = loader.getItems();
+
+    var progressCallback = new Callback(function (completedCount, totalCount, item) {
         if (item.src === json1.src) {
-            var depsLoaded = this._items.isItemCompleted(dep1) &&
-                             this._items.isItemCompleted(dep2) &&
-                             this._items.isItemCompleted(dep3);
+            var depsLoaded = items.isItemCompleted(dep1) &&
+                             items.isItemCompleted(dep2) &&
+                             items.isItemCompleted(dep3);
             ok(depsLoaded, 'should load all dependencies before complete parent resources');
             var depsCallbackCalled = dep1Loaded && dep2Loaded && dep3Loaded;
             ok(depsCallbackCalled, 'should call all dependencies complete callback before complete parent resources');
@@ -132,12 +112,18 @@ asyncTest('Load with dependencies', function () {
             dep3Loaded = true;
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
+        else if (item.src === audio) {
+            // Test environment doesn't support audio
+            ok((item.content instanceof cc.Audio) || true, 'audio url\'s result should be Audio');
+        }
         else {
             ok(false, 'should not load an unknown url: ' + item.src);
         }
-    }, function (items) {
+    }).enable();
+
+    loader.load(resources, progressCallback, function (items) {
         ok(items.isCompleted(), 'be able to load all resources');
-        this.onProgress.expect(5, 'should call 5 times progress callback for 5 resources');
+        progressCallback.expect(total, 'should call ' + total + ' times progress callback for 5 resources');
         clearTimeout(timeoutId);
         start();
     });

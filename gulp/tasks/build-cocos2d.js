@@ -144,8 +144,6 @@ var srcs = [
     './cocos2d/parallax/CCParallaxNode.js',
     './cocos2d/parallax/CCParallaxNodeRenderCmd.js',
 
-    './cocos2d/audio/CCAudio.js',
-
     './extensions/ccpool/CCPool.js',
 
     './cocos2d/physics/CCPhysicsDebugNode.js',
