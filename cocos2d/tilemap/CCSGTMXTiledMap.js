@@ -311,6 +311,15 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
         this.properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
 
+        // remove the layers added before
+        var oldLayers = this.allLayers();
+        for (var j = 0, n = oldLayers.length; j < n; j++) {
+            var layer = oldLayers[j];
+            if (layer) {
+                this.removeChild(layer);
+            }
+        }
+
         var idx = 0;
         var layers = mapInfo.getLayers();
         if (layers) {
