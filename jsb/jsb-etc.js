@@ -262,7 +262,8 @@ window._ccsg = {
     Sprite: cc.Sprite,
     ParticleSystem: cc.ParticleSystem,
     Label: cc.Label,
-    EditBox: cc.EditBox
+    EditBox: cc.EditBox,
+    TMXTiledMap: cc.TMXTiledMap
 };
 
 // rename cc.Class to cc._Class
