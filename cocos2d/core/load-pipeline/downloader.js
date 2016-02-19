@@ -25,6 +25,7 @@
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
 
+var downloadAudio = require('./audio-downloader');
 // var downloadBinary = require('binary-downloader');
 
 var _noCacheRex = /\?/;
@@ -36,10 +37,6 @@ function urlAppendTimestamp (url) {
             url += '?_t=' + (new Date() - 0);
     }
     return url;
-}
-
-function getXMLHttpRequest () {
-    return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
 
 function downloadScript (url, callback, isAsync) {
@@ -64,7 +61,7 @@ function downloadScript (url, callback, isAsync) {
 }
 
 function downloadText (url, callback) {
-    var xhr = getXMLHttpRequest(),
+    var xhr = Pipeline.getXMLHttpRequest(),
         errInfo = 'Load ' + url + ' failed!',
         navigator = window.navigator;
 
@@ -104,7 +101,7 @@ function downloadText (url, callback) {
 }
 
 function downloadTextSync (url) {
-    var xhr = getXMLHttpRequest();
+    var xhr = Pipeline.getXMLHttpRequest();
     xhr.open('GET', url, false);
     if (/msie/i.test(window.navigator.userAgent) && !/opera/i.test(window.navigator.userAgent)) {
         // IE-specific logic here
@@ -175,11 +172,11 @@ var defaultMap = {
     'webp' : downloadImage,
 
     // Audio
-    // "mp3",
-    // "ogg",
-    // "wav",
-    // "mp4",
-    // "m4a",
+    'mp3' : downloadAudio,
+    'ogg' : downloadAudio,
+    'wav' : downloadAudio,
+    'mp4' : downloadAudio,
+    'm4a' : downloadAudio,
 
     // Txt
     'txt' : downloadText,
@@ -221,16 +218,25 @@ var defaultMap = {
  *  });
  * 
  * @method Downloader
- * @param {Object} extMap
+ * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Downloader = function (extMap) {
     this.id = 'Downloader';
     this.async = true;
     this.pipeline = null;
 
-    this.extMap = JS.addon(extMap, defaultMap);
+    this.addHandlers(extMap);
 };
 JS.mixin(Downloader.prototype, {
+    /**
+     * Add custom supported types handler or modify existing type handler.
+     * @method addHandlers
+     * @param {Object} extMap Custom supported types with corresponded handler
+     */
+    addHandlers: function (extMap) {
+        this.extMap = JS.addon(extMap, defaultMap);
+    },
+
     handle: function (item, callback) {
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
         downloadFunc.call(this, item.src, function (err, result) {

@@ -97,12 +97,6 @@ var defaultMap = {
     'svg' : loadFont,
     'ttc' : loadFont,
 
-    // "mp3",
-    // "ogg",
-    // "wav",
-    // "mp4",
-    // "m4a",
-
     'default' : loadNothing
 };
 
@@ -127,16 +121,25 @@ var defaultMap = {
  *  });
  * 
  * @method Loader
- * @param {Object} extMap
+ * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Loader = function (extMap) {
     this.id = 'Loader';
     this.async = true;
     this.pipeline = null;
 
-    this.extMap = JS.addon(extMap, defaultMap);
+    this.addHandlers(extMap);
 };
 JS.mixin(Loader.prototype, {
+    /**
+     * Add custom supported types handler or modify existing type handler.
+     * @method addHandlers
+     * @param {Object} extMap Custom supported types with corresponded handler
+     */
+    addHandlers: function (extMap) {
+        this.extMap = JS.addon(extMap, defaultMap);
+    },
+
     handle: function (item, callback) {
         var loadFunc = this.extMap[item.type] || this.extMap['default'];
         loadFunc.call(this, item, function (err, result) {
