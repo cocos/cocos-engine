@@ -204,12 +204,37 @@ var TMXTiledMap = cc.Class({
         }
     },
 
+    _preloadTmx: function(file, cb) {
+        cc.loader.load(file, function (err) {
+            if (err) {
+                if (cb) cb(err);
+                return;
+            }
+
+            var mapInfo = new cc.TMXMapInfo(file);
+            var sets = mapInfo.getTilesets();
+
+            if (sets) {
+                var textures = sets.map(function (set) {
+                    return set.sourceImage;
+                });
+
+                cc.loader.load(textures, function (err) {
+                    cb(err, textures);
+                });
+            }
+            else {
+                if (cb) cb();
+            }
+        });
+    },
+
     _applyFile: function () {
         var sgNode = this._sgNode;
         var file = this._tmxFile;
         var self = this;
         if (file) {
-            cc.loader.load(file, function (err, results) {
+            this._preloadTmx(file, function (err, results) {
                 if (err) throw err;
 
                 sgNode.initWithTMXFile(file);
