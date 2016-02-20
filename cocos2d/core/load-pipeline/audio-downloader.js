@@ -25,7 +25,9 @@
 var Path = require('../utils/CCPath');
 var Sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
-require('../../audio/CCAudio');
+if (!CC_EDITOR || !Editor.isCoreLevel) {
+    require('../../audio/CCAudio');
+}
 
 var __audioSupport;
 
@@ -48,13 +50,14 @@ var __audioSupport;
 
     var version = Sys.browserVersion;
 
+    var supportTable = {
+        'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
+    };
+
     // check if browser supports Web Audio
     // check Web Audio's context
     var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
-    var supportTable = {
-        'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
-    };
     supportTable[Sys.BROWSER_TYPE_IE]  = {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true, USE_EMPTIED_EVENT: true};
     //  ANDROID  //
     supportTable[Sys.BROWSER_TYPE_ANDROID]  = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false};
