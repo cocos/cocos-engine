@@ -39,6 +39,7 @@ var JS = require('../core/platform/js');
  *
  * May be modifications for a few browser version
  */
+var __audioSupport;
 (function(){
 
     var DEBUG = false;
@@ -46,13 +47,14 @@ var JS = require('../core/platform/js');
     var sys = cc.sys;
     var version = sys.browserVersion;
 
+    var supportTable = {
+        "common" : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
+    };
+
     // check if browser supports Web Audio
     // check Web Audio's context
     var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
-    var supportTable = {
-        "common" : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
-    };
     supportTable[sys.BROWSER_TYPE_IE]  = {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true, USE_EMPTIED_EVENT: true};
     //  ANDROID  //
     supportTable[sys.BROWSER_TYPE_ANDROID]  = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false};
@@ -78,19 +80,19 @@ var JS = require('../core/platform/js');
 
     if(cc.sys.isMobile){
         if(cc.sys.os !== cc.sys.OS_IOS)
-            window.__audioSupport = supportTable[sys.browserType] || supportTable["common"];
+            __audioSupport = supportTable[sys.browserType] || supportTable["common"];
         else
-            window.__audioSupport = supportTable[sys.BROWSER_TYPE_SAFARI];
+            __audioSupport = supportTable[sys.BROWSER_TYPE_SAFARI];
     }else{
         switch(sys.browserType){
             case sys.BROWSER_TYPE_IE:
-                window.__audioSupport = supportTable[sys.BROWSER_TYPE_IE];
+                __audioSupport = supportTable[sys.BROWSER_TYPE_IE];
                 break;
             case sys.BROWSER_TYPE_FIREFOX:
-                window.__audioSupport = supportTable[sys.BROWSER_TYPE_FIREFOX];
+                __audioSupport = supportTable[sys.BROWSER_TYPE_FIREFOX];
                 break;
             default:
-                window.__audioSupport = supportTable["common"];
+                __audioSupport = supportTable["common"];
         }
     }
 
@@ -102,16 +104,16 @@ var JS = require('../core/platform/js');
             case sys.BROWSER_TYPE_CHROME:
                 version = parseInt(version);
                 if(version < 30){
-                    window.__audioSupport  = {MULTI_CHANNEL: false , WEB_AUDIO: true , AUTOPLAY: false};
+                    __audioSupport  = {MULTI_CHANNEL: false , WEB_AUDIO: true , AUTOPLAY: false};
                 }else if(version === 42){
-                    window.__audioSupport.NEED_MANUAL_LOOP = true;
+                    __audioSupport.NEED_MANUAL_LOOP = true;
                 }
                 break;
             case sys.BROWSER_TYPE_MIUI:
                 if(cc.sys.isMobile){
                     version = version.match(/\d+/g);
                     if(version[0] < 2 || (version[0] === 2 && version[1] === 0 && version[2] <= 1)){
-                        window.__audioSupport.AUTOPLAY = false;
+                        __audioSupport.AUTOPLAY = false;
                     }
                 }
                 break;
@@ -122,11 +124,13 @@ var JS = require('../core/platform/js');
         setTimeout(function(){
             cc.log("browse type: " + sys.browserType);
             cc.log("browse version: " + version);
-            cc.log("MULTI_CHANNEL: " + window.__audioSupport.MULTI_CHANNEL);
-            cc.log("WEB_AUDIO: " + window.__audioSupport.WEB_AUDIO);
-            cc.log("AUTOPLAY: " + window.__audioSupport.AUTOPLAY);
+            cc.log("MULTI_CHANNEL: " + __audioSupport.MULTI_CHANNEL);
+            cc.log("WEB_AUDIO: " + __audioSupport.WEB_AUDIO);
+            cc.log("AUTOPLAY: " + __audioSupport.AUTOPLAY);
         }, 0);
     }
+
+    window.__audioSupport = __audioSupport;
 
 })();
 
@@ -1052,4 +1056,4 @@ JS.mixin(cc.Audio.prototype, {
         }, 150);
     }
 
-})(window.__audioSupport);
+})(__audioSupport);
