@@ -25,7 +25,13 @@
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
 
-var downloadAudio = require('./audio-downloader');
+var downloadAudio;
+if (!CC_EDITOR || !Editor.isCoreLevel) {
+    downloadAudio = require('./audio-downloader');
+}
+else {
+    downloadAudio = null;
+}
 // var downloadBinary = require('binary-downloader');
 
 var _noCacheRex = /\?/;

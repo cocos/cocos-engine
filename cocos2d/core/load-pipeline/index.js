@@ -1,4 +1,3 @@
-require('./audio-downloader');
 require('./downloader');
 require('./loader');
 

@@ -25,7 +25,9 @@
 var Path = require('../utils/CCPath');
 var Sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
-require('../../audio/CCAudio');
+if (!CC_EDITOR || !Editor.isCoreLevel) {
+    require('../../audio/CCAudio');
+}
 
 var __audioSupport;
 
@@ -51,10 +53,6 @@ var __audioSupport;
     var supportTable = {
         'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
     };
-    if (CC_EDITOR) {
-        __audioSupport = supportTable['common'];
-        return;
-    }
 
     // check if browser supports Web Audio
     // check Web Audio's context
@@ -140,7 +138,7 @@ var __audioSupport;
 
 var context;
 try {
-    if (__audioSupport.WEB_AUDIO && !CC_EDITOR) {
+    if (__audioSupport.WEB_AUDIO) {
         context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
         if(__audioSupport.DELAY_CREATE_CTX) {
             setTimeout(function(){ context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
@@ -154,10 +152,6 @@ try {
 var formatSupport = [];
 
 (function(){
-    if (CC_EDITOR) {
-        formatSupport.push(".mp3");
-        return;
-    }
     var audio = document.createElement('audio');
     if(audio.canPlayType) {
         var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');

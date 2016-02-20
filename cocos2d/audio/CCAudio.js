@@ -51,11 +51,6 @@ var __audioSupport;
         "common" : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
     };
 
-    if (CC_EDITOR) {
-        __audioSupport = supportTable["common"];
-        return;
-    }
-
     // check if browser supports Web Audio
     // check Web Audio's context
     var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -453,10 +448,6 @@ JS.mixin(cc.Audio.prototype, {
     var support = [];
 
     (function(){
-        if (CC_EDITOR) {
-            support.push(".mp3");
-            return;
-        }
         var audio = document.createElement("audio");
         if(audio.canPlayType) {
             var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
@@ -472,7 +463,7 @@ JS.mixin(cc.Audio.prototype, {
         }
     })();
     try{
-        if(SWA && !CC_EDITOR){
+        if(SWA){
             var context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
             if(polyfill.DELAY_CREATE_CTX)
                 setTimeout(function(){ context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
