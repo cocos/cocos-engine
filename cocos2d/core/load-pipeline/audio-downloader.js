@@ -269,15 +269,15 @@ function loadAudioFromExtList (url, typeList, audio, cb){
     }
 }
 
-function downloadAudio (url, callback) {
+function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
         return callback( new Error('Audio Downloader: audio not supported on this browser!') );
     }
 
-    var i,
+    var url = item.src,
         extname = Path.extname(url),
         typeList = [extname],
-        audio;
+        i, audio;
 
     // Generate all types
     for (i = 0; i < formatSupport.length; i++) {

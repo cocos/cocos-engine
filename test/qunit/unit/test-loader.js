@@ -26,7 +26,7 @@ asyncTest('Load', function () {
             ok(false, 'should not load an unknown url');
         }
     }, function (items) {
-        ok(items.isCompleted(), 'Able to load all resources');
+        ok(items.isCompleted(), 'be able to load all resources');
 
         loader.releaseAll();
         strictEqual(Object.keys(this.getItems().map).length, 0, 'should clear loading items after releaseAll called');
@@ -123,7 +123,49 @@ asyncTest('Load with dependencies', function () {
 
     loader.load(resources, progressCallback, function (items) {
         ok(items.isCompleted(), 'be able to load all resources');
-        progressCallback.expect(total, 'should call ' + total + ' times progress callback for 5 resources');
+        progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
+        loader.releaseAll();
+        
+        clearTimeout(timeoutId);
+        start();
+    });
+
+    var timeoutId = setTimeout(function () {
+        ok(false, 'time out!');
+        start();
+    }, 5000);
+});
+
+asyncTest('Loading font', function () {
+    var image = assetDir + '/button.png';
+    var font = {
+        src: assetDir + '/Thonburi.ttf',
+        type: 'font',
+        name: 'Thonburi',
+        srcs: [assetDir + '/Thonburi.eot']
+    };
+    var resources = [
+        image,
+        font
+    ];
+    var total = resources.length;
+
+    var progressCallback = new Callback(function (completedCount, totalCount, item) {
+        if (item.src === image) {
+            ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
+        }
+        else if (item.src === font.src) {
+            strictEqual(item.content, null, 'should set null as content for Font type');
+        }
+        else {
+            ok(false, 'should not load an unknown url');
+        }
+    }).enable();
+
+    loader.load(resources, progressCallback, function (items) {
+        ok(items.isCompleted(), 'be able to load all resources');
+        progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
+
         clearTimeout(timeoutId);
         start();
     });
