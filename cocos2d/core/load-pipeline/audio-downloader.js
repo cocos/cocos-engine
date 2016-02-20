@@ -48,13 +48,18 @@ var __audioSupport;
 
     var version = Sys.browserVersion;
 
+    var supportTable = {
+        'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
+    };
+    if (CC_EDITOR) {
+        __audioSupport = supportTable['common'];
+        return;
+    }
+
     // check if browser supports Web Audio
     // check Web Audio's context
     var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
-    var supportTable = {
-        'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
-    };
     supportTable[Sys.BROWSER_TYPE_IE]  = {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true, USE_EMPTIED_EVENT: true};
     //  ANDROID  //
     supportTable[Sys.BROWSER_TYPE_ANDROID]  = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false};
@@ -135,7 +140,7 @@ var __audioSupport;
 
 var context;
 try {
-    if (__audioSupport.WEB_AUDIO) {
+    if (__audioSupport.WEB_AUDIO && !CC_EDITOR) {
         context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
         if(__audioSupport.DELAY_CREATE_CTX) {
             setTimeout(function(){ context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
@@ -149,6 +154,10 @@ try {
 var formatSupport = [];
 
 (function(){
+    if (CC_EDITOR) {
+        formatSupport.push(".mp3");
+        return;
+    }
     var audio = document.createElement('audio');
     if(audio.canPlayType) {
         var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
