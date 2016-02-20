@@ -32,9 +32,6 @@ cc = {};
 // The namespace for original nodes rendering in scene graph.
 _ccsg = {};
 
-//to make sure the cc.log, cc.warn, cc.error, cc._throw and cc.assert would not throw error before init by debugger mode.
-cc.log = cc.warn = cc.error = cc._throw = cc.assert = function () {};
-
 if (CC_DEV) {
     /**
      * contains internal apis for unit tests
@@ -42,6 +39,10 @@ if (CC_DEV) {
      */
     cc._Test = {};
 }
+
+// output all info before initialized
+require('./CCDebugger');
+cc._initDebugSetting(cc.DebugMode.INFO);
 
 // polyfills
 /* require('./polyfill/bind'); */
@@ -56,11 +57,7 @@ require('./cocos2d/core/platform/CCInputExtension');
 require('./cocos2d/core/event');
 require('./cocos2d/core/platform/CCSys');
 require('./cocos2d/core/platform/CCLoader');
-require('./CCDebugger');
-if (CC_DEV) {
-    // output all errors before initialized
-    cc._initDebugSetting(1);    // DEBUG_MODE_INFO
-}
+require('./cocos2d/core/load-pipeline');
 require('./cocos2d/core/CCDirector');
 require('./cocos2d/core/CCDirectorWebGL');
 require('./cocos2d/core/CCDirectorCanvas');

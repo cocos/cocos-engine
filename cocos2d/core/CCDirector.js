@@ -889,8 +889,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns current running Scene. Director can only run one Scene at the time.
+     * Returns current render Scene, normally you will never need to use this API.
+     * In most case, you probably want to use `getScene` instead.
      * @method getRunningScene
+     * @private
      * @return {Scene}
      */
     getRunningScene: function () {
@@ -898,7 +900,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns current running Scene. Director can only run one Scene at the time.
+     * Returns current logic Scene.
+     * @example
+     *  // This will help you to get the Canvas node in scene
+     *  cc.director.getScene().getChildByName('Canvas');
      * @method getScene
      * @return {Scene}
      */

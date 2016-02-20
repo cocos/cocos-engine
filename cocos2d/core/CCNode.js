@@ -765,16 +765,16 @@ var Node = cc.Class({
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
                     // change prefab
-                    Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab
-                    Editor.PrefabUtils.unlinkPrefab(this);
+                    _Scene.PrefabUtils.unlinkPrefab(this);
                 }
             }
             else if (newPrefabRoot) {
                 // attach to prefab
-                Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
             }
         }
     },
@@ -903,6 +903,15 @@ var Node = cc.Class({
         EventTarget.prototype.on.call(this, type, callback, target);
     },
 
+    /**
+     * Removes the callback previously registered with the same type, callback, target and or useCapture.
+     * This method is merely an alias to removeEventListener.
+     *
+     * @method off
+     * @param {String} type - A string representing the event type being removed.
+     * @param {Function} callback - The callback to remove.
+     * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
+     */
     off: function (type, callback, target) {
         EventTarget.prototype.off.call(this, type, callback, target);
 
@@ -914,6 +923,12 @@ var Node = cc.Class({
         }
     },
 
+    /**
+     * Removes all callbacks previously registered with the same target.
+     *
+     * @method targetOff
+     * @param {Object} target - The target to be searched for all related callbacks
+     */
     targetOff: function (target) {
         EventTarget.prototype.targetOff.call(this, target);
 
@@ -1152,6 +1167,20 @@ if (cc.sys.isNative) {
  * @event opacity-changed
  * @param {cc.Event} event
  * @param {Number} event.detail - old opacity
+ */
+/**
+ * @event child-added
+ * @param {cc.Event} event
+ * @param {cc.Node} event.detail - child
+ */
+/**
+ * @event child-removed
+ * @param {cc.Event} event
+ * @param {cc.Node} event.detail - child
+ */
+/**
+ * @event child-reorder
+ * @param {cc.Event} event
  */
 /**
  * Note: This event is only emitted from the top most node whose active value did changed,

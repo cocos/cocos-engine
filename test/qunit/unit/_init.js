@@ -125,6 +125,7 @@ Editor.log = cc.log;
 Editor.warn = cc.warn;
 Editor.error = cc.error;
 Editor.info = cc.info;
+Editor.UuidCache = {};
 
 var assetDir = '../test/qunit/assets';
 

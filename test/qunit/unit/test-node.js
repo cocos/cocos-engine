@@ -414,3 +414,13 @@ test('release sg node', function () {
     strictEqual(parentReleased, true, 'should release parent sg node');
     strictEqual(childReleased, true, 'should release child sg node');
 });
+
+test('getBoundingBox', function () {
+    var node = new cc.Node();
+    node.anchorX = 0.5;
+    node.anchorY = 0.5;
+    node.width = 10;
+    node.height = 20;
+
+    deepEqual(node.getBoundingBox(), cc.rect(-5, -10, 10, 20), 'should compute anchor');
+});

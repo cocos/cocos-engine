@@ -23,17 +23,17 @@ paths = {
         '../../cocos2d/core/platform/CCLoader',
         '../../cocos2d/core/platform/CCLoaders',
         '../../cocos2d/core/event/event',
-        '../../extensions/spine/Skeleton',
-        '../../extensions/spine/SkeletonAnimation',
-        '../../extensions/spine/SkeletonCanvasRenderCmd',
-        '../../extensions/spine/SkeletonWebGLRenderCmd',
-        '../../extensions/spine/spine-exported',
+        '../../extensions/spine/SGSkeleton',
+        '../../extensions/spine/SGSkeletonAnimation',
+        '../../extensions/spine/SGSkeletonCanvasRenderCmd',
+        '../../extensions/spine/SGSkeletonWebGLRenderCmd',
+        '../../extensions/spine/lib/spine',
     ],
 
     test: {
         src: 'test/qunit/unit/**/*.js',
         runner: 'test/qunit/lib/qunit-runner.html',
-        jsEntryEditorExtends: '../editor/share/engine-extends/index.js',     // only available in editor
+        jsEntryEditorExtends: '../editor/test-utils/engine-extends-entry.js',     // only available in editor
         dest: 'bin/cocos2d-js-for-test.js',
         destEditorExtends: 'bin/cocos2d-js-extends-for-test.js'
     },

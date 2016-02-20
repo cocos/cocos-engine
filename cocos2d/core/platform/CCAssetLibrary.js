@@ -120,7 +120,7 @@ var AssetLibrary = {
         if (CC_EDITOR) {
             Editor.sendRequestToCore( 'scene:query-asset-info-by-uuid', uuid, function (info) {
                 if (info) {
-                    Editor.onRawAssetUsed(info.url, uuid);
+                    Editor.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
                     if (ctor) {
                         var isRawAsset = !cc.isChildClassOf(ctor, Asset);

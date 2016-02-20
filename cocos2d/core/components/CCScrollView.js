@@ -159,8 +159,10 @@ var ScrollView = cc.Class({
             type: cc.Scrollbar,
             tooltip: 'i18n:COMPONENT.scrollview.horizontal_bar',
             notify: function() {
-                this.horizontalScrollBar.setTargetScrollView(this);
-                this._updateScrollBar(0);
+                if (this.horizontalScrollBar) {
+                    this.horizontalScrollBar.setTargetScrollView(this);
+                    this._updateScrollBar(0);
+                }
             },
             animatable: false
         },
@@ -174,8 +176,10 @@ var ScrollView = cc.Class({
             type: cc.Scrollbar,
             tooltip: 'i18n:COMPONENT.scrollview.vertical_bar',
             notify: function() {
-                this.verticalScrollBar.setTargetScrollView(this);
-                this._updateScrollBar(0);
+                if (this.verticalScrollBar) {
+                    this.verticalScrollBar.setTargetScrollView(this);
+                    this._updateScrollBar(0);
+                }
             },
             animatable: false
         }

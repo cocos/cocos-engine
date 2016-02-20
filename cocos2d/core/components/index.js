@@ -1,6 +1,6 @@
 require('./CCComponent');
 require('./CCComponentInSG');
-require('./CCComponentEventHandler')
+require('./CCComponentEventHandler');
 
 module.exports = [
     require('./CCSprite'),
