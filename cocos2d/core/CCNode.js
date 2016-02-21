@@ -551,11 +551,11 @@ var Node = cc.Class({
             }
         }
 
-        // check conflict
-
-        if (CC_EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
-            return null;
-        }
+        //// check conflict
+        //
+        //if (CC_EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
+        //    return null;
+        //}
 
         //
 
