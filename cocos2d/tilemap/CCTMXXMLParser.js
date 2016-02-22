@@ -925,9 +925,6 @@ cc.TMXMapInfo.create = function (tmxFile, resourcePath) {
 };
 
 
-cc.loader.register(["tmx", "tsx"], cc._txtLoader);
-
-
 /**
  * @constant
  * @type Number

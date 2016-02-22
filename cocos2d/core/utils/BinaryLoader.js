@@ -24,8 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('../platform/CCLoader');
-
 /**
  * @module cc
  * @class loader

@@ -97,8 +97,8 @@ cc.js.mixin(cc.game, {
             // Load game scripts
             var jsList = config[CONFIG_KEY.jsList];
             if (jsList) {
-                cc.loader.loadJs(jsList, function (err) {
-                    if (err) throw new Error(err);
+                cc.loader.load(jsList, function (err) {
+                    if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
                     if (cb) cb();
                 });

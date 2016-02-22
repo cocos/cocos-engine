@@ -214,7 +214,7 @@ cc.LoaderLayer = cc.Layer.extend({
         }
         var self = this;
         //var progressFunction = self.config.progressCallback ? self.config.progressCallback : null;
-        cc.loader.load(res, function (result, count, loadedCount) {
+        cc.loader.load(res, function (loadedCount, count) {
             var checkGroupName = function (loadedCount) {
                 for (var i = 0; i < groupIndex.length; i++) {
                     if (groupIndex[i] >= loadedCount) {
@@ -451,7 +451,7 @@ cc.LoaderLayer.preload = function (groupname, callback, target) {
             cc.Dialog._finalConfig.cancelBtn.normalRes,
             cc.Dialog._finalConfig.cancelBtn.pressRes
         ],
-        function (result, count, loadedCount) {
+        function (loadedCount, count, result) {
             var percent = (loadedCount / count * 100) | 0;
             percent = Math.min(percent, 100);
             cc.log("Preloading engine resources... " + percent + "%");

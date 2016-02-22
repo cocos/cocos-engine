@@ -1,6 +1,6 @@
 largeModule('Loader');
 
-var loader = cc._loader;
+var loader = cc.loader;
 
 asyncTest('Load', function () {
     var image1 = assetDir + '/button.png';

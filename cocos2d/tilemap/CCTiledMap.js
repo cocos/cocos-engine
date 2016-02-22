@@ -298,9 +298,9 @@ var TiledMap = cc.Class({
     },
 
     _preloadTmx: function(file, cb) {
-        cc.loader.load(file, function (err) {
+        cc.loader.load(file, function (err, items) {
             if (err) {
-                if (cb) cb(err);
+                if (cb) cb(items.getError(file) || new Error('Unknown error'));
                 return;
             }
 

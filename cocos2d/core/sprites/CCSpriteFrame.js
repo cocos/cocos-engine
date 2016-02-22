@@ -305,7 +305,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {SpriteFrame}
      */
     clone: function () {
-        return new cc.SpriteFrame(this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
+        return new cc.SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
     /**

@@ -35,13 +35,13 @@ var loader = new Loader();
  * @class loader
  * @static
  */
-cc._loader = new Pipeline([
+cc.loader = new Pipeline([
     downloader,
     loader
 ]);
 
 
-JS.mixin(cc._loader, {
+JS.mixin(cc.loader, {
     /**
      * Get XMLHttpRequest.
      * @returns {XMLHttpRequest}
@@ -193,4 +193,4 @@ JS.mixin(cc._loader, {
     }
 });
 
-module.exports = cc._loader;
+module.exports = cc.loader;

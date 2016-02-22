@@ -20,8 +20,6 @@ paths = {
         '../../cocos2d/core/CCGame',
         '../../cocos2d/core/textures/CCTexture2D',
         '../../cocos2d/core/sprites/CCSpriteFrame',
-        '../../cocos2d/core/platform/CCLoader',
-        '../../cocos2d/core/platform/CCLoaders',
         '../../cocos2d/core/event/event',
         '../../extensions/spine/SGSkeleton',
         '../../extensions/spine/SGSkeletonAnimation',
