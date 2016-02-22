@@ -195,6 +195,8 @@ var EditBoxImpl = function(editBox) {
     this._edFontSize = 14;
     this._edFontName = 'Arial';
     this._editBox = editBox;
+    this._textLabel = null;
+    this._placeholderLabel = null;
 };
 
 EditBoxImpl.prototype = {
@@ -220,6 +222,29 @@ EditBoxImpl.prototype = {
 
         this._domInputSprite.x = 3;
         this._domInputSprite.y = 3;
+
+        this._createLabels();
+    },
+
+    _createLabels: function () {
+        var editBoxSize = this._editBox.getContentSize();
+        this._textLabel = new _ccsg.Label()
+        this._textLabel.setVisible(false);
+        this._textLabel.setAnchorPoint(cc.p(0, 0));
+        this._textLabel.setPosition(cc.p(0, editBoxSize.height/2));
+        this._editBox.addChild(this._textLabel, 100);
+
+        this._placeholderLabel = new _ccsg.Label();
+        this._placeholderLabel.setString('input');
+        this._placeholderLabel.setAnchorPoint(cc.p(0, 0));
+        this._placeholderLabel.setColor(cc.Color.GRAY);
+        this._placeholderLabel.setPosition(cc.p(0, editBoxSize.height/2));
+        this._editBox.addChild(this._placeholderLabel, 100);
+    },
+
+    _hiddenLabels: function () {
+        this._textLabel.setVisible(false);
+        this._placeholderLabel.setVisible(false);
     },
 
     registerClickEvent: function() {
@@ -240,8 +265,10 @@ EditBoxImpl.prototype = {
 
     _setFont: function (fontStyle) {
         var res = cc.LabelTTF._fontStyleRE.exec(fontStyle);
+        this._editBox._textFontName = res[2];
+        this._editBox._textFontSize = parseInt(res[1]);
         if (res) {
-            this.setFont(res[2], parseInt(res[1]));
+            this.setFont(this._editBox._textFontName, this._editBox._textFontSize);
         }
     },
 
@@ -536,20 +563,22 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _editBoxInputMode: InputMode.ANY,
     _editBoxInputFlag: InputFlag.SENSITIVE,
     _keyboardReturnType: KeyboardReturnType.DEFAULT,
+    _maxLength: 50,
+    _nativeControl: null,
 
     _text: '',
-    _placeholderText: '',
+    _textFontName: '',
+    _textFontSize: 14,
     _textColor: null,
-    _placeholderColor: null,
-    _maxLength: 50,
-    _adjustHeight: 18,
 
+    _placeholderText: '',
     _placeholderFontName: '',
     _placeholderFontSize: 14,
+    _placeholderColor: null,
 
+    _adjustHeight: 18,
     _tooltip: false,
     _className: 'EditBox',
-    _nativeControl: null,
 
     /**
      * constructor of cc.EditBox
@@ -565,9 +594,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._placeholderColor = cc.Color.GRAY;
         _ccsg.Node.prototype.setContentSize.call(this, size);
 
-        var editBoxImpl = new EditBoxImpl(this);
+        var editBoxImpl = this._nativeControl = new EditBoxImpl(this);
         editBoxImpl.createNativeControl(size);
-        this._nativeControl = editBoxImpl;
 
         //because cc.DOM.convert will replace editbox's setContentSize method.
         //here is a hack to provide a better version of setContentSize.
@@ -578,6 +606,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
         this._registerTouchEvent();
 
+        var self = this;
         this.scheduleOnce(function () {
             editBoxImpl.registerClickEvent();
         }, 1);
@@ -622,6 +651,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {Number} fontSize  The font size.
      */
     setFont: function (fontName, fontSize) {
+        this._textFontName = fontName;
+        this._textFontSize = fontSize;
         this._nativeControl.setFont(fontName, fontSize);
     },
 
@@ -638,6 +669,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {String} fontName
      */
     setFontName: function (fontName) {
+        this._textFontName = fontName;
         this._nativeControl.setFontName(fontName);
     },
 
@@ -646,6 +678,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {Number} fontSize
      */
     setFontSize: function (fontSize) {
+        this._textFontSize = fontSize;
         this._nativeControl.setFontSize(fontSize);
     },
 
