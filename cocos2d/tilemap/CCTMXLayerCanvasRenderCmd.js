@@ -106,14 +106,13 @@
     proto._updateCacheContext = function(size, height){
         var node = this._node,
             locContentSize = node._contentSize,
-            locCanvas = this._cacheCanvas,
-            scaleFactor = cc.contentScaleFactor();
-        locCanvas.width = 0 | (locContentSize.width * 1.5 * scaleFactor);
-        locCanvas.height = 0 | (locContentSize.height * 1.5 * scaleFactor);
+            locCanvas = this._cacheCanvas;
+        locCanvas.width = 0 | (locContentSize.width * 1.5);
+        locCanvas.height = 0 | (locContentSize.height * 1.5);
 
         //todo: need change the wrapper's height
         if(node.layerOrientation === cc.TMX_ORIENTATION_HEX)
-            this._cacheContext.setOffset(0, -node._mapTileSize.height * 0.5);                  //translate for hexagonal
+            this._cacheContext.setOffset(0, -node._mapTileSize.height * 0.5); //translate for hexagonal
         else
             this._cacheContext.setOffset(0, 0);
         var locTexContentSize = this._cacheTexture._contentSize;

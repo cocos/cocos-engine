@@ -42,7 +42,7 @@
         var locString = node._string || "";
         var n = locString.length;
         var texture = this._textureToRender;
-        var locItemWidth = node._itemWidth , locItemHeight = node._itemHeight;     //needn't multiply cc.contentScaleFactor(), because sprite's draw will do this
+        var locItemWidth = node._itemWidth , locItemHeight = node._itemHeight;
 
         for (var i = 0, cr = -1; i < n; i++) {
             var a = locString.charCodeAt(i) - node._mapStartChar.charCodeAt(0);

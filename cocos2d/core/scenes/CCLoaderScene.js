@@ -78,7 +78,6 @@ cc.LoaderScene = _ccsg.Scene.extend({
         texture2d.initWithElement(img);
         texture2d.handleLoadedTexture();
         var logo = self._logo = new _ccsg.Sprite(texture2d);
-        logo.setScale(cc.contentScaleFactor());
         logo.x = centerPos.x;
         logo.y = centerPos.y;
         self._bgLayer.addChild(logo, 10);

@@ -194,15 +194,14 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @returns {Size}
      */
     getContentSize: function () {
-        var locScaleFactor = cc.contentScaleFactor();
-        return cc.size(this._contentSize.width / locScaleFactor, this._contentSize.height / locScaleFactor);
+        return cc.size(this._contentSize.width, this._contentSize.height);
     },
 
     _getWidth: function () {
-        return this._contentSize.width / cc.contentScaleFactor();
+        return this._contentSize.width;
     },
     _getHeight: function () {
-        return this._contentSize.height / cc.contentScaleFactor();
+        return this._contentSize.height;
     },
 
     /**

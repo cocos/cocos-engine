@@ -209,13 +209,12 @@
     proto.initTexCoordsWithRect = function(pointRect){
         var node = this._node;
         var texture = node.texture;
-        var scaleFactor = cc.contentScaleFactor();
         // convert to pixels coords
         var rect = cc.rect(
-                pointRect.x * scaleFactor,
-                pointRect.y * scaleFactor,
-                pointRect.width * scaleFactor,
-                pointRect.height * scaleFactor);
+                pointRect.x,
+                pointRect.y,
+                pointRect.width,
+                pointRect.height);
 
         var wide = pointRect.width;
         var high = pointRect.height;

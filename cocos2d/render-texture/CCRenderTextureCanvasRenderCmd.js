@@ -50,9 +50,9 @@
 
     proto.initWithWidthAndHeight = function(width, height, format, depthStencilFormat){
         var node = this._node;
-        var locCacheCanvas = this._cacheCanvas, locScaleFactor = cc.contentScaleFactor();
-        locCacheCanvas.width = 0 | (width * locScaleFactor);
-        locCacheCanvas.height = 0 | (height * locScaleFactor);
+        var locCacheCanvas = this._cacheCanvas;
+        locCacheCanvas.width = 0 | width;
+        locCacheCanvas.height = 0 | height;
 
         var texture = new cc.Texture2D();
         texture.initWithElement(locCacheCanvas);
@@ -86,8 +86,7 @@
     proto.end = function(){
         var node = this._node;
 
-        var scale = cc.contentScaleFactor();
-        cc.renderer._renderingToCacheCanvas(this._cacheContext, node.__instanceId, scale, scale);
+        cc.renderer._renderingToCacheCanvas(this._cacheContext, node.__instanceId);
     };
 
     proto.clearRect = function(x, y, width, height){

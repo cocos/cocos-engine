@@ -195,7 +195,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             rect.height = rectInPixels.height;
         }
 
-        this._rect = cc.rectPixelsToPoints(rectInPixels);
+        this._rect = rectInPixels;
     },
 
     /**
@@ -240,7 +240,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             locRect.width = rect.width;
             locRect.height = rect.height;
         }
-        this._rectInPixels = cc.rectPointsToPixels(rect);
+        this._rectInPixels = rect;
     },
 
     /**
@@ -265,7 +265,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._offsetInPixels.y = offsetInPixels.y;
         }
 
-        this._offset = cc.pointPixelsToPoints(offsetInPixels);
+        this._offset = offsetInPixels;
     },
 
     /**
@@ -290,7 +290,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._originalSizeInPixels.height = sizeInPixels.height;
         }
 
-        this._originalSize = cc.sizePixelsToPoints(sizeInPixels);
+        this._originalSize = sizeInPixels;
     },
 
     /**
@@ -315,7 +315,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._originalSize.height = size.height;
         }
 
-        this._originalSizeInPixels = cc.sizePointsToPixels(size);
+        this._originalSizeInPixels = size;
     },
 
     /**
@@ -394,7 +394,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._offset.x = offsets.x;
             this._offset.y = offsets.y;
         }
-        this._offsetInPixels = cc.pointPointsToPixels(offsets);
+        this._offsetInPixels = offsets;
     },
 
     /**

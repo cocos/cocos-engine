@@ -133,12 +133,12 @@
         if(format === cc.Texture2D.PIXEL_FORMAT_A8)
             cc.log( "cc.RenderTexture._initWithWidthAndHeightForWebGL() : only RGB and RGBA formats are valid for a render texture;");
 
-        var gl = cc._renderContext, locScaleFactor = cc.contentScaleFactor();
+        var gl = cc._renderContext;
         this._fullRect = new cc.Rect(0,0, width, height);
         this._fullViewport = new cc.Rect(0,0, width, height);
 
-        width = 0 | (width * locScaleFactor);
-        height = 0 | (height * locScaleFactor);
+        width = 0 | width;
+        height = 0 | height;
 
         this._oldFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
 
@@ -329,11 +329,11 @@
         /* var size = director.getWinSizeInPixels();
 
          // restore viewport
-         gl.viewport(0, 0, size.width * cc.contentScaleFactor(), size.height * cc.contentScaleFactor());
+         gl.viewport(0, 0, size.width, size.height);
 
          // special viewport for 3d projection + retina display
-         if (director.getProjection() == cc.Director.PROJECTION_3D && cc.contentScaleFactor() != 1) {
-         gl.viewport((-size.width / 2), (-size.height / 2), (size.width * cc.contentScaleFactor()), (size.height * cc.contentScaleFactor()));
+         if (director.getProjection() == cc.Director.PROJECTION_3D) {
+         gl.viewport((-size.width / 2), (-size.height / 2), size.width, size.height));
          }
 
          director.setProjection(director.getProjection());*/

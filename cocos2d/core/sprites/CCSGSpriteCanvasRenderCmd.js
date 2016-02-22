@@ -277,15 +277,12 @@
         node.emit("load");
     };
 
-    proto._setTextureCoords = function (rect, needConvert) {
-        if (needConvert === undefined)
-            needConvert = true;
-        var locTextureRect = this._textureCoord,
-            scaleFactor = needConvert ? cc.contentScaleFactor() : 1;
-        locTextureRect.renderX = locTextureRect.x = 0 | (rect.x * scaleFactor);
-        locTextureRect.renderY = locTextureRect.y = 0 | (rect.y * scaleFactor);
-        locTextureRect.width = 0 | (rect.width * scaleFactor);
-        locTextureRect.height = 0 | (rect.height * scaleFactor);
+    proto._setTextureCoords = function (rect) {
+        var locTextureRect = this._textureCoord;
+        locTextureRect.renderX = locTextureRect.x = 0 | rect.x;
+        locTextureRect.renderY = locTextureRect.y = 0 | rect.y;
+        locTextureRect.width = 0 | rect.width;
+        locTextureRect.height = 0 | rect.height;
         locTextureRect.validRect = !(locTextureRect.width === 0 || locTextureRect.height === 0 || locTextureRect.x < 0 || locTextureRect.y < 0);
     };
 

@@ -272,7 +272,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
      * @return {cc.FontDefinition}
      */
     getTextDefinition: function () {
-        return this._prepareTextDefinition(false);
+        return this._prepareTextDefinition();
     },
 
     /**
@@ -535,18 +535,12 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
         this._renderCmd.setDirtyFlag(flags.colorDirty|flags.opacityDirty|flags.textDirty);
     },
 
-    _prepareTextDefinition: function (adjustForResolution) {
+    _prepareTextDefinition: function () {
         var texDef = new cc.FontDefinition();
 
-        if (adjustForResolution) {
-            texDef.fontSize = this._fontSize;
-            texDef.boundingWidth = cc.contentScaleFactor() * this._dimensions.width;
-            texDef.boundingHeight = cc.contentScaleFactor() * this._dimensions.height;
-        } else {
-            texDef.fontSize = this._fontSize;
-            texDef.boundingWidth = this._dimensions.width;
-            texDef.boundingHeight = this._dimensions.height;
-        }
+        texDef.fontSize = this._fontSize;
+        texDef.boundingWidth = this._dimensions.width;
+        texDef.boundingHeight = this._dimensions.height;
 
         texDef.fontName = this._fontName;
         texDef.textAlign = this._hAlignment;
@@ -567,8 +561,8 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
             texDef.shadowBlur = this._shadowBlur;
             texDef.shadowOpacity = this._shadowOpacity;
 
-            texDef.shadowOffsetX = (adjustForResolution ? cc.contentScaleFactor() : 1) * this._shadowOffset.x;
-            texDef.shadowOffsetY = (adjustForResolution ? cc.contentScaleFactor() : 1) * this._shadowOffset.y;
+            texDef.shadowOffsetX = this._shadowOffset.x;
+            texDef.shadowOffsetY = this._shadowOffset.y;
         } else
             texDef._shadowEnabled = false;
 
@@ -735,8 +729,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
     },
 
     setTextureRect: function (rect, rotated, untrimmedSize) {
-        //set needConvert to false
-        _ccsg.Sprite.prototype.setTextureRect.call(this, rect, rotated, untrimmedSize, false);
+        _ccsg.Sprite.prototype.setTextureRect.call(this, rect, rotated, untrimmedSize);
     },
 
     /**

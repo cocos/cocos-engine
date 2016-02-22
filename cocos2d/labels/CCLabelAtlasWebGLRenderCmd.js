@@ -64,10 +64,6 @@
         var textureHigh = texture.getPixelHeight();
         var itemWidthInPixels = node._itemWidth;
         var itemHeightInPixels = node._itemHeight;
-        if (!node._ignoreContentScaleFactor) {
-            itemWidthInPixels = node._itemWidth * cc.contentScaleFactor();
-            itemHeightInPixels = node._itemHeight * cc.contentScaleFactor();
-        }
         if (n > locTextureAtlas.getCapacity())
             cc.log("cc.LabelAtlas._updateAtlasValues(): Invalid String length");
         var quads = locTextureAtlas.quads;
