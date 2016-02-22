@@ -124,6 +124,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._parent === value) {
                     return;
                 }
+                if (CC_EDITOR && !cc.engine.isPlaying) {
+                    if (_Scene.DetectConflict.beforeAddChild(this)) {
+                        return;
+                    }
+                }
                 var node = this._sgNode;
                 if (node.parent) {
                     node.parent.removeChild(node, false);
