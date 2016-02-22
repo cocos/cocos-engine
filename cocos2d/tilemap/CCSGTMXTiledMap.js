@@ -76,9 +76,9 @@ cc.TMX_ORIENTATION_ISO = 2;
  * - It only supports the XML format (the JSON format is not supported)</p>
  *
  * <p>Technical description: <br />
- * Each layer is created using an cc.TMXLayer (subclass of cc.SpriteBatchNode). If you have 5 layers, then 5 cc.TMXLayer will be created, <br />
+ * Each layer is created using an _ccsg.TMXLayer (subclass of cc.SpriteBatchNode). If you have 5 layers, then 5 _ccsg.TMXLayer will be created, <br />
  * unless the layer visibility is off. In that case, the layer won't be created at all. <br />
- * You can obtain the layers (cc.TMXLayer objects) at runtime by: <br />
+ * You can obtain the layers (_ccsg.TMXLayer objects) at runtime by: <br />
  * - map.getChildByTag(tag_number);  // 0=1st layer, 1=2nd layer, 2=3rd layer, etc...<br />
  * - map.getLayer(name_of_the_layer); </p>
  *
@@ -346,7 +346,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
         var retArr = [], locChildren = this._children;
         for(var i = 0, len = locChildren.length;i< len;i++){
             var layer = locChildren[i];
-            if(layer && layer instanceof cc.TMXLayer)
+            if(layer && layer instanceof _ccsg.TMXLayer)
                 retArr.push(layer);
         }
         return retArr;
@@ -355,7 +355,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
     /**
      * return the TMXLayer for the specific layer
      * @param {String} layerName
-     * @return {cc.TMXLayer}
+     * @return {_ccsg.TMXLayer}
      */
     getLayer:function (layerName) {
         if(!layerName || layerName.length === 0)
@@ -421,7 +421,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
 
     _parseLayer:function (layerInfo, mapInfo) {
         var tileset = this._tilesetForLayer(layerInfo, mapInfo);
-        var layer = new cc.TMXLayer(tileset, layerInfo, mapInfo);
+        var layer = new _ccsg.TMXLayer(tileset, layerInfo, mapInfo);
         // tell the layerinfo to release the ownership of the tiles map.
         layerInfo.ownTiles = false;
         layer.setupTiles();
