@@ -328,7 +328,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
         this._resetBMFont();
         //specify font family name directly
-        if (extName === null) {
+        if (extName === null || extName === '') {
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
             this._notifyLabelSkinDirty();
