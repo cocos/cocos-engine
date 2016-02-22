@@ -25,7 +25,7 @@ asyncTest('Load', function () {
         else {
             ok(false, 'should not load an unknown url');
         }
-    }, function (items) {
+    }, function (error, items) {
         ok(items.isCompleted(), 'be able to load all resources');
 
         loader.releaseAll();
@@ -79,11 +79,7 @@ asyncTest('Load with dependencies', function () {
         audio
     ];
 
-    var total = resources.length + 3;
-
-    var dep1Loaded = false;
-    var dep2Loaded = false;
-    var dep3Loaded = false;
+    var total = resources.length;
 
     var items = loader.getItems();
 
@@ -93,24 +89,17 @@ asyncTest('Load with dependencies', function () {
                              items.isItemCompleted(dep2) &&
                              items.isItemCompleted(dep3);
             ok(depsLoaded, 'should load all dependencies before complete parent resources');
-            var depsCallbackCalled = dep1Loaded && dep2Loaded && dep3Loaded;
-            ok(depsCallbackCalled, 'should call all dependencies complete callback before complete parent resources');
+            var dep = this.getRes(dep1);
+            ok(dep instanceof cc.Texture2D, 'should correctly load dependent image1');
+            dep = this.getRes(dep2);
+            strictEqual(dep.width, 89, 'should correctly load dependent JSON');
+            dep = this.getRes(dep3);
+            ok(dep instanceof cc.Texture2D, 'should correctly load dependent image2');
+
             strictEqual(item.content.__type__, 'TestTexture', 'should give correct js object as result of deps type');
         }
         else if (item.src === json2) {
             strictEqual(item.content._rawFiles[0], 'YouKnowEverything', 'should give correct js object as result of JSON');
-        }
-        else if (item.src === dep1) {
-            dep1Loaded = true;
-            ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
-        }
-        else if (item.src === dep2) {
-            dep2Loaded = true;
-            strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
-        }
-        else if (item.src === dep3) {
-            dep3Loaded = true;
-            ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
         else if (item.src === audio) {
             // Test environment doesn't support audio
@@ -121,7 +110,7 @@ asyncTest('Load with dependencies', function () {
         }
     }).enable();
 
-    loader.load(resources, progressCallback, function (items) {
+    loader.load(resources, progressCallback, function (error, items) {
         ok(items.isCompleted(), 'be able to load all resources');
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
         loader.releaseAll();
@@ -162,7 +151,7 @@ asyncTest('Loading font', function () {
         }
     }).enable();
 
-    loader.load(resources, progressCallback, function (items) {
+    loader.load(resources, progressCallback, function (error, items) {
         ok(items.isCompleted(), 'be able to load all resources');
         progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
 

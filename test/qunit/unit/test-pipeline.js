@@ -96,7 +96,11 @@ test('pipeline flow', function () {
         }
     ]);
 
-    var onComplete = new Callback().enable();
+    var onComplete = new Callback(function (error, items) {
+        ok(error instanceof Array, 'should return error array in onComplete when error happened');
+        strictEqual(error[0], 'res/role', 'should contains correct errored url in error array');
+        ok(items.getError('res/role') !== null, 'should set error property in errored item.');
+    }).enable();
     var onProgress = new Callback().enable();
     pipeline.onComplete = onComplete;
     pipeline.onProgress = onProgress;
@@ -123,6 +127,22 @@ test('pipeline flow', function () {
     load.expect(3, 'should call load for each item successfully passed from download');
     onComplete.expect(1, 'should call onComplete callback');
     onProgress.expect(4, 'should call onProgress callback 4 times');
+});
+
+test('flow empty array', function () {
+    var onComplete = new Callback(function (error, items) {
+        strictEqual(error, null, 'shouldn\'t return error after flowIn empty array');
+        strictEqual(items.totalCount, 0, 'should contains zero item in items');
+        strictEqual(items.completedCount, 0, 'should contains zero completed item');
+    }).enable();
+    var onProgress = new Callback().enable();
+    pipeline.onComplete = onComplete;
+    pipeline.onProgress = onProgress;
+
+    pipeline.flowIn([]);
+
+    onComplete.expect(1, 'should call onComplete after flowIn empty array');
+    onProgress.expect(0, 'shouldn\'t call onProgress after flowIn empty array');
 });
 
 asyncTest('content manipulation', function () {
@@ -160,7 +180,7 @@ asyncTest('content manipulation', function () {
         }
     ]);
 
-    pipeline.onComplete = function (items) {
+    pipeline.onComplete = function (error, items) {
         ok(true, 'should call onComplete at the end');
         strictEqual(items.completedCount, 4, 'should complete all 4 items');
         strictEqual(items.isCompleted(), true, 'should be completed');

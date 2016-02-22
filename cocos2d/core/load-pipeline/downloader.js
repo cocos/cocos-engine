@@ -237,6 +237,7 @@ function downloadFont (item, callback){
     }
 }
 
+
 var defaultMap = {
     // JS
     'js' : downloadScript,
@@ -265,8 +266,13 @@ var defaultMap = {
     'fsh' : downloadText,
     'atlas' : downloadText,
 
+    'tmx' : downloadText,
+    'tsx' : downloadText,
+
     'json' : downloadText,
     'ExportJson' : downloadText,
+
+    'fnt' : downloadText,
 
     'font' : downloadFont,
     'eot' : downloadFont,

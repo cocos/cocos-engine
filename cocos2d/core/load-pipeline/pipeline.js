@@ -176,6 +176,7 @@ function getXMLHttpRequest () {
 var Pipeline = function (pipes) {
     this._pipes = pipes;
     this._items = new LoadingItems();
+    this._errorUrls = [];
     this._flowing = false;
 
     for (var i = 0; i < pipes.length; ++i) {
@@ -236,7 +237,7 @@ JS.mixin(Pipeline.prototype, {
         var acceptedItems = this._items.append(items);
 
         // Manually complete
-        if ((this._pipes.length | acceptedItems.length) === 0) {
+        if (this._pipes.length === 0 || acceptedItems.length === 0) {
             this.complete();
             return acceptedItems;
         }
@@ -295,7 +296,11 @@ JS.mixin(Pipeline.prototype, {
         // All completed
         if (this._items.isCompleted()) {
             this._flowing = false;
-            this.onComplete && this.onComplete(this._items);
+            if (this.onComplete) {
+                var error = this._errorUrls.length === 0 ? null : this._errorUrls;
+                this.onComplete(error, this._items);
+                this._errorUrls = [];
+            }
         }
     },
 
@@ -306,6 +311,15 @@ JS.mixin(Pipeline.prototype, {
         // Not exist or already completed
         if (!exists || exists.complete) {
             return;
+        }
+
+        // Register or unregister errors
+        var errorListId = this._errorUrls.indexOf(url);
+        if (item.error && errorListId === -1) {
+            this._errorUrls.push(url);
+        }
+        else if (!item.error && errorListId !== -1) {
+            this._errorUrls.splice(errorListId, 1);
         }
 
         items.complete(item.src);
@@ -393,6 +407,7 @@ JS.mixin(Pipeline.prototype, {
         }
 
         this._items = new LoadingItems();
+        this._errorUrls = [];
         this._flowing = false;
     },
 
@@ -413,13 +428,17 @@ JS.mixin(Pipeline.prototype, {
     /**
      * This is a callback which will be invoked while all items flow out the pipeline, you should overwirte this function.
      * @example
-     *  pipeline.onComplete = function (items) {
-     *      cc.log('Completed ' + items.totalCount + ' items');
+     *  pipeline.onComplete = function (error, items) {
+     *      if (error)
+     *          cc.log('Completed with ' + error.length + ' errors');
+     *      else
+     *          cc.log('Completed ' + items.totalCount + ' items');
      *  }
      * @method onComplete
+     * @param {Array} error All errored urls will be stored in this array, if no error happened, then it will be null
      * @param {LoadingItems} items All items.
      */
-    onComplete: function (items) {}
+    onComplete: function (error, items) {}
 });
 
 cc.Pipeline = module.exports = Pipeline;
