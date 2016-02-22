@@ -254,6 +254,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         tmpEdTxt.style.outline = 'medium';
         tmpEdTxt.style.padding = '0';
         tmpEdTxt.style.textTransform = 'uppercase';
+        tmpEdTxt.style.display = 'none';
         var onCanvasClick = function() { tmpEdTxt.blur();};
 
         // TODO the event listener will be remove when EditBox removes from parent.
@@ -315,6 +316,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         tmpEdTxt.style.resize = 'none';
         tmpEdTxt.style.textTransform = 'uppercase';
         tmpEdTxt.style.overflow_y = 'scroll';
+        tmpEdTxt.style.display = 'none';
         var onCanvasClick = function() { tmpEdTxt.blur();};
 
         // TODO the event listener will be remove when EditBox removes from parent.
@@ -393,6 +395,33 @@ _ccsg.EditBox = _ccsg.Node.extend({
         tmpDOMSprite.canvas.remove();
 
         this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
+        this._registerTouchEvent();
+
+        var self = this;
+        this.scheduleOnce(function () {
+            var div = self._edTxt.parentNode;
+            div.addEventListener('click', function() {
+                if (self._edTxt.style.display === 'none') {
+                    self._edTxt.style.display = '';
+                    self._edTxt.focus();
+                    console.log("toggle");
+                }
+            });
+        }, 1);
+    },
+
+    _registerTouchEvent: function() {
+        var touchListener = cc.EventListener.create({
+            event: cc.EventListener.TOUCH_ONE_BY_ONE,
+            swallowTouches: true,
+            onTouchBegan: this._onTouchBegan.bind(this),
+        });
+        cc.eventManager.addListener(touchListener, this);
+    },
+
+    _onTouchBegan: function (touch, event) {
+        this._edTxt.style.display = 'none';
+        return false;
     },
 
     _updateBackgroundSpriteSizeAndPosition: function (width, height) {
