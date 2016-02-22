@@ -17,6 +17,7 @@ var AnimationClip = cc.Class({
 
         /**
          * Duration of this animation
+         * @property duration
          * @type {Number}
          */
         duration: {
@@ -25,6 +26,7 @@ var AnimationClip = cc.Class({
 
         /**
          * FrameRate of this animation
+         * @property sample
          * @type {Number}
          */
         sample: {
@@ -33,6 +35,7 @@ var AnimationClip = cc.Class({
 
         /**
          * Speed of this animation
+         * @property speed
          * @type {Number}
          */
         speed: {
@@ -41,6 +44,7 @@ var AnimationClip = cc.Class({
 
         /**
          * WrapMode of this animation
+         * @property wrapMode
          * @type {cc.WrapMode}
          */
         wrapMode: {

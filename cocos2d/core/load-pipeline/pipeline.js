@@ -143,6 +143,10 @@ function createItem (url) {
     return result;
 }
 
+function getXMLHttpRequest () {
+    return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
+}
+
 /**
  * A pipeline describes a sequence of manipulations, each manipulation is called a pipe.
  * It's designed for loading process, so items should be urls, and the url will be the identity of each item during the process.
@@ -194,6 +198,7 @@ var Pipeline = function (pipes) {
 };
 
 Pipeline.ItemState = new cc.Enum(ItemState);
+Pipeline.getXMLHttpRequest = getXMLHttpRequest;
 
 JS.mixin(Pipeline.prototype, {
     /**
@@ -217,10 +222,6 @@ JS.mixin(Pipeline.prototype, {
      * @return {Array} Items accepted by the pipeline
      */
     flowIn: function (urlList) {
-        if (!this._flowing) {
-            this._flowing = true;
-        }
-
         var items = [], i, url, item;
         for (i = 0; i < urlList.length; ++i) {
             url = urlList[i];
@@ -232,15 +233,24 @@ JS.mixin(Pipeline.prototype, {
                 throw new Error('Pipeline flowIn: Invalid url: ' + (url.src || url));
             }
         }
-        this._items.append(items);
+        var acceptedItems = this._items.append(items);
 
+        // Manually complete
+        if ((this._pipes.length | acceptedItems.length) === 0) {
+            this.complete();
+            return acceptedItems;
+        }
+        
+        if (!this._flowing) {
+            this._flowing = true;
+        }
         // Flow in after appended to loading items
         if (this._pipes.length > 0) {
-            for (i = 0; i < items.length; i++) {
-                this._pipes[0].flowIn(items[i]);
+            for (i = 0; i < acceptedItems.length; i++) {
+                this._pipes[0].flowIn(acceptedItems[i]);
             }
         }
-        return items;
+        return acceptedItems;
     },
 
     /**
@@ -273,12 +283,20 @@ JS.mixin(Pipeline.prototype, {
         // Add loaded listeners
         for (var i = 0; i < urlList.length; ++i) {
             var url = urlList[i].src || urlList[i];
-            if (isUrlValid(url)) {
+            if (isUrlValid(url) && !this._items.exists(url)) {
                 this._items.add(url, loadedCheck);
                 checker[url] = null;
             }
         }
         return this.flowIn(urlList);
+    },
+
+    complete: function () {
+        // All completed
+        if (this._items.isCompleted()) {
+            this._flowing = false;
+            this.onComplete && this.onComplete(this._items);
+        }
     },
 
     flowOut: function (item) {
@@ -290,15 +308,11 @@ JS.mixin(Pipeline.prototype, {
             return;
         }
 
-        items.complete(item);
+        items.complete(item.src);
 
-        this.onProgress && this.onProgress(this._items.completedCount, this._items.totalCount, item);
+        this.onProgress && this.onProgress(items.completedCount, items.totalCount, item);
 
-        // All completed
-        if (this._items.isCompleted()) {
-            this._flowing = false;
-            this.onComplete && this.onComplete(this._items);
-        }
+        this.complete();
 
         items.invoke(url, item);
     },
@@ -335,6 +349,34 @@ JS.mixin(Pipeline.prototype, {
     },
 
     /**
+     * Returns all items in pipeline.
+     * @method getItems
+     * @return {LoadingItems}
+     */
+    getItems: function () {
+        return this._items;
+    },
+
+    /**
+     * Removes an item in pipeline, no matter it's in progress or completed.
+     * @method removeItem
+     * @return {Boolean} succeed or not
+     */
+    removeItem: function (url) {
+        var item = this._items[url];
+        if (item) {
+            if (!item.complete) {
+                item.error = new Error('Canceled manually');
+                this.flowOut(item);
+            }
+            this._items.remove(url);
+        }
+        else {
+            return false;
+        }
+    },
+
+    /**
      * Clear the current pipeline, this function will clean up the items.
      * @method clear
      */
@@ -345,6 +387,7 @@ JS.mixin(Pipeline.prototype, {
                 var item = items[url];
                 if (!item.complete) {
                     item.error = new Error('Canceled manually');
+                    this.flowOut(item);
                 }
             }
         }

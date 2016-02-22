@@ -25,6 +25,13 @@
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
 
+var downloadAudio;
+if (!CC_EDITOR || !Editor.isCoreLevel) {
+    downloadAudio = require('./audio-downloader');
+}
+else {
+    downloadAudio = null;
+}
 // var downloadBinary = require('binary-downloader');
 
 var _noCacheRex = /\?/;
@@ -38,12 +45,10 @@ function urlAppendTimestamp (url) {
     return url;
 }
 
-function getXMLHttpRequest () {
-    return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
-}
-
-function downloadScript (url, callback, isAsync) {
-    var d = document, s = document.createElement('script');
+function downloadScript (item, callback, isAsync) {
+    var url = item.src,
+        d = document, 
+        s = document.createElement('script');
     s.async = isAsync;
     s.src = urlAppendTimestamp(url);
     function loadHandler () {
@@ -63,8 +68,9 @@ function downloadScript (url, callback, isAsync) {
     d.body.appendChild(s);
 }
 
-function downloadText (url, callback) {
-    var xhr = getXMLHttpRequest(),
+function downloadText (item, callback) {
+    var url = item.src,
+        xhr = Pipeline.getXMLHttpRequest(),
         errInfo = 'Load ' + url + ' failed!',
         navigator = window.navigator;
 
@@ -103,8 +109,9 @@ function downloadText (url, callback) {
     xhr.send(null);
 }
 
-function downloadTextSync (url) {
-    var xhr = getXMLHttpRequest();
+function downloadTextSync (item) {
+    var url = item.src;
+    var xhr = Pipeline.getXMLHttpRequest();
     xhr.open('GET', url, false);
     if (/msie/i.test(window.navigator.userAgent) && !/opera/i.test(window.navigator.userAgent)) {
         // IE-specific logic here
@@ -119,12 +126,12 @@ function downloadTextSync (url) {
     return xhr.responseText;
 }
 
-function downloadImage (url, callback, isCrossOrigin) {
+function downloadImage (item, callback, isCrossOrigin) {
     if (isCrossOrigin === undefined) {
         isCrossOrigin = true;
     }
 
-    url = urlAppendTimestamp(url);
+    var url = urlAppendTimestamp(item.src);
     var img = new Image();
     if (isCrossOrigin && window.location.origin !== 'file://') {
         img.crossOrigin = 'Anonymous';
@@ -160,6 +167,76 @@ function downloadImage (url, callback, isCrossOrigin) {
     img.src = url;
 }
 
+var FONT_TYPE = {
+    '.eot' : 'embedded-opentype',
+    '.ttf' : 'truetype',
+    '.ttc' : 'truetype',
+    '.woff' : 'woff',
+    '.svg' : 'svg'
+};
+function _loadFont (name, srcs, type){
+    var doc = document, 
+        path = cc.path, 
+        fontStyle = document.createElement('style');
+    fontStyle.type = 'text/css';
+    doc.body.appendChild(fontStyle);
+
+    var fontStr = '';
+    if (isNaN(name - 0)) {
+        fontStr += '@font-face { font-family:' + name + '; src:';
+    }
+    else {
+        fontStr += '@font-face { font-family:\'' + name + '\'; src:';
+    }
+    if (srcs instanceof Array) {
+        for (var i = 0, li = srcs.length; i < li; i++) {
+            var src = srcs[i];
+            type = path.extname(src).toLowerCase();
+            fontStr += 'url(\'' + srcs[i] + '\') format(\'' + FONT_TYPE[type] + '\')';
+            fontStr += (i === li - 1) ? ';' : ',';
+        }
+    } else {
+        type = type.toLowerCase();
+        fontStr += 'url(\'' + srcs + '\') format(\'' + FONT_TYPE[type] + '\');';
+    }
+    fontStyle.textContent += fontStr + '}';
+
+    //<div style="font-family: PressStart;">.</div>
+    var preloadDiv = document.createElement('div');
+    var _divStyle =  preloadDiv.style;
+    _divStyle.fontFamily = name;
+    preloadDiv.innerHTML = '.';
+    _divStyle.position = 'absolute';
+    _divStyle.left = '-100px';
+    _divStyle.top = '-100px';
+    doc.body.appendChild(preloadDiv);
+}
+function downloadFont (item, callback){
+    var url = item.src,
+        type = item.type, 
+        name = item.name, 
+        srcs = item.srcs;
+    if (name && srcs) {
+        if (srcs.indexOf(url) === -1) {
+            srcs.push(url);
+        }
+        _loadFont(name, srcs);
+    } else {
+        type = cc.path.extname(url);
+        name = cc.path.basename(url, type);
+        _loadFont(name, url, type);
+    }
+    if (document.fonts) {
+        document.fonts.load('1em ' + name).then(function () {
+            callback(null, null);
+        }, function(err){
+            callback(err);
+        });
+    } else {
+        callback(null, null);
+    }
+}
+
 var defaultMap = {
     // JS
     'js' : downloadScript,
@@ -175,11 +252,11 @@ var defaultMap = {
     'webp' : downloadImage,
 
     // Audio
-    // "mp3",
-    // "ogg",
-    // "wav",
-    // "mp4",
-    // "m4a",
+    'mp3' : downloadAudio,
+    'ogg' : downloadAudio,
+    'wav' : downloadAudio,
+    'mp4' : downloadAudio,
+    'm4a' : downloadAudio,
 
     // Txt
     'txt' : downloadText,
@@ -191,12 +268,12 @@ var defaultMap = {
     'json' : downloadText,
     'ExportJson' : downloadText,
 
-    'font' : downloadText,
-    'eot' : downloadText,
-    'ttf' : downloadText,
-    'woff' : downloadText,
-    'svg' : downloadText,
-    'ttc' : downloadText,
+    'font' : downloadFont,
+    'eot' : downloadFont,
+    'ttf' : downloadFont,
+    'woff' : downloadFont,
+    'svg' : downloadFont,
+    'ttc' : downloadFont,
     'plist' : downloadText,
 
     'default' : downloadText
@@ -221,19 +298,28 @@ var defaultMap = {
  *  });
  * 
  * @method Downloader
- * @param {Object} extMap
+ * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Downloader = function (extMap) {
     this.id = 'Downloader';
     this.async = true;
     this.pipeline = null;
 
-    this.extMap = JS.addon(extMap, defaultMap);
+    this.addHandlers(extMap);
 };
 JS.mixin(Downloader.prototype, {
+    /**
+     * Add custom supported types handler or modify existing type handler.
+     * @method addHandlers
+     * @param {Object} extMap Custom supported types with corresponded handler
+     */
+    addHandlers: function (extMap) {
+        this.extMap = JS.addon(extMap, defaultMap);
+    },
+
     handle: function (item, callback) {
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
-        downloadFunc.call(this, item.src, function (err, result) {
+        downloadFunc.call(this, item, function (err, result) {
             callback && callback(err, result);
         });
     }

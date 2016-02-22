@@ -31,7 +31,13 @@
  * @type {String}
  * @name cc.ENGINE_VERSION
  */
-window['CocosEngine'] = cc.ENGINE_VERSION = 'Cocos Creator v0.8.0';
+var engineVersion;
+if (CC_EDITOR) {
+	engineVersion = 'Cocos Creator v' + Editor.remote.versions.CocosCreator;
+} else {
+	engineVersion = 'Cocos Creator';
+}
+window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**
  * <p>

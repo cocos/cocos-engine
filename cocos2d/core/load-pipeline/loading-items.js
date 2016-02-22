@@ -51,6 +51,13 @@ var LoadingItems = function () {
     this.map = {};
 
     /**
+     * The map of completed items
+     * @property completed
+     * @type {Object}
+     */
+    this.completed = {};
+
+    /**
      * Total count of all items
      * @property totalCount
      * @type {Number}
@@ -67,17 +74,18 @@ var LoadingItems = function () {
 
 JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     append: function (items) {
-        var count = 0;
+        var list = [];
         for (var i = 0; i < items.length; ++i) {
             var item = items[i];
             var url = item.src;
             // No duplicated url
             if (!this.map[url]) {
                 this.map[item.src] = item;
-                count++;
+                list.push(item);
             }
         }
-        this.totalCount += count;
+        this.totalCount += list.length;
+        return list;
     },
 
     /**
@@ -93,13 +101,35 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      * @return {Boolean}
      */
     isItemCompleted: function (url) {
-        var item = this.map[url];
-        return item && item.complete;
+        return !!this.completed[url];
     },
 
-    complete: function (item) {
-        if (this.map[item.src] === item) {
+    /**
+     * Check whether an item exists
+     * @return {Boolean}
+     */
+    exists: function (url) {
+        return !!this.map[url];
+    },
+
+    /**
+     * Remove an item, can only remove completed item, ongoing item can not be removed
+     * @param {String} url
+     */
+    remove: function (url) {
+        if (this.completed[url]) {
+            delete this.completed[url];
+            delete this.map[url];
+            this.completedCount--;
+            this.totalCount--;
+        }
+    },
+
+    complete: function (url) {
+        if (this.map[url] && !this.completed[url]) {
+            var item = this.map[url];
             item.complete = true;
+            this.completed[url] = item;
             this.completedCount++;
         }
     }

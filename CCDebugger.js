@@ -326,11 +326,13 @@ cc._formatString = function (arg) {
         return arg;
 };
 
+var Enum = require('./cocos2d/core/value-types/CCEnum');
+
 /**
  * Enum for debug modes.
  * @enum DebugMode
  */
-cc.DebugMode = cc.Enum({
+cc.DebugMode = Enum({
     /**
      *  @property {number} NONE - The debug mode none.
      */
@@ -371,6 +373,9 @@ cc.DebugMode = cc.Enum({
  * @param {DebugMode} mode
  */
 cc._initDebugSetting = function (mode) {
+    // reset
+    cc.log = cc.warn = cc.error = cc._throw = cc.assert = function () {};
+
     if(mode === cc.DebugMode.NONE)
         return;
 
@@ -414,12 +419,15 @@ cc._initDebugSetting = function (mode) {
          * @param {any} obj - A JavaScript string containing zero or more substitution strings.
          * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
-        if (console.error.bind) {
+        if (CC_EDITOR) {
+            cc.error = Editor.error;
+        }
+        else if (console.error.bind) {
             // use bind to avoid pollute call stacks
             cc.error = console.error.bind(console);
         }
         else {
-            cc.error = function(){
+            cc.error = function () {
                 return console.error.apply(console, arguments);
             };
         }
@@ -430,7 +438,7 @@ cc._initDebugSetting = function (mode) {
                 throw new Error(msg);
             }
         };
-        if(mode !== cc.DebugMode.ERROR)
+        if (mode !== cc.DebugMode.ERROR) {
             /**
              * Outputs a warning message to the Cocos Creator Console (editor) or Web Console (runtime).
              * - In Cocos Creator, warning is yellow.
@@ -439,37 +447,45 @@ cc._initDebugSetting = function (mode) {
              * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
-            if (console.warn.bind) {
+            if (CC_EDITOR) {
+                cc.warn = Editor.warn;
+            }
+            else if (console.warn.bind) {
                 // use bind to avoid pollute call stacks
                 cc.warn = console.warn.bind(console);
             }
             else {
-                cc.warn = function() {
+                cc.warn = function () {
                     return console.warn.apply(console, arguments);
                 };
             }
-            if(mode === cc.DebugMode.INFO) {
-                /**
-                 * Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
-                 * @method log
-                 * @param {any} obj - A JavaScript string containing zero or more substitution strings.
-                 * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
-                 */
-                cc.log = function () {
-                    return console.log.apply(console, arguments);
-                };
-                /**
-                 * Outputs an informational message to the Cocos Creator Console (editor) or Web Console (runtime).
-                 * - In Cocos Creator, info is blue.
-                 * - In Firefox and Chrome, a small "i" icon is displayed next to these items in the Web Console's log.
-                 * @method info
-                 * @param {any} obj - A JavaScript string containing zero or more substitution strings.
-                 * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
-                 */
-                cc.info = function () {
-                    (console.info || console.log).apply(console, arguments);
-                };
-            }
+        }
+        if (CC_EDITOR) {
+            cc.log = Editor.log;
+            cc.info = Editor.info;
+        }
+        else if (mode === cc.DebugMode.INFO) {
+            /**
+             * Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
+             * @method log
+             * @param {any} obj - A JavaScript string containing zero or more substitution strings.
+             * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+             */
+            cc.log = function () {
+                return console.log.apply(console, arguments);
+            };
+            /**
+             * Outputs an informational message to the Cocos Creator Console (editor) or Web Console (runtime).
+             * - In Cocos Creator, info is blue.
+             * - In Firefox and Chrome, a small "i" icon is displayed next to these items in the Web Console's log.
+             * @method info
+             * @param {any} obj - A JavaScript string containing zero or more substitution strings.
+             * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+             */
+            cc.info = function () {
+                (console.info || console.log).apply(console, arguments);
+            };
+        }
     }
     cc._throw = function (error) {
         cc.error(error.stack || error);
