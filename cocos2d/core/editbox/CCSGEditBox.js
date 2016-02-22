@@ -188,6 +188,323 @@ cc.EditBoxDelegate = cc._Class.extend({
     }
 });
 
+var EditBoxImpl = function(editBox) {
+    this._domInputSprite = null;
+    this._spriteDOM = null;
+    this._edTxt = null;
+    this._edFontSize = 14;
+    this._edFontName = 'Arial';
+    this._editBox = editBox;
+};
+
+EditBoxImpl.prototype = {
+    constructor: EditBoxImpl,
+
+    createNativeControl: function(size) {
+        var tmpDOMSprite = this._domInputSprite = new _ccsg.Sprite();
+        tmpDOMSprite.draw = function () {};  //redefine draw function
+        this._editBox.addChild(tmpDOMSprite);
+        this._spriteDOM = tmpDOMSprite;
+
+        this._createDomTextArea();
+
+        cc.DOM.convert(tmpDOMSprite);
+
+        this._addDomInputControl();
+
+        this._domInputSprite.dom.showTooltipDiv = false;
+        this._domInputSprite.dom.style.width = (size.width - 6) + 'px';
+        this._domInputSprite.dom.style.height = (size.height - 6) + 'px';
+
+        tmpDOMSprite.canvas.remove();
+
+        this._domInputSprite.x = 3;
+        this._domInputSprite.y = 3;
+    },
+
+    registerClickEvent: function() {
+        var self = this;
+        var div = self._edTxt.parentNode;
+        div.addEventListener('click', function() {
+            if (self._edTxt.style.display === 'none') {
+                self._edTxt.style.display = '';
+                self._edTxt.focus();
+                console.log("toggle");
+            }
+        });
+    },
+
+    hidden: function() {
+        this._edTxt.style.display = 'none';
+    },
+
+    _setFont: function (fontStyle) {
+        var res = cc.LabelTTF._fontStyleRE.exec(fontStyle);
+        if (res) {
+            this.setFont(res[2], parseInt(res[1]));
+        }
+    },
+
+    setFont: function (fontName, fontSize) {
+        this._edFontName = fontName || this._edFontName;
+        this._edFontSize = fontSize || this._edFontSize;
+        this._updateDOMFontStyle();
+    },
+
+    setFontName: function (fontName) {
+        this._edFontName = fontName || this._edFontName;
+        this._updateDOMFontStyle();
+    },
+
+    setFontSize: function (fontSize) {
+        this._edFontSize = fontSize || this._edFontSize;
+        this._updateDOMFontStyle();
+    },
+
+    setFontColor: function (color) {
+        if (this._edTxt.value !== this._editBox._placeholderText) {
+            this._edTxt.style.color = cc.colorToHex(color);
+        }
+    },
+
+    setPlaceHolder: function (text) {
+        if (this._edTxt.value === this._editBox._placeholderText) {
+            this._edTxt.value = text;
+            this._edTxt.style.color = cc.colorToHex(this._editBox._placeholderColor);
+            this._updateDOMPlaceholderFontStyle();
+        }
+    },
+
+    setMaxLength: function (maxLength) {
+        this._edTxt.maxLength = maxLength;
+    },
+
+    _setPlaceholderFont: function (fontStyle) {
+
+    },
+
+    _updateDOMPlaceholderFontStyle: function () {
+        if (this._edTxt.value === this._editBox._placeholderText) {
+            this._edTxt.style.fontFamily = this._editBox._placeholderFontName;
+            this._edTxt.style.fontSize = this._editBox._placeholderFontSize + 'px';
+            this._edTxt.type = 'text';
+        }
+    },
+
+    setPlaceholderFontColor: function (color) {
+        if (this._edTxt.value === this._editBox._placeholderText) {
+            this._edTxt.style.color = cc.colorToHex(color);
+        }
+    },
+
+    setInputFlag: function (inputFlag) {
+        if ((this._edTxt.value !== this._placeholderText)
+            && (inputFlag === InputFlag.PASSWORD))
+            this._edTxt.type = 'password';
+        else
+            this._edTxt.type = 'text';
+
+        if (inputFlag === InputFlag.SENSITIVE || inputFlag === InputFlag.PASSWORD) {
+            this._edTxt.style.textTransform = 'none';
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+            this._edTxt.style.textTransform = 'uppercase';
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE
+                 || inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+            this._edTxt.style.textTransform = 'capitalize';
+        }
+    },
+
+    setInputMode : function (inputMode) {
+        if (inputMode === InputMode.ANY) {
+            this._removeDomInputControl();
+            this._createDomTextArea();
+            this._addDomInputControl();
+        }
+        else if(this._editBox._editBoxInputMode === InputMode.ANY) {
+            this._removeDomInputControl();
+            this._createDomInput();
+            this._addDomInputControl();
+        }
+    },
+
+    getString: function () {
+        if(this._edTxt.value === this._editBox._placeholderText)
+            return '';
+        return this._edTxt.value;
+    },
+
+    /**
+     *  Set the text entered in the edit box.
+     * @param {string} text The given text.
+     */
+    setString: function (text) {
+        if (text !== null) {
+            if (text === '') {
+                this._edTxt.value = this._editBox._placeholderText;
+                this._edTxt.style.color = cc.colorToHex(this._editBox._placeholderColor);
+                this._edTxt.type = 'text';
+            }
+            else {
+                if (text.length >= this._editBox._maxLength) {
+                    text = text.slice(0, this._editBox._maxLength);
+                }
+                this._edTxt.value = text;
+                this._edTxt.style.color = cc.colorToHex(this._editBox._textColor);
+                if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD) {
+                    this._edTxt.type = 'password';
+                }
+                else {
+                    this._edTxt.type = 'text';
+                }
+            }
+        }
+    },
+
+    _updateDOMFontStyle: function() {
+        if (this._edTxt.value !== this._editBox._placeholderText) {
+            this._edTxt.style.fontFamily = this._edFontName;
+            this._edTxt.style.fontSize = this._edFontSize + 'px';
+            if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD)
+                this._edTxt.type = 'password';
+            else
+                this._edTxt.type = 'text';
+        }
+    },
+
+
+    setSize: function(newWidth, newHeight) {
+        this._spriteDOM.dom.style.width = (newWidth - 6) + 'px';
+        this._spriteDOM.dom.style.height = (newHeight - 6) + 'px';
+    },
+
+    _createDomInput: function () {
+        var selfPointer = this;
+        var tmpEdTxt = this._edTxt = document.createElement('input');
+        tmpEdTxt.type = 'text';
+        tmpEdTxt.style.fontSize = this._edFontSize + 'px';
+        tmpEdTxt.style.color = '#000000';
+        tmpEdTxt.style.border = 0;
+        tmpEdTxt.style.background = 'transparent';
+        //tmpEdTxt.style.paddingLeft = '2px';
+        tmpEdTxt.style.width = '100%';
+        tmpEdTxt.style.height = '100%';
+        tmpEdTxt.style.active = 0;
+        tmpEdTxt.style.outline = 'medium';
+        tmpEdTxt.style.padding = '0';
+        tmpEdTxt.style.textTransform = 'uppercase';
+        tmpEdTxt.style.display = 'none';
+        var onCanvasClick = function() { tmpEdTxt.blur();};
+
+        tmpEdTxt.addEventListener('input', function () {
+            var editBox = selfPointer._editBox;
+            if (editBox._delegate && editBox._delegate.editBoxTextChanged)
+                editBox._delegate.editBoxTextChanged(editBox, this.value);
+        });
+        tmpEdTxt.addEventListener('keypress', function (e) {
+            if (e.keyCode === cc.KEY.enter) {
+                e.stopPropagation();
+                e.preventDefault();
+                var editBox = selfPointer._editBox;
+                if (editBox._delegate && editBox._delegate.editBoxReturn)
+                    editBox._delegate.editBoxReturn(editBox);
+                cc._canvas.focus();
+            }
+        });
+        tmpEdTxt.addEventListener('focus', function () {
+            var editBox = selfPointer._editBox;
+
+            if (this.value === editBox._placeholderText) {
+                this.value = '';
+                this.style.fontSize = selfPointer._edFontSize + 'px';
+                this.style.color = cc.colorToHex(editBox._textColor);
+                if (editBox._editBoxInputFlag === InputFlag.PASSWORD)
+                    selfPointer._edTxt.type = 'password';
+                else
+                    selfPointer._edTxt.type = 'text';
+            }
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegin)
+                editBox._delegate.editBoxEditingDidBegin(editBox);
+            cc._canvas.addEventListener('click', onCanvasClick);
+        });
+        tmpEdTxt.addEventListener('blur', function () {
+            var editBox = selfPointer._editBox;
+            if (this.value === '') {
+                this.value = editBox._placeholderText;
+                this.style.fontSize = editBox._placeholderFontSize + 'px';
+                this.style.color = cc.colorToHex(editBox._placeholderColor);
+                selfPointer._edTxt.type = 'text';
+            }
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnd)
+                editBox._delegate.editBoxEditingDidEnd(editBox);
+            cc._canvas.removeEventListener('click', onCanvasClick);
+        });
+        return tmpEdTxt;
+    },
+    _createDomTextArea: function () {
+        var selfPointer = this;
+        var tmpEdTxt = this._edTxt = document.createElement('textarea');
+        tmpEdTxt.type = 'text';
+        tmpEdTxt.style.fontSize = this._edFontSize + 'px';
+        tmpEdTxt.style.color = '#000000';
+        tmpEdTxt.style.border = 0;
+        tmpEdTxt.style.background = 'transparent';
+        //tmpEdTxt.style.paddingLeft = '2px';
+        tmpEdTxt.style.width = '100%';
+        tmpEdTxt.style.height = '100%';
+        tmpEdTxt.style.active = 0;
+        tmpEdTxt.style.outline = 'medium';
+        tmpEdTxt.style.padding = '0';
+        tmpEdTxt.style.resize = 'none';
+        tmpEdTxt.style.textTransform = 'uppercase';
+        tmpEdTxt.style.overflow_y = 'scroll';
+        tmpEdTxt.style.display = 'none';
+        var onCanvasClick = function() { tmpEdTxt.blur();};
+
+        tmpEdTxt.addEventListener('input', function () {
+            var editBox = selfPointer._editBox;
+            if (editBox._delegate && editBox._delegate.editBoxTextChanged)
+                editBox._delegate.editBoxTextChanged(editBox, this.value);
+        });
+
+        tmpEdTxt.addEventListener('focus', function () {
+            var editBox = selfPointer._editBox;
+            if (this.value === editBox._placeholderText) {
+                this.value = '';
+                this.style.fontSize = selfPointer._edFontSize + 'px';
+                this.style.color = cc.colorToHex(editBox._textColor);
+            }
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegin)
+                editBox._delegate.editBoxEditingDidBegin(editBox);
+            cc._canvas.addEventListener('click', onCanvasClick);
+        });
+        tmpEdTxt.addEventListener('blur', function () {
+            var editBox = selfPointer._editBox;
+            if (this.value === '') {
+                this.value = editBox._placeholderText;
+                this.style.fontSize = editBox._placeholderFontSize + 'px';
+                this.style.color = cc.colorToHex(editBox._placeholderColor);
+            }
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnd)
+                editBox._delegate.editBoxEditingDidEnd(editBox);
+            cc._canvas.removeEventListener('click', onCanvasClick);
+        });
+
+        return tmpEdTxt;
+    },
+
+    _removeDomInputControl: function() {
+        this._domInputSprite.dom.removeChild(this._edTxt);
+    },
+
+    _addDomInputControl: function () {
+        this._domInputSprite.dom.appendChild(this._edTxt);
+    },
+
+
+};
+
 /**
  * <p>cc.EditBox is a brief Class for edit box.<br/>
  * You can use this widget to gather small amounts of text from the user.</p>
@@ -213,9 +530,7 @@ cc.EditBoxDelegate = cc._Class.extend({
  *
  */
 _ccsg.EditBox = _ccsg.Node.extend({
-    _domInputSprite: null,
     _backgroundSprite: null,
-    _spriteDOM: null,
 
     _delegate: null,
     _editBoxInputMode: InputMode.ANY,
@@ -229,130 +544,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _maxLength: 50,
     _adjustHeight: 18,
 
-    _edTxt: null,
-    _edFontSize: 14,
-    _edFontName: 'Arial',
-
     _placeholderFontName: '',
     _placeholderFontSize: 14,
 
     _tooltip: false,
     _className: 'EditBox',
-
-    _createDomInput: function () {
-        var selfPointer = this;
-        var tmpEdTxt = this._edTxt = document.createElement('input');
-        tmpEdTxt.type = 'text';
-        tmpEdTxt.style.fontSize = this._edFontSize + 'px';
-        tmpEdTxt.style.color = '#000000';
-        tmpEdTxt.style.border = 0;
-        tmpEdTxt.style.background = 'transparent';
-        //tmpEdTxt.style.paddingLeft = '2px';
-        tmpEdTxt.style.width = '100%';
-        tmpEdTxt.style.height = '100%';
-        tmpEdTxt.style.active = 0;
-        tmpEdTxt.style.outline = 'medium';
-        tmpEdTxt.style.padding = '0';
-        tmpEdTxt.style.textTransform = 'uppercase';
-        tmpEdTxt.style.display = 'none';
-        var onCanvasClick = function() { tmpEdTxt.blur();};
-
-        // TODO the event listener will be remove when EditBox removes from parent.
-        tmpEdTxt.addEventListener('input', function () {
-            if (selfPointer._delegate && selfPointer._delegate.editBoxTextChanged)
-                selfPointer._delegate.editBoxTextChanged(selfPointer, this.value);
-        });
-        tmpEdTxt.addEventListener('keypress', function (e) {
-            if (e.keyCode === cc.KEY.enter) {
-                e.stopPropagation();
-                e.preventDefault();
-                if (selfPointer._delegate && selfPointer._delegate.editBoxReturn)
-                    selfPointer._delegate.editBoxReturn(selfPointer);
-                cc._canvas.focus();
-            }
-        });
-        tmpEdTxt.addEventListener('focus', function () {
-            if (this.value === selfPointer._placeholderText) {
-                this.value = '';
-                this.style.fontSize = selfPointer._edFontSize + 'px';
-                this.style.color = cc.colorToHex(selfPointer._textColor);
-                if (selfPointer._editBoxInputFlag === InputFlag.PASSWORD)
-                    selfPointer._edTxt.type = 'password';
-                else
-                    selfPointer._edTxt.type = 'text';
-            }
-            if (selfPointer._delegate && selfPointer._delegate.editBoxEditingDidBegin)
-                selfPointer._delegate.editBoxEditingDidBegin(selfPointer);
-            cc._canvas.addEventListener('click', onCanvasClick);
-        });
-        tmpEdTxt.addEventListener('blur', function () {
-            if (this.value === '') {
-                this.value = selfPointer._placeholderText;
-                this.style.fontSize = selfPointer._placeholderFontSize + 'px';
-                this.style.color = cc.colorToHex(selfPointer._placeholderColor);
-                selfPointer._edTxt.type = 'text';
-            }
-            if (selfPointer._delegate && selfPointer._delegate.editBoxEditingDidEnd)
-                selfPointer._delegate.editBoxEditingDidEnd(selfPointer);
-            cc._canvas.removeEventListener('click', onCanvasClick);
-        });
-        return tmpEdTxt;
-    },
-
-    _createDomTextArea: function () {
-        var selfPointer = this;
-        var tmpEdTxt = this._edTxt = document.createElement('textarea');
-        tmpEdTxt.type = 'text';
-        tmpEdTxt.style.fontSize = this._edFontSize + 'px';
-        tmpEdTxt.style.color = '#000000';
-        tmpEdTxt.style.border = 0;
-        tmpEdTxt.style.background = 'transparent';
-        //tmpEdTxt.style.paddingLeft = '2px';
-        tmpEdTxt.style.width = '100%';
-        tmpEdTxt.style.height = '100%';
-        tmpEdTxt.style.active = 0;
-        tmpEdTxt.style.outline = 'medium';
-        tmpEdTxt.style.padding = '0';
-        tmpEdTxt.style.resize = 'none';
-        tmpEdTxt.style.textTransform = 'uppercase';
-        tmpEdTxt.style.overflow_y = 'scroll';
-        tmpEdTxt.style.display = 'none';
-        var onCanvasClick = function() { tmpEdTxt.blur();};
-
-        // TODO the event listener will be remove when EditBox removes from parent.
-        tmpEdTxt.addEventListener('input', function () {
-            if (selfPointer._delegate && selfPointer._delegate.editBoxTextChanged)
-                selfPointer._delegate.editBoxTextChanged(selfPointer, this.value);
-        });
-
-        tmpEdTxt.addEventListener('focus', function () {
-            if (this.value === selfPointer._placeholderText) {
-                this.value = '';
-                this.style.fontSize = selfPointer._edFontSize + 'px';
-                this.style.color = cc.colorToHex(selfPointer._textColor);
-            }
-            if (selfPointer._delegate && selfPointer._delegate.editBoxEditingDidBegin)
-                selfPointer._delegate.editBoxEditingDidBegin(selfPointer);
-            cc._canvas.addEventListener('click', onCanvasClick);
-        });
-        tmpEdTxt.addEventListener('blur', function () {
-            if (this.value === '') {
-                this.value = selfPointer._placeholderText;
-                this.style.fontSize = selfPointer._placeholderFontSize + 'px';
-                this.style.color = cc.colorToHex(selfPointer._placeholderColor);
-            }
-            if (selfPointer._delegate && selfPointer._delegate.editBoxEditingDidEnd)
-                selfPointer._delegate.editBoxEditingDidEnd(selfPointer);
-            cc._canvas.removeEventListener('click', onCanvasClick);
-        });
-        return tmpEdTxt;
-    },
-
-    _removeDomInputControl: function() {
-        this._domInputSprite.dom.removeChild(this._edTxt);
-    },
-
-
+    _nativeControl: null,
 
     /**
      * constructor of cc.EditBox
@@ -361,10 +558,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {cc.Scale9Sprite} press9SpriteBg
      * @param {cc.Scale9Sprite} disabled9SpriteBg
      */
-    _addDomInputControl: function () {
-        this._domInputSprite.dom.appendChild(this._edTxt);
-    },
-
     ctor: function (size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) {
         _ccsg.Node.prototype.ctor.call(this);
 
@@ -372,41 +565,21 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._placeholderColor = cc.Color.GRAY;
         _ccsg.Node.prototype.setContentSize.call(this, size);
 
-        var tmpDOMSprite = this._domInputSprite = new _ccsg.Sprite();
-        tmpDOMSprite.draw = function () {};  //redefine draw function
-        this.addChild(tmpDOMSprite);
-        this._spriteDOM = tmpDOMSprite;
-
-        this._createDomTextArea();
-
-        cc.DOM.convert(tmpDOMSprite);
-
-        this._addDomInputControl();
+        var editBoxImpl = new EditBoxImpl(this);
+        editBoxImpl.createNativeControl(size);
+        this._nativeControl = editBoxImpl;
 
         //because cc.DOM.convert will replace editbox's setContentSize method.
         //here is a hack to provide a better version of setContentSize.
         this._oldSetContentSize = this.setContentSize;
         this.setContentSize = this._updateEditBoxSize;
 
-        this._domInputSprite.dom.showTooltipDiv = false;
-        this._domInputSprite.dom.style.width = (size.width - 6) + 'px';
-        this._domInputSprite.dom.style.height = (size.height - 6) + 'px';
-
-        tmpDOMSprite.canvas.remove();
 
         this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
         this._registerTouchEvent();
 
-        var self = this;
         this.scheduleOnce(function () {
-            var div = self._edTxt.parentNode;
-            div.addEventListener('click', function() {
-                if (self._edTxt.style.display === 'none') {
-                    self._edTxt.style.display = '';
-                    self._edTxt.focus();
-                    console.log("toggle");
-                }
-            });
+            editBoxImpl.registerClickEvent();
         }, 1);
     },
 
@@ -420,7 +593,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     _onTouchBegan: function (touch, event) {
-        this._edTxt.style.display = 'none';
+        this._nativeControl.hidden();
         return false;
     },
 
@@ -438,9 +611,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         var newHeight = size.height || height;
 
         this._updateBackgroundSpriteSizeAndPosition(newWidth, newHeight);
-
-        this._spriteDOM.dom.style.width = (newWidth - 6) + 'px';
-        this._spriteDOM.dom.style.height = (newHeight - 6) + 'px';
+        this._nativeControl.setSize(newWidth, newHeight);
 
         this.setFontSize(height * 2 / 3);
     },
@@ -451,18 +622,11 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {Number} fontSize  The font size.
      */
     setFont: function (fontName, fontSize) {
-        this._edFontSize = fontSize;
-        this._edFontName = fontName;
-        this._setFontToEditBox();
+        this._nativeControl.setFont(fontName, fontSize);
     },
 
     _setFont: function (fontStyle) {
-        var res = cc.LabelTTF._fontStyleRE.exec(fontStyle);
-        if (res) {
-            this._edFontSize = parseInt(res[1]);
-            this._edFontName = res[2];
-            this._setFontToEditBox();
-        }
+        this._nativeControl._setFont(fontStyle);
     },
 
     getBackgroundSprite: function() {
@@ -474,8 +638,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {String} fontName
      */
     setFontName: function (fontName) {
-        this._edFontName = fontName;
-        this._setFontToEditBox();
+        this._nativeControl.setFontName(fontName);
     },
 
     /**
@@ -483,19 +646,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {Number} fontSize
      */
     setFontSize: function (fontSize) {
-        this._edFontSize = fontSize;
-        this._setFontToEditBox();
-    },
-
-    _setFontToEditBox: function () {
-        if (this._edTxt.value !== this._placeholderText) {
-            this._edTxt.style.fontFamily = this._edFontName;
-            this._edTxt.style.fontSize = this._edFontSize + 'px';
-            if (this._editBoxInputFlag === InputFlag.PASSWORD)
-                this._edTxt.type = 'password';
-            else
-                this._edTxt.type = 'text';
-        }
+        this._nativeControl.setFontSize(fontSize);
     },
 
     /**
@@ -508,28 +659,9 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this.setString(text);
     },
 
-    /**
-     *  Set the text entered in the edit box.
-     * @param {string} text The given text.
-     */
     setString: function (text) {
-        if (text !== null) {
-            if (text === '') {
-                this._edTxt.value = this._placeholderText;
-                this._edTxt.style.color = cc.colorToHex(this._placeholderColor);
-                this._edTxt.type = 'text';
-            } else {
-                if (text.length >= this._maxLength) {
-                    text = text.slice(0, this._maxLength);
-                }
-                this._edTxt.value = text;
-                this._edTxt.style.color = cc.colorToHex(this._textColor);
-                if (this._editBoxInputFlag === InputFlag.PASSWORD)
-                    this._edTxt.type = 'password';
-                else
-                    this._edTxt.type = 'text';
-            }
-        }
+        this._text = text;
+        this._nativeControl.setString(text);
     },
 
     /**
@@ -538,9 +670,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      */
     setFontColor: function (color) {
         this._textColor = color;
-        if (this._edTxt.value !== this._placeholderText) {
-            this._edTxt.style.color = cc.colorToHex(color);
-        }
+        this._nativeControl.setFontColor(color);
     },
 
     /**
@@ -553,7 +683,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
     setMaxLength: function (maxLength) {
         if (!isNaN(maxLength) && maxLength > 0) {
             this._maxLength = maxLength;
-            this._edTxt.maxLength = maxLength;
+            this._nativeControl.setMaxLength(maxLength);
         }
     },
 
@@ -571,13 +701,9 @@ _ccsg.EditBox = _ccsg.Node.extend({
      */
     setPlaceHolder: function (text) {
         if (text !== null) {
-            var oldPlaceholderText = this._placeholderText;
+            //Note: the following calling order matters
+            this._nativeControl.setPlaceHolder(text);
             this._placeholderText = text;
-            if (this._edTxt.value === oldPlaceholderText) {
-                this._edTxt.value = text;
-                this._edTxt.style.color = cc.colorToHex(this._placeholderColor);
-                this._setPlaceholderFontToEditText();
-            }
         }
     },
 
@@ -589,14 +715,15 @@ _ccsg.EditBox = _ccsg.Node.extend({
     setPlaceholderFont: function (fontName, fontSize) {
         this._placeholderFontName = fontName;
         this._placeholderFontSize = fontSize;
-        this._setPlaceholderFontToEditText();
+        this._nativeControl._updateDOMPlaceholderFontStyle();
     },
+
     _setPlaceholderFont: function (fontStyle) {
         var res = cc.LabelTTF._fontStyleRE.exec(fontStyle);
         if (res) {
             this._placeholderFontName = res[2];
             this._placeholderFontSize = parseInt(res[1]);
-            this._setPlaceholderFontToEditText();
+            this._nativeControl._updateDOMPlaceholderFontStyle();
         }
     },
 
@@ -606,7 +733,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      */
     setPlaceholderFontName: function (fontName) {
         this._placeholderFontName = fontName;
-        this._setPlaceholderFontToEditText();
+        this._nativeControl._updateDOMPlaceholderFontStyle();
     },
 
     /**
@@ -615,15 +742,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      */
     setPlaceholderFontSize: function (fontSize) {
         this._placeholderFontSize = fontSize;
-        this._setPlaceholderFontToEditText();
-    },
-
-    _setPlaceholderFontToEditText: function () {
-        if (this._edTxt.value === this._placeholderText) {
-            this._edTxt.style.fontFamily = this._placeholderFontName;
-            this._edTxt.style.fontSize = this._placeholderFontSize + 'px';
-            this._edTxt.type = 'text';
-        }
+        this._nativeControl._updateDOMPlaceholderFontStyle();
     },
 
     /**
@@ -632,9 +751,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      */
     setPlaceholderFontColor: function (color) {
         this._placeholderColor = color;
-        if (this._edTxt.value === this._placeholderText) {
-            this._edTxt.style.color = cc.colorToHex(color);
-        }
+        this._nativeControl.setPlaceholderFontColor(color);
     },
 
     /**
@@ -644,20 +761,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      */
     setInputFlag: function (inputFlag) {
         this._editBoxInputFlag = inputFlag;
-        if ((this._edTxt.value !== this._placeholderText) && (inputFlag === InputFlag.PASSWORD))
-            this._edTxt.type = 'password';
-        else
-            this._edTxt.type = 'text';
-
-        if (inputFlag === InputFlag.SENSITIVE || inputFlag === InputFlag.PASSWORD) {
-            this._edTxt.style.textTransform = 'none';
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
-            this._edTxt.style.textTransform = 'uppercase';
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE || inputFlag === InputFlag.INITIAL_CAPS_WORD) {
-            this._edTxt.style.textTransform = 'capitalize';
-        }
+        this._nativeControl.setInputFlag(inputFlag);
     },
 
     /**
@@ -667,7 +771,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      */
     getText: function () {
         cc.log('Please use the getString');
-        return this._edTxt.value;
+        return this.getString();
     },
 
     /**
@@ -675,9 +779,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @return {string}
      */
     getString: function () {
-        if(this._edTxt.value === this._placeholderText)
-            return '';
-        return this._edTxt.value;
+        return this._nativeControl.getString();
     },
 
     /**
@@ -694,8 +796,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
             this._updateBackgroundSpriteSizeAndPosition(size.width, size.height);
         }
 
-        this._domInputSprite.x = 3;
-        this._domInputSprite.y = 3;
 
         this.x = 0;
         this.y = 0;
@@ -729,16 +829,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
         var oldText = this.getString();
 
-        if (inputMode === InputMode.ANY) {
-            this._removeDomInputControl();
-            this._createDomTextArea();
-            this._addDomInputControl();
-        }
-        else if(this._editBoxInputMode === InputMode.ANY) {
-            this._removeDomInputControl();
-            this._createDomInput();
-            this._addDomInputControl();
-        }
+        this._nativeControl.setInputMode(inputMode);
 
         this.setString(oldText);
         this._editBoxInputMode = inputMode;
