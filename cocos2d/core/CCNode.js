@@ -776,6 +776,9 @@ var Node = cc.Class({
                 // attach to prefab
                 _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
             }
+
+            // conflict detection
+            _Scene.DetectConflict.afterAddChild(this);
         }
     },
 
