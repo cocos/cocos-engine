@@ -564,7 +564,9 @@ var Component = cc.Class({
                     callOnLostFocusInTryCatch(this);
                 }
             }
-            _Scene.AssetsWatcher.start(this);
+            if ( !CC_TEST ) {
+                _Scene.AssetsWatcher.start(this);
+            }
         }
 
         if (this._enabled) {
@@ -604,7 +606,9 @@ var Component = cc.Class({
 
         // onDestroy
         if (CC_EDITOR) {
-            _Scene.AssetsWatcher.stop(this);
+            if ( !CC_TEST ) {
+                _Scene.AssetsWatcher.stop(this);
+            }
             if (cc.engine._isPlaying || this.constructor._executeInEditMode) {
                 if (this.onDestroy) {
                     callOnDestroyInTryCatch(this);

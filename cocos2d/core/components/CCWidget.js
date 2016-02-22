@@ -410,7 +410,7 @@ var Widget = cc.Class({
                 }
             }
 
-            if (CC_EDITOR && !cc.engine._isPlaying) {
+            if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment chagned
                 var type;
                 if (flag & TOP) {
