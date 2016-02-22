@@ -111,7 +111,7 @@ var S9CreationTest = S9SpriteTestDemo.extend({
         var x = winSize.width;
         var y = 0 + (winSize.height/2);
 
-        var s9sprite1 = new cc.Scale9Sprite("Images/blocks.png");
+        var s9sprite1 = new cc.Scale9Sprite("res/Images/blocks.png");
 
         var s9sprite2 = new cc.Scale9Sprite("blocks9.png");
 

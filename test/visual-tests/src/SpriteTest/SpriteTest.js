@@ -5232,7 +5232,7 @@ var SpriteBlendFuncTest = SpriteTestDemo.extend({
         var destTitles = ["ZERO", "ONE", "DST_COLOR", "ONE_MINUS_DST_COLOR", "DST_ALPHA", "ONE_MINUS_DST_ALPHA"],
             srcTitles = ["ZERO", "ONE", "SRC_COLOR", "ONE_MINUS_SRC_COLOR", "SRC_ALPHA", "ONE_MINUS_SRC_ALPHA"];
 
-        var sourceImg = "Images/dot.png", destImg = "Images/wood.jpg";
+        var sourceImg = "res/Images/dot.png", destImg = "res/Images/wood.jpg";
         var sourceTexture = cc.textureCache.addImage(sourceImg);
         sourceTexture.handleLoadedTexture(true);
         var sourceSprite = new _ccsg.Sprite(sourceImg);

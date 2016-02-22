@@ -97,10 +97,10 @@ var SpineTestLayerNormal = SpineTestLayer.extend({
         // No JS binding for spine-c in this version. So, only file loading is supported.
         var spineBoy;
         if (idx % 2 == 0) {
-            spineBoy = new customSkeletonAnimation('spine/spineboy.json', 'spine/spineboy.atlas');
+            spineBoy = new customSkeletonAnimation('res/spine/spineboy.json', 'res/spine/spineboy.atlas');
         } 
         else {
-            spineBoy = new sp._SGSkeletonAnimation('spine/spineboy.json', 'spine/spineboy.atlas');
+            spineBoy = new sp._SGSkeletonAnimation('res/spine/spineboy.json', 'res/spine/spineboy.atlas');
         }
         spineBoy.setPosition(cc.p(size.width / 2, size.height / 2 - 150));
         spineBoy.setMix('walk', 'jump', 0.2);
@@ -223,7 +223,7 @@ var SpineTestLayerFFD = SpineTestLayer.extend({
     ctor: function(){
         this._super(cc.color(0,0,0,255), cc.color(98,99,117,255));
 
-        var skeletonNode = new sp._SGSkeletonAnimation("spine/goblins-ffd.json", "spine/goblins-ffd.atlas", 1.5);
+        var skeletonNode = new sp._SGSkeletonAnimation("res/spine/goblins-ffd.json", "res/spine/goblins-ffd.atlas", 1.5);
         skeletonNode.setAnimation(0, "walk", true);
         skeletonNode.setSkin("goblin");
 
@@ -267,7 +267,7 @@ var SpineTestPerformanceLayer = SpineTestLayer.extend({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
             onTouchBegan: function(touch, event){
                 var pos = self.convertToNodeSpace(touch.getLocation());
-                var skeletonNode = new sp._SGSkeletonAnimation("spine/goblins-ffd.json", "spine/goblins-ffd.atlas", 1.5);
+                var skeletonNode = new sp._SGSkeletonAnimation("res/spine/goblins-ffd.json", "res/spine/goblins-ffd.atlas", 1.5);
                 skeletonNode.setAnimation(0, "walk", true);
                 skeletonNode.setSkin("goblin");
 

@@ -334,14 +334,6 @@ var testNames = [
         }
     },
     {
-        title:"Loader Test",
-        platforms: PLATFORM_ALL,
-        linksrc:"src/LoaderTest/LoaderTest.js",
-        testScene:function () {
-            return new LoaderTestScene();
-        }
-    },
-    {
         title:"Node Test",
         platforms: PLATFORM_ALL,
         linksrc:"src/CocosNodeTest/CocosNodeTest.js",
