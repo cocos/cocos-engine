@@ -32,7 +32,7 @@ var TiledMap = cc.Class({
     extends: require('../core/components/CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.others/TiledMap',
+        menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
         executeInEditMode: true
     },
 
