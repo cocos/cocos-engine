@@ -207,7 +207,7 @@ var Loader = function (extMap) {
     this.async = true;
     this.pipeline = null;
 
-    this.addHandlers(extMap);
+    this.extMap = JS.mixin(extMap, defaultMap);
 };
 JS.mixin(Loader.prototype, {
     /**
@@ -216,7 +216,7 @@ JS.mixin(Loader.prototype, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers: function (extMap) {
-        this.extMap = JS.addon(extMap, defaultMap);
+        this.extMap = JS.mixin(this.extMap, extMap);
     },
 
     handle: function (item, callback) {

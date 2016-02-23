@@ -211,7 +211,7 @@ function _loadFont (name, srcs, type){
     _divStyle.top = '-100px';
     doc.body.appendChild(preloadDiv);
 }
-function downloadFont (item, callback){
+function downloadFont (item, callback) {
     var url = item.src,
         type = item.type, 
         name = item.name, 
@@ -271,16 +271,17 @@ var defaultMap = {
 
     'json' : downloadText,
     'ExportJson' : downloadText,
+    'plist' : downloadText,
 
     'fnt' : downloadText,
 
+    // Font
     'font' : downloadFont,
     'eot' : downloadFont,
     'ttf' : downloadFont,
     'woff' : downloadFont,
     'svg' : downloadFont,
     'ttc' : downloadFont,
-    'plist' : downloadText,
 
     'default' : downloadText
 };
@@ -310,8 +311,11 @@ var Downloader = function (extMap) {
     this.id = 'Downloader';
     this.async = true;
     this.pipeline = null;
+    this.maxConcurrent = 2;
+    this._curConcurrent = 0;
+    this._loadQueue = [];
 
-    this.addHandlers(extMap);
+    this.extMap = JS.mixin(extMap, defaultMap);
 };
 JS.mixin(Downloader.prototype, {
     /**
@@ -320,14 +324,34 @@ JS.mixin(Downloader.prototype, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers: function (extMap) {
-        this.extMap = JS.addon(extMap, defaultMap);
+        this.extMap = JS.mixin(this.extMap, extMap);
     },
 
     handle: function (item, callback) {
+        var self = this;
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
-        downloadFunc.call(this, item, function (err, result) {
-            callback && callback(err, result);
-        });
+        if (this._curConcurrent < this.maxConcurrent) {
+            this._curConcurrent++;
+            downloadFunc.call(this, item, function (err, result) {
+                // Concurrent logic
+                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+                while (self._curConcurrent < self.maxConcurrent) {
+                    var nextOne = self._loadQueue.shift();
+                    if (!nextOne) {
+                        break;
+                    }
+                    self.handle(nextOne.item, nextOne.callback);
+                }
+
+                callback && callback(err, result);
+            });
+        }
+        else {
+            this._loadQueue.push({
+                item: item,
+                callback: callback
+            });
+        }
     }
 });
 
