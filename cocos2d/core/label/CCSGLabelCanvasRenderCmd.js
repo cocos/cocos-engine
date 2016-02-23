@@ -180,6 +180,12 @@
         node._labelSkinDirty = true;
     };
 
+    proto._syncDisplayColor = function (parentColor) {
+        _ccsg.Node.RenderCmd.prototype._syncDisplayColor.call(this, parentColor);
+        var node = this._node;
+        node._labelSkinDirty = true;
+    };
+
     proto._calculateLabelFont = function(canvasSize) {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
