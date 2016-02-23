@@ -271,11 +271,14 @@ var Label = cc.Class({
 
     // update node size (this will also invoke the size-changed event)
     _updateNodeSize: function () {
-        if (this.overflow === Overflow.NONE) {
-            this.node.setContentSize(this._sgNode.getContentSize());
-        }
-        if ( !this.node._sizeProvider ) {
-            this.node._sizeProvider = this._sgNode;
+        var initialized = this._sgNode && this._sgNode.parent;
+        if (initialized) {
+            if (this.overflow === Overflow.NONE) {
+                this.node.setContentSize(this._sgNode.getContentSize());
+            }
+            if ( !this.node._sizeProvider ) {
+                this.node._sizeProvider = this._sgNode;
+            }
         }
     }
  });
