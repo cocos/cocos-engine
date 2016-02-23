@@ -88,7 +88,7 @@ cc.s_globalOrderOfArrival = 1;
  * -# The node will be moved according to the camera values (camera) <br/>
  * -# The grid will render the captured screen <br/></P>
  *
- * @class
+ * @class _ccsg.Node
  * @extends cc._Class
  *
  * @property {Number}               x                   - x axis position of node

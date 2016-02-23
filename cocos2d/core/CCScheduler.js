@@ -39,10 +39,10 @@ cc.PRIORITY_NON_SYSTEM = cc.PRIORITY_SYSTEM + 1;
 /**
  * A list double-linked list used for "updates with priority"
  * @class ListEntry
- * @param {cc.ListEntry} prev
- * @param {cc.ListEntry} next
+ * @param {ListEntry} prev
+ * @param {ListEntry} next
  * @param {function} callback
- * @param {cc._Class} target not retained (retained by hashUpdateEntry)
+ * @param {Object} target not retained (retained by hashUpdateEntry)
  * @param {Number} priority
  * @param {Boolean} paused
  * @param {Boolean} markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
@@ -64,8 +64,8 @@ cc.ListEntry.prototype.trigger = function (dt) {
  * A update entry list
  * @class HashUpdateEntry
  * @param {Array} list Which list does it belong to ?
- * @param {cc.ListEntry} entry entry in the list
- * @param {cc._Class} target hash key (retained)
+ * @param {ListEntry} entry entry in the list
+ * @param {Object} target hash key (retained)
  * @param {function} callback
  * @param {Array} hh
  */
@@ -82,9 +82,9 @@ cc.HashUpdateEntry = function (list, entry, target, callback, hh) {
  * Hash Element used for "selectors with interval"
  * @class HashTimerEntry
  * @param {Array} timers
- * @param {cc._Class} target  hash key (retained)
+ * @param {Object} target  hash key (retained)
  * @param {Number} timerIndex
- * @param {cc.Timer} currentTimer
+ * @param {Timer} currentTimer
  * @param {Boolean} currentTimerSalvaged
  * @param {Boolean} paused
  * @param {Array} hh
@@ -524,7 +524,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * </p>
      * @method scheduleCallbackForTarget
      * @deprecated since v3.4 please use .schedule
-     * @param {_Class} target
+     * @param {Object} target
      * @param {function} callback_fn
      * @param {Number} interval
      * @param {Number} repeat
@@ -541,7 +541,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * The schedule
      * @method schedule
      * @param {Function} callback
-     * @param {_Class} target
+     * @param {Object} target
      * @param {Number} interval
      * @param {Number} repeat
      * @param {Number} delay
@@ -918,7 +918,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      *    If the target is not present, nothing happens.
      * </p>
      * @method pauseTarget
-     * @param {_Class} target
+     * @param {Object} target
      */
     pauseTarget:function (target) {
 
@@ -944,7 +944,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * The 'target' will be unpaused, so all schedule selectors/update will be 'ticked' again.<br/>
      * If the target is not present, nothing happens.
      * @method resumeTarget
-     * @param {_Class} target
+     * @param {Object} target
      */
     resumeTarget:function (target) {
 
@@ -970,7 +970,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
     /**
      * Returns whether or not the target is paused
      * @method isTargetPaused
-     * @param {_Class} target
+     * @param {Object} target
      * @return {Boolean}
      */
     isTargetPaused:function (target) {
@@ -998,7 +998,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * </p>
      * @method scheduleUpdateForTarget
      * @deprecated since v3.4 please use .scheduleUpdate
-     * @param {_Class} target
+     * @param {Object} target
      * @param {Number} priority
      * @param {Boolean} paused
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/scheduleUpdateForTarget.js}
@@ -1015,7 +1015,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * </p>
      * @method unscheduleCallbackForTarget
      * @deprecated since v3.4 please use .unschedule
-     * @param {_Class} target
+     * @param {Object} target
      * @param {Function} callback - callback[Function] or key[String]
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/unscheduleCallbackForTarget.js}
      */
@@ -1027,7 +1027,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
     /**
      * Unschedules the update callback function for a given target
      * @method unscheduleUpdateForTarget
-     * @param {_Class} target
+     * @param {Object} target
      * @deprecated since v3.4 please use .unschedule
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/unscheduleUpdateForTarget.js}
      */
@@ -1040,7 +1040,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * Unschedules all function callbacks for a given target. This also includes the "update" callback function.
      * @method unscheduleAllCallbacksForTarget
      * @deprecated since v3.4 please use .unscheduleAll
-     * @param {_Class} target
+     * @param {Object} target
      */
     unscheduleAllCallbacksForTarget: function(target){
         //cc.log("unscheduleAllCallbacksForTarget is deprecated. Please use unscheduleAll.");

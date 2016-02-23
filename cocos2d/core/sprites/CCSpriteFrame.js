@@ -410,7 +410,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * Initializes SpriteFrame with Texture, rect, rotated, offset and originalSize in pixels.<br/>
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
      * @method initWithTexture
-     * @param {String|cc.Texture2D} texture
+     * @param {String|Texture2D} texture
      * @param {Rect} rect - if parameters' length equal 2, rect in points, else rect in pixels
      * @param {Boolean} [rotated=false]
      * @param {Vec2} [offset=cc.v2(0,0)]
@@ -560,7 +560,7 @@ proto.copyWithZone = proto.clone;
 /**
  * Copy the sprite frame
  * @method copy
- * @returns {cc.SpriteFrame}
+ * @returns {SpriteFrame}
  */
 proto.copy = proto.clone;
 
@@ -571,12 +571,12 @@ proto.copy = proto.clone;
  * </p>
  * since v3.0, please use new constructor {{#crossLink "SpriteFrame/SpriteFrame:method"}}SpriteFrame(){{/crossLink}} instead.
  * @method create
- * @param {String|cc.Texture2D} filename
- * @param {cc.Rect} rect if parameters' length equal 2, rect in points, else rect in pixels
+ * @param {String|Texture2D} filename
+ * @param {Rect} rect if parameters' length equal 2, rect in points, else rect in pixels
  * @param {Boolean} rotated
- * @param {cc.Vec2} offset
- * @param {cc.Size} originalSize
- * @return {cc.SpriteFrame}
+ * @param {Vec2} offset
+ * @param {Size} originalSize
+ * @return {SpriteFrame}
  */
 cc.SpriteFrame.create = function (filename, rect, rotated, offset, originalSize) {
     return new cc.SpriteFrame(filename, rect, rotated, offset, originalSize);

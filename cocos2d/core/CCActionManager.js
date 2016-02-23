@@ -91,8 +91,8 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * If the target is not present, a new instance of this target will be created either paused or not, and the action will be added to the newly created target.
      * When the target is paused, the queued actions won't be 'ticked'.
      * @method addAction
-     * @param {cc.Action} action
-     * @param {cc.Node} target
+     * @param {Action} action
+     * @param {Node} target
      * @param {Boolean} paused
      */
     addAction:function (action, target, paused) {
@@ -155,7 +155,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
     },
     /** Removes an action given an action reference.
      * @method removeAction 
-     * @param {cc.Action} action
+     * @param {Action} action
      */
     removeAction:function (action) {
         // explicit null handling
@@ -205,7 +205,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * @method getActionByTag
      * @param {Number} tag
      * @param {object} target
-     * @return {cc.Action|Null}  return the Action with the given tag on success
+     * @return {Action|Null}  return the Action with the given tag on success
      */
     getActionByTag:function (tag, target) {
         if(tag === cc.ACTION_TAG_INVALID)
