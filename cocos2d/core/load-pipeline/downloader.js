@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
+var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 
 var downloadAudio;
@@ -237,6 +238,32 @@ function downloadFont (item, callback) {
     }
 }
 
+function downloadUuid (item, callback) {
+    var uuid = item.src;
+    var self = this;
+    cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
+        if (error) {
+            callback(error);
+        }
+        else {
+            item.url = url;
+            if (isRawAsset) {
+                var ext = Path.extname(url.src).toLowerCase();
+                ext = ext ? ext.substr(1) : '';
+                if (!ext) {
+                    callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));
+                }
+                // Dispatch to other raw type downloader
+                var downloadFunc = self.extMap[ext] || self.extMap['default'];
+                downloadFunc({src: url}, callback);
+            }
+            else {
+                downloadText({src: url}, callback);
+            }
+        }
+    });
+}
+
 
 var defaultMap = {
     // JS
@@ -282,6 +309,9 @@ var defaultMap = {
     'woff' : downloadFont,
     'svg' : downloadFont,
     'ttc' : downloadFont,
+
+    // Uuid
+    'uuid' : downloadUuid,
 
     'default' : downloadText
 };

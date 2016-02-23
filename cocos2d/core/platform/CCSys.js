@@ -721,13 +721,13 @@ else {
 
         var version = sys.browserVersion;
 
-        var supportTable = {
-            'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
-        };
-
         // check if browser supports Web Audio
         // check Web Audio's context
         var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+
+        var supportTable = {
+            'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
+        };
 
         supportTable[sys.BROWSER_TYPE_IE]  = {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true, USE_EMPTIED_EVENT: true};
         //  ANDROID  //
@@ -823,15 +823,15 @@ else {
         var audio = document.createElement('audio');
         if(audio.canPlayType) {
             var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
-            if (ogg && ogg !== '') formatSupport.push('.ogg');
+            if (ogg) formatSupport.push('.ogg');
             var mp3 = audio.canPlayType('audio/mpeg');
-            if (mp3 && mp3 !== '') formatSupport.push('.mp3');
+            if (mp3) formatSupport.push('.mp3');
             var wav = audio.canPlayType('audio/wav; codecs="1"');
-            if (wav && wav !== '') formatSupport.push('.wav');
+            if (wav) formatSupport.push('.wav');
             var mp4 = audio.canPlayType('audio/mp4');
-            if (mp4 && mp4 !== '') formatSupport.push('.mp4');
+            if (mp4) formatSupport.push('.mp4');
             var m4a = audio.canPlayType('audio/x-m4a');
-            if (m4a && m4a !== '') formatSupport.push('.m4a');
+            if (m4a) formatSupport.push('.m4a');
         }
     })();
     __audioSupport.format = formatSupport;

@@ -46,9 +46,7 @@ JS.mixin(cc.loader, {
      * Get XMLHttpRequest.
      * @returns {XMLHttpRequest}
      */
-    getXMLHttpRequest: function () {
-        return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject("MSXML2.XMLHTTP");
-    },
+    getXMLHttpRequest: Pipeline.getXMLHttpRequest,
 
     /**
      * Add custom supported types handler or modify existing type handler for download process.

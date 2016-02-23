@@ -202,6 +202,47 @@ Pipeline.ItemState = new cc.Enum(ItemState);
 Pipeline.getXMLHttpRequest = getXMLHttpRequest;
 
 JS.mixin(Pipeline.prototype, {
+    insertPipe: function (pipe, index) {
+        // Must have handle and id, handle for flow, id for state flag
+        if (!pipe.handle || !pipe.id) {
+            return;
+        }
+
+        pipe.pipeline = this;
+        if (index < this._pipes.length) {
+            pipe.next = this._pipes[index];
+            this._pipes.splice(index, 0, pipe);
+        }
+        else {
+            pipe.next = null;
+            this._pipes.push(pipe);
+        }
+        if (pipe.async) {
+            pipe.flowIn = asyncFlow;
+        }
+        else {
+            pipe.flowIn = syncFlow;
+        }
+    },
+
+    appendPipe: function (pipe) {
+        // Must have handle and id, handle for flow, id for state flag
+        if (!pipe.handle || !pipe.id) {
+            return;
+        }
+
+        pipe.pipeline = this;
+        pipe.next = null;
+        this._pipes.push(pipe);
+
+        if (pipe.async) {
+            pipe.flowIn = asyncFlow;
+        }
+        else {
+            pipe.flowIn = syncFlow;
+        }
+    },
+
     /**
      * Let new items flow into the pipeline.
      * Each item can be a simple url string or an object, 
@@ -268,6 +309,7 @@ JS.mixin(Pipeline.prototype, {
      */
     flowInDeps: function (urlList, callback) {
         var checker = {};
+        var count = 0;
 
         function loadedCheck (item) {
             checker[item.src] = item;
@@ -279,15 +321,26 @@ JS.mixin(Pipeline.prototype, {
                 }
             }
             // All url completed
-            callback(checker);
+            callback && callback.call(this, checker);
         }
         // Add loaded listeners
         for (var i = 0; i < urlList.length; ++i) {
             var url = urlList[i].src || urlList[i];
-            if (isUrlValid(url) && !this._items.exists(url)) {
+            if (typeof url !== 'string')
+                continue;
+            var item = this._items.map[url];
+            if ( !item ) {
                 this._items.add(url, loadedCheck);
                 checker[url] = null;
+                count++;
             }
+            else {
+                checker[url] = item;
+            }
+        }
+        // No new resources, complete directly
+        if (count === 0) {
+            callback && callback.call(this, checker);
         }
         return this.flowIn(urlList);
     },

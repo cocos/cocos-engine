@@ -37,6 +37,5 @@ require('./CCSys');
 require('./CCMacro');
 
 if (cc.sys.isBrowser || cc.sys.isNative) {
-    require('./load-manager');
     require('./CCAssetLibrary');
 }
