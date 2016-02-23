@@ -27,6 +27,8 @@ var _tdInfo = new cc.deserialize.Details();
 
 var _cc_loader_loadJson = cc.loader.loadJson.bind(cc.loader);
 
+var SCENE_ID = 'cc.Scene';
+
 // create a loading context which reserves all relevant parameters
 function LoadingHandle (readMainCache, writeMainCache, recordAssets, deserializeInfo) {
     //this.readMainCache = readMainCache;
@@ -306,6 +308,15 @@ var AssetLibrary = {
     loadJson: function (json, callback, dontCache, recordAssets) {
         var handle = new LoadingHandle(!dontCache, !dontCache, recordAssets);
         var thisTick = true;
+        if (typeof json === 'string') {
+            try {
+                json = JSON.parse(json);
+            }
+            catch (e) {
+                callInNextTick(callback, e, null);
+                return handle;
+            }
+        }
         this._deserializeWithDepends(json, '', '', function (p1, p2) {
             if (thisTick) {
                 callInNextTick(callback, p1, p2);
@@ -423,7 +434,7 @@ var AssetLibrary = {
 
     /**
      * @method _deserializeWithDepends
-     * @param {String|Object} json
+     * @param {Object} json
      * @param {String} url
      * @param {String} uuid
      * @param {loadCallback} callback
@@ -433,9 +444,11 @@ var AssetLibrary = {
      */
     _deserializeWithDepends: function (json, url, uuid, callback, handle, existingAsset) {
         // deserialize asset
-        //var isScene = typeof Scene !== 'undefined' && json && json[0] && json[0].__type__ === JS._getClassId(Scene);
-        //var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
-        var classFinder = function (id) {
+        var isScene = json && (
+                                  (json[0] && json[0].__type__ === SCENE_ID) ||
+                                  (json[1] && json[1].__type__ === SCENE_ID)
+                              );
+        var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
             var cls = JS._getClassById(id);
             if (cls) {
                 return cls;
