@@ -62,8 +62,8 @@
         var texture = locTextureAtlas.texture;
         var textureWide = texture.getPixelWidth();
         var textureHigh = texture.getPixelHeight();
-        var itemWidthInPixels = node._itemWidth;
-        var itemHeightInPixels = node._itemHeight;
+        var itemWidth = node._itemWidth;
+        var itemHeight = node._itemHeight;
         if (n > locTextureAtlas.getCapacity())
             cc.log("cc.LabelAtlas._updateAtlasValues(): Invalid String length");
         var quads = locTextureAtlas.quads;
@@ -84,15 +84,15 @@
             var left, right, top, bottom;
             if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
                 // Issue #938. Don't use texStepX & texStepY
-                left = (2 * row * itemWidthInPixels + 1) / (2 * textureWide);
-                right = left + (itemWidthInPixels * 2 - 2) / (2 * textureWide);
-                top = (2 * col * itemHeightInPixels + 1) / (2 * textureHigh);
-                bottom = top + (itemHeightInPixels * 2 - 2) / (2 * textureHigh);
+                left = (2 * row * itemWidth + 1) / (2 * textureWide);
+                right = left + (itemWidth * 2 - 2) / (2 * textureWide);
+                top = (2 * col * itemHeight + 1) / (2 * textureHigh);
+                bottom = top + (itemHeight * 2 - 2) / (2 * textureHigh);
             } else {
-                left = row * itemWidthInPixels / textureWide;
-                right = left + itemWidthInPixels / textureWide;
-                top = col * itemHeightInPixels / textureHigh;
-                bottom = top + itemHeightInPixels / textureHigh;
+                left = row * itemWidth / textureWide;
+                right = left + itemWidth / textureWide;
+                top = col * itemHeight / textureHigh;
+                bottom = top + itemHeight / textureHigh;
             }
             var quad = quads[i];
             var locQuadTL = quad.tl, locQuadTR = quad.tr, locQuadBL = quad.bl, locQuadBR = quad.br;

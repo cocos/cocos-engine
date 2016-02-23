@@ -139,7 +139,7 @@ cc.SpriteFrame.prototype._deserialize = function (data, handle) {
     this.initWithTexture(null, rect, rotated, offset, size, textureUuid);
 };
 cc.SpriteFrame.prototype._checkRect = function (texture) {
-    var rect = this.getRectInPixels();
+    var rect = this.getRect();
     var maxX = rect.x, maxY = rect.y;
     if (this._rotated) {
         maxX += rect.height;
