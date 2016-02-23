@@ -64,7 +64,7 @@ sp.Skeleton = cc.Class({
          * The skeleton data contains the skeleton information (bind pose bones, slots, draw order,
          * attachments, skins, etc) and animations but does not hold any state.
          * Multiple skeletons can share the same skeleton data.
-         * @property {sp.SkeletonData} skeletonData
+         * @property {SkeletonData} skeletonData
          */
         skeletonData: {
             default: null,
