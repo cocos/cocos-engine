@@ -124,7 +124,11 @@ JS.mixin(cc.loader, {
                 }
             }
             // All url completed
-            completeCallback && completeCallback.call(self, error, self._items);
+            if (completeCallback) {
+                setTimeout(function () {
+                    completeCallback.call(self, error, self._items);
+                }, 0);
+            }
         }
 
         // Add loaded listeners
