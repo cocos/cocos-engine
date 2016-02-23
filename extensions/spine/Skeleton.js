@@ -1,8 +1,5 @@
 /****************************************************************************
- Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
- Copyright (c) 2014 Shengxiang Chen (Nero Chan)
- Copyright (c) 2015-2016 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -25,383 +22,708 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var spine = require('./spine-exported');
-
 /**
  * @module sp
  */
 
-/**
- * The vertex index of spine.
- * @constant
- * @type {{X1: number, Y1: number, X2: number, Y2: number, X3: number, Y3: number, X4: number, Y4: number}}
- */
-sp.VERTEX_INDEX = {
-    X1: 0,
-    Y1: 1,
-    X2: 2,
-    Y2: 3,
-    X3: 4,
-    Y3: 5,
-    X4: 6,
-    Y4: 7
-};
+var DefaultSkinsEnum = cc.Enum({ 'default': -1 });
+var DefaultAnimsEnum = cc.Enum({ '<None>': 0 });
+
+function setEnumAttr (obj, propName, enumDef) {
+    cc.Class.attr(obj, propName, {
+        type: 'Enum',
+        enumList: cc.Enum.getList(enumDef)
+    });
+}
 
 /**
- * The attachment type of spine.  It contains three type: REGION(0), BOUNDING_BOX(1), MESH(2) and SKINNED_MESH.
- * @constant
- * @type {{REGION: number, BOUNDING_BOX: number, REGION_SEQUENCE: number, MESH: number}}
+ * The skeleton of Spine <br/>
+ * <br/>
+ * (Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
+ * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
+ * Multiple skeletons can use the same SkeletonData which includes all animations, skins, and attachments.) <br/>
+ *
+ * @class Skeleton
+ * @extends cc._ComponentInSG
+ * @constructor
  */
-sp.ATTACHMENT_TYPE = {
-    REGION: 0,
-    BOUNDING_BOX: 1,
-    MESH: 2,
-    SKINNED_MESH:3
-};
 
-/**
- * <p>
- *     The skeleton of Spine.                                                                          <br/>
- *     Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
- *     which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible.           <br/>
- *     Multiple skeletons can use the same SkeletonData (which includes all animations, skins, and attachments).     <br/>
- * </p>
- * @class
- * @extends _ccsg.Node
- */
-sp.Skeleton = _ccsg.Node.extend(/** @lends sp.Skeleton# */{
-    _skeleton: null,
-    _rootBone: null,
-    _timeScale: 1,
-    _debugSlots: false,
-    _debugBones: false,
-    _premultipliedAlpha: false,
-    _ownsSkeletonData: null,
-    _atlas: null,
-    _blendFunc: null,
+// 由于 Spine 的 _sgNode 需要参数才能初始化, 所以这里的 _sgNode 不在构造函数中赋值, 每次访问前都要先判断一次是否初始化了
 
-    /**
-     * The constructor of sp.Skeleton. override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.
-     */
-    ctor:function(skeletonDataFile, atlasFile, scale){
-        _ccsg.Node.prototype.ctor.call(this);
-        this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
-
-        if(arguments.length === 0)
-            this.init();
-        else
-            this.initWithArgs(skeletonDataFile, atlasFile, scale);
+sp.Skeleton = cc.Class({
+    name: 'sp.Skeleton',
+    extends: cc._ComponentInSG,
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.others/Spine Skeleton',
+        //playOnFocus: true
     },
 
-    _createRenderCmd:function () {
-        if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
-            return new sp.Skeleton.CanvasRenderCmd(this);
-        else
-            return new sp.Skeleton.WebGLRenderCmd(this);
-    },
+    properties: {
 
-    /**
-     * Initializes a sp.Skeleton. please do not call this function by yourself, you should pass the parameters to constructor to initialize it.
-     */
-    init: function () {
-        _ccsg.Node.prototype.init.call(this);
-        //this.setOpacityModifyRGB(true);
-        this._blendFunc.src = cc.ONE;
-        this._blendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
-        this.scheduleUpdate();
-    },
+        /**
+         * The skeleton data contains the skeleton information (bind pose bones, slots, draw order,
+         * attachments, skins, etc) and animations but does not hold any state.
+         * Multiple skeletons can share the same skeleton data.
+         * @property {sp.SkeletonData} skeletonData
+         */
+        skeletonData: {
+            default: null,
+            type: sp.SkeletonData,
+            notify: function () {
+                this.defaultSkin = '';
+                this.defaultAnimation = '';
+                this._refresh();
+            },
+        },
 
-    /**
-     * Sets whether open debug slots.
-     * @param {boolean} enable true to open, false to close.
-     */
-    setDebugSolots:function(enable){
-        this._debugSlots = enable;
-    },
+        ///**
+        // * The url of atlas file.
+        // * @property {string} file
+        // */
+        //atlasFile: {
+        //    default: '',
+        //    url: cc.TextAsset,
+        //    notify: function () {
+        //        this.defaultSkin = '';
+        //        this.defaultAnimation = '';
+        //        this._applyAsset();
+        //    },
+        //},
 
-    /**
-     * Sets whether open debug bones.
-     * @param {boolean} enable
-     */
-    setDebugBones:function(enable){
-        this._debugBones = enable;
-    },
+        // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
+        /**
+         * The name of default skin.
+         * @property {string} defaultSkin
+         */
+        defaultSkin: {
+            default: '',
+            visible: false
+        },
 
-    /**
-     * Sets whether open debug slots.
-     * @param {boolean} enabled true to open, false to close.
-     */
-    setDebugSlotsEnabled: function(enabled) {
-        this._debugSlots = enabled;
-    },
+        /**
+         * The name of default animation.
+         * @property {string} defaultAnimation
+         */
+        defaultAnimation: {
+            default: '',
+            visible: false
+        },
 
-    /**
-     * Gets whether open debug slots.
-     * @returns {boolean} true to open, false to close.
-     */
-    getDebugSlotsEnabled: function() {
-        return this._debugSlots;
-    },
+        /**
+         * The name of current playing animation.
+         * @property {string} animation
+         */
+        animation: {
+            get: function () {
+                var entry = this.getCurrent(0);
+                return (entry && entry.animation.name) || "";
+            },
+            set: function (value) {
+                this.defaultAnimation = value;
+                if (value) {
+                    this.setAnimation(0, value, this.loop);
+                }
+                else {
+                    this.clearTrack(0);
+                    this.setToSetupPose();
+                }
+            },
+            visible: false
+        },
 
-    /**
-     * Sets whether open debug bones.
-     * @param {boolean} enabled
-     */
-    setDebugBonesEnabled: function(enabled) {
-        this._debugBones = enabled;
-    },
+        /**
+         * @property {number} _defaultSkinIndex
+         */
+        _defaultSkinIndex: {
+            get: function () {
+                if (this.skeletonData && this.defaultSkin) {
+                    var skinsEnum = this.skeletonData.getSkinsEnum();
+                    if (skinsEnum) {
+                        var skinIndex = skinsEnum[this.defaultSkin];
+                        if (skinIndex !== undefined) {
+                            return skinIndex;
+                        }
+                    }
+                }
+                return 0;
+            },
+            set: function (value) {
+                var skinsEnum;
+                if (this.skeletonData) {
+                    skinsEnum = this.skeletonData.getSkinsEnum();
+                }
+                if ( !skinsEnum ) {
+                    return cc.error('Failed to set _defaultSkinIndex for "%s" because its skeletonData is invalid.',
+                        this.name);
+                }
+                var skinName = skinsEnum[value];
+                if (skinName !== undefined) {
+                    this.defaultSkin = skinName;
+                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                        this._refresh();
+                    }
+                }
+                else {
+                    cc.error('Failed to set _defaultSkinIndex for "%s" because the index is out of range.', this.name);
+                }
+            },
+            type: DefaultSkinsEnum,
+            visible: true,
+            displayName: "Default Skin"
+        },
 
-    /**
-     * Gets whether open debug bones.
-     * @returns {boolean} true to open, false to close.
-     */
-    getDebugBonesEnabled: function() {
-        return this._debugBones;
-    },
+        // value of 0 represents no animation
+        _animationIndex: {
+            get: function () {
+                var animationName = (!CC_EDITOR || cc.engine.isPlaying) ? this.animation : this.defaultAnimation;
+                if (this.skeletonData && animationName) {
+                    var animsEnum = this.skeletonData.getAnimsEnum();
+                    if (animsEnum) {
+                        var animIndex = animsEnum[animationName];
+                        if (animIndex !== undefined) {
+                            return animIndex;
+                        }
+                    }
+                }
+                return 0;
+            },
+            set: function (value) {
+                if (value === 0) {
+                    this.animation = '';
+                    return;
+                }
+                var animsEnum;
+                if (this.skeletonData) {
+                    animsEnum = this.skeletonData.getAnimsEnum();
+                }
+                if ( !animsEnum ) {
+                    return cc.error('Failed to set _animationIndex for "%s" because its skeletonData is invalid.', this.name);
+                }
+                var animName = animsEnum[value];
+                if (animName !== undefined) {
+                    this.animation = animName;
+                }
+                else {
+                    cc.error('Failed to set _animationIndex for "%s" because the index is out of range.', this.name);
+                }
 
-    /**
-     * Sets the time scale of sp.Skeleton.
-     * @param {Number} scale
-     */
-    setTimeScale:function(scale){
-        this._timeScale = scale;
-    },
+            },
+            type: DefaultAnimsEnum,
+            visible: true,
+            displayName: 'Animation'
+        },
 
-    getTimeScale: function(){
-        return this._timeScale;
-    },
+        //// for inspector
+        //_animationList: {
+        //    default: [],
+        //    type: cc.String,
+        //    serializable: false
+        //},
+        //
+        //// for inspector
+        //_skinList: {
+        //    default: [],
+        //    type: cc.String,
+        //    serializable: false
+        //},
 
-    /**
-     * Initializes sp.Skeleton with Data.
-     * @param {spine.SkeletonData|String} skeletonDataFile
-     * @param {String|spine.Atlas|spine.SkeletonData} atlasFile atlas filename or atlas data or owns SkeletonData
-     * @param {Number} [scale] scale can be specified on the JSON or binary loader which will scale the bone positions, image sizes, and animation translations.
-     */
-    initWithArgs: function (skeletonDataFile, atlasFile, scale) {
-        var argSkeletonFile = skeletonDataFile, argAtlasFile = atlasFile,
-            skeletonData, atlas, ownsSkeletonData;
+        /**
+         * @property {boolean} loop
+         * @default true
+         */
+        loop: true,
 
-        if (cc.js.isString(argSkeletonFile)) {
-            if (cc.js.isString(argAtlasFile)) {
-                var data = cc.loader.getRes(argAtlasFile);
-                sp._atlasLoader.setAtlasFile(argAtlasFile);
-                atlas = new spine.Atlas(data, sp._atlasLoader);
-            } else {
-                atlas = atlasFile;
+        /**
+         * The time scale of this skeleton.
+         * @property {number} timeScale
+         * @default 1
+         */
+        timeScale: {
+            default: 1,
+            notify: function () {
+                if (this._sgNode) {
+                    this._sgNode.setTimeScale(this.timeScale);
+                }
             }
-            scale = scale || 1 / cc.director.getContentScaleFactor();
+        },
 
-            var attachmentLoader = new spine.AtlasAttachmentLoader(atlas);
-            var skeletonJsonReader = new spine.SkeletonJson(attachmentLoader);
-            skeletonJsonReader.scale = scale;
+        /**
+         * Indicates whether open debug slots.
+         * @property {boolean} debugSlots
+         * @default false
+         */
+        debugSlots: {
+            default: false,
+            notify: function () {
+                if (this._sgNode) {
+                    this._sgNode.setDebugSlotsEnabled(this.debugSlots);
+                }
+            },
+            editorOnly: true,
+        },
 
-            var skeletonJson = cc.loader.getRes(argSkeletonFile);
-            skeletonData = skeletonJsonReader.readSkeletonData(skeletonJson);
-            atlas.dispose(skeletonJsonReader);
-            ownsSkeletonData = true;
-        } else {
-            skeletonData = skeletonDataFile;
-            ownsSkeletonData = atlasFile;
+        /**
+         * Indicates whether open debug bones.
+         * @property {boolean} debugBones
+         * @default false
+         */
+        debugBones: {
+            default: false,
+            notify: function () {
+                if (this._sgNode) {
+                    this._sgNode.setDebugBonesEnabled(this.debugBones);
+                }
+            },
+            editorOnly: true,
         }
-        this.setSkeletonData(skeletonData, ownsSkeletonData);
-        this.init();
     },
 
-    /**
-     * Returns the bounding box of sp.Skeleton.
-     * @returns {cc.Rect}
-     */
-    getBoundingBox: function () {
-        var minX = cc.FLT_MAX, minY = cc.FLT_MAX, maxX = cc.FLT_MIN, maxY = cc.FLT_MIN;
-        var scaleX = this.getScaleX(), scaleY = this.getScaleY(), vertices = [],
-            slots = this._skeleton.slots, VERTEX = sp.VERTEX_INDEX;
+    // IMPLEMENT
 
-        for (var i = 0, slotCount = slots.length; i < slotCount; ++i) {
-            var slot = slots[i];
-            if (!slot.attachment || slot.attachment.type != sp.ATTACHMENT_TYPE.REGION)
-                continue;
-            var attachment = slot.attachment;
-            this._computeRegionAttachmentWorldVertices(attachment, slot.bone.skeleton.x, slot.bone.skeleton.y, slot.bone, vertices);
-            minX = Math.min(minX, vertices[VERTEX.X1] * scaleX, vertices[VERTEX.X4] * scaleX, vertices[VERTEX.X2] * scaleX, vertices[VERTEX.X3] * scaleX);
-            minY = Math.min(minY, vertices[VERTEX.Y1] * scaleY, vertices[VERTEX.Y4] * scaleY, vertices[VERTEX.Y2] * scaleY, vertices[VERTEX.Y3] * scaleY);
-            maxX = Math.max(maxX, vertices[VERTEX.X1] * scaleX, vertices[VERTEX.X4] * scaleX, vertices[VERTEX.X2] * scaleX, vertices[VERTEX.X3] * scaleX);
-            maxY = Math.max(maxY, vertices[VERTEX.Y1] * scaleY, vertices[VERTEX.Y4] * scaleY, vertices[VERTEX.Y2] * scaleY, vertices[VERTEX.Y3] * scaleY);
+    onLoad: function () {
+        var Flags = cc.Object.Flags;
+        this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
+        this._refresh();
+    },
+
+    //onEnable: function () {
+    //    this._super();
+    //},
+
+    _createSgNode: function () {
+        if (this.skeletonData/* && self.atlasFile*/) {
+            var data = this.skeletonData.getRuntimeData();
+            if (data) {
+                return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+            }
         }
-        var position = this.getPosition();
-        return cc.rect(position.x + minX, position.y + minY, maxX - minX, maxY - minY);
+        return null;
     },
 
-    _computeRegionAttachmentWorldVertices : function(self, x, y, bone, vertices){
-        var offset = self.offset, vertexIndex = sp.VERTEX_INDEX;
-        x += bone.worldX;
-        y += bone.worldY;
-        vertices[vertexIndex.X1] = offset[vertexIndex.X1] * bone.m00 + offset[vertexIndex.Y1] * bone.m01 + x;
-        vertices[vertexIndex.Y1] = offset[vertexIndex.X1] * bone.m10 + offset[vertexIndex.Y1] * bone.m11 + y;
-        vertices[vertexIndex.X2] = offset[vertexIndex.X2] * bone.m00 + offset[vertexIndex.Y2] * bone.m01 + x;
-        vertices[vertexIndex.Y2] = offset[vertexIndex.X2] * bone.m10 + offset[vertexIndex.Y2] * bone.m11 + y;
-        vertices[vertexIndex.X3] = offset[vertexIndex.X3] * bone.m00 + offset[vertexIndex.Y3] * bone.m01 + x;
-        vertices[vertexIndex.Y3] = offset[vertexIndex.X3] * bone.m10 + offset[vertexIndex.Y3] * bone.m11 + y;
-        vertices[vertexIndex.X4] = offset[vertexIndex.X4] * bone.m00 + offset[vertexIndex.Y4] * bone.m01 + x;
-        vertices[vertexIndex.Y4] = offset[vertexIndex.X4] * bone.m10 + offset[vertexIndex.Y4] * bone.m11 + y;
+    _initSgNode: function () {
+        var sgNode = this._sgNode;
+        sgNode.setTimeScale(this.timeScale);
+        //if (!CC_EDITOR) {
+        //    function animationCallback (ccObj, trackIndex, type, event, loopCount) {
+        //        var eventType = AnimEvents[type];3
+        //        var detail = {
+        //            trackIndex: trackIndex
+        //        };
+        //        if (type === sp.ANIMATION_EVENT_TYPE.COMPLETE) {
+        //            detail.loopCount = loopCount;
+        //        }
+        //        else if (type === sp.ANIMATION_EVENT_TYPE.EVENT) {
+        //            detail.event = event;
+        //        }
+        //        //Fire.log("[animationCallback] eventType: %s, time: '%s'", eventType, Fire.Time.time);
+        //        self.entity.emit(eventType, detail);
+        //    }
+        //    sgNode.setAnimationListener(target, animationCallback);
+        //}
+        if (this.defaultSkin) {
+            try {
+                sgNode.setSkin(this.defaultSkin);
+            }
+            catch (e) {
+                cc._throw(e);
+            }
+        }
+        this.animation = this.defaultAnimation;
+        if (CC_EDITOR) {
+            sgNode.setDebugSlotsEnabled(this.debugSlots);
+            sgNode.setDebugBonesEnabled(this.debugBones);
+        }
     },
 
-    /**
-     * Computes the world SRT from the local SRT for each bone.
-     */
-    updateWorldTransform: function () {
-        this._skeleton.updateWorldTransform();
+    _getLocalBounds: CC_EDITOR && function (out_rect) {
+        if (this._sgNode) {
+            var rect = this._sgNode.getBoundingBox();
+            out_rect.x = rect.x;
+            out_rect.y = rect.y;
+            out_rect.width = rect.width;
+            out_rect.height = rect.height;
+        }
+        else {
+            out_rect.x = 0;
+            out_rect.y = 0;
+            out_rect.width = 0;
+            out_rect.height = 0;
+        }
     },
+
+    // RENDERER
 
     /**
      * Sets the bones and slots to the setup pose.
+     * @method setToSetupPose
      */
     setToSetupPose: function () {
-        this._skeleton.setToSetupPose();
+        if (this._sgNode) {
+            this._sgNode.setToSetupPose();
+        }
     },
 
     /**
      * Sets the bones to the setup pose, using the values from the `BoneData` list in the `SkeletonData`.
+     * @method setBonesToSetupPose
      */
     setBonesToSetupPose: function () {
-        this._skeleton.setBonesToSetupPose();
-    },
-
-    /**
-     * Sets the slots to the setup pose, using the values from the `SlotData` list in the `SkeletonData`.
-     */
-    setSlotsToSetupPose: function () {
-        this._skeleton.setSlotsToSetupPose();
-    },
-
-    /**
-     * Finds a bone by name. This does a string comparison for every bone.
-     * @param {String} boneName
-     * @returns {spine.Bone}
-     */
-    findBone: function (boneName) {
-        return this._skeleton.findBone(boneName);
-    },
-
-    /**
-     * Finds a slot by name. This does a string comparison for every slot.
-     * @param {String} slotName
-     * @returns {spine.Slot}
-     */
-    findSlot: function (slotName) {
-        return this._skeleton.findSlot(slotName);
-    },
-
-    /**
-     * Finds a skin by name and makes it the active skin. This does a string comparison for every skin. Note that setting the skin does not change which attachments are visible.
-     * @param {string} skinName
-     * @returns {spine.Skin}
-     */
-    setSkin: function (skinName) {
-        return this._skeleton.setSkinByName(skinName);
-    },
-
-    /**
-     * Returns the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.
-     * @param {String} slotName
-     * @param {String} attachmentName
-     * @returns {spine.RegionAttachment|spine.BoundingBoxAttachment}
-     */
-    getAttachment: function (slotName, attachmentName) {
-        return this._skeleton.getAttachmentBySlotName(slotName, attachmentName);
-    },
-
-    /**
-     * Sets the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.
-     * @param {String} slotName
-     * @param {String} attachmentName
-     */
-    setAttachment: function (slotName, attachmentName) {
-        this._skeleton.setAttachment(slotName, attachmentName);
-    },
-
-    /**
-     * Sets the premultiplied alpha value to sp.Skeleton.
-     * @param {Number} alpha
-     */
-    setOpacityModifyRGB: function (alpha) {
-        this._premultipliedAlpha = alpha;
-    },
-
-    /**
-     * Returns whether to enable premultiplied alpha.
-     * @returns {boolean}
-     */
-    isOpacityModifyRGB: function () {
-        return this._premultipliedAlpha;
-    },
-
-    /**
-     * Sets skeleton data to sp.Skeleton.
-     * @param {spine.SkeletonData} skeletonData
-     * @param {spine.SkeletonData} ownsSkeletonData
-     */
-    setSkeletonData: function (skeletonData, ownsSkeletonData) {
-        if(skeletonData.width != null && skeletonData.height != null)
-            this.setContentSize(skeletonData.width / cc.director.getContentScaleFactor(), skeletonData.height / cc.director.getContentScaleFactor());
-
-        this._skeleton = new spine.Skeleton(skeletonData);
-        this._skeleton.updateWorldTransform();
-        this._rootBone = this._skeleton.getRootBone();
-        this._ownsSkeletonData = ownsSkeletonData;
-
-        this._renderCmd._createChildFormSkeletonData();
-    },
-
-    /**
-     * Return the renderer of attachment.
-     * @param {spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
-     * @returns {_ccsg.Node}
-     */
-    getTextureAtlas: function (regionAttachment) {
-        return regionAttachment.rendererObject.page.rendererObject;
-    },
-
-    /**
-     * Returns the blendFunc of sp.Skeleton.
-     * @returns {cc.BlendFunc}
-     */
-    getBlendFunc: function () {
-        return this._blendFunc;
-    },
-
-    /**
-     * Sets the blendFunc of sp.Skeleton.
-     * @param {cc.BlendFunc|Number} src
-     * @param {Number} [dst]
-     */
-    setBlendFunc: function (src, dst) {
-        var locBlendFunc = this._blendFunc;
-        if (dst === undefined) {
-            locBlendFunc.src = src.src;
-            locBlendFunc.dst = src.dst;
-        } else {
-            locBlendFunc.src = src;
-            locBlendFunc.dst = dst;
+        if (this._sgNode) {
+            this._sgNode.setBonesToSetupPose();
         }
     },
 
     /**
-     * Update will be called automatically every frame if "scheduleUpdate" is called when the node is "live".
-     * @param {Number} dt Delta time since last update
+     * Sets the slots to the setup pose, using the values from the `SlotData` list in the `SkeletonData`.
+     * @method setSlotsToSetupPose
      */
-    update: function (dt) {
-        this._skeleton.update(dt);
+    setSlotsToSetupPose: function () {
+        if (this._sgNode) {
+            this._sgNode.setSlotsToSetupPose();
+        }
+    },
+
+    /**
+     * Finds a bone by name. This does a string comparison for every bone.
+     * @method findBone
+     * @param {string} boneName
+     * @return {spine.Bone}
+     */
+    findBone: function (boneName) {
+        if (this._sgNode) {
+            return this._sgNode.findBone(boneName);
+        }
+        return null;
+    },
+
+    /**
+     * Finds a slot by name. This does a string comparison for every slot.
+     * @method findSlot
+     * @param {string} slotName
+     * @return {spine.Slot}
+     */
+    findSlot: function (slotName) {
+        if (this._sgNode) {
+            return this._sgNode.findSlot(slotName);
+        }
+        return null;
+    },
+
+    /**
+     * Finds a skin by name and makes it the active skin. This does a string comparison for every skin. Note that setting the skin does not change which attachments are visible.
+     * @method setSkin
+     * @param {string} skinName
+     * @return {spine.Skin}
+     */
+    setSkin: function (skinName) {
+        if (this._sgNode) {
+            return this._sgNode.setSkin(skinName);
+        }
+        return null;
+    },
+
+    /**
+     * Returns the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * @method getAttachment
+     * @param {string} slotName
+     * @param {string} attachmentName
+     * @return {spine.RegionAttachment|sp.spine.BoundingBoxAttachment}
+     */
+    getAttachment: function (slotName, attachmentName) {
+        if (this._sgNode) {
+            return this._sgNode.getAttachment(slotName, attachmentName);
+        }
+        return null;
+    },
+
+    /**
+     * Sets the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * @method setAttachment
+     * @param {string} slotName
+     * @param {string} attachmentName
+     */
+    setAttachment: function (slotName, attachmentName) {
+        if (this._sgNode) {
+            this._sgNode.setAttachment(slotName, attachmentName);
+        }
+    },
+
+    /**
+     * Sets skeleton data to sp.Skeleton.
+     * @method setSkeletonData
+     * @param {spine.SkeletonData} skeletonData
+     * @param {spine.SkeletonData} ownsSkeletonData
+     */
+    setSkeletonData: function (skeletonData, ownsSkeletonData) {
+        if (this._sgNode) {
+            this._sgNode.setSkeletonData(skeletonData, ownsSkeletonData);
+        }
+    },
+
+    ///**
+    // * Return the renderer of attachment.
+    // * @method getTextureAtlas
+    // * @param {spine.RegionAttachment|sp.spine.BoundingBoxAttachment} regionAttachment
+    // * @return {_ccsg.Node}
+    // */
+    //getTextureAtlas: function (regionAttachment) {
+    //    if (this._sgNode) {
+    //        this._sgNode.getTextureAtlas(regionAttachment);
+    //    }
+    //},
+
+    // ANIMATION
+
+    /**
+     * Sets animation state data.
+     * @method setAnimationStateData
+     * @param {spine.AnimationStateData} stateData
+     */
+    setAnimationStateData: function (stateData) {
+        if (this._sgNode) {
+            return this._sgNode.setAnimationStateData(stateData);
+        }
+    },
+
+    /**
+     * Mix applies all keyframe values, interpolated for the specified time and mixed with the current values.
+     * @method setMix
+     * @param {string} fromAnimation
+     * @param {string} toAnimation
+     * @param {number} duration
+     */
+    setMix: function (fromAnimation, toAnimation, duration) {
+        if (this._sgNode) {
+            this._sgNode.setMix(fromAnimation, toAnimation, duration);
+        }
+    },
+
+    /**
+     * Sets event listener.
+     * @method setAnimationListener
+     * @param {object} target
+     * @param {function} callback
+     */
+    setAnimationListener: function (target, callback) {
+        if (this._sgNode) {
+            this._sgNode.setAnimationListener(target, callback);
+        }
+    },
+
+    /**
+     * Set the current animation. Any queued animations are cleared.
+     * @method setAnimation
+     * @param {number} trackIndex
+     * @param {string} name
+     * @param {boolean} loop
+     * @return {spine.TrackEntry}
+     */
+    setAnimation: function (trackIndex, name, loop) {
+        if (this._sgNode) {
+            var res = this._sgNode.setAnimation(trackIndex, name, loop);
+            if (CC_EDITOR && !cc.engine.isPlaying) {
+                this._sample();
+                this.clearTrack(trackIndex);
+            }
+            return res;
+        }
+        return null;
+    },
+
+    _sample: function () {
+        if (this._sgNode) {
+            this._sgNode.update(0);
+        }
+    },
+
+    /**
+     * Adds an animation to be played delay seconds after the current or last queued animation.
+     * @method addAnimation
+     * @param {number} trackIndex
+     * @param {string} name
+     * @param {boolean} loop
+     * @param {number} [delay=0]
+     * @return {spine.TrackEntry}
+     */
+    addAnimation: function (trackIndex, name, loop, delay) {
+        if (this._sgNode) {
+            return this._sgNode.addAnimation(trackIndex, name, loop, delay);
+        }
+        return null;
+    },
+
+    /**
+     * Returns track entry by trackIndex.
+     * @method getCurrent
+     * @param trackIndex
+     * @return {spine.TrackEntry}
+     */
+    getCurrent: function (trackIndex) {
+        if (this._sgNode) {
+            return this._sgNode.getCurrent(trackIndex);
+        }
+        return null;
+    },
+
+    /**
+     * Clears all tracks of animation state.
+     * @method clearTracks
+     */
+    clearTracks: function () {
+        if (this._sgNode) {
+            this._sgNode.clearTracks();
+        }
+    },
+
+    /**
+     * Clears track of animation state by trackIndex.
+     * @method clearTrack
+     * @param {number} trackIndex
+     */
+    clearTrack: function (trackIndex) {
+        if (this._sgNode) {
+            this._sgNode.clearTrack(trackIndex);
+            if (CC_EDITOR && !cc.engine.isPlaying) {
+                this._sample();
+            }
+        }
+    },
+
+    // update animation list for editor
+    _updateAnimEnum: CC_EDITOR && function () {
+        var animEnum;
+        if (this.skeletonData) {
+            animEnum = this.skeletonData.getAnimsEnum();
+        }
+        // change enum
+        setEnumAttr(this, '_animationIndex', animEnum || DefaultAnimsEnum);
+    },
+    // update skin list for editor
+    _updateSkinEnum: CC_EDITOR && function () {
+        var skinEnum;
+        if (this.skeletonData) {
+            skinEnum = this.skeletonData.getSkinsEnum();
+        }
+        // change enum
+        setEnumAttr(this, '_defaultSkinIndex', skinEnum || DefaultSkinsEnum);
+    },
+    // force refresh inspector
+    _refreshInspector: CC_EDITOR && function () {
+        var ga = Editor.Selection.curGlobalActivate();
+        var inspecting = (ga && ga.id === this.node.uuid && ga.type === 'node');
+        if (inspecting) {
+            Editor.Selection.unselect('node', this.node.uuid);
+            ga = Editor.Selection.curGlobalActivate();
+            var id = this.node.uuid;
+            var inspectOther = (ga && ga.type === 'node' && ga.id);
+            if (inspectOther) {
+                setTimeout(function () {
+                    Editor.Selection.select('node', id, false);
+                }, 200);
+            }
+            else {
+                Editor.Selection.select('node', id, false);
+            }
+        }
+    },
+
+    /**
+     * Set the start event listener.
+     * @method setStartListener
+     * @param {function} listener
+     */
+    setStartListener: function (listener) {
+        if (this._sgNode) {
+            this._sgNode.setStartListener(listener);
+        }
+    },
+
+    /**
+     * Set the end event listener.
+     * @method setEndListener
+     * @param {function} listener
+     */
+    setEndListener: function (listener) {
+        if (this._sgNode) {
+            this._sgNode.setEndListener(listener);
+        }
+    },
+
+    setCompleteListener: function (listener) {
+        if (this._sgNode) {
+            this._sgNode.setCompleteListener(listener);
+        }
+    },
+
+    setEventListener: function (listener) {
+        if (this._sgNode) {
+            this._sgNode.setEventListener(listener);
+        }
+    },
+
+    setTrackStartListener: function (entry, listener) {
+        if (this._sgNode) {
+            this._sgNode.setTrackStartListener(entry, listener);
+        }
+    },
+
+    setTrackEndListener: function (entry, listener) {
+        if (this._sgNode) {
+            this._sgNode.setTrackEndListener(entry, listener);
+        }
+    },
+
+    setTrackCompleteListener: function (entry, listener) {
+        if (this._sgNode) {
+            this._sgNode.setTrackCompleteListener(entry, listener);
+        }
+    },
+
+    setTrackEventListener: function (entry, listener) {
+        if (this._sgNode) {
+            this._sgNode.setTrackEventListener(entry, listener);
+        }
+    },
+
+    //
+
+    getState: function () {
+        if (this._sgNode) {
+            return this._sgNode.getState();
+        }
+    },
+
+    _refresh: function () {
+        var self = this;
+
+        // discard exists sgNode
+        if (self._sgNode) {
+            if ( self.node._sizeProvider === self._sgNode ) {
+                self.node._sizeProvider = null;
+            }
+            self._removeSgNode();
+            self._sgNode = null;
+        }
+
+        // recreate sgNode...
+        var sgNode = self._sgNode = self._createSgNode();
+        if (sgNode) {
+            sgNode.retain();
+            self._initSgNode();
+            self._appendSgNode(sgNode);
+            if ( !self.node._sizeProvider ) {
+                self.node._sizeProvider = sgNode;
+            }
+        }
+
+        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好先强制尺寸为零
+        self.node.setContentSize(0, 0);
+
+        if (CC_EDITOR) {
+            // update inspector
+            self._updateAnimEnum();
+            self._updateSkinEnum();
+            self._refreshInspector();
+        }
     }
 });
-
-/**
- * Creates a skeleton object.
- * @deprecated since v3.0, please use new sp.Skeleton(skeletonDataFile, atlasFile, scale) instead.
- * @param {spine.SkeletonData|String} skeletonDataFile
- * @param {String|spine.Atlas|spine.SkeletonData} atlasFile atlas filename or atlas data or owns SkeletonData
- * @param {Number} [scale] scale can be specified on the JSON or binary loader which will scale the bone positions, image sizes, and animation translations.
- * @returns {sp.Skeleton}
- */
-sp.Skeleton.create = function (skeletonDataFile, atlasFile/* or atlas*/, scale) {
-    return new sp.Skeleton(skeletonDataFile, atlasFile, scale);
-};

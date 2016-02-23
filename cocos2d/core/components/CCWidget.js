@@ -392,6 +392,10 @@ var Widget = cc.Class({
                 if (this.isStretchWidth) {
                     // become stretch
                     this._originalWidth = this.node.width;
+                    // test check conflict
+                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                        _Scene.DetectConflict.checkConflict_Widget(this);
+                    }
                 }
             }
             else {
@@ -399,10 +403,14 @@ var Widget = cc.Class({
                 if (this.isStretchHeight) {
                     // become stretch
                     this._originalHeight = this.node.height;
+                    // test check conflict
+                    if (CC_EDITOR && !cc.engine.isPlaying) {
+                        _Scene.DetectConflict.checkConflict_Widget(this);
+                    }
                 }
             }
 
-            if (CC_EDITOR && !cc.engine._isPlaying) {
+            if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment chagned
                 var type;
                 if (flag & TOP) {

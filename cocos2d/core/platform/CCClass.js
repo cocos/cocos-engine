@@ -417,7 +417,7 @@ function define (className, baseClasses, mixins, constructor, options) {
                 JS._setClassId(uuid, cls);
                 if (CC_EDITOR) {
                     cc.Component._addMenuItem(cls, 'i18n:MAIN_MENU.component.scripts/' + className, -1);
-                    cls.prototype.__scriptUuid = Editor.decompressUuid(uuid);
+                    cls.prototype.__scriptUuid = Editor.UuidUtils.decompressUuid(uuid);
                 }
             }
             frame.beh = cls;
@@ -674,7 +674,6 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  *
  * @method Class
  * @param {Object} options
- * TODO: add properties of options
  * @return {Function} - the created class
  *
  * @example

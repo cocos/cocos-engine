@@ -97,7 +97,7 @@ cc.swap = function (x, y, ref) {
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
  * @method lerp
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
  */
 cc.lerp = function (a, b, r) {
     return a + (b - a) * r;

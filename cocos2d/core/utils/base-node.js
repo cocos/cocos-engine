@@ -48,6 +48,7 @@ var COLOR_CHANGED = 'color-changed';
 var OPACITY_CHANGED = 'opacity-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
+var CHILD_REORDER = 'child-reorder';
 
 var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
 
@@ -123,6 +124,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._parent === value) {
                     return;
                 }
+                if (CC_EDITOR && !cc.engine.isPlaying) {
+                    if (_Scene.DetectConflict.beforeAddChild(this)) {
+                        return;
+                    }
+                }
                 var node = this._sgNode;
                 if (node.parent) {
                     node.parent.removeChild(node, false);
@@ -144,12 +150,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                             return cc.error('Internal error, should not remove unknown node from parent.');
                         }
                         oldParent._children.splice(removeAt, 1);
-                        oldParent.emit(CHILD_REMOVED, removeAt);
+                        oldParent.emit(CHILD_REMOVED, this);
                         this._onHierarchyChanged(oldParent);
-
-                        if (CC_EDITOR) {
-                            _Scene.DetectConflict.afterAddChild(this);
-                        }
                     }
                 }
                 else if (value) {
@@ -177,7 +179,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          */
         uuid: {
             get: function () {
-                return this._id || (this._id = window.Editor ? Editor.uuid() : '');
+                return this._id || (this._id = window.Editor ? Editor.UuidUtils.uuid() : '');
             }
         },
 
@@ -928,7 +930,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Rect} The calculated bounding box of the node
      */
     getBoundingBox: function () {
-        var rect = cc.rect(0, 0, this._contentSize.width, this._contentSize.height);
+        var size = this.getContentSize();
+        var rect = cc.rect( - this._anchorPoint.x * size.width,
+                            - this._anchorPoint.y * size.height,
+                            size.width,
+                            size.height );
         return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
     },
 
@@ -1270,9 +1276,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._sgNode.getDisplayedOpacity();
     },
 
-    /**
+    /*
      * Update displayed opacity
-     * @method
+     * @method _updateDisplayedOpacity
      * @param {Number} parentOpacity
      */
     _updateDisplayedOpacity: function (parentOpacity) {
@@ -1360,6 +1366,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             if (cc.renderer) {
                 cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
             }
+            this._parent.emit(CHILD_REORDER);
         }
     },
 
@@ -1524,13 +1531,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
  */
 
 /**
- * <p>Sets the x axis position of the node in cocos2d coordinates.</p>
+ * <p>Returns the x axis position of the node in cocos2d coordinates.</p>
  * @method getPositionX
  * @param {Number} x - The new position in x axis
  */
 
 /**
- * <p>Returns the x axis position of the node in cocos2d coordinates.</p>
+ * <p>Sets the x axis position of the node in cocos2d coordinates.</p>
  * @method setPositionX
  * @return {Number}
  */

@@ -551,11 +551,11 @@ var Node = cc.Class({
             }
         }
 
-        // check conflict
-
-        if (CC_EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
-            return null;
-        }
+        //// check conflict
+        //
+        //if (CC_EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
+        //    return null;
+        //}
 
         //
 
@@ -765,17 +765,20 @@ var Node = cc.Class({
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
                     // change prefab
-                    Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab
-                    Editor.PrefabUtils.unlinkPrefab(this);
+                    _Scene.PrefabUtils.unlinkPrefab(this);
                 }
             }
             else if (newPrefabRoot) {
                 // attach to prefab
-                Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
             }
+
+            // conflict detection
+            _Scene.DetectConflict.afterAddChild(this);
         }
     },
 
@@ -1167,6 +1170,20 @@ if (cc.sys.isNative) {
  * @event opacity-changed
  * @param {cc.Event} event
  * @param {Number} event.detail - old opacity
+ */
+/**
+ * @event child-added
+ * @param {cc.Event} event
+ * @param {cc.Node} event.detail - child
+ */
+/**
+ * @event child-removed
+ * @param {cc.Event} event
+ * @param {cc.Node} event.detail - child
+ */
+/**
+ * @event child-reorder
+ * @param {cc.Event} event
  */
 /**
  * Note: This event is only emitted from the top most node whose active value did changed,

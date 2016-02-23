@@ -581,6 +581,7 @@ else {
 
     //Whether or not the Canvas BlendModes are supported.
     sys._supportCanvasNewBlendModes = (function(){
+        var data1, data2;
         var canvas = _tmpCanvas1;
         canvas.width = 1;
         canvas.height = 1;
@@ -597,7 +598,27 @@ else {
         context2.fillRect(0,0,1,1);
         context.drawImage(canvas2, 0, 0, 1, 1);
 
-        return context.getImageData(0,0,1,1).data[0] === 0;
+        data1 = context.getImageData(0,0,1,1).data[0];
+
+        canvas = _tmpCanvas1;
+        canvas.width = 1;
+        canvas.height = 1;
+        var context = canvas.getContext('2d');
+        context.fillStyle = '#fff';
+        context.fillRect(0,0,1,1);
+        context.globalCompositeOperation = 'destination-atop';
+
+        canvas2 = _tmpCanvas2;
+        canvas2.width = 1;
+        canvas2.height = 1;
+        var context2 = canvas2.getContext('2d');
+        context2.fillStyle = '#000';
+        context2.fillRect(0,0,1,1);
+        context.drawImage(canvas2, 0, 0, 1, 1);
+
+        data2 = context.getImageData(0,0,1,1).data[0];
+
+        return (data1 === 0) && (data2 === 0);
     })();
 
     // Adjust mobile css settings

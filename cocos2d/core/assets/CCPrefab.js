@@ -33,7 +33,7 @@ var Prefab = cc.Class({
         var node = cc.instantiate(this.data);
 
         if (CC_DEV) {
-            Editor.PrefabUtils.linkPrefab(this, node);
+            _Scene.PrefabUtils.linkPrefab(this, node);
         }
 
         return node;

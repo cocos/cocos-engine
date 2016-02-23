@@ -156,7 +156,7 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._loop = value;
-                if (typeof this.audio === 'object') this.audio.loop = this._loop;
+                if (this.audio) this.audio.loop = this._loop;
             },
             animatable: false,
             tooltip: 'i18n.COMPONENT.audio.loop'

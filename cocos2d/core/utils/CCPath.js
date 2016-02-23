@@ -1,11 +1,13 @@
 require('../platform/CCSys');
+
+var EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
+var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
+
 /**
  * @class path
  * @static
  */
 cc.path = /** @lends cc.path# */{
-    normalizeRE: /[^\.\/]+\/\.\.\//,
-
     /**
      * Join strings to be a path.
      * @method join
@@ -22,15 +24,15 @@ cc.path = /** @lends cc.path# */{
     },
 
     /**
-     * Get the ext name of a path.
+     * Get the ext name of a path including '.', like '.png'.
      * @method extname
      * @example {@link utils/api/engine/docs/cocos2d/core/utils/CCPath/extname.js}
      * @param {String} pathStr
      * @returns {*}
      */
     extname: function (pathStr) {
-        var temp = /(\.[^\.\/\?\\]*)(\?.*)?$/.exec(pathStr);
-        return temp ? temp[1] : null;
+        var temp = EXTNAME_RE.exec(pathStr);
+        return temp ? temp[1] : '';
     },
 
     /**
@@ -128,7 +130,7 @@ cc.path = /** @lends cc.path# */{
         //removing all ../
         do {
             oldUrl = url;
-            url = url.replace(this.normalizeRE, "");
+            url = url.replace(NORMALIZE_RE, "");
         } while(oldUrl.length !== url.length);
         return url;
     },
@@ -160,3 +162,5 @@ cc.path = /** @lends cc.path# */{
         return path;
     }
 };
+
+module.exports = cc.path;

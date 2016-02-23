@@ -24,6 +24,8 @@
 
 'use strict';
 
+var NORMALIZE_RE = /[^\.\/]+\/\.\.\//;
+
 // cc.path
 cc.js.mixin(cc.path, {
     //todo make public after verification
@@ -33,7 +35,7 @@ cc.js.mixin(cc.path, {
         //removing all ../
         do {
             oldUrl = url;
-            url = url.replace(this.normalizeRE, '');
+            url = url.replace(NORMALIZE_RE, '');
         } while (oldUrl.length !== url.length);
         return url;
     },
@@ -260,7 +262,8 @@ window._ccsg = {
     Sprite: cc.Sprite,
     ParticleSystem: cc.ParticleSystem,
     Label: cc.Label,
-    EditBox: cc.EditBox
+    EditBox: cc.EditBox,
+    TMXTiledMap: cc.TMXTiledMap
 };
 
 // rename cc.Class to cc._Class

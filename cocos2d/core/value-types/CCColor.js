@@ -6,17 +6,17 @@ var Color = (function () {
     /**
      * Representation of RGBA colors.
      *
-     * Each color component is a floating point value with a range from 0 to 1.
+     * Each color component is a floating point value with a range from 0 to 255.
      *
      * You can also use the convenience method <% crosslink cc.Color cc.Color %> to create a new Color.
      *
      * @class Color
      * @extends ValueType
      * @constructor
-     * @param {Number} [r=0] - red component of the color.
-     * @param {Number} [g=0] - green component of the color.
-     * @param {Number} [b=0] - blue component of the color.
-     * @param {Number} [a=255] - alpha component of the color.
+     * @param {Number} [r=0] - red component of the color, default value is 0.
+     * @param {Number} [g=0] - green component of the color, defualt value is 0.
+     * @param {Number} [b=0] - blue component of the color, default value is 0.
+     * @param {Number} [a=255] - alpha component of the color, default value is 255.
      */
     function Color( r, g, b, a ) {
         if (typeof r === 'object') {
