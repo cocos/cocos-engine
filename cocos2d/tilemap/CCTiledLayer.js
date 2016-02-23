@@ -1,31 +1,41 @@
 var TiledLayer = cc.Class({
     name: 'cc.TiledLayer',
-    extends: require('./../core/components/CCComponent'),
+    extends: require('./../core/components/CCComponentInSG'),
 
     editor: CC_EDITOR,
 
-    properties: {
-        _sgLayer: null
-    },
+    properties: {},
 
-    /**
-     * bind a _ccsg.TMXLayer for the component
-     * @param {_ccsg.TMXLayer} sgLayer
-     */
-    bindSgLayer: function(sgLayer) {
-        if (sgLayer && sgLayer instanceof _ccsg.TMXLayer) {
-            this._sgLayer = sgLayer;
-        } else {
-            this._sgLayer = null;
+    onLoad: function () {
+        var sgNode = this._sgNode;
+        if ( !this.node._sizeProvider ) {
+            this.node._sizeProvider = sgNode;
         }
     },
 
-    /**
-     * get the _ccsg.TMXLayer of the component
-     * @return {_ccsg.TMXLayer}
-     */
-    getSgLayer: function() {
-        return this.getSgLayer();
+    _createSgNode: function() {
+        return new _ccsg.TMXLayer();
+    },
+
+    _initSgNode: function() {
+
+    },
+
+    _replaceSgNode: function(sgNode) {
+        if (sgNode === this._sgNode) {
+            return;
+        }
+
+        // Remove the sgNode before
+        this._removeSgNode();
+
+        // retain the new sgNode
+        if (sgNode && sgNode instanceof _ccsg.TMXLayer) {
+            this._sgNode = sgNode;
+            this._sgNode.retain();
+        } else {
+            this._sgNode = null;
+        }
     },
 
     /**
@@ -33,10 +43,9 @@ var TiledLayer = cc.Class({
      * @return {String}
      */
     getLayerName: function() {
-        if (this._sgLayer) {
-            return this._sgLayer.getLayerName();
+        if (this._sgNode) {
+            return this._sgNode.getLayerName();
         }
-
         return '';
     },
 
@@ -45,8 +54,8 @@ var TiledLayer = cc.Class({
      * @param {String} layerName
      */
     setLayerName:function (layerName) {
-        if (this._sgLayer) {
-            this._sgLayer.setLayerName(layerName);
+        if (this._sgNode) {
+            this._sgNode.setLayerName(layerName);
         }
     },
 
@@ -56,8 +65,8 @@ var TiledLayer = cc.Class({
      * @return {*}
      */
     getProperty:function (propertyName) {
-        if (this._sgLayer) {
-            return this._sgLayer.getProperty(propertyName);
+        if (this._sgNode) {
+            return this._sgNode.getProperty(propertyName);
         }
 
         return null;
@@ -70,8 +79,8 @@ var TiledLayer = cc.Class({
      * @return {cc.Vec2}
      */
     getPositionAt:function (pos, y) {
-        if (this._sgLayer) {
-            return this._sgLayer.getPositionAt(pos, y);
+        if (this._sgNode) {
+            return this._sgNode.getPositionAt(pos, y);
         }
 
         return null;
@@ -83,8 +92,8 @@ var TiledLayer = cc.Class({
      * @param {Number} [y]
      */
     removeTileAt:function (pos, y) {
-        if (this._sgLayer) {
-            this._sgLayer.removeTileAt(pos, y);
+        if (this._sgNode) {
+            this._sgNode.removeTileAt(pos, y);
         }
     },
 
@@ -98,8 +107,8 @@ var TiledLayer = cc.Class({
      * @param {Number} [flags]
      */
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
-        if (this._sgLayer) {
-            this._sgLayer.setTileGID(gid, posOrX, flagsOrY, flags);
+        if (this._sgNode) {
+            this._sgNode.setTileGID(gid, posOrX, flagsOrY, flags);
         }
     },
 
@@ -110,8 +119,8 @@ var TiledLayer = cc.Class({
      * @return {Number}
      */
     getTileFlagsAt:function (pos, y) {
-        if (this._sgLayer) {
-            return this._sgLayer.getTileFlagsAt(pos, y);
+        if (this._sgNode) {
+            return this._sgNode.getTileFlagsAt(pos, y);
         }
         return 0;
     },
@@ -125,8 +134,8 @@ var TiledLayer = cc.Class({
      * @return {Number}
      */
     getTileGIDAt:function (pos, y) {
-        if (this._sgLayer) {
-            return this._sgLayer.getTileGIDAt(pos, y);
+        if (this._sgNode) {
+            return this._sgNode.getTileGIDAt(pos, y);
         }
         return 0;
     },
@@ -143,8 +152,8 @@ var TiledLayer = cc.Class({
      * @return {_ccsg.Sprite}
      */
     getTileAt: function (pos, y) {
-        if (this._sgLayer) {
-            return this._sgLayer.getTileAt(pos, y);
+        if (this._sgNode) {
+            return this._sgNode.getTileAt(pos, y);
         }
         return null;
     },
@@ -155,8 +164,8 @@ var TiledLayer = cc.Class({
      * If you are going to call layer.getTileGIDAt() then, don't release the map</p>
      */
     releaseMap:function () {
-        if (this._sgLayer) {
-            this._sgLayer.releaseMap();
+        if (this._sgNode) {
+            this._sgNode.releaseMap();
         }
     },
 
@@ -167,8 +176,8 @@ var TiledLayer = cc.Class({
      * @param {Number} [height] The untransformed size's height of the _ccsg.TMXLayer.
      */
     setContentSize:function (size, height) {
-        if (this._sgLayer) {
-            this._sgLayer.setContentSize(size, height);
+        if (this._sgNode) {
+            this._sgNode.setContentSize(size, height);
         }
     },
 
@@ -178,8 +187,8 @@ var TiledLayer = cc.Class({
      * @return {cc.Texture2D}
      */
     getTexture: function(){
-        if (this._sgLayer) {
-            return this._sgLayer.getTexture();
+        if (this._sgNode) {
+            return this._sgNode.getTexture();
         }
         return null;
     },
@@ -189,8 +198,8 @@ var TiledLayer = cc.Class({
      * @return {cc.Size}
      */
     getLayerSize:function () {
-        if (this._sgLayer) {
-            return this._sgLayer.getLayerSize();
+        if (this._sgNode) {
+            return this._sgNode.getLayerSize();
         }
         return cc.size(0, 0);
     },
@@ -200,8 +209,8 @@ var TiledLayer = cc.Class({
      * @param {cc.Size} Var
      */
     setLayerSize:function (Var) {
-        if (this._sgLayer) {
-            this._sgLayer.setLayerSize(Var);
+        if (this._sgNode) {
+            this._sgNode.setLayerSize(Var);
         }
     },
 
@@ -210,8 +219,8 @@ var TiledLayer = cc.Class({
      * @return {cc.Size}
      */
     getMapTileSize:function () {
-        if (this._sgLayer) {
-            return this._sgLayer.getMapTileSize();
+        if (this._sgNode) {
+            return this._sgNode.getMapTileSize();
         }
         return cc.size(0, 0);
     },
@@ -221,8 +230,8 @@ var TiledLayer = cc.Class({
      * @param {cc.Size} Var
      */
     setMapTileSize:function (Var) {
-        if (this._sgLayer) {
-            this._sgLayer.setMapTileSize(Var);
+        if (this._sgNode) {
+            this._sgNode.setMapTileSize(Var);
         }
     },
 
@@ -231,8 +240,8 @@ var TiledLayer = cc.Class({
      * @return {Array}
      */
     getTiles:function () {
-        if (this._sgLayer) {
-            return this._sgLayer.getTiles();
+        if (this._sgNode) {
+            return this._sgNode.getTiles();
         }
         return null;
     },
@@ -242,8 +251,8 @@ var TiledLayer = cc.Class({
      * @param {Array} Var
      */
     setTiles:function (Var) {
-        if (this._sgLayer) {
-            this._sgLayer.setTiles(Var);
+        if (this._sgNode) {
+            this._sgNode.setTiles(Var);
         }
     },
 
@@ -252,8 +261,8 @@ var TiledLayer = cc.Class({
      * @return {cc.TMXTilesetInfo}
      */
     getTileset:function () {
-        if (this._sgLayer) {
-            return this._sgLayer.getTileset();
+        if (this._sgNode) {
+            return this._sgNode.getTileset();
         }
         return null;
     },
@@ -263,8 +272,8 @@ var TiledLayer = cc.Class({
      * @param {cc.TMXTilesetInfo} Var
      */
     setTileset:function (Var) {
-        if (this._sgLayer) {
-            this._sgLayer.setTileset(Var);
+        if (this._sgNode) {
+            this._sgNode.setTileset(Var);
         }
     },
 
@@ -273,8 +282,8 @@ var TiledLayer = cc.Class({
      * @return {Number}
      */
     getLayerOrientation:function () {
-        if (this._sgLayer) {
-            return this._sgLayer.getLayerOrientation();
+        if (this._sgNode) {
+            return this._sgNode.getLayerOrientation();
         }
         return 0;
     },
@@ -284,8 +293,8 @@ var TiledLayer = cc.Class({
      * @param {Number} Var
      */
     setLayerOrientation:function (Var) {
-        if (this._sgLayer) {
-            this._sgLayer.setLayerOrientation(Var);
+        if (this._sgNode) {
+            this._sgNode.setLayerOrientation(Var);
         }
     },
 
@@ -294,8 +303,8 @@ var TiledLayer = cc.Class({
      * @return {Array}
      */
     getProperties:function () {
-        if (this._sgLayer) {
-            return this._sgLayer.getProperties();
+        if (this._sgNode) {
+            return this._sgNode.getProperties();
         }
         return null;
     },
@@ -305,8 +314,8 @@ var TiledLayer = cc.Class({
      * @param {Array} Var
      */
     setProperties:function (Var) {
-        if (this._sgLayer) {
-            this._sgLayer.setProperties(Var);
+        if (this._sgNode) {
+            this._sgNode.setProperties(Var);
         }
     },
 });
