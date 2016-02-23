@@ -698,7 +698,7 @@ var Node = cc.Class({
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
             if (! (component instanceof cc.Component) && CC_EDITOR) {
-                cc.error('Sorry, the component of entity "%s" which with an index of %s is corrupted! It has been removed.\nSee DevTools for details.', this.name, c);
+                cc.error('Sorry, the component of "%s" which with an index of %s is corrupted! It has been removed.\nSee DevTools for details.', this.name, c);
                 console.log('Corrupted component value:', component);
                 if (component) {
                     this._removeComponent(component);
