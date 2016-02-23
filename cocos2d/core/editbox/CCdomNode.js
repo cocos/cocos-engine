@@ -324,6 +324,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
      * @param {Boolean} x
      */
     setVisible:function (x) {
+        _ccsg.Node.prototype.setVisible.call(this, x);
         this._visible = x;
         this.setNodeDirty();
         if (this.dom)
