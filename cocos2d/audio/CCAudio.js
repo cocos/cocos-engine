@@ -371,8 +371,14 @@ JS.mixin(cc.Audio.prototype, {
             }
             var audio = cc.loader.getRes(url);
             if(!audio){
-                cc.loader.load(url);
-                audio = cc.loader.getRes(url);
+                var self = this;
+                cc.loader.load(url, function () {
+                    audio = cc.loader.getRes(url);
+                    audio.play(0, loop);
+                    audio.setVolume(self._musicVolume);
+                    self._currMusic = audio;
+                });
+                return;
             }
             audio.play(0, loop);
             audio.setVolume(this._musicVolume);
@@ -519,14 +525,13 @@ JS.mixin(cc.Audio.prototype, {
                 effectList = this._audioPool[url] = [];
             }
 
-            var i;
-
-            for(i=0; i<effectList.length; i++){
+            for(var i=0; i<effectList.length; i++){
                 if(!effectList[i].getPlaying()){
                     break;
                 }
             }
 
+            var audio;
             if(effectList[i]){
                 audio = effectList[i];
                 audio.setVolume(this._effectVolume);
@@ -534,10 +539,14 @@ JS.mixin(cc.Audio.prototype, {
             }else if(!SWA && i > this._maxAudioInstance){
                 cc.log("Error: %s greater than %d", url, this._maxAudioInstance);
             }else{
-                var audio = cc.loader.getRes(url);
+                audio = cc.loader.getRes(url);
                 if(!audio){
                     cc.loader.load(url);
-                    audio = cc.loader.getRes(url);
+                    var item = cc.loader.getItems().map[url];
+                    audio = item ? item.content : null;
+                    if (!audio) {
+                        return;
+                    }
                 }
                 audio = audio.cloneNode();
                 audio.setVolume(this._effectVolume);

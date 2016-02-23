@@ -168,6 +168,8 @@ function downloadAudio (item, callback) {
         audio = new cc.Audio(null, null, url);
     }
 
+    // hack for audio to be found before loaded
+    item.content = audio;
     loadAudioFromExtList(url, typeList, audio, callback);
 }
 
