@@ -46,11 +46,11 @@ test('simple spriteQuad trimmed', function () {
         s9Sprite._rebuildQuads();
         var quads = s9Sprite._quads;
         strictEqual(quads.length, 1, 'quads number[1] success');
-        deepEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
-        deepEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
+        strictEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
+        strictEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
 
-        deepEqual(quads[0]._tr.vertices.x, contentSize.width, 'vertex-tr-x test success');
-        deepEqual(quads[0]._tr.vertices.y, contentSize.height, 'vertex-tr-y test success');
+        strictEqual(quads[0]._tr.vertices.x, contentSize.width, 'vertex-tr-x test success');
+        strictEqual(quads[0]._tr.vertices.y, contentSize.height, 'vertex-tr-y test success');
 
         deepClose(quads[0]._bl.texCoords.u, 10 / 100, 0.0001, 'texCoords-bl-x test success');
         deepClose(quads[0]._bl.texCoords.v, 70 / 100, 0.0001, 'texCoords-bl-y test success');
@@ -78,11 +78,11 @@ test('simple spriteQuad no trimmed', function () {
         s9Sprite._rebuildQuads();
         var quads = s9Sprite._quads;
         strictEqual(quads.length, 1, 'quads number[1] success');
-        deepEqual(quads[0]._bl.vertices.x, 10, 'vertex-bl-x test success');
-        deepEqual(quads[0]._bl.vertices.y, 30, 'vertex-bl-y test success');
+        strictEqual(quads[0]._bl.vertices.x, 10, 'vertex-bl-x test success');
+        strictEqual(quads[0]._bl.vertices.y, 30, 'vertex-bl-y test success');
 
-        deepEqual(quads[0]._tr.vertices.x, 50, 'vertex-tr-x test success');
-        deepEqual(quads[0]._tr.vertices.y, 90, 'vertex-tr-y test success');
+        strictEqual(quads[0]._tr.vertices.x, 50, 'vertex-tr-x test success');
+        strictEqual(quads[0]._tr.vertices.y, 90, 'vertex-tr-y test success');
 
         deepClose(quads[0]._bl.texCoords.u, 10 / 100, 0.0001, 'texCoords-bl-x test success');
         deepClose(quads[0]._bl.texCoords.v, 70 / 100, 0.0001, 'texCoords-bl-y test success');
@@ -116,17 +116,17 @@ test('scale9 spriteQuad trimmed', function () {
         s9Sprite._rebuildQuads();
         var quads = s9Sprite._quads;
         strictEqual(quads.length, 9, 'quads number[9] success');
-        deepEqual(quads[0]._bl.vertices.x, 0, 'x0 test success');
-        deepEqual(quads[0]._bl.vertices.y, 0, 'y0 test success');
+        strictEqual(quads[0]._bl.vertices.x, 0, 'x0 test success');
+        strictEqual(quads[0]._bl.vertices.y, 0, 'y0 test success');
 
-        deepEqual(quads[4]._bl.vertices.x, 5, 'x1 test success');
-        deepEqual(quads[4]._bl.vertices.y, 7, 'y1 test success');
+        strictEqual(quads[4]._bl.vertices.x, 5, 'x1 test success');
+        strictEqual(quads[4]._bl.vertices.y, 7, 'y1 test success');
 
-        deepEqual(quads[8]._bl.vertices.x, 94, 'x2 test success');
-        deepEqual(quads[8]._bl.vertices.y, 92, 'y2 test success');
+        strictEqual(quads[8]._bl.vertices.x, 94, 'x2 test success');
+        strictEqual(quads[8]._bl.vertices.y, 92, 'y2 test success');
 
-        deepEqual(quads[8]._tr.vertices.x, 100, 'x3 test success');
-        deepEqual(quads[8]._tr.vertices.y, 100, 'y3 test success');
+        strictEqual(quads[8]._tr.vertices.x, 100, 'x3 test success');
+        strictEqual(quads[8]._tr.vertices.y, 100, 'y3 test success');
 
         deepClose(quads[0]._bl.texCoords.u, 10 / 100, 0.0001, 'u0 test success');
         deepClose(quads[0]._bl.texCoords.v, 70 / 100, 0.0001, 'v0 test success');
@@ -160,19 +160,19 @@ test('tiled spriteQuad trimmed', function () {
         s9Sprite._rebuildQuads();
         var quads = s9Sprite._quads;
         strictEqual(quads.length, 6, 'quads number[6] success');
-        deepEqual(quads[0]._bl.vertices.x, 0, 'x0 test success');
-        deepEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
-        deepEqual(quads[4]._bl.vertices.x, 80, 'x2 test success');
-        deepEqual(quads[4]._tr.vertices.x, 100, 'x3 test success');
+        strictEqual(quads[0]._bl.vertices.x, 0, 'x0 test success');
+        strictEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
+        strictEqual(quads[4]._bl.vertices.x, 80, 'x2 test success');
+        strictEqual(quads[4]._tr.vertices.x, 100, 'x3 test success');
 
-        deepEqual(quads[0]._bl.vertices.y, 0, 'y0 test success');
-        deepEqual(quads[5]._bl.vertices.y, 60, 'y1 test success');
-        deepEqual(quads[5]._tr.vertices.y, 100, 'y2 test success');
+        strictEqual(quads[0]._bl.vertices.y, 0, 'y0 test success');
+        strictEqual(quads[5]._bl.vertices.y, 60, 'y1 test success');
+        strictEqual(quads[5]._tr.vertices.y, 100, 'y2 test success');
 
-        deepEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
-        deepEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
-        deepEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
-        deepEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
+        strictEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
+        strictEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
+        strictEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
+        strictEqual(quads[2]._bl.vertices.x, 40, 'x1 test success');
         //
         deepClose(quads[2]._bl.texCoords.u, 10 / 100, 0.0001, 'full quad u0 test success');
         deepClose(quads[2]._bl.texCoords.v, 70 / 100, 0.0001, 'full quad v0 test success');
@@ -210,11 +210,11 @@ test('filled-bar-horizontal spriteQuad trimmed', function () {
         s9Sprite._rebuildQuads();
         var quads = s9Sprite._quads;
         strictEqual(quads.length, 1, 'quads number[1] success');
-        deepEqual(quads[0]._bl.vertices.x, 10, 'vertex-bl-x test success');
-        deepEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
+        strictEqual(quads[0]._bl.vertices.x, 10, 'vertex-bl-x test success');
+        strictEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
 
-        deepEqual(quads[0]._tr.vertices.x, 40, 'vertex-tr-x test success');
-        deepEqual(quads[0]._tr.vertices.y, 100, 'vertex-tr-y test success');
+        strictEqual(quads[0]._tr.vertices.x, 40, 'vertex-tr-x test success');
+        strictEqual(quads[0]._tr.vertices.y, 100, 'vertex-tr-y test success');
 
         deepClose(quads[0]._bl.texCoords.u, 14 / 100, 0.0001, 'texCoords-bl-x test success');
         deepClose(quads[0]._bl.texCoords.v, 70 / 100, 0.0001, 'texCoords-bl-y test success');
@@ -227,11 +227,11 @@ test('filled-bar-horizontal spriteQuad trimmed', function () {
         s9Sprite._rebuildQuads();
         quads = s9Sprite._quads;
         strictEqual(quads.length, 1, 'quads number[1] success');
-        deepEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
-        deepEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
+        strictEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
+        strictEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
 
-        deepEqual(quads[0]._tr.vertices.x, 30, 'vertex-tr-x test success');
-        deepEqual(quads[0]._tr.vertices.y, 100, 'vertex-tr-y test success');
+        strictEqual(quads[0]._tr.vertices.x, 30, 'vertex-tr-x test success');
+        strictEqual(quads[0]._tr.vertices.y, 100, 'vertex-tr-y test success');
 
         deepClose(quads[0]._bl.texCoords.u, 10 / 100, 0.0001, 'texCoords-bl-x test success');
         deepClose(quads[0]._bl.texCoords.v, 70 / 100, 0.0001, 'texCoords-bl-y test success');
@@ -262,11 +262,11 @@ test('filled-bar-vertical spriteQuad trimmed', function () {
         s9Sprite._rebuildQuads();
         var quads = s9Sprite._quads;
         strictEqual(quads.length, 1, 'quads number[1] success');
-        deepEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
-        deepEqual(quads[0]._bl.vertices.y, 10, 'vertex-bl-y test success');
+        strictEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
+        strictEqual(quads[0]._bl.vertices.y, 10, 'vertex-bl-y test success');
 
-        deepEqual(quads[0]._tr.vertices.x, 100, 'vertex-tr-x test success');
-        deepEqual(quads[0]._tr.vertices.y, 40, 'vertex-tr-y test success');
+        strictEqual(quads[0]._tr.vertices.x, 100, 'vertex-tr-x test success');
+        strictEqual(quads[0]._tr.vertices.y, 40, 'vertex-tr-y test success');
 
         deepClose(quads[0]._bl.texCoords.u, 10 / 100, 0.0001, 'texCoords-bl-x test success');
         deepClose(quads[0]._bl.texCoords.v, 64 / 100, 0.0001, 'texCoords-bl-y test success');
@@ -279,11 +279,11 @@ test('filled-bar-vertical spriteQuad trimmed', function () {
         s9Sprite._rebuildQuads();
         quads = s9Sprite._quads;
         strictEqual(quads.length, 1, 'quads number[1] success');
-        deepEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
-        deepEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
+        strictEqual(quads[0]._bl.vertices.x, 0, 'vertex-bl-x test success');
+        strictEqual(quads[0]._bl.vertices.y, 0, 'vertex-bl-y test success');
 
-        deepEqual(quads[0]._tr.vertices.x, 100, 'vertex-tr-x test success');
-        deepEqual(quads[0]._tr.vertices.y, 30, 'vertex-tr-y test success');
+        strictEqual(quads[0]._tr.vertices.x, 100, 'vertex-tr-x test success');
+        strictEqual(quads[0]._tr.vertices.y, 30, 'vertex-tr-y test success');
 
         deepClose(quads[0]._bl.texCoords.u, 10 / 100, 0.0001, 'texCoords-bl-x test success');
         deepClose(quads[0]._bl.texCoords.v, 70 / 100, 0.0001, 'texCoords-bl-y test success');
