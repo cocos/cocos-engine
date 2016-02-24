@@ -92,7 +92,7 @@ var Sprite = cc.Class({
          * @type {SpriteAtlas}
          */
         _atlas: {
-            default: '',
+            default: null,
             type: cc.SpriteAtlas,
             tooltip: 'i18n:COMPONENT.sprite.atlas',
             editorOnly: true,
