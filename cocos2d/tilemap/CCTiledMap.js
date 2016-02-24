@@ -25,7 +25,7 @@
 /**
  * Renders a TMX Tile Map in the scene.
  * @class TiledMap
- * @extends _ComponentInSG
+ * @extends Component
  */
 var TiledMap = cc.Class({
     name: 'cc.TiledMap',
@@ -44,7 +44,7 @@ var TiledMap = cc.Class({
 
         /**
          * The tmx file.
-         * @property {string} file
+         * @property {string} tmxFile
          * @default ""
          */
         _tmxFile: {
@@ -85,10 +85,10 @@ var TiledMap = cc.Class({
     /**
      * Set the map size.
      * @method setMapSize
-     * @param {cc.Size} Var
+     * @param {cc.Size} mapSize
      */
-    setMapSize:function (Var) {
-        this._tiledMap.setMapSize(Var);
+    setMapSize:function (mapSize) {
+        this._tiledMap.setMapSize(mapSize);
     },
 
     /**
@@ -103,10 +103,10 @@ var TiledMap = cc.Class({
     /**
      * Set the tile size
      * @method setTileSize
-     * @param {cc.Size} Var
+     * @param {cc.Size} tileSize
      */
-    setTileSize:function (Var) {
-        this._tiledMap.setTileSize(Var);
+    setTileSize:function (tileSize) {
+        this._tiledMap.setTileSize(tileSize);
     },
 
     /**
@@ -121,10 +121,10 @@ var TiledMap = cc.Class({
     /**
      * map orientation
      * @method setMapOrientation
-     * @param {Number} Var
+     * @param {Number} orientation
      */
-    setMapOrientation:function (Var) {
-        this._tiledMap.setMapOrientation(Var);
+    setMapOrientation:function (orientation) {
+        this._tiledMap.setMapOrientation(orientation);
     },
 
     /**
@@ -139,10 +139,10 @@ var TiledMap = cc.Class({
     /**
      * object groups
      * @method setObjectGroups
-     * @param {Array} Var
+     * @param {Array} groups
      */
-    setObjectGroups:function (Var) {
-        this._tiledMap.setObjectGroups(Var);
+    setObjectGroups:function (groups) {
+        this._tiledMap.setObjectGroups(groups);
     },
 
     /**
@@ -157,10 +157,10 @@ var TiledMap = cc.Class({
     /**
      * Set the map properties
      * @method setProperties
-     * @param {object} Var
+     * @param {object} properties
      */
-    setProperties:function (Var) {
-        this._tiledMap.setProperties(Var);
+    setProperties:function (properties) {
+        this._tiledMap.setProperties(properties);
     },
 
     /**
