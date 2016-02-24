@@ -204,7 +204,7 @@ test('filled-bar-horizontal spriteQuad trimmed', function () {
         s9Sprite.setColor(color);
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.FILLED);
-        s9Sprite.setFillType(cc.Scale9Sprite.FillType.Horizontal);
+        s9Sprite.setFillType(cc.Scale9Sprite.FillType.HORIZONTAL);
         s9Sprite.setFillStart(0.1);
         s9Sprite.setFillRange(0.3);
         s9Sprite._rebuildQuads();
@@ -256,7 +256,7 @@ test('filled-bar-vertical spriteQuad trimmed', function () {
         s9Sprite.setColor(color);
         s9Sprite.enableTrimmedContentSize(isTrimmed);
         s9Sprite.setRenderingType(cc.Scale9Sprite.RenderingType.FILLED);
-        s9Sprite.setFillType(cc.Scale9Sprite.FillType.Vertical);
+        s9Sprite.setFillType(cc.Scale9Sprite.FillType.VERTICAL);
         s9Sprite.setFillStart(0.1);
         s9Sprite.setFillRange(0.3);
         s9Sprite._rebuildQuads();
