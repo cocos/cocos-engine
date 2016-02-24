@@ -160,6 +160,10 @@ var AssetLibrary = {
             return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
         }
 
+        if (CC_EDITOR) {
+            Loader.removeItem(uuid);
+        }
+
         Loader.load(item, function (error, items) {
             var asset = items.getContent(uuid);
             if (error || !asset) {
@@ -167,17 +171,11 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (CC_EDITOR) {
-                        Loader.removeItem(uuid);
-                    }
                     asset && (asset._uuid = uuid);
                     callback(error, asset);
                 });
             }
             else {
-                if (CC_EDITOR) {
-                    Loader.removeItem(uuid);
-                }
                 asset && (asset._uuid = uuid);
                 callback(error, asset);
             }
@@ -187,7 +185,7 @@ var AssetLibrary = {
 
     /**
      * @method loadJson
-     * @param {String|Object} json
+     * @param {String} json
      * @param {loadCallback} callback
      * @return {LoadingHandle}
      * @private
@@ -195,14 +193,6 @@ var AssetLibrary = {
     loadJson: function (json, callback) {
         var randomUuid = '' + ((new Date()).getTime() + Math.random());
         var thisTick = true;
-        if (typeof json === 'string') {
-            try {
-                json = JSON.parse(json);
-            }
-            catch (e) {
-                callInNextTick(callback, e, null);
-            }
-        }
         var item = {
             src: randomUuid,
             type: 'uuid',
@@ -218,17 +208,17 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
+                    callback(error, asset);
                     if (CC_EDITOR) {
                         Loader.removeItem(randomUuid);
                     }
-                    callback(error, asset);
                 });
             }
             else {
+                callback(error, asset);
                 if (CC_EDITOR) {
                     Loader.removeItem(randomUuid);
                 }
-                callback(error, asset);
             }
         });
         thisTick = false;

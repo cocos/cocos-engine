@@ -1098,7 +1098,7 @@ cc.BMFontHelper = {
                         cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
                     }
 
-                    self._config = results.getContent(this._fontHandle);
+                    self._config = results.getContent(self._fontHandle);
                     self._createFontChars();
                     texture = cc.textureCache.addImage(self._config.atlasName);
                     var locIsLoaded = texture.isLoaded();

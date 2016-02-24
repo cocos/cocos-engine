@@ -445,7 +445,7 @@ JS.mixin(Pipeline.prototype, {
      * @return {Boolean} succeed or not
      */
     removeItem: function (url) {
-        var item = this._items[url];
+        var item = this._items.map[url];
         if (item) {
             if (!item.complete) {
                 item.error = new Error('Canceled manually');

@@ -247,14 +247,18 @@ function downloadUuid (item, callback) {
         }
         else {
             item.url = url;
+            item.isRawAsset = isRawAsset;
             if (isRawAsset) {
-                var ext = Path.extname(url.src).toLowerCase();
-                ext = ext ? ext.substr(1) : '';
+                var ext = Path.extname(url).toLowerCase();
                 if (!ext) {
                     callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));
+                    return;
                 }
+                ext = ext.substr(1);
                 // Dispatch to other raw type downloader
                 var downloadFunc = self.extMap[ext] || self.extMap['default'];
+                item.type = ext;
+                // item.states[Pipeline.Loader.ID] = Pipeline.ItemState.COMPLETE;
                 downloadFunc({src: url}, callback);
             }
             else {
@@ -364,16 +368,21 @@ JS.mixin(Downloader.prototype, {
         var self = this;
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
         if (this._curConcurrent < this.maxConcurrent) {
-            this._curConcurrent++;
+            if (cc.sys.isMobile) {
+                this._curConcurrent++;
+            }
             downloadFunc.call(this, item, function (err, result) {
-                // Concurrent logic
-                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-                while (self._curConcurrent < self.maxConcurrent) {
-                    var nextOne = self._loadQueue.shift();
-                    if (!nextOne) {
-                        break;
+                if (cc.sys.isMobile) {
+                    // Concurrent logic
+                    self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+
+                    while (self._curConcurrent < self.maxConcurrent) {
+                        var nextOne = self._loadQueue.shift();
+                        if (!nextOne) {
+                            break;
+                        }
+                        self.handle(nextOne.item, nextOne.callback);
                     }
-                    self.handle(nextOne.item, nextOne.callback);
                 }
 
                 callback && callback(err, result);

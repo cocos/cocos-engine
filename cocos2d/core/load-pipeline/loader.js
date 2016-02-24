@@ -49,7 +49,7 @@ function loadImage (item, callback) {
     if (!(item.content instanceof Image)) {
         callback( new Error('Image Loader: Input item doesn\'t contain Image content') );
     }
-    var url = item.src;
+    var url = item.url || item.src;
     var tex = cc.textureCache.getTextureForKey(url) || new Texture2D();
     tex.url = url;
     tex.initWithElement(item.content);

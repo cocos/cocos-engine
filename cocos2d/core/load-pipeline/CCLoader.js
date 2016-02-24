@@ -145,6 +145,7 @@ JS.mixin(cc.loader, {
             if (completeCallback) {
                 setTimeout(function () {
                     completeCallback.call(self, error, self._items);
+                    completeCallback = null;
                 }, 0);
             }
         }

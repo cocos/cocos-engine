@@ -31,18 +31,23 @@ var _tdInfo = new cc.deserialize.Details();
 var SCENE_ID = 'cc.Scene';
 
 function loadUuid (item, callback) {
-    if (typeof item.content !== 'string') {
-        callback( new Error('JSON Loader: Input item doesn\'t contain string content') );
-    }
-
     var json, 
         // uuid = item.src, 
         url = item.url;
-    try {
-        json = JSON.parse(item.content);
+    if (typeof item.content === 'string') {
+        try {
+            json = JSON.parse(item.content);
+        }
+        catch (e) {
+            callback( new Error('Uuid Loader: Parse asset [' + item.src + '] failed : ' + e) );
+            return;
+        }
     }
-    catch (e) {
-        callback( new Error('Uuid Loader: Parse asset [' + item.src + '] failed : ' + e) );
+    else if (typeof item.content === 'object') {
+        json = item.content;
+    }
+    else {
+        callback( new Error('JSON Loader: Input item doesn\'t contain string content') );
         return;
     }
 
@@ -70,44 +75,59 @@ function loadUuid (item, callback) {
     var dependsSrcs = JS.array.copy(tdInfo.uuidList);
     var ownerList = JS.array.copy(tdInfo.uuidObjList);
     var propList = JS.array.copy(tdInfo.uuidPropList);
-    // load raw
-    if (!!tdInfo.rawProp) {
-        // Push depends raw object to dependencies
-        dependsSrcs.push(url);
-        ownerList.push(asset);
-        propList.push(tdInfo.rawProp);
-    }
 
     // load depends assets
     for (var i = 0; i < dependsSrcs.length; i++) {
         var dependSrc = dependsSrcs[i];
         depends.push({
             src: dependSrc,
-            type: 'uuid'
+            type: 'uuid',
+            uuid: dependSrc
         });
     }
-    this.pipeline.flowInDeps(depends, function (items) {
-        for (var i = 0; i < dependsSrcs.length; i++) {
-            var dependSrc = dependsSrcs[i];
-            var obj = ownerList[i];
-            var dependProp = propList[i];
-            var item = items[dependSrc];
-            if (item) {
-                if (item.complete) {
-                    obj[dependProp] = item.content;
-                }
-                else {
-                    this.getItems().add(dependSrc, function (item) {
-                        this.obj[this.prop] = item.content;
-                    }, {
-                        obj: obj,
-                        prop: dependProp
-                    });
+    // load raw
+    if (tdInfo.rawProp) {
+        dependsSrcs.push(url);
+        ownerList.push(asset);
+        propList.push(tdInfo.rawProp);
+        depends.push(url);
+    }
+    if (depends.length > 0) {
+        this.pipeline.flowInDeps(depends, function (items) {
+            var item;
+            for (var src in items) {
+                item = items[src];
+                if (item.uuid && item.content) {
+                    item.content._uuid = item.uuid;
                 }
             }
-        }
+            for (var i = 0; i < dependsSrcs.length; i++) {
+                var dependSrc = dependsSrcs[i];
+                var obj = ownerList[i];
+                var dependProp = propList[i];
+                item = items[dependSrc];
+                if (item) {
+                    if (item.complete) {
+                        var value = item.isRawAsset ? (item.url || item.src) : item.content;
+                        obj[dependProp] = value;
+                    }
+                    else {
+                        this.getItems().add(dependSrc, function (item) {
+                            var value = item.isRawAsset ? (item.url || item.src) : item.content;
+                            this.obj[this.prop] = value;
+                        }, {
+                            obj: obj,
+                            prop: dependProp
+                        });
+                    }
+                }
+            }
+            callback(null, asset);
+        });
+    }
+    else {
         callback(null, asset);
-    });
+    }
 
     // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
     tdInfo.reset();
