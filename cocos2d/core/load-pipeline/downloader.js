@@ -316,6 +316,8 @@ var defaultMap = {
     'default' : downloadText
 };
 
+var ID = 'Downloader';
+
 /**
  * The downloader pipe, it can download several types of files:
  * 1. Text
@@ -338,7 +340,7 @@ var defaultMap = {
  * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Downloader = function (extMap) {
-    this.id = 'Downloader';
+    this.id = ID;
     this.async = true;
     this.pipeline = null;
     this.maxConcurrent = 2;
@@ -347,6 +349,7 @@ var Downloader = function (extMap) {
 
     this.extMap = JS.mixin(extMap, defaultMap);
 };
+Downloader.ID = ID;
 JS.mixin(Downloader.prototype, {
     /**
      * Add custom supported types handler or modify existing type handler.

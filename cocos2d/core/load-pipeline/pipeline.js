@@ -202,6 +202,14 @@ Pipeline.ItemState = new cc.Enum(ItemState);
 Pipeline.getXMLHttpRequest = getXMLHttpRequest;
 
 JS.mixin(Pipeline.prototype, {
+    /**
+     * Insert a new pipe at the given index of the pipeline.
+     * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
+     *
+     * @method insertPipe
+     * @param {Object} pipe The pipe to be inserted
+     * @param {Number} index The index to insert
+     */
     insertPipe: function (pipe, index) {
         // Must have handle and id, handle for flow, id for state flag
         if (!pipe.handle || !pipe.id) {
@@ -225,6 +233,13 @@ JS.mixin(Pipeline.prototype, {
         }
     },
 
+    /**
+     * Add a new pipe at the end of the pipeline.
+     * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
+     *
+     * @method appendPipe
+     * @param {Object} pipe The pipe to be appended
+     */
     appendPipe: function (pipe) {
         // Must have handle and id, handle for flow, id for state flag
         if (!pipe.handle || !pipe.id) {

@@ -259,7 +259,7 @@ var game = /** @lends cc.game# */{
 
             // Load game scripts
             var jsList = config[CONFIG_KEY.jsList];
-            if (jsList) {
+            if (jsList && jsList.length > 0) {
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;

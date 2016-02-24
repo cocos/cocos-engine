@@ -182,6 +182,8 @@ var defaultMap = {
     'default' : loadNothing
 };
 
+var ID = 'Loader';
+
 /**
  * The loader pipe, it can load several types of files:
  * 1. Images
@@ -206,12 +208,13 @@ var defaultMap = {
  * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Loader = function (extMap) {
-    this.id = 'Loader';
+    this.id = ID;
     this.async = true;
     this.pipeline = null;
 
     this.extMap = JS.mixin(extMap, defaultMap);
 };
+Loader.ID = ID;
 JS.mixin(Loader.prototype, {
     /**
      * Add custom supported types handler or modify existing type handler.

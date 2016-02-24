@@ -43,6 +43,24 @@ cc.loader = new Pipeline([
 
 JS.mixin(cc.loader, {
     /**
+     * The downloader in cc.loader's pipeline, it's by default the first pipe.
+     * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
+     * You can add your own download function with addDownloadHandlers
+     * @property downloader
+     * @type {Object}
+     */
+    downloader: downloader,
+
+    /**
+     * The downloader in cc.loader's pipeline, it's by default the second pipe.
+     * It's used to parse downloaded content with several handlers: JSON, image, plist, fnt, uuid.
+     * You can add your own download function with addLoadHandlers
+     * @property loader
+     * @type {Object}
+     */
+    loader: loader,
+
+    /**
      * Get XMLHttpRequest.
      * @returns {XMLHttpRequest}
      */
