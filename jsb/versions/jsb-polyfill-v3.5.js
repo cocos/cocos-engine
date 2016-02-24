@@ -55,9 +55,6 @@ cc.SpriteFrame.prototype.initWithTexture = function (texture, rect, rotated, off
         }
     }
 
-    if(arguments.length === 2)
-        rect = cc.rectPointsToPixels(rect);
-
     offset = cc.p(0, 0);
     originalSize = originalSize || rect;
     rotated = rotated || false;

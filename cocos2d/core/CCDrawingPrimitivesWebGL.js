@@ -450,7 +450,7 @@ cc.DrawingPrimitiveWebGL = cc._Class.extend(/** @lends cc.DrawingPrimitiveWebGL#
      * @param {Number} pointSize
      */
     setPointSize:function (pointSize) {
-        this._pointSize = pointSize * cc.contentScaleFactor();
+        this._pointSize = pointSize;
     },
 
     /**

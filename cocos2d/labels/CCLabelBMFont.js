@@ -345,7 +345,6 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
             }
 
             var rect = cc.rect(fontDef.rect.x, fontDef.rect.y, fontDef.rect.width, fontDef.rect.height);
-            rect = cc.rectPixelsToPoints(rect);
             rect.x += self._imageOffset.x;
             rect.y += self._imageOffset.y;
 
@@ -366,8 +365,8 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
 
             var yOffset = locCfg.commonHeight - fontDef.yOffset;
             var fontPos = cc.p(nextFontPositionX + fontDef.xOffset + fontDef.rect.width * 0.5 + kerningAmount,
-                nextFontPositionY + yOffset - rect.height * 0.5 * cc.contentScaleFactor());
-            fontChar.setPosition(cc.pointPixelsToPoints(fontPos));
+                nextFontPositionY + yOffset - rect.height * 0.5);
+            fontChar.setPosition(fontPos);
 
             // update kerning
             nextFontPositionX += fontDef.xAdvance + kerningAmount;
@@ -384,7 +383,7 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
         else
             tmpSize.width = longestLine;
         tmpSize.height = totalHeight;
-        self.setContentSize(cc.sizePixelsToPoints(tmpSize));
+        self.setContentSize(tmpSize);
     },
 
     /**

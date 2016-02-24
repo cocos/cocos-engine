@@ -209,13 +209,6 @@
     proto.initTexCoordsWithRect = function(pointRect){
         var node = this._node;
         var texture = node.texture;
-        var scaleFactor = cc.contentScaleFactor();
-        // convert to pixels coords
-        var rect = cc.rect(
-                pointRect.x * scaleFactor,
-                pointRect.y * scaleFactor,
-                pointRect.width * scaleFactor,
-                pointRect.height * scaleFactor);
 
         var wide = pointRect.width;
         var high = pointRect.height;
@@ -227,15 +220,15 @@
 
         var left, bottom, right, top;
         if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
-            left = (rect.x * 2 + 1) / (wide * 2);
-            bottom = (rect.y * 2 + 1) / (high * 2);
-            right = left + (rect.width * 2 - 2) / (wide * 2);
-            top = bottom + (rect.height * 2 - 2) / (high * 2);
+            left = (pointRect.x * 2 + 1) / (wide * 2);
+            bottom = (pointRect.y * 2 + 1) / (high * 2);
+            right = left + (pointRect.width * 2 - 2) / (wide * 2);
+            top = bottom + (pointRect.height * 2 - 2) / (high * 2);
         } else {
-            left = rect.x / wide;
-            bottom = rect.y / high;
-            right = left + rect.width / wide;
-            top = bottom + rect.height / high;
+            left = pointRect.x / wide;
+            bottom = pointRect.y / high;
+            right = left + pointRect.width / wide;
+            top = bottom + pointRect.height / high;
         }
 
         // Important. Texture in cocos2d are inverted, so the Y component should be inverted

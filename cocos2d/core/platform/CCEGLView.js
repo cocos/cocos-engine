@@ -344,14 +344,6 @@ cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
         }
     },
 
-    // RenderTexture hacker
-    _setScaleXYForRenderTexture: function () {
-        //hack for RenderTexture on canvas mode when adapting multiple resolution resources
-        var scaleFactor = cc.contentScaleFactor();
-        this._scaleX = scaleFactor;
-        this._scaleY = scaleFactor;
-    },
-
     // Other helper functions
     _resetScale: function () {
         this._scaleX = this._originalScaleX;

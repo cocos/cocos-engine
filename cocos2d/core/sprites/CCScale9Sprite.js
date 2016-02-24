@@ -125,7 +125,7 @@ var simpleQuadGenerator = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -255,7 +255,7 @@ var scale9QuadGenerator = {
         bottomHeight = insetBottom;
         centerHeight = rect.height - topHeight - bottomHeight;
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u1, u2, u3;
@@ -346,7 +346,7 @@ var tiledQuadGenerator = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -494,7 +494,7 @@ var fillQuadGeneratorBar = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -843,7 +843,7 @@ var fillQuadGeneratorRadial = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
