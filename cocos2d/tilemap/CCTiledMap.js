@@ -322,13 +322,6 @@ var TiledMap = cc.Class({
         });
     },
 
-    _setTmxLayerVisible: function(isVisible) {
-        var layers = this._tiledMap.allLayers();
-        for (var i = 0, n = layers.length; i < n; i++) {
-            layers[i].setVisible(isVisible);
-        }
-    },
-
     _moveLayersInSgNode: function(sgNode) {
         var children = sgNode.getChildren();
         var needRemove = [];
@@ -490,7 +483,10 @@ var TiledMap = cc.Class({
         } else {
             // tmx file is cleared
             // 1. hide the tmx layers in _tiledMap
-            self._setTmxLayerVisible(false);
+            var layers = self._tiledMap.allLayers();
+            for (var i = 0, n = layers.length; i < n; i++) {
+                self._tiledMap.removeChild(layers);
+            }
 
             // 2. if the component is enabled,
             //    should remove the entities for tmx layers in node
