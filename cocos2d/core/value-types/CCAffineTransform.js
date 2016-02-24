@@ -260,9 +260,9 @@ cc.affineTransformConcat = function (t1, t2) {
  * The results are reflected in the first matrix.<br/>
  * t' = t1 * t2
  * @method affineTransformConcatIn
- * @param {cc.AffineTransform} t1 - The first transform object.
- * @param {cc.AffineTransform} t2 - The transform object to concatenate.
- * @return {cc.AffineTransform} The result of concatenation.
+ * @param {AffineTransform} t1 - The first transform object.
+ * @param {AffineTransform} t2 - The transform object to concatenate.
+ * @return {AffineTransform} The result of concatenation.
  */
 cc.affineTransformConcatIn = function (t1, t2) {
     var a = t1.a, b = t1.b, c = t1.c, d = t1.d, tx = t1.tx, ty = t1.ty;

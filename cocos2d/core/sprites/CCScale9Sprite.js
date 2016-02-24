@@ -425,7 +425,7 @@ var fillQuadGeneratorBar = {
 
         var progressStart, progressEnd;
         switch (fillType) {
-            case cc.Scale9Sprite.FillType.Horizontal:
+            case cc.Scale9Sprite.FillType.HORIZONTAL:
                 progressStart = vertices[0].x + (vertices[1].x - vertices[0].x) * fillStart;
                 progressEnd = vertices[0].x + (vertices[1].x - vertices[0].x) * fillEnd;
 
@@ -447,7 +447,7 @@ var fillQuadGeneratorBar = {
                 quad._tr.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillEnd;
                 quad._tr.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillEnd;
                 break;
-            case cc.Scale9Sprite.FillType.Vertical:
+            case cc.Scale9Sprite.FillType.VERTICAL:
                 progressStart = vertices[0].y + (vertices[1].y - vertices[0].y) * fillStart;
                 progressEnd = vertices[0].y + (vertices[1].y - vertices[0].y) * fillEnd;
 
@@ -1328,8 +1328,8 @@ cc.Scale9Sprite.RenderingType = cc.Enum({
 });
 
 cc.Scale9Sprite.FillType = cc.Enum({
-    Horizontal: 0,
-    Vertical: 1,
+    HORIZONTAL: 0,
+    VERTICAL: 1,
     //todo implement this
     RADIAL:2,
 });

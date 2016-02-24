@@ -34,7 +34,7 @@
 /**
  * convert an affine transform object to a kmMat4 object
  * @method CGAffineToGL
- * @param {cc.AffineTransform} trans
+ * @param {AffineTransform} trans
  * @param {cc.kmMat4} mat
  */
 cc.CGAffineToGL = function (trans, mat) {
@@ -56,7 +56,7 @@ cc.CGAffineToGL = function (trans, mat) {
  * Convert a kmMat4 object to an affine transform object
  * @method GLToCGAffine
  * @param {cc.kmMat4} mat
- * @param {cc.AffineTransform} trans
+ * @param {AffineTransform} trans
  */
 cc.GLToCGAffine = function (mat, trans) {
     trans.a = mat[0];

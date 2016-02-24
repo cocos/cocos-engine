@@ -299,7 +299,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Returns the blendFunc of sp._SGSkeleton.
-     * @returns {cc.BlendFunc}
+     * @returns {BlendFunc}
      */
     getBlendFunc: function () {
         return this._blendFunc;
@@ -307,7 +307,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Sets the blendFunc of sp._SGSkeleton.
-     * @param {cc.BlendFunc|Number} src
+     * @param {BlendFunc|Number} src
      * @param {Number} [dst]
      */
     setBlendFunc: function (src, dst) {

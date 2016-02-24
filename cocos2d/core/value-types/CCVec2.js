@@ -467,7 +467,7 @@ cc.v2 = function v2 (x, y) {
  * @method p
  * @param {Number|Object} [x=0] a Number or a size object
  * @param {Number} [y=0]
- * @return {cc.Vec2}
+ * @return {Vec2}
  * @example
  * var point1 = cc.p();
  * var point2 = cc.p(100, 100);
@@ -482,8 +482,8 @@ cc.p = cc.v2;
 /**
  * Check whether a point's value equals to another
  * @method pointEqualToPoint
- * @param {cc.Vec2} point1
- * @param {cc.Vec2} point2
+ * @param {Vec2} point1
+ * @param {Vec2} point2
  * @return {Boolean}
  */
 cc.pointEqualToPoint = function (point1, point2) {

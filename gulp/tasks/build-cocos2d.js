@@ -137,7 +137,7 @@ var srcs = [
     './cocos2d/tilemap/CCSGTMXTiledMap.js',
     './cocos2d/tilemap/CCTMXXMLParser.js',
     './cocos2d/tilemap/CCTMXObjectGroup.js',
-    './cocos2d/tilemap/CCTMXLayer.js',
+    './cocos2d/tilemap/CCSGTMXLayer.js',
     './cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
     './cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js',
 

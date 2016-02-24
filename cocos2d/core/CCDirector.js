@@ -1106,7 +1106,7 @@ cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 
 /**
  * @event EVENT_AFTER_SCENE_LAUNCH
- * @param {cc.Scene} newScene
+ * @param {Scene} newScene
  */
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 
