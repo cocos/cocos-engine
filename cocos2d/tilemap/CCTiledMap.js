@@ -275,27 +275,10 @@ var TiledMap = cc.Class({
 
         // should remove the tmx layers first
         var oldNode = this.node._sgNode;
-        if (oldNode instanceof _ccsg.TMXTiledMap) {
-            var tmxLayers = oldNode.allLayers();
-            for (i = 0, n = tmxLayers.length; i < n; i++) {
-                oldNode.removeChild(tmxLayers[i]);
-            }
-        }
+        this._removeLayersInSgNode(oldNode);
 
         // remove the logic children for tmx layers
-        var logicChildren = this.node.getChildren();
-        var needRemove = [];
-        for (i = 0, n = logicChildren.length; i < n; i++) {
-            var child = logicChildren[i];
-            var tmxLayer = child.getComponent('cc.TiledLayer');
-            if (tmxLayer) {
-                needRemove.push(child);
-            }
-        }
-
-        for (i = 0, n = needRemove.length; i < n; i++) {
-            this.node.removeChild(needRemove[i]);
-        }
+        this._removeLayerEntities();
 
         // replace a new sgNode
         var newNode = new _ccsg.Node();
@@ -335,6 +318,31 @@ var TiledMap = cc.Class({
                 if (cb) cb();
             }
         });
+    },
+
+    _removeLayersInSgNode: function(sgNode) {
+        if (sgNode instanceof _ccsg.TMXTiledMap) {
+            var tmxLayers = sgNode.allLayers();
+            for (i = 0, n = tmxLayers.length; i < n; i++) {
+                sgNode.removeChild(tmxLayers[i]);
+            }
+        }
+    },
+
+    _removeLayerEntities: function() {
+        var logicChildren = this.node.getChildren();
+        var needRemove = [];
+        for (i = 0, n = logicChildren.length; i < n; i++) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent('cc.TiledLayer');
+            if (tmxLayer) {
+                needRemove.push(child);
+            }
+        }
+
+        for (i = 0, n = needRemove.length; i < n; i++) {
+            this.node.removeChild(needRemove[i]);
+        }
     },
 
     _initLayers: function() {
@@ -445,13 +453,11 @@ var TiledMap = cc.Class({
 
                 sgNode.initWithTMXFile(file);
                 self._initLayers();
-                if (self.enabledInHierarchy && !sgNode.isVisible()) {
-                    sgNode.setVisible(true);
-                }
                 if (cb) cb();
             });
         } else {
-            sgNode.setVisible(false);
+            this._removeLayersInSgNode(sgNode);
+            this._removeLayerEntities();
             if (cb) cb();
         }
     },
