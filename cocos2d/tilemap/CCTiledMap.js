@@ -255,38 +255,40 @@ var TiledMap = cc.Class({
     },
 
     onEnable: function () {
-        this._applyFile(function () {
-            this.node._replaceSgNode(this._tiledMap);
+        this.node._replaceSgNode(this._tiledMap);
 
-            this.node.on('child-added', this._childAdded, this);
-            this.node.on('child-reorder', this._reorderChildren, this);
-        }.bind(this));
+        if (this._tmxFile) {
+            // Add layer entities
+            this._addLayerEntities();
+        }
 
+        this.node.on('child-added', this._childAdded, this);
+        this.node.on('child-reorder', this._reorderChildren, this);
         if ( !this.node._sizeProvider ) {
             this.node._sizeProvider = this._tiledMap;
         }
     },
 
     onDisable: function () {
-        this.node.off('child-added', this._childAdded, this);
-        this.node.off('child-reorder', this._reorderChildren, this);
-
-        var i, n;
-
-        // should remove the tmx layers first
-        var oldNode = this.node._sgNode;
-        this._removeLayersInSgNode(oldNode);
-
-        // remove the logic children for tmx layers
-        this._removeLayerEntities();
-
         // replace a new sgNode
         var newNode = new _ccsg.Node();
         this.node._replaceSgNode(newNode);
 
+        // remove the logic children for tmx layers
+        this._removeLayerEntities();
+
+        // should move the tmx layers from newNode to _tiledMap
+        this._moveLayersInSgNode(newNode);
+
+        this.node.off('child-added', this._childAdded, this);
+        this.node.off('child-reorder', this._reorderChildren, this);
         if ( this.node._sizeProvider === this._tiledMap ) {
             this.node._sizeProvider = newNode;
         }
+    },
+
+    onLoad: function () {
+        this._applyFile();
     },
 
     onDestroy: function () {
@@ -320,16 +322,45 @@ var TiledMap = cc.Class({
         });
     },
 
-    _removeLayersInSgNode: function(sgNode) {
-        if (sgNode instanceof _ccsg.TMXTiledMap) {
-            var tmxLayers = sgNode.allLayers();
-            for (i = 0, n = tmxLayers.length; i < n; i++) {
-                sgNode.removeChild(tmxLayers[i]);
+    _setTmxLayerVisible: function(isVisible) {
+        var layers = this._tiledMap.allLayers();
+        for (var i = 0, n = layers.length; i < n; i++) {
+            layers[i].setVisible(isVisible);
+        }
+    },
+
+    _moveLayersInSgNode: function(sgNode) {
+        var children = sgNode.getChildren();
+        var needRemove = [];
+        for (var i = 0, n = children.length; i < n; i++) {
+            var child = children[i];
+            if (child instanceof _ccsg.TMXLayer) {
+                needRemove.push({child: child, zorder: child.getLocalZOrder()});
             }
+        }
+        for (i = 0, n = needRemove.length; i < n; i++) {
+            var info = needRemove[i];
+            sgNode.removeChild(info.child);
+            this._tiledMap.addChild(info.child, info.zorder, info.zorder);
+        }
+    },
+
+    _addLayerEntities: function() {
+        // add entity for the tmx layer
+        var layers = this._tiledMap.allLayers();
+        for (var i = 0, n = layers.length; i < n; i++) {
+            var layer = layers[i];
+            var name = layer.getLayerName();
+            var node = new cc.Node(name);
+            var addedLayer = node.addComponent(cc.TiledLayer);
+            addedLayer._replaceSgNode(layer);
+            this.node.addChild(node);
+            node.setSiblingIndex(layer.getLocalZOrder());
         }
     },
 
     _removeLayerEntities: function() {
+        var i, n;
         var logicChildren = this.node.getChildren();
         var needRemove = [];
         for (i = 0, n = logicChildren.length; i < n; i++) {
@@ -443,7 +474,7 @@ var TiledMap = cc.Class({
         }
     },
 
-    _applyFile: function (cb) {
+    _applyFile: function () {
         var sgNode = this._tiledMap;
         var file = this._tmxFile;
         var self = this;
@@ -452,13 +483,20 @@ var TiledMap = cc.Class({
                 if (err) throw err;
 
                 sgNode.initWithTMXFile(file);
-                self._initLayers();
-                if (cb) cb();
+                if (self._enabled) {
+                    self._initLayers();
+                }
             });
         } else {
-            this._removeLayersInSgNode(sgNode);
-            this._removeLayerEntities();
-            if (cb) cb();
+            // tmx file is cleared
+            // 1. hide the tmx layers in _tiledMap
+            self._setTmxLayerVisible(false);
+
+            // 2. if the component is enabled,
+            //    should remove the entities for tmx layers in node
+            if (self._enabled) {
+                self._removeLayerEntities();
+            }
         }
     },
 });
