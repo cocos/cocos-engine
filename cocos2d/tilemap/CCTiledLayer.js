@@ -14,7 +14,7 @@ var TiledLayer = cc.Class({
     },
 
     _createSgNode: function() {
-        return new _ccsg.TMXLayer();
+        return null;
     },
 
     _initSgNode: function() {
@@ -40,6 +40,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Gets the layer name
+     * @method getLayerName
      * @return {String}
      */
     getLayerName: function() {
@@ -51,6 +52,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Set the layer name
+     * @method SetLayerName
      * @param {String} layerName
      */
     setLayerName:function (layerName) {
@@ -61,6 +63,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Return the value for the specific property name
+     * @method getProperty
      * @param {String} propertyName
      * @return {*}
      */
@@ -74,6 +77,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Returns the position in pixels of a given tile coordinate
+     * @method getPositionAt
      * @param {cc.Vec2|Number} pos position or x
      * @param {Number} [y]
      * @return {cc.Vec2}
@@ -88,6 +92,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Removes a tile at given tile coordinate
+     * @method removeTileAt
      * @param {cc.Vec2|Number} pos position or x
      * @param {Number} [y]
      */
@@ -101,6 +106,7 @@ var TiledLayer = cc.Class({
      * <p>Sets the tile gid (gid = tile global id) at a given tile coordinate.<br />
      * The Tile GID can be obtained by using the method "tileGIDAt" or by using the TMX editor . Tileset Mgr +1.<br />
      * If a tile is already placed at that position, then it will be removed.</p>
+     * @method setTileGID
      * @param {Number} gid
      * @param {cc.Vec2|Number} posOrX position or x
      * @param {Number} flagsOrY flags or y
@@ -114,6 +120,7 @@ var TiledLayer = cc.Class({
 
     /**
      *  lipped tiles can be changed dynamically
+     * @method getTileFlagsAt
      * @param {cc.Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {Number}
@@ -129,6 +136,7 @@ var TiledLayer = cc.Class({
      * Returns the tile gid at a given tile coordinate. <br />
      * if it returns 0, it means that the tile is empty. <br />
      * This method requires the the tile map has not been previously released (eg. don't call layer.releaseMap())<br />
+     * @method getTileGIDAt
      * @param {cc.Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {Number}
@@ -147,6 +155,7 @@ var TiledLayer = cc.Class({
      * You can remove either by calling: <br/>
      * - layer.removeChild(sprite, cleanup); <br/>
      * - or layer.removeTileAt(ccp(x,y)); </p>
+     * @method getTileAt
      * @param {cc.Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {_ccsg.Sprite}
@@ -162,6 +171,7 @@ var TiledLayer = cc.Class({
      * <p>Dealloc the map that contains the tile position from memory. <br />
      * Unless you want to know at runtime the tiles positions, you can safely call this method. <br />
      * If you are going to call layer.getTileGIDAt() then, don't release the map</p>
+     * @method releaseMap
      */
     releaseMap:function () {
         if (this._sgNode) {
@@ -171,7 +181,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Sets the untransformed size of the _ccsg.TMXLayer.
-     * @override
+     * @method setContentSize
      * @param {cc.Size|Number} size The untransformed size of the _ccsg.TMXLayer or The untransformed size's width of the TMXLayer.
      * @param {Number} [height] The untransformed size's height of the _ccsg.TMXLayer.
      */
@@ -183,7 +193,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Return texture of cc.SpriteBatchNode
-     * @function
+     * @method getTexture
      * @return {cc.Texture2D}
      */
     getTexture: function(){
@@ -195,6 +205,7 @@ var TiledLayer = cc.Class({
 
     /**
      * Gets layer size.
+     * @method getLayerSize
      * @return {cc.Size}
      */
     getLayerSize:function () {
@@ -206,16 +217,18 @@ var TiledLayer = cc.Class({
 
     /**
      * Set layer size
-     * @param {cc.Size} Var
+     * @method setLayerSize
+     * @param {cc.Size} layerSize
      */
-    setLayerSize:function (Var) {
+    setLayerSize:function (layerSize) {
         if (this._sgNode) {
-            this._sgNode.setLayerSize(Var);
+            this._sgNode.setLayerSize(layerSize);
         }
     },
 
     /**
      * Size of the map's tile (could be different from the tile's size)
+     * @method getMapTileSize
      * @return {cc.Size}
      */
     getMapTileSize:function () {
@@ -227,16 +240,18 @@ var TiledLayer = cc.Class({
 
     /**
      * Set the map tile size.
-     * @param {cc.Size} Var
+     * @method setMapTileSize
+     * @param {cc.Size} tileSize
      */
-    setMapTileSize:function (Var) {
+    setMapTileSize:function (tileSize) {
         if (this._sgNode) {
-            this._sgNode.setMapTileSize(Var);
+            this._sgNode.setMapTileSize(tileSize);
         }
     },
 
     /**
      * Pointer to the map of tiles
+     * @method getTiles
      * @return {Array}
      */
     getTiles:function () {
@@ -248,16 +263,18 @@ var TiledLayer = cc.Class({
 
     /**
      * Pointer to the map of tiles
-     * @param {Array} Var
+     * @method setTiles
+     * @param {Array} tiles
      */
-    setTiles:function (Var) {
+    setTiles:function (tiles) {
         if (this._sgNode) {
-            this._sgNode.setTiles(Var);
+            this._sgNode.setTiles(tiles);
         }
     },
 
     /**
      * Tile set information for the layer
+     * @method getTileset
      * @return {cc.TMXTilesetInfo}
      */
     getTileset:function () {
@@ -269,16 +286,18 @@ var TiledLayer = cc.Class({
 
     /**
      * Tile set information for the layer
-     * @param {cc.TMXTilesetInfo} Var
+     * @method setTileset
+     * @param {cc.TMXTilesetInfo} tileset
      */
-    setTileset:function (Var) {
+    setTileset:function (tileset) {
         if (this._sgNode) {
-            this._sgNode.setTileset(Var);
+            this._sgNode.setTileset(tileset);
         }
     },
 
     /**
      * Layer orientation, which is the same as the map orientation
+     * @method getLayerOrientation
      * @return {Number}
      */
     getLayerOrientation:function () {
@@ -290,16 +309,18 @@ var TiledLayer = cc.Class({
 
     /**
      * Layer orientation, which is the same as the map orientation
-     * @param {Number} Var
+     * @method setLayerOrientation
+     * @param {Number} orientation
      */
-    setLayerOrientation:function (Var) {
+    setLayerOrientation:function (orientation) {
         if (this._sgNode) {
-            this._sgNode.setLayerOrientation(Var);
+            this._sgNode.setLayerOrientation(orientation);
         }
     },
 
     /**
      * properties from the layer. They can be added using Tiled
+     * @method getProperties
      * @return {Array}
      */
     getProperties:function () {
@@ -311,11 +332,12 @@ var TiledLayer = cc.Class({
 
     /**
      * properties from the layer. They can be added using Tiled
-     * @param {Array} Var
+     * @method setProperties
+     * @param {Array} properties
      */
-    setProperties:function (Var) {
+    setProperties:function (properties) {
         if (this._sgNode) {
-            this._sgNode.setProperties(Var);
+            this._sgNode.setProperties(properties);
         }
     },
 });
