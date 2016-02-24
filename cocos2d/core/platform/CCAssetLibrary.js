@@ -197,9 +197,7 @@ var AssetLibrary = {
             src: randomUuid,
             type: 'uuid',
             content: json,
-            states: {
-                Downloader: cc.Pipeline.ItemState.COMPLETE
-            }
+            skips: [ Loader.downloader.id ]
         };
         Loader.load(item, function (error, items) {
             var asset = items.getContent(randomUuid);

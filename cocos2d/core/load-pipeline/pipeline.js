@@ -140,6 +140,13 @@ function createItem (url) {
         };
     }
 
+    if (result.skips) {
+        for (var i = 0, l = result.skips.length; i < l; i++) {
+            var skip = result.skips[i];
+            result.states[skip] = ItemState.COMPLETE;
+        }
+    }
+
     return result;
 }
 
@@ -262,7 +269,8 @@ JS.mixin(Pipeline.prototype, {
      * Let new items flow into the pipeline.
      * Each item can be a simple url string or an object, 
      * if it's an object, it must contain `src` property. 
-     * You can also specify its type by `type` property, by default, the type is the extension name in `src`.
+     * You can specify its type by `type` property, by default, the type is the extension name in `src`.
+     * By adding a `skips` property including pipe ids, you can skip these pipe.
      * The object can contain any supplementary property as you want.
      * @example
      *  pipeline.flowIn([
@@ -270,7 +278,8 @@ JS.mixin(Pipeline.prototype, {
      *      {
      *          src: 'res/scene.json',
      *          type: 'scene',
-     *          name: 'scene'
+     *          name: 'scene',
+     *          skips: ['Downloader']
      *      }
      *  ]);
      * 

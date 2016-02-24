@@ -71,19 +71,19 @@ function loadUuid (item, callback) {
         target: item.existingAsset
     });
 
-    var depends = [];
     var dependsSrcs = JS.array.copy(tdInfo.uuidList);
     var ownerList = JS.array.copy(tdInfo.uuidObjList);
     var propList = JS.array.copy(tdInfo.uuidPropList);
 
+    var depends = new Array(dependsSrcs.length);
     // load depends assets
     for (var i = 0; i < dependsSrcs.length; i++) {
         var dependSrc = dependsSrcs[i];
-        depends.push({
+        depends[i] = {
             src: dependSrc,
             type: 'uuid',
             uuid: dependSrc
-        });
+        };
     }
     // load raw
     if (tdInfo.rawProp) {

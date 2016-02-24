@@ -258,7 +258,6 @@ function downloadUuid (item, callback) {
                 // Dispatch to other raw type downloader
                 var downloadFunc = self.extMap[ext] || self.extMap['default'];
                 item.type = ext;
-                // item.states[Pipeline.Loader.ID] = Pipeline.ItemState.COMPLETE;
                 downloadFunc({src: url}, callback);
             }
             else {
