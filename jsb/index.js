@@ -16,6 +16,7 @@ require('./jsb-director');
 require('./jsb-tex-sprite-frame');
 require('./jsb-scale9sprite');
 require('./jsb-label');
+require('./jsb-editbox');
 require('./jsb-particle');
 require('./jsb-enums');
 require('./jsb-event');

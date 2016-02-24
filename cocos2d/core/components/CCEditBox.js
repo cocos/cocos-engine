@@ -257,12 +257,12 @@ var EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan: function() {
-        var events = this.editingDidBegin;
+        var events = this.editingDidBegan;
         this._handleComponentEvent(events);
     },
 
     editBoxEditingDidEnded: function() {
-        var events = this.editingDidEnd;
+        var events = this.editingDidEnded;
         this._handleComponentEvent(events);
     },
 
