@@ -25,20 +25,26 @@
 /**
  * Renders a TMX Tile Map in the scene.
  * @class TiledMap
- * @extends _ComponentInSG
+ * @extends Component
  */
 var TiledMap = cc.Class({
     name: 'cc.TiledMap',
-    extends: require('./../core/components/CCComponentInSG'),
+    extends: require('../core/components/CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/TiledMap'
+        menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
+        executeInEditMode: true
     },
 
     properties: {
+        _tiledMap: {
+            default: null,
+            serializable: false,
+        },
+
         /**
          * The tmx file.
-         * @property {string} file
+         * @property {string} tmxFile
          * @default ""
          */
         _tmxFile: {
@@ -60,22 +66,29 @@ var TiledMap = cc.Class({
         }
     },
 
+    ctor: function () {
+        this._tiledMap = new _ccsg.TMXTiledMap();
+        if (cc.sys.isNative) {
+            this._tiledMap.retain();
+        }
+    },
+
     /**
      * Gets the map size.
      * @method getMapSize
      * @return {cc.Size}
      */
     getMapSize:function () {
-        return this._sgNode.getMapSize();
+        return this._tiledMap.getMapSize();
     },
 
     /**
      * Set the map size.
      * @method setMapSize
-     * @param {cc.Size} Var
+     * @param {cc.Size} mapSize
      */
-    setMapSize:function (Var) {
-        this._sgNode.setMapSize(Var);
+    setMapSize:function (mapSize) {
+        this._tiledMap.setMapSize(mapSize);
     },
 
     /**
@@ -84,16 +97,16 @@ var TiledMap = cc.Class({
      * @return {cc.Size}
      */
     getTileSize:function () {
-        return this._sgNode.getTileSize();
+        return this._tiledMap.getTileSize();
     },
 
     /**
      * Set the tile size
      * @method setTileSize
-     * @param {cc.Size} Var
+     * @param {cc.Size} tileSize
      */
-    setTileSize:function (Var) {
-        this._sgNode.setTileSize(Var);
+    setTileSize:function (tileSize) {
+        this._tiledMap.setTileSize(tileSize);
     },
 
     /**
@@ -102,16 +115,16 @@ var TiledMap = cc.Class({
      * @return {Number}
      */
     getMapOrientation:function () {
-        return this._sgNode.getMapOrientation();
+        return this._tiledMap.getMapOrientation();
     },
 
     /**
      * map orientation
      * @method setMapOrientation
-     * @param {Number} Var
+     * @param {Number} orientation
      */
-    setMapOrientation:function (Var) {
-        this._sgNode.setMapOrientation(Var);
+    setMapOrientation:function (orientation) {
+        this._tiledMap.setMapOrientation(orientation);
     },
 
     /**
@@ -120,16 +133,16 @@ var TiledMap = cc.Class({
      * @return {Array}
      */
     getObjectGroups:function () {
-        return this._sgNode.getObjectGroups();
+        return this._tiledMap.getObjectGroups();
     },
 
     /**
      * object groups
      * @method setObjectGroups
-     * @param {Array} Var
+     * @param {Array} groups
      */
-    setObjectGroups:function (Var) {
-        this._sgNode.setObjectGroups(Var);
+    setObjectGroups:function (groups) {
+        this._tiledMap.setObjectGroups(groups);
     },
 
     /**
@@ -138,16 +151,16 @@ var TiledMap = cc.Class({
      * @return {object}
      */
     getProperties:function () {
-        return this._sgNode.getProperties();
+        return this._tiledMap.getProperties();
     },
 
     /**
      * Set the map properties
      * @method setProperties
-     * @param {object} Var
+     * @param {object} properties
      */
-    setProperties:function (Var) {
-        this._sgNode.setProperties(Var);
+    setProperties:function (properties) {
+        this._tiledMap.setProperties(properties);
     },
 
     /**
@@ -157,7 +170,7 @@ var TiledMap = cc.Class({
      * @return {Boolean} Whether the initialization was successful.
      */
     initWithTMXFile:function (tmxFile) {
-        return this._sgNode.initWithTMXFile(tmxFile);
+        return this._tiledMap.initWithTMXFile(tmxFile);
     },
 
     /**
@@ -168,7 +181,7 @@ var TiledMap = cc.Class({
      * @return {Boolean} Whether the initialization was successful.
      */
     initWithXML:function(tmxString, resourcePath){
-        return this._sgNode.initWithXML(tmxString, resourcePath);
+        return this._tiledMap.initWithXML(tmxString, resourcePath);
     },
 
     /**
@@ -177,17 +190,38 @@ var TiledMap = cc.Class({
      * @returns {Array}
      */
     allLayers: function () {
-        return this._sgNode.allLayers();
+        var logicChildren = this.node.getChildren();
+        var ret = [];
+        for (var i = 0, n = logicChildren.length; i < n; i++) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent('cc.TiledLayer');
+            if (tmxLayer) {
+                ret.push(tmxLayer);
+            }
+        }
+
+        return ret;
     },
 
     /**
-     * return the TMXLayer for the specific layer
+     * return the cc.TiledLayer for the specific layer
      * @method getLayer
      * @param {String} layerName
-     * @return {cc.TMXLayer}
+     * @return {cc.TiledLayer}
      */
     getLayer:function (layerName) {
-        return this._sgNode.getLayer(layerName);
+        var logicChildren = this.node.getChildren();
+        var ret = null;
+        for (var i = 0, n = logicChildren.length; i < n; i++) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent('cc.TiledLayer');
+            if (tmxLayer && tmxLayer.getLayerName() === layerName) {
+                ret = tmxLayer;
+                break;
+            }
+        }
+
+        return ret;
     },
 
     /**
@@ -197,7 +231,7 @@ var TiledMap = cc.Class({
      * @return {cc.TMXObjectGroup}
      */
     getObjectGroup:function (groupName) {
-        return this._sgNode.getObjectGroup(groupName);
+        return this._tiledMap.getObjectGroup(groupName);
     },
 
     /**
@@ -207,7 +241,7 @@ var TiledMap = cc.Class({
      * @return {String}
      */
     getProperty:function (propertyName) {
-        return this._sgNode.getProperty(propertyName);
+        return this._tiledMap.getProperty(propertyName);
     },
 
     /**
@@ -217,12 +251,64 @@ var TiledMap = cc.Class({
      * @return {object}
      */
     getPropertiesForGID: function(GID) {
-        return this._sgNode.getPropertiesForGID(GID);
+        return this._tiledMap.getPropertiesForGID(GID);
     },
 
     onEnable: function () {
-        if (this._sgNode && this._tmxFile) {
-            this._sgNode.setVisible(true);
+        this._applyFile(function () {
+            this.node._replaceSgNode(this._tiledMap);
+
+            this.node.on('child-added', this._childAdded, this);
+            this.node.on('child-reorder', this._reorderChildren, this);
+        }.bind(this));
+
+        if ( !this.node._sizeProvider ) {
+            this.node._sizeProvider = this._tiledMap;
+        }
+    },
+
+    onDisable: function () {
+        this.node.off('child-added', this._childAdded, this);
+        this.node.off('child-reorder', this._reorderChildren, this);
+
+        var i, n;
+
+        // should remove the tmx layers first
+        var oldNode = this.node._sgNode;
+        if (oldNode instanceof _ccsg.TMXTiledMap) {
+            var tmxLayers = oldNode.allLayers();
+            for (i = 0, n = tmxLayers.length; i < n; i++) {
+                oldNode.removeChild(tmxLayers[i]);
+            }
+        }
+
+        // remove the logic children for tmx layers
+        var logicChildren = this.node.getChildren();
+        var needRemove = [];
+        for (i = 0, n = logicChildren.length; i < n; i++) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent('cc.TiledLayer');
+            if (tmxLayer) {
+                needRemove.push(child);
+            }
+        }
+
+        for (i = 0, n = needRemove.length; i < n; i++) {
+            this.node.removeChild(needRemove[i]);
+        }
+
+        // replace a new sgNode
+        var newNode = new _ccsg.Node();
+        this.node._replaceSgNode(newNode);
+
+        if ( this.node._sizeProvider === this._tiledMap ) {
+            this.node._sizeProvider = newNode;
+        }
+    },
+
+    onDestroy: function () {
+        if (cc.sys.isNative) {
+            this._tiledMap && this._tiledMap.release();
         }
     },
 
@@ -251,8 +337,106 @@ var TiledMap = cc.Class({
         });
     },
 
-    _applyFile: function () {
-        var sgNode = this._sgNode;
+    _initLayers: function() {
+        // get the layer names in scene graph.
+        var layerNames = this._tiledMap.allLayers().map(function (layer) {
+            return layer.getLayerName();
+        });
+
+        var logicChildren = this.node.getChildren();
+        var needRemove = [];
+        var existedLayers = [];
+        var otherChildrenInfo = [];
+        var i, n;
+
+        // check the children of this.node
+        for (i = 0, n = logicChildren.length; i < n; i++) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent('cc.TiledLayer');
+            if (tmxLayer) {
+                var layerName = tmxLayer.getLayerName();
+                if (layerNames.indexOf(layerName) < 0) {
+                    // the tmx layer should be removed
+                    needRemove.push(child);
+                } else {
+                    // the tmx layer should be updated
+                    existedLayers.push(child);
+                    var newSGLayer = this._tiledMap.getLayer(layerName);
+                    tmxLayer._replaceSgNode(newSGLayer);
+                }
+            } else {
+                otherChildrenInfo.push({child: child, index: child.getSiblingIndex()});
+            }
+        }
+
+        // remove the deprecated tmx layers
+        for (i = 0, n = needRemove.length; i < n; i++) {
+            this.node.removeChild(needRemove[i]);
+        }
+
+        // add new tmx layers & update the sibling index with ZOrder
+        var existedNames = existedLayers.map(function(node) {
+            var tmxLayer = node.getComponent('cc.TiledLayer');
+            return tmxLayer.getLayerName();
+        });
+
+        for (i = 0, n = layerNames.length; i < n; i++) {
+            var name = layerNames[i];
+            var sgLayer = this._tiledMap.getLayer(name);
+            if (existedNames.indexOf(name) < 0) {
+                // need add entity for the tmx layer
+                var node = new cc.Node(name);
+                var addedLayer = node.addComponent(cc.TiledLayer);
+                addedLayer._replaceSgNode(sgLayer);
+                this.node.addChild(node);
+                node.setSiblingIndex(sgLayer.getLocalZOrder());
+            } else {
+                existedLayers[i].setSiblingIndex(sgLayer.getLocalZOrder());
+            }
+        }
+
+        // update the sibling index of the other children
+        for (i = 0, n = otherChildrenInfo.length; i < n; i++) {
+            var info = otherChildrenInfo[i];
+            info.child.setSiblingIndex(info.index);
+        }
+
+        // reorder the children
+        this._reorderChildren();
+    },
+
+    _childAdded: function(event) {
+        var node = event.detail;
+        if (node) {
+            var tmxLayer = node.getComponent('cc.TiledLayer');
+            if (!tmxLayer) {
+                var childrenCount = this.node.getChildrenCount();
+                node.setSiblingIndex(childrenCount);
+                if (node._sgNode) {
+                    node._sgNode.setLocalZOrder(childrenCount);
+                }
+            }
+        }
+    },
+
+    _reorderChildren: function() {
+        var logicChildren = this.node.getChildren();
+        for (var i = 0, n = logicChildren.length; i < n; i++) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent('cc.TiledLayer');
+            var zOrderValue = child.getSiblingIndex();
+            if (tmxLayer) {
+                tmxLayer._sgNode.setLocalZOrder(zOrderValue);
+            } else {
+                if (child._sgNode) {
+                    child._sgNode.setLocalZOrder(zOrderValue);
+                }
+            }
+        }
+    },
+
+    _applyFile: function (cb) {
+        var sgNode = this._tiledMap;
         var file = this._tmxFile;
         var self = this;
         if (file) {
@@ -260,22 +444,17 @@ var TiledMap = cc.Class({
                 if (err) throw err;
 
                 sgNode.initWithTMXFile(file);
+                self._initLayers();
                 if (self.enabledInHierarchy && !sgNode.isVisible()) {
                     sgNode.setVisible(true);
                 }
+                if (cb) cb();
             });
         } else {
             sgNode.setVisible(false);
+            if (cb) cb();
         }
     },
-
-    _createSgNode: function () {
-        return new _ccsg.TMXTiledMap();
-    },
-
-    _initSgNode: function () {
-        this._applyFile();
-    }
 });
 
 cc.TiledMap = module.exports = TiledMap;

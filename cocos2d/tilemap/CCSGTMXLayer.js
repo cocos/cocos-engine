@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 /**
- * <p>cc.TMXLayer represents the TMX layer. </p>
+ * <p>_ccsg.TMXLayer represents the TMX layer. </p>
  *
  * <p>It is a subclass of cc.SpriteBatchNode. By default the tiles are rendered using a cc.TextureAtlas. <br />
  * If you modify a tile on runtime, then, that tile will become a _ccsg.Sprite, otherwise no _ccsg.Sprite objects are created. <br />
@@ -55,7 +55,7 @@
  * @property {Number}               tileWidth           - Width of a tile
  * @property {Number}               tileHeight          - Height of a tile
  */
-cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
+_ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 	tiles: null,
 	tileset: null,
 	layerOrientation: null,
@@ -81,10 +81,10 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
     _className:"TMXLayer",
 
     /**
-     * Creates a cc.TMXLayer with an tile set info, a layer info and a map info   <br/>
-     * Constructor of cc.TMXLayer
+     * Creates a _ccsg.TMXLayer with an tile set info, a layer info and a map info   <br/>
+     * Constructor of _ccsg.TMXLayer
      * @param {cc.TMXTilesetInfo} tilesetInfo
-     * @param {cc.TMXLayerInfo} layerInfo
+     * @param {_ccsg.TMXLayerInfo} layerInfo
      * @param {cc.TMXMapInfo} mapInfo
      */
     ctor:function (tilesetInfo, layerInfo, mapInfo) {
@@ -100,9 +100,9 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
 
     _createRenderCmd: function(){
         if(cc._renderType === cc.game.RENDER_TYPE_CANVAS)
-            return new cc.TMXLayer.CanvasRenderCmd(this);
+            return new _ccsg.TMXLayer.CanvasRenderCmd(this);
         else
-            return new cc.TMXLayer.WebGLRenderCmd(this);
+            return new _ccsg.TMXLayer.WebGLRenderCmd(this);
     },
 
     /**
@@ -250,7 +250,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
     },
 
     /**
-     * Initializes a cc.TMXLayer with a tileset info, a layer info and a map info
+     * Initializes a _ccsg.TMXLayer with a tileset info, a layer info and a map info
      * @param {cc.TMXTilesetInfo} tilesetInfo
      * @param {cc.TMXLayerInfo} layerInfo
      * @param {cc.TMXMapInfo} mapInfo
@@ -312,7 +312,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
 
     /**
      * <p>Returns the tile (_ccsg.Sprite) at a given a tile coordinate. <br/>
-     * The returned _ccsg.Sprite will be already added to the cc.TMXLayer. Don't add it again.<br/>
+     * The returned _ccsg.Sprite will be already added to the _ccsg.TMXLayer. Don't add it again.<br/>
      * The _ccsg.Sprite can be treated like any other _ccsg.Sprite: rotated, scaled, translated, opacity, color, etc. <br/>
      * You can remove either by calling: <br/>
      * - layer.removeChild(sprite, cleanup); <br/>
@@ -323,13 +323,13 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
      */
     getTileAt: function (pos, y) {
         if(!pos)
-            throw new Error("cc.TMXLayer.getTileAt(): pos should be non-null");
+            throw new Error("_ccsg.TMXLayer.getTileAt(): pos should be non-null");
         if(y !== undefined)
             pos = cc.p(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error("cc.TMXLayer.getTileAt(): invalid position");
+            throw new Error("_ccsg.TMXLayer.getTileAt(): invalid position");
         if(!this.tiles || !this._atlasIndexArray){
-            cc.log("cc.TMXLayer.getTileAt(): TMXLayer: the tiles map has been released");
+            cc.log("_ccsg.TMXLayer.getTileAt(): TMXLayer: the tiles map has been released");
             return null;
         }
 
@@ -371,13 +371,13 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
      */
     getTileGIDAt:function (pos, y) {
         if(pos == null)
-            throw new Error("cc.TMXLayer.getTileGIDAt(): pos should be non-null");
+            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): pos should be non-null");
         if(y !== undefined)
             pos = cc.p(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error("cc.TMXLayer.getTileGIDAt(): invalid position");
+            throw new Error("_ccsg.TMXLayer.getTileGIDAt(): invalid position");
         if(!this.tiles || !this._atlasIndexArray){
-            cc.log("cc.TMXLayer.getTileGIDAt(): TMXLayer: the tiles map has been released");
+            cc.log("_ccsg.TMXLayer.getTileGIDAt(): TMXLayer: the tiles map has been released");
             return null;
         }
 
@@ -398,13 +398,13 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
      */
     getTileFlagsAt:function (pos, y) {
         if(!pos)
-            throw new Error("cc.TMXLayer.getTileFlagsAt(): pos should be non-null");
+            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): pos should be non-null");
         if(y !== undefined)
             pos = cc.p(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error("cc.TMXLayer.getTileFlagsAt(): invalid position");
+            throw new Error("_ccsg.TMXLayer.getTileFlagsAt(): invalid position");
         if(!this.tiles || !this._atlasIndexArray){
-            cc.log("cc.TMXLayer.getTileFlagsAt(): TMXLayer: the tiles map has been released");
+            cc.log("_ccsg.TMXLayer.getTileFlagsAt(): TMXLayer: the tiles map has been released");
             return null;
         }
 
@@ -428,7 +428,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
      */
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
         if(!posOrX)
-            throw new Error("cc.TMXLayer.setTileGID(): pos should be non-null");
+            throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
         var pos;
         if (flags !== undefined) {
             pos = cc.p(posOrX, flagsOrY);
@@ -437,13 +437,13 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
             flags = flagsOrY;
         }
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error("cc.TMXLayer.setTileGID(): invalid position");
+            throw new Error("_ccsg.TMXLayer.setTileGID(): invalid position");
         if(!this.tiles || !this._atlasIndexArray){
-            cc.log("cc.TMXLayer.setTileGID(): TMXLayer: the tiles map has been released");
+            cc.log("_ccsg.TMXLayer.setTileGID(): TMXLayer: the tiles map has been released");
             return;
         }
         if(gid !== 0 && gid < this.tileset.firstGid){
-            cc.log( "cc.TMXLayer.setTileGID(): invalid gid:" + gid);
+            cc.log( "_ccsg.TMXLayer.setTileGID(): invalid gid:" + gid);
             return;
         }
 
@@ -484,13 +484,13 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
      */
     removeTileAt:function (pos, y) {
         if(!pos)
-            throw new Error("cc.TMXLayer.removeTileAt(): pos should be non-null");
+            throw new Error("_ccsg.TMXLayer.removeTileAt(): pos should be non-null");
         if(y !== undefined)
             pos = cc.p(pos, y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0)
-            throw new Error("cc.TMXLayer.removeTileAt(): invalid position");
+            throw new Error("_ccsg.TMXLayer.removeTileAt(): invalid position");
         if(!this.tiles || !this._atlasIndexArray){
-            cc.log("cc.TMXLayer.removeTileAt(): TMXLayer: the tiles map has been released");
+            cc.log("_ccsg.TMXLayer.removeTileAt(): TMXLayer: the tiles map has been released");
             return;
         }
 
@@ -600,14 +600,14 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
     },
 
     /**
-     * cc.TMXLayer doesn't support adding a _ccsg.Sprite manually.
-     * @warning addChild(child); is not supported on cc.TMXLayer. Instead of setTileGID.
+     * _ccsg.TMXLayer doesn't support adding a _ccsg.Sprite manually.
+     * @warning addChild(child); is not supported on _ccsg.TMXLayer. Instead of setTileGID.
      * @param {_ccsg.Node} child
      * @param {number} zOrder
      * @param {number} tag
      */
     addChild:function (child, zOrder, tag) {
-        cc.log("addChild: is not supported on cc.TMXLayer. Instead use setTileGID or tileAt.");
+        cc.log("addChild: is not supported on _ccsg.TMXLayer. Instead use setTileGID or tileAt.");
     },
 
     /**
@@ -621,7 +621,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
             return;
 
         if(this._children.indexOf(sprite) === -1){
-            cc.log("cc.TMXLayer.removeChild(): Tile does not belong to TMXLayer");
+            cc.log("_ccsg.TMXLayer.removeChild(): Tile does not belong to TMXLayer");
             return;
         }
 
@@ -866,7 +866,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
             }
         }
         if(!cc.js.isNumber(item))
-            cc.log("cc.TMXLayer._atlasIndexForExistantZ(): TMX atlas index not found. Shall not happen");
+            cc.log("_ccsg.TMXLayer._atlasIndexForExistantZ(): TMX atlas index not found. Shall not happen");
         return i;
     },
 
@@ -881,7 +881,7 @@ cc.TMXLayer = cc.SpriteBatchNode.extend(/** @lends cc.TMXLayer# */{
     }
 });
 
-var _p = cc.TMXLayer.prototype;
+var _p = _ccsg.TMXLayer.prototype;
 
 /** @expose */
 cc.defineGetterSetter(_p, "texture", _p.getTexture, _p.setTexture);
@@ -902,13 +902,13 @@ cc.defineGetterSetter(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
 
 
 /**
- * Creates a cc.TMXLayer with an tile set info, a layer info and a map info
- * @deprecated since v3.0 please use new cc.TMXLayer(tilesetInfo, layerInfo, mapInfo) instead.
+ * Creates a _ccsg.TMXLayer with an tile set info, a layer info and a map info
+ * @deprecated since v3.0 please use new _ccsg.TMXLayer(tilesetInfo, layerInfo, mapInfo) instead.
  * @param {cc.TMXTilesetInfo} tilesetInfo
  * @param {cc.TMXLayerInfo} layerInfo
  * @param {cc.TMXMapInfo} mapInfo
- * @return {cc.TMXLayer|Null}
+ * @return {_ccsg.TMXLayer|Null}
  */
-cc.TMXLayer.create = function (tilesetInfo, layerInfo, mapInfo) {
-    return new cc.TMXLayer(tilesetInfo, layerInfo, mapInfo);
+_ccsg.TMXLayer.create = function (tilesetInfo, layerInfo, mapInfo) {
+    return new _ccsg.TMXLayer(tilesetInfo, layerInfo, mapInfo);
 };

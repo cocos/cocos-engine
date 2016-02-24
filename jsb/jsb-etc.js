@@ -263,7 +263,8 @@ window._ccsg = {
     ParticleSystem: cc.ParticleSystem,
     Label: cc.Label,
     EditBox: cc.EditBox,
-    TMXTiledMap: cc.TMXTiledMap
+    TMXTiledMap: cc.TMXTiledMap,
+    TMXLayer: cc.TMXLayer
 };
 
 // rename cc.Class to cc._Class

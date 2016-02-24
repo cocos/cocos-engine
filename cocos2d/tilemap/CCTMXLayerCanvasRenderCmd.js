@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 (function(){
-    cc.TMXLayer.CanvasRenderCmd = function(renderable){
+    _ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
         cc.SpriteBatchNode.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._realWorldTransform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
@@ -42,8 +42,8 @@
         this._cacheDirty = false;
     };
 
-    var proto = cc.TMXLayer.CanvasRenderCmd.prototype = Object.create(cc.SpriteBatchNode.CanvasRenderCmd.prototype);
-    proto.constructor = cc.TMXLayer.CanvasRenderCmd;
+    var proto = _ccsg.TMXLayer.CanvasRenderCmd.prototype = Object.create(cc.SpriteBatchNode.CanvasRenderCmd.prototype);
+    proto.constructor = _ccsg.TMXLayer.CanvasRenderCmd;
 
     //set the cache dirty flag for canvas
     proto._setNodeDirtyForCache = function () {
