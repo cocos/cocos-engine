@@ -368,12 +368,12 @@ var TiledMap = cc.Class({
     _onMapLoaded: function(err) {
         this._isLoading = false;
         if (err) {
-            this._emitEvents(this.mapLoaded, err);
+            cc.Component.EventHandler.emitEvents(this.mapLoaded, err);
         } else {
             if (this._enabled) {
                 this._refreshLayerEntities();
             }
-            this._emitEvents(this.mapLoaded);
+            cc.Component.EventHandler.emitEvents(this.mapLoaded);
         }
     },
 

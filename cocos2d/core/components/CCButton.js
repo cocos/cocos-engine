@@ -325,7 +325,7 @@ var Button = cc.Class({
 
     _onTouchEnded: function () {
         if (this._pressed) {
-            this._emitEvents(this.clickEvents);
+            cc.Component.EventHandler.emitEvents(this.clickEvents);
         }
         this._pressed = false;
         this._updateState();
