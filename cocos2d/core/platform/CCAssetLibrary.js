@@ -168,8 +168,7 @@ var AssetLibrary = {
             Loader.removeItem(uuid);
         }
 
-        Loader.load(item, function (error, items) {
-            var asset = items.getContent(uuid);
+        Loader.load(item, function (error, asset) {
             if (error || !asset) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
             }
@@ -207,8 +206,7 @@ var AssetLibrary = {
             content: json,
             skips: [ Loader.downloader.id ]
         };
-        Loader.load(item, function (error, items) {
-            var asset = items.getContent(randomUuid);
+        Loader.load(item, function (error, asset) {
             if (error || !asset) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
             }
@@ -217,6 +215,7 @@ var AssetLibrary = {
                     if (CC_EDITOR || isScene(asset)) {
                         Loader.removeItem(randomUuid);
                     }
+                    delete asset._uuid;
                     callback(error, asset);
                 });
             }
@@ -224,6 +223,7 @@ var AssetLibrary = {
                 if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(randomUuid);
                 }
+                delete asset._uuid;
                 callback(error, asset);
             }
         });

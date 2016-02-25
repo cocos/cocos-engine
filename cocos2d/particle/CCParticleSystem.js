@@ -723,10 +723,9 @@ var ParticleSystem = cc.Class({
         var file = this._file;
         if (file) {
             var self = this;
-            cc.loader.load(file, function (err, results) {
-                var content = results.getContent(file);
+            cc.loader.load(file, function (err, content) {
                 if (err || !content) {
-                    throw results.getError(file) || new Error('Unkown error');
+                    throw err || new Error('Unkown error');
                 }
 
                 sgNode.particleCount = 0;

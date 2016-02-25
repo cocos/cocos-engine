@@ -41,6 +41,31 @@ asyncTest('Load', function () {
     }, 5000);
 });
 
+asyncTest('Load single file', function () {
+    var image1 = assetDir + '/button.png';
+
+    loader.load(image1, function (completedCount, totalCount, item) {
+        if (item.src === image1) {
+            ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
+        }
+        else {
+            ok(false, 'should not load an unknown url');
+        }
+    }, function (error, texture) {
+        ok(!error, 'should not return error');
+        ok(texture instanceof cc.Texture2D, 'the single result should be Texture2D');
+
+        loader.releaseAll();
+        clearTimeout(timeoutId);
+        start();
+    });
+
+    var timeoutId = setTimeout(function () {
+        ok(false, 'time out!');
+        start();
+    }, 5000);
+});
+
 asyncTest('Load with dependencies', function () {
     var dep1 = assetDir + '/button.png';
     var dep2 = assetDir + '/library/12/123200.json';
