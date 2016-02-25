@@ -586,6 +586,21 @@ var Component = cc.Class({
         }
     },
 
+    _emitEvents: function(events, params) {
+        for (var i = 0, l = events.length; i < l; i++) {
+            var event = events[i];
+            var target = event.target;
+            if (!cc.isValid(target)) continue;
+
+            var comp = target.getComponent(event.component);
+            if (!cc.isValid(comp)) continue;
+
+            var handler = comp[event.handler];
+            if (!handler) continue;
+            handler.call(comp, params);
+        }
+    },
+
     _onPreDestroy: function () {
         var i, l, target;
         // ensure onDisable called

@@ -200,7 +200,7 @@ var EditBox = cc.Class({
 
         /**
          * The event handler to be called when EditBox edit ends.
-         * @property {cc.Component.EventHandler} editingDidEnd
+         * @property {cc.Component.EventHandler} editingDidEnded
          */
         editingDidEnded: {
             default: [],
@@ -241,34 +241,16 @@ var EditBox = cc.Class({
         sgNode.setDelegate(this);
     },
 
-    _handleComponentEvent: function(events, text) {
-        for (var i = 0, l = events.length; i < l; i++) {
-            var event = events[i];
-            var target = event.target;
-            if (!cc.isValid(target)) continue;
-
-            var comp = target.getComponent(event.component);
-            if (!cc.isValid(comp)) continue;
-
-            var handler = comp[event.handler];
-            if (!handler) continue;
-            handler.call(comp, text);
-        }
-    },
-
     editBoxEditingDidBegan: function() {
-        var events = this.editingDidBegan;
-        this._handleComponentEvent(events);
+        this._emitEvents(this.editingDidBegan);
     },
 
     editBoxEditingDidEnded: function() {
-        var events = this.editingDidEnded;
-        this._handleComponentEvent(events);
+        this._emitEvents(this.editingDidEnded);
     },
 
     editBoxTextChanged: function(editBox, text) {
-        var events = this.textChanged;
-        this._handleComponentEvent(events, text);
+        this._emitEvents(this.textChanged, text);
     },
 });
 

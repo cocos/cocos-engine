@@ -37,6 +37,11 @@ var TiledMap = cc.Class({
     },
 
     properties: {
+        _isLoading: {
+            default: false,
+            serializable: false,
+        },
+
         _tiledMap: {
             default: null,
             serializable: false,
@@ -63,6 +68,15 @@ var TiledMap = cc.Class({
                 }
             },
             url: cc.TiledMapAsset
+        },
+
+        /**
+         * The event handler to be called when the map is loaded.
+         * @property {cc.Component.EventHandler} mapLoaded
+         */
+        mapLoaded: {
+            default: [],
+            type: cc.Component.EventHandler,
         }
     },
 
@@ -164,24 +178,39 @@ var TiledMap = cc.Class({
     },
 
     /**
-     * Initializes the instance of cc.TiledMap with tmxFile
+     * Initializes the instance of cc.TiledMap with tmxFile.
+     * The mapLoaded events will be emitted when the map is loaded.
      * @method initWithTMXFile
      * @param {String} tmxFile
-     * @return {Boolean} Whether the initialization was successful.
      */
     initWithTMXFile:function (tmxFile) {
-        return this._tiledMap.initWithTMXFile(tmxFile);
+        this._tmxFile = tmxFile;
     },
 
     /**
-     * Initializes the instance of cc.TiledMap with tmxString
+     * Initializes the instance of cc.TiledMap with tmxString.
+     * The mapLoaded events will be emitted when the map is loaded.
      * @method initWithXML
      * @param {String} tmxString
      * @param {String} resourcePath
-     * @return {Boolean} Whether the initialization was successful.
      */
     initWithXML:function(tmxString, resourcePath){
-        return this._tiledMap.initWithXML(tmxString, resourcePath);
+        // clear the tmx file
+        this._tmxFile = null;
+
+        // preload textures & init the _tileMap
+        var sgNode = this._tiledMap;
+        var self = this;
+        var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath);
+        self._isLoading = true;
+        this._preloadTextures(mapInfo, function(err, results) {
+            if (err) {
+                self._onMapLoaded(err);
+            } else {
+                sgNode.initWithXML(tmxString, resourcePath);
+                self._onMapLoaded();
+            }
+        });
     },
 
     /**
@@ -257,7 +286,7 @@ var TiledMap = cc.Class({
     onEnable: function () {
         this.node._replaceSgNode(this._tiledMap);
 
-        if (this._tmxFile) {
+        if (this._tmxFile && ! this._isLoading) {
             // refresh layer entities
             this._refreshLayerEntities();
         }
@@ -297,7 +326,24 @@ var TiledMap = cc.Class({
         }
     },
 
+    _preloadTextures: function(mapInfo, cb) {
+        var sets = mapInfo.getTilesets();
+        if (sets) {
+            var textures = sets.map(function (set) {
+                return set.sourceImage;
+            });
+
+            cc.loader.load(textures, function (err) {
+                cb(err, textures);
+            });
+        }
+        else {
+            if (cb) cb();
+        }
+    },
+
     _preloadTmx: function(file, cb) {
+        var self = this;
         cc.loader.load(file, function (err, items) {
             if (err) {
                 if (cb) cb(items.getError(file) || new Error('Unknown error'));
@@ -305,21 +351,20 @@ var TiledMap = cc.Class({
             }
 
             var mapInfo = new cc.TMXMapInfo(file);
-            var sets = mapInfo.getTilesets();
-
-            if (sets) {
-                var textures = sets.map(function (set) {
-                    return set.sourceImage;
-                });
-
-                cc.loader.load(textures, function (err) {
-                    cb(err, textures);
-                });
-            }
-            else {
-                if (cb) cb();
-            }
+            self._preloadTextures(mapInfo, cb);
         });
+    },
+
+    _onMapLoaded: function(err) {
+        this._isLoading = false;
+        if (err) {
+            this._emitEvents(this.mapLoaded, err);
+        } else {
+            if (this._enabled) {
+                this._refreshLayerEntities();
+            }
+            this._emitEvents(this.mapLoaded);
+        }
     },
 
     _moveLayersInSgNode: function(sgNode) {
@@ -458,12 +503,13 @@ var TiledMap = cc.Class({
         var file = this._tmxFile;
         var self = this;
         if (file) {
+            self._isLoading = true;
             this._preloadTmx(file, function (err, results) {
-                if (err) throw err;
-
-                sgNode.initWithTMXFile(file);
-                if (self._enabled) {
-                    self._refreshLayerEntities();
+                if (err) {
+                    self._onMapLoaded(err);
+                } else {
+                    sgNode.initWithTMXFile(file);
+                    self._onMapLoaded();
                 }
             });
         } else {
