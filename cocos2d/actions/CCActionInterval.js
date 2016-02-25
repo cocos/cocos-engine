@@ -2496,8 +2496,9 @@ cc.reverseTime = function (action) {
 };
 cc.ReverseTime.create = cc.reverseTime;
 
-
-/* Animates a sprite given the name of an Animation
+/**
+ * This API is deprecated, will be replaced by new API from {{#crossLink "Animation"}}cc.Animation{{/crossLink}}
+ * Animates a sprite given the name of an Animation
  * @class Animate
  * @extends ActionInterval
  * @param {SpriteFrameAnimation} animation

@@ -27,6 +27,7 @@
 /**
  * @class HashElement
  * @extends cc._Class
+ * @private
  * @example
  * var element = new cc.HashElement();
  */

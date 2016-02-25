@@ -25,15 +25,15 @@
  ****************************************************************************/
 
 /**
- * <p>
+ * This API is deprecated, will be replaced by new API from {{#crossLink "Animation"}}cc.Animation{{/crossLink}}
  *    cc.AnimationFrame
  *    A frame of the animation. It contains information like:
  *       - sprite frame name
  *       - # of delay units.
  *       - offset
- * </p>
- * @class
+ * @class AnimationFrame
  * @extends cc._Class
+ * @deprecated
  * @param spriteFrame
  * @param delayUnits
  * @param userInfo
@@ -52,6 +52,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Create a new animation frame and copy all contents into it
+     * @method clone
      * @returns {AnimationFrame}
      */
     clone: function(){
@@ -62,6 +63,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Create a new animation frame and copy all contents into it
+     * @method copyWithZone
      * @returns {AnimationFrame}
      */
     copyWithZone:function (pZone) {
@@ -70,6 +72,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Create a new animation frame and copy all contents into it
+     * @method copy
      * @returns {AnimationFrame}
      */
     copy:function (pZone) {
@@ -80,6 +83,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * initializes the animation frame with a spriteframe, number of delay units and a notification user info
+     * @method initWithSpriteFrame
      * @param {cc.SpriteFrame} spriteFrame
      * @param {Number} delayUnits
      * @param {object} userInfo
@@ -94,6 +98,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Returns sprite frame to be used
+     * @method getSpriteFrame
      * @return {cc.SpriteFrame}
      */
     getSpriteFrame:function () {
@@ -102,6 +107,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Sets sprite frame to be used
+     * @method setSpriteFrame
      * @param {cc.SpriteFrame} spriteFrame
      */
     setSpriteFrame:function (spriteFrame) {
@@ -110,6 +116,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Returns how many units of time the frame takes getter
+     * @method getDelayUnits
      * @return {Number}
      */
     getDelayUnits:function () {
@@ -118,6 +125,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Sets how many units of time the frame takes setter
+     * @method setDelayUnits
      * @param delayUnits
      */
     setDelayUnits:function (delayUnits) {
@@ -126,6 +134,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Returns the user custom information
+     * @method getUserInfo
      * @return {object}
      */
     getUserInfo:function () {
@@ -134,6 +143,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
     /**
      * Sets the user custom information
+     * @method setUserInfo
      * @param {object} userInfo
      */
     setUserInfo:function (userInfo) {
@@ -143,6 +153,7 @@ cc.AnimationFrame = cc._Class.extend(/** @lends cc.AnimationFrame# */{
 
 /**
  * Creates an animation frame.
+ * @method create
  * @deprecated since v3.0, please use the new construction instead
  * @param {cc.SpriteFrame} spriteFrame
  * @param {Number} delayUnits
@@ -154,6 +165,7 @@ cc.AnimationFrame.create = function(spriteFrame,delayUnits,userInfo){
 };
 
 /**
+ * This API is deprecated, will be replaced by new API from {{#crossLink "Animation"}}cc.Animation{{/crossLink}}
  * <p>
  *     A cc.SpriteFrameAnimation object is used to perform animations on the _ccsg.Sprite objects.<br/>
  *     <br/>
@@ -223,6 +235,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Returns the array of animation frames
+     * @method getFrames
      * @return {Array}
      */
     getFrames:function () {
@@ -231,6 +244,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Sets array of animation frames
+     * @method setFrames
      * @param {Array} frames
      */
     setFrames:function (frames) {
@@ -239,6 +253,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Adds a frame to a cc.SpriteFrameAnimation, the frame will be added with one "delay unit".
+     * @method addSpriteFrame
      * @param {cc.SpriteFrame} frame
      */
     addSpriteFrame:function (frame) {
@@ -252,6 +267,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Adds a frame with an image filename. Internally it will create a cc.SpriteFrame and it will add it. The frame will be added with one "delay unit".
+     * @method addSpriteFrameWithFile
      * @param {String} fileName
      */
     addSpriteFrameWithFile:function (fileName) {
@@ -265,6 +281,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Adds a frame with a texture and a rect. Internally it will create a cc.SpriteFrame and it will add it. The frame will be added with one "delay unit".
+     * @method addSpriteFrameWithTexture
      * @param {cc.Texture2D} texture
      * @param {cc.Rect} rect
      */
@@ -275,6 +292,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Initializes a cc.SpriteFrameAnimation with cc.AnimationFrame, do not call this method yourself, please pass parameters to constructor to initialize.
+     * @method initWithAnimationFrames
      * @param {Array} arrayOfAnimationFrames
      * @param {Number} delayPerUnit
      * @param {Number} [loops=1]
@@ -299,6 +317,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Clone the current animation
+     * @method clone
      * @return {cc.SpriteFrameAnimation}
      */
     clone: function(){
@@ -310,6 +329,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Clone the current animation
+     * @method copyWithZone
      * @return {cc.SpriteFrameAnimation}
      */
     copyWithZone:function (pZone) {
@@ -328,6 +348,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Clone the current animation
+     * @method copy
      * @param pZone
      * @returns {cc.SpriteFrameAnimation}
      */
@@ -337,6 +358,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Returns how many times the animation is going to loop. 0 means animation is not animated. 1, animation is executed one time, ...
+     * @method getLoops
      * @return {Number}
      */
     getLoops:function () {
@@ -345,6 +367,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Sets how many times the animation is going to loop. 0 means animation is not animated. 1, animation is executed one time, ...
+     * @method setLoops
      * @param {Number} value
      */
     setLoops:function (value) {
@@ -353,6 +376,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Sets whether or not it shall restore the original frame when the animation finishes
+     * @method setRestoreOriginalFrame
      * @param {Boolean} restOrigFrame
      */
     setRestoreOriginalFrame:function (restOrigFrame) {
@@ -361,6 +385,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Returns whether or not it shall restore the original frame when the animation finishes
+     * @method getRestoreOriginalFrame
      * @return {Boolean}
      */
     getRestoreOriginalFrame:function () {
@@ -369,6 +394,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Returns duration in seconds of the whole animation. It is the result of totalDelayUnits * delayPerUnit
+     * @method getDuration
      * @return {Number}
      */
     getDuration:function () {
@@ -377,6 +403,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Returns delay in seconds of the "delay unit"
+     * @method getDelayPerUnit
      * @return {Number}
      */
     getDelayPerUnit:function () {
@@ -385,6 +412,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Sets delay in seconds of the "delay unit"
+     * @method setDelayPerUnit
      * @param {Number} delayPerUnit
      */
     setDelayPerUnit:function (delayPerUnit) {
@@ -393,6 +421,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Returns total delay units of the cc.SpriteFrameAnimation.
+     * @method getTotalDelayUnits
      * @return {Number}
      */
     getTotalDelayUnits:function () {
@@ -401,6 +430,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
     /**
      * Initializes a cc.SpriteFrameAnimation with frames and a delay between frames, do not call this method yourself, please pass parameters to constructor to initialize.
+     * @method initWithSpriteFrames
      * @param {Array} frames
      * @param {Number} delay
      * @param {Number} [loops=1]
@@ -434,7 +464,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
      * The retain function can increase a reference count for the native object to avoid it being released,<br/>
      * you need to manually invoke release function when you think this object is no longer needed, otherwise, there will be memory learks.<br/>
      * retain and release function call should be paired in developer's game code.</p>
-     * @function
+     * @function retain
      * @see cc.SpriteFrameAnimation#release
      */
     retain:function () {
@@ -449,7 +479,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
      * The retain function can increase a reference count for the native object to avoid it being released,<br/>
      * you need to manually invoke release function when you think this object is no longer needed, otherwise, there will be memory learks.<br/>
      * retain and release function call should be paired in developer's game code.</p>
-     * @function
+     * @function release
      * @see cc.SpriteFrameAnimation#retain
      */
     release:function () {
@@ -458,6 +488,7 @@ cc.SpriteFrameAnimation = cc._Class.extend({
 
 /**
  * Creates an animation.
+ * @method create
  * @deprecated since v3.0, please use new construction instead
  * @see cc.SpriteFrameAnimation
  * @param {Array} frames
@@ -471,7 +502,7 @@ cc.SpriteFrameAnimation.create = function (frames, delay, loops) {
 
 /**
  * @deprecated since v3.0, please use new construction instead
+ * @method createWithAnimationFrames
  * @see cc.SpriteFrameAnimation
- * @type {Function}
  */
 cc.SpriteFrameAnimation.createWithAnimationFrames = cc.SpriteFrameAnimation.create;

@@ -45,7 +45,7 @@ var AnimationClip = cc.Class({
         /**
          * WrapMode of this animation
          * @property wrapMode
-         * @type {cc.WrapMode}
+         * @type {WrapMode}
          */
         wrapMode: {
             default: cc.WrapMode.Normal

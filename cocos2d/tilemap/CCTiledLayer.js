@@ -107,9 +107,9 @@ var TiledLayer = cc.Class({
     /**
      * Returns the position in pixels of a given tile coordinate
      * @method getPositionAt
-     * @param {cc.Vec2|Number} pos position or x
+     * @param {Vec2|Number} pos position or x
      * @param {Number} [y]
-     * @return {cc.Vec2}
+     * @return {Vec2}
      */
     getPositionAt:function (pos, y) {
         if (this._sgNode) {
@@ -122,7 +122,7 @@ var TiledLayer = cc.Class({
     /**
      * Removes a tile at given tile coordinate
      * @method removeTileAt
-     * @param {cc.Vec2|Number} pos position or x
+     * @param {Vec2|Number} pos position or x
      * @param {Number} [y]
      */
     removeTileAt:function (pos, y) {
@@ -137,7 +137,7 @@ var TiledLayer = cc.Class({
      * If a tile is already placed at that position, then it will be removed.</p>
      * @method setTileGID
      * @param {Number} gid
-     * @param {cc.Vec2|Number} posOrX position or x
+     * @param {Vec2|Number} posOrX position or x
      * @param {Number} flagsOrY flags or y
      * @param {Number} [flags]
      */
@@ -150,7 +150,7 @@ var TiledLayer = cc.Class({
     /**
      *  lipped tiles can be changed dynamically
      * @method getTileFlagsAt
-     * @param {cc.Vec2|Number} pos or x
+     * @param {Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {Number}
      */
@@ -166,7 +166,7 @@ var TiledLayer = cc.Class({
      * if it returns 0, it means that the tile is empty. <br />
      * This method requires the the tile map has not been previously released (eg. don't call layer.releaseMap())<br />
      * @method getTileGIDAt
-     * @param {cc.Vec2|Number} pos or x
+     * @param {Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {Number}
      */
