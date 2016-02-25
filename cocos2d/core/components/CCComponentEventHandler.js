@@ -40,6 +40,7 @@ cc.Component.EventHandler = cc.Class({
     statics: {
         /**
          * Emit events with params
+         * @method emitEvents
          * @param {Array} events
          * @param {*} params
          */
