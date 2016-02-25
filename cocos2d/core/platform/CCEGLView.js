@@ -116,7 +116,7 @@ switch(cc.__BrowserGetter.adaptationType){
  *
  * @class View
  */
-cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
+cc.EGLView = cc._Class.extend({
     _delegate: null,
     // Size of parent node that contains cc.container and cc.game.canvas
     _frameSize: null,

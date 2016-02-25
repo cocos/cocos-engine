@@ -232,7 +232,7 @@ var game = /** @lends cc.game# */{
             /**
              * cc.view is the shared view object.
              * @property view
-             * @type cc.View
+             * @type View
              */
             cc.view = cc.EGLView._getInstance();
 
@@ -246,7 +246,7 @@ var game = /** @lends cc.game# */{
             /**
              * cc.winSize is the alias object for the size of the current game window.
              * @property winSize
-             * @type cc.Size
+             * @type Size
              */
             cc.winSize = cc.director.getWinSize();
 
@@ -280,6 +280,7 @@ var game = /** @lends cc.game# */{
     },
 
     /**
+     * cc.game is the singleton object for game related functions.
      * @class Game
      */
 
