@@ -336,8 +336,6 @@ _ccsg.Label = _ccsg.Node.extend({
             this.emit('load');
             return;
         }
-        //add resource path
-        fontHandle = cc.path.join(cc.loader.resPath, fontHandle);
 
         this._isUseSystemFont = false;
         if (extName === ".ttf") {
@@ -1100,7 +1098,7 @@ cc.BMFontHelper = {
                         cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
                     }
 
-                    self._config = results[0];
+                    self._config = results.getContent(self._fontHandle);
                     self._createFontChars();
                     texture = cc.textureCache.addImage(self._config.atlasName);
                     var locIsLoaded = texture.isLoaded();

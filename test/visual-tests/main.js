@@ -116,7 +116,6 @@ cc.game.run({
         "src/tests-main.js",
 
         "src/PathTest/PathTest.js",
-        "src/LoaderTest/LoaderTest.js",
 
         "src/BakeLayerTest/BakeLayerTest.js",
 
@@ -188,10 +187,6 @@ cc.game.run({
             searchPaths.push(paths[i]);
         }
         jsb.fileUtils.setSearchPaths(searchPaths);
-    }
-    else
-    {
-        cc.loader.resPath = 'res';
     }
 
     cc.LoaderScene.preload(g_resources, function () {

@@ -192,8 +192,8 @@ cc.formatStr = function(){
 };
 
 require('../cocos2d/core/utils');
-require('../cocos2d/core/platform/CCLoader');
 require('../cocos2d/core/platform/CCSys');
+require('../cocos2d/core/load-pipeline/CCLoader');
 
 require('../cocos2d/core/CCGame');
 
@@ -276,7 +276,7 @@ function _load(config) {
     } else {
         // Load cocos modules
         var ccModulesPath = cc.path.join(engineDir, "moduleConfig.json");
-        loader.loadJson(ccModulesPath, function (err, modulesJson) {
+        loader.load(ccModulesPath, function (err, modulesJson) {
             if (err) throw new Error(err);
             var modules = config["modules"] || [];
             var moduleMap = modulesJson["module"];
@@ -287,8 +287,8 @@ function _load(config) {
                 var arr = _getJsListOfModule(moduleMap, modules[i], engineDir);
                 if (arr) jsList = jsList.concat(arr);
             }
-            cc.loader.loadJsWithImg(jsList, function (err) {
-                if (err) throw err;
+            loader.load(jsList, function (err) {
+                if (err) throw new Error(JSON.stringify(err));
                 _afterEngineLoaded(config);
             });
         });

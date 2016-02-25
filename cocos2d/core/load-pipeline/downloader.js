@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
+var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 
 var downloadAudio;
@@ -211,7 +212,7 @@ function _loadFont (name, srcs, type){
     _divStyle.top = '-100px';
     doc.body.appendChild(preloadDiv);
 }
-function downloadFont (item, callback){
+function downloadFont (item, callback) {
     var url = item.src,
         type = item.type, 
         name = item.name, 
@@ -236,6 +237,36 @@ function downloadFont (item, callback){
         callback(null, null);
     }
 }
+
+function downloadUuid (item, callback) {
+    var uuid = item.src;
+    var self = this;
+    cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
+        if (error) {
+            callback(error);
+        }
+        else {
+            item.url = url;
+            item.isRawAsset = isRawAsset;
+            if (isRawAsset) {
+                var ext = Path.extname(url).toLowerCase();
+                if (!ext) {
+                    callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));
+                    return;
+                }
+                ext = ext.substr(1);
+                // Dispatch to other raw type downloader
+                var downloadFunc = self.extMap[ext] || self.extMap['default'];
+                item.type = ext;
+                downloadFunc({src: url}, callback);
+            }
+            else {
+                self.extMap['json']({src: url}, callback);
+            }
+        }
+    });
+}
+
 
 var defaultMap = {
     // JS
@@ -265,19 +296,30 @@ var defaultMap = {
     'fsh' : downloadText,
     'atlas' : downloadText,
 
+    'tmx' : downloadText,
+    'tsx' : downloadText,
+
     'json' : downloadText,
     'ExportJson' : downloadText,
+    'plist' : downloadText,
 
+    'fnt' : downloadText,
+
+    // Font
     'font' : downloadFont,
     'eot' : downloadFont,
     'ttf' : downloadFont,
     'woff' : downloadFont,
     'svg' : downloadFont,
     'ttc' : downloadFont,
-    'plist' : downloadText,
+
+    // Uuid
+    'uuid' : downloadUuid,
 
     'default' : downloadText
 };
+
+var ID = 'Downloader';
 
 /**
  * The downloader pipe, it can download several types of files:
@@ -301,12 +343,16 @@ var defaultMap = {
  * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Downloader = function (extMap) {
-    this.id = 'Downloader';
+    this.id = ID;
     this.async = true;
     this.pipeline = null;
+    this.maxConcurrent = 2;
+    this._curConcurrent = 0;
+    this._loadQueue = [];
 
-    this.addHandlers(extMap);
+    this.extMap = JS.mixin(extMap, defaultMap);
 };
+Downloader.ID = ID;
 JS.mixin(Downloader.prototype, {
     /**
      * Add custom supported types handler or modify existing type handler.
@@ -314,14 +360,39 @@ JS.mixin(Downloader.prototype, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers: function (extMap) {
-        this.extMap = JS.addon(extMap, defaultMap);
+        this.extMap = JS.mixin(this.extMap, extMap);
     },
 
     handle: function (item, callback) {
+        var self = this;
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
-        downloadFunc.call(this, item, function (err, result) {
-            callback && callback(err, result);
-        });
+        if (this._curConcurrent < this.maxConcurrent) {
+            if (cc.sys.isMobile) {
+                this._curConcurrent++;
+            }
+            downloadFunc.call(this, item, function (err, result) {
+                if (cc.sys.isMobile) {
+                    // Concurrent logic
+                    self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+
+                    while (self._curConcurrent < self.maxConcurrent) {
+                        var nextOne = self._loadQueue.shift();
+                        if (!nextOne) {
+                            break;
+                        }
+                        self.handle(nextOne.item, nextOne.callback);
+                    }
+                }
+
+                callback && callback(err, result);
+            });
+        }
+        else {
+            this._loadQueue.push({
+                item: item,
+                callback: callback
+            });
+        }
     }
 });
 

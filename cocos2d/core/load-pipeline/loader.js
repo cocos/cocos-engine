@@ -24,6 +24,8 @@
 
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
+var Texture2D = require('../textures/CCTexture2D');
+var loadUuid = require('./uuid-loader');
 
 function loadNothing (item, callback) {
     callback(null, null);
@@ -47,14 +49,13 @@ function loadImage (item, callback) {
     if (!(item.content instanceof Image)) {
         callback( new Error('Image Loader: Input item doesn\'t contain Image content') );
     }
-    cc.textureCache.handleLoadedTexture(item.src);
-    var texture = cc.textureCache.getTextureForKey(item.src);
-    if (texture) {
-        callback(null, texture);
-    }
-    else {
-        callback( new Error('Image Loader: Create texture for [' + item.src + '] failed') );
-    }
+    var url = item.url || item.src;
+    var tex = cc.textureCache.getTextureForKey(url) || new Texture2D();
+    tex.url = url;
+    tex.initWithElement(item.content);
+    tex.handleLoadedTexture();
+    cc.textureCache.cacheImage(url, tex);
+    callback(null, tex);
 }
 
 function loadPlist (item, callback) {
@@ -70,8 +71,92 @@ function loadPlist (item, callback) {
     }
 }
 
-function loadFont (item, callback) {
-    callback(null, null);
+var fntRE = {
+    INFO_EXP: /info [^\n]*(\n|$)/gi,
+    COMMON_EXP: /common [^\n]*(\n|$)/gi,
+    PAGE_EXP: /page [^\n]*(\n|$)/gi,
+    CHAR_EXP: /char [^\n]*(\n|$)/gi,
+    KERNING_EXP: /kerning [^\n]*(\n|$)/gi,
+    ITEM_EXP: /\w+=[^ \r\n]+/gi,
+    INT_EXP: /^[\-]?\d+$/,
+};
+function _parseFntStrToObj (str) {
+    var arr = str.match(fntRE.ITEM_EXP);
+    var obj = {};
+    if (arr) {
+        for (var i = 0, li = arr.length; i < li; i++) {
+            var tempStr = arr[i];
+            var index = tempStr.indexOf('=');
+            var key = tempStr.substring(0, index);
+            var value = tempStr.substring(index + 1);
+            if (value.match(fntRE.INT_EXP)) value = parseInt(value);
+            else if (value[0] === '"') value = value.substring(1, value.length - 1);
+            obj[key] = value;
+        }
+    }
+    return obj;
+}
+function loadFnt (item, callback) {
+    var fntStr = item.content;
+    var url = item.src;
+
+    var fnt = {}, i, li;
+    //padding
+    var infoObj = _parseFntStrToObj(fntStr.match(fntRE.INFO_EXP)[0]);
+    var paddingArr = infoObj['padding'].split(',');
+    var padding = {
+        left: parseInt(paddingArr[0]),
+        top: parseInt(paddingArr[1]),
+        right: parseInt(paddingArr[2]),
+        bottom: parseInt(paddingArr[3])
+    };
+
+    //common
+    var commonObj = _parseFntStrToObj(fntStr.match(fntRE.COMMON_EXP)[0]);
+    fnt.commonHeight = commonObj['lineHeight'];
+    //font size
+    fnt.fontSize = infoObj['size'];
+    if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+        var texSize = cc.configuration.getMaxTextureSize();
+        if (commonObj['scaleW'] > texSize.width || commonObj['scaleH'] > texSize.height) {
+            cc.log('cc.LabelBMFont._parseCommonArguments(): page can\'t be larger than supported');
+        }
+    }
+    if (commonObj['pages'] !== 1) {
+        cc.log('cc.LabelBMFont._parseCommonArguments(): only supports 1 page');
+    }
+
+    //page
+    var pageObj = _parseFntStrToObj(fntStr.match(fntRE.PAGE_EXP)[0]);
+    if (pageObj['id'] !== 0) {
+        cc.log('cc.LabelBMFont._parseImageFileName() : file could not be found');
+    }
+    fnt.atlasName = cc.path.changeBasename(url, pageObj['file']);
+
+    //char
+    var charLines = fntStr.match(fntRE.CHAR_EXP);
+    var fontDefDictionary = fnt.fontDefDictionary = {};
+    for (i = 0, li = charLines.length; i < li; i++) {
+        var charObj = _parseFntStrToObj(charLines[i]);
+        var charId = charObj['id'];
+        fontDefDictionary[charId] = {
+            rect: {x: charObj['x'], y: charObj['y'], width: charObj['width'], height: charObj['height']},
+            xOffset: charObj['xoffset'],
+            yOffset: charObj['yoffset'],
+            xAdvance: charObj['xadvance']
+        };
+    }
+
+    //kerning
+    var kerningDict = fnt.kerningDict = {};
+    var kerningLines = fntStr.match(fntRE.KERNING_EXP);
+    if (kerningLines) {
+        for (i = 0, li = kerningLines.length; i < li; i++) {
+            var kerningObj = _parseFntStrToObj(kerningLines[i]);
+            kerningDict[(kerningObj['first'] << 16) | (kerningObj['second'] & 0xffff)] = kerningObj['amount'];
+        }
+    }
+    callback(null, fnt);
 }
 
 var defaultMap = {
@@ -90,15 +175,14 @@ var defaultMap = {
 
     'plist' : loadPlist,
 
-    'font' : loadFont,
-    'eot' : loadFont,
-    'ttf' : loadFont,
-    'woff' : loadFont,
-    'svg' : loadFont,
-    'ttc' : loadFont,
+    'fnt' : loadFnt,
+
+    'uuid' : loadUuid,
 
     'default' : loadNothing
 };
+
+var ID = 'Loader';
 
 /**
  * The loader pipe, it can load several types of files:
@@ -124,12 +208,13 @@ var defaultMap = {
  * @param {Object} extMap Custom supported types with corresponded handler
  */
 var Loader = function (extMap) {
-    this.id = 'Loader';
+    this.id = ID;
     this.async = true;
     this.pipeline = null;
 
-    this.addHandlers(extMap);
+    this.extMap = JS.mixin(extMap, defaultMap);
 };
+Loader.ID = ID;
 JS.mixin(Loader.prototype, {
     /**
      * Add custom supported types handler or modify existing type handler.
@@ -137,7 +222,7 @@ JS.mixin(Loader.prototype, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers: function (extMap) {
-        this.extMap = JS.addon(extMap, defaultMap);
+        this.extMap = JS.mixin(this.extMap, extMap);
     },
 
     handle: function (item, callback) {

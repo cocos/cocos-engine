@@ -35,13 +35,14 @@ var ItemState = {
 function asyncFlow (item) {
     var pipeId = this.id;
     var itemState = item.states[pipeId];
+    var next = this.next;
 
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
     else if (itemState === ItemState.COMPLETE) {
-        if (this.next) {
-            this.next.flowIn(item);
+        if (next) {
+            next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -62,8 +63,8 @@ function asyncFlow (item) {
                     item.content = result;
                 }
                 item.states[pipeId] = ItemState.COMPLETE;
-                if (pipe.next) {
-                    pipe.next.flowIn(item);
+                if (next) {
+                    next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
                 }
                 else {
                     pipe.pipeline.flowOut(item);
@@ -75,13 +76,14 @@ function asyncFlow (item) {
 function syncFlow (item) {
     var pipeId = this.id;
     var itemState = item.states[pipeId];
+    var next = this.next;
     
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
     else if (itemState === ItemState.COMPLETE) {
-        if (this.next) {
-            this.next.flowIn(item);
+        if (next) {
+            next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -101,8 +103,8 @@ function syncFlow (item) {
                 item.content = result;
             }
             item.states[pipeId] = ItemState.COMPLETE;
-            if (this.next) {
-                this.next.flowIn(item);
+            if (next) {
+                next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
             }
             else {
                 this.pipeline.flowOut(item);
@@ -138,6 +140,13 @@ function createItem (url) {
             complete: false,
             states: {}
         };
+    }
+
+    if (result.skips) {
+        for (var i = 0, l = result.skips.length; i < l; i++) {
+            var skip = result.skips[i];
+            result.states[skip] = ItemState.COMPLETE;
+        }
     }
 
     return result;
@@ -176,6 +185,7 @@ function getXMLHttpRequest () {
 var Pipeline = function (pipes) {
     this._pipes = pipes;
     this._items = new LoadingItems();
+    this._errorUrls = [];
     this._flowing = false;
 
     for (var i = 0; i < pipes.length; ++i) {
@@ -187,13 +197,6 @@ var Pipeline = function (pipes) {
 
         pipe.pipeline = this;
         pipe.next = i < pipes.length - 1 ? pipes[i+1] : null;
-
-        if (pipe.async) {
-            pipe.flowIn = asyncFlow;
-        }
-        else {
-            pipe.flowIn = syncFlow;
-        }
     }
 };
 
@@ -202,10 +205,54 @@ Pipeline.getXMLHttpRequest = getXMLHttpRequest;
 
 JS.mixin(Pipeline.prototype, {
     /**
+     * Insert a new pipe at the given index of the pipeline.
+     * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
+     *
+     * @method insertPipe
+     * @param {Object} pipe The pipe to be inserted
+     * @param {Number} index The index to insert
+     */
+    insertPipe: function (pipe, index) {
+        // Must have handle and id, handle for flow, id for state flag
+        if (!pipe.handle || !pipe.id) {
+            return;
+        }
+
+        pipe.pipeline = this;
+        if (index < this._pipes.length) {
+            pipe.next = this._pipes[index];
+            this._pipes.splice(index, 0, pipe);
+        }
+        else {
+            pipe.next = null;
+            this._pipes.push(pipe);
+        }
+    },
+
+    /**
+     * Add a new pipe at the end of the pipeline.
+     * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
+     *
+     * @method appendPipe
+     * @param {Object} pipe The pipe to be appended
+     */
+    appendPipe: function (pipe) {
+        // Must have handle and id, handle for flow, id for state flag
+        if (!pipe.handle || !pipe.id) {
+            return;
+        }
+
+        pipe.pipeline = this;
+        pipe.next = null;
+        this._pipes.push(pipe);
+    },
+
+    /**
      * Let new items flow into the pipeline.
      * Each item can be a simple url string or an object, 
      * if it's an object, it must contain `src` property. 
-     * You can also specify its type by `type` property, by default, the type is the extension name in `src`.
+     * You can specify its type by `type` property, by default, the type is the extension name in `src`.
+     * By adding a `skips` property including pipe ids, you can skip these pipe.
      * The object can contain any supplementary property as you want.
      * @example
      *  pipeline.flowIn([
@@ -213,7 +260,8 @@ JS.mixin(Pipeline.prototype, {
      *      {
      *          src: 'res/scene.json',
      *          type: 'scene',
-     *          name: 'scene'
+     *          name: 'scene',
+     *          skips: ['Downloader']
      *      }
      *  ]);
      * 
@@ -236,7 +284,7 @@ JS.mixin(Pipeline.prototype, {
         var acceptedItems = this._items.append(items);
 
         // Manually complete
-        if ((this._pipes.length | acceptedItems.length) === 0) {
+        if (this._pipes.length === 0 || acceptedItems.length === 0) {
             this.complete();
             return acceptedItems;
         }
@@ -245,9 +293,10 @@ JS.mixin(Pipeline.prototype, {
             this._flowing = true;
         }
         // Flow in after appended to loading items
-        if (this._pipes.length > 0) {
+        var pipe = this._pipes[0];
+        if (pipe) {
             for (i = 0; i < acceptedItems.length; i++) {
-                this._pipes[0].flowIn(acceptedItems[i]);
+                pipe.async ? asyncFlow.call(pipe, acceptedItems[i]) : syncFlow.call(pipe, acceptedItems[i]);
             }
         }
         return acceptedItems;
@@ -267,6 +316,7 @@ JS.mixin(Pipeline.prototype, {
      */
     flowInDeps: function (urlList, callback) {
         var checker = {};
+        var count = 0;
 
         function loadedCheck (item) {
             checker[item.src] = item;
@@ -278,15 +328,26 @@ JS.mixin(Pipeline.prototype, {
                 }
             }
             // All url completed
-            callback(checker);
+            callback && callback.call(this, checker);
         }
         // Add loaded listeners
         for (var i = 0; i < urlList.length; ++i) {
             var url = urlList[i].src || urlList[i];
-            if (isUrlValid(url) && !this._items.exists(url)) {
+            if (typeof url !== 'string')
+                continue;
+            var item = this._items.map[url];
+            if ( !item ) {
                 this._items.add(url, loadedCheck);
                 checker[url] = null;
+                count++;
             }
+            else {
+                checker[url] = item;
+            }
+        }
+        // No new resources, complete directly
+        if (count === 0) {
+            callback && callback.call(this, checker);
         }
         return this.flowIn(urlList);
     },
@@ -295,7 +356,11 @@ JS.mixin(Pipeline.prototype, {
         // All completed
         if (this._items.isCompleted()) {
             this._flowing = false;
-            this.onComplete && this.onComplete(this._items);
+            if (this.onComplete) {
+                var error = this._errorUrls.length === 0 ? null : this._errorUrls;
+                this.onComplete(error, this._items);
+                this._errorUrls = [];
+            }
         }
     },
 
@@ -306,6 +371,15 @@ JS.mixin(Pipeline.prototype, {
         // Not exist or already completed
         if (!exists || exists.complete) {
             return;
+        }
+
+        // Register or unregister errors
+        var errorListId = this._errorUrls.indexOf(url);
+        if (item.error && errorListId === -1) {
+            this._errorUrls.push(url);
+        }
+        else if (!item.error && errorListId !== -1) {
+            this._errorUrls.splice(errorListId, 1);
         }
 
         items.complete(item.src);
@@ -363,7 +437,7 @@ JS.mixin(Pipeline.prototype, {
      * @return {Boolean} succeed or not
      */
     removeItem: function (url) {
-        var item = this._items[url];
+        var item = this._items.map[url];
         if (item) {
             if (!item.complete) {
                 item.error = new Error('Canceled manually');
@@ -393,6 +467,7 @@ JS.mixin(Pipeline.prototype, {
         }
 
         this._items = new LoadingItems();
+        this._errorUrls = [];
         this._flowing = false;
     },
 
@@ -413,13 +488,17 @@ JS.mixin(Pipeline.prototype, {
     /**
      * This is a callback which will be invoked while all items flow out the pipeline, you should overwirte this function.
      * @example
-     *  pipeline.onComplete = function (items) {
-     *      cc.log('Completed ' + items.totalCount + ' items');
+     *  pipeline.onComplete = function (error, items) {
+     *      if (error)
+     *          cc.log('Completed with ' + error.length + ' errors');
+     *      else
+     *          cc.log('Completed ' + items.totalCount + ' items');
      *  }
      * @method onComplete
+     * @param {Array} error All errored urls will be stored in this array, if no error happened, then it will be null
      * @param {LoadingItems} items All items.
      */
-    onComplete: function (items) {}
+    onComplete: function (error, items) {}
 });
 
 cc.Pipeline = module.exports = Pipeline;

@@ -879,9 +879,9 @@ var DemoParticleFromFile = ParticleDemo.extend({
         this.removeChild(this._background, true);
         this._background = null;
 
-        this._emitter = new _ccsg.ParticleSystem(s_resprefix + "Particles/" + this._title + ".plist");
+        this._emitter = new _ccsg.ParticleSystem("res/Particles/" + this._title + ".plist");
         // test create from a object
-        // var plistData = jsb.fileUtils.getValueMapFromFile(s_resprefix + "Particles/" + this._title + ".plist");
+        // var plistData = jsb.fileUtils.getValueMapFromFile("res/Particles/" + this._title + ".plist");
         // this._emitter = new _ccsg.ParticleSystem(plistData);
 
         this.addChild(this._emitter, 10);
@@ -1134,7 +1134,7 @@ var Issue870 = ParticleDemo.extend({
         this.removeChild(this._background, true);
         this._background = null;
 
-        var system = new _ccsg.ParticleSystem(s_resprefix + "Particles/SpinningPeas.plist");
+        var system = new _ccsg.ParticleSystem("res/Particles/SpinningPeas.plist");
         system.setTextureWithRect(cc.textureCache.addImage(s_particles), cc.rect(0, 0, 32, 32));
         this.addChild(system, 10);
         this._emitter = system;
@@ -1162,11 +1162,11 @@ var ParticleBatchTest = ParticleDemo.extend({
     onEnter:function () {
         this._super();
 
-        var emitter1 = new _ccsg.ParticleSystem(s_resprefix + 'Particles/LavaFlow.plist');
+        var emitter1 = new _ccsg.ParticleSystem('res/Particles/LavaFlow.plist');
         emitter1.startColor = cc.color(255, 0, 0, 255);
-        var emitter2 = new _ccsg.ParticleSystem(s_resprefix + 'Particles/LavaFlow.plist');
+        var emitter2 = new _ccsg.ParticleSystem('res/Particles/LavaFlow.plist');
         emitter2.startColor = cc.color(0, 255, 0, 255);
-        var emitter3 = new _ccsg.ParticleSystem(s_resprefix + 'Particles/LavaFlow.plist');
+        var emitter3 = new _ccsg.ParticleSystem('res/Particles/LavaFlow.plist');
         emitter3.startColor = cc.color(0, 0, 255, 255);
 
         emitter1.x = winSize.width / 1.25;
@@ -1203,7 +1203,7 @@ var ParticleResizeTest = ParticleDemo.extend({
     onEnter:function () {
         this._super();
 
-        var emitter1 = new _ccsg.ParticleSystem( s_resprefix + 'Particles/LavaFlow.plist');
+        var emitter1 = new _ccsg.ParticleSystem( 'res/Particles/LavaFlow.plist');
         emitter1.x = winSize.width/2;
         emitter1.y = winSize.height/2;
         this.addChild(emitter1);

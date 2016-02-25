@@ -35,20 +35,36 @@ var loader = new Loader();
  * @class loader
  * @static
  */
-cc._loader = new Pipeline([
+cc.loader = new Pipeline([
     downloader,
     loader
 ]);
 
 
-JS.mixin(cc._loader, {
+JS.mixin(cc.loader, {
+    /**
+     * The downloader in cc.loader's pipeline, it's by default the first pipe.
+     * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
+     * You can add your own download function with addDownloadHandlers
+     * @property downloader
+     * @type {Object}
+     */
+    downloader: downloader,
+
+    /**
+     * The downloader in cc.loader's pipeline, it's by default the second pipe.
+     * It's used to parse downloaded content with several handlers: JSON, image, plist, fnt, uuid.
+     * You can add your own download function with addLoadHandlers
+     * @property loader
+     * @type {Object}
+     */
+    loader: loader,
+
     /**
      * Get XMLHttpRequest.
      * @returns {XMLHttpRequest}
      */
-    getXMLHttpRequest: function () {
-        return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject("MSXML2.XMLHTTP");
-    },
+    getXMLHttpRequest: Pipeline.getXMLHttpRequest,
 
     /**
      * Add custom supported types handler or modify existing type handler for download process.
@@ -94,10 +110,71 @@ JS.mixin(cc._loader, {
             progressCallback = null;
         }
 
-        this.onProgress = progressCallback;
-        this.onComplete = completeCallback;
+        if (!(resources instanceof Array)) {
+            resources = resources ? [resources] : [];
+        }
+        // Return directly if no resources
+        if (resources.length === 0) {
+            completeCallback && completeCallback.call(this, null, this._items);
+        }
 
-        this.flowIn(resources);
+        // Resolve callback
+        var error = null;
+        var checker = {};
+        var totalCount = 0;
+        var completedCount = 0;
+        var self = this;
+
+        function loadedCheck (item) {
+            checker[item.src] = item;
+            if (item.error) {
+                error = error || [];
+                error.push(item.src);
+            }
+            completedCount++;
+
+            progressCallback && progressCallback.call(self, completedCount, totalCount, item);
+
+            for (var url in checker) {
+                // Not done yet
+                if (!checker[url]) {
+                    return;
+                }
+            }
+            // All url completed
+            if (completeCallback) {
+                setTimeout(function () {
+                    completeCallback.call(self, error, self._items);
+                    completeCallback = null;
+                }, 0);
+            }
+        }
+
+        // Add loaded listeners
+        for (var i = 0; i < resources.length; ++i) {
+            var url = resources[i].src || resources[i];
+            if (typeof url !== 'string')
+                continue;
+            var item = this._items.map[url];
+            if ( !item || (item && !item.complete) ) {
+                this._items.add(url, loadedCheck);
+                checker[url] = null;
+                totalCount++;
+            }
+            else if (item && item.complete) {
+                checker[url] = item;
+                totalCount++;
+                completedCount++;
+            }
+        }
+
+        // No new resources, complete directly
+        if (totalCount === completedCount) {
+            completeCallback && completeCallback.call(this, null, this._items);
+        }
+        else {
+            this.flowIn(resources);
+        }
     },
 
     /**
@@ -108,8 +185,8 @@ JS.mixin(cc._loader, {
      * @returns {*}
      */
     getRes: function (url) {
-        var item = this._items[url];
-        if (item.complete) {
+        var item = this._items.map[url];
+        if (item && item.complete) {
             return item.content;
         }
         else {
@@ -137,4 +214,4 @@ JS.mixin(cc._loader, {
     }
 });
 
-module.exports = cc._loader;
+module.exports = cc.loader;

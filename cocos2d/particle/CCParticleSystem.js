@@ -724,7 +724,10 @@ var ParticleSystem = cc.Class({
         if (file) {
             var self = this;
             cc.loader.load(file, function (err, results) {
-                if (err) throw err;
+                var content = results.getContent(file);
+                if (err || !content) {
+                    throw results.getError(file) || new Error('Unkown error');
+                }
 
                 sgNode.particleCount = 0;
 
@@ -733,15 +736,15 @@ var ParticleSystem = cc.Class({
 
                 // To avoid it export custom particle data textureImageData too large,
                 // so use the texutreUuid instead of textureImageData
-                if (results[0].textureUuid) {
-                    cc.AssetLibrary.queryAssetInfo(results[0].textureUuid, function (err, url, raw) {
+                if (content.textureUuid) {
+                    cc.AssetLibrary.queryAssetInfo(content.textureUuid, function (err, url, raw) {
                         self.texture = url;
                     });
                 }
 
                 // For custom data export
-                if (results[0].emissionRate) {
-                    self.emissionRate = results[0].emissionRate;
+                if (content.emissionRate) {
+                    self.emissionRate = content.emissionRate;
                 }
 
                 // recover sgNode properties

@@ -25,147 +25,11 @@
 var Path = require('../utils/CCPath');
 var Sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
-if (!CC_EDITOR || !Editor.isCoreLevel) {
-    require('../../audio/CCAudio');
-}
+require('../../audio/CCAudio');
 
-var __audioSupport;
-
-/**
- * Audio support in the browser
- *
- * MULTI_CHANNEL        : Multiple audio while playing - If it doesn't, you can only play background music
- * WEB_AUDIO            : Support for WebAudio - Support W3C WebAudio standards, all of the audio can be played
- * AUTOPLAY             : Supports auto-play audio - if Don‘t support it, On a touch detecting background music canvas, and then replay
- * REPLAY_AFTER_TOUCH   : The first music will fail, must be replay after touchstart
- * USE_EMPTIED_EVENT    : Whether to use the emptied event to replace load callback
- * DELAY_CREATE_CTX     : delay created the context object - only webAudio
- * NEED_MANUAL_LOOP     : WebAudio loop attribute failure, need to manually perform loop
- *
- * May be modifications for a few browser version
- */
-(function(){
-
-    var DEBUG = false;
-
-    var version = Sys.browserVersion;
-
-    var supportTable = {
-        'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
-    };
-
-    // check if browser supports Web Audio
-    // check Web Audio's context
-    var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
-
-    supportTable[Sys.BROWSER_TYPE_IE]  = {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true, USE_EMPTIED_EVENT: true};
-    //  ANDROID  //
-    supportTable[Sys.BROWSER_TYPE_ANDROID]  = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false};
-    supportTable[Sys.BROWSER_TYPE_CHROME]   = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: false};
-    supportTable[Sys.BROWSER_TYPE_FIREFOX]  = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: true , DELAY_CREATE_CTX: true};
-    supportTable[Sys.BROWSER_TYPE_UC]       = {MULTI_CHANNEL: true , WEB_AUDIO: false, AUTOPLAY: false};
-    supportTable[Sys.BROWSER_TYPE_QQ]       = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: true };
-    supportTable[Sys.BROWSER_TYPE_OUPENG]   = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
-    supportTable[Sys.BROWSER_TYPE_WECHAT]   = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
-    supportTable[Sys.BROWSER_TYPE_360]      = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: true };
-    supportTable[Sys.BROWSER_TYPE_MIUI]     = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: true };
-    supportTable[Sys.BROWSER_TYPE_LIEBAO]   = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
-    supportTable[Sys.BROWSER_TYPE_SOUGOU]   = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
-    //'Baidu' browser can automatically play
-    //But because it may be play failed, so need to replay and auto
-    supportTable[Sys.BROWSER_TYPE_BAIDU]    = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
-    supportTable[Sys.BROWSER_TYPE_BAIDU_APP]= {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
-
-    //  APPLE  //
-    supportTable[Sys.BROWSER_TYPE_SAFARI]  = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: false, webAudioCallback: function(realUrl){
-        document.createElement('audio').src = realUrl;
-    }};
-
-    if(Sys.isMobile){
-        if(Sys.os !== Sys.OS_IOS)
-            __audioSupport = supportTable[Sys.browserType] || supportTable['common'];
-        else
-            __audioSupport = supportTable[Sys.BROWSER_TYPE_SAFARI];
-    }else{
-        switch(Sys.browserType){
-            case Sys.BROWSER_TYPE_IE:
-                __audioSupport = supportTable[Sys.BROWSER_TYPE_IE];
-                break;
-            case Sys.BROWSER_TYPE_FIREFOX:
-                __audioSupport = supportTable[Sys.BROWSER_TYPE_FIREFOX];
-                break;
-            default:
-                __audioSupport = supportTable['common'];
-        }
-    }
-
-    ///////////////////////////
-    //  Browser compatibility//
-    ///////////////////////////
-    if(version){
-        switch(Sys.browserType){
-            case Sys.BROWSER_TYPE_CHROME:
-                version = parseInt(version);
-                if(version < 30){
-                    __audioSupport  = {MULTI_CHANNEL: false , WEB_AUDIO: true , AUTOPLAY: false};
-                }else if(version === 42){
-                    __audioSupport.NEED_MANUAL_LOOP = true;
-                }
-                break;
-            case Sys.BROWSER_TYPE_MIUI:
-                if(Sys.isMobile){
-                    version = version.match(/\d+/g);
-                    if(version[0] < 2 || (version[0] === 2 && version[1] === 0 && version[2] <= 1)){
-                        __audioSupport.AUTOPLAY = false;
-                    }
-                }
-                break;
-        }
-    }
-
-    if(DEBUG){
-        setTimeout(function(){
-            cc.log('browse type: ' + Sys.browserType);
-            cc.log('browse version: ' + version);
-            cc.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
-            cc.log('WEB_AUDIO: ' + __audioSupport.WEB_AUDIO);
-            cc.log('AUTOPLAY: ' + __audioSupport.AUTOPLAY);
-        }, 0);
-    }
-
-    window.__audioSupport = __audioSupport;
-})();
-
-var context;
-try {
-    if (__audioSupport.WEB_AUDIO) {
-        context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
-        if(__audioSupport.DELAY_CREATE_CTX) {
-            setTimeout(function(){ context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
-        }
-    }
-} catch(error) {
-    __audioSupport.WEB_AUDIO = false;
-    cc.log("browser don't support web audio");
-}
-
-var formatSupport = [];
-
-(function(){
-    var audio = document.createElement('audio');
-    if(audio.canPlayType) {
-        var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
-        if (ogg && ogg !== '') formatSupport.push('.ogg');
-        var mp3 = audio.canPlayType('audio/mpeg');
-        if (mp3 && mp3 !== '') formatSupport.push('.mp3');
-        var wav = audio.canPlayType('audio/wav; codecs="1"');
-        if (wav && wav !== '') formatSupport.push('.wav');
-        var mp4 = audio.canPlayType('audio/mp4');
-        if (mp4 && mp4 !== '') formatSupport.push('.mp4');
-        var m4a = audio.canPlayType('audio/x-m4a');
-        if (m4a && m4a !== '') formatSupport.push('.m4a');
-    }
-})();
+var __audioSupport = Sys.__audioSupport;
+var formatSupport = __audioSupport.format;
+var context = __audioSupport.context;
 
 function loadAudioFromExtList (url, typeList, audio, cb){
     if(typeList.length === 0){
@@ -304,6 +168,8 @@ function downloadAudio (item, callback) {
         audio = new cc.Audio(null, null, url);
     }
 
+    // hack for audio to be found before loaded
+    item.content = audio;
     loadAudioFromExtList(url, typeList, audio, callback);
 }
 

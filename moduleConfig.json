@@ -45,7 +45,6 @@
             "cocos2d/core/platform/CCClass.js",
             "cocos2d/core/platform/CCCommon.js",
             "cocos2d/core/platform/CCSAXParser.js",
-            "cocos2d/core/platform/CCLoaders.js",
             "cocos2d/core/platform/CCConfig.js",
             "cocos2d/core/platform/miniFramework.js",
             "cocos2d/core/platform/CCMacro.js",

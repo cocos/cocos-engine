@@ -12,7 +12,6 @@ var srcs = [
 
     './cocos2d/core/platform/CCCommon.js',
     './cocos2d/core/platform/CCSAXParser.js',
-    './cocos2d/core/platform/CCLoaders.js',
     './cocos2d/core/platform/CCConfig.js',
     './cocos2d/core/platform/miniFramework.js',
     './cocos2d/core/platform/CCEGLView.js',
@@ -65,7 +64,6 @@ var srcs = [
     './cocos2d/core/CCDrawingPrimitivesCanvas.js',
     './cocos2d/core/CCDrawingPrimitivesWebGL.js',
 
-    './cocos2d/core/label/FNTLoader.js',
     './cocos2d/core/label/CCSGLabel.js',
     './cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
     './cocos2d/core/label/CCSGLabelWebGLRenderCmd.js',

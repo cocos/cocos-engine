@@ -112,6 +112,16 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         return !!this.map[url];
     },
 
+    getContent: function (url) {
+        var item = this.map[url];
+        return item ? item.content : null;
+    },
+
+    getError: function (url) {
+        var item = this.map[url];
+        return item ? item.error : null;
+    },
+
     /**
      * Remove an item, can only remove completed item, ongoing item can not be removed
      * @param {String} url
