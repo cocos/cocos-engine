@@ -1264,28 +1264,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Rect}
      */
     getBoundingBoxToWorld: function () {
-        var size = this.getContentSize();
-        var width = size.width;
-        var height = size.height;
-        var rect = cc.rect(-this.anchorX * width, -this.anchorY * height, width, height);
-
-        var trans = this.getNodeToWorldTransform();
-        cc._rectApplyAffineTransformIn(rect, trans);
-
-        //query child's BoundingBox
-        if (!this._children)
-            return rect;
-
-        var locChildren = this._children;
-        for (var i = 0; i < locChildren.length; i++) {
-            var child = locChildren[i];
-            if (child && child.active) {
-                var childRect = child._getBoundingBoxTo(trans);
-                if (childRect)
-                    rect = cc.rectUnion(rect, childRect);
-            }
+        var trans;
+        if (this.parent) {
+            trans = this.parent.getNodeToWorldTransform();
         }
-        return rect;
+        return this._getBoundingBoxTo(trans);
     },
 
     _getBoundingBoxTo: function (parentTransform) {
