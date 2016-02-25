@@ -37,6 +37,22 @@ cc.Component.EventHandler = cc.Class({
         }
     },
 
+    statics: {
+        /**
+         * Emit events with params
+         * @param {Array} events
+         * @param {*} params
+         */
+        emitEvents: function(events, params) {
+            for (var i = 0, l = events.length; i < l; i++) {
+                var event = events[i];
+                if (! event instanceof cc.Component.EventHandler) continue;
+
+                event.emit(params);
+            }
+        }
+    },
+
     /**
      * Emit event with params
      * @method emit
@@ -55,17 +71,3 @@ cc.Component.EventHandler = cc.Class({
         handler.call(comp, params);
     }
 });
-
-/**
- * Emit events with params
- * @param {Array} events
- * @param {*} params
- */
-cc.Component.EventHandler.emitEvents = function(events, params) {
-    for (var i = 0, l = events.length; i < l; i++) {
-        var event = events[i];
-        if (! event instanceof cc.Component.EventHandler) continue;
-
-        event.emit(params);
-    }
-};
