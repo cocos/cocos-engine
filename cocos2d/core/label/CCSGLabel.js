@@ -1093,12 +1093,12 @@ cc.BMFontHelper = {
                 this._resetBMFont();
 
                 var texture;
-                cc.loader.load(this._fontHandle, function(err, results) {
+                cc.loader.load(this._fontHandle, function(err, config) {
                     if (err) {
                         cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
                     }
 
-                    self._config = results.getContent(self._fontHandle);
+                    self._config = config;
                     self._createFontChars();
                     texture = cc.textureCache.addImage(self._config.atlasName);
                     var locIsLoaded = texture.isLoaded();

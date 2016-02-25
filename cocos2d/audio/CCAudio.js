@@ -372,11 +372,12 @@ JS.mixin(cc.Audio.prototype, {
             var audio = cc.loader.getRes(url);
             if(!audio){
                 var self = this;
-                cc.loader.load(url, function () {
-                    audio = cc.loader.getRes(url);
-                    audio.play(0, loop);
-                    audio.setVolume(self._musicVolume);
-                    self._currMusic = audio;
+                cc.loader.load(url, function (error, audio) {
+                    if (!error) {
+                        audio.play(0, loop);
+                        audio.setVolume(self._musicVolume);
+                        self._currMusic = audio;
+                    }
                 });
                 return;
             }

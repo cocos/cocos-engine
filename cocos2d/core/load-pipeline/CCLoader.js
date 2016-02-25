@@ -97,10 +97,27 @@ JS.mixin(cc.loader, {
     /**
      * Load resources with a progression callback and a complete callback.
      * The progression callback is the same as Pipeline's {{#crossLink "Pipeline/onProgress:method"}}onProgress{{/crossLink}}
-     * The complete callback is the same as Pipeline's {{#crossLink "Pipeline/onComplete:method"}}onComplete{{/crossLink}}
+     * The complete callback is almost the same as Pipeline's {{#crossLink "Pipeline/onComplete:method"}}onComplete{{/crossLink}}
+     * The only difference is when user pass a single url as resources, the complete callback will set its result directly as the second parameter.
+     * 
+     * @example
+     *  cc.loader.load('a.png', function (err, tex) {
+     *      cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
+     *  });
+     *
+     *  
+     *  cc.loader.load(['a.png', 'b.json'], function (errors, results) {
+     *      if (errors) {
+     *          for (var i = 0; i < errors.length; i++) {
+     *              cc.log('Error url [' + errors[i] + ']: ' + results.getError(errors[i]));
+     *          }
+     *      }
+     *      var aTex = results.getContent('a.png');
+     *      var bJsonObj = results.getContent('b.json');
+     *  });
      *
      * @method load
-     * @param {Array} resources - Url list in an array
+     * @param {String|Array} resources - Url list in an array
      * @param {[Function]} progressCallback - Callback invoked when progression change
      * @param {Function} completeCallback - Callback invoked when all resources loaded
      */
@@ -110,8 +127,10 @@ JS.mixin(cc.loader, {
             progressCallback = null;
         }
 
+        var singleRes = false;
         if (!(resources instanceof Array)) {
             resources = resources ? [resources] : [];
+            singleRes = true;
         }
         // Return directly if no resources
         if (resources.length === 0) {
@@ -143,8 +162,14 @@ JS.mixin(cc.loader, {
             }
             // All url completed
             if (completeCallback) {
-                setTimeout(function () {
-                    completeCallback.call(self, error, self._items);
+                var timerId = setTimeout(function () {
+                    if (singleRes) {
+                        completeCallback.call(self, item.error, item.content);
+                    }
+                    else {
+                        completeCallback.call(self, error, self._items);
+                    }
+                    clearTimeout(timerId);
                     completeCallback = null;
                 }, 0);
             }
@@ -170,7 +195,13 @@ JS.mixin(cc.loader, {
 
         // No new resources, complete directly
         if (totalCount === completedCount) {
-            completeCallback && completeCallback.call(this, null, this._items);
+            if (singleRes) {
+                var result = this._items.map[resources[0]];
+                completeCallback.call(this, result.error, result.content);
+            }
+            else {
+                completeCallback.call(this, null, this._items);
+            }
         }
         else {
             this.flowIn(resources);
