@@ -258,8 +258,8 @@ var TiledMap = cc.Class({
         this.node._replaceSgNode(this._tiledMap);
 
         if (this._tmxFile) {
-            // Add layer entities
-            this._addLayerEntities();
+            // refresh layer entities
+            this._refreshLayerEntities();
         }
 
         this.node.on('child-added', this._childAdded, this);
@@ -338,20 +338,6 @@ var TiledMap = cc.Class({
         }
     },
 
-    _addLayerEntities: function() {
-        // add entity for the tmx layer
-        var layers = this._tiledMap.allLayers();
-        for (var i = 0, n = layers.length; i < n; i++) {
-            var layer = layers[i];
-            var name = layer.getLayerName();
-            var node = new cc.Node(name);
-            var addedLayer = node.addComponent(cc.TiledLayer);
-            addedLayer._replaceSgNode(layer);
-            this.node.addChild(node);
-            node.setSiblingIndex(layer.getLocalZOrder());
-        }
-    },
-
     _removeLayerEntities: function() {
         var i, n;
         var logicChildren = this.node.getChildren();
@@ -369,7 +355,7 @@ var TiledMap = cc.Class({
         }
     },
 
-    _initLayers: function() {
+    _refreshLayerEntities: function() {
         // get the layer names in scene graph.
         var layerNames = this._tiledMap.allLayers().map(function (layer) {
             return layer.getLayerName();
@@ -477,7 +463,7 @@ var TiledMap = cc.Class({
 
                 sgNode.initWithTMXFile(file);
                 if (self._enabled) {
-                    self._initLayers();
+                    self._refreshLayerEntities();
                 }
             });
         } else {
