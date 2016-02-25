@@ -21,6 +21,8 @@ paths = {
         '../../cocos2d/core/textures/CCTexture2D',
         '../../cocos2d/core/sprites/CCSpriteFrame',
         '../../cocos2d/core/event/event',
+        '../../cocos2d/core/load-pipeline/audio-downloader',
+        '../../cocos2d/audio/CCAudio',
         '../../extensions/spine/SGSkeleton',
         '../../extensions/spine/SGSkeletonAnimation',
         '../../extensions/spine/SGSkeletonCanvasRenderCmd',

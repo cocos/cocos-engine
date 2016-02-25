@@ -261,7 +261,7 @@ function downloadUuid (item, callback) {
                 downloadFunc({src: url}, callback);
             }
             else {
-                downloadText({src: url}, callback);
+                self.extMap['json']({src: url}, callback);
             }
         }
     });

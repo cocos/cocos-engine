@@ -32,7 +32,7 @@ var SCENE_ID = 'cc.Scene';
 
 function loadUuid (item, callback) {
     var json, 
-        // uuid = item.src, 
+        uuid = item.src,
         url = item.url;
     if (typeof item.content === 'string') {
         try {
@@ -92,6 +92,7 @@ function loadUuid (item, callback) {
         propList.push(tdInfo.rawProp);
         depends.push(url);
     }
+    var pipeline = this.pipeline;
     if (depends.length > 0) {
         this.pipeline.flowInDeps(depends, function (items) {
             var item;
@@ -128,6 +129,7 @@ function loadUuid (item, callback) {
     else {
         callback(null, asset);
     }
+    asset._uuid = uuid;
 
     // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
     tdInfo.reset();

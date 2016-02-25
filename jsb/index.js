@@ -11,6 +11,7 @@ cc.initEngine = function (config, cb) {
 };
 
 require('./jsb-predefine');
+require('./jsb-loader');
 require('./jsb-game');
 require('./jsb-director');
 require('./jsb-tex-sprite-frame');

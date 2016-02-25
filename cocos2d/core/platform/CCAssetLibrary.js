@@ -15,6 +15,10 @@ var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
 var _uuidToRawAssets;
 
+function isScene (asset) {
+    return asset.constructor === cc.SceneAsset || asset instanceof cc.Scene;
+}
+
 // publics
 
 var AssetLibrary = {
@@ -171,12 +175,16 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    asset && (asset._uuid = uuid);
+                    if (isScene(asset)) {
+                        Loader.removeItem(uuid);
+                    }
                     callback(error, asset);
                 });
             }
             else {
-                asset && (asset._uuid = uuid);
+                if (isScene(asset)) {
+                    Loader.removeItem(uuid);
+                }
                 callback(error, asset);
             }
         });
@@ -206,17 +214,17 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    callback(error, asset);
-                    if (CC_EDITOR) {
+                    if (CC_EDITOR || isScene(asset)) {
                         Loader.removeItem(randomUuid);
                     }
+                    callback(error, asset);
                 });
             }
             else {
-                callback(error, asset);
-                if (CC_EDITOR) {
+                if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(randomUuid);
                 }
+                callback(error, asset);
             }
         });
         thisTick = false;
