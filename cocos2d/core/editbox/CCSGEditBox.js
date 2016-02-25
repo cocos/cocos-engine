@@ -162,14 +162,14 @@ cc.EditBoxDelegate = cc._Class.extend({
      * This method is called when an edit box gains focus after keyboard is shown.
      * @param {cc.EditBox} sender
      */
-    editBoxEditingDidBegin: function (sender) {
+    editBoxEditingDidBegan: function (sender) {
     },
 
     /**
      * This method is called when an edit box loses focus after keyboard is hidden.
      * @param {cc.EditBox} sender
      */
-    editBoxEditingDidEnd: function (sender) {
+    editBoxEditingDidEnded: function (sender) {
     },
 
     /**
@@ -491,16 +491,16 @@ EditBoxImpl.prototype = {
             else
                 selfPointer._edTxt.type = 'text';
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegin)
-                editBox._delegate.editBoxEditingDidBegin(editBox);
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan)
+                editBox._delegate.editBoxEditingDidBegan(editBox);
             cc._canvas.addEventListener('click', onCanvasClick);
         });
         tmpEdTxt.addEventListener('blur', function () {
             var editBox = selfPointer._editBox;
             editBox._text = this.value;
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnd)
-                editBox._delegate.editBoxEditingDidEnd(editBox);
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded)
+                editBox._delegate.editBoxEditingDidEnded(editBox);
             cc._canvas.removeEventListener('click', onCanvasClick);
             if (this.value === '') {
                 this.style.fontSize = editBox._placeholderFontSize + 'px';
@@ -543,8 +543,8 @@ EditBoxImpl.prototype = {
             this.style.fontSize = selfPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegin)
-                editBox._delegate.editBoxEditingDidBegin(editBox);
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan)
+                editBox._delegate.editBoxEditingDidBegan(editBox);
 
             cc._canvas.addEventListener('click', onCanvasClick);
         });
@@ -552,8 +552,8 @@ EditBoxImpl.prototype = {
             var editBox = selfPointer._editBox;
             editBox._text = this.value;
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnd)
-                editBox._delegate.editBoxEditingDidEnd(editBox);
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded)
+                editBox._delegate.editBoxEditingDidEnded(editBox);
 
             if (this.value === '') {
                 this.style.fontSize = editBox._placeholderFontSize + 'px';
