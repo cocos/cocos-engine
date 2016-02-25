@@ -319,7 +319,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             tex = locTexs[url] = new Texture2D();
             tex.url = url;
             cc.loader.load(url, function (err, texture) {
-                if (err || !texture) {
+                if (err) {
                     return cb && cb.call(target, err || new Error('Unknown error'));
                 }
 
@@ -377,7 +377,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             tex = locTexs[url] = new Texture2D();
             tex.url = url;
             cc.loader.load(url, function (err, texture) {
-                if (err || !texture) {
+                if (err) {
                     return cb && cb.call(target, err || new Error('Unknown error'));
                 }
 
