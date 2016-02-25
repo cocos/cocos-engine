@@ -35,13 +35,14 @@ var ItemState = {
 function asyncFlow (item) {
     var pipeId = this.id;
     var itemState = item.states[pipeId];
+    var next = this.next;
 
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
     else if (itemState === ItemState.COMPLETE) {
-        if (this.next) {
-            this.next.flowIn(item);
+        if (next) {
+            next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -62,8 +63,8 @@ function asyncFlow (item) {
                     item.content = result;
                 }
                 item.states[pipeId] = ItemState.COMPLETE;
-                if (pipe.next) {
-                    pipe.next.flowIn(item);
+                if (next) {
+                    next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
                 }
                 else {
                     pipe.pipeline.flowOut(item);
@@ -75,13 +76,14 @@ function asyncFlow (item) {
 function syncFlow (item) {
     var pipeId = this.id;
     var itemState = item.states[pipeId];
+    var next = this.next;
     
     if (item.error || itemState === ItemState.WORKING || itemState === ItemState.ERROR) {
         return;
     }
     else if (itemState === ItemState.COMPLETE) {
-        if (this.next) {
-            this.next.flowIn(item);
+        if (next) {
+            next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -101,8 +103,8 @@ function syncFlow (item) {
                 item.content = result;
             }
             item.states[pipeId] = ItemState.COMPLETE;
-            if (this.next) {
-                this.next.flowIn(item);
+            if (next) {
+                next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
             }
             else {
                 this.pipeline.flowOut(item);
@@ -195,13 +197,6 @@ var Pipeline = function (pipes) {
 
         pipe.pipeline = this;
         pipe.next = i < pipes.length - 1 ? pipes[i+1] : null;
-
-        if (pipe.async) {
-            pipe.flowIn = asyncFlow;
-        }
-        else {
-            pipe.flowIn = syncFlow;
-        }
     }
 };
 
@@ -232,12 +227,6 @@ JS.mixin(Pipeline.prototype, {
             pipe.next = null;
             this._pipes.push(pipe);
         }
-        if (pipe.async) {
-            pipe.flowIn = asyncFlow;
-        }
-        else {
-            pipe.flowIn = syncFlow;
-        }
     },
 
     /**
@@ -256,13 +245,6 @@ JS.mixin(Pipeline.prototype, {
         pipe.pipeline = this;
         pipe.next = null;
         this._pipes.push(pipe);
-
-        if (pipe.async) {
-            pipe.flowIn = asyncFlow;
-        }
-        else {
-            pipe.flowIn = syncFlow;
-        }
     },
 
     /**
@@ -311,9 +293,10 @@ JS.mixin(Pipeline.prototype, {
             this._flowing = true;
         }
         // Flow in after appended to loading items
-        if (this._pipes.length > 0) {
+        var pipe = this._pipes[0];
+        if (pipe) {
             for (i = 0; i < acceptedItems.length; i++) {
-                this._pipes[0].flowIn(acceptedItems[i]);
+                pipe.async ? asyncFlow.call(pipe, acceptedItems[i]) : syncFlow.call(pipe, acceptedItems[i]);
             }
         }
         return acceptedItems;
