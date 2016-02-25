@@ -202,6 +202,11 @@ var TiledMap = cc.Class({
         var sgNode = this._tiledMap;
         var self = this;
         var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath);
+        if (!mapInfo) {
+            self._onMapLoaded(new Error('Parse map info failed.'));
+            return;
+        }
+
         self._isLoading = true;
         this._preloadTextures(mapInfo, function(err, results) {
             if (err) {
@@ -351,6 +356,11 @@ var TiledMap = cc.Class({
             }
 
             var mapInfo = new cc.TMXMapInfo(file);
+            if (!mapInfo) {
+                cb(new Error('Parse map info failed.'));
+                return;
+            }
+
             self._preloadTextures(mapInfo, cb);
         });
     },
