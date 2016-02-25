@@ -215,7 +215,7 @@ var AssetLibrary = {
                     if (CC_EDITOR || isScene(asset)) {
                         Loader.removeItem(randomUuid);
                     }
-                    delete asset._uuid;
+                    asset._uuid = '';
                     callback(error, asset);
                 });
             }
@@ -223,7 +223,7 @@ var AssetLibrary = {
                 if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(randomUuid);
                 }
-                delete asset._uuid;
+                asset._uuid = '';
                 callback(error, asset);
             }
         });
