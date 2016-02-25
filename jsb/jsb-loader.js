@@ -60,6 +60,7 @@ cc.loader.addDownloadHandlers({
     'ico' : empty,
     'tiff' : empty,
     'webp' : empty,
+    'image' : empty,
 
     // Audio
     'mp3' : empty,
@@ -135,6 +136,7 @@ cc.loader.addLoadHandlers({
     'ico' : loadImage,
     'tiff' : loadImage,
     'webp' : loadImage,
+    'image' : loadImage,
 
     'default' : empty
 });

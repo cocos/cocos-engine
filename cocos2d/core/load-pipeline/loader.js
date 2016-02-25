@@ -169,6 +169,7 @@ var defaultMap = {
     'ico' : loadImage,
     'tiff' : loadImage,
     'webp' : loadImage,
+    'image' : loadImage,
 
     'json' : loadJSON,
     'ExportJson' : loadJSON,
@@ -178,6 +179,9 @@ var defaultMap = {
     'fnt' : loadFnt,
 
     'uuid' : loadUuid,
+    'prefab' : loadUuid,
+    'fire' : loadUuid,
+    'scene' : loadUuid,
 
     'default' : loadNothing
 };

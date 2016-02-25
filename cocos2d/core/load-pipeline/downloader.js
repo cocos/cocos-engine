@@ -281,6 +281,7 @@ var defaultMap = {
     'ico' : downloadImage,
     'tiff' : downloadImage,
     'webp' : downloadImage,
+    'image' : downloadImage,
 
     // Audio
     'mp3' : downloadAudio,
@@ -313,8 +314,11 @@ var defaultMap = {
     'svg' : downloadFont,
     'ttc' : downloadFont,
 
-    // Uuid
+    // Deserializer
     'uuid' : downloadUuid,
+    'prefab' : downloadUuid,
+    'fire' : downloadUuid,
+    'scene' : downloadUuid,
 
     'default' : downloadText
 };
