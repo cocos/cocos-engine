@@ -6,6 +6,7 @@ var SceneGraphHelper = require('../utils/scene-graph-helper');
  *
  * You should override:
  * - _createSgNode
+ * - _initSgNode
  *
  * @class _ComponentInSG
  * @extends Component

@@ -298,26 +298,6 @@ if (CC_DEV) {
         }
     }
 
-    function shouldNotUseNodeProp (component) {
-        var compName = cc.js.getClassName(component);
-        var Info = 'Sorry, ' + compName + '.%s is removed, please use cc.Node.%s instead.';
-        var compProto = component.prototype;
-        for (var prop in cc.Node.prototype) {
-            (function (prop) {
-                if (!(prop in compProto) && prop[0] !== '_') {
-                    js.getset(compProto, prop,
-                        function () {
-                            cc.error(Info, prop, prop);
-                        },
-                        function () {
-                            cc.error(Info, prop, prop);
-                        }
-                    );
-                }
-            })(prop);
-        }
-    }
-
     // cc.Node
 
     markAsRemoved(cc.Node, [
@@ -407,8 +387,31 @@ if (CC_DEV) {
         removeAllComponents: 'removeComponent',
         getNodeToParentAffineTransform: 'getNodeToParentTransform',
     });
+    
+    // RENDERERS
 
-    // cc.SpriteRenderer
+    function shouldNotUseNodeProp (component) {
+        var compProto = component.prototype;
+        for (var prop in cc.Node.prototype) {
+            (function (prop) {
+                if (!(prop in compProto) && prop[0] !== '_') {
+                    Object.defineProperty(compProto, prop, {
+                        get: function () {
+                            var compName = cc.js.getClassName(this);    // 允许继承
+                            var Info = 'Sorry, ' + compName + '.%s is undefined, please use cc.Node.%s instead.';
+                            cc.error(Info, prop, prop);
+                        },
+                        enumerable: false,
+                        configurable: true,   // 允许继承
+                    });
+                }
+            })(prop);
+        }
+    }
+    shouldNotUseNodeProp(cc._ComponentInSG);
+
+
+    // cc.Sprite
 
     markAsRemoved(cc.Sprite, [
         'textureLoaded',
@@ -440,7 +443,6 @@ if (CC_DEV) {
         getSpriteFrame: 'spriteFrame',
         setSpriteFrame: 'spriteFrame',
     });
-    shouldNotUseNodeProp(cc.Sprite);
 
     // Particle
     markAsRemoved(cc.ParticleSystem, [
@@ -490,7 +492,6 @@ if (CC_DEV) {
         '*etTotalParticles': 'totalParticles',
         '*etTexture': 'texture',
     });
-    shouldNotUseNodeProp(cc.ParticleSystem);
     js.obsoletes(cc.ParticleSystem, 'cc.ParticleSystem', {
         Type: 'PositionType',
         Mode: 'EmitterMode'

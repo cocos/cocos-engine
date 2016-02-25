@@ -583,34 +583,25 @@ function _boundSuperCall (func, funcName, base) {
     var superFunc = null;
     var pd = JS.getPropertyDescriptor(base.prototype, funcName);
     if (pd) {
-        if (pd.value) {
-            if (typeof pd.value === 'function') {
-                superFunc = pd.value;
+        superFunc = pd.value;
+        // ignore pd.get, assume that function defined by getter is just for warnings 
+        if (typeof superFunc === 'function') {
+            var hasSuperCall = SuperCallReg.test(func);
+            if (hasSuperCall) {
+                return function () {
+                    var tmp = this._super;
+    
+                    // Add a new ._super() method that is the same method but on the super-Class
+                    this._super = superFunc;
+    
+                    var ret = func.apply(this, arguments);
+    
+                    // The method only need to be bound temporarily, so we remove it when we're done executing
+                    this._super = tmp;
+    
+                    return ret;
+                };
             }
-        }
-        else if (pd.get) {
-            var got = pd.get();
-            if (typeof got === 'function') {
-                superFunc = got;
-            }
-        }
-    }
-    if (superFunc) {
-        var hasSuperCall = SuperCallReg.test(func);
-        if (hasSuperCall) {
-            return function () {
-                var tmp = this._super;
-
-                // Add a new ._super() method that is the same method but on the super-Class
-                this._super = superFunc;
-
-                var ret = func.apply(this, arguments);
-
-                // The method only need to be bound temporarily, so we remove it when we're done executing
-                this._super = tmp;
-
-                return ret;
-            };
         }
     }
     return null;
@@ -781,7 +772,13 @@ function CCClass (options) {
         }
         var func = options[funcName];
         if (typeof func === 'function' || func === null) {
-            cls.prototype[funcName] = func;
+            // use defineProperty to redefine some super method defined as getter
+            Object.defineProperty(cls.prototype, funcName, {
+                value: func,
+                enumerable: true,
+                configurable: true,
+                writable: true,
+            });
         }
         else if (CC_DEV) {
             var correct = TYPO_TO_CORRECT[funcName];
