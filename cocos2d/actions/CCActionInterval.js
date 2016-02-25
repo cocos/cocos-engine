@@ -1998,17 +1998,17 @@ cc.Blink = cc.ActionInterval.extend({
         if (this.target && !this.isDone()) {
             var slice = 1.0 / this._times;
             var m = dt % slice;
-            this.target.visible = (m > (slice / 2));
+            this.target.opacity = (m > (slice / 2)) ? 255 : 0;
         }
     },
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        this._originalState = target.visible;
+        this._originalState = target.opacity;
     },
 
     stop:function () {
-        this.target.visible = this._originalState;
+        this.target.opacity = this._originalState;
         cc.ActionInterval.prototype.stop.call(this);
     },
 
