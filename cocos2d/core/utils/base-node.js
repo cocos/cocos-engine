@@ -1258,12 +1258,59 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     /**
-     * Returns a "world" axis aligned bounding box of the node.
+     * Returns a "world" axis aligned bounding box of the node.<br/>
+     * The bounding box contains self and active children's world bounding box.
      * @method getBoundingBoxToWorld
      * @return {Rect}
      */
     getBoundingBoxToWorld: function () {
-        return this._sgNode.getBoundingBoxToWorld();
+        var size = this.getContentSize();
+        var width = size.width;
+        var height = size.height;
+        var rect = cc.rect(-this.anchorX * width, -this.anchorY * height, width, height);
+
+        var trans = this.getNodeToWorldTransform();
+        cc._rectApplyAffineTransformIn(rect, trans);
+
+        //query child's BoundingBox
+        if (!this._children)
+            return rect;
+
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child.active) {
+                var childRect = child._getBoundingBoxTo(trans);
+                if (childRect)
+                    rect = cc.rectUnion(rect, childRect);
+            }
+        }
+        return rect;
+    },
+
+    _getBoundingBoxTo: function (parentTransform) {
+        var size = this.getContentSize();
+        var width = size.width;
+        var height = size.height;
+        var rect = cc.rect(-this.anchorX * width, -this.anchorY * height, width, height);
+
+        var trans = (parentTransform === undefined) ? this.getNodeToParentTransform() : cc.affineTransformConcat(this.getNodeToParentTransform(), parentTransform);
+        cc._rectApplyAffineTransformIn(rect, trans);
+
+        //query child's BoundingBox
+        if (!this._children)
+            return rect;
+
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var child = locChildren[i];
+            if (child && child.active) {
+                var childRect = child._getBoundingBoxTo(trans);
+                if (childRect)
+                    rect = cc.rectUnion(rect, childRect);
+            }
+        }
+        return rect;
     },
 
     /**
