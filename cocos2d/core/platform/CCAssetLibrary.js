@@ -16,7 +16,7 @@ var _rawAssetsBase = '';     // The base dir for raw assets in runtime
 var _uuidToRawAssets;
 
 function isScene (asset) {
-    return asset.constructor === cc.SceneAsset || asset instanceof cc.Scene;
+    return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
 }
 
 // publics
