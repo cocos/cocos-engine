@@ -1,18 +1,18 @@
 var SceneGraphHelper = require('../utils/scene-graph-helper');
 
 /**
- * Component in scene graph.
- * This is the base class for components which will attach a node to the cocos2d scene graph.
+ * Rendering component in scene graph.
+ * This is the base class for components which will attach a leaf node to the cocos2d scene graph.
  *
  * You should override:
  * - _createSgNode
  * - _initSgNode
  *
- * @class _ComponentInSG
+ * @class _RendererBelowSG
  * @extends Component
  * @private
  */
-var ComponentInSG = cc.Class({
+var RendererBelowSG = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
@@ -106,4 +106,4 @@ var ComponentInSG = cc.Class({
     }
 });
 
-cc._ComponentInSG = module.exports = ComponentInSG;
+cc._RendererBelowSG = module.exports = RendererBelowSG;

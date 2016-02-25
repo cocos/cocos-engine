@@ -44,7 +44,7 @@ function setEnumAttr (obj, propName, enumDef) {
  * Multiple skeletons can use the same SkeletonData which includes all animations, skins, and attachments.) <br/>
  *
  * @class Skeleton
- * @extends cc._ComponentInSG
+ * @extends cc._RendererBelowSG
  * @constructor
  */
 
@@ -52,7 +52,7 @@ function setEnumAttr (obj, propName, enumDef) {
 
 sp.Skeleton = cc.Class({
     name: 'sp.Skeleton',
-    extends: cc._ComponentInSG,
+    extends: cc._RendererBelowSG,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Spine Skeleton',
         //playOnFocus: true

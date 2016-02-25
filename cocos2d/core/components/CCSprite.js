@@ -61,11 +61,11 @@ var SizeMode = cc.Enum({
 /**
  * Renders a sprite in the scene.
  * @class Sprite
- * @extends _ComponentInSG
+ * @extends _RendererBelowSG
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
-    extends: require('./CCComponentInSG'),
+    extends: require('./CCRendererBelowSG'),
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',

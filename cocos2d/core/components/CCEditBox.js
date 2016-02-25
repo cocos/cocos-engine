@@ -31,11 +31,11 @@ var InputFlag = _ccsg.EditBox.InputFlag;
 /**
  * cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
  * @class EditBox
- * @extends _ComponentInSG
+ * @extends _RendererBelowSG
  */
 var EditBox = cc.Class({
     name: 'cc.EditBox',
-    extends: cc._ComponentInSG,
+    extends: cc._RendererBelowSG,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/EditBox',

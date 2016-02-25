@@ -29,11 +29,11 @@ var LabelType = _ccsg.Label.Type;
 /**
  *
  * @class Label
- * @extends _ComponentInSG
+ * @extends _RendererBelowSG
  */
 var Label = cc.Class({
     name: 'cc.Label',
-    extends: cc._ComponentInSG,
+    extends: cc._RendererBelowSG,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Label'

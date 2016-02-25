@@ -133,7 +133,8 @@ if (CC_DEV) {
     js.obsoletes(cc, 'cc', {
         'Point': 'Vec2',
         'EScene': 'Scene',
-        'ENode': 'Node'
+        'ENode': 'Node',
+        '_ComponentInSG': '_RendererBelowSG'
     });
 
     /**
@@ -205,7 +206,7 @@ if (CC_DEV) {
 
 
 
-    Object.defineProperty(cc._ComponentInSG.prototype, 'visible', {
+    Object.defineProperty(cc._RendererBelowSG.prototype, 'visible', {
         get: function () {
             cc.warn('The "visible" property of %s is deprecated, use "enabled" instead please.', cc.js.getClassName(this));
             return this.enabled;
@@ -408,7 +409,7 @@ if (CC_DEV) {
             })(prop);
         }
     }
-    shouldNotUseNodeProp(cc._ComponentInSG);
+    shouldNotUseNodeProp(cc._RendererBelowSG);
 
 
     // cc.Sprite

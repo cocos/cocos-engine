@@ -520,11 +520,11 @@ properties.emitterMode.type = EmitterMode;
  * emitter.startSpin = 0;
  *
  * @class ParticleSystem
- * @extends cc._ComponentInSG
+ * @extends cc._RendererBelowSG
  */
 var ParticleSystem = cc.Class({
     name: 'cc.ParticleSystem',
-    extends: cc._ComponentInSG,
+    extends: cc._RendererBelowSG,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/ParticleSystem',
         inspector: 'app://editor/page/inspector/particle-system/index.html',
