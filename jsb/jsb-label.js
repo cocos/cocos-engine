@@ -116,9 +116,6 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
         this._isSystemFontUsed = true;
     }
     else {
-        //add resource path
-        fontHandle = cc.path.join(cc.loader.resPath, fontHandle);
-
         if (extName === '.ttf') {
             this._labelType = _ccsg.Label.Type.TTF;
             this._ttfConfig.fontFilePath = fontHandle;

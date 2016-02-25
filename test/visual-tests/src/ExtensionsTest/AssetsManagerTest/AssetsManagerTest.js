@@ -39,7 +39,6 @@ var AssetsManagerTestLayer = BaseTestLayer.extend({
     ctor : function (spritePath) {
         this._super();
         this._spritePath = spritePath;
-        cc.loader.resPath = "../cpp-tests/Resources/";
     },
 
     getTitle : function() {
