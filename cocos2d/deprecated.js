@@ -204,9 +204,7 @@ if (CC_DEV) {
         return cc.js.array.copy;
     });
 
-
-
-    Object.defineProperty(cc._RendererBelowSG.prototype, 'visible', {
+    Object.defineProperty(cc._SGComponent.prototype, 'visible', {
         get: function () {
             cc.warn('The "visible" property of %s is deprecated, use "enabled" instead please.', cc.js.getClassName(this));
             return this.enabled;
@@ -409,7 +407,7 @@ if (CC_DEV) {
             })(prop);
         }
     }
-    shouldNotUseNodeProp(cc._RendererBelowSG);
+    shouldNotUseNodeProp(cc._SGComponent);
 
 
     // cc.Sprite

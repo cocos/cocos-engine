@@ -1,30 +1,20 @@
-var SceneGraphHelper = require('../utils/scene-graph-helper');
 
 /**
  * Rendering component in scene graph.
  * This is the base class for components which will attach a leaf node to the cocos2d scene graph.
  *
- * You should override:
- * - _createSgNode
- * - _initSgNode
- *
  * @class _RendererBelowSG
- * @extends Component
+ * @extends _SGComponent
  * @private
  */
 var RendererBelowSG = cc.Class({
-    extends: require('./CCComponent'),
-
-    editor: CC_EDITOR && {
-        executeInEditMode: true,
-        disallowMultiple: true
-    },
+    extends: require('./CCSGComponent'),
 
     ctor: function () {
         /**
          * Reference to the instance of _ccsg.Node
          * If it is possible to return null from your overloaded _createSgNode,
-         * then you should always check for null before using this property.
+         * then you should always check for null before using this property and reimplement onLoad.
          *
          * @property {_ccsg.Node} _sgNode
          * @private
@@ -32,61 +22,36 @@ var RendererBelowSG = cc.Class({
         this._sgNode = this._createSgNode();
         if (this._sgNode) {
             // retain immediately
-            // will be released in SceneGraphHelper.removeSgNode
+            // will be released in onDestroy
             this._sgNode.retain();
         }
     },
 
+    // You should reimplement this function if your _sgNode maybe null.
     onLoad: function () {
-        this._initSgNode();
-        var sgNode = this._sgNode;
-        this._appendSgNode(sgNode);
-        if ( !this.node._sizeProvider ) {
-            this.node._sizeProvider = sgNode;
-        }
+        this._super();
+        this._appendSgNode(this._sgNode);
     },
     onEnable: function () {
         if (this._sgNode) {
-            this._sgNode.visible = true;
+            this._sgNode.setVisible(true);
         }
     },
     onDisable: function () {
         if (this._sgNode) {
-            this._sgNode.visible = false;
+            this._sgNode.setVisible(false);
         }
     },
-    onDestroy: function () {
-        if ( this.node._sizeProvider === this._sgNode ) {
-            this.node._sizeProvider = null;
-        }
-        this._removeSgNode();
-    },
-
-    /**
-     * Create and returns your new scene graph node (SGNode) to append to scene graph.
-     * You should call the setContentSize of the SGNode if its size should be the same with the node's.
-     *
-     * @method _createSgNode
-     * @return {_ccsg.Node}
-     * @private
-     */
-    _createSgNode: null,
-
-    /**
-     * @method _initSgNode
-     * @private
-     */
-    _initSgNode: null,
-
-    _removeSgNode: SceneGraphHelper.removeSgNode,
 
     _appendSgNode: function (sgNode) {
         if ( !sgNode ) {
             return;
         }
 
+        if ( !this.enabled ) {
+            sgNode.setVisible(false);
+        }
         var node = this.node;
-
         sgNode.setColor(node._color);
         if ( !node._cascadeOpacityEnabled ) {
             sgNode.setOpacity(node._opacity);

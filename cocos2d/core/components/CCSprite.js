@@ -512,13 +512,8 @@ var Sprite = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-
-        if (!this.enabledInHierarchy) {
-            sgNode.setVisible(false);
-        }
-
+        
         this._validateSizeMode();
-
         this._applySpriteFrame(null);
 
         // should keep the size of the sg node the same as entity,
