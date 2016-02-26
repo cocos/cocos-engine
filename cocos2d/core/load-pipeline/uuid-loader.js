@@ -94,7 +94,7 @@ function loadUuid (item, callback) {
     }
     var pipeline = this.pipeline;
     if (depends.length > 0) {
-        this.pipeline.flowInDeps(depends, function (items) {
+        pipeline.flowInDeps(depends, function (items) {
             var item;
             for (var src in items) {
                 item = items[src];
@@ -113,7 +113,7 @@ function loadUuid (item, callback) {
                         obj[dependProp] = value;
                     }
                     else {
-                        this.getItems().add(dependSrc, function (item) {
+                        pipeline.getItems().add(dependSrc, function (item) {
                             var value = item.isRawAsset ? (item.url || item.src) : item.content;
                             this.obj[this.prop] = value;
                         }, {

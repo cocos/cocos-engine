@@ -170,14 +170,14 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (isScene(asset)) {
+                    if (isScene(asset) || CC_EDITOR) {
                         Loader.removeItem(uuid);
                     }
                     callback(error, asset);
                 });
             }
             else {
-                if (isScene(asset)) {
+                if (isScene(asset) || CC_EDITOR) {
                     Loader.removeItem(uuid);
                 }
                 callback(error, asset);
@@ -208,7 +208,7 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (isScene(asset)) {
+                    if (isScene(asset) || CC_EDITOR) {
                         Loader.removeItem(randomUuid);
                     }
                     asset._uuid = '';
@@ -216,7 +216,7 @@ var AssetLibrary = {
                 });
             }
             else {
-                if (isScene(asset)) {
+                if (isScene(asset) || CC_EDITOR) {
                     Loader.removeItem(randomUuid);
                 }
                 asset._uuid = '';
