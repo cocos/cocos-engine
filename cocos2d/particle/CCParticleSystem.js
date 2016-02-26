@@ -137,10 +137,10 @@ var properties = {
                 this._file = value;
                 if (value) {
                     this._applyFile();
-                    cc.engine.repaintInEditMode();
-                    //if (CC_EDITOR) {
-                    //    self.preview = self.preview;
-                    //}
+                    if (CC_EDITOR) {
+                        cc.engine.repaintInEditMode();
+                        //self.preview = self.preview;
+                    }
                 }
                 else {
                     this.custom = true;

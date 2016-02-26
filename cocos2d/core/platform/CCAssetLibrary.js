@@ -164,24 +164,20 @@ var AssetLibrary = {
             return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
         }
 
-        if (CC_EDITOR) {
-            Loader.removeItem(uuid);
-        }
-
         Loader.load(item, function (error, asset) {
             if (error || !asset) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (isScene(asset)) {
+                    if (isScene(asset) || CC_EDITOR) {
                         Loader.removeItem(uuid);
                     }
                     callback(error, asset);
                 });
             }
             else {
-                if (isScene(asset)) {
+                if (isScene(asset) || CC_EDITOR) {
                     Loader.removeItem(uuid);
                 }
                 callback(error, asset);
@@ -207,12 +203,12 @@ var AssetLibrary = {
             skips: [ Loader.downloader.id ]
         };
         Loader.load(item, function (error, asset) {
-            if (error || !asset) {
+            if (error) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (CC_EDITOR || isScene(asset)) {
+                    if (isScene(asset) || CC_EDITOR) {
                         Loader.removeItem(randomUuid);
                     }
                     asset._uuid = '';
@@ -220,7 +216,7 @@ var AssetLibrary = {
                 });
             }
             else {
-                if (CC_EDITOR || isScene(asset)) {
+                if (isScene(asset) || CC_EDITOR) {
                     Loader.removeItem(randomUuid);
                 }
                 asset._uuid = '';

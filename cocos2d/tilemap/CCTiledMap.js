@@ -349,8 +349,8 @@ var TiledMap = cc.Class({
 
     _preloadTmx: function(file, cb) {
         var self = this;
-        cc.loader.load(file, function (err, content) {
-            if (err || !content) {
+        cc.loader.load(file, function (err) {
+            if (err) {
                 if (cb) cb(err || new Error('Preload TMX failed: unknown error'));
                 return;
             }

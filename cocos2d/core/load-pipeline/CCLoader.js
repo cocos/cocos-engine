@@ -196,7 +196,8 @@ JS.mixin(cc.loader, {
         // No new resources, complete directly
         if (totalCount === completedCount) {
             if (singleRes) {
-                var result = this._items.map[resources[0]];
+                var src = resources[0].src || resources[0];
+                var result = this._items.map[src];
                 completeCallback.call(this, result.error, result.content);
             }
             else {
