@@ -603,7 +603,7 @@ cc.DOM.forSprite = function (x) {
 cc.DOM.placeHolder = function (x) {
     //creating a placeholder dom to simulate other ccNode in the hierachy
     x.dom = cc.$new('div');
-    x.placeholder = true;
+    // x.placeholder = true;
     x.dom.style.position = 'absolute';
     x.dom.style.bottom = 0;
     //x.dom.style.display='block';

@@ -44,12 +44,14 @@ var EditBox = cc.Class({
     },
 
     properties: {
+        _useOriginalSize: true,
         _string: '',
         /**
          * Input string of EditBox.
          * @property {String} string
          */
         string: {
+            tooltip: 'i18n:COMPONENT.editbox.string',
             get: function () {
                 return this._sgNode.string;
             },
@@ -63,13 +65,20 @@ var EditBox = cc.Class({
          * @property {cc.SpriteFrame} backGroundImage
          */
         backgroundImage: {
+            tooltip: 'i18n:COMPONENT.editbox.backgroundImage',
             default: null,
             type: cc.SpriteFrame,
             notify: function() {
                 var sgNode = this._sgNode;
                 var backgroundSprite = sgNode.getBackgroundSprite();
-                backgroundSprite.setSpriteFrame(this.backgroundImage);
-                backgroundSprite.setContentSize(sgNode.getContentSize());
+                if(this.backgroundImage) {
+                    var sprite = this._createBackgroundSprite();
+                    sprite.setSpriteFrame(this.backgroundImage);
+                    sprite.setContentSize(sgNode.getContentSize());
+                }
+                else {
+                    backgroundSprite.removeFromParent();
+                }
             }
         },
 
@@ -81,6 +90,8 @@ var EditBox = cc.Class({
          */
         returnType: {
             default: KeyboardReturnType.DEFAULT,
+            tooltip: 'i18n:COMPONENT.editbox.returnType',
+            displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
             notify: function() {
                 this._sgNode.returnType = this.returnType;
@@ -93,13 +104,13 @@ var EditBox = cc.Class({
          * @default InputFlag.INITIAL_CAPS_ALL_CHARACTERS
          */
         inputFlag: {
+            tooltip: 'i18n:COMPONENT.editbox.input_flag',
             default: InputFlag.INITIAL_CAPS_ALL_CHARACTERS,
             type: InputFlag,
             notify: function() {
                 this._sgNode.inputFlag = this.inputFlag;
             }
         },
-
         /**
          * Set the input mode of the edit box.
          * If you pass ANY, it will create a multiline EditBox.
@@ -107,6 +118,7 @@ var EditBox = cc.Class({
          * @default InputMode.ANY
          */
         inputMode: {
+            tooltip: 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
             notify: function() {
@@ -119,9 +131,22 @@ var EditBox = cc.Class({
          * @property {Number} fontSize
          */
         fontSize: {
+            tooltip: 'i18n:COMPONENT.editbox.font_size',
             default: 20,
             notify: function() {
                 this._sgNode.fontSize = this.fontSize;
+            }
+        },
+
+        /**
+         * Change the lineHeight of displayed text.
+         * @property {Number} lineHeight
+         */
+        lineHeight: {
+            tooltip: 'i18n:COMPONENT.editbox.line_height',
+            default: 40,
+            notify: function() {
+                this._sgNode.setLineHeight(this.lineHeight);
             }
         },
 
@@ -130,6 +155,7 @@ var EditBox = cc.Class({
          * @property {cc.Color} fontColor
          */
         fontColor: {
+            tooltip: 'i18n:COMPONENT.editbox.font_color',
             default: cc.Color.WHITE,
             notify: function() {
                 this._sgNode.fontColor = this.fontColor;
@@ -137,35 +163,38 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The display text of placeHolder.
-         * @property {String} placeHolder
+         * The display text of placeholder.
+         * @property {String} placeholder
          */
-        placeHolder: {
+        placeholder: {
+            tooltip: 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
             notify: function() {
-                this._sgNode.placeHolder = this.placeHolder;
+                this._sgNode.placeholder = this.placeholder;
             }
         },
 
         /**
-         * The font size of placeHolder.
-         * @property {Number} placeHolderFontSize
+         * The font size of placeholder.
+         * @property {Number} placeholderFontSize
          */
-        placeHolderFontSize: {
+        placeholderFontSize: {
+            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_size',
             default: 20,
             notify: function() {
-                this._sgNode.placeHolderFontSize = this.placeHolderFontSize;
+                this._sgNode.placeholderFontSize = this.placeholderFontSize;
             }
         },
 
         /**
-         * The font color of placeHolder.
-         * @property {cc.Color} placeHolderFontColor
+         * The font color of placeholder.
+         * @property {cc.Color} placeholderFontColor
          */
-        placeHolderFontColor: {
+        placeholderFontColor: {
+            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_color',
             default: cc.Color.GRAY,
             notify: function() {
-                this._sgNode.placeHolderFontColor = this.placeHolderFontColor;
+                this._sgNode.placeholderFontColor = this.placeholderFontColor;
             }
         },
 
@@ -174,6 +203,7 @@ var EditBox = cc.Class({
          * @property {Number} maxLength
          */
         maxLength: {
+            tooltip: 'i18n:COMPONENT.editbox.max_length',
             default: 20,
             notify: function() {
                 this._sgNode.maxLength = this.maxLength;
@@ -216,15 +246,21 @@ var EditBox = cc.Class({
     },
 
     _createSgNode: function() {
-        return new _ccsg.EditBox(cc.size(300, 100));
+        return new _ccsg.EditBox(cc.size(160, 40));
+    },
+
+    _createBackgroundSprite: function() {
+        var sgNode = this._sgNode;
+        var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
+        sgNode.initWithSizeAndBackgroundSprite(cc.size(160, 40), bgSprite);
+        return bgSprite;
     },
 
     _initSgNode: function() {
         var sgNode = this._sgNode;
 
-        var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
-        sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), bgSprite);
-        sgNode.setContentSize(this.node.getContentSize());
+        this._createBackgroundSprite();
+
 
         sgNode.inputMode = this.inputMode;
         sgNode.maxLength = this.maxLength;
@@ -232,13 +268,28 @@ var EditBox = cc.Class({
         sgNode.string = this._string;
         sgNode.fontSize = this.fontSize;
         sgNode.fontColor = this.fontColor;
-        sgNode.placeHolder = this.placeHolder;
-        sgNode.placeHolderFontSize = this.placeHolderFontSize;
-        sgNode.placeHolderFontColor = this.placeHolderFontColor;
+        sgNode.placeholder = this.placeholder;
+        sgNode.placeholderFontSize = this.placeholderFontSize;
+        sgNode.placeholderFontColor = this.placeholderFontColor;
         sgNode.inputFlag = this.inputFlag;
         sgNode.returnType = this.returnType;
+        sgNode.setLineHeight(this.lineHeight);
+
+        if (!this._useOriginalSize) {
+            sgNode.setContentSize(this.node.getContentSize());
+        }
 
         sgNode.setDelegate(this);
+    },
+
+    _resized: function () {
+        this._useOriginalSize = false;
+    },
+
+    onLoad: function () {
+        this._super();
+
+        this.node.on('size-changed', this._resized, this);
     },
 
     editBoxEditingDidBegan: function() {
