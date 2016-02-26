@@ -179,6 +179,7 @@ if (CC_TEST) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
+    this._toRemove.length = 0;
     this._invoking = key;
     var list = this._callbackTable[key], i;
     if (list) {
@@ -205,7 +206,7 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
     // Delay removing
     for (i = 0; i < this._toRemove.length; ++i) {
         var toRemove = this._toRemove[i];
-        this.remove(this._invoking, toRemove[0], toRemove[1]);
+        this.remove(key, toRemove[0], toRemove[1]);
     }
     this._toRemove.length = 0;
     if (this._toRemoveAll) {

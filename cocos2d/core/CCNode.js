@@ -128,6 +128,8 @@ var _mouseEvents = [
     EventType.MOUSE_WHEEL,
 ];
 
+var currentHovered = null;
+
 var _touchStartHandler = function (touch, event) {
     var pos = touch.getLocation();
     var node = this.owner;
@@ -179,6 +181,13 @@ var _mouseMoveHandler = function (event) {
     if (node._hitTest(pos, this)) {
         event.stopPropagation();
         if (!this._previousIn) {
+            // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
+            if (currentHovered) {
+                event.type = EventType.MOUSE_LEAVE;
+                currentHovered.owner.dispatchEvent(event);
+                currentHovered._previousIn = false;
+            }
+            currentHovered = this;
             event.type = EventType.MOUSE_ENTER;
             node.dispatchEvent(event);
             this._previousIn = true;
@@ -190,6 +199,7 @@ var _mouseMoveHandler = function (event) {
         event.type = EventType.MOUSE_LEAVE;
         node.dispatchEvent(event);
         this._previousIn = false;
+        currentHovered = null;
     }
 };
 var _mouseUpHandler = function (event) {
