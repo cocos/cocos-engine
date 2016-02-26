@@ -1167,7 +1167,19 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        return this._sgNode.getNodeToWorldTransform();
+        var computedSize = this._sgNode.getContentSize();
+        var expectedSize = this.getContentSize();
+        var mat = this._sgNode.getNodeToWorldTransform();
+        var anchorPointIgnored = (computedSize.width === 0 && computedSize.height === 0 &&
+                                 (expectedSize.width !== 0 || expectedSize.height !== 0));
+        if (anchorPointIgnored) {
+            // compute anchor
+            var tx = - expectedSize.width * this._anchorPoint.x;
+            var ty = - expectedSize.height * this._anchorPoint.y;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
     },
 
     /**
@@ -1275,7 +1287,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var size = this.getContentSize();
         var width = size.width;
         var height = size.height;
-        var rect = cc.rect(-this.anchorX * width, -this.anchorY * height, width, height);
+        var rect = cc.rect(0, 0, width, height);
 
         var trans = (parentTransform === undefined) ? this.getNodeToParentTransform() : cc.affineTransformConcat(this.getNodeToParentTransform(), parentTransform);
         cc._rectApplyAffineTransformIn(rect, trans);
