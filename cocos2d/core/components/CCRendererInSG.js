@@ -33,9 +33,11 @@ var RendererInSG = cc.Class({
 
     onEnable: function () {
         this._replaceSgNode(this._customNode);
+        this.node.ignoreAnchor = true;
     },
     onDisable: function () {
         this._replaceSgNode(this._plainNode);
+        this.node.ignoreAnchor = false;
     },
     onDestroy: function () {
         this._super();

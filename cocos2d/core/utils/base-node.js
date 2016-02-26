@@ -1171,8 +1171,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var expectedSize = this.getContentSize();
         var mat = this._sgNode.getNodeToWorldTransform();
         var anchorPointIgnored = (computedSize.width === 0 && computedSize.height === 0 &&
-                                 (expectedSize.width !== 0 || expectedSize.height !== 0));
-        if (anchorPointIgnored) {
+                                  (expectedSize.width !== 0 || expectedSize.height !== 0));
+        if (anchorPointIgnored || this._sgNode.isIgnoreAnchorPointForPosition()) {
             // compute anchor
             var tx = - expectedSize.width * this._anchorPoint.x;
             var ty = - expectedSize.height * this._anchorPoint.y;
@@ -1221,7 +1221,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertToNodeSpaceAR: function (worldPoint) {
-        return this._sgNode.convertToNodeSpaceAR(worldPoint);
+        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
+            return cc.v2(this._sgNode.convertToNodeSpace(worldPoint));
+        }
+        else {
+            return this._sgNode.convertToNodeSpaceAR(worldPoint);
+        }
     },
 
     /**
@@ -1232,7 +1237,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertToWorldSpaceAR: function (nodePoint) {
-        return cc.v2(this._sgNode.convertToWorldSpaceAR(nodePoint));
+        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
+            return cc.v2(this._sgNode.convertToWorldSpace(nodePoint));
+        }
+        else {
+            return cc.v2(this._sgNode.convertToWorldSpaceAR(nodePoint));
+        }
     },
 
     // _convertToWindowSpace: function (nodePoint) {
