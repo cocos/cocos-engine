@@ -879,10 +879,13 @@ cc.EGLView = cc._Class.extend({
             selTouch = touches[i];
             selPoint = selTouch._point;
 	        selPrePoint = selTouch._prevPoint;
+            selStartPoint = selTouch._startPoint;
             selTouch._setPoint((selPoint.x - locViewPortRect.x) / locScaleX,
                 (selPoint.y - locViewPortRect.y) / locScaleY);
             selTouch._setPrevPoint((selPrePoint.x - locViewPortRect.x) / locScaleX,
                 (selPrePoint.y - locViewPortRect.y) / locScaleY);
+            selStartPoint.x = (selStartPoint.x - locViewPortRect.x) / locScaleX;
+            selStartPoint.y = (selStartPoint.y - locViewPortRect.y) / locScaleY;
         }
     }
 });
