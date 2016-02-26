@@ -113,13 +113,22 @@ function loadUuid (item, callback) {
                         obj[dependProp] = value;
                     }
                     else {
-                        pipeline.getItems().add(dependSrc, function (item) {
+                        var loadCallback = function (item) {
                             var value = item.isRawAsset ? (item.url || item.src) : item.content;
                             this.obj[this.prop] = value;
-                        }, {
+                        };
+                        var target = {
                             obj: obj,
                             prop: dependProp
-                        });
+                        };
+                        // Hack to get a better behavior
+                        var list = pipeline.getItems()._callbackTable[dependSrc];
+                        if (list) {
+                            list.unshift(loadCallback, target);
+                        }
+                        else {
+                            pipeline.getItems().add(dependSrc, loadCallback, target);
+                        }
                     }
                 }
             }

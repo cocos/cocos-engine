@@ -22,13 +22,7 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (typeof list !== 'undefined') {
         if (typeof callback === 'function') {
-            if (list !== null) {
-                list.push(callback);
-            }
-            else {
-                list = [callback];
-                this._callbackTable[key] = list;
-            }
+            list.push(callback);
             // Just append the target after callback
             if (typeof target === 'object') {
                 list.push(target);
@@ -38,7 +32,7 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
     }
     else {
         // new key
-        list = (typeof callback === 'function') ? [callback] : null;
+        list = (typeof callback === 'function') ? [callback] : [];
         // Just append the target after callback
         if (list && typeof target === 'object') {
             list.push(target);

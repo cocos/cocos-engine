@@ -162,16 +162,12 @@ JS.mixin(cc.loader, {
             }
             // All url completed
             if (completeCallback) {
-                var timerId = setTimeout(function () {
-                    if (singleRes) {
-                        completeCallback.call(self, item.error, item.content);
-                    }
-                    else {
-                        completeCallback.call(self, error, self._items);
-                    }
-                    clearTimeout(timerId);
-                    completeCallback = null;
-                }, 0);
+                if (singleRes) {
+                    completeCallback.call(self, item.error, item.content);
+                }
+                else {
+                    completeCallback.call(self, error, self._items);
+                }
             }
         }
 
