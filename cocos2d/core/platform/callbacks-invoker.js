@@ -120,6 +120,12 @@ CallbacksHandler.prototype.removeAll = function (key) {
 CallbacksHandler.prototype.remove = function (key, callback, target) {
     var list = this._callbackTable[key], index, callbackTarget;
     if (list) {
+        // Delay removing
+        if (this._invoking) {
+            this._toRemove.push([key, callback, target]);
+            return true;
+        }
+
         index = list.indexOf(callback);
         while (index !== -1) {
             callbackTarget = list[index+1];
@@ -148,6 +154,8 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
  */
 var CallbacksInvoker = function () {
     CallbacksHandler.call(this);
+    this._invoking = false;
+    this._toRemove = [];
 };
 JS.extend(CallbacksInvoker, CallbacksHandler);
 
@@ -165,11 +173,11 @@ if (CC_TEST) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
-    var list = this._callbackTable[key];
+    this._invoking = true;
+    var list = this._callbackTable[key], i;
     if (list) {
         var endIndex = list.length - 1;
-        var lastItem = list[endIndex];
-        for (var i = 0; i <= endIndex;) {
+        for (i = 0; i <= endIndex;) {
             var callingFunc = list[i];
             var target = list[i + 1];
             var hasTarget = target && typeof target === 'object';
@@ -183,29 +191,16 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
                 increment = 1;
             }
 
-            // TODO: check in remove
-            // check last one to see if any one removed
-            if (list[endIndex] !== lastItem && i + increment <= endIndex) {          // 如果变短
-                if (list[endIndex - 1] === lastItem) {
-                    // 只支持删一个
-                    endIndex -= 1;
-                }
-                else if (list[endIndex - 2] === lastItem) {
-                    // 只支持删一个 + target
-                    endIndex -= 2;
-                }
-                else {
-                    // 只允许在一个回调里面移除一个回调
-                    return cc.error('Can remove only a callback at a time.');
-                }
-                if (list[i] !== callingFunc) {      // 如果删了前面的回调，索引不加
-                    continue;
-                }
-            }
-
             i += increment;
         }
     }
+    this._invoking = false;
+
+    for (i = 0; i < this._toRemove.length; ++i) {
+        var toRemove = this._toRemove[i];
+        this.remove(toRemove[0], toRemove[1], toRemove[2]);
+    }
+    this._toRemove.length = 0;
 };
 
 /**
