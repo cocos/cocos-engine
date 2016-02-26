@@ -44,6 +44,7 @@ var EditBox = cc.Class({
     },
 
     properties: {
+        _useOriginalSize: true,
         _string: '',
         /**
          * Input string of EditBox.
@@ -68,8 +69,14 @@ var EditBox = cc.Class({
             notify: function() {
                 var sgNode = this._sgNode;
                 var backgroundSprite = sgNode.getBackgroundSprite();
-                backgroundSprite.setSpriteFrame(this.backgroundImage);
-                backgroundSprite.setContentSize(sgNode.getContentSize());
+                if(this.backgroundImage) {
+                    var sprite = this._createBackgroundSprite();
+                    sprite.setSpriteFrame(this.backgroundImage);
+                    sprite.setContentSize(sgNode.getContentSize());
+                }
+                else {
+                    backgroundSprite.removeFromParent();
+                }
             }
         },
 
@@ -126,6 +133,17 @@ var EditBox = cc.Class({
         },
 
         /**
+         * Change the lineHeight of displayed text.
+         * @property {Number} lineHeight
+         */
+        lineHeight: {
+            default: 40,
+            notify: function() {
+                this._sgNode.setLineHeight(this.lineHeight);
+            }
+        },
+
+        /**
          * Font color of the input text.
          * @property {cc.Color} fontColor
          */
@@ -137,35 +155,35 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The display text of placeHolder.
-         * @property {String} placeHolder
+         * The display text of placeholder.
+         * @property {String} placeholder
          */
-        placeHolder: {
+        placeholder: {
             default: 'Enter text here...',
             notify: function() {
-                this._sgNode.placeHolder = this.placeHolder;
+                this._sgNode.placeholder = this.placeholder;
             }
         },
 
         /**
-         * The font size of placeHolder.
-         * @property {Number} placeHolderFontSize
+         * The font size of placeholder.
+         * @property {Number} placeholderFontSize
          */
-        placeHolderFontSize: {
+        placeholderFontSize: {
             default: 20,
             notify: function() {
-                this._sgNode.placeHolderFontSize = this.placeHolderFontSize;
+                this._sgNode.placeholderFontSize = this.placeholderFontSize;
             }
         },
 
         /**
-         * The font color of placeHolder.
-         * @property {cc.Color} placeHolderFontColor
+         * The font color of placeholder.
+         * @property {cc.Color} placeholderFontColor
          */
-        placeHolderFontColor: {
+        placeholderFontColor: {
             default: cc.Color.GRAY,
             notify: function() {
-                this._sgNode.placeHolderFontColor = this.placeHolderFontColor;
+                this._sgNode.placeholderFontColor = this.placeholderFontColor;
             }
         },
 
@@ -216,15 +234,21 @@ var EditBox = cc.Class({
     },
 
     _createSgNode: function() {
-        return new _ccsg.EditBox(cc.size(300, 100));
+        return new _ccsg.EditBox(cc.size(160, 40));
+    },
+
+    _createBackgroundSprite: function() {
+        var sgNode = this._sgNode;
+        var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
+        sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), bgSprite);
+        return bgSprite;
     },
 
     _initSgNode: function() {
         var sgNode = this._sgNode;
 
-        var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
-        sgNode.initWithSizeAndBackgroundSprite(this.node.getContentSize(), bgSprite);
-        sgNode.setContentSize(this.node.getContentSize());
+        this._createBackgroundSprite();
+
 
         sgNode.inputMode = this.inputMode;
         sgNode.maxLength = this.maxLength;
@@ -232,13 +256,29 @@ var EditBox = cc.Class({
         sgNode.string = this._string;
         sgNode.fontSize = this.fontSize;
         sgNode.fontColor = this.fontColor;
-        sgNode.placeHolder = this.placeHolder;
-        sgNode.placeHolderFontSize = this.placeHolderFontSize;
-        sgNode.placeHolderFontColor = this.placeHolderFontColor;
+        sgNode.placeholder = this.placeholder;
+        sgNode.placeholderFontSize = this.placeholderFontSize;
+        sgNode.placeholderFontColor = this.placeholderFontColor;
         sgNode.inputFlag = this.inputFlag;
         sgNode.returnType = this.returnType;
+        sgNode.setLineHeight(this.lineHeight);
+
+        if (!this._useOriginalSize) {
+            sgNode.setContentSize(this.node.getContentSize());
+        }
 
         sgNode.setDelegate(this);
+    },
+
+    _resized: function () {
+        this._useOriginalSize = false;
+    },
+
+    onLoad: function () {
+        this._super();
+
+        this.node.on('size-changed', this._resized, this);
+        this.node.setContentSize(this._sgNode.getContentSize());
     },
 
     editBoxEditingDidBegan: function() {

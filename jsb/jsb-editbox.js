@@ -31,11 +31,11 @@ cc.defineGetterSetter(_p, 'fontSize', null, _p.setFontSize);
 cc.defineGetterSetter(_p, 'fontColor', null, _p.setFontColor);
 cc.defineGetterSetter(_p, 'string', _p.getString, _p.setString);
 cc.defineGetterSetter(_p, 'maxLength', _p.getMaxLength, _p.setMaxLength);
-cc.defineGetterSetter(_p, 'placeHolder', _p.getPlaceHolder, _p.setPlaceHolder);
-cc.defineGetterSetter(_p, 'placeHolderFont', null, _p.setPlaceholderFont);
-cc.defineGetterSetter(_p, 'placeHolderFontName', null, _p.setPlaceholderFontName);
-cc.defineGetterSetter(_p, 'placeHolderFontSize', null, _p.setPlaceholderFontSize);
-cc.defineGetterSetter(_p, 'placeHolderFontColor', null, _p.setPlaceholderFontColor);
+cc.defineGetterSetter(_p, 'placeholder', _p.getPlaceHolder, _p.setPlaceHolder);
+cc.defineGetterSetter(_p, 'placeholderFont', null, _p.setPlaceholderFont);
+cc.defineGetterSetter(_p, 'placeholderFontName', null, _p.setPlaceholderFontName);
+cc.defineGetterSetter(_p, 'placeholderFontSize', null, _p.setPlaceholderFontSize);
+cc.defineGetterSetter(_p, 'placeholderFontColor', null, _p.setPlaceholderFontColor);
 cc.defineGetterSetter(_p, 'inputFlag', null, _p.setInputFlag);
 cc.defineGetterSetter(_p, 'delegate', null, _p.setDelegate);
 cc.defineGetterSetter(_p, 'inputMode', null, _p.setInputMode);
@@ -48,5 +48,7 @@ _p.editBoxEditingDidBegin = function (sender) {
 _p.editBoxEditingDidEnd = function (sender) {
     this.editBoxEditingDidEnded(sender);
 }
+
+_p.setLineHeight = function () {}
 
 _p = null;

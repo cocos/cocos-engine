@@ -26,6 +26,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var capitalize = function(string) {
+    return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+};
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 /**
  * Enum for keyboard return types
  * @readonly
@@ -238,17 +245,17 @@ EditBoxImpl.prototype = {
         this._placeholderLabel.setColor(cc.Color.GRAY);
         this._editBox.addChild(this._placeholderLabel, 100);
 
-        this._updateLabelSize(editBoxSize);
     },
 
     _updateLabelSize: function (editBoxSize) {
         this._textLabel.setPosition(cc.p(0, editBoxSize.height));
-        this._textLabel.setFontSize(editBoxSize.height * 2.0 /3.0);
-        this._textLabel.setLineHeight(this._textLabel.getContentSize().height);
 
-        this._placeholderLabel.setFontSize(editBoxSize.height * 2 / 3.0);
-        this._placeholderLabel.setLineHeight(this._placeholderLabel.getContentSize().height);
         this._placeholderLabel.setPosition(cc.p(0, editBoxSize.height));
+        this._placeholderLabel.setLineHeight(editBoxSize.height);
+    },
+
+    setLineHeight: function (lineHeight) {
+        this._textLabel.setLineHeight(lineHeight);
     },
 
     _hiddenLabels: function () {
@@ -259,6 +266,7 @@ EditBoxImpl.prototype = {
     _updateLabelString: function() {
         this._textLabel.setVisible(true);
         this._textLabel.setString(this._editBox._text);
+        var inputFlag = this._editBox._editBoxInputFlag;
         if (this._edTxt.type === 'password') {
             var passwordString = '';
             var len = this._editBox._text.length;
@@ -266,6 +274,15 @@ EditBoxImpl.prototype = {
                 passwordString += '\u25CF';
             }
             this._textLabel.setString(passwordString);
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+            this._textLabel.setString(this._editBox._text.toUpperCase());
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+            this._textLabel.setString(capitalize(this._editBox._text));
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE) {
+            this._textLabel.setString(capitalizeFirstLetter(this._editBox._text));
         }
     },
 
@@ -365,14 +382,12 @@ EditBoxImpl.prototype = {
         else
             this._edTxt.type = 'text';
 
-        if (inputFlag === InputFlag.SENSITIVE || inputFlag === InputFlag.PASSWORD) {
-            this._edTxt.style.textTransform = 'none';
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+        this._edTxt.style.textTransform = 'none';
+
+        if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
             this._edTxt.style.textTransform = 'uppercase';
         }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE
-                 || inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+        else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
             this._edTxt.style.textTransform = 'capitalize';
         }
         this._updateLabelString();
@@ -695,8 +710,10 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
         this._updateBackgroundSpriteSizeAndPosition(newWidth, newHeight);
         this._nativeControl.setSize(newWidth, newHeight);
+    },
 
-        this.setFontSize(height * 2 / 3);
+    setLineHeight: function (lineHeight) {
+        this._nativeControl.setLineHeight(lineHeight);
     },
 
     /**
@@ -874,9 +891,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
      * @param {cc.Color | cc.Scale9Sprite} normal9SpriteBg
      */
     initWithSizeAndBackgroundSprite: function (size, normal9SpriteBg) {
+        if(this._backgroundSprite) {
+            this._backgroundSprite.removeFromParent();
+        }
         this._backgroundSprite = normal9SpriteBg;
 
-        if(this._backgroundSprite) {
+        if(this._backgroundSprite && !this._backgroundSprite.parent) {
             this.addChild(this._backgroundSprite);
 
             this._updateBackgroundSpriteSizeAndPosition(size.width, size.height);
@@ -982,19 +1002,19 @@ _p.maxLength;
 cc.defineGetterSetter(_p, 'maxLength', _p.getMaxLength, _p.setMaxLength);
 /** @expose */
 _p.placeHolder;
-cc.defineGetterSetter(_p, 'placeHolder', _p.getPlaceHolder, _p.setPlaceHolder);
+cc.defineGetterSetter(_p, 'placeholder', _p.getPlaceHolder, _p.setPlaceHolder);
 /** @expose */
 _p.placeHolderFont;
-cc.defineGetterSetter(_p, 'placeHolderFont', null, _p._setPlaceholderFont);
+cc.defineGetterSetter(_p, 'placeholderFont', null, _p._setPlaceholderFont);
 /** @expose */
 _p.placeHolderFontName;
-cc.defineGetterSetter(_p, 'placeHolderFontName', null, _p.setPlaceholderFontName);
+cc.defineGetterSetter(_p, 'placeholderFontName', null, _p.setPlaceholderFontName);
 /** @expose */
 _p.placeHolderFontSize;
-cc.defineGetterSetter(_p, 'placeHolderFontSize', null, _p.setPlaceholderFontSize);
+cc.defineGetterSetter(_p, 'placeholderFontSize', null, _p.setPlaceholderFontSize);
 /** @expose */
 _p.placeHolderFontColor;
-cc.defineGetterSetter(_p, 'placeHolderFontColor', null, _p.setPlaceholderFontColor);
+cc.defineGetterSetter(_p, 'placeholderFontColor', null, _p.setPlaceholderFontColor);
 /** @expose */
 _p.inputFlag;
 cc.defineGetterSetter(_p, 'inputFlag', null, _p.setInputFlag);
