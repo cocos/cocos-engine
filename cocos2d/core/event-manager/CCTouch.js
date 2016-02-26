@@ -108,7 +108,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
      * @return {Vec2}
      */
     getLocationInView: function() {
-        return {x: this._point.x, y: this._point.y};
+        return {x: this._point.x, y: cc.view._designResolutionSize.height - this._point.y};
     },
 
     /**
@@ -117,7 +117,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
      * @return {Vec2}
      */
     getPreviousLocationInView: function(){
-        return {x: this._prevPoint.x, y: this._prevPoint.y};
+        return {x: this._prevPoint.x, y: cc.view._designResolutionSize.height - this._prevPoint.y};
     },
 
     /**
@@ -126,7 +126,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
      * @return {Vec2}
      */
     getStartLocationInView: function(){
-        return {x: this._startPoint.x, y: this._startPoint.y};
+        return {x: this._startPoint.x, y: cc.view._designResolutionSize.height - this._startPoint.y};
     },
 
     /**
@@ -135,17 +135,6 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
      * @return {Number}
      */
     getID:function () {
-        return this._id;
-    },
-
-    /**
-     * Returns the id of cc.Touch.
-     * @method getId
-     * @return {Number}
-     * @deprecated since v3.0, please use getID() instead
-     */
-    getId:function () {
-        cc.log("getId is deprecated. Please use getID instead.")
         return this._id;
     },
 
