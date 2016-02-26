@@ -235,7 +235,7 @@ EditBoxImpl.prototype = {
 
     _createLabels: function () {
         var editBoxSize = this._editBox.getContentSize();
-        this._textLabel = new _ccsg.Label()
+        this._textLabel = new _ccsg.Label();
         this._textLabel.setVisible(false);
         this._textLabel.setAnchorPoint(cc.p(0, 1));
         this._editBox.addChild(this._textLabel, 100);
@@ -244,7 +244,7 @@ EditBoxImpl.prototype = {
         this._placeholderLabel.setAnchorPoint(cc.p(0, 1));
         this._placeholderLabel.setColor(cc.Color.GRAY);
         this._editBox.addChild(this._placeholderLabel, 100);
-
+        this._updateLabelSize(editBoxSize);
     },
 
     _updateLabelSize: function (editBoxSize) {
@@ -376,8 +376,7 @@ EditBoxImpl.prototype = {
     },
 
     setInputFlag: function (inputFlag) {
-        if ((this._edTxt.value !== this._placeholderText)
-            && (inputFlag === InputFlag.PASSWORD))
+        if ((this._edTxt.value !== this._placeholderText) && (inputFlag === InputFlag.PASSWORD))
             this._edTxt.type = 'password';
         else
             this._edTxt.type = 'text';
@@ -662,7 +661,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
         this._registerTouchEvent();
 
-        var self = this;
         this.scheduleOnce(function () {
             editBoxImpl.registerClickEvent();
         }, 0.01);
