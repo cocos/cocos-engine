@@ -51,6 +51,7 @@ var EditBox = cc.Class({
          * @property {String} string
          */
         string: {
+            tooltip: 'i18n:COMPONENT.editbox.string',
             get: function () {
                 return this._sgNode.string;
             },
@@ -64,6 +65,7 @@ var EditBox = cc.Class({
          * @property {cc.SpriteFrame} backGroundImage
          */
         backgroundImage: {
+            tooltip: 'i18n:COMPONENT.editbox.backgroundImage',
             default: null,
             type: cc.SpriteFrame,
             notify: function() {
@@ -88,6 +90,8 @@ var EditBox = cc.Class({
          */
         returnType: {
             default: KeyboardReturnType.DEFAULT,
+            tooltip: 'i18n:COMPONENT.editbox.returnType',
+            displayName: 'KeyboardReturnType',
             type: KeyboardReturnType,
             notify: function() {
                 this._sgNode.returnType = this.returnType;
@@ -100,13 +104,13 @@ var EditBox = cc.Class({
          * @default InputFlag.INITIAL_CAPS_ALL_CHARACTERS
          */
         inputFlag: {
+            tooltip: 'i18n:COMPONENT.editbox.input_flag',
             default: InputFlag.INITIAL_CAPS_ALL_CHARACTERS,
             type: InputFlag,
             notify: function() {
                 this._sgNode.inputFlag = this.inputFlag;
             }
         },
-
         /**
          * Set the input mode of the edit box.
          * If you pass ANY, it will create a multiline EditBox.
@@ -114,6 +118,7 @@ var EditBox = cc.Class({
          * @default InputMode.ANY
          */
         inputMode: {
+            tooltip: 'i18n:COMPONENT.editbox.input_mode',
             default: InputMode.ANY,
             type: InputMode,
             notify: function() {
@@ -126,6 +131,7 @@ var EditBox = cc.Class({
          * @property {Number} fontSize
          */
         fontSize: {
+            tooltip: 'i18n:COMPONENT.editbox.font_size',
             default: 20,
             notify: function() {
                 this._sgNode.fontSize = this.fontSize;
@@ -137,6 +143,7 @@ var EditBox = cc.Class({
          * @property {Number} lineHeight
          */
         lineHeight: {
+            tooltip: 'i18n:COMPONENT.editbox.line_height',
             default: 40,
             notify: function() {
                 this._sgNode.setLineHeight(this.lineHeight);
@@ -148,6 +155,7 @@ var EditBox = cc.Class({
          * @property {cc.Color} fontColor
          */
         fontColor: {
+            tooltip: 'i18n:COMPONENT.editbox.font_color',
             default: cc.Color.WHITE,
             notify: function() {
                 this._sgNode.fontColor = this.fontColor;
@@ -159,6 +167,7 @@ var EditBox = cc.Class({
          * @property {String} placeholder
          */
         placeholder: {
+            tooltip: 'i18n:COMPONENT.editbox.placeholder',
             default: 'Enter text here...',
             notify: function() {
                 this._sgNode.placeholder = this.placeholder;
@@ -170,6 +179,7 @@ var EditBox = cc.Class({
          * @property {Number} placeholderFontSize
          */
         placeholderFontSize: {
+            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_size',
             default: 20,
             notify: function() {
                 this._sgNode.placeholderFontSize = this.placeholderFontSize;
@@ -181,6 +191,7 @@ var EditBox = cc.Class({
          * @property {cc.Color} placeholderFontColor
          */
         placeholderFontColor: {
+            tooltip: 'i18n:COMPONENT.editbox.placeholder_font_color',
             default: cc.Color.GRAY,
             notify: function() {
                 this._sgNode.placeholderFontColor = this.placeholderFontColor;
@@ -192,6 +203,7 @@ var EditBox = cc.Class({
          * @property {Number} maxLength
          */
         maxLength: {
+            tooltip: 'i18n:COMPONENT.editbox.max_length',
             default: 20,
             notify: function() {
                 this._sgNode.maxLength = this.maxLength;
