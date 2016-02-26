@@ -171,7 +171,7 @@ var Label = cc.Class({
 
         /**
          * The font URL of label.
-         * @property {URL} file
+         * @property {string} file
          */
         file: {
             default: "Arial",

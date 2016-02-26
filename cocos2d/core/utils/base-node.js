@@ -1447,56 +1447,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     _removeSgNode: SceneGraphHelper.removeSgNode,
-
-    _replaceSgNode: function(sgNode) {
-        if(sgNode instanceof _ccsg.Node) {
-            var oldSgNode = this._sgNode;
-
-            //apply property
-            sgNode.setPosition(this._position);
-            sgNode.setRotationX(this._rotationX);
-            sgNode.setRotationY(this._rotationY);
-            sgNode.setScale(this._scaleX, this._scaleY);
-            sgNode.setSkewX(this._skewX);
-            sgNode.setSkewY(this._skewY);
-
-            sgNode.setLocalZOrder(this._localZOrder);
-            sgNode.setGlobalZOrder(this._globalZOrder);
-
-            sgNode.setOpacity(this._opacity);
-            sgNode.setCascadeOpacityEnabled(this._cascadeOpacityEnabled);
-            sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
-            sgNode.setTag(this._tag);
-            sgNode.setColor(this._color);
-            sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
-
-            //rebuild scenegraph
-            var children = oldSgNode.getChildren().slice(0);
-            oldSgNode.removeAllChildren();
-
-            for(var index = 0; index < children.length; ++index) {
-                sgNode.addChild(children[index]);
-            }
-
-            var parentNode = oldSgNode.getParent();
-            parentNode.removeChild(oldSgNode);
-
-            // insert node
-            parentNode.addChild(sgNode);
-            sgNode.arrivalOrder = oldSgNode.arrivalOrder;
-            if (cc.renderer) {
-                cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
-            }
-
-            this._sgNode = sgNode;
-            if (cc.sys.isNative) {
-                oldSgNode.release();
-                sgNode.retain();
-            }
-        } else {
-            throw new Error("Invalid sgNode. It must an instance of _ccsg.Node");
-        }
-    },
 });
 
 
