@@ -80,9 +80,9 @@ var Mask = cc.Class({
 
     _refreshStencil: function () {
         var contentSize = this.node.getContentSize();
+        var anchorPoint = this.node.getAnchorPoint();
         var width = contentSize.width;
         var height = contentSize.height;
-        var anchorPoint = this.node._anchorPoint;
         var x = - width * anchorPoint.x;
         var y = - height * anchorPoint.y;
         var rectangle = [ cc.v2(x, y),

@@ -854,7 +854,7 @@ var Node = cc.Class({
             var comp = this._components[c];
             if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setAnchorPoint(this._anchorPoint);
-                comp._sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
+                comp._sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
             }
         }
     },

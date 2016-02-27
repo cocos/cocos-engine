@@ -134,7 +134,7 @@ if (CC_DEV) {
         'Point': 'Vec2',
         'EScene': 'Scene',
         'ENode': 'Node',
-        '_ComponentInSG': '_RendererBelowSG'
+        '_ComponentInSG': '_RendererUnderSG'
     });
 
     /**
@@ -363,7 +363,10 @@ if (CC_DEV) {
         'userData',
         'userObject',
         '_cascadeColorEnabled',
-        'cascadeColor'
+        'cascadeColor',
+        'ignoreAnchor',
+        'isIgnoreAnchorPointForPosition',
+        'ignoreAnchorPointForPosition'
     ]);
     provideClearError(cc.Node.prototype, {
         arrivalOrder: 'getSiblingIndex, setSiblingIndex',
@@ -435,7 +438,6 @@ if (CC_DEV) {
         createWithSpriteFrame: 'node.addComponent',
     });
     provideClearError(cc.Sprite.prototype, {
-        ignoreAnchorPointForPosition: 'instance.ignoreAnchor',
         getPreferredSize: 'node.getContentSize',
         setPreferredSize: 'node.setContentSize',
         updateWithSprite: 'spriteFrame',

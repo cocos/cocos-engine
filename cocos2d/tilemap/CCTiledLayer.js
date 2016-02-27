@@ -25,11 +25,11 @@
 /**
  * Render the TMX layer.
  * @class TiledLayer
- * @extends _RendererBelowSG
+ * @extends _RendererUnderSG
  */
 var TiledLayer = cc.Class({
     name: 'cc.TiledLayer',
-    extends: require('./../core/components/CCRendererBelowSG'),
+    extends: cc._RendererUnderSG,
 
     editor: CC_EDITOR,
 
