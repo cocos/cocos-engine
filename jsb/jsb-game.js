@@ -217,13 +217,17 @@ cc.js.mixin(cc.game, {
         var CONFIG_KEY = this.CONFIG_KEY;
 
         // Configs adjustment
-        config[CONFIG_KEY.showFPS] = config[CONFIG_KEY.showFPS] || true;
-        config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
-        if (config[CONFIG_KEY.debugMode] == null)
+        if (typeof config[CONFIG_KEY.debugMode] !== 'number') {
             config[CONFIG_KEY.debugMode] = 0;
-        config[CONFIG_KEY.frameRate] = config[CONFIG_KEY.frameRate] || 60;
-        if (config[CONFIG_KEY.renderMode] == null)
+        }
+        if (typeof config[CONFIG_KEY.frameRate] !== 'number') {
+            config[CONFIG_KEY.frameRate] = 60;
+        }
+        if (typeof config[CONFIG_KEY.renderMode] !== 'number') {
             config[CONFIG_KEY.renderMode] = 0;
+        }
+        config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
+        config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
 
         // Scene parser
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);

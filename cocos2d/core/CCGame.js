@@ -471,15 +471,21 @@ var game = /** @lends cc.game# */{
             modules = config[CONFIG_KEY.modules];
 
         // Configs adjustment
-        config[CONFIG_KEY.showFPS] = config[CONFIG_KEY.showFPS] || false;
-        config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || "frameworks/cocos2d-html5";
-        if (config[CONFIG_KEY.debugMode] == null)
+        if (typeof config[CONFIG_KEY.debugMode] !== 'number') {
             config[CONFIG_KEY.debugMode] = 0;
-        config[CONFIG_KEY.frameRate] = config[CONFIG_KEY.frameRate] || 60;
-        if (config[CONFIG_KEY.renderMode] == null)
+        }
+        if (typeof config[CONFIG_KEY.frameRate] !== 'number') {
+            config[CONFIG_KEY.frameRate] = 60;
+        }
+        if (typeof config[CONFIG_KEY.renderMode] !== 'number') {
             config[CONFIG_KEY.renderMode] = 0;
-        if (config[CONFIG_KEY.registerSystemEvent] == null)
+        }
+        if (typeof config[CONFIG_KEY.registerSystemEvent] !== 'boolean') {
             config[CONFIG_KEY.registerSystemEvent] = true;
+        }
+        config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
+        config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
+
 
         // Modules adjustment
         if (modules && modules.indexOf("core") < 0) modules.splice(0, 0, "core");
