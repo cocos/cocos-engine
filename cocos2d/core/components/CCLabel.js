@@ -29,11 +29,11 @@ var LabelType = _ccsg.Label.Type;
 /**
  *
  * @class Label
- * @extends _ComponentInSG
+ * @extends _RendererUnderSG
  */
 var Label = cc.Class({
     name: 'cc.Label',
-    extends: cc._ComponentInSG,
+    extends: cc._RendererUnderSG,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Label'
@@ -171,7 +171,7 @@ var Label = cc.Class({
 
         /**
          * The font URL of label.
-         * @property {URL} file
+         * @property {string} file
          */
         file: {
             default: "Arial",

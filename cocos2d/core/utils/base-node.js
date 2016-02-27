@@ -90,7 +90,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _skewY: 0,
         _localZOrder: 0,
         _globalZOrder: 0,
-        _ignoreAnchorPointForPosition: false,
         _tag: cc.NODE_TAG_INVALID,
         _opacityModifyRGB: false,
 
@@ -509,16 +508,17 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         /**
          * Indicate whether ignore the anchor point property for positioning.
-         * @property ignoreAnchor
+         * @property _ignoreAnchor
          * @type {Boolean}
+         * @private
          */
-        ignoreAnchor: {
+        _ignoreAnchor: {
             get: function () {
-                return this._ignoreAnchorPointForPosition;
+                return this.__ignoreAnchor;
             },
             set: function (value) {
-                if (this._ignoreAnchorPointForPosition !== value) {
-                    this._ignoreAnchorPointForPosition = value;
+                if (this.__ignoreAnchor !== value) {
+                    this.__ignoreAnchor = value;
                     this._sgNode.ignoreAnchor = value;
                     this._onAnchorChanged();
                     this.emit(ANCHOR_CHANGED, this._anchorPoint);
@@ -642,6 +642,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         // _ccsg.Node
         this._sizeProvider = null;
 
+        this.__ignoreAnchor = false;
     },
 
     _onPreDestroy: function () {
@@ -1142,8 +1143,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             child.cleanup();
 
         child.parent = null;
-        cc.js.array.remove(this._children, child);
-        this.emit(CHILD_REMOVED, child);
     },
 
     setNodeDirty: function(){
@@ -1167,7 +1166,19 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        return this._sgNode.getNodeToWorldTransform();
+        var computedSize = this._sgNode.getContentSize();
+        var expectedSize = this.getContentSize();
+        var mat = this._sgNode.getNodeToWorldTransform();
+        var anchorPointIgnored = (computedSize.width === 0 && computedSize.height === 0 &&
+                                  (expectedSize.width !== 0 || expectedSize.height !== 0));
+        if (anchorPointIgnored || this._sgNode.isIgnoreAnchorPointForPosition()) {
+            // compute anchor, see https://github.com/cocos-creator/engine/pull/391
+            var tx = - expectedSize.width * this._anchorPoint.x;
+            var ty = - expectedSize.height * this._anchorPoint.y;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
     },
 
     /**
@@ -1209,7 +1220,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertToNodeSpaceAR: function (worldPoint) {
-        return this._sgNode.convertToNodeSpaceAR(worldPoint);
+        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
+            // see https://github.com/cocos-creator/engine/pull/391
+            return cc.v2(this._sgNode.convertToNodeSpace(worldPoint));
+        }
+        else {
+            return this._sgNode.convertToNodeSpaceAR(worldPoint);
+        }
     },
 
     /**
@@ -1220,7 +1237,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @return {Vec2}
      */
     convertToWorldSpaceAR: function (nodePoint) {
-        return cc.v2(this._sgNode.convertToWorldSpaceAR(nodePoint));
+        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
+            // see https://github.com/cocos-creator/engine/pull/391
+            return cc.v2(this._sgNode.convertToWorldSpace(nodePoint));
+        }
+        else {
+            return cc.v2(this._sgNode.convertToWorldSpaceAR(nodePoint));
+        }
     },
 
     // _convertToWindowSpace: function (nodePoint) {
@@ -1275,7 +1298,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var size = this.getContentSize();
         var width = size.width;
         var height = size.height;
-        var rect = cc.rect(-this.anchorX * width, -this.anchorY * height, width, height);
+        var rect = cc.rect(0, 0, width, height);
 
         var trans = (parentTransform === undefined) ? this.getNodeToParentTransform() : cc.affineTransformConcat(this.getNodeToParentTransform(), parentTransform);
         cc._rectApplyAffineTransformIn(rect, trans);
@@ -1419,25 +1442,40 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return false;
     },
 
-    // The deserializer for sgNode which will be called before components onLoad
-    _onBatchCreated: function () {
+    _updateDummySgNode: function () {
         var sgNode = this._sgNode;
-        sgNode.setOpacity(this._opacity);
-        sgNode.setCascadeOpacityEnabled(this._cascadeOpacityEnabled);
+
+        sgNode.setPosition(this._position);
         sgNode.setRotationX(this._rotationX);
         sgNode.setRotationY(this._rotationY);
         sgNode.setScale(this._scaleX, this._scaleY);
-        sgNode.setPosition(this._position);
         sgNode.setSkewX(this._skewX);
         sgNode.setSkewY(this._skewY);
+        sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
+
         sgNode.setLocalZOrder(this._localZOrder);
         sgNode.setGlobalZOrder(this._globalZOrder);
-        sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
-        sgNode.setTag(this._tag);
+
+        sgNode.setOpacity(this._opacity);
         sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
+        sgNode.setCascadeOpacityEnabled(this._cascadeOpacityEnabled);
+        sgNode.setTag(this._tag);
+    },
+    
+    _updateSgNode: function () {
+        this._updateDummySgNode();
+        var sgNode = this._sgNode;
+        sgNode.setAnchorPoint(this._anchorPoint);
+        sgNode.setVisible(this._active);
+        sgNode.setColor(this._color);
+    },
+
+    // The deserializer for sgNode which will be called before components onLoad
+    _onBatchCreated: function () {
+        this._updateDummySgNode();
 
         if (this._parent) {
-            this._parent._sgNode.addChild(sgNode);
+            this._parent._sgNode.addChild(this._sgNode);
         }
 
         var children = this._children;
@@ -1447,56 +1485,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     _removeSgNode: SceneGraphHelper.removeSgNode,
-
-    _replaceSgNode: function(sgNode) {
-        if(sgNode instanceof _ccsg.Node) {
-            var oldSgNode = this._sgNode;
-
-            //apply property
-            sgNode.setPosition(this._position);
-            sgNode.setRotationX(this._rotationX);
-            sgNode.setRotationY(this._rotationY);
-            sgNode.setScale(this._scaleX, this._scaleY);
-            sgNode.setSkewX(this._skewX);
-            sgNode.setSkewY(this._skewY);
-
-            sgNode.setLocalZOrder(this._localZOrder);
-            sgNode.setGlobalZOrder(this._globalZOrder);
-
-            sgNode.setOpacity(this._opacity);
-            sgNode.setCascadeOpacityEnabled(this._cascadeOpacityEnabled);
-            sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
-            sgNode.setTag(this._tag);
-            sgNode.setColor(this._color);
-            sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
-
-            //rebuild scenegraph
-            var children = oldSgNode.getChildren().slice(0);
-            oldSgNode.removeAllChildren();
-
-            for(var index = 0; index < children.length; ++index) {
-                sgNode.addChild(children[index]);
-            }
-
-            var parentNode = oldSgNode.getParent();
-            parentNode.removeChild(oldSgNode);
-
-            // insert node
-            parentNode.addChild(sgNode);
-            sgNode.arrivalOrder = oldSgNode.arrivalOrder;
-            if (cc.renderer) {
-                cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
-            }
-
-            this._sgNode = sgNode;
-            if (cc.sys.isNative) {
-                oldSgNode.release();
-                sgNode.retain();
-            }
-        } else {
-            throw new Error("Invalid sgNode. It must an instance of _ccsg.Node");
-        }
-    },
 });
 
 
@@ -1512,7 +1500,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         y: ['getPositionY', 'setPositionY'],
         zIndex: ['getLocalZOrder', 'setLocalZOrder'],
         //running: ['isRunning'],
-        ignoreAnchor: ['isIgnoreAnchorPointForPosition', 'ignoreAnchorPointForPosition'],
         opacityModifyRGB: ['isOpacityModifyRGB'],
         cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
         cascadeColor: ['isCascadeColorEnabled', 'setCascadeColorEnabled'],

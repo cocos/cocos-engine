@@ -33,7 +33,6 @@ var TiledMap = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
-        executeInEditMode: true
     },
 
     properties: {

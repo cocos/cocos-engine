@@ -31,7 +31,6 @@ if (TestEditorExtends) {
         '_skewY',
         '_anchorPoint',
         '_contentSize',
-        '_ignoreAnchorPointForPosition',
         'tag',
         '_name',
         '_opacity',
@@ -55,7 +54,6 @@ if (TestEditorExtends) {
             '_active' : getRandomBool(),
             '_anchorPoint' : cc.p(getRandomDouble(), getRandomDouble()),
             '_contentSize' : cc.size(getRandomDouble(), getRandomDouble()),
-            '_ignoreAnchorPointForPosition' : getRandomBool(),
             'tag' : getRandomInt(),
             '_name' : nodeName,
             '_opacity' : getSpecRandomInt(0, 256),
@@ -80,7 +78,6 @@ if (TestEditorExtends) {
         ret._active = getRandomBool();
         ret._anchorPoint = cc.p(getRandomDouble(), getRandomDouble());
         ret._contentSize = cc.size(getRandomDouble(), getRandomDouble());
-        ret._ignoreAnchorPointForPosition = getRandomBool();
         ret.tag = getRandomInt();
         ret._name = nodeName;
         ret._opacity = getSpecRandomInt(0, 256);
