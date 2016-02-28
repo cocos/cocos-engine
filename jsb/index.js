@@ -21,6 +21,7 @@ require('./jsb-editbox');
 require('./jsb-particle');
 require('./jsb-enums');
 require('./jsb-event');
+require('./jsb-action');
 require('./jsb-etc');
 
 // Check version
