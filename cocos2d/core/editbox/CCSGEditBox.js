@@ -245,10 +245,10 @@ EditBoxImpl.prototype = {
         this._placeholderLabel.setColor(cc.Color.GRAY);
         this._editBox.addChild(this._placeholderLabel, 100);
 
-        this._updateLabelSize(editBoxSize);
+        this._updateLabelPosition(editBoxSize);
     },
 
-    _updateLabelSize: function (editBoxSize) {
+    _updateLabelPosition: function (editBoxSize) {
         var textLabelSize = this._textLabel.getContentSize();
         var placeholderLabelSize = this._placeholderLabel.getContentSize();
         this._placeholderLabel.setLineHeight(editBoxSize.height);
@@ -466,7 +466,7 @@ EditBoxImpl.prototype = {
     setSize: function(newWidth, newHeight) {
         this._spriteDOM.dom.style.width = (newWidth - 6) + 'px';
         this._spriteDOM.dom.style.height = (newHeight - 6) + 'px';
-        this._updateLabelSize(cc.size(newWidth, newHeight));
+        this._updateLabelPosition(cc.size(newWidth, newHeight));
     },
 
     _createDomInput: function () {
@@ -951,7 +951,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
 
         this.setString(oldText);
         this._editBoxInputMode = inputMode;
-        this._nativeControl._updateLabelSize(this.getContentSize());
+        this._nativeControl._updateLabelPosition(this.getContentSize());
     },
 
     /**
