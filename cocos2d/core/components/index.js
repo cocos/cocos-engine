@@ -1,5 +1,6 @@
 require('./CCComponent');
-require('./CCComponentInSG');
+require('./CCRendererInSG');
+require('./CCRendererUnderSG');
 require('./CCComponentEventHandler');
 require('./missing-script');
 

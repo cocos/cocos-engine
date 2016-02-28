@@ -133,7 +133,8 @@ if (CC_DEV) {
     js.obsoletes(cc, 'cc', {
         'Point': 'Vec2',
         'EScene': 'Scene',
-        'ENode': 'Node'
+        'ENode': 'Node',
+        '_ComponentInSG': '_RendererUnderSG'
     });
 
     /**
@@ -203,9 +204,7 @@ if (CC_DEV) {
         return cc.js.array.copy;
     });
 
-
-
-    Object.defineProperty(cc._ComponentInSG.prototype, 'visible', {
+    Object.defineProperty(cc._SGComponent.prototype, 'visible', {
         get: function () {
             cc.warn('The "visible" property of %s is deprecated, use "enabled" instead please.', cc.js.getClassName(this));
             return this.enabled;
@@ -364,7 +363,10 @@ if (CC_DEV) {
         'userData',
         'userObject',
         '_cascadeColorEnabled',
-        'cascadeColor'
+        'cascadeColor',
+        'ignoreAnchor',
+        'isIgnoreAnchorPointForPosition',
+        'ignoreAnchorPointForPosition'
     ]);
     provideClearError(cc.Node.prototype, {
         arrivalOrder: 'getSiblingIndex, setSiblingIndex',
@@ -408,7 +410,7 @@ if (CC_DEV) {
             })(prop);
         }
     }
-    shouldNotUseNodeProp(cc._ComponentInSG);
+    shouldNotUseNodeProp(cc._SGComponent);
 
 
     // cc.Sprite
@@ -436,7 +438,6 @@ if (CC_DEV) {
         createWithSpriteFrame: 'node.addComponent',
     });
     provideClearError(cc.Sprite.prototype, {
-        ignoreAnchorPointForPosition: 'instance.ignoreAnchor',
         getPreferredSize: 'node.getContentSize',
         setPreferredSize: 'node.setContentSize',
         updateWithSprite: 'spriteFrame',

@@ -828,7 +828,7 @@ var Node = cc.Class({
         // update components if also in scene graph
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setColor(this._color);
                 if ( !this._cascadeOpacityEnabled ) {
                     comp._sgNode.setOpacity(this._opacity);
@@ -842,7 +842,7 @@ var Node = cc.Class({
         var opacity = this._cascadeOpacityEnabled ? 255 : this._opacity;
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setOpacity(opacity);
             }
         }
@@ -852,9 +852,9 @@ var Node = cc.Class({
         // update components if also in scene graph
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setAnchorPoint(this._anchorPoint);
-                comp._sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
+                comp._sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
             }
         }
     },
@@ -862,7 +862,7 @@ var Node = cc.Class({
     _onOpacityModifyRGBChanged: function () {
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
             }
         }
@@ -982,7 +982,7 @@ var Node = cc.Class({
             apy = this._anchorPoint.y,
             w = this.width,
             h = this.height;
-        var rect = cc.rect(-apx * w, -apy * h, w, h);
+        var rect = cc.rect(0, 0, w, h);
         var trans = this.getNodeToWorldTransform();
         cc._rectApplyAffineTransformIn(rect, trans);
         var left = point.x - rect.x,

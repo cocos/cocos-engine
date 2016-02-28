@@ -61,11 +61,11 @@ var SizeMode = cc.Enum({
 /**
  * Renders a sprite in the scene.
  * @class Sprite
- * @extends _ComponentInSG
+ * @extends _RendererUnderSG
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
-    extends: require('./CCComponentInSG'),
+    extends: require('./CCRendererUnderSG'),
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
@@ -512,13 +512,8 @@ var Sprite = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-
-        if (!this.enabledInHierarchy) {
-            sgNode.setVisible(false);
-        }
-
+        
         this._validateSizeMode();
-
         this._applySpriteFrame(null);
 
         // should keep the size of the sg node the same as entity,
