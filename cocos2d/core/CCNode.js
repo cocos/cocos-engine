@@ -1044,6 +1044,7 @@ var Node = cc.Class({
 
         if (cc.sys.isNative) {
             this._retainAction(action);
+            this._sgNode._owner = this;
         }
         cc.director.getActionManager().addAction(action, this, false);
         return action;
