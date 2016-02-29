@@ -471,9 +471,18 @@ cc._initDebugSetting = function (mode) {
              * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
-            cc.log = function () {
-                return console.log.apply(console, arguments);
-            };
+            if (CC_EDITOR) {
+                cc.log = Editor.log;
+            }
+            else if (console.log.bind) {
+                // use bind to avoid pollute call stacks
+                cc.log = console.log.bind(console);
+            }
+            else {
+                cc.log = function () {
+                    return console.log.apply(console, arguments);
+                };
+            }
             /**
              * Outputs an informational message to the Cocos Creator Console (editor) or Web Console (runtime).
              * - In Cocos Creator, info is blue.
