@@ -308,7 +308,8 @@ var game = /** @lends cc.game# */{
 
 //  @ Persist root node section
     /**
-     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition
+     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.
+     * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
      * @method addPersistRootNode
      * @param {Node} node - The node to be made persistent
      */

@@ -219,6 +219,7 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) {
+    this._invoking = key;
     // this.invoke(key, p1, p2, p3, p4, p5);
     // 这里不直接调用invoke仅仅是为了减少调用堆栈的深度，方便调试
     var list = this._callbackTable[key], i, l, target;
@@ -235,6 +236,8 @@ CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) 
             }
         }
     }
+    this._invoking = null;
+    this._toRemove.length = 0;
     this.removeAll(key);
 };
 

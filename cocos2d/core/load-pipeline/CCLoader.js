@@ -33,6 +33,7 @@ var loader = new Loader();
 /**
  * Loader for resource loading process. It's a singleton object.
  * @class loader
+ * @extends Pipeline
  * @static
  */
 cc.loader = new Pipeline([
@@ -146,6 +147,7 @@ JS.mixin(cc.loader, {
 
         function loadedCheck (item) {
             checker[item.src] = item;
+            self._items.remove(item.src, loadedCheck);
             if (item.error) {
                 error = error || [];
                 error.push(item.src);
