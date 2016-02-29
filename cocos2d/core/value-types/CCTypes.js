@@ -60,18 +60,35 @@ cc.BlendFunc = function (src1, dst1) {
     this.dst = dst1;
 };
 
+var BlendFactor = cc.Enum({
+    ONE:                    1,      //cc.ONE
+    ZERO:                   0,      //cc.ZERO
+    SRC_ALPHA:              0x302,  //cc.SRC_ALPHA
+    SRC_COLOR:              0x300,  //cc.SRC_COLOR
+    DST_ALPHA:              0x304,  //cc.DST_ALPHA
+    DST_COLOR:              0x306,  //cc.DST_COLOR
+    ONE_MINUS_SRC_ALPHA:    0x303,  //cc.ONE_MINUS_SRC_ALPHA
+    ONE_MINUS_SRC_COLOR:    0x301,  //cc.ONE_MINUS_SRC_COLOR
+    ONE_MINUS_DST_ALPHA:    0x305,  //cc.ONE_MINUS_DST_ALPHA
+    ONE_MINUS_DST_COLOR:    0x307,  //cc.ONE_MINUS_DST_COLOR
+});
+
+//var BlendFactor = cc;
+
 cc.BlendFunc._disable = function(){
-    return new cc.BlendFunc(cc.ONE, cc.ZERO);
+    return new cc.BlendFunc(BlendFactor.ONE, BlendFactor.ZERO);
 };
 cc.BlendFunc._alphaPremultiplied = function(){
-    return new cc.BlendFunc(cc.ONE, cc.ONE_MINUS_SRC_ALPHA);
+    return new cc.BlendFunc(BlendFactor.ONE, BlendFactor.ONE_MINUS_SRC_ALPHA);
 };
 cc.BlendFunc._alphaNonPremultiplied = function(){
-    return new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
+    return new cc.BlendFunc(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA);
 };
 cc.BlendFunc._additive = function(){
-    return new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE);
+    return new cc.BlendFunc(BlendFactor.SRC_ALPHA, BlendFactor.ONE);
 };
+
+cc.BlendFunc.BlendFactor = BlendFactor;
 
 /** @expose */
 cc.BlendFunc.DISABLE;
@@ -90,9 +107,7 @@ cc.js.get(cc.BlendFunc, "ADDITIVE", cc.BlendFunc._additive);
  * @method blendFuncDisable
  * @returns {BlendFunc}
  */
-cc.blendFuncDisable = function () {
-    return new cc.BlendFunc(cc.ONE, cc.ZERO);
-};
+cc.blendFuncDisable = cc.BlendFunc._disable;
 
 /**
  * Common usage:

@@ -40,6 +40,8 @@
 var SpriteType = cc.Scale9Sprite.RenderingType;
 
 var FillType = cc.Scale9Sprite.FillType;
+
+var BlendFactor = cc.BlendFunc.BlendFactor;
 /**
  * Sprite Size can track trimmed size, raw size or none
  * @enum SizeMode
@@ -70,6 +72,10 @@ var Sprite = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         inspector: 'app://editor/page/inspector/sprite.html'
+    },
+
+    ctor: function() {
+        this._blendFunc = cc.BlendFunc.ALPHA_NON_PREMULTIPLIED;
     },
 
     properties: {
@@ -200,6 +206,40 @@ var Sprite = cc.Class({
                 }
             },
             animatable: false
+        },
+
+        /**
+         * specify the source Blend Factor
+         * @property srcBlendFactor
+         * @type {BlendFactor}
+         */
+        srcBlendFactor: {
+            get: function() {
+                return this._blendFunc.src;
+            },
+            set: function(value) {
+                this._blendFunc.src = value;
+                this._sgNode.setBlendFunc(this._blendFunc);
+            },
+            animatable: false,
+            type:BlendFactor
+        },
+
+        /**
+         * specify the destination Blend Factor
+         * @property dstBlendFactor
+         * @type {BlendFactor}
+         */
+        dstBlendFactor: {
+            get: function() {
+                return this._blendFunc.dst;
+            },
+            set: function(value) {
+                this._blendFunc.dst = value;
+                this._sgNode.setBlendFunc(this._blendFunc);
+            },
+            animatable: false,
+            type: BlendFactor
         },
 
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
@@ -527,6 +567,7 @@ var Sprite = cc.Class({
         sgNode.setFillStart(this._fillStart);
         sgNode.setFillRange(this._fillRange);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
+        sgNode.setBlendFunc(this._blendFunc);
     },
 
     _resized: function () {
