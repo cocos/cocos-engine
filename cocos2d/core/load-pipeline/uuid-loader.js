@@ -132,13 +132,14 @@ function loadUuid (item, callback) {
                     }
                 }
             }
+            asset._uuid = uuid;
             callback(null, asset);
         });
     }
     else {
+        asset._uuid = uuid;
         callback(null, asset);
     }
-    asset._uuid = uuid;
 
     // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
     tdInfo.reset();
