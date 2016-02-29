@@ -361,6 +361,9 @@ var TiledMap = cc.Class({
     },
 
     _moveLayersInSgNode: function(sgNode) {
+        // clear the detached layers info first
+        this._detachedLayers.length = 0;
+
         var children = sgNode.getChildren();
         for (var i = children.length - 1; i >= 0; i--) {
             var child = children[i];
@@ -509,12 +512,13 @@ var TiledMap = cc.Class({
         if (file) {
             self._isLoading = true;
             this._preloadTmx(file, function (err, results) {
-                if (err) {
-                    self._onMapLoaded(err);
-                } else {
+                if (!err) {
                     sgNode.initWithTMXFile(file);
-                    self._onMapLoaded();
+                    if (! self._enabled) {
+                        self._moveLayersInSgNode(sgNode);
+                    }
                 }
+                self._onMapLoaded(err);
             });
         } else {
             // tmx file is cleared
