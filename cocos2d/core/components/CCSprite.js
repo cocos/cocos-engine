@@ -40,6 +40,8 @@
 var SpriteType = cc.Scale9Sprite.RenderingType;
 
 var FillType = cc.Scale9Sprite.FillType;
+
+var BlendFactor = cc.BlendFunc.BlendFactor;
 /**
  * Sprite Size can track trimmed size, raw size or none
  * @enum SizeMode
@@ -207,8 +209,10 @@ var Sprite = cc.Class({
         },
 
         /**
-         * specify the blend function
-         * */
+         * specify the source Blend Factor
+         * @property srcBlendFactor
+         * @type {BlendFactor}
+         */
         srcBlendFactor: {
             get: function() {
                 return this._blendFunc.src;
@@ -218,9 +222,14 @@ var Sprite = cc.Class({
                 this._sgNode.setBlendFunc(this._blendFunc);
             },
             animatable: false,
-            type:cc.BlendFunc.BlendFactor
+            type:BlendFactor
         },
 
+        /**
+         * specify the destination Blend Factor
+         * @property dstBlendFactor
+         * @type {BlendFactor}
+         */
         dstBlendFactor: {
             get: function() {
                 return this._blendFunc.dst;
@@ -230,7 +239,7 @@ var Sprite = cc.Class({
                 this._sgNode.setBlendFunc(this._blendFunc);
             },
             animatable: false,
-            type:cc.BlendFunc.BlendFactor
+            type: BlendFactor
         },
 
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
