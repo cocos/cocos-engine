@@ -318,8 +318,10 @@ JS.mixin(Pipeline.prototype, {
         var checker = {};
         var count = 0;
 
+        var items = this._items;
         function loadedCheck (item) {
             checker[item.src] = item;
+            items.remove(item.src, loadedCheck);
 
             for (var url in checker) {
                 // Not done yet
@@ -335,9 +337,9 @@ JS.mixin(Pipeline.prototype, {
             var url = urlList[i].src || urlList[i];
             if (typeof url !== 'string')
                 continue;
-            var item = this._items.map[url];
+            var item = items.map[url];
             if ( !item ) {
-                this._items.add(url, loadedCheck);
+                items.add(url, loadedCheck);
                 checker[url] = null;
                 count++;
             }
@@ -389,6 +391,9 @@ JS.mixin(Pipeline.prototype, {
         this.complete();
 
         items.invoke(url, item);
+
+        // remove all callbacks added for url
+        items.removeAll(url);
     },
 
     /**
@@ -443,7 +448,7 @@ JS.mixin(Pipeline.prototype, {
                 item.error = new Error('Canceled manually');
                 this.flowOut(item);
             }
-            this._items.remove(url);
+            this._items.removeItem(url);
         }
         else {
             return false;

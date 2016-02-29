@@ -39,6 +39,7 @@ var JS = require('../platform/js');
  * Item can hold other custom properties
  * 
  * @class LoadingItems
+ * @extends CallbacksInvoker
  */
 var LoadingItems = function () {
     CallbacksInvoker.call(this);
@@ -126,7 +127,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      * Remove an item, can only remove completed item, ongoing item can not be removed
      * @param {String} url
      */
-    remove: function (url) {
+    removeItem: function (url) {
         if (this.completed[url]) {
             delete this.completed[url];
             delete this.map[url];
