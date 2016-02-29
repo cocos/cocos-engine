@@ -321,7 +321,6 @@ JS.mixin(Pipeline.prototype, {
         var items = this._items;
         function loadedCheck (item) {
             checker[item.src] = item;
-            items.remove(item.src, loadedCheck);
 
             for (var url in checker) {
                 // Not done yet

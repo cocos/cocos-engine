@@ -147,7 +147,6 @@ JS.mixin(cc.loader, {
 
         function loadedCheck (item) {
             checker[item.src] = item;
-            self._items.remove(item.src, loadedCheck);
             if (item.error) {
                 error = error || [];
                 error.push(item.src);
