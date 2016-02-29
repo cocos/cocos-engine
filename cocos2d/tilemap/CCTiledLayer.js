@@ -25,29 +25,45 @@
 /**
  * Render the TMX layer.
  * @class TiledLayer
- * @extends _RendererUnderSG
+ * @extends _SGComponent
  */
 var TiledLayer = cc.Class({
     name: 'cc.TiledLayer',
-    extends: cc._RendererUnderSG,
 
-    editor: CC_EDITOR,
+    // Inherits from the abstract class directly,
+    // because TiledLayer not create or maintains the sgNode by itself. 
+    extends: cc._SGComponent,
 
-    properties: {},
-
-    onLoad: function () {
+    onEnable: function() {
+        if (this._sgNode) {
+            this._sgNode.setVisible(true);
+        }
+    },
+    onDisable: function() {
+        if (this._sgNode) {
+            this._sgNode.setVisible(false);
+        }
+    },
+    //onDestroy: function () {
+    //    if ( this.node._sizeProvider === this._sgNode ) {
+    //        this.node._sizeProvider = null;
+    //    }
+    //    this._removeSgNode();
+    //},
+    
+    _initSgNode: function() {
         var sgNode = this._sgNode;
+        if ( !sgNode ) {
+            return;
+        }
+        if ( !this.enabledInHierarchy ) {
+            sgNode.setVisible(false);
+        }
         if ( !this.node._sizeProvider ) {
             this.node._sizeProvider = sgNode;
         }
-    },
-
-    _createSgNode: function() {
-        return null;
-    },
-
-    _initSgNode: function() {
-
+        var node = this.node;
+        sgNode.setAnchorPoint(node.getAnchorPoint());
     },
 
     _replaceSgNode: function(sgNode) {
@@ -57,11 +73,16 @@ var TiledLayer = cc.Class({
 
         // Remove the sgNode before
         this._removeSgNode();
+        if ( this.node._sizeProvider === this._sgNode ) {
+            this.node._sizeProvider = null;
+        }
 
-        // retain the new sgNode
         if (sgNode && sgNode instanceof _ccsg.TMXLayer) {
             this._sgNode = sgNode;
+            // retain the new sgNode, it will be released in _removeSgNode
             this._sgNode.retain();
+            
+            this._initSgNode();
         } else {
             this._sgNode = null;
         }
