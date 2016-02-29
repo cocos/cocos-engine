@@ -390,10 +390,7 @@ JS.mixin(Pipeline.prototype, {
 
         this.complete();
 
-        items.invoke(url, item);
-
-        // remove all callbacks added for url
-        items.removeAll(url);
+        items.invokeAndRemove(url, item);
     },
 
     /**
