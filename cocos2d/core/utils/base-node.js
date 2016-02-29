@@ -1453,7 +1453,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         sgNode.setSkewY(this._skewY);
         sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
 
+        var arrivalOrder = sgNode.arrivalOrder;
         sgNode.setLocalZOrder(this._localZOrder);
+        sgNode.arrivalOrder = arrivalOrder;
         sgNode.setGlobalZOrder(this._globalZOrder);
 
         sgNode.setOpacity(this._opacity);
