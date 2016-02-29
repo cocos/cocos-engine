@@ -295,8 +295,15 @@ var TiledMap = cc.Class({
     onDisable: function () {
         this._super();
 
-        // remove the logic children for tmx layers
-        this._removeLayerEntities();
+        // disable the TiledLayer component in logic children
+        var logicChildren = this.node.getChildren();
+        for (var i = logicChildren.length - 1; i >= 0; i--) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent(cc.TiledLayer);
+            if (tmxLayer) {
+                tmxLayer.enabled = false;
+            }
+        }
 
         // remove the sg children for tmx layers (which not maintained by TiledLayer)
         var restoredSgNode = this._plainNode;
@@ -381,7 +388,17 @@ var TiledMap = cc.Class({
             var child = logicChildren[i];
             var tmxLayer = child.getComponent(cc.TiledLayer);
             if (tmxLayer) {
-                this.node.removeChild(child);
+                child.removeComponent(cc.TiledLayer);
+
+                if (CC_EDITOR) {
+                    // In editor if the node is empty, remove it
+                    // because the removeComponent can not remove the component immediately.
+                    // So if the component count is 1 means the node doesn't have any other component.
+                    if (child._components.length === 1 &&
+                        child.getChildren().length === 0) {
+                        this.node.removeChild(child);
+                    }
+                }
             }
         }
     },
@@ -419,6 +436,7 @@ var TiledMap = cc.Class({
                     existedLayers.push(child);
                     var newSGLayer = this._sgNode.getLayer(layerName);
                     tmxLayer._replaceSgNode(newSGLayer);
+                    tmxLayer.enabled = true;
                 }
             } else {
                 otherChildrenInfo.push({child: child, index: child.getSiblingIndex()});
@@ -439,16 +457,31 @@ var TiledMap = cc.Class({
         for (i = 0, n = layerNames.length; i < n; i++) {
             var name = layerNames[i];
             var sgLayer = this._sgNode.getLayer(name);
-            if (existedNames.indexOf(name) < 0) {
-                // need add entity for the tmx layer
-                var node = new cc.Node(name);
-                var addedLayer = node.addComponent(cc.TiledLayer);
+            var theIndex = existedNames.indexOf(name);
+            if (theIndex < 0) {
+                // check if there is a node with the same name of tmx layer
+                var node = this.node.getChildByName(name);
+                var addedLayer = null;
+                if (node && ! node.getComponent(cc._SGComponent)) {
+                    // has a node with the same name of tmx layer
+                    // add TiledLayer component
+                    addedLayer = node.addComponent(cc.TiledLayer);
+                } else {
+                    // create a new node to add TiledLayer component
+                    node = new cc.Node(name);
+                    this.node.addChild(node);
+                    addedLayer = node.addComponent(cc.TiledLayer);
+                }
+
+                if (!node || !addedLayer) {
+                    cc.error('Add component TiledLayer into node failed.');
+                }
+
                 addedLayer._replaceSgNode(sgLayer);
-                this.node.addChild(node);
                 node.setSiblingIndex(sgLayer.getLocalZOrder());
                 node.setAnchorPoint(this.node.getAnchorPoint());
             } else {
-                existedLayers[i].setSiblingIndex(sgLayer.getLocalZOrder());
+                existedLayers[theIndex].setSiblingIndex(sgLayer.getLocalZOrder());
             }
         }
 
@@ -496,7 +529,9 @@ var TiledMap = cc.Class({
             var tmxLayer = child.getComponent(cc.TiledLayer);
             var zOrderValue = child.getSiblingIndex();
             if (tmxLayer) {
-                tmxLayer._sgNode.setLocalZOrder(zOrderValue);
+                if (tmxLayer._sgNode) {
+                    tmxLayer._sgNode.setLocalZOrder(zOrderValue);
+                }
             } else {
                 if (child._sgNode) {
                     child._sgNode.setLocalZOrder(zOrderValue);
