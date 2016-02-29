@@ -314,6 +314,13 @@ var TiledMap = cc.Class({
         this.node.off('child-reorder', this._reorderChildren, this);
     },
 
+    onDestroy: function() {
+        this._super();
+
+        // remove the TiledLayer entities
+        this._removeLayerEntities();
+    },
+
     _createSgNode: function () {
         return new _ccsg.TMXTiledMap();
     },
