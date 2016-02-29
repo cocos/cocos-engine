@@ -36,7 +36,11 @@ var Mode = cc.Enum({
     /**
      * @property {Number} VERTICAL
      */
-    VERTICAL: 1
+    VERTICAL: 1,
+    /**
+     * @property {Number} FILLED
+     */
+    FILLED: 2,
 });
 
 /**
@@ -55,6 +59,7 @@ var ProgressBar = cc.Class({
     _initBarSprite: function() {
         if (this.barSprite) {
             var entity = this.barSprite.node;
+            if (!entity) return;
 
             var nodeSize = this.node.getContentSize();
             var nodeAnchor = this.node.getAnchorPoint();
@@ -65,11 +70,19 @@ var ProgressBar = cc.Class({
                 this.node.setContentSize(entitySize);
             }
 
+            if (this.barSprite.fillType === cc.Sprite.FillType.RADIAL) {
+                this.mode = Mode.FILLED;
+            }
+
             var barSpriteSize = entity.getContentSize();
             if (this.mode === Mode.HORIZONTAL) {
                 this.totalLength = barSpriteSize.width;
-            } else {
+            }
+            else if(this.mode === Mode.VERTICAL) {
                 this.totalLength = barSpriteSize.height;
+            }
+            else {
+                this.totalLength = this.barSprite.fillRange;
             }
 
             if(entity.parent === this.node){
@@ -83,6 +96,9 @@ var ProgressBar = cc.Class({
     _updateBarStatus: function() {
         if (this.barSprite) {
             var entity = this.barSprite.node;
+
+            if (!entity) return;
+
             var entityAnchorPoint = entity.getAnchorPoint();
             var entitySize = entity.getContentSize();
             var entityPosition = entity.getPosition();
@@ -110,17 +126,27 @@ var ProgressBar = cc.Class({
                     finalContentSize = cc.size(entitySize.width, actualLenth);
                     totalWidth = entitySize.width;
                     totalHeight = this.totalLength;
+                    break;
+                case Mode.FILLED:
+                    if (this.reverse) {
+                        actualLenth = actualLenth * -1;
+                    }
+                    this.barSprite.fillRange = actualLenth;
+                    break;
             }
 
-            var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
-            var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
+            if (this.barSprite.type !== cc.Sprite.Type.FILLED) {
 
-            var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
+                var anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
+                var anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
+                var finalPosition = cc.p(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY);
 
-            entity.setPosition(cc.pAdd(entityPosition, finalPosition));
+                entity.setPosition(cc.pAdd(entityPosition, finalPosition));
 
-            entity.setAnchorPoint(anchorPoint);
-            entity.setContentSize(finalContentSize);
+                entity.setAnchorPoint(anchorPoint);
+                entity.setContentSize(finalContentSize);
+            }
+
 
         }
     },
@@ -151,11 +177,15 @@ var ProgressBar = cc.Class({
             notify: function() {
                 if (this.barSprite) {
                     var entity = this.barSprite.node;
+                    if (!entity) return;
+
                     var entitySize = entity.getContentSize();
                     if (this.mode === Mode.HORIZONTAL) {
                         this.totalLength = entitySize.width;
                     } else if (this.mode === Mode.VERTICAL) {
                         this.totalLength = entitySize.height;
+                    } else if (this.mode === Mode.FILLED) {
+                        this.totalLength = this.barSprite.fillRange;
                     }
                 }
             },

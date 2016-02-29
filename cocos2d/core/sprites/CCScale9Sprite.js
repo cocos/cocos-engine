@@ -125,7 +125,7 @@ var simpleQuadGenerator = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -255,7 +255,7 @@ var scale9QuadGenerator = {
         bottomHeight = insetBottom;
         centerHeight = rect.height - topHeight - bottomHeight;
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u1, u2, u3;
@@ -346,7 +346,7 @@ var tiledQuadGenerator = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -425,7 +425,7 @@ var fillQuadGeneratorBar = {
 
         var progressStart, progressEnd;
         switch (fillType) {
-            case cc.Scale9Sprite.FillType.Horizontal:
+            case cc.Scale9Sprite.FillType.HORIZONTAL:
                 progressStart = vertices[0].x + (vertices[1].x - vertices[0].x) * fillStart;
                 progressEnd = vertices[0].x + (vertices[1].x - vertices[0].x) * fillEnd;
 
@@ -447,7 +447,7 @@ var fillQuadGeneratorBar = {
                 quad._tr.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillEnd;
                 quad._tr.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillEnd;
                 break;
-            case cc.Scale9Sprite.FillType.Vertical:
+            case cc.Scale9Sprite.FillType.VERTICAL:
                 progressStart = vertices[0].y + (vertices[1].y - vertices[0].y) * fillStart;
                 progressEnd = vertices[0].y + (vertices[1].y - vertices[0].y) * fillEnd;
 
@@ -494,7 +494,7 @@ var fillQuadGeneratorBar = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -764,7 +764,7 @@ var fillQuadGeneratorRadial = {
                 var yleft = center.y + tanAngle * (left - center.x);
                 if(yleft > bottom && yleft < top) {
                     intersectPoints[0] = intersectPoints[4];
-                    intersectPoints[5] = null;
+                    intersectPoints[4] = null;
                     intersectPoints[0].x = left;
                     intersectPoints[0].y = yleft;
                 }
@@ -843,7 +843,7 @@ var fillQuadGeneratorRadial = {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
 
-        var textureRect = cc.rectPointsToPixels(spriteFrame.getRect());
+        var textureRect = spriteFrame.getRect();
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -1221,11 +1221,24 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
             this._quads = tiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
+            var fillstart = this._fillStart;
+            var fillRange = this._fillRange;
+            if(fillRange < 0) {
+                fillstart += fillRange;
+                fillRange = -fillRange;
+            }
             if(this._fillType !== cc.Scale9Sprite.FillType.RADIAL) {
-                this._quads = fillQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._fillType, this._fillStart,this._fillRange);
+                fillRange = fillstart + fillRange;
+                fillstart = fillstart > 1.0 ? 1.0 : fillstart;
+                fillstart = fillstart < 0.0 ? 0.0 : fillstart;
+
+                fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+                fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+                fillRange = fillRange - fillstart;
+                this._quads = fillQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._fillType, fillstart,fillRange);
             } else {
                 this._isTriangle = true;
-                var fillResult = fillQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._fillCenter,this._fillStart,this._fillRange);
+                var fillResult = fillQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._fillCenter,fillstart,fillRange);
                 this._quads = fillResult.quad;
                 this._rawQuad = fillResult.rawQuad;
             }
@@ -1315,8 +1328,8 @@ cc.Scale9Sprite.RenderingType = cc.Enum({
 });
 
 cc.Scale9Sprite.FillType = cc.Enum({
-    Horizontal: 0,
-    Vertical: 1,
+    HORIZONTAL: 0,
+    VERTICAL: 1,
     //todo implement this
     RADIAL:2,
 });

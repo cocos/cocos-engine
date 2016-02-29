@@ -83,7 +83,7 @@ var textureCache = /** @lends cc.textureCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/getTextureForKey.js}
      */
     getTextureForKey: function(textureKeyName){
-        return this._textures[textureKeyName] || this._textures[cc.loader.getAliase(textureKeyName)];
+        return this._textures[textureKeyName];
     },
 
     /**
@@ -301,7 +301,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             var locTexs = this._textures;
             //remove judge
-            var tex = locTexs[url] || locTexs[cc.loader.getAliase(url)];
+            var tex = locTexs[url];
             if (tex) {
                 if(tex.isLoaded()) {
                     cb && cb.call(target, tex);
@@ -318,11 +318,11 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             tex = locTexs[url] = new Texture2D();
             tex.url = url;
-            cc.loader.loadImg(url, function (err, img) {
-                if (err)
-                    return cb && cb.call(target, err);
+            cc.loader.load(url, function (err, texture) {
+                if (err) {
+                    return cb && cb.call(target, err || new Error('Unknown error'));
+                }
 
-                tex.initWithElement(img);
                 textureCache.handleLoadedTexture(url);
 
                 cb && cb.call(target, tex);
@@ -359,7 +359,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             if (!cc.game._rendererInitialized) {
                 locTexs = this._loadedTexturesBefore;
             }
-            var tex = locTexs[url] || locTexs[cc.loader.getAliase(url)];
+            var tex = locTexs[url];
             if (tex) {
                 if(tex.isLoaded()) {
                     cb && cb.call(target, tex);
@@ -376,11 +376,11 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             tex = locTexs[url] = new Texture2D();
             tex.url = url;
-            cc.loader.loadImg(url, function (err, img) {
-                if (err)
-                    return cb && cb.call(target, err);
+            cc.loader.load(url, function (err, texture) {
+                if (err) {
+                    return cb && cb.call(target, err || new Error('Unknown error'));
+                }
 
-                tex.initWithElement(img);
                 textureCache.handleLoadedTexture(url);
 
                 cb && cb.call(target, tex);

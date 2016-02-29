@@ -61,4 +61,40 @@ if (isPhantomJS) {
     // polyfill
     var video = document.createElement("video");
     video.constructor.prototype.canPlayType = function () { return ''; };
+
+    (function () {
+        var log = console.log;
+        console.log = function () {
+            var str = arguments[0];
+            str = '' + str;
+            if (str && str.length > 110) {
+                log.call(console, "(Can not output this too long log)");
+            }
+            else {
+                log.apply(console, arguments);
+            }
+        }
+        var warn = console.warn;
+        console.warn = function () {
+            var str = arguments[0];
+            str = '' + str;
+            if (str && str.length > 110) {
+                warn.call(console, "(Can not output this too long warn)");
+            }
+            else {
+                warn.apply(console, arguments);
+            }
+        }
+        var error = console.error;
+        console.error = function () {
+            var str = arguments[0];
+            str = '' + str;
+            if (str && str.length > 110) {
+                error.call(console, "(Can not output this too long error)");
+            }
+            else {
+                error.apply(console, arguments);
+            }
+        }
+    })();
 }

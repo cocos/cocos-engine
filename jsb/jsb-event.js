@@ -77,7 +77,13 @@ cc.js.mixin(cc.Event.prototype, {
 
 // cc.Event.EventCustom
 cc.Event.EventCustom = function (type, bubbles) {
-    cc.Event.call(this, cc.Event.CUSTOM);
+    this.target = null;
+    this.currentTarget = null;
+    this.eventPhase = 0;
+    this._defaultPrevented = false;
+    this._propagationStopped = false;
+    this._propagationImmediateStopped = false;
+
     this.type = type;
     this.bubbles = bubbles || false;
     this.detail = null;
@@ -178,3 +184,49 @@ cc.eventManager.resumeTarget = function (target, recursive) {
     }
     this._resumeTarget(target, recursive || false);
 };
+
+cc.js.mixin(cc.EventTouch.prototype, {
+    setLocation: function (x, y) {
+        this.touch && this.touch.setTouchInfo(this.touch.getID(), x, y);
+    },
+
+    getLocation: function () {
+        return this.touch ? this.touch.getLocation() : cc.v2();
+    },
+
+    getLocationInView: function() {
+        return this.touch ? this.touch.getLocationInView() : cc.v2();
+    },
+
+    getPreviousLocation:function () {
+        return this.touch ? this.touch.getPreviousLocation() : cc.v2();
+    },
+
+    getStartLocation: function() {
+        return this.touch ? this.touch.getStartLocation() : cc.v2();
+    },
+
+    getID:function () {
+        return this.touch ? this.getID() : null;
+    },
+
+    getDelta: function () {
+        return this.touch ? this.touch.getDelta() : cc.v2();
+    },
+
+    getDeltaX: function () {
+        return this.touch ? this.touch.getDelta().x : 0;
+    },
+
+    getDeltaY: function () {
+        return this.touch ? this.touch.getDelta().y : 0;
+    },
+
+    getLocationX: function () {
+        return this.touch ? this.touch.getLocationX() : 0;
+    },
+
+    getLocationY: function () {
+        return this.touch ? this.touch.getLocationY() : 0;
+    }
+});

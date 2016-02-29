@@ -22,19 +22,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var spine = require('./spine-exported');
+var spine = sp.spine;
 
-/**
- * @module sp
- */
-
-sp.Skeleton.CanvasRenderCmd = function(renderableObject){
+sp._SGSkeleton.CanvasRenderCmd = function(renderableObject){
     _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
     this._needDraw = true;
 };
 
-var proto = sp.Skeleton.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-proto.constructor = sp.Skeleton.CanvasRenderCmd;
+var proto = sp._SGSkeleton.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+proto.constructor = sp._SGSkeleton.CanvasRenderCmd;
 
 proto.rendering = function (wrapper, scaleX, scaleY) {
     var node = this._node, i, n, slot, slotNode;

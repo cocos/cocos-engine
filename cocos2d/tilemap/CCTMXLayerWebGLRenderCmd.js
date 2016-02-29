@@ -23,13 +23,13 @@
  ****************************************************************************/
 
 (function(){
-    cc.TMXLayer.WebGLRenderCmd = function(renderableObject){
+    _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
         cc.SpriteBatchNode.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
     };
 
-    var proto = cc.TMXLayer.WebGLRenderCmd.prototype = Object.create(cc.SpriteBatchNode.WebGLRenderCmd.prototype);
-    proto.constructor = cc.TMXLayer.WebGLRenderCmd;
+    var proto = _ccsg.TMXLayer.WebGLRenderCmd.prototype = Object.create(cc.SpriteBatchNode.WebGLRenderCmd.prototype);
+    proto.constructor = _ccsg.TMXLayer.WebGLRenderCmd;
 
     proto._updateCacheContext = function(){};
 

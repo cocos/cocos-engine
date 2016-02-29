@@ -97,7 +97,7 @@ cc.swap = function (x, y, ref) {
  * @param {Number} b number B
  * @param {Number} r ratio between 0 and 1
  * @method lerp
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/platform/CCMacro/lerp.js}
  */
 cc.lerp = function (a, b, r) {
     return a + (b - a) * r;
@@ -233,104 +233,6 @@ cc.incrementGLDraws = function (addNumber) {
  * @readonly
  */
 cc.FLT_EPSILON = 0.0000001192092896;
-
-/**
- * <p>
- *     On Mac it returns 1;<br/>
- *     On iPhone it returns 2 if RetinaDisplay is On. Otherwise it returns 1
- * </p>
- * @return {Number}
- * @method contentScaleFactor
- */
-cc.contentScaleFactor = cc.IS_RETINA_DISPLAY_SUPPORTED ? function () {
-    return cc.director.getContentScaleFactor();
-} : function () {
-    return 1;
-};
-
-/**
- * Converts a Point in points to pixels
- * @param {Vec2} points
- * @return {Vec2}
- * @method pointPointsToPixels
- */
-cc.pointPointsToPixels = function (points) {
-    var scale = cc.contentScaleFactor();
-    return cc.p(points.x * scale, points.y * scale);
-};
-
-/**
- * Converts a Point in pixels to points
- * @param {Rect} pixels
- * @return {Vec2}
- * @method pointPixelsToPoints
- */
-cc.pointPixelsToPoints = function (pixels) {
-	var scale = cc.contentScaleFactor();
-	return cc.p(pixels.x / scale, pixels.y / scale);
-};
-
-cc._pointPixelsToPointsOut = function(pixels, outPoint){
-	var scale = cc.contentScaleFactor();
-	outPoint.x = pixels.x / scale;
-	outPoint.y = pixels.y / scale;
-};
-
-/**
- * Converts a Size in points to pixels
- * @param {Size} sizeInPoints
- * @return {Size}
- * @method sizePointsToPixels
- */
-cc.sizePointsToPixels = function (sizeInPoints) {
-    var scale = cc.contentScaleFactor();
-    return cc.size(sizeInPoints.width * scale, sizeInPoints.height * scale);
-};
-
-/**
- * Converts a size in pixels to points
- * @param {Size} sizeInPixels
- * @return {Size}
- * @method sizePixelsToPoints
- */
-cc.sizePixelsToPoints = function (sizeInPixels) {
-    var scale = cc.contentScaleFactor();
-    return cc.size(sizeInPixels.width / scale, sizeInPixels.height / scale);
-};
-
-cc._sizePixelsToPointsOut = function (sizeInPixels, outSize) {
-    var scale = cc.contentScaleFactor();
-    outSize.width = sizeInPixels.width / scale;
-    outSize.height = sizeInPixels.height / scale;
-};
-
-/**
- * Converts a rect in pixels to points
- * @param {Rect} pixel
- * @return {Rect}
- * @method rectPixelsToPoints
- */
-cc.rectPixelsToPoints = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (pixel) {
-    var scale = cc.contentScaleFactor();
-    return cc.rect(pixel.x / scale, pixel.y / scale,
-        pixel.width / scale, pixel.height / scale);
-} : function (p) {
-    return cc.rect(p);
-};
-
-/**
- * Converts a rect in points to pixels
- * @param {Rect} point
- * @return {Rect}
- * @method rectPointsToPixels
- */
-cc.rectPointsToPixels = cc.IS_RETINA_DISPLAY_SUPPORTED ? function (point) {
-   var scale = cc.contentScaleFactor();
-    return cc.rect(point.x * scale, point.y * scale,
-        point.width * scale, point.height * scale);
-} : function (p) {
-    return cc.rect(p);
-};
 
 //some gl constant variable
 /**

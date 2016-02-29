@@ -56,11 +56,12 @@ cc.LoaderScene = _ccsg.Scene.extend({
         var fontSize = 24, lblHeight =  -logoHeight / 2 + 100;
         if(cc._loaderImage){
             //loading logo
-            cc.loader.loadImg(cc._loaderImage, {isCrossOrigin : false }, function(err, img){
-                logoWidth = img.width;
-                logoHeight = img.height;
-                self._initStage(img, cc.visibleRect.center);
-            });
+            var img = new Image();
+            img.src = cc._loaderImage;
+            logoWidth = img.width;
+            logoHeight = img.height;
+            self._initStage(img, cc.visibleRect.center);
+
             fontSize = 14;
             lblHeight = -logoHeight / 2 - 10;
         }
@@ -78,7 +79,6 @@ cc.LoaderScene = _ccsg.Scene.extend({
         texture2d.initWithElement(img);
         texture2d.handleLoadedTexture();
         var logo = self._logo = new _ccsg.Sprite(texture2d);
-        logo.setScale(cc.contentScaleFactor());
         logo.x = centerPos.x;
         logo.y = centerPos.y;
         self._bgLayer.addChild(logo, 10);
@@ -124,13 +124,13 @@ cc.LoaderScene = _ccsg.Scene.extend({
         self.unschedule(self._startLoading);
         var res = self.resources;
         cc.loader.load(res,
-            function (result, count, loadedCount) {
+            function (loadedCount, count) {
                 var percent = (loadedCount / count * 100) | 0;
                 percent = Math.min(percent, 100);
                 self._label.setString("Loading... " + percent + "%");
-            }, function () {
+            }, function (error, items) {
                 if (self.cb)
-                    self.cb.call(self.target);
+                    self.cb.call(self.target, error, items);
             });
     },
 

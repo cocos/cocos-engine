@@ -35,5 +35,40 @@ cc.Component.EventHandler = cc.Class({
         handler: {
             default: '',
         }
+    },
+
+    statics: {
+        /**
+         * Emit events with params
+         * @method emitEvents
+         * @param {Array} events
+         * @param {*} params
+         */
+        emitEvents: function(events, params) {
+            for (var i = 0, l = events.length; i < l; i++) {
+                var event = events[i];
+                if (! event instanceof cc.Component.EventHandler) continue;
+
+                event.emit(params);
+            }
+        }
+    },
+
+    /**
+     * Emit event with params
+     * @method emit
+     * @param {*} params
+     */
+    emit: function(params) {
+        var target = this.target;
+        if (!cc.isValid(target)) return;
+
+        var comp = target.getComponent(this.component);
+        if (!cc.isValid(comp)) return;
+
+        var handler = comp[this.handler];
+        if (typeof(handler) !== 'function') return;
+
+        handler.call(comp, params);
     }
 });

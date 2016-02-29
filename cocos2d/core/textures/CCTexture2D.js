@@ -194,15 +194,14 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @returns {Size}
      */
     getContentSize: function () {
-        var locScaleFactor = cc.contentScaleFactor();
-        return cc.size(this._contentSize.width / locScaleFactor, this._contentSize.height / locScaleFactor);
+        return cc.size(this._contentSize.width, this._contentSize.height);
     },
 
     _getWidth: function () {
-        return this._contentSize.width / cc.contentScaleFactor();
+        return this._contentSize.width;
     },
     _getHeight: function () {
-        return this._contentSize.height / cc.contentScaleFactor();
+        return this._contentSize.height;
     },
 
     /**
@@ -705,22 +704,25 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 canvas.width = rect.width;
                 canvas.height = rect.height;
 
-                var context = canvas.getContext("2d");
-                context.globalCompositeOperation = "source-over";
-                context.fillStyle = "rgb(" + (r|0) + "," + (g|0) + "," + (b|0) + ")";
-                context.fillRect(0, 0, rect.width, rect.height);
-                context.globalCompositeOperation = "multiply";
-                context.drawImage(
-                    textureImage,
-                    rect.x, rect.y, rect.width, rect.height,
-                    0, 0, rect.width, rect.height
-                );
-                context.globalCompositeOperation = "destination-atop";
-                context.drawImage(
-                    textureImage,
-                    rect.x, rect.y, rect.width, rect.height,
-                    0, 0, rect.width, rect.height
-                );
+                if(rect.width && rect.height) {
+                    var context = canvas.getContext("2d");
+                    context.globalCompositeOperation = "source-over";
+                    context.fillStyle = "rgb(" + (r|0) + "," + (g|0) + "," + (b|0) + ")";
+                    context.fillRect(0, 0, rect.width, rect.height);
+                    context.globalCompositeOperation = "multiply";
+                    context.drawImage(
+                        textureImage,
+                        rect.x, rect.y, rect.width, rect.height,
+                        0, 0, rect.width, rect.height
+                    );
+                    context.globalCompositeOperation = "destination-atop";
+                    context.drawImage(
+                        textureImage,
+                        rect.x, rect.y, rect.width, rect.height,
+                        0, 0, rect.width, rect.height
+                    );
+                }
+
                 if(onlyCanvas)
                     return canvas;
                 var newTexture = new Texture2D();
@@ -733,53 +735,37 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                     onlyCanvas = true;
                 else
                     canvas = document.createElement("canvas");
-
                 var textureImage = this._htmlElementObj;
                 if(!rect)
                     rect = cc.rect(0, 0, textureImage.width, textureImage.height);
-                var x, y, w, h;
-                x = rect.x; y = rect.y; w = rect.width; h = rect.height;
-                if(!w || !h)
-                    return;
 
-                canvas.width = w;
-                canvas.height = h;
-                
-                var context = canvas.getContext("2d");
-                var tintedImgCache = cc.textureCache.getTextureColors(this);
-                context.globalCompositeOperation = 'lighter';
-                context.drawImage(
-                    tintedImgCache[3],
-                    x, y, w, h,
-                    0, 0, w, h
-                );
-                if (r > 0) {
-                    context.globalAlpha = r / 255;
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+
+                if(rect.width && rect.height) {
+                    var context = canvas.getContext("2d");
                     context.drawImage(
-                        tintedImgCache[0],
-                        x, y, w, h,
-                        0, 0, w, h
+                        textureImage,
+                        rect.x, rect.y, rect.width, rect.height,
+                        0, 0, rect.width, rect.height
                     );
+
+                    var imageData = context.getImageData(0,0,canvas.width, canvas.height);
+                    var data = imageData.data;
+                    r = r/255;
+                    g = g/255;
+                    b = b/255;
+                    for (var i = 0; i < data.length; i += 4) {
+                        data[i]     = data[i] * r;
+                        data[i + 1] = data[i+1] * g;
+                        data[i + 2] = data[i+2] * b;
+                    }
+
+                    context.putImageData(imageData, 0, 0);
                 }
-                if (g > 0) {
-                    context.globalAlpha = g / 255;
-                    context.drawImage(
-                        tintedImgCache[1],
-                        x, y, w, h,
-                        0, 0, w, h
-                    );
-                }
-                if (b > 0) {
-                    context.globalAlpha = b / 255;
-                    context.drawImage(
-                        tintedImgCache[2],
-                        x, y, w, h,
-                        0, 0, w, h
-                    );
-                }
+
                 if(onlyCanvas)
                     return canvas;
-
                 var newTexture = new Texture2D();
                 newTexture.initWithElement(canvas);
                 newTexture.handleLoadedTexture();

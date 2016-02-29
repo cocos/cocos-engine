@@ -133,7 +133,8 @@ if (CC_DEV) {
     js.obsoletes(cc, 'cc', {
         'Point': 'Vec2',
         'EScene': 'Scene',
-        'ENode': 'Node'
+        'ENode': 'Node',
+        '_ComponentInSG': '_RendererUnderSG'
     });
 
     /**
@@ -203,9 +204,7 @@ if (CC_DEV) {
         return cc.js.array.copy;
     });
 
-
-
-    Object.defineProperty(cc._ComponentInSG.prototype, 'visible', {
+    Object.defineProperty(cc._SGComponent.prototype, 'visible', {
         get: function () {
             cc.warn('The "visible" property of %s is deprecated, use "enabled" instead please.', cc.js.getClassName(this));
             return this.enabled;
@@ -265,7 +264,7 @@ if (CC_DEV) {
 
     function provideClearError (owner, obj) {
         var className = cc.js.getClassName(owner);
-        var Info = 'Sorry,' + className + '.%s is removed, please use %s instead.';
+        var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
             function define (prop, getset) {
                 function accessor (newProp) {
@@ -295,26 +294,6 @@ if (CC_DEV) {
                         define(x, getset);
                     });
             }
-        }
-    }
-
-    function shouldNotUseNodeProp (component) {
-        var compName = cc.js.getClassName(component);
-        var Info = 'Sorry, ' + compName + '.%s is removed, please use cc.Node.%s instead.';
-        var compProto = component.prototype;
-        for (var prop in cc.Node.prototype) {
-            (function (prop) {
-                if (!(prop in compProto) && prop[0] !== '_') {
-                    js.getset(compProto, prop,
-                        function () {
-                            cc.error(Info, prop, prop);
-                        },
-                        function () {
-                            cc.error(Info, prop, prop);
-                        }
-                    );
-                }
-            })(prop);
         }
     }
 
@@ -384,7 +363,10 @@ if (CC_DEV) {
         'userData',
         'userObject',
         '_cascadeColorEnabled',
-        'cascadeColor'
+        'cascadeColor',
+        'ignoreAnchor',
+        'isIgnoreAnchorPointForPosition',
+        'ignoreAnchorPointForPosition'
     ]);
     provideClearError(cc.Node.prototype, {
         arrivalOrder: 'getSiblingIndex, setSiblingIndex',
@@ -407,8 +389,31 @@ if (CC_DEV) {
         removeAllComponents: 'removeComponent',
         getNodeToParentAffineTransform: 'getNodeToParentTransform',
     });
+    
+    // RENDERERS
 
-    // cc.SpriteRenderer
+    function shouldNotUseNodeProp (component) {
+        var compProto = component.prototype;
+        for (var prop in cc.Node.prototype) {
+            (function (prop) {
+                if (!(prop in compProto) && prop[0] !== '_') {
+                    Object.defineProperty(compProto, prop, {
+                        get: function () {
+                            var compName = cc.js.getClassName(this);    // 允许继承
+                            var Info = 'Sorry, ' + compName + '.%s is undefined, please use cc.Node.%s instead.';
+                            cc.error(Info, prop, prop);
+                        },
+                        enumerable: false,
+                        configurable: true,   // 允许继承
+                    });
+                }
+            })(prop);
+        }
+    }
+    shouldNotUseNodeProp(cc._SGComponent);
+
+
+    // cc.Sprite
 
     markAsRemoved(cc.Sprite, [
         'textureLoaded',
@@ -433,14 +438,12 @@ if (CC_DEV) {
         createWithSpriteFrame: 'node.addComponent',
     });
     provideClearError(cc.Sprite.prototype, {
-        ignoreAnchorPointForPosition: 'instance.ignoreAnchor',
         getPreferredSize: 'node.getContentSize',
         setPreferredSize: 'node.setContentSize',
         updateWithSprite: 'spriteFrame',
         getSpriteFrame: 'spriteFrame',
         setSpriteFrame: 'spriteFrame',
     });
-    shouldNotUseNodeProp(cc.Sprite);
 
     // Particle
     markAsRemoved(cc.ParticleSystem, [
@@ -490,7 +493,6 @@ if (CC_DEV) {
         '*etTotalParticles': 'totalParticles',
         '*etTexture': 'texture',
     });
-    shouldNotUseNodeProp(cc.ParticleSystem);
     js.obsoletes(cc.ParticleSystem, 'cc.ParticleSystem', {
         Type: 'PositionType',
         Mode: 'EmitterMode'
@@ -540,4 +542,22 @@ if (CC_DEV) {
         'setFlippedY',
         'isFlippedY'
     ]);
+
+    // SPINE
+
+    if (typeof sp !== 'undefined') {
+        deprecateEnum(sp, 'sp.ANIMATION_EVENT_TYPE', 'sp.AnimationEventType');
+        js.obsolete(sp, 'SkeletonAnimation', 'Skeleton');
+        provideClearError(sp.Skeleton, {
+            create: 'node.addComponent',
+        });
+        provideClearError(sp.Skeleton.prototype, {
+            '*etDebugSlotsEnabled': 'debugSlots',
+            '*etDebugBonesEnabled': 'debugBones',
+            'setDebugSolots': 'debugSlots',
+            'setDebugBones': 'debugBones',
+            '*etTimeScale': 'timeScale',
+        });
+    }
 }
+

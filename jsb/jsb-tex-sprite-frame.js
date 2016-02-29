@@ -76,9 +76,6 @@ cc.SpriteFrame.prototype.initWithTexture = function (texture, rect, rotated, off
         }
     }
 
-    if(arguments.length === 2)
-        rect = cc.rectPointsToPixels(rect);
-
     offset = offset || cc.p(0, 0);
     originalSize = originalSize || rect;
     rotated = rotated || false;
@@ -142,7 +139,7 @@ cc.SpriteFrame.prototype._deserialize = function (data, handle) {
     this.initWithTexture(null, rect, rotated, offset, size, textureUuid);
 };
 cc.SpriteFrame.prototype._checkRect = function (texture) {
-    var rect = this.getRectInPixels();
+    var rect = this.getRect();
     var maxX = rect.x, maxY = rect.y;
     if (this._rotated) {
         maxX += rect.height;

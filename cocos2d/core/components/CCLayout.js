@@ -143,6 +143,12 @@ var Layout = cc.Class({
             default: Type.NONE,
             type: Type,
             notify: function() {
+                if (this.layoutType !== Type.NONE && this._resize === ResizeType.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                    var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
+                    if (reLayouted) {
+                        return;
+                    }
+                }
                 this._doLayoutDirty();
             },
             animatable: false,
@@ -168,8 +174,14 @@ var Layout = cc.Class({
                     return;
                 }
 
-                this._doLayoutDirty();
                 this._resize = value;
+                if (this.layoutType !== Type.NONE && value === ResizeType.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                    var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
+                    if (reLayouted) {
+                        return;
+                    }
+                }
+                this._doLayoutDirty();
             },
             animatable: false
         },
@@ -197,6 +209,12 @@ var Layout = cc.Class({
             default: AxisDirection.HORIZONTAL,
             type: AxisDirection,
             notify: function() {
+                if (this._resize === ResizeType.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                    var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
+                    if (reLayouted) {
+                        return;
+                    }
+                }
                 this._doLayoutDirty();
             },
             animatable: false
@@ -285,6 +303,7 @@ var Layout = cc.Class({
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
         this.node.on('child-removed', this._childrenAddOrDeleted, this);
+        this.node.on('child-reorder', this._doLayoutDirty, this);
 
         this._updateChildrenEventListener();
     },

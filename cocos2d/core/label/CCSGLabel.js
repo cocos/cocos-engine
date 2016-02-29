@@ -328,7 +328,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
         this._resetBMFont();
         //specify font family name directly
-        if (extName === null) {
+        if (!extName) {
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
             this._notifyLabelSkinDirty();
@@ -336,8 +336,6 @@ _ccsg.Label = _ccsg.Node.extend({
             this.emit('load');
             return;
         }
-        //add resource path
-        fontHandle = cc.path.join(cc.loader.resPath, fontHandle);
 
         this._isUseSystemFont = false;
         if (extName === ".ttf") {
@@ -685,8 +683,7 @@ cc.BMFontHelper = {
         var longestLine = 0;
         var letterRight = 0;
 
-        var contentScaleFactor = cc.contentScaleFactor();
-        var lineSpacing = this._lineSpacing * contentScaleFactor;
+        var lineSpacing = this._lineSpacing;
         var highestY = 0;
         var lowestY = 0;
         var letterDef = null;
@@ -728,7 +725,7 @@ cc.BMFontHelper = {
                     continue;
                 }
 
-                var letterX = (nextLetterX + letterDef._offsetX * this._bmfontScale) / contentScaleFactor;
+                var letterX = nextLetterX + letterDef._offsetX * this._bmfontScale;
 
                 if (this._isWrapText
                     && this._maxLineWidth > 0
@@ -746,7 +743,7 @@ cc.BMFontHelper = {
                     letterPosition.x = letterX;
                 }
 
-                letterPosition.y = (nextTokenY - letterDef._offsetY * this._bmfontScale) / contentScaleFactor;
+                letterPosition.y = nextTokenY - letterDef._offsetY * this._bmfontScale;
                 this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
                 if (letterIndex + 1 < this._horizontalKernings.length && letterIndex < textLen - 1) {
@@ -788,7 +785,7 @@ cc.BMFontHelper = {
         this._linesWidth.push(letterRight);
 
         this._numberOfLines = lineIndex + 1;
-        this._textDesiredHeight = (this._numberOfLines * this._lineHeight * this._bmfontScale) / contentScaleFactor;
+        this._textDesiredHeight = this._numberOfLines * this._lineHeight * this._bmfontScale;
         if (this._numberOfLines > 1) {
             this._textDesiredHeight += (this._numberOfLines - 1) * this._lineSpacing;
         }
@@ -1001,7 +998,7 @@ cc.BMFontHelper = {
     _updateBMFontScale: function() {
         if (this._labelType === _ccsg.Label.Type.BMFont) {
             var originalFontSize = this._fontAtlas._fontSize;
-            this._bmfontScale = this._fontSize * cc.contentScaleFactor() / originalFontSize;
+            this._bmfontScale = this._fontSize / originalFontSize;
         } else {
             this._bmfontScale = 1;
         }
@@ -1047,8 +1044,6 @@ cc.BMFontHelper = {
             var letterDefinition = new cc.FontLetterDefinition();
 
             var tempRect = locFontDict[fontDef].rect;
-            cc.rectPointsToPixels(tempRect);
-
 
             letterDefinition._offsetX = locFontDict[fontDef].xOffset;
             letterDefinition._offsetY = locFontDict[fontDef].yOffset;
@@ -1098,12 +1093,12 @@ cc.BMFontHelper = {
                 this._resetBMFont();
 
                 var texture;
-                cc.loader.load(this._fontHandle, function(err, results) {
+                cc.loader.load(this._fontHandle, function(err, config) {
                     if (err) {
                         cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
                     }
 
-                    self._config = results[0];
+                    self._config = config;
                     self._createFontChars();
                     texture = cc.textureCache.addImage(self._config.atlasName);
                     var locIsLoaded = texture.isLoaded();

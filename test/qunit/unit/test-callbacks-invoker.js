@@ -1,4 +1,4 @@
-module('CallbacksInvoker');
+largeModule('CallbacksInvoker');
 
 test('test', function () {
     var ci = new cc._Test.CallbacksInvoker();
@@ -135,6 +135,58 @@ test('remove last with target during invoking', function () {
 
     strictEqual(ci.has('eve', cb1, target), true, 'previous callback should not be removed');
     strictEqual(ci.has('eve', cb2, target), false, 'self callback should be removed');
+});
+
+test('remove multiple callbacks during invoking', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+    var cb1 = new Callback().enable();
+    var cb2 = new Callback(function () {
+        ci.remove('eve', cb1);
+        ci.remove('eve', cb3);
+        ci.remove('eve', cb3, target);
+    }).enable();
+    var cb3 = new Callback(function () {
+        ci.remove('eve', cb2, target);
+    }).enable();
+    var target = {};
+    ci.add('eve', cb1);
+    ci.add('eve', cb1, target);
+    ci.add('eve', cb2, target);
+    ci.add('eve', cb3);
+    ci.add('eve', cb3, target);
+    ci.invoke('eve');
+
+    cb1.expect(2, 'first callback should be invoked twice');
+    cb2.expect(1, 'second callback should be invoked once');
+    cb3.expect(2, 'third callback should be invoked twice');
+    strictEqual(ci.has('eve', cb1, target), true, 'first callback with target should not be removed');
+    strictEqual(ci.has('eve', cb1), false, 'first callback should be removed');
+    strictEqual(ci.has('eve', cb2, target), false, 'second callback with target should be removed');
+    strictEqual(ci.has('eve', cb3), false, 'third callback should be removed');
+    strictEqual(ci.has('eve', cb3, target), false, 'third callback with target should be removed');
+});
+
+test('remove all callbacks during invoking', function () {
+    var ci = new cc._Test.CallbacksInvoker();
+    var cb1 = new Callback().enable();
+    var cb2 = new Callback(function () {
+        ci.removeAll('eve');
+    }).enable();
+    var cb3 = new Callback(function () {
+        ci.remove('eve', cb2, target);
+    }).enable();
+    var target = {};
+    ci.add('eve', cb1);
+    ci.add('eve', cb1, target);
+    ci.add('eve', cb2, target);
+    ci.add('eve', cb3);
+    ci.add('eve', cb3, target);
+    ci.invoke('eve');
+
+    cb1.expect(2, 'first callback should be invoked twice');
+    cb2.expect(1, 'second callback should be invoked once');
+    cb3.expect(2, 'third callback should be invoked twice');
+    strictEqual(ci.has('eve'), false, 'All callbacks should be removed');
 });
 
 test('CallbacksInvoker support target', function () {

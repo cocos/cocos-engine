@@ -758,15 +758,14 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @param {cc.Rect} rect a rect of texture
      * @param {Boolean} [rotated] Whether or not the texture is rotated
      * @param {cc.Size} [untrimmedSize] The original pixels size of the texture
-     * @param {Boolean} [needConvert] contentScaleFactor switch
      */
-    setTextureRect: function (rect, rotated, untrimmedSize, needConvert) {
+    setTextureRect: function (rect, rotated, untrimmedSize) {
         var _t = this;
         _t._rectRotated = rotated || false;
         _t.setContentSize(untrimmedSize || rect);
 
         _t.setVertexRect(rect);
-        _t._renderCmd._setTextureCoords(rect, needConvert);
+        _t._renderCmd._setTextureCoords(rect);
 
         var relativeOffsetX = _t._unflippedOffsetPositionFromCenter.x, relativeOffsetY = _t._unflippedOffsetPositionFromCenter.y;
         if (_t._flippedX)
@@ -897,10 +896,10 @@ _ccsg.Sprite = _ccsg.Node.extend({
      */
     getSpriteFrame: function () {
         return new cc.SpriteFrame(this._texture,
-            cc.rectPointsToPixels(this._rect),
+            this._rect,
             this._rectRotated,
-            cc.pointPointsToPixels(this._unflippedOffsetPositionFromCenter),
-            cc.sizePointsToPixels(this._contentSize));
+            this._unflippedOffsetPositionFromCenter,
+            this._contentSize);
     },
 
     /**

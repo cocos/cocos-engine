@@ -146,6 +146,15 @@ JS.mixin(EventMouse.prototype, {
     },
 
     /**
+     * Returns the previous touch location.
+     * @method getPreviousLocation
+     * @return {Vec2}
+     */
+    getPreviousLocation:function () {
+        return {x: this._prevX, y: this._prevY};
+    },
+
+    /**
      * Returns the delta distance from the previous location to current location.
      * @method getDelta
      * @return {Vec2}
@@ -305,7 +314,7 @@ EventMouse.BUTTON_8 = 7;
  * @param {Array} [touchArr=[]] - The array of the touches
  * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
  */
-EventTouch = function (touchArr, bubbles) {
+var EventTouch = function (touchArr, bubbles) {
     cc.Event.call(this, cc.Event.TOUCH, bubbles);
     this._eventCode = 0;
     this._touches = touchArr || [];
@@ -338,6 +347,106 @@ JS.mixin(EventTouch.prototype, {
 
     _setTouches: function (touches) {
         this._touches = touches;
+    },
+
+    /**
+     * Sets touch location.
+     * @method setLocation
+     * @param {Number} x
+     * @param {Number} y
+     */
+    setLocation: function (x, y) {
+        this.touch && this.touch.setTouchInfo(this.touch.getID(), x, y);
+    },
+
+    /**
+     * Returns touch location.
+     * @method getLocation
+     * @return {Vec2} location
+     */
+    getLocation: function () {
+        return this.touch ? this.touch.getLocation() : cc.v2();
+    },
+
+    /**
+     * Returns the current touch location in screen coordinates.
+     * @method getLocationInView
+     * @return {Vec2}
+     */
+    getLocationInView: function() {
+        return this.touch ? this.touch.getLocationInView() : cc.v2();
+    },
+
+    /**
+     * Returns the previous touch location.
+     * @method getPreviousLocation
+     * @return {Vec2}
+     */
+    getPreviousLocation:function () {
+        return this.touch ? this.touch.getPreviousLocation() : cc.v2();
+    },
+
+    /**
+     * Returns the start touch location.
+     * @method getStartLocation
+     * @returns {Vec2}
+     */
+    getStartLocation: function() {
+        return this.touch ? this.touch.getStartLocation() : cc.v2();
+    },
+
+    /**
+     * Returns the id of cc.Touch.
+     * @method getID
+     * @return {Number}
+     */
+    getID:function () {
+        return this.touch ? this.getID() : null;
+    },
+
+    /**
+     * Returns the delta distance from the previous location to current location.
+     * @method getDelta
+     * @return {Vec2}
+     */
+    getDelta: function () {
+        return this.touch ? this.touch.getDelta() : cc.v2();
+    },
+
+    /**
+     * Returns the X axis delta distance from the previous location to current location.
+     * @method getDeltaX
+     * @return {Number}
+     */
+    getDeltaX: function () {
+        return this.touch ? this.touch.getDelta().x : 0;
+    },
+
+    /**
+     * Returns the Y axis delta distance from the previous location to current location.
+     * @method getDeltaY
+     * @return {Number}
+     */
+    getDeltaY: function () {
+        return this.touch ? this.touch.getDelta().y : 0;
+    },
+
+    /**
+     * Returns location X axis data.
+     * @method getLocationX
+     * @returns {Number}
+     */
+    getLocationX: function () {
+        return this.touch ? this.touch.getLocationX() : 0;
+    },
+
+    /**
+     * Returns location Y axis data.
+     * @method getLocationY
+     * @returns {Number}
+     */
+    getLocationY: function () {
+        return this.touch ? this.touch.getLocationY() : 0;
     }
 });
 

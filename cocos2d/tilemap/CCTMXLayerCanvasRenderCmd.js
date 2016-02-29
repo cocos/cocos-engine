@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 (function(){
-    cc.TMXLayer.CanvasRenderCmd = function(renderable){
+    _ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
         cc.SpriteBatchNode.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._realWorldTransform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
@@ -42,8 +42,8 @@
         this._cacheDirty = false;
     };
 
-    var proto = cc.TMXLayer.CanvasRenderCmd.prototype = Object.create(cc.SpriteBatchNode.CanvasRenderCmd.prototype);
-    proto.constructor = cc.TMXLayer.CanvasRenderCmd;
+    var proto = _ccsg.TMXLayer.CanvasRenderCmd.prototype = Object.create(cc.SpriteBatchNode.CanvasRenderCmd.prototype);
+    proto.constructor = _ccsg.TMXLayer.CanvasRenderCmd;
 
     //set the cache dirty flag for canvas
     proto._setNodeDirtyForCache = function () {
@@ -106,14 +106,13 @@
     proto._updateCacheContext = function(size, height){
         var node = this._node,
             locContentSize = node._contentSize,
-            locCanvas = this._cacheCanvas,
-            scaleFactor = cc.contentScaleFactor();
-        locCanvas.width = 0 | (locContentSize.width * 1.5 * scaleFactor);
-        locCanvas.height = 0 | (locContentSize.height * 1.5 * scaleFactor);
+            locCanvas = this._cacheCanvas;
+        locCanvas.width = 0 | (locContentSize.width * 1.5);
+        locCanvas.height = 0 | (locContentSize.height * 1.5);
 
         //todo: need change the wrapper's height
         if(node.layerOrientation === cc.TMX_ORIENTATION_HEX)
-            this._cacheContext.setOffset(0, -node._mapTileSize.height * 0.5);                  //translate for hexagonal
+            this._cacheContext.setOffset(0, -node._mapTileSize.height * 0.5); //translate for hexagonal
         else
             this._cacheContext.setOffset(0, 0);
         var locTexContentSize = this._cacheTexture._contentSize;

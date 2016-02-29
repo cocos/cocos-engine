@@ -324,6 +324,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
      * @param {Boolean} x
      */
     setVisible:function (x) {
+        _ccsg.Node.prototype.setVisible.call(this, x);
         this._visible = x;
         this.setNodeDirty();
         if (this.dom)
@@ -602,7 +603,7 @@ cc.DOM.forSprite = function (x) {
 cc.DOM.placeHolder = function (x) {
     //creating a placeholder dom to simulate other ccNode in the hierachy
     x.dom = cc.$new('div');
-    x.placeholder = true;
+    // x.placeholder = true;
     x.dom.style.position = 'absolute';
     x.dom.style.bottom = 0;
     //x.dom.style.display='block';

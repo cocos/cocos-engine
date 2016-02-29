@@ -61,11 +61,11 @@ var SizeMode = cc.Enum({
 /**
  * Renders a sprite in the scene.
  * @class Sprite
- * @extends _ComponentInSG
+ * @extends _RendererUnderSG
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
-    extends: require('./CCComponentInSG'),
+    extends: require('./CCRendererUnderSG'),
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
@@ -96,7 +96,7 @@ var Sprite = cc.Class({
          * @type {SpriteAtlas}
          */
         _atlas: {
-            default: '',
+            default: null,
             type: cc.SpriteAtlas,
             tooltip: 'i18n:COMPONENT.sprite.atlas',
             editorOnly: true,
@@ -174,7 +174,7 @@ var Sprite = cc.Class({
                 return this._fillStart;
             },
             set: function(value) {
-                this._fillStart = value;
+                this._fillStart = cc.clampf(value, -1, 1);
                 this._sgNode && this._sgNode.setFillStart(value);
             },
         },
@@ -184,7 +184,7 @@ var Sprite = cc.Class({
                 return this._fillRange;
             },
             set: function(value) {
-                this._fillRange = value;
+                this._fillRange = cc.clampf(value, -1, 1);
                 this._sgNode && this._sgNode.setFillRange(value);
             },
         },
@@ -264,18 +264,13 @@ var Sprite = cc.Class({
             },
             animatable: false,
             type: SizeMode
-        },
-        /**
-         * Only for editor to calculate bounding box.
-         */
-        localSize: {
-            get: function () {
-                var sgNode = this._sgNode;
-                return cc.size(sgNode.width, sgNode.height);
-            },
-            visible: false,
-            override: true
         }
+    },
+
+    statics: {
+        FillType: FillType,
+        Type: SpriteType,
+        SizeMode: SizeMode,
     },
 
     /**
@@ -445,6 +440,14 @@ var Sprite = cc.Class({
         this.node.on('size-changed', this._resized, this);
     },
 
+    onEnable: function () {
+        if (this._sgNode) {
+            if (this._spriteFrame && this._spriteFrame.textureLoaded()) {
+                this._sgNode.setVisible(true);
+            }
+        }
+    },
+
     onDestroy: function () {
         this._super();
         this.node.off('size-changed', this._resized, this);
@@ -505,7 +508,7 @@ var Sprite = cc.Class({
         sgNode.setSpriteFrame(self._spriteFrame);
         self._applyCapInset();
         self._applySpriteSize();
-        if (this.enabledInHierarchy && !sgNode.isVisible()) {
+        if (self.enabledInHierarchy && !sgNode.isVisible()) {
             sgNode.setVisible(true);
         }
     },
@@ -540,13 +543,8 @@ var Sprite = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-
-        if (!this.enabledInHierarchy) {
-            sgNode.setVisible(false);
-        }
-
+        
         this._validateSizeMode();
-
         this._applySpriteFrame(null);
 
         // should keep the size of the sg node the same as entity,

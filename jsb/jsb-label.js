@@ -46,7 +46,20 @@ if (!jsbLabel.prototype.getOverflow) {
     jsbLabel.prototype.getOverflow = function(){};
 }
 
+if (!jsbLabel.prototype.isSystemFontUsed) {
+    jsbLabel.prototype.isSystemFontUsed = function() {
+        return this._isSystemFontUsed;
+    }
+
+    jsbLabel.prototype.setSystemFontUsed = function(value) {
+        this._isSystemFontUsed = value;
+        this.setSystemFontName("Arial");
+        this.setSystemFontSize(this.getFontSize());
+    }
+}
+
 jsbLabel.prototype.setFontSize = function (size) {
+    this._fontSize = size;
     if (this._labelType === _ccsg.Label.Type.SystemFont) {
         this.setSystemFontSize(size);
     }
@@ -59,6 +72,10 @@ jsbLabel.prototype.setFontSize = function (size) {
         this.setTTFConfig(ttfConfig);
     }
 };
+
+jsbLabel.prototype.getFontSize = function () {
+    return this._fontSize;
+}
 
 jsbLabel.prototype.enableWrapText = jsbLabel.prototype.enableWrap || function(){};
 jsbLabel.prototype.isWrapTextEnabled = jsbLabel.prototype.isWrapEnabled || function(){};
@@ -93,20 +110,17 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
     var extName = cc.path.extname(fontHandle);
 
     //specify font family name directly
-    if (extName === null) {
+    if (!extName) {
         this._labelType = _ccsg.Label.Type.SystemFont;
         this.setSystemFontName(fontHandle);
+        this._isSystemFontUsed = true;
     }
     else {
-        //add resource path
-        fontHandle = cc.path.join(cc.loader.resPath, fontHandle);
-
         if (extName === '.ttf') {
             this._labelType = _ccsg.Label.Type.TTF;
             this._ttfConfig.fontFilePath = fontHandle;
             this.setTTFConfig(this._ttfConfig);
         } else if (extName === '.fnt') {
-            //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
             this.setBMFontFilePath(fontHandle, cc.v2(0, 0), this.getBMFontSize());
         }
@@ -139,6 +153,7 @@ cc.Label = function (string, fontHandle) {
     else {
         label = jsbLabel.createWithSystemFont(string || '', fontHandle, 40);
         type = _ccsg.Label.Type.SystemFont;
+        label._isSystemFontUsed = true;
     }
     label._labelType = type;
     return label;
@@ -148,8 +163,7 @@ cc.Label.Type = cc.Enum({
     BMFont: 1
 });
 cc.Label.Overflow = cc.Enum({
-    //TODO: uncomment if normal is supported in web
-    // NONE: 0,
+    NONE: 0,
     CLAMP: 1,
     SHRINK: 2,
     RESIZE_HEIGHT: 3

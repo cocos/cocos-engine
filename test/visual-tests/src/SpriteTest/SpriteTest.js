@@ -4914,113 +4914,6 @@ var SpriteSkewNegativeScaleChildren = SpriteTestDemo.extend({
     }
 });
 
-var DoubleSprite = _ccsg.Sprite.extend({
-    HD:false,
-
-    ctor:function (fileName) {
-	    this._super(fileName);
-        //var resolutionType = texture.getResolutionType();
-        //this.HD = ( resolutionType == cc.kCCResolutioniPhoneRetinaDisplay || resolutionType == kCCResolutioniPadRetinaDisplay );
-    },
-
-    setContentSize:function (size) {
-        var newSize = cc.size(size.width, size.height);
-        // If Retina Display and Texture is in HD then scale the vertex rect
-        if (cc.contentScaleFactor() == 2 && !this.HD) {
-            newSize.width *= 2;
-            newSize.height *= 2;
-        }
-        this._super(newSize);
-    },
-	_setWidth:function (value) {
-		// If Retina Display and Texture is in HD then scale the vertex rect
-		if (cc.contentScaleFactor() == 2 && !this.HD) {
-			value *= 2;
-		}
-		this._super(value);
-	},
-	_setHeight:function (value) {
-		// If Retina Display and Texture is in HD then scale the vertex rect
-		if (cc.contentScaleFactor() == 2 && !this.HD) {
-			value *= 2;
-		}
-		this._super(value);
-	},
-
-    setVertexRect:function (rect) {
-        // If Retina Display and Texture is in HD then scale the vertex rect
-        if (cc.contentScaleFactor() == 2 && !this.HD) {
-            rect.width *= 2;
-            rect.height *= 2;
-        }
-        this._super(rect);
-    }
-});
-
-cc.defineGetterSetter(DoubleSprite.prototype, "width", DoubleSprite.prototype._getWidth, DoubleSprite.prototype._setWidth);
-cc.defineGetterSetter(DoubleSprite.prototype, "height", DoubleSprite.prototype._getHeight, DoubleSprite.prototype._setHeight);
-
-var SpriteDoubleResolution = SpriteTestDemo.extend({
-
-    _title:"Sprite Double resolution",
-    _subtitle:"Retina Display. SD (left) should be equal to HD (right)",
-
-    ctor:function () {
-        //----start52----ctor
-        this._super();
-
-        //
-        // LEFT: SD sprite
-        //
-        // there is no HD resolution file of grossini_dance_08.
-        var spriteSD = new DoubleSprite(s_grossiniDance08);
-        this.addChild(spriteSD);
-        spriteSD.x = winSize.width / 4;
-        spriteSD.y = winSize.height / 2;
-
-        var child1_left = new DoubleSprite(s_grossiniDance08);
-        spriteSD.addChild(child1_left);
-        child1_left.x = -30;
-        child1_left.y = 0;
-
-        var child1_right = new _ccsg.Sprite(s_pathGrossini);
-        spriteSD.addChild(child1_right);
-        child1_left.x = spriteSD.height;
-        child1_left.y = 0;
-
-        //
-        // RIGHT: HD sprite
-        //
-        // there is an HD version of grossini.png
-        var spriteHD = new _ccsg.Sprite(s_pathGrossini);
-        this.addChild(spriteHD);
-        spriteHD.x = winSize.width / 4 * 3;
-        spriteHD.y = winSize.height / 2;
-
-        var child2_left = new DoubleSprite(s_grossiniDance08);
-        spriteHD.addChild(child2_left);
-        child2_left.x = -30;
-        child2_left.y = 0;
-
-        var child2_right = new _ccsg.Sprite(s_pathGrossini);
-        spriteHD.addChild(child2_right);
-        child2_left.x = spriteHD.height;
-        child2_left.y = 0;
-
-
-        // Actions
-        var scale = cc.scaleBy(2, 0.5);
-        var scale_back = scale.reverse();
-        var seq = cc.sequence(scale, scale_back);
-
-        var seq_copy = seq.clone();
-
-        spriteSD.runAction(seq);
-        spriteHD.runAction(seq_copy);
-        //----end52----
-    }
-});
-
 var SpriteFrameAnimationCacheFile = SpriteTestDemo.extend({
 
     _title:"SpriteFrameAnimationCache - Load file",
@@ -5339,7 +5232,7 @@ var SpriteBlendFuncTest = SpriteTestDemo.extend({
         var destTitles = ["ZERO", "ONE", "DST_COLOR", "ONE_MINUS_DST_COLOR", "DST_ALPHA", "ONE_MINUS_DST_ALPHA"],
             srcTitles = ["ZERO", "ONE", "SRC_COLOR", "ONE_MINUS_SRC_COLOR", "SRC_ALPHA", "ONE_MINUS_SRC_ALPHA"];
 
-        var sourceImg = "Images/dot.png", destImg = "Images/wood.jpg";
+        var sourceImg = "res/Images/dot.png", destImg = "res/Images/wood.jpg";
         var sourceTexture = cc.textureCache.addImage(sourceImg);
         sourceTexture.handleLoadedTexture(true);
         var sourceSprite = new _ccsg.Sprite(sourceImg);

@@ -617,43 +617,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
     },
 
-    // load raw assets
-    _loadRawAssets: function (assetObjects, done) {
-        var urls = assetObjects.map(function (asset) {
-            return asset.url;
-        });
-
-        //var info = 'preload ' + urls;
-        //console.time(info);
-
-        // currently cocos jsb 3.3 not support preload too much assets
-        // so we divide assets to 30 a group
-        var index = 0;
-        var count = 30;
-        var total = urls.length;
-
-        function preload () {
-            if (index + count > total) {
-                // the last time
-                count = total - index;
-            }
-
-            var assets = urls.slice(index, count);
-
-            index += count;
-
-            if (index < total) {
-                cc.loader.load(assets, preload);
-            }
-            else {
-                //console.timeEnd(info);
-                done();
-            }
-        }
-
-        preload();
-    },
-
     /**
      * Loads the scene by its uuid.
      * @method _loadSceneByUuid
@@ -664,7 +627,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     _loadSceneByUuid: function (uuid, onLaunched, onUnloaded) {
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
-        var handle = cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
+        cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
             var self = cc.director;
             var scene;
             if (error) {
@@ -684,10 +647,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = sceneAsset;
                 }
                 if (scene instanceof cc.Scene) {
-                    self._loadRawAssets(handle.assetsNeedPostLoad,
-                                        function () {
-                                            self.runScene(scene, onUnloaded);
-                                        });
+                    self.runScene(scene, onUnloaded);
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
@@ -699,7 +659,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             if (onLaunched) {
                 onLaunched(error, scene);
             }
-        }, { recordAssets: true });
+        });
     },
 
     /**
@@ -889,8 +849,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns current running Scene. Director can only run one Scene at the time.
+     * Returns current render Scene, normally you will never need to use this API.
+     * In most case, you probably want to use `getScene` instead.
      * @method getRunningScene
+     * @private
      * @return {Scene}
      */
     getRunningScene: function () {
@@ -898,7 +860,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns current running Scene. Director can only run one Scene at the time.
+     * Returns current logic Scene.
+     * @example
+     *  // This will help you to get the Canvas node in scene
+     *  cc.director.getScene().getChildByName('Canvas');
      * @method getScene
      * @return {Scene}
      */
@@ -1101,7 +1066,7 @@ cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 
 /**
  * @event EVENT_AFTER_SCENE_LAUNCH
- * @param {cc.Scene} newScene
+ * @param {Scene} newScene
  */
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 

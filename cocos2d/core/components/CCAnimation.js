@@ -81,6 +81,10 @@ var Animation = cc.Class({
 
                 this._defaultClip = value;
 
+                if (!value) {
+                    return;
+                }
+
                 var clips = this._clips;
 
                 for (var i = 0, l = clips.length; i < l; i++) {
@@ -302,6 +306,10 @@ var Animation = cc.Class({
             state = this._nameToState[name];
         }
 
+        if (state && !state.curveLoaded) {
+            this._animator._reloadClip(state);
+        }
+
         return state || null;
     },
 
@@ -415,7 +423,7 @@ var Animation = cc.Class({
                 state = new cc.AnimationState(clip);
 
                 if (CC_EDITOR) {
-                    this._animator.reloadClip(state);
+                    this._animator._reloadClip(state);
                 }
 
                 this._nameToState[state.name] = state;
@@ -428,7 +436,7 @@ var Animation = cc.Class({
             state = new cc.AnimationState(this._defaultClip);
 
             if (CC_EDITOR) {
-                this._animator.reloadClip(state);
+                this._animator._reloadClip(state);
             }
 
             this._nameToState[state.name] = state;
@@ -468,7 +476,7 @@ var Animation = cc.Class({
         }
 
         oldState._clip = clip;
-        this._animator.reloadClip(oldState);
+        this._animator._reloadClip(oldState);
     }
 });
 

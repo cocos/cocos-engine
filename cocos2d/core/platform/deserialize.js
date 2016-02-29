@@ -404,9 +404,15 @@ var _Deserializer = (function () {
 
             // Type Object (including CCClass)
 
-            klass = self._classFinder(serialized.__type__);
+            var type = serialized.__type__;
+            klass = self._classFinder(type);
             if (!klass) {
-                cc.error('[cc.deserialize] unknown type: ' + serialized.__type__);
+                if (CC_EDITOR && Editor.UuidUtils.isUuid(type)) {
+                    type = Editor.UuidUtils.decompressUuid(type);
+                    cc.warn('Can not find script "%s"', type);
+                    return null;
+                }
+                cc.warn('Can not find class "%s"', type);
                 return null;
             }
 

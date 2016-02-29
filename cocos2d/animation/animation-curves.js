@@ -205,6 +205,7 @@ DynamicAnimCurve.Bezier = function (controlPoints) {
  * 所以 SampledAnimCurve 中查找 frame index 的速度会非常快
  *
  * @class SampledAnimCurve
+ * @private
  * @constructor
  * @extends DynamicAnimCurve
  */

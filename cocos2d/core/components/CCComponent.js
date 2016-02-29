@@ -155,7 +155,7 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
 // Yes, the id might have a conflict problem once every 365 days
 // if the game runs at 60 FPS and each frame 4760273 counts of new HashObject's id are requested.
 var CompId = 0;
-var IdPrefix = CC_DEV && ('Comp' + Editor.NonUuidMark);
+var IdPrefix = CC_DEV && ('Comp' + Editor.UuidUtils.NonUuidMark);
 var getNewId = CC_DEV && function () {
     return IdPrefix + (++CompId);
 };
@@ -175,8 +175,8 @@ var Component = cc.Class({
     extends: cc.Object,
 
     ctor: function () {
-        if (CC_EDITOR) {
-            Editor._AssetsWatcher.initComponent(this);
+        if (CC_EDITOR && !CC_TEST && window._Scene) {
+            _Scene.AssetsWatcher.initComponent(this);
         }
 
         // dont reset _id when destroyed
@@ -247,8 +247,8 @@ var Component = cc.Class({
             get: function () {},
             set: function (value) {
                 if (this.__scriptUuid !== value) {
-                    if (value && Editor.isUuid(value._uuid)) {
-                        var classId = Editor.compressUuid(value._uuid);
+                    if (value && Editor.UuidUtils.isUuid(value._uuid)) {
+                        var classId = Editor.UuidUtils.compressUuid(value._uuid);
                         var NewComp = cc.js._getClassById(classId);
                         if (cc.isChildClassOf(NewComp, cc.Component)) {
                             cc.warn('Sorry, replacing component script is not yet implemented.');
@@ -330,16 +330,6 @@ var Component = cc.Class({
         __eventTargets: {
             default: [],
             serializable: false
-        },
-
-        /**
-         * Only for editor to calculate bounding box
-         */
-        localSize: {
-            get: function () {
-                return cc.size(0, 0);
-            },
-            visible: false
         }
     },
 
@@ -405,7 +395,7 @@ var Component = cc.Class({
      */
     onLostFocusInEditor: null,
 
-    //
+    // PUBLIC
 
     /**
      * Adds a component class to the entity. You can also add component to entity by passing in the name of the
@@ -500,7 +490,44 @@ var Component = cc.Class({
     //    return Timer.hasTimeoutKey(key);
     //},
 
-    // OVERRIDES
+    // VIRTUAL
+
+    /**
+     * If the component's bounding box is different from the node's, you can implement this method to supply
+     * a custom axis aligned bounding box (AABB), so the editor's scene view can perform hit test properly.
+     *
+     * @method _getLocalBounds
+     * @param {Rect} out_rect - the Rect to receive the bounding box
+     */
+    _getLocalBounds: null,
+
+    /**
+     * onRestore is called after the user clicks the Reset item in the Inspector's context menu or performs
+     * an undo operation on this component.
+     *
+     * If the component contains the "internal state", short for "temporary member variables which not included
+     * in its CCClass properties", then you may need to implement this function.
+     *
+     * The editor will call the getset accessors of your component to record/restore the component's state
+     * for undo/redo operation. However, in extreme cases, it may not works well. Then you should implement
+     * this function to manually synchronize your component's "internal states" with its public properties.
+     * Once you implement this function, all the getset accessors of your component will not be called when
+     * the user performs an undo/redo operation. Which means that only the properties with default value
+     * will be recorded or restored by editor.
+     *
+     * Similarly, the editor may failed to reset your component correctly in extreme cases. Then if you need
+     * to support the reset menu, you should manually synchronize your component's "internal states" with its
+     * properties in this function. Once you implement this function, all the getset accessors of your component
+     * will not be called during reset operation. Which means that only the properties with default value
+     * will be reset by editor.
+     *
+     * This function is only called in editor mode.
+     *
+     * @method onRestore
+     */
+    onRestore: null,
+
+    // OVERRIDE
 
     destroy: function () {
         if (CC_EDITOR) {
@@ -537,7 +564,9 @@ var Component = cc.Class({
                     callOnLostFocusInTryCatch(this);
                 }
             }
-            Editor._AssetsWatcher.start(this);
+            if ( !CC_TEST ) {
+                _Scene.AssetsWatcher.start(this);
+            }
         }
 
         if (this._enabled) {
@@ -577,7 +606,9 @@ var Component = cc.Class({
 
         // onDestroy
         if (CC_EDITOR) {
-            Editor._AssetsWatcher.stop(this);
+            if ( !CC_TEST ) {
+                _Scene.AssetsWatcher.stop(this);
+            }
             if (cc.engine._isPlaying || this.constructor._executeInEditMode) {
                 if (this.onDestroy) {
                     callOnDestroyInTryCatch(this);

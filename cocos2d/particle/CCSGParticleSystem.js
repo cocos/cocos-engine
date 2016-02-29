@@ -1953,7 +1953,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         if (!spriteFrame)
             return;
 
-        var locOffset = spriteFrame.getOffsetInPixels();
+        var locOffset = spriteFrame.getOffset();
         if (locOffset.x !== 0 || locOffset.y !== 0)
             cc.log("_ccsg.ParticleSystem.setDisplayFrame(): QuadParticle only supports SpriteFrames with no offsets");
 

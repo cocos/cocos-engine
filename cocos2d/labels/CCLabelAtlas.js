@@ -124,9 +124,8 @@ cc.LabelAtlas = cc.AtlasNode.extend(/** @lends cc.LabelAtlas# */{
             }
 
             textureFilename = cc.path.changeBasename(charMapFile, dict["textureFilename"]);
-            var locScaleFactor = cc.contentScaleFactor();
-            width = parseInt(dict["itemWidth"], 10) / locScaleFactor;
-            height = parseInt(dict["itemHeight"], 10) / locScaleFactor;
+            width = parseInt(dict["itemWidth"], 10);
+            height = parseInt(dict["itemHeight"], 10);
             startChar = String.fromCharCode(parseInt(dict["firstChar"], 10));
         } else {
             textureFilename = charMapFile;

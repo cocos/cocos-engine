@@ -59,8 +59,8 @@
     var prefabJson;
 
     (function savePrefab () {
-        prefab = Editor.PrefabUtils.createPrefabFrom(parent);
-        Editor.PrefabUtils.savePrefabUuid(parent, UUID);
+        prefab = _Scene.PrefabUtils.createPrefabFrom(parent);
+        _Scene.PrefabUtils.savePrefabUuid(parent, UUID);
 
         // 已经加载好的 prefab，去除类型，去除 runtime node
         prefabJson = Editor.serialize(prefab);
@@ -139,15 +139,20 @@
 
     asyncTest('revert prefab', function () {
         // stub
-        var restore = cc.loader.loadTxt;
-        cc.loader.loadTxt = function (url, callback) {
-            if (url.endsWith(UUID + '.json')) {
-                callback(null, JSON.stringify(prefabJson));
+        cc.loader.insertPipe({
+            id : 'Prefab_Provider',
+            async : false,
+            handle : function (item) {
+                var url = item.src;
+                if (url === UUID) {
+                    item.states['Downloader'] = cc.Pipeline.ItemState.COMPLETE;
+                    return JSON.stringify(prefabJson);
+                }
+                else {
+                    return;
+                }
             }
-            else {
-                restore(url, callback);
-            }
-        };
+        }, 0);
 
         var testNode = cc.instantiate(prefab);
         var testChild = testNode.children[0];
@@ -165,8 +170,7 @@
         newNode2.parent = testNode;
         newNode2.setSiblingIndex(0);
 
-        Editor.PrefabUtils.revertPrefab(testNode, function () {
-            cc.loader.loadTxt = restore;
+        _Scene.PrefabUtils.revertPrefab(testNode, function () {
             ok(testNode.getScaleX() === 123 && testNode.getScaleY() === 432, 'Revert property of the parent node');
             ok(testNode.getComponent(TestScript).constructor === TestScript, 'Restore removed component');
             var c = testNode.children[0];

@@ -290,22 +290,6 @@ var Button = cc.Class({
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     },
 
-    _handleClickEvent: function () {
-        var events = this.clickEvents;
-        for (var i = 0, l = events.length; i < l; i++) {
-            var event = events[i];
-            var target = event.target;
-            if (!target) continue;
-
-            var comp = target.getComponent(event.component);
-            if (!comp) continue;
-
-            var handler = comp[event.handler];
-            if (!handler) continue;
-            handler.call(comp)
-        }
-    },
-
     _cancelButtonClick: function(){
         this._pressed = false;
     },
@@ -341,7 +325,7 @@ var Button = cc.Class({
 
     _onTouchEnded: function () {
         if (this._pressed) {
-            this._handleClickEvent();
+            cc.Component.EventHandler.emitEvents(this.clickEvents);
         }
         this._pressed = false;
         this._updateState();

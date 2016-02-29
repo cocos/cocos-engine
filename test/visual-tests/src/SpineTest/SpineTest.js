@@ -74,7 +74,7 @@ var SpineTestLayer = BaseTestLayer.extend({
     }
 });
 
-var customSkeletonAnimation = sp.SkeletonAnimation.extend({
+var customSkeletonAnimation = sp._SGSkeletonAnimation.extend({
     ctor:function () {
         this._super.apply(this, arguments);
     }
@@ -97,10 +97,10 @@ var SpineTestLayerNormal = SpineTestLayer.extend({
         // No JS binding for spine-c in this version. So, only file loading is supported.
         var spineBoy;
         if (idx % 2 == 0) {
-            spineBoy = new customSkeletonAnimation('spine/spineboy.json', 'spine/spineboy.atlas');
+            spineBoy = new customSkeletonAnimation('res/spine/spineboy.json', 'res/spine/spineboy.atlas');
         } 
         else {
-            spineBoy = new sp.SkeletonAnimation('spine/spineboy.json', 'spine/spineboy.atlas');
+            spineBoy = new sp._SGSkeletonAnimation('res/spine/spineboy.json', 'res/spine/spineboy.atlas');
         }
         spineBoy.setPosition(cc.p(size.width / 2, size.height / 2 - 150));
         spineBoy.setMix('walk', 'jump', 0.2);
@@ -186,16 +186,16 @@ var SpineTestLayerNormal = SpineTestLayer.extend({
         var entry = this._spineboy.getCurrent();
         var animationName = (entry && entry.animation) ? entry.animation.name : 0;
         switch(type) {
-            case sp.ANIMATION_EVENT_TYPE.START:
+            case sp.AnimationEventType.START:
                 cc.log(trackIndex + " start: " + animationName);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.END:
+            case sp.AnimationEventType.END:
                 cc.log(trackIndex + " end:" + animationName);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.EVENT:
+            case sp.AnimationEventType.EVENT:
                 cc.log(trackIndex + " event: " + animationName);
                 break;
-            case sp.ANIMATION_EVENT_TYPE.COMPLETE:
+            case sp.AnimationEventType.COMPLETE:
                 cc.log(trackIndex + " complete: " + animationName + "," + loopCount);
                 if(this._flipped){
                     this._flipped = false;
@@ -223,7 +223,7 @@ var SpineTestLayerFFD = SpineTestLayer.extend({
     ctor: function(){
         this._super(cc.color(0,0,0,255), cc.color(98,99,117,255));
 
-        var skeletonNode = new sp.SkeletonAnimation("spine/goblins-ffd.json", "spine/goblins-ffd.atlas", 1.5);
+        var skeletonNode = new sp._SGSkeletonAnimation("res/spine/goblins-ffd.json", "res/spine/goblins-ffd.atlas", 1.5);
         skeletonNode.setAnimation(0, "walk", true);
         skeletonNode.setSkin("goblin");
 
@@ -267,7 +267,7 @@ var SpineTestPerformanceLayer = SpineTestLayer.extend({
             event: cc.EventListener.TOUCH_ONE_BY_ONE,
             onTouchBegan: function(touch, event){
                 var pos = self.convertToNodeSpace(touch.getLocation());
-                var skeletonNode = new sp.SkeletonAnimation("spine/goblins-ffd.json", "spine/goblins-ffd.atlas", 1.5);
+                var skeletonNode = new sp._SGSkeletonAnimation("res/spine/goblins-ffd.json", "res/spine/goblins-ffd.atlas", 1.5);
                 skeletonNode.setAnimation(0, "walk", true);
                 skeletonNode.setSkin("goblin");
 

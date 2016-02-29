@@ -107,7 +107,7 @@ var TestScript = cc.Class({
     }
 });
 
-// polyfills to test engine extends
+// mocks to test engine extends
 
 cc.engine = new (cc.Class({
     extends: cc.EventTarget,
@@ -121,10 +121,25 @@ cc.engine = new (cc.Class({
     }
 }))();
 
+(function () {
+    function beFalse () {
+        return false;
+    }
+
+    window._Scene = window._Scene || {};
+    _Scene.DetectConflict = {
+        beforeAddChild: beFalse,
+        afterAddChild: beFalse,
+        checkConflict_Layout: beFalse,
+        checkConflict_Widget: beFalse,
+    };
+})();
+
 Editor.log = cc.log;
 Editor.warn = cc.warn;
 Editor.error = cc.error;
 Editor.info = cc.info;
+Editor.UuidCache = {};
 
 var assetDir = '../test/qunit/assets';
 

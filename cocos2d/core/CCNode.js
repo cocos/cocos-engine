@@ -34,7 +34,7 @@ var DontDestroy = Flags.DontDestroy;
 
 /**
  * The event type supported by Node
- * @class Node.EventType
+ * @enum Node.EventType
  * @static
  * @namespace Node
  */
@@ -43,7 +43,7 @@ var EventType = cc.Enum({
      * The event type for touch start event, you can use its value directly: 'touchstart'
      * @property TOUCH_START
      * @type {String}
-     * @readonly
+     * @static
      */
     TOUCH_START: 'touchstart',
     /**
@@ -51,21 +51,21 @@ var EventType = cc.Enum({
      * @property TOUCH_MOVE
      * @type {String}
      * @value 1
-     * @readonly
+     * @static
      */
     TOUCH_MOVE: 'touchmove',
     /**
      * The event type for touch end event, you can use its value directly: 'touchend'
      * @property TOUCH_END
      * @type {String}
-     * @readonly
+     * @static
      */
     TOUCH_END: 'touchend',
     /**
      * The event type for touch end event, you can use its value directly: 'touchcancel'
      * @property TOUCH_CANCEL
      * @type {String}
-     * @readonly
+     * @static
      */
     TOUCH_CANCEL: 'touchcancel',
 
@@ -73,42 +73,42 @@ var EventType = cc.Enum({
      * The event type for mouse down events, you can use its value directly: 'mousedown'
      * @property MOUSE_DOWN
      * @type {String}
-     * @readonly
+     * @static
      */
     MOUSE_DOWN: 'mousedown',
     /**
      * The event type for mouse move events, you can use its value directly: 'mousemove'
      * @property MOUSE_MOVE
      * @type {String}
-     * @readonly
+     * @static
      */
     MOUSE_MOVE: 'mousemove',
     /**
      * The event type for mouse enter target events, you can use its value directly: 'mouseenter'
      * @property MOUSE_ENTER
      * @type {String}
-     * @readonly
+     * @static
      */
     MOUSE_ENTER: 'mouseenter',
     /**
      * The event type for mouse leave target events, you can use its value directly: 'mouseleave'
      * @property MOUSE_LEAVE
      * @type {String}
-     * @readonly
+     * @static
      */
     MOUSE_LEAVE: 'mouseleave',
     /**
      * The event type for mouse up events, you can use its value directly: 'mouseup'
      * @property MOUSE_UP
      * @type {String}
-     * @readonly
+     * @static
      */
     MOUSE_UP: 'mouseup',
     /**
      * The event type for mouse wheel events, you can use its value directly: 'mousewheel'
      * @property MOUSE_WHEEL
      * @type {String}
-     * @readonly
+     * @static
      */
     MOUSE_WHEEL: 'mousewheel',
 });
@@ -127,6 +127,8 @@ var _mouseEvents = [
     EventType.MOUSE_UP,
     EventType.MOUSE_WHEEL,
 ];
+
+var currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
     var pos = touch.getLocation();
@@ -179,6 +181,13 @@ var _mouseMoveHandler = function (event) {
     if (node._hitTest(pos, this)) {
         event.stopPropagation();
         if (!this._previousIn) {
+            // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
+            if (currentHovered) {
+                event.type = EventType.MOUSE_LEAVE;
+                currentHovered.owner.dispatchEvent(event);
+                currentHovered._previousIn = false;
+            }
+            currentHovered = this;
             event.type = EventType.MOUSE_ENTER;
             node.dispatchEvent(event);
             this._previousIn = true;
@@ -190,6 +199,7 @@ var _mouseMoveHandler = function (event) {
         event.type = EventType.MOUSE_LEAVE;
         node.dispatchEvent(event);
         this._previousIn = false;
+        currentHovered = null;
     }
 };
 var _mouseUpHandler = function (event) {
@@ -233,7 +243,8 @@ var _searchMaskParent = function (node) {
 
 
 /**
- * Class of all entities in Fireball scenes.
+ * Class of all entities in Cocos Creator scenes.
+ * For events supported by Node, please refer to {{#crossLink "Node.EventType"}}{{/crossLink}}
  *
  * @class Node
  * @extends _BaseNode
@@ -551,11 +562,11 @@ var Node = cc.Class({
             }
         }
 
-        // check conflict
-
-        if (CC_EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
-            return null;
-        }
+        //// check conflict
+        //
+        //if (CC_EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
+        //    return null;
+        //}
 
         //
 
@@ -635,8 +646,8 @@ var Node = cc.Class({
 
     /**
      * @method _getDependComponent
-     * @param {cc.Component} depended
-     * @return {cc.Component}
+     * @param {Component} depended
+     * @return {Component}
      * @private
      */
     _getDependComponent: CC_EDITOR && function (depended) {
@@ -697,9 +708,11 @@ var Node = cc.Class({
         var originCount = this._components.length;
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
-            if (! (component instanceof cc.Component) && CC_EDITOR) {
-                cc.error('Sorry, the component of entity "%s" which with an index of %s is corrupted! It has been removed.\nSee DevTools for details.', this.name, c);
-                console.log('Corrupted component value:', component);
+            if ( !(component instanceof cc.Component) ) {
+                if (CC_EDITOR) {
+                    cc.error('Sorry, the component of "%s" which with an index of %s is corrupted! It has been removed.', this.name, c);
+                    console.log('Corrupted component value:', component);
+                }
                 if (component) {
                     this._removeComponent(component);
                 }
@@ -765,17 +778,20 @@ var Node = cc.Class({
             if (myPrefabInfo) {
                 if (newPrefabRoot) {
                     // change prefab
-                    Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                    _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
                 }
                 else if (myPrefabInfo.root !== this) {
                     // detach from prefab
-                    Editor.PrefabUtils.unlinkPrefab(this);
+                    _Scene.PrefabUtils.unlinkPrefab(this);
                 }
             }
             else if (newPrefabRoot) {
                 // attach to prefab
-                Editor.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
+                _Scene.PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
             }
+
+            // conflict detection
+            _Scene.DetectConflict.afterAddChild(this);
         }
     },
 
@@ -812,7 +828,7 @@ var Node = cc.Class({
         // update components if also in scene graph
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setColor(this._color);
                 if ( !this._cascadeOpacityEnabled ) {
                     comp._sgNode.setOpacity(this._opacity);
@@ -826,7 +842,7 @@ var Node = cc.Class({
         var opacity = this._cascadeOpacityEnabled ? 255 : this._opacity;
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setOpacity(opacity);
             }
         }
@@ -836,9 +852,9 @@ var Node = cc.Class({
         // update components if also in scene graph
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setAnchorPoint(this._anchorPoint);
-                comp._sgNode.ignoreAnchorPointForPosition(this._ignoreAnchorPointForPosition);
+                comp._sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
             }
         }
     },
@@ -846,7 +862,7 @@ var Node = cc.Class({
     _onOpacityModifyRGBChanged: function () {
         for (var c = 0; c < this._components.length; ++c) {
             var comp = this._components[c];
-            if (comp instanceof cc._ComponentInSG && comp.isValid && comp._sgNode) {
+            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
                 comp._sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
             }
         }
@@ -966,7 +982,7 @@ var Node = cc.Class({
             apy = this._anchorPoint.y,
             w = this.width,
             h = this.height;
-        var rect = cc.rect(-apx * w, -apy * h, w, h);
+        var rect = cc.rect(0, 0, w, h);
         var trans = this.getNodeToWorldTransform();
         cc._rectApplyAffineTransformIn(rect, trans);
         var left = point.x - rect.x,
@@ -1018,8 +1034,8 @@ var Node = cc.Class({
      * The node becomes the action's target. Refer to cc.Action's getTarget()
      * Calling runAction while the node is not active won't have any effect
      * @method runAction
-     * @param {cc.Action} action
-     * @return {cc.Action} An Action pointer
+     * @param {Action} action
+     * @return {Action} An Action pointer
      */
     runAction: function (action) {
         if (!this.active) 
@@ -1028,6 +1044,7 @@ var Node = cc.Class({
 
         if (cc.sys.isNative) {
             this._retainAction(action);
+            this._sgNode._owner = this;
         }
         cc.director.getActionManager().addAction(action, this, false);
         return action;
@@ -1044,7 +1061,7 @@ var Node = cc.Class({
     /**
      * Stops and removes an action from the running action list.
      * @method stopAction
-     * @param {cc.Action} action An action object to be removed.
+     * @param {Action} action An action object to be removed.
      */
     stopAction: function (action) {
         cc.director.getActionManager().removeAction(action);
@@ -1068,7 +1085,7 @@ var Node = cc.Class({
      * @method getActionByTag
      * @see cc.Action#getTag and cc.Action#setTag
      * @param {Number} tag
-     * @return {cc.Action} The action object with the given tag.
+     * @return {Action} The action object with the given tag.
      */
     getActionByTag: function (tag) {
         if (tag === cc.ACTION_TAG_INVALID) {
@@ -1135,45 +1152,66 @@ if (cc.sys.isNative) {
 
 /**
  * @event position-changed
- * @param {cc.Event} event
- * @param {cc.Vec2} event.detail - old position
+ * @param {Event} event
+ * @param {Vec2} event.detail - old position
  */
 /**
  * @event rotation-changed
- * @param {cc.Event} event
+ * @param {Event} event
  * @param {Number} event.detail - old rotation x
  */
 /**
  * @event scale-changed
- * @param {cc.Event} event
- * @param {cc.Vec2} event.detail - old scale
+ * @param {Event} event
+ * @param {Vec2} event.detail - old scale
  */
 /**
  * @event size-changed
- * @param {cc.Event} event
- * @param {cc.Size} event.detail - old size
+ * @param {Event} event
+ * @param {Size} event.detail - old size
  */
 /**
  * @event anchor-changed
- * @param {cc.Event} event
- * @param {cc.Vec2} event.detail - old anchor
+ * @param {Event} event
+ * @param {Vec2} event.detail - old anchor
  */
 /**
  * @event color-changed
- * @param {cc.Event} event
- * @param {cc.Color} event.detail - old color
+ * @param {Event} event
+ * @param {Color} event.detail - old color
  */
 /**
  * @event opacity-changed
- * @param {cc.Event} event
+ * @param {Event} event
  * @param {Number} event.detail - old opacity
+ */
+/**
+ * @event child-added
+ * @param {Event} event
+ * @param {Node} event.detail - child
+ */
+/**
+ * @event child-removed
+ * @param {Event} event
+ * @param {Node} event.detail - child
+ */
+/**
+ * @event child-reorder
+ * @param {Event} event
  */
 /**
  * Note: This event is only emitted from the top most node whose active value did changed,
  * not including its child nodes.
  * @event active-in-hierarchy-changed
- * @param {cc.Event} event
+ * @param {Event} event
  */
+
+/**
+ *
+ * @event touchstart
+ *
+ */
+
 Node.EventType = EventType;
 
 cc.Node = module.exports = Node;

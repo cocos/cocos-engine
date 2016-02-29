@@ -143,11 +143,7 @@
         node.emit("load");
     };
 
-    proto._setTextureCoords = function (rect, needConvert) {
-        if (needConvert === undefined)
-            needConvert = true;
-        if (needConvert)
-            rect = cc.rectPointsToPixels(rect);
+    proto._setTextureCoords = function (rect) {
         var node = this._node;
 
         var tex = node._batchNode ? node.textureAtlas.texture : node._texture;

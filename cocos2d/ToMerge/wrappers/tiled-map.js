@@ -41,7 +41,7 @@ var TiledMapWrapper = cc.Class({
         childrenN: {
             get: function () {
                 var children = this.targetN.children.filter( function (child) {
-                    return !(child instanceof cc.TMXLayer);
+                    return !(child instanceof _ccsg.TMXLayer);
                 });
                 return children;
             },

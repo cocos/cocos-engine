@@ -11,14 +11,17 @@ cc.initEngine = function (config, cb) {
 };
 
 require('./jsb-predefine');
+require('./jsb-loader');
 require('./jsb-game');
 require('./jsb-director');
 require('./jsb-tex-sprite-frame');
 require('./jsb-scale9sprite');
 require('./jsb-label');
+require('./jsb-editbox');
 require('./jsb-particle');
 require('./jsb-enums');
 require('./jsb-event');
+require('./jsb-action');
 require('./jsb-etc');
 
 // Check version

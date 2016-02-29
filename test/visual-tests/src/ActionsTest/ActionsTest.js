@@ -73,20 +73,20 @@ var ActionsDemo = BaseTestLayer.extend({
             this._tamara.visible = false;
             this._kathia.visible = false;
             this._grossini.visible = false;
-        } else if (numberOfSprites == 1) {
+        } else if (numberOfSprites === 1) {
             this._tamara.visible = false;
             this._kathia.visible = false;
             this._grossini.x = winSize.width / 2;
 			this._grossini.y = winSize.height / 2;
         }
-        else if (numberOfSprites == 2) {
+        else if (numberOfSprites === 2) {
             this._kathia.x = winSize.width / 3;
 			this._kathia.y = winSize.height / 2;
             this._tamara.x = 2 * winSize.width / 3;
 			this._tamara.y = winSize.height / 2;
             this._grossini.visible = false;
         }
-        else if (numberOfSprites == 3) {
+        else if (numberOfSprites === 3) {
             this._grossini.x = winSize.width / 2;
 			this._grossini.y = winSize.height / 2;
             this._tamara.x = winSize.width / 4;
@@ -974,7 +974,7 @@ var ActionAnimate = ActionsDemo.extend({
         //
         var animation = new cc.SpriteFrameAnimation();
         for (var i = 1; i < 15; i++) {
-            var frameName = "Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
+            var frameName = "res/Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
             animation.addSpriteFrameWithFile(frameName);
         }
         animation.setDelayPerUnit(2.8 / 14);
@@ -1668,7 +1668,7 @@ var ActionFollow = ActionsDemo.extend({
 
         this._grossini.runAction(rep);
 
-        this.runAction(cc.follow(this._grossini, cc.rect(0, 0, s.width * 2 - 100, s.height)));
+        this.runAction(cc.follow(this._grossini));
         //----end30----
     },
     subtitle:function () {
@@ -2515,7 +2515,7 @@ var Issue1438 = ActionsDemo.extend({
         // Add 60 frames
         for (var j = 0; j < 4; j++) {
             for (var i = 1; i < 15; i++) {
-                var frameName = "Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
+                var frameName = "res/Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
                 animation.addSpriteFrameWithFile(frameName);
             }
         }
@@ -2837,7 +2837,7 @@ var ActionCustomTest = ActionsDemo.extend({
         spriteTemp = this.addandCreateSpriteTemp("cc.Animate");
         var animation = new cc.SpriteFrameAnimation();
         for (var i = 1; i < 15; i++) {
-            var frameName = "Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
+            var frameName = "res/Images/grossini_dance_" + ((i < 10) ? ("0" + i) : i) + ".png";
             animation.addSpriteFrameWithFile(frameName);
         }
         animation.setDelayPerUnit(5 / 14);

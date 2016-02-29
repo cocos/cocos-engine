@@ -76,9 +76,9 @@ cc.TMX_ORIENTATION_ISO = 2;
  * - It only supports the XML format (the JSON format is not supported)</p>
  *
  * <p>Technical description: <br />
- * Each layer is created using an cc.TMXLayer (subclass of cc.SpriteBatchNode). If you have 5 layers, then 5 cc.TMXLayer will be created, <br />
+ * Each layer is created using an _ccsg.TMXLayer (subclass of cc.SpriteBatchNode). If you have 5 layers, then 5 _ccsg.TMXLayer will be created, <br />
  * unless the layer visibility is off. In that case, the layer won't be created at all. <br />
- * You can obtain the layers (cc.TMXLayer objects) at runtime by: <br />
+ * You can obtain the layers (_ccsg.TMXLayer objects) at runtime by: <br />
  * - map.getChildByTag(tag_number);  // 0=1st layer, 1=2nd layer, 2=3rd layer, etc...<br />
  * - map.getLayer(name_of_the_layer); </p>
  *
@@ -121,7 +121,7 @@ cc.TMX_ORIENTATION_ISO = 2;
  * var xmlStr = cc.loader.getRes(filePath);
  * var tmxTiledMap = new cc.TMXTiledMap(xmlStr, resources);
  */
-cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
+_ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
 	properties: null,
 	mapOrientation: null,
 	objectGroups: null,
@@ -135,7 +135,7 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
 
     /**
      * Creates a TMX Tiled Map with a TMX file  or content string. <br/>
-     * Constructor of cc.TMXTiledMap
+     * Constructor of _ccsg.TMXTiledMap
      * @param {String} tmxFile tmxFile fileName or content string
      * @param {String} resourcePath   If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
      */
@@ -260,17 +260,18 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
     },
 
     /**
-     * Initializes the instance of cc.TMXTiledMap with tmxFile
+     * Initializes the instance of _ccsg.TMXTiledMap with tmxFile
      * @param {String} tmxFile
      * @return {Boolean} Whether the initialization was successful.
      * @example
      * //example
-     * var map = new cc.TMXTiledMap()
+     * var map = new _ccsg.TMXTiledMap()
      * map.initWithTMXFile("hello.tmx");
      */
     initWithTMXFile:function (tmxFile) {
-        if(!tmxFile || tmxFile.length === 0)
-            throw new Error("cc.TMXTiledMap.initWithTMXFile(): tmxFile should be non-null or non-empty string.");
+        if(!tmxFile || tmxFile.length === 0) {
+            return false;
+        }
 	    this.width = 0;
 	    this.height = 0;
         var mapInfo = new cc.TMXMapInfo(tmxFile);
@@ -279,13 +280,13 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
 
         var locTilesets = mapInfo.getTilesets();
         if(!locTilesets || locTilesets.length === 0)
-            cc.log("cc.TMXTiledMap.initWithTMXFile(): Map not found. Please check the filename.");
+            cc.log("_ccsg.TMXTiledMap.initWithTMXFile(): Map not found. Please check the filename.");
         this._buildWithMapInfo(mapInfo);
         return true;
     },
 
     /**
-     * Initializes the instance of cc.TMXTiledMap with tmxString
+     * Initializes the instance of _ccsg.TMXTiledMap with tmxString
      * @param {String} tmxString
      * @param {String} resourcePath
      * @return {Boolean} Whether the initialization was successful.
@@ -297,7 +298,7 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
         var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath);
         var locTilesets = mapInfo.getTilesets();
         if(!locTilesets || locTilesets.length === 0)
-            cc.log("cc.TMXTiledMap.initWithXML(): Map not found. Please check the filename.");
+            cc.log("_ccsg.TMXTiledMap.initWithXML(): Map not found. Please check the filename.");
         this._buildWithMapInfo(mapInfo);
         return true;
     },
@@ -309,6 +310,15 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
         this.objectGroups = mapInfo.getObjectGroups();
         this.properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
+
+        // remove the layers added before
+        var oldLayers = this.allLayers();
+        for (var j = 0, n = oldLayers.length; j < n; j++) {
+            var layer = oldLayers[j];
+            if (layer) {
+                this.removeChild(layer);
+            }
+        }
 
         var idx = 0;
         var layers = mapInfo.getLayers();
@@ -336,7 +346,7 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
         var retArr = [], locChildren = this._children;
         for(var i = 0, len = locChildren.length;i< len;i++){
             var layer = locChildren[i];
-            if(layer && layer instanceof cc.TMXLayer)
+            if(layer && layer instanceof _ccsg.TMXLayer)
                 retArr.push(layer);
         }
         return retArr;
@@ -345,11 +355,11 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
     /**
      * return the TMXLayer for the specific layer
      * @param {String} layerName
-     * @return {cc.TMXLayer}
+     * @return {_ccsg.TMXLayer}
      */
     getLayer:function (layerName) {
         if(!layerName || layerName.length === 0)
-            throw new Error("cc.TMXTiledMap.getLayer(): layerName should be non-null or non-empty string.");
+            throw new Error("_ccsg.TMXTiledMap.getLayer(): layerName should be non-null or non-empty string.");
         var locChildren = this._children;
         for (var i = 0; i < locChildren.length; i++) {
             var layer = locChildren[i];
@@ -367,7 +377,7 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
      */
     getObjectGroup:function (groupName) {
         if(!groupName || groupName.length === 0)
-            throw new Error("cc.TMXTiledMap.getObjectGroup(): groupName should be non-null or non-empty string.");
+            throw new Error("_ccsg.TMXTiledMap.getObjectGroup(): groupName should be non-null or non-empty string.");
         if (this.objectGroups) {
             for (var i = 0; i < this.objectGroups.length; i++) {
                 var objectGroup = this.objectGroups[i];
@@ -411,7 +421,7 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
 
     _parseLayer:function (layerInfo, mapInfo) {
         var tileset = this._tilesetForLayer(layerInfo, mapInfo);
-        var layer = new cc.TMXLayer(tileset, layerInfo, mapInfo);
+        var layer = new _ccsg.TMXLayer(tileset, layerInfo, mapInfo);
         // tell the layerinfo to release the ownership of the tiles map.
         layerInfo.ownTiles = false;
         layer.setupTiles();
@@ -449,7 +459,7 @@ cc.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
     }
 });
 
-var _p = cc.TMXTiledMap.prototype;
+var _p = _ccsg.TMXTiledMap.prototype;
 
 // Extended properties
 /** @expose */
@@ -468,12 +478,12 @@ cc.defineGetterSetter(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
 
 /**
  * Creates a TMX Tiled Map with a TMX file  or content string.
- * Implementation cc.TMXTiledMap
- * @deprecated since v3.0 please use new cc.TMXTiledMap(tmxFile,resourcePath) instead.
+ * Implementation _ccsg.TMXTiledMap
+ * @deprecated since v3.0 please use new _ccsg.TMXTiledMap(tmxFile,resourcePath) instead.
  * @param {String} tmxFile tmxFile fileName or content string
  * @param {String} resourcePath   If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
- * @return {cc.TMXTiledMap|undefined}
+ * @return {_ccsg.TMXTiledMap|undefined}
  */
-cc.TMXTiledMap.create = function (tmxFile,resourcePath) {
-    return new cc.TMXTiledMap(tmxFile,resourcePath);
+_ccsg.TMXTiledMap.create = function (tmxFile,resourcePath) {
+    return new _ccsg.TMXTiledMap(tmxFile,resourcePath);
 };

@@ -2,7 +2,7 @@ var EventTarget = require('./event/event-target');
 
 /**
  * An object to boot the game.
- * @class game
+ * @class Game
  */
 var game = /** @lends cc.game# */{
 
@@ -78,7 +78,31 @@ var game = /** @lends cc.game# */{
     canvas: null,
 
     /**
-     * Config of game
+     * The current game configuration, including:
+     * 1. debugMode
+     *      "debugMode" possible values :
+     *      0 - No message will be printed.
+     *      1 - cc.error, cc.assert, cc.warn, cc.log will print in console.
+     *      2 - cc.error, cc.assert, cc.warn will print in console.
+     *      3 - cc.error, cc.assert will print in console.
+     *      4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.
+     *      5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.
+     *      6 - cc.error, cc.assert will print on canvas, available only on web.
+     * 2. showFPS
+     *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
+     * 3. frameRate
+     *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
+     * 4. id
+     *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.
+     * 5. renderMode
+     *      "renderMode" sets the renderer type, only useful on web :
+     *      0 - Automatically chosen by engine
+     *      1 - Forced to use canvas renderer
+     *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers
+     * 6. scenes
+     *      "scenes" include available scenes in the current bundle.
+     *
+     * Please DO NOT modify this object directly, it won't have any effect.
      * @property config
      * @type {Object}
      */
@@ -202,16 +226,15 @@ var game = /** @lends cc.game# */{
             this._initRenderer(config[CONFIG_KEY.width], config[CONFIG_KEY.height]);
 
             /**
-             * @type {cc.EGLView}
-             * @name cc.view
-             * @memberof cc
-             * cc.view is the shared view object.
-             */
-            cc.view = cc.EGLView._getInstance();
-
-            /**
              * @module cc
              */
+
+            /**
+             * cc.view is the shared view object.
+             * @property view
+             * @type View
+             */
+            cc.view = cc.EGLView._getInstance();
 
             /**
              * @property director
@@ -223,7 +246,7 @@ var game = /** @lends cc.game# */{
             /**
              * cc.winSize is the alias object for the size of the current game window.
              * @property winSize
-             * @type cc.Size
+             * @type Size
              */
             cc.winSize = cc.director.getWinSize();
 
@@ -236,9 +259,9 @@ var game = /** @lends cc.game# */{
 
             // Load game scripts
             var jsList = config[CONFIG_KEY.jsList];
-            if (jsList) {
-                cc.loader.loadJsWithImg(jsList, function (err) {
-                    if (err) throw new Error(err);
+            if (jsList && jsList.length > 0) {
+                cc.loader.load(jsList, function (err) {
+                    if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
                     if (cb) cb();
                 });
@@ -257,7 +280,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * @class game
+     * cc.game is the singleton object for game related functions.
+     * @class Game
      */
 
     /**
@@ -616,4 +640,12 @@ var game = /** @lends cc.game# */{
 EventTarget.call(game);
 cc.js.addon(game, EventTarget.prototype);
 
+/**
+ * @module cc
+ */
+
+/**
+ * @property game
+ * @type Game
+ */
 cc.game = module.exports = game;

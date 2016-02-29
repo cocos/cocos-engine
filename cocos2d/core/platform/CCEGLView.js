@@ -114,9 +114,9 @@ switch(cc.__BrowserGetter.adaptationType){
  * the standard way to use it is by calling:<br/>
  *  - cc.view.methodName(); <br/>
  *
- * @class view
+ * @class View
  */
-cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
+cc.EGLView = cc._Class.extend({
     _delegate: null,
     // Size of parent node that contains cc.container and cc.game.canvas
     _frameSize: null,
@@ -342,14 +342,6 @@ cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
         if (this._isAdjustViewPort) {
             this._setViewportMeta(cc.__BrowserGetter.meta, false);
         }
-    },
-
-    // RenderTexture hacker
-    _setScaleXYForRenderTexture: function () {
-        //hack for RenderTexture on canvas mode when adapting multiple resolution resources
-        var scaleFactor = cc.contentScaleFactor();
-        this._scaleX = scaleFactor;
-        this._scaleY = scaleFactor;
     },
 
     // Other helper functions
@@ -887,10 +879,13 @@ cc.EGLView = cc._Class.extend(/** @lends cc.view# */{
             selTouch = touches[i];
             selPoint = selTouch._point;
 	        selPrePoint = selTouch._prevPoint;
+            selStartPoint = selTouch._startPoint;
             selTouch._setPoint((selPoint.x - locViewPortRect.x) / locScaleX,
                 (selPoint.y - locViewPortRect.y) / locScaleY);
             selTouch._setPrevPoint((selPrePoint.x - locViewPortRect.x) / locScaleX,
                 (selPrePoint.y - locViewPortRect.y) / locScaleY);
+            selStartPoint.x = (selStartPoint.x - locViewPortRect.x) / locScaleX;
+            selStartPoint.y = (selStartPoint.y - locViewPortRect.y) / locScaleY;
         }
     }
 });

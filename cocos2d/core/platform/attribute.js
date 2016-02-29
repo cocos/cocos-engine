@@ -27,23 +27,23 @@
 var JS = require('./js');
 var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
 
-/**
- * @class Class
- */
+// /**
+//  * @class Class
+//  */
 
-/**
- * Tag the class with any meta attributes, then return all current attributes assigned to it.
- * This function holds only the attributes, not their implementations.
- *
- * @method attr
- * @param {Function|Object} constructor - the class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
- * @param {String} propertyName - the name of property or function, used to retrieve the attributes
- * @param {Object} [attributes] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
- * @return {Object|Undefined} return all attributes associated with the property. if none undefined will be returned
- * @static
- * @private
- * @example {@link utils/api/engine/docs/cocos2d/core/platform/attribute/attr.js}
- */
+// *
+//  * Tag the class with any meta attributes, then return all current attributes assigned to it.
+//  * This function holds only the attributes, not their implementations.
+//  *
+//  * @method attr
+//  * @param {Function|Object} constructor - the class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
+//  * @param {String} propertyName - the name of property or function, used to retrieve the attributes
+//  * @param {Object} [attributes] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
+//  * @return {Object|Undefined} return all attributes associated with the property. if none undefined will be returned
+//  * @static
+//  * @private
+//  * @example {@link utils/api/engine/docs/cocos2d/core/platform/attribute/attr.js}
+ 
 function attr (constructor, propertyName, attributes) {
     var key = '_attr$' + propertyName;
     var instance, attrs, name;

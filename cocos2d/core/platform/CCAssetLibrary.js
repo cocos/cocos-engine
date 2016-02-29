@@ -1,8 +1,6 @@
-﻿var JS = require('./js');
-var Asset = require('../assets/CCAsset');
+﻿var Asset = require('../assets/CCAsset');
 var callInNextTick = require('./utils').callInNextTick;
-var LoadManager = require('./load-manager');
-var CallbacksInvoker = require('./callbacks-invoker');
+var Loader = require('../load-pipeline/CCLoader');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -17,64 +15,9 @@ var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
 var _uuidToRawAssets;
 
-// variables
-
-// the loading uuid's callbacks
-var _uuidToCallbacks = new CallbacksInvoker();
-
-// temp deserialize info
-var _tdInfo = new cc.deserialize.Details();
-
-var _cc_loader_loadJson = cc.loader.loadJson.bind(cc.loader);
-
-// create a loading context which reserves all relevant parameters
-function LoadingHandle (readMainCache, writeMainCache, recordAssets, deserializeInfo) {
-    //this.readMainCache = readMainCache;
-    //this.writeMainCache = writeMainCache;
-
-    // FORCE ignore global cache in fireball lite
-    this.readMainCache = false;
-    this.writeMainCache = false;
-
-    // 缓存同一个任务中已经加载好的资源
-    var needIndieCache = !(this.readMainCache && this.writeMainCache);
-    this.taskIndieCache = needIndieCache ? {} : null;
-
-    // 保存正在等待依赖项加载完毕的资源，防止循环依赖
-    // （其它缓存包含的是已经加载完毕的资源，如果已经缓存会立即结束并回调，而这个缓存存的是还在加载中的资源，不会影响加载也不会触发回调）
-    this.pendingCache = {};
-
-    // 需要让场景 preload 的 asset（所有包含 raw file 后缀名的 asset 并且不含 rawType 属性的 asset）
-    this.assetsNeedPostLoad = recordAssets ? [] : null;
-
-    // 可以提供一个反序列化句柄，用来在执行反序列化任务时，做一些特殊处理
-    this.deserializeInfo = deserializeInfo;
+function isScene (asset) {
+    return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
 }
-LoadingHandle.prototype.readCache = function (uuid) {
-    if (this.readMainCache && this.writeMainCache) {
-        return AssetLibrary._uuidToAsset[uuid];
-    }
-    else {
-        if (this.readMainCache) {
-            // writeMainCache == false
-            return AssetLibrary._uuidToAsset[uuid] || this.taskIndieCache[uuid];
-        }
-        else {
-            return this.taskIndieCache[uuid];
-        }
-    }
-};
-LoadingHandle.prototype.writeCache = function (uuid, asset, hasRawType) {
-    if (this.writeMainCache) {
-        AssetLibrary._uuidToAsset[uuid] = asset;
-    }
-    if (this.taskIndieCache) {
-        this.taskIndieCache[uuid] = asset;
-    }
-    if (this.assetsNeedPostLoad && asset._rawFiles && !hasRawType) {
-        this.assetsNeedPostLoad.push(asset);
-    }
-};
 
 // publics
 
@@ -93,24 +36,26 @@ var AssetLibrary = {
      * @param {Boolean} options.readMainCache - Default is true. If false, the asset and all its depends assets will reload and create new instances from library.
      * @param {Boolean} options.writeMainCache - Default is true. If true, the result will cache to AssetLibrary, and MUST be unload by user manually.
      * @param {Asset} options.existingAsset - load to existing asset, this argument is only available in editor
-     * @param {Boolean} options.recordAssets - Default is false. If true, tracking statistics associated with the assets which needs to preload（All the assets contains "urls" but dont have "_rawFiles"）
      * @param {deserialize.Details} options.deserializeInfo - specified a DeserializeInfo object if you want,
      *                                                        this parameter is only available in editor.
      * @private
      */
     loadAsset: function (uuid, callback, options) {
-        var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
-        var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
+        // var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
+        // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
 
-        var handle = new LoadingHandle(readMainCache,
-                                       writeMainCache,
-                                       options && options.recordAssets,
-                                       options && options.deserializeInfo);
-        this._loadAssetByUuid(uuid, callback, handle, options && options.existingAsset);
-        return handle;
+        var item = {
+            src: uuid,
+            type: 'uuid'
+        };
+        if (options && options.deserializeInfo) {
+            item.deserializeInfo = options.deserializeInfo;
+        }
+        if (options && options.existingAsset) {
+            item.existingAsset = options.existingAsset;
+        }
+        this._loadAssetByUuid(item, callback);
     },
-
-    _LoadingHandle: LoadingHandle,
 
     getImportedDir: function (uuid) {
         return _libraryBase + uuid.slice(0, 2)/* + cc.path.sep + uuid*/;
@@ -120,7 +65,7 @@ var AssetLibrary = {
         if (CC_EDITOR) {
             Editor.sendRequestToCore( 'scene:query-asset-info-by-uuid', uuid, function (info) {
                 if (info) {
-                    Editor.onRawAssetUsed(info.url, uuid);
+                    Editor.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
                     if (ctor) {
                         var isRawAsset = !cc.isChildClassOf(ctor, Asset);
@@ -176,7 +121,7 @@ var AssetLibrary = {
     // parse uuid out of url
     parseUuidInEditor: function (url) {
         if (CC_EDITOR) {
-            var uuid = "";
+            var uuid = '';
             var isImported = url.startsWith(_libraryBase);
             if (isImported) {
                 var dir = cc.path.dirname(url);
@@ -208,264 +153,77 @@ var AssetLibrary = {
      * 4. 递归加载Asset及其引用到的其它Asset
      *
      * @method _loadAssetByUuid
-     * @param {String} uuid
+     * @param {Object} item - loading item including uuid, type and extra infos
      * @param {loadCallback} callback - the callback to receive the asset, can be null
-     * @param {LoadingHandle} handle - the loading context which reserves all relevant parameters
-     * @param {Asset} [existingAsset] - load to existing asset, this argument is only available in editor
      * @private
      */
-    _loadAssetByUuid: function (uuid, callback, handle, existingAsset) {
+    _loadAssetByUuid: function (item, callback) {
+        var uuid = item.src;
+        var thisTick = true;
         if (typeof uuid !== 'string') {
             return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
         }
-        // step 1
-        if ( !existingAsset ) {
-            var asset = handle.readCache(uuid);
-            if (asset) {
-                return callInNextTick(callback, null, asset);
+
+        Loader.load(item, function (error, asset) {
+            if (error || !asset) {
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
             }
-        }
-
-        // step 2
-        // 如果必须重新加载，则不能合并到到 _uuidToCallbacks，否则现有的加载成功后会同时触发回调，
-        // 导致提前返回的之前的资源。
-        var canShareLoadingTask = handle.readMainCache && !existingAsset;
-        if ( canShareLoadingTask && !_uuidToCallbacks.add(uuid, callback) ) {
-            // already loading
-            return;
-        }
-
-        // 防止循环加载
-        var loading = handle.pendingCache[uuid];
-        if (loading) {
-            // already loading
-            return callInNextTick(callback, null, loading);
-        }
-
-        //if (CC_EDITOR && !_libraryBase) {
-        //    callInNextTick(callback, new Error('Cannot load ' + uuid + ' in editor because AssetLibrary not yet initialized!'), null);
-        //    return;
-        //}
-        function onload (error, json, url) {
-            function onDeserializedWithDepends (err, asset, hasRawType) {
-                if (asset) {
-                    asset._uuid = uuid;
-                    handle.writeCache(uuid, asset, hasRawType);
-                }
-                if ( canShareLoadingTask ) {
-                    _uuidToCallbacks.invokeAndRemove(uuid, err, asset);
-                }
-                else if (callback) {
-                    callback(err, asset);
-                }
-            }
-            if (json) {
-                AssetLibrary._deserializeWithDepends(json, url, uuid, onDeserializedWithDepends, handle, existingAsset);
+            if (thisTick) {
+                callInNextTick(function () {
+                    if (isScene(asset) || CC_EDITOR) {
+                        Loader.removeItem(uuid);
+                    }
+                    callback(error, asset);
+                });
             }
             else {
-                onDeserializedWithDepends(error, null);
-            }
-        }
-
-        if (CC_EDITOR && !CC_TEST) {
-            this._queryAssetInfoInEditor(uuid, function (err, url, isRawAsset) {
-                if (err) {
-                    callback(err);
+                if (isScene(asset) || CC_EDITOR) {
+                    Loader.removeItem(uuid);
                 }
-                else {
-                    var shouldLoadByEngine = !isRawAsset;
-                    if (!shouldLoadByEngine) {
-                        return callback(new Error('Should not load raw file in AssetLibrary, uuid: ' + uuid));
-                    }
-                    LoadManager.loadByLoader(_cc_loader_loadJson, url, function (error, json) {
-                        onload(error, json, url);
-                    });
-                }
-            });
-        }
-        else {
-            var info = this._getAssetInfoInRuntime(uuid);
-            if (info.raw) {
-                return callback(new Error('Should not load raw file in AssetLibrary, uuid: ' + uuid));
+                callback(error, asset);
             }
-            LoadManager.loadByLoader(_cc_loader_loadJson, info.url, function (error, json) {
-                onload(error, json, info.url);
-            });
-        }
+        });
+        thisTick = false;
     },
 
     /**
      * @method loadJson
-     * @param {String|Object} json
+     * @param {String} json
      * @param {loadCallback} callback
-     * @param {Boolean} [dontCache=false] - If false, the result will cache to AssetLibrary, and MUST be unload by user manually.
-     * @param {Boolean} [recordAssets=false] - 是否统计新加载的需要让场景 preload 的 asset（所有包含 raw file 后缀名的 asset 并且不含 rawType 属性的 asset）
      * @return {LoadingHandle}
      * @private
      */
-    loadJson: function (json, callback, dontCache, recordAssets) {
-        var handle = new LoadingHandle(!dontCache, !dontCache, recordAssets);
+    loadJson: function (json, callback) {
+        var randomUuid = '' + ((new Date()).getTime() + Math.random());
         var thisTick = true;
-        this._deserializeWithDepends(json, '', '', function (p1, p2) {
+        var item = {
+            src: randomUuid,
+            type: 'uuid',
+            content: json,
+            skips: [ Loader.downloader.id ]
+        };
+        Loader.load(item, function (error, asset) {
+            if (error) {
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
+            }
             if (thisTick) {
-                callInNextTick(callback, p1, p2);
+                callInNextTick(function () {
+                    if (isScene(asset) || CC_EDITOR) {
+                        Loader.removeItem(randomUuid);
+                    }
+                    asset._uuid = '';
+                    callback(error, asset);
+                });
             }
             else {
-                callback(p1, p2);
+                if (isScene(asset) || CC_EDITOR) {
+                    Loader.removeItem(randomUuid);
+                }
+                asset._uuid = '';
+                callback(error, asset);
             }
-        }, handle);
+        });
         thisTick = false;
-        return handle;
-    },
-
-    _loadDepends: function (asset, _tdInfo, url, handle, callback) {
-        // load depends
-        var pendingCount = _tdInfo.uuidList.length;
-
-        // load raw
-        var rawProp = _tdInfo.rawProp;     // _tdInfo不能用在回调里！
-        if (rawProp) {
-            // load depends raw objects
-            var attrs = cc.Class.attr(asset.constructor, _tdInfo.rawProp);
-            var rawType = attrs.rawType;
-            ++pendingCount;
-            LoadManager.load(url, rawType, asset._rawext, function onRawObjLoaded (error, raw) {
-                if (error) {
-                    cc.error('[AssetLibrary] Failed to load %s of %s. %s', rawType, url, error);
-                }
-                asset[rawProp] = raw;
-                --pendingCount;
-                if (pendingCount === 0) {
-                    callback();
-                    callback = null;
-                }
-            });
-        }
-
-        if (pendingCount === 0) {
-            if (callback) {
-                callback();
-            }
-            return;
-        }
-
-        /*
-         如果依赖的所有资源都要重新下载，批量操作时将会导致同时执行多次重复下载。优化方法是增加一全局事件队列，
-         队列保存每个任务的注册，启动，结束事件，任务从注册到启动要延迟几帧，每个任务都存有父任务。
-         这样通过队列的事件序列就能做到合并批量任务。
-         如果依赖的资源不重新下载也行，但要判断是否刚好在下载过程中，如果是的话必须等待下载完成才能结束本资源的加载，
-         否则外部获取到的依赖资源就会是旧的。
-         */
-
-        // load depends assets
-        for (var i = 0; i < _tdInfo.uuidList.length; i++) {
-            var dependsUuid = _tdInfo.uuidList[i];
-            (function (dependsUuid, obj, prop) {
-                AssetLibrary.queryAssetInfo(dependsUuid, function (err, dependsUrl, isRawAsset) {
-                    if (err) {
-                        cc.error('[AssetLibrary] Failed to load "%s", %s', dependsUuid, err);
-                        --pendingCount;
-                        if (callback && pendingCount === 0) {
-                            callback();
-                            callback = null;
-                        }
-
-                        obj[prop] = obj[prop]; // ensures forEach worked
-                        return;
-                    }
-                    else if (isRawAsset) {
-                        cc.loader.load(dependsUrl, function (err, assets) {
-                            if (err) {
-                                cc.error('[AssetLibrary] Failed to load "%s"', dependsUrl);
-                                obj[prop] = '';
-                            }
-                            else {
-                                obj[prop] = dependsUrl;
-                            }
-                            --pendingCount;
-                            if (callback && pendingCount === 0) {
-                                callback();
-                                callback = null;
-                            }
-                        });
-                        return;
-                    }
-
-                    var onDependsAssetLoaded = function (error, dependsAsset, hasRawType) {
-                        if (CC_EDITOR && error) {
-                            if (Editor.AssetDB && Editor.AssetDB.isValidUuid(dependsUuid)) {
-                                cc.error('[AssetLibrary] Failed to load "%s", %s', dependsUuid, error);
-                            }
-                        }
-                        //else {
-                        //    dependsAsset._uuid = dependsUuid;
-                        //}
-                        // update reference
-                        obj[prop] = dependsAsset;
-                        //
-                        --pendingCount;
-                        if (callback && pendingCount === 0) {
-                            callback();
-                            callback = null;
-                        }
-                    };
-                    AssetLibrary._loadAssetByUuid(dependsUuid, onDependsAssetLoaded, handle);
-                });
-            })( dependsUuid, _tdInfo.uuidObjList[i], _tdInfo.uuidPropList[i] );
-        }
-
-        // AssetLibrary._loadAssetByUuid 的回调有可能在当帧也可能延后执行，所以这里要判断 callback 来防止多次调用
-        if (callback && pendingCount === 0) {
-            callback();
-            callback = null;
-        }
-    },
-
-    /**
-     * @method _deserializeWithDepends
-     * @param {String|Object} json
-     * @param {String} url
-     * @param {String} uuid
-     * @param {loadCallback} callback
-     * @param {Object} handle - the loading context which reserves all relevant parameters
-     * @param {Asset} [existingAsset] - existing asset to reload
-     * @private
-     */
-    _deserializeWithDepends: function (json, url, uuid, callback, handle, existingAsset) {
-        // deserialize asset
-        //var isScene = typeof Scene !== 'undefined' && json && json[0] && json[0].__type__ === JS._getClassId(Scene);
-        //var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
-        var classFinder = function (id) {
-            var cls = JS._getClassById(id);
-            if (cls) {
-                return cls;
-            }
-            cc.warn('Can not get class "%s"', id);
-            return Object;
-        };
-
-        var tdInfo = cc.sys.isNative ? new cc.deserialize.Details() : (handle.deserializeInfo || _tdInfo);
-
-        var asset = cc.deserialize(json, tdInfo, {
-            classFinder: classFinder,
-            target: existingAsset
-        });
-
-        var hasRawType = !!tdInfo.rawProp;
-
-        if (uuid) {
-            handle.pendingCache[uuid] = asset;
-        }
-
-        this._loadDepends(asset, tdInfo, url, handle, function () {
-            if (uuid) {
-                delete handle.pendingCache[uuid];
-            }
-            callback(null, asset, hasRawType);
-        });
-
-        // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
-        tdInfo.reset();
     },
 
     /**
@@ -524,7 +282,7 @@ var AssetLibrary = {
             mountPaths = {
                 assets: _rawAssetsBase + 'assets',
                 internal: _rawAssetsBase + 'internal',
-            }
+            };
         }
         cc.url._init(mountPaths);
     }

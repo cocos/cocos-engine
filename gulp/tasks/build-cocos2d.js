@@ -12,7 +12,6 @@ var srcs = [
 
     './cocos2d/core/platform/CCCommon.js',
     './cocos2d/core/platform/CCSAXParser.js',
-    './cocos2d/core/platform/CCLoaders.js',
     './cocos2d/core/platform/CCConfig.js',
     './cocos2d/core/platform/miniFramework.js',
     './cocos2d/core/platform/CCEGLView.js',
@@ -65,7 +64,6 @@ var srcs = [
     './cocos2d/core/CCDrawingPrimitivesCanvas.js',
     './cocos2d/core/CCDrawingPrimitivesWebGL.js',
 
-    './cocos2d/core/label/FNTLoader.js',
     './cocos2d/core/label/CCSGLabel.js',
     './cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
     './cocos2d/core/label/CCSGLabelWebGLRenderCmd.js',
@@ -134,17 +132,15 @@ var srcs = [
     './cocos2d/menus/CCMenu.js',
 
     './cocos2d/tilemap/CCTGAlib.js',
-    './cocos2d/tilemap/CCTMXTiledMap.js',
+    './cocos2d/tilemap/CCSGTMXTiledMap.js',
     './cocos2d/tilemap/CCTMXXMLParser.js',
     './cocos2d/tilemap/CCTMXObjectGroup.js',
-    './cocos2d/tilemap/CCTMXLayer.js',
+    './cocos2d/tilemap/CCSGTMXLayer.js',
     './cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
     './cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js',
 
     './cocos2d/parallax/CCParallaxNode.js',
     './cocos2d/parallax/CCParallaxNodeRenderCmd.js',
-
-    './cocos2d/audio/CCAudio.js',
 
     './extensions/ccpool/CCPool.js',
 

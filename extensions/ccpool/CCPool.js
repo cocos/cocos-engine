@@ -52,7 +52,7 @@ cc.pool = /** @lends cc.pool# */{
      * Put the obj in pool.
      * @method putInPool
      * @param {Object} obj - The need put in pool object.
-     * @example {@link utils/api/cocos/docs/extensions/ccpool/putInPool.js}
+     * @example {@link utils/api/engine/docs/extensions/ccpool/putInPool.js}
      */
     putInPool: function (obj) {
         var cid = cc.js._getClassId(obj.constructor);
