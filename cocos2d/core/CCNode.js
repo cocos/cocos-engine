@@ -978,9 +978,7 @@ var Node = cc.Class({
     },
 
     _hitTest: function (point, listener) {
-        var apx = this._anchorPoint.x,
-            apy = this._anchorPoint.y,
-            w = this.width,
+        var w = this.width,
             h = this.height;
         var rect = cc.rect(0, 0, w, h);
         var trans = this.getNodeToWorldTransform();
