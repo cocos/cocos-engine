@@ -393,6 +393,10 @@ var TiledMap = cc.Class({
         var logicChildren = this.node.getChildren();
         for (var i = logicChildren.length - 1; i >= 0; i--) {
             var child = logicChildren[i];
+            if (!child.isValid) {
+                continue;
+            }
+
             var tmxLayer = child.getComponent(cc.TiledLayer);
             if (tmxLayer) {
                 child.removeComponent(cc.TiledLayer);
