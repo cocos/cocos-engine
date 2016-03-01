@@ -575,7 +575,7 @@ var ParticleSystem = cc.Class({
         this._previewTimer = null;
         this._focused = false;
         this._willStart = false;
-        this._blendFunc = new cc.BlendFunc(this._srcBlendFactor, this._dstBlendFactor);
+        this._blendFunc = new cc.BlendFunc(0, 0);
     },
 
     properties: properties,
@@ -676,13 +676,21 @@ var ParticleSystem = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
 
-        var loadCustomAfterFile = false;
         if (this._file) {
-            var missCustomTexture = this._custom && !this._texture;
-            loadCustomAfterFile = missCustomTexture;
-            this._applyFile(loadCustomAfterFile && this._applyCustoms.bind(this));
+            if (this._custom) {
+                var missCustomTexture = !this._texture;
+                if (missCustomTexture) {
+                    this._applyFile(this._applyCustoms.bind(this));
+                }
+                else {
+                    this._applyCustoms();
+                }
+            }
+            else {
+                this._applyFile();
+            }
         }
-        if (this._custom && !loadCustomAfterFile) {
+        else if (this._custom) {
             this._applyCustoms();
         }
 
