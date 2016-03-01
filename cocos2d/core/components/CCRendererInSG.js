@@ -52,6 +52,7 @@ var RendererInSG = cc.Class({
         
         // The replacement node used when this component disabled 
         this._plainNode = new _ccsg.Node();
+        this._plainNode.retain();
     },
 
     onEnable: function () {
@@ -65,11 +66,8 @@ var RendererInSG = cc.Class({
     onDestroy: function () {
         this._super();
         
-        var released = this.node._sgNode;
-        if (this._sgNode !== released) {
-            this._sgNode.release();
-        }
-        else {  // if (this._plainNode !== released) {
+        var releasedByNode = this.node._sgNode;
+        if (this._plainNode !== releasedByNode) {
             this._plainNode.release();
         }
     },
