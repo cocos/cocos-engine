@@ -262,8 +262,8 @@ if (CC_DEV) {
         });
     }
 
-    function provideClearError (owner, obj) {
-        var className = cc.js.getClassName(owner);
+    function provideClearError (owner, obj, ownerName) {
+        var className = ownerName || cc.js.getClassName(owner);
         var Info = 'Sorry, ' + className + '.%s is removed, please use %s instead.';
         for (var prop in obj) {
             function define (prop, getset) {
@@ -296,6 +296,22 @@ if (CC_DEV) {
             }
         }
     }
+
+    // cc.loader
+
+    markAsRemoved(cc.Pipeline, [
+        'loadJsWithImg',
+        'loadCsb',
+        'getUrl',
+        'loadAliases',
+        'register'
+    ], 'cc.loader');
+    provideClearError(cc.loader, {
+        loadJs : 'load',
+        loadTxt : 'load',
+        loadJson : 'load',
+        loadImg : 'load'
+    }, 'cc.loader');
 
     // cc.Node
 
