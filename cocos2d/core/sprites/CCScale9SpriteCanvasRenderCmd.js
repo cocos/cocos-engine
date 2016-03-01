@@ -27,7 +27,7 @@
         _ccsg.Node.CanvasRenderCmd.call(this, renderable);
         this._needDraw = true;
         this._state = cc.Scale9Sprite.state.NORMAL;
-        this._textureToRender = null;
+        this._originalTexture = this._textureToRender = null;
     };
 
     var proto = cc.Scale9Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
@@ -41,14 +41,14 @@
     proto._updateDisplayColor = function(parentColor){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
-        this._textureToRender = null;
+        this._originalTexture = this._textureToRender = null;
     };
 
     proto.setState = function(state){
         if(this._state === state) return;
 
         this._state = state;
-        this._textureToRender = null;
+        this._originalTexture = this._textureToRender = null;
     };
 
     proto.rendering = function (ctx, scaleX, scaleY) {
@@ -59,14 +59,14 @@
         if(node._spriteFrame) locTexture = node._spriteFrame._texture;
         if (!node.loaded() || locDisplayOpacity === 0)
             return;
-        if(this._textureToRender === null){
-            this._textureToRender = locTexture;
+        if(this._textureToRender === null || this._originalTexture !== locTexture){
+            this._textureToRender = this._originalTexture = locTexture;
             if (cc.Scale9Sprite.state.GRAY === this._state) {
                 this._textureToRender = this._textureToRender._generateGrayTexture();
             }
             var color = node.getDisplayedColor();
             if(locTexture && (color.r !== 255 || color.g !==255 || color.b !== 255))
-                this._textureToRender = locTexture._generateColorTexture(color.r,color.g,color.b);
+                this._textureToRender = this._textureToRender._generateColorTexture(color.r,color.g,color.b);
         }
 
         var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
