@@ -163,6 +163,9 @@ cc.eventManager.removeListeners = function (target, recursive) {
     if (target instanceof cc.Node) {
         target = target._sgNode;
     }
+    else if (!(target instanceof _ccsg.Node)) {
+        return;
+    }
     this._removeListeners(target, recursive || false);
 };
 cc.eventManager._pauseTarget = cc.eventManager.pauseTarget;
@@ -170,8 +173,11 @@ cc.eventManager.pauseTarget = function (target, recursive) {
     if (target instanceof cc.Component) {
         target = target.node._sgNode;
     }
-    if (target instanceof cc.Node) {
+    else if (target instanceof cc.Node) {
         target = target._sgNode;
+    }
+    else if (!(target instanceof _ccsg.Node)) {
+        return;
     }
     this._pauseTarget(target, recursive || false);
 };
@@ -182,6 +188,9 @@ cc.eventManager.resumeTarget = function (target, recursive) {
     }
     if (target instanceof cc.Node) {
         target = target._sgNode;
+    }
+    else if (!(target instanceof _ccsg.Node)) {
+        return;
     }
     this._resumeTarget(target, recursive || false);
 };
