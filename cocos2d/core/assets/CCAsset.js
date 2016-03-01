@@ -14,19 +14,6 @@ var RawAsset = require('./CCRawAsset');
 cc.Asset = cc.Class({
     name: 'cc.Asset', extends: RawAsset,
 
-    ctor: function () {
-        /**
-         * @property _uuid
-         * @type {String}
-         * @private
-         */
-        Object.defineProperty(this, '_uuid', {
-            value: '',
-            writable: true,
-            enumerable: false   // avoid uuid being assigned to empty string during destroy,
-        });
-    },
-
     properties: {
         /**
          * Returns the url of this asset's first raw file, if none of rawFile exists,

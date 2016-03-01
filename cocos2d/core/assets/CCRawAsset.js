@@ -12,6 +12,19 @@ var CCObject = require('../platform/CCObject');
 cc.RawAsset = cc.Class({
     name: 'cc.RawAsset', extends: CCObject,
 
+    ctor: function () {
+        /**
+         * @property _uuid
+         * @type {String}
+         * @private
+         */
+        Object.defineProperty(this, '_uuid', {
+            value: '',
+            writable: true,
+            enumerable: false   // avoid uuid being assigned to empty string during destroy,
+        });
+    },
+
     statics: {
         /**
          * Create a new node in the scene.
