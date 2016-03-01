@@ -254,8 +254,8 @@ function getConstructor (typeOrClassName) {
 }
 
 function findComponent (node, constructor) {
-    for (var c = 0; c < node._components.length; ++c) {
-        var comp = node._components[c];
+    for (var i = 0; i < node._components.length; ++i) {
+        var comp = node._components[i];
         if (comp instanceof constructor) {
             return comp;
         }
@@ -264,8 +264,8 @@ function findComponent (node, constructor) {
 }
 
 function findComponents (node, constructor, components) {
-    for (var c = 0; c < node._components.length; ++c) {
-        var comp = node._components[c];
+    for (var i = 0; i < node._components.length; ++i) {
+        var comp = node._components[i];
         if (comp instanceof constructor) {
             components.push(comp);
         }
@@ -273,24 +273,24 @@ function findComponents (node, constructor, components) {
 }
 
 function findChildComponent (children, constructor) {
-    for (var c = 0; c < children.length; ++c) {
-        var node = children[c];
+    for (var i = 0; i < children.length; ++i) {
+        var node = children[i];
         var comp = findComponent(node, constructor);
         if (comp) {
             return comp;
+        }
+        else if(node.children.length > 0) {
+            return findChildComponent(node.children, constructor);
         }
     }
     return null;
 }
 
 function findChildComponents (children, constructor, components) {
-    for (var c = 0; c < children.length; ++c) {
-        var node = children[c];
-        var comp = findComponents(node, constructor, components);
-        if (comp) {
-            components.push(comp);
-        }
-        else {
+    for (var i = 0; i < children.length; ++i) {
+        var node = children[i];
+        findComponents(node, constructor, components);
+        if (node._children.length > 0 ) {
             findChildComponents(node._children, constructor, components);
         }
     }
@@ -539,7 +539,7 @@ var Node = cc.Class({
     },
 
     /**
-     * Returns the component of Type, type in the any of its children using depth first search.
+     * Returns the component of supplied type in any of its children using depth first search.
      *
      * @method getComponentInChildren
      * @param {Function|String} typeOrClassName
@@ -555,7 +555,7 @@ var Node = cc.Class({
     },
 
     /**
-     * Returns all components of Type, type in the any of its children.
+     * Returns the components of supplied type in any of its children using depth first search.
      *
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName

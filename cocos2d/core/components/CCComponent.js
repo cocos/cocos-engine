@@ -458,7 +458,7 @@ var Component = cc.Class({
     },
 
     /**
-     * Returns the component of Type, type in the any of its children using depth first search.
+     * Returns the component of supplied type in any of its children using depth first search.
      *
      * @method getComponentInChildren
      * @param {Function|String} typeOrClassName
@@ -469,7 +469,7 @@ var Component = cc.Class({
     },
 
     /**
-     * Returns all components of Type, type in the any of its children.
+     * Returns the components of supplied type in any of its children using depth first search.
      *
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
