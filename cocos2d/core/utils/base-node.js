@@ -932,10 +932,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     getBoundingBox: function () {
         var size = this.getContentSize();
-        var rect = cc.rect( - this._anchorPoint.x * size.width,
-                            - this._anchorPoint.y * size.height,
-                            size.width,
-                            size.height );
+        var rect = cc.rect( 0, 0, size.width, size.height );
         return cc._rectApplyAffineTransformIn(rect, this.getNodeToParentTransform());
     },
 
@@ -1160,27 +1157,59 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         return this._sgNode.getParentToNodeTransform();
     },
 
+    _isSgTransformArToMe: function (myContentSize) {
+        var renderSize = this._sgNode.getContentSize();
+        if (renderSize.width === 0 && renderSize.height === 0 &&
+            (myContentSize.width !== 0 || myContentSize.height !== 0)) {
+            // anchor point ignored
+            return true;
+        }
+        if (this._sgNode.isIgnoreAnchorPointForPosition()) {
+            // sg transform become anchor relative...
+            return true;
+        }
+        return false;
+    },
+    
     /**
      * Returns the world affine transform matrix. The matrix is in Pixels.
      * @method getNodeToWorldTransform
      * @return {AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        var computedSize = this._sgNode.getContentSize();
-        var expectedSize = this.getContentSize();
+        var contentSize = this.getContentSize();
         var mat = this._sgNode.getNodeToWorldTransform();
-        var anchorPointIgnored = (computedSize.width === 0 && computedSize.height === 0 &&
-                                  (expectedSize.width !== 0 || expectedSize.height !== 0));
-        if (anchorPointIgnored || this._sgNode.isIgnoreAnchorPointForPosition()) {
-            // compute anchor, see https://github.com/cocos-creator/engine/pull/391
-            var tx = - expectedSize.width * this._anchorPoint.x;
-            var ty = - expectedSize.height * this._anchorPoint.y;
+        if (this._isSgTransformArToMe(contentSize)) {
+            // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case, 
+            // we should translate to bottem left to consistent with it 
+            // see https://github.com/cocos-creator/engine/pull/391
+            var tx = - this._anchorPoint.x * contentSize.width;
+            var ty = - this._anchorPoint.y * contentSize.height;
             var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
             mat = cc.affineTransformConcatIn(offset, mat);
         }
         return mat;
     },
 
+
+    /**
+     * Returns the world affine transform matrix. The matrix is in Pixels.<br/>
+     * This method is AR (Anchor Relative).
+     * @method getNodeToWorldTransformAR
+     * @return {AffineTransform}
+     */
+    getNodeToWorldTransformAR: function () {
+        var contentSize = this.getContentSize();
+        var mat = this._sgNode.getNodeToWorldTransform();
+        if ( !this._isSgTransformArToMe(contentSize) ) {
+            // see getNodeToWorldTransform
+            var tx = this._anchorPoint.x * contentSize.width;
+            var ty = this._anchorPoint.y * contentSize.height;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
+    },
     /**
      * Returns the inverse world affine transform matrix. The matrix is in Pixels.
      * @method getWorldToNodeTransform
@@ -1276,10 +1305,39 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method getNodeToParentTransform
      * @return {AffineTransform} The affine transform object
      */
-    getNodeToParentTransform: function (ancestor) {
-        return this._sgNode.getNodeToParentTransform();
+    getNodeToParentTransform: function () {
+        var contentSize = this.getContentSize();
+        var mat = this._sgNode.getNodeToParentTransform();
+        if (this._isSgTransformArToMe(contentSize)) {
+            // see getNodeToWorldTransform
+            var tx = - this._anchorPoint.x * contentSize.width;
+            var ty = - this._anchorPoint.y * contentSize.height;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
     },
 
+    /**
+     * Returns the matrix that transform the node's (local) space coordinates into the parent's space coordinates.<br/>
+     * The matrix is in Pixels.<br/>
+     * This method is AR (Anchor Relative).
+     * @method getNodeToParentTransformAR
+     * @return {AffineTransform} The affine transform object
+     */
+    getNodeToParentTransformAR: function () {
+        var contentSize = this.getContentSize();
+        var mat = this._sgNode.getNodeToParentTransform();
+        if ( !this._isSgTransformArToMe(contentSize) ) {
+            // see getNodeToWorldTransform
+            var tx = this._anchorPoint.x * contentSize.width;
+            var ty = this._anchorPoint.y * contentSize.height;
+            var offset = cc.affineTransformMake(1, 0, 0, 1, tx, ty);
+            mat = cc.affineTransformConcatIn(offset, mat);
+        }
+        return mat;
+    },
+    
     /**
      * Returns a "world" axis aligned bounding box of the node.<br/>
      * The bounding box contains self and active children's world bounding box.
@@ -1289,19 +1347,19 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     getBoundingBoxToWorld: function () {
         var trans;
         if (this.parent) {
-            trans = this.parent.getNodeToWorldTransform();
+            trans = this.parent.getNodeToWorldTransformAR();
         }
         return this._getBoundingBoxTo(trans);
     },
 
-    _getBoundingBoxTo: function (parentTransform) {
+    _getBoundingBoxTo: function (parentTransformAR) {
         var size = this.getContentSize();
         var width = size.width;
         var height = size.height;
-        var rect = cc.rect(0, 0, width, height);
-
-        var trans = (parentTransform === undefined) ? this.getNodeToParentTransform() : cc.affineTransformConcat(this.getNodeToParentTransform(), parentTransform);
-        cc._rectApplyAffineTransformIn(rect, trans);
+        var rect = cc.rect(- this._anchorPoint.x * width, - this._anchorPoint.y * height, width, height);
+        
+        var transAR = cc.affineTransformConcat(this.getNodeToParentTransformAR(), parentTransformAR);
+        cc._rectApplyAffineTransformIn(rect, transAR);
 
         //query child's BoundingBox
         if (!this._children)
@@ -1311,7 +1369,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         for (var i = 0; i < locChildren.length; i++) {
             var child = locChildren[i];
             if (child && child.active) {
-                var childRect = child._getBoundingBoxTo(trans);
+                var childRect = child._getBoundingBoxTo(transAR);
                 if (childRect)
                     rect = cc.rectUnion(rect, childRect);
             }

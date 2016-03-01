@@ -68,7 +68,7 @@ var RendererInSG = cc.Class({
         if (this._sgNode !== released) {
             this._sgNode.release();
         }
-        else {
+        else {  // if (this._plainNode !== released) {
             this._plainNode.release();
         }
     },
