@@ -312,7 +312,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     releaseTexture: function () {
         if (this._webTextureObj)
             cc._renderContext.deleteTexture(this._webTextureObj);
-        cc.loader.release(this.url);
+        cc.loader.release(this._uuid || this.url);
     },
 
     getName: function () {

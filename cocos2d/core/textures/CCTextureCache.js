@@ -170,10 +170,13 @@ var textureCache = /** @lends cc.textureCache# */{
      * @example {@link utils/api/engine/docs/cocos2d/core/textures/removeTextureForKey.js}
      */
     removeTextureForKey: function (textureKeyName) {
-        if (textureKeyName == null)
+        if (typeof textureKeyName !== 'string')
             return;
-        if (this._textures[textureKeyName])
-            delete(this._textures[textureKeyName]);
+        var locTextures = this._textures;
+        if (locTextures[textureKeyName]) {
+            locTextures[textureKeyName].releaseTexture();
+            delete(locTextures[textureKeyName]);
+        }
     },
     
     /**
