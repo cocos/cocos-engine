@@ -141,18 +141,23 @@ function getSGTarget (target) {
     if (target instanceof cc.Component) {
         target = target.node._sgNode;
     }
-    if (target instanceof cc.Node) {
+    else if (target instanceof cc.Node) {
         target = target._sgNode;
+    }
+    else if (!(target instanceof _ccsg.Node)) {
+        target = null;
     }
     return target;
 }
 var jsbAddAction = cc.ActionManager.prototype.addAction;
 cc.ActionManager.prototype.addAction = function (action, target, paused) {
     target = getSGTarget(target);
-    jsbAddAction.call(this, action, target, paused);
-    if (action._retained) {
-        action.release();
-        action._retained = false;
+    if (target) {
+        jsbAddAction.call(this, action, target, paused);
+        if (action._retained) {
+            action.release();
+            action._retained = false;
+        }
     }
 };
 
@@ -161,7 +166,12 @@ function actionMgrFuncReplacer (funcName, targetPos) {
     var oldFunc = proto[funcName];
     proto[funcName] = function () {
         arguments[targetPos] = getSGTarget(arguments[targetPos]);
-        return oldFunc.apply(this, arguments);
+        if (!arguments[targetPos]) {
+            return;
+        }
+        else {
+            return oldFunc.apply(this, arguments);
+        }
     };
 }
 
