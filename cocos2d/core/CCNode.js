@@ -279,8 +279,11 @@ function findChildComponent (children, constructor) {
         if (comp) {
             return comp;
         }
-        else if(node.children.length > 0) {
-            return findChildComponent(node.children, constructor);
+        else if (node.children.length > 0) {
+            comp = findChildComponent(node.children, constructor);
+            if (comp) {
+                return comp;
+            }
         }
     }
     return null;
@@ -290,7 +293,7 @@ function findChildComponents (children, constructor, components) {
     for (var i = 0; i < children.length; ++i) {
         var node = children[i];
         findComponents(node, constructor, components);
-        if (node._children.length > 0 ) {
+        if (node._children.length > 0) {
             findChildComponents(node._children, constructor, components);
         }
     }

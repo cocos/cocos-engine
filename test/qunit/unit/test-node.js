@@ -159,16 +159,35 @@ test('get self components', function () {
         extends: cc.Component
     });
 
-    var obj = new cc.Node("New Node");
+    var obj = new cc.Node("New Node 1");
     cc.director.getScene().addChild(obj);
     obj.addComponent(MyComponent);
     obj.addComponent(MyComponent);
     obj.addComponent(MyComponent);
 
+    //-- layer 1
+    var obj1 = new cc.Node("New Node 2");
+    obj1.parent = obj;
+
+    var obj2 = new cc.Node("New Node 3");
+    var comp = obj2.addComponent(MyComponent);
+    obj2.parent = obj1;
+
+    //-- layer 2
+    var obj3 = new cc.Node("New Node 4");
+    obj3.parent = obj2;
+
+    var obj4 = new cc.Node("New Node 5");
+    obj4.addComponent(MyComponent);
+    obj4.parent = obj3;
+
     ok(obj.getComponents(MyComponent).length === 3, 'getComponents: can get my component array');
+    ok(obj.getComponentInChildren(MyComponent) === comp, 'getComponentInChildren: can get my component in children');
+    ok(obj.getComponentsInChildren(MyComponent).length === 2, 'getComponentsInChildren: can get my components in children');
 
     cc.js.unregisterClass(MyComponent);
 });
+
 
 test('should not include self component', function () {
     var MyComponent = cc.Class({
@@ -180,23 +199,13 @@ test('should not include self component', function () {
     cc.director.getScene().addChild(obj);
     obj.addComponent(MyComponent);
     obj.addComponent(MyComponent);
+    obj.addComponent(MyComponent);
 
-    //-- layer 1
     var obj1 = new cc.Node("New Node 1");
-    obj1.addComponent(MyComponent);
     obj1.parent = obj;
 
-    var obj2 = new cc.Node("New Node 4");
-    obj2.addComponent(MyComponent);
-    obj2.parent = obj;
-
-    //-- layer 2
-    var obj3 = new cc.Node("New Node 2");
-    var comp5 = obj3.addComponent(MyComponent);
-    obj3.parent = obj1;
-
-    ok(obj1.getComponentInChildren(MyComponent) === comp5, 'getComponentInChildren: can get my component in children');
-    ok(obj.getComponentsInChildren(MyComponent).length === 3, 'getComponentsInChildren: can get my components in children');
+    ok(obj.getComponentInChildren(MyComponent) === null, 'getComponentInChildren should not include self component');
+    ok(obj.getComponentsInChildren(MyComponent).length === 0, 'getComponentsInChildren should not include self component');
 
     cc.js.unregisterClass(MyComponent);
 });
