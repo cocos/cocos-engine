@@ -744,86 +744,19 @@ var Component = cc.Class({
     },
 });
 
-/**
- * Automatically add required component as a dependency.
- *
- * @property _requireComponent
- * @type {Function}
- * @default null
- * @static
- * @readonly
- * @private
- */
 Component._requireComponent = null;
 
 if (CC_DEV) {
 
     // INHERITABLE STATIC MEMBERS
 
-    /**
-     * Makes a component execute in edit mode.
-     * By default, all components are only executed in play mode,
-     * which means they will not have their callback functions executed while the Editor is in edit mode.
-     *
-     * @property _executeInEditMode
-     * @type {Boolean}
-     * @default false
-     * @static
-     * @readonly
-     * @private
-     */
     Component._executeInEditMode = false;
-
-    /**
-     * This property is only available if _executeInEditMode is true.
-     * If specified, the editor's scene view will keep updating this node in 60 fps when it is selected,
-     * otherwise, it will update only if necessary.
-     *
-     * @property _playOnFocus
-     * @type {Boolean}
-     * @default false
-     * @static
-     * @readonly
-     * @private
-     */
     Component._playOnFocus = false;
-
-    /**
-     * If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
-     *
-     * @property _disallowMultiple
-     * @type {Function}
-     * @default null
-     * @static
-     * @readonly
-     * @private
-     */
     Component._disallowMultiple = null;
 
     // NON-INHERITED STATIC MEMBERS
 
-    /**
-     * Specifying the url of the custom html to draw the component in inspector.
-     *
-     * @property _inspector
-     * @type {String}
-     * @default ""
-     * @static
-     * @readonly
-     * @private
-     */
     Object.defineProperty(Component, '_inspector', { value: '', enumerable: false });
-
-    /**
-     * Specifying the url of the icon to display in inspector.
-     *
-     * @property _icon
-     * @type {String}
-     * @default ""
-     * @static
-     * @readonly
-     * @private
-     */
     Object.defineProperty(Component, '_icon', { value: '', enumerable: false });
 
     // COMPONENT HELPERS
@@ -876,8 +809,6 @@ Object.defineProperty(Component, '_registerEditorProps', {
                         Object.defineProperty(cls, '_icon', { value: val });
                         break;
 
-                    // {String} menu
-                    // The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera"
                     case 'menu':
                         Component._addMenuItem(cls, val, props.menuPriority);
                         break;

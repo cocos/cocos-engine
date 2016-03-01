@@ -30,7 +30,6 @@ var FireClass = require('../platform/CCClass');
 /**
  * Representation of 2D vectors and points.
  *
- * see {{#crossLink Vec2 }}cc.Vec2{{/crossLink}}
  * @class Vec2
  * @extends ValueType
  * @constructor
@@ -470,14 +469,12 @@ JS.get(Vec2, 'RIGHT', function () {
 cc.Vec2 = Vec2;
 
 /**
- *
  * @module cc
- *
  */
 
 
 /**
- * The convenience method to create a new {{#crossLink Vec2/Vec2 }}{{/crossLink}}
+ * The convenience method to create a new {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}.
  * @method v2
  * @param {Number|Object} [x=0]
  * @param {Number} [y=0]
@@ -488,7 +485,7 @@ cc.v2 = function v2 (x, y) {
 };
 
 /**
- * Helper function that creates a cc.Vec2.
+ * The convenience method to creates a new {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}.
  * @method p
  * @param {Number|Object} [x=0] a Number or a size object
  * @param {Number} [y=0]
