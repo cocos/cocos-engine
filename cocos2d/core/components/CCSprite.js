@@ -76,7 +76,7 @@ var Sprite = cc.Class({
     },
 
     ctor: function() {
-        this._blendFunc = cc.BlendFunc.ALPHA_NON_PREMULTIPLIED;
+        this._blendFunc = new cc.BlendFunc(this._srcBlendFactor, this._dstBlendFactor);
     },
 
     properties: {
@@ -93,6 +93,8 @@ var Sprite = cc.Class({
         _fillStart: 0,
         _fillRange: 0,
         _isTrimmedMode: true,
+        _srcBlendFactor: BlendFactor.SRC_ALPHA,
+        _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
         /**
          * The Sprite Atlas.
          * @property _atlas
@@ -216,9 +218,10 @@ var Sprite = cc.Class({
          */
         srcBlendFactor: {
             get: function() {
-                return this._blendFunc.src;
+                return this._srcBlendFactor;
             },
             set: function(value) {
+                this._srcBlendFactor = value;
                 this._blendFunc.src = value;
                 this._sgNode.setBlendFunc(this._blendFunc);
             },
@@ -233,9 +236,10 @@ var Sprite = cc.Class({
          */
         dstBlendFactor: {
             get: function() {
-                return this._blendFunc.dst;
+                return this._dstBlendFactor;
             },
             set: function(value) {
+                this._dstBlendFactor = value;
                 this._blendFunc.dst = value;
                 this._sgNode.setBlendFunc(this._blendFunc);
             },
@@ -568,6 +572,8 @@ var Sprite = cc.Class({
         sgNode.setFillStart(this._fillStart);
         sgNode.setFillRange(this._fillRange);
         sgNode.enableTrimmedContentSize(this._isTrimmedMode);
+        this._blendFunc.src = this._srcBlendFactor;
+        this._blendFunc.dst = this._dstBlendFactor;
         sgNode.setBlendFunc(this._blendFunc);
     },
 
