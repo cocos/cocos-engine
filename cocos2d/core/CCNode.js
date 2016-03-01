@@ -291,10 +291,7 @@ function findChildComponents (children, constructor, components) {
             components.push(comp);
         }
         else {
-            comp = findChildComponents(node._children, constructor, components);
-            if (comp) {
-                components.push(comp);
-            }
+            findChildComponents(node._children, constructor, components);
         }
     }
 }
