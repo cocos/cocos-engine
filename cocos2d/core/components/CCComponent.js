@@ -322,7 +322,7 @@ var Component = cc.Class({
         },
 
         /**
-         * indicates whether this component is enabled and its entity is also active in the hierarchy.
+         * indicates whether this component is enabled and its node is also active in the hierarchy.
          * @property enabledInHierarchy
          * @type {Boolean}
          * @readOnly
@@ -376,7 +376,7 @@ var Component = cc.Class({
     lateUpdate: null,
 
     /**
-     * When attaching to an active entity or its entity first activated
+     * When attaching to an active node or its node first activated
      * @method onLoad
      */
     onLoad: null,
@@ -388,13 +388,13 @@ var Component = cc.Class({
     start: null,
 
     /**
-     * Called when this component becomes enabled and its entity becomes active
+     * Called when this component becomes enabled and its node becomes active
      * @method onEnable
      */
     onEnable: null,
 
     /**
-     * Called when this component becomes disabled or its entity becomes inactive
+     * Called when this component becomes disabled or its node becomes inactive
      * @method onDisable
      */
     onDisable: null,
@@ -423,11 +423,11 @@ var Component = cc.Class({
     // PUBLIC
 
     /**
-     * Adds a component class to the entity. You can also add component to entity by passing in the name of the
+     * Adds a component class to the node. You can also add component to node by passing in the name of the
      * script.
      *
      * @method addComponent
-     * @param {Function|String} typeOrName - the constructor or the class name of the component to add
+     * @param {Function|String} typeOrTypename - the constructor or the class name of the component to add
      * @return {Component} - the newly added component
      */
     addComponent: function (typeOrTypename) {
@@ -435,15 +435,48 @@ var Component = cc.Class({
     },
 
     /**
-     * Returns the component of supplied type if the entity has one attached, null if it doesn't. You can also get
-     * component in the entity by passing in the name of the script.
+     * Returns the component of supplied type if the node has one attached, null if it doesn't. You can also get
+     * component in the node by passing in the name of the script.
      *
      * @method getComponent
-     * @param {Function|String} typeOrName
+     * @param {Function|String} typeOrClassName
      * @return {Component}
      */
-    getComponent: function (typeOrTypename) {
-        return this.node.getComponent(typeOrTypename);
+    getComponent: function (typeOrClassName) {
+        return this.node.getComponent(typeOrClassName);
+    },
+
+    /**
+     * Returns all components of supplied Type in the node.
+     *
+     * @method getComponents
+     * @param {Function|String} typeOrClassName
+     * @return {Component[]}
+     */
+    getComponents: function (typeOrClassName) {
+        return this.node.getComponents(typeOrClassName);
+    },
+
+    /**
+     * Returns the component of supplied type in any of its children using depth first search.
+     *
+     * @method getComponentInChildren
+     * @param {Function|String} typeOrClassName
+     * @returns {Component}
+     */
+    getComponentInChildren: function (typeOrClassName) {
+        return this.node.getComponentInChildren(typeOrClassName);
+    },
+
+    /**
+     * Returns the components of supplied type in any of its children using depth first search.
+     *
+     * @method getComponentsInChildren
+     * @param {Function|String} typeOrClassName
+     * @returns {Component[]}
+     */
+    getComponentsInChildren: function (typeOrClassName) {
+        return this.node.getComponentsInChildren(typeOrClassName);
     },
 
     ///**

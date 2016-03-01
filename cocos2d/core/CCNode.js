@@ -241,6 +241,63 @@ var _searchMaskParent = function (node) {
     return null;
 };
 
+function getConstructor (typeOrClassName) {
+    if ( !typeOrClassName ) {
+        cc.error('getComponent: Type must be non-nil');
+        return null;
+    }
+    if (typeof typeOrClassName === 'string') {
+        return JS.getClassByName(typeOrClassName);
+    }
+
+    return typeOrClassName;
+}
+
+function findComponent (node, constructor) {
+    for (var i = 0; i < node._components.length; ++i) {
+        var comp = node._components[i];
+        if (comp instanceof constructor) {
+            return comp;
+        }
+    }
+    return null;
+}
+
+function findComponents (node, constructor, components) {
+    for (var i = 0; i < node._components.length; ++i) {
+        var comp = node._components[i];
+        if (comp instanceof constructor) {
+            components.push(comp);
+        }
+    }
+}
+
+function findChildComponent (children, constructor) {
+    for (var i = 0; i < children.length; ++i) {
+        var node = children[i];
+        var comp = findComponent(node, constructor);
+        if (comp) {
+            return comp;
+        }
+        else if (node.children.length > 0) {
+            comp = findChildComponent(node.children, constructor);
+            if (comp) {
+                return comp;
+            }
+        }
+    }
+    return null;
+}
+
+function findChildComponents (children, constructor, components) {
+    for (var i = 0; i < children.length; ++i) {
+        var node = children[i];
+        findComponents(node, constructor, components);
+        if (node._children.length > 0) {
+            findChildComponents(node._children, constructor, components);
+        }
+    }
+}
 
 /**
  * Class of all entities in Cocos Creator scenes.
@@ -461,26 +518,59 @@ var Node = cc.Class({
      * @returns {Component}
      */
     getComponent: function (typeOrClassName) {
-        if ( !typeOrClassName ) {
-            cc.error('getComponent: Type must be non-nil');
-            return null;
-        }
-        var constructor;
-        if (typeof typeOrClassName === 'string') {
-            constructor = JS.getClassByName(typeOrClassName);
-        }
-        else {
-            constructor = typeOrClassName;
-        }
+        var constructor = getConstructor(typeOrClassName);
         if (constructor) {
-            for (var c = 0; c < this._components.length; ++c) {
-                var component = this._components[c];
-                if (component instanceof constructor) {
-                    return component;
-                }
-            }
+            return findComponent(this, constructor);
         }
         return null;
+    },
+
+    /**
+     * Returns all components of supplied Type in the node.
+     *
+     * @method getComponents
+     * @param {Function|String} typeOrClassName
+     * @returns {Component[]}
+     */
+    getComponents: function (typeOrClassName) {
+        var constructor = getConstructor(typeOrClassName), components = [];
+        if (constructor) {
+            findComponents(this, constructor, components);
+        }
+
+        return components;
+    },
+
+    /**
+     * Returns the component of supplied type in any of its children using depth first search.
+     *
+     * @method getComponentInChildren
+     * @param {Function|String} typeOrClassName
+     * @returns {Component}
+     */
+    getComponentInChildren: function (typeOrClassName) {
+        var constructor = getConstructor(typeOrClassName);
+        if (constructor) {
+            return findChildComponent(this._children, constructor);
+        }
+
+        return null;
+    },
+
+    /**
+     * Returns the components of supplied type in any of its children using depth first search.
+     *
+     * @method getComponentsInChildren
+     * @param {Function|String} typeOrClassName
+     * @returns {Component[]}
+     */
+    getComponentsInChildren: function (typeOrClassName) {
+        var constructor = getConstructor(typeOrClassName), components = [];
+        if (constructor) {
+            findChildComponents(this._children, constructor, components);
+        }
+
+        return components;
     },
 
     _checkMultipleComp: CC_EDITOR && function (ctor) {
@@ -500,7 +590,7 @@ var Node = cc.Class({
     },
 
     /**
-     * Adds a component class to the node. You can also add component to entity by passing in the name of the script.
+     * Adds a component class to the node. You can also add component to node by passing in the name of the script.
      *
      * @method addComponent
      * @param {Function|String} typeOrClassName - The constructor or the class name of the component to add

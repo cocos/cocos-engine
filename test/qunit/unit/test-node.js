@@ -152,6 +152,64 @@ test('activation logic for component', function () {
     cc.js.unregisterClass(MyComponent, MyComponentBase);
 });
 
+test('get self components', function () {
+
+    var MyComponent = cc.Class({
+        name: 'MyComponent',
+        extends: cc.Component
+    });
+
+    var obj = new cc.Node("New Node 1");
+    cc.director.getScene().addChild(obj);
+    obj.addComponent(MyComponent);
+    obj.addComponent(MyComponent);
+    obj.addComponent(MyComponent);
+
+    //-- layer 1
+    var obj1 = new cc.Node("New Node 2");
+    obj1.parent = obj;
+
+    var obj2 = new cc.Node("New Node 3");
+    var comp = obj2.addComponent(MyComponent);
+    obj2.parent = obj1;
+
+    //-- layer 2
+    var obj3 = new cc.Node("New Node 4");
+    obj3.parent = obj2;
+
+    var obj4 = new cc.Node("New Node 5");
+    obj4.addComponent(MyComponent);
+    obj4.parent = obj3;
+
+    ok(obj.getComponents(MyComponent).length === 3, 'getComponents: can get my component array');
+    ok(obj.getComponentInChildren(MyComponent) === comp, 'getComponentInChildren: can get my component in children');
+    ok(obj.getComponentsInChildren(MyComponent).length === 2, 'getComponentsInChildren: can get my components in children');
+
+    cc.js.unregisterClass(MyComponent);
+});
+
+
+test('should not include self component', function () {
+    var MyComponent = cc.Class({
+        name: 'MyComponent',
+        extends: cc.Component
+    });
+
+    var obj = new cc.Node("New Node");
+    cc.director.getScene().addChild(obj);
+    obj.addComponent(MyComponent);
+    obj.addComponent(MyComponent);
+    obj.addComponent(MyComponent);
+
+    var obj1 = new cc.Node("New Node 1");
+    obj1.parent = obj;
+
+    ok(obj.getComponentInChildren(MyComponent) === null, 'getComponentInChildren should not include self component');
+    ok(obj.getComponentsInChildren(MyComponent).length === 0, 'getComponentsInChildren should not include self component');
+
+    cc.js.unregisterClass(MyComponent);
+});
+
 test('life cycle logic for component', function () {
     // my component
     var MyComponent = cc.Class({
