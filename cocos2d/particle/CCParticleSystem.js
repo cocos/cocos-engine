@@ -22,6 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var BlendFactor = cc.BlendFunc.BlendFactor;
 /**
  * Enum for emitter modes
  * @enum EmitterMode
@@ -180,6 +181,44 @@ var properties = {
             this._sgNode.particleCount = value;
         },
         visible: false
+    },
+
+    /**
+     * specify the source Blend Factor
+     * @property srcBlendFactor
+     * @type {BlendFactor}
+     */
+    _srcBlendFactor : BlendFactor.SRC_ALPHA,
+    srcBlendFactor: {
+        get: function() {
+            return this._srcBlendFactor;
+        },
+        set: function(value) {
+            this._srcBlendFactor = value;
+            this._blendFunc.src = value;
+            this._sgNode.setBlendFunc(this._blendFunc);
+        },
+        animatable: false,
+        type:BlendFactor
+    },
+
+    /**
+     * specify the destination Blend Factor
+     * @property dstBlendFactor
+     * @type {BlendFactor}
+     */
+    _dstBlendFactor : BlendFactor.ONE_MINUS_SRC_ALPHA,
+    dstBlendFactor: {
+        get: function() {
+            return this._dstBlendFactor;
+        },
+        set: function(value) {
+            this._dstBlendFactor = value;
+            this._blendFunc.dst = value;
+            this._sgNode.setBlendFunc(this._blendFunc);
+        },
+        animatable: false,
+        type: BlendFactor
     },
 
     /**
@@ -535,6 +574,7 @@ var ParticleSystem = cc.Class({
         this._previewTimer = null;
         this._focused = false;
         this._willStart = false;
+        this._blendFunc = new cc.BlendFunc(this._srcBlendFactor, this._dstBlendFactor);
     },
 
     properties: properties,
@@ -775,6 +815,10 @@ var ParticleSystem = cc.Class({
             var prop = CustomProps[i];
             sgNode[prop] = this['_' + prop];
         }
+        this._blendFunc.src = this._srcBlendFactor;
+        this._blendFunc.dst = this._dstBlendFactor;
+        sgNode.setBlendFunc(this._blendFunc);
+
         if (this._texture) {
             sgNode.texture = cc.textureCache.addImage(this._texture);
         }
