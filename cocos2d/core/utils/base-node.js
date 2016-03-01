@@ -1528,6 +1528,16 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         sgNode.setAnchorPoint(this._anchorPoint);
         sgNode.setVisible(this._active);
         sgNode.setColor(this._color);
+        
+        // update ActionManager and EventManager because sgNode maybe changed
+        if (this._activeInHierarchy) {
+            cc.director.getActionManager().resumeTarget(this);
+            cc.eventManager.resumeTarget(this);
+        }
+        else {
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+        }
     },
 
     // The deserializer for sgNode which will be called before components onLoad
@@ -1536,6 +1546,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         if (this._parent) {
             this._parent._sgNode.addChild(this._sgNode);
+        }
+
+        if ( !this._activeInHierarchy ) {
+            // deactivate ActionManager and EventManager by default
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
         }
 
         var children = this._children;
