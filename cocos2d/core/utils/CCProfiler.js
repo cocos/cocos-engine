@@ -2,9 +2,15 @@
  * @class profiler
  */
 cc.profiler = (function () {
-    var _inited = _showFPS = false;
-    var _frames = _frameRate = _lastSPF = _accumDt = 0;
-    var _afterProjection = _afterVisitListener = _FPSLabel = _SPFLabel = _drawsLabel = null;
+    var _inited = false, 
+        _showFPS = false;
+    var _frames = 0, 
+        _frameRate = 0,
+        _lastSPF = 0,
+        _accumDt = 0;
+    var _FPSLabel = null,
+        _SPFLabel = null,
+        _drawsLabel = null;
 
     var LEVEL_DET_FACTOR = 0.6, _levelDetCycle = 10;
     var LEVELS = [0, 10, 20, 30];
@@ -36,7 +42,10 @@ cc.profiler = (function () {
     };
 
     var analyseFPS = function (fps) {
-        var lastId = i = LEVELS.length - 1, ratio, average = 0;
+        var lastId = LEVELS.length - 1,
+            i = lastId, 
+            ratio, 
+            average = 0;
         _analyseCount++;
         _totalFPS += fps;
 
@@ -54,7 +63,7 @@ cc.profiler = (function () {
                 // Determined level
                 if (ratio >= LEVEL_DET_FACTOR && average >= LEVELS[i]) {
                     // Level changed
-                    if (i != _currLevel) {
+                    if (i !== _currLevel) {
                         _currLevel = i;
                         profiler.onFrameRateChange && profiler.onFrameRateChange(average.toFixed(2));
                     }
@@ -63,7 +72,6 @@ cc.profiler = (function () {
                 // If no level determined, that means the framerate is not stable
             }
 
-            _changeCount = 0;
             _analyseCount = 0;
             _totalFPS = 0;
             for (i = lastId; i > 0; i--) {
@@ -150,6 +158,7 @@ cc.profiler = (function () {
 
         hideStats: function () {
             _showFPS = false;
+            cc.renderer.childrenOrderDirty = true;
         },
 
         init: function () {
