@@ -659,11 +659,82 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 }
 
 /**
+ * @class _ComponentAttributes
+ * @constructor
+ */
+/**
+ * Automatically add required component as a dependency.
+ *
+ * @property requireComponent
+ * @type {Component}
+ * @default null
+ */
+/**
+ * If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
+ *
+ * @property disallowMultiple
+ * @type {Component}
+ * @default null
+ */
+/**
+ * The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera".
+ *
+ * @property menu
+ * @type {String}
+ * @default ""
+ */
+/**
+ * Makes a component execute in edit mode.
+ * By default, all components are only executed in play mode,
+ * which means they will not have their callback functions executed while the Editor is in edit mode.
+ *
+ * @property executeInEditMode
+ * @type {Boolean}
+ * @default false
+ */
+/**
+ * This property is only available if executeInEditMode is true.
+ * If specified, the editor's scene view will keep updating this node in 60 fps when it is selected,
+ * otherwise, it will update only if necessary.
+ *
+ * @property playOnFocus
+ * @type {Boolean}
+ * @default false
+ */
+/**
+ * Specifying the url of the custom html to draw the component in inspector.
+ *
+ * @property inspector
+ * @type {String}
+ * @default ""
+ */
+/**
+ * Specifying the url of the icon to display in inspector.
+ *
+ * @property icon
+ * @type {String}
+ * @default ""
+ */
+
+/**
+ * @module cc
+ */
+
+/**
  * !#en Defines a CCClass using the given specification, please see [Class](/en/scripting/class/) for details.
  * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
- *
+ * 
  * @method Class
- * @param {Object} options
+ * 
+ * @param {Object} [options]
+ * @param {String} [options.name] - The class name used for serialization.
+ * @param {Function} [options.extends] - The base class.
+ * @param {Function} [options.ctor] - The constructor.
+ * @param {Object} [options.properties] - The property definitions.
+ * @param {Object} [options.editor] - The attributes for Component, see {{#crossLink "_ComponentAttributes"}}ComponentAttributes{{/crossLink}}.
+ * @param {Object} [options.statics] - The static members.
+ * @param {Function[]} [options.mixins]
+ * 
  * @return {Function} - the created class
  *
  * @example
