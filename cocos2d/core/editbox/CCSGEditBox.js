@@ -78,7 +78,7 @@ var InputMode = cc.Enum({
      * The user is allowed to enter an e-mail address.
      * @property {Number} EMAILADDR
      */
-    EMAILADDR: 1,
+    EMAIL_ADDR: 1,
 
     /**
      * The user is allowed to enter an integer value.
@@ -90,7 +90,7 @@ var InputMode = cc.Enum({
      * The user is allowed to enter a phone number.
      * @property {Number} PHONENUMBER
      */
-    PHONENUMBER: 3,
+    PHONE_NUMBER: 3,
 
     /**
      * The user is allowed to enter a URL.
@@ -109,7 +109,7 @@ var InputMode = cc.Enum({
      * The user is allowed to enter any text, except for line breaks.
      * @property {Number} SINGLELINE
      */
-    SINGLELINE: 6
+    SINGLE_LINE: 6
 });
 
 /**

@@ -41,7 +41,7 @@ cc.EditBox.InputMode = cc.Enum({
     /**
      * The user is allowed to enter an e-mail address.
      */
-    EMAILADDR: 1,
+    EMAIL_ADDR: 1,
 
     /**
      * The user is allowed to enter an integer value.
@@ -51,7 +51,7 @@ cc.EditBox.InputMode = cc.Enum({
     /**
      * The user is allowed to enter a phone number.
      */
-    PHONENUMBER: 3,
+    PHONE_NUMBER: 3,
 
     /**
      * The user is allowed to enter a URL.
@@ -67,7 +67,7 @@ cc.EditBox.InputMode = cc.Enum({
     /**
      * The user is allowed to enter any text, except for line breaks.
      */
-    SINGLELINE: 6
+    SINGLE_LINE: 6
 });
 
 /**
