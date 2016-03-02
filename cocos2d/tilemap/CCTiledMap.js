@@ -202,14 +202,23 @@ var TiledMap = cc.Class({
         }
 
         self._isLoading = true;
-        this._preloadTextures(mapInfo, function(err, results) {
-            if (err) {
-                self._onMapLoaded(err);
-            } else {
+        if (cc.sys.isNative) {
+            // TODO Consider to remove the setTimeout
+            // In native environment, the reason of using setTimeout:
+            // If not use setTimeout, the _sgNode of cc.TiledLayer
+            // will be removed from the scene graph.
+            setTimeout(function() {
                 sgNode.initWithXML(tmxString, resourcePath);
                 self._onMapLoaded();
-            }
-        });
+            }, 0);
+        } else {
+            this._preloadTextures(mapInfo, function (err, results) {
+                if (!err) {
+                    sgNode.initWithXML(tmxString, resourcePath);
+                }
+                self._onMapLoaded(err);
+            });
+        }
     },
 
     /**
@@ -370,9 +379,15 @@ var TiledMap = cc.Class({
             if (this._enabled) {
                 this._refreshLayerEntities();
                 this._anchorChanged();
+            } else {
+                this._moveLayersInSgNode(this._sgNode);
             }
         }
-        cc.Component.EventHandler.emitEvents(this.mapLoaded, err);
+
+        if (!CC_EDITOR) {
+            // if it's not in Editor, emit mapLoaded events.
+            cc.Component.EventHandler.emitEvents(this.mapLoaded, err);
+        }
     },
 
     _moveLayersInSgNode: function(sgNode) {
@@ -558,15 +573,26 @@ var TiledMap = cc.Class({
         var self = this;
         if (file) {
             self._isLoading = true;
-            this._preloadTmx(file, function (err, results) {
-                if (!err) {
-                    sgNode.initWithTMXFile(file);
-                    if (! self._enabled) {
-                        self._moveLayersInSgNode(sgNode);
+            if (cc.sys.isNative) {
+                // TODO Consider to remove the setTimeout
+                // In native environment, the reason of using setTimeout:
+                // If not use setTimeout, the _sgNode of cc.TiledLayer
+                // will be removed from the scene graph.
+                setTimeout(function() {
+                    if (sgNode.initWithTMXFile(file)) {
+                        self._onMapLoaded();
+                    } else {
+                        self._onMapLoaded(new Error('Parse map info failed.'));
                     }
-                }
-                self._onMapLoaded(err);
-            });
+                }, 0);
+            } else {
+                this._preloadTmx(file, function (err, results) {
+                    if (!err) {
+                        sgNode.initWithTMXFile(file);
+                    }
+                    self._onMapLoaded(err);
+                });
+            }
         } else {
             // tmx file is cleared
             // 1. hide the tmx layers in _sgNode
