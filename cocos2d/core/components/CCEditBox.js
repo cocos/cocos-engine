@@ -252,7 +252,8 @@ var EditBox = cc.Class({
 
     _createBackgroundSprite: function() {
         var sgNode = this._sgNode;
-        var bgSprite = new cc.Scale9Sprite(this.backgroundImage);
+        var bgSprite = new cc.Scale9Sprite();
+        bgSprite.setSpriteFrame(this.backgroundImage);
         sgNode.initWithSizeAndBackgroundSprite(cc.size(160, 40), bgSprite);
         return bgSprite;
     },
