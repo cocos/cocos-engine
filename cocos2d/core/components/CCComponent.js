@@ -405,12 +405,6 @@ var Component = cc.Class({
      */
     onDestroy: null,
 
-    ///**
-    // * Called when the engine starts rendering the scene.
-    // * @method onPreRender
-    // */
-    //onPreRender: null,
-
     /**
      * @method onFocusInEditor
      */
