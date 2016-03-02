@@ -74,7 +74,6 @@ var EditBox = cc.Class({
                 var backgroundSprite = sgNode.getBackgroundSprite();
                 if(this.backgroundImage) {
                     var sprite = this._createBackgroundSprite();
-                    sprite.setSpriteFrame(this.backgroundImage);
                     sprite.setContentSize(sgNode.getContentSize());
                 }
                 else {
@@ -246,6 +245,14 @@ var EditBox = cc.Class({
         InputMode: InputMode
     },
 
+    _applyCapInset: function (sprite) {
+        var backgroundImage = this.backgroundImage;
+        sprite.setInsetTop(backgroundImage.insetTop);
+        sprite.setInsetBottom(backgroundImage.insetBottom);
+        sprite.setInsetRight(backgroundImage.insetRight);
+        sprite.setInsetLeft(backgroundImage.insetLeft);
+    },
+
     _createSgNode: function() {
         return new _ccsg.EditBox(cc.size(160, 40));
     },
@@ -254,6 +261,8 @@ var EditBox = cc.Class({
         var sgNode = this._sgNode;
         var bgSprite = new cc.Scale9Sprite();
         bgSprite.setSpriteFrame(this.backgroundImage);
+        bgSprite.setRenderingType(cc.Scale9Sprite.RenderingType.SLICED);
+        this._applyCapInset(bgSprite);
         sgNode.initWithSizeAndBackgroundSprite(cc.size(160, 40), bgSprite);
         return bgSprite;
     },

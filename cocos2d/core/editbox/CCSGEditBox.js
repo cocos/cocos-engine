@@ -711,10 +711,9 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._nativeControl.show();
     },
 
-    _updateBackgroundSpriteSizeAndPosition: function (width, height) {
+    _updateBackgroundSpriteSize: function (width, height) {
         if(this._backgroundSprite) {
             this._backgroundSprite.setContentSize(width, height);
-            this._backgroundSprite.setPosition(cc.p(width/2, height/2));
         }
     },
 
@@ -724,7 +723,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         var newWidth = size.width || size;
         var newHeight = size.height || height;
 
-        this._updateBackgroundSpriteSizeAndPosition(newWidth, newHeight);
+        this._updateBackgroundSpriteSize(newWidth, newHeight);
         this._nativeControl.setSize(newWidth, newHeight);
     },
 
@@ -913,9 +912,10 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._backgroundSprite = normal9SpriteBg;
 
         if(this._backgroundSprite && !this._backgroundSprite.parent) {
+            this._backgroundSprite.setAnchorPoint(cc.p(0, 0));
             this.addChild(this._backgroundSprite);
 
-            this._updateBackgroundSpriteSizeAndPosition(size.width, size.height);
+            this._updateBackgroundSpriteSize(size.width, size.height);
         }
 
 
