@@ -853,6 +853,10 @@ function CCClass (options) {
         if (BUILTIN_ENTRIES.indexOf(funcName) >= 0) {
             continue;
         }
+        if (funcName === 'constructor' && CC_EDITOR) {
+            cc.error('Can not define a member called "constructor" in the class "%s", please use "ctor" instead.', name);
+            continue;
+        }
         var func = options[funcName];
         if (typeof func === 'function' || func === null) {
             // use defineProperty to redefine some super method defined as getter
