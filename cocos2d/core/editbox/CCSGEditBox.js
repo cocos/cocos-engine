@@ -251,9 +251,9 @@ EditBoxImpl.prototype = {
 
     _updateLabelPosition: function (editBoxSize) {
         var textLabelSize = this._textLabel.getContentSize();
-        var placeholderLabelSize = this._placeholderLabel.getContentSize();
         this._placeholderLabel.setLineHeight(editBoxSize.height);
         this._textLabel.setContentSize(editBoxSize);
+        var placeholderLabelSize = this._placeholderLabel.getContentSize();
 
         if (this._editBox._editBoxInputMode === InputMode.ANY){
             this._textLabel.setPosition(cc.p(0, editBoxSize.height));
