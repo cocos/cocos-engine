@@ -80,6 +80,7 @@ class SpineMeta extends CustomAssetMeta {
     constructor (assetdb) {
         super(assetdb);
         this.textures = [];
+        this.atlas = '';
         this.scale = 1;
     }
 
@@ -93,7 +94,7 @@ class SpineMeta extends CustomAssetMeta {
         //this.textures[0] = value;
     }
 
-    static version () { return '1.0.0'; }
+    static version () { return '1.0.1'; }
     static defaultType () {
         return 'spine';
     }
@@ -123,9 +124,17 @@ class SpineMeta extends CustomAssetMeta {
         return false;
     }
 
+    dests () {
+        var res = super.dests();
+        // for JSB
+        res.push(this._assetdb._uuidToImportPathNoExt(this.uuid) + '.raw.json');
+        if (this.atlas) {
+            res.push(this._assetdb._uuidToImportPathNoExt(this.atlas) + '.atlas');
+        }
+        return res;
+    }
+    
     import (fspath, cb) {
-        var self = this;
-
         Fs.readFile(fspath, SPINE_ENCODING, (err, data) => {
             if (err) {
                 return cb(err);
@@ -149,6 +158,8 @@ class SpineMeta extends CustomAssetMeta {
                     return cb(err);
                 }
 
+                var db = this._assetdb;
+
                 // parse atlas textures
                 var textureParser = new TextureParser(res.atlasPath);
                 try {
@@ -167,10 +178,21 @@ class SpineMeta extends CustomAssetMeta {
 
                 //
                 asset.atlasText = res.data;
-
+                
+                // save raw assets for JSB..
+                
+                var atlasUuid = db.fspathToUuid(res.atlasPath);
+                asset.atlasUrl = db.uuidToUrl(atlasUuid);
+                
+                var rawJsonPath = db._uuidToImportPathNoExt(this.uuid) + '.raw.json';
+                db.mkdirForAsset(rawJsonPath);
+                Fs.copySync(fspath, rawJsonPath);
+                
+                this.atlas = atlasUuid;     // save for dest()
+                
                 //
-                self._assetdb.saveAssetToLibrary(self.uuid, asset);
-
+                
+                db.saveAssetToLibrary(this.uuid, asset);
                 cb();
             });
         });

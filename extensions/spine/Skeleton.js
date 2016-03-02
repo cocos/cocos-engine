@@ -287,15 +287,29 @@ sp.Skeleton = cc.Class({
         this._refresh();
     },
 
-    //onEnable: function () {
-    //    this._super();
-    //},
-
     _createSgNode: function () {
         if (this.skeletonData/* && self.atlasFile*/) {
-            var data = this.skeletonData.getRuntimeData();
-            if (data) {
-                return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+            if (CC_JSB) {
+                var uuid = this.skeletonData._uuid;
+                if ( !uuid ) {
+                    cc.error('Can not render dynamic created SkeletonData');
+                    return null;
+                }
+                var jsonFile = cc.AssetLibrary.getImportedDir(uuid) + '/' + uuid + '.raw.json';
+                var atlasFile = this.skeletonData.atlasUrl;
+                if (atlasFile) {
+                    if (typeof atlasFile !== 'string') {
+                        cc.error('Invalid type of atlasFile, atlas should be registered as raw asset.');
+                        return null;
+                    }
+                    return new sp._SGSkeletonAnimation(jsonFile, atlasFile, this.skeletonData.scale);
+                }
+            }
+            else {
+                var data = this.skeletonData.getRuntimeData();
+                if (data) {
+                    return new sp._SGSkeletonAnimation(data, null, this.skeletonData.scale);
+                }
             }
         }
         return null;

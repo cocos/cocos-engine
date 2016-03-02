@@ -44,6 +44,7 @@ require('./jsb-scale9sprite');
 require('./jsb-label');
 require('./jsb-editbox');
 require('./jsb-particle');
+require('./jsb-spine');
 require('./jsb-enums');
 require('./jsb-event');
 require('./jsb-action');
