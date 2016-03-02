@@ -731,12 +731,25 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * @param {Function} [options.extends] - The base class.
  * @param {Function} [options.ctor] - The constructor.
  * @param {Object} [options.properties] - The property definitions.
- * @param {Object} [options.editor] - The attributes for Component, see {{#crossLink "_ComponentAttributes"}}ComponentAttributes{{/crossLink}}.
  * @param {Object} [options.statics] - The static members.
  * @param {Function[]} [options.mixins]
  * 
+ * @param {Object} [options.editor] - attributes for Component, see {{#crossLink "_ComponentAttributes"}}ComponentAttributes{{/crossLink}}.
+ * 
+ * @param {Function} [options.update] - lifecycle method for Component, see {{#crossLink "Component/update:method"}}{{/crossLink}}
+ * @param {Function} [options.lateUpdate] - lifecycle method for Component, see {{#crossLink "Component/lateUpdate:method"}}{{/crossLink}}
+ * @param {Function} [options.onLoad] - lifecycle method for Component, see {{#crossLink "Component/onLoad:method"}}{{/crossLink}}
+ * @param {Function} [options.start] - lifecycle method for Component, see {{#crossLink "Component/start:method"}}{{/crossLink}}
+ * @param {Function} [options.onEnable] - lifecycle method for Component, see {{#crossLink "Component/onEnable:method"}}{{/crossLink}}
+ * @param {Function} [options.onDisable] - lifecycle method for Component, see {{#crossLink "Component/onDisable:method"}}{{/crossLink}}
+ * @param {Function} [options.onDestroy] - lifecycle method for Component, see {{#crossLink "Component/onDestroy:method"}}{{/crossLink}}
+ * @param {Function} [options.onFocusInEditor] - lifecycle method for Component, see {{#crossLink "Component/onFocusInEditor:method"}}{{/crossLink}}
+ * @param {Function} [options.onLostFocusInEditor] - lifecycle method for Component, see {{#crossLink "Component/onLostFocusInEditor:method"}}{{/crossLink}}
+ * @param {Function} [options.onRestore] - for Component only, see {{#crossLink "Component/onRestore:method"}}{{/crossLink}}
+ * @param {Function} [options._getLocalBounds] - for Component only, see {{#crossLink "Component/_getLocalBounds:method"}}{{/crossLink}}
+ * 
  * @return {Function} - the created class
- *
+ * 
  * @example
  // define base class
  var Node = cc.Class();
