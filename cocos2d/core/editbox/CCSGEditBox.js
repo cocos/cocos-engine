@@ -281,10 +281,22 @@ EditBoxImpl.prototype = {
         this._placeholderLabel.setVisible(false);
     },
 
+    _updateEditBoxContentStyle: function() {
+        var inputFlag = this._editBox._editBoxInputFlag;
+        if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+            this._editBox._text = this._editBox._text.toUpperCase();
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+            this._editBox._text = capitalize(this._editBox._text);
+        }
+        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE) {
+            this._editBox._text = capitalizeFirstLetter(this._editBox._text);
+        }
+    },
+
     _updateLabelString: function() {
         this._textLabel.setVisible(true);
         this._textLabel.setString(this._editBox._text);
-        var inputFlag = this._editBox._editBoxInputFlag;
         if (this._edTxt.type === 'password') {
             var passwordString = '';
             var len = this._editBox._text.length;
@@ -292,15 +304,9 @@ EditBoxImpl.prototype = {
                 passwordString += '\u25CF';
             }
             this._textLabel.setString(passwordString);
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
-            this._textLabel.setString(this._editBox._text.toUpperCase());
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
-            this._textLabel.setString(capitalize(this._editBox._text));
-        }
-        else if (inputFlag === InputFlag.INITIAL_CAPS_SENTENCE) {
-            this._textLabel.setString(capitalizeFirstLetter(this._editBox._text));
+        } else {
+            this._updateEditBoxContentStyle();
+            this._textLabel.setString(this._editBox._text);
         }
     },
 
@@ -493,8 +499,11 @@ EditBoxImpl.prototype = {
 
         tmpEdTxt.addEventListener('input', function () {
             var editBox = selfPointer._editBox;
-            if (editBox._delegate && editBox._delegate.editBoxTextChanged)
-                editBox._delegate.editBoxTextChanged(editBox, this.value);
+            if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
+                editBox._text = this.value;
+                selfPointer._updateEditBoxContentStyle();
+                editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+            }
         });
         tmpEdTxt.addEventListener('keypress', function (e) {
             var editBox = selfPointer._editBox;
@@ -507,9 +516,11 @@ EditBoxImpl.prototype = {
                     this.style.color = cc.colorToHex(editBox._placeholderColor);
                 }
                 editBox._text = this.value;
+                selfPointer._updateEditBoxContentStyle();
                 selfPointer.hidden();
-                if (editBox._delegate && editBox._delegate.editBoxReturn)
+                if (editBox._delegate && editBox._delegate.editBoxReturn) {
                     editBox._delegate.editBoxReturn(editBox);
+                }
                 cc._canvas.focus();
             }
         });
@@ -518,22 +529,27 @@ EditBoxImpl.prototype = {
 
             this.style.fontSize = selfPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
-            if (editBox._editBoxInputFlag === InputFlag.PASSWORD)
+            if (editBox._editBoxInputFlag === InputFlag.PASSWORD) {
                 selfPointer._edTxt.type = 'password';
-            else
+            } else {
                 selfPointer._edTxt.type = 'text';
+            }
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan)
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
+            }
             cc._canvas.addEventListener('click', onCanvasClick);
         });
         tmpEdTxt.addEventListener('blur', function () {
             var editBox = selfPointer._editBox;
             editBox._text = this.value;
+            selfPointer._updateEditBoxContentStyle();
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded)
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
+            }
             cc._canvas.removeEventListener('click', onCanvasClick);
+
             if (this.value === '') {
                 this.style.fontSize = editBox._placeholderFontSize + 'px';
                 this.style.color = cc.colorToHex(editBox._placeholderColor);
@@ -565,8 +581,11 @@ EditBoxImpl.prototype = {
 
         tmpEdTxt.addEventListener('input', function () {
             var editBox = selfPointer._editBox;
-            if (editBox._delegate && editBox._delegate.editBoxTextChanged)
-                editBox._delegate.editBoxTextChanged(editBox, this.value);
+            if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
+                editBox._text = this.value;
+                selfPointer._updateEditBoxContentStyle();
+                editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+            }
         });
 
         tmpEdTxt.addEventListener('focus', function () {
@@ -575,17 +594,20 @@ EditBoxImpl.prototype = {
             this.style.fontSize = selfPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan)
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
+            }
 
             cc._canvas.addEventListener('click', onCanvasClick);
         });
         tmpEdTxt.addEventListener('blur', function () {
             var editBox = selfPointer._editBox;
             editBox._text = this.value;
+            selfPointer._updateEditBoxContentStyle();
 
-            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded)
+            if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
+            }
 
             if (this.value === '') {
                 this.style.fontSize = editBox._placeholderFontSize + 'px';
