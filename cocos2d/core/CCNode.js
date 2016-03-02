@@ -1044,8 +1044,8 @@ var Node = cc.Class({
 
     _checkTouchListeners: function () {
         if (this._bubblingListeners && this._touchListener) {
-            for (var e in _touchEvents) {
-                if (this._bubblingListeners.has(e)) {
+            for (var i = 0; i < _touchEvents.length; ++i) {
+                if (this._bubblingListeners.has(_touchEvents[i])) {
                     return;
                 }
             }
@@ -1056,8 +1056,8 @@ var Node = cc.Class({
     },
     _checkMouseListeners: function () {
         if (this._bubblingListeners && this._mouseListener) {
-            for (var e in _mouseEvents) {
-                if (this._bubblingListeners.has(e)) {
+            for (var i = 0; i < _mouseEvents.length; ++i) {
+                if (this._bubblingListeners.has(_mouseEvents[i])) {
                     return;
                 }
             }
