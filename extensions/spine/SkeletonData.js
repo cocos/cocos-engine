@@ -119,6 +119,13 @@ var SkeletonData = cc.Class({
             }
         },
 
+        // Fallback to raw asset for JSB -------------------
+        atlasUrl: {
+            default: '',
+            url: cc.RawAsset
+        },
+        // -------------------------------------------------
+
         /**
          * @property {cc.Texture2D} textures
          */
@@ -179,7 +186,7 @@ var SkeletonData = cc.Class({
      * @param {boolean} [quiet=false]
      * @return {spine.SkeletonData}
      */
-    getRuntimeData: function (quiet) {
+    getRuntimeData: !CC_JSB && function (quiet) {
         if (this._skeletonCache) {
             return this._skeletonCache;
         }
@@ -251,7 +258,7 @@ var SkeletonData = cc.Class({
      * @return {spine.Atlas}
      * @private
      */
-    _getAtlas: function (quiet) {
+    _getAtlas: !CC_JSB && function (quiet) {
         if (this._atlasCache) {
             return this._atlasCache;
         }

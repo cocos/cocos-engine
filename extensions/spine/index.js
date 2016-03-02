@@ -35,7 +35,7 @@
  * http://en.esotericsoftware.com/spine-using-runtimes
  */
 
-sp = {};
+sp = CC_JSB ? sp : {};
 
 // The vertex index of spine.
 sp.VERTEX_INDEX = {
@@ -84,20 +84,22 @@ sp.AnimationEventType = cc.Enum({
  * @module sp
  */
 
-if (!CC_JSB && (!CC_EDITOR || !Editor.isCoreLevel)) {
-
-    /**
-     * The official spine runtime.
-     * See http://en.esotericsoftware.com/spine-using-runtimes
-     * @property {object} spine
-     */
-    sp.spine = require('./lib/spine');
-
-    require('./SGSkeleton');
-    require('./SGSkeletonCanvasRenderCmd');
-    require('./SGSkeletonWebGLRenderCmd');
-    require('./SGSkeletonAnimation');
-
+if (!CC_EDITOR || !Editor.isCoreLevel) {
+    
+    if (!CC_JSB) {
+        /**
+         * The official spine runtime.
+         * See http://en.esotericsoftware.com/spine-using-runtimes
+         * @property {object} spine
+         */
+        sp.spine = require('./lib/spine');
+    
+        require('./SGSkeleton');
+        require('./SGSkeletonCanvasRenderCmd');
+        require('./SGSkeletonWebGLRenderCmd');
+        require('./SGSkeletonAnimation');
+    }
+    
     require('./SkeletonData');
     require('./Skeleton');
 }
