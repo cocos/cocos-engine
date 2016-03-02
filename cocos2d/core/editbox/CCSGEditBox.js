@@ -76,9 +76,9 @@ var InputMode = cc.Enum({
 
     /**
      * The user is allowed to enter an e-mail address.
-     * @property {Number} EMAILADDR
+     * @property {Number} EMAIL_ADDR
      */
-    EMAILADDR: 1,
+    EMAIL_ADDR: 1,
 
     /**
      * The user is allowed to enter an integer value.
@@ -88,9 +88,9 @@ var InputMode = cc.Enum({
 
     /**
      * The user is allowed to enter a phone number.
-     * @property {Number} PHONENUMBER
+     * @property {Number} PHONE_NUMBER
      */
-    PHONENUMBER: 3,
+    PHONE_NUMBER: 3,
 
     /**
      * The user is allowed to enter a URL.
@@ -107,9 +107,9 @@ var InputMode = cc.Enum({
 
     /**
      * The user is allowed to enter any text, except for line breaks.
-     * @property {Number} SINGLELINE
+     * @property {Number} SINGLE_LINE
      */
-    SINGLELINE: 6
+    SINGLE_LINE: 6
 });
 
 /**
@@ -238,6 +238,7 @@ EditBoxImpl.prototype = {
         this._textLabel = new _ccsg.Label();
         this._textLabel.setVisible(false);
         this._textLabel.setAnchorPoint(cc.p(0, 1));
+        this._textLabel.setOverflow(_ccsg.Label.Overflow.CLAMP);
         this._editBox.addChild(this._textLabel, 100);
 
         this._placeholderLabel = new _ccsg.Label();
@@ -252,14 +253,17 @@ EditBoxImpl.prototype = {
         var textLabelSize = this._textLabel.getContentSize();
         var placeholderLabelSize = this._placeholderLabel.getContentSize();
         this._placeholderLabel.setLineHeight(editBoxSize.height);
+        this._textLabel.setContentSize(editBoxSize);
 
         if (this._editBox._editBoxInputMode === InputMode.ANY){
             this._textLabel.setPosition(cc.p(0, editBoxSize.height));
             this._placeholderLabel.setPosition(cc.p(0, editBoxSize.height));
             this._placeholderLabel.setVerticalAlign(cc.VerticalTextAlignment.TOP);
             this._textLabel.setVerticalAlign(cc.VerticalTextAlignment.TOP);
+            this._textLabel.enableWrapText(true);
         }
         else {
+            this._textLabel.enableWrapText(false);
             this._textLabel.setPosition(cc.p(0, (editBoxSize.height + textLabelSize.height) / 2));
             this._placeholderLabel.setPosition(cc.p(0, (editBoxSize.height + placeholderLabelSize.height) / 2));
             this._placeholderLabel.setVerticalAlign(cc.VerticalTextAlignment.CENTER);
