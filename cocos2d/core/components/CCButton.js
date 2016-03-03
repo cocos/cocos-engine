@@ -380,6 +380,12 @@ var Button = cc.Class({
 
         this._applyTransition(color, sprite);
     },
+
+    onDisable: function() {
+        this._hovered = false;
+        this._pressed = false;
+    },
+
     _applyTransition: function (color, sprite) {
         var transition = this.transition;
 
