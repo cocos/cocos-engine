@@ -108,9 +108,9 @@ JS.mixin(cc.Audio.prototype, {
     },
 
     getPlaying: function(){
-        if(!this._playing){
-            return false;
-        }
+        // if(!this._playing){
+        //     return false;
+        // }
         if(this._AUDIO_TYPE === "AUDIO"){
             var audio = this._element;
             if(!audio || this._pause || audio.ended){

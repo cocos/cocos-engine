@@ -1,5 +1,7 @@
 largeModule('Pipeline');
 
+(function () {
+
 var download = function (item, callback) {
     callback(null, null);
 };
@@ -237,3 +239,5 @@ asyncTest('content manipulation', function () {
         start();
     }, 2);
 });
+
+})();
