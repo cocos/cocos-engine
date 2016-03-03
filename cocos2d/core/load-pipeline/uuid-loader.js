@@ -32,7 +32,7 @@ var _tdInfo = new cc.deserialize.Details();
 var SCENE_ID = 'cc.Scene';
 
 function loadDepends (pipeline, item, asset, tdInfo, callback) {
-    var uuid = item.src,
+    var uuid = item.id,
         url = item.url;
     var dependsSrcs = JS.array.copy(tdInfo.uuidList);
     var ownerList = JS.array.copy(tdInfo.uuidObjList);
@@ -43,7 +43,7 @@ function loadDepends (pipeline, item, asset, tdInfo, callback) {
     for (var i = 0; i < dependsSrcs.length; i++) {
         var dependSrc = dependsSrcs[i];
         depends[i] = {
-            src: dependSrc,
+            id: dependSrc,
             type: 'uuid',
             uuid: dependSrc
         };
@@ -71,12 +71,12 @@ function loadDepends (pipeline, item, asset, tdInfo, callback) {
                 item = items[dependSrc];
                 if (item) {
                     if (item.complete) {
-                        var value = item.isRawAsset ? (item.url || item.src) : item.content;
+                        var value = item.isRawAsset ? item.url : item.content;
                         obj[dependProp] = value;
                     }
                     else {
                         var loadCallback = function (item) {
-                            var value = item.isRawAsset ? (item.url || item.src) : item.content;
+                            var value = item.isRawAsset ? item.url : item.content;
                             this.obj[this.prop] = value;
                         };
                         var target = {
@@ -114,7 +114,7 @@ function loadUuid (item, callback) {
             json = JSON.parse(item.content);
         }
         catch (e) {
-            callback( new Error('Uuid Loader: Parse asset [' + item.src + '] failed : ' + e.stack) );
+            callback( new Error('Uuid Loader: Parse asset [' + item.id + '] failed : ' + e.stack) );
             return;
         }
     }
@@ -149,7 +149,7 @@ function loadUuid (item, callback) {
         });
     }
     catch (e) {
-        callback( new Error('Uuid Loader: Deserialize asset [' + item.src + '] failed : ' + e.stack) );
+        callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + e.stack) );
         return;
     }
 

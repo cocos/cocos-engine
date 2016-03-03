@@ -114,28 +114,30 @@ function syncFlow (item) {
     }
 }
 
-function isUrlValid (url) {
-    var realUrl = url.src || url;
-    return (typeof realUrl === 'string');
+function isIdValid (id) {
+    var realId = id.id || id;
+    return (typeof realId === 'string');
 }
-function createItem (url) {
+function createItem (id) {
     var result;
-    if (typeof url === 'object' && url.src) {
-        if (!url.type) {
-            url.type = Path.extname(url.src).toLowerCase().substr(1);
+    if (typeof id === 'object' && id.id) {
+        if (!id.type) {
+            id.type = Path.extname(id.id).toLowerCase().substr(1);
         }
         result = {
+            url: id.url || id.id,
             error: null,
             content: null,
             complete: false,
             states: {}
         };
-        JS.mixin(result, url);
+        JS.mixin(result, id);
     }
-    else if (typeof url === 'string') {
+    else if (typeof id === 'string') {
         result = {
-            src: url,
-            type: Path.extname(url).toLowerCase().substr(1),
+            id: id,
+            url: id,
+            type: Path.extname(id).toLowerCase().substr(1),
             error: null,
             content: null,
             complete: false,
@@ -251,7 +253,7 @@ JS.mixin(Pipeline.prototype, {
     /**
      * Let new items flow into the pipeline.
      * Each item can be a simple url string or an object, 
-     * if it's an object, it must contain `src` property. 
+     * if it's an object, it must contain `id` property. 
      * You can specify its type by `type` property, by default, the type is the extension name in `src`.
      * By adding a `skips` property including pipe ids, you can skip these pipe.
      * The object can contain any supplementary property as you want.
@@ -259,7 +261,7 @@ JS.mixin(Pipeline.prototype, {
      *  pipeline.flowIn([
      *      'res/Background.png',
      *      {
-     *          src: 'res/scene.json',
+     *          id: 'res/scene.json',
      *          type: 'scene',
      *          name: 'scene',
      *          skips: ['Downloader']
@@ -274,12 +276,12 @@ JS.mixin(Pipeline.prototype, {
         var items = [], i, url, item;
         for (i = 0; i < urlList.length; ++i) {
             url = urlList[i];
-            if (isUrlValid(url)) {
+            if (isIdValid(url)) {
                 item = createItem(url);
                 items.push(item);
             }
             else {
-                throw new Error('Pipeline flowIn: Invalid url: ' + (url.src || url));
+                throw new Error('Pipeline flowIn: Invalid url: ' + (url.id || url));
             }
         }
         var acceptedItems = this._items.append(items);
@@ -321,7 +323,7 @@ JS.mixin(Pipeline.prototype, {
 
         var items = this._items;
         function loadedCheck (item) {
-            checker[item.src] = item;
+            checker[item.id] = item;
 
             for (var url in checker) {
                 // Not done yet
@@ -334,12 +336,12 @@ JS.mixin(Pipeline.prototype, {
         }
         // Add loaded listeners
         for (var i = 0; i < urlList.length; ++i) {
-            var url = urlList[i].src || urlList[i];
+            var url = urlList[i].id || urlList[i];
             if (typeof url !== 'string')
                 continue;
             var item = items.map[url];
             if ( !item ) {
-                items.add(url, loadedCheck);
+                items.addListener(url, loadedCheck);
                 checker[url] = null;
                 count++;
             }
@@ -358,39 +360,44 @@ JS.mixin(Pipeline.prototype, {
         // All completed
         if (this._items.isCompleted()) {
             this._flowing = false;
+            var error = this._errorUrls.length === 0 ? null : this._errorUrls;
             if (this.onComplete) {
-                var error = this._errorUrls.length === 0 ? null : this._errorUrls;
                 this.onComplete(error, this._items);
-                this._errorUrls = [];
             }
+            // Remove all errored items, so that they can be flowed in again
+            for (var i = 0; i < this._errorUrls.length; ++i) {
+                var id = this._errorUrls[i];
+                this._items.removeItem(id);
+            }
+            this._errorUrls = [];
         }
     },
 
     flowOut: function (item) {
-        var url = item.src;
+        var id = item.id;
         var items = this._items;
-        var exists = items.map[url];
+        var exists = items.map[id];
         // Not exist or already completed
         if (!exists || exists.complete) {
             return;
         }
 
         // Register or unregister errors
-        var errorListId = this._errorUrls.indexOf(url);
+        var errorListId = this._errorUrls.indexOf(id);
         if (item.error && errorListId === -1) {
-            this._errorUrls.push(url);
+            this._errorUrls.push(id);
         }
         else if (!item.error && errorListId !== -1) {
             this._errorUrls.splice(errorListId, 1);
         }
 
-        items.complete(item.src);
+        items.complete(item.id);
 
         this.onProgress && this.onProgress(items.completedCount, items.totalCount, item);
 
         this.complete();
 
-        items.invokeAndRemove(url, item);
+        items.invokeAndRemove(id, item);
     },
 
     /**

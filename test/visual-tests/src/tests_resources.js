@@ -449,21 +449,25 @@ var g_particle = [
 var g_fonts = [
     //@face-font for WebFonts
     {
+        id: "res/fonts/Thonburi.eot",
         type:"font",
         name:"Thonburi",
         srcs:["res/fonts/Thonburi.eot", "res/fonts/Thonburi.ttf"]
     },
     {
+        id: "res/fonts/Schwarzwald_Regular.eot",
         type:"font",
         name:"Schwarzwald Regular",
         srcs:["res/fonts/Schwarzwald_Regular.eot", "res/fonts/Schwarzwald Regular.ttf"]
     },
     {
+        id: "res/fonts/ThonburiBold.eot",
         type:"font",
         name:"ThonburiBold",
         srcs:["res/fonts/ThonburiBold.eot", "res/fonts/ThonburiBold.ttf"]
     },
     {
+        id: "res/fonts/Courier New.eot",
         type:"font",
         name:"Courier New",
         srcs:["res/fonts/Courier New.eot", "res/fonts/Courier New.ttf"]

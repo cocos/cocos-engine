@@ -42,7 +42,7 @@ function loadJSON (item, callback) {
         callback(null, result);
     }
     catch (e) {
-        callback( new Error('JSON Loader: Parse json [' + item.src + '] failed : ' + e) );
+        callback( new Error('JSON Loader: Parse json [' + item.id + '] failed : ' + e) );
     }
 }
 
@@ -50,7 +50,7 @@ function loadImage (item, callback) {
     if (!(item.content instanceof Image)) {
         callback( new Error('Image Loader: Input item doesn\'t contain Image content') );
     }
-    var url = item.url || item.src;
+    var url = item.url;
     var tex = cc.textureCache.getTextureForKey(url) || new Texture2D();
     tex.url = url;
     tex.initWithElement(item.content);
@@ -68,7 +68,7 @@ function loadPlist (item, callback) {
         callback(null, result);
     }
     else {
-        callback( new Error('Plist Loader: Parse [' + item.src + '] failed') );
+        callback( new Error('Plist Loader: Parse [' + item.id + '] failed') );
     }
 }
 
@@ -99,7 +99,7 @@ function _parseFntStrToObj (str) {
 }
 function loadFnt (item, callback) {
     var fntStr = item.content;
-    var url = item.src;
+    var url = item.id;
 
     var fnt = {}, i, li;
     //padding

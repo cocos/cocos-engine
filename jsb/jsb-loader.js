@@ -31,13 +31,13 @@ function empty (item, callback) {
 }
 
 function downloadScript (item, callback) {
-    var url = item.src;
+    var url = item.url;
     require(url);
     callback(null, url);
 }
 
 function downloadText (item, callback) {
-    var url = item.src;
+    var url = item.url;
     var result = jsb.fileUtils.getStringFromFile(url);
     if (typeof result === 'string') {
         callback(null, result);
@@ -98,7 +98,7 @@ cc.loader.addDownloadHandlers({
 
 
 function loadImage (item, callback) {
-    var url = item.src;
+    var url = item.url;
 
     var cachedTex = cc.textureCache.getTextureForKey(url);
     if (cachedTex) {

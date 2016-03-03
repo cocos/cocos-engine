@@ -147,10 +147,10 @@ JS.mixin(cc.loader, {
         var self = this;
 
         function loadedCheck (item) {
-            checker[item.src] = item;
+            checker[item.id] = item;
             if (item.error) {
                 error = error || [];
-                error.push(item.src);
+                error.push(item.id);
             }
             completedCount++;
 
@@ -175,12 +175,12 @@ JS.mixin(cc.loader, {
 
         // Add loaded listeners
         for (var i = 0; i < resources.length; ++i) {
-            var url = resources[i].src || resources[i];
+            var url = resources[i].id || resources[i];
             if (typeof url !== 'string')
                 continue;
             var item = this._items.map[url];
             if ( !item || (item && !item.complete) ) {
-                this._items.add(url, loadedCheck);
+                this._items.addListener(url, loadedCheck);
                 checker[url] = null;
                 totalCount++;
             }
@@ -194,8 +194,8 @@ JS.mixin(cc.loader, {
         // No new resources, complete directly
         if (totalCount === completedCount) {
             if (singleRes) {
-                var src = resources[0].src || resources[0];
-                var result = this._items.map[src];
+                var id = resources[0].id || resources[0];
+                var result = this._items.map[id];
                 completeCallback.call(this, result.error, result.content);
             }
             else {
@@ -208,20 +208,16 @@ JS.mixin(cc.loader, {
     },
 
     /**
-     * Get resource data by url.
+     * Get resource data by id.
+     * When you load resources with cc.loader, the url or id passed will be the unique identity of the resource.
+     * After loaded, you can acquire them by passing the url or original id to this API.
      *
      * @method getRes
      * @param {String} url
      * @returns {*}
      */
     getRes: function (url) {
-        var item = this._items.map[url];
-        if (item && item.complete) {
-            return item.content;
-        }
-        else {
-            return null;
-        }
+        return this._items.getContent(url);
     },
 
     /**

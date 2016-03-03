@@ -139,7 +139,7 @@ function downloadAudio (item, callback) {
         return callback( new Error('Audio Downloader: audio not supported on this browser!') );
     }
 
-    var url = item.src,
+    var url = item.url,
         extname = Path.extname(url),
         typeList = [extname],
         i, audio;
