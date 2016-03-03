@@ -31,47 +31,9 @@ var _tdInfo = new cc.deserialize.Details();
 
 var SCENE_ID = 'cc.Scene';
 
-function loadUuid (item, callback) {
-    var json, 
-        uuid = item.src,
+function loadDepends (pipeline, item, asset, tdInfo, callback) {
+    var uuid = item.src,
         url = item.url;
-    if (typeof item.content === 'string') {
-        try {
-            json = JSON.parse(item.content);
-        }
-        catch (e) {
-            callback( new Error('Uuid Loader: Parse asset [' + item.src + '] failed : ' + e) );
-            return;
-        }
-    }
-    else if (typeof item.content === 'object') {
-        json = item.content;
-    }
-    else {
-        callback( new Error('JSON Loader: Input item doesn\'t contain string content') );
-        return;
-    }
-
-    var isScene = json && (
-                              (json[0] && json[0].__type__ === SCENE_ID) ||
-                              (json[1] && json[1].__type__ === SCENE_ID)
-                          );
-    var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
-        var cls = JS._getClassById(id);
-        if (cls) {
-            return cls;
-        }
-        cc.warn('Can not get class "%s"', id);
-        return Object;
-    };
-
-    var tdInfo = cc.sys.isNative ? new cc.deserialize.Details() : (item.deserializeInfo || _tdInfo);
-
-    var asset = cc.deserialize(json, tdInfo, {
-        classFinder: classFinder,
-        target: item.existingAsset
-    });
-
     var dependsSrcs = JS.array.copy(tdInfo.uuidList);
     var ownerList = JS.array.copy(tdInfo.uuidObjList);
     var propList = JS.array.copy(tdInfo.uuidPropList);
@@ -93,7 +55,6 @@ function loadUuid (item, callback) {
         propList.push(tdInfo.rawProp);
         depends.push(url);
     }
-    var pipeline = this.pipeline;
     if (depends.length > 0) {
         pipeline.flowInDeps(depends, function (items) {
             var item;
@@ -144,6 +105,55 @@ function loadUuid (item, callback) {
 
     // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
     tdInfo.reset();
+}
+
+function loadUuid (item, callback) {
+    var json;
+    if (typeof item.content === 'string') {
+        try {
+            json = JSON.parse(item.content);
+        }
+        catch (e) {
+            callback( new Error('Uuid Loader: Parse asset [' + item.src + '] failed : ' + e.stack) );
+            return;
+        }
+    }
+    else if (typeof item.content === 'object') {
+        json = item.content;
+    }
+    else {
+        callback( new Error('JSON Loader: Input item doesn\'t contain string content') );
+        return;
+    }
+
+    var isScene = json && (
+                              (json[0] && json[0].__type__ === SCENE_ID) ||
+                              (json[1] && json[1].__type__ === SCENE_ID)
+                          );
+    var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
+        var cls = JS._getClassById(id);
+        if (cls) {
+            return cls;
+        }
+        cc.warn('Can not get class "%s"', id);
+        return Object;
+    };
+
+    var tdInfo = cc.sys.isNative ? new cc.deserialize.Details() : (item.deserializeInfo || _tdInfo);
+
+    var asset;
+    try {
+        asset = cc.deserialize(json, tdInfo, {
+            classFinder: classFinder,
+            target: item.existingAsset
+        });
+    }
+    catch (e) {
+        callback( new Error('Uuid Loader: Deserialize asset [' + item.src + '] failed : ' + e.stack) );
+        return;
+    }
+
+    loadDepends(this.pipeline, item, asset, tdInfo, callback);
 }
 
 module.exports = loadUuid;

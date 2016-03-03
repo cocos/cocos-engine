@@ -301,6 +301,7 @@ function findChildComponents (children, constructor, components) {
 
 /**
  * Class of all entities in Cocos Creator scenes.
+ * Node also inherits from {{#crossLink "EventTarget"}}Event Target{{/crossLink}}, it permits Node to dispatch events.
  * For events supported by Node, please refer to {{#crossLink "Node.EventType"}}{{/crossLink}}
  *
  * @class Node
