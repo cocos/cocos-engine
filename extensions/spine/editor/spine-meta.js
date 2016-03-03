@@ -184,8 +184,8 @@ class SpineMeta extends CustomAssetMeta {
                 var atlasUuid = db.fspathToUuid(res.atlasPath);
                 asset.atlasUrl = db.uuidToUrl(atlasUuid);
                 
+                db.mkdirForAsset(this.uuid);
                 var rawJsonPath = db._uuidToImportPathNoExt(this.uuid) + '.raw.json';
-                db.mkdirForAsset(rawJsonPath);
                 Fs.copySync(fspath, rawJsonPath);
                 
                 this.atlas = atlasUuid;     // save for dest()
