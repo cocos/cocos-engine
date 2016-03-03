@@ -135,7 +135,9 @@ var TiledLayer = cc.Class({
      */
     getPositionAt:function (pos, y) {
         if (this._sgNode) {
-            return this._sgNode.getPositionAt(pos, y);
+            if (y !== undefined)
+                pos = cc.p(pos, y);
+            return this._sgNode.getPositionAt(pos);
         }
 
         return null;
@@ -149,7 +151,9 @@ var TiledLayer = cc.Class({
      */
     removeTileAt:function (pos, y) {
         if (this._sgNode) {
-            this._sgNode.removeTileAt(pos, y);
+            if (y !== undefined)
+                pos = cc.p(pos, y);
+            this._sgNode.removeTileAt(pos);
         }
     },
 
@@ -165,23 +169,34 @@ var TiledLayer = cc.Class({
      */
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
         if (this._sgNode) {
-            this._sgNode.setTileGID(gid, posOrX, flagsOrY, flags);
+            if(!posOrX)
+                throw new Error("_ccsg.TMXLayer.setTileGID(): pos should be non-null");
+            var pos;
+            if (flags !== undefined) {
+                pos = cc.p(posOrX, flagsOrY);
+            } else {
+                pos = posOrX;
+                flags = flagsOrY;
+            }
+            this._sgNode.setTileGID(gid, pos, flags);
         }
     },
 
-    /**
+    // TODO Add this method if necessary
+    // This method is removed because it's not existed in native.
+    /*
      *  lipped tiles can be changed dynamically
      * @method getTileFlagsAt
      * @param {Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {Number}
      */
-    getTileFlagsAt:function (pos, y) {
-        if (this._sgNode) {
-            return this._sgNode.getTileFlagsAt(pos, y);
-        }
-        return 0;
-    },
+    //getTileFlagsAt:function (pos, y) {
+    //    if (this._sgNode) {
+    //        return this._sgNode.getTileFlagsAt(pos, y);
+    //    }
+    //    return 0;
+    //},
 
     /**
      * Returns the tile gid at a given tile coordinate. <br />
@@ -194,7 +209,9 @@ var TiledLayer = cc.Class({
      */
     getTileGIDAt:function (pos, y) {
         if (this._sgNode) {
-            return this._sgNode.getTileGIDAt(pos, y);
+            if (y !== undefined)
+                pos = cc.p(pos, y);
+            return this._sgNode.getTileGIDAt(pos);
         }
         return 0;
     },
@@ -213,7 +230,9 @@ var TiledLayer = cc.Class({
      */
     getTileAt: function (pos, y) {
         if (this._sgNode) {
-            return this._sgNode.getTileAt(pos, y);
+            if (y !== undefined)
+                pos = cc.p(pos, y);
+            return this._sgNode.getTileAt(pos);
         }
         return null;
     },
@@ -238,7 +257,9 @@ var TiledLayer = cc.Class({
      */
     setContentSize:function (size, height) {
         if (this._sgNode) {
-            this._sgNode.setContentSize(size, height);
+            if (height !== undefined)
+                size = cc.size(size, height);
+            this._sgNode.setContentSize(size);
         }
     },
 

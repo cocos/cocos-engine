@@ -81,6 +81,8 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
     this._unschedule(target, callback);
 };
 
+// Node arrivalOrder
+cc.defineGetterSetter(cc.Node.prototype, "arrivalOrder", cc.Node.prototype.getOrderOfArrival, cc.Node.prototype.setOrderOfArrival);
 
 // ccsg
 window._ccsg = {
