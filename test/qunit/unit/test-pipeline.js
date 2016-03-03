@@ -40,7 +40,7 @@ test('items', function () {
     pipeline.flowIn([
         'res/Background.png',
         {
-            src: 'res/scene.json',
+            id: 'res/scene.json',
             type: 'scene',
             name: 'scene'
         }
@@ -113,7 +113,7 @@ test('pipeline flow', function () {
     pipeline.flowIn([
         'res/Background.png',
         {
-            src: 'res/scene.json',
+            id: 'res/scene.json',
             type: 'scene',
             name: 'scene'
         },
@@ -121,8 +121,8 @@ test('pipeline flow', function () {
         'res/role'
     ]);
 
-    strictEqual(pipeline._items.totalCount, 4, 'should now hold 4 items in total');
-    strictEqual(pipeline._items.completedCount, 4, 'should complete all 4 items');
+    strictEqual(pipeline._items.totalCount, 3, 'should now hold 3 items in total');
+    strictEqual(pipeline._items.completedCount, 3, 'should complete all 3 items');
     strictEqual(pipeline._items.isCompleted(), true, 'should be completed');
     strictEqual(pipeline.isFlowing(), false, 'should not be flowing now');
     download.expect(4, 'should call download for each item');
@@ -153,7 +153,7 @@ asyncTest('content manipulation', function () {
             return new Error('No type found');
         }
         else {
-            return item.src;
+            return item.id;
         }
     };
     var download = function (item, callback) {
@@ -208,7 +208,7 @@ asyncTest('content manipulation', function () {
     };
     var count = 0;
     pipeline.onProgress = function (completed, total, item) {
-        var url = item.src;
+        var url = item.id;
         urls[url]++;
         if (url === 'res/role') {
             ok(item.error instanceof Error, 'should fail on item without type');
@@ -227,7 +227,7 @@ asyncTest('content manipulation', function () {
     pipeline.flowIn([
         'res/Background.png',
         {
-            src: 'res/scene.json',
+            id: 'res/scene.json',
             type: 'scene'
         },
         'res/role.plist',

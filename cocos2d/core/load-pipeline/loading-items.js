@@ -79,10 +79,10 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         var list = [];
         for (var i = 0; i < items.length; ++i) {
             var item = items[i];
-            var url = item.src;
+            var id = item.id;
             // No duplicated url
-            if (!this.map[url]) {
-                this.map[item.src] = item;
+            if (!this.map[id]) {
+                this.map[item.id] = item;
                 list.push(item);
             }
         }
@@ -100,6 +100,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
     /**
      * Check whether an item is completed
+     * @param {String} url The item's id.
      * @return {Boolean}
      */
     isItemCompleted: function (url) {
@@ -108,21 +109,71 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
     /**
      * Check whether an item exists
+     * @param {String} url The item's id.
      * @return {Boolean}
      */
     exists: function (url) {
         return !!this.map[url];
     },
 
+    /**
+     * Returns the content of an internal item
+     * @param {String} url The item's id.
+     * @return {Object}
+     */
     getContent: function (url) {
         var item = this.map[url];
         return item ? item.content : null;
     },
 
+    /**
+     * Returns the error of an internal item
+     * @param {String} url The item's id.
+     * @return {Object}
+     */
     getError: function (url) {
         var item = this.map[url];
         return item ? item.error : null;
     },
+
+    /**
+     * Add a listener for an item, the callback will be invoked when the item is completed.
+     * @method addListener
+     * @param {String} key
+     * @param {Function} callback - can be null
+     * @param {Object} target - can be null
+     * @return {Boolean} whether the key is new
+     */
+    addListener: CallbacksInvoker.prototype.add,
+
+    /**
+     * Check if the specified key has any registered callback. 
+     * If a callback is also specified, it will only return true if the callback is registered.
+     * @method hasListener
+     * @param {String} key
+     * @param {Function} [callback]
+     * @param {Object} [target]
+     * @return {Boolean}
+     */
+    hasListener: CallbacksInvoker.prototype.has,
+
+    /**
+     * Removes a listener. 
+     * It will only remove when key, callback, target all match correctly.
+     * @method remove
+     * @param {String} key
+     * @param {Function} callback
+     * @param {Object} target
+     * @return {Boolean} removed
+     */
+    removeListener: CallbacksInvoker.prototype.remove,
+
+    /**
+     * Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
+     * @method removeAllListeners
+     * @param {String|Object} key - The event key to be removed or the target to be removed
+     */
+    removeAllListeners: CallbacksInvoker.prototype.removeAll,
 
     /**
      * Remove an item, can only remove completed item, ongoing item can not be removed

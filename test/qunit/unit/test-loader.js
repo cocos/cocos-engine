@@ -13,13 +13,13 @@ asyncTest('Load', function () {
     ];
 
     loader.load(resources, function (completedCount, totalCount, item) {
-        if (item.src === image1) {
+        if (item.id === image1) {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
-        else if (item.src === json1) {
+        else if (item.id === json1) {
             strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
         }
-        else if (item.src === json2) {
+        else if (item.id === json2) {
             strictEqual(item.content._rawFiles[0], 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
         else {
@@ -45,7 +45,7 @@ asyncTest('Load single file', function () {
     var image1 = assetDir + '/button.png';
 
     loader.load(image1, function (completedCount, totalCount, item) {
-        if (item.src === image1) {
+        if (item.id === image1) {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
         else {
@@ -76,7 +76,7 @@ asyncTest('Load with dependencies', function () {
             var result = JSON.parse(item.content);
         }
         catch (e) {
-            callback( new Error('JSON Loader: Parse json [' + item.src + '] failed : ' + e) );
+            callback( new Error('JSON Loader: Parse json [' + item.id + '] failed : ' + e) );
         }
         var resources = [
             dep1,
@@ -93,7 +93,7 @@ asyncTest('Load with dependencies', function () {
     });
 
     var json1 = {
-        src: assetDir + '/library/65/6545543',
+        id: assetDir + '/library/65/6545543',
         type: 'deps'
     };
     var json2 = assetDir + '/library/deferred-loading/74/748321.json';
@@ -109,7 +109,7 @@ asyncTest('Load with dependencies', function () {
     var items = loader.getItems();
 
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
-        if (item.src === json1.src) {
+        if (item.id === json1.id) {
             var depsLoaded = items.isItemCompleted(dep1) &&
                              items.isItemCompleted(dep2) &&
                              items.isItemCompleted(dep3);
@@ -123,15 +123,15 @@ asyncTest('Load with dependencies', function () {
 
             strictEqual(item.content.__type__, 'TestTexture', 'should give correct js object as result of deps type');
         }
-        else if (item.src === json2) {
+        else if (item.id === json2) {
             strictEqual(item.content._rawFiles[0], 'YouKnowEverything', 'should give correct js object as result of JSON');
         }
-        else if (item.src === audio) {
+        else if (item.id === audio) {
             // Test environment doesn't support audio
             ok((item.content instanceof cc.Audio) || true, 'audio url\'s result should be Audio');
         }
         else {
-            ok(false, 'should not load an unknown url: ' + item.src);
+            ok(false, 'should not load an unknown url: ' + item.id);
         }
     }).enable();
 
@@ -153,7 +153,7 @@ asyncTest('Load with dependencies', function () {
 asyncTest('Loading font', function () {
     var image = assetDir + '/button.png';
     var font = {
-        src: assetDir + '/Thonburi.ttf',
+        id: assetDir + '/Thonburi.ttf',
         type: 'font',
         name: 'Thonburi',
         srcs: [assetDir + '/Thonburi.eot']
@@ -165,10 +165,10 @@ asyncTest('Loading font', function () {
     var total = resources.length;
 
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
-        if (item.src === image) {
+        if (item.id === image) {
             ok(item.content instanceof cc.Texture2D, 'image url\'s result should be Texture2D');
         }
-        else if (item.src === font.src) {
+        else if (item.id === font.id) {
             strictEqual(item.content, null, 'should set null as content for Font type');
         }
         else {

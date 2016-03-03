@@ -70,7 +70,7 @@ var AssetLibrary = {
         // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
 
         var item = {
-            src: uuid,
+            id: uuid,
             type: 'uuid'
         };
         if (options && options.deserializeInfo) {
@@ -183,7 +183,7 @@ var AssetLibrary = {
      * @private
      */
     _loadAssetByUuid: function (item, callback) {
-        var uuid = item.src;
+        var uuid = item.id;
         var thisTick = true;
         if (typeof uuid !== 'string') {
             return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
@@ -222,7 +222,7 @@ var AssetLibrary = {
         var randomUuid = '' + ((new Date()).getTime() + Math.random());
         var thisTick = true;
         var item = {
-            src: randomUuid,
+            id: randomUuid,
             type: 'uuid',
             content: json,
             skips: [ Loader.downloader.id ]

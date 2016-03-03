@@ -47,7 +47,7 @@ function urlAppendTimestamp (url) {
 }
 
 function downloadScript (item, callback, isAsync) {
-    var url = item.src,
+    var url = item.url,
         d = document, 
         s = document.createElement('script');
     s.async = isAsync;
@@ -70,7 +70,7 @@ function downloadScript (item, callback, isAsync) {
 }
 
 function downloadText (item, callback) {
-    var url = item.src,
+    var url = item.url,
         xhr = Pipeline.getXMLHttpRequest(),
         errInfo = 'Load ' + url + ' failed!',
         navigator = window.navigator;
@@ -111,7 +111,7 @@ function downloadText (item, callback) {
 }
 
 function downloadTextSync (item) {
-    var url = item.src;
+    var url = item.url;
     var xhr = Pipeline.getXMLHttpRequest();
     xhr.open('GET', url, false);
     if (/msie/i.test(window.navigator.userAgent) && !/opera/i.test(window.navigator.userAgent)) {
@@ -132,7 +132,7 @@ function downloadImage (item, callback, isCrossOrigin) {
         isCrossOrigin = true;
     }
 
-    var url = urlAppendTimestamp(item.src);
+    var url = urlAppendTimestamp(item.url);
     var img = new Image();
     if (isCrossOrigin && window.location.origin !== 'file://') {
         img.crossOrigin = 'Anonymous';
@@ -213,7 +213,7 @@ function _loadFont (name, srcs, type){
     doc.body.appendChild(preloadDiv);
 }
 function downloadFont (item, callback) {
-    var url = item.src,
+    var url = item.url,
         type = item.type, 
         name = item.name, 
         srcs = item.srcs;
@@ -239,7 +239,7 @@ function downloadFont (item, callback) {
 }
 
 function downloadUuid (item, callback) {
-    var uuid = item.src;
+    var uuid = item.id;
     var self = this;
     cc.AssetLibrary.queryAssetInfo(uuid, function (error, url, isRawAsset) {
         if (error) {
@@ -258,10 +258,10 @@ function downloadUuid (item, callback) {
                 // Dispatch to other raw type downloader
                 var downloadFunc = self.extMap[ext] || self.extMap['default'];
                 item.type = ext;
-                downloadFunc({src: url}, callback);
+                downloadFunc(item, callback);
             }
             else {
-                self.extMap['json']({src: url}, callback);
+                self.extMap['json'](item, callback);
             }
         }
     });

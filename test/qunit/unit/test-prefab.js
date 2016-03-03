@@ -143,7 +143,7 @@
             id : 'Prefab_Provider',
             async : false,
             handle : function (item) {
-                var url = item.src;
+                var url = item.id;
                 if (url === UUID) {
                     item.states['Downloader'] = cc.Pipeline.ItemState.COMPLETE;
                     return JSON.stringify(prefabJson);
