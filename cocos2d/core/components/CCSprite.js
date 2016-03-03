@@ -208,7 +208,8 @@ var Sprite = cc.Class({
                     this._sgNode.enableTrimmedContentSize(value);
                 }
             },
-            animatable: false
+            animatable: false,
+            displayName: "TrimmedMode"
         },
 
         /**
