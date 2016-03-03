@@ -84,6 +84,36 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
 // Node arrivalOrder
 cc.defineGetterSetter(cc.Node.prototype, "arrivalOrder", cc.Node.prototype.getOrderOfArrival, cc.Node.prototype.setOrderOfArrival);
 
+// TextureCache addImage
+if (!cc.TextureCache.prototype._addImageAsync) {
+    cc.TextureCache.prototype._addImageAsync = cc.TextureCache.prototype.addImageAsync;
+}
+cc.TextureCache.prototype.addImageAsync = function(url, cb, target) {
+    var localTex = null;
+    cc.loader.load(url, function(err, tex) {
+        if (err) tex = null;
+        if (cb) {
+            cb.call(target, tex);
+        }
+        localTex = tex;
+    });
+    return localTex;
+};
+// Fix for compatibility with old APIs
+cc.TextureCache.prototype.addImage = function(url, cb, target) {
+    if (typeof cb === "function") {
+        return this.addImageAsync(url, cb, target);
+    }
+    else {
+        if (cb) {
+            return this._addImage(url, cb);
+        }
+        else {
+            return this._addImage(url);
+        }
+    }
+};
+
 // ccsg
 window._ccsg = {
     Node: cc.Node,
