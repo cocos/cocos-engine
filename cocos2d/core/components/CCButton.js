@@ -317,10 +317,16 @@ var Button = cc.Class({
         // so we have to do hit test when touch moving
         var touch = event.touch;
         var hit = this.node._hitTest(touch.getLocation());
-        if (this._hovered !== hit) {
-            this._hovered = hit;
-            this._updateState();
+        var state;
+        if (hit) {
+            state = 'pressed';
+        } else {
+            state = 'normal';
         }
+        var color  = this[state + 'Color'];
+        var sprite = this[state + 'Sprite'];
+
+        this._applyTransition(color, sprite);
     },
 
     _onTouchEnded: function () {
@@ -374,6 +380,12 @@ var Button = cc.Class({
 
         this._applyTransition(color, sprite);
     },
+
+    onDisable: function() {
+        this._hovered = false;
+        this._pressed = false;
+    },
+
     _applyTransition: function (color, sprite) {
         var transition = this.transition;
 
