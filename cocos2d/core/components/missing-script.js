@@ -31,7 +31,11 @@ var JS = cc.js;
  * regardless of whether it is child class of component.
  */
 var MissingScript = cc.Class({
-    name: 'cc.MissingScript', extends: cc.Component,
+    name: 'cc.MissingScript', 
+    extends: cc.Component,
+    editor: {
+        inspector: 'app://editor/page/inspector/missing-script.html',
+    },
     properties: {
         //_scriptUuid: {
         //    get: function () {
@@ -61,12 +65,9 @@ var MissingScript = cc.Class({
         //        }
         //    }
         //},
-        error: {
-            default: '',
-            multiline: true,
-            readonly: true,
-            serializable: false,
-            displayName: '(Error)'
+        compiled: {
+            default: false,
+            serializable: false
         },
         // the serialized data for original script object
         _$erialized: {
@@ -76,9 +77,7 @@ var MissingScript = cc.Class({
         }
     },
     ctor: CC_EDITOR && function () {
-        this.error = _Scene.Sandbox.compiled ?
-                     Editor.T('COMPONENT.missing_scirpt.error_compiled') :
-                     Editor.T('COMPONENT.missing_scirpt.error_not_compiled')
+        this.compiled = _Scene.Sandbox.compiled;
     },
     statics: {
         /*
