@@ -140,7 +140,9 @@ else {
                 dst: dst
             };
         }
-        this._setBlendFunc(blendFunc);
+        //in v3.3 blendFunc is not present
+        if(this._setBlendFunc)
+            this._setBlendFunc(blendFunc);
     };
     s9sPrototype._getContentSize = s9sPrototype.getContentSize;
     s9sPrototype.getContentSize = function () {
