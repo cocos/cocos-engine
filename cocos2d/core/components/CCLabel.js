@@ -112,7 +112,7 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.font_size',
         },
 
-        _lineHeight: 20,
+        _lineHeight: 40,
 
         lineHeight: {
             get: function(){

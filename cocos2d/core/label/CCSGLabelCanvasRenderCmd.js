@@ -32,7 +32,6 @@
     var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
 
     proto._getLineHeight = function () {
-        //todo refine it
         var nodeSpacingY = this._node.getLineHeight();
         if (nodeSpacingY === 0) {
             nodeSpacingY = this._drawFontsize;
@@ -40,6 +39,7 @@
         else {
             nodeSpacingY = nodeSpacingY * this._drawFontsize / this._node._fontSize;
         }
+        //float to integer, much faster than Math.floor
         return nodeSpacingY | 0;
     };
 
@@ -164,26 +164,33 @@
 
     proto._updateDisplayOpacity = function (parentOpacity) {
         _ccsg.Node.RenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-        //specify opacity to quad
-        var color = cc.color(255, 255, 255, this._displayedOpacity);
-        var quad = this._quad;
-        quad._bl.colors = color;
-        quad._br.colors = color;
-        quad._tl.colors = color;
-        quad._tr.colors = color;
-        this._quadDirty = true;
+        var node = this._node;
+        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
+            //specify opacity to quad
+            var color = cc.color(255, 255, 255, this._displayedOpacity);
+            var quad = this._quad;
+            quad._bl.colors = color;
+            quad._br.colors = color;
+            quad._tl.colors = color;
+            quad._tr.colors = color;
+            this._quadDirty = true;
+        }
     };
 
     proto._updateDisplayColor = function (parentColor) {
         _ccsg.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
-        node._labelSkinDirty = true;
+        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
+            node._labelSkinDirty = true;
+        }
     };
 
     proto._syncDisplayColor = function (parentColor) {
         _ccsg.Node.RenderCmd.prototype._syncDisplayColor.call(this, parentColor);
         var node = this._node;
-        node._labelSkinDirty = true;
+        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
+            node._labelSkinDirty = true;
+        }
     };
 
     proto._calculateLabelFont = function(canvasSize) {

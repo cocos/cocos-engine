@@ -125,11 +125,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _labelWidth:  0,
     _labelHeight:  0,
 
-    // max width until a line break is added
     _lineHeight: 40,
     _className: "Label",
 
-    //fontHandle it is a font name or bmfont file.
+    //fontHandle it is a system font name, ttf file path or bmfont file path.
     ctor: function(string, fontHandle) {
         EventTarget.call(this);
 
