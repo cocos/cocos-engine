@@ -105,7 +105,8 @@ var ProgressBar = cc.Class({
             var entityPosition = entity.getPosition();
 
             var anchorPoint = cc.p(0, 0.5);
-            var actualLenth = this.totalLength * this.progress;
+            var progress = cc.clamp01(this.progress);
+            var actualLenth = this.totalLength * progress;
             var finalContentSize;
             var totalWidth;
             var totalHeight;

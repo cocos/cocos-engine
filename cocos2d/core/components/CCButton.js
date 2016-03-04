@@ -164,7 +164,7 @@ var Button = cc.Class({
          */
         duration: {
             default: 0.1,
-            range: [0, Number.MAX_VALUE],
+            range: [0, 10],
             tooltip: 'i18n:COMPONENT.button.duration',
         },
 
