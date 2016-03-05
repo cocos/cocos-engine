@@ -1048,8 +1048,8 @@ cc.js.addon(cc.Director.prototype, EventTarget.prototype);
 
 /**
  * The event projection changed of cc.Director
- * @constant
- * @type {string}
+ * @event cc.Director.EVENT_PROJECTION_CHANGED
+ * @param {Event} event
  * @example
  *   cc.director.on(cc.Director.EVENT_PROJECTION_CHANGED, function(event) {
  *           cc.log("Projection changed.");
@@ -1058,64 +1058,70 @@ cc.js.addon(cc.Director.prototype, EventTarget.prototype);
 cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
 
 /**
- * The event after update of cc.Director
- * @constant
- * @type {string}
+ * The event which will be triggered before launching a new scene
+ * @event cc.Director.EVENT_BEFORE_SCENE_LAUNCH
+ * @param {Event} event
+ * @param {Vec2} event.detail - New scene which will be launched
  */
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 
 /**
- * @event EVENT_AFTER_SCENE_LAUNCH
- * @param {Scene} newScene
+ * The event which will be triggered after launching a new scene
+ * @event cc.Director.EVENT_AFTER_SCENE_LAUNCH
+ * @param {Event} event
+ * @param {Vec2} event.detail - New scene which is launched
  */
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 
 /**
- * The event after update of cc.Director
- * @constant
- * @type {string}
+ * The event which will be triggered at the beginning of every frame
+ * @event cc.Director.EVENT_BEFORE_UPDATE
+ * @param {Event} event
  */
 cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 
 /**
- * The event after update of cc.Director
- * @constant
- * @type {string}
+ * The event which will be triggered after components update
+ * @event cc.Director.EVENT_COMPONENT_UPDATE
+ * @param {Event} event
+ * @param {Vec2} event.detail - The delta time from last frame
  */
 cc.Director.EVENT_COMPONENT_UPDATE = "director_component_update";
 
 /**
- * The event after update of cc.Director
- * @constant
- * @type {string}
+ * The event which will be triggered after components late update
+ * @event cc.Director.EVENT_COMPONENT_LATE_UPDATE
+ * @param {Event} event
+ * @param {Vec2} event.detail - The delta time from last frame
  */
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = "director_component_late_update";
 
 /**
- * The event after update of cc.Director
- * @constant
- * @type {string}
+ * The event which will be triggered after engine and components update logic
+ * @event cc.Director.EVENT_AFTER_UPDATE
+ * @param {Event} event
  */
 cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
 
 /**
- * The event after visit of cc.Director
- * @constant
- * @type {string}
- */
-cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
-
-/**
- * The event after visit of cc.Director
- * @constant
- * @type {string}
+ * The event which will be triggered before visiting the rendering scene graph
+ * @event cc.Director.EVENT_BEFORE_VISIT
+ * @param {Event} event
  */
 cc.Director.EVENT_BEFORE_VISIT = "director_before_visit";
 
 /**
- * The event after draw of cc.Director
- * @constant
- * @type {string}
+ * The event which will be triggered after visiting the rendering scene graph,
+ * the render queue is ready but not rendered at this point
+ * @event cc.Director.EVENT_AFTER_VISIT
+ * @param {Event} event
+ */
+cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
+
+/**
+ * The event which will be triggered after the rendering process
+ * @event cc.Director.EVENT_AFTER_DRAW
+ * @param {Event} event
  */
 cc.Director.EVENT_AFTER_DRAW = "director_after_draw";
 
