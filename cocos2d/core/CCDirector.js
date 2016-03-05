@@ -607,6 +607,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             }
         }
         if (uuid) {
+            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
             this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
             return true;
@@ -1058,6 +1059,14 @@ cc.js.addon(cc.Director.prototype, EventTarget.prototype);
 cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
 
 /**
+ * The event which will be triggered before loading a new scene
+ * @event cc.Director.EVENT_BEFORE_SCENE_LOADING
+ * @param {Event} event
+ * @param {Vec2} event.detail - The loading scene name
+ */
+cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
+
+/*
  * The event which will be triggered before launching a new scene
  * @event cc.Director.EVENT_BEFORE_SCENE_LAUNCH
  * @param {Event} event
