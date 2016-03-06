@@ -69,18 +69,32 @@ cc.url = {
             url = url.slice(1);
         }
 
+        var PROTO = 'resources://';
+        if (url.startsWith(PROTO)) {
+            url = 'resources/' + url.slice(PROTO.length);
+        }
+        else if ( !url.startsWith('resources/') ) {
+            if (CC_EDITOR) {
+                cc.error('Should not load "%s" from script dynamically, ' +
+                         'unless it is placed in the "resources" folder.', url);
+            }
+            else {
+                cc.error('Sorry can not load "%s" because it is not placed in the "resources" folder.', url);
+            }
+        }
+        
         return this._rawAssets + url;
     },
 
     /**
-     * Returns the url of builtin raw assets.
+     * Returns the url of builtin raw assets. This method can only used in editor.
      * @method builtinRaw
      * @param {String} url
      * @return {String}
      * @example {@link utils/api/engine/docs/cocos2d/core/platform/url/builtinRaw.js}
      */
-    builtinRaw: function (url) {
-        if (!this._rawAssets && CC_EDITOR) {
+    builtinRaw: CC_EDITOR && function (url) {0
+        if ( !this._builtinRawAssets ) {
             cc.error('Failed to init builtin asset\'s raw path.');
             return '';
         }

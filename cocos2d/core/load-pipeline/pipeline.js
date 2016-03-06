@@ -43,7 +43,7 @@ function asyncFlow (item) {
     }
     else if (itemState === ItemState.COMPLETE) {
         if (next) {
-            next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
+            flow(next, item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -65,7 +65,7 @@ function asyncFlow (item) {
                 }
                 item.states[pipeId] = ItemState.COMPLETE;
                 if (next) {
-                    next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
+                    flow(next, item);
                 }
                 else {
                     pipe.pipeline.flowOut(item);
@@ -84,7 +84,7 @@ function syncFlow (item) {
     }
     else if (itemState === ItemState.COMPLETE) {
         if (next) {
-            next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
+            flow(next, item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -105,13 +105,16 @@ function syncFlow (item) {
             }
             item.states[pipeId] = ItemState.COMPLETE;
             if (next) {
-                next.async ? asyncFlow.call(next, item) : syncFlow.call(next, item);
+                flow(next, item);
             }
             else {
                 this.pipeline.flowOut(item);
             }
         }
     }
+}
+function flow (pipe, item) {
+    (pipe.async ? asyncFlow : syncFlow).call(pipe, item);
 }
 
 function isIdValid (id) {
@@ -292,14 +295,13 @@ JS.mixin(Pipeline.prototype, {
             return acceptedItems;
         }
         
-        if (!this._flowing) {
-            this._flowing = true;
-        }
+        this._flowing = true;
+        
         // Flow in after appended to loading items
         var pipe = this._pipes[0];
         if (pipe) {
             for (i = 0; i < acceptedItems.length; i++) {
-                pipe.async ? asyncFlow.call(pipe, acceptedItems[i]) : syncFlow.call(pipe, acceptedItems[i]);
+                flow(pipe, acceptedItems[i]);
             }
         }
         return acceptedItems;
@@ -492,7 +494,7 @@ JS.mixin(Pipeline.prototype, {
      * @param {Number} totalCount The total number of the items.
      * @param {Object} item The latest item which flow out the pipeline.
      */
-    onProgress: function (completedCount, totalCount, item) {},
+    onProgress: null,
 
     /**
      * This is a callback which will be invoked while all items flow out the pipeline, you should overwirte this function.
@@ -507,7 +509,7 @@ JS.mixin(Pipeline.prototype, {
      * @param {Array} error All errored urls will be stored in this array, if no error happened, then it will be null
      * @param {LoadingItems} items All items.
      */
-    onComplete: function (error, items) {}
+    onComplete: null
 });
 
 cc.Pipeline = module.exports = Pipeline;

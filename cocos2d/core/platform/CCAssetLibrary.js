@@ -26,6 +26,7 @@
 var Asset = require('../assets/CCAsset');
 var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
+var resources = require('../load-pipeline/url-resolver').resources;
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -290,14 +291,24 @@ var AssetLibrary = {
         _uuidToRawAssets = {};
         var rawAssets = options.rawAssets;
         if (rawAssets) {
+            var RES_DIR = 'resources/';
             for (var mountPoint in rawAssets) {
                 var assets = rawAssets[mountPoint];
                 for (var uuid in assets) {
                     var info = assets[uuid];
+                    var url = info.url;
                     _uuidToRawAssets[uuid] = {
-                        url: mountPoint + '/' + info.url,
+                        url: mountPoint + '/' + url,
                         raw: !!info.raw,
                     };
+                    // init resources
+                    if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
+                        // trim
+                        var ext = cc.path.extname(url);
+                        url = url.slice(RES_DIR.length, - ext.length);
+                        // register
+                        resources.add(url, uuid);
+                    }
                 }
             }
         }

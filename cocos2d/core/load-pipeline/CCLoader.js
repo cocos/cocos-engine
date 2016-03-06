@@ -25,6 +25,7 @@
 
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
+var urlResolver = require('./url-resolver');
 var Downloader = require('./downloader');
 var Loader = require('./loader');
 var callInNextTick = require('../platform/utils').callInNextTick;
@@ -39,6 +40,7 @@ var loader = new Loader();
  * @static
  */
 cc.loader = new Pipeline([
+    urlResolver,
     downloader,
     loader
 ]);
