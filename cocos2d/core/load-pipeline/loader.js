@@ -199,7 +199,7 @@ var ID = 'Loader';
  * 6. Cocos Creator scene
  * It will not interfere with items of unknown type.
  * You can pass custom supported types in the constructor.
- * @class Loader
+ * @class Pipeline.Loader
  */
 /**
  * Constructor of Loader, you can pass custom supported types.

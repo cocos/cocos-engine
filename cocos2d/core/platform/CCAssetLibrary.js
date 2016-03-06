@@ -110,10 +110,10 @@ var AssetLibrary = {
 
     _getAssetInfoInRuntime: function (uuid) {
         var info = _uuidToRawAssets[uuid];
-        if (info) {
+        if (info && info.raw) {
             return {
                 url: _rawAssetsBase + info.url,
-                raw: info.raw,
+                raw: true,
             };
         }
         else {
@@ -305,7 +305,12 @@ var AssetLibrary = {
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
                         // trim
                         var ext = cc.path.extname(url);
-                        url = url.slice(RES_DIR.length, - ext.length);
+                        if (ext) {
+                            url = url.slice(RES_DIR.length, - ext.length);
+                        }
+                        else {
+                            url = url.slice(RES_DIR.length);
+                        }
                         // register
                         resources.add(url, uuid);
                     }

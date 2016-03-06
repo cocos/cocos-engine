@@ -37,6 +37,15 @@ var UrlResolver = module.exports = {
         if (typeof url === 'string' && url.startsWith(RESOURCES_PROTOCOL)) {
             url = url.slice(RESOURCES_PROTOCOL.length);
             var uuid = this.resources.getUuid(url);
+            if ( !uuid ) {
+                var extname = cc.path.extname(url);
+                if (extname) {
+                    cc.warn('Don\'t add extension for "%s".', item.url);
+                    // strip extname
+                    url = url.slice(0, - extname.length);
+                    uuid = this.resources.getUuid(url);
+                }
+            }
             if (Array.isArray(uuid)) {
                 cc.info('Wildcard NYI');
                 if (uuid.length > 0) {
