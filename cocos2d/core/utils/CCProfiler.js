@@ -47,9 +47,9 @@ cc.profiler = (function () {
         var w = cc.winSize.width, h = cc.winSize.height;
         var locStatsPosition = cc.DIRECTOR_STATS_POSITION;
         if (w > h)
-            fontSize = 0 | (h / 320 * 24);
+            fontSize = 0 | (h / 320 * 20);
         else
-            fontSize = 0 | (w / 320 * 24);
+            fontSize = 0 | (w / 320 * 20);
 
         _FPSLabel = new _ccsg.Label("000.0", "Arial");
         _SPFLabel = new _ccsg.Label("0.000", "Arial");
@@ -61,9 +61,9 @@ cc.profiler = (function () {
         _SPFLabel.setContentSize(120, 40);
         _drawsLabel.setContentSize(120, 40);
 
-        _drawsLabel.setPosition(_drawsLabel.width / 2 + locStatsPosition.x, _drawsLabel.height * 5 / 2 + locStatsPosition.y);
-        _SPFLabel.setPosition(_SPFLabel.width / 2 + locStatsPosition.x, _SPFLabel.height * 3 / 2 + locStatsPosition.y);
-        _FPSLabel.setPosition(_FPSLabel.width / 2 + locStatsPosition.x, _FPSLabel.height / 2 + locStatsPosition.y);
+        _drawsLabel.setPosition(_drawsLabel.width / 2 + locStatsPosition.x, 40 * 5 / 2 + locStatsPosition.y);
+        _SPFLabel.setPosition(_SPFLabel.width / 2 + locStatsPosition.x, 40 * 3 / 2 + locStatsPosition.y);
+        _FPSLabel.setPosition(_FPSLabel.width / 2 + locStatsPosition.x, 40 / 2 + locStatsPosition.y);
     };
 
     var analyseFPS = function (fps) {
