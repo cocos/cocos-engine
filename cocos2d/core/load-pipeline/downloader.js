@@ -333,7 +333,7 @@ var ID = 'Downloader';
  * 4. Audio
  * All unknown type will be downloaded as plain text.
  * You can pass custom supported types in the constructor.
- * @class Downloader
+ * @class Pipeline.Downloader
  */
 /**
  * Constructor of Downloader, you can pass custom supported types.

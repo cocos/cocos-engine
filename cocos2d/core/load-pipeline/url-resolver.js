@@ -61,7 +61,8 @@ var UrlResolver = module.exports = {
                 pipeline.flowInDeps(
                     [{
                         id: uuid,
-                        type: 'uuid'
+                        type: 'uuid',
+                        uuid: uuid
                     }], 
                     function (items) {
                         var loaded = items[uuid];

@@ -44,7 +44,8 @@ function loadDepends (pipeline, item, asset, tdInfo, callback) {
         var dependSrc = dependsSrcs[i];
         depends[i] = {
             id: dependSrc,
-            type: 'uuid'
+            type: 'uuid',
+            uuid: dependSrc
         };
     }
     // load raw
@@ -59,8 +60,8 @@ function loadDepends (pipeline, item, asset, tdInfo, callback) {
             var item;
             for (var src in items) {
                 item = items[src];
-                if (item.type === 'uuid' && item.id && item.content) {
-                    item.content._uuid = item.id;
+                if (item.uuid && item.content) {
+                    item.content._uuid = item.uuid;
                 }
             }
             for (var i = 0; i < dependsSrcs.length; i++) {

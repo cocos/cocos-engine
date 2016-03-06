@@ -43,7 +43,7 @@ function asyncFlow (item) {
     }
     else if (itemState === ItemState.COMPLETE) {
         if (next) {
-            flow(next, item);
+            next.flowIn(item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -65,7 +65,7 @@ function asyncFlow (item) {
                 }
                 item.states[pipeId] = ItemState.COMPLETE;
                 if (next) {
-                    flow(next, item);
+                    next.flowIn(item);
                 }
                 else {
                     pipe.pipeline.flowOut(item);
@@ -84,7 +84,7 @@ function syncFlow (item) {
     }
     else if (itemState === ItemState.COMPLETE) {
         if (next) {
-            flow(next, item);
+            next.flowIn(item);
         }
         else {
             this.pipeline.flowOut(item);
@@ -105,16 +105,13 @@ function syncFlow (item) {
             }
             item.states[pipeId] = ItemState.COMPLETE;
             if (next) {
-                flow(next, item);
+                next.flowIn(item);
             }
             else {
                 this.pipeline.flowOut(item);
             }
         }
     }
-}
-function flow (pipe, item) {
-    (pipe.async ? asyncFlow : syncFlow).call(pipe, item);
 }
 
 function isIdValid (id) {
@@ -203,6 +200,7 @@ var Pipeline = function (pipes) {
 
         pipe.pipeline = this;
         pipe.next = i < pipes.length - 1 ? pipes[i+1] : null;
+        pipe.flowIn = pipe.async ? asyncFlow : syncFlow;
     }
 };
 
@@ -225,6 +223,7 @@ JS.mixin(Pipeline.prototype, {
         }
 
         pipe.pipeline = this;
+        pipe.flowIn = pipe.async ? asyncFlow : syncFlow;
         if (index < this._pipes.length) {
             pipe.next = this._pipes[index];
             this._pipes.splice(index, 0, pipe);
@@ -250,6 +249,7 @@ JS.mixin(Pipeline.prototype, {
 
         pipe.pipeline = this;
         pipe.next = null;
+        pipe.flowIn = pipe.async ? asyncFlow : syncFlow;
         this._pipes.push(pipe);
     },
 
@@ -301,7 +301,7 @@ JS.mixin(Pipeline.prototype, {
         var pipe = this._pipes[0];
         if (pipe) {
             for (i = 0; i < acceptedItems.length; i++) {
-                flow(pipe, acceptedItems[i]);
+                pipe.flowIn(acceptedItems[i]);
             }
         }
         return acceptedItems;
