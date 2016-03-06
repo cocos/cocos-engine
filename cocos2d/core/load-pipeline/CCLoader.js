@@ -221,6 +221,14 @@ JS.mixin(cc.loader, {
     },
 
     /**
+     * Get total resources count in loader.
+     * @returns {Number}
+     */
+    getResCount: function () {
+        return this._items.totalCount;
+    },
+
+    /**
      * Release the cache of resource by url.
      *
      * @method release
