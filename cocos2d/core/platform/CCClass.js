@@ -1089,3 +1089,7 @@ module.exports = {
     },
     fastDefine: CCClass._fastDefine
 };
+
+if (CC_EDITOR) {
+    module.exports.getDefault = getDefault; 
+}
