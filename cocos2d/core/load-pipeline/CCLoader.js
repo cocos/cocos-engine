@@ -27,6 +27,7 @@ var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
 var Downloader = require('./downloader');
 var Loader = require('./loader');
+var callInNextTick = require('../platform/utils').callInNextTick;
 
 var downloader = new Downloader();
 var loader = new Loader();
@@ -129,14 +130,17 @@ JS.mixin(cc.loader, {
             progressCallback = null;
         }
 
+        var self = this;
         var singleRes = false;
         if (!(resources instanceof Array)) {
             resources = resources ? [resources] : [];
             singleRes = true;
         }
         // Return directly if no resources
-        if (resources.length === 0) {
-            completeCallback && completeCallback.call(this, null, this._items);
+        if (resources.length === 0 && completeCallback) {
+            callInNextTick(function () {
+                completeCallback.call(self, null, self._items);
+            });
         }
 
         // Resolve callback
@@ -144,7 +148,6 @@ JS.mixin(cc.loader, {
         var checker = {};
         var totalCount = 0;
         var completedCount = 0;
-        var self = this;
 
         function loadedCheck (item) {
             checker[item.id] = item;
@@ -193,14 +196,16 @@ JS.mixin(cc.loader, {
 
         // No new resources, complete directly
         if (totalCount === completedCount) {
-            if (singleRes) {
-                var id = resources[0].id || resources[0];
-                var result = this._items.map[id];
-                completeCallback.call(this, result.error, result.content);
-            }
-            else {
-                completeCallback.call(this, null, this._items);
-            }
+            callInNextTick(function () {
+                if (singleRes) {
+                    var id = resources[0].id || resources[0];
+                    var result = self._items.map[id];
+                    completeCallback.call(self, result.error, result.content);
+                }
+                else {
+                    completeCallback.call(self, null, self._items);
+                }
+            });
         }
         else {
             this.flowIn(resources);
