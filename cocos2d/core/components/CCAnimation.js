@@ -341,7 +341,10 @@ var Animation = cc.Class({
                 return oldState;
             }
             else {
-                this._clips.splice(this._clips.indexOf(oldState.clip), 1);
+                var index = this._clips.indexOf(oldState.clip);
+                if (index !== -1) {
+                    this._clips.splice(index, 1);
+                }
             }
         }
 
