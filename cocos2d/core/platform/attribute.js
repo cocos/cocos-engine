@@ -125,6 +125,13 @@ cc.Integer = 'Integer';
  */
 cc.Float = 'Float';
 
+if (CC_EDITOR) {
+    JS.get(cc, 'Number', function () {
+        cc.warn('Use "cc.Float" or "cc.Integer" instead of "cc.Number" please. \uD83D\uDE02');
+        return cc.Float;
+    });
+}
+
 /**
  * Indicates that the elements in array should be type boolean.
  * @property {string} Boolean
