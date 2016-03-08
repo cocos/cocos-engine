@@ -92,66 +92,68 @@ cc.js.mixin(cc.director, {
      * @param {EScene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function at the scene before loading.
      */
-    runScene: function (scene, onBeforeLoadScene) {
+    runScene: function (scene, onBeforeLoadScene, onLaunched) {
         cc.assert(scene, cc._LogInfos.Director.pushScene);
-
-        // detach persist nodes
-        var i, node, game = cc.game;
-        var persistNodes = game._persistRootNodes;
-        for (i = persistNodes.length - 1; i >= 0; --i) {
-            node = persistNodes[i];
-            game._ignoreRemovePersistNode = node;
-            node.parent = null;
-            game._ignoreRemovePersistNode = null;
-        }
-
-        // unload scene
-        var oldScene = this._scene;
-        if (cc.isValid(oldScene)) {
-            oldScene.destroy();
-        }
-        this._scene = null;
-
-        // purge destroyed nodes belongs to old scene
-        cc.Object._deferredDestroy();
-
-        if (onBeforeLoadScene) {
-            onBeforeLoadScene();
-        }
-        this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
-
-        var sgScene = scene;
 
         // Run an Entity Scene
         if (scene instanceof cc.Scene) {
             // ensure scene initialized
             scene._load();
+        }
 
-            this._scene = scene;
-            sgScene = scene._sgNode;
-            
-            // Re-attach persist nodes
-            for (i = 0; i < persistNodes.length; ++i) {
+        // Delay to avoid issues like transition in event callback
+        this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            // detach persist nodes
+            var i, node, game = cc.game;
+            var persistNodes = game._persistRootNodes;
+            for (i = persistNodes.length - 1; i >= 0; --i) {
                 node = persistNodes[i];
-                node.parent = scene;
+                game._ignoreRemovePersistNode = node;
+                node.parent = null;
+                game._ignoreRemovePersistNode = null;
             }
-        }
 
-        // Run or replace rendering scene
-        if (!this.getRunningScene()) {
-            this.runWithScene(sgScene);
-        }
-        else {
-            // Delay to avoid issues like transition in event callback
-            this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            // unload scene
+            var oldScene = this._scene;
+            if (cc.isValid(oldScene)) {
+                oldScene.destroy();
+            }
+            this._scene = null;
+
+            // purge destroyed nodes belongs to old scene
+            cc.Object._deferredDestroy();
+
+            if (onBeforeLoadScene) {
+                onBeforeLoadScene();
+            }
+            this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+
+            // Run an Entity Scene
+            var sgScene = scene;
+            if (scene instanceof cc.Scene) {
+                this._scene = scene;
+                sgScene = scene._sgNode;
+                
+                // Re-attach persist nodes
+                for (i = 0; i < persistNodes.length; ++i) {
+                    node = persistNodes[i];
+                    node.parent = scene;
+                }
+                scene._activate();
+            }
+
+            // Run or replace rendering scene
+            if (!this.getRunningScene()) {
+                this.runWithScene(sgScene);
+            }
+            else {
                 this.replaceScene(sgScene);
-            });
-        }
+            }
 
-        // Activate
-        if (scene instanceof cc.Scene) {
-            scene._activate();
-        }
+            if (onLaunched) {
+                onLaunched(null, scene);
+            }
+        });
     },
 
     //  @Scene loading section
@@ -270,7 +272,7 @@ cc.js.mixin(cc.director, {
                 scene = sceneAsset.scene;
                 if (scene instanceof cc.Scene) {
                     scene._id = uuid;
-                    self.runScene(scene, onUnloaded);
+                    self.runScene(scene, onUnloaded, onLaunched);
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
@@ -279,8 +281,8 @@ cc.js.mixin(cc.director, {
                 }
             }
             self._loadingScene = '';
-            if (onLaunched) {
-                onLaunched(error, scene);
+            if (error && onLaunched) {
+                onLaunched(error);
             }
         }, { recordAssets: true });
     }
