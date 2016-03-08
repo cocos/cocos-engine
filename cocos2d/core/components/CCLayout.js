@@ -49,10 +49,10 @@ var Type = cc.Enum({
 });
 
 /**
- * Enum for Layout Resize Type
- * @enum Layout.ResizeType
+ * Enum for Layout Resize Mode
+ * @enum Layout.ResizeMode
  */
-var ResizeType = cc.Enum({
+var ResizeMode = cc.Enum({
     /**
      * @property {Number} NONE
      */
@@ -135,16 +135,24 @@ var Layout = cc.Class({
             serializable: false,
         },
 
+        _resize: ResizeMode.NONE,
+
+        //TODO: refactoring this name after data upgrade machanism is out.
+        _N$layoutType: Type.NONE,
         /**
          * The layout type.
-         * @property {Layout.Type} layoutType
+         * @property {Layout.Type} type
          * @default Layout.Type.NONE
          */
-        layoutType: {
-            default: Type.NONE,
+        type: {
             type: Type,
-            notify: function() {
-                if (this.layoutType !== Type.NONE && this._resize === ResizeType.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+            get: function() {
+                return this._N$layoutType;
+            },
+            set: function(value) {
+                this._N$layoutType = value;
+
+                if (this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -156,27 +164,26 @@ var Layout = cc.Class({
             tooltip: 'i18n:COMPONENT.layout.layout_type'
         },
 
-        _resize: ResizeType.NONE,
 
         /**
-         * The are three resize types for Layout.
+         * The are three resize modes for Layout.
          * None, resize Container and resize children.
-         * @property {Layout.ResizeType} resize
-         * @default ResizeType.NONE
+         * @property {Layout.ResizeMode} resizeMode
+         * @default ResizeMode.NONE
          */
-        resize: {
-            type: ResizeType,
+        resizeMode: {
+            type: ResizeMode,
             tooltip: 'i18n:COMPONENT.layout.auto_resize',
             get: function() {
                 return this._resize;
             },
             set: function(value) {
-                if (this.layoutType === Type.NONE && value === ResizeType.CHILDREN) {
+                if (this.type === Type.NONE && value === ResizeMode.CHILDREN) {
                     return;
                 }
 
                 this._resize = value;
-                if (this.layoutType !== Type.NONE && value === ResizeType.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (this.type !== Type.NONE && value === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -210,7 +217,7 @@ var Layout = cc.Class({
             default: AxisDirection.HORIZONTAL,
             type: AxisDirection,
             notify: function() {
-                if (this._resize === ResizeType.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -293,7 +300,7 @@ var Layout = cc.Class({
         Type: Type,
         VerticalDirection: VerticalDirection,
         HorizontalDirection: HorizontalDirection,
-        ResizeType: ResizeType,
+        ResizeMode: ResizeMode,
         AxisDirection: AxisDirection,
     },
 
@@ -354,7 +361,7 @@ var Layout = cc.Class({
         var maxHeightChildAnchor;
 
         var newChildWidth = this.cellSize.width;
-        if (this.layoutType !== Type.GRID && this.resize === ResizeType.CHILDREN) {
+        if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
             newChildWidth = (baseWidth - 2 * this.padding - (children.length - 1) * this.spacingX) / children.length;
         }
 
@@ -363,9 +370,9 @@ var Layout = cc.Class({
                 return;
             }
             //for resizing children
-            if (this._resize === ResizeType.CHILDREN) {
+            if (this._resize === ResizeMode.CHILDREN) {
                 child.width = newChildWidth;
-                if (this.layoutType === Type.GRID) {
+                if (this.type === Type.GRID) {
                     child.height = this.cellSize.height;
                 }
             }
@@ -447,7 +454,7 @@ var Layout = cc.Class({
 
     _getVerticalBaseHeight: function (children) {
         var newHeight = 0;
-        if (this.resize === ResizeType.CONTAINER) {
+        if (this.resizeMode === ResizeMode.CONTAINER) {
             children.forEach(function(child) {
                 newHeight += child.height;
             });
@@ -480,7 +487,7 @@ var Layout = cc.Class({
         var maxWidthChildAnchor;
 
         var newChildHeight = this.cellSize.height;
-        if (this.layoutType !== Type.GRID && this.resize === ResizeType.CHILDREN) {
+        if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
             newChildHeight = (baseHeight - 2 * this.padding - (children.length - 1) * this.spacingY) / children.length;
         }
 
@@ -490,9 +497,9 @@ var Layout = cc.Class({
             }
 
             //for resizing children
-            if (this.resize === ResizeType.CHILDREN) {
+            if (this.resizeMode === ResizeMode.CHILDREN) {
                 child.height = newChildHeight;
-                if (this.layoutType === Type.GRID) {
+                if (this.type === Type.GRID) {
                     child.width = this.cellSize.width;
                 }
             }
@@ -620,7 +627,7 @@ var Layout = cc.Class({
 
 
         var newHeight = 0;
-        if (this.resize === ResizeType.CONTAINER) {
+        if (this.resizeMode === ResizeMode.CONTAINER) {
             //calculate the new height of container, it won't change the position of it's children
             var boundary = this._doLayoutHorizontally(baseWidth, true, fnPositionY, false);
             newHeight = bottomBoundaryOfLayout - boundary;
@@ -638,7 +645,7 @@ var Layout = cc.Class({
 
         this._doLayoutHorizontally(baseWidth, true, fnPositionY, true);
 
-        if (this.resize === ResizeType.CONTAINER) {
+        if (this.resizeMode === ResizeMode.CONTAINER) {
             this.node.setContentSize(baseWidth, newHeight);
         }
     },
@@ -659,7 +666,7 @@ var Layout = cc.Class({
         }.bind(this);
 
         var newWidth = 0;
-        if (this.resize === ResizeType.CONTAINER) {
+        if (this.resizeMode === ResizeMode.CONTAINER) {
             var boundary = this._doLayoutVertically(baseHeight, true, fnPositionX, false);
             newWidth = leftBoundaryOfLayout - boundary;
             if (newWidth < 0) {
@@ -676,7 +683,7 @@ var Layout = cc.Class({
 
         this._doLayoutVertically(baseHeight, true, fnPositionX, true);
 
-        if (this.resize === ResizeType.CONTAINER) {
+        if (this.resizeMode === ResizeMode.CONTAINER) {
             this.node.setContentSize(newWidth, baseHeight);
         }
     },
@@ -697,7 +704,7 @@ var Layout = cc.Class({
 
     _getHorizontalBaseWidth: function (children) {
         var newWidth = 0;
-        if (this.resize === ResizeType.CONTAINER) {
+        if (this.resizeMode === ResizeMode.CONTAINER) {
             children.forEach(function(child) {
                 newWidth += child.width;
             });
@@ -711,7 +718,7 @@ var Layout = cc.Class({
 
     _doLayout: function() {
 
-        if (this.layoutType === Type.HORIZONTAL) {
+        if (this.type === Type.HORIZONTAL) {
             var newWidth = this._getHorizontalBaseWidth(this.node.children);
 
             var fnPositionY = function(child) {
@@ -722,7 +729,7 @@ var Layout = cc.Class({
 
             this.node.width = newWidth;
         }
-        else if (this.layoutType === Type.VERTICAL) {
+        else if (this.type === Type.VERTICAL) {
             var newHeight = this._getVerticalBaseHeight(this.node.children);
 
             var fnPositionX = function(child) {
@@ -733,12 +740,12 @@ var Layout = cc.Class({
 
             this.node.height = newHeight;
         }
-        else if (this.layoutType === Type.NONE) {
-            if (this.resize === ResizeType.CONTAINER) {
+        else if (this.type === Type.NONE) {
+            if (this.resizeMode === ResizeMode.CONTAINER) {
                 this._doLayoutBasic();
             }
         }
-        else if(this.layoutType === Type.GRID) {
+        else if(this.type === Type.GRID) {
             this._doLayoutGrid();
         }
     },
