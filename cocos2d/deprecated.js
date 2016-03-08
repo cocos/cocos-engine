@@ -543,6 +543,11 @@ if (CC_DEV) {
         getPreferredSize: 'getContentSize',
     });
 
+    //ui
+    cc.js.obsolete(cc.Layout.prototype, 'Layout.layoutType', 'type');
+    cc.js.obsolete(cc.Layout.prototype, 'Layout.ResizeType', 'ResizeMode');
+    cc.js.obsolete(cc.Layout.prototype, 'Layout.resize', 'resizeMode');
+
     markAsRemoved(cc.Scale9Sprite, [
         'init',
         'resizableSpriteWithCapInsets',
