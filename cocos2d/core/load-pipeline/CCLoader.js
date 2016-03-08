@@ -196,10 +196,10 @@ JS.mixin(cc.loader, {
 
         // No new resources, complete directly
         if (totalCount === completedCount) {
+            var id = resources[0].id || resources[0];
+            var result = this._items.map[id];
             callInNextTick(function () {
                 if (singleRes) {
-                    var id = resources[0].id || resources[0];
-                    var result = self._items.map[id];
                     completeCallback.call(self, result.error, result.content);
                 }
                 else {
