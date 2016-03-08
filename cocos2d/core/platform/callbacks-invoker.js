@@ -110,7 +110,7 @@ CallbacksHandler.prototype.has = function (key, callback, target) {
  */
 CallbacksHandler.prototype.removeAll = function (key) {
     // Delay removing
-    if (this._invoking) {
+    if (this._invoking[key]) {
         this._toRemoveAll = key;
         return;
     }
@@ -145,8 +145,11 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
     var list = this._callbackTable[key], index, callbackTarget;
     if (list) {
         // Delay removing
-        if (this._invoking === key) {
-            this._toRemove.push([callback, target]);
+        if (this._invoking[key]) {
+            if (!this._toRemove[key]) {
+                this._toRemove[key] = [];
+            }
+            this._toRemove[key].push([callback, target]);
             return true;
         }
 
@@ -178,8 +181,8 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
  */
 var CallbacksInvoker = function () {
     CallbacksHandler.call(this);
-    this._invoking = null;
-    this._toRemove = [];
+    this._invoking = {};
+    this._toRemove = {};
     this._toRemoveAll = null;
 };
 JS.extend(CallbacksInvoker, CallbacksHandler);
@@ -199,7 +202,7 @@ if (CC_TEST) {
  */
 CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
     this._toRemove.length = 0;
-    this._invoking = key;
+    this._invoking[key] = true;
     var list = this._callbackTable[key], i;
     if (list) {
         var endIndex = list.length - 1;
@@ -220,14 +223,17 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
             i += increment;
         }
     }
-    this._invoking = null;
+    this._invoking[key] = false;
 
     // Delay removing
-    for (i = 0; i < this._toRemove.length; ++i) {
-        var toRemove = this._toRemove[i];
-        this.remove(key, toRemove[0], toRemove[1]);
+    var removeList = this._toRemove[key];
+    if (removeList) {
+        for (i = 0; i < removeList.length; ++i) {
+            var toRemove = removeList[i];
+            this.remove(key, toRemove[0], toRemove[1]);
+        }
+        delete this._toRemove[key];
     }
-    this._toRemove.length = 0;
     if (this._toRemoveAll) {
         this.removeAll(this._toRemoveAll);
         this._toRemoveAll = null;
@@ -244,7 +250,7 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) {
-    this._invoking = key;
+    this._invoking[key] = true;
     // this.invoke(key, p1, p2, p3, p4, p5);
     // 这里不直接调用invoke仅仅是为了减少调用堆栈的深度，方便调试
     var list = this._callbackTable[key], i, l, target;
@@ -261,8 +267,8 @@ CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) 
             }
         }
     }
-    this._invoking = null;
-    this._toRemove.length = 0;
+    this._invoking[key] = false;
+    delete this._toRemove[key];
     this.removeAll(key);
 };
 
