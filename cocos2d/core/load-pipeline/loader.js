@@ -99,7 +99,7 @@ function _parseFntStrToObj (str) {
 }
 function loadFnt (item, callback) {
     var fntStr = item.content;
-    var url = item.id;
+    var url = item.url;
 
     var fnt = {}, i, li;
     //padding

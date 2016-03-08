@@ -17,7 +17,7 @@
     
     asyncTest('load single', function () {
         cc.loader.releaseAll();
-        cc.loader.load('resources://grossini', function (err, texture) {
+        cc.loader.load('resources://grossini.png', function (err, texture) {
             ok(texture instanceof cc.Texture2D, 'should be able to load texture without file extname');
             clearTimeout(timeoutId);
             start();

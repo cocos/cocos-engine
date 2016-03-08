@@ -297,16 +297,23 @@ var AssetLibrary = {
                 for (var uuid in assets) {
                     var info = assets[uuid];
                     var url = info.url;
+                    var raw = info.raw;
                     _uuidToRawAssets[uuid] = {
                         url: mountPoint + '/' + url,
-                        raw: !!info.raw,
+                        raw: !!raw,
                     };
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
-                        // trim
-                        var ext = cc.path.extname(url);
-                        if (ext) {
-                            url = url.slice(RES_DIR.length, - ext.length);
+                        if ( !raw ) {
+                            var ext = cc.path.extname(url);
+                            if (ext) {
+                                // trim base dir and extname
+                                url = url.slice(RES_DIR.length, - ext.length);
+                            }
+                            else {
+                                // trim base dir
+                                url = url.slice(RES_DIR.length);
+                            }
                         }
                         else {
                             url = url.slice(RES_DIR.length);
