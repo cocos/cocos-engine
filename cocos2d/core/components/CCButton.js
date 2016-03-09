@@ -78,9 +78,9 @@ var Button = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Button',
+        help: 'app://docs/html/components/button.html',
         inspector: 'app://editor/page/inspector/button/button.html',
-        executeInEditMode: true,
-        helpUrl: 'app://docs/html/components/button.html'
+        executeInEditMode: true
     },
 
     properties: {

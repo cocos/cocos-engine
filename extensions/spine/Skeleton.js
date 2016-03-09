@@ -56,7 +56,7 @@ sp.Skeleton = cc.Class({
     extends: cc._RendererUnderSG,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Spine Skeleton',
-        helpUrl: 'app://docs/html/components/spine.html'
+        help: 'app://docs/html/components/spine.html',
         //playOnFocus: true
     },
 

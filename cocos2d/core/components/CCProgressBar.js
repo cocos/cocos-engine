@@ -55,7 +55,7 @@ var ProgressBar = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ProgressBar',
-        helpUrl: 'app://docs/html/components/progressbar.html'
+        help: 'app://docs/html/components/progressbar.html',
     },
 
     _initBarSprite: function() {

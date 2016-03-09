@@ -38,7 +38,7 @@ var Label = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Label',
-        helpUrl: 'app://docs/html/components/label.html'
+        help: 'app://docs/html/components/label.html',
     },
 
     properties: {

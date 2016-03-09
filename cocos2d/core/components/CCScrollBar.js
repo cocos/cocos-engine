@@ -52,7 +52,7 @@ var Scrollbar = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ScrollBar',
-        helpUrl: 'app://docs/html/components/scrollbar.html'
+        help: 'app://docs/html/components/scrollbar.html',
     },
 
     properties: {

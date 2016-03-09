@@ -719,7 +719,7 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 /**
  * The custom documentation URL
  *
- * @property helpUrl
+ * @property help
  * @type {String}
  * @default ""
  */
