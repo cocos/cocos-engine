@@ -29,8 +29,8 @@ var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler
 // Extends CallbacksHandler to handle and invoke event callbacks.
 function EventListeners () {
     CallbacksHandler.call(this);
-    this._invoking = null;
-    this._toRemove = [];
+    this._invoking = {};
+    this._toRemove = {};
     this._toRemoveAll = null;
 }
 JS.extend(EventListeners, CallbacksHandler);
@@ -40,8 +40,8 @@ EventListeners.prototype.invoke = function (event) {
         list = this._callbackTable[key],
         i, endIndex,
         callingFunc, target, hasTarget;
-    this._toRemove.length = 0;
-    this._invoking = key;
+
+    this._invoking[key] = true;
 
     if (list) {
         if (list.length === 1) {
@@ -71,14 +71,17 @@ EventListeners.prototype.invoke = function (event) {
             }
         }
     }
-    this._invoking = null;
+    this._invoking[key] = false;
 
     // Delay removing
-    for (i = 0; i < this._toRemove.length; ++i) {
-        var toRemove = this._toRemove[i];
-        this.remove(key, toRemove[0], toRemove[1]);
+    var removeList = this._toRemove[key];
+    if (removeList) {
+        for (i = 0; i < removeList.length; ++i) {
+            var toRemove = removeList[i];
+            this.remove(key, toRemove[0], toRemove[1]);
+        }
+        delete this._toRemove[key];
     }
-    this._toRemove.length = 0;
     if (this._toRemoveAll) {
         this.removeAll(this._toRemoveAll);
         this._toRemoveAll = null;

@@ -88,16 +88,23 @@ cc.js.mixin(cc.director, {
 
     /**
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
+     * The new scene will be launched immediately.
      * @method runScene
-     * @param {EScene} scene - The need run scene.
-     * @param {Function} [onBeforeLoadScene] - The function at the scene before loading.
+     * @param {Scene} scene - The need run scene.
+     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
+     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
-    runScene: function (scene, onBeforeLoadScene) {
-        cc.assert(scene, cc._LogInfos.Director.pushScene);
-
+    runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
         // detach persist nodes
         var i, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
+
+        // Run an Entity Scene
+        if (scene instanceof cc.Scene) {
+            // ensure scene initialized
+            scene._load();
+        }
+
         for (i = persistNodes.length - 1; i >= 0; --i) {
             node = persistNodes[i];
             game._ignoreRemovePersistNode = node;
@@ -120,13 +127,9 @@ cc.js.mixin(cc.director, {
         }
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
-        var sgScene = scene;
-
         // Run an Entity Scene
+        var sgScene = scene;
         if (scene instanceof cc.Scene) {
-            // ensure scene initialized
-            scene._load();
-
             this._scene = scene;
             sgScene = scene._sgNode;
             
@@ -135,6 +138,7 @@ cc.js.mixin(cc.director, {
                 node = persistNodes[i];
                 node.parent = scene;
             }
+            scene._activate();
         }
 
         // Run or replace rendering scene
@@ -142,16 +146,36 @@ cc.js.mixin(cc.director, {
             this.runWithScene(sgScene);
         }
         else {
-            // Delay to avoid issues like transition in event callback
-            this.once(cc.Director.EVENT_AFTER_DRAW, function () {
-                this.replaceScene(sgScene);
-            });
+            this.replaceScene(sgScene);
         }
 
-        // Activate
-        if (scene instanceof cc.Scene) {
-            scene._activate();
+        if (onLaunched) {
+            onLaunched(null, scene);
+            this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
         }
+    },
+
+    /**
+     * Run a scene. Replaces the running scene with a new one or enter the first scene.
+     * The new scene will be launched at the end of the current frame.
+     * @method runScene
+     * @param {Scene} scene - The need run scene.
+     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
+     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
+     */
+    runScene: function (scene, onBeforeLoadScene, onLaunched) {
+        cc.assert(scene, cc._LogInfos.Director.pushScene);
+
+        // Run an Entity Scene
+        if (scene instanceof cc.Scene) {
+            // ensure scene initialized
+            scene._load();
+        }
+
+        // Delay to avoid issues like transition in event callback
+        this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
+        });
     },
 
     //  @Scene loading section
@@ -198,6 +222,7 @@ cc.js.mixin(cc.director, {
             }
         }
         if (uuid) {
+            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
             this._loadSceneByUuid(uuid, onLaunched, onUnloaded);
             return true;
@@ -270,7 +295,7 @@ cc.js.mixin(cc.director, {
                 scene = sceneAsset.scene;
                 if (scene instanceof cc.Scene) {
                     scene._id = uuid;
-                    self.runScene(scene, onUnloaded);
+                    self.runScene(scene, onUnloaded, onLaunched);
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
@@ -279,8 +304,8 @@ cc.js.mixin(cc.director, {
                 }
             }
             self._loadingScene = '';
-            if (onLaunched) {
-                onLaunched(error, scene);
+            if (error && onLaunched) {
+                onLaunched(error);
             }
         }, { recordAssets: true });
     }
@@ -295,7 +320,9 @@ cc.Director.EVENT_BEFORE_VISIT = 'director_before_visit';
 cc.Director.EVENT_AFTER_VISIT = 'director_after_visit';
 cc.Director.EVENT_BEFORE_UPDATE = 'director_before_update';
 cc.Director.EVENT_AFTER_UPDATE = 'director_after_update';
+cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
+cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 
