@@ -36,7 +36,8 @@ var AudioSource = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.others/AudioSource'
+        menu: 'i18n:MAIN_MENU.component.others/AudioSource',
+        help: 'app://docs/html/components/audiosource.html',
     },
 
     ctor: function () {

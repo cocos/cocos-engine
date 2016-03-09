@@ -747,6 +747,7 @@ if (CC_DEV) {
     Component._executeInEditMode = false;
     Component._playOnFocus = false;
     Component._disallowMultiple = null;
+    Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS
 
@@ -813,6 +814,10 @@ Object.defineProperty(Component, '_registerEditorProps', {
 
                     case 'requireComponent':
                         // skip here
+                        break;
+
+                    case 'help':
+                        cls._help = val;
                         break;
 
                     default:

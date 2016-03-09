@@ -72,7 +72,8 @@ var Sprite = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
-        inspector: 'app://editor/page/inspector/sprite.html'
+        help: 'app://docs/html/components/sprite.html',
+        inspector: 'app://editor/page/inspector/sprite.html',
     },
 
     ctor: function() {

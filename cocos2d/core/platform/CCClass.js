@@ -717,6 +717,14 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  */
 
 /**
+ * The custom documentation URL
+ *
+ * @property help
+ * @type {String}
+ * @default ""
+ */
+
+/**
  * @module cc
  */
 

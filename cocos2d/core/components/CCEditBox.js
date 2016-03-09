@@ -41,6 +41,7 @@ var EditBox = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/EditBox',
         inspector: 'app://editor/page/inspector/cceditbox.html',
+        help: 'app://docs/html/components/editbox.html',
         executeInEditMode: true,
     },
 

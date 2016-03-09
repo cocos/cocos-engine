@@ -37,7 +37,8 @@ var Label = cc.Class({
     extends: cc._RendererUnderSG,
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.renderers/Label'
+        menu: 'i18n:MAIN_MENU.component.renderers/Label',
+        help: 'app://docs/html/components/label.html',
     },
 
     properties: {
