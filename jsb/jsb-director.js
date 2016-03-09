@@ -151,8 +151,8 @@ cc.js.mixin(cc.director, {
 
         if (onLaunched) {
             onLaunched(null, scene);
-            this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
         }
+        this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     },
 
     /**
