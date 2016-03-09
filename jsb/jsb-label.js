@@ -125,7 +125,8 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
             this.setTTFConfig(this._ttfConfig);
         } else if (extName === '.fnt') {
             this._labelType = _ccsg.Label.Type.BMFont;
-            this.setBMFontFilePath(fontHandle, cc.v2(0, 0), this.getBMFontSize());
+            this.setBMFontFilePath(fontHandle);
+            this.setFontSize(this.getFontSize());
         }
     }
 };
