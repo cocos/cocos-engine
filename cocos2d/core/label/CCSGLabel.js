@@ -632,8 +632,8 @@ cc.BMFontHelper = {
     },
 
     _setDimensions: function(size, height) {
-        var newWidth = size.width || size;
-        var newHeight = size.height || height;
+        var newWidth = (typeof size.width === 'number') ? size.width : size;
+        var newHeight = (typeof size.height === 'number') ? size.height : height;
 
         _ccsg.Node.prototype.setContentSize.call(this, size, height);
 
