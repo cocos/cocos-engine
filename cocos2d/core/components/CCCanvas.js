@@ -55,7 +55,8 @@ var Canvas = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Canvas',
         executeInEditMode: true,
-        disallowMultiple: true
+        disallowMultiple: true,
+        helpUrl: 'app://docs/html/components/canvas.html'
     },
 
     statics: {

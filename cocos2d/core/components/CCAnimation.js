@@ -44,7 +44,8 @@ var Animation = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Animation',
-        executeInEditMode: true
+        executeInEditMode: true,
+        helpUrl: 'app://docs/html/components/animation.html'
     },
 
     ctor: function () {

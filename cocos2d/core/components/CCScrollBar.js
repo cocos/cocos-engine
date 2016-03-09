@@ -51,7 +51,8 @@ var Scrollbar = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.ui/ScrollBar'
+        menu: 'i18n:MAIN_MENU.component.ui/ScrollBar',
+        helpUrl: 'app://docs/html/components/scrollbar.html'
     },
 
     properties: {
