@@ -23,11 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Pipeline = require('./pipeline');
 var AssetTable = require('./asset-table');
 
 var RESOURCES_PROTOCOL = 'resources://';
 
-var UrlResolver = module.exports = {
+Pipeline.UrlResolver = module.exports = {
     id: 'UrlResolver',
     async: true,
     pipeline: null,
@@ -40,7 +41,7 @@ var UrlResolver = module.exports = {
             if ( !uuid ) {
                 var extname = cc.path.extname(url);
                 if (extname) {
-                    cc.warn('Don\'t add extension for "%s".', item.url);
+                    //cc.warn('Don\'t add extension for "%s".', item.url);
                     // strip extname
                     url = url.slice(0, - extname.length);
                     uuid = this.resources.getUuid(url);
@@ -89,4 +90,12 @@ var UrlResolver = module.exports = {
     },
     
     resources: new AssetTable(),
+
+    // resolve raw url for JSB
+    getRawUrl: CC_JSB && function (url) {
+        if (typeof url === 'string' && url.startsWith(RESOURCES_PROTOCOL)) {
+            return cc.url.raw(url);
+        }
+        return url;
+    }
 };
