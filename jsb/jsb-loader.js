@@ -38,6 +38,8 @@ function downloadScript (item, callback) {
 
 function downloadText (item, callback) {
     var url = item.url;
+    url = cc.Pipeline.UrlResolver.getRawUrl(url);
+
     var result = jsb.fileUtils.getStringFromFile(url);
     if (typeof result === 'string') {
         callback(null, result);
@@ -99,6 +101,7 @@ cc.loader.addDownloadHandlers({
 
 function loadImage (item, callback) {
     var url = item.url;
+    url = cc.Pipeline.UrlResolver.getRawUrl(url);
 
     var cachedTex = cc.textureCache.getTextureForKey(url);
     if (cachedTex) {

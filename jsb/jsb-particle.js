@@ -93,3 +93,9 @@ for (var mode = 0; mode < funcNames.length; mode++) {
         cc.defineGetterSetter(proto, propName, proto[getter], proto[funcName]);
     }
 }
+
+var initWithFile = proto.initWithFile;
+proto.initWithFile = function (url) {
+    url = cc.Pipeline.UrlResolver.getRawUrl(url);
+    initWithFile.call(this, url);
+};

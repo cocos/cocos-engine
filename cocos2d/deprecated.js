@@ -568,7 +568,7 @@ if (CC_DEV) {
 
     if (typeof sp !== 'undefined') {
         deprecateEnum(sp, 'sp.ANIMATION_EVENT_TYPE', 'sp.AnimationEventType');
-        js.obsolete(sp, 'SkeletonAnimation', 'Skeleton');
+        js.obsolete(sp, 'sp.SkeletonAnimation', 'Skeleton');
         provideClearError(sp.Skeleton, {
             create: 'node.addComponent',
         });

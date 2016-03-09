@@ -105,6 +105,7 @@ cc.TextureCache.prototype.addImage = function(url, cb, target) {
         return this.addImageAsync(url, cb, target);
     }
     else {
+        url = cc.Pipeline.UrlResolver.getRawUrl(url);
         if (cb) {
             return this._addImage(url, cb);
         }

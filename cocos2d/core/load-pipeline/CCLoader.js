@@ -25,6 +25,7 @@
 
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
+var urlResolver = require('./url-resolver');
 var Downloader = require('./downloader');
 var Loader = require('./loader');
 var callInNextTick = require('../platform/utils').callInNextTick;
@@ -39,6 +40,7 @@ var loader = new Loader();
  * @static
  */
 cc.loader = new Pipeline([
+    urlResolver,
     downloader,
     loader
 ]);
@@ -107,7 +109,11 @@ JS.mixin(cc.loader, {
      *  cc.loader.load('a.png', function (err, tex) {
      *      cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
      *  });
-     *
+     *  
+     *  // load a.png from resources folder with no extension.
+     *  cc.loader.load('resources://a', function (err, tex) {
+     *      cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
+     *  });
      *  
      *  cc.loader.load(['a.png', 'b.json'], function (errors, results) {
      *      if (errors) {
@@ -120,7 +126,8 @@ JS.mixin(cc.loader, {
      *  });
      *
      * @method load
-     * @param {String|Array} resources - Url list in an array
+     * @param {String|Array} resources - Url list in an array. 
+     *      If url starts with "resources://", will load from "resources" folder in your assets. 
      * @param {[Function]} progressCallback - Callback invoked when progression change
      * @param {Function} completeCallback - Callback invoked when all resources loaded
      */

@@ -100,39 +100,39 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
     /**
      * Check whether an item is completed
-     * @param {String} url The item's id.
+     * @param {String} id The item's id.
      * @return {Boolean}
      */
-    isItemCompleted: function (url) {
-        return !!this.completed[url];
+    isItemCompleted: function (id) {
+        return !!this.completed[id];
     },
 
     /**
      * Check whether an item exists
-     * @param {String} url The item's id.
+     * @param {String} id The item's id.
      * @return {Boolean}
      */
-    exists: function (url) {
-        return !!this.map[url];
+    exists: function (id) {
+        return !!this.map[id];
     },
 
     /**
      * Returns the content of an internal item
-     * @param {String} url The item's id.
+     * @param {String} id The item's id.
      * @return {Object}
      */
-    getContent: function (url) {
-        var item = this.map[url];
+    getContent: function (id) {
+        var item = this.map[id];
         return item ? item.content : null;
     },
 
     /**
      * Returns the error of an internal item
-     * @param {String} url The item's id.
+     * @param {String} id The item's id.
      * @return {Object}
      */
-    getError: function (url) {
-        var item = this.map[url];
+    getError: function (id) {
+        var item = this.map[id];
         return item ? item.error : null;
     },
 

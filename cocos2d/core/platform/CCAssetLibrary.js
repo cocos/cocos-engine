@@ -26,6 +26,7 @@
 var Asset = require('../assets/CCAsset');
 var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
+var resources = require('../load-pipeline/url-resolver').resources;
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -109,10 +110,10 @@ var AssetLibrary = {
 
     _getAssetInfoInRuntime: function (uuid) {
         var info = _uuidToRawAssets[uuid];
-        if (info) {
+        if (info && info.raw) {
             return {
                 url: _rawAssetsBase + info.url,
-                raw: info.raw,
+                raw: true,
             };
         }
         else {
@@ -290,14 +291,36 @@ var AssetLibrary = {
         _uuidToRawAssets = {};
         var rawAssets = options.rawAssets;
         if (rawAssets) {
+            var RES_DIR = 'resources/';
             for (var mountPoint in rawAssets) {
                 var assets = rawAssets[mountPoint];
                 for (var uuid in assets) {
                     var info = assets[uuid];
+                    var url = info.url;
+                    var raw = info.raw;
                     _uuidToRawAssets[uuid] = {
-                        url: mountPoint + '/' + info.url,
-                        raw: !!info.raw,
+                        url: mountPoint + '/' + url,
+                        raw: !!raw,
                     };
+                    // init resources
+                    if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
+                        if ( !raw ) {
+                            var ext = cc.path.extname(url);
+                            if (ext) {
+                                // trim base dir and extname
+                                url = url.slice(RES_DIR.length, - ext.length);
+                            }
+                            else {
+                                // trim base dir
+                                url = url.slice(RES_DIR.length);
+                            }
+                        }
+                        else {
+                            url = url.slice(RES_DIR.length);
+                        }
+                        // register
+                        resources.add(url, uuid);
+                    }
                 }
             }
         }
