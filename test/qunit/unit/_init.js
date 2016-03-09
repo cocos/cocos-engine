@@ -192,7 +192,7 @@ function _resetGame (w, h) {
     }
     cc.director.purgeDirector();
     cc.loader.releaseAll();
-    cc.director.runScene(new cc.Scene());
+    cc.director.runSceneImmediate(new cc.Scene());
     //cc.director.pause();
 }
 

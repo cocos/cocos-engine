@@ -45,7 +45,7 @@
 
         ok(cc.engine.getInstanceById(root1.uuid) == null, 'should not register uuid to engine before scene launch');
 
-        cc.director.runScene(newScene);
+        cc.director.runSceneImmediate(newScene);
         strictEqual(cc.director.getScene(), newScene, 'could run new scene');
 
         ok(cc.engine.getInstanceById(root1.uuid) === root1, 'should register uuid to engine after scene launch');
@@ -56,7 +56,7 @@ module('load scene', SetupEngine);
 
 test('persist node with dynamic scene', function () {
     var oldScene = new cc.Scene();
-    cc.director.runScene(oldScene);
+    cc.director.runSceneImmediate(oldScene);
 
     var globalNode = new cc.Node();
     globalNode.parent = oldScene;
@@ -66,7 +66,7 @@ test('persist node with dynamic scene', function () {
     cc.game.addPersistRootNode(globalNode);
 
     var newScene = new cc.Scene();
-    cc.director.runScene(newScene);
+    cc.director.runSceneImmediate(newScene);
 
     ok(globalNode.parent === newScene, 'persist node should not be destoryed automatically when loading a new scene');
 });
@@ -77,7 +77,7 @@ test('persist node with dynamic scene', function () {
     }
     test('persist node with loaded scene', function () {
         var oldScene = new cc.Scene();
-        cc.director.runScene(oldScene);
+        cc.director.runSceneImmediate(oldScene);
 
         var globalNode = new cc.Node();
         globalNode.parent = oldScene;
@@ -88,7 +88,7 @@ test('persist node with dynamic scene', function () {
 
         var newScene = cc.deserialize(Editor.serialize(new cc.Scene(), {stringify: false}));
 
-        cc.director.runScene(newScene);
+        cc.director.runSceneImmediate(newScene);
 
         ok(globalNode.parent === newScene, 'persist node should not be destoryed automatically when loading a new scene');
     });

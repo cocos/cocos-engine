@@ -88,9 +88,80 @@ cc.js.mixin(cc.director, {
 
     /**
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
+     * The new scene will be launched immediately.
      * @method runScene
-     * @param {EScene} scene - The need run scene.
-     * @param {Function} [onBeforeLoadScene] - The function at the scene before loading.
+     * @param {Scene} scene - The need run scene.
+     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
+     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
+     */
+    runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
+        // detach persist nodes
+        var i, node, game = cc.game;
+        var persistNodes = game._persistRootNodes;
+
+        // Run an Entity Scene
+        if (scene instanceof cc.Scene) {
+            // ensure scene initialized
+            scene._load();
+        }
+
+        for (i = persistNodes.length - 1; i >= 0; --i) {
+            node = persistNodes[i];
+            game._ignoreRemovePersistNode = node;
+            node.parent = null;
+            game._ignoreRemovePersistNode = null;
+        }
+
+        // unload scene
+        var oldScene = this._scene;
+        if (cc.isValid(oldScene)) {
+            oldScene.destroy();
+        }
+        this._scene = null;
+
+        // purge destroyed nodes belongs to old scene
+        cc.Object._deferredDestroy();
+
+        if (onBeforeLoadScene) {
+            onBeforeLoadScene();
+        }
+        this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+
+        // Run an Entity Scene
+        var sgScene = scene;
+        if (scene instanceof cc.Scene) {
+            this._scene = scene;
+            sgScene = scene._sgNode;
+            
+            // Re-attach persist nodes
+            for (i = 0; i < persistNodes.length; ++i) {
+                node = persistNodes[i];
+                node.parent = scene;
+            }
+            scene._activate();
+        }
+
+        // Run or replace rendering scene
+        if (!this.getRunningScene()) {
+            this.runWithScene(sgScene);
+        }
+        else {
+            this.replaceScene(sgScene);
+        }
+
+        if (onLaunched) {
+            onLaunched(null, scene);
+            this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
+        }
+    },
+
+    /**
+     * Run a scene. Replaces the running scene with a new one or enter the first scene.
+     * The new scene will be launched at the end of the current frame.
+     * @method runScene
+     * @param {Scene} scene - The need run scene.
+     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
+     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runScene: function (scene, onBeforeLoadScene, onLaunched) {
         cc.assert(scene, cc._LogInfos.Director.pushScene);
@@ -103,56 +174,7 @@ cc.js.mixin(cc.director, {
 
         // Delay to avoid issues like transition in event callback
         this.once(cc.Director.EVENT_AFTER_DRAW, function () {
-            // detach persist nodes
-            var i, node, game = cc.game;
-            var persistNodes = game._persistRootNodes;
-            for (i = persistNodes.length - 1; i >= 0; --i) {
-                node = persistNodes[i];
-                game._ignoreRemovePersistNode = node;
-                node.parent = null;
-                game._ignoreRemovePersistNode = null;
-            }
-
-            // unload scene
-            var oldScene = this._scene;
-            if (cc.isValid(oldScene)) {
-                oldScene.destroy();
-            }
-            this._scene = null;
-
-            // purge destroyed nodes belongs to old scene
-            cc.Object._deferredDestroy();
-
-            if (onBeforeLoadScene) {
-                onBeforeLoadScene();
-            }
-            this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
-
-            // Run an Entity Scene
-            var sgScene = scene;
-            if (scene instanceof cc.Scene) {
-                this._scene = scene;
-                sgScene = scene._sgNode;
-                
-                // Re-attach persist nodes
-                for (i = 0; i < persistNodes.length; ++i) {
-                    node = persistNodes[i];
-                    node.parent = scene;
-                }
-                scene._activate();
-            }
-
-            // Run or replace rendering scene
-            if (!this.getRunningScene()) {
-                this.runWithScene(sgScene);
-            }
-            else {
-                this.replaceScene(sgScene);
-            }
-
-            if (onLaunched) {
-                onLaunched(null, scene);
-            }
+            this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     },
 
@@ -200,6 +222,7 @@ cc.js.mixin(cc.director, {
             }
         }
         if (uuid) {
+            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
             this._loadSceneByUuid(uuid, onLaunched, onUnloaded);
             return true;
@@ -297,7 +320,9 @@ cc.Director.EVENT_BEFORE_VISIT = 'director_before_visit';
 cc.Director.EVENT_AFTER_VISIT = 'director_after_visit';
 cc.Director.EVENT_BEFORE_UPDATE = 'director_before_update';
 cc.Director.EVENT_AFTER_UPDATE = 'director_after_update';
+cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
+cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 

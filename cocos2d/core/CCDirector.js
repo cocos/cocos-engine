@@ -465,14 +465,20 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
+     * The new scene will be launched immediately.
      * @method runScene
      * @param {Scene} scene - The need run scene.
+     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
+     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
-    runScene: function (scene, _onBeforeLoadScene) {
-        cc.assert(scene, cc._LogInfos.Director.pushScene);
-
+    runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
         var i, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
+
+        if (scene instanceof cc.Scene) {
+            // ensure scene initialized
+            scene._load();
+        }
 
         // detach persist nodes
         for (i = persistNodes.length - 1; i >= 0; --i) {
@@ -493,8 +499,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // purge destroyed nodes belongs to old scene
         cc.Object._deferredDestroy();
 
-        if (_onBeforeLoadScene) {
-            _onBeforeLoadScene();
+        if (onBeforeLoadScene) {
+            onBeforeLoadScene();
         }
         this.emit(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
@@ -502,9 +508,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         // Run an Entity Scene
         if (scene instanceof cc.Scene) {
-            // ensure scene initialized
-            scene._load();
-
             this._scene = scene;
             sgScene = scene._sgNode;
 
@@ -513,6 +516,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 node = persistNodes[i];
                 node.parent = scene;
             }
+            scene._activate();
         }
 
         // Run or replace rendering scene
@@ -533,11 +537,31 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this.setNextScene();
         }
 
-        // Activate
-        if (scene instanceof cc.Scene) {
-            scene._activate();
+        if (onLaunched) {
+            onLaunched(null, scene);
             this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
         }
+    },
+
+    /**
+     * Run a scene. Replaces the running scene with a new one or enter the first scene.
+     * The new scene will be launched at the end of the current frame.
+     * @method runScene
+     * @param {Scene} scene - The need run scene.
+     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
+     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
+     */
+    runScene: function (scene, onBeforeLoadScene, onLaunched) {
+        cc.assert(scene, cc._LogInfos.Director.pushScene);
+        if (scene instanceof cc.Scene) {
+            // ensure scene initialized
+            scene._load();
+        }
+
+        // Delay run / replace scene to the end of the frame
+        this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+            this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
+        });
     },
 
     //_replaceScene: CC_EDITOR && function (scene) {
@@ -648,7 +672,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = sceneAsset;
                 }
                 if (scene instanceof cc.Scene) {
-                    self.runScene(scene, onUnloaded);
+                    self.runScene(scene, onUnloaded, onLaunched);
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
@@ -657,8 +681,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 }
             }
             self._loadingScene = '';
-            if (onLaunched) {
-                onLaunched(error, scene);
+            if (error && onLaunched) {
+                onLaunched(error);
             }
         });
     },
