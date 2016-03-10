@@ -144,10 +144,14 @@ JS.mixin(cc.loader, {
             singleRes = true;
         }
         // Return directly if no resources
-        if (resources.length === 0 && completeCallback) {
-            callInNextTick(function () {
-                completeCallback.call(self, null, self._items);
-            });
+        if (resources.length === 0) {
+            if (completeCallback) {
+                callInNextTick(function () {
+                    completeCallback.call(self, null, self._items);
+                    completeCallback = null;
+                });
+            }
+            return;
         }
 
         // Resolve callback
@@ -181,6 +185,7 @@ JS.mixin(cc.loader, {
                     completeCallback.call(self, error, self._items);
                 }
             }
+            completeCallback = null;
         }
 
         // Add loaded listeners
@@ -205,14 +210,17 @@ JS.mixin(cc.loader, {
         if (totalCount === completedCount) {
             var id = resources[0].id || resources[0];
             var result = this._items.map[id];
-            callInNextTick(function () {
-                if (singleRes) {
-                    completeCallback.call(self, result.error, result.content);
-                }
-                else {
-                    completeCallback.call(self, null, self._items);
-                }
-            });
+            if (completeCallback) {
+                callInNextTick(function () {
+                    if (singleRes) {
+                        completeCallback.call(self, result.error, result.content);
+                    }
+                    else {
+                        completeCallback.call(self, null, self._items);
+                    }
+                    completeCallback = null;
+                });
+            }
         }
         else {
             this.flowIn(resources);
