@@ -1088,7 +1088,6 @@ cc.BMFontHelper = {
             this._fontHandle = filename;
             var self = this;
             if (this._labelType === _ccsg.Label.Type.BMFont) {
-
                 this._resetBMFont();
 
                 var texture;
@@ -1113,7 +1112,9 @@ cc.BMFontHelper = {
                             self.emit("load");
                         }, self);
                     } else {
-                        self._createSpriteBatchNode(texture);
+                        if (!self._spriteBatchNode) {
+                            self._createSpriteBatchNode(texture);
+                        }
                     }
                 });
             }
