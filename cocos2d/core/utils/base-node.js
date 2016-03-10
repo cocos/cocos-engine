@@ -941,12 +941,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method cleanup
      */
     cleanup: function () {
-        //// actions
-        //this.stopAllActions();
-        //this.unscheduleAllCallbacks();
-        //
-        //// event
-        //cc.eventManager.removeListeners(this);
+        // actions
+        cc.director.getActionManager().removeAllActionsFromTarget(this);
+        // event
+        cc.eventManager.removeListeners(this);
 
         // children
         var i, len = this._children.length, node;
