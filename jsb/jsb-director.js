@@ -105,7 +105,7 @@ cc.js.mixin(cc.director, {
             scene._load();
         }
 
-        for (i = persistNodes.length - 1; i >= 0; --i) {
+        for (i in persistNodes) {
             node = persistNodes[i];
             game._ignoreRemovePersistNode = node;
             node.parent = null;
@@ -134,7 +134,7 @@ cc.js.mixin(cc.director, {
             sgScene = scene._sgNode;
             
             // Re-attach persist nodes
-            for (i = 0; i < persistNodes.length; ++i) {
+            for (i in persistNodes) {
                 node = persistNodes[i];
                 node.parent = scene;
             }
