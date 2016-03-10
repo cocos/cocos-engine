@@ -632,8 +632,8 @@ cc.BMFontHelper = {
     },
 
     _setDimensions: function(size, height) {
-        var newWidth = size.width || size;
-        var newHeight = size.height || height;
+        var newWidth = (typeof size.width === 'number') ? size.width : size;
+        var newHeight = (typeof size.height === 'number') ? size.height : height;
 
         _ccsg.Node.prototype.setContentSize.call(this, size, height);
 
@@ -1088,7 +1088,6 @@ cc.BMFontHelper = {
             this._fontHandle = filename;
             var self = this;
             if (this._labelType === _ccsg.Label.Type.BMFont) {
-
                 this._resetBMFont();
 
                 var texture;
@@ -1113,7 +1112,9 @@ cc.BMFontHelper = {
                             self.emit("load");
                         }, self);
                     } else {
-                        self._createSpriteBatchNode(texture);
+                        if (!self._spriteBatchNode) {
+                            self._createSpriteBatchNode(texture);
+                        }
                     }
                 });
             }

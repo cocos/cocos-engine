@@ -742,8 +742,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _updateEditBoxSize: function(size, height) {
         this._oldSetContentSize(size, height);
 
-        var newWidth = size.width || size;
-        var newHeight = size.height || height;
+        var newWidth = (typeof size.width === 'number') ? size.width : size;
+        var newHeight = (typeof size.height === 'number') ? size.height : height;
 
         this._updateBackgroundSpriteSize(newWidth, newHeight);
         this._nativeControl.setSize(newWidth, newHeight);
