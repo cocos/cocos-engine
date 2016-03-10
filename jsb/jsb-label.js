@@ -45,17 +45,18 @@ if (!jsbLabel.prototype.setOverflow) {
 }
 if (!jsbLabel.prototype.getOverflow) {
     jsbLabel.prototype.getOverflow = function(){};
+}
 
 //fix jsb system font overflow
 jsbLabel.prototype._setOverflow = jsbLabel.prototype.setOverflow;
 jsbLabel.prototype.setOverflow = function(overflow) {
     this._overFlow = overflow;
     this._setOverflow(this._overFlow);
-}
+};
 
 jsbLabel.prototype.getOverflow = function() {
     return this._overFlow;
-}
+};
 
 if (!jsbLabel.prototype.isSystemFontUsed) {
     jsbLabel.prototype.isSystemFontUsed = function() {
@@ -103,6 +104,7 @@ jsbLabel.prototype.setTTFConfig = function (config) {
     this._setTTFConfig(config);
     this._ttfConfig = config;
 };
+
 jsbLabel.prototype.getTTFConfig = function () {
     return this._ttfConfig;
 };
