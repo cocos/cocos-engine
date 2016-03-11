@@ -367,6 +367,8 @@ cc.DebugMode = Enum({
  * @module cc
  */
 
+var jsbLog = cc.log || console.log;
+
 /**
  * Init Debug setting.
  * @method _initDebugSetting
@@ -380,7 +382,7 @@ cc._initDebugSetting = function (mode) {
         return;
 
     var locLog;
-    if(mode > cc.DebugMode.ERROR){
+    if (!CC_JSB && mode > cc.DebugMode.ERROR) {
         //log to web page
         locLog = cc._logToWebPage.bind(cc);
         cc.error = function(){
@@ -471,7 +473,10 @@ cc._initDebugSetting = function (mode) {
              * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
-            if (console.log.bind) {
+            if (CC_JSB) {
+                cc.log = jsbLog;
+            }
+            else if (console.log.bind) {
                 // use bind to avoid pollute call stacks
                 cc.log = console.log.bind(console);
             }
