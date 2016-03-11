@@ -143,7 +143,7 @@ var enumerateObject = function (obj, parent) {
                 }
             }
         }
-        if (clone instanceof cc._BaseNode && CC_EDITOR) {
+        if ((clone instanceof cc._BaseNode || clone instanceof cc.Component) && CC_EDITOR) {
             clone._id = '';
         }
     }
@@ -219,16 +219,23 @@ function instantiateObj (obj, parent, ownerObj, ownerKey) {
         var ctor = obj.constructor;
         if (cc.Class._isCCClass(ctor)) {
             if (parent) {
-                if (obj instanceof cc._BaseNode) {
-                    if (!obj.isChildOf(parent)) {
-                        // should not clone other nodes if not descendant
+                if (parent instanceof cc.Component) {
+                    if (obj instanceof cc._BaseNode || obj instanceof cc.Component) {
                         return obj;
                     }
                 }
-                else if (obj instanceof cc.Component) {
-                    if (!obj.node.isChildOf(parent)) {
-                        // should not clone other component if not descendant
-                        return obj;
+                else if (parent instanceof cc._BaseNode) {
+                    if (obj instanceof cc._BaseNode) {
+                        if (!obj.isChildOf(parent)) {
+                            // should not clone other nodes if not descendant
+                            return obj;
+                        }
+                    }
+                    else if (obj instanceof cc.Component) {
+                        if (!obj.node.isChildOf(parent)) {
+                            // should not clone other component if not descendant
+                            return obj;
+                        }
                     }
                 }
             }

@@ -678,6 +678,12 @@ var Component = cc.Class({
         }
     },
 
+    _instantiate: function () {
+        var clone = cc.instantiate._clone(this, this);
+        clone.node = null;
+        return clone;
+    },
+
 // Scheduler
 
     isRunning: function () {
