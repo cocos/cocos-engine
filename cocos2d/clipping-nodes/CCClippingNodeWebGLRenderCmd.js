@@ -55,8 +55,8 @@
         // get (only once) the number of bits of the stencil buffer
         cc.ClippingNode.WebGLRenderCmd._init_once = true;
         if (cc.ClippingNode.WebGLRenderCmd._init_once) {
-            cc.stencilBits = cc._renderContext.getParameter(cc._renderContext.STENCIL_BITS);
-            if (cc.stencilBits <= 0)
+            cc.ClippingNode.stencilBits = cc._renderContext.getParameter(cc._renderContext.STENCIL_BITS);
+            if (cc.ClippingNode.stencilBits <= 0)
                 cc.log("Stencil buffer is not enabled.");
             cc.ClippingNode.WebGLRenderCmd._init_once = false;
         }
@@ -79,7 +79,7 @@
             this._curLevel = node._parent._renderCmd._curLevel + 1;
 
         // if stencil buffer disabled
-        if (cc.stencilBits < 1) {
+        if (cc.ClippingNode.stencilBits < 1) {
             // draw everything, as if there where no stencil
             _ccsg.Node.WebGLRenderCmd.prototype.visit.call(this, parentCmd);
             return;
@@ -91,10 +91,10 @@
             return;
         }
 
-        if (cc.ClippingNode.WebGLRenderCmd._layer + 1 === cc.stencilBits) {
+        if (cc.ClippingNode.WebGLRenderCmd._layer + 1 === cc.ClippingNode.stencilBits) {
             cc.ClippingNode.WebGLRenderCmd._visit_once = true;
             if (cc.ClippingNode.WebGLRenderCmd._visit_once) {
-                cc.log("Nesting more than " + cc.stencilBits + "stencils is not supported. Everything will be drawn without stencil for this node and its children.");
+                cc.log("Nesting more than " + cc.ClippingNode.stencilBits + "stencils is not supported. Everything will be drawn without stencil for this node and its children.");
                 cc.ClippingNode.WebGLRenderCmd._visit_once = false;
             }
             // draw everything, as if there where no stencil
@@ -234,5 +234,5 @@
 
         // we are done using this layer, decrement
         cc.ClippingNode.WebGLRenderCmd._layer--;
-    }
+    };
 })();
