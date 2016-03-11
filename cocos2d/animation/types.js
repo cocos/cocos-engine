@@ -347,13 +347,16 @@ JS.mixin(AnimationNode.prototype, {
         }
 
         return info.stopped;
-    }
+    },
 
     //onPlay: function () {
     //},
-    //
-    //onStop: function () {
-    //}
+
+    onStop: function () {
+        if (this.animator) {
+            this.animator.removeAnimation(this);
+        }
+    }
 });
 
 cc.AnimationNode = AnimationNode;
