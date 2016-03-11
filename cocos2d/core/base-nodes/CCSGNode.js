@@ -1478,7 +1478,7 @@ _ccsg.Node = cc.Class({
      * @param {Number} tag A tag that indicates the action to be removed.
      */
     stopActionByTag: function (tag) {
-        if (tag === cc.ACTION_TAG_INVALID) {
+        if (tag === cc.Action.TAG_INVALID) {
             cc.log(cc._LogInfos.Node.stopActionByTag);
             return;
         }
@@ -1493,7 +1493,7 @@ _ccsg.Node = cc.Class({
      * @return {cc.Action} The action object with the given tag.
      */
     getActionByTag: function (tag) {
-        if (tag === cc.ACTION_TAG_INVALID) {
+        if (tag === cc.Action.TAG_INVALID) {
             cc.log(cc._LogInfos.Node.getActionByTag);
             return null;
         }

@@ -284,8 +284,6 @@ cc.cardinalSplineTo = function (duration, points, tension) {
     return new cc.CardinalSplineTo(duration, points, tension);
 };
 
-cc.CardinalSplineTo.create = cc.cardinalSplineTo;
-
 /*
  * Cardinal Spline path. http://en.wikipedia.org/wiki/Cubic_Hermite_spline#Cardinal_spline
  * Relative coordinates.
@@ -392,7 +390,6 @@ cc.CardinalSplineBy = cc.CardinalSplineTo.extend({
 cc.cardinalSplineBy = function (duration, points, tension) {
     return new cc.CardinalSplineBy(duration, points, tension);
 };
-cc.CardinalSplineBy.create = cc.cardinalSplineBy;
 
 /*
  * An action that moves the target with a CatmullRom curve to a destination point.<br/>
@@ -446,7 +443,6 @@ cc.CatmullRomTo = cc.CardinalSplineTo.extend({
 cc.catmullRomTo = function (dt, points) {
     return new cc.CatmullRomTo(dt, points);
 };
-cc.CatmullRomTo.create = cc.catmullRomTo;
 
 /*
  * An action that moves the target with a CatmullRom curve by a certain distance.  <br/>
@@ -500,4 +496,3 @@ cc.CatmullRomBy = cc.CardinalSplineBy.extend({
 cc.catmullRomBy = function (dt, points) {
     return new cc.CatmullRomBy(dt, points);
 };
-cc.CatmullRomBy.create = cc.catmullRomBy;

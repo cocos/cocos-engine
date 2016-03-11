@@ -135,7 +135,7 @@ function downloadImage (item, callback, isCrossOrigin) {
     var url = urlAppendTimestamp(item.url);
     var img = new Image();
     if (isCrossOrigin && window.location.origin !== 'file://') {
-        img.crossOrigin = 'Anonymous';
+        img.crossOrigin = 'anonymous';
     }
 
     if (img.complete && img.naturalWidth > 0) {

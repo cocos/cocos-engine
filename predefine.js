@@ -63,6 +63,10 @@ require('./cocos2d/core/CCDirectorWebGL');
 require('./cocos2d/core/CCDirectorCanvas');
 require('./cocos2d/core/textures');
 
+if (!CC_JSB) {
+    require('./cocos2d/actions');
+}
+
 ccui = {};
 ccs = {};
 cp = {};

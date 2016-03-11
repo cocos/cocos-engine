@@ -127,11 +127,6 @@ var srcs = [
     './cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js',
 
     './cocos2d/core/CCActionManager.js',
-    './cocos2d/actions/CCAction.js',
-    './cocos2d/actions/CCActionInterval.js',
-    './cocos2d/actions/CCActionInstant.js',
-    './cocos2d/actions/CCActionEase.js',
-    './cocos2d/actions/CCActionCatmullRom.js',
 
     './cocos2d/progress-timer/CCProgressTimer.js',
     './cocos2d/progress-timer/CCProgressTimerCanvasRenderCmd.js',
