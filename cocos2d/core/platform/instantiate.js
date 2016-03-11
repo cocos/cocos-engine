@@ -143,7 +143,7 @@ var enumerateObject = function (obj, parent) {
                 }
             }
         }
-        if (clone instanceof cc._BaseNode && clone instanceof cc.Component && CC_EDITOR) {
+        if ((clone instanceof cc._BaseNode || clone instanceof cc.Component) && CC_EDITOR) {
             clone._id = '';
         }
     }
