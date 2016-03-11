@@ -41,7 +41,7 @@ function downloadText (item, callback) {
     url = cc.Pipeline.UrlResolver.getRawUrl(url);
 
     var result = jsb.fileUtils.getStringFromFile(url);
-    if (result && typeof result === 'string') {
+    if (typeof result === 'string' && result) {
         callback(null, result);
     }
     else {
