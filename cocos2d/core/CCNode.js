@@ -219,7 +219,8 @@ var _mouseWheelHandler = function (event) {
     if (node._hitTest(pos, this)) {
         event.type = EventType.MOUSE_WHEEL;
         node.dispatchEvent(event);
-        event.stopPropagation();
+        //FIXME: separate wheel event and other mouse event.
+        // event.stopPropagation();
     }
 };
 
