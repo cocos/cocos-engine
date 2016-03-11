@@ -183,7 +183,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * @param {object} target
      */
     removeActionByTag:function (tag, target) {
-        if(tag === cc.ACTION_TAG_INVALID)
+        if(tag === cc.Action.TAG_INVALID)
             cc.log(cc._LogInfos.ActionManager.addAction);
 
         cc.assert(target, cc._LogInfos.ActionManager.addAction);
@@ -209,7 +209,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      * @return {Action|Null}  return the Action with the given tag on success
      */
     getActionByTag:function (tag, target) {
-        if(tag === cc.ACTION_TAG_INVALID)
+        if(tag === cc.Action.TAG_INVALID)
             cc.log(cc._LogInfos.ActionManager.getActionByTag);
 
         var element = this._hashTargets[target.__instanceId];

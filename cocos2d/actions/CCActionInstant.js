@@ -98,8 +98,6 @@ cc.show = function () {
     return new cc.Show();
 };
 
-cc.Show.create = cc.show;
-
 /*
  * Hide the node.
  * @class Hide
@@ -132,8 +130,6 @@ cc.hide = function () {
     return new cc.Hide();
 };
 
-cc.Hide.create = cc.hide;
-
 /*
  * Toggles the visibility of a node.
  * @class ToggleVisibility
@@ -165,8 +161,6 @@ cc.ToggleVisibility = cc.ActionInstant.extend({
 cc.toggleVisibility = function () {
     return new cc.ToggleVisibility();
 };
-
-cc.ToggleVisibility.create = cc.toggleVisibility;
 
 /*
  * Delete self in the next frame.
@@ -219,8 +213,6 @@ cc.RemoveSelf = cc.ActionInstant.extend({
 cc.removeSelf = function(isNeedCleanUp){
     return new cc.RemoveSelf(isNeedCleanUp);
 };
-
-cc.RemoveSelf.create = cc.removeSelf;
 
 /*
  * Flips the sprite horizontally.
@@ -278,8 +270,6 @@ cc.flipX = function (flip) {
     return new cc.FlipX(flip);
 };
 
-cc.FlipX.create = cc.flipX;
-
 /*
  * Flips the sprite vertically
  * @class FlipY
@@ -335,8 +325,6 @@ cc.FlipY = cc.ActionInstant.extend({
 cc.flipY = function (flip) {
     return new cc.FlipY(flip);
 };
-
-cc.FlipY.create = cc.flipY;
 
 /*
  * Places the node in a certain position
@@ -403,8 +391,6 @@ cc.Place = cc.ActionInstant.extend({
 cc.place = function (pos, y) {
     return new cc.Place(pos, y);
 };
-
-cc.Place.create = cc.place;
 
 
 /*
@@ -518,5 +504,3 @@ cc.CallFunc = cc.ActionInstant.extend({
 cc.callFunc = function (selector, selectorTarget, data) {
     return new cc.CallFunc(selector, selectorTarget, data);
 };
-
-cc.CallFunc.create = cc.callFunc;

@@ -35,6 +35,16 @@ cc.initEngine = function (config, cb) {
     if (cb) cb();
 };
 
+// overwrite original console.log
+try {
+    var originLog = console.log;
+    console.log = function () {
+        originLog.call(console, cc.formatStr.apply(null, arguments));
+    };
+}
+catch (e) {
+}
+
 require('./jsb-predefine');
 require('./jsb-loader');
 require('./jsb-game');
@@ -78,13 +88,3 @@ if (_engineNumberVersion) {
         }
     }
 }
-
-// var originLog = console.log;
-var log = function () {
-    console.log.call(console, cc.formatStr.apply(null, arguments));
-};
-
-cc.log   = log;
-cc.error = log;
-cc.warn  = log;
-cc.info  = log;
