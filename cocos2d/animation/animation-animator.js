@@ -26,7 +26,8 @@ p.playState = function (state, startTime) {
         initClipData(this.target, state);
     }
 
-    this.playingAnims.push(state);
+    this.addAnimation(state);
+    state.animator = this;
     state.play();
 
     if (typeof startTime === 'number') {
@@ -34,6 +35,11 @@ p.playState = function (state, startTime) {
     }
 
     this.play();
+};
+
+p.removeAnimation = function (anim) {
+    Animator.prototype.removeAnimation.call(this, anim);
+    anim.animator = null;
 };
 
 p.sample = function () {

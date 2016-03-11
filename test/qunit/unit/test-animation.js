@@ -24,7 +24,7 @@ test('curve types', function () {
         }
     };
 
-    state = new cc.AnimationState(clip);
+    var state = new cc.AnimationState(clip);
     initClipData(entity, state);
 
     state.update(0);
@@ -1091,5 +1091,39 @@ test('EventAnimCurve', function () {
             args: ['Frame 0 Event triggered']
         }
     ]);
+});
+
+test('stop Animation', function () {
+    var entity = new cc.Node();
+    var animation = entity.addComponent(cc.Animation);
+
+    var clip = new cc.AnimationClip();
+    clip._name = 'test';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+
+    var animationManager = cc.director.getAnimationManager();
+    animationManager.animators.length = 0;
+
+    animation.addClip(clip);
+    animation._init();
+
+    animation.play('test');
+
+    strictEqual(animationManager.animators.length, 1, 'playing animators should be 1');
+    strictEqual(animation._animator.playingAnims.length, 1, 'playing anims should be 1');
+
+    animationManager.update(0);
+    animationManager.update(1);
+
+    strictEqual(animationManager.animators.length, 0, 'playing animators should be 0');
+    strictEqual(animation._animator.playingAnims.length, 0, 'playing anims should be 0');
 });
 

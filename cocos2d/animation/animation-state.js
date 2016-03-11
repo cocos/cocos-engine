@@ -55,7 +55,7 @@ JS.getset(state, 'curveLoaded',
     function () {
         return this.curves.length > 0;
     },
-    function (value) {
+    function () {
         this.curves.length = 0;
     }
 );
@@ -71,6 +71,6 @@ state.setTime = function (time) {
     this.curves.forEach(function (curve) {
         curve.onTimeChangedManually();
     });
-}
+};
 
 cc.AnimationState = module.exports = AnimationState;
