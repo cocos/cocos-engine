@@ -77,7 +77,7 @@ var ScrollView = cc.Class({
 
         this._outOfBoundaryAmount = cc.p(0, 0);
         this._outOfBoundaryAmountDirty = true;
-
+        this._stopMouseWheel = false;
     },
 
     properties: {
@@ -453,6 +453,39 @@ var ScrollView = cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this);
+    },
+
+    _onMouseWheel: function(event) {
+        var deltaMove = cc.p(0, 0);
+        var wheelPrecision = 1.0 / 40;
+        if(cc.sys.isNative) {
+            wheelPrecision = 7;
+        }
+        if(this.vertical) {
+            deltaMove = cc.p(0, event.getScrollY() * wheelPrecision);
+        }
+        else if(this.horizontal) {
+            deltaMove = cc.p(event.getScrollY() * wheelPrecision, 0);
+        }
+
+        this._processDeltaMove(deltaMove);
+
+        if(!this._stopMouseWheel) {
+            this._handlePressLogic();
+            this._stopMouseWheel = true;
+            this._checkMouseWheel();
+        }
+        event.stopPropagation();
+    },
+
+    _checkMouseWheel: function() {
+        var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
+
+        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
+            this._processInertiaScroll();
+            this._stopMouseWheel = false;
+        }
     },
 
     _calculateMovePercentDelta: function(options) {
@@ -553,11 +586,14 @@ var ScrollView = cc.Class({
         event.stopPropagation();
     },
 
-    _handleMoveLogic: function(touch) {
-        var deltaMove = touch.getDelta();
-
+    _processDeltaMove: function(deltaMove) {
         this._scrollChildren(deltaMove);
         this._gatherTouchMove(deltaMove);
+    },
+
+    _handleMoveLogic: function(touch) {
+        var deltaMove = touch.getDelta();
+        this._processDeltaMove(deltaMove);
     },
 
     _scrollChildren: function(deltaMove) {
@@ -579,7 +615,7 @@ var ScrollView = cc.Class({
         this._moveContent(realMove, false);
     },
 
-    _handlePressLogic: function(touch) {
+    _handlePressLogic: function() {
         this._autoScrolling = false;
 
         this._touchMovePreviousTimestamp = getTimeInMilliseconds();
@@ -635,11 +671,7 @@ var ScrollView = cc.Class({
         return true;
     },
 
-    _handleReleaseLogic: function(touch) {
-        var delta = touch.getDelta();
-        this._gatherTouchMove(delta);
-
-
+    _processInertiaScroll: function () {
         var bounceBackStarted = this._startBounceBackIfNeeded();
         if (!bounceBackStarted && this.inertia) {
             var touchMoveVelocity = this._calculateTouchMoveVelocity();
@@ -649,6 +681,13 @@ var ScrollView = cc.Class({
         }
 
         this._onScrollBarTouchEnded();
+    },
+
+    _handleReleaseLogic: function(touch) {
+        var delta = touch.getDelta();
+        this._gatherTouchMove(delta);
+
+       this._processInertiaScroll();
     },
 
     _isOutOfBoundary: function() {
