@@ -52,32 +52,19 @@ _p.ctor;
 _p = null;
 
 /**
- * Device oriented vertically, home button on the bottom
- * @constant
- * @type {Number}
+ * The current version of Cocos2d-JS being used.<br/>
+ * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
+ * If you post a bug to forum, please attach this flag.
+ * @type {String}
+ * @name cc.ENGINE_VERSION
  */
-cc.ORIENTATION_PORTRAIT = 0;
-
-/**
- * Device oriented vertically, home button on the top
- * @constant
- * @type {Number}
- */
-cc.ORIENTATION_PORTRAIT_UPSIDE_DOWN = 1;
-
-/**
- * Device oriented horizontally, home button on the right
- * @constant
- * @type {Number}
- */
-cc.ORIENTATION_LANDSCAPE_LEFT = 2;
-
-/**
- * Device oriented horizontally, home button on the left
- * @constant
- * @type {Number}
- */
-cc.ORIENTATION_LANDSCAPE_RIGHT = 3;
+var engineVersion;
+if (CC_EDITOR) {
+    engineVersion = 'Cocos Creator v' + Editor.remote.versions.CocosCreator;
+} else {
+    engineVersion = 'Cocos Creator';
+}
+window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**
  * drawing primitive of game engine
@@ -106,90 +93,6 @@ cc.container = null;
 cc._gameDiv = null;
 
 cc.isEditor = typeof Editor !== 'undefined';
-
-/**
- * Iterate over an object or an array, executing a function for each matched element.
- * @param {object|array} obj
- * @param {function} iterator
- * @param {object} [context]
- */
-cc.each = function (obj, iterator, context) {
-    if (!obj)
-        return;
-    if (obj instanceof Array) {
-        for (var i = 0, li = obj.length; i < li; i++) {
-            if (iterator.call(context, obj[i], i) === false)
-                return;
-        }
-    } else {
-        for (var key in obj) {
-            if (iterator.call(context, obj[key], key) === false)
-                return;
-        }
-    }
-};
-
-/**
- * Check the url whether cross origin
- * @param {String} url
- * @returns {boolean}
- */
-cc.isCrossOrigin = function (url) {
-    if (!url) {
-        cc.log("invalid URL");
-        return false;
-    }
-    var startIndex = url.indexOf("://");
-    if (startIndex === -1)
-        return false;
-
-    var endIndex = url.indexOf("/", startIndex + 3);
-    var urlOrigin = (endIndex === -1) ? url : url.substring(0, endIndex);
-    return urlOrigin !== location.origin;
-};
-
-/**
- * A string tool to construct a string with format string.
- * for example:
- *      cc.formatStr("a: %d, b: %b", a, b);
- *      cc.formatStr(a, b, c);
- * @returns {String}
- */
-cc.formatStr = function(){
-    var args = arguments;
-    var l = args.length;
-    if(l < 1)
-        return "";
-
-    var str = args[0];
-    var needToFormat = true;
-    if(typeof str === "object"){
-        needToFormat = false;
-    }
-    for(var i = 1; i < l; ++i){
-        var arg = args[i];
-        if(needToFormat){
-            while(true){
-                var result = null;
-                if(typeof arg === "number"){
-                    result = str.match(/(%d)|(%s)/);
-                    if(result){
-                        str = str.replace(/(%d)|(%s)/, arg);
-                        break;
-                    }
-                }
-                result = str.match(/%s/);
-                if(result)
-                    str = str.replace(/%s/, arg);
-                else
-                    str += "    " + arg;
-                break;
-            }
-        }else
-            str += "    " + arg;
-    }
-    return str;
-};
 
 require('../cocos2d/core/utils');
 require('../cocos2d/core/platform/CCSys');
@@ -306,7 +209,7 @@ cc.initEngine = function (config, cb) {
         _engineLoadedCallback = function () {
             previousCallback && previousCallback();
             cb && cb();
-        }
+        };
         return;
     }
 
@@ -326,7 +229,7 @@ cc.initEngine = function (config, cb) {
 
     document.body ? _load(config) : window.addEventListener('load', _windowLoaded, false);
     _engineInitCalled = true;
-}
+};
 
 })();
 //+++++++++++++++++++++++++Engine initialization function end+++++++++++++++++++++++++++++

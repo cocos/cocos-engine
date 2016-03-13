@@ -59,7 +59,7 @@
         texture.handleLoadedTexture();
 
         var locSprite = node.sprite = new _ccsg.Sprite(texture);
-        locSprite.setBlendFunc(cc.ONE, cc.ONE_MINUS_SRC_ALPHA);
+        locSprite.setBlendFunc(cc.Macro.ONE, cc.Macro.ONE_MINUS_SRC_ALPHA);
         // Disabled by default.
         node.autoDraw = false;
         // add sprite for backward compatibility

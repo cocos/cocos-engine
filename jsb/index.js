@@ -39,7 +39,7 @@ cc.initEngine = function (config, cb) {
 try {
     var originLog = console.log;
     console.log = function () {
-        originLog.call(console, cc.formatStr.apply(null, arguments));
+        originLog.call(console, cc.js.formatStr.apply(null, arguments));
     };
 }
 catch (e) {

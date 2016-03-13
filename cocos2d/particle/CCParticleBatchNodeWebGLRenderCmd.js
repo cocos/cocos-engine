@@ -46,7 +46,7 @@
     };
 
     proto._initWithTexture = function(){
-        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR);
     };
 
     proto.visit = function(parentCmd){

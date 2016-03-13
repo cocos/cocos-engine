@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc._globalFontSize = cc.ITEM_SIZE;
+cc._globalFontSize = cc.Macro.ITEM_SIZE;
 cc._globalFontName = "Arial";
 cc._globalFontNameRelease = false;
 
@@ -362,14 +362,14 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
         if (this._enabled) {
             cc.MenuItem.prototype.selected.call(this);
 
-            var action = this.getActionByTag(cc.ZOOM_ACTION_TAG);
+            var action = this.getActionByTag(cc.Macro.ZOOM_ACTION_TAG);
             if (action)
                 this.stopAction(action);
             else
                 this._originalScale = this.scale;
 
             var zoomAction = cc.scaleTo(0.1, this._originalScale * 1.2);
-            zoomAction.setTag(cc.ZOOM_ACTION_TAG);
+            zoomAction.setTag(cc.Macro.ZOOM_ACTION_TAG);
             this.runAction(zoomAction);
         }
     },
@@ -380,9 +380,9 @@ cc.MenuItemLabel = cc.MenuItem.extend(/** @lends cc.MenuItemLabel# */{
     unselected: function () {
         if (this._enabled) {
             cc.MenuItem.prototype.unselected.call(this);
-            this.stopActionByTag(cc.ZOOM_ACTION_TAG);
+            this.stopActionByTag(cc.Macro.ZOOM_ACTION_TAG);
             var zoomAction = cc.scaleTo(0.1, this._originalScale);
-            zoomAction.setTag(cc.ZOOM_ACTION_TAG);
+            zoomAction.setTag(cc.Macro.ZOOM_ACTION_TAG);
             this.runAction(zoomAction);
         }
     }
@@ -732,7 +732,7 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
             return;
         }
         if (normalImage) {
-            this.addChild(normalImage, 0, cc.NORMAL_TAG);
+            this.addChild(normalImage, 0, cc.Macro.NORMAL_TAG);
             normalImage.anchorX = 0;
             normalImage.anchorY = 0;
         }
@@ -773,7 +773,7 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
             return;
 
         if (selectedImage) {
-            this.addChild(selectedImage, 0, cc.SELECTED_TAG);
+            this.addChild(selectedImage, 0, cc.Macro.SELECTED_TAG);
             selectedImage.anchorX = 0;
             selectedImage.anchorY = 0;
         }
@@ -803,7 +803,7 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
             return;
 
         if (disabledImage) {
-            this.addChild(disabledImage, 0, cc.DISABLE_TAG);
+            this.addChild(disabledImage, 0, cc.Macro.DISABLE_TAG);
             disabledImage.anchorX = 0;
             disabledImage.anchorY = 0;
         }
@@ -1180,12 +1180,12 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
     setSelectedIndex: function (SelectedIndex) {
         if (SelectedIndex !== this._selectedIndex) {
             this._selectedIndex = SelectedIndex;
-            var currItem = this.getChildByTag(cc.CURRENT_ITEM);
+            var currItem = this.getChildByTag(cc.Macro.CURRENT_ITEM);
             if (currItem)
                 currItem.removeFromParent(false);
 
             var item = this.subItems[this._selectedIndex];
-            this.addChild(item, 0, cc.CURRENT_ITEM);
+            this.addChild(item, 0, cc.Macro.CURRENT_ITEM);
             var w = item.width, h = item.height;
             this.width = w;
             this.height = h;
@@ -1235,7 +1235,7 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
             if (args[i])
                 locSubItems.push(args[i]);
         }
-        this._selectedIndex = cc.UINT_MAX;
+        this._selectedIndex = cc.Macro.UINT_MAX;
         this.setSelectedIndex(0);
 
         this.setCascadeColorEnabled(true);

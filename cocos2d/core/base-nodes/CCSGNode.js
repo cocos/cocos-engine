@@ -1564,27 +1564,27 @@ _ccsg.Node = cc.Class({
             if(len === 1){
                 //callback
                 interval = 0;
-                repeat = cc.REPEAT_FOREVER;
+                repeat = cc.Macro.REPEAT_FOREVER;
                 delay = 0;
                 key = this.__instanceId;
             }else if(len === 2){
                 if(typeof interval === "number"){
                     //callback, interval
-                    repeat = cc.REPEAT_FOREVER;
+                    repeat = cc.Macro.REPEAT_FOREVER;
                     delay = 0;
                     key = this.__instanceId;
                 }else{
                     //callback, key
                     key = interval;
                     interval = 0;
-                    repeat = cc.REPEAT_FOREVER;
+                    repeat = cc.Macro.REPEAT_FOREVER;
                     delay = 0;
                 }
             }else if(len === 3){
                 if(typeof repeat === "string"){
                     //callback, interval, key
                     key = repeat;
-                    repeat = cc.REPEAT_FOREVER;
+                    repeat = cc.Macro.REPEAT_FOREVER;
                 }else{
                     //callback, interval, repeat
                     key = this.__instanceId;
@@ -1599,10 +1599,10 @@ _ccsg.Node = cc.Class({
             //selector, interval, repeat, delay
             if(len === 1){
                 interval = 0;
-                repeat = cc.REPEAT_FOREVER;
+                repeat = cc.Macro.REPEAT_FOREVER;
                 delay = 0;
             }else if(len === 2){
-                repeat = cc.REPEAT_FOREVER;
+                repeat = cc.Macro.REPEAT_FOREVER;
                 delay = 0;
             }
         }
@@ -1611,7 +1611,7 @@ _ccsg.Node = cc.Class({
         cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
 
         interval = interval || 0;
-        repeat = (repeat == null) ? cc.REPEAT_FOREVER : repeat;
+        repeat = (repeat == null) ? cc.Macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
         this.scheduler.schedule(callback, this, interval, repeat, delay, !this._running, key);
@@ -2009,7 +2009,7 @@ _ccsg.Node = cc.Class({
      * @function
      * @param {cc.GLProgram} newShaderProgram The shader program which fetches from CCShaderCache.
      * @example
-     * node.setGLProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
+     * node.setGLProgram(cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR));
      */
     setShaderProgram: function (newShaderProgram) {
         this._renderCmd.setShaderProgram(newShaderProgram);

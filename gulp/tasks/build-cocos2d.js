@@ -35,9 +35,7 @@ var srcs = [
     './Base64Images.js',
     './CCBoot.js',
 
-    './cocos2d/core/platform/CCCommon.js',
     './cocos2d/core/platform/CCSAXParser.js',
-    './cocos2d/core/platform/CCConfig.js',
     './cocos2d/core/platform/miniFramework.js',
     './cocos2d/core/platform/CCEGLView.js',
     './cocos2d/core/platform/CCScreen.js',

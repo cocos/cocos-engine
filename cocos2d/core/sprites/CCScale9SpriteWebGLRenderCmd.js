@@ -65,14 +65,14 @@
             cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
             cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
-            cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
 
             var quads = node._quads;
             var bufferOffset = 0;
             var quadsLength = quads.length;
-            if(quadsLength == 0) return;
+            if (quadsLength === 0) return;
             if (needRebuildWebBuffer)
             {
                 gl.bufferData(gl.ARRAY_BUFFER,quads[0].arrayBuffer.byteLength * quads.length, gl.DYNAMIC_DRAW);
@@ -84,9 +84,9 @@
             bufferOffset = 0;
             for(var i = 0; i < quads.length; ++i)
             {
-                gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, bufferOffset);                   //cc.VERTEX_ATTRIB_POSITION
-                gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12 + bufferOffset);           //cc.VERTEX_ATTRIB_COLOR
-                gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16 + bufferOffset);                  //cc.VERTEX_ATTRIB_TEX_COORDS
+                gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, bufferOffset);                   //cc.Macro.VERTEX_ATTRIB_POSITION
+                gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12 + bufferOffset);           //cc.Macro.VERTEX_ATTRIB_COLOR
+                gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16 + bufferOffset);                  //cc.Macro.VERTEX_ATTRIB_TEX_COORDS
                 if(node._isTriangle) {
                     gl.drawArrays(gl.TRIANGLES, 0, 3);
                 } else {
@@ -116,7 +116,7 @@
     proto.setState = function (state) {
         var node = this._node;
         if (state === cc.Scale9Sprite.state.NORMAL) {
-            node.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
+            node.setShaderProgram(cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR));
         } else if (state === cc.Scale9Sprite.state.GRAY) {
             node.setShaderProgram(cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram());
         }
@@ -129,10 +129,10 @@
             return grayShader;
 
         grayShader = new cc.GLProgram();
-        grayShader.initWithVertexShaderByteArray(cc.SHADER_POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
-        grayShader.addAttribute(cc.ATTRIBUTE_NAME_POSITION, cc.VERTEX_ATTRIB_POSITION);
-        grayShader.addAttribute(cc.ATTRIBUTE_NAME_COLOR, cc.VERTEX_ATTRIB_COLOR);
-        grayShader.addAttribute(cc.ATTRIBUTE_NAME_TEX_COORD, cc.VERTEX_ATTRIB_TEX_COORDS);
+        grayShader.initWithVertexShaderByteArray(cc.Shaders.POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
+        grayShader.addAttribute(cc.Macro.ATTRIBUTE_NAME_POSITION, cc.Macro.VERTEX_ATTRIB_POSITION);
+        grayShader.addAttribute(cc.Macro.ATTRIBUTE_NAME_COLOR, cc.Macro.VERTEX_ATTRIB_COLOR);
+        grayShader.addAttribute(cc.Macro.ATTRIBUTE_NAME_TEX_COORD, cc.Macro.VERTEX_ATTRIB_TEX_COORDS);
         grayShader.link();
         grayShader.updateUniforms();
 

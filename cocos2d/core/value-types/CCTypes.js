@@ -61,16 +61,16 @@ cc.BlendFunc = function (src1, dst1) {
 };
 
 var BlendFactor = cc.Enum({
-    ONE:                    1,      //cc.ONE
-    ZERO:                   0,      //cc.ZERO
-    SRC_ALPHA:              0x302,  //cc.SRC_ALPHA
-    SRC_COLOR:              0x300,  //cc.SRC_COLOR
-    DST_ALPHA:              0x304,  //cc.DST_ALPHA
-    DST_COLOR:              0x306,  //cc.DST_COLOR
-    ONE_MINUS_SRC_ALPHA:    0x303,  //cc.ONE_MINUS_SRC_ALPHA
-    ONE_MINUS_SRC_COLOR:    0x301,  //cc.ONE_MINUS_SRC_COLOR
-    ONE_MINUS_DST_ALPHA:    0x305,  //cc.ONE_MINUS_DST_ALPHA
-    ONE_MINUS_DST_COLOR:    0x307,  //cc.ONE_MINUS_DST_COLOR
+    ONE:                    1,      //cc.Macro.ONE
+    ZERO:                   0,      //cc.Macro.ZERO
+    SRC_ALPHA:              0x302,  //cc.Macro.SRC_ALPHA
+    SRC_COLOR:              0x300,  //cc.Macro.SRC_COLOR
+    DST_ALPHA:              0x304,  //cc.Macro.DST_ALPHA
+    DST_COLOR:              0x306,  //cc.Macro.DST_COLOR
+    ONE_MINUS_SRC_ALPHA:    0x303,  //cc.Macro.ONE_MINUS_SRC_ALPHA
+    ONE_MINUS_SRC_COLOR:    0x301,  //cc.Macro.ONE_MINUS_SRC_COLOR
+    ONE_MINUS_DST_ALPHA:    0x305,  //cc.Macro.ONE_MINUS_DST_ALPHA
+    ONE_MINUS_DST_COLOR:    0x307,  //cc.Macro.ONE_MINUS_DST_COLOR
 });
 
 //var BlendFactor = cc;
