@@ -170,16 +170,16 @@ module.exports = function (properties, className, cls) {
                 };
             }
             else if (typeof val === 'function') {
-                if (cc.isChildClassOf(val, cc.ValueType)) {
-                    //noinspection JSUnresolvedFunction
+                if (cc.RawAsset.isRawAssetType(val)) {
                     val = {
-                        default: new val(),
-                        type: val
+                        default: '',
+                        url: val
                     };
                 }
                 else {
                     val = {
-                        default: cc.RawAsset.isRawAssetType(val) ? '' : null,
+                        //noinspection JSUnresolvedFunction
+                        default: cc.isChildClassOf(val, cc.ValueType) ? (new val()) : null,
                         type: val
                     };
                 }
