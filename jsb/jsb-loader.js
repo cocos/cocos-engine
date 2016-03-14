@@ -52,6 +52,7 @@ function downloadText (item, callback) {
 cc.loader.addDownloadHandlers({
     // JS
     'js' : downloadScript,
+    'jsc' : downloadScript,
 
     // Images
     'png' : empty,
