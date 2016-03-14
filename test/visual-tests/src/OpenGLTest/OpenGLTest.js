@@ -458,23 +458,23 @@ var GLNodeCCAPITest = OpenGLTestLayer.extend({
 
                 this.shader.use();
                 this.shader.setUniformsForBuiltins();
-                cc.glEnableVertexAttribs( cc.Macro.VERTEX_ATTRIB_FLAG_COLOR | cc.Macro.VERTEX_ATTRIB_FLAG_POSITION);
+                cc.glEnableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_COLOR | cc.macro.VERTEX_ATTRIB_FLAG_POSITION);
 
                 // Draw fullscreen Square
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexPositionBuffer);
-                gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
+                gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexColorBuffer);
-                gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_COLOR, 4, gl.FLOAT, false, 0, 0);
+                gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.FLOAT, false, 0, 0);
 
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
                 // Draw fullscreen Triangle
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.triangleVertexPositionBuffer);
-                gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
+                gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.triangleVertexColorBuffer);
-                gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_COLOR, 4, gl.FLOAT, false, 0, 0);
+                gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.FLOAT, false, 0, 0);
 
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 3);
 
@@ -574,7 +574,7 @@ var ShaderNode = cc.GLNode.extend({
 
             this.shader = cc.GLProgram.create(vertexShader, framentShader);
             this.shader.retain();
-            this.shader.addAttribute("aVertex", cc.Macro.VERTEX_ATTRIB_POSITION);
+            this.shader.addAttribute("aVertex", cc.macro.VERTEX_ATTRIB_POSITION);
             this.shader.link();
             this.shader.updateUniforms();
 
@@ -604,11 +604,11 @@ var ShaderNode = cc.GLNode.extend({
         this.shader.setUniformLocationF32( this.uniformCenter, centerx, centery);
         this.shader.setUniformLocationF32( this.uniformResolution, 256, 256);
 
-        cc.glEnableVertexAttribs( cc.Macro.VERTEX_ATTRIB_FLAG_POSITION );
+        cc.glEnableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_POSITION );
 
         // Draw fullscreen Square
         gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexPositionBuffer);
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
@@ -879,9 +879,9 @@ var ShaderOutlineEffect = OpenGLTestLayer.extend({
             }
             else{
                 this.shader = new cc.GLProgram("res/Shaders/example_Outline.vsh", "res/Shaders/example_Outline.fsh");
-                this.shader.addAttribute(cc.Macro.ATTRIBUTE_NAME_POSITION, cc.Macro.VERTEX_ATTRIB_POSITION);
-                this.shader.addAttribute(cc.Macro.ATTRIBUTE_NAME_TEX_COORD, cc.Macro.VERTEX_ATTRIB_TEX_COORDS);
-                this.shader.addAttribute(cc.Macro.ATTRIBUTE_NAME_COLOR, cc.Macro.VERTEX_ATTRIB_COLOR);
+                this.shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+                this.shader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+                this.shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
 
                 this.shader.link();
                 this.shader.updateUniforms();
@@ -950,8 +950,8 @@ var ShaderRetroEffect = OpenGLTestLayer.extend({
 
         if( 'opengl' in cc.sys.capabilities ) {
             var program = new cc.GLProgram("res/Shaders/example_ColorBars.vsh", "res/Shaders/example_ColorBars.fsh");
-            program.addAttribute(cc.Macro.ATTRIBUTE_NAME_POSITION, cc.Macro.VERTEX_ATTRIB_POSITION);
-            program.addAttribute(cc.Macro.ATTRIBUTE_NAME_TEX_COORD, cc.Macro.VERTEX_ATTRIB_TEX_COORDS);
+            program.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+            program.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
             program.link();
             program.updateUniforms();
 
@@ -1088,14 +1088,14 @@ var TexImage2DTest = OpenGLTestLayer.extend({
                 this.shader.setUniformsForBuiltins();
 
                 gl.bindTexture(gl.TEXTURE_2D, this.my_texture);
-                cc.glEnableVertexAttribs( cc.Macro.VERTEX_ATTRIB_FLAG_TEX_COORDS | cc.Macro.VERTEX_ATTRIB_FLAG_POSITION);
+                cc.glEnableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS | cc.macro.VERTEX_ATTRIB_FLAG_POSITION);
 
                 // Draw fullscreen Square
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexPositionBuffer);
-                gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
+                gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, 0, 0);
 
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexTextureBuffer);
-                gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, 0);
+                gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, 0);
 
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 

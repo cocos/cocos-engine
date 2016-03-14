@@ -360,7 +360,7 @@ cc.DrawingPrimitiveCanvas = cc._Class.extend(/** @lends cc.DrawingPrimitiveCanva
         //context.fillStyle = g1;
         context.beginPath();
         var startAngle_1 = 0;
-        var endAngle_1 = cc.Macro.PI2;
+        var endAngle_1 = cc.macro.PI2;
         context.arc(0, 0, radius - subRadius, startAngle_1, endAngle_1, false);
         context.closePath();
         context.fill();
@@ -388,7 +388,7 @@ cc.DrawingPrimitiveCanvas = cc._Class.extend(/** @lends cc.DrawingPrimitiveCanva
         //context.fillStyle = g1;
         context.beginPath();
         var startAngle_1 = 0;
-        var endAngle_1 = cc.Macro.PI2;
+        var endAngle_1 = cc.macro.PI2;
         context.arc(0, 0, radius, startAngle_1, endAngle_1, false);
         context.closePath();
         context.fill();

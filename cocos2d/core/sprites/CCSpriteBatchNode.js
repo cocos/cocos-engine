@@ -64,7 +64,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     ctor: function (fileImage, capacity) {
         _ccsg.Node.prototype.ctor.call(this);
         this._descendants = [];
-        this._blendFunc = new cc.BlendFunc(cc.Macro.BLEND_SRC, cc.Macro.BLEND_DST);
+        this._blendFunc = new cc.BlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
 
         var texture2D;
         capacity = capacity || cc.SpriteBatchNode.DEFAULT_CAPACITY;
@@ -272,7 +272,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
         // ignore parent Z if parent is spriteSheet
         var ignoreParent = selParent === this;
         var previous = null;
-        if (childIndex > 0 && childIndex < cc.Macro.UINT_MAX)
+        if (childIndex > 0 && childIndex < cc.macro.UINT_MAX)
             previous = brothers[childIndex - 1];
 
         // first child of the sprite sheet

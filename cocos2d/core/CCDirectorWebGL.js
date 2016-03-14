@@ -253,9 +253,9 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
     _p.setAlphaBlending = function (on) {
         if (on)
-            cc.glBlendFunc(cc.Macro.BLEND_SRC, cc.Macro.BLEND_DST);
+            cc.glBlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
         else
-            cc.glBlendFunc(cc.Macro.ONE, cc.Macro.ZERO);
+            cc.glBlendFunc(cc.macro.ONE, cc.macro.ZERO);
         //cc.checkGLErrorDebug();
     };
 

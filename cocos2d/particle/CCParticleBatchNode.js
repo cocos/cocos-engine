@@ -93,7 +93,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
      */
     ctor:function (fileImage, capacity) {
         _ccsg.Node.prototype.ctor.call(this);
-        this._blendFunc = {src:cc.Macro.BLEND_SRC, dst:cc.Macro.BLEND_DST};
+        this._blendFunc = {src:cc.macro.BLEND_SRC, dst:cc.macro.BLEND_DST};
         if (cc.js.isString(fileImage)) {
             this.init(fileImage, capacity);
         } else if (fileImage instanceof cc.Texture2D) {
@@ -350,9 +350,9 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
         // If the new texture has No premultiplied alpha, AND the blendFunc hasn't been changed, then update it
         var locBlendFunc = this._blendFunc;
-        if (texture && !texture.hasPremultipliedAlpha() && ( locBlendFunc.src === cc.Macro.BLEND_SRC && locBlendFunc.dst === cc.Macro.BLEND_DST )) {
-            locBlendFunc.src = cc.Macro.SRC_ALPHA;
-            locBlendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
+        if (texture && !texture.hasPremultipliedAlpha() && ( locBlendFunc.src === cc.macro.BLEND_SRC && locBlendFunc.dst === cc.macro.BLEND_DST )) {
+            locBlendFunc.src = cc.macro.SRC_ALPHA;
+            locBlendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
         }
     },
 
@@ -485,8 +485,8 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     _updateBlendFunc:function () {
         if (!this.textureAtlas.texture.hasPremultipliedAlpha()) {
-            this._blendFunc.src = cc.Macro.SRC_ALPHA;
-            this._blendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
+            this._blendFunc.src = cc.macro.SRC_ALPHA;
+            this._blendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
         }
     },
 

@@ -130,7 +130,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         self._shouldBeHidden = false;
         self._offsetPosition = cc.p(0, 0);
         self._unflippedOffsetPositionFromCenter = cc.p(0, 0);
-        self._blendFunc = {src: cc.Macro.BLEND_SRC, dst: cc.Macro.BLEND_DST};
+        self._blendFunc = {src: cc.macro.BLEND_SRC, dst: cc.macro.BLEND_DST};
         self._rect = cc.rect(0, 0, 0, 0);
 
         self._softInit(fileName, rect, rotated);
@@ -627,8 +627,8 @@ _ccsg.Sprite = _ccsg.Node.extend({
         _ccsg.Node.prototype.init.call(_t);
         _t.dirty = _t._recursiveDirty = false;
 
-        _t._blendFunc.src = cc.Macro.BLEND_SRC;
-        _t._blendFunc.dst = cc.Macro.BLEND_DST;
+        _t._blendFunc.src = cc.macro.BLEND_SRC;
+        _t._blendFunc.dst = cc.macro.BLEND_DST;
 
         _t.texture = null;
         _t._flippedX = _t._flippedY = false;
@@ -704,8 +704,8 @@ _ccsg.Sprite = _ccsg.Node.extend({
         _t.dirty = false;
         _t._opacityModifyRGB = true;
 
-        _t._blendFunc.src = cc.Macro.BLEND_SRC;
-        _t._blendFunc.dst = cc.Macro.BLEND_DST;
+        _t._blendFunc.src = cc.macro.BLEND_SRC;
+        _t._blendFunc.dst = cc.macro.BLEND_DST;
 
         _t._flippedX = _t._flippedY = false;
 

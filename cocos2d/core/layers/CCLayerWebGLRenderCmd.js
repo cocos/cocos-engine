@@ -81,17 +81,17 @@
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POSITION | cc.Macro.VERTEX_ATTRIB_FLAG_COLOR);
+        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR);
         cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
 
         //
         // Attributes
         //
         context.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
-        context.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, 0, 0);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, 0, 0);
 
         context.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
-        context.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
 
         context.drawArrays(context.TRIANGLE_STRIP, 0, this._squareVertices.length);
     };
@@ -285,15 +285,15 @@
         //draw gradient layer
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POSITION | cc.Macro.VERTEX_ATTRIB_FLAG_COLOR);
+        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR);
         cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
         //
         // Attributes
         //
         context.bindBuffer(context.ARRAY_BUFFER, this._verticesFloat32Buffer);
-        context.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, 0, 0);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, 0, 0);
         context.bindBuffer(context.ARRAY_BUFFER, this._colorsUint8Buffer);
-        context.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, 0, 0);
         context.drawArrays(context.TRIANGLE_STRIP, 0, this._squareVertices.length);
 
         context.disable(context.SCISSOR_TEST);

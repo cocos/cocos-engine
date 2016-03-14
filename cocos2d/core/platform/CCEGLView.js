@@ -182,7 +182,7 @@ cc.EGLView = cc._Class.extend({
 
         _t._hDC = cc.game.canvas;
         _t._hRC = cc._renderContext;
-        _t._targetDensityDPI = cc.Macro.DENSITYDPI_HIGH;
+        _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
     },
 
     // Resize helper functions
@@ -215,10 +215,10 @@ cc.EGLView = cc._Class.extend({
     /**
      * <p>
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
-     *   1. cc.Macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
-     *   2. cc.Macro.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
-     *   3. cc.Macro.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
-     *   4. cc.Macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
+     *   1. cc.macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
+     *   2. cc.macro.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
+     *   3. cc.macro.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
+     *   4. cc.macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
      *   5. Custom value, e.g: "480"                                                         <br/>
      * </p>
      *

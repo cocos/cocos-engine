@@ -696,7 +696,7 @@ var Component = cc.Class({
      * @method schedule
      * @param {function} callback The callback function
      * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame. If interval = 0, it's recommended to use scheduleUpdate() instead.
-     * @param {Number} [repeat=cc.Macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
+     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
      * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
      */
     schedule: function (callback, interval, repeat, delay) {
@@ -704,7 +704,7 @@ var Component = cc.Class({
         cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
 
         interval = interval || 0;
-        repeat = isNaN(repeat) ? cc.Macro.REPEAT_FOREVER : repeat;
+        repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
         cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy, this.__instanceId);

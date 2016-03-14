@@ -124,7 +124,7 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
         this._delay = delay;
         this._useDelay = (this._delay > 0);
         this._repeat = repeat;
-        this._runForever = (this._repeat === cc.Macro.REPEAT_FOREVER);
+        this._runForever = (this._repeat === cc.macro.REPEAT_FOREVER);
     },
 
     trigger: function(){
@@ -519,7 +519,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      *   If paused is YES, then it won't be called until it is resumed.<br/>
      *   If 'interval' is 0, it will be called every frame, but if so, it recommended to use 'scheduleUpdateForTarget:' instead.<br/>
      *   If the callback function is already scheduled, then only the interval parameter will be updated without re-scheduling it again.<br/>
-     *   repeat let the action be repeated repeat + 1 times, use cc.Macro.REPEAT_FOREVER to let the action run continuously<br/>
+     *   repeat let the action be repeated repeat + 1 times, use cc.macro.REPEAT_FOREVER to let the action run continuously<br/>
      *   delay is the amount of time the action will wait before it'll start<br/>
      * </p>
      * @method scheduleCallbackForTarget
@@ -563,14 +563,14 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
                 key = delay;
                 paused = repeat;
                 delay = 0;
-                repeat = cc.Macro.REPEAT_FOREVER;
+                repeat = cc.macro.REPEAT_FOREVER;
             }
         }else{
             //selector, target, interval, repeat, delay, paused
             //selector, target, interval, paused
             if(arguments.length === 4){
                 paused = repeat;
-                repeat = cc.Macro.REPEAT_FOREVER;
+                repeat = cc.macro.REPEAT_FOREVER;
                 delay = 0;
             }
         }

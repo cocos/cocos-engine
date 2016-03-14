@@ -228,7 +228,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
         if (!this._grabber)
             return false;
         this._grabber.grab(this._texture);
-        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURE);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURE);
         this.calculateVertexPoints();
         return true;
     },
@@ -436,7 +436,7 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
 
     blit:function (target) {
         var n = this._gridSize.width * this._gridSize.height;
-        cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POSITION | cc.Macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
+        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
         this._shaderProgram.use();
         //this._shaderProgram.setUniformsForBuiltins();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(target._renderCmd._stackMatrix);
@@ -449,13 +449,13 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
         gl.bindBuffer(gl.ARRAY_BUFFER, this._verticesBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, 0);
 
         // texCoords
         gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordinateBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._texCoordinates, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indicesBuffer);
         if (locDirty)
@@ -690,19 +690,19 @@ cc.TiledGrid3D = cc.GridBase.extend(/** @lends cc.TiledGrid3D# */{
         // Attributes
         //
         var gl = cc._renderContext, locDirty = this._dirty;
-        cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POSITION | cc.Macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
+        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
 
         // position
         gl.bindBuffer(gl.ARRAY_BUFFER, this._verticesBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, this._vertices);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, this._vertices);
 
         // texCoords
         gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordinateBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._texCoordinates, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, this._texCoordinates);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, this._texCoordinates);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indicesBuffer);
         if (locDirty)

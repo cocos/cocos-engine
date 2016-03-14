@@ -795,7 +795,7 @@ cc.getImageFormatByData = function (imgData) {
  * @type {Object}
  * @namespace cc
  */
-cc.Macro = {
+cc.macro = {
     /**
      * @property INVALID_INDEX
      * @type {Number}
@@ -1563,13 +1563,13 @@ cc.Macro = {
  * @type {Number}
  * @readonly
  */
-cc.defineGetterSetter(cc.Macro, "BLEND_SRC", function (){
+cc.defineGetterSetter(cc.macro, "BLEND_SRC", function (){
     if (cc._renderType === cc.game.RENDER_TYPE_WEBGL
-         && cc.Macro.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA) {
-        return cc.Macro.ONE;
+         && cc.macro.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA) {
+        return cc.macro.ONE;
     }
     else {
-        return cc.Macro.SRC_ALPHA;
+        return cc.macro.SRC_ALPHA;
     }
 });
 
@@ -1612,7 +1612,7 @@ cc.randomMinus1To1 = function () {
  * @method degreesToRadians
  */
 cc.degreesToRadians = function (angle) {
-    return angle * cc.Macro.RAD;
+    return angle * cc.macro.RAD;
 };
 
 /**
@@ -1622,7 +1622,7 @@ cc.degreesToRadians = function (angle) {
  * @method radiansToDegrees
  */
 cc.radiansToDegrees = function (angle) {
-    return angle * cc.Macro.DEG;
+    return angle * cc.macro.DEG;
 };
 
 /**

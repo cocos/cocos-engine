@@ -109,7 +109,7 @@ cc.NodeGrid = _ccsg.Node.extend({
                 apx = app.x, apy = app.y,
                 translate = (apx !== 0.0 || apy !== 0.0);
             if (translate) {
-                if(!cc.Macro.SPRITEBATCHNODE_RENDER_SUBPIXEL) {
+                if(!cc.macro.SPRITEBATCHNODE_RENDER_SUBPIXEL) {
                     apx = 0 | apx;
                     apy = 0 | apy;
                 }

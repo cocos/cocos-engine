@@ -40,7 +40,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     ctor: function(skeletonDataFile, atlasFile, scale) {
         _ccsg.Node.prototype.ctor.call(this);
-        this._blendFunc = {src: cc.Macro.BLEND_SRC, dst: cc.Macro.BLEND_DST};
+        this._blendFunc = {src: cc.macro.BLEND_SRC, dst: cc.macro.BLEND_DST};
 
         if(arguments.length === 0)
             this.init();
@@ -58,8 +58,8 @@ sp._SGSkeleton = _ccsg.Node.extend({
     init: function () {
         _ccsg.Node.prototype.init.call(this);
         //this.setOpacityModifyRGB(true);
-        this._blendFunc.src = cc.Macro.ONE;
-        this._blendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
+        this._blendFunc.src = cc.macro.ONE;
+        this._blendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
         this.scheduleUpdate();
     },
 
@@ -148,7 +148,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
      * @returns {cc.Rect}
      */
     getBoundingBox: function () {
-        var minX = cc.Macro.FLT_MAX, minY = cc.Macro.FLT_MAX, maxX = cc.Macro.FLT_MIN, maxY = cc.Macro.FLT_MIN;
+        var minX = cc.macro.FLT_MAX, minY = cc.macro.FLT_MAX, maxX = cc.macro.FLT_MIN, maxY = cc.macro.FLT_MIN;
         var scaleX = this.getScaleX(), scaleY = this.getScaleY(), vertices = [],
             slots = this._skeleton.slots, VERTEX = sp.VERTEX_INDEX;
 

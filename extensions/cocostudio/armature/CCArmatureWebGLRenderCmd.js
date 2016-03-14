@@ -92,7 +92,7 @@
     };
 
     proto.initShaderCache = function(){
-        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
     };
 
     proto.setShaderProgram = function(shaderProgram){

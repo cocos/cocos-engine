@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 var shaders = cc.PresetShaders;
-var macro = cc.Macro;
+var macro = cc.macro;
 
 /**
  * cc.shaderCache is a singleton object that stores manages GL shaders

@@ -14,9 +14,9 @@ gaf._glShaderInit = function() {
         var program = new cc.GLProgram();
         var result = program.initWithVertexShaderByteArray(vs, fs);
         cc.assert(result, "Shader init error");
-        program.addAttribute(cc.Macro.ATTRIBUTE_NAME_POSITION, cc.Macro.VERTEX_ATTRIB_POSITION);
-        program.addAttribute(cc.Macro.ATTRIBUTE_NAME_COLOR, cc.Macro.VERTEX_ATTRIB_COLOR);
-        program.addAttribute(cc.Macro.ATTRIBUTE_NAME_TEX_COORD, cc.Macro.VERTEX_ATTRIB_TEX_COORDS);
+        program.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+        program.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
+        program.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
         result = program.link();
         cc.assert(result, "Shader linking error");
         program.updateUniforms();

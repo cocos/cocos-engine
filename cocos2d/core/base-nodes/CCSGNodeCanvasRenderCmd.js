@@ -511,11 +511,11 @@ _ccsg.Node.RenderCmd.prototype = {
         if (!blendFunc)
             return "source-over";
         else {
-            if (( blendFunc.src === cc.Macro.SRC_ALPHA && blendFunc.dst === cc.Macro.ONE) || (blendFunc.src === cc.Macro.ONE && blendFunc.dst === cc.Macro.ONE))
+            if (( blendFunc.src === cc.macro.SRC_ALPHA && blendFunc.dst === cc.macro.ONE) || (blendFunc.src === cc.macro.ONE && blendFunc.dst === cc.macro.ONE))
                 return "lighter";
-            else if (blendFunc.src === cc.Macro.ZERO && blendFunc.dst === cc.Macro.SRC_ALPHA)
+            else if (blendFunc.src === cc.macro.ZERO && blendFunc.dst === cc.macro.SRC_ALPHA)
                 return "destination-in";
-            else if (blendFunc.src === cc.Macro.ZERO && blendFunc.dst === cc.Macro.ONE_MINUS_SRC_ALPHA)
+            else if (blendFunc.src === cc.macro.ZERO && blendFunc.dst === cc.macro.ONE_MINUS_SRC_ALPHA)
                 return "destination-out";
             else
                 return "source-over";

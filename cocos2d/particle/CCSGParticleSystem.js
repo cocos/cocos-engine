@@ -290,7 +290,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this.emitterMode = _ccsg.ParticleSystem.Mode.GRAVITY;
         this.modeA = new _ccsg.ParticleSystem.ModeA();
         this.modeB = new _ccsg.ParticleSystem.ModeB();
-        this._blendFunc = {src:cc.Macro.BLEND_SRC, dst:cc.Macro.BLEND_DST};
+        this._blendFunc = {src:cc.macro.BLEND_SRC, dst:cc.macro.BLEND_DST};
 
         this._particles = [];
         this._sourcePosition = cc.p(0, 0);
@@ -1128,8 +1128,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      *    dest blend function = GL_ONE;
      */
     isBlendAdditive:function () {
-        return (( this._blendFunc.src === cc.Macro.SRC_ALPHA && this._blendFunc.dst === cc.Macro.ONE) || 
-                (this._blendFunc.src === cc.Macro.ONE && this._blendFunc.dst === cc.Macro.ONE));
+        return (( this._blendFunc.src === cc.macro.SRC_ALPHA && this._blendFunc.dst === cc.macro.ONE) || 
+                (this._blendFunc.src === cc.macro.ONE && this._blendFunc.dst === cc.macro.ONE));
     },
 
     /**
@@ -1141,8 +1141,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
     setBlendAdditive:function (isBlendAdditive) {
         var locBlendFunc = this._blendFunc;
         if (isBlendAdditive) {
-            locBlendFunc.src = cc.Macro.SRC_ALPHA;
-            locBlendFunc.dst = cc.Macro.ONE;
+            locBlendFunc.src = cc.macro.SRC_ALPHA;
+            locBlendFunc.dst = cc.macro.ONE;
         } else {
             this._renderCmd._setBlendAdditive();
         }
@@ -1445,8 +1445,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this._isActive = true;
 
         // default blend function
-        this._blendFunc.src = cc.Macro.BLEND_SRC;
-        this._blendFunc.dst = cc.Macro.BLEND_DST;
+        this._blendFunc.src = cc.macro.BLEND_SRC;
+        this._blendFunc.dst = cc.macro.BLEND_DST;
 
         // default movement type;
         this.positionType = _ccsg.ParticleSystem.Type.FREE;
@@ -1831,12 +1831,12 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         if (locTexture && locTexture instanceof cc.Texture2D) {
             this._opacityModifyRGB = false;
             var locBlendFunc = this._blendFunc;
-            if (locBlendFunc.src === cc.Macro.BLEND_SRC && locBlendFunc.dst === cc.Macro.BLEND_DST) {
+            if (locBlendFunc.src === cc.macro.BLEND_SRC && locBlendFunc.dst === cc.macro.BLEND_DST) {
                 if (locTexture.hasPremultipliedAlpha()) {
                     this._opacityModifyRGB = true;
                 } else {
-                    locBlendFunc.src = cc.Macro.SRC_ALPHA;
-                    locBlendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
+                    locBlendFunc.src = cc.macro.SRC_ALPHA;
+                    locBlendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
                 }
             }
         }
