@@ -129,7 +129,7 @@
             return grayShader;
 
         grayShader = new cc.GLProgram();
-        grayShader.initWithVertexShaderByteArray(cc.Shaders.POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
+        grayShader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
         grayShader.addAttribute(cc.Macro.ATTRIBUTE_NAME_POSITION, cc.Macro.VERTEX_ATTRIB_POSITION);
         grayShader.addAttribute(cc.Macro.ATTRIBUTE_NAME_COLOR, cc.Macro.VERTEX_ATTRIB_COLOR);
         grayShader.addAttribute(cc.Macro.ATTRIBUTE_NAME_TEX_COORD, cc.Macro.VERTEX_ATTRIB_TEX_COORDS);

@@ -24,7 +24,7 @@ gaf._glShaderInit = function() {
     };
 
     gaf._shaderCreateAlpha = function () {
-        var program = gaf._shaderCreate(gaf.SHADER_COLOR_MATRIX_FRAG, cc.Shaders.POSITION_TEXTURE_COLOR_VERT);
+        var program = gaf._shaderCreate(gaf.SHADER_COLOR_MATRIX_FRAG, cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT);
         gaf._Uniforms.ColorTransformMult = program.getUniformLocationForName(gaf.UNIFORM_ALPHA_TINT_MULT);
         gaf._Uniforms.ColorTransformOffset = program.getUniformLocationForName(gaf.UNIFORM_ALPHA_TINT_OFFSET);
         gaf._Uniforms.ColorMatrixBody = program.getUniformLocationForName(gaf.UNIFORM_ALPHA_COLOR_MATRIX_BODY);
@@ -33,14 +33,14 @@ gaf._glShaderInit = function() {
     };
 
     gaf._shaderCreateBlur = function () {
-        var program = gaf._shaderCreate(gaf.SHADER_GAUSSIAN_BLUR_FRAG, cc.Shaders.POSITION_TEXTURE_COLOR_VERT);
+        var program = gaf._shaderCreate(gaf.SHADER_GAUSSIAN_BLUR_FRAG, cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT);
         gaf._Uniforms.BlurTexelOffset = program._glContext.getUniformLocation(program._programObj, gaf.UNIFORM_BLUR_TEXEL_OFFSET);
 
         return program;
     };
 
     gaf._shaderCreateGlow = function () {
-        var program = gaf._shaderCreate(gaf.SHADER_GLOW_FRAG, cc.Shaders.POSITION_TEXTURE_COLOR_VERT);
+        var program = gaf._shaderCreate(gaf.SHADER_GLOW_FRAG, cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT);
         gaf._Uniforms.GlowTexelOffset = program._glContext.getUniformLocation(program._programObj, gaf.UNIFORM_GLOW_TEXEL_OFFSET);
         gaf._Uniforms.GlowColor = program._glContext.getUniformLocation(program._programObj, gaf.UNIFORM_GLOW_COLOR);
         return program;

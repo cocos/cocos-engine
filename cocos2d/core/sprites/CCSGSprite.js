@@ -987,39 +987,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
 });
 
 /**
- * Create a sprite with image path or frame name or texture or spriteFrame.
- * @deprecated since v3.0, please use new construction instead
- * @see _ccsg.Sprite
- * @param {String|cc.SpriteFrame|HTMLImageElement|cc.Texture2D} fileName  The string which indicates a path to image file, e.g., "scene1/monster.png".
- * @param {cc.Rect} rect  Only the contents inside rect of pszFileName's texture will be applied for this sprite.
- * @param {Boolean} [rotated] Whether or not the texture rectangle is rotated.
- * @return {_ccsg.Sprite} A valid sprite object
- */
-_ccsg.Sprite.create = function (fileName, rect, rotated) {
-    return new _ccsg.Sprite(fileName, rect, rotated);
-};
-
-/**
- * @deprecated since v3.0, please use new construction instead
- * @see _ccsg.Sprite
- * @function
- */
-_ccsg.Sprite.createWithTexture = _ccsg.Sprite.create;
-
-/**
- * @deprecated since v3.0, please use new construction instead
- * @see _ccsg.Sprite
- * @function
- */
-_ccsg.Sprite.createWithSpriteFrameName = _ccsg.Sprite.create;
-
-/**
- * @deprecated since v3.0, please use new construction instead
- * @see _ccsg.Sprite
- * @function
- */
-_ccsg.Sprite.createWithSpriteFrame = _ccsg.Sprite.create;
-/**
  * _ccsg.Sprite invalid index on the cc.SpriteBatchNode
  * @constant
  * @type {Number}

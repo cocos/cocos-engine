@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc._EventListenerVector = cc._Class.extend({
+var _EventListenerVector = cc._Class.extend({
     _fixedListeners: null,
     _sceneGraphListeners: null,
     gt0Index: 0,
@@ -70,7 +70,7 @@ cc._EventListenerVector = cc._Class.extend({
     }
 });
 
-cc.__getListenerID = function (event) {
+var __getListenerID = function (event) {
     var eventType = cc.Event, type = event.getType();
     if (type === eventType.ACCELERATION)
         return cc._EventListenerAcceleration.LISTENER_ID;
@@ -179,7 +179,7 @@ cc.eventManager = {
         var listenerID = listener._getListenerID();
         var listeners = this._listenersMap[listenerID];
         if (!listeners) {
-            listeners = new cc._EventListenerVector();
+            listeners = new _EventListenerVector();
             this._listenersMap[listenerID] = listeners;
         }
         listeners.push(listener);
@@ -389,7 +389,7 @@ cc.eventManager = {
             this._onUpdateListeners(cc._EventListenerTouchOneByOne.LISTENER_ID);
             this._onUpdateListeners(cc._EventListenerTouchAllAtOnce.LISTENER_ID);
         } else
-            this._onUpdateListeners(cc.__getListenerID(event));
+            this._onUpdateListeners(__getListenerID(event));
 
         cc.assert(locInDispatch === 1, cc._LogInfos.EventManager._updateListeners_2);
         var locListenersMap = this._listenersMap, locPriorityDirtyFlagMap = this._priorityDirtyFlagMap;
@@ -934,7 +934,7 @@ cc.eventManager = {
             return;
         }
 
-        var listenerID = cc.__getListenerID(event);
+        var listenerID = __getListenerID(event);
         this._sortEventListeners(listenerID);
         var selListeners = this._listenersMap[listenerID];
         if (selListeners != null)

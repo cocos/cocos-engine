@@ -28,13 +28,13 @@
 
 /**
  * Predefined constants
- * @property Shaders
+ * @class PresetShaders
  * @readonly
  * @type {Object}
  * @static
  * @namespace cc
  */
-cc.Shaders = {
+cc.PresetShaders = {
     /**
      * @property POSITION_UCOLOR_FRAG
      * @type {String}

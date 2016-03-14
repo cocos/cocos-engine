@@ -26,7 +26,7 @@
 
 var EventTarget = require("../cocos2d/core/event/event-target");
 
-cc.FontLetterDefinition = function() {
+var FontLetterDefinition = function() {
     this._u = 0;
     this._v = 0;
     this._width = 0;
@@ -59,7 +59,7 @@ cc.FontAtlas.prototype = {
     cloneLetterDefinition: function() {
         var copyLetterDefinitions = {};
         for (var key in this._letterDefinitions) {
-            var value = new cc.FontLetterDefinition();
+            var value = new FontLetterDefinition();
             cc.js.mixin(value, this._letterDefinitions[key]);
             copyLetterDefinitions[key] = value;
         }
@@ -95,8 +95,8 @@ cc.FontAtlas.prototype = {
     }
 };
 
-cc.LetterInfo = function() {
-    this._char = "";
+var LetterInfo = function() {
+    this._char = '';
     this._valid = true;
     this._positionX = 0;
     this._positionY = 0;
@@ -609,7 +609,7 @@ cc.BMFontHelper = {
 
     _recordPlaceholderInfo: function(letterIndex, char) {
         if (letterIndex >= this._lettersInfo.length) {
-            var tmpInfo = new cc.LetterInfo();
+            var tmpInfo = new LetterInfo();
             this._lettersInfo.push(tmpInfo);
         }
 
@@ -619,7 +619,7 @@ cc.BMFontHelper = {
 
     _recordLetterInfo: function(letterPosition, character, letterIndex, lineIndex) {
         if (letterIndex >= this._lettersInfo.length) {
-            var tmpInfo = new cc.LetterInfo();
+            var tmpInfo = new LetterInfo();
             this._lettersInfo.push(tmpInfo);
         }
         character = character.charCodeAt(0);
@@ -1040,7 +1040,7 @@ cc.BMFontHelper = {
         var locFontDict = locCfg.fontDefDictionary;
 
         for (var fontDef in locFontDict) {
-            var letterDefinition = new cc.FontLetterDefinition();
+            var letterDefinition = new FontLetterDefinition();
 
             var tempRect = locFontDict[fontDef].rect;
 

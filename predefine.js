@@ -59,13 +59,16 @@ require('./cocos2d/core/event');
 require('./cocos2d/core/platform/CCSys');
 require('./cocos2d/core/platform/CCMacro');
 require('./cocos2d/core/load-pipeline');
-require('./cocos2d/core/CCDirector');
-require('./cocos2d/core/CCDirectorWebGL');
-require('./cocos2d/core/CCDirectorCanvas');
 require('./cocos2d/core/textures');
 
 if (!CC_JSB) {
+    require('./cocos2d/core/CCDirector');
+    require('./cocos2d/core/CCDirectorWebGL');
+    require('./cocos2d/core/CCDirectorCanvas');
+
     require('./cocos2d/actions');
+    require('./cocos2d/core/event-manager');
+    require('./cocos2d/core/renderer');
 }
 
 ccui = {};

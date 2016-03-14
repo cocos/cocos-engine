@@ -22,24 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-require('./js');
-require('./CCClass');
-require('./CCObject');
-require('./callbacks-invoker');
-require('./url');
-require('./deserialize');
-require('./instantiate');
-require('./prefab-info');
-require('./requiring-frame');
-require('./CCSys');
-require('./CCMacro');
-
-if (cc.sys.isBrowser || cc.sys.isNative) {
-    require('./CCAssetLibrary');
-}
-
-if (!CC_JSB) {
-    require('./miniFramework');
-    require('./CCVisibleRect');
-}
+ 
+require('./RendererCanvas');
+require('./RendererWebGL');

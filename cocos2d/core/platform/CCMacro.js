@@ -804,6 +804,14 @@ cc.Macro = {
     INVALID_INDEX: -1,
 
     /**
+     * Default Node tag
+     * @property NODE_TAG_INVALID
+     * @type {Number}
+     * @readonly
+     */
+    NODE_TAG_INVALID: -1,
+
+    /**
      * PI is the ratio of a circle's circumference to its diameter.
      * @property PI
      * @type {Number}
@@ -1022,6 +1030,12 @@ cc.Macro = {
      * @readonly
      */
     DEVICE_MAX_ORIENTATIONS: 2,
+
+
+    DENSITYDPI_DEVICE: 'device-dpi',
+    DENSITYDPI_HIGH: 'high-dpi',
+    DENSITYDPI_MEDIUM: 'medium-dpi',
+    DENSITYDPI_LOW: 'low-dpi',
 
 
     // ------------------- vertex attrib flags -----------------------------

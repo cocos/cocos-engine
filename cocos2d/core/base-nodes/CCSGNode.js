@@ -24,14 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * Default Node tag
- * @constant
- * @type Number
- */
-cc.NODE_TAG_INVALID = -1;
-
-/**
+/*
  * XXX: Yes, nodes might have a sort problem once every 15 days if the game runs at 60 FPS and each frame sprites are reordered.
  */
 cc.s_globalOrderOfArrival = 1;
@@ -149,7 +142,7 @@ _ccsg.Node = cc.Class({
 
         // "whole screen" objects. like Scenes and Layers, should set _ignoreAnchorPointForPosition to true
         _ignoreAnchorPointForPosition: false,
-        tag: cc.NODE_TAG_INVALID,
+        tag: cc.Macro.NODE_TAG_INVALID,
 
         _showNode: false,
         _name: '',                     ///<a string label, an user defined string to identify this node
@@ -1233,7 +1226,7 @@ _ccsg.Node = cc.Class({
      * @see _ccsg.Node#removeChildByTag
      */
     removeChildByTag: function (tag, cleanup) {
-        if (tag === cc.NODE_TAG_INVALID)
+        if (tag === cc.Macro.NODE_TAG_INVALID)
             cc.log(cc._LogInfos.Node.removeChildByTag);
 
         var child = this.getChildByTag(tag);
@@ -2242,16 +2235,6 @@ _ccsg.Node.extend = function (options) {
 
 // to support calling this._super in sub class
 _ccsg.Node.prototype.ctor = _ccsg.Node;
-
-/**
- * Allocates and initializes a node.
- * @deprecated since v3.0, please use new construction instead.
- * @see _ccsg.Node
- * @return {_ccsg.Node}
- */
-_ccsg.Node.create = function () {
-    return new _ccsg.Node();
-};
 
 _ccsg.Node._stateCallbackType = {onEnter: 1, onExit: 2, cleanup: 3, onEnterTransitionDidFinish: 4, updateTransform: 5, onExitTransitionDidStart: 6, sortAllChildren: 7};
 

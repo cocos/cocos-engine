@@ -35,21 +35,8 @@ var srcs = [
     './CCBoot.js',
 
     './cocos2d/core/platform/CCSAXParser.js',
-    './cocos2d/core/platform/miniFramework.js',
     './cocos2d/core/platform/CCEGLView.js',
     './cocos2d/core/platform/CCScreen.js',
-    './cocos2d/core/platform/CCVisibleRect.js',
-
-    './cocos2d/core/support/CCVertex.js',
-    './cocos2d/core/support/TransformUtils.js',
-
-    './cocos2d/core/event-manager/CCTouch.js',
-    './cocos2d/core/event-manager/CCSystemEvent.js',
-    './cocos2d/core/event-manager/CCEventListener.js',
-    './cocos2d/core/event-manager/CCEventManager.js',
-
-    './cocos2d/core/renderer/RendererCanvas.js',
-    './cocos2d/core/renderer/RendererWebGL.js',
 
     './cocos2d/core/base-nodes/BaseNodesPropertyDefine.js',
     './cocos2d/core/base-nodes/CCSGNode.js',
@@ -68,9 +55,6 @@ var srcs = [
     './cocos2d/core/sprites/CCSGSpriteCanvasRenderCmd.js',
     './cocos2d/core/sprites/CCSGSpriteWebGLRenderCmd.js',
     './cocos2d/core/sprites/CCBakeSprite.js',
-    './cocos2d/core/sprites/CCAnimation.js',
-    './cocos2d/core/sprites/CCAnimationCache.js',
-    './cocos2d/core/sprites/CCSpriteFrameCache.js',
     './cocos2d/core/sprites/CCSpriteBatchNode.js',
     './cocos2d/core/sprites/CCSpriteBatchNodeCanvasRenderCmd.js',
     './cocos2d/core/sprites/CCSpriteBatchNodeWebGLRenderCmd.js',
@@ -80,7 +64,6 @@ var srcs = [
     './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js',
 
     './cocos2d/core/CCConfiguration.js',
-    './cocos2d/core/CCCamera.js',
     './cocos2d/core/CCScheduler.js',
 
     './cocos2d/core/CCDrawingPrimitivesCanvas.js',
@@ -124,11 +107,6 @@ var srcs = [
     './cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js',
 
     './cocos2d/core/CCActionManager.js',
-
-    './cocos2d/progress-timer/CCProgressTimer.js',
-    './cocos2d/progress-timer/CCProgressTimerCanvasRenderCmd.js',
-    './cocos2d/progress-timer/CCProgressTimerWebGLRenderCmd.js',
-    './cocos2d/progress-timer/CCActionProgressTimer.js',
 
     './cocos2d/compression/ZipUtils.js',
     './cocos2d/compression/base64.js',

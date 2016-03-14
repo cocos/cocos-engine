@@ -49,12 +49,3 @@ _ccsg.Scene = _ccsg.Node.extend(/** @lends _ccsg.Scene# */{
         this.setContentSize(cc.director.getWinSize());
     }
 });
-
-/**
- * creates a scene
- * @deprecated since v3.0,please use new _ccsg.Scene() instead.
- * @return {_ccsg.Scene}
- */
-_ccsg.Scene.create = function () {
-    return new _ccsg.Scene();
-};

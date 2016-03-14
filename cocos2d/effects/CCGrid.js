@@ -309,19 +309,6 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 });
 
 /**
- * create one cc.GridBase Object
- * @deprecated
- * @param {cc.Size} gridSize
- * @param {cc.Texture2D} [texture=]
- * @param {Boolean} [flipped=]
- * @param {cc.Rect} [rect=]
- * @return {cc.GridBase}
- */
-cc.GridBase.create = function (gridSize, texture, flipped, rect) {
-    return new cc.GridBase(gridSize, texture, flipped, rect);
-};
-
-/**
  * cc.Grid3D is a 3D grid implementation. Each vertex has 3 dimensions: x,y,z
  * @class
  * @extends cc.GridBase
@@ -575,18 +562,6 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
 });
 
 /**
- * create one Grid3D object
- * @deprecated
- * @param {cc.Size} gridSize
- * @param {cc.Texture2D} [texture=]
- * @param {Boolean} [flipped=]
- * @return {cc.Grid3D}
- */
-cc.Grid3D.create = function (gridSize, texture, flipped) {
-    return new cc.Grid3D(gridSize, texture, flipped);
-};
-
-/**
  * cc.TiledGrid3D is a 3D grid implementation. It differs from Grid3D in that   <br/>
  * the tiles can be separated from the grid.
  * @class
@@ -832,15 +807,3 @@ cc.TiledGrid3D = cc.GridBase.extend(/** @lends cc.TiledGrid3D# */{
         this._dirty = true;
     }
 });
-
-/**
- * create one TiledGrid3D object
- * @deprecated since v3.0, please use new cc.TiledGrid3D(gridSize, texture, flipped) instead
- * @param {cc.Size} gridSize
- * @param {cc.Texture2D} [texture=]
- * @param {Boolean} [flipped=]
- * @return {cc.TiledGrid3D}
- */
-cc.TiledGrid3D.create = function (gridSize, texture, flipped) {
-    return new cc.TiledGrid3D(gridSize, texture, flipped);
-};

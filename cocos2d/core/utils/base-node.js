@@ -90,7 +90,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _skewY: 0,
         _localZOrder: 0,
         _globalZOrder: 0,
-        _tag: cc.NODE_TAG_INVALID,
+        _tag: cc.Macro.NODE_TAG_INVALID,
         _opacityModifyRGB: false,
 
         // API
@@ -1085,7 +1085,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @see cc.Node#removeChildByTag
      */
     removeChildByTag: function (tag, cleanup) {
-        if (tag === cc.NODE_TAG_INVALID)
+        if (tag === cc.Macro.NODE_TAG_INVALID)
             cc.log(cc._LogInfos.Node.removeChildByTag);
 
         var child = this.getChildByTag(tag);

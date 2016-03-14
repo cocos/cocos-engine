@@ -1081,19 +1081,6 @@ _ccsg.EditBox.getRect = function (node) {
     return cc.rectApplyAffineTransform(rect, node.getNodeToWorldTransform());
 };
 
-/**
- * create a edit box with size and background-color or
- * @deprecated since v3.0, please use new cc.EditBox(size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) instead
- * @param {cc.Size} size
- * @param {cc.Scale9Sprite } normal9SpriteBg
- * @param {cc.Scale9Sprite } [press9SpriteBg]
- * @param {cc.Scale9Sprite } [disabled9SpriteBg]
- * @return {cc.EditBox}
- */
-_ccsg.EditBox.create = function (size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) {
-    return new _ccsg.EditBox(size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg);
-};
-
 _ccsg.EditBox.InputMode = InputMode;
 _ccsg.EditBox.InputFlag = InputFlag;
 _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
