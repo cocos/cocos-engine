@@ -25,28 +25,6 @@
  ****************************************************************************/
 
 /**
- Orthogonal orientation
- * @constant
- * @type Number
- */
-cc.TMX_ORIENTATION_ORTHO = 0;
-
-/**
- * Hexagonal orientation
- * @constant
- * @type Number
- */
-
-cc.TMX_ORIENTATION_HEX = 1;
-
-/**
- * Isometric orientation
- * @constant
- * @type Number
- */
-cc.TMX_ORIENTATION_ISO = 2;
-
-/**
  * <p>_ccsg.TMXTiledMap knows how to parse and render a TMX map.</p>
  *
  * <p>It adds support for the TMX tiled map format used by http://www.mapeditor.org <br />
@@ -442,7 +420,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
                             if (gid !== 0) {
                                 // Optimization: quick return
                                 // if the layer is invalid (more than 1 tileset per layer) an cc.assert will be thrown later
-                                if (((gid & cc.TMX_TILE_FLIPPED_MASK)>>>0) >= tileset.firstGid) {
+                                if (((gid & cc.TiledMap.TileFlag.FLIPPED_MASK)>>>0) >= tileset.firstGid) {
                                     return tileset;
                                 }
                             }

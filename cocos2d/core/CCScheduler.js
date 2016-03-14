@@ -27,14 +27,6 @@
  * @module cc
  */
 
-/**
- * Minimum priority level for user scheduling.
- * @property PRIORITY_NON_SYSTEM
- * @final
- * @type Number
- */
-cc.PRIORITY_NON_SYSTEM = cc.PRIORITY_SYSTEM + 1;
-
 //data structures
 /**
  * A list double-linked list used for "updates with priority"
@@ -1074,10 +1066,21 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         this.unscheduleAllWithMinPriority(minPriority);
     }
 });
+
 /**
  * Priority level reserved for system services.
  * @property PRIORITY_SYSTEM
- * @final
- * @type Number
+ * @type {Number}
+ * @static
+ * @namespace Scheduler
  */
 cc.Scheduler.PRIORITY_SYSTEM = (-2147483647 - 1);
+
+/**
+ * Minimum priority level for user scheduling.
+ * @property PRIORITY_NON_SYSTEM
+ * @type {Number}
+ * @static
+ * @namespace Scheduler
+ */
+cc.Scheduler.PRIORITY_NON_SYSTEM = cc.Scheduler.PRIORITY_SYSTEM + 1;

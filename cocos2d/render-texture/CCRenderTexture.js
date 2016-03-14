@@ -26,40 +26,6 @@
  ****************************************************************************/
 
 /**
- * enum for jpg
- * @constant
- * @type Number
- */
-cc.IMAGE_FORMAT_JPEG = 0;
-/**
- * enum for png
- * @constant
- * @type Number
- */
-cc.IMAGE_FORMAT_PNG = 1;
-/**
- * enum for raw
- * @constant
- * @type Number
- */
-cc.IMAGE_FORMAT_RAWDATA = 9;
-
-/**
- * @param {Number} x
- * @return {Number}
- * Constructor
- */
-cc.NextPOT = function (x) {
-    x = x - 1;
-    x = x | (x >> 1);
-    x = x | (x >> 2);
-    x = x | (x >> 4);
-    x = x | (x >> 8);
-    x = x | (x >> 16);
-    return x + 1;
-};
-
-/**
  * cc.RenderTexture is a generic rendering target. To render things into it,<br/>
  * simply construct a render target, call begin on it, call visit on any cocos<br/>
  * scenes or objects to render them, and call end. For convenience, render texture<br/>
@@ -103,7 +69,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
      * Constructor of cc.RenderTexture for Canvas
      * @param {Number} width
      * @param {Number} height
-     * @param {cc.IMAGE_FORMAT_JPEG|cc.IMAGE_FORMAT_PNG|cc.IMAGE_FORMAT_RAWDATA} format
+     * @param {cc.ImageFormat.JPEG|cc.ImageFormat.PNG|cc.ImageFormat.RAWDATA} format
      * @param {Number} depthStencilFormat
      * @example
      * // Example
@@ -172,7 +138,7 @@ cc.RenderTexture = _ccsg.Node.extend(/** @lends cc.RenderTexture# */{
      * @function
      * @param {Number} width
      * @param {Number} height
-     * @param {cc.IMAGE_FORMAT_JPEG|cc.IMAGE_FORMAT_PNG|cc.IMAGE_FORMAT_RAWDATA} [format]
+     * @param {cc.ImageFormat.JPEG|cc.ImageFormat.PNG|cc.ImageFormat.RAWDATA} [format]
      * @param {Number} [depthStencilFormat]
      * @return {Boolean}
      */
@@ -397,7 +363,7 @@ cc.defineGetterSetter(_p, "clearColorVal", _p.getClearColor, _p.setClearColor);
  * @deprecated since v3.0 please use new cc.RenderTexture() instead.
  * @param {Number} width
  * @param {Number} height
- * @param {cc.IMAGE_FORMAT_JPEG|cc.IMAGE_FORMAT_PNG|cc.IMAGE_FORMAT_RAWDATA} format
+ * @param {cc.ImageFormat.JPEG|cc.ImageFormat.PNG|cc.ImageFormat.RAWDATA} format
  * @param {Number} depthStencilFormat
  * @return {cc.RenderTexture}
  */

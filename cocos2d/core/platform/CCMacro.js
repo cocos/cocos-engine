@@ -738,26 +738,61 @@ cc.ImageFormat = cc.Enum({
      */
     TIFF: 2,
     /**
-     * Image Format:RAWDATA
-     * @property RAWDATA
-     * @type {Number}
-     * @static
-     */
-    RAWDATA: 3,
-    /**
      * Image Format:WEBP
      * @property WEBP
      * @type {Number}
      * @static
      */
-    WEBP: 4,
+    WEBP: 3,
+    /**
+     * Image Format:PVR
+     * @property PVR
+     * @type {Number}
+     * @static
+     */
+    PVR: 4,
+    /**
+     * Image Format:ETC
+     * @property ETC
+     * @type {Number}
+     * @static
+     */
+    ETC: 5,
+    /**
+     * Image Format:S3TC
+     * @property S3TC
+     * @type {Number}
+     * @static
+     */
+    S3TC: 6,
+    /**
+     * Image Format:ATITC
+     * @property ATITC
+     * @type {Number}
+     * @static
+     */
+    ATITC: 7,
+    /**
+     * Image Format:TGA
+     * @property TGA
+     * @type {Number}
+     * @static
+     */
+    TGA: 8,
+    /**
+     * Image Format:RAWDATA
+     * @property RAWDATA
+     * @type {Number}
+     * @static
+     */
+    RAWDATA: 9,
     /**
      * Image Format:UNKNOWN
      * @property UNKNOWN
      * @type {Number}
      * @static
      */
-    UNKNOWN: 5
+    UNKNOWN: 10
 });
 
 /**
@@ -991,6 +1026,39 @@ cc.macro = {
 
 
     //Possible device orientations
+
+    /**
+     * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
+     * @property WEB_ORIENTATION_PORTRAIT
+     * @type {Number}
+     * @readonly
+     */
+    WEB_ORIENTATION_PORTRAIT: 0,
+
+    /**
+     * Device oriented horizontally, home button on the right (UIDeviceOrientationLandscapeLeft)
+     * @property WEB_ORIENTATION_LANDSCAPE_LEFT
+     * @type {Number}
+     * @readonly
+     */
+    WEB_ORIENTATION_LANDSCAPE_LEFT: -90,
+
+    /**
+     * Device oriented vertically, home button on the top (UIDeviceOrientationPortraitUpsideDown)
+     * @property WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN
+     * @type {Number}
+     * @readonly
+     */
+    WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN: 180,
+
+    /**
+     * Device oriented horizontally, home button on the left (UIDeviceOrientationLandscapeRight)
+     * @property WEB_ORIENTATION_LANDSCAPE_RIGHT
+     * @type {Number}
+     * @readonly
+     */
+    WEB_ORIENTATION_LANDSCAPE_RIGHT: 90,
+
     /**
      * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
      * @property DEVICE_ORIENTATION_PORTRAIT

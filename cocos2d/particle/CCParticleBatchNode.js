@@ -28,13 +28,6 @@
  */
 
 /**
- * paticle default capacity
- * @constant
- * @type Number
- */
-cc.PARTICLE_DEFAULT_CAPACITY = 500;
-
-/**
  * <p>
  *    cc.ParticleBatchNode is like a batch node: if it contains children, it will draw them in 1 single OpenGL call  <br/>
  *    (often known as "batch draw").  </br>
