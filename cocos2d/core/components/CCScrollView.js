@@ -78,6 +78,7 @@ var ScrollView = cc.Class({
         this._outOfBoundaryAmount = cc.p(0, 0);
         this._outOfBoundaryAmountDirty = true;
         this._stopMouseWheel = false;
+        this._mouseWheelEventElapsedTime = 0.0;
     },
 
     properties: {
@@ -469,24 +470,36 @@ var ScrollView = cc.Class({
             deltaMove = cc.p(event.getScrollY() * wheelPrecision, 0);
         }
 
+        this._mouseWheelEventElapsedTime = 0;
         this._processDeltaMove(deltaMove);
 
         if(!this._stopMouseWheel) {
             this._handlePressLogic();
-            this.schedule(this._checkMouseWheel, 0.01);
+            this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
         }
         event.stopPropagation();
     },
 
-    _checkMouseWheel: function() {
+    _checkMouseWheel: function(dt) {
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
 
         if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
             this._processInertiaScroll();
             this.unschedule(this._checkMouseWheel);
             this._stopMouseWheel = false;
+            return;
         }
+
+        this._mouseWheelEventElapsedTime += dt;
+
+        //mouse wheel event is ended
+        if (this._mouseWheelEventElapsedTime > 1.0 / 10) {
+            this._onScrollBarTouchEnded();
+            this.unschedule(this._checkMouseWheel);
+            this._stopMouseWheel = false;
+        }
+
     },
 
     _calculateMovePercentDelta: function(options) {
