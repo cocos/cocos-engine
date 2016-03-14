@@ -120,8 +120,8 @@ proto.rendering = function (ctx) {
     }
 
     if (node._debugBones || node._debugSlots) {
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        //cc.kmGLPushMatrixWitMat4(this._stackMatrix);
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        //cc.math.glPushMatrixWitMat4(this._stackMatrix);
         cc.current_stack.stack.push(cc.current_stack.top);
         cc.current_stack.top = this._stackMatrix;
         var drawingUtil = cc._drawingUtil;
@@ -173,7 +173,7 @@ proto.rendering = function (ctx) {
                 }
             }
         }
-        cc.kmGLPopMatrix();
+        cc.math.glPopMatrix();
     }
 };
 

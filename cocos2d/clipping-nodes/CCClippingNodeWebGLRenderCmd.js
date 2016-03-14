@@ -144,28 +144,28 @@
 
     proto._drawFullScreenQuadClearStencil = function () {
         // draw a fullscreen solid rectangle to clear the stencil buffer
-        var projStack = cc.projection_matrix_stack;
-        //cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        //cc.kmGLPushMatrix();
-        //cc.kmGLLoadIdentity();
+        var projStack = cc.math.projection_matrix_stack;
+        //cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        //cc.math.glPushMatrix();
+        //cc.math.glLoadIdentity();
         projStack.push();
         projStack.top.identity();
 
-        //cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        //cc.kmGLPushMatrix();
-        //cc.kmGLLoadIdentity();
-        var modelViewStack = cc.modelview_matrix_stack;
+        //cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        //cc.math.glPushMatrix();
+        //cc.math.glLoadIdentity();
+        var modelViewStack = cc.math.modelview_matrix_stack;
         modelViewStack.push();
         modelViewStack.top.identity();
 
         cc._drawingUtil.drawSolidRect(cc.p(-1, -1), cc.p(1, 1), cc.color(255, 255, 255, 255));
 
-        //cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        //cc.kmGLPopMatrix();
+        //cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        //cc.math.glPopMatrix();
         projStack.pop();
 
-        //cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        //cc.kmGLPopMatrix();
+        //cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        //cc.math.glPopMatrix();
         modelViewStack.pop();
     };
 

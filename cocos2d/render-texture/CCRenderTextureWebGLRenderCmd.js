@@ -222,10 +222,10 @@
     proto.begin = function(){
         var node = this._node;
         // Save the current matrix
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLPushMatrix();
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLPushMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glPushMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glPushMatrix();
 
         var gl = cc._renderContext;
 
@@ -241,7 +241,7 @@
 
         var orthoMatrix = cc.math.Matrix4.createOrthographicProjection(-1.0 / widthRatio, 1.0 / widthRatio,
             -1.0 / heightRatio, 1.0 / heightRatio, -1, 1);
-        cc.kmGLMultMatrix(orthoMatrix);
+        cc.math.glMultMatrix(orthoMatrix);
 
         //calculate viewport
         var viewport = new cc.Rect(0, 0, 0, 0);
@@ -321,10 +321,10 @@
 
         //restore viewport
         director.setViewport();
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLPopMatrix();
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLPopMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glPopMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glPopMatrix();
 
         /* var size = director.getWinSizeInPixels();
 
@@ -382,6 +382,6 @@
          locGrid.afterDraw(this);*/
 
         this._dirtyFlag = 0;
-        cc.kmGLPopMatrix();
+        cc.math.glPopMatrix();
     };
 })();

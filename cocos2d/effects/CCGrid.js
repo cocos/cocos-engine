@@ -296,15 +296,15 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
         var gl = cc._renderContext;
         gl.viewport(0, 0, winSize.width , winSize.height);
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLLoadIdentity();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glLoadIdentity();
 
         var orthoMatrix = cc.math.Matrix4.createOrthographicProjection(0, winSize.width, 0, winSize.height, -1, 1);
-        cc.kmGLMultMatrix(orthoMatrix);
+        cc.math.glMultMatrix(orthoMatrix);
 
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLLoadIdentity();
-        cc.setProjectionMatrixDirty()
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glLoadIdentity();
+        cc.setProjectionMatrixDirty();
     }
 });
 

@@ -16,10 +16,10 @@
   benchmarks.add(new Benchmark(kernelConfig));
 
   // Benchmark data, initialization and kernel functions
-  var T1 = new cc.kmMat4();
-  var T2 = new cc.kmMat4();
-  var T1x4 = new cc.kmMat4();
-  var T2x4 = new cc.kmMat4();
+  var T1 = new cc.math.Matrix4();
+  var T2 = new cc.math.Matrix4();
+  var T1x4 = new cc.math.Matrix4();
+  var T2x4 = new cc.math.Matrix4();
 
   function equals(A, B) {
     for (var i = 0; i < 16; ++i) {

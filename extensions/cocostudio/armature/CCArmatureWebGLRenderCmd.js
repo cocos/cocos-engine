@@ -39,9 +39,9 @@
         var node = this._node;
 
         if(!dontChangeMatrix){
-            cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-            cc.kmGLPushMatrix();
-            cc.kmGLLoadMatrix(this._stackMatrix);
+            cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+            cc.math.glPushMatrix();
+            cc.math.glLoadMatrix(this._stackMatrix);
         }
 
         var locChildren = node._children;
@@ -88,7 +88,7 @@
             }
         }
         if(!dontChangeMatrix)
-            cc.kmGLPopMatrix();
+            cc.math.glPopMatrix();
     };
 
     proto.initShaderCache = function(){

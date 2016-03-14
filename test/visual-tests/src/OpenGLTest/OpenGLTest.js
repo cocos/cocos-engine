@@ -43,13 +43,13 @@ cc.GLNode = cc.GLNode || _ccsg.Node.extend({
     init:function(){
         this._renderCmd._needDraw = true;
         this._renderCmd.rendering =  function(ctx){
-            cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-            cc.kmGLPushMatrix();
-            cc.kmGLLoadMatrix(this._stackMatrix);
+            cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+            cc.math.glPushMatrix();
+            cc.math.glLoadMatrix(this._stackMatrix);
 
             this._node.draw(ctx);
 
-            cc.kmGLPopMatrix();
+            cc.math.glPopMatrix();
         };
     },
     draw:function(ctx){

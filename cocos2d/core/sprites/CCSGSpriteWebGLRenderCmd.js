@@ -471,8 +471,8 @@
         if (cc.Macro.SPRITE_DEBUG_DRAW === 0 && !node._showNode)
             return;
 
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        //cc.kmGLPushMatrixWitMat4(node._stackMatrix);
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        //cc.math.glPushMatrixWitMat4(node._stackMatrix);
         cc.current_stack.stack.push(cc.current_stack.top);
         cc.current_stack.top = this._stackMatrix;
 

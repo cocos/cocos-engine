@@ -26,11 +26,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc.HashUniformEntry = function (value, location, hh) {
+var HashUniformEntry = function (value, location, hh) {
     this.value = value;
     this.location = location;
     this.hh = hh || {};
 };
+
+var math = cc.math;
 
 /**
  * Class that implements a WebGL program
@@ -58,7 +60,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
                 element = this._hashForUniforms[i];
 
         if (!element) {
-            element = new cc.HashUniformEntry();
+            element = new HashUniformEntry();
             // key
             element.location = location;
             // value
@@ -543,14 +545,14 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * will update the builtin uniforms if they are different than the previous call for this same shader program.
      */
     setUniformsForBuiltins: function () {
-        var matrixP = new cc.math.Matrix4();
-        var matrixMV = new cc.math.Matrix4();
-        var matrixMVP = new cc.math.Matrix4();
+        var matrixP = new math.Matrix4();
+        var matrixMV = new math.Matrix4();
+        var matrixMVP = new math.Matrix4();
 
-        cc.kmGLGetMatrix(cc.KM_GL_PROJECTION, matrixP);
-        cc.kmGLGetMatrix(cc.KM_GL_MODELVIEW, matrixMV);
+        math.glGetMatrix(math.KM_GL_PROJECTION, matrixP);
+        math.glGetMatrix(math.KM_GL_MODELVIEW, matrixMV);
 
-        cc.kmMat4Multiply(matrixMVP, matrixP, matrixMV);
+        math.mat4Multiply(matrixMVP, matrixP, matrixMV);
 
         this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], matrixP.mat, 1);
         this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], matrixMV.mat, 1);
@@ -576,14 +578,14 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         if(!node || !node._renderCmd)
             return;
 
-        var matrixP = new cc.math.Matrix4();
-        //var matrixMV = new cc.kmMat4();
-        var matrixMVP = new cc.math.Matrix4();
+        var matrixP = new math.Matrix4();
+        //var matrixMV = new math.Matrix4();
+        var matrixMVP = new math.Matrix4();
 
-        cc.kmGLGetMatrix(cc.KM_GL_PROJECTION, matrixP);
-        //cc.kmGLGetMatrix(cc.KM_GL_MODELVIEW, node._stackMatrix);
+        math.glGetMatrix(math.KM_GL_PROJECTION, matrixP);
+        //math.glGetMatrix(math.KM_GL_MODELVIEW, node._stackMatrix);
 
-        cc.kmMat4Multiply(matrixMVP, matrixP, node._renderCmd._stackMatrix);
+        math.mat4Multiply(matrixMVP, matrixP, node._renderCmd._stackMatrix);
 
         this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], matrixP.mat, 1);
         this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], node._renderCmd._stackMatrix.mat, 1);
@@ -610,24 +612,24 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      */
     setUniformForModelViewProjectionMatrix: function () {
         this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVPMATRIX], false,
-            cc.getMat4MultiplyValue(cc.projection_matrix_stack.top, cc.modelview_matrix_stack.top));
+            math.getMat4MultiplyValue(math.projection_matrix_stack.top, math.modelview_matrix_stack.top));
     },
 
     setUniformForModelViewProjectionMatrixWithMat4: function (swapMat4) {
-        cc.kmMat4Multiply(swapMat4, cc.projection_matrix_stack.top, cc.modelview_matrix_stack.top);
+        math.mat4Multiply(swapMat4, math.projection_matrix_stack.top, math.modelview_matrix_stack.top);
         this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVPMATRIX], false, swapMat4.mat);
     },
 
     setUniformForModelViewAndProjectionMatrixWithMat4: function () {
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], false, cc.modelview_matrix_stack.top.mat);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], false, math.modelview_matrix_stack.top.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);
     },
 
     _setUniformForMVPMatrixWithMat4: function(modelViewMatrix){
         if(!modelViewMatrix)
             throw new Error("modelView matrix is undefined.");
         this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], false, modelViewMatrix.mat);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);
     },
 
     /**

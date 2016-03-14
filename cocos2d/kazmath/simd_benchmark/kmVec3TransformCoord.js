@@ -16,12 +16,12 @@
   benchmarks.add(new Benchmark(kernelConfig));
 
   // Benchmark data, initialization and kernel functions
-  var V = new cc.kmVec3();
-  var T = new cc.kmMat4();
-  var Out = new cc.kmVec3();
-  var Vx4 = new cc.kmVec3();
-  var Tx4 = new cc.kmMat4();
-  var Outx4 = new cc.kmVec3();
+  var V = new cc.math.Vec3();
+  var T = new cc.math.Matrix4();
+  var Out = new cc.math.Vec3();
+  var Vx4 = new cc.math.Vec3();
+  var Tx4 = new cc.math.Matrix4();
+  var Outx4 = new cc.math.Vec3();
 
   function init() {
     T.mat[0] = 1.0;

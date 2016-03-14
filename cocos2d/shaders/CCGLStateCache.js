@@ -51,7 +51,7 @@ if (ENABLE_GL_STATE_CACHE) {
  * @function
  */
 cc.glInvalidateStateCache = function () {
-    cc.kmGLFreeAll();
+    cc.math.glFreeAll();
     cc._currentProjectionMatrix = -1;
     cc._vertexAttribPosition = false;
     cc._vertexAttribColor = false;

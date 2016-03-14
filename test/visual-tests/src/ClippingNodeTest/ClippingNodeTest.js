@@ -534,20 +534,20 @@ var RawStencilBufferTest = BaseClippingNodeTest.extend({
 
             cc._drawingUtil.drawSolidRect(cc.p(0, 0), stencilPoint, cc.color(255, 255, 255, 255));
 
-            cc.kmGLPushMatrix();
+            cc.math.glPushMatrix();
             this.transform();
             this._sprite.visit();
-            cc.kmGLPopMatrix();
+            cc.math.glPopMatrix();
 
             this.setupStencilForDrawingOnPlane(i);
             //cc.checkGLErrorDebug();
 
             cc._drawingUtil.drawSolidRect(cc.p(0, 0), winPoint, _planeColor[i]);
 
-            cc.kmGLPushMatrix();
+            cc.math.glPushMatrix();
             this.transform();
             this._sprite.visit();
-            cc.kmGLPopMatrix();
+            cc.math.glPopMatrix();
         }
 
         gl.disable(gl.STENCIL_TEST);

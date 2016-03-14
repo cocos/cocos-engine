@@ -119,7 +119,7 @@ cc.Camera = cc._Class.extend({
             this._lookupMatrix.lookAt(eye, center, up);
             this._dirty = false;
         }
-        cc.kmGLMultMatrix( this._lookupMatrix);
+        cc.math.glMultMatrix( this._lookupMatrix);
     },
 
     _locateForRenderer: function(matrix){
