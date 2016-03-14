@@ -455,12 +455,13 @@ var TiledMap = cc.Class({
             var tmxLayer = child.getComponent(cc.TiledLayer);
             if (tmxLayer) {
                 var layerName = tmxLayer.getLayerName();
-                if (!layerName || layerName.length == 0) {
+                if (!layerName) {
                     layerName = child._name;
                 }
 
                 if (layerNames.indexOf(layerName) < 0) {
-                    if (child._components.length <= 1) {
+                    if (child._components.length === 1) {
+                        // only has TiledLayer component
                         // the tmx layer should be removed
                         needRemove.push(child);
                     }
