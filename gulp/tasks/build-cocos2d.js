@@ -32,7 +32,6 @@ var es = require('event-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
 var srcs = [
-    './Base64Images.js',
     './CCBoot.js',
 
     './cocos2d/core/platform/CCSAXParser.js',
