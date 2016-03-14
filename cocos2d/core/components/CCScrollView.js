@@ -473,8 +473,8 @@ var ScrollView = cc.Class({
 
         if(!this._stopMouseWheel) {
             this._handlePressLogic();
+            this.schedule(this._checkMouseWheel, 0.01);
             this._stopMouseWheel = true;
-            this._checkMouseWheel();
         }
         event.stopPropagation();
     },
@@ -484,6 +484,7 @@ var ScrollView = cc.Class({
 
         if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
             this._processInertiaScroll();
+            this.unschedule(this._checkMouseWheel);
             this._stopMouseWheel = false;
         }
     },

@@ -314,6 +314,7 @@ var Button = cc.Class({
     },
 
     _onTouchMove: function (event) {
+        if (!this.interactable || !this.enabledInHierarchy) return;
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         var touch = event.touch;
@@ -331,6 +332,8 @@ var Button = cc.Class({
     },
 
     _onTouchEnded: function () {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
         if (this._pressed) {
             cc.Component.EventHandler.emitEvents(this.clickEvents);
         }
@@ -339,6 +342,8 @@ var Button = cc.Class({
     },
 
     _onTouchCancel: function () {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
         this._pressed = false;
         this._updateState();
     },
