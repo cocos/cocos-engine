@@ -211,7 +211,7 @@ var Component = cc.Class({
         });
 
         // Support for Scheduler
-        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
     },
 
     properties: {
@@ -707,7 +707,7 @@ var Component = cc.Class({
         repeat = isNaN(repeat) ? cc.Macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        cc.director.getScheduler().scheduleCallbackForTarget(this, callback, interval, repeat, delay, !this.enabledInHierarchy);
+        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy, this.__instanceId);
     },
 
     /**
