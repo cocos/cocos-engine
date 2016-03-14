@@ -276,6 +276,17 @@ var TiledLayer = cc.Class({
     },
 
     /**
+     * Set the texture of cc.SpriteBatchNode
+     * @method setTexture
+     * @param {cc.Texture2D} texture
+     */
+    setTexture: function(texture){
+        if (this._sgNode) {
+            this._sgNode.setTexture(texture);
+        }
+    },
+
+    /**
      * Gets layer size.
      * @method getLayerSize
      * @return {cc.Size}
