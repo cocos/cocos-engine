@@ -261,27 +261,27 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
     /**
      * It will create 4 uniforms:
-     *  cc.UNIFORM_PMATRIX
-     *  cc.UNIFORM_MVMATRIX
-     *  cc.UNIFORM_MVPMATRIX
-     *  cc.UNIFORM_SAMPLER
+     *  cc.Macro.UNIFORM_PMATRIX
+     *  cc.Macro.UNIFORM_MVMATRIX
+     *  cc.Macro.UNIFORM_MVPMATRIX
+     *  cc.Macro.UNIFORM_SAMPLER
      */
     updateUniforms: function () {
-        this._uniforms[cc.UNIFORM_PMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_PMATRIX_S);
-        this._uniforms[cc.UNIFORM_MVMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_MVMATRIX_S);
-        this._uniforms[cc.UNIFORM_MVPMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_MVPMATRIX_S);
-        this._uniforms[cc.UNIFORM_TIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_TIME_S);
-        this._uniforms[cc.UNIFORM_SINTIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_SINTIME_S);
-        this._uniforms[cc.UNIFORM_COSTIME] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_COSTIME_S);
+        this._uniforms[cc.Macro.UNIFORM_PMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_PMATRIX_S);
+        this._uniforms[cc.Macro.UNIFORM_MVMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_MVMATRIX_S);
+        this._uniforms[cc.Macro.UNIFORM_MVPMATRIX] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_MVPMATRIX_S);
+        this._uniforms[cc.Macro.UNIFORM_TIME] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_TIME_S);
+        this._uniforms[cc.Macro.UNIFORM_SINTIME] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_SINTIME_S);
+        this._uniforms[cc.Macro.UNIFORM_COSTIME] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_COSTIME_S);
 
-        this._usesTime = (this._uniforms[cc.UNIFORM_TIME] != null || this._uniforms[cc.UNIFORM_SINTIME] != null || this._uniforms[cc.UNIFORM_COSTIME] != null);
+        this._usesTime = (this._uniforms[cc.Macro.UNIFORM_TIME] != null || this._uniforms[cc.Macro.UNIFORM_SINTIME] != null || this._uniforms[cc.Macro.UNIFORM_COSTIME] != null);
 
-        this._uniforms[cc.UNIFORM_RANDOM01] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_RANDOM01_S);
-        this._uniforms[cc.UNIFORM_SAMPLER] = this._glContext.getUniformLocation(this._programObj, cc.UNIFORM_SAMPLER_S);
+        this._uniforms[cc.Macro.UNIFORM_RANDOM01] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_RANDOM01_S);
+        this._uniforms[cc.Macro.UNIFORM_SAMPLER] = this._glContext.getUniformLocation(this._programObj, cc.Macro.UNIFORM_SAMPLER_S);
 
         this.use();
         // Since sample most probably won't change, set it to 0 now.
-        this.setUniformLocationWith1i(this._uniforms[cc.UNIFORM_SAMPLER], 0);
+        this.setUniformLocationWith1i(this._uniforms[cc.Macro.UNIFORM_SAMPLER], 0);
     },
 
     /**
@@ -303,7 +303,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @returns {WebGLUniformLocation}
      */
     getUniformMVPMatrix: function () {
-        return this._uniforms[cc.UNIFORM_MVPMATRIX];
+        return this._uniforms[cc.Macro.UNIFORM_MVPMATRIX];
     },
 
     /**
@@ -311,7 +311,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @returns {WebGLUniformLocation}
      */
     getUniformSampler: function () {
-        return this._uniforms[cc.UNIFORM_SAMPLER];
+        return this._uniforms[cc.Macro.UNIFORM_SAMPLER];
     },
 
     /**
@@ -552,9 +552,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
         cc.kmMat4Multiply(matrixMVP, matrixP, matrixMV);
 
-        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], matrixP.mat, 1);
-        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], matrixMV.mat, 1);
-        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], matrixMVP.mat, 1);
+        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], matrixP.mat, 1);
+        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], matrixMV.mat, 1);
+        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVPMATRIX], matrixMVP.mat, 1);
 
         if (this._usesTime) {
             var director = cc.director;
@@ -563,13 +563,13 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
             // Getting Mach time per frame per shader using time could be extremely expensive.
             var time = director.getTotalFrames() * director.getAnimationInterval();
 
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_TIME], time / 10.0, time, time * 2, time * 4);
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_SINTIME], time / 8.0, time / 4.0, time / 2.0, Math.sin(time));
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_COSTIME], time / 8.0, time / 4.0, time / 2.0, Math.cos(time));
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_TIME], time / 10.0, time, time * 2, time * 4);
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_SINTIME], time / 8.0, time / 4.0, time / 2.0, Math.sin(time));
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_COSTIME], time / 8.0, time / 4.0, time / 2.0, Math.cos(time));
         }
 
-        if (this._uniforms[cc.UNIFORM_RANDOM01] !== -1)
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_RANDOM01], Math.random(), Math.random(), Math.random(), Math.random());
+        if (this._uniforms[cc.Macro.UNIFORM_RANDOM01] !== -1)
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_RANDOM01], Math.random(), Math.random(), Math.random(), Math.random());
     },
 
     _setUniformsForBuiltinsForRenderer: function (node) {
@@ -585,9 +585,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
         cc.kmMat4Multiply(matrixMVP, matrixP, node._renderCmd._stackMatrix);
 
-        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], matrixP.mat, 1);
-        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], node._renderCmd._stackMatrix.mat, 1);
-        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], matrixMVP.mat, 1);
+        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], matrixP.mat, 1);
+        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], node._renderCmd._stackMatrix.mat, 1);
+        this.setUniformLocationWithMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVPMATRIX], matrixMVP.mat, 1);
 
         if (this._usesTime) {
             var director = cc.director;
@@ -596,38 +596,38 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
             // Getting Mach time per frame per shader using time could be extremely expensive.
             var time = director.getTotalFrames() * director.getAnimationInterval();
 
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_TIME], time / 10.0, time, time * 2, time * 4);
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_SINTIME], time / 8.0, time / 4.0, time / 2.0, Math.sin(time));
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_COSTIME], time / 8.0, time / 4.0, time / 2.0, Math.cos(time));
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_TIME], time / 10.0, time, time * 2, time * 4);
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_SINTIME], time / 8.0, time / 4.0, time / 2.0, Math.sin(time));
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_COSTIME], time / 8.0, time / 4.0, time / 2.0, Math.cos(time));
         }
 
-        if (this._uniforms[cc.UNIFORM_RANDOM01] !== -1)
-            this.setUniformLocationWith4f(this._uniforms[cc.UNIFORM_RANDOM01], Math.random(), Math.random(), Math.random(), Math.random());
+        if (this._uniforms[cc.Macro.UNIFORM_RANDOM01] !== -1)
+            this.setUniformLocationWith4f(this._uniforms[cc.Macro.UNIFORM_RANDOM01], Math.random(), Math.random(), Math.random(), Math.random());
     },
 
     /**
      * will update the MVP matrix on the MVP uniform if it is different than the previous call for this same shader program.
      */
     setUniformForModelViewProjectionMatrix: function () {
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], false,
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVPMATRIX], false,
             cc.getMat4MultiplyValue(cc.projection_matrix_stack.top, cc.modelview_matrix_stack.top));
     },
 
     setUniformForModelViewProjectionMatrixWithMat4: function (swapMat4) {
         cc.kmMat4Multiply(swapMat4, cc.projection_matrix_stack.top, cc.modelview_matrix_stack.top);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVPMATRIX], false, swapMat4.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVPMATRIX], false, swapMat4.mat);
     },
 
     setUniformForModelViewAndProjectionMatrixWithMat4: function () {
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], false, cc.modelview_matrix_stack.top.mat);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], false, cc.modelview_matrix_stack.top.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
     },
 
     _setUniformForMVPMatrixWithMat4: function(modelViewMatrix){
         if(!modelViewMatrix)
             throw new Error("modelView matrix is undefined.");
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_MVMATRIX], false, modelViewMatrix.mat);
-        this._glContext.uniformMatrix4fv(this._uniforms[cc.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_MVMATRIX], false, modelViewMatrix.mat);
+        this._glContext.uniformMatrix4fv(this._uniforms[cc.Macro.UNIFORM_PMATRIX], false, cc.projection_matrix_stack.top.mat);
     },
 
     /**
@@ -753,7 +753,7 @@ cc.GLProgram._isHighpSupported = function(){
  * @param {_ccsg.Node} node
  * @param {cc.GLProgram} program The shader program which fetches from CCShaderCache.
  * @example
- * cc.setGLProgram(node, cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
+ * cc.setGLProgram(node, cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR));
  */
 cc.setProgram = function (node, program) {
     node.shaderProgram = program;

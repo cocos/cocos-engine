@@ -290,7 +290,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this.emitterMode = _ccsg.ParticleSystem.Mode.GRAVITY;
         this.modeA = new _ccsg.ParticleSystem.ModeA();
         this.modeB = new _ccsg.ParticleSystem.ModeB();
-        this._blendFunc = {src:cc.BLEND_SRC, dst:cc.BLEND_DST};
+        this._blendFunc = {src:cc.Macro.BLEND_SRC, dst:cc.Macro.BLEND_DST};
 
         this._particles = [];
         this._sourcePosition = cc.p(0, 0);
@@ -1128,7 +1128,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      *    dest blend function = GL_ONE;
      */
     isBlendAdditive:function () {
-        return (( this._blendFunc.src === cc.SRC_ALPHA && this._blendFunc.dst === cc.ONE) || (this._blendFunc.src === cc.ONE && this._blendFunc.dst === cc.ONE));
+        return (( this._blendFunc.src === cc.Macro.SRC_ALPHA && this._blendFunc.dst === cc.Macro.ONE) || 
+                (this._blendFunc.src === cc.Macro.ONE && this._blendFunc.dst === cc.Macro.ONE));
     },
 
     /**
@@ -1140,8 +1141,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
     setBlendAdditive:function (isBlendAdditive) {
         var locBlendFunc = this._blendFunc;
         if (isBlendAdditive) {
-            locBlendFunc.src = cc.SRC_ALPHA;
-            locBlendFunc.dst = cc.ONE;
+            locBlendFunc.src = cc.Macro.SRC_ALPHA;
+            locBlendFunc.dst = cc.Macro.ONE;
         } else {
             this._renderCmd._setBlendAdditive();
         }
@@ -1388,13 +1389,13 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
                         var imageFormat = cc.getImageFormatByData(buffer);
 
-                        if(imageFormat !== cc.FMT_TIFF && imageFormat !== cc.FMT_PNG){
+                        if(imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG){
                             cc.log("_ccsg.ParticleSystem: unknown image format with Data");
                             return false;
                         }
 
                         var canvasObj = document.createElement("canvas");
-                        if(imageFormat === cc.FMT_PNG){
+                        if(imageFormat === cc.ImageFormat.PNG){
                             var myPngObj = new cc.PNGReader(buffer);
                             myPngObj.render(canvasObj);
                         } else {
@@ -1444,8 +1445,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this._isActive = true;
 
         // default blend function
-        this._blendFunc.src = cc.BLEND_SRC;
-        this._blendFunc.dst = cc.BLEND_DST;
+        this._blendFunc.src = cc.Macro.BLEND_SRC;
+        this._blendFunc.dst = cc.Macro.BLEND_DST;
 
         // default movement type;
         this.positionType = _ccsg.ParticleSystem.Type.FREE;
@@ -1830,12 +1831,12 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         if (locTexture && locTexture instanceof cc.Texture2D) {
             this._opacityModifyRGB = false;
             var locBlendFunc = this._blendFunc;
-            if (locBlendFunc.src === cc.BLEND_SRC && locBlendFunc.dst === cc.BLEND_DST) {
+            if (locBlendFunc.src === cc.Macro.BLEND_SRC && locBlendFunc.dst === cc.Macro.BLEND_DST) {
                 if (locTexture.hasPremultipliedAlpha()) {
                     this._opacityModifyRGB = true;
                 } else {
-                    locBlendFunc.src = cc.SRC_ALPHA;
-                    locBlendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
+                    locBlendFunc.src = cc.Macro.SRC_ALPHA;
+                    locBlendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
                 }
             }
         }

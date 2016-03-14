@@ -278,5 +278,5 @@ cc.Camera = cc._Class.extend({
  * @return {Number}
  */
 cc.Camera.getZEye = function () {
-    return cc.FLT_EPSILON;
+    return cc.Macro.FLT_EPSILON;
 };

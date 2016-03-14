@@ -57,6 +57,7 @@ require('./cocos2d/core/platform/CCInputManager');
 require('./cocos2d/core/platform/CCInputExtension');
 require('./cocos2d/core/event');
 require('./cocos2d/core/platform/CCSys');
+require('./cocos2d/core/platform/CCMacro');
 require('./cocos2d/core/load-pipeline');
 require('./cocos2d/core/CCDirector');
 require('./cocos2d/core/CCDirectorWebGL');

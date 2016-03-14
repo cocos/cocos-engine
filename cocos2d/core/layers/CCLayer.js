@@ -191,7 +191,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
      */
     ctor: function(color, width, height){
         cc.Layer.prototype.ctor.call(this);
-        this._blendFunc = new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
+        this._blendFunc = new cc.BlendFunc(cc.Macro.SRC_ALPHA, cc.Macro.ONE_MINUS_SRC_ALPHA);
         cc.LayerColor.prototype.init.call(this, color, width, height);
     },
 
@@ -204,7 +204,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
      */
     init: function (color, width, height) {
         if (cc._renderType !== cc.game.RENDER_TYPE_CANVAS)
-            this.shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_COLOR);
+            this.shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_COLOR);
 
         var winSize = cc.director.getWinSize();
         color = color || cc.color(0, 0, 0, 255);

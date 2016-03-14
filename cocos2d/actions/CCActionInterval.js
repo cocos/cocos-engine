@@ -1093,7 +1093,7 @@ cc.MoveBy = cc.ActionInterval.extend({
             var x = this._positionDelta.x * dt;
             var y = this._positionDelta.y * dt;
             var locStartPosition = this._startPosition;
-            if (cc.ENABLE_STACKABLE_ACTIONS) {
+            if (cc.Macro.ENABLE_STACKABLE_ACTIONS) {
                 var targetX = this.target.getPositionX();
                 var targetY = this.target.getPositionY();
                 var locPreviousPosition = this._previousPosition;
@@ -1460,7 +1460,7 @@ cc.JumpBy = cc.ActionInterval.extend({
 
             var x = this._delta.x * dt;
             var locStartPosition = this._startPosition;
-            if (cc.ENABLE_STACKABLE_ACTIONS) {
+            if (cc.Macro.ENABLE_STACKABLE_ACTIONS) {
                 var targetX = this.target.getPositionX();
                 var targetY = this.target.getPositionY();
                 var locPreviousPosition = this._previousPosition;
@@ -1680,7 +1680,7 @@ cc.BezierBy = cc.ActionInterval.extend({
             var y = cc.bezierAt(ya, yb, yc, yd, dt);
 
             var locStartPosition = this._startPosition;
-            if (cc.ENABLE_STACKABLE_ACTIONS) {
+            if (cc.Macro.ENABLE_STACKABLE_ACTIONS) {
                 var targetX = this.target.getPositionX();
                 var targetY = this.target.getPositionY();
                 var locPreviousPosition = this._previousPosition;

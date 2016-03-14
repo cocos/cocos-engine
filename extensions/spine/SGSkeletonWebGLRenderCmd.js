@@ -28,7 +28,7 @@ var spine = sp.spine;
 sp._SGSkeleton.WebGLRenderCmd = function (renderableObject) {
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
     this._needDraw = true;
-    this.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR));
+    this.setShaderProgram(cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR));
     this._tmpQuad = new cc.V3F_C4B_T2F_Quad();
 };
 
@@ -86,13 +86,13 @@ proto.rendering = function (ctx) {
             blendMode = slot.data.blendMode;
             switch (blendMode) {
             case spine.BlendMode.additive:
-                cc.glBlendFunc(premultiAlpha ? cc.ONE : cc.SRC_ALPHA, cc.ONE);
+                cc.glBlendFunc(premultiAlpha ? cc.Macro.ONE : cc.Macro.SRC_ALPHA, cc.Macro.ONE);
                 break;
             case spine.BlendMode.multiply:
-                cc.glBlendFunc(cc.DST_COLOR, cc.ONE_MINUS_SRC_ALPHA);
+                cc.glBlendFunc(cc.Macro.DST_COLOR, cc.Macro.ONE_MINUS_SRC_ALPHA);
                 break;
             case spine.BlendMode.screen:
-                cc.glBlendFunc(cc.ONE, cc.ONE_MINUS_SRC_COLOR);
+                cc.glBlendFunc(cc.Macro.ONE, cc.Macro.ONE_MINUS_SRC_COLOR);
                 break;
             default:
                 cc.glBlendFunc(locBlendFunc.src, locBlendFunc.dst);
