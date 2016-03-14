@@ -25,6 +25,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/*
+ * @param {Number} x
+ * @return {Number}
+ * Constructor
+ */
+var NextPOT = function (x) {
+    x = x - 1;
+    x = x | (x >> 1);
+    x = x | (x >> 2);
+    x = x | (x >> 4);
+    x = x | (x >> 8);
+    x = x | (x >> 16);
+    return x + 1;
+};
+
 /**
  * Base class for cc.Grid
  * @class
@@ -188,8 +203,8 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
             var director = cc.director;
             var winSize = director.getWinSizeInPixels();
 
-            var POTWide = cc.NextPOT(winSize.width);
-            var POTHigh = cc.NextPOT(winSize.height);
+            var POTWide = NextPOT(winSize.width);
+            var POTHigh = NextPOT(winSize.height);
 
             var data = new Uint8Array(POTWide * POTHigh * 4);
             if (!data) {
@@ -267,7 +282,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
             stackMatrix.multiply(translation);
         }
 
-        cc.glBindTexture2D(this._texture);
+        cc.gl.bindTexture2D(this._texture);
         this.beforeBlit();
         this.blit(target);
         this.afterBlit();
@@ -304,7 +319,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
         cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
         cc.math.glLoadIdentity();
-        cc.setProjectionMatrixDirty();
+        cc.gl.setProjectionMatrixDirty();
     }
 });
 
@@ -436,7 +451,7 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
 
     blit:function (target) {
         var n = this._gridSize.width * this._gridSize.height;
-        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
         this._shaderProgram.use();
         //this._shaderProgram.setUniformsForBuiltins();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(target._renderCmd._stackMatrix);
@@ -690,7 +705,7 @@ cc.TiledGrid3D = cc.GridBase.extend(/** @lends cc.TiledGrid3D# */{
         // Attributes
         //
         var gl = cc._renderContext, locDirty = this._dirty;
-        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
 
         // position
         gl.bindBuffer(gl.ARRAY_BUFFER, this._verticesBuffer);

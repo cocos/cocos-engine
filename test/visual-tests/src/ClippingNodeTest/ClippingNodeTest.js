@@ -622,7 +622,7 @@ var RawStencilBufferTest4 = RawStencilBufferTest.extend({
 
         var program = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
         var alphaValueLocation = gl.getUniformLocation(program.getProgram(),cc.macro.UNIFORM_ALPHA_TEST_VALUE_S);
-        cc.glUseProgram(program.getProgram());
+        cc.gl.useProgram(program.getProgram());
         program.setUniformLocationWith1f(alphaValueLocation, _alphaThreshold);
         this._sprite.shaderProgram = program;
     },
@@ -646,7 +646,7 @@ var RawStencilBufferTest5 = RawStencilBufferTest.extend({
 
         var program = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
         var alphaValueLocation = gl.getUniformLocation(program.getProgram(), cc.macro.UNIFORM_ALPHA_TEST_VALUE_S);
-        cc.glUseProgram(program.getProgram());
+        cc.gl.useProgram(program.getProgram());
         program.setUniformLocationWith1f(alphaValueLocation, _alphaThreshold);
         this._sprite.shaderProgram = program;
     },
@@ -682,7 +682,7 @@ var RawStencilBufferTest6 = RawStencilBufferTest.extend({
 
         var program = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
         var alphaValueLocation = gl.getUniformLocation(program.getProgram(), cc.macro.UNIFORM_ALPHA_TEST_VALUE_S);
-        cc.glUseProgram(program.getProgram());
+        cc.gl.useProgram(program.getProgram());
         program.setUniformLocationWith1f(alphaValueLocation, _alphaThreshold);
         this._sprite.shaderProgram = program;
 

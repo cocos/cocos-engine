@@ -71,6 +71,7 @@ if (!CC_JSB) {
         require('./cocos2d/actions');
         require('./cocos2d/core/event-manager');
         require('./cocos2d/core/renderer');
+        require('./cocos2d/shaders');
     }
 }
 

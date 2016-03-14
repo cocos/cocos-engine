@@ -21,9 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-(function() {
-    if(!_ccsg.Node.WebGLRenderCmd)
-        return;
+
+var ccgl = cc.gl;
+
+if (_ccsg.Node.WebGLRenderCmd) {
     cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
         _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
@@ -62,10 +63,10 @@
             this._shaderProgram.use();
             this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
-            cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+            ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
-            cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
-            cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            ccgl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
+            ccgl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
 
@@ -150,4 +151,4 @@
         + "    gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b); \n"
         +"     gl_FragColor.w = c.w ; \n"
         + "}";
-})();
+}

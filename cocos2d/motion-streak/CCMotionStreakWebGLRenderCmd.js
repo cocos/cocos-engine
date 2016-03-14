@@ -40,10 +40,10 @@ cc.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
         ctx = ctx || cc._renderContext;
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
 
-        cc.glBindTexture2D(node.texture);
+        cc.gl.bindTexture2D(node.texture);
 
         //position
         ctx.bindBuffer(ctx.ARRAY_BUFFER, node._verticesBuffer);

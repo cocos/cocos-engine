@@ -1611,11 +1611,11 @@ cc.macro = {
      * <p>
      *      If enabled, cocos2d will maintain an OpenGL state cache internally to avoid unnecessary switches.                                     <br/>
      *      In order to use them, you have to use the following functions, instead of the the GL ones:                                             <br/>
-     *          - ccGLUseProgram() instead of glUseProgram()                                                                                      <br/>
-     *          - ccGLDeleteProgram() instead of glDeleteProgram()                                                                                <br/>
-     *          - ccGLBlendFunc() instead of glBlendFunc()                                                                                        <br/>
+     *          - cc.gl.useProgram() instead of glUseProgram()                                                                                      <br/>
+     *          - cc.gl.deleteProgram() instead of glDeleteProgram()                                                                                <br/>
+     *          - cc.gl.blendFunc() instead of glBlendFunc()                                                                                        <br/>
      *                                                                                                                                            <br/>
-     *      If this functionality is disabled, then ccGLUseProgram(), ccGLDeleteProgram(), ccGLBlendFunc() will call the GL ones, without using the cache.              <br/>
+     *      If this functionality is disabled, then cc.gl.useProgram(), cc.gl.deleteProgram(), cc.gl.blendFunc() will call the GL ones, without using the cache.              <br/>
      *      It is recommend to enable whenever possible to improve speed.                                                                        <br/>
      *      If you are migrating your code from GL ES 1.1, then keep it disabled. Once all your code works as expected, turn it on.
      * </p>
@@ -1699,7 +1699,7 @@ cc.radiansToDegrees = function (angle) {
  * @method nodeDrawSetup
  */
 cc.nodeDrawSetup = function (node) {
-    //cc.glEnable(node._glServerState);
+    //cc.gl.enable(node._glServerState);
     if (node._shaderProgram) {
         //cc._renderContext.useProgram(node._shaderProgram._programObj);
         node._shaderProgram.use();
