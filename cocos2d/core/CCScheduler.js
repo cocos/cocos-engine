@@ -39,7 +39,7 @@
  * @param {Boolean} paused
  * @param {Boolean} markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
  */
-cc.ListEntry = function (prev, next, callback, target, priority, paused, markedForDeletion) {
+var ListEntry = function (prev, next, callback, target, priority, paused, markedForDeletion) {
     this.prev = prev;
     this.next = next;
     this.callback = callback;
@@ -48,7 +48,7 @@ cc.ListEntry = function (prev, next, callback, target, priority, paused, markedF
     this.paused = paused;
     this.markedForDeletion = markedForDeletion;
 };
-cc.ListEntry.prototype.trigger = function (dt) {
+ListEntry.prototype.trigger = function (dt) {
     this.callback.call(this.target, dt);
 };
 
@@ -61,7 +61,7 @@ cc.ListEntry.prototype.trigger = function (dt) {
  * @param {function} callback
  * @param {Array} hh
  */
-cc.HashUpdateEntry = function (list, entry, target, callback, hh) {
+var HashUpdateEntry = function (list, entry, target, callback, hh) {
     this.list = list;
     this.entry = entry;
     this.target = target;
@@ -81,7 +81,7 @@ cc.HashUpdateEntry = function (list, entry, target, callback, hh) {
  * @param {Boolean} paused
  * @param {Array} hh
  */
-cc.HashTimerEntry = cc.hashSelectorEntry = function (timers, target, timerIndex, currentTimer, currentTimerSalvaged, paused, hh) {
+var HashTimerEntry = function (timers, target, timerIndex, currentTimer, currentTimerSalvaged, paused, hh) {
     var _t = this;
     _t.timers = timers;
     _t.target = target;
@@ -96,16 +96,7 @@ cc.HashTimerEntry = cc.hashSelectorEntry = function (timers, target, timerIndex,
  * Light weight timer
  * @class Timer
  */
-
-cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
-    _scheduler: null,
-    _elapsed:0.0,
-    _runForever:false,
-    _useDelay:false,
-    _timesExecuted:0,
-    _repeat:0, //0 = once, 1 is 2 x executed
-    _delay:0,
-    _interval:0.0,
+var Timer = cc._Class.extend({
 
     getInterval : function(){return this._interval;},
     setInterval : function(interval){this._interval = interval;},
@@ -174,9 +165,7 @@ cc.Timer = cc._Class.extend(/** @lends cc.Timer# */{
     }
 });
 
-cc.TimerTargetSelector = cc.Timer.extend({
-    _target: null,
-    _selector: null,
+var TimerTargetSelector = Timer.extend({
 
     ctor: function(){
         this._target = null;
@@ -209,15 +198,12 @@ cc.TimerTargetSelector = cc.Timer.extend({
 
 });
 
-cc.TimerTargetCallback = cc.Timer.extend({
-
-    _target: null,
-    _callback: null,
-    _key: null,
+var TimerTargetCallback = Timer.extend({
 
     ctor: function(){
         this._target = null;
         this._callback = null;
+        this._key = null;
     },
 
     initWithCallback: function(scheduler, callback, target, key, seconds, repeat, delay){
@@ -361,7 +347,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
 
     _priorityIn:function (ppList, callback,  target, priority, paused) {
         var self = this,
-            listElement = new cc.ListEntry(null, null, callback, target, priority, paused, false);
+            listElement = new ListEntry(null, null, callback, target, priority, paused, false);
 
         // empey list ?
         if (!ppList) {
@@ -379,17 +365,17 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         }
 
         //update hash entry for quick access
-        self._hashForUpdates[getTargetId(target)] = new cc.HashUpdateEntry(ppList, listElement, target, null);
+        self._hashForUpdates[getTargetId(target)] = new HashUpdateEntry(ppList, listElement, target, null);
 
         return ppList;
     },
 
     _appendIn:function (ppList, callback, target, paused) {
-        var self = this, listElement = new cc.ListEntry(null, null, callback, target, 0, paused, false);
+        var self = this, listElement = new ListEntry(null, null, callback, target, 0, paused, false);
         ppList.push(listElement);
 
         //update hash entry for quicker access
-        self._hashForUpdates[getTargetId(target)] = new cc.HashUpdateEntry(ppList, listElement, target, null, null);
+        self._hashForUpdates[getTargetId(target)] = new HashUpdateEntry(ppList, listElement, target, null, null);
     },
 
     //-----------------------public method-------------------------
@@ -577,7 +563,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
 
         if(!element){
             // Is this the 1st element ? Then set the pause level to all the callback_fns of this target
-            element = new cc.HashTimerEntry(null, target, 0, null, null, paused, null);
+            element = new HashTimerEntry(null, target, 0, null, null, paused, null);
             this._arrayForTimers.push(element);
             this._hashForTimers[instanceId] = element;
         }else{
@@ -609,11 +595,11 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         }
 
         if(isSelector === false){
-            timer = new cc.TimerTargetCallback();
+            timer = new TimerTargetCallback();
             timer.initWithCallback(this, callback, target, key, interval, repeat, delay);
             element.timers.push(timer);
         }else{
-            timer = new cc.TimerTargetSelector();
+            timer = new TimerTargetSelector();
             timer.initWithSelector(this, selector, target, interval, repeat, delay);
             element.timers.push(timer);
         }

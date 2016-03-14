@@ -820,7 +820,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Sets the view, where everything is rendered, do not call this function.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
      * @method setOpenGLView
-     * @param {EGLView} openGLView
+     * @param {View} openGLView
      */
     setOpenGLView: null,
 
@@ -840,10 +840,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     setViewport: null,
 
     /**
-     * Get the CCEGLView, where everything is rendered.<br/>
+     * Get the View, where everything is rendered.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
      * @method getOpenGLView
-     * @return {EGLView}
+     * @return {View}
      */
     getOpenGLView: null,
 

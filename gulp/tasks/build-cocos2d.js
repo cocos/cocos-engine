@@ -32,11 +32,6 @@ var es = require('event-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
 var srcs = [
-    './CCBoot.js',
-
-    './cocos2d/core/platform/CCSAXParser.js',
-    './cocos2d/core/platform/CCEGLView.js',
-    './cocos2d/core/platform/CCScreen.js',
 
     './cocos2d/core/base-nodes/BaseNodesPropertyDefine.js',
     './cocos2d/core/base-nodes/CCSGNode.js',
@@ -64,7 +59,6 @@ var srcs = [
     './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js',
 
     './cocos2d/core/CCConfiguration.js',
-    './cocos2d/core/CCScheduler.js',
 
     './cocos2d/core/CCDrawingPrimitivesCanvas.js',
     './cocos2d/core/CCDrawingPrimitivesWebGL.js',
@@ -88,23 +82,13 @@ var srcs = [
     './cocos2d/clipping-nodes/CCClippingNodeCanvasRenderCmd.js',
     './cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js',
 
-    './cocos2d/core/CCActionManager.js',
-
-    './cocos2d/compression/ZipUtils.js',
-    './cocos2d/compression/base64.js',
-    './cocos2d/compression/gzip.js',
-    './cocos2d/compression/zlib.min.js',
-
     './cocos2d/particle/CCSGParticleSystem.js',
     './cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js',
     './cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js',
-    './cocos2d/particle/CCSGParticleExamples.js',
+    // './cocos2d/particle/CCSGParticleExamples.js',
     './cocos2d/particle/CCParticleBatchNode.js',
     './cocos2d/particle/CCParticleBatchNodeCanvasRenderCmd.js',
     './cocos2d/particle/CCParticleBatchNodeWebGLRenderCmd.js',
-
-    './cocos2d/menus/CCMenuItem.js',
-    './cocos2d/menus/CCMenu.js',
 
     './cocos2d/tilemap/CCSGTMXTiledMap.js',
     './cocos2d/tilemap/CCTMXXMLParser.js',
@@ -116,13 +100,9 @@ var srcs = [
     './cocos2d/parallax/CCParallaxNode.js',
     './cocos2d/parallax/CCParallaxNodeRenderCmd.js',
 
-    './extensions/ccpool/CCPool.js',
-
     './cocos2d/physics/CCPhysicsDebugNode.js',
     './cocos2d/physics/CCPhysicsDebugNodeCanvasRenderCmd.js',
-    './cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js',
-
-    './external/chipmunk/chipmunk.js'
+    './cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js'
 ];
 
 var header = new Buffer('(function (cc, ccui, ccs, cp) {\n');

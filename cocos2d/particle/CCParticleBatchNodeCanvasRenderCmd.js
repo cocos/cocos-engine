@@ -22,17 +22,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-(function(){
-    /**
-     * cc.ParticleBatchNode's rendering objects of Canvas
-     */
-    cc.ParticleBatchNode.CanvasRenderCmd = function(renderable){
-        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-        this._needDraw = false;
-    };
+/**
+ * cc.ParticleBatchNode's rendering objects of Canvas
+ */
+cc.ParticleBatchNode.CanvasRenderCmd = function(renderable){
+    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._needDraw = false;
+};
 
-    var proto = cc.ParticleBatchNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-    proto.constructor = cc.ParticleBatchNode.CanvasRenderCmd;
+var proto = cc.ParticleBatchNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+proto.constructor = cc.ParticleBatchNode.CanvasRenderCmd;
 
-    proto._initWithTexture = function(){};
-})();
+proto._initWithTexture = function(){};

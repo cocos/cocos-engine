@@ -25,6 +25,8 @@
 
 'use strict';
 
+var CCObject = require('../cocos2d/core/platform/CCObject');
+
 // cc.director
 cc.js.mixin(cc.director, {
     /**
@@ -327,11 +329,13 @@ cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 
 cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
-   var dt = 1 / 60;
-   // Call start for new added components
-   cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
-   // Update for components
-   cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
+    var dt = 1 / 60;
+    // Call start for new added components
+    cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
+    // Update for components
+    cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
+    // Destroy entities that have been removed recently
+    CCObject._deferredDestroy();
 });
 cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
     var dt = 1 / 60;

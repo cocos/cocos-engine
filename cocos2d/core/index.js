@@ -26,11 +26,11 @@
 require('./platform');
 require('./assets');
 
-if (!CC_JSB) {
-    require('./sprites/CCSpriteFrameCache');
-}
-
 if (!CC_EDITOR || !Editor.isCoreLevel) {
+    if (!CC_JSB) {
+        require('./sprites/CCSpriteFrameCache');
+    }
+
     require('./CCNode');
     require('./CCScene');
 

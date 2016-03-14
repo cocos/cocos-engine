@@ -68,10 +68,18 @@ if (!CC_JSB) {
     require('./cocos2d/core/CCDirectorCanvas');
 
     if (!(CC_EDITOR && Editor.isCoreLevel)) {
-        require('./cocos2d/actions');
+        require('./cocos2d/core/platform/CCSAXParser');
+        require('./cocos2d/core/platform/CCView');
+        require('./cocos2d/core/platform/CCScreen');
+        require('./cocos2d/core/CCActionManager');
+        require('./cocos2d/core/CCScheduler');
         require('./cocos2d/core/event-manager');
         require('./cocos2d/core/renderer');
         require('./cocos2d/shaders');
+        require('./cocos2d/compression');
+
+        require('./CCBoot.js');
+        require('./cocos2d/core/CCGame');
     }
 }
 
