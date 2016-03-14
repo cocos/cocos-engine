@@ -1381,7 +1381,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                             return false;
                         this.setTexture(tex);
                     } else {
-                        buffer = cc.unzipBase64AsArray(textureData, 1);
+                        buffer = cc.Codec.unzipBase64AsArray(textureData, 1);
                         if (!buffer) {
                             cc.log("_ccsg.ParticleSystem: error decoding or ungzipping textureImageData");
                             return false;

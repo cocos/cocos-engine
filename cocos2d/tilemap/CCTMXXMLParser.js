@@ -90,6 +90,18 @@ cc.TMX_TILE_FLIPPED_ALL = (cc.TMX_TILE_HORIZONTAL_FLAG | cc.TMX_TILE_VERTICAL_FL
  * @type Number
  */
 cc.TMX_TILE_FLIPPED_MASK = (~(cc.TMX_TILE_FLIPPED_ALL)) >>> 0;
+function uint8ArrayToUint32Array (uint8Arr) {
+    if(uint8Arr.length % 4 !== 0)
+        return null;
+
+    var arrLen = uint8Arr.length /4;
+    var retArr = window.Uint32Array? new Uint32Array(arrLen) : [];
+    for(var i = 0; i < arrLen; i++){
+        var offset = i * 4;
+        retArr[i] = uint8Arr[offset]  + uint8Arr[offset + 1] * (1 << 8) + uint8Arr[offset + 2] * (1 << 16) + uint8Arr[offset + 3] * (1<<24);
+    }
+    return retArr;
+};
 
 // Bits on the far end of the 32-bit global tile ID (GID's) are used for tile flags
 
@@ -684,11 +696,11 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 }
                 switch (compression) {
                     case 'gzip':
-                        layer._tiles = cc.unzipBase64AsArray(nodeValue, 4);
+                        layer._tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
                         break;
                     case 'zlib':
                         var inflator = new Zlib.Inflate(cc.Codec.Base64.decodeAsArray(nodeValue, 1));
-                        layer._tiles = cc.uint8ArrayToUint32Array(inflator.decompress());
+                        layer._tiles = uint8ArrayToUint32Array(inflator.decompress());
                         break;
                     case null:
                     case '':
