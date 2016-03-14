@@ -115,7 +115,6 @@ _ccsg.Label = _ccsg.Node.extend({
 
     _blendFunc: null,
     _isUseSystemFont: true,
-    _labelSkinDirty: true,
     _labelType: 0, //0 is ttf, 1 is bmfont.
     _fontHandle: "", //a ttf font name or a bmfont file path.
     _lineSpacing: 0,
@@ -436,16 +435,16 @@ _ccsg.Label = _ccsg.Node.extend({
     _notifyLabelSkinDirty: function() {
         if (CC_EDITOR) {
             this._updateLabel();
-            this._labelSkinDirty = false;
         } else {
-            this._labelSkinDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.labelDirty);
         }
     },
     _createRenderCmd: function() {
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL)
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
             return new _ccsg.Label.WebGLRenderCmd(this);
-        else
+        } else {
             return new _ccsg.Label.CanvasRenderCmd(this);
+        }
     },
 
     getContentSize: function() {
@@ -915,9 +914,6 @@ cc.BMFontHelper = {
         if (this._fontAtlas) {
             this._computeHorizontalKerningForText(this._string);
             updateFinished = this._alignText();
-        }
-        if (updateFinished) {
-            this._labelSkinDirty = false;
         }
     },
 

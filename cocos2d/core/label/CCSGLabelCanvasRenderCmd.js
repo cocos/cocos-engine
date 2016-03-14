@@ -31,6 +31,62 @@
 
     var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
 
+
+    proto.updateStatus = function () {
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var colorDirty = locFlag & flags.colorDirty,
+            opacityDirty = locFlag & flags.opacityDirty;
+
+        if (colorDirty)
+            this._updateDisplayColor();
+        if (opacityDirty)
+            this._updateDisplayOpacity();
+
+        if(colorDirty || opacityDirty){
+            this._updateColor();
+        }else if(locFlag & flags.labelDirty) {
+            this._rebuildLabelSkin();
+        }
+
+        if (this._dirtyFlag & flags.transformDirty){
+            this.transform(this.getParentRenderCmd(), true);
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+        }
+    };
+
+    proto._syncStatus = function (parentCmd) {
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var parentNode = parentCmd ? parentCmd._node : null;
+
+        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
+            locFlag |= flags.colorDirty;
+
+        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
+            locFlag |= flags.opacityDirty;
+
+        if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
+            locFlag |= flags.transformDirty;
+
+        var colorDirty = locFlag & flags.colorDirty,
+            opacityDirty = locFlag & flags.opacityDirty;
+
+        this._dirtyFlag = locFlag;
+
+        if (colorDirty)
+            this._syncDisplayColor();
+        if (opacityDirty)
+            this._syncDisplayOpacity();
+
+        if(colorDirty || opacityDirty){
+            this._updateColor();
+        } else if(locFlag & flags.labelDirty) {
+            this._rebuildLabelSkin();
+        }
+
+        if (locFlag & flags.transformDirty)                 //update the transform
+            this.transform(parentCmd);
+    };
+
     proto._getLineHeight = function () {
         var nodeSpacingY = this._node.getLineHeight();
         if (nodeSpacingY === 0) {
@@ -162,26 +218,11 @@
         return wrappedWords;
     };
 
-    proto._updateDisplayOpacity = function (parentOpacity) {
-        _ccsg.Node.RenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-        var node = this._node;
-        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            //specify opacity to quad
-            var color = cc.color(255, 255, 255, this._displayedOpacity);
-            var quad = this._quad;
-            quad._bl.colors = color;
-            quad._br.colors = color;
-            quad._tl.colors = color;
-            quad._tr.colors = color;
-            this._quadDirty = true;
-        }
-    };
-
     proto._updateDisplayColor = function (parentColor) {
         _ccsg.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
         var node = this._node;
         if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            node._labelSkinDirty = true;
+            this._rebuildLabelSkin();
         }
     };
 
@@ -189,7 +230,7 @@
         _ccsg.Node.RenderCmd.prototype._syncDisplayColor.call(this, parentColor);
         var node = this._node;
         if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            node._labelSkinDirty = true;
+            this._rebuildLabelSkin();
         }
     };
 
@@ -397,18 +438,11 @@
     };
 
     proto._rebuildLabelSkin = function () {
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.labelDirty ^ this._dirtyFlag;
         var node = this._node;
-        if (node._labelSkinDirty) {
-            if (node._labelType === _ccsg.Label.Type.TTF ||
-                node._labelType === _ccsg.Label.Type.SystemFont) {
-                this._bakeLabel();
-                this._prepareQuad();
-            }
-            else {
-                node._updateContent();
-            }
-            this._node._labelSkinDirty = false;
-        }
+        this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
+
+        node._updateLabel();
     };
 })();
 
@@ -435,10 +469,7 @@
     proto.constructor = _ccsg.Label.CanvasRenderCmd;
 
     proto.rendering = function (ctx, scaleX, scaleY) {
-        this._rebuildLabelSkin();
-
         var node = this._node;
-        this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
 
         if (node._labelType === _ccsg.Label.Type.TTF ||
             node._labelType === _ccsg.Label.Type.SystemFont) {

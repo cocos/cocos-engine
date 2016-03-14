@@ -36,15 +36,16 @@ cc.CustomRenderCmd = function (target, func) {
 };
 
 _ccsg.Node._dirtyFlags = {
-    transformDirty: 1 << 0, 
-    visibleDirty: 1 << 1, 
-    colorDirty: 1 << 2, 
-    opacityDirty: 1 << 3, 
-    cacheDirty: 1 << 4,
-    orderDirty: 1 << 5, 
-    textDirty: 1 << 6, 
-    gradientDirty:1 << 7,
-    COUNT: 8
+    transformDirty: 1 << 0,
+    visibleDirty:   1 << 1,
+    colorDirty:     1 << 2,
+    opacityDirty:   1 << 3,
+    cacheDirty:     1 << 4,
+    orderDirty:     1 << 5,
+    textDirty:      1 << 6,
+    gradientDirty:  1 << 7,
+    labelDirty:     1 << 8,
+    COUNT: 9
 };
 cc.js.get(_ccsg.Node._dirtyFlags, 'all', function () {
     var count = _ccsg.Node._dirtyFlags.COUNT;
