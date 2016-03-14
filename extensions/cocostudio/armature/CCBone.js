@@ -78,7 +78,7 @@ ccs.Bone = ccs.Node.extend(/** @lends ccs.Bone# */{
 
         this._worldTransform = cc.affineTransformMake(1, 0, 0, 1, 0, 0);
         this._boneTransformDirty = true;
-        this._blendFunc = new cc.BlendFunc(cc.BLEND_SRC, cc.BLEND_DST);
+        this._blendFunc = new cc.BlendFunc(cc.Macro.BLEND_SRC, cc.Macro.BLEND_DST);
         this.blendDirty = false;
         this._worldInfo = null;
 

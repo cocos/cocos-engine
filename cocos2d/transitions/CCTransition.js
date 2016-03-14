@@ -1518,8 +1518,8 @@ cc.TransitionCrossFade = cc.TransitionScene.extend(/** @lends cc.TransitionCross
         this._outScene.visit();
         outTexture.end();
 
-        inTexture.sprite.setBlendFunc(cc.ONE, cc.ONE);                                             // inScene will lay on background and will not be used with alpha
-        outTexture.sprite.setBlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);                      // we are going to blend outScene via alpha
+        inTexture.sprite.setBlendFunc(cc.Macro.ONE, cc.Macro.ONE);                                             // inScene will lay on background and will not be used with alpha
+        outTexture.sprite.setBlendFunc(cc.Macro.SRC_ALPHA, cc.Macro.ONE_MINUS_SRC_ALPHA);                      // we are going to blend outScene via alpha
 
         // add render textures to the layer
         layer.addChild(inTexture);

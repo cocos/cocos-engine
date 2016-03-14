@@ -114,7 +114,7 @@
         this._textureAtlas = new cc.TextureAtlas();
         this._textureAtlas.initWithTexture(texture, capacity);
         this._updateBlendFunc();
-        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR);
     };
 
     proto.insertQuad = function(sprite, index){
@@ -224,8 +224,8 @@
     proto._updateBlendFunc = function () {
         if (!this._textureAtlas.texture.hasPremultipliedAlpha()) {
             var blendFunc = this._node._blendFunc;
-            blendFunc.src = cc.SRC_ALPHA;
-            blendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
+            blendFunc.src = cc.Macro.SRC_ALPHA;
+            blendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
         }
     };
 

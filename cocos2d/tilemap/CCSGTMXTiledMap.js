@@ -47,7 +47,7 @@ cc.TMX_ORIENTATION_HEX = 1;
 cc.TMX_ORIENTATION_ISO = 2;
 
 /**
- * <p>cc.TMXTiledMap knows how to parse and render a TMX map.</p>
+ * <p>_ccsg.TMXTiledMap knows how to parse and render a TMX map.</p>
  *
  * <p>It adds support for the TMX tiled map format used by http://www.mapeditor.org <br />
  * It supports isometric, hexagonal and orthogonal tiles.<br />
@@ -113,15 +113,15 @@ cc.TMX_ORIENTATION_ISO = 2;
  * //example
  * 1.
  * //create a TMXTiledMap with file name
- * var tmxTiledMap = new cc.TMXTiledMap("res/orthogonal-test1.tmx");
+ * var tmxTiledMap = new _ccsg.TMXTiledMap("res/orthogonal-test1.tmx");
  * 2.
  * //create a TMXTiledMap with content string and resource path
  * var resources = "res/TileMaps";
  * var filePath = "res/TileMaps/orthogonal-test1.tmx";
  * var xmlStr = cc.loader.getRes(filePath);
- * var tmxTiledMap = new cc.TMXTiledMap(xmlStr, resources);
+ * var tmxTiledMap = new _ccsg.TMXTiledMap(xmlStr, resources);
  */
-_ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends cc.TMXTiledMap# */{
+_ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
 	properties: null,
 	mapOrientation: null,
 	objectGroups: null,

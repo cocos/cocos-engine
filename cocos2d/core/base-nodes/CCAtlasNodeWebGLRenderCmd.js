@@ -35,7 +35,7 @@
         this._uniformColor = null;
 
         //shader stuff
-        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURE_UCOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURE_UCOLOR);
         this._uniformColor = cc._renderContext.getUniformLocation(this._shaderProgram.getProgram(), "u_color");
     };
 
@@ -45,8 +45,8 @@
     proto._updateBlendFunc = function () {
         var node = this._node;
         if (!this._textureAtlas.texture.hasPremultipliedAlpha()) {
-            node._blendFunc.src = cc.SRC_ALPHA;
-            node._blendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
+            node._blendFunc.src = cc.Macro.SRC_ALPHA;
+            node._blendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
         }
     };
 
@@ -74,8 +74,8 @@
         this._colorUnmodified = cc.Color.WHITE;
         node._opacityModifyRGB = true;
 
-        node._blendFunc.src = cc.BLEND_SRC;
-        node._blendFunc.dst = cc.BLEND_DST;
+        node._blendFunc.src = cc.Macro.BLEND_SRC;
+        node._blendFunc.dst = cc.Macro.BLEND_DST;
 
         var locRealColor = node._realColor;
         this._colorF32Array = new Float32Array([locRealColor.r / 255.0, locRealColor.g / 255.0, locRealColor.b / 255.0, node._realOpacity / 255.0]);

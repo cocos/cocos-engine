@@ -110,6 +110,8 @@ cc.game.run({
         "../../cocos2d/labels/CCLabelBMFontCanvasRenderCmd.js",
         "../../cocos2d/labels/CCLabelBMFontWebGLRenderCmd.js",
 
+        "../../cocos2d/actions/CCActionCatmullRom.js",
+
         "src/BaseTestLayer/BaseTestLayer.js",
 
         "src/tests_resources.js",

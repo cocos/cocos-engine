@@ -40,7 +40,7 @@ ccs.BatchNode = _ccsg.Node.extend(/** @lends ccs.BatchNode# */{
 
     init:function () {
         var ret = _ccsg.Node.prototype.init.call(this);
-        this.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURE_UCOLOR));
+        this.setShaderProgram(cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURE_UCOLOR));
         return ret;
     },
 

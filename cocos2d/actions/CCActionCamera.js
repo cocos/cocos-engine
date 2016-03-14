@@ -193,9 +193,9 @@ cc.OrbitCamera = cc.ActionCamera.extend({
         var r = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         var s = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
         if (s === 0.0)
-            s = cc.FLT_EPSILON;
+            s = cc.Macro.FLT_EPSILON;
         if (r === 0.0)
-            r = cc.FLT_EPSILON;
+            r = cc.Macro.FLT_EPSILON;
 
         zenith = Math.acos(z / r);
         if (x < 0)

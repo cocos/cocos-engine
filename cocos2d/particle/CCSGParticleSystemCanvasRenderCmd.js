@@ -182,8 +182,8 @@
 
     proto._setBlendAdditive = function(){
         var locBlendFunc = this._node._blendFunc;
-        locBlendFunc.src = cc.BLEND_SRC;
-        locBlendFunc.dst = cc.BLEND_DST;
+        locBlendFunc.src = cc.Macro.BLEND_SRC;
+        locBlendFunc.dst = cc.Macro.BLEND_DST;
     };
 
     proto._initWithTotalParticles = function(totalParticles){};

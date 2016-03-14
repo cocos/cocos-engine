@@ -25,11 +25,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * the value of stencil bits.
- * @type Number
- */
-cc.stencilBits = -1;
 
 /**
  * <p>
@@ -202,23 +197,11 @@ cc.ClippingNode = _ccsg.Node.extend(/** @lends cc.ClippingNode# */{
     }
 });
 
+cc.ClippingNode.stencilBits = -1;
+
 var _p = cc.ClippingNode.prototype;
 
 // Extended properties
 cc.defineGetterSetter(_p, "stencil", _p.getStencil, _p.setStencil);
 /** @expose */
 _p.stencil;
-
-/**
- * Creates and initializes a clipping node with an other node as its stencil. <br/>
- * The stencil node will be retained.
- * @deprecated since v3.0, please use "new cc.ClippingNode(stencil)" instead
- * @param {_ccsg.Node} [stencil=null]
- * @return {cc.ClippingNode}
- * @example
- * //example
- * new cc.ClippingNode(stencil);
- */
-cc.ClippingNode.create = function (stencil) {
-    return new cc.ClippingNode(stencil);
-};
