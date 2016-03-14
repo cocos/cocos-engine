@@ -45,7 +45,7 @@ p.sample = function () {
 };
 
 p.stopState = function (state) {
-    if (JS.array.remove(this.playingAnims, state)) {
+    if (state) {
         state.stop();
     }
 };
