@@ -29,7 +29,9 @@ cc._vertexAttribPosition = false;
 cc._vertexAttribColor = false;
 cc._vertexAttribTexCoords = false;
 
-var ENABLE_GL_STATE_CACHE = cc.Macro.ENABLE_GL_STATE_CACHE;
+var macro = cc.macro;
+
+var ENABLE_GL_STATE_CACHE = macro.ENABLE_GL_STATE_CACHE;
 
 if (ENABLE_GL_STATE_CACHE) {
     cc.MAX_ACTIVETEXTURE = 16;
@@ -39,7 +41,7 @@ if (ENABLE_GL_STATE_CACHE) {
     cc._blendingSource = -1;
     cc._blendingDest = -1;
     cc._GLServerState = 0;
-    if(cc.Macro.TEXTURE_ATLAS_USE_VAO)
+    if(macro.TEXTURE_ATLAS_USE_VAO)
         cc._uVAO = 0;
 }
 
@@ -47,11 +49,11 @@ if (ENABLE_GL_STATE_CACHE) {
 
 /**
  * Invalidates the GL state cache.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE it will reset the GL state cache.
+ * If cc.macro.ENABLE_GL_STATE_CACHE it will reset the GL state cache.
  * @function
  */
 cc.glInvalidateStateCache = function () {
-    cc.kmGLFreeAll();
+    cc.math.glFreeAll();
     cc._currentProjectionMatrix = -1;
     cc._vertexAttribPosition = false;
     cc._vertexAttribColor = false;
@@ -69,7 +71,7 @@ cc.glInvalidateStateCache = function () {
 
 /**
  * Uses the GL program in case program is different than the current one.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will the glUseProgram() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will the glUseProgram() directly.
  * @function
  * @param {WebGLProgram} program
  */
@@ -88,7 +90,7 @@ if(!ENABLE_GL_STATE_CACHE){
 
 /**
  * Deletes the GL program. If it is the one that is being used, it invalidates it.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will the glDeleteProgram() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will the glDeleteProgram() directly.
  * @function
  * @param {WebGLProgram} program
  */
@@ -102,7 +104,7 @@ cc.glDeleteProgram = function (program) {
 
 /**
  * Uses a blending function in case it not already used.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will the glBlendFunc() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will the glBlendFunc() directly.
  * @function
  * @param {Number} sfactor
  * @param {Number} dfactor
@@ -158,7 +160,7 @@ if(!ENABLE_GL_STATE_CACHE){
 
 /**
  * Resets the blending mode back to the cached state in case you used glBlendFuncSeparate() or glBlendEquation().<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will just set the default blending mode using GL_FUNC_ADD.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will just set the default blending mode using GL_FUNC_ADD.
  * @function
  */
 cc.glBlendResetToCache = function () {
@@ -182,51 +184,51 @@ cc.setProjectionMatrixDirty = function () {
  * <p>
  *    Will enable the vertex attribs that are passed as flags.  <br/>
  *    Possible flags:                                           <br/>
- *    cc.Macro.VERTEX_ATTRIB_FLAG_POSITION                             <br/>
- *    cc.Macro.VERTEX_ATTRIB_FLAG_COLOR                                <br/>
- *    cc.Macro.VERTEX_ATTRIB_FLAG_TEX_COORDS                            <br/>
+ *    cc.macro.VERTEX_ATTRIB_FLAG_POSITION                             <br/>
+ *    cc.macro.VERTEX_ATTRIB_FLAG_COLOR                                <br/>
+ *    cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS                            <br/>
  *                                                              <br/>
  *    These flags can be ORed. The flags that are not present, will be disabled.
  * </p>
  * @function
- * @param {cc.Macro.VERTEX_ATTRIB_FLAG_POSITION | cc.Macro.VERTEX_ATTRIB_FLAG_COLOR | cc.Macro.VERTEX_ATTRIB_FLAG_TEX_OORDS} flags
+ * @param {cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR | cc.macro.VERTEX_ATTRIB_FLAG_TEX_OORDS} flags
  */
 cc.glEnableVertexAttribs = function (flags) {
     /* Position */
     var ctx = cc._renderContext;
-    var enablePosition = ( flags & cc.Macro.VERTEX_ATTRIB_FLAG_POSITION );
+    var enablePosition = ( flags & macro.VERTEX_ATTRIB_FLAG_POSITION );
     if (enablePosition !== cc._vertexAttribPosition) {
         if (enablePosition)
-            ctx.enableVertexAttribArray(cc.Macro.VERTEX_ATTRIB_POSITION);
+            ctx.enableVertexAttribArray(macro.VERTEX_ATTRIB_POSITION);
         else
-            ctx.disableVertexAttribArray(cc.Macro.VERTEX_ATTRIB_POSITION);
+            ctx.disableVertexAttribArray(macro.VERTEX_ATTRIB_POSITION);
         cc._vertexAttribPosition = enablePosition;
     }
 
     /* Color */
-    var enableColor = (flags & cc.Macro.VERTEX_ATTRIB_FLAG_COLOR);
+    var enableColor = (flags & macro.VERTEX_ATTRIB_FLAG_COLOR);
     if (enableColor !== cc._vertexAttribColor) {
         if (enableColor)
-            ctx.enableVertexAttribArray(cc.Macro.VERTEX_ATTRIB_COLOR);
+            ctx.enableVertexAttribArray(macro.VERTEX_ATTRIB_COLOR);
         else
-            ctx.disableVertexAttribArray(cc.Macro.VERTEX_ATTRIB_COLOR);
+            ctx.disableVertexAttribArray(macro.VERTEX_ATTRIB_COLOR);
         cc._vertexAttribColor = enableColor;
     }
 
     /* Tex Coords */
-    var enableTexCoords = (flags & cc.Macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
+    var enableTexCoords = (flags & macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
     if (enableTexCoords !== cc._vertexAttribTexCoords) {
         if (enableTexCoords)
-            ctx.enableVertexAttribArray(cc.Macro.VERTEX_ATTRIB_TEX_COORDS);
+            ctx.enableVertexAttribArray(macro.VERTEX_ATTRIB_TEX_COORDS);
         else
-            ctx.disableVertexAttribArray(cc.Macro.VERTEX_ATTRIB_TEX_COORDS);
+            ctx.disableVertexAttribArray(macro.VERTEX_ATTRIB_TEX_COORDS);
         cc._vertexAttribTexCoords = enableTexCoords;
     }
 };
 
 /**
  * If the texture is not already bound, it binds it.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
  * @function
  * @param {cc.Texture2D} textureId
  */
@@ -236,7 +238,7 @@ cc.glBindTexture2D = function (textureId) {
 
 /**
  * If the texture is not already bound to a given unit, it binds it.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
  * @function
  * @param {Number} textureUnit
  * @param {cc.Texture2D} textureId
@@ -266,7 +268,7 @@ if (!ENABLE_GL_STATE_CACHE){
 
 /**
  * It will delete a given texture. If the texture was bound, it will invalidate the cached. <br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
  * @function
  * @param {cc.Texture2D} textureId
  */
@@ -276,7 +278,7 @@ cc.glDeleteTexture2D = function (textureId) {
 
 /**
  * It will delete a given texture. If the texture was bound, it will invalidate the cached for the given texture unit.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
  * @function
  * @param {Number} textureUnit
  * @param {cc.Texture2D} textureId
@@ -291,12 +293,12 @@ cc.glDeleteTexture2DN = function (textureUnit, textureId) {
 
 /**
  * If the vertex array is not already bound, it binds it.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindVertexArray() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glBindVertexArray() directly.
  * @function
  * @param {Number} vaoId
  */
 cc.glBindVAO = function (vaoId) {
-    if (!cc.Macro.TEXTURE_ATLAS_USE_VAO)
+    if (!macro.TEXTURE_ATLAS_USE_VAO)
         return;
 
     if (ENABLE_GL_STATE_CACHE) {
@@ -312,7 +314,7 @@ cc.glBindVAO = function (vaoId) {
 
 /**
  * It will enable / disable the server side GL states.<br/>
- * If cc.Macro.ENABLE_GL_STATE_CACHE is disabled, it will call glEnable() directly.
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will call glEnable() directly.
  * @function
  * @param {Number} flags
  */

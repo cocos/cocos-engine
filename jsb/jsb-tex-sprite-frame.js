@@ -25,8 +25,8 @@
 
 'use strict';
 
-cc.spriteFrameAnimationCache = cc.animationCache;
-cc.SpriteFrameAnimation = cc.Animation;
+// cc.spriteFrameAnimationCache = cc.animationCache;
+// cc.SpriteFrameAnimation = cc.Animation;
 
 // cc.textureCache.cacheImage
 cc.textureCache._textures = {};

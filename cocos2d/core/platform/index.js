@@ -38,3 +38,8 @@ require('./CCMacro');
 if (cc.sys.isBrowser || cc.sys.isNative) {
     require('./CCAssetLibrary');
 }
+
+if (!CC_JSB && !(CC_EDITOR && Editor.isCoreLevel)) {
+    require('./miniFramework');
+    require('./CCVisibleRect');
+}

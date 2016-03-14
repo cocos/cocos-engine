@@ -51,7 +51,7 @@
 
         var blendFunc = node._sprite._blendFunc;
         cc.glBlendFunc(blendFunc.src, blendFunc.dst);
-        cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
         cc.glBindTexture2D(node._sprite.texture);
 
@@ -61,9 +61,9 @@
             this._vertexDataDirty = false;
         }
         var locVertexDataLen = cc.V2F_C4B_T2F.BYTES_PER_ELEMENT;
-        context.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, locVertexDataLen, 0);
-        context.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, locVertexDataLen, 8);
-        context.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_TEX_COORDS, 2, context.FLOAT, false, locVertexDataLen, 12);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, locVertexDataLen, 0);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, locVertexDataLen, 8);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, context.FLOAT, false, locVertexDataLen, 12);
 
         if (node._type === cc.ProgressTimer.Type.RADIAL)
             context.drawArrays(context.TRIANGLE_FAN, 0, this._vertexDataCount);
@@ -169,7 +169,7 @@
         this._vertexDataCount = 0;
 
         //shader program
-        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
     };
 
     proto._updateProgress = function(){
@@ -342,7 +342,7 @@
             //    intersection point
             //    We loop through five points since the top is split in half
 
-            var min_t = cc.Macro.FLT_MAX;
+            var min_t = cc.macro.FLT_MAX;
             var locProTextCoordsCount = cc.ProgressTimer.TEXTURE_COORDS_COUNT;
             for (i = 0; i <= locProTextCoordsCount; ++i) {
                 var pIndex = (i + (locProTextCoordsCount - 1)) % locProTextCoordsCount;

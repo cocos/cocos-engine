@@ -104,6 +104,6 @@
         }
 
         this._dirtyFlag = 0;
-        cc.kmGLPopMatrix();
+        cc.math.glPopMatrix();
     };
 })();

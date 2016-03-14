@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 // init CCSpriteFrame
-require("../cocos2d/core/sprites/CCSpriteFrame");
+require("./CCSpriteFrame");
 
 
 

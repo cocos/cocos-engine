@@ -534,6 +534,7 @@ js.obsoletes = function (obj, objName, props, writable) {
  * for example:
  *      cc.js.formatStr("a: %d, b: %b", a, b);
  *      cc.js.formatStr(a, b, c);
+ * @method formatStr
  * @returns {String}
  */
 js.formatStr = function formatStr() {

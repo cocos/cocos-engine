@@ -50,14 +50,14 @@
 
         /*var beforeProjectionType = cc.director.PROJECTION_DEFAULT;
         if (locGrid && locGrid._active) {
-            //var backMatrix = new cc.kmMat4();
-            //cc.kmMat4Assign(backMatrix, this._stackMatrix);
+            //var backMatrix = new cc.math.Matrix4();
+            //cc.math.mat4Assign(backMatrix, this._stackMatrix);
 
             beforeProjectionType = cc.director.getProjection();
             //locGrid.set2DProjection();
 
             //reset this._stackMatrix to current_stack.top
-            //cc.kmMat4Assign(currentStack.top, backMatrix);
+            //cc.math.mat4Assign(currentStack.top, backMatrix);
         }*/
         cc.renderer.pushRenderCommand(this._gridBeginCommand);
 

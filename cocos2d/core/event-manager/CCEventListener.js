@@ -299,10 +299,6 @@ cc._EventListenerCustom = cc.EventListener.extend({
     }
 });
 
-cc._EventListenerCustom.create = function (eventName, callback) {
-    return new cc._EventListenerCustom(eventName, callback);
-};
-
 cc._EventListenerMouse = cc.EventListener.extend({
     onMouseDown: null,
     onMouseUp: null,
@@ -353,10 +349,6 @@ cc._EventListenerMouse = cc.EventListener.extend({
 
 cc._EventListenerMouse.LISTENER_ID = "__cc_mouse";
 
-cc._EventListenerMouse.create = function () {
-    return new cc._EventListenerMouse();
-};
-
 cc._EventListenerTouchOneByOne = cc.EventListener.extend({
     _claimedTouches: null,
     swallowTouches: false,
@@ -399,10 +391,6 @@ cc._EventListenerTouchOneByOne = cc.EventListener.extend({
 
 cc._EventListenerTouchOneByOne.LISTENER_ID = "__cc_touch_one_by_one";
 
-cc._EventListenerTouchOneByOne.create = function () {
-    return new cc._EventListenerTouchOneByOne();
-};
-
 cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
     onTouchesBegan: null,
     onTouchesMoved: null,
@@ -433,10 +421,6 @@ cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
 });
 
 cc._EventListenerTouchAllAtOnce.LISTENER_ID = "__cc_touch_all_at_once";
-
-cc._EventListenerTouchAllAtOnce.create = function(){
-     return new cc._EventListenerTouchAllAtOnce();
-};
 
 /**
  * Create a EventListener object by json object
@@ -532,10 +516,6 @@ cc._EventListenerAcceleration = cc.EventListener.extend({
 
 cc._EventListenerAcceleration.LISTENER_ID = "__cc_acceleration";
 
-cc._EventListenerAcceleration.create = function (callback) {
-    return new cc._EventListenerAcceleration(callback);
-};
-
 
 //Keyboard
 cc._EventListenerKeyboard = cc.EventListener.extend({
@@ -573,7 +553,3 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
 });
 
 cc._EventListenerKeyboard.LISTENER_ID = "__cc_keyboard";
-
-cc._EventListenerKeyboard.create = function () {
-    return new cc._EventListenerKeyboard();
-};

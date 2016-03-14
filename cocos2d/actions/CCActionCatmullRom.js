@@ -216,7 +216,7 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
             cc.getControlPointAt(ps, p + 2),
             this._tension, lt);
 
-        if (cc.Macro.ENABLE_STACKABLE_ACTIONS) {
+        if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
             var tempX, tempY;
             tempX = this.target.getPositionX() - this._previousPosition.x;
             tempY = this.target.getPositionY() - this._previousPosition.y;

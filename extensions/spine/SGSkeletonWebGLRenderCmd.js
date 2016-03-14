@@ -28,7 +28,7 @@ var spine = sp.spine;
 sp._SGSkeleton.WebGLRenderCmd = function (renderableObject) {
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
     this._needDraw = true;
-    this.setShaderProgram(cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR));
+    this.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR));
     this._tmpQuad = new cc.V3F_C4B_T2F_Quad();
 };
 
@@ -86,13 +86,13 @@ proto.rendering = function (ctx) {
             blendMode = slot.data.blendMode;
             switch (blendMode) {
             case spine.BlendMode.additive:
-                cc.glBlendFunc(premultiAlpha ? cc.Macro.ONE : cc.Macro.SRC_ALPHA, cc.Macro.ONE);
+                cc.glBlendFunc(premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA, cc.macro.ONE);
                 break;
             case spine.BlendMode.multiply:
-                cc.glBlendFunc(cc.Macro.DST_COLOR, cc.Macro.ONE_MINUS_SRC_ALPHA);
+                cc.glBlendFunc(cc.macro.DST_COLOR, cc.macro.ONE_MINUS_SRC_ALPHA);
                 break;
             case spine.BlendMode.screen:
-                cc.glBlendFunc(cc.Macro.ONE, cc.Macro.ONE_MINUS_SRC_COLOR);
+                cc.glBlendFunc(cc.macro.ONE, cc.macro.ONE_MINUS_SRC_COLOR);
                 break;
             default:
                 cc.glBlendFunc(locBlendFunc.src, locBlendFunc.dst);
@@ -120,8 +120,8 @@ proto.rendering = function (ctx) {
     }
 
     if (node._debugBones || node._debugSlots) {
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        //cc.kmGLPushMatrixWitMat4(this._stackMatrix);
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        //cc.math.glPushMatrixWitMat4(this._stackMatrix);
         cc.current_stack.stack.push(cc.current_stack.top);
         cc.current_stack.top = this._stackMatrix;
         var drawingUtil = cc._drawingUtil;
@@ -173,7 +173,7 @@ proto.rendering = function (ctx) {
                 }
             }
         }
-        cc.kmGLPopMatrix();
+        cc.math.glPopMatrix();
     }
 };
 

@@ -37,7 +37,7 @@
 
         this._labelTexture = new cc.Texture2D();
         this._quadWebBuffer = cc._renderContext.createBuffer();
-        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
         this._quad = new cc.V3F_C4B_T2F_Quad();
 
         this._labelCanvas = document.createElement("canvas");
@@ -72,7 +72,7 @@
 
             cc.glBlendFunc(node._blendFunc.src,node._blendFunc.dst);
             cc.glBindTexture2DN(0,this._labelTexture);
-            cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
 
@@ -81,9 +81,9 @@
                 this._quadDirty = false;
             }
 
-            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.Macro.VERTEX_ATTRIB_POSITION
-            gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.Macro.VERTEX_ATTRIB_COLOR
-            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.Macro.VERTEX_ATTRIB_TEX_COORDS
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.macro.VERTEX_ATTRIB_POSITION
+            gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.macro.VERTEX_ATTRIB_COLOR
+            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.macro.VERTEX_ATTRIB_TEX_COORDS
 
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }

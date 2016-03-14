@@ -87,7 +87,7 @@ cc.vertexLineToPolygon = function (points, stroke, vertices, offset, nuPoints) {
         var v4 = cc.vertex2(vertices[(idx1 + 1) * 2], vertices[(idx1 + 1) * 2 + 1]);
 
         //BOOL fixVertex = !ccpLineIntersect(ccp(p1.x, p1.y), ccp(p4.x, p4.y), ccp(p2.x, p2.y), ccp(p3.x, p3.y), &s, &t);
-        var fixVertexResult = !cc.vertexLineIntersect(v1.x, v1.y, v4.x, v4.y, v2.x, v2.y, v3.x, v3.y);
+        var fixVertexResult = !vertexLineIntersect(v1.x, v1.y, v4.x, v4.y, v2.x, v2.y, v3.x, v3.y);
         if (!fixVertexResult.isSuccess)
             if (fixVertexResult.value < 0.0 || fixVertexResult.value > 1.0)
                 fixVertexResult.isSuccess = true;
@@ -113,7 +113,7 @@ cc.vertexLineToPolygon = function (points, stroke, vertices, offset, nuPoints) {
  * @param {Number} Dy
  * @return {Object}
  */
-cc.vertexLineIntersect = function (Ax, Ay, Bx, By, Cx, Cy, Dx, Dy) {
+function vertexLineIntersect (Ax, Ay, Bx, By, Cx, Cy, Dx, Dy) {
     var distAB, theCos, theSin, newX;
 
     // FAIL: Line undefined
@@ -156,7 +156,7 @@ cc.vertexLineIntersect = function (Ax, Ay, Bx, By, Cx, Cy, Dx, Dy) {
  * @param {Array} verts
  * @return {Boolean}
  */
-cc.vertexListIsClockwise = function(verts) {
+function vertexListIsClockwise (verts) {
     for (var i = 0, len = verts.length; i < len; i++) {
         var a = verts[i];
         var b = verts[(i + 1) % len];

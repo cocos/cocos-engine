@@ -144,17 +144,17 @@
 
     proto._drawFullScreenQuadClearStencil = function(){
         // draw a fullscreen solid rectangle to clear the stencil buffer
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLPushMatrix();
-        cc.kmGLLoadIdentity();
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLPushMatrix();
-        cc.kmGLLoadIdentity();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glPushMatrix();
+        cc.math.glLoadIdentity();
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glPushMatrix();
+        cc.math.glLoadIdentity();
         cc._drawingUtil.drawSolidRect(cc.p(-1,-1), cc.p(1,1), cc.color(255, 255, 255, 255));
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLPopMatrix();
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLPopMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glPopMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glPopMatrix();
     };
 
     proto.rebindStencilRendering = function(stencil){};

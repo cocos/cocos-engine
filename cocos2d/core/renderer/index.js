@@ -22,19 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-require('./platform');
-require('./assets');
-
-if (!CC_JSB) {
-    require('./sprites/CCSpriteFrameCache');
-}
-
-if (!CC_EDITOR || !Editor.isCoreLevel) {
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-}
-
-require('./base-ui/CCWidgetManager');
+ 
+require('./RendererCanvas');
+require('./RendererWebGL');

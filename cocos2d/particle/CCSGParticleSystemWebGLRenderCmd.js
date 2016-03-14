@@ -195,12 +195,12 @@
         //
         // Using VBO without VAO
         //
-        cc.glEnableVertexAttribs(cc.Macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);               // vertices
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
-        gl.vertexAttribPointer(cc.Macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);               // vertices
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);            // tex coords
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._buffersVBO[1]);
         gl.drawElements(gl.TRIANGLES, node._particleIdx * 6, gl.UNSIGNED_SHORT, 0);
@@ -219,7 +219,7 @@
         }
 
         var left, bottom, right, top;
-        if (cc.Macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
+        if (cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
             left = (pointRect.x * 2 + 1) / (wide * 2);
             bottom = (pointRect.y * 2 + 1) / (high * 2);
             right = left + (pointRect.width * 2 - 2) / (wide * 2);
@@ -365,11 +365,11 @@
     proto._setBlendAdditive = function(){
         var locBlendFunc = this._node._blendFunc;
         if (this._texture && !this._texture.hasPremultipliedAlpha()) {
-            locBlendFunc.src = cc.Macro.SRC_ALPHA;
-            locBlendFunc.dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
+            locBlendFunc.src = cc.macro.SRC_ALPHA;
+            locBlendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
         } else {
-            locBlendFunc.src = cc.Macro.BLEND_SRC;
-            locBlendFunc.dst = cc.Macro.BLEND_DST;
+            locBlendFunc.src = cc.macro.BLEND_SRC;
+            locBlendFunc.dst = cc.macro.BLEND_DST;
         }
     };
 
@@ -381,7 +381,7 @@
         this.initIndices(totalParticles);
         this._setupVBO();
 
-        this._shaderProgram = cc.shaderCache.programForKey(cc.Macro.SHADER_POSITION_TEXTURECOLOR);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
     };
 
     proto._updateDeltaColor = function (selParticle, dt) {

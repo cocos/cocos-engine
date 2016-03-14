@@ -16,8 +16,8 @@
   benchmarks.add(new Benchmark(kernelConfig));
 
   // Benchmark data, initialization and kernel functions
-  var T1 = new cc.kmMat4();
-  var T1x4 = new cc.kmMat4();
+  var T1 = new cc.math.Matrix4();
+  var T1x4 = new cc.math.Matrix4();
   var isIdentity, isIdentitySIMD;
 
   function equals(A, B) {

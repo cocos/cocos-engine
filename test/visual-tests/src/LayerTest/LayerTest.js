@@ -428,11 +428,11 @@ var LayerTestBlend = LayerTest.extend({
         var dst;
 
         if (this._blend) {
-            src = cc.Macro.SRC_ALPHA;
-            dst = cc.Macro.ONE_MINUS_SRC_ALPHA;
+            src = cc.macro.SRC_ALPHA;
+            dst = cc.macro.ONE_MINUS_SRC_ALPHA;
         } else {
-            src = cc.Macro.ONE_MINUS_DST_COLOR;
-            dst = cc.Macro.ZERO;
+            src = cc.macro.ONE_MINUS_DST_COLOR;
+            dst = cc.macro.ZERO;
         }
         layer.setBlendFunc( src, dst );
         this._blend = ! this._blend;
