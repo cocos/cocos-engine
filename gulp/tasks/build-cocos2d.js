@@ -95,8 +95,6 @@ var srcs = [
     './cocos2d/compression/gzip.js',
     './cocos2d/compression/zlib.min.js',
 
-    './cocos2d/particle/CCPNGReader.js',
-    './cocos2d/particle/CCTIFFReader.js',
     './cocos2d/particle/CCSGParticleSystem.js',
     './cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js',
     './cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js',
@@ -108,7 +106,6 @@ var srcs = [
     './cocos2d/menus/CCMenuItem.js',
     './cocos2d/menus/CCMenu.js',
 
-    './cocos2d/tilemap/CCTGAlib.js',
     './cocos2d/tilemap/CCSGTMXTiledMap.js',
     './cocos2d/tilemap/CCTMXXMLParser.js',
     './cocos2d/tilemap/CCTMXObjectGroup.js',

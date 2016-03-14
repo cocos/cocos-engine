@@ -452,16 +452,3 @@ cc.defineGetterSetter(_p, "tileWidth", _p._getTileWidth, _p._setTileWidth);
 /** @expose */
 _p.tileHeight;
 cc.defineGetterSetter(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
-
-
-/**
- * Creates a TMX Tiled Map with a TMX file  or content string.
- * Implementation _ccsg.TMXTiledMap
- * @deprecated since v3.0 please use new _ccsg.TMXTiledMap(tmxFile,resourcePath) instead.
- * @param {String} tmxFile tmxFile fileName or content string
- * @param {String} resourcePath   If tmxFile is a file name ,it is not required.If tmxFile is content string ,it is must required.
- * @return {_ccsg.TMXTiledMap|undefined}
- */
-_ccsg.TMXTiledMap.create = function (tmxFile,resourcePath) {
-    return new _ccsg.TMXTiledMap(tmxFile,resourcePath);
-};
