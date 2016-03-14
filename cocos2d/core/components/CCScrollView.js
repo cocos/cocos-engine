@@ -483,6 +483,7 @@ var ScrollView = cc.Class({
 
     _checkMouseWheel: function(dt) {
         var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
+        var maxElapsedTime = 0.1;
 
         if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
             this._processInertiaScroll();
@@ -494,7 +495,7 @@ var ScrollView = cc.Class({
         this._mouseWheelEventElapsedTime += dt;
 
         //mouse wheel event is ended
-        if (this._mouseWheelEventElapsedTime > 1.0 / 10) {
+        if (this._mouseWheelEventElapsedTime > maxElapsedTime) {
             this._onScrollBarTouchEnded();
             this.unschedule(this._checkMouseWheel);
             this._stopMouseWheel = false;
