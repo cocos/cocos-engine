@@ -1125,5 +1125,16 @@ test('stop Animation', function () {
 
     strictEqual(animationManager.animators.length, 0, 'playing animators should be 0');
     strictEqual(animation._animator.playingAnims.length, 0, 'playing anims should be 0');
+
+    animation.play('test');
+    animationManager.update(0.5);
+
+    strictEqual(animationManager.animators.length, 1, 'playing animators should be 1');
+    strictEqual(animation._animator.playingAnims.length, 1, 'playing anims should be 1');
+
+    animation.stop();
+
+    strictEqual(animationManager.animators.length, 0, 'playing animators should be 0');
+    strictEqual(animation._animator.playingAnims.length, 0, 'playing anims should be 0');
 });
 

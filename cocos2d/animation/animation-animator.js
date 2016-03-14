@@ -80,7 +80,7 @@ p.setStateTime = function (state, time) {
 
 p.onStop = function () {
     var anims = this.playingAnims;
-    for (var i = 0, l = anims.length; i < l; i++) {
+    for (var i = anims.length - 1; i >= 0; i--) {
         anims[i].stop();
     }
 

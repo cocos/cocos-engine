@@ -21,26 +21,32 @@ var animProto = Animator.prototype;
 animProto.update = function (dt) {
     this._updating = true;
 
-    var anims = this.playingAnims;
     var i, l;
+    var anims = this.playingAnims;
+    var stoppedCount = 0;
+
     for (i = 0, l = anims.length; i < l; i++) {
         var anim = anims[i];
         if (anim._isPlaying && !anim._isPaused) {
             anim.update(dt);
+
+            if (!anim._isPlaying) {
+                stoppedCount ++;
+            }
         }
     }
 
     this._updating = false;
+
+    if (anims.length === 0 || stoppedCount >= anims.length ) {
+        this.stop();
+    }
 
     var removeList = this._removeList;
     for (i = 0, l = removeList.length; i < l; i++) {
         this.removeAnimation( removeList[i] );
     }
     removeList.length = 0;
-
-    if (anims.length === 0) {
-        this.stop();
-    }
 };
 
 animProto.onPlay = function () {
@@ -48,7 +54,6 @@ animProto.onPlay = function () {
 };
 
 animProto.onStop = function () {
-    this.playingAnims.length = 0;
     cc.director.getAnimationManager().removeAnimator(this);
 };
 
