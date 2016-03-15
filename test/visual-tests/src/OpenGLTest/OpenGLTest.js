@@ -458,7 +458,7 @@ var GLNodeCCAPITest = OpenGLTestLayer.extend({
 
                 this.shader.use();
                 this.shader.setUniformsForBuiltins();
-                cc.glEnableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_COLOR | cc.macro.VERTEX_ATTRIB_FLAG_POSITION);
+                cc.gl.enableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_COLOR | cc.macro.VERTEX_ATTRIB_FLAG_POSITION);
 
                 // Draw fullscreen Square
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexPositionBuffer);
@@ -604,7 +604,7 @@ var ShaderNode = cc.GLNode.extend({
         this.shader.setUniformLocationF32( this.uniformCenter, centerx, centery);
         this.shader.setUniformLocationF32( this.uniformResolution, 256, 256);
 
-        cc.glEnableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_POSITION );
+        cc.gl.enableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_POSITION );
 
         // Draw fullscreen Square
         gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexPositionBuffer);
@@ -1088,7 +1088,7 @@ var TexImage2DTest = OpenGLTestLayer.extend({
                 this.shader.setUniformsForBuiltins();
 
                 gl.bindTexture(gl.TEXTURE_2D, this.my_texture);
-                cc.glEnableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS | cc.macro.VERTEX_ATTRIB_FLAG_POSITION);
+                cc.gl.enableVertexAttribs( cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS | cc.macro.VERTEX_ATTRIB_FLAG_POSITION);
 
                 // Draw fullscreen Square
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.squareVertexPositionBuffer);

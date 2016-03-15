@@ -23,32 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-Enum = require("../value-types/CCEnum");
-
-/**
- * Enum for UIOrientation.
- * @readOnly
- * @enum UIOrientation
- */
-cc.UIOrientation = cc.Enum({
-    /**
-     * @property {number} PORTRAIT
-     */
-    PORTRAIT: 0,
-    /**
-     * @property {number} LANDSCAPE_LEFT
-     */
-    LANDSCAPE_LEFT: -90,
-    /**
-     * @property {number} LANDSCAPE_RIGHT
-     */
-    LANDSCAPE_RIGHT: 90,
-    /**
-     * @property {number} PORTRAIT_UPSIDE_DOWN
-     */
-    PORTRAIT_UPSIDE_DOWN: 180,
-});
-
 /**
  * <p>
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard                                       <br/>

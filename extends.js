@@ -38,3 +38,12 @@ if (!(CC_EDITOR && Editor.isCoreLevel)) {
 }
 
 require('./extensions/spine');
+
+if (!(CC_EDITOR && Editor.isCoreLevel)) {
+    if (!CC_JSB) {
+        require('./cocos2d/actions');
+        require('./external/chipmunk/chipmunk.js');
+    }
+    
+    require('./extensions/ccpool/CCPool.js');
+}

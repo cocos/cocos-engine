@@ -327,11 +327,11 @@ cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 
 cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
-   var dt = 1 / 60;
-   // Call start for new added components
-   cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
-   // Update for components
-   cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
+    var dt = 1 / 60;
+    // Call start for new added components
+    cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
+    // Update for components
+    cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
 });
 cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
     var dt = 1 / 60;
@@ -339,6 +339,8 @@ cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
     cc.director.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, dt);
     // User can use this event to do things after update
     cc.director.emit(cc.Director.EVENT_AFTER_UPDATE);
+    // Destroy entities that have been removed recently
+    cc.Object._deferredDestroy();
     
     cc.director.emit(cc.Director.EVENT_BEFORE_VISIT, this);
 });

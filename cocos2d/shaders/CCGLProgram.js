@@ -246,7 +246,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
             var status = this._glContext.getProgramParameter(this._programObj, this._glContext.LINK_STATUS);
             if (!status) {
                 cc.log("cocos2d: ERROR: Failed to link program: " + this._glContext.getProgramInfoLog(this._programObj));
-                cc.glDeleteProgram(this._programObj);
+                cc.gl.deleteProgram(this._programObj);
                 this._programObj = null;
                 return false;
             }
@@ -256,10 +256,10 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
     },
 
     /**
-     * it will call glUseProgram()
+     * it will call gl.useProgram()
      */
     use: function () {
-        cc.glUseProgram(this._programObj);
+        cc.gl.useProgram(this._programObj);
     },
 
     /**
@@ -691,7 +691,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this._uniforms.length = 0;
 
         // it is already deallocated by android
-        //ccGLDeleteProgram(m_uProgram);
+        //cc.gl.deleteProgram(m_uProgram);
         this._glContext.deleteProgram(this._programObj);
         this._programObj = null;
 
@@ -723,17 +723,6 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
     }
 });
 
-/**
- * Create a cc.GLProgram object
- * @deprecated since v3.0, please use new cc.GLProgram(vShaderFileName, fShaderFileName) instead
- * @param {String} vShaderFileName
- * @param {String} fShaderFileName
- * @returns {cc.GLProgram}
- */
-cc.GLProgram.create = function (vShaderFileName, fShaderFileName) {
-    return new cc.GLProgram(vShaderFileName, fShaderFileName);
-};
-
 cc.GLProgram._highpSupported = null;
 
 cc.GLProgram._isHighpSupported = function(){
@@ -743,28 +732,4 @@ cc.GLProgram._isHighpSupported = function(){
         cc.GLProgram._highpSupported = highp.precision !== 0;
     }
     return cc.GLProgram._highpSupported;
-};
-
-/**
- * <p>
- *     Sets the shader program for this node
- *
- *     Since v2.0, each rendering node must set its shader program.
- *     It should be set in initialize phase.
- * </p>
- * @function
- * @param {_ccsg.Node} node
- * @param {cc.GLProgram} program The shader program which fetches from CCShaderCache.
- * @example
- * cc.setGLProgram(node, cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR));
- */
-cc.setProgram = function (node, program) {
-    node.shaderProgram = program;
-
-    var children = node.children;
-    if (!children)
-        return;
-
-    for (var i = 0; i < children.length; i++)
-        cc.setProgram(children[i], program);
 };

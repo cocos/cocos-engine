@@ -30,7 +30,7 @@
  * @class
  * @extends cc._Class
  */
-cc.PointObject = cc._Class.extend(/** @lends cc.PointObject# */{
+var PointObject = cc._Class.extend(/** @lends PointObject# */{
     _ratio:null,
     _offset:null,
     _child:null,
@@ -88,7 +88,7 @@ cc.PointObject = cc._Class.extend(/** @lends cc.PointObject# */{
     },
 
     /**
-     * initializes cc.PointObject
+     * initializes PointObject
      * @param  {cc.Vec2} ratio Not point, this is a ratio.
      * @param  {cc.Vec2} offset
      * @return {Boolean}
@@ -100,17 +100,6 @@ cc.PointObject = cc._Class.extend(/** @lends cc.PointObject# */{
         return true;
     }
 });
-
-/**
- * Create a object to stored parallax data.
- * @param {cc.Vec2} ratio
- * @param {cc.Vec2} offset
- * @return {cc.PointObject}
- * @deprecated since v3.0 please use new cc.PointObject() instead.
- */
-cc.PointObject.create = function (ratio, offset) {
-    return new cc.PointObject(ratio, offset);
-};
 
 /**
  * <p>cc.ParallaxNode: A node that simulates a parallax scroller<br />
@@ -169,7 +158,7 @@ cc.ParallaxNode = _ccsg.Node.extend(/** @lends cc.ParallaxNode# */{
         }
         if(!child)
             throw new Error("cc.ParallaxNode.addChild(): child should be non-null");
-        var obj = new cc.PointObject(ratio, offset);
+        var obj = new PointObject(ratio, offset);
         obj.setChild(child);
         this.parallaxArray.push(obj);
 
@@ -238,15 +227,3 @@ cc.ParallaxNode = _ccsg.Node.extend(/** @lends cc.ParallaxNode# */{
             return new cc.ParallaxNode.WebGLRenderCmd(this);
     }
 });
-
-/**
- * Create new parallax node.
- * @deprecated since v3.0 please use new cc.ParallaxNode() instead.
- * @return {cc.ParallaxNode}
- * @example
- * //example
- * var voidNode = new cc.ParallaxNode();
- */
-cc.ParallaxNode.create = function () {
-    return new cc.ParallaxNode();
-};

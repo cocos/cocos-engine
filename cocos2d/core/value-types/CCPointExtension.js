@@ -36,7 +36,7 @@
  * @constant
  * @type Number
  */
-cc.POINT_EPSILON = parseFloat('1.192092896e-07F');
+var POINT_EPSILON = parseFloat('1.192092896e-07F');
 
 /**
  * Returns opposite of point.
@@ -356,7 +356,7 @@ cc.pAngleSigned = function (a, b) {
     var a2 = cc.pNormalize(a);
     var b2 = cc.pNormalize(b);
     var angle = Math.atan2(a2.x * b2.y - a2.y * b2.x, cc.pDot(a2, b2));
-    if (Math.abs(angle) < cc.POINT_EPSILON)
+    if (Math.abs(angle) < POINT_EPSILON)
         return 0.0;
     return angle;
 };
@@ -369,7 +369,7 @@ cc.pAngleSigned = function (a, b) {
  */
 cc.pAngle = function (a, b) {
     var angle = Math.acos(cc.pDot(cc.pNormalize(a), cc.pNormalize(b)));
-    if (Math.abs(angle) < cc.POINT_EPSILON) return 0.0;
+    if (Math.abs(angle) < POINT_EPSILON) return 0.0;
     return angle;
 };
 

@@ -133,7 +133,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         }
         _t._projection = projection;
         _t.emit(cc.Director.EVENT_PROJECTION_CHANGED, _t);
-        cc.setProjectionMatrixDirty();
+        cc.gl.setProjectionMatrixDirty();
         cc.renderer.childrenOrderDirty = true;
     };
 
@@ -253,9 +253,9 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
     _p.setAlphaBlending = function (on) {
         if (on)
-            cc.glBlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
+            cc.gl.blendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
         else
-            cc.glBlendFunc(cc.macro.ONE, cc.macro.ZERO);
+            cc.gl.blendFunc(cc.macro.ONE, cc.macro.ZERO);
         //cc.checkGLErrorDebug();
     };
 

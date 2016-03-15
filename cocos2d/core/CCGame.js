@@ -24,6 +24,10 @@
  ****************************************************************************/
 
 var EventTarget = require('./event/event-target');
+var View;
+if (!(CC_EDITOR && Editor.isCoreLevel)) {
+    View = require('./platform/CCView');
+}
 
 /**
  * An object to boot the game.
@@ -259,7 +263,7 @@ var game = /** @lends cc.game# */{
              * @property view
              * @type View
              */
-            cc.view = cc.EGLView._getInstance();
+            cc.view = View ? View._getInstance() : null;
 
             /**
              * @property director
