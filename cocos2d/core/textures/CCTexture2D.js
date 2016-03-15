@@ -32,18 +32,6 @@ require('../platform/_CCClass');
 require('../platform/CCClass');
 
 /**
- * <p>
- * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
- * The created cc.Texture2D object will always have power-of-two dimensions.                                                <br/>
- * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
- *  i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).                                           <br/>
- * Be aware that the content of the generated textures will be upside-down! </p>
-
- * @class Texture2D
- * @extends RawAsset
- */
-
-/**
  * The texture wrap mode
  * @class Texture2D.WrapMode
  * @static
@@ -72,6 +60,17 @@ var WrapMode = cc.Enum({
     MIRRORED_REPEAT: 0x8370
 });
 
+/**
+ * <p>
+ * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
+ * The created cc.Texture2D object will always have power-of-two dimensions.                                                <br/>
+ * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
+ *  i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).                                           <br/>
+ * Be aware that the content of the generated textures will be upside-down! </p>
+
+ * @class Texture2D
+ * @extends RawAsset
+ */
 var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
 
     name: 'cc.Texture2D',

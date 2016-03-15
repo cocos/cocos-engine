@@ -24,12 +24,6 @@
  ****************************************************************************/
 
 /**
- * Renders a TMX Tile Map in the scene.
- * @class TiledMap
- * @extends Component
- */
-
-/**
  * The orientation of tiled map
  * @enum TiledMap.Orientation
  * @static
@@ -151,6 +145,11 @@ var TileFlag = cc.Enum({
     FLIPPED_MASK: (~((0x80000000 | 0x40000000 | 0x20000000) >>> 0)) >>> 0
 });
 
+/**
+ * Renders a TMX Tile Map in the scene.
+ * @class TiledMap
+ * @extends Component
+ */
 var TiledMap = cc.Class({
     name: 'cc.TiledMap',
     extends: cc._RendererInSG,
