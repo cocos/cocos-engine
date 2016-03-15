@@ -26,6 +26,7 @@ var JS = cc.js;
 var SceneGraphHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
+var IdGenerater = require('../platform/id-generater');
 
 // called after changing parent
 function setMaxZOrder (node) {
@@ -51,6 +52,8 @@ var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
 
 var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
+
+var idGenerater = new IdGenerater('Node');
 
 /**
  * A base node for CCNode and CCEScene, it will:
@@ -159,12 +162,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
         },
 
-        /**
-         * uuid
-         * @property _id
-         * @type {String}
-         * @private
-         */
         _id: {
             default: '',
             editorOnly: true
@@ -178,7 +175,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          */
         uuid: {
             get: function () {
-                return this._id || (this._id = window.Editor ? Editor.UuidUtils.uuid() : '');
+                var id = this._id;
+                if ( !id ) {
+                    id = this._id = CC_EDITOR ? Editor.UuidUtils.uuid() : idGenerater.getNewId();
+                }
+                return id;
             }
         },
 

@@ -25,6 +25,7 @@
 
 require('../platform/CCObject');
 require('../CCNode');
+var IdGenerater = require('../platform/id-generater');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -177,13 +178,7 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
 //    };
 //};
 
-// Yes, the id might have a conflict problem once every 365 days
-// if the game runs at 60 FPS and each frame 4760273 counts of new HashObject's id are requested.
-var CompId = 0;
-var IdPrefix = CC_DEV && ('Comp' + Editor.UuidUtils.NonUuidMark);
-var getNewId = CC_DEV && function () {
-    return IdPrefix + (++CompId);
-};
+var idGenerater = new IdGenerater('Comp');
 
 /**
  * Base class for everything attached to Node(Entity).
@@ -256,14 +251,13 @@ var Component = cc.Class({
         uuid: {
             get: function () {
                 var id = this._id;
-                if (id) {
-                    return id;
+                if ( !id ) {
+                    id = this._id = idGenerater.getNewId();
+                    if (CC_DEV) {
+                        cc.engine.attachedObjsForEditor[id] = this;
+                    }
                 }
-                if (CC_DEV) {
-                    id = this._id = getNewId();
-                    cc.engine.attachedObjsForEditor[id] = this;
-                    return id;
-                }
+                return id;
             },
             visible: false
         },
