@@ -661,7 +661,7 @@ if (cc._renderType === game.RENDER_TYPE_WEBGL) {
                 return;
 
             var gl = cc._renderContext;
-            cc.glBindTexture2D(_t.texture);
+            cc.gl.bindTexture2D(_t.texture);
 
             //
             // Using VBO without VAO
@@ -669,7 +669,7 @@ if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             //vertices
             //gl.bindBuffer(gl.ARRAY_BUFFER, _t._buffersVBO[0]);
             // XXX: update is done in draw... perhaps it should be done in a timer
-            cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
             if (_t.dirty){

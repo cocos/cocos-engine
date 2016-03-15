@@ -22,46 +22,44 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-(function(){
-    _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
-        cc.SpriteBatchNode.WebGLRenderCmd.call(this, renderableObject);
-        this._needDraw = true;
-    };
+_ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
+    cc.SpriteBatchNode.WebGLRenderCmd.call(this, renderableObject);
+    this._needDraw = true;
+};
 
-    var proto = _ccsg.TMXLayer.WebGLRenderCmd.prototype = Object.create(cc.SpriteBatchNode.WebGLRenderCmd.prototype);
-    proto.constructor = _ccsg.TMXLayer.WebGLRenderCmd;
+var proto = _ccsg.TMXLayer.WebGLRenderCmd.prototype = Object.create(cc.SpriteBatchNode.WebGLRenderCmd.prototype);
+proto.constructor = _ccsg.TMXLayer.WebGLRenderCmd;
 
-    proto._updateCacheContext = function(){};
+proto._updateCacheContext = function(){};
 
-    proto.initImageSize = function(){
-        var node = this._node;
-        node.tileset.imageSize = this._textureAtlas.texture.getContentSizeInPixels();
+proto.initImageSize = function(){
+    var node = this._node;
+    node.tileset.imageSize = this._textureAtlas.texture.getContentSizeInPixels();
 
-        // By default all the tiles are aliased
-        // pros:
-        //  - easier to render
-        // cons:
-        //  - difficult to scale / rotate / etc.
-        this._textureAtlas.texture.setAliasTexParameters();
-    };
+    // By default all the tiles are aliased
+    // pros:
+    //  - easier to render
+    // cons:
+    //  - difficult to scale / rotate / etc.
+    this._textureAtlas.texture.setAliasTexParameters();
+};
 
-    proto._reusedTileWithRect = function(rect){
-        var node = this._node;
-        if (!node._reusedTile) {
-            node._reusedTile = new _ccsg.Sprite();
-            node._reusedTile.initWithTexture(node.texture, rect, false);
-            node._reusedTile.batchNode = node;
-        } else {
-            // XXX HACK: Needed because if "batch node" is nil,
-            // then the Sprite'squad will be reset
-            node._reusedTile.batchNode = null;
+proto._reusedTileWithRect = function(rect){
+    var node = this._node;
+    if (!node._reusedTile) {
+        node._reusedTile = new _ccsg.Sprite();
+        node._reusedTile.initWithTexture(node.texture, rect, false);
+        node._reusedTile.batchNode = node;
+    } else {
+        // XXX HACK: Needed because if "batch node" is nil,
+        // then the Sprite'squad will be reset
+        node._reusedTile.batchNode = null;
 
-            // Re-init the sprite
-            node._reusedTile.setTextureRect(rect, false);
+        // Re-init the sprite
+        node._reusedTile.setTextureRect(rect, false);
 
-            // restore the batch node
-            node._reusedTile.batchNode = node;
-        }
-        return node._reusedTile;
-    };
-})();
+        // restore the batch node
+        node._reusedTile.batchNode = node;
+    }
+    return node._reusedTile;
+};

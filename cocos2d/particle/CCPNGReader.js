@@ -28,9 +28,9 @@
 
 /**
  * A png file reader
- * @name cc.tiffReader
+ * @name PNGReader
  */
-cc.PNGReader = cc._Class.extend({
+var PNGReader = cc._Class.extend({
     ctor:function(data){
         var chunkSize, colors, delayDen, delayNum, frame, i, index, key, section, ccshort, text, _i, _j, _ref;
         this.data = data;
@@ -328,3 +328,4 @@ cc.PNGReader = cc._Class.extend({
     }
 });
 
+module.exports = PNGReader;

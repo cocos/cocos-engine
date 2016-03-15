@@ -24,72 +24,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * @constant
- * @type Number
- */
-cc.TMX_PROPERTY_NONE = 0;
+function uint8ArrayToUint32Array (uint8Arr) {
+    if(uint8Arr.length % 4 !== 0)
+        return null;
 
-/**
- * @constant
- * @type Number
- */
-cc.TMX_PROPERTY_MAP = 1;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_PROPERTY_LAYER = 2;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_PROPERTY_OBJECTGROUP = 3;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_PROPERTY_OBJECT = 4;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_PROPERTY_TILE = 5;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_TILE_HORIZONTAL_FLAG = 0x80000000;
-
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_TILE_VERTICAL_FLAG = 0x40000000;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_TILE_DIAGONAL_FLAG = 0x20000000;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_TILE_FLIPPED_ALL = (cc.TMX_TILE_HORIZONTAL_FLAG | cc.TMX_TILE_VERTICAL_FLAG | cc.TMX_TILE_DIAGONAL_FLAG) >>> 0;
-
-/**
- * @constant
- * @type Number
- */
-cc.TMX_TILE_FLIPPED_MASK = (~(cc.TMX_TILE_FLIPPED_ALL)) >>> 0;
+    var arrLen = uint8Arr.length /4;
+    var retArr = window.Uint32Array? new Uint32Array(arrLen) : [];
+    for(var i = 0; i < arrLen; i++){
+        var offset = i * 4;
+        retArr[i] = uint8Arr[offset]  + uint8Arr[offset + 1] * (1 << 8) + uint8Arr[offset + 2] * (1 << 16) + uint8Arr[offset + 3] * (1<<24);
+    }
+    return retArr;
+};
 
 // Bits on the far end of the 32-bit global tile ID (GID's) are used for tile flags
 
@@ -204,7 +150,7 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
         var rect = cc.rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;
-        gid &= cc.TMX_TILE_FLIPPED_MASK;
+        gid &= cc.TiledMap.TileFlag.FLIPPED_MASK;
         gid = gid - parseInt(this.firstGid, 10);
         var max_x = parseInt((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing), 10);
         rect.x = parseInt((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin, 10);
@@ -547,11 +493,11 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 cc.log("cocos2d: TMXFormat: Unsupported TMX version:" + version);
 
             if (orientationStr === "orthogonal")
-                this.orientation = cc.TMX_ORIENTATION_ORTHO;
+                this.orientation = cc.TiledMap.Orientation.ORTHO;
             else if (orientationStr === "isometric")
-                this.orientation = cc.TMX_ORIENTATION_ISO;
+                this.orientation = cc.TiledMap.Orientation.ISO;
             else if (orientationStr === "hexagonal")
-                this.orientation = cc.TMX_ORIENTATION_HEX;
+                this.orientation = cc.TiledMap.Orientation.HEX;
             else if (orientationStr !== null)
                 cc.log("cocos2d: TMXFomat: Unsupported orientation:" + orientationStr);
 
@@ -684,11 +630,11 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 }
                 switch (compression) {
                     case 'gzip':
-                        layer._tiles = cc.unzipBase64AsArray(nodeValue, 4);
+                        layer._tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
                         break;
                     case 'zlib':
                         var inflator = new Zlib.Inflate(cc.Codec.Base64.decodeAsArray(nodeValue, 1));
-                        layer._tiles = cc.uint8ArrayToUint32Array(inflator.decompress());
+                        layer._tiles = uint8ArrayToUint32Array(inflator.decompress());
                         break;
                     case null:
                     case '':
@@ -891,7 +837,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         this.currentString = "";
         this.storingCharacters = false;
         this.layerAttrs = cc.TMXLayerInfo.ATTRIB_NONE;
-        this.parentElement = cc.TMX_PROPERTY_NONE;
+        this.parentElement = cc.TiledMap.NONE;
         this._currentFirstGID = 0;
     }
 });

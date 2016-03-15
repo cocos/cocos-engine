@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 var macro = cc.macro;
+var ccgl = cc.gl;
 
 //Sprite's WebGL render command
 _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
@@ -434,10 +435,10 @@ proto.rendering = function (ctx) {
             this._shaderProgram.use();
             this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
-            cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+            ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
-            cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
-            cc.glEnableVertexAttribs(macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            ccgl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
+            ccgl.enableVertexAttribs(macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
             if (this._quadDirty) {
@@ -453,10 +454,10 @@ proto.rendering = function (ctx) {
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
-        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
-        cc.glBindTexture2D(null);
+        ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
+        ccgl.bindTexture2D(null);
 
-        cc.glEnableVertexAttribs(macro.VERTEX_ATTRIB_FLAG_POSITION | macro.VERTEX_ATTRIB_FLAG_COLOR);
+        ccgl.enableVertexAttribs(macro.VERTEX_ATTRIB_FLAG_POSITION | macro.VERTEX_ATTRIB_FLAG_COLOR);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
         if (this._quadDirty) {

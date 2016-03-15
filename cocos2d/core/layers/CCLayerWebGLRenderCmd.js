@@ -81,8 +81,8 @@
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR);
-        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR);
+        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
 
         //
         // Attributes
@@ -285,8 +285,8 @@
         //draw gradient layer
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR);
-        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR);
+        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
         //
         // Attributes
         //

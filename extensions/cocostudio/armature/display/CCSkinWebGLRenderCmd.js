@@ -103,10 +103,10 @@
             this._shaderProgram.use();
             this._shaderProgram.setUniformForModelViewAndProjectionMatrixWithMat4();
 
-            cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+            cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
-            cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
-            cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            cc.gl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
+            cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
             if (this._quadDirty) {

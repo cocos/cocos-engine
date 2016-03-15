@@ -24,6 +24,131 @@
  ****************************************************************************/
 
 /**
+ * The orientation of tiled map
+ * @enum TiledMap.Orientation
+ * @static
+ * @namespace TiledMap
+ */
+var Orientation = cc.Enum({
+    /**
+     * Orthogonal orientation
+     * @property ORTHO
+     * @type {Number}
+     * @static
+     */
+    ORTHO: 0,
+
+    /**
+     * Hexagonal orientation
+     * @property HEX
+     * @type {Number}
+     * @static
+     */
+    HEX: 1,
+
+    /**
+     * Isometric orientation
+     * @property ISO
+     * @type {Number}
+     * @static
+     */
+    ISO: 2
+});
+
+/**
+ * The property type of tiled map
+ * @enum TiledMap.Property
+ * @static
+ * @namespace TiledMap
+ */
+var Property = cc.Enum({
+    /**
+     * @property NONE
+     * @type {Number}
+     * @static
+     */
+    NONE: 0,
+
+    /**
+     * @property MAP
+     * @type {Number}
+     * @static
+     */
+    MAP: 1,
+
+    /**
+     * @property LAYER
+     * @type {Number}
+     * @static
+     */
+    LAYER: 2,
+
+    /**
+     * @property OBJECTGROUP
+     * @type {Number}
+     * @static
+     */
+    OBJECTGROUP: 3,
+
+    /**
+     * @property OBJECT
+     * @type {Number}
+     * @static
+     */
+    OBJECT: 4,
+
+    /**
+     * @property TILE
+     * @type {Number}
+     * @static
+     */
+    TILE: 5
+});
+
+/**
+ * The tile flags of tiled map
+ * @enum TiledMap.TileFlag
+ * @static
+ * @namespace TiledMap
+ */
+var TileFlag = cc.Enum({
+    /**
+     * @property HORIZONTAL
+     * @type {Number}
+     * @static
+     */
+    HORIZONTAL: 0x80000000,
+
+    /**
+     * @property VERTICAL
+     * @type {Number}
+     * @static
+     */
+    VERTICAL: 0x40000000,
+
+    /**
+     * @property DIAGONAL
+     * @type {Number}
+     * @static
+     */
+    DIAGONAL: 0x20000000,
+
+    /**
+     * @property FLIPPED_ALL
+     * @type {Number}
+     * @static
+     */
+    FLIPPED_ALL: (0x80000000 | 0x40000000 | 0x20000000) >>> 0,
+
+    /**
+     * @property FLIPPED_MASK
+     * @type {Number}
+     * @static
+     */
+    FLIPPED_MASK: (~((0x80000000 | 0x40000000 | 0x20000000) >>> 0)) >>> 0
+});
+
+/**
  * Renders a TMX Tile Map in the scene.
  * @class TiledMap
  * @extends Component
@@ -616,5 +741,9 @@ var TiledMap = cc.Class({
         }
     },
 });
+
+TiledMap.Orientation = Orientation;
+TiledMap.Property = Property;
+TiledMap.TileFlag = TileFlag;
 
 cc.TiledMap = module.exports = TiledMap;

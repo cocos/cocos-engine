@@ -105,7 +105,7 @@ switch(__BrowserGetter.adaptationType){
  *
  * @class View
  */
-cc.EGLView = cc._Class.extend({
+var View = cc._Class.extend({
     _delegate: null,
     // Size of parent node that contains cc.container and cc.game.canvas
     _frameSize: null,
@@ -151,7 +151,7 @@ cc.EGLView = cc._Class.extend({
     _targetDensityDPI: null,
 
     /**
-     * Constructor of cc.EGLView
+     * Constructor of View
      */
     ctor: function () {
         var _t = this, d = document, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
@@ -443,7 +443,7 @@ cc.EGLView = cc._Class.extend({
     },
 
     /**
-     * Sets the resolution translate on EGLView.
+     * Sets the resolution translate on View.
      * @method setContentTranslateLeftTop
      * @param {Number} offsetLeft
      * @param {Number} offsetTop
@@ -453,7 +453,7 @@ cc.EGLView = cc._Class.extend({
     },
 
     /**
-     * Returns the resolution translate on EGLView
+     * Returns the resolution translate on View
      * @method getContentTranslateLeftTop
      * @return {Size|Object}
      */
@@ -881,12 +881,12 @@ cc.EGLView = cc._Class.extend({
 
 /**
  * @method _getInstance
- * @return {EGLView}
+ * @return {View}
  * @private
  */
-cc.EGLView._getInstance = function () {
+View._getInstance = function () {
     if (!this._instance) {
-        this._instance = this._instance || new cc.EGLView();
+        this._instance = this._instance || new View();
         this._instance.initialize();
     }
     return this._instance;
@@ -1355,3 +1355,5 @@ cc.ResolutionPolicy.FIXED_WIDTH = 4;
  * @static
  */
 cc.ResolutionPolicy.UNKNOWN = 5;
+
+module.exports = View;

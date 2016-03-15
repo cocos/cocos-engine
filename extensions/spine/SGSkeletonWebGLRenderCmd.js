@@ -45,7 +45,7 @@ proto.rendering = function (ctx) {
 
     this._shaderProgram.use();
     this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-//        cc.glBlendFunc(this._blendFunc.src, this._blendFunc.dst);
+//        cc.gl.blendFunc(this._blendFunc.src, this._blendFunc.dst);
     locSkeleton.r = color.r / 255;
     locSkeleton.g = color.g / 255;
     locSkeleton.b = color.b / 255;
@@ -86,16 +86,16 @@ proto.rendering = function (ctx) {
             blendMode = slot.data.blendMode;
             switch (blendMode) {
             case spine.BlendMode.additive:
-                cc.glBlendFunc(premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA, cc.macro.ONE);
+                cc.gl.blendFunc(premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA, cc.macro.ONE);
                 break;
             case spine.BlendMode.multiply:
-                cc.glBlendFunc(cc.macro.DST_COLOR, cc.macro.ONE_MINUS_SRC_ALPHA);
+                cc.gl.blendFunc(cc.macro.DST_COLOR, cc.macro.ONE_MINUS_SRC_ALPHA);
                 break;
             case spine.BlendMode.screen:
-                cc.glBlendFunc(cc.macro.ONE, cc.macro.ONE_MINUS_SRC_COLOR);
+                cc.gl.blendFunc(cc.macro.ONE, cc.macro.ONE_MINUS_SRC_COLOR);
                 break;
             default:
-                cc.glBlendFunc(locBlendFunc.src, locBlendFunc.dst);
+                cc.gl.blendFunc(locBlendFunc.src, locBlendFunc.dst);
             }
         } else if (regionTextureAtlas != textureAtlas && textureAtlas) {
             textureAtlas.drawQuads();

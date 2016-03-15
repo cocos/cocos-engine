@@ -24,25 +24,23 @@
 
 //TODO find a way to simple these code.
 
-(function(){
-    cc.ParallaxNode.CanvasRenderCmd = function(renderable){
-        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-        this._needDraw = false;
-    };
+cc.ParallaxNode.CanvasRenderCmd = function(renderable){
+    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._needDraw = false;
+};
 
-    var proto = cc.ParallaxNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-    proto.constructor = cc.ParallaxNode.CanvasRenderCmd;
+var proto = cc.ParallaxNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+proto.constructor = cc.ParallaxNode.CanvasRenderCmd;
 
-    proto.updateStatus = function(){
-        this._node._updateParallaxPosition();
-        _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
-    };
+proto.updateStatus = function(){
+    this._node._updateParallaxPosition();
+    _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
+};
 
-    proto._syncStatus = function(parentCmd){
-        this._node._updateParallaxPosition();
-        _ccsg.Node.CanvasRenderCmd.prototype._syncStatus.call(this, parentCmd);
-    }
-})();
+proto._syncStatus = function(parentCmd){
+    this._node._updateParallaxPosition();
+    _ccsg.Node.CanvasRenderCmd.prototype._syncStatus.call(this, parentCmd);
+};
 
 cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
     if(cc._renderType !== cc.game.RENDER_TYPE_WEBGL)
@@ -64,6 +62,5 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
     proto._syncStatus = function(parentCmd){
         this._node._updateParallaxPosition();
         _ccsg.Node.WebGLRenderCmd.prototype._syncStatus.call(this, parentCmd);
-    }
+    };
 });
-

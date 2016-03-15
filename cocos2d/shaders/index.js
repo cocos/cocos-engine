@@ -23,18 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
-
-if (!CC_EDITOR || !Editor.isCoreLevel) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
-    }
-
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-}
-
-require('./base-ui/CCWidgetManager');
+require('./CCShaders');
+require('./CCShaderCache');
+require('./CCGLProgram');
+require('./CCGLStateCache');

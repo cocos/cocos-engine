@@ -28,13 +28,6 @@
  */
 
 /**
- * paticle default capacity
- * @constant
- * @type Number
- */
-cc.PARTICLE_DEFAULT_CAPACITY = 500;
-
-/**
  * <p>
  *    cc.ParticleBatchNode is like a batch node: if it contains children, it will draw them in 1 single OpenGL call  <br/>
  *    (often known as "batch draw").  </br>
@@ -513,15 +506,3 @@ var _p = cc.ParticleBatchNode.prototype;
 /** @expose */
 _p.texture;
 cc.defineGetterSetter(_p, "texture", _p.getTexture, _p.setTexture);
-
-
-/**
- * initializes the particle system with the name of a file on disk (for a list of supported formats look at the cc.Texture2D class), a capacity of particles
- * @deprecated since v3.0 please use new cc.ParticleBatchNode(filename, capacity) instead.
- * @param {String|cc.Texture2D} fileImage
- * @param {Number} capacity
- * @return {cc.ParticleBatchNode}
- */
-cc.ParticleBatchNode.create = function (fileImage, capacity) {
-    return new cc.ParticleBatchNode(fileImage, capacity);
-};
