@@ -26,15 +26,27 @@
 var EventTarget = require('../event/event-target');
 var sys = require('../platform/CCSys');
 var JS = require('../platform/js');
+var misc = require('../utils/misc');
 var game = require('../CCGame');
 require('../platform/_CCClass');
 require('../platform/CCClass');
 
 /**
+ * <p>
+ * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
+ * The created cc.Texture2D object will always have power-of-two dimensions.                                                <br/>
+ * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
+ *  i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).                                           <br/>
+ * Be aware that the content of the generated textures will be upside-down! </p>
+
+ * @class Texture2D
+ * @extends RawAsset
+ */
+
+/**
  * The texture wrap mode
  * @class Texture2D.WrapMode
  * @static
- * @namespace Texture2D
  */
 var WrapMode = cc.Enum({
     /**
@@ -60,37 +72,15 @@ var WrapMode = cc.Enum({
     MIRRORED_REPEAT: 0x8370
 });
 
-/*
- * @param {Number} x
- * @return {Number}
- * Constructor
- */
-var NextPOT = function (x) {
-    x = x - 1;
-    x = x | (x >> 1);
-    x = x | (x >> 2);
-    x = x | (x >> 4);
-    x = x | (x >> 8);
-    x = x | (x >> 16);
-    return x + 1;
-};
-
-/**
- * <p>
- * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
- * The created cc.Texture2D object will always have power-of-two dimensions.                                                <br/>
- * Depending on how you create the cc.Texture2D object, the actual image area of the texture might be smaller than the texture dimensions <br/>
- *  i.e. "contentSize" != (pixelsWide, pixelsHigh) and (maxS, maxT) != (1.0, 1.0).                                           <br/>
- * Be aware that the content of the generated textures will be upside-down! </p>
-
- * @class Texture2D
- * @extends RawAsset
- */
 var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
 
     name: 'cc.Texture2D',
     extends: require('../assets/CCRawAsset'),
     mixins: [EventTarget],
+
+    statics: {
+        WrapMode: WrapMode
+    },
 
     ctor: function () {
         this.url = null;
@@ -887,7 +877,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 if(magFilter !== undefined)
                     texParams = {minFilter: texParams, magFilter: magFilter, wrapS: wrapS, wrapT: wrapT};
 
-                cc.assert((_t._pixelsWide === NextPOT(_t._pixelsWide) && _t._pixelsHigh === NextPOT(_t._pixelsHigh)) ||
+                cc.assert((_t._pixelsWide === misc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === misc.NextPOT(_t._pixelsHigh)) ||
                     (texParams.wrapS === gl.CLAMP_TO_EDGE && texParams.wrapT === gl.CLAMP_TO_EDGE),
                     "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures");
 
@@ -922,7 +912,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             generateMipmap: function () {
                 var _t = this;
-                cc.assert(_t._pixelsWide === NextPOT(_t._pixelsWide) && _t._pixelsHigh === NextPOT(_t._pixelsHigh), "Mimpap texture only works in POT textures");
+                cc.assert(_t._pixelsWide === misc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === misc.NextPOT(_t._pixelsHigh), "Mimpap texture only works in POT textures");
 
                 cc.gl.bindTexture2D(_t);
                 cc._renderContext.generateMipmap(cc._renderContext.TEXTURE_2D);

@@ -1674,6 +1674,13 @@ cc.randomMinus1To1 = function () {
 };
 
 /**
+ * returns a random float between 0 and 1, use Math.random directly
+ * @return {Number}
+ * @method random0To1
+ */
+cc.random0To1 = Math.random;
+
+/**
  * converts degrees to radians
  * @param {Number} angle
  * @return {Number}

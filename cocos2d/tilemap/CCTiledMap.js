@@ -24,10 +24,15 @@
  ****************************************************************************/
 
 /**
+ * Renders a TMX Tile Map in the scene.
+ * @class TiledMap
+ * @extends Component
+ */
+
+/**
  * The orientation of tiled map
  * @enum TiledMap.Orientation
  * @static
- * @namespace TiledMap
  */
 var Orientation = cc.Enum({
     /**
@@ -59,7 +64,6 @@ var Orientation = cc.Enum({
  * The property type of tiled map
  * @enum TiledMap.Property
  * @static
- * @namespace TiledMap
  */
 var Property = cc.Enum({
     /**
@@ -109,7 +113,6 @@ var Property = cc.Enum({
  * The tile flags of tiled map
  * @enum TiledMap.TileFlag
  * @static
- * @namespace TiledMap
  */
 var TileFlag = cc.Enum({
     /**
@@ -148,17 +151,18 @@ var TileFlag = cc.Enum({
     FLIPPED_MASK: (~((0x80000000 | 0x40000000 | 0x20000000) >>> 0)) >>> 0
 });
 
-/**
- * Renders a TMX Tile Map in the scene.
- * @class TiledMap
- * @extends Component
- */
 var TiledMap = cc.Class({
     name: 'cc.TiledMap',
     extends: cc._RendererInSG,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
+    },
+
+    statics: {
+        Orientation: Orientation,
+        Property: Property,
+        TileFlag: TileFlag
     },
 
     properties: {
@@ -741,9 +745,5 @@ var TiledMap = cc.Class({
         }
     },
 });
-
-TiledMap.Orientation = Orientation;
-TiledMap.Property = Property;
-TiledMap.TileFlag = TileFlag;
 
 cc.TiledMap = module.exports = TiledMap;

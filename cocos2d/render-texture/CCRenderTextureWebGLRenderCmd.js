@@ -22,20 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/*
- * @param {Number} x
- * @return {Number}
- * Constructor
- */
-var NextPOT = function (x) {
-    x = x - 1;
-    x = x | (x >> 1);
-    x = x | (x >> 2);
-    x = x | (x >> 4);
-    x = x | (x >> 8);
-    x = x | (x >> 16);
-    return x + 1;
-};
+var misc = require('../cocos2d/core/utils/misc');
 
 cc.RenderTexture.WebGLRenderCmd = function(renderableObject){
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
@@ -163,8 +150,8 @@ proto.initWithWidthAndHeight = function(width, height, format, depthStencilForma
         powW = width;
         powH = height;
     } else {
-        powW = NextPOT(width);
-        powH = NextPOT(height);
+        powW = misc.NextPOT(width);
+        powH = misc.NextPOT(height);
     }
 
     //void *data = malloc(powW * powH * 4);

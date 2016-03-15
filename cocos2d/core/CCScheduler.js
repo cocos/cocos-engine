@@ -28,7 +28,7 @@
  */
 
 //data structures
-/**
+/*
  * A list double-linked list used for "updates with priority"
  * @class ListEntry
  * @param {ListEntry} prev
@@ -52,7 +52,7 @@ ListEntry.prototype.trigger = function (dt) {
     this.callback.call(this.target, dt);
 };
 
-/**
+/*
  * A update entry list
  * @class HashUpdateEntry
  * @param {Array} list Which list does it belong to ?
@@ -70,7 +70,7 @@ var HashUpdateEntry = function (list, entry, target, callback, hh) {
 };
 
 //
-/**
+/*
  * Hash Element used for "selectors with interval"
  * @class HashTimerEntry
  * @param {Array} timers
@@ -92,7 +92,7 @@ var HashTimerEntry = function (timers, target, timerIndex, currentTimer, current
     _t.hh = hh;
 };
 
-/**
+/*
  * Light weight timer
  * @class Timer
  */
@@ -1058,7 +1058,6 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
  * @property PRIORITY_SYSTEM
  * @type {Number}
  * @static
- * @namespace Scheduler
  */
 cc.Scheduler.PRIORITY_SYSTEM = (-2147483647 - 1);
 
@@ -1067,6 +1066,5 @@ cc.Scheduler.PRIORITY_SYSTEM = (-2147483647 - 1);
  * @property PRIORITY_NON_SYSTEM
  * @type {Number}
  * @static
- * @namespace Scheduler
  */
 cc.Scheduler.PRIORITY_NON_SYSTEM = cc.Scheduler.PRIORITY_SYSTEM + 1;
