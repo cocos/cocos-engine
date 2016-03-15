@@ -26,7 +26,6 @@
 
 var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
-var CCObject = require('./platform/CCObject');
 
 cc.g_NumberOfDraws = 0;
 
@@ -1205,14 +1204,14 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
                 // Update for components
                 this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
-                // Destroy entities that have been removed recently
-                CCObject._deferredDestroy();
                 // Engine update with scheduler
                 this.engineUpdate(this._deltaTime);
                 // Late update for components
                 this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                // Destroy entities that have been removed recently
+                cc.Object._deferredDestroy();
             }
 
             /* to avoid flickr, nextScene MUST be here: after tick and before draw.
