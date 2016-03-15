@@ -10,11 +10,11 @@ var frame1 = new cc.SpriteFrame(texture, cc.Rect(0, 0, 90, 128));
 var frame2 = new cc.SpriteFrame(texture, cc.Rect(0, 0, 90, 128), false, 0, cc.Size(90, 128));
 
 // 3. load a cc.SpriteFrame with image path (Recommend)
-var url = 'resources://textures/grossini_dance.png/grossini_dance';
+var url = 'resources://test assets/PurpleMonster.png/PurpleMonster';
 cc.loader.load(url, function (err, spriteFrame) {
         var node = new cc.Node("New Sprite");
         var sprite = node.addComponent(cc.Sprite);
         sprite.spriteFrame = spriteFrame;
-        node.parent = this.Node
+        node.parent = this.node
     }.bind(this)
 );

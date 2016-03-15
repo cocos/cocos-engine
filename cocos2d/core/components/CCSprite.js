@@ -30,12 +30,12 @@
  */
 /**
  * !#en The simple type.
- * !#zh 简易类型
+ * !#zh 普通类型
  * @property {Number} SIMPLE
  */
 /**
  * !#en The sliced type.
- * !#zh 切片（用于九宫格）类型
+ * !#zh 切片（九宫格）类型
  * @property {Number} SLICED
  */
 /**
@@ -67,7 +67,7 @@ var SpriteType = cc.Scale9Sprite.RenderingType;
  */
 /**
  * !#en The radial fill.
- * !#zh 沿半径的方向填充
+ * !#zh 径向填充
  * @property {Number} RADIAL
  */
 var FillType = cc.Scale9Sprite.FillType;
@@ -81,20 +81,20 @@ var BlendFactor = cc.BlendFunc.BlendFactor;
  */
 var SizeMode = cc.Enum({
     /**
-     * !#en Use the default node size.
-     * !#zh 自定义使用节点预设的尺寸
+     * !#en Use the customized node size.
+     * !#zh 使用节点预设的尺寸
      * @property {Number} CUSTOM
      */
     CUSTOM: 0,
     /**
-     * !#en Automatically match the size of the sprite trimmed (or size).
-     * !#zh 自动适配为精灵裁剪后的尺寸(或大小)
+     * !#en Match the trimmed size of the sprite frame automatically.
+     * !#zh 自动适配为精灵裁剪后的尺寸
      * @property {Number} TRIMMED
      */
     TRIMMED: 1,
     /**
-     * !#en Automatic matching for the elves picture size (or size).
-     * !#zh 自动适配为精灵原图尺寸(或大小)
+     * !#en Match the raw size of the sprite frame automatically.
+     * !#zh 自动适配为精灵原图尺寸
      * @property {Number} RAW
      */
     RAW: 2
