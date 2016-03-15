@@ -339,6 +339,8 @@ cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
     cc.director.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, dt);
     // User can use this event to do things after update
     cc.director.emit(cc.Director.EVENT_AFTER_UPDATE);
+    // Destroy entities that have been removed recently
+    cc.Object._deferredDestroy();
     
     cc.director.emit(cc.Director.EVENT_BEFORE_VISIT, this);
 });
