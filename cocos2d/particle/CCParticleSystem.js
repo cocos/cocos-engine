@@ -33,7 +33,7 @@ var EmitterMode = cc.Enum({
     /**
      * !#en Uses gravity, speed, radial and tangential acceleration.
      * !#zh 重力模式，模拟重力，可让粒子围绕一个中心点移近或移远。
-     * @property {Number} GRAVITY.
+     * @property {Number} GRAVITY
      */
     GRAVITY: 0,
     /**
@@ -53,7 +53,8 @@ var PositionType = cc.Enum({
     /**
      * !#en
      * Living particles are attached to the world and are unaffected by emitter repositioning.
-     * !#zh 自由模式。相对于屏幕自由，不会随粒子节点移动而移动（可产生火焰、蒸汽等效果）。
+     * !#zh
+     * 自由模式，相对于世界坐标，不会随粒子节点移动而移动。（可产生火焰、蒸汽等效果）
      * @property {Number} FREE
      */
     FREE: 0,
@@ -62,7 +63,8 @@ var PositionType = cc.Enum({
      * !#en
      * Living particles are attached to the world but will follow the emitter repositioning.<br/>
      * Use case: Attach an emitter to an sprite, and you want that the emitter follows the sprite.
-     * !#zh 相对模式。相对于被绑定的Node静止，粒子发射器会随Node移动而移动，可用于制作移动角色身上的特效等等。
+     * !#zh
+     * 相对模式，粒子会随父节点移动而移动，可用于制作移动角色身上的特效等等。（该选项在 Creator 中暂时不支持）
      * @property {Number} RELATIVE
      */
     RELATIVE: 1,
@@ -70,7 +72,8 @@ var PositionType = cc.Enum({
     /**
      * !#en
      * Living particles are attached to the emitter and are translated along with it.
-     * 打组模式。相对于发射点的，粒子随发射器移动而移动。
+     * !#zh
+     * 整组模式，粒子跟随发射器移动。（不会发生拖尾）
      * @property {Number} GROUPED
      */
     GROUPED: 2
@@ -84,7 +87,7 @@ var properties = {
 
     /**
      * !#en Play particle in edit mode.
-     * !#zh 在编辑模式下播放的粒子。
+     * !#zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
      * @property {Boolean} preview
      * @default false
      */
@@ -136,7 +139,7 @@ var properties = {
 
     /**
      * !#en The plist file.
-     * !#zh plist格式的粒子配置文件。
+     * !#zh plist 格式的粒子配置文件。
      * @property {string} file
      * @default ""
      */
@@ -169,7 +172,7 @@ var properties = {
 
     /**
      * !#en Texture of Particle System。
-     * !#zh 粒子贴图纹理。
+     * !#zh 粒子贴图。
      * @property {Texture2D} texture.
      */
     _texture: {
@@ -203,8 +206,8 @@ var properties = {
     },
 
     /**
-     * !#en specify the source Blend Factor.
-     * !#zh 指定原粒子的混合模式。
+     * !#en Specify the source Blend Factor.
+     * !#zh 指定原图混合模式。
      * @property srcBlendFactor
      * @type {BlendFactor}
      */
@@ -223,7 +226,7 @@ var properties = {
     },
 
     /**
-     * !#en specify the destination Blend Factor.
+     * !#en Specify the destination Blend Factor.
      * !#zh 指定目标的混合模式。
      * @property dstBlendFactor
      * @type {BlendFactor}
@@ -244,7 +247,7 @@ var properties = {
 
     /**
      * !#en If set to true, the particle system will automatically start playing on onLoad.
-     * !#zh 如果设置为true 运行时会自动发射粒子。
+     * !#zh 如果设置为 true 运行时会自动发射粒子。
      * @property playOnLoad
      * @type {boolean}
      * @default true
@@ -253,8 +256,8 @@ var properties = {
 
     /**
      * !#en Indicate whether the owner node will be auto-removed when it has no particles left.
-     * !#zh 粒子播放完毕后自动销毁。
-     * @property {Boolean} autoRemoveOnFinish -
+     * !#zh 粒子播放完毕后自动销毁所在的节点。
+     * @property {Boolean} autoRemoveOnFinish
      */
     _autoRemoveOnFinish: false,
     autoRemoveOnFinish: {
@@ -290,35 +293,35 @@ var CustomProps = (function () {
     var DefaultValues = {
         /**
          * !#en Maximum particles of the system.
-         * !#zh 粒子总数量。
+         * !#zh 粒子最大数量。
          * @property {Number} totalParticles
          * @default 150
          */
         totalParticles: 150,
         /**
          * !#en How many seconds the emitter wil run. -1 means 'forever'.
-         * !#zh 发射器生存时间。单位秒, -1表示永远。
+         * !#zh 发射器生存时间，单位秒，-1表示持续发射。
          * @property {Number} duration
          * @default ParticleSystem.DURATION_INFINITY
          */
         duration: -1,
         /**
          * !#en Emission rate of the particles.
-         * !#zh 每秒喷发的粒子数目。
+         * !#zh 每秒发射的粒子数目。
          * @property {Number} emissionRate
          * @default 10
          */
         emissionRate: 10,
         /**
          * !#en Life of each particle setter.
-         * !#zh 粒子的生存时间。
+         * !#zh 粒子的运行时间。
          * @property {Number} life
          * @default 1
          */
         life: 1,
         /**
          * !#en Variation of life.
-         * !#zh 粒子的生存时间变化范围。
+         * !#zh 粒子的运行时间变化范围。
          * @property {Number} lifeVar
          * @default 0
          */
@@ -362,7 +365,7 @@ var CustomProps = (function () {
         angle: 90,
         /**
          * !#en Variation of angle of each particle setter.
-         * !#zh 粒子角度变化范围。s
+         * !#zh 粒子角度变化范围。
          * @property {Number} angleVar
          * @default 20
          */
@@ -426,7 +429,7 @@ var CustomProps = (function () {
 
         /**
          * !#en Source position of the emitter.
-         * !#zh 发射器原始坐标位置。
+         * !#zh 发射器位置。
          * @property {Vec2} sourcePos
          * @default cc.Vec2.ZERO
          */
@@ -434,8 +437,8 @@ var CustomProps = (function () {
 
         /**
          * !#en Variation of source position.
-         * !#zh 发射器位置的变化范围（横向和纵向）。
-         * @property {Vec2} posVar -
+         * !#zh 发射器位置的变化范围。（横向和纵向）
+         * @property {Vec2} posVar
          * @default cc.Vec2.ZERO
          */
         posVar: cc.p(0, 0),
@@ -480,7 +483,7 @@ var CustomProps = (function () {
         speedVar: 50,
         /**
          * !#en Tangential acceleration of each particle. Only available in 'Gravity' mode.
-         * !#zh 每个粒子的切向加速度，即垂直于重力方向的加速度。只有在重力模式下可用。
+         * !#zh 每个粒子的切向加速度，即垂直于重力方向的加速度，只有在重力模式下可用。
          * @property {Number} tangentialAccel
          * @default 80
          */
@@ -493,14 +496,14 @@ var CustomProps = (function () {
          */
         tangentialAccelVar: 0,
         /**
-         * !#en Radial acceleration of each particle. Only available in 'Gravity' mode.
-         * !#zh 粒子径向加速度，即平行于重力方向的加速度。只有在重力模式下可用。
+         * !#en Acceleration of each particle. Only available in 'Gravity' mode.
+         * !#zh 粒子径向加速度，即平行于重力方向的加速度，只有在重力模式下可用。
          * @property {Number} radialAccel
          * @default 0
          */
         radialAccel: 0,
         /**
-         * !#en Radial Variation of the radial acceleration.
+         * !#en Variation of the radial acceleration.
          * !#zh 粒子径向加速度变化范围。
          * @property {Number} radialAccelVar
          * @default 0
@@ -509,7 +512,7 @@ var CustomProps = (function () {
 
         /**
          * !#en Indicate whether the rotation of each particle equals to its direction. Only available in 'Gravity' mode.
-         * !#zh 每个粒子的旋转是否等于其方向。只有在重力模式下可用。
+         * !#zh 每个粒子的旋转是否等于其方向，只有在重力模式下可用。
          * @property {Boolean} rotationIsDir
          * @default false
          */
@@ -519,7 +522,7 @@ var CustomProps = (function () {
 
         /**
          * !#en Starting radius of the particles. Only available in 'Radius' mode.
-         * !#zh 初始半径。只有在半径模式下可用。
+         * !#zh 初始半径，表示粒子出生时相对发射器的距离，只有在半径模式下可用。
          * @property {Number} startRadius
          * @default 0
          */
@@ -533,7 +536,7 @@ var CustomProps = (function () {
         startRadiusVar: 0,
         /**
          * !#en Ending radius of the particles. Only available in 'Radius' mode.
-         * !#zh 结束半径。只有在半径模式下可用。
+         * !#zh 结束半径，只有在半径模式下可用。
          * @property {Number} endRadius
          * @default 0
          */
@@ -547,7 +550,7 @@ var CustomProps = (function () {
         endRadiusVar: 0,
         /**
          * !#en Number of degress to rotate a particle around the source pos per second. Only available in 'Radius' mode.
-         * !#zh 粒子每秒围绕起始点的旋转角度。只有在半径模式下可用。
+         * !#zh 粒子每秒围绕起始点的旋转角度，只有在半径模式下可用。
          * @property {Number} rotatePerS
          * @default 0
          */
@@ -555,7 +558,7 @@ var CustomProps = (function () {
         /**
          * !#en Variation of the degress to rotate a particle around the source pos per second.
          * !#zh 粒子每秒围绕起始点的旋转角度变化范围。
-         * @property {Number} rotatePerSVar -
+         * @property {Number} rotatePerSVar
          * @default 0
          */
         rotatePerSVar: 0
@@ -809,8 +812,8 @@ var ParticleSystem = cc.Class({
     },
 
     /**
-     * !#en stop emitting particles. Running particles will continue to run until they die.
-     * !#zh 停止发射器发射粒子，发射出去的粒子将继续运行，之道粒子生命结束。
+     * !#en Stop emitting particles. Running particles will continue to run until they die.
+     * !#zh 停止发射器发射粒子，发射出去的粒子将继续运行，直至粒子生命结束。
      * @method stopSystem
      * @example
      * // stop particle system.
@@ -833,7 +836,7 @@ var ParticleSystem = cc.Class({
     },
 
     /**
-     * !#en whether or not the system is full.
+     * !#en Whether or not the system is full.
      * !#zh 发射器中粒子是否大于等于设置的总粒子数量。
      * @method isFull
      * @return {Boolean}
@@ -848,8 +851,8 @@ var ParticleSystem = cc.Class({
      * WARNING: this method is experimental. Use setTextureWithRect instead.
      * </p>
      * !#zh
-     * <p> 设置一个新的精灵帧为粒子.</br>
-     * 警告: 这个函数只是试验. 请使用 setTextureWithRect 实现。
+     * <p> 设置一个新的精灵帧为粒子。</br>
+     * 警告：这个函数只是试验，请使用 setTextureWithRect 实现。
      * </p>
      * @method setDisplayFrame
      * @param {SpriteFrame} spriteFrame
