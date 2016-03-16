@@ -115,7 +115,6 @@ _ccsg.Label = _ccsg.Node.extend({
 
     _blendFunc: null,
     _isUseSystemFont: true,
-    _labelSkinDirty: true,
     _labelType: 0, //0 is ttf, 1 is bmfont.
     _fontHandle: "", //a ttf font name or a bmfont file path.
     _lineSpacing: 0,
@@ -436,33 +435,33 @@ _ccsg.Label = _ccsg.Node.extend({
     _notifyLabelSkinDirty: function() {
         if (CC_EDITOR) {
             this._updateLabel();
-            this._labelSkinDirty = false;
         } else {
-            this._labelSkinDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
         }
     },
     _createRenderCmd: function() {
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL)
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
             return new _ccsg.Label.WebGLRenderCmd(this);
-        else
+        } else {
             return new _ccsg.Label.CanvasRenderCmd(this);
+        }
     },
 
     getContentSize: function() {
         if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
-            this._updateLabel();
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
     },
     _getWidth: function () {
         if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
-            this._updateLabel();
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
         }
         return _ccsg.Node.prototype._getWidth.call(this);
     },
     _getHeight: function () {
         if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
-            this._updateLabel();
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },
@@ -791,10 +790,10 @@ cc.BMFontHelper = {
 
         var contentSize = cc.size(this._labelWidth, this._labelHeight);
         if (this._labelWidth <= 0) {
-            contentSize.width = longestLine;
+            contentSize.width = parseFloat(longestLine.toFixed(2));
         }
         if (this._labelHeight <= 0) {
-            contentSize.height = this._textDesiredHeight;
+            contentSize.height = parseFloat(this._textDesiredHeight.toFixed(2));
         }
         _ccsg.Node.prototype.setContentSize.call(this, contentSize);
 
@@ -915,9 +914,6 @@ cc.BMFontHelper = {
         if (this._fontAtlas) {
             this._computeHorizontalKerningForText(this._string);
             updateFinished = this._alignText();
-        }
-        if (updateFinished) {
-            this._labelSkinDirty = false;
         }
     },
 
