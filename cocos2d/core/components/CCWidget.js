@@ -34,9 +34,11 @@ var TOP_BOT = TOP | BOT;
 var LEFT_RIGHT = LEFT | RIGHT;
 
 /**
+ * !#en
  * Stores and manipulate the anchoring based on its parent.
  * Widget are used for GUI but can also be used for other things.
- *
+ * !#zh
+ * Widget 组件，用于设置和适配其相对于父节点的边距，Wiget 通常被用于 UI 界面，也可以用于其他地方。
  * @class Widget
  * @extends Component
  */
@@ -56,8 +58,8 @@ var Widget = cc.Class({
         // ENABLE ALIGN ?
 
         /**
-         * !#zh: 是否对齐上边
-         *
+         * !#en Whether to align the top.
+         * !#zh 是否对齐上边。
          * @property isAlignTop
          * @type {Boolean}
          * @default false
@@ -74,8 +76,10 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消
-         *
+         * !#en
+         * Vertically aligns the midpoint, This will open the other vertical alignment options cancel.
+         * !#zh
+         * 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消。
          * @property isAlignVerticalCenter
          * @type {Boolean}
          * @default false
@@ -99,8 +103,8 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 是否对齐下边
-         *
+         * !#en Whether to align the bottom.
+         * !#zh 是否对齐下边。
          * @property isAlignBottom
          * @type {Boolean}
          * @default false
@@ -117,8 +121,8 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 是否对齐左边
-         *
+         * !#en Whether to align the left.
+         * !#zh 是否对齐左边
          * @property isAlignLeft
          * @type {Boolean}
          * @default false
@@ -135,8 +139,10 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消
-         *
+         * !#en
+         * Horizontal aligns the midpoint. This will open the other horizontal alignment options canceled.
+         * !#zh
+         * 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消。
          * @property isAlignHorizontalCenter
          * @type {Boolean}
          * @default false
@@ -160,8 +166,8 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 是否对齐右边
-         *
+         * !#en Whether to align the right.
+         * !#zh 是否对齐右边。
          * @property isAlignRight
          * @type {Boolean}
          * @default false
@@ -178,8 +184,11 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 是否水平拉伸，当同时启用左右对齐时，将会水平拉伸，此时宽度设置无效（只读）
-         *
+         * !#en
+         * Whether the stretched horizontally, when enable the left and right alignment will be stretched horizontally,
+         * the width setting is invalid (read only).
+         * !#zh
+         * 是否水平拉伸，当同时启用左右对齐时，将会水平拉伸，此时宽度设置无效（只读）。
          * @property isStretchWidth
          * @type {Boolean}
          * @default false
@@ -192,8 +201,11 @@ var Widget = cc.Class({
             visible: false
         },
         /**
-         * !#zh: 是否垂直拉伸，当同时启用上下对齐时，将会垂直拉伸，此时高度设置无效（只读）
-         *
+         * !#en
+         * Whether the stretched vertically, when enable the left and right alignment will be stretched vertically,
+         * then height setting is invalid (read only)
+         * !#zh
+         * 是否垂直拉伸，当同时启用上下对齐时，将会垂直拉伸，此时高度设置无效（只读）
          * @property isStretchHeight
          * @type {Boolean}
          * @default false
@@ -209,8 +221,11 @@ var Widget = cc.Class({
         // ALIGN MARGINS
 
         /**
-         * !#zh: 本节点顶边和父节点顶边的距离，可填写负值，只有在 isAlignTop 开启时才有作用
-         *
+         * !#en
+         * The margins between the top of this node and the top of parent node,
+         * the value can be negative, Only available in 'isAlignTop' open.
+         * !#zh
+         * 本节点顶边和父节点顶边的距离，可填写负值，只有在 isAlignTop 开启时才有作用。
          * @property top
          * @type {Number}
          * @default 0
@@ -226,8 +241,11 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 本节点底边和父节点底边的距离，可填写负值，只有在 isAlignBottom 开启时才有作用
-         *
+         * !#en
+         * The margins between the bottom of this node and the bottom of parent node,
+         * the value can be negative, Only available in 'isAlignBottom' open.
+         * !#zh
+         * 本节点底边和父节点底边的距离，可填写负值，只有在 isAlignBottom 开启时才有作用。
          * @property bottom
          * @type {Number}
          * @default 0
@@ -243,8 +261,11 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 本节点左边和父节点左边的距离，可填写负值，只有在 isAlignLeft 开启时才有作用
-         *
+         * !#en
+         * The margins between the left of this node and the left of parent node,
+         * the value can be negative, Only available in 'isAlignLeft' open.
+         * !#zh
+         * 本节点左边和父节点左边的距离，可填写负值，只有在 isAlignLeft 开启时才有作用。
          * @property left
          * @type {Number}
          * @default 0
@@ -260,8 +281,11 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#zh: 本节点右边和父节点右边的距离，可填写负值，只有在 isAlignRight 开启时才有作用
-         *
+         * !#en
+         * The margins between the right of this node and the right of parent node,
+         * the value can be negative, Only available in 'isAlignRight' open.
+         * !#zh
+         * 本节点右边和父节点右边的距离，可填写负值，只有在 isAlignRight 开启时才有作用。
          * @property right
          * @type {Number}
          * @default 0
@@ -279,8 +303,10 @@ var Widget = cc.Class({
         // PARCENTAGE OR ABSOLUTE
 
         /**
-         * If true, top is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's height
-         *
+         * !#en
+         * If true, top is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's height.
+         * !#zh
+         * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
          * @property isAbsoluteTop
          * @type {Boolean}
          * @default true
@@ -296,8 +322,10 @@ var Widget = cc.Class({
         },
 
         /**
-         * If true, bottom is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's height
-         *
+         * !#en
+         * If true, bottom is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's height.
+         * !#zh
+         * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
          * @property isAbsoluteBottom
          * @type {Boolean}
          * @default true
@@ -313,8 +341,10 @@ var Widget = cc.Class({
         },
 
         /**
-         * If true, left is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's width
-         *
+         * !#en
+         * If true, left is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's width.
+         * !#zh
+         * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
          * @property isAbsoluteLeft
          * @type {Boolean}
          * @default true
@@ -330,8 +360,10 @@ var Widget = cc.Class({
         },
 
         /**
-         * If true, right is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's width
-         *
+         * !#en
+         * If true, right is pixel margin, otherwise is percentage (0 - 1) margin relative to the parent's width.
+         * !#zh
+         * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
          * @property isAbsoluteRight
          * @type {Boolean}
          * @default true
