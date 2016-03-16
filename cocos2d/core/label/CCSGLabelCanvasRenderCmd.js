@@ -44,7 +44,7 @@
 
         if(colorDirty || opacityDirty){
             this._updateColor();
-        }else if(locFlag & flags.labelDirty) {
+        }else if(locFlag & flags.textDirty) {
             this._rebuildLabelSkin();
         }
 
@@ -79,7 +79,7 @@
 
         if(colorDirty || opacityDirty){
             this._updateColor();
-        } else if(locFlag & flags.labelDirty) {
+        } else if(locFlag & flags.textDirty) {
             this._rebuildLabelSkin();
         }
 
@@ -438,7 +438,7 @@
     };
 
     proto._rebuildLabelSkin = function () {
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.labelDirty ^ this._dirtyFlag;
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
         var node = this._node;
         this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
 

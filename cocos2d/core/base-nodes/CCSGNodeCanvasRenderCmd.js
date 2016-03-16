@@ -44,8 +44,7 @@ _ccsg.Node._dirtyFlags = {
     orderDirty:     1 << 5,
     textDirty:      1 << 6,
     gradientDirty:  1 << 7,
-    labelDirty:     1 << 8,
-    COUNT: 9
+    COUNT: 8
 };
 cc.js.get(_ccsg.Node._dirtyFlags, 'all', function () {
     var count = _ccsg.Node._dirtyFlags.COUNT;
