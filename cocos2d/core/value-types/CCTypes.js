@@ -230,38 +230,52 @@ cc.FontDefinition.prototype._getCanvasFontStr = function(){
 };
 
 /**
- * Enum for text alignment
- * @enum TextAlignment
+ * !#en Enum for text alignment.
+ * !#zh 文本对齐类型
+ * @enum Label.TextAlignment
  */
 cc.TextAlignment = cc.Enum({
     /**
+     * !#en Alignment left for text.
+     * !#zh 文本内容左对齐。
      * @property {Number} LEFT
      */
     LEFT: 0,
     /**
+     * !#en Alignment center for text.
+     * !#zh 文本内容居中对齐。
      * @property {Number} CENTER
      */
     CENTER: 1,
     /**
+     * !#en Alignment right for text.
+     * !#zh 文本内容右边对齐。
      * @property {Number} RIGHT
      */
     RIGHT: 2
 });
 
 /**
- * Enum for vertical text alignment
- * @enum VerticalTextAlignment
+ * !#en Enum for vertical text alignment.
+ * !#zh 文本垂直对齐类型
+ * @enum Label.VerticalTextAlignment
  */
 cc.VerticalTextAlignment = cc.Enum({
     /**
+     * !#en Vertical alignment top for text.
+     * !#zh 文本顶部对齐。
      * @property {Number} TOP
      */
     TOP: 0,
     /**
+     * !#en Vertical alignment center for text.
+     * !#zh 文本居中对齐。
      * @property {Number} CENTER
      */
     CENTER: 1,
     /**
+     * !#en Vertical alignment bottom for text.
+     * !#zh 文本底部对齐。
      * @property {Number} BOTTOM
      */
     BOTTOM: 2
