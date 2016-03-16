@@ -790,10 +790,10 @@ cc.BMFontHelper = {
 
         var contentSize = cc.size(this._labelWidth, this._labelHeight);
         if (this._labelWidth <= 0) {
-            contentSize.width = longestLine;
+            contentSize.width = parseFloat(longestLine.toFixed(2));
         }
         if (this._labelHeight <= 0) {
-            contentSize.height = this._textDesiredHeight;
+            contentSize.height = parseFloat(this._textDesiredHeight.toFixed(2));
         }
         _ccsg.Node.prototype.setContentSize.call(this, contentSize);
 
