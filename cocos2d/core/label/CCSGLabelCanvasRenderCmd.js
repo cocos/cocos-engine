@@ -218,23 +218,6 @@
         return wrappedWords;
     };
 
-    proto._updateDisplayColor = function (parentColor) {
-        _ccsg.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-        var node = this._node;
-        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            this._updateTexture();
-            this._prepareQuad();
-        }
-    };
-
-    proto._syncDisplayColor = function (parentColor) {
-        _ccsg.Node.RenderCmd.prototype._syncDisplayColor.call(this, parentColor);
-        var node = this._node;
-        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            this._updateTexture();
-            this._prepareQuad();
-        }
-    };
 
     proto._calculateLabelFont = function() {
         var node = this._node;
@@ -425,11 +408,12 @@
 
     };
 
+    proto._updateColor = function() {
+        this._rebuildLabelSkin();
+    };
+
     proto._updateTexture = function() {
-        this._canvasSize = this._calculateCanvasSize();
-
         this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
-
 
         this._fontDesc = this._calculateLabelFont();
         this._labelContext.font = this._fontDesc;
