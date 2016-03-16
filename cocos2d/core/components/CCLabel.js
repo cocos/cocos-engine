@@ -25,10 +25,58 @@
 
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
+
+/**
+ * !#en Enum for Overflow.
+ * !#zh Overflow 类型
+ * @enum Label.Overflow
+ */
+/**
+ * !#en NONE.
+ * !#zh 没有任何限制。
+ * @property {Number} NONE
+ */
+/**
+ * !#en In CLAMP mode, when label content goes out of the bounding box, it will be clipped.
+ * !#zh CLAMP模式中，当标签内容超出边界框时，多余的会被截断。
+ * @property {Number} CLAMP
+ */
+/**
+ * !#en In SHRINK mode, the font size will change dynamically to adapt the content size.
+ * !#zh 压缩模式，字体大小会动态变化，以适应内容大小。
+ * @property {Number} SHRINK
+ */
+/**
+ * !#en In RESIZE_HEIGHT mode, you can only change the width of label and the height is changed automatically.
+ * !#zh 在RESIZE_HEIGHT模式下，只能更改标签的宽度，高度是自动改变的。
+ * @property {Number} RESIZE_HEIGHT
+ */
 var Overflow = _ccsg.Label.Overflow;
+
+/**
+ * !#en Enum for font type.
+ * !#zh Overflow 类型
+ * @enum Label.Type
+ */
+/**
+ * !#en The TTF font type.
+ * !#zh TTF字体
+ * @property {Number} TTF
+ */
+/**
+ * !#en The bitmap font type.
+ * !#zh 位图字体
+ * @property {Number} BMFont
+ */
+/**
+ * !#en The system font type.
+ * !#zh 系统字体
+ * @property {Number} SystemFont
+ */
 var LabelType = _ccsg.Label.Type;
 /**
- *
+ * !#en The Label Component.
+ * !#zh 标签组件
  * @class Label
  * @extends _RendererUnderSG
  */
@@ -44,7 +92,8 @@ var Label = cc.Class({
     properties: {
         _useOriginalSize: true,
         /**
-         * Content string of label
+         * !#en Content string of label.
+         * !#zh 标签显示的内容。
          * @property {String} string
          */
         string: {
@@ -60,8 +109,9 @@ var Label = cc.Class({
         },
 
         /**
-         * Horizontal Alignment of label
-         * @property {cc.TextAlignment} horizontalAlign
+         * !#en Horizontal Alignment of label.
+         * !#zh 标签内容进行水平对齐。
+         * @property {TextAlignment} horizontalAlign
          */
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
@@ -76,8 +126,9 @@ var Label = cc.Class({
         },
 
         /**
-         * Vertical Alignment of label
-         * @property {cc.VerticalTextAlignment} verticalAlign
+         * !#en Vertical Alignment of label.
+         * !#zh 标签内容进行垂直对齐。
+         * @property {VerticalTextAlignment} verticalAlign
          */
         verticalAlign: {
             default: VerticalAlign.TOP,
@@ -93,7 +144,8 @@ var Label = cc.Class({
 
         _fontSize: 40,
         /**
-         * Font size of label
+         * !#en Font size of label.
+         * !#zh 标签字体大小。
          * @property {Number} fontSize
          */
         fontSize: {
@@ -114,7 +166,11 @@ var Label = cc.Class({
         },
 
         _lineHeight: 40,
-
+        /**
+         * !#en Line Height of label.
+         * !#zh 标签字体之间的行高。
+         * @property {Number} lineHeight
+         */
         lineHeight: {
             get: function(){
                 if (this._sgNode) {
@@ -133,7 +189,8 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.line_height',
         },
         /**
-         * Overflow of label
+         * !#en Overflow of label.
+         * !#zh 标准字体当溢出时，限制标签文本显示的方式。
          * @property {Label.Overflow} overFlow
          */
         overflow: {
@@ -151,7 +208,8 @@ var Label = cc.Class({
 
         _enableWrapText: true,
         /**
-         * Whether auto wrap label when string width is large than label width
+         * !#en Whether auto wrap label when string width is large than label width.
+         * !#zh 是否自动换行。
          * @property {Boolean} enableWrapText
          */
         enableWrapText: {
@@ -172,8 +230,9 @@ var Label = cc.Class({
         },
 
         /**
-         * The font URL of label.
-         * @property {string} file
+         * !#en The font URL of label.
+         * !#zh 标签字体格式的 url。
+         * @property {String} file
          */
         file: {
             default: "Arial",
@@ -190,7 +249,8 @@ var Label = cc.Class({
         _isSystemFontUsed: true,
 
         /**
-         * Whether use system font name or not.
+         * !#en Whether use system font name or not.
+         * !#zh 是否使用系统字体。
          * @property {Boolean} isSystemFontUsed
          */
         useSystemFont: {
@@ -225,22 +285,8 @@ var Label = cc.Class({
     },
 
     statics: {
-        /**
-         * The horizontal alignment of label.
-         * @property {cc.TextAlignment} HorizontalAlign
-         */
         HorizontalAlign: HorizontalAlign,
-
-        /**
-         * The vertical alignment of label.
-         * @property {cc.VerticalTextAlignment} VerticalAlign
-         */
         VerticalAlign: VerticalAlign,
-
-        /**
-         * Label overflow type, currently three types are supported: Clamp, Shrink and ResizeHeight.
-         * @property {Overflow} Overflow
-         */
         Overflow: Overflow,
     },
 
