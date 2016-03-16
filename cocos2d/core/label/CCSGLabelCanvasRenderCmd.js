@@ -42,9 +42,7 @@
         if (opacityDirty)
             this._updateDisplayOpacity();
 
-        if(colorDirty || opacityDirty){
-            this._updateColor();
-        }else if(locFlag & flags.textDirty) {
+        if(colorDirty || opacityDirty || (locFlag & flags.textDirty)){
             this._rebuildLabelSkin();
         }
 
@@ -77,9 +75,7 @@
         if (opacityDirty)
             this._syncDisplayOpacity();
 
-        if(colorDirty || opacityDirty){
-            this._updateColor();
-        } else if(locFlag & flags.textDirty) {
+        if(colorDirty || opacityDirty || (locFlag & flags.textDirty)){
             this._rebuildLabelSkin();
         }
 
@@ -408,9 +404,9 @@
 
     };
 
-    proto._updateColor = function() {
-        this._rebuildLabelSkin();
-    };
+    // proto._updateColor = function() {
+    //     this._rebuildLabelSkin();
+    // };
 
     proto._updateTexture = function() {
         this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
