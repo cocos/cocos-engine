@@ -38,7 +38,7 @@ var LEFT_RIGHT = LEFT | RIGHT;
  * Stores and manipulate the anchoring based on its parent.
  * Widget are used for GUI but can also be used for other things.
  * !#zh
- * Widget 组件，用于设置和适配其相对于父节点的边距，Wiget 通常被用于 UI 界面，也可以用于其他地方。
+ * Widget 组件，用于设置和适配其相对于父节点的边距，Widget 通常被用于 UI 界面，也可以用于其他地方。
  * @class Widget
  * @extends Component
  */
@@ -188,7 +188,7 @@ var Widget = cc.Class({
          * Whether the stretched horizontally, when enable the left and right alignment will be stretched horizontally,
          * the width setting is invalid (read only).
          * !#zh
-         * 是否水平拉伸，当同时启用左右对齐时，将会水平拉伸，此时宽度设置无效（只读）。
+         * 当前是否水平拉伸。当同时启用左右对齐时，节点将会被水平拉伸，此时节点的宽度只读。
          * @property isStretchWidth
          * @type {Boolean}
          * @default false
@@ -205,7 +205,7 @@ var Widget = cc.Class({
          * Whether the stretched vertically, when enable the left and right alignment will be stretched vertically,
          * then height setting is invalid (read only)
          * !#zh
-         * 是否垂直拉伸，当同时启用上下对齐时，将会垂直拉伸，此时高度设置无效（只读）
+         * 当前是否垂直拉伸。当同时启用上下对齐时，节点将会被垂直拉伸，此时节点的高度只读。
          * @property isStretchHeight
          * @type {Boolean}
          * @default false
