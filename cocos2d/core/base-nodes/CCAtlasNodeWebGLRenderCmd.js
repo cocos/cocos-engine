@@ -60,7 +60,7 @@
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
-        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
         if (this._uniformColor && this._colorF32Array) {
             context.uniform4fv(this._uniformColor, this._colorF32Array);
             this._textureAtlas.drawNumberOfQuads(node.quadsToDraw, 0);

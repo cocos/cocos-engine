@@ -24,9 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc._globalFontSize = cc.macro.ITEM_SIZE;
-cc._globalFontName = "Arial";
-cc._globalFontNameRelease = false;
+var _globalFontSize = cc.macro.ITEM_SIZE;
+var _globalFontName = "Arial";
+var _globalFontNameRelease = false;
 
 /**
  * Subclass cc.MenuItem (or any subclass) to create your custom cc.MenuItem objects.
@@ -514,8 +514,8 @@ cc.MenuItemFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemFont# */{
     ctor: function (value, callback, target) {
         var label;
         if (value && value.length > 0) {
-            this._fontName = cc._globalFontName;
-            this._fontSize = cc._globalFontSize;
+            this._fontName = _globalFontName;
+            this._fontSize = _globalFontSize;
             label = new cc.LabelTTF(value, this._fontName, this._fontSize);
         }
         else {
@@ -537,8 +537,8 @@ cc.MenuItemFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemFont# */{
         if (!value || value.length === 0)
             throw new Error("Value should be non-null and its length should be greater than 0");
 
-        this._fontName = cc._globalFontName;
-        this._fontSize = cc._globalFontSize;
+        this._fontName = _globalFontName;
+        this._fontSize = _globalFontSize;
 
         var label = new cc.LabelTTF(value, this._fontName, this._fontSize);
         if (this.initWithLabel(label, callback, target)) {
@@ -592,7 +592,7 @@ cc.MenuItemFont = cc.MenuItemLabel.extend(/** @lends cc.MenuItemFont# */{
  * @param {Number} fontSize
  */
 cc.MenuItemFont.setFontSize = function (fontSize) {
-    cc._globalFontSize = fontSize;
+    _globalFontSize = fontSize;
 };
 
 /**
@@ -600,7 +600,7 @@ cc.MenuItemFont.setFontSize = function (fontSize) {
  * @return {Number}
  */
 cc.MenuItemFont.fontSize = function () {
-    return cc._globalFontSize;
+    return _globalFontSize;
 };
 
 /**
@@ -608,11 +608,11 @@ cc.MenuItemFont.fontSize = function () {
  * @param name
  */
 cc.MenuItemFont.setFontName = function (name) {
-    if (cc._globalFontNameRelease) {
-        cc._globalFontName = '';
+    if (_globalFontNameRelease) {
+        _globalFontName = '';
     }
-    cc._globalFontName = name;
-    cc._globalFontNameRelease = true;
+    _globalFontName = name;
+    _globalFontNameRelease = true;
 };
 
 var _p = cc.MenuItemFont.prototype;
@@ -631,7 +631,7 @@ cc.defineGetterSetter(_p, "fontName", _p.getFontName, _p.setFontName);
  * @return {String}
  */
 cc.MenuItemFont.fontName = function () {
-    return cc._globalFontName;
+    return _globalFontName;
 };
 
 /**

@@ -65,6 +65,12 @@ state.onPlay = function () {
     this.setTime(0);
 };
 
+state.onStop = function () {
+    if (this.animator) {
+        this.animator.removeAnimation(this);
+    }
+};
+
 state.setTime = function (time) {
     this.time = time || 0;
 

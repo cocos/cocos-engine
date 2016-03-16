@@ -14,7 +14,7 @@ cc.Codec = {name:'Jacob__Codec'};
  * @param {Array} input Byte array
  * @returns {String} Unpacked byte string
  */
-cc.unzip = function () {
+cc.Codec.unzip = function () {
     return cc.Codec.GZip.gunzip.apply(cc.Codec.GZip, arguments);
 };
 
@@ -23,9 +23,9 @@ cc.unzip = function () {
  * @param {String} input Byte string encoded as base64
  * @returns {String} Unpacked byte string
  */
-cc.unzipBase64 = function () {
+cc.Codec.unzipBase64 = function () {
     var tmpInput = cc.Codec.Base64.decode.apply(cc.Codec.Base64, arguments);
-    return   cc.Codec.GZip.gunzip.apply(cc.Codec.GZip, [tmpInput]);
+    return cc.Codec.GZip.gunzip.apply(cc.Codec.GZip, [tmpInput]);
 };
 
 /**
@@ -34,7 +34,7 @@ cc.unzipBase64 = function () {
  * @param {Number} bytes Bytes per array item
  * @returns {Array} Unpacked byte array
  */
-cc.unzipBase64AsArray = function (input, bytes) {
+cc.Codec.unzipBase64AsArray = function (input, bytes) {
     bytes = bytes || 1;
 
     var dec = this.unzipBase64(input),
@@ -54,7 +54,7 @@ cc.unzipBase64AsArray = function (input, bytes) {
  * @param {Number} bytes Bytes per array item
  * @returns {Array} Unpacked byte array
  */
-cc.unzipAsArray = function (input, bytes) {
+cc.Codec.unzipAsArray = function (input, bytes) {
     bytes = bytes || 1;
 
     var dec = this.unzip(input),
@@ -64,19 +64,6 @@ cc.unzipAsArray = function (input, bytes) {
         for (j = bytes - 1; j >= 0; --j) {
             ar[i] += dec.charCodeAt((i * bytes) + j) << (j * 8);
         }
-    }
-    return ar;
-};
-
-/**
- * string to array
- * @param {String} input
- * @returns {Array} array
- */
-cc.StringToArray = function (input) {
-    var tmp = input.split(","), ar = [], i;
-    for (i = 0; i < tmp.length; i++) {
-        ar.push(parseInt(tmp[i]));
     }
     return ar;
 };

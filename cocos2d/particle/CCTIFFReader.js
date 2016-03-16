@@ -30,9 +30,9 @@
 /**
  * cc.tiffReader is a singleton object, it's a tiff file reader, it can parse byte array to draw into a canvas
  * @class
- * @name cc.tiffReader
+ * @name tiffReader
  */
-cc.tiffReader = /** @lends cc.tiffReader# */{
+var tiffReader = /** @lends tiffReader# */{
     _littleEndian: false,
     _tiffData: null,
     _fileDirectories: [],
@@ -690,3 +690,5 @@ cc.tiffReader = /** @lends cc.tiffReader# */{
         0x000C: 'DOUBLE'
     }
 };
+
+module.exports = tiffReader;

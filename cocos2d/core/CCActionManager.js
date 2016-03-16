@@ -24,14 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
+/*
  * @class HashElement
  * @extends cc._Class
  * @private
  * @example
  * var element = new cc.HashElement();
  */
-cc.HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
+var HashElement = cc._Class.extend(/** @lends cc.HashElement# */{
     actions:null,
     target:null, //ccobject
     actionIndex:0,
@@ -106,7 +106,7 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
         var element = this._hashTargets[target.__instanceId];
         //if doesnt exists, create a hashelement and push in mpTargets
         if (!element) {
-            element = new cc.HashElement();
+            element = new HashElement();
             element.paused = paused;
             element.target = target;
             this._hashTargets[target.__instanceId] = element;

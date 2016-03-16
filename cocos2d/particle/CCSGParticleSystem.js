@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var PNGReader = require('../cocos2d/particle/CCPNGReader');
+var tiffReader = require('../cocos2d/particle/CCTIFFReader');
+
 // ideas taken from:
 //   . The ocean spray in your face [Jeff Lander]
 //      http://www.double.co.nz/dust/col0798.pdf
@@ -1381,7 +1384,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                             return false;
                         this.setTexture(tex);
                     } else {
-                        buffer = cc.unzipBase64AsArray(textureData, 1);
+                        buffer = cc.Codec.unzipBase64AsArray(textureData, 1);
                         if (!buffer) {
                             cc.log("_ccsg.ParticleSystem: error decoding or ungzipping textureImageData");
                             return false;
@@ -1396,11 +1399,10 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
                         var canvasObj = document.createElement("canvas");
                         if(imageFormat === cc.ImageFormat.PNG){
-                            var myPngObj = new cc.PNGReader(buffer);
+                            var myPngObj = new PNGReader(buffer);
                             myPngObj.render(canvasObj);
                         } else {
-                            var myTIFFObj = cc.tiffReader;
-                            myTIFFObj.parseTIFF(buffer,canvasObj);
+                            tiffReader.parseTIFF(buffer,canvasObj);
                         }
 
                         cc.textureCache.cacheImage(imgPath, canvasObj);
@@ -2072,31 +2074,6 @@ cc.defineGetterSetter(_p, "totalParticles", _p.getTotalParticles, _p.setTotalPar
 _p.texture;
 cc.defineGetterSetter(_p, "texture", _p.getTexture, _p.setTexture);
 
-
-/**
- * <p> return the string found by key in dict. <br/>
- *    This plist files can be create manually or with Particle Designer:<br/>
- *    http://particledesigner.71squared.com/<br/>
- * </p>
- * @deprecated since v3.0 please use new cc.ParticleSysytem(plistFile) instead.
- * @param {String|Number} plistFile
- * @return {ccsg.ParticleSystem}
- */
-_ccsg.ParticleSystem.create = function (plistFile) {
-    return new _ccsg.ParticleSystem(plistFile);
-};
-
-/**
- * <p> return the string found by key in dict. <br/>
- *    This plist files can be create manually or with Particle Designer:<br/>
- *    http://particledesigner.71squared.com/<br/>
- * </p>
- * @deprecated since v3.0 please use new cc.ParticleSysytem(plistFile) instead.
- * @function
- * @param {String|Number} plistFile
- * @return {ccsg.ParticleSystem}
- */
-_ccsg.ParticleSystem.createWithTotalParticles = _ccsg.ParticleSystem.create;
 
 // Different modes
 /**

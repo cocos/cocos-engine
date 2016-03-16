@@ -174,13 +174,36 @@ var Animation = cc.Class({
     },
 
     /**
-     * Plays an animation.
+     * Plays an animation and stop other animations.
      * @method play
      * @param {String} [name] - The name of animation to play. If no name is supplied then the default animation will be played.
      * @param {Number} [startTime] - play an animation from startTime
      * @return {AnimationState} - The AnimationState of playing animation. In cases where the animation can't be played (ie, there is no default animation or no animation with the specified name), the function will return null.
      */
     play: function (name, startTime) {
+        var state = this.playAdditive(name, startTime);
+        var playingStates = this._animator.playingAnims;
+
+        for (var i = playingStates.length; i >= 0; i--) {
+            if (playingStates[i] === state) {
+                continue;
+            }
+
+            this._animator.stopState(playingStates[i]);
+        }
+
+        return state;
+    },
+
+    /**
+     * Plays an additive animation, it will not stop other animations.
+     * If there are other animations playing, then will play several animations at the same time.
+     * @method playAdditive
+     * @param {String} [name] - The name of animation to play. If no name is supplied then the default animation will be played.
+     * @param {Number} [startTime] - play an animation from startTime
+     * @return {AnimationState} - The AnimationState of playing animation. In cases where the animation can't be played (ie, there is no default animation or no animation with the specified name), the function will return null.
+     */
+    playAdditive: function (name, startTime) {
         this._init();
         var state = this.getAnimationState(name || this._defaultClip.name);
         if (state) {

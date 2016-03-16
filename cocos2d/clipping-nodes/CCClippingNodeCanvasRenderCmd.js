@@ -23,198 +23,196 @@
  ****************************************************************************/
 
 //-------------------------- ClippingNode's canvas render cmd --------------------------------
-(function(){
-    cc.ClippingNode.CanvasRenderCmd = function(renderable){
-        _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-        this._needDraw = false;
+cc.ClippingNode.CanvasRenderCmd = function(renderable){
+    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
+    this._needDraw = false;
 
-        this._godhelpme = false;
-        this._clipElemType = false;
+    this._godhelpme = false;
+    this._clipElemType = false;
 
-        this._rendererSaveCmd = new cc.CustomRenderCmd(this, this._saveCmdCallback);
-        this._rendererClipCmd = new cc.CustomRenderCmd(this, this._clipCmdCallback);
-        this._rendererRestoreCmd = new cc.CustomRenderCmd(this, this._restoreCmdCallback);
-    };
-    var proto = cc.ClippingNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
-    proto.constructor = cc.ClippingNode.CanvasRenderCmd;
+    this._rendererSaveCmd = new cc.CustomRenderCmd(this, this._saveCmdCallback);
+    this._rendererClipCmd = new cc.CustomRenderCmd(this, this._clipCmdCallback);
+    this._rendererRestoreCmd = new cc.CustomRenderCmd(this, this._restoreCmdCallback);
+};
+var proto = cc.ClippingNode.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+proto.constructor = cc.ClippingNode.CanvasRenderCmd;
 
-    proto.initStencilBits = function(){};
+proto.initStencilBits = function(){};
 
-    proto.setStencil = function(stencil){
-        if(stencil == null)
-            return;
+proto.setStencil = function(stencil){
+    if(stencil == null)
+        return;
 
-        this._node._stencil = stencil;
+    this._node._stencil = stencil;
 
-        // For shape stencil, rewrite the draw of stencil ,only init the clip path and draw nothing.
-        //else
-        if (stencil instanceof cc.DrawNode) {
-            if(stencil._buffer){
-                for(var i=0; i<stencil._buffer.length; i++){
-                    stencil._buffer[i].isFill = false;
-                    stencil._buffer[i].isStroke = false;
-                }
-            }
-
-            stencil._renderCmd.rendering = function (ctx, scaleX, scaleY) {
-                scaleX = scaleX || cc.view.getScaleX();
-                scaleY = scaleY ||cc.view.getScaleY();
-                var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
-
-                var t = this._transform;
-                context.transform(t.a, t.b, t.c, t.d, t.tx * scaleX, -t.ty * scaleY);
-                for (var i = 0; i < stencil._buffer.length; i++) {
-                    var vertices = stencil._buffer[i].verts;
-                    //TODO: need support circle etc
-                    //cc.assert(cc.vertexListIsClockwise(vertices),
-                    //    "Only clockwise polygons should be used as stencil");
-
-                    var firstPoint = vertices[0];
-                    context.moveTo(firstPoint.x * scaleX, -firstPoint.y * scaleY);
-                    for (var j = vertices.length - 1; j > 0; j--)
-                        context.lineTo(vertices[j].x * scaleX, -vertices[j].y * scaleY);
-                }
-            };
-        }else{
-            stencil._parent = this._node;
-        }
-    };
-
-    proto._saveCmdCallback  = function(ctx, scaleX, scaleY) {
-        var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
-
-        if (this._clipElemType) {
-            context.save();
-            context.globalAlpha = this._displayedOpacity/ 255;
-            var locCache = cc.ClippingNode.CanvasRenderCmd._getSharedCache();
-            var canvas = context.canvas;
-            if (locCache.width !== canvas.width)
-                locCache.width = canvas.width;
-            if (locCache.height !== canvas.height)
-                locCache.height = canvas.height;                     //note: on some browser, it can't clear the canvas, e.g. baidu
-            var locCacheCtx = locCache.getContext("2d");
-            locCacheCtx.drawImage(canvas, 0, 0);                //save the result to shareCache canvas
-        } else {
-            wrapper.save();
-            context.beginPath();                                                         //save for clip
-            //Because drawNode's content size is zero
-            wrapper.setTransform(this._worldTransform, scaleX, scaleY);
-
-            if (this._node.inverted) {
-                context.rect(0, 0, context.canvas.width, -context.canvas.height);
-                context.clip();
+    // For shape stencil, rewrite the draw of stencil ,only init the clip path and draw nothing.
+    //else
+    if (stencil instanceof cc.DrawNode) {
+        if(stencil._buffer){
+            for(var i=0; i<stencil._buffer.length; i++){
+                stencil._buffer[i].isFill = false;
+                stencil._buffer[i].isStroke = false;
             }
         }
-    };
 
-    proto._setStencilCompositionOperation = function(stencil){
-         if(!stencil)
-            return;
-        var node = this._node;
-        if(stencil._renderCmd && stencil._renderCmd._blendFuncStr)          //it is a hack way.
-            stencil._renderCmd._blendFuncStr = (node.inverted ? "destination-out" : "destination-in");
+        stencil._renderCmd.rendering = function (ctx, scaleX, scaleY) {
+            scaleX = scaleX || cc.view.getScaleX();
+            scaleY = scaleY ||cc.view.getScaleY();
+            var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
 
-        if(!stencil._children)
-            return;
-        var children = stencil._children;
-        for(var i = 0, len = children.length; i < len; i++){
-             this._setStencilCompositionOperation(children[i]);
-        }
-    };
+            var t = this._transform;
+            context.transform(t.a, t.b, t.c, t.d, t.tx * scaleX, -t.ty * scaleY);
+            for (var i = 0; i < stencil._buffer.length; i++) {
+                var vertices = stencil._buffer[i].verts;
+                //TODO: need support circle etc
+                //cc.assert(cc.vertexListIsClockwise(vertices),
+                //    "Only clockwise polygons should be used as stencil");
 
-    proto._clipCmdCallback = function(ctx) {
-        var node = this._node;
-        var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
+                var firstPoint = vertices[0];
+                context.moveTo(firstPoint.x * scaleX, -firstPoint.y * scaleY);
+                for (var j = vertices.length - 1; j > 0; j--)
+                    context.lineTo(vertices[j].x * scaleX, -vertices[j].y * scaleY);
+            }
+        };
+    }else{
+        stencil._parent = this._node;
+    }
+};
 
-        if (this._clipElemType) {
-            //hack
-            this._setStencilCompositionOperation(node._stencil);
-        } else {
+proto._saveCmdCallback  = function(ctx, scaleX, scaleY) {
+    var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
+
+    if (this._clipElemType) {
+        context.save();
+        context.globalAlpha = this._displayedOpacity/ 255;
+        var locCache = cc.ClippingNode.CanvasRenderCmd._getSharedCache();
+        var canvas = context.canvas;
+        if (locCache.width !== canvas.width)
+            locCache.width = canvas.width;
+        if (locCache.height !== canvas.height)
+            locCache.height = canvas.height;                     //note: on some browser, it can't clear the canvas, e.g. baidu
+        var locCacheCtx = locCache.getContext("2d");
+        locCacheCtx.drawImage(canvas, 0, 0);                //save the result to shareCache canvas
+    } else {
+        wrapper.save();
+        context.beginPath();                                                         //save for clip
+        //Because drawNode's content size is zero
+        wrapper.setTransform(this._worldTransform, scaleX, scaleY);
+
+        if (this._node.inverted) {
+            context.rect(0, 0, context.canvas.width, -context.canvas.height);
             context.clip();
         }
-    };
+    }
+};
 
-    proto._restoreCmdCallback = function (ctx) {
-        var locCache = cc.ClippingNode.CanvasRenderCmd._getSharedCache();
-        var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
-        if (this._clipElemType) {
-            // Redraw the cached canvas, so that the clipped area shows the background etc.
-            context.save();
-            context.setTransform(1, 0, 0, 1, 0, 0);
-            context.globalCompositeOperation = "destination-over";
-            context.drawImage(locCache, 0, 0);
-            context.restore();
-            this._dirtyFlag = 0;
-            context.restore();
-        } else {
-            wrapper.restore();                             //use for restore clip operation
-        }
-    };
+proto._setStencilCompositionOperation = function(stencil){
+     if(!stencil)
+        return;
+    var node = this._node;
+    if(stencil._renderCmd && stencil._renderCmd._blendFuncStr)          //it is a hack way.
+        stencil._renderCmd._blendFuncStr = (node.inverted ? "destination-out" : "destination-in");
 
-    proto.transform = function(parentCmd, recursive){
-        _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
-        var node = this._node;
-        if(node._stencil && node._stencil._renderCmd)
-            node._stencil._renderCmd.transform(this, recursive);
-    };
+    if(!stencil._children)
+        return;
+    var children = stencil._children;
+    for(var i = 0, len = children.length; i < len; i++){
+         this._setStencilCompositionOperation(children[i]);
+    }
+};
 
-    proto._cangodhelpme = function (godhelpme) {
-        if (godhelpme === true || godhelpme === false)
-            cc.ClippingNode.CanvasRenderCmd.prototype._godhelpme = godhelpme;
-        return cc.ClippingNode.CanvasRenderCmd.prototype._godhelpme;
-    };
+proto._clipCmdCallback = function(ctx) {
+    var node = this._node;
+    var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
 
-    proto.visit = function(parentCmd){
-        var node = this._node;
-        // quick return if not visible
-        if (!node._visible)
-            return;
+    if (this._clipElemType) {
+        //hack
+        this._setStencilCompositionOperation(node._stencil);
+    } else {
+        context.clip();
+    }
+};
 
-        parentCmd = parentCmd || this.getParentRenderCmd();
-        if( parentCmd)
-            this._curLevel = parentCmd._curLevel + 1;
-        var transformRenderCmd = this;
-
-        // Composition mode, costy but support texture stencil
-        this._clipElemType = !(!this._cangodhelpme() && node._stencil instanceof cc.DrawNode);
-        if (!node._stencil || !node._stencil.visible) {
-            if (this.inverted)
-                _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);   // draw everything
-            return;
-        }
-
-        this._syncStatus(parentCmd);
-        cc.renderer.pushRenderCommand(this._rendererSaveCmd);
-        if(this._clipElemType){
-            // Draw everything first using node visit function
-            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
-        }else{
-            node._stencil.visit(this);
-        }
-        cc.renderer.pushRenderCommand(this._rendererClipCmd);
-
-        if(this._clipElemType){
-            node._stencil.visit(transformRenderCmd);
-        }else{
-            var i, children = node._children;
-            // Clip mode doesn't support recursive stencil, so once we used a clip stencil,
-            // so if it has ClippingNode as a child, the child must uses composition stencil.
-            this._cangodhelpme(true);
-            var len = children.length;
-            if (len > 0) {
-                node.sortAllChildren();
-                for (i = 0; i < len; i++)
-                    children[i]._renderCmd.visit(this);
-            }
-            this._cangodhelpme(false);
-        }
-
-        cc.renderer.pushRenderCommand(this._rendererRestoreCmd);
+proto._restoreCmdCallback = function (ctx) {
+    var locCache = cc.ClippingNode.CanvasRenderCmd._getSharedCache();
+    var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
+    if (this._clipElemType) {
+        // Redraw the cached canvas, so that the clipped area shows the background etc.
+        context.save();
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.globalCompositeOperation = "destination-over";
+        context.drawImage(locCache, 0, 0);
+        context.restore();
         this._dirtyFlag = 0;
-    };
+        context.restore();
+    } else {
+        wrapper.restore();                             //use for restore clip operation
+    }
+};
 
-    cc.ClippingNode.CanvasRenderCmd._sharedCache = null;
-    cc.ClippingNode.CanvasRenderCmd._getSharedCache = function () {
-        return (cc.ClippingNode.CanvasRenderCmd._sharedCache) || (cc.ClippingNode.CanvasRenderCmd._sharedCache = document.createElement("canvas"));
-    };
-})();
+proto.transform = function(parentCmd, recursive){
+    _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+    var node = this._node;
+    if(node._stencil && node._stencil._renderCmd)
+        node._stencil._renderCmd.transform(this, recursive);
+};
+
+proto._cangodhelpme = function (godhelpme) {
+    if (godhelpme === true || godhelpme === false)
+        cc.ClippingNode.CanvasRenderCmd.prototype._godhelpme = godhelpme;
+    return cc.ClippingNode.CanvasRenderCmd.prototype._godhelpme;
+};
+
+proto.visit = function(parentCmd){
+    var node = this._node;
+    // quick return if not visible
+    if (!node._visible)
+        return;
+
+    parentCmd = parentCmd || this.getParentRenderCmd();
+    if( parentCmd)
+        this._curLevel = parentCmd._curLevel + 1;
+    var transformRenderCmd = this;
+
+    // Composition mode, costy but support texture stencil
+    this._clipElemType = !(!this._cangodhelpme() && node._stencil instanceof cc.DrawNode);
+    if (!node._stencil || !node._stencil.visible) {
+        if (this.inverted)
+            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);   // draw everything
+        return;
+    }
+
+    this._syncStatus(parentCmd);
+    cc.renderer.pushRenderCommand(this._rendererSaveCmd);
+    if(this._clipElemType){
+        // Draw everything first using node visit function
+        _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
+    }else{
+        node._stencil.visit(this);
+    }
+    cc.renderer.pushRenderCommand(this._rendererClipCmd);
+
+    if(this._clipElemType){
+        node._stencil.visit(transformRenderCmd);
+    }else{
+        var i, children = node._children;
+        // Clip mode doesn't support recursive stencil, so once we used a clip stencil,
+        // so if it has ClippingNode as a child, the child must uses composition stencil.
+        this._cangodhelpme(true);
+        var len = children.length;
+        if (len > 0) {
+            node.sortAllChildren();
+            for (i = 0; i < len; i++)
+                children[i]._renderCmd.visit(this);
+        }
+        this._cangodhelpme(false);
+    }
+
+    cc.renderer.pushRenderCommand(this._rendererRestoreCmd);
+    this._dirtyFlag = 0;
+};
+
+cc.ClippingNode.CanvasRenderCmd._sharedCache = null;
+cc.ClippingNode.CanvasRenderCmd._getSharedCache = function () {
+    return (cc.ClippingNode.CanvasRenderCmd._sharedCache) || (cc.ClippingNode.CanvasRenderCmd._sharedCache = document.createElement("canvas"));
+};

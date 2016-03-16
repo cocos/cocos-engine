@@ -348,7 +348,10 @@ var _Deserializer = (function () {
             var rawType = attrs.rawType;
             if (!rawType) {
                 if (!EDITOR && attrs.editorOnly) {
-                    continue;   // skip editor only if not editor
+                    var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
+                    if ( !mayUsedInPersistRoot ) {
+                        continue;   // skip editor only if not editor
+                    }
                 }
                 if (attrs.serializable === false) {
                     continue;   // skip nonSerialized

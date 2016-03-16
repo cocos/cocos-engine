@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var cc = cc || {};
 cc._tmp = cc._tmp || {};
 cc._LogInfos = cc._LogInfos || {};
 
@@ -94,11 +93,8 @@ cc._gameDiv = null;
 
 cc.isEditor = typeof Editor !== 'undefined';
 
-require('../cocos2d/core/utils');
-require('../cocos2d/core/platform/CCSys');
-require('../cocos2d/core/load-pipeline/CCLoader');
-
-require('../cocos2d/core/CCGame');
+require('./cocos2d/core/utils');
+require('./cocos2d/core/platform/CCSys');
 
 
 //+++++++++++++++++++++++++Engine initialization function begin+++++++++++++++++++++++++++

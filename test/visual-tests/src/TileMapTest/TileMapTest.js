@@ -1375,10 +1375,10 @@ var TMXOrthoFlipRunTimeTest = TileDemo.extend({
         var flags = layer.getTileFlagsAt(tileCoord);
         var GID = layer.getTileGIDAt(tileCoord);
         // Vertical
-        if ((flags & cc.TMX_TILE_VERTICAL_FLAG) >>> 0) {
-            flags = (flags & ~cc.TMX_TILE_VERTICAL_FLAG >>> 0) >>> 0;
+        if ((flags & cc.TiledMap.TileFlag.VERTICAL) >>> 0) {
+            flags = (flags & ~cc.TiledMap.TileFlag.VERTICAL >>> 0) >>> 0;
         } else {
-            flags = (flags | cc.TMX_TILE_VERTICAL_FLAG) >>> 0;
+            flags = (flags | cc.TiledMap.TileFlag.VERTICAL) >>> 0;
         }
         layer.setTileGID(GID, tileCoord, flags);
 
@@ -1386,20 +1386,20 @@ var TMXOrthoFlipRunTimeTest = TileDemo.extend({
         flags = layer.getTileFlagsAt(tileCoord);
         GID = layer.getTileGIDAt(tileCoord);
         // Vertical
-        if ((flags & cc.TMX_TILE_VERTICAL_FLAG) >>> 0)
-            flags = (flags & ~cc.TMX_TILE_VERTICAL_FLAG >>> 0) >>> 0;
+        if ((flags & cc.TiledMap.TileFlag.VERTICAL) >>> 0)
+            flags = (flags & ~cc.TiledMap.TileFlag.VERTICAL >>> 0) >>> 0;
         else
-            flags = (flags | cc.TMX_TILE_VERTICAL_FLAG) >>> 0;
+            flags = (flags | cc.TiledMap.TileFlag.VERTICAL) >>> 0;
         layer.setTileGID(GID, tileCoord, flags);
 
         tileCoord = cc.p(2, 8);
         flags = layer.getTileFlagsAt(tileCoord);
         GID = layer.getTileGIDAt(tileCoord);
         // Horizontal
-        if ((flags & cc.TMX_TILE_HORIZONTAL_FLAG) >>> 0)
-            flags = (flags & ~cc.TMX_TILE_HORIZONTAL_FLAG >>> 0) >>> 0;
+        if ((flags & cc.TiledMap.TileFlag.HORIZONTAL) >>> 0)
+            flags = (flags & ~cc.TiledMap.TileFlag.HORIZONTAL >>> 0) >>> 0;
         else
-            flags = (flags | cc.TMX_TILE_HORIZONTAL_FLAG) >>> 0;
+            flags = (flags | cc.TiledMap.TileFlag.HORIZONTAL) >>> 0;
         layer.setTileGID(GID, tileCoord, flags);
     },
     //

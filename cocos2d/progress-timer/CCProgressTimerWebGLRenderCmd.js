@@ -50,10 +50,10 @@
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
 
         var blendFunc = node._sprite._blendFunc;
-        cc.glBlendFunc(blendFunc.src, blendFunc.dst);
-        cc.glEnableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+        cc.gl.blendFunc(blendFunc.src, blendFunc.dst);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
-        cc.glBindTexture2D(node._sprite.texture);
+        cc.gl.bindTexture2D(node._sprite.texture);
 
         context.bindBuffer(context.ARRAY_BUFFER, this._vertexWebGLBuffer);
         if (this._vertexDataDirty) {

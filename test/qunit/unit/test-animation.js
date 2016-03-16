@@ -1125,5 +1125,81 @@ test('stop Animation', function () {
 
     strictEqual(animationManager.animators.length, 0, 'playing animators should be 0');
     strictEqual(animation._animator.playingAnims.length, 0, 'playing anims should be 0');
+
+    animation.play('test');
+    animationManager.update(0.5);
+
+    strictEqual(animationManager.animators.length, 1, 'playing animators should be 1');
+    strictEqual(animation._animator.playingAnims.length, 1, 'playing anims should be 1');
+
+    animation.stop();
+
+    strictEqual(animationManager.animators.length, 0, 'playing animators should be 0');
+    strictEqual(animation._animator.playingAnims.length, 0, 'playing anims should be 0');
 });
 
+test('play Animation', function () {
+    var entity = new cc.Node();
+    var animation = entity.addComponent(cc.Animation);
+
+    var clip = new cc.AnimationClip();
+    clip._name = 'move';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+    animation.addClip(clip);
+
+    clip = new cc.AnimationClip();
+    clip._name = 'rotate';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            rotation: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 90}
+            ]
+        }
+    };
+    animation.addClip(clip);
+
+    clip = new cc.AnimationClip();
+    clip._name = 'scale';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            scaleX: [
+                {frame: 0, value: 1},
+                {frame: 1, value: 2}
+            ]
+        }
+    };
+    animation.addClip(clip);
+
+    var moveState = animation.getAnimationState('move');
+    var rotateState = animation.getAnimationState('rotate');
+
+    strictEqual(moveState.isPlaying, false, 'move animation state should not be playing');
+    strictEqual(rotateState.isPlaying, false, 'rotate animation state should not be playing');
+
+    animation.play('move');
+    strictEqual(moveState.isPlaying, true, 'move animation state should be playing');
+    strictEqual(rotateState.isPlaying, false, 'rotate animation state should not be playing');
+
+    animation.play('rotate');
+    strictEqual(moveState.isPlaying, false, 'move animation state should not be playing');
+    strictEqual(rotateState.isPlaying, true, 'rotate animation state should be playing');
+
+    animation.playAdditive('move');
+    strictEqual(moveState.isPlaying, true, 'move animation state should be playing');
+    strictEqual(rotateState.isPlaying, true, 'rotate animation state should be playing');
+
+    animation.play('scale');
+    strictEqual(moveState.isPlaying, false, 'move animation state should not be playing');
+    strictEqual(rotateState.isPlaying, false, 'rotate animation state should be playing');
+});
