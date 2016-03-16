@@ -172,7 +172,7 @@ var TimerTargetSelector = Timer.extend({
         this._selector = null;
     },
 
-    initWithSelector: function(scheduler, selector, target, seconds, repeat, delay){
+    initWithSelector: function(scheduler, target, selector, seconds, repeat, delay){
         this._scheduler = scheduler;
         this._target = target;
         this._selector = selector;
@@ -186,8 +186,8 @@ var TimerTargetSelector = Timer.extend({
 
     trigger: function(){
         //override
-        if (this._target && this._selector){
-            this._target.call(this._selector, this._elapsed);
+        if (this._selector && this._target){
+            this._selector.call(this._target, this._elapsed);
         }
     },
 
@@ -512,7 +512,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      */
     scheduleCallbackForTarget: function(target, callback_fn, interval, repeat, delay, paused){
         //cc.log("scheduleCallbackForTarget is deprecated. Please use schedule.");
-        this.schedule(callback_fn, target, interval, repeat, delay, paused, getTargetId(target) + "");
+        this.schedule(callback_fn, target, interval, repeat, delay, paused);
     },
 
     /**
@@ -524,36 +524,21 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
      * @param {Number} repeat
      * @param {Number} delay
      * @param {Boolean} paused
-     * @param {Number} key
      * @example {@link utils/api/engine/docs/cocos2d/core/CCScheduler/schedule.js}
      */
-    schedule: function(callback, target, interval, repeat, delay, paused, key){
-        var isSelector = false;
-        if(typeof callback !== "function"){
-            var selector = callback;
-            isSelector = true;
+    schedule: function (callback, target, interval, repeat, delay, paused) {
+        'use strict';
+        if (typeof callback !== 'function') {
+            var tmp = callback;
+            callback = target;
+            target = tmp;
         }
-
-        if(isSelector === false){
-            //callback, target, interval, repeat, delay, paused, key
-            //callback, target, interval, paused, key
-            if(arguments.length === 4 || arguments.length === 5){
-                key = delay;
-                paused = repeat;
-                delay = 0;
-                repeat = cc.macro.REPEAT_FOREVER;
-            }
-        }else{
-            //selector, target, interval, repeat, delay, paused
-            //selector, target, interval, paused
-            if(arguments.length === 4){
-                paused = repeat;
-                repeat = cc.macro.REPEAT_FOREVER;
-                delay = 0;
-            }
-        }
-        if (key === undefined) {
-            key = target.__instanceId + "";
+        //selector, target, interval, repeat, delay, paused
+        //selector, target, interval, paused
+        if(arguments.length === 4 || arguments.length === 5){
+            paused = repeat;
+            repeat = cc.macro.REPEAT_FOREVER;
+            delay = 0;
         }
 
         cc.assert(target, cc._LogInfos.Scheduler_scheduleCallbackForTarget_3);
@@ -567,42 +552,27 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
             this._arrayForTimers.push(element);
             this._hashForTimers[instanceId] = element;
         }else{
-            cc.assert(element.paused === paused, "");
+            cc.assert(element.paused === paused, '');
         }
 
         var timer, i;
         if (element.timers == null) {
             element.timers = [];
-        } else if(isSelector === false) {
-            for (i = 0; i < element.timers.length; i++) {
-                timer = element.timers[i];
-                if (callback === timer._callback) {
-                    cc.log(cc._LogInfos.Scheduler.scheduleCallbackForTarget, timer.getInterval().toFixed(4), interval.toFixed(4));
-                    timer._interval = interval;
-                    return;
-                }
-            }
-        }else{
+        }
+        else {
             for (i = 0; i < element.timers.length; ++i){
                 timer =element.timers[i];
-                if (timer && selector === timer.getSelector()){
-                    cc.log("CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f", timer.getInterval(), interval);
+                if (timer && callback === timer.getSelector()){
+                    cc.log('CCScheduler#scheduleSelector. Selector already scheduled. Updating interval from: %.4f to %.4f', timer.getInterval(), interval);
                     timer.setInterval(interval);
                     return;
                 }
             }
-            //ccArrayEnsureExtraCapacity(element->timers, 1);
         }
-
-        if(isSelector === false){
-            timer = new TimerTargetCallback();
-            timer.initWithCallback(this, callback, target, key, interval, repeat, delay);
-            element.timers.push(timer);
-        }else{
-            timer = new TimerTargetSelector();
-            timer.initWithSelector(this, selector, target, interval, repeat, delay);
-            element.timers.push(timer);
-        }
+        
+        timer = new TimerTargetSelector();
+        timer.initWithSelector(this, target, callback, interval, repeat, delay);
+        element.timers.push(timer);
     },
 
     scheduleUpdate: function(target, priority, paused, updateFunc){
@@ -617,24 +587,22 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
             case "string":
                 return key === timer.getKey();
             case "function":
-                return key === timer._callback;
-            default:
-                return key === timer.getSelector();
+                return key === timer._callback || timer.getSelector();
         }
     },
 
     /** Unschedules a callback for a callback and a given target.
      * If you want to unschedule the "update", use `unscheudleUpdate()`
-     * @param {Function|String} key The callback to be unscheduled
+     * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
      */
-    unschedule: function(key, target){
+    unschedule: function(callback, target){
         //key, target
         //selector, target
         //callback, target - This is in order to increase compatibility
 
         // explicity handle nil arguments when removing an object
-        if (!target || !key)
+        if (!target || !callback)
             return;
 
         var self = this, element = self._hashForTimers[getTargetId(target)];
@@ -642,7 +610,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
             var timers = element.timers;
             for(var i = 0, li = timers.length; i < li; i++){
                 var timer = timers[i];
-                if (this._getUnscheduleMark(key, timer)) {
+                if (this._getUnscheduleMark(callback, timer)) {
                     if ((timer === element.currentTimer) && (!element.currentTimerSalvaged)) {
                         element.currentTimerSalvaged = true;
                     }
@@ -1017,12 +985,12 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
     /**
      * Unschedules all function callbacks for a given target. This also includes the "update" callback function.
      * @method unscheduleAllCallbacksForTarget
-     * @deprecated since v3.4 please use .unscheduleAll
+     * @deprecated since v3.4 please use unscheduleAllForTarget
      * @param {Object} target
      */
     unscheduleAllCallbacksForTarget: function(target){
         //cc.log("unscheduleAllCallbacksForTarget is deprecated. Please use unscheduleAll.");
-        this.unschedule(getTargetId(target) + "", target);
+        this.unscheduleAllForTarget(target);
     },
 
     /**
