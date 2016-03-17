@@ -66,7 +66,7 @@ var KeyboardReturnType = _ccsg.EditBox.KeyboardReturnType;
  */
 /**
  * !#en TODO
- * !#zh 用户可以输入任何文本,包括换行符。
+ * !#zh 用户可以输入任何文本，包括换行符。
  * @property {Number} ANY
  */
 /**
@@ -106,7 +106,7 @@ var InputMode = _ccsg.EditBox.InputMode;
 
 /**
  * !#en Enum for the EditBox's input flags
- * !#zh 如何显示和格式化输入文本。
+ * !#zh 定义了一些用于设置文本显示和文本格式化的标志位。
  * @readonly
  * @enum EditBox.InputFlag
  */
@@ -125,7 +125,7 @@ var InputMode = _ccsg.EditBox.InputMode;
  * in predictive, auto-completing, or other accelerated input schemes.
  * A credit card number is an example of sensitive data.
  * !#zh
- * 表明输入的文本是敏感数据， 它禁止存储到字典或表里面，也不能用来自动补全和提示用户输入。
+ * 表明输入的文本是敏感数据，它禁止存储到字典或表里面，也不能用来自动补全和提示用户输入。
  * 一个信用卡号码就是一个敏感数据的例子。
  * @property {Number} SENSITIVE
  */
@@ -134,7 +134,7 @@ var InputMode = _ccsg.EditBox.InputMode;
  * This flag is a hint to the implementation that during text editing,
  * the initial letter of each word should be capitalized.
  * !#zh
- * 这个标志的作用是设置一个提示，在文本编辑的时候，是否把每一个单词的首字母大写。
+ *  这个标志用来指定在文本编辑的时候，是否把每一个单词的首字母大写。
  * @property {Number} INITIAL_CAPS_WORD
  */
 /**
@@ -142,7 +142,7 @@ var InputMode = _ccsg.EditBox.InputMode;
  * This flag is a hint to the implementation that during text editing,
  * the initial letter of each sentence should be capitalized.
  * !#zh
- * 这个标志的作用是设置一个提示,在文本编辑，是否每个句子的首字母大写。
+ * 这个标志用来指定在文本编辑是否每个句子的首字母大写。
  * @property {Number} INITIAL_CAPS_SENTENCE
  */
 /**
@@ -154,7 +154,7 @@ var InputFlag = _ccsg.EditBox.InputFlag;
 
 /**
  * !#en cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
- * !#zh EditBox 组件，用于外部进行编辑或者输入文本。
+ * !#zh EditBox 组件，用于获取用户的输入文本。
  * @class EditBox
  * @extends _RendererUnderSG
  */
@@ -215,7 +215,7 @@ var EditBox = cc.Class({
          * Note: it is meaningless for web platforms and desktop platforms.
          * !#zh
          * 指定移动设备上面回车按钮的样式。
-         * 注意：web 平台与 dsktop 平台是无意义的。
+         * 注意：这个选项对 web 平台与 desktop 平台无效。
          * @property {EditBox.KeyboardReturnType} returnType
          * @default KeyboardReturnType.DEFAULT
          */
@@ -231,7 +231,7 @@ var EditBox = cc.Class({
 
         /**
          * !#en Set the input flags that are to be applied to the EditBox.
-         * !#zh 指定输入标识：可以指定输入方式为密码或者单词首字母大写。
+         * !#zh 指定输入标志位，可以指定输入方式为密码或者单词首字母大写。
          * @property {EditBox.InputFlag} inputFlag
          * @default InputFlag.INITIAL_CAPS_ALL_CHARACTERS
          */
