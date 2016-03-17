@@ -179,7 +179,7 @@ cc.js.mixin(cc.game, {
         if (node !== this._ignoreRemovePersistNode) {
             var id = node._id || '';
             if (node === this._persistRootNodes[id]) {
-                this._persistRootNodes[id] = null;
+                delete this._persistRootNodes[id];
                 node._persistNode = false;
             }
         }
