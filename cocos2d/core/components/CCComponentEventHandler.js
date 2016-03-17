@@ -24,18 +24,31 @@
  ****************************************************************************/
 
 /**
+ * !#en
  * Component will register a event to target component's handler.
  * And it will trigger the handler when a certain event occurs.
  *
+ * !@zh
+ * “EventHandler” 类用来设置场景中的事件回调，
+ * 该类允许用户设置回调目标节点，目标组件名，组件方法名，
+ * 并可通过 emit 方法调用目标函数。
  * @class Component.EventHandler
+ * @example
+ * // Create new EventHandler
+ * 1. var eventHandler = cc.Component.EventHandler(target, "MainMenu", "OnClick");
+ * 2. var eventHandler = cc.Component.EventHandler();
+ *    eventHandler.target = newTarget;
+ *    eventHandler.component = "MainMenu";
+ *    eventHandler.handler = "OnClick"
  */
 cc.Component.EventHandler = cc.Class({
     name: 'cc.ClickEvent',
     properties: {
         /**
-         * Event target
+         * !#en Event target
+         * !#zh 目标节点
          * @property target
-         * @type cc.Node
+         * @type {Node}
          * @default null
          */
         target: {
@@ -43,7 +56,8 @@ cc.Component.EventHandler = cc.Class({
             type: cc.Node,
         },
         /**
-         * Component name
+         * !#en Component name
+         * !#zh 目标组件名
          * @property component
          * @type {String}
          * @default ''
@@ -52,7 +66,8 @@ cc.Component.EventHandler = cc.Class({
             default: '',
         },
         /**
-         * Event handler
+         * !#en Event handler
+         * !#zh 响应事件函数名
          * @property handler
          * @type {String}
          * @default ''
@@ -64,10 +79,10 @@ cc.Component.EventHandler = cc.Class({
 
     statics: {
         /**
-         * Emit events with params
          * @method emitEvents
-         * @param {Array} events
+         * @param {Component.EventHandler[]} events
          * @param {*} params
+         * @statics
          */
         emitEvents: function(events, params) {
             for (var i = 0, l = events.length; i < l; i++) {
@@ -80,9 +95,14 @@ cc.Component.EventHandler = cc.Class({
     },
 
     /**
-     * Emit event with params
+     * !#en Emit event with params
+     * !#zh 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
      * @method emit
      * @param {*} params
+     * @example
+     * // Call Function
+     * var eventHandler = cc.Component.EventHandler(target, "MainMenu", "OnClick");
+     * eventHandler.emit("This is the argument to the callback function!");
      */
     emit: function(params) {
         var target = this.target;

@@ -125,7 +125,8 @@ var Button = cc.Class({
          * !#en
          * Whether the Button is disabled.
          * If true, the Button will trigger event and do transition.
-         * !#zh 按钮事件是否被响应。
+         * !#zh
+         * 按钮事件是否被响应，如果为 false，则按钮将被禁用。
          * @property {Boolean} interactable
          * @default true
          */
@@ -295,7 +296,7 @@ var Button = cc.Class({
 
         /**
          * !#en If Button is clicked, it will trigger event's handler
-         * !#zh 按钮的点击事件列表（只能在编辑器中添加）。
+         * !#zh 按钮的点击事件列表。
          * @property {Component.EventHandler[]} clickEvents
          */
         clickEvents: {
