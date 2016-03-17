@@ -25,96 +25,127 @@
 
 
 /**
- * Enum for Layout type
+ * !#en Enum for Layout type
+ * !#zh 自动布局模式
  * @enum Layout.Type
  */
 var Type = cc.Enum({
     /**
+     * !#en TODO
+     * !#zh 不会对子节点进行自动布局
      *@property {Number} NONE
      */
     NONE: 0,
     /**
+     * !#en TODO
+     * !#zh 水平自动排列子物体
      * @property {Number} HORIZONTAL
      */
     HORIZONTAL: 1,
 
     /**
+     * !#en TODO
+     * !#zh 垂直自动排列子物体
      * @property {Number} VERTICAL
      */
     VERTICAL: 2,
     /**
+     * !#en TODO
+     * !#zh 自动进行网格布局排列子物体
      * @property {Number} GRID
      */
     GRID: 3,
 });
 
 /**
- * Enum for Layout Resize Mode
+ * !#en Enum for Layout Resize Mode
+ * !#zh 布局适配模式
  * @enum Layout.ResizeMode
  */
 var ResizeMode = cc.Enum({
     /**
+     * !#en TODO
+     * !#zh 不做任何适配
      * @property {Number} NONE
      */
     NONE: 0,
     /**
+     * !#en TODO
+     * !#zh CONTAINER模式，子对象的大小会随着容器的大小变化。
      * @property {Number} CONTAINER
      */
     CONTAINER: 1,
     /**
+     * !#en TODO
+     * !#zh CHILDREN 模式，容器的大小会随子对象的大小变化。
      * @property {Number} CHILDREN
      */
     CHILDREN: 2
 });
 
 /**
- * Enum for Grid Layout start axis direction.
+ * !#en Enum for Grid Layout start axis direction.
+ * !#zh 轴方向布局方式，只用于 GRID 布局。
  * @enum Layout.AxisDirection
  */
 var AxisDirection = cc.Enum({
     /**
+     * !#en TODO
+     * !#zh 进行水平方向布局
      * @property {Number} HORIZONTAL
      */
     HORIZONTAL: 0,
     /**
+     * !#en TODO
+     * !#zh 进行垂直方向布局
      * @property {Number} VERTICAL
      */
     VERTICAL: 1,
 });
 
 /**
- * Enum for vertical layout direction.
+ * !#en Enum for vertical layout direction.
+ * !#zh 垂直方向布局方式
  * @enum Layout.VerticalDirection
  */
 var VerticalDirection = cc.Enum({
     /**
+     * !#en TODO
+     * !#zh 从下到上排列
      * @property {Number} BOTTOM_TO_TOP
      */
     BOTTOM_TO_TOP: 0,
     /**
+     * !#en TODO
+     * !#zh 从上到下排列
      * @property {Number} TOP_TO_BOTTOM
      */
     TOP_TO_BOTTOM: 1,
 });
 
 /**
- * Enum for horizontal layout direction.
+ * !#en Enum for horizontal layout direction.
+ * !#zh 水平方向布局方式
  * @enum Layout.HorizontalDirection
  */
 var HorizontalDirection = cc.Enum({
     /**
+     * !#en TODO
+     * !#zh 从左往右排列
      * @property {Number} LEFT_TO_RIGHT
      */
     LEFT_TO_RIGHT: 0,
     /**
+     * !#en TODO
+     * !#zh 从右往左排列
      *@property {Number} RIGHT_TO_LEFT
      */
     RIGHT_TO_LEFT: 1,
 });
 
 /**
- * The Layout is a container component, use it to arrange child elements easily.
- *
+ * !#en The Layout is a container component, use it to arrange child elements easily.
+ * !#zh Layout 组件，用于排列布局子控件。
  * @class Layout
  * @extends Component
  */
@@ -141,7 +172,8 @@ var Layout = cc.Class({
         //TODO: refactoring this name after data upgrade machanism is out.
         _N$layoutType: Type.NONE,
         /**
-         * The layout type.
+         * !#en The layout type.
+         * !#zh 自动布局模式
          * @property {Layout.Type} type
          * @default Layout.Type.NONE
          */
@@ -167,8 +199,10 @@ var Layout = cc.Class({
 
 
         /**
+         * !#en
          * The are three resize modes for Layout.
          * None, resize Container and resize children.
+         * !#zh 布局适配模式
          * @property {Layout.ResizeMode} resizeMode
          * @default ResizeMode.NONE
          */
@@ -196,8 +230,9 @@ var Layout = cc.Class({
         },
 
         /**
-         * The cell size for grid layout.
-         * @property {cc.Size} cellSize
+         * !#en The cell size for grid layout.
+         * !#zh 每个格子的大小，只有布局类型为 GRID 的时候才有效。
+         * @property {Size} cellSize
          * @default cc.size(40, 40)
          */
         cellSize: {
@@ -210,8 +245,10 @@ var Layout = cc.Class({
         },
 
         /**
+         * !#en
          * The start axis for grid layout. If you choose horizontal, then children will layout horizontally at first,
          * and then break line on demand. Choose vertical if you want to layout vertically at first .
+         * !#zh 起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效。
          * @property {Layout.AxisDirection} startAxis
          */
         startAxis: {
@@ -229,7 +266,8 @@ var Layout = cc.Class({
             animatable: false
         },
         /**
-         * The padding of layout, it only effect the layout in one direction.
+         * !#en The padding of layout, it only effect the layout in one direction.
+         * !#zh 布局填充，它只影响一个方向的布局。
          * @property {Number} padding
          */
         padding: {
@@ -241,7 +279,8 @@ var Layout = cc.Class({
         },
 
         /**
-         * The distance in x-axis between each element in layout.
+         * !#en The distance in x-axis between each element in layout.
+         * !#zh 相邻子节点之间的水平距离。
          * @property {Number} spacingX
          */
         spacingX: {
@@ -254,7 +293,8 @@ var Layout = cc.Class({
         },
 
         /**
-         * The distance in y-axis between each element in layout.
+         * !#en The distance in y-axis between each element in layout.
+         * !#zh 相邻子节点之间的垂直距离。
          * @property {Number} spacingY
          */
         spacingY: {
@@ -267,8 +307,10 @@ var Layout = cc.Class({
         },
 
         /**
+         * !#en
          * Only take effect in Vertical layout mode.
          * This option changes the start element's positioning.
+         * !#zh 垂直排列子节点的方向。
          * @property {Layout.VerticalDirection} verticalDirection
          */
         verticalDirection: {
@@ -282,8 +324,10 @@ var Layout = cc.Class({
         },
 
         /**
+         * !#en
          * Only take effect in Horizontal layout mode.
          * This option changes the start element's positioning.
+         * !#zh 水平排列子节点的方向。
          * @property {Layout.HorizontalDirection} horizontalDirection
          */
         horizontalDirection: {
