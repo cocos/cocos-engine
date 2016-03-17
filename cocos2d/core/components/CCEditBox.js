@@ -25,12 +25,136 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Enum for keyboard return types
+ * !#zh 键盘的返回键类型
+ * @readonly
+ * @enum EditBox.KeyboardReturnType
+ */
+/**
+ * !#en TODO
+ * !#zh 默认
+ * @property {Number} DEFAULT
+ */
+/**
+ * !#en TODO
+ * !#zh 完成类型
+ * @property {Number} DONE
+ */
+/**
+ * !#en TODO
+ * !#zh 发送类型
+ * @property {Number} SEND
+ */
+/**
+ * !#en TODO
+ * !#zh 搜索类型
+ * @property {Number} SEARCH
+ */
+/**
+ * !#en TODO
+ * !#zh 跳转类型
+ * @property {Number} GO
+ */
 var KeyboardReturnType = _ccsg.EditBox.KeyboardReturnType;
+
+/**
+ * !#en The EditBox's InputMode defines the type of text that the user is allowed to enter.
+ * !#zh 输入模式
+ * @readonly
+ * @enum EditBox.InputMode
+ */
+/**
+ * !#en TODO
+ * !#zh 用户可以输入任何文本,包括换行符。
+ * @property {Number} ANY
+ */
+/**
+ * !#en The user is allowed to enter an e-mail address.
+ * !#zh 允许用户输入一个电子邮件地址。
+ * @property {Number} EMAIL_ADDR
+ */
+/**
+ * !#en The user is allowed to enter an integer value.
+ * !#zh 允许用户输入一个整数值。
+ * @property {Number} NUMERIC
+ */
+/**
+ * !#en The user is allowed to enter a phone number.
+ * !#zh 允许用户输入一个电话号码。
+ * @property {Number} PHONE_NUMBER
+ */
+/**
+ * !#en The user is allowed to enter a URL.
+ * !#zh 允许用户输入一个 URL。
+ * @property {Number} URL
+ */
+/**
+ * !#en
+ * The user is allowed to enter a real number value.
+ * This extends kEditBoxInputModeNumeric by allowing a decimal point.
+ * !#zh
+ * 允许用户输入一个实数。
+ * @property {Number} DECIMAL
+ */
+/**
+ * !#en The user is allowed to enter any text, except for line breaks.
+ * !#zh 除了换行符以外，用户可以输入任何文本。
+ * @property {Number} SINGLE_LINE
+ */
 var InputMode = _ccsg.EditBox.InputMode;
+
+/**
+ * !#en Enum for the EditBox's input flags
+ * !#zh 如何显示和格式化输入文本。
+ * @readonly
+ * @enum EditBox.InputFlag
+ */
+/**
+ * !#en
+ * Indicates that the text entered is confidential data that should be
+ * obscured whenever possible. This implies EDIT_BOX_INPUT_FLAG_SENSITIVE.
+ * !#zh
+ * 表明输入的文本是保密的数据，任何时候都应该隐藏起来，它隐含了 EDIT_BOX_INPUT_FLAG_SENSITIVE。
+ * @property {Number} PASSWORD
+ */
+/**
+ * !#en
+ * Indicates that the text entered is sensitive data that the
+ * implementation must never store into a dictionary or table for use
+ * in predictive, auto-completing, or other accelerated input schemes.
+ * A credit card number is an example of sensitive data.
+ * !#zh
+ * 表明输入的文本是敏感数据， 它禁止存储到字典或表里面，也不能用来自动补全和提示用户输入。
+ * 一个信用卡号码就是一个敏感数据的例子。
+ * @property {Number} SENSITIVE
+ */
+/**
+ * !#en
+ * This flag is a hint to the implementation that during text editing,
+ * the initial letter of each word should be capitalized.
+ * !#zh
+ * 这个标志的作用是设置一个提示，在文本编辑的时候，是否把每一个单词的首字母大写。
+ * @property {Number} INITIAL_CAPS_WORD
+ */
+/**
+ * !#en
+ * This flag is a hint to the implementation that during text editing,
+ * the initial letter of each sentence should be capitalized.
+ * !#zh
+ * 这个标志的作用是设置一个提示,在文本编辑，是否每个句子的首字母大写。
+ * @property {Number} INITIAL_CAPS_SENTENCE
+ */
+/**
+ * !#en Capitalize all characters automatically.
+ * !#zh 自动把输入的所有字符大写。
+ * @property {Number} INITIAL_CAPS_ALL_CHARACTERS
+ */
 var InputFlag = _ccsg.EditBox.InputFlag;
 
 /**
- * cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
+ * !#en cc.EditBox is a component for inputing text, you can use it to gather small amounts of text from users.
+ * !#zh EditBox 组件，用于外部进行编辑或者输入文本。
  * @class EditBox
  * @extends _RendererUnderSG
  */
@@ -49,7 +173,8 @@ var EditBox = cc.Class({
         _useOriginalSize: true,
         _string: '',
         /**
-         * Input string of EditBox.
+         * !#en Input string of EditBox.
+         * !#zh 输入框的初始输入内容，如果为空则会显示占位符的文本。
          * @property {String} string
          */
         string: {
@@ -63,8 +188,9 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The background image of EditBox.
-         * @property {cc.SpriteFrame} backGroundImage
+         * !#en The background image of EditBox.
+         * !#zh 输入框的背景图片
+         * @property {SpriteFrame} backGroundImage
          */
         backgroundImage: {
             tooltip: 'i18n:COMPONENT.editbox.backgroundImage',
@@ -84,8 +210,12 @@ var EditBox = cc.Class({
         },
 
         /**
+         * !#en
          * The return key type of EditBox.
          * Note: it is meaningless for web platforms and desktop platforms.
+         * !#zh
+         * 指定移动设备上面回车按钮的样式。
+         * 注意：web 平台与 dsktop 平台是无意义的。
          * @property {EditBox.KeyboardReturnType} returnType
          * @default KeyboardReturnType.DEFAULT
          */
@@ -100,7 +230,8 @@ var EditBox = cc.Class({
         },
 
         /**
-         * Set the input flags that are to be applied to the EditBox.
+         * !#en Set the input flags that are to be applied to the EditBox.
+         * !#zh 指定输入标识：可以指定输入方式为密码或者单词首字母大写。
          * @property {EditBox.InputFlag} inputFlag
          * @default InputFlag.INITIAL_CAPS_ALL_CHARACTERS
          */
@@ -113,8 +244,11 @@ var EditBox = cc.Class({
             }
         },
         /**
+         * !#en
          * Set the input mode of the edit box.
          * If you pass ANY, it will create a multiline EditBox.
+         * !#zh
+         * 指定输入模式: ANY表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式。
          * @property {EditBox.InputMode} inputMode
          * @default InputMode.ANY
          */
@@ -128,7 +262,8 @@ var EditBox = cc.Class({
         },
 
         /**
-         * Font size of the input text.
+         * !#en Font size of the input text.
+         * !#zh 输入框文本的字体大小
          * @property {Number} fontSize
          */
         fontSize: {
@@ -140,7 +275,8 @@ var EditBox = cc.Class({
         },
 
         /**
-         * Change the lineHeight of displayed text.
+         * !#en Change the lineHeight of displayed text.
+         * !#zh 输入框文本的行高。
          * @property {Number} lineHeight
          */
         lineHeight: {
@@ -152,8 +288,9 @@ var EditBox = cc.Class({
         },
 
         /**
-         * Font color of the input text.
-         * @property {cc.Color} fontColor
+         * !#en Font color of the input text.
+         * !#zh 输入框文本的颜色。
+         * @property {Color} fontColor
          */
         fontColor: {
             tooltip: 'i18n:COMPONENT.editbox.font_color',
@@ -164,7 +301,8 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The display text of placeholder.
+         * !#en The display text of placeholder.
+         * !#zh 输入框占位符的文本内容。
          * @property {String} placeholder
          */
         placeholder: {
@@ -176,7 +314,8 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The font size of placeholder.
+         * !#en The font size of placeholder.
+         * !#zh 输入框占位符的字体大小。
          * @property {Number} placeholderFontSize
          */
         placeholderFontSize: {
@@ -188,8 +327,9 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The font color of placeholder.
-         * @property {cc.Color} placeholderFontColor
+         * !#en The font color of placeholder.
+         * !#zh 输入框最大允许输入的字符个数。
+         * @property {Color} placeholderFontColor
          */
         placeholderFontColor: {
             tooltip: 'i18n:COMPONENT.editbox.placeholder_font_color',
@@ -200,7 +340,8 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The maximize input length of EditBox.
+         * !#en The maximize input length of EditBox.
+         * !#zh 输入框最大允许输入的字符个数。
          * @property {Number} maxLength
          */
         maxLength: {
@@ -212,8 +353,9 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The event handler to be called when EditBox began to edit text.
-         * @property {cc.Component.EventHandler} editingDidBegin
+         * !#en The event handler to be called when EditBox began to edit text.
+         * !#zh 开始编辑文本输入框触发的事件回调。
+         * @property {Component.EventHandler} editingDidBegin
          */
         editingDidBegan: {
             default: [],
@@ -221,8 +363,9 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The event handler to be called when EditBox text changes.
-         * @property {cc.Component.EventHandler} textChanged
+         * !#en The event handler to be called when EditBox text changes.
+         * !#zh 编辑文本输入框时触发的事件回调。
+         * @property {Component.EventHandler} textChanged
          */
         textChanged: {
             default: [],
@@ -230,8 +373,9 @@ var EditBox = cc.Class({
         },
 
         /**
-         * The event handler to be called when EditBox edit ends.
-         * @property {cc.Component.EventHandler} editingDidEnded
+         * !#en The event handler to be called when EditBox edit ends.
+         * !#zh 结束编辑文本输入框时触发的事件回调。
+         * @property {Component.EventHandler} editingDidEnded
          */
         editingDidEnded: {
             default: [],
