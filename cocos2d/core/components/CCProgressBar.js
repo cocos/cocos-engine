@@ -25,29 +25,53 @@
 
 
 /**
- * Enum for ProgressBar mode
+ * !#en Enum for ProgressBar mode
+ * !#zh 进度条模式
  * @enum ProgressBar.Mode
  */
 var Mode = cc.Enum({
     /**
+     * !#en TODO
+     * !#zh 水平方向模式
      * @property {Number} HORIZONTAL
      */
     HORIZONTAL: 0,
 
     /**
+     * !#en TODO
+     * !#zh 垂直方向模式
      * @property {Number} VERTICAL
      */
     VERTICAL: 1,
     /**
+     * !#en TODO
+     * !#zh 填充模式
      * @property {Number} FILLED
      */
     FILLED: 2,
 });
 
 /**
- * Visual indicator of progress in some operation. Displays a bar to the user representing how far the operation has progressed
+ * !#en
+ * Visual indicator of progress in some operation.
+ * Displays a bar to the user representing how far the operation has progressed.
+ * !#zh
+ * 进度条组件，可用于显示加载资源时的进度。
  * @class ProgressBar
  * @extends Component
+ * @example
+ * // update progressBar
+ * update: function (dt) {
+ *     var progress = progressBar.progress;
+ *     if (progress > 0) {
+ *         progress += dt;
+ *     }
+ *     else {
+ *         progress = 1;
+ *     }
+ *     progressBar.progress = progress;
+ * }
+ *
  */
 var ProgressBar = cc.Class({
     name: 'cc.ProgressBar',
@@ -156,8 +180,9 @@ var ProgressBar = cc.Class({
 
     properties: {
         /**
-         * The targeted Sprite which will be changed progressively.
-         *@property {cc.Sprite} barSprite
+         * !#en The targeted Sprite which will be changed progressively.
+         * !#zh 用来显示进度条比例的 Sprite 对象。
+         * @property {Sprite} barSprite
          */
         barSprite: {
             default: null,
@@ -170,8 +195,9 @@ var ProgressBar = cc.Class({
         },
 
         /**
-         * The progress mode, there are two modes supported now: horizontal and vertical.
-         *@property {ProgressBar.Mode} mode
+         * !#en The progress mode, there are two modes supported now: horizontal and vertical.
+         * !#zh 进度条的模式
+         * @property {ProgressBar.Mode} mode
          */
         mode: {
             default: Mode.HORIZONTAL,
@@ -196,8 +222,9 @@ var ProgressBar = cc.Class({
         },
 
         /**
-         * The total width or height of the bar sprite.
-         *@property {Number} totalLength
+         * !#en The total width or height of the bar sprite.
+         * !#zh 进度条实际的总长度
+         * @property {Number} totalLength
          */
         totalLength: {
             default: 1,
@@ -209,8 +236,9 @@ var ProgressBar = cc.Class({
         },
 
         /**
-         * The current progress of the bar sprite. The valid value is between 0-1.
-         *@property {Number} progress
+         * !#en The current progress of the bar sprite. The valid value is between 0-1.
+         * !#zh 当前进度值，该数值的区间是 0-1 之间。
+         * @property {Number} progress
          */
         progress: {
             default: 1,
@@ -223,8 +251,9 @@ var ProgressBar = cc.Class({
         },
 
         /**
-         * Whether reverse the progress direction of the bar sprite.
-         *@property {Boolean} reverse
+         * !#en Whether reverse the progress direction of the bar sprite.
+         * !#zh 进度条是否进行反方向变化。
+         * @property {Boolean} reverse
          */
         reverse: {
             default: false,
