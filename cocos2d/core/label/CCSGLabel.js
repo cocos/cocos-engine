@@ -449,19 +449,19 @@ _ccsg.Label = _ccsg.Node.extend({
 
     getContentSize: function() {
         if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
-            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
+            this._updateLabel();
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
     },
     _getWidth: function () {
         if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
-            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
+            this._updateLabel();
         }
         return _ccsg.Node.prototype._getWidth.call(this);
     },
     _getHeight: function () {
         if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
-            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
+            this._updateLabel();
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },
