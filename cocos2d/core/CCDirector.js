@@ -471,7 +471,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
-        var i, node, game = cc.game;
+        var id, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
 
         if (scene instanceof cc.Scene) {
@@ -480,8 +480,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // detach persist nodes
-        for (i = persistNodes.length - 1; i >= 0; --i) {
-            node = persistNodes[i];
+        for (id in persistNodes) {
+            node = persistNodes[id];
             game._ignoreRemovePersistNode = node;
             node.parent = null;
             game._ignoreRemovePersistNode = null;
@@ -510,10 +510,18 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._scene = scene;
             sgScene = scene._sgNode;
 
-            // Re-attach persist nodes
-            for (i = 0; i < persistNodes.length; ++i) {
-                node = persistNodes[i];
-                node.parent = scene;
+            // Re-attach or replace persist nodes
+            for (id in persistNodes) {
+                node = persistNodes[id];
+                var existNode = scene.getChildByName(node.name);
+                // Scene contains the persist node, should not reattach, should update the persist node
+                if (existNode) {
+                    persistNodes[id] = existNode;
+                    existNode._persistNode = true;
+                }
+                else {
+                    node.parent = scene;
+                }
             }
             scene._activate();
         }
