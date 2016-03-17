@@ -26,32 +26,32 @@
 
 /**
  * !#en Enum for Layout type
- * !#zh 自动布局模式
+ * !#zh 布局类型
  * @enum Layout.Type
  */
 var Type = cc.Enum({
     /**
      * !#en TODO
-     * !#zh 不会对子节点进行自动布局
+     * !#zh 取消布局
      *@property {Number} NONE
      */
     NONE: 0,
     /**
      * !#en TODO
-     * !#zh 水平自动排列子物体
+     * !#zh 水平布局
      * @property {Number} HORIZONTAL
      */
     HORIZONTAL: 1,
 
     /**
      * !#en TODO
-     * !#zh 垂直自动排列子物体
+     * !#zh 垂直布局
      * @property {Number} VERTICAL
      */
     VERTICAL: 2,
     /**
      * !#en TODO
-     * !#zh 自动进行网格布局排列子物体
+     * !#zh 网格布局
      * @property {Number} GRID
      */
     GRID: 3,
@@ -59,25 +59,25 @@ var Type = cc.Enum({
 
 /**
  * !#en Enum for Layout Resize Mode
- * !#zh 布局适配模式
+ * !#zh 缩放模式
  * @enum Layout.ResizeMode
  */
 var ResizeMode = cc.Enum({
     /**
      * !#en TODO
-     * !#zh 不做任何适配
+     * !#zh 不做任何缩放
      * @property {Number} NONE
      */
     NONE: 0,
     /**
      * !#en TODO
-     * !#zh CONTAINER模式，子对象的大小会随着容器的大小变化。
+     * !#zh 子节点的大小会随着容器的大小自动缩放。
      * @property {Number} CONTAINER
      */
     CONTAINER: 1,
     /**
      * !#en TODO
-     * !#zh CHILDREN 模式，容器的大小会随子对象的大小变化。
+     * !#zh 容器的大小会根据子节点的大小自动缩放。
      * @property {Number} CHILDREN
      */
     CHILDREN: 2
@@ -85,7 +85,7 @@ var ResizeMode = cc.Enum({
 
 /**
  * !#en Enum for Grid Layout start axis direction.
- * !#zh 轴方向布局方式，只用于 GRID 布局。
+ * !#zh 布局轴向，只用于 GRID 布局。
  * @enum Layout.AxisDirection
  */
 var AxisDirection = cc.Enum({
@@ -145,7 +145,7 @@ var HorizontalDirection = cc.Enum({
 
 /**
  * !#en The Layout is a container component, use it to arrange child elements easily.
- * !#zh Layout 组件，用于排列布局子控件。
+ * !#zh Layout 组件相当于一个容器，能自动对它的所有子节点进行统一排版。
  * @class Layout
  * @extends Component
  */
@@ -173,7 +173,7 @@ var Layout = cc.Class({
         _N$layoutType: Type.NONE,
         /**
          * !#en The layout type.
-         * !#zh 自动布局模式
+         * !#zh 布局类型
          * @property {Layout.Type} type
          * @default Layout.Type.NONE
          */
@@ -202,7 +202,7 @@ var Layout = cc.Class({
          * !#en
          * The are three resize modes for Layout.
          * None, resize Container and resize children.
-         * !#zh 布局适配模式
+         * !#zh 缩放模式
          * @property {Layout.ResizeMode} resizeMode
          * @default ResizeMode.NONE
          */
@@ -267,7 +267,7 @@ var Layout = cc.Class({
         },
         /**
          * !#en The padding of layout, it only effect the layout in one direction.
-         * !#zh 布局填充，它只影响一个方向的布局。
+         * !#zh 容器内边距，只会在布局方向上生效。
          * @property {Number} padding
          */
         padding: {
@@ -280,7 +280,7 @@ var Layout = cc.Class({
 
         /**
          * !#en The distance in x-axis between each element in layout.
-         * !#zh 相邻子节点之间的水平距离。
+         * !#zh 子节点之间的水平间距。
          * @property {Number} spacingX
          */
         spacingX: {
@@ -294,7 +294,7 @@ var Layout = cc.Class({
 
         /**
          * !#en The distance in y-axis between each element in layout.
-         * !#zh 相邻子节点之间的垂直距离。
+         * !#zh 子节点之间的垂直间距。
          * @property {Number} spacingY
          */
         spacingY: {
