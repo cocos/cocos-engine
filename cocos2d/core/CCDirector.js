@@ -513,7 +513,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             // Re-attach or replace persist nodes
             for (id in persistNodes) {
                 node = persistNodes[id];
-                var existNode = scene.getChildByName(node.name);
+                var existNode = scene.getChildByUuid(id);
                 // Scene contains the persist node, should not reattach, should update the persist node
                 if (existNode) {
                     persistNodes[id] = existNode;

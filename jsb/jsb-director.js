@@ -136,7 +136,7 @@ cc.js.mixin(cc.director, {
             // Re-attach persist nodes
             for (id in persistNodes) {
                 node = persistNodes[id];
-                var existNode = scene.getChildByName(node.name);
+                var existNode = scene.getChildByUuid(id);
                 // Scene contains the persist node, should not reattach, should update the persist node
                 if (existNode) {
                     persistNodes[id] = existNode;
