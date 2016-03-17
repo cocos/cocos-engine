@@ -25,7 +25,7 @@
 cc.MotionStreak.WebGLRenderCmd = function(renderableObject){
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
     this._needDraw = true;
-    this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
+    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
 };
 
 cc.MotionStreak.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -40,25 +40,25 @@ cc.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
         ctx = ctx || cc._renderContext;
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-        cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+        cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
 
-        cc.glBindTexture2D(node.texture);
+        cc.gl.bindTexture2D(node.texture);
 
         //position
         ctx.bindBuffer(ctx.ARRAY_BUFFER, node._verticesBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._vertices, ctx.DYNAMIC_DRAW);
-        ctx.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 2, ctx.FLOAT, false, 0, 0);
+        ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, ctx.FLOAT, false, 0, 0);
 
         //texcoords
         ctx.bindBuffer(ctx.ARRAY_BUFFER, node._texCoordsBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._texCoords, ctx.DYNAMIC_DRAW);
-        ctx.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, ctx.FLOAT, false, 0, 0);
+        ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, ctx.FLOAT, false, 0, 0);
 
         //colors
         ctx.bindBuffer(ctx.ARRAY_BUFFER, node._colorPointerBuffer);
         ctx.bufferData(ctx.ARRAY_BUFFER, node._colorPointer, ctx.DYNAMIC_DRAW);
-        ctx.vertexAttribPointer(cc.VERTEX_ATTRIB_COLOR, 4, ctx.UNSIGNED_BYTE, true, 0, 0);
+        ctx.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, ctx.UNSIGNED_BYTE, true, 0, 0);
 
         ctx.drawArrays(ctx.TRIANGLE_STRIP, 0, node._nuPoints * 2);
         cc.g_NumberOfDraws++;

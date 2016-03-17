@@ -35,7 +35,7 @@ cc._LogInfos = {
     },
 
     configuration: {
-        dumpInfo: "cocos2d: **** WARNING **** CC_ENABLE_PROFILERS is defined. Disable it when you finish profiling (from ccConfig.js)",
+        dumpInfo: "cocos2d: **** WARNING **** CC_ENABLE_PROFILERS is defined. Disable it when you finish profiling (from CCMacro.js)",
         loadConfigFile: "Expected 'data' dict, but not found. Config file: %s",
         loadConfigFile_2: "Please load the resource first : %s",
     },
@@ -124,8 +124,6 @@ cc._LogInfos = {
     inputManager: {
         handleTouchesBegin: "The touches is more than MAX_TOUCHES, nUnusedIndex = %s",
     },
-
-    swap: "cc.swap is being modified from original macro, please check usage",
 
     checkGLErrorDebug: "WebGL error %s",
 
@@ -246,7 +244,6 @@ cc._LogInfos = {
     },
 
     MissingFile: "Missing file: %s",
-    radiansToDegress: "cc.radiansToDegress() should be called cc.radiansToDegrees()",
     RectWidth: "Rect width exceeds maximum margin: %s",
     RectHeight: "Rect height exceeds maximum margin: %s",
 
@@ -315,7 +312,7 @@ cc._logToWebPage = function (msg) {
 };
 
 //to make sure the cc.log, cc.warn, cc.error and cc.assert would not throw error before init by debugger mode.
-cc._formatString = function (arg) {
+function _formatString (arg) {
     if (cc.js.isObject(arg)) {
         try {
             return JSON.stringify(arg);
@@ -367,6 +364,8 @@ cc.DebugMode = Enum({
  * @module cc
  */
 
+var jsbLog = cc.log || console.log;
+
 /**
  * Init Debug setting.
  * @method _initDebugSetting
@@ -380,28 +379,28 @@ cc._initDebugSetting = function (mode) {
         return;
 
     var locLog;
-    if(mode > cc.DebugMode.ERROR){
+    if (!CC_JSB && mode > cc.DebugMode.ERROR) {
         //log to web page
         locLog = cc._logToWebPage.bind(cc);
         cc.error = function(){
-            locLog("ERROR :  " + cc.formatStr.apply(cc, arguments));
+            locLog("ERROR :  " + cc.js.formatStr.apply(cc, arguments));
         };
         cc.assert = function(cond, msg) {
             'use strict';
             if (!cond && msg) {
                 for (var i = 2; i < arguments.length; i++)
-                    msg = msg.replace(/(%s)|(%d)/, cc._formatString(arguments[i]));
+                    msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
                 locLog("Assert: " + msg);
             }
         };
         if(mode !== cc.DebugMode.ERROR_FOR_WEB_PAGE){
             cc.warn = function(){
-                locLog("WARN :  " + cc.formatStr.apply(cc, arguments));
+                locLog("WARN :  " + cc.js.formatStr.apply(cc, arguments));
             };
         }
         if(mode === cc.DebugMode.INFO_FOR_WEB_PAGE){
             cc.log = cc.info = function(){
-                locLog(cc.formatStr.apply(cc, arguments));
+                locLog(cc.js.formatStr.apply(cc, arguments));
             };
         }
     } else if(console && console.log.apply){//console is null when user doesn't open dev tool on IE9
@@ -434,7 +433,7 @@ cc._initDebugSetting = function (mode) {
         cc.assert = function (cond, msg) {
             if (!cond && msg) {
                 for (var i = 2; i < arguments.length; i++)
-                    msg = msg.replace(/(%s)|(%d)/, cc._formatString(arguments[i]));
+                    msg = msg.replace(/(%s)|(%d)/, _formatString(arguments[i]));
                 throw new Error(msg);
             }
         };
@@ -471,7 +470,10 @@ cc._initDebugSetting = function (mode) {
              * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
-            if (console.log.bind) {
+            if (CC_JSB) {
+                cc.log = jsbLog;
+            }
+            else if (console.log.bind) {
                 // use bind to avoid pollute call stacks
                 cc.log = console.log.bind(console);
             }

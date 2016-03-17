@@ -936,7 +936,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
         var index = 0, locChildren = this.getChildren();
         var count = locChildren.length, widgetPosition;
 
-        var distance = cc.FLT_MAX, found = 0;
+        var distance = cc.macro.FLT_MAX, found = 0;
         if (direction === ccui.Widget.LEFT || direction === ccui.Widget.RIGHT || direction === ccui.Widget.DOWN || direction === ccui.Widget.UP) {
             widgetPosition = this._getWorldCenterPoint(baseWidget);
             while (index < count) {
@@ -972,7 +972,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
         var index = 0, locChildren = this.getChildren();
         var count = locChildren.length;
 
-        var distance = -cc.FLT_MAX, found = 0;
+        var distance = -cc.macro.FLT_MAX, found = 0;
         if (direction === ccui.Widget.LEFT || direction === ccui.Widget.RIGHT || direction === ccui.Widget.DOWN || direction === ccui.Widget.UP) {
             var widgetPosition =  this._getWorldCenterPoint(baseWidget);
             while (index <  count) {
@@ -1000,7 +1000,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
      * @private
      */
     _calculateNearestDistance: function(baseWidget){
-        var distance = cc.FLT_MAX;
+        var distance = cc.macro.FLT_MAX;
         var widgetPosition =  this._getWorldCenterPoint(baseWidget);
         var locChildren = this._children;
 
@@ -1027,7 +1027,7 @@ ccui.Layout = ccui.Widget.extend(/** @lends ccui.Layout# */{
      * @private
      */
     _calculateFarthestDistance:function(baseWidget){
-        var distance = -cc.FLT_MAX;
+        var distance = -cc.macro.FLT_MAX;
         var widgetPosition =  this._getWorldCenterPoint(baseWidget);
         var locChildren = this._children;
 

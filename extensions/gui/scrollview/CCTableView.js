@@ -65,7 +65,7 @@ cc.TableViewCell = _ccsg.Node.extend(/** @lends cc.TableViewCell# */{
      * Cleans up any resources linked to this cell and resets <code>idx</code> property.
      */
     reset:function () {
-        this._idx = cc.INVALID_INDEX;
+        this._idx = cc.macro.INVALID_INDEX;
     },
 
     setObjectID:function (idx) {
@@ -257,7 +257,7 @@ cc.TableView = cc.ScrollView.extend(/** @lends cc.TableView# */{
         if (index !== -1) {
             index = Math.max(0, index);
             if (index > maxIdx)
-                index = cc.INVALID_INDEX;
+                index = cc.macro.INVALID_INDEX;
         }
         return index;
     },
@@ -428,7 +428,7 @@ cc.TableView = cc.ScrollView.extend(/** @lends cc.TableView# */{
      * @param idx index to find a cell
      */
     updateCellAtIndex:function (idx) {
-        if (idx === cc.INVALID_INDEX || idx > this._dataSource.numberOfCellsInTableView(this) - 1)
+        if (idx === cc.macro.INVALID_INDEX || idx > this._dataSource.numberOfCellsInTableView(this) - 1)
             return;
 
         var cell = this.cellAtIndex(idx);
@@ -446,7 +446,7 @@ cc.TableView = cc.ScrollView.extend(/** @lends cc.TableView# */{
      * @param idx location to insert
      */
     insertCellAtIndex:function (idx) {
-        if (idx === cc.INVALID_INDEX || idx > this._dataSource.numberOfCellsInTableView(this) - 1)
+        if (idx === cc.macro.INVALID_INDEX || idx > this._dataSource.numberOfCellsInTableView(this) - 1)
             return;
 
         var newIdx, locCellsUsed = this._cellsUsed;
@@ -474,7 +474,7 @@ cc.TableView = cc.ScrollView.extend(/** @lends cc.TableView# */{
      * @param idx index to find a cell
      */
     removeCellAtIndex:function (idx) {
-        if (idx === cc.INVALID_INDEX || idx > this._dataSource.numberOfCellsInTableView(this) - 1)
+        if (idx === cc.macro.INVALID_INDEX || idx > this._dataSource.numberOfCellsInTableView(this) - 1)
             return;
 
         var cell = this.cellAtIndex(idx);
@@ -569,7 +569,7 @@ cc.TableView = cc.ScrollView.extend(/** @lends cc.TableView# */{
         if (this._vOrdering === cc.TABLEVIEW_FILL_TOPDOWN)
             offset.y = offset.y + locViewSize.height/locContainer.getScaleY();
         var startIdx = this._indexFromOffset(offset);
-        if (startIdx === cc.INVALID_INDEX)
+        if (startIdx === cc.macro.INVALID_INDEX)
             startIdx = countOfItems - 1;
 
         if (this._vOrdering === cc.TABLEVIEW_FILL_TOPDOWN)
@@ -579,7 +579,7 @@ cc.TableView = cc.ScrollView.extend(/** @lends cc.TableView# */{
         offset.x += locViewSize.width/locContainer.getScaleX();
 
         var endIdx = this._indexFromOffset(offset);
-        if (endIdx === cc.INVALID_INDEX)
+        if (endIdx === cc.macro.INVALID_INDEX)
             endIdx = countOfItems - 1;
 
         var cell, locCellsUsed = this._cellsUsed;
@@ -656,7 +656,7 @@ cc.TableView = cc.ScrollView.extend(/** @lends cc.TableView# */{
             point = this.getContainer().convertTouchToNodeSpace(touch);
 
             index = this._indexFromOffset(point);
-            if (index === cc.INVALID_INDEX)
+            if (index === cc.macro.INVALID_INDEX)
                 this._touchedCell = null;
             else
                 this._touchedCell  = this.cellAtIndex(index);

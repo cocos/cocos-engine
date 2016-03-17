@@ -65,7 +65,7 @@
             var dy = x1 * sr + y2 * cr2 + y;
 
             var locVertexZ = node._vertexZ;
-            if(!cc.SPRITEBATCHNODE_RENDER_SUBPIXEL) {
+            if(!cc.macro.SPRITEBATCHNODE_RENDER_SUBPIXEL) {
                 ax = 0 | ax;
                 ay = 0 | ay;
                 bx = 0 | bx;
@@ -103,28 +103,28 @@
             this._shaderProgram.use();
             this._shaderProgram.setUniformForModelViewAndProjectionMatrixWithMat4();
 
-            cc.glBlendFunc(node._blendFunc.src, node._blendFunc.dst);
+            cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
-            cc.glBindTexture2DN(0, locTexture);                   // = cc.glBindTexture2D(locTexture);
-            cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            cc.gl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
+            cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
             if (this._quadDirty) {
                 gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.DYNAMIC_DRAW);
                 this._quadDirty = false;
             }
-            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.VERTEX_ATTRIB_POSITION
-            gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.VERTEX_ATTRIB_COLOR
-            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.VERTEX_ATTRIB_TEX_COORDS
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.macro.VERTEX_ATTRIB_POSITION
+            gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.macro.VERTEX_ATTRIB_COLOR
+            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.macro.VERTEX_ATTRIB_TEX_COORDS
 
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }
 
         cc.g_NumberOfDraws++;
-        if (cc.SPRITE_DEBUG_DRAW === 0 && !node._showNode)
+        if (cc.macro.SPRITE_DEBUG_DRAW === 0 && !node._showNode)
             return;
 
-        if (cc.SPRITE_DEBUG_DRAW === 1 || node._showNode) {
+        if (cc.macro.SPRITE_DEBUG_DRAW === 1 || node._showNode) {
             // draw bounding box
             var locQuad = this._quad;
             var verticesG1 = [
@@ -134,7 +134,7 @@
                 cc.p(locQuad.tr.vertices.x, locQuad.tr.vertices.y)
             ];
             cc._drawingUtil.drawPoly(verticesG1, 4, true);
-        } else if (cc.SPRITE_DEBUG_DRAW === 2) {
+        } else if (cc.macro.SPRITE_DEBUG_DRAW === 2) {
             // draw texture box
             var drawRectG2 = node.getTextureRect();
             var offsetPixG2 = node.getOffsetPosition();

@@ -278,8 +278,6 @@ cc.actionInterval = function (d) {
     return new cc.ActionInterval(d);
 };
 
-cc.ActionInterval.create = cc.actionInterval;
-
 /**
  * @module cc
  */
@@ -458,8 +456,6 @@ cc.sequence = function (/*Multiple Arguments*/tempArray) {
     return result;
 };
 
-cc.Sequence.create = cc.sequence;
-
 cc.Sequence._actionOneTwo = function (actionOne, actionTwo) {
     var sequence = new cc.Sequence();
     sequence.initWithTwoActions(actionOne, actionTwo);
@@ -609,8 +605,6 @@ cc.repeat = function (action, times) {
     return new cc.Repeat(action, times);
 };
 
-cc.Repeat.create = cc.repeat;
-
 
 /*
  * Repeats an action for ever.  <br/>
@@ -711,8 +705,6 @@ cc.RepeatForever = cc.ActionInterval.extend({
 cc.repeatForever = function (action) {
     return new cc.RepeatForever(action);
 };
-
-cc.RepeatForever.create = cc.repeatForever;
 
 
 /* 
@@ -833,8 +825,6 @@ cc.spawn = function (/*Multiple Arguments*/tempArray) {
     return prev;
 };
 
-cc.Spawn.create = cc.spawn;
-
 cc.Spawn._actionOneTwo = function (action1, action2) {
     var pSpawn = new cc.Spawn();
     pSpawn.initWithTwoActions(action1, action2);
@@ -943,8 +933,6 @@ cc.rotateTo = function (duration, deltaAngleX, deltaAngleY) {
     return new cc.RotateTo(duration, deltaAngleX, deltaAngleY);
 };
 
-cc.RotateTo.create = cc.rotateTo;
-
 
 /*
  * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
@@ -1030,8 +1018,6 @@ cc.rotateBy = function (duration, deltaAngleX, deltaAngleY) {
     return new cc.RotateBy(duration, deltaAngleX, deltaAngleY);
 };
 
-cc.RotateBy.create = cc.rotateBy;
-
 
 /*
  * <p>
@@ -1107,7 +1093,7 @@ cc.MoveBy = cc.ActionInterval.extend({
             var x = this._positionDelta.x * dt;
             var y = this._positionDelta.y * dt;
             var locStartPosition = this._startPosition;
-            if (cc.ENABLE_STACKABLE_ACTIONS) {
+            if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
                 var targetX = this.target.getPositionX();
                 var targetY = this.target.getPositionY();
                 var locPreviousPosition = this._previousPosition;
@@ -1150,8 +1136,6 @@ cc.MoveBy = cc.ActionInterval.extend({
 cc.moveBy = function (duration, deltaPos, deltaY) {
     return new cc.MoveBy(duration, deltaPos, deltaY);
 };
-
-cc.MoveBy.create = cc.moveBy;
 
 
 /*
@@ -1227,8 +1211,6 @@ cc.MoveTo = cc.MoveBy.extend({
 cc.moveTo = function (duration, position, y) {
     return new cc.MoveTo(duration, position, y);
 };
-
-cc.MoveTo.create = cc.moveTo;
 
 /*
  * Skews a Node object to given angles by modifying its skewX and skewY properties
@@ -1321,8 +1303,6 @@ cc.skewTo = function (t, sx, sy) {
     return new cc.SkewTo(t, sx, sy);
 };
 
-cc.SkewTo.create = cc.skewTo;
-
 /*
  * Skews a Node object by skewX and skewY degrees.
  * Relative to its property modification.
@@ -1394,7 +1374,6 @@ cc.SkewBy = cc.SkewTo.extend({
 cc.skewBy = function (t, sx, sy) {
     return new cc.SkewBy(t, sx, sy);
 };
-cc.SkewBy.create = cc.skewBy;
 
 
 /*
@@ -1481,7 +1460,7 @@ cc.JumpBy = cc.ActionInterval.extend({
 
             var x = this._delta.x * dt;
             var locStartPosition = this._startPosition;
-            if (cc.ENABLE_STACKABLE_ACTIONS) {
+            if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
                 var targetX = this.target.getPositionX();
                 var targetY = this.target.getPositionY();
                 var locPreviousPosition = this._previousPosition;
@@ -1525,7 +1504,6 @@ cc.JumpBy = cc.ActionInterval.extend({
 cc.jumpBy = function (duration, position, y, height, jumps) {
     return new cc.JumpBy(duration, position, y, height, jumps);
 };
-cc.JumpBy.create = cc.jumpBy;
 
 /*
  * Moves a Node object to a parabolic position simulating a jump movement by modifying it's position property. <br />
@@ -1607,8 +1585,6 @@ cc.JumpTo = cc.JumpBy.extend({
 cc.jumpTo = function (duration, position, y, height, jumps) {
     return new cc.JumpTo(duration, position, y, height, jumps);
 };
-
-cc.JumpTo.create = cc.jumpTo;
 
 /*
  * @method bezierAt
@@ -1704,7 +1680,7 @@ cc.BezierBy = cc.ActionInterval.extend({
             var y = cc.bezierAt(ya, yb, yc, yd, dt);
 
             var locStartPosition = this._startPosition;
-            if (cc.ENABLE_STACKABLE_ACTIONS) {
+            if (cc.macro.ENABLE_STACKABLE_ACTIONS) {
                 var targetX = this.target.getPositionX();
                 var targetY = this.target.getPositionY();
                 var locPreviousPosition = this._previousPosition;
@@ -1750,7 +1726,6 @@ cc.BezierBy = cc.ActionInterval.extend({
 cc.bezierBy = function (t, c) {
     return new cc.BezierBy(t, c);
 };
-cc.BezierBy.create = cc.bezierBy;
 
 
 /* An action that moves the target with a cubic Bezier curve to a destination point.
@@ -1817,7 +1792,6 @@ cc.BezierTo = cc.BezierBy.extend({
 cc.bezierTo = function (t, c) {
     return new cc.BezierTo(t, c);
 };
-cc.BezierTo.create = cc.bezierTo;
 
 
 /* Scales a Node object to a zoom factor by modifying it's scale property.
@@ -1906,7 +1880,6 @@ cc.ScaleTo = cc.ActionInterval.extend({
 cc.scaleTo = function (duration, sx, sy) { //function overload
     return new cc.ScaleTo(duration, sx, sy);
 };
-cc.ScaleTo.create = cc.scaleTo;
 
 
 /* Scales a Node object a zoom factor by modifying it's scale property.
@@ -1953,7 +1926,6 @@ cc.ScaleBy = cc.ScaleTo.extend({
 cc.scaleBy = function (duration, sx, sy) {
     return new cc.ScaleBy(duration, sx, sy);
 };
-cc.ScaleBy.create = cc.scaleBy;
 
 /* Blinks a Node object by modifying it's visible property
  * @class Blink
@@ -2032,7 +2004,6 @@ cc.Blink = cc.ActionInterval.extend({
 cc.blink = function (duration, blinks) {
     return new cc.Blink(duration, blinks);
 };
-cc.Blink.create = cc.blink;
 
 /* Fades an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from the current value to a custom one.
  * @warning This action doesn't support "reverse"
@@ -2098,7 +2069,6 @@ cc.FadeTo = cc.ActionInterval.extend({
 cc.fadeTo = function (duration, opacity) {
     return new cc.FadeTo(duration, opacity);
 };
-cc.FadeTo.create = cc.fadeTo;
 
 /* Fades In an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 0 to 255.<br/>
  * The "reverse" of this action is FadeOut
@@ -2150,7 +2120,6 @@ cc.FadeIn = cc.FadeTo.extend({
 cc.fadeIn = function (duration) {
     return new cc.FadeIn(duration);
 };
-cc.FadeIn.create = cc.fadeIn;
 
 
 /* Fades Out an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 255 to 0.
@@ -2197,7 +2166,6 @@ cc.FadeOut = cc.FadeTo.extend({
 cc.fadeOut = function (d) {
     return new cc.FadeOut(d);
 };
-cc.FadeOut.create = cc.fadeOut;
 
 /* Tints a Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * @warning This action doesn't support "reverse"
@@ -2281,7 +2249,6 @@ cc.TintTo = cc.ActionInterval.extend({
 cc.tintTo = function (duration, red, green, blue) {
     return new cc.TintTo(duration, red, green, blue);
 };
-cc.TintTo.create = cc.tintTo;
 
 
 /* Tints a Node that implements the cc.NodeRGB protocol from current tint to a custom one.
@@ -2375,7 +2342,6 @@ cc.TintBy = cc.ActionInterval.extend({
 cc.tintBy = function (duration, deltaRed, deltaGreen, deltaBlue) {
     return new cc.TintBy(duration, deltaRed, deltaGreen, deltaBlue);
 };
-cc.TintBy.create = cc.tintBy;
 
 /* Delays the action a certain amount of seconds
  * @class DelayTime
@@ -2411,7 +2377,6 @@ cc.DelayTime = cc.ActionInterval.extend({
 cc.delayTime = function (d) {
     return new cc.DelayTime(d);
 };
-cc.DelayTime.create = cc.delayTime;
 
 /*
  * <p>
@@ -2494,7 +2459,6 @@ cc.ReverseTime = cc.ActionInterval.extend({
 cc.reverseTime = function (action) {
     return new cc.ReverseTime(action);
 };
-cc.ReverseTime.create = cc.reverseTime;
 
 /**
  * This API is deprecated, will be replaced by new API from {{#crossLink "Animation"}}cc.Animation{{/crossLink}}
@@ -2665,7 +2629,6 @@ cc.Animate = cc.ActionInterval.extend({
 cc.animate = function (animation) {
     return new cc.Animate(animation);
 };
-cc.Animate.create = cc.animate;
 
 /*
  * <p>
@@ -2750,4 +2713,3 @@ cc.TargetedAction = cc.ActionInterval.extend({
 cc.targetedAction = function (target, action) {
     return new cc.TargetedAction(target, action);
 };
-cc.TargetedAction.create = cc.targetedAction;

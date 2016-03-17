@@ -23,27 +23,35 @@
  THE SOFTWARE.
  ****************************************************************************/
 /**
- * Enum for transition type
+ * !#en Enum for transition type.
+ * !#zh 过渡类型
  * @enum Button.Transition
  */
 var Transition = cc.Enum({
     /**
+     * !#en The none type.
+     * !#zh 不做任何过渡
      * @property {Number} NONE
      */
     NONE: 0,
 
     /**
+     * !#en The color type.
+     * !#zh 颜色过渡
      * @property {Number} COLOR
      */
     COLOR: 1,
 
     /**
+     * !#en The sprite type.
+     * !#zh 精灵过渡
      * @property {Number} SPRITE
      */
     SPRITE: 2
 });
 
 /**
+ * !#en
  * Button has 3 Transition types
  * When Button state changed:
  *  If Transition type is Button.Transition.NONE, Button will do nothing
@@ -57,8 +65,37 @@ var Transition = cc.Enum({
  *  Button.EVENT_HOVER_MOVE
  *  Button.EVENT_HOVER_OUT
  *
+ * !#zh
+ * 按钮组件。可以被按下,或者点击。</br>
+ *
+ * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：</br>
+ *   -Button.Transition.NONE   // 不做任何过渡</br>
+ *   -Button.Transition.COLOR  // 进行颜色之间过渡</br>
+ *   -Button.Transition.SPRITE // 进行精灵之间过渡</br>
+ *
+ * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：</br>
+ *   // 以下事件可以在全平台上都触发</br>
+ *   -cc.Node.EventType.TOUCH_START  // 按下时事件</br>
+ *   -cc.Node.EventType.TOUCH_Move   // 按住移动后事件</br>
+ *   -cc.Node.EventType.TOUCH_END    // 按下后松开后事件</br>
+ *   -cc.Node.EventType.TOUCH_CANCEL // 按下取消事件</br>
+ *   // 以下事件只在 PC 平台上触发</br>
+ *   -cc.Node.EventType.MOUSE_DOWN  // 鼠标按下时事件</br>
+ *   -cc.Node.EventType.MOUSE_MOVE  // 鼠标按住移动后事件</br>
+ *   -cc.Node.EventType.MOUSE_ENTER // 鼠标进入目标事件</br>
+ *   -cc.Node.EventType.MOUSE_LEAVE // 鼠标离开目标事件</br>
+ *   -cc.Node.EventType.MOUSE_UP    // 鼠标松开事件</br>
+ *   -cc.Node.EventType.MOUSE_WHEEL // 鼠标滚轮事件</br>
+ *
  * @class Button
  * @extends Component
+ * @example
+ *
+ * // Add an event to the button.
+ * button.node.on(cc.Node.EventType.TOUCH_START, function (event) {
+ *      cc.log("This is a callback after the trigger event");
+ * });
+ *
  */
 var Button = cc.Class({
     name: 'cc.Button',
@@ -78,14 +115,18 @@ var Button = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Button',
+        help: 'app://docs/html/components/button.html',
         inspector: 'app://editor/page/inspector/button/button.html',
         executeInEditMode: true
     },
 
     properties: {
         /**
+         * !#en
          * Whether the Button is disabled.
          * If true, the Button will trigger event and do transition.
+         * !#zh
+         * 按钮事件是否被响应，如果为 false，则按钮将被禁用。
          * @property {Boolean} interactable
          * @default true
          */
@@ -99,7 +140,8 @@ var Button = cc.Class({
         },
 
         /**
-         * Transition type
+         * !#en Transition type
+         * !#zh 按钮状态改变时过渡方式。
          * @property {Button.Transition} transition
          * @default Button.Transition.Node
          */
@@ -113,8 +155,9 @@ var Button = cc.Class({
         // color transition
 
         /**
-         * Normal state color
-         * @property {cc.Color} normalColor
+         * !#en Normal state color.
+         * !#zh 普通状态下按钮所显示的颜色。
+         * @property {Color} normalColor
          */
         normalColor: {
             default: cc.color(214, 214, 214),
@@ -126,8 +169,9 @@ var Button = cc.Class({
         },
 
         /**
-         * Pressed state color
-         * @property {cc.Color} pressedColor
+         * !#en Pressed state color
+         * !#zh 按下状态时按钮所显示的颜色。
+         * @property {Color} pressedColor
          */
         pressedColor: {
             default: cc.color(211, 211, 211),
@@ -136,8 +180,9 @@ var Button = cc.Class({
         },
 
         /**
-         * Hover state color
-         * @property {cc.Color} hoverColor
+         * !#en Hover state color
+         * !#zh 悬停状态下按钮所显示的颜色。
+         * @property {Color} hoverColor
          */
         hoverColor: {
             default: cc.Color.WHITE,
@@ -146,8 +191,9 @@ var Button = cc.Class({
         },
 
         /**
-         * Disabled state color
-         * @property {cc.Color} disabledColor
+         * !#en Disabled state color
+         * !#zh 禁用状态下按钮所显示的颜色。
+         * @property {Color} disabledColor
          */
         disabledColor: {
             default: cc.color(124, 124, 124),
@@ -159,7 +205,8 @@ var Button = cc.Class({
         },
 
         /**
-         * Color transition duration
+         * !#en Color transition duration
+         * !#zh 颜色过渡时所需时间
          * @property {Number} duration
          */
         duration: {
@@ -170,8 +217,9 @@ var Button = cc.Class({
 
         // sprite transition
         /**
-         * Normal state sprite
-         * @property {cc.SpriteFrame} normalSprite
+         * !#en Normal state sprite
+         * !#zh 普通状态下按钮所显示的 Sprite 。
+         * @property {SpriteFrame} normalSprite
          */
         normalSprite: {
             default: null,
@@ -184,8 +232,9 @@ var Button = cc.Class({
         },
 
         /**
-         * Pressed state sprite
-         * @property {cc.SpriteFrame} pressedSprite
+         * !#en Pressed state sprite
+         * !#zh 按下状态时按钮所显示的 Sprite 。
+         * @property {SpriteFrame} pressedSprite
          */
         pressedSprite: {
             default: null,
@@ -195,8 +244,9 @@ var Button = cc.Class({
         },
 
         /**
-         * Hover state sprite
-         * @property {cc.SpriteFrame} hoverSprite
+         * !#en Hover state sprite
+         * !#zh 悬停状态下按钮所显示的 Sprite 。
+         * @property {SpriteFrame} hoverSprite
          */
         hoverSprite: {
             default: null,
@@ -206,8 +256,9 @@ var Button = cc.Class({
         },
 
         /**
-         * Disabled state sprite
-         * @property {cc.SpriteFrame} disabledSprite
+         * !#en Disabled state sprite
+         * !#zh 禁用状态下按钮所显示的 Sprite 。
+         * @property {SpriteFrame} disabledSprite
          */
         disabledSprite: {
             default: null,
@@ -220,12 +271,19 @@ var Button = cc.Class({
         },
 
         /**
+         * !#en
          * Transition target.
          * When Button state changed:
          *  If Transition type is Button.Transition.NONE, Button will do nothing
          *  If Transition type is Button.Transition.COLOR, Button will change target's color
          *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite
-         * @property {cc.Node} target
+         * !#zh
+         * 需要过渡的目标。
+         * 当前按钮状态改变有：
+         * -如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。
+         * -如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
+         * -如果 Transition type 选择 Button.Transition.NONE，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
+         * @property {Node} target
          */
         target: {
             default: null,
@@ -237,8 +295,9 @@ var Button = cc.Class({
         },
 
         /**
-         * If Button is clicked, it will trigger event's handler
-         * @property {cc.Component.EventHandler[]} clickEvents
+         * !#en If Button is clicked, it will trigger event's handler
+         * !#zh 按钮的点击事件列表。
+         * @property {Component.EventHandler[]} clickEvents
          */
         clickEvents: {
             default: [],
@@ -313,6 +372,7 @@ var Button = cc.Class({
     },
 
     _onTouchMove: function (event) {
+        if (!this.interactable || !this.enabledInHierarchy) return;
         // mobile phone will not emit _onMouseMoveOut,
         // so we have to do hit test when touch moving
         var touch = event.touch;
@@ -330,6 +390,8 @@ var Button = cc.Class({
     },
 
     _onTouchEnded: function () {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
         if (this._pressed) {
             cc.Component.EventHandler.emitEvents(this.clickEvents);
         }
@@ -338,6 +400,8 @@ var Button = cc.Class({
     },
 
     _onTouchCancel: function () {
+        if (!this.interactable || !this.enabledInHierarchy) return;
+
         this._pressed = false;
         this._updateState();
     },

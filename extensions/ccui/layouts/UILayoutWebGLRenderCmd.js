@@ -144,17 +144,17 @@
 
     proto._drawFullScreenQuadClearStencil = function(){
         // draw a fullscreen solid rectangle to clear the stencil buffer
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLPushMatrix();
-        cc.kmGLLoadIdentity();
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLPushMatrix();
-        cc.kmGLLoadIdentity();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glPushMatrix();
+        cc.math.glLoadIdentity();
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glPushMatrix();
+        cc.math.glLoadIdentity();
         cc._drawingUtil.drawSolidRect(cc.p(-1,-1), cc.p(1,1), cc.color(255, 255, 255, 255));
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLPopMatrix();
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLPopMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glPopMatrix();
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glPopMatrix();
     };
 
     proto.rebindStencilRendering = function(stencil){};
@@ -172,11 +172,11 @@
             return;
 
         // all the _stencilBits are in use?
-        if (ccui.Layout.WebGLRenderCmd._layer + 1 === cc.stencilBits) {
+        if (ccui.Layout.WebGLRenderCmd._layer + 1 === cc.ClippingNode.stencilBits) {
             // warn once
             ccui.Layout.WebGLRenderCmd._visit_once = true;
             if (ccui.Layout.WebGLRenderCmd._visit_once) {
-                cc.log("Nesting more than " + cc.stencilBits + "stencils is not supported. Everything will be drawn without stencil for this node and its childs.");
+                cc.log("Nesting more than " + cc.ClippingNode.stencilBits + "stencils is not supported. Everything will be drawn without stencil for this node and its childs.");
                 ccui.Layout.WebGLRenderCmd._visit_once = false;
             }
             // draw everything, as if there where no stencil

@@ -45,7 +45,7 @@ cc.profiler = (function () {
     var createStatsLabel = function () {
         var fontSize = 0;
         var w = cc.winSize.width, h = cc.winSize.height;
-        var locStatsPosition = cc.DIRECTOR_STATS_POSITION;
+        var locStatsPosition = cc.macro.DIRECTOR_STATS_POSITION;
         if (w > h)
             fontSize = 0 | (h / 320 * 20);
         else
@@ -110,7 +110,7 @@ cc.profiler = (function () {
         _frames++;
         _accumDt += cc.director.getDeltaTime();
         
-        if (_accumDt > cc.DIRECTOR_FPS_INTERVAL) {
+        if (_accumDt > cc.macro.DIRECTOR_FPS_INTERVAL) {
             _frameRate = _frames / _accumDt;
             _frames = 0;
             _accumDt = 0;
@@ -151,7 +151,7 @@ cc.profiler = (function () {
 
         setProfileDuration: function (duration) {
             if (!isNaN(duration) && duration > 0) {
-                _levelDetCycle = duration / cc.DIRECTOR_FPS_INTERVAL;
+                _levelDetCycle = duration / cc.macro.DIRECTOR_FPS_INTERVAL;
             }
         },
 

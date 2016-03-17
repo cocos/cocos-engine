@@ -175,7 +175,7 @@ var TileMapEditTest = TileDemo.extend({
 var TMXOrthoTest = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test1.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test1.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         map.runAction(new cc.ScaleBy(2, 0.5));
@@ -217,7 +217,7 @@ var TMXOrthoTest2 = TileDemo.extend({
         //
         // it should not flicker. No artifacts should appear
         //
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test2.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test2.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
     },
     title:function () {
@@ -260,7 +260,7 @@ var TMXOrthoTest2 = TileDemo.extend({
 var TMXOrthoTest3 = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test3.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test3.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         map.scale = 0.2;
@@ -298,7 +298,7 @@ var TMXOrthoTest3 = TileDemo.extend({
 var TMXOrthoTest4 = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test4.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test4.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         map.anchorX = 0;
@@ -368,7 +368,7 @@ var TMXReadWriteTest = TileDemo.extend({
     ctor:function () {
         this._super();
 
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test2.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test2.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         var layer = map.getLayer("Layer 0");
@@ -490,7 +490,7 @@ var TMXHexTest = TileDemo.extend({
         var color = new cc.LayerColor(cc.color(64, 64, 64, 255));
         this.addChild(color, -1);
 
-        var map = new cc.TMXTiledMap("res/TileMaps/hexa-test.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/hexa-test.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
     },
     title:function () {
@@ -526,7 +526,7 @@ var TMXIsoTest = TileDemo.extend({
         var color = new cc.LayerColor(cc.color(64, 64, 64, 255));
         this.addChild(color, -1);
 
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         // move map to the center of the screen
@@ -570,7 +570,7 @@ var TMXIsoTest1 = TileDemo.extend({
         var color = new cc.LayerColor(cc.color(64, 64, 64, 255));
         this.addChild(color, -1);
 
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test1.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test1.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         map.anchorX = 0.5;
@@ -612,7 +612,7 @@ var TMXIsoTest2 = TileDemo.extend({
         var color = new cc.LayerColor(cc.color(64, 64, 64, 255));
         this.addChild(color, -1);
 
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test2.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test2.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         // move map to the center of the screen
@@ -657,7 +657,7 @@ var TMXUncompressedTest = TileDemo.extend({
         var color = new cc.LayerColor(cc.color(64, 64, 64, 255));
         this.addChild(color, -1);
 
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test2-uncompressed.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test2-uncompressed.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         // move map to the center of the screen
@@ -710,7 +710,7 @@ var TMXUncompressedTest = TileDemo.extend({
 var TMXTilesetTest = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test5.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test5.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         if ("opengl" in cc.sys.capabilities) {
@@ -760,7 +760,7 @@ var TMXOrthoObjectsTest = TileDemo.extend({
         drawNode.setLineWidth(3);
         drawNode.setDrawColor(cc.color(255,255,255,255));
 
-        var map = new cc.TMXTiledMap("res/TileMaps/ortho-objects.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/ortho-objects.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         var group = map.getObjectGroup("Object Group 1");
@@ -835,7 +835,7 @@ var TMXIsoObjectsTest = TileDemo.extend({
         drawNode.setDrawColor(cc.color(255,255,255,255));
         this.addChild(drawNode);
 
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test-objectgroup.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test-objectgroup.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         var group = map.getObjectGroup("Object Group 1");
@@ -906,7 +906,7 @@ var TMXIsoObjectsTest = TileDemo.extend({
 var TMXResizeTest = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test5.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test5.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         var layer;
@@ -950,7 +950,7 @@ var TMXIsoZorder = TileDemo.extend({
     tamara:null,
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test-zorder.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test-zorder.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         map.x = -map.width / 2;
@@ -1019,7 +1019,7 @@ var TMXOrthoZorder = TileDemo.extend({
     tamara:null,
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test-zorder.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test-zorder.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         this.tamara = new _ccsg.Sprite(s_pathSister1);
@@ -1082,7 +1082,7 @@ var TMXIsoVertexZ = TMXFixBugLayer.extend({
     tamara:null,
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test-vertexz.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test-vertexz.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         map.x = -map.width / 2;
@@ -1157,7 +1157,7 @@ var TMXOrthoVertexZ = TMXFixBugLayer.extend({
     tamara:null,
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test-vertexz.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test-vertexz.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         // because I'm lazy, I'm reusing a tile as an sprite, but since this method uses vertexZ, you
@@ -1231,7 +1231,7 @@ var TMXOrthoVertexZ = TMXFixBugLayer.extend({
 var TMXIsoMoveLayer = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test-movelayer.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test-movelayer.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
         map.x = -700;
         map.y = -50;
@@ -1252,7 +1252,7 @@ var TMXIsoMoveLayer = TileDemo.extend({
 var TMXOrthoMoveLayer = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test-movelayer.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test-movelayer.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
     },
     title:function () {
@@ -1271,7 +1271,7 @@ var TMXOrthoMoveLayer = TileDemo.extend({
 var TMXTilePropertyTest = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/ortho-tile-property.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/ortho-tile-property.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         for (var i = 1; i <= 6; i++) {
@@ -1314,7 +1314,7 @@ var TMXTilePropertyTest = TileDemo.extend({
 var TMXOrthoFlipTest = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/ortho-rotation-test.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/ortho-rotation-test.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
         this.log("ContentSize:" + map.width + "," + map.height);
 
@@ -1350,7 +1350,7 @@ var TMXOrthoFlipTest = TileDemo.extend({
 var TMXOrthoFlipRunTimeTest = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/ortho-rotation-test.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/ortho-rotation-test.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         this.log("ContentSize:" + map.width + "," + map.height);
@@ -1375,10 +1375,10 @@ var TMXOrthoFlipRunTimeTest = TileDemo.extend({
         var flags = layer.getTileFlagsAt(tileCoord);
         var GID = layer.getTileGIDAt(tileCoord);
         // Vertical
-        if ((flags & cc.TMX_TILE_VERTICAL_FLAG) >>> 0) {
-            flags = (flags & ~cc.TMX_TILE_VERTICAL_FLAG >>> 0) >>> 0;
+        if ((flags & cc.TiledMap.TileFlag.VERTICAL) >>> 0) {
+            flags = (flags & ~cc.TiledMap.TileFlag.VERTICAL >>> 0) >>> 0;
         } else {
-            flags = (flags | cc.TMX_TILE_VERTICAL_FLAG) >>> 0;
+            flags = (flags | cc.TiledMap.TileFlag.VERTICAL) >>> 0;
         }
         layer.setTileGID(GID, tileCoord, flags);
 
@@ -1386,20 +1386,20 @@ var TMXOrthoFlipRunTimeTest = TileDemo.extend({
         flags = layer.getTileFlagsAt(tileCoord);
         GID = layer.getTileGIDAt(tileCoord);
         // Vertical
-        if ((flags & cc.TMX_TILE_VERTICAL_FLAG) >>> 0)
-            flags = (flags & ~cc.TMX_TILE_VERTICAL_FLAG >>> 0) >>> 0;
+        if ((flags & cc.TiledMap.TileFlag.VERTICAL) >>> 0)
+            flags = (flags & ~cc.TiledMap.TileFlag.VERTICAL >>> 0) >>> 0;
         else
-            flags = (flags | cc.TMX_TILE_VERTICAL_FLAG) >>> 0;
+            flags = (flags | cc.TiledMap.TileFlag.VERTICAL) >>> 0;
         layer.setTileGID(GID, tileCoord, flags);
 
         tileCoord = cc.p(2, 8);
         flags = layer.getTileFlagsAt(tileCoord);
         GID = layer.getTileGIDAt(tileCoord);
         // Horizontal
-        if ((flags & cc.TMX_TILE_HORIZONTAL_FLAG) >>> 0)
-            flags = (flags & ~cc.TMX_TILE_HORIZONTAL_FLAG >>> 0) >>> 0;
+        if ((flags & cc.TiledMap.TileFlag.HORIZONTAL) >>> 0)
+            flags = (flags & ~cc.TiledMap.TileFlag.HORIZONTAL >>> 0) >>> 0;
         else
-            flags = (flags | cc.TMX_TILE_HORIZONTAL_FLAG) >>> 0;
+            flags = (flags | cc.TiledMap.TileFlag.HORIZONTAL) >>> 0;
         layer.setTileGID(GID, tileCoord, flags);
     },
     //
@@ -1438,7 +1438,7 @@ var TMXOrthoFromXMLTest = TileDemo.extend({
         var resources = "res/TileMaps";
         var filePath = "res/TileMaps/orthogonal-test1.tmx";
         var xmlStr = cc.loader.getRes(filePath);
-        var map = new cc.TMXTiledMap(xmlStr, resources);
+        var map = new _ccsg.TMXTiledMap(xmlStr, resources);
         this.addChild(map, 0, TAG_TILE_MAP);
 
         cc.log("ContentSize: " + map.width + ", " + map.height);
@@ -1485,7 +1485,7 @@ var TMXOrthoFromXMLTest = TileDemo.extend({
 var TMXBug987 = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/orthogonal-test6.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/orthogonal-test6.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         this.log("ContentSize:" + map.width + "," + map.height);
@@ -1540,7 +1540,7 @@ var TMXBug987 = TileDemo.extend({
 var TMXBug787 = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/iso-test-bug787.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/iso-test-bug787.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         map.scale = 0.25;
@@ -1576,7 +1576,7 @@ var TMXGIDObjectsTest = TileDemo.extend({
         drawNode.setDrawColor(cc.color(255,255,255,255));
         this.addChild(drawNode);
 
-        var map = new cc.TMXTiledMap("res/TileMaps/test-object-layer.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/test-object-layer.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
         this.log("ContentSize:" + map.width + "," + map.height);
@@ -1639,7 +1639,7 @@ var TMXGIDObjectsTest = TileDemo.extend({
 var TMXIsoOffsetTest = TileDemo.extend({
     ctor:function () {
         this._super();
-        var map = new cc.TMXTiledMap("res/TileMaps/tile_iso_offset.tmx");
+        var map = new _ccsg.TMXTiledMap("res/TileMaps/tile_iso_offset.tmx");
         this.addChild(map, 0, TAG_TILE_MAP);
 
     },

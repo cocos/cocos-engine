@@ -35,9 +35,9 @@
  */
 cc.math = cc.math || {};
 
-//cc.kmPIOver180 = 0.017453;       please use cc.RAD
+//cc.kmPIOver180 = 0.017453;       please use cc.macro.RAD
 
-//cc.kmPIUnder180 = 57.295779;     please use cc.DEG
+//cc.kmPIUnder180 = 57.295779;     please use cc.macro.DEG
 
 cc.math.EPSILON = 1.0 / 64.0;         //cc.kmEpsilon
 

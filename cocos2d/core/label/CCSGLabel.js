@@ -26,7 +26,7 @@
 
 var EventTarget = require("../cocos2d/core/event/event-target");
 
-cc.FontLetterDefinition = function() {
+var FontLetterDefinition = function() {
     this._u = 0;
     this._v = 0;
     this._width = 0;
@@ -59,7 +59,7 @@ cc.FontAtlas.prototype = {
     cloneLetterDefinition: function() {
         var copyLetterDefinitions = {};
         for (var key in this._letterDefinitions) {
-            var value = new cc.FontLetterDefinition();
+            var value = new FontLetterDefinition();
             cc.js.mixin(value, this._letterDefinitions[key]);
             copyLetterDefinitions[key] = value;
         }
@@ -95,8 +95,8 @@ cc.FontAtlas.prototype = {
     }
 };
 
-cc.LetterInfo = function() {
-    this._char = "";
+var LetterInfo = function() {
+    this._char = '';
     this._valid = true;
     this._positionX = 0;
     this._positionY = 0;
@@ -115,7 +115,6 @@ _ccsg.Label = _ccsg.Node.extend({
 
     _blendFunc: null,
     _isUseSystemFont: true,
-    _labelSkinDirty: true,
     _labelType: 0, //0 is ttf, 1 is bmfont.
     _fontHandle: "", //a ttf font name or a bmfont file path.
     _lineSpacing: 0,
@@ -436,16 +435,16 @@ _ccsg.Label = _ccsg.Node.extend({
     _notifyLabelSkinDirty: function() {
         if (CC_EDITOR) {
             this._updateLabel();
-            this._labelSkinDirty = false;
         } else {
-            this._labelSkinDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
         }
     },
     _createRenderCmd: function() {
-        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL)
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
             return new _ccsg.Label.WebGLRenderCmd(this);
-        else
+        } else {
             return new _ccsg.Label.CanvasRenderCmd(this);
+        }
     },
 
     getContentSize: function() {
@@ -609,7 +608,7 @@ cc.BMFontHelper = {
 
     _recordPlaceholderInfo: function(letterIndex, char) {
         if (letterIndex >= this._lettersInfo.length) {
-            var tmpInfo = new cc.LetterInfo();
+            var tmpInfo = new LetterInfo();
             this._lettersInfo.push(tmpInfo);
         }
 
@@ -619,7 +618,7 @@ cc.BMFontHelper = {
 
     _recordLetterInfo: function(letterPosition, character, letterIndex, lineIndex) {
         if (letterIndex >= this._lettersInfo.length) {
-            var tmpInfo = new cc.LetterInfo();
+            var tmpInfo = new LetterInfo();
             this._lettersInfo.push(tmpInfo);
         }
         character = character.charCodeAt(0);
@@ -632,8 +631,8 @@ cc.BMFontHelper = {
     },
 
     _setDimensions: function(size, height) {
-        var newWidth = size.width || size;
-        var newHeight = size.height || height;
+        var newWidth = (typeof size.width === 'number') ? size.width : size;
+        var newHeight = (typeof size.height === 'number') ? size.height : height;
 
         _ccsg.Node.prototype.setContentSize.call(this, size, height);
 
@@ -791,10 +790,10 @@ cc.BMFontHelper = {
 
         var contentSize = cc.size(this._labelWidth, this._labelHeight);
         if (this._labelWidth <= 0) {
-            contentSize.width = longestLine;
+            contentSize.width = parseFloat(longestLine.toFixed(2));
         }
         if (this._labelHeight <= 0) {
-            contentSize.height = this._textDesiredHeight;
+            contentSize.height = parseFloat(this._textDesiredHeight.toFixed(2));
         }
         _ccsg.Node.prototype.setContentSize.call(this, contentSize);
 
@@ -915,9 +914,6 @@ cc.BMFontHelper = {
         if (this._fontAtlas) {
             this._computeHorizontalKerningForText(this._string);
             updateFinished = this._alignText();
-        }
-        if (updateFinished) {
-            this._labelSkinDirty = false;
         }
     },
 
@@ -1040,7 +1036,7 @@ cc.BMFontHelper = {
         var locFontDict = locCfg.fontDefDictionary;
 
         for (var fontDef in locFontDict) {
-            var letterDefinition = new cc.FontLetterDefinition();
+            var letterDefinition = new FontLetterDefinition();
 
             var tempRect = locFontDict[fontDef].rect;
 
@@ -1088,7 +1084,6 @@ cc.BMFontHelper = {
             this._fontHandle = filename;
             var self = this;
             if (this._labelType === _ccsg.Label.Type.BMFont) {
-
                 this._resetBMFont();
 
                 var texture;
@@ -1113,7 +1108,9 @@ cc.BMFontHelper = {
                             self.emit("load");
                         }, self);
                     } else {
-                        self._createSpriteBatchNode(texture);
+                        if (!self._spriteBatchNode) {
+                            self._createSpriteBatchNode(texture);
+                        }
                     }
                 });
             }

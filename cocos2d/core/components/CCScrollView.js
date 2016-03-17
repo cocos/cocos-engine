@@ -39,9 +39,12 @@ var getTimeInMilliseconds = function() {
 };
 
 /**
+ * !#en
  * Layout container for a view hierarchy that can be scrolled by the user,
  * allowing it to be larger than the physical display.
  *
+ * !#zh
+ * 滚动视图组件
  * @class ScrollView
  * @extends Component
  */
@@ -51,7 +54,8 @@ var ScrollView = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ScrollView',
-        executeInEditMode: true
+        help: 'app://docs/html/components/scrollview.html',
+        executeInEditMode: true,
     },
 
     ctor: function() {
@@ -76,13 +80,15 @@ var ScrollView = cc.Class({
 
         this._outOfBoundaryAmount = cc.p(0, 0);
         this._outOfBoundaryAmountDirty = true;
-
+        this._stopMouseWheel = false;
+        this._mouseWheelEventElapsedTime = 0.0;
     },
 
     properties: {
         /**
-         * This is a reference to the UI element to be scrolled.
-         *@property {cc.Node} content
+         * !#en This is a reference to the UI element to be scrolled.
+         * !#zh 可滚动展示内容的节点。
+         * @property {Node} content
          */
         content: {
             default: null,
@@ -91,8 +97,9 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * Enable horizontal scroll.
-         *@property {Boolean} horizontal
+         * !#en Enable horizontal scroll.
+         * !#zh 是否开启水平滚动。
+         * @property {Boolean} horizontal
          */
         horizontal: {
             default: true,
@@ -101,8 +108,9 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * Enable vertical scroll.
-         *@property {Boolean} vertical
+         * !#en Enable vertical scroll.
+         * !#zh 是否开启垂直滚动。
+         * @property {Boolean} vertical
          */
         vertical: {
             default: true,
@@ -111,8 +119,9 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * When inertia is set, the content will continue to move when touch ended.
-         *@property {Boolean} inertia
+         * !#en When inertia is set, the content will continue to move when touch ended.
+         * !#zh 是否开启滚动惯性。
+         * @property {Boolean} inertia
          */
         inertia: {
             default: true,
@@ -121,9 +130,12 @@ var ScrollView = cc.Class({
         },
 
         /**
+         * !#en
          * It determines how quickly the content stop moving. A value of 1 will stop the movement immediately.
          * A value of 0 will never stop the movement until it reaches to the boundary of scrollview.
-         *@property {Number} brake
+         * !#zh
+         * 开启惯性后，在用户停止触摸后滚动多快停止，0表示永不停止，1表示立刻停止。
+         * @property {Number} brake
          */
         brake: {
             default: 0.5,
@@ -133,8 +145,9 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * When elastic is set, the content will be bounce back when move out of boundary.
-         *@property {Boolean} elastic
+         * !#en When elastic is set, the content will be bounce back when move out of boundary.
+         * !#zh 是否允许滚动内容超过边界，并在停止触摸后回弹。
+         * @property {Boolean} elastic
          */
         elastic: {
             default: true,
@@ -142,8 +155,9 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * The elapse time of bouncing back. A value of 0 will bounce back immediately.
-         *@property {Number} bounceDuration
+         * !#en The elapse time of bouncing back. A value of 0 will bounce back immediately.
+         * !#zh 回弹持续的时间，0 表示将立即反弹。
+         * @property {Number} bounceDuration
          */
         bounceDuration: {
             default: 1,
@@ -152,8 +166,9 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * The horizontal scrollbar reference.
-         *@property {cc.Scrollbar} horizontalScrollBar
+         * !#en The horizontal scrollbar reference.
+         * !#zh 水平滚动的 ScrollBar。
+         * @property {Scrollbar} horizontalScrollBar
          */
         horizontalScrollBar: {
             default: null,
@@ -169,8 +184,9 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * The vertical scrollbar reference.
-         *@property {cc.Scrollbar} verticalScrollBar
+         * !#en The vertical scrollbar reference.
+         * !#zh 垂直滚动的 ScrollBar。
+         * @property {Scrollbar} verticalScrollBar
          */
         verticalScrollBar: {
             default: null,
@@ -187,11 +203,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the bottom boundary of ScrollView.
+     * !#en Scroll the content to the bottom boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图底部。
      * @method scrollToBottom
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the bottom boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the bottom of the view.
+     * scrollView.scrollToBottom(0.1);
      */
     scrollToBottom: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -208,11 +228,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the top boundary of ScrollView.
+     * !#en Scroll the content to the top boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图顶部。
      * @method scrollToTop
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the top boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the top of the view.
+     * scrollView.scrollToTop(0.1);
      */
     scrollToTop: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -229,11 +253,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the left boundary of ScrollView.
+     * !#en Scroll the content to the left boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图左边。
      * @method scrollToLeft
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the left boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the left of the view.
+     * scrollView.scrollToLeft(0.1);
      */
     scrollToLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -250,11 +278,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the right boundary of ScrollView.
+     * !#en Scroll the content to the right boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图右边。
      * @method scrollToRight
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the right boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the right of the view.
+     * scrollView.scrollToRight(0.1);
      */
     scrollToRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -271,11 +303,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the top left boundary of ScrollView.
+     * !#en Scroll the content to the top left boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图左上角。
      * @method scrollToTopLeft
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the top left boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the upper left corner of the view.
+     * scrollView.scrollToTopLeft(0.1);
      */
     scrollToTopLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -292,11 +328,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the top right boundary of ScrollView.
+     * !#en Scroll the content to the top right boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图右上角。
      * @method scrollToTopRight
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the top right boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the top right corner of the view.
+     * scrollView.scrollToTopRight(0.1);
      */
     scrollToTopRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -313,11 +353,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the bottom left boundary of ScrollView.
+     * !#en Scroll the content to the bottom left boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图左下角。
      * @method scrollToBottomLeft
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the bottom left boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the lower left corner of the view.
+     * scrollView.scrollToBottomLeft(0.1);
      */
     scrollToBottomLeft: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -334,11 +378,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the bottom right boundary of ScrollView.
+     * !#en Scroll the content to the bottom right boundary of ScrollView.
+     * !#zh 视图内容将在规定时间内滚动到视图右下角。
      * @method scrollToBottomRight
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the bottom right boundary immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to the lower right corner of the view.
+     * scrollView.scrollToBottomRight(0.1);
      */
     scrollToBottomRight: function(timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -355,12 +403,16 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the horizontal percent position  of ScrollView.
+     * !#en Scroll the content to the horizontal percent position of ScrollView.
+     * !#zh 视图内容在规定时间内将滚动到 ScrollView 水平方向的百分比位置上。
      * @method scrollToPercentHorizontal
      * @param {Number} percent - A value between 0 and 1.
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the horizontal percent position of ScrollView immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to middle position.
+     * scrollView.scrollToBottomRight(0.5, 0.1);
      */
     scrollToPercentHorizontal: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -377,12 +429,19 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the percent position of ScrollView in any direction.
+     * !#en Scroll the content to the percent position of ScrollView in any direction.
+     * !#zh 视图内容在规定时间内进行垂直方向和水平方向的滚动，并且滚动到指定百分比位置上。
      * @method scrollTo
      * @param {Vec2} anchor - A point which will be clamp between cc.p(0,0) and cc.p(1,1).
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the percent position of ScrollView immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Vertical scroll to the bottom of the view.
+     * scrollView.scrollTo(cc.p(0, 1), 0.1);
+     *
+     * // Horizontal scroll to view right.
+     * scrollView.scrollTo(cc.p(1, 0), 0.1);
      */
     scrollTo: function(anchor, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -399,12 +458,15 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Scroll the content to the vertical percent position of ScrollView.
+     * !#en Scroll the content to the vertical percent position of ScrollView.
+     * !#zh 视图内容在规定时间内滚动到 ScrollView 垂直方向的百分比位置上。
      * @method scrollToPercentVertical
      * @param {Number} percent - A value between 0 and 1.
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the vertical percent position of ScrollView immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * // Scroll to middle position.
+     * scrollView.scrollToPercentVertical(0.5, 0.1);
      */
     scrollToPercentVertical: function(percent, timeInSecond, attenuated) {
         var moveDelta = this._calculateMovePercentDelta({
@@ -421,7 +483,8 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Modify the content position.
+     * !#en Modify the content position.
+     * !#zh 设置当前视图内容的坐标点。
      * @method setContentPosition
      * @param {Vec2} position - The position in content's parent space.
      */
@@ -438,7 +501,8 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * Query the content's position in its parent space.
+     * !#en Query the content's position in its parent space.
+     * !#zh 获取当前视图内容的坐标点。
      * @method getContentPosition
      * @returns {Position} - The content's position in its parent space.
      */
@@ -452,6 +516,53 @@ var ScrollView = cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
         this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this);
+    },
+
+    _onMouseWheel: function(event) {
+        var deltaMove = cc.p(0, 0);
+        var wheelPrecision = 1.0 / 40;
+        if(cc.sys.isNative) {
+            wheelPrecision = 7;
+        }
+        if(this.vertical) {
+            deltaMove = cc.p(0, event.getScrollY() * wheelPrecision);
+        }
+        else if(this.horizontal) {
+            deltaMove = cc.p(event.getScrollY() * wheelPrecision, 0);
+        }
+
+        this._mouseWheelEventElapsedTime = 0;
+        this._processDeltaMove(deltaMove);
+
+        if(!this._stopMouseWheel) {
+            this._handlePressLogic();
+            this.schedule(this._checkMouseWheel, 1.0 / 60);
+            this._stopMouseWheel = true;
+        }
+        event.stopPropagation();
+    },
+
+    _checkMouseWheel: function(dt) {
+        var currentOutOfBoundary = this._getHowMuchOutOfBoundary();
+        var maxElapsedTime = 0.1;
+
+        if (!cc.pFuzzyEqual(currentOutOfBoundary, cc.p(0, 0), EPSILON)) {
+            this._processInertiaScroll();
+            this.unschedule(this._checkMouseWheel);
+            this._stopMouseWheel = false;
+            return;
+        }
+
+        this._mouseWheelEventElapsedTime += dt;
+
+        //mouse wheel event is ended
+        if (this._mouseWheelEventElapsedTime > maxElapsedTime) {
+            this._onScrollBarTouchEnded();
+            this.unschedule(this._checkMouseWheel);
+            this._stopMouseWheel = false;
+        }
+
     },
 
     _calculateMovePercentDelta: function(options) {
@@ -552,11 +663,14 @@ var ScrollView = cc.Class({
         event.stopPropagation();
     },
 
-    _handleMoveLogic: function(touch) {
-        var deltaMove = touch.getDelta();
-
+    _processDeltaMove: function(deltaMove) {
         this._scrollChildren(deltaMove);
         this._gatherTouchMove(deltaMove);
+    },
+
+    _handleMoveLogic: function(touch) {
+        var deltaMove = touch.getDelta();
+        this._processDeltaMove(deltaMove);
     },
 
     _scrollChildren: function(deltaMove) {
@@ -578,7 +692,7 @@ var ScrollView = cc.Class({
         this._moveContent(realMove, false);
     },
 
-    _handlePressLogic: function(touch) {
+    _handlePressLogic: function() {
         this._autoScrolling = false;
 
         this._touchMovePreviousTimestamp = getTimeInMilliseconds();
@@ -634,11 +748,7 @@ var ScrollView = cc.Class({
         return true;
     },
 
-    _handleReleaseLogic: function(touch) {
-        var delta = touch.getDelta();
-        this._gatherTouchMove(delta);
-
-
+    _processInertiaScroll: function () {
         var bounceBackStarted = this._startBounceBackIfNeeded();
         if (!bounceBackStarted && this.inertia) {
             var touchMoveVelocity = this._calculateTouchMoveVelocity();
@@ -648,6 +758,13 @@ var ScrollView = cc.Class({
         }
 
         this._onScrollBarTouchEnded();
+    },
+
+    _handleReleaseLogic: function(touch) {
+        var delta = touch.getDelta();
+        this._gatherTouchMove(delta);
+
+       this._processInertiaScroll();
     },
 
     _isOutOfBoundary: function() {

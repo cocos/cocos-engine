@@ -466,31 +466,3 @@ proto.copyWithZone = proto.clone;
  */
 proto.copy = proto.clone;
 
-/**
- * <p>
- *    Create a cc.SpriteFrame with a texture filename, rect, rotated, offset and originalSize in pixels.<br/>
- *    The originalSize is the size in pixels of the frame before being trimmed.
- * </p>
- * since v3.0, please use new constructor {{#crossLink "SpriteFrame/SpriteFrame:method"}}SpriteFrame(){{/crossLink}} instead.
- * @method create
- * @param {String|Texture2D} filename
- * @param {Rect} rect if parameters' length equal 2, rect in points, else rect in pixels
- * @param {Boolean} rotated
- * @param {Vec2} offset
- * @param {Size} originalSize
- * @return {SpriteFrame}
- */
-cc.SpriteFrame.create = function (filename, rect, rotated, offset, originalSize) {
-    return new cc.SpriteFrame(filename, rect, rotated, offset, originalSize);
-};
-
-/**
- * deprecated since v3.0, please use new construction instead
- * @method createWithTexture
- * @deprecated
- */
-cc.SpriteFrame.createWithTexture = cc.SpriteFrame.create;
-
-cc.SpriteFrame._frameWithTextureForCanvas = function (texture, rect, rotated, offset, originalSize) {
-    return new cc.SpriteFrame(texture, rect, rotated, offset, originalSize);
-};

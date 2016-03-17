@@ -335,12 +335,14 @@ JS.mixin(Pipeline.prototype, {
             }
             // All url completed
             callback && callback.call(this, checker);
+            callback = null;
         }
         // Add loaded listeners
         for (var i = 0; i < urlList.length; ++i) {
             var url = urlList[i].id || urlList[i];
-            if (typeof url !== 'string')
+            if (typeof url !== 'string' || checker[url]) {
                 continue;
+            }
             var item = items.map[url];
             if ( !item ) {
                 items.addListener(url, loadedCheck);
@@ -354,6 +356,7 @@ JS.mixin(Pipeline.prototype, {
         // No new resources, complete directly
         if (count === 0) {
             callback && callback.call(this, checker);
+            callback = null;
         }
         return this.flowIn(urlList);
     },

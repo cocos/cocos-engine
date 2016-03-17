@@ -25,6 +25,7 @@
 
 require('../platform/CCObject');
 require('../CCNode');
+var IdGenerater = require('../platform/id-generater');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -177,13 +178,7 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
 //    };
 //};
 
-// Yes, the id might have a conflict problem once every 365 days
-// if the game runs at 60 FPS and each frame 4760273 counts of new HashObject's id are requested.
-var CompId = 0;
-var IdPrefix = CC_DEV && ('Comp' + Editor.UuidUtils.NonUuidMark);
-var getNewId = CC_DEV && function () {
-    return IdPrefix + (++CompId);
-};
+var idGenerater = new IdGenerater('Comp');
 
 /**
  * Base class for everything attached to Node(Entity).
@@ -211,7 +206,7 @@ var Component = cc.Class({
         });
 
         // Support for Scheduler
-        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
     },
 
     properties: {
@@ -256,14 +251,13 @@ var Component = cc.Class({
         uuid: {
             get: function () {
                 var id = this._id;
-                if (id) {
-                    return id;
+                if ( !id ) {
+                    id = this._id = idGenerater.getNewId();
+                    if (CC_DEV) {
+                        cc.engine.attachedObjsForEditor[id] = this;
+                    }
                 }
-                if (CC_DEV) {
-                    id = this._id = getNewId();
-                    cc.engine.attachedObjsForEditor[id] = this;
-                    return id;
-                }
+                return id;
             },
             visible: false
         },
@@ -678,6 +672,12 @@ var Component = cc.Class({
         }
     },
 
+    _instantiate: function () {
+        var clone = cc.instantiate._clone(this, this);
+        clone.node = null;
+        return clone;
+    },
+
 // Scheduler
 
     isRunning: function () {
@@ -690,7 +690,7 @@ var Component = cc.Class({
      * @method schedule
      * @param {function} callback The callback function
      * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame. If interval = 0, it's recommended to use scheduleUpdate() instead.
-     * @param {Number} [repeat=cc.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
+     * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
      * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
      */
     schedule: function (callback, interval, repeat, delay) {
@@ -698,10 +698,10 @@ var Component = cc.Class({
         cc.assert(interval >= 0, cc._LogInfos.Node.schedule_2);
 
         interval = interval || 0;
-        repeat = isNaN(repeat) ? cc.REPEAT_FOREVER : repeat;
+        repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        cc.director.getScheduler().scheduleCallbackForTarget(this, callback, interval, repeat, delay, !this.enabledInHierarchy);
+        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy);
     },
 
     /**
@@ -747,6 +747,7 @@ if (CC_DEV) {
     Component._executeInEditMode = false;
     Component._playOnFocus = false;
     Component._disallowMultiple = null;
+    Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS
 
@@ -813,6 +814,10 @@ Object.defineProperty(Component, '_registerEditorProps', {
 
                     case 'requireComponent':
                         // skip here
+                        break;
+
+                    case 'help':
+                        cls._help = val;
                         break;
 
                     default:

@@ -219,11 +219,11 @@ var S9Actiontest = S9SpriteTestDemo.extend({
 
         this.addChild(s9sprite1);
         var actionArray = [];
-        actionArray.push(cc.DelayTime.create(1));
-        actionArray.push(cc.MoveBy.create(1,x/2, 0));
-        actionArray.push(cc.RotateBy.create(2,360));
-        actionArray.push(cc.ScaleBy.create(1,2));
-        s9sprite1.runAction(cc.Sequence.create(actionArray));
+        actionArray.push(cc.delayTime(1));
+        actionArray.push(cc.moveBy(1,x/2, 0));
+        actionArray.push(cc.rotateBy(2,360));
+        actionArray.push(cc.scaleBy(1,2));
+        s9sprite1.runAction(cc.sequence(actionArray));
     }
 });
 
@@ -245,11 +245,11 @@ var S9ChangeFiletest = S9SpriteTestDemo.extend({
 
         this.addChild(_s9sprite1);
         var actionArray = [];
-        actionArray.push(cc.DelayTime.create(1));
-        actionArray.push(cc.CallFunc.create(this.changeFile1,this));
-        actionArray.push(cc.DelayTime.create(2));
-        actionArray.push(cc.CallFunc.create(this.changeFile2,this));
-        _s9sprite1.runAction(cc.Sequence.create(actionArray));
+        actionArray.push(cc.delayTime(1));
+        actionArray.push(cc.callFunc(this.changeFile1,this));
+        actionArray.push(cc.delayTime(2));
+        actionArray.push(cc.callFunc(this.changeFile2,this));
+        _s9sprite1.runAction(cc.sequence(actionArray));
     },
     changeFile1: function() {
         this.changeFile("res/Images/btn-highscores-normal.png");

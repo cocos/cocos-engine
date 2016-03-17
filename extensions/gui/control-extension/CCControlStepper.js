@@ -221,7 +221,7 @@ cc.ControlStepper = cc.Control.extend(/** @lends cc.ControlStepper# */{
 
     startAutorepeat:function () {
         this._autorepeatCount = -1;
-        this.schedule(this.update, cc.AUTOREPEAT_DELTATIME, cc.REPEAT_FOREVER, cc.AUTOREPEAT_DELTATIME * 3);
+        this.schedule(this.update, cc.AUTOREPEAT_DELTATIME, cc.macro.REPEAT_FOREVER, cc.AUTOREPEAT_DELTATIME * 3);
     },
 
     /** Stop the autorepeat. */

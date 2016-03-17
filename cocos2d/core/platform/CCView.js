@@ -24,18 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * @ignore
- */
-cc.Touches = [];
-cc.TouchesIntergerDict = {};
-
-cc.DENSITYDPI_DEVICE = "device-dpi";
-cc.DENSITYDPI_HIGH = "high-dpi";
-cc.DENSITYDPI_MEDIUM = "medium-dpi";
-cc.DENSITYDPI_LOW = "low-dpi";
-
-cc.__BrowserGetter = {
+var __BrowserGetter = {
     init: function(){
         this.html = document.getElementsByTagName("html")[0];
     },
@@ -58,36 +47,36 @@ cc.__BrowserGetter = {
 };
 
 if(window.navigator.userAgent.indexOf("OS 8_1_") > -1) //this mistake like MIUI, so use of MIUI treatment method
-    cc.__BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_MIUI;
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_MIUI;
 
 if(cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
-    cc.__BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
 
-switch(cc.__BrowserGetter.adaptationType){
+switch(__BrowserGetter.adaptationType){
     case cc.sys.BROWSER_TYPE_SAFARI:
-        cc.__BrowserGetter.meta["minimal-ui"] = "true";
-        cc.__BrowserGetter.availWidth = function(frame){
+        __BrowserGetter.meta["minimal-ui"] = "true";
+        __BrowserGetter.availWidth = function(frame){
             return frame.clientWidth;
         };
-        cc.__BrowserGetter.availHeight = function(frame){
+        __BrowserGetter.availHeight = function(frame){
             return frame.clientHeight;
         };
         break;
     case cc.sys.BROWSER_TYPE_CHROME:
-        cc.__BrowserGetter.__defineGetter__("target-densitydpi", function(){
+        __BrowserGetter.__defineGetter__("target-densitydpi", function(){
             return cc.view._targetDensityDPI;
         });
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
-        cc.__BrowserGetter.availWidth = function(frame){
+        __BrowserGetter.availWidth = function(frame){
             return frame.clientWidth;
         };
-        cc.__BrowserGetter.availHeight = function(frame){
+        __BrowserGetter.availHeight = function(frame){
             return frame.clientHeight;
         };
         break;
     case cc.sys.BROWSER_TYPE_MIUI:
-        cc.__BrowserGetter.init = function(view){
+        __BrowserGetter.init = function(view){
             if(view.__resizeWithBrowserSize) return;
             var resize = function(){
                 view.setDesignResolutionSize(
@@ -116,7 +105,7 @@ switch(cc.__BrowserGetter.adaptationType){
  *
  * @class View
  */
-cc.EGLView = cc._Class.extend({
+var View = cc._Class.extend({
     _delegate: null,
     // Size of parent node that contains cc.container and cc.game.canvas
     _frameSize: null,
@@ -162,12 +151,12 @@ cc.EGLView = cc._Class.extend({
     _targetDensityDPI: null,
 
     /**
-     * Constructor of cc.EGLView
+     * Constructor of View
      */
     ctor: function () {
         var _t = this, d = document, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
 
-        cc.__BrowserGetter.init(this);
+        __BrowserGetter.init(this);
 
         _t._frameSize = cc.size(0, 0);
         _t._initFrameSize();
@@ -193,7 +182,7 @@ cc.EGLView = cc._Class.extend({
 
         _t._hDC = cc.game.canvas;
         _t._hRC = cc._renderContext;
-        _t._targetDensityDPI = cc.DENSITYDPI_HIGH;
+        _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
     },
 
     // Resize helper functions
@@ -226,10 +215,10 @@ cc.EGLView = cc._Class.extend({
     /**
      * <p>
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
-     *   1. cc.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
-     *   2. cc.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
-     *   3. cc.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
-     *   4. cc.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
+     *   1. cc.macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
+     *   2. cc.macro.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
+     *   3. cc.macro.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
+     *   4. cc.macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
      *   5. Custom value, e.g: "480"                                                         <br/>
      * </p>
      *
@@ -290,8 +279,8 @@ cc.EGLView = cc._Class.extend({
 
     _initFrameSize: function () {
         var locFrameSize = this._frameSize;
-        locFrameSize.width = cc.__BrowserGetter.availWidth(cc.game.frame);
-        locFrameSize.height = cc.__BrowserGetter.availHeight(cc.game.frame);
+        locFrameSize.width = __BrowserGetter.availWidth(cc.game.frame);
+        locFrameSize.height = __BrowserGetter.availHeight(cc.game.frame);
     },
 
     // hack
@@ -340,7 +329,7 @@ cc.EGLView = cc._Class.extend({
 
     _adjustViewportMeta: function () {
         if (this._isAdjustViewPort) {
-            this._setViewportMeta(cc.__BrowserGetter.meta, false);
+            this._setViewportMeta(__BrowserGetter.meta, false);
         }
     },
 
@@ -454,7 +443,7 @@ cc.EGLView = cc._Class.extend({
     },
 
     /**
-     * Sets the resolution translate on EGLView.
+     * Sets the resolution translate on View.
      * @method setContentTranslateLeftTop
      * @param {Number} offsetLeft
      * @param {Number} offsetTop
@@ -464,7 +453,7 @@ cc.EGLView = cc._Class.extend({
     },
 
     /**
-     * Returns the resolution translate on EGLView
+     * Returns the resolution translate on View
      * @method getContentTranslateLeftTop
      * @return {Size|Object}
      */
@@ -892,12 +881,12 @@ cc.EGLView = cc._Class.extend({
 
 /**
  * @method _getInstance
- * @return {EGLView}
+ * @return {View}
  * @private
  */
-cc.EGLView._getInstance = function () {
+View._getInstance = function () {
     if (!this._instance) {
-        this._instance = this._instance || new cc.EGLView();
+        this._instance = this._instance || new View();
         this._instance.initialize();
     }
     return this._instance;
@@ -1366,3 +1355,5 @@ cc.ResolutionPolicy.FIXED_WIDTH = 4;
  * @static
  */
 cc.ResolutionPolicy.UNKNOWN = 5;
+
+module.exports = View;

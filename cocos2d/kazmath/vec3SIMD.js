@@ -26,26 +26,26 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
- (function(cc) {
-    var proto = cc.math.Vec3.prototype;
+require('./vec3');
 
-    proto.transformCoordSIMD = function(mat4){
-        var vec = SIMD.float32x4(this.x, this.y, this.z, 0.0);
-        var mat0 = SIMD.float32x4.load(mat4.mat, 0);
-        var mat1 = SIMD.float32x4.load(mat4.mat, 4);
-        var mat2 = SIMD.float32x4.load(mat4.mat, 8);
-        var mat3 = SIMD.float32x4.load(mat4.mat, 12);
+var proto = cc.math.Vec3.prototype;
 
-        //cc.kmVec4Transform(v, inV,pM);
-        var out = SIMD.float32x4.add(
-            SIMD.float32x4.add(SIMD.float32x4.mul(mat0, SIMD.float32x4.swizzle(vec, 0, 0, 0, 0)),
-                               SIMD.float32x4.mul(mat1, SIMD.float32x4.swizzle(vec, 1, 1, 1, 1))),
-            SIMD.float32x4.add(SIMD.float32x4.mul(mat2, SIMD.float32x4.swizzle(vec, 2, 2, 2, 2)),
-                               mat3));
+proto.transformCoordSIMD = function(mat4){
+    var vec = SIMD.float32x4(this.x, this.y, this.z, 0.0);
+    var mat0 = SIMD.float32x4.load(mat4.mat, 0);
+    var mat1 = SIMD.float32x4.load(mat4.mat, 4);
+    var mat2 = SIMD.float32x4.load(mat4.mat, 8);
+    var mat3 = SIMD.float32x4.load(mat4.mat, 12);
 
-        out = SIMD.float32x4.div(out, SIMD.float32x4.swizzle(out, 3, 3, 3, 3));
-        this.fill(out);
+    //cc.kmVec4Transform(v, inV,pM);
+    var out = SIMD.float32x4.add(
+        SIMD.float32x4.add(SIMD.float32x4.mul(mat0, SIMD.float32x4.swizzle(vec, 0, 0, 0, 0)),
+                           SIMD.float32x4.mul(mat1, SIMD.float32x4.swizzle(vec, 1, 1, 1, 1))),
+        SIMD.float32x4.add(SIMD.float32x4.mul(mat2, SIMD.float32x4.swizzle(vec, 2, 2, 2, 2)),
+                           mat3));
 
-        return this;
-    };
-})(cc);
+    out = SIMD.float32x4.div(out, SIMD.float32x4.swizzle(out, 3, 3, 3, 3));
+    this.fill(out);
+
+    return this;
+};

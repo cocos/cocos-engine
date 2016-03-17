@@ -84,7 +84,7 @@ cc.MotionStreak = _ccsg.Node.extend(/** @lends cc.MotionStreak# */{
     ctor: function (fade, minSeg, stroke, color, texture) {
         _ccsg.Node.prototype.ctor.call(this);
         this._positionR = cc.p(0, 0);
-        this._blendFunc = new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
+        this._blendFunc = new cc.BlendFunc(cc.macro.SRC_ALPHA, cc.macro.ONE_MINUS_SRC_ALPHA);
 
         this.fastMode = false;
         this.startingPositionInitialized = false;

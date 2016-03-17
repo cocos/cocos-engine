@@ -246,7 +246,7 @@ cc.$.skew = function (a) {
  * @return {$}
  */
 cc.$new = function (x) {
-    return cc.$(document.createElement(x))
+    return cc.$(document.createElement(x));
 };
 cc.$.findpos = function (obj) {
     var curleft = 0;

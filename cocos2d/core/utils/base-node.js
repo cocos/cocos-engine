@@ -26,6 +26,7 @@ var JS = cc.js;
 var SceneGraphHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
+var IdGenerater = require('../platform/id-generater');
 
 // called after changing parent
 function setMaxZOrder (node) {
@@ -51,6 +52,8 @@ var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
 
 var ERR_INVALID_NUMBER = CC_EDITOR && 'The %s is invalid';
+
+var idGenerater = new IdGenerater('Node');
 
 /**
  * A base node for CCNode and CCEScene, it will:
@@ -90,7 +93,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _skewY: 0,
         _localZOrder: 0,
         _globalZOrder: 0,
-        _tag: cc.NODE_TAG_INVALID,
+        _tag: cc.macro.NODE_TAG_INVALID,
         _opacityModifyRGB: false,
 
         // API
@@ -159,12 +162,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
         },
 
-        /**
-         * uuid
-         * @property _id
-         * @type {String}
-         * @private
-         */
         _id: {
             default: '',
             editorOnly: true
@@ -178,7 +175,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          */
         uuid: {
             get: function () {
-                return this._id || (this._id = window.Editor ? Editor.UuidUtils.uuid() : '');
+                var id = this._id;
+                if ( !id ) {
+                    id = this._id = CC_EDITOR ? Editor.UuidUtils.uuid() : idGenerater.getNewId();
+                }
+                return id;
             }
         },
 
@@ -941,12 +942,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @method cleanup
      */
     cleanup: function () {
-        //// actions
-        //this.stopAllActions();
-        //this.unscheduleAllCallbacks();
-        //
-        //// event
-        //cc.eventManager.removeListeners(this);
+        // actions
+        cc.director.getActionManager().removeAllActionsFromTarget(this);
+        // event
+        cc.eventManager.removeListeners(this);
 
         // children
         var i, len = this._children.length, node;
@@ -973,6 +972,26 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (node && node.tag === aTag)
                     return node;
             }
+        }
+        return null;
+    },
+
+    /**
+     * Returns a child from the container given its uuid
+     * @method getChildByUuid
+     * @param {String} uuid - The uuid to find the child node.
+     * @return {Node} a Node whose uuid equals to the input parameter
+     */
+    getChildByUuid: function(uuid){
+        if(!uuid){
+            cc.log("Invalid uuid");
+            return null;
+        }
+
+        var locChildren = this._children;
+        for(var i = 0, len = locChildren.length; i < len; i++){
+            if(locChildren[i]._id === uuid)
+                return locChildren[i];
         }
         return null;
     },
@@ -1087,7 +1106,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * @see cc.Node#removeChildByTag
      */
     removeChildByTag: function (tag, cleanup) {
-        if (tag === cc.NODE_TAG_INVALID)
+        if (tag === cc.macro.NODE_TAG_INVALID)
             cc.log(cc._LogInfos.Node.removeChildByTag);
 
         var child = this.getChildByTag(tag);

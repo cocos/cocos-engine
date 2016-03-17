@@ -8,6 +8,9 @@ function Animator (target) {
     this.target = target;
     // {AnimationNodeBase}
     this.playingAnims = [];
+
+    this._updating = false;
+    this._removeList = [];
 }
 
 JS.extend(Animator, Playable);
@@ -15,22 +18,35 @@ JS.extend(Animator, Playable);
 var animProto = Animator.prototype;
 
 // 由 AnimationManager 调用，只有在该 animator 处于播放状态时才会被调用
-animProto.update = function (deltaTime) {
+animProto.update = function (dt) {
+    this._updating = true;
+
+    var i, l;
     var anims = this.playingAnims;
-    for (var i = 0; i < anims.length; i++) {
+    var stoppedCount = 0;
+
+    for (i = 0, l = anims.length; i < l; i++) {
         var anim = anims[i];
         if (anim._isPlaying && !anim._isPaused) {
-            anim.update(deltaTime);
-            // if removed
-            if (! anim._isPlaying) {
-                anims.splice(i, 1);     // TODO: 由 anim 来负责调用 splice
-                i--;
+            anim.update(dt);
+
+            if (!anim._isPlaying) {
+                stoppedCount ++;
             }
         }
     }
-    if (anims.length === 0) {
+
+    this._updating = false;
+
+    if (anims.length === 0 || stoppedCount >= anims.length ) {
         this.stop();
     }
+
+    var removeList = this._removeList;
+    for (i = 0, l = removeList.length; i < l; i++) {
+        this.removeAnimation( removeList[i] );
+    }
+    removeList.length = 0;
 };
 
 animProto.onPlay = function () {
@@ -38,10 +54,38 @@ animProto.onPlay = function () {
 };
 
 animProto.onStop = function () {
-    this.playingAnims.length = 0;
     cc.director.getAnimationManager().removeAnimator(this);
 };
 
+animProto.addAnimation = function (anim) {
+    var index = this.playingAnims.indexOf(anim);
+    if (index === -1) {
+        this.playingAnims.push(anim);
+    }
+
+    index = this._removeList.indexOf(anim);
+    if (index !== -1) {
+        this._removeList.splice(index, 1);
+    }
+};
+
+animProto.removeAnimation = function (anim) {
+    var index = this.playingAnims.indexOf(anim);
+    if (index >= 0) {
+        if (this._updating) {
+            var removeList = this._removeList;
+            if (removeList.indexOf(anim) === -1) {
+                removeList.push(anim);
+            }
+        }
+        else {
+            this.playingAnims.splice(index, 1);
+        }
+    }
+    else {
+        cc.error('animation not added or already removed');
+    }
+};
 
 
 // The actual animator for Entity

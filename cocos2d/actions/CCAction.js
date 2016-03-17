@@ -28,29 +28,18 @@
  * @module cc
  */
 
-/** Default Action tag
- * @constant
- * @type {Number}
- * @default
- */
-cc.ACTION_TAG_INVALID = -1;
-
 /**
  * Base class cc.Action for action classes.
  * @class Action
  */
 cc.Action = cc._Class.extend({
-    //***********variables*************
-    originalTarget:null,
-    target:null,
-    tag:cc.ACTION_TAG_INVALID,
 
     //**************Public Functions***********
 
     ctor:function () {
         this.originalTarget = null;
         this.target = null;
-        this.tag = cc.ACTION_TAG_INVALID;
+        this.tag = cc.Action.TAG_INVALID;
     },
 
     /**
@@ -162,11 +151,12 @@ cc.Action = cc._Class.extend({
     }
 });
 
-cc.action = function () {
-    return new cc.Action();
-};
-
-cc.Action.create = cc.action;
+/** Default Action tag
+ * @constant
+ * @type {Number}
+ * @default
+ */
+cc.Action.TAG_INVALID = -1;
 
 
 /**
@@ -364,8 +354,6 @@ cc.speed = function (action, speed) {
     return new cc.Speed(action, speed);
 };
 
-cc.Speed.create = cc.speed;
-
 /*
  * cc.Follow is a follow action which makes its target follows another node.
  *
@@ -559,5 +547,3 @@ cc.Follow = cc.Action.extend({
 cc.follow = function (followedNode, rect) {
     return new cc.Follow(followedNode, rect);
 };
-
-cc.Follow.create = cc.follow;

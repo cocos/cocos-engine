@@ -994,7 +994,7 @@ var SpriteZVertex = SpriteTestDemo.extend({
             //
             var alphaTestShader = cc.shaderCache.getProgram("ShaderPositionTextureColorAlphaTest");
             var glprogram = alphaTestShader.getProgram();
-            var alphaValueLocation = gl.getUniformLocation(glprogram, cc.UNIFORM_ALPHA_TEST_VALUE_S);
+            var alphaValueLocation = gl.getUniformLocation(glprogram, cc.macro.UNIFORM_ALPHA_TEST_VALUE_S);
 
             // set alpha test value
             // NOTE: alpha test shader is hard-coded to use the equivalent of a glAlphaFunc(GL_GREATER) comparison
@@ -1118,7 +1118,7 @@ var SpriteBatchNodeZVertex = SpriteTestDemo.extend({
             //
             var alphaTestShader = cc.shaderCache.getProgram("ShaderPositionTextureColorAlphaTest");
             var glprogram = alphaTestShader.getProgram();
-            var alphaValueLocation = gl.getUniformLocation(glprogram, cc.UNIFORM_ALPHA_TEST_VALUE_S);
+            var alphaValueLocation = gl.getUniformLocation(glprogram, cc.macro.UNIFORM_ALPHA_TEST_VALUE_S);
 
             // set alpha test value
             // NOTE: alpha test shader is hard-coded to use the equivalent of a glAlphaFunc(GL_GREATER) comparison
@@ -5200,7 +5200,7 @@ var TextureRotatedSpriteFrame = SpriteTestDemo.extend({
 var SpriteWithRepeatingTexture = SpriteTestDemo.extend({
 
     _title:"Sprite with Repeating texture",
-    _subtitle:"aTexture.setTexParameters(cc.LINEAR, cc.LINEAR, cc.Texture2D.WrapMode.REPEAT, cc.Texture2D.WrapMode.REPEAT);",
+    _subtitle:"aTexture.setTexParameters(cc.macro.LINEAR, cc.macro.LINEAR, cc.Texture2D.WrapMode.REPEAT, cc.Texture2D.WrapMode.REPEAT);",
 
     ctor:function () {
         //----start58----ctor
@@ -5212,7 +5212,7 @@ var SpriteWithRepeatingTexture = SpriteTestDemo.extend({
 
         block.setTextureRect(cc.rect(0,0, 320,240));
         block.setPosition(x, y);
-        block.getTexture().setTexParameters(cc.LINEAR, cc.LINEAR, cc.Texture2D.WrapMode.REPEAT, cc.Texture2D.WrapMode.REPEAT);
+        block.getTexture().setTexParameters(cc.macro.LINEAR, cc.macro.LINEAR, cc.Texture2D.WrapMode.REPEAT, cc.Texture2D.WrapMode.REPEAT);
         this.addChild(block);
         //----end58----
     }
@@ -5227,8 +5227,8 @@ var SpriteBlendFuncTest = SpriteTestDemo.extend({
         //----start59----ctor
         this._super();
 
-        var destFactors = [cc.ZERO, cc.ONE, cc.DST_COLOR, cc.ONE_MINUS_DST_COLOR, cc.DST_ALPHA, cc.ONE_MINUS_DST_ALPHA],
-           srcFactors = [cc.ZERO, cc.ONE, cc.SRC_COLOR, cc.ONE_MINUS_SRC_COLOR, cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA];
+        var destFactors = [cc.macro.ZERO, cc.macro.ONE, cc.macro.DST_COLOR, cc.macro.ONE_MINUS_DST_COLOR, cc.macro.DST_ALPHA, cc.macro.ONE_MINUS_DST_ALPHA],
+           srcFactors = [cc.macro.ZERO, cc.macro.ONE, cc.macro.SRC_COLOR, cc.macro.ONE_MINUS_SRC_COLOR, cc.macro.SRC_ALPHA, cc.macro.ONE_MINUS_SRC_ALPHA];
         var destTitles = ["ZERO", "ONE", "DST_COLOR", "ONE_MINUS_DST_COLOR", "DST_ALPHA", "ONE_MINUS_DST_ALPHA"],
             srcTitles = ["ZERO", "ONE", "SRC_COLOR", "ONE_MINUS_SRC_COLOR", "SRC_ALPHA", "ONE_MINUS_SRC_ALPHA"];
 
@@ -5359,7 +5359,7 @@ var arrayOfSpriteTest = [
     NodeSort,
     SpriteSkewNegativeScaleChildren,
     SpriteBatchNodeSkewNegativeScaleChildren,
-    SpriteDoubleResolution,
+    // SpriteDoubleResolution,
     SpriteBatchBug1217,
     SpriteFrameAnimationCacheFile,
     TextureColorCacheIssue,

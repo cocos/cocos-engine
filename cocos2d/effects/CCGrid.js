@@ -25,6 +25,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/*
+ * @param {Number} x
+ * @return {Number}
+ * Constructor
+ */
+var NextPOT = function (x) {
+    x = x - 1;
+    x = x | (x >> 1);
+    x = x | (x >> 2);
+    x = x | (x >> 4);
+    x = x | (x >> 8);
+    x = x | (x >> 16);
+    return x + 1;
+};
+
 /**
  * Base class for cc.Grid
  * @class
@@ -188,8 +203,8 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
             var director = cc.director;
             var winSize = director.getWinSizeInPixels();
 
-            var POTWide = cc.NextPOT(winSize.width);
-            var POTHigh = cc.NextPOT(winSize.height);
+            var POTWide = NextPOT(winSize.width);
+            var POTHigh = NextPOT(winSize.height);
 
             var data = new Uint8Array(POTWide * POTHigh * 4);
             if (!data) {
@@ -228,7 +243,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
         if (!this._grabber)
             return false;
         this._grabber.grab(this._texture);
-        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURE);
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURE);
         this.calculateVertexPoints();
         return true;
     },
@@ -267,7 +282,7 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
             stackMatrix.multiply(translation);
         }
 
-        cc.glBindTexture2D(this._texture);
+        cc.gl.bindTexture2D(this._texture);
         this.beforeBlit();
         this.blit(target);
         this.afterBlit();
@@ -296,30 +311,17 @@ cc.GridBase = cc._Class.extend(/** @lends cc.GridBase# */{
 
         var gl = cc._renderContext;
         gl.viewport(0, 0, winSize.width , winSize.height);
-        cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-        cc.kmGLLoadIdentity();
+        cc.math.glMatrixMode(cc.math.KM_GL_PROJECTION);
+        cc.math.glLoadIdentity();
 
         var orthoMatrix = cc.math.Matrix4.createOrthographicProjection(0, winSize.width, 0, winSize.height, -1, 1);
-        cc.kmGLMultMatrix(orthoMatrix);
+        cc.math.glMultMatrix(orthoMatrix);
 
-        cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-        cc.kmGLLoadIdentity();
-        cc.setProjectionMatrixDirty()
+        cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
+        cc.math.glLoadIdentity();
+        cc.gl.setProjectionMatrixDirty();
     }
 });
-
-/**
- * create one cc.GridBase Object
- * @deprecated
- * @param {cc.Size} gridSize
- * @param {cc.Texture2D} [texture=]
- * @param {Boolean} [flipped=]
- * @param {cc.Rect} [rect=]
- * @return {cc.GridBase}
- */
-cc.GridBase.create = function (gridSize, texture, flipped, rect) {
-    return new cc.GridBase(gridSize, texture, flipped, rect);
-};
 
 /**
  * cc.Grid3D is a 3D grid implementation. Each vertex has 3 dimensions: x,y,z
@@ -449,7 +451,7 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
 
     blit:function (target) {
         var n = this._gridSize.width * this._gridSize.height;
-        cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_TEX_COORDS);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
         this._shaderProgram.use();
         //this._shaderProgram.setUniformsForBuiltins();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(target._renderCmd._stackMatrix);
@@ -462,13 +464,13 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
         gl.bindBuffer(gl.ARRAY_BUFFER, this._verticesBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, 0);
 
         // texCoords
         gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordinateBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._texCoordinates, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, 0);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indicesBuffer);
         if (locDirty)
@@ -573,18 +575,6 @@ cc.Grid3D = cc.GridBase.extend(/** @lends cc.Grid3D# */{
         return this._needDepthTestForBlit;
     }
 });
-
-/**
- * create one Grid3D object
- * @deprecated
- * @param {cc.Size} gridSize
- * @param {cc.Texture2D} [texture=]
- * @param {Boolean} [flipped=]
- * @return {cc.Grid3D}
- */
-cc.Grid3D.create = function (gridSize, texture, flipped) {
-    return new cc.Grid3D(gridSize, texture, flipped);
-};
 
 /**
  * cc.TiledGrid3D is a 3D grid implementation. It differs from Grid3D in that   <br/>
@@ -715,19 +705,19 @@ cc.TiledGrid3D = cc.GridBase.extend(/** @lends cc.TiledGrid3D# */{
         // Attributes
         //
         var gl = cc._renderContext, locDirty = this._dirty;
-        cc.glEnableVertexAttribs(cc.VERTEX_ATTRIB_FLAG_POSITION | cc.VERTEX_ATTRIB_FLAG_TEX_COORDS);
+        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
 
         // position
         gl.bindBuffer(gl.ARRAY_BUFFER, this._verticesBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, this._vertices);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 0, this._vertices);
 
         // texCoords
         gl.bindBuffer(gl.ARRAY_BUFFER, this._texCoordinateBuffer);
         if (locDirty)
             gl.bufferData(gl.ARRAY_BUFFER, this._texCoordinates, gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(cc.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, this._texCoordinates);
+        gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 0, this._texCoordinates);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._indicesBuffer);
         if (locDirty)
@@ -832,15 +822,3 @@ cc.TiledGrid3D = cc.GridBase.extend(/** @lends cc.TiledGrid3D# */{
         this._dirty = true;
     }
 });
-
-/**
- * create one TiledGrid3D object
- * @deprecated since v3.0, please use new cc.TiledGrid3D(gridSize, texture, flipped) instead
- * @param {cc.Size} gridSize
- * @param {cc.Texture2D} [texture=]
- * @param {Boolean} [flipped=]
- * @return {cc.TiledGrid3D}
- */
-cc.TiledGrid3D.create = function (gridSize, texture, flipped) {
-    return new cc.TiledGrid3D(gridSize, texture, flipped);
-};

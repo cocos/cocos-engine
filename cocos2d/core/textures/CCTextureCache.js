@@ -349,7 +349,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 tex = locTexs[url] = new Texture2D();
                 tex.url = url;
             }
-            premultiplied = cc.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG && (cc.path.extname(url) === ".png");
+            premultiplied = cc.macro.AUTO_PREMULTIPLIED_ALPHA_FOR_PNG && (cc.path.extname(url) === ".png");
             tex.handleLoadedTexture(premultiplied);
         };
 

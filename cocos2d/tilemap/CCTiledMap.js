@@ -24,6 +24,128 @@
  ****************************************************************************/
 
 /**
+ * The orientation of tiled map
+ * @enum TiledMap.Orientation
+ * @static
+ */
+var Orientation = cc.Enum({
+    /**
+     * Orthogonal orientation
+     * @property ORTHO
+     * @type {Number}
+     * @static
+     */
+    ORTHO: 0,
+
+    /**
+     * Hexagonal orientation
+     * @property HEX
+     * @type {Number}
+     * @static
+     */
+    HEX: 1,
+
+    /**
+     * Isometric orientation
+     * @property ISO
+     * @type {Number}
+     * @static
+     */
+    ISO: 2
+});
+
+/**
+ * The property type of tiled map
+ * @enum TiledMap.Property
+ * @static
+ */
+var Property = cc.Enum({
+    /**
+     * @property NONE
+     * @type {Number}
+     * @static
+     */
+    NONE: 0,
+
+    /**
+     * @property MAP
+     * @type {Number}
+     * @static
+     */
+    MAP: 1,
+
+    /**
+     * @property LAYER
+     * @type {Number}
+     * @static
+     */
+    LAYER: 2,
+
+    /**
+     * @property OBJECTGROUP
+     * @type {Number}
+     * @static
+     */
+    OBJECTGROUP: 3,
+
+    /**
+     * @property OBJECT
+     * @type {Number}
+     * @static
+     */
+    OBJECT: 4,
+
+    /**
+     * @property TILE
+     * @type {Number}
+     * @static
+     */
+    TILE: 5
+});
+
+/**
+ * The tile flags of tiled map
+ * @enum TiledMap.TileFlag
+ * @static
+ */
+var TileFlag = cc.Enum({
+    /**
+     * @property HORIZONTAL
+     * @type {Number}
+     * @static
+     */
+    HORIZONTAL: 0x80000000,
+
+    /**
+     * @property VERTICAL
+     * @type {Number}
+     * @static
+     */
+    VERTICAL: 0x40000000,
+
+    /**
+     * @property DIAGONAL
+     * @type {Number}
+     * @static
+     */
+    DIAGONAL: 0x20000000,
+
+    /**
+     * @property FLIPPED_ALL
+     * @type {Number}
+     * @static
+     */
+    FLIPPED_ALL: (0x80000000 | 0x40000000 | 0x20000000) >>> 0,
+
+    /**
+     * @property FLIPPED_MASK
+     * @type {Number}
+     * @static
+     */
+    FLIPPED_MASK: (~((0x80000000 | 0x40000000 | 0x20000000) >>> 0)) >>> 0
+});
+
+/**
  * Renders a TMX Tile Map in the scene.
  * @class TiledMap
  * @extends Component
@@ -34,6 +156,12 @@ var TiledMap = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
+    },
+
+    statics: {
+        Orientation: Orientation,
+        Property: Property,
+        TileFlag: TileFlag
     },
 
     properties: {
@@ -455,9 +583,16 @@ var TiledMap = cc.Class({
             var tmxLayer = child.getComponent(cc.TiledLayer);
             if (tmxLayer) {
                 var layerName = tmxLayer.getLayerName();
+                if (!layerName) {
+                    layerName = child._name;
+                }
+
                 if (layerNames.indexOf(layerName) < 0) {
-                    // the tmx layer should be removed
-                    needRemove.push(child);
+                    if (child._components.length === 1) {
+                        // only has TiledLayer component
+                        // the tmx layer should be removed
+                        needRemove.push(child);
+                    }
                 } else {
                     // the tmx layer should be updated
                     existedLayers.push(child);

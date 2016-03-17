@@ -1,4 +1,3 @@
-(function(){
 /* Copyright (c) 2007 Scott Lembcke
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -6181,5 +6180,3 @@ SimpleMotor.prototype.getImpulse = function()
 {
 	return Math.abs(this.jAcc);
 };
-
-})();

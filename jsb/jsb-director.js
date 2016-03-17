@@ -96,7 +96,7 @@ cc.js.mixin(cc.director, {
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
         // detach persist nodes
-        var i, node, game = cc.game;
+        var id, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
 
         // Run an Entity Scene
@@ -105,8 +105,8 @@ cc.js.mixin(cc.director, {
             scene._load();
         }
 
-        for (i = persistNodes.length - 1; i >= 0; --i) {
-            node = persistNodes[i];
+        for (id in persistNodes) {
+            node = persistNodes[id];
             game._ignoreRemovePersistNode = node;
             node.parent = null;
             game._ignoreRemovePersistNode = null;
@@ -134,9 +134,17 @@ cc.js.mixin(cc.director, {
             sgScene = scene._sgNode;
             
             // Re-attach persist nodes
-            for (i = 0; i < persistNodes.length; ++i) {
-                node = persistNodes[i];
-                node.parent = scene;
+            for (id in persistNodes) {
+                node = persistNodes[id];
+                var existNode = scene.getChildByUuid(id);
+                // Scene contains the persist node, should not reattach, should update the persist node
+                if (existNode) {
+                    persistNodes[id] = existNode;
+                    existNode._persistNode = true;
+                }
+                else {
+                    node.parent = scene;
+                }
             }
             scene._activate();
         }
@@ -327,11 +335,11 @@ cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 
 cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
-   var dt = 1 / 60;
-   // Call start for new added components
-   cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
-   // Update for components
-   cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
+    var dt = 1 / 60;
+    // Call start for new added components
+    cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
+    // Update for components
+    cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
 });
 cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
     var dt = 1 / 60;
@@ -339,6 +347,8 @@ cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
     cc.director.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, dt);
     // User can use this event to do things after update
     cc.director.emit(cc.Director.EVENT_AFTER_UPDATE);
+    // Destroy entities that have been removed recently
+    cc.Object._deferredDestroy();
     
     cc.director.emit(cc.Director.EVENT_BEFORE_VISIT, this);
 });

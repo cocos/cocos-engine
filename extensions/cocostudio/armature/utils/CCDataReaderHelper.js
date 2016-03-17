@@ -847,24 +847,24 @@ ccs.dataReaderHelper = /** @lends ccs.dataReaderHelper# */{
             var blendFunc = frameData.blendFunc;
             switch (blendType) {
                 case ccs.BLEND_TYPE_NORMAL:
-                    blendFunc.src = cc.BLEND_SRC;
-                    blendFunc.dst = cc.BLEND_DST;
+                    blendFunc.src = cc.macro.BLEND_SRC;
+                    blendFunc.dst = cc.macro.BLEND_DST;
                     break;
                 case ccs.BLEND_TYPE_ADD:
-                    blendFunc.src = cc.SRC_ALPHA;
-                    blendFunc.dst = cc.ONE;
+                    blendFunc.src = cc.macro.SRC_ALPHA;
+                    blendFunc.dst = cc.macro.ONE;
                     break;
                 case ccs.BLEND_TYPE_MULTIPLY:
-                    blendFunc.src = cc.DST_COLOR;
-                    blendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
+                    blendFunc.src = cc.macro.DST_COLOR;
+                    blendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
                     break;
                 case ccs.BLEND_TYPE_SCREEN:
-                    blendFunc.src = cc.ONE;
-                    blendFunc.dst = cc.ONE_MINUS_DST_COLOR;
+                    blendFunc.src = cc.macro.ONE;
+                    blendFunc.dst = cc.macro.ONE_MINUS_DST_COLOR;
                     break;
                 default:
-                    frameData.blendFunc.src = cc.BLEND_SRC;
-                    frameData.blendFunc.dst = cc.BLEND_DST;
+                    frameData.blendFunc.src = cc.macro.BLEND_SRC;
+                    frameData.blendFunc.dst = cc.macro.BLEND_DST;
                     break;
             }
         }
@@ -937,8 +937,8 @@ ccs.dataReaderHelper = /** @lends ccs.dataReaderHelper# */{
 
         frameData.tweenEasing = json[ccs.CONST_A_TWEEN_EASING] || ccs.TweenType.LINEAR;
         frameData.displayIndex = json[ccs.CONST_A_DISPLAY_INDEX];
-        var bd_src = json[ccs.CONST_A_BLEND_SRC] == null ? cc.BLEND_SRC : json[ccs.CONST_A_BLEND_SRC];
-        var bd_dst = json[ccs.CONST_A_BLEND_DST] == null ? cc.BLEND_DST : json[ccs.CONST_A_BLEND_DST];
+        var bd_src = json[ccs.CONST_A_BLEND_SRC] == null ? cc.macro.BLEND_SRC : json[ccs.CONST_A_BLEND_SRC];
+        var bd_dst = json[ccs.CONST_A_BLEND_DST] == null ? cc.macro.BLEND_DST : json[ccs.CONST_A_BLEND_DST];
         frameData.blendFunc.src = bd_src;
         frameData.blendFunc.dst = bd_dst;
         frameData.isTween = json[ccs.CONST_A_TWEEN_FRAME] == null ? true : json[ccs.CONST_A_TWEEN_FRAME];

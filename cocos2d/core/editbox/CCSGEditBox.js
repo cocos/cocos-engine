@@ -742,8 +742,8 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _updateEditBoxSize: function(size, height) {
         this._oldSetContentSize(size, height);
 
-        var newWidth = size.width || size;
-        var newHeight = size.height || height;
+        var newWidth = (typeof size.width === 'number') ? size.width : size;
+        var newHeight = (typeof size.height === 'number') ? size.height : height;
 
         this._updateBackgroundSpriteSize(newWidth, newHeight);
         this._nativeControl.setSize(newWidth, newHeight);
@@ -1079,19 +1079,6 @@ _ccsg.EditBox.getRect = function (node) {
     var contentSize = node.getContentSize();
     var rect = cc.rect(0, 0, contentSize.width, contentSize.height);
     return cc.rectApplyAffineTransform(rect, node.getNodeToWorldTransform());
-};
-
-/**
- * create a edit box with size and background-color or
- * @deprecated since v3.0, please use new cc.EditBox(size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) instead
- * @param {cc.Size} size
- * @param {cc.Scale9Sprite } normal9SpriteBg
- * @param {cc.Scale9Sprite } [press9SpriteBg]
- * @param {cc.Scale9Sprite } [disabled9SpriteBg]
- * @return {cc.EditBox}
- */
-_ccsg.EditBox.create = function (size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg) {
-    return new _ccsg.EditBox(size, normal9SpriteBg, press9SpriteBg, disabled9SpriteBg);
 };
 
 _ccsg.EditBox.InputMode = InputMode;

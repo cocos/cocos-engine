@@ -100,16 +100,6 @@ cc.Layer = _ccsg.Node.extend(/** @lends cc.Layer# */{
 });
 
 /**
- * Creates a layer
- * @deprecated since v3.0, please use the new construction instead
- * @see cc.Layer
- * @return {cc.Layer|Null}
- */
-cc.Layer.create = function () {
-    return new cc.Layer();
-};
-
-/**
  * <p>
  * CCLayerColor is a subclass of CCLayer that implements the CCRGBAProtocol protocol.       <br/>
  *  All features from CCLayer are valid, plus the following new features:                   <br/>
@@ -191,7 +181,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
      */
     ctor: function(color, width, height){
         cc.Layer.prototype.ctor.call(this);
-        this._blendFunc = new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
+        this._blendFunc = new cc.BlendFunc(cc.macro.SRC_ALPHA, cc.macro.ONE_MINUS_SRC_ALPHA);
         cc.LayerColor.prototype.init.call(this, color, width, height);
     },
 
@@ -204,7 +194,7 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
      */
     init: function (color, width, height) {
         if (cc._renderType !== cc.game.RENDER_TYPE_CANVAS)
-            this.shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_COLOR);
+            this.shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_COLOR);
 
         var winSize = cc.director.getWinSize();
         color = color || cc.color(0, 0, 0, 255);
@@ -261,19 +251,6 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
             return new cc.LayerColor.WebGLRenderCmd(this);
     }
 });
-
-/**
- * Creates a cc.Layer with color, width and height in Points
- * @deprecated since v3.0 please use the new construction instead
- * @see cc.LayerColor
- * @param {cc.Color} color
- * @param {Number|Null} [width=]
- * @param {Number|Null} [height=]
- * @return {cc.LayerColor}
- */
-cc.LayerColor.create = function (color, width, height) {
-    return new cc.LayerColor(color, width, height);
-};
 
 //LayerColor - Getter Setter
 (function(){
@@ -581,19 +558,6 @@ cc.LayerGradient = cc.LayerColor.extend(/** @lends cc.LayerGradient# */{
     }
 });
 
-/**
- * Creates a gradient layer
- * @deprecated since v3.0, please use the new construction instead
- * @see cc.layerGradient
- * @param {cc.Color} start starting color
- * @param {cc.Color} end ending color
- * @param {cc.Vec2|Null} v
- * @param {Array|NULL} stops
- * @return {cc.LayerGradient}
- */
-cc.LayerGradient.create = function (start, end, v, stops) {
-    return new cc.LayerGradient(start, end, v, stops);
-};
 //LayerGradient - Getter Setter
 (function(){
     var proto = cc.LayerGradient.prototype;
@@ -709,13 +673,3 @@ cc.LayerMultiplex = cc.Layer.extend(/** @lends cc.LayerMultiplex# */{
         this._layers.push(layer);
     }
 });
-
-/**
- * Creates a cc.LayerMultiplex with one or more layers using a variable argument list.
- * @deprecated since v3.0, please use new construction instead
- * @see cc.LayerMultiplex
- * @return {cc.LayerMultiplex|Null}
- */
-cc.LayerMultiplex.create = function (/*Multiple Arguments*/) {
-    return new cc.LayerMultiplex(Array.prototype.slice.call(arguments));
-};

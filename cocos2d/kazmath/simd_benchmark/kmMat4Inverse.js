@@ -16,10 +16,10 @@
   benchmarks.add(new Benchmark(kernelConfig));
 
   // Benchmark data, initialization and kernel functions
-  var src = new cc.kmMat4();
-  var dst = new cc.kmMat4();
-  var srcx4 = new cc.kmMat4();
-  var dstx4 = new cc.kmMat4();
+  var src = new cc.math.Matrix4();
+  var dst = new cc.math.Matrix4();
+  var srcx4 = new cc.math.Matrix4();
+  var dstx4 = new cc.math.Matrix4();
   var ident = new Float32Array(
                     [1,0,0,0,
                      0,1,0,0,
@@ -101,14 +101,14 @@
 
   function nonSimd(n) {
     for (var i = 0; i < n; i++) {
-      //cc.kmMat4Inverse(dst, src);
+      //cc.math.mat4Inverse(dst, src);
       dst = src.inverse();
     }
   }
 
   function simd(n) {
     for (var i = 0; i < n; i++) {
-      //cc.kmMat4InverseSIMD(dstx4, srcx4);
+      //cc.math.mat4InverseSIMD(dstx4, srcx4);
       dstx4 = srcx4.inverseSIMD();
     }
   }

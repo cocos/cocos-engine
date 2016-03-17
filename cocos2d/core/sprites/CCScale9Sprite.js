@@ -954,7 +954,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
      * @param textureOrTextureFile The name of the texture file.
      */
     setTexture: function (textureOrTextureFile) {
-        var spriteFrame = cc.SpriteFrame.createWithTexture(textureOrTextureFile);
+        var spriteFrame = new cc.SpriteFrame(textureOrTextureFile);
         this.setSpriteFrame(spriteFrame);
     },
 
@@ -996,12 +996,12 @@ cc.Scale9Sprite = _ccsg.Node.extend({
      */
     setBlendFunc: function (blendFunc, dst) {
         if (dst === undefined) {
-            this._blendFunc.src = blendFunc.src || cc.BLEND_SRC;
-            this._blendFunc.dst = blendFunc.dst || cc.BLEND_DST;
+            this._blendFunc.src = blendFunc.src || cc.macro.BLEND_SRC;
+            this._blendFunc.dst = blendFunc.dst || cc.macro.BLEND_DST;
         }
         else {
-            this._blendFunc.src = blendFunc || cc.BLEND_SRC;
-            this._blendFunc.dst = dst || cc.BLEND_DST;
+            this._blendFunc.src = blendFunc || cc.macro.BLEND_SRC;
+            this._blendFunc.dst = dst || cc.macro.BLEND_DST;
         }
     },
 
@@ -1274,33 +1274,6 @@ _p.insetBottom;
 cc.defineGetterSetter(_p, "insetBottom", _p.getInsetBottom, _p.setInsetBottom);
 
 _p = null;
-
-
-cc.Scale9Sprite.create = function (file) {
-    return new cc.Scale9Sprite(file);
-};
-
-/**
- * create a cc.Scale9Sprite with Sprite frame.
- * @deprecated since v3.0, please use "new cc.Scale9Sprite(spriteFrame, capInsets)" instead.
- * @param {cc.SpriteFrame} spriteFrame
- * @param {cc.Rect} capInsets
- * @returns {cc.Scale9Sprite}
- */
-cc.Scale9Sprite.createWithSpriteFrame = function (spriteFrame) {
-    return new cc.Scale9Sprite(spriteFrame);
-};
-
-/**
- * create a cc.Scale9Sprite with a Sprite frame name
- * @deprecated since v3.0, please use "new cc.Scale9Sprite(spriteFrameName, capInsets)" instead.
- * @param {string} spriteFrameName
- * @param {cc.Rect} capInsets
- * @returns {Scale9Sprite}
- */
-cc.Scale9Sprite.createWithSpriteFrameName = function (spriteFrameName) {
-    return new cc.Scale9Sprite(spriteFrameName);
-};
 
 cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
 

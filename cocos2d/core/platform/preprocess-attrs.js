@@ -23,8 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Attr = require('./attribute');
-
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
 var SerializableAttrs = {
@@ -170,16 +168,16 @@ module.exports = function (properties, className, cls) {
                 };
             }
             else if (typeof val === 'function') {
-                if (cc.isChildClassOf(val, cc.ValueType)) {
-                    //noinspection JSUnresolvedFunction
+                var type = val;
+                if (cc.RawAsset.isRawAssetType(type)) {
                     val = {
-                        default: new val(),
-                        type: val
+                        default: '',
+                        url: type
                     };
                 }
                 else {
                     val = {
-                        default: cc.RawAsset.isRawAssetType(val) ? '' : null,
+                        default: cc.isChildClassOf(type, cc.ValueType) ? (new type()) : null,
                         type: val
                     };
                 }

@@ -120,13 +120,13 @@ inputManager.didAccelerate = function (eventData) {
     mAcceleration.timestamp = eventData.timeStamp || Date.now();
 
     var tmpX = mAcceleration.x;
-    if(w.orientation === cc.UIOrientation.LANDSCAPE_RIGHT){
+    if(w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_RIGHT){
         mAcceleration.x = -mAcceleration.y;
         mAcceleration.y = tmpX;
-    }else if(w.orientation === cc.UIOrientation.LANDSCAPE_LEFT){
+    }else if(w.orientation === cc.macro.WEB_ORIENTATION_LANDSCAPE_LEFT){
         mAcceleration.x = mAcceleration.y;
         mAcceleration.y = -tmpX;
-    }else if(w.orientation === cc.UIOrientation.PORTRAIT_UPSIDE_DOWN){
+    }else if(w.orientation === cc.macro.WEB_ORIENTATION_PORTRAIT_UPSIDE_DOWN){
         mAcceleration.x = -mAcceleration.x;
         mAcceleration.y = -mAcceleration.y;
     }

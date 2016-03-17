@@ -41,7 +41,7 @@ function downloadText (item, callback) {
     url = cc.Pipeline.UrlResolver.getRawUrl(url);
 
     var result = jsb.fileUtils.getStringFromFile(url);
-    if (typeof result === 'string') {
+    if (typeof result === 'string' && result) {
         callback(null, result);
     }
     else {
@@ -52,6 +52,7 @@ function downloadText (item, callback) {
 cc.loader.addDownloadHandlers({
     // JS
     'js' : downloadScript,
+    'jsc' : downloadScript,
 
     // Images
     'png' : empty,

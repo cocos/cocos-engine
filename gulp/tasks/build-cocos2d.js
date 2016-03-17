@@ -32,27 +32,6 @@ var es = require('event-stream');
 var sourcemaps = require('gulp-sourcemaps');
 
 var srcs = [
-    './Base64Images.js',
-    './CCBoot.js',
-
-    './cocos2d/core/platform/CCCommon.js',
-    './cocos2d/core/platform/CCSAXParser.js',
-    './cocos2d/core/platform/CCConfig.js',
-    './cocos2d/core/platform/miniFramework.js',
-    './cocos2d/core/platform/CCEGLView.js',
-    './cocos2d/core/platform/CCScreen.js',
-    './cocos2d/core/platform/CCVisibleRect.js',
-
-    './cocos2d/core/support/CCVertex.js',
-    './cocos2d/core/support/TransformUtils.js',
-
-    './cocos2d/core/event-manager/CCTouch.js',
-    './cocos2d/core/event-manager/CCSystemEvent.js',
-    './cocos2d/core/event-manager/CCEventListener.js',
-    './cocos2d/core/event-manager/CCEventManager.js',
-
-    './cocos2d/core/renderer/RendererCanvas.js',
-    './cocos2d/core/renderer/RendererWebGL.js',
 
     './cocos2d/core/base-nodes/BaseNodesPropertyDefine.js',
     './cocos2d/core/base-nodes/CCSGNode.js',
@@ -71,9 +50,6 @@ var srcs = [
     './cocos2d/core/sprites/CCSGSpriteCanvasRenderCmd.js',
     './cocos2d/core/sprites/CCSGSpriteWebGLRenderCmd.js',
     './cocos2d/core/sprites/CCBakeSprite.js',
-    './cocos2d/core/sprites/CCAnimation.js',
-    './cocos2d/core/sprites/CCAnimationCache.js',
-    './cocos2d/core/sprites/CCSpriteFrameCache.js',
     './cocos2d/core/sprites/CCSpriteBatchNode.js',
     './cocos2d/core/sprites/CCSpriteBatchNodeCanvasRenderCmd.js',
     './cocos2d/core/sprites/CCSpriteBatchNodeWebGLRenderCmd.js',
@@ -83,8 +59,6 @@ var srcs = [
     './cocos2d/core/sprites/CCScale9SpriteWebGLRenderCmd.js',
 
     './cocos2d/core/CCConfiguration.js',
-    './cocos2d/core/CCCamera.js',
-    './cocos2d/core/CCScheduler.js',
 
     './cocos2d/core/CCDrawingPrimitivesCanvas.js',
     './cocos2d/core/CCDrawingPrimitivesWebGL.js',
@@ -95,24 +69,6 @@ var srcs = [
 
     './cocos2d/core/editbox/CCSGEditBox.js',
     './cocos2d/core/editBox/CCdomNode.js',
-
-    './cocos2d/kazmath/utility.js',
-    './cocos2d/kazmath/vec2.js',
-    './cocos2d/kazmath/vec3.js',
-    './cocos2d/kazmath/vec4.js',
-    './cocos2d/kazmath/ray2.js',
-    './cocos2d/kazmath/mat3.js',
-    './cocos2d/kazmath/mat4.js',
-    './cocos2d/kazmath/plane.js',
-    './cocos2d/kazmath/quaternion.js',
-    './cocos2d/kazmath/aabb.js',
-    './cocos2d/kazmath/gl/mat4stack.js',
-    './cocos2d/kazmath/gl/matrix.js',
-
-    './cocos2d/shaders/CCShaders.js',
-    './cocos2d/shaders/CCShaderCache.js',
-    './cocos2d/shaders/CCGLProgram.js',
-    './cocos2d/shaders/CCGLStateCache.js',
 
     './cocos2d/render-texture/CCRenderTexture.js',
     './cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js',
@@ -126,37 +82,14 @@ var srcs = [
     './cocos2d/clipping-nodes/CCClippingNodeCanvasRenderCmd.js',
     './cocos2d/clipping-nodes/CCClippingNodeWebGLRenderCmd.js',
 
-    './cocos2d/core/CCActionManager.js',
-    './cocos2d/actions/CCAction.js',
-    './cocos2d/actions/CCActionInterval.js',
-    './cocos2d/actions/CCActionInstant.js',
-    './cocos2d/actions/CCActionEase.js',
-    './cocos2d/actions/CCActionCatmullRom.js',
-
-    './cocos2d/progress-timer/CCProgressTimer.js',
-    './cocos2d/progress-timer/CCProgressTimerCanvasRenderCmd.js',
-    './cocos2d/progress-timer/CCProgressTimerWebGLRenderCmd.js',
-    './cocos2d/progress-timer/CCActionProgressTimer.js',
-
-    './cocos2d/compression/ZipUtils.js',
-    './cocos2d/compression/base64.js',
-    './cocos2d/compression/gzip.js',
-    './cocos2d/compression/zlib.min.js',
-
-    './cocos2d/particle/CCPNGReader.js',
-    './cocos2d/particle/CCTIFFReader.js',
     './cocos2d/particle/CCSGParticleSystem.js',
     './cocos2d/particle/CCSGParticleSystemCanvasRenderCmd.js',
     './cocos2d/particle/CCSGParticleSystemWebGLRenderCmd.js',
-    './cocos2d/particle/CCSGParticleExamples.js',
+    // './cocos2d/particle/CCSGParticleExamples.js',
     './cocos2d/particle/CCParticleBatchNode.js',
     './cocos2d/particle/CCParticleBatchNodeCanvasRenderCmd.js',
     './cocos2d/particle/CCParticleBatchNodeWebGLRenderCmd.js',
 
-    './cocos2d/menus/CCMenuItem.js',
-    './cocos2d/menus/CCMenu.js',
-
-    './cocos2d/tilemap/CCTGAlib.js',
     './cocos2d/tilemap/CCSGTMXTiledMap.js',
     './cocos2d/tilemap/CCTMXXMLParser.js',
     './cocos2d/tilemap/CCTMXObjectGroup.js',
@@ -167,13 +100,9 @@ var srcs = [
     './cocos2d/parallax/CCParallaxNode.js',
     './cocos2d/parallax/CCParallaxNodeRenderCmd.js',
 
-    './extensions/ccpool/CCPool.js',
-
     './cocos2d/physics/CCPhysicsDebugNode.js',
     './cocos2d/physics/CCPhysicsDebugNodeCanvasRenderCmd.js',
-    './cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js',
-
-    './external/chipmunk/chipmunk.js'
+    './cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js'
 ];
 
 var header = new Buffer('(function (cc, ccui, ccs, cp) {\n');

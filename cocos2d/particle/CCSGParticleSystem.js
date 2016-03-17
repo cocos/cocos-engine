@@ -24,6 +24,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var PNGReader = require('../cocos2d/particle/CCPNGReader');
+var tiffReader = require('../cocos2d/particle/CCTIFFReader');
+
 // ideas taken from:
 //   . The ocean spray in your face [Jeff Lander]
 //      http://www.double.co.nz/dust/col0798.pdf
@@ -290,7 +293,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this.emitterMode = _ccsg.ParticleSystem.Mode.GRAVITY;
         this.modeA = new _ccsg.ParticleSystem.ModeA();
         this.modeB = new _ccsg.ParticleSystem.ModeB();
-        this._blendFunc = {src:cc.BLEND_SRC, dst:cc.BLEND_DST};
+        this._blendFunc = {src:cc.macro.BLEND_SRC, dst:cc.macro.BLEND_DST};
 
         this._particles = [];
         this._sourcePosition = cc.p(0, 0);
@@ -1128,7 +1131,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      *    dest blend function = GL_ONE;
      */
     isBlendAdditive:function () {
-        return (( this._blendFunc.src === cc.SRC_ALPHA && this._blendFunc.dst === cc.ONE) || (this._blendFunc.src === cc.ONE && this._blendFunc.dst === cc.ONE));
+        return (( this._blendFunc.src === cc.macro.SRC_ALPHA && this._blendFunc.dst === cc.macro.ONE) || 
+                (this._blendFunc.src === cc.macro.ONE && this._blendFunc.dst === cc.macro.ONE));
     },
 
     /**
@@ -1140,8 +1144,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
     setBlendAdditive:function (isBlendAdditive) {
         var locBlendFunc = this._blendFunc;
         if (isBlendAdditive) {
-            locBlendFunc.src = cc.SRC_ALPHA;
-            locBlendFunc.dst = cc.ONE;
+            locBlendFunc.src = cc.macro.SRC_ALPHA;
+            locBlendFunc.dst = cc.macro.ONE;
         } else {
             this._renderCmd._setBlendAdditive();
         }
@@ -1380,7 +1384,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                             return false;
                         this.setTexture(tex);
                     } else {
-                        buffer = cc.unzipBase64AsArray(textureData, 1);
+                        buffer = cc.Codec.unzipBase64AsArray(textureData, 1);
                         if (!buffer) {
                             cc.log("_ccsg.ParticleSystem: error decoding or ungzipping textureImageData");
                             return false;
@@ -1388,18 +1392,17 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
 
                         var imageFormat = cc.getImageFormatByData(buffer);
 
-                        if(imageFormat !== cc.FMT_TIFF && imageFormat !== cc.FMT_PNG){
+                        if(imageFormat !== cc.ImageFormat.TIFF && imageFormat !== cc.ImageFormat.PNG){
                             cc.log("_ccsg.ParticleSystem: unknown image format with Data");
                             return false;
                         }
 
                         var canvasObj = document.createElement("canvas");
-                        if(imageFormat === cc.FMT_PNG){
-                            var myPngObj = new cc.PNGReader(buffer);
+                        if(imageFormat === cc.ImageFormat.PNG){
+                            var myPngObj = new PNGReader(buffer);
                             myPngObj.render(canvasObj);
                         } else {
-                            var myTIFFObj = cc.tiffReader;
-                            myTIFFObj.parseTIFF(buffer,canvasObj);
+                            tiffReader.parseTIFF(buffer,canvasObj);
                         }
 
                         cc.textureCache.cacheImage(imgPath, canvasObj);
@@ -1444,8 +1447,8 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         this._isActive = true;
 
         // default blend function
-        this._blendFunc.src = cc.BLEND_SRC;
-        this._blendFunc.dst = cc.BLEND_DST;
+        this._blendFunc.src = cc.macro.BLEND_SRC;
+        this._blendFunc.dst = cc.macro.BLEND_DST;
 
         // default movement type;
         this.positionType = _ccsg.ParticleSystem.Type.FREE;
@@ -1830,12 +1833,12 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
         if (locTexture && locTexture instanceof cc.Texture2D) {
             this._opacityModifyRGB = false;
             var locBlendFunc = this._blendFunc;
-            if (locBlendFunc.src === cc.BLEND_SRC && locBlendFunc.dst === cc.BLEND_DST) {
+            if (locBlendFunc.src === cc.macro.BLEND_SRC && locBlendFunc.dst === cc.macro.BLEND_DST) {
                 if (locTexture.hasPremultipliedAlpha()) {
                     this._opacityModifyRGB = true;
                 } else {
-                    locBlendFunc.src = cc.SRC_ALPHA;
-                    locBlendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
+                    locBlendFunc.src = cc.macro.SRC_ALPHA;
+                    locBlendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
                 }
             }
         }
@@ -2071,31 +2074,6 @@ cc.defineGetterSetter(_p, "totalParticles", _p.getTotalParticles, _p.setTotalPar
 _p.texture;
 cc.defineGetterSetter(_p, "texture", _p.getTexture, _p.setTexture);
 
-
-/**
- * <p> return the string found by key in dict. <br/>
- *    This plist files can be create manually or with Particle Designer:<br/>
- *    http://particledesigner.71squared.com/<br/>
- * </p>
- * @deprecated since v3.0 please use new cc.ParticleSysytem(plistFile) instead.
- * @param {String|Number} plistFile
- * @return {ccsg.ParticleSystem}
- */
-_ccsg.ParticleSystem.create = function (plistFile) {
-    return new _ccsg.ParticleSystem(plistFile);
-};
-
-/**
- * <p> return the string found by key in dict. <br/>
- *    This plist files can be create manually or with Particle Designer:<br/>
- *    http://particledesigner.71squared.com/<br/>
- * </p>
- * @deprecated since v3.0 please use new cc.ParticleSysytem(plistFile) instead.
- * @function
- * @param {String|Number} plistFile
- * @return {ccsg.ParticleSystem}
- */
-_ccsg.ParticleSystem.createWithTotalParticles = _ccsg.ParticleSystem.create;
 
 // Different modes
 /**

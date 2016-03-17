@@ -28,13 +28,6 @@
  */
 
 /**
- * paticle default capacity
- * @constant
- * @type Number
- */
-cc.PARTICLE_DEFAULT_CAPACITY = 500;
-
-/**
  * <p>
  *    cc.ParticleBatchNode is like a batch node: if it contains children, it will draw them in 1 single OpenGL call  <br/>
  *    (often known as "batch draw").  </br>
@@ -93,7 +86,7 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
      */
     ctor:function (fileImage, capacity) {
         _ccsg.Node.prototype.ctor.call(this);
-        this._blendFunc = {src:cc.BLEND_SRC, dst:cc.BLEND_DST};
+        this._blendFunc = {src:cc.macro.BLEND_SRC, dst:cc.macro.BLEND_DST};
         if (cc.js.isString(fileImage)) {
             this.init(fileImage, capacity);
         } else if (fileImage instanceof cc.Texture2D) {
@@ -350,9 +343,9 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
         // If the new texture has No premultiplied alpha, AND the blendFunc hasn't been changed, then update it
         var locBlendFunc = this._blendFunc;
-        if (texture && !texture.hasPremultipliedAlpha() && ( locBlendFunc.src === cc.BLEND_SRC && locBlendFunc.dst === cc.BLEND_DST )) {
-            locBlendFunc.src = cc.SRC_ALPHA;
-            locBlendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
+        if (texture && !texture.hasPremultipliedAlpha() && ( locBlendFunc.src === cc.macro.BLEND_SRC && locBlendFunc.dst === cc.macro.BLEND_DST )) {
+            locBlendFunc.src = cc.macro.SRC_ALPHA;
+            locBlendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
         }
     },
 
@@ -485,8 +478,8 @@ cc.ParticleBatchNode = _ccsg.Node.extend(/** @lends cc.ParticleBatchNode# */{
 
     _updateBlendFunc:function () {
         if (!this.textureAtlas.texture.hasPremultipliedAlpha()) {
-            this._blendFunc.src = cc.SRC_ALPHA;
-            this._blendFunc.dst = cc.ONE_MINUS_SRC_ALPHA;
+            this._blendFunc.src = cc.macro.SRC_ALPHA;
+            this._blendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
         }
     },
 
@@ -513,15 +506,3 @@ var _p = cc.ParticleBatchNode.prototype;
 /** @expose */
 _p.texture;
 cc.defineGetterSetter(_p, "texture", _p.getTexture, _p.setTexture);
-
-
-/**
- * initializes the particle system with the name of a file on disk (for a list of supported formats look at the cc.Texture2D class), a capacity of particles
- * @deprecated since v3.0 please use new cc.ParticleBatchNode(filename, capacity) instead.
- * @param {String|cc.Texture2D} fileImage
- * @param {Number} capacity
- * @return {cc.ParticleBatchNode}
- */
-cc.ParticleBatchNode.create = function (fileImage, capacity) {
-    return new cc.ParticleBatchNode(fileImage, capacity);
-};

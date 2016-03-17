@@ -557,7 +557,7 @@ ccs.FrameData = ccs.BaseData.extend(/** @lends ccs.FrameData# */{
             this.event = "";
             this.sound = "";
             this.soundEffect = "";
-            this.blendFunc = new cc.BlendFunc(cc.BLEND_SRC, cc.BLEND_DST);
+            this.blendFunc = new cc.BlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
             this.frameID = 0;
             this.isTween = true;
         },

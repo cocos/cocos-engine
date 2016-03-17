@@ -40,7 +40,7 @@ ccs.BatchNode = _ccsg.Node.extend(/** @lends ccs.BatchNode# */{
 
     init:function () {
         var ret = _ccsg.Node.prototype.init.call(this);
-        this.setShaderProgram(cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURE_UCOLOR));
+        this.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURE_UCOLOR));
         return ret;
     },
 
@@ -70,7 +70,7 @@ ccs.BatchNode = _ccsg.Node.extend(/** @lends ccs.BatchNode# */{
         // IMPORTANT:
         // To ease the migration to v3.0, we still support the kmGL stack,
         // but it is deprecated and your code should not rely on it
-        cc.kmGLPushMatrixWitMat4(this._stackMatrix);
+        cc.math.glPushMatrixWitMat4(this._stackMatrix);
 
         if (this.grid && this.grid.isActive())
             this.grid.beforeDraw();
@@ -81,7 +81,7 @@ ccs.BatchNode = _ccsg.Node.extend(/** @lends ccs.BatchNode# */{
         if (this.grid && this.grid.isActive())
             this.grid.afterDraw(this);
 
-        cc.kmGLPopMatrix();
+        cc.math.glPopMatrix();
     },
 
     draw:function (renderer, transform, transformUpdated) {

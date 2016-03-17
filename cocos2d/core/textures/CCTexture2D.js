@@ -26,80 +26,15 @@
 var EventTarget = require('../event/event-target');
 var sys = require('../platform/CCSys');
 var JS = require('../platform/js');
+var misc = require('../utils/misc');
 var game = require('../CCGame');
 require('../platform/_CCClass');
 require('../platform/CCClass');
-
-//CONSTANTS:
-
-/**
- * Horizontal center and vertical center.
- * @constant
- * @type Number
- */
-cc.ALIGN_CENTER = 0x33;
-
-/**
- * Horizontal center and vertical top.
- * @constant
- * @type Number
- */
-cc.ALIGN_TOP = 0x13;
-
-/**
- * Horizontal right and vertical top.
- * @constant
- * @type Number
- */
-cc.ALIGN_TOP_RIGHT = 0x12;
-
-/**
- * Horizontal right and vertical center.
- * @constant
- * @type Number
- */
-cc.ALIGN_RIGHT = 0x32;
-
-/**
- * Horizontal right and vertical bottom.
- * @constant
- * @type Number
- */
-cc.ALIGN_BOTTOM_RIGHT = 0x22;
-
-/**
- * Horizontal center and vertical bottom.
- * @constant
- * @type Number
- */
-cc.ALIGN_BOTTOM = 0x23;
-
-/**
- * Horizontal left and vertical bottom.
- * @constant
- * @type Number
- */
-cc.ALIGN_BOTTOM_LEFT = 0x21;
-
-/**
- * Horizontal left and vertical center.
- * @constant
- * @type Number
- */
-cc.ALIGN_LEFT = 0x31;
-
-/**
- * Horizontal left and vertical top.
- * @constant
- * @type Number
- */
-cc.ALIGN_TOP_LEFT = 0x11;
 
 /**
  * The texture wrap mode
  * @class Texture2D.WrapMode
  * @static
- * @namespace Texture2D
  */
 var WrapMode = cc.Enum({
     /**
@@ -125,8 +60,6 @@ var WrapMode = cc.Enum({
     MIRRORED_REPEAT: 0x8370
 });
 
-//----------------------Possible texture pixel formats----------------------------
-
 /**
  * <p>
  * This class allows to easily create OpenGL or Canvas 2D textures from images, text or raw data.                                    <br/>
@@ -143,6 +76,10 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
     name: 'cc.Texture2D',
     extends: require('../assets/CCRawAsset'),
     mixins: [EventTarget],
+
+    statics: {
+        WrapMode: WrapMode
+    },
 
     ctor: function () {
         this.url = null;
@@ -801,7 +738,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 }
 
                 self._webTextureObj = gl.createTexture();
-                cc.glBindTexture2D(self);
+                cc.gl.bindTexture2D(self);
 
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -900,7 +837,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 //upload image to buffer
                 var gl = cc._renderContext;
 
-                cc.glBindTexture2D(self);
+                cc.gl.bindTexture2D(self);
 
                 gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
                 if(premultiplied)
@@ -914,7 +851,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-                cc.glBindTexture2D(null);
+                cc.gl.bindTexture2D(null);
                 if(premultiplied)
                     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 0);
 
@@ -939,11 +876,11 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 if(magFilter !== undefined)
                     texParams = {minFilter: texParams, magFilter: magFilter, wrapS: wrapS, wrapT: wrapT};
 
-                cc.assert((_t._pixelsWide === cc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === cc.NextPOT(_t._pixelsHigh)) ||
+                cc.assert((_t._pixelsWide === misc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === misc.NextPOT(_t._pixelsHigh)) ||
                     (texParams.wrapS === gl.CLAMP_TO_EDGE && texParams.wrapT === gl.CLAMP_TO_EDGE),
                     "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures");
 
-                cc.glBindTexture2D(_t);
+                cc.gl.bindTexture2D(_t);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, texParams.minFilter);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, texParams.magFilter);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, texParams.wrapS);
@@ -953,7 +890,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             setAntiAliasTexParameters: function () {
                 var gl = cc._renderContext;
 
-                cc.glBindTexture2D(this);
+                cc.gl.bindTexture2D(this);
                 if (!this._hasMipmaps)
                     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 else
@@ -964,7 +901,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
             setAliasTexParameters: function () {
                 var gl = cc._renderContext;
 
-                cc.glBindTexture2D(this);
+                cc.gl.bindTexture2D(this);
                 if (!this._hasMipmaps)
                     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
                 else
@@ -974,9 +911,9 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             generateMipmap: function () {
                 var _t = this;
-                cc.assert(_t._pixelsWide === cc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === cc.NextPOT(_t._pixelsHigh), "Mimpap texture only works in POT textures");
+                cc.assert(_t._pixelsWide === misc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === misc.NextPOT(_t._pixelsHigh), "Mimpap texture only works in POT textures");
 
-                cc.glBindTexture2D(_t);
+                cc.gl.bindTexture2D(_t);
                 cc._renderContext.generateMipmap(cc._renderContext.TEXTURE_2D);
                 _t._hasMipmaps = true;
             },

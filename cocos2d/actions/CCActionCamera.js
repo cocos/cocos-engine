@@ -193,9 +193,9 @@ cc.OrbitCamera = cc.ActionCamera.extend({
         var r = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
         var s = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
         if (s === 0.0)
-            s = cc.FLT_EPSILON;
+            s = cc.macro.FLT_EPSILON;
         if (r === 0.0)
-            r = cc.FLT_EPSILON;
+            r = cc.macro.FLT_EPSILON;
 
         zenith = Math.acos(z / r);
         if (x < 0)
@@ -275,19 +275,3 @@ cc.OrbitCamera = cc.ActionCamera.extend({
 cc.orbitCamera = function (t, radius, deltaRadius, angleZ, deltaAngleZ, angleX, deltaAngleX) {
     return new cc.OrbitCamera(t, radius, deltaRadius, angleZ, deltaAngleZ, angleX, deltaAngleX);
 };
-
-/**
- * Please use cc.orbitCamera instead
- * creates a cc.OrbitCamera action with radius, delta-radius,  z, deltaZ, x, deltaX
- * @param {Number} t time
- * @param {Number} radius
- * @param {Number} deltaRadius
- * @param {Number} angleZ
- * @param {Number} deltaAngleZ
- * @param {Number} angleX
- * @param {Number} deltaAngleX
- * @return {OrbitCamera}
- * @static
- * @deprecated since v3.0 please use cc.orbitCamera() instead.
- */
-cc.OrbitCamera.create = cc.orbitCamera;

@@ -117,7 +117,7 @@
         t4x4Mat[14] = node._vertexZ;
 
         //optimize performance for Javascript
-        cc.kmMat4Multiply(stackMatrix, parentMatrix, t4x4);
+        cc.math.mat4Multiply(stackMatrix, parentMatrix, t4x4);
 
         var i, len, locChildren = node._children;
         if(recursive && locChildren && locChildren.length !== 0){

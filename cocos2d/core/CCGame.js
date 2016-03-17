@@ -24,6 +24,10 @@
  ****************************************************************************/
 
 var EventTarget = require('./event/event-target');
+var View;
+if (!(CC_EDITOR && Editor.isCoreLevel)) {
+    View = require('./platform/CCView');
+}
 
 /**
  * An object to boot the game.
@@ -43,7 +47,7 @@ var game = /** @lends cc.game# */{
     _eventHide: null,
     _eventShow: null,
 
-    _persistRootNodes: [],
+    _persistRootNodes: {},
     _ignoreRemovePersistNode: null,
 
     /**
@@ -259,7 +263,7 @@ var game = /** @lends cc.game# */{
              * @property view
              * @type View
              */
-            cc.view = cc.EGLView._getInstance();
+            cc.view = View ? View._getInstance() : null;
 
             /**
              * @property director
@@ -339,10 +343,12 @@ var game = /** @lends cc.game# */{
      * @param {Node} node - The node to be made persistent
      */
     addPersistRootNode: function (node) {
-        if (!(node instanceof cc.Node))
+        if (!(node instanceof cc.Node) || !node.uuid) {
+            cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
             return;
-        var index = this._persistRootNodes.indexOf(node);
-        if (index === -1) {
+        }
+        var id = node.uuid;
+        if (!this._persistRootNodes[id]) {
             var scene = cc.director._scene;
             if (cc.isValid(scene)) {
                 if (!node.parent) {
@@ -356,7 +362,7 @@ var game = /** @lends cc.game# */{
                     cc.warn('The node can not be made persist because it\'s not in current scene.');
                     return;
                 }
-                this._persistRootNodes.push(node);
+                this._persistRootNodes[id] = node;
                 node._persistNode = true;
             }
         }
@@ -369,11 +375,11 @@ var game = /** @lends cc.game# */{
      */
     removePersistRootNode: function (node) {
         if (node !== this._ignoreRemovePersistNode) {
-            var index = this._persistRootNodes.indexOf(node);
-            if (index !== -1) {
-                this._persistRootNodes.splice(index, 1);
+            var id = node.uuid || '';
+            if (node === this._persistRootNodes[id]) {
+                delete this._persistRootNodes[id];
+                node._persistNode = false;
             }
-            node._persistNode = false;
         }
     },
 

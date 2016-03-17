@@ -2006,11 +2006,11 @@ var WrapAlgorithmTest = AtlasDemo.extend({
     },
     onEnter: function(){
         this._super();
-        cc.SPRITE_DEBUG_DRAW = 1;
+        cc.macro.SPRITE_DEBUG_DRAW = 1;
     },
     onExit: function(){
         this._super();
-        cc.SPRITE_DEBUG_DRAW = 0;
+        cc.macro.SPRITE_DEBUG_DRAW = 0;
     }
 });
 

@@ -98,6 +98,9 @@ cc.game.run({
         '../../cocos2d/core/base-nodes/CCAtlasNodeCanvasRenderCmd.js',
         '../../cocos2d/core/base-nodes/CCAtlasNodeWebGLRenderCmd.js',
 
+        '../../cocos2d/menus/CCMenuItem.js',
+        '../../cocos2d/menus/CCMenu.js',
+
         "../../cocos2d/core/labelttf/LabelTTFPropertyDefine.js",
         "../../cocos2d/core/labelttf/CCLabelTTF.js",
         "../../cocos2d/core/labelttf/CCLabelTTFCanvasRenderCmd.js",
@@ -109,6 +112,10 @@ cc.game.run({
         "../../cocos2d/labels/CCLabelBMFont.js",
         "../../cocos2d/labels/CCLabelBMFontCanvasRenderCmd.js",
         "../../cocos2d/labels/CCLabelBMFontWebGLRenderCmd.js",
+
+        "../../cocos2d/particle/CCSGParticleExamples.js",
+
+        "../../cocos2d/actions/CCActionCatmullRom.js",
 
         "src/BaseTestLayer/BaseTestLayer.js",
 

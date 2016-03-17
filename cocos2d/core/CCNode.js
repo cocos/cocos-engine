@@ -219,7 +219,8 @@ var _mouseWheelHandler = function (event) {
     if (node._hitTest(pos, this)) {
         event.type = EventType.MOUSE_WHEEL;
         node.dispatchEvent(event);
-        event.stopPropagation();
+        //FIXME: separate wheel event and other mouse event.
+        // event.stopPropagation();
     }
 };
 
@@ -1044,7 +1045,7 @@ var Node = cc.Class({
     },
 
     _checkTouchListeners: function () {
-        if (this._bubblingListeners && this._touchListener) {
+        if (!(this._objFlags & Destroying) && this._bubblingListeners && this._touchListener) {
             for (var i = 0; i < _touchEvents.length; ++i) {
                 if (this._bubblingListeners.has(_touchEvents[i])) {
                     return;
@@ -1056,7 +1057,7 @@ var Node = cc.Class({
         }
     },
     _checkMouseListeners: function () {
-        if (this._bubblingListeners && this._mouseListener) {
+        if (!(this._objFlags & Destroying) && this._bubblingListeners && this._mouseListener) {
             for (var i = 0; i < _mouseEvents.length; ++i) {
                 if (this._bubblingListeners.has(_mouseEvents[i])) {
                     return;
@@ -1162,7 +1163,7 @@ var Node = cc.Class({
      * @param {Number} tag A tag that indicates the action to be removed.
      */
     stopActionByTag: function (tag) {
-        if (tag === cc.ACTION_TAG_INVALID) {
+        if (tag === cc.Action.TAG_INVALID) {
             cc.log(cc._LogInfos.Node.stopActionByTag);
             return;
         }
@@ -1177,7 +1178,7 @@ var Node = cc.Class({
      * @return {Action} The action object with the given tag.
      */
     getActionByTag: function (tag) {
-        if (tag === cc.ACTION_TAG_INVALID) {
+        if (tag === cc.Action.TAG_INVALID) {
             cc.log(cc._LogInfos.Node.getActionByTag);
             return null;
         }

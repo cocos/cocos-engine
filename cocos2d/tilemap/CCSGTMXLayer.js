@@ -384,7 +384,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         var tile = this.tiles[idx];
 
-        return (tile & cc.TMX_TILE_FLIPPED_MASK) >>> 0;
+        return (tile & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0;
     },
     // XXX: deprecated
     // tileGIDAt:getTileGIDAt,
@@ -411,7 +411,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         var tile = this.tiles[idx];
 
-        return (tile & cc.TMX_TILE_FLIPPED_ALL) >>> 0;
+        return (tile & cc.TiledMap.TileFlag.FLIPPED_ALL) >>> 0;
     },
     // XXX: deprecated
     // tileFlagAt:getTileFlagsAt,
@@ -540,13 +540,13 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
             pos = cc.p(pos, y);
         var ret = cc.p(0,0);
         switch (this.layerOrientation) {
-            case cc.TMX_ORIENTATION_ORTHO:
+            case cc.TiledMap.Orientation.ORTHO:
                 ret = this._positionForOrthoAt(pos);
                 break;
-            case cc.TMX_ORIENTATION_ISO:
+            case cc.TiledMap.Orientation.ISO:
                 ret = this._positionForIsoAt(pos);
                 break;
-            case cc.TMX_ORIENTATION_HEX:
+            case cc.TiledMap.Orientation.HEX:
                 ret = this._positionForHexAt(pos);
                 break;
         }
@@ -668,14 +668,14 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
     _calculateLayerOffset:function (pos) {
         var ret = cc.p(0,0);
         switch (this.layerOrientation) {
-            case cc.TMX_ORIENTATION_ORTHO:
+            case cc.TiledMap.Orientation.ORTHO:
                 ret = cc.p(pos.x * this._mapTileSize.width, -pos.y * this._mapTileSize.height);
                 break;
-            case cc.TMX_ORIENTATION_ISO:
+            case cc.TiledMap.Orientation.ISO:
                 ret = cc.p((this._mapTileSize.width / 2) * (pos.x - pos.y),
                     (this._mapTileSize.height / 2 ) * (-pos.x - pos.y));
                 break;
-            case cc.TMX_ORIENTATION_HEX:
+            case cc.TiledMap.Orientation.HEX:
                 if(pos.x !== 0 || pos.y !== 0)
                     cc.log("offset for hexagonal map not implemented yet");
                 break;
@@ -766,8 +766,8 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
                     alphaFuncValue = parseFloat(alphaFuncVal);
 
                 if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {        //todo: need move to WebGL render cmd
-                    this.shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLORALPHATEST);
-                    var alphaValueLocation = cc._renderContext.getUniformLocation(this.shaderProgram.getProgram(), cc.UNIFORM_ALPHA_TEST_VALUE_S);
+                    this.shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLORALPHATEST);
+                    var alphaValueLocation = cc._renderContext.getUniformLocation(this.shaderProgram.getProgram(), cc.macro.UNIFORM_ALPHA_TEST_VALUE_S);
                     // NOTE: alpha test shader is hard-coded to use the equivalent of a glAlphaFunc(GL_GREATER) comparison
                     this.shaderProgram.use();
                     this.shaderProgram.setUniformLocationWith1f(alphaValueLocation, alphaFuncValue);
@@ -796,20 +796,20 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         sprite.setFlippedY(false);
 
         // Rotation in tiled is achieved using 3 flipped states, flipping across the horizontal, vertical, and diagonal axes of the tiles.
-        if ((gid & cc.TMX_TILE_DIAGONAL_FLAG) >>> 0) {
+        if ((gid & cc.TiledMap.TileFlag.DIAGONAL_FLAG) >>> 0) {
             // put the anchor in the middle for ease of rotation.
             sprite.anchorX = 0.5;
 	        sprite.anchorY = 0.5;
             sprite.x = this.getPositionAt(pos).x + sprite.width / 2;
 	        sprite.y = this.getPositionAt(pos).y + sprite.height / 2;
 
-            var flag = (gid & (cc.TMX_TILE_HORIZONTAL_FLAG | cc.TMX_TILE_VERTICAL_FLAG) >>> 0) >>> 0;
+            var flag = (gid & (cc.TiledMap.TileFlag.HORIZONTAL | cc.TiledMap.TileFlag.VERTICAL) >>> 0) >>> 0;
             // handle the 4 diagonally flipped states.
-            if (flag === cc.TMX_TILE_HORIZONTAL_FLAG)
+            if (flag === cc.TiledMap.TileFlag.HORIZONTAL)
                 sprite.rotation = 90;
-            else if (flag === cc.TMX_TILE_VERTICAL_FLAG)
+            else if (flag === cc.TiledMap.TileFlag.VERTICAL)
                 sprite.rotation = 270;
-            else if (flag === (cc.TMX_TILE_VERTICAL_FLAG | cc.TMX_TILE_HORIZONTAL_FLAG) >>> 0) {
+            else if (flag === (cc.TiledMap.TileFlag.VERTICAL | cc.TiledMap.TileFlag.HORIZONTAL) >>> 0) {
                 sprite.rotation = 90;
 	            sprite.setFlippedX(true);
             } else {
@@ -817,11 +817,11 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 	            sprite.setFlippedX(true);
             }
         } else {
-            if ((gid & cc.TMX_TILE_HORIZONTAL_FLAG) >>> 0) {
+            if ((gid & cc.TiledMap.TileFlag.HORIZONTAL) >>> 0) {
                 sprite.setFlippedX(true);
             }
 
-            if ((gid & cc.TMX_TILE_VERTICAL_FLAG) >>> 0) {
+            if ((gid & cc.TiledMap.TileFlag.VERTICAL) >>> 0) {
                 sprite.setFlippedY(true);
             }
         }
@@ -832,14 +832,14 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         var maxVal = 0;
         if (this._useAutomaticVertexZ) {
             switch (this.layerOrientation) {
-                case cc.TMX_ORIENTATION_ISO:
+                case cc.TiledMap.Orientation.ISO:
                     maxVal = this._layerSize.width + this._layerSize.height;
                     ret = -(maxVal - (pos.x + pos.y));
                     break;
-                case cc.TMX_ORIENTATION_ORTHO:
+                case cc.TiledMap.Orientation.ORTHO:
                     ret = -(this._layerSize.height - pos.y);
                     break;
-                case cc.TMX_ORIENTATION_HEX:
+                case cc.TiledMap.Orientation.HEX:
                     cc.log("TMX Hexa zOrder not supported");
                     break;
                 default:

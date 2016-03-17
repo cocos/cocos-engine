@@ -85,7 +85,7 @@ cc.ProtectedNode = _ccsg.Node.extend(/** @lends cc.ProtectedNode# */{
      * @return {_ccsg.Node} a Node object whose tag equals to the input parameter
      */
     getProtectedChildByTag: function(tag){
-        cc.assert(tag !== cc.NODE_TAG_INVALID, "Invalid tag");
+        cc.assert(tag !== cc.macro.NODE_TAG_INVALID, "Invalid tag");
         var locChildren = this._protectedChildren;
         for(var i = 0, len = locChildren.length; i < len; i++)
             if(locChildren.getTag() === tag)
@@ -129,7 +129,7 @@ cc.ProtectedNode = _ccsg.Node.extend(/** @lends cc.ProtectedNode# */{
      * @param {Boolean} [cleanup=true]
      */
     removeProtectedChildByTag: function(tag, cleanup){
-        cc.assert( tag !== cc.NODE_TAG_INVALID, "Invalid tag");
+        cc.assert( tag !== cc.macro.NODE_TAG_INVALID, "Invalid tag");
 
         if(cleanup == null)
             cleanup = true;

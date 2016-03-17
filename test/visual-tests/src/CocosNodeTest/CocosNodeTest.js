@@ -740,7 +740,7 @@ var NodeOpaqueTest = TestNodeDemo.extend({
         var background;
         for (var i = 0; i < 50; i++) {
             background = new _ccsg.Sprite(s_back1);
-            background.setBlendFunc(cc.ONE, cc.ONE_MINUS_SRC_ALPHA);
+            background.setBlendFunc(cc.macro.ONE, cc.macro.ONE_MINUS_SRC_ALPHA);
             background.x = winSize.width / 2;
             background.y = winSize.height / 2;
             this.addChild(background);
@@ -765,7 +765,7 @@ var NodeNonOpaqueTest = TestNodeDemo.extend({
         var background;
         for (var i = 0; i < 50; i++) {
             background = new _ccsg.Sprite(s_back1);
-            background.setBlendFunc(cc.ONE, cc.ZERO);
+            background.setBlendFunc(cc.macro.ONE, cc.macro.ZERO);
             background.x = winSize.width / 2;
             background.y = winSize.height / 2;
             this.addChild(background);

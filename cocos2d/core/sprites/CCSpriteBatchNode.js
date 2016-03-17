@@ -64,7 +64,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     ctor: function (fileImage, capacity) {
         _ccsg.Node.prototype.ctor.call(this);
         this._descendants = [];
-        this._blendFunc = new cc.BlendFunc(cc.BLEND_SRC, cc.BLEND_DST);
+        this._blendFunc = new cc.BlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
 
         var texture2D;
         capacity = capacity || cc.SpriteBatchNode.DEFAULT_CAPACITY;
@@ -272,7 +272,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
         // ignore parent Z if parent is spriteSheet
         var ignoreParent = selParent === this;
         var previous = null;
-        if (childIndex > 0 && childIndex < cc.UINT_MAX)
+        if (childIndex > 0 && childIndex < cc.macro.UINT_MAX)
             previous = brothers[childIndex - 1];
 
         // first child of the sprite sheet
@@ -651,26 +651,3 @@ cc.defineGetterSetter(_p, "descendants", _p.getDescendants);
  * @type Number
  */
 cc.SpriteBatchNode.DEFAULT_CAPACITY = 29;
-
-/**
- * <p>
- *    creates a cc.SpriteBatchNodeCanvas with a file image (.png, .jpg etc) with a default capacity of 29 children.<br/>
- *    The capacity will be increased in 33% in runtime if it run out of space.<br/>
- *    The file will be loaded using the TextureMgr.<br/>
- * </p>
- * @deprecated since v3.0, please use new construction instead
- * @see cc.SpriteBatchNode
- * @param {String|cc.Texture2D} fileImage
- * @param {Number} capacity
- * @return {cc.SpriteBatchNode}
- */
-cc.SpriteBatchNode.create = function (fileImage, capacity) {
-    return new cc.SpriteBatchNode(fileImage, capacity);
-};
-
-/**
- * @deprecated since v3.0, please use new construction instead
- * @see cc.SpriteBatchNode
- * @function
- */
-cc.SpriteBatchNode.createWithTexture = cc.SpriteBatchNode.create;

@@ -496,7 +496,7 @@ var ScheduleUsingSchedulerTest = SchedulerTestLayer.extend({
         scheduler.scheduleUpdateForTarget(this, priority, paused);
 
         var interval = 0.25; // every 1/4 of second
-        var repeat = cc.REPEAT_FOREVER; // how many repeats. cc.REPEAT_FOREVER means forever
+        var repeat = cc.macro.REPEAT_FOREVER; // how many repeats. cc.macro.REPEAT_FOREVER means forever
         var delay = 2; // start after 2 seconds;
         paused = false; // not paused. queue it now.
         scheduler.scheduleCallbackForTarget(this, this.onSchedUpdate, interval, repeat, delay, paused);

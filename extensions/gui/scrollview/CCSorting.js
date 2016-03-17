@@ -108,7 +108,7 @@ cc.ArrayForObjectSorting = cc._Class.extend(/** @lends cc.ArrayForObjectSorting#
         }
 
         var idx = this.indexOfSortedObject(delObject);
-        if (idx < this.count() && idx !== cc.INVALID_INDEX) {
+        if (idx < this.count() && idx !== cc.macro.INVALID_INDEX) {
             var foundObj = this.objectAtIndex(idx);
             if (foundObj.getObjectID() === delObject.getObjectID()) {
                 this.removeObjectAtIndex(idx);
@@ -129,7 +129,7 @@ cc.ArrayForObjectSorting = cc._Class.extend(/** @lends cc.ArrayForObjectSorting#
      */
     setObjectID_ofSortedObject:function (tag, setObject) {
         var idx = this.indexOfSortedObject(setObject);
-        if (idx < this.count() && idx !== cc.INVALID_INDEX) {
+        if (idx < this.count() && idx !== cc.macro.INVALID_INDEX) {
             var foundObj = this.objectAtIndex(idx);
             if (foundObj.getObjectID() === setObject.getObjectID()) {
                 this.removeObjectAtIndex(idx);
@@ -147,7 +147,7 @@ cc.ArrayForObjectSorting = cc._Class.extend(/** @lends cc.ArrayForObjectSorting#
         foundObj.setObjectID(tag);
 
         var idx = this.indexOfSortedObject(foundObj);
-        if (idx < this.count() && idx !== cc.INVALID_INDEX) {
+        if (idx < this.count() && idx !== cc.macro.INVALID_INDEX) {
             foundObj = this.objectAtIndex(idx);
             if (foundObj.getObjectID() !== tag)
                 foundObj = null;
@@ -201,7 +201,7 @@ cc.ArrayForObjectSorting = cc._Class.extend(/** @lends cc.ArrayForObjectSorting#
                 idx++;
             }
         } else {
-            idx = cc.INVALID_INDEX;
+            idx = cc.macro.INVALID_INDEX;
         }
         return idx;
     },

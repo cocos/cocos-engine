@@ -47,6 +47,17 @@ if (!jsbLabel.prototype.getOverflow) {
     jsbLabel.prototype.getOverflow = function(){};
 }
 
+//fix jsb system font overflow
+jsbLabel.prototype._setOverflow = jsbLabel.prototype.setOverflow;
+jsbLabel.prototype.setOverflow = function(overflow) {
+    this._overFlow = overflow;
+    this._setOverflow(this._overFlow);
+};
+
+jsbLabel.prototype.getOverflow = function() {
+    return this._overFlow;
+};
+
 if (!jsbLabel.prototype.isSystemFontUsed) {
     jsbLabel.prototype.isSystemFontUsed = function() {
         return this._isSystemFontUsed;
@@ -93,17 +104,20 @@ jsbLabel.prototype.setTTFConfig = function (config) {
     this._setTTFConfig(config);
     this._ttfConfig = config;
 };
+
 jsbLabel.prototype.getTTFConfig = function () {
     return this._ttfConfig;
 };
 
 jsbLabel.prototype.setContentSize = function (size, height) {
-    if(height !== undefined){
-        this.setDimensions(size, height);
+    var newWidth = (typeof size.width === 'number') ? size.width : size;
+    var newHeight = (typeof size.height === 'number') ? size.height : height;
+
+    if(this.getOverflow() === cc.Label.Overflow.NONE) {
+        newWidth = 0;
+        newHeight = 0;
     }
-    else{
-        this.setDimensions(size.width, size.height);
-    }
+    this.setDimensions(newWidth, newHeight);
 };
 
 jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {

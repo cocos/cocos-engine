@@ -39,7 +39,7 @@
 
     proto.rendering = function(ctx){
         cc.AtlasNode.WebGLRenderCmd.prototype.rendering.call(this, ctx);
-        if (cc.LABELATLAS_DEBUG_DRAW) {
+        if (cc.macro.LABELATLAS_DEBUG_DRAW) {
             var node = this._node;
             var s = node.getContentSize();
             var locRect = node.getBoundingBoxToWorld();
@@ -82,7 +82,7 @@
 
             cr++;
             var left, right, top, bottom;
-            if (cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
+            if (cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
                 // Issue #938. Don't use texStepX & texStepY
                 left = (2 * row * itemWidth + 1) / (2 * textureWide);
                 right = left + (itemWidth * 2 - 2) / (2 * textureWide);

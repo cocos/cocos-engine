@@ -32,18 +32,18 @@ cc.CustomRenderCmd = function (target, func) {
         if (!this._callback)
             return;
         this._callback.call(this._target, ctx, scaleX, scaleY);
-    }
+    };
 };
 
 _ccsg.Node._dirtyFlags = {
-    transformDirty: 1 << 0, 
-    visibleDirty: 1 << 1, 
-    colorDirty: 1 << 2, 
-    opacityDirty: 1 << 3, 
-    cacheDirty: 1 << 4,
-    orderDirty: 1 << 5, 
-    textDirty: 1 << 6, 
-    gradientDirty:1 << 7,
+    transformDirty: 1 << 0,
+    visibleDirty:   1 << 1,
+    colorDirty:     1 << 2,
+    opacityDirty:   1 << 3,
+    cacheDirty:     1 << 4,
+    orderDirty:     1 << 5,
+    textDirty:      1 << 6,
+    gradientDirty:  1 << 7,
     COUNT: 8
 };
 cc.js.get(_ccsg.Node._dirtyFlags, 'all', function () {
@@ -375,7 +375,7 @@ _ccsg.Node.RenderCmd.prototype = {
 
         if (transformDirty)
             //update the transform
-            this.transform(parentCmd, true);
+            this.transform(parentCmd);
     },
 
     visitChildren: function(){
@@ -404,121 +404,119 @@ _ccsg.Node.RenderCmd.prototype = {
 
 //-----------------------Canvas ---------------------------
 
-(function() {
 //The _ccsg.Node's render command for Canvas
-    _ccsg.Node.CanvasRenderCmd = function (renderable) {
-        _ccsg.Node.RenderCmd.call(this, renderable);
-        this._cachedParent = null;
-        this._cacheDirty = false;
+_ccsg.Node.CanvasRenderCmd = function (renderable) {
+    _ccsg.Node.RenderCmd.call(this, renderable);
+    this._cachedParent = null;
+    this._cacheDirty = false;
 
-    };
+};
 
-    var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
-    proto.constructor = _ccsg.Node.CanvasRenderCmd;
+var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
+proto.constructor = _ccsg.Node.CanvasRenderCmd;
 
-    proto.transform = function (parentCmd, recursive) {
-        // transform for canvas
-        var t = this.getNodeToParentTransform(),
-            worldT = this._worldTransform;         //get the world transform
+proto.transform = function (parentCmd, recursive) {
+    // transform for canvas
+    var t = this.getNodeToParentTransform(),
+        worldT = this._worldTransform;         //get the world transform
+    this._cacheDirty = true;
+    if (parentCmd) {
+        var pt = parentCmd._worldTransform;
+        // cc.AffineTransformConcat is incorrect at get world transform
+        worldT.a = t.a * pt.a + t.b * pt.c;                               //a
+        worldT.b = t.a * pt.b + t.b * pt.d;                               //b
+        worldT.c = t.c * pt.a + t.d * pt.c;                               //c
+        worldT.d = t.c * pt.b + t.d * pt.d;                               //d
+
+        worldT.tx = pt.a * t.tx + pt.c * t.ty + pt.tx;
+        worldT.ty = pt.d * t.ty + pt.ty + pt.b * t.tx;
+    } else {
+        worldT.a = t.a;
+        worldT.b = t.b;
+        worldT.c = t.c;
+        worldT.d = t.d;
+        worldT.tx = t.tx;
+        worldT.ty = t.ty;
+    }
+    if (recursive) {
+        var locChildren = this._node._children;
+        if (!locChildren || locChildren.length === 0)
+            return;
+        var i, len;
+        for (i = 0, len = locChildren.length; i < len; i++) {
+            locChildren[i]._renderCmd.transform(this, recursive);
+        }
+    }
+};
+
+proto.visit = function (parentCmd) {
+    var node = this._node;
+    // quick return if not visible
+    if (!node._visible)
+        return;
+
+    parentCmd = parentCmd || this.getParentRenderCmd();
+    if (parentCmd)
+        this._curLevel = parentCmd._curLevel + 1;
+    this._syncStatus(parentCmd);
+    this.visitChildren();
+};
+
+proto.setDirtyFlag = function (dirtyFlag, child) {
+    _ccsg.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
+    this._setCacheDirty(child);                  //TODO it should remove from here.
+    if(this._cachedParent)
+        this._cachedParent.setDirtyFlag(dirtyFlag, true);
+};
+
+proto._setCacheDirty = function () {
+    if (this._cacheDirty === false) {
         this._cacheDirty = true;
-        if (parentCmd) {
-            var pt = parentCmd._worldTransform;
-            // cc.AffineTransformConcat is incorrect at get world transform
-            worldT.a = t.a * pt.a + t.b * pt.c;                               //a
-            worldT.b = t.a * pt.b + t.b * pt.d;                               //b
-            worldT.c = t.c * pt.a + t.d * pt.c;                               //c
-            worldT.d = t.c * pt.b + t.d * pt.d;                               //d
+        var cachedP = this._cachedParent;
+        cachedP && cachedP !== this && cachedP._setNodeDirtyForCache && cachedP._setNodeDirtyForCache();
+    }
+};
 
-            worldT.tx = pt.a * t.tx + pt.c * t.ty + pt.tx;
-            worldT.ty = pt.d * t.ty + pt.ty + pt.b * t.tx;
-        } else {
-            worldT.a = t.a;
-            worldT.b = t.b;
-            worldT.c = t.c;
-            worldT.d = t.d;
-            worldT.tx = t.tx;
-            worldT.ty = t.ty;
-        }
-        if (recursive) {
-            var locChildren = this._node._children;
-            if (!locChildren || locChildren.length === 0)
-                return;
-            var i, len;
-            for (i = 0, len = locChildren.length; i < len; i++) {
-                locChildren[i]._renderCmd.transform(this, recursive);
-            }
-        }
-    };
+proto._setCachedParent = function (cachedParent) {
+    if (this._cachedParent === cachedParent)
+        return;
 
-    proto.visit = function (parentCmd) {
-        var node = this._node;
-        // quick return if not visible
-        if (!node._visible)
-            return;
+    this._cachedParent = cachedParent;
+    var children = this._node._children;
+    for (var i = 0, len = children.length; i < len; i++)
+        children[i]._renderCmd._setCachedParent(cachedParent);
+};
 
-        parentCmd = parentCmd || this.getParentRenderCmd();
-        if (parentCmd)
-            this._curLevel = parentCmd._curLevel + 1;
-        this._syncStatus(parentCmd);
-        this.visitChildren();
-    };
+proto.detachFromParent = function () {
+    this._cachedParent = null;
+    var selChildren = this._node._children, item;
+    for (var i = 0, len = selChildren.length; i < len; i++) {
+        item = selChildren[i];
+        if (item && item._renderCmd)
+            item._renderCmd.detachFromParent();
+    }
+};
 
-    proto.setDirtyFlag = function (dirtyFlag, child) {
-        _ccsg.Node.RenderCmd.prototype.setDirtyFlag.call(this, dirtyFlag, child);
-        this._setCacheDirty(child);                  //TODO it should remove from here.
-        if(this._cachedParent)
-            this._cachedParent.setDirtyFlag(dirtyFlag, true);
-    };
+proto.setShaderProgram = function (shaderProgram) {
+    //do nothing.
+};
 
-    proto._setCacheDirty = function () {
-        if (this._cacheDirty === false) {
-            this._cacheDirty = true;
-            var cachedP = this._cachedParent;
-            cachedP && cachedP !== this && cachedP._setNodeDirtyForCache && cachedP._setNodeDirtyForCache();
-        }
-    };
+proto.getShaderProgram = function () {
+    return null;
+};
 
-    proto._setCachedParent = function (cachedParent) {
-        if (this._cachedParent === cachedParent)
-            return;
-
-        this._cachedParent = cachedParent;
-        var children = this._node._children;
-        for (var i = 0, len = children.length; i < len; i++)
-            children[i]._renderCmd._setCachedParent(cachedParent);
-    };
-
-    proto.detachFromParent = function () {
-        this._cachedParent = null;
-        var selChildren = this._node._children, item;
-        for (var i = 0, len = selChildren.length; i < len; i++) {
-            item = selChildren[i];
-            if (item && item._renderCmd)
-                item._renderCmd.detachFromParent();
-        }
-    };
-
-    proto.setShaderProgram = function (shaderProgram) {
-        //do nothing.
-    };
-
-    proto.getShaderProgram = function () {
-        return null;
-    };
-
-    //util functions
-    _ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc = function (blendFunc) {
-        if (!blendFunc)
+//util functions
+_ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc = function (blendFunc) {
+    if (!blendFunc)
+        return "source-over";
+    else {
+        if (( blendFunc.src === cc.macro.SRC_ALPHA && blendFunc.dst === cc.macro.ONE) || (blendFunc.src === cc.macro.ONE && blendFunc.dst === cc.macro.ONE))
+            return "lighter";
+        else if (blendFunc.src === cc.macro.ZERO && blendFunc.dst === cc.macro.SRC_ALPHA)
+            return "destination-in";
+        else if (blendFunc.src === cc.macro.ZERO && blendFunc.dst === cc.macro.ONE_MINUS_SRC_ALPHA)
+            return "destination-out";
+        else
             return "source-over";
-        else {
-            if (( blendFunc.src === cc.SRC_ALPHA && blendFunc.dst === cc.ONE) || (blendFunc.src === cc.ONE && blendFunc.dst === cc.ONE))
-                return "lighter";
-            else if (blendFunc.src === cc.ZERO && blendFunc.dst === cc.SRC_ALPHA)
-                return "destination-in";
-            else if (blendFunc.src === cc.ZERO && blendFunc.dst === cc.ONE_MINUS_SRC_ALPHA)
-                return "destination-out";
-            else
-                return "source-over";
-        }
-    };
-})();
+    }
+};

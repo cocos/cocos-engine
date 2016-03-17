@@ -200,7 +200,7 @@ ccs.ActionObject = ccs.Class.extend(/** @lends ccs.ActionObject# */{
             locActionNodeList[i].playAction(fun);
         }
         if (this._loop)
-            this._scheduler.schedule(this.simulationActionUpdate, this, 0, cc.REPEAT_FOREVER, 0, false, this.__instanceId + "");
+            this._scheduler.schedule(this.simulationActionUpdate, this, 0, cc.macro.REPEAT_FOREVER, 0, false, this.__instanceId + "");
         if(fun !== undefined)
             this._callback = fun;
     },

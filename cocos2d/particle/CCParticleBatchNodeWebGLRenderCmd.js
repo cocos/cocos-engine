@@ -22,53 +22,51 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-(function(){
-    /**
-     * cc.ParticleBatchNode's rendering objects of WebGL
-     */
-    cc.ParticleBatchNode.WebGLRenderCmd = function(renderable){
-        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
-        this._needDraw = true;
-    };
+/**
+ * cc.ParticleBatchNode's rendering objects of WebGL
+ */
+cc.ParticleBatchNode.WebGLRenderCmd = function(renderable){
+    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    this._needDraw = true;
+};
 
-    var proto = cc.ParticleBatchNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-    proto.constructor = cc.ParticleBatchNode.WebGLRenderCmd;
+var proto = cc.ParticleBatchNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+proto.constructor = cc.ParticleBatchNode.WebGLRenderCmd;
 
-    proto.rendering = function (ctx) {
-        var _t = this._node;
-        if (_t.textureAtlas.totalQuads === 0)
-            return;
+proto.rendering = function (ctx) {
+    var _t = this._node;
+    if (_t.textureAtlas.totalQuads === 0)
+        return;
 
-        this._shaderProgram.use();
-        this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-        cc.glBlendFuncForParticle(_t._blendFunc.src, _t._blendFunc.dst);
-        _t.textureAtlas.drawQuads();
-    };
+    this._shaderProgram.use();
+    this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
+    cc.gl.blendFuncForParticle(_t._blendFunc.src, _t._blendFunc.dst);
+    _t.textureAtlas.drawQuads();
+};
 
-    proto._initWithTexture = function(){
-        this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
-    };
+proto._initWithTexture = function(){
+    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
+};
 
-    proto.visit = function(parentCmd){
-        var node = this._node;
-        // CAREFUL:
-        // This visit is almost identical to _ccsg.Node#visit
-        // with the exception that it doesn't call visit on it's children
-        //
-        // The alternative is to have a void _ccsg.Sprite#visit, but
-        // although this is less mantainable, is faster
-        //
-        if (!node._visible)
-            return;
+proto.visit = function(parentCmd){
+    var node = this._node;
+    // CAREFUL:
+    // This visit is almost identical to _ccsg.Node#visit
+    // with the exception that it doesn't call visit on it's children
+    //
+    // The alternative is to have a void _ccsg.Sprite#visit, but
+    // although this is less mantainable, is faster
+    //
+    if (!node._visible)
+        return;
 
-        var currentStack = cc.current_stack;
-        currentStack.stack.push(currentStack.top);
-        this._syncStatus(parentCmd);
-        currentStack.top = this._stackMatrix;
-        //this.draw(ctx);
-        cc.renderer.pushRenderCommand(this);
+    var currentStack = cc.current_stack;
+    currentStack.stack.push(currentStack.top);
+    this._syncStatus(parentCmd);
+    currentStack.top = this._stackMatrix;
+    //this.draw(ctx);
+    cc.renderer.pushRenderCommand(this);
 
-        this._dirtyFlag = 0;
-        cc.kmGLPopMatrix();
-    };
-})();
+    this._dirtyFlag = 0;
+    cc.math.glPopMatrix();
+};

@@ -26,14 +26,17 @@
 
 require('./CCDirector');
 require('./CCGame');
+require('../kazmath');
+
+var math = cc.math;
 
 var GLToClipTransform = function (transformOut) {
-    //var projection = new cc.math.Matrix4();
-    //cc.kmGLGetMatrix(cc.KM_GL_PROJECTION, projection);
-    cc.kmGLGetMatrix(cc.KM_GL_PROJECTION, transformOut);
+    //var projection = new math.Matrix4();
+    //math.glGetMatrix(math.KM_GL_PROJECTION, projection);
+    math.glGetMatrix(math.KM_GL_PROJECTION, transformOut);
 
-    var modelview = new cc.math.Matrix4();
-    cc.kmGLGetMatrix(cc.KM_GL_MODELVIEW, modelview);
+    var modelview = new math.Matrix4();
+    math.glGetMatrix(math.KM_GL_MODELVIEW, modelview);
 
     transformOut.multiply(modelview);
 };
@@ -89,36 +92,36 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
         switch (projection) {
             case cc.Director.PROJECTION_2D:
-                cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-                cc.kmGLLoadIdentity();
-                var orthoMatrix = cc.math.Matrix4.createOrthographicProjection(
+                math.glMatrixMode(math.KM_GL_PROJECTION);
+                math.glLoadIdentity();
+                var orthoMatrix = math.Matrix4.createOrthographicProjection(
                     -ox,
                     size.width - ox,
                     -oy,
                     size.height - oy,
                     -1024, 1024);
-                cc.kmGLMultMatrix(orthoMatrix);
-                cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-                cc.kmGLLoadIdentity();
+                math.glMultMatrix(orthoMatrix);
+                math.glMatrixMode(math.KM_GL_MODELVIEW);
+                math.glLoadIdentity();
                 break;
             case cc.Director.PROJECTION_3D:
                 var zeye = _t.getZEye();
-                var matrixPerspective = new cc.math.Matrix4(), matrixLookup = new cc.math.Matrix4();
-                cc.kmGLMatrixMode(cc.KM_GL_PROJECTION);
-                cc.kmGLLoadIdentity();
+                var matrixPerspective = new math.Matrix4(), matrixLookup = new math.Matrix4();
+                math.glMatrixMode(math.KM_GL_PROJECTION);
+                math.glLoadIdentity();
 
                 // issue #1334
-                matrixPerspective = cc.math.Matrix4.createPerspectiveProjection(60, size.width / size.height, 0.1, zeye * 2);
+                matrixPerspective = math.Matrix4.createPerspectiveProjection(60, size.width / size.height, 0.1, zeye * 2);
 
-                cc.kmGLMultMatrix(matrixPerspective);
+                math.glMultMatrix(matrixPerspective);
 
-                cc.kmGLMatrixMode(cc.KM_GL_MODELVIEW);
-                cc.kmGLLoadIdentity();
-                var eye = new cc.math.Vec3(-ox + size.width / 2, -oy + size.height / 2, zeye);
-                var center = new cc.math.Vec3( -ox + size.width / 2, -oy + size.height / 2, 0.0);
-                var up = new cc.math.Vec3( 0.0, 1.0, 0.0);
+                math.glMatrixMode(math.KM_GL_MODELVIEW);
+                math.glLoadIdentity();
+                var eye = new math.Vec3(-ox + size.width / 2, -oy + size.height / 2, zeye);
+                var center = new math.Vec3( -ox + size.width / 2, -oy + size.height / 2, 0.0);
+                var up = new math.Vec3( 0.0, 1.0, 0.0);
                 matrixLookup.lookAt(eye, center, up);
-                cc.kmGLMultMatrix(matrixLookup);
+                math.glMultMatrix(matrixLookup);
                 break;
             case cc.Director.PROJECTION_CUSTOM:
                 if (_t._projectionDelegate)
@@ -130,7 +133,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         }
         _t._projection = projection;
         _t.emit(cc.Director.EVENT_PROJECTION_CHANGED, _t);
-        cc.setProjectionMatrixDirty();
+        cc.gl.setProjectionMatrixDirty();
         cc.renderer.childrenOrderDirty = true;
     };
 
@@ -179,15 +182,15 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
     };
 
     _p._beforeVisitScene = function () {
-        cc.kmGLPushMatrix();
+        math.glPushMatrix();
     };
 
     _p._afterVisitScene = function () {
-        cc.kmGLPopMatrix();
+        math.glPopMatrix();
     };
 
     _p.convertToGL = function (uiPoint) {
-        var transform = new cc.math.Matrix4();
+        var transform = new math.Matrix4();
         GLToClipTransform(transform);
 
         var transformInv = transform.inverse();
@@ -195,16 +198,16 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         // Calculate z=0 using -> transform*[0, 0, 0, 1]/w
         var zClip = transform.mat[14] / transform.mat[15];
         var glSize = this._openGLView.getDesignResolutionSize();
-        var glCoord = new cc.math.Vec3(2.0 * uiPoint.x / glSize.width - 1.0, 1.0 - 2.0 * uiPoint.y / glSize.height, zClip);
+        var glCoord = new math.Vec3(2.0 * uiPoint.x / glSize.width - 1.0, 1.0 - 2.0 * uiPoint.y / glSize.height, zClip);
         glCoord.transformCoord(transformInv);
         return cc.p(glCoord.x, glCoord.y);
     };
 
     _p.convertToUI = function (glPoint) {
-        var transform = new cc.math.Matrix4();
+        var transform = new math.Matrix4();
         GLToClipTransform(transform);
 
-        var clipCoord = new cc.math.Vec3(glPoint.x, glPoint.y, 0.0);
+        var clipCoord = new math.Vec3(glPoint.x, glPoint.y, 0.0);
         // Need to calculate the zero depth from the transform.
         clipCoord.transformCoord(transform);
 
@@ -250,9 +253,9 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
     _p.setAlphaBlending = function (on) {
         if (on)
-            cc.glBlendFunc(cc.BLEND_SRC, cc.BLEND_DST);
+            cc.gl.blendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
         else
-            cc.glBlendFunc(cc._renderContext.ONE, cc._renderContext.ZERO);
+            cc.gl.blendFunc(cc.macro.ONE, cc.macro.ZERO);
         //cc.checkGLErrorDebug();
     };
 

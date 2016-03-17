@@ -41,8 +41,9 @@ var Direction = cc.Enum({
 });
 
 /**
+ * !#en
  * The Scrollbar control allows the user to scroll an image or other view that is too large to see completely
- *
+ * !#zh 滚动条组件
  * @class Scrollbar
  * @extends Component
  */
@@ -51,7 +52,8 @@ var Scrollbar = cc.Class({
     extends: require('./CCComponent'),
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.ui/ScrollBar'
+        menu: 'i18n:MAIN_MENU.component.ui/ScrollBar',
+        help: 'app://docs/html/components/scrollbar.html',
     },
 
     properties: {
@@ -64,7 +66,8 @@ var Scrollbar = cc.Class({
         _opacity: 255,
 
         /**
-         * The "handle" part of the scrollbar.
+         * !#en The "handle" part of the scrollbar.
+         * !#zh 作为当前滚动区域位置显示的滑块 Sprite。
          * @property {cc.Sprite} handle
          */
         handle: {
@@ -78,7 +81,8 @@ var Scrollbar = cc.Class({
         },
 
         /**
-         * The direction of scrollbar.
+         * !#en The direction of scrollbar.
+         * !#zh ScrollBar 的滚动方向。
          *@property {Scrollbar.Direction} direction
          */
         direction: {
@@ -92,7 +96,8 @@ var Scrollbar = cc.Class({
         },
 
         /**
-         * Whehter enable auto hide or not.
+         * !#en Whehter enable auto hide or not.
+         * !#zh 是否在没有滚动动作时自动隐藏 ScrollBar。
          *@property {Boolean} enableAutoHide
          */
         enableAutoHide: {
@@ -102,8 +107,12 @@ var Scrollbar = cc.Class({
         },
 
         /**
+         * !#en
          * The time to hide scrollbar when scroll finished.
          * Note: This value is only useful when enableAutoHide is true.
+         * !#zh
+         * 没有滚动动作后经过多久会自动隐藏。
+         * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
          *@property {Number} autoHideTime
          */
         autoHideTime: {

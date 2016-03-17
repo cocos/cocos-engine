@@ -26,7 +26,6 @@
 
 var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
-var CCObject = require('./platform/CCObject');
 
 cc.g_NumberOfDraws = 0;
 
@@ -381,7 +380,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Removes cached all cocos2d cached data. It will purge the cc.textureCache, cc.spriteFrameCache, cc.spriteFrameAnimationCache
      */
     purgeCachedData: function () {
-        cc.spriteFrameAnimationCache._clear();
+        // cc.spriteFrameAnimationCache._clear();
         cc.spriteFrameCache._clear();
         cc.textureCache._clear();
     },
@@ -472,7 +471,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
-        var i, node, game = cc.game;
+        var id, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
 
         if (scene instanceof cc.Scene) {
@@ -481,8 +480,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // detach persist nodes
-        for (i = persistNodes.length - 1; i >= 0; --i) {
-            node = persistNodes[i];
+        for (id in persistNodes) {
+            node = persistNodes[id];
             game._ignoreRemovePersistNode = node;
             node.parent = null;
             game._ignoreRemovePersistNode = null;
@@ -511,10 +510,18 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._scene = scene;
             sgScene = scene._sgNode;
 
-            // Re-attach persist nodes
-            for (i = 0; i < persistNodes.length; ++i) {
-                node = persistNodes[i];
-                node.parent = scene;
+            // Re-attach or replace persist nodes
+            for (id in persistNodes) {
+                node = persistNodes[id];
+                var existNode = scene.getChildByUuid(id);
+                // Scene contains the persist node, should not reattach, should update the persist node
+                if (existNode) {
+                    persistNodes[id] = existNode;
+                    existNode._persistNode = true;
+                }
+                else {
+                    node.parent = scene;
+                }
             }
             scene._activate();
         }
@@ -540,6 +547,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (onLaunched) {
             onLaunched(null, scene);
         }
+        cc.renderer.clear();
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     },
 
@@ -819,7 +827,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Sets the view, where everything is rendered, do not call this function.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
      * @method setOpenGLView
-     * @param {EGLView} openGLView
+     * @param {View} openGLView
      */
     setOpenGLView: null,
 
@@ -839,10 +847,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     setViewport: null,
 
     /**
-     * Get the CCEGLView, where everything is rendered.<br/>
+     * Get the View, where everything is rendered.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
      * @method getOpenGLView
-     * @return {EGLView}
+     * @return {View}
      */
     getOpenGLView: null,
 
@@ -1204,14 +1212,14 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
                 // Update for components
                 this.emit(cc.Director.EVENT_COMPONENT_UPDATE, this._deltaTime);
-                // Destroy entities that have been removed recently
-                CCObject._deferredDestroy();
                 // Engine update with scheduler
                 this.engineUpdate(this._deltaTime);
                 // Late update for components
                 this.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, this._deltaTime);
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                // Destroy entities that have been removed recently
+                cc.Object._deferredDestroy();
             }
 
             /* to avoid flickr, nextScene MUST be here: after tick and before draw.

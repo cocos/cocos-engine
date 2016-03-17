@@ -22,49 +22,94 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 /**
- * Enum for sprite type
- * @enum SpriteType
+ * !#en Enum for sprite type.
+ * !#zh Sprite 类型
+ * @enum Sprite.SpriteType
  */
- /**
+/**
+ * !#en The simple type.
+ * !#zh 普通类型
  * @property {Number} SIMPLE
  */
 /**
+ * !#en The sliced type.
+ * !#zh 切片（九宫格）类型
  * @property {Number} SLICED
  */
 /**
+ * !#en The tiled type.
+ * !#zh 平铺类型
  * @property {Number} TILED
  */
 /**
+ * !#en The filled type.
+ * !#zh 填充类型
  * @property {Number} FILLED
  */
 var SpriteType = cc.Scale9Sprite.RenderingType;
 
+/**
+ * !#en Enum for fill type.
+ * !#zh 填充类型
+ * @enum Sprite.FillType
+ */
+/**
+ * !#en The horizontal fill.
+ * !#zh 水平方向填充
+ * @property {Number} HORIZONTAL
+ */
+/**
+ * !#en The vertical fill.
+ * !#zh 垂直方向填充
+ * @property {Number} VERTICAL
+ */
+/**
+ * !#en The radial fill.
+ * !#zh 径向填充
+ * @property {Number} RADIAL
+ */
 var FillType = cc.Scale9Sprite.FillType;
 
 var BlendFactor = cc.BlendFunc.BlendFactor;
+
 /**
- * Sprite Size can track trimmed size, raw size or none
- * @enum SizeMode
+ * !#en Sprite Size can track trimmed size, raw size or none.
+ * !#zh 精灵尺寸调整模式
+ * @enum Sprite.SizeMode
  */
 var SizeMode = cc.Enum({
     /**
+     * !#en Use the customized node size.
+     * !#zh 使用节点预设的尺寸
      * @property {Number} CUSTOM
      */
     CUSTOM: 0,
     /**
+     * !#en Match the trimmed size of the sprite frame automatically.
+     * !#zh 自动适配为精灵裁剪后的尺寸
      * @property {Number} TRIMMED
      */
     TRIMMED: 1,
     /**
+     * !#en Match the raw size of the sprite frame automatically.
+     * !#zh 自动适配为精灵原图尺寸
      * @property {Number} RAW
      */
     RAW: 2
 });
+
 /**
- * Renders a sprite in the scene.
+ * !#en Renders a sprite in the scene.
+ * !#zh 该组件用于在场景中渲染精灵。
  * @class Sprite
  * @extends _RendererUnderSG
+ * @example
+ *  // Create a new node and add sprite components.
+ *  var node = new cc.Node("New Sprite");
+ *  var sprite = node.addComponent(cc.Sprite);
+ *  node.parent = this.node;
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
@@ -72,7 +117,8 @@ var Sprite = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
-        inspector: 'app://editor/page/inspector/sprite.html'
+        help: 'app://docs/html/components/sprite.html',
+        inspector: 'app://editor/page/inspector/sprite.html',
     },
 
     ctor: function() {
@@ -95,11 +141,6 @@ var Sprite = cc.Class({
         _isTrimmedMode: true,
         _srcBlendFactor: BlendFactor.SRC_ALPHA,
         _dstBlendFactor: BlendFactor.ONE_MINUS_SRC_ALPHA,
-        /**
-         * The Sprite Atlas.
-         * @property _atlas
-         * @type {SpriteAtlas}
-         */
         _atlas: {
             default: null,
             type: cc.SpriteAtlas,
@@ -110,9 +151,12 @@ var Sprite = cc.Class({
         },
 
         /**
-         * The sprite frame of the sprite.
+         * !#en The sprite frame of the sprite.
+         * !#zh 精灵的精灵帧
          * @property spriteFrame
          * @type {SpriteFrame}
+         * @example
+         * sprite.spriteFrame = newSpriteFrame;
          */
         spriteFrame: {
             get: function () {
@@ -130,9 +174,12 @@ var Sprite = cc.Class({
         },
 
         /**
-         * The sprite type.
+         * !#en The sprite render type.
+         * !#zh 精灵渲染类型
          * @property type
-         * @type {SpriteType}
+         * @type {Sprite.SpriteType}
+         * @example
+         * sprite.type = cc.Sprite.Type.SIMPLE;
          */
         type: {
             get: function () {
@@ -150,8 +197,14 @@ var Sprite = cc.Class({
         },
 
         /**
-         * Filled type
-         *  @property
+         * !#en
+         * The fill type, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
+         * !#zh
+         * 精灵填充类型，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * @property fillType
+         * @type {Sprite.FillType}
+         * @example
+         * sprite.fillType = cc.Sprite.FillType.HORIZONTAL;
          */
         fillType : {
             get: function () {
@@ -164,6 +217,16 @@ var Sprite = cc.Class({
             type: FillType
         },
 
+        /**
+         * !#en
+         * The fill Center, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
+         * !#zh
+         * 填充中心点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * @property fillCenter
+         * @type {Vec2}
+         * @example
+         * sprite.fillCenter = new cc.Vec2(0, 0);
+         */
         fillCenter: {
             get: function() {
                 return this._fillCenter;
@@ -174,6 +237,17 @@ var Sprite = cc.Class({
             },
         },
 
+        /**
+         * !#en
+         * The fill Start, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
+         * !#zh
+         * 填充起始点，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * @property fillStart
+         * @type {Number}
+         * @example
+         * // -1 To 1 between the numbers
+         * sprite.fillStart = 0.5;
+         */
         fillStart: {
             get: function() {
                 return this._fillStart;
@@ -184,6 +258,17 @@ var Sprite = cc.Class({
             },
         },
 
+        /**
+         * !#en
+         * The fill Range, This will only have any effect if the "type" is set to “cc.Sprite.Type.FILLED”.
+         * !#zh
+         * 填充范围，仅渲染类型设置为 cc.Sprite.SpriteType.FILLED 时有效。
+         * @property fillRange
+         * @type {Number}
+         * @example
+         * // -1 To 1 between the numbers
+         * sprite.fillRange = 1;
+         */
         fillRange: {
             get: function() {
                 return this._fillRange;
@@ -194,11 +279,14 @@ var Sprite = cc.Class({
             },
         },
         /**
-         * specify the rendering mode
-         * @property isTrimmedMode
+         * !#en specify the frame is trimmed or not.
+         * !#zh 是否使用裁剪模式
+         * @property trim
          * @type {Boolean}
+         * @example
+         * sprite.trim = true;
          */
-        isTrimmedMode: {
+        trim: {
             get: function () {
                 return this._isTrimmedMode;
             },
@@ -208,14 +296,16 @@ var Sprite = cc.Class({
                     this._sgNode.enableTrimmedContentSize(value);
                 }
             },
-            animatable: false,
-            displayName: "TrimmedMode"
+            animatable: false
         },
 
         /**
-         * specify the source Blend Factor
+         * !#en specify the source Blend Factor.
+         * !#zh 指定原图的混合模式
          * @property srcBlendFactor
          * @type {BlendFactor}
+         * @example
+         * sprite.srcBlendFactor = cc.BlendFunc.BlendFactor.ONE;
          */
         srcBlendFactor: {
             get: function() {
@@ -231,9 +321,12 @@ var Sprite = cc.Class({
         },
 
         /**
-         * specify the destination Blend Factor
+         * !#en specify the destination Blend Factor.
+         * !#zh 指定目标的混合模式
          * @property dstBlendFactor
          * @type {BlendFactor}
+         * @example
+         * sprite.dstBlendFactor = cc.BlendFunc.BlendFactor.ONE;
          */
         dstBlendFactor: {
             get: function() {
@@ -263,9 +356,12 @@ var Sprite = cc.Class({
             tooltip: 'i18n:COMPONENT.sprite.original_size',
         },
         /**
-         * specify the size tracing mode
+         * !#en specify the size tracing mode.
+         * !#zh 精灵尺寸调整模式
          * @property sizeMode
-         * @type {SizeMode}
+         * @type {Sprite.SizeMode}
+         * @example
+         * sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
          */
         sizeMode: {
             get: function () {
@@ -289,162 +385,126 @@ var Sprite = cc.Class({
     },
 
     /**
-     * Sets whether the sprite is visible or not.
+     * !#en Sets whether the sprite is visible or not.
+     * !#zh 设置精灵是否可见
      * @method setVisible
      * @param {Boolean} visible
      * @override
+     * @example
+     * sprite.setVisible(false);
      */
     setVisible: function (visible) {
         this.enabled = visible;
     },
 
     /**
-     * Toggle 9-slice feature.
-     * If Scale9Sprite is 9-slice disabled, the Scale9Sprite will rendered as a normal sprite.
-     * @method setScale9Enabled
-     * @param {Boolean} enabled - True to enable 9-slice, false otherwise.
-     */
-    setScale9Enabled: function (enabled) {
-        this.type = enabled ? cc.Scale9Sprite.RenderingType.SLICED : cc.Scale9Sprite.RenderingType.SIMPLE;
-    },
-
-    /**
-     * Query whether the Scale9Sprite is enable 9-slice or not.
-     * @method isScale9Enabled
-     * @return {Boolean} True if 9-slice is enabled, false otherwise.
-     */
-    isScale9Enabled: function () {
-        return this.type === cc.Scale9Sprite.RenderingType.SLICED;
-    },
-
-    /**
-     * Initializes a 9-slice sprite with a texture file, a delimitation zone and
-     * with the specified cap insets.
-     * Once the sprite is created, you can then call its "setContentSize:" method
-     * to resize the sprite will all it's 9-slice goodness intract.
-     * It respects the anchorPoint too.
-     *
-     * @method initWithFile
-     * @param {String} file - The name of the texture file.
-     * @param {Rect} rect - The rectangle that describes the sub-part of the texture that
-     * is the whole image. If the shape is the whole texture, set this to the texture's full rect.
-     * @param {Rect} capInsets - The values to use for the cap insets.
-     */
-    initWithFile: function (file) {
-        this._sgNode.initWithFile(file);
-    },
-
-    /**
-     * Initializes a 9-slice sprite with an sprite frame and with the specified
-     * cap insets.
-     * Once the sprite is created, you can then call its "setContentSize:" method
-     * to resize the sprite will all it's 9-slice goodness intract.
-     * It respects the anchorPoint too.
-     *
-     * @method initWithSpriteFrame
-     * @param {SpriteFrame} spriteFrame - The sprite frame object.
-     * @param {Rect} capInsets - The values to use for the cap insets.
-     */
-    initWithSpriteFrame: function (spriteFrame) {
-        this._spriteFrame = spriteFrame;
-        this._sgNode.initWithSpriteFrame(spriteFrame);
-    },
-
-    /**
-     * Initializes a 9-slice sprite with an sprite frame name and with the specified
-     * cap insets.
-     * Once the sprite is created, you can then call its "setContentSize:" method
-     * to resize the sprite will all it's 9-slice goodness intract.
-     * It respects the anchorPoint too.
-     *
-     * @method initWithSpriteFrameName
-     * @param {String} spriteFrameName - The sprite frame name.
-     * @param {Rect} capInsets - The values to use for the cap insets.
-     */
-    initWithSpriteFrameName: function (spriteFrameName) {
-        var initialized = this._sgNode.initWithSpriteFrame(spriteFrameName);
-        if (initialized === false) {
-            return;
-        }
-        this._spriteFrame = this._sgNode.getSpriteFrame();
-    },
-
-    /**
-     * Query the sprite's original size.
+     * !#en Query the sprite's original size.
+     * !#zh 获取精灵原始大小
      * @method getOriginalSize
      * @return {Size} Sprite size.
+     * @example
+     * var originalSize = sprite.getOriginalSize();
+     * cc.log("Original Size:" + originalSize);
      */
     getOriginalSize: function () {
         return this._sgNode.getOriginalSize();
     },
 
     /**
-     * Change the left sprite's cap inset.
+     * !#en Change the left sprite's cap inset.
+     * !#zh 设置精灵左边框-用于九宫格。
      * @method setInsetLeft
-     * @param {Number} leftInset - The values to use for the cap inset.
+     * @param {Number} insetLeft - The values to use for the cap inset.
+     * @example
+     * sprite.setInsetLeft(5);
      */
     setInsetLeft: function (insetLeft) {
         this._sgNode.setInsetLeft(insetLeft);
     },
 
     /**
-     * Query the left sprite's cap inset.
+     * !#en Query the left sprite's cap inset.
+     * !#zh 获取精灵左边框
      * @method getInsetLeft
      * @return {Number} The left sprite's cap inset.
+     * @example
+     * var insetLeft = sprite.getInsetLeft();
+     * cc.log("Inset Left:" + insetLeft);
      */
     getInsetLeft: function () {
         return this._sgNode.getInsetLeft();
     },
 
     /**
-     * Change the top sprite's cap inset.
+     * !#en Change the top sprite's cap inset.
+     * !#zh 设置精灵上边框-用于九宫格。
      * @method setInsetTop
-     * @param {Number} topInset - The values to use for the cap inset.
+     * @param {Number} insetTop - The values to use for the cap inset.
+     * @example
+     * sprite.setInsetTop(5);
      */
     setInsetTop: function (insetTop) {
         this._sgNode.setInsetTop(insetTop);
     },
 
     /**
-     * Query the top sprite's cap inset.
+     * !#en Query the top sprite's cap inset.
+     * !#zh 获取精灵上边框。
      * @method getInsetTop
      * @return {Number} The top sprite's cap inset.
+     * @example
+     * var insetTop = sprite.getInsetTop();
+     * cc.log("Inset Top:" + insetTop);
      */
     getInsetTop: function () {
         return this._sgNode.getInsetTop();
     },
 
     /**
-     * Change the right sprite's cap inset.
+     * !#en Change the right sprite's cap inset.
+     * !#zh 设置精灵右边框-用于九宫格。
      * @method setInsetRight
-     * @param {Number} rightInset - The values to use for the cap inset.
+     * @param {Number} insetRight - The values to use for the cap inset.
+     * @example
+     * sprite.setInsetRight(5);
      */
     setInsetRight: function (insetRight) {
         this._sgNode.setInsetRight(insetRight);
     },
 
     /**
-     * Query the right sprite's cap inset.
+     * !#en Query the right sprite's cap inset.
+     * !#zh 获取精灵右边框。
      * @method getInsetRight
      * @return {Number} The right sprite's cap inset.
+     * @example
+     * var insetRight = sprite.getInsetRight();
+     * cc.log("Inset Right:" + insetRight);
      */
     getInsetRight: function () {
         return this._sgNode.getInsetRight();
     },
 
     /**
-     * Change the bottom sprite's cap inset.
+     * !#en Change the bottom sprite's cap inset.
+     * !#zh 设置精灵下边框-用于九宫格。
      * @method setInsetBottom
      * @param {Number} bottomInset - The values to use for the cap inset.
+     * @example
+     * sprite.setInsetBottom(5);
      */
     setInsetBottom: function (insetBottom) {
         this._sgNode.setInsetBottom(insetBottom);
     },
 
     /**
-     * @brief Query the bottom sprite's cap inset.
+     * !#en Query the bottom sprite's cap inset.
+     * !#zh 获取精灵下边框。
      * @method getInsetBottom
      * @return {Number} The bottom sprite's cap inset.
+     * @example
+     * var insetBottom = sprite.getInsetBottom();
+     * cc.log("Inset Bottom:" + insetBottom);
      */
     getInsetBottom: function () {
         return this._sgNode.getInsetBottom();

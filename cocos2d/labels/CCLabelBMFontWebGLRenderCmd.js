@@ -71,7 +71,7 @@
 
         var node = this._node;
         //LabelBMFont - Debug draw
-        if (cc.LABELBMFONT_DEBUG_DRAW) {
+        if (cc.macro.LABELBMFONT_DEBUG_DRAW) {
             var size = node.getContentSize();
             var pos = cc.p(0 | ( -this._anchorPointInPoints.x), 0 | ( -this._anchorPointInPoints.y));
             var vertices = [cc.p(pos.x, pos.y), cc.p(pos.x + size.width, pos.y), cc.p(pos.x + size.width, pos.y + size.height), cc.p(pos.x, pos.y + size.height)];

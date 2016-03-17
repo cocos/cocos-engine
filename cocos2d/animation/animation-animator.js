@@ -26,7 +26,8 @@ p.playState = function (state, startTime) {
         initClipData(this.target, state);
     }
 
-    this.playingAnims.push(state);
+    this.addAnimation(state);
+    state.animator = this;
     state.play();
 
     if (typeof startTime === 'number') {
@@ -34,6 +35,11 @@ p.playState = function (state, startTime) {
     }
 
     this.play();
+};
+
+p.removeAnimation = function (anim) {
+    Animator.prototype.removeAnimation.call(this, anim);
+    anim.animator = null;
 };
 
 p.sample = function () {
@@ -45,7 +51,7 @@ p.sample = function () {
 };
 
 p.stopState = function (state) {
-    if (JS.array.remove(this.playingAnims, state)) {
+    if (state) {
         state.stop();
     }
 };
@@ -74,7 +80,7 @@ p.setStateTime = function (state, time) {
 
 p.onStop = function () {
     var anims = this.playingAnims;
-    for (var i = 0, l = anims.length; i < l; i++) {
+    for (var i = anims.length - 1; i >= 0; i--) {
         anims[i].stop();
     }
 

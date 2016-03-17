@@ -70,6 +70,9 @@ cc.js.mixin(cc.path, {
 });
 
 // cc.Scheduler
+cc.Scheduler.prototype.schedule = function (callback, target, interval, repeat, delay, paused) {
+    this.scheduleCallbackForTarget(target, callback, interval, repeat, delay, paused);
+};
 cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
 cc.Scheduler.prototype._unschedule = cc.Scheduler.prototype.unschedule;
 cc.Scheduler.prototype.unschedule = function (callback, target) {

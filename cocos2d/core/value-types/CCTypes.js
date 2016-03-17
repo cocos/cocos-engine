@@ -60,16 +60,75 @@ cc.BlendFunc = function (src1, dst1) {
     this.dst = dst1;
 };
 
+/**
+ * !#en
+ * Enum for blend factor
+ * Refer to: http://www.andersriggelsen.dk/glblendfunc.php
+ * !#zh
+ * 混合因子
+ * 可参考: http://www.andersriggelsen.dk/glblendfunc.php
+ * @enum BlendFactor
+ */
 var BlendFactor = cc.Enum({
-    ONE:                    1,      //cc.ONE
+    /**
+     * !#en All use
+     * !#zh 全部使用
+     * @property {Number} ONE
+     */
+    ONE:                    1,  //cc.macro.ONE
+    /**
+     * !#en Not all
+     * !#zh 全部不用
+     * @property {Number} ZERO
+     */
     ZERO:                   0,      //cc.ZERO
+    /**
+     * !#en Using the source alpha
+     * !#zh 使用源颜色的透明度
+     * @property {Number} SRC_ALPHA
+     */
     SRC_ALPHA:              0x302,  //cc.SRC_ALPHA
+    /**
+     * !#en Using the source color
+     * !#zh 使用源颜色
+     * @property {Number} SRC_COLOR
+     */
     SRC_COLOR:              0x300,  //cc.SRC_COLOR
+    /**
+     * !#en Using the target alpha
+     * !#zh 使用目标颜色的透明度
+     * @property {Number} DST_ALPHA
+     */
     DST_ALPHA:              0x304,  //cc.DST_ALPHA
+    /**
+     * !#en Using the target color
+     * !#zh 使用目标颜色
+     * @property {Number} DST_COLOR
+     */
     DST_COLOR:              0x306,  //cc.DST_COLOR
+    /**
+     * !#en Minus the source alpha
+     * !#zh 减去源颜色的透明度
+     * @property {Number} ONE_MINUS_SRC_ALPHA
+     */
     ONE_MINUS_SRC_ALPHA:    0x303,  //cc.ONE_MINUS_SRC_ALPHA
+    /**
+     * !#en Minus the source color
+     * !#zh 减去源颜色
+     * @property {Number} ONE_MINUS_SRC_COLOR
+     */
     ONE_MINUS_SRC_COLOR:    0x301,  //cc.ONE_MINUS_SRC_COLOR
+    /**
+     * !#en Minus the target alpha
+     * !#zh 减去目标颜色的透明度
+     * @property {Number} ONE_MINUS_DST_ALPHA
+     */
     ONE_MINUS_DST_ALPHA:    0x305,  //cc.ONE_MINUS_DST_ALPHA
+    /**
+     * !#en Minus the target color
+     * !#zh 减去目标颜色
+     * @property {Number} ONE_MINUS_DST_COLOR
+     */
     ONE_MINUS_DST_COLOR:    0x307,  //cc.ONE_MINUS_DST_COLOR
 });
 
@@ -171,38 +230,52 @@ cc.FontDefinition.prototype._getCanvasFontStr = function(){
 };
 
 /**
- * Enum for text alignment
- * @enum TextAlignment
+ * !#en Enum for text alignment.
+ * !#zh 文本对齐类型
+ * @enum Label.TextAlignment
  */
 cc.TextAlignment = cc.Enum({
     /**
+     * !#en Alignment left for text.
+     * !#zh 文本内容左对齐。
      * @property {Number} LEFT
      */
     LEFT: 0,
     /**
+     * !#en Alignment center for text.
+     * !#zh 文本内容居中对齐。
      * @property {Number} CENTER
      */
     CENTER: 1,
     /**
+     * !#en Alignment right for text.
+     * !#zh 文本内容右边对齐。
      * @property {Number} RIGHT
      */
     RIGHT: 2
 });
 
 /**
- * Enum for vertical text alignment
- * @enum VerticalTextAlignment
+ * !#en Enum for vertical text alignment.
+ * !#zh 文本垂直对齐类型
+ * @enum Label.VerticalTextAlignment
  */
 cc.VerticalTextAlignment = cc.Enum({
     /**
+     * !#en Vertical alignment top for text.
+     * !#zh 文本顶部对齐。
      * @property {Number} TOP
      */
     TOP: 0,
     /**
+     * !#en Vertical alignment center for text.
+     * !#zh 文本居中对齐。
      * @property {Number} CENTER
      */
     CENTER: 1,
     /**
+     * !#en Vertical alignment bottom for text.
+     * !#zh 文本底部对齐。
      * @property {Number} BOTTOM
      */
     BOTTOM: 2

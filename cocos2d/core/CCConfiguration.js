@@ -91,7 +91,7 @@ cc.configuration = /** @lends cc.configuration# */{
 		var locValueDict = this._valueDict;
 		locValueDict["cocos2d.x.version"] = cc.ENGINE_VERSION;
 		locValueDict["cocos2d.x.compiled_with_profiler"] = false;
-		locValueDict["cocos2d.x.compiled_with_gl_state_cache"] = cc.ENABLE_GL_STATE_CACHE;
+		locValueDict["cocos2d.x.compiled_with_gl_state_cache"] = cc.macro.ENABLE_GL_STATE_CACHE;
 		this._inited = true;
 	},
 
@@ -220,7 +220,7 @@ cc.configuration = /** @lends cc.configuration# */{
      * Dumps the current configuration on the console
      */
     dumpInfo: function(){
-         if(cc.ENABLE_GL_STATE_CACHE === 0){
+         if(cc.macro.ENABLE_GL_STATE_CACHE === 0){
              cc.log("");
              cc.log(cc._LogInfos.configuration.dumpInfo);
              cc.log("")

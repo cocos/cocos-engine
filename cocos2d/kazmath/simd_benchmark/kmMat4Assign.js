@@ -16,10 +16,10 @@
   benchmarks.add(new Benchmark(kernelConfig));
 
   // Benchmark data, initialization and kernel functions
-  var T1 = new cc.kmMat4();
-  var T2 = new cc.kmMat4();
-  var T1x4 = new cc.kmMat4();
-  var T2x4 = new cc.kmMat4();
+  var T1 = new cc.math.Matrix4();
+  var T2 = new cc.math.Matrix4();
+  var T1x4 = new cc.math.Matrix4();
+  var T2x4 = new cc.math.Matrix4();
 
   function equals(A, B) {
     for (var i = 0; i < 16; ++i) {
@@ -53,14 +53,14 @@
 
   function nonSimd(n) {
     for (var i = 0; i < n; i++) {
-      //cc.kmMat4Assign(T2, T1);
+      //cc.math.mat4Assign(T2, T1);
       T2.assignFrom(T1);
     }
   }
 
   function simd(n) {
     for (var i = 0; i < n; i++) {
-      //cc.kmMat4AssignSIMD(T2x4, T1x4);
+      //cc.math.mat4AssignSIMD(T2x4, T1x4);
       T2x4.assignFromSIMD(T1x4);
     }
   }

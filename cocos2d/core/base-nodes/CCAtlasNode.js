@@ -84,7 +84,7 @@ cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
         _ccsg.Node.prototype.ctor.call(this);
         EventTarget.call(this);
 
-        this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
+        this._blendFunc = {src: cc.macro.BLEND_SRC, dst: cc.macro.BLEND_DST};
         this._ignoreContentScaleFactor = false;
         itemsToRender !== undefined && this.initWithTileFile(tile, tileWidth, tileHeight, itemsToRender);
     },

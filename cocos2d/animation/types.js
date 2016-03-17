@@ -348,12 +348,6 @@ JS.mixin(AnimationNode.prototype, {
 
         return info.stopped;
     }
-
-    //onPlay: function () {
-    //},
-    //
-    //onStop: function () {
-    //}
 });
 
 cc.AnimationNode = AnimationNode;

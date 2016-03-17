@@ -35,6 +35,20 @@ else {
 }
 // var downloadBinary = require('binary-downloader');
 
+function isUrlCrossOrigin (url) {
+    if (!url) {
+        cc.log('invalid URL');
+        return false;
+    }
+    var startIndex = url.indexOf('://');
+    if (startIndex === -1)
+        return false;
+
+    var endIndex = url.indexOf('/', startIndex + 3);
+    var urlOrigin = (endIndex === -1) ? url : url.substring(0, endIndex);
+    return urlOrigin !== location.origin;
+};
+
 var _noCacheRex = /\?/;
 function urlAppendTimestamp (url) {
     if (cc.game.config['noCache'] && typeof url === 'string') {
@@ -135,7 +149,7 @@ function downloadImage (item, callback, isCrossOrigin) {
     var url = urlAppendTimestamp(item.url);
     var img = new Image();
     if (isCrossOrigin && window.location.origin !== 'file://') {
-        img.crossOrigin = 'Anonymous';
+        img.crossOrigin = 'anonymous';
     }
 
     if (img.complete && img.naturalWidth > 0) {

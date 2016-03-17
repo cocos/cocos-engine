@@ -68,7 +68,7 @@ ccs.Armature = ccs.Node.extend(/** @lends ccs.Armature# */{
         this._armatureIndexDic = {};
         this._offsetPoint = cc.p(0, 0);
         this._armatureTransformDirty = true;
-        this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
+        this._blendFunc = {src: cc.macro.BLEND_SRC, dst: cc.macro.BLEND_DST};
         name && ccs.Armature.prototype.init.call(this, name, parentBone);
     },
 

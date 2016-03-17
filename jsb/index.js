@@ -35,6 +35,29 @@ cc.initEngine = function (config, cb) {
     if (cb) cb();
 };
 
+// overwrite original console.log
+try {
+    var originLog = console.log;
+    console.log = function () {
+        originLog.call(console, cc.js.formatStr.apply(null, arguments));
+    };
+}
+catch (e) {
+}
+
+// Macros, if "global_defs" not preprocessed by uglify, just declare them globally
+eval(
+    /* use EVAL to prevent the uglify from renaming symbols */
+    'if(typeof CC_TEST=="undefined")' +
+        'window.CC_TEST=typeof describe!="undefined"||typeof QUnit=="object";' +
+    'if(typeof CC_EDITOR=="undefined")' +
+        'window.CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions;' +
+    'if(typeof CC_DEV=="undefined")' +
+        'window.CC_DEV=CC_EDITOR||CC_TEST;' +
+    'if(typeof CC_JSB=="undefined")' +
+        'window.CC_JSB=true;'
+);
+
 require('./jsb-predefine');
 require('./jsb-loader');
 require('./jsb-game');
@@ -78,13 +101,3 @@ if (_engineNumberVersion) {
         }
     }
 }
-
-// var originLog = console.log;
-var log = function () {
-    console.log.call(console, cc.formatStr.apply(null, arguments));
-};
-
-cc.log   = log;
-cc.error = log;
-cc.warn  = log;
-cc.info  = log;
