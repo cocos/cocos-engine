@@ -375,7 +375,7 @@ _ccsg.Node.RenderCmd.prototype = {
 
         if (transformDirty)
             //update the transform
-            this.transform(parentCmd, true);
+            this.transform(parentCmd);
     },
 
     visitChildren: function(){
