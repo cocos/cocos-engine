@@ -561,7 +561,6 @@ JS.extend(EventKeyboard, cc.Event);
 
 cc.Event.EventMouse = EventMouse;
 cc.Event.EventTouch = EventTouch;
-cc.Event.EventFocus = EventFocus;
 cc.Event.EventAcceleration = EventAcceleration;
 cc.Event.EventKeyboard = EventKeyboard;
 

@@ -117,7 +117,9 @@ var _doSendEvent = function (owner, event) {
  *  - _getCapturingTargets
  *  - _getBubblingTargets
  *
- * !#zh 事件目标
+ * !#zh
+ * 事件目标是事件触发时，分派的事件对象，Node 是最常见的事件目标，
+ * 但是其他对象也可以是事件目标。<br/>
  *
  * @class EventTarget
  */
@@ -210,7 +212,7 @@ JS.mixin(EventTarget.prototype, {
      * Removes the callback previously registered with the same type, callback, target and or useCapture.
      * This method is merely an alias to removeEventListener.
      * !#zh
-     * 删除之前与同类型，回调，目标和或 useCapture 注册的回调，仅仅是 removeEventListener 的别名
+     * 删除之前与同类型，回调，目标或 useCapture 注册的回调，仅仅是 removeEventListener 的别名。
      *
      * @method off
      * @param {String} type - A string representing the event type being removed.
@@ -323,7 +325,7 @@ JS.mixin(EventTarget.prototype, {
      *
      * @method emit
      * @param {String} message - the message to send
-     * @param {any} [detail] - whatever argument the message needs
+     * @param {*} [detail] - whatever argument the message needs
      */
     emit: function (message, detail) {
         if ( typeof message === 'string' ) {
