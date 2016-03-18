@@ -129,6 +129,7 @@
     var label_lastEnglish = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+$/;
     var label_firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
 
+    //Note: Here the maxWidth is the label's content width.
     proto._fragmentText = function (strArr, maxWidth, ctx) {
         //check the first character
 
@@ -240,6 +241,11 @@
                 this._drawFontsize = (this._drawFontsize * Math.min(Math.sqrt(scale), 1)) | 0;
                 fontDesc = this._drawFontsize.toString() + 'px ' + fontFamily;
                 this._labelContext.font = fontDesc;
+
+                this._splitedStrings = [];
+                for (var i = 0; i < paragraphedStrings.length; ++i) {
+                    this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], this._canvasSize.width, this._labelContext));
+                }
             }
             else {
                 var maxLength = 0;

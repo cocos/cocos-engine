@@ -109,6 +109,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
     _string: "",
     _fontSize: 40,
+    _drawFontsize: 0,
     _overFlow: 0, //see _ccsg.Label.Overflow
     _isWrapText: true,
     _spacingX: 0,
@@ -155,7 +156,6 @@ _ccsg.Label = _ccsg.Node.extend({
         this._lettersInfo =  [];
         this._linesWidth =  [];
         this._linesOffsetX =  [];
-        this._bmFontSize =  0;
         this._textDesiredHeight =  0;
         this._letterOffsetY =  0;
         this._tailoredTopY =  0;
@@ -246,7 +246,7 @@ _ccsg.Label = _ccsg.Node.extend({
     },
     setFontSize: function(fntSize) {
         this._fontSize = fntSize;
-        this._bmFontSize = fntSize;
+        this._drawFontsize = fntSize;
         this._notifyLabelSkinDirty();
     },
 
@@ -658,19 +658,16 @@ cc.BMFontHelper = {
 
             this._maxLineWidth = newWidth;
 
-            if (this._labelType === _ccsg.Label.Type.BMFont && this._overFlow === _ccsg.Label.Overflow.SHRINK) {
-                if (this._bmFontSize > 0) {
-                    this._restoreFontSize();
-                }
+            if (this._drawFontsize > 0) {
+                this._restoreFontSize();
             }
+
             this._notifyLabelSkinDirty();
         }
     },
 
     _restoreFontSize: function() {
-        if (this._labelType === _ccsg.Label.Type.BMFont) {
-            this._fontSize = this._bmFontSize;
-        }
+        this._fontSize = this._drawFontsize;
     },
 
     _multilineTextWrap: function(nextTokenFunc) {
@@ -1057,8 +1054,8 @@ cc.BMFontHelper = {
 
     _rescaleWithOriginalFontSize: function() {
         var renderingFontSize = this.getFontSize();
-        if (this._bmFontSize - renderingFontSize >= 1 && this._overFlow === _ccsg.Label.Overflow.SHRINK) {
-            this._scaleFontSizeDown(this._bmFontSize);
+        if (this._drawFontsize - renderingFontSize >= 1 && this._overFlow === _ccsg.Label.Overflow.SHRINK) {
+            this._scaleFontSizeDown(this._drawFontsize);
         }
     },
 
