@@ -29,28 +29,21 @@ var Event = cc.Event;
 
 /**
  * !#en The type code of Touch event.
- * !#zh 触摸事件
+ * !#zh 触摸事件类型
  * @constant
  * @type {String}
  */
 cc.Event.TOUCH = 'touch';
 /**
  * !#en The type code of Mouse event.
- * !#zh 鼠标事件
+ * !#zh 鼠标事件类型
  * @constant
  * @type {String}
  */
 cc.Event.MOUSE = 'mouse';
 /**
- * !#en The type code of UI focus event.
- * !#zh 焦点事件
- * @constant
- * @type {String}
- */
-cc.Event.FOCUS = 'focus';
-/**
  * !#en The type code of Keyboard event.
- * !#zh 键盘事件
+ * !#zh 键盘事件类型
  * @constant
  * @memberof cc.Event
  * @type {String}
@@ -58,7 +51,7 @@ cc.Event.FOCUS = 'focus';
 cc.Event.KEYBOARD = 'keyboard';
 /**
  * !#en The type code of Acceleration event.
- * !#zh 加速器事件
+ * !#zh 加速器事件类型
  * @constant
  * @memberof cc.Event
  * @type {String}
@@ -67,7 +60,7 @@ cc.Event.ACCELERATION = 'acceleration';
 
 /**
  * !#en The mouse event
- * !#zh 鼠标事件
+ * !#zh 鼠标事件类型
  * @class Event.EventMouse
  * @constructor
  * @extends Event
@@ -102,7 +95,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns the x axis scroll value.
-     * !#zh 获取鼠标滚动的X轴数据。
+     * !#zh 获取鼠标滚动的X轴距离，只有滚动时才有效。
      * @method getScrollX
      * @returns {Number}
      */
@@ -112,7 +105,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns the y axis scroll value.
-     * !#zh 获取鼠标滚的Y轴数据。
+     * !#zh 获取滚轮滚动的 Y 轴距离，只有滚动时才有效。
      * @method getScrollY
      * @returns {Number}
      */
@@ -122,7 +115,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Sets cursor location.
-     * !#zh 设置光标位置。
+     * !#zh 设置当前鼠标位置。
      * @method setLocation
      * @param {Number} x
      * @param {Number} y
@@ -134,7 +127,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns cursor location.
-     * !#zh 获取光标位置。
+     * !#zh 获取鼠标位置对象，对象包含 x 和 y 属性。
      * @method getLocation
      * @return {Vec2} location
      */
@@ -144,7 +137,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns the current cursor location in screen coordinates.
-     * !#zh 获取当前事件在屏幕空间内的坐标位置。
+     * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
      * @method getLocationInView
      * @return {Vec2}
      */
@@ -159,7 +152,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns the previous touch location.
-     * !#zh 获取上一个点击事件在屏幕内的坐标。
+     * !#zh 获取鼠标点击在上一次事件时的位置对象，对象包含 x 和 y 属性。
      * @method getPreviousLocation
      * @return {Vec2}
      */
@@ -169,7 +162,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns the delta distance from the previous location to current location.
-     * !#zh 获取鼠标事件开始到结束时，两个点之间在屏幕坐标空间内的向量。
+     * !#zh 获取鼠标距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      * @method getDelta
      * @return {Vec2}
      */
@@ -179,7 +172,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns the X axis delta distance from the previous location to current location.
-     * !#zh 获取从上一次点击的位置到当前位置的 X 轴增量距离。
+     * !#zh 获取鼠标距离上一次事件移动的 X 轴距离。
      * @method getDeltaX。
      * @return {Number}
      */
@@ -189,7 +182,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns the Y axis delta distance from the previous location to current location.
-     * !#zh 获取鼠标事件开始到结束时，两个点之间在屏幕坐标空间内的 Y 轴向量。
+     * !#zh 获取鼠标距离上一次事件移动的 Y 轴距离。
      * @method getDeltaY
      * @return {Number}
      */
@@ -219,7 +212,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns location X axis data.
-     * !#zh 获取当前位置 X 轴的数据。
+     * !#zh 获取鼠标当前位置 X 轴。
      * @method getLocationX
      * @returns {Number}
      */
@@ -229,7 +222,7 @@ JS.mixin(EventMouse.prototype, {
 
     /**
      * !#en Returns location Y axis data.
-     * !#zh 获取当前位置 Y 轴的数据。
+     * !#zh 获取鼠标当前位置 Y 轴。
      * @method getLocationY
      * @returns {Number}
      */
@@ -248,28 +241,28 @@ JS.mixin(EventMouse.prototype, {
 EventMouse.NONE = 0;
 /**
  * !#en The event type code of mouse down event.
- * !#zh 鼠标按下。
+ * !#zh 鼠标按下事件。
  * @constant
  * @type {Number}
  */
 EventMouse.DOWN = 1;
 /**
  * !#en The event type code of mouse up event.
- * !#zh 鼠标按下后释放。
+ * !#zh 鼠标按下后释放事件。
  * @constant
  * @type {Number}
  */
 EventMouse.UP = 2;
 /**
  * !#en The event type code of mouse move event.
- * !#zh 鼠标移动。
+ * !#zh 鼠标移动事件。
  * @constant
  * @type {Number}
  */
 EventMouse.MOVE = 3;
 /**
  * !#en The event type code of mouse scroll event.
- * !#zh 鼠标滚轮。
+ * !#zh 鼠标滚轮事件。
  * @constant
  * @type {Number}
  */
@@ -277,7 +270,7 @@ EventMouse.SCROLL = 4;
 
 /**
  * !#en The tag of Mouse left button.
- * !#zh 鼠标左键按下。
+ * !#zh 鼠标左键的标签。
  * @constant
  * @type {Number}
  */
@@ -285,7 +278,7 @@ EventMouse.BUTTON_LEFT = 0;
 
 /**
  * !#en The tag of Mouse right button  (The right button number is 2 on browser).
- * !#zh 鼠标右键按下。
+ * !#zh 鼠标右键的标签。
  * @constant
  * @type {Number}
  */
@@ -293,7 +286,7 @@ EventMouse.BUTTON_RIGHT = 2;
 
 /**
  * !#en The tag of Mouse middle button  (The right button number is 1 on browser).
- * !#zh 鼠标中键按下。
+ * !#zh 鼠标中键的标签。
  * @constant
  * @type {Number}
  */
@@ -387,7 +380,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Sets touch location.
-     * !#zh 设置触摸位置
+     * !#zh 设置当前触点位置
      * @method setLocation
      * @param {Number} x
      * @param {Number} y
@@ -398,7 +391,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns touch location.
-     * !#zh 获取触摸位置。
+     * !#zh 获取触点位置。
      * @method getLocation
      * @return {Vec2} location
      */
@@ -408,7 +401,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns the current touch location in screen coordinates.
-     * !#zh 获取当前触摸点在屏幕坐标中的位置。
+     * !#zh 获取当前触点在游戏窗口中的位置。
      * @method getLocationInView
      * @return {Vec2}
      */
@@ -418,7 +411,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns the previous touch location.
-     * !#zh 获取上一次触摸的位置。
+     * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      * @method getPreviousLocation
      * @return {Vec2}
      */
@@ -428,7 +421,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns the start touch location.
-     * !#zh 获取起始位置。
+     * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
      * @method getStartLocation
      * @returns {Vec2}
      */
@@ -438,7 +431,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns the id of cc.Touch.
-     * !#zh 获取触摸 ID。
+     * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
      * @method getID
      * @return {Number}
      */
@@ -448,7 +441,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns the delta distance from the previous location to current location.
-     * !#zh 获取触摸事件开始到结束时，两个点之间在屏幕坐标空间内的向量。
+     * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      * @method getDelta
      * @return {Vec2}
      */
@@ -458,7 +451,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns the X axis delta distance from the previous location to current location.
-     * !#zh 获取触摸事件开始到结束时，两个点之间在屏幕坐标空间内 X 轴的向量。
+     * !#zh 获取触点距离上一次事件移动的 x 轴距离。
      * @method getDeltaX
      * @return {Number}
      */
@@ -468,7 +461,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns the Y axis delta distance from the previous location to current location.
-     * !#zh 获取触摸事件开始到结束时，两个点之间在屏幕坐标空间内 Y 轴的向量。
+     * !#zh 获取触点距离上一次事件移动的 y 轴距离。
      * @method getDeltaY
      * @return {Number}
      */
@@ -478,7 +471,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns location X axis data.
-     * !#zh 获取当前 X 轴位置。
+     * !#zh 获取当前触点 X 轴位置。
      * @method getLocationX
      * @returns {Number}
      */
@@ -488,7 +481,7 @@ JS.mixin(EventTouch.prototype, {
 
     /**
      * !#en Returns location Y axis data.
-     * !#zh 获取当前 Y 轴位置。
+     * !#zh 获取当前触点 Y 轴位置。
      * @method getLocationY
      * @returns {Number}
      */
@@ -507,49 +500,32 @@ EventTouch.MAX_TOUCHES = 5;
 
 /**
  * !#en The event type code of touch began event.
- * !#zh 开始触摸
+ * !#zh 开始触摸事件
  * @constant
  * @type {Number}
  */
 EventTouch.BEGAN = 0;
 /**
  * !#en The event type code of touch moved event.
- * !#zh 触摸后移动
+ * !#zh 触摸后移动事件
  * @constant
  * @type {Number}
  */
 EventTouch.MOVED = 1;
 /**
  * !#en The event type code of touch ended event.
- * !#zh 结束触摸
+ * !#zh 结束触摸事件
  * @constant
  * @type {Number}
  */
 EventTouch.ENDED = 2;
 /**
  * !#en The event type code of touch cancelled event.
- * !#zh 取消触摸
+ * !#zh 取消触摸事件
  * @constant
  * @type {Number}
  */
 EventTouch.CANCELED = 3;
-
-/**
- * !#en Focus change event for UI widget
- * !#zh 焦点事件
- * @class Event.EventFocus
- * @constructor
- * @extends Event
- * @param {Widget} widgetLoseFocus
- * @param {Widget} widgetGetFocus
- * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
- */
-EventFocus = function (widgetGetFocus, widgetLoseFocus, bubbles) {
-    cc.Event.call(this, cc.Event.FOCUS, bubbles);
-    this._widgetGetFocus = widgetGetFocus;
-    this._widgetLoseFocus = widgetLoseFocus;
-};
-JS.extend(EventFocus, cc.Event);
 
 /**
  * !#en The acceleration event

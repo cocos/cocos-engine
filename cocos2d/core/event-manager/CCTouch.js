@@ -25,7 +25,7 @@
 
 /**
  * !#en The touch event class
- * !#zh 封装了触摸相关的信息，如触摸点，id 等等，并且提供了常用的方法。
+ * !#zh 封装了触摸相关的信息。
  * @class Touch
  *
  * @param {Number} x
@@ -45,7 +45,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the current touch location in OpenGL coordinates.、
-     * !#zh 获取当前的触摸点在 OpenGL 坐标系下的坐标。
+     * !#zh 获取当前触点位置。
      * @method getLocation
      * @return {Vec2}
      */
@@ -57,7 +57,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
 	/**
 	 * !#en Returns X axis location value.
-     * !#zh 获取当前的触摸点在 OpenGL 坐标系下 X 轴的坐标。
+     * !#zh 获取当前触点 X 轴位置。
      * @method getLocationX
 	 * @returns {Number}
 	 */
@@ -67,7 +67,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
 	/**
      * !#en Returns Y axis location value.
-     * !#zh 获取当前的触摸点在 OpenGL 坐标系下 Y 轴的坐标。
+     * !#zh 获取当前触点 Y 轴位置。
      * @method getLocationY
 	 * @returns {Number}
 	 */
@@ -77,7 +77,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the previous touch location in OpenGL coordinates.
-     * !#zh 获取上一次触摸点在 OpenGL 坐标系下的坐标。
+     * !#zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
      * @method getPreviousLocation
      * @return {Vec2}
      */
@@ -89,7 +89,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the start touch location in OpenGL coordinates.
-     * !#zh 获取触摸起始点在 OpenGL 坐标系下的坐标。
+     * !#zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
      * @method getStartLocation
      * @returns {Vec2}
      */
@@ -101,7 +101,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the delta distance from the previous touche to the current one in screen coordinates.
-     * !#zh 获取当前两个触摸点在屏幕坐标系下的差值。
+     * !#zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
      * @method getDelta
      * @return {Vec2}
      */
@@ -111,7 +111,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the current touch location in screen coordinates.
-     * !#zh 获取当前触摸点在屏幕坐标系下的坐标。
+     * !#zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
      * @method getLocationInView
      * @return {Vec2}
      */
@@ -121,7 +121,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the previous touch location in screen coordinates.
-     * !#zh 获取上一次触摸点在屏幕坐标系下的坐标。
+     * !#zh 获取触点在上一次事件时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      * @method getPreviousLocationInView
      * @return {Vec2}
      */
@@ -131,7 +131,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the start touch location in screen coordinates.
-     * !#zh 获取触摸起始点在屏幕坐标系下的坐标。
+     * !#zh 获取触点落下时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
      * @method getStartLocationInView
      * @return {Vec2}
      */
@@ -141,7 +141,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
 
     /**
      * !#en Returns the id of cc.Touch.
-     * !#zh 获取触摸id。
+     * !#zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
      * @method getID
      * @return {Number}
      */

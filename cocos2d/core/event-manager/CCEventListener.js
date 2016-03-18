@@ -31,7 +31,9 @@
  *      EventListenerTouchOneByOne, EventListenerCustom.
  * </p>
  *
- * !#zh 封装用户的事件处理逻辑。
+ * !#zh
+ * 封装用户的事件处理逻辑。
+ * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 cc.EventListener.create。
  *
  * @class EventListener
  * @param {Number} type
@@ -245,7 +247,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 // event listener type
 /**
  * !#en The type code of unknown event listener.
- * !#zh 未知的事件监听器
+ * !#zh 未知的事件监听器类型。
  * @property EventListener.UNKNOWN
  * @constant
  * @type {Number}
@@ -253,50 +255,49 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 cc.EventListener.UNKNOWN = 0;
 /*
  * !#en The type code of one by one touch event listener.
- * !#zh 单点触摸事件监听器
- *
+ * !#zh 触摸事件监听器类型，触点会一个一个得分开被派发。
  * @constant
  * @type {Number}
  */
 cc.EventListener.TOUCH_ONE_BY_ONE = 1;
 /*
  * !#en The type code of all at once touch event listener.
- * !#zh 多点触摸事件监听器
+ * !#zh 触摸事件监听器类型，触点会被一次性全部派发。
  * @constant
  * @type {Number}
  */
 cc.EventListener.TOUCH_ALL_AT_ONCE = 2;
 /**
  * !#en The type code of keyboard event listener.
- * !#zh 键盘事件监听器
+ * !#zh 键盘事件监听器类型。
  * @constant EventListener.KEYBOARD
  * @type {Number}
  */
 cc.EventListener.KEYBOARD = 3;
 /*
  * !#en The type code of mouse event listener.
- * !#zh 鼠标事件监听器
+ * !#zh 鼠标事件监听器类型。
  * @constant
  * @type {Number}
  */
 cc.EventListener.MOUSE = 4;
 /**
  * !#en The type code of focus event listener.
- * !#zh 加速器事件监听器
+ * !#zh 加速器事件监听器类型。
  * @constant EventListener.ACCELERATION
  * @type {Number}
  */
 cc.EventListener.ACCELERATION = 6;
 /*
  * !#en The type code of Focus change event listener.
- * !#zh 焦点事件监听器
+ * !#zh 焦点事件监听器类型。
  * @constant
  * @type {Number}
  */
 cc.EventListener.FOCUS = 7;
 /*
  * !#en The type code of custom event listener.
- * !#zh 自定义事件监听器
+ * !#zh 自定义事件监听器类型。
  * @constant
  * @type {Number}
  */
@@ -448,13 +449,16 @@ cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
 cc._EventListenerTouchAllAtOnce.LISTENER_ID = "__cc_touch_all_at_once";
 
 /**
- * !#en Create a EventListener object by json object
- * !#zh 通过 JSON 对象创建事件监听对象。
+ * !#en
+ * Create a EventListener object with configuration including the event type, handlers and other parameters.
+ * In handlers, this refer to the event listener object itself.
+ * You can also pass custom parameters in the configuration object,
+ * all custom parameters will be polyfilled into the event listener object and can be accessed in handlers.
+ * !#zh 通过指定不同的 Event 对象来设置想要创建的事件监听器。
  * @method create
  * @static
  * @param {Object} argObj a json object
  * @returns {EventListener}
- * todo: It should be the direct use new
  * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventListener/create.js}
  */
 cc.EventListener.create = function(argObj){

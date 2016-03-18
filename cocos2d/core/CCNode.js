@@ -42,7 +42,7 @@ var DontDestroy = Flags.DontDestroy;
 var EventType = cc.Enum({
     /**
      * !#en The event type for touch start event, you can use its value directly: 'touchstart'
-     * !#zh 开始触摸事件，可以直接使用它的值：“touchstart”。
+     * !#zh 当手指触摸到屏幕时。
      * @property TOUCH_START
      * @type {String}
      * @static
@@ -50,7 +50,7 @@ var EventType = cc.Enum({
     TOUCH_START: 'touchstart',
     /**
      * !#en The event type for touch move event, you can use its value directly: 'touchmove'
-     * !#zh 触摸后移动事件，可以直接使用它的值：“touchmove”。
+     * !#zh 当手指在屏幕上目标节点区域内移动时。
      * @property TOUCH_MOVE
      * @type {String}
      * @value 1
@@ -59,7 +59,7 @@ var EventType = cc.Enum({
     TOUCH_MOVE: 'touchmove',
     /**
      * !#en The event type for touch end event, you can use its value directly: 'touchend'
-     * !#zh 结束触摸事件，可以直接使用它的值：“touchend”。
+     * !#zh 当手指在目标节点区域内离开屏幕时。
      * @property TOUCH_END
      * @type {String}
      * @static
@@ -67,7 +67,7 @@ var EventType = cc.Enum({
     TOUCH_END: 'touchend',
     /**
      * !#en The event type for touch end event, you can use its value directly: 'touchcancel'
-     * !#zh 取消触摸事件，可以直接使用它的值：“touchcancel”。
+     * !#zh 当手指在目标节点区域外离开屏幕时。
      * @property TOUCH_CANCEL
      * @type {String}
      * @static
@@ -76,7 +76,7 @@ var EventType = cc.Enum({
 
     /**
      * !#en The event type for mouse down events, you can use its value directly: 'mousedown'
-     * !#zh 鼠标按下事件，可以直接使用它的值：“mousedown”。
+     * !#zh 当鼠标按下时触发一次。
      * @property MOUSE_DOWN
      * @type {String}
      * @static
@@ -84,7 +84,7 @@ var EventType = cc.Enum({
     MOUSE_DOWN: 'mousedown',
     /**
      * !#en The event type for mouse move events, you can use its value directly: 'mousemove'
-     * !#zh 鼠标按下后移动事件，可以直接使用它的值：“mousemove”。
+     * !#zh 当鼠标在目标节点在目标节点区域中移动时，不论是否按下。
      * @property MOUSE_MOVE
      * @type {String}
      * @static
@@ -92,7 +92,7 @@ var EventType = cc.Enum({
     MOUSE_MOVE: 'mousemove',
     /**
      * !#en The event type for mouse enter target events, you can use its value directly: 'mouseenter'
-     * !#zh 鼠标进入事件，可以直接使用它的值：“mouseenter”。
+     * !#zh 当鼠标移入目标节点区域时，不论是否按下。
      * @property MOUSE_ENTER
      * @type {String}
      * @static
@@ -100,7 +100,7 @@ var EventType = cc.Enum({
     MOUSE_ENTER: 'mouseenter',
     /**
      * !#en The event type for mouse leave target events, you can use its value directly: 'mouseleave'
-     * !#zh 鼠标移除事件，可以直接使用它的值：“mouseleave”。
+     * !#zh 当鼠标移出目标节点区域时，不论是否按下。
      * @property MOUSE_LEAVE
      * @type {String}
      * @static
@@ -108,7 +108,7 @@ var EventType = cc.Enum({
     MOUSE_LEAVE: 'mouseleave',
     /**
      * !#en The event type for mouse up events, you can use its value directly: 'mouseup'
-     * !#zh 鼠标释放事件，可以直接使用它的值：“mouseup”。
+     * !#zh 当鼠标从按下状态松开时触发一次。
      * @property MOUSE_UP
      * @type {String}
      * @static
@@ -116,7 +116,7 @@ var EventType = cc.Enum({
     MOUSE_UP: 'mouseup',
     /**
      * !#en The event type for mouse wheel events, you can use its value directly: 'mousewheel'
-     * !#zh 鼠标滚轮事件，可以直接使用它的值：“mousewheel”。
+     * !#zh 当鼠标滚轮滚动时。
      * @property MOUSE_WHEEL
      * @type {String}
      * @static

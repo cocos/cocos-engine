@@ -96,7 +96,11 @@ var __getListenerID = function (event) {
  *  The EventListener list is managed in such way so that event listeners can be added and removed          <br/>
  *  while events are being dispatched.
  * </p>
- * !#zh 管理用户注册的事件监听器，根据触发的事件类型分发给相应的事件监听器。
+ * !#zh
+ * 事件管理器，它主要管理事件监听器注册和派发系统事件。
+ * 原始设计中，它支持鼠标，触摸，键盘，陀螺仪和自定义事件。
+ * 在 Creator 的设计中，鼠标，触摸和自定义事件的监听和派发请参考 http://cocos.com/docs/creator/scripting/events.html。
+ *
  * @class eventManager
  * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/addListener.js}
  */
@@ -651,9 +655,10 @@ cc.eventManager = {
      * if the parameter "nodeOrPriority" is a Number,
      * it means to add a event listener for a specified event with the fixed priority.<br/>
      * </p>
-     * !#zh 向事件管理器添加一个监听器
-     * 如果参数 “nodeOrPriority” 是节点，优先级则由 node 决定。
-     * 如果参数 “nodeOrPriority” 是数字，优先级则固定为该参数的数值。
+     * !#zh
+     * 将事件监听器添加到事件管理器中。<br/>
+     * 如果参数 “nodeOrPriority” 是节点，优先级由 node 的渲染顺序决定，显示在上层的节点将优先收到事件。<br/>
+     * 如果参数 “nodeOrPriority” 是数字，优先级则固定为该参数的数值，数字越小，优先级越高。<br/>
      *
      * @method addListener
      * @param {EventListener|Object} listener - The listener of a specified event or a object of some event parameters.
@@ -700,7 +705,7 @@ cc.eventManager = {
         return listener;
     },
 
-    /**
+    /*
      * !#en Adds a Custom event listener. It will use a fixed priority of 1.
      * !#zh 向事件管理器添加一个自定义事件监听器。
      * @method addCustomListener
@@ -716,9 +721,10 @@ cc.eventManager = {
 
     /**
      * !#en Remove a listener.
-     * !#zh 移除一个事件监听器。
+     * !#zh 移除一个已添加的监听器。
      * @method removeListener
      * @param {EventListener} listener - an event listener or a registered node target
+     * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/removeListener.js}
      */
     removeListener: function (listener) {
         if (listener == null)
@@ -805,7 +811,18 @@ cc.eventManager = {
 
     /**
      * !#en Removes all listeners with the same event listener type or removes all listeners of a node.
-     * !#zh 移除某一类型或某一 node 对象相关的所有监听器。
+     * !#zh
+     * 移除注册到 eventManager 中指定类型的所有事件监听器。<br/>
+     * 1. 如果传入的第一个参数类型是 Node，那么事件管理器将移除与该对象相关的所有事件监听器。
+     * （如果第二参数 recursive 是 true 的话，就会连同该对象的子控件上所有的事件监听器也一并移除）<br/>
+     * 2. 如果传入的第一个参数类型是 Number（该类型 EventListener 中定义的事件类型），
+     * 那么事件管理器将移除该类型的所有事件监听器。<br/>
+     *
+     * 下列是目前存在监听器类型：       <br/>
+     * cc.EventListener.UNKNOWN       <br/>
+     * cc.EventListener.KEYBOARD      <br/>
+     * cc.EventListener.ACCELERATION，<br/>
+     *
      * @method removeListeners
      * @param {Number|Node} listenerType - listenerType or a node
      * @param {Boolean} recursive
@@ -862,7 +879,7 @@ cc.eventManager = {
         }
     },
 
-    /**
+    /*
      * !#en Removes all custom listeners with the same event name.
      * !#zh 移除同一事件名的自定义事件监听器。
      * @method removeCustomListeners
@@ -917,7 +934,7 @@ cc.eventManager = {
 
     /**
      * !#en Whether to enable dispatching events
-     * !#zh 是否允许分发事件。
+     * !#zh 启用或禁用事件管理器，禁用后不会分发任何事件。
      * @method setEnabled
      * @param {Boolean} enabled
      */
@@ -927,7 +944,7 @@ cc.eventManager = {
 
     /**
      * !#en Checks whether dispatching events is enabled
-     * !#zh 检测事件管理器是否分发事件。
+     * !#zh 检测事件管理器是否启用。
      * @method isEnabled
      * @returns {Boolean}
      */
@@ -935,7 +952,7 @@ cc.eventManager = {
         return this._isEnabled;
     },
 
-    /**
+    /*
      * !#en Dispatches the event, also removes all EventListeners marked for deletion from the event dispatcher list.
      * !#zh 分发事件。
      * @method dispatchEvent
@@ -971,7 +988,7 @@ cc.eventManager = {
         return event.isStopped();
     },
 
-    /**
+    /*
      * !#en Dispatches a Custom Event with a event name an optional user data
      * !#zh 分发自定义事件。
      * @method dispatchCustomEvent
