@@ -599,7 +599,7 @@ JS.mixin(cc.Audio.prototype, {
         /**
          * Pause playing sound effect.
          * @method pauseEffect
-         * @param {Number} cc.Audio The return value of function playEffect.
+         * @param {Number} audio - The return value of function playEffect.
          * @example
          * //example
          * cc.audioEngine.pauseEffect(audioID);
@@ -632,7 +632,7 @@ JS.mixin(cc.Audio.prototype, {
         /**
          * Resume playing sound effect.
          * @method resumeEffect
-         * @param {Number} cc.Audio The return value of function playEffect.
+         * @param {Number} audioID - The return value of function playEffect.
          * @audioID
          * //example
          * cc.audioEngine.resumeEffect(audioID);
@@ -662,7 +662,7 @@ JS.mixin(cc.Audio.prototype, {
         /**
          * Stop playing sound effect.
          * @method stopEffect
-         * @param {Number} cc.Audio The return value of function playEffect.
+         * @param {Number} audioID - The return value of function playEffect.
          * @example
          * //example
          * cc.audioEngine.stopEffect(audioID);

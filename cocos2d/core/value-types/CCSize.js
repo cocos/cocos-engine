@@ -29,7 +29,7 @@ var JS = require('../platform/js');
 /**
  * cc.Size is the class for size object, please do not use its constructor to create sizes, use cc.size() alias function instead.
  * It will be deprecated soon, please use cc.Vec2 instead
- * @class Size
+ * @class cc.Size
  * @param {Number} width
  * @param {Number} height
  * @see cc.size
