@@ -235,6 +235,7 @@ _ccsg.Label = _ccsg.Node.extend({
         }
         this._isWrapText = enabled;
         this._rescaleWithOriginalFontSize();
+
         this._notifyLabelSkinDirty();
     },
 
@@ -892,25 +893,23 @@ cc.BMFontHelper = {
 
     _scaleFontSizeDown: function(fontSize) {
         var shouldUpdateContent = true;
-        //1 is BMFont
         if (this._labelType === _ccsg.Label.Type.BMFont) {
             if (!fontSize) {
                 fontSize = 0.1;
                 shouldUpdateContent = false;
             }
             this._fontSize = fontSize;
-        }
-        if (shouldUpdateContent) {
-            this._updateContent();
+
+            if (shouldUpdateContent) {
+                this._updateContent();
+            }
         }
     },
 
     _updateContent: function() {
-        var updateFinished = true;
-
         if (this._fontAtlas) {
             this._computeHorizontalKerningForText(this._string);
-            updateFinished = this._alignText();
+            this._alignText();
         }
     },
 
@@ -1055,7 +1054,11 @@ cc.BMFontHelper = {
     _rescaleWithOriginalFontSize: function() {
         var renderingFontSize = this.getFontSize();
         if (this._drawFontsize - renderingFontSize >= 1 && this._overFlow === _ccsg.Label.Overflow.SHRINK) {
-            this._scaleFontSizeDown(this._drawFontsize);
+            if(this._labelType === _ccsg.Label.Type.BMFont) {
+                this._scaleFontSizeDown(this._drawFontsize);
+            } else {
+                this._fontSize = this._drawFontsize;
+            }
         }
     },
 

@@ -85,11 +85,12 @@
 
     proto._getLineHeight = function () {
         var nodeSpacingY = this._node.getLineHeight();
+        var node = this._node;
         if (nodeSpacingY === 0) {
-            nodeSpacingY = this._drawFontsize;
+            nodeSpacingY = node._fontSize;
         }
         else {
-            nodeSpacingY = nodeSpacingY * this._drawFontsize / this._node._fontSize;
+            nodeSpacingY = nodeSpacingY * node._fontSize / node._drawFontsize;
         }
         //float to integer, much faster than Math.floor
         return nodeSpacingY | 0;
@@ -219,9 +220,9 @@
     proto._calculateLabelFont = function() {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
+        var drawFontize = node._fontSize;
 
-        this._drawFontsize = node._fontSize;
-        var fontDesc = this._drawFontsize.toString() + 'px ';
+        var fontDesc = drawFontize.toString() + 'px ';
         var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
         fontDesc = fontDesc + fontFamily;
         this._labelContext.font = fontDesc;
@@ -238,9 +239,8 @@
                     totalLength += ((paragraphLength[i] / this._canvasSize.width + 1) | 0) * this._canvasSize.width;
                 }
                 var scale = this._canvasSize.width * ((this._canvasSize.height / this._getLineHeight()) | 0) / totalLength;
-                this._drawFontsize = (this._drawFontsize * Math.min(Math.sqrt(scale), 1)) | 0;
-                fontDesc = this._drawFontsize.toString() + 'px ' + fontFamily;
-                this._labelContext.font = fontDesc;
+                node._fontSize = (drawFontize * Math.min(Math.sqrt(scale), 1)) | 0;
+                fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
 
                 this._splitedStrings = [];
                 for (var i = 0; i < paragraphedStrings.length; ++i) {
@@ -252,13 +252,15 @@
                 var totalHeight = paragraphedStrings.length * this._getLineHeight();
 
                 for (i = 0; i < paragraphedStrings.length; ++i) {
-                    if (maxLength < paragraphLength[i]) maxLength = paragraphLength[i];
+                    if (maxLength < paragraphLength[i]) {
+                        maxLength = paragraphLength[i];
+                    }
                 }
                 var scaleX = this._canvasSize.width / maxLength;
                 var scaleY = this._canvasSize.height / totalHeight;
 
-                this._drawFontsize = (this._drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
-                fontDesc = this._drawFontsize.toString() + 'px ' + fontFamily;
+                node._fontSize = (drawFontize * Math.min(1, scaleX, scaleY)) | 0;
+                fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
             }
         }
 
@@ -395,7 +397,6 @@
 
     proto._bakeLabel = function () {
         var node = this._node;
-        this._drawFontsize = node._fontSize;
 
         this._canvasSize = this._calculateCanvasSize();
 
@@ -457,7 +458,6 @@
         this._quad = new cc.V3F_C4B_T2F_Quad();
         this._quadDirty = true;
         this._splitedStrings = null;
-        this._drawFontsize = 0;
         this._realRenderingSize = cc.size(-10, -10);
     };
 
