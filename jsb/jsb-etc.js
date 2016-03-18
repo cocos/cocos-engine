@@ -84,8 +84,10 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
     this._unschedule(target, callback);
 };
 
-// Node arrivalOrder
-cc.defineGetterSetter(cc.Node.prototype, "arrivalOrder", cc.Node.prototype.getOrderOfArrival, cc.Node.prototype.setOrderOfArrival);
+// Node
+var nodeProto = cc.Node.prototype;
+cc.defineGetterSetter(nodeProto, "arrivalOrder", nodeProto.getOrderOfArrival, nodeProto.setOrderOfArrival);
+cc.defineGetterSetter(nodeProto, "_parent", nodeProto.getParent, nodeProto.setParent);
 
 // TextureCache addImage
 if (!cc.TextureCache.prototype._addImageAsync) {
