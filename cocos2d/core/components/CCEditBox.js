@@ -420,6 +420,9 @@ var EditBox = cc.Class({
 
         this._createBackgroundSprite();
 
+        if (!this._useOriginalSize) {
+            sgNode.setContentSize(this.node.getContentSize());
+        }
 
         sgNode.inputMode = this.inputMode;
         sgNode.maxLength = this.maxLength;
@@ -434,9 +437,6 @@ var EditBox = cc.Class({
         sgNode.returnType = this.returnType;
         sgNode.setLineHeight(this.lineHeight);
 
-        if (!this._useOriginalSize) {
-            sgNode.setContentSize(this.node.getContentSize());
-        }
 
         sgNode.setDelegate(this);
     },

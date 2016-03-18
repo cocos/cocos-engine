@@ -107,7 +107,9 @@ for (var i = 0; i < actionArr.length; ++i) {
         continue;
     var proto = type.prototype;
     setCtorReplacer(proto);
-    setAliasReplacer(name, type);
+    if (name.indexOf('Ease') === -1) {
+        setAliasReplacer(name, type);
+    }
 }
 
 function setChainFuncReplacer (proto, name) {

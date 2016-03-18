@@ -156,8 +156,12 @@ var Animation = cc.Class({
         }
     },
 
+    onEnable: function () {
+        this.resume();
+    },
+
     onDisable: function () {
-        this.stop();
+        this.pause();
     },
 
     ///////////////////////////////////////////////////////////////////////////////

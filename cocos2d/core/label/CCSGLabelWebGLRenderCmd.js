@@ -60,9 +60,6 @@ proto.constructor = _ccsg.Label.WebGLRenderCmd;
 
 proto.rendering = function (ctx) {
     var node = this._node;
-    this._rebuildLabelSkin();
-
-    this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
 
     if(node._labelType === _ccsg.Label.Type.TTF ||
       node._labelType === _ccsg.Label.Type.SystemFont){

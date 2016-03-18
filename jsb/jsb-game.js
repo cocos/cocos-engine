@@ -34,7 +34,7 @@ cc.js.mixin(cc.game, {
     // Scenes list
     _sceneInfos: [],
 
-    _persistRootNodes: [],
+    _persistRootNodes: {},
     _ignoreRemovePersistNode: null,
 
     CONFIG_KEY: {
@@ -145,10 +145,12 @@ cc.js.mixin(cc.game, {
      * @param {ENode} node - The node to be made persistent
      */
     addPersistRootNode: function (node) {
-        if (!(node instanceof cc.Node))
+        if (!(node instanceof cc.Node) || !node._id) {
+            cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
             return;
-        var index = this._persistRootNodes.indexOf(node);
-        if (index === -1) {
+        }
+        var id = node._id;
+        if (!this._persistRootNodes[id]) {
             var scene = cc.director._scene;
             if (cc.isValid(scene)) {
                 if (!node.parent) {
@@ -162,7 +164,7 @@ cc.js.mixin(cc.game, {
                     cc.warn('The node can not be made persist because it\'s not in current scene.');
                     return;
                 }
-                this._persistRootNodes.push(node);
+                this._persistRootNodes[id] = node;
                 node._persistNode = true;
             }
         }
@@ -175,11 +177,11 @@ cc.js.mixin(cc.game, {
      */
     removePersistRootNode: function (node) {
         if (node !== this._ignoreRemovePersistNode) {
-            var index = this._persistRootNodes.indexOf(node);
-            if (index !== -1) {
-                this._persistRootNodes.splice(index, 1);
+            var id = node._id || '';
+            if (node === this._persistRootNodes[id]) {
+                delete this._persistRootNodes[id];
+                node._persistNode = false;
             }
-            node._persistNode = false;
         }
     },
 

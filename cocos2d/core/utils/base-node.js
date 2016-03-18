@@ -977,6 +977,26 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     /**
+     * Returns a child from the container given its uuid
+     * @method getChildByUuid
+     * @param {String} uuid - The uuid to find the child node.
+     * @return {Node} a Node whose uuid equals to the input parameter
+     */
+    getChildByUuid: function(uuid){
+        if(!uuid){
+            cc.log("Invalid uuid");
+            return null;
+        }
+
+        var locChildren = this._children;
+        for(var i = 0, len = locChildren.length; i < len; i++){
+            if(locChildren[i]._id === uuid)
+                return locChildren[i];
+        }
+        return null;
+    },
+
+    /**
      * Returns a child from the container given its name
      * @method getChildByName
      * @param {String} name - A name to find the child node.
@@ -1473,7 +1493,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 var sibling = siblings[i];
                 sibling._sgNode.arrivalOrder = i;
             }
-            if (cc.renderer) {
+            if ( !CC_JSB ) {
                 cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
             }
             this._parent.emit(CHILD_REORDER);

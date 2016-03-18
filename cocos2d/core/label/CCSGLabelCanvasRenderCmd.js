@@ -31,6 +31,58 @@
 
     var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
 
+
+    proto.updateStatus = function () {
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var colorDirty = locFlag & flags.colorDirty,
+            opacityDirty = locFlag & flags.opacityDirty;
+
+        if (colorDirty)
+            this._updateDisplayColor();
+        if (opacityDirty)
+            this._updateDisplayOpacity();
+
+        if(colorDirty || opacityDirty || (locFlag & flags.textDirty)){
+            this._rebuildLabelSkin();
+        }
+
+        if (this._dirtyFlag & flags.transformDirty){
+            this.transform(this.getParentRenderCmd(), true);
+            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+        }
+    };
+
+    proto._syncStatus = function (parentCmd) {
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var parentNode = parentCmd ? parentCmd._node : null;
+
+        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
+            locFlag |= flags.colorDirty;
+
+        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
+            locFlag |= flags.opacityDirty;
+
+        if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
+            locFlag |= flags.transformDirty;
+
+        var colorDirty = locFlag & flags.colorDirty,
+            opacityDirty = locFlag & flags.opacityDirty;
+
+        this._dirtyFlag = locFlag;
+
+        if (colorDirty)
+            this._syncDisplayColor();
+        if (opacityDirty)
+            this._syncDisplayOpacity();
+
+        if(colorDirty || opacityDirty || (locFlag & flags.textDirty)){
+            this._rebuildLabelSkin();
+        }
+
+        if (locFlag & flags.transformDirty)                 //update the transform
+            this.transform(parentCmd);
+    };
+
     proto._getLineHeight = function () {
         var nodeSpacingY = this._node.getLineHeight();
         if (nodeSpacingY === 0) {
@@ -162,38 +214,8 @@
         return wrappedWords;
     };
 
-    proto._updateDisplayOpacity = function (parentOpacity) {
-        _ccsg.Node.RenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-        var node = this._node;
-        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            //specify opacity to quad
-            var color = cc.color(255, 255, 255, this._displayedOpacity);
-            var quad = this._quad;
-            quad._bl.colors = color;
-            quad._br.colors = color;
-            quad._tl.colors = color;
-            quad._tr.colors = color;
-            this._quadDirty = true;
-        }
-    };
 
-    proto._updateDisplayColor = function (parentColor) {
-        _ccsg.Node.RenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-        var node = this._node;
-        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            node._labelSkinDirty = true;
-        }
-    };
-
-    proto._syncDisplayColor = function (parentColor) {
-        _ccsg.Node.RenderCmd.prototype._syncDisplayColor.call(this, parentColor);
-        var node = this._node;
-        if (node._labelType === _ccsg.Label.Type.TTF || node._labelType === _ccsg.Label.Type.SystemFont) {
-            node._labelSkinDirty = true;
-        }
-    };
-
-    proto._calculateLabelFont = function(canvasSize) {
+    proto._calculateLabelFont = function() {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
 
@@ -212,9 +234,9 @@
             if (node._isWrapText) {
                 var totalLength = 0;
                 for (i = 0; i < paragraphedStrings.length; ++i) {
-                    totalLength += ((paragraphLength[i] / canvasSize.width + 1) | 0) * canvasSize.width;
+                    totalLength += ((paragraphLength[i] / this._canvasSize.width + 1) | 0) * this._canvasSize.width;
                 }
-                var scale = canvasSize.width * ((canvasSize.height / this._getLineHeight()) | 0) / totalLength;
+                var scale = this._canvasSize.width * ((this._canvasSize.height / this._getLineHeight()) | 0) / totalLength;
                 this._drawFontsize = (this._drawFontsize * Math.min(Math.sqrt(scale), 1)) | 0;
                 fontDesc = this._drawFontsize.toString() + 'px ' + fontFamily;
                 this._labelContext.font = fontDesc;
@@ -226,8 +248,8 @@
                 for (i = 0; i < paragraphedStrings.length; ++i) {
                     if (maxLength < paragraphLength[i]) maxLength = paragraphLength[i];
                 }
-                var scaleX = canvasSize.width / maxLength;
-                var scaleY = canvasSize.height / totalHeight;
+                var scaleX = this._canvasSize.width / maxLength;
+                var scaleY = this._canvasSize.height / totalHeight;
 
                 this._drawFontsize = (this._drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
                 fontDesc = this._drawFontsize.toString() + 'px ' + fontFamily;
@@ -258,7 +280,7 @@
         return cc.size(canvasWidth, canvasHeight);
     };
 
-    proto._calculateSplitedStrings = function(canvasSize) {
+    proto._calculateSplitedStrings = function() {
         var node = this._node;
         var ctx = this._labelContext;
 
@@ -268,7 +290,7 @@
         if (node._isWrapText) {
             this._splitedStrings = [];
             for (i = 0; i < paragraphedStrings.length; ++i) {
-                this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], canvasSize.width, ctx));
+                this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], this._canvasSize.width, ctx));
             }
         }
         else {
@@ -277,14 +299,15 @@
 
     };
 
-    proto._updateLabelDimensions = function(canvasSize, ctx) {
+    proto._updateLabelDimensions = function() {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
         var i;
+        var ctx = this._labelContext;
 
         if (_ccsg.Label.Overflow.RESIZE_HEIGHT === node._overFlow) {
-            canvasSize.height = this._splitedStrings.length * this._getLineHeight();
-            _ccsg.Node.prototype.setContentSize.call(node, canvasSize);
+            this._canvasSize.height = this._splitedStrings.length * this._getLineHeight();
+            _ccsg.Node.prototype.setContentSize.call(node, this._canvasSize);
         }
         else if(_ccsg.Label.Overflow.NONE === node._overFlow) {
             this._splitedStrings = paragraphedStrings;
@@ -296,18 +319,17 @@
             }
             canvasSizeY = this._splitedStrings.length * this._getLineHeight();
 
-            canvasSize.width = canvasSizeX;
-            canvasSize.height = canvasSizeY;
-            _ccsg.Node.prototype.setContentSize.call(node, canvasSize);
+            this._canvasSize.width = parseFloat(canvasSizeX.toFixed(2));
+            this._canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
+            _ccsg.Node.prototype.setContentSize.call(node, this._canvasSize);
         }
 
-        this._labelCanvas.width = canvasSize.width;
-        this._labelCanvas.height = canvasSize.height;
+        this._labelCanvas.width = this._canvasSize.width;
+        this._labelCanvas.height = this._canvasSize.height;
 
-        this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
     };
 
-    proto._calculateFillTextStartPosition = function(canvasSize) {
+    proto._calculateFillTextStartPosition = function() {
         var node = this._node;
         var lineHeight = this._getLineHeight();
         var lineCount = this._splitedStrings.length;
@@ -315,10 +337,10 @@
         var firstLinelabelY;
 
         if (cc.TextAlignment.RIGHT === node._hAlign) {
-            labelX = canvasSize.width;
+            labelX = this._canvasSize.width;
         }
         else if (cc.TextAlignment.CENTER === node._hAlign) {
-            labelX = canvasSize.width / 2;
+            labelX = this._canvasSize.width / 2;
         }
         else {
             labelX = 0;
@@ -328,10 +350,10 @@
             firstLinelabelY = 0;
         }
         else if (cc.VerticalTextAlignment.CENTER === node._vAlign) {
-            firstLinelabelY = canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
+            firstLinelabelY = this._canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
         }
         else {
-            firstLinelabelY = canvasSize.height - lineHeight * (lineCount - 1);
+            firstLinelabelY = this._canvasSize.height - lineHeight * (lineCount - 1);
         }
 
         return cc.p(labelX, firstLinelabelY);
@@ -369,24 +391,35 @@
         var node = this._node;
         this._drawFontsize = node._fontSize;
 
-        var canvasSize = this._calculateCanvasSize();
+        this._canvasSize = this._calculateCanvasSize();
 
         //Note: don't change the calling order of the following 3 statements
-        var fontDesc = this._calculateLabelFont(canvasSize);
-        this._calculateSplitedStrings(canvasSize);
-        this._updateLabelDimensions(canvasSize, this._labelContext);
-
-        //this._labelContext.fillStyle = "rgb(128,128,128)";
-        //this._labelContext.fillRect(0,0,this._labelCanvas.width,this._labelCanvas.height);
-        var color = this._displayedColor;
-        this._labelContext.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+        this._fontDesc = this._calculateLabelFont();
+        this._calculateSplitedStrings();
+        this._updateLabelDimensions();
 
         this._calculateTextBaseline();
 
-        var startPosition = this._calculateFillTextStartPosition(canvasSize);
+        this._updateTexture();
+
+    };
+
+    // proto._updateColor = function() {
+    //     this._rebuildLabelSkin();
+    // };
+
+    proto._updateTexture = function() {
+        this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
+
+        this._fontDesc = this._calculateLabelFont();
+        this._labelContext.font = this._fontDesc;
+
+        var startPosition = this._calculateFillTextStartPosition();
         var lineHeight = this._getLineHeight();
 
-        this._labelContext.font = fontDesc;
+        var color = this._displayedColor;
+        this._labelContext.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+
         //do real rendering
         for (var i = 0; i < this._splitedStrings.length; ++i) {
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
@@ -397,18 +430,11 @@
     };
 
     proto._rebuildLabelSkin = function () {
+        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
         var node = this._node;
-        if (node._labelSkinDirty) {
-            if (node._labelType === _ccsg.Label.Type.TTF ||
-                node._labelType === _ccsg.Label.Type.SystemFont) {
-                this._bakeLabel();
-                this._prepareQuad();
-            }
-            else {
-                node._updateContent();
-            }
-            this._node._labelSkinDirty = false;
-        }
+        this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
+
+        node._updateLabel();
     };
 })();
 
@@ -435,10 +461,7 @@
     proto.constructor = _ccsg.Label.CanvasRenderCmd;
 
     proto.rendering = function (ctx, scaleX, scaleY) {
-        this._rebuildLabelSkin();
-
         var node = this._node;
-        this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
 
         if (node._labelType === _ccsg.Label.Type.TTF ||
             node._labelType === _ccsg.Label.Type.SystemFont) {

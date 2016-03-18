@@ -58,11 +58,7 @@ _p = null;
  * @name cc.ENGINE_VERSION
  */
 var engineVersion;
-if (CC_EDITOR) {
-    engineVersion = 'Cocos Creator v' + Editor.remote.versions.CocosCreator;
-} else {
-    engineVersion = 'Cocos Creator';
-}
+engineVersion = '0.8.0-beta.7';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**

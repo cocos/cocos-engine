@@ -701,7 +701,7 @@ var Component = cc.Class({
         repeat = isNaN(repeat) ? cc.macro.REPEAT_FOREVER : repeat;
         delay = delay || 0;
 
-        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy, this.__instanceId);
+        cc.director.getScheduler().schedule(callback, this, interval, repeat, delay, !this.enabledInHierarchy);
     },
 
     /**

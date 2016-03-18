@@ -96,7 +96,7 @@ cc.js.mixin(cc.director, {
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
         // detach persist nodes
-        var i, node, game = cc.game;
+        var id, node, game = cc.game;
         var persistNodes = game._persistRootNodes;
 
         // Run an Entity Scene
@@ -105,8 +105,8 @@ cc.js.mixin(cc.director, {
             scene._load();
         }
 
-        for (i = persistNodes.length - 1; i >= 0; --i) {
-            node = persistNodes[i];
+        for (id in persistNodes) {
+            node = persistNodes[id];
             game._ignoreRemovePersistNode = node;
             node.parent = null;
             game._ignoreRemovePersistNode = null;
@@ -134,9 +134,17 @@ cc.js.mixin(cc.director, {
             sgScene = scene._sgNode;
             
             // Re-attach persist nodes
-            for (i = 0; i < persistNodes.length; ++i) {
-                node = persistNodes[i];
-                node.parent = scene;
+            for (id in persistNodes) {
+                node = persistNodes[id];
+                var existNode = scene.getChildByUuid(id);
+                // Scene contains the persist node, should not reattach, should update the persist node
+                if (existNode) {
+                    persistNodes[id] = existNode;
+                    existNode._persistNode = true;
+                }
+                else {
+                    node.parent = scene;
+                }
             }
             scene._activate();
         }

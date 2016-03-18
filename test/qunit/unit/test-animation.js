@@ -1203,3 +1203,38 @@ test('play Animation', function () {
     strictEqual(moveState.isPlaying, false, 'move animation state should not be playing');
     strictEqual(rotateState.isPlaying, false, 'rotate animation state should be playing');
 });
+
+test('animation enabled/disabled', function () {
+    var scene = cc.director.getScene();
+    var entity = new cc.Node();
+    var animation = entity.addComponent(cc.Animation);
+
+    entity.parent = scene;
+
+    var clip = new cc.AnimationClip();
+    clip._name = 'move';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+    animation.addClip(clip);
+    animation.play('move');
+
+    animation.enabled = false;
+
+    strictEqual(animation._animator.isPlaying, true, 'move animation should be playing');
+    strictEqual(animation._animator.isPaused, true, 'move animation should be paused');
+
+    animation.enabled = true;
+
+    strictEqual(animation._animator.isPlaying, true, 'move animation should be playing');
+    strictEqual(animation._animator.isPaused, false, 'move animation should be resumed');
+
+    entity.parent = null;
+});
+
