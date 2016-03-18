@@ -23,27 +23,34 @@
  THE SOFTWARE.
  ****************************************************************************/
 /**
+ * !#en
  * <p>
  *     The base class of event listener.                                                                        <br/>
  *     If you need custom listener which with different callback, you need to inherit this class.               <br/>
  *     For instance, you could refer to EventListenerAcceleration, EventListenerKeyboard,                       <br/>
  *      EventListenerTouchOneByOne, EventListenerCustom.
  * </p>
+ *
+ * !#zh 封装用户的事件处理逻辑。
+ *
  * @class EventListener
+ * @param {Number} type
+ * @param {Number} listenerID
+ * @param {Number} callback
  */
 cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
-    _onEvent: null,                          // Event callback function
-    _type: 0,                                 // Event listener type
-    _listenerID: null,                       // Event listener ID
-    _registered: false,                     // Whether the listener has been added to dispatcher.
+    _onEvent: null,          // Event callback function
+    _type: 0,                // Event listener type
+    _listenerID: null,       // Event listener ID
+    _registered: false,      // Whether the listener has been added to dispatcher.
 
-    _fixedPriority: 0,                      // The higher the number, the higher the priority, 0 is for scene graph base priority.
-    _node: null,                           // scene graph based priority
+    _fixedPriority: 0,       // The higher the number, the higher the priority, 0 is for scene graph base priority.
+    _node: null,             // scene graph based priority
     _target: null,
-    _paused: true,                        // Whether the listener is paused
-    _isEnabled: true,                      // Whether the listener is enabled
+    _paused: true,           // Whether the listener is paused
+    _isEnabled: true,        // Whether the listener is enabled
 
-    /**
+    /*
      * Initializes event with type and callback function.
      * @param {Number} type
      * @param {String} listenerID
@@ -55,7 +62,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         this._listenerID = listenerID || "";
     },
 
-    /**
+    /*
      * <p>
      *     Sets paused state for the listener
      *     The paused state is only used for scene graph priority listeners.
@@ -72,7 +79,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         this._paused = paused;
     },
 
-    /**
+    /*
      * Checks whether the listener is paused.
      * @returns {Boolean}
      * @private
@@ -81,7 +88,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         return this._paused;
     },
 
-    /**
+    /*
      * Marks the listener was registered by EventDispatcher.
      * @param {Boolean} registered
      * @private
@@ -90,7 +97,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         this._registered = registered;
     },
 
-    /**
+    /*
      * Checks whether the listener was registered by EventDispatcher
      * @returns {Boolean}
      * @private
@@ -99,7 +106,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         return this._registered;
     },
 
-    /**
+    /*
      * Gets the type of this listener
      * @note It's different from `EventType`, e.g. TouchEvent has two kinds of event listeners - EventListenerOneByOne, EventListenerAllAtOnce
      * @returns {Number}
@@ -109,7 +116,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         return this._type;
     },
 
-    /**
+    /*
      *  Gets the listener ID of this listener
      *  When event is being dispatched, listener ID is used as key for searching listeners according to event type.
      * @returns {String}
@@ -119,7 +126,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         return this._listenerID;
     },
 
-    /**
+    /*
      * Sets the fixed priority for this listener
      *  @note This method is only used for `fixed priority listeners`, it needs to access a non-zero value. 0 is reserved for scene graph priority listeners
      * @param {Number} fixedPriority
@@ -129,7 +136,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         this._fixedPriority = fixedPriority;
     },
 
-    /**
+    /*
      * Gets the fixed priority of this listener
      * @returns {Number} 0 if it's a scene graph priority listener, non-zero for fixed priority listener
      * @private
@@ -138,7 +145,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         return this._fixedPriority;
     },
 
-    /**
+    /*
      * Sets scene graph priority for this listener
      * @param {_ccsg.Node|Node} node
      * @private
@@ -148,7 +155,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
         this._node = node;
     },
 
-    /**
+    /*
      * Gets scene graph priority of this listener
      * @returns {_ccsg.Node|cc.Node} if it's a fixed priority listener, non-null for scene graph priority listener
      * @private
@@ -158,7 +165,9 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
     },
 
     /**
-     * Checks whether the listener is available.
+     * !#en Checks whether the listener is available.
+     * !#zh 检测监听器是否有效
+     * @method checkAvailable
      * @returns {Boolean}
      */
     checkAvailable: function () {
@@ -166,7 +175,9 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
     },
 
     /**
-     * Clones the listener, its subclasses have to override this method.
+     * !#en Clones the listener, its subclasses have to override this method.
+     * !#zh 克隆监听器,它的子类必须重写此方法。
+     * @method clone
      * @returns {EventListener}
      */
     clone: function () {
@@ -174,26 +185,30 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
     },
 
     /**
-     *  Enables or disables the listener
+     *  !#en Enables or disables the listener
+     *  !#zh 启用或禁用监听器。
+     *  @method setEnabled
+     *  @param {Boolean} enabled
      *  @note Only listeners with `enabled` state will be able to receive events.
      *          When an listener was initialized, it's enabled by default.
      *          An event listener can receive events when it is enabled and is not paused.
      *          paused state is always false when it is a fixed priority listener.
-     * @param {Boolean} enabled
      */
     setEnabled: function(enabled){
         this._isEnabled = enabled;
     },
 
     /**
-     * Checks whether the listener is enabled
+     * !#en Checks whether the listener is enabled
+     * !#zh 检查监听器是否可用。
+     * @method isEnabled
      * @returns {Boolean}
      */
     isEnabled: function(){
         return this._isEnabled;
     },
 
-    /**
+    /*
      * <p>Currently JavaScript Bindings (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
      * and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
      * This is a hack, and should be removed once JSB fixes the retain/release bug<br/>
@@ -209,7 +224,7 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
      */
     retain:function () {
     },
-    /**
+    /*
      * <p>Currently JavaScript Bindings (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
      * and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
      * This is a hack, and should be removed once JSB fixes the retain/release bug<br/>
@@ -229,49 +244,59 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 
 // event listener type
 /**
- * The type code of unknown event listener.
+ * !#en The type code of unknown event listener.
+ * !#zh 未知的事件监听器
+ * @property EventListener.UNKNOWN
  * @constant
  * @type {Number}
  */
 cc.EventListener.UNKNOWN = 0;
-/**
- * The type code of one by one touch event listener.
+/*
+ * !#en The type code of one by one touch event listener.
+ * !#zh 单点触摸事件监听器
+ *
  * @constant
  * @type {Number}
  */
 cc.EventListener.TOUCH_ONE_BY_ONE = 1;
-/**
- * The type code of all at once touch event listener.
+/*
+ * !#en The type code of all at once touch event listener.
+ * !#zh 多点触摸事件监听器
  * @constant
  * @type {Number}
  */
 cc.EventListener.TOUCH_ALL_AT_ONCE = 2;
 /**
- * The type code of keyboard event listener.
- * @constant
+ * !#en The type code of keyboard event listener.
+ * !#zh 键盘事件监听器
+ * @constant EventListener.KEYBOARD
  * @type {Number}
  */
 cc.EventListener.KEYBOARD = 3;
-/**
- * The type code of mouse event listener.
+/*
+ * !#en The type code of mouse event listener.
+ * !#zh 鼠标事件监听器
  * @constant
  * @type {Number}
  */
 cc.EventListener.MOUSE = 4;
 /**
- * The type code of focus event listener.
- * @constant
+ * !#en The type code of focus event listener.
+ * !#zh 加速器事件监听器
+ * @constant EventListener.ACCELERATION
  * @type {Number}
  */
 cc.EventListener.ACCELERATION = 6;
-/**
- * The type code of Focus change event listener.
+/*
+ * !#en The type code of Focus change event listener.
+ * !#zh 焦点事件监听器
  * @constant
  * @type {Number}
  */
 cc.EventListener.FOCUS = 7;
-/**
- * The type code of custom event listener.
+/*
+ * !#en The type code of custom event listener.
+ * !#zh 自定义事件监听器
  * @constant
  * @type {Number}
  */
@@ -423,7 +448,8 @@ cc._EventListenerTouchAllAtOnce = cc.EventListener.extend({
 cc._EventListenerTouchAllAtOnce.LISTENER_ID = "__cc_touch_all_at_once";
 
 /**
- * Create a EventListener object by json object
+ * !#en Create a EventListener object by json object
+ * !#zh 通过 JSON 对象创建事件监听对象。
  * @method create
  * @static
  * @param {Object} argObj a json object

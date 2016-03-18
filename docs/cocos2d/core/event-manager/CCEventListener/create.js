@@ -1,10 +1,18 @@
---------
+// Create KEYBOARD EventListener.
 cc.EventListener.create({
+    event: cc.EventListener.KEYBOARD,
+    onKeyPressed: function (keyCode, event) {
+        cc.log('pressed key: ' + keyCode);
+    },
+    onKeyReleased: function (keyCode, event) {
+        cc.log('released key: ' + keyCode);
+    }
+});
 
-      event: cc.EventListener.TOUCH_ONE_BY_ONE,
-      swallowTouches: true,
-      onTouchBegan: function (touch, event) {
-          //do something
-          return true;
-      }
-   });
+// Create ACCELERATION EventListener.
+cc.EventListener.create({
+    event: cc.EventListener.ACCELERATION,
+    callback: function (acc, event) {
+        cc.log('acc: ' + keyCode);
+    }
+});

@@ -33,21 +33,24 @@ var DontDestroy = Flags.DontDestroy;
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
 /**
- * The event type supported by Node
+ * !#en The event type supported by Node
+ * !#zh Node 支持的事件类型
  * @enum Node.EventType
  * @static
  * @namespace Node
  */
 var EventType = cc.Enum({
     /**
-     * The event type for touch start event, you can use its value directly: 'touchstart'
+     * !#en The event type for touch start event, you can use its value directly: 'touchstart'
+     * !#zh 开始触摸事件，可以直接使用它的值：“touchstart”。
      * @property TOUCH_START
      * @type {String}
      * @static
      */
     TOUCH_START: 'touchstart',
     /**
-     * The event type for touch move event, you can use its value directly: 'touchmove'
+     * !#en The event type for touch move event, you can use its value directly: 'touchmove'
+     * !#zh 触摸后移动事件，可以直接使用它的值：“touchmove”。
      * @property TOUCH_MOVE
      * @type {String}
      * @value 1
@@ -55,14 +58,16 @@ var EventType = cc.Enum({
      */
     TOUCH_MOVE: 'touchmove',
     /**
-     * The event type for touch end event, you can use its value directly: 'touchend'
+     * !#en The event type for touch end event, you can use its value directly: 'touchend'
+     * !#zh 结束触摸事件，可以直接使用它的值：“touchend”。
      * @property TOUCH_END
      * @type {String}
      * @static
      */
     TOUCH_END: 'touchend',
     /**
-     * The event type for touch end event, you can use its value directly: 'touchcancel'
+     * !#en The event type for touch end event, you can use its value directly: 'touchcancel'
+     * !#zh 取消触摸事件，可以直接使用它的值：“touchcancel”。
      * @property TOUCH_CANCEL
      * @type {String}
      * @static
@@ -70,42 +75,48 @@ var EventType = cc.Enum({
     TOUCH_CANCEL: 'touchcancel',
 
     /**
-     * The event type for mouse down events, you can use its value directly: 'mousedown'
+     * !#en The event type for mouse down events, you can use its value directly: 'mousedown'
+     * !#zh 鼠标按下事件，可以直接使用它的值：“mousedown”。
      * @property MOUSE_DOWN
      * @type {String}
      * @static
      */
     MOUSE_DOWN: 'mousedown',
     /**
-     * The event type for mouse move events, you can use its value directly: 'mousemove'
+     * !#en The event type for mouse move events, you can use its value directly: 'mousemove'
+     * !#zh 鼠标按下后移动事件，可以直接使用它的值：“mousemove”。
      * @property MOUSE_MOVE
      * @type {String}
      * @static
      */
     MOUSE_MOVE: 'mousemove',
     /**
-     * The event type for mouse enter target events, you can use its value directly: 'mouseenter'
+     * !#en The event type for mouse enter target events, you can use its value directly: 'mouseenter'
+     * !#zh 鼠标进入事件，可以直接使用它的值：“mouseenter”。
      * @property MOUSE_ENTER
      * @type {String}
      * @static
      */
     MOUSE_ENTER: 'mouseenter',
     /**
-     * The event type for mouse leave target events, you can use its value directly: 'mouseleave'
+     * !#en The event type for mouse leave target events, you can use its value directly: 'mouseleave'
+     * !#zh 鼠标移除事件，可以直接使用它的值：“mouseleave”。
      * @property MOUSE_LEAVE
      * @type {String}
      * @static
      */
     MOUSE_LEAVE: 'mouseleave',
     /**
-     * The event type for mouse up events, you can use its value directly: 'mouseup'
+     * !#en The event type for mouse up events, you can use its value directly: 'mouseup'
+     * !#zh 鼠标释放事件，可以直接使用它的值：“mouseup”。
      * @property MOUSE_UP
      * @type {String}
      * @static
      */
     MOUSE_UP: 'mouseup',
     /**
-     * The event type for mouse wheel events, you can use its value directly: 'mousewheel'
+     * !#en The event type for mouse wheel events, you can use its value directly: 'mousewheel'
+     * !#zh 鼠标滚轮事件，可以直接使用它的值：“mousewheel”。
      * @property MOUSE_WHEEL
      * @type {String}
      * @static

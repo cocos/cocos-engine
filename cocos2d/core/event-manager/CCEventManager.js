@@ -89,13 +89,16 @@ var __getListenerID = function (event) {
 };
 
 /**
+ * !#en
  * <p>
  *  cc.eventManager is a singleton object which manages event listener subscriptions and event dispatching. <br/>
  *                                                                                                              <br/>
  *  The EventListener list is managed in such way so that event listeners can be added and removed          <br/>
  *  while events are being dispatched.
  * </p>
+ * !#zh 管理用户注册的事件监听器，根据触发的事件类型分发给相应的事件监听器。
  * @class eventManager
+ * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/addListener.js}
  */
 cc.eventManager = {
     //Priority dirty flag
@@ -130,10 +133,11 @@ cc.eventManager = {
     },
 
     /**
-     * Pauses all listeners which are associated the specified target.
+     * !#en Pauses all listeners which are associated the specified target.
+     * !#zh 暂停传入的 node 相关的所有监听器的事件响应。
      * @method pauseTarget
      * @param {Node} node
-     * @param {Boolean} [recursive=false]
+     * @param {Boolean} recursive
      */
     pauseTarget: function (node, recursive) {
         var listeners = this._nodeListenersMap[node.__instanceId], i, len;
@@ -149,10 +153,11 @@ cc.eventManager = {
     },
 
     /**
-     * Resumes all listeners which are associated the specified target.
+     * !#en Resumes all listeners which are associated the specified target.
+     * !#zh 恢复传入的 node 相关的所有监听器的事件响应。
      * @method resumeTarget
      * @param {Node} node
-     * @param {Boolean} [recursive=false]
+     * @param {Boolean} recursive
      */
     resumeTarget: function (node, recursive) {
         var listeners = this._nodeListenersMap[node.__instanceId], i, len;
@@ -638,11 +643,18 @@ cc.eventManager = {
     },
 
     /**
+     * !#en
      * <p>
-     * Adds a event listener for a specified event.                                                                                                            <br/>
-     * if the parameter "nodeOrPriority" is a node, it means to add a event listener for a specified event with the priority of scene graph.                   <br/>
-     * if the parameter "nodeOrPriority" is a Number, it means to add a event listener for a specified event with the fixed priority.                          <br/>
+     * Adds a event listener for a specified event.<br/>
+     * if the parameter "nodeOrPriority" is a node,
+     * it means to add a event listener for a specified event with the priority of scene graph.<br/>
+     * if the parameter "nodeOrPriority" is a Number,
+     * it means to add a event listener for a specified event with the fixed priority.<br/>
      * </p>
+     * !#zh 向事件管理器添加一个监听器
+     * 如果参数 “nodeOrPriority” 是节点，优先级则由 node 决定。
+     * 如果参数 “nodeOrPriority” 是数字，优先级则固定为该参数的数值。
+     *
      * @method addListener
      * @param {EventListener|Object} listener - The listener of a specified event or a object of some event parameters.
      * @param {Node|Number} nodeOrPriority - The priority of the listener is based on the draw order of this node or fixedPriority The fixed priority of the listener.
@@ -689,7 +701,8 @@ cc.eventManager = {
     },
 
     /**
-     * Adds a Custom event listener. It will use a fixed priority of 1.
+     * !#en Adds a Custom event listener. It will use a fixed priority of 1.
+     * !#zh 向事件管理器添加一个自定义事件监听器。
      * @method addCustomListener
      * @param {String} eventName
      * @param {Function} callback
@@ -702,7 +715,8 @@ cc.eventManager = {
     },
 
     /**
-     * Remove a listener.
+     * !#en Remove a listener.
+     * !#zh 移除一个事件监听器。
      * @method removeListener
      * @param {EventListener} listener - an event listener or a registered node target
      */
@@ -790,10 +804,11 @@ cc.eventManager = {
     },
 
     /**
-     * Removes all listeners with the same event listener type or removes all listeners of a node
+     * !#en Removes all listeners with the same event listener type or removes all listeners of a node.
+     * !#zh 移除某一类型或某一 node 对象相关的所有监听器。
      * @method removeListeners
      * @param {Number|Node} listenerType - listenerType or a node
-     * @param {Boolean} [recursive=false]
+     * @param {Boolean} recursive
      */
     removeListeners: function (listenerType, recursive) {
         var i, _t = this;
@@ -848,7 +863,8 @@ cc.eventManager = {
     },
 
     /**
-     * Removes all custom listeners with the same event name
+     * !#en Removes all custom listeners with the same event name.
+     * !#zh 移除同一事件名的自定义事件监听器。
      * @method removeCustomListeners
      * @param {String} customEventName
      */
@@ -857,7 +873,8 @@ cc.eventManager = {
     },
 
     /**
-     * Removes all listeners
+     * !#en Removes all listeners
+     * !#zh 移除所有事件监听器。
      * @method removeAllListeners
      */
     removeAllListeners: function () {
@@ -869,7 +886,8 @@ cc.eventManager = {
     },
 
     /**
-     * Sets listener's priority with fixed value.
+     * !#en Sets listener's priority with fixed value.
+     * !#zh 设置 FixedPriority 类型监听器的优先级。
      * @method setPriority
      * @param {EventListener} listener
      * @param {Number} fixedPriority
@@ -898,7 +916,8 @@ cc.eventManager = {
     },
 
     /**
-     * Whether to enable dispatching events
+     * !#en Whether to enable dispatching events
+     * !#zh 是否允许分发事件。
      * @method setEnabled
      * @param {Boolean} enabled
      */
@@ -907,7 +926,8 @@ cc.eventManager = {
     },
 
     /**
-     * Checks whether dispatching events is enabled
+     * !#en Checks whether dispatching events is enabled
+     * !#zh 检测事件管理器是否分发事件。
      * @method isEnabled
      * @returns {Boolean}
      */
@@ -916,7 +936,8 @@ cc.eventManager = {
     },
 
     /**
-     * Dispatches the event, also removes all EventListeners marked for deletion from the event dispatcher list.
+     * !#en Dispatches the event, also removes all EventListeners marked for deletion from the event dispatcher list.
+     * !#zh 分发事件。
      * @method dispatchEvent
      * @param {Event} event
      */
@@ -951,7 +972,8 @@ cc.eventManager = {
     },
 
     /**
-     * Dispatches a Custom Event with a event name an optional user data
+     * !#en Dispatches a Custom Event with a event name an optional user data
+     * !#zh 分发自定义事件。
      * @method dispatchCustomEvent
      * @param {String} eventName
      * @param {*} optionalUserData
