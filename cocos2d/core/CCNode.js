@@ -1115,7 +1115,7 @@ var Node = cc.Class({
     },
 
     isRunning: function () {
-        return this.active;
+        return this._activeInHierarchy;
     },
 
 // ACTIONS
