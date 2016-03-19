@@ -98,6 +98,7 @@ var _doSendEvent = function (owner, event) {
 };
 
 /**
+ * !#en
  * EventTarget is an object to which an event is dispatched when something has occurred.
  * Entity are the most common event targets, but other objects can be event targets too.
  *
@@ -115,6 +116,10 @@ var _doSendEvent = function (owner, event) {
  * Event targets can implement the following methods:
  *  - _getCapturingTargets
  *  - _getBubblingTargets
+ *
+ * !#zh
+ * 事件目标是事件触发时，分派的事件对象，Node 是最常见的事件目标，
+ * 但是其他对象也可以是事件目标。<br/>
  *
  * @class EventTarget
  */
@@ -139,8 +144,8 @@ var EventTarget = function () {
 JS.mixin(EventTarget.prototype, {
 
     /**
-     * Checks whether the EventTarget object has any callback registered for a specific type of event.
-     *
+     * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
+     * !#zh 检查事件目标对象是否为不特定类型的事件注册的回调。
      * @param {String} type - The type of event.
      * @param {Boolean} A value of true if a callback of the specified type is registered; false otherwise.
      */
@@ -153,20 +158,27 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
+     * !#en
      * Register an callback of a specific event type on the EventTarget.
      * This method is merely an alias to addEventListener.
+     * !#zh
+     * 注册事件目标的特定事件类型回调，仅仅是 addEventListener 的别名。
      *
      * @method on
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
-     * @param {Object} [target] - The target to invoke the callback, can be null
-     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
+     * @param {Object} target - The target to invoke the callback, can be null
+     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @exmaple
+     * node.on(cc.Node.EventType.TOUCH_END, function (event) {
+     *     cc.log("this is callback");
+     * }, node);
      */
     on: function (type, callback, target, useCapture) {
         // Accept also patameters like: (type, callback, useCapture)
@@ -196,17 +208,27 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
+     * !#en
      * Removes the callback previously registered with the same type, callback, target and or useCapture.
      * This method is merely an alias to removeEventListener.
+     * !#zh
+     * 删除之前与同类型，回调，目标或 useCapture 注册的回调，仅仅是 removeEventListener 的别名。
      *
      * @method off
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} callback - The callback to remove.
-     * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
-     * @param {Boolean} [useCapture=false] - Specifies whether the callback being removed was registered as a capturing callback or not.
+     * @param {Object} target - The target to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Boolean} useCapture - Specifies whether the callback being removed was registered as a capturing callback or not.
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,
      *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
      *                              does not affect a non-capturing version of the same listener, and vice versa.
+     * @exmaple
+     * // register touchEnd eventListener
+     * var touchEnd = node.on(cc.Node.EventType.TOUCH_END, function (event) {
+     *     cc.log("this is callback");
+     * }, node);
+     * // remove touchEnd eventListener
+     * node.off(cc.Node.EventType.TOUCH_END, touchEnd, node);
      */
     off: function (type, callback, target, useCapture) {
         // Accept also patameters like: (type, callback, useCapture)
@@ -230,8 +252,8 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
-     * Removes all callbacks previously registered with the same target.
-     *
+     * !#en Removes all callbacks previously registered with the same target.
+     * !#zh 删除指定目标上的所有注册回调。
      * @method targetOff
      * @param {Object} target - The target to be searched for all related callbacks
      */
@@ -245,18 +267,26 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
-     * Register an callback of a specific event type on the EventTarget, the callback will remove itself after the first time it is triggered.
+     * !#en
+     * Register an callback of a specific event type on the EventTarget,
+     * the callback will remove itself after the first time it is triggered.
+     * !#zh
+     * 注册事件目标的特定事件类型回调，回调会在第一时间被触发后删除自身。
      *
      * @method once
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
-     * @param {Object} [target] - The target to invoke the callback, can be null
-     * @param {Boolean} [useCapture=false] - When set to true, the capture argument prevents callback
+     * @param {Object} target - The target to invoke the callback, can be null
+     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
+     * @exmaple
+     * node.once(cc.Node.EventType.TOUCH_END, function (event) {
+     *     cc.log("this is callback");
+     * }, node);
      */
     once: function (type, callback, target, useCapture) {
         var self = this;
@@ -268,7 +298,10 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
-     * Dispatches an event into the event flow. The event target is the EventTarget object upon which the dispatchEvent() method is called.
+     * !#en
+     * Dispatches an event into the event flow.
+     * The event target is the EventTarget object upon which the dispatchEvent() method is called.
+     * !#zh 分发事件到事件流中。
      *
      * @method dispatchEvent
      * @param {Event} event - The Event object that is dispatched into the event flow
@@ -284,12 +317,15 @@ JS.mixin(EventTarget.prototype, {
     },
 
     /**
+     * !#en
      * Send an event to this object directly, this method will not propagate the event to any other objects.
      * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
+     * !#zh
+     * 该对象直接发送事件， 这种方法不会对事件传播到任何其他对象。
      *
      * @method emit
      * @param {String} message - the message to send
-     * @param {any} [detail] - whatever argument the message needs
+     * @param {*} [detail] - whatever argument the message needs
      */
     emit: function (message, detail) {
         if ( typeof message === 'string' ) {
@@ -302,7 +338,7 @@ JS.mixin(EventTarget.prototype, {
         }
     },
 
-    /**
+    /*
      * Get whether the target is active for events.
      * The name is for avoiding conflict with user defined functions.
      *
@@ -315,7 +351,7 @@ JS.mixin(EventTarget.prototype, {
         return true;
     },
 
-    /**
+    /*
      * Get all the targets listening to the supplied type of event in the target's capturing phase.
      * The capturing phase comprises the journey from the root to the last node BEFORE the event target's node.
      * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.
@@ -330,7 +366,7 @@ JS.mixin(EventTarget.prototype, {
 
     },
 
-    /**
+    /*
      * Get all the targets listening to the supplied type of event in the target's bubbling phase.
      * The bubbling phase comprises any SUBSEQUENT nodes encountered on the return trip to the root of the tree.
      * The result should save in the array parameter, and MUST SORT from child nodes to parent nodes.

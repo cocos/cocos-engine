@@ -42,19 +42,17 @@ cc.Asset = cc.Class({
     properties: {
         /**
          * Returns the url of this asset's first raw file, if none of rawFile exists,
-         * it will returns the url of this serialized asset.
+         * it will returns an empty string.
          *
-         * @property url
+         * @property rawUrl
          * @type {String}
          * @readOnly
          */
-        url: {
+        rawUrl: {
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        var url = cc.AssetLibrary.getImportedDir(this._uuid);
-                        var filename = this._rawFiles[0];
-                        return url + '/' + filename;
+                        return cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._uuid + '/' + this._rawFiles[0];
                     }
                     else {
                         cc.error('asset.url is not usable in core process');
@@ -69,17 +67,17 @@ cc.Asset = cc.Class({
          * Returns the url of this asset's raw files, if none of rawFile exists,
          * it will returns an empty array.
          *
-         * @property urls
+         * @property rawUrls
          * @type {String[]}
          * @readOnly
          */
-        urls: {
+        rawUrls: {
             get: function () {
                 if (this._rawFiles) {
                     if (cc.AssetLibrary) {
-                        var url = cc.AssetLibrary.getImportedDir(this._uuid);
+                        var dir = cc.AssetLibrary.getImportedDir(this._uuid) + '/' + this._uuid + '/';
                         return this._rawFiles.map(function (filename) {
-                            return url + '/' + filename;
+                            return dir + filename;
                         });
                     }
                     else {
@@ -101,7 +99,7 @@ cc.Asset = cc.Class({
          * @default null
          * @private
          */
-        _rawFiles: null
+        _rawFiles: undefined
     },
 
     statics: {
@@ -142,24 +140,14 @@ cc.Asset = cc.Class({
     createNode: null,
 
     /**
-     * Set raw extname for this asset.
+     * Set raw file names for this asset.
      *
      * @method _setRawFiles
      * @param {String[]} rawFiles
      * @private
      */
     _setRawFiles: function (rawFiles) {
-        rawFiles = rawFiles.map(function (item) {
-            if (item.charAt(0) === '.') {
-                item = item.slice(1);
-            }
-            var nextChar = item.charAt(0);
-            if (nextChar === '/' || nextChar === '\\') {
-                item = item.slice(1);
-            }
-            return item;
-        });
-        this._rawFiles = rawFiles.length > 0 ? rawFiles : null;
+        this._rawFiles = rawFiles.length > 0 ? rawFiles : undefined;
     }
 });
 
