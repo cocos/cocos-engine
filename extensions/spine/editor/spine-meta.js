@@ -76,6 +76,8 @@ class TextureParser {
     unload () {}
 }
 
+const RAW_SKELETON_FILE = 'raw-skeleton.json';
+
 class SpineMeta extends CustomAssetMeta {
     constructor (assetdb) {
         super(assetdb);
@@ -94,7 +96,7 @@ class SpineMeta extends CustomAssetMeta {
         //this.textures[0] = value;
     }
 
-    static version () { return '1.0.1'; }
+    static version () { return '1.0.2'; }
     static defaultType () {
         return 'spine';
     }
@@ -127,9 +129,9 @@ class SpineMeta extends CustomAssetMeta {
     dests () {
         var res = super.dests();
         // for JSB
-        res.push(this._assetdb._uuidToImportPathNoExt(this.uuid) + '.raw.json');
+        res.push(Path.join(this._assetdb._uuidToImportPathNoExt(this.uuid), RAW_SKELETON_FILE));
         if (this.atlas) {
-            res.push(this._assetdb._uuidToImportPathNoExt(this.atlas) + '.atlas');
+            res.push(this._assetdb.uuidToFspath(this.atlas));
         }
         return res;
     }
@@ -185,8 +187,9 @@ class SpineMeta extends CustomAssetMeta {
                 asset.atlasUrl = db.uuidToUrl(atlasUuid);
                 
                 db.mkdirForAsset(this.uuid);
-                var rawJsonPath = db._uuidToImportPathNoExt(this.uuid) + '.raw.json';
+                var rawJsonPath = Path.join(db._uuidToImportPathNoExt(this.uuid), RAW_SKELETON_FILE);
                 Fs.copySync(fspath, rawJsonPath);
+                asset._setRawFiles([RAW_SKELETON_FILE]);
                 
                 this.atlas = atlasUuid;     // save for dest()
                 

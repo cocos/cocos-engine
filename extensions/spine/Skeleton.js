@@ -296,7 +296,7 @@ sp.Skeleton = cc.Class({
                     cc.error('Can not render dynamic created SkeletonData');
                     return null;
                 }
-                var jsonFile = cc.AssetLibrary.getImportedDir(uuid) + '/' + uuid + '.raw.json';
+                var jsonFile = this.skeletonData.rawUrl;
                 var atlasFile = this.skeletonData.atlasUrl;
                 if (atlasFile) {
                     if (typeof atlasFile !== 'string') {
