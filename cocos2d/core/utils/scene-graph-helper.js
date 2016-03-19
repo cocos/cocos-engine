@@ -29,11 +29,11 @@ var SceneGraphUtils = {
     removeSgNode: function () {
         var node = this._sgNode;
         if (node) {
-            node.release();
             var parent = node._parent;
             if (parent) {
                 parent.removeChild(node);
             }
+            node.release();
         }
     },
 };
