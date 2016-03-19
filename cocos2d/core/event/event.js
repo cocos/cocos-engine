@@ -26,47 +26,53 @@
 var JS = require("../platform/js");
 
 /**
- * Base class of all kinds of events.
+ * !#en Base class of all kinds of events.
+ * !#zh 包含事件相关信息的对象。
  * @class Event
  * @constructor
  */
 
 /**
  * @method Event
- * @param {string} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
- * @param {boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
+ * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
+ * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  * @return {Event}
  */
 cc.Event = function(type, bubbles) {
     /**
-     * The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
+     * !#en The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
+     * !#zh 事件类型。
      * @property type
      * @type {String}
      */
     this.type = type;
 
     /**
-     * Indicate whether the event bubbles up through the tree or not.
+     * !#en Indicate whether the event bubbles up through the tree or not.
+     * !#zh 表示该事件是否进行冒泡。
      * @property bubbles
      * @type {Boolean}
      */
     this.bubbles = bubbles || false;
 
     /**
-     * A reference to the target to which the event was originally dispatched.
+     * !#en A reference to the target to which the event was originally dispatched.
+     * !#zh 最初事件触发的目标
      * @property target
      * @type {Object}
      */
     this.target = null;
 
     /**
-     * A reference to the currently registered target for the event.
+     * !#en A reference to the currently registered target for the event.
+     * !#zh 当前目标
      * @property currentTarget
      * @type {Object}
      */
     this.currentTarget = null;
 
     /**
+     * !#en
      * Indicates which phase of the event flow is currently being evaluated.
      * Returns an integer value represented by 4 constants:
      *  - Event.NONE = 0
@@ -75,13 +81,13 @@ cc.Event = function(type, bubbles) {
      *  - Event.BUBBLING_PHASE = 3
      * The phases are explained in the [section 3.1, Event dispatch and DOM event flow]
      * (http://www.w3.org/TR/DOM-Level-3-Events/#event-flow), of the DOM Level 3 Events specification.
-     *
+     * !#zh 事件阶段
      * @property eventPhase
      * @type {Number}
      */
     this.eventPhase = 0;
 
-    /**
+    /*
      * Indicates whether or not event.preventDefault() has been called on the event.
      * @property _defaultPrevented
      * @type {Boolean}
@@ -89,7 +95,7 @@ cc.Event = function(type, bubbles) {
      */
     this._defaultPrevented = false;
 
-    /**
+    /*
      * Indicates whether or not event.stopPropagation() has been called on the event.
      * @property _propagationStopped
      * @type {Boolean}
@@ -97,7 +103,7 @@ cc.Event = function(type, bubbles) {
      */
     this._propagationStopped = false;
 
-    /**
+    /*
      * Indicates whether or not event.stopPropagationImmediate() has been called on the event.
      * @property _propagationImmediateStopped
      * @type {Boolean}
@@ -109,7 +115,8 @@ cc.Event.prototype = {
     constructor: cc.Event,
 
     /**
-     * Reset the event for being stored in the object pool.
+     * !#en Reset the event for being stored in the object pool.
+     * !#zh 重置对象池中存储的事件。
      * @method unuse
      * @returns {String}
      */
@@ -124,7 +131,8 @@ cc.Event.prototype = {
     },
 
     /**
-     * Reuse the event for being used again by the object pool.
+     * !#en Reuse the event for being used again by the object pool.
+     * !#zh 用于对象池再次使用的事件。
      * @method reuse
      * @returns {String}
      */
@@ -134,7 +142,9 @@ cc.Event.prototype = {
     },
 
     /**
+     * !#en
      * If invoked when the cancelable attribute value is true, signals to the operation that caused event to be dispatched that it needs to be canceled.
+     * !#zh 捕获阶段时，阻止传递给最终目标。
      * @method preventDefault
      */
     preventDefault: function () {
@@ -142,7 +152,8 @@ cc.Event.prototype = {
     },
 
     /**
-     * Stops propagation for current event.
+     * !#en Stops propagation for current event.
+     * !#zh 停止传递当前事件。
      * @method stopPropagation
      */
     stopPropagation: function () {
@@ -150,8 +161,9 @@ cc.Event.prototype = {
     },
 
     /**
-     * Stops propagation for current event immediately, 
+     * !#en Stops propagation for current event immediately,
      * the event won't even be dispatched to the listeners attached in the current target.
+     * !#zh 立即停止当前事件的传递，事件甚至不会被分派到所连接的当前目标。
      * @method stopPropagationImmediate
      */
     stopPropagationImmediate: function () {
@@ -159,7 +171,8 @@ cc.Event.prototype = {
     },
 
     /**
-     * Checks whether the event has been stopped.
+     * !#en Checks whether the event has been stopped.
+     * !#zh 检查该事件是否已经停止传递.
      * @method isStopped
      * @returns {Boolean}
      */
@@ -168,11 +181,13 @@ cc.Event.prototype = {
     },
 
     /**
+     * !#en
      * <p>
      *     Gets current target of the event                                                            <br/>
      *     note: It only be available when the event listener is associated with node.                <br/>
      *          It returns 0 when the listener is associated with fixed priority.
      * </p>
+     * !#zh 获取当前目标节点
      * @method getCurrentTarget
      * @returns {Node}  The target with which the event associates.
      */
@@ -181,7 +196,8 @@ cc.Event.prototype = {
     },
 
     /**
-     * Gets the event type.
+     * !#en Gets the event type.
+     * !#zh 获取事件类型
      * @method getType
      * @returns {String}
      */
@@ -192,7 +208,8 @@ cc.Event.prototype = {
 
 //event type
 /**
- * Code for event without type.
+ * !#en Code for event without type.
+ * !#zh 没有类型的事件
  * @property NO_TYPE
  * @final
  * @type {string}
@@ -201,31 +218,38 @@ cc.Event.NO_TYPE = 'no_type';
 
 //event phase
 /**
- * Events not currently dispatched are in this phase
+ * !#en Events not currently dispatched are in this phase
+ * !#zh 尚未派发事件阶段
  * @property NONE
  * @type {Number}
  * @final
  */
 cc.Event.NONE = 0;
 /**
+ * !#en
  * The capturing phase comprises the journey from the root to the last node before the event target's node
  * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+ * !#zh 捕获阶段，包括事件目标节点之前从根节点到最后一个节点的过程。
  * @property CAPTURING_PHASE
  * @type {Number}
  * @final
  */
 cc.Event.CAPTURING_PHASE = 1;
 /**
+ * !#en
  * The target phase comprises only the event target node
  * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+ * !#zh 目标阶段仅包括事件目标节点。
  * @property AT_TARGET
  * @type {Number}
  * @final
  */
 cc.Event.AT_TARGET = 2;
 /**
+ * !#en
  * The bubbling phase comprises any subsequent nodes encountered on the return trip to the root of the hierarchy
  * see http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+ * !#zh 冒泡阶段， 包括回程遇到到层次根节点的任何后续节点。
  * @property BUBBLING_PHASE
  * @type {Number}
  * @final
@@ -233,7 +257,8 @@ cc.Event.AT_TARGET = 2;
 cc.Event.BUBBLING_PHASE = 3;
 
 /**
- * The Custom event
+ * !#en The Custom event
+ * !#zh 自定义事件
  * @class Event.EventCustom
  * @constructor
  * @extends Event
@@ -242,14 +267,15 @@ cc.Event.BUBBLING_PHASE = 3;
 /**
  * @method EventCustom
  * @param {String} type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
- * @param {Boolean} [bubbles=false] - A boolean indicating whether the event bubbles up through the tree or not
+ * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  * @return {EventCustom}
  */
 var EventCustom = function (type, bubbles) {
     cc.Event.call(this, type, bubbles);
 
     /**
-     * A reference to the detailed data of the event
+     * !#en A reference to the detailed data of the event
+     * !#zh 事件的详细数据
      * @property detail
      * @type {Object}
      */
@@ -259,7 +285,8 @@ var EventCustom = function (type, bubbles) {
 JS.extend(EventCustom, cc.Event);
 JS.mixin(EventCustom.prototype, {
     /**
-     * Sets user data
+     * !#en Sets user data
+     * !#zh 设置用户数据
      * @method setUserData
      * @param {*} data
      */
@@ -268,7 +295,8 @@ JS.mixin(EventCustom.prototype, {
     },
 
     /**
-     * Gets user data
+     * !#en Gets user data
+     * !#zh 获取用户数据
      * @method getUserData
      * @returns {*}
      */
@@ -277,7 +305,8 @@ JS.mixin(EventCustom.prototype, {
     },
 
     /**
-     * Gets event name
+     * !#en Gets event name
+     * !#zh 获取事件名称
      * @method getEventName
      * @returns {String}
      */
