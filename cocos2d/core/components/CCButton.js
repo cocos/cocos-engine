@@ -416,8 +416,6 @@ var Button = cc.Class({
     },
 
     _onMouseMoveOut: function(){
-        if (!this.interactable || !this.enabledInHierarchy) return;
-
         if (this._hovered) {
             this._hovered = false;
             this._updateState();
