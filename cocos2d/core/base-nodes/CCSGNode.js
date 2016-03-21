@@ -807,7 +807,7 @@ _ccsg.Node = cc.Class({
      * The contentSize remains the same no matter the node is scaled or rotated.<br/>
      * All nodes has a size. Layer and Scene has the same size of the screen by default. <br/></p>
      * @function
-     * @return {cc.Size} The untransformed size of the node.
+     * @return {Size} The untransformed size of the node.
      */
     getContentSize: function () {
         return cc.size(this._contentSize);

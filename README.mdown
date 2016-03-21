@@ -1,4 +1,4 @@
-Cocos2d-html5
+Cocos Creator Game Engine
 ==================
 
 [Cocos2d-html5][1] is a cross-platform 2D game engine written in Javascript, based on [Cocos2d-X][2] and licensed under MIT.

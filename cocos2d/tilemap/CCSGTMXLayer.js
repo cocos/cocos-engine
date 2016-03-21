@@ -108,7 +108,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
     /**
      * Sets the untransformed size of the TMXLayer.
      * @override
-     * @param {cc.Size|Number} size The untransformed size of the TMXLayer or The untransformed size's width of the TMXLayer.
+     * @param {Size|Number} size The untransformed size of the TMXLayer or The untransformed size's width of the TMXLayer.
      * @param {Number} [height] The untransformed size's height of the TMXLayer.
      */
     setContentSize:function (size, height) {
@@ -119,7 +119,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
     /**
      * Return texture of cc.SpriteBatchNode
      * @function
-     * @return {cc.Texture2D}
+     * @return {Texture2D}
      */
 	getTexture: function(){
         return this._renderCmd.getTexture();
@@ -127,7 +127,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 
     /**
      * Gets layer size.
-     * @return {cc.Size}
+     * @return {Size}
      */
     getLayerSize:function () {
         return cc.size(this._layerSize.width, this._layerSize.height);
@@ -135,7 +135,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 
     /**
      * Set layer size
-     * @param {cc.Size} Var
+     * @param {Size} Var
      */
     setLayerSize:function (Var) {
         this._layerSize.width = Var.width;
@@ -157,7 +157,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 
     /**
      * Size of the map's tile (could be different from the tile's size)
-     * @return {cc.Size}
+     * @return {Size}
      */
     getMapTileSize:function () {
         return cc.size(this._mapTileSize.width,this._mapTileSize.height);
@@ -165,7 +165,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 
     /**
      * Set the map tile size.
-     * @param {cc.Size} Var
+     * @param {Size} Var
      */
     setMapTileSize:function (Var) {
         this._mapTileSize.width = Var.width;
@@ -317,7 +317,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
      * You can remove either by calling: <br/>
      * - layer.removeChild(sprite, cleanup); <br/>
      * - or layer.removeTileAt(ccp(x,y)); </p>
-     * @param {cc.Vec2|Number} pos or x
+     * @param {Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {_ccsg.Sprite}
      */

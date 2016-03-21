@@ -45,8 +45,8 @@ var EventTarget = cc.EventTarget;
  * @example
  * var node = new cc.AtlasNode("pathOfTile", 16, 16, 1);
  *
- * @property {cc.Texture2D}     texture         - Current used texture
- * @property {cc.TextureAtlas}  textureAtlas    - Texture atlas for cc.AtlasNode
+ * @property {Texture2D}     texture         - Current used texture
+ * @property {TextureAtlas}  textureAtlas    - Texture atlas for cc.AtlasNode
  * @property {Number}           quadsToDraw     - Number of quads to draw
  */
 cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
@@ -215,7 +215,7 @@ cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
     /**
      * Initializes an CCAtlasNode with an atlas texture, the width, the height of each tile and the quantity of tiles to render
      * @function
-     * @param {cc.Texture2D} texture    The atlas texture
+     * @param {Texture2D} texture    The atlas texture
      * @param {Number} tileWidth        The width of each tile
      * @param {Number} tileHeight       The height of each tile
      * @param {Number} itemsToRender    The quantity of tiles to be rendered
@@ -228,7 +228,7 @@ cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
     /**
      * Set node's color
      * @function
-     * @param {cc.Color} color Color object created with cc.color(r, g, b).
+     * @param {Color} color Color object created with cc.color(r, g, b).
      */
     setColor: function(color){
         this._renderCmd.setColor(color);
@@ -246,7 +246,7 @@ cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
     /**
      * Get the current texture
      * @function
-     * @return {cc.Texture2D}
+     * @return {Texture2D}
      */
     getTexture: function(){
         return this._texture;
@@ -255,7 +255,7 @@ cc.AtlasNode = _ccsg.Node.extend(/** @lends cc.AtlasNode# */{
     /**
      * Replace the current texture with a new one
      * @function
-     * @param {cc.Texture2D} texture    The new texture
+     * @param {Texture2D} texture    The new texture
      */
     setTexture: function(texture){
         this._texture = texture;
