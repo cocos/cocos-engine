@@ -115,6 +115,9 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         alignToParent(node, widget);
+        if (!CC_EDITOR && widget.isAlignOnce) {
+            widget.enabled = false;
+        }
     }
     var children = node._children;
     for (var i = 0; i < children.length; i++) {
@@ -125,7 +128,7 @@ function visitNode (node) {
     }
 }
 
-function visit () {
+function refreshScene () {
     var scene = cc.director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
@@ -221,7 +224,7 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
 var widgetManager = cc._widgetManager = {
     isAligning: false,
     init: function (director) {
-        director.on(cc.Director.EVENT_BEFORE_VISIT, visit);
+        director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
     },
     add: function (widget) {
         widget.node._widget = widget;
