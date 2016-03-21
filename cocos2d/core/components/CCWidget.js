@@ -380,21 +380,14 @@ var Widget = cc.Class({
 
         /**
          * !#en TODO
-         * !#zh 开启时只会在 onEnable 时对齐一次。
-         * @property alignOnce
+         * !#zh
+         * 开启时只会在 onEnable 时对齐一次，然后立刻禁用当前组件。
+         * 这样便于脚本或动画继续控制当前节点。
+         * @property isAlignOnce
          * @type {Boolean}
          * @default false
          */
-        alignOnce: {
-            get: function () {
-                return this._isAlignOnce;
-            },
-            set: function (value) {
-                this._isAlignOnce = value;
-            },
-            animatable: false,
-            tooltip: 'i18n:COMPONENT.widget.align_once',
-        },
+        isAlignOnce: false,
 
         //
 
@@ -416,8 +409,6 @@ var Widget = cc.Class({
         _isAbsRight: true,
         _isAbsTop: true,
         _isAbsBottom: true,
-
-        _isAlignOnce: false,
 
         // original size before align
         _originalWidth: 0,

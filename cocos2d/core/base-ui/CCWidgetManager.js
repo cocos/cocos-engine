@@ -115,8 +115,8 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         alignToParent(node, widget);
-        if (widget._isAlignOnce) {
-            widgetManager.remove(widget);
+        if (!CC_EDITOR && widget.isAlignOnce) {
+            widget.enabled = false;
         }
     }
     var children = node._children;
