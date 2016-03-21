@@ -57,7 +57,7 @@ function loadAudioFromExtList (url, typeList, audio, cb){
             context['decodeAudioData'](request.response, function (buffer) {
                 //success
                 audio.setBuffer(buffer);
-                cb(null, audio);
+                cb(null, audio.src);
             }, function() {
                 //error
                 loadAudioFromExtList(url, typeList, audio, cb);
@@ -81,7 +81,7 @@ function loadAudioFromExtList (url, typeList, audio, cb){
                 termination = true;
                 element.pause();
                 document.body.removeChild(element);
-                cb('Audio load timeout : ' + url, audio);
+                cb('Audio load timeout : ' + url, null);
             }
         }, 8000);
 
@@ -97,7 +97,7 @@ function loadAudioFromExtList (url, typeList, audio, cb){
                 element.removeEventListener('canplaythrough', success, false);
                 element.removeEventListener('error', failure, false);
                 element.removeEventListener('emptied', emptied, false);
-                !termination && cb(null, audio);
+                !termination && cb(null, url);
                 cbCheck = true;
                 clearTimeout(timer);
             }
@@ -118,7 +118,7 @@ function loadAudioFromExtList (url, typeList, audio, cb){
         var emptied = function(){
             termination = true;
             success();
-            cb(null, audio);
+            cb(null, url);
         };
 
         element.addEventListener('canplaythrough', success, false);
@@ -170,7 +170,8 @@ function downloadAudio (item, callback) {
     }
 
     // hack for audio to be found before loaded
-    item.content = audio;
+    item.content = url;
+    item.audio = audio;
     loadAudioFromExtList(url, typeList, audio, callback);
 }
 
