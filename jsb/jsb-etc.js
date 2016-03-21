@@ -142,6 +142,73 @@ cc.SpriteFrame.prototype._ctor = function (filename, rect, rotated, offset, orig
     }
 };
 
+// setTimeout, setInterval, clearTimeout, clearInteval
+var _windowTimeIntervalId = 0;
+var _windowTimeFunHash = {};
+var WindowTimeFun = function (code) {
+    this._intervalId = _windowTimeIntervalId++;
+    this._code = code;
+};
+
+WindowTimeFun.prototype.fun = function () {
+    if (!this._code) return;
+    var code = this._code;
+    if (typeof code === 'string') {
+        Function(code)();
+    }
+    else if (typeof code === 'function') {
+        code.apply(null, this._args);
+    }
+};
+
+/**
+ * overwrite window's setTimeout
+ @param {String|Function} code
+ @param {number} delay
+ @return {number}
+ */
+window.setTimeout = function (code, delay) {
+    var target = new WindowTimeFun(code);
+    if (arguments.length > 2)
+        target._args = Array.prototype.slice.call(arguments, 2);
+    var original = target.fun;
+    target.fun = function () {
+        original.apply(this, arguments);
+        clearTimeout(target._intervalId);
+    };
+    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, 0, 0, false, target._intervalId+'');
+    _windowTimeFunHash[target._intervalId] = target;
+    return target._intervalId;
+};
+
+/**
+ * overwrite window's setInterval
+ @param {String|Function} code
+ @param {number} delay
+ @return {number}
+ */
+window.setInterval = function (code, delay) {
+    var target = new WindowTimeFun(code);
+    if (arguments.length > 2)
+        target._args = Array.prototype.slice.call(arguments, 2);
+    cc.director.getScheduler()._schedule(target.fun, target, delay / 1000, cc.REPEAT_FOREVER, 0, false, target._intervalId+'');
+    _windowTimeFunHash[target._intervalId] = target;
+    return target._intervalId;
+};
+
+/**
+ * overwrite window's clearInterval
+ @param {number} intervalId
+ */
+window.clearInterval = function (intervalId) {
+    var target = _windowTimeFunHash[intervalId];
+    if (target) {
+        cc.director.getScheduler()._unschedule(target._intervalId+'', target);
+        delete _windowTimeFunHash[intervalId];
+    }
+};
+window.clearTimeout = clearInterval;
+
 // ccsg
 window._ccsg = {
     Node: cc.Node,
