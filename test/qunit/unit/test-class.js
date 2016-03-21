@@ -627,3 +627,64 @@ test('lazy instantiate properties', function () {
     var dog = new Husky();
     deepEqual(Husky.__props__, ['like', 'weight'], 'could get properties in the correct order after instantiating');
 });
+
+test('simplified properties define', function () {
+    var Type = cc.Class({
+        properties: {
+            bool: true,
+            string: "hello",
+            number: 2,
+            obj: null,
+            vec2: cc.Vec2,
+            vec2Val: new cc.Vec2(1, 2),
+            node: cc.Node,
+        }
+    });
+
+    var obj = new Type();
+    
+    strictEqual(cc.Class.attr(Type, 'vec2').type, 'Object', 'checking vec2 type');
+    strictEqual(cc.Class.attr(Type, 'vec2').ctor, cc.Vec2, 'checking vec2 ctor');
+    strictEqual(cc.Class.attr(Type, 'node').type, 'Object', 'checking node type');
+    strictEqual(cc.Class.attr(Type, 'node').ctor, cc.Node, 'checking node ctor');
+
+    strictEqual(obj.bool, true, 'checking bool');
+    strictEqual(obj.string, "hello", 'checking string');
+    strictEqual(obj.number, 2, 'checking number');
+    strictEqual(obj.obj, null, 'checking obj');
+    strictEqual(obj.vec2 instanceof cc.Vec2, true, 'checking vec2');
+    deepEqual(obj.vec2Val, new cc.Vec2(1, 2), 'checking vec2 value');
+    strictEqual(obj.node, null, 'checking node');
+
+    var ArrayType = cc.Class({
+        properties: {
+            empty: [],
+            bool: [cc.Boolean],
+            string: [cc.String],
+            float: [cc.Float],
+            int: [cc.Integer],
+            valueType: [cc.Vec2],
+            node: [cc.Node],
+            rawAsset: [cc.RawAsset],
+            asset: [cc.Asset],
+        }
+    });
+
+    var arrayObj = new ArrayType();
+
+    strictEqual(cc.Class.attr(ArrayType, 'bool').type, cc.Boolean, 'checking array of bool type');
+    strictEqual(cc.Class.attr(ArrayType, 'valueType').type, 'Object', 'checking array of vec2 type');
+    strictEqual(cc.Class.attr(ArrayType, 'valueType').ctor, cc.Vec2, 'checking array of vec2 ctor');
+    strictEqual(cc.Class.attr(ArrayType, 'node').type, 'Object', 'checking array of node type');
+    strictEqual(cc.Class.attr(ArrayType, 'node').ctor, cc.Node, 'checking array of node ctor');
+    strictEqual(cc.Class.attr(ArrayType, 'rawAsset').type, 'Object', 'checking array of raw asset type');
+    strictEqual(cc.Class.attr(ArrayType, 'rawAsset').ctor, cc.RawAsset, 'checking array of raw asset ctor');
+
+    deepEqual(arrayObj.empty, [], 'checking array of empty');
+    deepEqual(arrayObj.bool, [], 'checking array of bool');
+    deepEqual(arrayObj.string, [], 'checking array of string');
+    deepEqual(arrayObj.valueType, [], 'checking array of valueType');
+    deepEqual(arrayObj.node, [], 'checking array of node');
+    deepEqual(arrayObj.rawAsset, [], 'checking array of rawAsset');
+    deepEqual(arrayObj.asset, [], 'checking array of asset');
+});

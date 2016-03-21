@@ -1493,7 +1493,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 var sibling = siblings[i];
                 sibling._sgNode.arrivalOrder = i;
             }
-            if (cc.renderer) {
+            if ( !CC_JSB ) {
                 cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
             }
             this._parent.emit(CHILD_REORDER);

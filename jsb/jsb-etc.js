@@ -84,8 +84,10 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
     this._unschedule(target, callback);
 };
 
-// Node arrivalOrder
-cc.defineGetterSetter(cc.Node.prototype, "arrivalOrder", cc.Node.prototype.getOrderOfArrival, cc.Node.prototype.setOrderOfArrival);
+// Node
+var nodeProto = cc.Node.prototype;
+cc.defineGetterSetter(nodeProto, "arrivalOrder", nodeProto.getOrderOfArrival, nodeProto.setOrderOfArrival);
+cc.defineGetterSetter(nodeProto, "_parent", nodeProto.getParent, nodeProto.setParent);
 
 // TextureCache addImage
 if (!cc.TextureCache.prototype._addImageAsync) {
@@ -115,6 +117,28 @@ cc.TextureCache.prototype.addImage = function(url, cb, target) {
         else {
             return this._addImage(url);
         }
+    }
+};
+
+// cc.SpriteFrame
+cc.SpriteFrame.prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
+    if (originalSize !== undefined) {
+        if(filename instanceof cc.Texture2D) {
+            this.initWithTexture(filename, rect, rotated, offset, originalSize);
+        }
+        else {
+            this.initWithTexture(filename, rect, rotated, offset, originalSize);
+        }
+    } else if (rect !== undefined) {
+        if(filename instanceof cc.Texture2D) {
+            this.initWithTexture(filename, rect);
+        }
+        else {
+            this.initWithTextureFilename(filename, rect);
+        }
+    } else if (filename instanceof cc.Texture2D) {
+        rect = cc.rect(0, 0, filename.getPixelWidth(), filename.getPixelHeight());
+        this.initWithTexture(filename, rect);
     }
 };
 

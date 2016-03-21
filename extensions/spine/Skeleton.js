@@ -55,7 +55,7 @@ sp.Skeleton = cc.Class({
     name: 'sp.Skeleton',
     extends: cc._RendererUnderSG,
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.others/Spine Skeleton',
+        menu: 'i18n:MAIN_MENU.component.renderers/Spine Skeleton',
         help: 'app://docs/html/components/spine.html',
         //playOnFocus: true
     },
@@ -76,6 +76,7 @@ sp.Skeleton = cc.Class({
                 this.defaultAnimation = '';
                 this._refresh();
             },
+            tooltip: 'i18n:COMPONENT.skeleton.skeleton_data'
         },
 
         ///**
@@ -171,7 +172,8 @@ sp.Skeleton = cc.Class({
             },
             type: DefaultSkinsEnum,
             visible: true,
-            displayName: "Default Skin"
+            displayName: "Default Skin",
+            tooltip: 'i18n:COMPONENT.skeleton.default_skin'
         },
 
         // value of 0 represents no animation
@@ -212,7 +214,8 @@ sp.Skeleton = cc.Class({
             },
             type: DefaultAnimsEnum,
             visible: true,
-            displayName: 'Animation'
+            displayName: 'Animation',
+            tooltip: 'i18n:COMPONENT.skeleton.animation'
         },
 
         //// for inspector
@@ -233,7 +236,12 @@ sp.Skeleton = cc.Class({
          * @property {boolean} loop
          * @default true
          */
-        loop: true,
+        loop: {
+            default: true,
+            type: Boolean,
+            tooltip: 'i18n:COMPONENT.skeleton.loop'
+        },
+
 
         /**
          * The time scale of this skeleton.
@@ -246,7 +254,8 @@ sp.Skeleton = cc.Class({
                 if (this._sgNode) {
                     this._sgNode.setTimeScale(this.timeScale);
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.skeleton.time_scale'
         },
 
         /**
@@ -262,6 +271,7 @@ sp.Skeleton = cc.Class({
                 }
             },
             editorOnly: true,
+            tooltip: 'i18n:COMPONENT.skeleton.debug_slots'
         },
 
         /**
@@ -277,6 +287,7 @@ sp.Skeleton = cc.Class({
                 }
             },
             editorOnly: true,
+            tooltip: 'i18n:COMPONENT.skeleton.debug_bones'
         }
     },
 
@@ -296,7 +307,7 @@ sp.Skeleton = cc.Class({
                     cc.error('Can not render dynamic created SkeletonData');
                     return null;
                 }
-                var jsonFile = cc.AssetLibrary.getImportedDir(uuid) + '/' + uuid + '.raw.json';
+                var jsonFile = this.skeletonData.rawUrl;
                 var atlasFile = this.skeletonData.atlasUrl;
                 if (atlasFile) {
                     if (typeof atlasFile !== 'string') {
