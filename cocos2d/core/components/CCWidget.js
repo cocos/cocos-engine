@@ -378,6 +378,24 @@ var Widget = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en TODO
+         * !#zh 开启时只会在 onEnable 时对齐一次。
+         * @property alignOnce
+         * @type {Boolean}
+         * @default false
+         */
+        alignOnce: {
+            get: function () {
+                return this._isAlignOnce;
+            },
+            set: function (value) {
+                this._isAlignOnce = value;
+            },
+            animatable: false,
+            tooltip: 'i18n:COMPONENT.widget.align_once',
+        },
+
         //
 
         /**
@@ -399,16 +417,18 @@ var Widget = cc.Class({
         _isAbsTop: true,
         _isAbsBottom: true,
 
+        _isAlignOnce: false,
+
         // original size before align
         _originalWidth: 0,
         _originalHeight: 0
     },
 
-    onLoad: function () {
+    onEnable: function () {
         cc._widgetManager.add(this);
     },
 
-    onDestroy: function () {
+    onDisable: function () {
         cc._widgetManager.remove(this);
     },
 
