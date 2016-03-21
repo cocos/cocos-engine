@@ -181,7 +181,7 @@ cc.eventManager.pauseTarget = function (target, recursive) {
         return;
     }
 
-    if (sgTarget !== target && sgTarget.isRunning()) {
+    if (sgTarget !== target && !sgTarget.isRunning()) {
         var originOnEnter = sgTarget.onEnter;
         sgTarget.onEnter = function () {
             originOnEnter.call(this);
