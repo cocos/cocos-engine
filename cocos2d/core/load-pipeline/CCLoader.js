@@ -109,10 +109,13 @@ JS.mixin(cc.loader, {
      *  cc.loader.load('a.png', function (err, tex) {
      *      cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
      *  });
-     *  
-     *  // load a.png from resources folder with no extension.
-     *  cc.loader.load('resources://a', function (err, tex) {
-     *      cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
+     *
+     *  cc.loader.load('http://example.com/a.png', function (err, tex) {
+     *      cc.log('Should load a texture from external url: ' + (tex instanceof cc.Texture2D));
+     *  });
+     *
+     *  cc.loader.load({id: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
+     *      cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
      *  });
      *  
      *  cc.loader.load(['a.png', 'b.json'], function (errors, results) {

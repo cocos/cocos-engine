@@ -49,6 +49,10 @@ function downloadText (item, callback) {
     }
 }
 
+function downloadAudio (item, callback) {
+    callback(null, item.url);
+}
+
 cc.loader.addDownloadHandlers({
     // JS
     'js' : downloadScript,
@@ -66,11 +70,11 @@ cc.loader.addDownloadHandlers({
     'image' : empty,
 
     // Audio
-    'mp3' : empty,
-    'ogg' : empty,
-    'wav' : empty,
-    'mp4' : empty,
-    'm4a' : empty,
+    'mp3' : downloadAudio,
+    'ogg' : downloadAudio,
+    'wav' : downloadAudio,
+    'mp4' : downloadAudio,
+    'm4a' : downloadAudio,
 
     // Txt
     'txt' : downloadText,
