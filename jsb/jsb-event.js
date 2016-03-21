@@ -171,6 +171,7 @@ cc.eventManager.removeListeners = function (target, recursive) {
 cc.eventManager._pauseTarget = cc.eventManager.pauseTarget;
 cc.eventManager.pauseTarget = function (target, recursive) {
     var sgTarget = target;
+    target._eventPaused = true;
     if (target instanceof cc.Component) {
         sgTarget = target.node._sgNode;
     }
@@ -185,7 +186,9 @@ cc.eventManager.pauseTarget = function (target, recursive) {
         var originOnEnter = sgTarget.onEnter;
         sgTarget.onEnter = function () {
             originOnEnter.call(this);
-            cc.eventManager._pauseTarget(this, recursive || false);
+            if (target._eventPaused) {
+                cc.eventManager._pauseTarget(this, recursive || false);
+            }
             this.onEnter = originOnEnter;
         };
     }
@@ -193,6 +196,7 @@ cc.eventManager.pauseTarget = function (target, recursive) {
 };
 cc.eventManager._resumeTarget = cc.eventManager.resumeTarget;
 cc.eventManager.resumeTarget = function (target, recursive) {
+    target._eventPaused = false;
     if (target instanceof cc.Component) {
         target = target.node._sgNode;
     }
