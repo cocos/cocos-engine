@@ -121,8 +121,6 @@ jsbLabel.prototype.setContentSize = function (size, height) {
 };
 
 jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
-    fontHandle = cc.Pipeline.UrlResolver.getRawUrl(fontHandle);
-    
     fontHandle = fontHandle || '';
     var extName = cc.path.extname(fontHandle);
     //specify font family name directly

@@ -94,8 +94,3 @@ for (var mode = 0; mode < funcNames.length; mode++) {
     }
 }
 
-var initWithFile = proto.initWithFile;
-proto.initWithFile = function (url) {
-    url = cc.Pipeline.UrlResolver.getRawUrl(url);
-    initWithFile.call(this, url);
-};
