@@ -29,15 +29,18 @@ var JS = require('../platform/js');
 /**
  * A 2D rectangle defined by x, y position and width, height.
  *
- * see {% crosslink cc.Rect cc.rect %}
- *
  * @class Rect
  * @extends ValueType
- * @constructor
+ */
+/**
+ * Constructor of cc.Rect class.
+ * see {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} for convenience method.
+ * @method Rect
  * @param {Number} [x=0]
  * @param {Number} [y=0]
  * @param {Number} [w=0]
  * @param {Number} [h=0]
+ * @return {Rect}
  */
 function Rect (x, y, w, h) {
     if (x && typeof x === 'object') {
@@ -256,10 +259,13 @@ proto.containsRect = function (rect) {
 
 cc.Rect = Rect;
 
-
+/**
+ * @module cc
+ */
 
 /**
  * The convenience method to create a new Rect.
+ * see {{#crossLink "Rect/Rect:method"}}cc.Rect{{/crossLink}}
  * @method rect
  * @param {Number[]|Number} [x=0]
  * @param {Number} [y=0]

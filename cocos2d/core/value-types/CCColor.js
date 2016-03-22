@@ -33,15 +33,18 @@ var Color = (function () {
      *
      * Each color component is a floating point value with a range from 0 to 255.
      *
-     * You can also use the convenience method <% crosslink cc.Color cc.Color %> to create a new Color.
+     * You can also use the convenience method {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} to create a new Color.
      *
      * @class Color
      * @extends ValueType
-     * @constructor
+     */
+    /**
+     * @method Color
      * @param {Number} [r=0] - red component of the color, default value is 0.
      * @param {Number} [g=0] - green component of the color, defualt value is 0.
      * @param {Number} [b=0] - blue component of the color, default value is 0.
      * @param {Number} [a=255] - alpha component of the color, default value is 255.
+     * @return {Color}
      */
     function Color( r, g, b, a ) {
         if (typeof r === 'object') {
@@ -449,7 +452,11 @@ Color.hsv2rgb = function ( h, s, v ) {
 cc.Color = Color;
 
 /**
- * The convenience method to create a new <% crosslink cc.Color color %>
+ * @module cc
+ */
+
+/**
+ * The convenience method to create a new {{#crossLink "Color/Color:method"}}cc.Color{{/crossLink}}
  * Alpha channel is optional. Default value is 255.
  * @method color
  * @param {Number} [r=0]
@@ -458,7 +465,7 @@ cc.Color = Color;
  * @param {Number} [a=255]
  * @return {Color}
  *
- * @examples {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
+ * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
  */
 cc.color = function color (r, g, b, a) {
     if (JS.isString(r)) {
