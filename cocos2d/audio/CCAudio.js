@@ -369,11 +369,14 @@ JS.mixin(cc.Audio.prototype, {
             if(bgMusic && bgMusic.src !== url && bgMusic.getPlaying()){
                 bgMusic.stop();
             }
-            var audio = cc.loader.getRes(url);
+            var item = cc.loader.getItem(url);
+            var audio = item && item.audio ? item.audio : null;
             if(!audio){
                 var self = this;
-                cc.loader.load(url, function (error, audio) {
+                cc.loader.load(url, function (error) {
                     if (!error) {
+                        var item = cc.loader.getItem(url);
+                        var audio = item && item.audio ? item.audio : null;
                         audio.play(0, loop);
                         audio.setVolume(self._musicVolume);
                         self._currMusic = audio;
