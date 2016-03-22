@@ -239,7 +239,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
             this.canvas.height = locContentSize.height;
         }
         this.setNodeDirty();
-        this.redraw();
+        // this.redraw();
     },
 
     /**
@@ -261,7 +261,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
             this.canvas.width = locContentSize.width;
         }
         this.setNodeDirty();
-        this.redraw();
+        // this.redraw();
     },
 
     /**
@@ -283,7 +283,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
             this.canvas.height = locContentSize.height;
         }
         this.setNodeDirty();
-        this.redraw();
+        // this.redraw();
     },
 
     /**
