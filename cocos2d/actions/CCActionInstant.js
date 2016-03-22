@@ -445,7 +445,7 @@ cc.CallFunc = cc.ActionInstant.extend({
         if (selectorTarget) {
             this._selectorTarget = selectorTarget;
         }
-        if (data || data === 0) {
+        if (data !== undefined) {
             this._data = data;
         }
         return true;
