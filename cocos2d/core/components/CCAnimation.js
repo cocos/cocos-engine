@@ -186,7 +186,7 @@ var Animation = cc.Class({
 
     /**
      * !#en Plays an animation and stop other animations.
-     * !#zh 播放当前或者指定的动画剪辑，并且停止当前正在播放动画剪辑。
+     * !#zh 播放当前或者指定的动画，并且停止当前正在播放动画。
      * @method play
      * @param {String} [name] - The name of animation to play. If no name is supplied then the default animation will be played.
      * @param {Number} [startTime] - play an animation from startTime
@@ -214,7 +214,7 @@ var Animation = cc.Class({
      * !#en
      * Plays an additive animation, it will not stop other animations.
      * If there are other animations playing, then will play several animations at the same time.
-     * !#zh 播放当前或者指定的动画剪辑（将不会停止当前播放的动画）。
+     * !#zh 播放当前或者指定的动画（将不会停止当前播放的动画）。
      * @method playAdditive
      * @param {String} [name] - The name of animation to play. If no name is supplied then the default animation will be played.
      * @param {Number} [startTime] - play an animation from startTime
@@ -252,7 +252,7 @@ var Animation = cc.Class({
     /**
      * !#en Stops an animation named name. If no name is supplied then stops all playing animations that were started with this Animation. <br/>
      * Stopping an animation also Rewinds it to the Start.
-     * !#zh 停止当前或者指定的动画剪辑。
+     * !#zh 停止当前或者指定的动画。如果没有指定名字，则停止所有动画。
      * @method stop
      * @param {String} [name] - The animation to stop, if not supplied then stops all playing animations.
      */
@@ -273,7 +273,7 @@ var Animation = cc.Class({
 
     /**
      * !#en Pauses an animation named name. If no name is supplied then pauses all playing animations that were started with this Animation.
-     * !#zh 暂停当前或者指定的动画剪辑。
+     * !#zh 暂停当前或者指定的动画。如果没有指定名字，则暂停当前正在播放的动画。
      * @method pause
      * @param {String} [name] - The animation to pauses, if not supplied then pauses all playing animations.
      */
@@ -294,7 +294,7 @@ var Animation = cc.Class({
 
     /**
      * !#en Resumes an animation named name. If no name is supplied then resumes all paused animations that were started with this Animation.
-     * !#zh 重新播放当前或者指定的动画剪辑。
+     * !#zh 重新播放指定的动画，如果没有指定名字，则重新播放当前正在播放的动画。
      * @method resume
      * @param {String} [name] - The animation to resumes, if not supplied then resumes all paused animations.
      */
@@ -315,7 +315,7 @@ var Animation = cc.Class({
 
     /**
      * !#en Make an animation named name go to the specified time. If no name is supplied then make all animations go to the specified time.
-     * !#zh 设置当前或者指定动画剪辑的播放时间。
+     * !#zh 设置指定动画的播放时间。如果没有指定名字，则设置所有动画的播放时间。
      * @method setCurrentTime
      * @param {Number} [time] - The time to go to
      * @param {String} [name] - Specified animation name, if not supplied then make all animations go to the time.
@@ -420,8 +420,7 @@ var Animation = cc.Class({
      * !#en Remove clip from the animation list. This will remove the clip and any animation states based on it.
      * !#zh
      * 从动画列表中移除指定的动画剪辑，<br/>
-     * 如果动画剪辑正在播放并且 force 参数为 true，这会停止该动画剪辑，然后在移除该动画剪辑，<br/>
-     * 反之为 false，这不会删除该动画剪辑。
+     * 如果动画剪辑正在播放并且 force 参数为 true，这会停止该动画剪辑，然后在移除该动画剪辑，反之为 false，则会停止该动画。
      * @method removeClip
      * @param {AnimationClip} clip
      * @param {Boolean} force If force is true, then will always remove the clip and any animation states based on it.

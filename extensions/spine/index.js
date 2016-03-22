@@ -65,25 +65,25 @@ sp.ATTACHMENT_TYPE = {
 sp.AnimationEventType = cc.Enum({
     /**
      * !#en The play spine skeleton animation start type.
-     * !#zh 开始播放骨骼动画类型。
+     * !#zh 开始播放骨骼动画。
      * @property {Number} START
      */
     START: 0,
     /**
      * !#en The play spine skeleton animation finish type.
-     * !#zh 播放骨骼动画结束类型。
+     * !#zh 播放骨骼动画结束。
      * @property {Number} END
      */
     END: 1,
     /**
      * !#en The play spine skeleton animation complete type.
-     * !#zh 播放骨骼动画完成类型。
+     * !#zh 播放骨骼动画完成。
      * @property {Number} COMPLETE
      */
     COMPLETE: 2,
     /**
      * !#en The spine skeleton animation event type.
-     * !#zh 骨骼动画事件类型
+     * !#zh 骨骼动画事件。
      * @property {Number} EVENT
      */
     EVENT: 3

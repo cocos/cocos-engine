@@ -26,7 +26,7 @@ JS.get(prototype, 'isPlaying', function () {
 
 /**
  * !#en Is currently paused? This can be true even if in edit mode(isPlaying == false).
- * !#zh 当前是否正在暂停，如果为 true，那么在编辑模式下 isPlaying 就为 false。
+ * !#zh 当前是否正在暂停
  * @property isPaused
  * @type {boolean}
  * @default false
