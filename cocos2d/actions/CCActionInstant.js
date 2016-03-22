@@ -440,7 +440,7 @@ cc.CallFunc = cc.ActionInstant.extend({
         if (selectorTarget) {
             this._selectorTarget = selectorTarget;
         }
-        if (data) {
+        if (data || data === 0) {
             this._data = data;
         }
         return true;
