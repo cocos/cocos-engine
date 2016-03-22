@@ -29,7 +29,8 @@
  */
 
 /**
- * Base class cc.Action for action classes.
+ * !#en Base class cc.Action for action classes.
+ * !#zh Action 类是所有动作类型的基类。
  * @class Action
  */
 cc.Action = cc._Class.extend({
@@ -43,8 +44,10 @@ cc.Action = cc._Class.extend({
     },
 
     /**
+     * !#en
      * to copy object with deep copy.
      * returns a clone of action.
+     * !#zh 返回一个克隆的动作。
      * @method clone
      * @return {Action}
      */
@@ -57,7 +60,9 @@ cc.Action = cc._Class.extend({
     },
 
     /**
+     * !#en
      * return true if the action has finished.
+     * !#zh 如果动作已完成就返回 true。
      * @method isDone
      * @return {Boolean}
      */
@@ -87,7 +92,8 @@ cc.Action = cc._Class.extend({
     },
 
     /**
-     * get the target.
+     * !#en get the target.
+     * !#zh 获取当前目标节点。
      * @method getTarget
      * @return {Node}
      */
@@ -96,7 +102,8 @@ cc.Action = cc._Class.extend({
     },
 
     /**
-     * The action will modify the target properties.
+     * !#en The action will modify the target properties.
+     * !#zh 设置目标节点。
      * @method setTarget
      * @param {Node} target
      */
@@ -105,7 +112,8 @@ cc.Action = cc._Class.extend({
     },
 
     /**
-     * get the original target.
+     * !#en get the original target.
+     * !#zh 获取原始目标节点。
      * @method getOriginalTarget
      * @return {Node}
      */
@@ -121,7 +129,8 @@ cc.Action = cc._Class.extend({
     },
 
     /**
-     * get tag number.
+     * !#en get tag number.
+     * !#zh 获取用于识别动作的标签。
      * @method getTag
      * @return {Number}
      */
@@ -130,7 +139,8 @@ cc.Action = cc._Class.extend({
     },
 
     /**
-     * set tag number.
+     * !#en set tag number.
+     * !#zh 设置标签，用于识别动作。
      * @method setTag
      * @param {Number} tag
      */
@@ -151,21 +161,27 @@ cc.Action = cc._Class.extend({
     }
 });
 
-/** Default Action tag
+/**
+ * !#en Default Action tag.
+ * !#zh 默认动作标签。
+ * @property TAG_INVALID
  * @constant
+ * @static
  * @type {Number}
- * @default
+ * @default -1
  */
 cc.Action.TAG_INVALID = -1;
 
 
 /**
+ * !#en
  * Base class actions that do have a finite time duration. <br/>
  * Possible actions: <br/>
  * - An action with a duration of 0 seconds. <br/>
  * - An action with a duration of 35.5 seconds.
  *
  * Infinite time actions are valid
+ * !#zh 有限时间动作，这种动作拥有时长 duration 属性。
  * @class FiniteTimeAction
  * @extends Action
  */
@@ -179,7 +195,8 @@ cc.FiniteTimeAction = cc.Action.extend({
     },
 
     /**
-     * get duration of the action. (seconds)
+     * !#en get duration of the action. (seconds).
+     * !#zh 获取动作以秒为单位的持续时间。
      * @method getDuration
      * @return {Number}
      */
@@ -188,7 +205,8 @@ cc.FiniteTimeAction = cc.Action.extend({
     },
 
     /**
-     * set duration of the action. (seconds)
+     * !#en set duration of the action. (seconds).
+     * !#zh 设置动作以秒为单位的持续时间。
      * @method setDuration
      * @param {Number} duration
      */
@@ -197,11 +215,13 @@ cc.FiniteTimeAction = cc.Action.extend({
     },
 
     /**
+     * !#en
      * Returns a reversed action. <br />
      * For example: <br />
      * - The action will be x coordinates of 0 move to 100. <br />
      * - The reversed action will be x of 100 move to 0.
      * - Will be rewritten
+     * !#zh 返回一个新的动作，执行与原动作完全相反的动作。
      * @method reverse
      * @return {Null}
      */
@@ -211,8 +231,10 @@ cc.FiniteTimeAction = cc.Action.extend({
     },
 
     /**
+     * !#en
      * to copy object with deep copy.
      * returns a clone of action.
+     * !#zh 返回一个克隆的动作。
      * @method clone
      * @return {FiniteTimeAction}
      */
@@ -249,7 +271,7 @@ cc.Speed = cc.Action.extend({
 		action && this.initWithAction(action, speed);
     },
 
-    /**
+    /*
      * Gets the current running speed. <br />
      * Will get a percentage number, compared to the original speed.
      *
@@ -260,7 +282,7 @@ cc.Speed = cc.Action.extend({
         return this._speed;
     },
 
-    /**
+    /*
      * alter the speed of the inner function in runtime.
      * @method setSpeed
      * @param {Number} speed
@@ -269,7 +291,7 @@ cc.Speed = cc.Action.extend({
         this._speed = speed;
     },
 
-    /**
+    /*
      * initializes the action.
      * @method initWithAction
      * @param {ActionInterval} action
@@ -313,7 +335,7 @@ cc.Speed = cc.Action.extend({
         return new cc.Speed(this._innerAction.reverse(), this._speed);
     },
 
-    /**
+    /*
      * Set inner Action.
      * @method setInnerAction
      * @param {ActionInterval} action
@@ -324,7 +346,7 @@ cc.Speed = cc.Action.extend({
         }
     },
 
-    /**
+    /*
      * Get inner Action.
      * @method getInnerAction
      * @return {ActionInterval}
@@ -339,16 +361,21 @@ cc.Speed = cc.Action.extend({
  */
 
 /**
+ * !#en
  * Creates the speed action which changes the speed of an action, making it take longer (speed > 1)
  * or less (speed < 1) time. <br/>
  * Useful to simulate 'slow motion' or 'fast forward' effect.
- *
+ * !#zh 修改目标动作的速率。
  * @warning This action can't be Sequenceable because it is not an cc.IntervalAction
  *
  * @method speed
  * @param {ActionInterval} action
  * @param {Number} speed
  * @return {Action}
+ * @example
+ * // change the target action speed;
+ * var action = cc.scaleTo(0.2, 1, 0.6);
+ * var newAction = cc.speed(action, 0.5);
  */
 cc.speed = function (action, speed) {
     return new cc.Speed(action, speed);
@@ -400,7 +427,7 @@ cc.Follow = cc.Action.extend({
     topBoundary:0.0,
     bottomBoundary:0.0,
 
-	/**
+	/*
      * Constructor function, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function. <br />
 	 * creates the action with a set boundary. <br/>
 	 * creates the action with no boundary set.
@@ -528,8 +555,8 @@ cc.Follow = cc.Action.extend({
 });
 
 /**
- * Create a follow action which makes its target follows another node.
- *
+ * !#en Create a follow action which makes its target follows another node.
+ * !#zh 追踪目标节点的位置。
  * @method follow
  * @param {Node} followedNode
  * @param {Rect} rect

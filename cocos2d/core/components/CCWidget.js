@@ -378,6 +378,17 @@ var Widget = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en TODO
+         * !#zh
+         * 开启时只会在 onEnable 时对齐一次，然后立刻禁用当前组件。
+         * 这样便于脚本或动画继续控制当前节点。
+         * @property isAlignOnce
+         * @type {Boolean}
+         * @default false
+         */
+        isAlignOnce: false,
+
         //
 
         /**
@@ -404,11 +415,11 @@ var Widget = cc.Class({
         _originalHeight: 0
     },
 
-    onLoad: function () {
+    onEnable: function () {
         cc._widgetManager.add(this);
     },
 
-    onDestroy: function () {
+    onDisable: function () {
         cc._widgetManager.remove(this);
     },
 

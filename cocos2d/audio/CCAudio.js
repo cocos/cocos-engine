@@ -540,11 +540,12 @@ JS.mixin(cc.Audio.prototype, {
             }else if(!SWA && i > this._maxAudioInstance){
                 cc.log("Error: %s greater than %d", url, this._maxAudioInstance);
             }else{
-                audio = cc.loader.getRes(url);
+                var item = cc.loader.getItem(url);
+                audio = item && item.audio ? item.audio : null;
                 if(!audio){
                     cc.loader.load(url);
-                    var item = cc.loader.getItems().map[url];
-                    audio = item ? item.content : null;
+                    item = cc.loader.getItem(url);
+                    audio = item && item.audio ? item.audio : null;
                     if (!audio) {
                         return;
                     }
