@@ -3,9 +3,12 @@ var JS = cc.js;
 var AnimationNode = require('./types').AnimationNode;
 
 /**
+ * !#en
  * The AnimationState gives full control over animation playback process.
  * In most cases the Animation Component is sufficient and easier to use. Use the AnimationState if you need full control.
- *
+ * !#zh
+ * AnimationState 完全控制动画播放过程。<br/>
+ * 在大多数情况下动画界面是足够易于使用。如果您需要完全控制动画融合的任何过程，请使用 AnimationState。
  * @class AnimationState
  * @extends AnimationNode
  * @constructor
@@ -30,7 +33,8 @@ JS.extend(AnimationState, AnimationNode);
 var state = AnimationState.prototype;
 
 /**
- * The clip that is being played by this animation state.
+ * !#en The clip that is being played by this animation state.
+ * !#zh 此动画状态正在播放的剪辑。
  * @property clip
  * @type {AnimationClip}
  * @final
@@ -40,7 +44,8 @@ JS.get(state, 'clip', function () {
 });
 
 /**
- * The name of the playing animation.
+ * !#en The name of the playing animation.
+ * !#zh 动画的名字
  * @property name
  * @type {String}
  * @readOnly
