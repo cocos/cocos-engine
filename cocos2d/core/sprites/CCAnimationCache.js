@@ -29,7 +29,7 @@
  *     cc.spriteFrameAnimationCache is a singleton object that manages the Animations.<br/>
  *     It saves in a cache the animations. You should use this class if you want to save your animations in a cache.<br/>
  * <br/>
- * example
+ * @example
  * cc.spriteFrameAnimationCache.addAnimation(animation,"animation1");
  *
  * @class

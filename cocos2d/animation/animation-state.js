@@ -8,7 +8,7 @@ var AnimationNode = require('./types').AnimationNode;
  * In most cases the Animation Component is sufficient and easier to use. Use the AnimationState if you need full control.
  * !#zh
  * AnimationState 完全控制动画播放过程。<br/>
- * 在大多数情况下动画界面是足够易于使用。如果您需要完全控制动画融合的任何过程，请使用 AnimationState。
+ * 大多数情况下 动画组件 是足够和易于使用的。如果您需要更多的动画控制接口，请使用 AnimationState。
  * @class AnimationState
  * @extends AnimationNode
  * @constructor

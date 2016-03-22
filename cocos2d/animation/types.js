@@ -11,7 +11,7 @@ var WrapModeMask = {
 
 /**
  * !#en Specifies how time is treated when it is outside of the keyframe range of an Animation.
- * !#zh 动画状态使用的循环模式。
+ * !#zh 动画使用的循环模式。
  * @enum WrapMode
  * @memberof cc
  */

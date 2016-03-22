@@ -1,7 +1,7 @@
 
 /**
  * !#en Class for animation data handling.
- * !#zh 动画剪辑，用于动画数据处理。
+ * !#zh 动画剪辑，用于存储动画数据。
  * @class AnimationClip
  * @extends Asset
  * @constructor
@@ -48,7 +48,7 @@ var AnimationClip = cc.Class({
 
         /**
          * !#en WrapMode of this animation.
-         * !#zh 在动画状态设置使用的默认循环模式。
+         * !#zh 动画的循环模式。
          * @property wrapMode
          * @type {WrapMode}
          */
