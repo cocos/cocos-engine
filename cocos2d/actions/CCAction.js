@@ -103,7 +103,7 @@ cc.Action = cc._Class.extend({
 
     /**
      * !#en The action will modify the target properties.
-     * !#zh 设置目标节点属性。
+     * !#zh 设置目标节点。
      * @method setTarget
      * @param {Node} target
      */
@@ -130,7 +130,7 @@ cc.Action = cc._Class.extend({
 
     /**
      * !#en get tag number.
-     * !#zh 获取一个用于识别动作的标签。
+     * !#zh 获取用于识别动作的标签。
      * @method getTag
      * @return {Number}
      */
