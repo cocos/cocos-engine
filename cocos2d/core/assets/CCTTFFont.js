@@ -27,7 +27,8 @@
  * @module cc
  */
 /**
- * Class for TTFFont handling.
+ * !#en Class for TTFFont handling.
+ * !#zh TTF 字体资源类。
  * @class TTFFont
  * @extends Asset
  * @constructor
