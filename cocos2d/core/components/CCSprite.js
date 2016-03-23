@@ -166,9 +166,6 @@ var Sprite = cc.Class({
                 var lastSprite = this._spriteFrame;
                 this._spriteFrame = value;
                 this._applySpriteFrame(lastSprite);
-                // color cleared after reset texture, should re-apply color
-                // this._sgNode.setColor(this.node._color);
-                // this._sgNode.setOpacity(this.node._opacity);
             },
             type: cc.SpriteFrame,
         },

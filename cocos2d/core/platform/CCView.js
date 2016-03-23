@@ -367,7 +367,7 @@ var View = cc._Class.extend({
 	 * @param {Boolean} enabled - Enable or disable retina display
 	 */
 	enableRetina: function(enabled) {
-		this._retinaEnabled = enabled ? true : false;
+		this._retinaEnabled = !!enabled;
 	},
 
 	/**
