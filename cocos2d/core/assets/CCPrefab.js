@@ -33,7 +33,8 @@ function visitWrapper (wrapper, visitor) {
 }
 
 /**
- * Class for prefab handling.
+ * !#en Class for prefab handling.
+ * !#zh 预制资源类。
  * @class Prefab
  * @extends Asset
  * @constructor

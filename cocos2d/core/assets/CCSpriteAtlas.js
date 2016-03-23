@@ -24,7 +24,8 @@
  ****************************************************************************/
 
 /**
- * Class for sprite atlas handling.
+ * !#en Class for sprite atlas handling.
+ * !#zh 精灵图集资源类。
  * @class SpriteAtlas
  * @extends RawAsset
  * @constructor

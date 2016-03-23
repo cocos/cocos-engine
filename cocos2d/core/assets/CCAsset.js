@@ -25,12 +25,20 @@
 
 var RawAsset = require('./CCRawAsset');
 /**
+ * !#en
  * Base class for handling assets used in Fireball. This class can be instantiate.
  *
- * You may want to override:
- * - createNode
- * - cc.Object._serialize
- * - cc.Object._deserialize
+ * You may want to override:<br/>
+ * - createNode<br/>
+ * - cc.Object._serialize<br/>
+ * - cc.Object._deserialize<br/>
+ * !#zh
+ * 资源基类，该类可以被实例化。<br/>
+ *
+ * 您可能需要重写：<br/>
+ * - createNode <br/>
+ * - cc.Object._serialize<br/>
+ * - cc.Object._deserialize<br/>
  *
  * @class Asset
  * @extends RawAsset
@@ -41,9 +49,10 @@ cc.Asset = cc.Class({
 
     properties: {
         /**
+         * !#en
          * Returns the url of this asset's first raw file, if none of rawFile exists,
          * it will returns an empty string.
-         *
+         * !#zh 返回该资源的原始文件的 URL，如果不支持 RAW 文件，它将返回一个空字符串。
          * @property rawUrl
          * @type {String}
          * @readOnly
@@ -64,9 +73,10 @@ cc.Asset = cc.Class({
         },
 
         /**
+         * !#en
          * Returns the url of this asset's raw files, if none of rawFile exists,
          * it will returns an empty array.
-         *
+         * !#zh 返回该资源的原文件的 URL 数组，如果不支持 RAW 文件，它将返回一个空数组。
          * @property rawUrls
          * @type {String[]}
          * @readOnly
@@ -129,9 +139,12 @@ cc.Asset = cc.Class({
     },
 
     /**
-     * Create a new node using this asset in the scene.
+     * !#en
+     * Create a new node using this asset in the scene.<br/>
      * If this type of asset dont have its corresponding node type, this method should be null.
-     *
+     * !#zh
+     * 使用该资产在场景中创建一个新节点。<br/>
+     * 如果这类资产没有相应的节点类型，该方法应该是空的。
      * @method createNode
      * @param {Function} callback
      * @param {String} callback.error - null or the error info
