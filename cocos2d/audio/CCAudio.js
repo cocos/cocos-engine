@@ -334,7 +334,6 @@ JS.mixin(cc.Audio.prototype, {
 (function(polyfill){
 
     var SWA = polyfill.WEB_AUDIO,
-        SWB = polyfill.MULTI_CHANNEL,
         SWC = polyfill.AUTOPLAY;
 
     /**
@@ -531,7 +530,7 @@ JS.mixin(cc.Audio.prototype, {
          */
         playEffect: function(url, loop){
             //If the browser just support playing single audio
-            if(!SWB){
+            if(!polyfill.MULTI_CHANNEL){
                 //Must be forced to shut down
                 //Because playing MULTI_CHANNEL audio will be stuck in chrome 28 (android)
                 return null;

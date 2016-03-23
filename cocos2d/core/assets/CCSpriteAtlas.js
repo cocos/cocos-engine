@@ -33,6 +33,37 @@
 var SpriteAtlas = cc.Class({
     name: 'cc.SpriteAtlas',
     extends: cc.Asset,
+    properties: {
+        _spriteFrames: {
+            default: {}
+        },
+    },
+
+    /**
+     * Returns the texture of the sprite atlas
+     * @method getTexture
+     * @returns {cc.Texture2D}
+     */
+    getTexture: function () {
+        var keys = Object.keys(this._spriteFrames);
+        if (keys.length > 0) {
+            var spriteFrame = this._spriteFrames[keys[0]];
+            return spriteFrame ? spriteFrame.getTexture() : null;
+        }
+        else {
+            return null;
+        }
+    },
+
+    /**
+     * Returns the sprite frame correspond to the given key in sprite atlas.
+     * @method getSpriteFrame
+     * @param {String} key
+     * @returns {cc.SpriteFrame}
+     */
+    getSpriteFrame: function (key) {
+        return this._spriteFrames[key];
+    }
 });
 
 cc.SpriteAtlas = SpriteAtlas;
