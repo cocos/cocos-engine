@@ -89,13 +89,20 @@ var __getListenerID = function (event) {
 };
 
 /**
+ * !#en
  * <p>
  *  cc.eventManager is a singleton object which manages event listener subscriptions and event dispatching. <br/>
  *                                                                                                              <br/>
  *  The EventListener list is managed in such way so that event listeners can be added and removed          <br/>
  *  while events are being dispatched.
  * </p>
+ * !#zh
+ * 事件管理器，它主要管理事件监听器注册和派发系统事件。
+ * 原始设计中，它支持鼠标，触摸，键盘，陀螺仪和自定义事件。
+ * 在 Creator 的设计中，鼠标，触摸和自定义事件的监听和派发请参考 http://cocos.com/docs/creator/scripting/events.html。
+ *
  * @class eventManager
+ * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/addListener.js}
  */
 cc.eventManager = {
     //Priority dirty flag
@@ -130,10 +137,11 @@ cc.eventManager = {
     },
 
     /**
-     * Pauses all listeners which are associated the specified target.
+     * !#en Pauses all listeners which are associated the specified target.
+     * !#zh 暂停传入的 node 相关的所有监听器的事件响应。
      * @method pauseTarget
      * @param {Node} node
-     * @param {Boolean} [recursive=false]
+     * @param {Boolean} recursive
      */
     pauseTarget: function (node, recursive) {
         var listeners = this._nodeListenersMap[node.__instanceId], i, len;
@@ -149,10 +157,11 @@ cc.eventManager = {
     },
 
     /**
-     * Resumes all listeners which are associated the specified target.
+     * !#en Resumes all listeners which are associated the specified target.
+     * !#zh 恢复传入的 node 相关的所有监听器的事件响应。
      * @method resumeTarget
      * @param {Node} node
-     * @param {Boolean} [recursive=false]
+     * @param {Boolean} recursive
      */
     resumeTarget: function (node, recursive) {
         var listeners = this._nodeListenersMap[node.__instanceId], i, len;
@@ -638,11 +647,19 @@ cc.eventManager = {
     },
 
     /**
+     * !#en
      * <p>
-     * Adds a event listener for a specified event.                                                                                                            <br/>
-     * if the parameter "nodeOrPriority" is a node, it means to add a event listener for a specified event with the priority of scene graph.                   <br/>
-     * if the parameter "nodeOrPriority" is a Number, it means to add a event listener for a specified event with the fixed priority.                          <br/>
+     * Adds a event listener for a specified event.<br/>
+     * if the parameter "nodeOrPriority" is a node,
+     * it means to add a event listener for a specified event with the priority of scene graph.<br/>
+     * if the parameter "nodeOrPriority" is a Number,
+     * it means to add a event listener for a specified event with the fixed priority.<br/>
      * </p>
+     * !#zh
+     * 将事件监听器添加到事件管理器中。<br/>
+     * 如果参数 “nodeOrPriority” 是节点，优先级由 node 的渲染顺序决定，显示在上层的节点将优先收到事件。<br/>
+     * 如果参数 “nodeOrPriority” 是数字，优先级则固定为该参数的数值，数字越小，优先级越高。<br/>
+     *
      * @method addListener
      * @param {EventListener|Object} listener - The listener of a specified event or a object of some event parameters.
      * @param {Node|Number} nodeOrPriority - The priority of the listener is based on the draw order of this node or fixedPriority The fixed priority of the listener.
@@ -688,8 +705,9 @@ cc.eventManager = {
         return listener;
     },
 
-    /**
-     * Adds a Custom event listener. It will use a fixed priority of 1.
+    /*
+     * !#en Adds a Custom event listener. It will use a fixed priority of 1.
+     * !#zh 向事件管理器添加一个自定义事件监听器。
      * @method addCustomListener
      * @param {String} eventName
      * @param {Function} callback
@@ -702,9 +720,11 @@ cc.eventManager = {
     },
 
     /**
-     * Remove a listener.
+     * !#en Remove a listener.
+     * !#zh 移除一个已添加的监听器。
      * @method removeListener
      * @param {EventListener} listener - an event listener or a registered node target
+     * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventManager/removeListener.js}
      */
     removeListener: function (listener) {
         if (listener == null)
@@ -790,10 +810,22 @@ cc.eventManager = {
     },
 
     /**
-     * Removes all listeners with the same event listener type or removes all listeners of a node
+     * !#en Removes all listeners with the same event listener type or removes all listeners of a node.
+     * !#zh
+     * 移除注册到 eventManager 中指定类型的所有事件监听器。<br/>
+     * 1. 如果传入的第一个参数类型是 Node，那么事件管理器将移除与该对象相关的所有事件监听器。
+     * （如果第二参数 recursive 是 true 的话，就会连同该对象的子控件上所有的事件监听器也一并移除）<br/>
+     * 2. 如果传入的第一个参数类型是 Number（该类型 EventListener 中定义的事件类型），
+     * 那么事件管理器将移除该类型的所有事件监听器。<br/>
+     *
+     * 下列是目前存在监听器类型：       <br/>
+     * cc.EventListener.UNKNOWN       <br/>
+     * cc.EventListener.KEYBOARD      <br/>
+     * cc.EventListener.ACCELERATION，<br/>
+     *
      * @method removeListeners
      * @param {Number|Node} listenerType - listenerType or a node
-     * @param {Boolean} [recursive=false]
+     * @param {Boolean} recursive
      */
     removeListeners: function (listenerType, recursive) {
         var i, _t = this;
@@ -847,8 +879,9 @@ cc.eventManager = {
         }
     },
 
-    /**
-     * Removes all custom listeners with the same event name
+    /*
+     * !#en Removes all custom listeners with the same event name.
+     * !#zh 移除同一事件名的自定义事件监听器。
      * @method removeCustomListeners
      * @param {String} customEventName
      */
@@ -857,7 +890,8 @@ cc.eventManager = {
     },
 
     /**
-     * Removes all listeners
+     * !#en Removes all listeners
+     * !#zh 移除所有事件监听器。
      * @method removeAllListeners
      */
     removeAllListeners: function () {
@@ -869,7 +903,8 @@ cc.eventManager = {
     },
 
     /**
-     * Sets listener's priority with fixed value.
+     * !#en Sets listener's priority with fixed value.
+     * !#zh 设置 FixedPriority 类型监听器的优先级。
      * @method setPriority
      * @param {EventListener} listener
      * @param {Number} fixedPriority
@@ -898,7 +933,8 @@ cc.eventManager = {
     },
 
     /**
-     * Whether to enable dispatching events
+     * !#en Whether to enable dispatching events
+     * !#zh 启用或禁用事件管理器，禁用后不会分发任何事件。
      * @method setEnabled
      * @param {Boolean} enabled
      */
@@ -907,7 +943,8 @@ cc.eventManager = {
     },
 
     /**
-     * Checks whether dispatching events is enabled
+     * !#en Checks whether dispatching events is enabled
+     * !#zh 检测事件管理器是否启用。
      * @method isEnabled
      * @returns {Boolean}
      */
@@ -915,8 +952,9 @@ cc.eventManager = {
         return this._isEnabled;
     },
 
-    /**
-     * Dispatches the event, also removes all EventListeners marked for deletion from the event dispatcher list.
+    /*
+     * !#en Dispatches the event, also removes all EventListeners marked for deletion from the event dispatcher list.
+     * !#zh 分发事件。
      * @method dispatchEvent
      * @param {Event} event
      */
@@ -950,8 +988,9 @@ cc.eventManager = {
         return event.isStopped();
     },
 
-    /**
-     * Dispatches a Custom Event with a event name an optional user data
+    /*
+     * !#en Dispatches a Custom Event with a event name an optional user data
+     * !#zh 分发自定义事件。
      * @method dispatchCustomEvent
      * @param {String} eventName
      * @param {*} optionalUserData

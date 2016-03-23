@@ -38,7 +38,6 @@ function downloadScript (item, callback) {
 
 function downloadText (item, callback) {
     var url = item.url;
-    url = cc.Pipeline.UrlResolver.getRawUrl(url);
 
     var result = jsb.fileUtils.getStringFromFile(url);
     if (typeof result === 'string' && result) {
@@ -47,6 +46,10 @@ function downloadText (item, callback) {
     else {
         callback(new Error('Download text failed: ' + url));
     }
+}
+
+function downloadAudio (item, callback) {
+    callback(null, item.url);
 }
 
 cc.loader.addDownloadHandlers({
@@ -66,11 +69,11 @@ cc.loader.addDownloadHandlers({
     'image' : empty,
 
     // Audio
-    'mp3' : empty,
-    'ogg' : empty,
-    'wav' : empty,
-    'mp4' : empty,
-    'm4a' : empty,
+    'mp3' : downloadAudio,
+    'ogg' : downloadAudio,
+    'wav' : downloadAudio,
+    'mp4' : downloadAudio,
+    'm4a' : downloadAudio,
 
     // Txt
     'txt' : downloadText,
@@ -102,7 +105,6 @@ cc.loader.addDownloadHandlers({
 
 function loadImage (item, callback) {
     var url = item.url;
-    url = cc.Pipeline.UrlResolver.getRawUrl(url);
 
     var cachedTex = cc.textureCache.getTextureForKey(url);
     if (cachedTex) {

@@ -378,6 +378,22 @@ var Widget = cc.Class({
             animatable: false
         },
 
+        /**
+         * !#en TODO
+         * !#zh
+         * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
+         * 这样便于脚本或动画继续控制当前节点。
+         * 注意：onEnable 时所在的那一帧仍然会进行对齐。
+         * @property isAlignOnce
+         * @type {Boolean}
+         * @default false
+         */
+        isAlignOnce: {
+            default: false,
+            tooltip: 'i18n:COMPONENT.widget.align_once',
+            displayName: "AlignOnce"
+        },
+
         //
 
         /**
@@ -404,11 +420,11 @@ var Widget = cc.Class({
         _originalHeight: 0
     },
 
-    onLoad: function () {
+    onEnable: function () {
         cc._widgetManager.add(this);
     },
 
-    onDestroy: function () {
+    onDisable: function () {
         cc._widgetManager.remove(this);
     },
 

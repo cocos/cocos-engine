@@ -25,13 +25,14 @@
 
 var JS = require('../platform/js');
 var Pipeline = require('./pipeline');
-var urlResolver = require('./url-resolver');
 var Downloader = require('./downloader');
 var Loader = require('./loader');
+var AssetTable = require('./asset-table');
 var callInNextTick = require('../platform/utils').callInNextTick;
 
 var downloader = new Downloader();
 var loader = new Loader();
+var resources = new AssetTable();
 
 /**
  * Loader for resource loading process. It's a singleton object.
@@ -40,7 +41,6 @@ var loader = new Loader();
  * @static
  */
 cc.loader = new Pipeline([
-    urlResolver,
     downloader,
     loader
 ]);
@@ -106,32 +106,42 @@ JS.mixin(cc.loader, {
      * The only difference is when user pass a single url as resources, the complete callback will set its result directly as the second parameter.
      * 
      * @example
-     *  cc.loader.load('a.png', function (err, tex) {
-     *      cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
-     *  });
+     * cc.loader.load('a.png', function (err, tex) {
+     *     cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
+     * });
+     *
+     * cc.loader.load('http://example.com/a.png', function (err, tex) {
+     *     cc.log('Should load a texture from external url: ' + (tex instanceof cc.Texture2D));
+     * });
+     *
+     * cc.loader.load({id: 'http://example.com/getImageREST?file=a.png', type: 'png'}, function (err, tex) {
+     *     cc.log('Should load a texture from RESTful API by specify the type: ' + (tex instanceof cc.Texture2D));
+     * });
      *  
-     *  // load a.png from resources folder with no extension.
-     *  cc.loader.load('resources://a', function (err, tex) {
-     *      cc.log('Result should be a texture: ' + (tex instanceof cc.Texture2D));
-     *  });
-     *  
-     *  cc.loader.load(['a.png', 'b.json'], function (errors, results) {
-     *      if (errors) {
-     *          for (var i = 0; i < errors.length; i++) {
-     *              cc.log('Error url [' + errors[i] + ']: ' + results.getError(errors[i]));
-     *          }
-     *      }
-     *      var aTex = results.getContent('a.png');
-     *      var bJsonObj = results.getContent('b.json');
-     *  });
+     * cc.loader.load(['a.png', 'b.json'], function (errors, results) {
+     *     if (errors) {
+     *         for (var i = 0; i < errors.length; i++) {
+     *             cc.log('Error url [' + errors[i] + ']: ' + results.getError(errors[i]));
+     *         }
+     *     }
+     *     var aTex = results.getContent('a.png');
+     *     var bJsonObj = results.getContent('b.json');
+     * });
      *
      * @method load
-     * @param {String|Array} resources - Url list in an array. 
-     *      If url starts with "resources://", will load from "resources" folder in your assets. 
-     * @param {[Function]} progressCallback - Callback invoked when progression change
+     * @param {String|Array} resources - Url list in an array 
+     * @param {Function} [progressCallback] - Callback invoked when progression change
      * @param {Function} completeCallback - Callback invoked when all resources loaded
      */
     load: function(resources, progressCallback, completeCallback) {
+        
+        // COMPATIBLE WITH 0.X
+        if (typeof resources === 'string' && resources.startsWith('resources://')) {
+            cc.warn('Sorry, the "resources://" protocol is obsoleted, use cc.loader.loadRes instead please.');
+            this.loadRes(resources.slice('resources://'.length), progressCallback, completeCallback);
+            return;
+        }
+        
         if (completeCallback === undefined) {
             completeCallback = progressCallback;
             progressCallback = null;
@@ -227,10 +237,71 @@ JS.mixin(cc.loader, {
         }
     },
 
+    _resources: resources,
+    _getResUuid: function (url) {
+        url = cc.url.normalize(url);
+        var uuid = resources.getUuid(url);
+        if ( !uuid ) {
+            var extname = cc.path.extname(url);
+            if (extname) {
+                //cc.warn('Don\'t add extension for "%s".', url);
+                // strip extname
+                url = url.slice(0, - extname.length);
+                uuid = resources.getUuid(url);
+            }
+        }
+        return uuid;
+    },
+
     /**
-     * Get resource data by id.
-     * When you load resources with cc.loader, the url or id passed will be the unique identity of the resource.
-     * After loaded, you can acquire them by passing the url or original id to this API.
+     * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
+     * <br>
+     * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
+     * 
+     * @method loadRes
+     * @param {String} url - Url of the target resource.
+     *                        The url is relative to the "resources" folder, extensions must be omitted.
+     * @param {Function} [progressCallback] - Callback invoked when progression change. See {{#crossLink "Pipeline/onProgress:method"}}Pipeline.onProgress{{/crossLink}}.
+     * @param {Function} completeCallback - Callback invoked when the resource loaded.
+     * @param {Error} completeCallback.error - The error info or null if loaded successfully.
+     * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
+     * 
+     * @example
+     * 
+     * // load the texture (project/assets/resources/imgs/cocos.png) from resources folder with no extension
+     * cc.loader.load('imgs/cocos', function (err, texture) {
+     *     if (err) {
+     *         cc.error(err.message || err);
+     *         return;
+     *     }
+     *     cc.log('Result should be a texture: ' + (texture instanceof cc.Texture2D));
+     * });
+     */
+    loadRes: function (url, progressCallback, completeCallback) {
+        var uuid = this._getResUuid(url);
+        if (uuid) {
+            this.load(
+                {
+                    id: uuid,
+                    type: 'uuid',
+                    uuid: uuid
+                },
+                progressCallback,
+                completeCallback
+            );
+        }
+        else {
+            callInNextTick(function () {
+                completeCallback.call(null, new Error('Resources url "' + url + '" does not exist.'), null);
+            });
+        }
+    },
+
+    /**
+     * Get resource data by id. <br>
+     * When you load resources with {{#crossLink "loader/load:method"}}{{/crossLink}} or {{#crossLink "loader/loadRes:method"}}{{/crossLink}},
+     * the url will be the unique identity of the resource.
+     * After loaded, you can acquire them by passing the url to this API.
      *
      * @method getRes
      * @param {String} url
@@ -256,6 +327,35 @@ JS.mixin(cc.loader, {
      */
     release: function (url) {
         this.removeItem(url);
+    },
+
+    /**
+     * Release the loaded cache of asset.
+     *
+     * @method releaseAsset
+     * @param {Asset} asset
+     */
+    releaseAsset: function (asset) {
+        var uuid = asset._uuid;
+        if (uuid) {
+            this.removeItem(uuid);
+        }
+    },
+
+    /**
+     * Release the cache of resource which loaded by {{#crossLink "loader/loadRes:method"}}{{/crossLink}}.
+     *
+     * @method releaseRes
+     * @param {String} url
+     */
+    releaseRes: function (url) {
+        var uuid = this._getResUuid(url);
+        if (uuid) {
+            this.removeItem(uuid);
+        }
+        else {
+            cc.error('Resources url "%s" does not exist.', url);
+        }
     },
 
     /**

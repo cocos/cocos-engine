@@ -1,6 +1,7 @@
 
 /**
- * Class for animation data handling.
+ * !#en Class for animation data handling.
+ * !#zh 动画剪辑，用于存储动画数据。
  * @class AnimationClip
  * @extends Asset
  * @constructor
@@ -16,7 +17,8 @@ var AnimationClip = cc.Class({
         },
 
         /**
-         * Duration of this animation
+         * !#en Duration of this animation.
+         * !#zh 动画的持续时间。
          * @property duration
          * @type {Number}
          */
@@ -25,7 +27,8 @@ var AnimationClip = cc.Class({
         },
 
         /**
-         * FrameRate of this animation
+         * !#en FrameRate of this animation.
+         * !#zh 动画的帧速率。
          * @property sample
          * @type {Number}
          */
@@ -34,7 +37,8 @@ var AnimationClip = cc.Class({
         },
 
         /**
-         * Speed of this animation
+         * !#en Speed of this animation.
+         * !#zh 动画的播放速度。
          * @property speed
          * @type {Number}
          */
@@ -43,7 +47,8 @@ var AnimationClip = cc.Class({
         },
 
         /**
-         * WrapMode of this animation
+         * !#en WrapMode of this animation.
+         * !#zh 动画的循环模式。
          * @property wrapMode
          * @type {WrapMode}
          */
@@ -52,67 +57,11 @@ var AnimationClip = cc.Class({
         },
 
         /**
-         * Curve data
+         * !#en Curve data.
+         * !#zh 曲线数据。
          * @property curveData
          * @type {Object}
-         * @example
-         * {
-         *     // 根节点不用查找路径
-         *     // root properties
-         *     props: {
-         *         x: [
-         *             { frame: 0, value: 0, curve: [0,0.5,0.5,1] },
-         *             { frame: 1, value: 200, curve: null }
-         *         ]
-         *     },
-         *     comps: {
-         *         // component
-         *         'comp-1': {
-         *             // component properties
-         *             'prop-1': [
-         *                 { frame: 0, value: 10, curve: [0,0.5,0.5,1] },
-         *                 { frame: 1, value: 20, curve: null }
-         *             ]
-         *         }
-         *     },
-         *     paths: {
-         *         // key 为节点到root的路径名, 通过cc.find找到
-         *         'foo/bar': {
-         *             // node properties
-         *             props: {
-         *                 x: [
-         *                     { frame: 0, value: 0, curve: [0,0.5,0.5,1] },
-         *                     { frame: 1, value: 200, curve: null }
-         *                 ]
-         *             },
-         *            comps: {
-         *                 // component
-         *                 'comp-1': {
-         *                     // component property
-         *                     'prop-1': [
-         *                         { frame: 0, value: 10, curve: [0,0.5,0.5,1] },
-         *                         { frame: 1, value: 20, curve: null }
-         *                     ]
-         *                 }
-         *             }
-         *         },
-         *         'hello': {
-         *             props: {
-         *                 position: [
-         *                     {
-         *                         frame: 0,
-         *                         value: [0,0],
-         *                         motionPath: [
-         *                             [320, 240, 0, 240, 640, 240],
-         *                             [640, 0, 400, 0, 1000, 0]
-         *                         ]
-         *                     },
-         *                     { frame: 5, value: [640, 480] }
-         *                 ]
-         *             }
-         *         }
-         *     }
-         * }
+         * @example {@link utils/api/engine/docs/cocos2d/core/animation-clip/curve-data.js}
          */
         curveData: {
             default: {},
@@ -120,18 +69,11 @@ var AnimationClip = cc.Class({
         },
 
         /**
-         * Event data
+         * !#en Event data.
+         * !#zh 事件数据。
          * @property events
          * @type {Array}
-         * @example
-         * [
-         *     frame: 0, func: 'onAnimationEvent1', params:['param-1', 'param-2']
-         *     frame: 2, func: 'onAnimationEvent3', params:['param-1', 'param-2']
-         *     frame: 3, func: 'onAnimationEvent2', params:['param-1']
-         *     // The second event at frame 3
-         *     frame: 3, func: 'onAnimationEvent4', params:['param-1']
-         *     frame: 4, func: 'onAnimationEvent4', params:['param-1']
-         * ]
+         * @example {@link utils/api/engine/docs/cocos2d/core/animation-clip/event-data.js}
          */
         events: {
             default: [],

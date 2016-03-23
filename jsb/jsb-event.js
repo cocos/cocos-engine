@@ -170,19 +170,33 @@ cc.eventManager.removeListeners = function (target, recursive) {
 };
 cc.eventManager._pauseTarget = cc.eventManager.pauseTarget;
 cc.eventManager.pauseTarget = function (target, recursive) {
+    var sgTarget = target;
+    target._eventPaused = true;
     if (target instanceof cc.Component) {
-        target = target.node._sgNode;
+        sgTarget = target.node._sgNode;
     }
     else if (target instanceof cc.Node) {
-        target = target._sgNode;
+        sgTarget = target._sgNode;
     }
-    else if (!(target instanceof _ccsg.Node)) {
+    else if (!(sgTarget instanceof _ccsg.Node)) {
         return;
     }
-    this._pauseTarget(target, recursive || false);
+
+    if (sgTarget !== target && !sgTarget.isRunning()) {
+        var originOnEnter = sgTarget.onEnter;
+        sgTarget.onEnter = function () {
+            originOnEnter.call(this);
+            if (target._eventPaused) {
+                cc.eventManager._pauseTarget(this, recursive || false);
+            }
+            this.onEnter = originOnEnter;
+        };
+    }
+    this._pauseTarget(sgTarget, recursive || false);
 };
 cc.eventManager._resumeTarget = cc.eventManager.resumeTarget;
 cc.eventManager.resumeTarget = function (target, recursive) {
+    target._eventPaused = false;
     if (target instanceof cc.Component) {
         target = target.node._sgNode;
     }

@@ -446,6 +446,15 @@ JS.mixin(Pipeline.prototype, {
     },
 
     /**
+     * Returns an item in pipeline.
+     * @method getItems
+     * @return {LoadingItems}
+     */
+    getItem: function (url) {
+        return this._items.map[url];
+    },
+
+    /**
      * Removes an item in pipeline, no matter it's in progress or completed.
      * @method removeItem
      * @return {Boolean} succeed or not

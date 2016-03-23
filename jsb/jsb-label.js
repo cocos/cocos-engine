@@ -121,11 +121,8 @@ jsbLabel.prototype.setContentSize = function (size, height) {
 };
 
 jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
-    fontHandle = cc.Pipeline.UrlResolver.getRawUrl(fontHandle);
-    
     fontHandle = fontHandle || '';
     var extName = cc.path.extname(fontHandle);
-
     //specify font family name directly
     if (!extName) {
         this._labelType = _ccsg.Label.Type.SystemFont;
@@ -143,6 +140,8 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
             this.setFontSize(this.getFontSize());
         }
     }
+    //FIXME: hack for bmfont crash. remove this line when it fixed in native
+    this.getContentSize();
 };
 
 cc.Label = function (string, fontHandle) {
@@ -178,7 +177,8 @@ cc.Label = function (string, fontHandle) {
 };
 cc.Label.Type = cc.Enum({
     TTF: 0,
-    BMFont: 1
+    BMFont: 1,
+    SystemFont: 2
 });
 cc.Label.Overflow = cc.Enum({
     NONE: 0,

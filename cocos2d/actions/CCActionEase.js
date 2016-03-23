@@ -29,7 +29,8 @@
  */
 
 /**
- * Base class for Easing actions
+ * !#en Base class for Easing actions.
+ * !#zh 所有缓动动作基类，用于修饰 ActionInterval。
  * @class ActionEase
  * @extends ActionInterval
  * @param {ActionInterval} action
@@ -98,8 +99,8 @@ cc.actionEase = function (action) {
 };
 
 /**
- * Base class for Easing actions with rate parameters
- *
+ * !#en Base class for Easing actions with rate parameters
+ * !#zh 拥有速率属性的缓动动作基类。
  * @class EaseRateAction
  * @extends ActionEase
  * @param {ActionInterval} action
@@ -191,9 +192,10 @@ cc.EaseIn = cc.EaseRateAction.extend({
 });
 
 /**
+ * !#en
  * Creates the action easing object with the rate parameter. <br />
  * From slow to fast.
- *
+ * !#zh 创建 easeIn 缓动对象，由慢到快。
  * @method easeIn
  * @param {Number} rate
  * @return {Object}
@@ -241,9 +243,10 @@ cc.EaseOut = cc.EaseRateAction.extend({
 });
 
 /**
+ * !#en
  * Creates the action easing object with the rate parameter. <br />
  * From fast to slow.
- *
+ * !#zh 创建 easeOut 缓动对象，由快到慢。
  * @method easeOut
  * @param {Number} rate
  * @return {Object}
@@ -295,8 +298,10 @@ cc.EaseInOut = cc.EaseRateAction.extend({
 });
 
 /**
+ * !#en
  * Creates the action easing object with the rate parameter. <br />
  * Slow to fast then to slow.
+ * !#zh 创建 easeInOut 缓动对象，慢到快，然后慢。
  * @method easeInOut
  * @param {Number} rate
  * @return {Object}
@@ -359,9 +364,14 @@ cc._easeExponentialInObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing object with the rate parameter. <br />
  * Reference easeInExpo: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeExponentialIn 缓动对象。<br />
+ * EaseExponentialIn 是按指数函数缓动进入的动作。<br />
+ * 参考 easeInExpo：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeExponentialIn
  * @return {Object}
  * @example
@@ -410,9 +420,14 @@ cc._easeExponentialOutObj = {
 };
 
 /**
- * creates the action easing object. <br />
+ * !#en
+ * Creates the action easing object. <br />
  * Reference easeOutExpo: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeExponentialOut 缓动对象。<br />
+ * EaseExponentialOut 是按指数函数缓动退出的动作。<br />
+ * 参考 easeOutExpo：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeExponentialOut
  * @return {Object}
  * @example
@@ -476,9 +491,14 @@ cc._easeExponentialInOutObj = {
 };
 
 /**
- * creates an EaseExponentialInOut action easing object. <br />
+ * !#en
+ * Creates an EaseExponentialInOut action easing object. <br />
  * Reference easeInOutExpo: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeExponentialInOut 缓动对象。<br />
+ * EaseExponentialInOut 是按指数函数缓动进入并退出的动作。<br />
+ * 参考 easeInOutExpo：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeExponentialInOut
  * @return {Object}
  * @example
@@ -527,9 +547,14 @@ cc._easeSineInObj = {
     }
 };
 /**
- * creates an EaseSineIn action. <br />
+ * !#en
+ * Creates an EaseSineIn action. <br />
  * Reference easeInSine: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 EaseSineIn 缓动对象。<br />
+ * EaseSineIn 是按正弦函数缓动进入的动作。<br />
+ * 参考 easeInSine：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeSineIn
  * @return {Object}
  * @example
@@ -579,9 +604,14 @@ cc._easeSineOutObj = {
 };
 
 /**
+ * !#en
  * Creates an EaseSineOut action easing object. <br />
  * Reference easeOutSine: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 EaseSineOut 缓动对象。<br />
+ * EaseSineIn 是按正弦函数缓动退出的动作。<br />
+ * 参考 easeOutSine：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeSineOut
  * @return {Object}
  * @example
@@ -631,9 +661,14 @@ cc._easeSineInOutObj = {
 };
 
 /**
- * creates the action easing object. <br />
+ * !#en
+ * Creates the action easing object. <br />
  * Reference easeInOutSine: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeSineInOut 缓动对象。<br />
+ * EaseSineIn 是按正弦函数缓动进入并退出的动作。<br />
+ * 参考 easeInOutSine：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeSineInOut
  * @return {Object}
  * @example
@@ -645,11 +680,12 @@ cc.easeSineInOut = function(){
 };
 
 /**
- * Ease Elastic abstract class.
+ * !#en Ease Elastic abstract class.
+ * !#zh 弹性缓动动作基类。
  * @class EaseElastic
  * @extends ActionEase
  * @param {ActionInterval} action
- * @param {Number} [period=0.3]
+ * @param {Number} period
  */
 cc.EaseElastic = cc.ActionEase.extend({
     _period: 0.3,
@@ -755,11 +791,16 @@ cc._easeElasticInObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing obejct with the period in radians (default is 0.3). <br />
  * Reference easeInElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeElasticIn 缓动对象。<br />
+ * EaseElasticIn 是按弹性曲线缓动进入的动作。<br />
+ * 参数 easeInElastic：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeElasticIn
- * @param {Number} [period=0.3]
+ * @param {Number} period
  * @return {Object}
  * @example
  * // example
@@ -830,11 +871,16 @@ cc._easeElasticOutObj = {
     }
 };
 /**
+ * !#en
  * Creates the action easing object with the period in radians (default is 0.3). <br />
  * Reference easeOutElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeElasticOut 缓动对象。<br />
+ * EaseElasticOut 是按弹性曲线缓动退出的动作。<br />
+ * 参考 easeOutElastic：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeElasticOut
- * @param {Number} [period=0.3]
+ * @param {Number} period
  * @return {Object}
  * @example
  * // example
@@ -901,11 +947,16 @@ cc.EaseElasticInOut = cc.EaseElastic.extend({
 });
 
 /**
+ * !#en
  * Creates the action easing object with the period in radians (default is 0.3). <br />
  * Reference easeInOutElastic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeElasticInOut 缓动对象。<br />
+ * EaseElasticInOut 是按弹性曲线缓动进入并退出的动作。<br />
+ * 参考 easeInOutElastic：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeElasticInOut
- * @param {Number} [period=0.3]
+ * @param {Number} period
  * @return {Object}
  * @example
  * // example
@@ -940,8 +991,8 @@ cc.easeElasticInOut = function (period) {
 };
 
 /**
- * cc.EaseBounce abstract class.
- *
+ * !#en cc.EaseBounce abstract class.
+ * !#zh 反弹缓动动作基类。
  * @class EaseBounce
  * @extends ActionEase
  */
@@ -1034,8 +1085,12 @@ cc._easeBounceInObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Eased bounce effect at the beginning.
+ * !#zh
+ * 创建 easeBounceIn 缓动对象。<br />
+ * EaseBounceIn 是按弹跳动作缓动进入的动作。
  * @method easeBounceIn
  * @return {Object}
  * @example
@@ -1085,8 +1140,12 @@ cc._easeBounceOutObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Eased bounce effect at the ending.
+ * !#zh
+ * 创建 easeBounceOut 缓动对象。<br />
+ * EaseBounceOut 是按弹跳动作缓动退出的动作。
  * @method easeBounceOut
  * @return {Object}
  * @example
@@ -1149,8 +1208,12 @@ cc._easeBounceInOutObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Eased bounce effect at the begining and ending.
+ * !#zh
+ * 创建 easeBounceInOut 缓动对象。<br />
+ * EaseBounceInOut 是按弹跳动作缓动进入并退出的动作。
  * @method easeBounceInOut
  * @return {Object}
  * @example
@@ -1202,8 +1265,12 @@ cc._easeBackInObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * In the opposite direction to move slowly, and then accelerated to the right direction.
+ * !#zh
+ * 创建 easeBackIn 缓动对象。<br />
+ * easeBackIn 是在相反的方向缓慢移动，然后加速到正确的方向。<br />
  * @method easeBackIn
  * @return {Object}
  * @example
@@ -1256,8 +1323,12 @@ cc._easeBackOutObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Fast moving more than the finish, and then slowly back to the finish.
+ * !#zh
+ * 创建 easeBackOut 缓动对象。<br />
+ * easeBackOut 快速移动超出目标，然后慢慢回到目标点。
  * @method easeBackOut
  * @return {Object}
  * @example
@@ -1320,8 +1391,11 @@ cc._easeBackInOutObj = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Begining of cc.EaseBackIn. Ending of cc.EaseBackOut.
+ * !#zh
+ * 创建 easeBackInOut 缓动对象。<br />
  * @method easeBackInOut
  * @return {Object}
  * @example
@@ -1399,9 +1473,13 @@ cc.EaseBezierAction = cc.ActionEase.extend({
 });
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Into the 4 reference point. <br />
  * To calculate the motion curve.
+ * !#zh
+ * 创建 easeBezierAction 缓动对象。<br />
+ * EaseBezierAction 是按贝塞尔曲线缓动的动作。
  * @method easeBezierAction
  * @param {Number} p0 The first bezier parameter
  * @param {Number} p1 The second bezier parameter
@@ -1465,9 +1543,14 @@ cc._easeQuadraticActionIn = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInQuad: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuadraticActionIn 缓动对象。<br />
+ * EaseQuadraticIn是按二次函数缓动进入的动作。<br />
+ * 参考 easeInQuad：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuadraticActionIn
  * @returns {Object}
  * @example
@@ -1518,9 +1601,14 @@ cc._easeQuadraticActionOut = {
     }
 };
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeOutQuad: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuadraticActionOut 缓动对象。<br />
+ * EaseQuadraticOut 是按二次函数缓动退出的动作。<br />
+ * 参考 easeOutQuad：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuadraticActionOut
  * @returns {Object}
  * @example
@@ -1579,9 +1667,14 @@ cc._easeQuadraticActionInOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInOutQuad: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuadraticActionInOut 缓动对象。<br />
+ * EaseQuadraticInOut 是按二次函数缓动进入并退出的动作。<br />
+ * 参考 easeInOutQuad：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuadraticActionInOut
  * @returns {Object}
  * @example
@@ -1631,9 +1724,14 @@ cc._easeQuarticActionIn = {
     }
 };
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeIntQuart: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuarticActionIn 缓动对象。<br />
+ * EaseQuarticIn 是按四次函数缓动进入的动作。<br />
+ * 参考 easeIntQuart：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuarticActionIn
  * @returns {Object}
  * @example
@@ -1685,9 +1783,14 @@ cc._easeQuarticActionOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeOutQuart: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuarticActionOut 缓动对象。<br />
+ * EaseQuarticOut 是按四次函数缓动退出的动作。<br />
+ * 参考 easeOutQuart：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuarticActionOut
  * @returns {Object}
  * @example
@@ -1741,9 +1844,14 @@ cc._easeQuarticActionInOut = {
     }
 };
 /**
+ * !#en
  * Creates the action easing object.  <br />
  * Reference easeInOutQuart: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuarticActionInOut 缓动对象。<br />
+ * EaseQuarticInOut 是按四次函数缓动进入并退出的动作。<br />
+ * 参考 easeInOutQuart：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuarticActionInOut
  * @returns {Object}
  */
@@ -1791,9 +1899,14 @@ cc._easeQuinticActionIn = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInQuint: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuinticActionIn 缓动对象。<br />
+ * EaseQuinticIn 是按五次函数缓动进的动作。<br />
+ * 参考 easeInQuint：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuinticActionIn
  * @returns {Object}
  * @example
@@ -1845,9 +1958,14 @@ cc._easeQuinticActionOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeOutQuint: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuinticActionOut 缓动对象。<br />
+ * EaseQuinticOut 是按五次函数缓动退出的动作
+ * 参考 easeOutQuint：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuinticActionOut
  * @returns {Object}
  * @example
@@ -1902,9 +2020,14 @@ cc._easeQuinticActionInOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInOutQuint: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeQuinticActionInOut 缓动对象。<br />
+ * EaseQuinticInOut是按五次函数缓动进入并退出的动作。<br />
+ * 参考 easeInOutQuint：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeQuinticActionInOut
  * @returns {Object}
  * @example
@@ -1955,9 +2078,14 @@ cc._easeCircleActionIn = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInCirc: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeCircleActionIn 缓动对象。<br />
+ * EaseCircleIn是按圆形曲线缓动进入的动作。<br />
+ * 参考 easeInCirc：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCircleActionIn
  * @returns {Object}
  * @example
@@ -2009,9 +2137,14 @@ cc._easeCircleActionOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeOutCirc: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeCircleActionOut 缓动对象。<br />
+ * EaseCircleOut是按圆形曲线缓动退出的动作。<br />
+ * 参考 easeOutCirc：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCircleActionOut
  * @returns {Object}
  * @exampple
@@ -2066,9 +2199,14 @@ cc._easeCircleActionInOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInOutCirc: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeCircleActionInOut 缓动对象。<br />
+ * EaseCircleInOut 是按圆形曲线缓动进入并退出的动作。<br />
+ * 参考 easeInOutCirc：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCircleActionInOut
  * @returns {Object}
  * @example
@@ -2119,9 +2257,14 @@ cc._easeCubicActionIn = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInCubic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeCubicActionIn 缓动对象。<br />
+ * EaseCubicIn 是按三次函数缓动进入的动作。<br />
+ * 参考 easeInCubic：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCubicActionIn
  * @returns {Object}
  * @example
@@ -2173,9 +2316,14 @@ cc._easeCubicActionOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeOutCubic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeCubicActionOut 缓动对象。<br />
+ * EaseCubicOut 是按三次函数缓动退出的动作。<br />
+ * 参考 easeOutCubic：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCubicActionOut
  * @returns {Object}
  * @example
@@ -2230,9 +2378,14 @@ cc._easeCubicActionInOut = {
 };
 
 /**
+ * !#en
  * Creates the action easing object. <br />
  * Reference easeInOutCubic: <br />
  * http://www.zhihu.com/question/21981571/answer/19925418
+ * !#zh
+ * 创建 easeCubicActionInOut 缓动对象。<br />
+ * EaseCubicInOut是按三次函数缓动进入并退出的动作。<br />
+ * 参考 easeInOutCubic：http://www.zhihu.com/question/21981571/answer/19925418
  * @method easeCubicActionInOut
  * @returns {Object}
  */

@@ -166,7 +166,7 @@ var js = {
     /**
      * Derive the class from the supplied base class.
      * Both classes are just native javascript constructors, not created by cc.Class, so
-     * usually you will want to inherit using {% crosslink cc.Class cc.Class %} instead.
+     * usually you will want to inherit using {{#crossLink "cc/Class:method"}}cc.Class {{/crossLink}} instead.
      *
      * @method extend
      * @param {Function} cls

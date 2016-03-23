@@ -142,7 +142,7 @@ cc.SpriteFrame.prototype._deserialize = function (data, handle) {
 cc.SpriteFrame.prototype._checkRect = function (texture) {
     var rect = this.getRect();
     var maxX = rect.x, maxY = rect.y;
-    if (this._rotated) {
+    if (this.isRotated()) {
         maxX += rect.height;
         maxY += rect.width;
     }
@@ -166,17 +166,25 @@ cc.SpriteFrame.prototype.getTexture = function () {
 cc.js.set(cc.SpriteFrame.prototype, '_textureFilenameSetter', function (url) {
     this._textureFilename = url;
     if (url) {
-        // texture will be init in getTexture()
-        var texture = this.getTexture();
-        if (this.textureLoaded()) {
+        cc.textureCache.addImage(url, function (texture) {
+            if (this.getTexture() !== texture) {
+                this.setTexture(texture);
+                var w = texture.getPixelWidth(), h = texture.getPixelHeight();
+                if (this.getRect().width === 0) {
+                    this.setRect(cc.rect(0, 0, w, h));
+                }
+                if (this.getOriginalSize().width === 0) {
+                    this.setOriginalSize(cc.size(w, h));
+                }
+                if (this.getOffset().width === 0) {
+                    this.setOffset(cc.v2(0, 0));
+                }
+
+                this._texture = texture;
+            }
             this._checkRect(texture);
             this.emit('load');
-        }
-        else {
-            // register event in setTexture()
-            this._texture = null;
-            this.setTexture(texture);
-        }
+        }, this);
     }
 });
 

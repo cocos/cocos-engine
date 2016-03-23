@@ -105,7 +105,7 @@ var RendererInSG = cc.Class({
         parentNode.removeChild(replaced);
         parentNode.addChild(sgNode);
         sgNode.arrivalOrder = replaced.arrivalOrder;
-        if (cc.renderer) {
+        if ( !CC_JSB ) {
             cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
         }
 
