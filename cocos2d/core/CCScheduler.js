@@ -198,44 +198,6 @@ var TimerTargetSelector = Timer.extend({
 
 });
 
-// var TimerTargetCallback = Timer.extend({
-
-//     ctor: function(){
-//         this._target = null;
-//         this._callback = null;
-//         this._key = null;
-//     },
-
-//     initWithCallback: function(scheduler, callback, target, key, seconds, repeat, delay){
-//         this._scheduler = scheduler;
-//         this._target = target;
-//         this._callback = callback;
-//         this._key = key;
-//         this.setupTimerWithInterval(seconds, repeat, delay);
-//         return true;
-//     },
-
-//     getCallback: function(){
-//         return this._callback;
-//     },
-
-//     getKey: function(){
-//         return this._key;
-//     },
-
-//     trigger: function(){
-//         //override
-//         if(this._callback)
-//             this._callback.call(this._target, this._elapsed);
-//     },
-
-//     cancel: function(){
-//         //override
-//         this._scheduler.unschedule(this._callback, this._target);
-//     }
-
-// });
-
 var getTargetId = function (target) {
     return target.__instanceId || target.uuid;
 };
