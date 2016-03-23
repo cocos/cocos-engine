@@ -198,43 +198,43 @@ var TimerTargetSelector = Timer.extend({
 
 });
 
-var TimerTargetCallback = Timer.extend({
+// var TimerTargetCallback = Timer.extend({
 
-    ctor: function(){
-        this._target = null;
-        this._callback = null;
-        this._key = null;
-    },
+//     ctor: function(){
+//         this._target = null;
+//         this._callback = null;
+//         this._key = null;
+//     },
 
-    initWithCallback: function(scheduler, callback, target, key, seconds, repeat, delay){
-        this._scheduler = scheduler;
-        this._target = target;
-        this._callback = callback;
-        this._key = key;
-        this.setupTimerWithInterval(seconds, repeat, delay);
-        return true;
-    },
+//     initWithCallback: function(scheduler, callback, target, key, seconds, repeat, delay){
+//         this._scheduler = scheduler;
+//         this._target = target;
+//         this._callback = callback;
+//         this._key = key;
+//         this.setupTimerWithInterval(seconds, repeat, delay);
+//         return true;
+//     },
 
-    getCallback: function(){
-        return this._callback;
-    },
+//     getCallback: function(){
+//         return this._callback;
+//     },
 
-    getKey: function(){
-        return this._key;
-    },
+//     getKey: function(){
+//         return this._key;
+//     },
 
-    trigger: function(){
-        //override
-        if(this._callback)
-            this._callback.call(this._target, this._elapsed);
-    },
+//     trigger: function(){
+//         //override
+//         if(this._callback)
+//             this._callback.call(this._target, this._elapsed);
+//     },
 
-    cancel: function(){
-        //override
-        this._scheduler.unschedule(this._callback, this._target);
-    }
+//     cancel: function(){
+//         //override
+//         this._scheduler.unschedule(this._callback, this._target);
+//     }
 
-});
+// });
 
 var getTargetId = function (target) {
     return target.__instanceId || target.uuid;
@@ -575,6 +575,14 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         element.timers.push(timer);
     },
 
+    /**
+     * Schedules the update callback for a given target, the callback will be invoked every frame after schedule started
+     * @method scheduleUpdate
+     * @param {Object} target
+     * @param {Number} priority
+     * @param {Boolean} paused
+     * @param {Function} updateFunc
+     */
     scheduleUpdate: function(target, priority, paused, updateFunc){
         updateFunc = updateFunc || target.update;
         this._schedulePerFrame(updateFunc, target, priority, paused);
@@ -591,8 +599,10 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         }
     },
 
-    /** Unschedules a callback for a callback and a given target.
+    /** 
+     * Unschedules a callback for a callback and a given target.
      * If you want to unschedule the "update", use `unscheudleUpdate()`
+     * @method unschedule
      * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
      */
@@ -635,6 +645,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
 
     /** 
      * Unschedules the update callback for a given target
+     * @method unscheduleUpdate
      * @param {Object} target The target to be unscheduled.
      */
     unscheduleUpdate: function(target){
@@ -655,6 +666,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
     /** 
      * Unschedules all scheduled callbacks for a given target.
      * This also includes the "update" callback.
+     * @method unscheduleAllForTarget
      * @param {Object} target The target to be unscheduled.
      */
     unscheduleAllForTarget: function(target){
@@ -688,6 +700,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
     /** 
      * Unschedules all scheduled callbacks from all targets including the system callbacks.
      * You should NEVER call this method, unless you know what you are doing.
+     * @method unscheduleAll
      */
     unscheduleAll: function(){
         this.unscheduleAllWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
@@ -696,6 +709,7 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
     /** 
      * Unschedules all callbacks from all targets with a minimum priority.
      * You should only call this with `PRIORITY_NON_SYSTEM_MIN` or higher.
+     * @method unscheduleAllWithMinPriority
      * @param {Number} minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
      *        priority is higher than minPriority will be unscheduled.
      */
@@ -742,7 +756,9 @@ cc.Scheduler = cc._Class.extend(/** @lends cc.Scheduler# */{
         }
     },
 
-    /** Checks whether a callback for a given target is scheduled.
+    /** 
+     * Checks whether a callback for a given target is scheduled.
+     * @method isScheduled
      * @param {Function|String} key The callback to check.
      * @param {Object} target The target of the callback.
      * @return {Boolean} True if the specified callback is invoked, false if not.
