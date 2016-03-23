@@ -339,7 +339,13 @@ JS.mixin(cc.Audio.prototype, {
 
     /**
      * !#en cc.audioEngine is the singleton object, it provide simple audio APIs.
-     * !#zn cc.audioengine是单例对象，它提供了简单的音频接口。
+     * !#zn
+     * cc.audioengine是单例对象。<br/>
+     * 主要用来播放背景音乐和音效，背景音乐同一时间只能播放一个，而音效则可以同时播放多个。<br/>
+     * 注意：<br/>
+     * 在 Android 系统浏览器上，不同浏览器，不同版本的效果不尽相同。<br/>
+     * 比如说：大多数浏览器都需要用户物理交互才可以开始播放音效，有一些不支持 WebAudio，<br/>
+     * 有一些不支持多音轨播放。总之如果对音乐依赖比较强，请做尽可能多的测试。
      * @class audioEngine
      * @static
      */
@@ -349,16 +355,11 @@ JS.mixin(cc.Audio.prototype, {
 
         features: polyfill,
 
-        /*
-         * Indicates whether any background music can be played or not.
-         * @method willPlayMusic
-         * @returns {boolean} <i>true</i> if the background music is playing, otherwise <i>false</i>
-         */
-        willPlayMusic: function(){return false;},
-
         /**
          * !#en Play music.
-         * !#zh 播放指定音乐，并可以设置是否循环播放。
+         * !#zh
+         * 播放指定音乐，并可以设置是否循环播放。<br/>
+         * 注意：音乐播放接口不支持多音轨，同一时间只能播放一个音乐。
          * @method playMusic
          * @param {String} url - The path of the music file without filename extension.
          * @param {Boolean} loop - Whether the music loop or not.
@@ -394,9 +395,9 @@ JS.mixin(cc.Audio.prototype, {
 
         /**
          * !#en Stop playing music.
-         * !#zh 停止指定的音乐。
+         * !#zh 停止当前音乐。
          * @method stopMusic
-         * @param {Boolean} releaseData - If release the music data or not.As default value is false.
+         * @param {Boolean} [releaseData] - If release the music data or not.As default value is false.
          * @example
          * //example
          * cc.audioEngine.stopMusic();
@@ -426,7 +427,7 @@ JS.mixin(cc.Audio.prototype, {
 
         /**
          * !#en Resume playing music.
-         * !#zh 重新播放音乐。
+         * !#zh 恢复音乐播放。
          * @method resumeMusic
          * @example
          * //example
@@ -440,7 +441,7 @@ JS.mixin(cc.Audio.prototype, {
 
         /**
          * !#en Rewind playing music.
-         * !#zh 倒带播放音乐。
+         * !#zh 从头开始重新播放当前音乐。
          * @method rewindMusic
          * @example
          * //example
@@ -517,7 +518,9 @@ JS.mixin(cc.Audio.prototype, {
         _effectVolume: 1,
         /**
          * !#en Play sound effect.
-         * !#zh 播放指定音效，并可以设置是否循环播放。
+         * !#zh
+         * 播放指定音效，并可以设置是否循环播放。<br/>
+         * 注意：在部分不支持多音轨的浏览器上，这个接口会失效，请使用 playMusic
          * @method playEffect
          * @param {String} url The path of the sound effect with filename extension.
          * @param {Boolean} loop Whether to loop the effect playing, default value is false
@@ -649,7 +652,7 @@ JS.mixin(cc.Audio.prototype, {
 
         /**
          * !#en Resume playing sound effect.
-         * !#zh 重新播放指定的音效。
+         * !#zh 恢复播放指定的音效。
          * @method resumeEffect
          * @param {Number} audioID - The return value of function playEffect.
          * @audioID
@@ -663,7 +666,7 @@ JS.mixin(cc.Audio.prototype, {
 
         /**
          * !#en Resume all playing sound effect.
-         * !#zh 重新播放所有音效。
+         * !#zh 恢复播放所有之前暂停的所有音效。
          * @method resumeAllEffects
          * @example
          * //example
@@ -733,7 +736,7 @@ JS.mixin(cc.Audio.prototype, {
 
         /**
          * !#en End music and effects.
-         * !#zh 释放音频引擎的相关对象。
+         * !#zh 停止所有音乐和音效的播放。
          * @method end
          */
         end: function(){

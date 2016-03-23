@@ -234,7 +234,7 @@ var AudioSource = cc.Class({
 
     /**
      * !#en Resume the clip.
-     * !#zh 重新播放当前音频剪辑。
+     * !#zh 恢复播放。
      * @method resume
      */
     resume: function () {
@@ -243,7 +243,7 @@ var AudioSource = cc.Class({
 
     /**
      * !#en Rewind playing music.
-     * !#zh 倒带播放音乐。
+     * !#zh 从头开始播放。
      * @method rewind
      */
     rewind: function(){
