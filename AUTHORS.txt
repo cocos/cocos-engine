@@ -12,9 +12,15 @@ Core Developers:
 
     Sijie Wang (@VisualSJ)
 
-    Long Jiang (@jianglong0156)
+    Huabing Xu (@dabingnn)
 
-    Menghe Zhang (@ZhangMenghe)
+    Guanghui Qu (@zilongshanren)
+
+    Jiawei Guo (@jareguo)
+
+    Kaile Yin (@2youyouo2)
+
+    Yanbin Huang (@knoxHuang)
 
 Contributors:
 Name                GithubID    Main contribution
@@ -277,9 +283,12 @@ Maxim Litvinov       @metalim       Throw new Error object instead of error mess
 Retired Core Developers:
       Shengxiang Chen (Nero Chan)
       Xingsen Ma
+      Xiaojun Zheng
       Jialong Zhai (@JoshuaAstray)
       Hao Wu (WuHao)
       Dingping Lv (David Lv)
+      Long Jiang (@jianglong0156)
+      Menghe Zhang (@ZhangMenghe)
 
 Cocos2d-x and cocos2d-html5 can not grow so fast without the active community.
 
