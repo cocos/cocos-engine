@@ -293,8 +293,6 @@ var Label = cc.Class({
     onLoad: function () {
         this._super();
 
-        this.node.on('size-changed', this._resized, this);
-
         var sgSizeInitialized = this._sgNode._isUseSystemFont;
         if (sgSizeInitialized) {
             this._updateNodeSize();
@@ -308,11 +306,6 @@ var Label = cc.Class({
         if (!cc.sys.isNative) {
             this._sgNode.on('load', this._updateNodeSize, this);
         }
-    },
-
-    onDestroy: function () {
-        this._super();
-        this.node.off('size-changed', this._resized, this);
     },
 
     _createSgNode: function () {
@@ -335,16 +328,13 @@ var Label = cc.Class({
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
         sgNode.setFontFileOrFamily(this.file);
-        if(!this._useOriginalSize){
-            if(this.overflow !== Overflow.NONE) {
-                sgNode.setContentSize(this.node.getContentSize());
-            }
+        if(this._useOriginalSize && CC_EDITOR){
+            this.node.setContentSize(sgNode.getContentSize());
+            this._useOriginalSize = false;
+        } else {
+            sgNode.setContentSize(this.node.getContentSize());
         }
         sgNode.setColor(this.node.color);
-    },
-
-    _resized: function () {
-        this._useOriginalSize = false;
     },
 
     // update node size (this will also invoke the size-changed event)

@@ -1303,6 +1303,5 @@ cc.Scale9Sprite.RenderingType = cc.Enum({
 cc.Scale9Sprite.FillType = cc.Enum({
     HORIZONTAL: 0,
     VERTICAL: 1,
-    //todo implement this
     RADIAL:2,
 });

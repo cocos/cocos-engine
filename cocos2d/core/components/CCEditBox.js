@@ -420,7 +420,10 @@ var EditBox = cc.Class({
 
         this._createBackgroundSprite();
 
-        if (!this._useOriginalSize) {
+        if(this._useOriginalSize && CC_EDITOR){
+            this.node.setContentSize(sgNode.getContentSize());
+            this._useOriginalSize = false;
+        } else {
             sgNode.setContentSize(this.node.getContentSize());
         }
 
@@ -439,16 +442,6 @@ var EditBox = cc.Class({
 
 
         sgNode.setDelegate(this);
-    },
-
-    _resized: function () {
-        this._useOriginalSize = false;
-    },
-
-    onLoad: function () {
-        this._super();
-
-        this.node.on('size-changed', this._resized, this);
     },
 
     editBoxEditingDidBegan: function() {
