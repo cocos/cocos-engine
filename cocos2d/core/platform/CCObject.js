@@ -65,13 +65,15 @@ CCObject.Flags = {
     //ToDestroy: ToDestroy,
 
     /**
-     * The object will not be saved.
+     * !#en The object will not be saved.
+     * !#zh 该对象将不会被保存。
      * @property {Number} DontSave
      */
     DontSave: DontSave,
 
     /**
-     * The object will not be saved when building a player.
+     * !#en The object will not be saved when building a player.
+     * !#zh 构建项目时，该对象将不会被保存。
      * @property {Number} EditorOnly
      */
     EditorOnly: EditorOnly,
@@ -79,7 +81,8 @@ CCObject.Flags = {
     Dirty: Dirty,
 
     /**
-     * Dont destroy automatically when loading a new scene.
+     * !#en Dont destroy automatically when loading a new scene.
+     * !#zh 加载一个新场景时，不自动删除该对象
      * @property DontDestroy
      * @private
      */
@@ -92,8 +95,12 @@ CCObject.Flags = {
     Destroying: Destroying,
 
     /**
+     * !#en
      * Hide in game and hierarchy.
-     * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
+     * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+     * !#zh
+     * 在游戏和层级中隐藏该对象。<br/>
+     * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
      * @property {Number} HideInGame
      */
     HideInGame: HideInGame,
@@ -101,14 +108,19 @@ CCObject.Flags = {
     // FLAGS FOR EDITOR
 
     /**
-     * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
+     * !#en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+     * !#zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
      * @property {Number} HideInEditor
      */
     HideInEditor: HideInEditor,
 
     /**
+     * !#en
      * Hide in game view, hierarchy, and scene view... etc.
-     * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags()
+     * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+     * !#zh
+     * 在游戏视图，层级，场景视图等等...中隐藏该对象。
+     * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
      * @property {Number} Hide
      */
     Hide: Hide,
@@ -184,9 +196,12 @@ if (CC_EDITOR) {
 var prototype = CCObject.prototype;
 
 /**
- * The name of the object.
+ * !#en The name of the object.
+ * !#zh 该对象的名称。
  * @property {String} name
  * @default ""
+ * @example
+ * obj.name = "New Obj";
  */
 JS.getset(prototype, 'name',
     function () {
@@ -198,10 +213,13 @@ JS.getset(prototype, 'name',
 );
 
 /**
- * Indicates whether the object is not yet destroyed
+ * !#en Indicates whether the object is not yet destroyed.
+ * !#zh 表示该对象是否可用（被销毁后将不可用）。
  * @property {Boolean} isValid
  * @default true
  * @readOnly
+ * @example
+ * cc.log(obj.isValid);
  */
 JS.get(prototype, 'isValid', function () {
     return !(this._objFlags & Destroyed);
@@ -210,14 +228,20 @@ JS.get(prototype, 'isValid', function () {
 var deferredDestroyTimer = null;
 
 /**
- * Destroy this Object, and release all its own references to other objects.
- *
- * After destroy, this CCObject is not usable any more.
+ * !#en
+ * Destroy this Object, and release all its own references to other objects.<br/>
+ * <br/>
+ * After destroy, this CCObject is not usable any more.<br/>
  * You can use cc.isValid(obj) (or obj.isValid if obj is non-nil) to check whether the object is destroyed before
  * accessing it.
- *
+ * !#zh
+ * 销毁该对象，并释放所有它对其它对象的引用。<br/>
+ * 销毁后，CCObject 不再可用。<br/>
+ * 您可以在访问对象之前使用 cc.isValid(obj)（或 obj.isValid 如果 obj 不为 null）来检查对象是否已被销毁。
  * @method destroy
  * @return {Boolean} whether it is the first time the destroy being called
+ * @example
+ * obj.destroy();
  */
 prototype.destroy = function () {
     if (this._objFlags & Destroyed) {
@@ -239,10 +263,15 @@ prototype.destroy = function () {
 
 if (CC_DEV) {
     /**
+     * !#en
      * In fact, Object's "destroy" will not trigger the destruct operation in Firebal Editor.
      * The destruct operation will be executed by Undo system later.
-     *
+     * !#zh
+     * 事实上，对象的 “destroy” 不会在编辑器中触发析构操作，
+     * 析构操作将在 Undo 系统中延后执行。
      * @method realDestroyInEditor
+     * @example
+     * cc.log(obj.realDestroyInEditor());
      */
     prototype.realDestroyInEditor = function () {
         if (this._objFlags & Destroyed) {
@@ -342,10 +371,13 @@ prototype._deserialize = null;
  */
 
 /**
- * Checks whether the object is non-nil and not yet destroyed
+ * !#en Checks whether the object is non-nil and not yet destroyed.
+ * !#zh 检查该对象是否不为 null 并且尚未销毁。
  * @method isValid
  * @param {any} value
  * @return {Boolean} whether is valid
+ * @example
+ * cc.log(cc.isValid(target));
  */
 cc.isValid = function (value) {
     if (typeof value === 'object') {
