@@ -312,10 +312,13 @@ function findChildComponents (children, constructor, components) {
 }
 
 /**
- * Class of all entities in Cocos Creator scenes.
+ * !#en
+ * Class of all entities in Cocos Creator scenes.<br/>
  * Node also inherits from {{#crossLink "EventTarget"}}Event Target{{/crossLink}}, it permits Node to dispatch events.
  * For events supported by Node, please refer to {{#crossLink "Node.EventType"}}{{/crossLink}}
- *
+ * !#zh
+ * Cocos Creator 场景中的所有节点类。节点也继承了 {{#crossLink "EventTarget"}}EventTarget{{/crossLink}}，它允许节点发送事件。<br/>
+ * 支持的节点事件，请参阅 {{#crossLink "Node.EventType"}}{{/crossLink}}。
  * @class Node
  * @extends _BaseNode
  */
@@ -326,10 +329,19 @@ var Node = cc.Class({
 
     properties: {
         /**
-         * The local active state of this node.
+         * !#en
+         * The local active state of this node.<br/>
+         * Note that a Node may be inactive because a parent is not active, even if this returns true.<br/>
+         * Use {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}} if you want to check if the Node is actually treated as active in the scene.
+         * !#zh
+         * 当前节点的自身激活状态。<br/>
+         * 值得注意的是，一个节点的父节点如果不被激活，那么即使它自身设为激活，它仍然无法激活。<br/>
+         * 如果你想检查节点在场景中实际的激活状态可以使用 {{#crossLink "Node/activeInHierarchy:property"}}{{/crossLink}}。
          * @property active
          * @type {Boolean}
          * @default true
+         * @example
+         * node.active = false;
          */
         active: {
             get: function () {
@@ -349,9 +361,12 @@ var Node = cc.Class({
         },
 
         /**
-         * Indicates whether this node is active in the scene.
+         * !#en Indicates whether this node is active in the scene.
+         * !#zh 表示此节点是否在场景中激活。
          * @property activeInHierarchy
          * @type {Boolean}
+         * @example
+         * cc.log("activeInHierarchy: " + node.activeInHierarchy);
          */
         activeInHierarchy: {
             get: function () {
@@ -523,12 +538,20 @@ var Node = cc.Class({
     // COMPONENT
 
     /**
-     * Returns the component of supplied type if the node has one attached, null if it doesn't.
+     * !#en
+     * Returns the component of supplied type if the node has one attached, null if it doesn't.<br/>
      * You can also get component in the node by passing in the name of the script.
-     *
+     * !#zh
+     * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
+     * 传入参数也可以是脚本的名称。
      * @method getComponent
      * @param {Function|String} typeOrClassName
      * @returns {Component}
+     * @example
+     * // get sprite component.
+     * var sprite = node.getComponent(cc.Sprite);
+     * // get custom test calss.
+     * var test = node.getComponent("Test");
      */
     getComponent: function (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
@@ -539,11 +562,14 @@ var Node = cc.Class({
     },
 
     /**
-     * Returns all components of supplied Type in the node.
-     *
+     * !#en Returns all components of supplied type in the node.
+     * !#zh 返回节点上指定类型的所有组件。
      * @method getComponents
      * @param {Function|String} typeOrClassName
      * @returns {Component[]}
+     * @example
+     * var sprites = node.getComponents(cc.Sprite);
+     * var tests = node.getComponents("Test");
      */
     getComponents: function (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
@@ -555,11 +581,14 @@ var Node = cc.Class({
     },
 
     /**
-     * Returns the component of supplied type in any of its children using depth first search.
-     *
+     * !#en Returns the component of supplied type in any of its children using depth first search.
+     * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @method getComponentInChildren
      * @param {Function|String} typeOrClassName
      * @returns {Component}
+     * @example
+     * var sprite = node.getComponentInChildren(cc.Sprite);
+     * var Test = node.getComponentInChildren("Test");
      */
     getComponentInChildren: function (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName);
@@ -571,11 +600,14 @@ var Node = cc.Class({
     },
 
     /**
-     * Returns the components of supplied type in any of its children using depth first search.
-     *
+     * !#en Returns all components of supplied type in any of its children.
+     * !#zh 递归查找所有子节点中指定类型的组件。
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
      * @returns {Component[]}
+     * @example
+     * var sprites = node.getComponentsInChildren(cc.Sprite);
+     * var tests = node.getComponentsInChildren("Test");
      */
     getComponentsInChildren: function (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
@@ -603,11 +635,14 @@ var Node = cc.Class({
     },
 
     /**
-     * Adds a component class to the node. You can also add component to node by passing in the name of the script.
-     *
+     * !#en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * !#zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @method addComponent
      * @param {Function|String} typeOrClassName - The constructor or the class name of the component to add
      * @returns {Component} - The newly added component
+     * @example
+     * var sprite = node.addComponent(cc.Sprite);
+     * var test = node.addComponent("Test");
      */
     addComponent: function (typeOrClassName) {
 
@@ -728,11 +763,19 @@ var Node = cc.Class({
     },
 
     /**
+     * !#en
      * Removes a component identified by the given name or removes the component object given.
      * You can also use component.destroy() if you already have the reference.
+     * !#zh
+     * 删除节点上的指定组件，传入参数可以是一个组件构造函数或组件名，也可以是已经获得的组件引用。
+     * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
      * @method removeComponent
      * @param {String|Function|Component} component - The need remove component.
      * @deprecated please destroy the component to remove it.
+     * @example
+     * node.removeComponent(cc.Sprite);
+     * var Test = require("Test");
+     * node.removeComponent(Test);
      */
     removeComponent: function (component) {
         if ( !component ) {
@@ -973,12 +1016,16 @@ var Node = cc.Class({
 
 // EVENTS
     /**
-     * Register an callback of a specific event type on Node.
+     * !#en
+     * Register a callback of a specific event type on Node.<br/>
      * Use this method to register touch or mouse event permit propagation based on scene graph,
-     * you can propagate the event to the parents or swallow it by calling stopPropagation on the event.
+     * you can propagate the event to the parents or swallow it by calling stopPropagation on the event.<br/>
      * It's the recommended way to register touch/mouse event for Node, 
      * please do not use cc.eventManager directly for Node.
-     *
+     * !#zh
+     * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的调用者。<br/>
+     * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。<br/>
+     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 cc.eventManager。
      * @method on
      * @param {String} type - A string representing the event type to listen for.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
@@ -986,6 +1033,12 @@ var Node = cc.Class({
      * @param {Event} callback.param event
      * @param {Object} [target] - The target to invoke the callback, can be null
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @example
+     * // add Node Touch Event
+     * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
+     * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this.node);
+     * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
+     * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
      */
     on: function (type, callback, target) {
         if (_touchEvents.indexOf(type) !== -1) {
@@ -1023,13 +1076,18 @@ var Node = cc.Class({
     },
 
     /**
+     * !#en
      * Removes the callback previously registered with the same type, callback, target and or useCapture.
      * This method is merely an alias to removeEventListener.
-     *
+     * !#zh 删除之前与同类型，回调，目标或 useCapture 注册的回调。
      * @method off
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} callback - The callback to remove.
      * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
+     * @example
+     * // remove Node TOUCH_START Event.
+     * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
+     * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      */
     off: function (type, callback, target) {
         EventTarget.prototype.off.call(this, type, callback, target);
@@ -1043,10 +1101,12 @@ var Node = cc.Class({
     },
 
     /**
-     * Removes all callbacks previously registered with the same target.
-     *
+     * !#en Removes all callbacks previously registered with the same target.
+     * !#zh 移除目标上的所有注册事件。
      * @method targetOff
      * @param {Object} target - The target to be searched for all related callbacks
+     * @example
+     * node.targetOff(target);
      */
     targetOff: function (target) {
         EventTarget.prototype.targetOff.call(this, target);
@@ -1131,12 +1191,19 @@ var Node = cc.Class({
 
 // ACTIONS
     /**
+     * !#en
      * Executes an action, and returns the action that is executed.<br/>
-     * The node becomes the action's target. Refer to cc.Action's getTarget()
-     * Calling runAction while the node is not active won't have any effect
+     * The node becomes the action's target. Refer to cc.Action's getTarget()<br/>
+     * Calling runAction while the node is not active won't have any effect.
+     * !#zh
+     * 执行并返回该执行的动作。该节点将会变成动作的目标。<br/>
+     * 调用 runAction 时，节点自身处于不激活状态将不会有任何效果。
      * @method runAction
      * @param {Action} action
      * @return {Action} An Action pointer
+     * @example
+     * var action = cc.scaleTo(0.2, 1, 0.6);
+     * node.runAction(action);
      */
     runAction: function (action) {
         if (!this.active) 
@@ -1152,26 +1219,36 @@ var Node = cc.Class({
     },
 
     /**
-     * Stops and removes all actions from the running action list .
+     * !#en Stops and removes all actions from the running action list .
+     * !#zh 停止并且移除所有正在运行的动作列表。
      * @method stopAllActions
+     * @example
+     * node.stopAllActions();
      */
     stopAllActions: function () {
         cc.director.getActionManager().removeAllActionsFromTarget(this);
     },
 
     /**
-     * Stops and removes an action from the running action list.
+     * !#en Stops and removes an action from the running action list.
+     * !#zh 停止并移除指定的动作。
      * @method stopAction
      * @param {Action} action An action object to be removed.
+     * @example
+     * var action = cc.scaleTo(0.2, 1, 0.6);
+     * node.stopAction(action);
      */
     stopAction: function (action) {
         cc.director.getActionManager().removeAction(action);
     },
 
     /**
-     * Removes an action from the running action list by its tag.
+     * !#en Removes an action from the running action list by its tag.
+     * !#zh 停止并且移除指定标签的动作。
      * @method stopActionByTag
      * @param {Number} tag A tag that indicates the action to be removed.
+     * @example
+     * node.stopAction(1);
      */
     stopActionByTag: function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
@@ -1182,11 +1259,14 @@ var Node = cc.Class({
     },
 
     /**
-     * Returns an action from the running action list by its tag.
+     * !#en Returns an action from the running action list by its tag.
+     * !#zh 通过标签获取指定动作。
      * @method getActionByTag
      * @see cc.Action#getTag and cc.Action#setTag
      * @param {Number} tag
      * @return {Action} The action object with the given tag.
+     * @example
+     * var action = node.getActionByTag(1);
      */
     getActionByTag: function (tag) {
         if (tag === cc.Action.TAG_INVALID) {
@@ -1196,12 +1276,23 @@ var Node = cc.Class({
         cc.director.getActionManager().getActionByTag(tag, this);
     },
 
-    /** <p>Returns the numbers of actions that are running plus the ones that are schedule to run (actions in actionsToAdd and actions arrays).<br/>
+    /**
+     * !#en
+     * Returns the numbers of actions that are running plus the ones that are schedule to run (actions in actionsToAdd and actions arrays).<br/>
      *    Composable actions are counted as 1 action. Example:<br/>
      *    If you are running 1 Sequence of 7 actions, it will return 1. <br/>
      *    If you are running 7 Sequences of 2 actions, it will return 7.</p>
+     * !#zh
+     * 获取运行着的动作加上正在调度运行的动作的总数。<br/>
+     * 例如：<br/>
+     * - 如果你正在运行 7 个动作中的 1 个 Sequence，它将返回 1。<br/>
+     * - 如果你正在运行 2 个动作中的 7 个 Sequence，它将返回 7。<br/>
+     *
      * @method getNumberOfRunningActions
      * @return {Number} The number of actions that are running plus the ones that are schedule to run
+     * @example
+     * var count = node.getNumberOfRunningActions();
+     * cc.log("Running Action Count: " + count);
      */
     getNumberOfRunningActions: function () {
         cc.director.getActionManager().numberOfRunningActionsInTarget(this);
@@ -1252,6 +1343,7 @@ if (cc.sys.isNative) {
 }
 
 /**
+ *
  * @event position-changed
  * @param {Event} event
  * @param {Vec2} event.detail - old position
@@ -1301,8 +1393,11 @@ if (cc.sys.isNative) {
  * @param {Event} event
  */
 /**
+ * !#en
  * Note: This event is only emitted from the top most node whose active value did changed,
  * not including its child nodes.
+ * !#zh
+ * 注意：此节点激活时，此事件仅从最顶部的节点发出。
  * @event active-in-hierarchy-changed
  * @param {Event} event
  */

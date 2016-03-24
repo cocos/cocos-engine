@@ -175,7 +175,7 @@ JS.mixin(EventTarget.prototype, {
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
-     * @exmaple
+     * @example
      * node.on(cc.Node.EventType.TOUCH_END, function (event) {
      *     cc.log("this is callback");
      * }, node);
@@ -222,7 +222,7 @@ JS.mixin(EventTarget.prototype, {
      *                              If not specified, useCapture defaults to false. If a callback was registered twice,
      *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
      *                              does not affect a non-capturing version of the same listener, and vice versa.
-     * @exmaple
+     * @example
      * // register touchEnd eventListener
      * var touchEnd = node.on(cc.Node.EventType.TOUCH_END, function (event) {
      *     cc.log("this is callback");
@@ -283,7 +283,7 @@ JS.mixin(EventTarget.prototype, {
      *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
      *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
      *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
-     * @exmaple
+     * @example
      * node.once(cc.Node.EventType.TOUCH_END, function (event) {
      *     cc.log("this is callback");
      * }, node);

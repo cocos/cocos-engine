@@ -181,10 +181,15 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
 var idGenerater = new IdGenerater('Comp');
 
 /**
- * Base class for everything attached to Node(Entity).
- *
+ * !#en
+ * Base class for everything attached to Node(Entity).<br/>
+ * <br/>
  * NOTE: Not allowed to use construction parameters for Component's subclasses,
  *       because Component is created by the engine.
+ * !#zh
+ * 所有附加到节点的基类。<br/>
+ * <br/>
+ * 注意：不允许使用组件的子类构造参数，因为组件是由引擎创建的。
  *
  * @class Component
  * @extends Object
@@ -211,9 +216,12 @@ var Component = cc.Class({
 
     properties: {
         /**
-         * The node this component is attached to. A component is always attached to a node.
+         * !#en The node this component is attached to. A component is always attached to a node.
+         * !#zh 该组件被附加到的节点。组件总会附加到一个节点。
          * @property node
          * @type {Node}
+         * @example
+         * cc.log(comp.node);
          */
         node: {
             default: null,
@@ -243,10 +251,13 @@ var Component = cc.Class({
         },
 
         /**
-         * The uuid for editor
+         * !#en The uuid for editor.
+         * !#zh 组件的 uuid，用于编辑器。
          * @property uuid
          * @type {String}
          * @readOnly
+         * @example
+         * cc.log(comp.uuid);
          */
         uuid: {
             get: function () {
@@ -295,10 +306,14 @@ var Component = cc.Class({
         _enabled: true,
 
         /**
-         * indicates whether this component is enabled or not.
+         * !#en indicates whether this component is enabled or not.
+         * !#zh 表示该组件自身是否启用。
          * @property enabled
          * @type {Boolean}
          * @default true
+         * @example
+         * comp.enabled = true;
+         * cc.log(comp.enabled);
          */
         enabled: {
             get: function () {
@@ -316,10 +331,13 @@ var Component = cc.Class({
         },
 
         /**
-         * indicates whether this component is enabled and its node is also active in the hierarchy.
+         * !#en indicates whether this component is enabled and its node is also active in the hierarchy.
+         * !#zh 表示该组件是否被启用并且所在的节点也处于激活状态。。
          * @property enabledInHierarchy
          * @type {Boolean}
          * @readOnly
+         * @example
+         * cc.log(comp.enabledInHierarchy);
          */
         enabledInHierarchy: {
             get: function () {
@@ -329,9 +347,13 @@ var Component = cc.Class({
         },
 
         /**
+         * !#en TODO
+         * !#zh onLoad 是否被调用。
          * @property _isOnLoadCalled
          * @type {Boolean}
          * @readOnly
+         * @example
+         * cc.log(_isOnLoadCalled);
          */
         _isOnLoadCalled: {
             get: function () {
@@ -358,43 +380,50 @@ var Component = cc.Class({
     // We provide Pre methods, which are called right before something happens, and Post methods which are called right after something happens.
 
     /**
-     * Update is called every frame, if the Component is enabled.
+     * !#en Update is called every frame, if the Component is enabled.
+     * !#zh 如果该组件启用，则每帧调用 update。
      * @method update
      */
     update: null,
 
     /**
-     * LateUpdate is called every frame, if the Component is enabled.
+     * !#en LateUpdate is called every frame, if the Component is enabled.
+     * !#zh 如果该组件启用，则每帧调用 LateUpdate。
      * @method lateUpdate
      */
     lateUpdate: null,
 
     /**
-     * When attaching to an active node or its node first activated
+     * !#en When attaching to an active node or its node first activated.
+     * !#zh 当附加到一个激活的节点上或者其节点第一次激活时候调用。
      * @method onLoad
      */
     onLoad: null,
 
     /**
-     * Called before all scripts' update if the Component is enabled
+     * !#en Called before all scripts' update if the Component is enabled.
+     * !#zh 如果该组件启用，则在所有组件的 update 之前调用。
      * @method start
      */
     start: null,
 
     /**
-     * Called when this component becomes enabled and its node becomes active
+     * !#en Called when this component becomes enabled and its node is active.
+     * !#zh 当该组件被启用，并且它的节点也激活时。
      * @method onEnable
      */
     onEnable: null,
 
     /**
-     * Called when this component becomes disabled or its node becomes inactive
+     * !#en Called when this component becomes disabled or its node becomes inactive.
+     * !#zh 当该组件被禁用或节点变为无效时调用。
      * @method onDisable
      */
     onDisable: null,
 
     /**
-     * Called when this component will be destroyed.
+     * !#en Called when this component will be destroyed.
+     * !#zh 当该组件被销毁时调用
      * @method onDestroy
      */
     onDestroy: null,
@@ -411,57 +440,81 @@ var Component = cc.Class({
     // PUBLIC
 
     /**
-     * Adds a component class to the node. You can also add component to node by passing in the name of the
-     * script.
+     * !#en Adds a component class to the node. You can also add component to node by passing in the name of the script.
+     * !#zh 向节点添加一个组件类，你还可以通过传入脚本的名称来添加组件。
      *
      * @method addComponent
      * @param {Function|String} typeOrTypename - the constructor or the class name of the component to add
      * @return {Component} - the newly added component
+     * @example
+     * var sprite = node.addComponent(cc.Sprite);
+     * var test = node.addComponent("Test");
      */
     addComponent: function (typeOrTypename) {
         return this.node.addComponent(typeOrTypename);
     },
 
     /**
-     * Returns the component of supplied type if the node has one attached, null if it doesn't. You can also get
-     * component in the node by passing in the name of the script.
+     * !#en
+     * Returns the component of supplied type if the node has one attached, null if it doesn't.<br/>
+     * You can also get component in the node by passing in the name of the script.
+     * !#zh
+     * 获取节点上指定类型的组件，如果节点有附加指定类型的组件，则返回，如果没有则为空。<br/>
+     * 传入参数也可以是脚本的名称。
      *
      * @method getComponent
      * @param {Function|String} typeOrClassName
      * @return {Component}
+     * @example
+     * // get sprite component.
+     * var sprite = node.getComponent(cc.Sprite);
+     * // get custom test calss.
+     * var test = node.getComponent("Test");
      */
     getComponent: function (typeOrClassName) {
         return this.node.getComponent(typeOrClassName);
     },
 
     /**
-     * Returns all components of supplied Type in the node.
+     * !#en Returns all components of supplied Type in the node.
+     * !#zh 返回节点上指定类型的所有组件。
      *
      * @method getComponents
      * @param {Function|String} typeOrClassName
      * @return {Component[]}
+     * @example
+     * var sprites = node.getComponents(cc.Sprite);
+     * var tests = node.getComponents("Test");
      */
     getComponents: function (typeOrClassName) {
         return this.node.getComponents(typeOrClassName);
     },
 
     /**
-     * Returns the component of supplied type in any of its children using depth first search.
+     * !#en Returns the component of supplied type in any of its children using depth first search.
+     * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
      *
      * @method getComponentInChildren
      * @param {Function|String} typeOrClassName
      * @returns {Component}
+     * @example
+     * var sprite = node.getComponentInChildren(cc.Sprite);
+     * var Test = node.getComponentInChildren("Test");
      */
     getComponentInChildren: function (typeOrClassName) {
         return this.node.getComponentInChildren(typeOrClassName);
     },
 
     /**
-     * Returns the components of supplied type in any of its children using depth first search.
+     * !#en Returns the components of supplied type in any of its children using depth first search.
+     * !#zh 递归查找所有子节点中指定类型的组件。
      *
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
      * @returns {Component[]}
+     * @example
+     * var sprites = node.getComponentsInChildren(cc.Sprite);
+     * var tests = node.getComponentsInChildren("Test");
      */
     getComponentsInChildren: function (typeOrClassName) {
         return this.node.getComponentsInChildren(typeOrClassName);
@@ -539,8 +592,12 @@ var Component = cc.Class({
     // VIRTUAL
 
     /**
+     * !#en
      * If the component's bounding box is different from the node's, you can implement this method to supply
      * a custom axis aligned bounding box (AABB), so the editor's scene view can perform hit test properly.
+     * !#zh
+     * 如果组件的包围盒与节点不同，您可以实现该方法以提供自定义的轴向对齐的包围盒（AABB），
+     * 以便编辑器的场景视图可以正确地执行点选测试。
      *
      * @method _getLocalBounds
      * @param {Rect} out_rect - the Rect to receive the bounding box
@@ -548,27 +605,44 @@ var Component = cc.Class({
     _getLocalBounds: null,
 
     /**
+     * !#en
      * onRestore is called after the user clicks the Reset item in the Inspector's context menu or performs
-     * an undo operation on this component.
-     *
-     * If the component contains the "internal state", short for "temporary member variables which not included
-     * in its CCClass properties", then you may need to implement this function.
-     *
-     * The editor will call the getset accessors of your component to record/restore the component's state
-     * for undo/redo operation. However, in extreme cases, it may not works well. Then you should implement
-     * this function to manually synchronize your component's "internal states" with its public properties.
-     * Once you implement this function, all the getset accessors of your component will not be called when
-     * the user performs an undo/redo operation. Which means that only the properties with default value
-     * will be recorded or restored by editor.
-     *
-     * Similarly, the editor may failed to reset your component correctly in extreme cases. Then if you need
-     * to support the reset menu, you should manually synchronize your component's "internal states" with its
-     * properties in this function. Once you implement this function, all the getset accessors of your component
-     * will not be called during reset operation. Which means that only the properties with default value
+     * an undo operation on this component.<br/>
+     * <br/>
+     * If the component contains the "internal state", short for "temporary member variables which not included<br/>
+     * in its CCClass properties", then you may need to implement this function.<br/>
+     * <br/>
+     * The editor will call the getset accessors of your component to record/restore the component's state<br/>
+     * for undo/redo operation. However, in extreme cases, it may not works well. Then you should implement<br/>
+     * this function to manually synchronize your component's "internal states" with its public properties.<br/>
+     * Once you implement this function, all the getset accessors of your component will not be called when<br/>
+     * the user performs an undo/redo operation. Which means that only the properties with default value<br/>
+     * will be recorded or restored by editor.<br/>
+     * <br/>
+     * Similarly, the editor may failed to reset your component correctly in extreme cases. Then if you need<br/>
+     * to support the reset menu, you should manually synchronize your component's "internal states" with its<br/>
+     * properties in this function. Once you implement this function, all the getset accessors of your component<br/>
+     * will not be called during reset operation. Which means that only the properties with default value<br/>
      * will be reset by editor.
      *
      * This function is only called in editor mode.
-     *
+     * !#zh
+     * onRestore 是用户在检查器菜单点击 Reset 时，对此组件执行撤消操作后调用的。<br/>
+     * <br/>
+     * 如果组件包含了“内部状态”（不在 CCClass 属性中定义的临时成员变量），那么你可能需要实现该方法。<br/>
+     * <br/>
+     * 编辑器执行撤销/重做操作时，将调用组件的 get set 来录制和还原组件的状态。
+     * 然而，在极端的情况下，它可能无法良好运作。<br/>
+     * 那么你就应该实现这个方法，手动根据组件的属性同步“内部状态”。
+     * 一旦你实现这个方法，当用户撤销或重做时，组件的所有 get set 都不会再被调用。
+     * 这意味着仅仅指定了默认值的属性将被编辑器记录和还原。<br/>
+     * <br/>
+     * 同样的，编辑可能无法在极端情况下正确地重置您的组件。<br/>
+     * 于是如果你需要支持组件重置菜单，你需要在该方法中手工同步组件属性到“内部状态”。<br/>
+     * 一旦你实现这个方法，组件的所有 get set 都不会在重置操作时被调用。
+     * 这意味着仅仅指定了默认值的属性将被编辑器重置。
+     * <br/>
+     * 此方法仅在编辑器下会被调用。
      * @method onRestore
      */
     onRestore: null,
@@ -685,13 +759,20 @@ var Component = cc.Class({
     },
 
     /**
-     * <p>Schedules a custom selector.         <br/>
-     * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.</p>
+     * !#en
+     * Schedules a custom selector.<br/>
+     * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.
+     * !#zh
+     * 调度一个自定义的选择器。<br/>
+     * 如果选择器已调度，那么间隔参数将无需再次调度它更新。
      * @method schedule
      * @param {function} callback The callback function
      * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame. If interval = 0, it's recommended to use scheduleUpdate() instead.
      * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
      * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
+     * @example
+     * var squashAction = cc.scaleTo(0.2, 1, 0.6);
+     * this.seq = cc.sequence(squashAction);
      */
     schedule: function (callback, interval, repeat, delay) {
         cc.assert(callback, cc._LogInfos.Node.schedule);
@@ -705,21 +786,28 @@ var Component = cc.Class({
     },
 
     /**
-     * Schedules a callback function that runs only once, with a delay of 0 or larger
+     * !#en Schedules a callback function that runs only once, with a delay of 0 or larger.
+     * !#zh 调度一个只运行一次的选择器，伴随着一个 0 或者更大的延时。
      * @method scheduleOnce
      * @see cc.Node#schedule
      * @param {function} callback  A function wrapped as a selector
      * @param {Number} [delay=0]  The amount of time that the first tick will wait before execution.
+     * @example
+     * var squashAction = cc.scaleTo(0.2, 1, 0.6);
+     * this.seq = cc.scheduleOnce(squashAction);
      */
     scheduleOnce: function (callback, delay) {
         this.schedule(callback, 0, 0, delay);
     },
 
     /**
-     * Unschedules a custom callback function.
+     * !#en Unschedules a custom callback function.
+     * !#zh 取消调度一个自定义的选择器。
      * @method unschedule
      * @see cc.Node#schedule
      * @param {function} callback_fn  A function wrapped as a selector
+     * @example
+     * this.unschedule(_callback);
      */
     unschedule: function (callback_fn) {
         if (!callback_fn)
@@ -729,9 +817,13 @@ var Component = cc.Class({
     },
 
     /**
-     * <p>unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
-     * Actions are not affected by this method.</p>
+     * !#en
+     * unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
+     * Actions are not affected by this method.
+     * !#zh 取消调度所有已调度的回调函数：定制的回调函数，而 'update' 回调函数。动作不受此影响方法。
      * @method unscheduleAllCallbacks
+     * @example
+     * this.unscheduleAllCallbacks();
      */
     unscheduleAllCallbacks: function () {
         cc.director.getScheduler().unscheduleAllForTarget(this);
