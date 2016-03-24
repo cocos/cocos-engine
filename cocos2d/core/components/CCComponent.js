@@ -763,8 +763,8 @@ var Component = cc.Class({
      * Schedules a custom selector.<br/>
      * If the selector is already scheduled, then the interval parameter will be updated without scheduling it again.
      * !#zh
-     * 调度一个自定义的选择器。<br/>
-     * 如果选择器已调度，那么间隔参数将无需再次调度它更新。
+     * 调度一个自定义的回调函数。<br/>
+     * 如果回调函数已调度，那么将不会重复调度它，只会更新时间间隔参数。
      * @method schedule
      * @param {function} callback The callback function
      * @param {Number} [interval=0]  Tick interval in seconds. 0 means tick every frame. If interval = 0, it's recommended to use scheduleUpdate() instead.
@@ -787,7 +787,7 @@ var Component = cc.Class({
 
     /**
      * !#en Schedules a callback function that runs only once, with a delay of 0 or larger.
-     * !#zh 调度一个只运行一次的选择器，伴随着一个 0 或者更大的延时。
+     * !#zh 调度一个只运行一次的回调函数，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
      * @see cc.Node#schedule
      * @param {function} callback  A function wrapped as a selector
@@ -802,7 +802,7 @@ var Component = cc.Class({
 
     /**
      * !#en Unschedules a custom callback function.
-     * !#zh 取消调度一个自定义的选择器。
+     * !#zh 取消调度一个自定义的回调函数。
      * @method unschedule
      * @see cc.Node#schedule
      * @param {function} callback_fn  A function wrapped as a selector
@@ -820,7 +820,7 @@ var Component = cc.Class({
      * !#en
      * unschedule all scheduled callback functions: custom callback functions, and the 'update' callback function.<br/>
      * Actions are not affected by this method.
-     * !#zh 取消调度所有已调度的回调函数：定制的回调函数，而 'update' 回调函数。动作不受此影响方法。
+     * !#zh 取消调度所有已调度的回调函数：定制的回调函数以及 'update' 回调函数。动作不受此方法影响。
      * @method unscheduleAllCallbacks
      * @example
      * this.unscheduleAllCallbacks();
