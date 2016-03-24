@@ -731,9 +731,9 @@ var TiledMap = cc.Class({
         } else {
             // tmx file is cleared
             // 1. hide the tmx layers in _sgNode
-            var layers = self._sgNode.allLayers();
+            var layers = sgNode.allLayers();
             for (var i = 0, n = layers.length; i < n; i++) {
-                self._sgNode.removeChild(layers);
+                sgNode.removeChild(layers[i]);
             }
 
             // 2. if the component is enabled,
