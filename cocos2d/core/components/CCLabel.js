@@ -328,14 +328,10 @@ var Label = cc.Class({
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
         sgNode.setFontFileOrFamily(this.file);
-        if(this._useOriginalSize){
-            if(CC_EDITOR) {
-                this.node.setContentSize(sgNode.getContentSize());
-            }
+        if(this._useOriginalSize && CC_EDITOR){
+            this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
-        }
-
-        if(!this._useOriginalSize) {
+        } else {
             sgNode.setContentSize(this.node.getContentSize());
         }
         sgNode.setColor(this.node.color);

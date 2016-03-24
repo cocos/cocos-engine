@@ -420,14 +420,10 @@ var EditBox = cc.Class({
 
         this._createBackgroundSprite();
 
-        if(this._useOriginalSize){
-            if(CC_EDITOR) {
-                this.node.setContentSize(sgNode.getContentSize());
-            }
+        if(this._useOriginalSize && CC_EDITOR){
+            this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
-        }
-
-        if(!this._useOriginalSize) {
+        } else {
             sgNode.setContentSize(this.node.getContentSize());
         }
 
