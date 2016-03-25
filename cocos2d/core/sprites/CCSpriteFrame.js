@@ -73,9 +73,6 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
                     var texture = cc.textureCache.addImage(url);
                     this._refreshTexture(texture);
-                    if (this._textureLoaded) {
-                        this._checkRect(texture);
-                    }
                 }
             }
         }
@@ -241,12 +238,12 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Texture2D} texture
      */
     _refreshTexture: function (texture) {
-        if (this._texture !== texture) {
+        var self = this;
+        if (self._texture !== texture) {
             var locLoaded = texture.isLoaded();
             this._textureLoaded = locLoaded;
             this._texture = texture;
-            var self = this;
-            var textureLoadedCallback = function () {
+            function textureLoadedCallback () {
                 self._textureLoaded = true;
                 if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
                     var tempElement = texture.getHtmlElementObj();
@@ -260,25 +257,41 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     self.setRect(cc.rect(0, 0, rect.width, rect.height));
                 }
                 var w = texture.width, h = texture.height;
-                if (!self._rect) {
+
+                if (self._rect) {
+                    self._checkRect(texture);
+                }
+                else {
                     self.setRect(cc.rect(0, 0, w, h));
                 }
+
                 if (!self._originalSize) {
                     self.setOriginalSize(cc.size(w, h));
                 }
+
                 if (!self._offset) {
                     self.setOffset(cc.v2(0, 0));
                 }
+
                 //dispatch 'load' event of cc.SpriteFrame
                 self.emit("load");
-            };
+            }
 
-            if (!locLoaded) {
-                texture.once("load", textureLoadedCallback, this);
-            } else {
+            if (locLoaded) {
                 textureLoadedCallback();
             }
+            else {
+                texture.once("load", textureLoadedCallback);
+            }
         }
+        //if (texture && texture.url && texture.isLoaded()) {
+        //    if (self._rect) {
+        //        self._checkRect(texture);
+        //    }
+        //    else {
+        //        self.setRect(cc.rect(0, 0, texture.width, texture.height));
+        //    }
+        //}
     },
 
     /**
@@ -355,10 +368,6 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._refreshTexture(texture);
         } else {
             //todo log error
-        }
-
-        if (texture && texture.url && texture.isLoaded()) {
-            this._checkRect(texture);
         }
 
         return true;
