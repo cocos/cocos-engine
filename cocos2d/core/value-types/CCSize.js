@@ -27,12 +27,15 @@ var ValueType = require('./CCValueType');
 var JS = require('../platform/js');
 
 /**
- * cc.Size is the class for size object, please do not use its constructor to create sizes, use cc.size() alias function instead.
+ * cc.Size is the class for size object, please do not use its constructor to create sizes, use {{#crossLink "cc/size:method"}}{{/crossLink}} alias function instead.
  * It will be deprecated soon, please use cc.Vec2 instead
- * @class cc.Size
+ * @class Size
+ */
+/**
+ * @method Size
  * @param {Number} width
  * @param {Number} height
- * @see cc.size
+ * @return {Size}
  */
 function Size (width, height) {
     if (width && typeof width === 'object') {

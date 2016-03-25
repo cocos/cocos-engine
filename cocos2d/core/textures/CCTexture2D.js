@@ -33,8 +33,7 @@ require('../platform/CCClass');
 
 /**
  * The texture wrap mode
- * @class Texture2D.WrapMode
- * @static
+ * @enum Texture2D.WrapMode
  */
 var WrapMode = cc.Enum({
     /**

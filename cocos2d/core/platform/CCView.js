@@ -902,7 +902,7 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
     /**
      * Manipulation before appling the strategy
      * @method preApply
-     * @param {view} view - The target view
+     * @param {View} view - The target view
      */
     preApply: function (view) {
     },
@@ -910,7 +910,7 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
     /**
      * Function to apply this strategy
      * @method apply
-     * @param {view} view
+     * @param {View} view
      * @param {Size} designedResolution
      */
     apply: function (view, designedResolution) {
@@ -919,7 +919,7 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
     /**
      * Manipulation after applying the strategy
      * @method postApply
-     * @param {view} view  The target view
+     * @param {View} view  The target view
      */
     postApply: function (view) {
 
@@ -1015,7 +1015,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
     /**
      * Manipulation before applying the strategy
      * @method preApply
-     * @param {view} view - The target view
+     * @param {View} view - The target view
      */
     preApply: function (view) {
     },
@@ -1025,7 +1025,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * The return value is {scale: [scaleX, scaleY], viewport: {cc.Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * @method apply
-     * @param {view} view
+     * @param {View} view
      * @param {Size} designedResolution
      * @return {Object} scaleAndViewportRect
      */
@@ -1036,7 +1036,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
     /**
      * Manipulation after applying the strategy
      * @method postApply
-     * @param {view} view - The target view
+     * @param {View} view - The target view
      */
     postApply: function (view) {
     }
@@ -1243,7 +1243,7 @@ cc.ResolutionPolicy = cc._Class.extend(/** @lends cc.ResolutionPolicy# */{
     /**
      * Manipulation before applying the resolution policy
      * @method preApply
-     * @param {view} view The target view
+     * @param {View} view The target view
      */
     preApply: function (view) {
         this._containerStrategy.preApply(view);
@@ -1255,7 +1255,7 @@ cc.ResolutionPolicy = cc._Class.extend(/** @lends cc.ResolutionPolicy# */{
      * The return value is {scale: [scaleX, scaleY], viewport: {cc.Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * @method apply
-     * @param {view} view - The target view
+     * @param {View} view - The target view
      * @param {Size} designedResolution - The user defined design resolution
      * @return {Object} An object contains the scale X/Y values and the viewport rect
      */
@@ -1267,7 +1267,7 @@ cc.ResolutionPolicy = cc._Class.extend(/** @lends cc.ResolutionPolicy# */{
     /**
      * Manipulation after appyling the strategy
      * @method postApply
-     * @param {view} view - The target view
+     * @param {View} view - The target view
      */
     postApply: function (view) {
         this._containerStrategy.postApply(view);
