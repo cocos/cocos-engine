@@ -24,13 +24,15 @@
  ****************************************************************************/
 
 /**
- * The orientation of tiled map
+ * !#en The orientation of tiled map.
+ * !#zh Tiled Map 地图定向。
  * @enum TiledMap.Orientation
  * @static
  */
 var Orientation = cc.Enum({
     /**
-     * Orthogonal orientation
+     * !#en Orthogonal orientation.
+     * !#zh 直角鸟瞰地图（90°地图）。
      * @property ORTHO
      * @type {Number}
      * @static
@@ -38,7 +40,8 @@ var Orientation = cc.Enum({
     ORTHO: 0,
 
     /**
-     * Hexagonal orientation
+     * !#en Hexagonal orientation.
+     * !#zh 六边形地图
      * @property HEX
      * @type {Number}
      * @static
@@ -46,7 +49,8 @@ var Orientation = cc.Enum({
     HEX: 1,
 
     /**
-     * Isometric orientation
+     * Isometric orientation.
+     * 等距斜视地图（斜45°地图）。
      * @property ISO
      * @type {Number}
      * @static
@@ -54,8 +58,8 @@ var Orientation = cc.Enum({
     ISO: 2
 });
 
-/**
- * The property type of tiled map
+/*
+ * The property type of tiled map.
  * @enum TiledMap.Property
  * @static
  */
@@ -103,8 +107,8 @@ var Property = cc.Enum({
     TILE: 5
 });
 
-/**
- * The tile flags of tiled map
+/*
+ * The tile flags of tiled map.
  * @enum TiledMap.TileFlag
  * @static
  */
@@ -146,7 +150,8 @@ var TileFlag = cc.Enum({
 });
 
 /**
- * Renders a TMX Tile Map in the scene.
+ * !#en Renders a TMX Tile Map in the scene.
+ * !#zh 渲染一个 tmx 地图编辑器导出 Tile Map 的场景。
  * @class TiledMap
  * @extends Component
  */
@@ -177,8 +182,9 @@ var TiledMap = cc.Class({
         },
 
         /**
-         * The tmx file.
-         * @property {string} tmxFile
+         * !#en The tmx file.
+         * !#zh tmx 文件。
+         * @property {String} tmxFile
          * @default ""
          */
         _tmxFile: {
@@ -200,8 +206,9 @@ var TiledMap = cc.Class({
         },
 
         /**
-         * The event handler to be called when the map is loaded.
-         * @property {cc.Component.EventHandler} mapLoaded
+         * !#en The event handler to be called when the map is loaded.
+         * !#zh 在加载在地图时要调用的事件处理程序。
+         * @property {Component.EventHandler} mapLoaded
          */
         mapLoaded: {
             default: [],
@@ -210,96 +217,135 @@ var TiledMap = cc.Class({
     },
 
     /**
-     * Gets the map size.
+     * !#en Gets the map size.
+     * !#zh 获取地图背景的大小。
      * @method getMapSize
-     * @return {cc.Size}
+     * @return {Size}
+     * @example
+     * var mapSize = tiledMap.getMapSize();
+     * cc.log("Map Size: " + mapSize);
      */
     getMapSize:function () {
         return this._sgNode.getMapSize();
     },
 
     /**
-     * Set the map size.
+     * !#en Set the map size.
+     * !#zh 设置地图背景的大小。
      * @method setMapSize
-     * @param {cc.Size} mapSize
+     * @param {Size} mapSize
+     * @example
+     * tiledMap.setMapSize(new cc.size(960, 640));
      */
     setMapSize:function (mapSize) {
         this._sgNode.setMapSize(mapSize);
     },
 
     /**
-     * Gets the tile size.
+     * !#en Gets the tile size.
+     * !#zh 获取地图背景中砖块元素的大小。
      * @method getTileSize
-     * @return {cc.Size}
+     * @return {Size}
+     * @example
+     * var tileSize = tiledMap.getTileSize();
+     * cc.log("Tile Size: " + tileSize);
      */
     getTileSize:function () {
         return this._sgNode.getTileSize();
     },
 
     /**
-     * Set the tile size
+     * !#en Set the tile size.
+     * !#zh 设置地图背景中砖块元素的大小。
      * @method setTileSize
-     * @param {cc.Size} tileSize
+     * @param {Size} tileSize
+     * @example
+     * tiledMap.setTileSize(new cc.size(10, 10));
      */
     setTileSize:function (tileSize) {
         this._sgNode.setTileSize(tileSize);
     },
 
     /**
-     * map orientation
+     * !#en map orientation.
+     * !#zh 获取地图方向。
      * @method getMapOrientation
      * @return {Number}
+     * @example
+     * var mapOrientation = tiledMap.getMapOrientation();
+     * cc.log("Map Orientation: " + mapOrientation);
      */
     getMapOrientation:function () {
         return this._sgNode.getMapOrientation();
     },
 
     /**
-     * map orientation
+     * !#en map orientation.
+     * !#zh 设置地图方向。
      * @method setMapOrientation
-     * @param {Number} orientation
+     * @param {TiledMap.Orientation} orientation
+     * @example
+     * tiledMap.setMapOrientation(TiledMap.Orientation.ORTHO);
      */
     setMapOrientation:function (orientation) {
         this._sgNode.setMapOrientation(orientation);
     },
 
     /**
-     * object groups
+     * !#en object groups.
+     * !#zh 获得物体层中所有对象。
      * @method getObjectGroups
-     * @return {Array}
+     * @return {Object[]}
+     * @example
+     * var objGroups = titledMap.getObjectGroups();
+     * for (var i = 0; i < objGroups.length; ++i) {
+     *     cc.log("obj: " + objGroups[i]);
+     * }
      */
     getObjectGroups:function () {
         return this._sgNode.getObjectGroups();
     },
 
     /**
-     * object groups
+     * !#en object groups.
+     * !#zh 设置物体层的所有对象。
      * @method setObjectGroups
-     * @param {Array} groups
+     * @param {Object[]} groups
+     * @example
+     * titledMap.setObjectGroups(groups);
      */
     setObjectGroups:function (groups) {
         this._sgNode.setObjectGroups(groups);
     },
 
     /**
-     * Gets the map properties
+     * !#en Gets the map properties.
+     * !#zh 获取地图的属性。
      * @method getProperties
-     * @return {object}
+     * @return {Object[]}
+     * @example
+     * var properties = titledMap.getProperties();
+     * for (var i = 0; i < properties.length; ++i) {
+     *     cc.log("Properties: " + properties[i]);
+     * }
      */
     getProperties:function () {
         return this._sgNode.getProperties();
     },
 
     /**
-     * Set the map properties
+     * !#en Set the map properties.
+     * !#zh 设置地图的属性。
      * @method setProperties
-     * @param {object} properties
+     * @param {Object[]} properties
+     * @example
+     * titledMap.setProperties(properties);
      */
     setProperties:function (properties) {
         this._sgNode.setProperties(properties);
     },
 
-    /**
+    /*
      * Initializes the instance of cc.TiledMap with tmxFile.
      * The mapLoaded events will be emitted when the map is loaded.
      * @method initWithTMXFile
@@ -309,7 +355,7 @@ var TiledMap = cc.Class({
         this._tmxFile = tmxFile;
     },
 
-    /**
+    /*
      * Initializes the instance of cc.TiledMap with tmxString.
      * The mapLoaded events will be emitted when the map is loaded.
      * @method initWithXML
@@ -350,9 +396,15 @@ var TiledMap = cc.Class({
     },
 
     /**
-     * Return All layers array.
+     * !#en Return All layers array.
+     * !#zh 返回所有层级数组。
      * @method allLayers
-     * @returns {Array}
+     * @returns {Node[]}
+     * @example
+     * var layers = titledMap.allLayers();
+     * for (var i = 0; i < layers.length; ++i) {
+     *     cc.log("Layers: " + layers[i]);
+     * }
      */
     allLayers: function () {
         var logicChildren = this.node.children;
@@ -369,10 +421,14 @@ var TiledMap = cc.Class({
     },
 
     /**
-     * return the cc.TiledLayer for the specific layer
+     * !#en return the cc.TiledLayer for the specific layer.
+     * !#zh 通过层级名称获取层级。
      * @method getLayer
      * @param {String} layerName
-     * @return {cc.TiledLayer}
+     * @return {TiledLayer}
+     * @example
+     * var layer = titledMap.getLayer("Player");
+     * cc.log(layer);
      */
     getLayer:function (layerName) {
         var logicChildren = this.node.children;
@@ -388,30 +444,42 @@ var TiledMap = cc.Class({
     },
 
     /**
-     * Return the TMXObjectGroup for the specific group
+     * !#en Return the TMXObjectGroup for the specific group.
+     * !#zh 获取指定的 TMXObjectGroup。
      * @method getObjectGroup
      * @param {String} groupName
-     * @return {cc.TMXObjectGroup}
+     * @return {TMXObjectGroup}
+     * @example
+     * var group = titledMap.getObjectGroup("Players");
+     * cc.log("ObjectGroup: " + group);
      */
     getObjectGroup:function (groupName) {
         return this._sgNode.getObjectGroup(groupName);
     },
 
     /**
-     * Return the value for the specific property name
+     * !#en Return the value for the specific property name.
+     * !#zh 通过属性名称，获取指定的属性。
      * @method getProperty
      * @param {String} propertyName
      * @return {String}
+     * @example
+     * var property = titledMap.getProperty("info");
+     * cc.log("Property: " + property);
      */
     getProperty:function (propertyName) {
         return this._sgNode.getProperty(propertyName);
     },
 
     /**
-     * Return properties dictionary for tile GID
+     * !#en Return properties dictionary for tile GID.
+     * !#zh 通过 GID ，获取指定的属性。
      * @method getPropertiesForGID
      * @param {Number} GID
-     * @return {object}
+     * @return {Object}
+     * @example
+     * var properties = titledMap.getPropertiesForGID(GID);
+     * cc.log("Properties: " + properties);
      */
     getPropertiesForGID: function(GID) {
         return this._sgNode.getPropertiesForGID(GID);
