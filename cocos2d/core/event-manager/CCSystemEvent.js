@@ -173,7 +173,7 @@ JS.mixin(EventMouse.prototype, {
     /**
      * !#en Returns the X axis delta distance from the previous location to current location.
      * !#zh 获取鼠标距离上一次事件移动的 X 轴距离。
-     * @method getDeltaX。
+     * @method getDeltaX
      * @return {Number}
      */
     getDeltaX: function () {
