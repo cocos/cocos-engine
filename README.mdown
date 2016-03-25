@@ -1,51 +1,20 @@
-Cocos Creator Game Engine
+Cocos Creator Engine Framework
 ==================
 
-[Cocos2d-html5][1] is a cross-platform 2D game engine written in Javascript, based on [Cocos2d-X][2] and licensed under MIT.
-It incorporates the same high level api as “Cocos2d JS-binding engine” and compatible with Cocos2d-X.
-It currently supports canvas and WebGL renderer.
+This repo is the engine framework for Cocos Creator, Cocos Creator is a game development tool focused on content creation, which has realized features like thorough scriptability, componentization and data driven, etc. on the basis of Cocos2d-x.
 
-Cross Platform
--------------
-   * Popular browsers:  Chrome 14+, Safari 5.0+, IE9+, Firefox 3.5+.
-   * Mobile platforms: coming soon.
-   * Native App: Same piece of code can run on "Cocos2d JS-Binding Engine" without or with little modification.
+Cocos Creator's in-editor scene view and web runtime share the same framework, which is the content of this repo. It's originally forked from [Cocos2d-html5](https://github.com/cocos2d/cocos2d-html5/), we build up an Entity Component architecture on it to meet the needs of Cocos Creator. 
 
-Documentation
-------------------
-   * Website: [www.cocos2d-x.org][3]
-   * API References: [http://www.cocos2d-x.org/wiki/Reference] [4]
+This framework is a cross-platform game engine written in Javascript and licensed under MIT. It supports major desktop and mobile browsers, it's also compatible with Cocos2d Javascript Binding engine to support native platforms like iOS, Android, Win32, Mac OS X.
 
+The framework is naturally integrated with Cocos Creator, so it's not designed to be used independently.
 
-Installing from [bower][8] (version >=3.4)
+Links
 ------------------
 
-```shell
-$ bower install cocos2d-html5
-```
-
-Running the tests (version <3)
-------------------
-
-```shell
-$ git clone git://github.com/fireball-x/engine.git
-$ cd engine
-$ python -m SimpleHTTPServer
-```
-... and then open a browser and go to `http://localhost:8000/tests`
-
-
-Contact us
-------------------
-   * Forum: [http://forum.cocos2d-x.org][5]
-   * Twitter: [http://www.twitter.com/cocos2dhtml5][6]
-   * Sina Microblog: [http://t.sina.com.cn/cocos2dhtml5][7]
+* [Official site](http://cocos2d-x.org/)
+* [Download](http://cocos2d-x.org/download)
+* [Documentation](http://cocos2d-x.org/docs/editors_and_tools/creator/index.html)
+* [API References](http://cocos2d-x.org/docs/api-ref/creator/v0.71/)
+* [Forum](http://discuss.cocos2d-x.org/c/editors-and-tools/cocos-creator)
    
-[1]: http://www.cocos2d-x.org "Cocos2d-html5"
-[2]: http://www.cocos2d-x.org "Cocos2d-X"
-[3]: http://www.cocos2d-x.org "www.cocos2d-x.org"
-[4]: http://www.cocos2d-x.org/wiki/Reference "API References"
-[5]: http://forum.cocos2d-x.org "http://forum.cocos2d-x.org"
-[6]: http://www.twitter.com/cocos2dhtml5 "http://www.twitter.com/cocos2dhtml5"
-[7]: http://t.sina.com.cn/cocos2dhtml5 "http://t.sina.com.cn/cocos2dhtml5"
-[8]: http://bower.io "http://bower.io"
