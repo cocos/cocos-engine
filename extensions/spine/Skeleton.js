@@ -38,11 +38,18 @@ function setEnumAttr (obj, propName, enumDef) {
 }
 
 /**
+ * !#en
  * The skeleton of Spine <br/>
  * <br/>
  * (Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
- * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
+ * which consists of the current poses bone SRT, slot colors, and which slot attachments are visible. <br/>
  * Multiple skeletons can use the same SkeletonData which includes all animations, skins, and attachments.) <br/>
+ * !#zh
+ * Sipne 骨骼动画 <br/>
+ * <br/>
+ * (Skeleton 是具有骨骼数据的引用和存储状态的实例，
+ * 它由当前的骨骼动作，slot 颜色，和可见的 slot attachments 组成。<br/>
+ * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，外观和附件。
  *
  * @class Skeleton
  * @extends cc._RendererUnderSG
@@ -63,9 +70,14 @@ sp.Skeleton = cc.Class({
     properties: {
 
         /**
+         * !#en
          * The skeleton data contains the skeleton information (bind pose bones, slots, draw order,
-         * attachments, skins, etc) and animations but does not hold any state.
+         * attachments, skins, etc) and animations but does not hold any state.<br/>
          * Multiple skeletons can share the same skeleton data.
+         * !#zh
+         * 骨骼数据包含了骨骼信息（绑定骨骼动作，slots，渲染顺序，
+         * attachments，皮肤等等）和动画但不持有任何状态。<br/>
+         * 多个 Skeleton 可以共用相同的骨架数据。
          * @property {SkeletonData} skeletonData
          */
         skeletonData: {
@@ -95,8 +107,9 @@ sp.Skeleton = cc.Class({
 
         // 由于 spine 的 skin 是无法二次替换的，所以只能设置默认的 skin
         /**
-         * The name of default skin.
-         * @property {string} defaultSkin
+         * !#en The name of default skin.
+         * !#zh 默认的皮肤名称。
+         * @property {String} defaultSkin
          */
         defaultSkin: {
             default: '',
@@ -104,8 +117,9 @@ sp.Skeleton = cc.Class({
         },
 
         /**
-         * The name of default animation.
-         * @property {string} defaultAnimation
+         * !#en The name of default animation.
+         * !#zh 默认的动画名称。
+         * @property {String} defaultAnimation
          */
         defaultAnimation: {
             default: '',
@@ -113,8 +127,9 @@ sp.Skeleton = cc.Class({
         },
 
         /**
-         * The name of current playing animation.
-         * @property {string} animation
+         * !#en The name of current playing animation.
+         * !#zh 当前播放的动画名称。
+         * @property {String} animation
          */
         animation: {
             get: function () {
@@ -135,7 +150,7 @@ sp.Skeleton = cc.Class({
         },
 
         /**
-         * @property {number} _defaultSkinIndex
+         * @property {Number} _defaultSkinIndex
          */
         _defaultSkinIndex: {
             get: function () {
@@ -233,7 +248,9 @@ sp.Skeleton = cc.Class({
         //},
 
         /**
-         * @property {boolean} loop
+         * !#en TODO
+         * !#zh 是否循环播放当前骨骼动画。
+         * @property {Boolean} loop
          * @default true
          */
         loop: {
@@ -244,8 +261,9 @@ sp.Skeleton = cc.Class({
 
 
         /**
-         * The time scale of this skeleton.
-         * @property {number} timeScale
+         * !#en The time scale of this skeleton.
+         * !#zh 当前骨骼中所有动画的时间缩放率。
+         * @property {Number} timeScale
          * @default 1
          */
         timeScale: {
@@ -259,8 +277,9 @@ sp.Skeleton = cc.Class({
         },
 
         /**
-         * Indicates whether open debug slots.
-         * @property {boolean} debugSlots
+         * !#en Indicates whether open debug slots.
+         * !#zh 是否显示 slot 的 debug 信息。
+         * @property {Boolean} debugSlots
          * @default false
          */
         debugSlots: {
@@ -275,8 +294,9 @@ sp.Skeleton = cc.Class({
         },
 
         /**
-         * Indicates whether open debug bones.
-         * @property {boolean} debugBones
+         * !#en Indicates whether open debug bones.
+         * !#zh 是否显示 bone 的 debug 信息。
+         * @property {Boolean} debugBones
          * @default false
          */
         debugBones: {
@@ -381,7 +401,8 @@ sp.Skeleton = cc.Class({
     // RENDERER
 
     /**
-     * Sets the bones and slots to the setup pose.
+     * !#en Sets the bones and slots to the setup pose.
+     * !#zh 设置 bones 和 slots 的动作。
      * @method setToSetupPose
      */
     setToSetupPose: function () {
@@ -391,7 +412,12 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Sets the bones to the setup pose, using the values from the `BoneData` list in the `SkeletonData`.
+     * !#en
+     * Sets the bones to the setup pose,
+     * using the values from the `BoneData` list in the `SkeletonData`.
+     * !#zh
+     * 设置 bones 和 slots 的动作，
+     * 使用来自在 `SkeletonData` 的 `BoneData` 列表中的值。
      * @method setBonesToSetupPose
      */
     setBonesToSetupPose: function () {
@@ -401,7 +427,12 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Sets the slots to the setup pose, using the values from the `SlotData` list in the `SkeletonData`.
+     * !#en
+     * Sets the slots to the setup pose,
+     * using the values from the `SlotData` list in the `SkeletonData`.
+     * !#zh
+     * 设置 bones 和 slots 的动作，
+     * 使用来自在 `SkeletonData` 的 `SlotData` 列表中的值。
      * @method setSlotsToSetupPose
      */
     setSlotsToSetupPose: function () {
@@ -411,9 +442,14 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Finds a bone by name. This does a string comparison for every bone.
+     * !#en
+     * Finds a bone by name.
+     * This does a string comparison for every bone.
+     * !#zh
+     * 通过名称查找 bone。
+     * 这里对每个 bone 的名称进行了比较。
      * @method findBone
-     * @param {string} boneName
+     * @param {String} boneName
      * @return {spine.Bone}
      */
     findBone: function (boneName) {
@@ -424,9 +460,14 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Finds a slot by name. This does a string comparison for every slot.
+     * !#en
+     * Finds a slot by name.
+     * This does a string comparison for every slot.
+     * !#zh
+     * 通过名称查找 slot。
+     * 这里对每个 slot 的名称进行了比较。
      * @method findSlot
-     * @param {string} slotName
+     * @param {String} slotName
      * @return {spine.Slot}
      */
     findSlot: function (slotName) {
@@ -437,9 +478,16 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Finds a skin by name and makes it the active skin. This does a string comparison for every skin. Note that setting the skin does not change which attachments are visible.
+     * !#en
+     * Finds a skin by name and makes it the active skin.
+     * This does a string comparison for every skin.
+     * Note that setting the skin does not change which attachments are visible.
+     * !#zh
+     * 按名称查找皮肤，激活该皮肤。
+     * 这里对每个皮肤的名称进行了比较。
+     * 注意：设置在皮肤不会改变它的附件是可见的。
      * @method setSkin
-     * @param {string} skinName
+     * @param {String} skinName
      * @return {spine.Skin}
      */
     setSkin: function (skinName) {
@@ -450,10 +498,15 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Returns the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * !#en
+     * Returns the attachment for the slot and attachment name.
+     * The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * !#zh
+     * 通过 slot 和 attachment 的名称获取 attachment。
+     * Skeleton 优先查找它的皮肤，然后才是 Skileton Data 中默认的 Skin。
      * @method getAttachment
-     * @param {string} slotName
-     * @param {string} attachmentName
+     * @param {String} slotName
+     * @param {String} attachmentName
      * @return {spine.RegionAttachment|sp.spine.BoundingBoxAttachment}
      */
     getAttachment: function (slotName, attachmentName) {
@@ -464,10 +517,15 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Sets the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * !#en
+     * Sets the attachment for the slot and attachment name.
+     * The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * !#zh
+     * 通过 solt 和 attachment 的名字来设置 attachment。
+     * Skeleton 优先查找它的皮肤，然后才是 Skileton Data 中默认的 Skin。
      * @method setAttachment
-     * @param {string} slotName
-     * @param {string} attachmentName
+     * @param {String} slotName
+     * @param {String} attachmentName
      */
     setAttachment: function (slotName, attachmentName) {
         if (this._sgNode) {
@@ -476,7 +534,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Sets skeleton data to sp.Skeleton.
+     * !#en Sets skeleton data to sp.Skeleton.
+     * !#zh 设置 Skeleton 中的 Skeleton Data。
      * @method setSkeletonData
      * @param {spine.SkeletonData} skeletonData
      * @param {spine.SkeletonData} ownsSkeletonData
@@ -502,7 +561,8 @@ sp.Skeleton = cc.Class({
     // ANIMATION
 
     /**
-     * Sets animation state data.
+     * !#en Sets animation state data.
+     * !#zh 设置动画状态数据。
      * @method setAnimationStateData
      * @param {spine.AnimationStateData} stateData
      */
@@ -513,11 +573,16 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Mix applies all keyframe values, interpolated for the specified time and mixed with the current values.
+     * !#en
+     * Mix applies all keyframe values,
+     * interpolated for the specified time and mixed with the current values.
+     * !#zh
+     * 混合应用所有关键帧值，
+     * 插入指定的时间和混合的当前值
      * @method setMix
-     * @param {string} fromAnimation
-     * @param {string} toAnimation
-     * @param {number} duration
+     * @param {String} fromAnimation
+     * @param {String} toAnimation
+     * @param {Number} duration
      */
     setMix: function (fromAnimation, toAnimation, duration) {
         if (this._sgNode) {
@@ -526,10 +591,11 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Sets event listener.
+     * !#en Sets event listener.
+     * !#zh 设置动画事件监听器。
      * @method setAnimationListener
-     * @param {object} target
-     * @param {function} callback
+     * @param {Object} target
+     * @param {Function} callback
      */
     setAnimationListener: function (target, callback) {
         if (this._sgNode) {
@@ -538,11 +604,12 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Set the current animation. Any queued animations are cleared.
+     * !#en Set the current animation. Any queued animations are cleared.
+     * !#zh 设置当前动画。队列中的任何的动画将被清除。
      * @method setAnimation
-     * @param {number} trackIndex
-     * @param {string} name
-     * @param {boolean} loop
+     * @param {Number} trackIndex
+     * @param {String} name
+     * @param {Boolean} loop
      * @return {spine.TrackEntry}
      */
     setAnimation: function (trackIndex, name, loop) {
@@ -564,12 +631,13 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Adds an animation to be played delay seconds after the current or last queued animation.
+     * !#en Adds an animation to be played delay seconds after the current or last queued animation.
+     * !#zh 添加一个动画到当前，或者是动画队列尾部后会再 “delay” 秒后播放？
      * @method addAnimation
-     * @param {number} trackIndex
-     * @param {string} name
-     * @param {boolean} loop
-     * @param {number} [delay=0]
+     * @param {Number} trackIndex
+     * @param {String} name
+     * @param {Boolean} loop
+     * @param {Number} [delay=0]
      * @return {spine.TrackEntry}
      */
     addAnimation: function (trackIndex, name, loop, delay) {
@@ -580,7 +648,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Returns track entry by trackIndex.
+     * !#en Returns track entry by trackIndex.
+     * !#zh 通过 track 索引获取 TrackEntry。
      * @method getCurrent
      * @param trackIndex
      * @return {spine.TrackEntry}
@@ -593,7 +662,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Clears all tracks of animation state.
+     * !#en Clears all tracks of animation state.
+     * !#zh 清除所有 tracks 的动画状态。
      * @method clearTracks
      */
     clearTracks: function () {
@@ -603,7 +673,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Clears track of animation state by trackIndex.
+     * !#en Clears track of animation state by trackIndex.
+     * !#zh 清除出指定 track 的动画状态。
      * @method clearTrack
      * @param {number} trackIndex
      */
@@ -655,7 +726,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Set the start event listener.
+     * !#en Set the start event listener.
+     * !#zh 用来设置开始播放动画的事件监听。
      * @method setStartListener
      * @param {function} listener
      */
@@ -666,7 +738,8 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * Set the end event listener.
+     * !#en Set the end event listener.
+     * !#zh 用来设置动画播放完后的事件监听。
      * @method setEndListener
      * @param {function} listener
      */

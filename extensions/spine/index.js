@@ -23,7 +23,12 @@
  ****************************************************************************/
 
 /**
- * The global main namespace of Spine, all classes, functions, properties and constants of Spine are defined in this namespace
+ * !#en
+ * The global main namespace of Spine, all classes, functions,
+ * properties and constants of Spine are defined in this namespace
+ * !#zh
+ * Spine 是全局的命名空间，
+ * 与 Spine 相关的所有的类，函数，属性，常量都在这个命名空间中定义。
  * @module sp
  * @main sp
  */
@@ -97,8 +102,12 @@ if (!CC_EDITOR || !Editor.isCoreLevel) {
     
     if (!CC_JSB) {
         /**
+         * !#en
          * The official spine runtime.
          * See http://en.esotericsoftware.com/spine-using-runtimes
+         * !#zh
+         * 官方 Spine Runtime。<br/>
+         * 可查看 Spine 官方文档 http://en.esotericsoftware.com/spine-using-runtimes
          * @property {object} spine
          */
         sp.spine = require('./lib/spine');
