@@ -182,12 +182,6 @@ var AudioSource = cc.Class({
         }
     },
 
-    onLoad: function () {
-        if ( this.isPlaying ) {
-            this.stop();
-        }
-    },
-
     onEnable: function () {
         if ( this.playOnLoad ) {
             this.play();
