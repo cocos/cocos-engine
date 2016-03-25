@@ -214,7 +214,8 @@ var Sprite = cc.Class({
                 this._fillType = value;
                 this._sgNode && this._sgNode.setFillType(value);
             },
-            type: FillType
+            type: FillType,
+            tooltip: 'i18n:COMPONENT.sprite.fill_type'
         },
 
         /**
@@ -235,6 +236,7 @@ var Sprite = cc.Class({
                 this._fillCenter = cc.v2(value);
                 this._sgNode && this._sgNode.setFillCenter(this._fillCenter);
             },
+            tooltip: 'i18n:COMPONENT.sprite.fill_center',
         },
 
         /**
@@ -256,6 +258,7 @@ var Sprite = cc.Class({
                 this._fillStart = cc.clampf(value, -1, 1);
                 this._sgNode && this._sgNode.setFillStart(value);
             },
+            tooltip: 'i18n:COMPONENT.sprite.fill_start'
         },
 
         /**
@@ -277,6 +280,7 @@ var Sprite = cc.Class({
                 this._fillRange = cc.clampf(value, -1, 1);
                 this._sgNode && this._sgNode.setFillRange(value);
             },
+            tooltip: 'i18n:COMPONENT.sprite.fill_range'
         },
         /**
          * !#en specify the frame is trimmed or not.
@@ -296,7 +300,8 @@ var Sprite = cc.Class({
                     this._sgNode.enableTrimmedContentSize(value);
                 }
             },
-            animatable: false
+            animatable: false,
+            tooltip: 'i18n:COMPONENT.sprite.trim'
         },
 
         /**
@@ -317,7 +322,8 @@ var Sprite = cc.Class({
                 this._sgNode.setBlendFunc(this._blendFunc);
             },
             animatable: false,
-            type:BlendFactor
+            type:BlendFactor,
+            tooltip: 'i18n:COMPONENT.sprite.src_blend_factor'
         },
 
         /**
@@ -338,7 +344,8 @@ var Sprite = cc.Class({
                 this._sgNode.setBlendFunc(this._blendFunc);
             },
             animatable: false,
-            type: BlendFactor
+            type: BlendFactor,
+            tooltip: 'i18n:COMPONENT.sprite.dst_blend_factor'
         },
 
         //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
@@ -374,7 +381,8 @@ var Sprite = cc.Class({
                 }
             },
             animatable: false,
-            type: SizeMode
+            type: SizeMode,
+            tooltip: 'i18n:COMPONENT.sprite.size_mode'
         }
     },
 

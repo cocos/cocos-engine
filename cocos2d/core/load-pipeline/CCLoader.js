@@ -268,13 +268,13 @@ JS.mixin(cc.loader, {
      * 
      * @example
      * 
-     * // load the texture (project/assets/resources/imgs/cocos.png) from resources folder with no extension
-     * cc.loader.load('imgs/cocos', function (err, texture) {
+     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder with no extension
+     * cc.loader.loadRes('imgs/cocos/cocos', function (err, spriteFrame) {
      *     if (err) {
      *         cc.error(err.message || err);
      *         return;
      *     }
-     *     cc.log('Result should be a texture: ' + (texture instanceof cc.Texture2D));
+     *     cc.log('Result should be a sprite frame: ' + ( spriteFrame instanceof cc.SpriteFrame));
      * });
      */
     loadRes: function (url, progressCallback, completeCallback) {
