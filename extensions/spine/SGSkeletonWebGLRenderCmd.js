@@ -39,9 +39,10 @@ proto.rendering = function (ctx) {
     var node = this._node, tmpQuad = this._tmpQuad;
     var color = node.getColor(), locSkeleton = node._skeleton;
 
-    var blendMode, textureAtlas, attachment, slot, i, n;
+    var textureAtlas, attachment, slot, i, n;
     var locBlendFunc = node._blendFunc;
     var premultiAlpha = node._premultipliedAlpha;
+    var blendMode = -1;
 
     this._shaderProgram.use();
     this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
@@ -78,13 +79,16 @@ proto.rendering = function (ctx) {
 
         var regionTextureAtlas = node.getTextureAtlas(attachment);
 
-        if (slot.data.blendMode != blendMode) {
+        if (slot.data.blendMode !== blendMode) {
             if (textureAtlas) {
                 textureAtlas.drawQuads();
                 textureAtlas.removeAllQuads();
             }
             blendMode = slot.data.blendMode;
             switch (blendMode) {
+            case spine.BlendMode.normal:
+                cc.gl.blendFunc(premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA, cc.macro.ONE_MINUS_SRC_ALPHA);
+                break;
             case spine.BlendMode.additive:
                 cc.gl.blendFunc(premultiAlpha ? cc.macro.ONE : cc.macro.SRC_ALPHA, cc.macro.ONE);
                 break;
@@ -97,7 +101,8 @@ proto.rendering = function (ctx) {
             default:
                 cc.gl.blendFunc(locBlendFunc.src, locBlendFunc.dst);
             }
-        } else if (regionTextureAtlas != textureAtlas && textureAtlas) {
+        }
+        else if (regionTextureAtlas !== textureAtlas && textureAtlas) {
             textureAtlas.drawQuads();
             textureAtlas.removeAllQuads();
         }
