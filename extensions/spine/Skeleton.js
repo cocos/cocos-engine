@@ -402,7 +402,7 @@ sp.Skeleton = cc.Class({
 
     /**
      * !#en Sets the bones and slots to the setup pose.
-     * !#zh 设置 bones 和 slots 的动作。
+     * !#zh 还原到起始动作
      * @method setToSetupPose
      */
     setToSetupPose: function () {
@@ -416,8 +416,8 @@ sp.Skeleton = cc.Class({
      * Sets the bones to the setup pose,
      * using the values from the `BoneData` list in the `SkeletonData`.
      * !#zh
-     * 设置 bones 和 slots 的动作，
-     * 使用来自在 `SkeletonData` 的 `BoneData` 列表中的值。
+     * 设置 bone 到起始动作
+     * 使用 SkeletonData 中的 BoneData 列表中的值。
      * @method setBonesToSetupPose
      */
     setBonesToSetupPose: function () {
@@ -431,8 +431,8 @@ sp.Skeleton = cc.Class({
      * Sets the slots to the setup pose,
      * using the values from the `SlotData` list in the `SkeletonData`.
      * !#zh
-     * 设置 bones 和 slots 的动作，
-     * 使用来自在 `SkeletonData` 的 `SlotData` 列表中的值。
+     * 设置 slot 到起始动作。
+     * 使用 SkeletonData 中的 SlotData 列表中的值。
      * @method setSlotsToSetupPose
      */
     setSlotsToSetupPose: function () {
@@ -447,7 +447,7 @@ sp.Skeleton = cc.Class({
      * This does a string comparison for every bone.
      * !#zh
      * 通过名称查找 bone。
-     * 这里对每个 bone 的名称进行了比较。
+     * 这里对每个 bone 的名称进行了对比。
      * @method findBone
      * @param {String} boneName
      * @return {spine.Bone}
@@ -485,7 +485,7 @@ sp.Skeleton = cc.Class({
      * !#zh
      * 按名称查找皮肤，激活该皮肤。
      * 这里对每个皮肤的名称进行了比较。
-     * 注意：设置在皮肤不会改变它的 attachments 是可见的。
+     * 注意：设置皮肤不会改变 attachment 的可见性。。
      * @method setSkin
      * @param {String} skinName
      * @return {spine.Skin}
@@ -503,7 +503,7 @@ sp.Skeleton = cc.Class({
      * The skeleton looks first in its skin, then in the skeleton data’s default skin.
      * !#zh
      * 通过 slot 和 attachment 的名称获取 attachment。
-     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的 Skin。
+     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
      * @method getAttachment
      * @param {String} slotName
      * @param {String} attachmentName
@@ -522,7 +522,7 @@ sp.Skeleton = cc.Class({
      * The skeleton looks first in its skin, then in the skeleton data’s default skin.
      * !#zh
      * 通过 slot 和 attachment 的名字来设置 attachment。
-     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的 Skin。
+     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
      * @method setAttachment
      * @param {String} slotName
      * @param {String} attachmentName
@@ -576,9 +576,7 @@ sp.Skeleton = cc.Class({
      * !#en
      * Mix applies all keyframe values,
      * interpolated for the specified time and mixed with the current values.
-     * !#zh
-     * 混合应用所有关键帧值，
-     * 插入指定的时间和混合的当前值
+     * !#zh 为所有关键帧设定混合及混合时间（从当前值开始差值）。
      * @method setMix
      * @param {String} fromAnimation
      * @param {String} toAnimation
@@ -632,7 +630,7 @@ sp.Skeleton = cc.Class({
 
     /**
      * !#en Adds an animation to be played delay seconds after the current or last queued animation.
-     * !#zh 添加一个动画到当前，或者是动画队列尾部后会再 “delay” 秒后播放？
+     * !#zh 添加一个动画到动画队列尾部，还可以延迟指定的秒数。
      * @method addAnimation
      * @param {Number} trackIndex
      * @param {String} name
@@ -663,7 +661,7 @@ sp.Skeleton = cc.Class({
 
     /**
      * !#en Clears all tracks of animation state.
-     * !#zh 清除所有 tracks 的动画状态。
+     * !#zh 清除所有 track 的动画状态。
      * @method clearTracks
      */
     clearTracks: function () {
