@@ -42,14 +42,14 @@ function setEnumAttr (obj, propName, enumDef) {
  * The skeleton of Spine <br/>
  * <br/>
  * (Skeleton has a reference to a SkeletonData and stores the state for skeleton instance,
- * which consists of the current poses bone SRT, slot colors, and which slot attachments are visible. <br/>
+ * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
  * Multiple skeletons can use the same SkeletonData which includes all animations, skins, and attachments.) <br/>
  * !#zh
- * Sipne 骨骼动画 <br/>
+ * Spine 骨骼动画 <br/>
  * <br/>
- * (Skeleton 是具有骨骼数据的引用和存储状态的实例，
+ * (Skeleton 具有对骨骼数据的引用并且存储了骨骼实例的状态，
  * 它由当前的骨骼动作，slot 颜色，和可见的 slot attachments 组成。<br/>
- * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，外观和附件。
+ * 多个 Skeleton 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。
  *
  * @class Skeleton
  * @extends cc._RendererUnderSG
@@ -77,7 +77,7 @@ sp.Skeleton = cc.Class({
          * !#zh
          * 骨骼数据包含了骨骼信息（绑定骨骼动作，slots，渲染顺序，
          * attachments，皮肤等等）和动画但不持有任何状态。<br/>
-         * 多个 Skeleton 可以共用相同的骨架数据。
+         * 多个 Skeleton 可以共用相同的骨骼数据。
          * @property {SkeletonData} skeletonData
          */
         skeletonData: {
@@ -485,7 +485,7 @@ sp.Skeleton = cc.Class({
      * !#zh
      * 按名称查找皮肤，激活该皮肤。
      * 这里对每个皮肤的名称进行了比较。
-     * 注意：设置在皮肤不会改变它的附件是可见的。
+     * 注意：设置在皮肤不会改变它的 attachments 是可见的。
      * @method setSkin
      * @param {String} skinName
      * @return {spine.Skin}
@@ -503,7 +503,7 @@ sp.Skeleton = cc.Class({
      * The skeleton looks first in its skin, then in the skeleton data’s default skin.
      * !#zh
      * 通过 slot 和 attachment 的名称获取 attachment。
-     * Skeleton 优先查找它的皮肤，然后才是 Skileton Data 中默认的 Skin。
+     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的 Skin。
      * @method getAttachment
      * @param {String} slotName
      * @param {String} attachmentName
@@ -521,8 +521,8 @@ sp.Skeleton = cc.Class({
      * Sets the attachment for the slot and attachment name.
      * The skeleton looks first in its skin, then in the skeleton data’s default skin.
      * !#zh
-     * 通过 solt 和 attachment 的名字来设置 attachment。
-     * Skeleton 优先查找它的皮肤，然后才是 Skileton Data 中默认的 Skin。
+     * 通过 slot 和 attachment 的名字来设置 attachment。
+     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的 Skin。
      * @method setAttachment
      * @param {String} slotName
      * @param {String} attachmentName
