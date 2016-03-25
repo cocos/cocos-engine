@@ -208,6 +208,11 @@ window.clearInterval = function (intervalId) {
 };
 window.clearTimeout = clearInterval;
 
+// SocketIO
+if (window.SocketIO) {
+    window.io = window.SocketIO;
+}
+
 // ccsg
 window._ccsg = {
     Node: cc.Node,
