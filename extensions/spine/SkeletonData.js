@@ -73,8 +73,8 @@ var TextureLoader = cc.Class({
 });
 
 /**
- * The skeleton data of spine.
- *
+ * !#en The skeleton data of spine.
+ * !#zh Spine 的 骨骼数据。
  * @class SkeletonData
  * @extends cc.Asset
  */
@@ -91,8 +91,9 @@ var SkeletonData = cc.Class({
         _skeletonJson: null,
 
         /**
-         * See http://en.esotericsoftware.com/spine-json-format
-         * @property {object} skeletonJson
+         * !#en See http://en.esotericsoftware.com/spine-json-format
+         * !#zh 可查看 Spine 官方文档 http://zh.esotericsoftware.com/spine-json-format
+         * @property {Object} skeletonJson
          */
         skeletonJson: {
             get: function () {
@@ -107,7 +108,7 @@ var SkeletonData = cc.Class({
         _atlasText: "",
 
         /**
-         * @property {string} atlasText
+         * @property {String} atlasText
          */
         atlasText: {
             get: function () {
@@ -127,7 +128,7 @@ var SkeletonData = cc.Class({
         // -------------------------------------------------
 
         /**
-         * @property {cc.Texture2D} textures
+         * @property {Texture2D} textures
          */
         textures: {
             default: [],
@@ -135,15 +136,16 @@ var SkeletonData = cc.Class({
         },
 
         /**
+         * !#en
          * A scale can be specified on the JSON or binary loader which will scale the bone positions,
          * image sizes, and animation translations.
          * This can be useful when using different sized images than were used when designing the skeleton
          * in Spine. For example, if using images that are half the size than were used in Spine,
          * a scale of 0.5 can be used. This is commonly used for games that can run with either low or high
          * resolution texture atlases.
-         *
-         * @see http://en.esotericsoftware.com/spine-using-runtimes#Scaling
-         * @property {number} scale
+         * see http://en.esotericsoftware.com/spine-using-runtimes#Scaling
+         * !#zh 可查看 Spine 官方文档： http://zh.esotericsoftware.com/spine-using-runtimes#Scaling
+         * @property {Number} scale
          */
         scale: 1
     },
@@ -181,9 +183,10 @@ var SkeletonData = cc.Class({
     },
 
     /**
-     * Get the included SkeletonData used in spine runtime.
+     * !#en Get the included SkeletonData used in spine runtime.
+     * !#zh 获取 Spine Runtime 使用的 SkeletonData。
      * @method getRuntimeData
-     * @param {boolean} [quiet=false]
+     * @param {Boolean} [quiet=false]
      * @return {spine.SkeletonData}
      */
     getRuntimeData: !CC_JSB && function (quiet) {
