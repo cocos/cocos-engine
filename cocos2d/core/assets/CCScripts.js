@@ -24,7 +24,8 @@
  ****************************************************************************/
 
 /**
- * Class for script handling.
+ * !#en Class for script handling.
+ * !#zh Script 资源类。
  * @class _Script
  * @extends Asset
  * @constructor
@@ -38,7 +39,8 @@ var Script = cc.Class({
 cc._Script = Script;
 
 /**
- * Class for JavaScript handling.
+ * !#en Class for JavaScript handling.
+ * !#zh JavaScript 资源类。
  * @class _JavaScript
  * @extends Asset
  * @private
@@ -52,7 +54,8 @@ var JavaScript = cc.Class({
 cc._JavaScript = JavaScript;
 
 /**
- * Class for coffee script handling.
+ * !#en Class for coffee script handling.
+ * !#zh CoffeeScript 资源类。
  * @class CoffeeScript
  * @extends Asset
  * @constructor

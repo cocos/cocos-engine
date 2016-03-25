@@ -24,7 +24,8 @@
  ****************************************************************************/
 
 /**
- * Class for audio data handling.
+ * !#en Class for audio data handling.
+ * !#zh 音频资源类。
  * @class AudioClip
  * @extends RawAsset
  * @constructor

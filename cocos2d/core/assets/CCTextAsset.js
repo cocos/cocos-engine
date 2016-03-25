@@ -24,7 +24,8 @@
  ****************************************************************************/
 
 /**
- * Class for text file.
+ * !#en Class for text file.
+ * !#zh 文本资源类。
  * @class TextAsset
  * @extends Asset
  * @constructor

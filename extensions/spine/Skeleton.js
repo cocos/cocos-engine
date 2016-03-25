@@ -294,8 +294,11 @@ sp.Skeleton = cc.Class({
     // IMPLEMENT
 
     onLoad: function () {
+        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
         var Flags = cc.Object.Flags;
         this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
+        this.node.setContentSize(0, 0);
+        //
         this._refresh();
     },
 
@@ -736,15 +739,13 @@ sp.Skeleton = cc.Class({
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
             sgNode.retain();
+            sgNode.setContentSize(0, 0);    // restore content size
             self._initSgNode();
             self._appendSgNode(sgNode);
             if ( !self.node._sizeProvider ) {
                 self.node._sizeProvider = sgNode;
             }
         }
-
-        // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好先强制尺寸为零
-        self.node.setContentSize(0, 0);
 
         if (CC_EDITOR) {
             // update inspector

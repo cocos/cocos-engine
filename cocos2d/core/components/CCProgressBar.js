@@ -259,6 +259,9 @@ var ProgressBar = cc.Class({
             default: false,
             tooltip: 'i18n:COMPONENT.progress.reverse',
             notify: function() {
+                if (this.barSprite) {
+                    this.barSprite.fillStart = 1 - this.barSprite.fillStart;
+                }
                 this._updateBarStatus();
             },
             animatable: false

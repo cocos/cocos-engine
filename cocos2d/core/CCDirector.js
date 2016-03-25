@@ -680,7 +680,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = sceneAsset;
                 }
                 if (scene instanceof cc.Scene) {
-                    self.runScene(scene, onUnloaded, onLaunched);
+                    self.runSceneImmediate(scene, onUnloaded, onLaunched);
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';
