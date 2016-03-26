@@ -261,7 +261,6 @@ JS.mixin(cc.loader, {
      * @method loadRes
      * @param {String} url - Url of the target resource.
      *                        The url is relative to the "resources" folder, extensions must be omitted.
-     * @param {Function} [progressCallback] - Callback invoked when progression change. See {{#crossLink "Pipeline/onProgress:method"}}Pipeline.onProgress{{/crossLink}}.
      * @param {Function} completeCallback - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
@@ -277,7 +276,7 @@ JS.mixin(cc.loader, {
      *     cc.log('Result should be a sprite frame: ' + ( spriteFrame instanceof cc.SpriteFrame));
      * });
      */
-    loadRes: function (url, progressCallback, completeCallback) {
+    loadRes: function (url, completeCallback) {
         var uuid = this._getResUuid(url);
         if (uuid) {
             this.load(
@@ -286,7 +285,6 @@ JS.mixin(cc.loader, {
                     type: 'uuid',
                     uuid: uuid
                 },
-                progressCallback,
                 completeCallback
             );
         }
