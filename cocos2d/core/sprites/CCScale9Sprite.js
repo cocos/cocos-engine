@@ -521,7 +521,9 @@ var fillQuadGeneratorBar = {
 
 var fillQuadGeneratorRadial = {
     _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillCenter, fillStart,fillRange) {
-
+        //do round fill start [0,1), include 0, exclude 1
+        while (fillStart >= 1.0) fillStart -= 1.0;
+        while (fillStart < 0.0) fillStart += 1.0;
         var center = cc.v2(fillCenter);
 
         center.x *= contentSize.width;
@@ -529,14 +531,14 @@ var fillQuadGeneratorRadial = {
 
         fillStart *= Math.PI * 2;
         fillRange *= Math.PI * 2;
+        var fillEnd = fillStart + fillRange;
         if(!this._inited) {
             this._inited = true;
             this._vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
             this._vertices = [cc.v2(0,0),cc.v2(0,0)];
             this._uvs = [cc.v2(0,0),cc.v2(0,0)];
-            this._vertsIn = [false,false,false,false];
-            this._intersectPoint_1 = [null,null,null,null,cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
-            this._intersectPoint_2 = [null,null,null,null,cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
+            this._intersectPoint_1 = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
+            this._intersectPoint_2 = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
         }
 
         //build vertices
@@ -593,73 +595,71 @@ var fillQuadGeneratorRadial = {
 
         }
 
-        //get vertex Angle
-        var triangleIndex = 0;
-        this._vertsIn[0] = this._isAngleIn(this._getVertAngle(center,rawQuad._bl.vertices), fillStart, fillRange);
-        this._vertsIn[1] = this._isAngleIn(this._getVertAngle(center,rawQuad._br.vertices), fillStart, fillRange);
-        this._vertsIn[2] = this._isAngleIn(this._getVertAngle(center,rawQuad._tr.vertices), fillStart, fillRange);
-        this._vertsIn[3] = this._isAngleIn(this._getVertAngle(center,rawQuad._tl.vertices), fillStart, fillRange);
+        var triangles = [null, null, null, null];
+
+        if(center.x !== this._vertices[0].x) {
+            triangles[0] = [3,0];
+        }
+        if(center.x !== this._vertices[1].x) {
+            triangles[2] = [1,2];
+        }
+        if(center.y !== this._vertices[0].y) {
+            triangles[1] = [0,1];
+        }
+        if(center.y !== this._vertices[1].y) {
+            triangles[3] = [2,3];
+        }
 
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart, this._intersectPoint_1);
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart + fillRange, this._intersectPoint_2);
-        var triangles = [null, null, null, null];
-        //in boudary
-        if(center.x <= this._vertices[1].x && center.x >= this._vertices[0].x && center.y <= this._vertices[1].y && center.y >= this._vertices[0].y) {
-            if(center.x !== this._vertices[0].x) {
-                triangles[0] = [3,0];
-            }
-            if(center.x !== this._vertices[1].x) {
-                triangles[2] = [1,2];
-            }
-            if(center.y !== this._vertices[0].y) {
-                triangles[1] = [0,1];
-            }
-            if(center.y !== this._vertices[1].y) {
-                triangles[3] = [2,3];
-            }
-            var quads = [];
-            for(triangleIndex = 0; triangleIndex < 4; ++triangleIndex ) {
-                var triangle = triangles[triangleIndex];
-                if(triangle === null) {
-                    continue;
-                }
-                //do triangle processing
 
-                if(this._intersectPoint_1[triangleIndex] === null && this._intersectPoint_2[triangleIndex] === null) {
-                    //no intersect
-                    if(this._vertsIn[triangle[0]] && this._vertsIn[triangle[1]]) {
-                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
-                    }
-                } else if(this._intersectPoint_1[triangleIndex] === null) {
-                    //no start intersect
-                    if(this._vertsIn[triangle[1]] === true) {
-                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
-                    } else {
+        var quads = [];
+        for(var triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
+            var triangle = triangles[triangleIndex];
+            if(triangle === null) {
+                continue;
+            }
+            //all in
+            if(fillRange >= Math.PI * 2) {
+                quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
+                continue;
+            }
+            //test against
+            var startAngle = this._getVertAngle(center,this._vertPos[triangle[0]]);
+            var endAngle = this._getVertAngle(center,this._vertPos[triangle[1]]);
+            if(endAngle < startAngle) endAngle += Math.PI * 2;
+            startAngle -= Math.PI * 2;
+            endAngle -= Math.PI * 2;
+            //testing
+            for(var testIndex = 0; testIndex < 3; ++testIndex) {
+                if(startAngle >= fillEnd) {
+                    //all out
+                } else if (startAngle >= fillStart) {
+                    if(endAngle >= fillEnd) {
+                        //startAngle to fillEnd
                         quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex],colorOpacity));
-                    }
-
-                } else if(this._intersectPoint_2[triangleIndex] === null) {
-                    //no end intersect
-                    if(this._vertsIn[triangle[0]] === true) {
-                        quads.push(this._generateTriangle(rawQuad, center,  this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
                     } else {
-                        quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]],colorOpacity));
+                        //startAngle to endAngle
+                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
                     }
-
                 } else {
-                    //two intersects
-                    if(this._vertsIn[triangle[0]]) {
-                        //push two triangles
-                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex],colorOpacity));
+                    //startAngle < fillStart
+                    if(endAngle <= fillStart) {
+                        //all out
+                    } else if(endAngle <= fillEnd) {
+                        //fillStart to endAngle
                         quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]],colorOpacity));
                     } else {
+                        //fillStart to fillEnd
                         quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex],colorOpacity));
                     }
                 }
+
+                //add 2 * PI
+                startAngle += Math.PI * 2;
+                endAngle += Math.PI * 2;
             }
 
-        } else {
-            //todo add outside implementation
         }
 
         var result = {};
@@ -722,6 +722,7 @@ var fillQuadGeneratorRadial = {
         return angle <= start + rangeAngle;
     },
 
+    //[0,PI * 2)
     _getVertAngle: function(start, end) {
         var placementX, placementY;
         placementX = end.x - start.x;
@@ -731,9 +732,9 @@ var fillQuadGeneratorRadial = {
             return undefined;
         } else if(placementX === 0) {
             if(placementY > 0) {
-                return Math.PI / 2;
+                return Math.PI * 0.5;
             } else {
-                return - Math.PI / 2;
+                return Math.PI * 1.5;
             }
         } else {
             var angle = Math.atan(placementY / placementX);
@@ -746,12 +747,6 @@ var fillQuadGeneratorRadial = {
     },
 
     _getInsectedPoints: function(left, right, bottom, top, center, angle, intersectPoints) {
-        //reset to(null, null, null,null, cc.v2,cc.v2...)
-        intersectPoints[4] = intersectPoints[4] || intersectPoints[0];
-        intersectPoints[5] = intersectPoints[5] || intersectPoints[1];
-        intersectPoints[6] = intersectPoints[6] || intersectPoints[2];
-        intersectPoints[7] = intersectPoints[7] || intersectPoints[3];
-        intersectPoints[0] = intersectPoints[1] = intersectPoints[2] = intersectPoints[3] = null;
         //left bottom, right, top
         var result = [null, null, null, null];
         var sinAngle = Math.sin(angle);
@@ -762,24 +757,14 @@ var fillQuadGeneratorRadial = {
             //calculate right and left
             if((left - center.x) * cosAngle > 0) {
                 var yleft = center.y + tanAngle * (left - center.x);
-                if(yleft > bottom && yleft < top) {
-                    intersectPoints[0] = intersectPoints[4];
-                    intersectPoints[4] = null;
-                    intersectPoints[0].x = left;
-                    intersectPoints[0].y = yleft;
-                }
+                intersectPoints[0].x = left;
+                intersectPoints[0].y = yleft;
             }
             if((right - center.x) * cosAngle > 0) {
                 var yright = center.y + tanAngle * (right - center.x);
 
-                if(yright > bottom && yright < top) {
-                    intersectPoints[2] = intersectPoints[6];
-                    intersectPoints[6] = null;
-
-                    intersectPoints[2].x = right;
-                    intersectPoints[2].y = yright;
-
-                }
+                intersectPoints[2].x = right;
+                intersectPoints[2].y = yright;
             }
 
         }
@@ -789,24 +774,13 @@ var fillQuadGeneratorRadial = {
             //calculate  top and bottom
             if((top - center.y) * sinAngle > 0) {
                 var xtop = center.x  + cotAngle * (top-center.y);
-                if(xtop > left && xtop < right) {
-                    intersectPoints[3] = intersectPoints[7];
-                    intersectPoints[7] = null;
-
-                    intersectPoints[3].x = xtop;
-                    intersectPoints[3].y = top;
-                }
+                intersectPoints[3].x = xtop;
+                intersectPoints[3].y = top;
             }
             if((bottom - center.y) * sinAngle > 0) {
                 var xbottom = center.x  + cotAngle * (bottom-center.y);
-                if(xbottom > left && xbottom < right) {
-                    intersectPoints[1] = intersectPoints[5];
-                    intersectPoints[5] = null;
-
-                    intersectPoints[1].x = xbottom;
-                    intersectPoints[1].y = bottom;
-
-                }
+                intersectPoints[1].x = xbottom;
+                intersectPoints[1].y = bottom;
             }
 
         }
