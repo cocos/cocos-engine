@@ -79,7 +79,7 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
 
     /**
      * !#en List of properties stored in a dictionary.
-     * !#zh 获取存储在字典中的属性队列。
+     * !#zh 以映射的形式获取属性列表。
      * @method getProperties
      * @return {Array}
      * @example
@@ -91,7 +91,7 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
 
     /**
      * !#en List of properties stored in a dictionary.
-     * !#zh 设置属性队列。
+     * !#zh 设置属性列表。
      * @method setProperties
      * @param {Object} Var
      * @example
@@ -147,10 +147,9 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
 
     /**
      * !#en
-     * Return the dictionary for the specific object name. <br />
+     * Return the object for the specific object name. <br />
      * It will return the 1st object found on the array for the given name.
-     * !#zh 获取指定对象名的字典。<br />
-     * 它将返回的是符号指定名字的数组中第一个对象。
+     * !#zh 获取指定的对象。
      * @method getObject
      * @param {String} objectName
      * @return {Object|Null}

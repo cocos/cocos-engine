@@ -140,7 +140,7 @@ var TiledLayer = cc.Class({
 
     /**
      * !#en Returns the position in pixels of a given tile coordinate.
-     * !#zh 获取指定坐标的位置(以点为单位)。
+     * !#zh 获取指定 ttile 的像素坐标。
      * @method getPositionAt
      * @param {Vec2|Number} pos position or x
      * @param {Number} [y]
@@ -234,7 +234,7 @@ var TiledLayer = cc.Class({
      * This method requires the the tile map has not been previously released (eg. don't call layer.releaseMap())<br />
      * !#zh
      * 通过给定的 tile 坐标、flags（可选）返回 tile 的 GID. <br />
-     * 如果它返回 0，则表示该文件为空。<br />
+     * 如果它返回 0，则表示该 tile 为空。<br />
      * 该方法要求 tile 地图之前没有被释放过(如：没有调用过layer.releaseMap()).
      * @method getTileGIDAt
      * @param {Vec2|Number} pos or x
@@ -304,7 +304,7 @@ var TiledLayer = cc.Class({
 
     /**
      * !#en Sets the untransformed size of the _ccsg.TMXLayer.
-     * !#zh 设置不转换节点的大小。
+     * !#zh 设置未转换的 layer 大小。
      * @method setContentSize
      * @param {Size|Number} size The untransformed size of the _ccsg.TMXLayer or The untransformed size's width of the TMXLayer.
      * @param {Number} [height] The untransformed size's height of the _ccsg.TMXLayer.
@@ -499,7 +499,7 @@ var TiledLayer = cc.Class({
 
     /**
      * !#en properties from the layer. They can be added using Tiled.
-     * !#zh 获取 layer 的属性，可以被当作 Tile 添加。
+     * !#zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
      * @method getProperties
      * @return {Array}
      * @example

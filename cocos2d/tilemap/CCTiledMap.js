@@ -25,7 +25,7 @@
 
 /**
  * !#en The orientation of tiled map.
- * !#zh Tiled Map 地图定向。
+ * !#zh Tiled Map 地图方向。
  * @enum TiledMap.Orientation
  * @static
  */
@@ -151,7 +151,7 @@ var TileFlag = cc.Enum({
 
 /**
  * !#en Renders a TMX Tile Map in the scene.
- * !#zh 渲染一个 tmx 地图编辑器导出 Tile Map 的场景。
+ * !#zh 在场景中渲染一个 tmx 格式的 Tile Map。
  * @class TiledMap
  * @extends Component
  */
@@ -218,7 +218,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en Gets the map size.
-     * !#zh 获取地图背景的大小。
+     * !#zh 获取地图大小。
      * @method getMapSize
      * @return {Size}
      * @example
@@ -231,7 +231,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en Set the map size.
-     * !#zh 设置地图背景的大小。
+     * !#zh 设置地图大小。
      * @method setMapSize
      * @param {Size} mapSize
      * @example
@@ -243,7 +243,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en Gets the tile size.
-     * !#zh 获取地图背景中砖块元素的大小。
+     * !#zh 获取地图背景中 tile 元素的大小。
      * @method getTileSize
      * @return {Size}
      * @example
@@ -256,7 +256,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en Set the tile size.
-     * !#zh 设置地图背景中砖块元素的大小。
+     * !#zh 设置地图背景中 tile 元素的大小。
      * @method setTileSize
      * @param {Size} tileSize
      * @example
@@ -293,7 +293,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en object groups.
-     * !#zh 获得物体层中所有对象。
+     * !#zh 获取所有的对象层。
      * @method getObjectGroups
      * @return {Object[]}
      * @example
@@ -308,7 +308,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en object groups.
-     * !#zh 设置物体层的所有对象。
+     * !#zh 设置所有的对象层。
      * @method setObjectGroups
      * @param {Object[]} groups
      * @example
@@ -397,7 +397,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en Return All layers array.
-     * !#zh 返回所有层级数组。
+     * !#zh 返回包含所有 layer 的数组。
      * @method allLayers
      * @returns {Node[]}
      * @example
@@ -422,7 +422,7 @@ var TiledMap = cc.Class({
 
     /**
      * !#en return the cc.TiledLayer for the specific layer.
-     * !#zh 通过层级名称获取层级。
+     * !#zh 获取指定名称的 layer。
      * @method getLayer
      * @param {String} layerName
      * @return {TiledLayer}
