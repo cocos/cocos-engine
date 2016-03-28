@@ -455,6 +455,34 @@ var EditBox = cc.Class({
     editBoxTextChanged: function(editBox, text) {
         cc.Component.EventHandler.emitEvents(this.textChanged, text);
     },
+
+    onLoad: function() {
+        this._super();
+
+        if (!CC_EDITOR) {
+            this._registerEvent();
+        }
+    },
+
+    _registerEvent: function () {
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+    },
+
+    _onTouchBegan: function(event) {
+        if (this._sgNode) {
+            this._sgNode._onTouchBegan(event.touch);
+        }
+        event.stopPropagation();
+    },
+
+    _onTouchEnded: function(event) {
+        if (this._sgNode) {
+            this._sgNode._onTouchEnded();
+        }
+        event.stopPropagation();
+    }
+
 });
 
 cc.EditBox = module.exports = EditBox;
