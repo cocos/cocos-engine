@@ -95,6 +95,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _globalZOrder: 0,
         _tag: cc.macro.NODE_TAG_INVALID,
         _opacityModifyRGB: false,
+        _reorderChildDirty: false,
 
         // API
 
@@ -247,6 +248,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 this._localZOrder = value;
                 this._sgNode.zIndex = value;
+
+                if (!CC_JSB && this._parent) {
+                    this._parent._reorderChildDirty = true;
+                    cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._parent.sortAllChildren, this._parent);
+                    cc.eventManager._setDirtyForNode(this);
+                }
             }
         },
 
@@ -1782,9 +1789,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 sibling._sgNode.arrivalOrder = i;
             }
             if ( !CC_JSB ) {
-                cc.renderer.childrenOrderDirty = this._parent._sgNode._reorderChildDirty = true;
+                cc.renderer.childrenOrderDirty = true;
+                this._parent._sgNode._reorderChildDirty = true;
+                this._parent._reorderChildDirty = true;
+                cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._parent.sortAllChildren, this._parent);
             }
-            this._parent.emit(CHILD_REORDER);
         }
     },
 
@@ -1807,6 +1816,43 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         while (child);
         return false;
+    },
+
+    /**
+     * !#en Sorts the children array depends on children's zIndex and arrivalOrder, normally you won't need to invoke this function.
+     * !#zh 根据子节点的 zIndex 和 arrivalOrder 进行排序，正常情况下开发者不需要手动调用这个函数。
+     * 
+     * @method sortAllChildren
+     */
+    sortAllChildren: function () {
+        if (this._reorderChildDirty) {
+            var _children = this._children;
+
+            // insertion sort
+            var len = _children.length, i, j, child;
+            for (i = 1; i < len; i++){
+                child = _children[i];
+                j = i - 1;
+
+                //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
+                while(j >= 0){
+                    if (child._localZOrder < _children[j]._localZOrder) {
+                        _children[j+1] = _children[j];
+                    } else if (child._localZOrder === _children[j]._localZOrder && 
+                               child._sgNode.arrivalOrder < _children[j]._sgNode.arrivalOrder) {
+                        _children[j+1] = _children[j];
+                    } else {
+                        break;
+                    }
+                    j--;
+                }
+                _children[j+1] = child;
+            }
+
+            //don't need to check children recursively, that's done in visit of each child
+            this._reorderChildDirty = false;
+            this.emit(CHILD_REORDER);
+        }
     },
 
     _updateDummySgNode: function () {
