@@ -25,8 +25,9 @@
  ****************************************************************************/
 
 /**
- * cc.TMXObjectGroup represents the TMX object group.
- * @class
+ * !#en cc.TMXObjectGroup represents the TMX object group.
+ * !#zh TMXObjectGroup 用来表示 TMX 对象组。
+ * @class TMXObjectGroup
  * @extends cc._Class
  *
  * @property {Array}    properties  - Properties from the group. They can be added using tilemap editors
@@ -52,16 +53,24 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
     },
 
     /**
-     * Offset position of child objects
-     * @return {cc.Vec2}
+     * !#en Offset position of child objects.
+     * !#zh 获取子对象的偏移位置。
+     * @method getPositionOffset
+     * @return {Vec2}
+     * @example
+     * var offset = tMXObjectGroup.getPositionOffset();
      */
     getPositionOffset:function () {
         return cc.p(this._positionOffset);
     },
 
     /**
-     * Offset position of child objects
-     * @param {cc.Vec2} offset
+     * !#en Offset position of child objects.
+     * !#zh 设置子对象的偏移位置。
+     * @method setPositionOffset
+     * @param {Vec2} offset
+     * @example
+     * tMXObjectGroup.setPositionOffset(cc.v2(5, 5));
      */
     setPositionOffset:function (offset) {
         this._positionOffset.x = offset.x;
@@ -69,32 +78,48 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
     },
 
     /**
-     * List of properties stored in a dictionary
+     * !#en List of properties stored in a dictionary.
+     * !#zh 以映射的形式获取属性列表。
+     * @method getProperties
      * @return {Array}
+     * @example
+     * var offset = tMXObjectGroup.getProperties();
      */
     getProperties:function () {
         return this.properties;
     },
 
     /**
-     * List of properties stored in a dictionary
-     * @param {object} Var
+     * !#en List of properties stored in a dictionary.
+     * !#zh 设置属性列表。
+     * @method setProperties
+     * @param {Object} Var
+     * @example
+     * tMXObjectGroup.setProperties(obj);
      */
     setProperties:function (Var) {
         this.properties.push(Var);
     },
 
     /**
-     * Gets the Group name.
+     * !#en Gets the Group name.
+     * !#zh 获取组名称。
+     * @method getGroupName
      * @return {String}
+     * @example
+     * var groupName = tMXObjectGroup.getGroupName;
      */
     getGroupName:function () {
         return this.groupName.toString();
     },
 
     /**
-     * Set the Group name
+     * !#en Set the Group name.
+     * !#zh 设置组名称。
+     * @method setGroupName
      * @param {String} groupName
+     * @example
+     * tMXObjectGroup.setGroupName("New Group");
      */
     setGroupName:function (groupName) {
         this.groupName = groupName;
@@ -103,7 +128,7 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
     /**
      * Return the value for the specific property name
      * @param {String} propertyName
-     * @return {object}
+     * @return {Object}
      */
     propertyNamed:function (propertyName) {
         return this.properties[propertyName];
@@ -121,10 +146,15 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
     },
 
     /**
-     * <p>Return the dictionary for the specific object name. <br />
-     * It will return the 1st object found on the array for the given name.</p>
+     * !#en
+     * Return the object for the specific object name. <br />
+     * It will return the 1st object found on the array for the given name.
+     * !#zh 获取指定的对象。
+     * @method getObject
      * @param {String} objectName
-     * @return {object|Null}
+     * @return {Object|Null}
+     * @example
+     * var object = tMXObjectGroup.getObject("Group");
      */
     getObject: function(objectName){
         if (this._objects && this._objects.length > 0) {
@@ -140,16 +170,24 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
     },
 
     /**
-     * Gets the objects.
+     * !#en Gets the objects.
+     * !#zh 获取对象数组。
+     * @method getObjects
      * @return {Array}
+     * @example
+     * var objects = tMXObjectGroup.getObjects();
      */
     getObjects:function () {
         return this._objects;
     },
 
     /**
-     * Set the objects.
-     * @param {object} objects
+     * !#en Set the objects.
+     * !#zh 设置对象数组。
+     * @method setObjects
+     * @param {Object} objects
+     * @example
+     * tMXObjectGroup.setObjects(objects);
      */
     setObjects:function (objects) {
         this._objects.push(objects);

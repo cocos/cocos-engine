@@ -24,7 +24,8 @@
  ****************************************************************************/
 
 /**
- * Render the TMX layer.
+ * !#en Render the TMX layer.
+ * !#zh 渲染 TMX layer。
  * @class TiledLayer
  * @extends _SGComponent
  */
@@ -90,9 +91,13 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Gets the layer name
+     * !#en Gets the layer name.
+     * !#zh 获取层的名称。
      * @method getLayerName
      * @return {String}
+     * @example
+     * var layerName = tiledLayer.getLayerName();
+     * cc.log(layerName);
      */
     getLayerName: function() {
         if (this._sgNode) {
@@ -102,9 +107,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Set the layer name
+     * !#en Set the layer name.
+     * !#zh 设置层的名称
      * @method SetLayerName
      * @param {String} layerName
+     * @example
+     * tiledLayer.setLayerName("New Layer");
      */
     setLayerName:function (layerName) {
         if (this._sgNode) {
@@ -113,10 +121,14 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Return the value for the specific property name
+     * !#en Return the value for the specific property name.
+     * !#zh 获取指定属性名的值。
      * @method getProperty
      * @param {String} propertyName
      * @return {*}
+     * @example
+     * var property = tiledLayer.getProperty("info");
+     * cc.log(property);
      */
     getProperty:function (propertyName) {
         if (this._sgNode) {
@@ -127,11 +139,17 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Returns the position in pixels of a given tile coordinate
+     * !#en Returns the position in pixels of a given tile coordinate.
+     * !#zh 获取指定 ttile 的像素坐标。
      * @method getPositionAt
      * @param {Vec2|Number} pos position or x
      * @param {Number} [y]
      * @return {Vec2}
+     * @example
+     * var pos = tiledLayer.getPositionAt(cc.v2(0, 0));
+     * cc.log("Pos: " + pos);
+     * var pos = tiledLayer.getPositionAt(0, 0);
+     * cc.log("Pos: " + pos);
      */
     getPositionAt:function (pos, y) {
         if (this._sgNode) {
@@ -144,10 +162,14 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Removes a tile at given tile coordinate
+     * !#en Removes a tile at given tile coordinate.
+     * !#zh 删除指定坐标上的 tile。
      * @method removeTileAt
      * @param {Vec2|Number} pos position or x
      * @param {Number} [y]
+     * @example
+     * tiledLayer.removeTileAt(cc.v2(0, 0));
+     * tiledLayer.removeTileAt(0, 0);
      */
     removeTileAt:function (pos, y) {
         if (this._sgNode) {
@@ -158,14 +180,21 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * <p>Sets the tile gid (gid = tile global id) at a given tile coordinate.<br />
+     * !#en
+     * Sets the tile gid (gid = tile global id) at a given tile coordinate.<br />
      * The Tile GID can be obtained by using the method "tileGIDAt" or by using the TMX editor . Tileset Mgr +1.<br />
-     * If a tile is already placed at that position, then it will be removed.</p>
+     * If a tile is already placed at that position, then it will be removed.
+     * !#zh
+     * 设置给定坐标的 tile 的 gid (gid = tile 全局 id)，
+     * tile 的 GID 可以使用方法 “tileGIDAt” 来获得。<br />
+     * 如果一个 tile 已经放在那个位置，那么它将被删除。
      * @method setTileGID
      * @param {Number} gid
      * @param {Vec2|Number} posOrX position or x
      * @param {Number} flagsOrY flags or y
      * @param {Number} [flags]
+     * @example
+     * tiledLayer.setTileGID(1001, 10, 10, 1)
      */
     setTileGID: function(gid, posOrX, flagsOrY, flags) {
         if (this._sgNode) {
@@ -199,13 +228,20 @@ var TiledLayer = cc.Class({
     //},
 
     /**
+     * !#en
      * Returns the tile gid at a given tile coordinate. <br />
      * if it returns 0, it means that the tile is empty. <br />
      * This method requires the the tile map has not been previously released (eg. don't call layer.releaseMap())<br />
+     * !#zh
+     * 通过给定的 tile 坐标、flags（可选）返回 tile 的 GID. <br />
+     * 如果它返回 0，则表示该 tile 为空。<br />
+     * 该方法要求 tile 地图之前没有被释放过(如：没有调用过layer.releaseMap()).
      * @method getTileGIDAt
      * @param {Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {Number}
+     * @example
+     * var tileGid = tiledLayer.getTileGIDAt(0, 0);
      */
     getTileGIDAt:function (pos, y) {
         if (this._sgNode) {
@@ -217,16 +253,26 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * <p>Returns the tile (_ccsg.Sprite) at a given a tile coordinate. <br/>
+     * !#en
+     * Returns the tile (_ccsg.Sprite) at a given a tile coordinate. <br/>
      * The returned _ccsg.Sprite will be already added to the _ccsg.TMXLayer. Don't add it again.<br/>
      * The _ccsg.Sprite can be treated like any other _ccsg.Sprite: rotated, scaled, translated, opacity, color, etc. <br/>
      * You can remove either by calling: <br/>
      * - layer.removeChild(sprite, cleanup); <br/>
-     * - or layer.removeTileAt(ccp(x,y)); </p>
+     * - or layer.removeTileAt(ccp(x,y));
+     * !#zh
+     * 通过指定的 tile 坐标获取对应的 tile(Sprite)。 返回的 tile(Sprite) 应是已经添加到 TMXLayer，请不要重复添加。<br/>
+     * 这个 tile(Sprite) 如同其他的 Sprite 一样，可以旋转、缩放、翻转、透明化、设置颜色等。<br/>
+     * 你可以通过调用以下方法来对它进行删除:<br/>
+     * 1. layer.removeChild(sprite, cleanup);<br/>
+     * 2. 或 layer.removeTileAt(cc.v2(x,y));
      * @method getTileAt
-     * @param {cc.Vec2|Number} pos or x
+     * @param {Vec2|Number} pos or x
      * @param {Number} [y]
      * @return {_ccsg.Sprite}
+     * @example
+     * var title = tiledLayer.getTileAt(100, 100);
+     * cc.log(title);
      */
     getTileAt: function (pos, y) {
         if (this._sgNode) {
@@ -238,10 +284,17 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * <p>Dealloc the map that contains the tile position from memory. <br />
+     * !#en
+     * Dealloc the map that contains the tile position from memory. <br />
      * Unless you want to know at runtime the tiles positions, you can safely call this method. <br />
-     * If you are going to call layer.getTileGIDAt() then, don't release the map</p>
+     * If you are going to call layer.getTileGIDAt() then, don't release the map.
+     * !#zh
+     * 从内存中释放包含 tile 位置信息的地图。<br />
+     * 除了在运行时想要知道 tiles 的位置信息外，你都可安全的调用此方法。<br />
+     * 如果你之后还要调用 layer.tileGIDAt(), 请不要释放地图.
      * @method releaseMap
+     * @example
+     * tiledLayer.releaseMap();
      */
     releaseMap:function () {
         if (this._sgNode) {
@@ -250,10 +303,13 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Sets the untransformed size of the _ccsg.TMXLayer.
+     * !#en Sets the untransformed size of the _ccsg.TMXLayer.
+     * !#zh 设置未转换的 layer 大小。
      * @method setContentSize
-     * @param {cc.Size|Number} size The untransformed size of the _ccsg.TMXLayer or The untransformed size's width of the TMXLayer.
+     * @param {Size|Number} size The untransformed size of the _ccsg.TMXLayer or The untransformed size's width of the TMXLayer.
      * @param {Number} [height] The untransformed size's height of the _ccsg.TMXLayer.
+     * @example
+     * tiledLayer.setContentSize(100, 100);
      */
     setContentSize:function (size, height) {
         if (this._sgNode) {
@@ -264,9 +320,13 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Return texture of cc.SpriteBatchNode
+     * !#en Return texture of cc.SpriteBatchNode.
+     * !#zh 获取纹理。
      * @method getTexture
-     * @return {cc.Texture2D}
+     * @return {Texture2D}
+     * @example
+     * var texture = tiledLayer.getTexture();
+     * cc.log("Texture: " + texture);
      */
     getTexture: function(){
         if (this._sgNode) {
@@ -276,9 +336,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Set the texture of cc.SpriteBatchNode
+     * !#en Set the texture of cc.SpriteBatchNode.
+     * !#zh 设置纹理。
      * @method setTexture
-     * @param {cc.Texture2D} texture
+     * @param {Texture2D} texture
+     * @example
+     * tiledLayer.setTexture(texture);
      */
     setTexture: function(texture){
         if (this._sgNode) {
@@ -287,9 +350,13 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Gets layer size.
+     * !#en Gets layer size.
+     * !#zh 获得层大小。
      * @method getLayerSize
-     * @return {cc.Size}
+     * @return {Size}
+     * @example
+     * var size = tiledLayer.getLayerSize();
+     * cc.log("layer size: " + size);
      */
     getLayerSize:function () {
         if (this._sgNode) {
@@ -299,9 +366,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Set layer size
+     * !#en Set layer size.
+     * !#zh 设置层大小。
      * @method setLayerSize
-     * @param {cc.Size} layerSize
+     * @param {Size} layerSize
+     * @example
+     * tiledLayer.setLayerSize(new cc.size(5, 5));
      */
     setLayerSize:function (layerSize) {
         if (this._sgNode) {
@@ -310,9 +380,13 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Size of the map's tile (could be different from the tile's size)
+     * !#en Size of the map's tile (could be different from the tile's size).
+     * !#zh 获取 tile 的大小( tile 的大小可能会有所不同)。
      * @method getMapTileSize
-     * @return {cc.Size}
+     * @return {Size}
+     * @example
+     * var mapTileSize = tiledLayer.getMapTileSize();
+     * cc.log("MapTile size: " + mapTileSize);
      */
     getMapTileSize:function () {
         if (this._sgNode) {
@@ -322,9 +396,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Set the map tile size.
+     * !#en Set the map tile size.
+     * !#zh 设置 tile 的大小。
      * @method setMapTileSize
-     * @param {cc.Size} tileSize
+     * @param {Size} tileSize
+     * @example
+     * tiledLayer.setMapTileSize(new cc.size(10, 10));
      */
     setMapTileSize:function (tileSize) {
         if (this._sgNode) {
@@ -333,9 +410,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Pointer to the map of tiles
+     * !#en Pointer to the map of tiles.
+     * !#zh 获取地图 tiles。
      * @method getTiles
      * @return {Array}
+     * @example
+     * var tiles = tiledLayer.getTiles();
      */
     getTiles:function () {
         if (this._sgNode) {
@@ -345,9 +425,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Pointer to the map of tiles
+     * !#en Pointer to the map of tiles.
+     * !#zh 设置地图 tiles
      * @method setTiles
      * @param {Array} tiles
+     * @example
+     * tiledLayer.setTiles(tiles);
      */
     setTiles:function (tiles) {
         if (this._sgNode) {
@@ -356,9 +439,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Tile set information for the layer
+     * !#en Tile set information for the layer.
+     * !#zh 获取 layer 的 Tileset 信息。
      * @method getTileset
-     * @return {cc.TMXTilesetInfo}
+     * @return {TMXTilesetInfo}
+     * @example
+     * var tileset = tiledLayer.getTileset();
      */
     getTileset:function () {
         if (this._sgNode) {
@@ -368,9 +454,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Tile set information for the layer
+     * !#en Tile set information for the layer.
+     * !#zh 设置 layer 的 Tileset 信息。
      * @method setTileset
-     * @param {cc.TMXTilesetInfo} tileset
+     * @param {TMXTilesetInfo} tileset
+     * @example
+     * tiledLayer.getTileset(tileset);
      */
     setTileset:function (tileset) {
         if (this._sgNode) {
@@ -379,9 +468,13 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Layer orientation, which is the same as the map orientation
+     * !#en Layer orientation, which is the same as the map orientation.
+     * !#zh 获取 Layer 方向(同地图方向)。
      * @method getLayerOrientation
      * @return {Number}
+     * @example
+     * var orientation = tiledLayer.getLayerOrientation();
+     * cc.log("Layer Orientation: " + orientation);
      */
     getLayerOrientation:function () {
         if (this._sgNode) {
@@ -391,9 +484,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * Layer orientation, which is the same as the map orientation
+     * !#en Layer orientation, which is the same as the map orientation.
+     * !#zh 设置 Layer 方向(同地图方向)。
      * @method setLayerOrientation
-     * @param {Number} orientation
+     * @param {TiledMap.Orientation} orientation
+     * @example
+     * tiledLayer.setLayerOrientation(TiledMap.Orientation.ORTHO);
      */
     setLayerOrientation:function (orientation) {
         if (this._sgNode) {
@@ -402,9 +498,13 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * properties from the layer. They can be added using Tiled
+     * !#en properties from the layer. They can be added using Tiled.
+     * !#zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
      * @method getProperties
      * @return {Array}
+     * @example
+     * var properties = tiledLayer.getProperties();
+     * cc.log("Properties: " + properties);
      */
     getProperties:function () {
         if (this._sgNode) {
@@ -414,9 +514,12 @@ var TiledLayer = cc.Class({
     },
 
     /**
-     * properties from the layer. They can be added using Tiled
+     * !#en properties from the layer. They can be added using Tiled.
+     * !#zh 设置层属性。
      * @method setProperties
      * @param {Array} properties
+     * @example
+     * tiledLayer.setLayerOrientation(properties);
      */
     setProperties:function (properties) {
         if (this._sgNode) {
