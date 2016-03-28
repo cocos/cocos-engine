@@ -1828,6 +1828,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (this._reorderChildDirty) {
             var _children = this._children;
 
+            if (!_children) {
+                this._reorderChildDirty = false;
+                return;
+            }
+
             // insertion sort
             var len = _children.length, i, j, child;
             for (i = 1; i < len; i++){
@@ -1849,7 +1854,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 _children[j+1] = child;
             }
 
-            //don't need to check children recursively, that's done in visit of each child
             this._reorderChildDirty = false;
             this.emit(CHILD_REORDER);
         }
