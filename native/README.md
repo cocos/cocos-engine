@@ -1,0 +1,1 @@
+Cocos2d-x, compact version
