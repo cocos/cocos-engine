@@ -251,7 +251,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
                 if (!CC_JSB && this._parent) {
                     this._parent._reorderChildDirty = true;
-                    cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._parent.sortAllChildren, this._parent);
+                    this._parent._delaySort();
                     cc.eventManager._setDirtyForNode(this);
                 }
             }
@@ -1792,7 +1792,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 cc.renderer.childrenOrderDirty = true;
                 this._parent._sgNode._reorderChildDirty = true;
                 this._parent._reorderChildDirty = true;
-                cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._parent.sortAllChildren, this._parent);
+                this._parent._delaySort();
             }
         }
     },
@@ -1819,7 +1819,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     /**
-     * !#en Sorts the children array depends on children's zIndex and arrivalOrder, normally you won't need to invoke this function.
+     * !#en Sorts the children array depends on children's zIndex and arrivalOrder, 
+     * normally you won't need to invoke this function.
      * !#zh 根据子节点的 zIndex 和 arrivalOrder 进行排序，正常情况下开发者不需要手动调用这个函数。
      * 
      * @method sortAllChildren
@@ -1857,6 +1858,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             this._reorderChildDirty = false;
             this.emit(CHILD_REORDER);
         }
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
+    },
+
+    _delaySort: function () {
+        cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
 
     _updateDummySgNode: function () {
