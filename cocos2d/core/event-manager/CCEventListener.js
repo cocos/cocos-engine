@@ -33,12 +33,18 @@
  *
  * !#zh
  * 封装用户的事件处理逻辑。
- * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 cc.EventListener.create。
+ * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 {{#crossLink "EventListener/create:method"}}cc.EventListener.create{{/crossLink}}。
  *
  * @class EventListener
+ */
+
+/**
+ * Constructor
+ * @method EventListener
  * @param {Number} type
  * @param {Number} listenerID
  * @param {Number} callback
+ * @return {EventListner}
  */
 cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
     _onEvent: null,          // Event callback function
@@ -247,59 +253,66 @@ cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
 // event listener type
 /**
  * !#en The type code of unknown event listener.
- * !#zh 未知的事件监听器类型。
- * @property EventListener.UNKNOWN
- * @constant
+ * !#zh 未知的事件监听器类型
+ * @property UNKNOWN
  * @type {Number}
+ * @static
  */
 cc.EventListener.UNKNOWN = 0;
 /*
  * !#en The type code of one by one touch event listener.
- * !#zh 触摸事件监听器类型，触点会一个一个得分开被派发。
- * @constant
+ * !#zh 触摸事件监听器类型，触点会一个一个得分开被派发
+ * @property TOUCH_ONE_BY_ONE
  * @type {Number}
+ * @static
  */
 cc.EventListener.TOUCH_ONE_BY_ONE = 1;
 /*
  * !#en The type code of all at once touch event listener.
- * !#zh 触摸事件监听器类型，触点会被一次性全部派发。
- * @constant
+ * !#zh 触摸事件监听器类型，触点会被一次性全部派发
+ * @property TOUCH_ALL_AT_ONCE
  * @type {Number}
+ * @static
  */
 cc.EventListener.TOUCH_ALL_AT_ONCE = 2;
 /**
  * !#en The type code of keyboard event listener.
- * !#zh 键盘事件监听器类型。
- * @constant EventListener.KEYBOARD
+ * !#zh 键盘事件监听器类型
+ * @property KEYBOARD
  * @type {Number}
+ * @static
  */
 cc.EventListener.KEYBOARD = 3;
 /*
  * !#en The type code of mouse event listener.
- * !#zh 鼠标事件监听器类型。
- * @constant
+ * !#zh 鼠标事件监听器类型
+ * @property MOUSE
  * @type {Number}
+ * @static
  */
 cc.EventListener.MOUSE = 4;
 /**
  * !#en The type code of focus event listener.
- * !#zh 加速器事件监听器类型。
- * @constant EventListener.ACCELERATION
+ * !#zh 加速器事件监听器类型
+ * @property ACCELERATION
  * @type {Number}
+ * @static
  */
 cc.EventListener.ACCELERATION = 6;
 /*
  * !#en The type code of Focus change event listener.
- * !#zh 焦点事件监听器类型。
- * @constant
+ * !#zh 焦点事件监听器类型
+ * @property FOCUS
  * @type {Number}
+ * @static
  */
 cc.EventListener.FOCUS = 7;
 /*
  * !#en The type code of custom event listener.
- * !#zh 自定义事件监听器类型。
- * @constant
+ * !#zh 自定义事件监听器类型
+ * @property CUSTOM
  * @type {Number}
+ * @static
  */
 cc.EventListener.CUSTOM = 8;
 
@@ -456,9 +469,9 @@ cc._EventListenerTouchAllAtOnce.LISTENER_ID = "__cc_touch_all_at_once";
  * all custom parameters will be polyfilled into the event listener object and can be accessed in handlers.
  * !#zh 通过指定不同的 Event 对象来设置想要创建的事件监听器。
  * @method create
- * @static
  * @param {Object} argObj a json object
  * @returns {EventListener}
+ * @static
  * @example {@link utils/api/engine/docs/cocos2d/core/event-manager/CCEventListener/create.js}
  */
 cc.EventListener.create = function(argObj){

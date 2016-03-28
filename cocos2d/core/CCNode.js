@@ -1038,7 +1038,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_MOVE, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
-     * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
+     * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
      */
     on: function (type, callback, target) {
         if (_touchEvents.indexOf(type) !== -1) {

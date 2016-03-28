@@ -698,21 +698,10 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this.setContentSize = this._updateEditBoxSize;
 
         this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
-        this._registerTouchEvent();
 
         this.scheduleOnce(function () {
             editBoxImpl.registerClickEvent();
         }, 0.01);
-    },
-
-    _registerTouchEvent: function() {
-        var touchListener = cc.EventListener.create({
-            event: cc.EventListener.TOUCH_ONE_BY_ONE,
-            swallowTouches: true,
-            onTouchBegan: this._onTouchBegan.bind(this),
-            onTouchEnded: this._onTouchEnded.bind(this),
-        });
-        cc.eventManager.addListener(touchListener, this);
     },
 
     _onTouchBegan: function (touch, event) {
