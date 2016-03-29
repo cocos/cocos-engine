@@ -68,19 +68,24 @@ cc.RawAsset = cc.Class({
          * @param {Function} callback
          * @param {String} callback.error - null or the error info
          * @param {Object} callback.node - the created node or null
+         * @static
          */
         createNodeByInfo: null,
-
-        /**
-         * @method isRawAssetType
-         * @param {Function} ctor
-         * @returns {Boolean}
-         * @private
-         */
-        isRawAssetType: function (ctor) {
-            return cc.isChildClassOf(ctor, cc.RawAsset) && !cc.isChildClassOf(ctor, cc.Asset);
-        }
     }
+});
+
+/**
+ * @method isRawAssetType
+ * @param {Function} ctor
+ * @returns {Boolean}
+ * @static
+ * @private
+ */
+Object.defineProperty(cc.RawAsset, 'isRawAssetType', {
+    value: function (ctor) {
+        return cc.isChildClassOf(ctor, cc.RawAsset) && !cc.isChildClassOf(ctor, cc.Asset);
+    },
+    enumerable: false
 });
 
 module.exports = cc.RawAsset;
