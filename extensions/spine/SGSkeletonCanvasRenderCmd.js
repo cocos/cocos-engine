@@ -188,8 +188,8 @@ proto._updateChild = function(){
             else {
                 //var regionScaleX = attachment.width / attachment.regionOriginalWidth * attachment.scaleX;
                 //ax = attachment.x + attachment.regionOffsetX * regionScaleX - (attachment.width * attachment.scaleX - attachment.regionWidth * regionScaleX) / 2;
-                ax = (attachment.offset[0] + attachment.offset[2] + attachment.offset[4] + attachment.offset[6]) * 0.25;
-                ay = (attachment.offset[1] + attachment.offset[3] + attachment.offset[5] + attachment.offset[7]) * 0.25;
+                ax = (attachment.offset[0] + attachment.offset[4]) * 0.5;
+                ay = (attachment.offset[1] + attachment.offset[5]) * 0.5;
             }
             slotNode.setPosition(bone.worldX + ax * bone.m00 + ay * bone.m01, bone.worldY + ax * bone.m10 + ay * bone.m11);
             slotNode.setScale(bone.worldScaleX, bone.worldScaleY);

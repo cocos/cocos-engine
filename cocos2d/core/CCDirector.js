@@ -215,6 +215,21 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._scheduler.update(deltaTime);
     },
 
+    _visitScene: function () {
+        if (this._runningScene) {
+            var renderer = cc.renderer;
+            if (renderer.childrenOrderDirty) {
+                renderer.clearRenderCommands();
+                this._runningScene._renderCmd._curLevel = 0;                          //level start from 0;
+                this._runningScene.visit();
+                renderer.resetFlag();
+            }
+            else if (renderer.transformDirty()) {
+                renderer.transform();
+            }
+        }
+    },
+
     visit: function (deltaTime) {
         this.emit(cc.Director.EVENT_BEFORE_VISIT, this);
 
@@ -228,16 +243,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // update the scene
-        if (this._runningScene) {
-            var renderer = cc.renderer;
-            if (renderer.childrenOrderDirty === true) {
-                renderer.clearRenderCommands();
-                this._runningScene._renderCmd._curLevel = 0;                          //level start from 0;
-                this._runningScene.visit();
-                renderer.resetFlag();
-            } else if (renderer.transformDirty() === true)
-                renderer.transform();
-        }
+        this._visitScene();
 
         // visit the notifications node
         if (this._notificationNode)
