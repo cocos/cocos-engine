@@ -37,6 +37,10 @@ if (!(CC_EDITOR && Editor.isCoreLevel)) {
     require('./cocos2d/tilemap/CCTiledLayer');
 }
 
+if (!(CC_EDITOR && Editor.isCoreLevel)) {
+    require('./extensions/cocostudio/CCStudioComponent');
+}
+
 require('./extensions/spine');
 
 if (!(CC_EDITOR && Editor.isCoreLevel)) {
