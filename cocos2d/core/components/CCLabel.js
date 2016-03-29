@@ -306,6 +306,17 @@ var Label = cc.Class({
         if (!cc.sys.isNative) {
             this._sgNode.on('load', this._updateNodeSize, this);
         }
+
+    },
+
+    onEnable: function() {
+        this._super();
+        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this._updateNodeSize, this);
+    },
+
+    onDisable: function() {
+        this._super();
+        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this._updateNodeSize, this);
     },
 
     _createSgNode: function () {

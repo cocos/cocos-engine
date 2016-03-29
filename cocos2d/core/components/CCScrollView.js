@@ -1025,11 +1025,19 @@ var ScrollView = cc.Class({
     onLoad: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
+            if(cc.isValid(this.content)) {
+                this.content.on('size-changed', this._calculateBoundary, this);
+            }
+            this.node.on('size-changed', this._calculateBoundary, this);
+            this._calculateBoundary();
         }
     },
 
-    start: function() {
-        this._calculateBoundary();
+    onDestroy: function() {
+        if(cc.isValid(this.content)) {
+            this.content.off('size-changed', this._calculateBoundary, this);
+        }
+        this.node.off('size-changed', this._calculateBoundary, this);
     },
 
     update: function(dt) {
