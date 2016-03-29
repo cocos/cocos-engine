@@ -1414,7 +1414,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     getNodeToWorldTransform: function () {
         var contentSize = this.getContentSize();
+
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
         var mat = this._sgNode.getNodeToWorldTransform();
+
         if (this._isSgTransformArToMe(contentSize)) {
             // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case, 
             // we should translate to bottem left to consistent with it 
@@ -1442,7 +1448,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     getNodeToWorldTransformAR: function () {
         var contentSize = this.getContentSize();
+
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
         var mat = this._sgNode.getNodeToWorldTransform();
+
         if ( !this._isSgTransformArToMe(contentSize) ) {
             // see getNodeToWorldTransform
             var tx = this._anchorPoint.x * contentSize.width;
@@ -1461,6 +1473,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * var affineTransform = node.getWorldToNodeTransform();
      */
     getWorldToNodeTransform: function () {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
         return this._sgNode.getWorldToNodeTransform();
     },
 
@@ -1474,6 +1490,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * var newVec2 = node.convertToNodeSpace(cc.v2(100, 100));
      */
     convertToNodeSpace: function (worldPoint) {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
         var nodePositionIgnoreAnchorPoint = this._sgNode.convertToNodeSpace(worldPoint);
         return cc.pAdd(nodePositionIgnoreAnchorPoint, cc.p(this._anchorPoint.x * this._contentSize.width, this._anchorPoint.y * this._contentSize.height));
     },
@@ -1488,6 +1508,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * var newVec2 = node.convertToWorldSpace(cc.v2(100, 100));
      */
     convertToWorldSpace: function (nodePoint) {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
         var worldPositionIgnoreAnchorPoint = this._sgNode.convertToWorldSpace(nodePoint);
         return cc.pSub(worldPositionIgnoreAnchorPoint, cc.p(this._anchorPoint.x * this._contentSize.width, this._anchorPoint.y * this._contentSize.height));
     },
@@ -1506,6 +1530,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * var newVec2 = node.convertToNodeSpaceAR(cc.v2(100, 100));
      */
     convertToNodeSpaceAR: function (worldPoint) {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
         if (this._sgNode.isIgnoreAnchorPointForPosition()) {
             // see https://github.com/cocos-creator/engine/pull/391
             return cc.v2(this._sgNode.convertToNodeSpace(worldPoint));
@@ -1529,6 +1557,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * var newVec2 = node.convertToWorldSpaceAR(cc.v2(100, 100));
      */
     convertToWorldSpaceAR: function (nodePoint) {
+        if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // ensure transform computed
+            cc.director._visitScene();
+        }
         if (this._sgNode.isIgnoreAnchorPointForPosition()) {
             // see https://github.com/cocos-creator/engine/pull/391
             return cc.v2(this._sgNode.convertToWorldSpace(nodePoint));
@@ -1537,10 +1569,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             return cc.v2(this._sgNode.convertToWorldSpaceAR(nodePoint));
         }
     },
-
-    // _convertToWindowSpace: function (nodePoint) {
-    //     return this._sgNode._convertToWindowSpace(nodePoint);
-    // },
 
     /**
      * !#en convenience methods which take a cc.Touch instead of cc.Vec2.
