@@ -1774,12 +1774,12 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        //TODO renderCmd has a WorldTransform
         var t;
         if (this._renderCmd && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
             t = this._renderCmd._worldTransform;
         }
         else {
+            //TODO renderCmd has a WorldTransform
             t = this.getNodeToParentTransform();
             for (var p = this._parent; p !== null; p = p.parent) {
                 t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
