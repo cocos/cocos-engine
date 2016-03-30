@@ -131,9 +131,7 @@ var Sprite = cc.Class({
             type: cc.SpriteFrame
         },
         _type: SpriteType.SIMPLE,
-        //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
-        _useOriginalSize: true,
-        _sizeMode: -1,
+        _sizeMode: SizeMode.RAW,
         _fillType: 0,
         _fillCenter: cc.v2(0,0),
         _fillStart: 0,
@@ -345,20 +343,6 @@ var Sprite = cc.Class({
             tooltip: 'i18n:COMPONENT.sprite.dst_blend_factor'
         },
 
-        //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
-        useOriginalSize: {
-            get: function () {
-                return this._useOriginalSize;
-            },
-            set: function (value) {
-                this._useOriginalSize = value;
-                if (value) {
-                    this._applySpriteSize();
-                }
-            },
-            animatable: false,
-            tooltip: 'i18n:COMPONENT.sprite.original_size',
-        },
         /**
          * !#en specify the size tracing mode.
          * !#zh 精灵尺寸调整模式
@@ -533,19 +517,6 @@ var Sprite = cc.Class({
         this.node.off('size-changed', this._resized, this);
     },
 
-    _validateSizeMode: function() {
-        //do processing
-        if (-1 === this._sizeMode) {
-            //FIXME:_useOriginalSize is deprecated, since v0.8, it need to be deleted
-            if (this._useOriginalSize) {
-                this._sizeMode = SizeMode.TRIMMED;
-            } else {
-                this._sizeMode = SizeMode.CUSTOM;
-            }
-            this._isTrimmedMode = true;
-        }
-    },
-
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
         // Set atlas
         if (spriteFrame && spriteFrame._atlasUuid) {
@@ -624,7 +595,6 @@ var Sprite = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
         
-        this._validateSizeMode();
         this._applySpriteFrame(null);
 
         // should keep the size of the sg node the same as entity,

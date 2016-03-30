@@ -457,6 +457,7 @@ if (CC_DEV) {
         updateWithSprite: 'spriteFrame',
         getSpriteFrame: 'spriteFrame',
         setSpriteFrame: 'spriteFrame',
+        useOriginalSize: 'sizeMode',
     });
 
     // Particle
