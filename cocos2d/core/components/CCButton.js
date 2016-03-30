@@ -389,11 +389,11 @@ var Button = cc.Class({
         this._applyTransition(color, sprite);
     },
 
-    _onTouchEnded: function () {
+    _onTouchEnded: function (event) {
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         if (this._pressed) {
-            cc.Component.EventHandler.emitEvents(this.clickEvents);
+            cc.Component.EventHandler.emitEvents(this.clickEvents, event);
         }
         this._pressed = false;
         this._updateState();
