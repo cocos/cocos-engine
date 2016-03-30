@@ -37,7 +37,7 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
     // Constants
     // ===========================================================
 
-    private static final String TAG = "Cocos2dxTextInputWraper";
+    private static final String TAG = "Cocos2dxTextInputWrapper";
 
     // ===========================================================
     // Fields

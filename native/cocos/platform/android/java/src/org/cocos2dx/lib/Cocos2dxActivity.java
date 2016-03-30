@@ -57,7 +57,6 @@ public abstract class Cocos2dxActivity extends Activity {
     private Cocos2dxHandler mHandler = null;
     static Cocos2dxActivity COCOS_ACTIVITY = null;
     private Cocos2dxVideoHelper mVideoHelper = null;
-    private Cocos2dxWebViewHelper mWebViewHelper = null;
     private Cocos2dxEditBoxHelper mEditBoxHelper = null;
     private boolean isHasFocus = true;
 
@@ -67,14 +66,10 @@ public abstract class Cocos2dxActivity extends Activity {
 
     public class Cocos2dxEGLConfigChooser implements GLSurfaceView.EGLConfigChooser
     {
-        protected int[] configAttribs;
-        public Cocos2dxEGLConfigChooser(int redSize, int greenSize, int blueSize, int alphaSize, int depthSize, int stencilSize)
+        protected int[] configAttributes;
+        public Cocos2dxEGLConfigChooser(int[] attributes)
         {
-            configAttribs = new int[] {redSize, greenSize, blueSize, alphaSize, depthSize, stencilSize};
-        }
-        public Cocos2dxEGLConfigChooser(int[] attribs)
-        {
-            configAttribs = attribs;
+            configAttributes = attributes;
         }
 
         private int findConfigAttrib(EGL10 egl, EGLDisplay display,
@@ -157,12 +152,12 @@ public abstract class Cocos2dxActivity extends Activity {
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display)
         {
             int[] EGLattribs = {
-                    EGL10.EGL_RED_SIZE, configAttribs[0],
-                    EGL10.EGL_GREEN_SIZE, configAttribs[1],
-                    EGL10.EGL_BLUE_SIZE, configAttribs[2],
-                    EGL10.EGL_ALPHA_SIZE, configAttribs[3],
-                    EGL10.EGL_DEPTH_SIZE, configAttribs[4],
-                    EGL10.EGL_STENCIL_SIZE,configAttribs[5],
+                    EGL10.EGL_RED_SIZE, configAttributes[0],
+                    EGL10.EGL_GREEN_SIZE, configAttributes[1],
+                    EGL10.EGL_BLUE_SIZE, configAttributes[2],
+                    EGL10.EGL_ALPHA_SIZE, configAttributes[3],
+                    EGL10.EGL_DEPTH_SIZE, configAttributes[4],
+                    EGL10.EGL_STENCIL_SIZE,configAttributes[5],
                     EGL10.EGL_RENDERABLE_TYPE, 4, //EGL_OPENGL_ES2_BIT
                     EGL10.EGL_NONE
             };
@@ -191,7 +186,7 @@ public abstract class Cocos2dxActivity extends Activity {
                     cfgVals[i] = new ConfigValue(egl, display, configs[i]);
                 }
 
-                ConfigValue e = new ConfigValue(configAttribs);
+                ConfigValue e = new ConfigValue(configAttributes);
                 // bin search
                 int lo = 0;
                 int hi = num;
@@ -387,7 +382,7 @@ public abstract class Cocos2dxActivity extends Activity {
         return glSurfaceView;
     }
 
-   private final static boolean isAndroidEmulator() {
+   private static boolean isAndroidEmulator() {
       String model = Build.MODEL;
       Log.d(TAG, "model=" + model);
       String product = Build.PRODUCT;

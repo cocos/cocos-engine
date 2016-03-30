@@ -39,6 +39,8 @@
 #include "base/CCDirector.h"
 #include "base/CCScheduler.h"
 #include "websockets/libwebsockets.h"
+#include "base/CCEventDispatcher.h"
+#include "base/CCEventListenerCustom.h"
 
 #define WS_RX_BUFFER_SIZE (65536)
 #define WS_RESERVE_RECEIVE_BUFFER_SIZE (4096)
@@ -324,6 +326,16 @@ WebSocket::WebSocket()
     }
 
     __websocketInstances->push_back(this);
+    
+    auto eventDispatcher = Director::getInstance()->getEventDispatcher();
+    auto isDestroyed = _isDestroyed;
+    _resetDirectorListener = eventDispatcher->addCustomEventListener(Director::EVENT_RESET,
+                                                                     [this, isDestroyed](EventCustom*)
+    {
+        if (*isDestroyed)
+            return;
+        close();
+    });
 }
 
 WebSocket::~WebSocket()
@@ -351,6 +363,10 @@ WebSocket::~WebSocket()
         {
             LOGD("ERROR: WebSocket instance (%p) wasn't added to the container which saves websocket instances!\n", this);
         }
+    }
+    
+    if (Director::DirectorInstance) {
+        Director::DirectorInstance->getEventDispatcher()->removeEventListener(_resetDirectorListener);
     }
     *_isDestroyed = true;
 }

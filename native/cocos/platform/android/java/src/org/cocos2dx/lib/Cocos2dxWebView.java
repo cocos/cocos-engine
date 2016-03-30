@@ -62,7 +62,7 @@ public class Cocos2dxWebView extends WebView {
             Cocos2dxActivity activity = Cocos2dxActivity.COCOS_ACTIVITY;
             try {
                 URI uri = URI.create(urlString);
-                if (uri != null && uri.getScheme().equals(mJSScheme)) {
+                if (uri.getScheme().equals(mJSScheme)) {
                     activity.runOnGLThread(new Runnable() {
                         @Override
                         public void run() {

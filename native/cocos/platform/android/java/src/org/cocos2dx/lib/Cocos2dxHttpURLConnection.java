@@ -105,8 +105,8 @@ public class Cocos2dxHttpURLConnection
                 caInput = new BufferedInputStream(new FileInputStream(sslFilename));
             }else {
                 String assetString = "assets/";
-                String assetsfilenameString = sslFilename.substring(assetString.length());
-                caInput = new BufferedInputStream(Cocos2dxActivity.COCOS_ACTIVITY.getAssets().open(assetsfilenameString));
+                String assetsFileName = sslFilename.substring(assetString.length());
+                caInput = new BufferedInputStream(Cocos2dxActivity.COCOS_ACTIVITY.getAssets().open(assetsFileName));
             }
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -275,15 +275,15 @@ public class Cocos2dxHttpURLConnection
 
         try {
             byte[] buffer = new byte[1024];
-            int size   = 0;
-            ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
+            int size = 0;
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
             while((size = in.read(buffer, 0 , 1024)) != -1)
             {
-                bytestream.write(buffer, 0, size);
+                byteStream.write(buffer, 0, size);
             }
-            byte retbuffer[] = bytestream.toByteArray();
-            bytestream.close();
-            return retbuffer;
+            byte retBuffer[] = byteStream.toByteArray();
+            byteStream.close();
+            return retBuffer;
         } catch (Exception e) {
             Log.e("URLConnection exception", e.toString());
         }
@@ -335,7 +335,7 @@ public class Cocos2dxHttpURLConnection
     public static String combinCookies(List<String> list, String hostDomain) {
         StringBuilder sbCookies = new StringBuilder();
         String domain    = hostDomain;
-        String tailmatch = "FALSE";
+        String tailMatch = "FALSE";
         String path      = "/";
         String secure    = "FALSE";
         String key = null;
@@ -371,7 +371,7 @@ public class Cocos2dxHttpURLConnection
 
             sbCookies.append(domain);
             sbCookies.append('\t');
-            sbCookies.append(tailmatch);  //access
+            sbCookies.append(tailMatch);  //access
             sbCookies.append('\t');
             sbCookies.append(path);      //path
             sbCookies.append('\t');
