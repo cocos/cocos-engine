@@ -125,7 +125,7 @@ public class Cocos2dxSound {
         }
     }
 
-    private static int LOAD_TIME_OUT = 500;
+    private static final int LOAD_TIME_OUT = 500;
 
     public int playEffect(final String path, final boolean loop, float pitch, float pan, float gain)
     {

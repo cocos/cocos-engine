@@ -381,7 +381,7 @@ public class Cocos2dxEditBoxHelper {
     }
 
     public static void openKeyboard(int index) {
-        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.COCOS_ACTIVITY.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         Cocos2dxEditBox editBox = sEditBoxArray.get(index);
         if (null != editBox) {
             imm.showSoftInput(editBox, 0);
@@ -390,7 +390,7 @@ public class Cocos2dxEditBoxHelper {
     }
 
     public static void closeKeyboard(int index) {
-        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.COCOS_ACTIVITY.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         Cocos2dxEditBox editBox = sEditBoxArray.get(index);
         if (null != editBox) {
             imm.hideSoftInputFromWindow(editBox.getWindowToken(), 0);

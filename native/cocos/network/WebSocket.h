@@ -50,6 +50,7 @@ struct lws_protocols;
 
 NS_CC_BEGIN
 
+class EventListenerCustom;
 namespace network {
 
 class WsThreadHelper;
@@ -241,6 +242,7 @@ private:
     Delegate* _delegate;
     int _SSLConnection;
     struct lws_protocols* _wsProtocols;
+    EventListenerCustom* _resetDirectorListener;
 };
 
 }
