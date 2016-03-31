@@ -81,3 +81,4 @@ NS_CC_BEGIN
 #include "ccShader_CameraClear.frag"
 
 NS_CC_END
+

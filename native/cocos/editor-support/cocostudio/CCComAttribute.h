@@ -45,14 +45,14 @@ public:
      * @lua NA
      */
     virtual ~ComAttribute(void);
-    
+
 public:
     const static std::string COMPONENT_NAME;
 
     static ComAttribute* create(void);
     virtual bool init() override;
     virtual bool serialize(void* r) override;
-    
+
     void setInt(const std::string& key, int value);
     void setFloat(const std::string& key, float value);
     void setBool(const std::string& key, bool value);
@@ -70,3 +70,4 @@ private:
 }
 
 #endif  // __FUNDATION__CCCOMPONENT_H__
+

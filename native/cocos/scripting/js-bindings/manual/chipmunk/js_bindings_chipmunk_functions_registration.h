@@ -283,3 +283,4 @@ JS_DefineFunction(cx, chipmunk, "vunrotate", JSB_cpvunrotate, 2, JSPROP_PERMANEN
 
 
 #endif // JSB_INCLUDE_CHIPMUNK
+

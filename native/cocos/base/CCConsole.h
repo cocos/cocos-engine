@@ -67,7 +67,7 @@ void CC_DLL log(const char * format, ...) CC_FORMAT_PRINTF(1, 2);
  Console will spawn a new thread that will listen to a specified TCP port.
  Console has a basic token parser. Each token is associated with an std::function<void(int)>.
  If the std::function<> needs to use the cocos2d API, it needs to call
- 
+
  ```
  scheduler->performFunctionInCocosThread( ... );
  ```
@@ -109,13 +109,13 @@ public:
      * @address : 127.0.0.1
      */
     void setBindAddress(const std::string &address);
- 
+
 protected:
     void loop();
     ssize_t readline(int fd, char *buf, size_t maxlen);
     ssize_t readBytes(int fd, char* buffer, size_t maxlen, bool* more);
     bool parseCommand(int fd);
-    
+
     void addClient();
 
     // Add commands here
@@ -159,3 +159,4 @@ NS_CC_END
 
 /// @endcond
 #endif /* defined(__CCCONSOLE_H__) */
+

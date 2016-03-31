@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -72,7 +72,7 @@ EditBox* EditBox::create(const Size& size,
                         TextureResType texType /*= TextureResType::LOCAL*/)
 {
     EditBox* pRet = new (std::nothrow) EditBox();
-    
+
     if (pRet != nullptr && pRet->initWithSizeAndBackgroundSprite(size, normalSprite, texType))
     {
         pRet->autorelease();
@@ -81,15 +81,15 @@ EditBox* EditBox::create(const Size& size,
     {
         CC_SAFE_DELETE(pRet);
     }
-    
+
     return pRet;
 }
-    
-    
+
+
 EditBox* EditBox::create(const cocos2d::Size &size, cocos2d::ui::Scale9Sprite *normalSprite, ui::Scale9Sprite *pressedSprite, Scale9Sprite* disabledSprite)
 {
     EditBox* pRet = new (std::nothrow) EditBox();
-    
+
     if (pRet != nullptr && pRet->initWithSizeAndBackgroundSprite(size, normalSprite))
     {
         pRet->autorelease();
@@ -98,10 +98,10 @@ EditBox* EditBox::create(const cocos2d::Size &size, cocos2d::ui::Scale9Sprite *n
     {
         CC_SAFE_DELETE(pRet);
     }
-    
+
     return pRet;
 }
-    
+
 bool EditBox::initWithSizeAndBackgroundSprite(const cocos2d::Size &size, cocos2d::ui::Scale9Sprite *pNormal9SpriteBg)
 {
     if (Widget::init())
@@ -109,20 +109,20 @@ bool EditBox::initWithSizeAndBackgroundSprite(const cocos2d::Size &size, cocos2d
         _editBoxImpl = __createSystemEditBox(this);
         _editBoxImpl->initWithSize(size);
         _editBoxImpl->setInputMode(EditBox::InputMode::SINGLE_LINE);
-        
+
         _backgroundSprite = pNormal9SpriteBg;
-        
+
         this->setContentSize(size);
         this->setPosition(Vec2(0, 0));
-        
+
         _backgroundSprite->setPosition(Vec2(_contentSize.width/2, _contentSize.height/2));
         _backgroundSprite->setContentSize(size);
         this->addProtectedChild(_backgroundSprite);
-        
+
         this->setTouchEnabled(true);
-        
+
         this->addTouchEventListener(CC_CALLBACK_2(EditBox::touchDownAction, this));
-        
+
         return true;
     }
     return false;
@@ -138,7 +138,7 @@ bool EditBox::initWithSizeAndBackgroundSprite(const Size& size,
         _editBoxImpl = __createSystemEditBox(this);
         _editBoxImpl->initWithSize(size);
         _editBoxImpl->setInputMode(EditBox::InputMode::ANY);
-       
+
         if (texType == Widget::TextureResType::LOCAL)
         {
             _backgroundSprite = Scale9Sprite::create(pNormal9SpriteBg);
@@ -149,15 +149,15 @@ bool EditBox::initWithSizeAndBackgroundSprite(const Size& size,
         }
         this->setContentSize(size);
         this->setPosition(Vec2(0, 0));
-        
+
         _backgroundSprite->setPosition(Vec2(_contentSize.width/2, _contentSize.height/2));
         _backgroundSprite->setContentSize(size);
         this->addProtectedChild(_backgroundSprite);
-        
+
         this->setTouchEnabled(true);
-        
+
         this->addTouchEventListener(CC_CALLBACK_2(EditBox::touchDownAction, this));
-        
+
         return true;
     }
     return false;
@@ -197,7 +197,7 @@ const char* EditBox::getText(void)
         if(pText != nullptr)
             return pText;
     }
-    
+
     return "";
 }
 
@@ -380,7 +380,7 @@ void EditBox::setContentSize(const Size& size)
         _editBoxImpl->setContentSize(size);
     }
 }
-    
+
 void EditBox::adaptRenderers()
 {
     if (_contentSizeDirty)
@@ -422,7 +422,7 @@ void EditBox::onEnter(void)
             return;
     }
 #endif
-    
+
     Widget::onEnter();
     if (_editBoxImpl != nullptr)
     {
@@ -450,7 +450,7 @@ void EditBox::onExit(void)
             return;
     }
 #endif
-    
+
     Widget::onExit();
     if (_editBoxImpl != nullptr)
     {
@@ -479,11 +479,11 @@ void EditBox::keyboardWillShow(IMEKeyboardNotificationInfo& info)
         CCLOG("needn't to adjust view layout.");
         return;
     }
-    
+
     // assume keyboard at the bottom of screen, calculate the vertical adjustment.
     _adjustHeight = info.end.getMaxY() - rectTracked.getMinY();
     // CCLOG("CCEditBox:needAdjustVerticalPosition(%f)", _adjustHeight);
-    
+
     if (_editBoxImpl != nullptr)
     {
         _editBoxImpl->doAnimationWhenKeyboardMove(info.duration, _adjustHeight);
@@ -492,7 +492,7 @@ void EditBox::keyboardWillShow(IMEKeyboardNotificationInfo& info)
 
 void EditBox::keyboardDidShow(IMEKeyboardNotificationInfo& info)
 {
-    
+
 }
 
 void EditBox::keyboardWillHide(IMEKeyboardNotificationInfo& info)
@@ -506,7 +506,7 @@ void EditBox::keyboardWillHide(IMEKeyboardNotificationInfo& info)
 
 void EditBox::keyboardDidHide(IMEKeyboardNotificationInfo& info)
 {
-    
+
 }
 
 #if CC_ENABLE_SCRIPT_BINDING
@@ -529,3 +529,4 @@ void EditBox::unregisterScriptEditBoxHandler(void)
 }
 
 NS_CC_END
+

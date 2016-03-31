@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2013 cocos2d-x.org
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -93,8 +93,8 @@ bool RichElement::init(int tag, const Color3B &color, GLubyte opacity)
     _opacity = opacity;
     return true;
 }
-    
-    
+
+
 RichElementText* RichElementText::create(int tag, const Color3B &color, GLubyte opacity, const std::string& text, const std::string& fontName, float fontSize, uint32_t flags, const std::string& url)
 {
     RichElementText* element = new (std::nothrow) RichElementText();
@@ -106,7 +106,7 @@ RichElementText* RichElementText::create(int tag, const Color3B &color, GLubyte 
     CC_SAFE_DELETE(element);
     return nullptr;
 }
-    
+
 bool RichElementText::init(int tag, const Color3B &color, GLubyte opacity, const std::string& text, const std::string& fontName, float fontSize, uint32_t flags, const std::string& url)
 {
     if (RichElement::init(tag, color, opacity))
@@ -132,7 +132,7 @@ RichElementImage* RichElementImage::create(int tag, const Color3B &color, GLubyt
     CC_SAFE_DELETE(element);
     return nullptr;
 }
-    
+
 bool RichElementImage::init(int tag, const Color3B &color, GLubyte opacity, const std::string& filePath)
 {
     if (RichElement::init(tag, color, opacity))
@@ -165,7 +165,7 @@ RichElementCustomNode* RichElementCustomNode::create(int tag, const Color3B &col
     CC_SAFE_DELETE(element);
     return nullptr;
 }
-    
+
 bool RichElementCustomNode::init(int tag, const Color3B &color, GLubyte opacity, cocos2d::Node *customNode)
 {
     if (RichElement::init(tag, color, opacity))
@@ -176,7 +176,7 @@ bool RichElementCustomNode::init(int tag, const Color3B &color, GLubyte opacity,
     }
     return false;
 }
-    
+
 RichElementNewLine* RichElementNewLine::create(int tag, const Color3B& color, GLubyte opacity)
 {
     RichElementNewLine* element = new (std::nothrow) RichElementNewLine();
@@ -188,7 +188,7 @@ RichElementNewLine* RichElementNewLine::create(int tag, const Color3B& color, GL
     CC_SAFE_DELETE(element);
     return nullptr;
 }
-    
+
 RichText::RichText()
     : _formatTextDirty(true)
     , _leftSpaceWidth(0.0f)
@@ -196,12 +196,12 @@ RichText::RichText()
     , _wrapMode(WRAP_PER_WORD)
 {
 }
-    
+
 RichText::~RichText()
 {
     _richElements.clear();
 }
-    
+
 RichText* RichText::create()
 {
     RichText* widget = new (std::nothrow) RichText();
@@ -225,7 +225,7 @@ RichText* RichText::createWithXML(const std::string& xml)
     CC_SAFE_DELETE(widget);
     return nullptr;
 }
-    
+
 bool RichText::init()
 {
     if (Widget::init())
@@ -445,7 +445,7 @@ public:
                     elementNL->setHeight(atoi(height));
                 if (width)
                     elementNL->setWidth(atoi(width));
-                
+
                 _richText->pushBackElement(elementNL);
             }
         }
@@ -537,7 +537,7 @@ bool RichText::initWithXML(const std::string& origxml)
     }
     return false;
 }
-    
+
 void RichText::initRenderer()
 {
 }
@@ -547,19 +547,19 @@ void RichText::insertElement(RichElement *element, int index)
     _richElements.insert(index, element);
     _formatTextDirty = true;
 }
-    
+
 void RichText::pushBackElement(RichElement *element)
 {
     _richElements.pushBack(element);
     _formatTextDirty = true;
 }
-    
+
 void RichText::removeElement(int index)
 {
     _richElements.erase(index);
     _formatTextDirty = true;
 }
-    
+
 void RichText::removeElement(RichElement *element)
 {
     _richElements.eraseObject(element);
@@ -818,7 +818,7 @@ void RichText::handleTextRenderer(const std::string& text, const std::string& fo
     if (fileExist)
     {
         textRenderer = Label::createWithTTF(text, fontName, fontSize);
-    } 
+    }
     else
     {
         textRenderer = Label::createWithSystemFont(text, fontName, fontSize);
@@ -892,7 +892,7 @@ void RichText::handleTextRenderer(const std::string& text, const std::string& fo
         pushToContainer(textRenderer);
     }
 }
-    
+
 void RichText::handleImageRenderer(const std::string& filePath, const Color3B &color, GLubyte opacity, int width, int height)
 {
     Sprite* imageRenderer = Sprite::create(filePath);
@@ -925,13 +925,13 @@ void RichText::handleCustomRenderer(cocos2d::Node *renderer)
         pushToContainer(renderer);
     }
 }
-    
+
 void RichText::addNewLine()
 {
     _leftSpaceWidth = _customSize.width;
     _elementRenders.push_back(new Vector<Node*>());
 }
-    
+
 void RichText::formarRenderers()
 {
     if (_ignoreSize)
@@ -962,7 +962,7 @@ void RichText::formarRenderers()
     {
         float newContentSizeHeight = 0.0f;
         float *maxHeights = new (std::nothrow) float[_elementRenders.size()];
-        
+
         for (size_t i=0; i<_elementRenders.size(); i++)
         {
             Vector<Node*>* row = (_elementRenders[i]);
@@ -975,14 +975,14 @@ void RichText::formarRenderers()
             maxHeights[i] = maxHeight;
             newContentSizeHeight += maxHeights[i];
         }
-        
+
         float nextPosY = _customSize.height;
         for (size_t i=0; i<_elementRenders.size(); i++)
         {
             Vector<Node*>* row = (_elementRenders[i]);
             float nextPosX = 0.0f;
             nextPosY -= (maxHeights[i] + _verticalSpace);
-            
+
             for (ssize_t j=0; j<row->size(); j++)
             {
                 Node* l = row->at(j);
@@ -994,16 +994,16 @@ void RichText::formarRenderers()
         }
         delete [] maxHeights;
     }
-    
+
     size_t length = _elementRenders.size();
     for (size_t i = 0; i<length; i++)
     {
         Vector<Node*>* l = _elementRenders[i];
         l->clear();
         delete l;
-    }    
+    }
     _elementRenders.clear();
-    
+
     if (_ignoreSize)
     {
         Size s = getVirtualRendererSize();
@@ -1015,12 +1015,12 @@ void RichText::formarRenderers()
     }
     updateContentSizeWithTextureSize(_contentSize);
 }
-    
+
 void RichText::adaptRenderers()
 {
     this->formatText();
 }
-    
+
 void RichText::pushToContainer(cocos2d::Node *renderer)
 {
     if (_elementRenders.empty())
@@ -1029,7 +1029,7 @@ void RichText::pushToContainer(cocos2d::Node *renderer)
     }
     _elementRenders[_elementRenders.size()-1]->pushBack(renderer);
 }
-    
+
 void RichText::setVerticalSpace(float space)
 {
     _verticalSpace = space;
@@ -1043,7 +1043,7 @@ void RichText::ignoreContentAdaptWithSize(bool ignore)
         Widget::ignoreContentAdaptWithSize(ignore);
     }
 }
-    
+
 std::string RichText::getDescription() const
 {
     return "RichText";
@@ -1052,3 +1052,4 @@ std::string RichText::getDescription() const
 }
 
 NS_CC_END
+

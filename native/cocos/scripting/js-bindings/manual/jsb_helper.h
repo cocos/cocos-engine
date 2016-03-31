@@ -142,3 +142,4 @@ out = (uint32_t)tmp; \
 } while (0)
 
 #endif /* __XMLHTTPHELPER_H__ */
+

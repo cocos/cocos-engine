@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013      Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,7 +46,7 @@ void FontAtlasCache::purgeCachedData()
 }
 
 FontAtlas* FontAtlasCache::getFontAtlasTTF(const _ttfConfig* config)
-{  
+{
     bool useDistanceField = config->distanceFieldEnabled;
     if(config->outlineSize > 0)
     {
@@ -91,7 +91,7 @@ FontAtlas* FontAtlasCache::getFontAtlasFNT(const std::string& fontFileName, cons
     char tmp[255];
     sprintf(tmp, "%s %f %f", fontFileName.c_str(), imageOffset.x, imageOffset.y);
     std::string atlasName = tmp;
-    
+
     auto it = _atlasMap.find(atlasName);
     if ( it == _atlasMap.end() )
     {
@@ -112,14 +112,14 @@ FontAtlas* FontAtlasCache::getFontAtlasFNT(const std::string& fontFileName, cons
         _atlasMap[atlasName]->retain();
         return _atlasMap[atlasName];
     }
-    
+
     return nullptr;
 }
 
 FontAtlas* FontAtlasCache::getFontAtlasCharMap(const std::string& plistFile)
 {
     std::string atlasName = plistFile;
-    
+
     auto it = _atlasMap.find(atlasName);
     if ( it == _atlasMap.end() )
     {
@@ -216,15 +216,16 @@ bool FontAtlasCache::releaseFontAtlas(FontAtlas *atlas)
                 {
                   _atlasMap.erase(item.first);
                 }
-                
+
                 atlas->release();
-                
+
                 return true;
             }
         }
     }
-    
+
     return false;
 }
 
 NS_CC_END
+

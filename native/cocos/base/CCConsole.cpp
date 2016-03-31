@@ -112,7 +112,7 @@ static bool isFloat( std::string myString ) {
     float f;
     iss >> std::noskipws >> f; // noskipws considers leading whitespace invalid
     // Check the entire string was consumed and if either failbit or badbit is set
-    return iss.eof() && !iss.fail(); 
+    return iss.eof() && !iss.fail();
 }
 
 // helper free functions
@@ -263,7 +263,7 @@ static void _log(const char *format, va_list args)
     } while (true);
 
     strcat(buf, "\n");
-    
+
     if (s_customLogFunc) {
         s_customLogFunc(buf);
         delete [] buf;
@@ -334,7 +334,7 @@ Console::Console()
 , _bindAddress("")
 {
     // VS2012 doesn't support initializer list, so we create a new array and assign its elements to '_command'.
-    Command commands[] = {     
+    Command commands[] = {
         { "config", "Print the Configuration object", std::bind(&Console::commandConfig, this, std::placeholders::_1, std::placeholders::_2) },
         { "debugmsg", "Whether or not to forward the debug messages on the console. Args: [on | off]", [&](int fd, const std::string& args) {
             if( args.compare("on")==0 || args.compare("off")==0) {
@@ -438,7 +438,7 @@ bool Console::listenOnTCP(int port)
         close(listenfd);
 #endif
     } while ( (res = res->ai_next) != nullptr);
-    
+
     if (res == nullptr) {
         perror("net_listen:");
         freeaddrinfo(ressave);
@@ -515,7 +515,7 @@ void Console::commandHelp(int fd, const std::string &args)
              mydprintf(fd, "\t");
         }
         mydprintf(fd,"%s\n", cmd.help.c_str());
-    } 
+    }
 }
 
 void Console::commandExit(int fd, const std::string &args)
@@ -730,7 +730,7 @@ void Console::commandTouch(int fd, const std::string& args)
     else
     {
         auto argv = split(args,' ');
-        
+
         if(argv.empty())
         {
             return;
@@ -740,7 +740,7 @@ void Console::commandTouch(int fd, const std::string& args)
         {
             if((argv.size() == 3) && (isFloat(argv[1]) && isFloat(argv[2])))
             {
-                
+
                 float x = utils::atof(argv[1].c_str());
                 float y = utils::atof(argv[2].c_str());
 
@@ -752,7 +752,7 @@ void Console::commandTouch(int fd, const std::string& args)
                     Director::DirectorInstance->getOpenGLView()->handleTouchesEnd(1, &_touchId, &x, &y);
                 });
             }
-            else 
+            else
             {
                 const char msg[] = "touch: invalid arguments.\n";
                 send(fd, msg, sizeof(msg) - 1, 0);
@@ -762,11 +762,11 @@ void Console::commandTouch(int fd, const std::string& args)
 
         if(argv[0]=="swipe")
         {
-            if((argv.size() == 5) 
+            if((argv.size() == 5)
                 && (isFloat(argv[1])) && (isFloat(argv[2]))
                 && (isFloat(argv[3])) && (isFloat(argv[4])))
             {
-                
+
                 float x1 = utils::atof(argv[1].c_str());
                 float y1 = utils::atof(argv[2].c_str());
                 float x2 = utils::atof(argv[3].c_str());
@@ -788,7 +788,7 @@ void Console::commandTouch(int fd, const std::string& args)
                 {
                     while(dx > 1)
                     {
-                        
+
                         if(x1 < x2)
                         {
                             _x_ += 1;
@@ -811,7 +811,7 @@ void Console::commandTouch(int fd, const std::string& args)
                         });
                         dx -= 1;
                     }
-                    
+
                 }
                 else
                 {
@@ -839,7 +839,7 @@ void Console::commandTouch(int fd, const std::string& args)
                         });
                        dy -= 1;
                     }
-                    
+
                 }
 
                 sched->performFunctionInCocosThread( [=](){
@@ -848,12 +848,12 @@ void Console::commandTouch(int fd, const std::string& args)
                 });
 
             }
-            else 
+            else
             {
                 const char msg[] = "touch: invalid arguments.\n";
                 send(fd, msg, sizeof(msg) - 1, 0);
             }
-            
+
         }
 
     }
@@ -869,7 +869,7 @@ void Console::commandUpload(int fd)
     //read file name
     for( n = 0; n < sizeof(buf) - 1; n++ )
     {
-        if( (rc = recv(fd, &c, 1, 0)) ==1 ) 
+        if( (rc = recv(fd, &c, 1, 0)) ==1 )
         {
             for(char x : invalid_filename_char)
             {
@@ -880,21 +880,21 @@ void Console::commandUpload(int fd)
                     return;
                 }
             }
-            if(c == ' ') 
+            if(c == ' ')
             {
                 break;
             }
             *ptr++ = c;
-        } 
-        else if( rc == 0 ) 
+        }
+        else if( rc == 0 )
         {
             break;
-        } 
-        else if( errno == EINTR ) 
+        }
+        else if( errno == EINTR )
         {
             continue;
-        } 
-        else 
+        }
+        else
         {
             break;
         }
@@ -911,8 +911,8 @@ void Console::commandUpload(int fd)
         send(fd, err, sizeof(err),0);
         return;
     }
-    
-    while (true) 
+
+    while (true)
     {
         char data[4];
         for(int i = 0; i < 4; i++)
@@ -985,7 +985,7 @@ bool Console::parseCommand(int fd)
             send(fd, err, sizeof(err),0);
             sendPrompt(fd);
             return true;
-            
+
         }
     }
     if(!more_data)
@@ -1008,7 +1008,7 @@ bool Console::parseCommand(int fd)
 
     std::vector<std::string> args;
     cmdLine = std::string(buf);
-   
+
     args = split(cmdLine, ' ');
     if(args.empty())
     {
@@ -1023,13 +1023,13 @@ bool Console::parseCommand(int fd)
     {
         std::string args2;
         for(size_t i = 1; i < args.size(); ++i)
-        {   
+        {
             if(i > 1)
             {
                 args2 += ' ';
             }
             args2 += trim(args[i]);
-            
+
         }
         auto cmd = it->second;
         cmd.callback(fd, args2);
@@ -1090,7 +1090,7 @@ void Console::addClient()
         sendPrompt(fd);
 
         /**
-         * A SIGPIPE is sent to a process if it tried to write to socket that had been shutdown for 
+         * A SIGPIPE is sent to a process if it tried to write to socket that had been shutdown for
          * writing or isn't connected (anymore) on iOS.
          *
          * The default behaviour for this signal is to end the process.So we make the process ignore SIGPIPE.
@@ -1134,7 +1134,7 @@ void Console::loop()
 
         copy_set = _read_set;
         timeout_copy = timeout;
-        
+
         int nready = select(_maxfd+1, &copy_set, nullptr, nullptr, &timeout_copy);
 
         if( nready == -1 )
@@ -1160,13 +1160,13 @@ void Console::loop()
             /* data from client */
             std::vector<int> to_remove;
             for(const auto &fd: _fds) {
-                if(FD_ISSET(fd,&copy_set)) 
+                if(FD_ISSET(fd,&copy_set))
                 {
                     //fix Bug #4302 Test case ConsoleTest--ConsoleUploadFile crashed on Linux
-                    //On linux, if you send data to a closed socket, the sending process will 
+                    //On linux, if you send data to a closed socket, the sending process will
                     //receive a SIGPIPE, which will cause linux system shutdown the sending process.
                     //Add this ioctl code to check if the socket has been closed by peer.
-                    
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
                     u_long n = 0;
                     ioctlsocket(fd, FIONREAD, &n);
@@ -1220,7 +1220,7 @@ void Console::loop()
         close(fd);
 #endif
     }
-    
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
     closesocket(_listenfd);
     WSACleanup();
@@ -1236,3 +1236,4 @@ void Console::setBindAddress(const std::string &address)
 }
 
 NS_CC_END
+

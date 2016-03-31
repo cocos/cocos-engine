@@ -50,3 +50,4 @@ public:
 NS_CC_END
 
 #endif // __PLATFORM_IPHONE_PLATFORM_CCLOCK_H__
+

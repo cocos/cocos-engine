@@ -46,7 +46,7 @@ NS_CC_BEGIN
 @js NA
 */
 class CC_DLL ClippingRectangleNode : public Node
-{    
+{
 public:
     /**
     @brief Create node with specified clipping region.
@@ -59,7 +59,7 @@ public:
     @return If the creation success, return a pointer of ClippingRectangleNode; otherwise return nil.
     */
     static ClippingRectangleNode* create();
-    
+
     /**
     @brief Get the clipping rectangle.
     @return The clipping rectangle.
@@ -72,7 +72,7 @@ public:
     @param clippingRegion Specify the clipping rectangle.
     */
     void setClippingRegion(const Rect& clippingRegion);
-    
+
     /**
     @brief Get whether the clipping is enabled or not.
     @return Whether the clipping is enabled or not. Default is true.
@@ -97,13 +97,13 @@ protected:
     : _clippingEnabled(true)
     {
     }
-    
+
     void onBeforeVisitScissor();
     void onAfterVisitScissor();
-    
+
     Rect _clippingRegion;
     bool _clippingEnabled;
-    
+
     CustomCommand _beforeVisitCmdScissor;
     CustomCommand _afterVisitCmdScissor;
 };

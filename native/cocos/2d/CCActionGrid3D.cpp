@@ -2,7 +2,7 @@
 Copyright (c) 2009      On-Core
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -156,7 +156,7 @@ void FlipX3D::update(float time)
         b.set(1.0f, 1.0f);
         x = x1;
     }
-    
+
     diff.x = ( x - x * mx );
     diff.z = fabsf( floorf( (x * mz) / 4.0f ) );
 
@@ -165,19 +165,19 @@ void FlipX3D::update(float time)
     v.x = diff.x;
     v.z += diff.z;
     setVertex(a, v);
-    
+
     // upper-left
     v = getOriginalVertex(b);
     v.x = diff.x;
     v.z += diff.z;
     setVertex(b, v);
-    
+
     // bottom-right
     v = getOriginalVertex(c);
     v.x -= diff.x;
     v.z -= diff.z;
     setVertex(c, v);
-    
+
     // upper-right
     v = getOriginalVertex(d);
     v.x -= diff.x;
@@ -221,17 +221,17 @@ void FlipY3D::update(float time)
     float mz = sinf( angle );
     angle = angle / 2.0f;     // x calculates degrees from 0 to 90
     float my = cosf(angle);
-    
+
     Vec3    v0, v1, v, diff;
-    
+
     v0 = getOriginalVertex(Vec2(1.0f, 1.0f));
     v1 = getOriginalVertex(Vec2());
-    
+
     float    y0 = v0.y;
     float    y1 = v1.y;
     float y;
     Vec2    a, b, c, d;
-    
+
     if (y0 > y1)
     {
         // Normal Grid
@@ -250,28 +250,28 @@ void FlipY3D::update(float time)
         c.set(1.0f, 1.0f);
         y = y1;
     }
-    
+
     diff.y = y - y * my;
     diff.z = fabsf(floorf((y * mz) / 4.0f));
-    
+
     // bottom-left
     v = getOriginalVertex(a);
     v.y = diff.y;
     v.z += diff.z;
     setVertex(a, v);
-    
+
     // upper-left
     v = getOriginalVertex(b);
     v.y -= diff.y;
     v.z -= diff.z;
     setVertex(b, v);
-    
+
     // bottom-right
     v = getOriginalVertex(c);
     v.y = diff.y;
     v.z += diff.z;
     setVertex(c, v);
-    
+
     // upper-right
     v = getOriginalVertex(d);
     v.y -= diff.y;
@@ -342,7 +342,7 @@ void Lens3D::update(float time)
     if (_dirty)
     {
         int i, j;
-        
+
         for (i = 0; i < _gridSize.width + 1; ++i)
         {
             for (j = 0; j < _gridSize.height + 1; ++j)
@@ -350,19 +350,19 @@ void Lens3D::update(float time)
                 Vec3 v = getOriginalVertex(Vec2(i, j));
                 Vec2 vect = _position - Vec2(v.x, v.y);
                 float r = vect.getLength();
-                
+
                 if (r < _radius)
                 {
                     r = _radius - r;
                     float pre_log = r / _radius;
-                    if ( pre_log == 0 ) 
+                    if ( pre_log == 0 )
                     {
                         pre_log = 0.001f;
                     }
 
                     float l = logf(pre_log) * _lensEffect;
                     float new_r = expf( l ) * _radius;
-                    
+
                     if (vect.getLength() > 0)
                     {
                         vect.normalize();
@@ -370,11 +370,11 @@ void Lens3D::update(float time)
                         v.z += (_concave ? -1.0f : 1.0f) * new_vect.getLength() * _lensEffect;
                     }
                 }
-                
+
                 setVertex(Vec2(i, j), v);
             }
         }
-        
+
         _dirty = false;
     }
 }
@@ -442,14 +442,14 @@ void Ripple3D::update(float time)
             Vec3 v = getOriginalVertex(Vec2(i, j));
             Vec2 vect = _position - Vec2(v.x,v.y);
             float r = vect.getLength();
-            
+
             if (r < _radius)
             {
                 r = _radius - r;
                 float rate = powf(r / _radius, 2);
                 v.z += (sinf( time*(float)M_PI * _waves * 2 + r * 0.1f) * _amplitude * _amplitudeRate * rate);
             }
-            
+
             setVertex(Vec2(i, j), v);
         }
     }
@@ -514,7 +514,7 @@ void Shaky3D::update(float time)
             {
                 v.z += (rand() % (_randrange*2)) - _randrange;
             }
-            
+
             setVertex(Vec2(i, j), v);
         }
     }
@@ -694,7 +694,7 @@ void Twirl::setPosition(const Vec2& position)
 
 Twirl *Twirl::clone() const
 {
-    // no copy constructor    
+    // no copy constructor
     auto a = new (std::nothrow) Twirl();
     a->initWithDuration(_duration, _gridSize, _position, _twirls, _amplitude);
     a->autorelease();
@@ -705,23 +705,23 @@ void Twirl::update(float time)
 {
     int i, j;
     Vec2    c = _position;
-    
+
     for (i = 0; i < (_gridSize.width+1); ++i)
     {
         for (j = 0; j < (_gridSize.height+1); ++j)
         {
             Vec3 v = getOriginalVertex(Vec2(i ,j));
-            
+
             Vec2 avg(i-(_gridSize.width/2.0f), j-(_gridSize.height/2.0f));
             float r = avg.getLength();
-            
+
             float amp = 0.1f * _amplitude * _amplitudeRate;
             float a = r * cosf( (float)M_PI/2.0f + time * (float)M_PI * _twirls * 2 ) * amp;
-            
+
             Vec2 d(
                 sinf(a) * (v.y-c.y) + cosf(a) * (v.x-c.x),
                 cosf(a) * (v.y-c.y) - sinf(a) * (v.x-c.x));
-            
+
             v.x = c.x + d.x;
             v.y = c.y + d.y;
 
@@ -731,3 +731,4 @@ void Twirl::update(float time)
 }
 
 NS_CC_END
+

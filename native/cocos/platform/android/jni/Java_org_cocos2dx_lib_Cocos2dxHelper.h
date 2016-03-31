@@ -34,3 +34,4 @@ extern std::string getPackageNameJNI();
 extern void conversionEncodingJNI(const char* src, int byteSize, const char* fromCharset, char* dst, const char* newCharset);
 
 #endif /* __Java_org_cocos2dx_lib_Cocos2dxHelper_H__ */
+

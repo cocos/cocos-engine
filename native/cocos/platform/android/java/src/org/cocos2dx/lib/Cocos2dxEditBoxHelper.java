@@ -398,3 +398,4 @@ public class Cocos2dxEditBoxHelper {
         }
     }
 }
+

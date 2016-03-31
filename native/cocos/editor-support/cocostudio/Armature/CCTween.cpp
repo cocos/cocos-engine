@@ -417,10 +417,10 @@ float Tween::updateFrameData(float currentPercent)
             setBetween(from, to);
             return _currentPercent;
         }
-        
+
         if(playedTime >= frames.at(length - 1)->frameID)
         {
-            // If _passLastFrame is true and playedTime >= frames[length - 1]->frameID, then do not need to go on. 
+            // If _passLastFrame is true and playedTime >= frames[length - 1]->frameID, then do not need to go on.
             if (_passLastFrame)
             {
                 from = to = frames.at(length - 1);
@@ -485,3 +485,4 @@ float Tween::updateFrameData(float currentPercent)
 }
 
 }
+

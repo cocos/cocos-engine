@@ -38,3 +38,4 @@ class CC_DLL ControlButtonLoader : public ControlLoader {
 }
 
 #endif
+

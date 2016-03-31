@@ -16,7 +16,7 @@ ClippingRectangleNode* ClippingRectangleNode::create(const Rect& clippingRegion)
     } else {
         CC_SAFE_DELETE(node);
     }
-    
+
     return node;
 }
 
@@ -28,7 +28,7 @@ ClippingRectangleNode* ClippingRectangleNode::create()
     } else {
         CC_SAFE_DELETE(node);
     }
-    
+
     return node;
 }
 
@@ -50,7 +50,7 @@ void ClippingRectangleNode::onBeforeVisitScissor()
             scaleY *= parent->getScaleY();
             parent = parent->getParent();
         }
-        
+
         const Point pos = convertToWorldSpace(Point(_clippingRegion.origin.x, _clippingRegion.origin.y));
         GLView* glView = _director->getOpenGLView();
         glView->setScissorInPoints(pos.x,
@@ -73,12 +73,13 @@ void ClippingRectangleNode::visit(Renderer *renderer, const Mat4 &parentTransfor
     _beforeVisitCmdScissor.init(_globalZOrder);
     _beforeVisitCmdScissor.func = CC_CALLBACK_0(ClippingRectangleNode::onBeforeVisitScissor, this);
     renderer->addCommand(&_beforeVisitCmdScissor);
-    
+
     Node::visit(renderer, parentTransform, parentFlags);
-    
+
     _afterVisitCmdScissor.init(_globalZOrder);
     _afterVisitCmdScissor.func = CC_CALLBACK_0(ClippingRectangleNode::onAfterVisitScissor, this);
     renderer->addCommand(&_afterVisitCmdScissor);
 }
 
 NS_CC_END
+

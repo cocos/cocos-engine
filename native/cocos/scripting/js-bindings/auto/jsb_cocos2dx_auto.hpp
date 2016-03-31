@@ -3804,3 +3804,4 @@ bool js_cocos2dx_ComponentJS_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_ComponentJS_ComponentJS(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __cocos2dx_h__
+

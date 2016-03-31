@@ -37,7 +37,7 @@ NS_CC_BEGIN
  * @{
  */
 namespace ui {
-    
+
     class Widget;
 
 /**
@@ -55,7 +55,7 @@ public:
      * @return Widget instance pointer.
      */
     static Widget* seekWidgetByTag(Widget* root, int tag);
-    
+
     /**
      * Find a widget with a specific name from root widget.
      * This search will be recursive through all child widgets.
@@ -65,7 +65,7 @@ public:
      * @return Widget instance pointer.
      */
     static Widget* seekWidgetByName(Widget* root, const std::string& name);
-    
+
     /**
      * Find a widget with a specific action tag from root widget
      * This search will be recursive through all child widgets.
@@ -74,7 +74,7 @@ public:
      *@return Widget instance pointer.
      */
     static Widget* seekActionWidgetByActionTag(Widget* root, int tag);
-    
+
     /**
      * @brief Get a UTF8 substring from a std::string with a given start position and length
      *  Sample:  std::string str = "中国中国中国";  substr = getSubStringOfUTF8String(str,0,2) will = "中国"
@@ -88,7 +88,7 @@ public:
     static std::string getSubStringOfUTF8String(const std::string& str,
                                    std::string::size_type start,
                                    std::string::size_type length);
-    
+
     /**
      * Refresh object and it's children layout state
      *
@@ -102,7 +102,7 @@ public:
      *@param active A boolean value.
      */
     static void changeLayoutSystemActiveState(bool active);
-    
+
     /**
      *@brief  restrict capInsetSize, when the capInsets's width is larger than the textureSize, it will restrict to 0,
      *        the height goes the same way as width.
@@ -128,3 +128,4 @@ public:
 NS_CC_END
 
 #endif /* defined(__CocoGUI__UISystem__) */
+

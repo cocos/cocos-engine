@@ -64,7 +64,7 @@ public:
      * @return An autoreleased TransitionPageTurn object.
      */
     static TransitionPageTurn* create(float t,Scene* scene,bool backwards);
-    
+
     //
     // Overrides
     // @js NA

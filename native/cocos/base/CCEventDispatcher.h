@@ -63,7 +63,7 @@ class CC_DLL EventDispatcher : public Ref
 {
 public:
     // Adds event listener.
-    
+
     /** Adds a event listener for a specified event with the priority of scene graph.
      *  @param listener The listener of a specified event.
      *  @param node The priority of the listener is based on the draw order of this node.
@@ -89,9 +89,9 @@ public:
     EventListenerCustom* addCustomEventListener(const std::string &eventName, const std::function<void(EventCustom*)>& callback);
 
     /////////////////////////////////////////////
-    
+
     // Removes event listener
-    
+
     /** Remove a listener.
      *
      *  @param listener The specified event listener which needs to be removed.
@@ -110,7 +110,7 @@ public:
      * @param recursive True if remove recursively, the default value is false.
      */
     void removeEventListenersForTarget(Node* target, bool recursive = false);
-    
+
     /** Removes all custom listeners with the same event name.
      *
      * @param customEventName A given event listener name which needs to be removed.
@@ -122,27 +122,27 @@ public:
     void removeAllEventListeners();
 
     /////////////////////////////////////////////
-    
+
     // Pauses / Resumes event listener
-    
+
     /** Pauses all listeners which are associated the specified target.
      *
      * @param target A given target node.
      * @param recursive True if pause recursively, the default value is false.
      */
     void pauseEventListenersForTarget(Node* target, bool recursive = false);
-    
+
     /** Resumes all listeners which are associated the specified target.
      *
      * @param target A given target node.
      * @param recursive True if resume recursively, the default value is false.
      */
     void resumeEventListenersForTarget(Node* target, bool recursive = false);
-    
+
     /////////////////////////////////////////////
-    
+
     /** Sets listener's priority with fixed value.
-     * 
+     *
      * @param listener A given listener.
      * @param fixedPriority The fixed priority value.
      */
@@ -161,7 +161,7 @@ public:
     bool isEnabled() const;
 
     /////////////////////////////////////////////
-    
+
     /** Dispatches the event.
      *  Also removes all EventListeners marked for deletion from the
      *  event dispatcher list.
@@ -178,7 +178,7 @@ public:
     void dispatchCustomEvent(const std::string &eventName, void *optionalUserData = nullptr);
 
     /////////////////////////////////////////////
-    
+
     /** Constructor of EventDispatcher.
      */
     EventDispatcher();
@@ -187,21 +187,21 @@ public:
     ~EventDispatcher();
 
 #if CC_NODE_DEBUG_VERIFY_EVENT_LISTENERS && COCOS2D_DEBUG > 0
-    
+
     /**
      * To help track down event listener issues in debug builds.
      * Verifies that the node has no event listeners associated with it when destroyed.
      */
     void debugCheckNodeHasNoEventListenersOnDestruction(Node* node);
-    
+
 #endif
 
 protected:
     friend class Node;
-    
+
     /** Sets the dirty flag for a node. */
     void setDirtyForNode(Node* node);
-    
+
     /**
      *  The vector to store event listeners with scene graph based priority and fixed priority.
      */
@@ -212,12 +212,12 @@ protected:
         ~EventListenerVector();
         size_t size() const;
         bool empty() const;
-        
+
         void push_back(EventListener* item);
         void clearSceneGraphListeners();
         void clearFixedListeners();
         void clear();
-        
+
         inline std::vector<EventListener*>* getFixedPriorityListeners() const { return _fixedListeners; };
         inline std::vector<EventListener*>* getSceneGraphPriorityListeners() const { return _sceneGraphListeners; };
         inline ssize_t getGt0Index() const { return _gt0Index; };
@@ -227,37 +227,37 @@ protected:
         std::vector<EventListener*>* _sceneGraphListeners;
         ssize_t _gt0Index;
     };
-    
+
     /** Adds an event listener with item
      *  @note if it is dispatching event, the added operation will be delayed to the end of current dispatch
      *  @see forceAddEventListener
      */
     void addEventListener(EventListener* listener);
-    
+
     /** Force adding an event listener
      *  @note force add an event listener which will ignore whether it's in dispatching.
      *  @see addEventListener
      */
     void forceAddEventListener(EventListener* listener);
-    
+
     /** Gets event the listener list for the event listener type. */
     EventListenerVector* getListeners(const EventListener::ListenerID& listenerID);
-    
+
     /** Update dirty flag */
     void updateDirtyFlagForSceneGraph();
-    
+
     /** Removes all listeners with the same event listener ID */
     void removeEventListenersForListenerID(const EventListener::ListenerID& listenerID);
-    
+
     /** Sort event listener */
     void sortEventListeners(const EventListener::ListenerID& listenerID);
-    
+
     /** Sorts the listeners of specified type by scene graph priority */
     void sortEventListenersOfSceneGraphPriority(const EventListener::ListenerID& listenerID, Node* rootNode);
-    
+
     /** Sorts the listeners of specified type by fixed priority */
     void sortEventListenersOfFixedPriority(const EventListener::ListenerID& listenerID);
-    
+
     /** Updates all listeners
      *  1) Removes all listener items that have been marked as 'removed' when dispatching event.
      *  2) Adds all listener items that have been marked as 'added' when dispatching event.
@@ -266,16 +266,16 @@ protected:
 
     /** Touch event needs to be processed different with other events since it needs support ALL_AT_ONCE and ONE_BY_NONE mode. */
     void dispatchTouchEvent(EventTouch* event);
-    
+
     /** Associates node with event listener */
     void associateNodeAndEventListener(Node* node, EventListener* listener);
-    
+
     /** Dissociates node with event listener */
     void dissociateNodeAndEventListener(Node* node, EventListener* listener);
-    
+
     /** Dispatches event to listeners with a specified listener type */
     void dispatchEventToListeners(EventListenerVector* listeners, const std::function<bool(EventListener*)>& onEvent);
-    
+
     /// Priority dirty flag
     enum class DirtyFlag
     {
@@ -284,48 +284,48 @@ protected:
         SCENE_GRAPH_PRIORITY = 1 << 1,
         ALL = FIXED_PRIORITY | SCENE_GRAPH_PRIORITY
     };
-    
+
     /** Sets the dirty flag for a specified listener ID */
     void setDirty(const EventListener::ListenerID& listenerID, DirtyFlag flag);
-    
+
     /** Walks though scene graph to get the draw order for each node, it's called before sorting event listener with scene graph priority */
     void visitTarget(Node* node, bool isRootNode);
 
     /** Remove all listeners in _toRemoveListeners list and cleanup */
     void cleanToRemovedListeners();
-    
+
     /** Listeners map */
     std::unordered_map<EventListener::ListenerID, EventListenerVector*> _listenerMap;
-    
+
     /** The map of dirty flag */
     std::unordered_map<EventListener::ListenerID, DirtyFlag> _priorityDirtyFlagMap;
-    
+
     /** The map of node and event listeners */
     std::unordered_map<Node*, std::vector<EventListener*>*> _nodeListenersMap;
-    
+
     /** The map of node and its event priority */
     std::unordered_map<Node*, int> _nodePriorityMap;
-    
+
     /** key: Global Z Order, value: Sorted Nodes */
     std::unordered_map<float, std::vector<Node*>> _globalZOrderNodeMap;
-    
+
     /** The listeners to be added after dispatching event */
     std::vector<EventListener*> _toAddedListeners;
 
     /** The listeners to be removed after dispatching event */
     std::vector<EventListener*> _toRemovedListeners;
-    
+
     /** The nodes were associated with scene graph based priority listeners */
     std::set<Node*> _dirtyNodes;
-    
+
     /** Whether the dispatcher is dispatching event */
     int _inDispatch;
-    
+
     /** Whether to enable dispatching event */
     bool _isEnabled;
-    
+
     int _nodePriorityIndex;
-    
+
     std::set<std::string> _internalCustomListenerIDs;
 };
 
@@ -336,3 +336,4 @@ NS_CC_END
 /// @}
 
 #endif // __CC_EVENT_DISPATCHER_H__
+

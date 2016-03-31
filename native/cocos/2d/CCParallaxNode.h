@@ -48,7 +48,7 @@ The children will be moved faster / slower than the parent according the paralla
 class CC_DLL ParallaxNode : public Node
 {
 public:
-    /** Create a Parallax node. 
+    /** Create a Parallax node.
      *
      * @return An autoreleased ParallaxNode object.
      */
@@ -116,5 +116,4 @@ private:
 NS_CC_END
 
 #endif //__CCPARALLAX_NODE_H__
-
 

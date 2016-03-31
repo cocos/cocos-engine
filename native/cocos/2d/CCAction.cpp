@@ -122,7 +122,7 @@ bool Speed::initWithAction(ActionInterval *action, float speed)
         log("Speed::initWithAction error: action is nullptr!");
         return false;
     }
-    
+
     action->retain();
     _innerAction = action;
     _speed = speed;
@@ -135,7 +135,7 @@ Speed *Speed::clone() const
     if (_innerAction) {
         return Speed::create(_innerAction->clone(), _speed);
     }
-    
+
     return nullptr;
 }
 
@@ -154,7 +154,7 @@ void Speed::stop()
     if (_innerAction) {
         _innerAction->stop();
     }
-    
+
     Action::stop();
 }
 
@@ -173,7 +173,7 @@ Speed *Speed::reverse() const
     if (_innerAction) {
         return Speed::create(_innerAction->reverse(), _speed);
     }
-    
+
     return nullptr;
 }
 
@@ -203,7 +203,7 @@ Follow* Follow::create(Node *followedNode, const Rect& rect/* = Rect::ZERO*/)
         follow->autorelease();
         return follow;
     }
-    
+
     delete follow;
     return nullptr;
 }
@@ -227,7 +227,7 @@ bool Follow::initWithTarget(Node *followedNode, const Rect& rect/* = Rect::ZERO*
         log("Follow::initWithTarget error: followedNode is nullptr!");
         return false;
     }
- 
+
     followedNode->retain();
     _followedNode = followedNode;
     _worldRect = rect;
@@ -263,7 +263,7 @@ bool Follow::initWithTarget(Node *followedNode, const Rect& rect/* = Rect::ZERO*
             _boundaryFullyCovered = true;
         }
     }
-    
+
     return true;
 }
 
@@ -302,3 +302,4 @@ void Follow::stop()
 }
 
 NS_CC_END
+

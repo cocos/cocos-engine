@@ -86,18 +86,18 @@ public:
     static SpriteBatchNode* create(const std::string& fileImage, ssize_t capacity = DEFAULT_CAPACITY);
 
 
-    /** Returns the TextureAtlas object. 
+    /** Returns the TextureAtlas object.
      *
      * @return The TextureAtlas object.
      */
     inline TextureAtlas* getTextureAtlas() { return _textureAtlas; }
 
-    /** Sets the TextureAtlas object. 
+    /** Sets the TextureAtlas object.
      *
      * @param textureAtlas The TextureAtlas object.
      */
     inline void setTextureAtlas(TextureAtlas* textureAtlas)
-    { 
+    {
         if (textureAtlas != _textureAtlas)
         {
             CC_SAFE_RETAIN(textureAtlas);
@@ -108,7 +108,7 @@ public:
 
     /** Returns an array with the descendants (children, gran children, etc.).
      * This is specific to BatchNode. In order to use the children, use getChildren() instead.
-     * 
+     *
      * @return An array with the descendants (children, gran children, etc.).
      */
     inline const std::vector<Sprite*>& getDescendants() const { return _descendants; }
@@ -123,41 +123,41 @@ public:
      * @warning Removing a child from a SpriteBatchNode is very slow.
      */
     void removeChildAtIndex(ssize_t index, bool doCleanup);
-    
-    /** Append the child. 
+
+    /** Append the child.
      *
      * @param sprite A Sprite.
      */
     void appendChild(Sprite* sprite);
-    
-    /** Remove a sprite from Atlas. 
+
+    /** Remove a sprite from Atlas.
      *
      * @param sprite A Sprite.
      */
     void removeSpriteFromAtlas(Sprite *sprite);
-    
-    /** Rebuild index with a sprite all child. 
+
+    /** Rebuild index with a sprite all child.
      *
      * @param parent The parent sprite.
      * @param index The child index.
      * @return Index.
      */
     ssize_t rebuildIndexInOrder(Sprite *parent, ssize_t index);
-    
+
     /** Get the Max image block index,in all child.
      *
      * @param sprite The parent sprite.
      * @return Index.
      */
     ssize_t highestAtlasIndexInChild(Sprite *sprite);
-    
-    /** Get the Min image block index,in all child. 
+
+    /** Get the Min image block index,in all child.
      *
      * @param sprite The parent sprite.
      * @return Index.
      */
     ssize_t lowestAtlasIndexInChild(Sprite *sprite);
-    
+
     /** Get the nearest index from the sprite in z.
      *
      * @param sprite The parent sprite.
@@ -179,7 +179,7 @@ public:
     * When this function bound into js or lua,the parameter will be changed.
     * In js: var setBlendFunc(var src, var dst).
     * @endcode
-    * @lua NA 
+    * @lua NA
     */
     virtual void setBlendFunc(const BlendFunc &blendFunc) override;
     /**
@@ -191,12 +191,12 @@ public:
      * @js NA
      */
     virtual void visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
-    
+
     using Node::addChild;
     virtual void addChild(Node * child, int zOrder, int tag) override;
     virtual void addChild(Node * child, int zOrder, const std::string &name) override;
     virtual void reorderChild(Node *child, int zOrder) override;
-        
+
     virtual void removeChild(Node *child, bool cleanup) override;
     /**
      * @js NA
@@ -221,7 +221,7 @@ public:
      * It add the sprite to the children and descendants array, but it doesn't update add it to the texture atlas
      */
     SpriteBatchNode * addSpriteWithoutQuad(Sprite *child, int z, int aTag);
-    
+
 CC_CONSTRUCTOR_ACCESS:
     /**
      * @js ctor
@@ -232,7 +232,7 @@ CC_CONSTRUCTOR_ACCESS:
      * @lua NA
      */
     virtual ~SpriteBatchNode();
-    
+
     /** initializes a SpriteBatchNode with a texture2d and capacity of children.
      The capacity will be increased in 33% in runtime if it runs out of space.
      */
@@ -245,13 +245,13 @@ CC_CONSTRUCTOR_ACCESS:
      */
     bool initWithFile(const std::string& fileImage, ssize_t capacity = DEFAULT_CAPACITY);
     virtual bool init() override;
-    
+
 protected:
     /** Updates a quad at a certain index into the texture atlas. The Sprite won't be added into the children array.
      This method should be called only when you are dealing with very big AtlasSprite and when most of the Sprite won't be updated.
      For example: a tile map (TMXMap) or a label with lots of characters (LabelBMFont)
      */
-    void updateQuadFromSprite(Sprite *sprite, ssize_t index);   
+    void updateQuadFromSprite(Sprite *sprite, ssize_t index);
 
     void updateAtlasIndex(Sprite* sprite, ssize_t* curIndex);
     void swap(ssize_t oldIndex, ssize_t newIndex);
@@ -273,3 +273,4 @@ protected:
 NS_CC_END
 
 #endif // __CC_SPRITE_BATCH_NODE_H__
+

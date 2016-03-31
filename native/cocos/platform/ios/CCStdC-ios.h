@@ -50,3 +50,4 @@ THE SOFTWARE.
 
 #endif // CC_PLATFORM_IOS
 #endif  // __CC_STD_C_H__
+

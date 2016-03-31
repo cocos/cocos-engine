@@ -30,7 +30,7 @@ class JSArmatureWrapper: public JSCallbackWrapper {
 public:
     JSArmatureWrapper(){
     };
-    
+
     void movementCallbackFunc(cocostudio::Armature *armature, cocostudio::MovementEventType movementType, const std::string& movementID);
     void frameCallbackFunc(cocostudio::Bone *bone, const std::string& evt, int originFrameIndex, int currentFrameIndex);
     void addArmatureFileInfoAsyncCallbackFunc(float percent);
@@ -51,14 +51,14 @@ void JSArmatureWrapper::movementCallbackFunc(cocostudio::Armature *armature, coc
 
         auto jsArmatureProxy = jsb_get_native_proxy(armature);
         JS::RootedObject jsarmature(cx, jsArmatureProxy->obj);
-        
+
         jsval valArr[3];
         valArr[0] = OBJECT_TO_JSVAL(jsarmature);
         valArr[1] = movementVal;
         valArr[2] = idVal;
-        
+
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-        
+
         JS_CallFunctionValue(cx, thisObj, callback, JS::HandleValueArray::fromMarkedLocation(3, valArr), &retval);
     }
 }
@@ -72,9 +72,9 @@ void JSArmatureWrapper::addArmatureFileInfoAsyncCallbackFunc(float percent)
     if (!callback.isNullOrUndefined())
     {
         jsval percentVal = DOUBLE_TO_JSVAL(percent);
-        
+
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-        
+
         JS_CallFunctionValue(cx, thisObj, callback, JS::HandleValueArray::fromMarkedLocation(1, &percentVal), &retval);
     }
 }
@@ -83,7 +83,7 @@ void JSArmatureWrapper::addArmatureFileInfoAsyncCallbackFunc(float percent)
 void JSArmatureWrapper::frameCallbackFunc(cocostudio::Bone *bone, const std::string& evt, int originFrameIndex, int currentFrameIndex)
 {
     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-    
+
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject thisObj(cx, getJSCallbackThis().toObjectOrNull());
     JS::RootedValue callback(cx, getJSCallbackFunc());
@@ -95,13 +95,13 @@ void JSArmatureWrapper::frameCallbackFunc(cocostudio::Bone *bone, const std::str
         jsval currentIndexVal = INT_TO_JSVAL(currentFrameIndex);
 
         js_proxy_t *boneProxy = js_get_or_create_proxy<cocostudio::Bone>(cx, bone);
-        
+
         jsval valArr[4];
         valArr[0] = OBJECT_TO_JSVAL(boneProxy->obj);
         valArr[1] = nameVal;
         valArr[2] = originIndexVal;
         valArr[3] = currentIndexVal;
-        
+
         JS_CallFunctionValue(cx, thisObj, callback, JS::HandleValueArray::fromMarkedLocation(4, valArr), &retval);
     }
 }
@@ -117,13 +117,13 @@ static bool js_cocos2dx_ArmatureAnimation_setMovementEventCallFunc(JSContext *cx
     if (argc > 0) {
         if (args.get(0).isNull()) {
             cobj->setMovementEventCallFunc(nullptr);
-            
+
             return true;
         }
         else if (argc == 1 || argc == 2) {
             JSArmatureWrapper *tmpObj = new (std::nothrow) JSArmatureWrapper();
             tmpObj->autorelease();
-            
+
             auto userDict = static_cast<JSBinding::DictionaryRef*>(cobj->getUserObject());
             if (nullptr == userDict)
             {
@@ -132,7 +132,7 @@ static bool js_cocos2dx_ArmatureAnimation_setMovementEventCallFunc(JSContext *cx
                 userDict->release();
             }
             userDict->data.insert("moveEvent", tmpObj);
-            
+
             tmpObj->setJSCallbackFunc(args.get(0));
             if (argc == 1)
             {
@@ -143,9 +143,9 @@ static bool js_cocos2dx_ArmatureAnimation_setMovementEventCallFunc(JSContext *cx
             {
                 tmpObj->setJSCallbackThis(args.get(1));
             }
-            
+
             cobj->setMovementEventCallFunc(CC_CALLBACK_0(JSArmatureWrapper::movementCallbackFunc, tmpObj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-            
+
             return true;
         }
     }
@@ -160,17 +160,17 @@ static bool js_cocos2dx_ArmatureAnimation_setFrameEventCallFunc(JSContext *cx, u
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     cocostudio::ArmatureAnimation* cobj = (cocostudio::ArmatureAnimation *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    
+
     if (argc > 0) {
         if (args.get(0).isNull()) {
             cobj->setFrameEventCallFunc(nullptr);
-            
+
             return true;
         }
         else if (argc == 1 || argc == 2) {
             JSArmatureWrapper *tmpObj = new (std::nothrow) JSArmatureWrapper();
             tmpObj->autorelease();
-            
+
             auto dict = static_cast<JSBinding::DictionaryRef*>(cobj->getUserObject());
             if (nullptr == dict)
             {
@@ -179,7 +179,7 @@ static bool js_cocos2dx_ArmatureAnimation_setFrameEventCallFunc(JSContext *cx, u
                 dict->release();
             }
             dict->data.insert("frameEvent", tmpObj);
-            
+
             tmpObj->setJSCallbackFunc(args.get(0));
             if (argc == 1)
             {
@@ -190,13 +190,13 @@ static bool js_cocos2dx_ArmatureAnimation_setFrameEventCallFunc(JSContext *cx, u
             {
                 tmpObj->setJSCallbackThis(args.get(1));
             }
-            
+
             cobj->setFrameEventCallFunc(CC_CALLBACK_0(JSArmatureWrapper::frameCallbackFunc, tmpObj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-            
+
             return true;
         }
     }
-    
+
     JS_ReportError(cx, "Invalid number of arguments");
     return false;
 }
@@ -395,7 +395,7 @@ bool js_get_BaseData_x(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS:
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->x);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -421,7 +421,7 @@ bool js_get_BaseData_y(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS:
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->y);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -447,7 +447,7 @@ bool js_get_BaseData_zOrder(JSContext *cx, JS::HandleObject obj, JS::HandleId id
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->zOrder);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -473,7 +473,7 @@ bool js_get_BaseData_skewX(JSContext *cx, JS::HandleObject obj, JS::HandleId id,
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->skewX);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -499,7 +499,7 @@ bool js_get_BaseData_skewY(JSContext *cx, JS::HandleObject obj, JS::HandleId id,
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->skewY);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -525,7 +525,7 @@ bool js_get_BaseData_scaleX(JSContext *cx, JS::HandleObject obj, JS::HandleId id
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->scaleX);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -551,7 +551,7 @@ bool js_get_BaseData_scaleY(JSContext *cx, JS::HandleObject obj, JS::HandleId id
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->scaleY);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -577,7 +577,7 @@ bool js_get_BaseData_tweenRotate(JSContext *cx, JS::HandleObject obj, JS::Handle
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->tweenRotate);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -603,7 +603,7 @@ bool js_get_BaseData_isUseColorInfo(JSContext *cx, JS::HandleObject obj, JS::Han
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = BOOLEAN_TO_JSVAL(cobj->isUseColorInfo);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -629,7 +629,7 @@ bool js_get_BaseData_a(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS:
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->a);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -655,7 +655,7 @@ bool js_get_BaseData_r(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS:
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->r);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -681,7 +681,7 @@ bool js_get_BaseData_g(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS:
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->g);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -707,7 +707,7 @@ bool js_get_BaseData_b(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS:
     cocostudio::BaseData* cobj = (cocostudio::BaseData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->b);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -735,7 +735,7 @@ bool js_get_AnimationData_name(JSContext *cx, JS::HandleObject obj, JS::HandleId
     cocostudio::AnimationData* cobj = (cocostudio::AnimationData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = std_string_to_jsval(cx, cobj->name);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -765,7 +765,7 @@ bool js_get_AnimationData_movementNames(JSContext *cx, JS::HandleObject obj, JS:
     cocostudio::AnimationData* cobj = (cocostudio::AnimationData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = std_vector_string_to_jsval(cx, cobj->movementNames);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -797,11 +797,11 @@ bool js_get_AnimationData_movementDataDic(JSContext *cx, JS::HandleObject obj, J
     if (cobj) {
         cocos2d::Map<std::string, cocostudio::MovementData*> dic = cobj->movementDataDic;
         JS::RootedObject jsRet(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
-        
+
         for (auto iter = dic.begin(); iter != dic.end(); ++iter)
         {
             JS::RootedValue dictElement(cx);
-            
+
             std::string key = iter->first;
             cocostudio::MovementData* movementData = iter->second;
             do {
@@ -814,14 +814,14 @@ bool js_get_AnimationData_movementDataDic(JSContext *cx, JS::HandleObject obj, J
                     return false;
                 }
             } while (0);
-            
+
             if (!key.empty())
             {
                 JS_SetProperty(cx, jsRet, key.c_str(), dictElement);
             }
         }
         jsval ret = OBJECT_TO_JSVAL(jsRet);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -844,7 +844,7 @@ bool js_set_AnimationData_movementDataDic(JSContext *cx, JS::HandleObject obj, J
         JSB_PRECONDITION2(tmp, cx, false, "js_set_AnimationData_movementDataDic: the js value is not an object.");
 
         cocos2d::Map<std::string, cocostudio::MovementData*> dict;
-        
+
         JS::RootedObject it(cx, JS_NewPropertyIterator(cx, tmp));
         while (true)
         {
@@ -860,9 +860,9 @@ bool js_set_AnimationData_movementDataDic(JSContext *cx, JS::HandleObject obj, J
             if (!key.isString()) {
                 continue; // ignore integer properties
             }
-            
+
             JSStringWrapper keyWrapper(key.toString(), cx);
-            
+
             JS::RootedValue value(cx);
             JS_GetPropertyById(cx, tmp, idp, &value);
             cocostudio::MovementData* movementData;
@@ -877,7 +877,7 @@ bool js_set_AnimationData_movementDataDic(JSContext *cx, JS::HandleObject obj, J
             } while (0);
             JSB_PRECONDITION2(ok, cx, false, "js_set_AnimationData_movementDataDic : Error processing arguments.");
         }
-        
+
         cobj->movementDataDic.clear();
         cobj->movementDataDic = dict;
         return true;
@@ -892,7 +892,7 @@ bool js_get_MovementData_name(JSContext *cx, JS::HandleObject obj, JS::HandleId 
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = std_string_to_jsval(cx, cobj->name);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -922,7 +922,7 @@ bool js_get_MovementData_duration(JSContext *cx, JS::HandleObject obj, JS::Handl
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->duration);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -948,7 +948,7 @@ bool js_get_MovementData_scale(JSContext *cx, JS::HandleObject obj, JS::HandleId
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->scale);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -974,7 +974,7 @@ bool js_get_MovementData_durationTo(JSContext *cx, JS::HandleObject obj, JS::Han
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->durationTo);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1000,7 +1000,7 @@ bool js_get_MovementData_durationTween(JSContext *cx, JS::HandleObject obj, JS::
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->durationTween);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1026,7 +1026,7 @@ bool js_get_MovementData_loop(JSContext *cx, JS::HandleObject obj, JS::HandleId 
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = BOOLEAN_TO_JSVAL(cobj->loop);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1052,7 +1052,7 @@ bool js_get_MovementData_tweenEasing(JSContext *cx, JS::HandleObject obj, JS::Ha
     cocostudio::MovementData* cobj = (cocostudio::MovementData*)JS_GetPrivate(obj);
     if (cobj) {
         jsval ret = INT_TO_JSVAL(cobj->tweenEasing);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1091,7 +1091,7 @@ bool js_get_ContourData_vertexList(JSContext *cx, JS::HandleObject obj, JS::Hand
         {
             JS::RootedValue arrElement(cx);
             arrElement = vector2_to_jsval(cx, vec2);
-            
+
             if (!JS_SetElement(cx, jsretArr, i, arrElement)) {
                 break;
             }
@@ -1118,12 +1118,12 @@ bool js_set_ContourData_vertexList(JSContext *cx, JS::HandleObject obj, JS::Hand
         JS::RootedObject jsListObj(cx);
         jsListObj = vp.get().toObjectOrNull();
         JSB_PRECONDITION3(jsListObj && JS_IsArrayObject(cx, jsListObj),  cx, false, "Object must be an array");
-        
+
         std::vector<cocos2d::Vec2> list;
         uint32_t len = 0;
         JS_GetArrayLength(cx, jsListObj, &len);
         bool ok;
-        
+
         for (uint32_t i=0; i < len; i++)
         {
             JS::RootedValue value(cx);
@@ -1137,7 +1137,7 @@ bool js_set_ContourData_vertexList(JSContext *cx, JS::HandleObject obj, JS::Hand
                 }
             }
         }
-        
+
         cobj->vertexList = list;
         return true;
     }
@@ -1164,7 +1164,7 @@ bool js_get_TextureData_contourDataList(JSContext *cx, JS::HandleObject obj, JS:
             auto contourDataProxy = jsb_get_native_proxy(contourData);
             JS::RootedObject contourObj(cx, contourDataProxy->obj);
             arrElement = OBJECT_TO_JSVAL(contourObj);
-            
+
             if (!JS_SetElement(cx, jsretArr, i, arrElement)) {
                 break;
             }
@@ -1191,12 +1191,12 @@ bool js_set_TextureData_contourDataList(JSContext *cx, JS::HandleObject obj, JS:
         JS::RootedObject jsListObj(cx);
         jsListObj = vp.get().toObjectOrNull();
         JSB_PRECONDITION3(jsListObj && JS_IsArrayObject(cx, jsListObj),  cx, false, "Object must be an array");
-        
+
         cocos2d::Vector<cocostudio::ContourData *> list;
         uint32_t len = 0;
         JS_GetArrayLength(cx, jsListObj, &len);
         bool ok;
-        
+
         for (uint32_t i=0; i < len; i++)
         {
             JS::RootedValue value(cx);
@@ -1212,11 +1212,11 @@ bool js_set_TextureData_contourDataList(JSContext *cx, JS::HandleObject obj, JS:
                     JSB_PRECONDITION2(contourData, cx, false, "Invalid Native Object");
                 } while (0);
                 JSB_PRECONDITION2(ok, cx, false, "js_set_TextureData_contourDataList : Error processing arguments");
-                
+
                 list.pushBack(contourData);
             }
         }
-        
+
         cobj->contourDataList = list;
         return true;
     }
@@ -1229,15 +1229,15 @@ bool js_get_TextureData_width(JSContext *cx, JS::HandleObject obj, JS::HandleId 
     JS::RootedObject jsobj(cx, obj);
     js_proxy_t *proxy = jsb_get_js_proxy(jsobj);
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
-    
+
     //struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(obj);
     //cocostudio::TextureData* cobj = (cocostudio::TextureData*)proxy->handle;
-    
+
     //jsval argv;
     //cocostudio::TextureData* cobj = (cocostudio::TextureData*)JS_GetInstancePrivate(cx, obj.get(), jsb_cocostudio_TextureData_class, &argv);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->width);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1269,7 +1269,7 @@ bool js_get_TextureData_height(JSContext *cx, JS::HandleObject obj, JS::HandleId
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->height);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1301,7 +1301,7 @@ bool js_get_TextureData_pivotX(JSContext *cx, JS::HandleObject obj, JS::HandleId
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->pivotX);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1333,7 +1333,7 @@ bool js_get_TextureData_pivotY(JSContext *cx, JS::HandleObject obj, JS::HandleId
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
     if (cobj) {
         jsval ret = DOUBLE_TO_JSVAL(cobj->pivotY);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1365,7 +1365,7 @@ bool js_get_TextureData_name(JSContext *cx, JS::HandleObject obj, JS::HandleId i
     cocostudio::TextureData* cobj = (cocostudio::TextureData*)(proxy ? proxy->ptr : NULL);
     if (cobj) {
         jsval ret = std_string_to_jsval(cx, cobj->name);
-        
+
         if (ret != JSVAL_NULL)
         {
             vp.set(ret);
@@ -1413,10 +1413,10 @@ void register_all_cocos2dx_studio_manual(JSContext* cx, JS::HandleObject global)
     proto.set(jsb_cocostudio_ArmatureAnimation_prototype);
     JS_DefineFunction(cx, proto, "setMovementEventCallFunc", js_cocos2dx_ArmatureAnimation_setMovementEventCallFunc, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "setFrameEventCallFunc", js_cocos2dx_ArmatureAnimation_setFrameEventCallFunc, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    
+
     proto.set(jsb_cocostudio_ArmatureDataManager_prototype);
     JS_DefineFunction(cx, proto, "addArmatureFileInfoAsync", jsb_Animation_addArmatureFileInfoAsyncCallFunc, 3, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    
+
     proto.set(jsb_cocostudio_ActionManagerEx_prototype);
     JS_DefineFunction(cx, proto, "initWithDictionaryEx", js_cocos2dx_studio_ActionManagerEx_initWithDictionaryEx, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE);
 
@@ -1425,20 +1425,20 @@ void register_all_cocos2dx_studio_manual(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, frame, "getEasingParams", js_cocos2dx_studio_Frame_getEasingParams, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE);
     JS::RootedObject baseData(cx, jsb_cocostudio_BaseData_prototype);
     JS_DefineProperty(cx, baseData, "x", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_x, js_set_BaseData_x);
-    JS_DefineProperty(cx, baseData, "y", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_y, js_set_BaseData_y); 
-    JS_DefineProperty(cx, baseData, "zOrder", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_zOrder, js_set_BaseData_zOrder); 
-    JS_DefineProperty(cx, baseData, "skewX", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_skewX, js_set_BaseData_skewX); 
-    JS_DefineProperty(cx, baseData, "skewY", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_skewY, js_set_BaseData_skewY); 
-    JS_DefineProperty(cx, baseData, "scaleX", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_scaleX, js_set_BaseData_scaleX); 
-    JS_DefineProperty(cx, baseData, "scaleY", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_scaleY, js_set_BaseData_scaleY); 
-    JS_DefineProperty(cx, baseData, "tweenRotate", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_tweenRotate, js_set_BaseData_tweenRotate); 
-    JS_DefineProperty(cx, baseData, "isUseColorInfo", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_isUseColorInfo, js_set_BaseData_isUseColorInfo); 
+    JS_DefineProperty(cx, baseData, "y", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_y, js_set_BaseData_y);
+    JS_DefineProperty(cx, baseData, "zOrder", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_zOrder, js_set_BaseData_zOrder);
+    JS_DefineProperty(cx, baseData, "skewX", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_skewX, js_set_BaseData_skewX);
+    JS_DefineProperty(cx, baseData, "skewY", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_skewY, js_set_BaseData_skewY);
+    JS_DefineProperty(cx, baseData, "scaleX", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_scaleX, js_set_BaseData_scaleX);
+    JS_DefineProperty(cx, baseData, "scaleY", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_scaleY, js_set_BaseData_scaleY);
+    JS_DefineProperty(cx, baseData, "tweenRotate", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_tweenRotate, js_set_BaseData_tweenRotate);
+    JS_DefineProperty(cx, baseData, "isUseColorInfo", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_isUseColorInfo, js_set_BaseData_isUseColorInfo);
     JS_DefineProperty(cx, baseData, "a", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_a, js_set_BaseData_a);
     JS_DefineProperty(cx, baseData, "r", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_r, js_set_BaseData_r);
     JS_DefineProperty(cx, baseData, "g", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_g, js_set_BaseData_g);
-    JS_DefineProperty(cx, baseData, "b", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_b, js_set_BaseData_b); 
+    JS_DefineProperty(cx, baseData, "b", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_BaseData_b, js_set_BaseData_b);
 
-    
+
     JS::RootedObject animationData(cx, jsb_cocostudio_AnimationData_prototype);
     JS_DefineProperty(cx, animationData, "name", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_AnimationData_name, js_set_AnimationData_name);
     JS_DefineProperty(cx, animationData, "movementNames", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_AnimationData_movementNames, js_set_AnimationData_movementNames);
@@ -1455,7 +1455,7 @@ void register_all_cocos2dx_studio_manual(JSContext* cx, JS::HandleObject global)
 
     proto.set(jsb_cocostudio_ContourData_prototype);
     JS_DefineProperty(cx, proto, "vertextList", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_ContourData_vertexList, js_set_ContourData_vertexList);
-    
+
     JS::RootedObject textureData(cx, jsb_cocostudio_TextureData_prototype);
     JS_DefineProperty(cx, textureData, "contourDataList", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_TextureData_contourDataList, js_set_TextureData_contourDataList);
     JS_DefineProperty(cx, textureData, "name", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_TextureData_name, js_set_TextureData_name);
@@ -1464,3 +1464,4 @@ void register_all_cocos2dx_studio_manual(JSContext* cx, JS::HandleObject global)
     JS_DefineProperty(cx, textureData, "pivotX", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_TextureData_pivotX, js_set_TextureData_pivotX);
     JS_DefineProperty(cx, textureData, "pivotY", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED, js_get_TextureData_pivotY, js_set_TextureData_pivotY);
 }
+

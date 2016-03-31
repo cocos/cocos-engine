@@ -145,12 +145,12 @@ namespace cocos2d {
         size_t unicodeCharLength = env->GetStringLength(srcjStr);
         const std::u16string unicodeStr((const char16_t *)unicodeChar, unicodeCharLength);
         bool flag = cocos2d::StringUtils::UTF16ToUTF8(unicodeStr, utf8Str);
-    
+
         if (ret)
         {
             *ret = flag;
         }
-    
+
         if (!flag)
         {
             utf8Str = "";
@@ -163,12 +163,12 @@ namespace cocos2d {
     {
         std::u16string utf16Str;
         bool flag = cocos2d::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
-    
+
         if (ret)
         {
             *ret = flag;
         }
-    
+
         if(!flag)
         {
             utf16Str.clear();
@@ -322,3 +322,4 @@ namespace cocos2d {
     }
 
 } //namespace cocos2d
+

@@ -48,7 +48,7 @@ class Texture2D;
 
 
  You can modify the frame of a Sprite by doing:
- 
+
  @code
     SpriteFrame* frame = SpriteFrame::createWithTexture(texture, rect);
     sprite->setSpriteFrame(frame);
@@ -66,7 +66,7 @@ public:
      * @return An autoreleased SpriteFrame object.
      */
     static SpriteFrame* create(const std::string& filename, const Rect& rect);
-    
+
     /** Create a SpriteFrame with a texture filename, rect, rotated, offset and originalSize in pixels.
      The originalSize is the size in pixels of the frame before being trimmed.
      *
@@ -78,7 +78,7 @@ public:
      * @return An autoreleased SpriteFrame object.
      */
     static SpriteFrame* create(const std::string& filename, const Rect& rect, bool rotated, const Vec2& offset, const Size& originalSize);
-    
+
     /** Create a SpriteFrame with a texture, rect in points.
      It is assumed that the frame was not trimmed.
      * @param pobTexture The texture pointer.
@@ -133,12 +133,12 @@ public:
     void setRect(const Rect& rect);
 
     /** Get offset of the frame.
-     * 
+     *
      * @return The offset of the sprite frame, in pixels.
      */
     const Vec2& getOffsetInPixels() const;
     /** Set offset of the frame.
-     * 
+     *
      * @param offsetInPixels The offset of the sprite frame, in pixels.
      */
     void setOffsetInPixels(const Vec2& offsetInPixels);
@@ -189,36 +189,36 @@ public:
 
     // Overrides
     virtual SpriteFrame *clone() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     /**
      * @lua NA
      */
     SpriteFrame();
-    
+
     /**
      * @lua NA
      */
     virtual ~SpriteFrame();
-    
+
     /** Initializes a SpriteFrame with a texture, rect in points.
      It is assumed that the frame was not trimmed.
      */
     bool initWithTexture(Texture2D* pobTexture, const Rect& rect);
-    
+
     /** Initializes a SpriteFrame with a texture filename, rect in points;
      It is assumed that the frame was not trimmed.
      */
     bool initWithTextureFilename(const std::string& filename, const Rect& rect);
-    
+
     /** Initializes a SpriteFrame with a texture, rect, rotated, offset and originalSize in pixels.
      The originalSize is the size in points of the frame before being trimmed.
      */
     bool initWithTexture(Texture2D* pobTexture, const Rect& rect, bool rotated, const Vec2& offset, const Size& originalSize);
-    
+
     /** Initializes a SpriteFrame with a texture, rect, rotated, offset and originalSize in pixels.
      The originalSize is the size in pixels of the frame before being trimmed.
-     
+
      @since v1.1
      */
     bool initWithTextureFilename(const std::string& filename, const Rect& rect, bool rotated, const Vec2& offset, const Size& originalSize);
@@ -241,3 +241,4 @@ protected:
 NS_CC_END
 
 #endif //__SPRITE_CCSPRITE_FRAME_H__
+

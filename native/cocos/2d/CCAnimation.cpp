@@ -3,7 +3,7 @@ Copyright (c) 2008-2010 Ricardo Quesada
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2011      Zynga Inc.
 CopyRight (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -62,7 +62,7 @@ bool AnimationFrame::initWithSpriteFrame(SpriteFrame* spriteFrame, float delayUn
 }
 
 AnimationFrame::~AnimationFrame()
-{    
+{
     CCLOGINFO( "deallocing AnimationFrame: %p", this);
 
     CC_SAFE_RELEASE(_spriteFrame);
@@ -89,7 +89,7 @@ Animation* Animation::create()
     animation->autorelease();
 
     return animation;
-} 
+}
 
 Animation* Animation::createWithSpriteFrames(const Vector<SpriteFrame*>& frames, float delay/* = 0.0f*/, unsigned int loops/* = 1*/)
 {
@@ -112,7 +112,7 @@ bool Animation::init()
 {
     _loops = 1;
     _delayPerUnit = 0.0f;
-    
+
     return true;
 }
 
@@ -191,7 +191,7 @@ float Animation::getDuration(void) const
 
 Animation* Animation::clone() const
 {
-    // no copy constructor    
+    // no copy constructor
     auto a = new (std::nothrow) Animation();
     a->initWithAnimationFrames(_frames, _delayPerUnit, _loops);
     a->setRestoreOriginalFrame(_restoreOriginalFrame);
@@ -200,3 +200,4 @@ Animation* Animation::clone() const
 }
 
 NS_CC_END
+

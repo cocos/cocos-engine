@@ -60,9 +60,9 @@ typedef void (Ref::*SEL_SelectedStateEvent)(Ref*,CheckBoxEventType);
  */
 class CC_GUI_DLL CheckBox : public AbstractCheckButton
 {
-    
+
     DECLARE_CLASS_GUI_INFO
-    
+
 public:
     /**
      * CheckBox event type, currently only "selected" and "unselected" event are cared.
@@ -72,23 +72,23 @@ public:
         SELECTED,
         UNSELECTED
     };
-    
+
     /**
      * A callback which will be called after certain CheckBox event issue.
      * @see `CheckBox::EventType`
      */
     typedef std::function<void(Ref*,CheckBox::EventType)> ccCheckBoxCallback;
-    
+
     /**
      * Default constructor.
-     * 
+     *
      * @lua new
      */
     CheckBox();
 
     /**
      * Default destructor.
-     * 
+     *
      * @lua NA
      */
     virtual ~CheckBox();
@@ -97,7 +97,7 @@ public:
      * Create and return a empty CheckBox instance pointer.
      */
     static CheckBox* create();
-    
+
     /**
      * Create an checkbox with various images.
      *
@@ -116,7 +116,7 @@ public:
                             const std::string& backGroundDisabled,
                             const std::string& frontCrossDisabled,
                             TextureResType texType = TextureResType::LOCAL);
-    
+
     /**
      * Another factory method to create a CheckBox instance.
      * This method uses less resource to create a CheckBox.
@@ -128,7 +128,7 @@ public:
     static CheckBox* create(const std::string& backGround,
                             const std::string& cross,
                             TextureResType texType = TextureResType::LOCAL);
-    
+
     /**Add a callback function which would be called when checkbox is selected or unselected.
      *@deprecated use `addEventListener(const ccCheckBoxCallback&)` instead
      *@param target A pointer type in Ref*.
@@ -145,19 +145,19 @@ public:
 
     //override functions
     virtual std::string getDescription() const override;
-    
+
     virtual void onTouchEnded(Touch *touch, Event *unusedEvent) override;
 protected:
-    
+
     virtual void dispatchSelectChangedEvent(bool selected) override;
-    
+
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
-    
+
 protected:
     //if you use the old event callback, it will retain the _checkBoxEventListener
     Ref*       _checkBoxEventListener;
-    
+
 #if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #elif _MSC_VER >= 1400 //vs 2005 or higher
@@ -170,7 +170,7 @@ protected:
 #elif _MSC_VER >= 1400 //vs 2005 or higher
 #pragma warning (pop)
 #endif
-    
+
     ccCheckBoxCallback _checkBoxEventCallback;
 
 };
@@ -182,3 +182,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__CocoGUI__CheckBox__) */
+

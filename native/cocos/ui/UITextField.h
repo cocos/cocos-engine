@@ -55,9 +55,9 @@ public:
      * Default destructor
      */
     ~UICCTextField();
-    
+
     virtual void onEnter() override;
-    
+
     /**
      * Create a UICCTextField instance with a placeholder, a fontName and a fontSize.
      *@param placeholder Placeholder in string.
@@ -68,7 +68,7 @@ public:
     static UICCTextField* create(const std::string& placeholder,
                                  const std::string& fontName,
                                  float fontSize);
-    
+
     //override functions
     virtual bool onTextFieldAttachWithIME(TextFieldTTF *pSender) override;
     virtual bool onTextFieldDetachWithIME(TextFieldTTF * pSender) override;
@@ -80,7 +80,7 @@ public:
                                            size_t nLen) override;
     void insertText(const char* text, size_t len) override;
     void deleteBackward() override;
-    
+
     /**
      * Open up the IME.
      */
@@ -90,7 +90,7 @@ public:
      * Close the IME.
      */
     void closeIME();
-    
+
     /**
      * Toggle enable max length limitation.
      *@param enable True to enable max length, false otherwise.
@@ -120,29 +120,29 @@ public:
      *@return Total inputed character count.
      */
     int getCharCount()const;
-    
-    
+
+
     /**
      * @brief Toggle password input mode.
      *
      * @param enable True if enable password input, false otherwise.
      */
     void setPasswordEnabled(bool enable);
-    
+
     /**
      * @brief Query whether password input mode is enabled or not.
      *
      * @return True if password input is enabled, false otherwise.
      */
     bool isPasswordEnabled()const;
-    
+
     /**
      * @brief Change password style text.
      *
      * @param styleText The styleText for password mask, the default value is "*".
      */
     void setPasswordStyleText(const std::string& styleText);
-    
+
     /**
      * @brief Set the password text content.
      *
@@ -150,56 +150,56 @@ public:
      */
     void setPasswordText(const std::string& text);
 
-    
+
     /**
      * @brief Toggle attach with IME.
      *
      * @param attach True if attach with IME, false otherwise.
      */
     void setAttachWithIME(bool attach);
-    
+
     /**
      * @brief Query whether the IME is attached or not.
      *
      * @return True if IME is attached, false otherwise.
      */
     bool getAttachWithIME()const;
-    
+
     /**
      * @brief Toggle detach with IME.
      *
      * @param detach True if detach with IME, false otherwise.
      */
     void setDetachWithIME(bool detach);
-    
+
     /**
      * @brief Query whether IME is detached or not.
      *
      * @return True if IME is detached, false otherwise.
      */
     bool getDetachWithIME()const;
-    
+
     /**
      * @brief Toggle enable text insert.
      *
      * @param insert True if enable insert text, false otherwise.
      */
     void setInsertText(bool insert);
-    
+
     /**
      * @brief Query whether insert text is enabled or not.
      *
      * @return True if insert text is enabled, false otherwise.
      */
     bool getInsertText()const;
-     
+
     /**
      * @brief Toggle enable delete backward.
      *
      * @param deleteBackward True if enable delete backward, false otherwise.
      */
     void setDeleteBackward(bool deleteBackward);
-    
+
     /**
      * @brief Query whether delete backward is enabled   or not.
      *
@@ -245,9 +245,9 @@ typedef void (Ref::*SEL_TextFieldEvent)(Ref*, TextFiledEventType);
  */
 class CC_GUI_DLL TextField : public Widget
 {
-    
+
     DECLARE_CLASS_GUI_INFO
-    
+
 public:
     /**
      * TextField event type.
@@ -263,26 +263,26 @@ public:
      * A callback which would be called when a TextField event happens.
      */
     typedef std::function<void(Ref*, EventType)> ccTextFieldCallback;
-    
-    
+
+
     /**
      * @brief Default constructor.
      *
      */
     TextField();
-    
+
     /**
      * @brief Default destructor.
      */
     virtual ~TextField();
-    
+
     /**
      * @brief Create an empty TextField.
      *
      * @return A TextField instance.
      */
     static TextField* create();
-    
+
     /**
      * @brief Create a TextField with a placeholder, a font name and a font size.
      *
@@ -294,171 +294,171 @@ public:
     static TextField* create(const std::string& placeholder,
                              const std::string& fontName,
                              int fontSize);
-    
+
     /**
      * @brief Set the touch size
      * The touch size is used for @see `hitTest`.
      * @param size A delimitation zone.
      */
     void setTouchSize(const Size &size);
-    
+
     /**
      * @brief Get current touch size of TextField.
      *
      * @return The TextField's touch size.
      */
     Size getTouchSize()const;
-    
+
     /**
      * @brief Toggle enable touch area.
      *
      * @param enable True if enable touch area, false otherwise.
      */
     void setTouchAreaEnabled(bool enable);
-    
+
     virtual bool hitTest(const Vec2 &pt) const override;
-    
-    
+
+
     /**
      * @brief Set placeholder of TextField.
      *
      * @param value The string value of placeholder.
      */
     void setPlaceHolder(const std::string& value);
-    
+
     /**
      * @brief Get the placeholder of TextField.
      *
      * @return A placeholder string.
      */
     const std::string& getPlaceHolder()const;
-    
+
     /**
      * @brief Query the placeholder string color.
      *
      * @return The color of placeholder.
      */
     const Color4B& getPlaceHolderColor()const;
-    
+
     /**
      * @brief Change the placeholder color.
      *
      * @param color A color value in `Color3B`.
      */
     void setPlaceHolderColor(const Color3B& color);
-    
+
     /**
      * @brief Change the placeholder color.
      *
      * @param color A color value in `Color4B`.
      */
     void setPlaceHolderColor(const Color4B& color);
-    
+
     /**
      * @brief Query the text string color.
      *
      * @return The color of the text.
      */
     const Color4B& getTextColor()const;
-    
+
     /**
      * @brief Change the text color.
      *
      * @param textColor The color value in `Color4B`.
      */
     void setTextColor(const Color4B& textColor);
-     
+
     /**
      * @brief Change font size of TextField.
      *
      * @param size The integer font size.
      */
     void setFontSize(int size);
-    
+
     /**
      * @brief Query the font size.
      *
      * @return The integer font size.
      */
     int getFontSize()const;
-    
+
     /**
      * @brief Change the font name of TextField.
      *
      * @param name The font name string.
      */
     void setFontName(const std::string& name);
-    
+
     /**
      * @brief Query the TextField's font name.
      *
      * @return The font name string.
      */
     const std::string& getFontName()const;
-    
-    
+
+
     /**
      * @brief Detach the IME.
      */
     virtual void didNotSelectSelf();
-    
+
     /**
      *Change content of TextField.
      *@param text A string content.
      */
     void setString(const std::string& text);
-    
+
     /**
      *Query the content of TextField.
      *@return The string value of TextField.
      */
     const std::string& getString()const;
-    
+
     virtual bool onTouchBegan(Touch *touch, Event *unusedEvent) override;
-    
-    
+
+
     /**
      * @brief Toggle maximize length enable
      *
      * @param enable True if enable maximize length, false otherwise.
      */
     void setMaxLengthEnabled(bool enable);
-    
+
     /**
      * @brief Query whether max length is enabled or not.
      *
      * @return True if maximize length is enabled, false otherwise.
      */
     bool isMaxLengthEnabled()const;
-    
+
     /**
      * @brief Change maximize input length limitation.
      *
      * @param length A character count in integer.
      */
     void setMaxLength(int length);
-    
+
     /**
      * @brief Query maximize input length of TextField.
      *
      * @return The integer value of maximize input length.
      */
     int getMaxLength()const;
-    
+
     /**
      * @brief Query the input string length.
      *
      * @return A integer length value.
      */
     int getStringLength() const;
-    
+
     /**
      * @brief Toggle enable password input mode.
      *
      * @param enable True if enable password input mode, false otherwise.
      */
     void setPasswordEnabled(bool enable);
-    
+
     /**
      * @brief Query whether password is enabled or not.
      *
@@ -472,73 +472,73 @@ public:
      * @param styleText The styleText for password mask, the default value is "*".
      */
     void setPasswordStyleText(const char* styleText);
-    
+
     /**
      * @brief Query the password style text.
      *
      * @return A password style text.
      */
     const char* getPasswordStyleText()const;
-    
+
     virtual void update(float dt) override;
-    
+
     /**
      * @brief Query whether the IME is attached or not.
      *
      * @return True if IME is attached, false otherwise.
      */
     bool getAttachWithIME()const;
-    
+
     /**
      * @brief Toggle attach with IME.
      *
      * @param attach True if attach with IME, false otherwise.
      */
     void setAttachWithIME(bool attach);
-    
+
     /**
      * @brief Query whether IME is detached or not.
      *
      * @return True if IME is detached, false otherwise.
      */
     bool getDetachWithIME()const;
-    
+
     /**
      * @brief Toggle detach with IME.
      *
      * @param detach True if detach with IME, false otherwise.
      */
     void setDetachWithIME(bool detach);
-    
-    
+
+
     /**
      * @brief Whether it is ready to get the inserted text or not.
      *
      * @return True if the insert text is ready, false otherwise.
      */
     bool getInsertText()const;
-    
+
     /**
      * @brief Toggle enable insert text mode
      *
      * @param insertText True if enable insert text, false otherwise.
      */
     void setInsertText(bool insertText);
-     
+
     /**
      * @brief Whether it is ready to delete backward in TextField.
      *
      * @return True is the delete backward is enabled, false otherwise.
      */
     bool getDeleteBackward()const;
-    
+
     /**
      * @brief Toggle enable delete backward mode.
      *
      * @param deleteBackward True is delete backward is enabled, false otherwise.
      */
     void setDeleteBackward(bool deleteBackward);
-    
+
     /**
      * Add a event listener to TextField, when some predefined event happens, the callback will be called.
      *@deprecated Use @see `addEventListener` instead.
@@ -551,12 +551,12 @@ public:
      *@param callback A callback function with type of `ccTextFieldCallback`.
      */
     void addEventListener(const ccTextFieldCallback& callback);
-    
+
     /**
      * Returns the "class name" of widget.
      */
     virtual std::string getDescription() const override;
-    
+
     /**
      * @brief Get the renderer size in auto mode.
      *
@@ -567,20 +567,20 @@ public:
     virtual Size getVirtualRendererSize() const override;
     virtual Node* getVirtualRenderer() override;
     virtual void onEnter() override;
-    
+
     /**
      * @brief Attach the IME for inputing.
      *
      */
     void attachWithIME();
-    
+
     /**
      * @brief Change the text area size.
      *
      * @param size A delimitation zone.
      */
     void setTextAreaSize(const Size &size);
-    
+
     /**
      * @brief Change horizontal text alignment.
      *
@@ -594,7 +594,7 @@ public:
      * @return The horizontal alignment
      */
     TextHAlignment getTextHorizontalAlignment() const;
-    
+
     /**
      * @brief Change the vertical text alignment.
      *
@@ -608,10 +608,10 @@ public:
      * @return The horizontal alignment
      */
     TextVAlignment getTextVerticalAlignment() const;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
-    
+
 protected:
     virtual void initRenderer() override;
     void attachWithIMEEvent();
@@ -619,9 +619,9 @@ protected:
     void insertTextEvent();
     void deleteBackwardEvent();
     virtual void onSizeChanged() override;
-  
+
     void textfieldRendererScaleChangedWithSize();
-    
+
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
     virtual void adaptRenderers() override;
@@ -631,7 +631,7 @@ protected:
     float _touchWidth;
     float _touchHeight;
     bool _useTouchArea;
-    
+
     Ref* _textFieldEventListener;
 #if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -646,7 +646,7 @@ protected:
 #pragma warning (pop)
 #endif
     ccTextFieldCallback _eventCallback;
-    
+
     std::string _passwordStyleText;
     bool _textFieldRendererAdaptDirty;
 private:
@@ -668,3 +668,4 @@ private:
 NS_CC_END
 
 #endif /* defined(__TextField__) */
+

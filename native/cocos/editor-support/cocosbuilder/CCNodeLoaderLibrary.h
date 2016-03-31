@@ -56,7 +56,7 @@ public:
      * @lua NA
      */
     void purge(bool pDelete);
-    
+
 public:
     /**
      * @js NA
@@ -73,7 +73,7 @@ public:
      * @lua NA
      */
     static NodeLoaderLibrary * newDefaultNodeLoaderLibrary();
-    
+
 private:
     NodeLoaderMap _nodeLoaders;
 };
@@ -81,3 +81,4 @@ private:
 }
 
 #endif
+

@@ -246,3 +246,4 @@ public class Cocos2dxEditBox extends EditText {
         this.setInputType(this.mInputFlagConstraints | this.mInputModeConstraints);
     }
 }
+

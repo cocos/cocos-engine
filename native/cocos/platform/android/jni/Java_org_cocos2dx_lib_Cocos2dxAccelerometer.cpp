@@ -18,5 +18,6 @@ extern "C" {
 
         EventAcceleration event(a);
         Director::getInstance()->getEventDispatcher()->dispatchEvent(&event);
-    }    
+    }
 }
+

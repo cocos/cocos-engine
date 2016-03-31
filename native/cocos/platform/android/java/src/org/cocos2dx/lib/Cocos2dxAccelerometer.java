@@ -127,3 +127,4 @@ public class Cocos2dxAccelerometer implements SensorEventListener {
 
     public static native void onSensorChanged(final float x, final float y, final float z, final long timestamp);
 }
+

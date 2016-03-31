@@ -234,3 +234,4 @@ inet_pton6(const char *src, unsigned char *dst)
 #endif /* ENABLE_IPV6 */
 
 #endif /* HAVE_INET_PTON */
+

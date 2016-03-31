@@ -117,7 +117,7 @@ Sprite* Sprite::createWithSpriteFrame(SpriteFrame *spriteFrame)
 Sprite* Sprite::createWithSpriteFrameName(const std::string& spriteFrameName)
 {
     SpriteFrame *frame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spriteFrameName);
-    
+
 #if COCOS2D_DEBUG > 0
     if (frame == nullptr)
     {
@@ -126,7 +126,7 @@ Sprite* Sprite::createWithSpriteFrameName(const std::string& spriteFrameName)
         CCASSERT(frame != nullptr, msg);
     }
 #endif
-    
+
     return createWithSpriteFrame(frame);
 }
 
@@ -154,7 +154,7 @@ bool Sprite::initWithTexture(Texture2D *texture)
     if (texture == nullptr) {
         return false;
     }
-    
+
     Rect rect = Rect::ZERO;
     rect.size = texture->getContentSize();
 
@@ -177,7 +177,7 @@ bool Sprite::initWithFile(const std::string& filename)
         rect.size = texture->getContentSize();
         return initWithTexture(texture, rect);
     }
-    
+
     return false;
 }
 
@@ -190,7 +190,7 @@ bool Sprite::initWithFile(const std::string &filename, const Rect& rect)
     {
         return initWithTexture(texture, rect);
     }
-    
+
     return false;
 }
 
@@ -201,7 +201,7 @@ bool Sprite::initWithSpriteFrameName(const std::string& spriteFrameName)
     if (spriteFrameName.empty()) {
         return false;
     }
-    
+
     SpriteFrame *frame = SpriteFrameCache::getInstance()->getSpriteFrameByName(spriteFrameName);
     return initWithSpriteFrame(frame);
 }
@@ -213,7 +213,7 @@ bool Sprite::initWithSpriteFrame(SpriteFrame *spriteFrame)
     if (spriteFrame == nullptr) {
         return false;
     }
-    
+
     bool bRet = initWithTexture(spriteFrame->getTexture(), spriteFrame->getRect());
     setSpriteFrame(spriteFrame);
 
@@ -230,7 +230,7 @@ bool Sprite::initWithPolygon(const cocos2d::PolygonInfo &info)
         setContentSize(_polyInfo.rect.size / _director->getContentScaleFactor());
         ret = true;
     }
-    
+
     return ret;
 }
 
@@ -238,51 +238,51 @@ bool Sprite::initWithPolygon(const cocos2d::PolygonInfo &info)
 bool Sprite::initWithTexture(Texture2D *texture, const Rect& rect, bool rotated)
 {
     bool result = false;
-    
+
     if (Node::init())
     {
         _batchNode = nullptr;
-        
+
         _recursiveDirty = false;
         setDirty(false);
-        
+
         _opacityModifyRGB = true;
-        
+
         _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
-        
+
         _flippedX = _flippedY = false;
-        
+
         // default transform anchor: center
         setAnchorPoint(Vec2(0.5f, 0.5f));
-        
+
         // zwoptex default values
         _offsetPosition.setZero();
 
         // clean the Quad
         memset(&_quad, 0, sizeof(_quad));
-        
+
         // Atlas: Color
         _quad.bl.colors = Color4B::WHITE;
         _quad.br.colors = Color4B::WHITE;
         _quad.tl.colors = Color4B::WHITE;
         _quad.tr.colors = Color4B::WHITE;
-        
+
         // shader state
         setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
 
         // update texture (calls updateBlendFunc)
         setTexture(texture);
         setTextureRect(rect, rotated, rect.size);
-        
+
         // by default use "Self Render".
         // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
         setBatchNode(nullptr);
         result = true;
     }
-    
+
     _recursiveDirty = true;
     setDirty(true);
-    
+
     return result;
 }
 
@@ -334,7 +334,7 @@ static unsigned char cc_2x2_white_image[] = {
 void Sprite::setTexture(const std::string &filename)
 {
     Texture2D *texture = _director->getTextureCache()->addImage(filename);
-    
+
     setTexture(texture);
 
     Rect rect = Rect::ZERO;
@@ -420,7 +420,7 @@ void Sprite::setTextureRect(const Rect& rect, bool rotated, const Size& untrimme
     else
     {
         // self rendering
-        
+
         // Atlas: Vertex
         float x1 = 0.0f + _offsetPosition.x;
         float y1 = 0.0f + _offsetPosition.y;
@@ -433,7 +433,7 @@ void Sprite::setTextureRect(const Rect& rect, bool rotated, const Size& untrimme
         _quad.tl.vertices.set(x1, y2, 0.0f);
         _quad.tr.vertices.set(x2, y2, 0.0f);
     }
-    
+
     _polyInfo.setQuad(&_quad);
 }
 
@@ -570,7 +570,7 @@ void Sprite::updateTransform()
 
             float x2 = x1 + size.width;
             float y2 = y1 + size.height;
-            
+
             float x = _transformToBatch.m[12];
             float y = _transformToBatch.m[13];
 
@@ -623,10 +623,10 @@ void Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
         if (_texture == nullptr) {
             return;
         }
-        
+
         _trianglesCommand.init(_globalZOrder, _texture->getName(), getGLProgramState(), _blendFunc, _polyInfo.triangles, transform, flags);
         renderer->addCommand(&_trianglesCommand);
-        
+
 #if CC_SPRITE_DEBUG_DRAW
         _debugDrawNode->clear();
         auto count = _polyInfo.triangles.indexCount/3;
@@ -638,11 +638,11 @@ void Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
             Vec3 from =verts[indices[i*3]].vertices;
             Vec3 to = verts[indices[i*3+1]].vertices;
             _debugDrawNode->drawLine(Vec2(from.x, from.y), Vec2(to.x,to.y), Color4F::WHITE);
-            
+
             from =verts[indices[i*3+1]].vertices;
             to = verts[indices[i*3+2]].vertices;
             _debugDrawNode->drawLine(Vec2(from.x, from.y), Vec2(to.x,to.y), Color4F::WHITE);
-            
+
             from =verts[indices[i*3+2]].vertices;
             to = verts[indices[i*3]].vertices;
             _debugDrawNode->drawLine(Vec2(from.x, from.y), Vec2(to.x,to.y), Color4F::WHITE);
@@ -694,7 +694,7 @@ void Sprite::addChild(Node *child, int zOrder, const std::string &name)
                  "childSprite's texture name should be equal to _textureAtlas's texture name.");
         //put it in descendants array of batch node
         _batchNode->appendChild(childSprite);
-        
+
         if (!_reorderChildDirty)
         {
             setReorderChildDirtyRecursively();
@@ -825,7 +825,7 @@ void Sprite::setPosition(float x, float y)
 void Sprite::setRotation(float rotation)
 {
     Node::setRotation(rotation);
-    
+
     SET_DIRTY_RECURSIVELY();
 }
 
@@ -948,7 +948,7 @@ bool Sprite::isFlippedY(void) const
 void Sprite::updateColor(void)
 {
     Color4B color4( _displayedColor.r, _displayedColor.g, _displayedColor.b, _displayedOpacity );
-    
+
     // special opacity for premultiplied textures
     if (_opacityModifyRGB)
     {
@@ -1047,7 +1047,7 @@ void Sprite::setDisplayFrameWithAnimationName(const std::string& animationName, 
     CCASSERT(a, "CCSprite#setDisplayFrameWithAnimationName: Frame not found");
     if (a == nullptr)
         return;
-    
+
     AnimationFrame* frame = a->getFrames().at(frameIndex);
     CCASSERT(frame, "CCSprite#setDisplayFrame. Invalid frame");
     if (frame == nullptr)
@@ -1153,3 +1153,4 @@ void Sprite::setPolygonInfo(const PolygonInfo& info)
 }
 
 NS_CC_END
+

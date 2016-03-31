@@ -81,7 +81,7 @@ public:
     //     kmMat4Fill(&result, m);
     //     return result;
     // }
-    
+
     // Mat4(const kmMat4& mat)
     // {
     //     set(mat.mat);
@@ -98,7 +98,7 @@ public:
     float m[16];
 #endif
 
-    /** 
+    /**
      * Default constructor.
      * Constructs a matrix initialized to the identity matrix:
      *
@@ -426,7 +426,7 @@ public:
      * Gets the rotational component of this matrix in the specified quaternion.
      *
      * @param rotation A quaternion to receive the rotation.
-     * 
+     *
      * @return true if the rotation is successfully extracted, false otherwise.
      */
     bool getRotation(Quaternion* rotation) const;
@@ -870,17 +870,17 @@ public:
 
     /**
      * Calculates the sum of this matrix with the given matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @param mat The matrix to add.
      * @return The matrix sum.
      */
     inline const Mat4 operator+(const Mat4& mat) const;
-    
+
     /**
      * Adds the given matrix to this matrix.
-     * 
+     *
      * @param mat The matrix to add.
      * @return This matrix, after the addition occurs.
      */
@@ -888,9 +888,9 @@ public:
 
     /**
      * Calculates the difference of this matrix with the given matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @param mat The matrix to subtract.
      * @return The matrix difference.
      */
@@ -898,7 +898,7 @@ public:
 
     /**
      * Subtracts the given matrix from this matrix.
-     * 
+     *
      * @param mat The matrix to subtract.
      * @return This matrix, after the subtraction occurs.
      */
@@ -906,18 +906,18 @@ public:
 
     /**
      * Calculates the negation of this matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @return The negation of this matrix.
      */
     inline const Mat4 operator-() const;
 
     /**
      * Calculates the matrix product of this matrix with the given matrix.
-     * 
+     *
      * Note: this does not modify this matrix.
-     * 
+     *
      * @param mat The matrix to multiply by.
      * @return The matrix product.
      */
@@ -925,7 +925,7 @@ public:
 
     /**
      * Right-multiplies this matrix by the given matrix.
-     * 
+     *
      * @param mat The matrix to multiply by.
      * @return This matrix, after the multiplication occurs.
      */
@@ -945,9 +945,9 @@ private:
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param v The vector to transform.
  * @param m The matrix to transform by.
  * @return This vector, after the transformation occurs.
@@ -956,9 +956,9 @@ inline Vec3& operator*=(Vec3& v, const Mat4& m);
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param m The matrix to transform by.
  * @param v The vector to transform.
  * @return The resulting transformed vector.
@@ -967,9 +967,9 @@ inline const Vec3 operator*(const Mat4& m, const Vec3& v);
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param v The vector to transform.
  * @param m The matrix to transform by.
  * @return This vector, after the transformation occurs.
@@ -978,9 +978,9 @@ inline Vec4& operator*=(Vec4& v, const Mat4& m);
 
 /**
  * Transforms the given vector by the given matrix.
- * 
+ *
  * Note: this treats the given vector as a vector and not as a point.
- * 
+ *
  * @param m The matrix to transform by.
  * @param v The vector to transform.
  * @return The resulting transformed vector.
@@ -995,3 +995,4 @@ NS_CC_MATH_END
 #include "math/Mat4.inl"
 
 #endif // MATH_MAT4_H
+

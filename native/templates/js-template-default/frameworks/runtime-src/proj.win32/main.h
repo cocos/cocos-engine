@@ -10,3 +10,4 @@
 #include "platform/CCStdC.h"
 
 #endif    // __WINMAIN_H__
+

@@ -2,7 +2,7 @@
 Copyright (c) 2009      On-Core
 Copyright (c) 2010-2012 cocos2d-x.org
 CopyRight (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -103,7 +103,7 @@ void ShakyTiles3D::update(float time)
                 coords.tl.z += ( rand() % (_randrange*2) ) - _randrange;
                 coords.tr.z += ( rand() % (_randrange*2) ) - _randrange;
             }
-                        
+
             setTile(Vec2(i, j), coords);
         }
     }
@@ -157,31 +157,31 @@ void ShatteredTiles3D::update(float time)
             for (j = 0; j < _gridSize.height; ++j)
             {
                 Quad3 coords = getOriginalTile(Vec2(i ,j));
-                
+
                 // X
                 coords.bl.x += ( rand() % (_randrange*2) ) - _randrange;
                 coords.br.x += ( rand() % (_randrange*2) ) - _randrange;
                 coords.tl.x += ( rand() % (_randrange*2) ) - _randrange;
                 coords.tr.x += ( rand() % (_randrange*2) ) - _randrange;
-                
+
                 // Y
                 coords.bl.y += ( rand() % (_randrange*2) ) - _randrange;
                 coords.br.y += ( rand() % (_randrange*2) ) - _randrange;
                 coords.tl.y += ( rand() % (_randrange*2) ) - _randrange;
                 coords.tr.y += ( rand() % (_randrange*2) ) - _randrange;
 
-                if (_shatterZ) 
+                if (_shatterZ)
                 {
                     coords.bl.z += ( rand() % (_randrange*2) ) - _randrange;
-                    coords.br.z += ( rand() % (_randrange*2) ) - _randrange;                
+                    coords.br.z += ( rand() % (_randrange*2) ) - _randrange;
                     coords.tl.z += ( rand() % (_randrange*2) ) - _randrange;
                     coords.tr.z += ( rand() % (_randrange*2) ) - _randrange;
                 }
-                
+
                 setTile(Vec2(i, j), coords);
             }
         }
-        
+
         _once = true;
     }
 }
@@ -399,7 +399,7 @@ void FadeOutTRTiles::update(float time)
             if ( distance == 0 )
             {
                 turnOffTile(Vec2(i, j));
-            } else 
+            } else
             if (distance < 1)
             {
                 transformTile(Vec2(i, j), distance);
@@ -530,7 +530,7 @@ TurnOffTiles* TurnOffTiles::create(float duration, const Size& gridSize)
         action->autorelease();
         return action;
     }
-    
+
     delete action;
     return nullptr;
 }
@@ -682,7 +682,7 @@ void WavesTiles3D::update(float time)
         {
             Quad3 coords = getOriginalTile(Vec2(i, j));
 
-            coords.bl.z = (sinf(time * (float)M_PI  *_waves * 2 + 
+            coords.bl.z = (sinf(time * (float)M_PI  *_waves * 2 +
                 (coords.bl.y+coords.bl.x) * .01f) * _amplitude * _amplitudeRate );
             coords.br.z    = coords.bl.z;
             coords.tl.z = coords.bl.z;
@@ -872,3 +872,4 @@ void SplitCols::update(float time)
 }
 
 NS_CC_END
+

@@ -125,7 +125,7 @@ public:
 - Image used for the tiles
 - Image size
 
-This information is obtained from the TMX file. 
+This information is obtained from the TMX file.
 */
 class CC_DLL TMXTilesetInfo : public Ref
 {
@@ -166,13 +166,13 @@ This information is obtained from the TMX file.
 
 */
 class CC_DLL TMXMapInfo : public Ref, public SAXDelegator
-{    
-public:    
+{
+public:
     /** creates a TMX Format with a tmx file */
     static TMXMapInfo * create(const std::string& tmxFile);
     /** creates a TMX Format with an XML string and a TMX resource path */
     static TMXMapInfo * createWithXML(const std::string& tmxString, const std::string& resourcePath);
-    
+
     /**
      * @js ctor
      */
@@ -182,7 +182,7 @@ public:
      * @lua NA
      */
     virtual ~TMXMapInfo();
-    
+
     /** initializes a TMX format with a  tmx file */
     bool initWithTMXFile(const std::string& tmxFile);
     /** initializes a TMX format with an XML string and a TMX resource path */
@@ -208,7 +208,7 @@ public:
     /// tiles width & height
     inline const Size& getTileSize() const { return _tileSize; };
     inline void setTileSize(const Size& tileSize) { _tileSize = tileSize; };
-    
+
     /// Layers
     inline const Vector<TMXLayerInfo*>& getLayers() const { return _layers; };
     inline Vector<TMXLayerInfo*>& getLayers() { return _layers; };
@@ -244,7 +244,7 @@ public:
 
     /// is storing characters?
     inline bool isStoringCharacters() const { return _storingCharacters; };
-    
+
     inline void setStoringCharacters(bool storingCharacters) { _storingCharacters = storingCharacters; };
 
     /// properties
@@ -253,7 +253,7 @@ public:
     inline void setProperties(const ValueMap& properties) {
         _properties = properties;
     };
-    
+
     // implement pure virtual methods of SAXDelegator
     /**
      * @js NA
@@ -270,7 +270,7 @@ public:
      * @lua NA
      */
     void textHandler(void *ctx, const char *ch, int len);
-    
+
     inline const std::string& getCurrentString() const { return _currentString; }
     inline void setCurrentString(const std::string& currentString){ _currentString = currentString; }
     inline const std::string& getTMXFileName() const { return _TMXFileName; }
@@ -303,7 +303,7 @@ protected:
     ValueMap _properties;
     //! xml format tile index
     int _xmlTileIndex;
-    
+
     //! tmx filename
     std::string _TMXFileName;
     // tmx resource path
@@ -323,3 +323,4 @@ NS_CC_END
 
 /// @endcond
 #endif
+

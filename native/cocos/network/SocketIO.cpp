@@ -935,7 +935,7 @@ void SIOClientImpl::onMessage(WebSocket* ws, const WebSocket::Data& data)
 
                     std::string eventname = payload.substr(payloadFirstSlashPos + 1,
                                                            payloadSecondSlashPos - payloadFirstSlashPos + 1);
-                    
+
                     CCLOGINFO("event name %s between %i and %i", eventname.c_str(),
                               payloadFirstSlashPos, payloadSecondSlashPos);
 
@@ -1096,7 +1096,7 @@ void SIOClient::fireEvent(const std::string& eventName, const std::string& data)
 
     CCLOGINFO("SIOClient::fireEvent no native event with name %s found", eventName.c_str());
 }
-    
+
 void SIOClient::setTag(const char* tag)
 {
     _tag = tag;
@@ -1233,3 +1233,4 @@ void SocketIO::removeSocket(const std::string& uri)
 }
 
 NS_CC_END
+

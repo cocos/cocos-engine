@@ -16,3 +16,4 @@ void CCBFileLoader::onHandlePropTypeCCBFile(Node * pNode, Node * pParent, const 
 }
 
 }
+

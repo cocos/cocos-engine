@@ -50,83 +50,83 @@ public:
      * @lua new
      */
     ScrollViewBar(ScrollView* parent, ScrollView::Direction direction);
-    
+
     /**
      * Default destructor
      * @js NA
      * @lua NA
      */
     virtual ~ScrollViewBar();
-    
+
     /**
      * Create a scroll bar with its parent scroll view and direction.
      * @return A scroll bar instance.
      */
     static ScrollViewBar* create(ScrollView* parent, ScrollView::Direction direction);
-    
+
     /**
      * @brief Set the scroll bar position from the left-bottom corner (horizontal) or right-top corner (vertical).
      *
      * @param positionFromCorner The position from the left-bottom corner (horizontal) or right-top corner (vertical).
      */
     void setPositionFromCorner(const Vec2& positionFromCorner);
-    
+
     /**
      * @brief Get the scroll bar position from the left-bottom corner (horizontal) or right-top corner (vertical).
      *
      * @return positionFromCorner
      */
     Vec2 getPositionFromCorner() const;
-    
+
     /**
      * @brief Set the scroll bar's width
      *
      * @param width The scroll bar's width
      */
     void setWidth(float width);
-    
+
     /**
      * @brief Get the scroll bar's width
      *
      * @return the scroll bar's width
      */
     float getWidth() const;
-    
+
     /**
      * @brief Set scroll bar auto hide state
      *
      * @param scroll bar auto hide state
      */
     void setAutoHideEnabled(bool autoHideEnabled);
-    
+
     /**
      * @brief Query scroll bar auto hide state
      *
      * @return True if scroll bar auto hide is enabled, false otherwise.
      */
     bool isAutoHideEnabled() const { return _autoHideEnabled; }
-    
+
     /**
      * @brief Set scroll bar auto hide time
      *
      * @param scroll bar auto hide time
      */
     void setAutoHideTime(float autoHideTime) { _autoHideTime = autoHideTime; }
-    
+
     /**
      * @brief Get the scroll bar's auto hide time
      *
      * @return the scroll bar's auto hide time
      */
     float getAutoHideTime() const { return _autoHideTime; }
-    
+
     /**
      * @brief This is called by parent ScrollView when the parent is scrolled. Don't call this directly.
      *
      * @param amount how much the inner container of ScrollView is out of boundary
      */
     virtual void onScrolled(const Vec2& outOfBoundary);
-    
+
     /**
      * @lua NA
      */
@@ -134,45 +134,45 @@ public:
     virtual GLubyte getOpacity() const override { return _opacity; }
     virtual void onEnter() override;
     virtual void update(float deltaTime) override;
-    
+
     /**
      * @brief This is called by parent ScrollView when a touch is began. Don't call this directly.
      */
     void onTouchBegan();
-    
+
     /**
      * @brief This is called by parent ScrollView when a touch is ended. Don't call this directly.
      */
     void onTouchEnded();
-    
+
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
-    
+
 private:
     float calculateLength(float innerContainerMeasure, float scrollViewMeasure, float outOfBoundaryValue);
     Vec2 calculatePosition(float innerContainerMeasure, float scrollViewMeasure, float innerContainerPosition, float outOfBoundaryValue, float actualLength);
-    
+
     void updateLength(float length);
     void processAutoHide(float deltaTime);
-    
+
     ScrollView* _parent;
     ScrollView::Direction _direction;
-    
+
     Sprite* _upperHalfCircle;
     Sprite* _lowerHalfCircle;
     Sprite* _body;
-    
+
     GLubyte _opacity;
-    
+
     float _marginFromBoundary;
     float _marginForLength;
 
     bool _touching;
-    
+
     bool _autoHideEnabled;
     float _autoHideTime;
     float _autoHideRemainingTime;
-    
+
 };
 
 }
@@ -181,3 +181,4 @@ private:
 NS_CC_END
 
 #endif /* defined(__UISCROLLVIEWBAR_H__) */
+

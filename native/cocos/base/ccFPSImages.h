@@ -40,3 +40,4 @@ unsigned int cc_fps_images_len(void);
 
 /// @endcond
 #endif // __BASE_CCFPSIMAGES__H
+

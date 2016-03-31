@@ -182,3 +182,4 @@ protected:
 }
 
 #endif /*__CCPROCESSBASE_H__*/
+

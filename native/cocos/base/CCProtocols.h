@@ -42,7 +42,7 @@ class CC_DLL __RGBAProtocol
 {
 public:
     virtual ~__RGBAProtocol() {}
-    
+
     /**
      * Changes the color with R,G,B bytes
      *
@@ -51,7 +51,7 @@ public:
      * @lua NA
      */
     virtual void setColor(const Color3B& color) = 0;
-    
+
     /**
      * Returns color that is currently used.
      *
@@ -60,7 +60,7 @@ public:
      * @lua NA
      */
     virtual const Color3B& getColor() const = 0;
-    
+
     /**
      * Returns the displayed color.
      *
@@ -69,7 +69,7 @@ public:
      * @lua NA
      */
     virtual const Color3B& getDisplayedColor() const = 0;
-    
+
     /**
      * Returns the displayed opacity.
      *
@@ -89,7 +89,7 @@ public:
      * @lua NA
      */
     virtual GLubyte getOpacity() const = 0;
-    
+
     /**
      * Changes the opacity.
      *
@@ -98,9 +98,9 @@ public:
      * @lua NA
      */
     virtual void setOpacity(GLubyte opacity) = 0;
-    
+
     // optional
-    
+
     /**
      * Changes the OpacityModifyRGB property.
      * If this property is set to true, then the rendered color will be affected by opacity.
@@ -112,7 +112,7 @@ public:
      * @lua NA
      */
     virtual void setOpacityModifyRGB(bool value) = 0;
-    
+
     /**
      * Returns whether or not the opacity will be applied using glColor(R,G,B,opacity)
      * or glColor(opacity, opacity, opacity, opacity)
@@ -122,7 +122,7 @@ public:
      * @lua NA
      */
     virtual bool isOpacityModifyRGB() const = 0;
-    
+
     /**
      *  whether or not color should be propagated to its children.
      * @js NA
@@ -134,14 +134,14 @@ public:
      * @lua NA
      */
     virtual void setCascadeColorEnabled(bool cascadeColorEnabled) = 0;
-    
+
     /**
      *  recursive method that updates display color
      * @js NA
      * @lua NA
      */
     virtual void updateDisplayedColor(const Color3B& color) = 0;
-    
+
     /**
      *  whether or not opacity should be propagated to its children.
      * @js NA
@@ -153,7 +153,7 @@ public:
      * @lua NA
      */
     virtual void setCascadeOpacityEnabled(bool cascadeOpacityEnabled) = 0;
-    
+
     /**
      *  recursive method that updates the displayed opacity.
      * @js NA
@@ -175,7 +175,7 @@ public:
     /**
      * Sets the source blending function.
      *
-     * @param blendFunc A structure with source and destination factor to specify pixel arithmetic, 
+     * @param blendFunc A structure with source and destination factor to specify pixel arithmetic,
      *                  e.g. {GL_ONE, GL_ONE}, {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}.
      * @js NA
      * @lua NA
@@ -184,7 +184,7 @@ public:
 
     /**
      * Returns the blending function that is currently being used.
-     * 
+     *
      * @return A BlendFunc structure with source and destination factor which specified pixel arithmetic.
      * @js NA
      * @lua NA
@@ -192,7 +192,7 @@ public:
     virtual const BlendFunc &getBlendFunc() const = 0;
 };
 
-/** 
+/**
  * Node objects that uses a Texture2D to render the images.
  * The texture can have a blending function.
  * If the texture has alpha premultiplied the default blending function is:
@@ -241,8 +241,8 @@ public:
      */
     virtual void setString(const std::string &label) = 0;
 
-    /** 
-     * Returns the string that is currently being used in this label 
+    /**
+     * Returns the string that is currently being used in this label
      *
      * @return The string that is currently being used in this label
      * @js NA
@@ -251,8 +251,8 @@ public:
     virtual const std::string& getString() const = 0;
 };
 
-/** 
- * OpenGL projection protocol 
+/**
+ * OpenGL projection protocol
  */
 class CC_DLL DirectorDelegate
 {
@@ -271,3 +271,4 @@ NS_CC_END
 
 /// @endcond
 #endif // __BASE_CCPROTOCOLS_H__
+

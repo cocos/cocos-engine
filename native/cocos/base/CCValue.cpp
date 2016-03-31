@@ -799,7 +799,7 @@ void Value::clear()
         default:
             break;
     }
-    
+
     _type = Type::NONE;
 }
 
@@ -833,3 +833,4 @@ void Value::reset(Type type)
 }
 
 NS_CC_END
+

@@ -51,7 +51,7 @@ AutoreleasePool::~AutoreleasePool()
 {
     CCLOGINFO("deallocing AutoreleasePool: %p", this);
     clear();
-    
+
     PoolManager::getInstance()->pop();
 }
 
@@ -127,7 +127,7 @@ void PoolManager::destroyInstance()
             pool = releasePoolStack.back();
             delete pool;
         }
-        
+
         delete s_singleInstance;
         s_singleInstance = nullptr;
     }
@@ -171,3 +171,4 @@ void PoolManager::pop()
 }
 
 NS_CC_END
+

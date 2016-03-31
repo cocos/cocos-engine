@@ -48,25 +48,25 @@ bool cocos2d::Image::saveToFile(const std::string& filename, bool isToRGB)
     {
         saveToPNG = true;
     }
-        
-    int bitsPerComponent = 8;            
+
+    int bitsPerComponent = 8;
     int bitsPerPixel = hasAlpha() ? 32 : 24;
     if ((! saveToPNG) || isToRGB)
     {
         bitsPerPixel = 24;
-    }            
-    
+    }
+
     int bytesPerRow    = (bitsPerPixel/8) * _width;
     int myDataLength = bytesPerRow * _height;
-    
+
     unsigned char *pixels    = _data;
-    
+
     // The data has alpha channel, and want to save it with an RGB png file,
     // or want to save as jpg,  remove the alpha channel.
     if (hasAlpha() && bitsPerPixel == 24)
     {
         pixels = new (std::nothrow) unsigned char[myDataLength];
-        
+
         for (int i = 0; i < _height; ++i)
         {
             for (int j = 0; j < _width; ++j)
@@ -76,10 +76,10 @@ bool cocos2d::Image::saveToFile(const std::string& filename, bool isToRGB)
                 pixels[(i * _width + j) * 3 + 2] = _data[(i * _width + j) * 4 + 2];
             }
         }
-        
+
         needToCopyPixels = true;
     }
-        
+
     // make data provider with data.
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
     if (saveToPNG && hasAlpha() && (! isToRGB))
@@ -93,15 +93,15 @@ bool cocos2d::Image::saveToFile(const std::string& filename, bool isToRGB)
                                                         colorSpaceRef, bitmapInfo, provider,
                                                         nullptr, false,
                                                         kCGRenderingIntentDefault);
-        
+
     UIImage* image                    = [[UIImage alloc] initWithCGImage:iref];
-        
-    CGImageRelease(iref);    
+
+    CGImageRelease(iref);
     CGColorSpaceRelease(colorSpaceRef);
     CGDataProviderRelease(provider);
-    
+
     NSData *data;
-                
+
     if (saveToPNG)
     {
         data = UIImagePNGRepresentation(image);
@@ -110,16 +110,16 @@ bool cocos2d::Image::saveToFile(const std::string& filename, bool isToRGB)
     {
         data = UIImageJPEGRepresentation(image, 1.0f);
     }
-    
+
     [data writeToFile:[NSString stringWithUTF8String:filename.c_str()] atomically:YES];
-        
+
     [image release];
-        
+
     if (needToCopyPixels)
     {
         delete [] pixels;
     }
-    
+
     return true;
 }
 
@@ -140,23 +140,23 @@ bool cocos2d::Image::initWithPngData(const unsigned char * data, ssize_t dataLen
     UIImage *uiImage = [UIImage imageWithData:nsData];
     if (!uiImage)
         return false;
-    
+
     // get width and height
     CGImageRef cgimageRef = uiImage.CGImage;
     _width = (int)CGImageGetWidth(cgimageRef);
     _height = (int)CGImageGetHeight(cgimageRef);
-    
+
     // get data length and data
     CFDataRef rawData = CGDataProviderCopyData(CGImageGetDataProvider(cgimageRef));
     _dataLen = CFDataGetLength(rawData);
     _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
     CFDataGetBytes(rawData, CFRangeMake(0, _dataLen), _data);
     CFRelease(rawData);
-    
+
     // check if it is alpha premultified
     CGImageAlphaInfo alphaInfo = CGImageGetAlphaInfo(cgimageRef);
     _hasPremultipliedAlpha = alphaInfo == kCGImageAlphaPremultipliedLast || alphaInfo == kCGImageAlphaPremultipliedFirst;
-    
+
     // get render format
     size_t bitsPerComponent = CGImageGetBitsPerComponent(cgimageRef);
     size_t bitsPerPixel = CGImageGetBitsPerPixel(cgimageRef);
@@ -166,7 +166,7 @@ bool cocos2d::Image::initWithPngData(const unsigned char * data, ssize_t dataLen
                        (alphaInfo == kCGImageAlphaLast) ||
                        (alphaInfo == kCGImageAlphaFirst)
                       ? true : false);
-    
+
     CGColorSpaceRef colorSpace = CGImageGetColorSpace(cgimageRef);
     if (colorSpace)
     {
@@ -202,7 +202,7 @@ bool cocos2d::Image::initWithPngData(const unsigned char * data, ssize_t dataLen
                 CGContextTranslateCTM(context, 0, 0);
                 CGContextDrawImage(context, CGRectMake(0, 0, _width, _height), cgimageRef);
                 CGContextRelease(context);
-                
+
                 _renderFormat = cocos2d::Texture2D::PixelFormat::RGBA8888;
                 _hasPremultipliedAlpha = true;
                 break;
@@ -214,8 +214,8 @@ bool cocos2d::Image::initWithPngData(const unsigned char * data, ssize_t dataLen
         // it is a mask
         _renderFormat = cocos2d::Texture2D::PixelFormat::A8;
     }
-    
-    
+
+
     return true;
 }
 

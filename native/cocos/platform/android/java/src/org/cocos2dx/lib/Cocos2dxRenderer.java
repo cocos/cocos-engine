@@ -175,3 +175,4 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
         return Cocos2dxRenderer.nativeGetContentText();
     }
 }
+

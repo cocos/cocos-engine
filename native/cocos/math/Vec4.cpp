@@ -223,12 +223,12 @@ void Vec4::normalize()
     // Already normalized.
     if (n == 1.0f)
         return;
-    
+
     n = sqrt(n);
     // Too close to zero.
     if (n < MATH_TOLERANCE)
         return;
-    
+
     n = 1.0f / n;
     x *= n;
     y *= n;
@@ -311,3 +311,4 @@ const Vec4 Vec4::UNIT_Z = Vec4(0.0f, 0.0f, 1.0f, 0.0f);
 const Vec4 Vec4::UNIT_W = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 NS_CC_MATH_END
+

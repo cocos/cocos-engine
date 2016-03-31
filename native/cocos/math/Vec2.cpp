@@ -31,7 +31,7 @@ bool isOneDimensionSegmentOverlap(float A, float B, float C, float D, float *S, 
     float ABmax = std::max(A, B);
     float CDmin = std::min(C, D);
     float CDmax = std::max(C, D);
-    
+
     if (ABmax < CDmin || CDmax < ABmin)
     {
         // ABmin->ABmax->CDmin->CDmax or CDmin->CDmax->ABmin->ABmax
@@ -142,12 +142,12 @@ void Vec2::normalize()
     // Already normalized.
     if (n == 1.0f)
         return;
-    
+
     n = sqrt(n);
     // Too close to zero.
     if (n < MATH_TOLERANCE)
         return;
-    
+
     n = 1.0f / n;
     x *= n;
     y *= n;
@@ -234,18 +234,18 @@ bool Vec2::isLineIntersect(const Vec2& A, const Vec2& B,
     {
         return false;
     }
-    
+
     const float denom = crossProduct2Vector(A, B, C, D);
-    
+
     if (denom == 0)
     {
         // Lines parallel or overlap
         return false;
     }
-    
+
     if (S != nullptr) *S = crossProduct2Vector(C, D, C, A) / denom;
     if (T != nullptr) *T = crossProduct2Vector(A, B, C, A) / denom;
-    
+
     return true;
 }
 
@@ -257,7 +257,7 @@ bool Vec2::isLineParallel(const Vec2& A, const Vec2& B,
     {
         return false;
     }
-    
+
     if (crossProduct2Vector(A, B, C, D) == 0)
     {
         // line overlap
@@ -265,10 +265,10 @@ bool Vec2::isLineParallel(const Vec2& A, const Vec2& B,
         {
             return false;
         }
-        
+
         return true;
     }
-    
+
     return false;
 }
 
@@ -280,45 +280,45 @@ bool Vec2::isLineOverlap(const Vec2& A, const Vec2& B,
     {
         return false;
     }
-    
+
     if (crossProduct2Vector(A, B, C, D) == 0 &&
         (crossProduct2Vector(C, D, C, A) == 0 || crossProduct2Vector(A, B, C, A) == 0))
     {
         return true;
     }
-    
+
     return false;
 }
 
 bool Vec2::isSegmentOverlap(const Vec2& A, const Vec2& B, const Vec2& C, const Vec2& D, Vec2* S, Vec2* E)
 {
-    
+
     if (isLineOverlap(A, B, C, D))
     {
         return isOneDimensionSegmentOverlap(A.x, B.x, C.x, D.x, &S->x, &E->x) &&
         isOneDimensionSegmentOverlap(A.y, B.y, C.y, D.y, &S->y, &E->y);
-    }  
-    
+    }
+
     return false;
 }
 
 bool Vec2::isSegmentIntersect(const Vec2& A, const Vec2& B, const Vec2& C, const Vec2& D)
 {
     float S, T;
-    
+
     if (isLineIntersect(A, B, C, D, &S, &T )&&
         (S >= 0.0f && S <= 1.0f && T >= 0.0f && T <= 1.0f))
     {
         return true;
     }
-    
+
     return false;
 }
 
 Vec2 Vec2::getIntersectPoint(const Vec2& A, const Vec2& B, const Vec2& C, const Vec2& D)
 {
     float S, T;
-    
+
     if (isLineIntersect(A, B, C, D, &S, &T))
     {
         // Vec2 of intersection
@@ -327,7 +327,7 @@ Vec2 Vec2::getIntersectPoint(const Vec2& A, const Vec2& B, const Vec2& C, const 
         P.y = A.y + S * (B.y - A.y);
         return P;
     }
-    
+
     return Vec2::ZERO;
 }
 
@@ -346,3 +346,4 @@ const Vec2 Vec2::ANCHOR_MIDDLE_TOP(0.5f, 1.0f);
 const Vec2 Vec2::ANCHOR_MIDDLE_BOTTOM(0.5f, 0.0f);
 
 NS_CC_MATH_END
+

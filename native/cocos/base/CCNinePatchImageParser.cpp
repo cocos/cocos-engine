@@ -82,7 +82,7 @@ int NinePatchImageParser::getPixelOriginOffset(Direction direction)const
 {
     int imageWidth = _image->getWidth();
     int frameWidth = this->getFrameWidth();
-    
+
     int topLineLeftOffset = (int)_imageFrame.origin.y * imageWidth * 4 + (int)_imageFrame.origin.x * 4;
     if(direction == Direction::HORIZONTAL)
     {
@@ -104,12 +104,12 @@ int NinePatchImageParser::getPixelOriginOffset(Direction direction)const
 Vec2 NinePatchImageParser::parseHorizontalMargin()const
 {
     unsigned char* data = _image->getData();
-    
+
     data = data + this->getPixelOriginOffset(Direction::HORIZONTAL);
     unsigned char lastPixel = *(data + 3);
     int x1 = 0;
     int x2 = 0;
-    
+
     int length = _imageFrame.origin.x + this->getFrameWidth();
     for(int i = (int)_imageFrame.origin.x; i <= length ; i++)
     {
@@ -135,13 +135,13 @@ Vec2 NinePatchImageParser::parseVerticalMargin()const
 {
     unsigned char* data = _image->getData();
     int imageWidth = _image->getWidth();
-    
+
     int y1 = 0;
     int y2 = 0;
-    
+
     data = data + this->getPixelOriginOffset(Direction::VERTICAL);
     unsigned char lastPixel = *(data + 3);
-    
+
     int length = (int)(_imageFrame.origin.y + this->getFrameHeight());
     for(int i = _imageFrame.origin.y; i <= length; i++)
     {
@@ -168,7 +168,7 @@ Rect NinePatchImageParser::parseCapInset() const
     Rect capInsets;
     Vec2 horizontalLine = this->parseHorizontalMargin();
     Vec2 verticalLine = this->parseVerticalMargin();
-    
+
     if(_isRotated)
     {
         capInsets =  Rect(verticalLine.y,
@@ -183,7 +183,7 @@ Rect NinePatchImageParser::parseCapInset() const
                          horizontalLine.y - horizontalLine.x,
                          verticalLine.y - verticalLine.x);
     }
-    
+
     capInsets = CC_RECT_PIXELS_TO_POINTS(capInsets);
     return capInsets;
 }
@@ -215,3 +215,4 @@ bool NinePatchImageParser::isNinePatchImage(const std::string& filepath)
 }
 
 NS_CC_END
+

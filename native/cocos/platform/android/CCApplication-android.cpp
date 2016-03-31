@@ -71,7 +71,7 @@ int Application::run()
     {
         return 0;
     }
-    
+
     return -1;
 }
 
@@ -111,7 +111,7 @@ LanguageType Application::getCurrentLanguage()
     std::string languageName = JniHelper::callStaticStringMethod(HELPER_JAVA_CLASS, "getCurrentLanguage");
     const char* pLanguageName = languageName.c_str();
     LanguageType ret = LanguageType::ENGLISH;
-    
+
     if (0 == strcmp("zh", pLanguageName))
     {
         ret = LanguageType::CHINESE;

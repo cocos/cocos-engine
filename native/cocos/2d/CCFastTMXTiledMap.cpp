@@ -59,7 +59,7 @@ bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
     if (tmxFile.empty()) {
         return false;
     }
-    
+
     setContentSize(Size::ZERO);
 
     TMXMapInfo *mapInfo = TMXMapInfo::create(tmxFile);
@@ -88,7 +88,7 @@ bool TMXTiledMap::initWithXML(const std::string& tmxString, const std::string& r
 
 TMXTiledMap::TMXTiledMap()
     :_mapSize(Size::ZERO)
-    ,_tileSize(Size::ZERO)        
+    ,_tileSize(Size::ZERO)
 {
 }
 
@@ -102,7 +102,7 @@ TMXLayer * TMXTiledMap::parseLayer(TMXLayerInfo *layerInfo, TMXMapInfo *mapInfo)
     TMXTilesetInfo *tileset = tilesetForLayer(layerInfo, mapInfo);
     if (tileset == nullptr)
         return nullptr;
-    
+
     TMXLayer *layer = TMXLayer::create(tileset, layerInfo, mapInfo);
 
     // tell the layerinfo to release the ownership of the tiles map.
@@ -116,7 +116,7 @@ TMXTilesetInfo * TMXTiledMap::tilesetForLayer(TMXLayerInfo *layerInfo, TMXMapInf
 {
     Size size = layerInfo->_layerSize;
     auto& tilesets = mapInfo->getTilesets();
-    
+
     for (auto iter = tilesets.crbegin(); iter != tilesets.crend(); ++iter)
     {
         TMXTilesetInfo* tilesetInfo = *iter;
@@ -128,13 +128,13 @@ TMXTilesetInfo * TMXTiledMap::tilesetForLayer(TMXLayerInfo *layerInfo, TMXMapInf
                 {
                     int pos = static_cast<int>(x + size.width * y);
                     int gid = layerInfo->_tiles[ pos ];
-                    
+
                     // gid are stored in little endian.
                     // if host is big endian, then swap
                     //if( o == CFByteOrderBigEndian )
                     //    gid = CFSwapInt32( gid );
                     /* We support little endian.*/
-                    
+
                     // FIXME: gid == 0 --> empty tile
                     if( gid != 0 )
                     {
@@ -177,14 +177,14 @@ void TMXTiledMap::buildWithMapInfo(TMXMapInfo* mapInfo)
                 continue;
             }
             addChild(child, idx, idx);
-            
+
             // update content size with the max size
             const Size& childSize = child->getContentSize();
             Size currentSize = this->getContentSize();
             currentSize.width = std::max( currentSize.width, childSize.width );
             currentSize.height = std::max( currentSize.height, childSize.height );
             this->setContentSize(currentSize);
-            
+
             idx++;
         }
     }
@@ -197,7 +197,7 @@ TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
     if (layerName.empty()) {
         return nullptr;
     }
-    
+
     for (auto& child : _children)
     {
         TMXLayer* layer = dynamic_cast<TMXLayer*>(child);
@@ -242,7 +242,7 @@ Value TMXTiledMap::getProperty(const std::string& propertyName) const
 {
     if (_properties.find(propertyName) != _properties.end())
         return _properties.at(propertyName);
-    
+
     return Value();
 }
 
@@ -250,7 +250,7 @@ Value TMXTiledMap::getPropertiesForGID(int GID) const
 {
     if (_tileProperties.find(GID) != _tileProperties.end())
         return _tileProperties.at(GID);
-    
+
     return Value();
 }
 

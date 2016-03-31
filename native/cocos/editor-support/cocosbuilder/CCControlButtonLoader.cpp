@@ -19,7 +19,7 @@ namespace cocosbuilder {;
 #define PROPERTY_TITLETTFSIZE_HIGHLIGHTED "titleTTFSize|2"
 #define PROPERTY_TITLETTFSIZE_DISABLED "titleTTFSize|3"
 #define PROPERTY_LABELANCHORPOINT "labelAnchorPoint"
-// TODO: Should be "preferredSize". This is a typo in cocos2d-iphone, cocos2d-x and CocosBuilder!    
+// TODO: Should be "preferredSize". This is a typo in cocos2d-iphone, cocos2d-x and CocosBuilder!
 #define PROPERTY_PREFEREDSIZE "preferedSize"
 #define PROPERTY_BACKGROUNDSPRITEFRAME_NORMAL "backgroundSpriteFrame|1"
 #define PROPERTY_BACKGROUNDSPRITEFRAME_HIGHLIGHTED "backgroundSpriteFrame|2"
@@ -116,3 +116,4 @@ void ControlButtonLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, c
 }
 
 };
+

@@ -19,15 +19,15 @@ public:
      * @lua NA
      */
     ~CCBSequenceProperty();
-    
+
     virtual bool init();
-    
+
     const char* getName();
     void setName(const char* pName);
-    
+
     int getType();
     void setType(int type);
-    
+
     cocos2d::Vector<CCBKeyframe*>& getKeyframes();
 
 private:
@@ -39,3 +39,4 @@ private:
 }
 
 #endif // __CCB_SEQUENCE_PROPERTY_H__
+

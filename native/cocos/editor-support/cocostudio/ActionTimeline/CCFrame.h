@@ -57,11 +57,11 @@ public:
 
     virtual void setTweenType(const cocos2d::tweenfunc::TweenType& tweenType) { _tweenType = tweenType; }
     virtual cocos2d::tweenfunc::TweenType getTweenType() const { return _tweenType; }
-    
+
     // !to make easing with params, need setTweenType(TweenType::CUSTOM_EASING)
     virtual void setEasingParams(const std::vector<float>& easingParams);
     virtual const std::vector<float>& getEasingParams() const;
-    
+
     virtual bool isEnterWhenPassed() { return _enterWhenPassed; }
 
     virtual void onEnter(Frame* nextFrame, int currentFrameIndex) = 0;
@@ -71,11 +71,11 @@ public:
 protected:
     Frame();
     virtual ~Frame();
-    
+
     virtual void onApply(float percent) {};
     //update percent depends _tweenType, and return the Calculated percent
     virtual float tweenPercent(float percent);
-    
+
     virtual void emitEvent();
     virtual void cloneProperty(Frame* frame);
 protected:
@@ -83,7 +83,7 @@ protected:
     unsigned int    _frameIndex;
     bool            _tween;
     bool            _enterWhenPassed;
-    
+
     cocos2d::tweenfunc::TweenType _tweenType;
     std::vector<float>   _easingParam;
     Timeline* _timeline;
@@ -144,7 +144,7 @@ public:
 
 protected:
     virtual void onApply(float percent) override;
-    
+
     float _rotation;
     float _betwennRotation;
 };
@@ -167,7 +167,7 @@ public:
 
 protected:
     virtual void onApply(float percent) override;
-    
+
     float _skewX;
     float _skewY;
     float _betweenSkewX;
@@ -184,7 +184,7 @@ public:
 
     virtual void onEnter(Frame *nextFrame, int currentFrameIndex) override;
     virtual Frame* clone() override;
-    
+
 protected:
     virtual void onApply(float percent) override;
 };
@@ -208,10 +208,10 @@ public:
 
     inline float getX() const { return _position.x; }
     inline float getY() const { return _position.y; }
-    
+
 protected:
     virtual void onApply(float percent) override;
-    
+
     cocos2d::Point _position;
     float _betweenX;
     float _betweenY;
@@ -238,7 +238,7 @@ public:
 
 protected:
     virtual void onApply(float percent) override;
-    
+
     float _scaleX;
     float _scaleY;
     float _betweenScaleX;
@@ -279,7 +279,7 @@ class CC_STUDIO_DLL InnerActionFrame : public Frame
 {
 public:
     static const std::string AnimationAllName;
-    
+
     static InnerActionFrame* create();
     InnerActionFrame();
 
@@ -288,17 +288,17 @@ public:
 
     inline void setInnerActionType(InnerActionType type) { _innerActionType = type; }
     inline InnerActionType getInnerActionType() const { return _innerActionType; }
-    
+
     inline void setEnterWithName(bool isEnterWithName) { _enterWithName = isEnterWithName;}
-    
+
     void setStartFrameIndex(int frameIndex);
     inline int  getStartFrameIndex() const { return _startFrameIndex; }
 
     void setEndFrameIndex(int frameIndex);
     inline int  getEndFrameIndex() const { return _endFrameIndex; }
-    
+
     void setAnimationName(const std::string& animationNamed);
-    
+
     inline void setSingleFrameIndex(int frameIndex) { _singleFrameIndex = frameIndex;}
     inline int  getSingleFrameIndex() const { return _singleFrameIndex;}
 
@@ -330,7 +330,7 @@ public:
 
 protected:
     virtual void onApply(float percent) override;
-    
+
     GLubyte _alpha;
     cocos2d::Color3B _color;
 
@@ -353,7 +353,7 @@ public:
 
 protected:
     virtual void onApply(float percent) override;
-    
+
     GLubyte _alpha;
     int _betweenAlpha;
 };
@@ -367,7 +367,7 @@ public:
     EventFrame();
 
     virtual void setNode(cocos2d::Node* node) override;
-    
+
     virtual void onEnter(Frame *nextFrame, int currentFrameIndex) override;
     virtual Frame* clone() override;
 
@@ -401,15 +401,15 @@ class CC_STUDIO_DLL BlendFuncFrame : public Frame
 {
 public:
     static BlendFuncFrame* create();
-    
+
     BlendFuncFrame();
-    
+
     virtual void onEnter(Frame *nextFrame, int currentFrameIndex) override;
     virtual Frame* clone() override;
-    
+
     inline cocos2d::BlendFunc getBlendFunc() const { return _blendFunc; }
     inline void setBlendFunc(cocos2d::BlendFunc blendFunc) { _blendFunc = blendFunc; }
-    
+
 protected:
     cocos2d::BlendFunc  _blendFunc;
 };
@@ -417,3 +417,4 @@ NS_TIMELINE_END
 
 
 #endif /*__CCFRAME_H__*/
+

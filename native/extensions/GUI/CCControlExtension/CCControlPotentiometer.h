@@ -4,17 +4,17 @@
  *
  * Copyright 2012 Yannick Loriot. All rights reserved.
  * http://yannickloriot.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -59,7 +59,7 @@ public:
      */
     virtual ~ControlPotentiometer();
 
-    /** 
+    /**
      * Initializes a potentiometer with a track sprite and a progress bar.
      *
      * @param trackSprite   Sprite, that is used as a background.
@@ -69,7 +69,7 @@ public:
 
     void setValue(float value);
     float getValue();
-     
+
     void setMinimumValue(float minimumValue);
     float getMinimumValue();
 
@@ -92,7 +92,7 @@ public:
     float distanceBetweenPointAndPoint(Vec2 point1, Vec2 point2);
     /** Returns the angle in degree between line1 and line2. */
     float angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint(
-        Vec2 beginLineA, 
+        Vec2 beginLineA,
         Vec2 endLineA,
         Vec2 beginLineB,
         Vec2 endLineB);
@@ -119,3 +119,4 @@ protected:
 NS_CC_EXT_END
 
 #endif /* __CCCONTROLPOTENTIOMETER_H__ */
+

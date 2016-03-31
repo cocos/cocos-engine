@@ -100,7 +100,7 @@ void NodeGrid::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t p
     if(dirty)
         _modelViewTransform = this->transform(parentTransform);
     _transformUpdated = false;
-    
+
     _groupCommand.init(_globalZOrder);
     renderer->addCommand(&_groupCommand);
     renderer->pushGroup(_groupCommand.getRenderQueueID());
@@ -109,7 +109,7 @@ void NodeGrid::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t p
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
     CCASSERT(nullptr != _director, "Director is null when setting matrix stack");
-    
+
     _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
@@ -129,7 +129,7 @@ void NodeGrid::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t p
     {
         _gridTarget->visit(renderer, _modelViewTransform, dirty);
     }
-    
+
     int i = 0;
     if(!_children.empty())
     {
@@ -155,7 +155,7 @@ void NodeGrid::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t p
     {
         this->draw(renderer, _modelViewTransform, dirty);
     }
-    
+
     if(_nodeGrid && _nodeGrid->isActive())
     {
         // restore projection
@@ -167,7 +167,7 @@ void NodeGrid::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t p
     renderer->addCommand(&_gridEndCommand);
 
     renderer->popGroup();
- 
+
     _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
@@ -179,3 +179,4 @@ void NodeGrid::setGrid(GridBase *grid)
 }
 
 NS_CC_END
+

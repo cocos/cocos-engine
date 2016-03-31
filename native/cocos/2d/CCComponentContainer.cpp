@@ -35,7 +35,7 @@ ComponentContainer::ComponentContainer(Node* node)
 }
 
 ComponentContainer::~ComponentContainer()
-{  
+{
 }
 
 Component* ComponentContainer::get(const std::string& name) const
@@ -61,7 +61,7 @@ bool ComponentContainer::add(Component *com)
         if (com == nullptr || com->getOwner() == nullptr) {
             break;
         }
-        
+
         auto componentName = com->getName();
 
         if (_componentMap.find(componentName) != _componentMap.end())
@@ -82,8 +82,8 @@ bool ComponentContainer::add(Component *com)
 bool ComponentContainer::remove(const std::string& componentName)
 {
     bool ret = false;
-    do 
-    {        
+    do
+    {
         auto iter = _componentMap.find(componentName);
         CC_BREAK_IF(iter == _componentMap.end());
 
@@ -116,7 +116,7 @@ void ComponentContainer::removeAll()
             component->setOwner(nullptr);
             component->release();
         }
-        
+
         _componentMap.clear();
         _owner->unscheduleUpdate();
     }
@@ -153,3 +153,4 @@ void ComponentContainer::onExit()
 }
 
 NS_CC_END
+

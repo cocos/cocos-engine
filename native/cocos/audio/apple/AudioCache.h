@@ -54,14 +54,14 @@ public:
     void addPlayCallback(const std::function<void()>& callback);
 
     void addLoadCallback(const std::function<void(bool)>& callback);
-    
+
 protected:
     void readDataTask();
 
     void invokingPlayCallbacks();
 
     void invokingLoadCallbacks();
-    
+
     //pcm data related stuff
     ALsizei _dataSize;
     ALenum _format;
@@ -69,7 +69,7 @@ protected:
     float _duration;
     int _bytesPerFrame;
     AudioStreamBasicDescription outputFormat;
-    
+
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
@@ -88,14 +88,14 @@ protected:
     bool _alBufferReady;
     bool _loadFail;
     std::mutex _callbackMutex;
-    
+
     std::vector< std::function<void()> > _callbacks;
     std::vector< std::function<void(bool)> > _loadCallbacks;
     std::mutex _readDataTaskMutex;
-    
+
     bool _exitReadDataTask;
     std::string _fileFullPath;
-    
+
     friend class AudioEngineImpl;
     friend class AudioPlayer;
 } ;

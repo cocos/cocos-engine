@@ -104,7 +104,7 @@ public:
         virtual ~SIODelegate() {}
         /**
          * This is kept for backwards compatibility, connect is now fired as a socket.io event "connect"
-         * 
+         *
          * This function would be called when the related SIOClient object receive messages that mean it have connected to endpoint successfully.
          *
          * @param client the connected SIOClient object.
@@ -248,14 +248,14 @@ public:
      * @param e the callback function.
      */
     void on(const std::string& eventName, SIOEvent e);
-    
+
     /**
      * Set tag of SIOClient.
      * The tag is used to distinguish the various SIOClient objects.
      * @param tag string object.
      */
     void setTag(const char* tag);
-    
+
     /**
      * Get tag of SIOClient.
      * @return const char* the pointer point to the _tag.
@@ -275,3 +275,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__CC_JSB_SOCKETIO_H__) */
+

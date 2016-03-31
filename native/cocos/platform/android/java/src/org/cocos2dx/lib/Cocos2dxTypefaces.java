@@ -53,3 +53,4 @@ public class Cocos2dxTypefaces {
         return Cocos2dxTypefaces.sTypefaceCache.get(assetName);
     }
 }
+

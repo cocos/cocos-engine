@@ -64,3 +64,4 @@ void MessageBox(const char * msg, const char * title)
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+

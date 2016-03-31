@@ -43,14 +43,14 @@ public:
     JSStringWrapper(JSString* str, JSContext* cx = NULL);
     JSStringWrapper(jsval val, JSContext* cx = NULL);
     ~JSStringWrapper();
-    
+
     void set(jsval val, JSContext* cx);
     void set(JSString* str, JSContext* cx);
     const char* get();
-    
+
 private:
     const char* _buffer;
-    
+
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(JSStringWrapper);
 };
@@ -145,7 +145,7 @@ bool jsval_to_ccvector(JSContext* cx, JS::HandleValue v, cocos2d::Vector<T>* ret
     bool ok = v.isObject() && JS_ValueToObject( cx, v, &jsobj );
     JSB_PRECONDITION3( ok, cx, false, "Error converting value to object");
     JSB_PRECONDITION3( jsobj && JS_IsArrayObject( cx, jsobj),  cx, false, "Object must be an array");
-    
+
     uint32_t len = 0;
     JS_GetArrayLength(cx, jsobj, &len);
 
@@ -206,7 +206,7 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
     }
 
     JS::RootedObject it(cx, JS_NewPropertyIterator(cx, tmp));
-    
+
     while (true)
     {
         JS::RootedId idp(cx);
@@ -214,17 +214,17 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
         if (! JS_NextProperty(cx, it, idp.address()) || ! JS_IdToValue(cx, idp, &key)) {
             return false; // error
         }
-        
+
         if (key.isUndefined()) {
             break; // end of iteration
         }
-        
+
         if (!key.isString()) {
             continue; // ignore integer properties
         }
-        
+
         JSStringWrapper keyWrapper(key.toString(), cx);
-        
+
         JS::RootedValue value(cx);
         JS_GetPropertyById(cx, tmp, idp, &value);
         if (value.isObject())
@@ -241,7 +241,7 @@ bool jsval_to_ccmap_string_key(JSContext *cx, JS::HandleValue v, cocos2d::Map<st
             CCASSERT(false, "not supported type");
         }
     }
-    
+
     return true;
 }
 
@@ -274,12 +274,12 @@ template <class T>
 jsval ccvector_to_jsval(JSContext* cx, const cocos2d::Vector<T>& v)
 {
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
-    
+
     int i = 0;
     for (const auto& obj : v)
     {
         JS::RootedValue arrElement(cx);
-        
+
         //First, check whether object is associated with js object.
         js_proxy_t* jsproxy = js_get_or_create_proxy(cx, obj);
         if (jsproxy) {
@@ -300,20 +300,20 @@ jsval ccmap_string_key_to_jsval(JSContext* cx, const cocos2d::Map<std::string, T
     JS::RootedObject proto(cx);
     JS::RootedObject parent(cx);
     JS::RootedObject jsRet(cx, JS_NewObject(cx, NULL, proto, parent));
-    
+
     for (auto iter = v.begin(); iter != v.end(); ++iter)
     {
         JS::RootedValue element(cx);
-        
+
         std::string key = iter->first;
         T obj = iter->second;
-        
+
         //First, check whether object is associated with js object.
         js_proxy_t* jsproxy = js_get_or_create_proxy(cx, obj);
         if (jsproxy) {
             element = OBJECT_TO_JSVAL(jsproxy->obj);
         }
-        
+
         if (!key.empty())
         {
             JS_SetProperty(cx, jsRet, key.c_str(), element);

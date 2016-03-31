@@ -35,28 +35,29 @@ CC_DLL Vec2 getAbsolutePosition(const Vec2 &pt, CCBReader::PositionType type, co
     else if (type == CCBReader::PositionType::MULTIPLY_RESOLUTION)
     {
         float resolutionScale = CCBReader::getResolutionScale();
-        
+
         absPt.x = pt.x * resolutionScale;
         absPt.y = pt.y * resolutionScale;
     }
-    
+
     return absPt;
 }
 
 CC_DLL void setRelativeScale(Node *pNode, float scaleX, float scaleY, CCBReader::ScaleType type, const std::string& propName)
 {
     CCASSERT(pNode, "pNode should not be null");
-    
+
     if (type == CCBReader::ScaleType::MULTIPLY_RESOLUTION)
     {
         float resolutionScale = CCBReader::getResolutionScale();
-        
+
         scaleX *= resolutionScale;
         scaleY *= resolutionScale;
     }
-    
+
     pNode->setScaleX(scaleX);
     pNode->setScaleY(scaleY);
 }
 
 }
+

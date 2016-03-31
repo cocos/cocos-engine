@@ -39,16 +39,16 @@ void JSB_register_opengl(JSContext *_cx, JS::HandleObject object)
     // gl
     //
     JS::RootedObject opengl(_cx, JS_NewObject(_cx, NULL, JS::NullPtr(), JS::NullPtr()));
-    
+
     JS::RootedValue openglVal(_cx);
     openglVal = OBJECT_TO_JSVAL(opengl);
     JS_SetProperty(_cx, object, "gl", openglVal);
 
     JS::RootedObject ccns(_cx);
     get_or_create_js_obj(_cx, object, "cc", &ccns);
-    
+
     js_register_cocos2dx_GLNode(_cx, ccns);
-    
+
     // New WebGL functions, not present on OpenGL ES 2.0
     JS_DefineFunction(_cx, opengl, "getSupportedExtensions", JSB_glGetSupportedExtensions, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(_cx, opengl, "activeTexture", JSB_glActiveTexture, 1, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
@@ -177,6 +177,6 @@ void JSB_register_opengl(JSContext *_cx, JS::HandleObject object)
     JS_DefineFunction(_cx, opengl, "vertexAttrib4fv", JSB_glVertexAttrib4fv, 2, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(_cx, opengl, "vertexAttribPointer", JSB_glVertexAttribPointer, 6, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(_cx, opengl, "viewport", JSB_glViewport, 4, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
-    
+
 }
 

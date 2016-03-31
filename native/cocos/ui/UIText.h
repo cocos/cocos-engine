@@ -352,3 +352,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__CocoGUI__Label__) */
+

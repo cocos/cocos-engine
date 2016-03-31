@@ -51,7 +51,7 @@ public:
     AudioPlayer();
     AudioPlayer(const AudioPlayer&);
     ~AudioPlayer();
-    
+
     //queue buffer related stuff
     bool setTime(float time);
     float getTime() { return _currTime;}
@@ -61,16 +61,16 @@ public:
 protected:
     void rotateBufferThread(int offsetFrame);
     bool play2d(AudioCache* cache);
-    
+
     AudioCache* _audioCache;
-    
+
     float _volume;
     bool _loop;
     std::function<void (int, const std::string &)> _finishCallbak;
-    
+
     bool _ready;
     ALuint _alSource;
-    
+
     //play by circular buffer
     float _currTime;
     bool _timeDirty;
@@ -81,7 +81,7 @@ protected:
     std::condition_variable _sleepCondition;
     bool _exitThread;
     bool _readForRemove;
-    
+
     friend class AudioEngineImpl;
 };
 

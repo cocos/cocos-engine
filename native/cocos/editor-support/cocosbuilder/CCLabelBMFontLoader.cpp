@@ -51,3 +51,4 @@ void LabelBMFontLoader::onHandlePropTypeText(Node * pNode, Node * pParent, const
 }
 
 }
+

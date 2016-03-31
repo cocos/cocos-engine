@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
- 
+
 Original file from GamePlay3D: http://gameplay3d.org
 
 This file was modified to fit the cocos2d-x project
@@ -77,7 +77,7 @@ NS_CC_MATH_BEGIN
 void MathUtil::smooth(float* x, float target, float elapsedTime, float responseTime)
 {
     GP_ASSERT(x);
-    
+
     if (elapsedTime > 0)
     {
         *x += (target - *x) * elapsedTime / (elapsedTime + responseTime);
@@ -87,7 +87,7 @@ void MathUtil::smooth(float* x, float target, float elapsedTime, float responseT
 void MathUtil::smooth(float* x, float target, float elapsedTime, float riseTime, float fallTime)
 {
     GP_ASSERT(x);
-    
+
     if (elapsedTime > 0)
     {
         float delta = target - *x;
@@ -276,3 +276,4 @@ void MathUtil::crossVec3(const float* v1, const float* v2, float* dst)
 }
 
 NS_CC_MATH_END
+

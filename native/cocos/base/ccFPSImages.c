@@ -2376,3 +2376,4 @@ unsigned int cc_fps_images_len(void)
 {
 	return sizeof(cc_fps_images_png);
 }
+

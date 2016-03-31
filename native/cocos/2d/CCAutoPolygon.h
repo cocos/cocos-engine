@@ -59,7 +59,7 @@ public:
         triangles.vertCount = 0;
         triangles.indexCount = 0;
     };
-    
+
     /**
      * Create an polygoninfo from the data of another Polygoninfo
      * @param other     another PolygonInfo to be copied
@@ -68,14 +68,14 @@ public:
     PolygonInfo(const PolygonInfo& other);
     //  end of creators group
     /// @}
-    
+
     /**
      * Copy the member of the other PolygonInfo
      * @param other     another PolygonInfo to be copied
      */
     PolygonInfo& operator= (const PolygonInfo &other);
     ~PolygonInfo();
-    
+
     /**
      * set the data to be a pointer to a quad
      * the member verts will not be released when this PolygonInfo destructs
@@ -91,32 +91,32 @@ public:
      * @param triangles  a pointer to the TrianglesCommand::Triangles object
      */
     void setTriangles(const TrianglesCommand::Triangles& triangles);
-    
+
     /**
      * get vertex count
      * @return number of vertices
      */
     unsigned int getVertCount() const;
-    
+
     /**
      * get triangles count
      * @return number of triangles
      */
     unsigned int getTrianglesCount() const;
-    
+
     /**
      * get sum of all triangle area size
      * @return sum of all triangle area size
      */
     float getArea() const;
-    
+
     Rect rect;
     std::string filename;
     TrianglesCommand::Triangles triangles;
-    
+
 protected:
     bool isVertsOwner;
-    
+
 private:
     void releaseVertsAndIndices();
 };
@@ -125,3 +125,4 @@ private:
 NS_CC_END
 
 #endif // #ifndef COCOS_2D_CCAUTOPOLYGON_H__
+

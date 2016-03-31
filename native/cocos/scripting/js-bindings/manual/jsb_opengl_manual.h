@@ -38,3 +38,4 @@ bool JSB_glGetSupportedExtensions(JSContext *cx, uint32_t argc, jsval *vp);
 #endif // JSB_INCLUDE_OPENGL
 
 #endif // __jsb_opengl_manual
+

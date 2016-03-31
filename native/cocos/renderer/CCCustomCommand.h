@@ -45,7 +45,7 @@ public:
     CustomCommand();
     /**Destructor.*/
     ~CustomCommand();
-    
+
 public:
     /**
     Init function.
@@ -78,3 +78,4 @@ NS_CC_END
  @}
  */
 #endif //_CC_CUSTOMCOMMAND_H_
+

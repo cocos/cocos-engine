@@ -3,7 +3,7 @@ Copyright (c) 2008-2010 Ricardo Quesada
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2011      Zynga Inc.
 Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -110,11 +110,11 @@ void ActionCamera::updateTransform()
         Mat4::createTranslation(anchorPoint.x, anchorPoint.y, 0, &t);
         mv = mv * t;
     }
-    
+
     mv = mv * lookupMatrix;
 
     if(needsTranslation) {
-        
+
         Mat4 t;
         Mat4::createTranslation(-anchorPoint.x, -anchorPoint.y, 0, &t);
         mv = mv * t;
@@ -158,7 +158,7 @@ OrbitCamera * OrbitCamera::create(float t, float radius, float deltaRadius, floa
         obitCamera->autorelease();
         return obitCamera;
     }
-    
+
     delete obitCamera;
     return nullptr;
 }
@@ -243,3 +243,4 @@ void OrbitCamera::sphericalRadius(float *newRadius, float *zenith, float *azimut
 }
 
 NS_CC_END
+

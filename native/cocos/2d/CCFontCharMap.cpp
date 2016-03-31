@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2013      Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,7 +38,7 @@ FontCharMap * FontCharMap::create(const std::string& plistFile)
     if (pathStr.empty()) {
         return nullptr;
     }
-    
+
     ValueMap dict = fileUtils->getValueMapFromFile(pathStr);
     if (dict.empty()) {
         return nullptr;
@@ -53,18 +53,18 @@ FontCharMap * FontCharMap::create(const std::string& plistFile)
     {
         return nullptr;
     }
-    
+
     unsigned int width = dict["itemWidth"].asInt();
     unsigned int height = dict["itemHeight"].asInt();
     unsigned int startChar = dict["firstChar"].asInt();
-    
+
     FontCharMap *tempFont = new (std::nothrow) FontCharMap(tempTexture,width,height,startChar);
     if (!tempFont)
     {
         return nullptr;
     }
     tempFont->autorelease();
-    
+
     return tempFont;
 }
 
@@ -114,7 +114,7 @@ FontAtlas * FontCharMap::createFontAtlas()
     FontAtlas *tempAtlas = new (std::nothrow) FontAtlas(*this);
     if (!tempAtlas)
         return nullptr;
-    
+
     Size s = _texture->getContentSizeInPixels();
     int itemsPerColumn = (int)(s.height / _itemHeight);
     int itemsPerRow = (int)(s.width / _itemWidth);
@@ -144,10 +144,11 @@ FontAtlas * FontCharMap::createFontAtlas()
             charId++;
         }
     }
-    
+
     tempAtlas->addTexture(_texture,0);
 
     return tempAtlas;
 }
 
 NS_CC_END
+

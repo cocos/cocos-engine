@@ -177,7 +177,7 @@ public:
     * @return An automatically released Label object.
     * @see TTFConfig setTTFConfig setMaxLineWidth
     */
-    static Label* createWithTTF(const TTFConfig& ttfConfig, const std::string& text, 
+    static Label* createWithTTF(const TTFConfig& ttfConfig, const std::string& text,
         TextHAlignment hAlignment = TextHAlignment::LEFT, int maxLineWidth = 0);
 
     /**
@@ -649,7 +649,7 @@ protected:
 
     void recordLetterInfo(const cocos2d::Vec2& point, char16_t utf16Char, int letterIndex, int lineIndex);
     void recordPlaceholderInfo(int letterIndex, char16_t utf16Char);
-    
+
     bool updateQuads();
 
     void createSpriteForSystemFont(const FontDefinition& fontDef);
@@ -731,7 +731,7 @@ protected:
     bool _shadowDirty;
     bool _shadowEnabled;
     Size _shadowOffset;
-    
+
     Color4F _shadowColor4F;
     Color3B _shadowColor3B;
     GLubyte _shadowOpacity;
@@ -774,3 +774,4 @@ private:
 NS_CC_END
 
 #endif /*__COCOS2D_CCLABEL_H */
+

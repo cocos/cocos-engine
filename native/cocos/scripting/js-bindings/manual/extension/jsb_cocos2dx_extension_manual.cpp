@@ -42,30 +42,30 @@ public:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         _JSDelegate.construct(cx);
     }
-    
+
     virtual ~JSB_ScrollViewDelegate()
     {
         _JSDelegate.destroyIfConstructed();
     }
-    
+
     virtual void scrollViewDidScroll(ScrollView* view) override
     {
         js_proxy_t * p = jsb_get_native_proxy(view);
         if (!p) return;
-        
+
         jsval arg = OBJECT_TO_JSVAL(p->obj);
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "scrollViewDidScroll", 1, &arg);
     }
-    
+
     virtual void scrollViewDidZoom(ScrollView* view) override
     {
         js_proxy_t * p = jsb_get_native_proxy(view);
         if (!p) return;
-        
+
         jsval arg = OBJECT_TO_JSVAL(p->obj);
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "scrollViewDidZoom", 1, &arg);
     }
-    
+
     void setJSDelegate(JS::HandleObject pJSDelegate)
     {
         _JSDelegate.ref() = pJSDelegate;
@@ -81,19 +81,19 @@ static bool js_cocos2dx_CCScrollView_setDelegate(JSContext *cx, uint32_t argc, j
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     cocos2d::extension::ScrollView* cobj = (cocos2d::extension::ScrollView *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    
+
     if (argc == 1)
     {
         // save the delegate
         JS::RootedObject jsDelegate(cx, args.get(0).toObjectOrNull());
         JSB_ScrollViewDelegate* nativeDelegate = new (std::nothrow) JSB_ScrollViewDelegate();
         nativeDelegate->setJSDelegate(jsDelegate);
-        
+
         cobj->setUserObject(nativeDelegate);
         cobj->setDelegate(nativeDelegate);
-        
+
         nativeDelegate->release();
-        
+
         args.rval().setUndefined();
         return true;
     }
@@ -115,73 +115,73 @@ public:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         _JSDelegate.construct(cx);
     }
-    
+
     virtual ~JSB_TableViewDelegate()
     {
         _JSDelegate.destroyIfConstructed();
     }
-    
+
     virtual void scrollViewDidScroll(ScrollView* view) override
     {
         callJSDelegate(view, "scrollViewDidScroll");
     }
-    
+
     virtual void scrollViewDidZoom(ScrollView* view) override
     {
         callJSDelegate(view, "scrollViewDidZoom");
     }
-    
+
     virtual void tableCellTouched(TableView* table, TableViewCell* cell) override
     {
         callJSDelegate(table, cell, "tableCellTouched");
     }
-    
+
     virtual void tableCellHighlight(TableView* table, TableViewCell* cell) override
     {
         callJSDelegate(table, cell, "tableCellHighlight");
     }
-    
+
     virtual void tableCellUnhighlight(TableView* table, TableViewCell* cell) override
     {
         callJSDelegate(table, cell, "tableCellUnhighlight");
     }
-    
+
     virtual void tableCellWillRecycle(TableView* table, TableViewCell* cell) override
     {
         callJSDelegate(table, cell, "tableCellWillRecycle");
     }
-    
+
     void setJSDelegate(JS::HandleObject pJSDelegate)
     {
         _JSDelegate.ref() = pJSDelegate;
     }
-    
-    
+
+
 private:
     void callJSDelegate(ScrollView* view, std::string jsFunctionName)
     {
         js_proxy_t * p = jsb_get_native_proxy(view);
         if (!p) return;
-        
+
         jsval arg = OBJECT_TO_JSVAL(p->obj);
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), jsFunctionName.c_str(), 1, &arg);
     }
-    
+
     void callJSDelegate(TableView* table, TableViewCell* cell, std::string jsFunctionName)
     {
         js_proxy_t * p = jsb_get_native_proxy(table);
         if (!p) return;
-        
+
         js_proxy_t * pCellProxy = jsb_get_native_proxy(cell);
         if (!pCellProxy) return;
-        
+
         jsval args[2];
         args[0] = OBJECT_TO_JSVAL(p->obj);
         args[1] = OBJECT_TO_JSVAL(pCellProxy->obj);
-        
+
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), jsFunctionName.c_str(), 2, args);
     }
-    
+
     mozilla::Maybe<JS::PersistentRootedObject> _JSDelegate;
 };
 
@@ -192,14 +192,14 @@ static bool js_cocos2dx_CCTableView_setDelegate(JSContext *cx, uint32_t argc, js
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     cocos2d::extension::TableView* cobj = (cocos2d::extension::TableView *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    
+
     if (argc == 1)
     {
         // save the delegate
         JS::RootedObject jsDelegate(cx, args.get(0).toObjectOrNull());
         JSB_TableViewDelegate* nativeDelegate = new (std::nothrow) JSB_TableViewDelegate();
         nativeDelegate->setJSDelegate(jsDelegate);
-        
+
         auto userDict = static_cast<JSBinding::DictionaryRef*>(cobj->getUserObject());
         if (NULL == userDict)
         {
@@ -207,13 +207,13 @@ static bool js_cocos2dx_CCTableView_setDelegate(JSContext *cx, uint32_t argc, js
             cobj->setUserObject(userDict);
             userDict->release();
         }
-         
+
         userDict->data.insert(KEY_TABLEVIEW_DELEGATE, nativeDelegate);
-        
+
         cobj->setDelegate(nativeDelegate);
-        
+
         nativeDelegate->release();
-        
+
         args.rval().setUndefined();
         return true;
     }
@@ -231,33 +231,33 @@ public:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         _JSTableViewDataSource.construct(cx);
     }
-    
+
     virtual ~JSB_TableViewDataSource()
     {
         _JSTableViewDataSource.destroyIfConstructed();
     }
-    
+
     virtual Size tableCellSizeForIndex(TableView *table, ssize_t idx) override
     {
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         JS::RootedValue ret(cx);
         bool ok = callJSDelegate(table, idx, "tableCellSizeForIndex", &ret);
-        if (!ok) 
+        if (!ok)
         {
             ok = callJSDelegate(table, "cellSizeForTable", &ret);
         }
-        if (ok) 
+        if (ok)
         {
             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-            
+
             Size size;
             bool isSucceed = jsval_to_ccsize(cx, ret, &size);
             if (isSucceed) return size;
         }
         return Size::ZERO;
-        
+
     }
-    
+
     virtual TableViewCell* tableCellAtIndex(TableView *table, ssize_t idx) override
     {
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
@@ -277,7 +277,7 @@ public:
         }
         return NULL;
     }
-    
+
     virtual ssize_t numberOfCellsInTableView(TableView *table) override
     {
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
@@ -291,28 +291,28 @@ public:
         }
         return 0;
     }
-    
-    
+
+
     void setTableViewDataSource(JS::HandleObject pJSSource)
     {
         _JSTableViewDataSource.ref() = pJSSource;
     }
-    
+
 private:
     bool callJSDelegate(TableView* table, std::string jsFunctionName, JS::MutableHandleValue retVal)
     {
         js_proxy_t * p = jsb_get_native_proxy(table);
         if (!p) return false;
-        
+
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-        
+
         bool hasAction;
         JS::RootedValue temp_retval(cx);
         jsval dataVal = OBJECT_TO_JSVAL(p->obj);
-        
+
         JS::RootedObject obj(cx, _JSTableViewDataSource.ref());
         JSAutoCompartment ac(cx, obj);
-        
+
         if (JS_HasProperty(cx, obj, jsFunctionName.c_str(), &hasAction) && hasAction)
         {
             if(!JS_GetProperty(cx, obj, jsFunctionName.c_str(), &temp_retval))
@@ -330,29 +330,29 @@ private:
         }
         return false;
     }
-    
+
     bool callJSDelegate(TableView* table, ssize_t idx, std::string jsFunctionName, JS::MutableHandleValue retVal)
     {
         js_proxy_t * p = jsb_get_native_proxy(table);
         if (!p) return false;
-        
+
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         bool hasAction;
         JS::RootedValue temp_retval(cx);
         jsval dataVal[2];
         dataVal[0] = OBJECT_TO_JSVAL(p->obj);
         dataVal[1] = ssize_to_jsval(cx,idx);
-        
+
         JS::RootedObject obj(cx, _JSTableViewDataSource.ref());
         JSAutoCompartment ac(cx, obj);
-        
+
         if (JS_HasProperty(cx, obj, jsFunctionName.c_str(), &hasAction) && hasAction)
         {
             if(!JS_GetProperty(cx, obj, jsFunctionName.c_str(), &temp_retval))
             {
                 return false;
             }
-            
+
             if(temp_retval == JSVAL_VOID)
             {
                 return false;
@@ -364,7 +364,7 @@ private:
         }
         return false;
     }
-    
+
 private:
     mozilla::Maybe<JS::PersistentRootedObject> _JSTableViewDataSource;
 };
@@ -381,7 +381,7 @@ static bool js_cocos2dx_CCTableView_setDataSource(JSContext *cx, uint32_t argc, 
         JSB_TableViewDataSource* pNativeSource = new (std::nothrow) JSB_TableViewDataSource();
         JS::RootedObject jsdata(cx, args.get(0).toObjectOrNull());
         pNativeSource->setTableViewDataSource(jsdata);
-    
+
         auto userDict = static_cast<JSBinding::DictionaryRef*>(cobj->getUserObject());
         if (NULL == userDict)
         {
@@ -393,13 +393,13 @@ static bool js_cocos2dx_CCTableView_setDataSource(JSContext *cx, uint32_t argc, 
         userDict->data.insert(KEY_TABLEVIEW_DATA_SOURCE, pNativeSource);
 
         cobj->setDataSource(pNativeSource);
-        
+
         pNativeSource->release();
-        
+
         args.rval().setUndefined();
         return true;
     }
-    
+
     JS_ReportError(cx, "wrong number of arguments");
     return false;
 }
@@ -410,7 +410,7 @@ static bool js_cocos2dx_CCTableView_create(JSContext *cx, uint32_t argc, jsval *
     bool ok = true;
     if (argc == 3 || argc == 2)
     {
-        
+
         JSB_TableViewDataSource* pNativeSource = new (std::nothrow) JSB_TableViewDataSource();
         JS::RootedObject jsdata(cx, args.get(0).toObjectOrNull());
         pNativeSource->setTableViewDataSource(jsdata);
@@ -420,22 +420,22 @@ static bool js_cocos2dx_CCTableView_create(JSContext *cx, uint32_t argc, jsval *
         cocos2d::extension::TableView* ret = NULL;
         ret = new (std::nothrow) TableView();
         ret->autorelease();
-        
+
         ret->setDataSource(pNativeSource);
-        
+
         jsval jsret;
         do {
             if (ret)
             {
                 js_proxy_t *proxy = js_get_or_create_proxy<cocos2d::extension::TableView>(cx, ret);
                 jsret = OBJECT_TO_JSVAL(proxy->obj);
-            } 
+            }
             else
             {
                 jsret = JSVAL_NULL;
             }
         } while (0);
-        
+
         if (argc == 2)
         {
             ret->initWithViewSize(arg1);
@@ -443,7 +443,7 @@ static bool js_cocos2dx_CCTableView_create(JSContext *cx, uint32_t argc, jsval *
         else
         {
             cocos2d::Node* arg2;
-            do 
+            do
             {
                 js_proxy_t *proxy;
                 JS::RootedObject tmpObj(cx, args.get(2).toObjectOrNull());
@@ -455,18 +455,18 @@ static bool js_cocos2dx_CCTableView_create(JSContext *cx, uint32_t argc, jsval *
             ret->initWithViewSize(arg1, arg2);
         }
         ret->reloadData();
-        
+
         JSBinding::DictionaryRef* userDict = new (std::nothrow) JSBinding::DictionaryRef();
         userDict->data.insert(KEY_TABLEVIEW_DATA_SOURCE, pNativeSource);
         ret->setUserObject(userDict);
         userDict->release();
-        
+
         pNativeSource->release();
-        
+
         args.rval().set(jsret);
         return true;
     }
-    
+
     JS_ReportError(cx, "wrong number of arguments");
     return false;
 }
@@ -481,7 +481,7 @@ static bool js_cocos2dx_CCTableView_init(JSContext *cx, uint32_t argc, jsval *vp
     bool ok = true;
     if (argc == 3 || argc == 2)
     {
-        
+
         JSB_TableViewDataSource* pNativeSource = new (std::nothrow) JSB_TableViewDataSource();
         JS::RootedObject jsdata(cx, args.get(0).toObjectOrNull());
         pNativeSource->setTableViewDataSource(jsdata);
@@ -497,7 +497,7 @@ static bool js_cocos2dx_CCTableView_init(JSContext *cx, uint32_t argc, jsval *vp
         else
         {
             cocos2d::Node* arg2;
-            do 
+            do
             {
                 JS::RootedObject tmpObj(cx, args.get(2).toObjectOrNull());
                 proxy = jsb_get_js_proxy(tmpObj);
@@ -508,18 +508,18 @@ static bool js_cocos2dx_CCTableView_init(JSContext *cx, uint32_t argc, jsval *vp
             cobj->initWithViewSize(arg1, arg2);
         }
         cobj->reloadData();
-        
+
         JSBinding::DictionaryRef* userDict = new (std::nothrow) JSBinding::DictionaryRef();
         userDict->data.insert(KEY_TABLEVIEW_DATA_SOURCE, pNativeSource);
         cobj->setUserObject(userDict);
         userDict->release();
-        
+
         pNativeSource->release();
-        
+
         args.rval().setUndefined();
         return true;
     }
-    
+
     JS_ReportError(cx, "wrong number of arguments");
     return false;
 }
@@ -536,7 +536,7 @@ public:
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
         _jsFunc.construct(cx);
     }
-    
+
     virtual ~JSB_ControlButtonTarget()
     {
         CCLOGINFO("In the destruction of JSB_ControlButtonTarget ...");
@@ -556,7 +556,7 @@ public:
             }
         }
     }
-    
+
     virtual void onEvent(Ref *controlButton, Control::EventType event)
     {
         js_proxy_t * p;
@@ -566,18 +566,18 @@ public:
             log("Failed to get proxy for control button");
             return;
         }
-        
+
         JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
-        
+
         jsval dataVal[2];
         dataVal[0] = OBJECT_TO_JSVAL(p->obj);
         int arg1 = (int)event;
         dataVal[1] = INT_TO_JSVAL(arg1);
         JS::RootedValue jsRet(cx);
-        
+
         _callback->invoke(2, dataVal, &jsRet);
     }
-    
+
     void setJSCallback(JS::HandleValue jsFunc, JS::HandleObject jsTarget)
     {
         if (_callback != nullptr)
@@ -588,13 +588,13 @@ public:
         _callback = new (std::nothrow) JSFunctionWrapper(cx, jsTarget, jsFunc);
         _jsFunc.ref() = jsFunc.toObjectOrNull();
     }
-    
+
     void setEventType(Control::EventType type)
     {
         _type = type;
     }
 public:
-    
+
     static std::multimap<JSObject*, JSB_ControlButtonTarget*> _jsNativeTargetMap;
     JSFunctionWrapper *_callback;
     Control::EventType _type;
@@ -610,7 +610,7 @@ static bool js_cocos2dx_CCControl_addTargetWithActionForControlEvents(JSContext 
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     cocos2d::extension::Control* cobj = (cocos2d::extension::Control *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    
+
     bool ok = true;
     if (argc == 3)
     {
@@ -619,7 +619,7 @@ static bool js_cocos2dx_CCControl_addTargetWithActionForControlEvents(JSContext 
         Control::EventType arg2;
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "Error processing control event");
-        
+
         // Check whether the target already exists.
         auto range = JSB_ControlButtonTarget::_jsNativeTargetMap.equal_range(jsDelegate);
         for (auto it = range.first; it != range.second; ++it)
@@ -631,10 +631,10 @@ static bool js_cocos2dx_CCControl_addTargetWithActionForControlEvents(JSContext 
                 return true;
             }
         }
-        
+
         // save the delegate
         JSB_ControlButtonTarget* nativeDelegate = new (std::nothrow) JSB_ControlButtonTarget();
-        
+
         JS::RootedObject jscb(cx, jsDelegate);
         nativeDelegate->setJSCallback(args.get(1), jscb);
         nativeDelegate->setEventType(arg2);
@@ -646,16 +646,16 @@ static bool js_cocos2dx_CCControl_addTargetWithActionForControlEvents(JSContext 
             cobj->setUserObject(nativeDelegateArray);  // The reference of nativeDelegateArray is added to 2
             nativeDelegateArray->release(); // Release nativeDelegateArray to make the reference to 1
         }
-        
+
         nativeDelegateArray->data.pushBack(nativeDelegate); // The reference of nativeDelegate is added to 2
         nativeDelegate->release(); // Release nativeDelegate to make the reference to 1
-        
+
         cobj->addTargetWithActionForControlEvents(nativeDelegate, cccontrol_selector(JSB_ControlButtonTarget::onEvent), arg2);
-        
+
         JSB_ControlButtonTarget::_jsNativeTargetMap.insert(std::make_pair(jsDelegate, nativeDelegate));
-        
+
         args.rval().setUndefined();
-        
+
         return true;
     }
     JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 3);
@@ -669,19 +669,19 @@ static bool js_cocos2dx_CCControl_removeTargetWithActionForControlEvents(JSConte
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     cocos2d::extension::Control* cobj = (cocos2d::extension::Control *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    
+
     bool ok = true;
     if (argc == 3)
     {
         Control::EventType arg2;
         ok &= jsval_to_int32(cx, args.get(2), (int32_t *)&arg2);
         JSB_PRECONDITION2(ok, cx, false, "Error processing control event");
-        
+
         obj = args.get(0).toObjectOrNull();
         JSObject* jsFunc = args.get(1).toObjectOrNull();
-        
+
         JSB_ControlButtonTarget* nativeTargetToRemoved = nullptr;
-        
+
         auto range = JSB_ControlButtonTarget::_jsNativeTargetMap.equal_range(obj);
         for (auto it = range.first; it != range.second; ++it)
         {
@@ -692,7 +692,7 @@ static bool js_cocos2dx_CCControl_removeTargetWithActionForControlEvents(JSConte
                 break;
             }
         }
-        
+
         cobj->removeTargetWithActionForControlEvents(nativeTargetToRemoved, cccontrol_selector(JSB_ControlButtonTarget::onEvent), arg2);
 
         return true;
@@ -738,7 +738,7 @@ void __JSDownloaderDelegator::startDownload()
         {
             this->onError();
         };
-        
+
         _downloader->onDataTaskSuccess = [this](const cocos2d::network::DownloadTask& task,
                                                 std::vector<unsigned char>& data)
         {
@@ -753,7 +753,7 @@ void __JSDownloaderDelegator::startDownload()
                 tex = Director::getInstance()->getTextureCache()->addImage(img, _url);
             } while (0);
             CC_SAFE_RELEASE(img);
-            
+
             if (tex)
             {
                 this->onSuccess(tex);
@@ -763,7 +763,7 @@ void __JSDownloaderDelegator::startDownload()
                 this->onError();
             }
         };
-        
+
         _downloader->createDownloadDataTask(_url);
     }
 }
@@ -790,14 +790,14 @@ void __JSDownloaderDelegator::onError()
         JS::RootedValue runtimeValue(_cx);
         JS_GetProperty(_cx, globalObj, "jsb", &runtimeValue);
         JS::RootedObject runtimeObj(_cx, runtimeValue.toObjectOrNull());
-        
+
         jsval valArr[3];
         valArr[0] = INT_TO_JSVAL(_callbackIndex);
         valArr[1] = BOOLEAN_TO_JSVAL(false);
-        
+
         JS::RootedValue retVal(_cx);
         JS_CallFunctionName(_cx, runtimeObj, "onDownloadRemoteFile", JS::HandleValueArray::fromMarkedLocation(2, valArr), &retVal);
-        
+
         release();
     });
 }
@@ -809,7 +809,7 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
     {
         JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
         JSAutoCompartment ac(_cx, global);
-        
+
         jsval valArr[3];
         valArr[0] = INT_TO_JSVAL(_callbackIndex);
         if (tex)
@@ -831,16 +831,16 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
             valArr[1] = BOOLEAN_TO_JSVAL(false);
             valArr[2] = JSVAL_NULL;
         }
-    
+
         auto sc = ScriptingCore::getInstance();
         JS::RootedObject globalObj(_cx, sc->getGlobalObject());
         JS::RootedValue runtimeValue(_cx);
         JS_GetProperty(_cx, globalObj, "jsb", &runtimeValue);
         JS::RootedObject runtimeObj(_cx, runtimeValue.toObjectOrNull());
-        
+
         JS::RootedValue retVal(_cx);
         JS_CallFunctionName(_cx, runtimeObj, "onDownloadRemoteFile", JS::HandleValueArray::fromMarkedLocation(3, valArr), &retVal);
-        
+
         release();
     }
 }
@@ -858,14 +858,14 @@ bool js_load_remote_image(JSContext *cx, uint32_t argc, jsval *vp)
         int callbackIndex;
         jsval_to_int(cx, args.get(1), &callbackIndex);
         JSB_PRECONDITION2(ok, cx, false, "js_load_remote_image : Error processing arguments");
-        
+
         __JSDownloaderDelegator *delegate = __JSDownloaderDelegator::create(cx, url, callbackIndex);
         delegate->downloadAsync();
-        
+
         args.rval().setUndefined();
         return true;
     }
-    
+
     JS_ReportError(cx, "js_load_remote_image : wrong number of arguments");
     return false;
 }
@@ -880,7 +880,7 @@ void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject glob
     JS::RootedValue tmpVal(cx);
     JS::RootedObject tmpObj(cx);
     get_or_create_js_obj(cx, global, "cc", &ccObj);
-    
+
     tmpObj.set(jsb_cocos2d_extension_ScrollView_prototype);
     JS_DefineFunction(cx, tmpObj, "setDelegate", js_cocos2dx_CCScrollView_setDelegate, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS::RootedObject tableview(cx, jsb_cocos2d_extension_TableView_prototype);
@@ -890,13 +890,14 @@ void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject glob
     JS::RootedObject control(cx, jsb_cocos2d_extension_Control_prototype);
     JS_DefineFunction(cx, control, "addTargetWithActionForControlEvents", js_cocos2dx_CCControl_addTargetWithActionForControlEvents, 3, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, control, "removeTargetWithActionForControlEvents", js_cocos2dx_CCControl_removeTargetWithActionForControlEvents, 3, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    
+
     JS_GetProperty(cx, ccObj, "TableView", &tmpVal);
     tmpObj.set(tmpVal.toObjectOrNull());
     JS_DefineFunction(cx, tmpObj, "create", js_cocos2dx_CCTableView_create, 3, JSPROP_READONLY | JSPROP_PERMANENT);
-    
+
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
-    
+
     JS_DefineFunction(cx, jsbObj, "__loadRemoteImg", js_load_remote_image, 2, JSPROP_READONLY | JSPROP_PERMANENT);
 }
+

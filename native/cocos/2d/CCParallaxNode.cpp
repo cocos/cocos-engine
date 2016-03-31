@@ -39,7 +39,7 @@ public:
         ret->autorelease();
         return ret;
     }
-    
+
     bool initWithPoint(Vec2 ratio, Vec2 offset)
     {
         _ratio = ratio;
@@ -47,16 +47,16 @@ public:
         _child = nullptr;
         return true;
     }
-    
+
     inline const Vec2& getRatio() const { return _ratio; };
     inline void setRatio(const Vec2& ratio) { _ratio = ratio; };
 
     inline const Vec2& getOffset() const { return _offset; };
     inline void setOffset(const Vec2& offset) { _offset = offset; };
-    
+
     inline Node* getChild() const { return _child; };
     inline void setChild(Node* child) { _child = child; };
-    
+
 private:
     Vec2 _ratio;
     Vec2 _offset;
@@ -65,7 +65,7 @@ private:
 
 ParallaxNode::ParallaxNode()
 {
-    _parallaxArray = ccArrayNew(5);        
+    _parallaxArray = ccArrayNew(5);
     _lastPosition.set(-100.0f, -100.0f);
 }
 
@@ -160,11 +160,11 @@ void ParallaxNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
     Vec2 pos = this->absolutePosition();
     if( ! pos.equals(_lastPosition) )
     {
-        for( int i=0; i < _parallaxArray->num; i++ ) 
+        for( int i=0; i < _parallaxArray->num; i++ )
         {
             PointObject *point = (PointObject*)_parallaxArray->arr[i];
             float x = -pos.x + pos.x * point->getRatio().x + point->getOffset().x;
-            float y = -pos.y + pos.y * point->getRatio().y + point->getOffset().y;            
+            float y = -pos.y + pos.y * point->getRatio().y + point->getOffset().y;
             point->getChild()->setPosition(x,y);
         }
         _lastPosition = pos;
@@ -173,3 +173,4 @@ void ParallaxNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
 }
 
 NS_CC_END
+

@@ -2,7 +2,7 @@
 Copyright (c) 2009      On-Core
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (C) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -65,7 +65,7 @@ void Grabber::beforeRender(Texture2D *texture)
 
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_oldFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, _FBO);
-    
+
     // save clear color
     glGetFloatv(GL_COLOR_CLEAR_VALUE, _oldClearColor);
     // FIXME: doesn't work with RGB565.
@@ -87,7 +87,7 @@ void Grabber::afterRender(cocos2d::Texture2D *texture)
 
     glBindFramebuffer(GL_FRAMEBUFFER, _oldFBO);
 //  glColorMask(true, true, true, true);    // #631
-    
+
     // Restore clear color
     glClearColor(_oldClearColor[0], _oldClearColor[1], _oldClearColor[2], _oldClearColor[3]);
 }
@@ -99,3 +99,4 @@ Grabber::~Grabber()
 }
 
 NS_CC_END
+

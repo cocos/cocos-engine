@@ -444,13 +444,13 @@ bool GLViewImpl::initWithFullscreen(const std::string &viewname, const GLFWvidmo
     _monitor = monitor;
     if (nullptr == _monitor)
         return false;
-    
+
     //These are soft contraints. If the video mode is retrieved at runtime, the resulting window and context should match these exactly. If invalid attribs are passed (eg. from an outdated cache), window creation will NOT fail but the actual window/context may differ.
     glfwWindowHint(GLFW_REFRESH_RATE, videoMode.refreshRate);
     glfwWindowHint(GLFW_RED_BITS, videoMode.redBits);
     glfwWindowHint(GLFW_BLUE_BITS, videoMode.blueBits);
     glfwWindowHint(GLFW_GREEN_BITS, videoMode.greenBits);
-    
+
     return initWithRect(viewname, Rect(0, 0, videoMode.width, videoMode.height), 1.0f, false);
 }
 
@@ -515,7 +515,7 @@ void GLViewImpl::setCursorVisible( bool isVisible )
 {
     if( _mainWindow == NULL )
         return;
-    
+
     if( isVisible )
         glfwSetInputMode(_mainWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     else
@@ -639,7 +639,7 @@ void GLViewImpl::onGLFWMouseCallBack(GLFWwindow* window, int button, int action,
             }
         }
     }
-    
+
     //Because OpenGL and cocos2d-x uses different Y axis, we need to convert the coordinate here
     float cursorX = (_mouseX - _viewPortRect.origin.x) / _scaleX;
     float cursorY = (_viewPortRect.origin.y + _viewPortRect.size.height - _mouseY) / _scaleY;
@@ -682,7 +682,7 @@ void GLViewImpl::onGLFWMouseMoveCallBack(GLFWwindow* window, double x, double y)
         intptr_t id = 0;
         this->handleTouchesMove(1, &id, &_mouseX, &_mouseY);
     }
-    
+
     //Because OpenGL and cocos2d-x uses different Y axis, we need to convert the coordinate here
     float cursorX = (_mouseX - _viewPortRect.origin.x) / _scaleX;
     float cursorY = (_viewPortRect.origin.y + _viewPortRect.size.height - _mouseY) / _scaleY;
@@ -724,7 +724,7 @@ void GLViewImpl::onGLFWKeyCallback(GLFWwindow *window, int key, int scancode, in
         auto dispatcher = Director::DirectorInstance->getEventDispatcher();
         dispatcher->dispatchEvent(&event);
     }
-    
+
     if (GLFW_RELEASE != action && g_keyCodeMap[key] == EventKeyboard::KeyCode::KEY_BACKSPACE)
     {
         IMEDispatcher::sharedDispatcher()->dispatchDeleteBackward();
@@ -902,3 +902,4 @@ bool GLViewImpl::initGlew()
 }
 
 NS_CC_END // end of namespace cocos2d;
+

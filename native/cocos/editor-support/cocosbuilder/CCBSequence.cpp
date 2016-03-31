@@ -87,3 +87,4 @@ void CCBSequence::setChainedSequenceId(int nChainedSequenceId)
 }
 
 }
+

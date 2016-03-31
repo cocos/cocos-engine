@@ -71,18 +71,18 @@ public:
     @return Current language config
     */
     virtual LanguageType getCurrentLanguage();
-    
+
     /**
     @brief Get current language iso 639-1 code
     @return Current language iso 639-1 code
     */
     virtual const char * getCurrentLanguageCode();
-    
+
     /**
      @brief Get target platform
      */
     virtual Platform getTargetPlatform();
-    
+
     /**
      @brief Open url in default browser
      @param String with url to open.
@@ -106,3 +106,4 @@ NS_CC_END
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 #endif // __CC_APPLICATION_ANDROID_H__
+

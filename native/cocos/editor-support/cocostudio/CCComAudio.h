@@ -46,7 +46,7 @@ public:
      * @lua NA
      */
     virtual ~ComAudio();
-    
+
 public:
     static ComAudio* create();
 
@@ -113,3 +113,4 @@ private:
 }
 
 #endif  // __FUNDATION__CCCOMPONENT_H__
+

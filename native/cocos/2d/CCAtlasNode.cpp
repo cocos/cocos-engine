@@ -3,7 +3,7 @@ Copyright (c) 2008-2010 Ricardo Quesada
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2011      Zynga Inc.
 CopyRight (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -98,7 +98,7 @@ bool AtlasNode::initWithTexture(Texture2D* texture, int tileWidth, int tileHeigh
             break;
         }
         _textureAtlas->initWithTexture(texture, itemsToRender);
-        
+
         this->updateBlendFunc();
         this->updateOpacityModifyRGB();
         this->calculateMaxItems();
@@ -117,12 +117,12 @@ bool AtlasNode::initWithTexture(Texture2D* texture, int tileWidth, int tileHeigh
 void AtlasNode::calculateMaxItems()
 {
     Size s = _textureAtlas->getTexture()->getContentSize();
-    
+
     if (_ignoreContentScaleFactor)
     {
         s = _textureAtlas->getTexture()->getContentSizeInPixels();
     }
-    
+
     _itemsPerColumn = (int)(s.height / _itemHeight);
     _itemsPerRow = (int)(s.width / _itemWidth);
 }
@@ -136,7 +136,7 @@ void AtlasNode::updateAtlasValues()
 void AtlasNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     _quadCommand.init(_globalZOrder, _textureAtlas->getTexture()->getName(), getGLProgramState(), _blendFunc, _textureAtlas->getQuads(), _quadsToDraw, transform, flags);
-    
+
     renderer->addCommand(&_quadCommand);
 
 }
@@ -258,3 +258,4 @@ void AtlasNode::setQuadsToDraw(ssize_t quadsToDraw)
 }
 
 NS_CC_END
+

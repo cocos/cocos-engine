@@ -30,9 +30,9 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 namespace ui {
-    
+
 static const int IMAGE_RENDERER_Z = (-1);
-    
+
 IMPLEMENT_CLASS_GUI_INFO(ImageView)
 
 ImageView::ImageView():
@@ -49,9 +49,9 @@ _imageRendererAdaptDirty(true)
 
 ImageView::~ImageView()
 {
-    
+
 }
-    
+
 ImageView* ImageView::create(const std::string &imageFileName, TextureResType texType)
 {
     ImageView *widget = new (std::nothrow) ImageView;
@@ -75,7 +75,7 @@ ImageView* ImageView::create()
     CC_SAFE_DELETE(widget);
     return nullptr;
 }
-    
+
 bool ImageView::init()
 {
     bool ret = false;
@@ -84,10 +84,10 @@ bool ImageView::init()
         _imageTexType = TextureResType::LOCAL;
         ret = true;
     }
-    
+
     return ret;
 }
-    
+
 bool ImageView::init(const std::string &imageFileName, TextureResType texType)
 {
     bool ret = false;
@@ -96,7 +96,7 @@ bool ImageView::init(const std::string &imageFileName, TextureResType texType)
         this->loadTexture(imageFileName, texType);
         ret = true;
     }
-    
+
     return ret;
 }
 
@@ -104,7 +104,7 @@ void ImageView::initRenderer()
 {
     _imageRenderer = Scale9Sprite::create();
     _imageRenderer->setRenderingType(Scale9Sprite::RenderingType::SIMPLE);
-    
+
     addProtectedChild(_imageRenderer, IMAGE_RENDERER_Z, -1);
 }
 
@@ -168,22 +168,22 @@ void ImageView::setTextureRect(const Rect &rect)
         }
     }
 }
-    
+
 void ImageView::setScale9Enabled(bool able)
 {
     if (_scale9Enabled == able)
     {
         return;
     }
-    
-    
+
+
     _scale9Enabled = able;
     if (_scale9Enabled) {
         _imageRenderer->setRenderingType(Scale9Sprite::RenderingType::SLICE);
     }else{
         _imageRenderer->setRenderingType(Scale9Sprite::RenderingType::SIMPLE);
     }
-    
+
     if (_scale9Enabled)
     {
         bool ignoreBefore = _ignoreSize;
@@ -197,7 +197,7 @@ void ImageView::setScale9Enabled(bool able)
     setCapInsets(_capInsets);
     _imageRendererAdaptDirty = true;
 }
-    
+
 bool ImageView::isScale9Enabled()const
 {
     return _scale9Enabled;
@@ -232,7 +232,7 @@ void ImageView::onSizeChanged()
     Widget::onSizeChanged();
     _imageRendererAdaptDirty = true;
 }
-    
+
 void ImageView::adaptRenderers()
 {
     if (_imageRendererAdaptDirty)
@@ -255,7 +255,7 @@ Node* ImageView::getVirtualRenderer()
 void ImageView::imageTextureScaleChangedWithSize()
 {
     _imageRenderer->setPreferredSize(_contentSize);
-    
+
     _imageRenderer->setPosition(_contentSize.width / 2.0f, _contentSize.height / 2.0f);
 }
 
@@ -288,3 +288,4 @@ void ImageView::copySpecialProperties(Widget *widget)
 }
 
 NS_CC_END
+

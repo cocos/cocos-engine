@@ -43,7 +43,7 @@ NS_CC_BEGIN
  a   b    0
  c   d    0
  tx  ty   1
- 
+
  Identity
  1   0    0
  0   1    0
@@ -117,3 +117,4 @@ NS_CC_END
 /// @}
 
 #endif // __MATH_CCAFFINETRANSFORM_H__
+

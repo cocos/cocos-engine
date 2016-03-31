@@ -45,7 +45,7 @@ glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalize
  _type      ->  type
  _normalize ->  normalized
  _offset is used to compute the start offset in a interleaved array, take a V3F_C4B_T2F array,
- offset of vertex will be 0, offset of color would be 0 + sizeof(float) * 3 = 12, 
+ offset of vertex will be 0, offset of color would be 0 + sizeof(float) * 3 = 12,
  offset of texture coord would be 12 + sizeof(char) * 4 = 16.
  @js NA
 */
@@ -117,7 +117,7 @@ public:
     Create function, used to create a instance of VertexData.
     */
     static VertexData* create();
-    
+
     /**
     Get the number of streams in the VertexData.
     */
@@ -149,7 +149,7 @@ public:
     @param semantic The semantic of the stream.
     */
     VertexBuffer* getStreamBuffer(int semantic) const;
-    
+
     /**
     Called for rendering, it will bind the state of vertex data to current rendering pipeline.
     */
@@ -172,7 +172,7 @@ protected:
         VertexBuffer* _buffer;
         VertexStreamAttribute _stream;
     };
-    
+
     /**
     Streams in the VertexData.
     */
@@ -185,3 +185,4 @@ NS_CC_END
  @}
  */
 #endif //__CC_VERTEX_INDEX_DATA_H__
+

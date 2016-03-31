@@ -35,7 +35,7 @@ namespace CocosDenshion {
         if (! s_pEngine) {
             s_pEngine = new CocosDenshion::android::AndroidJavaEngine();
         }
-    
+
         return s_pEngine;
     }
 
@@ -80,3 +80,4 @@ namespace CocosDenshion {
     void SimpleAudioEngine::preloadEffect(const char* pszFilePath) { }
     void SimpleAudioEngine::unloadEffect(const char* pszFilePath) { }
 }
+

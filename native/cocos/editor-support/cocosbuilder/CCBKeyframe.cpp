@@ -25,7 +25,7 @@ void CCBKeyframe::setValue(const Value& value)
 {
     _value = value;
 }
-    
+
 Ref* CCBKeyframe::getObject() const
 {
     return _object;
@@ -69,3 +69,4 @@ void CCBKeyframe::setEasingOpt(float fEasingOpt)
 }
 
 }
+

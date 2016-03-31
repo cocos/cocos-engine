@@ -70,7 +70,7 @@ typedef struct unz_file_info_s unz_file_info;
     class CC_DLL ZipUtils
     {
     public:
-        /** 
+        /**
          * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
          *
          * It will allocate 256k for the destination buffer. If it is not enough it will multiply the previous buffer size per 2, until there is enough memory.
@@ -80,7 +80,7 @@ typedef struct unz_file_info_s unz_file_info;
          */
         static ssize_t inflateMemory(unsigned char *in, ssize_t inLength, unsigned char **out);
 
-        /** 
+        /**
         * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
         *
         * @param outLenghtHint It is assumed to be the needed room to allocate the inflated buffer.
@@ -90,15 +90,15 @@ typedef struct unz_file_info_s unz_file_info;
         */
         static ssize_t inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t outLengthHint);
 
-        /** 
+        /**
          * Inflates a GZip file into memory.
          *
          * @return The length of the deflated buffer.
          * @since v0.99.5
          */
         static int inflateGZipFile(const char *filename, unsigned char **out);
-        
-        /** 
+
+        /**
          * Test a file is a GZip format file or not.
          *
          * @return True is a GZip format file. false is not.
@@ -106,7 +106,7 @@ typedef struct unz_file_info_s unz_file_info;
          */
         static bool isGZipFile(const char *filename);
 
-        /** 
+        /**
          * Test the buffer is GZip format or not.
          *
          * @return True is GZip format. false is not.
@@ -114,7 +114,7 @@ typedef struct unz_file_info_s unz_file_info;
          */
         static bool isGZipBuffer(const unsigned char *buffer, ssize_t len);
 
-        /** 
+        /**
          * Inflates a CCZ file into memory.
          *
          * @return The length of the deflated buffer.
@@ -122,15 +122,15 @@ typedef struct unz_file_info_s unz_file_info;
          */
         static int inflateCCZFile(const char *filename, unsigned char **out);
 
-        /** 
+        /**
          * Inflates a buffer with CCZ format into memory.
          *
          * @return The length of the deflated buffer.
          * @since v3.0
          */
         static int inflateCCZBuffer(const unsigned char *buffer, ssize_t len, unsigned char **out);
-        
-        /** 
+
+        /**
          * Test a file is a CCZ format file or not.
          *
          * @return True is a CCZ format file. false is not.
@@ -138,7 +138,7 @@ typedef struct unz_file_info_s unz_file_info;
          */
         static bool isCCZFile(const char *filename);
 
-        /** 
+        /**
          * Test the buffer is CCZ format or not.
          *
          * @return True is CCZ format. false is not.
@@ -146,7 +146,7 @@ typedef struct unz_file_info_s unz_file_info;
          */
         static bool isCCZBuffer(const unsigned char *buffer, ssize_t len);
 
-        /** 
+        /**
          * Sets the pvr.ccz encryption key parts separately for added security.
          *
          * Example: If the key used to encrypt the pvr.ccz file is
@@ -161,7 +161,7 @@ typedef struct unz_file_info_s unz_file_info;
          * Splitting the key into 4 parts and calling the function from 4 different source
          * files increases the difficulty to reverse engineer the encryption key.
          * Be aware that encryption is *never* 100% secure and the key code
-         * can be cracked by knowledgable persons. 
+         * can be cracked by knowledgable persons.
          *
          * IMPORTANT: Be sure to call setPvrEncryptionKey or
          * setPvrEncryptionKeyPart with all of the key parts *before* loading
@@ -172,8 +172,8 @@ typedef struct unz_file_info_s unz_file_info;
          * @param value Value of the key part.
          */
         static void setPvrEncryptionKeyPart(int index, unsigned int value);
-        
-        /** 
+
+        /**
          * Sets the pvr.ccz encryption key.
          *
          * Example: If the key used to encrypt the pvr.ccz file is
@@ -267,16 +267,16 @@ typedef struct unz_file_info_s unz_file_info;
 
         std::string getFirstFilename();
         std::string getNextFilename();
-        
+
         static ZipFile *createWithBuffer(const void* buffer, unsigned long size);
-        
+
     private:
         /* Only used internal for createWithBuffer() */
         ZipFile();
-        
+
         bool initWithBuffer(const void *buffer, unsigned long size);
         int getCurrentFileInfo(std::string *filename, unz_file_info *info);
-        
+
         /** Internal data like zip file pointer / file list array and so on */
         ZipFilePrivate *_data;
     };
@@ -287,3 +287,4 @@ typedef struct unz_file_info_s unz_file_info;
 
 /// @endcond
 #endif // __SUPPORT_ZIPUTILS_H__
+

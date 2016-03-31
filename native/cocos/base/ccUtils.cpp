@@ -177,7 +177,7 @@ void captureScreen(const std::function<void(bool, const std::string&)>& afterCap
 std::vector<Node*> findChildren(const Node &node, const std::string &name)
 {
     std::vector<Node*> vec;
-    
+
     node.enumerateChildren(name, [&vec](Node* nodeFound) -> bool {
         vec.push_back(nodeFound);
         return false;
@@ -193,17 +193,17 @@ double atof(const char* str)
     {
         return 0.0;
     }
-    
+
     char buf[MAX_ITOA_BUFFER_SIZE];
     strncpy(buf, str, MAX_ITOA_BUFFER_SIZE);
-    
+
     // strip string, only remain 7 numbers after '.'
     char* dot = strchr(buf, '.');
     if (dot != nullptr && dot - buf + 8 <  MAX_ITOA_BUFFER_SIZE)
     {
         dot[8] = '\0';
     }
-    
+
     return ::atof(buf);
 }
 
@@ -226,7 +226,7 @@ Rect getCascadeBoundingBox(Node *node)
 {
     Rect cbb;
     Size contentSize = node->getContentSize();
-    
+
     // check all children bounding box, get maximize box
     Node* child = nullptr;
     bool merge = false;
@@ -234,10 +234,10 @@ Rect getCascadeBoundingBox(Node *node)
     {
         child = dynamic_cast<Node*>(object);
         if (!child->isVisible()) continue;
-        
+
         const Rect box = getCascadeBoundingBox(child);
         if (box.size.width <= 0 || box.size.height <= 0) continue;
-        
+
         if (!merge)
         {
             cbb = box;
@@ -248,7 +248,7 @@ Rect getCascadeBoundingBox(Node *node)
             cbb.merge(box);
         }
     }
-    
+
     // merge content size
     if (contentSize.width > 0 && contentSize.height > 0)
     {
@@ -262,16 +262,16 @@ Rect getCascadeBoundingBox(Node *node)
             cbb.merge(box);
         }
     }
-    
+
     return cbb;
 }
-    
-    
+
+
     Sprite* createSpriteFromBase64(const char* base64String)
     {
         unsigned char* decoded;
         int length = base64Decode((const unsigned char*) base64String, (unsigned int) strlen(base64String), &decoded);
-        
+
         Image *image = new (std::nothrow) Image();
         bool imageResult = image->initWithImageData(decoded, length);
         CCASSERT(imageResult, "Failed to create image from base64!");
@@ -279,17 +279,18 @@ Rect getCascadeBoundingBox(Node *node)
         if (imageResult == false) {
             return nullptr;
         }
-        
+
         Texture2D *texture = new (std::nothrow) Texture2D();
         texture->initWithImage(image);
         texture->setAliasTexParameters();
         image->release();
-        
+
         Sprite* sprite = Sprite::createWithTexture(texture);
         texture->release();
-        
+
         return sprite;
     }
 }
 
 NS_CC_END
+

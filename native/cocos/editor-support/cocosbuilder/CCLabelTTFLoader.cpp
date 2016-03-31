@@ -81,3 +81,4 @@ void LabelTTFLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const ch
 }
 
 }
+

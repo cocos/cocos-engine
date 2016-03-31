@@ -82,7 +82,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
  */
 @interface CCEAGLView : UIView <UIKeyInput, UITextInput>
 {
-    id                        <CCESRenderer> renderer_;    
+    id                        <CCESRenderer> renderer_;
     EAGLContext                *context_; // weak ref
 
     NSString                *pixelformat_;
@@ -157,3 +157,4 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 @end
 
 #endif // CC_PLATFORM_IOS
+

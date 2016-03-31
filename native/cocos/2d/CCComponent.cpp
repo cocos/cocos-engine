@@ -56,9 +56,9 @@ static bool sendComponentEventToJS(Component* node, int action)
     if (ScriptEngineManager::ShareInstance == nullptr) {
         return false;
     }
-    
+
     auto scriptEngine = ScriptEngineManager::ShareInstance->getScriptEngine();
-    
+
     if (scriptEngine)
     {
         if (scriptEngine->isCalledFromScript())
@@ -73,7 +73,7 @@ static bool sendComponentEventToJS(Component* node, int action)
                 return true;
         }
     }
-    
+
     return false;
 }
 
@@ -161,3 +161,4 @@ void Component::setEnabled(bool enabled)
 }
 
 NS_CC_END
+

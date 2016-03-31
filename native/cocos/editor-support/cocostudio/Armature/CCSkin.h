@@ -54,9 +54,9 @@ public:
 
     cocos2d::Mat4 getNodeToWorldTransform() const override;
     cocos2d::Mat4 getNodeToWorldTransformAR() const;
-    
+
     virtual void draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) override;
-    
+
     /**
      *  @js NA
      *  @lua NA
@@ -84,3 +84,4 @@ protected:
 }
 
 #endif /*__CCSKIN_H__*/
+

@@ -51,23 +51,23 @@ public:
     // ------------------------------------------
     // Iterators
     // ------------------------------------------
-    
+
     /** Iterator, can be used to loop the Vector. */
     typedef typename std::vector<T>::iterator iterator;
     /** Const iterator, can be used to loop the Vector. */
     typedef typename std::vector<T>::const_iterator const_iterator;
-    
+
     /** Reversed iterator, can be used to loop the Vector in reverse sequence. */
     typedef typename std::vector<T>::reverse_iterator reverse_iterator;
     /** Reversed iterator, can be used to loop the Vector in reverse sequence. */
     typedef typename std::vector<T>::const_reverse_iterator const_reverse_iterator;
-    
+
     /** Returns an iterator pointing the first element of the Vector. */
     iterator begin() { return _data.begin(); }
     /** Returns an iterator pointing the first element of the Vector. */
     const_iterator begin() const { return _data.begin(); }
-    
-    /** 
+
+    /**
      * Returns an iterator referring to the `past-the-end` element in the Vector container.
      * The past-the-end element is the theoretical element that would follow the last element in the Vector.
      * It does not point to any element, and thus shall not be dereferenced.
@@ -79,18 +79,18 @@ public:
      * It does not point to any element, and thus shall not be dereferenced.
      */
     const_iterator end() const { return _data.end(); }
-    
+
     /** Returns a const_iterator pointing the first element of the Vector. */
     const_iterator cbegin() const { return _data.cbegin(); }
     /** Returns a const_iterator pointing the `past-the-end` element of the Vector. */
     const_iterator cend() const { return _data.cend(); }
-    
+
     /** Returns a reverse iterator pointing to the last element of the Vector. */
     reverse_iterator rbegin() { return _data.rbegin(); }
     /** Returns a reverse iterator pointing to the last element of the Vector. */
     const_reverse_iterator rbegin() const { return _data.rbegin(); }
-    
-    /** Returns a reverse iterator pointing to the theoretical element preceding the 
+
+    /** Returns a reverse iterator pointing to the theoretical element preceding the
      * first element of the vector (which is considered its reverse end).
      */
     reverse_iterator rend() { return _data.rend(); }
@@ -98,23 +98,23 @@ public:
      * first element of the vector (which is considered its reverse end).
      */
     const_reverse_iterator rend() const { return _data.rend(); }
-    
+
     /** Returns a const_reverse_iterator pointing to the last element in the container (i.e., its reverse beginning). */
     const_reverse_iterator crbegin() const { return _data.crbegin(); }
-    /** Returns a const_reverse_iterator pointing to the theoretical element preceding the first element in 
-     * the container (which is considered its reverse end). 
+    /** Returns a const_reverse_iterator pointing to the theoretical element preceding the first element in
+     * the container (which is considered its reverse end).
      */
     const_reverse_iterator crend() const { return _data.crend(); }
-    
+
     /** Constructor. */
     Vector<T>()
     : _data()
     {
         static_assert(std::is_convertible<T, Ref*>::value, "Invalid Type for cocos2d::Vector<T>!");
     }
-    
-    /** 
-     * Constructor with a capacity. 
+
+    /**
+     * Constructor with a capacity.
      * @param capacity Capacity of the Vector.
      */
     explicit Vector<T>(ssize_t capacity)
@@ -140,7 +140,7 @@ public:
         _data = other._data;
         addRefForAllObjects();
     }
-    
+
     /** Constructor with std::move semantic. */
     Vector<T>(Vector<T>&& other)
     {
@@ -148,7 +148,7 @@ public:
         CCLOGINFO("In the move constructor of Vector!");
         _data = std::move(other._data);
     }
-    
+
     /** Copy assignment operator. */
     Vector<T>& operator=(const Vector<T>& other)
     {
@@ -160,7 +160,7 @@ public:
         }
         return *this;
     }
-    
+
     /** Copy assignment operator with std::move semantic. */
     Vector<T>& operator=(Vector<T>&& other)
     {
@@ -171,19 +171,19 @@ public:
         }
         return *this;
     }
-    
+
 // Don't uses operator since we could not decide whether it needs 'retain'/'release'.
 //    T& operator[](int index)
 //    {
 //        return _data[index];
 //    }
-//    
+//
 //    const T& operator[](int index) const
 //    {
 //        return _data[index];
 //    }
-    
-    /** 
+
+    /**
      * Requests that the vector capacity be at least enough to contain n elements.
      * @param capacity Minimum capacity requested of the Vector.
      */
@@ -191,7 +191,7 @@ public:
     {
         _data.reserve(n);
     }
-    
+
     /** @brief Returns the size of the storage space currently allocated for the Vector, expressed in terms of elements.
      *  @note This capacity is not necessarily equal to the Vector size.
      *        It can be equal or greater, with the extra space allowing to accommodate for growth without the need to reallocate on each insertion.
@@ -201,7 +201,7 @@ public:
     {
         return _data.capacity();
     }
-    
+
     /** @brief Returns the number of elements in the Vector.
      *  @note This is the number of actual objects held in the Vector, which is not necessarily equal to its storage capacity.
      *  @return The number of elements in the Vector.
@@ -210,7 +210,7 @@ public:
     {
         return  _data.size();
     }
-    
+
     /** @brief Returns whether the Vector is empty (i.e. whether its size is 0).
      *  @note This function does not modify the container in any way. To clear the content of a vector, see Vector<T>::clear.
      */
@@ -218,13 +218,13 @@ public:
     {
         return _data.empty();
     }
-    
+
     /** Returns the maximum number of elements that the Vector can hold. */
     ssize_t max_size() const
     {
         return _data.max_size();
     }
-    
+
     /** Returns index of a certain object, return UINT_MAX if doesn't contain the object */
     ssize_t getIndex(T object) const
     {
@@ -244,7 +244,7 @@ public:
     {
         return std::find(_data.begin(), _data.end(), object);
     }
-    
+
     /** @brief Find the object in the Vector.
      *  @param object The object to find.
      *  @return Returns an iterator which refers to the element that its value is equals to object.
@@ -254,7 +254,7 @@ public:
     {
         return std::find(_data.begin(), _data.end(), object);
     }
-    
+
     /** Returns the element at position 'index' in the Vector. */
     T at(ssize_t index) const
     {
@@ -267,7 +267,7 @@ public:
     {
         return _data.front();
     }
-    
+
     /** Returns the last element of the Vector. */
     T back() const
     {
@@ -285,7 +285,7 @@ public:
         return nullptr;
     }
 
-    /** 
+    /**
      * Checks whether an object is in the container.
      * @param object The object to be checked.
      * @return True if the object is in the container, false if not.
@@ -295,7 +295,7 @@ public:
         return( std::find(_data.begin(), _data.end(), object) != _data.end() );
     }
 
-    /** 
+    /**
      * Checks whether two vectors are equal.
      * @param other The vector to be compared.
      * @return True if two vectors are equal, false if not.
@@ -305,7 +305,7 @@ public:
         ssize_t s = this->size();
         if (s != other.size())
             return false;
-        
+
         for (ssize_t i = 0; i < s; i++)
         {
             if (this->at(i) != other.at(i))
@@ -317,7 +317,7 @@ public:
     }
 
     // Adds objects
-    
+
     /** Adds a new element at the end of the Vector. */
     void pushBack(T object)
     {
@@ -325,7 +325,7 @@ public:
         _data.push_back( object );
         object->retain();
     }
-    
+
     /** Push all elements of an existing Vector to the end of current Vector. */
     void pushBack(const Vector<T>& other)
     {
@@ -335,7 +335,7 @@ public:
         }
     }
 
-    /** 
+    /**
      * Insert an object at certain index.
      * @param index The index to be inserted at.
      * @param object The object to be inserted.
@@ -347,7 +347,7 @@ public:
         _data.insert((std::begin(_data) + index), object);
         object->retain();
     }
-    
+
     // Removes Objects
 
     /** Removes the last element in the Vector. */
@@ -358,7 +358,7 @@ public:
         _data.pop_back();
         last->release();
     }
-    
+
     /** Remove a certain object in Vector.
      *  @param object The object to be removed.
      *  @param removeAll Whether to remove all elements with the same value.
@@ -367,7 +367,7 @@ public:
     void eraseObject(T object, bool removeAll = false)
     {
         CCASSERT(object != nullptr, "The object should not be nullptr");
-        
+
         if (removeAll)
         {
             for (auto iter = _data.begin(); iter != _data.end();)
@@ -394,7 +394,7 @@ public:
         }
     }
 
-    /** @brief Removes from the vector with an iterator. 
+    /** @brief Removes from the vector with an iterator.
      *  @param position Iterator pointing to a single element to be removed from the Vector.
      *  @return An iterator pointing to the new location of the element that followed the last element erased by the function call.
      *          This is the container end if the operation erased the last element in the sequence.
@@ -405,7 +405,7 @@ public:
         (*position)->release();
         return _data.erase(position);
     }
-    
+
     /** @brief Removes from the Vector with a range of elements (  [first, last)  ).
      *  @param first The beginning of the range.
      *  @param last The end of the range, the 'last' will not be removed, it's only for indicating the end of range.
@@ -418,10 +418,10 @@ public:
         {
             (*iter)->release();
         }
-        
+
         return _data.erase(first, last);
     }
-    
+
     /** @brief Removes from the Vector by index.
      *  @param index The index of the element to be removed from the Vector.
      *  @return An iterator pointing to the successor of Vector[index].
@@ -457,7 +457,7 @@ public:
 
         std::swap( _data[idx1], _data[idx2] );
     }
-    
+
     /** Swap two elements by indexes. */
     void swap(ssize_t index1, ssize_t index2)
     {
@@ -471,7 +471,7 @@ public:
     {
         CCASSERT(index >= 0 && index < size(), "Invalid index!");
         CCASSERT(object != nullptr, "The object should not be nullptr");
-        
+
         _data[index]->release();
         _data[index] = object;
         object->retain();
@@ -482,15 +482,15 @@ public:
     {
         std::reverse( std::begin(_data), std::end(_data) );
     }
-    
+
     /** Requests the container to reduce its capacity to fit its size. */
     void shrinkToFit()
     {
         _data.shrink_to_fit();
     }
-    
+
 protected:
-    
+
     /** Retains all the objects in the vector */
     void addRefForAllObjects()
     {
@@ -498,7 +498,7 @@ protected:
             obj->retain();
         }
     }
-    
+
     std::vector<T> _data;
 };
 
@@ -508,3 +508,4 @@ protected:
 NS_CC_END
 
 #endif // __CCVECTOR_H__
+

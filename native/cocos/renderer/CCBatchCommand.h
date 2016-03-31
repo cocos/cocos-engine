@@ -55,7 +55,7 @@ public:
     @param flags Indicate the render command should be rendered in 3D mode or not.
     */
     void init(float globalZOrder, GLProgram* shader, BlendFunc blendType, TextureAtlas *textureAtlas, const Mat4& modelViewTransform, uint32_t flags);
-    
+
     /**Execute the command, which will call openGL function to draw the texture atlas.*/
     void execute();
 
@@ -81,3 +81,4 @@ NS_CC_END
  @}
  */
 #endif //_CC_BATCHCOMMAND_H_
+

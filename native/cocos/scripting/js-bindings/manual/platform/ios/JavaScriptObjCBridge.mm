@@ -37,7 +37,7 @@ JavaScriptObjCBridge::CallInfo::~CallInfo(void)
 JS::Value JavaScriptObjCBridge::convertReturnValue(JSContext *cx, ReturnValue retValue, ValueType type)
 {
     JS::Value ret = JSVAL_NULL;
-    
+
     switch (type)
     {
         case TypeInteger:
@@ -59,16 +59,16 @@ JS::Value JavaScriptObjCBridge::convertReturnValue(JSContext *cx, ReturnValue re
         default:
             break;
     }
-    
+
     return ret;
 }
 
 bool JavaScriptObjCBridge::CallInfo::execute(JSContext *cx,jsval *argv,unsigned argc)
 {
-    
+
     NSString * className =[NSString stringWithCString: m_className.c_str() encoding:NSUTF8StringEncoding];
     NSString *methodName = [NSString stringWithCString: m_methodName.c_str() encoding:NSUTF8StringEncoding];
-    
+
     bool ok = true;
     NSMutableDictionary *m_dic = [NSMutableDictionary dictionary];
     for(int i = 2;i<argc;i++){
@@ -142,7 +142,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(JSContext *cx,jsval *argv,unsigned 
         NSUInteger returnLength = [methodSig methodReturnLength];
         const char *returnType = [methodSig methodReturnType];
         [invocation invoke];
-        
+
         if(returnLength >0){
             if (strcmp(returnType, "@") == 0)
             {
@@ -185,7 +185,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(JSContext *cx,jsval *argv,unsigned 
         m_error = JSO_ERR_EXCEPTION_OCCURRED;
         return false;
     }
-    
+
     return true;
 }
 void JavaScriptObjCBridge::CallInfo::pushValue(void *val){
@@ -244,23 +244,23 @@ JS_BINDED_CLASS_GLUE_IMPL(JavaScriptObjCBridge);
 JS_BINDED_CONSTRUCTOR_IMPL(JavaScriptObjCBridge)
 {
     JavaScriptObjCBridge* jsj = new (std::nothrow) JavaScriptObjCBridge();
-    
+
     js_proxy_t *p;
     jsval out;
-    
+
     JS::RootedObject proto(cx, JavaScriptObjCBridge::js_proto);
     JS::RootedObject parentProto(cx, JavaScriptObjCBridge::js_parent);
     JS::RootedObject obj(cx, JS_NewObject(cx, &JavaScriptObjCBridge::js_class, proto, parentProto));
-    
+
     if (obj) {
         JS_SetPrivate(obj, jsj);
         out = OBJECT_TO_JSVAL(obj);
     }
-    
+
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().set(out);
     p = jsb_new_proxy(jsj, obj);
-    
+
     JS::AddNamedObjectRoot(cx, &p->obj, "JavaScriptObjCBridge");
     return true;
 }
@@ -307,20 +307,19 @@ void JavaScriptObjCBridge::_js_register(JSContext *cx, JS::HandleObject global)
     JSClass jsclass = {
         "JavaScriptObjCBridge", JSCLASS_HAS_PRIVATE, JS_PropertyStub, JS_DeletePropertyStub, JS_PropertyStub, JS_StrictPropertyStub, JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,basic_object_finalize
     };
-    
+
     JavaScriptObjCBridge::js_class = jsclass;
     static JSPropertySpec props[] = {
         JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE ),
         JS_PS_END
     };
-    
+
     static JSFunctionSpec funcs[] = {
         JS_BINDED_FUNC_FOR_DEF(JavaScriptObjCBridge, callStaticMethod),
         JS_FS_END
     };
-    
+
     JavaScriptObjCBridge::js_parent = NULL;
     JavaScriptObjCBridge::js_proto = JS_InitClass(cx, global, JS::NullPtr(), &JavaScriptObjCBridge::js_class , JavaScriptObjCBridge::_js_constructor, 0, props, funcs, NULL, NULL);
 }
-
 

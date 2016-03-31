@@ -76,3 +76,4 @@ protected:
 NS_CC_END
 
 #endif /* defined(__UIPAGEVIEWINDICATOR_H__) */
+

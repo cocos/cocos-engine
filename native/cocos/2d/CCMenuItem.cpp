@@ -34,7 +34,7 @@ THE SOFTWARE.
 #include "base/CCString.h"
 
 NS_CC_BEGIN
-    
+
 static int _globalFontSize = kItemSize;
 static std::string _globalFontName = "Marker Felt";
 static bool _globalFontNameRelease = false;
@@ -141,15 +141,15 @@ void MenuItemLabel::setLabel(Node* var)
     if (var)
     {
         var->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-        setContentSize(var->getContentSize()); 
+        setContentSize(var->getContentSize());
         addChild(var);
     }
-    
+
     if (_label)
     {
         removeChild(_label, true);
     }
-    
+
     _label = var;
 }
 
@@ -210,7 +210,7 @@ void MenuItemLabel::selected()
     if(_enabled)
     {
         MenuItem::selected();
-        
+
         Action *action = getActionByTag(kZoomActionTag);
         if (action)
         {
@@ -220,7 +220,7 @@ void MenuItemLabel::selected()
         {
             _originalScale = this->getScale();
         }
-        
+
         Action *zoomAction = ScaleTo::create(0.1f, _originalScale * 1.2f);
         zoomAction->setTag(kZoomActionTag);
         this->runAction(zoomAction);
@@ -242,7 +242,7 @@ void MenuItemLabel::unselected()
 
 void MenuItemLabel::setEnabled(bool enabled)
 {
-    if( _enabled != enabled ) 
+    if( _enabled != enabled )
     {
         if(enabled == false)
         {
@@ -532,14 +532,14 @@ void MenuItemSprite::unselected()
 
 void MenuItemSprite::setEnabled(bool bEnabled)
 {
-    if( _enabled != bEnabled ) 
+    if( _enabled != bEnabled )
     {
         MenuItem::setEnabled(bEnabled);
         this->updateImagesVisibility();
     }
 }
 
-// Helper 
+// Helper
 void MenuItemSprite::updateImagesVisibility()
 {
     if (_enabled)
@@ -742,10 +742,10 @@ bool MenuItemToggle::initWithItem(MenuItem *item)
     }
     _selectedIndex = UINT_MAX;
     this->setSelectedIndex(0);
-    
+
     setCascadeColorEnabled(true);
     setCascadeOpacityEnabled(true);
-    
+
     return true;
 }
 
@@ -794,7 +794,7 @@ void MenuItemToggle::unselected()
 void MenuItemToggle::activate()
 {
     // update index
-    if( _enabled ) 
+    if( _enabled )
     {
         unsigned int newIndex = (_selectedIndex + 1) % _subItems.size();
         this->setSelectedIndex(newIndex);
@@ -819,3 +819,4 @@ MenuItem* MenuItemToggle::getSelectedItem()
 }
 
 NS_CC_END
+

@@ -43,3 +43,4 @@ extern jsval spanimation_to_jsval(JSContext* cx, spAnimation& v);
 extern jsval sptrackentry_to_jsval(JSContext* cx, spTrackEntry& v);
 
 #endif /* defined(__jsb_cocos2dx_spine_manual__) */
+

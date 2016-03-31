@@ -124,3 +124,4 @@ NS_CC_END
 // end group
 /// @}
 #endif //__ccRandom_H_
+

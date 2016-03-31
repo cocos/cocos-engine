@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -47,7 +47,7 @@ typedef std::function<void(HttpClient* client, HttpResponse* response)> ccHttpRe
 typedef void (cocos2d::Ref::*SEL_HttpResponse)(HttpClient* client, HttpResponse* response);
 #define httpresponse_selector(_SELECTOR) (cocos2d::network::SEL_HttpResponse)(&_SELECTOR)
 
-/** 
+/**
  * Defines the object which users must packed for HttpClient::send(HttpRequest*) method.
  * Please refer to tests/test-cpp/Classes/ExtensionTest/NetworkTest/HttpClientTest.cpp as a sample
  * @since v2.0.2
@@ -75,8 +75,8 @@ public:
         DELETE,
         UNKNOWN,
     };
-    
-    /** 
+
+    /**
      *  Constructor.
      *   Because HttpRequest object will be used between UI thead and network thread,
          requestObj->autorelease() is forbidden to avoid crashes in AutoreleasePool
@@ -91,7 +91,7 @@ public:
     , _pUserData(nullptr)
     {
     }
-    
+
     /** Destructor. */
     virtual ~HttpRequest()
     {
@@ -100,8 +100,8 @@ public:
             _pTarget->release();
         }
     }
-    
-    /** 
+
+    /**
      * Override autorelease method to avoid developers to call it.
      * If this function was called, it would trigger assert in debug mode
      *
@@ -113,10 +113,10 @@ public:
                  therefore, autorelease is forbidden here");
         return nullptr;
     }
-            
+
     // setter/getters for properties
-     
-    /** 
+
+    /**
      * Set request type of HttpRequest object before being sent,now it support the enum value of HttpRequest::Type.
      *
      * @param type the request type.
@@ -125,8 +125,8 @@ public:
     {
         _requestType = type;
     }
-    
-    /** 
+
+    /**
      * Get the request type of HttpRequest object.
      *
      * @return HttpRequest::Type.
@@ -135,8 +135,8 @@ public:
     {
         return _requestType;
     }
-    
-    /** 
+
+    /**
      * Set the url address of HttpRequest object.
      * The url value could be like these: "http://httpbin.org/ip" or "https://httpbin.org/get"
      *
@@ -146,8 +146,8 @@ public:
     {
         _url = url;
     }
-    
-    /** 
+
+    /**
      * Get the url address of HttpRequest object.
      *
      * @return const char* the pointer of _url.
@@ -156,8 +156,8 @@ public:
     {
         return _url.c_str();
     }
-    
-    /** 
+
+    /**
      * Set the request data of HttpRequest object.
      *
      * @param buffer the buffer of request data, it support binary data.
@@ -167,8 +167,8 @@ public:
     {
         _requestData.assign(buffer, buffer + len);
     }
-    
-    /** 
+
+    /**
      * Get the request data pointer of HttpRequest object.
      *
      * @return char* the request data pointer.
@@ -180,7 +180,7 @@ public:
 
         return nullptr;
     }
-    
+
     /**
      * Get the size of request data
      *
@@ -190,8 +190,8 @@ public:
     {
         return _requestData.size();
     }
-    
-    /** 
+
+    /**
      * Set a string tag to identify your request.
      * This tag can be found in HttpResponse->getHttpRequest->getTag().
      *
@@ -201,8 +201,8 @@ public:
     {
         _tag = tag;
     }
-    
-    /** 
+
+    /**
      * Get the string tag to identify the request.
      * The best practice is to use it in your MyClass::onMyHttpRequestCompleted(sender, HttpResponse*) callback.
      *
@@ -212,7 +212,7 @@ public:
     {
         return _tag.c_str();
     }
-    
+
     /**
      * Set user-customed data of HttpRequest object.
      * You can attach a customed data in each request, and get it back in response callback.
@@ -224,8 +224,8 @@ public:
     {
         _pUserData = pUserData;
     }
-    
-    /** 
+
+    /**
      * Get the user-customed data pointer which were pre-setted.
      * Don't forget to delete it. HttpClient/HttpResponse/HttpRequest will do nothing with this pointer.
      *
@@ -246,7 +246,7 @@ public:
     {
         _pCallback = callback;
     }
-    
+
     CC_DEPRECATED_ATTRIBUTE inline void setResponseCallback(Ref* target ,const ccHttpRequestCallback& callback)
     {
         if(_pTarget != target)
@@ -254,17 +254,17 @@ public:
             if (_pTarget) {
                 _pTarget->release();
             }
-            
+
             _pTarget = target;
             if (_pTarget) {
                 _pTarget->retain();
             }
         }
-        
+
         _pCallback = callback;
     }
-    
-    /** 
+
+    /**
      * Get the target of callback selector funtion, mainly used by HttpClient.
      *
      * @return Ref* the target of callback selector funtion
@@ -276,7 +276,7 @@ public:
 
     /**
      * This sub class is just for migration SEL_CallFuncND to SEL_HttpResponse,someday this way will be removed.
-     * 
+     *
      * @lua NA
      */
     class _prxy
@@ -292,8 +292,8 @@ public:
     protected:
         SEL_HttpResponse _cb;
     };
-    
-    /** 
+
+    /**
      * Get _prxy object by the _pSelector.
      *
      * @return _prxy the _prxy object
@@ -302,7 +302,7 @@ public:
     {
         return _prxy(_pSelector);
     }
-    
+
     /**
      * Get ccHttpRequestCallback callback function.
      *
@@ -312,8 +312,8 @@ public:
     {
         return _pCallback;
     }
-    
-    /** 
+
+    /**
      * Set custom-defined headers.
      *
      * @param pHeaders the string vector of custom-defined headers.
@@ -322,8 +322,8 @@ public:
        {
            _headers = headers;
        }
-   
-    /** 
+
+    /**
      * Get custom headers.
      *
      * @return std::vector<std::string> the string vector of custom-defined headers.
@@ -332,7 +332,7 @@ public:
        {
            return _headers;
        }
-    
+
 protected:
     // properties
     Type                        _requestType;    /// kHttpRequestGet, kHttpRequestPost or other enums
@@ -342,7 +342,7 @@ protected:
     Ref*                        _pTarget;        /// callback target of pSelector function
     SEL_HttpResponse            _pSelector;      /// callback function, e.g. MyLayer::onHttpResponse(HttpClient *sender, HttpResponse * response)
     ccHttpRequestCallback       _pCallback;      /// C++11 style callbacks
-    void*                       _pUserData;      /// You can add your customed data here 
+    void*                       _pUserData;      /// You can add your customed data here
     std::vector<std::string>    _headers;              /// custom http headers
 };
 
@@ -354,3 +354,4 @@ NS_CC_END
 /// @}
 
 #endif //__HTTP_REQUEST_H__
+

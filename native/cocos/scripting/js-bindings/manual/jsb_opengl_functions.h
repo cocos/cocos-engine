@@ -9,7 +9,7 @@
 #include "jsb_opengl_manual.h"
 
 extern "C" {
-    
+
 bool JSB_glActiveTexture(JSContext *cx, uint32_t argc, jsval *vp);
 bool JSB_glAttachShader(JSContext *cx, uint32_t argc, jsval *vp);
 bool JSB_glBindAttribLocation(JSContext *cx, uint32_t argc, jsval *vp);
@@ -142,3 +142,4 @@ bool JSB_glViewport(JSContext *cx, uint32_t argc, jsval *vp);
 
 
 #endif // JSB_INCLUDE_OPENGL
+

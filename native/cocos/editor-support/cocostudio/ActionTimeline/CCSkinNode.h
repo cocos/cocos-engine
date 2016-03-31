@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2015-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,3 +36,4 @@ typedef cocos2d::Node SkinNode;
 NS_TIMELINE_END
 
 #endif //__CCSKINNODE_H__
+

@@ -89,7 +89,7 @@ public:
     void uncache(const std::string& filePath){}
     void uncacheAll(){}
     void preload(const std::string& filePath, std::function<void(bool)> callback);
-    
+
     void update(float dt);
 private:
 
@@ -104,7 +104,7 @@ private:
     std::unordered_map<int, AudioPlayer>  _audioPlayers;
 
     int currentAudioID;
-    
+
     bool _lazyInitLoop;
 };
 
@@ -113,3 +113,4 @@ private:
 NS_CC_END
 
 #endif
+

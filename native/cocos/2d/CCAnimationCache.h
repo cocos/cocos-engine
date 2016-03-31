@@ -64,7 +64,7 @@ public:
      * @lua NA
      */
     ~AnimationCache();
-    /** Returns the shared instance of the Animation cache 
+    /** Returns the shared instance of the Animation cache
      @js NA
     */
     static AnimationCache* getInstance();
@@ -130,3 +130,4 @@ private:
 NS_CC_END
 
 #endif // __CC_ANIMATION_CACHE_H__
+

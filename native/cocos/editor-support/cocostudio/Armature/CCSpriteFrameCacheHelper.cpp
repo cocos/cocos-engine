@@ -60,7 +60,7 @@ void SpriteFrameCacheHelper::retainSpriteFrames(const std::string &plistPath)
         log("SpriteFrameCacheHelper::retainSpriteFrames error:%s not exist!", plistPath.c_str());
         return;
     }
-    
+
     auto spriteFramesCache = SpriteFrameCache::getInstance();
     ValueMap& framesDict = dict["frames"].asValueMap();
 
@@ -118,3 +118,4 @@ SpriteFrameCacheHelper::~SpriteFrameCacheHelper()
 }
 
 }
+

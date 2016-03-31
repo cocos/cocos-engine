@@ -53,7 +53,7 @@ static id s_sharedDirectorCaller;
     {
         s_sharedDirectorCaller = [CCDirectorCaller new];
     }
-    
+
     return s_sharedDirectorCaller;
 }
 
@@ -103,7 +103,7 @@ static id s_sharedDirectorCaller;
 {
     // Director::setAnimationInterval() is called, we should invalidate it first
     [self stopMainLoop];
-    
+
     displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
     [displayLink setFrameInterval: self.interval];
     [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -119,14 +119,14 @@ static id s_sharedDirectorCaller;
 {
     // Director::setAnimationInterval() is called, we should invalidate it first
     [self stopMainLoop];
-        
+
     self.interval = 60.0 * intervalNew;
-        
+
     displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
     [displayLink setFrameInterval: self.interval];
     [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
-                      
+
 -(void) doCaller: (id) sender
 {
     auto director = cocos2d::Director::DirectorInstance;

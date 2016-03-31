@@ -36,7 +36,7 @@
 // cocos2d application instance
 static AppDelegate s_sharedApplication;
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
     cocos2d::Application *app = cocos2d::Application::getInstance();
     app->initGLContextAttrs();
@@ -55,11 +55,11 @@ static AppDelegate s_sharedApplication;
                                           sharegroup: nil
                                        multiSampling: NO
                                      numberOfSamples: 0 ];
-    
+
     // Enable or disable multiple touches
     [eaglView setMultipleTouchEnabled:NO];
 
-    // Use RootViewController manage CCEAGLView 
+    // Use RootViewController manage CCEAGLView
     _viewController = [[RootViewController alloc] initWithNibName:nil bundle:nil];
     _viewController.wantsFullScreenLayout = YES;
     _viewController.view = eaglView;
@@ -109,7 +109,7 @@ static AppDelegate s_sharedApplication;
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     /*
-     Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
+     Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
      If your application supports background execution, called instead of applicationWillTerminate: when the user quits.
      */
     cocos2d::Application::getInstance()->applicationDidEnterBackground();
@@ -147,3 +147,4 @@ static AppDelegate s_sharedApplication;
 
 
 @end
+

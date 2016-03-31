@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -77,7 +77,7 @@ void Data::move(Data& other)
 {
     _bytes = other._bytes;
     _size = other._size;
-    
+
     other._bytes = nullptr;
     other._size = 0;
 }
@@ -100,7 +100,7 @@ ssize_t Data::getSize() const
 void Data::copy(const unsigned char* bytes, const ssize_t size)
 {
     clear();
-    
+
     if (size > 0)
     {
         _size = size;
@@ -123,3 +123,4 @@ void Data::clear()
 }
 
 NS_CC_END
+

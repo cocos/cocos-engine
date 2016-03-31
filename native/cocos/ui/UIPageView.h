@@ -60,9 +60,9 @@ typedef void (Ref::*SEL_PageViewEvent)(Ref*, PageViewEventType);
  */
 class CC_GUI_DLL PageView : public ListView
 {
-    
+
     DECLARE_CLASS_GUI_INFO
-    
+
 public:
     /**
      * Page turn event type.
@@ -71,7 +71,7 @@ public:
     {
         TURNING
     };
-    
+
     /**
      * Touch direction type.
      */
@@ -94,14 +94,14 @@ public:
      * @lua new
      */
     PageView();
-    
+
     /**
      * Default destructor
      * @js NA
      * @lua NA
      */
     virtual ~PageView();
-    
+
     /**
      * Create an empty PageView.
      *@return A PageView instance.
@@ -114,7 +114,7 @@ public:
      * @param direction Set the page view's scroll direction.
      */
     virtual void setDirection(Direction direction) override;
-    
+
     /**
      * Insert a page into the end of PageView.
      *
@@ -148,7 +148,7 @@ public:
      * @brief Remove all pages of the PageView.
      */
     void removeAllPages();
-    
+
     /**
      * Scroll to a page with a given index.
      *
@@ -176,7 +176,7 @@ public:
      * @param index A given index in PageView. Index start from 0 to pageCount -1.
      */
     void setCurrentPageIndex(ssize_t index);
-    
+
     /**
      * Add a page turn callback to PageView, then when one page is turning, the callback will be called.
      *@deprecated Use `PageView::addEventListener` instead.
@@ -192,7 +192,7 @@ public:
      */
     void addEventListener(const ccPageViewCallback& callback);
     using ScrollView::addEventListener;
-    
+
     //override methods
     virtual std::string getDescription() const override;
 
@@ -230,7 +230,7 @@ public:
      * @param position The position in page view
      */
     void setIndicatorPosition(const Vec2& position);
-    
+
     /**
      * @brief Get the page indicator's position.
      *
@@ -285,7 +285,7 @@ protected:
     virtual void copySpecialProperties(Widget* model) override;
 
     void refreshIndicatorPosition();
-    
+
     virtual float getAutoScrollStopEpsilon() const override;
 protected:
     PageViewIndicator* _indicator;
@@ -317,3 +317,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__PageView__) */
+

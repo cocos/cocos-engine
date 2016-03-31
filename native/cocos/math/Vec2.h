@@ -123,7 +123,7 @@ public:
      *
      * @param v1 The first vector.
      * @param v2 The second vector.
-     * 
+     *
      * @return The angle between the two vectors (in radians).
      */
     static float angle(const Vec2& v1, const Vec2& v2);
@@ -166,9 +166,9 @@ public:
      * Returns the distance between this vector and v.
      *
      * @param v The other vector.
-     * 
+     *
      * @return The distance between this vector and v.
-     * 
+     *
      * @see distanceSquared
      */
     float distance(const Vec2& v) const;
@@ -182,9 +182,9 @@ public:
      * this method instead of distance.
      *
      * @param v The other vector.
-     * 
+     *
      * @return The squared distance between this vector and v.
-     * 
+     *
      * @see distance
      */
     inline float distanceSquared(const Vec2& v) const;
@@ -193,7 +193,7 @@ public:
      * Returns the dot product of this vector and the specified vector.
      *
      * @param v The vector to compute the dot product with.
-     * 
+     *
      * @return The dot product.
      */
     inline float dot(const Vec2& v) const;
@@ -203,7 +203,7 @@ public:
      *
      * @param v1 The first vector.
      * @param v2 The second vector.
-     * 
+     *
      * @return The dot product between the vectors.
      */
     static float dot(const Vec2& v1, const Vec2& v2);
@@ -212,7 +212,7 @@ public:
      * Computes the length of this vector.
      *
      * @return The length of the vector.
-     * 
+     *
      * @see lengthSquared
      */
     float length() const;
@@ -226,7 +226,7 @@ public:
      * instead of length.
      *
      * @return The squared length of the vector.
-     * 
+     *
      * @see length
      */
     inline float lengthSquared() const;
@@ -244,7 +244,7 @@ public:
      * after calling this method will be 1.0f). If the vector
      * already has unit length or if the length of the vector
      * is zero, this method does nothing.
-     * 
+     *
      * @return This vector, after the normalization occurs.
      */
     void normalize();
@@ -300,7 +300,7 @@ public:
 
     /**
      * Sets this vector to the directional vector between the specified points.
-     * 
+     *
      * @param p1 The first point.
      * @param p2 The second point.
      */
@@ -344,9 +344,9 @@ public:
 
     /**
      * Calculates the sum of this vector with the given vector.
-     * 
+     *
      * Note: this does not modify this vector.
-     * 
+     *
      * @param v The vector to add.
      * @return The vector sum.
      */
@@ -354,7 +354,7 @@ public:
 
     /**
      * Adds the given vector to this vector.
-     * 
+     *
      * @param v The vector to add.
      * @return This vector, after the addition occurs.
      */
@@ -362,9 +362,9 @@ public:
 
     /**
      * Calculates the sum of this vector with the given vector.
-     * 
+     *
      * Note: this does not modify this vector.
-     * 
+     *
      * @param v The vector to add.
      * @return The vector sum.
      */
@@ -372,7 +372,7 @@ public:
 
     /**
      * Subtracts the given vector from this vector.
-     * 
+     *
      * @param v The vector to subtract.
      * @return This vector, after the subtraction occurs.
      */
@@ -380,18 +380,18 @@ public:
 
     /**
      * Calculates the negation of this vector.
-     * 
+     *
      * Note: this does not modify this vector.
-     * 
+     *
      * @return The negation of this vector.
      */
     inline const Vec2 operator-() const;
 
     /**
      * Calculates the scalar product of this vector with the given value.
-     * 
+     *
      * Note: this does not modify this vector.
-     * 
+     *
      * @param s The value to scale by.
      * @return The scaled vector.
      */
@@ -399,12 +399,12 @@ public:
 
     /**
      * Scales this vector by the given value.
-     * 
+     *
      * @param s The value to scale by.
      * @return This vector, after the scale occurs.
      */
     inline Vec2& operator*=(float s);
-    
+
     /**
      * Returns the components of this vector divided by the given constant
      *
@@ -417,13 +417,13 @@ public:
 
     /**
      * Determines if this vector is less than the given vector.
-     * 
+     *
      * @param v The vector to compare against.
-     * 
+     *
      * @return True if this vector is less than the given vector, false otherwise.
      */
     inline bool operator<(const Vec2& v) const;
-    
+
     /**
      * Determines if this vector is greater than the given vector.
      *
@@ -435,18 +435,18 @@ public:
 
     /**
      * Determines if this vector is equal to the given vector.
-     * 
+     *
      * @param v The vector to compare against.
-     * 
+     *
      * @return True if this vector is equal to the given vector, false otherwise.
      */
     inline bool operator==(const Vec2& v) const;
 
     /**
      * Determines if this vector is not equal to the given vector.
-     * 
+     *
      * @param v The vector to compare against.
-     * 
+     *
      * @return True if this vector is not equal to the given vector, false otherwise.
      */
     inline bool operator!=(const Vec2& v) const;
@@ -462,7 +462,7 @@ public:
      * @js NA
      */
     bool equals(const Vec2& target) const;
-    
+
     /** @returns if points have fuzzy equality which means equal with some degree of variance.
      @since v2.1.4
      * @js NA
@@ -545,7 +545,7 @@ public:
     inline Vec2 getPerp() const {
         return Vec2(-y, x);
     };
-    
+
     /** Calculates midpoint between two points.
      @return Vec2
      @since v3.0
@@ -556,7 +556,7 @@ public:
     {
         return Vec2((x + other.x) / 2.0f, (y + other.y) / 2.0f);
     }
-    
+
     /** Clamp a point between from and to.
      @since v3.0
      * @js NA
@@ -566,7 +566,7 @@ public:
     {
         return Vec2(clampf(x,min_inclusive.x,max_inclusive.x), clampf(y, min_inclusive.y, max_inclusive.y));
     }
-    
+
     /** Run a math operation function on each point component
      * absf, floorf, ceilf, roundf
      * any function that has the signature: float func(float);
@@ -654,7 +654,7 @@ public:
     {
         return Vec2(cosf(a), sinf(a));
     }
-    
+
     /** A general line-line intersection test
      @param A   the startpoint for the first line L1 = (A - B)
      @param B   the endpoint for the first line L1 = (A - B)
@@ -675,7 +675,7 @@ public:
     static bool isLineIntersect(const Vec2& A, const Vec2& B,
                                  const Vec2& C, const Vec2& D,
                                  float *S = nullptr, float *T = nullptr);
-    
+
     /**
      returns true if Line A-B overlap with segment C-D
      @since v3.0
@@ -684,7 +684,7 @@ public:
      */
     static bool isLineOverlap(const Vec2& A, const Vec2& B,
                                 const Vec2& C, const Vec2& D);
-    
+
     /**
      returns true if Line A-B parallel with segment C-D
      @since v3.0
@@ -693,7 +693,7 @@ public:
      */
     static bool isLineParallel(const Vec2& A, const Vec2& B,
                    const Vec2& C, const Vec2& D);
-    
+
     /**
      returns true if Segment A-B overlap with segment C-D
      @since v3.0
@@ -703,7 +703,7 @@ public:
     static bool isSegmentOverlap(const Vec2& A, const Vec2& B,
                                  const Vec2& C, const Vec2& D,
                                  Vec2* S = nullptr, Vec2* E = nullptr);
-    
+
     /**
      returns true if Segment A-B intersects with segment C-D
      @since v3.0
@@ -711,7 +711,7 @@ public:
      * @lua NA
      */
     static bool isSegmentIntersect(const Vec2& A, const Vec2& B, const Vec2& C, const Vec2& D);
-    
+
     /**
      returns the intersection point of line A-B, C-D
      @since v3.0
@@ -719,7 +719,7 @@ public:
      * @lua NA
      */
     static Vec2 getIntersectPoint(const Vec2& A, const Vec2& B, const Vec2& C, const Vec2& D);
-    
+
     /** equals to Vec2(0,0) */
     static const Vec2 ZERO;
     /** equals to Vec2(1,1) */
@@ -750,7 +750,7 @@ public:
 
 /**
  * Calculates the scalar product of the given vector with the given value.
- * 
+ *
  * @param x The value to scale by.
  * @param v The vector to scale.
  * @return The scaled vector.
@@ -769,3 +769,4 @@ NS_CC_MATH_END
 #include "Vec2.inl"
 
 #endif // MATH_VEC2_H
+

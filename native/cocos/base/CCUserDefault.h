@@ -40,7 +40,7 @@ NS_CC_BEGIN
  * UserDefault acts as a tiny database. You can save and get base type values by it.
  * For example, setBoolForKey("played", true) will add a bool value true into the database.
  * Its key is "played". You can get the value of the key by getBoolForKey("played").
- * 
+ *
  * It supports the following base types:
  * bool, int, float, double, string
  */
@@ -57,7 +57,7 @@ public:
      * @js NA
      */
     bool    getBoolForKey(const char* key);
-    
+
     /**
      * Get bool value by key, if the key doesn't exist, will return passed default value.
      * @param key The key to get value.
@@ -65,7 +65,7 @@ public:
      * @js NA
      */
     virtual bool getBoolForKey(const char* key, bool defaultValue);
-    
+
     /**
      * Get integer value by key, if the key doesn't exist, will return 0.
      * You can set the default value, or it is 0.
@@ -74,7 +74,7 @@ public:
      * @js NA
      */
     int     getIntegerForKey(const char* key);
-    
+
     /**
      * Get bool value by key, if the key doesn't exist, will return passed default value.
      * @param key The key to get value.
@@ -83,7 +83,7 @@ public:
      * @js NA
      */
     virtual int getIntegerForKey(const char* key, int defaultValue);
-    
+
     /**
      * Get float value by key, if the key doesn't exist, will return 0.0.
      * @param key The key to get value.
@@ -91,7 +91,7 @@ public:
      * @js NA
      */
     float    getFloatForKey(const char* key);
-    
+
     /**
      * Get float value by key, if the key doesn't exist, will return passed default value.
      * @param key The key to get value.
@@ -100,7 +100,7 @@ public:
      * @js NA
      */
     virtual float getFloatForKey(const char* key, float defaultValue);
-    
+
     /**
      * Get double value by key, if the key doesn't exist, will return 0.0.
      * @param key The key to get value.
@@ -108,7 +108,7 @@ public:
      * @js NA
      */
     double  getDoubleForKey(const char* key);
-    
+
     /**
      * Get double value by key, if the key doesn't exist, will return passed default value.
      * @param key The key to get value.
@@ -117,7 +117,7 @@ public:
      * @js NA
      */
     virtual double getDoubleForKey(const char* key, double defaultValue);
-    
+
     /**
      * Get string value by key, if the key doesn't exist, will return an empty string.
      * @param key The key to get value.
@@ -125,7 +125,7 @@ public:
      * @js NA
      */
     std::string getStringForKey(const char* key);
-    
+
     /**
      * Get string value by key, if the key doesn't exist, will return passed default value.
      * @param key The key to get value.
@@ -134,7 +134,7 @@ public:
      * @js NA
      */
     virtual std::string getStringForKey(const char* key, const std::string & defaultValue);
-    
+
     /**
      * Get Data value by key, if the key doesn't exist, will return an empty Data.
      * @param key The key to get value.
@@ -142,7 +142,7 @@ public:
      * @js NA
      */
     Data getDataForKey(const char* key);
-    
+
     /**
      * Get Data value by key, if the key doesn't exist, will return an empty Data.
      * @param key The key to get value.
@@ -208,7 +208,7 @@ public:
     * @js NA
     */
     virtual void deleteValueForKey(const char* key);
-    
+
     /** Returns the singleton.
      * @js NA
      * @lua NA
@@ -230,7 +230,7 @@ public:
     * @warm It will delete previous delegate
     */
     static void setDelegate(UserDefault *delegate);
-    
+
     /** All supported platforms other iOS & Android use xml file to save values. This function is return the file path of the xml path.
      * @js NA
      */
@@ -244,12 +244,12 @@ public:
 protected:
     UserDefault();
     virtual ~UserDefault();
-    
+
 private:
-    
+
     static bool createXMLFile();
     static void initXMLFilePath();
-    
+
     static UserDefault* _userDefault;
     static std::string _filePath;
     static bool _isFilePathInitialized;
@@ -261,3 +261,4 @@ NS_CC_END
 /** @} */
 
 #endif // __SUPPORT_CCUSERDEFAULT_H__
+

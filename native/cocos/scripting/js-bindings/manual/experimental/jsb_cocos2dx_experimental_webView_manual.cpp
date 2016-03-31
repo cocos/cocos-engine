@@ -38,7 +38,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnShouldStartLoading(JSContext 
         });
         return true;
     }
-    
+
     return false;
 }
 
@@ -70,7 +70,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFinishLoading(JSContext *c
         });
         return true;
     }
-    
+
     return false;
 }
 
@@ -102,7 +102,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnDidFailLoading(JSContext *cx,
         });
         return true;
     }
-    
+
     return false;
 }
 
@@ -134,7 +134,7 @@ static bool jsb_cocos2dx_experimental_webView_setOnJSCallback(JSContext *cx, uin
         });
         return true;
     }
-    
+
     return false;
 }
 
@@ -150,3 +150,4 @@ void register_all_cocos2dx_experimental_webView_manual(JSContext* cx, JS::Handle
 }
 
 #endif
+

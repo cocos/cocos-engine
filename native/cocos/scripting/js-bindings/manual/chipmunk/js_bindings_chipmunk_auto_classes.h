@@ -71,3 +71,4 @@ extern JSObject *JSB_cpSplittingPlane_object;
 extern JSClass *JSB_cpSplittingPlane_class;
 void JSB_cpSplittingPlane_createClass(JSContext *cx, JS::HandleObject globalObj, const char* name );
 #endif // JSB_INCLUDE_CHIPMUNK
+

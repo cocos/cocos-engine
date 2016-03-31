@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2013      Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -115,7 +115,7 @@ public://@public
     std::string _atlasName;
     //! values for kerning
     tKerningHashElement *_kerningDictionary;
-    
+
     // Character Set defines the letters that actually exist in the font
     std::set<unsigned int> *_characterSet;
     //! Font Size
@@ -141,10 +141,10 @@ public:
 
     /** initializes a BitmapFontConfiguration with a FNT file */
     bool initWithFNTfile(const std::string& FNTfile);
-    
+
     inline const std::string& getAtlasName(){ return _atlasName; }
     inline void setAtlasName(const std::string& atlasName) { _atlasName = atlasName; }
-    
+
     std::set<unsigned int>* getCharacterSet() const;
 private:
     std::set<unsigned int>* parseConfigFile(const std::string& controlFile);
@@ -179,7 +179,7 @@ BMFontConfiguration* FNTConfigLoadFile(const std::string& fntFile)
         if (ret)
         {
             s_configurations->insert(fntFile, ret);
-        }        
+        }
     }
 
     return ret;
@@ -205,7 +205,7 @@ bool BMFontConfiguration::initWithFNTfile(const std::string& FNTfile)
 {
     _kerningDictionary = nullptr;
     _fontDefDictionary = nullptr;
-    
+
     _characterSet = this->parseConfigFile(FNTfile);
 
     if (! _characterSet)
@@ -254,16 +254,16 @@ std::string BMFontConfiguration::description(void) const
 void BMFontConfiguration::purgeKerningDictionary()
 {
     tKerningHashElement *current;
-    while(_kerningDictionary) 
+    while(_kerningDictionary)
     {
-        current = _kerningDictionary; 
+        current = _kerningDictionary;
         HASH_DEL(_kerningDictionary,current);
         free(current);
     }
 }
 
 void BMFontConfiguration::purgeFontDefDictionary()
-{    
+{
     tFontDefHashElement *current, *tmp;
 
     HASH_ITER(hh, _fontDefDictionary, current, tmp) {
@@ -325,7 +325,7 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
         {
             base = next + 1;
             next = strchr(base, '\n');
-        } 
+        }
         else
         {
             next = nullptr;
@@ -359,7 +359,7 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
 
             element->key = element->fontDef.charID;
             HASH_ADD_INT(_fontDefDictionary, key, element);
-            
+
             validCharsString->insert(element->fontDef.charID);
         }
         else if (memcmp(line, "kerning first", 13) == 0)
@@ -369,7 +369,7 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
     }
 
     free(contents);
-    
+
     return validCharsString;
 }
 
@@ -543,7 +543,7 @@ void BMFontConfiguration::parseImageFileName(const char* line, const std::string
     int pageId;
     sscanf(line, "page id=%d", &pageId);
     CCASSERT(pageId == 0, "LabelBMFont file could not be found");
-    // file 
+    // file
     char fileName[255];
     sscanf(strchr(line,'"') + 1, "%[^\"]", fileName);
     _atlasName = FileUtils::getInstance()->fullPathFromRelativeFile(fileName, fntFile);
@@ -568,11 +568,11 @@ void BMFontConfiguration::parseCommonArguments(const char* line)
     // line to parse:
     // common lineHeight=104 base=26 scaleW=1024 scaleH=512 pages=1 packed=0
     //////////////////////////////////////////////////////////////////////////
-  
+
     // Height
     auto tmp = strstr(line, "lineHeight=") + 11;
     sscanf(tmp, "%d", &_commonHeight);
-    
+
 #if COCOS2D_DEBUG > 0
     // scaleW. sanity check
     int value;
@@ -596,10 +596,10 @@ void BMFontConfiguration::parseCommonArguments(const char* line)
 }
 
 void BMFontConfiguration::parseCharacterDefinition(const char* line, BMFontDef *characterDefinition)
-{    
+{
     //////////////////////////////////////////////////////////////////////////
     // line to parse:
-    // char id=32   x=0     y=0     width=0     height=0     xoffset=0     yoffset=44    xadvance=14     page=0  chnl=0 
+    // char id=32   x=0     y=0     width=0     height=0     xoffset=0     yoffset=44    xadvance=14     page=0  chnl=0
     //////////////////////////////////////////////////////////////////////////
 
     // Character ID
@@ -630,7 +630,7 @@ void BMFontConfiguration::parseCharacterDefinition(const char* line, BMFontDef *
 }
 
 void BMFontConfiguration::parseKerningEntry(const char* line)
-{        
+{
     //////////////////////////////////////////////////////////////////////////
     // line to parse:
     // kerning first=121  second=44  amount=-7
@@ -657,14 +657,14 @@ FontFNT * FontFNT::create(const std::string& fntFilePath, const Vec2& imageOffse
     BMFontConfiguration *newConf = FNTConfigLoadFile(fntFilePath);
     if (!newConf)
         return nullptr;
-    
+
     // add the texture
     Texture2D *tempTexture = Director::DirectorInstance->getTextureCache()->addImage(newConf->getAtlasName());
     if (!tempTexture)
     {
         return nullptr;
     }
-    
+
     FontFNT *tempFont =  new FontFNT(newConf,imageOffset);
     tempFont->setFontSize(newConf->_fontSize);
     if (!tempFont)
@@ -699,14 +699,14 @@ void FontFNT::purgeCachedData()
 int * FontFNT::getHorizontalKerningForTextUTF16(const std::u16string& text, int &outNumLetters) const
 {
     outNumLetters = static_cast<int>(text.length());
-    
+
     if (!outNumLetters)
         return 0;
-    
+
     int *sizes = new (std::nothrow) int[outNumLetters];
     if (!sizes)
         return 0;
-    
+
     for (int c = 0; c < outNumLetters; ++c)
     {
         if (c < (outNumLetters-1))
@@ -714,7 +714,7 @@ int * FontFNT::getHorizontalKerningForTextUTF16(const std::u16string& text, int 
         else
             sizes[c] = 0;
     }
-    
+
     return sizes;
 }
 
@@ -722,16 +722,16 @@ int  FontFNT::getHorizontalKerningForChars(unsigned short firstChar, unsigned sh
 {
     int ret = 0;
     unsigned int key = (firstChar << 16) | (secondChar & 0xffff);
-    
+
     if (_configuration->_kerningDictionary)
     {
         tKerningHashElement *element = nullptr;
         HASH_FIND_INT(_configuration->_kerningDictionary, &key, element);
-        
+
         if (element)
             ret = element->amount;
     }
-    
+
     return ret;
 }
 
@@ -750,18 +750,18 @@ FontAtlas * FontFNT::createFontAtlas()
     // check that everything is fine with the BMFontCofniguration
     if (!_configuration->_fontDefDictionary)
         return nullptr;
-    
+
     size_t numGlyphs = _configuration->_characterSet->size();
     if (numGlyphs == 0)
         return nullptr;
-    
+
     if (_configuration->_commonHeight == 0)
         return nullptr;
-    
+
     FontAtlas *tempAtlas = new (std::nothrow) FontAtlas(*this);
     if (tempAtlas == nullptr)
         return nullptr;
-    
+
     // common height
     int originalFontSize = _configuration->_fontSize;
     float originalLineHeight = _configuration->_commonHeight;
@@ -771,41 +771,41 @@ FontAtlas * FontFNT::createFontAtlas()
     }else {
         factor = _fontSize / originalFontSize;
     }
-    
+
     tempAtlas->setLineHeight(originalLineHeight * factor);
-    
+
     BMFontDef fontDef;
     tFontDefHashElement *currentElement, *tmp;
     // Purge uniform hash
     HASH_ITER(hh, _configuration->_fontDefDictionary, currentElement, tmp)
     {
-        
+
         FontLetterDefinition tempDefinition;
-        
+
         fontDef = currentElement->fontDef;
         Rect tempRect;
-        
+
         tempRect = fontDef.rect;
         tempRect = CC_RECT_PIXELS_TO_POINTS(tempRect);
-        
+
         tempDefinition.offsetX  = fontDef.xOffset;
         tempDefinition.offsetY  = fontDef.yOffset;
-        
+
         tempDefinition.U        = tempRect.origin.x + _imageOffset.x;
         tempDefinition.V        = tempRect.origin.y + _imageOffset.y;
-        
+
         tempDefinition.width    = tempRect.size.width;
         tempDefinition.height   = tempRect.size.height;
-        
+
         //carloX: only one texture supported FOR NOW
         tempDefinition.textureID = 0;
-        
+
         tempDefinition.validDefinition = true;
         tempDefinition.xAdvance = fontDef.xAdvance;
         // add the new definition
         tempAtlas->addLetterDefinition(fontDef.charID,tempDefinition);
     }
-    
+
     // add the texture (only one texture for now)
     Texture2D *tempTexture = Director::DirectorInstance->getTextureCache()->addImage(_configuration->getAtlasName());
     if (tempTexture == nullptr)
@@ -813,13 +813,14 @@ FontAtlas * FontFNT::createFontAtlas()
         tempAtlas->release();
         return 0;
     }
-    
+
     // add the texture
     tempAtlas->addTexture(tempTexture, 0);
-    
+
     // done
     return tempAtlas;
 }
 
 
 NS_CC_END
+

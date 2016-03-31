@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,8 +40,8 @@ LinearHorizontalLayoutManager* LinearHorizontalLayoutManager::create()
     CC_SAFE_DELETE(exe);
     return nullptr;
 }
-    
-    
+
+
 void LinearHorizontalLayoutManager::doLayout(LayoutProtocol* layout)
 {
     Size layoutSize = layout->getLayoutContentSize();
@@ -83,8 +83,8 @@ void LinearHorizontalLayoutManager::doLayout(LayoutProtocol* layout)
         }
     }
 }
-    
-    
+
+
 //LinearVerticalLayoutManager
 LinearVerticalLayoutManager* LinearVerticalLayoutManager::create()
 {
@@ -97,20 +97,20 @@ LinearVerticalLayoutManager* LinearVerticalLayoutManager::create()
     CC_SAFE_DELETE(exe);
     return nullptr;
 }
-    
+
 void LinearVerticalLayoutManager::doLayout(LayoutProtocol* layout)
 {
     Size layoutSize = layout->getLayoutContentSize();
     Vector<Node*> container = layout->getLayoutElements();
     float topBoundary = layoutSize.height;
-    
+
     for (auto& subWidget : container)
     {
         LayoutParameterProtocol* child = dynamic_cast<LayoutParameterProtocol*>(subWidget);
         if (child)
         {
             LinearLayoutParameter* layoutParameter = dynamic_cast<LinearLayoutParameter*>(child->getLayoutParameter());
-            
+
             if (layoutParameter)
             {
                 LinearLayoutParameter::LinearGravity childGravity = layoutParameter->getGravity();
@@ -141,7 +141,7 @@ void LinearVerticalLayoutManager::doLayout(LayoutProtocol* layout)
         }
     }
 }
-    
+
 //RelativeLayoutManager
 
 RelativeLayoutManager* RelativeLayoutManager::create()
@@ -177,13 +177,13 @@ Vector<Widget*> RelativeLayoutManager::getAllWidgets(cocos2d::ui::LayoutProtocol
     return widgetChildren;
 
 }
-    
+
 Widget* RelativeLayoutManager::getRelativeWidget(Widget* widget)
 {
     Widget* relativeWidget = nullptr;
     RelativeLayoutParameter* layoutParameter = dynamic_cast<RelativeLayoutParameter*>(widget->getLayoutParameter());
     const std::string relativeName = layoutParameter->getRelativeToWidgetName();
-    
+
     if (!relativeName.empty())
     {
         for (auto& sWidget : _widgetChildren)
@@ -202,24 +202,24 @@ Widget* RelativeLayoutManager::getRelativeWidget(Widget* widget)
     }
     return relativeWidget;
 }
-    
+
 bool RelativeLayoutManager::calculateFinalPositionWithRelativeWidget(LayoutProtocol *layout)
 {
     Vec2 ap = _widget->getAnchorPoint();
     Size cs = _widget->getContentSize();
-    
+
     _finalPositionX = 0.0f;
     _finalPositionY = 0.0f;
-    
+
     Widget* relativeWidget = this->getRelativeWidget(_widget);
-    
+
     RelativeLayoutParameter* layoutParameter = dynamic_cast<RelativeLayoutParameter*>(_widget->getLayoutParameter());
 
     RelativeLayoutParameter::RelativeAlign align = layoutParameter->getAlign();
 
     Size layoutSize = layout->getLayoutContentSize();
 
-    
+
     switch (align)
     {
         case RelativeLayoutParameter::RelativeAlign::NONE:
@@ -259,7 +259,7 @@ bool RelativeLayoutManager::calculateFinalPositionWithRelativeWidget(LayoutProto
             _finalPositionX = layoutSize.width - ((1.0f - ap.x) * cs.width);
             _finalPositionY = ap.y * cs.height;
             break;
-            
+
         case RelativeLayoutParameter::RelativeAlign::LOCATION_ABOVE_LEFTALIGN:
             if (relativeWidget)
             {
@@ -282,7 +282,7 @@ bool RelativeLayoutManager::calculateFinalPositionWithRelativeWidget(LayoutProto
                 }
                 Size rbs = relativeWidget->getContentSize();
                 float locationTop = relativeWidget->getTopBoundary();
-                
+
                 _finalPositionY = locationTop + ap.y * cs.height;
                 _finalPositionX = relativeWidget->getLeftBoundary() + rbs.width * 0.5f + ap.x * cs.width - cs.width * 0.5f;
             }
@@ -323,7 +323,7 @@ bool RelativeLayoutManager::calculateFinalPositionWithRelativeWidget(LayoutProto
                 Size rbs = relativeWidget->getContentSize();
                 float locationLeft = relativeWidget->getLeftBoundary();
                 _finalPositionX = locationLeft - (1.0f - ap.x) * cs.width;
-                
+
                 _finalPositionY = relativeWidget->getBottomBoundary() + rbs.height * 0.5f + ap.y * cs.height - cs.height * 0.5f;
             }
             break;
@@ -363,7 +363,7 @@ bool RelativeLayoutManager::calculateFinalPositionWithRelativeWidget(LayoutProto
                 Size rbs = relativeWidget->getContentSize();
                 float locationRight = relativeWidget->getRightBoundary();
                 _finalPositionX = locationRight + ap.x * cs.width;
-                
+
                 _finalPositionY = relativeWidget->getBottomBoundary() + rbs.height * 0.5f + ap.y * cs.height - cs.height * 0.5f;
             }
             break;
@@ -402,7 +402,7 @@ bool RelativeLayoutManager::calculateFinalPositionWithRelativeWidget(LayoutProto
                 }
                 Size rbs = relativeWidget->getContentSize();
                 float locationBottom = relativeWidget->getBottomBoundary();
-                
+
                 _finalPositionY = locationBottom - (1.0f - ap.y) * cs.height;
                 _finalPositionX = relativeWidget->getLeftBoundary() + rbs.width * 0.5f + ap.x * cs.width - cs.width * 0.5f;
             }
@@ -425,16 +425,16 @@ bool RelativeLayoutManager::calculateFinalPositionWithRelativeWidget(LayoutProto
     }
     return true;
 }
-    
+
 void RelativeLayoutManager::calculateFinalPositionWithRelativeAlign()
 {
     RelativeLayoutParameter* layoutParameter = dynamic_cast<RelativeLayoutParameter*>(_widget->getLayoutParameter());
-    
+
     Margin mg = layoutParameter->getMargin();
-   
-    
+
+
     RelativeLayoutParameter::RelativeAlign align = layoutParameter->getAlign();
-    
+
     //handle margin
     switch (align)
     {
@@ -469,7 +469,7 @@ void RelativeLayoutManager::calculateFinalPositionWithRelativeAlign()
             _finalPositionX -= mg.right;
             _finalPositionY += mg.bottom;
             break;
-            
+
         case RelativeLayoutParameter::RelativeAlign::LOCATION_ABOVE_LEFTALIGN:
             _finalPositionY += mg.bottom;
             _finalPositionX += mg.left;
@@ -481,7 +481,7 @@ void RelativeLayoutManager::calculateFinalPositionWithRelativeAlign()
         case RelativeLayoutParameter::RelativeAlign::LOCATION_ABOVE_CENTER:
             _finalPositionY += mg.bottom;
             break;
-            
+
         case RelativeLayoutParameter::RelativeAlign::LOCATION_LEFT_OF_TOPALIGN:
             _finalPositionX -= mg.right;
             _finalPositionY -= mg.top;
@@ -493,7 +493,7 @@ void RelativeLayoutManager::calculateFinalPositionWithRelativeAlign()
         case RelativeLayoutParameter::RelativeAlign::LOCATION_LEFT_OF_CENTER:
             _finalPositionX -= mg.right;
             break;
-            
+
         case RelativeLayoutParameter::RelativeAlign::LOCATION_RIGHT_OF_TOPALIGN:
             _finalPositionX += mg.left;
             _finalPositionY -= mg.top;
@@ -505,7 +505,7 @@ void RelativeLayoutManager::calculateFinalPositionWithRelativeAlign()
         case RelativeLayoutParameter::RelativeAlign::LOCATION_RIGHT_OF_CENTER:
             _finalPositionX += mg.left;
             break;
-            
+
         case RelativeLayoutParameter::RelativeAlign::LOCATION_BELOW_LEFTALIGN:
             _finalPositionY -= mg.top;
             _finalPositionX += mg.left;
@@ -524,35 +524,35 @@ void RelativeLayoutManager::calculateFinalPositionWithRelativeAlign()
 
 void RelativeLayoutManager::doLayout(LayoutProtocol *layout)
 {
-    
+
     _widgetChildren = this->getAllWidgets(layout);
-    
+
     while (_unlayoutChildCount > 0)
     {
         for (auto& subWidget : _widgetChildren)
         {
             _widget = static_cast<Widget*>(subWidget);
-            
+
             RelativeLayoutParameter* layoutParameter = dynamic_cast<RelativeLayoutParameter*>(_widget->getLayoutParameter());
-            
+
             if (layoutParameter)
             {
                 if (layoutParameter->_put)
                 {
                     continue;
                 }
-                
-               
+
+
                 bool ret = calculateFinalPositionWithRelativeWidget(layout);
                 if (!ret) {
                     continue;
                 }
-                
+
                 calculateFinalPositionWithRelativeAlign();
-            
-            
+
+
                 _widget->setPosition(Vec2(_finalPositionX, _finalPositionY));
-                
+
                 layoutParameter->_put = true;
             }
         }
@@ -565,3 +565,4 @@ void RelativeLayoutManager::doLayout(LayoutProtocol *layout)
 }
 
 NS_CC_END
+

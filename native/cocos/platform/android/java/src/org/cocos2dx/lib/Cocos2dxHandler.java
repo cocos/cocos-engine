@@ -38,19 +38,19 @@ public class Cocos2dxHandler extends Handler {
     // Constants
     // ===========================================================
     public final static int HANDLER_SHOW_DIALOG = 1;
-    
+
     // ===========================================================
     // Fields
     // ===========================================================
     private WeakReference<Activity> mActivityReference;
-    
+
     // ===========================================================
     // Constructors
     // ===========================================================
     public Cocos2dxHandler(Activity activity) {
         mActivityReference = new WeakReference<Activity>(activity);
     }
-    
+
     // ===========================================================
     // Methods
     // ===========================================================
@@ -62,35 +62,36 @@ public class Cocos2dxHandler extends Handler {
             break;
         }
     }
-    
+
     private void showDialog(Message msg) {
         Activity theActivity = mActivityReference.get();
         DialogMessage dialogMessage = (DialogMessage)msg.obj;
         new AlertDialog.Builder(theActivity)
         .setTitle(dialogMessage.mTitle)
         .setMessage(dialogMessage.mMessage)
-        .setPositiveButton("Ok", 
+        .setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {
-                    
+
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // TODO Auto-generated method stub
-                        
+
                     }
                 }).create().show();
     }
-    
+
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
-    
+
     public static class DialogMessage {
         public String mTitle;
         public String mMessage;
-        
+
         public DialogMessage(String title, String message) {
             mTitle = title;
             mMessage = message;
         }
     }
 }
+

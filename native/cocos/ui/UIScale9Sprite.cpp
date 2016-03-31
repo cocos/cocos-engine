@@ -78,7 +78,7 @@ namespace ui {
     {
         return initWithFile(file, Rect::ZERO, Rect::ZERO);
     }
-    
+
     bool Scale9Sprite::initWithSpriteFrame(SpriteFrame* spriteFrame,
                                            const Rect& capInsets)
     {
@@ -87,11 +87,11 @@ namespace ui {
             Texture2D* texture = spriteFrame->getTexture();
             CCASSERT(texture != nullptr, "CCTexture must be not nil");
             if(texture == nullptr) break;
-            
+
             Sprite *sprite = Sprite::createWithSpriteFrame(spriteFrame);
             CCASSERT(sprite != nullptr, "sprite must be not nil");
             if(sprite == nullptr) break;
-            
+
             ret = this->init(sprite,
                                       spriteFrame->getRect(),
                                       spriteFrame->isRotated(),
@@ -99,7 +99,7 @@ namespace ui {
                                       spriteFrame->getOriginalSize(),
                                       capInsets);
         } while (false);
-        
+
         return ret;
     }
     bool Scale9Sprite::initWithSpriteFrame(SpriteFrame* spriteFrame)
@@ -107,7 +107,7 @@ namespace ui {
         CCASSERT(spriteFrame != nullptr, "Invalid spriteFrame for sprite");
         return initWithSpriteFrame(spriteFrame, Rect::ZERO);
     }
-    
+
     bool Scale9Sprite::initWithSpriteFrameName(const std::string& spriteFrameName,
                                                const Rect& capInsets)
     {
@@ -117,17 +117,17 @@ namespace ui {
             CCASSERT(spriteFrameCache != nullptr,
                      "SpriteFrameCache::getInstance() must be non-NULL");
             if(spriteFrameCache == nullptr) break;
-            
+
             SpriteFrame *frame = spriteFrameCache->getSpriteFrameByName(spriteFrameName);
             CCASSERT(frame != nullptr, "CCSpriteFrame must be non-NULL");
             if (frame == nullptr) break;
-            
+
             ret = initWithSpriteFrame(frame, capInsets);
         } while (false);
-        
+
         return ret;
     }
-    
+
     bool Scale9Sprite::initWithSpriteFrameName(const std::string& spriteFrameName)
     {
         return initWithSpriteFrameName(spriteFrameName, Rect::ZERO);
@@ -165,7 +165,7 @@ namespace ui {
             if (texture == nullptr) {
                 return ret;
             }
-            
+
             Rect actualCapInsets = capInsets;
             if (texture->isContain9PatchInfo())
             {
@@ -202,7 +202,7 @@ namespace ui {
         {
             return false;
         }
-        
+
         auto sprite = Sprite::create(file);
         return init(sprite, rect, capInsets);
     }
@@ -260,7 +260,7 @@ namespace ui {
             ret->autorelease();
             return ret;
         }
-        
+
         delete ret;
         return nullptr;
     }
@@ -274,7 +274,7 @@ namespace ui {
             ret->autorelease();
             return ret;
         }
-        
+
         delete ret;
         return nullptr;
     }
@@ -288,7 +288,7 @@ namespace ui {
             ret->autorelease();
             return ret;
         }
-        
+
         delete ret;
         return nullptr;
     }
@@ -301,7 +301,7 @@ namespace ui {
             ret->autorelease();
             return ret;
         }
-        
+
         delete ret;
         return nullptr;
     }
@@ -315,7 +315,7 @@ namespace ui {
             ret->autorelease();
             return ret;
         }
-        
+
         delete ret;
         return nullptr;
     }
@@ -328,7 +328,7 @@ namespace ui {
             ret->autorelease();
             return ret;
         }
-        
+
         delete ret;
         return nullptr;
     }
@@ -421,7 +421,7 @@ namespace ui {
 
         Rect rect(textureRect);
         Size size(originalSize);
-        
+
         // If there is no given rect
         if ( rect.equals(Rect::ZERO) )
         {
@@ -460,10 +460,10 @@ namespace ui {
             size.height = size.height - 2;
         }
         this->setContentSize(size);
-        
+
         return true;
     }
-    
+
     void Scale9Sprite::configureSimpleModeRendering()
     {
         this->setInsetTop(0);
@@ -483,7 +483,7 @@ namespace ui {
             {
                 return;
             }
-            
+
             if (_renderingType == RenderingType::SIMPLE)
             {
                 this->configureSimpleModeRendering();
@@ -494,7 +494,7 @@ namespace ui {
             auto spriteRectSize = _spriteRect.size;
             auto originalSize = CC_SIZE_POINTS_TO_PIXELS(_originalSize);
             auto offset = CC_POINT_POINTS_TO_PIXELS(_offset);
-            
+
             Vec4 offsets;
             offsets.x = offset.x + (originalSize.width - textureRect.size.width) / 2;
             offsets.w = offset.y + (originalSize.height - textureRect.size.height) / 2;
@@ -550,7 +550,7 @@ namespace ui {
         CC_SAFE_DELETE(ret);
         return nullptr;
     }
-    
+
     Scale9Sprite::State Scale9Sprite::getState()const
     {
         return _brightState;
@@ -573,7 +573,7 @@ namespace ui {
         default:
             break;
         }
-        
+
         if (nullptr != _scale9Image)
         {
             _scale9Image->setGLProgramState(glState);
@@ -663,14 +663,14 @@ namespace ui {
         this->_insetBottom = insetBottom;
         this->updateCapInset();
     }
-    
+
     void Scale9Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
     {
         if (_scale9Image && _scale9Enabled) {
 #if CC_USE_CULLING
             // Don't do calculate the culling if the transform was not updated
             _insideBounds = (flags & FLAGS_TRANSFORM_DIRTY) ? renderer->checkVisibility(transform, _contentSize) : _insideBounds;
-            
+
             if(_insideBounds)
 #endif
             {
@@ -681,7 +681,7 @@ namespace ui {
                 auto globalZOrder = _scale9Image->getGlobalZOrder();
                 _trianglesCommand.init(globalZOrder,textureName, programState, blendFunc, polyInfo.triangles, transform, flags);
                 renderer->addCommand(&_trianglesCommand);
-                
+
 #if CC_SPRITE_DEBUG_DRAW
                 _debugDrawNode->clear();
                 auto count = polyInfo.triangles.indexCount/3;
@@ -693,11 +693,11 @@ namespace ui {
                     Vec3 from =verts[indices[i*3]].vertices;
                     Vec3 to = verts[indices[i*3+1]].vertices;
                     _debugDrawNode->drawLine(Vec2(from.x, from.y), Vec2(to.x,to.y), Color4F::WHITE);
-                    
+
                     from =verts[indices[i*3+1]].vertices;
                     to = verts[indices[i*3+2]].vertices;
                     _debugDrawNode->drawLine(Vec2(from.x, from.y), Vec2(to.x,to.y), Color4F::WHITE);
-                    
+
                     from =verts[indices[i*3+2]].vertices;
                     to = verts[indices[i*3]].vertices;
                     _debugDrawNode->drawLine(Vec2(from.x, from.y), Vec2(to.x,to.y), Color4F::WHITE);
@@ -744,7 +744,7 @@ namespace ui {
             else
                 break;
         }
-        
+
         if (!_scale9Enabled && _scale9Image && _scale9Image->getLocalZOrder() < 0 )
         {
             _scale9Image->visit(renderer, _modelViewTransform, flags);
@@ -837,7 +837,7 @@ namespace ui {
                 polyInfo.setQuad(&quad);
                 _scale9Image->setPolygonInfo(polyInfo);
             }
-          
+
         }
         this->adjustNoneScale9ImagePosition();
     }
@@ -846,7 +846,7 @@ namespace ui {
     {
         return _scale9Enabled;
     }
-    
+
     void Scale9Sprite::setAnchorPoint(const cocos2d::Vec2 &position)
     {
         Node::setAnchorPoint(position);
@@ -885,7 +885,7 @@ namespace ui {
         {
             _scale9Image->updateDisplayedColor(_displayedColor);
         }
-        
+
         if (_cascadeColorEnabled)
         {
             for(const auto &child : _children)
@@ -1020,7 +1020,7 @@ namespace ui {
                  "Scale9Sprite#scale. ScaleX != ScaleY. Don't know which one to return");
         return this->getScaleX();
     }
-    
+
     // (0,0)  O = capInsets.origin
     // v0----------------------
     // |        |      |      |
@@ -1065,8 +1065,8 @@ namespace ui {
             centerHeight = capInsets.size.height;
             bottomHeight = originalSize.height - (capInsets.origin.y + centerHeight) - offsets.w;
         }
-        
-        
+
+
         if(leftWidth<0)
         {
             centerWidth += leftWidth;
@@ -1077,7 +1077,7 @@ namespace ui {
             centerWidth += rightWidth;
             rightWidth = 0;
         }
-        
+
         if(topHeight<0)
         {
             centerHeight += topHeight;
@@ -1129,7 +1129,7 @@ namespace ui {
             v3 = (textureRect.origin.y + textureRect.size.height) / atlasHeight;
         }
 
-        
+
         std::vector<Vec2> uvCoordinates;
         if (_renderingType == RenderingType::SIMPLE)
         {
@@ -1159,18 +1159,18 @@ namespace ui {
                                                      const Size& originalSize,
                                                      const Vec4& offsets)
     {
-        
+
         float offsetLeft = offsets.x / CC_CONTENT_SCALE_FACTOR();
         float offsetTop = offsets.y / CC_CONTENT_SCALE_FACTOR();
         float offsetRight = offsets.z / CC_CONTENT_SCALE_FACTOR();
         float offsetBottom = offsets.w / CC_CONTENT_SCALE_FACTOR();
-        
+
         std::vector<Vec2> vertices;
         if (_renderingType == RenderingType::SIMPLE)
         {
             float hScale = _preferredSize.width / (originalSize.width / CC_CONTENT_SCALE_FACTOR());
             float vScale = _preferredSize.height / (originalSize.height / CC_CONTENT_SCALE_FACTOR());
-            
+
             vertices = {Vec2(offsetLeft * hScale, offsetBottom * vScale),
                         Vec2(_preferredSize.width - offsetRight * hScale, _preferredSize.height - offsetTop * vScale)};
         }
@@ -1193,18 +1193,18 @@ namespace ui {
             topHeight = topHeight / CC_CONTENT_SCALE_FACTOR();
             bottomHeight = bottomHeight / CC_CONTENT_SCALE_FACTOR();
             centerHeight = centerHeight / CC_CONTENT_SCALE_FACTOR();
-            
+
             float sizableWidth = _preferredSize.width - leftWidth - rightWidth;
             float sizableHeight = _preferredSize.height - topHeight - bottomHeight;
-            
+
             leftWidth -= offsetLeft;
             rightWidth -= offsetRight;
             topHeight -= offsetTop;
             bottomHeight -= offsetBottom;
-            
+
             float hScale = sizableWidth / centerWidth;
             float vScale = sizableHeight / centerHeight;
-            
+
             if(leftWidth<0)
             {
                 offsetLeft -= leftWidth * (hScale - 1.0f);
@@ -1227,7 +1227,7 @@ namespace ui {
                 sizableHeight += bottomHeight * vScale;
                 bottomHeight = 0;
             }
-            
+
             float x0,x1,x2,x3;
             float y0,y1,y2,y3;
             if(sizableWidth >= 0)
@@ -1280,11 +1280,11 @@ namespace ui {
         const unsigned short indicesOffset = 6;
         const unsigned short sliceQuadIndices[] = {4,0,5, 1,5,0};
         const unsigned short simpleQuadIndices[] = {0,1,2, 3,2,1};
-        
+
         auto displayedColor = _scale9Image->getDisplayedColor();
         auto displayedOpacity = _scale9Image->getDisplayedOpacity();
         Color4B color4( displayedColor.r, displayedColor.g, displayedColor.b, displayedOpacity );
-        
+
         // special opacity for premultiplied textures
         if (_scale9Image->isOpacityModifyRGB())
         {
@@ -1315,7 +1315,7 @@ namespace ui {
                 }
 
                 vertextData.colors = color4;
-                
+
                 //if slice mode
                 if (_renderingType == RenderingType::SLICE)
                 {
@@ -1327,7 +1327,7 @@ namespace ui {
                 }
             }
         }
-        
+
         if (_renderingType == RenderingType::SLICE)
         {
             for (int j = 0; j <= vertexCount; ++j)
@@ -1337,7 +1337,7 @@ namespace ui {
                     if (i < 3 && j < 3)
                     {
                         memcpy(_sliceIndices + indicesStart, sliceQuadIndices, indicesOffset * sizeof(unsigned short));
-                        
+
                         for (int k = 0; k  < indicesOffset; ++k)
                         {
                             unsigned short actualIndex = (i  + j * 3) * indicesOffset;
@@ -1345,11 +1345,11 @@ namespace ui {
                         }
                         indicesStart = indicesStart + indicesOffset;
                     }
-                    
+
                 }
             }
         }
-        
+
         if (_renderingType == RenderingType::SIMPLE)
         {
             memcpy(_sliceIndices, simpleQuadIndices, indicesOffset * sizeof(unsigned short));
@@ -1363,7 +1363,7 @@ namespace ui {
 
         return triangles;
     }
-    
+
     void Scale9Sprite::setRenderingType(cocos2d::ui::Scale9Sprite::RenderingType type)
     {
         if (_renderingType == type)
@@ -1373,7 +1373,7 @@ namespace ui {
         _renderingType = type;
         _sliceSpriteDirty = true;
     }
-    
+
     Scale9Sprite::RenderingType Scale9Sprite::getRenderingType()const
     {
         return _renderingType;
@@ -1386,7 +1386,7 @@ namespace ui {
 
         CC_SAFE_RELEASE_NULL(this->_scale9Image);
     }
-    
+
     void Scale9Sprite::setGlobalZOrder(float globalZOrder)
     {
         Node::setGlobalZOrder(globalZOrder);
@@ -1397,3 +1397,4 @@ namespace ui {
     }
 
 }}
+

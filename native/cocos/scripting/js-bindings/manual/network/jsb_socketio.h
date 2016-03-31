@@ -30,3 +30,4 @@
 void register_jsb_socketio(JSContext* cx, JS::HandleObject global);
 
 #endif /* defined(__jsb_socketio__) */
+

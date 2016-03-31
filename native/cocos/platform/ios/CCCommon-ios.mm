@@ -59,3 +59,4 @@ void LuaLog(const char * format)
 NS_CC_END
 
 #endif // CC_PLATFORM_IOS
+

@@ -326,7 +326,7 @@ WebSocket::WebSocket()
     }
 
     __websocketInstances->push_back(this);
-    
+
     auto eventDispatcher = Director::getInstance()->getEventDispatcher();
     auto isDestroyed = _isDestroyed;
     _resetDirectorListener = eventDispatcher->addCustomEventListener(Director::EVENT_RESET,
@@ -364,7 +364,7 @@ WebSocket::~WebSocket()
             LOGD("ERROR: WebSocket instance (%p) wasn't added to the container which saves websocket instances!\n", this);
         }
     }
-    
+
     if (Director::DirectorInstance) {
         Director::DirectorInstance->getEventDispatcher()->removeEventListener(_resetDirectorListener);
     }
@@ -524,7 +524,7 @@ void WebSocket::close()
     // 'closed' state has to be set before quit websocket thread.
     _readyState = State::CLOSED;
     _readStateMutex.unlock();
-    
+
     _wsHelper->quitWebSocketThread();
     LOGD("Waiting WebSocket (%p) to exit!\n", this);
     _wsHelper->joinWebSocketThread();
@@ -532,7 +532,7 @@ void WebSocket::close()
     // onClose must be invoked at the end of this method.
     _delegate->onClose(this);
 }
-    
+
 void WebSocket::closeAsync()
 {
     _wsHelper->quitWebSocketThread();
@@ -613,7 +613,7 @@ void WebSocket::onSubThreadStarted()
         _readStateMutex.lock();
         _readyState = State::CONNECTING;
         _readStateMutex.unlock();
-        
+
         std::string name;
         for (int i = 0; _wsProtocols[i].callback != nullptr; ++i)
         {
@@ -950,3 +950,4 @@ int WebSocket::onSocketCallback(struct lws *wsi,
 }
 
 NS_CC_END
+

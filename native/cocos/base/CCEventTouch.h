@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,7 +46,7 @@ class CC_DLL EventTouch : public Event
 {
 public:
     static const int MAX_TOUCHES = 15;
-    
+
     /** EventCode Touch event code.*/
     enum class EventCode
     {
@@ -56,7 +56,7 @@ public:
         CANCELLED
     };
 
-    /** 
+    /**
      * Constructor.
      * @js NA
      */
@@ -67,7 +67,7 @@ public:
      * @return The code of the event.
      */
     inline EventCode getEventCode() const { return _eventCode; };
-    
+
     /** Get the touches.
      *
      * @return The touches of the event.
@@ -76,7 +76,7 @@ public:
 
 #if TOUCH_PERF_DEBUG
     /** Set the event code.
-     * 
+     *
      * @param eventCode A given EventCode.
      */
     void setEventCode(EventCode eventCode) { _eventCode = eventCode; };
@@ -86,7 +86,7 @@ public:
      */
     void setTouches(const std::vector<Touch*>& touches) { _touches = touches; };
 #endif
-    
+
 private:
     EventCode _eventCode;
     std::vector<Touch*> _touches;
@@ -101,3 +101,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__cocos2d_libs__TouchEvent__) */
+

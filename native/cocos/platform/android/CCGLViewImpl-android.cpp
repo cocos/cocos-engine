@@ -110,7 +110,7 @@ bool GLViewImpl::isOpenGLReady()
 
 void GLViewImpl::end()
 {
-    
+
 }
 
 void GLViewImpl::swapBuffers()
@@ -129,3 +129,4 @@ void GLViewImpl::setIMEKeyboardState(bool bOpen)
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+

@@ -40,7 +40,7 @@ bool tgaLoadHeader(unsigned char* buffer, unsigned long bufSize, tImageTGA *info
 {
     bool ret = false;
 
-    do 
+    do
     {
         size_t step = sizeof(unsigned char) * 2;
         CC_BREAK_IF((step + sizeof(unsigned char)) > bufSize);
@@ -60,7 +60,7 @@ bool tgaLoadHeader(unsigned char* buffer, unsigned long bufSize, tImageTGA *info
         memcpy(&cGarbage, buffer + step, sizeof(unsigned char));
 
         info->flipped = 0;
-        if ( cGarbage & 0x20 ) 
+        if ( cGarbage & 0x20 )
         {
             info->flipped = 1;
         }
@@ -74,7 +74,7 @@ bool tgaLoadImageData(unsigned char *Buffer, unsigned long bufSize, tImageTGA *i
 {
     bool ret = false;
 
-    do 
+    do
     {
         int mode,total,i;
         unsigned char aux;
@@ -169,7 +169,7 @@ static bool tgaLoadRLEImageData(unsigned char* buffer, unsigned long bufSize, tI
         memcpy(&info->imageData[index], aux, mode);
         index += mode;
     }
-    
+
     return true;
 }
 
@@ -180,25 +180,25 @@ void tgaFlipImage( tImageTGA *info )
     int rowbytes = info->width*mode;
     unsigned char *row = (unsigned char *)malloc(rowbytes);
     int y;
-    
+
     if (row == nullptr) return;
-    
+
     for( y = 0; y < (info->height/2); y++ )
     {
         memcpy(row, &info->imageData[y*rowbytes],rowbytes);
         memcpy(&info->imageData[y*rowbytes], &info->imageData[(info->height-(y+1))*rowbytes], rowbytes);
         memcpy(&info->imageData[(info->height-(y+1))*rowbytes], row, rowbytes);
     }
-    
+
     free(row);
     info->flipped = 0;
 }
-    
+
 tImageTGA* tgaLoadBuffer(unsigned char* buffer, long size)
 {
     int mode,total;
     tImageTGA *info = nullptr;
-    
+
     do
     {
         CC_BREAK_IF(! buffer);
@@ -280,42 +280,42 @@ tImageTGA * tgaLoad(const char *filename)
     {
         return tgaLoadBuffer(data.getBytes(), data.getSize());
     }
-    
+
     return nullptr;
 }
 
 // converts RGB to grayscale
 void tgaRGBtogreyscale(tImageTGA *info) {
-    
+
     int mode,i,j;
-    
+
     unsigned char *newImageData;
-    
+
     // if the image is already grayscale do nothing
     if (info->pixelDepth == 8)
         return;
-    
+
     // compute the number of actual components
     mode = info->pixelDepth / 8;
-    
+
     // allocate an array for the new image data
-    newImageData = (unsigned char *)malloc(sizeof(unsigned char) * 
+    newImageData = (unsigned char *)malloc(sizeof(unsigned char) *
                                            info->height * info->width);
     if (newImageData == nullptr) {
         return;
     }
-    
+
     // convert pixels: grayscale = o.30 * R + 0.59 * G + 0.11 * B
     for (i = 0,j = 0; j < info->width * info->height; i +=mode, j++)
-        newImageData[j] =    
+        newImageData[j] =
         (unsigned char)(0.30 * info->imageData[i] +
                         0.59 * info->imageData[i+1] +
                         0.11 * info->imageData[i+2]);
-    
-    
+
+
     //free old image data
     free(info->imageData);
-    
+
     // reassign pixelDepth and type according to the new image type
     info->pixelDepth = 8;
     info->type = 3;
@@ -325,7 +325,7 @@ void tgaRGBtogreyscale(tImageTGA *info) {
 
 // releases the memory used for the image
 void tgaDestroy(tImageTGA *info) {
-    
+
     if (info != nullptr) {
         if (info->imageData != nullptr)
         {
@@ -336,3 +336,4 @@ void tgaDestroy(tImageTGA *info) {
     }
 }
 NS_CC_END
+

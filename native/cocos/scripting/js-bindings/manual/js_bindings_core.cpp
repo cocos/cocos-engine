@@ -41,9 +41,9 @@ static tHashJSObject *reverse_hash = NULL;
 //#pragma mark JSBCore - Helper free functions
 static void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
-    fprintf(stderr, "%s:%u:%s\n",  
-            report->filename ? report->filename : "<no filename=\"filename\">",  
-            (unsigned int) report->lineno,  
+    fprintf(stderr, "%s:%u:%s\n",
+            report->filename ? report->filename : "<no filename=\"filename\">",
+            (unsigned int) report->lineno,
             message);
 };
 
@@ -53,7 +53,7 @@ void* jsb_get_proxy_for_jsobject(JSObject *obj)
 {
     tHashJSObject *element = NULL;
     HASH_FIND_PTR(hash, &obj, element);
-    
+
     if( element )
         return element->proxy;
     return NULL;
@@ -62,9 +62,9 @@ void* jsb_get_proxy_for_jsobject(JSObject *obj)
 void jsb_set_proxy_for_jsobject(void *proxy, JSObject *obj)
 {
     CCASSERT( !jsb_get_proxy_for_jsobject(obj), "Already added. abort");
-    
+
 //  printf("Setting proxy for: %p - %p (%s)\n", obj, proxy, [[proxy description] UTF8String] );
-    
+
     tHashJSObject *element = (tHashJSObject*) malloc( sizeof( *element ) );
 
     // XXX: Do not retain it here.
@@ -79,7 +79,7 @@ void jsb_del_proxy_for_jsobject(JSObject *obj)
 {
     tHashJSObject *element = NULL;
     HASH_FIND_PTR(hash, &obj, element);
-    if( element ) {     
+    if( element ) {
         HASH_DEL(hash, element);
         free(element);
     }
@@ -92,7 +92,7 @@ JSObject* jsb_get_jsobject_for_proxy(void *proxy)
 {
     tHashJSObject *element = NULL;
     HASH_FIND_PTR(reverse_hash, &proxy, element);
-    
+
     if( element )
         return element->jsObject;
     return NULL;
@@ -101,12 +101,12 @@ JSObject* jsb_get_jsobject_for_proxy(void *proxy)
 void jsb_set_jsobject_for_proxy(JSObject *jsobj, void* proxy)
 {
     CCASSERT( !jsb_get_jsobject_for_proxy(proxy), "Already added. abort");
-    
+
     tHashJSObject *element = (tHashJSObject*) malloc( sizeof( *element ) );
-    
+
     element->proxy = proxy;
     element->jsObject = jsobj;
-    
+
     HASH_ADD_PTR( reverse_hash, proxy, element );
 }
 
@@ -114,10 +114,10 @@ void jsb_del_jsobject_for_proxy(void* proxy)
 {
     tHashJSObject *element = NULL;
     HASH_FIND_PTR(reverse_hash, &proxy, element);
-    if( element ) {     
+    if( element ) {
         HASH_DEL(reverse_hash, element);
         free(element);
-    }   
+    }
 }
 
 //#pragma mark
@@ -137,7 +137,7 @@ void jsb_del_c_proxy_for_jsobject( JSObject *jsobj )
     struct jsb_c_proxy_s *proxy = (struct jsb_c_proxy_s *) JS_GetPrivate(jsobj);
     CCASSERT(proxy, "Invalid proxy for JSObject");
     JS_SetPrivate(jsobj, NULL);
-    
+
     free(proxy);
 }
 
@@ -145,11 +145,11 @@ void jsb_set_c_proxy_for_jsobject( JSObject *jsobj, void *handle, unsigned long 
 {
     struct jsb_c_proxy_s *proxy = (struct jsb_c_proxy_s*) malloc(sizeof(*proxy));
     CCASSERT(proxy, "No memory for proxy");
-    
+
     proxy->handle = handle;
     proxy->flags = flags;
     proxy->jsobj = jsobj;
-    
+
     JS_SetPrivate(jsobj, proxy);
 }
 
@@ -162,3 +162,4 @@ bool JSB_do_nothing(JSContext *cx, uint32_t argc, jsval *vp)
     args.rval().setUndefined();
     return true;
 }
+

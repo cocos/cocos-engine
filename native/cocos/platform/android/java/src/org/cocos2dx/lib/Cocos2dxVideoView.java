@@ -688,3 +688,4 @@ public class Cocos2dxVideoView extends SurfaceView implements MediaPlayerControl
        return mMediaPlayer.getAudioSessionId();
     }
 }
+

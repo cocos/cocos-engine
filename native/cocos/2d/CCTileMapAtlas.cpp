@@ -90,9 +90,9 @@ void TileMapAtlas::calculateItemsToRender()
     CCASSERT( _TGAInfo != nullptr, "tgaInfo must be non-nil");
 
     _itemsToRender = 0;
-    for(int x=0;x < _TGAInfo->width; x++ ) 
+    for(int x=0;x < _TGAInfo->width; x++ )
     {
-        for( int y=0; y < _TGAInfo->height; y++ ) 
+        for( int y=0; y < _TGAInfo->height; y++ )
         {
             Color3B *ptr = (Color3B*) _TGAInfo->imageData;
             Color3B value = ptr[x + y * _TGAInfo->width];
@@ -115,7 +115,7 @@ void TileMapAtlas::loadTGAfile(const std::string& file)
 
     _TGAInfo = tgaLoad( fullPath.c_str() );
 #if 1
-    if( _TGAInfo->status != TGA_OK ) 
+    if( _TGAInfo->status != TGA_OK )
     {
         CCASSERT(0, "TileMapAtlasLoadTGA : TileMapAtlas cannot load TGA file");
     }
@@ -135,7 +135,7 @@ void TileMapAtlas::setTile(const Color3B& tile, const Vec2& position)
     if( value.r == 0 )
     {
         CCLOG("cocos2d: Value.r must be non 0.");
-    } 
+    }
     else
     {
         ptr[(unsigned int)(position.x + position.y * _TGAInfo->width)] = tile;
@@ -145,7 +145,7 @@ void TileMapAtlas::setTile(const Color3B& tile, const Vec2& position)
         int num = _posToAtlasIndex[key].asInt();
 
         this->updateAtlasValueAt(position, tile, num);
-    }    
+    }
 }
 
 Color3B TileMapAtlas::getTileAt(const Vec2& position) const
@@ -157,7 +157,7 @@ Color3B TileMapAtlas::getTileAt(const Vec2& position) const
     Color3B *ptr = (Color3B*)_TGAInfo->imageData;
     Color3B value = ptr[(unsigned int)(position.x + position.y * _TGAInfo->width)];
 
-    return value;    
+    return value;
 }
 
 void TileMapAtlas::updateAtlasValueAt(const Vec2& pos, const Color3B& value, int index)
@@ -230,11 +230,11 @@ void TileMapAtlas::updateAtlasValues()
 
     int total = 0;
 
-    for(int x=0;x < _TGAInfo->width; x++ ) 
+    for(int x=0;x < _TGAInfo->width; x++ )
     {
-        for( int y=0; y < _TGAInfo->height; y++ ) 
+        for( int y=0; y < _TGAInfo->height; y++ )
         {
-            if( total < _itemsToRender ) 
+            if( total < _itemsToRender )
             {
                 Color3B *ptr = (Color3B*) _TGAInfo->imageData;
                 Color3B value = ptr[x + y * _TGAInfo->width];
@@ -255,3 +255,4 @@ void TileMapAtlas::updateAtlasValues()
 
 
 NS_CC_END
+

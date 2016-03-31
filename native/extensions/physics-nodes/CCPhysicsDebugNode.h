@@ -33,7 +33,7 @@ NS_CC_EXT_BEGIN
 
 /**
  * A BaseData that draws the components of a physics engine.
- 
+
  * Supported physics engines:
  * - Chipmunk
  * - Objective-Chipmunk
@@ -55,11 +55,11 @@ public:
      * @js NA
      */
     virtual ~PhysicsDebugNode();
-    
+
 
     cpSpace* getSpace() const;
     void setSpace(cpSpace *space);
-    
+
     // Overrides
     virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
 
@@ -71,3 +71,4 @@ protected:
 NS_CC_EXT_END
 
 #endif // __PHYSICSNODES_DEBUGNODE_H__
+

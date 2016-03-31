@@ -55,7 +55,7 @@ public:
         RADIAL,/** Radial Counter-Clockwise. */
         BAR,/** Bar. */
     };
-    
+
     /** Creates a progress timer with the sprite as the shape the timer goes through.
      *
      * @param sp The sprite as the shape the timer goes through.
@@ -63,7 +63,7 @@ public:
      */
     static ProgressTimer* create(Sprite* sp);
 
-    /** Change the percentage to change progress. 
+    /** Change the percentage to change progress.
      *
      * @return A Type
      */
@@ -75,43 +75,43 @@ public:
      */
     inline float getPercentage() const {return _percentage; }
 
-    /** The image to show the progress percentage, retain. 
+    /** The image to show the progress percentage, retain.
      *
      * @return A sprite.
      */
     inline Sprite* getSprite() const { return _sprite; }
-    
-    /** Set the initial percentage values. 
+
+    /** Set the initial percentage values.
      *
      * @param percentage The initial percentage values.
      */
     void setPercentage(float percentage);
-    
-    /** Set the sprite as the shape. 
+
+    /** Set the sprite as the shape.
      *
      * @param sprite The sprite as the shape.
      */
     void setSprite(Sprite *sprite);
-    
-    /** Set the ProgressTimer type. 
+
+    /** Set the ProgressTimer type.
      *
      * @param type Is an Type.
      */
     void setType(Type type);
-    
+
     /** Set the Reverse direction.
      * @js setReverseDirection
      * @lua setReverseDirection
      * @param reverse If reverse is false it will clockwise,if is true it will Anti-clockwise.
      */
     void setReverseProgress(bool reverse);
-    
-    /** Return the Reverse direction. 
+
+    /** Return the Reverse direction.
      *
      * @return If the direction is Anti-clockwise,it will return true.
      */
     inline bool isReverseDirection() { return _reverseDirection; };
-    
+
     /** Set the Reverse direction.
      *
      * @param value If value is false it will clockwise,if is true it will Anti-clockwise.
@@ -130,8 +130,8 @@ public:
      * @param point A Vec2 point.
      */
     void setMidpoint(const Vec2& point);
-    
-    /** Returns the Midpoint. 
+
+    /** Returns the Midpoint.
      *
      * @return A Vec2.
      */
@@ -145,7 +145,7 @@ public:
      * @param barChangeRate A Vec2.
      */
     inline void setBarChangeRate(const Vec2& barChangeRate ) { _barChangeRate = barChangeRate; }
-    
+
     /** Returns the BarChangeRate.
      *
      * @return A barChangeRate.
@@ -159,7 +159,7 @@ public:
     virtual const Color3B& getColor() const override;
     virtual void setOpacity(GLubyte opacity) override;
     virtual GLubyte getOpacity() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     /**
      * @js ctor
@@ -170,13 +170,13 @@ CC_CONSTRUCTOR_ACCESS:
      * @lua NA
      */
     virtual ~ProgressTimer();
-    
+
     /** Initializes a progress timer with the sprite as the shape the timer goes through */
     bool initWithSprite(Sprite* sp);
-    
+
 protected:
     void onDraw(const Mat4 &transform, uint32_t flags);
-    
+
     Tex2F textureCoordFromAlphaPoint(Vec2 alpha);
     Vec2 vertexFromAlphaPoint(Vec2 alpha);
     void updateProgress(void);
@@ -192,7 +192,7 @@ protected:
     Sprite *_sprite;
     int _vertexDataCount;
     V2F_C4B_T2F *_vertexData;
-    
+
     CustomCommand _customCommand;
 
     bool _reverseDirection;
@@ -207,3 +207,4 @@ private:
 NS_CC_END
 
 #endif //__MISC_NODE_CCPROGRESS_TIMER_H__
+

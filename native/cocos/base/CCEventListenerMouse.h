@@ -46,7 +46,7 @@ class CC_DLL EventListenerMouse : public EventListener
 {
 public:
     static const std::string LISTENER_ID;
-    
+
     /** Create a mouse event listener.
      *
      * @return An autoreleased EventListenerMouse object.
@@ -73,3 +73,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__cocos2d_libs__CCMouseEventListener__) */
+

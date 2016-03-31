@@ -231,7 +231,7 @@ void Bone::update(float delta)
     _boneTransformDirty = false;
 }
 
-void Bone::applyParentTransform(Bone *parent) 
+void Bone::applyParentTransform(Bone *parent)
 {
     float x = _worldInfo->x;
     float y = _worldInfo->y;
@@ -316,7 +316,7 @@ void Bone::removeChildBone(Bone *bone, bool recursion)
         if(recursion)
         {
             auto ccbones = bone->_children;
-            
+
             for(auto& object : ccbones)
             {
                 Bone *ccBone = static_cast<Bone*>(object);
@@ -468,3 +468,4 @@ ColliderFilter *Bone::getColliderFilter()
 #endif
 
 }
+

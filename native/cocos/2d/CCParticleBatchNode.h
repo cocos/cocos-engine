@@ -113,13 +113,13 @@ public:
      * @return The texture atlas used for drawing the quads.
      */
     inline TextureAtlas* getTextureAtlas() const { return _textureAtlas; };
-    
+
     /** Sets the texture atlas used for drawing the quads.
      *
      * @param atlas The texture atlas used for drawing the quads.
      */
     inline void setTextureAtlas(TextureAtlas* atlas) { _textureAtlas = atlas; };
-    
+
     // Overrides
     virtual void visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
 
@@ -144,7 +144,7 @@ public:
     * @lua NA
     */
     virtual const BlendFunc& getBlendFunc(void) const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     /**
      * @js ctor
@@ -155,13 +155,13 @@ CC_CONSTRUCTOR_ACCESS:
      * @lua NA
      */
     virtual ~ParticleBatchNode();
-    
+
     /** initializes the particle system with Texture2D, a capacity of particles */
     bool initWithTexture(Texture2D *tex, int capacity);
-    
+
     /** initializes the particle system with the name of a file on disk (for a list of supported formats look at the Texture2D class), a capacity of particles */
     bool initWithFile(const std::string& fileImage, int capacity);
-    
+
 private:
     void updateAllAtlasIndexes();
     void increaseAtlasCapacityTo(ssize_t quantity);

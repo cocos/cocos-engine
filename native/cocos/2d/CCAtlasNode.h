@@ -49,7 +49,7 @@ class TextureAtlas;
  * - opacity and RGB colors.
  */
 class CC_DLL AtlasNode : public Node, public TextureProtocol
-{    
+{
 public:
     /** creates a AtlasNode  with an Atlas file the width and height of each item and the quantity of items to render.
      *
@@ -64,20 +64,20 @@ public:
     * Shall be overridden in subclasses.
     */
     virtual void updateAtlasValues();
-    
+
     /** Set an buffer manager of the texture vertex. */
     void setTextureAtlas(TextureAtlas* textureAtlas);
-    
-    /** Return the buffer manager of the texture vertex. 
+
+    /** Return the buffer manager of the texture vertex.
      *
      * @return Return A TextureAtlas.
      */
     TextureAtlas* getTextureAtlas() const;
-    
+
     void setQuadsToDraw(ssize_t quadsToDraw);
     ssize_t getQuadsToDraw() const;
 
-    
+
     // Overrides
     virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
     virtual Texture2D* getTexture() const override;
@@ -106,7 +106,7 @@ CC_CONSTRUCTOR_ACCESS:
 
     /** Initializes an AtlasNode  with an Atlas file the width and height of each item and the quantity of items to render*/
     bool initWithTileFile(const std::string& tile, int tileWidth, int tileHeight, int itemsToRender);
-    
+
     /** Initializes an AtlasNode  with a texture the width and height of each item measured in points and the quantity of items to render*/
     bool initWithTexture(Texture2D* texture, int tileWidth, int tileHeight, int itemsToRender);
 
@@ -127,9 +127,9 @@ protected:
     int    _itemWidth;
     /** Height of each char. */
     int    _itemHeight;
-    
+
     Color3B    _colorUnmodified;
-    
+
     TextureAtlas* _textureAtlas;
     /** Protocol variables. */
     bool _isOpacityModifyRGB;
@@ -155,5 +155,4 @@ private:
 NS_CC_END
 
 #endif // __CCATLAS_NODE_H__
-
 

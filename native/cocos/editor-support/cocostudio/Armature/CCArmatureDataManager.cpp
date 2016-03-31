@@ -264,3 +264,4 @@ RelativeData *ArmatureDataManager::getRelativeData(const std::string& configFile
 }
 
 }
+

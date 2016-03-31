@@ -2,7 +2,7 @@
 Copyright (c) 2009      On-Core
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (C) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -97,14 +97,14 @@ public:
     inline bool isTextureFlipped(void) const { return _isTextureFlipped; }
     /**Set the texture flipped or not.*/
     void setTextureFlipped(bool flipped);
-    
+
     /**@{
      Init and reset the status when render effects by using the grid.
      */
     void beforeDraw(void);
     void afterDraw(Node *target);
     /**@}*/
-    
+
     /**@{
      Interface for custom action when before or after draw.
      @js NA
@@ -112,17 +112,17 @@ public:
     virtual void beforeBlit() {}
     virtual void afterBlit() {}
     /**@}*/
-    
+
     /**Interface used to blit the texture with grid to screen.*/
     virtual void blit(void);
     /**Interface, Reuse the grid vertices.*/
     virtual void reuse(void);
     /**Interface, Calculate the vertices used for the blit.*/
     virtual void calculateVertexPoints(void);
-    
+
     /**Change projection to 2D for grabbing.*/
     void set2DProjection(void);
-    
+
     /**
      * @brief Set the effect grid rect.
      * @param rect The effect grid rect.
@@ -198,7 +198,7 @@ public:
     virtual void reuse() override;
     virtual void calculateVertexPoints() override;
     /**@}*/
-    
+
     /**@{
      Getter and Setter for depth test state when blit.
      @js NA
@@ -280,3 +280,4 @@ protected:
 NS_CC_END
 
 #endif // __EFFECTS_CCGRID_H__
+

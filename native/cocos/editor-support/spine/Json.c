@@ -424,3 +424,4 @@ int Json_getInt (Json* value, const char* name, int defaultValue) {
 	value = Json_getItem(value, name);
 	return value ? value->valueInt : defaultValue;
 }
+

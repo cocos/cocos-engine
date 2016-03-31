@@ -812,3 +812,4 @@ bool js_cocos2dx_studio_ComExtensionData_create(JSContext *cx, uint32_t argc, js
 bool js_cocos2dx_studio_ComExtensionData_ComExtensionData(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __cocos2dx_studio_h__
+

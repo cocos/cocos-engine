@@ -49,7 +49,7 @@ public:
      * @lua NA
      */
     static void* createAutoreleasePool();
-    
+
     /**
      * @js NA
      * @lua NA
@@ -64,3 +64,4 @@ NS_CC_END
 
 /// @endcond
 #endif    // __CC_PLATFORM_THREAD_H__
+

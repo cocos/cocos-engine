@@ -12,3 +12,4 @@ extern CC_DLL void setRelativeScale(cocos2d::Node *node, float scaleX, float sca
 }
 
 #endif // __CCB_CCNODE_RELATIVEPOSITIONING_H__
+

@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,7 +40,7 @@ NS_CC_BEGIN
 class DrawNode;
 
 namespace ui {
-    
+
     /**
      *@brief A 9-slice sprite for cocos2d-x.
      *
@@ -69,7 +69,7 @@ namespace ui {
          * @lua NA
          */
         virtual ~Scale9Sprite();
-        
+
         /**
          * Builtin shader state.
          * Currently support Normal and Gray state.
@@ -79,22 +79,22 @@ namespace ui {
             NORMAL,
             GRAY
         };
-        
+
         enum class RenderingType
         {
             SIMPLE,
             SLICE
         };
-        
+
     public:
-        
+
         /**
          * @brief Create an empty Scale9Sprite.
          *
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* create();
-        
+
         /**
          * Creates a 9-slice sprite with a texture file, a delimitation zone and
          * with the specified cap insets.
@@ -106,7 +106,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* create(const std::string& file, const Rect& rect,  const Rect& capInsets);
-        
+
         /**
          * Creates a 9-slice sprite with a texture file. The whole texture will be
          * broken down into a 3×3 grid of equal blocks.
@@ -117,7 +117,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* create(const Rect& capInsets, const std::string& file);
-        
+
         /**
          * Creates a 9-slice sprite with a texture file and a delimitation zone. The
          * texture will be broken down into a 3×3 grid of equal blocks.
@@ -128,7 +128,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* create(const std::string& file, const Rect& rect);
-        
+
         /**
          * Creates a 9-slice sprite with a texture file. The whole texture will be
          * broken down into a 3×3 grid of equal blocks.
@@ -138,7 +138,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* create(const std::string& file);
-        
+
         /**
          * Creates a 9-slice sprite with an sprite frame.
          * Once the sprite is created, you can then call its "setContentSize:" method
@@ -150,7 +150,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* createWithSpriteFrame(SpriteFrame* spriteFrame);
-        
+
         /**
          * Creates a 9-slice sprite with an sprite frame and the centre of its zone.
          * Once the sprite is created, you can then call its "setContentSize:" method
@@ -163,7 +163,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* createWithSpriteFrame(SpriteFrame* spriteFrame, const Rect& capInsets);
-        
+
         /**
          * Creates a 9-slice sprite with an sprite frame name.
          * Once the sprite is created, you can then call its "setContentSize:" method
@@ -175,7 +175,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* createWithSpriteFrameName(const std::string& spriteFrameName);
-        
+
         /**
          * Creates a 9-slice sprite with an sprite frame name and the centre of its zone.
          * Once the sprite is created, you can then call its "setContentSize:" method
@@ -188,7 +188,7 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         static Scale9Sprite* createWithSpriteFrameName(const std::string& spriteFrameName, const Rect& capInsets);
-        
+
         /**
          * Initializes a 9-slice sprite with a texture file, a delimitation zone and
          * with the specified cap insets.
@@ -204,7 +204,7 @@ namespace ui {
          * @return True if initialize success, false otherwise.
          */
         virtual bool initWithFile(const std::string& file, const Rect& rect,  const Rect& capInsets);
-        
+
         /**
          * Initializes a 9-slice sprite with a texture file and a delimitation zone. The
          * texture will be broken down into a 3×3 grid of equal blocks.
@@ -219,7 +219,7 @@ namespace ui {
          * @return True if initializes success, false otherwise.
          */
         virtual bool initWithFile(const std::string& file, const Rect& rect);
-        
+
         /**
          * Initializes a 9-slice sprite with a texture file and with the specified cap
          * insets.
@@ -232,7 +232,7 @@ namespace ui {
          * @return True if initializes success, false otherwise.
          */
         virtual bool initWithFile(const Rect& capInsets, const std::string& file);
-        
+
         /**
          * Initializes a 9-slice sprite with a texture file. The whole texture will be
          * broken down into a 3×3 grid of equal blocks.
@@ -244,7 +244,7 @@ namespace ui {
          * @return True if initializes success, false otherwise.
          */
         virtual bool initWithFile(const std::string& file);
-        
+
         /**
          * Initializes a 9-slice sprite with an sprite frame and with the specified
          * cap insets.
@@ -257,7 +257,7 @@ namespace ui {
          * @return True if initializes success, false otherwise.
          */
         virtual bool initWithSpriteFrame(SpriteFrame* spriteFrame, const Rect& capInsets);
-        
+
         /**
          * Initializes a 9-slice sprite with an sprite frame.
          * Once the sprite is created, you can then call its "setContentSize:" method
@@ -268,7 +268,7 @@ namespace ui {
          * @return True if initializes success, false otherwise.
          */
         virtual bool initWithSpriteFrame(SpriteFrame* spriteFrame);
-        
+
         /**
          * Initializes a 9-slice sprite with an sprite frame name and with the specified
          * cap insets.
@@ -281,7 +281,7 @@ namespace ui {
          * @return True if initializes success, false otherwise.
          */
         virtual bool initWithSpriteFrameName(const std::string& spriteFrameName, const Rect& capInsets);
-        
+
         /**
          * Initializes a 9-slice sprite with an sprite frame name.
          * Once the sprite is created, you can then call its "setContentSize:" method
@@ -292,7 +292,7 @@ namespace ui {
          * @return True if initializes success, false otherwise.
          */
         virtual bool initWithSpriteFrameName(const std::string& spriteFrameName);
-        
+
         //override function
         virtual bool init() override;
 
@@ -343,7 +343,7 @@ namespace ui {
                           const Vec2 &offset,
                           const Size &originalSize,
                           const Rect& capInsets);
-        
+
         /**
          * Sets the source blending function.
          *
@@ -352,7 +352,7 @@ namespace ui {
          * @lua NA
          */
         virtual void setBlendFunc(const BlendFunc &blendFunc) override;
-        
+
         /**
          * Returns the blending function that is currently being used.
          *
@@ -372,8 +372,8 @@ namespace ui {
          * @return A Scale9Sprite instance.
          */
         Scale9Sprite* resizableSpriteWithCapInsets(const Rect& capInsets) const;
-        
-        
+
+
         /**
          * @brief Update Scale9Sprite with a specified sprite.
          *
@@ -415,7 +415,7 @@ namespace ui {
          * @param capInsets The values to use for the cap insets.
          */
         virtual void setSpriteFrame(SpriteFrame * spriteFrame, const Rect& capInsets = Rect::ZERO);
-        
+
         // overrides
         virtual void setContentSize(const Size & size) override;
         virtual void setAnchorPoint(const Vec2& anchorPoint) override;
@@ -427,106 +427,106 @@ namespace ui {
          * @since v3.4
          */
         void setState(State state);
-        
+
         /**
          * Query the current bright state.
          * @return @see `State`
          * @since v3.7
          */
         State getState()const;
-        
+
         /**
          * @brief Query the sprite's original size.
          *
          * @return Sprite size.
          */
         Size getOriginalSize() const;
-        
+
         /**
          * @brief Change the preferred size of Scale9Sprite.
          *
          * @param size A delimitation zone.
          */
         void setPreferredSize(const Size& size);
-        
+
         /**
          * @brief Query the Scale9Sprite's preferred size.
          *
          * @return Scale9Sprite's preferred size.
          */
         Size getPreferredSize() const;
-        
+
         /**
          * @brief Change the cap inset size.
          *
          * @param rect A delimitation zone.
          */
         void setCapInsets(const Rect& rect);
-        
+
         /**
          * @brief Query the Scale9Sprite's preferred size.
          *
          * @return Scale9Sprite's cap inset.
          */
         Rect getCapInsets()const;
-        
+
         /**
          * @brief Change the left sprite's cap inset.
          *
          * @param leftInset The values to use for the cap inset.
          */
         void setInsetLeft(float leftInset);
-        
+
         /**
          * @brief Query the left sprite's cap inset.
          *
          * @return The left sprite's cap inset.
          */
         float getInsetLeft()const;
-        
+
         /**
          * @brief Change the top sprite's cap inset.
          *
          * @param topInset The values to use for the cap inset.
          */
         void setInsetTop(float topInset);
-        
+
         /**
          * @brief Query the top sprite's cap inset.
          *
          * @return The top sprite's cap inset.
          */
         float getInsetTop()const;
-        
+
         /**
          * @brief Change the right sprite's cap inset.
          *
          * @param rightInset The values to use for the cap inset.
          */
         void setInsetRight(float rightInset);
-        
+
         /**
          * @brief Query the right sprite's cap inset.
          *
          * @return The right sprite's cap inset.
          */
         float getInsetRight()const;
-        
+
         /**
          * @brief Change the bottom sprite's cap inset.
          *
          * @param bottomInset The values to use for the cap inset.
-         
+
          */
         void setInsetBottom(float bottomInset);
-        
+
         /**
          * @brief Query the bottom sprite's cap inset.
          *
          * @return The bottom sprite's cap inset.
          */
         float getInsetBottom()const;
-        
+
         /**
          * @brief Toggle 9-slice feature.
          * If Scale9Sprite is 9-slice disabled, the Scale9Sprite will rendered as a normal sprite.
@@ -536,7 +536,7 @@ namespace ui {
          * @js NA
          */
         void setScale9Enabled(bool enabled);
-        
+
         /**
          * @brief Query whether the Scale9Sprite is enable 9-slice or not.
          *
@@ -544,32 +544,32 @@ namespace ui {
          * @js NA
          */
         bool isScale9Enabled()const;
-        
+
         /// @} end of Children and Parent
-        
+
         virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;
         virtual void visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
-        
+
         virtual void updateDisplayedOpacity(GLubyte parentOpacity) override;
         virtual void updateDisplayedColor(const Color3B& parentColor) override;
         virtual void disableCascadeColor() override;
         virtual void disableCascadeOpacity() override;
-        
-        
+
+
         /**
          * @brief Get the original no 9-sliced sprite
          *
          * @return A sprite instance.
          */
         Sprite* getSprite()const;
-        
+
         /**
          * Sets whether the widget should be flipped horizontally or not.
          *
          * @param flippedX true if the widget should be flipped horizontally, false otherwise.
          */
         virtual void setFlippedX(bool flippedX);
-        
+
         /**
          * Returns the flag which indicates whether the widget is flipped horizontally or not.
          *
@@ -581,7 +581,7 @@ namespace ui {
          * @return true if the widget is flipped horizontally, false otherwise.
          */
         virtual bool isFlippedX()const;
-        
+
         /**
          * Sets whether the widget should be flipped vertically or not.
          *
@@ -600,17 +600,17 @@ namespace ui {
          * @return true if the widget is flipped vertically, false otherwise.
          */
         virtual bool isFlippedY()const;
-        
+
         //override the setScale function of Node
         virtual void setScaleX(float scaleX) override;
         virtual void setScaleY(float scaleY) override;
         virtual void setScale(float scale) override;
         virtual void setScale(float scaleX, float scaleY) override;
-        
+
         virtual float getScaleX() const override;
         virtual float getScaleY() const override;
         virtual float getScale() const override;
-        
+
         virtual void setGlobalZOrder(float globalZOrder) override;
 
         /**
@@ -620,7 +620,7 @@ namespace ui {
          * @see RenderingType
          */
         void setRenderingType(RenderingType type);
-        
+
         /**
          * Return the slice sprite rendering type.
          */
@@ -641,24 +641,24 @@ namespace ui {
         std::vector<Vec2> calculateVertices(const Rect& capInsets, const Size& originalSize, const Vec4& offsets);
         TrianglesCommand::Triangles calculateTriangles(const std::vector<Vec2>& uv,
                                                       const std::vector<Vec2>& vertices);
-        
+
         Rect _spriteRect;
         bool   _spriteFrameRotated;
         Rect _capInsetsInternal;
-        
+
         Sprite* _scale9Image; //the original sprite
-        
+
         bool _scale9Enabled;
         BlendFunc _blendFunc;
-        
+
         /** Original sprite's size. */
         Size _originalSize;
         Vec2 _offset;
         /** Preferred sprite's size. By default the preferred size is the original size. */
-        
+
         //if the preferredSize component is given as -1, it is ignored
         Size _preferredSize;
-        
+
         /** Sets the left side inset */
         float _insetLeft;
         /** Sets the top side inset */
@@ -667,7 +667,7 @@ namespace ui {
         float _insetRight;
         /** Sets the bottom side inset */
         float _insetBottom;
-        
+
         bool _flippedX;
         bool _flippedY;
         bool _isPatch9;
@@ -678,16 +678,17 @@ namespace ui {
         unsigned short* _sliceIndices;
         bool _sliceSpriteDirty;
         RenderingType _renderingType;
-        
+
 #if CC_SPRITE_DEBUG_DRAW
         DrawNode *_debugDrawNode;
 #endif //CC_SPRITE_DEBUG_DRAW
         bool _insideBounds;   /// whether or not the sprite was inside bounds the previous frame
         TrianglesCommand _trianglesCommand;     ///
     };
-    
+
 }}  //end of namespace
 // end of ui group
 /// @}
 
 #endif /* defined(__cocos2d_libs__UIScale9Sprite__) */
+

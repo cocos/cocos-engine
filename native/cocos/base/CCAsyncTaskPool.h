@@ -54,7 +54,7 @@ class CC_DLL AsyncTaskPool
 {
 public:
     typedef std::function<void(void*)> TaskCallBack;
-    
+
     enum class TaskType
     {
         TASK_IO,
@@ -72,14 +72,14 @@ public:
      * Destroys the async task pool.
      */
     static void destoryInstance();
-    
+
     /**
      * Stop tasks.
      *
      * @param type Task type you want to stop.
      */
     void stopTasks(TaskType type);
-    
+
     /**
      * Enqueue a asynchronous task.
      *
@@ -91,13 +91,13 @@ public:
      */
     template<class F>
     inline void enqueue(TaskType type, const TaskCallBack& callback, void* callbackParam, F&& f);
-    
+
 CC_CONSTRUCTOR_ACCESS:
     AsyncTaskPool();
     ~AsyncTaskPool();
-    
+
 protected:
-    
+
     // thread tasks internally used
     class ThreadTasks {
         struct AsyncTaskCallBack
@@ -127,7 +127,7 @@ protected:
                                               this->_tasks.pop();
                                               this->_taskCallBacks.pop();
                                           }
-                                          
+
                                           task();
                                           Director::getInstance()->getScheduler()->performFunctionInCocosThread([&, callback]{ callback.callback(callback.callbackParam); });
                                       }
@@ -139,7 +139,7 @@ protected:
             {
                 std::unique_lock<std::mutex> lock(_queueMutex);
                 _stop = true;
-                
+
                 while(_tasks.size())
                     _tasks.pop();
                 while (_taskCallBacks.size())
@@ -160,17 +160,17 @@ protected:
         void enqueue(const TaskCallBack& callback, void* callbackParam, F&& f)
         {
             auto task = f;//std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-            
+
             {
                 std::unique_lock<std::mutex> lock(_queueMutex);
-                
+
                 // don't allow enqueueing after stopping the pool
                 if(_stop)
                 {
                     CC_ASSERT(0 && "already stop");
                     return;
                 }
-                
+
                 AsyncTaskCallBack taskCallBack;
                 taskCallBack.callback = callback;
                 taskCallBack.callbackParam = callbackParam;
@@ -180,22 +180,22 @@ protected:
             _condition.notify_one();
         }
     private:
-        
+
         // need to keep track of thread so we can join them
         std::thread _thread;
         // the task queue
         std::queue< std::function<void()> > _tasks;
         std::queue<AsyncTaskCallBack>            _taskCallBacks;
-        
+
         // synchronization
         std::mutex _queueMutex;
         std::condition_variable _condition;
         bool _stop;
     };
-    
+
     //tasks
     ThreadTasks _threadTasks[int(TaskType::TASK_MAX_TYPE)];
-    
+
     static AsyncTaskPool* s_asyncTaskPool;
 };
 
@@ -209,7 +209,7 @@ template<class F>
 inline void AsyncTaskPool::enqueue(AsyncTaskPool::TaskType type, const TaskCallBack& callback, void* callbackParam, F&& f)
 {
     auto& threadTask = _threadTasks[(int)type];
-    
+
     threadTask.enqueue(callback, callbackParam, f);
 }
 
@@ -218,3 +218,4 @@ NS_CC_END
 // end group
 /// @}
 #endif //__CCSYNC_TASK_POOL_H_
+

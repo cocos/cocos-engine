@@ -38,7 +38,7 @@ class TMXLayer;
  * @addtogroup _2d
  * @{
  */
-    
+
 /** @brief FastTMXTiledMap knows how to parse and render a TMX map.
 
  * It adds support for the TMX tiled map format used by http://www.mapeditor.org.
@@ -100,7 +100,7 @@ public:
      */
     static TMXTiledMap* create(const std::string& tmxFile);
 
-    /** Initializes a TMX Tiled Map with a TMX formatted XML string and a path to TMX resources. 
+    /** Initializes a TMX Tiled Map with a TMX formatted XML string and a path to TMX resources.
      *
      * @param tmxString A TMX formatted XML string.
      * @param resourcePath A path to TMX resources.
@@ -108,14 +108,14 @@ public:
      */
     static TMXTiledMap* createWithXML(const std::string& tmxString, const std::string& resourcePath);
 
-    /** Return the FastTMXLayer for the specific layer. 
-     * 
+    /** Return the FastTMXLayer for the specific layer.
+     *
      * @return Return the FastTMXLayer for the specific layer.
      */
     TMXLayer* getLayer(const std::string& layerName) const;
 
-    /** Return the TMXObjectGroup for the specific group. 
-     * 
+    /** Return the TMXObjectGroup for the specific group.
+     *
      * @return Return the TMXObjectGroup for the specific group.
      */
     TMXObjectGroup* getObjectGroup(const std::string& groupName) const;
@@ -132,12 +132,12 @@ public:
      */
     Value getPropertiesForGID(int GID) const;
 
-    /** The map's size property measured in tiles. 
+    /** The map's size property measured in tiles.
      *
      * @return The map's size property measured in tiles.
      */
     inline const Size& getMapSize() const { return _mapSize; };
-    
+
     /** Set the map's size property measured in tiles.
      *
      * @param mapSize The map's size property measured in tiles.
@@ -149,47 +149,47 @@ public:
      * @return The tiles's size property measured in pixels.
      */
     inline const Size& getTileSize() const { return _tileSize; };
-    
-    /** Set the tiles's size property measured in pixels. 
+
+    /** Set the tiles's size property measured in pixels.
      *
      * @param tileSize The tiles's size property measured in pixels.
      */
     inline void setTileSize(const Size& tileSize) { _tileSize = tileSize; };
 
-    /** Get map orientation. 
+    /** Get map orientation.
      *
      * @return The map orientation.
      */
     inline int getMapOrientation() const { return _mapOrientation; };
-    
-    /** Set map orientation. 
+
+    /** Set map orientation.
      *
      * @param mapOrientation The map orientation.
      */
     inline void setMapOrientation(int mapOrientation) { _mapOrientation = mapOrientation; };
 
-    /** Get object groups. 
+    /** Get object groups.
      *
      * @return Object groups.
      */
     inline const Vector<TMXObjectGroup*>& getObjectGroups() const { return _objectGroups; };
     inline Vector<TMXObjectGroup*>& getObjectGroups() { return _objectGroups; };
-    
-    /** Set object groups. 
+
+    /** Set object groups.
      *
      * @param groups An object groups.
      */
     inline void setObjectGroups(const Vector<TMXObjectGroup*>& groups) {
         _objectGroups = groups;
     };
-    
+
     /** Get properties.
      *
      * @return Properties.
      */
     inline const ValueMap& getProperties() const { return _properties; };
-    
-    /** Set properties. 
+
+    /** Set properties.
      *
      * @param properties An ValueMap Properties.
      */
@@ -231,7 +231,7 @@ protected:
     Vector<TMXObjectGroup*> _objectGroups;
     /** properties */
     ValueMap _properties;
-    
+
     //! tile properties
     ValueMapIntKey _tileProperties;
 
@@ -246,5 +246,4 @@ private:
 NS_CC_END
 
 #endif //__CCTMX_TILE_MAP2_H__
-
 

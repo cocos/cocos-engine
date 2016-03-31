@@ -4,19 +4,19 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2011      Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,7 +39,7 @@ ProtectedNode::ProtectedNode() : _reorderProtectedChildDirty(false)
 
 ProtectedNode::~ProtectedNode()
 {
-    
+
     CCLOGINFO( "deallocing ProtectedNode: %p - tag: %i", this, _tag );
 }
 
@@ -66,7 +66,7 @@ void ProtectedNode::cleanup()
             return;
     }
 #endif // #if CC_ENABLE_SCRIPT_BINDING
-    
+
     Node::cleanup();
     // timers
     for( const auto &child: _protectedChildren)
@@ -91,19 +91,19 @@ void ProtectedNode::addProtectedChild(Node *child, int zOrder, int tag)
 {
     CCASSERT( child != nullptr, "Argument must be non-nil");
     CCASSERT( child->getParent() == nullptr, "child already added. It can't be added again");
-    
+
     if (_protectedChildren.empty())
     {
         _protectedChildren.reserve(4);
     }
-    
+
     this->insertProtectedChild(child, zOrder);
-    
+
     child->setTag(tag);
-    
+
     child->setParent(this);
     child->setOrderOfArrival(s_globalOrderOfArrival++);
-    
+
     if( _running )
     {
         child->onEnter();
@@ -112,12 +112,12 @@ void ProtectedNode::addProtectedChild(Node *child, int zOrder, int tag)
             child->onEnterTransitionDidFinish();
         }
     }
-    
+
     if (_cascadeColorEnabled)
     {
         updateCascadeColor();
     }
-    
+
     if (_cascadeOpacityEnabled)
     {
         updateCascadeOpacity();
@@ -127,7 +127,7 @@ void ProtectedNode::addProtectedChild(Node *child, int zOrder, int tag)
 Node* ProtectedNode::getProtectedChildByTag(int tag)
 {
     CCASSERT( tag != Node::INVALID_TAG, "Invalid tag");
-    
+
     for (auto& child : _protectedChildren)
     {
         if(child && child->getTag() == tag)
@@ -147,11 +147,11 @@ void ProtectedNode::removeProtectedChild(cocos2d::Node *child, bool cleanup)
     {
         return;
     }
-    
+
     ssize_t index = _protectedChildren.getIndex(child);
     if( index != CC_INVALID_INDEX )
     {
-        
+
         // IMPORTANT:
         //  -1st do onExit
         //  -2nd cleanup
@@ -160,17 +160,17 @@ void ProtectedNode::removeProtectedChild(cocos2d::Node *child, bool cleanup)
             child->onExitTransitionDidStart();
             child->onExit();
         }
-        
+
         // If you don't do cleanup, the child's actions will not get removed and the
         // its scheduledSelectors_ dict will not get released!
         if (cleanup)
         {
             child->cleanup();
         }
-        
+
         // set parent nil at the end
         child->setParent(nullptr);
-        
+
         _protectedChildren.erase(index);
     }
 }
@@ -193,7 +193,7 @@ void ProtectedNode::removeAllProtectedChildrenWithCleanup(bool cleanup)
             child->onExitTransitionDidStart();
             child->onExit();
         }
-        
+
         if (cleanup)
         {
             child->cleanup();
@@ -201,16 +201,16 @@ void ProtectedNode::removeAllProtectedChildrenWithCleanup(bool cleanup)
         // set parent nil at the end
         child->setParent(nullptr);
     }
-    
+
     _protectedChildren.clear();
 }
 
 void ProtectedNode::removeProtectedChildByTag(int tag, bool cleanup)
 {
     CCASSERT( tag != Node::INVALID_TAG, "Invalid tag");
-    
+
     Node *child = this->getProtectedChildByTag(tag);
-    
+
     if (child == nullptr)
     {
         CCLOG("cocos2d: removeChildByTag(tag = %d): child not found!", tag);
@@ -252,59 +252,59 @@ void ProtectedNode::visit(Renderer* renderer, const Mat4 &parentTransform, uint3
     {
         return;
     }
-    
+
     uint32_t flags = processParentFlags(parentTransform, parentFlags);
-    
+
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
     CCASSERT(nullptr != _director, "Director is null when setting matrix stack");
     _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
-    
+
     int i = 0;      // used by _children
     int j = 0;      // used by _protectedChildren
-    
+
     sortAllChildren();
     sortAllProtectedChildren();
-    
+
     //
     // draw children and protectedChildren zOrder < 0
     //
     for( ; i < _children.size(); i++ )
     {
         auto node = _children.at(i);
-        
+
         if ( node && node->getLocalZOrder() < 0 )
             node->visit(renderer, _modelViewTransform, flags);
         else
             break;
     }
-    
+
     for( ; j < _protectedChildren.size(); j++ )
     {
         auto node = _protectedChildren.at(j);
-        
+
         if ( node && node->getLocalZOrder() < 0 )
             node->visit(renderer, _modelViewTransform, flags);
         else
             break;
     }
-    
+
     //
     // draw self
     //
     draw(renderer, _modelViewTransform, flags);
-    
+
     //
     // draw children and protectedChildren zOrder >= 0
     //
     for(auto it=_protectedChildren.cbegin()+j; it != _protectedChildren.cend(); ++it)
         (*it)->visit(renderer, _modelViewTransform, flags);
-    
+
     for(auto it=_children.cbegin()+i; it != _children.cend(); ++it)
         (*it)->visit(renderer, _modelViewTransform, flags);
-    
+
     _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
@@ -317,7 +317,7 @@ void ProtectedNode::onEnter()
             return;
     }
 #endif
-    
+
     Node::onEnter();
     for( const auto &child: _protectedChildren)
         child->onEnter();
@@ -332,7 +332,7 @@ void ProtectedNode::onEnterTransitionDidFinish()
             return;
     }
 #endif
-    
+
     Node::onEnterTransitionDidFinish();
     for( const auto &child: _protectedChildren)
         child->onEnterTransitionDidFinish();
@@ -347,7 +347,7 @@ void ProtectedNode::onExitTransitionDidStart()
             return;
     }
 #endif
-    
+
     Node::onExitTransitionDidStart();
     for( const auto &child: _protectedChildren)
         child->onExitTransitionDidStart();
@@ -362,7 +362,7 @@ void ProtectedNode::onExit()
             return;
     }
 #endif
-    
+
     Node::onExit();
     for( const auto &child: _protectedChildren)
         child->onExit();
@@ -372,14 +372,14 @@ void ProtectedNode::updateDisplayedOpacity(GLubyte parentOpacity)
 {
     _displayedOpacity = _realOpacity * parentOpacity/255.0;
     updateColor();
-    
+
     if (_cascadeOpacityEnabled)
     {
         for(auto child : _children){
             child->updateDisplayedOpacity(_displayedOpacity);
         }
     }
-    
+
     for(auto child : _protectedChildren){
         child->updateDisplayedOpacity(_displayedOpacity);
     }
@@ -391,7 +391,7 @@ void ProtectedNode::updateDisplayedColor(const Color3B& parentColor)
     _displayedColor.g = _realColor.g * parentColor.g/255.0;
     _displayedColor.b = _realColor.b * parentColor.b/255.0;
     updateColor();
-    
+
     if (_cascadeColorEnabled)
     {
         for(const auto &child : _children){
@@ -416,14 +416,15 @@ void ProtectedNode::disableCascadeColor()
 void ProtectedNode::disableCascadeOpacity()
 {
     _displayedOpacity = _realOpacity;
-    
+
     for(auto child : _children){
         child->updateDisplayedOpacity(255);
     }
-    
+
     for(auto child : _protectedChildren){
         child->updateDisplayedOpacity(255);
     }
 }
 
 NS_CC_END
+

@@ -83,16 +83,16 @@ JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv* env, jo
 
 JNIEXPORT jintArray Java_org_cocos2dx_lib_Cocos2dxActivity_getGLContextAttrs(JNIEnv*  env, jobject thiz)
 {
-    cocos2d::Application::getInstance()->initGLContextAttrs(); 
+    cocos2d::Application::getInstance()->initGLContextAttrs();
     GLContextAttrs _glContextAttrs = GLView::getGLContextAttrs();
-    
+
     int tmp[6] = {_glContextAttrs.redBits, _glContextAttrs.greenBits, _glContextAttrs.blueBits,
                            _glContextAttrs.alphaBits, _glContextAttrs.depthBits, _glContextAttrs.stencilBits};
 
 
     jintArray glContextAttrsJava = env->NewIntArray(6);
-        env->SetIntArrayRegion(glContextAttrsJava, 0, 6, tmp); 
-    
+        env->SetIntArrayRegion(glContextAttrsJava, 0, 6, tmp);
+
     return glContextAttrsJava;
 }
 

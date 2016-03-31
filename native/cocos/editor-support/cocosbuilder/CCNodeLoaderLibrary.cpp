@@ -96,10 +96,11 @@ void NodeLoaderLibrary::destroyInstance() {
 
 NodeLoaderLibrary * NodeLoaderLibrary::newDefaultNodeLoaderLibrary() {
     NodeLoaderLibrary * ccNodeLoaderLibrary = NodeLoaderLibrary::library();
-    
+
     ccNodeLoaderLibrary->registerDefaultNodeLoaders();
 
     return ccNodeLoaderLibrary;
 }
 
 }
+

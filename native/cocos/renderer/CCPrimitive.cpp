@@ -35,7 +35,7 @@ Primitive* Primitive::create(VertexData* verts, IndexBuffer* indices, int type)
         result->autorelease();
         return result;
     }
-    
+
     CC_SAFE_DELETE(result);
     return  nullptr;
 }
@@ -74,7 +74,7 @@ bool Primitive::init(VertexData* verts, IndexBuffer* indices, int type)
         CC_SAFE_RETAIN(verts);
         _verts = verts;
     }
-    
+
     if(indices != _indices)
     {
         CC_SAFE_RETAIN(indices);
@@ -83,7 +83,7 @@ bool Primitive::init(VertexData* verts, IndexBuffer* indices, int type)
     }
 
     _type = type;
-    
+
     return true;
 }
 
@@ -103,7 +103,7 @@ void Primitive::draw()
         {
             glDrawArrays((GLenum)_type, _start, _count);
         }
-        
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
@@ -120,3 +120,4 @@ void Primitive::setCount(int count)
 }
 
 NS_CC_END
+

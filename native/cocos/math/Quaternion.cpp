@@ -172,16 +172,16 @@ void Quaternion::multiply(const Quaternion& q1, const Quaternion& q2, Quaternion
 void Quaternion::normalize()
 {
     float n = x * x + y * y + z * z + w * w;
-    
+
     // Already normalized.
     if (n == 1.0f)
         return;
-    
+
     n = sqrt(n);
     // Too close to zero.
     if (n < 0.000001f)
         return;
-    
+
     n = 1.0f / n;
     x *= n;
     y *= n;
@@ -434,3 +434,4 @@ void Quaternion::slerpForSquad(const Quaternion& q1, const Quaternion& q2, float
 }
 
 NS_CC_MATH_END
+

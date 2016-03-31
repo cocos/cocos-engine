@@ -55,13 +55,13 @@ It is a good practice to use a Scene as the parent of all your nodes.
 class CC_DLL Scene : public Node
 {
 public:
-    /** Creates a new Scene object. 
+    /** Creates a new Scene object.
      *
      * @return An autoreleased Scene object.
      */
     static Scene *create();
 
-    /** Creates a new Scene object with a predefined Size. 
+    /** Creates a new Scene object with a predefined Size.
      *
      * @param size The predefined size of scene.
      * @return An autoreleased Scene object.
@@ -71,14 +71,14 @@ public:
 
     using Node::addChild;
     virtual std::string getDescription() const override;
-    
+
     /** override function */
     virtual void removeAllChildren() override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Scene();
     virtual ~Scene();
-    
+
     bool init() override;
     bool initWithSize(const Size& size);
 
@@ -87,7 +87,7 @@ protected:
     friend class ProtectedNode;
     friend class SpriteBatchNode;
     friend class Renderer;
-    
+
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Scene);
 };
@@ -98,3 +98,4 @@ private:
 NS_CC_END
 
 #endif // __CCSCENE_H__
+

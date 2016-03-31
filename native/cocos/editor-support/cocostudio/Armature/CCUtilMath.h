@@ -55,3 +55,4 @@ cocos2d::Vec2 CC_STUDIO_DLL circleTo(float t, cocos2d::Vec2 &center, float radiu
 }
 
 #endif /*__CCUTILMATH_H__*/
+

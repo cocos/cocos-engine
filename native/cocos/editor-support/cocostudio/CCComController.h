@@ -40,7 +40,7 @@ public:
      *  @js ctor
      */
     ComController();
-    
+
 public:
     const static std::string COMPONENT_NAME;
 
@@ -83,3 +83,4 @@ public:
 }
 
 #endif  // __FUNDATION__CCCOMPONENT_H__
+

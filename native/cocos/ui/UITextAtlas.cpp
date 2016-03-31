@@ -28,9 +28,9 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 namespace ui {
-    
+
 static const int LABELATLAS_RENDERER_Z = (-1);
-    
+
 IMPLEMENT_CLASS_GUI_INFO(TextAtlas)
 
 TextAtlas::TextAtlas():
@@ -46,7 +46,7 @@ _labelAtlasRendererAdaptDirty(true)
 
 TextAtlas::~TextAtlas()
 {
-    
+
 }
 
 TextAtlas* TextAtlas::create()
@@ -67,7 +67,7 @@ void TextAtlas::initRenderer()
     _labelAtlasRenderer->setAnchorPoint(Point::ANCHOR_MIDDLE);
     addProtectedChild(_labelAtlasRenderer, LABELATLAS_RENDERER_Z, -1);
 }
-    
+
 TextAtlas* TextAtlas::create(const std::string &stringValue,
                              const std::string &charMapFile,
                              int itemWidth,
@@ -92,10 +92,10 @@ void TextAtlas::setProperty(const std::string& stringValue, const std::string& c
     _itemWidth = itemWidth;
     _itemHeight = itemHeight;
     _startCharMap = startCharMap;
-    
+
     _labelAtlasRenderer->setCharMap(_charMapFileName, _itemWidth, _itemHeight, (int)(_startCharMap[0]));
     _labelAtlasRenderer->setString(stringValue);
-    
+
     updateContentSizeWithTextureSize(_labelAtlasRenderer->getContentSize());
     _labelAtlasRendererAdaptDirty = true;
 //    CCLOG("cs w %f, h %f", _contentSize.width, _contentSize.height);
@@ -118,7 +118,7 @@ const std::string& TextAtlas::getString() const
 {
     return _labelAtlasRenderer->getString();
 }
-    
+
 ssize_t TextAtlas::getStringLength()const
 {
     return _labelAtlasRenderer->getStringLength();
@@ -129,7 +129,7 @@ void TextAtlas::onSizeChanged()
     Widget::onSizeChanged();
     _labelAtlasRendererAdaptDirty = true;
 }
-    
+
 void TextAtlas::adaptRenderers()
 {
     if (_labelAtlasRendererAdaptDirty)
@@ -189,6 +189,7 @@ void TextAtlas::copySpecialProperties(Widget *widget)
         setProperty(labelAtlas->_stringValue, labelAtlas->_charMapFileName, labelAtlas->_itemWidth, labelAtlas->_itemHeight, labelAtlas->_startCharMap);
     }
 }
-    
+
 }
 NS_CC_END
+

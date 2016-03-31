@@ -85,3 +85,4 @@ public class ResizeLayout extends FrameLayout {
         }
     }
 }
+

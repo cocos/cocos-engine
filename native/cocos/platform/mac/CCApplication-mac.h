@@ -47,63 +47,63 @@ public:
      * @lua NA
      */
     virtual ~Application();
-    
+
     /**
     @brief  Callback by Director for limit FPS.
     @param interval The time, which expressed in second in second, between current frame and next.
     */
     virtual void setAnimationInterval(float interval);
-    
+
     /**
     @brief  Get status bar rectangle in GLView window.
     */
-    
+
     /**
     @brief  Run the message loop.
     * @js NA
     * @lua NA
     */
     int run();
-    
+
     /**
     @brief  Get current application instance.
     @return Current application instance pointer.
     */
     static Application* getInstance();
-    
+
     static void destroyInstance();
-    
+
     /**
     @brief Get current language config
     @return Current language config
     */
     virtual LanguageType getCurrentLanguage();
-    
+
     /**
     @brief Get current language iso 639-1 code
     @return Current language iso 639-1 code
     */
     virtual const char * getCurrentLanguageCode();
-    
+
     /**
      @brief Get target platform
      */
     virtual Platform getTargetPlatform();
-    
+
     /**
      @brief Open url in default browser
      @param String with url to open.
      @return true if the resource located by the URL was successfully opened; otherwise false.
      */
     virtual bool openURL(const std::string &url);
-    
+
     void setStartupScriptFilename(const std::string& startupScriptFile);
-    
+
     const std::string& getStartupScriptFilename(void);
-    
+
 protected:
     static Application * sm_pSharedApplication;
-    
+
     long _animationInterval;  //micro second
     std::string _resourceRootPath;
     std::string _startupScriptFilename;
@@ -114,3 +114,4 @@ NS_CC_END
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC
 
 #endif  // end of __CC_APPLICATION_MAC_H__;
+

@@ -52,3 +52,4 @@ THE SOFTWARE.
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 #endif  // __CC_STD_C_H__
+

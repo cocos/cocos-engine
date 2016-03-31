@@ -172,10 +172,11 @@ void js_register_cocos2dx_GLNode(JSContext *cx, JS::HandleObject global) {
         funcs,
         NULL, // no static properties
         st_funcs);
-    
+
     // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, js_cocos2dx_GLNode_prototype);
     jsb_register_class<cocos2d::GLNode>(cx, js_cocos2dx_GLNode_class, proto, parentProto);
-    
+
     anonEvaluate(cx, global, "(function () { cc.GLNode.extend = cc.Class.extend; })()");
 }
+

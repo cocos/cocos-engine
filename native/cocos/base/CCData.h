@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -41,64 +41,64 @@ NS_CC_BEGIN
 class CC_DLL Data
 {
     friend class Properties;
-    
+
 public:
     /**
      * This parameter is defined for convenient reference if a null Data object is needed.
      */
     static const Data Null;
-    
+
     /**
      * Constructor of Data.
      */
     Data();
-    
+
     /**
      * Copy constructor of Data.
      */
     Data(const Data& other);
-    
+
     /**
      * Copy constructor of Data.
      */
     Data(Data&& other);
-    
+
     /**
      * Destructor of Data.
      */
     ~Data();
-    
+
     /**
      * Overloads of operator=.
      */
     Data& operator= (const Data& other);
-    
+
     /**
      * Overloads of operator=.
      */
     Data& operator= (Data&& other);
-    
+
     /**
      * Gets internal bytes of Data. It will return the pointer directly used in Data, so don't delete it.
      *
      * @return Pointer of bytes used internal in Data.
      */
     unsigned char* getBytes() const;
-    
+
     /**
      * Gets the size of the bytes.
      *
      * @return The size of bytes of Data.
      */
     ssize_t getSize() const;
-    
+
     /** Copies the buffer pointer and its size.
      *  @note This method will copy the whole buffer.
      *        Developer should free the pointer after invoking this method.
      *  @see Data::fastSet
      */
     void copy(const unsigned char* bytes, const ssize_t size);
-    
+
     /** Fast set the buffer pointer and its size. Please use it carefully.
      *  @param bytes The buffer pointer, note that it have to be allocated by 'malloc' or 'calloc',
      *         since in the destructor of Data, the buffer will be deleted by 'free'.
@@ -107,22 +107,22 @@ public:
      *  @see Data::copy
      */
     void fastSet(unsigned char* bytes, const ssize_t size);
-    
-    /** 
+
+    /**
      * Clears data, free buffer and reset data size.
      */
     void clear();
-    
-    /** 
+
+    /**
      * Check whether the data is null.
      *
      * @return True if the Data is null, false if not.
      */
     bool isNull() const;
-    
+
 private:
     void move(Data& other);
-    
+
 private:
     unsigned char* _bytes;
     ssize_t _size;
@@ -133,3 +133,4 @@ NS_CC_END
 
 /** @} */
 #endif // __CCDATA_H__
+

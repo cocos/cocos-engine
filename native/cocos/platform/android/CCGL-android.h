@@ -39,7 +39,7 @@ THE SOFTWARE.
 #define GL_DEPTH24_STENCIL8         GL_DEPTH24_STENCIL8_OES
 #define GL_WRITE_ONLY               GL_WRITE_ONLY_OES
 
-// GL_GLEXT_PROTOTYPES isn't defined in glplatform.h on android ndk r7 
+// GL_GLEXT_PROTOTYPES isn't defined in glplatform.h on android ndk r7
 // we manually define it here
 #include <GLES2/gl2platform.h>
 #ifndef GL_GLEXT_PROTOTYPES
@@ -69,3 +69,4 @@ extern PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT;
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 #endif // __CCGL_H__
+

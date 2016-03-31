@@ -93,7 +93,7 @@ struct CC_DLL Color4B
     Color4B(GLubyte _r, GLubyte _g, GLubyte _b, GLubyte _a);
     explicit Color4B(const Color3B& color);
     explicit Color4B(const Color4F& color);
-    
+
     inline void set(GLubyte _r, GLubyte _g, GLubyte _b, GLubyte _a)
     {
         r = _r;
@@ -609,3 +609,4 @@ NS_CC_END
 // end group
 /// @}
 #endif //__BASE_CCTYPES_H__
+

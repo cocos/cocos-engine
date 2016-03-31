@@ -103,7 +103,7 @@ void ObjectFactory::destroyInstance()
 Ref* ObjectFactory::createObject(const std::string &name)
 {
     Ref *o = nullptr;
-    do 
+    do
     {
         const TInfo t = _typeMap[name];
         if (t._fun != nullptr)
@@ -114,7 +114,7 @@ Ref* ObjectFactory::createObject(const std::string &name)
             o = t._func();
         }
     } while (0);
-   
+
     return o;
 }
 
@@ -124,3 +124,4 @@ void ObjectFactory::registerType(const TInfo &t)
 }
 
 NS_CC_END
+

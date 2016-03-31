@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013 Jozef Pridavok
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -148,12 +148,12 @@ static bool IsDlgTemplateExtended(DLGTEMPLATE *dlgTemplate)
 
     // MSDN excerpt:
     //* dlgVer
-    //  Specifies the version number of the extended dialog box template. This member must be 1. 
+    //  Specifies the version number of the extended dialog box template. This member must be 1.
     //* signature
-    //  Indicates whether a template is an extended dialog box template. 
-    // If signature is 0xFFFF, this is an extended dialog box template. 
-    // In this case, the dlgVer member specifies the template version number. 
-    // If signature is any value other than 0xFFFF, this is a standard dialog box template that uses the DLGTEMPLATE and DLGITEMTEMPLATE structures. 
+    //  Indicates whether a template is an extended dialog box template.
+    // If signature is 0xFFFF, this is an extended dialog box template.
+    // In this case, the dlgVer member specifies the template version number.
+    // If signature is any value other than 0xFFFF, this is a standard dialog box template that uses the DLGTEMPLATE and DLGITEMTEMPLATE structures.
 
     return (dgExTemplate->dlgVer == 1) && (dgExTemplate->signature == 0xFFFF);
 }
@@ -622,7 +622,7 @@ EditBoxImplWin::EditBoxImplWin(EditBox* pEditText)
 , _maxLength(-1)
 , _isEditing(false)
 {
-    
+
 }
 
 EditBoxImplWin::~EditBoxImplWin()
@@ -654,7 +654,7 @@ bool EditBoxImplWin::initWithSize(const Size& size)
     _labelPlaceHolder->setVisible(false);
     _labelPlaceHolder->setTextColor(_colPlaceHolder);
     _editBox->addChild(_labelPlaceHolder);
-    
+
     _editSize = size;
     return true;
 }
@@ -672,7 +672,7 @@ void EditBoxImplWin::setFont(const char* pFontName, int fontSize)
           _label->setSystemFontSize(fontSize);
       }
   }
-    
+
     if (_labelPlaceHolder != nullptr)
   {
       if(strlen(pFontName) > 0)
@@ -772,7 +772,7 @@ void EditBoxImplWin::setText(const char* pText)
             {
                 _label->setString(_text);
             }
-            
+
             float maxWidth = _editSize.width - 2 * CC_EDIT_BOX_PADDING;
             auto labelSize = _label->getContentSize();
             if (labelSize.width > maxWidth)
@@ -824,11 +824,11 @@ void EditBoxImplWin::setContentSize(const Size& size)
 
 void EditBoxImplWin::setAnchorPoint(const Vec2& anchorPoint)
 { // don't need to be implemented on win32 platform.
-    
+
 }
 
 void EditBoxImplWin::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
-{   
+{
 }
 
 void EditBoxImplWin::openKeyboard()
@@ -848,7 +848,7 @@ void EditBoxImplWin::openKeyboard()
         ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
     }
 #endif
-    
+
     std::string placeHolder = _labelPlaceHolder->getString();
     if (placeHolder.length() == 0)
         placeHolder = "Enter value";
@@ -861,7 +861,7 @@ void EditBoxImplWin::openKeyboard()
         _keyboardReturnType, _editBoxInputMode, _editBoxInputFlag,
         &EditBoxImplWin::onWin32InputBoxTextChange, this) == IDOK;
     _isEditing = false;
-    
+
     setText(didChange ? text.c_str() : originalText.c_str());
 
     if (_delegate != nullptr)
@@ -870,7 +870,7 @@ void EditBoxImplWin::openKeyboard()
         _delegate->editBoxEditingDidEnd(_editBox);
         _delegate->editBoxReturn(_editBox);
     }
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
     {
@@ -933,3 +933,4 @@ void EditBoxImplWin::onEnter(void)
 NS_CC_END
 
 #endif /* (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) */
+
