@@ -362,7 +362,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 
--(void) handleTouchesAfterKeyboardShow
+-(void)handleTouchesAfterKeyboardShow
 {
     NSArray *subviews = self.subviews;
     
@@ -376,6 +376,13 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
                 [view resignFirstResponder];
                 return;
             }
+        }
+    }
+    
+    if (cocos2d::Director::DirectorInstance) {
+        auto glView = cocos2d::Director::DirectorInstance->getOpenGLView();
+        if (glView) {
+            glView->setIMEKeyboardState(false);
         }
     }
 }
