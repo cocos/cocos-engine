@@ -185,8 +185,14 @@ var View = cc._Class.extend({
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
     },
 
+    _resizeTimer: null,
     // Resize helper functions
     _resizeEvent: function () {
+        clearTimeout(this._resizeTimer);
+        this._resizeTimer = setTimeout(this._resizeHandle.bind(this), 10);
+    },
+
+    _resizeHandle: function () {
         var view;
         if(this.setDesignResolutionSize){
             view = this;
@@ -250,15 +256,15 @@ var View = cc._Class.extend({
             //enable
             if (!this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = true;
-                window.addEventListener('resize', this._resizeEvent);
-                window.addEventListener('orientationchange', this._resizeEvent);
+                window.addEventListener('resize', this._resizeEvent.bind(this));
+                window.addEventListener('orientationchange', this._resizeEvent.bind(this));
             }
         } else {
             //disable
             if (this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = false;
-                window.removeEventListener('resize', this._resizeEvent);
-                window.removeEventListener('orientationchange', this._resizeEvent);
+                window.removeEventListener('resize', this._resizeEvent.bind(this));
+                window.removeEventListener('orientationchange', this._resizeEvent.bind(this));
             }
         }
     },
