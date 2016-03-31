@@ -257,7 +257,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
     // Avoid flicker. Issue #350
     //[director performSelectorOnMainThread:@selector(drawScene) withObject:nil waitUntilDone:YES];
-    if ([NSThread isMainThread])
+    if ([NSThread isMainThread] && cocos2d::Director::DirectorInstance)
     {
         cocos2d::Director::DirectorInstance->drawScene();
     }
@@ -728,6 +728,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)onUIKeyboardNotification:(NSNotification *)notif;
 {
+    if(cocos2d::Director::DirectorInstance == nullptr)
+        return;
+    
     NSString * type = notif.name;
     
     NSDictionary* info = [notif userInfo];
@@ -787,8 +790,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
     float scaleX = glview->getScaleX();
     float scaleY = glview->getScaleY();
-    
-    
     
     // Convert to pixel coordinate
     begin = CGRectApplyAffineTransform(begin, CGAffineTransformScale(CGAffineTransformIdentity, self.contentScaleFactor, self.contentScaleFactor));
