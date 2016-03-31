@@ -36,7 +36,7 @@ public class Cocos2dxLocalStorage {
     private static String DATABASE_NAME = "jsb.sqlite";
     private static String TABLE_NAME = "data";
     private static final int DATABASE_VERSION = 1;
-    
+
     private static DBOpenHelper mDatabaseOpenHelper = null;
     private static SQLiteDatabase mDatabase = null;
 
@@ -50,13 +50,13 @@ public class Cocos2dxLocalStorage {
         }
         return false;
     }
-    
+
     public static void destory() {
         if (mDatabase != null) {
             mDatabase.close();
         }
     }
-    
+
     public static void setItem(String key, String value) {
         try {
             String sql = "replace into "+TABLE_NAME+"(key,value)values(?,?)";
@@ -65,7 +65,7 @@ public class Cocos2dxLocalStorage {
             e.printStackTrace();
         }
     }
-    
+
     public static String getItem(String key) {
         String ret = null;
         try {
@@ -86,7 +86,7 @@ public class Cocos2dxLocalStorage {
         }
         return ret == null ? "" : ret;
     }
-    
+
     public static void removeItem(String key) {
         try {
             String sql = "delete from "+TABLE_NAME+" where key=?";
@@ -95,7 +95,7 @@ public class Cocos2dxLocalStorage {
             e.printStackTrace();
         }
     }
-    
+
     public static void clear() {
         try {
             String sql = "delete from "+TABLE_NAME;
@@ -118,10 +118,11 @@ public class Cocos2dxLocalStorage {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS "+TABLE_NAME+"(key TEXT PRIMARY KEY,value TEXT);");
         }
-        
+
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         }
     }
 }
+

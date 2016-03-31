@@ -62,7 +62,7 @@ public:
         //_usedPool.insert(result);
         return result;
     }
-    
+
     void pushBackCommand(T* ptr)
     {
 //        if(_usedPool.find(ptr) == _usedPool.end())
@@ -70,10 +70,10 @@ public:
 //            CCLOG("push Back Wrong command!");
 //            return;
 //        }
-        
+
         _freePool.push_back(ptr);
         //_usedPool.erase(ptr);
-        
+
     }
 private:
     void AllocateCommands()
@@ -96,3 +96,4 @@ NS_CC_END
 
 /// @endcond
 #endif
+

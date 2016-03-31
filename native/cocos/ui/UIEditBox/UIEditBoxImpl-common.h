@@ -4,17 +4,17 @@
  Copyright (c) 2013-2015 zilongshanren
 
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -49,9 +49,9 @@ public:
      * @lua NA
      */
     virtual ~EditBoxImplCommon();
-    
+
     virtual bool initWithSize(const Size& size) override;
-    
+
     virtual void setFont(const char* pFontName, int fontSize) override;
     virtual void setFontColor(const Color4B& color) override;
     virtual void setPlaceholderFont(const char* pFontName, int fontSize) override;
@@ -66,15 +66,15 @@ public:
 
     virtual void setMaxLength(int maxLength) override;
     virtual int  getMaxLength() override;
-    
+
     virtual const char* getText() override;
     virtual void refreshInactiveText();
-    
+
     virtual void setContentSize(const Size& size) override;
-    
+
     virtual void setAnchorPoint(const Vec2& anchorPoint) override{}
     virtual void setPosition(const Vec2& pos) override {}
-    
+
     /**
      * @js NA
      * @lua NA
@@ -89,11 +89,11 @@ public:
     virtual void closeKeyboard() override;
 
     virtual void onEndEditing(const std::string& text);
-    
+
     void editBoxEditingDidBegin();
     void editBoxEditingChanged(const std::string& text);
     void editBoxEditingDidEnd(const std::string& text);
-    
+
     virtual bool isEditing() override = 0;
     virtual void createNativeControl(const Rect& frame) = 0;
     virtual void setNativeFont(const char* pFontName, int fontSize) = 0;
@@ -118,19 +118,19 @@ private:
     void            initInactiveLabels(const Size& size);
     void            setInactiveText(const char* pText);
     void            placeInactiveLabels();
-    
+
     Label* _label;
     Label* _labelPlaceHolder;
     EditBox::InputMode    _editBoxInputMode;
     EditBox::InputFlag    _editBoxInputFlag;
     EditBox::KeyboardReturnType  _keyboardReturnType;
-    
+
     std::string _text;
     std::string _placeHolder;
-    
+
     Color4B _colText;
     Color4B _colPlaceHolder;
-    
+
     int   _maxLength;
     Size _contentSize;
 };

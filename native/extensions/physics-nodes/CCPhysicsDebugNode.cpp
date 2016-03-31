@@ -40,7 +40,7 @@ NS_CC_EXT_BEGIN
 #if CC_ENABLE_CHIPMUNK_INTEGRATION
 /*
  IMPORTANT - READ ME!
- 
+
  This file sets pokes around in the private API a lot to provide efficient
  debug rendering given nothing more than reference to a Chipmunk space.
  It is not recommended to write rendering code like this in your own games
@@ -72,7 +72,7 @@ static Vec2* cpVertArray2ccpArrayN(const cpVect* cpVertArray, unsigned int count
 {
     if (count == 0) return nullptr;
     Vec2* pPoints = new (std::nothrow) Vec2[count];
-    
+
     for (unsigned int i = 0; i < count; ++i)
     {
         pPoints[i].x = cpVertArray[i].x;
@@ -85,7 +85,7 @@ static void DrawShape(cpShape *shape, DrawNode *renderer)
 {
     cpBody *body = shape->body;
     Color4F color = ColorForBody(body);
-    
+
     switch (shape->CP_PRIVATE(klass)->type)
     {
         case CP_CIRCLE_SHAPE:
@@ -124,15 +124,15 @@ static void DrawConstraint(cpConstraint *constraint, DrawNode *renderer)
 {
     cpBody *body_a = constraint->a;
     cpBody *body_b = constraint->b;
-    
+
     const cpConstraintClass *klass = constraint->CP_PRIVATE(klass);
     if (klass == cpPinJointGetClass())
     {
         cpPinJoint *joint = (cpPinJoint *)constraint;
-        
+
         cpVect a = cpBodyLocal2World(body_a, joint->anchr1);
         cpVect b = cpBodyLocal2World(body_b, joint->anchr2);
-        
+
         renderer->drawDot(cpVert2Point(a), 3.0, CONSTRAINT_COLOR);
         renderer->drawDot(cpVert2Point(b), 3.0, CONSTRAINT_COLOR);
         renderer->drawSegment(cpVert2Point(a), cpVert2Point(b), 1.0, CONSTRAINT_COLOR);
@@ -140,10 +140,10 @@ static void DrawConstraint(cpConstraint *constraint, DrawNode *renderer)
     else if (klass == cpSlideJointGetClass())
     {
         cpSlideJoint *joint = (cpSlideJoint *)constraint;
-        
+
         cpVect a = cpBodyLocal2World(body_a, joint->anchr1);
         cpVect b = cpBodyLocal2World(body_b, joint->anchr2);
-        
+
         renderer->drawDot(cpVert2Point(a), 3.0, CONSTRAINT_COLOR);
         renderer->drawDot(cpVert2Point(b), 3.0, CONSTRAINT_COLOR);
         renderer->drawSegment(cpVert2Point(a), cpVert2Point(b), 1.0, CONSTRAINT_COLOR);
@@ -151,21 +151,21 @@ static void DrawConstraint(cpConstraint *constraint, DrawNode *renderer)
     else if (klass == cpPivotJointGetClass())
     {
         cpPivotJoint *joint = (cpPivotJoint *)constraint;
-        
+
         cpVect a = cpBodyLocal2World(body_a, joint->anchr1);
         cpVect b = cpBodyLocal2World(body_b, joint->anchr2);
-        
+
         renderer->drawDot(cpVert2Point(a), 3.0, CONSTRAINT_COLOR);
         renderer->drawDot(cpVert2Point(b), 3.0, CONSTRAINT_COLOR);
     }
     else if (klass == cpGrooveJointGetClass())
     {
         cpGrooveJoint *joint = (cpGrooveJoint *)constraint;
-        
+
         cpVect a = cpBodyLocal2World(body_a, joint->grv_a);
         cpVect b = cpBodyLocal2World(body_a, joint->grv_b);
         cpVect c = cpBodyLocal2World(body_b, joint->anchr2);
-        
+
         renderer->drawDot(cpVert2Point(c), 3.0, CONSTRAINT_COLOR);
         renderer->drawSegment(cpVert2Point(a), cpVert2Point(b), 1.0, CONSTRAINT_COLOR);
     }
@@ -194,7 +194,7 @@ void PhysicsDebugNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t 
 
     cpSpaceEachShape(_spacePtr, (cpSpaceShapeIteratorFunc)DrawShape, this);
     cpSpaceEachConstraint(_spacePtr, (cpSpaceConstraintIteratorFunc)DrawConstraint, this);
-    
+
     DrawNode::draw(renderer, transform, flags);
 #endif
 }
@@ -220,7 +220,7 @@ PhysicsDebugNode* PhysicsDebugNode::create(cpSpace *space)
     {
         CC_SAFE_DELETE(node);
     }
-    
+
     return node;
 }
 
@@ -248,3 +248,4 @@ void PhysicsDebugNode::setSpace(cpSpace *space)
 }
 
 NS_CC_EXT_END
+

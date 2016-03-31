@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2015-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,13 +39,13 @@ const std::string ComponentJS::UPDATE = "update";
 ComponentJS* ComponentJS::create(const std::string& scriptFileName)
 {
     CC_ASSERT(!scriptFileName.empty());
-    
+
     auto componentJS = new(std::nothrow) ComponentJS(scriptFileName);
     if (componentJS)
     {
         componentJS->autorelease();
     }
-    
+
     return componentJS;
 }
 
@@ -58,36 +58,36 @@ ComponentJS::ComponentJS(const std::string& scriptFileName)
     // Require script
     JS::RootedValue classValue(cx);
     _succeedLoadingScript = engine->requireScript(_scriptFileName.c_str(), &classValue);
-    
+
     if (_succeedLoadingScript)
     {
         JS::RootedObject classObj(cx, classValue.toObjectOrNull());
         const JSClass* theClass = JS_GetClass(classObj);
         JS::RootedValue protoValue(cx);
         JS_GetProperty(cx, classObj, "prototype", &protoValue);
-        
+
         TypeTest<ComponentJS> t;
         js_type_class_t *typeClass = nullptr;
         std::string typeName = t.s_name();
         auto typeMapIter = _js_global_type_map.find(typeName);
         CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
         typeClass = typeMapIter->second;
-        
+
         mozilla::Maybe<JS::PersistentRootedObject> *jsObj = new (std::nothrow) mozilla::Maybe<JS::PersistentRootedObject>();
-        
+
         JS::RootedObject proto(cx, protoValue.toObjectOrNull());
         JS::RootedObject parent(cx, typeClass->proto.ref());
         jsObj->construct(cx);
         JS::RootedObject obj(cx, JS_NewObject(cx, theClass, proto, parent));
         jsObj->ref() = obj;
-        
+
         // Unbind current proxy binding
         js_proxy_t* jsproxy = js_get_or_create_proxy<ComponentJS>(cx, this);
         JS::RemoveObjectRoot(cx, &jsproxy->obj);
         jsb_remove_proxy(jsb_get_native_proxy(this), jsproxy);
         // link the native object with the javascript object
         jsb_new_proxy(this, jsObj->ref());
-        
+
         _jsObj = jsObj;
     }
 }
@@ -141,3 +141,4 @@ void ComponentJS::onExit()
 }
 
 NS_CC_END
+

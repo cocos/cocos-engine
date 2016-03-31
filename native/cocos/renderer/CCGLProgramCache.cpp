@@ -96,13 +96,13 @@ GLProgramCache::~GLProgramCache()
 bool GLProgramCache::init()
 {
     loadDefaultGLPrograms();
-    
+
     auto listener = EventListenerCustom::create(Configuration::CONFIG_FILE_LOADED, [this](EventCustom* event){
         reloadDefaultGLProgramsRelativeToLights();
     });
-    
+
     Director::DirectorInstance->getEventDispatcher()->addEventListenerWithFixedPriority(listener, -1);
-    
+
     return true;
 }
 
@@ -200,7 +200,7 @@ void GLProgramCache::loadDefaultGLPrograms()
     p = new (std::nothrow) GLProgram();
     loadDefaultGLProgram(p, kShaderType_LabelOutline);
     _programs.insert( std::make_pair(GLProgram::SHADER_NAME_LABEL_OUTLINE, p) );
-    
+
     p = new (std::nothrow) GLProgram();
     loadDefaultGLProgram(p, kShaderType_CameraClear);
     _programs.insert(std::make_pair(GLProgram::SHADER_CAMERA_CLEAR, p));
@@ -297,7 +297,7 @@ void GLProgramCache::reloadDefaultGLPrograms()
     p = getGLProgram(GLProgram::SHADER_NAME_LABEL_OUTLINE);
     p->reset();
     loadDefaultGLProgram(p, kShaderType_LabelOutline);
-    
+
     p = getGLProgram(GLProgram::SHADER_CAMERA_CLEAR);
     p->reset();
     loadDefaultGLProgram(p, kShaderType_CameraClear);
@@ -415,3 +415,4 @@ std::string GLProgramCache::getShaderMacrosForLight() const
 }
 
 NS_CC_END
+

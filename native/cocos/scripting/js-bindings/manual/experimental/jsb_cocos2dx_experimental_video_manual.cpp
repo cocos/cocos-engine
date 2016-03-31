@@ -37,7 +37,7 @@ static bool jsb_cocos2dx_experimental_ui_VideoPlayer_addEventListener(JSContext 
         });
         return true;
     }
-    
+
     return false;
 }
 
@@ -50,3 +50,4 @@ void register_all_cocos2dx_experimental_video_manual(JSContext* cx, JS::HandleOb
 }
 
 #endif
+

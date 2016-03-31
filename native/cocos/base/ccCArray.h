@@ -90,7 +90,7 @@ void ccArrayAppendObject(ccArray *arr, Ref* object);
 /** Appends an object. Capacity of arr is increased if needed. */
 void ccArrayAppendObjectWithResize(ccArray *arr, Ref* object);
 
-/** Appends objects from plusArr to arr. 
+/** Appends objects from plusArr to arr.
  Behavior undefined if arr doesn't have enough capacity. */
 void ccArrayAppendArray(ccArray *arr, ccArray *plusArr);
 
@@ -129,7 +129,7 @@ void ccArrayRemoveArray(ccArray *arr, ccArray *minusArr);
  matching instances in arr will be removed. */
 void ccArrayFullRemoveArray(ccArray *arr, ccArray *minusArr);
 
-// 
+//
 // // ccCArray for Values (c structures)
 
 typedef struct _ccCArray {
@@ -203,6 +203,7 @@ void ccCArrayRemoveArray(ccCArray *arr, ccCArray *minusArr);
 void ccCArrayFullRemoveArray(ccCArray *arr, ccCArray *minusArr);
 
 NS_CC_END
-    
+
 /// @endcond
 #endif // CC_ARRAY_H
+

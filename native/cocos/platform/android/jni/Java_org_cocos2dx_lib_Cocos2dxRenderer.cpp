@@ -54,3 +54,4 @@ extern "C" {
         return JniHelper::newStringUTFJNI(env, pszText);
     }
 }
+

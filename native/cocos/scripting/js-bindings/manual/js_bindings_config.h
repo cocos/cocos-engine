@@ -144,3 +144,4 @@ JSAutoCompartment __jsb_ac(ScriptingCore::getInstance()->getGlobalContext(), Scr
 #endif // JSB_MAX_STACK_QUOTA
 
 #endif // __JS_BINDINGS_CONFIG_H
+

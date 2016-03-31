@@ -62,18 +62,18 @@ public:
     static Application* getInstance();
 
     static void destroyInstance();
-    
+
     /* override functions */
     virtual void setAnimationInterval(float interval);
     virtual LanguageType getCurrentLanguage();
 
     virtual const char * getCurrentLanguageCode();
-    
+
     /**
      @brief Get target platform
      */
     virtual Platform getTargetPlatform();
-    
+
     /**
      @brief Open url in default browser
      @param String with url to open.
@@ -102,3 +102,4 @@ NS_CC_END
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 
 #endif    // __CC_APPLICATION_WIN32_H__
+

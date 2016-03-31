@@ -168,3 +168,4 @@ void PageViewIndicator::clear()
 }
 
 NS_CC_END
+

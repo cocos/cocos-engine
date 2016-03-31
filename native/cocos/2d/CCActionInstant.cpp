@@ -3,7 +3,7 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2011      Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -61,7 +61,7 @@ void ActionInstant::update(float time) {
 // Show
 //
 
-Show* Show::create() 
+Show* Show::create()
 {
     Show* ret = new (std::nothrow) Show();
 
@@ -91,7 +91,7 @@ Show* Show::clone() const
 //
 // Hide
 //
-Hide * Hide::create() 
+Hide * Hide::create()
 {
     Hide *ret = new (std::nothrow) Hide();
 
@@ -133,7 +133,7 @@ ToggleVisibility* ToggleVisibility::create()
     return ret;
 }
 
-void ToggleVisibility::update(float time) 
+void ToggleVisibility::update(float time)
 {
     CC_UNUSED_PARAM(time);
     _target->setVisible(!_target->isVisible());
@@ -385,3 +385,4 @@ CallFuncN * CallFuncN::clone() const
 }
 
 NS_CC_END
+

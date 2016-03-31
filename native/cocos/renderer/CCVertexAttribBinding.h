@@ -46,7 +46,7 @@ class VertexAttribValue;
  * between a Mesh and Effect to satisfy the OpenGL requirement of one VAO per VBO.
  *
  * Note that this class still does provide a binding between a VertexFormat
- * and an Effect, however this binding is actually a client-side binding and 
+ * and an Effect, however this binding is actually a client-side binding and
  * should only be used when writing custom code that use client-side vertex
  * arrays, since it is slower than the server-side VAOs used by OpenGL
  * (when creating a VertexAttribBinding between a Mesh and Effect).
@@ -66,7 +66,7 @@ public:
      *
      * @param mesh The mesh.
      * @param effect The effect.
-     * 
+     *
      * @return A VertexAttribBinding for the requested parameters.
      */
 //    static VertexAttribBinding* create(MeshIndexData* meshIndexData, GLProgramState* glProgramState);
@@ -127,3 +127,4 @@ extern std::string CC_DLL s_attributeNames[];//attribute names array
 NS_CC_END
 
 #endif // CC_VERTEXATTRIBUTEBINDING_H_
+

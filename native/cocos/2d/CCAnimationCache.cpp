@@ -191,7 +191,7 @@ void AnimationCache::addAnimationsWithDictionary(const ValueMap& dictionary,cons
         CCLOG("cocos2d: AnimationCache: No animations were found in provided dictionary.");
         return;
     }
-    
+
     const Value& animations = dictionary.at("animations");
     unsigned int version = 1;
 
@@ -227,7 +227,7 @@ void AnimationCache::addAnimationsWithFile(const std::string& plist)
         log("%s error:file name is empty!", __FUNCTION__);
         return;
     }
-    
+
     ValueMap dict = FileUtils::getInstance()->getValueMapFromFile(plist);
 
     CCASSERT( !dict.empty(), "CCAnimationCache: File could not be found");
@@ -240,3 +240,4 @@ void AnimationCache::addAnimationsWithFile(const std::string& plist)
 
 
 NS_CC_END
+

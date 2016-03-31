@@ -32,3 +32,4 @@
 - (BOOL) prefersStatusBarHidden;
 
 @end
+

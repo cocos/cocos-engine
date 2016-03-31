@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2014 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -50,7 +50,7 @@ AudioCache::AudioCache()
 , _queBufferBytes(0)
 , _mp3Encoding(0)
 {
-    
+
 }
 
 AudioCache::AudioCache(const AudioCache& cache)
@@ -74,7 +74,7 @@ AudioCache::~AudioCache()
         //wait for the 'readDataTask' task to exit
         _readDataTaskMutex.lock();
         _readDataTaskMutex.unlock();
-        
+
         free(_pcmData);
     }
 
@@ -123,7 +123,7 @@ void AudioCache::readDataTask()
                  goto ExitThread;
              }
 
-             if (mpg123_open(mpg123handle,_fileFullPath.c_str()) != MPG123_OK || 
+             if (mpg123_open(mpg123handle,_fileFullPath.c_str()) != MPG123_OK ||
                  mpg123_getformat(mpg123handle, &rate, &_channels, &_mp3Encoding) != MPG123_OK) {
                  log("Trouble with mpg123: %s\n", mpg123_strerror(mpg123handle) );
                  goto ExitThread;
@@ -139,10 +139,10 @@ void AudioCache::readDataTask()
                  log("Bad encoding: 0x%x!\n", _mp3Encoding);
                  goto ExitThread;
              }
-             
+
              _alBufferFormat = (_channels > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
              _sampleRate = rate;
-             
+
              /* Ensure that this output format will not change (it could, when we allow it). */
              mpg123_format_none(mpg123handle);
              mpg123_format(mpg123handle, rate, _channels, _mp3Encoding);
@@ -159,7 +159,7 @@ void AudioCache::readDataTask()
      default:
          break;
      }
-    
+
     if (_pcmDataSize <= PCMDATA_CACHEMAXSIZE)
     {
         _pcmData = malloc(_pcmDataSize);
@@ -178,7 +178,7 @@ void AudioCache::readDataTask()
                 int current_section;
                 unsigned int currPos = 0;
                 long readRet = 0;
-                do 
+                do
                 {
                     readRet = ov_read(vf,(char*)_pcmData + _bytesOfRead,4096,0,2,1,&current_section);
                     if (readRet > 0){
@@ -204,20 +204,20 @@ void AudioCache::readDataTask()
                     _bytesOfRead = done;
                 }
             }
-            break;     
+            break;
         case FileFormat::UNKNOWN:
         default:
             break;
         }
         alBufferData(_alBufferId,_alBufferFormat,_pcmData,_pcmDataSize,_sampleRate);
-    } 
+    }
     else{
         _queBufferFrames = _sampleRate * QUEUEBUFFER_TIME_STEP;
         _queBufferBytes = _queBufferFrames * _bytesPerFrame;
 
         for (int index = 0; index < QUEUEBUFFER_NUM; ++index) {
             _queBuffers[index] = (char*)malloc(_queBufferBytes);
-            
+
             switch (_fileFormat){
             case FileFormat::MP3:
                 {
@@ -237,7 +237,7 @@ void AudioCache::readDataTask()
             }
         }
     }
-    
+
 ExitThread:
     switch (_fileFormat)
     {
@@ -253,17 +253,17 @@ ExitThread:
     default:
         break;
     }
-    
+
     _readDataTaskMutex.unlock();
     if (_queBufferFrames > 0)
     {
         _alBufferReady = true;
-    } 
+    }
     else
     {
         _loadFail = true;
     }
-    
+
     invokingLoadCallbacks();
     invokingPlayCallbacks();
 }
@@ -316,3 +316,4 @@ void AudioCache::addLoadCallback(const std::function<void(bool)>& callback)
 }
 
 #endif
+

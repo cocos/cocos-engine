@@ -4,17 +4,17 @@
  Copyright (c) 2013-2015 zilongshanren
 
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -90,20 +90,20 @@ void EditBoxImplAndroid::createNativeControl(const Rect& frame)
     auto director = cocos2d::Director::getInstance();
     auto glView = director->getOpenGLView();
     auto frameSize = glView->getFrameSize();
-    
+
     auto winSize = director->getWinSize();
     auto leftBottom = _editBox->convertToWorldSpace(Point::ZERO);
-    
+
     auto contentSize = frame.size;
     auto rightTop = _editBox->convertToWorldSpace(Point(contentSize.width, contentSize.height));
-    
+
     auto uiLeft = frameSize.width / 2 + (leftBottom.x - winSize.width / 2 ) * glView->getScaleX();
     auto uiTop = frameSize.height /2 - (rightTop.y - winSize.height / 2) * glView->getScaleY();
     auto uiWidth = (rightTop.x - leftBottom.x) * glView->getScaleX();
     auto uiHeight = (rightTop.y - leftBottom.y) * glView->getScaleY();
     LOGD("scaleX = %f", glView->getScaleX());
     _editBoxIndex = JniHelper::callStaticIntMethod(editBoxClassName, "createEditBox",
-                                                   (int)uiLeft, (int)uiTop, (int)uiWidth, (int)uiHeight, 
+                                                   (int)uiLeft, (int)uiTop, (int)uiWidth, (int)uiHeight,
                                                    (float)glView->getScaleX());
     s_allEditBoxes[_editBoxIndex] = this;
 }
@@ -112,14 +112,14 @@ void EditBoxImplAndroid::setNativeFont(const char* pFontName, int fontSize)
 {
     auto director = cocos2d::Director::getInstance();
     auto glView = director->getOpenGLView();
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setFont", 
-                                    _editBoxIndex, pFontName, 
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setFont",
+                                    _editBoxIndex, pFontName,
                                     (float)fontSize * glView->getScaleX());
 }
 
 void EditBoxImplAndroid::setNativeFontColor(const Color4B& color)
 {
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setFontColor", _editBoxIndex, 
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setFontColor", _editBoxIndex,
                                     (int)color.r, (int)color.g, (int)color.b, (int)color.a);
 }
 
@@ -130,13 +130,13 @@ void EditBoxImplAndroid::setNativePlaceholderFont(const char* pFontName, int fon
 
 void EditBoxImplAndroid::setNativePlaceholderFontColor(const Color4B& color)
 {
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setPlaceHolderTextColor", _editBoxIndex, 
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setPlaceHolderTextColor", _editBoxIndex,
                                     (int)color.r, (int)color.g, (int)color.b, (int)color.a);
 }
 
 void EditBoxImplAndroid::setNativeInputMode(EditBox::InputMode inputMode)
 {
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setInputMode", 
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setInputMode",
                                     _editBoxIndex, static_cast<int>(inputMode));
 }
 
@@ -148,13 +148,13 @@ void EditBoxImplAndroid::setNativeMaxLength(int maxLength)
 
 void EditBoxImplAndroid::setNativeInputFlag(EditBox::InputFlag inputFlag)
 {
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setInputFlag", 
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setInputFlag",
                                     _editBoxIndex, static_cast<int>(inputFlag));
 }
 
 void EditBoxImplAndroid::setNativeReturnType(EditBox::KeyboardReturnType returnType)
 {
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setReturnType", 
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setReturnType",
                                     _editBoxIndex, static_cast<int>(returnType));
 }
 
@@ -181,8 +181,8 @@ void EditBoxImplAndroid::setNativeVisible(bool visible)
 
 void EditBoxImplAndroid::updateNativeFrame(const Rect& rect)
 {
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setEditBoxViewRect", _editBoxIndex, 
-                                    (int)rect.origin.x, (int)rect.origin.y, 
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setEditBoxViewRect", _editBoxIndex,
+                                    (int)rect.origin.x, (int)rect.origin.y,
                                     (int)rect.size.width, (int)rect.size.height);
 }
 

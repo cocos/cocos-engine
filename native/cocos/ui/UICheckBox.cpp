@@ -27,7 +27,7 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 namespace ui {
-    
+
 IMPLEMENT_CLASS_GUI_INFO(CheckBox)
 
 CheckBox::CheckBox():
@@ -52,7 +52,7 @@ CheckBox* CheckBox::create()
     CC_SAFE_DELETE(widget);
     return nullptr;
 }
-    
+
 CheckBox* CheckBox::create(const std::string& backGround,
                            const std::string& backGroundSeleted,
                            const std::string& cross,
@@ -74,7 +74,7 @@ CheckBox* CheckBox::create(const std::string& backGround,
     CC_SAFE_DELETE(pWidget);
     return nullptr;
 }
-    
+
 CheckBox* CheckBox::create(const std::string& backGround,
                            const std::string& cross,
                            TextureResType texType)
@@ -93,7 +93,7 @@ CheckBox* CheckBox::create(const std::string& backGround,
     CC_SAFE_DELETE(pWidget);
     return nullptr;
 }
-    
+
 void CheckBox::onTouchEnded(Touch *touch, Event *unusedEvent)
 {
     if (_isSelected)
@@ -109,13 +109,13 @@ void CheckBox::onTouchEnded(Touch *touch, Event *unusedEvent)
         dispatchSelectChangedEvent(true);
     }
 }
-    
+
 
 void CheckBox::dispatchSelectChangedEvent(bool selected)
 {
     EventType eventType = (selected ? EventType::SELECTED : EventType::UNSELECTED);
     CheckBoxEventType checkBoxEventType = (selected ? CHECKBOX_STATE_EVENT_SELECTED : CHECKBOX_STATE_EVENT_UNSELECTED);
-    
+
     this->retain();
     if (_checkBoxEventCallback)
     {
@@ -125,13 +125,13 @@ void CheckBox::dispatchSelectChangedEvent(bool selected)
     {
         _ccEventCallback(this, static_cast<int>(eventType));
     }
-    
+
     if (_checkBoxEventListener && _checkBoxEventSelector)
     {
         (_checkBoxEventListener->*_checkBoxEventSelector)(this, checkBoxEventType);
     }
     this->release();
-    
+
 }
 
 void CheckBox::addEventListenerCheckBox(Ref *target, SEL_SelectedStateEvent selector)
@@ -144,7 +144,7 @@ void CheckBox::addEventListener(const ccCheckBoxCallback& callback)
 {
     _checkBoxEventCallback = callback;
 }
-    
+
 std::string CheckBox::getDescription() const
 {
     return "CheckBox";
@@ -171,3 +171,4 @@ void CheckBox::copySpecialProperties(Widget *widget)
 }
 
 NS_CC_END
+

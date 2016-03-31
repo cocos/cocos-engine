@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,13 +39,13 @@ bool CC_DLL cc_assert_script_compatible(const char *msg)
             return true;
         }
     }
-    
+
     return false;
 }
 
 NS_CC_BEGIN
 
-// 
+//
 // // ScriptHandlerEntry
 
 ScriptHandlerEntry* ScriptHandlerEntry::create(int handler)
@@ -65,7 +65,7 @@ ScriptHandlerEntry::~ScriptHandlerEntry()
     _handler = 0;
 }
 
-// 
+//
 // // SchedulerScriptHandlerEntry
 
 SchedulerScriptHandlerEntry* SchedulerScriptHandlerEntry::create(int handler, float interval, bool paused)
@@ -92,7 +92,7 @@ SchedulerScriptHandlerEntry::~SchedulerScriptHandlerEntry()
 }
 
 
-// 
+//
 // // TouchScriptHandlerEntry
 
 TouchScriptHandlerEntry* TouchScriptHandlerEntry::create(int handler,
@@ -115,11 +115,11 @@ bool TouchScriptHandlerEntry::init(bool isMultiTouches, int priority, bool swall
     _isMultiTouches = isMultiTouches;
     _priority = priority;
     _swallowsTouches = swallowsTouches;
-    
+
     return true;
 }
 
-// 
+//
 // // ScriptEngineManager
 
 ScriptEngineManager* ScriptEngineManager::ShareInstance = nullptr;
@@ -168,19 +168,19 @@ void ScriptEngineManager::destroyInstance()
 bool ScriptEngineManager::sendActionEventToJS(Action* actionObject, int eventType, void* param)
 {
     auto scriptEngine = getInstance()->getScriptEngine();
-    
+
     ActionObjectScriptData data(actionObject,(int*)&eventType, param);
     ScriptEvent scriptEvent(kScriptActionEvent,(void*)&data);
     if (scriptEngine->sendEvent(&scriptEvent))
         return true;
-    
+
     return false;
 }
 
 bool ScriptEngineManager::sendNodeEventToJS(Node* node, int action)
 {
     auto scriptEngine = getInstance()->getScriptEngine();
-    
+
     if (scriptEngine->isCalledFromScript())
     {
         // Should only be invoked at root class Node
@@ -193,14 +193,14 @@ bool ScriptEngineManager::sendNodeEventToJS(Node* node, int action)
         if (scriptEngine->sendEvent(&scriptEvent))
             return true;
     }
-    
+
     return false;
 }
 
 bool ScriptEngineManager::sendNodeEventToJSExtended(Node* node, int action)
 {
     auto scriptEngine = getInstance()->getScriptEngine();
-    
+
     if (!scriptEngine->isCalledFromScript())
     {
         BasicScriptData data(node,(void*)&action);
@@ -208,20 +208,21 @@ bool ScriptEngineManager::sendNodeEventToJSExtended(Node* node, int action)
         if (scriptEngine->sendEvent(&scriptEvent))
             return true;
     }
-    
+
     return false;
 }
 
 void ScriptEngineManager::sendNodeEventToLua(Node* node, int action)
 {
     auto scriptEngine = getInstance()->getScriptEngine();
-    
+
     BasicScriptData data(node,(void*)&action);
     ScriptEvent scriptEvent(kNodeEvent,(void*)&data);
-    
+
     scriptEngine->sendEvent(&scriptEvent);
 }
 
 NS_CC_END
 
 #endif // #if CC_ENABLE_SCRIPT_BINDING
+

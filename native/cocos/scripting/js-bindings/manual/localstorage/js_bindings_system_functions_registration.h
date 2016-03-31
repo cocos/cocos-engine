@@ -14,3 +14,4 @@ JS_DefineFunction(_cx, system, "clear", JSB_localStorageClear, 0, JSPROP_READONL
 
 
 //#endif // JSB_INCLUDE_SYSTEM
+

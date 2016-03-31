@@ -138,12 +138,12 @@ public:
      @param    isToRGB        whether the image is saved as RGB format.
      */
     bool saveToFile(const std::string &filename, bool isToRGB = true);
-    
-    
+
+
     /** treats (or not) PVR files as if they have alpha premultiplied.
      Since it is impossible to know at runtime if the PVR images have the alpha channel premultiplied, it is
      possible load them as if they have (or not) the alpha channel premultiplied.
-     
+
      By default it is disabled.
      */
     static void setPVRImagesHavePremultipliedAlpha(bool haveAlphaPremultiplied);
@@ -164,9 +164,9 @@ protected:
 
     bool saveImageToPNG(const std::string& filePath, bool isToRGB = true);
     bool saveImageToJPG(const std::string& filePath);
-    
+
     void premultipliedAlpha();
-    
+
 protected:
     /**
      @brief Determine how many mipmaps can we have.
@@ -191,7 +191,7 @@ protected:
     // noncopyable
     Image(const Image&    rImg);
     Image & operator=(const Image&);
-    
+
     /*
      @brief The same result as with initWithImageFile, but thread safe. It is caused by
      loadImage() in TextureCache.cpp.
@@ -200,7 +200,7 @@ protected:
      @return  true if loaded correctly.
      */
     bool initWithImageFileThreadSafe(const std::string& fullpath);
-    
+
     Format detectFormat(const unsigned char * data, ssize_t dataLen);
     bool isPng(const unsigned char * data, ssize_t dataLen);
     bool isJpg(const unsigned char * data, ssize_t dataLen);
@@ -219,3 +219,4 @@ NS_CC_END
 
 /// @endcond
 #endif    // __CC_IMAGE_H__
+

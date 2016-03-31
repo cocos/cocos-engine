@@ -443,3 +443,4 @@ void Text::copySpecialProperties(Widget *widget)
 }
 
 NS_CC_END
+

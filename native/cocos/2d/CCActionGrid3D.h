@@ -35,7 +35,7 @@ NS_CC_BEGIN
  * @{
  */
 
-/** 
+/**
 @brief Waves3D action.
 @details This action is used for take effect on the target node as 3D waves.
         You can control the effect by these parameters:
@@ -79,12 +79,12 @@ public:
     // Overrides
     virtual Waves3D* clone() const override;
     virtual void update(float time) override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Waves3D() {}
     virtual ~Waves3D() {}
 
-    /** 
+    /**
     @brief Initializes an action with duration, grid size, waves and amplitude.
     @param duration Specify the duration of the Waves3D action. It's a value in seconds.
     @param gridSize Specify the size of the grid.
@@ -120,19 +120,19 @@ public:
     // Override
     virtual FlipX3D* clone() const override;
     virtual void update(float time) override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     FlipX3D() {}
     virtual ~FlipX3D() {}
 
-    /** 
+    /**
     @brief Initializes an action with duration.
     @param duration Specify the duration of the FlipX3D action. It's a value in seconds.
     @return If the initialization success, return true; otherwise, return false.
     */
     bool initWithDuration(float duration);
 
-    /** 
+    /**
     @brief Initializes an action with duration and grid size.
     @param gridSize Specify the grid size of the FlipX3D action.
     @param duration Specify the duration of the FlipX3D action. It's a value in seconds.
@@ -222,7 +222,7 @@ public:
     // Overrides
     virtual Lens3D* clone() const override;
     virtual void update(float time) override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Lens3D() {}
     virtual ~Lens3D() {}
@@ -348,7 +348,7 @@ private:
 class CC_DLL Shaky3D : public Grid3DAction
 {
 public:
-    /** 
+    /**
     @brief Create the action with a range, shake Z vertices, a grid and duration.
     @param initWithDuration Specify the duration of the Shaky3D action. It's a value in seconds.
     @param gridSize Specify the size of the grid.
@@ -361,12 +361,12 @@ public:
     // Overrides
     virtual Shaky3D* clone() const override;
     virtual void update(float time) override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Shaky3D() {}
     virtual ~Shaky3D() {}
-    
-    /** 
+
+    /**
     @brief Initializes the action with a range, shake Z vertices, grid size and duration.
     @param duration Specify the duration of the Shaky3D action. It's a value in seconds.
     @param gridSize Specify the size of the grid.
@@ -428,11 +428,11 @@ public:
     // Overrides
     virtual Liquid* clone() const override;
     virtual void update(float time) override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Liquid() {}
     virtual ~Liquid() {}
-    
+
     /**
     @brief Initializes the action with amplitude, grid size, waves count and duration.
     @param duration Specify the duration of the Liquid action. It's a value in seconds.
@@ -499,11 +499,11 @@ public:
     // Overrides
     virtual Waves* clone() const override;
     virtual void update(float time) override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Waves() {}
     virtual ~Waves() {}
-    
+
     /**
     @brief Initializes the action with amplitude, horizontal sin, vertical sin, grid size, waves count and duration.
     @param duration Specify the duration of the Waves action. It's a value in seconds.
@@ -584,7 +584,7 @@ public:
     // Overrides
     virtual Twirl* clone() const override;
     virtual void update(float time) override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Twirl() {}
     virtual ~Twirl() {}
@@ -617,3 +617,4 @@ private:
 NS_CC_END
 
 #endif // __ACTION_CCGRID3D_ACTION_H__
+

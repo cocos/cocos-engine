@@ -84,7 +84,7 @@ void ActionEase::stop(void)
     if (_inner) {
         _inner->stop();
     }
-    
+
     ActionInterval::stop();
 }
 
@@ -110,7 +110,7 @@ EaseRateAction* EaseRateAction::create(ActionInterval* action, float rate)
         easeRateAction->autorelease();
         return easeRateAction;
     }
-    
+
     delete easeRateAction;
     return nullptr;
 }
@@ -153,7 +153,7 @@ EaseIn* EaseIn::clone() const
     if (_inner) {
         return EaseIn::create(_inner->clone(), _rate);
     }
-    
+
     return nullptr;
 }
 
@@ -189,7 +189,7 @@ EaseOut* EaseOut::clone() const
     if (_inner) {
         return EaseOut::create(_inner->clone(), _rate);
     }
-    
+
     return nullptr;
 }
 
@@ -225,7 +225,7 @@ EaseInOut* EaseInOut::clone() const
     if (_inner) {
         return EaseInOut::create(_inner->clone(), _rate);
     }
-    
+
     return nullptr;
 }
 
@@ -262,7 +262,7 @@ EaseExponentialIn* EaseExponentialIn::clone() const
     if (_inner) {
         return EaseExponentialIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -298,7 +298,7 @@ EaseExponentialOut* EaseExponentialOut::clone() const
     if (_inner) {
         EaseExponentialOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -335,7 +335,7 @@ EaseExponentialInOut* EaseExponentialInOut::clone() const
     if (_inner) {
         return EaseExponentialInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -372,7 +372,7 @@ EaseSineIn* EaseSineIn::clone() const
     if (_inner) {
         return EaseSineIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -409,7 +409,7 @@ EaseSineOut* EaseSineOut::clone() const
     if (_inner) {
         return EaseSineOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -446,7 +446,7 @@ EaseSineInOut* EaseSineInOut::clone() const
     if (_inner) {
         return EaseSineInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -503,7 +503,7 @@ EaseElasticIn* EaseElasticIn::clone() const
     if (_inner) {
         return EaseElasticIn::create(_inner->clone(), _period);
     }
-    
+
     return nullptr;
 }
 
@@ -545,7 +545,7 @@ EaseElasticOut* EaseElasticOut::clone() const
     if (_inner) {
         return EaseElasticOut::create(_inner->clone(), _period);
     }
-    
+
     return nullptr;
 }
 
@@ -576,7 +576,7 @@ EaseElasticInOut* EaseElasticInOut::create(ActionInterval *action, float period/
         ret->autorelease();
         return ret;
     }
-    
+
     delete ret;
     return nullptr;
 }
@@ -587,7 +587,7 @@ EaseElasticInOut* EaseElasticInOut::clone() const
     if (_inner) {
         return EaseElasticInOut::create(_inner->clone(), _period);
     }
-    
+
     return nullptr;
 }
 
@@ -628,7 +628,7 @@ EaseBounceIn* EaseBounceIn::clone() const
     if (_inner) {
         return EaseBounceIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -665,7 +665,7 @@ EaseBounceOut* EaseBounceOut::clone() const
     if (_inner) {
         return EaseBounceOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -702,7 +702,7 @@ EaseBounceInOut* EaseBounceInOut::clone() const
     if (_inner) {
         return EaseBounceInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -831,7 +831,7 @@ EaseBezierAction* EaseBezierAction::create(cocos2d::ActionInterval* action)
 {
     EaseBezierAction *ret = new (std::nothrow) EaseBezierAction();
     if (ret && ret->initWithAction(action))
-    {  
+    {
         ret->autorelease();
         return ret;
     }
@@ -858,7 +858,7 @@ EaseBezierAction* EaseBezierAction::clone() const
         }
         return ret;
     }
-    
+
     return nullptr;
 }
 
@@ -897,7 +897,7 @@ EaseQuadraticActionIn* EaseQuadraticActionIn::clone() const
     if (_inner) {
         return EaseQuadraticActionIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -934,7 +934,7 @@ EaseQuadraticActionOut* EaseQuadraticActionOut::clone() const
     if (_inner) {
         return EaseQuadraticActionOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -971,7 +971,7 @@ EaseQuadraticActionInOut* EaseQuadraticActionInOut::clone() const
     if (_inner) {
         return EaseQuadraticActionInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1007,7 +1007,7 @@ EaseQuarticActionIn* EaseQuarticActionIn::clone() const
     if (_inner) {
         return EaseQuarticActionIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1043,7 +1043,7 @@ EaseQuarticActionOut* EaseQuarticActionOut::clone() const
     if (_inner) {
         return EaseQuarticActionOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1079,7 +1079,7 @@ EaseQuarticActionInOut* EaseQuarticActionInOut::clone() const
     if (_inner) {
         return EaseQuarticActionInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1115,7 +1115,7 @@ EaseQuinticActionIn* EaseQuinticActionIn::clone() const
     if (_inner) {
         return EaseQuinticActionIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1151,7 +1151,7 @@ EaseQuinticActionOut* EaseQuinticActionOut::clone() const
     if (_inner) {
         return EaseQuinticActionOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1187,7 +1187,7 @@ EaseQuinticActionInOut* EaseQuinticActionInOut::clone() const
     if (_inner) {
         return EaseQuinticActionInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1223,7 +1223,7 @@ EaseCircleActionIn* EaseCircleActionIn::clone() const
     if (_inner) {
         return EaseCircleActionIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1259,7 +1259,7 @@ EaseCircleActionOut* EaseCircleActionOut::clone() const
     if (_inner) {
         return EaseCircleActionOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1295,7 +1295,7 @@ EaseCircleActionInOut* EaseCircleActionInOut::clone() const
     if (_inner) {
         return EaseCircleActionInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1332,7 +1332,7 @@ EaseCubicActionIn* EaseCubicActionIn::clone() const
     if (_inner) {
         return EaseCubicActionIn::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1369,7 +1369,7 @@ EaseCubicActionOut* EaseCubicActionOut::clone() const
     if (_inner) {
         return EaseCubicActionOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1406,7 +1406,7 @@ EaseCubicActionInOut* EaseCubicActionInOut::clone() const
     if (_inner) {
         return EaseCubicActionInOut::create(_inner->clone());
     }
-    
+
     return nullptr;
 }
 
@@ -1420,8 +1420,9 @@ EaseCubicActionInOut* EaseCubicActionInOut::reverse() const
     if (_inner) {
         return EaseCubicActionInOut::create(_inner->reverse());
     }
-    
+
     return nullptr;
 }
 
 NS_CC_END
+

@@ -2,19 +2,19 @@
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
  Copyright (c) 2013-2015 zilongshanren
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -56,7 +56,7 @@ EditBoxImplIOS::EditBoxImplIOS(EditBox* pEditText)
 , _systemControl(nullptr)
 , _anchorPoint(Vec2(0.5f, 0.5f))
 {
-    
+
 }
 
 EditBoxImplIOS::~EditBoxImplIOS()
@@ -64,7 +64,7 @@ EditBoxImplIOS::~EditBoxImplIOS()
     [_systemControl release];
     _systemControl = nil;
 }
-    
+
 void EditBoxImplIOS::createNativeControl(const Rect& frame)
 {
     auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
@@ -75,7 +75,7 @@ void EditBoxImplIOS::createNativeControl(const Rect& frame)
 
     rect.size.width /= factor;
     rect.size.height /= factor;
-    
+
     _systemControl = [[UIEditBoxImplIOS_objc alloc] initWithFrame:CGRectMake(rect.origin.x,
                                                                              rect.origin.y,
                                                                              rect.size.width,
@@ -95,7 +95,7 @@ void EditBoxImplIOS::doAnimationWhenKeyboardMove(float duration, float distance)
         [_systemControl doAnimationWhenKeyboardMoveWithDuration:duration distance:distance];
     }
 }
-    
+
 void EditBoxImplIOS::setNativeFont(const char* pFontName, int fontSize)
 {
     UIFont* textFont = constructFont(pFontName, fontSize);
@@ -103,7 +103,7 @@ void EditBoxImplIOS::setNativeFont(const char* pFontName, int fontSize)
         [_systemControl setFont:textFont];
     }
 }
-    
+
 void EditBoxImplIOS::setNativeFontColor(const Color4B& color)
 {
     _systemControl.textColor = [UIColor colorWithRed:color.r / 255.0f
@@ -132,7 +132,7 @@ void EditBoxImplIOS::setNativeInputFlag(EditBox::InputFlag inputFlag)
 {
     [_systemControl setInputFlag:inputFlag];
 }
-    
+
 NSString* removeSiriString(NSString* str)
 {
     NSString* siriString = @"\xef\xbf\xbc";
@@ -179,7 +179,7 @@ void EditBoxImplIOS::setNativeContentSize(const Size& size)
     auto glview = director->getOpenGLView();
     CCEAGLView *eaglview = static_cast<CCEAGLView *>(glview->getEAGLView());
     float factor = eaglview.contentScaleFactor;
-    
+
     [_systemControl setContentSize:CGSizeMake(size.width / factor, size.height / factor)];
 }
 
@@ -199,7 +199,7 @@ void EditBoxImplIOS::nativeCloseKeyboard()
 {
     [_systemControl closeKeyboard];
 }
-    
+
 UIFont* EditBoxImplIOS::constructFont(const char *fontName, int fontSize)
 {
     CCASSERT(fontName != nullptr, "fontName can't be nullptr");
@@ -207,10 +207,10 @@ UIFont* EditBoxImplIOS::constructFont(const char *fontName, int fontSize)
     float retinaFactor = eaglview.contentScaleFactor;
     NSString * fntName = [NSString stringWithUTF8String:fontName];
     fntName = [[fntName lastPathComponent] stringByDeletingPathExtension];
-    
+
     auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
     float scaleFactor = glview->getScaleX();
-    
+
     if (fontSize == -1)
     {
         fontSize = _systemControl.frameRect.size.height*2/3;
@@ -219,7 +219,7 @@ UIFont* EditBoxImplIOS::constructFont(const char *fontName, int fontSize)
     {
         fontSize = fontSize * scaleFactor / retinaFactor;
     }
-    
+
     UIFont *textFont = nil;
     if (strlen(fontName) > 0)
     {
@@ -231,7 +231,7 @@ UIFont* EditBoxImplIOS::constructFont(const char *fontName, int fontSize)
     }
     return textFont;
 }
-    
+
 void EditBoxImplIOS::setPosition(const Vec2& pos)
 {
     _position = pos;
@@ -256,18 +256,18 @@ static CGPoint convertDesignCoordToScreenCoord(const Vec2& designCoord)
 {
     auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *) glview->getEAGLView();
-    
+
     float viewH = (float)[eaglview getHeight];
-    
+
     Vec2 visiblePos = Vec2(designCoord.x * glview->getScaleX(), designCoord.y * glview->getScaleY());
     Vec2 screenGLPos = visiblePos + glview->getViewPortRect().origin;
-    
+
     CGPoint screenPos = CGPointMake(screenGLPos.x, viewH - screenGLPos.y);
-    
+
     float factor = eaglview.contentScaleFactor;
     screenPos.x = screenPos.x / factor;
     screenPos.y = screenPos.y / factor;
-    
+
     CCLOGINFO("[EditBox] pos x = %f, y = %f", screenGLPos.x, screenGLPos.y);
     return screenPos;
 }
@@ -278,7 +278,7 @@ void EditBoxImplIOS::adjustTextFieldPosition()
     Size contentSize = _editBox->getContentSize();
     Rect rect = Rect(0, 0, contentSize.width, contentSize.height);
     rect = RectApplyTransform(rect, _editBox->getNodeToWorldTransform());
-    
+
     Vec2 designCoord = Vec2(rect.origin.x, rect.origin.y + rect.size.height);
     [_systemControl setPosition:convertDesignCoordToScreenCoord(designCoord)];
 }
@@ -288,5 +288,4 @@ void EditBoxImplIOS::adjustTextFieldPosition()
 NS_CC_END
 
 #endif /* #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) */
-
 

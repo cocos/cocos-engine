@@ -4,17 +4,17 @@
  *
  * Copyright 2012 Yannick Loriot. All rights reserved.
  * http://yannickloriot.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -78,13 +78,13 @@ bool ControlPotentiometer::initWithTrackSprite_ProgressTimer_ThumbSprite(Sprite*
         setProgressTimer(progressTimer);
         setThumbSprite(thumbSprite);
         thumbSprite->setPosition(progressTimer->getPosition());
-        
+
         addChild(thumbSprite, 2);
         addChild(progressTimer, 1);
         addChild(trackSprite);
-        
+
         setContentSize(trackSprite->getContentSize());
-        
+
         // Init default values
         _minimumValue           = 0.0f;
         _maximumValue           = 1.0f;
@@ -110,20 +110,20 @@ void ControlPotentiometer::setValue(float value)
     {
         value                   = _minimumValue;
     }
-    
-    if (value > _maximumValue) 
+
+    if (value > _maximumValue)
     {
         value                   = _maximumValue;
     }
-    
+
     _value                      = value;
-    
+
     // Update thumb and progress position for new value
     float percent               = (value - _minimumValue) / (_maximumValue - _minimumValue);
     _progressTimer->setPercentage(percent * 100.0f);
     _thumbSprite->setRotation(percent * 360.0f);
-    
-    sendActionsForControlEvents(Control::EventType::VALUE_CHANGED);    
+
+    sendActionsForControlEvents(Control::EventType::VALUE_CHANGED);
 }
 
 float ControlPotentiometer::getValue()
@@ -134,12 +134,12 @@ float ControlPotentiometer::getValue()
 void ControlPotentiometer::setMinimumValue(float minimumValue)
 {
     _minimumValue       = minimumValue;
-    
+
     if (_minimumValue >= _maximumValue)
     {
         _maximumValue   = _minimumValue + 1.0f;
     }
-    
+
     setValue(_maximumValue);
 }
 
@@ -151,12 +151,12 @@ float ControlPotentiometer::getMinimumValue()
 void ControlPotentiometer::setMaximumValue(float maximumValue)
 {
     _maximumValue       = maximumValue;
-    
+
     if (_maximumValue <= _minimumValue)
     {
         _minimumValue   = _maximumValue - 1.0f;
     }
-    
+
     setValue(_minimumValue);
 }
 
@@ -168,7 +168,7 @@ float ControlPotentiometer::getMaximumValue()
 bool ControlPotentiometer::isTouchInside(Touch * touch)
 {
     Vec2 touchLocation   = this->getTouchLocation(touch);
-    
+
     float distance          = this->distanceBetweenPointAndPoint(_progressTimer->getPosition(), touchLocation);
 
     return distance < MIN(getContentSize().width / 2, getContentSize().height / 2);
@@ -180,11 +180,11 @@ bool ControlPotentiometer::onTouchBegan(Touch *pTouch, Event *pEvent)
     {
         return false;
     }
-    
+
     _previousLocation    = this->getTouchLocation(pTouch);
-    
+
     this->potentiometerBegan(_previousLocation);
-    
+
     return true;
 }
 
@@ -208,7 +208,7 @@ float ControlPotentiometer::distanceBetweenPointAndPoint(Vec2 point1, Vec2 point
 }
 
 float ControlPotentiometer::angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint(
-    Vec2 beginLineA, 
+    Vec2 beginLineA,
     Vec2 endLineA,
     Vec2 beginLineB,
     Vec2 endLineB)
@@ -217,10 +217,10 @@ float ControlPotentiometer::angleInDegreesBetweenLineFromPoint_toPoint_toLineFro
     float b = endLineA.y - beginLineA.y;
     float c = endLineB.x - beginLineB.x;
     float d = endLineB.y - beginLineB.y;
-    
+
     float atanA = atan2(a, b);
     float atanB = atan2(c, d);
-    
+
     // convert radiants to degrees
     return (atanA - atanB) * 180 / M_PI;
 }
@@ -238,7 +238,7 @@ void ControlPotentiometer::potentiometerMoved(Vec2 location)
         location,
         _progressTimer->getPosition(),
         _previousLocation);
-    
+
     // fix value, if the 12 o'clock position is between location and previousLocation
     if (angle > 180)
     {
@@ -250,7 +250,7 @@ void ControlPotentiometer::potentiometerMoved(Vec2 location)
     }
 
     setValue(_value + angle / 360.0f * (_maximumValue - _minimumValue));
-    
+
     _previousLocation    = location;
 }
 
@@ -261,3 +261,4 @@ void ControlPotentiometer::potentiometerEnded(Vec2 location)
 }
 
 NS_CC_EXT_END
+

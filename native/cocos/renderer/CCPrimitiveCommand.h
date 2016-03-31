@@ -37,7 +37,7 @@ NS_CC_BEGIN
 class GLProgramState;
 /**
  Command used to render primitive, similar to QuadCommand.
- Every QuadCommand will have generate material ID by give textureID, glProgramState, Blend function. 
+ Every QuadCommand will have generate material ID by give textureID, glProgramState, Blend function.
  However, primitive command could not be batched.
  */
 class CC_DLL PrimitiveCommand : public RenderCommand
@@ -48,9 +48,9 @@ public:
      */
     PrimitiveCommand();
     ~PrimitiveCommand();
-    
+
     /**@}*/
-    
+
     /** Initializes the command.
      @param globalOrder GlobalZOrder of the command.
      @param textureID The openGL handle of the used texture.
@@ -61,7 +61,7 @@ public:
      @param flags to indicate that the command is using 3D rendering or not.
      */
     void init(float globalOrder, GLuint textureID, GLProgramState* glProgramState, BlendFunc blendType, Primitive* primitive, const Mat4& mv, uint32_t flags);
-    
+
     /**Get the generated material ID.*/
     inline uint32_t getMaterialID() const { return _materialID; }
     /**Get the texture ID used for drawing.*/
@@ -75,7 +75,7 @@ public:
     /**Execute and draw the command, called by renderer.*/
     void execute() const;
 protected:
-    
+
     uint32_t _materialID;
     GLuint _textureID;
     GLProgramState* _glProgramState;
@@ -91,3 +91,4 @@ NS_CC_END
  @}
  */
 #endif //_CC_PRIMITIVE_COMMAND_H__
+

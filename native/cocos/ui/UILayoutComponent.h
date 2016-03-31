@@ -141,15 +141,15 @@ namespace ui {
         /**
          * Change the position of component owner.
          * @param position A position in (x,y)
-         */ 
+         */
         void setPosition(const Point& position);
 
         /**
-         * Whether position percentX is enabled or not. 
+         * Whether position percentX is enabled or not.
          *@return True if position percentX is enable, false otherwise.
          */
         bool isPositionPercentXEnabled()const;
-        
+
         /**
          * Toggle position percentX enabled.
          *@param isUsed  True if enable position percentX, false otherwise.
@@ -338,7 +338,7 @@ namespace ui {
         void setSizeHeight(float height);
 
         /**
-         * Query percent height of owner.         
+         * Query percent height of owner.
          *@return Percent height in float.
          */
         float getPercentHeight()const;
@@ -372,7 +372,7 @@ namespace ui {
          *@param isUsed True if stretch height is enabled, false otherwise.
          */
         void setStretchHeightEnabled(bool isUsed);
-        
+
         /**
          * Toggle enable percent only.
          *@param enable True if percent only is enabled, false otherwise.
@@ -413,7 +413,7 @@ namespace ui {
 
         float           _percentWidth;
         bool            _usingPercentWidth;
-        
+
         float           _percentHeight;
         bool            _usingPercentHeight;
 
@@ -426,3 +426,4 @@ namespace ui {
 /// @}
 NS_CC_END
 #endif /* defined(__cocos2d_libs__LayoutComponent__) */
+

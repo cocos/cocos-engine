@@ -106,7 +106,7 @@ protected:
     *  @return True if the directory have been removed successfully, false if not.
     */
     virtual bool removeDirectory(const std::string& dirPath) override;
-    
+
     /**
      *  Gets resource file data
      *
@@ -122,7 +122,7 @@ protected:
      *  Gets string from a file.
      */
     virtual std::string getStringFromFile(const std::string& filename) override;
-    
+
     /**
      *  Creates binary data from a file.
      *  @return A data object.

@@ -47,7 +47,7 @@ bool jsval_to_animationInfo(JSContext* cx, JS::HandleValue vp, cocostudio::timel
     JS::RootedValue jsEndId(cx);
     std::string name;
     double startIndex, endIndex;
-    
+
     bool ok = vp.isObject() &&
     JS_ValueToObject(cx, vp, &tmp) &&
     JS_GetProperty(cx, tmp, "name", &jsName) &&
@@ -57,11 +57,12 @@ bool jsval_to_animationInfo(JSContext* cx, JS::HandleValue vp, cocostudio::timel
     JS::ToNumber(cx, jsEndId, &endIndex) &&
     jsval_to_std_string(cx, jsName, &name) &&
     !isnan(startIndex) && !isnan(endIndex);
-    
+
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-    
+
     ret->name = name;
     ret->startIndex = (int)startIndex;
     ret->endIndex = (int)endIndex;
     return true;
 }
+

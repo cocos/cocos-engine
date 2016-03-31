@@ -80,7 +80,7 @@ static void lazy_init()
         //
         s_shader = GLProgramCache::getInstance()->getGLProgram(GLProgram::SHADER_NAME_POSITION_U_COLOR);
         s_shader->retain();
-        
+
         s_colorLocation = s_shader->getUniformLocation("u_color");
         CHECK_GL_ERROR_DEBUG();
         s_pointSizeLocation = s_shader->getUniformLocation("u_pointSize");
@@ -323,36 +323,36 @@ void drawCircle( const Vec2& center, float radius, float angle, unsigned int seg
 void drawSolidCircle( const Vec2& center, float radius, float angle, unsigned int segments, float scaleX, float scaleY)
 {
     lazy_init();
-    
+
     const float coef = 2.0f * (float)M_PI/segments;
-    
+
     GLfloat *vertices = (GLfloat*)calloc( sizeof(GLfloat)*2*(segments+2), 1);
     if( ! vertices )
         return;
-    
+
     for(unsigned int i = 0;i <= segments; i++) {
         float rads = i*coef;
         GLfloat j = radius * cosf(rads + angle) * scaleX + center.x;
         GLfloat k = radius * sinf(rads + angle) * scaleY + center.y;
-        
+
         vertices[i*2] = j;
         vertices[i*2+1] = k;
     }
     vertices[(segments+1)*2] = center.x;
     vertices[(segments+1)*2+1] = center.y;
-    
+
     s_shader->use();
     s_shader->setUniformsForBuiltins();
     s_shader->setUniformLocationWith4fv(s_colorLocation, (GLfloat*) &s_color.r, 1);
-    
+
     GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION );
-    
+
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE, 0, vertices);
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei) segments+1);
-    
+
     ::free( vertices );
-    
+
     CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,segments+1);
 }
 
@@ -504,3 +504,4 @@ void setDrawColor4B( GLubyte r, GLubyte g, GLubyte b, GLubyte a )
 #endif
 
 NS_CC_END
+

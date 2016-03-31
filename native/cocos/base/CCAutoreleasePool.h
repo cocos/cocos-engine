@@ -49,7 +49,7 @@ public:
      * @lua NA
      */
     AutoreleasePool();
-    
+
     /**
      * Create an autorelease pool with specific name. This name is useful for debugging.
      * @warning Don't create an autorelease pool in heap, create it in stack.
@@ -59,7 +59,7 @@ public:
      * @param name The name of created autorelease pool.
      */
     AutoreleasePool(const std::string &name);
-    
+
     /**
      * @js NA
      * @lua NA
@@ -88,7 +88,7 @@ public:
      * @lua NA
      */
     void clear();
-    
+
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
     /**
      * Whether the autorelease pool is doing `clear` operation.
@@ -100,7 +100,7 @@ public:
      */
     bool isClearing() const { return _isClearing; };
 #endif
-    
+
     /**
      * Checks whether the autorelease pool contains the specified object.
      *
@@ -121,7 +121,7 @@ public:
      * @lua NA
      */
     void dump();
-    
+
 private:
     /**
      * The underlying array of object managed by the pool.
@@ -134,7 +134,7 @@ private:
      */
     std::vector<Ref*> _managedObjectArray;
     std::string _name;
-    
+
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
     /**
      *  The flag for checking whether the pool is doing `clear` operation.
@@ -153,9 +153,9 @@ class CC_DLL PoolManager
 {
 public:
     static PoolManager* getInstance();
-    
+
     static void destroyInstance();
-    
+
     /**
      * Get current auto release pool, there is at least one auto release pool that created by engine.
      * You can create your own auto release pool at demand, which will be put into auto release pool stack.
@@ -166,16 +166,16 @@ public:
 
 
     friend class AutoreleasePool;
-    
+
 private:
     PoolManager();
     ~PoolManager();
-    
+
     void push(AutoreleasePool *pool);
     void pop();
-    
+
     static PoolManager* s_singleInstance;
-    
+
     std::vector<AutoreleasePool*> _releasePoolStack;
 };
 /**
@@ -185,3 +185,4 @@ private:
 NS_CC_END
 
 #endif //__AUTORELEASEPOOL_H__
+

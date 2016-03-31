@@ -46,7 +46,7 @@ NS_CC_BEGIN
 static void setProgram(Node *n, GLProgram *p)
 {
     n->setGLProgram(p);
-    
+
     auto& children = n->getChildren();
     for(const auto &child : children) {
         setProgram(child, p);
@@ -81,7 +81,7 @@ ClippingNode* ClippingNode::create()
     {
         CC_SAFE_DELETE(ret);
     }
-    
+
     return ret;
 }
 
@@ -96,7 +96,7 @@ ClippingNode* ClippingNode::create(Node *pStencil)
     {
         CC_SAFE_DELETE(ret);
     }
-    
+
     return ret;
 }
 
@@ -122,9 +122,9 @@ void ClippingNode::onEnter()
             return;
     }
 #endif
-    
+
     Node::onEnter();
-    
+
     if (_stencil != nullptr)
     {
         _stencil->onEnter();
@@ -144,9 +144,9 @@ void ClippingNode::onEnterTransitionDidFinish()
             return;
     }
 #endif
-    
+
     Node::onEnterTransitionDidFinish();
-    
+
     if (_stencil != nullptr)
     {
         _stencil->onEnterTransitionDidFinish();
@@ -162,12 +162,12 @@ void ClippingNode::onExitTransitionDidStart()
             return;
     }
 #endif
-    
+
     if (_stencil != nullptr)
     {
         _stencil->onExitTransitionDidStart();
     }
-   
+
     Node::onExitTransitionDidStart();
 }
 
@@ -180,12 +180,12 @@ void ClippingNode::onExit()
             return;
     }
 #endif
-    
+
     if (_stencil != nullptr)
     {
         _stencil->onExit();
     }
-    
+
     Node::onExit();
 }
 
@@ -194,7 +194,7 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
 {
     if (!_visible || !hasContent())
         return;
-    
+
     uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
     // IMPORTANT:
@@ -205,7 +205,7 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
     _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     //Add group command
-        
+
     _groupCommand.init(_globalZOrder);
     renderer->addCommand(&_groupCommand);
 
@@ -214,7 +214,7 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
     _beforeVisitCmd.init(_globalZOrder);
     _beforeVisitCmd.func = CC_CALLBACK_0(StencilStateManager::onBeforeVisit, _stencilStateManager);
     renderer->addCommand(&_beforeVisitCmd);
-    
+
     auto alphaThreshold = this->getAlphaThreshold();
     if (alphaThreshold < 1)
     {
@@ -229,7 +229,7 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
         // we need to recursively apply this shader to all the nodes in the stencil node
         // FIXME: we should have a way to apply shader to all nodes without having to do this
         setProgram(_stencil, program);
-        
+
 #endif
 
     }
@@ -240,7 +240,7 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
     renderer->addCommand(&_afterDrawStencilCmd);
 
     int i = 0;
-    
+
     if(!_children.empty())
     {
         sortAllChildren();
@@ -248,16 +248,16 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
         for( ; i < _children.size(); i++ )
         {
             auto node = _children.at(i);
-            
+
             if ( node && node->getLocalZOrder() < 0 )
                 node->visit(renderer, _modelViewTransform, flags);
             else
                 break;
         }
-        
+
         // self draw
         draw(renderer, _modelViewTransform, flags);
-        
+
         for(auto it=_children.cbegin()+i; it != _children.cend(); ++it)
             (*it)->visit(renderer, _modelViewTransform, flags);
     }
@@ -271,7 +271,7 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
     renderer->addCommand(&_afterVisitCmd);
 
     renderer->popGroup();
-    
+
     _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
@@ -314,3 +314,4 @@ void ClippingNode::setInverted(bool inverted)
 
 
 NS_CC_END
+

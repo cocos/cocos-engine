@@ -198,7 +198,7 @@ void GLViewImpl::end()
     //runtime版本由宿主（eg：QQ浏览器）负责移除EAGLView
     //CCEAGLView *eaglview = (CCEAGLView*) _eaglview;
     //[eaglview removeFromSuperview];
-    
+
     release();
 }
 
@@ -226,3 +226,4 @@ void GLViewImpl::setIMEKeyboardState(bool open)
 NS_CC_END
 
 #endif // CC_PLATFOR_IOS
+

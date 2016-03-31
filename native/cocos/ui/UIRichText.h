@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2013 cocos2d-x.org
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,7 +37,7 @@ NS_CC_BEGIN
 class Label;
 
 namespace ui {
-    
+
 /**
  *@brief Rich text element base class.
  * It defines the basic common properties for all rich text element.
@@ -55,14 +55,14 @@ public:
         CUSTOM,
         NEWLINE
     };
-    
+
     /**
      * @brief Default constructor.
      * @js ctor
      * @lua new
      */
     RichElement(){};
-    
+
     /**
      * @brief Default destructor.
      * @js NA
@@ -70,7 +70,7 @@ public:
      */
     virtual ~RichElement(){};
 
-    
+
     /**
      * @brief Initialize a rich element with different arguments.
      *
@@ -87,14 +87,14 @@ protected:
     GLubyte _opacity;
     friend class RichText;
 };
-    
+
 /**
  *@brief Rich element for displaying text.
  */
 class CC_GUI_DLL RichElementText : public RichElement
 {
 public:
-    
+
     /**
      *@brief Default constructor.
      * @js ctor
@@ -110,14 +110,14 @@ public:
         STRIKETHROUGH_FLAG = 1 << 3,
         URL_FLAG = 1 << 4
     };
-    
+
     /**
      *@brief Default destructor.
      * @js NA
      * @lua NA
      */
     virtual ~RichElementText(){};
-    
+
     /**
      * @brief Initialize a RichElementText with various arguments.
      *
@@ -132,7 +132,7 @@ public:
      */
     bool init(int tag, const Color3B& color, GLubyte opacity, const std::string& text, const std::string& fontName, float fontSize, uint32_t flags, const std::string& url);
 
-    
+
     /**
      * @brief Create a RichElementText with various arguments.
      *
@@ -154,16 +154,16 @@ protected:
     uint32_t _flags;
     std::string _url;
     friend class RichText;
-    
+
 };
-    
+
 /**
  *@brief Rich element for displaying images.
  */
 class CC_GUI_DLL RichElementImage : public RichElement
 {
 public:
-    
+
     /**
      * @brief Default constructor.
      * @js ctor
@@ -172,7 +172,7 @@ public:
      */
     RichElementImage(){_type = Type::IMAGE;};
 
-    
+
     /**
      * @brief Default destructor.
      * @js NA
@@ -180,7 +180,7 @@ public:
      */
     virtual ~RichElementImage(){};
 
-    
+
     /**
      * @brief Initialize a RichElementImage with various arguments.
      *
@@ -192,7 +192,7 @@ public:
      */
     bool init(int tag, const Color3B& color, GLubyte opacity, const std::string& filePath);
 
-    
+
     /**
      * @brief Create a RichElementImage with various arguments.
      *
@@ -214,14 +214,14 @@ protected:
     int _width;
     int _height;
 };
-    
+
 /**
  *@brief Rich element for displaying custom node type.
  */
 class CC_GUI_DLL RichElementCustomNode : public RichElement
 {
 public:
-    
+
     /**
      * @brief Default constructor.
      * @js ctor
@@ -229,7 +229,7 @@ public:
      */
     RichElementCustomNode(){_type = Type::CUSTOM;};
 
-    
+
     /**
      * @brief Default destructor.
      * @js NA
@@ -237,7 +237,7 @@ public:
      */
     virtual ~RichElementCustomNode(){CC_SAFE_RELEASE(_customNode);};
 
-    
+
     /**
      * @brief Initialize a RichElementCustomNode with various arguments.
      *
@@ -248,7 +248,7 @@ public:
      * @return True if initialize success, false otherwise.
      */
     bool init(int tag, const Color3B& color, GLubyte opacity, Node* customNode);
-    
+
     /**
      * @brief Create a RichElementCustomNode with various arguments.
      *
@@ -263,14 +263,14 @@ protected:
     Node* _customNode;
     friend class RichText;
 };
-    
+
 /**
  *@brief Rich element for new line.
  */
 class CC_GUI_DLL RichElementNewLine : public RichElement
 {
 public:
-    
+
     /**
      * @brief Default constructor.
      * @js ctor
@@ -278,14 +278,14 @@ public:
      *
      */
     RichElementNewLine(){_type = Type::NEWLINE;};
-    
+
     /**
      * @brief Default destructor.
      * @js NA
      * @lua NA
      */
     virtual ~RichElementNewLine(){};
-    
+
     /**
      * @brief Create a RichElementNewLine with various arguments.
      *
@@ -298,7 +298,7 @@ public:
 protected:
     friend class RichText;
 };
-    
+
 /**
  *@brief A container for displaying various RichElements.
  * We could use it to display texts with images easily.
@@ -311,21 +311,21 @@ public:
         WRAP_PER_WORD,
         WRAP_PER_CHAR
     };
-    
+
     /**
      * @brief Default constructor.
      * @js ctor
      * @lua new
      */
     RichText();
-    
+
     /**
      * @brief Default destructor.
      * @js NA
      * @lua NA
      */
     virtual ~RichText();
-    
+
     /**
      * @brief Create a empty RichText.
      *
@@ -347,35 +347,35 @@ public:
      * @param index A given index.
      */
     void insertElement(RichElement* element, int index);
-    
+
     /**
      * @brief Add a RichElement at the end of RichText.
      *
      * @param element A RichElement instance.
      */
     void pushBackElement(RichElement* element);
-    
+
     /**
      * @brief Remove a RichElement at a given index.
      *
      * @param index A integer index value.
      */
     void removeElement(int index);
-    
+
     /**
      * @brief Remove specific RichElement.
      *
      * @param element A RichElement type.
      */
     void removeElement(RichElement* element);
-    
+
     /**
      * @brief Set vertical space between each RichElement.
      *
      * @param space Point in float.
      */
     void setVerticalSpace(float space);
-    
+
     /**
      * @brief Rearrange all RichElement in the RichText.
      * It's usually called internally.
@@ -392,7 +392,7 @@ public:
 
     /** @brief returns the current wrapping mode */
     WrapMode getWrapMode() const;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
 
@@ -420,7 +420,7 @@ protected:
     // per word, or per char
     WrapMode _wrapMode;
 };
-    
+
 }
 
 // end of ui group
@@ -428,3 +428,4 @@ protected:
 NS_CC_END
 
 #endif /* defined(__UIRichText__) */
+

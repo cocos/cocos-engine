@@ -380,3 +380,4 @@ bool TextFieldTTF::isSecureTextEntry()
 }
 
 NS_CC_END
+

@@ -56,10 +56,10 @@ public:
     const IndexBuffer* getIndexData() const;
     /**Get the primitive type.*/
     int getType() const { return _type; }
-    
+
     /**called by rendering framework, will send the data to GLPipeline.*/
     void draw();
-    
+
     /**Get the start index of primitive.*/
     int getStart() const { return _start; }
     /**Get the number of vertices or indices used for drawing.*/
@@ -68,13 +68,13 @@ public:
     void setStart(int start);
     /**Setter for the count. */
     void setCount(int count);
-    
+
 protected:
     Primitive();
     virtual ~Primitive();
-    
+
     bool init(VertexData* verts, IndexBuffer* indices, int type);
-    
+
 protected:
     VertexData* _verts;
     IndexBuffer* _indices;
@@ -90,3 +90,4 @@ NS_CC_END
  @}
  */
 #endif //__CC_PRIMITIVE_H__
+

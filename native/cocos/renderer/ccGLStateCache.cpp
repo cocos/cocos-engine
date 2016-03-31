@@ -77,7 +77,7 @@ void invalidateStateCache( void )
     s_blendingDest = -1;
     s_GLServerState = 0;
     s_VAO = 0;
-    
+
 #endif // CC_ENABLE_GL_STATE_CACHE
 }
 
@@ -196,7 +196,7 @@ void deleteTexture(GLuint textureId)
         }
     }
 #endif // CC_ENABLE_GL_STATE_CACHE
-    
+
     glDeleteTextures(1, &textureId);
 }
 
@@ -221,7 +221,7 @@ void bindVAO(GLuint vaoId)
 {
     if (Configuration::getInstance()->supportsShareableVAO())
     {
-    
+
 #if CC_ENABLE_GL_STATE_CACHE
         if (s_VAO != vaoId)
         {
@@ -231,7 +231,7 @@ void bindVAO(GLuint vaoId)
 #else
         glBindVertexArray(vaoId);
 #endif // CC_ENABLE_GL_STATE_CACHE
-    
+
     }
 }
 
@@ -247,7 +247,7 @@ void enableVertexAttribs(uint32_t flags)
         //FIXME:Cache is disabled, try to enable cache as before
         bool enabled = (flags & bit) != 0;
         bool enabledBefore = (s_attributeFlags & bit) != 0;
-        if(enabled != enabledBefore) 
+        if(enabled != enabledBefore)
         {
             if( enabled )
                 glEnableVertexAttribArray(i);
@@ -268,3 +268,4 @@ void setProjectionMatrixDirty( void )
 } // Namespace GL
 
 NS_CC_END
+

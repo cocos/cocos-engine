@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2015 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,3 +27,4 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 
 public class AppActivity extends Cocos2dxActivity {
 }
+

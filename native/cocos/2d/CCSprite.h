@@ -109,7 +109,7 @@ public:
      * @return  An autoreleased sprite object.
      */
     static Sprite* create(const std::string& filename);
-    
+
     /**
      * Creates a polygon sprite with a polygon info.
      *
@@ -263,7 +263,7 @@ public:
      * Returns the current displayed frame.
      */
     virtual SpriteFrame* getSpriteFrame() const;
-    
+
     /// @} End of frames methods
 
 
@@ -372,7 +372,7 @@ public:
      * @param flippedY true if the sprite should be flipped vertically, false otherwise.
      */
     void setFlippedY(bool flippedY);
-    
+
     /// @} End of Sprite properties getter/setters
 
     //
@@ -453,8 +453,8 @@ CC_CONSTRUCTOR_ACCESS:
      * @return  True if the sprite is initialized properly, false otherwise.
      */
     virtual bool initWithTexture(Texture2D *texture);
-    
-    
+
+
     /**
      * Initializes a sprite with a PolygonInfo.
      *
@@ -535,7 +535,7 @@ CC_CONSTRUCTOR_ACCESS:
      * @lua     init
      */
     virtual bool initWithFile(const std::string& filename, const Rect& rect);
-    
+
     /**
      * returns a copy of the polygon information associated with this sprite
      * because this is a copy process it is slower than getting the reference, so use wisely
@@ -543,7 +543,7 @@ CC_CONSTRUCTOR_ACCESS:
      * @return a copy of PolygonInfo
      */
     PolygonInfo& getPolygonInfo() { return _polyInfo; }
-    
+
     /**
      * set the sprite to use this new PolygonInfo
      *
@@ -615,3 +615,4 @@ private:
 NS_CC_END
 
 #endif // __SPRITE_NODE_CCSPRITE_H__
+

@@ -199,7 +199,7 @@ void MotionStreak::tintWithColor(const Color3B& colors)
     setColor(colors);
 
     // Fast assignation
-    for(unsigned int i = 0; i<_nuPoints*2; i++) 
+    for(unsigned int i = 0; i<_nuPoints*2; i++)
     {
         *((Color3B*) (_colorPointer+i*4)) = colors;
     }
@@ -257,7 +257,7 @@ void MotionStreak::update(float delta)
     {
         return;
     }
-    
+
     delta *= _fadeDelta;
 
     unsigned int newIdx, newIdx2, i, i2;
@@ -377,7 +377,7 @@ void MotionStreak::reset()
 }
 
 void MotionStreak::onDraw(const Mat4 &transform, uint32_t flags)
-{  
+{
     getGLProgram()->use();
     getGLProgram()->setUniformsForBuiltins(transform);
 
@@ -404,3 +404,4 @@ void MotionStreak::draw(Renderer *renderer, const Mat4 &transform, uint32_t flag
 }
 
 NS_CC_END
+

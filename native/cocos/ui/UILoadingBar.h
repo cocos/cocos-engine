@@ -44,9 +44,9 @@ namespace ui {
  */
 class CC_GUI_DLL LoadingBar : public Widget
 {
-    
+
     DECLARE_CLASS_GUI_INFO
-    
+
 public:
     /**
      * Loading bar progress direction.
@@ -63,21 +63,21 @@ public:
      * @lua new
      */
     LoadingBar();
-    
+
     /**
      * Default destructor.
      * @js NA
      * @lua NA
      */
     virtual ~LoadingBar();
-    
+
     /**
      * Create an empty LoadingBar.
      *@return A LoadingBar instance.
      */
     static LoadingBar* create();
-    
-     
+
+
     /**
      * @brief Create a LoadingBar with a texture name and a predefined progress value.
      *
@@ -86,8 +86,8 @@ public:
      * @return A LoadingBar instance.
      */
     static LoadingBar* create(const std::string& textureName, float percentage = 0);
-    
-    
+
+
     /**
      * @brief Create a LoadingBar with a texture name along with its texture type and a predefined progress value.
      *
@@ -99,7 +99,7 @@ public:
     static LoadingBar* create(const std::string& textureName,
                               TextureResType texType,
                               float percentage = 0);
-    
+
     /**
      * Change the progress direction of LoadingBar.
      *
@@ -107,7 +107,7 @@ public:
      * @param direction Direction
      */
     void setDirection(Direction direction);
-    
+
     /**
      * Get the progress direction of LoadingBar.
      *
@@ -115,7 +115,7 @@ public:
      * @return LoadingBar progress direction.
      */
     Direction getDirection()const;
-    
+
     /**
      * Load texture for LoadingBar.
      *
@@ -123,49 +123,49 @@ public:
      * @param texType   Texture resource type,@see TextureResType.
      */
     void loadTexture(const std::string& texture,TextureResType texType = TextureResType::LOCAL);
-    
+
     /**
      * Changes the progress value of LoadingBar.
      *
      * @param percent   Percent value from 1 to 100.
      */
     void setPercent(float percent);
-    
+
     /**
      * Get the progress value of LoadingBar.
      *
      * @return Progress value from 1 to 100.
      */
     float getPercent() const;
-    
+
     /**
      * Enable scale9 renderer.
      *
      * @param enabled Set to true will use scale9 renderer, false otherwise.
      */
     void setScale9Enabled(bool enabled);
-    
-    
+
+
     /**
      * @brief Query whether LoadingBar is using scale9 renderer or not.
      * @return Whether LoadingBar uses scale9 renderer or not.
      */
     bool isScale9Enabled()const;
-    
+
     /**
      * Set capInsets for LoadingBar.
      * This setting only take effect when enable scale9 renderer.
      * @param capInsets CapInset in `Rect`.
      */
     void setCapInsets(const Rect &capInsets);
-    
-    
+
+
     /**
      * @brief Query LoadingBar's capInsets.
      * @return CapInsets of LoadingBar.
      */
     const Rect& getCapInsets()const;
-    
+
     //override methods.
     virtual void ignoreContentAdaptWithSize(bool ignore) override;
     virtual Size getVirtualRendererSize() const override;
@@ -174,7 +174,7 @@ public:
 protected:
     virtual void initRenderer() override;
     virtual void onSizeChanged() override;
-   
+
     void setScale9Scale();
     void updateProgressBar();
     void barRendererScaleChangedWithSize();
@@ -182,9 +182,9 @@ protected:
     void setupTexture();
     void handleSpriteFlipX();
     void loadTexture(SpriteFrame* spriteframe);
-    
+
     virtual void adaptRenderers() override;
-    
+
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
 protected:
@@ -205,3 +205,4 @@ protected:
 /// @}
 NS_CC_END
 #endif /* defined(__CocoGUI__LoadingBar__) */
+

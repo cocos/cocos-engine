@@ -85,7 +85,7 @@ public:
         /// A vertical orientation where the Bottom is nearer
         DOWN_OVER = 1,
     };
-    
+
     /** Creates a base transition with duration and incoming scene.
      *
      * @param t Duration time, in seconds.
@@ -111,14 +111,14 @@ public:
     virtual void onEnter() override;
     virtual void onExit() override;
     virtual void cleanup() override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     TransitionScene();
     virtual ~TransitionScene();
 
     /** initializes a transition with duration and incoming scene */
     bool initWithDuration(float t,Scene* scene);
-    
+
 protected:
     virtual void sceneOrder();
     void setNewScene(float dt);
@@ -141,14 +141,14 @@ class CC_DLL TransitionSceneOriented : public TransitionScene
 {
 public:
     /** Creates a transition with duration, incoming scene and orientation.
-     * 
+     *
      * @param t Duration time, in seconds.
      * @param scene A given scene.
      * @param orientation A given orientation: LeftOver, RightOver, UpOver, DownOver.
      * @return A autoreleased TransitionSceneOriented object.
      */
     static TransitionSceneOriented * create(float t,Scene* scene, Orientation orientation);
-    
+
 CC_CONSTRUCTOR_ACCESS:
     TransitionSceneOriented();
     virtual ~TransitionSceneOriented();
@@ -165,7 +165,7 @@ private:
 
 /** @class TransitionRotoZoom
  * @brief TransitionRotoZoom:
-Rotate and zoom out the outgoing scene, and then rotate and zoom in the incoming 
+Rotate and zoom out the outgoing scene, and then rotate and zoom in the incoming
 */
 class CC_DLL TransitionRotoZoom : public TransitionScene
 {
@@ -194,7 +194,7 @@ private:
 
 /** @class TransitionJumpZoom
  * @brief TransitionJumpZoom:
-Zoom out and jump the outgoing scene, and then jump and zoom in the incoming 
+Zoom out and jump the outgoing scene, and then jump and zoom in the incoming
 */
 class CC_DLL TransitionJumpZoom : public TransitionScene
 {
@@ -235,8 +235,8 @@ public:
      */
     static TransitionMoveInL* create(float t, Scene* scene);
 
-    /** Returns the action that will be performed. 
-     * 
+    /** Returns the action that will be performed.
+     *
      * @return The action that will be performed.
      */
     virtual ActionInterval* action(void);
@@ -290,7 +290,7 @@ private:
  * @brief TransitionMoveInT:
 Move in from to the top the incoming scene.
 */
-class CC_DLL TransitionMoveInT : public TransitionMoveInL 
+class CC_DLL TransitionMoveInT : public TransitionMoveInL
 {
 public:
     /** Creates a transition with duration and incoming scene.
@@ -384,7 +384,7 @@ private:
  *@brief TransitionSlideInR:
 Slide in the incoming scene from the right border.
 */
-class CC_DLL TransitionSlideInR : public TransitionSlideInL 
+class CC_DLL TransitionSlideInR : public TransitionSlideInL
 {
 public:
     /** Creates a transition with duration and incoming scene.
@@ -779,7 +779,7 @@ public:
      * @lua NA
      */
     virtual void onExit() override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     TransitionFade();
     virtual ~TransitionFade();

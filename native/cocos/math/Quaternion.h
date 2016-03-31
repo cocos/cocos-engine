@@ -1,7 +1,7 @@
 /**
  Copyright 2013 BlackBerry Inc.
  Copyright (c) 2014-2016 Chukong Technologies
- 
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -275,7 +275,7 @@ public:
 
     /**
      * Sets the quaternion equal to the rotation from the specified axis and angle.
-     * 
+     *
      * @param axis The axis of rotation.
      * @param angle The angle of rotation (in radians).
      */
@@ -297,7 +297,7 @@ public:
      * Converts this Quaternion4f to axis-angle notation. The axis is normalized.
      *
      * @param e The Vec3f which stores the axis.
-     * 
+     *
      * @return The angle (in radians).
      */
     float toAxisAngle(Vec3* e) const;
@@ -314,7 +314,7 @@ public:
      * @param dst A quaternion to store the result in.
      */
     static void lerp(const Quaternion& q1, const Quaternion& q2, float t, Quaternion* dst);
-    
+
     /**
      * Interpolates between two quaternions using spherical linear interpolation.
      *
@@ -331,7 +331,7 @@ public:
      * @param dst A quaternion to store the result in.
      */
     static void slerp(const Quaternion& q1, const Quaternion& q2, float t, Quaternion* dst);
-    
+
     /**
      * Interpolates over a series of quaternions using spherical spline interpolation.
      *
@@ -353,9 +353,9 @@ public:
 
     /**
      * Calculates the quaternion product of this quaternion with the given quaternion.
-     * 
+     *
      * Note: this does not modify this quaternion.
-     * 
+     *
      * @param q The quaternion to multiply.
      * @return The quaternion product.
      */
@@ -370,12 +370,12 @@ public:
 
     /**
      * Multiplies this quaternion with the given quaternion.
-     * 
+     *
      * @param q The quaternion to multiply.
      * @return This quaternion, after the multiplication occurs.
      */
     inline Quaternion& operator*=(const Quaternion& q);
-    
+
     /** equals to Quaternion(0,0,0, 0) */
     static const Quaternion ZERO;
 
@@ -418,3 +418,4 @@ NS_CC_MATH_END
 #include "Quaternion.inl"
 
 #endif
+

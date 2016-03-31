@@ -48,7 +48,7 @@ static bool js_cocos2dx_LayoutParameter_setMargin(JSContext *cx, uint32_t argc, 
             JS_GetProperty(cx, tmp, "top", &jstop) &&
             JS_GetProperty(cx, tmp, "right", &jsright) &&
             JS_GetProperty(cx, tmp, "bottom", &jsbottom);
-        
+
         left = jsleft.toNumber();
         top = jstop.toNumber();
         right = jsright.toNumber();
@@ -96,7 +96,7 @@ static bool js_cocos2dx_LayoutParameter_getMargin(JSContext *cx, uint32_t argc, 
             JS_DefineProperty(cx, tmp, "top", margin.top, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
             JS_DefineProperty(cx, tmp, "right", margin.right, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
             JS_DefineProperty(cx, tmp, "bottom", margin.bottom, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-        if (ok) 
+        if (ok)
         {
             args.rval().set(OBJECT_TO_JSVAL(tmp));
         }
@@ -120,52 +120,52 @@ public:
         JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
         _JSDelegate.construct(cx, JS::NullHandleValue);
     }
-    
+
     virtual ~JSB_EditBoxDelegate()
     {
         _JSDelegate.destroyIfConstructed();
     }
-    
+
     virtual void editBoxEditingDidBegin(EditBox* editBox) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
-        
+
         jsval arg = OBJECT_TO_JSVAL(p->obj);
         ScriptingCore::getInstance()->executeFunctionWithOwner(_JSDelegate.ref().get(), "editBoxEditingDidBegin", 1, &arg);
     }
-    
+
     virtual void editBoxEditingDidEnd(EditBox* editBox) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
-        
+
         jsval arg = OBJECT_TO_JSVAL(p->obj);
         ScriptingCore::getInstance()->executeFunctionWithOwner(_JSDelegate.ref().get(), "editBoxEditingDidEnd", 1, &arg);
     }
-    
+
     virtual void editBoxTextChanged(EditBox* editBox, const std::string& text) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
-        
+
         jsval dataVal[2];
         dataVal[0] = OBJECT_TO_JSVAL(p->obj);
         std::string arg1 = text;
         dataVal[1] = std_string_to_jsval(ScriptingCore::getInstance()->getGlobalContext(), arg1);
-        
+
         ScriptingCore::getInstance()->executeFunctionWithOwner(_JSDelegate.ref().get(), "editBoxTextChanged", 2, dataVal);
     }
-    
+
     virtual void editBoxReturn(EditBox* editBox) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
-        
+
         jsval arg = OBJECT_TO_JSVAL(p->obj);
         ScriptingCore::getInstance()->executeFunctionWithOwner(_JSDelegate.ref().get(), "editBoxReturn", 1, &arg);
     }
-    
+
     void setJSDelegate(JS::HandleValue pJSDelegate)
     {
         _JSDelegate.ref() = pJSDelegate;
@@ -182,18 +182,18 @@ static bool js_cocos2dx_CCEditBox_setDelegate(JSContext *cx, uint32_t argc, jsva
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     cocos2d::ui::EditBox* cobj = (cocos2d::ui::EditBox *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "Invalid Native Object");
-    
+
     if (argc == 1)
     {
         // save the delegate
         JSB_EditBoxDelegate* nativeDelegate = new (std::nothrow) JSB_EditBoxDelegate();
         nativeDelegate->setJSDelegate(args.get(0));
-        
+
         cobj->setUserObject(nativeDelegate);
         cobj->setDelegate(nativeDelegate);
-        
+
         nativeDelegate->release();
-        
+
         args.rval().setUndefined();
         return true;
     }
@@ -209,7 +209,8 @@ void register_all_cocos2dx_ui_manual(JSContext* cx, JS::HandleObject global)
     JS::RootedObject proto(cx, jsb_cocos2d_ui_LayoutParameter_prototype);
     JS_DefineFunction(cx, proto, "setMargin", js_cocos2dx_LayoutParameter_setMargin, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, proto, "getMargin", js_cocos2dx_LayoutParameter_getMargin, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    
+
     proto.set(jsb_cocos2d_ui_EditBox_prototype);
     JS_DefineFunction(cx, proto, "setDelegate", js_cocos2dx_CCEditBox_setDelegate, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 }
+

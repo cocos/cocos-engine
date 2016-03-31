@@ -100,7 +100,7 @@ void TransformHelp::nodeToMatrix(const BaseData &node, AffineTransform &matrix)
     {
         double sine   = sin(node.skewX);
         double cosine = cos(node.skewX);
-        
+
         matrix.a = node.scaleX * cosine;
         matrix.b = node.scaleX * -sine;
         matrix.c = node.scaleY * sine;
@@ -139,7 +139,7 @@ void TransformHelp::nodeToMatrix(const BaseData &node, Mat4 &matrix)
         matrix.m[4] = node.scaleY * sin(node.skewX);
         matrix.m[5] = node.scaleY * cos(node.skewX);
     }
-    
+
     matrix.m[12] = node.x;
     matrix.m[13] = node.y;
 }
@@ -219,3 +219,4 @@ void TransformHelp::nodeSub(BaseData &target, BaseData &source)
 }
 
 }
+

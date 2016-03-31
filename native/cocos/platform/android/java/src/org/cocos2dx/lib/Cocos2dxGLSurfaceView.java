@@ -386,3 +386,4 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
         });
     }
 }
+

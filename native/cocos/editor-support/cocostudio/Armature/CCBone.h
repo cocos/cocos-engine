@@ -191,7 +191,7 @@ public:
     virtual cocos2d::BlendFunc getBlendFunc(void) { return _blendFunc; }
 
     /*
-     * Set if blend function is dirty 
+     * Set if blend function is dirty
      */
     virtual void setBlendDirty(bool dirty) { _blendDirty = dirty; }
     virtual bool isBlendDirty(void) { return _blendDirty; }
@@ -237,10 +237,10 @@ protected:
     cocos2d::Mat4 _worldTransform;
 
     BaseData *_worldInfo;
-    
+
     //! Armature's parent bone
     Bone *_armatureParentBone;
-    
+
     //! Data version
     float _dataVersion;
 };
@@ -248,3 +248,4 @@ protected:
 }
 
 #endif /*__CCBONE_H__*/
+

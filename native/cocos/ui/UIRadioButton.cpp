@@ -27,7 +27,7 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 namespace ui {
-    
+
 IMPLEMENT_CLASS_GUI_INFO(RadioButton)
 
 RadioButton::RadioButton() :
@@ -107,7 +107,7 @@ void RadioButton::dispatchSelectChangedEvent(bool selected)
     {
         _ccEventCallback(this, static_cast<int>(eventType));
     }
-    
+
     if(selected && _group != nullptr)
     {
         _group->onChangedRadioButtonSelect(this);
@@ -123,7 +123,7 @@ void RadioButton::addEventListener(const ccRadioButtonCallback& callback)
 void RadioButton::releaseUpEvent()
 {
     Widget::releaseUpEvent();
-    
+
     if (!_isSelected)
     {
         setSelected(true);
@@ -191,7 +191,7 @@ void RadioButtonGroup::addRadioButton(RadioButton* radioButton)
         CCASSERT(!radioButton->_group, "It already belongs to a group!");
         radioButton->_group = this;
         _radioButtons.pushBack(radioButton);
-        
+
         if(!_allowedNoSelection && _selectedRadioButton == nullptr)
         {
             setSelectedButtonWithoutEvent(radioButton);
@@ -207,7 +207,7 @@ void RadioButtonGroup::removeRadioButton(RadioButton* radioButton)
         CCLOGERROR("The radio button does not belong to this group!");
         return;
     }
-    
+
     if(radioButton != nullptr)
     {
         radioButton->_group = nullptr;
@@ -216,7 +216,7 @@ void RadioButtonGroup::removeRadioButton(RadioButton* radioButton)
             deselect();
         }
         _radioButtons.erase(index);
-        
+
         if(!_allowedNoSelection && _selectedRadioButton == nullptr && !_radioButtons.empty())
         {
             setSelectedButtonWithoutEvent(0);
@@ -296,7 +296,7 @@ void RadioButtonGroup::setSelectedButtonWithoutEvent(RadioButton* radioButton)
         CCLOGERROR("The radio button does not belong to this group!");
         return;
     }
-    
+
     deselect();
     _selectedRadioButton = radioButton;
     if(_selectedRadioButton != nullptr)
@@ -341,7 +341,7 @@ void RadioButtonGroup::copySpecialProperties(Widget *widget)
         _ccEventCallback = radioButtonGroup->_ccEventCallback;
         _selectedRadioButton = radioButtonGroup->_selectedRadioButton;
         _allowedNoSelection = radioButtonGroup->_allowedNoSelection;
-        
+
         _radioButtons.clear();
         for(const auto& radioButton : radioButtonGroup->_radioButtons)
         {
@@ -357,7 +357,7 @@ void RadioButtonGroup::onChangedRadioButtonSelect(RadioButton* radioButton)
         deselect();
         _selectedRadioButton = radioButton;
     }
-    
+
     this->retain();
     if (_radioButtonGroupEventCallback)
     {
@@ -370,7 +370,8 @@ void RadioButtonGroup::onChangedRadioButtonSelect(RadioButton* radioButton)
     }
     this->release();
 }
-    
+
 }
 
 NS_CC_END
+

@@ -47,3 +47,4 @@ cocos2d::Vector<CCBKeyframe*>& CCBSequenceProperty::getKeyframes()
 }
 
 }
+

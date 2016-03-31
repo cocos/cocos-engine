@@ -64,7 +64,7 @@ bool VertexData::setStream(VertexBuffer* buffer, const VertexStreamAttribute& st
         iter->second._stream = stream;
         iter->second._buffer = buffer;
     }
-    
+
     return true;
 }
 
@@ -101,7 +101,7 @@ VertexBuffer* VertexData::getStreamBuffer(int semantic) const
 
 VertexData::VertexData()
 {
-    
+
 }
 
 VertexData::~VertexData()
@@ -120,7 +120,7 @@ void VertexData::use()
     {
         flags = flags | (1 << element.second._stream._semantic);
     }
-    
+
     GL::enableVertexAttribs(flags);
 
     int lastVBO = -1;
@@ -146,3 +146,4 @@ void VertexData::use()
 }
 
 NS_CC_END
+

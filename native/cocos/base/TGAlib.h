@@ -42,13 +42,13 @@ enum {
 typedef struct sImageTGA {
     int status;
     unsigned char type, pixelDepth;
-    
+
     /** map width */
     signed short width;
-    
+
     /** map height */
     signed short height;
-    
+
     /** raw data */
     unsigned char *imageData;
     int flipped;
@@ -72,7 +72,8 @@ void tgaRGBtogreyscale(tImageTGA *info);
 /// releases the memory used for the image
 void tgaDestroy(tImageTGA *info);
 
-}//namespace cocos2d 
+}//namespace cocos2d
 
 /// @endcond
 #endif // __SUPPORT_DATA_SUPPORT_TGALIB_H__
+

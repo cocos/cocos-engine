@@ -98,7 +98,7 @@ namespace ui {
             Node* parent = _owner->getParent();
             return parent;
         }
-        
+
         return nullptr;
     }
     void LayoutComponent::refreshHorizontalMargin()
@@ -556,7 +556,7 @@ namespace ui {
     {
         if (!_actived)
             return;
-        
+
         Node* parent = this->getOwnerParent();
         if (parent == nullptr)
             return;
@@ -700,3 +700,4 @@ namespace ui {
 }
 
 NS_CC_END
+

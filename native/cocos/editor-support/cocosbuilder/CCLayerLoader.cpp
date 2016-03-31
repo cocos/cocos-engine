@@ -18,7 +18,7 @@ using namespace cocos2d;
 using namespace cocos2d;
 
 namespace cocosbuilder {
-  
+
 void LayerLoader::onHandlePropTypeCheck(Node * pNode, Node * pParent, const char * pPropertyName, bool pCheck, CCBReader * ccbReader) {
     /*if(strcmp(pPropertyName, PROPERTY_TOUCH_ENABLED) == 0) {
         ((Layer *)pNode)->setTouchEnabled(pCheck);
@@ -43,3 +43,4 @@ void LayerLoader::onHandlePropTypeCheck(Node * pNode, Node * pParent, const char
 #elif _MSC_VER >= 1400 //vs 2005 or higher
 #pragma warning (pop)
 #endif
+

@@ -142,11 +142,11 @@ public:
 
      The Node's parent will sort all its children based ont the LocalZOrder value.
      If two nodes have the same LocalZOrder, then the node that was added first to the children's array will be in front of the other node in the array.
-     
+
      Also, the Scene Graph is traversed using the "In-Order" tree traversal algorithm ( http://en.wikipedia.org/wiki/Tree_traversal#In-order )
      And Nodes that have LocalZOder values < 0 are the "left" subtree
      While Nodes with LocalZOder >=0 are the "right" subtree.
-     
+
      @see `setGlobalZOrder`
      @see `setVertexZ`
      *
@@ -166,14 +166,14 @@ public:
     /**
      Defines the oder in which the nodes are renderer.
      Nodes that have a Global Z Order lower, are renderer first.
-     
+
      In case two or more nodes have the same Global Z Order, the oder is not guaranteed.
      The only exception if the Nodes have a Global Z Order == 0. In that case, the Scene Graph order is used.
-     
+
      By default, all nodes have a Global Z Order = 0. That means that by default, the Scene Graph order is used to render the nodes.
-     
+
      Global Z Order is useful when you need to render nodes in an order different than the Scene Graph order.
-     
+
      Limitations: Global Z Order can't be used by Nodes that have SpriteBatchNode as one of their ancestors.
      And if ClippingNode is one of the ancestors, then "global Z order" will be relative to the ClippingNode.
 
@@ -320,7 +320,7 @@ public:
     virtual const Vec2& getPosition() const;
 
     /** Returns the normalized position.
-     * 
+     *
      * @return The normalized position.
      */
     virtual const Vec2& getNormalizedPosition() const;
@@ -535,7 +535,7 @@ public:
      * @return The rotation of the node in degrees.
      */
     virtual float getRotation() const;
-    
+
     /**
      * Set rotation by quaternion. You should make sure the quaternion is normalized.
      *
@@ -543,7 +543,7 @@ public:
      * @js NA
      */
     //virtual void setRotationQuat(const Quaternion& quat);
-    
+
     /**
      * Return the rotation by quaternion, Note that when _rotationZ_X == _rotationZ_Y, the returned quaternion equals to RotationZ_X * RotationY * RotationX,
      * it equals to RotationY * RotationX otherwise.
@@ -574,7 +574,7 @@ public:
      * @see `setRotationSkewX(float)`
      *
      * @return The X rotation in degrees.
-     * @js getRotationX 
+     * @js getRotationX
      */
     virtual float getRotationSkewX() const;
 
@@ -674,7 +674,7 @@ public:
      * @param child         A child node.
      * @param localZOrder   Z order for drawing priority. Please refer to `setLocalZOrder(int)`.
      * @param tag           An integer to identify the node easily. Please refer to `setTag(int)`.
-     * 
+     *
      * Please use `addChild(Node* child, int localZOrder, const std::string &name)` instead.
      */
      virtual void addChild(Node* child, int localZOrder, int tag);
@@ -699,7 +699,7 @@ public:
      * Please use `getChildByName()` instead.
      */
      virtual Node * getChildByTag(int tag) const;
-    
+
     /**
      * Gets a child from the container with its tag that can be cast to Type T.
      *
@@ -709,7 +709,7 @@ public:
      */
     template <typename T>
     inline T getChildByTag(int tag) const { return static_cast<T>(getChildByTag(tag)); }
-    
+
     /**
      * Gets a child from the container with its name.
      *
@@ -750,7 +750,7 @@ public:
      * @warning Only support alpha or number for name, and not support unicode.
      *
      * @param callback A callback function to execute on nodes that match the `name` parameter. The function takes the following arguments:
-     *  `node` 
+     *  `node`
      *      A node that matches the name
      *  And returns a boolean result. Your callback can return `true` to terminate the enumeration.
      *
@@ -764,8 +764,8 @@ public:
      */
     virtual Vector<Node*>& getChildren() { return _children; }
     virtual const Vector<Node*>& getChildren() const { return _children; }
-    
-    /** 
+
+    /**
      * Returns the amount of children.
      *
      * @return The amount of children.
@@ -861,7 +861,7 @@ public:
     virtual void sortAllChildren();
 
     /// @} end of Children and Parent
-    
+
     /// @{
     /// @name Tag & User data
 
@@ -883,10 +883,10 @@ public:
      * Please use `setName()` instead.
      */
      virtual void setTag(int tag);
-    
+
     /** Returns a string that is used to identify the node.
      * @return A string that identifies the node.
-     * 
+     *
      * @since v3.2
      */
     virtual const std::string& getName() const;
@@ -897,7 +897,7 @@ public:
      */
     virtual void setName(const std::string& name);
 
-    
+
     /**
      * Returns a custom user data pointer.
      *
@@ -974,7 +974,7 @@ public:
      * @param glprogram The shader program.
      */
     virtual void setGLProgram(GLProgram *glprogram);
-    
+
     /**
      * Return the GLProgramState currently used for this node.
      *
@@ -987,7 +987,7 @@ public:
      * @param glProgramState The GLProgramState for this node.
      */
     virtual void setGLProgramState(GLProgramState *glProgramState);
-    
+
     /// @} end of Shader Program
 
 
@@ -1064,7 +1064,7 @@ public:
      * - `glEnable(GL_TEXTURE_2D);`
      * AND YOU SHOULD NOT DISABLE THEM AFTER DRAWING YOUR NODE
      * But if you enable any other GL state, you should disable it after drawing your node.
-     * 
+     *
      * @param renderer A given renderer.
      * @param transform A transform matrix.
      * @param flags Renderer flag.
@@ -1156,7 +1156,7 @@ public:
      * @param tag   A tag that indicates the action to be removed.
      */
     void stopActionByTag(int tag);
-    
+
     /**
      * Removes all actions from the running action list by its tag.
      *
@@ -1439,7 +1439,7 @@ public:
      */
     virtual AffineTransform getNodeToParentAffineTransform(Node* ancestor) const;
 
-    /** 
+    /**
      * Sets the transformation matrix manually.
      *
      * @param transform A given transformation matrix.
@@ -1568,7 +1568,7 @@ public:
      */
     virtual bool removeComponent(const std::string& name);
 
-    /** 
+    /**
      * Removes a component by its pointer.
      *
      * @param component A given component.
@@ -1580,7 +1580,7 @@ public:
      */
     virtual void removeAllComponents();
     /// @} end of component functions
-    
+
     // overrides
     virtual GLubyte getOpacity() const;
     virtual GLubyte getDisplayedOpacity() const;
@@ -1588,26 +1588,26 @@ public:
     virtual void updateDisplayedOpacity(GLubyte parentOpacity);
     virtual bool isCascadeOpacityEnabled() const;
     virtual void setCascadeOpacityEnabled(bool cascadeOpacityEnabled);
-    
+
     virtual const Color3B& getColor() const;
     virtual const Color3B& getDisplayedColor() const;
     virtual void setColor(const Color3B& color);
     virtual void updateDisplayedColor(const Color3B& parentColor);
     virtual bool isCascadeColorEnabled() const;
     virtual void setCascadeColorEnabled(bool cascadeColorEnabled);
-    
+
     virtual void setOpacityModifyRGB(bool value) {CC_UNUSED_PARAM(value);}
     virtual bool isOpacityModifyRGB() const { return false; };
 
     void setOnEnterCallback(const std::function<void()>& callback) { _onEnterCallback = callback; }
-    const std::function<void()>& getOnEnterCallback() const { return _onEnterCallback; }   
+    const std::function<void()>& getOnEnterCallback() const { return _onEnterCallback; }
     void setOnExitCallback(const std::function<void()>& callback) { _onExitCallback = callback; }
-    const std::function<void()>& getOnExitCallback() const { return _onExitCallback; }   
+    const std::function<void()>& getOnExitCallback() const { return _onExitCallback; }
     void setonEnterTransitionDidFinishCallback(const std::function<void()>& callback) { _onEnterTransitionDidFinishCallback = callback; }
-    const std::function<void()>& getonEnterTransitionDidFinishCallback() const { return _onEnterTransitionDidFinishCallback; }   
+    const std::function<void()>& getonEnterTransitionDidFinishCallback() const { return _onEnterTransitionDidFinishCallback; }
     void setonExitTransitionDidStartCallback(const std::function<void()>& callback) { _onExitTransitionDidStartCallback = callback; }
     const std::function<void()>& getonExitTransitionDidStartCallback() const { return _onExitTransitionDidStartCallback; }
-    
+
     /** get & set camera mask, the node is visible by the camera whose camera flag & node's camera mask is true */
     unsigned short getCameraMask() const { return _cameraMask; }
     virtual void setCameraMask(unsigned short mask, bool applyChildren = true);
@@ -1622,7 +1622,7 @@ CC_CONSTRUCTOR_ACCESS:
 protected:
     /// lazy allocs
     void childrenAlloc(void);
-    
+
     /// helper that reorder a child
     void insertChild(Node* child, int z);
 
@@ -1640,21 +1640,21 @@ protected:
     virtual void updateCascadeColor();
     virtual void disableCascadeColor();
     virtual void updateColor() {}
-    
+
     bool doEnumerate(std::string name, std::function<bool (Node *)> callback) const;
     bool doEnumerateRecursive(const Node* node, const std::string &name, std::function<bool (Node *)> callback) const;
-    
+
     //check whether this camera mask is visible by the current visiting camera
     bool isVisitableByVisitingCamera() const;
-    
+
     // update quaternion from Rotation3D
     void updateRotationQuat();
     // update Rotation3D from quaternion
     void updateRotation3D();
-    
+
 private:
     void addChildHelper(Node* child, int localZOrder, int tag, const std::string &name, bool setTag);
-    
+
 protected:
 
     float _rotationX;               ///< rotation on the X-axis
@@ -1663,7 +1663,7 @@ protected:
     // rotation Z is decomposed in 2 to simulate Skew for Flash animations
     float _rotationZ_X;             ///< rotation angle on Z-axis, component X
     float _rotationZ_Y;             ///< rotation angle on Z-axis, component Y
-    
+
     Quaternion _rotationQuat;      ///rotation using quaternion, if _rotationZ_X == _rotationZ_Y, _rotationQuat = RotationZ_X * RotationY * RotationX, else _rotationQuat = RotationY * RotationX
 
     float _scaleX;                  ///< scaling factor on x-axis
@@ -1703,7 +1703,7 @@ protected:
     Node *_parent;                  ///< weak reference to parent node
     Director* _director;            //cached director pointer to improve rendering performance
     int _tag;                         ///< a tag. Can be any number you assigned just to identify this node
-    
+
     std::string _name;               ///<a string label, an user defined string to identify this node
     size_t _hashOfName;            ///<hash value of _name, used for speed in getChildByName
 
@@ -1735,9 +1735,9 @@ protected:
     int _updateScriptHandler;         ///< script handler for update() callback per frame, which is invoked from lua & javascript.
     ccScriptType _scriptType;         ///< type of script binding, lua or javascript
 #endif
-    
+
     ComponentContainer *_componentContainer;        ///< Dictionary of components
-    
+
     // opacity controls
     GLubyte        _displayedOpacity;
     GLubyte     _realOpacity;
@@ -1747,10 +1747,10 @@ protected:
     bool        _cascadeOpacityEnabled;
 
     static int s_globalOrderOfArrival;
-    
+
     // camera mask, it is visible only when _cameraMask & current camera' camera flag is true
     unsigned short _cameraMask;
-    
+
     std::function<void()> _onEnterCallback;
     std::function<void()> _onExitCallback;
     std::function<void()> _onEnterTransitionDidFinishCallback;
@@ -1766,3 +1766,4 @@ private:
 NS_CC_END
 
 #endif // __CCNODE_H__
+

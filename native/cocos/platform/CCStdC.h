@@ -43,3 +43,4 @@ THE SOFTWARE.
 #endif
 
 #endif /* __PLATFORM_CCSTDC_H__*/
+

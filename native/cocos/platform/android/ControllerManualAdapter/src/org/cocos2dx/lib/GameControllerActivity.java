@@ -47,22 +47,22 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
     public static final int DRIVERTYPE_OUYA = 2;
     public static final int DRIVERTYPE_STANDARD = 3;
     public static final int DRIVERTYPE_UNKNOWN = 4;
-    
+
     // ===========================================================
     // Fields
     // ===========================================================
     private static GameControllerActivity sGameControllerActivity;
     private InputManagerCompat mInputManager = null;
-    
+
     protected GameControllerHelper mControllerHelper = null;
-    
+
     protected GameControllerDelegate mControllerNibiru = null;
     protected GameControllerDelegate mControllerMoga = null;
     protected GameControllerDelegate mControllerOuya = null;
-    
+
     public void connectController(int driveType){
         try {
-            
+
             ClassLoader loader = sGameControllerActivity.getClassLoader();
             Class<?> controllerDelegate = null;
             if (driveType == DRIVERTYPE_MOGA) {
@@ -83,10 +83,10 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
                 }
                 controllerDelegate = loader.loadClass("org.cocos2dx.lib.GameControllerOuya");
             }
-            
-            GameControllerDelegate instance = (GameControllerDelegate)controllerDelegate.newInstance();         
+
+            GameControllerDelegate instance = (GameControllerDelegate)controllerDelegate.newInstance();
             sGameControllerActivity.setGameControllerInstance(instance, driveType);
-            
+
             if (driveType == DRIVERTYPE_NIBIRU) {
                 Method method = controllerDelegate.getDeclaredMethod("onResume");
                 method.invoke(instance);
@@ -96,7 +96,7 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
             e.printStackTrace();
         }
     }
-    
+
     public void setGameControllerInstance(GameControllerDelegate controllerDelegate, int driveType) {
         if (driveType == DRIVERTYPE_NIBIRU) {
             mControllerNibiru = controllerDelegate;
@@ -109,7 +109,7 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
         controllerDelegate.setControllerEventListener(mControllerEventListener);
         controllerDelegate.onCreate(sGameControllerActivity);
     }
-    
+
     public GameControllerDelegate getGameControllerDelegate(int driveType){
         if (driveType == DRIVERTYPE_NIBIRU) {
             return mControllerNibiru;
@@ -119,18 +119,18 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
         else if (driveType == DRIVERTYPE_OUYA) {
             return mControllerOuya;
         }
-        
+
         return null;
     }
-    
+
     ControllerEventListener mControllerEventListener = new ControllerEventListener() {
-        
+
         @Override
         public void onButtonEvent(String vendorName, int controller, int button,
                 boolean isPressed, float value, boolean isAnalog) {
             GameControllerAdapter.onButtonEvent(vendorName, controller, button, isPressed, value, isAnalog);
         }
-        
+
         @Override
         public void onAxisEvent(String vendorName, int controller, int axisID,
                 float value, boolean isAnalog) {
@@ -147,19 +147,19 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
             GameControllerAdapter.onDisconnected(vendorName, controller);
         }
     };
-    
+
     // ===========================================================
     // Constructors
     // ===========================================================
-    
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         sGameControllerActivity = this;
         mInputManager = InputManagerCompat.Factory.getInputManager(this);
         mInputManager.registerInputDeviceListener(this, null);
-        
+
         if (mControllerNibiru != null) {
             mControllerNibiru.onCreate(this);
         }
@@ -173,7 +173,7 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
             mControllerHelper = new GameControllerHelper(this);
         }
     }
-    
+
     // ===========================================================
     // Getter & Setter
     // ===========================================================
@@ -184,7 +184,7 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        boolean handled = false; 
+        boolean handled = false;
         if (mControllerNibiru != null) {
             handled |= mControllerNibiru.dispatchKeyEvent(event);
         }
@@ -194,14 +194,14 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
         if (handled == false && mControllerOuya != null) {
             handled |= mControllerOuya.dispatchKeyEvent(event);
         }
-        
+
         if (handled == false) {
             handled |= mControllerHelper.dispatchKeyEvent(event);
         }
-        
+
         return handled || super.dispatchKeyEvent(event);
     }
-    
+
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
         boolean handled = false;
@@ -214,25 +214,25 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
         if (handled == false && mControllerOuya != null) {
             handled |= mControllerOuya.dispatchGenericMotionEvent(event);
         }
-        
+
         if (handled == false) {
             handled |= mControllerHelper.dispatchGenericMotionEvent(event);
         }
-        
+
         return handled || super.dispatchGenericMotionEvent(event);
     }
-    
+
     @Override
-    public void onInputDeviceAdded(int deviceId) {  
+    public void onInputDeviceAdded(int deviceId) {
         Log.d(TAG,"onInputDeviceAdded:" + deviceId);
-        
+
         mControllerHelper.onInputDeviceAdded(deviceId);
     }
     /*
      * This is an unusual case. Input devices don't typically change, but they
      * certainly can --- for example a device may have different modes. We use
      * this to make sure that the ship has an up-to-date InputDevice.
-     * 
+     *
      * @see
      * com.example.inputmanagercompat.InputManagerCompat.InputDeviceListener
      * #onInputDeviceChanged(int)
@@ -241,10 +241,10 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
     public void onInputDeviceChanged(int deviceId) {
         Log.w(TAG,"onInputDeviceChanged:" + deviceId);
     }
-    
+
     /*
      * Remove any ship associated with the ID.
-     * 
+     *
      * @see
      * com.example.inputmanagercompat.InputManagerCompat.InputDeviceListener
      * #onInputDeviceRemoved(int)
@@ -252,14 +252,14 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
     @Override
     public void onInputDeviceRemoved(int deviceId) {
         Log.d(TAG,"onInputDeviceRemoved:" + deviceId);
-        
+
         mControllerHelper.onInputDeviceRemoved(deviceId);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        
+
         if (mControllerNibiru != null) {
             mControllerNibiru.onResume();
         }
@@ -269,10 +269,10 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
         if (mControllerOuya != null) {
             mControllerOuya.onResume();
         }
-        
+
         GameControllerHelper.gatherControllers(mControllerHelper.mGameController);
     }
-    
+
     @Override
     protected void onPause() {
         if (mControllerNibiru != null) {
@@ -284,10 +284,10 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
         if (mControllerOuya != null) {
             mControllerOuya.onPause();
         }
-        
+
         super.onPause();
     }
-    
+
     @Override
     protected void onDestroy() {
         if (mControllerNibiru != null) {
@@ -299,8 +299,9 @@ public abstract class GameControllerActivity extends Cocos2dxActivity implements
         if (mControllerOuya != null) {
             mControllerOuya.onDestroy();
         }
-        
+
         super.onDestroy();
     }
 
 }
+

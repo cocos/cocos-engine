@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2012 cocos2d-x.org
  Copyright (c) 2010 Sangwoo Im
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -127,13 +127,13 @@ public:
      * @param offset    The new offset.
      * @param dt        The animation duration.
      */
-    void setContentOffsetInDuration(Vec2 offset, float dt); 
+    void setContentOffsetInDuration(Vec2 offset, float dt);
 
     /**
      * Halts the movement animation of the inner content started with setContentOffset() or setContentOffsetInDuration()
      */
     void stopAnimatedContentOffset();
-    
+
     void setZoomScale(float s);
     /**
      * Sets a new scale and does that for a predefined duration.
@@ -177,7 +177,7 @@ public:
     /**
      * Returns the current container's maximum offset. You may want this while you animate scrolling by yourself
      */
-    Vec2 maxContainerOffset(); 
+    Vec2 maxContainerOffset();
     /**
      * Determines if a given node's bounding box is in visible bounds
      *
@@ -244,7 +244,7 @@ public:
     virtual void onTouchMoved(Touch *touch, Event *event);
     virtual void onTouchEnded(Touch *touch, Event *event);
     virtual void onTouchCancelled(Touch *touch, Event *event);
-    
+
     // Overrides
     virtual void setContentSize(const Size & size) override;
     virtual const Size& getContentSize() const override;
@@ -253,7 +253,7 @@ public:
      * @lua NA
      */
     virtual void visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
-    
+
     using Node::addChild;
     virtual void addChild(Node * child, int zOrder, int tag) override;
     virtual void addChild(Node * child, int zOrder, const std::string &name) override;
@@ -377,13 +377,13 @@ protected:
      */
     Rect _parentScissorRect;
     bool _scissorRestored;
-    
+
     /** Touch listener */
     EventListenerTouchOneByOne* _touchListener;
-    
+
     CustomCommand _beforeDrawCommand;
     CustomCommand _afterDrawCommand;
-    
+
     Action* _animatedScrollAction;
 };
 
@@ -393,3 +393,4 @@ NS_CC_EXT_END
 /// @}
 
 #endif /* __CCSCROLLVIEW_H__ */
+

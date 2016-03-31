@@ -106,3 +106,4 @@ etc1_uint32 etc1_pkm_get_height(const etc1_byte* pHeader);
 
 /// @endcond
 #endif
+

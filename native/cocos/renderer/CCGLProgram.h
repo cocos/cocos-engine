@@ -432,7 +432,7 @@ public:
     void reset();
     /** returns the OpenGL Program object */
     inline GLuint getProgram() const { return _program; }
-    
+
     /** returns the Uniform flags */
     inline const UniformFlags& getUniformFlags() const { return _flags; }
 
@@ -477,7 +477,7 @@ protected:
     std::unordered_map<GLint, std::pair<GLvoid*, unsigned int>> _hashForUniforms;
     //cached director pointer for calling
     Director* _director;
-    
+
     /*needed uniforms*/
     UniformFlags _flags;
 };
@@ -488,3 +488,4 @@ NS_CC_END
  @}
  */
 #endif /* __CCGLPROGRAM_H__ */
+

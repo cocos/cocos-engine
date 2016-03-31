@@ -41,3 +41,4 @@ void ThreadHelper::releaseAutoreleasePool(void *autoreleasePool)
 }
 
 NS_CC_END
+

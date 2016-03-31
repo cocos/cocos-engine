@@ -56,3 +56,4 @@ void SpriteLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const
 }
 
 }
+

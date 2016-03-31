@@ -58,3 +58,4 @@ void CC_DLL localStorageClear();
 /// @}
 
 #endif // __JSB_LOCALSTORAGE_H
+

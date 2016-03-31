@@ -16,3 +16,4 @@ EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
 NS_CC_END
 
 #endif /* #if (..) */
+

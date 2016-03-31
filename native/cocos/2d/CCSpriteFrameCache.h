@@ -77,7 +77,7 @@ public:
      * @lua NA
      */
     virtual ~SpriteFrameCache();
-    
+
     /** Initialize method.
      *
      * @return if success return true.
@@ -104,7 +104,7 @@ public:
      */
     void addSpriteFramesWithFile(const std::string& plist, const std::string& textureFileName);
 
-    /** Adds multiple Sprite Frames from a plist file. The texture will be associated with the created sprite frames. 
+    /** Adds multiple Sprite Frames from a plist file. The texture will be associated with the created sprite frames.
      * @js addSpriteFrames
      * @lua addSpriteFrames
      *
@@ -113,7 +113,7 @@ public:
      */
     void addSpriteFramesWithFile(const std::string&plist, Texture2D *texture);
 
-    /** Adds multiple Sprite Frames from a plist file content. The texture will be associated with the created sprite frames. 
+    /** Adds multiple Sprite Frames from a plist file content. The texture will be associated with the created sprite frames.
      * @js NA
      * @lua addSpriteFrames
      *
@@ -154,7 +154,7 @@ public:
      */
     void removeUnusedSpriteFrames();
 
-    /** Deletes an sprite frame from the sprite frame cache. 
+    /** Deletes an sprite frame from the sprite frame cache.
      *
      * @param name The name of the sprite frame that needs to removed.
      */
@@ -222,3 +222,4 @@ protected:
 NS_CC_END
 
 #endif // __SPRITE_CCSPRITE_FRAME_CACHE_H__
+

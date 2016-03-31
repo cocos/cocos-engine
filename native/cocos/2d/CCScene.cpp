@@ -92,7 +92,8 @@ std::string Scene::getDescription() const
 void Scene::removeAllChildren()
 {
     Node::removeAllChildren();
-    
+
 }
 
 NS_CC_END
+

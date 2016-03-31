@@ -222,3 +222,4 @@ public final class Cocos2dxBitmap {
                 TextUtils.TruncateAt.END).toString();
     }
 }
+

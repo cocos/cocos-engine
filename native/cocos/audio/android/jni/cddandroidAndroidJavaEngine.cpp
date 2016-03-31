@@ -266,3 +266,4 @@ void AndroidJavaEngine::unloadEffect(const char* filePath)
         JniHelper::callStaticVoidMethod(CLASS_NAME, "unloadEffect", fullPath);
     }
 }
+

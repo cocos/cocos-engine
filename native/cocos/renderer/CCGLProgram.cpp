@@ -208,7 +208,7 @@ bool GLProgram::initWithByteArrays(const GLchar* vShaderByteArray, const GLchar*
     // a cache for the defines could be useful, but seems like overkill at this point
     std::string replacedDefines = "";
     replaceDefines(compileTimeDefines, replacedDefines);
-    
+
     _vertShader = _fragShader = 0;
 
     if (vShaderByteArray)
@@ -262,7 +262,7 @@ bool GLProgram::initWithFilenames(const std::string& vShaderFilename, const std:
     if (vertexSource.empty() || fragmentSource.empty()) {
         return false;
     }
-    
+
     return initWithByteArrays(vertexSource.c_str(), fragmentSource.c_str(), compileTimeDefines);
 }
 
@@ -570,9 +570,9 @@ static std::string logForOpenGLShader(GLuint shader)
     logBytes[logLength] = '\0';
 
     std::string ret(logBytes);
-    
+
     free(logBytes);
-    
+
     return ret;
 }
 
@@ -587,11 +587,11 @@ static std::string logForOpenGLProgram(GLuint program)
     char *logBytes = (char*)malloc(logLength + 1);
     glGetProgramInfoLog(program, logLength, &charsWritten, logBytes);
     logBytes[logLength] = '\0';
-    
+
     std::string ret(logBytes);
 
     free(logBytes);
-    
+
     return ret;
 }
 
@@ -917,12 +917,12 @@ void GLProgram::clearShader()
     {
         glDeleteShader(_vertShader);
     }
-    
+
     if (_fragShader)
     {
         glDeleteShader(_fragShader);
     }
-    
+
     _vertShader = _fragShader = 0;
 }
 

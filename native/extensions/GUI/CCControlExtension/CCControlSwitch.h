@@ -4,17 +4,17 @@
  *
  * Copyright 2012 Yannick Loriot. All rights reserved.
  * http://yannickloriot.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -72,8 +72,8 @@ public:
     /**
      * Set the state of the switch to On or Off, optionally animating the transition.
      *
-     * @param isOn YES if the switch should be turned to the On position; NO if it 
-     * should be turned to the Off position. If the switch is already in the 
+     * @param isOn YES if the switch should be turned to the On position; NO if it
+     * should be turned to the Off position. If the switch is already in the
      * designated position, nothing happens.
      * @param animated YES to animate the "flipping" of the switch; otherwise NO.
      */
@@ -95,7 +95,7 @@ protected:
     /** Sprite which represents the view. */
     ControlSwitchSprite* _switchSprite;
     float _initialTouchXPosition;
-    
+
     bool _moved;
     /** A Boolean value that determines the off/on state of the switch. */
     bool _on;

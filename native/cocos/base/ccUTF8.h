@@ -211,3 +211,4 @@ CC_DEPRECATED_ATTRIBUTE CC_DLL char * cc_utf16_to_utf8 (const unsigned short  *s
 NS_CC_END
 
 #endif /** defined(__cocos2dx__ccUTF8__) */
+

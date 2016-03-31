@@ -71,3 +71,4 @@ void RenderCommand::printID()
 }
 
 NS_CC_END
+

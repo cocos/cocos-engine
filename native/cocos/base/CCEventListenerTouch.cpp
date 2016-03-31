@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -53,7 +53,7 @@ bool EventListenerTouchOneByOne::init()
     {
         return true;
     }
-    
+
     return false;
 }
 
@@ -90,7 +90,7 @@ bool EventListenerTouchOneByOne::checkAvailable()
         CCASSERT(false, "Invalid EventListenerTouchOneByOne!");
         return false;
     }
-    
+
     return true;
 }
 
@@ -100,12 +100,12 @@ EventListenerTouchOneByOne* EventListenerTouchOneByOne::clone()
     if (ret && ret->init())
     {
         ret->autorelease();
-        
+
         ret->onTouchBegan = onTouchBegan;
         ret->onTouchMoved = onTouchMoved;
         ret->onTouchEnded = onTouchEnded;
         ret->onTouchCancelled = onTouchCancelled;
-        
+
         ret->_claimedTouches = _claimedTouches;
         ret->_needSwallow = _needSwallow;
     }
@@ -139,7 +139,7 @@ bool EventListenerTouchAllAtOnce::init()
     {
         return true;
     }
-    
+
     return false;
 }
 
@@ -165,7 +165,7 @@ bool EventListenerTouchAllAtOnce::checkAvailable()
         CCASSERT(false, "Invalid EventListenerTouchAllAtOnce!");
         return false;
     }
-    
+
     return true;
 }
 
@@ -175,7 +175,7 @@ EventListenerTouchAllAtOnce* EventListenerTouchAllAtOnce::clone()
     if (ret && ret->init())
     {
         ret->autorelease();
-        
+
         ret->onTouchesBegan = onTouchesBegan;
         ret->onTouchesMoved = onTouchesMoved;
         ret->onTouchesEnded = onTouchesEnded;
@@ -189,3 +189,4 @@ EventListenerTouchAllAtOnce* EventListenerTouchAllAtOnce::clone()
 }
 
 NS_CC_END
+

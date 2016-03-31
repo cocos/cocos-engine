@@ -121,9 +121,9 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
                     this.mCocos2dxGLSurfaceView.deleteBackward();
                 }
             }
-            
+
             String text = textView.getText().toString();
-            
+
             if (text != null) {
                 /* If user input nothing, translate "\n" to engine. */
                 if ( text.compareTo("") == 0) {
@@ -139,7 +139,7 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
                 mCocos2dxGLSurfaceView.insertText("");
             }
         }
-        
+
         if (actionID == EditorInfo.IME_ACTION_DONE) {
             mCocos2dxGLSurfaceView.requestFocus();
         }
@@ -148,3 +148,4 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
     }
 
 }
+

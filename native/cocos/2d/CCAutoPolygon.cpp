@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2015-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -81,7 +81,7 @@ void PolygonInfo::setTriangles(const TrianglesCommand::Triangles& other)
 {
     releaseVertsAndIndices();
     isVertsOwner = false;
-    
+
     triangles.vertCount = other.vertCount;
     triangles.indexCount = other.indexCount;
     triangles.verts = other.verts;
@@ -96,7 +96,7 @@ void PolygonInfo::releaseVertsAndIndices()
         {
             CC_SAFE_DELETE_ARRAY(triangles.verts);
         }
-        
+
         if(nullptr != triangles.indices)
         {
             CC_SAFE_DELETE_ARRAY(triangles.indices);
@@ -128,3 +128,4 @@ float PolygonInfo::getArea() const
     }
     return area;
 }
+

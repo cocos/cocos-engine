@@ -81,7 +81,7 @@ bool AbstractCheckButton::init(const std::string& backGround,
             ret = false;
             break;
         }
-        
+
         setSelected(false);
         loadTextures(backGround, backGroundSeleted, cross, backGroundDisabled, frontCrossDisabled,texType);
     } while (0);
@@ -105,7 +105,7 @@ void AbstractCheckButton::initRenderer()
     _frontCrossRenderer = Sprite::create();
     _backGroundBoxDisabledRenderer = Sprite::create();
     _frontCrossDisabledRenderer = Sprite::create();
-    
+
     addProtectedChild(_backGroundBoxRenderer, BACKGROUNDBOX_RENDERER_Z, -1);
     addProtectedChild(_backGroundSelectedBoxRenderer, BACKGROUNDSELECTEDBOX_RENDERER_Z, -1);
     addProtectedChild(_frontCrossRenderer, FRONTCROSS_RENDERER_Z, -1);
@@ -145,15 +145,15 @@ void AbstractCheckButton::loadTextureBackGround(const std::string& backGround,Te
         default:
             break;
     }
-    
+
     this->setupBackgroundTexture();
 }
 
 void AbstractCheckButton::setupBackgroundTexture()
 {
-    
+
     this->updateChildrenDisplayedRGBA();
-    
+
     updateContentSizeWithTextureSize(_backGroundBoxRenderer->getContentSize());
     _backGroundBoxRendererAdaptDirty = true;
 }
@@ -170,7 +170,7 @@ void AbstractCheckButton::loadTextureBackGroundSelected(const std::string& backG
     {
         return;
     }
-    
+
     _backGroundSelectedTexType = texType;
     _isBackgroundSelectedTextureLoaded = true;
     switch (_backGroundSelectedTexType)
@@ -263,7 +263,7 @@ void AbstractCheckButton::loadTextureBackGroundDisabled(SpriteFrame* spriteframe
 void AbstractCheckButton::setupBackgroundDisable()
 {
     this->updateChildrenDisplayedRGBA();
-    
+
     _backGroundBoxDisabledRendererAdaptDirty = true;
 }
 
@@ -308,15 +308,15 @@ void AbstractCheckButton::onPressStateChangedToNormal()
     _backGroundSelectedBoxRenderer->setVisible(false);
     _backGroundBoxDisabledRenderer->setVisible(false);
     _frontCrossDisabledRenderer->setVisible(false);
-    
+
     _backGroundBoxRenderer->setGLProgramState(this->getNormalGLProgramState());
     _frontCrossRenderer->setGLProgramState(this->getNormalGLProgramState());
-    
-    
+
+
     _backGroundBoxRenderer->setScale(_backgroundTextureScaleX, _backgroundTextureScaleY);
     _frontCrossRenderer->setScale(_backgroundTextureScaleX, _backgroundTextureScaleY);
-    
-    
+
+
     if (_isSelected)
     {
         _frontCrossRenderer->setVisible(true);
@@ -328,7 +328,7 @@ void AbstractCheckButton::onPressStateChangedToPressed()
 {
     _backGroundBoxRenderer->setGLProgramState(this->getNormalGLProgramState());
     _frontCrossRenderer->setGLProgramState(this->getNormalGLProgramState());
-    
+
     if (!_isBackgroundSelectedTextureLoaded)
     {
         _backGroundBoxRenderer->setScale(_backgroundTextureScaleX + _zoomScale,
@@ -358,12 +358,12 @@ void AbstractCheckButton::onPressStateChangedToDisabled()
         _backGroundBoxRenderer->setVisible(false);
         _backGroundBoxDisabledRenderer->setVisible(true);
     }
-    
+
     _backGroundSelectedBoxRenderer->setVisible(false);
     _frontCrossRenderer->setVisible(false);
     _backGroundBoxRenderer->setScale(_backgroundTextureScaleX, _backgroundTextureScaleY);
     _frontCrossRenderer->setScale(_backgroundTextureScaleX, _backgroundTextureScaleY);
-    
+
     if (_isSelected)
     {
         _frontCrossDisabledRenderer->setVisible(true);
@@ -582,3 +582,4 @@ void AbstractCheckButton::copySpecialProperties(Widget *widget)
 }
 
 NS_CC_END
+

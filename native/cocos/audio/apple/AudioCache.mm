@@ -1,18 +1,18 @@
 /****************************************************************************
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,15 +40,15 @@ typedef ALvoid	AL_APIENTRY	(*alBufferDataStaticProcPtr) (const ALint bid, ALenum
 static ALvoid  alBufferDataStaticProc(const ALint bid, ALenum format, ALvoid* data, ALsizei size, ALsizei freq)
 {
 	static	alBufferDataStaticProcPtr	proc = NULL;
-    
+
     if (proc == NULL){
         proc = (alBufferDataStaticProcPtr) alcGetProcAddress(NULL, (const ALCchar*) "alBufferDataStatic");
     }
-    
+
     if (proc){
         proc(bid, format, data, size, freq);
     }
-	
+
     return;
 }
 using namespace cocos2d;
@@ -64,7 +64,7 @@ AudioCache::AudioCache()
 , _loadFail(false)
 , _exitReadDataTask(false)
 {
-    
+
 }
 
 AudioCache::~AudioCache()
@@ -77,10 +77,10 @@ AudioCache::~AudioCache()
         //wait for the 'readDataTask' task to exit
         _readDataTaskMutex.lock();
         _readDataTaskMutex.unlock();
-        
+
         free(_pcmData);
     }
-    
+
     if (_queBufferFrames > 0) {
         for (int index = 0; index < QUEUEBUFFER_NUM; ++index) {
             free(_queBuffers[index]);
@@ -91,17 +91,17 @@ AudioCache::~AudioCache()
 void AudioCache::readDataTask()
 {
     _readDataTaskMutex.lock();
-    
+
     AudioStreamBasicDescription		theFileFormat;
     UInt32 thePropertySize = sizeof(theFileFormat);
-    
+
     SInt64 theFileLengthInFrames;
     SInt64 readInFrames;
     SInt64 dataSize;
     SInt64 frames;
     AudioBufferList theDataBuffer;
     ExtAudioFileRef extRef = nullptr;
-    
+
     NSString *fileFullPath = [[NSString alloc] initWithCString:_fileFullPath.c_str() encoding:[NSString defaultCStringEncoding]];
     auto fileURL = (CFURLRef)[[NSURL alloc] initFileURLWithPath:fileFullPath];
     [fileFullPath release];
@@ -111,7 +111,7 @@ void AudioCache::readDataTask()
         printf("%s: ExtAudioFileOpenURL FAILED, Error = %ld\n", __PRETTY_FUNCTION__, (long)error);
         goto ExitThread;
     }
-    
+
     // Get the audio data format
 	error = ExtAudioFileGetProperty(extRef, kExtAudioFileProperty_FileDataFormat, &thePropertySize, &theFileFormat);
 	if(error) {
@@ -122,12 +122,12 @@ void AudioCache::readDataTask()
         printf("%s: Unsupported Format, channel count is greater than stereo\n",__PRETTY_FUNCTION__);
         goto ExitThread;
     }
-    
+
     // Set the client format to 16 bit signed integer (native-endian) data
 	// Maintain the channel count and sample rate of the original source format
 	outputFormat.mSampleRate = theFileFormat.mSampleRate;
 	outputFormat.mChannelsPerFrame = theFileFormat.mChannelsPerFrame;
-    
+
     _bytesPerFrame = 2 * outputFormat.mChannelsPerFrame;
 	outputFormat.mFormatID = kAudioFormatLinearPCM;
 	outputFormat.mBytesPerPacket = _bytesPerFrame;
@@ -135,13 +135,13 @@ void AudioCache::readDataTask()
 	outputFormat.mBytesPerFrame = _bytesPerFrame;
 	outputFormat.mBitsPerChannel = 16;
 	outputFormat.mFormatFlags = kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked | kAudioFormatFlagIsSignedInteger;
-    
+
     error = ExtAudioFileSetProperty(extRef, kExtAudioFileProperty_ClientDataFormat, sizeof(outputFormat), &outputFormat);
     if(error) {
         printf("%s: ExtAudioFileSetProperty FAILED, Error = %ld\n", __PRETTY_FUNCTION__, (long)error);
         goto ExitThread;
     }
-    
+
     // Get the total frame count
 	thePropertySize = sizeof(theFileLengthInFrames);
 	error = ExtAudioFileGetProperty(extRef, kExtAudioFileProperty_FileLengthFrames, &thePropertySize, &theFileLengthInFrames);
@@ -149,12 +149,12 @@ void AudioCache::readDataTask()
         printf("%s: ExtAudioFileGetProperty(kExtAudioFileProperty_FileLengthFrames) FAILED, Error = %ld\n", __PRETTY_FUNCTION__, (long)error);
         goto ExitThread;
     }
-	
+
 	_dataSize = (ALsizei)(theFileLengthInFrames * outputFormat.mBytesPerFrame);
     _format = (outputFormat.mChannelsPerFrame > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
     _sampleRate = (ALsizei)outputFormat.mSampleRate;
     _duration = 1.0f * theFileLengthInFrames / outputFormat.mSampleRate;
-    
+
     if (_dataSize <= PCMDATA_CACHEMAXSIZE) {
         _pcmData = (char*)malloc(_dataSize);
         alGenBuffers(1, &_alBufferId);
@@ -164,7 +164,7 @@ void AudioCache::readDataTask()
             goto ExitThread;
         }
         alBufferDataStaticProc(_alBufferId, _format, _pcmData, _dataSize, _sampleRate);
-        
+
         readInFrames = theFileFormat.mSampleRate * QUEUEBUFFER_TIME_STEP * QUEUEBUFFER_NUM;
         dataSize = outputFormat.mBytesPerFrame * readInFrames;
         if (dataSize > _dataSize) {
@@ -174,21 +174,21 @@ void AudioCache::readDataTask()
         theDataBuffer.mNumberBuffers = 1;
         theDataBuffer.mBuffers[0].mDataByteSize = (UInt32)dataSize;
         theDataBuffer.mBuffers[0].mNumberChannels = outputFormat.mChannelsPerFrame;
-        
+
         theDataBuffer.mBuffers[0].mData = _pcmData;
         frames = readInFrames;
         ExtAudioFileRead(extRef, (UInt32*)&frames, &theDataBuffer);
         _alBufferReady = true;
         _bytesOfRead += dataSize;
         invokingPlayCallbacks();
-        
+
         while (!_exitReadDataTask && _bytesOfRead + dataSize < _dataSize) {
             theDataBuffer.mBuffers[0].mData = _pcmData + _bytesOfRead;
             frames = readInFrames;
             ExtAudioFileRead(extRef, (UInt32*)&frames, &theDataBuffer);
             _bytesOfRead += dataSize;
         }
-        
+
         dataSize = _dataSize - _bytesOfRead;
         if (!_exitReadDataTask && dataSize > 0) {
             theDataBuffer.mBuffers[0].mDataByteSize = (UInt32)dataSize;
@@ -196,38 +196,38 @@ void AudioCache::readDataTask()
             frames = readInFrames;
             ExtAudioFileRead(extRef, (UInt32*)&frames, &theDataBuffer);
         }
-        
+
         _bytesOfRead = _dataSize;
     }
     else{
         _queBufferFrames = theFileFormat.mSampleRate * QUEUEBUFFER_TIME_STEP;
         _queBufferBytes = _queBufferFrames * outputFormat.mBytesPerFrame;
-        
+
 		theDataBuffer.mNumberBuffers = 1;
         theDataBuffer.mBuffers[0].mNumberChannels = outputFormat.mChannelsPerFrame;
         for (int index = 0; index < QUEUEBUFFER_NUM; ++index) {
             _queBuffers[index] = (char*)malloc(_queBufferBytes);
-            
+
             theDataBuffer.mBuffers[0].mDataByteSize = _queBufferBytes;
             theDataBuffer.mBuffers[0].mData = _queBuffers[index];
             frames = _queBufferFrames;
             ExtAudioFileRead(extRef, (UInt32*)&frames, &theDataBuffer);
-            
+
             _queBufferSize[index] = theDataBuffer.mBuffers[0].mDataByteSize;
         }
     }
-    
+
 ExitThread:
     CFRelease(fileURL);
     if (extRef)
         ExtAudioFileDispose(extRef);
-    
+
     _readDataTaskMutex.unlock();
     if (_queBufferFrames > 0)
         _alBufferReady = true;
     else
         _loadFail = true;
-    
+
     invokingPlayCallbacks();
 
     invokingLoadCallbacks();
@@ -280,3 +280,4 @@ void AudioCache::invokingLoadCallbacks()
 }
 
 #endif
+

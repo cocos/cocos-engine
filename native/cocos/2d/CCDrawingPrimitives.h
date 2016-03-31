@@ -39,7 +39,7 @@ THE SOFTWARE.
 
 #ifndef __CCDRAWING_PRIMITIVES__
 #define __CCDRAWING_PRIMITIVES__
-    
+
 
 #include "base/ccTypes.h"
 #include "base/ccMacros.h"
@@ -57,14 +57,14 @@ THE SOFTWARE.
  - drawCubicBezier
  - drawCatmullRom
  - drawCardinalSpline
- 
+
  You can change the color, point size, width by calling:
  - drawColor4B(), drawColor4F()
  - ccPointSize()
  - glLineWidth()
- 
+
  @warning These functions draws the Line, Vec2, Polygon, immediately. They aren't batched. If you are going to make a game that depends on these primitives, I suggest creating a batch. Instead you should use DrawNode
- 
+
  */
 
 NS_CC_BEGIN
@@ -149,7 +149,7 @@ namespace DrawPrimitives
      */
     CC_DEPRECATED_ATTRIBUTE void CC_DLL drawSolidPoly(const Vec2 *poli, unsigned int numberOfPoints, Color4F color);
 
-    /** Draws a circle given the center, radius and number of segments. 
+    /** Draws a circle given the center, radius and number of segments.
      *
      * @param center The circle center point.
      * @param radius The circle rotate of radius.
@@ -160,7 +160,7 @@ namespace DrawPrimitives
      * @param scaleY The scale value in y.
      */
     CC_DEPRECATED_ATTRIBUTE void CC_DLL drawCircle(const Vec2& center, float radius, float angle, unsigned int segments, bool drawLineToCenter, float scaleX, float scaleY);
-    
+
     /** Draws a circle given the center, radius and number of segments.
      *
      * @param center The circle center point.
@@ -181,7 +181,7 @@ namespace DrawPrimitives
      * @js NA
      */
     CC_DEPRECATED_ATTRIBUTE void CC_DLL drawSolidCircle(const Vec2& center, float radius, float angle, unsigned int segments, float scaleX, float scaleY);
-    
+
     /** Draws a solid circle given the center, radius and number of segments.
      * @param center The circle center point.
      * @param radius The circle rotate of radius.
@@ -270,3 +270,4 @@ namespace DrawPrimitives
 NS_CC_END
 
 #endif // __CCDRAWING_PRIMITIVES__
+

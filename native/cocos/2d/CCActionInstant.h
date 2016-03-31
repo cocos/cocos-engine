@@ -52,7 +52,7 @@ public:
         CC_ASSERT(0);
         return nullptr;
     }
-    
+
     virtual ActionInstant * reverse() const override
     {
         CC_ASSERT(0);
@@ -182,7 +182,7 @@ public:
     virtual void update(float time) override;
     virtual RemoveSelf* clone() const override;
     virtual RemoveSelf* reverse() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     RemoveSelf() : _isNeedCleanUp(true){}
     virtual ~RemoveSelf(){}
@@ -220,7 +220,7 @@ public:
     virtual void update(float time) override;
     virtual FlipX* reverse() const override;
     virtual FlipX* clone() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     FlipX() :_flipX(false) {}
     virtual ~FlipX() {}
@@ -258,7 +258,7 @@ public:
     virtual void update(float time) override;
     virtual FlipY* reverse() const override;
     virtual FlipY* clone() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     FlipY() :_flipY(false) {}
     virtual ~FlipY() {}
@@ -296,7 +296,7 @@ public:
     virtual void update(float time) override;
     virtual Place* reverse() const override;
     virtual Place* clone() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Place(){}
     virtual ~Place(){}
@@ -343,7 +343,7 @@ public:
     virtual void update(float time) override;
     virtual CallFunc* reverse() const override;
     virtual CallFunc* clone() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     CallFunc()
     : _callFunc(nullptr)
@@ -351,7 +351,7 @@ CC_CONSTRUCTOR_ACCESS:
     {
     }
     virtual ~CallFunc();
-    
+
     /** initializes the action with the std::function<void()>
      * @lua NA
      */
@@ -363,7 +363,7 @@ protected:
         SEL_CallFunc    _callFunc;
         SEL_CallFuncN    _callFuncN;
     };
-    
+
     /** function that will be called */
     std::function<void()> _function;
 
@@ -391,7 +391,7 @@ public:
     //
     virtual CallFuncN* clone() const override;
     virtual void execute() override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     CallFuncN():_functionN(nullptr){}
     virtual ~CallFuncN(){}
@@ -413,3 +413,4 @@ private:
 NS_CC_END
 
 #endif //__CCINSTANT_ACTION_H__
+

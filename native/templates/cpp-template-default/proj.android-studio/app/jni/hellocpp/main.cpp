@@ -13,3 +13,4 @@ void cocos_android_app_init (JNIEnv* env) {
     LOGD("cocos_android_app_init");
     AppDelegate *pAppDelegate = new AppDelegate();
 }
+

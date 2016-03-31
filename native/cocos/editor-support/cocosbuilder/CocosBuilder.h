@@ -29,3 +29,4 @@
 #include "cocosbuilder/CCSpriteLoader.h"
 
 #endif // __EDITOR_SUPPORT_COCOSBUILDER_H__
+

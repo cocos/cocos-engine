@@ -54,17 +54,17 @@ public:
     inline float getInterval() const { return _interval; };
     /** set interval in seconds */
     inline void setInterval(float interval) { _interval = interval; };
-    
+
     void setupTimerWithInterval(float seconds, unsigned int repeat, float delay);
-    
+
     virtual void trigger(float dt) = 0;
     virtual void cancel() = 0;
-    
+
     /** triggers the timer */
     void update(float dt);
-    
+
 protected:
-    
+
     Scheduler* _scheduler; // weak ref
     float _elapsed;
     bool _runForever;
@@ -83,12 +83,12 @@ public:
 
     /** Initializes a timer with a target, a selector and an interval in seconds, repeat in number of times to repeat, delay in seconds. */
     bool initWithSelector(Scheduler* scheduler, SEL_SCHEDULE selector, Ref* target, float seconds, unsigned int repeat, float delay);
-    
+
     inline SEL_SCHEDULE getSelector() const { return _selector; };
-    
+
     virtual void trigger(float dt) override;
     virtual void cancel() override;
-    
+
 protected:
     Ref* _target;
     SEL_SCHEDULE _selector;
@@ -99,16 +99,16 @@ class CC_DLL TimerTargetCallback : public Timer
 {
 public:
     TimerTargetCallback();
-    
+
     // Initializes a timer with a target, a lambda and an interval in seconds, repeat in number of times to repeat, delay in seconds.
     bool initWithCallback(Scheduler* scheduler, const ccSchedulerFunc& callback, void *target, const std::string& key, float seconds, unsigned int repeat, float delay);
-    
+
     inline const ccSchedulerFunc& getCallback() const { return _callback; };
     inline const std::string& getKey() const { return _key; };
-    
+
     virtual void trigger(float dt) override;
     virtual void cancel() override;
-    
+
 protected:
     void* _target;
     ccSchedulerFunc _callback;
@@ -122,10 +122,10 @@ class CC_DLL TimerScriptHandler : public Timer
 public:
     bool initWithScriptHandler(int handler, float seconds);
     inline int getScriptHandler() const { return _scriptHandler; };
-    
+
     virtual void trigger(float dt) override;
     virtual void cancel() override;
-    
+
 private:
     int _scriptHandler;
 };
@@ -163,27 +163,27 @@ The 'custom selectors' should be avoided when possible. It is faster, and consum
 class CC_DLL Scheduler : public Ref
 {
 public:
-    /** Priority level reserved for system services. 
+    /** Priority level reserved for system services.
      * @lua NA
      * @js NA
      */
     static const int PRIORITY_SYSTEM;
-    
-    /** Minimum priority level for user scheduling. 
+
+    /** Minimum priority level for user scheduling.
      * Priority level of user scheduling should bigger then this value.
      *
      * @lua NA
      * @js NA
      */
     static const int PRIORITY_NON_SYSTEM_MIN;
-    
+
     /**
      * Constructor
      *
      * @js ctor
      */
     Scheduler();
-    
+
     /**
      * Destructor
      *
@@ -213,9 +213,9 @@ public:
     void update(float dt);
 
     /////////////////////////////////////
-    
+
     // schedule
-    
+
     /** The scheduled method will be called every 'interval' seconds.
      If paused is true, then it won't be called until it is resumed.
      If 'interval' is 0, it will be called every frame, but if so, it's recommended to use 'scheduleUpdate' instead.
@@ -243,15 +243,15 @@ public:
      @since v3.0
      */
     void schedule(const ccSchedulerFunc& callback, void *target, float interval, bool paused, const std::string& key);
-    
-    
+
+
     /** The scheduled method will be called every `interval` seconds.
      If paused is true, then it won't be called until it is resumed.
      If 'interval' is 0, it will be called every frame, but if so, it's recommended to use 'scheduleUpdate' instead.
      If the selector is already scheduled, then only the interval parameter will be updated without re-scheduling it again.
      repeat let the action be repeated repeat + 1 times, use CC_REPEAT_FOREVER to let the action run continuously
      delay is the amount of time the action will wait before it'll start
-     
+
      @param selector The callback function.
      @param target The target of the callback function.
      @param interval The interval to schedule the callback. If the value is 0, then the callback will be scheduled every frame.
@@ -262,7 +262,7 @@ public:
      @since v3.0
      */
     void schedule(SEL_SCHEDULE selector, Ref *target, float interval, unsigned int repeat, float delay, bool paused);
-    
+
     /** The scheduled method will be called every `interval` seconds for ever.
      @param selector The callback function.
      @param target The target of the callback function.
@@ -270,7 +270,7 @@ public:
      @param paused Whether or not to pause the schedule.
      */
     void schedule(SEL_SCHEDULE selector, Ref *target, float interval, bool paused);
-    
+
     /** Schedules the 'update' selector for a given target with a given priority.
      The 'update' selector will be called every frame.
      The lower the priority, the earlier it is called.
@@ -291,7 +291,7 @@ public:
      If paused is true, then it won't be called until it is resumed.
      If 'interval' is 0, it will be called every frame.
      return schedule script entry ID, used for unscheduleScriptFunc().
-     
+
      @warn Don't invoke this function unless you know what you are doing.
      @js NA
      @lua NA
@@ -299,7 +299,7 @@ public:
     unsigned int scheduleScriptFunc(unsigned int handler, float interval, bool paused);
 #endif
     /////////////////////////////////////
-    
+
     // unschedule
 
     /** Unschedules a callback for a key and a given target.
@@ -317,13 +317,13 @@ public:
      @since v3.0
      */
     void unschedule(SEL_SCHEDULE selector, Ref *target);
-    
+
     /** Unschedules the update selector for a given target
      @param target The target to be unscheduled.
      @since v0.99.3
      */
     void unscheduleUpdate(void *target);
-    
+
     /** Unschedules all selectors for a given target.
      This also includes the "update" selector.
      @param target The target to be unscheduled.
@@ -331,13 +331,13 @@ public:
      @lua NA
      */
     void unscheduleAllForTarget(void *target);
-    
+
     /** Unschedules all selectors from all targets.
      You should NEVER call this method, unless you know what you are doing.
      @since v0.99.3
      */
     void unscheduleAll();
-    
+
     /** Unschedules all selectors from all targets with a minimum priority.
      You should only call this with `PRIORITY_NON_SYSTEM_MIN` or higher.
      @param minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
@@ -345,20 +345,20 @@ public:
      @since v2.0.0
      */
     void unscheduleAllWithMinPriority(int minPriority);
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
-    /** Unschedule a script entry. 
+    /** Unschedule a script entry.
      * @warning Don't invoke this function unless you know what you are doing.
      * @js NA
      * @lua NA
      */
     void unscheduleScriptEntry(unsigned int scheduleScriptEntryID);
 #endif
-    
+
     /////////////////////////////////////
-    
+
     // isScheduled
-    
+
     /** Checks whether a callback associated with 'key' and 'target' is scheduled.
      @param key The key to identify the callback function, because there is not way to identify a std::function<>.
      @param target The target of the callback.
@@ -366,7 +366,7 @@ public:
      @since v3.0.0
      */
     bool isScheduled(const std::string& key, void *target);
-    
+
     /** Checks whether a selector for a given target is scheduled.
      @param selector The selector to be checked.
      @param target The target of the callback.
@@ -374,9 +374,9 @@ public:
      @since v3.0
      */
     bool isScheduled(SEL_SCHEDULE selector, Ref *target);
-    
+
     /////////////////////////////////////
-    
+
     /** Pauses the target.
      All scheduled selectors/update for a given target won't be 'ticked' until the target is resumed.
      If the target is not present, nothing happens.
@@ -431,7 +431,7 @@ public:
     void performFunctionInCocosThread( const std::function<void()> &function);
 
 protected:
-    
+
     /** Schedules the 'callback' function for a given target with a given priority.
      The 'callback' selector will be called every frame.
      The lower the priority, the earlier it is called.
@@ -440,7 +440,7 @@ protected:
      @js _schedulePerFrame
      */
     void schedulePerFrame(const ccSchedulerFunc& callback, void *target, int priority, bool paused);
-    
+
     void removeHashElement(struct _hashSelectorEntry *element);
     void removeUpdateFromHash(struct _listEntry *entry);
 
@@ -466,11 +466,11 @@ protected:
     bool _currentTargetSalvaged;
     // If true unschedule will not remove anything from a hash. Elements will only be marked for deletion.
     bool _updateHashLocked;
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     Vector<SchedulerScriptHandlerEntry*> _scriptHandlerEntries;
 #endif
-    
+
     // Used for "perform Function"
     std::vector<std::function<void()>> _functionsToPerform;
     std::mutex _performMutex;
@@ -482,3 +482,4 @@ protected:
 NS_CC_END
 
 #endif // __CCSCHEDULER_H__
+

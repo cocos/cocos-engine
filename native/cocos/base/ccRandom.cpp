@@ -30,3 +30,4 @@ std::mt19937 &cocos2d::RandomHelper::getEngine() {
     static std::mt19937 engine(seed_gen());
     return engine;
 }
+

@@ -73,19 +73,19 @@ CC_CONSTRUCTOR_ACCESS:
      */
     EventListener();
 
-    /** 
+    /**
      * Initializes event with type and callback function
      * @js NA
      */
     bool init(Type t, const ListenerID& listenerID, const std::function<void(Event*)>& callback);
 public:
     /** Destructor.
-     * @js NA 
+     * @js NA
      */
     virtual ~EventListener();
 
     /** Checks whether the listener is available.
-     * 
+     *
      * @return True if the listener is available.
      */
     virtual bool checkAvailable() = 0;
@@ -182,3 +182,4 @@ NS_CC_END
 /// @}
 
 #endif // __CCEVENTLISTENER_H__
+

@@ -44,7 +44,7 @@ extern "C" {
         void *handle;           // native object, like cpSpace, cpBody, etc.
         JS::Heap<JSObject*> jsobj;        // JS Object. Needed for rooting / unrooting
     };
-    
+
     // Functions for setting / removing / getting the proxy used by the "C" Object Oriented API. Think of Chipmunk classes
     struct jsb_c_proxy_s* jsb_get_c_proxy_for_jsobject( JSObject *jsobj );
     void jsb_del_c_proxy_for_jsobject( JSObject *jsobj );
@@ -65,8 +65,8 @@ extern "C" {
     void jsb_set_jsobject_for_proxy(JSObject *jsobj, void* proxy);
     /** delts a JSObject for a given proxy */
     void jsb_del_jsobject_for_proxy(void* proxy);
-    
-    
+
+
     // needed for callbacks. It does nothing.
     bool JSB_do_nothing(JSContext *cx, uint32_t argc, jsval *vp);
 
@@ -75,3 +75,4 @@ extern "C" {
 #endif
 
 #endif /* __JS_BINDINGS_CORE_H__ */
+

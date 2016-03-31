@@ -586,3 +586,4 @@ protected:
 NS_CC_END
 
 #endif    // __CC_FILEUTILS_H__
+

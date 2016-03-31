@@ -65,7 +65,7 @@ void TransitionProgress::onEnter()
     TransitionScene::onEnter();
 
     setupTransition();
-    
+
     // create a transparent color layer
     // in which we are going to add our rendertextures
     Size size = Director::DirectorInstance->getWinSize();
@@ -146,7 +146,7 @@ ProgressTimer* TransitionProgressRadialCCW::progressTimerNodeWithRenderTexture(R
     node->setPercentage(100);
     node->setPosition(size.width/2, size.height/2);
     node->setAnchorPoint(Vec2(0.5f,0.5f));
-    
+
     return node;
 }
 
@@ -178,19 +178,19 @@ TransitionProgressRadialCW* TransitionProgressRadialCW::create(float t, Scene* s
 ProgressTimer* TransitionProgressRadialCW::progressTimerNodeWithRenderTexture(RenderTexture* texture)
 {
     Size size = Director::DirectorInstance->getWinSize();
-    
+
     ProgressTimer* node = ProgressTimer::create(texture->getSprite());
-    
+
     // but it is flipped upside down so we flip the sprite
     node->getSprite()->setFlippedY(true);
     node->setType( ProgressTimer::Type::RADIAL );
-    
+
     //    Return the radial type that we want to use
     node->setReverseDirection(true);
     node->setPercentage(100);
     node->setPosition(size.width/2, size.height/2);
     node->setAnchorPoint(Vec2(0.5f,0.5f));
-    
+
     return node;
 }
 
@@ -208,18 +208,18 @@ TransitionProgressHorizontal* TransitionProgressHorizontal::create(float t, Scen
 }
 
 ProgressTimer* TransitionProgressHorizontal::progressTimerNodeWithRenderTexture(RenderTexture* texture)
-{    
+{
     Size size = Director::DirectorInstance->getWinSize();
 
     ProgressTimer* node = ProgressTimer::create(texture->getSprite());
-    
+
     // but it is flipped upside down so we flip the sprite
     node->getSprite()->setFlippedY(true);
     node->setType( ProgressTimer::Type::BAR);
-    
+
     node->setMidpoint(Vec2(1, 0));
     node->setBarChangeRate(Vec2(1,0));
-    
+
     node->setPercentage(100);
     node->setPosition(size.width/2, size.height/2);
     node->setAnchorPoint(Vec2(0.5f,0.5f));
@@ -241,22 +241,22 @@ TransitionProgressVertical* TransitionProgressVertical::create(float t, Scene* s
 }
 
 ProgressTimer* TransitionProgressVertical::progressTimerNodeWithRenderTexture(RenderTexture* texture)
-{    
+{
     Size size = Director::DirectorInstance->getWinSize();
-    
+
     ProgressTimer* node = ProgressTimer::create(texture->getSprite());
-    
+
     // but it is flipped upside down so we flip the sprite
     node->getSprite()->setFlippedY(true);
     node->setType(ProgressTimer::Type::BAR);
-    
+
     node->setMidpoint(Vec2(0, 0));
     node->setBarChangeRate(Vec2(0,1));
-    
+
     node->setPercentage(100);
     node->setPosition(size.width/2, size.height/2);
     node->setAnchorPoint(Vec2(0.5f,0.5f));
-    
+
     return node;
 }
 
@@ -283,26 +283,26 @@ void TransitionProgressInOut::setupTransition()
 {
     _sceneToBeModified = _inScene;
     _from = 0;
-    _to = 100;    
+    _to = 100;
 }
 
 ProgressTimer* TransitionProgressInOut::progressTimerNodeWithRenderTexture(RenderTexture* texture)
-{    
+{
     Size size = Director::DirectorInstance->getWinSize();
-    
+
     ProgressTimer* node = ProgressTimer::create(texture->getSprite());
-    
+
     // but it is flipped upside down so we flip the sprite
     node->getSprite()->setFlippedY(true);
     node->setType( ProgressTimer::Type::BAR);
-    
+
     node->setMidpoint(Vec2(0.5f, 0.5f));
     node->setBarChangeRate(Vec2(1, 1));
-    
+
     node->setPercentage(0);
     node->setPosition(size.width/2, size.height/2);
     node->setAnchorPoint(Vec2(0.5f,0.5f));
-    
+
     return node;
 }
 
@@ -321,23 +321,24 @@ TransitionProgressOutIn* TransitionProgressOutIn::create(float t, Scene* scene)
 }
 
 ProgressTimer* TransitionProgressOutIn::progressTimerNodeWithRenderTexture(RenderTexture* texture)
-{    
+{
     Size size = Director::DirectorInstance->getWinSize();
-    
+
     ProgressTimer* node = ProgressTimer::create(texture->getSprite());
-    
+
     // but it is flipped upside down so we flip the sprite
     node->getSprite()->setFlippedY(true);
     node->setType( ProgressTimer::Type::BAR );
-    
+
     node->setMidpoint(Vec2(0.5f, 0.5f));
     node->setBarChangeRate(Vec2(1, 1));
-    
+
     node->setPercentage(100);
     node->setPosition(size.width/2, size.height/2);
     node->setAnchorPoint(Vec2(0.5f,0.5f));
-    
+
     return node;
 }
 
 NS_CC_END
+

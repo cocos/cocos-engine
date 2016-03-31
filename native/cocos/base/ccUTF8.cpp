@@ -125,7 +125,7 @@ bool UTF8ToUTF16(const std::string& utf8, std::u16string& outUtf16)
     }
 
     bool ret = false;
-    
+
     const size_t utf16Bytes = (utf8.length()+1) * sizeof(char16_t);
     char16_t* utf16 = (char16_t*)malloc(utf16Bytes);
     memset(utf16, 0, utf16Bytes);
@@ -213,19 +213,19 @@ unsigned int cc_utf8_find_last_not_char(const std::vector<unsigned short>& str, 
     {
         char16Vector.push_back(e);
     }
-    
+
     return StringUtils::getIndexOfLastNotChar16(char16Vector, c);
 }
 
 std::vector<unsigned short> cc_utf16_vec_from_utf16_str(const unsigned short* str)
 {
     std::vector<unsigned short> str_new;
-    
+
     if (str == nullptr)
         return str_new;
-    
+
     int len = cc_wcslen(str);
-    
+
     for (int i = 0; i < len; ++i)
     {
         str_new.push_back(str[i]);
@@ -237,12 +237,12 @@ unsigned short* cc_utf8_to_utf16(const char* str_old, int length/* = -1*/, int* 
 {
     if (str_old == nullptr)
         return nullptr;
-    
+
     unsigned short* ret = nullptr;
-    
+
     std::u16string outUtf16;
     bool succeed = StringUtils::UTF8ToUTF16(str_old, outUtf16);
-    
+
     if (succeed)
     {
         ret = new (std::nothrow) unsigned short[outUtf16.length() + 1];
@@ -253,7 +253,7 @@ unsigned short* cc_utf8_to_utf16(const char* str_old, int length/* = -1*/, int* 
             *rUtf16Size = static_cast<int>(outUtf16.length());
         }
     }
-    
+
     return ret;
 }
 
@@ -264,29 +264,30 @@ char * cc_utf16_to_utf8 (const unsigned short  *str,
 {
     if (str == nullptr)
         return nullptr;
-    
-    
+
+
     std::u16string utf16;
     int utf16Len = len < 0 ? cc_wcslen(str) : len;
-    
+
     for (int i = 0; i < utf16Len; ++i)
     {
         utf16.push_back(str[i]);
     }
-    
+
     char* ret = nullptr;
     std::string outUtf8;
     bool succeed = StringUtils::UTF16ToUTF8(utf16, outUtf8);
-    
+
     if (succeed)
     {
         ret = new (std::nothrow) char[outUtf8.length() + 1];
         ret[outUtf8.length()] = '\0';
         memcpy(ret, outUtf8.data(), outUtf8.length());
     }
-    
+
     return ret;
 }
 
 
 NS_CC_END
+

@@ -57,7 +57,7 @@ public:
 
     MinXmlHttpRequest();
     ~MinXmlHttpRequest();
-    
+
     JS_BINDED_CLASS_GLUE(MinXmlHttpRequest);
     JS_BINDED_CONSTRUCTOR(MinXmlHttpRequest);
     JS_BINDED_PROP_ACCESSOR(MinXmlHttpRequest, onloadstart);
@@ -95,7 +95,7 @@ private:
     void _setHttpRequestData(const char *data, size_t len);
     void _sendRequest(JSContext *cx);
     void _notify(JS::HandleObject callback);
-    
+
     std::string                       _url;
     JSContext*                        _cx;
     std::string                       _meth;
@@ -126,3 +126,4 @@ private:
 };
 
 #endif
+

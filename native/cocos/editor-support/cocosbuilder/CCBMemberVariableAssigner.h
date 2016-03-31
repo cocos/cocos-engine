@@ -55,3 +55,4 @@ class CC_DLL CCBMemberVariableAssigner {
 }
 
 #endif
+

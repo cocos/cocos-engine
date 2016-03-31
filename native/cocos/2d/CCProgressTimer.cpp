@@ -59,7 +59,7 @@ ProgressTimer* ProgressTimer::create(Sprite* sp)
         progressTimer->autorelease();
         return progressTimer;
     }
-    
+
     delete progressTimer;
     return nullptr;
 }
@@ -116,7 +116,7 @@ void ProgressTimer::setSprite(Sprite *sprite)
             _vertexDataCount = 0;
             updateProgress();
         }
-    }        
+    }
 }
 
 void ProgressTimer::setType(Type type)
@@ -193,7 +193,7 @@ void ProgressTimer::updateColor(void)
         for (int i = 0; i < _vertexDataCount; ++i)
         {
             _vertexData[i].colors = sc;
-        }            
+        }
     }
 }
 
@@ -254,7 +254,7 @@ void ProgressTimer::setMidpoint(const Vec2& midPoint)
 //    It now doesn't occur the cost of free/alloc data every update cycle.
 //    It also only changes the percentage point but no other points if they have not
 //    been modified.
-//    
+//
 //    It now deals with flipped texture. If you run into this problem, just use the
 //    sprite property and enable the methods flipX, flipY.
 ///
@@ -386,7 +386,7 @@ void ProgressTimer::updateRadial(void)
 //    It now doesn't occur the cost of free/alloc data every update cycle.
 //    It also only changes the percentage point but no other points if they have not
 //    been modified.
-//    
+//
 //    It now deals with flipped texture. If you run into this problem, just use the
 //    sprite property and enable the methods flipX, flipY.
 ///
@@ -521,12 +521,12 @@ void ProgressTimer::onDraw(const Mat4 &transform, uint32_t flags)
     }
     else if (_type == Type::BAR)
     {
-        if (!_reverseDirection) 
+        if (!_reverseDirection)
         {
             glDrawArrays(GL_TRIANGLE_STRIP, 0, _vertexDataCount);
             CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,_vertexDataCount);
         }
-        else 
+        else
         {
             glDrawArrays(GL_TRIANGLE_STRIP, 0, _vertexDataCount/2);
             glDrawArrays(GL_TRIANGLE_STRIP, 4, _vertexDataCount/2);
@@ -548,3 +548,4 @@ void ProgressTimer::draw(Renderer *renderer, const Mat4 &transform, uint32_t fla
 
 
 NS_CC_END
+

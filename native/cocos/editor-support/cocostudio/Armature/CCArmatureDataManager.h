@@ -47,7 +47,7 @@ class CC_STUDIO_DLL ArmatureDataManager : public cocos2d::Ref
 public:
     static ArmatureDataManager *getInstance();
     static void destroyInstance();
-    
+
 private:
     /**
      * @js ctor
@@ -200,3 +200,4 @@ private:
 }
 
 #endif/*__CCARMATUREDATAMANAGER_H__*/
+

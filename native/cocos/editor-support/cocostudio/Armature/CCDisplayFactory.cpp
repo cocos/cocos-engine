@@ -260,7 +260,7 @@ void DisplayFactory::createParticleDisplay(Bone *bone, DecorativeDisplay *decoDi
 
     system->removeFromParent();
     system->cleanup();
-    
+
     Armature *armature = bone->getArmature();
     if (armature)
     {
@@ -282,3 +282,4 @@ void DisplayFactory::updateParticleDisplay(Bone *bone, Node *display, float dt)
 
 
 }
+

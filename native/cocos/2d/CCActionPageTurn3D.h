@@ -2,7 +2,7 @@
 Copyright (c) 2009      Sindesso Pty Ltd http://www.sindesso.com/
 Copyright (c) 2010-2012 cocos2d-x.org
 CopyRight (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,18 +37,18 @@ NS_CC_BEGIN
 
 /**
  @brief This action simulates a page turn from the bottom right hand corner of the screen.
- 
+
  @details It's not much use by itself but is used by the PageTurnTransition.
          Based on an original paper by L Hong et al.
          http://www.parc.com/publication/1638/turning-pages-of-3d-electronic-books.html
-  
+
  @since v0.8.2
  */
 class CC_DLL PageTurn3D : public Grid3DAction
 {
 public:
     /**
-     * @js NA 
+     * @js NA
      */
     virtual GridBase* getGrid() override;
 
@@ -71,3 +71,4 @@ public:
 NS_CC_END
 
 #endif // __ACTION_CCPAGETURN3D_ACTION_H__
+

@@ -1,7 +1,7 @@
 /****************************************************************************
 Copyright (c) 2013      Zynga Inc.
 Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -61,3 +61,4 @@ public:
     GLuint _indexBufferSize[BUFFER_SLOTS];
 };
 #endif // __CC_GL_BUFFERED_NODE__
+

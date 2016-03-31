@@ -91,22 +91,22 @@ public:
 
     /** Goto the specified frame index, and start playing from this index.
      * @param startIndex The animation will play from this index.
-     * @param loop Whether or not the animation need loop. 
+     * @param loop Whether or not the animation need loop.
      */
     virtual void gotoFrameAndPlay(int startIndex, bool loop);
 
     /** Goto the specified frame index, and start playing from start index, end at end index.
      * @param startIndex The animation will play from this index.
      * @param endIndex The animation will end at this index.
-     * @param loop Whether or not the animation need loop. 
+     * @param loop Whether or not the animation need loop.
      */
     virtual void gotoFrameAndPlay(int startIndex, int endIndex, bool loop);
 
     /** Goto the specified frame index, and start playing from start index, end at end index.
      * @param startIndex The animation will play from this index.
      * @param endIndex The animation will end at this index.
-     * @param currentFrameIndex set current frame index. 
-     * @param loop Whether or not the animation need loop. 
+     * @param currentFrameIndex set current frame index.
+     * @param loop Whether or not the animation need loop.
      */
     virtual void gotoFrameAndPlay(int startIndex, int endIndex, int currentFrameIndex, bool loop);
 
@@ -136,7 +136,7 @@ public:
     virtual int getStartFrame() const { return _startFrame; }
 
     /** End frame of this action.
-      * When action play to this frame, if action is not loop, then it will stop, 
+      * When action play to this frame, if action is not loop, then it will stop,
       * or it will play from start frame again. */
     virtual int  getEndFrame() const { return _endFrame; }
 
@@ -150,7 +150,7 @@ public:
     virtual void removeTimeline(Timeline* timeline);
 
     virtual const cocos2d::Vector<Timeline*>& getTimelines() const { return _timelineList; }
-    
+
     /** AnimationInfo*/
     virtual void addAnimationInfo(const AnimationInfo& animationInfo);
     virtual void removeAnimationInfo(std::string animationName);
@@ -186,15 +186,15 @@ public:
     /** Inherit from Action. */
 
     /** Returns a clone of ActionTimeline */
-    virtual ActionTimeline* clone() const override; 
+    virtual ActionTimeline* clone() const override;
 
-    /** Returns a reverse of ActionTimeline. 
+    /** Returns a reverse of ActionTimeline.
      *  Not implement yet.
      */
     virtual ActionTimeline* reverse() const override { return nullptr; }
 
-    virtual void step(float delta) override; 
-    virtual void startWithTarget(cocos2d::Node *target) override;  
+    virtual void step(float delta) override;
+    virtual void startWithTarget(cocos2d::Node *target) override;
     virtual bool isDone() const override { return false; }
 protected:
     virtual void gotoFrame(int frameIndex);
@@ -229,3 +229,4 @@ NS_TIMELINE_END
 
 
 #endif /*__CCTIMELINE_ACTION_H__*/
+

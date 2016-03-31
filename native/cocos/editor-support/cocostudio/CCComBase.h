@@ -36,7 +36,7 @@ THE SOFTWARE.
     public: \
         static cocos2d::ObjectFactory::TInfo Type; \
         static cocos2d::Ref* createInstance(void); \
-        
+
 #define IMPLEMENT_CLASS_COMPONENT_INFO(className) \
         cocos2d::Ref* className::createInstance(void) \
         { \
@@ -58,7 +58,8 @@ struct CC_STUDIO_DLL SerData
         _cocoNode = NULL;
         _cocoLoader = NULL;
     }
-    
+
 };
 
 #endif
+

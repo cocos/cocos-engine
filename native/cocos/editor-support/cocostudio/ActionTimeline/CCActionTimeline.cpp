@@ -178,12 +178,12 @@ ActionTimeline* ActionTimeline::clone() const
     for (auto timelines : _timelineMap)
     {
         for(auto timeline : timelines.second)
-        {      
+        {
             Timeline* newTimeline = timeline->clone();
             newAction->addTimeline(newTimeline);
         }
     }
-    
+
     for( auto info : _animationInfos)
     {
         newAction->addAnimationInfo(info.second);
@@ -208,7 +208,7 @@ void ActionTimeline::step(float delta)
         _currentFrame = (int)(_time / _frameInternal);
         stepToFrame(_currentFrame);
         emitFrameEndCallFuncs(_currentFrame);
-        if (endtoffset >= 0 && _lastFrameListener != nullptr) // last frame 
+        if (endtoffset >= 0 && _lastFrameListener != nullptr) // last frame
             _lastFrameListener();
     }
     else
@@ -222,7 +222,7 @@ void ActionTimeline::step(float delta)
                 _currentFrame = _endFrame;
                 stepToFrame(_currentFrame);
                 emitFrameEndCallFuncs(_currentFrame);
-                if (_lastFrameListener != nullptr)  // last frame 
+                if (_lastFrameListener != nullptr)  // last frame
                     _lastFrameListener();
             }
         }
@@ -248,7 +248,7 @@ void ActionTimeline::startWithTarget(Node *target)
     Action::startWithTarget(target);
     this->setTag(target->getTag());
 
-    foreachNodeDescendant(target, 
+    foreachNodeDescendant(target,
         [this, target](Node* child)
     {
         ComExtensionData* data = dynamic_cast<ComExtensionData*>(child->getComponent("ComExtensionData"));
@@ -427,7 +427,7 @@ void ActionTimeline::gotoFrame(int frameIndex)
 
     ssize_t size = _timelineList.size();
     for(ssize_t i = 0; i < size; i++)
-    {      
+    {
         _timelineList.at(i)->gotoFrame(frameIndex);
     }
 }
@@ -436,9 +436,10 @@ void ActionTimeline::stepToFrame(int frameIndex)
 {
     ssize_t size = _timelineList.size();
     for(ssize_t i = 0; i < size; i++)
-    {      
+    {
         _timelineList.at(i)->stepToFrame(frameIndex);
     }
 }
 
 NS_TIMELINE_END
+

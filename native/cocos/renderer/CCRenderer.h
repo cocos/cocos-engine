@@ -95,11 +95,11 @@ public:
     void saveRenderState();
     /**Restore the saved DepthState, CullState, DepthWriteState render state.*/
     void restoreRenderState();
-    
+
 protected:
     /**The commands in the render queue.*/
     std::vector<RenderCommand*> _commands[QUEUE_COUNT];
-    
+
     /**Cull state.*/
     bool _isCullEnabled;
     /**Depth test enable state.*/
@@ -183,7 +183,7 @@ public:
      * For 2D object depth test is disabled by default
      */
     void setDepthTest(bool enable);
-    
+
     //This will not be used outside.
     inline GroupCommandManager* getGroupCommandManager() const { return _groupCommandManager; };
 
@@ -216,7 +216,7 @@ protected:
     Color4F _clearColor;
 
     std::stack<int> _commandGroupStack;
-    
+
     std::vector<RenderQueue> _renderGroups;
 
     uint32_t _lastMaterialID;
@@ -232,14 +232,14 @@ protected:
 
     int _filledVertex;
     int _filledIndex;
-    
+
     //for QuadCommand
     V3F_C4B_T2F _quadVerts[VBO_SIZE];
     GLushort _quadIndices[INDEX_VBO_SIZE];
     GLuint _quadVAO;
     GLuint _quadbuffersVBO[2]; //0: vertex  1: indices
     int _numberQuads;
-    
+
     bool _glViewAssigned;
 
     // stats
@@ -247,11 +247,11 @@ protected:
     ssize_t _drawnVertices;
     //the flag for checking whether renderer is rendering
     bool _isRendering;
-    
+
     bool _isDepthTestFor2D;
-    
+
     GroupCommandManager* _groupCommandManager;
-    
+
 #if CC_ENABLE_CACHE_TEXTURE_DATA
     EventListenerCustom* _cacheTextureListener;
 #endif
@@ -264,3 +264,4 @@ NS_CC_END
  @}
  */
 #endif //__CC_RENDERER_H_
+

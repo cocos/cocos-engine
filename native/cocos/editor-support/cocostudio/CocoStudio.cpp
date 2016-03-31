@@ -4,7 +4,8 @@
 namespace cocostudio
 {
     void destroyCocosStudio()
-    {        
-        
+    {
+
     }
 }
+

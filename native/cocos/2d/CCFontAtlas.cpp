@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2013      Zynga Inc.
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -43,7 +43,7 @@ const int FontAtlas::CacheTextureHeight = 512;
 const char* FontAtlas::CMD_PURGE_FONTATLAS = "__cc_PURGE_FONTATLAS";
 const char* FontAtlas::CMD_RESET_FONTATLAS = "__cc_RESET_FONTATLAS";
 
-FontAtlas::FontAtlas(Font &theFont) 
+FontAtlas::FontAtlas(Font &theFont)
 : _font(&theFont)
 , _fontFreeType(nullptr)
 , _iconv(nullptr)
@@ -69,7 +69,7 @@ FontAtlas::FontAtlas(Font &theFont)
 
         if (_fontFreeType->isDistanceFieldEnabled())
         {
-            _letterPadding += 2 * FontFreeType::DistanceMapSpread;    
+            _letterPadding += 2 * FontFreeType::DistanceMapSpread;
         }
         _currentPageDataSize = CacheTextureWidth * CacheTextureHeight;
         auto outlineSize = _fontFreeType->getOutlineSize();
@@ -82,8 +82,8 @@ FontAtlas::FontAtlas(Font &theFont)
         _currentPageData = new (std::nothrow) unsigned char[_currentPageDataSize];
         memset(_currentPageData, 0, _currentPageDataSize);
 
-        auto  pixelFormat = outlineSize > 0 ? Texture2D::PixelFormat::AI88 : Texture2D::PixelFormat::A8; 
-        texture->initWithData(_currentPageData, _currentPageDataSize, 
+        auto  pixelFormat = outlineSize > 0 ? Texture2D::PixelFormat::AI88 : Texture2D::PixelFormat::A8;
+        texture->initWithData(_currentPageData, _currentPageDataSize,
             pixelFormat, CacheTextureWidth, CacheTextureHeight, Size(CacheTextureWidth,CacheTextureHeight) );
 
         addTexture(texture,0);
@@ -126,7 +126,7 @@ FontAtlas::~FontAtlas()
 void FontAtlas::reset()
 {
     releaseTextures();
-    
+
     _currLineHeight = 0;
     _currentPage = 0;
     _currentPageOrigX = 0;
@@ -148,7 +148,7 @@ void FontAtlas::purgeTexturesAtlas()
     if (_fontFreeType)
     {
         reset();
-        
+
         auto eventDispatcher = Director::DirectorInstance->getEventDispatcher();
         eventDispatcher->dispatchCustomEvent(CMD_PURGE_FONTATLAS,this);
         eventDispatcher->dispatchCustomEvent(CMD_RESET_FONTATLAS,this);
@@ -311,8 +311,8 @@ bool FontAtlas::prepareLetterDefinitions(const std::u16string& utf16Text)
     if (_fontFreeType == nullptr)
     {
         return false;
-    } 
-    
+    }
+
     std::unordered_map<unsigned short, unsigned short> codeMapOfNewChar;
     findNewCharacters(utf16Text, codeMapOfNewChar);
     if (codeMapOfNewChar.empty())
@@ -474,3 +474,4 @@ void FontAtlas::setAntiAliasTexParameters()
 }
 
 NS_CC_END
+

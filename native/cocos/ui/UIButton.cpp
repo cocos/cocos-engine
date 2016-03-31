@@ -113,14 +113,14 @@ bool Button::init(const std::string &normalImage,
                   const std::string& disableImage,
                   TextureResType texType)
 {
-    
+
     bool ret = false;
     if (Widget::init())
     {
         this->loadTextures(normalImage, selectedImage, disableImage,texType);
         ret = true;
     }
-    
+
     return ret;
 }
 
@@ -172,7 +172,7 @@ void Button::setScale9Enabled(bool able)
         _buttonClickedRenderer->setRenderingType(Scale9Sprite::RenderingType::SIMPLE);
         _buttonDisabledRenderer->setRenderingType(Scale9Sprite::RenderingType::SIMPLE);
     }
-    
+
 
     if (_scale9Enabled)
     {
@@ -667,7 +667,7 @@ void Button::pressedTextureScaleChangedWithSize()
 void Button::disabledTextureScaleChangedWithSize()
 {
     _buttonDisabledRenderer->setPreferredSize(_contentSize);
-    
+
     _buttonDisabledRenderer->setPosition(_contentSize.width / 2.0f, _contentSize.height / 2.0f);
 }
 
@@ -954,3 +954,4 @@ void Button::resetDisabledRender()
 }
 
 NS_CC_END
+

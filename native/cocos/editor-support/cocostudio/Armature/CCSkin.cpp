@@ -178,7 +178,7 @@ void Skin::updateTransform()
         {
             std::swap(y1, y2);
         }
-        
+
         float x = transform.m[12];
         float y = transform.m[13];
 
@@ -253,3 +253,4 @@ Bone *Skin::getBone() const
 }
 
 }
+

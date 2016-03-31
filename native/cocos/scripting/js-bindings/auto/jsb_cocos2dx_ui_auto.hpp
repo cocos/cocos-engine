@@ -902,3 +902,4 @@ bool js_cocos2dx_ui_ScrollViewBar_create(JSContext *cx, uint32_t argc, jsval *vp
 bool js_cocos2dx_ui_ScrollViewBar_ScrollViewBar(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __cocos2dx_ui_h__
+

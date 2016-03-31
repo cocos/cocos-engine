@@ -147,16 +147,16 @@ public:
 class CC_EX_DLL TableView : public ScrollView, public ScrollViewDelegate
 {
 public:
-    
+
     enum class VerticalFillOrder
     {
         TOP_DOWN,
         BOTTOM_UP
     };
-    
+
     /** Empty contructor of TableView */
     static TableView* create();
-    
+
     /**
      * An intialized table view object
      *
@@ -338,3 +338,4 @@ NS_CC_EXT_END
 /// @}
 
 #endif /* __CCTABLEVIEW_H__ */
+

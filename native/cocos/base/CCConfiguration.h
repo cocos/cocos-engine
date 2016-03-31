@@ -49,9 +49,9 @@ class EventCustom;
 class CC_DLL Configuration : public Ref
 {
 public:
-    
+
     /** Returns a shared instance of Configuration.
-     * 
+     *
      * @return An autoreleased Configuration object.
      */
     static Configuration *getInstance();
@@ -68,7 +68,7 @@ public:
     virtual ~Configuration();
 
     /** OpenGL Max texture size.
-     * 
+     *
      * @return The OpenGL Max texture size.
      */
     int getMaxTextureSize() const;
@@ -88,7 +88,7 @@ public:
 
     /** Whether or not the GPU supports NPOT (Non Power Of Two) textures.
      OpenGL ES 2.0 already supports NPOT (iOS).
-     * 
+     *
      * @return Is true if supports NPOT.
      * @since v0.99.2
      */
@@ -99,26 +99,26 @@ public:
      * @return Is true if supports PVR Texture Compressed.
      */
     bool supportsPVRTC() const;
-    
+
     /** Whether or not ETC Texture Compressed is supported.
-     * 
+     *
      *
      * @return Is true if supports ETC Texture Compressed.
      */
     bool supportsETC() const;
-    
+
     /** Whether or not S3TC Texture Compressed is supported.
      *
      * @return Is true if supports S3TC Texture Compressed.
      */
 //    bool supportsS3TC() const;
-    
+
     /** Whether or not ATITC Texture Compressed is supported.
      *
      * @return Is true if supports ATITC Texture Compressed.
      */
 //    bool supportsATITC() const;
-    
+
     /** Whether or not BGRA8888 textures are supported.
      *
      * @return Is true if supports BGRA8888 textures.
@@ -145,36 +145,36 @@ public:
      * @since v3.9.0
      */
     bool supportsOESDepth24() const;
-    
+
     /** Whether or not OES_Packed_depth_stencil is supported.
      *
      * @return Is true if supports OES_Packed_depth_stencil.
      * @since v3.9.0
      */
     bool supportsOESPackedDepthStencil() const;
-    
+
     /** Max support directional light in shader, for Sprite3D.
      *
      * @return Maximum supports directional light in shader.
      * @since v3.3
      */
     int getMaxSupportDirLightInShader() const;
-    
+
     /** Max support point light in shader, for Sprite3D.
      *
      * @return Maximum supports point light in shader.
      * @since v3.3
      */
     int getMaxSupportPointLightInShader() const;
-    
+
     /** Max support spot light in shader, for Sprite3D.
      *
      * @return Maximum supports spot light in shader.
      * @since v3.3
      */
     int getMaxSupportSpotLightInShader() const;
-    
-    /** Returns whether or not an OpenGL is supported. 
+
+    /** Returns whether or not an OpenGL is supported.
      *
      * @param searchName A given search name.
      * @return Is true if an OpenGL is supported.
@@ -191,7 +191,7 @@ public:
      *
      * @param key A given key.
      * @param defaultValue if not find the value, return the defaultValue.
-     * @return 
+     * @return
      */
     const Value& getValue(const std::string& key, const Value& defaultValue = Value::Null) const;
 
@@ -213,18 +213,18 @@ public:
     void gatherGPUInfo();
 
     /** Loads a config file. If the keys are already present, then they are going to be replaced. Otherwise the new keys are added.
-     * 
+     *
      * @param filename Config file name.
      */
     void loadConfigFile(const std::string& filename);
-    
+
     static const char* CONFIG_FILE_LOADED;
 
 private:
     Configuration();
     static Configuration    *s_sharedConfiguration;
     static std::string        s_configfile;
-    
+
 protected:
     GLint           _maxTextureSize;
     GLint           _maxModelviewStackDepth;
@@ -244,9 +244,9 @@ protected:
     int             _maxDirLightInShader; //max support directional light in shader
     int             _maxPointLightInShader; // max support point light in shader
     int             _maxSpotLightInShader; // max support spot light in shader
-    
+
     ValueMap        _valueDict;
-    
+
     EventCustom*    _loadedEvent;
 };
 
@@ -256,3 +256,4 @@ NS_CC_END
 /// @}
 
 #endif // __CCCONFIGURATION_H__
+

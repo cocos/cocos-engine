@@ -2,7 +2,7 @@
 Copyright (c) 2009      On-Core
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -189,7 +189,7 @@ AccelDeccelAmplitude* AccelDeccelAmplitude::clone() const
     if (_other) {
         return AccelDeccelAmplitude::create(_other->clone(), _rate);
     }
-    
+
     return nullptr;
 }
 
@@ -260,7 +260,7 @@ AccelAmplitude* AccelAmplitude::clone() const
     if (_other) {
         return AccelAmplitude::create(_other->clone(), _duration);
     }
-    
+
     return nullptr;
 }
 
@@ -341,7 +341,7 @@ DeccelAmplitude* DeccelAmplitude::clone() const
     if (_other) {
         return DeccelAmplitude::create(_other->clone(), _duration);
     }
-    
+
     return nullptr;
 }
 
@@ -443,3 +443,4 @@ ReuseGrid* ReuseGrid::reverse() const
 }
 
 NS_CC_END
+

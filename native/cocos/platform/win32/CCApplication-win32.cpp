@@ -88,7 +88,7 @@ int Application::run()
         if (nNow.QuadPart - nLast.QuadPart > _animationInterval.QuadPart)
         {
             nLast.QuadPart = nNow.QuadPart - (nNow.QuadPart % _animationInterval.QuadPart);
-            
+
             director->mainLoop();
             glview->pollEvents();
         }
@@ -130,17 +130,17 @@ void Application::destroyInstance()
     if (sm_pSharedApplication) {
         delete  sm_pSharedApplication;
     }
-    
+
     sm_pSharedApplication = nullptr;
 }
 
 LanguageType Application::getCurrentLanguage()
 {
     LanguageType ret = LanguageType::ENGLISH;
-    
+
     LCID localeID = GetUserDefaultLCID();
     unsigned short primaryLanguageID = localeID & 0xFF;
-    
+
     switch (primaryLanguageID)
     {
         case LANG_CHINESE:
@@ -201,7 +201,7 @@ LanguageType Application::getCurrentLanguage()
             ret = LanguageType::BULGARIAN;
             break;
     }
-    
+
     return ret;
 }
 
@@ -275,3 +275,4 @@ static void PVRFrameEnableControlWindow(bool bEnable)
 }
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+

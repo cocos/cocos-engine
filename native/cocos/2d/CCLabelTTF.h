@@ -20,11 +20,11 @@ public:
         _renderLabel->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         addChild(_renderLabel);
     }
-    
+
     Label* getRenderLabel() const {
         return _renderLabel;
     }
-    
+
 protected:
     Label* _renderLabel;
 };
@@ -32,3 +32,4 @@ protected:
 NS_CC_END
 
 #endif /*_COCOS2D_CCLABELTTF_H_ */
+

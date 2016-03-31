@@ -79,7 +79,7 @@ Rect RectApplyAffineTransform(const Rect& rect, const AffineTransform& anAffineT
     float left   = rect.getMinX();
     float right  = rect.getMaxX();
     float bottom = rect.getMaxY();
-    
+
     Vec2 topLeft = PointApplyAffineTransform(Vec2(left, top), anAffineTransform);
     Vec2 topRight = PointApplyAffineTransform(Vec2(right, top), anAffineTransform);
     Vec2 bottomLeft = PointApplyAffineTransform(Vec2(left, bottom), anAffineTransform);
@@ -89,7 +89,7 @@ Rect RectApplyAffineTransform(const Rect& rect, const AffineTransform& anAffineT
     float maxX = max(max(topLeft.x, topRight.x), max(bottomLeft.x, bottomRight.x));
     float minY = min(min(topLeft.y, topRight.y), min(bottomLeft.y, bottomRight.y));
     float maxY = max(max(topLeft.y, topRight.y), max(bottomLeft.y, bottomRight.y));
-        
+
     return Rect(minX, minY, (maxX - minX), (maxY - minY));
 }
 
@@ -99,7 +99,7 @@ Rect RectApplyTransform(const Rect& rect, const Mat4& transform)
     float left   = rect.getMinX();
     float right  = rect.getMaxX();
     float bottom = rect.getMaxY();
-    
+
     Vec3 topLeft(left, top, 0);
     Vec3 topRight(right, top, 0);
     Vec3 bottomLeft(left, bottom, 0);
@@ -172,3 +172,4 @@ AffineTransform AffineTransformInvert(const AffineTransform& t)
 }
 
 NS_CC_END
+

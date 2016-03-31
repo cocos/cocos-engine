@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2014      PlayFirst Inc.
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -75,23 +75,23 @@ NS_CC_BEGIN
  * Wrapper class which maintains a strong reference to a cocos2dx cocos2d::Ref* type object.
  * Similar in concept to a boost smart pointer.
  *
- * Enables the use of the RAII idiom with Cocos2dx objects and helps automate some of the more 
+ * Enables the use of the RAII idiom with Cocos2dx objects and helps automate some of the more
  * mundane tasks of pointer initialization and cleanup.
  *
- * The class itself is modelled on C++ 11 std::shared_ptr, and trys to keep some of the methods 
+ * The class itself is modelled on C++ 11 std::shared_ptr, and trys to keep some of the methods
  * and functionality consistent with std::shared_ptr.
  */
 template <typename T> class RefPtr
 {
 public:
-    
+
     inline RefPtr()
     :
         _ptr(nullptr)
     {
-        
+
     }
-    
+
     inline RefPtr(RefPtr<T> && other)
     {
         _ptr = other._ptr;
@@ -104,26 +104,26 @@ public:
     {
         CC_REF_PTR_SAFE_RETAIN(_ptr);
     }
-    
+
     inline RefPtr(std::nullptr_t ptr)
     :
         _ptr(nullptr)
     {
-        
+
     }
-    
+
     inline RefPtr(const RefPtr<T> & other)
     :
         _ptr(other._ptr)
     {
         CC_REF_PTR_SAFE_RETAIN(_ptr);
     }
-    
+
     inline ~RefPtr()
     {
         CC_REF_PTR_SAFE_RELEASE_NULL(_ptr);
     }
-    
+
     inline RefPtr<T> & operator = (const RefPtr<T> & other)
     {
         if (other._ptr != _ptr)
@@ -132,10 +132,10 @@ public:
             CC_REF_PTR_SAFE_RELEASE(_ptr);
             _ptr = other._ptr;
         }
-        
+
         return *this;
     }
-    
+
     inline RefPtr<T> & operator = (RefPtr<T> && other)
     {
         if (&other != this)
@@ -144,10 +144,10 @@ public:
             _ptr = other._ptr;
             other._ptr = nullptr;
         }
-        
+
         return *this;
     }
-    
+
     inline RefPtr<T> & operator = (T * other)
     {
         if (other != _ptr)
@@ -156,99 +156,99 @@ public:
             CC_REF_PTR_SAFE_RELEASE(_ptr);
             _ptr = const_cast<typename std::remove_const<T>::type*>(other);     // Const cast allows RefPtr<T> to reference objects marked const too.
         }
-        
+
         return *this;
     }
-    
+
     inline RefPtr<T> & operator = (std::nullptr_t other)
     {
         CC_REF_PTR_SAFE_RELEASE_NULL(_ptr);
         return *this;
     }
-    
+
     // Note: using reinterpret_cast<> instead of static_cast<> here because it doesn't require type info.
     // Since we verify the correct type cast at compile time on construction/assign we don't need to know the type info
     // here. Not needing the type info here enables us to use these operations in inline functions in header files when
     // the type pointed to by this class is only forward referenced.
-    
+
     inline operator T * () const { return reinterpret_cast<T*>(_ptr); }
-    
+
     inline T & operator * () const
     {
         CCASSERT(_ptr, "Attempt to dereference a null pointer!");
         return reinterpret_cast<T&>(*_ptr);
     }
-    
+
     inline T * operator->() const
     {
         CCASSERT(_ptr, "Attempt to dereference a null pointer!");
         return reinterpret_cast<T*>(_ptr);
     }
-    
+
     inline T * get() const { return reinterpret_cast<T*>(_ptr); }
-    
-    
+
+
     inline bool operator == (const RefPtr<T> & other) const { return _ptr == other._ptr; }
-    
+
     inline bool operator == (const T * other) const { return _ptr == other; }
-    
+
     inline bool operator == (typename std::remove_const<T>::type * other) const { return _ptr == other; }
-    
+
     inline bool operator == (const std::nullptr_t other) const { return _ptr == other; }
-    
-    
+
+
     inline bool operator != (const RefPtr<T> & other) const { return _ptr != other._ptr; }
-    
+
     inline bool operator != (const T * other) const { return _ptr != other; }
-    
+
     inline bool operator != (typename std::remove_const<T>::type * other) const { return _ptr != other; }
-    
+
     inline bool operator != (const std::nullptr_t other) const { return _ptr != other; }
-    
-    
+
+
     inline bool operator > (const RefPtr<T> & other) const { return _ptr > other._ptr; }
-    
+
     inline bool operator > (const T * other) const { return _ptr > other; }
-    
+
     inline bool operator > (typename std::remove_const<T>::type * other) const { return _ptr > other; }
-    
+
     inline bool operator > (const std::nullptr_t other) const { return _ptr > other; }
-    
-    
+
+
     inline bool operator < (const RefPtr<T> & other) const { return _ptr < other._ptr; }
-    
+
     inline bool operator < (const T * other) const { return _ptr < other; }
-    
+
     inline bool operator < (typename std::remove_const<T>::type * other) const { return _ptr < other; }
-    
+
     inline bool operator < (const std::nullptr_t other) const { return _ptr < other; }
-    
-        
+
+
     inline bool operator >= (const RefPtr<T> & other) const { return _ptr >= other._ptr; }
-    
+
     inline bool operator >= (const T * other) const { return _ptr >= other; }
-    
+
     inline bool operator >= (typename std::remove_const<T>::type * other) const { return _ptr >= other; }
-    
+
     inline bool operator >= (const std::nullptr_t other) const { return _ptr >= other; }
-    
-        
+
+
     inline bool operator <= (const RefPtr<T> & other) const { return _ptr <= other._ptr; }
-    
+
     inline bool operator <= (const T * other) const { return _ptr <= other; }
-    
+
     inline bool operator <= (typename std::remove_const<T>::type * other) const { return _ptr <= other; }
-    
+
     inline bool operator <= (const std::nullptr_t other) const { return _ptr <= other; }
-    
-        
+
+
     inline operator bool() const { return _ptr != nullptr; }
-        
+
     inline void reset()
     {
         CC_REF_PTR_SAFE_RELEASE_NULL(_ptr);
     }
-        
+
     inline void swap(RefPtr<T> & other)
     {
         if (&other != this)
@@ -258,7 +258,7 @@ public:
             other._ptr = tmp;
         }
     }
-    
+
     /**
      * This function assigns to this RefPtr<T> but does not increase the reference count of the object pointed to.
      * Useful for assigning an object created through the 'new' operator to a RefPtr<T>. Basically used in scenarios
@@ -278,11 +278,11 @@ public:
         CC_REF_PTR_SAFE_RELEASE(_ptr);
         _ptr = other._ptr;
     }
-    
+
 private:
     Ref * _ptr;
 };
-    
+
 /**
  * Cast between RefPtr types statically.
  */
@@ -310,3 +310,4 @@ NS_CC_END
 
 /// @endcond
 #endif  // __CC_REF_PTR_H__
+

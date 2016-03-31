@@ -68,7 +68,7 @@ void InputDelegate::onTouchMoved(Touch *pTouch, Event *pEvent)
     CC_UNUSED_PARAM(pTouch);
     CC_UNUSED_PARAM(pEvent);
 }
-    
+
 void InputDelegate::onTouchEnded(Touch *pTouch, Event *pEvent)
 {
     CC_UNUSED_PARAM(pTouch);
@@ -79,7 +79,7 @@ void InputDelegate::onTouchCancelled(Touch *pTouch, Event *pEvent)
 {
     CC_UNUSED_PARAM(pTouch);
     CC_UNUSED_PARAM(pEvent);
-}    
+}
 
 void InputDelegate::onTouchesBegan(const std::vector<Touch*>& pTouches, Event *pEvent)
 {
@@ -117,28 +117,28 @@ void InputDelegate::setTouchEnabled(bool enabled)
         auto dispatcher = Director::getInstance()->getEventDispatcher();
         _touchEnabled = enabled;
         if (enabled)
-        {            
+        {
             if( _touchMode == Touch::DispatchMode::ALL_AT_ONCE ) {
                 // Register Touch Event
                 auto listener = EventListenerTouchAllAtOnce::create();
-                
+
                 listener->onTouchesBegan = CC_CALLBACK_2(InputDelegate::onTouchesBegan, this);
                 listener->onTouchesMoved = CC_CALLBACK_2(InputDelegate::onTouchesMoved, this);
                 listener->onTouchesEnded = CC_CALLBACK_2(InputDelegate::onTouchesEnded, this);
                 listener->onTouchesCancelled = CC_CALLBACK_2(InputDelegate::onTouchesCancelled, this);
-                
+
                 dispatcher->addEventListenerWithFixedPriority(listener, _touchPriority);
                 _touchListener = listener;
             } else {
                 // Register Touch Event
                 auto listener = EventListenerTouchOneByOne::create();
                 listener->setSwallowTouches(true);
-                
+
                 listener->onTouchBegan = CC_CALLBACK_2(InputDelegate::onTouchBegan, this);
                 listener->onTouchMoved = CC_CALLBACK_2(InputDelegate::onTouchMoved, this);
                 listener->onTouchEnded = CC_CALLBACK_2(InputDelegate::onTouchEnded, this);
                 listener->onTouchCancelled = CC_CALLBACK_2(InputDelegate::onTouchCancelled, this);
-                
+
                 dispatcher->addEventListenerWithFixedPriority(listener, _touchPriority);
                 _touchListener = listener;
             }
@@ -155,7 +155,7 @@ void InputDelegate::setTouchMode(Touch::DispatchMode mode)
     if(_touchMode != mode)
     {
         _touchMode = mode;
-        
+
         if( _touchEnabled)
         {
             setTouchEnabled(false);
@@ -169,7 +169,7 @@ void InputDelegate::setTouchPriority(int priority)
     if (_touchPriority != priority)
     {
         _touchPriority = priority;
-        
+
         if( _touchEnabled)
         {
             setTouchEnabled(false);
@@ -202,9 +202,9 @@ void InputDelegate::setAccelerometerEnabled(bool enabled)
         auto dispatcher = Director::getInstance()->getEventDispatcher();
         dispatcher->removeEventListener(_accelerometerListener);
         _accelerometerListener = nullptr;
-        
+
         Device::setAccelerometerEnabled(enabled);
-        
+
         if (enabled)
         {
             auto listener = EventListenerAcceleration::create(CC_CALLBACK_2(InputDelegate::onAcceleration, this));
@@ -227,13 +227,13 @@ void InputDelegate::setKeypadEnabled(bool enabled)
 
         auto dispatcher = Director::getInstance()->getEventDispatcher();
         dispatcher->removeEventListener(_keyboardListener);
-        
+
         if (enabled)
         {
             auto listener = EventListenerKeyboard::create();
             listener->onKeyPressed = CC_CALLBACK_2(InputDelegate::onKeyPressed, this);
             listener->onKeyReleased = CC_CALLBACK_2(InputDelegate::onKeyReleased, this);
-            
+
             dispatcher->addEventListenerWithFixedPriority(listener, -1);
             _keyboardListener = listener;
         }
@@ -242,3 +242,4 @@ void InputDelegate::setKeypadEnabled(bool enabled)
 
 
 }
+

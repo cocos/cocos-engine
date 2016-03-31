@@ -26,7 +26,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
         JS::RootedObject proto(cx, typeClass->proto.ref());
         JS::RootedObject parent(cx, typeClass->parentProto.ref());
         JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-        
+
         args.rval().set(OBJECT_TO_JSVAL(_tmp));
         return true;
     }
@@ -43,7 +43,7 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().setBoolean(true);
-    return true;    
+    return true;
 }
 JSClass  *jsb_cocos2d_Texture2D_class;
 JSObject *jsb_cocos2d_Texture2D_prototype;
@@ -1863,7 +1863,7 @@ bool js_cocos2dx_Component_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 void js_cocos2d_Component_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Component)", obj);
 }
-    
+
 void js_register_cocos2dx_Component(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Component_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Component_class->name = "Component";
@@ -5166,7 +5166,7 @@ bool js_cocos2dx_Node_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 void js_cocos2d_Node_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Node)", obj);
 }
-    
+
 void js_register_cocos2dx_Node(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Node_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Node_class->name = "Node";
@@ -5458,7 +5458,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_Scene_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Scene)", obj);
 }
-    
+
 void js_register_cocos2dx_Scene(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Scene_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Scene_class->name = "Scene";
@@ -9096,7 +9096,7 @@ bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             const char* arg0 = nullptr;
@@ -9120,7 +9120,7 @@ bool js_cocos2dx_Properties_parseColor(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             const char* arg0 = nullptr;
@@ -13296,7 +13296,7 @@ extern JSObject *jsb_cocos2d_Action_prototype;
 void js_cocos2d_Follow_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Follow)", obj);
 }
-    
+
 void js_register_cocos2dx_Follow(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Follow_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Follow_class->name = "Follow";
@@ -13820,7 +13820,7 @@ bool js_cocos2dx_SpriteFrame_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 5) {
             std::string arg0;
@@ -13852,7 +13852,7 @@ bool js_cocos2dx_SpriteFrame_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -13882,7 +13882,7 @@ bool js_cocos2dx_SpriteFrame_createWithTexture(JSContext *cx, uint32_t argc, jsv
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 5) {
             cocos2d::Texture2D* arg0 = nullptr;
@@ -13922,7 +13922,7 @@ bool js_cocos2dx_SpriteFrame_createWithTexture(JSContext *cx, uint32_t argc, jsv
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             cocos2d::Texture2D* arg0 = nullptr;
@@ -14002,7 +14002,7 @@ bool js_cocos2dx_SpriteFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp
 void js_cocos2d_SpriteFrame_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SpriteFrame)", obj);
 }
-    
+
 void js_register_cocos2dx_SpriteFrame(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_SpriteFrame_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_SpriteFrame_class->name = "SpriteFrame";
@@ -14357,7 +14357,7 @@ bool js_cocos2dx_AnimationFrame_constructor(JSContext *cx, uint32_t argc, jsval 
 void js_cocos2d_AnimationFrame_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AnimationFrame)", obj);
 }
-    
+
 void js_register_cocos2dx_AnimationFrame(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_AnimationFrame_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_AnimationFrame_class->name = "AnimationFrame";
@@ -14800,7 +14800,7 @@ bool js_cocos2dx_Animation_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             cocos2d::Vector<cocos2d::AnimationFrame *> arg0;
@@ -14848,7 +14848,7 @@ bool js_cocos2dx_Animation_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::Animation* ret = cocos2d::Animation::create();
@@ -14979,7 +14979,7 @@ bool js_cocos2dx_Animation_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 void js_cocos2d_Animation_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Animation)", obj);
 }
-    
+
 void js_register_cocos2dx_Animation(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Animation_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Animation_class->name = "Animation";
@@ -15286,7 +15286,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_Sequence_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Sequence)", obj);
 }
-    
+
 void js_register_cocos2dx_Sequence(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Sequence_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Sequence_class->name = "Sequence";
@@ -15502,7 +15502,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_Repeat_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Repeat)", obj);
 }
-    
+
 void js_register_cocos2dx_Repeat(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Repeat_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Repeat_class->name = "Repeat";
@@ -15718,7 +15718,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_RepeatForever_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RepeatForever)", obj);
 }
-    
+
 void js_register_cocos2dx_RepeatForever(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_RepeatForever_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_RepeatForever_class->name = "RepeatForever";
@@ -15880,7 +15880,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_Spawn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Spawn)", obj);
 }
-    
+
 void js_register_cocos2dx_Spawn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Spawn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Spawn_class->name = "Spawn";
@@ -15958,7 +15958,7 @@ bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -15981,7 +15981,7 @@ bool js_cocos2dx_RotateTo_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -16058,7 +16058,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_RotateTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RotateTo)", obj);
 }
-    
+
 void js_register_cocos2dx_RotateTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_RotateTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_RotateTo_class->name = "RotateTo";
@@ -16161,7 +16161,7 @@ bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -16187,7 +16187,7 @@ bool js_cocos2dx_RotateBy_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -16261,7 +16261,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_RotateBy_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RotateBy)", obj);
 }
-    
+
 void js_register_cocos2dx_RotateBy(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_RotateBy_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_RotateBy_class->name = "RotateBy";
@@ -16410,7 +16410,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_MoveBy_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MoveBy)", obj);
 }
-    
+
 void js_register_cocos2dx_MoveBy(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MoveBy_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MoveBy_class->name = "MoveBy";
@@ -16559,7 +16559,7 @@ extern JSObject *jsb_cocos2d_MoveBy_prototype;
 void js_cocos2d_MoveTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MoveTo)", obj);
 }
-    
+
 void js_register_cocos2dx_MoveTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MoveTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MoveTo_class->name = "MoveTo";
@@ -16712,7 +16712,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_SkewTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SkewTo)", obj);
 }
-    
+
 void js_register_cocos2dx_SkewTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_SkewTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_SkewTo_class->name = "SkewTo";
@@ -16865,7 +16865,7 @@ extern JSObject *jsb_cocos2d_SkewTo_prototype;
 void js_cocos2d_SkewBy_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SkewBy)", obj);
 }
-    
+
 void js_register_cocos2dx_SkewBy(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_SkewBy_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_SkewBy_class->name = "SkewBy";
@@ -17022,7 +17022,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_JumpBy_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (JumpBy)", obj);
 }
-    
+
 void js_register_cocos2dx_JumpBy(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_JumpBy_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_JumpBy_class->name = "JumpBy";
@@ -17179,7 +17179,7 @@ extern JSObject *jsb_cocos2d_JumpBy_prototype;
 void js_cocos2d_JumpTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (JumpTo)", obj);
 }
-    
+
 void js_register_cocos2dx_JumpTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_JumpTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_JumpTo_class->name = "JumpTo";
@@ -17277,7 +17277,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_BezierBy_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (BezierBy)", obj);
 }
-    
+
 void js_register_cocos2dx_BezierBy(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_BezierBy_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_BezierBy_class->name = "BezierBy";
@@ -17371,7 +17371,7 @@ extern JSObject *jsb_cocos2d_BezierBy_prototype;
 void js_cocos2d_BezierTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (BezierTo)", obj);
 }
-    
+
 void js_register_cocos2dx_BezierTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_BezierTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_BezierTo_class->name = "BezierTo";
@@ -17492,7 +17492,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -17518,7 +17518,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -17541,7 +17541,7 @@ bool js_cocos2dx_ScaleTo_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 4) {
             double arg0 = 0;
@@ -17621,7 +17621,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_ScaleTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ScaleTo)", obj);
 }
-    
+
 void js_register_cocos2dx_ScaleTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ScaleTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ScaleTo_class->name = "ScaleTo";
@@ -17675,7 +17675,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -17701,7 +17701,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -17724,7 +17724,7 @@ bool js_cocos2dx_ScaleBy_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 4) {
             double arg0 = 0;
@@ -17804,7 +17804,7 @@ extern JSObject *jsb_cocos2d_ScaleTo_prototype;
 void js_cocos2d_ScaleBy_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ScaleBy)", obj);
 }
-    
+
 void js_register_cocos2dx_ScaleBy(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ScaleBy_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ScaleBy_class->name = "ScaleBy";
@@ -17952,7 +17952,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_Blink_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Blink)", obj);
 }
-    
+
 void js_register_cocos2dx_Blink(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Blink_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Blink_class->name = "Blink";
@@ -18101,7 +18101,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_FadeTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FadeTo)", obj);
 }
-    
+
 void js_register_cocos2dx_FadeTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FadeTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FadeTo_class->name = "FadeTo";
@@ -18252,7 +18252,7 @@ extern JSObject *jsb_cocos2d_FadeTo_prototype;
 void js_cocos2d_FadeIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FadeIn)", obj);
 }
-    
+
 void js_register_cocos2dx_FadeIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FadeIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FadeIn_class->name = "FadeIn";
@@ -18403,7 +18403,7 @@ extern JSObject *jsb_cocos2d_FadeTo_prototype;
 void js_cocos2d_FadeOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FadeOut)", obj);
 }
-    
+
 void js_register_cocos2dx_FadeOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FadeOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FadeOut_class->name = "FadeOut";
@@ -18485,7 +18485,7 @@ bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -18508,7 +18508,7 @@ bool js_cocos2dx_TintTo_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 4) {
             double arg0 = 0;
@@ -18588,7 +18588,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_TintTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TintTo)", obj);
 }
-    
+
 void js_register_cocos2dx_TintTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TintTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TintTo_class->name = "TintTo";
@@ -18745,7 +18745,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_TintBy_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TintBy)", obj);
 }
-    
+
 void js_register_cocos2dx_TintBy(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TintBy_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TintBy_class->name = "TintBy";
@@ -18868,7 +18868,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_DelayTime_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (DelayTime)", obj);
 }
-    
+
 void js_register_cocos2dx_DelayTime(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_DelayTime_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_DelayTime_class->name = "DelayTime";
@@ -19028,7 +19028,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_ReverseTime_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ReverseTime)", obj);
 }
-    
+
 void js_register_cocos2dx_ReverseTime(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ReverseTime_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ReverseTime_class->name = "ReverseTime";
@@ -19283,7 +19283,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_Animate_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Animate)", obj);
 }
-    
+
 void js_register_cocos2dx_Animate(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Animate_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Animate_class->name = "Animate";
@@ -19543,7 +19543,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_TargetedAction_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TargetedAction)", obj);
 }
-    
+
 void js_register_cocos2dx_TargetedAction(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TargetedAction_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TargetedAction_class->name = "TargetedAction";
@@ -19746,7 +19746,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_ActionFloat_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ActionFloat)", obj);
 }
-    
+
 void js_register_cocos2dx_ActionFloat(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ActionFloat_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ActionFloat_class->name = "ActionFloat";
@@ -19980,7 +19980,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_ActionCamera_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ActionCamera)", obj);
 }
-    
+
 void js_register_cocos2dx_ActionCamera(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ActionCamera_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ActionCamera_class->name = "ActionCamera";
@@ -20178,7 +20178,7 @@ extern JSObject *jsb_cocos2d_ActionCamera_prototype;
 void js_cocos2d_OrbitCamera_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (OrbitCamera)", obj);
 }
-    
+
 void js_register_cocos2dx_OrbitCamera(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_OrbitCamera_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_OrbitCamera_class->name = "OrbitCamera";
@@ -20875,7 +20875,7 @@ extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
 void js_cocos2d_EaseIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseIn_class->name = "EaseIn";
@@ -21007,7 +21007,7 @@ extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
 void js_cocos2d_EaseOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseOut_class->name = "EaseOut";
@@ -21139,7 +21139,7 @@ extern JSObject *jsb_cocos2d_EaseRateAction_prototype;
 void js_cocos2d_EaseInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseInOut_class->name = "EaseInOut";
@@ -21269,7 +21269,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseExponentialIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseExponentialIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseExponentialIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseExponentialIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseExponentialIn_class->name = "EaseExponentialIn";
@@ -21399,7 +21399,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseExponentialOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseExponentialOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseExponentialOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseExponentialOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseExponentialOut_class->name = "EaseExponentialOut";
@@ -21529,7 +21529,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseExponentialInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseExponentialInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseExponentialInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseExponentialInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseExponentialInOut_class->name = "EaseExponentialInOut";
@@ -21659,7 +21659,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseSineIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseSineIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseSineIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseSineIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseSineIn_class->name = "EaseSineIn";
@@ -21789,7 +21789,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseSineOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseSineOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseSineOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseSineOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseSineOut_class->name = "EaseSineOut";
@@ -21919,7 +21919,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseSineInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseSineInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseSineInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseSineInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseSineInOut_class->name = "EaseSineInOut";
@@ -22112,7 +22112,7 @@ bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::ActionInterval* arg0 = nullptr;
@@ -22140,7 +22140,7 @@ bool js_cocos2dx_EaseElasticIn_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             cocos2d::ActionInterval* arg0 = nullptr;
@@ -22222,7 +22222,7 @@ extern JSObject *jsb_cocos2d_EaseElastic_prototype;
 void js_cocos2d_EaseElasticIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseElasticIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseElasticIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseElasticIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseElasticIn_class->name = "EaseElasticIn";
@@ -22275,7 +22275,7 @@ bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::ActionInterval* arg0 = nullptr;
@@ -22303,7 +22303,7 @@ bool js_cocos2dx_EaseElasticOut_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             cocos2d::ActionInterval* arg0 = nullptr;
@@ -22385,7 +22385,7 @@ extern JSObject *jsb_cocos2d_EaseElastic_prototype;
 void js_cocos2d_EaseElasticOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseElasticOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseElasticOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseElasticOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseElasticOut_class->name = "EaseElasticOut";
@@ -22438,7 +22438,7 @@ bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, jsval *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::ActionInterval* arg0 = nullptr;
@@ -22466,7 +22466,7 @@ bool js_cocos2dx_EaseElasticInOut_create(JSContext *cx, uint32_t argc, jsval *vp
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             cocos2d::ActionInterval* arg0 = nullptr;
@@ -22548,7 +22548,7 @@ extern JSObject *jsb_cocos2d_EaseElastic_prototype;
 void js_cocos2d_EaseElasticInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseElasticInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseElasticInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseElasticInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseElasticInOut_class->name = "EaseElasticInOut";
@@ -22727,7 +22727,7 @@ extern JSObject *jsb_cocos2d_EaseBounce_prototype;
 void js_cocos2d_EaseBounceIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseBounceIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseBounceIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseBounceIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseBounceIn_class->name = "EaseBounceIn";
@@ -22857,7 +22857,7 @@ extern JSObject *jsb_cocos2d_EaseBounce_prototype;
 void js_cocos2d_EaseBounceOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseBounceOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseBounceOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseBounceOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseBounceOut_class->name = "EaseBounceOut";
@@ -22987,7 +22987,7 @@ extern JSObject *jsb_cocos2d_EaseBounce_prototype;
 void js_cocos2d_EaseBounceInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseBounceInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseBounceInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseBounceInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseBounceInOut_class->name = "EaseBounceInOut";
@@ -23117,7 +23117,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseBackIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseBackIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseBackIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseBackIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseBackIn_class->name = "EaseBackIn";
@@ -23247,7 +23247,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseBackOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseBackOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseBackOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseBackOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseBackOut_class->name = "EaseBackOut";
@@ -23377,7 +23377,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseBackInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseBackInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseBackInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseBackInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseBackInOut_class->name = "EaseBackInOut";
@@ -23533,7 +23533,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseBezierAction_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseBezierAction)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseBezierAction(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseBezierAction_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseBezierAction_class->name = "EaseBezierAction";
@@ -23664,7 +23664,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuadraticActionIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuadraticActionIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuadraticActionIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuadraticActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuadraticActionIn_class->name = "EaseQuadraticActionIn";
@@ -23794,7 +23794,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuadraticActionOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuadraticActionOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuadraticActionOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuadraticActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuadraticActionOut_class->name = "EaseQuadraticActionOut";
@@ -23924,7 +23924,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuadraticActionInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuadraticActionInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuadraticActionInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuadraticActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuadraticActionInOut_class->name = "EaseQuadraticActionInOut";
@@ -24054,7 +24054,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuarticActionIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuarticActionIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuarticActionIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuarticActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuarticActionIn_class->name = "EaseQuarticActionIn";
@@ -24184,7 +24184,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuarticActionOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuarticActionOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuarticActionOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuarticActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuarticActionOut_class->name = "EaseQuarticActionOut";
@@ -24314,7 +24314,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuarticActionInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuarticActionInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuarticActionInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuarticActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuarticActionInOut_class->name = "EaseQuarticActionInOut";
@@ -24444,7 +24444,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuinticActionIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuinticActionIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuinticActionIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuinticActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuinticActionIn_class->name = "EaseQuinticActionIn";
@@ -24574,7 +24574,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuinticActionOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuinticActionOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuinticActionOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuinticActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuinticActionOut_class->name = "EaseQuinticActionOut";
@@ -24704,7 +24704,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseQuinticActionInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseQuinticActionInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseQuinticActionInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseQuinticActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseQuinticActionInOut_class->name = "EaseQuinticActionInOut";
@@ -24834,7 +24834,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseCircleActionIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseCircleActionIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseCircleActionIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseCircleActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseCircleActionIn_class->name = "EaseCircleActionIn";
@@ -24964,7 +24964,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseCircleActionOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseCircleActionOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseCircleActionOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseCircleActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseCircleActionOut_class->name = "EaseCircleActionOut";
@@ -25094,7 +25094,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseCircleActionInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseCircleActionInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseCircleActionInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseCircleActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseCircleActionInOut_class->name = "EaseCircleActionInOut";
@@ -25224,7 +25224,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseCubicActionIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseCubicActionIn)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseCubicActionIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseCubicActionIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseCubicActionIn_class->name = "EaseCubicActionIn";
@@ -25354,7 +25354,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseCubicActionOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseCubicActionOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseCubicActionOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseCubicActionOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseCubicActionOut_class->name = "EaseCubicActionOut";
@@ -25484,7 +25484,7 @@ extern JSObject *jsb_cocos2d_ActionEase_prototype;
 void js_cocos2d_EaseCubicActionInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EaseCubicActionInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_EaseCubicActionInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_EaseCubicActionInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_EaseCubicActionInOut_class->name = "EaseCubicActionInOut";
@@ -25651,7 +25651,7 @@ extern JSObject *jsb_cocos2d_ActionInstant_prototype;
 void js_cocos2d_Show_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Show)", obj);
 }
-    
+
 void js_register_cocos2dx_Show(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Show_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Show_class->name = "Show";
@@ -25769,7 +25769,7 @@ extern JSObject *jsb_cocos2d_ActionInstant_prototype;
 void js_cocos2d_Hide_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Hide)", obj);
 }
-    
+
 void js_register_cocos2dx_Hide(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Hide_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Hide_class->name = "Hide";
@@ -26154,7 +26154,7 @@ extern JSObject *jsb_cocos2d_ActionInstant_prototype;
 void js_cocos2d_FlipX_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FlipX)", obj);
 }
-    
+
 void js_register_cocos2dx_FlipX(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FlipX_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FlipX_class->name = "FlipX";
@@ -26299,7 +26299,7 @@ extern JSObject *jsb_cocos2d_ActionInstant_prototype;
 void js_cocos2d_FlipY_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FlipY)", obj);
 }
-    
+
 void js_register_cocos2dx_FlipY(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FlipY_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FlipY_class->name = "FlipY";
@@ -26444,7 +26444,7 @@ extern JSObject *jsb_cocos2d_ActionInstant_prototype;
 void js_cocos2d_Place_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Place)", obj);
 }
-    
+
 void js_register_cocos2dx_Place(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Place_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Place_class->name = "Place";
@@ -26558,7 +26558,7 @@ extern JSObject *jsb_cocos2d_ActionInstant_prototype;
 void js_cocos2d_CallFunc_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CallFunc)", obj);
 }
-    
+
 void js_register_cocos2dx_CallFunc(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_CallFunc_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_CallFunc_class->name = "_CallFunc";
@@ -26653,7 +26653,7 @@ extern JSObject *jsb_cocos2d_CallFunc_prototype;
 void js_cocos2d_CallFuncN_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CallFuncN)", obj);
 }
-    
+
 void js_register_cocos2dx_CallFuncN(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_CallFuncN_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_CallFuncN_class->name = "CallFunc";
@@ -27481,7 +27481,7 @@ extern JSObject *jsb_cocos2d_Grid3DAction_prototype;
 void js_cocos2d_FlipX3D_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FlipX3D)", obj);
 }
-    
+
 void js_register_cocos2dx_FlipX3D(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FlipX3D_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FlipX3D_class->name = "FlipX3D";
@@ -27605,7 +27605,7 @@ extern JSObject *jsb_cocos2d_FlipX3D_prototype;
 void js_cocos2d_FlipY3D_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FlipY3D)", obj);
 }
-    
+
 void js_register_cocos2dx_FlipY3D(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FlipY3D_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FlipY3D_class->name = "FlipY3D";
@@ -29440,7 +29440,7 @@ bool js_cocos2dx_ActionManager_constructor(JSContext *cx, uint32_t argc, jsval *
 void js_cocos2d_ActionManager_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ActionManager)", obj);
 }
-    
+
 void js_register_cocos2dx_ActionManager(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ActionManager_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ActionManager_class->name = "ActionManager";
@@ -29677,7 +29677,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_ProgressTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ProgressTo)", obj);
 }
-    
+
 void js_register_cocos2dx_ProgressTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ProgressTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ProgressTo_class->name = "ProgressTo";
@@ -29830,7 +29830,7 @@ extern JSObject *jsb_cocos2d_ActionInterval_prototype;
 void js_cocos2d_ProgressFromTo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ProgressFromTo)", obj);
 }
-    
+
 void js_register_cocos2dx_ProgressFromTo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ProgressFromTo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ProgressFromTo_class->name = "ProgressFromTo";
@@ -30525,7 +30525,7 @@ extern JSObject *jsb_cocos2d_TiledGrid3DAction_prototype;
 void js_cocos2d_FadeOutTRTiles_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FadeOutTRTiles)", obj);
 }
-    
+
 void js_register_cocos2dx_FadeOutTRTiles(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FadeOutTRTiles_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FadeOutTRTiles_class->name = "FadeOutTRTiles";
@@ -30653,7 +30653,7 @@ extern JSObject *jsb_cocos2d_FadeOutTRTiles_prototype;
 void js_cocos2d_FadeOutBLTiles_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FadeOutBLTiles)", obj);
 }
-    
+
 void js_register_cocos2dx_FadeOutBLTiles(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FadeOutBLTiles_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FadeOutBLTiles_class->name = "FadeOutBLTiles";
@@ -30777,7 +30777,7 @@ extern JSObject *jsb_cocos2d_FadeOutTRTiles_prototype;
 void js_cocos2d_FadeOutUpTiles_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FadeOutUpTiles)", obj);
 }
-    
+
 void js_register_cocos2dx_FadeOutUpTiles(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FadeOutUpTiles_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FadeOutUpTiles_class->name = "FadeOutUpTiles";
@@ -30901,7 +30901,7 @@ extern JSObject *jsb_cocos2d_FadeOutUpTiles_prototype;
 void js_cocos2d_FadeOutDownTiles_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (FadeOutDownTiles)", obj);
 }
-    
+
 void js_register_cocos2dx_FadeOutDownTiles(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_FadeOutDownTiles_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_FadeOutDownTiles_class->name = "FadeOutDownTiles";
@@ -31043,7 +31043,7 @@ bool js_cocos2dx_TurnOffTiles_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -31069,7 +31069,7 @@ bool js_cocos2dx_TurnOffTiles_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -31580,7 +31580,7 @@ extern JSObject *jsb_cocos2d_TiledGrid3DAction_prototype;
 void js_cocos2d_JumpTiles3D_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (JumpTiles3D)", obj);
 }
-    
+
 void js_register_cocos2dx_JumpTiles3D(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_JumpTiles3D_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_JumpTiles3D_class->name = "JumpTiles3D";
@@ -33661,7 +33661,7 @@ bool js_cocos2dx_ClippingNode_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::Node* arg0 = nullptr;
@@ -33689,7 +33689,7 @@ bool js_cocos2dx_ClippingNode_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ClippingNode* ret = cocos2d::ClippingNode::create();
@@ -34603,7 +34603,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_DrawNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (DrawNode)", obj);
 }
-    
+
 void js_register_cocos2dx_DrawNode(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_DrawNode_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_DrawNode_class->name = "DrawNode";
@@ -36366,7 +36366,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, jsval *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 4) {
             cocos2d::Texture2D* arg0 = nullptr;
@@ -36403,7 +36403,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, jsval *vp
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 4) {
             std::string arg0;
@@ -36432,7 +36432,7 @@ bool js_cocos2dx_Label_createWithCharMap(JSContext *cx, uint32_t argc, jsval *vp
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             std::string arg0;
@@ -36607,7 +36607,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_Label_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Label)", obj);
 }
-    
+
 void js_register_cocos2dx_Label(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Label_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Label_class->name = "Label";
@@ -36799,7 +36799,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_LabelTTF_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (LabelTTF)", obj);
 }
-    
+
 void js_register_cocos2dx_LabelTTF(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_LabelTTF_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_LabelTTF_class->name = "LabelTTF";
@@ -36976,7 +36976,7 @@ bool js_cocos2dx_LabelAtlas_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 5) {
             std::string arg0;
@@ -37008,7 +37008,7 @@ bool js_cocos2dx_LabelAtlas_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::LabelAtlas* ret = cocos2d::LabelAtlas::create();
@@ -37025,7 +37025,7 @@ bool js_cocos2dx_LabelAtlas_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -37099,7 +37099,7 @@ extern JSObject *jsb_cocos2d_AtlasNode_prototype;
 void js_cocos2d_LabelAtlas_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (LabelAtlas)", obj);
 }
-    
+
 void js_register_cocos2dx_LabelAtlas(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_LabelAtlas_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_LabelAtlas_class->name = "LabelAtlas";
@@ -37220,7 +37220,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_Layer_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Layer)", obj);
 }
-    
+
 void js_register_cocos2dx_Layer(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Layer_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Layer_class->name = "Layer";
@@ -37419,7 +37419,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             cocos2d::Color4B arg0;
@@ -37445,7 +37445,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::LayerColor* ret = cocos2d::LayerColor::create();
@@ -37462,7 +37462,7 @@ bool js_cocos2dx_LayerColor_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             cocos2d::Color4B arg0;
@@ -37533,7 +37533,7 @@ extern JSObject *jsb_cocos2d_Layer_prototype;
 void js_cocos2d_LayerColor_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (LayerColor)", obj);
 }
-    
+
 void js_register_cocos2dx_LayerColor(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_LayerColor_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_LayerColor_class->name = "LayerColor";
@@ -37869,7 +37869,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             cocos2d::Color4B arg0;
@@ -37892,7 +37892,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::LayerGradient* ret = cocos2d::LayerGradient::create();
@@ -37909,7 +37909,7 @@ bool js_cocos2dx_LayerGradient_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             cocos2d::Color4B arg0;
@@ -37986,7 +37986,7 @@ extern JSObject *jsb_cocos2d_LayerColor_prototype;
 void js_cocos2d_LayerGradient_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (LayerGradient)", obj);
 }
-    
+
 void js_register_cocos2dx_LayerGradient(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_LayerGradient_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_LayerGradient_class->name = "LayerGradient";
@@ -38186,7 +38186,7 @@ extern JSObject *jsb_cocos2d_Layer_prototype;
 void js_cocos2d_LayerMultiplex_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (LayerMultiplex)", obj);
 }
-    
+
 void js_register_cocos2dx_LayerMultiplex(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_LayerMultiplex_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_LayerMultiplex_class->name = "LayerMultiplex";
@@ -38506,7 +38506,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_MenuItem_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MenuItem)", obj);
 }
-    
+
 void js_register_cocos2dx_MenuItem(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MenuItem_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MenuItem_class->name = "MenuItem";
@@ -38781,7 +38781,7 @@ extern JSObject *jsb_cocos2d_MenuItem_prototype;
 void js_cocos2d_MenuItemLabel_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MenuItemLabel)", obj);
 }
-    
+
 void js_register_cocos2dx_MenuItemLabel(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MenuItemLabel_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MenuItemLabel_class->name = "MenuItemLabel";
@@ -38942,7 +38942,7 @@ extern JSObject *jsb_cocos2d_MenuItemLabel_prototype;
 void js_cocos2d_MenuItemAtlasFont_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MenuItemAtlasFont)", obj);
 }
-    
+
 void js_register_cocos2dx_MenuItemAtlasFont(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MenuItemAtlasFont_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MenuItemAtlasFont_class->name = "MenuItemAtlasFont";
@@ -39226,7 +39226,7 @@ extern JSObject *jsb_cocos2d_MenuItemLabel_prototype;
 void js_cocos2d_MenuItemFont_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MenuItemFont)", obj);
 }
-    
+
 void js_register_cocos2dx_MenuItemFont(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MenuItemFont_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MenuItemFont_class->name = "MenuItemFont";
@@ -39623,7 +39623,7 @@ extern JSObject *jsb_cocos2d_MenuItem_prototype;
 void js_cocos2d_MenuItemSprite_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MenuItemSprite)", obj);
 }
-    
+
 void js_register_cocos2dx_MenuItemSprite(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MenuItemSprite_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MenuItemSprite_class->name = "MenuItemSprite";
@@ -39886,7 +39886,7 @@ extern JSObject *jsb_cocos2d_MenuItemSprite_prototype;
 void js_cocos2d_MenuItemImage_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MenuItemImage)", obj);
 }
-    
+
 void js_register_cocos2dx_MenuItemImage(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MenuItemImage_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MenuItemImage_class->name = "MenuItemImage";
@@ -40126,7 +40126,7 @@ extern JSObject *jsb_cocos2d_MenuItem_prototype;
 void js_cocos2d_MenuItemToggle_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MenuItemToggle)", obj);
 }
-    
+
 void js_register_cocos2dx_MenuItemToggle(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MenuItemToggle_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MenuItemToggle_class->name = "MenuItemToggle";
@@ -40358,7 +40358,7 @@ extern JSObject *jsb_cocos2d_Layer_prototype;
 void js_cocos2d_Menu_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Menu)", obj);
 }
-    
+
 void js_register_cocos2dx_Menu(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Menu_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Menu_class->name = "Menu";
@@ -40728,7 +40728,7 @@ bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 5) {
             double arg0 = 0;
@@ -40768,7 +40768,7 @@ bool js_cocos2dx_MotionStreak_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 5) {
             double arg0 = 0;
@@ -40851,7 +40851,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_MotionStreak_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (MotionStreak)", obj);
 }
-    
+
 void js_register_cocos2dx_MotionStreak(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_MotionStreak_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_MotionStreak_class->name = "MotionStreak";
@@ -41011,7 +41011,7 @@ bool js_cocos2dx_NodeGrid_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::Rect arg0;
@@ -41031,7 +41031,7 @@ bool js_cocos2dx_NodeGrid_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::NodeGrid* ret = cocos2d::NodeGrid::create();
@@ -41577,7 +41577,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_ParticleBatchNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ParticleBatchNode)", obj);
 }
-    
+
 void js_register_cocos2dx_ParticleBatchNode(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ParticleBatchNode_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ParticleBatchNode_class->name = "ParticleBatchNode";
@@ -43808,7 +43808,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_ParticleSystem_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ParticleSystem)", obj);
 }
-    
+
 void js_register_cocos2dx_ParticleSystem(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ParticleSystem_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ParticleSystem_class->name = "ParticleSystem";
@@ -44046,7 +44046,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, jsval *
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             std::string arg0;
@@ -44066,7 +44066,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, jsval *
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ParticleSystemQuad* ret = cocos2d::ParticleSystemQuad::create();
@@ -44083,7 +44083,7 @@ bool js_cocos2dx_ParticleSystemQuad_create(JSContext *cx, uint32_t argc, jsval *
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             cocos2d::ValueMap arg0;
@@ -46388,7 +46388,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_ProgressTimer_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ProgressTimer)", obj);
 }
-    
+
 void js_register_cocos2dx_ProgressTimer(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ProgressTimer_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ProgressTimer_class->name = "ProgressTimer";
@@ -47748,7 +47748,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_Sprite_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Sprite)", obj);
 }
-    
+
 void js_register_cocos2dx_Sprite(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Sprite_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Sprite_class->name = "Sprite";
@@ -48843,7 +48843,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             int arg0 = 0;
@@ -48869,7 +48869,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 4) {
             int arg0 = 0;
@@ -48898,7 +48898,7 @@ bool js_cocos2dx_RenderTexture_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             int arg0 = 0;
@@ -48972,7 +48972,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_RenderTexture_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RenderTexture)", obj);
 }
-    
+
 void js_register_cocos2dx_RenderTexture(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_RenderTexture_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_RenderTexture_class->name = "RenderTexture";
@@ -49318,7 +49318,7 @@ extern JSObject *jsb_cocos2d_Scene_prototype;
 void js_cocos2d_TransitionScene_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionScene)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionScene(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionScene_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionScene_class->name = "TransitionScene";
@@ -49491,7 +49491,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionSceneOriented_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionSceneOriented)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionSceneOriented(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionSceneOriented_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionSceneOriented_class->name = "TransitionSceneOriented";
@@ -49624,7 +49624,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionRotoZoom_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionRotoZoom)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionRotoZoom(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionRotoZoom_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionRotoZoom_class->name = "TransitionRotoZoom";
@@ -49756,7 +49756,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionJumpZoom_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionJumpZoom)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionJumpZoom(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionJumpZoom_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionJumpZoom_class->name = "TransitionJumpZoom";
@@ -49950,7 +49950,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionMoveInL_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionMoveInL)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionMoveInL(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionMoveInL_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionMoveInL_class->name = "TransitionMoveInL";
@@ -50084,7 +50084,7 @@ extern JSObject *jsb_cocos2d_TransitionMoveInL_prototype;
 void js_cocos2d_TransitionMoveInR_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionMoveInR)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionMoveInR(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionMoveInR_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionMoveInR_class->name = "TransitionMoveInR";
@@ -50216,7 +50216,7 @@ extern JSObject *jsb_cocos2d_TransitionMoveInL_prototype;
 void js_cocos2d_TransitionMoveInT_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionMoveInT)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionMoveInT(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionMoveInT_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionMoveInT_class->name = "TransitionMoveInT";
@@ -50348,7 +50348,7 @@ extern JSObject *jsb_cocos2d_TransitionMoveInL_prototype;
 void js_cocos2d_TransitionMoveInB_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionMoveInB)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionMoveInB(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionMoveInB_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionMoveInB_class->name = "TransitionMoveInB";
@@ -50542,7 +50542,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionSlideInL_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionSlideInL)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionSlideInL(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionSlideInL_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionSlideInL_class->name = "TransitionSlideInL";
@@ -50676,7 +50676,7 @@ extern JSObject *jsb_cocos2d_TransitionSlideInL_prototype;
 void js_cocos2d_TransitionSlideInR_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionSlideInR)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionSlideInR(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionSlideInR_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionSlideInR_class->name = "TransitionSlideInR";
@@ -50808,7 +50808,7 @@ extern JSObject *jsb_cocos2d_TransitionSlideInL_prototype;
 void js_cocos2d_TransitionSlideInB_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionSlideInB)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionSlideInB(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionSlideInB_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionSlideInB_class->name = "TransitionSlideInB";
@@ -50940,7 +50940,7 @@ extern JSObject *jsb_cocos2d_TransitionSlideInL_prototype;
 void js_cocos2d_TransitionSlideInT_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionSlideInT)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionSlideInT(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionSlideInT_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionSlideInT_class->name = "TransitionSlideInT";
@@ -51109,7 +51109,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionShrinkGrow_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionShrinkGrow)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionShrinkGrow(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionShrinkGrow_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionShrinkGrow_class->name = "TransitionShrinkGrow";
@@ -51163,7 +51163,7 @@ bool js_cocos2dx_TransitionFlipX_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -51194,7 +51194,7 @@ bool js_cocos2dx_TransitionFlipX_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -51279,7 +51279,7 @@ extern JSObject *jsb_cocos2d_TransitionSceneOriented_prototype;
 void js_cocos2d_TransitionFlipX_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFlipX)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFlipX(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFlipX_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFlipX_class->name = "TransitionFlipX";
@@ -51332,7 +51332,7 @@ bool js_cocos2dx_TransitionFlipY_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -51363,7 +51363,7 @@ bool js_cocos2dx_TransitionFlipY_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -51448,7 +51448,7 @@ extern JSObject *jsb_cocos2d_TransitionSceneOriented_prototype;
 void js_cocos2d_TransitionFlipY_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFlipY)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFlipY(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFlipY_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFlipY_class->name = "TransitionFlipY";
@@ -51501,7 +51501,7 @@ bool js_cocos2dx_TransitionFlipAngular_create(JSContext *cx, uint32_t argc, jsva
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -51532,7 +51532,7 @@ bool js_cocos2dx_TransitionFlipAngular_create(JSContext *cx, uint32_t argc, jsva
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -51617,7 +51617,7 @@ extern JSObject *jsb_cocos2d_TransitionSceneOriented_prototype;
 void js_cocos2d_TransitionFlipAngular_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFlipAngular)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFlipAngular(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFlipAngular_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFlipAngular_class->name = "TransitionFlipAngular";
@@ -51670,7 +51670,7 @@ bool js_cocos2dx_TransitionZoomFlipX_create(JSContext *cx, uint32_t argc, jsval 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -51701,7 +51701,7 @@ bool js_cocos2dx_TransitionZoomFlipX_create(JSContext *cx, uint32_t argc, jsval 
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -51786,7 +51786,7 @@ extern JSObject *jsb_cocos2d_TransitionSceneOriented_prototype;
 void js_cocos2d_TransitionZoomFlipX_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionZoomFlipX)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionZoomFlipX(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionZoomFlipX_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionZoomFlipX_class->name = "TransitionZoomFlipX";
@@ -51839,7 +51839,7 @@ bool js_cocos2dx_TransitionZoomFlipY_create(JSContext *cx, uint32_t argc, jsval 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -51870,7 +51870,7 @@ bool js_cocos2dx_TransitionZoomFlipY_create(JSContext *cx, uint32_t argc, jsval 
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -51955,7 +51955,7 @@ extern JSObject *jsb_cocos2d_TransitionSceneOriented_prototype;
 void js_cocos2d_TransitionZoomFlipY_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionZoomFlipY)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionZoomFlipY(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionZoomFlipY_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionZoomFlipY_class->name = "TransitionZoomFlipY";
@@ -52008,7 +52008,7 @@ bool js_cocos2dx_TransitionZoomFlipAngular_create(JSContext *cx, uint32_t argc, 
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -52039,7 +52039,7 @@ bool js_cocos2dx_TransitionZoomFlipAngular_create(JSContext *cx, uint32_t argc, 
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -52124,7 +52124,7 @@ extern JSObject *jsb_cocos2d_TransitionSceneOriented_prototype;
 void js_cocos2d_TransitionZoomFlipAngular_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionZoomFlipAngular)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionZoomFlipAngular(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionZoomFlipAngular_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionZoomFlipAngular_class->name = "TransitionZoomFlipAngular";
@@ -52242,7 +52242,7 @@ bool js_cocos2dx_TransitionFade_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             double arg0 = 0;
@@ -52273,7 +52273,7 @@ bool js_cocos2dx_TransitionFade_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             double arg0 = 0;
@@ -52358,7 +52358,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionFade_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFade)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFade(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFade_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFade_class->name = "TransitionFade";
@@ -52491,7 +52491,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionCrossFade_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionCrossFade)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionCrossFade(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionCrossFade_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionCrossFade_class->name = "TransitionCrossFade";
@@ -52660,7 +52660,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionTurnOffTiles_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionTurnOffTiles)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionTurnOffTiles(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionTurnOffTiles_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionTurnOffTiles_class->name = "TransitionTurnOffTiles";
@@ -52855,7 +52855,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionSplitCols_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionSplitCols)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionSplitCols(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionSplitCols_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionSplitCols_class->name = "TransitionSplitCols";
@@ -52989,7 +52989,7 @@ extern JSObject *jsb_cocos2d_TransitionSplitCols_prototype;
 void js_cocos2d_TransitionSplitRows_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionSplitRows)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionSplitRows(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionSplitRows_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionSplitRows_class->name = "TransitionSplitRows";
@@ -53187,7 +53187,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionFadeTR_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFadeTR)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFadeTR(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFadeTR_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFadeTR_class->name = "TransitionFadeTR";
@@ -53321,7 +53321,7 @@ extern JSObject *jsb_cocos2d_TransitionFadeTR_prototype;
 void js_cocos2d_TransitionFadeBL_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFadeBL)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFadeBL(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFadeBL_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFadeBL_class->name = "TransitionFadeBL";
@@ -53453,7 +53453,7 @@ extern JSObject *jsb_cocos2d_TransitionFadeTR_prototype;
 void js_cocos2d_TransitionFadeUp_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFadeUp)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFadeUp(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFadeUp_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFadeUp_class->name = "TransitionFadeUp";
@@ -53585,7 +53585,7 @@ extern JSObject *jsb_cocos2d_TransitionFadeTR_prototype;
 void js_cocos2d_TransitionFadeDown_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionFadeDown)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionFadeDown(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionFadeDown_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionFadeDown_class->name = "TransitionFadeDown";
@@ -53782,7 +53782,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionPageTurn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionPageTurn)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionPageTurn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionPageTurn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionPageTurn_class->name = "TransitionPageTurn";
@@ -53916,7 +53916,7 @@ extern JSObject *jsb_cocos2d_TransitionScene_prototype;
 void js_cocos2d_TransitionProgress_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionProgress)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionProgress(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionProgress_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionProgress_class->name = "TransitionProgress";
@@ -54048,7 +54048,7 @@ extern JSObject *jsb_cocos2d_TransitionProgress_prototype;
 void js_cocos2d_TransitionProgressRadialCCW_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionProgressRadialCCW)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionProgressRadialCCW(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionProgressRadialCCW_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionProgressRadialCCW_class->name = "TransitionProgressRadialCCW";
@@ -54180,7 +54180,7 @@ extern JSObject *jsb_cocos2d_TransitionProgress_prototype;
 void js_cocos2d_TransitionProgressRadialCW_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionProgressRadialCW)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionProgressRadialCW(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionProgressRadialCW_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionProgressRadialCW_class->name = "TransitionProgressRadialCW";
@@ -54312,7 +54312,7 @@ extern JSObject *jsb_cocos2d_TransitionProgress_prototype;
 void js_cocos2d_TransitionProgressHorizontal_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionProgressHorizontal)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionProgressHorizontal(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionProgressHorizontal_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionProgressHorizontal_class->name = "TransitionProgressHorizontal";
@@ -54444,7 +54444,7 @@ extern JSObject *jsb_cocos2d_TransitionProgress_prototype;
 void js_cocos2d_TransitionProgressVertical_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionProgressVertical)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionProgressVertical(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionProgressVertical_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionProgressVertical_class->name = "TransitionProgressVertical";
@@ -54576,7 +54576,7 @@ extern JSObject *jsb_cocos2d_TransitionProgress_prototype;
 void js_cocos2d_TransitionProgressInOut_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionProgressInOut)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionProgressInOut(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionProgressInOut_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionProgressInOut_class->name = "TransitionProgressInOut";
@@ -54708,7 +54708,7 @@ extern JSObject *jsb_cocos2d_TransitionProgress_prototype;
 void js_cocos2d_TransitionProgressOutIn_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TransitionProgressOutIn)", obj);
 }
-    
+
 void js_register_cocos2dx_TransitionProgressOutIn(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TransitionProgressOutIn_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TransitionProgressOutIn_class->name = "TransitionProgressOutIn";
@@ -55227,7 +55227,7 @@ bool js_cocos2dx_GridBase_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::Size arg0;
@@ -55247,7 +55247,7 @@ bool js_cocos2dx_GridBase_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             cocos2d::Size arg0;
@@ -55397,7 +55397,7 @@ bool js_cocos2dx_Grid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             cocos2d::Size arg0;
@@ -55420,7 +55420,7 @@ bool js_cocos2dx_Grid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             cocos2d::Size arg0;
@@ -55440,7 +55440,7 @@ bool js_cocos2dx_Grid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             cocos2d::Size arg0;
@@ -55474,7 +55474,7 @@ bool js_cocos2dx_Grid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 4) {
             cocos2d::Size arg0;
@@ -55562,7 +55562,7 @@ extern JSObject *jsb_cocos2d_GridBase_prototype;
 void js_cocos2d_Grid3D_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Grid3D)", obj);
 }
-    
+
 void js_register_cocos2dx_Grid3D(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_Grid3D_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_Grid3D_class->name = "Grid3D";
@@ -55617,7 +55617,7 @@ bool js_cocos2dx_TiledGrid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             cocos2d::Size arg0;
@@ -55640,7 +55640,7 @@ bool js_cocos2dx_TiledGrid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             cocos2d::Size arg0;
@@ -55660,7 +55660,7 @@ bool js_cocos2dx_TiledGrid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 3) {
             cocos2d::Size arg0;
@@ -55694,7 +55694,7 @@ bool js_cocos2dx_TiledGrid3D_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 4) {
             cocos2d::Size arg0;
@@ -55782,7 +55782,7 @@ extern JSObject *jsb_cocos2d_GridBase_prototype;
 void js_cocos2d_TiledGrid3D_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TiledGrid3D)", obj);
 }
-    
+
 void js_register_cocos2dx_TiledGrid3D(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TiledGrid3D_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TiledGrid3D_class->name = "TiledGrid3D";
@@ -56418,7 +56418,7 @@ bool js_cocos2dx_GLProgram_createWithByteArrays(JSContext *cx, uint32_t argc, js
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             const char* arg0 = nullptr;
@@ -56444,7 +56444,7 @@ bool js_cocos2dx_GLProgram_createWithByteArrays(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             const char* arg0 = nullptr;
@@ -56474,7 +56474,7 @@ bool js_cocos2dx_GLProgram_createWithFilenames(JSContext *cx, uint32_t argc, jsv
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             std::string arg0;
@@ -56500,7 +56500,7 @@ bool js_cocos2dx_GLProgram_createWithFilenames(JSContext *cx, uint32_t argc, jsv
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -56572,7 +56572,7 @@ bool js_cocos2dx_GLProgram_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 void js_cocos2d_GLProgram_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (GLProgram)", obj);
 }
-    
+
 void js_register_cocos2dx_GLProgram(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_GLProgram_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_GLProgram_class->name = "GLProgram";
@@ -58151,7 +58151,7 @@ bool js_cocos2dx_AnimationCache_constructor(JSContext *cx, uint32_t argc, jsval 
 void js_cocos2d_AnimationCache_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AnimationCache)", obj);
 }
-    
+
 void js_register_cocos2dx_AnimationCache(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_AnimationCache_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_AnimationCache_class->name = "AnimationCache";
@@ -58895,7 +58895,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_SpriteBatchNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SpriteBatchNode)", obj);
 }
-    
+
 void js_register_cocos2dx_SpriteBatchNode(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_SpriteBatchNode_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_SpriteBatchNode_class->name = "SpriteBatchNode";
@@ -59615,7 +59615,7 @@ bool js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder(JSContext *cx, uint32_t a
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             std::string arg0;
@@ -59641,7 +59641,7 @@ bool js_cocos2dx_TextFieldTTF_textFieldWithPlaceHolder(JSContext *cx, uint32_t a
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 5) {
             std::string arg0;
@@ -59724,7 +59724,7 @@ extern JSObject *jsb_cocos2d_Label_prototype;
 void js_cocos2d_TextFieldTTF_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TextFieldTTF)", obj);
 }
-    
+
 void js_register_cocos2dx_TextFieldTTF(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TextFieldTTF_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TextFieldTTF_class->name = "TextFieldTTF";
@@ -59961,7 +59961,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_ParallaxNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ParallaxNode)", obj);
 }
-    
+
 void js_register_cocos2dx_ParallaxNode(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ParallaxNode_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ParallaxNode_class->name = "ParallaxNode";
@@ -61318,7 +61318,7 @@ bool js_cocos2dx_TMXMapInfo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 void js_cocos2d_TMXMapInfo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TMXMapInfo)", obj);
 }
-    
+
 void js_register_cocos2dx_TMXMapInfo(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TMXMapInfo_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TMXMapInfo_class->name = "TMXMapInfo";
@@ -61605,7 +61605,7 @@ extern JSObject *jsb_cocos2d_AtlasNode_prototype;
 void js_cocos2d_TileMapAtlas_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TileMapAtlas)", obj);
 }
-    
+
 void js_register_cocos2dx_TileMapAtlas(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TileMapAtlas_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TileMapAtlas_class->name = "TileMapAtlas";
@@ -62352,7 +62352,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_TMXLayer_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TMXLayer)", obj);
 }
-    
+
 void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TMXLayer_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TMXLayer_class->name = "TMXLayer";
@@ -62879,7 +62879,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_TMXTiledMap_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TMXTiledMap)", obj);
 }
-    
+
 void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_TMXTiledMap_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_TMXTiledMap_class->name = "TMXTiledMap";
@@ -63594,7 +63594,7 @@ extern JSObject *jsb_cocos2d_Component_prototype;
 void js_cocos2d_ComponentJS_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ComponentJS)", obj);
 }
-    
+
 void js_register_cocos2dx_ComponentJS(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ComponentJS_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ComponentJS_class->name = "ComponentJS";

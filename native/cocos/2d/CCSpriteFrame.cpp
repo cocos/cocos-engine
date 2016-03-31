@@ -47,7 +47,7 @@ SpriteFrame* SpriteFrame::createWithTexture(Texture2D *texture, const Rect& rect
     SpriteFrame *spriteFrame = new (std::nothrow) SpriteFrame();
     spriteFrame->initWithTexture(texture, rect);
     spriteFrame->autorelease();
-    
+
     return spriteFrame;
 }
 
@@ -73,7 +73,7 @@ SpriteFrame::SpriteFrame()
 : _rotated(false)
 , _texture(nullptr)
 {
-    
+
 }
 
 bool SpriteFrame::initWithTexture(Texture2D* texture, const Rect& rect)
@@ -131,7 +131,7 @@ SpriteFrame::~SpriteFrame()
 
 SpriteFrame* SpriteFrame::clone() const
 {
-    // no copy constructor    
+    // no copy constructor
     SpriteFrame *copy = new (std::nothrow) SpriteFrame();
     copy->initWithTextureFilename(_textureFilename, _rectInPixels, _rotated, _offsetInPixels, _originalSizeInPixels);
     copy->setTexture(_texture);
@@ -196,3 +196,4 @@ Texture2D* SpriteFrame::getTexture()
 }
 
 NS_CC_END
+

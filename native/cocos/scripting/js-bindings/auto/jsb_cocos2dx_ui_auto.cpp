@@ -23,7 +23,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
         JS::RootedObject proto(cx, typeClass->proto.ref());
         JS::RootedObject parent(cx, typeClass->parentProto.ref());
         JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-        
+
         args.rval().set(OBJECT_TO_JSVAL(_tmp));
         return true;
     }
@@ -40,7 +40,7 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().setBoolean(true);
-    return true;    
+    return true;
 }
 JSClass  *jsb_cocos2d_ui_LayoutParameter_class;
 JSObject *jsb_cocos2d_ui_LayoutParameter_prototype;
@@ -2033,7 +2033,7 @@ extern JSObject *jsb_cocos2d_ProtectedNode_prototype;
 void js_cocos2d_ui_Widget_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Widget)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_Widget(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_Widget_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_Widget_class->name = "Widget";
@@ -2863,7 +2863,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_Layout_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Layout)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_Layout(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_Layout_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_Layout_class->name = "Layout";
@@ -3738,7 +3738,7 @@ bool js_cocos2dx_ui_Button_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             std::string arg0;
@@ -3833,7 +3833,7 @@ bool js_cocos2dx_ui_Button_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::Button* ret = cocos2d::ui::Button::create();
@@ -3901,7 +3901,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_Button_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Button)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_Button(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_Button_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_Button_class->name = "Button";
@@ -4550,7 +4550,7 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 5) {
             std::string arg0;
@@ -4616,7 +4616,7 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::CheckBox* ret = cocos2d::ui::CheckBox::create();
@@ -4633,7 +4633,7 @@ bool js_cocos2dx_ui_CheckBox_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -4732,7 +4732,7 @@ extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 void js_cocos2d_ui_CheckBox_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (CheckBox)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_CheckBox(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_CheckBox_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_CheckBox_class->name = "CheckBox";
@@ -4836,7 +4836,7 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 5) {
             std::string arg0;
@@ -4902,7 +4902,7 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::RadioButton* ret = cocos2d::ui::RadioButton::create();
@@ -4919,7 +4919,7 @@ bool js_cocos2dx_ui_RadioButton_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -5018,7 +5018,7 @@ extern JSObject *jsb_cocos2d_ui_AbstractCheckButton_prototype;
 void js_cocos2d_ui_RadioButton_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RadioButton)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RadioButton(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RadioButton_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RadioButton_class->name = "RadioButton";
@@ -5451,7 +5451,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_RadioButtonGroup_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RadioButtonGroup)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RadioButtonGroup(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RadioButtonGroup_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RadioButtonGroup_class->name = "RadioButtonGroup";
@@ -5675,7 +5675,7 @@ bool js_cocos2dx_ui_ImageView_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             std::string arg0;
@@ -5717,7 +5717,7 @@ bool js_cocos2dx_ui_ImageView_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::ImageView* ret = cocos2d::ui::ImageView::create();
@@ -5785,7 +5785,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_ImageView_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ImageView)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_ImageView(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_ImageView_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_ImageView_class->name = "ImageView";
@@ -6485,7 +6485,7 @@ bool js_cocos2dx_ui_Text_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             std::string arg0;
@@ -6511,7 +6511,7 @@ bool js_cocos2dx_ui_Text_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::Text* ret = cocos2d::ui::Text::create();
@@ -6579,7 +6579,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_Text_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Text)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_Text(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_Text_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_Text_class->name = "Text";
@@ -6763,7 +6763,7 @@ bool js_cocos2dx_ui_TextAtlas_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 5) {
             std::string arg0;
@@ -6795,7 +6795,7 @@ bool js_cocos2dx_ui_TextAtlas_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::TextAtlas* ret = cocos2d::ui::TextAtlas::create();
@@ -6863,7 +6863,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_TextAtlas_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TextAtlas)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_TextAtlas(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_TextAtlas_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_TextAtlas_class->name = "TextAtlas";
@@ -7103,7 +7103,7 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             std::string arg0;
@@ -7145,7 +7145,7 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::LoadingBar* ret = cocos2d::ui::LoadingBar::create();
@@ -7162,7 +7162,7 @@ bool js_cocos2dx_ui_LoadingBar_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -7261,7 +7261,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_LoadingBar_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (LoadingBar)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_LoadingBar(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_LoadingBar_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_LoadingBar_class->name = "LoadingBar";
@@ -8467,7 +8467,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 void js_cocos2d_ui_ScrollView_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ScrollView)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_ScrollView(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_ScrollView_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_ScrollView_class->name = "ScrollView";
@@ -9370,7 +9370,7 @@ extern JSObject *jsb_cocos2d_ui_ScrollView_prototype;
 void js_cocos2d_ui_ListView_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ListView)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_ListView(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_ListView_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_ListView_class->name = "ListView";
@@ -9957,7 +9957,7 @@ bool js_cocos2dx_ui_Slider_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -10005,7 +10005,7 @@ bool js_cocos2dx_ui_Slider_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::Slider* ret = cocos2d::ui::Slider::create();
@@ -10073,7 +10073,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_Slider_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Slider)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_Slider(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_Slider_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_Slider_class->name = "Slider";
@@ -11621,7 +11621,7 @@ bool js_cocos2dx_ui_TextField_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             std::string arg0;
@@ -11647,7 +11647,7 @@ bool js_cocos2dx_ui_TextField_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::TextField* ret = cocos2d::ui::TextField::create();
@@ -11715,7 +11715,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_TextField_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TextField)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_TextField(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_TextField_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_TextField_class->name = "TextField";
@@ -11901,7 +11901,7 @@ bool js_cocos2dx_ui_TextBMFont_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -11924,7 +11924,7 @@ bool js_cocos2dx_ui_TextBMFont_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::TextBMFont* ret = cocos2d::ui::TextBMFont::create();
@@ -11992,7 +11992,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_TextBMFont_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TextBMFont)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_TextBMFont(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_TextBMFont_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_TextBMFont_class->name = "TextBMFont";
@@ -12555,7 +12555,7 @@ extern JSObject *jsb_cocos2d_ui_ListView_prototype;
 void js_cocos2d_ui_PageView_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PageView)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_PageView(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_PageView_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_PageView_class->name = "PageView";
@@ -12965,7 +12965,7 @@ bool js_cocos2dx_ui_RichElement_constructor(JSContext *cx, uint32_t argc, jsval 
 void js_cocos2d_ui_RichElement_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RichElement)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RichElement(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RichElement_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RichElement_class->name = "RichElement";
@@ -13190,7 +13190,7 @@ extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
 void js_cocos2d_ui_RichElementText_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RichElementText)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RichElementText(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RichElementText_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RichElementText_class->name = "RichElementText";
@@ -13387,7 +13387,7 @@ extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
 void js_cocos2d_ui_RichElementImage_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RichElementImage)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RichElementImage(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RichElementImage_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RichElementImage_class->name = "RichElementImage";
@@ -13562,7 +13562,7 @@ extern JSObject *jsb_cocos2d_ui_RichElement_prototype;
 void js_cocos2d_ui_RichElementCustomNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RichElementCustomNode)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RichElementCustomNode(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RichElementCustomNode_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RichElementCustomNode_class->name = "RichElementCustomNode";
@@ -13904,7 +13904,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_RichText_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RichText)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RichText(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RichText_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RichText_class->name = "RichText";
@@ -13988,7 +13988,7 @@ bool js_cocos2dx_ui_HBox_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::Size arg0;
@@ -14008,7 +14008,7 @@ bool js_cocos2dx_ui_HBox_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::HBox* ret = cocos2d::ui::HBox::create();
@@ -14076,7 +14076,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 void js_cocos2d_ui_HBox_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (HBox)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_HBox(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_HBox_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_HBox_class->name = "HBox";
@@ -14152,7 +14152,7 @@ bool js_cocos2dx_ui_VBox_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::Size arg0;
@@ -14172,7 +14172,7 @@ bool js_cocos2dx_ui_VBox_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::VBox* ret = cocos2d::ui::VBox::create();
@@ -14240,7 +14240,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 void js_cocos2d_ui_VBox_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (VBox)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_VBox(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_VBox_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_VBox_class->name = "VBox";
@@ -14316,7 +14316,7 @@ bool js_cocos2dx_ui_RelativeBox_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 1) {
             cocos2d::Size arg0;
@@ -14336,7 +14336,7 @@ bool js_cocos2dx_ui_RelativeBox_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::RelativeBox* ret = cocos2d::ui::RelativeBox::create();
@@ -14404,7 +14404,7 @@ extern JSObject *jsb_cocos2d_ui_Layout_prototype;
 void js_cocos2d_ui_RelativeBox_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (RelativeBox)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_RelativeBox(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_RelativeBox_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_RelativeBox_class->name = "RelativeBox";
@@ -15443,7 +15443,7 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 3) {
             std::string arg0;
@@ -15469,7 +15469,7 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 0) {
             cocos2d::ui::Scale9Sprite* ret = cocos2d::ui::Scale9Sprite::create();
@@ -15486,7 +15486,7 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             cocos2d::Rect arg0;
@@ -15509,7 +15509,7 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -15532,7 +15532,7 @@ bool js_cocos2dx_ui_Scale9Sprite_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             std::string arg0;
@@ -15559,7 +15559,7 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrameName(JSContext *cx, uint32
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             std::string arg0;
@@ -15582,7 +15582,7 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrameName(JSContext *cx, uint32
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             std::string arg0;
@@ -15609,7 +15609,7 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrame(JSContext *cx, uint32_t a
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             cocos2d::SpriteFrame* arg0 = nullptr;
@@ -15640,7 +15640,7 @@ bool js_cocos2dx_ui_Scale9Sprite_createWithSpriteFrame(JSContext *cx, uint32_t a
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 1) {
             cocos2d::SpriteFrame* arg0 = nullptr;
@@ -15719,7 +15719,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_ui_Scale9Sprite_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Scale9Sprite)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_Scale9Sprite(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_Scale9Sprite_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_Scale9Sprite_class->name = "Scale9Sprite";
@@ -16253,7 +16253,7 @@ bool js_cocos2dx_ui_EditBox_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-    
+
     do {
         if (argc == 2) {
             cocos2d::Size arg0;
@@ -16301,7 +16301,7 @@ bool js_cocos2dx_ui_EditBox_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-    
+
     do {
         if (argc == 2) {
             cocos2d::Size arg0;
@@ -16476,7 +16476,7 @@ extern JSObject *jsb_cocos2d_ui_Widget_prototype;
 void js_cocos2d_ui_EditBox_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (EditBox)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_EditBox(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_EditBox_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_EditBox_class->name = "EditBox";
@@ -17575,7 +17575,7 @@ extern JSObject *jsb_cocos2d_Component_prototype;
 void js_cocos2d_ui_LayoutComponent_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (LayoutComponent)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_LayoutComponent(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_LayoutComponent_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_LayoutComponent_class->name = "LayoutComponent";
@@ -17956,7 +17956,7 @@ extern JSObject *jsb_cocos2d_ProtectedNode_prototype;
 void js_cocos2d_ui_ScrollViewBar_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ScrollViewBar)", obj);
 }
-    
+
 void js_register_cocos2dx_ui_ScrollViewBar(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_ui_ScrollViewBar_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_ui_ScrollViewBar_class->name = "ScrollViewBar";

@@ -28,7 +28,7 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 namespace ui {
-    
+
 IMPLEMENT_CLASS_GUI_INFO(PageView)
 
 PageView::PageView():
@@ -59,7 +59,7 @@ PageView* PageView::create()
     CC_SAFE_DELETE(widget);
     return nullptr;
 }
-    
+
 bool PageView::init()
 {
     if (ListView::init())
@@ -126,7 +126,7 @@ void PageView::removePageAtIndex(ssize_t index)
 {
     removeItem(index);
 }
-    
+
 void PageView::removeAllPages()
 {
     removeAllItems();
@@ -259,7 +259,7 @@ void PageView::addEventListenerPageView(Ref *target, SEL_PageViewEvent selector)
     _pageViewEventListener = target;
     _pageViewEventSelector = selector;
 }
-    
+
 void PageView::addEventListener(const ccPageViewCallback& callback)
 {
     _eventCallback = callback;
@@ -380,3 +380,4 @@ void PageView::remedyLayoutParameter(Widget *item)
 }
 
 NS_CC_END
+

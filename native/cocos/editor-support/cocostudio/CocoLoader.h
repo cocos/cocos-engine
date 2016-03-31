@@ -1,18 +1,18 @@
 ﻿/****************************************************************************
  Copyright (c) 2013 cocos2d-x.org
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,9 +32,9 @@
 #pragma pack (4)
 
 namespace cocostudio{
-        
+
 class CocoLoader;
-    
+
 struct CC_STUDIO_DLL stExpCocoAttribDesc
 {
     char    m_cTypeName;
@@ -82,7 +82,7 @@ struct CC_STUDIO_DLL stCocoFileHeader
     uint32_t    m_lAttribMemAddr;
     uint32_t    m_CocoNodeMemAddr;
     uint32_t    m_lStringMemAddr;
-    
+
 };
 
 class CC_STUDIO_DLL CocoLoader
@@ -91,12 +91,12 @@ class CC_STUDIO_DLL CocoLoader
     stExpCocoNode*                m_pRootNode;
     stExpCocoObjectDesc*        m_pObjectDescArray;
     char*                        m_pMemoryBuff;
-    
+
 public:
     CocoLoader();
     ~CocoLoader();
 public:
-    
+
     bool                    ReadCocoBinBuff(char* pBinBuff);
     stCocoFileHeader*        GetFileHeader(){return m_pFileHeader;}
     stExpCocoNode*            GetRootCocoNode(){return    m_pRootNode;}
@@ -104,10 +104,11 @@ public:
     char*                    GetMemoryAddr_AttribDesc();
     char*                    GetMemoryAddr_CocoNode();
     char*                    GetMemoryAddr_String();
-    
+
 };
 
 }
 
 #pragma pack ()
 #endif
+

@@ -83,7 +83,7 @@ void SimpleAudioEngine::end()
         delete p->second;
         p->second = NULL;
         p++;
-    }   
+    }
     sharedList().clear();
     return;
 }
@@ -172,7 +172,7 @@ void SimpleAudioEngine::stopEffect(unsigned int nSoundId)
 void SimpleAudioEngine::preloadEffect(const char* pszFilePath)
 {
     int nRet = 0;
-    do 
+    do
     {
         BREAK_IF(! pszFilePath);
 
@@ -252,7 +252,7 @@ void SimpleAudioEngine::unloadEffect(const char* pszFilePath)
         delete p->second;
         p->second = NULL;
         sharedList().erase(nID);
-    }    
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -301,3 +301,4 @@ unsigned int _Hash(const char *key)
 }
 
 } // end of namespace CocosDenshion
+

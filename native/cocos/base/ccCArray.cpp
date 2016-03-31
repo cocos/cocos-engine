@@ -34,24 +34,24 @@ ccArray* ccArrayNew(ssize_t capacity)
 {
     if (capacity == 0)
         capacity = 7;
-    
+
     ccArray *arr = (ccArray*)malloc( sizeof(ccArray) );
     arr->num = 0;
     arr->arr =  (Ref**)calloc(capacity, sizeof(Ref*));
     arr->max = capacity;
-    
+
     return arr;
 }
 
 /** Frees array after removing all remaining objects. Silently ignores nullptr arr. */
 void ccArrayFree(ccArray*& arr)
 {
-    if( arr == nullptr ) 
+    if( arr == nullptr )
     {
         return;
     }
     ccArrayRemoveAllObjects(arr);
-    
+
     free(arr->arr);
     free(arr);
 
@@ -82,7 +82,7 @@ void ccArrayEnsureExtraCapacity(ccArray *arr, ssize_t extra)
 void ccArrayShrink(ccArray *arr)
 {
     ssize_t newSize = 0;
-    
+
     //only resize when necessary
     if (arr->max > arr->num && !(arr->num==0 && arr->max==1))
     {
@@ -96,7 +96,7 @@ void ccArrayShrink(ccArray *arr)
             newSize=1;
             arr->max=1;
         }
-        
+
         arr->arr = (Ref**)realloc(arr->arr,newSize * sizeof(Ref*) );
         CCASSERT(arr->arr!=nullptr,"could not reallocate the memory");
     }
@@ -112,7 +112,7 @@ ssize_t ccArrayGetIndexOfObject(ccArray *arr, Ref* object)
         if (*ptr == object)
             return i;
     }
-    
+
     return CC_INVALID_INDEX;
 }
 
@@ -162,7 +162,7 @@ void ccArrayInsertObjectAtIndex(ccArray *arr, Ref* object, ssize_t index)
     CCASSERT(object != nullptr, "Invalid parameter!");
 
     ccArrayEnsureExtraCapacity(arr, 1);
-    
+
     ssize_t remaining = arr->num - index;
     if (remaining > 0)
     {
@@ -179,9 +179,9 @@ void ccArraySwapObjectsAtIndexes(ccArray *arr, ssize_t index1, ssize_t index2)
 {
     CCASSERT(index1>=0 && index1 < arr->num, "(1) Invalid index. Out of bounds");
     CCASSERT(index2>=0 && index2 < arr->num, "(2) Invalid index. Out of bounds");
-    
+
     Ref* object1 = arr->arr[index1];
-    
+
     arr->arr[index1] = arr->arr[index2];
     arr->arr[index2] = object1;
 }
@@ -204,9 +204,9 @@ void ccArrayRemoveObjectAtIndex(ccArray *arr, ssize_t index, bool releaseObj/* =
     {
         CC_SAFE_RELEASE(arr->arr[index]);
     }
-    
+
     arr->num--;
-    
+
     ssize_t remaining = arr->num - index;
     if(remaining>0)
     {
@@ -259,24 +259,24 @@ void ccArrayRemoveArray(ccArray *arr, ccArray *minusArr)
 void ccArrayFullRemoveArray(ccArray *arr, ccArray *minusArr)
 {
     ssize_t back = 0;
-    
+
     for (ssize_t i = 0; i < arr->num; i++)
     {
         if (ccArrayContainsObject(minusArr, arr->arr[i]))
         {
             CC_SAFE_RELEASE(arr->arr[i]);
             back++;
-        } 
+        }
         else
         {
             arr->arr[i - back] = arr->arr[i];
         }
     }
-    
+
     arr->num -= back;
 }
 
-// 
+//
 // // ccCArray for Values (c structures)
 
 /** Allocates and initializes a new C array with specified capacity */
@@ -291,7 +291,7 @@ ccCArray* ccCArrayNew(ssize_t capacity)
     arr->num = 0;
     arr->arr = (void**)malloc(capacity * sizeof(void*));
     arr->max = capacity;
-    
+
     return arr;
 }
 
@@ -303,7 +303,7 @@ void ccCArrayFree(ccCArray *arr)
         return;
     }
     ccCArrayRemoveAllValues(arr);
-    
+
     free(arr->arr);
     free(arr);
 }
@@ -341,7 +341,7 @@ bool ccCArrayContainsValue(ccCArray *arr, void* value)
 void ccCArrayInsertValueAtIndex( ccCArray *arr, void* value, ssize_t index)
 {
     CCASSERT( index < arr->max, "ccCArrayInsertValueAtIndex: invalid index");
-    
+
     auto remaining = arr->num - index;
     // make sure it has enough capacity
     if (arr->num + 1 == arr->max)
@@ -353,7 +353,7 @@ void ccCArrayInsertValueAtIndex( ccCArray *arr, void* value, ssize_t index)
         // tex coordinates
         memmove((void *)&arr->arr[index+1], (void *)&arr->arr[index], sizeof(void*) * remaining );
     }
-    
+
     arr->num++;
     arr->arr[index] = value;
 }
@@ -454,20 +454,21 @@ void ccCArrayRemoveArray(ccCArray *arr, ccCArray *minusArr)
 void ccCArrayFullRemoveArray(ccCArray *arr, ccCArray *minusArr)
 {
     ssize_t back = 0;
-    
+
     for(ssize_t i = 0; i < arr->num; i++)
     {
-        if( ccCArrayContainsValue(minusArr, arr->arr[i]) ) 
+        if( ccCArrayContainsValue(minusArr, arr->arr[i]) )
         {
             back++;
-        } 
+        }
         else
         {
             arr->arr[i - back] = arr->arr[i];
         }
     }
-    
+
     arr->num -= back;
 }
 
 NS_CC_END
+

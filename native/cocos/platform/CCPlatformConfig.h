@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 /**
   Config of cocos2d-x project, per target platform.
-  
+
   THIS FILE MUST NOT INCLUDE ANY OTHER FILE
 */
 
@@ -150,3 +150,4 @@ THE SOFTWARE.
 
 /// @endcond
 #endif  // __BASE_CC_PLATFORM_CONFIG_H__
+

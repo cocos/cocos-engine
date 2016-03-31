@@ -228,7 +228,7 @@ void Widget::onEnter()
             return;
     }
 #endif
-    
+
     if (!_usingLayoutComponent)
         updateSizeAndPosition();
     ProtectedNode::onEnter();
@@ -243,7 +243,7 @@ void Widget::onExit()
             return;
     }
 #endif
-    
+
     unscheduleUpdate();
     ProtectedNode::onExit();
 }
@@ -940,7 +940,7 @@ bool Widget::hitTest(const Vec2 &pt) const
     auto nsp = convertToNodeSpace(pt);
     Rect bb;
     bb.size = _contentSize;
-    
+
     if(bb.containsPoint(nsp))
     {
         return true;
@@ -1496,3 +1496,4 @@ bool Widget::isLayoutComponentEnabled()const
 
 }
 NS_CC_END
+

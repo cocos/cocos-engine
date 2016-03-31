@@ -31,7 +31,7 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 namespace tweenfunc {
-    
+
 
 #ifndef M_PI_X_2
 #define M_PI_X_2 (float)M_PI * 2.0f
@@ -49,11 +49,11 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case CUSTOM_EASING:
             delta = customEase(time, easingParam);
             break;
-            
+
         case Linear:
             delta = linear(time);
             break;
-            
+
         case Sine_EaseIn:
             delta = sineEaseIn(time);
             break;
@@ -63,7 +63,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Sine_EaseInOut:
             delta = sineEaseInOut(time);
             break;
-            
+
         case Quad_EaseIn:
             delta = quadEaseIn(time);
             break;
@@ -73,7 +73,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Quad_EaseInOut:
             delta = quadEaseInOut(time);
             break;
-            
+
         case Cubic_EaseIn:
             delta = cubicEaseIn(time);
             break;
@@ -83,7 +83,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Cubic_EaseInOut:
             delta = cubicEaseInOut(time);
             break;
-            
+
         case Quart_EaseIn:
             delta = quartEaseIn(time);
             break;
@@ -93,7 +93,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Quart_EaseInOut:
             delta = quartEaseInOut(time);
             break;
-            
+
         case Quint_EaseIn:
             delta = quintEaseIn(time);
             break;
@@ -103,7 +103,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Quint_EaseInOut:
             delta = quintEaseInOut(time);
             break;
-            
+
         case Expo_EaseIn:
             delta = expoEaseIn(time);
             break;
@@ -113,7 +113,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Expo_EaseInOut:
             delta = expoEaseInOut(time);
             break;
-            
+
         case Circ_EaseIn:
             delta = circEaseIn(time);
             break;
@@ -123,7 +123,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Circ_EaseInOut:
             delta = circEaseInOut(time);
             break;
-            
+
         case Elastic_EaseIn:
         {
             float period = 0.3f;
@@ -151,8 +151,8 @@ float tweenTo(float time, TweenType type, float *easingParam)
             delta = elasticEaseInOut(time, period);
         }
             break;
-            
-            
+
+
         case Back_EaseIn:
             delta = backEaseIn(time);
             break;
@@ -162,7 +162,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Back_EaseInOut:
             delta = backEaseInOut(time);
             break;
-            
+
         case Bounce_EaseIn:
             delta = bounceEaseIn(time);
             break;
@@ -172,7 +172,7 @@ float tweenTo(float time, TweenType type, float *easingParam)
         case Bounce_EaseInOut:
             delta = bounceEaseInOut(time);
             break;
-            
+
         default:
             delta = sineEaseInOut(time);
             break;
@@ -193,12 +193,12 @@ float sineEaseIn(float time)
 {
     return -1 * cosf(time * (float)M_PI_2) + 1;
 }
-    
+
 float sineEaseOut(float time)
 {
     return sinf(time * (float)M_PI_2);
 }
-    
+
 float sineEaseInOut(float time)
 {
     return -0.5f * (cosf((float)M_PI * time) - 1);
@@ -210,12 +210,12 @@ float quadEaseIn(float time)
 {
     return time * time;
 }
-    
+
 float quadEaseOut(float time)
 {
     return -1 * time * (time - 2);
 }
-    
+
 float quadEaseInOut(float time)
 {
     time = time*2;
@@ -252,13 +252,13 @@ float quartEaseIn(float time)
 {
     return time * time * time * time;
 }
-    
+
 float quartEaseOut(float time)
 {
     time -= 1;
     return -(time * time * time * time - 1);
 }
-    
+
 float quartEaseInOut(float time)
 {
     time = time*2;
@@ -274,13 +274,13 @@ float quintEaseIn(float time)
 {
     return time * time * time * time * time;
 }
-    
+
 float quintEaseOut(float time)
 {
     time -=1;
     return (time * time * time * time * time + 1);
 }
-    
+
 float quintEaseInOut(float time)
 {
     time = time*2;
@@ -501,7 +501,7 @@ float easeOut(float time, float rate)
 {
     return powf(time, 1 / rate);
 }
-    
+
 float easeInOut(float time, float rate)
 {
     time *= 2;
@@ -514,20 +514,20 @@ float easeInOut(float time, float rate)
         return (1.0f - 0.5f * powf(2 - time, rate));
     }
 }
-    
+
 float quadraticIn(float time)
 {
     return   powf(time,2);
 }
-    
+
 float quadraticOut(float time)
 {
     return -time*(time-2);
 }
-    
+
 float quadraticInOut(float time)
 {
-    
+
     float resultTime = time;
     time = time*2;
     if (time < 1)
@@ -541,12 +541,13 @@ float quadraticInOut(float time)
     }
     return resultTime;
 }
-    
+
 float bezieratFunction( float a, float b, float c, float d, float t )
 {
     return (powf(1-t,3) * a + 3*t*(powf(1-t,2))*b + 3*powf(t,2)*(1-t)*c + powf(t,3)*d );
 }
-    
+
 }
 
 NS_CC_END
+

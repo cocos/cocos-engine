@@ -39,7 +39,7 @@ THE SOFTWARE.
 //
 // IMPORTANT: Particle Designer is supported by cocos2d, but
 // 'Radius Mode' in Particle Designer uses a fixed emit rate of 30 hz. Since that can't be guaranteed in cocos2d,
-//  cocos2d uses a another approach, but the results are almost identical. 
+//  cocos2d uses a another approach, but the results are almost identical.
 //
 
 #include "2d/CCParticleSystem.h"
@@ -73,7 +73,7 @@ NS_CC_BEGIN
 //
 // IMPORTANT: Particle Designer is supported by cocos2d, but
 // 'Radius Mode' in Particle Designer uses a fixed emit rate of 30 hz. Since that can't be guaranteed in cocos2d,
-//  cocos2d uses a another approach, but the results are almost identical. 
+//  cocos2d uses a another approach, but the results are almost identical.
 //
 
 
@@ -83,12 +83,12 @@ inline void nomalize_point(float x, float y, particle_point* out)
     // Already normalized.
     if (n == 1.0f)
         return;
-    
+
     n = sqrt(n);
     // Too close to zero.
     if (n < MATH_TOLERANCE)
         return;
-    
+
     n = 1.0f / n;
     out->x = x * n;
     out->y = y * n;
@@ -100,7 +100,7 @@ inline void nomalize_point(float x, float y, particle_point* out)
 inline static float RANDOM_M11(unsigned int *seed) {
     *seed = *seed * 134775813 + 1;
     union {
-        uint32_t d;                                     
+        uint32_t d;
         float f;
     } u;
     u.d = (((uint32_t)(*seed) & 0x7fff) << 8) | 0x40000000;
@@ -115,7 +115,7 @@ ParticleData::ParticleData()
 bool ParticleData::init(int count)
 {
     maxCount = count;
-    
+
     posx= (float*)malloc(count * sizeof(float));
     posy= (float*)malloc(count * sizeof(float));
     startPosX= (float*)malloc(count * sizeof(float));
@@ -134,17 +134,17 @@ bool ParticleData::init(int count)
     deltaRotation= (float*)malloc(count * sizeof(float));
     timeToLive= (float*)malloc(count * sizeof(float));
     atlasIndex= (unsigned int*)malloc(count * sizeof(unsigned int));
-    
+
     modeA.dirX= (float*)malloc(count * sizeof(float));
     modeA.dirY= (float*)malloc(count * sizeof(float));
     modeA.radialAccel= (float*)malloc(count * sizeof(float));
     modeA.tangentialAccel= (float*)malloc(count * sizeof(float));
-    
+
     modeB.angle= (float*)malloc(count * sizeof(float));
     modeB.degreesPerSecond= (float*)malloc(count * sizeof(float));
     modeB.deltaRadius= (float*)malloc(count * sizeof(float));
     modeB.radius= (float*)malloc(count * sizeof(float));
-    
+
     return posx && posy && startPosY && startPosX && colorR && colorG && colorB && colorA &&
     deltaColorR && deltaColorG && deltaColorB && deltaColorA && size && deltaSize &&
     rotation && deltaRotation && timeToLive && atlasIndex && modeA.dirX && modeA.dirY &&
@@ -172,12 +172,12 @@ void ParticleData::release()
     CC_SAFE_FREE(deltaRotation);
     CC_SAFE_FREE(timeToLive);
     CC_SAFE_FREE(atlasIndex);
-    
+
     CC_SAFE_FREE(modeA.dirX);
     CC_SAFE_FREE(modeA.dirY);
     CC_SAFE_FREE(modeA.radialAccel);
     CC_SAFE_FREE(modeA.tangentialAccel);
-    
+
     CC_SAFE_FREE(modeB.angle);
     CC_SAFE_FREE(modeB.degreesPerSecond);
     CC_SAFE_FREE(modeB.deltaRadius);
@@ -230,7 +230,7 @@ ParticleSystem::ParticleSystem()
     modeB.startRadius = 0;
     modeB.startRadiusVar = 0;
     modeB.endRadius = 0;
-    modeB.endRadiusVar = 0;            
+    modeB.endRadiusVar = 0;
     modeB.rotatePerSecond = 0;
     modeB.rotatePerSecondVar = 0;
 }
@@ -276,7 +276,7 @@ bool ParticleSystem::initWithFile(const std::string& plistFile)
         log("ParticleSystem::initWithFile error:%s not exist!", plistFile.c_str());
         return false;
     }
-    
+
     // FIXME: compute path from a path, should define a function somewhere to do it
     string listFilePath = plistFile;
     if (listFilePath.find('/') != string::npos)
@@ -288,7 +288,7 @@ bool ParticleSystem::initWithFile(const std::string& plistFile)
     {
         ret = this->initWithDictionary(dict, "");
     }
-    
+
     return ret;
 }
 
@@ -303,7 +303,7 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
     unsigned char *buffer = nullptr;
     unsigned char *deflated = nullptr;
     Image *image = nullptr;
-    do 
+    do
     {
         int maxParticles = dictionary["maxParticles"].asInt();
         // self, not super
@@ -319,7 +319,7 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
             // duration
             _duration = dictionary["duration"].asFloat();
 
-            // blend function 
+            // blend function
             if (!_configName.empty())
             {
                 _blendFunc.src = dictionary["blendFuncSource"].asFloat();
@@ -360,7 +360,7 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
             // position
             float x = dictionary["sourcePositionx"].asFloat();
             float y = dictionary["sourcePositiony"].asFloat();
-            this->setPosition(x,y);            
+            this->setPosition(x,y);
             _posVar.x = dictionary["sourcePositionVariancex"].asFloat();
             _posVar.y = dictionary["sourcePositionVariancey"].asFloat();
 
@@ -390,7 +390,7 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
                 // tangential acceleration
                 modeA.tangentialAccel = dictionary["tangentialAcceleration"].asFloat();
                 modeA.tangentialAccelVar = dictionary["tangentialAccelVariance"].asFloat();
-                
+
                 // rotation is dir
                 modeA.rotationIsDir = dictionary["rotationIsDir"].asBool();
             }
@@ -415,7 +415,7 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
                 {
                     modeB.endRadius = dictionary["minRadius"].asFloat();
                 }
-                
+
                 if (dictionary.find("minRadiusVariance") != dictionary.end())
                 {
                     modeB.endRadiusVar = dictionary["minRadiusVariance"].asFloat();
@@ -424,7 +424,7 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
                 {
                     modeB.endRadiusVar = 0.0f;
                 }
-                
+
                 if (!_configName.empty())
                 {
                     modeB.rotatePerSecond = dictionary["rotatePerSecond"].asInt();
@@ -453,16 +453,16 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
                 // Set a compatible default for the alpha transfer
                 _opacityModifyRGB = false;
 
-                // texture        
+                // texture
                 // Try to get the texture from the cache
                 std::string textureName = dictionary["textureFileName"].asString();
-                
+
                 size_t rPos = textureName.rfind('/');
-               
+
                 if (rPos != string::npos)
                 {
                     string textureDir = textureName.substr(0, rPos + 1);
-                    
+
                     if (!dirname.empty() && textureDir != dirname)
                     {
                         textureName = textureName.substr(rPos+1);
@@ -473,9 +473,9 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
                 {
                     textureName = dirname + textureName;
                 }
-                
+
                 Texture2D *tex = nullptr;
-                
+
                 if (!textureName.empty())
                 {
                     // set not pop-up message box when load image failed
@@ -485,40 +485,40 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
                     // reset the value of UIImage notify
                     FileUtils::getInstance()->setPopupNotify(notify);
                 }
-                
+
                 if (tex)
                 {
                     setTexture(tex);
                 }
                 else if( dictionary.find("textureImageData") != dictionary.end() )
-                {                        
+                {
                     std::string textureData = dictionary.at("textureImageData").asString();
                     CCASSERT(!textureData.empty(), "textureData can't be empty!");
-                    
+
                     auto dataLen = textureData.size();
                     if (dataLen != 0)
                     {
-                        // if it fails, try to get it from the base64-gzipped data    
+                        // if it fails, try to get it from the base64-gzipped data
                         int decodeLen = base64Decode((unsigned char*)textureData.c_str(), (unsigned int)dataLen, &buffer);
                         CCASSERT( buffer != nullptr, "CCParticleSystem: error decoding textureImageData");
                         CC_BREAK_IF(!buffer);
-                        
+
                         ssize_t deflatedLen = ZipUtils::inflateMemory(buffer, decodeLen, &deflated);
                         CCASSERT( deflated != nullptr, "CCParticleSystem: error ungzipping textureImageData");
                         CC_BREAK_IF(!deflated);
-                        
+
                         // For android, we should retain it in VolatileTexture::addImage which invoked in Director::getInstance()->getTextureCache()->addUIImage()
                         image = new (std::nothrow) Image();
                         bool isOK = image->initWithImageData(deflated, deflatedLen);
                         CCASSERT(isOK, "CCParticleSystem: error init image with Data");
                         CC_BREAK_IF(!isOK);
-                        
+
                         setTexture(_director->getTextureCache()->addImage(image, _plistFile + textureName));
 
                         image->release();
                     }
                 }
-                
+
                 _yCoordFlipped = dictionary.find("yCoordFlipped") == dictionary.end() ? 1 : dictionary.at("yCoordFlipped").asInt();
 
                 if( !this->_texture)
@@ -535,7 +535,7 @@ bool ParticleSystem::initWithDictionary(ValueMap& dictionary, const std::string&
 bool ParticleSystem::initWithTotalParticles(int numberOfParticles)
 {
     _totalParticles = numberOfParticles;
-    
+
     _particleData.release();
 
     if( !_particleData.init(_totalParticles) )
@@ -595,60 +595,60 @@ void ParticleSystem::addParticles(int count)
 
     int start = _particleCount;
     _particleCount += count;
-    
+
     //life
     for (int i = start; i < _particleCount ; ++i)
     {
         float theLife = _life + _lifeVar * RANDOM_M11(&RANDSEED);
         _particleData.timeToLive[i] = MAX(0, theLife);
     }
-    
+
     //position
     for (int i = start; i < _particleCount; ++i)
     {
         _particleData.posx[i] = _sourcePosition.x + _posVar.x * RANDOM_M11(&RANDSEED);
     }
-    
+
     for (int i = start; i < _particleCount; ++i)
     {
         _particleData.posy[i] = _sourcePosition.y + _posVar.y * RANDOM_M11(&RANDSEED);
     }
-    
+
     //color
 #define SET_COLOR(c, b, v)\
 for (int i = start; i < _particleCount; ++i)\
 {\
 c[i] = clampf( b + v * RANDOM_M11(&RANDSEED) , 0 , 1 );\
 }
-    
+
     SET_COLOR(_particleData.colorR, _startColor.r, _startColorVar.r);
     SET_COLOR(_particleData.colorG, _startColor.g, _startColorVar.g);
     SET_COLOR(_particleData.colorB, _startColor.b, _startColorVar.b);
     SET_COLOR(_particleData.colorA, _startColor.a, _startColorVar.a);
-    
+
     SET_COLOR(_particleData.deltaColorR, _endColor.r, _endColorVar.r);
     SET_COLOR(_particleData.deltaColorG, _endColor.g, _endColorVar.g);
     SET_COLOR(_particleData.deltaColorB, _endColor.b, _endColorVar.b);
     SET_COLOR(_particleData.deltaColorA, _endColor.a, _endColorVar.a);
-    
+
 #define SET_DELTA_COLOR(c, dc)\
 for (int i = start; i < _particleCount; ++i)\
 {\
 dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
 }
-    
+
     SET_DELTA_COLOR(_particleData.colorR, _particleData.deltaColorR);
     SET_DELTA_COLOR(_particleData.colorG, _particleData.deltaColorG);
     SET_DELTA_COLOR(_particleData.colorB, _particleData.deltaColorB);
     SET_DELTA_COLOR(_particleData.colorA, _particleData.deltaColorA);
-    
+
     //size
     for (int i = start; i < _particleCount; ++i)
     {
         _particleData.size[i] = _startSize + _startSizeVar * RANDOM_M11(&RANDSEED);
         _particleData.size[i] = MAX(0, _particleData.size[i]);
     }
-    
+
     if (_endSize != START_SIZE_EQUAL_TO_END_SIZE)
     {
         for (int i = start; i < _particleCount; ++i)
@@ -665,7 +665,7 @@ dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
             _particleData.deltaSize[i] = 0.0f;
         }
     }
-    
+
     // rotation
     for (int i = start; i < _particleCount; ++i)
     {
@@ -676,7 +676,7 @@ dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
         float endA = _endSpin + _endSpinVar * RANDOM_M11(&RANDSEED);
         _particleData.deltaRotation[i] = (endA - _particleData.rotation[i]) / _particleData.timeToLive[i];
     }
-    
+
     // position
     Vec2 pos;
     if (_positionType == PositionType::FREE)
@@ -695,23 +695,23 @@ dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
     {
         _particleData.startPosY[i] = pos.y;
     }
-    
+
     // Mode Gravity: A
     if (_emitterMode == Mode::GRAVITY)
     {
-        
+
         // radial accel
         for (int i = start; i < _particleCount; ++i)
         {
             _particleData.modeA.radialAccel[i] = modeA.radialAccel + modeA.radialAccelVar * RANDOM_M11(&RANDSEED);
         }
-        
+
         // tangential accel
         for (int i = start; i < _particleCount; ++i)
         {
             _particleData.modeA.tangentialAccel[i] = modeA.tangentialAccel + modeA.tangentialAccelVar * RANDOM_M11(&RANDSEED);
         }
-        
+
         // rotation is dir
         if( modeA.rotationIsDir )
         {
@@ -738,9 +738,9 @@ dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
                 _particleData.modeA.dirY[i] = dir.y;
             }
         }
-        
+
     }
-    
+
     // Mode Radius: B
     else
     {
@@ -755,12 +755,12 @@ dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
         {
             _particleData.modeB.angle[i] = CC_DEGREES_TO_RADIANS( _angle + _angleVar * RANDOM_M11(&RANDSEED));
         }
-        
+
         for (int i = start; i < _particleCount; ++i)
         {
             _particleData.modeB.degreesPerSecond[i] = CC_DEGREES_TO_RADIANS(modeB.rotatePerSecond + modeB.rotatePerSecondVar * RANDOM_M11(&RANDSEED));
         }
-        
+
         if(modeB.endRadius == START_RADIUS_EQUAL_TO_END_RADIUS)
         {
             for (int i = start; i < _particleCount; ++i)
@@ -788,9 +788,9 @@ void ParticleSystem::onEnter()
             return;
     }
 #endif
-    
+
     Node::onEnter();
-    
+
     // update after action in run!
     this->scheduleUpdateWithPriority(1);
 }
@@ -804,7 +804,7 @@ void ParticleSystem::onExit()
             return;
     }
 #endif
-    
+
     this->unscheduleUpdate();
     Node::onExit();
 }
@@ -846,11 +846,11 @@ void ParticleSystem::update(float dt)
             if (_emitCounter < 0.f)
                 _emitCounter = 0.f;
         }
-        
+
         int emitCount = MIN(_totalParticles - _particleCount, _emitCounter / rate);
         addParticles(emitCount);
         _emitCounter -= rate * emitCount;
-        
+
         _elapsed += dt;
         if (_elapsed < 0.f)
             _elapsed = 0.f;
@@ -859,13 +859,13 @@ void ParticleSystem::update(float dt)
             this->stopSystem();
         }
     }
-    
+
     {
         for (int i = 0; i < _particleCount; ++i)
         {
             _particleData.timeToLive[i] -= dt;
         }
-        
+
         for (int i = 0; i < _particleCount; ++i)
         {
             if (_particleData.timeToLive[i] <= 0.0f)
@@ -894,13 +894,13 @@ void ParticleSystem::update(float dt)
                 }
             }
         }
-        
+
         if (_emitterMode == Mode::GRAVITY)
         {
             for (int i = 0 ; i < _particleCount; ++i)
             {
                 particle_point tmp, radial = {0.0f, 0.0f}, tangential;
-                
+
                 // radial acceleration
                 if (_particleData.posx[i] || _particleData.posy[i])
                 {
@@ -909,24 +909,24 @@ void ParticleSystem::update(float dt)
                 tangential = radial;
                 radial.x *= _particleData.modeA.radialAccel[i];
                 radial.y *= _particleData.modeA.radialAccel[i];
-                
+
                 // tangential acceleration
                 std::swap(tangential.x, tangential.y);
                 tangential.x *= - _particleData.modeA.tangentialAccel[i];
                 tangential.y *= _particleData.modeA.tangentialAccel[i];
-                
+
                 // (gravity + radial + tangential) * dt
                 tmp.x = radial.x + tangential.x + modeA.gravity.x;
                 tmp.y = radial.y + tangential.y + modeA.gravity.y;
                 tmp.x *= dt;
                 tmp.y *= dt;
-                
+
                 _particleData.modeA.dirX[i] += tmp.x;
                 _particleData.modeA.dirY[i] += tmp.y;
-                
+
                 // this is cocos2d-x v3.0
                 // if (_configName.length()>0 && _yCoordFlipped != -1)
-                
+
                 // this is cocos2d-x v3.0
                 tmp.x = _particleData.modeA.dirX[i] * dt * _yCoordFlipped;
                 tmp.y = _particleData.modeA.dirY[i] * dt * _yCoordFlipped;
@@ -940,12 +940,12 @@ void ParticleSystem::update(float dt)
             {
                 _particleData.modeB.angle[i] += _particleData.modeB.degreesPerSecond[i] * dt;
             }
-            
+
             for (int i = 0; i < _particleCount; ++i)
             {
                 _particleData.modeB.radius[i] += _particleData.modeB.deltaRadius[i] * dt;
             }
-            
+
             for (int i = 0; i < _particleCount; ++i)
             {
                 _particleData.posx[i] = - cosf(_particleData.modeB.angle[i]) * _particleData.modeB.radius[i];
@@ -955,23 +955,23 @@ void ParticleSystem::update(float dt)
                 _particleData.posy[i] = - sinf(_particleData.modeB.angle[i]) * _particleData.modeB.radius[i] * _yCoordFlipped;
             }
         }
-        
+
         //color r,g,b,a
         for (int i = 0 ; i < _particleCount; ++i)
         {
             _particleData.colorR[i] += _particleData.deltaColorR[i] * dt;
         }
-        
+
         for (int i = 0 ; i < _particleCount; ++i)
         {
             _particleData.colorG[i] += _particleData.deltaColorG[i] * dt;
         }
-        
+
         for (int i = 0 ; i < _particleCount; ++i)
         {
             _particleData.colorB[i] += _particleData.deltaColorB[i] * dt;
         }
-        
+
         for (int i = 0 ; i < _particleCount; ++i)
         {
             _particleData.colorA[i] += _particleData.deltaColorA[i] * dt;
@@ -987,7 +987,7 @@ void ParticleSystem::update(float dt)
         {
             _particleData.rotation[i] += _particleData.deltaRotation[i] * dt;
         }
-        
+
         updateParticleQuads();
         _transformSystemDirty = false;
     }
@@ -1035,9 +1035,9 @@ void ParticleSystem::updateBlendFunc()
     if(_texture)
     {
         bool premultiplied = _texture->hasPremultipliedAlpha();
-        
+
         _opacityModifyRGB = false;
-        
+
         if( _texture && ( _blendFunc.src == CC_BLEND_SRC && _blendFunc.dst == CC_BLEND_DST ) )
         {
             if( premultiplied )
@@ -1068,7 +1068,7 @@ void ParticleSystem::setBlendAdditive(bool additive)
     {
         if( _texture && ! _texture->hasPremultipliedAlpha() )
             _blendFunc = BlendFunc::ALPHA_NON_PREMULTIPLIED;
-        else 
+        else
             _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
     }
 }
@@ -1078,7 +1078,7 @@ bool ParticleSystem::isBlendAdditive() const
     return( _blendFunc.src == GL_SRC_ALPHA && _blendFunc.dst == GL_ONE);
 }
 
-// ParticleSystem - Properties of Gravity Mode 
+// ParticleSystem - Properties of Gravity Mode
 void ParticleSystem::setTangentialAccel(float t)
 {
     CCASSERT( _emitterMode == Mode::GRAVITY, "Particle Mode should be Gravity");
@@ -1101,7 +1101,7 @@ float ParticleSystem::getTangentialAccelVar() const
 {
     CCASSERT(_emitterMode == Mode::GRAVITY, "Particle Mode should be Gravity");
     return modeA.tangentialAccelVar;
-}    
+}
 
 void ParticleSystem::setRadialAccel(float t)
 {
@@ -1338,3 +1338,4 @@ void ParticleSystem::setScaleY(float newScaleY)
 
 
 NS_CC_END
+

@@ -48,7 +48,7 @@ Ref::Ref()
     _ID = ++uObjectCount;
     _scriptObject = nullptr;
 #endif
-    
+
 #if CC_REF_LEAK_DETECTION
     trackRef(this);
 #endif
@@ -198,3 +198,4 @@ static void untrackRef(Ref* ref)
 
 
 NS_CC_END
+

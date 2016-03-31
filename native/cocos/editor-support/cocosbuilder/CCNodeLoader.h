@@ -74,7 +74,7 @@ class CC_DLL NodeLoader : public cocos2d::Ref {
          * @lua NA
          */
         virtual cocos2d::ValueMap& getCustomProperties();
-    
+
     protected:
         CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(cocos2d::Node);
 
@@ -145,3 +145,4 @@ protected:
 }
 
 #endif
+

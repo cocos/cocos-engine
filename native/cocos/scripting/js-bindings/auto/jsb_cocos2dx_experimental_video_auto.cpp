@@ -23,7 +23,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
         JS::RootedObject proto(cx, typeClass->proto.ref());
         JS::RootedObject parent(cx, typeClass->parentProto.ref());
         JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-        
+
         args.rval().set(OBJECT_TO_JSVAL(_tmp));
         return true;
     }
@@ -40,7 +40,7 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().setBoolean(true);
-    return true;    
+    return true;
 }
 JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
 JSObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
@@ -406,3 +406,4 @@ void register_all_cocos2dx_experimental_video(JSContext* cx, JS::HandleObject ob
 }
 
 #endif //#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+

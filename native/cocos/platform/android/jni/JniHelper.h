@@ -58,7 +58,7 @@ public:
                               const char *paramCode);
 
     /**
-     *  @brief convert jstring to utf8 std::string,  same function with env->getStringUTFChars. 
+     *  @brief convert jstring to utf8 std::string,  same function with env->getStringUTFChars.
      *         because getStringUTFChars can not pass special emoticon
      *  @param env   The JNI Env
      *  @param srcjStr The jstring which want to convert
@@ -83,8 +83,8 @@ public:
     static jobject classloader;
 
     template <typename... Ts>
-    static void callStaticVoidMethod(const char* className, 
-                                     const char* methodName, 
+    static void callStaticVoidMethod(const char* className,
+                                     const char* methodName,
                                      Ts... xs) {
         std::string methodSignature = "(" + getJNISignature(xs...) + ")V";
 
@@ -97,8 +97,8 @@ public:
     }
 
     template <typename... Ts>
-    static bool callStaticBooleanMethod(const char* className, 
-                                        const char* methodName, 
+    static bool callStaticBooleanMethod(const char* className,
+                                        const char* methodName,
                                         Ts... xs) {
         std::string methodSignature = "(" + getJNISignature(xs...) + ")Z";
 
@@ -114,8 +114,8 @@ public:
     }
 
     template <typename... Ts>
-    static int callStaticIntMethod(const char* className, 
-                                   const char* methodName, 
+    static int callStaticIntMethod(const char* className,
+                                   const char* methodName,
                                    Ts... xs) {
         std::string methodSignature = "(" + getJNISignature(xs...) + ")I";
 
@@ -131,8 +131,8 @@ public:
     }
 
     template <typename... Ts>
-    static float callStaticFloatMethod(const char* className, 
-                                       const char* methodName, 
+    static float callStaticFloatMethod(const char* className,
+                                       const char* methodName,
                                        Ts... xs) {
         std::string methodSignature = "(" + getJNISignature(xs...) + ")F";
 
@@ -148,8 +148,8 @@ public:
     }
 
     template <typename... Ts>
-    static double callStaticDoubleMethod(const char* className, 
-                                         const char* methodName, 
+    static double callStaticDoubleMethod(const char* className,
+                                         const char* methodName,
                                          Ts... xs) {
         std::string methodSignature = "(" + getJNISignature(xs...) + ")D";
 
@@ -165,8 +165,8 @@ public:
     }
 
     template <typename... Ts>
-    static std::string callStaticStringMethod(const char* className, 
-                                              const char* methodName, 
+    static std::string callStaticStringMethod(const char* className,
+                                              const char* methodName,
                                               Ts... xs) {
         std::string methodSignature = "(" + getJNISignature(xs...) + ")Ljava/lang/String;";
 
@@ -256,10 +256,11 @@ private:
 
     template <typename T, typename... Ts>
     static std::string getJNISignature(T x, Ts... xs) {
-        return getJNISignature(x) + getJNISignature(xs...); 
+        return getJNISignature(x) + getJNISignature(xs...);
     }
 };
 
 NS_CC_END
 
 #endif // __ANDROID_JNI_HELPER_H__
+

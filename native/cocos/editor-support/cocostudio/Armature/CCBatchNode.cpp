@@ -121,10 +121,10 @@ void BatchNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t 
         // but it is deprecated and your code should not rely on it
         _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
         _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
-        
+
         sortAllChildren();
         draw(renderer, _modelViewTransform, flags);
-        
+
         _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     }
 }
@@ -149,14 +149,14 @@ void BatchNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
                 generateGroupCommand();
                 pushed = true;
             }
-        
+
             armature->visit(renderer, transform, flags);
         }
         else
         {
             renderer->popGroup();
             pushed = false;
-            
+
             ((Node *)object)->visit(renderer, transform, flags);
         }
     }
@@ -172,3 +172,4 @@ void BatchNode::generateGroupCommand()
 }
 
 }
+

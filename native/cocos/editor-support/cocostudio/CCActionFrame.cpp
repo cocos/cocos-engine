@@ -374,3 +374,4 @@ ActionInterval* ActionTintFrame::getAction(float fDuration)
 
 
 }
+

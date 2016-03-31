@@ -321,7 +321,7 @@ Data FileUtilsAndroid::getData(const std::string& filename, bool forString)
             {
                 fileSize = fread(data,sizeof(unsigned char), fileSize,fp);
             }
-            
+
             fclose(fp);
 
             size = fileSize;
@@ -464,3 +464,4 @@ std::string FileUtilsAndroid::getWritablePath() const
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+

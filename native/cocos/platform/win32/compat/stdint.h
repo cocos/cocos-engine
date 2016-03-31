@@ -249,3 +249,4 @@ typedef uint64_t  uintmax_t;
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 
 #endif // _MSC_STDINT_H_ ]
+

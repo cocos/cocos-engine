@@ -575,7 +575,7 @@ bool FileUtils::writeStringToFile(const std::string& dataStr, const std::string&
 
     bool ret = writeDataToFile(data, fullPath);
     data.fastSet(nullptr, 0);
-    
+
     return ret;
 }
 
@@ -923,7 +923,7 @@ void FileUtils::setDefaultResourceRootPath(const std::string& resRootPath)
 {
     if (_defaultResRootPath == resRootPath)
         return;
-    
+
     if (!_searchPathArray.empty() && !_defaultResRootPath.empty())
     {
         auto tmp = _defaultResRootPath.length();

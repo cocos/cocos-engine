@@ -668,3 +668,4 @@ etc1_uint32 etc1_pkm_get_width(const etc1_byte* pHeader) {
 etc1_uint32 etc1_pkm_get_height(const etc1_byte* pHeader){
     return readBEUint16(pHeader + ETC1_PKM_HEIGHT_OFFSET);
 }
+

@@ -2,7 +2,7 @@
 Copyright (c) 2009      On-Core
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (C) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -72,3 +72,4 @@ protected:
 NS_CC_END
 
 #endif // __EFFECTS_CCGRABBER_H__
+

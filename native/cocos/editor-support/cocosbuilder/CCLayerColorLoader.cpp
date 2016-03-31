@@ -33,3 +33,4 @@ void LayerColorLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, c
 }
 
 }
+

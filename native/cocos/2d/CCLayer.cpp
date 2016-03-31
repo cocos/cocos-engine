@@ -3,7 +3,7 @@ Copyright (c) 2008-2010 Ricardo Quesada
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2011      Zynga Inc.
 Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -89,7 +89,7 @@ LayerColor::LayerColor()
     // default blend function
     _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
 }
-    
+
 LayerColor::~LayerColor()
 {
 }
@@ -225,7 +225,7 @@ void LayerColor::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
     _customCommand.init(_globalZOrder, transform, flags);
     _customCommand.func = CC_CALLBACK_0(LayerColor::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
-    
+
     for(int i = 0; i < 4; ++i)
     {
         Vec4 pos;
@@ -240,9 +240,9 @@ void LayerColor::onDraw(const Mat4& transform, uint32_t flags)
 {
     getGLProgram()->use();
     getGLProgram()->setUniformsForBuiltins(transform);
-    
+
     GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR );
-    
+
     //
     // Attributes
     //
@@ -273,7 +273,7 @@ LayerGradient::LayerGradient()
 , _alongVector(Vec2(0, -1))
 , _compressedInterpolation(true)
 {
-    
+
 }
 
 LayerGradient::~LayerGradient()
@@ -632,3 +632,4 @@ std::string LayerMultiplex::getDescription() const
 }
 
 NS_CC_END
+

@@ -65,7 +65,7 @@ static CCAccelerometerDispatcher* s_pAccelerometerDispatcher;
     if (s_pAccelerometerDispatcher == nil) {
         s_pAccelerometerDispatcher = [[self alloc] init];
     }
-    
+
     return s_pAccelerometerDispatcher;
 }
 
@@ -112,26 +112,26 @@ static CCAccelerometerDispatcher* s_pAccelerometerDispatcher;
     _acceleration->y = accelerometerData.acceleration.y;
     _acceleration->z = accelerometerData.acceleration.z;
     _acceleration->timestamp = accelerometerData.timestamp;
-    
+
     double tmp = _acceleration->x;
-    
+
     switch ([[UIApplication sharedApplication] statusBarOrientation])
     {
         case UIInterfaceOrientationLandscapeRight:
             _acceleration->x = -_acceleration->y;
             _acceleration->y = tmp;
             break;
-            
+
         case UIInterfaceOrientationLandscapeLeft:
             _acceleration->x = _acceleration->y;
             _acceleration->y = -tmp;
             break;
-            
+
         case UIInterfaceOrientationPortraitUpsideDown:
             _acceleration->x = -_acceleration->y;
             _acceleration->y = -tmp;
             break;
-            
+
         case UIInterfaceOrientationPortrait:
             break;
         default:
@@ -156,11 +156,11 @@ int Device::getDPI()
     if (dpi == -1)
     {
         float scale = 1.0f;
-        
+
         if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
             scale = [[UIScreen mainScreen] scale];
         }
-        
+
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
             dpi = 132 * scale;
         } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
@@ -204,9 +204,9 @@ typedef struct
     float        tintColorG;
     float        tintColorB;
     float        tintColorA;
-    
+
     unsigned char*  data;
-    
+
 } tImageInfo;
 
 static bool s_isIOS7OrHigher = false;
@@ -228,7 +228,7 @@ static CGSize _calculateStringSize(NSString *str, id font, CGSize *constrainSize
     : 0x7fffffff;
     textRect.height = constrainSize->height > 0 ? constrainSize->height
     : 0x7fffffff;
-    
+
     CGSize dim;
     if(s_isIOS7OrHigher){
         NSDictionary *attibutes = @{NSFontAttributeName:font};
@@ -240,7 +240,7 @@ static CGSize _calculateStringSize(NSString *str, id font, CGSize *constrainSize
 
     dim.width = ceilf(dim.width);
     dim.height = ceilf(dim.height);
-    
+
     return dim;
 }
 
@@ -253,27 +253,27 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
 {
     // lazy check whether it is iOS7 device
     lazyCheckIOS7();
-    
+
     bool bRet = false;
     do
     {
         CC_BREAK_IF(! text || ! info);
-        
+
         NSString * str          = [NSString stringWithUTF8String:text];
         NSString * fntName      = [NSString stringWithUTF8String:fontName];
-        
+
         CGSize dim, constrainSize;
-        
+
         constrainSize.width     = info->width;
         constrainSize.height    = info->height;
-        
+
         // On iOS custom fonts must be listed beforehand in the App info.plist (in order to be usable) and referenced only the by the font family name itself when
         // calling [UIFont fontWithName]. Therefore even if the developer adds 'SomeFont.ttf' or 'fonts/SomeFont.ttf' to the App .plist, the font must
         // be referenced as 'SomeFont' when calling [UIFont fontWithName]. Hence we strip out the folder path components and the extension here in order to get just
         // the font family name itself. This stripping step is required especially for references to user fonts stored in CCB files; CCB files appear to store
         // the '.ttf' extensions when referring to custom fonts.
         fntName = [[fntName lastPathComponent] stringByDeletingPathExtension];
-        
+
         // create the font
         UIFont* font = [UIFont fontWithName:fntName size:size];
         if(font == nil)
@@ -281,9 +281,9 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
             font = [UIFont systemFontOfSize:size];
         }
         CC_BREAK_IF(! font);
-        
+
         dim = _calculateStringSize(str, font, &constrainSize);
-        
+
         // compute start point
         int startH = 0;
         if (constrainSize.height > dim.height)
@@ -303,7 +303,7 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
                 startH = constrainSize.height - dim.height;
             }
         }
-        
+
         // adjust text rect
         if (constrainSize.width > 0 && constrainSize.width > dim.width)
         {
@@ -313,24 +313,24 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
         {
             dim.height = constrainSize.height;
         }
-        
+
         // compute the padding needed by shadow and stroke
         float shadowStrokePaddingX = 0.0f;
         float shadowStrokePaddingY = 0.0f;
-        
+
         if ( info->hasStroke )
         {
             shadowStrokePaddingX = ceilf(info->strokeSize);
             shadowStrokePaddingY = ceilf(info->strokeSize);
         }
-        
+
         // add the padding (this could be 0 if no shadow and no stroke)
         dim.width  += shadowStrokePaddingX*2;
         dim.height += shadowStrokePaddingY*2;
-        
+
         unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * (int)(dim.width * dim.height * 4));
         memset(data, 0, (int)(dim.width * dim.height * 4));
-        
+
         // draw text
         CGColorSpaceRef colorSpace  = CGColorSpaceCreateDeviceRGB();
         CGContextRef context        = CGBitmapContextCreate(data,
@@ -346,44 +346,44 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
             CC_SAFE_FREE(data);
             break;
         }
-        
+
         // text color
         CGContextSetRGBFillColor(context, info->tintColorR, info->tintColorG, info->tintColorB, info->tintColorA);
         // move Y rendering to the top of the image
         CGContextTranslateCTM(context, 0.0f, (dim.height - shadowStrokePaddingY) );
         CGContextScaleCTM(context, 1.0f, -1.0f); //NOTE: NSString draws in UIKit referential i.e. renders upside-down compared to CGBitmapContext referential
-        
+
         // store the current context
         UIGraphicsPushContext(context);
-        
+
         // measure text size with specified font and determine the rectangle to draw text in
         unsigned uHoriFlag = (int)align & 0x0f;
         NSTextAlignment nsAlign = (2 == uHoriFlag) ? NSTextAlignmentRight
                                                   : (3 == uHoriFlag) ? NSTextAlignmentCenter
                                                   : NSTextAlignmentLeft;
-         
-        
+
+
         CGColorSpaceRelease(colorSpace);
-        
+
         // compute the rect used for rendering the text
         // based on wether shadows or stroke are enabled
-        
+
         float textOriginX  = 0;
         float textOrigingY = startH;
-        
+
         float textWidth    = dim.width;
         float textHeight   = dim.height;
-        
+
         CGRect rect = CGRectMake(textOriginX, textOrigingY, textWidth, textHeight);
-        
+
         CGContextSetShouldSubpixelQuantizeFonts(context, false);
-        
+
         CGContextBeginTransparencyLayerWithRect(context, rect, NULL);
-        
+
         if ( info->hasStroke )
         {
             CGContextSetTextDrawingMode(context, kCGTextStroke);
-            
+
             if(s_isIOS7OrHigher)
             {
                 NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
@@ -403,41 +403,41 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
                                                                                                   alpha:info->strokeColorA]
                                                       }
                  ];
-                
+
                 [paragraphStyle release];
             }
             else
             {
                 CGContextSetRGBStrokeColor(context, info->strokeColorR, info->strokeColorG, info->strokeColorB, info->strokeColorA);
                 CGContextSetLineWidth(context, info->strokeSize);
-                
+
                 //original code that was not working in iOS 7
                 [str drawInRect: rect withFont:font lineBreakMode:NSLineBreakByWordWrapping alignment:nsAlign];
             }
         }
-        
+
         CGContextSetTextDrawingMode(context, kCGTextFill);
-        
+
         // actually draw the text in the context
         [str drawInRect: rect withFont:font lineBreakMode:NSLineBreakByWordWrapping alignment:nsAlign];
-        
+
         CGContextEndTransparencyLayer(context);
-        
+
         // pop the context
         UIGraphicsPopContext();
-        
+
         // release the context
         CGContextRelease(context);
-        
+
         // output params
         info->data                 = data;
         info->isPremultipliedAlpha = true;
         info->width                = dim.width;
         info->height               = dim.height;
         bRet                        = true;
-        
+
     } while (0);
-    
+
     return bRet;
 }
 
@@ -445,7 +445,7 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
 Data Device::getTextureDataForText(const std::string& text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
 {
     Data ret;
-    
+
     do {
         tImageInfo info = {0};
         info.width                  = textDefinition._dimensions.width;
@@ -465,7 +465,7 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
         info.tintColorG             = textDefinition._fontFillColor.g / 255.0f;
         info.tintColorB             = textDefinition._fontFillColor.b / 255.0f;
         info.tintColorA             = textDefinition._fontAlpha / 255.0f;
-        
+
         if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info))
         {
             break;
@@ -475,7 +475,7 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
         ret.fastSet(info.data,width * height * 4);
         hasPremultipliedAlpha = true;
     } while (0);
-    
+
     return ret;
 }
 
@@ -492,7 +492,7 @@ void Device::vibrate(float duration)
 {
     // See https://developer.apple.com/library/ios/documentation/AudioToolbox/Reference/SystemSoundServicesReference/index.html#//apple_ref/c/econst/kSystemSoundID_Vibrate
     CC_UNUSED_PARAM(duration);
-    
+
     // automatically vibrates for approximately 0.4 seconds
     AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
 }

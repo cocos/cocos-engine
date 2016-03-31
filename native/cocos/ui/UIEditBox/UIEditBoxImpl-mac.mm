@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2012 Jozef Pridavok
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -54,7 +54,7 @@
     if (self) {
         _maximumLength = INT_MAX;
     }
-    
+
     return self;
 }
 
@@ -114,12 +114,12 @@
 - (instancetype)initWithFrame:(NSRect)frameRect editBox:(void *)editBox
 {
     self = [super init];
-    
+
     if (self) {
-        
+
         _editState = NO;
         _secure = NO;
-        
+
         self.textField = [[[NSTextField alloc] initWithFrame:frameRect] autorelease];
         self.secureTextField = [[[NSSecureTextField alloc] initWithFrame:frameRect] autorelease];
 
@@ -127,7 +127,7 @@
         NSFont *font = [NSFont systemFontOfSize:frameRect.size.height*2/3];
         _textField.font = font;
         _secureTextField.font = font;
-        
+
         [self setupTextField:_textField];
         [self setupTextField:_secureTextField];
 
@@ -136,10 +136,10 @@
                                       font, NSFontAttributeName,
                                       [NSColor grayColor], NSForegroundColorAttributeName,
                                       nil];
-        
+
         [self.window.contentView addSubview:_textField];
     }
-    
+
     return self;
 }
 
@@ -148,13 +148,13 @@
     [_textField resignFirstResponder];
     [_textField removeFromSuperview];
     [_textField release];
-    
+
     [_secureTextField resignFirstResponder];
     [_secureTextField removeFromSuperview];
     [_secureTextField release];
-    
+
     [_placeholderAttributes release];
-    
+
     [super dealloc];
 }
 
@@ -168,7 +168,7 @@
 {
     NSRect frame = _textField.frame;
     frame.origin = pos;
-    
+
     _textField.frame = frame;
     _secureTextField.frame = frame;
 }
@@ -191,9 +191,9 @@
 - (void)setSecure:(BOOL)secure
 {
     NSAssert(secure, @"Can only set this flag to true");
-    
+
     _secure = secure;
-        
+
     [_textField.superview addSubview:_secureTextField];
     [_textField removeFromSuperview];
 }
@@ -201,7 +201,7 @@
 - (void)openKeyboard
 {
     NSView *contentView = self.window.contentView;
-    
+
     if (!_secure) {
         [contentView addSubview:_textField];
         [_textField becomeFirstResponder];
@@ -240,7 +240,7 @@
     {
         pDelegate->editBoxEditingDidBegin(getEditBoxImplMac()->getEditBox());
     }
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     cocos2d::ui::EditBox*  pEditBox= getEditBoxImplMac()->getEditBox();
     if (nullptr != pEditBox && 0 != pEditBox->getScriptEditBoxHandler() && cocos2d::ScriptEngineManager::ShareInstance)
@@ -261,7 +261,7 @@
         pDelegate->editBoxEditingDidEnd(getEditBoxImplMac()->getEditBox());
         pDelegate->editBoxReturn(getEditBoxImplMac()->getEditBox());
     }
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     cocos2d::ui::EditBox*  pEditBox= getEditBoxImplMac()->getEditBox();
     if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler() && cocos2d::ScriptEngineManager::ShareInstance)
@@ -288,7 +288,7 @@
     {
         pDelegate->editBoxTextChanged(getEditBoxImplMac()->getEditBox(), getEditBoxImplMac()->getText());
     }
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     cocos2d::ui::EditBox*  pEditBox= getEditBoxImplMac()->getEditBox();
     if (NULL != pEditBox && 0 != pEditBox->getScriptEditBoxHandler() && cocos2d::ScriptEngineManager::ShareInstance)
@@ -344,15 +344,15 @@ bool EditBoxImplMac::initWithSize(const Size& size)
          rect.size.width /= 2.0f;
          rect.size.height /= 2.0f;
     }
-    
+
     _sysEdit = [[UIEditBoxImplMac alloc] initWithFrame:rect editBox:this];
-    
+
     if (!_sysEdit)
         return false;
-    
+
     return true;
 }
-    
+
 NSFont* EditBoxImplMac::constructFont(const char *fontName, int fontSize)
 {
     NSString * fntName = [NSString stringWithUTF8String:fontName];
@@ -360,7 +360,7 @@ NSFont* EditBoxImplMac::constructFont(const char *fontName, int fontSize)
     float retinaFactor = _inRetinaMode ? 2.0f : 1.0f;
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     float scaleFactor = glview->getScaleX();
-    
+
     if (fontSize == -1)
     {
         NSRect frameRect = [_sysEdit.textField frame];
@@ -370,7 +370,7 @@ NSFont* EditBoxImplMac::constructFont(const char *fontName, int fontSize)
     {
         fontSize = fontSize * scaleFactor / retinaFactor;
     }
-    
+
     NSFont *textFont = nil;
     if (strlen(fontName) == 0)
     {
@@ -380,7 +380,7 @@ NSFont* EditBoxImplMac::constructFont(const char *fontName, int fontSize)
     {
         textFont = [NSFont fontWithName:fntName size:fontSize];
     }
-    
+
     return textFont;
 }
 
@@ -396,14 +396,14 @@ void EditBoxImplMac::setFont(const char* pFontName, int fontSize)
 void EditBoxImplMac::setPlaceholderFont(const char* pFontName, int fontSize)
 {
     NSFont *textFont = constructFont(pFontName, fontSize);
-    
+
     if (!textFont) {
         CCLOGWARN("Font not found: %s", pFontName);
         return;
     }
-    
+
     [_sysEdit.placeholderAttributes setObject:textFont forKey:NSFontAttributeName];
-    
+
     /* reload placeholder */
     const char *placeholder = [_sysEdit.textField.cell placeholderAttributedString].string.UTF8String;
     if (placeholder) {
@@ -417,12 +417,12 @@ void EditBoxImplMac::setFontColor(const Color4B& color)
     _sysEdit.textField.textColor = newColor;
     _sysEdit.secureTextField.textColor = newColor;
 }
-    
+
 void EditBoxImplMac::setPlaceholderFontColor(const Color4B& color)
 {
     NSColor *nsColor = [NSColor colorWithCalibratedRed:color.r/255.f green:color.g / 255.f blue:color.b / 255.f alpha:color.a / 255.f];
     [_sysEdit.placeholderAttributes setObject:nsColor forKey:NSForegroundColorAttributeName];
-    
+
     /* reload placeholder */
     const char *placeholder = [_sysEdit.textField.cell placeholderAttributedString].string.UTF8String;
     if (placeholder) {
@@ -493,7 +493,7 @@ const char*  EditBoxImplMac::getText(void)
     if (_sysEdit.secureTextField.superview) {
         return [_sysEdit.secureTextField.stringValue UTF8String];
     }
-    
+
     return [_sysEdit.textField.stringValue UTF8String];
 }
 
@@ -501,7 +501,7 @@ void EditBoxImplMac::setPlaceHolder(const char* pText)
 {
     NSAttributedString *as = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:pText]
                                                              attributes:_sysEdit.placeholderAttributes];
-    
+
     [[_sysEdit.textField cell] setPlaceholderAttributedString:as];
     [[_sysEdit.secureTextField cell] setPlaceholderAttributedString:as];
     [as release];
@@ -511,20 +511,20 @@ NSPoint EditBoxImplMac::convertDesignCoordToScreenCoord(const Vec2& designCoord,
 {
     NSRect frame = [_sysEdit.textField frame];
     CGFloat height = frame.size.height;
-    
+
     GLView* eglView = Director::getInstance()->getOpenGLView();
 
     Vec2 visiblePos = Vec2(designCoord.x * eglView->getScaleX(), designCoord.y * eglView->getScaleY());
     Vec2 screenGLPos = visiblePos + eglView->getViewPortRect().origin;
-    
+
     //TODO: I don't know why here needs to substract `height`.
     NSPoint screenPos = NSMakePoint(screenGLPos.x, screenGLPos.y-height);
-    
+
     if (bInRetinaMode) {
         screenPos.x = screenPos.x / 2.0f;
         screenPos.y = screenPos.y / 2.0f;
     }
-    
+
     CCLOGINFO("[EditBox] pos x = %f, y = %f", screenGLPos.x, screenGLPos.y);
     return screenPos;
 }
@@ -543,7 +543,7 @@ void EditBoxImplMac::adjustTextFieldPosition()
     Rect rect = Rect(0, 0, contentSize.width, contentSize.height);
 
     rect = RectApplyTransform(rect, _editBox->getNodeToWorldTransform());
-    
+
     Vec2 designCoord = Vec2(rect.origin.x, rect.origin.y + rect.size.height);
     [_sysEdit setPosition:convertDesignCoordToScreenCoord(designCoord, _inRetinaMode)];
 }
@@ -575,7 +575,7 @@ void EditBoxImplMac::setAnchorPoint(const Vec2& anchorPoint)
 
 void EditBoxImplMac::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
-    
+
 }
 
 void EditBoxImplMac::openKeyboard()
@@ -598,5 +598,4 @@ void EditBoxImplMac::onEnter(void)
 NS_CC_END
 
 #endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-
 

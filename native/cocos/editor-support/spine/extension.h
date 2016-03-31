@@ -203,3 +203,4 @@ void _spCurveTimeline_deinit (spCurveTimeline* self);
 #endif
 
 #endif /* SPINE_EXTENSION_H_ */
+

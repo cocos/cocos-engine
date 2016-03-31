@@ -67,7 +67,7 @@ public:
      * @note This method has to be invoked on Cocos Thread
      */
     static void closeAllConnections();
-    
+
     /**
      * Construtor of WebSocket.
      *
@@ -129,7 +129,7 @@ public:
         /**
          * This function to be called after the client connection complete a handshake with the remote server.
          * This means that the WebSocket connection is ready to send and receive data.
-         * 
+         *
          * @param ws The WebSocket object connected
          */
         virtual void onOpen(WebSocket* ws) = 0;
@@ -174,7 +174,7 @@ public:
 
     /**
      *  @brief Sends string data to websocket server.
-     *  
+     *
      *  @param message string data.
      *  @lua sendstring
      */
@@ -182,7 +182,7 @@ public:
 
     /**
      *  @brief Sends binary data to websocket server.
-     *  
+     *
      *  @param binaryMsg binary string data.
      *  @param len the size of binary string data.
      *  @lua sendstring
@@ -194,7 +194,7 @@ public:
      * @note It's a synchronous method, it will not return until websocket thread exits.
      */
     void close();
-    
+
     /**
      *  @brief Closes the connection to server asynchronously.
      *  @note It's an asynchronous method, it just notifies websocket thread to exit and returns directly,
@@ -253,3 +253,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__CC_JSB_WEBSOCKET_H__) */
+

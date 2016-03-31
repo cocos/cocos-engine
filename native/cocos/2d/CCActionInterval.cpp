@@ -3,7 +3,7 @@ Copyright (c) 2008-2010 Ricardo Quesada
 Copyright (c) 2010-2012 cocos2d-x.org
 Copyright (c) 2011      Zynga Inc.
 Copyright (c) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -89,7 +89,7 @@ void ExtraAction::step(float dt)
 bool ActionInterval::initWithDuration(float d)
 {
     bool ret = true;
-    
+
     _duration = d;
     //prevent division by 0
     if (d < 0.000001f) {
@@ -130,14 +130,14 @@ void ActionInterval::step(float dt)
     {
         _elapsed += dt;
     }
-    
-    
+
+
     float updateDt = MAX (0,                                  // needed for rewind. elapsed could be negative
                            MIN(1, _elapsed / _duration)
                            );
 
     if (sendUpdateEventToScript(updateDt, this)) return;
-    
+
     this->update(updateDt);
 }
 
@@ -174,7 +174,7 @@ Sequence* Sequence::createWithTwoActions(FiniteTimeAction *actionOne, FiniteTime
         sequence->autorelease();
         return sequence;
     }
-    
+
     delete sequence;
     return nullptr;
 }
@@ -188,7 +188,7 @@ Sequence* Sequence::variadicCreate(FiniteTimeAction *action1, ...)
     Sequence *ret = Sequence::createWithVariableList(action1, params);
 
     va_end(params);
-    
+
     return ret;
 }
 #else
@@ -200,7 +200,7 @@ Sequence* Sequence::create(FiniteTimeAction *action1, ...)
     Sequence *ret = Sequence::createWithVariableList(action1, params);
 
     va_end(params);
-    
+
     return ret;
 }
 #endif
@@ -229,20 +229,20 @@ Sequence* Sequence::createWithVariableList(FiniteTimeAction *action1, va_list ar
             break;
         }
     }
-    
+
     return ((Sequence*)prev);
 }
 
 Sequence* Sequence::create(const Vector<FiniteTimeAction*>& arrayOfActions)
 {
     Sequence* seq = new (std::nothrow) Sequence;
-    
+
     if (seq && seq->init(arrayOfActions))
     {
         seq->autorelease();
         return seq;
     }
-    
+
     delete seq;
     return nullptr;
 }
@@ -252,17 +252,17 @@ bool Sequence::init(const Vector<FiniteTimeAction*>& arrayOfActions)
     auto count = arrayOfActions.size();
     if (count == 0)
         return false;
-    
+
     if (count == 1)
         return initWithTwoActions(arrayOfActions.at(0), ExtraAction::create());
-    
+
     // else size > 1
     auto prev = arrayOfActions.at(0);
     for (int i = 1; i < count-1; ++i)
     {
         prev = createWithTwoActions(prev, arrayOfActions.at(i));
     }
-    
+
     return initWithTwoActions(prev, arrayOfActions.at(count-1));
 }
 
@@ -277,13 +277,13 @@ bool Sequence::initWithTwoActions(FiniteTimeAction *actionOne, FiniteTimeAction 
 
     float d = actionOne->getDuration() + actionTwo->getDuration();
     ActionInterval::initWithDuration(d);
-    
+
     _actions[0] = actionOne;
     actionOne->retain();
-    
+
     _actions[1] = actionTwo;
     actionTwo->retain();
-    
+
     return true;
 }
 
@@ -323,7 +323,7 @@ void Sequence::startWithTarget(Node *target)
         log("Sequence::startWithTarget error: _duration is zero!");
         return;
     }
-    
+
     ActionInterval::startWithTarget(target);
     _split = _actions[0]->getDuration() / _duration;
     _last = -1;
@@ -441,7 +441,7 @@ bool Repeat::initWithAction(FiniteTimeAction *action, unsigned int times)
 
         _actionInstant = dynamic_cast<ActionInstant*>(action) ? true : false;
         //an instant action needs to be executed one time less in the update method since it uses startWithTarget to execute the action
-        if (_actionInstant) 
+        if (_actionInstant)
         {
             _times -=1;
         }
@@ -478,7 +478,7 @@ void Repeat::stop(void)
     ActionInterval::stop();
 }
 
-// issue #80. Instead of hooking step:, hook update: since it can be called by any 
+// issue #80. Instead of hooking step:, hook update: since it can be called by any
 // container action like Repeat, Sequence, Ease, etc..
 void Repeat::update(float dt)
 {
@@ -496,7 +496,7 @@ void Repeat::update(float dt)
         }
 
         // fix for issue #1288, incorrect end value of repeat
-        if(dt >= 1.0f && _total < _times) 
+        if(dt >= 1.0f && _total < _times)
         {
             _total++;
         }
@@ -551,7 +551,7 @@ RepeatForever *RepeatForever::create(ActionInterval *action)
         ret->autorelease();
         return ret;
     }
-    
+
     delete ret;
     return nullptr;
 }
@@ -563,10 +563,10 @@ bool RepeatForever::initWithAction(ActionInterval *action)
         log("RepeatForever::initWithAction error:action is nullptr!");
         return false;
     }
-    
+
     action->retain();
     _innerAction = action;
-    
+
     return true;
 }
 
@@ -620,7 +620,7 @@ Spawn* Spawn::variadicCreate(FiniteTimeAction *action1, ...)
     Spawn *ret = Spawn::createWithVariableList(action1, params);
 
     va_end(params);
-    
+
     return ret;
 }
 #else
@@ -632,7 +632,7 @@ Spawn* Spawn::create(FiniteTimeAction *action1, ...)
     Spawn *ret = Spawn::createWithVariableList(action1, params);
 
     va_end(params);
-    
+
     return ret;
 }
 #endif
@@ -668,13 +668,13 @@ Spawn* Spawn::createWithVariableList(FiniteTimeAction *action1, va_list args)
 Spawn* Spawn::create(const Vector<FiniteTimeAction*>& arrayOfActions)
 {
     Spawn* ret = new (std::nothrow) Spawn;
-    
+
     if (ret && ret->init(arrayOfActions))
     {
         ret->autorelease();
         return ret;
     }
-    
+
     delete ret;
     return nullptr;
 }
@@ -686,7 +686,7 @@ Spawn* Spawn::createWithTwoActions(FiniteTimeAction *action1, FiniteTimeAction *
         spawn->autorelease();
         return spawn;
     }
-    
+
     delete spawn;
     return nullptr;
 }
@@ -694,20 +694,20 @@ Spawn* Spawn::createWithTwoActions(FiniteTimeAction *action1, FiniteTimeAction *
 bool Spawn::init(const Vector<FiniteTimeAction*>& arrayOfActions)
 {
     auto count = arrayOfActions.size();
-    
+
     if (count == 0)
         return false;
-    
+
     if (count == 1)
         return initWithTwoActions(arrayOfActions.at(0), ExtraAction::create());
-    
+
     // else count > 1
     auto prev = arrayOfActions.at(0);
     for (int i = 1; i < count-1; ++i)
     {
         prev = createWithTwoActions(prev, arrayOfActions.at(i));
     }
-    
+
     return initWithTwoActions(prev, arrayOfActions.at(count-1));
 }
 
@@ -733,7 +733,7 @@ bool Spawn::initWithTwoActions(FiniteTimeAction *action1, FiniteTimeAction *acti
         if (d1 > d2)
         {
             _two = Sequence::createWithTwoActions(action2, DelayTime::create(d1 - d2));
-        } 
+        }
         else if (d1 < d2)
         {
             _one = Sequence::createWithTwoActions(action1, DelayTime::create(d2 - d1));
@@ -762,7 +762,7 @@ Spawn::Spawn()
 : _one(nullptr)
 , _two(nullptr)
 {
-    
+
 }
 
 Spawn::~Spawn(void)
@@ -781,7 +781,7 @@ void Spawn::startWithTarget(Node *target)
         log("Spawn::startWithTarget error: _one or _two is nullptr!");
         return;
     }
-    
+
     ActionInterval::startWithTarget(target);
     _one->startWithTarget(target);
     _two->startWithTarget(target);
@@ -795,7 +795,7 @@ void Spawn::stop(void)
     if (_two) {
         _two->stop();
     }
-    
+
     ActionInterval::stop();
 }
 
@@ -803,7 +803,7 @@ void Spawn::update(float time)
 {
     if (!(sendUpdateEventToScript(time, _one)))
         _one->update(time);
-    
+
     if (!(sendUpdateEventToScript(time, _two)))
         _two->update(time);
 }
@@ -813,7 +813,7 @@ Spawn* Spawn::reverse() const
     if (_one && _two) {
         return Spawn::createWithTwoActions(_one->reverse(), _two->reverse());
     }
-    
+
     return nullptr;
 }
 
@@ -828,7 +828,7 @@ RotateTo* RotateTo::create(float duration, float dstAngle)
         rotateTo->autorelease();
         return rotateTo;
     }
-    
+
     delete rotateTo;
     return nullptr;
 }
@@ -840,7 +840,7 @@ RotateTo* RotateTo::create(float duration, float dstAngleX, float dstAngleY)
         rotateTo->autorelease();
         return rotateTo;
     }
-    
+
     delete rotateTo;
     return nullptr;
 }
@@ -855,10 +855,10 @@ bool RotateTo::initWithDuration(float duration, float dstAngleX, float dstAngleY
     {
         _dstAngle.x = dstAngleX;
         _dstAngle.y = dstAngleY;
-        
+
         return true;
     }
-    
+
     return false;
 }
 
@@ -927,7 +927,7 @@ RotateBy* RotateBy::create(float duration, float deltaAngle)
         rotateBy->autorelease();
         return rotateBy;
     }
-    
+
     delete rotateBy;
     return nullptr;
 }
@@ -939,7 +939,7 @@ RotateBy* RotateBy::create(float duration, float deltaAngleX, float deltaAngleY)
         rotateBy->autorelease();
         return rotateBy;
     }
-    
+
     delete rotateBy;
     return nullptr;
 }
@@ -967,7 +967,7 @@ bool RotateBy::initWithDuration(float duration, float deltaAngleX, float deltaAn
         _deltaAngle.y = deltaAngleY;
         return true;
     }
-    
+
     return false;
 }
 
@@ -1005,13 +1005,13 @@ RotateBy* RotateBy::reverse() const
 MoveBy* MoveBy::create(float duration, const Vec2& deltaPosition)
 {
     MoveBy *ret = new (std::nothrow) MoveBy();
-    
+
     if (ret && ret->initWithDuration(duration, deltaPosition))
     {
         ret->autorelease();
         return ret;
     }
-    
+
     delete ret;
     return nullptr;
 }
@@ -1019,13 +1019,13 @@ MoveBy* MoveBy::create(float duration, const Vec2& deltaPosition)
 bool MoveBy::initWithDuration(float duration, const Vec2& deltaPosition)
 {
     bool ret = false;
-    
+
     if (ActionInterval::initWithDuration(duration))
     {
         _positionDelta = deltaPosition;
         ret = true;
     }
-    
+
     return ret;
 }
 
@@ -1070,13 +1070,13 @@ void MoveBy::update(float t)
 MoveTo* MoveTo::create(float duration, const Vec2& position)
 {
     MoveTo *ret = new (std::nothrow) MoveTo();
-    
+
     if (ret && ret->initWithDuration(duration, position))
     {
         ret->autorelease();
         return ret;
     }
-    
+
     delete ret;
     return nullptr;
 }
@@ -1084,13 +1084,13 @@ MoveTo* MoveTo::create(float duration, const Vec2& position)
 bool MoveTo::initWithDuration(float duration, const Vec2& position)
 {
     bool ret = false;
-    
+
     if (ActionInterval::initWithDuration(duration))
     {
         _endPosition = position;
         ret = true;
     }
-    
+
     return ret;
 }
 
@@ -1285,7 +1285,7 @@ JumpBy* JumpBy::create(float duration, const Vec2& position, float height, int j
         jumpBy->autorelease();
         return jumpBy;
     }
-    
+
     delete jumpBy;
     return nullptr;
 }
@@ -1297,7 +1297,7 @@ bool JumpBy::initWithDuration(float duration, const Vec2& position, float height
         log("JumpBy::initWithDuration error: Number of jumps must be >= 0");
         return false;
     }
-    
+
     if (ActionInterval::initWithDuration(duration) && jumps>=0)
     {
         _delta = position;
@@ -1365,7 +1365,7 @@ JumpTo* JumpTo::create(float duration, const Vec2& position, float height, int j
         jumpTo->autorelease();
         return jumpTo;
     }
-    
+
     delete jumpTo;
     return nullptr;
 }
@@ -1409,13 +1409,13 @@ void JumpTo::startWithTarget(Node *target)
 }
 
 // Bezier cubic formula:
-//    ((1 - t) + t)3 = 1 
+//    ((1 - t) + t)3 = 1
 // Expands to ...
-//   (1 - t)3 + 3t(1-t)2 + 3t2(1 - t) + t3 = 1 
+//   (1 - t)3 + 3t(1-t)2 + 3t2(1 - t) + t3 = 1
 static inline float bezierat( float a, float b, float c, float d, float t )
 {
-    return (powf(1-t,3) * a + 
-            3*t*(powf(1-t,2))*b + 
+    return (powf(1-t,3) * a +
+            3*t*(powf(1-t,2))*b +
             3*powf(t,2)*(1-t)*c +
             powf(t,3)*d );
 }
@@ -1431,7 +1431,7 @@ BezierBy* BezierBy::create(float t, const ccBezierConfig& c)
         bezierBy->autorelease();
         return bezierBy;
     }
-    
+
     delete bezierBy;
     return nullptr;
 }
@@ -1514,7 +1514,7 @@ BezierTo* BezierTo::create(float t, const ccBezierConfig& c)
         bezierTo->autorelease();
         return bezierTo;
     }
-    
+
     delete bezierTo;
     return nullptr;
 }
@@ -1526,7 +1526,7 @@ bool BezierTo::initWithDuration(float t, const ccBezierConfig &c)
         _toConfig = c;
         return true;
     }
-    
+
     return false;
 }
 
@@ -1561,7 +1561,7 @@ ScaleTo* ScaleTo::create(float duration, float s)
         scaleTo->autorelease();
         return  scaleTo;
     }
-    
+
     delete scaleTo;
     return nullptr;
 }
@@ -1573,7 +1573,7 @@ ScaleTo* ScaleTo::create(float duration, float sx, float sy)
         scaleTo->autorelease();
         return scaleTo;
     }
-    
+
     delete scaleTo;
     return nullptr;
 }
@@ -1585,7 +1585,7 @@ ScaleTo* ScaleTo::create(float duration, float sx, float sy, float sz)
         scaleTo->autorelease();
         return scaleTo;
     }
-    
+
     delete scaleTo;
     return nullptr;
 }
@@ -1676,7 +1676,7 @@ ScaleBy* ScaleBy::create(float duration, float s)
         scaleBy->autorelease();
         return scaleBy;
     }
-    
+
     delete scaleBy;
     return nullptr;
 }
@@ -1688,7 +1688,7 @@ ScaleBy* ScaleBy::create(float duration, float sx, float sy)
         scaleBy->autorelease();
         return scaleBy;
     }
-    
+
     delete scaleBy;
     return nullptr;
 }
@@ -1700,7 +1700,7 @@ ScaleBy* ScaleBy::create(float duration, float sx, float sy, float sz)
         scaleBy->autorelease();
         return scaleBy;
     }
-    
+
     delete scaleBy;
     return nullptr;
 }
@@ -1747,7 +1747,7 @@ bool Blink::initWithDuration(float duration, int blinks)
         log("Blink::initWithDuration error:blinks should be >= 0");
         return false;
     }
-    
+
     if (ActionInterval::initWithDuration(duration) && blinks>=0)
     {
         _times = blinks;
@@ -1824,19 +1824,19 @@ FadeTo* FadeIn::reverse() const
     auto action = FadeOut::create(_duration);
     action->setReverseAction(const_cast<FadeIn*>(this));
     return action;
-    
+
 }
 
 void FadeIn::startWithTarget(cocos2d::Node *target)
 {
     ActionInterval::startWithTarget(target);
-    
+
     if (nullptr != _reverseAction) {
         this->_toOpacity = this->_reverseAction->_fromOpacity;
     }else{
         _toOpacity = 255.0f;
     }
-    
+
     if (target) {
         _fromOpacity = target->getOpacity();
     }
@@ -1855,7 +1855,7 @@ FadeOut* FadeOut::create(float d)
         action->autorelease();
         return action;
     }
-    
+
     delete action;
     return nullptr;
 }
@@ -1869,13 +1869,13 @@ FadeOut* FadeOut::clone() const
 void FadeOut::startWithTarget(cocos2d::Node *target)
 {
     ActionInterval::startWithTarget(target);
-    
+
     if (nullptr != _reverseAction) {
         _toOpacity = _reverseAction->_fromOpacity;
     }else{
         _toOpacity = 0.0f;
     }
-    
+
     if (target) {
         _fromOpacity = target->getOpacity();
     }
@@ -1905,7 +1905,7 @@ FadeTo* FadeTo::create(float duration, GLubyte opacity)
         fadeTo->autorelease();
         return fadeTo;
     }
-    
+
     delete fadeTo;
     return nullptr;
 }
@@ -1963,7 +1963,7 @@ TintTo* TintTo::create(float duration, GLubyte red, GLubyte green, GLubyte blue)
         tintTo->autorelease();
         return tintTo;
     }
-    
+
     delete tintTo;
     return nullptr;
 }
@@ -2013,7 +2013,7 @@ void TintTo::update(float time)
         _target->setColor(Color3B(GLubyte(_from.r + (_to.r - _from.r) * time),
             (GLubyte)(_from.g + (_to.g - _from.g) * time),
             (GLubyte)(_from.b + (_to.b - _from.b) * time)));
-    }    
+    }
 }
 
 //
@@ -2027,7 +2027,7 @@ TintBy* TintBy::create(float duration, GLshort deltaRed, GLshort deltaGreen, GLs
         tintBy->autorelease();
         return tintBy;
     }
-    
+
     delete tintBy;
     return nullptr;
 }
@@ -2062,7 +2062,7 @@ void TintBy::startWithTarget(Node *target)
         _fromR = color.r;
         _fromG = color.g;
         _fromB = color.b;
-    }    
+    }
 }
 
 void TintBy::update(float time)
@@ -2072,7 +2072,7 @@ void TintBy::update(float time)
         _target->setColor(Color3B((GLubyte)(_fromR + _deltaR * time),
             (GLubyte)(_fromG + _deltaG * time),
             (GLubyte)(_fromB + _deltaB * time)));
-    }    
+    }
 }
 
 TintBy* TintBy::reverse() const
@@ -2090,7 +2090,7 @@ DelayTime* DelayTime::create(float d)
         action->autorelease();
         return action;
     }
-    
+
     delete action;
     return nullptr;
 }
@@ -2124,7 +2124,7 @@ ReverseTime* ReverseTime::create(FiniteTimeAction *action)
         reverseTime->autorelease();
         return reverseTime;
     }
-    
+
     delete reverseTime;
     return nullptr;
 }
@@ -2205,7 +2205,7 @@ Animate* Animate::create(Animation *animation)
         animate->autorelease();
         return animate;
     }
-    
+
     delete animate;
     return nullptr;
 }
@@ -2259,7 +2259,7 @@ bool Animate::initWithAnimation(Animation* animation)
             float value = (accumUnitsOfTime * newUnitOfTimeValue) / singleDuration;
             accumUnitsOfTime += frame->getDelayUnits();
             _splitTimes->push_back(value);
-        }    
+        }
         return true;
     }
     return false;
@@ -2342,7 +2342,7 @@ void Animate::update(float t)
             {
                 if (_frameDisplayedEvent == nullptr)
                     _frameDisplayedEvent = new (std::nothrow) EventCustom(AnimationFrameDisplayedNotification);
-                
+
                 _frameDisplayedEventInfo.target = _target;
                 _frameDisplayedEventInfo.userInfo = &dict;
                 _frameDisplayedEvent->setUserData(&_frameDisplayedEventInfo);
@@ -2361,7 +2361,7 @@ Animate* Animate::reverse() const
 {
     auto& oldArray = _animation->getFrames();
     Vector<AnimationFrame*> newArray(oldArray.size());
-   
+
     if (!oldArray.empty())
     {
         for (auto iter = oldArray.crbegin(); iter != oldArray.crend(); ++iter)
@@ -2403,7 +2403,7 @@ TargetedAction* TargetedAction::create(Node* target, FiniteTimeAction* action)
         p->autorelease();
         return p;
     }
-    
+
     delete p;
     return nullptr;
 }
@@ -2474,7 +2474,7 @@ ActionFloat* ActionFloat::create(float duration, float from, float to, ActionFlo
         ref->autorelease();
         return ref;
     }
-    
+
     delete ref;
     return nullptr;
 }
@@ -2519,3 +2519,4 @@ ActionFloat* ActionFloat::reverse() const
 }
 
 NS_CC_END
+

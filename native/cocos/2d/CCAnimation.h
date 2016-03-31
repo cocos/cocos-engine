@@ -51,7 +51,7 @@ class SpriteFrame;
  * - sprite frame name.
  * - # of delay units.
  * - offset
- 
+
  @since v2.0
  */
 class CC_DLL AnimationFrame : public Ref, public Clonable
@@ -65,7 +65,7 @@ public:
         Node* target;
         const ValueMap* userInfo;
     };
-    
+
     /**
      * Creates the animation frame with a spriteframe, number of delay units and a notification user info.
      *
@@ -96,22 +96,22 @@ public:
      * @return The units of time the frame takes.
      */
     float getDelayUnits() const { return _delayUnits; };
-    
+
     /** Sets the units of time the frame takes.
      *
      * @param delayUnits The units of time the frame takes.
      */
     void setDelayUnits(float delayUnits) { _delayUnits = delayUnits; };
-    
+
     /** @brief Gets user information
-     * A AnimationFrameDisplayedNotification notification will be broadcast when the frame is displayed with this dictionary as UserInfo. 
+     * A AnimationFrameDisplayedNotification notification will be broadcast when the frame is displayed with this dictionary as UserInfo.
      * If UserInfo is nil, then no notification will be broadcast.
      *
      * @return A dictionary as UserInfo
      */
     const ValueMap& getUserInfo() const { return _userInfo; };
     ValueMap& getUserInfo() { return _userInfo; };
-    
+
     /** Sets user information.
      * @param userInfo A dictionary as UserInfo.
      */
@@ -119,10 +119,10 @@ public:
     {
         _userInfo = userInfo;
     }
-    
+
     // Overrides
     virtual AnimationFrame *clone() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     /**
      * @js ctor
@@ -133,12 +133,12 @@ CC_CONSTRUCTOR_ACCESS:
      * @lua NA
      */
     virtual ~AnimationFrame();
-    
+
     /** initializes the animation frame with a spriteframe, number of delay units and a notification user info */
     bool initWithSpriteFrame(SpriteFrame* spriteFrame, float delayUnits, const ValueMap& userInfo);
 
 protected:
-    
+
     /** SpriteFrameName to be used */
     SpriteFrame* _spriteFrame;
 
@@ -147,7 +147,7 @@ protected:
 
     /**  A AnimationFrameDisplayedNotification notification will be broadcast when the frame is displayed with this dictionary as UserInfo. If UserInfo is nil, then no notification will be broadcast. */
     ValueMap _userInfo;
-    
+
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(AnimationFrame);
 };
@@ -209,38 +209,38 @@ public:
      */
     void addSpriteFrameWithTexture(Texture2D* pobTexture, const Rect& rect);
 
-    /** Gets the total Delay units of the Animation. 
+    /** Gets the total Delay units of the Animation.
      *
      * @return The total Delay units of the Animation.
      */
     float getTotalDelayUnits() const { return _totalDelayUnits; };
-    
+
     /** Sets the delay in seconds of the "delay unit".
      *
      * @param delayPerUnit The delay in seconds of the "delay unit".
      */
     void setDelayPerUnit(float delayPerUnit) { _delayPerUnit = delayPerUnit; };
-    
+
     /** Gets the delay in seconds of the "delay unit".
-     * 
+     *
      * @return The delay in seconds of the "delay unit".
      */
     float getDelayPerUnit() const { return _delayPerUnit; };
 
-    
+
     /** Gets the duration in seconds of the whole animation. It is the result of totalDelayUnits * delayPerUnit.
      *
      * @return Result of totalDelayUnits * delayPerUnit.
      */
     float getDuration() const;
-    
+
     /** Gets the array of AnimationFrames.
-     * 
+     *
      * @return The array of AnimationFrames.
      */
     const Vector<AnimationFrame*>& getFrames() const { return _frames; };
-    
-    /** Sets the array of AnimationFrames. 
+
+    /** Sets the array of AnimationFrames.
      *
      * @param frames The array of AnimationFrames.
      */
@@ -248,46 +248,46 @@ public:
     {
         _frames = frames;
     }
-    
-    /** Checks whether to restore the original frame when animation finishes. 
+
+    /** Checks whether to restore the original frame when animation finishes.
      *
      * @return Restore the original frame when animation finishes.
      */
     bool getRestoreOriginalFrame() const { return _restoreOriginalFrame; };
-    
-    /** Sets whether to restore the original frame when animation finishes. 
+
+    /** Sets whether to restore the original frame when animation finishes.
      *
      * @param restoreOriginalFrame Whether to restore the original frame when animation finishes.
      */
     void setRestoreOriginalFrame(bool restoreOriginalFrame) { _restoreOriginalFrame = restoreOriginalFrame; };
-    
-    /** Gets the times the animation is going to loop. 0 means animation is not animated. 1, animation is executed one time, ... 
+
+    /** Gets the times the animation is going to loop. 0 means animation is not animated. 1, animation is executed one time, ...
      *
      * @return The times the animation is going to loop.
      */
     unsigned int getLoops() const { return _loops; };
-    
-    /** Sets the times the animation is going to loop. 0 means animation is not animated. 1, animation is executed one time, ... 
+
+    /** Sets the times the animation is going to loop. 0 means animation is not animated. 1, animation is executed one time, ...
      *
      * @param loops The times the animation is going to loop.
      */
     void setLoops(unsigned int loops) { _loops = loops; };
-    
+
     // overrides
     virtual Animation *clone() const override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     Animation();
     virtual ~Animation(void);
-    
+
     /** Initializes a Animation. */
     bool init();
-    
+
     /** Initializes a Animation with frames and a delay between frames.
      * @since v0.99.5
      */
     bool initWithSpriteFrames(const Vector<SpriteFrame*>& arrayOfSpriteFrameNames, float delay = 0.0f, unsigned int loops = 1);
-    
+
     /** Initializes a Animation with AnimationFrame.
      * @since v2.0
      */
@@ -311,7 +311,7 @@ protected:
 
     /** how many times the animation is going to loop. 0 means animation is not animated. 1, animation is executed one time, ... */
     unsigned int _loops;
-    
+
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Animation);
 };
@@ -322,3 +322,4 @@ private:
 NS_CC_END
 
 #endif // __CC_ANIMATION_H__
+

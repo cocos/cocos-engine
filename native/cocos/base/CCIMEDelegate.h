@@ -63,14 +63,14 @@ public:
      * @lua NA
      */
     virtual ~IMEDelegate();
-    
+
     /**
      * Default destructor.
      * @js NA
      * @lua NA
      */
     virtual bool attachWithIME();
-    
+
     /**
      * Determine whether the IME is detached or not.
      * @js NA
@@ -169,3 +169,4 @@ NS_CC_END
 /// @}
 
 #endif    // __CC_IME_DELEGATE_H__
+

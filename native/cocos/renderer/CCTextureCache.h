@@ -115,7 +115,7 @@ public:
      @since v0.8
     */
     virtual void addImageAsync(const std::string &filepath, const std::function<void(Texture2D*)>& callback);
-    
+
     /** Unbind a specified bound image asynchronous callback.
      * In the case an object who was bound to an image asynchronous callback was destroyed before the callback is invoked,
      * the object always need to unbind this callback manually.
@@ -123,7 +123,7 @@ public:
      * @since v3.1
      */
     virtual void unbindImageAsync(const std::string &filename);
-    
+
     /** Unbind all bound image asynchronous load callbacks.
      * @since v3.1
      */
@@ -136,13 +136,13 @@ public:
     * If "key" is nil, then a new texture will be created each time.
     */
     Texture2D* addImage(Image *image, const std::string &key);
-    
+
     /** Returns an already created texture. Returns nil if the texture doesn't exist.
     @param key It's the related/absolute path of the file image.
     @since v0.99.5
     */
     Texture2D* getTextureForKey(const std::string& key) const;
-    
+
     /** Reload texture from the image file.
     * If the file image hasn't loaded before, load it.
     * Otherwise the texture will be reloaded from the file image.
@@ -203,7 +203,7 @@ private:
 public:
 protected:
     struct AsyncStruct;
-    
+
     std::thread* _loadingThread;
 
     std::deque<AsyncStruct*> _asyncStructQueue;
@@ -212,7 +212,7 @@ protected:
 
     std::mutex _requestMutex;
     std::mutex _responseMutex;
-    
+
     std::condition_variable _sleepCondition;
 
     bool _needQuit;
@@ -245,7 +245,7 @@ private:
 protected:
     friend class  VolatileTextureMgr;
     Texture2D *_texture;
-    
+
     Image *_uiImage;
 
     ccCachedImageType _cashedImageType;

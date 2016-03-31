@@ -1,8 +1,8 @@
 /****************************************************************************
 Copyright (c) 2009      On-Core
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (C) 2013-2016 Chukong Technologies Inc. 
- 
+Copyright (C) 2013-2016 Chukong Technologies Inc.
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -87,13 +87,13 @@ bool GridBase::initWithSize(const cocos2d::Size &gridSize, const cocos2d::Rect &
 {
     Director *director = Director::DirectorInstance;
     Size s = director->getWinSizeInPixels();
-    
+
     auto POTWide = ccNextPOT((unsigned int)s.width);
     auto POTHigh = ccNextPOT((unsigned int)s.height);
-    
+
     // we only use rgba8888
     Texture2D::PixelFormat format = Texture2D::PixelFormat::RGBA8888;
-    
+
     auto dataLen = POTWide * POTHigh * 4;
     void *data = calloc(dataLen, 1);
     if (! data)
@@ -102,22 +102,22 @@ bool GridBase::initWithSize(const cocos2d::Size &gridSize, const cocos2d::Rect &
         this->release();
         return false;
     }
-    
+
     Texture2D *texture = new (std::nothrow) Texture2D();
     texture->initWithData(data, dataLen,  format, POTWide, POTHigh, s);
-    
+
     free(data);
-    
+
     if (! texture)
     {
         CCLOG("cocos2d: Grid: error creating texture");
         return false;
     }
-    
+
     initWithSize(gridSize, texture, false, rect);
-    
+
     texture->release();
-    
+
     return true;
 }
 
@@ -129,15 +129,15 @@ bool GridBase::initWithSize(const Size& gridSize, Texture2D *texture, bool flipp
 bool GridBase::initWithSize(const Size& gridSize, Texture2D *texture, bool flipped, const Rect& rect)
 {
     bool ret = true;
-    
+
     _active = false;
     _reuseGrid = 0;
     _gridSize = gridSize;
-    
+
     _texture = texture;
     CC_SAFE_RETAIN(_texture);
     _isTextureFlipped = flipped;
-    
+
     if (rect.equals(Rect::ZERO)) {
         auto size = _texture->getContentSize();
         _gridRect.setRect(0, 0, size.width, size.height);
@@ -147,7 +147,7 @@ bool GridBase::initWithSize(const Size& gridSize, Texture2D *texture, bool flipp
     }
     _step.x = _gridRect.size.width/_gridSize.width;
     _step.y = _gridRect.size.height/_gridSize.height;
-    
+
     _grabber = new (std::nothrow) Grabber();
     if (_grabber)
     {
@@ -157,10 +157,10 @@ bool GridBase::initWithSize(const Size& gridSize, Texture2D *texture, bool flipp
     {
         ret = false;
     }
-    
+
     _shaderProgram = GLProgramCache::getInstance()->getGLProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE);
     calculateVertexPoints();
-    
+
     return ret;
 }
 
@@ -224,7 +224,7 @@ void GridBase::beforeDraw(void)
     // 2d projection
     //    [director setProjection:Director::Projection::_2D];
     set2DProjection();
-    
+
     Size    size = director->getWinSizeInPixels();
     glViewport(0, 0, (GLsizei)(size.width), (GLsizei)(size.height) );
     _grabber->beforeRender(_texture);
@@ -288,7 +288,7 @@ Grid3D* Grid3D::create(const Size& gridSize)
 Grid3D* Grid3D::create(const Size& gridSize, const Rect& rect)
 {
     Grid3D *ret= new (std::nothrow) Grid3D();
-    
+
     if (ret)
     {
         if (ret->initWithSize(gridSize, rect))
@@ -301,14 +301,14 @@ Grid3D* Grid3D::create(const Size& gridSize, const Rect& rect)
             ret = nullptr;
         }
     }
-    
+
     return ret;
 }
 
 Grid3D* Grid3D::create(const Size& gridSize, Texture2D *texture, bool flipped)
 {
     Grid3D *ret= new (std::nothrow) Grid3D();
-    
+
     if (ret)
     {
         if (ret->initWithSize(gridSize, texture, flipped))
@@ -321,14 +321,14 @@ Grid3D* Grid3D::create(const Size& gridSize, Texture2D *texture, bool flipped)
             ret = nullptr;
         }
     }
-    
+
     return ret;
 }
 
 Grid3D* Grid3D::create(const Size& gridSize, Texture2D *texture, bool flipped, const Rect& rect)
 {
     Grid3D *ret= new (std::nothrow) Grid3D();
-    
+
     if (ret)
     {
         if (ret->initWithSize(gridSize, texture, flipped, rect))
@@ -341,7 +341,7 @@ Grid3D* Grid3D::create(const Size& gridSize, Texture2D *texture, bool flipped, c
             ret = nullptr;
         }
     }
-    
+
     return ret;
 }
 
@@ -497,7 +497,7 @@ void Grid3D::calculateVertexPoints(void)
 Vec3 Grid3D::getVertex(const Vec2& pos) const
 {
     CCASSERT( pos.x == (unsigned int)pos.x && pos.y == (unsigned int) pos.y , "Numbers must be integers");
-    
+
     int index = (pos.x * (_gridSize.height+1) + pos.y) * 3;
     float *vertArray = (float*)_vertices;
 
@@ -509,7 +509,7 @@ Vec3 Grid3D::getVertex(const Vec2& pos) const
 Vec3 Grid3D::getOriginalVertex(const Vec2& pos) const
 {
     CCASSERT( pos.x == (unsigned int)pos.x && pos.y == (unsigned int) pos.y , "Numbers must be integers");
-    
+
     int index = (pos.x * (_gridSize.height+1) + pos.y) * 3;
     float *vertArray = (float*)_originalVertices;
 
@@ -579,7 +579,7 @@ TiledGrid3D* TiledGrid3D::create(const Size& gridSize)
 TiledGrid3D* TiledGrid3D::create(const Size& gridSize, const Rect& rect)
 {
     TiledGrid3D *ret= new (std::nothrow) TiledGrid3D();
-    
+
     if (ret)
     {
         if (ret->initWithSize(gridSize, rect))
@@ -592,14 +592,14 @@ TiledGrid3D* TiledGrid3D::create(const Size& gridSize, const Rect& rect)
             ret = nullptr;
         }
     }
-    
+
     return ret;
 }
 
 TiledGrid3D* TiledGrid3D::create(const Size& gridSize, Texture2D *texture, bool flipped, const Rect& rect)
 {
     TiledGrid3D *ret= new (std::nothrow) TiledGrid3D();
-    
+
     if (ret)
     {
         if (ret->initWithSize(gridSize, texture, flipped, rect))
@@ -612,14 +612,14 @@ TiledGrid3D* TiledGrid3D::create(const Size& gridSize, Texture2D *texture, bool 
             ret = nullptr;
         }
     }
-    
+
     return ret;
 }
 
 TiledGrid3D* TiledGrid3D::create(const Size& gridSize, Texture2D *texture, bool flipped)
 {
     TiledGrid3D *ret= new (std::nothrow) TiledGrid3D();
-    
+
     if (ret)
     {
         if (ret->initWithSize(gridSize, texture, flipped))
@@ -632,7 +632,7 @@ TiledGrid3D* TiledGrid3D::create(const Size& gridSize, Texture2D *texture, bool 
             ret = nullptr;
         }
     }
-    
+
     return ret;
 }
 
@@ -640,7 +640,7 @@ void TiledGrid3D::blit(void)
 {
     int n = _gridSize.width * _gridSize.height;
 
-    
+
     _shaderProgram->use();
     _shaderProgram->setUniformsForBuiltins();
 
@@ -665,7 +665,7 @@ void TiledGrid3D::calculateVertexPoints(void)
     float width = (float)_texture->getPixelsWide();
     float height = (float)_texture->getPixelsHigh();
     float imageH = _texture->getContentSizeInPixels().height;
-    
+
     int numQuads = _gridSize.width * _gridSize.height;
     CC_SAFE_FREE(_vertices);
     CC_SAFE_FREE(_originalVertices);
@@ -680,9 +680,9 @@ void TiledGrid3D::calculateVertexPoints(void)
     GLfloat *vertArray = (GLfloat*)_vertices;
     GLfloat *texArray = (GLfloat*)_texCoordinates;
     GLushort *idxArray = _indices;
-    
+
     int x, y;
-    
+
     for( x = 0; x < _gridSize.width; x++ )
     {
         for( y = 0; y < _gridSize.height; y++ )
@@ -691,7 +691,7 @@ void TiledGrid3D::calculateVertexPoints(void)
             float x2 = x1 + _step.x;
             float y1 = y * _step.y + _gridRect.origin.y;
             float y2 = y1 + _step.y;
-            
+
             *vertArray++ = x1;
             *vertArray++ = y1;
             *vertArray++ = 0;
@@ -704,11 +704,11 @@ void TiledGrid3D::calculateVertexPoints(void)
             *vertArray++ = x2;
             *vertArray++ = y2;
             *vertArray++ = 0;
-            
+
             float newY1 = y1;
             float newY2 = y2;
-            
-            if (_isTextureFlipped) 
+
+            if (_isTextureFlipped)
             {
                 newY1 = imageH - y1;
                 newY2 = imageH - y2;
@@ -724,18 +724,18 @@ void TiledGrid3D::calculateVertexPoints(void)
             *texArray++ = newY2 / height;
         }
     }
-    
+
     for (x = 0; x < numQuads; x++)
     {
         idxArray[x*6+0] = (GLushort)(x * 4 + 0);
         idxArray[x*6+1] = (GLushort)(x * 4 + 1);
         idxArray[x*6+2] = (GLushort)(x * 4 + 2);
-        
+
         idxArray[x*6+3] = (GLushort)(x * 4 + 1);
         idxArray[x*6+4] = (GLushort)(x * 4 + 2);
         idxArray[x*6+5] = (GLushort)(x * 4 + 3);
     }
-    
+
     memcpy(_originalVertices, _vertices, numQuads * 12 * sizeof(GLfloat));
 }
 
@@ -783,3 +783,4 @@ void TiledGrid3D::reuse(void)
 }
 
 NS_CC_END
+

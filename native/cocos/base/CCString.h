@@ -46,10 +46,11 @@ std::string toString(T arg)
 }
 
 std::string CC_DLL format(const char* format, ...) CC_FORMAT_PRINTF(1, 2);
-    
+
 } // namespace StringUtils {
 
 NS_CC_END
 
 /// @endcond
 #endif //__CCSTRING_H__
+

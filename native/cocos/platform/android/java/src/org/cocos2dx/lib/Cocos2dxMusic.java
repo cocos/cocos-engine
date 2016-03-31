@@ -235,3 +235,4 @@ public class Cocos2dxMusic {
         return mediaPlayer;
     }
 }
+

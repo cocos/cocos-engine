@@ -402,3 +402,4 @@ public class Cocos2dxHttpURLConnection
         return Long.toString(millisSecond);
     }
 }
+

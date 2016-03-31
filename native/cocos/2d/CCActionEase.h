@@ -36,7 +36,7 @@ NS_CC_BEGIN
  * @{
  */
 
-/** 
+/**
  @class ActionEase
  @brief Base class for Easing actions.
  @details Ease actions are created from other interval actions.
@@ -61,7 +61,7 @@ public:
         CC_ASSERT(0);
         return nullptr;
     }
-    
+
     virtual ActionEase* reverse() const override
     {
         CC_ASSERT(0);
@@ -76,9 +76,9 @@ CC_CONSTRUCTOR_ACCESS:
     ActionEase()
     : _inner(nullptr)
     {}
-    
+
     virtual ~ActionEase();
-    /** 
+    /**
      @brief Initializes the action.
      @return Return true when the initialization success, otherwise return false.
     */
@@ -91,7 +91,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(ActionEase);
 };
 
-/** 
+/**
  @class EaseRateAction
  @brief Base class for Easing actions with rate parameters.
  @details Ease the inner action with specified rate.
@@ -107,7 +107,7 @@ public:
      @return An autoreleased EaseRateAction object.
     **/
     static EaseRateAction* create(ActionInterval* action, float rate);
-    
+
     /**
      @brief Set the rate value for the ease rate action.
      @param rate The value will be set.
@@ -136,7 +136,7 @@ public:
 CC_CONSTRUCTOR_ACCESS:
     EaseRateAction() {}
     virtual ~EaseRateAction();
-    /** 
+    /**
      @brief Initializes the action with the inner action and the rate parameter.
      @param pAction The pointer of the inner action.
      @param fRate The value of the rate parameter.
@@ -151,7 +151,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseRateAction);
 };
 
-/** 
+/**
  @class EaseIn
  @brief EaseIn action with a rate.
  @details The timeline of inner action will be changed by:
@@ -161,7 +161,7 @@ private:
 class CC_DLL EaseIn : public EaseRateAction
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action and the rate parameter.
      @param action The pointer of the inner action.
      @param rate The value of the rate parameter.
@@ -182,7 +182,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseIn);
 };
 
-/** 
+/**
  @class EaseOut
  @brief EaseOut action with a rate.
  @details The timeline of inner action will be changed by:
@@ -192,7 +192,7 @@ private:
 class CC_DLL EaseOut : public EaseRateAction
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action and the rate parameter.
      @param action The pointer of the inner action.
      @param rate The value of the rate parameter.
@@ -213,7 +213,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseOut);
 };
 
-/** 
+/**
  @class EaseInOut
  @brief EaseInOut action with a rate
  @details If time * 2 < 1, the timeline of inner action will be changed by:
@@ -225,7 +225,7 @@ private:
 class CC_DLL EaseInOut : public EaseRateAction
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action and the rate parameter.
      @param action The pointer of the inner action.
      @param rate The value of the rate parameter.
@@ -246,7 +246,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseInOut);
 };
 
-/** 
+/**
  @class EaseExponentialIn
  @brief Ease Exponential In action.
  @details The timeline of inner action will be changed by:
@@ -256,7 +256,7 @@ private:
 class CC_DLL EaseExponentialIn : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseExponentialIn action. If creation failed, return nil.
@@ -276,7 +276,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseExponentialIn);
 };
 
-/** 
+/**
  @class EaseExponentialOut
  @brief Ease Exponential Out
  @details The timeline of inner action will be changed by:
@@ -286,7 +286,7 @@ private:
 class CC_DLL EaseExponentialOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseExponentialOut action. If creation failed, return nil.
@@ -306,7 +306,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseExponentialOut);
 };
 
-/** 
+/**
  @class EaseExponentialInOut
  @brief Ease Exponential InOut
  @details If time * 2 < 1, the timeline of inner action will be changed by:
@@ -318,7 +318,7 @@ private:
 class CC_DLL EaseExponentialInOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseExponentialInOut action. If creation failed, return nil.
@@ -338,7 +338,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseExponentialInOut);
 };
 
-/** 
+/**
  @class EaseSineIn
  @brief Ease Sine In
  @details The timeline of inner action will be changed by:
@@ -348,7 +348,7 @@ private:
 class CC_DLL EaseSineIn : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseSineIn action. If creation failed, return nil.
@@ -368,7 +368,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseSineIn);
 };
 
-/** 
+/**
  @class EaseSineOut
  @brief Ease Sine Out
  @details The timeline of inner action will be changed by:
@@ -378,7 +378,7 @@ private:
 class CC_DLL EaseSineOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseSineOut action. If creation failed, return nil.
@@ -398,7 +398,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseSineOut);
 };
 
-/** 
+/**
  @class EaseSineInOut
  @brief Ease Sine InOut
  @details The timeline of inner action will be changed by:
@@ -408,7 +408,7 @@ private:
 class CC_DLL EaseSineInOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseSineInOut action. If creation failed, return nil.
@@ -428,7 +428,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseSineInOut);
 };
 
-/** 
+/**
  @class EaseElastic
  @brief Ease Elastic abstract class
  @since v0.8.2
@@ -438,7 +438,7 @@ class CC_DLL EaseElastic : public ActionEase
 {
 public:
 
-    /** 
+    /**
      @brief Get period of the wave in radians. Default value is 0.3.
      @return Return the period of the wave in radians.
     */
@@ -457,7 +457,7 @@ public:
         CC_ASSERT(0);
         return nullptr;
     }
-    
+
     virtual EaseElastic* reverse() const override
     {
         CC_ASSERT(0);
@@ -467,7 +467,7 @@ public:
 CC_CONSTRUCTOR_ACCESS:
     EaseElastic() {}
     virtual ~EaseElastic() {}
-    /** 
+    /**
      @brief Initializes the action with the inner action and the period in radians.
      @param action The pointer of the inner action.
      @param period Period of the wave in radians. Default is 0.3.
@@ -483,7 +483,7 @@ private:
 
 };
 
-/** 
+/**
  @class EaseElasticIn
  @brief Ease Elastic In action.
  @details If time == 0 or time == 1, the timeline of inner action will not be changed.
@@ -498,7 +498,7 @@ private:
 class CC_DLL EaseElasticIn : public EaseElastic
 {
 public:
-    /** 
+    /**
      @brief Create the EaseElasticIn action with the inner action and the period in radians.
      @param action The pointer of the inner action.
      @param period Period of the wave in radians.
@@ -506,7 +506,7 @@ public:
     */
     static EaseElasticIn* create(ActionInterval *action, float period);
 
-    /** 
+    /**
      @brief Create the EaseElasticIn action with the inner action and period value is 0.3.
      @param action The pointer of the inner action.
      @return A pointer of EaseElasticIn action. If creation failed, return nil.
@@ -526,7 +526,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseElasticIn);
 };
 
-/** 
+/**
  @class EaseElasticOut
  @brief Ease Elastic Out action.
  @details If time == 0 or time == 1, the timeline of inner action will not be changed.
@@ -540,7 +540,7 @@ private:
 class CC_DLL EaseElasticOut : public EaseElastic
 {
 public:
-    /** 
+    /**
      @brief Create the EaseElasticOut action with the inner action and the period in radians.
      @param action The pointer of the inner action.
      @param period Period of the wave in radians.
@@ -548,7 +548,7 @@ public:
     */
     static EaseElasticOut* create(ActionInterval *action, float period);
 
-    /** 
+    /**
      @brief Create the EaseElasticOut action with the inner action and period value is 0.3.
      @param action The pointer of the inner action.
      @return A pointer of EaseElasticOut action. If creation failed, return nil.
@@ -568,7 +568,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseElasticOut);
 };
 
-/** 
+/**
  @class EaseElasticInOut
  @brief Ease Elastic InOut action.
  @warning This action doesn't use a bijective function.
@@ -579,7 +579,7 @@ private:
 class CC_DLL EaseElasticInOut : public EaseElastic
 {
 public:
-    /** 
+    /**
      @brief Create the EaseElasticInOut action with the inner action and the period in radians.
      @param action The pointer of the inner action.
      @param period Period of the wave in radians.
@@ -587,7 +587,7 @@ public:
     */
     static EaseElasticInOut* create(ActionInterval *action, float period);
 
-    /** 
+    /**
      @brief Create the EaseElasticInOut action with the inner action and period value is 0.3.
      @param action The pointer of the inner action.
      @return A pointer of EaseElasticInOut action. If creation failed, return nil.
@@ -607,7 +607,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseElasticInOut);
 };
 
-/** 
+/**
  @class EaseBounce
  @brief EaseBounce abstract class.
  @since v0.8.2
@@ -638,7 +638,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseBounce);
 };
 
-/** 
+/**
  @class EaseBounceIn
  @brief EaseBounceIn action.
  @warning This action doesn't use a bijective function.
@@ -649,7 +649,7 @@ private:
 class CC_DLL EaseBounceIn : public EaseBounce
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseBounceIn action. If creation failed, return nil.
@@ -669,7 +669,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseBounceIn);
 };
 
-/** 
+/**
  @class EaseBounceOut
  @brief EaseBounceOut action.
  @warning This action doesn't use a bijective function.
@@ -680,7 +680,7 @@ private:
 class CC_DLL EaseBounceOut : public EaseBounce
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseBounceOut action. If creation failed, return nil.
@@ -700,7 +700,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseBounceOut);
 };
 
-/** 
+/**
  @class EaseBounceInOut
  @brief EaseBounceInOut action.
  @warning This action doesn't use a bijective function.
@@ -711,7 +711,7 @@ private:
 class CC_DLL EaseBounceInOut : public EaseBounce
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseBounceInOut action. If creation failed, return nil.
@@ -731,7 +731,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseBounceInOut);
 };
 
-/** 
+/**
  @class EaseBackIn
  @brief EaseBackIn action.
  @warning This action doesn't use a bijective function.
@@ -742,7 +742,7 @@ private:
 class CC_DLL EaseBackIn : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseBackIn action. If creation failed, return nil.
@@ -762,7 +762,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseBackIn);
 };
 
-/** 
+/**
  @class EaseBackOut
  @brief EaseBackOut action.
  @warning This action doesn't use a bijective function.
@@ -773,7 +773,7 @@ private:
 class CC_DLL EaseBackOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseBackOut action. If creation failed, return nil.
@@ -793,7 +793,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseBackOut);
 };
 
-/** 
+/**
  @class EaseBackInOut
  @brief EaseBackInOut action.
  @warning This action doesn't use a bijective function.
@@ -804,7 +804,7 @@ private:
 class CC_DLL EaseBackInOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseBackInOut action. If creation failed, return nil.
@@ -825,7 +825,7 @@ private:
 };
 
 
-/** 
+/**
 @class EaseBezierAction
 @brief Ease Bezier
 @ingroup Actions
@@ -833,13 +833,13 @@ private:
 class CC_DLL EaseBezierAction : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseBezierAction action. If creation failed, return nil.
     */
     static EaseBezierAction* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseBezierAction* clone() const override;
     virtual EaseBezierAction* reverse() const override;
@@ -863,7 +863,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseBezierAction);
 };
 
-/** 
+/**
 @class EaseQuadraticActionIn
 @brief Ease Quadratic In
 @ingroup Actions
@@ -871,13 +871,13 @@ private:
 class CC_DLL EaseQuadraticActionIn : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuadraticActionIn action. If creation failed, return nil.
     */
     static EaseQuadraticActionIn* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuadraticActionIn* clone() const override;
     virtual EaseQuadraticActionIn* reverse() const override;
@@ -891,7 +891,7 @@ private:
 
 };
 
-/** 
+/**
 @class EaseQuadraticActionOut
 @brief Ease Quadratic Out
 @ingroup Actions
@@ -899,13 +899,13 @@ private:
 class CC_DLL EaseQuadraticActionOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuadraticActionOut action. If creation failed, return nil.
     */
     static EaseQuadraticActionOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuadraticActionOut* clone() const override;
     virtual EaseQuadraticActionOut* reverse() const override;
@@ -919,7 +919,7 @@ private:
 
 };
 
-/** 
+/**
 @class EaseQuadraticActionInOut
 @brief Ease Quadratic InOut
 @ingroup Actions
@@ -927,13 +927,13 @@ private:
 class CC_DLL EaseQuadraticActionInOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuadraticActionInOut action. If creation failed, return nil.
     */
     static EaseQuadraticActionInOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuadraticActionInOut* clone() const override;
     virtual EaseQuadraticActionInOut* reverse() const override;
@@ -946,7 +946,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseQuadraticActionInOut);
 };
 
-/** 
+/**
 @class EaseQuarticActionIn
 @brief Ease Quartic In
 @ingroup Actions
@@ -954,13 +954,13 @@ private:
 class CC_DLL EaseQuarticActionIn : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuarticActionIn action. If creation failed, return nil.
     */
     static EaseQuarticActionIn* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuarticActionIn* clone() const override;
     virtual EaseQuarticActionIn* reverse() const override;
@@ -973,7 +973,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseQuarticActionIn);
 };
 
-/** 
+/**
 @class EaseQuarticActionOut
 @brief Ease Quartic Out
 @ingroup Actions
@@ -981,13 +981,13 @@ private:
 class CC_DLL EaseQuarticActionOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuarticActionOut action. If creation failed, return nil.
     */
     static EaseQuarticActionOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuarticActionOut* clone() const override;
     virtual EaseQuarticActionOut* reverse() const override;
@@ -1000,7 +1000,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseQuarticActionOut);
 };
 
-/** 
+/**
 @class EaseQuarticActionInOut
 @brief Ease Quartic InOut
 @ingroup Actions
@@ -1008,13 +1008,13 @@ private:
 class CC_DLL EaseQuarticActionInOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuarticActionInOut action. If creation failed, return nil.
     */
     static EaseQuarticActionInOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuarticActionInOut* clone() const override;
     virtual EaseQuarticActionInOut* reverse() const override;
@@ -1028,7 +1028,7 @@ private:
 };
 
 
-/** 
+/**
 @class EaseQuinticActionIn
 @brief Ease Quintic In
 @ingroup Actions
@@ -1036,13 +1036,13 @@ private:
 class CC_DLL EaseQuinticActionIn : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuinticActionIn action. If creation failed, return nil.
     */
     static EaseQuinticActionIn* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuinticActionIn* clone() const override;
     virtual EaseQuinticActionIn* reverse() const override;
@@ -1055,7 +1055,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseQuinticActionIn);
 };
 
-/** 
+/**
 @class EaseQuinticActionOut
 @brief Ease Quintic Out
 @ingroup Actions
@@ -1063,13 +1063,13 @@ private:
 class CC_DLL EaseQuinticActionOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuinticActionOut action. If creation failed, return nil.
     */
     static EaseQuinticActionOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuinticActionOut* clone() const override;
     virtual EaseQuinticActionOut* reverse() const override;
@@ -1082,7 +1082,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseQuinticActionOut);
 };
 
-/** 
+/**
 @class EaseQuinticActionInOut
 @brief Ease Quintic InOut
 @ingroup Actions
@@ -1090,13 +1090,13 @@ private:
 class CC_DLL EaseQuinticActionInOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseQuinticActionInOut action. If creation failed, return nil.
     */
     static EaseQuinticActionInOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseQuinticActionInOut* clone() const override;
     virtual EaseQuinticActionInOut* reverse() const override;
@@ -1109,7 +1109,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseQuinticActionInOut);
 };
 
-/** 
+/**
 @class EaseCircleActionIn
 @brief Ease Circle In
 @ingroup Actions
@@ -1117,13 +1117,13 @@ private:
 class CC_DLL EaseCircleActionIn : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseCircleActionIn action. If creation failed, return nil.
     */
     static EaseCircleActionIn* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseCircleActionIn* clone() const override;
     virtual EaseCircleActionIn* reverse() const override;
@@ -1136,7 +1136,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseCircleActionIn);
 };
 
-/** 
+/**
 @class EaseCircleActionOut
 @brief Ease Circle Out
 @ingroup Actions
@@ -1144,13 +1144,13 @@ private:
 class CC_DLL EaseCircleActionOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseCircleActionOut action. If creation failed, return nil.
     */
     static EaseCircleActionOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseCircleActionOut* clone() const override;
     virtual EaseCircleActionOut* reverse() const override;
@@ -1163,7 +1163,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseCircleActionOut);
 };
 
-/** 
+/**
 @class EaseCircleActionInOut
 @brief Ease Circle InOut
 @ingroup Actions
@@ -1171,13 +1171,13 @@ private:
 class CC_DLL EaseCircleActionInOut:public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseCircleActionInOut action. If creation failed, return nil.
     */
     static EaseCircleActionInOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseCircleActionInOut* clone() const override;
     virtual EaseCircleActionInOut* reverse() const override;
@@ -1190,7 +1190,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseCircleActionInOut);
 };
 
-/** 
+/**
 @class EaseCubicActionIn
 @brief Ease Cubic In
 @ingroup Actions
@@ -1198,13 +1198,13 @@ private:
 class CC_DLL EaseCubicActionIn:public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseCubicActionIn action. If creation failed, return nil.
     */
     static EaseCubicActionIn* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseCubicActionIn* clone() const override;
     virtual EaseCubicActionIn* reverse() const override;
@@ -1217,7 +1217,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseCubicActionIn);
 };
 
-/** 
+/**
 @class EaseCubicActionOut
 @brief Ease Cubic Out
 @ingroup Actions
@@ -1225,13 +1225,13 @@ private:
 class CC_DLL EaseCubicActionOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseCubicActionOut action. If creation failed, return nil.
     */
     static EaseCubicActionOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseCubicActionOut* clone() const override;
     virtual EaseCubicActionOut* reverse() const override;
@@ -1244,7 +1244,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(EaseCubicActionOut);
 };
 
-/** 
+/**
 @class EaseCubicActionInOut
 @brief Ease Cubic InOut
 @ingroup Actions
@@ -1252,13 +1252,13 @@ private:
 class CC_DLL EaseCubicActionInOut : public ActionEase
 {
 public:
-    /** 
+    /**
      @brief Create the action with the inner action.
      @param action The pointer of the inner action.
      @return A pointer of EaseCubicActionInOut action. If creation failed, return nil.
     */
     static EaseCubicActionInOut* create(ActionInterval* action);
-    
+
     virtual void update(float time) override;
     virtual EaseCubicActionInOut* clone() const override;
     virtual EaseCubicActionInOut* reverse() const override;
@@ -1277,3 +1277,4 @@ private:
 NS_CC_END
 
 #endif // __ACTION_CCEASE_ACTION_H__
+

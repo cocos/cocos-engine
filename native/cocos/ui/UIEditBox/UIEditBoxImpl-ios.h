@@ -1,19 +1,19 @@
 /****************************************************************************
  Copyright (c) 2010-2012 cocos2d-x.org
  Copyright (c) 2012 James Chen
- 
+
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -56,7 +56,7 @@ public:
     virtual void setPosition(const Vec2& pos) override;
     virtual void setAnchorPoint(const Vec2& anchorPoint) override;
     virtual void updatePosition(float dt) override;
-    
+
     virtual bool isEditing() override;
     virtual void createNativeControl(const Rect& frame) override;
     virtual void setNativeFont(const char* pFontName, int fontSize) override;
@@ -74,7 +74,7 @@ public:
     virtual const char* getNativeDefaultFontName() override;
     virtual void nativeOpenKeyboard() override;
     virtual void nativeCloseKeyboard() override;
-    
+
     //need to remove siri text
     virtual const char* getText(void)override;
 
@@ -82,7 +82,7 @@ public:
 private:
     UIFont*         constructFont(const char* fontName, int fontSize);
     void            adjustTextFieldPosition();
-    
+
     UIEditBoxImplIOS_objc* _systemControl;
     Vec2         _position;
     Vec2         _anchorPoint;

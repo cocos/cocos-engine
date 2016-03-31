@@ -33,12 +33,12 @@ namespace StringUtils {
 std::string format(const char* format, ...)
 {
 #define CC_MAX_STRING_LENGTH (1024*100)
-    
+
     std::string ret;
-    
+
     va_list ap;
     va_start(ap, format);
-    
+
     char* buf = (char*)malloc(CC_MAX_STRING_LENGTH);
     if (buf != nullptr)
     {
@@ -47,10 +47,11 @@ std::string format(const char* format, ...)
         free(buf);
     }
     va_end(ap);
-    
+
     return ret;
 }
 
 } // namespace StringUtils {
-    
+
 NS_CC_END
+

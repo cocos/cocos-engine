@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "cocostudio/CocosStudioExport.h"
 
 namespace cocostudio {
-    
+
 class CocoLoader;
 struct stExpCocoNode;
 
@@ -126,3 +126,4 @@ protected:
 }
 
 #endif
+

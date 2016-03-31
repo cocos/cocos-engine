@@ -115,7 +115,7 @@ inline js_proxy_t *js_get_or_create_proxy(JSContext *cx, T *native_obj) {
             CCLOGINFO("Could not find the type of native object.");
             return NULL;
         }
-        
+
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
         JS::RootedObject proto(cx, typeProxy->proto.ref().get());
@@ -145,12 +145,12 @@ public:
     void setJSCallbackFunc(JS::HandleValue obj);
     void setJSCallbackThis(JS::HandleValue thisObj);
     void setJSExtraData(JS::HandleValue data);
-    
+
     const jsval getJSCallbackFunc() const;
     const jsval getJSCallbackThis() const;
     const jsval getJSExtraData() const;
 protected:
-    
+
     mozilla::Maybe<JS::PersistentRootedValue> _jsCallback;
     mozilla::Maybe<JS::PersistentRootedValue> _jsThisObj;
     mozilla::Maybe<JS::PersistentRootedValue> _extraData;
@@ -158,7 +158,7 @@ protected:
 
 
 class JSScheduleWrapper: public JSCallbackWrapper {
-    
+
 public:
     JSScheduleWrapper();
     virtual ~JSScheduleWrapper();
@@ -167,34 +167,34 @@ public:
     static JSBinding::Array* getTargetForSchedule(JS::HandleValue sched);
     static void setTargetForJSObject(JS::HandleObject jsTargetObj, JSScheduleWrapper *target);
     static JSBinding::Array* getTargetForJSObject(JS::HandleObject jsTargetObj);
-    
+
     // Remove all targets.
     static void removeAllTargets();
     // Remove all targets for priority.
     static void removeAllTargetsForMinPriority(int minPriority);
-    // Remove all targets by js object from hash table(_schedFunc_target_ht and _schedObj_target_ht).   
+    // Remove all targets by js object from hash table(_schedFunc_target_ht and _schedObj_target_ht).
     static void removeAllTargetsForJSObject(JS::HandleObject jsTargetObj);
     // Remove the target by js object and the wrapper for native schedule.
     static void removeTargetForJSObject(JS::HandleObject jsTargetObj, JSScheduleWrapper* target);
     static void dump();
 
     void pause();
-    
+
     void scheduleFunc(float dt);
     void update(float dt);
-    
+
     Ref* getTarget();
     void setTarget(Ref* pTarget);
-    
+
     void setPureJSTarget(JS::HandleObject jstarget);
     JSObject* getPureJSTarget();
-    
+
     void setPriority(int priority);
     int  getPriority();
-    
+
     void setUpdateSchedule(bool isUpdateSchedule);
     bool isUpdateSchedule();
-    
+
 protected:
     Ref* _pTarget;
     mozilla::Maybe<JS::PersistentRootedObject> _pPureJSTarget;
@@ -208,7 +208,7 @@ class JSTouchDelegate: public cocos2d::Ref
 public:
     JSTouchDelegate();
     ~JSTouchDelegate();
-    
+
     // Set the touch delegate to map by using the key (pJSObj).
     static void setDelegateForJSObject(JSObject* pJSObj, JSTouchDelegate* pDelegate);
     // Get the touch delegate by the key (pJSObj).
@@ -228,7 +228,7 @@ public:
     void onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *event);
     void onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *event);
     void onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *event);
-    
+
     // optional
     void onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
     void onTouchesMoved(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event);
@@ -256,14 +256,14 @@ public:
         }
         return pInstance;
     };
-    
+
     ~__JSPlistDelegator();
-    
+
     cocos2d::SAXParser* getParser();
-    
+
     std::string parse(const std::string& path);
     std::string parseText(const std::string& text);
-    
+
     // implement pure virtual methods of SAXDelegator
     void startElement(void *ctx, const char *name, const char **atts);
     void endElement(void *ctx, const char *name);
@@ -291,3 +291,4 @@ bool js_cocos2dx_release(JSContext *cx, uint32_t argc, jsval *vp);
 void get_or_create_js_obj(JSContext* cx, JS::HandleObject obj, const std::string &name, JS::MutableHandleObject jsObj);
 
 #endif
+

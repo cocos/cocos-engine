@@ -1,7 +1,7 @@
 /****************************************************************************
 Copyright (c) 2010      cocos2d-x.org
 Copyright (C) 2013-2016 Chukong Technologies Inc.
- 
+
 http://www.cocos2d-x.org
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -144,7 +144,7 @@ bool IMEDispatcher::attachDelegateWithIME(IMEDelegate * delegate)
 
         if (_impl->_delegateWithIme)
         {
-            // if old delegate canDetachWithIME return false 
+            // if old delegate canDetachWithIME return false
             // or pDelegate canAttachWithIME return false,
             // do nothing.
             CC_BREAK_IF(! _impl->_delegateWithIme->canDetachWithIME()
@@ -192,7 +192,7 @@ bool IMEDispatcher::detachDelegateWithIME(IMEDelegate * delegate)
 
 void IMEDispatcher::removeDelegate(IMEDelegate* delegate)
 {
-    do 
+    do
     {
         CC_BREAK_IF(! delegate || ! _impl);
 
@@ -216,7 +216,7 @@ void IMEDispatcher::removeDelegate(IMEDelegate* delegate)
 
 void IMEDispatcher::dispatchInsertText(const char * text, size_t len)
 {
-    do 
+    do
     {
         CC_BREAK_IF(! _impl || ! text || len <= 0);
 
@@ -229,7 +229,7 @@ void IMEDispatcher::dispatchInsertText(const char * text, size_t len)
 
 void IMEDispatcher::dispatchDeleteBackward()
 {
-    do 
+    do
     {
         CC_BREAK_IF(! _impl);
 
@@ -337,3 +337,4 @@ IMEDispatcher* IMEDispatcher::sharedDispatcher()
 }
 
 NS_CC_END
+

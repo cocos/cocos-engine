@@ -223,3 +223,4 @@ NS_CC_END
 /// @}
 
 #endif // __MATH_CCGEOMETRY_H__
+

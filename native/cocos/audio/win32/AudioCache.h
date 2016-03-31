@@ -65,7 +65,7 @@ public:
     void addLoadCallback(const std::function<void(bool)>& callback);
 
 protected:
-    void readDataTask();  
+    void readDataTask();
     void invokingPlayCallbacks();
     void invokingLoadCallbacks();
 
@@ -79,7 +79,7 @@ protected:
     ALuint _sampleRate;
     size_t _bytesPerFrame;
     float _duration;
-    
+
     /*Cache related stuff;
      * Cache pcm data when sizeInBytes less than PCMDATA_CACHEMAXSIZE
      */
@@ -97,14 +97,14 @@ protected:
 
     bool _alBufferReady;
     bool _loadFail;
-    std::mutex _callbackMutex; 
+    std::mutex _callbackMutex;
     std::vector< std::function<void()> > _callbacks;
     std::vector< std::function<void(bool)> > _loadCallbacks;
 
-    std::mutex _readDataTaskMutex;    
+    std::mutex _readDataTaskMutex;
 
     int _mp3Encoding;
-    
+
     friend class AudioEngineImpl;
     friend class AudioPlayer;
 } ;

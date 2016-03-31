@@ -63,7 +63,7 @@ public:
         {
             CC_SAFE_RETAIN(data);
             CC_SAFE_RELEASE(_displayData);
-            _displayData = data; 
+            _displayData = data;
         }
     }
     virtual DisplayData *getDisplayData() const { return _displayData; }
@@ -75,7 +75,7 @@ public:
         {
             CC_SAFE_RETAIN(detector);
             CC_SAFE_RELEASE(_colliderDetector);
-            _colliderDetector = detector; 
+            _colliderDetector = detector;
         }
     }
     virtual ColliderDetector *getColliderDetector() const { return _colliderDetector; }
@@ -92,3 +92,4 @@ protected:
 }
 
 #endif /*__CCDECORATIVEDISPLAY_H__*/
+

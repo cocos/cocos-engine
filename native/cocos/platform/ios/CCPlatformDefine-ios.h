@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 #include <assert.h>
 
-#define CC_DLL 
+#define CC_DLL
 
 #define CC_ASSERT(cond) assert(cond)
 
@@ -50,3 +50,4 @@ THE SOFTWARE.
 #endif // CC_PLATFORM_IOS
 
 #endif /* __CCPLATFORMDEFINE_H__*/
+

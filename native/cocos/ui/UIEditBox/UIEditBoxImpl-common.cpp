@@ -4,17 +4,17 @@
  Copyright (c) 2013-2015 zilongshanren
 
  http://www.cocos2d-x.org
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
- 
+
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -58,19 +58,19 @@ EditBoxImplCommon::~EditBoxImplCommon()
 
 bool EditBoxImplCommon::initWithSize(const Size& size)
 {
-    do 
+    do
     {
-        
+
         Rect rect = Rect(0, 0, size.width, size.height);
-        
+
         this->createNativeControl(rect);
-        
+
         initInactiveLabels(size);
         setContentSize(size);
-        
+
         return true;
     }while (0);
-    
+
     return false;
 }
 
@@ -83,12 +83,12 @@ void EditBoxImplCommon::initInactiveLabels(const Size& size)
     _label->setColor(Color3B::WHITE);
     _label->setVisible(false);
     _editBox->addChild(_label, kLabelZOrder);
-    
+
     _labelPlaceHolder = Label::create();
     _labelPlaceHolder->setAnchorPoint(Vec2(0, 0.5f));
     _labelPlaceHolder->setColor(Color3B::GRAY);
     _editBox->addChild(_labelPlaceHolder, kLabelZOrder);
-    
+
     setFont(pDefaultFontName, size.height*2/3);
     setPlaceholderFont(pDefaultFontName, size.height*2/3);
 }
@@ -121,7 +121,7 @@ void EditBoxImplCommon::setInactiveText(const char* pText)
         _label->setDimensions(fMaxWidth, fMaxHeight);
     }
 }
-    
+
 void EditBoxImplCommon::setFont(const char* pFontName, int fontSize)
 {
     this->setNativeFont(pFontName, fontSize * _label->getNodeToWorldAffineTransform().a);
@@ -139,14 +139,14 @@ void EditBoxImplCommon::setFont(const char* pFontName, int fontSize)
 void EditBoxImplCommon::setFontColor(const Color4B& color)
 {
     this->setNativeFontColor(color);
-    
+
     _label->setTextColor(color);
 }
 
 void EditBoxImplCommon::setPlaceholderFont(const char* pFontName, int fontSize)
 {
     this->setNativePlaceholderFont(pFontName, fontSize * _label->getNodeToWorldAffineTransform().a);
-    
+
     if( strlen(pFontName) > 0)
     {
         _labelPlaceHolder->setSystemFontName(pFontName);
@@ -156,11 +156,11 @@ void EditBoxImplCommon::setPlaceholderFont(const char* pFontName, int fontSize)
         _labelPlaceHolder->setSystemFontSize(fontSize);
     }
 }
-    
+
 void EditBoxImplCommon::setPlaceholderFontColor(const Color4B &color)
 {
     this->setNativePlaceholderFontColor(color);
-    
+
     _labelPlaceHolder->setTextColor(color);
 }
 
@@ -192,7 +192,7 @@ void EditBoxImplCommon::setReturnType(EditBox::KeyboardReturnType returnType)
     _keyboardReturnType = returnType;
     this->setNativeReturnType(returnType);
 }
-    
+
 void EditBoxImplCommon::refreshInactiveText()
 {
     setInactiveText(_text.c_str());
@@ -246,12 +246,12 @@ void EditBoxImplCommon::setContentSize(const Size& size)
     _contentSize = size;
     CCLOG("[Edit text] content size = (%f, %f)", size.width, size.height);
     placeInactiveLabels();
-    
+
     auto director = cocos2d::Director::DirectorInstance;
     auto glview = director->getOpenGLView();
     Size  controlSize = Size(size.width * glview->getScaleX()  * _label->getNodeToWorldAffineTransform().a,
                              size.height * glview->getScaleY() * _label->getNodeToWorldAffineTransform().a);
-       
+
     this->setNativeContentSize(controlSize);
 
 }
@@ -289,7 +289,7 @@ void EditBoxImplCommon::closeKeyboard()
 void EditBoxImplCommon::onEndEditing(const std::string& text)
 {
     this->setNativeVisible(false);
-    
+
     if(text.empty())
     {
         _label->setVisible(false);
@@ -302,17 +302,17 @@ void EditBoxImplCommon::onEndEditing(const std::string& text)
         setInactiveText(text.c_str());
     }
 }
-    
+
 void EditBoxImplCommon::editBoxEditingDidBegin()
 {
     // LOGD("textFieldShouldBeginEditing...");
     cocos2d::ui::EditBoxDelegate *pDelegate = _editBox->getDelegate();
-    
+
     if (pDelegate != nullptr)
     {
         pDelegate->editBoxEditingDidBegin(_editBox);
     }
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
     {
@@ -328,14 +328,14 @@ void EditBoxImplCommon::editBoxEditingDidEnd(const std::string& text)
     // LOGD("textFieldShouldEndEditing...");
     _text = text;
     this->refreshInactiveText();
-    
+
     cocos2d::ui::EditBoxDelegate *pDelegate = _editBox->getDelegate();
     if (pDelegate != nullptr)
     {
         pDelegate->editBoxEditingDidEnd(_editBox);
         pDelegate->editBoxReturn(_editBox);
     }
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     if (_editBox != nullptr && 0 != _editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
     {
@@ -348,7 +348,7 @@ void EditBoxImplCommon::editBoxEditingDidEnd(const std::string& text)
         cocos2d::ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
     }
 #endif
-    
+
     if (_editBox != nullptr)
     {
         this->onEndEditing(_text);
@@ -364,7 +364,7 @@ void EditBoxImplCommon::editBoxEditingChanged(const std::string& text)
     {
         pDelegate->editBoxTextChanged(_editBox, text);
     }
-    
+
 #if CC_ENABLE_SCRIPT_BINDING
     if (NULL != _editBox && 0 != _editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
     {
@@ -379,5 +379,4 @@ void EditBoxImplCommon::editBoxEditingChanged(const std::string& text)
 }
 
 NS_CC_END
-
 

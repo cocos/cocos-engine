@@ -94,7 +94,7 @@ bool AudioPlayer::init(SLEngineItf engineEngine, SLObjectItf outputMixObject,con
 {
     bool ret = false;
 
-    do 
+    do
     {
         SLDataSource audioSrc;
 
@@ -224,7 +224,7 @@ bool AudioEngineImpl::init()
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
         const SLboolean outputMixReqs[] = {};
-        result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);           
+        result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
         if(SL_RESULT_SUCCESS != result){ ERRORLOG("create output mix fail"); break; }
 
         // realize the output mix
@@ -241,7 +241,7 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
 {
     auto audioId = AudioEngine::INVALID_AUDIO_ID;
 
-    do 
+    do
     {
         if (_engineEngine == nullptr)
             break;
@@ -262,10 +262,10 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
         (*(player._fdPlayerPlay))->SetCallbackEventsMask(player._fdPlayerPlay, SL_PLAYEVENT_HEADATEND);
 
         AudioEngine::_audioIDInfoMap[audioId].state = AudioEngine::AudioState::PLAYING;
-        
+
         if (_lazyInitLoop) {
             _lazyInitLoop = false;
-            
+
             auto scheduler = Director::getInstance()->getScheduler();
             scheduler->schedule(schedule_selector(AudioEngineImpl::update), this, 0.03f, false);
         }
@@ -303,10 +303,10 @@ void AudioEngineImpl::update(float dt)
 
         ++iter;
     }
-    
+
     if(_audioPlayers.empty()){
         _lazyInitLoop = true;
-        
+
         auto scheduler = Director::getInstance()->getScheduler();
         scheduler->unschedule(schedule_selector(AudioEngineImpl::update), this);
     }
@@ -418,7 +418,7 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time)
     auto& player = _audioPlayers[audioID];
     SLmillisecond pos = 1000 * time;
     auto result = (*player._fdPlayerSeek)->SetPosition(player._fdPlayerSeek, pos, SL_SEEKMODE_ACCURATE);
-    if(SL_RESULT_SUCCESS != result){ 
+    if(SL_RESULT_SUCCESS != result){
         return false;
     }
     return true;
@@ -439,3 +439,4 @@ void AudioEngineImpl::preload(const std::string& filePath, std::function<void(bo
 }
 
 #endif
+

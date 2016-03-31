@@ -79,3 +79,4 @@ NS_CC_END
 
 /// @endcond
 #endif    // __CC_COMMON_H__
+

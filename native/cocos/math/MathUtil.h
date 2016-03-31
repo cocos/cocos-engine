@@ -75,7 +75,7 @@ public:
      * @param fallTime response time for falling slope (in the same units as elapsedTime).
      */
     static void smooth(float* x, float target, float elapsedTime, float riseTime, float fallTime);
-    
+
     /**
      * Linearly interpolates between from value to to value by alpha which is in
      * the range [0,1]
@@ -94,19 +94,19 @@ private:
 private:
 #ifdef __SSE__
     static void addMatrix(const __m128 m[4], float scalar, __m128 dst[4]);
-    
+
     static void addMatrix(const __m128 m1[4], const __m128 m2[4], __m128 dst[4]);
-    
+
     static void subtractMatrix(const __m128 m1[4], const __m128 m2[4], __m128 dst[4]);
-    
+
     static void multiplyMatrix(const __m128 m[4], float scalar, __m128 dst[4]);
-    
+
     static void multiplyMatrix(const __m128 m1[4], const __m128 m2[4], __m128 dst[4]);
-    
+
     static void negateMatrix(const __m128 m[4], __m128 dst[4]);
-    
+
     static void transposeMatrix(const __m128 m[4], __m128 dst[4]);
-        
+
     static void transformVec4(const __m128 m[4], const __m128& v, __m128& dst);
 #endif
     static void addMatrix(const float* m, float scalar, float* dst);
@@ -139,3 +139,4 @@ NS_CC_MATH_END
 #define MATRIX_SIZE ( sizeof(float) * 16)
 
 #endif
+

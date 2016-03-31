@@ -74,7 +74,7 @@ public:
     void removeDisplay(int index);
 
     const cocos2d::Vector<DecorativeDisplay*>& getDecorativeDisplayList() const;
-    
+
     /**
      * Change display by index. You can just use this method to change display in the display list.
      * The display list is just used for this bone, and it is the displays you may use in every frame.
@@ -151,3 +151,4 @@ protected:
 }
 
 #endif /*__CCDISPLAYMANAGER_H__*/
+

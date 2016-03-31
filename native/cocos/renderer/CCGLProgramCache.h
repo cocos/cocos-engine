@@ -67,20 +67,20 @@ public:
     /** purges the cache. It releases the retained instance. */
     static void destroyInstance();
 
-    
+
     /** loads the default shaders */
     void loadDefaultGLPrograms();
-    
+
     /** reload the default shaders */
     void reloadDefaultGLPrograms();
-    
-    /** returns a GL program for a given key 
+
+    /** returns a GL program for a given key
      */
     GLProgram * getGLProgram(const std::string &key);
-    
+
     /** adds a GLProgram to the cache for a given name */
     void addGLProgram(GLProgram* program, const std::string &key);
-    
+
     /** reload default programs these are relative to light */
     void reloadDefaultGLProgramsRelativeToLights();
 
@@ -107,3 +107,4 @@ NS_CC_END
 /// @}
 
 #endif /* __CCGLPROGRAMCACHE_H__ */
+

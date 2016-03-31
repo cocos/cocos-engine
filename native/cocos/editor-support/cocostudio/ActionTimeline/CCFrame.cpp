@@ -61,7 +61,7 @@ void Frame::cloneProperty(Frame* frame)
 {
     _frameIndex = frame->getFrameIndex();
     _tween = frame->isTween();
-    
+
     _tweenType = frame->getTweenType();
     setEasingParams(frame->getEasingParams());
 }
@@ -70,7 +70,7 @@ void Frame::apply(float percent)
 {
     if (!_tween)
         return;
-    
+
     float tweenpercent = percent;
     if ( _tweenType != tweenfunc::TWEEN_EASING_MAX && _tweenType != tweenfunc::Linear)
     {
@@ -170,7 +170,7 @@ void TextureFrame::onEnter(Frame *nextFrame, int currentFrameIndex)
             _sprite->setSpriteFrame(spriteFrame);
         else
             _sprite->setTexture(_textureName);
-        
+
         if(_sprite->getBlendFunc() != spriteBlendFunc)
             _sprite->setBlendFunc(spriteBlendFunc);
     }
@@ -213,7 +213,7 @@ void RotationFrame::onEnter(Frame *nextFrame, int currentFrameIndex)
     {
         return;
     }
-    
+
     _node->setRotation(_rotation);
 
     if(_tween)
@@ -285,7 +285,7 @@ void SkewFrame::onApply(float percent)
     {
         float skewx = _skewX + percent * _betweenSkewX;
         float skewy = _skewY + percent * _betweenSkewY;
-        
+
         _node->setSkewX(skewx);
         _node->setSkewY(skewy);
     }
@@ -345,7 +345,7 @@ void RotationSkewFrame::onApply(float percent)
     {
         float skewx = _skewX + percent * _betweenSkewX;
         float skewy = _skewY + percent * _betweenSkewY;
-        
+
         _node->setRotationSkewX(skewx);
         _node->setRotationSkewY(skewy);
     }
@@ -404,7 +404,7 @@ void PositionFrame::onApply(float percent)
         Point p;
         p.x = _position.x + _betweenX * percent;
         p.y = _position.y + _betweenY * percent;
-        
+
         _node->setPosition(p);
     }
 }
@@ -446,7 +446,7 @@ void ScaleFrame::onEnter(Frame *nextFrame, int currentFrameIndex)
     {
         return;
     }
-    
+
     _node->setScaleX(_scaleX);
     _node->setScaleY(_scaleY);
 
@@ -463,7 +463,7 @@ void ScaleFrame::onApply(float percent)
     {
         float scaleX = _scaleX + _betweenScaleX * percent;
         float scaleY = _scaleY + _betweenScaleY * percent;
-        
+
         _node->setScaleX(scaleX);
         _node->setScaleY(scaleY);
     }
@@ -473,7 +473,7 @@ Frame* ScaleFrame::clone()
 {
     ScaleFrame* frame = ScaleFrame::create();
     frame->setScaleX(_scaleX);
-    frame->setScaleY(_scaleY);  
+    frame->setScaleY(_scaleY);
 
     frame->cloneProperty(this);
 
@@ -568,13 +568,13 @@ void InnerActionFrame::onEnter(Frame *nextFrame, int currentFrameIndex)
     auto innerActiontimeline = static_cast<ActionTimeline*>(_node->getActionByTag(_node->getTag()));
     if( nullptr == innerActiontimeline)
         return;
-    
+
     if (InnerActionType::SingleFrame == _innerActionType)
     {
         innerActiontimeline->gotoFrameAndPause(_singleFrameIndex);
         return;
     }
-    
+
     int innerStart = _startFrameIndex;
     int innerEnd = _endFrameIndex;
     if (_enterWithName)
@@ -595,14 +595,14 @@ void InnerActionFrame::onEnter(Frame *nextFrame, int currentFrameIndex)
             CCLOG("Animation %s not exists!", _animationName.c_str());
         }
     }
-    
+
     int duration = _timeline->getActionTimeline()->getDuration();
     int odddiff = duration - _frameIndex - innerEnd + innerStart;
     if (odddiff < 0)
     {
        innerEnd += odddiff;
     }
-    
+
     if (InnerActionType::NoLoopAction == _innerActionType)
     {
         innerActiontimeline->gotoFrameAndPlay(innerStart, innerEnd, false);
@@ -639,7 +639,7 @@ void InnerActionFrame::setAnimationName(const std::string& animationName)
         return;
     }
     _animationName = animationName;
-   
+
 }
 
 Frame* InnerActionFrame::clone()
@@ -706,7 +706,7 @@ void ColorFrame::onApply(float percent)
         color.r = _color.r+ _betweenRed   * percent;
         color.g = _color.g+ _betweenGreen * percent;
         color.b = _color.b+ _betweenBlue  * percent;
-        
+
         _node->setColor(color);
     }
 }
@@ -894,9 +894,10 @@ Frame* BlendFuncFrame::clone()
     BlendFuncFrame* frame = BlendFuncFrame::create();
     frame->setBlendFunc(_blendFunc);
     frame->cloneProperty(this);
-    
+
     return frame;
 }
 
 
 NS_TIMELINE_END
+

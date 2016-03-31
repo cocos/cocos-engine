@@ -395,3 +395,4 @@ public abstract class Cocos2dxActivity extends Activity {
       return isEmulator;
    }
 }
+

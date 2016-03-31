@@ -43,7 +43,7 @@ NS_CC_BEGIN
 class CC_DLL Touch : public Ref
 {
 public:
-    /** 
+    /**
      * Dispatch mode, how the touches are dispatched.
      * @js NA
      */
@@ -55,7 +55,7 @@ public:
     /** Constructor.
      * @js ctor
      */
-    Touch() 
+    Touch()
         : _id(0),
         _startPointCaptured(false),
         _curForce(0.f),
@@ -87,7 +87,7 @@ public:
      * @return The current touch location in screen coordinates.
      */
     Vec2 getLocationInView() const;
-    /** Returns the previous touch location in screen coordinates. 
+    /** Returns the previous touch location in screen coordinates.
      *
      * @return The previous touch location in screen coordinates.
      */
@@ -97,7 +97,7 @@ public:
      * @return The start touch location in screen coordinates.
      */
     Vec2 getStartLocationInView() const;
-    
+
     /** Set the touch information. It always used to monitor touch event.
      *
      * @param id A given id
@@ -180,3 +180,4 @@ private:
 NS_CC_END
 
 #endif  // __PLATFORM_TOUCH_H__
+

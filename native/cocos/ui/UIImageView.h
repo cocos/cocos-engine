@@ -41,9 +41,9 @@ namespace ui {
  */
 class CC_GUI_DLL ImageView : public Widget
 {
-    
+
     DECLARE_CLASS_GUI_INFO
-    
+
 public:
     /**
      * Default constructor
@@ -63,7 +63,7 @@ public:
      * Create a empty ImageView.
      */
     static ImageView* create();
-    
+
     /**
      * Create a  imageview  with a image name.
      *
@@ -72,7 +72,7 @@ public:
      * @return A ImageView instance.
      */
     static ImageView* create(const std::string& imageFileName, TextureResType texType = TextureResType::LOCAL);
-    
+
 
     /**
      * Load texture for imageview.
@@ -121,7 +121,7 @@ public:
     virtual std::string getDescription() const override;
     virtual Size getVirtualRendererSize() const override;
     virtual Node* getVirtualRenderer() override;
-    
+
 CC_CONSTRUCTOR_ACCESS:
     //initializes state of widget.
     virtual bool init() override;
@@ -130,11 +130,11 @@ CC_CONSTRUCTOR_ACCESS:
 protected:
     virtual void initRenderer() override;
     virtual void onSizeChanged() override;
-    
+
     virtual void adaptRenderers() override;
     void loadTexture(SpriteFrame* spriteframe);
     void setupTexture();
-    
+
     void imageTextureScaleChangedWithSize();
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
@@ -155,3 +155,4 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__CocoGUI__ImageView__) */
+

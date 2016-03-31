@@ -171,7 +171,7 @@ void DisplayManager::addDisplay(Node *display, int index)
 
         display->removeFromParent();
         display->cleanup();
-        
+
         Armature *armature = _bone->getArmature();
         if (armature)
         {
@@ -205,7 +205,7 @@ void DisplayManager::removeDisplay(int index)
     if (index < 0 || index >= _decoDisplayList.size()) {
         return;
     }
-    
+
     if(index == _displayIndex)
     {
         setCurrentDecorativeDisplay(nullptr);
@@ -451,3 +451,4 @@ Vec2 DisplayManager::getAnchorPointInPoints() const
 
 
 }
+
