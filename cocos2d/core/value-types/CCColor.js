@@ -331,7 +331,7 @@ var Color = (function () {
     };
 
     /**
-     * !#en Clamp this color to make all components between 0 to 255ar color = new cc.Color(1000, 0, 0, 255);.
+     * !#en Clamp this color to make all components between 0 to 255。
      * !#zh 限制颜色数值，在 0 到 255 之间。
      * @method clamp
      * @example

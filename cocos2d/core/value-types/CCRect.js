@@ -37,7 +37,7 @@ var JS = require('../platform/js');
  * Constructor of cc.Rect class.
  * see {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} for convenience method.
  * !#zh
- * CC Rect类的构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
+ * cc.Rect类的构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
  *
  * @method Rect
  * @param {Number} [x=0]
@@ -102,16 +102,16 @@ Rect.fromMinMax = function (v1, v2) {
  */
 Rect.contain = function _Contain (a, b) {
     if (a.x < b.x &&
-        a.x + a.width >= b.x + b.width &&
+        a.x + a.width > b.x + b.width &&
         a.y < b.y &&
-        a.y + a.height >= b.y + b.height) {
+        a.y + a.height > b.y + b.height) {
         // a contains b
         return 1;
     }
     if (b.x < a.x &&
-        b.x + b.width >= a.x + a.width &&
+        b.x + b.width > a.x + a.width &&
         b.y < a.y &&
-        b.y + b.height >= a.y + a.height) {
+        b.y + b.height > a.y + a.height) {
         // b contains a
         return -1;
     }

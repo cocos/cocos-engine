@@ -180,38 +180,6 @@ cc.pProject = function (v1, v2) {
 };
 
 /**
- * !#en Rotates two points.
- * !#zh 旋转指定的 2 个向量。
- * @method pRotate
- * @param  {Vec2} v1
- * @param  {Vec2} v2
- * @return {Vec2}
- * @example
- * var v1 = cc.v2(20, 20);
- * var v2 = cc.v2(5, 5);
- * cc.pRotate(v1, v2); // Vec2 {x: 0, y: 200};
- */
-cc.pRotate = function (v1, v2) {
-    return cc.p(v1.x * v2.x - v1.y * v2.y, v1.x * v2.y + v1.y * v2.x);
-};
-
-/**
- * !#en Unrotates two points.
- * !#zh 非旋转指定的 2 个向量。
- * @method pUnrotate
- * @param  {Vec2} v1
- * @param  {Vec2} v2
- * @return {Vec2}
- * @example
- * var v1 = cc.v2(20, 20);
- * var v2 = cc.v2(5, 5);
- * cc.pUnrotate(v1, v2); // Vec2 {x: 200, y: 0};
- */
-cc.pUnrotate = function (v1, v2) {
-    return cc.p(v1.x * v2.x + v1.y * v2.y, v1.y * v2.x - v1.x * v2.y);
-};
-
-/**
  * !#en Calculates the square length of a cc.Vec2 (not calling sqrt() ).
  * !#zh 返回指定向量长度的平方。
  * @method pLengthSQ
