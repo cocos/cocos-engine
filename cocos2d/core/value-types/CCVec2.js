@@ -29,7 +29,7 @@ var FireClass = require('../platform/CCClass');
 
 /**
  * !#en Representation of 2D vectors and points.
- * !#zh 代表 2D 向量和 points。
+ * !#zh 表示 2D 向量和坐标
  *
  * @class Vec2
  * @extends ValueType
@@ -72,7 +72,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en TODO
-     * !#zh 设置。
+     * !#zh 设置向量值。
      * @method set
      * @param {Vec2} newValue - !#en new value to set. !#zh 要设置的新值
      * @return {Vec2} returns this
@@ -97,7 +97,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en TODO
-     * !#zh 用字符串表示。
+     * !#zh 转换为方便阅读的字符串。
      * @method toString
      * @return {string}
      */
@@ -110,7 +110,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en TODO
-     * !#zh 向量线性插值。
+     * !#zh 线性插值。
      * @method lerp
      * @param {Vec2} to
      * @param {number} ratio - the interpolation coefficient
@@ -128,7 +128,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Adds this vector. If you want to save result to another vector, use add() instead.
-     * !#zh 当前向量加等于指定的向量。如果你想保存结果到另一个向量，使用 add() 代替。
+     * !#zh 向量加法。如果你想保存结果到另一个向量，使用 add() 代替。
      * @method addSelf
      * @param {Vec2} vector
      * @return {Vec2} returns this
@@ -145,7 +145,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Adds two vectors, and returns the new result.
-     * !#zh 当前向量与指定向量进行加法运算，并返回新结果。
+     * !#zh 向量加法，并返回新结果。
      * @method add
      * @param {Vec2} vector
      * @param {Vec2} [out] - optional, the receiving vector
@@ -165,7 +165,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Subtracts one vector from this. If you want to save result to another vector, use sub() instead.
-     * !#zh 当前向量减等于指定的向量。如果你想保存结果到另一个向量，可使用 sub() 代替。
+     * !#zh 向量减法。如果你想保存结果到另一个向量，可使用 sub() 代替。
      * @method subSelf
      * @param {Vec2} vector
      * @return {Vec2} returns this
@@ -182,7 +182,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Subtracts one vector from this, and returns the new result.
-     * !#zh 当前向量与指定向量进行减法运算，并返回新结果。
+     * !#zh 向量减法，并返回新结果。
      * @method sub
      * @param {Vec2} vector
      * @param {Vec2} [out] - optional, the receiving vector
@@ -202,7 +202,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Multiplies this by a number. If you want to save result to another vector, use mul() instead.
-     * !#zh 当前向量进行 num 倍数的乘法运算。如果你想结果保存到另一个向量，可使用 mul() 代替。
+     * !#zh 缩放当前向量。如果你想结果保存到另一个向量，可使用 mul() 代替。
      * @method mulSelf
      * @param {number} num
      * @return {Vec2} returns this
@@ -219,7 +219,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Multiplies by a number, and returns the new result.
-     * !#zh 当前向量与指定向量进行乘法运算，并返回新结果。
+     * !#zh 缩放当前向量，并返回新结果。
      * @method mul
      * @param {number} num
      * @param {Vec2} [out] - optional, the receiving vector
@@ -239,7 +239,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Multiplies two vectors.
-     * !#zh 当前向量与指定向量进行相乘。
+     * !#zh 分量相乘。
      * @method scaleSelf
      * @param {Vec2} vector
      * @return {Vec2} returns this
@@ -256,7 +256,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Multiplies two vectors, and returns the new result.
-     * !#zh 当前向量与指定向量进行相乘，并返回新的结果。
+     * !#zh 分量相乘，并返回新的结果。
      * @method scale
      * @param {Vec2} vector
      * @param {Vec2} [out] - optional, the receiving vector
@@ -276,7 +276,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Divides by a number. If you want to save result to another vector, use div() instead.
-     * !#zh 当前向量与指定向量进行相除。如果你想结果保存到另一个向量，可使用 div() 代替。
+     * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
      * @method divSelf
      * @param {Vec2} vector
      * @return {Vec2} returns this
@@ -293,7 +293,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Divides by a number, and returns the new result.
-     * !#zh 当前向量与指定向量进行相除，并返回新的结果。
+     * !#zh 向量除法，并返回新的结果。
      * @method div
      * @param {Vec2} vector
      * @param {Vec2} [out] - optional, the receiving vector
@@ -313,7 +313,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Negates the components. If you want to save result to another vector, use neg() instead.
-     * !#zh 当前向量进行取反。如果你想结果保存到另一个向量，可使用 neg() 代替。
+     * !#zh 向量取反。如果你想结果保存到另一个向量，可使用 neg() 代替。
      * @method negSelf
      * @return {Vec2} returns this
      * @chainable
@@ -329,7 +329,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Negates the components, and returns the new result.
-     * !#zh 当前向量进行取反，并返回新的结果。
+     * !#zh 返回取反后的新向量。
      * @method neg
      * @param {Vec2} [out] - optional, the receiving vector
      * @return {Vec2} the result
@@ -347,7 +347,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Dot product
-     * !#zh 当前向量与指定向量进行点（积）乘。
+     * !#zh 当前向量与指定向量进行点乘。
      * @method dot
      * @param {Vec2} [vector]
      * @return {number} the result
@@ -361,7 +361,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Cross product
-     * !#zh 当前向量与指定向量进行点乘叉（积）乘。
+     * !#zh 当前向量与指定向量进行叉乘。
      * @method cross
      * @param {Vec2} [vector]
      * @return {number} the result
@@ -401,7 +401,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Make the length of this vector to 1.
-     * !#zh 让这个向量的长度为1。
+     * !#zh 向量归一化，让这个向量的长度为 1。
      * @method normalizeSelf
      * @return {Vec2} returns this
      * @chainable
@@ -432,17 +432,14 @@ JS.mixin(Vec2.prototype, {
      * <br/>
      * Note that the current vector is unchanged and a new normalized vector is returned. If you want to normalize the current vector, use normalizeSelf function.
      * !#zh
-     * 返回向量的长度为 1。<br/>
+     * 返回归一化后的向量。<br/>
      * <br/>
-     * 注意，当前向量不变，并返回一个新的标准化向量。如果你想来标准化当前向量，可使用 normalizeSelf 函数。
+     * 注意，当前向量不变，并返回一个新的归一化向量。如果你想来归一化当前向量，可使用 normalizeSelf 函数。
      * @method normalize
      * @param {Vec2} [out] - optional, the receiving vector
      * @return {Vec2} result
-     * @example
      * var v = cc.v2(10, 10);
      * v.normalize();   // return Vec2 {x: 0.7071067811865475, y: 0.7071067811865475};
-     * var v1;
-     * v.normalize(v1); // return Vec2 {x: 0.7071067811865475, y: 0.7071067811865475};
      */
     normalize: function (out) {
         out = out || new Vec2();
@@ -454,7 +451,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Get angle in radian between this and vector.
-     * !#zh 获取当前向量与指定向量之间的弧度角。
+     * !#zh 夹角的弧度。
      * @method angle
      * @param {Vec2} vector
      * @return {number} from 0 to Math.PI
@@ -476,7 +473,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en Get angle in radian between this and vector with direction.
-     * !#zh 获取当前向量与指定向量之间的弧度和方向向量。
+     * !#zh 带方向的夹角的弧度。
      * @method signAngle
      * @param {Vec2} vector
      * @return {number} from -MathPI to Math.PI
@@ -492,7 +489,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en rotate
-     * !#zh 旋转
+     * !#zh 返回旋转给定弧度后的新向量。
      * @method rotate
      * @param {number} radians
      * @param {Vec2} [out] - optional, the receiving vector
@@ -507,7 +504,7 @@ JS.mixin(Vec2.prototype, {
 
     /**
      * !#en rotate self
-     * !#zh 旋转自身
+     * !#zh 按指定弧度旋转向量。
      * @method rotateSelf
      * @param {number} radians
      * @return {Vec2} returns this
@@ -535,7 +532,7 @@ JS.mixin(Vec2.prototype, {
 
 /**
  * !#en return a Vec2 object with x = 1 and y = 1.
- * !#zh 返回 x = 1 和 y = 1 的 Vec2 对象。
+ * !#zh 新 Vec2 对象。
  * @property ONE
  * @type Vec2
  * @static
@@ -586,7 +583,7 @@ cc.Vec2 = Vec2;
 
 /**
  * !#en The convenience method to create a new {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}
+ * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}} 对象。
  * @method v2
  * @param {Number|Object} [x=0]
  * @param {Number} [y=0]
@@ -603,7 +600,7 @@ cc.v2 = function v2 (x, y) {
 
 /**
  * !#en The convenience method to creates a new {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}.
- * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}}
+ * !#zh 通过该简便的函数进行创建 {{#crossLink "Vec2"}}cc.Vec2{{/crossLink}} 对象。
  * @method p
  * @param {Number|Object} [x=0] a Number or a size object
  * @param {Number} [y=0]
@@ -621,7 +618,7 @@ cc.p = cc.v2;
 
 /**
  * !#en Check whether a point's value equals to another.
- * !#zh 检查向量的值是否等于另一个
+ * !#zh 判断两个向量是否相等。
  * @method pointEqualToPoint
  * @param {Vec2} point1
  * @param {Vec2} point2

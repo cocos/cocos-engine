@@ -31,7 +31,7 @@
  * <p>The "ccp" prefix means: "CoCos2d Point"</p>
  */
 
-/**
+/*
  * !#en smallest such that 1.0+FLT_EPSILON != 1.0.
  * !#zh 它是满足 1.0+FLT_EPSILON != 1.0 的最小的正数。
  * @property POINT_EPSILON
@@ -41,13 +41,13 @@
 var POINT_EPSILON = parseFloat('1.192092896e-07F');
 
 /**
- * !#en Returns opposite of point.
- * !#zh 返回相反的指定坐标点。
+ * !#en Returns opposite of Vec2.
+ * !#zh 返回相反的向量。
  * @method pNeg
  * @param {Vec2} point
  * @return {Vec2}
  * @example
- * cc.pNeg(cc.v2(10, 10));//-- return Vec2 {x: -10, y: -10};
+ * cc.pNeg(cc.v2(10, 10));// Vec2 {x: -10, y: -10};
  */
 cc.pNeg = function (point) {
     return cc.p(-point.x, -point.y);
@@ -55,13 +55,13 @@ cc.pNeg = function (point) {
 
 /**
  * !#en Calculates sum of two points.
- * !#zh 返回指定两个向量之间的总和。
+ * !#zh 返回两个向量的和。
  * @method pAdd
  * @param {Vec2} v1
  * @param {Vec2} v2
  * @return {Vec2}
  * @example
- * cc.pAdd(cc.v2(1, 1), cc.v2(2, 2));//-- return Vec2 {x: 3, y: 3};
+ * cc.pAdd(cc.v2(1, 1), cc.v2(2, 2));// Vec2 {x: 3, y: 3};
  */
 cc.pAdd = function (v1, v2) {
     return cc.p(v1.x + v2.x, v1.y + v2.y);
@@ -69,13 +69,13 @@ cc.pAdd = function (v1, v2) {
 
 /**
  * !#en Calculates difference of two points.
- * !#zh 返回指定两个向量之间的差值。
+ * !#zh 返回两个向量的差。
  * @method pSub
  * @param {Vec2} v1
  * @param {Vec2} v2
  * @return {Vec2}
  * @example
- * cc.pSub(cc.v2(20, 20), cc.v2(5, 5)); //-- return Vec2 {x: 15, y: 15};
+ * cc.pSub(cc.v2(20, 20), cc.v2(5, 5)); // Vec2 {x: 15, y: 15};
  */
 cc.pSub = function (v1, v2) {
     return cc.p(v1.x - v2.x, v1.y - v2.y);
@@ -83,13 +83,13 @@ cc.pSub = function (v1, v2) {
 
 /**
  * !#en Returns point multiplied by given factor.
- * !#zh 返回向量的指定倍数。
+ * !#zh 向量缩放。
  * @method pMult
  * @param {Vec2} point
  * @param {Number} floatVar
  * @return {Vec2}
  * @example
- * cc.pMult(cc.v2(5, 5), 4); // return Vec2 {x: 20, y: 20};
+ * cc.pMult(cc.v2(5, 5), 4); // Vec2 {x: 20, y: 20};
  */
 cc.pMult = function (point, floatVar) {
     return cc.p(point.x * floatVar, point.y * floatVar);
@@ -103,7 +103,7 @@ cc.pMult = function (point, floatVar) {
  * @param {Vec2} v2
  * @return {Vec2}
  * @example
- * cc.pMidpoint(cc.v2(10, 10), cc.v2(5, 5)); // return Vec2 {x: 7.5, y: 7.5};
+ * cc.pMidpoint(cc.v2(10, 10), cc.v2(5, 5)); // Vec2 {x: 7.5, y: 7.5};
  */
 cc.pMidpoint = function (v1, v2) {
     return cc.pMult(cc.pAdd(v1, v2), 0.5);
@@ -111,13 +111,13 @@ cc.pMidpoint = function (v1, v2) {
 
 /**
  * !#en Calculates dot product of two points.
- * !#zh 两个向量之间进行点（积）乘。
+ * !#zh 两个向量之间进行点乘。
  * @method pDot
  * @param {Vec2} v1
  * @param {Vec2} v2
  * @return {Number}
  * @example
- * cc.pDot(cc.v2(20, 20), cc.v2(5, 5)); // return 200;
+ * cc.pDot(cc.v2(20, 20), cc.v2(5, 5)); // 200;
  */
 cc.pDot = function (v1, v2) {
     return v1.x * v2.x + v1.y * v2.y;
@@ -125,13 +125,13 @@ cc.pDot = function (v1, v2) {
 
 /**
  * !#en Calculates cross product of two points.
- * !#zh 两个向量之间进行叉（积）乘。
+ * !#zh 两个向量之间进行叉乘。
  * @method pCross
  * @param {Vec2} v1
  * @param {Vec2} v2
  * @return {Number}
  * @example
- * cc.pCross(cc.v2(20, 20), cc.v2(5, 5)); // return 0;
+ * cc.pCross(cc.v2(20, 20), cc.v2(5, 5)); // 0;
  */
 cc.pCross = function (v1, v2) {
     return v1.x * v2.y - v1.y * v2.x;
@@ -139,12 +139,12 @@ cc.pCross = function (v1, v2) {
 
 /**
  * !#en Calculates perpendicular of v, rotated 90 degrees counter-clockwise -- cross(v, perp(v)) greater than 0.
- * !#zh 将指定向量逆时针旋转 90 度并返回。
+ * !#zh 返回逆时针旋转 90 度后的新向量。
  * @method pPerp
  * @param {Vec2} point
  * @return {Vec2}
  * @example
- * cc.pPerp(cc.v2(20, 20)); // return Vec2 {x: -20, y: 20};
+ * cc.pPerp(cc.v2(20, 20)); // Vec2 {x: -20, y: 20};
  */
 cc.pPerp = function (point) {
     return cc.p(-point.y, point.x);
@@ -157,7 +157,7 @@ cc.pPerp = function (point) {
  * @param {Vec2} point
  * @return {Vec2}
  * @example
- * cc.pRPerp(cc.v2(20, 20)); // return Vec2 {x: 20, y: -20};
+ * cc.pRPerp(cc.v2(20, 20)); // Vec2 {x: 20, y: -20};
  */
 cc.pRPerp = function (point) {
     return cc.p(point.y, -point.x);
@@ -165,7 +165,7 @@ cc.pRPerp = function (point) {
 
 /**
  * !#en Calculates the projection of v1 over v2.
- * !#zh 投影，v1 在后 v2 上的投影。
+ * !#zh 返回 v1 在 v2 上的投影向量。
  * @method pProject
  * @param {Vec2} v1
  * @param {Vec2} v2
@@ -173,7 +173,7 @@ cc.pRPerp = function (point) {
  * @example
  * var v1 = cc.v2(20, 20);
  * var v2 = cc.v2(5, 5);
- * cc.pProject(v1, v2); // return Vec2 {x: 20, y: 20};
+ * cc.pProject(v1, v2); // Vec2 {x: 20, y: 20};
  */
 cc.pProject = function (v1, v2) {
     return cc.pMult(v2, cc.pDot(v1, v2) / cc.pDot(v2, v2));
@@ -189,7 +189,7 @@ cc.pProject = function (v1, v2) {
  * @example
  * var v1 = cc.v2(20, 20);
  * var v2 = cc.v2(5, 5);
- * cc.pRotate(v1, v2); // return Vec2 {x: 0, y: 200};
+ * cc.pRotate(v1, v2); // Vec2 {x: 0, y: 200};
  */
 cc.pRotate = function (v1, v2) {
     return cc.p(v1.x * v2.x - v1.y * v2.y, v1.x * v2.y + v1.y * v2.x);
@@ -197,7 +197,7 @@ cc.pRotate = function (v1, v2) {
 
 /**
  * !#en Unrotates two points.
- * !#zh 未旋转指定的 2 个向量。
+ * !#zh 非旋转指定的 2 个向量。
  * @method pUnrotate
  * @param  {Vec2} v1
  * @param  {Vec2} v2
@@ -205,7 +205,7 @@ cc.pRotate = function (v1, v2) {
  * @example
  * var v1 = cc.v2(20, 20);
  * var v2 = cc.v2(5, 5);
- * cc.pUnrotate(v1, v2); // return Vec2 {x: 200, y: 0};
+ * cc.pUnrotate(v1, v2); // Vec2 {x: 200, y: 0};
  */
 cc.pUnrotate = function (v1, v2) {
     return cc.p(v1.x * v2.x + v1.y * v2.y, v1.y * v2.x - v1.x * v2.y);
@@ -218,7 +218,7 @@ cc.pUnrotate = function (v1, v2) {
  * @param  {Vec2} v
  * @return {Number}
  * @example
- * cc.pLengthSQ(cc.v2(20, 20)); // return 800;
+ * cc.pLengthSQ(cc.v2(20, 20)); // 800;
  */
 cc.pLengthSQ = function (v) {
     return cc.pDot(v, v);
@@ -226,7 +226,7 @@ cc.pLengthSQ = function (v) {
 
 /**
  * !#en Calculates the square distance between two points (not calling sqrt() ).
- * !#zh 返回指定 2 个向量之间的距离平方。
+ * !#zh 返回两个点之间距离的平方。
  * @method pDistanceSQ
  * @param {Vec2} point1
  * @param {Vec2} point2
@@ -234,7 +234,7 @@ cc.pLengthSQ = function (v) {
  * @example
  * var point1 = cc.v2(20, 20);
  * var point2 = cc.v2(5, 5);
- * cc.pDistanceSQ(point1, point2); // return 450;
+ * cc.pDistanceSQ(point1, point2); // 450;
  */
 cc.pDistanceSQ = function(point1, point2){
     return cc.pLengthSQ(cc.pSub(point1,point2));
@@ -247,7 +247,7 @@ cc.pDistanceSQ = function(point1, point2){
  * @param  {Vec2} v
  * @return {Number}
  * @example
- * cc.pLength(cc.v2(20, 20)); // return 28.284271247461902;
+ * cc.pLength(cc.v2(20, 20)); // 28.284271247461902;
  */
 cc.pLength = function (v) {
     return Math.sqrt(cc.pLengthSQ(v));
@@ -263,7 +263,7 @@ cc.pLength = function (v) {
  * @example
  * var v1 = cc.v2(20, 20);
  * var v2 = cc.v2(5, 5);
- * cc.pDistance(v1, v2); // return 21.213203435596427;
+ * cc.pDistance(v1, v2); // 21.213203435596427;
  */
 cc.pDistance = function (v1, v2) {
     return cc.pLength(cc.pSub(v1, v2));
@@ -276,7 +276,7 @@ cc.pDistance = function (v1, v2) {
  * @param {Vec2} v
  * @return {Vec2}
  * @example
- * cc.pNormalize(cc.v2(20, 20)); // return Vec2 {x: 0.7071067811865475, y: 0.7071067811865475};
+ * cc.pNormalize(cc.v2(20, 20)); // Vec2 {x: 0.7071067811865475, y: 0.7071067811865475};
  */
 cc.pNormalize = function (v) {
     var n = cc.pLength(v);
@@ -285,12 +285,12 @@ cc.pNormalize = function (v) {
 
 /**
  * !#en Converts radians to a normalized vector.
- * !#zh 将弧度转换为一个标准的向量，返回坐标 x = cos(a) , y = sin(a)。
+ * !#zh 将弧度转换为一个标准化后的向量，返回坐标 x = cos(a) , y = sin(a)。
  * @method pForAngle
  * @param {Number} a
  * @return {Vec2}
  * @example
- * cc.pForAngle(20); // return Vec2 {x: 0.40808206181339196, y: 0.9129452507276277};
+ * cc.pForAngle(20); // Vec2 {x: 0.40808206181339196, y: 0.9129452507276277};
  */
 cc.pForAngle = function (a) {
     return cc.p(Math.cos(a), Math.sin(a));
@@ -298,12 +298,12 @@ cc.pForAngle = function (a) {
 
 /**
  * !#en Converts a vector to radians.
- * !#zh 返回指定向量转换后的弧度。
+ * !#zh 返回指定向量的弧度。
  * @method pToAngle
  * @param {Vec2} v
  * @return {Number}
  * @example
- * cc.pToAngle(cc.v2(20, 20)); // return 0.7853981633974483;
+ * cc.pToAngle(cc.v2(20, 20)); // 0.7853981633974483;
  */
 cc.pToAngle = function (v) {
     return Math.atan2(v.y, v.x);
@@ -312,7 +312,7 @@ cc.pToAngle = function (v) {
 /**
  * !#en Clamp a value between from and to.
  * !#zh
- * 返回指定限制区域后的数值。<br/>
+ * 限定浮点数的最大最小值。<br/>
  * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
  * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
  * 否则返回自身。
@@ -322,9 +322,9 @@ cc.pToAngle = function (v) {
  * @param {Number} max_inclusive
  * @return {Number}
  * @example
- * var v1 = cc.clampf(20, 0, 20); // return 20;
- * var v2 = cc.clampf(-1, 0, 20); // return 0;
- * var v3 = cc.clampf(10, 0, 20); // return 10;
+ * var v1 = cc.clampf(20, 0, 20); // 20;
+ * var v2 = cc.clampf(-1, 0, 20); //  0;
+ * var v3 = cc.clampf(10, 0, 20); // 10;
  */
 cc.clampf = function (value, min_inclusive, max_inclusive) {
     if (min_inclusive > max_inclusive) {
@@ -337,14 +337,14 @@ cc.clampf = function (value, min_inclusive, max_inclusive) {
 
 /**
  * !#en Clamp a value between 0 and 1.
- * !#zh 返回一个范围在 0 ~ 1 之间的指定数值。
+ * !#zh 限定浮点数的取值范围为 0 ~ 1 之间。
  * @method clamp01
  * @param {Number} value
  * @return {Number}
  * @example
- * var v1 = cc.clampf(20);  //-- return 1;
- * var v2 = cc.clampf(-1);  //-- return 0;
- * var v3 = cc.clampf(0.5); //-- return 0.5;
+ * var v1 = cc.clampf(20);  // 1;
+ * var v2 = cc.clampf(-1);  // 0;
+ * var v3 = cc.clampf(0.5); // 0.5;
  */
 cc.clamp01 = function (value) {
     return value < 0 ? 0 : value < 1 ? value : 1;
@@ -365,9 +365,9 @@ cc.clamp01 = function (value) {
  * @example
  * var min_inclusive = cc.v2(0, 0);
  * var max_inclusive = cc.v2(20, 20);
- * var v1 = cc.pClamp(cc.v2(20, 20), min_inclusive, max_inclusive); // return Vec2 {x: 20, y: 20};
- * var v2 = cc.pClamp(cc.v2(0, 0), min_inclusive, max_inclusive);   // return Vec2 {x: 0, y: 0};
- * var v3 = cc.pClamp(cc.v2(10, 10), min_inclusive, max_inclusive); // return Vec2 {x: 10, y: 10};
+ * var v1 = cc.pClamp(cc.v2(20, 20), min_inclusive, max_inclusive); // Vec2 {x: 20, y: 20};
+ * var v2 = cc.pClamp(cc.v2(0, 0), min_inclusive, max_inclusive);   // Vec2 {x: 0, y: 0};
+ * var v3 = cc.pClamp(cc.v2(10, 10), min_inclusive, max_inclusive); // Vec2 {x: 10, y: 10};
  */
 cc.pClamp = function (p, min_inclusive, max_inclusive) {
     return cc.p(cc.clampf(p.x, min_inclusive.x, max_inclusive.x), cc.clampf(p.y, min_inclusive.y, max_inclusive.y));
@@ -375,12 +375,12 @@ cc.pClamp = function (p, min_inclusive, max_inclusive) {
 
 /**
  * !#en Quickly convert cc.Size to a cc.Vec2.
- * !#zh 快速转换 cc.size 为 cc.vec2。
+ * !#zh 快速转换 cc.Size 为 cc.Vec2。
  * @method pFromSize
  * @param {Size} s
  * @return {Vec2}
  * @example
- * cc.pFromSize(new cc.size(20, 20)); //-- return Vec2 {x: 20, y: 20};
+ * cc.pFromSize(new cc.size(20, 20)); // Vec2 {x: 20, y: 20};
  */
 cc.pFromSize = function (s) {
     return cc.p(s.width, s.height);
@@ -396,7 +396,7 @@ cc.pFromSize = function (s) {
  * @param {Function} opFunc
  * @return {Vec2}
  * @example
- * cc.pCompOp(cc.p(-10, -10), Math.abs); // return Vec2 {x: 10, y: 10};
+ * cc.pCompOp(cc.p(-10, -10), Math.abs); // Vec2 {x: 10, y: 10};
  */
 cc.pCompOp = function (p, opFunc) {
     return cc.p(opFunc(p.x), opFunc(p.y));
@@ -419,7 +419,7 @@ cc.pCompOp = function (p, opFunc) {
  * @param {Number} alpha
  * @return {Vec2}
  * @example
- * cc.pLerp(cc.v2(20, 20), cc.v2(5, 5), 0.5); // return Vec2 {x: 12.5, y: 12.5};
+ * cc.pLerp(cc.v2(20, 20), cc.v2(5, 5), 0.5); // Vec2 {x: 12.5, y: 12.5};
  */
 cc.pLerp = function (a, b, alpha) {
     return cc.pAdd(cc.pMult(a, 1 - alpha), cc.pMult(b, alpha));
@@ -428,7 +428,7 @@ cc.pLerp = function (a, b, alpha) {
 /**
  * !#en TODO
  * !#zh
- * 进行向量之间的模糊判断。<br/>
+ * 近似判断两个点是否相等。<br/>
  * 判断 2 个向量是否在指定数值的范围之内，如果在则返回 true，反之则返回 false。
  * @method pFuzzyEqual
  * @param {Vec2} a
@@ -438,8 +438,8 @@ cc.pLerp = function (a, b, alpha) {
  * @example
  * var a = cc.v2(20, 20);
  * var b = cc.v2(5, 5);
- * var b1 = cc.pFuzzyEqual(a, b, 10); // return false;
- * var b2 = cc.pFuzzyEqual(a, b, 18); // return true;
+ * var b1 = cc.pFuzzyEqual(a, b, 10); // false;
+ * var b2 = cc.pFuzzyEqual(a, b, 18); // true;
  */
 cc.pFuzzyEqual = function (a, b, variance) {
     if (a.x - variance <= b.x && b.x <= a.x + variance) {
@@ -451,13 +451,13 @@ cc.pFuzzyEqual = function (a, b, variance) {
 
 /**
  * !#en Multiplies a nd b components, a.x*b.x, a.y*b.y.
- * !#zh 组件 a 和 b 向量之间的相乘， a.x * b.x, a.y * b.y。
+ * !#zh 计算两个向量的每个分量的乘积， a.x * b.x, a.y * b.y。
  * @method pCompMult
  * @param {Vec2} a
  * @param {Vec2} b
  * @return {Vec2}
  * @example
- * cc.pCompMult(acc.v2(20, 20), cc.v2(5, 5)); // return Vec2 {x: 100, y: 100};
+ * cc.pCompMult(acc.v2(20, 20), cc.v2(5, 5)); // Vec2 {x: 100, y: 100};
  */
 cc.pCompMult = function (a, b) {
     return cc.p(a.x * b.x, a.y * b.y);
@@ -465,7 +465,7 @@ cc.pCompMult = function (a, b) {
 
 /**
  * !#en TODO
- * !#zh 返回两个向量方向之间带正负号的弧度。
+ * !#zh 返回两个向量之间带正负号的弧度。
  * @method pAngleSigned
  * @param {Vec2} a
  * @param {Vec2} b
@@ -496,7 +496,7 @@ cc.pAngle = function (a, b) {
 
 /**
  * !#en Rotates a point counter clockwise by the angle around a pivot.
- * !#zh 返回指定向量逆时针旋转围绕轴心的角度点。
+ * !#zh 返回给定向量围绕指定轴心顺时针旋转一定弧度后的结果。
  * @method pRotateByAngle
  * @param {Vec2} v - v is the point to rotate
  * @param {Vec2} pivot - pivot is the pivot, naturally
@@ -637,7 +637,7 @@ cc.pZeroIn = function(v) {
 
 /**
  * !#en copies the position of one point to another.
- * !#zh v1 向量等于 v2 向量的值。
+ * !#zh 令 v1 向量等同于 v2。
  * @method pIn
  * @param {Vec2} v1
  * @param {Vec2} v2
@@ -649,7 +649,7 @@ cc.pIn = function(v1, v2) {
 
 /**
  * !#en multiplies the point with the given factor (inplace).
- * !#zh 向量乘于指定倍数。
+ * !#zh 向量缩放，结果保存到第一个向量。
  * @method pMultIn
  * @param {Vec2} point
  * @param {Number} floatVar
@@ -661,7 +661,7 @@ cc.pMultIn = function(point, floatVar) {
 
 /**
  * !#en subtracts one point from another (inplace).
- * !#zh v1 向量减等于 v2 向量的值。
+ * !#zh 向量减法，结果保存到第一个向量。
  * @method pSubIn
  * @param {Vec2} v1
  * @param {Vec2} v2
@@ -673,7 +673,7 @@ cc.pSubIn = function(v1, v2) {
 
 /**
  * !#en adds one point to another (inplace).
- * !#zh v1 向量加等于 v2 向量的值。
+ * !#zh 向量加法，结果保存到第一个向量。
  * @method pAddIn
  * @param {Vec2} v1
  * @param {Vec2} v2

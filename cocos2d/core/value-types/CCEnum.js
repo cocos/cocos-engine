@@ -33,8 +33,7 @@
  *
  * !#zh
  * 定义一个枚举类型。<br/>
- * 如果枚举项具有值-1，它会根据它的顺序列表给出一个整数。<br/>
- * 否则，它会使用用户指定定义的枚举值。
+ * 用户可以把枚举值设为任意的整数，如果设为 -1，系统将会分配为上一个枚举值 + 1。
  *
  * @method Enum
  * @param {object} obj - a JavaScript literal object containing enum names and values

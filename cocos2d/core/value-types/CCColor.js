@@ -37,11 +37,11 @@ var Color = (function () {
      * You can also use the convenience method {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} to create a new Color.
      *
      * !#zh
-     * RGBA 颜色表示。
+     * cc.Color 用于表示颜色。
      *
-     * 每个 Color 的取值范围在 0 到 255 之间。
+     * 它包含 RGBA 四个以浮点数保存的颜色分量，每个的值都在 0 到 255 之间。
      *
-     * 您也可以使用便捷的方法 {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} 来创建一个新的 Color。
+     * 您也可以通过使用 {{#crossLink "cc/color:method"}}cc.color{{/crossLink}} 的便捷方法来创建一个新的 Color。
      *
      * @class Color
      * @extends ValueType
@@ -72,88 +72,88 @@ var Color = (function () {
     var DefaultColors = {
         // color: [r, g, b, a]
         /**
-         * !#en TODO
-         * !#zh 白色
+         * !#en Solid white, RGBA is [255, 255, 255, 255].
+         * !#zh 纯白色，RGBA 是 [255, 255, 255, 255]。
          * @property WHITE
          * @type {Color}
          * @static
          */
         WHITE:      [255, 255, 255, 255],
         /**
-         * !#en TODO
-         * !#zh 黑色
+         * !#en Solid black, RGBA is [0, 0, 0, 255].
+         * !#zh 纯黑色，RGBA 是 [0, 0, 0, 255]。
          * @property BLACK
          * @type {Color}
          * @static
          */
         BLACK:      [0, 0, 0, 255],
         /**
-         * !#en TODO
-         * !#zh 透明
+         * !#en Transparent, RGBA is [0, 0, 0, 0].
+         * !#zh 透明，RGBA 是 [0, 0, 0, 0]。
          * @property TRANSPARENT
          * @type {Color}
          * @static
          */
         TRANSPARENT:[0, 0, 0, 0],
         /**
-         * !#en TODO
-         * !#zh 灰色
+         * !#en Grey, RGBA is [127.5, 127.5, 127.5].
+         * !#zh 灰色，RGBA 是 [127.5, 127.5, 127.5]。
          * @property GRAY
          * @type {Color}
          * @static
          */
         GRAY:       [127.5, 127.5, 127.5],
         /**
-         * !#en TODO
-         * !#zh 红色
+         * !#en Solid red, RGBA is [255, 0, 0].
+         * !#zh 纯红色，RGBA 是 [255, 0, 0]。
          * @property RED
          * @type {Color}
          * @static
          */
         RED:        [255, 0, 0],
         /**
-         * !#en TODO
-         * !#zh 绿色
+         * !#en Solid green, RGBA is [0, 255, 0].
+         * !#zh 纯绿色，RGBA 是 [0, 255, 0]。
          * @property GREEN
          * @type {Color}
          * @static
          */
         GREEN:      [0, 255, 0],
         /**
-         * !#en TODO
-         * !#zh 蓝色
+         * !#en Solid blue, RGBA is [0, 0, 255].
+         * !#zh 纯蓝色，RGBA 是 [0, 0, 255]。
          * @property BLUE
          * @type {Color}
          * @static
          */
         BLUE:       [0, 0, 255],
         /**
-         * !#en TODO
-         * !#zh 黄色
+         * !#en Yellow, RGBA is [255, 235, 4].
+         * !#zh 黄色，RGBA 是 [255, 235, 4]。
          * @property YELLOW
          * @type {Color}
          * @static
          */
         YELLOW:     [255, 235, 4],
         /**
-         * !#en TODO
-         * !#zh 橙色
+         * !#en Orange, RGBA is [255, 127, 0].
+         * !#zh 橙色，RGBA 是 [255, 127, 0]。
          * @property ORANGE
          * @type {Color}
          * @static
          */
         ORANGE:     [255, 127, 0],
         /**
-         * !#en TODO
-         * !#zh 青色
+         * !#en Cyan, RGBA is [0, 255, 255].
+         * !#zh 青色，RGBA 是 [0, 255, 255]。
          * @property CYAN
          * @type {Color}
          * @static
          */
         CYAN:       [0, 255, 255],
         /**
-         * !#en TODO
-         * !#zh 洋红色（品红色）
+         * !#en Magenta, RGBA is [255, 0, 255].
+         * !#zh 洋红色（品红色），RGBA 是 [255, 0, 255]。
          * @property MAGENTA
          * @type {Color}
          * @static
@@ -175,9 +175,8 @@ var Color = (function () {
      * @method clone
      * @return {Color} Newly created color.
      * @example
-     * var color = cc.Color.WHITE;
-     * var newColor = color.clone();
-     * cc.log(newColor);
+     * var color = new cc.Color();
+     * var newColor = color.clone();// Color {r: 0, g: 0, b: 0, a: 255}
      */
     Color.prototype.clone = function () {
         return new Color(this.r, this.g, this.b, this.a);
@@ -185,16 +184,16 @@ var Color = (function () {
 
     /**
      * !#en TODO
-     * !#zh 当前颜色与指定颜色是否相等。
+     * !#zh 判断两个颜色是否相等。
      * @method equals
      * @param {Color} other
      * @return {Boolean}
      * @example
      * var color1 = cc.Color.WHITE;
-     * var color2 = cc.Color.WHITE;
-     * cc.log(color1.equals(color2)); // return true;
+     * var color2 = new cc.Color(255, 255, 255);
+     * cc.log(color1.equals(color2)); // true;
      * color2 = cc.Color.RED;
-     * cc.log(color2.equals(color1)); // return false;
+     * cc.log(color2.equals(color1)); // false;
      */
     Color.prototype.equals = function (other) {
         return other &&
@@ -206,7 +205,7 @@ var Color = (function () {
 
     /**
      * !#en TODO
-     * !#zh 插值
+     * !#zh 线性插值
      * @method lerp
      * @param {Color} to
      * @param {number} ratio - the interpolation coefficient.
@@ -229,12 +228,12 @@ var Color = (function () {
 
     /**
      * !#en TODO
-     * !#zh 输出字符串格式。
+     * !#zh 转换为方便阅读的字符串。
      * @method toString
      * @return {String}
      * @example
      * var color = cc.Color.WHITE;
-     * color.toString(); // return "rgba(255, 255, 255, 255)"
+     * color.toString(); // "rgba(255, 255, 255, 255)"
      */
     Color.prototype.toString = function () {
         return "rgba(" +
@@ -247,13 +246,13 @@ var Color = (function () {
 
     /**
      * !#en TODO
-     * !#zh 设置 Color 中的 R 属性。
+     * !#zh 设置当前的红色值，并返回当前对象。
      * @method setR
      * @param {Number} red - the new Red component.
      * @return {Color} this color.
      * @example
-     * var color = cc.Color.BLACK;
-     * color.setR(255); // return Color {r: 255, g: 0, b: 0, a: 255}
+     * var color = new cc.Color();
+     * color.setR(255); // Color {r: 255, g: 0, b: 0, a: 255}
      */
     Color.prototype.setR = function (red) {
         this.r = red;
@@ -261,13 +260,13 @@ var Color = (function () {
     };
     /**
      * !#en TODO
-     * !#zh 设置 Color 中的 G 属性。
+     * !#zh 设置当前的绿色值，并返回当前对象。
      * @method setG
      * @param {Number} green - the new Green component.
      * @return {Color} this color.
      * @example
-     * var color = cc.Color.BLACK;
-     * color.setG(255); // return Color {r: 0, g: 255, b: 0, a: 255}
+     * var color = new cc.Color();
+     * color.setG(255); // Color {r: 0, g: 255, b: 0, a: 255}
      */
     Color.prototype.setG = function (green) {
         this.g = green;
@@ -275,13 +274,13 @@ var Color = (function () {
     };
     /**
      * !#en TODO
-     * !#zh 设置 Color 中的 B 属性。
+     * !#zh 设置当前的蓝色值，并返回当前对象。
      * @method setB
      * @param {Number} blue - the new Blue component.
      * @return {Color} this color.
      * @example
-     * var color = cc.Color.BLACK;
-     * color.setB(255); // return Color {r: 0, g: 0, b: 255, a: 255}
+     * var color = new cc.Color();
+     * color.setB(255); // Color {r: 0, g: 0, b: 255, a: 255}
      */
     Color.prototype.setB = function (blue) {
         this.b = blue;
@@ -289,13 +288,13 @@ var Color = (function () {
     };
     /**
      * !#en TODO
-     * !#zh 设置 Color 中的 A (透明度) 属性。
+     * !#zh 设置当前的透明度，并返回当前对象。
      * @method setA
      * @param {Number} alpha - the new Alpha component.
      * @return {Color} this color.
      * @example
-     * var color = cc.Color.BLACK;
-     * color.setA(0); // return Color {r: 0, g: 0, b: 0, a: 0}
+     * var color = new cc.Color();
+     * color.setA(0); // Color {r: 0, g: 0, b: 0, a: 0}
      */
     Color.prototype.setA = function (alpha) {
         this.a = alpha;
@@ -332,14 +331,13 @@ var Color = (function () {
     };
 
     /**
-     * !#en Clamp this color to make all components between 0 to 1.
+     * !#en Clamp this color to make all components between 0 to 255ar color = new cc.Color(1000, 0, 0, 255);.
      * !#zh 限制颜色数值，在 0 到 255 之间。
      * @method clamp
      * @example
-     * var color = cc.Color.BLACK;
-     * cc.log(color);  // return Color {r: 0, g: 0, b: 0, a: 255};
-     * color.r = 1000; // return Color {r: 1000, g: 0, b: 0, a: 255};
-     * color.clamp();  // return Color {r: 255, g: 0, b: 0, a: 255};
+     * var color = new cc.Color(1000, 0, 0, 255);
+     * color.clamp();
+     * cc.log(color); // (255, 0, 0, 255)
      */
     Color.prototype.clamp = function () {
         this.r = cc.clampf(this.r, 0, 255);
@@ -357,7 +355,7 @@ var Color = (function () {
      * @chainable
      * @example
      * var color = cc.Color.BLACK;
-     * color.fromHEX("#FFFF33"); // return Color {r: 255, g: 255, b: 51, a: 255};
+     * color.fromHEX("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
      */
     Color.prototype.fromHEX = function (hexString) {
         var hex = parseInt(((hexString.indexOf('#') > -1) ? hexString.substring(1) : hexString), 16);
@@ -375,8 +373,8 @@ var Color = (function () {
      * @return {String}
      * @example
      * var color = cc.Color.BLACK;
-     * color.toHEX("#rgb");     // return "000";
-     * color.toHEX("#rrggbb");  // return "000000";
+     * color.toHEX("#rgb");     // "000";
+     * color.toHEX("#rrggbb");  // "000000";
      */
     Color.prototype.toHEX = function ( fmt ) {
         var hex = [
@@ -404,12 +402,12 @@ var Color = (function () {
 
     /**
      * !#en Convert to 24bit rgb value.
-     * !#zh 转换为 24bit 的RGB值。
+     * !#zh 转换为 24bit 的 RGB 值。
      * @method toRGBValue
      * @return {Number}
      * @example
      * var color = cc.Color.YELLOW;
-     * color.toRGBValue(); // return 16771844;
+     * color.toRGBValue(); // 16771844;
      */
     Color.prototype.toRGBValue = function () {
         return (cc.clampf(this.r, 0, 255) << 16) +
@@ -428,7 +426,7 @@ var Color = (function () {
      * @chainable
      * @example
      * var color = cc.Color.YELLOW;
-     * color.fromHSV(0, 0, 1); // return Color {r: 255, g: 255, b: 255, a: 255};
+     * color.fromHSV(0, 0, 1); // Color {r: 255, g: 255, b: 255, a: 255};
      */
     Color.prototype.fromHSV = function ( h, s, v ) {
         var rgb = Color.hsv2rgb( h, s, v );
@@ -445,7 +443,7 @@ var Color = (function () {
      * @return {Object} - {h: number, s: number, v: number}.
      * @example
      * var color = cc.Color.YELLOW;
-     * color.toHSV(); // return Object {h: 0.1533864541832669, s: 0.9843137254901961, v: 1};
+     * color.toHSV(); // Object {h: 0.1533864541832669, s: 0.9843137254901961, v: 1};
      */
     Color.prototype.toHSV = function () {
         return Color.rgb2hsv( this.r, this.g, this.b );
@@ -462,8 +460,9 @@ var Color = (function () {
  * @param {Number} g - red, must be [0, 255].
  * @param {Number} b - red, must be [0, 255].
  * @return {Object} - {h: number, s: number, v: number}.
+ * @static
  * @example
- * cc.Color.rgb2hsv(255, 255, 255); // return Object {h: 0, s: 0, v: 1};
+ * cc.Color.rgb2hsv(255, 255, 255); // Object {h: 0, s: 0, v: 1};
  */
 Color.rgb2hsv = function ( r, g, b ) {
     r = r / 255;
@@ -495,8 +494,9 @@ Color.rgb2hsv = function ( r, g, b ) {
  * @param {Number} s
  * @param {Number} v
  * @return {Object} - {r: number, g: number, b: number}}, rgb will be in [0, 255].
+ * @static
  * @example
- * cc.Color.hsv2rgb(0, 0, 1); // return Object {r: 255, g: 255, b: 255};
+ * cc.Color.hsv2rgb(0, 0, 1); // Object {r: 255, g: 255, b: 255};
  */
 Color.hsv2rgb = function ( h, s, v ) {
     var rgb = { r: 0, g: 0, b: 0 };
@@ -574,7 +574,7 @@ cc.Color = Color;
  * Alpha channel is optional. Default value is 255.
  *
  * !#zh
- * 通过该方法来创建一个新的 {{#crossLink "Color/Color:method"}}cc.Color{{/crossLink}}
+ * 通过该方法来创建一个新的 {{#crossLink "Color/Color:method"}}cc.Color{{/crossLink}} 对象。
  * Alpha 通道是可选的。默认值是 255。
  *
  * @method color
@@ -601,13 +601,13 @@ cc.color = function color (r, g, b, a) {
 
 /**
  * !#en returns true if both ccColor3B are equal. Otherwise it returns false.
- * !#zh 如果两个 Color 相等返回 true。否则返回 false。
+ * !#zh 判断两个颜色对象的 RGB 部分是否相等，不比较透明度。
  * @method colorEqual
  * @param {Color} color1
  * @param {Color} color2
  * @return {Boolean} true if both ccColor3B are equal. Otherwise it returns false.
  * @example
- * cc.log(cc.colorEqual(cc.Color.RED, cc.Color.RED)); // return true;
+ * cc.log(cc.colorEqual(cc.Color.RED, new cc.Color(255, 0, 0))); // true
  */
 cc.colorEqual = function (color1, color2) {
     return color1.r === color2.r && color1.g === color2.g && color1.b === color2.b;
@@ -617,12 +617,12 @@ cc.colorEqual = function (color1, color2) {
  * !#en
  * convert a string of color for style to Color.
  * e.g. "#ff06ff"  to : cc.color(255,6,255)。
- * !#zh 16 进制转换 Color。
+ * !#zh 16 进制转换为 Color
  * @method hexToColor
  * @param {String} hex
  * @return {Color}
  * @example
- * cc.hexToColor("#FFFF33"); // return Color {r: 255, g: 255, b: 51, a: 255};
+ * cc.hexToColor("#FFFF33"); // Color {r: 255, g: 255, b: 51, a: 255};
  */
 cc.hexToColor = function (hex) {
     hex = hex.replace(/^#?/, "0x");
@@ -643,7 +643,7 @@ cc.hexToColor = function (hex) {
  * @return {String}
  * @example
  * var color = new cc.Color(255, 6, 255)
- * cc.colorToHex(color); // return #ff06ff;
+ * cc.colorToHex(color); // #ff06ff;
  */
 cc.colorToHex = function (color) {
     var hR = color.r.toString(16), hG = color.g.toString(16), hB = color.b.toString(16);

@@ -28,7 +28,7 @@ var JS = require('../platform/js');
 
 /**
  * !#en A 2D rectangle defined by x, y position and width, height.
- * !#zh 通过 X，Y 位置和宽度，高度定义的 2D 矩形。
+ * !#zh 通过位置和宽高定义的 2D 矩形。
  * @class Rect
  * @extends ValueType
  */
@@ -37,7 +37,7 @@ var JS = require('../platform/js');
  * Constructor of cc.Rect class.
  * see {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} for convenience method.
  * !#zh
- * CC Rect类构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
+ * CC Rect类的构造函数。可以通过 {{#crossLink "cc/rect:method"}} cc.rect {{/crossLink}} 简便方法进行创建。
  *
  * @method Rect
  * @param {Number} [x=0]
@@ -63,14 +63,14 @@ require('../platform/CCClass').fastDefine('cc.Rect', Rect, ['x', 'y', 'width', '
 
 /**
  * !#en Creates a rectangle from two coordinate values.
- * !#zh 根据指定 2 个向量创建出一个矩形区域。
+ * !#zh 根据指定 2 个坐标创建出一个矩形区域。
  * @static
  * @method fromMinMax
  * @param {Vec2} v1
  * @param {Vec2} v2
  * @return {Rect}
  * @example
- * cc.Rect.fromMinMax(cc.v2(10, 10), cc.v2(20, 20)); // return Rect {x: 10, y: 10, width: 10, height: 10};
+ * cc.Rect.fromMinMax(cc.v2(10, 10), cc.v2(20, 20)); // Rect {x: 10, y: 10, width: 10, height: 10};
  */
 Rect.fromMinMax = function (v1, v2) {
     var min_x = Math.min(v1.x, v2.x);
@@ -96,21 +96,21 @@ Rect.fromMinMax = function (v1, v2) {
  * var a = new cc.rect(0, 0, 10, 10);
  * var b = new cc.rect(5, 5, 5, 5);
  * var c = new cc.rect(20, 20, 10, 10);
- * cc.Rect.contain(a, b); // return  1;
- * cc.Rect.contain(b, a); // return -1;
- * cc.Rect.contain(a, c); // return  0;
+ * cc.Rect.contain(a, b); //  1;
+ * cc.Rect.contain(b, a); // -1;
+ * cc.Rect.contain(a, c); //  0;
  */
 Rect.contain = function _Contain (a, b) {
-    if (a.x <= b.x &&
+    if (a.x < b.x &&
         a.x + a.width >= b.x + b.width &&
-        a.y <= b.y &&
+        a.y < b.y &&
         a.y + a.height >= b.y + b.height) {
         // a contains b
         return 1;
     }
-    if (b.x <= a.x &&
+    if (b.x < a.x &&
         b.x + b.width >= a.x + a.width &&
-        b.y <= a.y &&
+        b.y < a.y &&
         b.y + b.height >= a.y + a.height) {
         // b contains a
         return -1;
@@ -127,7 +127,7 @@ var proto = Rect.prototype;
  * @return {Rect}
  * @example
  * var a = new cc.rect(0, 0, 10, 10);
- * a.clone();// return Rect {x: 0, y: 0, width: 10, height: 10}
+ * a.clone();// Rect {x: 0, y: 0, width: 10, height: 10}
  */
 proto.clone = function () {
     return new Rect(this.x, this.y, this.width, this.height);
@@ -142,7 +142,7 @@ proto.clone = function () {
  * @example
  * var a = new cc.rect(0, 0, 10, 10);
  * var b = new cc.rect(0, 0, 10, 10);
- * a.equals(b);// return true;
+ * a.equals(b);// true;
  */
 proto.equals = function (other) {
     return other &&
@@ -154,7 +154,7 @@ proto.equals = function (other) {
 
 /**
  * !#en TODO
- * !#zh Rect 的线性插值。
+ * !#zh 线性插值
  * @method lerp
  * @param {Rect} to
  * @param {Number} ratio - the interpolation coefficient.
@@ -185,12 +185,12 @@ proto.lerp = function (to, ratio, out) {
 
 /**
  * !#en TODO
- * !#zh Rect 用字符串表示。
+ * !#zh 转换为方便阅读的字符串
  * @method toString
  * @return {String}
  * @example
  * var a = new cc.rect(0, 0, 10, 10);
- * a.toString();// return "(0.00, 0.00, 10.00, 10.00)";
+ * a.toString();// "(0.00, 0.00, 10.00, 10.00)";
  */
 proto.toString = function () {
     return '(' + this.x.toFixed(2) + ', ' + this.y.toFixed(2) + ', ' + this.width.toFixed(2) +
@@ -199,7 +199,7 @@ proto.toString = function () {
 
 /**
  * !#en TODO
- * !#zh 矩形的左坐标。
+ * !#zh 矩形 x 轴上的最小值。
  * @property xMin
  * @type {Number}
  */
@@ -213,7 +213,7 @@ Object.defineProperty(proto, 'xMin', {
 
 /**
  * !#en TODO
- * !#zh 矩形的顶坐标。
+ * !#zh 矩形 y 轴上的最小值。
  * @property yMin
  * @type {Number}
  */
@@ -227,7 +227,7 @@ Object.defineProperty(proto, 'yMin', {
 
 /**
  * !#en TODO
- * !#zh 矩形的右坐标。
+ * !#zh 矩形 x 轴上的最大值。
  * @property xMax
  * @type {Number}
  */
@@ -238,7 +238,7 @@ Object.defineProperty(proto, 'xMax', {
 
 /**
  * !#en TODO
- * !#zh 矩形的底坐标。
+ * !#zh 矩形 y 轴上的最大值。
  * @property yMax
  * @type {Number}
  */
@@ -288,7 +288,7 @@ Object.defineProperty(proto, 'size', {
  * @example
  * var a = new cc.rect(0, 0, 10, 10);
  * var b = new cc.rect(0, 0, 20, 20);
- * a.intersects(b);// return true
+ * a.intersects(b);// true
  */
 proto.intersects = function (rect) {
     return cc.rectIntersectsRect(this, rect);
@@ -304,7 +304,7 @@ proto.intersects = function (rect) {
  * @example
  * var a = new cc.rect(0, 0, 10, 10);
  * var b = new cc.v2(0, 5);
- * a.contains(b);// return true
+ * a.contains(b);// true
  */
 proto.contains = function (point) {
     return (this.x < point.x &&
@@ -322,7 +322,7 @@ proto.contains = function (point) {
  * @example
  * var a = new cc.rect(0, 0, 10, 10);
  * var b = new cc.rect(0, 0, 20, 20);
- * a.containsRect(b);// return true
+ * a.containsRect(b);// true
  */
 proto.containsRect = function (rect) {
     return (this.x < rect.x &&
@@ -361,7 +361,7 @@ cc.rect = function rect (x, y, w, h) {
 
 /**
  * !#en Check whether a rect's value equals to another.
- * !#zh 检查一个矩形的值是否等于另一个。
+ * !#zh 判断两个矩形是否相等。
  * @method rectEqualToRect
  * @param {Rect} rect1
  * @param {Rect} rect2
@@ -369,9 +369,9 @@ cc.rect = function rect (x, y, w, h) {
  * @example
  * var a = new cc.rect(0, 0, 10, 10);
  * var b = new cc.rect(0, 0, 5, 5);
- * cc.rectEqualToRect(a, b); // return false;
+ * cc.rectEqualToRect(a, b); // false;
  * var c = new cc.rect(0, 0, 5, 5);
- * cc.rectEqualToRect(b, c); // return true;
+ * cc.rectEqualToRect(b, c); // true;
  */
 cc.rectEqualToRect = function (rect1, rect2) {
     return rect1 && rect2 && (rect1.x === rect2.x) && (rect1.y === rect2.y) && (rect1.width === rect2.width) && (rect1.height === rect2.height);
@@ -393,7 +393,7 @@ cc._rectEqualToZero = function(rect){
  * @example
  * var a = new cc.rect(0, 0, 20, 20);
  * var b = new cc.rect(10, 10, 20, 20);
- * cc.rectContainsRect(a, b); // return true;
+ * cc.rectContainsRect(a, b); // true;
  */
 cc.rectContainsRect = function (rect1, rect2) {
     if (!rect1 || !rect2)
@@ -405,13 +405,13 @@ cc.rectContainsRect = function (rect1, rect2) {
 
 /**
  * !#en Returns the rightmost x-value of a rect.
- * !#zh 返回指定矩形的最右边的 x 值。
+ * !#zh 返回矩形在 x 轴上的最大值
  * @method rectGetMaxX
  * @param {Rect} rect
  * @return {Number} The rightmost x value.
  * @example
  * var a = new cc.rect(10, 0, 20, 20);
- * cc.rectGetMaxX(a); // return 30;
+ * cc.rectGetMaxX(a); // 30;
  */
 cc.rectGetMaxX = function (rect) {
     return (rect.x + rect.width);
@@ -419,26 +419,26 @@ cc.rectGetMaxX = function (rect) {
 
 /**
  * !#en Return the midpoint x-value of a rect.
- * !#zh 返回指定矩形的中心点的 x 值。
+ * !#zh 返回矩形在 x 轴上的中点。
  * @method rectGetMidX
  * @param {Rect} rect
  * @return {Number} The midpoint x value.
  * @example
  * var a = new cc.rect(10, 0, 20, 20);
- * cc.rectGetMidX(a); // return 20;
+ * cc.rectGetMidX(a); // 20;
  */
 cc.rectGetMidX = function (rect) {
     return (rect.x + rect.width / 2.0);
 };
 /**
  * !#en Returns the leftmost x-value of a rect.
- * !#zh 返回指定矩形的最左边的 x 值。
+ * !#zh 返回矩形在 x 轴上的最小值。
  * @method rectGetMinX
  * @param {Rect} rect
  * @return {Number} The leftmost x value.
  * @example
  * var a = new cc.rect(10, 0, 20, 20);
- * cc.rectGetMinX(a); // return 10;
+ * cc.rectGetMinX(a); // 10;
  */
 cc.rectGetMinX = function (rect) {
     return rect.x;
@@ -446,13 +446,13 @@ cc.rectGetMinX = function (rect) {
 
 /**
  * !#en Return the topmost y-value of a rect.
- * !#zh 返回一个矩形的最上面的 y 值。
+ * !#zh 返回矩形在 y 轴上的最大值。
  * @method rectGetMaxY
  * @param {Rect} rect
  * @return {Number} The topmost y value.
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
- * cc.rectGetMaxY(a); // return 30;
+ * cc.rectGetMaxY(a); // 30;
  */
 cc.rectGetMaxY = function (rect) {
     return(rect.y + rect.height);
@@ -460,13 +460,13 @@ cc.rectGetMaxY = function (rect) {
 
 /**
  * !#en Return the midpoint y-value of `rect'.
- * !#zh 返回指定矩形的中心点的 y 值。
+ * !#zh 返回矩形在 y 轴上的中点。
  * @method rectGetMidY
  * @param {Rect} rect
  * @return {Number} The midpoint y value.
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
- * cc.rectGetMidY(a); // return 20;
+ * cc.rectGetMidY(a); // 20;
  */
 cc.rectGetMidY = function (rect) {
     return rect.y + rect.height / 2.0;
@@ -474,13 +474,13 @@ cc.rectGetMidY = function (rect) {
 
 /**
  * !#en Return the bottommost y-value of a rect.
- * !#zh 返回一个矩形的最下面的 y 值。
+ * !#zh 返回矩形在 y 轴上的最小值。
  * @method rectGetMinY
  * @param {Rect} rect
  * @return {Number} The bottommost y value.
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
- * cc.rectGetMinY(a); // return 10;
+ * cc.rectGetMinY(a); // 10;
  */
 cc.rectGetMinY = function (rect) {
     return rect.y;
@@ -496,7 +496,7 @@ cc.rectGetMinY = function (rect) {
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
  * var b = cc.v2(0, 10, 10, 10);
- * cc.rectContainsPoint(a, b); // return true;
+ * cc.rectContainsPoint(a, b); // true;
  */
 cc.rectContainsPoint = function (rect, point) {
     return (point.x >= cc.rectGetMinX(rect) && point.x <= cc.rectGetMaxX(rect) &&
@@ -513,7 +513,7 @@ cc.rectContainsPoint = function (rect, point) {
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
  * var b = new cc.rect(0, 10, 10, 10);
- * cc.rectIntersectsRect(a, b); // return true;
+ * cc.rectIntersectsRect(a, b); // true;
  */
 cc.rectIntersectsRect = function (ra, rb) {
     var maxax = ra.x + ra.width,
@@ -533,7 +533,7 @@ cc.rectIntersectsRect = function (ra, rb) {
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
  * var b = new cc.rect(0, 10, 10, 10);
- * cc.rectOverlapsRect(a, b); // return true;
+ * cc.rectOverlapsRect(a, b); // true;
  */
 cc.rectOverlapsRect = function (rectA, rectB) {
     return !((rectA.x + rectA.width < rectB.x) ||
@@ -552,7 +552,7 @@ cc.rectOverlapsRect = function (rectA, rectB) {
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
  * var b = new cc.rect(0, 10, 10, 10);
- * cc.rectUnion(a, b); // return Rect {x: 0, y: 10, width: 20, height: 20};
+ * cc.rectUnion(a, b); // Rect {x: 0, y: 10, width: 20, height: 20};
  */
 cc.rectUnion = function (rectA, rectB) {
     var rect = cc.rect(0, 0, 0, 0);
@@ -573,7 +573,7 @@ cc.rectUnion = function (rectA, rectB) {
  * @example
  * var a = new cc.rect(0, 10, 20, 20);
  * var b = new cc.rect(0, 10, 10, 10);
- * cc.rectIntersection(a, b); // return Rect {x: 0, y: 10, width: 10, height: 10};
+ * cc.rectIntersection(a, b); // Rect {x: 0, y: 10, width: 10, height: 10};
  */
 cc.rectIntersection = function (rectA, rectB) {
     var intersection = cc.rect(

@@ -1,4 +1,4 @@
-Texture.WrapMode = cc.Enum({
+var WrapMode = cc.Enum({
     Repeat: -1,
     Clamp: -1
 });

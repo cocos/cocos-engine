@@ -47,7 +47,7 @@ cc.Acceleration = function (x, y, z, timestamp) {
 
 /**
  * !#en Blend Function used for textures.
- * !#zh 用于纹理的混合函数。
+ * !#zh 图像的混合方式。
  * @class BlendFunc
  * @Constructor
  */

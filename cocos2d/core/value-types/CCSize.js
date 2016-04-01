@@ -60,7 +60,7 @@ require('../platform/CCClass').fastDefine('cc.Size', Size, ['width', 'height']);
 
 /**
  * !#en return a Size object with width = 0 and height = 0.
- * !#zh 返回与宽度 = 0 和高度 = 0 Size 的对象。
+ * !#zh 返回一个宽度为 0 和高度为 0 的 Size 对象。
  * @property ZERO
  * @type {Size}
  * @default new Size(0, 0)
@@ -87,7 +87,7 @@ proto.clone = function () {
 
 /**
  * !#en TODO
- * !#zh 当前 size 对象是否等于指定 size 对象。
+ * !#zh 当前 Size 对象是否等于指定 Size 对象。
  * @method equals
  * @param {Size} other
  * @return {Boolean}
@@ -103,7 +103,7 @@ proto.equals = function (other) {
 
 /**
  * !#en TODO
- * !#zh Rect 的线性插值。
+ * !#zh 线性插值。
  * @method lerp
  * @param {Rect} to
  * @param {Number} ratio - the interpolation coefficient.
@@ -130,7 +130,7 @@ proto.lerp = function (to, ratio, out) {
 
 /**
  * !#en TODO
- * !#zh Size 用字符串表示。
+ * !#zh 转换为方便阅读的字符串。
  * @method toString
  * @return {String}
  * @example
@@ -146,8 +146,8 @@ proto.toString = function () {
  * Helper function that creates a cc.Size.<br/>
  * Please use cc.p or cc.v2 instead, it will soon replace cc.Size.
  * !#zh
- * 创建一个 cc.Size 帮助函数。<br/>
- * 请使用 cc.p 或者是 cc.v2 代替，将很快取代 cc.Size。
+ * 创建一个 cc.Size 对象的帮助函数。<br/>
+ * 注意：可以使用 cc.p 或者是 cc.v2 代替，它们将很快取代 cc.Size。
  * @method size
  * @param {Number|Size} w - width or a size object
  * @param {Number} h - height
@@ -160,7 +160,7 @@ cc.size = function (w, h) {
 
 /**
  * !#en Check whether a point's value equals to another.
- * !#zh 检查 size 对象是否等于另一个。
+ * !#zh 检查 Size 对象是否等于另一个。
  * @method sizeEqualToSize
  * @param {Size} size1
  * @param {Size} size2
