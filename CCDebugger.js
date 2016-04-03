@@ -403,7 +403,8 @@ cc._initDebugSetting = function (mode) {
                 locLog(cc.js.formatStr.apply(cc, arguments));
             };
         }
-    } else if(console && console.log.apply){//console is null when user doesn't open dev tool on IE9
+    }
+    else if(console && console.log.apply){//console is null when user doesn't open dev tool on IE9
         //log to console
 
         // For JSB
@@ -495,7 +496,7 @@ cc._initDebugSetting = function (mode) {
             };
         }
     }
-    cc._throw = function (error) {
+    cc._throw = CC_EDITOR ? Editor.error : function (error) {
         cc.error(error.stack || error);
     };
 };
