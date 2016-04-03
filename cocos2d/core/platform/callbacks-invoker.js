@@ -39,28 +39,28 @@ var CallbacksHandler = (function () {
 /**
  * @method add
  * @param {String} key
- * @param {Function} callback - can be null
- * @param {Object} target - can be null
+ * @param {Function} callback
+ * @param {Object} [target] - can be null
  * @return {Boolean} whether the key is new
  */
 CallbacksHandler.prototype.add = function (key, callback, target) {
     var list = this._callbackTable[key];
     if (typeof list !== 'undefined') {
-        if (typeof callback === 'function') {
-            list.push(callback);
-            // Just append the target after callback
-            if (typeof target === 'object') {
-                list.push(target);
-            }
+        list.push(callback);
+        // Just append the target after callback
+        if (typeof target === 'object') {
+            list.push(target);
         }
         return false;
     }
     else {
         // new key
-        list = (typeof callback === 'function') ? [callback] : [];
-        // Just append the target after callback
-        if (list && typeof target === 'object') {
-            list.push(target);
+        if (typeof target === 'object') {
+            // Just append the target after callback
+            list = [callback, target];
+        }
+        else {
+            list = [callback];
         }
         this._callbackTable[key] = list;
         return true;
@@ -142,14 +142,17 @@ CallbacksHandler.prototype.removeAll = function (key) {
  * @return {Boolean} removed
  */
 CallbacksHandler.prototype.remove = function (key, callback, target) {
-    var list = this._callbackTable[key], index, callbackTarget;
+    var list = this._callbackTable[key], index, callbackTarget, removeList;
     if (list) {
         // Delay removing
         if (this._invoking[key]) {
-            if (!this._toRemove[key]) {
-                this._toRemove[key] = [];
+            removeList = this._toRemove[key];
+            if (removeList) {
+                removeList.push([callback, target]);
             }
-            this._toRemove[key].push([callback, target]);
+            else {
+                this._toRemove[key] = [[callback, target]];
+            }
             return true;
         }
 
@@ -201,7 +204,6 @@ if (CC_TEST) {
  * @param {any} [p5]
  */
 CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
-    this._toRemove.length = 0;
     this._invoking[key] = true;
     var list = this._callbackTable[key], i;
     if (list) {
