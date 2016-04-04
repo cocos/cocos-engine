@@ -89,3 +89,6 @@ EventListeners.prototype.invoke = function (event) {
 };
 
 module.exports = EventListeners;
+if (CC_TEST) {
+    cc._Test.EventListeners = EventListeners;
+}
