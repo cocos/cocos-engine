@@ -26,7 +26,8 @@
 var JS = require('../platform/js');
 
 /**
- * The base class of all value types.
+ * !#en The base class of all value types.
+ * !#zh 所有值类型的基类。
  * @class ValueType
  * @constructor
  */
@@ -46,7 +47,8 @@ JS.mixin(ValueType.prototype, {
     },
 
     /**
-     * Compares this object with the other one.
+     * !#en Compares this object with the other one.
+     * !#zh 当前对象是否等于指定对象。
      * @method equals
      * @param {ValueType} other
      * @return {Boolean}
@@ -57,6 +59,8 @@ JS.mixin(ValueType.prototype, {
     },
 
     /**
+     * !#en TODO
+     * !#zh 转换为方便阅读的字符串。
      * @method toString
      * @return {string}
      */
@@ -65,8 +69,12 @@ JS.mixin(ValueType.prototype, {
     },
 
     /**
+     * !#en
      * Linearly interpolates between this value to to value by ratio which is in the range [0, 1].
      * When ratio = 0 returns this. When ratio = 1 return to. When ratio = 0.5 returns the average of this and to.
+     * !#zh
+     * 线性插值。<br/>
+     * 当 ratio = 0 时返回自身，ratio = 1 时返回目标，ratio = 0.5 返回自身和目标的平均值。。
      * @method lerp
      * @param {ValueType} to - the to value
      * @param {number} ratio - the interpolation coefficient

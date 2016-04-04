@@ -25,7 +25,8 @@
  ****************************************************************************/
 
 /**
- * the device accelerometer reports values for each axis in units of g-force.
+ * !#en the device accelerometer reports values for each axis in units of g-force.
+ * !#zh 设备重力传感器传递的各个轴的数据。
  * @class Acceleration
  * @constructor
  */
@@ -45,7 +46,8 @@ cc.Acceleration = function (x, y, z, timestamp) {
 };
 
 /**
- * Blend Function used for textures.
+ * !#en Blend Function used for textures.
+ * !#zh 图像的混合方式。
  * @class BlendFunc
  * @Constructor
  */
@@ -187,7 +189,9 @@ cc.blendFuncDisable = cc.BlendFunc._disable;
  * @constructor
  */
 /**
- * @method FontDefinition 
+ * !#en TODO
+ * !#zh 定义字体基本属性的结构体。
+ * @method FontDefinition
  * @param {Object} properties - (OPTIONAL) Allow inline FontDefinition
  * @return {FontDefinition}
  */
