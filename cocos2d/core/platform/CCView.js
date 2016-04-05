@@ -330,6 +330,7 @@ var View = cc._Class.extend({
     _adjustViewportMeta: function () {
         if (this._isAdjustViewPort) {
             this._setViewportMeta(__BrowserGetter.meta, false);
+            this._isAdjustViewPort = false;
         }
     },
 
