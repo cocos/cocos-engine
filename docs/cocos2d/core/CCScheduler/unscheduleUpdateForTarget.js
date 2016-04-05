@@ -1,3 +1,3 @@
--------------------
 //unschedules the "update" method.
-cc.director.getScheduler().unscheduleUpdateForTarget(this);
+var scheduler = cc.director.getScheduler();
+scheduler.unscheduleUpdateForTarget(this);

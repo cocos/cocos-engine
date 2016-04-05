@@ -1,3 +1,3 @@
--------------------
 //register a schedule to scheduler
-cc.director.getScheduler().scheduleCallbackForTarget(this, function, interval, repeat, delay, !this._isRunning );
+var scheduler = cc.director.getScheduler();
+scheduler.scheduleCallbackForTarget(this, function, interval, repeat, delay, !this._isRunning);
