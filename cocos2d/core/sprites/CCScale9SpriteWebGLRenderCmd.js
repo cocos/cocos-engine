@@ -31,6 +31,8 @@ if (_ccsg.Node.WebGLRenderCmd) {
         this._cachedParent = null;
         this._cacheDirty = false;
         this._quadWebBuffer = cc._renderContext.createBuffer();
+        this._quadIndexBuffer = cc._renderContext.createBuffer();
+        this._indices = new Int16Array(6 * 9);
         this._colorOpacityDirty = false;
     };
 
@@ -69,34 +71,46 @@ if (_ccsg.Node.WebGLRenderCmd) {
             ccgl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
-
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._quadIndexBuffer);
             var quads = node._quads;
             var bufferOffset = 0;
             var quadsLength = quads.length;
             if (quadsLength === 0) return;
             if (needRebuildWebBuffer)
             {
+                //scale9 sprite is the max one
+                var indices = this._indices;
+                var indiceIndex = 0;
                 gl.bufferData(gl.ARRAY_BUFFER,quads[0].arrayBuffer.byteLength * quads.length, gl.DYNAMIC_DRAW);
-                for(var i = 0; i < quads.length; ++i){
+                for(var i = 0; i < quads.length; ++i) {
                     gl.bufferSubData(gl.ARRAY_BUFFER, bufferOffset,quads[i].arrayBuffer);
                     bufferOffset = bufferOffset + quads[i].arrayBuffer.byteLength;
+                    if(node._isTriangle === true) {
+                        indices[indiceIndex] = i * 4;
+                        indices[indiceIndex+1] = i * 4 + 1;
+                        indices[indiceIndex+2] = i * 4 + 2;
+                        indiceIndex += 3;
+                    } else {
+                        indices[indiceIndex] = i * 4;
+                        indices[indiceIndex+1] = i * 4 + 1;
+                        indices[indiceIndex+2] = i * 4 + 2;
+                        indices[indiceIndex+3] = i * 4 + 3;
+                        indices[indiceIndex+4] = i * 4 + 2;
+                        indices[indiceIndex+5] = i * 4 + 1;
+                        indiceIndex += 6;
+                    }
                 }
-            }
-            bufferOffset = 0;
-            for(var i = 0; i < quads.length; ++i)
-            {
-                gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, bufferOffset);                   //cc.macro.VERTEX_ATTRIB_POSITION
-                gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12 + bufferOffset);           //cc.macro.VERTEX_ATTRIB_COLOR
-                gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16 + bufferOffset);                  //cc.macro.VERTEX_ATTRIB_TEX_COORDS
-                if(node._isTriangle) {
-                    gl.drawArrays(gl.TRIANGLES, 0, 3);
-                } else {
-                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-                }
-                bufferOffset = bufferOffset + quads[i].arrayBuffer.byteLength;
-            }
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices, gl.DYNAMIC_DRAW);
 
-            cc.g_NumberOfDraws += quads.length;
+            }
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.macro.VERTEX_ATTRIB_POSITION
+            gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.macro.VERTEX_ATTRIB_COLOR
+            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.macro.VERTEX_ATTRIB_TEX_COORDS
+
+            gl.drawElements(gl.TRIANGLES, (node._isTriangle ? 3 : 6) * quadsLength,gl.UNSIGNED_SHORT,0);
+
+
+            cc.g_NumberOfDraws += 1;
 
         }
 

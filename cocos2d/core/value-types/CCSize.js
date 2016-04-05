@@ -27,8 +27,18 @@ var ValueType = require('./CCValueType');
 var JS = require('../platform/js');
 
 /**
- * cc.Size is the class for size object, please do not use its constructor to create sizes, use {{#crossLink "cc/size:method"}}{{/crossLink}} alias function instead.
- * It will be deprecated soon, please use cc.Vec2 instead
+ * !#en
+ * cc.Size is the class for size object,<br/>
+ * please do not use its constructor to create sizes,<br/>
+ * use {{#crossLink "cc/size:method"}}{{/crossLink}} alias function instead.<br/>
+ * It will be deprecated soon, please use cc.Vec2 instead.
+ *
+ * !#zh
+ * cc.Size 是 size 对象的类。<br/>
+ * 请不要使用它的构造函数创建的 size，<br/>
+ * 使用 {{#crossLink "cc/size:method"}}{{/crossLink}} 别名函数。<br/>
+ * 它不久将被取消，请使用cc.Vec2代替。
+ *
  * @class Size
  */
 /**
@@ -49,7 +59,8 @@ JS.extend(Size, ValueType);
 require('../platform/CCClass').fastDefine('cc.Size', Size, ['width', 'height']);
 
 /**
- * return a Size object with width = 0 and height = 0.
+ * !#en return a Size object with width = 0 and height = 0.
+ * !#zh 返回一个宽度为 0 和高度为 0 的 Size 对象。
  * @property ZERO
  * @type {Size}
  * @default new Size(0, 0)
@@ -62,17 +73,27 @@ JS.get(Size, 'ZERO', function () {
 var proto = Size.prototype;
 
 /**
+ * !#en TODO
+ * !#zh 克隆 size 对象。
  * @method clone
  * @return {Size}
+ * @example
+ * var a = new cc.size(10, 10);
+ * a.clone();// return Size {width: 0, height: 0};
  */
 proto.clone = function () {
     return new Size(this.width, this.height);
 };
 
 /**
+ * !#en TODO
+ * !#zh 当前 Size 对象是否等于指定 Size 对象。
  * @method equals
  * @param {Size} other
  * @return {Boolean}
+ * @example
+ * var a = new cc.size(10, 10);
+ * a.equals(new cc.size(10, 10));// return true;
  */
 proto.equals = function (other) {
     return other &&
@@ -81,11 +102,22 @@ proto.equals = function (other) {
 };
 
 /**
+ * !#en TODO
+ * !#zh 线性插值。
  * @method lerp
  * @param {Rect} to
  * @param {Number} ratio - the interpolation coefficient.
  * @param {Size} [out] - optional, the receiving vector.
  * @return {Size}
+ * @example
+ * var a = new cc.size(10, 10);
+ * var b = new cc.rect(50, 50, 100, 100);
+ * update (dt) {
+ *    // method 1;
+ *    var c = a.lerp(b, dt * 0.1);
+ *    // method 2;
+ *    a.lerp(b, dt * 0.1, c);
+ * }
  */
 proto.lerp = function (to, ratio, out) {
     out = out || new Size();
@@ -97,19 +129,27 @@ proto.lerp = function (to, ratio, out) {
 };
 
 /**
+ * !#en TODO
+ * !#zh 转换为方便阅读的字符串。
  * @method toString
  * @return {String}
+ * @example
+ * var a = new cc.size(10, 10);
+ * a.toString();// return "(10.00, 10.00)";
  */
 proto.toString = function () {
     return '(' + this.width.toFixed(2) + ', ' + this.height.toFixed(2) + ')';
 };
 
 /**
- * Helper function that creates a cc.Size.
+ * !#en
+ * Helper function that creates a cc.Size.<br/>
  * Please use cc.p or cc.v2 instead, it will soon replace cc.Size.
- *
+ * !#zh
+ * 创建一个 cc.Size 对象的帮助函数。<br/>
+ * 注意：可以使用 cc.p 或者是 cc.v2 代替，它们将很快取代 cc.Size。
  * @method size
- * @param {Number|Size} w  - width or a size object
+ * @param {Number|Size} w - width or a size object
  * @param {Number} h - height
  * @return {Size}
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCSize/size.js}
@@ -119,11 +159,18 @@ cc.size = function (w, h) {
 };
 
 /**
- * Check whether a point's value equals to another.
+ * !#en Check whether a point's value equals to another.
+ * !#zh 检查 Size 对象是否等于另一个。
  * @method sizeEqualToSize
  * @param {Size} size1
  * @param {Size} size2
  * @return {Boolean}
+ * @example
+ * var a = new cc.size(10, 10);
+ * var b = new cc.size(10, 10);
+ * cc.sizeEqualToSize(a, b);// return true;
+ * var b = new cc.size(5, 10);
+ * cc.sizeEqualToSize(a, b);// return false;
  */
 cc.sizeEqualToSize = function (size1, size2) {
     return (size1 && size2 && (size1.width === size2.width) && (size1.height === size2.height));

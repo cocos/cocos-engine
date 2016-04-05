@@ -326,7 +326,6 @@ if (CC_DEV) {
         '_additionalTransformDirty',
         '_shaderProgram',
         'shaderProgram',
-        '_reorderChildDirty',
         '_normalizedPositionDirty',
         '_normalizedPosition',
         '_usingNormalizedPosition',
@@ -338,7 +337,6 @@ if (CC_DEV) {
         'setActionManager',
         'getScheduler',
         'setScheduler',
-        'sortAllChildren',
         'reorderChild',
         'draw',
         'transformAncestors',
@@ -459,6 +457,7 @@ if (CC_DEV) {
         updateWithSprite: 'spriteFrame',
         getSpriteFrame: 'spriteFrame',
         setSpriteFrame: 'spriteFrame',
+        useOriginalSize: 'sizeMode',
     });
 
     // Particle

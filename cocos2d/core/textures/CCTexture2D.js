@@ -152,6 +152,11 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * Init with HTML element.
      * @method initWithElement
      * @param {HTMLImageElement|HTMLCanvasElement} element
+     * @example
+     * var img = new Image();
+     * img.src = dataURL;
+     * texture.initWithElement(img);
+     * texture.handleLoadedTexture();
      */
     initWithElement: function (element) {
         if (!element)
