@@ -204,6 +204,12 @@ var AudioSource = cc.Class({
     play: function () {
         if ( this._clip ) {
             this.audio = audioEngine.playEffect(this._clip, this._loop);
+            if (this._mute) {
+                this.audio.setVolume(0);
+            }
+            else {
+                this.audio.setVolume(this._volume);
+            }
             // this.audio.play();
         }
     },
