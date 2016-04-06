@@ -182,7 +182,7 @@
             handle: function(options){
                 var frame = new ccs.TextureFrame();
                 var texture = options["value"];
-                if(texture != null) {
+                if(texture) {
                     var path = texture;
                     var spriteFrame = cc.spriteFrameCache.getSpriteFrame(path);
                     if(spriteFrame == null){

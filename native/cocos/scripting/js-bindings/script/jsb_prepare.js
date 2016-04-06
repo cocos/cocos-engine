@@ -120,9 +120,12 @@ cc.isArray = function(obj) {
  * @returns {boolean}
  */
 cc.isUndefined = function(obj) {
-    return typeof obj === 'undefined';
+    return obj === undefined;
 };
 
+cc.isValidValue = function(obj) {
+    return (obj !== undefined) && (obj !== null);
+};
 /**
  * Check the obj whether is object or not
  * @param {*} obj
