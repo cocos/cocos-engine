@@ -63,8 +63,19 @@ public:
         GAME_CONTROLLER,
         CUSTOM
     };
-
-    typedef std::string ListenerID;
+    
+    enum _TypeKey
+    {
+        TYPEKEY_UNKNOWN = -10,
+        TYPEKEY_TOUCH_ONE_BY_ONE,
+        TYPEKEY_ALL_AT_ONCE,
+        TYPEKEY_KEYBOARD,
+        TYPEKEY_MOUSE,
+        TYPEKEY_ACCELERATION,
+        TYPEKEY_FOCUS,
+        TYPEKEY_GAME_CONTROLLER,
+        TYPEKEY_CUSTOM = 0
+    };
 
 CC_CONSTRUCTOR_ACCESS:
     /**
@@ -77,8 +88,11 @@ CC_CONSTRUCTOR_ACCESS:
      * Initializes event with type and callback function
      * @js NA
      */
-    bool init(Type t, const ListenerID& listenerID, const std::function<void(Event*)>& callback);
+    bool init(Type t, const std::function<void(Event*)>& callback);
+    
 public:
+    static size_t getHashCode(const std::string& eventName);
+    
     /** Destructor.
      * @js NA
      */
@@ -109,9 +123,9 @@ public:
      * @return True if the listener is enabled.
      */
     inline bool isEnabled() const { return _isEnabled; };
-
 protected:
-
+    typedef long TypeKey;
+    
     /** Sets paused state for the listener
      *  The paused state is only used for scene graph priority listeners.
      *  `EventDispatcher::resumeAllEventListenersForTarget(node)` will set the paused state to `true`,
@@ -139,7 +153,7 @@ protected:
     /** Gets the listener ID of this listener
      *  When event is being dispatched, listener ID is used as key for searching listeners according to event type.
      */
-    inline const ListenerID& getListenerID() const { return _listenerID; };
+    inline TypeKey getTypeKey() const { return _typeKey; };
 
     /** Sets the fixed priority for this listener
      *  @note This method is only used for `fixed priority listeners`, it needs to access a non-zero value.
@@ -151,7 +165,7 @@ protected:
      *  @return 0 if it's a scene graph priority listener, non-zero for fixed priority listener
      */
     inline int getFixedPriority() const { return _fixedPriority; };
-
+    
     /** Sets the node associated with this listener */
     inline void setAssociatedNode(Node* node) { _node = node; };
 
@@ -166,7 +180,7 @@ protected:
     std::function<void(Event*)> _onEvent;   /// Event callback function
 
     Type _type;                             /// Event listener type
-    ListenerID _listenerID;                 /// Event listener ID
+    TypeKey _typeKey;                 /// Event type key
     bool _isRegistered;                     /// Whether the listener has been added to dispatcher.
 
     int   _fixedPriority;   // The higher the number, the higher the priority, 0 is for scene graph base priority.
