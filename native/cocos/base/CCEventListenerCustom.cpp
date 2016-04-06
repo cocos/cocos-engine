@@ -46,11 +46,12 @@ EventListenerCustom* EventListenerCustom::create(const std::string& eventName, c
     return ret;
 }
 
-bool EventListenerCustom::init(const ListenerID& listenerId, const std::function<void(EventCustom*)>& callback)
+bool EventListenerCustom::init(const std::string& eventName, const std::function<void(EventCustom*)>& callback)
 {
     bool ret = false;
 
     _onCustomEvent = callback;
+    _eventName = eventName;
 
     auto listener = [this](Event* event){
         if (_onCustomEvent != nullptr)
@@ -59,7 +60,7 @@ bool EventListenerCustom::init(const ListenerID& listenerId, const std::function
         }
     };
 
-    if (EventListener::init(EventListener::Type::CUSTOM, listenerId, listener))
+    if (EventListener::init(EventListener::Type::CUSTOM, listener))
     {
         ret = true;
     }
@@ -69,7 +70,7 @@ bool EventListenerCustom::init(const ListenerID& listenerId, const std::function
 EventListenerCustom* EventListenerCustom::clone()
 {
     EventListenerCustom* ret = new (std::nothrow) EventListenerCustom();
-    if (ret && ret->init(_listenerID, _onCustomEvent))
+    if (ret && ret->init(_eventName, _onCustomEvent))
     {
         ret->autorelease();
     }

@@ -45,8 +45,6 @@ namespace ui {
 class CC_DLL EventListenerFocus : public EventListener
 {
 public:
-    static const std::string LISTENER_ID;
-
     /** Create a focus event listener.
      *
      * @return An autoreleased EventListenerFocus object.

@@ -241,22 +241,22 @@ protected:
     void forceAddEventListener(EventListener* listener);
 
     /** Gets event the listener list for the event listener type. */
-    EventListenerVector* getListeners(const EventListener::ListenerID& listenerID);
+    EventListenerVector* getListeners(const EventListener::TypeKey listenerID) const;
 
     /** Update dirty flag */
     void updateDirtyFlagForSceneGraph();
 
     /** Removes all listeners with the same event listener ID */
-    void removeEventListenersForListenerID(const EventListener::ListenerID& listenerID);
+    void removeEventListenersForTypeKey(const EventListener::TypeKey listenerID);
 
     /** Sort event listener */
-    void sortEventListeners(const EventListener::ListenerID& listenerID);
+    void sortEventListeners(const EventListener::TypeKey listenerID);
 
     /** Sorts the listeners of specified type by scene graph priority */
-    void sortEventListenersOfSceneGraphPriority(const EventListener::ListenerID& listenerID, Node* rootNode);
+    void sortEventListenersOfSceneGraphPriority(const EventListener::TypeKey listenerID, Node* rootNode);
 
     /** Sorts the listeners of specified type by fixed priority */
-    void sortEventListenersOfFixedPriority(const EventListener::ListenerID& listenerID);
+    void sortEventListenersOfFixedPriority(const EventListener::TypeKey listenerID);
 
     /** Updates all listeners
      *  1) Removes all listener items that have been marked as 'removed' when dispatching event.
@@ -286,7 +286,7 @@ protected:
     };
 
     /** Sets the dirty flag for a specified listener ID */
-    void setDirty(const EventListener::ListenerID& listenerID, DirtyFlag flag);
+    void setDirty(const EventListener::TypeKey listenerID, DirtyFlag flag);
 
     /** Walks though scene graph to get the draw order for each node, it's called before sorting event listener with scene graph priority */
     void visitTarget(Node* node, bool isRootNode);
@@ -295,10 +295,10 @@ protected:
     void cleanToRemovedListeners();
 
     /** Listeners map */
-    std::unordered_map<EventListener::ListenerID, EventListenerVector*> _listenerMap;
+    std::unordered_map<EventListener::TypeKey, EventListenerVector*> _listenerMap;
 
     /** The map of dirty flag */
-    std::unordered_map<EventListener::ListenerID, DirtyFlag> _priorityDirtyFlagMap;
+    std::unordered_map<EventListener::TypeKey, DirtyFlag> _priorityDirtyFlagMap;
 
     /** The map of node and event listeners */
     std::unordered_map<Node*, std::vector<EventListener*>*> _nodeListenersMap;
@@ -326,7 +326,7 @@ protected:
 
     int _nodePriorityIndex;
 
-    std::set<std::string> _internalCustomListenerIDs;
+    std::set<EventListener::TypeKey> _internalCustomTypeKeys;
 };
 
 

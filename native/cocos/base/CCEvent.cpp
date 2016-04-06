@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include "base/CCEvent.h"
+#include "base/CCEventListener.h"
 
 NS_CC_BEGIN
 
@@ -31,6 +32,27 @@ Event::Event(Type type)
 , _isStopped(false)
 , _currentTarget(nullptr)
 {
+    switch (type)
+    {
+        case Event::Type::ACCELERATION:
+            _typeKey = EventListener::TYPEKEY_ACCELERATION;
+            break;
+        case Event::Type::KEYBOARD:
+            _typeKey = EventListener::TYPEKEY_KEYBOARD;
+            break;
+        case Event::Type::MOUSE:
+            _typeKey = EventListener::TYPEKEY_MOUSE;
+            break;
+        case Event::Type::FOCUS:
+            _typeKey = EventListener::TYPEKEY_FOCUS;
+            break;
+        case Event::Type::GAME_CONTROLLER:
+            _typeKey = EventListener::TYPEKEY_GAME_CONTROLLER;
+            break;
+        default:
+            _typeKey = EventListener::TYPEKEY_UNKNOWN;
+            break;
+    }
 }
 
 Event::~Event()
