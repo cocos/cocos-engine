@@ -206,9 +206,9 @@ _p._ctor = function(value, callback, target) {
 
 _p = cc.MenuItemSprite.prototype;
 _p._ctor = function(normalSprite, selectedSprite, three, four, five) {
-    if (selectedSprite) {
+    if (normalSprite) {
         normalSprite = normalSprite;
-        selectedSprite = selectedSprite;
+        selectedSprite = selectedSprite || null;
         var disabledSprite, target, callback;
         if (five) {
             disabledSprite = three;
