@@ -439,7 +439,7 @@ bool Repeat::initWithAction(FiniteTimeAction *action, unsigned int times)
             _times = times;
             _innerAction = action;
             action->retain();
-            
+
             _actionInstant = dynamic_cast<ActionInstant*>(action) ? true : false;
             //an instant action needs to be executed one time less in the update method since it uses startWithTarget to execute the action
             if (_actionInstant)
@@ -447,7 +447,7 @@ bool Repeat::initWithAction(FiniteTimeAction *action, unsigned int times)
                 _times -=1;
             }
             _total = 0;
-            
+
             return true;
         }
     }

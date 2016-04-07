@@ -281,7 +281,7 @@ namespace cocos2d { namespace network {
     for (NSURLSessionDownloadTask *task in enumeratorKey)
     {
         DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:task];
-        
+
         // no resume support for a data task
         std::string storagePath = [wrapper get]->storagePath;
         if(storagePath.length() == 0) {
@@ -321,7 +321,7 @@ namespace cocos2d { namespace network {
         }
     }
     _outer = nullptr;
-    
+
     [self.downloadSession invalidateAndCancel];
     [self release];
 }
@@ -386,7 +386,7 @@ namespace cocos2d { namespace network {
 
     // clean wrapper C++ object
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:task];
-    
+
     if(_outer)
     {
         if(error)
@@ -408,7 +408,7 @@ namespace cocos2d { namespace network {
             char buf[buflen];
             [wrapper transferDataToBuffer:buf lengthOfBuffer:buflen];
             std::vector<unsigned char> data(buf, buf + buflen);
-            
+
             _outer->onTaskFinish(*[wrapper get],
                                  cocos2d::network::DownloadTask::ERROR_NO_ERROR,
                                  0,
@@ -418,14 +418,14 @@ namespace cocos2d { namespace network {
         else
         {
             NSInteger statusCode = ((NSHTTPURLResponse*)task.response).statusCode;
-            
+
             // Check for error status code
             if (statusCode >= 400)
             {
                 std::vector<unsigned char> buf; // just a placeholder
                 const char *orignalURL = [task.originalRequest.URL.absoluteString cStringUsingEncoding:NSUTF8StringEncoding];
                 std::string errorMessage = cocos2d::StringUtils::format("Downloader: Failed to download %s with status code (%d)", orignalURL, (int)statusCode);
-                
+
                 _outer->onTaskFinish(*[wrapper get],
                                      cocos2d::network::DownloadTask::ERROR_IMPL_INTERNAL,
                                      0,
@@ -528,7 +528,7 @@ namespace cocos2d { namespace network {
     {
         return;
     }
-    
+
     // On iOS 9 a response with status code 4xx(Client Error) or 5xx(Server Error)
     // might end up calling this delegate method, saving the error message to the storage path
     // and treating this download task as a successful one, so we need to check the status code here
@@ -537,7 +537,7 @@ namespace cocos2d { namespace network {
     {
         return;
     }
-    
+
     DownloadTaskWrapper *wrapper = [self.taskDict objectForKey:downloadTask];
     const char * storagePath = [wrapper get]->storagePath.c_str();
     NSString *destPath = [NSString stringWithUTF8String:storagePath];

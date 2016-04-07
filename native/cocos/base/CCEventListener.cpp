@@ -72,7 +72,7 @@ bool EventListener::init(Type t, const std::function<void(Event*)>& callback)
         default:
             break;
     }
-    
+
     _isRegistered = false;
     _paused = true;
     _isEnabled = true;

@@ -360,7 +360,7 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
 
         CGContextBeginTransparencyLayerWithRect(context, rect, NULL);
 
-        
+
         NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
         paragraphStyle.alignment = nsAlign;
         paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;

@@ -63,7 +63,7 @@ public:
         GAME_CONTROLLER,
         CUSTOM
     };
-    
+
     enum _TypeKey
     {
         TYPEKEY_UNKNOWN = -10,
@@ -89,10 +89,10 @@ CC_CONSTRUCTOR_ACCESS:
      * @js NA
      */
     bool init(Type t, const std::function<void(Event*)>& callback);
-    
+
 public:
     static size_t getHashCode(const std::string& eventName);
-    
+
     /** Destructor.
      * @js NA
      */
@@ -125,7 +125,7 @@ public:
     inline bool isEnabled() const { return _isEnabled; };
 protected:
     typedef long TypeKey;
-    
+
     /** Sets paused state for the listener
      *  The paused state is only used for scene graph priority listeners.
      *  `EventDispatcher::resumeAllEventListenersForTarget(node)` will set the paused state to `true`,
@@ -165,7 +165,7 @@ protected:
      *  @return 0 if it's a scene graph priority listener, non-zero for fixed priority listener
      */
     inline int getFixedPriority() const { return _fixedPriority; };
-    
+
     /** Sets the node associated with this listener */
     inline void setAssociatedNode(Node* node) { _node = node; };
 
