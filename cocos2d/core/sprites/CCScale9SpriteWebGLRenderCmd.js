@@ -102,15 +102,28 @@ if (_ccsg.Node.WebGLRenderCmd) {
 
     };
 
+    proto.visit = function (parent) {
+        _ccsg.Node.WebGLRenderCmd.prototype.visit.call(this, parent);
+        this.transform();
+    };
+
+    proto._syncDisplayOpacity = function (parentOpacity) {
+        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayOpacity.call(this, parentOpacity);
+        this._colorOpacityDirty = true;
+    };
+
     proto._updateDisplayOpacity = function(parentOpacity){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-        var node = this._node;
+        this._colorOpacityDirty = true;
+    };
+
+    proto._syncDisplayColor = function (parentColor) {
+        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayColor.call(this, parentColor);
         this._colorOpacityDirty = true;
     };
 
     proto._updateDisplayColor = function(parentColor){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-        var node = this._node;
         this._colorOpacityDirty = true;
     };
 
