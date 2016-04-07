@@ -30,7 +30,6 @@ var StudioComponent = cc.Class({
     extends: cc.Component,
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.others/Cocos Studio',
         inspector: 'app://engine/extensions/cocostudio/editor/studio-component.html'
     },
 
