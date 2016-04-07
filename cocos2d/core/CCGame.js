@@ -25,7 +25,7 @@
 
 var EventTarget = require('./event/event-target');
 var View;
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     View = require('./platform/CCView');
 }
 
