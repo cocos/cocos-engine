@@ -209,18 +209,6 @@ typedef struct
 
 } tImageInfo;
 
-static bool s_isIOS7OrHigher = false;
-
-static inline void lazyCheckIOS7()
-{
-    static bool isInited = false;
-    if (!isInited)
-    {
-        s_isIOS7OrHigher = [[[UIDevice currentDevice] systemVersion] compare:@"7.0" options:NSNumericSearch] != NSOrderedAscending;
-        isInited = true;
-    }
-}
-
 static CGSize _calculateStringSize(NSString *str, id font, CGSize *constrainSize)
 {
     CGSize textRect = CGSizeZero;
@@ -230,13 +218,8 @@ static CGSize _calculateStringSize(NSString *str, id font, CGSize *constrainSize
     : 0x7fffffff;
 
     CGSize dim;
-    if(s_isIOS7OrHigher){
-        NSDictionary *attibutes = @{NSFontAttributeName:font};
-        dim = [str boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin) attributes:attibutes context:nil].size;
-    }
-    else {
-        dim = [str sizeWithFont:font constrainedToSize:textRect];
-    }
+    NSDictionary *attibutes = @{NSFontAttributeName:font};
+    dim = [str boundingRectWithSize:textRect options:(NSStringDrawingOptions)(NSStringDrawingUsesLineFragmentOrigin) attributes:attibutes context:nil].size;
 
     dim.width = ceilf(dim.width);
     dim.height = ceilf(dim.height);
@@ -251,9 +234,6 @@ static CGSize _calculateStringSize(NSString *str, id font, CGSize *constrainSize
 
 static bool _initWithString(const char * text, cocos2d::Device::TextAlign align, const char * fontName, int size, tImageInfo* info)
 {
-    // lazy check whether it is iOS7 device
-    lazyCheckIOS7();
-
     bool bRet = false;
     do
     {
@@ -380,46 +360,42 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
 
         CGContextBeginTransparencyLayerWithRect(context, rect, NULL);
 
+        
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        paragraphStyle.alignment = nsAlign;
+        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
         if ( info->hasStroke )
         {
             CGContextSetTextDrawingMode(context, kCGTextStroke);
 
-            if(s_isIOS7OrHigher)
-            {
-                NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
-                paragraphStyle.alignment = nsAlign;
-                paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-                [str drawInRect:rect withAttributes:@{
-                                                      NSFontAttributeName: font,
-                                                      NSStrokeWidthAttributeName: [NSNumber numberWithFloat: info->strokeSize / size * 100 ],
-                                                      NSForegroundColorAttributeName:[UIColor colorWithRed:info->tintColorR
-                                                                                                     green:info->tintColorG
-                                                                                                      blue:info->tintColorB
-                                                                                                     alpha:info->tintColorA],
-                                                      NSParagraphStyleAttributeName:paragraphStyle,
-                                                      NSStrokeColorAttributeName: [UIColor colorWithRed:info->strokeColorR
-                                                                                                  green:info->strokeColorG
-                                                                                                   blue:info->strokeColorB
-                                                                                                  alpha:info->strokeColorA]
-                                                      }
-                 ];
-
-                [paragraphStyle release];
-            }
-            else
-            {
-                CGContextSetRGBStrokeColor(context, info->strokeColorR, info->strokeColorG, info->strokeColorB, info->strokeColorA);
-                CGContextSetLineWidth(context, info->strokeSize);
-
-                //original code that was not working in iOS 7
-                [str drawInRect: rect withFont:font lineBreakMode:NSLineBreakByWordWrapping alignment:nsAlign];
-            }
+            [str drawInRect:rect withAttributes:@{
+                                                  NSFontAttributeName: font,
+                                                  NSStrokeWidthAttributeName: [NSNumber numberWithFloat: info->strokeSize / size * 100 ],
+                                                  NSForegroundColorAttributeName:[UIColor colorWithRed:info->tintColorR
+                                                                                                 green:info->tintColorG
+                                                                                                  blue:info->tintColorB
+                                                                                                 alpha:info->tintColorA],
+                                                  NSParagraphStyleAttributeName:paragraphStyle,
+                                                  NSStrokeColorAttributeName: [UIColor colorWithRed:info->strokeColorR
+                                                                                              green:info->strokeColorG
+                                                                                               blue:info->strokeColorB
+                                                                                              alpha:info->strokeColorA]
+                                                  }
+             ];
         }
 
         CGContextSetTextDrawingMode(context, kCGTextFill);
-
         // actually draw the text in the context
-        [str drawInRect: rect withFont:font lineBreakMode:NSLineBreakByWordWrapping alignment:nsAlign];
+        [str drawInRect:rect withAttributes:@{
+                                              NSFontAttributeName: font,
+                                              NSForegroundColorAttributeName:[UIColor colorWithRed:info->tintColorR
+                                                                                             green:info->tintColorG
+                                                                                              blue:info->tintColorB
+                                                                                             alpha:info->tintColorA],
+                                              NSParagraphStyleAttributeName:paragraphStyle
+                                              }
+         ];
+        [paragraphStyle release];
 
         CGContextEndTransparencyLayer(context);
 

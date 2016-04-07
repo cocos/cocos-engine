@@ -54,21 +54,6 @@ static ALCcontext *s_ALContext = nullptr;
 
 @implementation AudioEngineSessionHandler
 
-void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruption_state)
-{
-    if (kAudioSessionBeginInterruption == interruption_state)
-    {
-      alcMakeContextCurrent(nullptr);
-    }
-    else if (kAudioSessionEndInterruption == interruption_state)
-    {
-      OSStatus result = AudioSessionSetActive(true);
-      if (result) NSLog(@"Error setting audio session active! %d\n", (int)result);
-
-      alcMakeContextCurrent(s_ALContext);
-    }
-}
-
 -(id) init
 {
     if (self = [super init])
@@ -78,7 +63,7 @@ void AudioEngineInterruptionListenerCallback(void* user_data, UInt32 interruptio
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
       }
       else {
-        AudioSessionInitialize(NULL, NULL, AudioEngineInterruptionListenerCallback, self);
+          CCLOG("NOT support lower system version");
       }
     }
     return self;
