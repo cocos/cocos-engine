@@ -1297,7 +1297,9 @@ void EventDispatcher::removeEventListenersForTypeKey(const EventListener::TypeKe
 
         // Remove the dirty flag according the 'listenerID'.
         // No need to check whether the dispatcher is dispatching event.
-        _priorityDirtyFlagMap.erase(listenerID);
+        if (_priorityDirtyFlagMap.find(listenerID) != _priorityDirtyFlagMap.end()) {
+            _priorityDirtyFlagMap.erase(listenerID);
+        }
 
         if (_inDispatch == 0)
         {
