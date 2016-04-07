@@ -66,9 +66,9 @@ public:
     // ------------------------------------------
 
     /** Iterator, can be used to loop the Map. */
-    typedef typename RefMap::iterator iterator;
+    using iterator = typename RefMap::iterator;
     /** Const iterator, can be used to loop the Map. */
-    typedef typename RefMap::const_iterator const_iterator;
+    using const_iterator = typename RefMap::const_iterator;
 
     /** Return iterator to beginning. */
     iterator begin() { return _data.begin(); }

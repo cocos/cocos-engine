@@ -36,7 +36,8 @@
 
 #define PCMDATA_CACHEMAXSIZE 1048576
 
-typedef ALvoid AL_APIENTRY	(*alBufferDataStaticProcPtr) (const ALint bid, ALenum format, ALvoid* data, ALsizei size, ALsizei freq);
+using alBufferDataStaticProcPtr = ALvoid AL_APIENTRY (*)(const ALint bid, ALenum format, ALvoid* data, ALsizei size, ALsizei freq);
+
 static ALvoid alBufferDataStaticProc(const ALint bid, ALenum format, ALvoid* data, ALsizei size, ALsizei freq)
 {
 	static alBufferDataStaticProcPtr proc = NULL;

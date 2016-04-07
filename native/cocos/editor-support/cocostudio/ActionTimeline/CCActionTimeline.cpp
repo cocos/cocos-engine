@@ -231,8 +231,7 @@ void ActionTimeline::step(float delta)
     }
 }
 
-typedef std::function<void(Node*)> tCallBack;
-void foreachNodeDescendant(Node* parent, tCallBack callback)
+static void foreachNodeDescendant(Node* parent, std::function<void(Node*)> callback)
 {
     callback(parent);
 
