@@ -1001,7 +1001,7 @@ void ParticleSystem::update(float dt)
     CC_PROFILER_STOP_CATEGORY(kProfilerCategoryParticles , "CCParticleSystem - update");
 }
 
-void ParticleSystem::updateWithNoTime(void)
+void ParticleSystem::updateWithNoTime()
 {
     this->update(0.0f);
 }
@@ -1290,7 +1290,7 @@ void ParticleSystem::setAutoRemoveOnFinish(bool var)
 
 // ParticleSystem - methods for batchNode rendering
 
-ParticleBatchNode* ParticleSystem::getBatchNode(void) const
+ParticleBatchNode* ParticleSystem::getBatchNode() const
 {
     return _batchNode;
 }

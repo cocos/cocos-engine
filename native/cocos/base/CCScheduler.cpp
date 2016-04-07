@@ -243,7 +243,7 @@ const int Scheduler::PRIORITY_SYSTEM = INT_MIN;
 // Minimum priority level for user scheduling.
 const int Scheduler::PRIORITY_NON_SYSTEM_MIN = PRIORITY_SYSTEM + 1;
 
-Scheduler::Scheduler(void)
+Scheduler::Scheduler()
 : _timeScale(1.0f)
 , _updatesNegList(nullptr)
 , _updates0List(nullptr)
@@ -261,7 +261,7 @@ Scheduler::Scheduler(void)
     _functionsToPerform.reserve(30);
 }
 
-Scheduler::~Scheduler(void)
+Scheduler::~Scheduler()
 {
     unscheduleAll();
 }
@@ -579,7 +579,7 @@ void Scheduler::unscheduleUpdate(void *target)
     }
 }
 
-void Scheduler::unscheduleAll(void)
+void Scheduler::unscheduleAll()
 {
     unscheduleAllWithMinPriority(PRIORITY_SYSTEM);
 }

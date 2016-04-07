@@ -79,7 +79,7 @@ NS_CC_BEGIN
 // FIXME: it should be a Director ivar. Move it there once support for multiple directors is added
 
 #define kDefaultFPS        60  // 60 frames per second
-extern const char* cocos2dVersion(void);
+extern const char* cocos2dVersion();
 
 Director* Director::DirectorInstance = nullptr;
 
@@ -107,7 +107,7 @@ Director::Director()
 {
 }
 
-bool Director::init(void)
+bool Director::init()
 {
     setDefaultValues();
 
@@ -172,7 +172,7 @@ bool Director::init(void)
     return true;
 }
 
-Director::~Director(void)
+Director::~Director()
 {
     CCLOGINFO("deallocing Director: %p", this);
 
@@ -638,7 +638,7 @@ void Director::setProjection(Projection projection)
     _eventDispatcher->dispatchEvent(_eventProjectionChanged);
 }
 
-void Director::purgeCachedData(void)
+void Director::purgeCachedData()
 {
     FontFNT::purgeCachedData();
     FontAtlasCache::purgeCachedData();
@@ -655,7 +655,7 @@ void Director::purgeCachedData(void)
     FileUtils::getInstance()->purgeCachedEntries();
 }
 
-float Director::getZEye(void) const
+float Director::getZEye() const
 {
     return (_winSizeInPoints.height / 1.1566f);
 }
@@ -743,7 +743,7 @@ Vec2 Director::convertToUI(const Vec2& glPoint)
     return Vec2(glSize.width*(clipCoord.x*0.5 + 0.5) * factor, glSize.height*(-clipCoord.y*0.5 + 0.5) * factor);
 }
 
-const Size& Director::getWinSize(void) const
+const Size& Director::getWinSize() const
 {
     return _winSizeInPoints;
 }
@@ -829,7 +829,7 @@ void Director::pushScene(Scene *scene)
     _nextScene = scene;
 }
 
-void Director::popScene(void)
+void Director::popScene()
 {
     CCASSERT(_runningScene != nullptr, "running scene should not null");
 
@@ -847,7 +847,7 @@ void Director::popScene(void)
     }
 }
 
-void Director::popToRootScene(void)
+void Director::popToRootScene()
 {
     popToSceneStackLevel(1);
 }

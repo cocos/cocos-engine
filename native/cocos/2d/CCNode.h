@@ -365,7 +365,7 @@ public:
      *
      * @return The x coordinate of the node.
      */
-    virtual float getPositionX(void) const;
+    virtual float getPositionX() const;
     /** Sets the y coordinate of the node in its parent's coordinate system.
      *
      * @param y The y coordinate of the node.
@@ -375,7 +375,7 @@ public:
      *
      * @return The y coordinate of the node.
      */
-    virtual float getPositionY(void) const;
+    virtual float getPositionY() const;
 
     /**
      * Sets the 'z' coordinate in the position. It is the OpenGL Z vertex value.
@@ -1243,7 +1243,7 @@ public:
      * Only one "update" method could be scheduled per node.
      * @lua NA
      */
-    void scheduleUpdate(void);
+    void scheduleUpdate();
 
     /**
      * Schedules the "update" method with a custom priority.
@@ -1261,7 +1261,7 @@ public:
      * Unschedules the "update" method.
      * @see scheduleUpdate();
      */
-    void unscheduleUpdate(void);
+    void unscheduleUpdate();
 
     /**
      * Schedules a custom selector.
@@ -1380,12 +1380,12 @@ public:
      * Resumes all scheduled selectors, actions and event listeners.
      * This method is called internally by onEnter.
      */
-    virtual void resume(void);
+    virtual void resume();
     /**
      * Pauses all scheduled selectors, actions and event listeners.
      * This method is called internally by onExit.
      */
-    virtual void pause(void);
+    virtual void pause();
 
     /**
      * Update method will be called automatically every frame if "scheduleUpdate" is called, and the node is "live".
@@ -1621,7 +1621,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     /// lazy allocs
-    void childrenAlloc(void);
+    void childrenAlloc();
 
     /// helper that reorder a child
     void insertChild(Node* child, int z);

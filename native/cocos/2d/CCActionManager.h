@@ -61,13 +61,13 @@ public:
     /**
      * @js ctor
      */
-    ActionManager(void);
+    ActionManager();
 
     /**
      * @js NA
      * @lua NA
      */
-    ~ActionManager(void);
+    ~ActionManager();
 
     // actions
 

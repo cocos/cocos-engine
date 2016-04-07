@@ -137,7 +137,7 @@ void blendFunc(GLenum sfactor, GLenum dfactor)
 #endif // CC_ENABLE_GL_STATE_CACHE
 }
 
-void blendResetToCache(void)
+void blendResetToCache()
 {
     glBlendEquation(GL_FUNC_ADD);
 #if CC_ENABLE_GL_STATE_CACHE

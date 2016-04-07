@@ -52,7 +52,7 @@ DecorativeDisplay::DecorativeDisplay()
 }
 
 
-DecorativeDisplay::~DecorativeDisplay(void)
+DecorativeDisplay::~DecorativeDisplay()
 {
     CC_SAFE_RELEASE_NULL(_displayData);
     CC_SAFE_RELEASE_NULL(_display);

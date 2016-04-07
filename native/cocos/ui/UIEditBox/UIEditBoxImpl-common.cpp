@@ -215,7 +215,7 @@ void EditBoxImplCommon::setText(const char* text)
     refreshInactiveText();
 }
 
-const char*  EditBoxImplCommon::getText(void)
+const char*  EditBoxImplCommon::getText()
 {
     return _text.c_str();
 }
@@ -265,7 +265,7 @@ void EditBoxImplCommon::draw(Renderer *renderer, const Mat4 &transform, uint32_t
     }
 }
 
-void EditBoxImplCommon::onEnter(void)
+void EditBoxImplCommon::onEnter()
 {
     const char* pText = getText();
     if (pText) {

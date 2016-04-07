@@ -107,7 +107,7 @@ public:
      *
      * @return Ref* always return nullptr.
      */
-    Ref* autorelease(void)
+    Ref* autorelease()
     {
         CCASSERT(false, "HttpResponse is used between network thread and ui thread \
                  therefore, autorelease is forbidden here");

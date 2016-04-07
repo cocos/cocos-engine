@@ -69,7 +69,7 @@
 #include "base/ccUtils.h"
 NS_CC_BEGIN
 
-extern const char* cocos2dVersion(void);
+extern const char* cocos2dVersion();
 //TODO: these general utils should be in a separate class
 //
 // Trimming functions were taken from: http://stackoverflow.com/a/217605

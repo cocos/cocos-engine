@@ -581,7 +581,7 @@ MenuItemImage* MenuItemImage::create()
     return nullptr;
 }
 
-bool MenuItemImage::init(void)
+bool MenuItemImage::init()
 {
     return initWithNormalImage("", "", "", (const ccMenuCallback&)nullptr);
 }

@@ -568,7 +568,7 @@ TurnOffTiles* TurnOffTiles::clone() const
     return TurnOffTiles::create(_duration, _gridSize, _seed);
 }
 
-TurnOffTiles::~TurnOffTiles(void)
+TurnOffTiles::~TurnOffTiles()
 {
     CC_SAFE_DELETE_ARRAY(_tilesOrder);
 }

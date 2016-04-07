@@ -27,21 +27,21 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-Lock::Lock(void)
+Lock::Lock()
 {
 }
 
-Lock::~Lock(void)
-{
-
-}
-
-void Lock::lock(void)
+Lock::~Lock()
 {
 
 }
 
-void Lock::unlock(void)
+void Lock::lock()
+{
+
+}
+
+void Lock::unlock()
 {
 
 }

@@ -152,7 +152,7 @@ public:
 private:
     HttpClient();
     virtual ~HttpClient();
-    bool init(void);
+    bool init();
 
     /**
      * Init pthread mutex, semaphore, and create new thread for http requests

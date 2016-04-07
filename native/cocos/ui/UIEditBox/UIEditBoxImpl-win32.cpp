@@ -789,7 +789,7 @@ void EditBoxImplWin::setText(const char* pText)
     }
 }
 
-const char*  EditBoxImplWin::getText(void)
+const char*  EditBoxImplWin::getText()
 {
     return _text.c_str();
 }
@@ -923,7 +923,7 @@ void EditBoxImplWin::closeKeyboard()
     }
 }
 
-void EditBoxImplWin::onEnter(void)
+void EditBoxImplWin::onEnter()
 {
 
 }

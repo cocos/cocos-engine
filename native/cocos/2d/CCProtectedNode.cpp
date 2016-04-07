@@ -43,7 +43,7 @@ ProtectedNode::~ProtectedNode()
     CCLOGINFO( "deallocing ProtectedNode: %p - tag: %i", this, _tag );
 }
 
-ProtectedNode * ProtectedNode::create(void)
+ProtectedNode * ProtectedNode::create()
 {
     ProtectedNode * ret = new (std::nothrow) ProtectedNode();
     if (ret && ret->init())

@@ -62,7 +62,7 @@ bool ActionEase::initWithAction(ActionInterval *action)
     return false;
 }
 
-ActionEase::~ActionEase(void)
+ActionEase::~ActionEase()
 {
     CC_SAFE_RELEASE(_inner);
 }
@@ -79,7 +79,7 @@ void ActionEase::startWithTarget(Node *target)
     }
 }
 
-void ActionEase::stop(void)
+void ActionEase::stop()
 {
     if (_inner) {
         _inner->stop();
@@ -418,7 +418,7 @@ void EaseSineOut::update(float time)
     _inner->update(tweenfunc::sineEaseOut(time));
 }
 
-ActionEase* EaseSineOut::reverse(void) const
+ActionEase* EaseSineOut::reverse() const
 {
     return EaseSineIn::create(_inner->reverse());
 }

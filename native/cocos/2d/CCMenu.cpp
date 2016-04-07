@@ -341,7 +341,7 @@ void Menu::alignItemsVerticallyWithPadding(float padding)
     }
 }
 
-void Menu::alignItemsHorizontally(void)
+void Menu::alignItemsHorizontally()
 {
     this->alignItemsHorizontallyWithPadding(kDefaultPadding);
 }
