@@ -37,7 +37,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/tilemap/CCTiledLayer');
 }
 
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./extensions/cocostudio/CCStudioComponent');
 }
 
