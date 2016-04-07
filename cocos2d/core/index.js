@@ -26,7 +26,7 @@
 require('./platform');
 require('./assets');
 
-if (!CC_EDITOR || !Editor.isCoreLevel) {
+if (!CC_EDITOR || !Editor.isMainProcess) {
     if (!CC_JSB) {
         require('./sprites/CCSpriteFrameCache');
     }
