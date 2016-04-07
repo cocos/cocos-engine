@@ -30,7 +30,8 @@ if (!(CC_EDITOR && Editor.isCoreLevel)) {
 }
 
 /**
- * An object to boot the game.
+ * !#en An object to boot the game.
+ * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  * @class Game
  */
 var game = /** @lends cc.game# */{
@@ -88,64 +89,96 @@ var game = /** @lends cc.game# */{
     _sceneInfos: [],
 
     /**
-     * The outer frame of the game canvas, parent of cc.container.
+     * !#en The outer frame of the game canvas, parent of cc.container.
+     * !#zh 游戏画布的外框，cc.container 的父类。
      * @property frame
      * @type {Object}
      */
     frame: null,
     /**
-     * The container of game canvas, equals to cc.container.
+     * !#en The container of game canvas, equals to cc.container.
+     * !#zh 游戏画布的容器。
      * @property container
      * @type {Object}
      */
     container: null,
     /**
-     * The canvas of the game, equals to cc._canvas.
+     * !#en The canvas of the game, equals to cc._canvas.
+     * !#zh 游戏的画布。
      * @property canvas
      * @type {Object}
      */
     canvas: null,
 
     /**
-     * The current game configuration, including:
-     * 1. debugMode
-     *      "debugMode" possible values :
-     *      0 - No message will be printed.
-     *      1 - cc.error, cc.assert, cc.warn, cc.log will print in console.
-     *      2 - cc.error, cc.assert, cc.warn will print in console.
-     *      3 - cc.error, cc.assert will print in console.
-     *      4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.
-     *      5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.
-     *      6 - cc.error, cc.assert will print on canvas, available only on web.
-     * 2. showFPS
-     *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
-     * 3. frameRate
-     *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
-     * 4. id
-     *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.
-     * 5. renderMode
-     *      "renderMode" sets the renderer type, only useful on web :
-     *      0 - Automatically chosen by engine
-     *      1 - Forced to use canvas renderer
-     *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers
-     * 6. scenes
-     *      "scenes" include available scenes in the current bundle.
-     *
-     * Please DO NOT modify this object directly, it won't have any effect.
+     * !#en
+     * The current game configuration, including:<br/>
+     * 1. debugMode<br/>
+     *      "debugMode" possible values :<br/>
+     *      0 - No message will be printed.                                                      <br/>
+     *      1 - cc.error, cc.assert, cc.warn, cc.log will print in console.                      <br/>
+     *      2 - cc.error, cc.assert, cc.warn will print in console.                              <br/>
+     *      3 - cc.error, cc.assert will print in console.                                       <br/>
+     *      4 - cc.error, cc.assert, cc.warn, cc.log will print on canvas, available only on web.<br/>
+     *      5 - cc.error, cc.assert, cc.warn will print on canvas, available only on web.        <br/>
+     *      6 - cc.error, cc.assert will print on canvas, available only on web.                 <br/>
+     * 2. showFPS<br/>
+     *      Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.<br/>
+     * 3. frameRate<br/>
+     *      "frameRate" set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.<br/>
+     * 4. id<br/>
+     *      "gameCanvas" sets the id of your canvas element on the web page, it's useful only on web.<br/>
+     * 5. renderMode<br/>
+     *      "renderMode" sets the renderer type, only useful on web :<br/>
+     *      0 - Automatically chosen by engine<br/>
+     *      1 - Forced to use canvas renderer<br/>
+     *      2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers<br/>
+     * 6. scenes<br/>
+     *      "scenes" include available scenes in the current bundle.<br/>
+     *<br/>
+     * Please DO NOT modify this object directly, it won't have any effect.<br/>
+     * !#zh
+     * 当前的游戏配置，包括：                                                                  <br/>
+     * 1. debugMode（debug 模式，但是在浏览器中这个选项会被忽略）                                <br/>
+     *      "debugMode" 各种设置选项的意义。                                                   <br/>
+     *          0 - 没有消息被打印出来。                                                       <br/>
+     *          1 - cc.error，cc.assert，cc.warn，cc.log 将打印在 console 中。                  <br/>
+     *          2 - cc.error，cc.assert，cc.warn 将打印在 console 中。                          <br/>
+     *          3 - cc.error，cc.assert 将打印在 console 中。                                   <br/>
+     *          4 - cc.error，cc.assert，cc.warn，cc.log 将打印在 canvas 中（仅适用于 web 端）。 <br/>
+     *          5 - cc.error，cc.assert，cc.warn 将打印在 canvas 中（仅适用于 web 端）。         <br/>
+     *          6 - cc.error，cc.assert 将打印在 canvas 中（仅适用于 web 端）。                  <br/>
+     * 2. showFPS（显示 FPS）                                                            <br/>
+     *      当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。              <br/>
+     * 3. frameRate (帧率)                                                              <br/>
+     *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。      <br/>
+     * 4. id                                                                            <br/>
+     *      "gameCanvas" Web 页面上的 Canvas Element ID，仅适用于 web 端。                         <br/>
+     * 5. renderMode（渲染模式）                                                         <br/>
+     *      “renderMode” 设置渲染器类型，仅适用于 web 端：                              <br/>
+     *          0 - 通过引擎自动选择。                                                     <br/>
+     *          1 - 强制使用 canvas 渲染。
+     *          2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。     <br/>
+     * 6. scenes                                                                         <br/>
+     *      “scenes” 当前包中可用场景。                                                   <br/>
+     * <br/>
+     * 注意：请不要直接修改这个对象，它不会有任何效果。
      * @property config
      * @type {Object}
      */
     config: null,
 
     /**
-     * Callback when the scripts of engine have been load.
+     * !#en Callback when the scripts of engine have been load.
+     * !#zh 当引擎完成启动后的回调函数。
      * @method onStart
      * @type {Function}
      */
     onStart: null,
 
     /**
-     * Callback when game exits.
+     * !#en Callback when game exits.
+     * !#zh 当游戏结束后的回调函数。
      * @method onStop
      * @type {Function}
      */
@@ -155,7 +188,8 @@ var game = /** @lends cc.game# */{
 
 //  @Game play control
     /**
-     * Set frameRate of game.
+     * !#en Set frameRate of game.
+     * !#zh 设置游戏帧率。
      * @method setFrameRate
      * @param {Number} frameRate
      */
@@ -170,7 +204,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * Run the game frame by frame.
+     * !#en Run the game frame by frame.
+     * !#zh 执行一帧游戏循环。
      * @method step
      */
     step: function () {
@@ -178,7 +213,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * Pause the game.
+     * !#en Pause the game.
+     * !#zh 暂停游戏。
      * @method pause
      */
     pause: function () {
@@ -193,7 +229,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * Resume the game from pause.
+     * !#en Resume the game from pause.
+     * !#zh 继续游戏
      * @method resume
      */
     resume: function () {
@@ -206,7 +243,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * Check whether the game is paused.
+     * !#en Check whether the game is paused.
+     * !#zh 判断游戏是否暂停。
      * @method isPaused
      * @return {Boolean}
      */
@@ -215,7 +253,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * Restart game.
+     * !#en Restart game.
+     * !#zh 重新开始游戏
      * @method restart
      */
     restart: function () {
@@ -228,7 +267,8 @@ var game = /** @lends cc.game# */{
 
 //  @Game loading
     /**
-     * Prepare game.
+     * !#en Prepare game.
+     * !#zh 准备引擎，请不要直接调用这个函数。
      * @param {Function} cb
      * @method prepare
      */
@@ -259,21 +299,25 @@ var game = /** @lends cc.game# */{
              */
 
             /**
-             * cc.view is the shared view object.
+             * !#en cc.view is the shared view object.
+             * !#zh cc.view 是全局的视图对象。
              * @property view
-             * @type View
+             * @type {View}
              */
             cc.view = View ? View._getInstance() : null;
 
             /**
+             * !#en Director
+             * !#zh 导演类。
              * @property director
-             * @type Director
+             * @type {Director}
              */
             cc.director = cc.Director._getInstance();
             if (cc.director.setOpenGLView)
                 cc.director.setOpenGLView(cc.view);
             /**
-             * cc.winSize is the alias object for the size of the current game window.
+             * !#en cc.winSize is the alias object for the size of the current game window.
+             * !#zh cc.winSize 为当前的游戏窗口的大小。
              * @property winSize
              * @type Size
              */
@@ -309,12 +353,14 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * cc.game is the singleton object for game related functions.
+     * !#en cc.game is the singleton object for game related functions.
+     * !#zh cc.game 是 Game 的实例，用来驱动整个游戏。
      * @class Game
      */
 
     /**
-     * Run game with configuration object and onStart function.
+     * !#en Run game with configuration object and onStart function.
+     * !#zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @method run
      * @param {Object|Function} [config] - Pass configuration object or onStart function
      * @param {Function} [onStart] - function to be executed after game initialized
@@ -337,8 +383,12 @@ var game = /** @lends cc.game# */{
 
 //  @ Persist root node section
     /**
-     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.
+     * !#en
+     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br/>
      * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
+     * !#zh
+     * 声明常驻根节点，该节点不会被在场景切换中被销毁。<br/>
+     * 目标节点必须位于为层级的根节点，否则无效。
      * @method addPersistRootNode
      * @param {Node} node - The node to be made persistent
      */
@@ -369,7 +419,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * Remove a persistent root node
+     * !#en Remove a persistent root node.
+     * !#zh 取消常驻根节点。
      * @method removePersistRootNode
      * @param {Node} node - The node to be removed from persistent node list
      */
@@ -384,7 +435,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * Check whether the node is a persistent root node
+     * !#en Check whether the node is a persistent root node.
+     * !#zh 检查节点是否是常驻根节点。
      * @method isPersistRootNode
      * @param {Node} node - The node to be checked
      * @return {Boolean}
