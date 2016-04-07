@@ -67,7 +67,7 @@ if (!CC_JSB) {
     require('./cocos2d/core/CCDirectorWebGL');
     require('./cocos2d/core/CCDirectorCanvas');
 
-    if (!(CC_EDITOR && Editor.isCoreLevel)) {
+    if (!(CC_EDITOR && Editor.isMainProcess)) {
         require('./cocos2d/core/platform/CCSAXParser');
         require('./cocos2d/core/platform/CCView');
         require('./cocos2d/core/platform/CCScreen');

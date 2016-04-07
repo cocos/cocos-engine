@@ -282,7 +282,7 @@ var Component = cc.Class({
                         var NewComp = cc.js._getClassById(classId);
                         if (cc.isChildClassOf(NewComp, cc.Component)) {
                             cc.warn('Sorry, replacing component script is not yet implemented.');
-                            //Editor.sendToWindows('reload:window-scripts', Editor._Sandbox.compiled);
+                            //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
                         }
                         else {
                             cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
