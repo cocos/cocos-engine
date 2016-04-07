@@ -31,7 +31,7 @@ if (!(CC_EDITOR && Editor.isCoreLevel)) {
 
 /**
  * !#en An object to boot the game.
- * !#zh 一个启动游戏的对象。
+ * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  * @class Game
  */
 var game = /** @lends cc.game# */{
@@ -97,14 +97,14 @@ var game = /** @lends cc.game# */{
     frame: null,
     /**
      * !#en The container of game canvas, equals to cc.container.
-     * !#zh 游戏画布的容器，等于 cc.container。
+     * !#zh 游戏画布的容器。
      * @property container
      * @type {Object}
      */
     container: null,
     /**
      * !#en The canvas of the game, equals to cc._canvas.
-     * !#zh 游戏的画布，等于 cc._canvas。
+     * !#zh 游戏的画布。
      * @property canvas
      * @type {Object}
      */
@@ -139,8 +139,8 @@ var game = /** @lends cc.game# */{
      * Please DO NOT modify this object directly, it won't have any effect.<br/>
      * !#zh
      * 当前的游戏配置，包括：                                                                  <br/>
-     * 1. debugMode（debug 模式）                                                            <br/>
-     *      "debugMode" 各类显示数值的意思。                                                  <br/>
+     * 1. debugMode（debug 模式，但是在浏览器中这个选项会被忽略）                                <br/>
+     *      "debugMode" 各种设置选项的意义。                                                   <br/>
      *          0 - 没有消息被打印出来。                                                       <br/>
      *          1 - cc.error，cc.assert，cc.warn，cc.log 将打印在 console 中。                  <br/>
      *          2 - cc.error，cc.assert，cc.warn 将打印在 console 中。                          <br/>
@@ -151,14 +151,14 @@ var game = /** @lends cc.game# */{
      * 2. showFPS（显示 FPS）                                                            <br/>
      *      当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。              <br/>
      * 3. frameRate (帧率)                                                              <br/>
-     *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实施和运行环境。      <br/>
+     *      “frameRate” 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。      <br/>
      * 4. id                                                                            <br/>
-     *      "gameCanvas" 设置画布元素的 ID 在网页上，仅适用于 web 端。                         <br/>
+     *      "gameCanvas" Web 页面上的 Canvas Element ID，仅适用于 web 端。                         <br/>
      * 5. renderMode（渲染模式）                                                         <br/>
-     *      “renderMode” 关于设置渲染器类型，仅适用于 web 端：                              <br/>
+     *      “renderMode” 设置渲染器类型，仅适用于 web 端：                              <br/>
      *          0 - 通过引擎自动选择。                                                     <br/>
      *          1 - 强制使用 canvas 渲染。
-     *          2 - 强制使用 WebGL 渲染，但是在浏览器中这个选项会被忽略。                    <br/>
+     *          2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。     <br/>
      * 6. scenes                                                                         <br/>
      *      “scenes” 当前包中可用场景。                                                   <br/>
      * <br/>
@@ -170,7 +170,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en Callback when the scripts of engine have been load.
-     * !#zh 当引擎的脚本已被加载后的回调函数。
+     * !#zh 当引擎完成启动后的回调函数。
      * @method onStart
      * @type {Function}
      */
@@ -230,7 +230,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en Resume the game from pause.
-     * !#zh 恢复暂停时的游戏
+     * !#zh 继续游戏
      * @method resume
      */
     resume: function () {
@@ -244,7 +244,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en Check whether the game is paused.
-     * !#zh 检查游戏是否暂停。
+     * !#zh 判断游戏是否暂停。
      * @method isPaused
      * @return {Boolean}
      */
@@ -254,7 +254,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en Restart game.
-     * !#zh 重新开始播放游戏
+     * !#zh 重新开始游戏
      * @method restart
      */
     restart: function () {
@@ -268,7 +268,7 @@ var game = /** @lends cc.game# */{
 //  @Game loading
     /**
      * !#en Prepare game.
-     * !#zh 准备游戏。
+     * !#zh 准备引擎，请不要直接调用这个函数。
      * @param {Function} cb
      * @method prepare
      */
@@ -300,14 +300,14 @@ var game = /** @lends cc.game# */{
 
             /**
              * !#en cc.view is the shared view object.
-             * !#zh cc.view 是共享的视图对象。
+             * !#zh cc.view 是全局的视图对象。
              * @property view
              * @type {View}
              */
             cc.view = View ? View._getInstance() : null;
 
             /**
-             * !#en TODO
+             * !#en Director
              * !#zh 导演类。
              * @property director
              * @type {Director}
@@ -354,13 +354,13 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en cc.game is the singleton object for game related functions.
-     * !#zh cc.game 是游戏相关的功能单例对象。
+     * !#zh cc.game 是 Game 的实例，用来驱动整个游戏。
      * @class Game
      */
 
     /**
      * !#en Run game with configuration object and onStart function.
-     * !#zh 运行游戏配置对象和 onStart 函数。
+     * !#zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @method run
      * @param {Object|Function} [config] - Pass configuration object or onStart function
      * @param {Function} [onStart] - function to be executed after game initialized
@@ -387,8 +387,8 @@ var game = /** @lends cc.game# */{
      * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br/>
      * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
      * !#zh
-     * 添加不自动销毁的节点，该节点不会被在场景切换中被销毁。<br/>
-     * 目标节点必须放置在根级别的层次结构下，否则该 API 不产生任何影响。
+     * 声明常驻根节点，该节点不会被在场景切换中被销毁。<br/>
+     * 目标节点必须位于为层级的根节点，否则无效。
      * @method addPersistRootNode
      * @param {Node} node - The node to be made persistent
      */
@@ -420,7 +420,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en Remove a persistent root node.
-     * !#zh 移除不自动销毁的节点。
+     * !#zh 取消常驻根节点。
      * @method removePersistRootNode
      * @param {Node} node - The node to be removed from persistent node list
      */
@@ -436,7 +436,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en Check whether the node is a persistent root node.
-     * !#zh 检查节点是否是不自动销毁的节点。
+     * !#zh 检查节点是否是常驻根节点。
      * @method isPersistRootNode
      * @param {Node} node - The node to be checked
      * @return {Boolean}
