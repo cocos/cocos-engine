@@ -45,67 +45,71 @@
         }
 
     });
+
     var parser = new Parser();
 
-
     parser.generalAttributes = function(widget, options){
-        var ignoreSizeExsit = options["ignoreSize"];
-        if(ignoreSizeExsit != null)
-            widget.ignoreContentAdaptWithSize(ignoreSizeExsit);
+        var ignoreSize = options["ignoreSize"];
+        if(cc.isValidValue(ignoreSize))
+            widget.ignoreContentAdaptWithSize(ignoreSize);
 
-        if (options["sizeType"])
+        if (options["sizeType"] === ccui.Widget.SIZE_PERCENT)
         {
-            widget.setSizeType(options["sizeType"]);
+            widget.setSizeType(ccui.Widget.SIZE_PERCENT);
+            widget.setSizePercent(cc.p(options["sizePercentX"], options["sizePercentY"]));
+        }
+        else {
+            var w = options["width"];
+            var h = options["height"];
+            widget.setContentSize(w, h);
         }
 
-        if (options["positionType"])
+        if (options["positionType"] === ccui.Widget.POSITION_PERCENT)
         {
-            widget.setPositionType(options["positionType"]);
+            widget.setPositionType(ccui.Widget.POSITION_PERCENT);
+            widget.setPositionPercent(cc.p(options["positionPercentX"], options["positionPercentY"]));
         }
-
-        widget.setSizePercent(cc.p(options["sizePercentX"], options["sizePercentY"]));
-        widget.setPositionPercent(cc.p(options["positionPercentX"], options["positionPercentY"]));
+        else {
+            var x = options["x"];
+            var y = options["y"];
+            widget.setPosition(x, y);
+        }
 
         /* adapt screen */
-        var w = 0, h = 0;
         var adaptScreen = options["adaptScreen"];
         if (adaptScreen) {
             var screenSize = cc.director.getWinSize();
-            w = screenSize.width;
-            h = screenSize.height;
-        } else {
-            w = options["width"];
-            h = options["height"];
+            widget.setContentSize(screenSize.width, screenSize.height);
         }
-        widget.setContentSize(w, h);
 
         widget.setTag(options["tag"]);
         widget.setActionTag(options["actiontag"]);
         widget.setTouchEnabled(options["touchAble"]);
-        var name = options["name"];
-        var widgetName = name ? name : "default";
+
+        var widgetName = options["name"] || "default";
         widget.setName(widgetName);
 
-        var x = options["x"];
-        var y = options["y"];
-        widget.setPosition(x, y);
+        var scaleX = options["scaleX"];
+        if(cc.isValidValue(scaleX) && scaleX !== 1)
+            widget.setScaleX(scaleX);
 
-        var sx = options["scaleX"]!=null ? options["scaleX"] : 1;
-        widget.setScaleX(sx);
+        var scaleY = options["scaleY"];
+        if(cc.isValidValue(scaleY) && scaleY !== 1)
+            widget.setScaleY(scaleY);
 
-        var sy = options["scaleY"]!=null ? options["scaleY"] : 1;
-        widget.setScaleY(sy);
+        var rotation = options["rotation"];
+        if(cc.isValidValue(rotation) && rotation !== 0)
+            widget.setRotation(rotation);
 
-        var rt = options["rotation"] || 0;
-        widget.setRotation(rt);
+        if(options["visible"] === false)
+            widget.setVisible(false);
 
-        var vb = options["visible"] || false;
-        if(vb != null)
-            widget.setVisible(vb);
-        widget.setLocalZOrder(options["ZOrder"]);
+        var ZOrder = options["ZOrder"];
+        if(cc.isValidValue(ZOrder) && ZOrder !== 0)
+            widget.setLocalZOrder(ZOrder);
 
         var layout = options["layoutParameter"];
-        if(layout != null){
+        if(layout){
             var layoutParameterDic = options["layoutParameter"];
             var paramType = layoutParameterDic["type"];
             var parameter = null;
@@ -143,35 +147,27 @@
     };
 
     parser.colorAttributes = function(widget, options){
-        var op = options["opacity"];
-        if(op != null)
-            widget.setOpacity(op);
-        var colorR = options["colorR"];
-        var colorG = options["colorG"];
-        var colorB = options["colorB"];
-        widget.setColor(cc.color((colorR == null) ? 255 : colorR, (colorG == null) ? 255 : colorG, (colorB == null) ? 255 : colorB));
+        var opacity = options["opacity"];
+        if(cc.isValidValue(opacity) && opacity !== 255)
+            widget.setOpacity(opacity);
 
-        widget.setFlippedX(options["flipX"]);
-        widget.setFlippedY(options["flipY"]);
+        var colorR = cc.isValidValue(options["colorR"]) ? options["colorR"] : 255;
+        var colorG = cc.isValidValue(options["colorG"]) ? options["colorG"] : 255;
+        var colorB = cc.isValidValue(options["colorB"]) ? options["colorB"] : 255;
+        if(colorR !== 255 || colorG !== 255 || colorB !== 255)
+            widget.setColor(cc.color(colorR, colorG, colorB));
+
+        if(options["flipX"] === true)
+            widget.setFlippedX(true);
+        if(options["flipY"] === true)
+            widget.setFlippedY(true);
     };
 
     parser.anchorPointAttributes = function(widget, options){
-        var isAnchorPointXExists = options["anchorPointX"];
-        var anchorPointXInFile;
-        if (isAnchorPointXExists != null)
-            anchorPointXInFile = options["anchorPointX"];
-        else
-            anchorPointXInFile = widget.getAnchorPoint().x;
+        var anchorPointXInFile = options["anchorPointX"] || 0;
+        var anchorPointYInFile = options["anchorPointY"] || 0;
 
-        var isAnchorPointYExists = options["anchorPointY"];
-        var anchorPointYInFile;
-        if (isAnchorPointYExists != null)
-            anchorPointYInFile = options["anchorPointY"];
-        else
-            anchorPointYInFile = widget.getAnchorPoint().y;
-
-        if (isAnchorPointXExists != null || isAnchorPointYExists != null)
-            widget.setAnchorPoint(cc.p(anchorPointXInFile, anchorPointYInFile));
+        widget.setAnchorPoint(cc.p(anchorPointXInFile, anchorPointYInFile));
     };
 
     parser.parseChild = function(widget, options, resourcePath){
@@ -191,8 +187,10 @@
                                 var anchor = widget.getAnchorPoint();
                                 child.setPositionPercent(cc.p(position.x + anchor.x, position.y + anchor.y));
                             }
-                            var AnchorPointIn = widget.getAnchorPointInPoints();
-                            child.setPosition(cc.p(child.getPositionX() + AnchorPointIn.x, child.getPositionY() + AnchorPointIn.y));
+                            else {
+                                var AnchorPointIn = widget.getAnchorPointInPoints();
+                                child.setPosition(cc.p(child.getPositionX() + AnchorPointIn.x, child.getPositionY() + AnchorPointIn.y));
+                            }
                         }
                         widget.addChild(child);
                     }
@@ -224,7 +222,7 @@
             w = options["width"];
             h = options["height"];
         }
-        widget.setSize(cc.size(w, h));
+        widget.setContentSize(cc.size(w, h));
 
         widget.setClippingEnabled(options["clipAble"]);
 
@@ -249,11 +247,10 @@
         var co = options["bgColorOpacity"];
 
         var colorType = options["colorType"];
-        widget.setBackGroundColorType(colorType/*ui.LayoutBackGroundColorType(colorType)*/);
+        widget.setBackGroundColorType(colorType);
         widget.setBackGroundColor(cc.color(scr, scg, scb), cc.color(ecr, ecg, ecb));
         widget.setBackGroundColor(cc.color(cr, cg, cb));
         widget.setBackGroundColorOpacity(co);
-
 
         var imageFileNameDic = options["backGroundImageData"];
         if(imageFileNameDic){
@@ -262,16 +259,17 @@
             });
         }
 
-        if (backGroundScale9Enable){
+        if (backGroundScale9Enable) {
             var cx = options["capInsetsX"];
             var cy = options["capInsetsY"];
             var cw = options["capInsetsWidth"];
             var ch = options["capInsetsHeight"];
             widget.setBackGroundImageCapInsets(cc.rect(cx, cy, cw, ch));
         }
-        if (options["layoutType"])
-        {
-            widget.setLayoutType(options["layoutType"]);
+
+        var layoutType = options["layoutType"];
+        if (cc.isValidValue(layoutType)) {
+            widget.setLayoutType(layoutType);
         }
     };
     /**
@@ -303,27 +301,29 @@
             button.setCapInsets(cc.rect(cx, cy, cw, ch));
             var sw = options["scale9Width"];
             var sh = options["scale9Height"];
-            if (sw != null && sh != null)
+            if (cc.isValidValue(sw) && cc.isValidValue(sh))
                 button.setSize(cc.size(sw, sh));
         }
         var text = options["text"];
-        if (text != null)
+        if (text)
             button.setTitleText(text);
 
         var cr = options["textColorR"];
         var cg = options["textColorG"];
         var cb = options["textColorB"];
-        var cri = cr!==null?options["textColorR"]:255;
-        var cgi = cg!==null?options["textColorG"]:255;
-        var cbi = cb!==null?options["textColorB"]:255;
+        var cri = cc.isValidValue(cr) ? cr : 255;
+        var cgi = cc.isValidValue(cg) ? cg : 255;
+        var cbi = cc.isValidValue(cb) ? cb : 255;
 
         button.setTitleColor(cc.color(cri,cgi,cbi));
-        var fs = options["fontSize"];
-        if (fs != null)
-            button.setTitleFontSize(options["fontSize"]);
-        var fn = options["fontName"];
-        if (fn)
-            button.setTitleFontName(options["fontName"]);
+
+        var fontSize = options["fontSize"];
+        if (fontSize)
+            button.setTitleFontSize(fontSize);
+
+        var fontName = options["fontName"];
+        if (fontName)
+            button.setTitleFontName(fontName);
     };
     /**
      * CheckBox parser (UICheckBox)
@@ -379,21 +379,17 @@
             widget.loadTexture(path, type);
         });
 
-        var scale9EnableExist = options["scale9Enable"];
         var scale9Enable = false;
-        if (scale9EnableExist){
-            scale9Enable = options["scale9Enable"];
+        if (options["scale9Enable"]){
+            scale9Enable = true;
         }
         widget.setScale9Enabled(scale9Enable);
 
         if (scale9Enable){
             var sw = options["scale9Width"];
             var sh = options["scale9Height"];
-            if (sw && sh)
-            {
-                var swf = options["scale9Width"];
-                var shf = options["scale9Height"];
-                widget.setSize(cc.size(swf, shf));
+            if (cc.isValidValue(sw) && cc.isValidValue(sh)) {
+                widget.setSize(cc.size(sw, sh));
             }
 
             var cx = options["capInsetsX"];
@@ -402,7 +398,6 @@
             var ch = options["capInsetsHeight"];
 
             widget.setCapInsets(cc.rect(cx, cy, cw, ch));
-
         }
     };
     /**
@@ -414,7 +409,7 @@
         var iw = options["itemWidth"];
         var ih = options["itemHeight"];
         var scm = options["startCharMap"];
-        if (sv != null && cmf && iw != null && ih != null && scm != null){
+        if (sv != null && cmf && iw && ih && scm != null){
             var cmftDic = options["charMapFileData"];
             var cmfType = cmftDic["resourceType"];
             switch (cmfType){
@@ -453,7 +448,8 @@
         }
 
         var text = options["text"];
-        widget.setString(text);
+        if(text)
+            widget.setString(text);
     };
     /**
      * Text parser (UIText)
@@ -462,37 +458,42 @@
     parser.TextAttributes = function(widget, options, resourcePath){
         var touchScaleChangeAble = options["touchScaleEnable"];
         widget.setTouchScaleChangeEnabled(touchScaleChangeAble);
+
         var text = options["text"];
-        widget.setString(text);
-        var fs = options["fontSize"];
-        if (fs != null){
-            widget.setFontSize(options["fontSize"]);
+        if(text)
+            widget.setString(text);
+
+        var fontSize = options["fontSize"];
+        if (fontSize){
+            widget.setFontSize(fontSize);
         }
-        var fn = options["fontName"];
-        if (fn != null){
+
+        var fontName = options["fontName"];
+        if (fontName) {
             if(cc.sys.isNative){
-                if(regTTF.test(fn)){
-                    widget.setFontName(cc.path.join(cc.loader.resPath, resourcePath, fn));
+                if(regTTF.test(fontName)){
+                    widget.setFontName(cc.path.join(cc.loader.resPath, resourcePath, fontName));
                 }else{
-                    widget.setFontName(fn);
+                    widget.setFontName(fontName);
                 }
             }else{
-                widget.setFontName(fn.replace(regTTF, ''));
+                widget.setFontName(fontName.replace(regTTF, ''));
             }
         }
+
         var aw = options["areaWidth"];
         var ah = options["areaHeight"];
-        if (aw != null && ah != null){
-            var size = cc.size(options["areaWidth"], options["areaHeight"]);
+        if (cc.isValidValue(aw) && cc.isValidValue(ah)) {
+            var size = cc.size(aw, ah);
             widget.setTextAreaSize(size);
         }
-        var ha = options["hAlignment"];
-        if (ha != null){
-            widget.setTextHorizontalAlignment(options["hAlignment"]);
+        var hAlignment = options["hAlignment"];
+        if (cc.isValidValue(hAlignment)) {
+            widget.setTextHorizontalAlignment(hAlignment);
         }
-        var va = options["vAlignment"];
-        if (va != null){
-            widget.setTextVerticalAlignment(options["vAlignment"]);
+        var vAlignment = options["vAlignment"];
+        if (cc.isValidValue(vAlignment)) {
+            widget.setTextVerticalAlignment(vAlignment);
         }
     };
     /**
@@ -544,11 +545,11 @@
      */
     parser.ScrollViewAttributes = function(widget, options, resoutcePath){
         parser.LayoutAttributes(widget, options,resoutcePath);
-        var innerWidth = options["innerWidth"]!=null ? options["innerWidth"] : 200;
-        var innerHeight = options["innerHeight"]!=null ? options["innerHeight"] : 200;
+        var innerWidth = cc.isValidValue(options["innerWidth"]) ? options["innerWidth"] : 200;
+        var innerHeight = cc.isValidValue(options["innerHeight"]) ? options["innerHeight"] : 200;
         widget.setInnerContainerSize(cc.size(innerWidth, innerHeight));
 
-        var direction = options["direction"]!=null ? options["direction"] : 1;
+        var direction = cc.isValidValue(options["direction"]) ? options["direction"] : 1;
         widget.setDirection(direction);
         widget.setBounceEnabled(options["bounceEnable"]);
     };
@@ -556,7 +557,6 @@
      * Slider parser (UISlider)
      */
     parser.SliderAttributes = function(widget, options, resourcePath){
-
         var slider = widget;
 
         var barTextureScale9Enable = options["scale9Enable"];
@@ -568,7 +568,7 @@
         var imageFileType = imageFileNameDic["resourceType"];
         var imageFileName = imageFileNameDic["path"];
 
-        if(bt != null){
+        if(bt){
             if(barTextureScale9Enable){
                 getPath(resourcePath, imageFileType, imageFileName, function(path, type){
                     slider.loadBarTexture(path, type);
@@ -612,39 +612,38 @@
         var ph = options["placeHolder"];
         if(ph)
             widget.setPlaceHolder(ph);
+
         widget.setString(options["text"]||"");
-        var fs = options["fontSize"];
-        if(fs)
-            widget.setFontSize(fs);
-        var fn = options["fontName"];
-        if (fn){
+
+        var fontSize = options["fontSize"];
+        if(fontSize)
+            widget.setFontSize(fontSize);
+
+        var fontName = options["fontName"];
+        if (fontName){
             if(cc.sys.isNative){
-                if(regTTF.test(fn)){
-                    widget.setFontName(cc.path.join(cc.loader.resPath, resourcePath, fn));
+                if(regTTF.test(fontName)){
+                    widget.setFontName(cc.path.join(cc.loader.resPath, resourcePath, fontName));
                 }else{
-                    widget.setFontName(fn);
+                    widget.setFontName(fontName);
                 }
             }else{
-                widget.setFontName(fn.replace(regTTF, ''));
+                widget.setFontName(fontName.replace(regTTF, ''));
             }
         }
+
         var tsw = options["touchSizeWidth"];
         var tsh = options["touchSizeHeight"];
-        if(tsw!=null && tsh!=null)
+        if(cc.isValidValue(tsw) && cc.isValidValue(tsh))
             widget.setTouchSize(tsw, tsh);
 
-        var dw = options["width"];
-        var dh = options["height"];
-        if(dw > 0 || dh > 0){
-            //textField.setSize(cc.size(dw, dh));
-        }
         var maxLengthEnable = options["maxLengthEnable"];
         widget.setMaxLengthEnabled(maxLengthEnable);
-
         if(maxLengthEnable){
             var maxLength = options["maxLength"];
             widget.setMaxLength(maxLength);
         }
+
         var passwordEnable = options["passwordEnable"];
         widget.setPasswordEnabled(passwordEnable);
         if(passwordEnable)
@@ -657,16 +656,16 @@
             widget.setTextAreaSize(size);
         }
         var ha = options["hAlignment"];
-        if(ha)
+        if(cc.isValidValue(ha))
             widget.setTextHorizontalAlignment(ha);
         var va = options["vAlignment"];
-        if(va)
+        if(cc.isValidValue(va))
             widget.setTextVerticalAlignment(va);
 
         var colorR = options["colorR"];
         var colorG = options["colorG"];
         var colorB = options["colorB"];
-        if (colorR !== undefined && colorG !== undefined && colorB !== undefined) {
+        if (cc.isValidValue(colorR) && cc.isValidValue(colorG) && cc.isValidValue(colorB)) {
             widget.setTextColor(cc.color(colorR,colorG,colorB));
         }
     };

@@ -173,12 +173,12 @@
             name: "CColor",
             handle: function(options){
                 var frame = new ccs.ColorFrame();
-                var color = options["Color"];
+                var color = options['Color'];
                 if(!color) color = {};
-                color["R"] = color["R"] === undefined ? 255 : color["R"];
-                color["G"] = color["G"] === undefined ? 255 : color["G"];
-                color["B"] = color["B"] === undefined ? 255 : color["B"];
-                frame.setColor(cc.color(color["R"], color["G"], color["B"]));
+                color['R'] = cc.isValidValue(color['R']) ? color['R'] : 255;
+                color['G'] = cc.isValidValue(color['G']) ? color['G'] : 255;
+                color['B'] = cc.isValidValue(color['B']) ? color['B'] : 255;
+                frame.setColor(cc.color(color['R'], color['G'], color['B']));
                 return frame;
             }
         },
@@ -248,7 +248,7 @@
                 var singleFrameIndex = options["SingleFrameIndex"];
 
                 var frameIndex = options["FrameIndex"];
-                if(frameIndex !== undefined)
+                if(cc.isValidValue(frameIndex))
                     frame.setFrameIndex(frameIndex);
 
                 frame.setInnerActionType(ccs.InnerActionType[innerActionType]);
@@ -266,7 +266,7 @@
             handle: function(options){
                 var frame = new ccs.BlendFuncFrame();
                 var blendFunc = options["BlendFunc"];
-                if(blendFunc && blendFunc["Src"] !== undefined && blendFunc["Dst"] !== undefined)
+                if(blendFunc && cc.isValidValue(blendFunc["Src"]) && cc.isValidValue(blendFunc["Dst"]))
                     frame.setBlendFunc(new cc.BlendFunc(blendFunc["Src"], blendFunc["Dst"]));
                 return frame;
             }

@@ -30,7 +30,7 @@
 
         parse: function(file, json, path){
             var resourcePath;
-            if(path !== undefined)
+            if(cc.isValidValue(path))
                 resourcePath = path;
             else
                 resourcePath = this._dirname(file);
@@ -68,41 +68,40 @@
     //////////
 
     parser.generalAttributes = function(node, json){
-        if(json["Name"] != null)
+        if(json["Name"])
             node.setName(json["Name"]);
 
         var position = json["Position"];
-        if(position != null && (position["X"] != null || position["Y"] != null))
+        if(position && (position["X"] !== null || position["Y"] !== null))
             node.setPosition(cc.p(position["X"]||0, position["Y"]||0));
 
         var scale = json["Scale"];
-        if(scale != null){
-            if(scale["ScaleX"] != null)
+        if(scale){
+            if(cc.isValidValue(scale["ScaleX"]))
                 node.setScaleX(scale["ScaleX"]);
-            if(scale["ScaleY"] != null)
+            if(cc.isValidValue(scale["ScaleY"]))
                 node.setScaleY(scale["ScaleY"]);
         }
 
         var rotationSkewX = json["RotationSkewX"];
-        if (rotationSkewX != null)
+        if (cc.isValidValue(rotationSkewX))
             node.setRotationX(rotationSkewX);
 
         var rotationSkewY = json["RotationSkewY"];
-        if (json["RotationSkewY"] != null)
+        if (cc.isValidValue(rotationSkewY))
             node.setRotationY(rotationSkewY);
 
-
         var anchor = json["AnchorPoint"];
-        if(anchor != null){
+        if(anchor){
             if(anchor["ScaleX"] == null)
                 anchor["ScaleX"] = 0;
             if(anchor["ScaleY"] == null)
                 anchor["ScaleY"] = 0;
             if(anchor["ScaleX"] != 0.5 || anchor["ScaleY"] != 0.5)
-                node.setAnchorPoint(cc.p(anchor["ScaleX"], anchor["ScaleY"]));
+                node.setAnchorPoint(cc.p(anchor["ScaleX"] || 0, anchor["ScaleY"] || 0));
         }
 
-        if (json["ZOrder"] != null)
+        if (cc.isValidValue(json["ZOrder"]))
             node.setLocalZOrder(json["ZOrder"]);
 
         var visible = getParam(json["VisibleForFrame"], true);
@@ -112,7 +111,7 @@
         if(size)
             setContentSize(node, size);
 
-        if (json["Alpha"] != null)
+        if (cc.isValidValue(json["Alpha"]))
             node.setOpacity(json["Alpha"]);
 
         node.setTag(json["Tag"] || 0);
@@ -160,14 +159,6 @@
         }
     };
 
-    var skyBoxBrushInstance = null;
-    var getSkyboxRes = function(json, key) {
-        if(json.hasOwnProperty(key) && json[key].hasOwnProperty("Path")) {
-            return json[key]["Path"];
-        }
-        return "";
-    };
-
     /**
      * SingleNode
      * @param json
@@ -178,29 +169,8 @@
 
         this.generalAttributes(node, json);
         var color = json["CColor"];
-        if(color != null)
+        if(color)
             node.setColor(getColor(color));
-
-        if(json.hasOwnProperty("SkyBoxEnabled") && true == json["SkyBoxEnabled"]&&
-	json.hasOwnProperty("SkyBoxValid") && true == json["SkyBoxValid"])
-        {
-            var leftFileData = resourcePath + getSkyboxRes(json, "LeftImage");
-            var rightFileData = resourcePath + getSkyboxRes(json, "RightImage");
-            var upFileData = resourcePath + getSkyboxRes(json, "UpImage");
-            var downFileData = resourcePath + getSkyboxRes(json, "DownImage");
-            var forwardFileData = resourcePath + getSkyboxRes(json, "ForwardImage");
-            var backFileData = resourcePath + getSkyboxRes(json, "BackImage");
-            var fileUtil = jsb.fileUtils;
-	    if(fileUtil.isFileExist(leftFileData)&&
-                fileUtil.isFileExist(rightFileData)&&
-                fileUtil.isFileExist(upFileData)&&
-                fileUtil.isFileExist(downFileData)&&
-                fileUtil.isFileExist(forwardFileData)&&
-                fileUtil.isFileExist(backFileData))
-            {
-                skyBoxBrushInstance = cc.CameraBackgroundSkyBoxBrush.create(leftFileData,rightFileData,upFileData,downFileData,forwardFileData,backFileData);
-            }
-        }
 
         return node;
     };
@@ -227,9 +197,9 @@
         var blendData = json["BlendFunc"];
         if(json["BlendFunc"]) {
             var blendFunc = cc.BlendFunc.ALPHA_PREMULTIPLIED;
-            if (blendData["Src"] !== undefined)
+            if (cc.isValidValue(blendData["Src"]))
                 blendFunc.src = blendData["Src"];
-            if (blendData["Dst"] !== undefined)
+            if (cc.isValidValue(blendData["Dst"]))
                 blendFunc.dst = blendData["Dst"];
             node.setBlendFunc(blendFunc);
         }
@@ -241,7 +211,7 @@
 
         this.generalAttributes(node, json);
         var color = json["CColor"];
-        if(color != null)
+        if(color)
             node.setColor(getColor(color));
 
         return node;
@@ -265,9 +235,9 @@
             var blendData = json["BlendFunc"];
             if(json["BlendFunc"]){
                 var blendFunc = cc.BlendFunc.ALPHA_PREMULTIPLIED;
-                if(blendData["Src"] !== undefined)
+                if(cc.isValidValue(blendData["Src"]))
                     blendFunc.src = blendData["Src"];
-                if(blendData["Dst"] !== undefined)
+                if(cc.isValidValue(blendData["Dst"]))
                     blendFunc.dst = blendData["Dst"];
                 node.setBlendFunc(blendFunc);
             }
@@ -323,7 +293,7 @@
             widget.setFlippedY(true);
 
         var zOrder = json["zOrder"];
-        if (zOrder != null)
+        if (cc.isValidValue(zOrder))
             widget.setLocalZOrder(zOrder);
 
         //var visible = json["Visible"];
@@ -332,7 +302,7 @@
         widget.setVisible(visible);
 
         var alpha = json["Alpha"];
-        if (alpha != null)
+        if (cc.isValidValue(alpha))
             widget.setOpacity(alpha);
 
         widget.setTag(json["Tag"] || 0);
@@ -343,7 +313,7 @@
         // -- var frameEvent = json["FrameEvent"];
 
         var callBackType = json["CallBackType"];
-        if (callBackType != null)
+        if (cc.isValidValue(callBackType))
             widget.setCallbackType(callBackType);
 
         var callBackName = json["CallBackName"];
@@ -351,11 +321,11 @@
             widget.setCallbackName(callBackName);
 
         var position = json["Position"];
-        if (position != null)
+        if (position)
             widget.setPosition(position["X"] || 0, position["Y"] || 0);
 
         var scale = json["Scale"];
-        if (scale != null) {
+        if (scale) {
             var scaleX = getParam(scale["ScaleX"], 1);
             var scaleY = getParam(scale["ScaleY"], 1);
             widget.setScaleX(scaleX);
@@ -363,11 +333,11 @@
         }
 
         var anchorPoint = json["AnchorPoint"];
-        if (anchorPoint != null)
+        if (anchorPoint)
             widget.setAnchorPoint(anchorPoint["ScaleX"] || 0, anchorPoint["ScaleY"] || 0);
 
         var color = json["CColor"];
-        if (color != null)
+        if (color)
             widget.setColor(getColor(color));
 
         setLayoutComponent(widget, json);
@@ -401,7 +371,7 @@
         var positionXPercent = 0,
             positionYPercent = 0,
             PrePosition = json["PrePosition"];
-        if (PrePosition != null) {
+        if (PrePosition) {
             positionXPercent = PrePosition["X"] || 0;
             positionYPercent = PrePosition["Y"] || 0;
         }
@@ -410,7 +380,7 @@
         var sizeXPercent = 0,
             sizeYPercent = 0,
             PreSize = json["PreSize"];
-        if (PrePosition != null) {
+        if (PrePosition) {
             sizeXPercent = PreSize["X"] || 0;
             sizeYPercent = PreSize["Y"] || 0;
         }
@@ -565,7 +535,7 @@
             widget.setFontSize(fontSize);
 
         var fontName = json["FontName"];
-        if(fontName && "" !== fontName)
+        if(fontName && '' !== fontName)
             widget.setFontName(fontName);
 
         var areaWidth = json["AreaWidth"];
@@ -623,7 +593,7 @@
             );
 
         var isCustomSize = json["IsCustomSize"];
-        if(isCustomSize != null)
+        if(cc.isValidValue(isCustomSize))
             widget.ignoreContentAdaptWithSize(!isCustomSize);
 
         widget.setUnifySizeEnabled(false);
@@ -670,11 +640,11 @@
             widget.setTitleFontSize(fontSize);
 
         var fontName = json["FontName"];
-        if(fontName && "" !== fontName)
+        if(fontName && '' !== fontName)
             widget.setTitleFontName(fontName);
 
         var textColor = json["TextColor"];
-        if(textColor != null)
+        if(textColor)
             widget.setTitleColor(getColor(textColor));
 
         var displaystate = getParam(json["DisplayState"], true);
@@ -1133,7 +1103,7 @@
             widget.setFontSize(fontSize);
 
         var fontName = json["FontName"];
-        if(fontName && "" !== fontName)
+        if(fontName && '' !== fontName)
             widget.setFontName(fontName);
 
         var maxLengthEnabled = json["MaxLengthEnable"];
@@ -1169,7 +1139,7 @@
         widget.ignoreContentAdaptWithSize(false);
 
         var color = json["CColor"];
-        if(color != null)
+        if(color)
             widget.setTextColor(getColor(color));
 
         if (!widget.isIgnoreContentAdaptWithSize()){
@@ -1263,13 +1233,9 @@
      * @param resourcePath
      */
     parser.initArmature = function(json, resourcePath){
-
         var node = new ccs.Armature();
-
         var isLoop = json["IsLoop"];
-
         var isAutoPlay = json["IsAutoPlay"];
-
         var currentAnimationName = json["CurrentAnimationName"];
 
         loadTexture(json["FileData"], resourcePath, function(path, type){
@@ -1303,20 +1269,18 @@
     };
 
     parser.initBoneNode = function(json, resourcePath){
-
         var node = new ccs.BoneNode();
-
         var length = json["Length"];
-        if(length !== undefined)
+        if(length || 0)
             node.setDebugDrawLength(length);
 
         var blendFunc = json["BlendFunc"];
-        if(blendFunc && blendFunc["Src"] !== undefined && blendFunc["Dst"] !== undefined)
+        if(blendFunc && cc.isValidValue(blendFunc["Src"]) && cc.isValidValue(blendFunc["Dst"]))
             node.setBlendFunc(new cc.BlendFunc(blendFunc["Src"] || 0, blendFunc["Dst"] || 0));
 
         parser.generalAttributes(node, json);
         var color = json["CColor"];
-        if(color && (color["R"] !== undefined || color["G"] !== undefined || color["B"] !== undefined))
+        if(color)
             node.setColor(getColor(color));
         return node;
     };
@@ -1325,7 +1289,7 @@
         var node = new ccs.SkeletonNode();
         parser.generalAttributes(node, json);
         var color = json["CColor"];
-        if(color && (color["R"] !== undefined || color["G"] !== undefined || color["B"] !== undefined))
+        if(color)
             node.setColor(getColor(color));
         return node;
     };
@@ -1367,10 +1331,10 @@
 
     var getColor = function(json){
         if(!json) return;
-        var r = json["R"] != null ? json["R"] : 255;
-        var g = json["G"] != null ? json["G"] : 255;
-        var b = json["B"] != null ? json["B"] : 255;
-        var a = json["A"] != null ? json["A"] : 255;
+        var r = cc.isValidValue(json["R"]) ? json["R"] : 255;
+        var g = cc.isValidValue(json["G"]) ? json["G"] : 255;
+        var b = cc.isValidValue(json["B"]) ? json["B"] : 255;
+        var a = cc.isValidValue(json["A"]) ? json["A"] : 255;
         return cc.color(r, g, b, a);
     };
 
@@ -1421,6 +1385,5 @@
 
     load.registerParser("timeline", "2.*", parser);
     load.registerParser("timeline", "*", parser);
-
 
 })(ccs._load, ccs._parser);
