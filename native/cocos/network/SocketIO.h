@@ -157,7 +157,7 @@ public:
 private:
 
     SocketIO();
-    virtual ~SocketIO(void);
+    virtual ~SocketIO();
 
     static SocketIO *_inst;
 
@@ -217,7 +217,7 @@ public:
     /**
      * Destructor of SIOClient class.
      */
-    virtual ~SIOClient(void);
+    virtual ~SIOClient();
 
     /**
      * Get the delegate for the client

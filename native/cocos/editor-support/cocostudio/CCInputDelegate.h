@@ -48,11 +48,11 @@ CC_CONSTRUCTOR_ACCESS:
     /**
      * @js ctor
      */
-    InputDelegate(void);
+    InputDelegate();
     /**
      * @js NA
      */
-    virtual ~InputDelegate(void);
+    virtual ~InputDelegate();
 
 public:
     virtual bool isTouchEnabled() const;

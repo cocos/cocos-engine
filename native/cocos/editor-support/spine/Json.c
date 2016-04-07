@@ -48,7 +48,7 @@
 
 static const char* ep;
 
-const char* Json_getError (void) {
+const char* Json_getError () {
 	return ep;
 }
 
@@ -73,7 +73,7 @@ static int Json_strcasecmp (const char* s1, const char* s2) {
 }
 
 /* Internal constructor. */
-static Json *Json_new (void) {
+static Json *Json_new () {
 	return (Json*)CALLOC(Json, 1);
 }
 

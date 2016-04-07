@@ -256,7 +256,7 @@ public:
      *
      * @return The action speed.
      */
-    inline float getSpeed(void) const { return _speed; }
+    inline float getSpeed() const { return _speed; }
     /** Alter the speed of the inner function in runtime.
      *
      * @param speed Alter the speed of the inner function in runtime.
@@ -293,7 +293,7 @@ public:
 
 CC_CONSTRUCTOR_ACCESS:
     Speed();
-    virtual ~Speed(void);
+    virtual ~Speed();
     /** Initializes the action. */
     bool initWithAction(ActionInterval *action, float speed);
 

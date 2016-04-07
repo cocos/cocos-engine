@@ -488,7 +488,7 @@ void EditBoxImplMac::setText(const char* pText)
     _sysEdit.secureTextField.stringValue = string;
 }
 
-const char*  EditBoxImplMac::getText(void)
+const char*  EditBoxImplMac::getText()
 {
     if (_sysEdit.secureTextField.superview) {
         return [_sysEdit.secureTextField.stringValue UTF8String];
@@ -588,7 +588,7 @@ void EditBoxImplMac::closeKeyboard()
     [_sysEdit closeKeyboard];
 }
 
-void EditBoxImplMac::onEnter(void)
+void EditBoxImplMac::onEnter()
 {
     adjustTextFieldPosition();
 }

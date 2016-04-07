@@ -156,7 +156,7 @@ std::string DisplayData::changeDisplayToTexture(const std::string& displayName)
     return textureName;
 }
 
-DisplayData::DisplayData(void)
+DisplayData::DisplayData()
     : displayType(CS_DISPLAY_MAX)
     , displayName("")
 {
@@ -168,7 +168,7 @@ void DisplayData::copy(DisplayData *displayData)
     displayType = displayData->displayType;
 }
 
-SpriteDisplayData::SpriteDisplayData(void)
+SpriteDisplayData::SpriteDisplayData()
 {
     displayType = CS_DISPLAY_SPRITE;
 }
@@ -184,25 +184,25 @@ void SpriteDisplayData::copy(DisplayData *displayData)
     }
 }
 
-ArmatureDisplayData::ArmatureDisplayData(void)
+ArmatureDisplayData::ArmatureDisplayData()
 {
     displayType = CS_DISPLAY_ARMATURE;
 }
 
-ParticleDisplayData::ParticleDisplayData(void)
+ParticleDisplayData::ParticleDisplayData()
 {
     displayType = CS_DISPLAY_PARTICLE;
 }
 
 
 
-BoneData::BoneData(void)
+BoneData::BoneData()
     : name("")
     , parentName("")
 {
 }
 
-BoneData::~BoneData(void)
+BoneData::~BoneData()
 {
 }
 
@@ -246,7 +246,7 @@ BoneData *ArmatureData::getBoneData(const std::string& boneName)
     return static_cast<BoneData*>(boneDataDic.at(boneName));
 }
 
-FrameData::FrameData(void)
+FrameData::FrameData()
     : frameID(0)
     , duration(1)
     , tweenEasing(cocos2d::tweenfunc::Linear)
@@ -263,7 +263,7 @@ FrameData::FrameData(void)
 {
 }
 
-FrameData::~FrameData(void)
+FrameData::~FrameData()
 {
     CC_SAFE_DELETE(easingParams);
 }
@@ -303,7 +303,7 @@ MovementBoneData::MovementBoneData()
 {
 }
 
-MovementBoneData::~MovementBoneData(void)
+MovementBoneData::~MovementBoneData()
 {
 }
 
@@ -324,7 +324,7 @@ FrameData *MovementBoneData::getFrameData(int index)
 
 
 
-MovementData::MovementData(void)
+MovementData::MovementData()
     : name("")
     , duration(0)
     , scale(1.0f)
@@ -335,7 +335,7 @@ MovementData::MovementData(void)
 {
 }
 
-MovementData::~MovementData(void)
+MovementData::~MovementData()
 {
 }
 
@@ -351,11 +351,11 @@ MovementBoneData *MovementData::getMovementBoneData(const std::string& boneName)
 
 
 
-AnimationData::AnimationData(void)
+AnimationData::AnimationData()
 {
 }
 
-AnimationData::~AnimationData(void)
+AnimationData::~AnimationData()
 {
 }
 

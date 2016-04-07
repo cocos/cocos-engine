@@ -38,7 +38,7 @@ THE SOFTWARE.
 
 #define CC_CREATE_NO_PARAM_NO_INIT(varType)\
 public: \
-    static inline varType *create(void){ \
+    static inline varType *create(){ \
     varType *var = new (std::nothrow) varType();\
     if (var)\
 {\
@@ -51,7 +51,7 @@ public: \
 
 #define CC_CREATE_NO_PARAM(varType)\
 public: \
-    static inline varType *create(void){ \
+    static inline varType *create(){ \
     varType *var = new (std::nothrow) varType();\
     if (var && var->init())\
 {\
@@ -82,7 +82,7 @@ public:
      * @js NA
      * @lua NA
      */
-    ~BaseData(void);
+    ~BaseData();
 
     /*
     * Copy data from node
@@ -153,7 +153,7 @@ public:
      * @js NA
      * @lua NA
      */
-    virtual ~DisplayData(void) {}
+    virtual ~DisplayData() {}
 
     virtual void copy(DisplayData *displayData);
 
@@ -243,12 +243,12 @@ public:
     /**
      * @js ctor
      */
-    BoneData(void);
+    BoneData();
     /**
      * @js NA
      * @lua NA
      */
-    ~BoneData(void);
+    ~BoneData();
 
     virtual bool init();
 
@@ -375,7 +375,7 @@ public:
      * @js NA
      * @lua NA
      */
-    ~MovementBoneData(void);
+    ~MovementBoneData();
 
     virtual bool init();
 
@@ -402,12 +402,12 @@ public:
     /**
      * @js ctor
      */
-    MovementData(void);
+    MovementData();
     /**
      * @js NA
      * @lua NA
      */
-    ~MovementData(void);
+    ~MovementData();
 
     void addMovementBoneData(MovementBoneData *movBoneData);
     MovementBoneData *getMovementBoneData(const std::string& boneName);
@@ -464,12 +464,12 @@ public:
     /**
      * @js ctor
      */
-    AnimationData(void);
+    AnimationData();
     /**
      * @js NA
      * @lua NA
      */
-    ~AnimationData(void);
+    ~AnimationData();
 
     void addMovement(MovementData *movData);
     MovementData *getMovement(const std::string& movementName);
@@ -500,7 +500,7 @@ public:
      * @js NA
      * @lua NA
      */
-    ~ContourData(void);
+    ~ContourData();
 
     virtual bool init();
     virtual void addVertex(cocos2d::Vec2 &vertex);
@@ -529,7 +529,7 @@ public:
      * @js NA
      * @lua NA
      */
-    ~TextureData(void);
+    ~TextureData();
 
     virtual bool init();
 

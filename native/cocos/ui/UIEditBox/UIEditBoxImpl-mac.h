@@ -66,7 +66,7 @@ public:
     virtual bool isEditing() override;
 
     virtual void setText(const char* pText) override;
-    virtual const char* getText(void) override;
+    virtual const char* getText() override;
     virtual void setPlaceHolder(const char* pText) override;
     virtual void setPosition(const Vec2& pos) override;
     virtual void setVisible(bool visible) override;

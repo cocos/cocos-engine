@@ -355,7 +355,7 @@ private:
 
 public:
     SIOClientImpl(const std::string& host, int port);
-    virtual ~SIOClientImpl(void);
+    virtual ~SIOClientImpl();
 
     static SIOClientImpl* create(const std::string& host, int port);
 
@@ -1009,7 +1009,7 @@ SIOClient::SIOClient(const std::string& host, int port, const std::string& path,
 
 }
 
-SIOClient::~SIOClient(void)
+SIOClient::~SIOClient()
 {
     if (_connected)
     {
@@ -1109,7 +1109,7 @@ SocketIO::SocketIO()
 {
 }
 
-SocketIO::~SocketIO(void)
+SocketIO::~SocketIO()
 {
 }
 
