@@ -70,7 +70,7 @@
 #define TRACE_DEBUGGER_SERVER(...) CCLOG(__VA_ARGS__)
 #else
 #define TRACE_DEBUGGER_SERVER(...)
-#endif // #if DEBUG
+#endif // #if COCOS2D_DEBUG
 
 #define BYTE_CODE_FILE_EXT ".jsc"
 
@@ -87,9 +87,9 @@ static uint32_t s_nestedLoopLevel = 0;
 // server entry point for the bg thread
 static void serverEntryPoint(unsigned int port);
 
-js_proxy_t *_native_js_global_ht = NULL;
-js_proxy_t *_js_native_global_ht = NULL;
 std::unordered_map<std::string, js_type_class_t*> _js_global_type_map;
+static std::unordered_map<void*, js_proxy_t*> _native_js_global_map;
+static std::unordered_map<JSObject*, js_proxy_t*> _js_native_global_map;
 
 static char *_js_log_buf = NULL;
 
@@ -215,18 +215,18 @@ static void unRootObject(JSContext *cx, JS::Heap<JSObject*> *obj) {
     RemoveObjectRoot(cx, obj);
 }
 
-void removeJSObject(JSContext* cx, void* nativeObj)
+void removeJSObject(JSContext* cx, cocos2d::Ref* nativeObj)
 {
-    js_proxy_t* nproxy;
-    js_proxy_t* jsproxy;
-
-    nproxy = jsb_get_native_proxy(nativeObj);
-    if (nproxy) {
-        JS::RootedObject jsobj(cx, nproxy->obj);
-        jsproxy = jsb_get_js_proxy(jsobj);
-        RemoveObjectRoot(cx, &jsproxy->obj);
-        jsb_remove_proxy(nproxy, jsproxy);
+    auto proxy = jsb_get_native_proxy(nativeObj);
+    if (proxy)
+    {
+        RemoveObjectRoot(cx, &proxy->obj);
+        // remove the proxy here, since this was a "stack" object, not heap
+        // when js_finalize will be called, it will fail, but
+        // the correct solution is to have a new finalize for event
+        jsb_remove_proxy(proxy);
     }
+    else CCLOG("removeJSObject: BUG: cannot find native object = %p", nativeObj);
 }
 
 void ScriptingCore::executeJSFunctionWithThisObj(JS::HandleValue thisObj, JS::HandleValue callback)
@@ -519,19 +519,20 @@ void ScriptingCore::addRegisterCallback(sc_register_sth callback) {
     registrationList.push_back(callback);
 }
 
-void ScriptingCore::removeAllRoots(JSContext *cx) {
-    js_proxy_t *current, *tmp;
-    HASH_ITER(hh, _js_native_global_ht, current, tmp) {
-        RemoveObjectRoot(cx, &current->obj);
-        HASH_DEL(_js_native_global_ht, current);
-        free(current);
+void ScriptingCore::removeAllRoots(JSContext *cx)
+{
+    // Native -> JS. No need to free "second"
+    _native_js_global_map.clear();
+    
+    // JS -> Native: free "second" and "unroot" it.
+    auto it_js = _js_native_global_map.begin();
+    while (it_js != _js_native_global_map.end())
+    {
+        JS::RemoveObjectRoot(cx, &it_js->second->obj);
+        free(it_js->second);
+        it_js = _js_native_global_map.erase(it_js);
     }
-    HASH_ITER(hh, _native_js_global_ht, current, tmp) {
-        HASH_DEL(_native_js_global_ht, current);
-        free(current);
-    }
-    HASH_CLEAR(hh, _js_native_global_ht);
-    HASH_CLEAR(hh, _native_js_global_ht);
+     _js_native_global_map.clear();
 }
 
 // Just a wrapper around JSPrincipals that allows static construction.
@@ -898,22 +899,14 @@ bool ScriptingCore::log(JSContext* cx, uint32_t argc, jsval *vp)
     return true;
 }
 
-void ScriptingCore::removeScriptObjectByObject(Ref* pObj)
+void ScriptingCore::removeScriptObjectByObject(cocos2d::Ref* nativeObj)
 {
-    js_proxy_t* nproxy;
-    js_proxy_t* jsproxy;
-    void *ptr = (void*)pObj;
-    nproxy = jsb_get_native_proxy(ptr);
-    if (nproxy)
-    {
+    auto proxy = jsb_get_native_proxy(nativeObj);
+    if (proxy)
+	{
         JSContext *cx = getGlobalContext();
-        JS::RootedObject jsobj(cx, nproxy->obj);
-        jsproxy = jsb_get_js_proxy(jsobj);
-        if (jsproxy)
-        {
-            RemoveObjectRoot(cx, &jsproxy->obj);
-            jsb_remove_proxy(nproxy, jsproxy);
-        }
+        JS::RemoveObjectRoot(cx, &proxy->obj);
+        jsb_remove_proxy(proxy);
     }
 }
 
@@ -992,7 +985,7 @@ bool ScriptingCore::removeRootJS(JSContext *cx, uint32_t argc, jsval *vp)
         JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
         JS::Heap<JSObject*> o(args.get(0).toObjectOrNull());
         if (o != nullptr) {
-            RemoveObjectRoot(cx, &o);
+            JS::RemoveObjectRoot(cx, &o);
         }
         return true;
     }
@@ -1932,48 +1925,88 @@ bool jsb_get_reserved_slot(JSObject *obj, uint32_t idx, jsval& ret)
     return true;
 }
 
-js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsObj)
+js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsHandle)
 {
-    js_proxy_t* p = nullptr;
-    JSObject* ptr = jsObj.get();
-    do {
-        p = (js_proxy_t *)malloc(sizeof(js_proxy_t));
-        assert(p);
-        js_proxy_t* nativeObjJsObjtmp = NULL;
-        HASH_FIND_PTR(_native_js_global_ht, &nativeObj, nativeObjJsObjtmp);
-        assert(!nativeObjJsObjtmp);
-        p->ptr = nativeObj;
-        p->obj = ptr;
-        HASH_ADD_PTR(_native_js_global_ht, ptr, p);
-        p = (js_proxy_t *)malloc(sizeof(js_proxy_t));
-        assert(p);
-        nativeObjJsObjtmp = NULL;
-        HASH_FIND_PTR(_js_native_global_ht, &ptr, nativeObjJsObjtmp);
-        assert(!nativeObjJsObjtmp);
-        p->ptr = nativeObj;
-        p->obj = ptr;
-        HASH_ADD_PTR(_js_native_global_ht, obj, p);
-    } while (0);
-    return p;
+    js_proxy_t* proxy = nullptr;
+    JSObject* jsObj = jsHandle.get();
+    if (nativeObj && jsObj)
+    {
+        // native to JS index
+        proxy = (js_proxy_t *)malloc(sizeof(js_proxy_t));
+        CC_ASSERT(proxy && "not enough memory");
+        
+        CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
+        // If native proxy doesn't exist, and js proxy exist, means previous js object in this location have already been released.
+        // In some circumstances, js object may be released without calling its finalizer, so the proxy haven't been removed.
+        // For ex: var seq = cc.sequence(moveBy, cc.callFunc(this.callback, this));
+        // In this code, cc.callFunc is created in parameter, and directly released after the native function call, the finalizer won't be triggered.
+        // The current solution keep the game running with a warning because it may cause memory leak as the native object may have been retained.
+        auto existJSProxy = _js_native_global_map.find(jsObj);
+        if (existJSProxy != _js_native_global_map.end()) {
+#if COCOS2D_DEBUG
+            CCLOG("jsbindings: Failed to remove proxy for native object: %p, force removing it, but it may cause memory leak", existJSProxy->second->ptr);
+#endif
+            jsb_remove_proxy(existJSProxy->second);
+        }
+        
+        proxy->ptr = nativeObj;
+        proxy->obj = jsObj;
+        proxy->_jsobj = jsObj;
+        
+        // One Proxy in two entries
+        _native_js_global_map[nativeObj] = proxy;
+        _js_native_global_map[jsObj] = proxy;
+    }
+    else
+        CCLOG("jsb_new_proxy: Invalid keys");
+    
+    return proxy;
 }
 
 js_proxy_t* jsb_get_native_proxy(void* nativeObj)
 {
-    js_proxy_t* p = nullptr;
-    JS_GET_PROXY(p, nativeObj);
-    return p;
+    auto search = _native_js_global_map.find(nativeObj);
+    if(search != _native_js_global_map.end())
+        return search->second;
+    return nullptr;
 }
 
 js_proxy_t* jsb_get_js_proxy(JS::HandleObject jsObj)
 {
-    js_proxy_t* p = nullptr;
-    JSObject* ptr = jsObj.get();
-    JS_GET_NATIVE_PROXY(p, ptr);
-    return p;
+    auto search = _js_native_global_map.find(jsObj);
+    if(search != _js_native_global_map.end())
+        return search->second;
+    return nullptr;
 }
 
 void jsb_remove_proxy(js_proxy_t* nativeProxy, js_proxy_t* jsProxy)
 {
-    JS_REMOVE_PROXY(nativeProxy, jsProxy);
+    js_proxy_t* proxy = nativeProxy ? nativeProxy : jsProxy;
+    jsb_remove_proxy(proxy);
 }
 
+void jsb_remove_proxy(js_proxy_t* proxy)
+{
+    void* nativeKey = proxy->ptr;
+    JSObject* jsKey = proxy->_jsobj;
+
+    CC_ASSERT(nativeKey && "Invalid nativeKey");
+    CC_ASSERT(jsKey && "Invalid JSKey");
+
+    auto it_nat = _native_js_global_map.find(nativeKey);
+    auto it_js = _js_native_global_map.find(jsKey);
+
+    if (it_nat != _native_js_global_map.end())
+    {
+        _native_js_global_map.erase(it_nat);
+    }
+    else CCLOG("jsb_remove_proxy: failed. Native key not found");
+
+    if (it_js != _js_native_global_map.end())
+    {
+        // Free it once, since we only have one proxy alloced entry
+        free(it_js->second);
+        _js_native_global_map.erase(it_js);
+    }
+    else CCLOG("jsb_remove_proxy: failed. JS key not found");
+}
