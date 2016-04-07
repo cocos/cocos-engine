@@ -450,24 +450,8 @@ std::string FileUtilsApple::getFullPathForDirectoryAndFilename(const std::string
 
 ValueMap FileUtilsApple::getValueMapFromFile(const std::string& filename)
 {
-    ValueMap ret;
-
-    std::string fullPath = fullPathForFilename(filename);
-    if (!fullPath.empty()) {
-        NSString* path = [NSString stringWithUTF8String:fullPath.c_str()];
-        NSDictionary* dict = [NSDictionary dictionaryWithContentsOfFile:path];
-
-        if (dict != nil)
-        {
-            for (id key in [dict allKeys])
-            {
-                id value = [dict objectForKey:key];
-                addValueToDict(key, value, ret);
-            }
-        }
-    }
-
-    return ret;
+    auto d(FileUtils::getInstance()->getDataFromFile(filename));
+    return getValueMapFromData(reinterpret_cast<char*>(d.getBytes()), static_cast<int>(d.getSize()));
 }
 
 ValueMap FileUtilsApple::getValueMapFromData(const char* filedata, int filesize)

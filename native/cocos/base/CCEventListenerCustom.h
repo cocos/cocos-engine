@@ -70,7 +70,7 @@ public:
     /// Overrides
     virtual bool checkAvailable() override;
     virtual EventListenerCustom* clone() override;
-    
+
     const std::string& getEventName() { return _eventName; }
 
 CC_CONSTRUCTOR_ACCESS:

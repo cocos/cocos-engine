@@ -70,3 +70,4 @@ if (!native_obj) { \
 }
 
 #endif
+

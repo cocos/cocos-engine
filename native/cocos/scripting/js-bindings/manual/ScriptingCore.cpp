@@ -523,7 +523,7 @@ void ScriptingCore::removeAllRoots(JSContext *cx)
 {
     // Native -> JS. No need to free "second"
     _native_js_global_map.clear();
-    
+
     // JS -> Native: free "second" and "unroot" it.
     auto it_js = _js_native_global_map.begin();
     while (it_js != _js_native_global_map.end())
@@ -1934,7 +1934,7 @@ js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsHandle)
         // native to JS index
         proxy = (js_proxy_t *)malloc(sizeof(js_proxy_t));
         CC_ASSERT(proxy && "not enough memory");
-        
+
         CC_ASSERT(_native_js_global_map.find(nativeObj) == _native_js_global_map.end() && "Native Key should not be present");
         // If native proxy doesn't exist, and js proxy exist, means previous js object in this location have already been released.
         // In some circumstances, js object may be released without calling its finalizer, so the proxy haven't been removed.
@@ -1948,18 +1948,18 @@ js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsHandle)
 #endif
             jsb_remove_proxy(existJSProxy->second);
         }
-        
+
         proxy->ptr = nativeObj;
         proxy->obj = jsObj;
         proxy->_jsobj = jsObj;
-        
+
         // One Proxy in two entries
         _native_js_global_map[nativeObj] = proxy;
         _js_native_global_map[jsObj] = proxy;
     }
     else
         CCLOG("jsb_new_proxy: Invalid keys");
-    
+
     return proxy;
 }
 
@@ -2010,3 +2010,4 @@ void jsb_remove_proxy(js_proxy_t* proxy)
     }
     else CCLOG("jsb_remove_proxy: failed. JS key not found");
 }
+

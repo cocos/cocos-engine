@@ -75,7 +75,7 @@ public:
     {
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
-        
+
         if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
             return;
 
@@ -95,7 +95,7 @@ public:
     {
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (p == nullptr) return;
-        
+
         if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
             return;
 
@@ -149,7 +149,7 @@ public:
 
         if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
             return;
-        
+
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
         JS::RootedObject jsobj(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
@@ -173,7 +173,7 @@ public:
     {
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
-        
+
         if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
             return;
 

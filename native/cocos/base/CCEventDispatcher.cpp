@@ -793,7 +793,7 @@ void EventDispatcher::dispatchEvent(Event* event)
     if (iter != _listenerMap.end())
     {
         sortEventListeners(listenerID);
-        
+
         auto listeners = iter->second;
 
         auto onEvent = [&event](EventListener* listener) -> bool{
@@ -803,7 +803,7 @@ void EventDispatcher::dispatchEvent(Event* event)
         };
 
         dispatchEventToListeners(listeners, onEvent);
-        
+
         updateListeners(event);
     }
 }
