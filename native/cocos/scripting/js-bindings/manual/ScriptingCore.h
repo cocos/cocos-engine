@@ -535,10 +535,21 @@ js_type_class_t *jsb_register_class(JSContext *cx, JSClass *jsClass, JS::HandleO
     return p;
 }
 
+/** creates two new proxies: one associated with the nativeObj,
+ and another one associated with the JsObj */
 js_proxy_t* jsb_new_proxy(void* nativeObj, JS::HandleObject jsObj);
+
+/** returns the proxy associated with the Native* */
 js_proxy_t* jsb_get_native_proxy(void* nativeObj);
+
+/** returns the proxy associated with the JSObject* */
 js_proxy_t* jsb_get_js_proxy(JS::HandleObject jsObj);
+
+/** deprecated: use jsb_remove_proxy(js_proxy_t* proxy) instead */
 void jsb_remove_proxy(js_proxy_t* nativeProxy, js_proxy_t* jsProxy);
+
+/** removes both the native and js proxies */
+void jsb_remove_proxy(js_proxy_t* proxy);
 
 template <class T>
 jsval getJSObject(JSContext* cx, T* nativeObj)
@@ -551,7 +562,7 @@ jsval getJSObject(JSContext* cx, T* nativeObj)
     return proxy ? OBJECT_TO_JSVAL(proxy->obj) : JSVAL_NULL;
 }
 
-void removeJSObject(JSContext* cx, void* nativeObj);
+void removeJSObject(JSContext* cx, cocos2d::Ref* nativeObj);
 
 #endif /* __SCRIPTING_CORE_H__ */
 

@@ -150,10 +150,9 @@ public:
         JS::RootedValue args(cx, OBJECT_TO_JSVAL(jsobj));
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "onclose", 1, args.address());
 
-        JS::RootedObject wsobj(cx, p->obj);
-        js_proxy_t* jsproxy = jsb_get_js_proxy(wsobj);
-        JS::RemoveObjectRoot(cx, &jsproxy->obj);
-        jsb_remove_proxy(p, jsproxy);
+        auto copy = &p->obj;
+        jsb_remove_proxy(p);
+        JS::RemoveObjectRoot(cx, copy);
         // Delete WebSocket instance
         CC_SAFE_DELETE(ws);
         // Delete self at last while websocket was closed.

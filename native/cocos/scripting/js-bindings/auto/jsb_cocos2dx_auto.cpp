@@ -41743,20 +41743,14 @@ bool js_cocos2dx_ParticleData_constructor(JSContext *cx, uint32_t argc, jsval *v
 
 void js_cocos2d_ParticleData_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ParticleData)", obj);
-    js_proxy_t* nproxy;
-    js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
-    if (jsproxy) {
-        cocos2d::ParticleData *nobj = static_cast<cocos2d::ParticleData *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+    auto proxy = jsb_get_js_proxy(jsobj);
+    if (proxy) {
+        cocos2d::ParticleData *nobj = static_cast<cocos2d::ParticleData *>(proxy->ptr);
 
-        if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(nullptr, jsproxy);
+        jsb_remove_proxy(proxy);
+        delete nobj;
     }
 }
 void js_register_cocos2dx_ParticleData(JSContext *cx, JS::HandleObject global) {

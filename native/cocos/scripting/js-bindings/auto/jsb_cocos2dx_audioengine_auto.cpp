@@ -151,20 +151,14 @@ bool js_cocos2dx_audioengine_AudioProfile_constructor(JSContext *cx, uint32_t ar
 
 void js_cocos2d_experimental_AudioProfile_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (AudioProfile)", obj);
-    js_proxy_t* nproxy;
-    js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
-    if (jsproxy) {
-        cocos2d::experimental::AudioProfile *nobj = static_cast<cocos2d::experimental::AudioProfile *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+    auto proxy = jsb_get_js_proxy(jsobj);
+    if (proxy) {
+        cocos2d::experimental::AudioProfile *nobj = static_cast<cocos2d::experimental::AudioProfile *>(proxy->ptr);
 
-        if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(nullptr, jsproxy);
+        jsb_remove_proxy(proxy);
+        delete nobj;
     }
 }
 void js_register_cocos2dx_audioengine_AudioProfile(JSContext *cx, JS::HandleObject global) {

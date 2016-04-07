@@ -2480,7 +2480,7 @@ bool js_cocos2dx_ActionInterval_repeat(JSContext *cx, uint32_t argc, jsval *vp)
         cocos2d::Repeat* action = cocos2d::Repeat::create(cobj, timesInt);
         // Unbind current proxy binding
         JS::RemoveObjectRoot(cx, &proxy->obj);
-        jsb_remove_proxy(jsb_get_native_proxy(cobj), proxy);
+        jsb_remove_proxy(proxy);
         // Rebind js obj with new action
         js_proxy_t* newProxy = jsb_new_proxy(action, obj);
         JS::AddNamedObjectRoot(cx, &newProxy->obj, "cocos2d::Repeat");
@@ -2505,7 +2505,7 @@ bool js_cocos2dx_ActionInterval_repeatForever(JSContext *cx, uint32_t argc, jsva
         cocos2d::RepeatForever* action = cocos2d::RepeatForever::create(cobj);
         // Unbind current proxy binding
         JS::RemoveObjectRoot(cx, &proxy->obj);
-        jsb_remove_proxy(jsb_get_native_proxy(cobj), proxy);
+        jsb_remove_proxy(proxy);
         // Rebind js obj with new action
         js_proxy_t* newProxy = jsb_new_proxy(action, obj);
         JS::AddNamedObjectRoot(cx, &newProxy->obj, "cocos2d::RepeatForever");
@@ -2540,7 +2540,7 @@ bool js_cocos2dx_ActionInterval_speed(JSContext *cx, uint32_t argc, jsval *vp)
         cocos2d::Speed* action = cocos2d::Speed::create(cobj, speed);
         // Unbind current proxy binding
         JS::RemoveObjectRoot(cx, &proxy->obj);
-        jsb_remove_proxy(jsb_get_native_proxy(cobj), proxy);
+        jsb_remove_proxy(proxy);
         // Rebind js obj with new action
         js_proxy_t* newProxy = jsb_new_proxy(action, obj);
         JS::AddNamedObjectRoot(cx, &newProxy->obj, "cocos2d::Speed");
@@ -2734,7 +2734,7 @@ bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, jsval *vp)
 
     // Unbind current proxy binding
     JS::RemoveObjectRoot(cx, &proxy->obj);
-    jsb_remove_proxy(jsb_get_native_proxy(cobj), proxy);
+    jsb_remove_proxy(proxy);
     // Rebind js obj with new action
     js_proxy_t* newProxy = jsb_new_proxy(currentAction, obj);
     JS::AddNamedObjectRoot(cx, &newProxy->obj, "cocos2d::EaseAction");
@@ -5289,20 +5289,17 @@ bool js_cocos2dx_PolygonInfo_constructor(JSContext *cx, uint32_t argc, jsval *vp
 
 void js_cocos2d_PolygonInfo_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (PolygonInfo)", obj);
-    js_proxy_t* nproxy;
-    js_proxy_t* jsproxy;
+    
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
-    if (jsproxy)
+    auto proxy = jsb_get_js_proxy(jsobj);
+    if (proxy)
     {
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
-
-        cocos2d::PolygonInfo *nobj = static_cast<cocos2d::PolygonInfo *>(nproxy->ptr);
+        auto nobj = static_cast<cocos2d::PolygonInfo *>(proxy->ptr);
         if (nobj)
             delete nobj;
 
-        jsb_remove_proxy(nproxy, jsproxy);
+        jsb_remove_proxy(proxy);
     }
 }
 
