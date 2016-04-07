@@ -45,12 +45,27 @@ static void replaceDefines(const std::string& compileTimeDefines, std::string& o
     // Replace semicolons with '#define ... \n'
     if (!compileTimeDefines.empty())
     {
-        size_t pos;
-        out = compileTimeDefines;
-        out.insert(0, "#define ");
-        while ((pos = out.find(';')) != std::string::npos)
+        // append ';' if the last char doesn't have one
+        auto copyDefines = compileTimeDefines;
+        if (copyDefines[copyDefines.length()-1] != ';')
+            copyDefines.append(1, ';');
+
+        std::string currentDefine;
+
+        for (auto itChar: copyDefines)
         {
-            out.replace(pos, 1, "\n#define ");
+            if (itChar == ';')
+            {
+                if (!currentDefine.empty())
+                {
+                    out.append("\n#define " + currentDefine);
+                    currentDefine.clear();
+                }
+            }
+            else
+            {
+                currentDefine.append(1, itChar);
+            }
         }
         out += "\n";
     }
