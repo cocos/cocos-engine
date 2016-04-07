@@ -542,17 +542,8 @@ Image::Format Image::detectFormat(const unsigned char * data, ssize_t dataLen)
     {
         return Format::ETC;
     }
-//    else if (isS3TC(data, dataLen))
-//    {
-//        return Format::S3TC;
-//    }
-//    else if (isATITC(data, dataLen))
-//    {
-//        return Format::ATITC;
-//    }
     else
     {
-        CCLOG("cocos2d: can't detect image format");
         return Format::UNKNOWN;
     }
 }

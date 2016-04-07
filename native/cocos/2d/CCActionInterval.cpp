@@ -431,23 +431,25 @@ Repeat* Repeat::create(FiniteTimeAction *action, unsigned int times)
 
 bool Repeat::initWithAction(FiniteTimeAction *action, unsigned int times)
 {
-    float d = action->getDuration() * times;
-
-    if (action && ActionInterval::initWithDuration(d))
+    if (action)
     {
-        _times = times;
-        _innerAction = action;
-        action->retain();
-
-        _actionInstant = dynamic_cast<ActionInstant*>(action) ? true : false;
-        //an instant action needs to be executed one time less in the update method since it uses startWithTarget to execute the action
-        if (_actionInstant)
+        float d = action->getDuration() * times;
+        if (ActionInterval::initWithDuration(d))
         {
-            _times -=1;
+            _times = times;
+            _innerAction = action;
+            action->retain();
+            
+            _actionInstant = dynamic_cast<ActionInstant*>(action) ? true : false;
+            //an instant action needs to be executed one time less in the update method since it uses startWithTarget to execute the action
+            if (_actionInstant)
+            {
+                _times -=1;
+            }
+            _total = 0;
+            
+            return true;
         }
-        _total = 0;
-
-        return true;
     }
 
     return false;

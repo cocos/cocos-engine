@@ -5574,6 +5574,8 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
 
     tmpObj.set(jsb_cocos2d_RenderTexture_prototype);
     JS_DefineFunction(cx, tmpObj, "saveToFile", js_cocos2dx_RenderTexture_saveToFile, 4, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, tmpObj, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     JS_GetProperty(cx, ccObj, "Menu", &tmpVal);
     tmpObj = tmpVal.toObjectOrNull();
