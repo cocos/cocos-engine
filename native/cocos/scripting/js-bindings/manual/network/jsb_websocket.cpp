@@ -29,6 +29,7 @@
 #include "cocos2d_specifics.hpp"
 
 using namespace cocos2d::network;
+using namespace cocos2d;
 
 /*
  [Constructor(in DOMString url, in optional DOMString protocols)]
@@ -74,6 +75,9 @@ public:
     {
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
+        
+        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
+            return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
@@ -90,7 +94,10 @@ public:
     virtual void onMessage(WebSocket* ws, const WebSocket::Data& data)
     {
         js_proxy_t * p = jsb_get_native_proxy(ws);
-        if (!p) return;
+        if (p == nullptr) return;
+        
+        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
+            return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
@@ -140,6 +147,9 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
 
+        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
+            return;
+        
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
         JS::RootedObject jsobj(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
@@ -163,6 +173,9 @@ public:
     {
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
+        
+        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
+            return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
