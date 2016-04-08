@@ -44,8 +44,7 @@ Armature/CCArmatureDefine.cpp \
 Armature/CCDataReaderHelper.cpp \
 Armature/CCSpriteFrameCacheHelper.cpp \
 Armature/CCTransformHelp.cpp \
-Armature/CCUtilMath.cpp \
-Armature/DictionaryHelper.cpp
+Armature/CCUtilMath.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
 

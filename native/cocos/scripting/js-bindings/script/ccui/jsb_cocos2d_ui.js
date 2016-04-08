@@ -212,6 +212,15 @@ ccui.ListView.GRAVITY_TOP = 3;
 ccui.ListView.GRAVITY_BOTTOM = 4;
 ccui.ListView.GRAVITY_CENTER_VERTICAL = 5;
 
+//list view magnetic type
+ccui.ListView.MAGNETIC_NONE = 0;
+ccui.ListView.MAGNETIC_CENTER = 1;
+ccui.ListView.MAGNETIC_BOTH_END = 2;
+ccui.ListView.MAGNETIC_LEFT = 3;
+ccui.ListView.MAGNETIC_RIGHT = 4;
+ccui.ListView.MAGNETIC_TOP = 5;
+ccui.ListView.MAGNETIC_BOTTOM = 6;
+
 /*
  * UIScrollView
  */
@@ -231,7 +240,6 @@ ccui.ScrollView.EVENT_BOUNCE_TOP = 5;
 ccui.ScrollView.EVENT_BOUNCE_BOTTOM = 6;
 ccui.ScrollView.EVENT_BOUNCE_LEFT = 7;
 ccui.ScrollView.EVENT_BOUNCE_RIGHT = 8;
-
 
 ccui.ScrollView.AUTO_SCROLL_MAX_SPEED = 1000;
 ccui.ScrollView.SCROLLDIR_UP = cc.p(0, 1);
@@ -263,7 +271,7 @@ ccui.PRESSED_RENDERER_ZORDER = -2;
 ccui.DISABLED_RENDERER_ZORDER = -2;
 ccui.TITLE_RENDERER_ZORDER = -1;
 
-ccui.Scale9Sprite.POSITIONS_CENTRE = 0;                //CCScale9Sprite.js
+ccui.Scale9Sprite.POSITIONS_CENTRE = 0;
 ccui.Scale9Sprite.POSITIONS_TOP = 1;
 ccui.Scale9Sprite.POSITIONS_LEFT = 2;
 ccui.Scale9Sprite.POSITIONS_RIGHT = 3;
@@ -300,14 +308,6 @@ ccui.LoadingBar.TYPE_LEFT = 0;
 ccui.LoadingBar.TYPE_RIGHT = 1;
 
 ccui.LoadingBar.RENDERER_ZORDER = -1;
-
-/*
- * UIRichElement
- */
-//Rich element type
-//ccui.RichElement.TYPE_TEXT = 0;
-//ccui.RichElement.TYPE_IMAGE = 1;
-//ccui.RichElement.TYPE_CUSTOM = 2;
 
 /*
  * UISlider

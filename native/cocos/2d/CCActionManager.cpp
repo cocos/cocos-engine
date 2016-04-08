@@ -159,7 +159,8 @@ Vector<Node*> ActionManager::pauseAllRunningActions()
 
 void ActionManager::resumeTargets(const Vector<Node*>& targetsToResume)
 {
-    for(const auto &node : targetsToResume) {
+    for(const auto &node : targetsToResume)
+    {
         this->resumeTarget(node);
     }
 }
@@ -261,9 +262,8 @@ void ActionManager::removeActionByTag(int tag, Node *target)
 {
     CCASSERT(tag != Action::INVALID_TAG, "Invalid tag value!");
     CCASSERT(target != nullptr, "target can't be nullptr!");
-    if (target == nullptr) {
+    if (target == nullptr)
         return;
-    }
 
     tHashElement *element = nullptr;
     HASH_FIND_PTR(_targets, &target, element);
@@ -288,9 +288,8 @@ void ActionManager::removeAllActionsByTag(int tag, Node *target)
 {
     CCASSERT(tag != Action::INVALID_TAG, "Invalid tag value!");
     CCASSERT(target != nullptr, "target can't be nullptr!");
-    if (target == nullptr) {
+    if (target == nullptr)
         return;
-    }
 
     tHashElement *element = nullptr;
     HASH_FIND_PTR(_targets, &target, element);
@@ -322,9 +321,8 @@ void ActionManager::removeActionsByFlags(unsigned int flags, Node *target)
         return;
     }
     CCASSERT(target != nullptr, "target can't be nullptr!");
-    if (target == nullptr) {
+    if (target == nullptr)
         return;
-    }
 
     tHashElement *element = nullptr;
     HASH_FIND_PTR(_targets, &target, element);
