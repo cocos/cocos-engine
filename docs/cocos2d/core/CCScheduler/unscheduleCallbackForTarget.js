@@ -1,3 +1,3 @@
--------------------
 //unschedule a callback of target
-cc.director.getScheduler().unscheduleCallbackForTarget(function, this);
+var scheduler = cc.director.getScheduler();
+scheduler.unscheduleCallbackForTarget(this, callback);
