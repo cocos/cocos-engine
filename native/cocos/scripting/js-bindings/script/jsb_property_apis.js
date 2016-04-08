@@ -122,8 +122,6 @@ cc.defineGetterSetter(_proto, "color", _proto.getColor, _proto.setColor);
 _proto = cc.TextFieldTTF.prototype;
 cc.defineGetterSetter(_proto, "string", _proto.getString, _proto.setString);
 
-
-
 // Extends
 var _proto = cc.ClippingNode.prototype;
 cc.defineGetterSetter(_proto, "alphaThreshold", _proto.getAlphaThreshold, _proto.setAlphaThreshold);
@@ -164,7 +162,7 @@ cc.defineGetterSetter(_proto, "shaderProgram", _proto.getShaderProgram, _proto.s
 cc.defineGetterSetter(_proto, "glServerState", _proto.getGLServerState, _proto.setGLServerState);
 cc.defineGetterSetter(_proto, "tag", _proto.getTag, _proto.setTag);
 cc.defineGetterSetter(_proto, "userObject", _proto.getUserObject, _proto.setUserObject);
-cc.defineGetterSetter(_proto, "arrivalOrder", _proto.getArrivalOrder, _proto.setArrivalOrder);
+cc.defineGetterSetter(_proto, "arrivalOrder", _proto.getOrderOfArrival, _proto.setOrderOfArrival);
 cc.defineGetterSetter(_proto, "opacity", _proto.getOpacity, _proto.setOpacity);
 cc.defineGetterSetter(_proto, "opacityModifyRGB", _proto.isOpacityModifyRGB, _proto.setOpacityModifyRGB);
 cc.defineGetterSetter(_proto, "cascadeOpacity", _proto.isCascadeOpacityEnabled, _proto.setCascadeOpacityEnabled);
