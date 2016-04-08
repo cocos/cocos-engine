@@ -716,7 +716,8 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
             tmpCobj->setJSExtraData(data);
         }
 
-        CallFuncN *ret = CallFuncN::create([=](Node* sender){
+        cocos2d::CallFuncN *ret = new (std::nothrow) cocos2d::CallFuncN;
+        ret->initWithFunction([=](Node* sender){
             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             JS::RootedValue jsvalThis(cx, tmpCobj->getJSCallbackThis());
             JS::RootedObject thisObj(cx, jsvalThis.toObjectOrNull());
@@ -725,6 +726,10 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
 
             JS::RootedValue senderVal(cx);
 
+            if (sender == nullptr) {
+                sender = ret->getTarget();
+            }
+            
             if(sender)
             {
                 js_proxy_t *proxy = js_get_or_create_proxy<cocos2d::Node>(cx, sender);
@@ -746,6 +751,7 @@ static bool js_callFunc(JSContext *cx, uint32_t argc, jsval *vp)
                 JS_CallFunctionValue(cx, thisObj, jsvalCallback, callArgs, &retval);
             }
         });
+        ret->autorelease();
 
         js_proxy_t *proxy = js_get_or_create_proxy<cocos2d::CallFunc>(cx, ret);
         args.rval().set(OBJECT_TO_JSVAL(proxy->obj));
