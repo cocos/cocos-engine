@@ -37,7 +37,6 @@
 NS_CC_BEGIN
 
 GLint StencilStateManager::s_layer = -1;
-static GLint g_sStencilBits = -1;
 
 StencilStateManager::StencilStateManager()
 : _alphaThreshold(1.0f)
@@ -54,19 +53,7 @@ StencilStateManager::StencilStateManager()
 ,  _currentAlphaTestEnabled(GL_FALSE)
 , _currentAlphaTestFunc(GL_ALWAYS)
 , _currentAlphaTestRef(1)
-
 {
-    // get (only once) the number of bits of the stencil buffer
-    static bool once = true;
-    if (once)
-    {
-        glGetIntegerv(GL_STENCIL_BITS, &g_sStencilBits);
-        if (g_sStencilBits <= 0)
-        {
-            CCLOG("Stencil buffer is not enabled.");
-        }
-        once = false;
-    }
 }
 
 void StencilStateManager::drawFullScreenQuadClearStencil()
