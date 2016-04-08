@@ -35,8 +35,6 @@
 
 using namespace std;
 
-static bool _registerNativeMethods(JNIEnv* env);
-
 unordered_map<int, cocos2d::network::DownloaderAndroid*> sDownloaderMap;
 
 namespace cocos2d { namespace network {
@@ -171,18 +169,12 @@ namespace cocos2d { namespace network {
             );
             coTask->task.reset();
         }
-
-        void _preloadJavaDownloaderClass()
-        {
-            if(!_registered)
-            {
-                _registered = _registerNativeMethods(JniHelper::getEnv());
-            }
-        }
     }
 }  // namespace cocos2d::network
 
-static void _nativeOnProgress(JNIEnv *env, jclass clazz, jint id, jint taskId, jlong dl, jlong dlnow, jlong dltotal)
+extern "C"
+{
+JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxDownloader_nativeOnProgress(JNIEnv *env, jclass clazz, jint id, jint taskId, jlong dl, jlong dlnow, jlong dltotal)
 {
     DLLOG("_nativeOnProgress(id: %d, taskId: %d, dl: %lld, dlnow: %lld, dltotal: %lld)", id, taskId, dl, dlnow, dltotal);
     auto iter = sDownloaderMap.find(id);
@@ -195,7 +187,7 @@ static void _nativeOnProgress(JNIEnv *env, jclass clazz, jint id, jint taskId, j
     downloader->_onProcess((int)taskId, (int64_t)dl, (int64_t)dlnow, (int64_t)dltotal);
 }
 
-static void _nativeOnFinish(JNIEnv *env, jclass clazz, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data)
+JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxDownloader_nativeOnFinish(JNIEnv *env, jclass clazz, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data)
 {
     DLLOG("_nativeOnFinish(id: %d, taskId: %d)", id, taskId);
     auto iter = sDownloaderMap.find(id);
@@ -228,29 +220,4 @@ static void _nativeOnFinish(JNIEnv *env, jclass clazz, jint id, jint taskId, jin
     }
     downloader->_onFinish((int)taskId, (int)errCode, nullptr, buf);
 }
-
-static JNINativeMethod sMethodTable[] = {
-        { "nativeOnProgress", "(IIJJJ)V", (void*)_nativeOnProgress },
-        { "nativeOnFinish", "(III" JARG_STR "[B)V", (void*)_nativeOnFinish },
-};
-
-static bool _registerNativeMethods(JNIEnv* env)
-{
-    jclass clazz = env->FindClass(JCLS_DOWNLOADER);
-    if (clazz == NULL)
-    {
-        DLLOG("_registerNativeMethods: can't find java class:%s", JARG_DOWNLOADER);
-        return false;
-    }
-    if (JNI_OK != env->RegisterNatives(clazz, sMethodTable, sizeof(sMethodTable) / sizeof(sMethodTable[0])))
-    {
-        DLLOG("_registerNativeMethods: failed");
-        if (env->ExceptionCheck())
-        {
-            env->ExceptionClear();
-        }
-        return false;
-    }
-    return true;
 }
-
