@@ -28,11 +28,10 @@ THE SOFTWARE.
 #include "cocostudio/Armature/CCArmatureDefine.h"
 #include "cocostudio/Armature/CCDatas.h"
 #include "cocostudio/Armature/CCArmature.h"
-#include "cocostudio/Armature/DictionaryHelper.h"
+#include "cocostudio/DictionaryHelper.h"
 #include "cocostudio/CocosStudioExport.h"
 
 #include "json/document.h"
-#include "DictionaryHelper.h"
 
 #include <string>
 #include <queue>
