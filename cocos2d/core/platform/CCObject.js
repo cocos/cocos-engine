@@ -5,10 +5,11 @@ var JS = require('./js');
 var Destroyed = 1 << 0;
 var ToDestroy = 1 << 1;
 var DontSave = 1 << 2;
-var EditorOnly  = 1 << 3;
+var EditorOnly = 1 << 3;
 var Dirty = 1 << 4;
 var DontDestroy = 1 << 5;
 var Destroying = 1 << 6;
+var Activating = 1 << 7;
 //var RegisteredInEditor = 1 << 8;
 var HideInGame = 1 << 9;
 var HideInEditor = 1 << 10;
@@ -26,7 +27,7 @@ var IsPositionLocked = 1 << 20;
 
 var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
-var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy |
+var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
                        IsOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
                        /*RegisteredInEditor*/);
 
@@ -93,6 +94,7 @@ CCObject.Flags = {
     // FLAGS FOR ENGINE
 
     Destroying: Destroying,
+    Activating: Activating,
 
     /**
      * !#en
