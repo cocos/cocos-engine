@@ -48,7 +48,8 @@ ActionCamera* ActionCamera::clone() const
 {
     // no copy constructor
     auto action = new (std::nothrow) ActionCamera();
-    if (action) {
+    if (action)
+    {
         action->autorelease();
         return action;
     }
@@ -105,7 +106,8 @@ void ActionCamera::updateTransform()
 
     Mat4 mv = Mat4::IDENTITY;
 
-    if(needsTranslation) {
+    if(needsTranslation)
+    {
         Mat4 t;
         Mat4::createTranslation(anchorPoint.x, anchorPoint.y, 0, &t);
         mv = mv * t;
@@ -113,8 +115,8 @@ void ActionCamera::updateTransform()
 
     mv = mv * lookupMatrix;
 
-    if(needsTranslation) {
-
+    if(needsTranslation)
+    {
         Mat4 t;
         Mat4::createTranslation(-anchorPoint.x, -anchorPoint.y, 0, &t);
         mv = mv * t;

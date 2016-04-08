@@ -43,7 +43,8 @@ Action::Action()
 ,_flags(0)
 {
 #if CC_ENABLE_SCRIPT_BINDING
-    if (ScriptEngineManager::ShareInstance) {
+    if (ScriptEngineManager::ShareInstance)
+    {
         auto engine = ScriptEngineManager::ShareInstance->getScriptEngine();
         _scriptType = engine != nullptr ? engine->getScriptType() : kScriptTypeNone;
     }
@@ -118,7 +119,8 @@ Speed* Speed::create(ActionInterval* action, float speed)
 bool Speed::initWithAction(ActionInterval *action, float speed)
 {
     CCASSERT(action != nullptr, "action must not be NULL");
-    if (action == nullptr) {
+    if (action == nullptr)
+    {
         log("Speed::initWithAction error: action is nullptr!");
         return false;
     }
@@ -132,16 +134,16 @@ bool Speed::initWithAction(ActionInterval *action, float speed)
 Speed *Speed::clone() const
 {
     // no copy constructor
-    if (_innerAction) {
+    if (_innerAction)
         return Speed::create(_innerAction->clone(), _speed);
-    }
 
     return nullptr;
 }
 
 void Speed::startWithTarget(Node* target)
 {
-    if (target && _innerAction) {
+    if (target && _innerAction)
+    {
         Action::startWithTarget(target);
         _innerAction->startWithTarget(target);
     }
@@ -151,9 +153,8 @@ void Speed::startWithTarget(Node* target)
 
 void Speed::stop()
 {
-    if (_innerAction) {
+    if (_innerAction)
         _innerAction->stop();
-    }
 
     Action::stop();
 }
@@ -170,9 +171,8 @@ bool Speed::isDone() const
 
 Speed *Speed::reverse() const
 {
-    if (_innerAction) {
+    if (_innerAction)
         return Speed::create(_innerAction->reverse(), _speed);
-    }
 
     return nullptr;
 }

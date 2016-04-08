@@ -35,7 +35,8 @@ NS_CC_BEGIN
 ProgressTo* ProgressTo::create(float duration, float percent)
 {
     ProgressTo *progressTo = new (std::nothrow) ProgressTo();
-    if (progressTo && progressTo->initWithDuration(duration, percent)) {
+    if (progressTo && progressTo->initWithDuration(duration, percent))
+    {
         progressTo->autorelease();
         return progressTo;
     }
@@ -84,7 +85,8 @@ void ProgressTo::update(float time)
 ProgressFromTo* ProgressFromTo::create(float duration, float fromPercentage, float toPercentage)
 {
     ProgressFromTo *progressFromTo = new (std::nothrow) ProgressFromTo();
-    if (progressFromTo && progressFromTo->initWithDuration(duration, fromPercentage, toPercentage)) {
+    if (progressFromTo && progressFromTo->initWithDuration(duration, fromPercentage, toPercentage))
+    {
         progressFromTo->autorelease();
         return progressFromTo;
     }

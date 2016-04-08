@@ -106,7 +106,8 @@ void AnimationCache::parseVersion1(const ValueMap& animations)
         {
             SpriteFrame* spriteFrame = frameCache->getSpriteFrameByName(frameName.asString());
 
-            if ( ! spriteFrame ) {
+            if ( ! spriteFrame )
+            {
                 CCLOG("cocos2d: AnimationCache: Animation '%s' refers to frame '%s' which is not currently in the SpriteFrameCache. This frame will not be added to the animation.", iter->first.c_str(), frameName.asString().c_str());
 
                 continue;
@@ -161,7 +162,8 @@ void AnimationCache::parseVersion2(const ValueMap& animations)
             std::string spriteFrameName = entry["spriteframe"].asString();
             SpriteFrame *spriteFrame = frameCache->getSpriteFrameByName(spriteFrameName);
 
-            if( ! spriteFrame ) {
+            if( ! spriteFrame )
+            {
                 CCLOG("cocos2d: AnimationCache: Animation '%s' refers to frame '%s' which is not currently in the SpriteFrameCache. This frame will not be added to the animation.", name.c_str(), spriteFrameName.c_str());
 
                 continue;
@@ -201,13 +203,15 @@ void AnimationCache::addAnimationsWithDictionary(const ValueMap& dictionary,cons
         version = properties.at("format").asInt();
         const ValueVector& spritesheets = properties.at("spritesheets").asValueVector();
 
-        for(const auto &value : spritesheets) {
+        for(const auto &value : spritesheets)
+        {
             std::string path = FileUtils::getInstance()->fullPathFromRelativeFile(value.asString(),plist);
             SpriteFrameCache::getInstance()->addSpriteFramesWithFile(path);
         }
     }
 
-    switch (version) {
+    switch (version)
+    {
         case 1:
             parseVersion1(animations.asValueMap());
             break;
@@ -223,7 +227,8 @@ void AnimationCache::addAnimationsWithDictionary(const ValueMap& dictionary,cons
 void AnimationCache::addAnimationsWithFile(const std::string& plist)
 {
     CCASSERT(!plist.empty(), "Invalid texture file name");
-    if (plist.empty()) {
+    if (plist.empty())
+    {
         log("%s error:file name is empty!", __FUNCTION__);
         return;
     }
@@ -231,7 +236,8 @@ void AnimationCache::addAnimationsWithFile(const std::string& plist)
     ValueMap dict = FileUtils::getInstance()->getValueMapFromFile(plist);
 
     CCASSERT( !dict.empty(), "CCAnimationCache: File could not be found");
-    if (dict.empty()) {
+    if (dict.empty())
+    {
         log("AnimationCache::addAnimationsWithFile error:%s not exist!", plist.c_str());
     }
 
