@@ -1,3 +1,3 @@
--------------------
 //register this object to scheduler
-cc.director.getScheduler().scheduleUpdateForTarget(this, priority, !this._isRunning );
+var scheduler = cc.director.getScheduler();
+scheduler.scheduleUpdateForTarget(this, priority, !this._isRunning );
