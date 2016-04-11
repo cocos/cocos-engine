@@ -1222,20 +1222,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         cc.assert(child, cc._LogInfos.Node.addChild_3);
         cc.assert(child._parent === null, "child already added. It can't be added again");
 
-        this._addChildHelper(child, localZOrder, tag, name, setTag);
-    },
+        // invokes the parent setter
+        child.parent = this;
 
-    _addChildHelper: function(child, localZOrder, tag, name, setTag){
-        this._insertChild(child, localZOrder);
+        child.zIndex = localZOrder;
         if (setTag)
             child.setTag(tag);
         else
             child.setName(name);
-    },
-
-    _insertChild: function (child, z) {
-        child.parent = this;
-        child.zIndex = z;
     },
 
     // composition: REMOVE
@@ -1282,14 +1276,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * node.removeChild(newNode, false);
      */
     removeChild: function (child, cleanup) {
-        // explicit nil handling
-        if (this._children.length === 0)
-            return;
-
-        if (cleanup === undefined)
-            cleanup = true;
-        if (this._children.indexOf(child) > -1)
-            this._detachChild(child, cleanup);
+        if (this._children.indexOf(child) > -1) {
+            // If you don't do cleanup, the child's actions will not get removed and the
+            if (cleanup || cleanup === undefined) {
+                child.cleanup();
+            }
+            // invoke the parent setter
+            child.parent = null;
+        }
     },
 
     /**
@@ -1352,22 +1346,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             }
         }
         this._children.length = 0;
-    },
-
-    _detachChild: function (child, doCleanup) {
-        // IMPORTANT:
-        //  - 1st do onExit
-        //  - 2nd cleanup
-        //if (this._running) {
-        //    child.onExitTransitionDidStart();
-        //    child.onExit();
-        //}
-
-        // If you don't do cleanup, the child's actions will not get removed and the
-        if (doCleanup)
-            child.cleanup();
-
-        child.parent = null;
     },
 
     setNodeDirty: function(){
