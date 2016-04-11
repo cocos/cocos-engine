@@ -350,7 +350,9 @@ var Layout = cc.Class({
     },
 
     onLoad: function() {
-        this.node.setContentSize(this._layoutSize);
+        if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
+            this.node.setContentSize(this._layoutSize);
+        }
 
         this.node.on('size-changed', this._resized, this);
         this.node.on('anchor-changed', this._doLayoutDirty, this);
