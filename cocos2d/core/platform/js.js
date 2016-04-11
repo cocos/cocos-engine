@@ -555,13 +555,13 @@ js.formatStr = function () {
             if (regExpToTest.test(str))
                 str = str.replace(regExpToTest, arg);
             else
-                str += '    ' + arg;
+                str += ' ' + arg;
         }
     }
     else {
         if (l > 1) {
             for (; i < l; ++i) {
-                str += '    ' + args[i];
+                str += ' ' + args[i];
             }
         }
         else {
