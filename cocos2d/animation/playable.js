@@ -13,7 +13,8 @@ function Playable () {
 var prototype = Playable.prototype;
 
 /**
- * Is playing or paused in play mode?
+ * !#en Is playing or paused in play mode?
+ * !#zh 当前是否正在播放。
  * @property isPlaying
  * @type {boolean}
  * @default false
@@ -24,7 +25,8 @@ JS.get(prototype, 'isPlaying', function () {
 }, true);
 
 /**
- * Is currently paused? This can be true even if in edit mode(isPlaying == false).
+ * !#en Is currently paused? This can be true even if in edit mode(isPlaying == false).
+ * !#zh 当前是否正在暂停
  * @property isPaused
  * @type {boolean}
  * @default false
@@ -67,7 +69,8 @@ prototype.onError = virtual;
 // public
 
 /**
- * Play this animation
+ * !#en Play this animation.
+ * !#zh 播放动画。
  * @method play
  */
 prototype.play = function () {
@@ -87,7 +90,8 @@ prototype.play = function () {
 };
 
 /**
- * Stop this animation
+ * !#en Stop this animation.
+ * !#zh 停止动画播放。
  * @method stop
  */
 prototype.stop = function () {
@@ -99,7 +103,8 @@ prototype.stop = function () {
 };
 
 /**
- * Pause this animation
+ * !#en Pause this animation.
+ * !#zh 暂停动画。
  * @method pause
  */
 prototype.pause = function () {
@@ -108,7 +113,8 @@ prototype.pause = function () {
 };
 
 /**
- * Resume this animation
+ * !#en Resume this animation.
+ * !#zh 重新播放动画。
  * @method resume
  */
 prototype.resume = function () {
@@ -117,7 +123,8 @@ prototype.resume = function () {
 };
 
 /**
- * Perform a single frame step.
+ * !#en Perform a single frame step.
+ * !#zh 执行一帧动画。
  * @method step
  */
 prototype.step = function () {

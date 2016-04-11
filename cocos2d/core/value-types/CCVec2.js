@@ -37,9 +37,11 @@ var FireClass = require('../platform/CCClass');
 
  /**
  * Constructor
+ * see {{#crossLink "cc/vec2:method"}}cc.v2{{/crossLink}} or {{#crossLink "cc/p:method"}}cc.p{{/crossLink}}
  * @method Vec2
  * @param {number} [x=0]
  * @param {number} [y=0]
+ * @return {Vec2}
  */
 function Vec2 (x, y) {
     if (x && typeof x === 'object') {

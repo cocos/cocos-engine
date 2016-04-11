@@ -25,9 +25,14 @@
 
 var CCObject = require('../platform/CCObject');
 /**
+ * !#en
  * The base class for registering asset types.
  *
  * You may want to override:
+ * - createNode (static)
+ * !#zh
+ * 注册用的资源基类。<br/>
+ * 你可能要重写：<br/>
  * - createNode (static)
  *
  * @class RawAsset
@@ -52,9 +57,12 @@ cc.RawAsset = cc.Class({
 
     statics: {
         /**
-         * Create a new node in the scene.
+         * !#en
+         * Create a new node in the scene.<br/>
          * If this type of asset dont have its corresponding node type, this method should be null.
-         *
+         * !#zh
+         * 在场景中创建一个新节点。<br/>
+         * 如果这类资源没有相应的节点类型，该方法应该是空的。
          * @method createNodeByInfo
          * @param {Object} Info
          * @param {Function} callback

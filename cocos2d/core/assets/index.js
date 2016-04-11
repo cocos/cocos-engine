@@ -34,6 +34,5 @@ require('./CCSceneAsset');
 require('../sprites/CCSpriteFrame');
 require('../textures/CCTexture2D');
 require('./CCTTFFont');
-require('./CCSpriteAnimation');
 require('./CCSpriteAtlas');
 //require('./CCTextAsset');

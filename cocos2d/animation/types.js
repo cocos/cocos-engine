@@ -10,7 +10,8 @@ var WrapModeMask = {
 };
 
 /**
- * Specifies how time is treated when it is outside of the keyframe range of an Animation.
+ * !#en Specifies how time is treated when it is outside of the keyframe range of an Animation.
+ * !#zh 动画使用的循环模式。
  * @enum WrapMode
  * @memberof cc
  */
@@ -73,7 +74,8 @@ cc.WrapMode = WrapMode;
 
 
 /**
- * The abstract interface for all playing animation.
+ * !#en The abstract interface for all playing animation.
+ * !#zh 所有播放动画的抽象接口。
  * @class AnimationNodeBase
  * @constructor
  * @extends Playable
@@ -92,8 +94,9 @@ JS.extend(AnimationNodeBase, Playable);
 AnimationNodeBase.prototype.update = function (deltaTime) {};
 
 
-/**
- * The collection and instance of playing animations created by entity.animate.
+/*
+ * !#en The collection and instance of playing animations.
+ * !#zh 动画曲线的集合，根据当前时间计算出每条曲线的状态。
  * @class AnimationNode
  * @extends AnimationNodeBase
  * @constructor
@@ -107,6 +110,8 @@ function AnimationNode (animator, curves, timingInput) {
     this.animator = animator;
 
     /**
+     * !#en The curves list.
+     * !#zh 曲线列表。
      * @property curves
      * @type {AnimCurve[]}
      */
@@ -117,7 +122,7 @@ function AnimationNode (animator, curves, timingInput) {
     /**
      * !#en The start delay which represents the number of seconds from an animation's start time to the start of
      * the active interval.
-     * !#zh 延迟多少秒播放
+     * !#zh 延迟多少秒播放。
      *
      * @property delay
      * @type {Number}
@@ -134,7 +139,7 @@ function AnimationNode (animator, curves, timingInput) {
      * Values less than zero and NaN values are treated as the value 1.0 for the purpose of timing model
      * calculations.
      *
-     * !#zh 迭代次数, 指动画播放多少次后结束, normalize time. 如 2.5 ( 2次半 )
+     * !#zh 迭代次数，指动画播放多少次后结束, normalize time。 如 2.5（2次半）
      *
      * @property repeatCount
      * @type {Number}
@@ -144,7 +149,7 @@ function AnimationNode (animator, curves, timingInput) {
 
     /**
      * !#en The iteration duration of this animation in seconds. (length)
-     * !#zh 单次动画的持续时间, 秒
+     * !#zh 单次动画的持续时间，秒。
      *
      * @property duration
      * @type {Number}
@@ -154,7 +159,7 @@ function AnimationNode (animator, curves, timingInput) {
 
     /**
      * !#en The animation's playback speed. 1 is normal playback speed.
-     * !#zh 播放速率
+     * !#zh 播放速率。
      * @property speed
      * @type {Number}
      * @default: 1.0
@@ -163,7 +168,7 @@ function AnimationNode (animator, curves, timingInput) {
 
     /**
      * !#en Wrapping mode of the playing animation.
-     * !#zh 动画循环方式
+     * !#zh 动画循环方式。
      *
      * @property wrapMode
      * @type {WrapMode}
@@ -206,7 +211,8 @@ function AnimationNode (animator, curves, timingInput) {
     }
 
     /**
-     * The current time of this animation in seconds.
+     * !#en The current time of this animation in seconds.
+     * !#zh 动画当前的时间，秒。
      * @property time
      * @type {Number}
      * @default 0

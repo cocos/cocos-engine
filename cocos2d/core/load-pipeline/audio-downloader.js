@@ -126,8 +126,8 @@ function loadAudioFromExtList (url, typeList, audio, cb){
         if(__audioSupport.USE_EMPTIED_EVENT)
             element.addEventListener('emptied', emptied, false);
 
-        element.src = url;
         document.body.appendChild(element);
+        element.src = url;
         element.volume = 0;
         //some browsers cannot pause(qq 6.1)
         //element.play();

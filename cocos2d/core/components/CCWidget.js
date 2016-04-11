@@ -381,13 +381,18 @@ var Widget = cc.Class({
         /**
          * !#en TODO
          * !#zh
-         * 开启时只会在 onEnable 时对齐一次，然后立刻禁用当前组件。
+         * 开启后仅会在 onEnable 的当帧结束时对齐一次，然后立刻禁用当前组件。
          * 这样便于脚本或动画继续控制当前节点。
+         * 注意：onEnable 时所在的那一帧仍然会进行对齐。
          * @property isAlignOnce
          * @type {Boolean}
          * @default false
          */
-        isAlignOnce: false,
+        isAlignOnce: {
+            default: false,
+            tooltip: 'i18n:COMPONENT.widget.align_once',
+            displayName: "AlignOnce"
+        },
 
         //
 

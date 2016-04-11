@@ -29,6 +29,7 @@
  */
 
 /**
+ * !#en
  * <p> An interval action is an action that takes place within a certain period of time. <br/>
  * It has an start time, and a finish time. The finish time is the parameter<br/>
  * duration plus the start time.</p>
@@ -40,7 +41,7 @@
  *
  * <p>For example, you can simulate a Ping Pong effect running the action normally and<br/>
  * then running it again in Reverse mode. </p>
- *
+ * !#zh 时间间隔动作，这种动作在已定时间内完成，继承 FiniteTimeAction。
  * @class ActionInterval
  * @extends FiniteTimeAction
  * @param {Number} d duration in seconds
@@ -118,7 +119,9 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
     },
 
     /**
-     * Implementation of ease motion.
+     * !#en Implementation of ease motion.
+     * !#zh 缓动运动。
+     * @example
      * @method easing
      * @param {Object} easeObj
      * @returns {ActionInterval}
@@ -206,10 +209,13 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
     },
 
     /**
+     * !#en
      * Changes the speed of an action, making it take longer (speed>1)
      * or less (speed<1) time. <br/>
      * Useful to simulate 'slow motion' or 'fast forward' effect.
-     *
+     * !#zh
+     * 改变一个动作的速度，使它的执行使用更长的时间（speed > 1）<br/>
+     * 或更少（speed < 1）可以有效得模拟“慢动作”或“快进”的效果。
      * @param speed
      * @returns {Action}
      */
@@ -243,8 +249,10 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
     },
 
     /**
+     * !#en
      * Repeats an action a number of times.
      * To repeat an action forever use the CCRepeatForever action.
+     * !#zh 重复动作可以按一定次数重复一个动作，使用 RepeatForever 动作来永远重复一个动作。
      * @method repeat
      * @param times
      * @returns {ActionInterval}
@@ -261,8 +269,10 @@ cc.ActionInterval = cc.FiniteTimeAction.extend({
     },
 
     /**
+     * !#en
      * Repeats an action for ever.  <br/>
      * To repeat the an action for a limited number of times use the Repeat action. <br/>
+     * !#zh 永远地重复一个动作，有限次数内重复一个动作请使用 Repeat 动作。
      * @method repeatForever
      * @returns {ActionInterval}
      */
@@ -416,8 +426,10 @@ cc.Sequence = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * Helper constructor to create an array of sequenceable actions
  * The created action will run actions sequentially, one after another.
+ * !#zh 顺序执行动作，创建的动作将按顺序依次运行。
  * @method sequence
  * @param {Array|FiniteTimeAction} tempArray
  * @return {ActionInterval}
@@ -592,7 +604,8 @@ cc.Repeat = cc.ActionInterval.extend({
 });
 
 /**
- * Creates a Repeat action. Times is an unsigned integer between 1 and pow(2,30)
+ * !#en Creates a Repeat action. Times is an unsigned integer between 1 and pow(2,30)
+ * !#zh 重复动作，可以按一定次数重复一个动，如果想永远重复一个动作请使用 repeatForever 动作来完成。
  * @method repeat
  * @param {FiniteTimeAction} action
  * @param {Number} times
@@ -694,7 +707,8 @@ cc.RepeatForever = cc.ActionInterval.extend({
 });
 
 /**
- * Create a acton which repeat forever
+ * !#en Create a acton which repeat forever
+ * !#zh 永远地重复一个动作，有限次数内重复一个动作请使用 repeat 动作。
  * @method repeatForever
  * @param {FiniteTimeAction} action
  * @return {ActionInterval}
@@ -803,7 +817,8 @@ cc.Spawn = cc.ActionInterval.extend({
 });
 
 /**
- * Create a spawn action which runs several actions in parallel.
+ * !#en Create a spawn action which runs several actions in parallel.
+ * !#zh 同步执行动作，同步执行一组动作。
  * @method spawn
  * @param {Array|FiniteTimeAction}tempArray
  * @return {FiniteTimeAction}
@@ -918,8 +933,10 @@ cc.RotateTo = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * Rotates a Node object to a certain angle by modifying its rotation property. <br/>
  * The direction will be decided by the shortest angle.
+ * !#zh 旋转到目标角度，通过逐帧修改它的 rotation 属性，旋转方向将由最短的角度决定。
  * @method rotateTo
  * @param {Number} duration duration in seconds
  * @param {Number} deltaAngleX deltaAngleX in degrees.
@@ -1003,8 +1020,10 @@ cc.RotateBy = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * Rotates a Node object clockwise a number of degrees by modifying its rotation property.
  * Relative to its properties to modify.
+ * !#zh 旋转指定的角度。
  * @method rotateBy
  * @param {Number} duration duration in seconds
  * @param {Number} deltaAngleX deltaAngleX in degrees
@@ -1120,10 +1139,12 @@ cc.MoveBy = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * Moves a Node object x,y pixels by modifying its position property.                                  <br/>
  * x and y are relative to the position of the object.                                                     <br/>
  * Several MoveBy actions can be concurrently called, and the resulting                                  <br/>
  * movement will be the sum of individual movements.
+ * !#zh 移动指定的距离。
  * @method moveBy
  * @param {Number} duration duration in seconds
  * @param {Vec2|Number} deltaPos
@@ -1196,9 +1217,11 @@ cc.MoveTo = cc.MoveBy.extend({
 });
 
 /**
+ * !#en
  * Moves a Node object to the position x,y. x and y are absolute coordinates by modifying its position property. <br/>
  * Several MoveTo actions can be concurrently called, and the resulting                                            <br/>
  * movement will be the sum of individual movements.
+ * !#zh 移动到目标位置。
  * @method moveTo
  * @param {Number} duration duration in seconds
  * @param {Vec2} position
@@ -1288,8 +1311,10 @@ cc.SkewTo = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * Create a action which skews a Node object to given angles by modifying its skewX and skewY properties.
  * Changes to the specified value.
+ * !#zh 偏斜到目标角度。
  * @method skewTo
  * @param {Number} t time in seconds
  * @param {Number} sx
@@ -1360,8 +1385,10 @@ cc.SkewBy = cc.SkewTo.extend({
 });
 
 /**
+ * !#en
  * Skews a Node object by skewX and skewY degrees. <br />
  * Relative to its property modification.
+ * !#zh 偏斜指定的角度。
  * @method skewBy
  * @param {Number} t time in seconds
  * @param {Number} sx sx skew in degrees for X axis
@@ -1487,8 +1514,10 @@ cc.JumpBy = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * Moves a Node object simulating a parabolic jump movement by modifying it's position property.
  * Relative to its movement.
+ * !#zh 用跳跃的方式移动指定的距离。
  * @method jumpBy
  * @param {Number} duration
  * @param {Vec2|Number} position
@@ -1568,8 +1597,10 @@ cc.JumpTo = cc.JumpBy.extend({
 });
 
 /**
+ * !#en
  * Moves a Node object to a parabolic position simulating a jump movement by modifying its position property. <br />
  * Jump to the specified location.
+ * !#zh 用跳跃的方式移动到目标位置。
  * @method jumpTo
  * @param {Number} duration
  * @param {Vec2|Number} position
@@ -1712,8 +1743,10 @@ cc.BezierBy = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * An action that moves the target with a cubic Bezier curve by a certain distance.
  * Relative to its movement.
+ * !#zh 按贝赛尔曲线轨迹移动指定的距离。
  * @method bezierBy
  * @param {Number} t time in seconds
  * @param {Array} c Array of points
@@ -1779,7 +1812,8 @@ cc.BezierTo = cc.BezierBy.extend({
     }
 });
 /**
- * An action that moves the target with a cubic Bezier curve to a destination point.
+ * !#en An action that moves the target with a cubic Bezier curve to a destination point.
+ * !#zh 按贝赛尔曲线轨迹移动到目标位置。
  * @method bezierTo
  * @param {Number} t
  * @param {Array} c array of points
@@ -1863,7 +1897,8 @@ cc.ScaleTo = cc.ActionInterval.extend({
     }
 });
 /**
- * Scales a Node object to a zoom factor by modifying it's scale property.
+ * !#en Scales a Node object to a zoom factor by modifying it's scale property.
+ * !#zh 将节点大小缩放到指定的倍数。
  * @method scaleTo
  * @param {Number} duration
  * @param {Number} sx  scale parameter in X
@@ -1909,8 +1944,10 @@ cc.ScaleBy = cc.ScaleTo.extend({
     }
 });
 /**
+ * !#en
  * Scales a Node object a zoom factor by modifying it's scale property.
  * Relative to its changes.
+ * !#zh 按指定的倍数缩放节点大小。
  * @method scaleBy
  * @param {Number} duration duration in seconds
  * @param {Number} sx sx  scale parameter in X
@@ -1992,7 +2029,8 @@ cc.Blink = cc.ActionInterval.extend({
     }
 });
 /**
- * Blinks a Node object by modifying it's visible property.
+ * !#en Blinks a Node object by modifying it's visible property.
+ * !#zh 闪烁（基于透明度）。
  * @method blink
  * @param {Number} duration  duration in seconds
  * @param {Number} blinks blinks in times
@@ -2057,7 +2095,10 @@ cc.FadeTo = cc.ActionInterval.extend({
 });
 
 /**
- * Fades an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from the current value to a custom one.
+ * !#en
+ * Fades an object that implements the cc.RGBAProtocol protocol.
+ * It modifies the opacity from the current value to a custom one.
+ * !#zh 修改透明度到指定值。
  * @method fadeTo
  * @param {Number} duration
  * @param {Number} opacity 0-255, 0 is transparent
@@ -2109,7 +2150,8 @@ cc.FadeIn = cc.FadeTo.extend({
 });
 
 /**
- * Fades In an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 0 to 255.
+ * !#en Fades In an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 0 to 255.
+ * !#zh 渐显效果。
  * @method fadeIn
  * @param {Number} duration duration in seconds
  * @return {ActionInterval}
@@ -2155,7 +2197,8 @@ cc.FadeOut = cc.FadeTo.extend({
 });
 
 /**
- * Fades Out an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 255 to 0.
+ * !#en Fades Out an object that implements the cc.RGBAProtocol protocol. It modifies the opacity from 255 to 0.
+ * !#zh 渐隐效果。
  * @method fadeOut
  * @param {Number} d  duration in seconds
  * @return {ActionInterval}
@@ -2235,7 +2278,8 @@ cc.TintTo = cc.ActionInterval.extend({
 });
 
 /**
- * Tints a Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+ * !#en Tints a Node that implements the cc.NodeRGB protocol from current tint to a custom one.
+ * !#zh 修改颜色到指定值。
  * @method tintTo
  * @param {Number} duration
  * @param {Number} red 0-255
@@ -2327,8 +2371,10 @@ cc.TintBy = cc.ActionInterval.extend({
 });
 
 /**
+ * !#en
  * Tints a Node that implements the cc.NodeRGB protocol from current tint to a custom one.
  * Relative to their own color change.
+ * !#zh 按照指定的增量修改颜色。
  * @method tintBy
  * @param {Number} duration  duration in seconds
  * @param {Number} deltaRed
@@ -2366,7 +2412,8 @@ cc.DelayTime = cc.ActionInterval.extend({
 });
 
 /**
- * Delays the action a certain amount of seconds
+ * !#en Delays the action a certain amount of seconds.
+ * !#en 延迟指定的时间量。
  * @method delayTime
  * @param {Number} d duration in seconds
  * @return {ActionInterval}
@@ -2448,7 +2495,8 @@ cc.ReverseTime = cc.ActionInterval.extend({
 });
 
 /**
- * Executes an action in reverse order, from time=duration to time=0.
+ * !#en Executes an action in reverse order, from time=duration to time=0.
+ * !#zh 反转目标动作的时间轴。
  * @method reverseTime
  * @param {FiniteTimeAction} action
  * @return {ActionInterval}
@@ -2460,7 +2508,7 @@ cc.reverseTime = function (action) {
     return new cc.ReverseTime(action);
 };
 
-/**
+/*
  * This API is deprecated, will be replaced by new API from {{#crossLink "Animation"}}cc.Animation{{/crossLink}}
  * Animates a sprite given the name of an Animation
  * @class Animate
@@ -2616,7 +2664,7 @@ cc.Animate = cc.ActionInterval.extend({
     }
 });
 
-/**
+/*
  * create the animate with animation
  * @method animate
  * @param {SpriteFrameAnimation} animation
@@ -2704,7 +2752,8 @@ cc.TargetedAction = cc.ActionInterval.extend({
 });
 
 /**
- * Create an action with the specified action and forced target
+ * !#en Create an action with the specified action and forced target.
+ * !#zh 用已有动作和一个新的目标节点创建动作。
  * @method targetedAction
  * @param {Node} target
  * @param {FiniteTimeAction} action
