@@ -33,7 +33,7 @@ var Mask = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Mask',
-        help: 'app://docs/html/components/mask.html',
+        help: 'i18n:COMPONENT.help_url.mask',
     },
 
     properties: {
