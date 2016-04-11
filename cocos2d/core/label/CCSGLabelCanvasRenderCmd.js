@@ -52,6 +52,7 @@
         }
     };
 
+
     proto._syncStatus = function (parentCmd) {
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
