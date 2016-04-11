@@ -147,22 +147,23 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
 
-        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
-            return;
-
-        JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-
-        JS::RootedObject jsobj(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
-        JS::RootedValue vp(cx);
-        vp = c_string_to_jsval(cx, "close");
-        JS_SetProperty(cx, jsobj, "type", vp);
-
-        JS::RootedValue args(cx, OBJECT_TO_JSVAL(jsobj));
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "onclose", 1, args.address());
-
-        auto copy = &p->obj;
-        jsb_remove_proxy(p);
-        JS::RemoveObjectRoot(cx, copy);
+        if (Director::DirectorInstance && ScriptEngineManager::ShareInstance && Director::DirectorInstance->getRunningScene())
+        {
+            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+            
+            JS::RootedObject jsobj(cx, JS_NewObject(cx, NULL, JS::NullPtr(), JS::NullPtr()));
+            JS::RootedValue vp(cx);
+            vp = c_string_to_jsval(cx, "close");
+            JS_SetProperty(cx, jsobj, "type", vp);
+            
+            JS::RootedValue args(cx, OBJECT_TO_JSVAL(jsobj));
+            ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "onclose", 1, args.address());
+            
+            auto copy = &p->obj;
+            jsb_remove_proxy(p);
+            JS::RemoveObjectRoot(cx, copy);
+        }
+        
         // Delete WebSocket instance
         CC_SAFE_DELETE(ws);
         // Delete self at last while websocket was closed.
