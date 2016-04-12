@@ -75,7 +75,7 @@
         if (opacityDirty)
             this._syncDisplayOpacity();
 
-        if(colorDirty || opacityDirty || (locFlag & flags.textDirty)){
+        if(colorDirty || opacityDirty || (this._dirtyFlag & flags.textDirty)){
             this._rebuildLabelSkin();
         }
 
