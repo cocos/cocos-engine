@@ -131,7 +131,7 @@ var Sprite = cc.Class({
             type: cc.SpriteFrame
         },
         _type: SpriteType.SIMPLE,
-        _sizeMode: SizeMode.RAW,
+        _sizeMode: SizeMode.TRIMMED,
         _fillType: 0,
         _fillCenter: cc.v2(0,0),
         _fillStart: 0,
