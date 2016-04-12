@@ -79,8 +79,9 @@
             this._rebuildLabelSkin();
         }
 
-        if (locFlag & flags.transformDirty)                 //update the transform
+        if (this._dirtyFlag & flags.transformDirty) {
             this.transform(parentCmd);
+        }
     };
 
     proto._getLineHeight = function () {
