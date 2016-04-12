@@ -191,7 +191,7 @@ var AssetLibrary = {
 
         Loader.load(item, function (error, asset) {
             if (error || !asset) {
-                error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
             if (thisTick) {
                 callInNextTick(function () {
@@ -229,7 +229,7 @@ var AssetLibrary = {
         };
         Loader.load(item, function (error, asset) {
             if (error) {
-                error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
             if (thisTick) {
                 callInNextTick(function () {

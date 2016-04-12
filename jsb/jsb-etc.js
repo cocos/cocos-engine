@@ -227,3 +227,6 @@ window._ccsg = {
 
 // rename cc.Class to cc._Class
 cc._Class = cc.Class;
+
+// fix cc.formatStr (#2630)
+cc.formatStr = cc.js.formatStr;

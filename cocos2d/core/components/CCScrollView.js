@@ -54,7 +54,7 @@ var ScrollView = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ScrollView',
-        help: 'app://docs/html/components/scrollview.html',
+        help: 'i18n:COMPONENT.help_url.scrollview',
         executeInEditMode: true,
     },
 

@@ -155,7 +155,7 @@ var Layout = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Layout',
-        help: 'app://docs/html/components/layout.html',
+        help: 'i18n:COMPONENT.help_url.layout',
         inspector: 'app://editor/page/inspector/cclayout.html',
         executeInEditMode: true,
     },
@@ -208,7 +208,7 @@ var Layout = cc.Class({
          */
         resizeMode: {
             type: ResizeMode,
-            tooltip: 'i18n:COMPONENT.layout.auto_resize',
+            tooltip: 'i18n:COMPONENT.layout.resize_mode',
             get: function() {
                 return this._resize;
             },
@@ -237,6 +237,7 @@ var Layout = cc.Class({
          */
         cellSize: {
             default: cc.size(40, 40),
+            tooltip: 'i18n:COMPONENT.layout.cell_size',
             type: cc.Size,
             notify: function() {
                 this._doLayoutDirty();
@@ -253,6 +254,7 @@ var Layout = cc.Class({
          */
         startAxis: {
             default: AxisDirection.HORIZONTAL,
+            tooltip: 'i18n:COMPONENT.layout.start_axis',
             type: AxisDirection,
             notify: function() {
                 if (this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
@@ -272,6 +274,7 @@ var Layout = cc.Class({
          */
         padding: {
             default: 0,
+            tooltip: 'i18n:COMPONENT.layout.padding',
             notify: function() {
                 this._doLayoutDirty();
             },

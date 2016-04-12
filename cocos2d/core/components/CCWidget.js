@@ -47,7 +47,7 @@ var Widget = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Widget',
-        help: 'app://docs/html/components/widget.html',
+        help: 'i18n:COMPONENT.help_url.widget',
         inspector: 'app://editor/page/inspector/widget/index.html',
         executeInEditMode: true,
         disallowMultiple: true,

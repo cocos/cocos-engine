@@ -117,7 +117,7 @@ var Sprite = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
-        help: 'app://docs/html/components/sprite.html',
+        help: 'i18n:COMPONENT.help_url.sprite',
         inspector: 'app://editor/page/inspector/sprite.html',
     },
 
@@ -131,7 +131,7 @@ var Sprite = cc.Class({
             type: cc.SpriteFrame
         },
         _type: SpriteType.SIMPLE,
-        _sizeMode: SizeMode.RAW,
+        _sizeMode: SizeMode.TRIMMED,
         _fillType: 0,
         _fillCenter: cc.v2(0,0),
         _fillStart: 0,
