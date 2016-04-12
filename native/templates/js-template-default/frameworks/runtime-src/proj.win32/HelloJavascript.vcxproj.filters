@@ -11,12 +11,21 @@
     <Filter Include="Classes">
       <UniqueIdentifier>{e93a77e1-af1e-4400-87d3-504b62ebdbb0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Classes\jsb">
+      <UniqueIdentifier>{06c6792e-842a-43a3-a211-c62863f16ada}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>win32</Filter>
     </ClCompile>
     <ClCompile Include="..\Classes\AppDelegate.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\jsb\jsb_creator_auto.cpp">
+      <Filter>Classes\jsb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Classes\CCScale9Sprite.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,6 +37,12 @@
       <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="..\Classes\jsb\jsb_creator_auto.hpp">
+      <Filter>Classes\jsb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\CCScale9Sprite.h">
+      <Filter>Classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">
