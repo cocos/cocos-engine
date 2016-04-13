@@ -28,8 +28,24 @@
  * @extends _RendererInSG
  */
 
+/**
+ * !#en the type for mask.
+ * !#zh 遮罩组件的类型
+ * @enum Mask.Type
+ */
+
 var MaskType = cc.Enum({
+    /**
+     * !#en Rect mask.
+     * !#zh 使用矩形作为遮罩
+     * @property {Number} RECT
+     */
     RECT: 0,
+    /**
+     * !#en Ellipse Mask.
+     * !#zh 使用椭圆作为遮罩
+     * @property {Number} ELLIPSE
+     */
     ELLIPSE: 1
 });
 
@@ -48,31 +64,47 @@ var Mask = cc.Class({
             serializable: false,
         },
 
-        _maskType:0,
-        _ellipseSegments: 64,
-        maskType: {
+        _type:0,
+        _segements: 64,
+
+        /**
+         * !#en The mask type.
+         * !#zh 遮罩类型
+         * @property type
+         * @type {MaskType}
+         * @example
+         * mask.type = MaskType.RECT;
+         */
+        type: {
             get: function() {
-                return this._maskType;
+                return this._type;
             },
             set: function(value) {
-                this._maskType = value;
+                this._type = value;
                 this._refreshStencil();
             },
-            type: MaskType,
-            //tooltip: 'i18n:COMPONENT.sprite.dst_blend_factor'
+            type: MaskType
         },
 
-        ellipseSegments: {
+        /**
+         * !#en The segements for ellipse mask.
+         * !#zh 椭圆遮罩的曲线细分数
+         * @property segements
+         */
+        segements: {
             get: function() {
-                return this._ellipseSegments;
+                return this._segements;
             },
             set: function(value) {
                 if(value < 3) value = 3;
-                this._ellipseSegments = value;
+                this._segements = value;
                 this._refreshStencil();
-            },
-            //tooltip: 'i18n:COMPONENT.sprite.dst_blend_factor'
+            }
         },
+    },
+
+    statics: {
+        Type: MaskType,
     },
 
     _createSgNode: function () {
@@ -132,9 +164,7 @@ var Mask = cc.Class({
         var y = - height * anchorPoint.y;
         var color = cc.color(255, 255, 255, 0);
         this._clippingStencil.clear();
-        //this._clippingStencil.drawPoly(rectangle, color, 0, color);
-        //drawCircle: function (center, radius, angle, segments, drawLineToCenter, lineWidth, color)
-        if(this._maskType === MaskType.RECT) {
+        if(this._type === MaskType.RECT) {
             var rectangle = [ cc.v2(x, y),
                 cc.v2(x + width, y),
                 cc.v2(x + width, y + height),
@@ -143,7 +173,7 @@ var Mask = cc.Class({
         } else {
             var center = cc.v2(x + width /2, y+height/2);
             var radius = {x: width/2, y: height/2};
-            var segements = this._ellipseSegments;
+            var segements = this._segements;
             this._clippingStencil.drawPoly(this._calculateCircle(center,radius, segements), color, 0, color);
         }
     }
