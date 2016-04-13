@@ -32,7 +32,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
         this._cacheDirty = false;
         this._quadWebBuffer = cc._renderContext.createBuffer();
         this._quadIndexBuffer = cc._renderContext.createBuffer();
-        this._indices = new Int16Array(64);
+        this._indices = new Int16Array(54);
         this._colorOpacityDirty = false;
     };
 
