@@ -90,6 +90,8 @@ var Mask = cc.Class({
          * !#en The segements for ellipse mask.
          * !#zh 椭圆遮罩的曲线细分数
          * @property segements
+         * @type {Number}
+         * @default 64
          */
         segements: {
             get: function() {
@@ -99,7 +101,8 @@ var Mask = cc.Class({
                 if(value < 3) value = 3;
                 this._segements = value;
                 this._refreshStencil();
-            }
+            },
+            type: cc.Integer
         },
     },
 
