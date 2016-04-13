@@ -30,6 +30,8 @@
  * @extends Component
  */
 
+// todo jsb 中无法针对单独的音效对象进行设置（如音量大小等）
+
 var audioEngine = cc.audioEngine;
 
 var AudioSource = cc.Class({
@@ -38,7 +40,7 @@ var AudioSource = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/AudioSource',
-        help: 'app://docs/html/components/audiosource.html',
+        help: 'i18n:COMPONENT.help_url.audiosource',
     },
 
     ctor: function () {
@@ -203,8 +205,16 @@ var AudioSource = cc.Class({
      */
     play: function () {
         if ( this._clip ) {
-            this.audio = audioEngine.playEffect(this._clip, this._loop);
-            // this.audio.play();
+            var volume = this._mute ? 0 : this._volume;
+            if (cc.sys.isNative) {
+                audioEngine.playEffect(this._clip, this._loop);
+                cc.audioEngine.setEffectsVolume(volume);
+            }
+            else {
+                this.audio = audioEngine.playEffect(this._clip, this._loop);
+                if (this.audio)
+                    this.audio.setVolume(volume);
+            }
         }
     },
 

@@ -54,7 +54,7 @@ var MissingScript = cc.Class({
         //            var classId = Editor.UuidUtils.compressUuid(value);
         //            if (cc.js._getClassById(classId)) {
         //                this._$erialized.__type__ = classId;
-        //                Editor.sendToWindows('reload:window-scripts', sandbox.compiled);
+        //                Editor.Ipc.sendToWins('reload:window-scripts', sandbox.compiled);
         //            }
         //            else {
         //                cc.error('Can not find a component in the script which uuid is "%s".', value);

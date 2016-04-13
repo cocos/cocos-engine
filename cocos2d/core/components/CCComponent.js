@@ -75,6 +75,11 @@ function callOnEnable (self, enable) {
                 }
             }
 
+            var deactivatedDuringOnEnable = !self.node._activeInHierarchy;
+            if (deactivatedDuringOnEnable) {
+                return;
+            }
+
             cc.director.getScheduler().resumeTarget(self);
 
             _registerEvent(self, true);
@@ -282,7 +287,7 @@ var Component = cc.Class({
                         var NewComp = cc.js._getClassById(classId);
                         if (cc.isChildClassOf(NewComp, cc.Component)) {
                             cc.warn('Sorry, replacing component script is not yet implemented.');
-                            //Editor.sendToWindows('reload:window-scripts', Editor._Sandbox.compiled);
+                            //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
                         }
                         else {
                             cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
@@ -520,75 +525,6 @@ var Component = cc.Class({
         return this.node.getComponentsInChildren(typeOrClassName);
     },
 
-    ///**
-    // * Invokes the method on this component after a specified delay.
-    // * The method will be invoked even if this component is disabled, but will not invoked if this component is
-    // * destroyed.
-    // *
-    // * @method invoke
-    // * @param {function|string} functionOrMethodName
-    // * @param {number} [delay=0] - The number of seconds that the function call should be delayed by. If omitted, it defaults to 0. The actual delay may be longer.
-    // * @return {number} - Will returns a new InvokeID if the functionOrMethodName is type function. InvokeID is the numerical ID of the invoke, which can be used later with cancelInvoke().
-    // * @example {@link examples/Fire/Component/invoke.js }
-    // */
-    //invoke: createInvoker(Timer.setTimeout, Timer.setTimeoutWithKey, 'invoke'),
-    //
-    ///**
-    // * Invokes the method on this component repeatedly, with a fixed time delay between each call.
-    // * The method will be invoked even if this component is disabled, but will not invoked if this component is
-    // * destroyed.
-    // *
-    // * @method repeat
-    // * @param {function|string} functionOrMethodName
-    // * @param {number} [delay=0] - The number of seconds that the function call should wait before each call to the method. If omitted, it defaults to 0. The actual delay may be longer.
-    // * @return {number} - Will returns a new RepeatID if the method is type function. RepeatID is the numerical ID of the repeat, which can be used later with cancelRepeat().
-    // * @example {@link examples/Fire/Component/repeat.js}
-    // */
-    //repeat: createInvoker(Timer.setInterval, Timer.setIntervalWithKey, 'repeat'),
-    //
-    ///**
-    // * Cancels previous invoke calls with methodName or InvokeID on this component.
-    // * When using methodName, all calls with the same methodName will be canceled.
-    // * InvokeID is the identifier of the invoke action you want to cancel, as returned by invoke().
-    // *
-    // * @method cancelInvoke
-    // * @param {string|number} methodNameOrInvokeId
-    // * @example {@link examples/Fire/Component/cancelInvoke.js}
-    // */
-    //cancelInvoke: function (methodNameOrInvokeId) {
-    //    if (typeof methodNameOrInvokeId === 'string') {
-    //        var key = this.id + '.' + methodNameOrInvokeId;
-    //        Timer.clearTimeoutByKey(key);
-    //    }
-    //    else {
-    //        Timer.clearTimeout(methodNameOrInvokeId);
-    //    }
-    //},
-    //
-    ///**
-    // * Cancels previous repeat calls with methodName or RepeatID on this component.
-    // * When using methodName, all calls with the same methodName will be canceled.
-    // * RepeatID is the identifier of the repeat action you want to cancel, as returned by repeat().
-    // *
-    // * @method cancelRepeat
-    // * @param {string|number} methodNameOrRepeatId
-    // * @example {@link examples/Fire/Component/cancelRepeat.js}
-    // */
-    //cancelRepeat: function (methodNameOrRepeatId) {
-    //    if (typeof methodNameOrRepeatId === 'string') {
-    //        var key = this.id + '.' + methodNameOrRepeatId;
-    //        Timer.clearIntervalByKey(key);
-    //    }
-    //    else {
-    //        Timer.clearInterval(methodNameOrRepeatId);
-    //    }
-    //},
-    //
-    //isInvoking: function (methodName) {
-    //    var key = this.id + '.' + methodName;
-    //    return Timer.hasTimeoutKey(key);
-    //},
-
     // VIRTUAL
 
     /**
@@ -665,7 +601,7 @@ var Component = cc.Class({
     },
 
     __onNodeActivated: CC_EDITOR ? function (active) {
-        if (!(this._objFlags & IsOnLoadStarted) &&
+        if (active && !(this._objFlags & IsOnLoadStarted) &&
             (cc.engine._isPlaying || this.constructor._executeInEditMode)) {
             this._objFlags |= IsOnLoadStarted;
 
@@ -688,20 +624,30 @@ var Component = cc.Class({
                 _Scene.AssetsWatcher.start(this);
             }
         }
-
         if (this._enabled) {
+            if (active) {
+                var deactivatedOnLoading = !this.node._activeInHierarchy;
+                if (deactivatedOnLoading) {
+                    return;
+                }
+            }
             callOnEnable(this, active);
         }
     } : function (active) {
-        if (!(this._objFlags & IsOnLoadStarted)) {
+        if (active && !(this._objFlags & IsOnLoadStarted)) {
             this._objFlags |= IsOnLoadStarted;
             if (this.onLoad) {
                 this.onLoad();
             }
             this._objFlags |= IsOnLoadCalled;
         }
-
         if (this._enabled) {
+            if (active) {
+                var deactivatedOnLoading = !this.node._activeInHierarchy;
+                if (deactivatedOnLoading) {
+                    return;
+                }
+            }
             callOnEnable(this, active);
         }
     },

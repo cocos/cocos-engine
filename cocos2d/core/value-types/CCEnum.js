@@ -26,33 +26,19 @@
 // enum
 
 /**
- * Define an enum type. If a enum item has a value of -1, it will be given an Integer number according to it's order in the list. Otherwise it will use the value specified by user who writes the enum definition.
+ * !#en
+ * Define an enum type. <br/>
+ * If a enum item has a value of -1, it will be given an Integer number according to it's order in the list.<br/>
+ * Otherwise it will use the value specified by user who writes the enum definition.
+ *
+ * !#zh
+ * 定义一个枚举类型。<br/>
+ * 用户可以把枚举值设为任意的整数，如果设为 -1，系统将会分配为上一个枚举值 + 1。
+ *
  * @method Enum
  * @param {object} obj - a JavaScript literal object containing enum names and values
  * @return {object} the defined enum type
- *
- * @example
- Texture.WrapMode = cc.Enum({
-    Repeat: -1,
-    Clamp: -1
-});
- // Texture.WrapMode.Repeat == 0
- // Texture.WrapMode.Clamp == 1
- // Texture.WrapMode[0] == "Repeat"
- // Texture.WrapMode[1] == "Clamp"
-
- var FlagType = cc.Enum({
-    Flag1: 1,
-    Flag2: 2,
-    Flag3: 4,
-    Flag4: 8,
-});
- var AtlasSizeList = cc.Enum({
-    128: 128,
-    256: 256,
-    512: 512,
-    1024: 1024,
-});
+ * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCEnum/Enum.js}
  */
 
 cc.Enum = function (obj) {
@@ -75,6 +61,10 @@ cc.Enum = function (obj) {
 
         var reverseKey = '' + val;
         if (key !== reverseKey) {
+            if (enumType.hasOwnProperty(reverseKey) && CC_EDITOR) {
+                cc.error('%s already defined in Enum.', reverseKey);
+                continue;
+            }
             Object.defineProperty(enumType, reverseKey, {
                 value: key,
                 enumerable: false

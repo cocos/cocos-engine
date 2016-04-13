@@ -25,9 +25,12 @@
  ****************************************************************************/
 
 /**
- * <p>cc.AffineTransform class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.<br/>
+ * !#en
+ * cc.AffineTransform class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.<br/>
  * Please do not use its constructor directly, use cc.affineTransformMake alias function instead.
- * </p>
+ * !#zh
+ * cc.AffineTransform 类代表一个仿射变换矩阵。它基本上是由平移旋转，缩放转变所组成。<br/>
+ * 请不要直接使用它的构造，请使用 cc.affineTransformMake 函数代替。
  * @class AffineTransform
  * @param {Number} a
  * @param {Number} b
@@ -47,9 +50,9 @@ cc.AffineTransform = function (a, b, c, d, tx, ty) {
 };
 
 /**
- * Create a cc.AffineTransform object with all contents in the matrix
+ * !#en Create a cc.AffineTransform object with all contents in the matrix.
+ * !#zh 用在矩阵中的所有内容创建一个 cc.AffineTransform 对象。
  * @method affineTransformMake
- * 
  * @param {Number} a
  * @param {Number} b
  * @param {Number} c
@@ -63,9 +66,9 @@ cc.affineTransformMake = function (a, b, c, d, tx, ty) {
 };
 
 /**
- * Clone a cc.AffineTransform object from the specified transform
+ * !#en Clone a cc.AffineTransform object from the specified transform.
+ * !#zh 克隆指定的 cc.AffineTransform 对象。
  * @method affineTransformClone
- *
  * @param {AffineTransform} t
  * @return {AffineTransform}
  */
@@ -74,9 +77,9 @@ cc.affineTransformClone = function (t) {
 };
 
 /**
- * Apply the affine transformation on a point.
+ * !#en Apply the affine transformation on a point.
+ * !#zh 对一个点应用矩阵变换。
  * @method pointApplyAffineTransform
- * 
  * @param {Vec2|Number} point - or x.
  * @param {AffineTransform|Number} transOrY - transform matrix or y.
  * @param {AffineTransform} t - transform matrix or y.
@@ -100,9 +103,9 @@ cc._pointApplyAffineTransform = function (x, y, t) {   //it will remove.
 };
 
 /**
- * Apply the affine transformation on a size.
+ * !#en Apply the affine transformation on a size.
+ * !#zh 应用 Size 到仿射变换矩阵上。
  * @method sizeApplyAffineTransform
- * 
  * @param {Size} size
  * @param {AffineTransform} t
  * @return {Size}
@@ -112,9 +115,14 @@ cc.sizeApplyAffineTransform = function (size, t) {
 };
 
 /**
- * <p>Create a identity transformation matrix: <br/>
+ * !#en
+ * Create a identity transformation matrix: <br/>
  * [ 1, 0, 0, <br/>
- *   0, 1, 0 ]</p>
+ *   0, 1, 0 ]
+ * !#zh
+ * 单位矩阵：<br/>
+ * [ 1, 0, 0, <br/>
+ *   0, 1, 0 ]
  *
  * @method affineTransformMakeIdentity
  * @return {AffineTransform}
@@ -123,10 +131,11 @@ cc.affineTransformMakeIdentity = function () {
     return {a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0};
 };
 
-/**
- * <p>Create a identity transformation matrix: <br/>
+/*
+ * Create a identity transformation matrix: <br/>
  * [ 1, 0, 0, <br/>
- *   0, 1, 0 ]</p>
+ *   0, 1, 0 ]
+ *
  *
  * @method affineTransformIdentity
  * @return {AffineTransform}
@@ -138,8 +147,8 @@ cc.affineTransformIdentity = function () {
 };
 
 /**
- * Apply the affine transformation on a rect.
- *
+ * !#en Apply the affine transformation on a rect.
+ * !#zh 应用 Rect 到仿射变换矩阵上。
  * @method rectApplyAffineTransform
  * @param {Rect} rect
  * @param {AffineTransform} anAffineTransform
@@ -188,8 +197,8 @@ cc._rectApplyAffineTransformIn = function(rect, anAffineTransform){
 };
 
 /**
- * Create a new affine transformation with a base transformation matrix and a translation based on it.
- *
+ * !#en Create a new affine transformation with a base transformation matrix and a translation based on it.
+ * !#zh 基于一个基础矩阵加上一个平移操作来创建一个新的矩阵。
  * @method affineTransformTranslate
  * @param {AffineTransform} t - The base affine transform object.
  * @param {Number} tx - The translation on x axis.
@@ -208,7 +217,8 @@ cc.affineTransformTranslate = function (t, tx, ty) {
 };
 
 /**
- * Create a new affine transformation with a base transformation matrix and a scale based on it.
+ * !#en Create a new affine transformation with a base transformation matrix and a scale based on it.
+ * !#zh 创建一个基础变换矩阵，并在此基础上进行了 Scale 仿射变换。
  * @method affineTransformScale
  * @param {AffineTransform} t - The base affine transform object.
  * @param {Number} sx - The scale on x axis.
@@ -220,7 +230,8 @@ cc.affineTransformScale = function (t, sx, sy) {
 };
 
 /**
- * Create a new affine transformation with a base transformation matrix and a rotation based on it.
+ * !#en Create a new affine transformation with a base transformation matrix and a rotation based on it.
+ * !#zh 创建一个基础变换矩阵，并在此基础上进行了 Rotation 仿射变换。
  * @method affineTransformRotate
  * @param {AffineTransform} aTransform - The base affine transform object.
  * @param {Number} anAngle - The angle to rotate.
@@ -239,8 +250,12 @@ cc.affineTransformRotate = function (aTransform, anAngle) {
 };
 
 /**
+ * !#en
  * Concatenate a transform matrix to another and return the result:<br/>
  * t' = t1 * t2
+ * !#zh 拼接两个矩阵，并返回结果：<br/>
+ * t' = t1 * t2
+ *
  * @method affineTransformConcat
  * @param {AffineTransform} t1 - The first transform object.
  * @param {AffineTransform} t2 - The transform object to concatenate.
@@ -256,8 +271,12 @@ cc.affineTransformConcat = function (t1, t2) {
 };
 
 /**
+ * !#en
  * Concatenate a transform matrix to another<br/>
  * The results are reflected in the first matrix.<br/>
+ * t' = t1 * t2
+ * !#zh
+ * 拼接两个矩阵，将结果保存到第一个矩阵。<br/>
  * t' = t1 * t2
  * @method affineTransformConcatIn
  * @param {AffineTransform} t1 - The first transform object.
@@ -276,7 +295,8 @@ cc.affineTransformConcatIn = function (t1, t2) {
 };
 
 /**
- * Return true if an affine transform equals to another, false otherwise.
+ * !#en Return true if an affine transform equals to another, false otherwise.
+ * !#zh 判断两个矩阵是否相等。
  * @method affineTransformEqualToTransform
  * @param {AffineTransform} t1
  * @param {AffineTransform} t2
@@ -287,7 +307,8 @@ cc.affineTransformEqualToTransform = function (t1, t2) {
 };
 
 /**
- * Get the invert transform of an AffineTransform object.
+ * !#en Get the invert transform of an AffineTransform object.
+ * !#zh 求逆矩阵。
  * @method affineTransformInvert
  * @param {AffineTransform} t
  * @return {AffineTransform} The inverted transform object.

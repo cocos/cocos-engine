@@ -98,7 +98,7 @@ sp.AnimationEventType = cc.Enum({
  * @module sp
  */
 
-if (!CC_EDITOR || !Editor.isCoreLevel) {
+if (!CC_EDITOR || !Editor.isMainProcess) {
     
     if (!CC_JSB) {
         /**

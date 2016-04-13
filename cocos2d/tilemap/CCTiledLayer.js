@@ -140,7 +140,7 @@ var TiledLayer = cc.Class({
 
     /**
      * !#en Returns the position in pixels of a given tile coordinate.
-     * !#zh 获取指定 ttile 的像素坐标。
+     * !#zh 获取指定 tile 的像素坐标。
      * @method getPositionAt
      * @param {Vec2|Number} pos position or x
      * @param {Number} [y]

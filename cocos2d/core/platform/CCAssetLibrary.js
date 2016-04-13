@@ -88,7 +88,7 @@ var AssetLibrary = {
 
     _queryAssetInfoInEditor: function (uuid, callback) {
         if (CC_EDITOR) {
-            Editor.sendRequestToCore( 'scene:query-asset-info-by-uuid', uuid, function (info) {
+            Editor.Ipc.sendToMain( 'scene:query-asset-info-by-uuid', uuid, function (info) {
                 if (info) {
                     Editor.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
@@ -191,7 +191,7 @@ var AssetLibrary = {
 
         Loader.load(item, function (error, asset) {
             if (error || !asset) {
-                error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
             if (thisTick) {
                 callInNextTick(function () {
@@ -229,7 +229,7 @@ var AssetLibrary = {
         };
         Loader.load(item, function (error, asset) {
             if (error) {
-                error = new Error('[AssetLibrary] loading JSON or dependencies failed : ' + JSON.stringify(error));
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
             if (thisTick) {
                 callInNextTick(function () {

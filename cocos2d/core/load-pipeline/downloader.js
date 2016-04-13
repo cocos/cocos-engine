@@ -27,7 +27,7 @@ var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 
 var downloadAudio;
-if (!CC_EDITOR || !Editor.isCoreLevel) {
+if (!CC_EDITOR || !Editor.isMainProcess) {
     downloadAudio = require('./audio-downloader');
 }
 else {

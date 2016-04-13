@@ -326,7 +326,6 @@ if (CC_DEV) {
         '_additionalTransformDirty',
         '_shaderProgram',
         'shaderProgram',
-        '_reorderChildDirty',
         '_normalizedPositionDirty',
         '_normalizedPosition',
         '_usingNormalizedPosition',
@@ -338,7 +337,6 @@ if (CC_DEV) {
         'setActionManager',
         'getScheduler',
         'setScheduler',
-        'sortAllChildren',
         'reorderChild',
         'draw',
         'transformAncestors',
@@ -391,6 +389,9 @@ if (CC_DEV) {
         running: 'activeInHierarchy, active',
         _realOpacity: '_opacity, _opacity',
         _realColor: '_color, _color',
+        _insertChild: 'addChild',
+        _addChildHelper: 'addChild',
+        _detachChild: 'removeChild',
         getZOrder: 'getLocalZOrder',
         setZOrder: 'setLocalZOrder',
         getOrderOfArrival: 'getSiblingIndex',
@@ -459,6 +460,7 @@ if (CC_DEV) {
         updateWithSprite: 'spriteFrame',
         getSpriteFrame: 'spriteFrame',
         setSpriteFrame: 'spriteFrame',
+        useOriginalSize: 'sizeMode',
     });
 
     // Particle

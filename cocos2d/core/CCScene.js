@@ -25,9 +25,12 @@
 var NIL = function () {};
 
 /**
- * <p>cc.Scene is a subclass of ccsg.Node that is used only as an abstract concept.</p>
- * <p>cc.Scene and ccsg.Node are almost identical with the difference that users can not modify cc.Scene manually. </p>
- *
+ * !#en
+ * cc.Scene is a subclass of cc.Node that is used only as an abstract concept.<br/>
+ * cc.Scene and cc.Node are almost identical with the difference that users can not modify cc.Scene manually.
+ * !#zh
+ * cc.Scene 是 cc.Node 的子类，仅作为一个抽象的概念。<br/>
+ * cc.Scene 和 cc.Node 有点不同，用户不应直接修改 cc.Scene。
  * @class Scene
  * @extends _BaseNode
  */

@@ -30,6 +30,7 @@ require('../platform/deserialize');
 var _tdInfo = new cc.deserialize.Details();
 
 var SCENE_ID = 'cc.Scene';
+var PREFAB_ID = 'cc.Prefab';
 
 function loadDepends (pipeline, item, asset, tdInfo, callback) {
     var uuid = item.id,
@@ -126,11 +127,12 @@ function loadUuid (item, callback) {
         return;
     }
 
-    var isScene = json && (
+    var isInScene = json && (
                               (json[0] && json[0].__type__ === SCENE_ID) ||
-                              (json[1] && json[1].__type__ === SCENE_ID)
+                              (json[1] && json[1].__type__ === SCENE_ID) ||
+                              (json[0] && json[0].__type__ === PREFAB_ID)
                           );
-    var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
+    var classFinder = isInScene ? cc._MissingScript.safeFindClass : function (id) {
         var cls = JS._getClassById(id);
         if (cls) {
             return cls;

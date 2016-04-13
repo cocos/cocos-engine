@@ -26,7 +26,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     window.Uint16Array = window.Uint16Array || window.Array;
     window.Float32Array = window.Float32Array || window.Array;
 }

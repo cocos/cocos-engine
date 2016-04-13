@@ -30,6 +30,7 @@ var JS = cc.js;
 var Flags = cc.Object.Flags;
 var Destroying = Flags.Destroying;
 var DontDestroy = Flags.DontDestroy;
+var Activating = Flags.Activating;
 //var RegisteredInEditor = Flags.RegisteredInEditor;
 
 /**
@@ -847,6 +848,20 @@ var Node = cc.Class({
     },
 
     _onActivatedInHierarchy: function (newActive) {
+        var cancelActivation = false;
+        if (this._objFlags & Activating) {
+            if (newActive) {
+                cc.error('Node "%s" is already activating', this.name);
+                return;
+            }
+            else {
+                cancelActivation = true;
+            }
+        }
+        else if (newActive) {
+            this._objFlags |= Activating;
+        }
+
         this._activeInHierarchy = newActive;
 
         // component maybe added during onEnable, and the onEnable of new component is already called
@@ -854,42 +869,63 @@ var Node = cc.Class({
         var originCount = this._components.length;
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
-            if ( !(component instanceof cc.Component) ) {
+            if (component instanceof cc.Component) {
+                component.__onNodeActivated(newActive);
+                if (newActive && !this._activeInHierarchy) {
+                    // deactivated during activating
+                    this._objFlags &= ~Activating;
+                    return;
+                }
+            }
+            else {
                 if (CC_EDITOR) {
-                    cc.error('Sorry, the component of "%s" which with an index of %s is corrupted! It has been removed.', this.name, c);
+                    cc.error('Sorry, the component of "%s" which with an index of %s is corrupted! It has been removed.',
+                             this.name, c);
                     console.log('Corrupted component value:', component);
                 }
                 if (component) {
                     this._removeComponent(component);
                 }
                 else {
-                    this._components.splice(c, 1);
+                    JS.array.removeAt(this._components, c);
                 }
                 --c;
                 --originCount;
             }
-            else {
-                component.__onNodeActivated(newActive);
-            }
         }
+
         // activate children recursively
-        for (var i = 0, len = this.childrenCount; i < len; ++i) {
+        for (var i = 0, len = this._children.length; i < len; ++i) {
             var child = this._children[i];
             if (child._active) {
                 child._onActivatedInHierarchy(newActive);
+                if (newActive && !this._activeInHierarchy) {
+                    // deactivated during activating
+                    this._objFlags &= ~Activating;
+                    return;
+                }
             }
         }
-        // activate or desactivate ActionManager, EventManager
-        // Activate
+
+        if (cancelActivation) {
+            this._objFlags &= ~Activating;
+            return;
+        }
+
+        // ActionManager, EventManager
         if (newActive) {
+            // activate
             cc.director.getActionManager().resumeTarget(this);
             cc.eventManager.resumeTarget(this);
         }
-        // Desactivate
         else {
+            // deactivate
             cc.director.getActionManager().pauseTarget(this);
             cc.eventManager.pauseTarget(this);
         }
+
+        //
+        this._objFlags &= ~Activating;
     },
 
     _onHierarchyChanged: function (oldParent) {

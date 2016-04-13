@@ -150,8 +150,10 @@ var enumerateObject = function (obj, parent) {
     else {
         // primitive javascript object
         for (key in obj) {
-            //cc.log(key);
-            if (!obj.hasOwnProperty(key) || (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95)) {  // starts with __
+            if ( !obj.hasOwnProperty(key) ||
+                 // starts with "__" but not "__type__"
+                 (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 && key !== '__type__')
+               ) {
                 continue;
             }
             value = obj[key];

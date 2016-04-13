@@ -30,7 +30,8 @@ var JS = require('../platform/js');
  * LoadingItems is the manager of items in pipeline.
  * It hold a map of items, each entry in the map is a url to object key value pair.
  * Each item always contains the following property:
- * - src: The url
+ * - id: The identification of the item, usually it's identical to url
+ * - url: The url
  * - type: The type, it's the extension name of the url by default, could be specified manually too
  * - error: The error happened in pipeline will be stored in this property
  * - content: The content processed by the pipeline, the final result will also be stored in this property

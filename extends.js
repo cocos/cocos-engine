@@ -27,19 +27,23 @@ require('./cocos2d/core');
 require('./cocos2d/animation');
 
 require('./cocos2d/particle/CCParticleAsset');
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/particle/CCParticleSystem');
 }
 
 require('./cocos2d/tilemap/CCTiledMapAsset');
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/tilemap/CCTiledMap');
     require('./cocos2d/tilemap/CCTiledLayer');
 }
 
+if (!(CC_EDITOR && Editor.isMainProcess)) {
+    require('./extensions/cocostudio/CCStudioComponent');
+}
+
 require('./extensions/spine');
 
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     if (!CC_JSB) {
         require('./cocos2d/actions');
         require('./external/chipmunk/chipmunk.js');

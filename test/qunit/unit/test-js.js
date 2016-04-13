@@ -1,6 +1,4 @@
-﻿// jshint ignore: start
-
-module('getClassName');
+﻿module('getClassName');
 
 test('test', function() {
     var Asset = function () {};
@@ -33,4 +31,12 @@ test('test', function() {
     equal(cc.js.getClassName(function () {}), '', 'class name should be "" if undefined');
 });
 
-// jshint ignore: end
+test('formatStr', function() {
+    var a = '0';
+    var b = 1;
+    var SEP = ' ';
+    strictEqual(cc.js.formatStr("a: %s, b: %d", a, b), 'a: 0, b: 1', 'format');
+    strictEqual(cc.js.formatStr('a:', null), 'a:' + SEP + 'null', 'join');
+    strictEqual(cc.js.formatStr("a: %s, b: ", a, b), 'a: 0, b: ' + SEP + '1', 'format and join');
+    strictEqual(cc.js.formatStr(null), 'null', 'neither string nor number');
+});

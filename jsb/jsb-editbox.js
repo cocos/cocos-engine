@@ -57,6 +57,9 @@ _p.editBoxEditingDidEnd = function (sender) {
     this.editBoxEditingDidEnded(sender);
 }
 
+_p._onTouchBegan = function() {}
+_p._onTouchEnded = function() {}
+
 _p.setLineHeight = function () {}
 
 _p = null;

@@ -460,7 +460,7 @@ sys.isNative = false;
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object';
 
-if (typeof Editor !== 'undefined' && Editor.isCoreLevel) {
+if (typeof Editor !== 'undefined' && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
     sys.language = sys.LANGUAGE_UNKNOWN;
