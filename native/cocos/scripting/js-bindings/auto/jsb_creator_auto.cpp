@@ -1,6 +1,6 @@
 #include "jsb_creator_auto.hpp"
 #include "cocos2d_specifics.hpp"
-#include "CCScale9Sprite.h"
+#include "creator/CCScale9Sprite.h"
 
 template<class T>
 static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
