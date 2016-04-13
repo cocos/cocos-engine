@@ -27,6 +27,12 @@
  * @class Mask
  * @extends _RendererInSG
  */
+
+var MaskType = cc.Enum({
+    RECT: 0,
+    ELLIPSE: 1
+});
+
 var Mask = cc.Class({
     name: 'cc.Mask',
     extends: cc._RendererInSG,
@@ -40,6 +46,32 @@ var Mask = cc.Class({
         _clippingStencil: {
             default: null,
             serializable: false,
+        },
+
+        _maskType:0,
+        _ellipseSegments: 64,
+        maskType: {
+            get: function() {
+                return this._maskType;
+            },
+            set: function(value) {
+                this._maskType = value;
+                this._refreshStencil();
+            },
+            type: MaskType,
+            //tooltip: 'i18n:COMPONENT.sprite.dst_blend_factor'
+        },
+
+        ellipseSegments: {
+            get: function() {
+                return this._ellipseSegments;
+            },
+            set: function(value) {
+                if(value < 3) value = 3;
+                this._ellipseSegments = value;
+                this._refreshStencil();
+            },
+            //tooltip: 'i18n:COMPONENT.sprite.dst_blend_factor'
         },
     },
 
@@ -80,6 +112,17 @@ var Mask = cc.Class({
         this._clippingStencil.release();
     },
 
+    _calculateCircle: function(center, radius, segements) {
+        var polies =[];
+        var anglePerStep = Math.PI * 2 / segements;
+        for(var step = 0; step < segements; ++ step) {
+            polies.push(cc.v2(radius.x * Math.cos(anglePerStep * step) + center.x,
+                radius.y * Math.sin(anglePerStep * step) + center.y));
+        }
+
+        return polies;
+    },
+
     _refreshStencil: function () {
         var contentSize = this.node.getContentSize();
         var anchorPoint = this.node.getAnchorPoint();
@@ -87,13 +130,22 @@ var Mask = cc.Class({
         var height = contentSize.height;
         var x = - width * anchorPoint.x;
         var y = - height * anchorPoint.y;
-        var rectangle = [ cc.v2(x, y),
-                          cc.v2(x + width, y),
-                          cc.v2(x + width, y + height),
-                          cc.v2(x, y + height) ];
         var color = cc.color(255, 255, 255, 0);
         this._clippingStencil.clear();
-        this._clippingStencil.drawPoly(rectangle, color, 0, color);
+        //this._clippingStencil.drawPoly(rectangle, color, 0, color);
+        //drawCircle: function (center, radius, angle, segments, drawLineToCenter, lineWidth, color)
+        if(this._maskType === MaskType.RECT) {
+            var rectangle = [ cc.v2(x, y),
+                cc.v2(x + width, y),
+                cc.v2(x + width, y + height),
+                cc.v2(x, y + height) ];
+            this._clippingStencil.drawPoly(rectangle, color, 0, color);
+        } else {
+            var center = cc.v2(x + width /2, y+height/2);
+            var radius = {x: width/2, y: height/2};
+            var segements = this._ellipseSegments;
+            this._clippingStencil.drawPoly(this._calculateCircle(center,radius, segements), color, 0, color);
+        }
     }
 });
 
