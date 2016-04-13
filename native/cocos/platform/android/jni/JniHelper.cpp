@@ -86,7 +86,7 @@ namespace cocos2d {
     JNIEnv* JniHelper::cacheEnv(JavaVM* jvm) {
         JNIEnv* _env = nullptr;
         // get jni environment
-        jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_4);
+        jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_6);
 
         switch (ret) {
         case JNI_OK :
@@ -97,11 +97,12 @@ namespace cocos2d {
         case JNI_EDETACHED :
             // Thread not attached
             if (jvm->AttachCurrentThread(&_env, nullptr) < 0)
-                {
-                    LOGE("Failed to get the environment using AttachCurrentThread()");
-
-                    return nullptr;
-                } else {
+            {
+                LOGE("Failed to get the environment using AttachCurrentThread()");
+                return nullptr;
+            }
+            else
+            {
                 // Success : Attached and obtained JNIEnv!
                 pthread_setspecific(g_key, _env);
                 return _env;
@@ -109,7 +110,7 @@ namespace cocos2d {
 
         case JNI_EVERSION :
             // Cannot recover from this error
-            LOGE("JNI interface version 1.4 not supported");
+            LOGE("JNI interface version 1.6 not supported");
         default :
             LOGE("Failed to get the environment using GetEnv()");
             return nullptr;
