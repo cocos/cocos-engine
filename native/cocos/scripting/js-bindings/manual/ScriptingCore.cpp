@@ -266,7 +266,7 @@ void js_log(const char *format, ...)
     va_end(vl);
     if (len > 0)
     {
-        log("JS: %s", _js_log_buf);
+        log("%s", _js_log_buf);
     }
 #endif
 }
