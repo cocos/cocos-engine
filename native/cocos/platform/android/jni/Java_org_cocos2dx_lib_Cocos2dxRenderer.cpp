@@ -47,7 +47,7 @@ extern "C" {
     JNIEXPORT jstring JNICALL Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeGetContentText() {
         JNIEnv * env = 0;
 
-        if (JniHelper::getJavaVM()->GetEnv((void**)&env, JNI_VERSION_1_4) != JNI_OK || ! env) {
+        if (JniHelper::getJavaVM()->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK || ! env) {
             return 0;
         }
         std::string pszText = cocos2d::IMEDispatcher::sharedDispatcher()->getContentText();
