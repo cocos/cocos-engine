@@ -471,7 +471,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     /**
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
      * The new scene will be launched immediately.
-     * @method runScene
+     * @method runSceneImmediate
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
