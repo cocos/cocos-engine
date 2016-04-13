@@ -32,7 +32,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
         this._cacheDirty = false;
         this._quadWebBuffer = cc._renderContext.createBuffer();
         this._quadIndexBuffer = cc._renderContext.createBuffer();
-        this._indices = new Int16Array(6 * 9);
+        this._indices = new Int16Array(54);
         this._colorOpacityDirty = false;
     };
 
@@ -75,11 +75,16 @@ if (_ccsg.Node.WebGLRenderCmd) {
             var quads = node._quads;
             var bufferOffset = 0;
             var quadsLength = quads.length;
+            var requiredIndicesLength = quadsLength * (node._isTriangle ? 3 : 6);
             if (quadsLength === 0) return;
             if (needRebuildWebBuffer)
             {
-                //scale9 sprite is the max one
+                //reallocate indices if indices is not enought or is too big
                 var indices = this._indices;
+                if((indices.length < requiredIndicesLength) || (indices.length > requiredIndicesLength + 128)) {
+                    indices = this._indices = new Int16Array(requiredIndicesLength + 64);
+                }
+
                 var indiceIndex = 0;
                 gl.bufferData(gl.ARRAY_BUFFER,quads[0].arrayBuffer.byteLength * quads.length, gl.DYNAMIC_DRAW);
                 for(var i = 0; i < quads.length; ++i) {
