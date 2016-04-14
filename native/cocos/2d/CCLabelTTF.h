@@ -2,6 +2,7 @@
 #define _COCOS2D_CCLABELTTF_H_
 
 #include "2d/CCNode.h"
+#include "2d/CCLabel.h"
 
 NS_CC_BEGIN
 
@@ -16,7 +17,7 @@ public:
         setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         setCascadeColorEnabled(true);
         setCascadeOpacityEnabled(true);
-        _renderLabel = new (std::nothrow) Label;
+        _renderLabel = Label::create();
         _renderLabel->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         addChild(_renderLabel);
     }
