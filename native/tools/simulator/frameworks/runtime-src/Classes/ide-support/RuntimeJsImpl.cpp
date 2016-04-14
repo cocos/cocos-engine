@@ -18,8 +18,6 @@
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "js_module_register.h"
 
-//#include "jsb/jsb_creator_auto.hpp"
-
 
 USING_NS_CC;
 
@@ -169,9 +167,6 @@ bool RuntimeJsImpl::initJsEnv()
     }
     
     js_module_register();
-    
-    // creator
-//    ScriptingCore::getInstance()->addRegisterCallback(register_all_creator);
     
     ScriptingCore::getInstance()->addRegisterCallback(register_FileUtils);
     ScriptingCore::getInstance()->start();

@@ -2749,7 +2749,7 @@
         "external/win32/libs/ssleay32.lib",
         "external/win32/libs/websockets.dll",
         "external/win32/libs/websockets.lib",
-        "external/win32/libs/zlib1.dll",
+        "external/win32/libs/zlib1.dll"
     ], 
     "js": [
         "cocos/scripting/js-bindings/auto/api/jsb_cocos2dx_3d_auto_api.js", 

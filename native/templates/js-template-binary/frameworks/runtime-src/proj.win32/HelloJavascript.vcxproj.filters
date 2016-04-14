@@ -14,9 +14,6 @@
     <Filter Include="Classes\ide-support">
       <UniqueIdentifier>{5bec5a39-9bec-42e8-a3e4-823d4eacec56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Classes\jsb">
-      <UniqueIdentifier>{2ba3e523-09ab-4b5d-a28e-4a6c6c04999d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -33,12 +30,6 @@
     </ClCompile>
     <ClCompile Include="SimulatorWin.cpp">
       <Filter>win32</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\jsb\jsb_creator_auto.cpp">
-      <Filter>Classes\jsb</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\CCScale9Sprite.cpp">
-      <Filter>Classes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -60,12 +51,6 @@
     </ClInclude>
     <ClInclude Include="SimulatorWin.h">
       <Filter>win32</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\jsb\jsb_creator_auto.hpp">
-      <Filter>Classes\jsb</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\CCScale9Sprite.h">
-      <Filter>Classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
