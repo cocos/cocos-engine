@@ -8,8 +8,6 @@ window.getAssetsPath = function () {
 };
 
 
-// engine framework
-Editor.require('app://engine-framework/src');
 
 Editor.isRuntime = true;
 
@@ -23,7 +21,7 @@ Editor.assets = {};
 Editor.inspectors = {};
 
 // cocos
-Editor.require('app://engine');
+Editor.require('unpack://engine');
 
 // init asset library
 cc.AssetLibrary.init({
