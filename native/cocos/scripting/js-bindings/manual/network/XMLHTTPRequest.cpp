@@ -191,6 +191,10 @@ void MinXmlHttpRequest::_setHttpRequestData(const char *data, size_t len)
 void MinXmlHttpRequest::handle_requestResponse(cocos2d::network::HttpClient *sender, cocos2d::network::HttpResponse *response)
 {
     _elapsedTime = 0;
+    if (Director::DirectorInstance == nullptr) {
+        return;
+    }
+    
     Director::DirectorInstance->getScheduler()->unscheduleAllForTarget(this);
 
     if(_isAborted || _readyState == UNSENT)
@@ -285,8 +289,6 @@ MinXmlHttpRequest::MinXmlHttpRequest()
 , _requestHeader()
 , _isAborted(false)
 {
-    Director::DirectorInstance->getScheduler()->retain();
-
     JSContext* cx = ScriptingCore::getInstance()->getGlobalContext();
     _onreadystateCallback.construct(cx);
     _onloadstartCallback.construct(cx);
@@ -318,10 +320,6 @@ MinXmlHttpRequest::~MinXmlHttpRequest()
     }
 
     CC_SAFE_FREE(_data);
-
-    if (Director::DirectorInstance) {
-        Director::DirectorInstance->getScheduler()->release();
-    }
 }
 
 /**
@@ -783,7 +781,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, send)
         _sendRequest(cx);
         _notify(_onloadstartCallback.ref());
         //begin schedule for timeout
-        if(_timeout > 0)
+        if(_timeout > 0 && Director::DirectorInstance)
         {
             Director::DirectorInstance->getScheduler()->scheduleUpdate(this, 0, false);
         }
@@ -795,7 +793,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, send)
 void MinXmlHttpRequest::update(float dt)
 {
     _elapsedTime += dt;
-    if(_elapsedTime * 1000 >= _timeout)
+    if(_elapsedTime * 1000 >= _timeout && Director::DirectorInstance)
     {
         _notify(_ontimeoutCallback.ref());
         _elapsedTime = 0;

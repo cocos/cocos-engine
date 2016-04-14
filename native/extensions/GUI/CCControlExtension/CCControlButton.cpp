@@ -129,10 +129,15 @@ bool ControlButton::initWithLabelAndBackgroundSprite(Node* node, ui::Scale9Sprit
 
 ControlButton* ControlButton::create(Node* label, cocos2d::ui::Scale9Sprite* backgroundSprite)
 {
-    ControlButton *pRet = new (std::nothrow) ControlButton();
-    pRet->initWithLabelAndBackgroundSprite(label, backgroundSprite, true);
-    pRet->autorelease();
-    return pRet;
+    ControlButton *ret = new (std::nothrow) ControlButton();
+    if (ret && ret->initWithLabelAndBackgroundSprite(label, backgroundSprite, true))
+    {
+        ret->autorelease();
+        return ret;
+    }
+    
+    delete ret;
+    return nullptr;
 }
 
 ControlButton* ControlButton::create(Node* label, cocos2d::ui::Scale9Sprite* backgroundSprite, bool adjustBackGroundSize)
