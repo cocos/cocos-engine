@@ -235,14 +235,15 @@ var Component = cc.Class({
 
         name: {
             get: function () {
-                return this._name || this.node.name;
-                //var className = cc.js.getClassName(this);
-                //var index = className.lastIndexOf('.');
-                //if (index >= 0) {
-                //    // strip prefix
-                //    className = className.slice(index + 1);
-                //}
-                //return this.node.name + '<' + className + '>';
+                if (this._name) {
+                    return this._name;
+                }
+                var className = cc.js.getClassName(this);
+                var trimLeft = className.lastIndexOf('.');
+                if (trimLeft >= 0) {
+                    className = className.slice(trimLeft + 1);
+                }
+                return this.node.name + '<' + className + '>';
             },
             set: function (value) {
                 this._name = value;
