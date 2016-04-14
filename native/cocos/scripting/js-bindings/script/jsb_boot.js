@@ -1538,7 +1538,13 @@ cc.game = {
             return cfg;
         };
         try{
-            var txt = jsb.fileUtils.getStringFromFile("project-runtime.json");
+            var isRuntime = typeof runtime !== 'undefined';
+            var txt;
+
+            if (isRuntime) {
+                txt = jsb.fileUtils.getStringFromFile("project-runtime.json");
+            }
+            
             if (txt && txt.length > 0) {
                 var data = JSON.parse(txt);
                 this.config = _init(data || {});
