@@ -45,7 +45,7 @@ function loadAudioFromExtList (url, typeList, audio, cb){
 
     url = Path.changeExtname(url, typeList.splice(0, 1));
 
-    if (__audioSupport.WEB_AUDIO) {//Buffer
+    if (__audioSupport.WEB_AUDIO && cc.Audio.useWebAudio) {//Buffer
         if (__audioSupport.webAudioCallback) {
             __audioSupport.webAudioCallback(url);
         }
@@ -70,12 +70,13 @@ function loadAudioFromExtList (url, typeList, audio, cb){
 
         request.send();
     } else {//DOM
-        var element = document.createElement('audio');
+        var element = new Audio();
+        audio.setElement(element);
         var cbCheck = false;
         var termination = false;
 
         var timer = setTimeout(function () {
-            if (element.readyState === 0) {
+            if ( element.readyState === 0 ) {
                 emptied();
             } else {
                 termination = true;
@@ -92,7 +93,6 @@ function loadAudioFromExtList (url, typeList, audio, cb){
                     element.currentTime = 0;
                     element.volume = 1; 
                 } catch (e) {}
-                document.body.removeChild(element);
                 audio.setElement(element);
                 element.removeEventListener('canplaythrough', success, false);
                 element.removeEventListener('error', failure, false);
@@ -105,8 +105,6 @@ function loadAudioFromExtList (url, typeList, audio, cb){
 
         var failure = function(){
             if (!cbCheck) return;
-            //element.pause();
-            document.body.removeChild(element);
             element.removeEventListener('canplaythrough', success, false);
             element.removeEventListener('error', failure, false);
             element.removeEventListener('emptied', emptied, false);
@@ -128,9 +126,6 @@ function loadAudioFromExtList (url, typeList, audio, cb){
 
         document.body.appendChild(element);
         element.src = url;
-        element.volume = 0;
-        //some browsers cannot pause(qq 6.1)
-        //element.play();
     }
 }
 
@@ -151,7 +146,7 @@ function downloadAudio (item, callback) {
         }
     }
 
-    if (__audioSupport.WEB_AUDIO) {
+    if (__audioSupport.WEB_AUDIO && cc.Audio.useWebAudio) {
         try {
             var volume = context['createGain']();
             volume['gain'].value = 1;

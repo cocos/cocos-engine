@@ -688,7 +688,7 @@ else {
                 _supportWebGL = true;
             }
 
-            // Accept only Android 5+ default browser and QQ Brwoser 6.2+
+            // Accept only Android 5+ default browser and QQ Browser 6.2+
             if (sys.os === sys.OS_ANDROID) {
                 _supportWebGL = false;
                 // QQ Brwoser 6.2+
@@ -722,9 +722,6 @@ else {
     if (win.DeviceMotionEvent || win.DeviceOrientationEvent)
         capabilities["accelerometer"] = true;
 
-    delete _tmpCanvas1;
-    delete _tmpCanvas2;
-
     var __audioSupport;
 
     /**
@@ -736,7 +733,7 @@ else {
      * REPLAY_AFTER_TOUCH   : The first music will fail, must be replay after touchstart
      * USE_EMPTIED_EVENT    : Whether to use the emptied event to replace load callback
      * DELAY_CREATE_CTX     : delay created the context object - only webAudio
-     * NEED_MANUAL_LOOP     : WebAudio loop attribute failure, need to manually perform loop
+     * NEED_MANUAL_LOOP     : loop attribute failure, need to perform loop manually
      *
      * May be modifications for a few browser version
      */
@@ -751,18 +748,18 @@ else {
         var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         var supportTable = {
-            'common' : {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true }
+            "common" : {MULTI_CHANNEL: true, WEB_AUDIO: supportWebAudio, AUTOPLAY: true }
         };
 
         supportTable[sys.BROWSER_TYPE_IE]  = {MULTI_CHANNEL: true , WEB_AUDIO: supportWebAudio , AUTOPLAY: true, USE_EMPTIED_EVENT: true};
         //  ANDROID  //
-        supportTable[sys.BROWSER_TYPE_ANDROID]  = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false};
+        supportTable[sys.BROWSER_TYPE_ANDROID]  = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: false};
         supportTable[sys.BROWSER_TYPE_CHROME]   = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: false};
         supportTable[sys.BROWSER_TYPE_FIREFOX]  = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: true , DELAY_CREATE_CTX: true};
         supportTable[sys.BROWSER_TYPE_UC]       = {MULTI_CHANNEL: true , WEB_AUDIO: false, AUTOPLAY: false};
-        supportTable[sys.BROWSER_TYPE_QQ]       = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: true };
+        supportTable[sys.BROWSER_TYPE_QQ]       = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: true };
         supportTable[sys.BROWSER_TYPE_OUPENG]   = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
-        supportTable[sys.BROWSER_TYPE_WECHAT]   = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
+        supportTable[sys.BROWSER_TYPE_WECHAT]   = {MULTI_CHANNEL: true , WEB_AUDIO: true , AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
         supportTable[sys.BROWSER_TYPE_360]      = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: true };
         supportTable[sys.BROWSER_TYPE_MIUI]     = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: true };
         supportTable[sys.BROWSER_TYPE_LIEBAO]   = {MULTI_CHANNEL: false, WEB_AUDIO: false, AUTOPLAY: false, REPLAY_AFTER_TOUCH: true , USE_EMPTIED_EVENT: true };
