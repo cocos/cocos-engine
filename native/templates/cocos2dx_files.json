@@ -2704,6 +2704,7 @@
         "external/win32/include/vorbis/vorbisenc.h", 
         "external/win32/include/vorbis/vorbisfile.h", 
         "external/win32/include/websockets/libwebsockets.h", 
+        "external/win32/include/websockets/lws_config.h", 
         "external/win32/include/websockets/win32helpers/getopt.h", 
         "external/win32/include/websockets/win32helpers/gettimeofday.h", 
         "external/win32/include/websockets/win32helpers/websock-w32.h", 
