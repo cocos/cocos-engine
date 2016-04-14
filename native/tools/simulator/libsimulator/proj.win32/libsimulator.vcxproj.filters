@@ -127,9 +127,6 @@
     <ClInclude Include="..\lib\runtime\Runtime.h">
       <Filter>runtime</Filter>
     </ClInclude>
-    <ClInclude Include="..\lib\runtime\RuntimeCCSImpl.h">
-      <Filter>runtime</Filter>
-    </ClInclude>
     <ClInclude Include="..\lib\runtime\RuntimeProtocol.h">
       <Filter>runtime</Filter>
     </ClInclude>
@@ -303,9 +300,6 @@
       <Filter>runtime</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\runtime\Runtime.cpp">
-      <Filter>runtime</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\runtime\RuntimeCCSImpl.cpp">
       <Filter>runtime</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\runtime\RuntimeProtocol.cpp">

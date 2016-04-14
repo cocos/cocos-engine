@@ -160,7 +160,6 @@
     <ClInclude Include="..\lib\runtime\Protos.pb.h" />
     <ClInclude Include="..\lib\runtime\ResData.h" />
     <ClInclude Include="..\lib\runtime\Runtime.h" />
-    <ClInclude Include="..\lib\runtime\RuntimeCCSImpl.h" />
     <ClInclude Include="..\lib\runtime\RuntimeProtocol.h" />
     <ClInclude Include="..\lib\runtime\VisibleRect.h" />
     <ClInclude Include="stdafx.h" />
@@ -208,7 +207,6 @@
     <ClCompile Include="..\lib\runtime\Portrait_png.cpp" />
     <ClCompile Include="..\lib\runtime\Protos.pb.cc" />
     <ClCompile Include="..\lib\runtime\Runtime.cpp" />
-    <ClCompile Include="..\lib\runtime\RuntimeCCSImpl.cpp" />
     <ClCompile Include="..\lib\runtime\RuntimeProtocol.cpp" />
     <ClCompile Include="..\lib\runtime\Shine_png.cpp" />
     <ClCompile Include="..\lib\runtime\VisibleRect.cpp" />
