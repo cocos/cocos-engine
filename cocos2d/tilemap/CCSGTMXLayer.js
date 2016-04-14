@@ -796,7 +796,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         sprite.setFlippedY(false);
 
         // Rotation in tiled is achieved using 3 flipped states, flipping across the horizontal, vertical, and diagonal axes of the tiles.
-        if ((gid & cc.TiledMap.TileFlag.DIAGONAL_FLAG) >>> 0) {
+        if ((gid & cc.TiledMap.TileFlag.DIAGONAL) >>> 0) {
             // put the anchor in the middle for ease of rotation.
             sprite.anchorX = 0.5;
 	        sprite.anchorY = 0.5;
