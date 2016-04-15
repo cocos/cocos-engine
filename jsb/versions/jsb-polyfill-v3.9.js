@@ -25,19 +25,21 @@
 
 'use strict';
 
-cc.Scale9Sprite.prototype.setRenderingType = function (type) {
-    if (this._renderingType === type) return;
-    this._renderingType = type;
+if (cc.Scale9Sprite !== cc.Scale9SpriteV2) {
+    cc.Scale9Sprite.prototype.setRenderingType = function (type) {
+        if (this._renderingType === type) return;
+        this._renderingType = type;
 
-    if (!this.isScale9Enabled()){
-        this.setScale9Enabled(true);
-    }
+        if (!this.isScale9Enabled()){
+            this.setScale9Enabled(true);
+        }
 
-    if (type === cc.Scale9Sprite.RenderingType.SIMPLE) {
-        // Should modify based on trim size
-        this.setInsetLeft(0);
-        this.setInsetTop(0);
-        this.setInsetBottom(0);
-        this.setInsetRight(0);
-    }
-};
+        if (type === cc.Scale9Sprite.RenderingType.SIMPLE) {
+            // Should modify based on trim size
+            this.setInsetLeft(0);
+            this.setInsetTop(0);
+            this.setInsetBottom(0);
+            this.setInsetRight(0);
+        }
+    };
+}
