@@ -1,5 +1,6 @@
 /****************************************************************************
-Copyright (c) 2010-2011 cocos2d-x.org
+Copyright (c) 2010-2013 cocos2d-x.org
+Copyright (c) 2013-2016 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -38,7 +39,7 @@ public class Cocos2dxAccelerometer implements SensorEventListener {
     // Constants
     // ===========================================================
 
-    private static final String TAG = Cocos2dxAccelerometer.class.getSimpleName();
+    private static final String TAG = "Cocos2dxAccelerometer";
 
     // ===========================================================
     // Fields
@@ -54,35 +55,31 @@ public class Cocos2dxAccelerometer implements SensorEventListener {
     // ===========================================================
 
     public Cocos2dxAccelerometer(final Context context) {
-        this.mContext = context;
+        mContext = context;
 
-        this.mSensorManager = (SensorManager) this.mContext.getSystemService(Context.SENSOR_SERVICE);
-        this.mAccelerometer = this.mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        final Display display = ((WindowManager) this.mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        this.mNaturalOrientation = display.getOrientation();
+        final Display display = ((WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        mNaturalOrientation = display.getOrientation();
     }
-
-    // ===========================================================
-    // Getter & Setter
-    // ===========================================================
 
     public void enable() {
-        this.mSensorManager.registerListener(this, this.mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
-        public void setInterval(float interval) {
-            // Honeycomb version is 11
-            if(android.os.Build.VERSION.SDK_INT < 11) {
-            this.mSensorManager.registerListener(this, this.mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+    public void setInterval(float interval) {
+        // Honeycomb version is 11
+        if(android.os.Build.VERSION.SDK_INT < 11) {
+            mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         } else {
             //convert seconds to microseconds
-            this.mSensorManager.registerListener(this, this.mAccelerometer, (int)(interval*100000));
+            mSensorManager.registerListener(this, mAccelerometer, (int)(interval*100000));
         }
     }
-      
+
     public void disable() {
-        this.mSensorManager.unregisterListener(this);
+        mSensorManager.unregisterListener(this);
     }
 
     // ===========================================================
@@ -104,25 +101,19 @@ public class Cocos2dxAccelerometer implements SensorEventListener {
          * changes. So we should swap it here. In tablets such as Motorola Xoom,
          * the default orientation is landscape, so should consider this.
          */
-        final int orientation = this.mContext.getResources().getConfiguration().orientation;
+        final int orientation = mContext.getResources().getConfiguration().orientation;
 
-        if ((orientation == Configuration.ORIENTATION_LANDSCAPE) && (this.mNaturalOrientation != Surface.ROTATION_0)) {
+        if ((orientation == Configuration.ORIENTATION_LANDSCAPE) && (mNaturalOrientation != Surface.ROTATION_0)) {
             final float tmp = x;
             x = -y;
             y = tmp;
-        } else if ((orientation == Configuration.ORIENTATION_PORTRAIT) && (this.mNaturalOrientation != Surface.ROTATION_0)) {
+        } else if ((orientation == Configuration.ORIENTATION_PORTRAIT) && (mNaturalOrientation != Surface.ROTATION_0)) {
             final float tmp = x;
             x = y;
             y = -tmp;
-        }       
-        
-        Cocos2dxGLSurfaceView.queueAccelerometer(x,y,z,sensorEvent.timestamp);
-        
-        /*
-        if(BuildConfig.DEBUG) {
-            Log.d(TAG, "x = " + sensorEvent.values[0] + " y = " + sensorEvent.values[1] + " z = " + pSensorEvent.values[2]);
         }
-        */
+
+        Cocos2dxGLSurfaceView.queueAccelerometer(x,y,z,sensorEvent.timestamp);
     }
 
     @Override
@@ -133,10 +124,7 @@ public class Cocos2dxAccelerometer implements SensorEventListener {
     // Methods
         // Native method called from Cocos2dxGLSurfaceView (To be in the same thread)
     // ===========================================================
-    
-    public static native void onSensorChanged(final float x, final float y, final float z, final long timestamp);
 
-    // ===========================================================
-    // Inner and Anonymous Classes
-    // ===========================================================
+    public static native void onSensorChanged(final float x, final float y, final float z, final long timestamp);
 }
+

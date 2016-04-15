@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2015 Chukong Technologies Inc.
+Copyright (c) 2013-2016 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -112,9 +112,6 @@ public class Cocos2dxEditBox extends EditText {
     //OpenGL view scaleX
     private  float mScaleX;
 
-
-
-
     public  Cocos2dxEditBox(Context context){
         super(context);
     }
@@ -209,9 +206,8 @@ public class Cocos2dxEditBox extends EditText {
     public boolean onKeyDown(final int pKeyCode, final KeyEvent pKeyEvent) {
         switch (pKeyCode) {
             case KeyEvent.KEYCODE_BACK:
-                Cocos2dxActivity activity = (Cocos2dxActivity)this.getContext();
                 //To prevent program from going to background
-                activity.getGLSurfaceView().requestFocus();
+                Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().requestFocus();
                 return true;
             default:
                 return super.onKeyDown(pKeyCode, pKeyEvent);
@@ -250,3 +246,4 @@ public class Cocos2dxEditBox extends EditText {
         this.setInputType(this.mInputFlagConstraints | this.mInputModeConstraints);
     }
 }
+
