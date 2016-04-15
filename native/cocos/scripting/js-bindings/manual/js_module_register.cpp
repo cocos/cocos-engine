@@ -5,6 +5,7 @@
 #include "jsb_cocos2dx_studio_auto.hpp"
 #include "jsb_cocos2dx_builder_auto.hpp"
 #include "jsb_cocos2dx_spine_auto.hpp"
+#include "jsb_creator_auto.hpp"
 #include "jsb_cocos2dx_extension_auto.hpp"
 #include "ui/jsb_cocos2dx_ui_manual.h"
 #include "cocostudio/jsb_cocos2dx_studio_manual.h"
@@ -65,6 +66,9 @@ int js_module_register()
     // spine can be commented out to reduce the package
     sc->addRegisterCallback(register_all_cocos2dx_spine);
     sc->addRegisterCallback(register_all_cocos2dx_spine_manual);
+
+    // register creator
+    sc->addRegisterCallback(register_all_creator);
     
     // XmlHttpRequest can be commented out to reduce the package
     sc->addRegisterCallback(MinXmlHttpRequest::_js_register);
@@ -77,11 +81,6 @@ int js_module_register()
     // Physics 3d can be commented out to reduce the package
     sc->addRegisterCallback(register_all_cocos2dx_physics3d);
     sc->addRegisterCallback(register_all_cocos2dx_physics3d_manual);
-#endif
-
-#if CC_USE_NAVMESH
-    sc->addRegisterCallback(register_all_cocos2dx_navmesh);
-    sc->addRegisterCallback(register_all_cocos2dx_navmesh_manual);
 #endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
