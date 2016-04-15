@@ -823,6 +823,12 @@ ScriptingCore::~ScriptingCore()
 
 void ScriptingCore::cleanup()
 {
+    if(_runLoop)
+    {
+        delete _runLoop;
+        _runLoop = nullptr;
+    }
+    
     localStorageFree();
 
     if (_cx)
