@@ -36,7 +36,7 @@
 
 namespace creator {
 
-class Scale9SpriteV2 : public cocos2d::Node
+class CC_DLL Scale9SpriteV2 : public cocos2d::Node
 {
 public:
     enum class FillType
