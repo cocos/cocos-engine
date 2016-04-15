@@ -61,6 +61,8 @@ cc.Audio = function (context, volume, url) {
     this.src = url;
 };
 
+cc.Audio.useWebAudio = false;
+
 JS.mixin(cc.Audio.prototype, {
     _setBufferCallback: null,
     setBuffer: function(buffer){
@@ -222,7 +224,7 @@ JS.mixin(cc.Audio.prototype, {
         var audio = this._element;
         if(audio){
             audio.pause();
-            if (audio.duration && audio.duration !== Infinity)
+            if (audio.duration)
                 audio.currentTime = 0;
         }
     },
@@ -351,8 +353,29 @@ JS.mixin(cc.Audio.prototype, {
     cc.audioEngine = {
         _currMusic: null,
         _musicVolume: 1,
+        _autoplayed: false,
 
         features: polyfill,
+
+        // Autoplay on iOS and some other android browsers in which the music must be played in an event callback.
+        _autoplay: function (url, loop, isMusic) {
+            var self = this;
+            if (cc.game.canvas) {
+                if (!self._autoplayed) {
+                    self._autoplayed = true;
+                }
+                var delayedPlay = function () {
+                    if (isMusic) {
+                        self.playMusic(url, loop, true);
+                    }
+                    else {
+                        self.playEffect(url, loop);
+                    }
+                    cc.game.canvas.removeEventListener("touchstart", delayedPlay);
+                };
+                cc.game.canvas.addEventListener("touchstart", delayedPlay, false);
+            }
+        },
 
         /**
          * !#en Play music.
@@ -362,24 +385,31 @@ JS.mixin(cc.Audio.prototype, {
          * @method playMusic
          * @param {String} url - The path of the music file without filename extension.
          * @param {Boolean} loop - Whether the music loop or not.
+         * @param {Boolean} immediate - Whether immediately play music.
          * @example
          * //example
          * cc.audioEngine.playMusic(path, false);
          */
-        playMusic: function(url, loop){
+        playMusic: function(url, loop, immediate){
+
+            if (!SWC && !immediate) {
+                this._autoplay(url, loop, true);
+                return;
+            }
+
             var bgMusic = this._currMusic;
-            if(bgMusic && bgMusic.src !== url && bgMusic.getPlaying()){
+            if (bgMusic && bgMusic.getPlaying()) {
                 bgMusic.stop();
             }
             var item = cc.loader.getItem(url);
             var audio = item && item.audio ? item.audio : null;
-            if(!audio){
+            if (!audio) {
                 var self = this;
                 cc.loader.load(url, function (error) {
                     if (!error) {
                         var item = cc.loader.getItem(url);
                         var audio = item && item.audio ? item.audio : null;
-                        audio.play(0, loop);
+                        audio.play(0, loop || false);
                         audio.setVolume(self._musicVolume);
                         self._currMusic = audio;
                     }
@@ -403,7 +433,7 @@ JS.mixin(cc.Audio.prototype, {
          */
         stopMusic: function(releaseData){
             var audio = this._currMusic;
-            if(audio){
+            if (audio) {
                 audio.stop();
                 if (releaseData)
                     cc.loader.release(audio.src);
@@ -420,7 +450,7 @@ JS.mixin(cc.Audio.prototype, {
          */
         pauseMusic: function(){
             var audio = this._currMusic;
-            if(audio)
+            if (audio)
                 audio.pause();
         },
 
@@ -434,7 +464,7 @@ JS.mixin(cc.Audio.prototype, {
          */
         resumeMusic: function(){
             var audio = this._currMusic;
-            if(audio)
+            if (audio)
                 audio.resume();
         },
 
@@ -448,7 +478,7 @@ JS.mixin(cc.Audio.prototype, {
          */
         rewindMusic: function(){
             var audio = this._currMusic;
-            if(audio){
+            if (audio) {
                 audio.stop();
                 audio.play();
             }
@@ -478,13 +508,13 @@ JS.mixin(cc.Audio.prototype, {
          */
         setMusicVolume: function(volume){
             volume = volume - 0;
-            if(isNaN(volume)) volume = 1;
-            if(volume > 1) volume = 1;
-            if(volume < 0) volume = 0;
+            if (isNaN(volume)) volume = 1;
+            if (volume > 1) volume = 1;
+            if (volume < 0) volume = 0;
 
             this._musicVolume = volume;
             var audio = this._currMusic;
-            if(audio){
+            if (audio) {
                 audio.setVolume(volume);
             }
         },
@@ -505,15 +535,15 @@ JS.mixin(cc.Audio.prototype, {
          */
         isMusicPlaying: function(){
             var audio = this._currMusic;
-            if(audio){
+            if (audio) {
                 return audio.getPlaying();
-            }else{
+            } else {
                 return false;
             }
         },
 
         _audioPool: {},
-        _maxAudioInstance: 5,
+        _maxAudioInstance: 10,
         _effectVolume: 1,
         /**
          * !#en Play sound effect.
@@ -529,36 +559,50 @@ JS.mixin(cc.Audio.prototype, {
          * var soundId = cc.audioEngine.playEffect(path);
          */
         playEffect: function(url, loop){
-            //If the browser just support playing single audio
-            if(!polyfill.MULTI_CHANNEL){
-                //Must be forced to shut down
-                //Because playing MULTI_CHANNEL audio will be stuck in chrome 28 (android)
-                return null;
+            if (!SWC && !this._autoplayed) {
+                this._autoplay(url, loop, false);
+                return;
             }
 
             var effectList = this._audioPool[url];
-            if(!effectList){
+            if (!effectList) {
                 effectList = this._audioPool[url] = [];
             }
 
-            for(var i=0; i<effectList.length; i++){
-                if(!effectList[i].getPlaying()){
+            var i;
+            for(i = 0; i < effectList.length; i++){
+                if (!effectList[i].getPlaying()) {
                     break;
                 }
             }
 
+            if (!SWA && i > this._maxAudioInstance) {
+                var first = effectList.shift();
+                first.stop();
+                effectList.push(first);
+                i = effectList.length - 1;
+                // cc.log("Error: %s greater than %d", url, this._maxAudioInstance);
+            }
+
             var audio;
-            if(effectList[i]){
+            if (effectList[i]) {
                 audio = effectList[i];
                 audio.setVolume(this._effectVolume);
-                audio.play(0, loop);
-            }else if(!SWA && i > this._maxAudioInstance){
-                cc.log("Error: %s greater than %d", url, this._maxAudioInstance);
-            }else{
+                audio.play(0, loop || false);
+            } else {
                 var item = cc.loader.getItem(url);
                 audio = item && item.audio ? item.audio : null;
-                if(!audio){
+                if (audio && audio._AUDIO_TYPE != "WEBAUDIO") {
+                    delete cc.loader.getRes(url);
+                    cc.loader.release(url);
+                    audio = null;
+                }
+
+                if (!audio) {
+                    // Force using webaudio for effects
+                    cc.Audio.useWebAudio = true;
                     cc.loader.load(url);
+                    cc.Audio.useWebAudio = false;
                     item = cc.loader.getItem(url);
                     audio = item && item.audio ? item.audio : null;
                     if (!audio) {
@@ -567,8 +611,7 @@ JS.mixin(cc.Audio.prototype, {
                 }
                 audio = audio.cloneNode();
                 audio.setVolume(this._effectVolume);
-                audio.loop = loop || false;
-                audio.play();
+                audio.play(0, loop || false);
                 effectList.push(audio);
             }
 
@@ -770,33 +813,5 @@ JS.mixin(cc.Audio.prototype, {
             list.length = 0;
         }
     };
-
-    /**
-     * ome browsers must click on the page
-     */
-    if(!SWC){
-
-        //TODO Did not complete loading
-        var reBGM = function(){
-            var bg = cc.audioEngine._currMusic;
-            if(
-                bg &&
-                bg._touch === false &&
-                bg._playing &&
-                bg.getPlaying()
-            ){
-                bg._touch = true;
-                bg.play(0, bg.loop);
-                !polyfill.REPLAY_AFTER_TOUCH && cc._canvas.removeEventListener("touchstart", reBGM);
-            }
-
-        };
-
-        setTimeout(function(){
-            if(cc._canvas){
-                cc._canvas.addEventListener("touchstart", reBGM, false);
-            }
-        }, 150);
-    }
 
 })(cc.sys.__audioSupport);

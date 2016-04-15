@@ -244,7 +244,6 @@ cc.LoaderLayer = cc.Layer.extend({
                     self._callback(true);
                 }
             }
-            self._callback.call(this._target, !status.isFailed);
         });
     },
     _preload_native: function (status) {

@@ -520,6 +520,7 @@ var game = /** @lends cc.game# */{
         }
         // Load from project.json
         else {
+            var data = {};
             try {
                 var cocos_script = document.getElementsByTagName('script');
                 for(var i = 0; i < cocos_script.length; i++){
@@ -541,12 +542,11 @@ var game = /** @lends cc.game# */{
                 if(!txt){
                     txt = cc.loader._loadTxtSync("project.json");
                 }
-                var data = JSON.parse(txt);
-                this._initConfig(data || {});
+                data = JSON.parse(txt);
             } catch (e) {
                 cc.log("Failed to read or parse project.json");
-                this._initConfig({});
             }
+            this._initConfig(data || {});
         }
     },
 
