@@ -9,20 +9,11 @@
             "from": "res-landscape",
             "to": ""
          },
-         "project_rename": {
-            "src_project_name": "HelloJavascript",
-            "files": [
-               "PROJECT_NAME.ccs",
-               "PROJECT_NAME.cfg",
-               "PROJECT_NAME.udf"
-            ]
-         },
          "project_replace_project_name":{
             "src_project_name":"HelloJavascript",
             "files":[
                   "config.json",
-                  ".project",
-                  "PROJECT_NAME.ccs"
+                  ".project"
                ]
             },
          "append_dir":[
@@ -146,21 +137,7 @@
                "pattern": "android:screenOrientation=\\\".*\\\"",
                "replace_string": "android:screenOrientation=\"portrait\""
             }
-         ],
-         "project_rename":{
-            "src_project_name":"HelloJavascript",
-            "files":[
-               "PROJECT_NAME.ccs",
-               "PROJECT_NAME.cfg",
-               "PROJECT_NAME.udf"
-            ]
-         },
-         "project_replace_project_name":{
-            "src_project_name":"HelloJavascript",
-            "files":[
-               "PROJECT_NAME.ccs"
-            ]
-         }
+         ]
       }
 }
 
