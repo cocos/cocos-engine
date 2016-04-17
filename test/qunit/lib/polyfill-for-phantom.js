@@ -4,7 +4,7 @@ if (typeof CustomEvent === 'undefined') {
     }
 }
 
-if (typeof Set == 'undefined') {
+if (typeof Set === 'undefined') {
     // very simple polyfill
     Set = function () {
         this.values = [];
@@ -14,6 +14,17 @@ if (typeof Set == 'undefined') {
     };
     Set.prototype.add = function (value) {
         this.values.push(value);
+    };
+}
+
+if (typeof setImmediate === 'undefined') {
+    window.setImmediate = function (func) {
+        'use strict';
+        console.assert(arguments.length <= 1, 'not support params');
+        return setTimeout(func, 0);
+    };
+    window.clearImmediate = function (immediateID) {
+        clearTimeout(immediateID);
     };
 }
 

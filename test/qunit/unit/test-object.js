@@ -79,6 +79,29 @@ test('deferred destroy', function () {
     strictEqual(obj2.isValid, false, 'deleted at the end of frame 2');
 });
 
+test('realDestroyInEditor', function () {
+    var isEditor = CC_EDITOR;
+    var isUpdating = cc.engine._isUpdating;
+    cc.engine._isUpdating = false;
+    CC_EDITOR = true;
+
+    var obj = new CCObject();
+    obj.name = 'wocou';
+    obj.destroy();
+    CCObject._deferredDestroy();
+
+    strictEqual(obj.name, 'wocou', 'should not destroyed really');
+    strictEqual(obj.isRealValid, true, 'isRealValid should be true');
+
+    obj.realDestroyInEditor();
+
+    strictEqual(obj.name, '', 'should be destroyed really');
+    strictEqual(obj.isRealValid, false, 'isRealValid should be false');
+
+    CC_EDITOR = isEditor;
+    cc.engine._isUpdating = isUpdating;
+});
+
 test('multiply deferred destroy', function () {
     var obj1 = new CCObject();
     var obj2 = new CCObject();
