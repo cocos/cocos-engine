@@ -44,7 +44,6 @@ std::string s_attributeNames[] = {
 static std::vector<VertexAttribBinding*> __vertexAttribBindingCache;
 
 VertexAttribBinding::VertexAttribBinding()
-//    _handle(0), _attributes(), _meshIndexData(nullptr), _glProgramState(nullptr)
 {
 }
 
@@ -57,7 +56,6 @@ VertexAttribBinding::~VertexAttribBinding()
         __vertexAttribBindingCache.erase(itr);
     }
 
-//    CC_SAFE_RELEASE(_meshIndexData);
     CC_SAFE_RELEASE(_glProgramState);
     _attributes.clear();
 
@@ -68,131 +66,8 @@ VertexAttribBinding::~VertexAttribBinding()
     }
 }
 
-//VertexAttribBinding* VertexAttribBinding::create(MeshIndexData* meshIndexData, GLProgramState* glProgramState)
-//{
-//    CCASSERT(meshIndexData && glProgramState, "Invalid MeshIndexData and/or GLProgramState");
-//
-//    // Search for an existing vertex attribute binding that can be used.
-//    VertexAttribBinding* b;
-//    for (size_t i = 0, count = __vertexAttribBindingCache.size(); i < count; ++i)
-//    {
-//        b = __vertexAttribBindingCache[i];
-//        CC_ASSERT(b);
-//        if (b->_meshIndexData == meshIndexData && b->_glProgramState == glProgramState)
-//        {
-//            // Found a match!
-//            return b;
-//        }
-//    }
-//
-//    b = new (std::nothrow) VertexAttribBinding();
-//    if (b && b->init(meshIndexData, glProgramState))
-//    {
-//        b->autorelease();
-//        __vertexAttribBindingCache.push_back(b);
-//    }
-//
-//    return b;
-//}
-
-//bool VertexAttribBinding::init(MeshIndexData* meshIndexData, GLProgramState* glProgramState)
-//{
-//    CCASSERT(meshIndexData && glProgramState, "Invalid arguments");
-//
-//    // One-time initialization.
-//    if (__maxVertexAttribs == 0)
-//    {
-//        GLint temp;
-//        glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &temp);
-//
-//        __maxVertexAttribs = temp;
-//        if (__maxVertexAttribs <= 0)
-//        {
-//            CCLOGERROR("The maximum number of vertex attributes supported by OpenGL on the current device is 0 or less.");
-//            return NULL;
-//        }
-//    }
-//
-//    _meshIndexData = meshIndexData;
-//    _meshIndexData->retain();
-//    _glProgramState = glProgramState;
-//    _glProgramState->retain();
-//
-//    auto meshVertexData = meshIndexData->getMeshVertexData();
-//    auto attributeCount = meshVertexData->getMeshVertexAttribCount();
-//
-//
-//    // Parse and set attributes
-//    parseAttributes();
-//    long offset = 0;
-//    for (auto k = 0; k < attributeCount; k++)
-//    {
-//        auto meshattribute = meshVertexData->getMeshVertexAttrib(k);
-//        setVertexAttribPointer(
-//                               s_attributeNames[meshattribute.vertexAttrib],
-//                               meshattribute.size,
-//                               meshattribute.type,
-//                               GL_FALSE,
-//                               meshVertexData->getVertexBuffer()->getSizePerVertex(),
-//                               (GLvoid*)offset);
-//        offset += meshattribute.attribSizeBytes;
-//    }
-//
-//    // VAO hardware
-//    if (Configuration::getInstance()->supportsShareableVAO())
-//    {
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-//
-//        glGenVertexArrays(1, &_handle);
-//        GL::bindVAO(_handle);
-//        glBindBuffer(GL_ARRAY_BUFFER, meshVertexData->getVertexBuffer()->getVBO());
-//
-//        auto flags = _vertexAttribsFlags;
-//        for (int i = 0; flags > 0; i++) {
-//            int flag = 1 << i;
-//            if (flag & flags)
-//                glEnableVertexAttribArray(i);
-//            flags &= ~flag;
-//        }
-//
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, meshIndexData->getIndexBuffer()->getVBO());
-//
-//        for(auto &attribute : _attributes)
-//        {
-//            attribute.second.apply();
-//        }
-//
-//        GL::bindVAO(0);
-//    }
-//
-//    return true;
-//}
-
 void VertexAttribBinding::bind()
 {
-
-//    if (_handle)
-//    {
-//        // hardware
-//        GL::bindVAO(_handle);
-//    }
-//    else
-//    {
-//        // software
-//        auto meshVertexData = _meshIndexData->getMeshVertexData();
-//        glBindBuffer(GL_ARRAY_BUFFER, meshVertexData->getVertexBuffer()->getVBO());
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _meshIndexData->getIndexBuffer()->getVBO());
-//
-//        // Software mode
-//        GL::enableVertexAttribs(_vertexAttribsFlags);
-//        // set attributes
-//        for(auto &attribute : _attributes)
-//        {
-//            attribute.second.apply();
-//        }
-//
-//    }
 }
 
 void VertexAttribBinding::unbind()

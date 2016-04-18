@@ -102,6 +102,7 @@ namespace ui {
 
         return ret;
     }
+    
     bool Scale9Sprite::initWithSpriteFrame(SpriteFrame* spriteFrame)
     {
         CCASSERT(spriteFrame != nullptr, "Invalid spriteFrame for sprite");
@@ -587,8 +588,6 @@ namespace ui {
     Values goes from 0 to 255, where 255 means fully opaque.
 */
 
-
-
     void Scale9Sprite::updateCapInset()
     {
         Rect insets;
@@ -598,7 +597,6 @@ namespace ui {
                       _originalSize.height-_insetTop-_insetBottom);
         this->setCapInsets(insets);
     }
-
 
     void Scale9Sprite::setSpriteFrame(SpriteFrame * spriteFrame, const Rect& capInsets)
     {
@@ -622,7 +620,6 @@ namespace ui {
         this->setContentSize(preferredSize);
     }
 
-
     void Scale9Sprite::setCapInsets(const Rect& capInsets)
     {
         Size contentSize = this->_contentSize;
@@ -638,7 +635,6 @@ namespace ui {
         this->_insetBottom = _originalSize.height - _insetTop - capInsets.size.height;
         this->setContentSize(contentSize);
     }
-
 
     void Scale9Sprite::setInsetLeft(float insetLeft)
     {

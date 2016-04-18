@@ -4724,6 +4724,7 @@ bool js_cocos2dx_Label_createWithTTF(JSContext *cx, uint32_t argc, jsval *vp)
         label = new (std::nothrow) cocos2d::Label;
         label->initWithTTF(ttfConfig, text, alignment, arg3);
     }
+    label->autorelease();
 
     if (ok)
     {

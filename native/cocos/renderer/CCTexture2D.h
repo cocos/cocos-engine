@@ -178,6 +178,8 @@ public:
      @since v0.8
      */
     static Texture2D::PixelFormat getDefaultAlphaPixelFormat();
+    
+    static void fouceDeleteALLTexture2D();
 
 public:
     /**

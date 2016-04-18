@@ -32,6 +32,7 @@ THE SOFTWARE.
 */
 
 #include "renderer/CCTexture2D.h"
+#include <unordered_set>
 
 #include "platform/CCGL.h"
 #include "platform/CCImage.h"
@@ -53,8 +54,6 @@ THE SOFTWARE.
 #endif
 
 NS_CC_BEGIN
-
-
 
 namespace {
     typedef Texture2D::PixelFormatInfoMap::value_type PixelFormatInfoMapValue;
@@ -422,6 +421,16 @@ void Texture2D::convertRGBA8888ToRGB5A1(const unsigned char* data, ssize_t dataL
 }
 // converter function end
 //////////////////////////////////////////////////////////////////////////
+static std::unordered_set<Texture2D*> s_allGLTexture2D;
+
+void Texture2D::fouceDeleteALLTexture2D()
+{
+    auto copyMap = s_allGLTexture2D;
+    for (auto&& it: copyMap) {
+        delete it;
+    }
+    s_allGLTexture2D.clear();
+}
 
 Texture2D::Texture2D()
 : _pixelFormat(Texture2D::PixelFormat::DEFAULT)
@@ -436,10 +445,14 @@ Texture2D::Texture2D()
 , _antialiasEnabled(true)
 , _ninePatchInfo(nullptr)
 {
+    s_allGLTexture2D.insert(this);
 }
 
 Texture2D::~Texture2D()
 {
+    if (s_allGLTexture2D.find(this) != s_allGLTexture2D.end()) {
+        s_allGLTexture2D.erase(this);
+    }
 #if CC_ENABLE_CACHE_TEXTURE_DATA
     VolatileTextureMgr::removeTexture(this);
 #endif
@@ -463,7 +476,6 @@ void Texture2D::releaseGLTexture()
     }
     _name = 0;
 }
-
 
 Texture2D::PixelFormat Texture2D::getPixelFormat() const
 {
@@ -549,8 +561,6 @@ bool Texture2D::initWithData(const void *data, ssize_t dataLen, Texture2D::Pixel
 
 bool Texture2D::initWithMipmaps(MipmapInfo* mipmaps, int mipmapsNum, PixelFormat pixelFormat, int pixelsWide, int pixelsHigh)
 {
-
-
     //the pixelFormat must be a certain value
     CCASSERT(pixelFormat != PixelFormat::NONE && pixelFormat != PixelFormat::AUTO, "the \"pixelFormat\" param must be a certain value!");
     CCASSERT(pixelsWide>0 && pixelsHigh>0, "Invalid size");
@@ -1157,7 +1167,6 @@ void Texture2D::drawAtPoint(const Vec2& point)
     _shaderProgram->setUniformsForBuiltins();
 
     GL::bindTexture2D( _name );
-
 
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE, 0, vertices);
     glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORD, 2, GL_FLOAT, GL_FALSE, 0, coordinates);
