@@ -37,6 +37,10 @@ cc.js.mixin(cc.game, {
     _persistRootNodes: {},
     _ignoreRemovePersistNode: null,
 
+    RENDER_TYPE_CANVAS: 0,
+    RENDER_TYPE_WEBGL: 1,
+    RENDER_TYPE_OPENGL: 2,
+    
     CONFIG_KEY: {
         width: 'width',
         height: 'height',
