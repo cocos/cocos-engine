@@ -182,8 +182,18 @@ Director::~Director()
 
     CC_SAFE_RELEASE(_runningScene);
     CC_SAFE_RELEASE(_notificationNode);
-    CC_SAFE_RELEASE(_scheduler);
-    CC_SAFE_RELEASE(_actionManager);
+    
+    if (_scheduler)
+    {
+        delete _scheduler;
+        _scheduler = nullptr;
+    }
+    
+    if (_actionManager)
+    {
+        delete _actionManager;
+        _actionManager = nullptr;
+    }
 
     delete _eventBeforeUpdate;
     delete _eventAfterUpdate;
@@ -195,14 +205,19 @@ Director::~Director()
     delete _renderer;
 
     delete _console;
-
-
-    CC_SAFE_RELEASE(_eventDispatcher);
-
+    
+    if (_eventDispatcher)
+    {
+        delete _eventDispatcher;
+        _eventDispatcher = nullptr;
+    }
+    
     // delete _lastUpdate
     CC_SAFE_DELETE(_lastUpdate);
 
     Configuration::destroyInstance();
+    
+    Texture2D::fouceDeleteALLTexture2D();
 
     DirectorInstance = nullptr;
 }

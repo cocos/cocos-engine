@@ -241,6 +241,7 @@ bool RenderTexture::initWithWidthAndHeight(int w, int h, Texture2D::PixelFormat 
             }
             else
             {
+                _texture->release();
                 break;
             }
         }

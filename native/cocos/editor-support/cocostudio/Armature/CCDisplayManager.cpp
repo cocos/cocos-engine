@@ -60,8 +60,6 @@ DisplayManager::DisplayManager()
 
 DisplayManager::~DisplayManager()
 {
-    _decoDisplayList.clear();
-
     if( _displayRenderNode )
     {
         _displayRenderNode->removeFromParentAndCleanup(true);
@@ -77,7 +75,6 @@ bool DisplayManager::init(Bone *bone)
 
     do
     {
-
         _bone = bone;
 
         initDisplayList(bone->getBoneData());

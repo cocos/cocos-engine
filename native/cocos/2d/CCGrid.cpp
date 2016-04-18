@@ -96,7 +96,7 @@ bool GridBase::initWithSize(const cocos2d::Size &gridSize, const cocos2d::Rect &
 
     auto dataLen = POTWide * POTHigh * 4;
     void *data = calloc(dataLen, 1);
-    if (! data)
+    if (data == nullptr)
     {
         CCLOG("cocos2d: Grid: not enough memory.");
         this->release();
@@ -104,15 +104,15 @@ bool GridBase::initWithSize(const cocos2d::Size &gridSize, const cocos2d::Rect &
     }
 
     Texture2D *texture = new (std::nothrow) Texture2D();
-    texture->initWithData(data, dataLen,  format, POTWide, POTHigh, s);
-
-    free(data);
-
-    if (! texture)
+    if (texture == nullptr)
     {
         CCLOG("cocos2d: Grid: error creating texture");
+        free(data);
         return false;
     }
+    
+    texture->initWithData(data, dataLen,  format, POTWide, POTHigh, s);
+    free(data);
 
     initWithSize(gridSize, texture, false, rect);
 

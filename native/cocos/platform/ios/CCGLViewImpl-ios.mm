@@ -202,7 +202,6 @@ void GLViewImpl::end()
     release();
 }
 
-
 void GLViewImpl::swapBuffers()
 {
     CCEAGLView *eaglview = (CCEAGLView*) _eaglview;

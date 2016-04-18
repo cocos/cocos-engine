@@ -229,14 +229,12 @@ public:
      */
     RichElementCustomNode(){_type = Type::CUSTOM;};
 
-
     /**
      * @brief Default destructor.
      * @js NA
      * @lua NA
      */
     virtual ~RichElementCustomNode(){CC_SAFE_RELEASE(_customNode);};
-
 
     /**
      * @brief Initialize a RichElementCustomNode with various arguments.

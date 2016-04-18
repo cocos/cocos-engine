@@ -71,8 +71,8 @@ EventDispatcher::EventListenerVector::EventListenerVector() :
 
 EventDispatcher::EventListenerVector::~EventListenerVector()
 {
-    CC_SAFE_DELETE(_sceneGraphListeners);
-    CC_SAFE_DELETE(_fixedListeners);
+    clearSceneGraphListeners();
+    clearFixedListeners();
 }
 
 size_t EventDispatcher::EventListenerVector::size() const
@@ -400,13 +400,17 @@ void EventDispatcher::addEventListener(EventListener* listener)
     if (_inDispatch == 0)
     {
         forceAddEventListener(listener);
+        listener->retain();
     }
     else
     {
-        _toAddedListeners.push_back(listener);
+        auto matchIter = std::find(_toAddedListeners.begin(), _toAddedListeners.end(), listener);
+        if (matchIter == _toAddedListeners.end())
+        {
+            _toAddedListeners.push_back(listener);
+            listener->retain();
+        }
     }
-
-    listener->retain();
 }
 
 void EventDispatcher::forceAddEventListener(EventListener* listener)
@@ -416,7 +420,6 @@ void EventDispatcher::forceAddEventListener(EventListener* listener)
     auto itr = _listenerMap.find(listenerID);
     if (itr == _listenerMap.end())
     {
-
         listeners = new (std::nothrow) EventListenerVector();
         _listenerMap.insert(std::make_pair(listenerID, listeners));
     }
