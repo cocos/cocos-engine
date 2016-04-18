@@ -232,15 +232,24 @@ var Label = cc.Class({
         /**
          * !#en The font URL of label.
          * !#zh 文本字体的 url。
-         * @property {String} file
+         * @property {cc.Font} file
          */
         file: {
-            default: "Arial",
-            url: cc.Font,
+            default: null,
+            type: cc.Font,
             tooltip: 'i18n:COMPONENT.label.file',
             notify: function () {
                 if (this._sgNode) {
-                    this._sgNode.setFontFileOrFamily(this.file);
+
+                    if ( typeof this.file === 'string' ) {
+                        cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
+                            'Please load the font asset before using.');
+                    }
+
+                    var isAsset = this.file instanceof cc.Font;
+                    var fntRawUrl = isAsset ? this.file.rawUrl : '';
+                    var textureUrl = isAsset ? this.file.texture : '';
+                    this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
                 }
             },
             animatable: false
@@ -263,7 +272,7 @@ var Label = cc.Class({
             set: function(value){
                 this._isSystemFontUsed = value;
                 if (value) {
-                    this.file = "";
+                    this.file = null;
                     if (this._sgNode) {
                         this._sgNode.setSystemFontUsed(value);
                     }
@@ -324,7 +333,17 @@ var Label = cc.Class({
     },
 
     _initSgNode: function () {
-        this._sgNode = new _ccsg.Label(this.string, this.file);
+
+        if ( typeof this.file === 'string' ) {
+            cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
+                'Please load the font asset before using.');
+        }
+
+        var isAsset = this.file instanceof cc.Font;
+        var fntRawUrl = isAsset ? this.file.rawUrl : '';
+        var textureUrl = isAsset ? this.file.texture : '';
+
+        this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
         this._sgNode.retain();
         var sgNode = this._sgNode;
 
@@ -338,7 +357,7 @@ var Label = cc.Class({
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
-        sgNode.setFontFileOrFamily(this.file);
+        sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
         if(this._useOriginalSize && CC_EDITOR){
             this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
