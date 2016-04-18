@@ -61,9 +61,9 @@ var Color = (function () {
             a = r.a;
             r = r.r;
         }
-        this.r = typeof r === 'number' ? r : 0;
-        this.g = typeof g === 'number' ? g : 0;
-        this.b = typeof b === 'number' ? b : 0;
+        this.r = r || 0;
+        this.g = g || 0;
+        this.b = b || 0;
         this.a = typeof a === 'number' ? a : 255;
     }
     JS.extend(Color, ValueType);

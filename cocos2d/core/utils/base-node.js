@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 var JS = cc.js;
-var SceneGraphHelper = require('./scene-graph-helper');
+var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
@@ -1911,7 +1911,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    // The deserializer for sgNode which will be called before components onLoad
+    /*
+     * The deserializer for sgNode which will be called before components onLoad
+     * @param {Boolean} [skipChildrenInEditor=false]
+     */
     _onBatchCreated: function () {
         this._updateDummySgNode();
 
@@ -1931,7 +1934,30 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    _removeSgNode: SceneGraphHelper.removeSgNode,
+    onRestore: CC_EDITOR && function () {
+        this._updateDummySgNode();
+
+        var sgParent = this._parent && this._parent._sgNode;
+        if (this._sgNode._parent !== sgParent) {
+            if (this._sgNode._parent) {
+                this._sgNode.removeFromParent();
+            }
+            if (sgParent) {
+                sgParent.addChild(this._sgNode);
+            }
+        }
+
+        if (this._activeInHierarchy) {
+            cc.director.getActionManager().resumeTarget(this);
+            cc.eventManager.resumeTarget(this);
+        }
+        else {
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+        }
+    },
+
+    _removeSgNode: SgHelper.removeSgNode,
 });
 
 

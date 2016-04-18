@@ -52,8 +52,8 @@ function Vec2 (x, y) {
         y = x.y;
         x = x.x;
     }
-    this.x = (typeof x === 'number' ? x : 0.0);
-    this.y = (typeof y === 'number' ? y : 0.0);
+    this.x = x || 0;
+    this.y = y || 0;
 }
 JS.extend(Vec2, ValueType);
 FireClass.fastDefine('cc.Vec2', Vec2, ['x', 'y']);
