@@ -35,7 +35,7 @@
  */
 var Font = cc.Class({
     name: 'cc.Font',
-    extends: cc.RawAsset
+    extends: cc.Asset
 });
 
 cc.Font = Font;
