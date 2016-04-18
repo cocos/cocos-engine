@@ -2112,6 +2112,8 @@ bool js_cocos2dx_retain(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_retain : Invalid Native Object");
 
     cobj->retain();
+    ScriptingCore::getInstance()->recordJSRetain(cobj);
+    
     args.rval().setUndefined();
     return true;
 }
@@ -2125,6 +2127,8 @@ bool js_cocos2dx_release(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_release : Invalid Native Object");
 
     cobj->release();
+    ScriptingCore::getInstance()->recordJSRelease(cobj);
+    
     args.rval().setUndefined();
     return true;
 }

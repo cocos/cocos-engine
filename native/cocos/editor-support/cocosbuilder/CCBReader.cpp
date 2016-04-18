@@ -807,7 +807,7 @@ CCBKeyframe* CCBReader::readKeyframe(PropertyType type)
         {
             spriteFile = _CCBRootPath + spriteFile;
 
-            Texture2D *texture = Director::DirectorInstance->getTextureCache()->addImage(spriteFile.c_str());
+            Texture2D *texture = Director::DirectorInstance->getTextureCache()->addImage(spriteFile);
             Rect bounds = Rect(0, 0, texture->getContentSize().width, texture->getContentSize().height);
 
             spriteFrame = SpriteFrame::createWithTexture(texture, bounds);
@@ -820,11 +820,11 @@ CCBKeyframe* CCBReader::readKeyframe(PropertyType type)
             // Load the sprite sheet only if it is not loaded
             if (_loadedSpriteSheets.find(spriteSheet) == _loadedSpriteSheets.end())
             {
-                frameCache->addSpriteFramesWithFile(spriteSheet.c_str());
+                frameCache->addSpriteFramesWithFile(spriteSheet);
                 _loadedSpriteSheets.insert(spriteSheet);
             }
 
-            spriteFrame = frameCache->getSpriteFrameByName(spriteFile.c_str());
+            spriteFrame = frameCache->getSpriteFrameByName(spriteFile);
         }
 
         keyframe->setObject(spriteFrame);
