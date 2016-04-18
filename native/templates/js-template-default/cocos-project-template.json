@@ -36,14 +36,16 @@
          "project_replace_project_name":{
             "src_project_name":"HelloJavascript",
             "files":[
-               "manifest.webapp",
                "frameworks/runtime-src/proj.win32/PROJECT_NAME.vcxproj",
                "frameworks/runtime-src/proj.win32/PROJECT_NAME.vcxproj.filters",
                "frameworks/runtime-src/proj.win32/PROJECT_NAME.vcxproj.user",
                "frameworks/runtime-src/proj.win32/PROJECT_NAME.sln",
                "frameworks/runtime-src/proj.win32/main.cpp",
+               "frameworks/runtime-src/proj.android/.project",
+               "frameworks/runtime-src/proj.android/AndroidManifest.xml",
+               "frameworks/runtime-src/proj.android/build.xml",
+               "frameworks/runtime-src/proj.android/res/values/strings.xml",
                "frameworks/runtime-src/proj.android-studio/settings.gradle",
-               "frameworks/runtime-src/proj.android-studio/app/res/values/strings.xml",
                "frameworks/runtime-src/proj.ios_mac/ios/main.m",
                "frameworks/runtime-src/proj.ios_mac/ios/Prefix.pch",
                "frameworks/runtime-src/proj.ios_mac/PROJECT_NAME.xcodeproj/project.pbxproj",
@@ -53,6 +55,7 @@
          "project_replace_package_name":{
             "src_package_name":"org.cocos2dx.hellojavascript",
             "files":[
+               "frameworks/runtime-src/proj.android/AndroidManifest.xml",
                "frameworks/runtime-src/proj.android-studio/app/build.gradle",
                "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml"
             ]
@@ -69,35 +72,6 @@
                "frameworks/runtime-src/proj.ios_mac/ios/Info.plist"
             ]
          }
-      },
-      "change_orientation": {
-         "modify_files": [
-            {
-               "file_path": "frameworks/runtime-src/Classes/AppDelegate.cpp",
-               "pattern": "GLViewImpl::createWithRect\\((.*),\\s*Rect\\(\\s*(\\d+),\\s*(\\d+),\\s*(\\d+),\\s*(\\d+)\\)\\)",
-               "replace_string": "GLViewImpl::createWithRect(\\1, Rect(\\2, \\3, \\5, \\4))"
-            },
-            {
-               "file_path": "main.js",
-               "pattern": "setDesignResolutionSize\\(\\s*(\\d+),\\s*(\\d+),(.*)\\)",
-               "replace_string": "setDesignResolutionSize(\\2, \\1,\\3)"
-            },
-            {
-               "file_path": "frameworks/runtime-src/proj.ios_mac/ios/Info.plist",
-               "pattern": "UIInterfaceOrientationLandscapeRight",
-               "replace_string": "UIInterfaceOrientationPortrait"
-            },
-            {
-               "file_path": "frameworks/runtime-src/proj.ios_mac/ios/Info.plist",
-               "pattern": "UIInterfaceOrientationLandscapeLeft",
-               "replace_string": "UIInterfaceOrientationPortraitUpsideDown"
-            },
-            {
-               "file_path": "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml",
-               "pattern": "android:screenOrientation=\\\".*\\\"",
-               "replace_string": "android:screenOrientation=\"portrait\""
-            }
-         ]
-      }
+    }
 }
 

@@ -130,6 +130,12 @@
     <Filter Include="cocostudio\Armature">
       <UniqueIdentifier>{0ddcb553-d230-4921-afd4-031a3644a034}</UniqueIdentifier>
     </Filter>
+    <Filter Include="creator">
+      <UniqueIdentifier>{691a1234-91c6-4c12-992d-3973f4da830f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="extension\PhysicsSprite">
+      <UniqueIdentifier>{87ddafca-e85f-430b-bfa1-b6e09279138f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\cocos2d.cpp" />
@@ -970,6 +976,15 @@
     </ClCompile>
     <ClCompile Include="..\ui\UIPageViewIndicator.cpp">
       <Filter>ui\UIWidgets\ScrollWidget</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\CCScale9Sprite.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extensions\physics-nodes\CCPhysicsDebugNode.cpp">
+      <Filter>extension\PhysicsSprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extensions\physics-nodes\CCPhysicsSprite.cpp">
+      <Filter>extension\PhysicsSprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1928,6 +1943,15 @@
     </ClInclude>
     <ClInclude Include="..\ui\UIPageViewIndicator.h">
       <Filter>ui\UIWidgets\ScrollWidget</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\CCScale9Sprite.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\extensions\physics-nodes\CCPhysicsDebugNode.h">
+      <Filter>extension\PhysicsSprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\extensions\physics-nodes\CCPhysicsSprite.h">
+      <Filter>extension\PhysicsSprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

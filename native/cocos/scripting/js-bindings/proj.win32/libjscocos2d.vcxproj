@@ -18,6 +18,11 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_studio_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_ui_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_creator_auto.cpp" />
+    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_auto_classes.cpp" />
+    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_functions.cpp" />
+    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_manual.cpp" />
+    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_registration.cpp" />
     <ClCompile Include="..\manual\cocos2d_specifics.cpp" />
     <ClCompile Include="..\manual\cocosbuilder\js_bindings_ccbreader.cpp" />
     <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.cpp" />
@@ -31,6 +36,7 @@
     <ClCompile Include="..\manual\js_bindings_core.cpp" />
     <ClCompile Include="..\manual\js_bindings_opengl.cpp" />
     <ClCompile Include="..\manual\js_manual_conversions.cpp" />
+    <ClCompile Include="..\manual\js_module_register.cpp" />
     <ClCompile Include="..\manual\localstorage\js_bindings_system_functions.cpp" />
     <ClCompile Include="..\manual\localstorage\js_bindings_system_registration.cpp" />
     <ClCompile Include="..\manual\network\jsb_socketio.cpp" />
@@ -48,6 +54,13 @@
     <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_studio_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_ui_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_creator_auto.hpp" />
+    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_auto_classes.h" />
+    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_auto_classes_registration.h" />
+    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_functions.h" />
+    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_functions_registration.h" />
+    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_manual.h" />
+    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_registration.h" />
     <ClInclude Include="..\manual\cocos2d_specifics.hpp" />
     <ClInclude Include="..\manual\cocosbuilder\cocosbuilder_specifics.hpp" />
     <ClInclude Include="..\manual\cocosbuilder\js_bindings_ccbreader.h" />
@@ -64,6 +77,7 @@
     <ClInclude Include="..\manual\js_bindings_core.h" />
     <ClInclude Include="..\manual\js_bindings_opengl.h" />
     <ClInclude Include="..\manual\js_manual_conversions.h" />
+    <ClInclude Include="..\manual\js_module_register.h" />
     <ClInclude Include="..\manual\localstorage\js_bindings_system_functions.h" />
     <ClInclude Include="..\manual\localstorage\js_bindings_system_functions_registration.h" />
     <ClInclude Include="..\manual\localstorage\js_bindings_system_registration.h" />
