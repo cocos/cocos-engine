@@ -1080,14 +1080,18 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
         this->_needRebuildRenderCommand = false;
         
     }
-    cocos2d::TrianglesCommand::Triangles triangles;
-    triangles.indices = &this->_indices[0];
-    triangles.verts = &this->_verts[0];
-    triangles.vertCount = this->_verts.size();
-    triangles.indexCount = this->_indices.size();
-    auto texture = this->_spriteFrame->getTexture();
-    this->_renderCommand.init(this->_globalZOrder, texture->getName(),this->getGLProgramState(), this->_blendFunc, triangles, transform, 0);
-    renderer->addCommand(&this->_renderCommand);
+
+	if (this->_indices.size() > 0 && this->_verts.size() > 0) {
+		cocos2d::TrianglesCommand::Triangles triangles;
+		triangles.indices = &this->_indices[0];
+		triangles.verts = &this->_verts[0];
+		triangles.vertCount = this->_verts.size();
+		triangles.indexCount = this->_indices.size();
+		auto texture = this->_spriteFrame->getTexture();
+		this->_renderCommand.init(this->_globalZOrder, texture->getName(), this->getGLProgramState(), this->_blendFunc, triangles, transform, 0);
+		renderer->addCommand(&this->_renderCommand);
+	}
+
 }
     
 }
