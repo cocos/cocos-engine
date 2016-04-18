@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
+import android.media.AudioManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -266,6 +267,7 @@ public abstract class Cocos2dxActivity extends Activity {
         Cocos2dxWebViewHelper.init();
         Window window = getWindow();
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     //native method,call GLViewImpl::getGLContextAttrs() to get the OpenGL ES context attributions
