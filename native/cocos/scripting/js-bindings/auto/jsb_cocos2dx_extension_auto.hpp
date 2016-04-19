@@ -311,4 +311,3 @@ bool js_cocos2dx_extension_TableView_dequeueCell(JSContext *cx, uint32_t argc, j
 bool js_cocos2dx_extension_TableView_TableView(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __cocos2dx_extension_h__
-

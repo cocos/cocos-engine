@@ -39,7 +39,7 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().setBoolean(true);
-    return true;    
+    return true;
 }
 JSClass  *jsb_creator_Scale9SpriteV2_class;
 JSObject *jsb_creator_Scale9SpriteV2_prototype;
@@ -768,20 +768,17 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 
 void js_creator_Scale9SpriteV2_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Scale9SpriteV2)", obj);
-    js_proxy_t* nproxy;
-    js_proxy_t* jsproxy;
     JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
     JS::RootedObject jsobj(cx, obj);
-    jsproxy = jsb_get_js_proxy(jsobj);
-    if (jsproxy) {
-        creator::Scale9SpriteV2 *nobj = static_cast<creator::Scale9SpriteV2 *>(jsproxy->ptr);
-        nproxy = jsb_get_native_proxy(jsproxy->ptr);
+    auto proxy = jsb_get_js_proxy(jsobj);
+    if (proxy) {
+        creator::Scale9SpriteV2 *nobj = static_cast<creator::Scale9SpriteV2 *>(proxy->ptr);
 
         if (nobj) {
-            jsb_remove_proxy(nproxy, jsproxy);
+            jsb_remove_proxy(proxy);
             nobj->release();
         }
-        else jsb_remove_proxy(nullptr, jsproxy);
+        else jsb_remove_proxy(proxy);
     }
 }
     
@@ -854,7 +851,6 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
     jsb_register_class<creator::Scale9SpriteV2>(cx, jsb_creator_Scale9SpriteV2_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.Scale9SpriteV2.extend = cc.Class.extend; })()");
 }
-
 void register_all_creator(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);
