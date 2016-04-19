@@ -670,6 +670,8 @@ static Data getData(const std::string& filename, bool forString)
     if (nullptr == buffer || 0 == readsize)
     {
         CCLOG("Get data from file %s failed", filename.c_str());
+        if (buffer)
+            free(buffer);
     }
     else
     {
