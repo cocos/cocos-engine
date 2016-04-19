@@ -53,16 +53,10 @@ extern "C"
 
 #include "base/etc1.h"
 
-
 }
-//#include "base/s3tc.h"
-//#include "base/atitc.h"
+
 #include "base/pvr.h"
 #include "base/TGAlib.h"
-
-//#if CC_USE_WEBP
-//#include "decode.h"
-//#endif // CC_USE_WEBP
 
 #include "base/ccMacros.h"
 #include "CCCommon.h"
@@ -321,6 +315,7 @@ Texture2D::PixelFormat getDevicePixelFormat(Texture2D::PixelFormat format)
 //////////////////////////////////////////////////////////////////////////
 // Implement Image
 //////////////////////////////////////////////////////////////////////////
+bool Image::PNG_PREMULTIPLIED_ALPHA_ENABLED = true;
 
 Image::Image()
 : _data(nullptr)
@@ -416,21 +411,12 @@ bool Image::initWithImageData(const unsigned char * data, ssize_t dataLen)
         case Format::TIFF:
             ret = initWithTiffData(unpackedData, unpackedLen);
             break;
-//        case Format::WEBP:
-//            ret = initWithWebpData(unpackedData, unpackedLen);
-//            break;
         case Format::PVR:
             ret = initWithPVRData(unpackedData, unpackedLen);
             break;
         case Format::ETC:
             ret = initWithETCData(unpackedData, unpackedLen);
             break;
-//        case Format::S3TC:
-//            ret = initWithS3TCData(unpackedData, unpackedLen);
-//            break;
-//        case Format::ATITC:
-//            ret = initWithATITCData(unpackedData, unpackedLen);
-//            break;
         default:
             {
                 // load and detect image format
@@ -470,7 +456,6 @@ bool Image::isPng(const unsigned char * data, ssize_t dataLen)
 
     return memcmp(PNG_SIGNATURE, data, sizeof(PNG_SIGNATURE)) == 0;
 }
-
 
 bool Image::isEtc(const unsigned char * data, ssize_t dataLen)
 {
@@ -530,10 +515,6 @@ Image::Format Image::detectFormat(const unsigned char * data, ssize_t dataLen)
     {
         return Format::TIFF;
     }
-//    else if (isWebp(data, dataLen))
-//    {
-//        return Format::WEBP;
-//    }
     else if (isPvr(data, dataLen))
     {
         return Format::PVR;
@@ -563,7 +544,6 @@ bool Image::isCompressed()
     return Texture2D::getPixelFormatInfoMap().at(_renderFormat).compressed;
 }
 
-
 namespace
 {
     bool testFormatForPvr2TCSupport(PVR2TexturePixelFormat format)
@@ -574,11 +554,6 @@ namespace
     bool testFormatForPvr3TCSupport(PVR3TexturePixelFormat format)
     {
         switch (format) {
-//            case PVR3TexturePixelFormat::DXT1:
-//            case PVR3TexturePixelFormat::DXT3:
-//            case PVR3TexturePixelFormat::DXT5:
-//                return Configuration::getInstance()->supportsS3TC();
-
             case PVR3TexturePixelFormat::BGRA8888:
                 return Configuration::getInstance()->supportsBGRA8888();
 
@@ -1069,68 +1044,10 @@ bool Image::initWithTGAData(tImageTGA* tgaData)
     return ret;
 }
 
-//namespace
-//{
-//    static uint32_t makeFourCC(char ch0, char ch1, char ch2, char ch3)
-//    {
-//        const uint32_t fourCC = ((uint32_t)(char)(ch0) | ((uint32_t)(char)(ch1) << 8) | ((uint32_t)(char)(ch2) << 16) | ((uint32_t)(char)(ch3) << 24 ));
-//        return fourCC;
-//    }
-//}
-
 bool Image::initWithPVRData(const unsigned char * data, ssize_t dataLen)
 {
     return initWithPVRv2Data(data, dataLen) || initWithPVRv3Data(data, dataLen);
 }
-
-//bool Image::initWithWebpData(const unsigned char * data, ssize_t dataLen)
-//{
-//#if CC_USE_WEBP
-//    bool ret = false;
-//
-//#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-//    CCLOG("WEBP image format not supported on WinRT or WP8");
-//#else
-//    do
-//    {
-//        WebPDecoderConfig config;
-//        if (WebPInitDecoderConfig(&config) == 0) break;
-//        if (WebPGetFeatures(static_cast<const uint8_t*>(data), dataLen, &config.input) != VP8_STATUS_OK) break;
-//        if (config.input.width == 0 || config.input.height == 0) break;
-//
-//        config.output.colorspace = MODE_RGBA;
-//        _renderFormat = Texture2D::PixelFormat::RGBA8888;
-//        _width    = config.input.width;
-//        _height   = config.input.height;
-//
-//        //webp doesn't have premultipliedAlpha
-//        _hasPremultipliedAlpha = false;
-//
-//        _dataLen = _width * _height * 4;
-//        _data = static_cast<unsigned char*>(malloc(_dataLen * sizeof(unsigned char)));
-//
-//        config.output.u.RGBA.rgba = static_cast<uint8_t*>(_data);
-//        config.output.u.RGBA.stride = _width * 4;
-//        config.output.u.RGBA.size = _dataLen;
-//        config.output.is_external_memory = 1;
-//
-//        if (WebPDecode(static_cast<const uint8_t*>(data), dataLen, &config) != VP8_STATUS_OK)
-//        {
-//            free(_data);
-//            _data = nullptr;
-//            break;
-//        }
-//
-//        ret = true;
-//    } while (0);
-//#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-//    return ret;
-//#else
-//    CCLOG("webp is not enabled, please enable it in ccConfig.h");
-//    return false;
-//#endif // CC_USE_WEBP
-//}
-
 
 bool Image::initWithRawData(const unsigned char * data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti)
 {
@@ -1184,7 +1101,6 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
         return false;
     }
 }
-
 
 bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
 {
@@ -1710,7 +1626,7 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         png_read_end(png_ptr, nullptr);
 
         // premultiplied alpha for RGBA8888
-        if (color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+        if (PNG_PREMULTIPLIED_ALPHA_ENABLED && color_type == PNG_COLOR_TYPE_RGB_ALPHA)
         {
             premultipliedAlpha();
         }

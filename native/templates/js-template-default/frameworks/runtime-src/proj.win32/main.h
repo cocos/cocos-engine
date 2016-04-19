@@ -7,7 +7,6 @@
 #include <tchar.h>
 
 // C RunTime Header Files
-#include "platform/CCStdC.h"
+#include "CCStdC.h"
 
 #endif    // __WINMAIN_H__
-
