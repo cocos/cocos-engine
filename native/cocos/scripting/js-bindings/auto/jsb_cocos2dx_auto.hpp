@@ -596,6 +596,7 @@ bool js_cocos2dx_EventListenerCustom_constructor(JSContext *cx, uint32_t argc, j
 void js_cocos2dx_EventListenerCustom_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_EventListenerCustom(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_EventListenerCustom_getEventName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_EventListenerCustom_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_EventListenerCustom_EventListenerCustom(JSContext *cx, uint32_t argc, jsval *vp);
 
@@ -2898,6 +2899,7 @@ bool js_cocos2dx_Image_getData(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Image_getMipmaps(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Image_initWithRawData(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Image_setPVRImagesHavePremultipliedAlpha(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Image_setPNGPremultipliedAlphaEnabled(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Image_Image(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_RenderTexture_class;
@@ -3804,4 +3806,3 @@ bool js_cocos2dx_ComponentJS_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_ComponentJS_ComponentJS(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __cocos2dx_h__
-
