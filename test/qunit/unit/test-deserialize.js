@@ -83,7 +83,7 @@ if (TestEditorExtends) {
         var obj = {
             'null': null,
         };
-        var str = '{ "null": null }'
+        var str = '{ "null": null }';
         deepEqual(cc.deserialize(str), obj, 'can deserialize null');
 
         var MyAsset = cc.Class({
@@ -96,11 +96,11 @@ if (TestEditorExtends) {
             }
         });
 
-        str = '{ "__type__": "MyAsset" }'
+        str = '{ "__type__": "MyAsset" }';
         obj = new MyAsset();
         deepEqual(cc.deserialize(str), obj, 'use default value');
 
-        str = '{ "__type__": "MyAsset", "nil": null }'
+        str = '{ "__type__": "MyAsset", "nil": null }';
         obj = new MyAsset();
         obj.nil = null;
         deepEqual(cc.deserialize(str), obj, 'can override as null');
@@ -112,7 +112,7 @@ if (TestEditorExtends) {
         var obj = {
             'null': null,
         };
-        var str = '{ "null": null }'
+        var str = '{ "null": null }';
         deepEqual(cc.deserialize(str, null, {target: null}), obj, 'can deserialize null');
     });
 

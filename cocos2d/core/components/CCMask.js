@@ -116,19 +116,8 @@ var Mask = cc.Class({
         return new cc.ClippingNode(this._clippingStencil);
     },
 
-    _initSgNode: function () {
-        var clippingNode = this._sgNode;
-        clippingNode.setContentSize(this.node.getContentSize(true));
-    },
-    
-    //onLoad: function () {
-    //    this._super();
-    //    // ignore node size
-    //    if (this.node._sizeProvider === this._sgNode) {
-    //        this.node._sizeProvider = null;
-    //    }
-    //},
-    
+    _initSgNode: function () {},
+
     onEnable: function () {
         this._refreshStencil();
         this._super();
@@ -177,7 +166,7 @@ var Mask = cc.Class({
             var center = cc.v2(x + width /2, y+height/2);
             var radius = {x: width/2, y: height/2};
             var segements = this._segements;
-            this._clippingStencil.drawPoly(this._calculateCircle(center,radius, segements), color, 0, color);
+            this._clippingStencil.drawPoly(this._calculateCircle(center, radius, segements), color, 0, color);
         }
     }
 });
