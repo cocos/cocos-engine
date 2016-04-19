@@ -686,6 +686,10 @@
 		4D76BE3B1A4AAF0A00102962 /* CCActionTimelineNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D76BE381A4AAF0A00102962 /* CCActionTimelineNode.cpp */; };
 		4D76BE3C1A4AAF0A00102962 /* CCActionTimelineNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D76BE391A4AAF0A00102962 /* CCActionTimelineNode.h */; };
 		4D76BE3D1A4AAF0A00102962 /* CCActionTimelineNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D76BE391A4AAF0A00102962 /* CCActionTimelineNode.h */; };
+		4DFA4C171CBCE34100E3B736 /* CCScale9Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA4C151CBCE34100E3B736 /* CCScale9Sprite.cpp */; };
+		4DFA4C181CBCE34100E3B736 /* CCScale9Sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4DFA4C151CBCE34100E3B736 /* CCScale9Sprite.cpp */; };
+		4DFA4C191CBCE34100E3B736 /* CCScale9Sprite.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DFA4C161CBCE34100E3B736 /* CCScale9Sprite.h */; };
+		4DFA4C1A1CBCE34100E3B736 /* CCScale9Sprite.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DFA4C161CBCE34100E3B736 /* CCScale9Sprite.h */; };
 		5012168E1AC47380009A4BEA /* CCRenderState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5012168C1AC47380009A4BEA /* CCRenderState.cpp */; };
 		5012168F1AC47380009A4BEA /* CCRenderState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5012168C1AC47380009A4BEA /* CCRenderState.cpp */; };
 		501216901AC47380009A4BEA /* CCRenderState.h in Headers */ = {isa = PBXBuildFile; fileRef = 5012168D1AC47380009A4BEA /* CCRenderState.h */; };
@@ -1807,6 +1811,8 @@
 		46A168651807AF4E005B8026 /* CCTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCTableViewCell.h; sourceTree = "<group>"; };
 		4D76BE381A4AAF0A00102962 /* CCActionTimelineNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCActionTimelineNode.cpp; sourceTree = "<group>"; };
 		4D76BE391A4AAF0A00102962 /* CCActionTimelineNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCActionTimelineNode.h; sourceTree = "<group>"; };
+		4DFA4C151CBCE34100E3B736 /* CCScale9Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCScale9Sprite.cpp; path = creator/CCScale9Sprite.cpp; sourceTree = "<group>"; };
+		4DFA4C161CBCE34100E3B736 /* CCScale9Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCScale9Sprite.h; path = creator/CCScale9Sprite.h; sourceTree = "<group>"; };
 		5012168C1AC47380009A4BEA /* CCRenderState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCRenderState.cpp; sourceTree = "<group>"; };
 		5012168D1AC47380009A4BEA /* CCRenderState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCRenderState.h; sourceTree = "<group>"; };
 		50272538190BF1B900AAF4ED /* cocos2d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cocos2d.h; path = ../cocos/cocos2d.h; sourceTree = "<group>"; };
@@ -2773,6 +2779,7 @@
 		1AD71CF7180E26E600808F54 /* editor-support */ = {
 			isa = PBXGroup;
 			children = (
+				4DFA4C141CBCE32800E3B736 /* creator */,
 				1AD71CF8180E26E600808F54 /* cocosbuilder */,
 				1A8C5946180E930E00EF57C3 /* cocostudio */,
 				1AD71D7C180E26E600808F54 /* spine */,
@@ -3233,6 +3240,15 @@
 			path = ../cocos/math;
 			sourceTree = "<group>";
 		};
+		4DFA4C141CBCE32800E3B736 /* creator */ = {
+			isa = PBXGroup;
+			children = (
+				4DFA4C151CBCE34100E3B736 /* CCScale9Sprite.cpp */,
+				4DFA4C161CBCE34100E3B736 /* CCScale9Sprite.h */,
+			);
+			name = creator;
+			sourceTree = "<group>";
+		};
 		500DC89819105D41007B91BF /* renderer */ = {
 			isa = PBXGroup;
 			children = (
@@ -3671,6 +3687,7 @@
 				1A57007F180BC5A10088DEC7 /* CCActionInterval.h in Headers */,
 				15AE188719AAD33D00C27E9E /* CCBSequenceProperty.h in Headers */,
 				1A570083180BC5A10088DEC7 /* CCActionManager.h in Headers */,
+				4DFA4C191CBCE34100E3B736 /* CCScale9Sprite.h in Headers */,
 				1A570087180BC5A10088DEC7 /* CCActionPageTurn3D.h in Headers */,
 				50ABBD911925AB4100A911A9 /* CCGLProgramCache.h in Headers */,
 				50ED2BDA19BE76D300A0AB90 /* UIVideoPlayer.h in Headers */,
@@ -4064,6 +4081,7 @@
 				B29A7E2419EE1B7700872B35 /* IkConstraint.h in Headers */,
 				50CB247E19D9C5A100687767 /* AudioPlayer.h in Headers */,
 				1A57007C180BC5A10088DEC7 /* CCActionInstant.h in Headers */,
+				4DFA4C1A1CBCE34100E3B736 /* CCScale9Sprite.h in Headers */,
 				15AE18CD19AAD33D00C27E9E /* CCNode+CCBRelativePositioning.h in Headers */,
 				50ABBE781925AB6F00A911A9 /* CCEventListenerTouch.h in Headers */,
 				15AE1BC019AADFF000C27E9E /* WebSocket.h in Headers */,
@@ -4472,6 +4490,7 @@
 				50ABBD501925AB0000A911A9 /* Quaternion.cpp in Sources */,
 				15AE190119AAD35000C27E9E /* CCComController.cpp in Sources */,
 				15AE1BE619AAE01E00C27E9E /* CCTableViewCell.cpp in Sources */,
+				4DFA4C171CBCE34100E3B736 /* CCScale9Sprite.cpp in Sources */,
 				50ABBEBB1925AB6F00A911A9 /* ccUtils.cpp in Sources */,
 				A679D0F71C74BA3600620A6C /* CCArmatureAnimation.cpp in Sources */,
 				15AE186A19AAD31D00C27E9E /* CocosDenshion.m in Sources */,
@@ -4806,6 +4825,7 @@
 				50ABBD941925AB4100A911A9 /* CCGLProgramState.cpp in Sources */,
 				ED30578B1BEC774D0083C3ED /* ioapi_mem.cpp in Sources */,
 				B257B44F1989D5E800D9A687 /* CCPrimitive.cpp in Sources */,
+				4DFA4C181CBCE34100E3B736 /* CCScale9Sprite.cpp in Sources */,
 				50ABBE281925AB6F00A911A9 /* CCAutoreleasePool.cpp in Sources */,
 				A60A9D641C200DE70070800A /* CCPhysicsSprite.cpp in Sources */,
 				15AE18D519AAD33D00C27E9E /* CCScale9SpriteLoader.cpp in Sources */,
@@ -5255,7 +5275,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../external/ios/libs\"";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-llibsql3";
@@ -5281,7 +5301,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = YES;
 				HEADER_SEARCH_PATHS = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../external/ios/libs\"";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";

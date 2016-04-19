@@ -1,0 +1,313 @@
+/****************************************************************************
+Copyright (c) 2010-2011 cocos2d-x.org
+Copyright (c) 2013-2016 Chukong Technologies Inc.
+
+http://www.cocos2d-x.org
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+ ****************************************************************************/
+package org.cocos2dx.lib;
+
+import android.os.Handler;
+import android.os.Looper;
+import android.util.SparseArray;
+import android.view.View;
+import android.widget.FrameLayout;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+
+
+public class Cocos2dxWebViewHelper {
+    private static final String TAG = "Cocos2dxWebViewHelper";
+
+    private static Handler sHandler = null;
+    private static SparseArray<Cocos2dxWebView> sWebViews = null;
+    private static int viewTag = 0;
+
+    static void init()
+    {
+        if (sWebViews == null)
+        {
+            sWebViews = new SparseArray<Cocos2dxWebView>();
+            sHandler = new Handler(Looper.myLooper());
+        }
+    }
+
+    static void reset()
+    {
+        if (sWebViews != null)
+            sWebViews.clear();
+        sWebViews = null;
+        sHandler = null;
+    }
+
+    private static native boolean shouldStartLoading(int index, String message);
+
+    public static boolean _shouldStartLoading(int index, String message) {
+        return !shouldStartLoading(index, message);
+    }
+
+    private static native void didFinishLoading(int index, String message);
+
+    public static void _didFinishLoading(int index, String message) {
+        didFinishLoading(index, message);
+    }
+
+    private static native void didFailLoading(int index, String message);
+
+    public static void _didFailLoading(int index, String message) {
+        didFailLoading(index, message);
+    }
+
+    private static native void onJsCallback(int index, String message);
+
+    public static void _onJsCallback(int index, String message) {
+        onJsCallback(index, message);
+    }
+
+    public static int createWebView() {
+        final int index = viewTag;
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = new Cocos2dxWebView(Cocos2dxActivity.COCOS_ACTIVITY, index);
+                FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT);
+                Cocos2dxActivity.ROOT_LAYOUT.addView(webView, lParams);
+
+                sWebViews.put(index, webView);
+            }
+        });
+        return viewTag++;
+    }
+
+    public static void removeWebView(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    sWebViews.remove(index);
+                    Cocos2dxActivity.ROOT_LAYOUT.removeView(webView);
+                }
+            }
+        });
+    }
+
+    public static void setVisible(final int index, final boolean visible) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.setVisibility(visible ? View.VISIBLE : View.GONE);
+                }
+            }
+        });
+    }
+
+    public static void setWebViewRect(final int index, final int left, final int top, final int maxWidth, final int maxHeight) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.setWebViewRect(left, top, maxWidth, maxHeight);
+                }
+            }
+        });
+    }
+
+    public static void setJavascriptInterfaceScheme(final int index, final String scheme) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.setJavascriptInterfaceScheme(scheme);
+                }
+            }
+        });
+    }
+
+    public static void loadData(final int index, final String data, final String mimeType, final String encoding, final String baseURL) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.loadDataWithBaseURL(baseURL, data, mimeType, encoding, null);
+                }
+            }
+        });
+    }
+
+    public static void loadHTMLString(final int index, final String data, final String baseUrl) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.loadDataWithBaseURL(baseUrl, data, null, null, null);
+                }
+            }
+        });
+    }
+
+    public static void loadUrl(final int index, final String url) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.loadUrl(url);
+                }
+            }
+        });
+    }
+
+    public static void loadFile(final int index, final String filePath) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.loadUrl(filePath);
+                }
+            }
+        });
+    }
+
+    public static void stopLoading(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.stopLoading();
+                }
+            }
+        });
+
+    }
+
+    public static void reload(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.reload();
+                }
+            }
+        });
+    }
+
+    public static <T> T callInMainThread(Callable<T> call) throws ExecutionException, InterruptedException {
+        FutureTask<T> task = new FutureTask<T>(call);
+        sHandler.post(task);
+        return task.get();
+    }
+
+    public static boolean canGoBack(final int index) {
+        Callable<Boolean> callable = new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                return webView != null && webView.canGoBack();
+            }
+        };
+        try {
+            return callInMainThread(callable);
+        } catch (ExecutionException e) {
+            return false;
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    public static boolean canGoForward(final int index) {
+        Callable<Boolean> callable = new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                return webView != null && webView.canGoForward();
+            }
+        };
+        try {
+            return callInMainThread(callable);
+        } catch (ExecutionException e) {
+            return false;
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    public static void goBack(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.goBack();
+                }
+            }
+        });
+    }
+
+    public static void goForward(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.goForward();
+                }
+            }
+        });
+    }
+
+    public static void evaluateJS(final int index, final String js) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.loadUrl("javascript:" + js);
+                }
+            }
+        });
+    }
+
+    public static void setScalesPageToFit(final int index, final boolean scalesPageToFit) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxWebView webView = sWebViews.get(index);
+                if (webView != null) {
+                    webView.setScalesPageToFit(scalesPageToFit);
+                }
+            }
+        });
+    }
+}
+

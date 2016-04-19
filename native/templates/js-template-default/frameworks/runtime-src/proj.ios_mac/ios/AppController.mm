@@ -55,7 +55,7 @@ static AppDelegate s_sharedApplication;
                                  numberOfSamples: 0 ];
 
     [eaglView setMultipleTouchEnabled:YES];
-
+    
     // Use RootViewController manage CCEAGLView
     viewController = [[RootViewController alloc] initWithNibName:nil bundle:nil];
     viewController.wantsFullScreenLayout = YES;
@@ -72,7 +72,7 @@ static AppDelegate s_sharedApplication;
         // use this method on ios6
         [window setRootViewController:viewController];
     }
-
+    
     [window makeKeyAndVisible];
 
     [[UIApplication sharedApplication] setStatusBarHidden: YES];
