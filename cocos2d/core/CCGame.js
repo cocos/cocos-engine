@@ -39,6 +39,7 @@ var game = /** @lends cc.game# */{
     EVENT_HIDE: "game_on_hide",
     EVENT_SHOW: "game_on_show",
     EVENT_RESIZE: "game_on_resize",
+    EVENT_GAME_INITED: "game_inited",
     EVENT_RENDERER_INITED: "renderer_inited",
 
     RENDER_TYPE_CANVAS: 0,
@@ -336,10 +337,12 @@ var game = /** @lends cc.game# */{
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
+                    self.emit(self.EVENT_GAME_INITED);
                     if (cb) cb();
                 });
             }
             else {
+                self.emit(self.EVENT_GAME_INITED);
                 if (cb) cb();
             }
 
