@@ -1,5 +1,9 @@
+var js = cc.js;
+
+// Label
+js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
+
 if (CC_DEV) {
-    var js = cc.js;
 
     var INFO = cc._LogInfos.deprecated;
 
@@ -546,9 +550,9 @@ if (CC_DEV) {
     });
 
     //ui
-    cc.js.obsolete(cc.Layout.prototype, 'Layout.layoutType', 'type');
-    cc.js.obsolete(cc.Layout.prototype, 'Layout.ResizeType', 'ResizeMode');
-    cc.js.obsolete(cc.Layout.prototype, 'Layout.resize', 'resizeMode');
+    js.obsolete(cc.Layout.prototype, 'cc.Layout.layoutType', 'type');
+    js.obsolete(cc.Layout.prototype, 'cc.Layout.ResizeType', 'ResizeMode');
+    js.obsolete(cc.Layout.prototype, 'cc.Layout.resize', 'resizeMode');
 
     markAsRemoved(cc.Scale9Sprite, [
         'init',
@@ -583,4 +587,3 @@ if (CC_DEV) {
         });
     }
 }
-
