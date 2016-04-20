@@ -35,11 +35,10 @@
  * @class Component.EventHandler
  * @example
  * // Create new EventHandler
- * 1. var eventHandler = cc.Component.EventHandler(target, "MainMenu", "OnClick");
- * 2. var eventHandler = cc.Component.EventHandler();
- *    eventHandler.target = newTarget;
- *    eventHandler.component = "MainMenu";
- *    eventHandler.handler = "OnClick"
+ * var eventHandler = cc.Component.EventHandler();
+ * eventHandler.target = newTarget;
+ * eventHandler.component = "MainMenu";
+ * eventHandler.handler = "OnClick"
  */
 cc.Component.EventHandler = cc.Class({
     name: 'cc.ClickEvent',
