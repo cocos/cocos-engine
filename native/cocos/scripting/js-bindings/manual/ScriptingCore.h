@@ -85,6 +85,7 @@ private:
     SimpleRunLoop* _runLoop;
 
     bool _callFromScript;
+    std::unordered_map<cocos2d::Ref*, int> _jsRetainRefMap;
     ScriptingCore();
 public:
     ~ScriptingCore();
@@ -481,6 +482,9 @@ public:
     bool isFunctionOverridedInJS(JS::HandleObject obj, const std::string& name, JSNative native);
 
     bool callFunctionName(JS::HandleObject thisObj, const char* funcName, uint32_t argc, JS::Value* argv, JS::MutableHandleValue rval);
+    
+    void recordJSRetain(cocos2d::Ref* object);
+    void recordJSRelease(cocos2d::Ref* object);
 private:
     void string_report(JS::HandleValue val);
     void initRegister();

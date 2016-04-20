@@ -79,13 +79,20 @@ def main():
         x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.6/prebuilt', '%s' % cur_platform))
         if not os.path.exists(x86_llvm_path):
             x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.5/prebuilt', '%s' % cur_platform))
+        if not os.path.exists(x86_llvm_path):
+            x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s' % cur_platform))
     else:
         x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.6/prebuilt', '%s-%s' % (cur_platform, 'x86')))
         if not os.path.exists(x86_llvm_path):
             x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.5/prebuilt', '%s-%s' % (cur_platform, 'x86')))
+        if not os.path.exists(x86_llvm_path):
+            x86_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s-%s' % (cur_platform, 'x86')))
+
     x64_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.6/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
     if not os.path.exists(x64_llvm_path):
         x64_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm-3.5/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
+    if not os.path.exists(x64_llvm_path):
+        x64_llvm_path = os.path.abspath(os.path.join(ndk_root, 'toolchains/llvm/prebuilt', '%s-%s' % (cur_platform, 'x86_64')))
 
     if os.path.isdir(x86_llvm_path):
         llvm_path = x86_llvm_path
@@ -112,10 +119,13 @@ def main():
     config.set('DEFAULT', 'cxxgeneratordir', cxx_generator_root)
     config.set('DEFAULT', 'extra_flags', '')
     
-    if '3.6' in llvm_path:
-        config.set('DEFAULT', 'clang_version', '3.6')
+    if '3.' in llvm_path:
+        if '3.6' in llvm_path:
+            config.set('DEFAULT', 'clang_include', 'lib/clang/3.6/include')
+        else:
+            config.set('DEFAULT', 'clang_include', 'lib/clang/3.5/include')
     else:
-        config.set('DEFAULT', 'clang_version', '3.5')
+        config.set('DEFAULT', 'clang_include', 'lib64/clang/3.8/include')
 
     # To fix parse error on windows, we must difine __WCHAR_MAX__ and undefine __MINGW32__ .
     if platform == 'win32':
@@ -135,9 +145,7 @@ def main():
         path_env = os.environ['PATH']
         os.putenv('PATH', r'%s;%s\libclang;%s\tools\win32;' % (path_env, cxx_generator_root, cxx_generator_root))
 
-
     try:
-
         tojs_root = '%s/tools/tojs' % project_root
         output_dir = '%s/cocos/scripting/js-bindings/auto' % project_root
 

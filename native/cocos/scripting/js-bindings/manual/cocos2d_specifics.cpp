@@ -477,20 +477,18 @@ bool js_cocos2dx_CCAnimation_create(JSContext *cx, uint32_t argc, jsval *vp)
         double arg1 = 0.0f;
         if (argc == 2) {
             Vector<SpriteFrame*> arg0;
-            if (argc > 0) {
-                ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
-                JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-            }
+            ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
+            JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+            
             JS::RootedValue jsarg1(cx, args.get(1));
             ok &= JS::ToNumber(cx, jsarg1, &arg1);
             JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
             ret = cocos2d::Animation::createWithSpriteFrames(arg0, arg1);
         } else if (argc == 3) {
             Vector<AnimationFrame*> arg0;
-            if (argc > 0) {
-                ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
-                JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-            }
+            ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
+            JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+            
             unsigned int loops;
             JS::RootedValue jsarg1(cx, args.get(1));
             ok &= JS::ToNumber(cx, jsarg1, &arg1);
@@ -499,10 +497,9 @@ bool js_cocos2dx_CCAnimation_create(JSContext *cx, uint32_t argc, jsval *vp)
             ret = cocos2d::Animation::create(arg0, arg1, loops);
         } else if (argc == 1) {
             Vector<SpriteFrame*> arg0;
-            if (argc > 0) {
-                ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
-                JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
-            }
+            ok &= jsval_to_ccvector(cx, args.get(0), &arg0);
+            JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+            
             ret = cocos2d::Animation::createWithSpriteFrames(arg0);
         } else if (argc == 0) {
             ret = cocos2d::Animation::create();
@@ -2115,6 +2112,8 @@ bool js_cocos2dx_retain(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_retain : Invalid Native Object");
 
     cobj->retain();
+    ScriptingCore::getInstance()->recordJSRetain(cobj);
+    
     args.rval().setUndefined();
     return true;
 }
@@ -2128,6 +2127,8 @@ bool js_cocos2dx_release(JSContext *cx, uint32_t argc, jsval *vp)
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_release : Invalid Native Object");
 
     cobj->release();
+    ScriptingCore::getInstance()->recordJSRelease(cobj);
+    
     args.rval().setUndefined();
     return true;
 }
@@ -4724,6 +4725,7 @@ bool js_cocos2dx_Label_createWithTTF(JSContext *cx, uint32_t argc, jsval *vp)
         label = new (std::nothrow) cocos2d::Label;
         label->initWithTTF(ttfConfig, text, alignment, arg3);
     }
+    label->autorelease();
 
     if (ok)
     {

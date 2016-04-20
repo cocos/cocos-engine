@@ -74,7 +74,6 @@ static GLfloat s_pointSize = 1.0f;
 static void lazy_init()
 {
     if( ! s_initialized ) {
-
         //
         // Position and 1 color passed as a uniform (to simulate glColor4ub )
         //

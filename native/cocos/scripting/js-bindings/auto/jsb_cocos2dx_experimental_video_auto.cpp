@@ -23,7 +23,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
         JS::RootedObject proto(cx, typeClass->proto.ref());
         JS::RootedObject parent(cx, typeClass->parentProto.ref());
         JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-
+        
         args.rval().set(OBJECT_TO_JSVAL(_tmp));
         return true;
     }
@@ -307,7 +307,6 @@ bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t a
     JS_ReportError(cx, "js_cocos2dx_experimental_video_VideoPlayer_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_experimental_video_VideoPlayer_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -396,7 +395,6 @@ void js_register_cocos2dx_experimental_video_VideoPlayer(JSContext *cx, JS::Hand
     JS::RootedObject proto(cx, jsb_cocos2d_experimental_ui_VideoPlayer_prototype);
     jsb_register_class<cocos2d::experimental::ui::VideoPlayer>(cx, jsb_cocos2d_experimental_ui_VideoPlayer_class, proto, parent_proto);
 }
-
 void register_all_cocos2dx_experimental_video(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);
@@ -406,4 +404,3 @@ void register_all_cocos2dx_experimental_video(JSContext* cx, JS::HandleObject ob
 }
 
 #endif //#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-

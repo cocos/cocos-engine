@@ -24,7 +24,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
         JS::RootedObject proto(cx, typeClass->proto.ref());
         JS::RootedObject parent(cx, typeClass->parentProto.ref());
         JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-
+        
         args.rval().set(OBJECT_TO_JSVAL(_tmp));
         return true;
     }
@@ -301,7 +301,7 @@ bool js_cocos2dx_studio_ActionObject_initWithBinary(JSContext *cx, uint32_t argc
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
         #pragma warning NO CONVERSION TO NATIVE FOR stExpCocoNode*
-        ok = false;
+		ok = false;
         do {
             if (args.get(2).isNull()) { arg2 = nullptr; break; }
             if (!args.get(2).isObject()) { ok = false; break; }
@@ -531,7 +531,6 @@ void js_register_cocos2dx_studio_ActionObject(JSContext *cx, JS::HandleObject gl
     JS::RootedObject proto(cx, jsb_cocostudio_ActionObject_prototype);
     jsb_register_class<cocostudio::ActionObject>(cx, jsb_cocostudio_ActionObject_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_ActionManagerEx_class;
 JSObject *jsb_cocostudio_ActionManagerEx_prototype;
 
@@ -630,7 +629,7 @@ bool js_cocos2dx_studio_ActionManagerEx_initWithBinary(JSContext *cx, uint32_t a
             JSB_PRECONDITION2( arg2, cx, false, "Invalid Native Object");
         } while (0);
         #pragma warning NO CONVERSION TO NATIVE FOR stExpCocoNode*
-        ok = false;
+		ok = false;
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_studio_ActionManagerEx_initWithBinary : Error processing arguments");
         cobj->initWithBinary(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -738,7 +737,6 @@ bool js_cocos2dx_studio_ActionManagerEx_destroyInstance(JSContext *cx, uint32_t 
     JS_ReportError(cx, "js_cocos2dx_studio_ActionManagerEx_destroyInstance : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ActionManagerEx_getInstance(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -759,7 +757,6 @@ bool js_cocos2dx_studio_ActionManagerEx_getInstance(JSContext *cx, uint32_t argc
     JS_ReportError(cx, "js_cocos2dx_studio_ActionManagerEx_getInstance : wrong number of arguments");
     return false;
 }
-
 
 void js_cocostudio_ActionManagerEx_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ActionManagerEx)", obj);
@@ -811,7 +808,6 @@ void js_register_cocos2dx_studio_ActionManagerEx(JSContext *cx, JS::HandleObject
     JS::RootedObject proto(cx, jsb_cocostudio_ActionManagerEx_prototype);
     jsb_register_class<cocostudio::ActionManagerEx>(cx, jsb_cocostudio_ActionManagerEx_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_BaseData_class;
 JSObject *jsb_cocostudio_BaseData_prototype;
 
@@ -873,7 +869,6 @@ bool js_cocos2dx_studio_BaseData_create(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_cocos2dx_studio_BaseData_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_BaseData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -948,7 +943,6 @@ void js_register_cocos2dx_studio_BaseData(JSContext *cx, JS::HandleObject global
     JS::RootedObject proto(cx, jsb_cocostudio_BaseData_prototype);
     jsb_register_class<cocostudio::BaseData>(cx, jsb_cocostudio_BaseData_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_MovementData_class;
 JSObject *jsb_cocostudio_MovementData_prototype;
 
@@ -1029,7 +1023,6 @@ bool js_cocos2dx_studio_MovementData_create(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_cocos2dx_studio_MovementData_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_MovementData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1104,7 +1097,6 @@ void js_register_cocos2dx_studio_MovementData(JSContext *cx, JS::HandleObject gl
     JS::RootedObject proto(cx, jsb_cocostudio_MovementData_prototype);
     jsb_register_class<cocostudio::MovementData>(cx, jsb_cocostudio_MovementData_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_AnimationData_class;
 JSObject *jsb_cocostudio_AnimationData_prototype;
 
@@ -1203,7 +1195,6 @@ bool js_cocos2dx_studio_AnimationData_create(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_cocos2dx_studio_AnimationData_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_AnimationData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1279,7 +1270,6 @@ void js_register_cocos2dx_studio_AnimationData(JSContext *cx, JS::HandleObject g
     JS::RootedObject proto(cx, jsb_cocostudio_AnimationData_prototype);
     jsb_register_class<cocostudio::AnimationData>(cx, jsb_cocostudio_AnimationData_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_ContourData_class;
 JSObject *jsb_cocostudio_ContourData_prototype;
 
@@ -1341,7 +1331,6 @@ bool js_cocos2dx_studio_ContourData_create(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_cocos2dx_studio_ContourData_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ContourData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1416,7 +1405,6 @@ void js_register_cocos2dx_studio_ContourData(JSContext *cx, JS::HandleObject glo
     JS::RootedObject proto(cx, jsb_cocostudio_ContourData_prototype);
     jsb_register_class<cocostudio::ContourData>(cx, jsb_cocostudio_ContourData_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_TextureData_class;
 JSObject *jsb_cocostudio_TextureData_prototype;
 
@@ -1515,7 +1503,6 @@ bool js_cocos2dx_studio_TextureData_create(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_cocos2dx_studio_TextureData_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_TextureData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1591,7 +1578,6 @@ void js_register_cocos2dx_studio_TextureData(JSContext *cx, JS::HandleObject glo
     JS::RootedObject proto(cx, jsb_cocostudio_TextureData_prototype);
     jsb_register_class<cocostudio::TextureData>(cx, jsb_cocostudio_TextureData_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_ProcessBase_class;
 JSObject *jsb_cocostudio_ProcessBase_prototype;
 
@@ -1980,7 +1966,6 @@ void js_register_cocos2dx_studio_ProcessBase(JSContext *cx, JS::HandleObject glo
     JS::RootedObject proto(cx, jsb_cocostudio_ProcessBase_prototype);
     jsb_register_class<cocostudio::ProcessBase>(cx, jsb_cocostudio_ProcessBase_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_Tween_class;
 JSObject *jsb_cocostudio_Tween_prototype;
 
@@ -2175,7 +2160,6 @@ bool js_cocos2dx_studio_Tween_create(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_cocos2dx_studio_Tween_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_Tween_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2257,7 +2241,6 @@ void js_register_cocos2dx_studio_Tween(JSContext *cx, JS::HandleObject global) {
     JS::RootedObject proto(cx, jsb_cocostudio_Tween_prototype);
     jsb_register_class<cocostudio::Tween>(cx, jsb_cocostudio_Tween_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_ColliderFilter_class;
 JSObject *jsb_cocostudio_ColliderFilter_prototype;
 
@@ -2303,7 +2286,6 @@ void js_register_cocos2dx_studio_ColliderFilter(JSContext *cx, JS::HandleObject 
     JS::RootedObject proto(cx, jsb_cocostudio_ColliderFilter_prototype);
     jsb_register_class<cocostudio::ColliderFilter>(cx, jsb_cocostudio_ColliderFilter_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_ColliderBody_class;
 JSObject *jsb_cocostudio_ColliderBody_prototype;
 
@@ -2349,7 +2331,6 @@ void js_register_cocos2dx_studio_ColliderBody(JSContext *cx, JS::HandleObject gl
     JS::RootedObject proto(cx, jsb_cocostudio_ColliderBody_prototype);
     jsb_register_class<cocostudio::ColliderBody>(cx, jsb_cocostudio_ColliderBody_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_ColliderDetector_class;
 JSObject *jsb_cocostudio_ColliderDetector_prototype;
 
@@ -2547,7 +2528,7 @@ bool js_cocos2dx_studio_ColliderDetector_create(JSContext *cx, uint32_t argc, js
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 1) {
             cocostudio::Bone* arg0 = nullptr;
@@ -2575,7 +2556,7 @@ bool js_cocos2dx_studio_ColliderDetector_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 0) {
             cocostudio::ColliderDetector* ret = cocostudio::ColliderDetector::create();
@@ -2648,7 +2629,6 @@ void js_register_cocos2dx_studio_ColliderDetector(JSContext *cx, JS::HandleObjec
     JS::RootedObject proto(cx, jsb_cocostudio_ColliderDetector_prototype);
     jsb_register_class<cocostudio::ColliderDetector>(cx, jsb_cocostudio_ColliderDetector_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_DecorativeDisplay_class;
 JSObject *jsb_cocostudio_DecorativeDisplay_prototype;
 
@@ -2850,7 +2830,6 @@ bool js_cocos2dx_studio_DecorativeDisplay_create(JSContext *cx, uint32_t argc, j
     return false;
 }
 
-
 void js_cocostudio_DecorativeDisplay_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (DecorativeDisplay)", obj);
 }
@@ -2902,7 +2881,6 @@ void js_register_cocos2dx_studio_DecorativeDisplay(JSContext *cx, JS::HandleObje
     JS::RootedObject proto(cx, jsb_cocostudio_DecorativeDisplay_prototype);
     jsb_register_class<cocostudio::DecorativeDisplay>(cx, jsb_cocostudio_DecorativeDisplay_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_DisplayManager_class;
 JSObject *jsb_cocostudio_DisplayManager_prototype;
 
@@ -3470,7 +3448,6 @@ bool js_cocos2dx_studio_DisplayManager_create(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_cocos2dx_studio_DisplayManager_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_DisplayManager_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3565,7 +3542,6 @@ void js_register_cocos2dx_studio_DisplayManager(JSContext *cx, JS::HandleObject 
     JS::RootedObject proto(cx, jsb_cocostudio_DisplayManager_prototype);
     jsb_register_class<cocostudio::DisplayManager>(cx, jsb_cocostudio_DisplayManager_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_Bone_class;
 JSObject *jsb_cocostudio_Bone_prototype;
 
@@ -4327,7 +4303,7 @@ bool js_cocos2dx_studio_Bone_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 1) {
             std::string arg0;
@@ -4347,7 +4323,7 @@ bool js_cocos2dx_studio_Bone_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 0) {
             cocostudio::Bone* ret = cocostudio::Bone::create();
@@ -4474,7 +4450,6 @@ void js_register_cocos2dx_studio_Bone(JSContext *cx, JS::HandleObject global) {
     JS::RootedObject proto(cx, jsb_cocostudio_Bone_prototype);
     jsb_register_class<cocostudio::Bone>(cx, jsb_cocostudio_Bone_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_BatchNode_class;
 JSObject *jsb_cocostudio_BatchNode_prototype;
 
@@ -4498,7 +4473,6 @@ bool js_cocos2dx_studio_BatchNode_create(JSContext *cx, uint32_t argc, jsval *vp
     JS_ReportError(cx, "js_cocos2dx_studio_BatchNode_create : wrong number of arguments");
     return false;
 }
-
 
 extern JSObject *jsb_cocos2d_Node_prototype;
 
@@ -4547,7 +4521,6 @@ void js_register_cocos2dx_studio_BatchNode(JSContext *cx, JS::HandleObject globa
     JS::RootedObject proto(cx, jsb_cocostudio_BatchNode_prototype);
     jsb_register_class<cocostudio::BatchNode>(cx, jsb_cocostudio_BatchNode_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_ArmatureAnimation_class;
 JSObject *jsb_cocostudio_ArmatureAnimation_prototype;
 
@@ -4948,7 +4921,6 @@ bool js_cocos2dx_studio_ArmatureAnimation_create(JSContext *cx, uint32_t argc, j
     JS_ReportError(cx, "js_cocos2dx_studio_ArmatureAnimation_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ArmatureAnimation_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -5037,7 +5009,6 @@ void js_register_cocos2dx_studio_ArmatureAnimation(JSContext *cx, JS::HandleObje
     JS::RootedObject proto(cx, jsb_cocostudio_ArmatureAnimation_prototype);
     jsb_register_class<cocostudio::ArmatureAnimation>(cx, jsb_cocostudio_ArmatureAnimation_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_ArmatureDataManager_class;
 JSObject *jsb_cocostudio_ArmatureDataManager_prototype;
 
@@ -5517,7 +5488,6 @@ bool js_cocos2dx_studio_ArmatureDataManager_destroyInstance(JSContext *cx, uint3
     JS_ReportError(cx, "js_cocos2dx_studio_ArmatureDataManager_destroyInstance : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ArmatureDataManager_getInstance(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -5538,7 +5508,6 @@ bool js_cocos2dx_studio_ArmatureDataManager_getInstance(JSContext *cx, uint32_t 
     JS_ReportError(cx, "js_cocos2dx_studio_ArmatureDataManager_getInstance : wrong number of arguments");
     return false;
 }
-
 
 void js_cocostudio_ArmatureDataManager_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ArmatureDataManager)", obj);
@@ -5601,7 +5570,6 @@ void js_register_cocos2dx_studio_ArmatureDataManager(JSContext *cx, JS::HandleOb
     JS::RootedObject proto(cx, jsb_cocostudio_ArmatureDataManager_prototype);
     jsb_register_class<cocostudio::ArmatureDataManager>(cx, jsb_cocostudio_ArmatureDataManager_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_Armature_class;
 JSObject *jsb_cocostudio_Armature_prototype;
 
@@ -6115,7 +6083,7 @@ bool js_cocos2dx_studio_Armature_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 1) {
             std::string arg0;
@@ -6135,7 +6103,7 @@ bool js_cocos2dx_studio_Armature_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 0) {
             cocostudio::Armature* ret = cocostudio::Armature::create();
@@ -6152,7 +6120,7 @@ bool js_cocos2dx_studio_Armature_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 2) {
             std::string arg0;
@@ -6234,7 +6202,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocostudio_Armature_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Armature)", obj);
 }
-
+    
 void js_register_cocos2dx_studio_Armature(JSContext *cx, JS::HandleObject global) {
     jsb_cocostudio_Armature_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocostudio_Armature_class->name = "Armature";
@@ -6299,7 +6267,6 @@ void js_register_cocos2dx_studio_Armature(JSContext *cx, JS::HandleObject global
     jsb_register_class<cocostudio::Armature>(cx, jsb_cocostudio_Armature_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { ccs.Armature.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocostudio_Skin_class;
 JSObject *jsb_cocostudio_Skin_prototype;
 
@@ -6412,7 +6379,7 @@ bool js_cocos2dx_studio_Skin_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 1) {
             std::string arg0;
@@ -6432,7 +6399,7 @@ bool js_cocos2dx_studio_Skin_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 0) {
             cocostudio::Skin* ret = cocostudio::Skin::create();
@@ -6476,7 +6443,6 @@ bool js_cocos2dx_studio_Skin_createWithSpriteFrameName(JSContext *cx, uint32_t a
     JS_ReportError(cx, "js_cocos2dx_studio_Skin_createWithSpriteFrameName : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_Skin_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -6558,7 +6524,6 @@ void js_register_cocos2dx_studio_Skin(JSContext *cx, JS::HandleObject global) {
     JS::RootedObject proto(cx, jsb_cocostudio_Skin_prototype);
     jsb_register_class<cocostudio::Skin>(cx, jsb_cocostudio_Skin_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_ComAttribute_class;
 JSObject *jsb_cocostudio_ComAttribute_prototype;
 
@@ -6828,7 +6793,6 @@ bool js_cocos2dx_studio_ComAttribute_create(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_cocos2dx_studio_ComAttribute_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ComAttribute_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -6913,7 +6877,6 @@ void js_register_cocos2dx_studio_ComAttribute(JSContext *cx, JS::HandleObject gl
     JS::RootedObject proto(cx, jsb_cocostudio_ComAttribute_prototype);
     jsb_register_class<cocostudio::ComAttribute>(cx, jsb_cocostudio_ComAttribute_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_ComAudio_class;
 JSObject *jsb_cocostudio_ComAudio_prototype;
 
@@ -7487,7 +7450,6 @@ bool js_cocos2dx_studio_ComAudio_create(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_cocos2dx_studio_ComAudio_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ComAudio_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -7589,7 +7551,6 @@ void js_register_cocos2dx_studio_ComAudio(JSContext *cx, JS::HandleObject global
     JS::RootedObject proto(cx, jsb_cocostudio_ComAudio_prototype);
     jsb_register_class<cocostudio::ComAudio>(cx, jsb_cocostudio_ComAudio_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_InputDelegate_class;
 JSObject *jsb_cocostudio_InputDelegate_prototype;
 
@@ -7835,7 +7796,6 @@ void js_register_cocos2dx_studio_InputDelegate(JSContext *cx, JS::HandleObject g
     JS::RootedObject proto(cx, jsb_cocostudio_InputDelegate_prototype);
     jsb_register_class<cocostudio::InputDelegate>(cx, jsb_cocostudio_InputDelegate_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_ComController_class;
 JSObject *jsb_cocostudio_ComController_prototype;
 
@@ -7859,7 +7819,6 @@ bool js_cocos2dx_studio_ComController_create(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_cocos2dx_studio_ComController_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ComController_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -7908,7 +7867,7 @@ extern JSObject *jsb_cocos2d_Component_prototype;
 void js_cocostudio_ComController_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ComController)", obj);
 }
-
+    
 void js_register_cocos2dx_studio_ComController(JSContext *cx, JS::HandleObject global) {
     jsb_cocostudio_ComController_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocostudio_ComController_class->name = "ComController";
@@ -7953,7 +7912,6 @@ void js_register_cocos2dx_studio_ComController(JSContext *cx, JS::HandleObject g
     jsb_register_class<cocostudio::ComController>(cx, jsb_cocostudio_ComController_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { ccs.ComController.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocostudio_ComRender_class;
 JSObject *jsb_cocostudio_ComRender_prototype;
 
@@ -8014,7 +7972,7 @@ bool js_cocos2dx_studio_ComRender_create(JSContext *cx, uint32_t argc, jsval *vp
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 2) {
             cocos2d::Node* arg0 = nullptr;
@@ -8045,7 +8003,7 @@ bool js_cocos2dx_studio_ComRender_create(JSContext *cx, uint32_t argc, jsval *vp
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 0) {
             cocostudio::ComRender* ret = cocostudio::ComRender::create();
@@ -8101,7 +8059,7 @@ bool js_cocos2dx_studio_ComRender_constructor(JSContext *cx, uint32_t argc, jsva
             CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
             typeClass = typeMapIter->second;
             CCASSERT(typeClass, "The value is null.");
-            // obj = JS_NewObject(cx, typeClass->jsclass, typeClass->proto, typeClass->parentProto);
+            
             JS::RootedObject proto(cx, typeClass->proto.ref());
             JS::RootedObject parent(cx, typeClass->parentProto.ref());
             obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
@@ -8126,7 +8084,7 @@ bool js_cocos2dx_studio_ComRender_constructor(JSContext *cx, uint32_t argc, jsva
             CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
             typeClass = typeMapIter->second;
             CCASSERT(typeClass, "The value is null.");
-            // obj = JS_NewObject(cx, typeClass->jsclass, typeClass->proto, typeClass->parentProto);
+            
             JS::RootedObject proto(cx, typeClass->proto.ref());
             JS::RootedObject parent(cx, typeClass->parentProto.ref());
             obj = JS_NewObject(cx, typeClass->jsclass, proto, parent);
@@ -8197,7 +8155,6 @@ void js_register_cocos2dx_studio_ComRender(JSContext *cx, JS::HandleObject globa
     JS::RootedObject proto(cx, jsb_cocostudio_ComRender_prototype);
     jsb_register_class<cocostudio::ComRender>(cx, jsb_cocostudio_ComRender_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_Frame_class;
 JSObject *jsb_cocostudio_timeline_Frame_prototype;
 
@@ -8539,7 +8496,6 @@ void js_register_cocos2dx_studio_Frame(JSContext *cx, JS::HandleObject global) {
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_Frame_prototype);
     jsb_register_class<cocostudio::timeline::Frame>(cx, jsb_cocostudio_timeline_Frame_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_timeline_VisibleFrame_class;
 JSObject *jsb_cocostudio_timeline_VisibleFrame_prototype;
 
@@ -8601,7 +8557,6 @@ bool js_cocos2dx_studio_VisibleFrame_create(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_cocos2dx_studio_VisibleFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_VisibleFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -8679,7 +8634,6 @@ void js_register_cocos2dx_studio_VisibleFrame(JSContext *cx, JS::HandleObject gl
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_VisibleFrame_prototype);
     jsb_register_class<cocostudio::timeline::VisibleFrame>(cx, jsb_cocostudio_timeline_VisibleFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_TextureFrame_class;
 JSObject *jsb_cocostudio_timeline_TextureFrame_prototype;
 
@@ -8741,7 +8695,6 @@ bool js_cocos2dx_studio_TextureFrame_create(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_cocos2dx_studio_TextureFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_TextureFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -8819,7 +8772,6 @@ void js_register_cocos2dx_studio_TextureFrame(JSContext *cx, JS::HandleObject gl
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_TextureFrame_prototype);
     jsb_register_class<cocostudio::timeline::TextureFrame>(cx, jsb_cocostudio_timeline_TextureFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_RotationFrame_class;
 JSObject *jsb_cocostudio_timeline_RotationFrame_prototype;
 
@@ -8881,7 +8833,6 @@ bool js_cocos2dx_studio_RotationFrame_create(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_cocos2dx_studio_RotationFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_RotationFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -8959,7 +8910,6 @@ void js_register_cocos2dx_studio_RotationFrame(JSContext *cx, JS::HandleObject g
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_RotationFrame_prototype);
     jsb_register_class<cocostudio::timeline::RotationFrame>(cx, jsb_cocostudio_timeline_RotationFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_SkewFrame_class;
 JSObject *jsb_cocostudio_timeline_SkewFrame_prototype;
 
@@ -9059,7 +9009,6 @@ bool js_cocos2dx_studio_SkewFrame_create(JSContext *cx, uint32_t argc, jsval *vp
     JS_ReportError(cx, "js_cocos2dx_studio_SkewFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_SkewFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9139,7 +9088,6 @@ void js_register_cocos2dx_studio_SkewFrame(JSContext *cx, JS::HandleObject globa
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_SkewFrame_prototype);
     jsb_register_class<cocostudio::timeline::SkewFrame>(cx, jsb_cocostudio_timeline_SkewFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_RotationSkewFrame_class;
 JSObject *jsb_cocostudio_timeline_RotationSkewFrame_prototype;
 
@@ -9163,7 +9111,6 @@ bool js_cocos2dx_studio_RotationSkewFrame_create(JSContext *cx, uint32_t argc, j
     JS_ReportError(cx, "js_cocos2dx_studio_RotationSkewFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_RotationSkewFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9239,7 +9186,6 @@ void js_register_cocos2dx_studio_RotationSkewFrame(JSContext *cx, JS::HandleObje
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_RotationSkewFrame_prototype);
     jsb_register_class<cocostudio::timeline::RotationSkewFrame>(cx, jsb_cocostudio_timeline_RotationSkewFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_PositionFrame_class;
 JSObject *jsb_cocostudio_timeline_PositionFrame_prototype;
 
@@ -9377,7 +9323,6 @@ bool js_cocos2dx_studio_PositionFrame_create(JSContext *cx, uint32_t argc, jsval
     JS_ReportError(cx, "js_cocos2dx_studio_PositionFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_PositionFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9459,7 +9404,6 @@ void js_register_cocos2dx_studio_PositionFrame(JSContext *cx, JS::HandleObject g
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_PositionFrame_prototype);
     jsb_register_class<cocostudio::timeline::PositionFrame>(cx, jsb_cocostudio_timeline_PositionFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_ScaleFrame_class;
 JSObject *jsb_cocostudio_timeline_ScaleFrame_prototype;
 
@@ -9579,7 +9523,6 @@ bool js_cocos2dx_studio_ScaleFrame_create(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_cocos2dx_studio_ScaleFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ScaleFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9660,7 +9603,6 @@ void js_register_cocos2dx_studio_ScaleFrame(JSContext *cx, JS::HandleObject glob
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_ScaleFrame_prototype);
     jsb_register_class<cocostudio::timeline::ScaleFrame>(cx, jsb_cocostudio_timeline_ScaleFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_AnchorPointFrame_class;
 JSObject *jsb_cocostudio_timeline_AnchorPointFrame_prototype;
 
@@ -9722,7 +9664,6 @@ bool js_cocos2dx_studio_AnchorPointFrame_create(JSContext *cx, uint32_t argc, js
     JS_ReportError(cx, "js_cocos2dx_studio_AnchorPointFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_AnchorPointFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -9800,7 +9741,6 @@ void js_register_cocos2dx_studio_AnchorPointFrame(JSContext *cx, JS::HandleObjec
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_AnchorPointFrame_prototype);
     jsb_register_class<cocostudio::timeline::AnchorPointFrame>(cx, jsb_cocostudio_timeline_AnchorPointFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_InnerActionFrame_class;
 JSObject *jsb_cocostudio_timeline_InnerActionFrame_prototype;
 
@@ -10016,7 +9956,6 @@ bool js_cocos2dx_studio_InnerActionFrame_create(JSContext *cx, uint32_t argc, js
     JS_ReportError(cx, "js_cocos2dx_studio_InnerActionFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_InnerActionFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -10102,7 +10041,6 @@ void js_register_cocos2dx_studio_InnerActionFrame(JSContext *cx, JS::HandleObjec
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_InnerActionFrame_prototype);
     jsb_register_class<cocostudio::timeline::InnerActionFrame>(cx, jsb_cocostudio_timeline_InnerActionFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_ColorFrame_class;
 JSObject *jsb_cocostudio_timeline_ColorFrame_prototype;
 
@@ -10164,7 +10102,6 @@ bool js_cocos2dx_studio_ColorFrame_create(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_cocos2dx_studio_ColorFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ColorFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -10242,7 +10179,6 @@ void js_register_cocos2dx_studio_ColorFrame(JSContext *cx, JS::HandleObject glob
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_ColorFrame_prototype);
     jsb_register_class<cocostudio::timeline::ColorFrame>(cx, jsb_cocostudio_timeline_ColorFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_AlphaFrame_class;
 JSObject *jsb_cocostudio_timeline_AlphaFrame_prototype;
 
@@ -10304,7 +10240,6 @@ bool js_cocos2dx_studio_AlphaFrame_create(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_cocos2dx_studio_AlphaFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_AlphaFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -10382,7 +10317,6 @@ void js_register_cocos2dx_studio_AlphaFrame(JSContext *cx, JS::HandleObject glob
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_AlphaFrame_prototype);
     jsb_register_class<cocostudio::timeline::AlphaFrame>(cx, jsb_cocostudio_timeline_AlphaFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_EventFrame_class;
 JSObject *jsb_cocostudio_timeline_EventFrame_prototype;
 
@@ -10460,7 +10394,6 @@ bool js_cocos2dx_studio_EventFrame_create(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_cocos2dx_studio_EventFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_EventFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -10539,7 +10472,6 @@ void js_register_cocos2dx_studio_EventFrame(JSContext *cx, JS::HandleObject glob
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_EventFrame_prototype);
     jsb_register_class<cocostudio::timeline::EventFrame>(cx, jsb_cocostudio_timeline_EventFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_ZOrderFrame_class;
 JSObject *jsb_cocostudio_timeline_ZOrderFrame_prototype;
 
@@ -10601,7 +10533,6 @@ bool js_cocos2dx_studio_ZOrderFrame_create(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_cocos2dx_studio_ZOrderFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ZOrderFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -10679,7 +10610,6 @@ void js_register_cocos2dx_studio_ZOrderFrame(JSContext *cx, JS::HandleObject glo
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_ZOrderFrame_prototype);
     jsb_register_class<cocostudio::timeline::ZOrderFrame>(cx, jsb_cocostudio_timeline_ZOrderFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_BlendFuncFrame_class;
 JSObject *jsb_cocostudio_timeline_BlendFuncFrame_prototype;
 
@@ -10741,7 +10671,6 @@ bool js_cocos2dx_studio_BlendFuncFrame_create(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_cocos2dx_studio_BlendFuncFrame_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_BlendFuncFrame_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -10819,7 +10748,6 @@ void js_register_cocos2dx_studio_BlendFuncFrame(JSContext *cx, JS::HandleObject 
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_BlendFuncFrame_prototype);
     jsb_register_class<cocostudio::timeline::BlendFuncFrame>(cx, jsb_cocostudio_timeline_BlendFuncFrame_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_Timeline_class;
 JSObject *jsb_cocostudio_timeline_Timeline_prototype;
 
@@ -11156,7 +11084,6 @@ bool js_cocos2dx_studio_Timeline_create(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_cocos2dx_studio_Timeline_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_Timeline_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -11242,7 +11169,6 @@ void js_register_cocos2dx_studio_Timeline(JSContext *cx, JS::HandleObject global
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_Timeline_prototype);
     jsb_register_class<cocostudio::timeline::Timeline>(cx, jsb_cocostudio_timeline_Timeline_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_timeline_ActionTimelineData_class;
 JSObject *jsb_cocostudio_timeline_ActionTimelineData_prototype;
 
@@ -11330,7 +11256,6 @@ bool js_cocos2dx_studio_ActionTimelineData_create(JSContext *cx, uint32_t argc, 
     JS_ReportError(cx, "js_cocos2dx_studio_ActionTimelineData_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ActionTimelineData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -11406,7 +11331,6 @@ void js_register_cocos2dx_studio_ActionTimelineData(JSContext *cx, JS::HandleObj
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_ActionTimelineData_prototype);
     jsb_register_class<cocostudio::timeline::ActionTimelineData>(cx, jsb_cocostudio_timeline_ActionTimelineData_class, proto, JS::NullPtr());
 }
-
 JSClass  *jsb_cocostudio_timeline_ActionTimeline_class;
 JSObject *jsb_cocostudio_timeline_ActionTimeline_prototype;
 
@@ -11421,35 +11345,35 @@ bool js_cocos2dx_studio_ActionTimeline_setFrameEventCallFunc(JSContext *cx, uint
     if (argc == 1) {
         std::function<void (cocostudio::timeline::Frame *)> arg0;
         do {
-            if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
-            {
-                JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0)));
-                auto lambda = [=](cocostudio::timeline::Frame* larg0) -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    jsval largv[1];
-                    do {
-                    if (larg0) {
-                        js_proxy_t *jsProxy = js_get_or_create_proxy<cocostudio::timeline::Frame>(cx, (cocostudio::timeline::Frame*)larg0);
-                        largv[0] = OBJECT_TO_JSVAL(jsProxy->obj);
-                    } else {
-                        largv[0] = JSVAL_NULL;
-                    }
-                } while (0);
-                    JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(1, &largv[0], &rval);
-                    if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
-                    }
-                };
-                arg0 = lambda;
-            }
-            else
-            {
-                arg0 = nullptr;
-            }
-        } while(0)
-        ;
+		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
+		    {
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0)));
+		        auto lambda = [=](cocostudio::timeline::Frame* larg0) -> void {
+		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+		            jsval largv[1];
+		            do {
+		            if (larg0) {
+		                js_proxy_t *jsProxy = js_get_or_create_proxy<cocostudio::timeline::Frame>(cx, (cocostudio::timeline::Frame*)larg0);
+		                largv[0] = OBJECT_TO_JSVAL(jsProxy->obj);
+		            } else {
+		                largv[0] = JSVAL_NULL;
+		            }
+		        } while (0);
+		            JS::RootedValue rval(cx);
+		            bool succeed = func->invoke(1, &largv[0], &rval);
+		            if (!succeed && JS_IsExceptionPending(cx)) {
+		                JS_ReportPendingException(cx);
+		            }
+		        };
+		        arg0 = lambda;
+		    }
+		    else
+		    {
+		        arg0 = nullptr;
+		    }
+		} while(0)
+		;
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_studio_ActionTimeline_setFrameEventCallFunc : Error processing arguments");
         cobj->setFrameEventCallFunc(arg0);
         args.rval().setUndefined();
@@ -11488,26 +11412,26 @@ bool js_cocos2dx_studio_ActionTimeline_setAnimationEndCallFunc(JSContext *cx, ui
         std::function<void ()> arg1;
         ok &= jsval_to_std_string(cx, args.get(0), &arg0);
         do {
-            if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
-            {
-                JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1)));
-                auto lambda = [=]() -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(0, nullptr, &rval);
-                    if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
-                    }
-                };
-                arg1 = lambda;
-            }
-            else
-            {
-                arg1 = nullptr;
-            }
-        } while(0)
-        ;
+		    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
+		    {
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(1)));
+		        auto lambda = [=]() -> void {
+		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+		            JS::RootedValue rval(cx);
+		            bool succeed = func->invoke(0, nullptr, &rval);
+		            if (!succeed && JS_IsExceptionPending(cx)) {
+		                JS_ReportPendingException(cx);
+		            }
+		        };
+		        arg1 = lambda;
+		    }
+		    else
+		    {
+		        arg1 = nullptr;
+		    }
+		} while(0)
+		;
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_studio_ActionTimeline_setAnimationEndCallFunc : Error processing arguments");
         cobj->setAnimationEndCallFunc(arg0, arg1);
         args.rval().setUndefined();
@@ -11654,26 +11578,26 @@ bool js_cocos2dx_studio_ActionTimeline_setLastFrameCallFunc(JSContext *cx, uint3
     if (argc == 1) {
         std::function<void ()> arg0;
         do {
-            if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
-            {
-                JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0)));
-                auto lambda = [=]() -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(0, nullptr, &rval);
-                    if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
-                    }
-                };
-                arg0 = lambda;
-            }
-            else
-            {
-                arg0 = nullptr;
-            }
-        } while(0)
-        ;
+		    if(JS_TypeOfValue(cx, args.get(0)) == JSTYPE_FUNCTION)
+		    {
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(0)));
+		        auto lambda = [=]() -> void {
+		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+		            JS::RootedValue rval(cx);
+		            bool succeed = func->invoke(0, nullptr, &rval);
+		            if (!succeed && JS_IsExceptionPending(cx)) {
+		                JS_ReportPendingException(cx);
+		            }
+		        };
+		        arg0 = lambda;
+		    }
+		    else
+		    {
+		        arg0 = nullptr;
+		    }
+		} while(0)
+		;
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_studio_ActionTimeline_setLastFrameCallFunc : Error processing arguments");
         cobj->setLastFrameCallFunc(arg0);
         args.rval().setUndefined();
@@ -11798,26 +11722,26 @@ bool js_cocos2dx_studio_ActionTimeline_addFrameEndCallFunc(JSContext *cx, uint32
         ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
         ok &= jsval_to_std_string(cx, args.get(1), &arg1);
         do {
-            if(JS_TypeOfValue(cx, args.get(2)) == JSTYPE_FUNCTION)
-            {
-                JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
-                std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(2)));
-                auto lambda = [=]() -> void {
-                    JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
-                    JS::RootedValue rval(cx);
-                    bool succeed = func->invoke(0, nullptr, &rval);
-                    if (!succeed && JS_IsExceptionPending(cx)) {
-                        JS_ReportPendingException(cx);
-                    }
-                };
-                arg2 = lambda;
-            }
-            else
-            {
-                arg2 = nullptr;
-            }
-        } while(0)
-        ;
+		    if(JS_TypeOfValue(cx, args.get(2)) == JSTYPE_FUNCTION)
+		    {
+		        JS::RootedObject jstarget(cx, args.thisv().toObjectOrNull());
+		        std::shared_ptr<JSFunctionWrapper> func(new JSFunctionWrapper(cx, jstarget, args.get(2)));
+		        auto lambda = [=]() -> void {
+		            JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
+		            JS::RootedValue rval(cx);
+		            bool succeed = func->invoke(0, nullptr, &rval);
+		            if (!succeed && JS_IsExceptionPending(cx)) {
+		                JS_ReportPendingException(cx);
+		            }
+		        };
+		        arg2 = lambda;
+		    }
+		    else
+		    {
+		        arg2 = nullptr;
+		    }
+		} while(0)
+		;
         JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_studio_ActionTimeline_addFrameEndCallFunc : Error processing arguments");
         cobj->addFrameEndCallFunc(arg0, arg1, arg2);
         args.rval().setUndefined();
@@ -12186,7 +12110,6 @@ bool js_cocos2dx_studio_ActionTimeline_create(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_cocos2dx_studio_ActionTimeline_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ActionTimeline_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -12293,7 +12216,6 @@ void js_register_cocos2dx_studio_ActionTimeline(JSContext *cx, JS::HandleObject 
     JS::RootedObject proto(cx, jsb_cocostudio_timeline_ActionTimeline_prototype);
     jsb_register_class<cocostudio::timeline::ActionTimeline>(cx, jsb_cocostudio_timeline_ActionTimeline_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocostudio_timeline_BoneNode_class;
 JSObject *jsb_cocostudio_timeline_BoneNode_prototype;
 
@@ -12762,7 +12684,7 @@ bool js_cocos2dx_studio_BoneNode_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 1) {
             int arg0 = 0;
@@ -12782,7 +12704,7 @@ bool js_cocos2dx_studio_BoneNode_create(JSContext *cx, uint32_t argc, jsval *vp)
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 0) {
             cocostudio::timeline::BoneNode* ret = cocostudio::timeline::BoneNode::create();
@@ -12850,7 +12772,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocostudio_timeline_BoneNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (BoneNode)", obj);
 }
-
+    
 void js_register_cocos2dx_studio_BoneNode(JSContext *cx, JS::HandleObject global) {
     jsb_cocostudio_timeline_BoneNode_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocostudio_timeline_BoneNode_class->name = "BoneNode";
@@ -12914,7 +12836,6 @@ void js_register_cocos2dx_studio_BoneNode(JSContext *cx, JS::HandleObject global
     jsb_register_class<cocostudio::timeline::BoneNode>(cx, jsb_cocostudio_timeline_BoneNode_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { ccs.BoneNode.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocostudio_timeline_SkeletonNode_class;
 JSObject *jsb_cocostudio_timeline_SkeletonNode_prototype;
 
@@ -13043,7 +12964,6 @@ bool js_cocos2dx_studio_SkeletonNode_create(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_cocos2dx_studio_SkeletonNode_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_SkeletonNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -13092,7 +13012,7 @@ extern JSObject *jsb_cocostudio_timeline_BoneNode_prototype;
 void js_cocostudio_timeline_SkeletonNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (SkeletonNode)", obj);
 }
-
+    
 void js_register_cocos2dx_studio_SkeletonNode(JSContext *cx, JS::HandleObject global) {
     jsb_cocostudio_timeline_SkeletonNode_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocostudio_timeline_SkeletonNode_class->name = "SkeletonNode";
@@ -13141,7 +13061,6 @@ void js_register_cocos2dx_studio_SkeletonNode(JSContext *cx, JS::HandleObject gl
     jsb_register_class<cocostudio::timeline::SkeletonNode>(cx, jsb_cocostudio_timeline_SkeletonNode_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { ccs.SkeletonNode.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocostudio_ComExtensionData_class;
 JSObject *jsb_cocostudio_ComExtensionData_prototype;
 
@@ -13241,7 +13160,6 @@ bool js_cocos2dx_studio_ComExtensionData_create(JSContext *cx, uint32_t argc, js
     JS_ReportError(cx, "js_cocos2dx_studio_ComExtensionData_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_studio_ComExtensionData_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -13321,7 +13239,6 @@ void js_register_cocos2dx_studio_ComExtensionData(JSContext *cx, JS::HandleObjec
     JS::RootedObject proto(cx, jsb_cocostudio_ComExtensionData_prototype);
     jsb_register_class<cocostudio::ComExtensionData>(cx, jsb_cocostudio_ComExtensionData_class, proto, parent_proto);
 }
-
 void register_all_cocos2dx_studio(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);

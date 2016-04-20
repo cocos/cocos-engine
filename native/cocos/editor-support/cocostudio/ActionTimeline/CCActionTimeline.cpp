@@ -37,16 +37,15 @@ ActionTimelineData* ActionTimelineData::create(int actionTag)
     if (ret && ret->init(actionTag))
     {
         ret->autorelease();
+        return ret;
     }
-    else
-    {
-        CC_SAFE_DELETE(ret);
-    }
-    return ret;
+    
+    delete ret;
+    return nullptr;
 }
 
 ActionTimelineData::ActionTimelineData()
-    : _actionTag(0)
+: _actionTag(0)
 {
 }
 
@@ -66,7 +65,8 @@ ActionTimeline* ActionTimeline::create()
         object->autorelease();
         return object;
     }
-    CC_SAFE_DELETE(object);
+    
+    delete object;
     return nullptr;
 }
 
@@ -95,7 +95,7 @@ bool ActionTimeline::init()
 
 void ActionTimeline::play(std::string name, bool loop)
 {
-    if (_animationInfos.find(name) == _animationInfos.end())
+    if (name.empty() || _animationInfos.find(name) == _animationInfos.end())
     {
         CCLOG("Can't find animation info for %s", name.c_str());
         return;

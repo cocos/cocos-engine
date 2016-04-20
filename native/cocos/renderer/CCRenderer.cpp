@@ -809,9 +809,6 @@ void Renderer::drawBatchedQuads()
 {
     //TODO: we can improve the draw performance by insert material switching command before hand.
 
-    ssize_t indexToDraw = 0;
-    int startIndex = 0;
-
     //Upload buffer to VBO
     if(_numberQuads <= 0 || _batchQuadCommands.empty())
     {
@@ -862,7 +859,9 @@ void Renderer::drawBatchedQuads()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _quadbuffersVBO[1]);
     }
 
-
+    ssize_t indexToDraw = 0;
+    int startIndex = 0;
+    
     // FIXME: The logic of this code is confusing, and error prone
     // Needs refactoring
 

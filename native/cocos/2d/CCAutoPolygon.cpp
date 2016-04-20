@@ -28,10 +28,7 @@ USING_NS_CC;
 
 static unsigned short quadIndices[]={0,1,2, 3,2,1};
 
-PolygonInfo::PolygonInfo(const PolygonInfo& other):
-triangles(),
-isVertsOwner(true),
-rect()
+PolygonInfo::PolygonInfo(const PolygonInfo& other)
 {
     filename = other.filename;
     isVertsOwner = true;

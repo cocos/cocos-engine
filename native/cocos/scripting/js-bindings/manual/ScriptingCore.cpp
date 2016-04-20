@@ -462,6 +462,7 @@ ScriptingCore::ScriptingCore()
 //, _global(nullptr)
 //, _debugGlobal(nullptr)
 , _callFromScript(false)
+, _runLoop(nullptr)
 {
     // set utf8 strings internally (we don't need utf16)
     // XXX: Removed in SpiderMonkey 19.0
@@ -472,7 +473,6 @@ ScriptingCore::ScriptingCore()
 void ScriptingCore::initRegister()
 {
     this->addRegisterCallback(registerDefaultClasses);
-    this->_runLoop = new (std::nothrow) SimpleRunLoop();
 }
 
 void ScriptingCore::string_report(JS::HandleValue val) {
@@ -821,6 +821,25 @@ ScriptingCore::~ScriptingCore()
     s_scriptCodeInstance = nullptr;
 }
 
+void ScriptingCore::recordJSRetain(cocos2d::Ref *object)
+{
+    if (_jsRetainRefMap.find(object) == _jsRetainRefMap.end())
+        _jsRetainRefMap[object] = 1;
+    else
+        _jsRetainRefMap[object] += 1;
+}
+
+void ScriptingCore::recordJSRelease(cocos2d::Ref *object)
+{
+    if (_jsRetainRefMap.find(object) != _jsRetainRefMap.end())
+    {
+        if (_jsRetainRefMap[object] <= 1)
+            _jsRetainRefMap.erase(object);
+        else
+            _jsRetainRefMap[object] -= 1;
+    }
+}
+
 void ScriptingCore::cleanup()
 {
     if(_runLoop)
@@ -830,6 +849,17 @@ void ScriptingCore::cleanup()
     }
     
     localStorageFree();
+    
+    int retainCount = 0;
+    for (auto&& it : _jsRetainRefMap)
+    {
+        retainCount = it.second;
+        for (int i = 0; i < retainCount; ++i)
+        {
+            it.first->release();
+        }
+    }
+    _jsRetainRefMap.clear();
 
     if (_cx)
     {
@@ -1878,8 +1908,12 @@ void ScriptingCore::enableDebugger(unsigned int port)
         auto t = std::thread(&serverEntryPoint,port);
         t.detach();
 
-        Scheduler* scheduler = Director::getInstance()->getScheduler();
-        scheduler->scheduleUpdate(this->_runLoop, 0, false);
+        if (_runLoop == nullptr)
+        {
+            _runLoop = new (std::nothrow) SimpleRunLoop();
+        }
+        Scheduler* scheduler = Director::DirectorInstance->getScheduler();
+        scheduler->scheduleUpdate(_runLoop, 0, false);
     }
 }
 

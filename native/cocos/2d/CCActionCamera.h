@@ -33,8 +33,6 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-class Camera;
-
 /**
  * @addtogroup actions
  * @{

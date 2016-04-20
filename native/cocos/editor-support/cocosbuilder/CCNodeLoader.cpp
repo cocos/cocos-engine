@@ -598,11 +598,11 @@ SpriteFrame * NodeLoader::parsePropTypeSpriteFrame(Node * pNode, Node * pParent,
             // Load the sprite sheet only if it is not loaded
             if (ccbReader->getLoadedSpriteSheet().find(spriteSheet) == ccbReader->getLoadedSpriteSheet().end())
             {
-                frameCache->addSpriteFramesWithFile(spriteSheet.c_str());
+                frameCache->addSpriteFramesWithFile(spriteSheet);
                 ccbReader->getLoadedSpriteSheet().insert(spriteSheet);
             }
 
-            spriteFrame = frameCache->getSpriteFrameByName(spriteFile.c_str());
+            spriteFrame = frameCache->getSpriteFrameByName(spriteFile);
         }
 
         if (ccbReader->getAnimatedProperties()->find(pPropertyName) != ccbReader->getAnimatedProperties()->end())

@@ -264,7 +264,7 @@ AccelAmplitude* AccelAmplitude::clone() const
 
 AccelAmplitude::~AccelAmplitude()
 {
-    CC_SAFE_DELETE(_other);
+    CC_SAFE_RELEASE(_other);
 }
 
 void AccelAmplitude::startWithTarget(Node *target)

@@ -22,7 +22,7 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
         JS::RootedObject proto(cx, typeClass->proto.ref());
         JS::RootedObject parent(cx, typeClass->parentProto.ref());
         JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-
+        
         args.rval().set(OBJECT_TO_JSVAL(_tmp));
         return true;
     }
@@ -310,7 +310,6 @@ bool js_cocos2dx_extension_Control_create(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_cocos2dx_extension_Control_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_extension_Control_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -398,7 +397,6 @@ void js_register_cocos2dx_extension_Control(JSContext *cx, JS::HandleObject glob
     JS::RootedObject proto(cx, jsb_cocos2d_extension_Control_prototype);
     jsb_register_class<cocos2d::extension::Control>(cx, jsb_cocos2d_extension_Control_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocos2d_extension_ControlButton_class;
 JSObject *jsb_cocos2d_extension_ControlButton_prototype;
 
@@ -1296,7 +1294,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, js
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 1) {
             cocos2d::ui::Scale9Sprite* arg0 = nullptr;
@@ -1324,7 +1322,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 0) {
             cocos2d::extension::ControlButton* ret = cocos2d::extension::ControlButton::create();
@@ -1341,7 +1339,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 2) {
             cocos2d::Node* arg0 = nullptr;
@@ -1380,7 +1378,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 3) {
             std::string arg0;
@@ -1406,7 +1404,7 @@ bool js_cocos2dx_extension_ControlButton_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 3) {
             cocos2d::Node* arg0 = nullptr;
@@ -1499,7 +1497,7 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 void js_cocos2d_extension_ControlButton_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ControlButton)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_ControlButton(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_ControlButton_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_ControlButton_class->name = "ControlButton";
@@ -1582,7 +1580,6 @@ void js_register_cocos2dx_extension_ControlButton(JSContext *cx, JS::HandleObjec
     jsb_register_class<cocos2d::extension::ControlButton>(cx, jsb_cocos2d_extension_ControlButton_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.ControlButton.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_ControlHuePicker_class;
 JSObject *jsb_cocos2d_extension_ControlHuePicker_prototype;
 
@@ -1852,7 +1849,6 @@ bool js_cocos2dx_extension_ControlHuePicker_create(JSContext *cx, uint32_t argc,
     JS_ReportError(cx, "js_cocos2dx_extension_ControlHuePicker_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_extension_ControlHuePicker_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1938,7 +1934,6 @@ void js_register_cocos2dx_extension_ControlHuePicker(JSContext *cx, JS::HandleOb
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlHuePicker_prototype);
     jsb_register_class<cocos2d::extension::ControlHuePicker>(cx, jsb_cocos2d_extension_ControlHuePicker_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class;
 JSObject *jsb_cocos2d_extension_ControlSaturationBrightnessPicker_prototype;
 
@@ -2162,7 +2157,6 @@ bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_create(JSContext *c
     JS_ReportError(cx, "js_cocos2dx_extension_ControlSaturationBrightnessPicker_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_extension_ControlSaturationBrightnessPicker_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2246,7 +2240,6 @@ void js_register_cocos2dx_extension_ControlSaturationBrightnessPicker(JSContext 
     JS::RootedObject proto(cx, jsb_cocos2d_extension_ControlSaturationBrightnessPicker_prototype);
     jsb_register_class<cocos2d::extension::ControlSaturationBrightnessPicker>(cx, jsb_cocos2d_extension_ControlSaturationBrightnessPicker_class, proto, parent_proto);
 }
-
 JSClass  *jsb_cocos2d_extension_ControlColourPicker_class;
 JSObject *jsb_cocos2d_extension_ControlColourPicker_prototype;
 
@@ -2489,7 +2482,6 @@ bool js_cocos2dx_extension_ControlColourPicker_create(JSContext *cx, uint32_t ar
     JS_ReportError(cx, "js_cocos2dx_extension_ControlColourPicker_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_extension_ControlColourPicker_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -2538,7 +2530,7 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 void js_cocos2d_extension_ControlColourPicker_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ControlColourPicker)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_ControlColourPicker(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_ControlColourPicker_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_ControlColourPicker_class->name = "ControlColourPicker";
@@ -2591,7 +2583,6 @@ void js_register_cocos2dx_extension_ControlColourPicker(JSContext *cx, JS::Handl
     jsb_register_class<cocos2d::extension::ControlColourPicker>(cx, jsb_cocos2d_extension_ControlColourPicker_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.ControlColourPicker.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_ControlPotentiometer_class;
 JSObject *jsb_cocos2d_extension_ControlPotentiometer_prototype;
 
@@ -3043,7 +3034,6 @@ bool js_cocos2dx_extension_ControlPotentiometer_create(JSContext *cx, uint32_t a
     JS_ReportError(cx, "js_cocos2dx_extension_ControlPotentiometer_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_extension_ControlPotentiometer_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -3092,7 +3082,7 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 void js_cocos2d_extension_ControlPotentiometer_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ControlPotentiometer)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_ControlPotentiometer(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_ControlPotentiometer_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_ControlPotentiometer_class->name = "ControlPotentiometer";
@@ -3155,7 +3145,6 @@ void js_register_cocos2dx_extension_ControlPotentiometer(JSContext *cx, JS::Hand
     jsb_register_class<cocos2d::extension::ControlPotentiometer>(cx, jsb_cocos2d_extension_ControlPotentiometer_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.ControlPotentiometer.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_ControlSlider_class;
 JSObject *jsb_cocos2d_extension_ControlSlider_prototype;
 
@@ -3706,7 +3695,7 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, js
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 3) {
             cocos2d::Sprite* arg0 = nullptr;
@@ -3756,7 +3745,7 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 3) {
             const char* arg0 = nullptr;
@@ -3782,7 +3771,7 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 4) {
             const char* arg0 = nullptr;
@@ -3811,7 +3800,7 @@ bool js_cocos2dx_extension_ControlSlider_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 4) {
             cocos2d::Sprite* arg0 = nullptr;
@@ -3923,7 +3912,7 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 void js_cocos2d_extension_ControlSlider_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ControlSlider)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_ControlSlider(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_ControlSlider_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_ControlSlider_class->name = "ControlSlider";
@@ -3988,7 +3977,6 @@ void js_register_cocos2dx_extension_ControlSlider(JSContext *cx, JS::HandleObjec
     jsb_register_class<cocos2d::extension::ControlSlider>(cx, jsb_cocos2d_extension_ControlSlider_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.ControlSlider.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_ControlStepper_class;
 JSObject *jsb_cocos2d_extension_ControlStepper_prototype;
 
@@ -4496,7 +4484,6 @@ bool js_cocos2dx_extension_ControlStepper_create(JSContext *cx, uint32_t argc, j
     JS_ReportError(cx, "js_cocos2dx_extension_ControlStepper_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_extension_ControlStepper_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -4545,7 +4532,7 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 void js_cocos2d_extension_ControlStepper_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ControlStepper)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_ControlStepper(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_ControlStepper_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_ControlStepper_class->name = "ControlStepper";
@@ -4610,7 +4597,6 @@ void js_register_cocos2dx_extension_ControlStepper(JSContext *cx, JS::HandleObje
     jsb_register_class<cocos2d::extension::ControlStepper>(cx, jsb_cocos2d_extension_ControlStepper_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.ControlStepper.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_ControlSwitch_class;
 JSObject *jsb_cocos2d_extension_ControlSwitch_prototype;
 
@@ -4864,7 +4850,7 @@ bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, js
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 4) {
             cocos2d::Sprite* arg0 = nullptr;
@@ -4925,7 +4911,7 @@ bool js_cocos2dx_extension_ControlSwitch_create(JSContext *cx, uint32_t argc, js
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 6) {
             cocos2d::Sprite* arg0 = nullptr;
@@ -5059,7 +5045,7 @@ extern JSObject *jsb_cocos2d_extension_Control_prototype;
 void js_cocos2d_extension_ControlSwitch_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ControlSwitch)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_ControlSwitch(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_ControlSwitch_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_ControlSwitch_class->name = "ControlSwitch";
@@ -5109,7 +5095,6 @@ void js_register_cocos2dx_extension_ControlSwitch(JSContext *cx, JS::HandleObjec
     jsb_register_class<cocos2d::extension::ControlSwitch>(cx, jsb_cocos2d_extension_ControlSwitch_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.ControlSwitch.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_ScrollView_class;
 JSObject *jsb_cocos2d_extension_ScrollView_prototype;
 
@@ -5810,7 +5795,7 @@ bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, jsval
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
-
+    
     do {
         if (argc == 0) {
             cocos2d::extension::ScrollView* ret = cocos2d::extension::ScrollView::create();
@@ -5827,7 +5812,7 @@ bool js_cocos2dx_extension_ScrollView_create(JSContext *cx, uint32_t argc, jsval
             return true;
         }
     } while (0);
-
+    
     do {
         if (argc == 2) {
             cocos2d::Size arg0;
@@ -5909,7 +5894,7 @@ extern JSObject *jsb_cocos2d_Layer_prototype;
 void js_cocos2d_extension_ScrollView_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (ScrollView)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_ScrollView(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_ScrollView_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_ScrollView_class->name = "ScrollView";
@@ -5986,7 +5971,6 @@ void js_register_cocos2dx_extension_ScrollView(JSContext *cx, JS::HandleObject g
     jsb_register_class<cocos2d::extension::ScrollView>(cx, jsb_cocos2d_extension_ScrollView_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.ScrollView.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_TableViewCell_class;
 JSObject *jsb_cocos2d_extension_TableViewCell_prototype;
 
@@ -6064,7 +6048,6 @@ bool js_cocos2dx_extension_TableViewCell_create(JSContext *cx, uint32_t argc, js
     JS_ReportError(cx, "js_cocos2dx_extension_TableViewCell_create : wrong number of arguments");
     return false;
 }
-
 bool js_cocos2dx_extension_TableViewCell_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -6113,7 +6096,7 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 void js_cocos2d_extension_TableViewCell_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TableViewCell)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_TableViewCell(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_TableViewCell_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_TableViewCell_class->name = "TableViewCell";
@@ -6161,7 +6144,6 @@ void js_register_cocos2dx_extension_TableViewCell(JSContext *cx, JS::HandleObjec
     jsb_register_class<cocos2d::extension::TableViewCell>(cx, jsb_cocos2d_extension_TableViewCell_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.TableViewCell.extend = cc.Class.extend; })()");
 }
-
 JSClass  *jsb_cocos2d_extension_TableView_class;
 JSObject *jsb_cocos2d_extension_TableView_prototype;
 
@@ -6485,7 +6467,7 @@ extern JSObject *jsb_cocos2d_extension_ScrollView_prototype;
 void js_cocos2d_extension_TableView_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (TableView)", obj);
 }
-
+    
 void js_register_cocos2dx_extension_TableView(JSContext *cx, JS::HandleObject global) {
     jsb_cocos2d_extension_TableView_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_cocos2d_extension_TableView_class->name = "TableView";
@@ -6539,7 +6521,6 @@ void js_register_cocos2dx_extension_TableView(JSContext *cx, JS::HandleObject gl
     jsb_register_class<cocos2d::extension::TableView>(cx, jsb_cocos2d_extension_TableView_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.TableView.extend = cc.Class.extend; })()");
 }
-
 void register_all_cocos2dx_extension(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);

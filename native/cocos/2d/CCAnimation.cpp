@@ -37,12 +37,11 @@ AnimationFrame* AnimationFrame::create(SpriteFrame* spriteFrame, float delayUnit
     if (ret && ret->initWithSpriteFrame(spriteFrame, delayUnits, userInfo))
     {
         ret->autorelease();
+        return ret;
     }
-    else
-    {
-        CC_SAFE_DELETE(ret);
-    }
-    return ret;
+    
+    delete ret;
+    return nullptr;
 }
 
 AnimationFrame::AnimationFrame()
@@ -71,13 +70,9 @@ AnimationFrame::~AnimationFrame()
 AnimationFrame* AnimationFrame::clone() const
 {
     // no copy constructor
-    auto frame = new (std::nothrow) AnimationFrame();
-    frame->initWithSpriteFrame(_spriteFrame->clone(),
-                               _delayUnits,
-                               _userInfo);
-
-    frame->autorelease();
-    return frame;
+    return AnimationFrame::create(_spriteFrame->clone(),
+                                  _delayUnits,
+                                  _userInfo);
 }
 
 // implementation of Animation

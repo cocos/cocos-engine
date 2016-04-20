@@ -4550,6 +4550,16 @@ EventListenerAcceleration : function (
 cc.EventListenerCustom = {
 
 /**
+ * @method getEventName
+ * @return {String}
+ */
+getEventName : function (
+)
+{
+    return ;
+},
+
+/**
  * @method create
  * @param {String} arg0
  * @param {function} arg1
@@ -16556,6 +16566,16 @@ bool
  * @param {bool} arg0
  */
 setPVRImagesHavePremultipliedAlpha : function (
+bool 
+)
+{
+},
+
+/**
+ * @method setPNGPremultipliedAlphaEnabled
+ * @param {bool} arg0
+ */
+setPNGPremultipliedAlphaEnabled : function (
 bool 
 )
 {
