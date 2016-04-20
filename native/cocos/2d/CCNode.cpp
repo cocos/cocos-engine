@@ -730,6 +730,8 @@ Node* Node::getChildByTag(int tag) const
 Node* Node::getChildByName(const std::string& name) const
 {
     CCASSERT(!name.empty(), "Invalid name");
+    if (name.empty())
+        return nullptr;
 
     std::hash<std::string> h;
     size_t hash = h(name);

@@ -774,13 +774,10 @@ const Color3B& Layout::getBackGroundColor()const
 void Layout::setBackGroundColor(const Color3B &startColor, const Color3B &endColor)
 {
     _gStartColor = startColor;
-    if (_gradientRender)
-    {
-        _gradientRender->setStartColor(startColor);
-    }
     _gEndColor = endColor;
     if (_gradientRender)
     {
+        _gradientRender->setStartColor(startColor);
         _gradientRender->setEndColor(endColor);
     }
 }
@@ -899,8 +896,6 @@ void Layout::setLayoutType(Type type)
     _doLayoutDirty = true;
 }
 
-
-
 Layout::Type Layout::getLayoutType() const
 {
     return _layoutType;
@@ -950,7 +945,6 @@ LayoutManager* Layout::createLayoutManager()
 
 void Layout::doLayout()
 {
-
     if (!_doLayoutDirty)
     {
         return;
@@ -1158,7 +1152,7 @@ int Layout::findFirstFocusEnabledWidgetIndex()
         }
         index++;
     }
-    CCASSERT(0, "invalide operation");
+    CCASSERT(0, "invalid operation");
     return 0;
 }
 
@@ -1256,8 +1250,6 @@ int Layout::findFarthestChildWidgetIndex(FocusDirection direction, cocos2d::ui::
     CCASSERT(0, "invalid focus direction!!!");
     return 0;
 }
-
-
 
 Widget* Layout::findFocusEnabledChildWidgetByIndex(ssize_t index)
 {
@@ -1472,7 +1464,7 @@ Widget* Layout::getPreviousFocusedWidget(FocusDirection direction, Widget *curre
         }
         else
         {
-            //handling the disabled widget, there is no actual focus lose or get, so we don't need any envet
+            //handling the disabled widget, there is no actual focus lose or get, so we don't need any event
             return this->getPreviousFocusedWidget(direction, nextWidget);
         }
     }
