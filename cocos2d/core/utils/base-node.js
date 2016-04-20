@@ -2090,32 +2090,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
  * node.setLocalZOrder(1);
  */
 
-/*
- * !#en
- * Returns whether the anchor point will be ignored when you position this node.<br/>
- * When anchor point ignored, position will be calculated based on the origin point (0, 0) in parent's coordinates.
- * !#zh
- * 返回这个节点位置时，是否会忽略这个锚点。<br/>
- * 当锚点被忽略时，在父坐标系中的原点（0，0）计算位置。
- * @method isIgnoreAnchorPointForPosition
- * @return {Boolean} true if the anchor point will be ignored when you position this node.
- */
-
-/*
- * !#en
- * Sets whether the anchor point will be ignored when you position this node.                              <br/>
- * When anchor point ignored, position will be calculated based on the origin point (0, 0) in parent's coordinates.  <br/>
- * This is an internal method, only used by CCLayer and CCScene. Don't call it outside framework.        <br/>
- * The default value is false, while in CCLayer and CCScene are true
- * !#zh
- * 设置抹点为（0，0）当你摆放这个节点的时候。
- * 这是一个内部方法，仅仅被 Layer 和 Scene 使用。不要在框架外调用。默认值是 false，但是在 Layer 和 Scene 中是 true.
- * @method ignoreAnchorPointForPosition
- * @param {Boolean} newValue - true if anchor point will be ignored when you position this node
- * @example
- * node.ignoreAnchorPointForPosition(true);
- */
-
 /**
  * !#en Returns whether node's opacity value affect its child nodes.
  * !#zh 返回节点的不透明度值是否影响其子节点。

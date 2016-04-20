@@ -569,6 +569,11 @@ var TiledMap = cc.Class({
         });
     },
 
+    _resetSgSize: function () {
+        this.node.setContentSize(this._sgNode.getContentSize());
+        this._sgNode.setContentSize(0, 0);
+    },
+
     _onMapLoaded: function(err) {
         this._isLoading = false;
         if ( !err ) {
@@ -578,6 +583,7 @@ var TiledMap = cc.Class({
             } else {
                 this._moveLayersInSgNode(this._sgNode);
             }
+            this._resetSgSize();
         }
 
         if (!CC_EDITOR) {
