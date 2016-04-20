@@ -39,8 +39,9 @@ function normalizePath (path) {
 
 var GLOB = '**/*';
 
-/**
- * AssetTable is used to find asset's uuid by url
+/*
+ * !#en AssetTable is used to find asset's uuid by url.
+ * !#zh AssetTable 用于查找资源的 uuid 和 url。
  * @class AssetTable
  * @constructor
  */
@@ -91,7 +92,8 @@ cc.js.mixin(AssetTable.prototype, {
     },
 
     /**
-     * Returns all asset paths in the table.
+     * !#en Returns all asset paths in the table.
+     * !#zh 返回表中的所有资源路径。
      * @method getAllPaths
      * @return {string[]}
      */
@@ -175,6 +177,8 @@ cc.js.mixin(AssetTable.prototype, {
     //},
     
     /**
+     * !#en TODO
+     * !#zh 以路径为 key，uuid 为值添加到表中。
      * @method add
      * @param {string} path - the path to load, should NOT include filename extensions.
      * @param {string} uuid

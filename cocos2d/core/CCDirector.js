@@ -32,6 +32,7 @@ cc.g_NumberOfDraws = 0;
 //----------------------------------------------------------------------------------------------------------------------
 
 /**
+ * !#en
  * <p>
  *    ATTENTION: USE cc.director INSTEAD OF cc.Director.<br/>
  *    cc.director is a singleton object which manage your game's logic flow.<br/>
@@ -63,6 +64,9 @@ cc.g_NumberOfDraws = 0;
  *      - Scheduled timers & drawing are synchronizes with the refresh rate of the display<br/>
  *      - Only supports animation intervals of 1/60 1/30 & 1/15<br/>
  * </p>
+ *
+ * !#zh 导演类，负责创建和处理主窗口，以及管理场景执行。
+ *
  * @class Director
  */
 cc.Director = Class.extend(/** @lends cc.Director# */{

@@ -326,36 +326,65 @@ function _formatString (arg) {
 var Enum = require('./cocos2d/core/value-types/CCEnum');
 
 /**
- * Enum for debug modes.
+ * !#en Enum for debug modes.
+ * !#zh 调试模式
  * @enum DebugMode
  */
 cc.DebugMode = Enum({
     /**
-     *  @property {number} NONE - The debug mode none.
+     * !#en The debug mode none.
+     * !#zh 禁止模式，禁止显示任何日志信息。
+     * @property NONE.
+     * @type {Number}
+     * @static
      */
     NONE: 0,
     /**
-     *  @property {number} INFO - The debug mode info.
+     * !#en The debug mode info.
+     * !#zh 信息模式，在 console 中显示所有日志。
+     * @property INFO
+     * @type {Number}
+     * @static
      */
     INFO: 1,
     /**
-     *  @property {number} WARN - The debug mode warn.
+     * !#en The debug mode warn.
+     * !#zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
+     * @property WARN
+     * @type {Number}
+     * @static
      */
     WARN: 2,
     /**
-     *  @property {number} ERROR - The debug mode error.
+     * !#en The debug mode error.
+     * !#zh 错误模式，在 console 中只显示 error 日志。
+     * @property ERROR
+     * @type {Number}
+     * @static
      */
     ERROR: 3,
     /**
-     *  @property {number} INFO_FOR_WEB_PAGE - The debug mode info for web page.
+     * !#en The debug mode info for web page.
+     * !#zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
+     * @property INFO_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
      */
     INFO_FOR_WEB_PAGE: 4,
     /**
-     *  @property {number} WARN_FOR_WEB_PAGE - The debug mode warn for web page.
+     * !#en The debug mode warn for web page.
+     * !#zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
+     * @property WARN_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
      */
     WARN_FOR_WEB_PAGE: 5,
     /**
-     *  @property {number} ERROR_FOR_WEB_PAGE - The debug mode error for web page.
+     * !#en The debug mode error for web page.
+     * !#zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
+     * @property ERROR_FOR_WEB_PAGE
+     * @type {Number}
+     * @static
      */
     ERROR_FOR_WEB_PAGE: 6
 });
@@ -367,7 +396,8 @@ cc.DebugMode = Enum({
 var jsbLog = cc.log || console.log;
 
 /**
- * Init Debug setting.
+ * !#en Init Debug setting.
+ * !#zh 设置调试模式。
  * @method _initDebugSetting
  * @param {DebugMode} mode
  */
@@ -412,12 +442,18 @@ cc._initDebugSetting = function (mode) {
         if (!console.warn) console.warn = console.log;
 
         /**
-         * Outputs an error message to the Cocos Creator Console (editor) or Web Console (runtime).
-         * - In Cocos Creator, error is red.
-         * - In Chrome, error have a red icon along with red message text.
+         * !#en
+         * Outputs an error message to the Cocos Creator Console (editor) or Web Console (runtime).<br/>
+         * - In Cocos Creator, error is red.<br/>
+         * - In Chrome, error have a red icon along with red message text.<br/>
+         * !#zh
+         * 输出错误消息到 Cocos Creator 编辑器的 Console 或运行时页面端的 Console 中。<br/>
+         * - 在 Cocos Creator 中，错误信息显示是红色的。<br/>
+         * - 在 Chrome 中，错误信息有红色的图标以及红色的消息文本。<br/>
+         *
          * @method error
-         * @param {any} obj - A JavaScript string containing zero or more substitution strings.
-         * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+         * @param {Any} obj - A JavaScript string containing zero or more substitution strings.
+         * @param {Any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
         if (CC_EDITOR) {
             cc.error = Editor.error;
@@ -440,12 +476,17 @@ cc._initDebugSetting = function (mode) {
         };
         if (mode !== cc.DebugMode.ERROR) {
             /**
+             * !#en
              * Outputs a warning message to the Cocos Creator Console (editor) or Web Console (runtime).
              * - In Cocos Creator, warning is yellow.
              * - In Chrome, warning have a yellow warning icon with the message text.
+             * !#zh
+             * 输出警告消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。<br/>
+             * - 在 Cocos Creator 中，警告信息显示是黄色的。<br/>
+             * - 在 Chrome 中，警告信息有着黄色的图标以及黄色的消息文本。<br/>
              * @method warn
-             * @param {any} obj - A JavaScript string containing zero or more substitution strings.
-             * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+             * @param {Any} obj - A JavaScript string containing zero or more substitution strings.
+             * @param {Any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
             if (CC_EDITOR) {
                 cc.warn = Editor.warn;
@@ -466,10 +507,11 @@ cc._initDebugSetting = function (mode) {
         }
         else if (mode === cc.DebugMode.INFO) {
             /**
-             * Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
+             * !#en Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
+             * !#zh 输出一条消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。
              * @method log
-             * @param {any} obj - A JavaScript string containing zero or more substitution strings.
-             * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+             * @param {Any} obj - A JavaScript string containing zero or more substitution strings.
+             * @param {Any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
             if (CC_JSB) {
                 cc.log = jsbLog;
@@ -484,9 +526,14 @@ cc._initDebugSetting = function (mode) {
                 };
             }
             /**
+             * !#en
              * Outputs an informational message to the Cocos Creator Console (editor) or Web Console (runtime).
              * - In Cocos Creator, info is blue.
              * - In Firefox and Chrome, a small "i" icon is displayed next to these items in the Web Console's log.
+             * !#zh
+             * 输出一条信息消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。
+             * - 在 Cocos Creator 中，Info 信息显示是蓝色的。<br/>
+             * - 在 Firefox 和  Chrome 中，Info 信息有着小 “i” 图标。
              * @method info
              * @param {any} obj - A JavaScript string containing zero or more substitution strings.
              * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
