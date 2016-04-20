@@ -229,29 +229,35 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.wrap',
         },
 
+        // 这个保存了旧项目的 file 数据
+        _N$file: null,
+
         /**
-         * !#en The font URL of label.
-         * !#zh 文本字体的 url。
-         * @property {cc.Font} file
+         * !#en The font of label.
+         * !#zh 文本字体。
+         * @property {cc.Font} font
          */
-        file: {
-            default: null,
-            type: cc.Font,
-            tooltip: 'i18n:COMPONENT.label.file',
-            notify: function () {
+        font: {
+            get: function () {
+                return this._N$file;
+            },
+            set: function (value) {
+                this._N$file = value;
                 if (this._sgNode) {
 
-                    if ( typeof this.file === 'string' ) {
+                    if ( typeof value === 'string' ) {
                         cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
                             'Please load the font asset before using.');
                     }
 
-                    var isAsset = this.file instanceof cc.Font;
-                    var fntRawUrl = isAsset ? this.file.rawUrl : '';
-                    var textureUrl = isAsset ? this.file.texture : '';
+                    var isAsset = value instanceof cc.Font;
+                    var fntRawUrl = isAsset ? value.rawUrl : '';
+                    var textureUrl = isAsset ? value.texture : '';
                     this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
                 }
             },
+            type: cc.Font,
+            tooltip: 'i18n:COMPONENT.label.font',
             animatable: false
         },
 
@@ -272,7 +278,7 @@ var Label = cc.Class({
             set: function(value){
                 this._isSystemFontUsed = value;
                 if (value) {
-                    this.file = null;
+                    this.font = null;
                     if (this._sgNode) {
                         this._sgNode.setSystemFontUsed(value);
                     }
@@ -334,14 +340,14 @@ var Label = cc.Class({
 
     _initSgNode: function () {
 
-        if ( typeof this.file === 'string' ) {
+        if ( typeof this.font === 'string' ) {
             cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
                 'Please load the font asset before using.');
         }
 
-        var isAsset = this.file instanceof cc.Font;
-        var fntRawUrl = isAsset ? this.file.rawUrl : '';
-        var textureUrl = isAsset ? this.file.texture : '';
+        var isAsset = this.font instanceof cc.Font;
+        var fntRawUrl = isAsset ? this.font.rawUrl : '';
+        var textureUrl = isAsset ? this.font.texture : '';
 
         this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
         this._sgNode.retain();
