@@ -359,46 +359,43 @@ std::string FileUtilsApple::getWritablePath() const
     return strRet;
 }
 
-bool FileUtilsApple::isFileExistInternal(const std::string& filePath) const
+bool FileUtilsApple::isDirectoryExistInternal(const std::string &dirPath) const
+{
+    bool isDirectory = false;
+    auto isExist = isFileExistInternal(dirPath, isDirectory);
+    return isExist && isDirectory;
+}
+
+bool FileUtilsApple::isFileExistInternal(const std::string &filePath) const
+{
+    bool isDirectory = false;
+    auto isExist = isFileExistInternal(filePath, isDirectory);
+    return isExist && !isDirectory;
+}
+
+bool FileUtilsApple::isFileExistInternal(const std::string& filePath, bool& isDirectory) const
 {
     if (filePath.empty())
-    {
         return false;
-    }
-
-    bool ret = false;
-
+    
+    isDirectory = false;
+    
+    NSString* path = nil;
     if (filePath[0] != '/')
-    {
-        std::string path;
-        std::string file;
-        size_t pos = filePath.find_last_of("/");
-        if (pos != std::string::npos)
-        {
-            file = filePath.substr(pos+1);
-            path = filePath.substr(0, pos+1);
-        }
-        else
-        {
-            file = filePath;
-        }
-
-        NSString* fullpath = [getBundle() pathForResource:[NSString stringWithUTF8String:file.c_str()]
-                                                             ofType:nil
-                                                        inDirectory:[NSString stringWithUTF8String:path.c_str()]];
-        if (fullpath != nil) {
-            ret = true;
-        }
-    }
+        path = [[getBundle() resourcePath] stringByAppendingPathComponent:
+                          [NSString stringWithUTF8String:filePath.c_str()]];
     else
-    {
-        // Search path is an absolute path.
-        if ([s_fileManager fileExistsAtPath:[NSString stringWithUTF8String:filePath.c_str()]]) {
-            ret = true;
-        }
+        path = [NSString stringWithUTF8String:filePath.c_str()];
+    
+    BOOL isDir = NO;
+    // Search path is an absolute path.
+    if ([s_fileManager fileExistsAtPath:path isDirectory:&isDir]) {
+        if (isDir)
+            isDirectory = true;
+        return true;
     }
 
-    return ret;
+    return false;
 }
 
 static int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)

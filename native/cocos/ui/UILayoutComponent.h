@@ -55,8 +55,6 @@ namespace ui {
          */
         ~LayoutComponent();
 
-        virtual bool init()override;
-
         /**
          * Create a LayoutComponent instance with default settings.
          */
