@@ -46,7 +46,6 @@ var SCALE_CHANGED = 'scale-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
 var COLOR_CHANGED = 'color-changed';
-var OPACITY_CHANGED = 'opacity-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
@@ -638,11 +637,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._opacity !== value) {
-                    var old = this._opacity;
                     this._opacity = value;
                     this._sgNode.opacity = value;
-                    this._onColorChanged();
-                    this.emit(OPACITY_CHANGED, old);
+
+                    if (this._sizeProvider && !this._cascadeOpacityEnabled) {
+                        this._sizeProvider.setOpacity(value);
+                    }
                 }
             },
             range: [0, 255]
@@ -690,9 +690,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     color.g = value.g;
                     color.b = value.b;
                     if (CC_DEV && value.a !== 255) {
-                        cc.warn('Should not set alpha via "color", use "opacity" please.');
+                        cc.warn('Should not set alpha via "color", set "opacity" please.');
                     }
-                    this._onColorChanged();
+                    if (this._sizeProvider) {
+                        this._sizeProvider.setColor(this.value);
+                    }
                     this.emit(COLOR_CHANGED, old);
                 }
             },
@@ -745,8 +747,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     // called when the node's parent changed
     _onHierarchyChanged: null,
-    // called when the node's color or opacity changed
-    _onColorChanged: null,
     // called when the node's anchor changed
     _onAnchorChanged: null,
     // called when the node's cascadeOpacity or cascadeColor changed

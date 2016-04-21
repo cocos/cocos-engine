@@ -970,19 +970,6 @@ var Node = cc.Class({
         return clone;
     },
 
-    _onColorChanged: function () {
-        // update components if also in scene graph
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setColor(this._color);
-                if ( !this._cascadeOpacityEnabled ) {
-                    comp._sgNode.setOpacity(this._opacity);
-                }
-            }
-        }
-    },
-
     _onCascadeChanged: function () {
         // update components which also in scene graph
         var opacity = this._cascadeOpacityEnabled ? 255 : this._opacity;
@@ -1372,11 +1359,6 @@ if (cc.sys.isNative) {
  * @event color-changed
  * @param {Event} event
  * @param {Color} event.detail - old color
- */
-/**
- * @event opacity-changed
- * @param {Event} event
- * @param {Number} event.detail - old opacity
  */
 /**
  * @event child-added
