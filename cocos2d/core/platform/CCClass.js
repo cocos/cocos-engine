@@ -188,7 +188,7 @@ function defineGetSet (cls, name, propName, val, attrs) {
         if (attrs) {
             for (var i = 0; i < attrs.length; ++i) {
                 var attr = attrs[i];
-                if (attr._canUsedInGetter === false && CC_DEV) {
+                if (CC_DEV && attr._canUsedInGetter === false) {
                     cc.error('Can not apply the specified attribute to the getter of "%s.%s", ' +
                              'attribute index: %s', name, propName, i);
                     continue;
@@ -197,7 +197,7 @@ function defineGetSet (cls, name, propName, val, attrs) {
                 Attr.attr(cls, propName, attr);
 
                 // check attributes
-                if ((attr.serializable === false || attr.editorOnly === true) && CC_DEV) {
+                if (CC_DEV && (attr.serializable === false || attr.editorOnly === true)) {
                     cc.warn('No need to use "serializable: false" or "editorOnly: true" for ' +
                             'the getter of "%s.%s", every getter is actually non-serialized.',
                         name, propName);
@@ -403,7 +403,7 @@ function define (className, baseClasses, mixins, constructor, options) {
             }
             var uuid = frame.uuid;
             if (uuid) {
-                if (className && CC_EDITOR) {
+                if (CC_EDITOR && className) {
                     cc.warn('Should not specify class name for Component which defines in project.');
                 }
             }
@@ -571,7 +571,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
         // enumerable should be false
     });
 
-    if (shouldAddProtoCtor && CC_EDITOR) {
+    if (CC_EDITOR && shouldAddProtoCtor) {
         fireClass.prototype.ctor = function () {};
     }
     return fireClass;
@@ -861,7 +861,7 @@ function CCClass (options) {
         if (BUILTIN_ENTRIES.indexOf(funcName) >= 0) {
             continue;
         }
-        if (funcName === 'constructor' && CC_EDITOR) {
+        if (CC_EDITOR && funcName === 'constructor') {
             cc.error('Can not define a member called "constructor" in the class "%s", please use "ctor" instead.', name);
             continue;
         }

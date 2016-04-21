@@ -391,7 +391,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.x) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.x;
 
                         localPosition.x = value;
@@ -424,7 +424,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.y) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.y;
 
                         localPosition.y = value;
@@ -638,9 +638,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if (this._opacity !== value) {
                     this._opacity = value;
-                    this._sgNode.opacity = value;
-
-                    if (this._sizeProvider && !this._cascadeOpacityEnabled) {
+                    this._sgNode.setOpacity(value);
+                    if (this._sizeProvider && this._sgNode !== this._sizeProvider && !this._cascadeOpacityEnabled) {
                         this._sizeProvider.setOpacity(value);
                     }
                 }
@@ -907,7 +906,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var xValue;
-        if (yValue === undefined) {
+        if (typeof yValue === 'undefined') {
             xValue = newPosOrxValue.x;
             yValue = newPosOrxValue.y;
         }
@@ -923,20 +922,20 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         var oldPosition = new cc.Vec2(locPosition);
 
-        if (isFinite(xValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(xValue)) {
             locPosition.x = xValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'x of new position');
         }
-        if (isFinite(yValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(yValue)) {
             locPosition.y = yValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
 
-        this._sgNode.setPosition(locPosition);
+        this._sgNode.setPosition(xValue, yValue);
 
         if (this.emit) {
             this.emit(POSITION_CHANGED, oldPosition);
