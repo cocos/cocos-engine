@@ -89,14 +89,6 @@ void MenuItem::activate()
         {
             _callback(this);
         }
-#if CC_ENABLE_SCRIPT_BINDING
-        if (kScriptTypeNone != _scriptType && ScriptEngineManager::ShareInstance)
-        {
-            BasicScriptData data(this);
-            ScriptEvent scriptEvent(kMenuClickedEvent,&data);
-            ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&scriptEvent);
-        }
-#endif
     }
 }
 

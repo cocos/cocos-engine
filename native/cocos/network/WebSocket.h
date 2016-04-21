@@ -227,7 +227,7 @@ private:
     std::mutex   _readStateMutex;
     State        _readyState;
     std::string  _host;
-    unsigned int _port;
+    int _port;
     std::string  _path;
 
     std::vector<char> _receivedData;

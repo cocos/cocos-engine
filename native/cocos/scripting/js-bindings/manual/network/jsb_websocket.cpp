@@ -175,7 +175,7 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
 
-        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
+        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr || Director::DirectorInstance->getRunningScene() == nullptr)
             return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -283,7 +283,6 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
 
     if (argc == 1 || argc == 2)
     {
-
         std::string url;
 
         do {
@@ -377,8 +376,8 @@ static bool js_cocos2dx_extension_WebSocket_get_readyState(JSContext *cx, uint32
     }
 }
 
-void register_jsb_websocket(JSContext *cx, JS::HandleObject global) {
-
+void register_jsb_websocket(JSContext *cx, JS::HandleObject global)
+{
     js_cocos2dx_websocket_class = (JSClass *)calloc(1, sizeof(JSClass));
     js_cocos2dx_websocket_class->name = "WebSocket";
     js_cocos2dx_websocket_class->addProperty = JS_PropertyStub;
