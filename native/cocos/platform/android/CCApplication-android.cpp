@@ -61,7 +61,6 @@ Application::Application()
 Application::~Application()
 {
     sm_pSharedApplication = nullptr;
-    JniHelper::callStaticVoidMethod("org/cocos2dx/lib/Cocos2dxHelper", "terminateProcess");
 }
 
 int Application::run()
