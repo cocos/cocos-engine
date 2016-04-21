@@ -646,7 +646,7 @@ var Node = cc.Class({
      */
     addComponent: function (typeOrClassName) {
 
-        if ((this._objFlags & Destroying) && CC_EDITOR) {
+        if (CC_EDITOR && (this._objFlags & Destroying)) {
             cc.error('isDestroying');
             return null;
         }
@@ -683,7 +683,7 @@ var Node = cc.Class({
             return null;
         }
 
-        if (constructor._disallowMultiple && CC_EDITOR) {
+        if (CC_EDITOR && constructor._disallowMultiple) {
             if (!this._checkMultipleComp(constructor)) {
                 return null;
             }

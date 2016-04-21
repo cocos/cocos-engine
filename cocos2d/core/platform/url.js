@@ -69,7 +69,7 @@ cc.url = {
      * @example {@link utils/api/engine/docs/cocos2d/core/platform/url/raw.js}
      */
     raw: function (url) {
-        if (!this._rawAssets && CC_EDITOR) {
+        if (CC_EDITOR && !this._rawAssets) {
             cc.error('Failed to init asset\'s raw path.');
             return '';
         }
