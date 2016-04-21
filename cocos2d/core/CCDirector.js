@@ -45,9 +45,8 @@ cc.g_NumberOfDraws = 0;
  *    The cc.director is also responsible for:<br/>
  *      - initializing the OpenGL context<br/>
  *      - setting the OpenGL pixel format (default on is RGB565)<br/>
- *      - setting the OpenGL pixel format (default on is RGB565)<br/>
- *      - setting the OpenGL buffer depth (default one is 0-bit)<br/>
-        - setting the color for clear screen (default one is BLACK)<br/>
+ *      - setting the OpenGL buffer depth (default on is 0-bit)<br/>
+ *      - setting the color for clear screen (default one is BLACK)<br/>
  *      - setting the projection (default one is 3D)<br/>
  *      - setting the orientation (default one is Portrait)<br/>
  *      <br/>
@@ -65,7 +64,37 @@ cc.g_NumberOfDraws = 0;
  *      - Only supports animation intervals of 1/60 1/30 & 1/15<br/>
  * </p>
  *
- * !#zh 导演类，负责创建和处理主窗口，以及管理场景执行。
+ * !#zh
+ * <p>
+ *     注意：用 cc.director 代替 cc.Director。<br/>
+ *     cc.director 一个管理你的游戏的逻辑流程的单例对象。<br/>
+ *     由于 cc.director 是一个单例，你不需要调用任何构造函数或创建函数，<br/>
+ *     使用它的标准方法是通过调用：<br/>
+ *       - cc.director.methodName();
+ *     <br/>
+ *     它创建和处理主窗口并且管理什么时候执行场景。<br/>
+ *     <br/>
+ *     cc.director 还负责：<br/>
+ *      - 初始化 OpenGL 环境。<br/>
+ *      - 设置OpenGL像素格式。(默认是 RGB565)<br/>
+ *      - 设置OpenGL缓冲区深度 (默认是 0-bit)<br/>
+ *      - 设置空白场景的颜色 (默认是 黑色)<br/>
+ *      - 设置投影 (默认是 3D)<br/>
+ *      - 设置方向 (默认是 Portrait)<br/>
+ *    <br/>
+ *    cc.director 设置了 OpenGL 默认环境 <br/>
+ *      - GL_TEXTURE_2D   启用。<br/>
+ *      - GL_VERTEX_ARRAY 启用。<br/>
+ *      - GL_COLOR_ARRAY  启用。<br/>
+ *      - GL_TEXTURE_COORD_ARRAY 启用。<br/>
+ * </p>
+ * <p>
+ *   cc.director 也同步定时器与显示器的刷新速率。
+ *   <br/>
+ *   特点和局限性:<br/>
+ *      - 将计时器 & 渲染与显示器的刷新频率同步。<br/>
+ *      - 只支持动画的间隔 1/60 1/30 & 1/15<br/>
+ * </p>
  *
  * @class Director
  */
@@ -195,9 +224,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Converts a view coordinate to an WebGL coordinate<br/>
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
      * Implementation can be found in CCDirectorWebGL.
+     * !#zh
+     * 将屏幕坐标转换为一个 OpenGL 坐标。<br/>
+     * 对于将(多点)触摸坐标转换为当前布局(横向或纵向)很有用。<br/>
      * @method convertToGL
      * @param {Vec2} uiPoint
      * @return {Vec2}
@@ -205,9 +238,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     convertToGL: null,
 
     /**
-     * Converts an WebGL coordinate to a view coordinate<br/>
+     * !#en
+     * Converts an OpenGL coordinate to a view coordinate<br/>
      * Useful to convert node points to window points for calls such as glScissor<br/>
      * Implementation can be found in CCDirectorWebGL.
+     * !#zh
+     * 将 OpenGL 坐标转换为屏幕坐标。<br/>
+     * 对于比如 glScissor 调用将 node 点转换到窗口点很有用。
      * @method convertToUI
      * @param {Vec2} glPoint
      * @return {Vec2}
@@ -280,9 +317,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Returns the size in pixels of the surface. It could be different than the screen size.<br/>
      * High-res devices might have a higher surface size than the screen size.
-     *
+     * !#zh 获取内容缩放比例。
      * @method getContentScaleFactor
      * @return {Number}
      */
@@ -291,10 +329,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * This object will be visited after the main scene is visited.<br/>
      * This object MUST implement the "visit" selector.<br/>
      * Useful to hook a notification object.
-     *
+     * !#zh
+     * 这个对象将会在主场景渲染完后渲染。 <br/>
+     * 这个对象必须实现 “visit” 功能。 <br/>
+     * 对于 hook 一个通知节点很有用。
      * @method getNotificationNode
      * @return {Node}
      */
@@ -303,9 +345,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Returns the size of the WebGL view in points.<br/>
      * It takes into account any possible rotation (device orientation) of the window.
-     *
+     * !#zh 获取视图的大小，以点为单位。
      * @method getWinSize
      * @return {Size}
      */
@@ -314,10 +357,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Returns the size of the OpenGL view in pixels.<br/>
      * It takes into account any possible rotation (device orientation) of the window.<br/>
      * On Mac winSize and winSizeInPixels return the same value.
-     *
+     * !#zh 获取视图大小，以像素为单位。
      * @method getWinSizeInPixels
      * @return {Size}
      */
@@ -331,28 +375,32 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
 
     /**
-     * Returns the visible size of the running scene.
+     * !#en Returns the visible size of the running scene.
+     * !#zh 获取运行场景的可见大小。
      * @method getVisibleSize
      * @return {Size}
      */
     getVisibleSize: null,
 
     /**
-     * Returns the visible origin of the running scene.
+     * !#en Returns the visible origin of the running scene.
+     * !#zh 获取可见视图的起始点，以点为单位。
      * @method getVisibleOrigin
      * @return {Vec2}
      */
     getVisibleOrigin: null,
 
     /**
-     * Returns the z eye, only available in WebGL mode.
+     * !#en Returns the z eye, only available in WebGL mode.
+     * !#zh 获取 Z eye，只有在WebGL的模式下可用。
      * @method getZEye
      * @return {Number}
      */
     getZEye: null,
 
     /**
-     * Pause the director's ticker
+     * !#en Pause the director's ticker.
+     * !#zh 暂停正在运行的场景。
      * @method pause
      */
     pause: function () {
@@ -455,10 +503,16 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Suspends the execution of the running scene, pushing it on the stack of suspended scenes.<br/>
      * The new scene will be executed.<br/>
      * Try to avoid big stacks of pushed scenes to reduce memory allocation.<br/>
      * ONLY call it if there is a running scene.
+     * !#zh
+     * 暂停当前运行的场景，压入到暂停的场景栈中。<br/>
+     * 新场景将被执行。 <br/>
+     * 尽量避免压入大场景，以减少内存分配。 <br/>
+     * 只能在有运行场景时调用它。
      * @method pushScene
      * @param {Scene} scene
      */
@@ -473,8 +527,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Run a scene. Replaces the running scene with a new one or enter the first scene.
+     * !#en
+     * Run a scene. Replaces the running scene with a new one or enter the first scene.<br/>
      * The new scene will be launched immediately.
+     * !#zh 立刻切换指定场景。
      * @method runSceneImmediate
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
@@ -562,8 +618,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Run a scene. Replaces the running scene with a new one or enter the first scene.
      * The new scene will be launched at the end of the current frame.
+     * !#zh 运行指定场景。
      * @method runScene
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
@@ -609,7 +667,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     //  @Scene loading section
 
     /**
-     * Loads the scene by its name.
+     * !#en Loads the scene by its name.
+     * !#zh 通过场景名称进行加载场景。
      * @method loadScene
      * @param {String} sceneName - The name of the scene to load.
      * @param {Function} [onLaunched] - callback, will be called after scene launched.
@@ -706,7 +765,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Resume director after pause, if the current scene is not paused, nothing will happen.
+     * !#en Resume director after pause, if the current scene is not paused, nothing will happen.
+     * !#zh 恢复暂停场景, 如果当前场景没有暂停将没任何事情发生。
      * @method resume
      */
     resume: function () {
@@ -736,16 +796,20 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Enables or disables WebGL depth test.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js
+     * !#zh 启用/禁用深度测试.
      * @method setDepthTest
      * @param {Boolean} on
      */
     setDepthTest: null,
 
     /**
+     * !#en
      * set color for clear screen.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js
+     * !#zh 设置空白场景的颜色值。
      * @method setClearColor
      * @param {Color} clearColor
      */
@@ -834,56 +898,74 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Sets the view, where everything is rendered, do not call this function.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
+     * !#zh 设置 GLView。
      * @method setOpenGLView
      * @param {View} openGLView
      */
     setOpenGLView: null,
 
     /**
+     * !#en
      * Sets an OpenGL projection.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
+     * !#zh 设置 OpenGL 投影。
      * @method setProjection
      * @param {Number} projection
      */
     setProjection: null,
 
     /**
+     * !#en
      * Update the view port.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
+     * !#zh 设置 glViewport。
      * @method setViewport
      */
     setViewport: null,
 
     /**
+     * !#en
      * Get the View, where everything is rendered.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
+     * !#zh
+     * 获取 GLView。
      * @method getOpenGLView
      * @return {View}
      */
     getOpenGLView: null,
 
     /**
+     * !#en
      * Sets an OpenGL projection.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
+     * !#zh 获取 OpenGL 投影。
      * @method getProjection
      * @return {Number}
      */
     getProjection: null,
 
     /**
+     * !#en
      * Enables/disables OpenGL alpha blending.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
+     * !#zh 启用/禁用 alpha blending
      * @method setAlphaBlending
      * @param {Boolean} on
      */
     setAlphaBlending: null,
 
     /**
+     * !#en
      * Returns whether or not the replaced scene will receive the cleanup message.<br>
      * If the new scene is pushed, then the old scene won't receive the "cleanup" message.<br/>
      * If the new scene replaces the old one, the it will receive the "cleanup" message.
+     * !#zh
+     * 更换场景时是否接收清理消息。<br>
+     * 如果新场景是采用 push 方式进入的，那么旧的场景将不会接收到 “cleanup” 消息。<br>
+     * 如果新场景取代旧的场景，它将会接收到 “cleanup” 消息。<br>
      * @method isSendCleanupToScene
      * @return {Boolean}
      */
@@ -892,8 +974,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
+     * !#en
      * Returns current render Scene, normally you will never need to use this API.
      * In most case, you probably want to use `getScene` instead.
+     * !#zh 获取当前运行的场景。
      * @method getRunningScene
      * @private
      * @return {Scene}
@@ -903,19 +987,21 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns current logic Scene.
+     * !#en Returns current logic Scene.
+     * !#zh 获取当前场景。
+     * @method getScene
+     * @return {Scene}
      * @example
      *  // This will help you to get the Canvas node in scene
      *  cc.director.getScene().getChildByName('Canvas');
-     * @method getScene
-     * @return {Scene}
      */
     getScene: function () {
         return this._scene;
     },
 
     /**
-     * Returns the FPS value.
+     * !#en Returns the FPS value.
+     * !#zh 获取 FPS 数值。
      * @method getAnimationInterval
      * @return {Number}
      */
@@ -924,7 +1010,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns whether or not to display the FPS informations.
+     * !#en Returns whether or not to display the FPS informations.
+     * !#zh 获取是否显示 FPS 信息。
      * @method isDisplayStats
      * @return {Boolean}
      */
@@ -933,7 +1020,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Sets whether display the FPS on the bottom-left corner.
+     * !#en Sets whether display the FPS on the bottom-left corner.
+     * !#zh 设置是否在左下角显示 FPS。
      * @method setDisplayStats
      * @param {Boolean} displayStats
      */
@@ -944,7 +1032,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns seconds per frame.
+     * !#en Returns seconds per frame.
+     * !#zh 获取每帧间隔几秒。 。
      * @method getSecondsPerFrame
      * @return {Number}
      */
@@ -953,7 +1042,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns whether next delta time equals to zero
+     * !#en Returns whether next delta time equals to zero.
+     * !#zh 返回下一个 “delta time” 是否等于零。
      * @method isNextDeltaTimeZero
      * @return {Boolean}
      */
@@ -962,7 +1052,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns whether or not the Director is paused
+     * !#en Returns whether or not the Director is paused.
+     * !#zh 获取 Director 是否暂停。
      * @method isPaused
      * @return {Boolean}
      */
@@ -971,7 +1062,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns how many frames were called since the director started
+     * !#en Returns how many frames were called since the director started.
+     * !#zh 获取 director 开始以来游戏运行的总帧数。
      * @method getTotalFrames
      * @return {Number}
      */
@@ -1024,7 +1116,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns the cc.Scheduler associated with this director.
+     * !#en Returns the cc.Scheduler associated with this director.
+     * !#zh 获取和 director 相关联的 cc.Scheduler。
      * @method getScheduler
      * @return {Scheduler}
      */
@@ -1033,7 +1126,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Sets the cc.Scheduler associated with this director.
+     * !#en Sets the cc.Scheduler associated with this director.
+     * !#zh 设置和 director 相关联的 cc.Scheduler。
      * @method setScheduler
      * @param {Scheduler} scheduler
      */
@@ -1044,7 +1138,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns the cc.ActionManager associated with this director.
+     * !#en Returns the cc.ActionManager associated with this director.
+     * !#zh 获取和 director 相关联的 cc.ActionManager（动作管理器）.
      * @method getActionManager
      * @return {ActionManager}
      */
@@ -1052,7 +1147,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         return this._actionManager;
     },
     /**
-     * Sets the cc.ActionManager associated with this director.
+     * !#en Sets the cc.ActionManager associated with this director.
+     * !#zh 设置和 director 相关联的 cc.ActionManager（动作管理器）.
      * @method setActionManager
      * @param {ActionManager} actionManager
      */
@@ -1063,7 +1159,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns the cc.AnimationManager associated with this director.
+     * !#en Returns the cc.AnimationManager associated with this director.
+     * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）.
      * @method getAnimationManager
      * @return {AnimationManager}
      */
@@ -1072,7 +1169,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns the delta time since last frame.
+     * !#en Returns the delta time since last frame.
+     * !#zh 获取上一帧的 “delta time”。
      * @method getDeltaTime
      * @return {Number}
      */
@@ -1090,18 +1188,20 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 cc.js.addon(cc.Director.prototype, EventTarget.prototype);
 
 /**
- * The event projection changed of cc.Director
+ * !#en The event projection changed of cc.Director.
+ * !#zh cc.Director 投影变化的事件。
  * @event cc.Director.EVENT_PROJECTION_CHANGED
  * @param {Event} event
  * @example
  *   cc.director.on(cc.Director.EVENT_PROJECTION_CHANGED, function(event) {
- *           cc.log("Projection changed.");
- *       });
+ *      cc.log("Projection changed.");
+ *   });
  */
 cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
 
 /**
- * The event which will be triggered before loading a new scene
+ * !#en The event which will be triggered before loading a new scene.
+ * !#zh 加载新场景之前所触发的事件。
  * @event cc.Director.EVENT_BEFORE_SCENE_LOADING
  * @param {Event} event
  * @param {Vec2} event.detail - The loading scene name
@@ -1109,7 +1209,8 @@ cc.Director.EVENT_PROJECTION_CHANGED = "director_projection_changed";
 cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 
 /*
- * The event which will be triggered before launching a new scene
+ * !#en The event which will be triggered before launching a new scene.
+ * !#zh 运行新场景之前所触发的事件。
  * @event cc.Director.EVENT_BEFORE_SCENE_LAUNCH
  * @param {Event} event
  * @param {Vec2} event.detail - New scene which will be launched
@@ -1117,7 +1218,8 @@ cc.Director.EVENT_BEFORE_SCENE_LOADING = "director_before_scene_loading";
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 
 /**
- * The event which will be triggered after launching a new scene
+ * !#en The event which will be triggered after launching a new scene.
+ * !#zh 运行新场景之后所触发的事件。
  * @event cc.Director.EVENT_AFTER_SCENE_LAUNCH
  * @param {Event} event
  * @param {Vec2} event.detail - New scene which is launched
@@ -1125,14 +1227,16 @@ cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 cc.Director.EVENT_AFTER_SCENE_LAUNCH = "director_after_scene_launch";
 
 /**
- * The event which will be triggered at the beginning of every frame
+ * !#en The event which will be triggered at the beginning of every frame.
+ * !#zh 每个帧的开始时所触发的事件。
  * @event cc.Director.EVENT_BEFORE_UPDATE
  * @param {Event} event
  */
 cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 
 /**
- * The event which will be triggered after components update
+ * !#en The event which will be triggered after components update.
+ * !#zh 组件 “update” 之后所触发的时间。
  * @event cc.Director.EVENT_COMPONENT_UPDATE
  * @param {Event} event
  * @param {Vec2} event.detail - The delta time from last frame
@@ -1140,7 +1244,8 @@ cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 cc.Director.EVENT_COMPONENT_UPDATE = "director_component_update";
 
 /**
- * The event which will be triggered after components late update
+ * !#en The event which will be triggered after components late update.
+ * !#zh 组件 “late update” 之后所触发的事件。
  * @event cc.Director.EVENT_COMPONENT_LATE_UPDATE
  * @param {Event} event
  * @param {Vec2} event.detail - The delta time from last frame
@@ -1148,29 +1253,34 @@ cc.Director.EVENT_COMPONENT_UPDATE = "director_component_update";
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = "director_component_late_update";
 
 /**
- * The event which will be triggered after engine and components update logic
+ * !#en The event which will be triggered after engine and components update logic.
+ * !#zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
  * @event cc.Director.EVENT_AFTER_UPDATE
  * @param {Event} event
  */
 cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
 
 /**
- * The event which will be triggered before visiting the rendering scene graph
+ * !#en The event which will be triggered before visiting the rendering scene graph.
+ * !#zh 这将访问渲染场景图之前所触发的事件。
  * @event cc.Director.EVENT_BEFORE_VISIT
  * @param {Event} event
  */
 cc.Director.EVENT_BEFORE_VISIT = "director_before_visit";
 
 /**
+ * !#en
  * The event which will be triggered after visiting the rendering scene graph,
- * the render queue is ready but not rendered at this point
+ * the render queue is ready but not rendered at this point.
+ * !#zh 这将访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一点上不会呈现。
  * @event cc.Director.EVENT_AFTER_VISIT
  * @param {Event} event
  */
 cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
 
 /**
- * The event which will be triggered after the rendering process
+ * !#en The event which will be triggered after the rendering process.
+ * !#zh 这将在渲染过程之后所触发的事件。
  * @event cc.Director.EVENT_AFTER_DRAW
  * @param {Event} event
  */

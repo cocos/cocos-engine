@@ -27,19 +27,33 @@ var CallbacksInvoker = require('../platform/callbacks-invoker');
 var JS = require('../platform/js');
 
 /**
- * LoadingItems is the manager of items in pipeline.
- * It hold a map of items, each entry in the map is a url to object key value pair.
- * Each item always contains the following property:
- * - id: The identification of the item, usually it's identical to url
- * - url: The url
- * - type: The type, it's the extension name of the url by default, could be specified manually too
- * - error: The error happened in pipeline will be stored in this property
- * - content: The content processed by the pipeline, the final result will also be stored in this property
- * - complete: The flag indicate whether the item is completed by the pipeline
- * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE
+ * !#en
+ * LoadingItems is the manager of items in pipeline.</br>
+ * It hold a map of items, each entry in the map is a url to object key value pair.</br>
+ * Each item always contains the following property:</br>
+ * - id: The identification of the item, usually it's identical to url</br>
+ * - url: The url </br>
+ * - type: The type, it's the extension name of the url by default, could be specified manually too.</br>
+ * - error: The error happened in pipeline will be stored in this property.</br>
+ * - content: The content processed by the pipeline, the final result will also be stored in this property.</br>
+ * - complete: The flag indicate whether the item is completed by the pipeline.</br>
+ * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
+ * </br>
+ * Item can hold other custom properties.
+ * !#zh
+ * LoadingItems 负责管理 pipeline 中的对象</br>
+ * 它有一个 map 用来存放对象，在 map 对象中已 url 为 key 值。</br>
+ * 每个对象都会包含下列属性：</br>
+ * - id：该对象的标识，通常与 url 相同。</br>
+ * - url：路径 </br>
+ * - type: 类型，它这是默认的 URL 的扩展名，可以手动指定赋值。</br>
+ * - error：pipeline 中发生的错误将被保存在这个属性中。</br>
+ * - content: pipeline 中处理的内容时，最终的结果也将被存储在这个属性中。</br>
+ * - complete：该标志表明该对象是否通过 pipeline 完成。</br>
+ * - states：该对象存储每个管道中对象经历的状态，状态可以是 Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
+ * </br>
+ * 对象可容纳其他自定义属性。
  *
- * Item can hold other custom properties
- * 
  * @class LoadingItems
  * @extends CallbacksInvoker
  */
@@ -47,28 +61,32 @@ var LoadingItems = function () {
     CallbacksInvoker.call(this);
 
     /**
-     * The map of all items
+     * !#en The map of all items.
+     * !#zh 存储所有对象。
      * @property map
      * @type {Object}
      */
     this.map = {};
 
     /**
-     * The map of completed items
+     * !#en The map of completed items.
+     * !#zh 存储 map 中完成的对象。
      * @property completed
      * @type {Object}
      */
     this.completed = {};
 
     /**
-     * Total count of all items
+     * !#en Total count of all items.
+     * !#zh 所有对象的总数。
      * @property totalCount
      * @type {Number}
      */
     this.totalCount = 0;
 
     /**
-     * Total count of completed items
+     * !#en Total count of completed items.
+     * !#zh 所有完成对象的总数。
      * @property completedCount
      * @type {Number}
      */
@@ -100,7 +118,8 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     },
 
     /**
-     * Check whether an item is completed
+     * !#en Check whether an item is completed.
+     * !#zh 检查指定对象是否完成。
      * @param {String} id The item's id.
      * @return {Boolean}
      */
@@ -109,7 +128,8 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     },
 
     /**
-     * Check whether an item exists
+     * !#en Check whether an item exists.
+     * !#zh 检查指定对象是否存在。
      * @param {String} id The item's id.
      * @return {Boolean}
      */
@@ -118,7 +138,8 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     },
 
     /**
-     * Returns the content of an internal item
+     * !#en Returns the content of an internal item.
+     * !#zh 获取指定对象的内容。
      * @param {String} id The item's id.
      * @return {Object}
      */
@@ -128,7 +149,8 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     },
 
     /**
-     * Returns the error of an internal item
+     * !#en Returns the error of an internal item.
+     * !#zh 获取指定对象的错误信息。
      * @param {String} id The item's id.
      * @return {Object}
      */
@@ -138,7 +160,8 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     },
 
     /**
-     * Add a listener for an item, the callback will be invoked when the item is completed.
+     * !#en Add a listener for an item, the callback will be invoked when the item is completed.
+     * !#zh 向对象添加监听器，回调将在对象完成时被调用。
      * @method addListener
      * @param {String} key
      * @param {Function} callback - can be null
@@ -148,8 +171,12 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     addListener: CallbacksInvoker.prototype.add,
 
     /**
-     * Check if the specified key has any registered callback. 
+     * !#en
+     * Check if the specified key has any registered callback. </br>
      * If a callback is also specified, it will only return true if the callback is registered.
+     * !#zh
+     * 检查是否有任何指定的键的注册回调。</br>
+     * 如果同时还指定了一个回调方法，并且回调有注册，它只会返回 true。
      * @method hasListener
      * @param {String} key
      * @param {Function} [callback]
@@ -159,8 +186,12 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     hasListener: CallbacksInvoker.prototype.has,
 
     /**
-     * Removes a listener. 
+     * !#en
+     * Removes a listener. </br>
      * It will only remove when key, callback, target all match correctly.
+     * !#zh
+     * 移除监听器。</br>
+     * 它只会删除匹配所有 key, callback, target 的监听器。
      * @method remove
      * @param {String} key
      * @param {Function} callback
@@ -170,7 +201,10 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     removeListener: CallbacksInvoker.prototype.remove,
 
     /**
-     * Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
+     * !#en
+     * Removes all callbacks registered in a certain event
+     * type or all callbacks registered with a certain target.
+     * !#zh 删除指定目标的所有回调。
      * @method removeAllListeners
      * @param {String|Object} key - The event key to be removed or the target to be removed
      */
