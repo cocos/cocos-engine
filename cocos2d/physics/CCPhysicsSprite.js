@@ -81,7 +81,7 @@
                     //init  with filename and rect
                     this.init(fileName, rect);
                 }
-            }else if (cc.js.isObject(fileName)) {
+            }else if (typeof fileName === 'object') {
                 if (fileName instanceof cc.Texture2D) {
                     //init  with texture and rect
                     this.initWithTexture(fileName, rect);
@@ -252,7 +252,7 @@
                     //init  with filename and rect
                     this.init(fileName, rect);
                 }
-            }else if (cc.js.isObject(fileName)) {
+            }else if (typeof fileName  === 'object') {
                 if (fileName instanceof cc.Texture2D) {
                     //init  with texture and rect
                     this.initWithTexture(fileName, rect);

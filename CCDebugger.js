@@ -313,7 +313,7 @@ cc._logToWebPage = function (msg) {
 
 //to make sure the cc.log, cc.warn, cc.error and cc.assert would not throw error before init by debugger mode.
 function _formatString (arg) {
-    if (cc.js.isObject(arg)) {
+    if (typeof arg === 'object') {
         try {
             return JSON.stringify(arg);
         } catch (err) {
@@ -321,7 +321,7 @@ function _formatString (arg) {
         }
     } else
         return arg;
-};
+}
 
 var Enum = require('./cocos2d/core/value-types/CCEnum');
 

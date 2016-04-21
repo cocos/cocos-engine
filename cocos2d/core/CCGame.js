@@ -676,16 +676,16 @@ var game = /** @lends cc.game# */{
         if (this.config[this.CONFIG_KEY.registerSystemEvent])
             cc.inputManager.registerSystemEvent(this.canvas);
 
-        if (!cc.js.isUndefined(document.hidden)) {
+        if (typeof document.hidden !== 'undefined') {
             hidden = "hidden";
             visibilityChange = "visibilitychange";
-        } else if (!cc.js.isUndefined(document.mozHidden)) {
+        } else if (typeof document.mozHidden !== 'undefined') {
             hidden = "mozHidden";
             visibilityChange = "mozvisibilitychange";
-        } else if (!cc.js.isUndefined(document.msHidden)) {
+        } else if (typeof document.msHidden !== 'undefined') {
             hidden = "msHidden";
             visibilityChange = "msvisibilitychange";
-        } else if (!cc.js.isUndefined(document.webkitHidden)) {
+        } else if (typeof document.webkitHidden !== 'undefined') {
             hidden = "webkitHidden";
             visibilityChange = "webkitvisibilitychange";
         }

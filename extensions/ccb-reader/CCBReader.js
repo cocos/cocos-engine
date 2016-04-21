@@ -1059,7 +1059,7 @@ cc.BuilderReader.load = function (ccbFilePath, owner, parentSize, ccbRootPath) {
             controller[outletName] = outletNode;
         }
 
-        if (controller.onDidLoadFromCCB && cc.js.isFunction(controller.onDidLoadFromCCB))
+        if (controller.onDidLoadFromCCB && typeof controller.onDidLoadFromCCB === 'function')
             controller.onDidLoadFromCCB();
 
         // Setup timeline callbacks

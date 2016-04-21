@@ -1207,7 +1207,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     addChild: function (child, localZOrder, tag) {
         localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
         var name, setTag = false;
-        if(cc.js.isUndefined(tag)){
+        if(typeof tag === 'undefined'){
             tag = undefined;
             name = child._name;
         } else if(cc.js.isString(tag)){
