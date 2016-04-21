@@ -189,7 +189,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
         this.colorSpaceHolder.r = value.r;
         this.colorSpaceHolder.g = value.g;
         this.colorSpaceHolder.b = value.b;
-        this.colorSpaceHolder.a = cc.js.isUndefined(value.a) ? 255 : value.a;
+        this.colorSpaceHolder.a = (typeof value.a === 'undefined') ? 255 : value.a;
         if(!this._inputText.length)
             this.setColor(this.colorSpaceHolder);
     },
@@ -202,7 +202,7 @@ cc.TextFieldTTF = cc.LabelTTF.extend(/** @lends cc.TextFieldTTF# */{
         this._colorText.r = textColor.r;
         this._colorText.g = textColor.g;
         this._colorText.b = textColor.b;
-        this._colorText.a = cc.js.isUndefined(textColor.a) ? 255 : textColor.a;
+        this._colorText.a = (typeof textColor.a === 'undefined') ? 255 : textColor.a;
         if(this._inputText.length)
             this.setColor(this._colorText);
     },

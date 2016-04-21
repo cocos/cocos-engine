@@ -52,64 +52,27 @@ function _copyprop(name, source, target) {
 var js = {
 
     /**
-     * Check the obj whether is function or not
-     * @method isFunction
-     * @param {*} obj
-     * @returns {Boolean}
-     */
-    isFunction: function(obj) {
-        return typeof obj === 'function';
-    },
-
-    /**
      * Check the obj whether is number or not
+     * If a number is created by using 'new Number(10086)', the typeof it will be "object"...
+     * Then you can use this function if you care about this case.
      * @method isNumber
      * @param {*} obj
      * @returns {Boolean}
      */
     isNumber: function(obj) {
-        return typeof obj === 'number' || Object.prototype.toString.call(obj) === '[object Number]';
+        return typeof obj === 'number' || obj instanceof Number;
     },
 
     /**
-     * Check the obj whether is string or not
+     * Check the obj whether is string or not.
+     * If a string is created by using 'new String("blabla")', the typeof it will be "object"...
+     * Then you can use this function if you care about this case.
      * @method isString
      * @param {*} obj
      * @returns {Boolean}
      */
     isString: function(obj) {
-        return typeof obj === 'string' || Object.prototype.toString.call(obj) === '[object String]';
-    },
-
-    /**
-     * Check the obj whether is array or not
-     * @method isArray
-     * @param {*} obj
-     * @returns {Boolean}
-     */
-    isArray: function(obj) {
-        return Array.isArray(obj) ||
-            (typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object Array]');
-    },
-
-    /**
-     * Check the obj whether is undefined or not
-     * @method isUndefined
-     * @param {*} obj
-     * @returns {Boolean}
-     */
-    isUndefined: function(obj) {
-        return typeof obj === 'undefined';
-    },
-
-    /**
-     * Check the obj whether is object or not
-     * @method isObject
-     * @param {*} obj
-     * @returns {Boolean}
-     */
-    isObject: function(obj) {
-        return typeof obj === "object" && Object.prototype.toString.call(obj) === '[object Object]';
+        return typeof obj === 'string' || obj instanceof String;
     },
 
     /**

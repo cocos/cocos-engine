@@ -586,11 +586,11 @@ cc.Color = Color;
  * @example {@link utils/api/engine/docs/cocos2d/core/value-types/CCColor/color.js}
  */
 cc.color = function color (r, g, b, a) {
-    if (JS.isString(r)) {
+    if (typeof r === 'string') {
         var result = new cc.Color();
         return result.fromHEX(r);
     }
-    if (cc.js.isObject(r)) {
+    if (typeof r === 'object') {
         return new cc.Color(r.r, r.g, r.b, r.a);
     }
     return  new cc.Color(r, g, b, a);

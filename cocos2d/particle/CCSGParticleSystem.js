@@ -346,7 +346,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
             this.initWithTotalParticles(ton);
         } else if (cc.js.isString(plistFile)) {
             this.initWithFile(plistFile);
-        } else if (cc.js.isObject(plistFile)) {
+        } else if (typeof plistFile === 'object') {
             this.initWithDictionary(plistFile, "");
         }
     },

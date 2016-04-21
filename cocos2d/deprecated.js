@@ -43,17 +43,17 @@ if (CC_DEV) {
         return document.createElement;
     });
 
-    /**
-     * Check the obj whether is function or not
-     * @name cc.isFunction
-     * @memberof cc
-     * @deprecated
-     * @param {*} obj
-     * @returns {boolean}
-     */
     js.get(cc, "isFunction", function () {
-        cc.warn(INFO, 'cc.isFunction', 'cc.js.isFunction');
-        return js.isFunction;
+        cc.warn(INFO, 'cc.isFunction', '"typeof obj === \'function\'"');
+        return function(obj) {
+            return typeof obj === 'function';
+        };
+    });
+    js.get(cc.js, "isFunction", function () {
+        cc.warn(INFO, 'cc.js.isFunction', '"typeof obj === \'function\'"');
+        return function(obj) {
+            return typeof obj === 'function';
+        };
     });
 
     /**
@@ -82,43 +82,44 @@ if (CC_DEV) {
         return js.isString;
     });
 
-    /**
-     * Check the obj whether is array or not
-     * @name cc.isArray
-     * @memberof cc
-     * @deprecated
-     * @param {*} obj
-     * @returns {boolean}
-     */
     js.get(cc, "isArray", function () {
         cc.warn(INFO, 'cc.isArray', 'cc.js.isArray');
-        return js.isArray;
+        return function(obj) {
+            return Array.isArray(obj);
+        };
+    });
+    js.get(cc.js, "isArray", function () {
+        cc.warn(INFO, 'cc.js.isArray', '"Array.isArray(obj)"');
+        return function(obj) {
+            return Array.isArray(obj);
+        };
     });
 
-    /**
-     * Check the obj whether is undefined or not
-     * @name cc.isUndefined
-     * @memberof cc
-     * @deprecated
-     * @param {*} obj
-     * @returns {boolean}
-     */
     js.get(cc, "isUndefined", function () {
-        cc.warn(INFO, 'cc.isUndefined', 'cc.js.isUndefined');
-        return js.isUndefined;
+        cc.warn(INFO, 'cc.isUndefined', '"typeof obj === \'undefined\'"');
+        return function(obj) {
+            return typeof obj === 'undefined';
+        };
+    });
+    js.get(cc.js, "isUndefined", function () {
+        cc.warn(INFO, 'cc.js.isUndefined', '"typeof obj === \'undefined\'"');
+        return function(obj) {
+            return typeof obj === 'undefined';
+        };
     });
 
-    /**
-     * Check the obj whether is object or not
-     * @name cc.isObject
-     * @memberof cc
-     * @deprecated
-     * @param {*} obj
-     * @returns {boolean}
-     */
     js.get(cc, "isObject", function () {
-        cc.warn(INFO, 'cc.isObject', 'cc.js.isObject');
-        return js.isObject;
+        cc.warn(INFO, 'cc.isObject', '"typeof obj === \'object\'"');
+        return function(obj) {
+            return typeof obj === 'object';
+        };
+    });
+
+    js.get(cc.js, "isObject", function () {
+        cc.warn(INFO, 'cc.js.isObject', '"typeof obj === \'object\'"');
+        return function(obj) {
+            return typeof obj === "object";
+        };
     });
 
     /**
