@@ -229,7 +229,7 @@ ActionMoveFrame::~ActionMoveFrame()
 {
 
 }
-void ActionMoveFrame::setPosition(Vec2 pos)
+void ActionMoveFrame::setPosition(const Vec2& pos)
 {
     _position = pos;
 }
@@ -357,7 +357,7 @@ ActionTintFrame::~ActionTintFrame()
 
 }
 
-void ActionTintFrame::setColor(Color3B ccolor)
+void ActionTintFrame::setColor(const Color3B& ccolor)
 {
     _color = ccolor;
 }

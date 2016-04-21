@@ -917,6 +917,8 @@ bool jsval_to_ccarray_of_CCPoint(JSContext* cx, JS::HandleValue v, Point **point
         JS_GetElement(cx, jsobj, i, &valarg);
 
         ok = jsval_to_ccpoint(cx, valarg, &array[i]);
+        if(!ok)
+            delete [] array;
         JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
     }
 
