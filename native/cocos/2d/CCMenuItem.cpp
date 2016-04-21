@@ -383,7 +383,8 @@ void MenuItemSprite::setNormalImage(Node* image)
         if (image)
         {
             addChild(image);
-            image->setAnchorPoint(Vec2(0, 0));
+            image->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+            setContentSize(image->getContentSize());
         }
 
         if (_normalImage)
@@ -392,7 +393,6 @@ void MenuItemSprite::setNormalImage(Node* image)
         }
 
         _normalImage = image;
-        this->setContentSize(_normalImage->getContentSize());
         this->updateImagesVisibility();
     }
 }
@@ -536,7 +536,7 @@ void MenuItemSprite::updateImagesVisibility()
 {
     if (_enabled)
     {
-        if (_normalImage)   _normalImage->setVisible(true);
+        if (_normalImage) _normalImage->setVisible(true);
         if (_selectedImage) _selectedImage->setVisible(false);
         if (_disabledImage) _disabledImage->setVisible(false);
     }
@@ -544,13 +544,13 @@ void MenuItemSprite::updateImagesVisibility()
     {
         if (_disabledImage)
         {
-            if (_normalImage)   _normalImage->setVisible(false);
+            if (_normalImage) _normalImage->setVisible(false);
             if (_selectedImage) _selectedImage->setVisible(false);
             if (_disabledImage) _disabledImage->setVisible(true);
         }
         else
         {
-            if (_normalImage)   _normalImage->setVisible(true);
+            if (_normalImage) _normalImage->setVisible(true);
             if (_selectedImage) _selectedImage->setVisible(false);
             if (_disabledImage) _disabledImage->setVisible(false);
         }

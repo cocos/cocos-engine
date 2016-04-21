@@ -230,7 +230,7 @@ public:
     *
     * @param the move action position.
     */
-    void setPosition(cocos2d::Vec2 pos);
+    void setPosition(const cocos2d::Vec2& pos);
 
     /**
     * Gets the move action position.
@@ -429,7 +429,7 @@ public:
     *
     * @param ccolor the tint action color
     */
-    void setColor(cocos2d::Color3B ccolor);
+    void setColor(const cocos2d::Color3B& ccolor);
 
     /**
     * Gets the tint action color.

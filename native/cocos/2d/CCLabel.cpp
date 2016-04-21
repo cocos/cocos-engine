@@ -857,7 +857,6 @@ bool Label::updateQuads()
         batchNode->getTextureAtlas()->removeAllQuads();
     }
 
-    bool letterClamp = false;
     for (int ctr = 0; ctr < _lengthOfString; ++ctr)
     {
         if (_lettersInfo[ctr].valid)
@@ -893,7 +892,6 @@ bool Label::updateQuads()
                         _reusedRect.size.width = 0;
                     }else if(_overflow == Overflow::SHRINK){
                         if (_contentSize.width > letterDef.width) {
-                            letterClamp = true;
                             ret = false;
                             break;
                         }else{

@@ -1062,27 +1062,24 @@ namespace ui {
             bottomHeight = originalSize.height - (capInsets.origin.y + centerHeight) - offsets.w;
         }
 
-
-        if(leftWidth<0)
+        if(leftWidth < 0)
         {
             centerWidth += leftWidth;
             leftWidth = 0;
         }
-        if(rightWidth<0)
+        if(rightWidth < 0)
         {
             centerWidth += rightWidth;
-            rightWidth = 0;
         }
 
-        if(topHeight<0)
+        if(topHeight < 0)
         {
             centerHeight += topHeight;
             topHeight = 0;
         }
-        if(bottomHeight<0)
+        if(bottomHeight < 0)
         {
             centerHeight += bottomHeight;
-            bottomHeight = 0;
         }
 
         auto textureRect = CC_RECT_POINTS_TO_PIXELS(_spriteRect);

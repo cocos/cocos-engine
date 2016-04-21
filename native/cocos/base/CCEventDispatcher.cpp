@@ -767,7 +767,6 @@ void EventDispatcher::dispatchEventToListeners(EventListenerVector* listeners, c
 
                 if (l->isEnabled() && !l->isPaused() && l->isRegistered() && onEvent(l))
                 {
-                    shouldStopPropagation = true;
                     break;
                 }
             }

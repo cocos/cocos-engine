@@ -140,7 +140,7 @@ static bool isVariable(const char* str, char* outName, size_t outSize)
         size_t size = len - 3;
         if (size > (outSize - 1))
             size = outSize - 1;
-        strncpy(outName, str + 2, len - 3);
+        strncpy(outName, str + 2, size);
         outName[len - 3] = 0;
         return true;
     }

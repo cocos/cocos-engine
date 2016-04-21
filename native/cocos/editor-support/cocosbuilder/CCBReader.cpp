@@ -655,7 +655,7 @@ Node * CCBReader::readNodeGraph(Node * pParent)
 
                     if(!assigned && this->_CCBMemberVariableAssigner != nullptr)
                     {
-                        assigned = this->_CCBMemberVariableAssigner->onAssignCCBMemberVariable(target, memberVarAssignmentName.c_str(), node);
+                        _CCBMemberVariableAssigner->onAssignCCBMemberVariable(target, memberVarAssignmentName.c_str(), node);
                     }
                 }
             }
@@ -696,7 +696,7 @@ Node * CCBReader::readNodeGraph(Node * pParent)
 
                         if(!customAssigned && this->_CCBMemberVariableAssigner != nullptr)
                         {
-                            customAssigned = this->_CCBMemberVariableAssigner->onAssignCCBCustomProperty(target, iter->first.c_str(), iter->second);
+                            _CCBMemberVariableAssigner->onAssignCCBCustomProperty(target, iter->first.c_str(), iter->second);
                         }
                     }
                 }
