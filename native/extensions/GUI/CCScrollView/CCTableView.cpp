@@ -155,14 +155,17 @@ void TableView::updateCellAtIndex(ssize_t idx)
         return;
     }
 
-    TableViewCell* cell = this->cellAtIndex(idx);
+    TableViewCell* cell = cellAtIndex(idx);
     if (cell)
     {
-        this->_moveCellOutOfSight(cell);
+        _moveCellOutOfSight(cell);
     }
     cell = _dataSource->tableCellAtIndex(this, idx);
-    this->_setIndexForCell(idx, cell);
-    this->_addCellIfNecessary(cell);
+    if (cell)
+    {
+        _setIndexForCell(idx, cell);
+        _addCellIfNecessary(cell);
+    }
 }
 
 void TableView::insertCellAtIndex(ssize_t idx)

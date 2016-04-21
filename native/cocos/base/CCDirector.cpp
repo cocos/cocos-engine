@@ -183,17 +183,8 @@ Director::~Director()
     CC_SAFE_RELEASE(_runningScene);
     CC_SAFE_RELEASE(_notificationNode);
     
-    if (_scheduler)
-    {
-        delete _scheduler;
-        _scheduler = nullptr;
-    }
-    
-    if (_actionManager)
-    {
-        delete _actionManager;
-        _actionManager = nullptr;
-    }
+    CC_SAFE_RELEASE(_scheduler);
+    CC_SAFE_RELEASE(_actionManager);
 
     delete _eventBeforeUpdate;
     delete _eventAfterUpdate;
@@ -206,11 +197,7 @@ Director::~Director()
 
     delete _console;
     
-    if (_eventDispatcher)
-    {
-        delete _eventDispatcher;
-        _eventDispatcher = nullptr;
-    }
+    CC_SAFE_RELEASE(_eventDispatcher);
     
     // delete _lastUpdate
     CC_SAFE_DELETE(_lastUpdate);

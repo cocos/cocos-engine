@@ -704,6 +704,7 @@ JS::PersistentRootedScript* ScriptingCore::compileScript(const std::string& path
     if (compileSucceed) {
         return script;
     } else {
+        cocos2d::log("ScriptingCore:: compileScript fail:%s", path.c_str());
         CC_SAFE_DELETE(script);
         return nullptr;
     }
