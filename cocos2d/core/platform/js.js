@@ -499,19 +499,25 @@ js.set = function (obj, prop, setter, enumerable) {
  */
 js.obsolete = function (obj, obsoleted, newPropName, writable) {
     var oldName = obsoleted.split('.').slice(-1);
-    js.get(obj, oldName, function () {
+    function get () {
         if (CC_DEV) {
             cc.warn('"%s" is deprecated, use "%s" instead please.', obsoleted, newPropName);
         }
-        return obj[newPropName];
-    });
+        return this[newPropName];
+    }
     if (writable) {
-        js.set(obj, oldName, function (value) {
-            if (CC_DEV) {
-                cc.warn('"%s" is deprecated, use "%s" instead please.', obsoleted, newPropName);
+        js.getset(obj, oldName,
+            get,
+            function (value) {
+                if (CC_DEV) {
+                    cc.warn('"%s" is deprecated, use "%s" instead please.', obsoleted, newPropName);
+                }
+                this[newPropName] = value;
             }
-            obj[newPropName] = value;
-        });
+        );
+    }
+    else {
+        js.get(obj, oldName, get);
     }
 };
 

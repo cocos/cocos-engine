@@ -25,15 +25,20 @@
  ****************************************************************************/
 
 /**
- * <p>
+ * !#en
  *  cc.pool is a singleton object serves as an object cache pool.<br/>
  *  It can helps you to improve your game performance for objects which need frequent release and recreate operations<br/>
  *  Some common use case is :<br/>
  *      1. Bullets in game (die very soon, massive creation and recreation, no side effect on other objects)<br/>
  *      2. Blocks in candy crash (massive creation and recreation)<br/>
  *      etc...
- * </p>
- *
+ * !#zh
+ * cc.pool 是一个单例对象，用作为对象缓存池。<br/>
+ * 它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁<br/>
+ * 一些常见的用例是：<br/>
+ *      1.在游戏中的子弹（死亡很快，频繁创建，对其他对象无副作用）<br/>
+ *      2.糖果粉碎传奇中的木块（频繁创建）。
+ *      等等....
  * @class pool
  */
 cc.pool = /** @lends cc.pool# */{
@@ -49,7 +54,8 @@ cc.pool = /** @lends cc.pool# */{
     },
 
     /**
-     * Put the obj in pool.
+     * !#en Put the obj in pool.
+     * !#zh 加入对象到对象池中。
      * @method putInPool
      * @param {Object} obj - The need put in pool object.
      * @example {@link utils/api/engine/docs/extensions/ccpool/putInPool.js}
@@ -70,7 +76,8 @@ cc.pool = /** @lends cc.pool# */{
     },
 
     /**
-     * Check if this kind of obj has already in pool.
+     * !#en Check if this kind of obj has already in pool.
+     * !#zh 检查对象池中是否有指定对象的存在。
      * @method hasObject
      * @param {Object} objClass - The check object class.
      * @returns {Boolean} If this kind of obj is already in pool return true,else return false.
@@ -85,7 +92,8 @@ cc.pool = /** @lends cc.pool# */{
     },
 
     /**
-     * Remove the obj if you want to delete it.
+     * !#en Remove the obj if you want to delete it.
+     * !#zh 移除在对象池中指定的对象。
      * @method removeObject
      */
     removeObject: function (obj) {
@@ -105,7 +113,8 @@ cc.pool = /** @lends cc.pool# */{
     },
 
     /**
-     * Get the obj from pool.
+     * !#en Get the obj from pool.
+     * !#zh 获取对象池中的指定对象。
      * @method getFromPool
      * @returns {*} Call the reuse function an return the obj.
      */
@@ -125,7 +134,8 @@ cc.pool = /** @lends cc.pool# */{
     },
 
     /**
-     *  Remove all objs in pool and reset the pool.
+     *  !#en Remove all objs in pool and reset the pool.
+     *  !#zh 移除对象池中的所有对象，并且重置对象池。
      *  @method drainAllPools
      */
     drainAllPools: function () {

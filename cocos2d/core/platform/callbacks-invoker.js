@@ -176,8 +176,8 @@ CallbacksHandler.prototype.remove = function (key, callback, target) {
 
 
 /**
- * The callbacks invoker to handle and invoke callbacks by key
- *
+ * !#en The callbacks invoker to handle and invoke callbacks by key.
+ * !#zh CallbacksInvoker 用来根据 Key 管理并调用回调方法。
  * @class CallbacksInvoker
  * @constructor
  * @extends _CallbacksHandler
