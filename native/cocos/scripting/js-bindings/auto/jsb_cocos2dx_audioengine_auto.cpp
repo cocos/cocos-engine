@@ -426,14 +426,15 @@ bool js_cocos2dx_audioengine_AudioEngine_setVolume(JSContext *cx, uint32_t argc,
 bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
     
     do {
+        bool ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-            if (!ok) { ok = true; break; }
+            if (!ok) { break; }
             std::function<void (bool)> arg1;
+            ok = true;
             do {
 			    if(JS_TypeOfValue(cx, args.get(1)) == JSTYPE_FUNCTION)
 			    {
@@ -457,17 +458,18 @@ bool js_cocos2dx_audioengine_AudioEngine_preload(JSContext *cx, uint32_t argc, j
 			    }
 			} while(0)
 			;
-            if (!ok) { ok = true; break; }
+            if (!ok) { break; }
             cocos2d::experimental::AudioEngine::preload(arg0, arg1);
             return true;
         }
     } while (0);
     
     do {
+        bool ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-            if (!ok) { ok = true; break; }
+            if (!ok) { break; }
             cocos2d::experimental::AudioEngine::preload(arg0);
             return true;
         }
@@ -686,13 +688,13 @@ bool js_cocos2dx_audioengine_AudioEngine_setFinishCallback(JSContext *cx, uint32
 bool js_cocos2dx_audioengine_AudioEngine_getProfile(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
     
     do {
+        bool ok = true;
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-            if (!ok) { ok = true; break; }
+            if (!ok) { break; }
             cocos2d::experimental::AudioProfile* ret = cocos2d::experimental::AudioEngine::getProfile(arg0);
             jsval jsret = JSVAL_NULL;
             do {
@@ -709,10 +711,11 @@ bool js_cocos2dx_audioengine_AudioEngine_getProfile(JSContext *cx, uint32_t argc
     } while (0);
     
     do {
+        bool ok = true;
         if (argc == 1) {
             int arg0 = 0;
             ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
-            if (!ok) { ok = true; break; }
+            if (!ok) { break; }
             cocos2d::experimental::AudioProfile* ret = cocos2d::experimental::AudioEngine::getProfile(arg0);
             jsval jsret = JSVAL_NULL;
             do {

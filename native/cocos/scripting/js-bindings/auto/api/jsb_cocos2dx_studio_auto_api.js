@@ -115,20 +115,6 @@ getLoop : function (
 },
 
 /**
- * @method initWithBinary
- * @param {ccs.CocoLoader} arg0
- * @param {ccs.stExpCocoNode} arg1
- * @param {cc.Ref} arg2
- */
-initWithBinary : function (
-cocoloader, 
-stexpcoconode, 
-ref 
-)
-{
-},
-
-/**
  * @method addActionNode
  * @param {ccs.ActionNode} arg0
  */
@@ -230,22 +216,6 @@ char
 )
 {
     return ccs.ActionObject;
-},
-
-/**
- * @method initWithBinary
- * @param {char} arg0
- * @param {cc.Ref} arg1
- * @param {ccs.CocoLoader} arg2
- * @param {ccs.stExpCocoNode} arg3
- */
-initWithBinary : function (
-char, 
-ref, 
-cocoloader, 
-stexpcoconode 
-)
-{
 },
 
 /**
