@@ -300,12 +300,14 @@ JS.mixin(cc.Audio.prototype, {
                         self._currMusic = audio;
                     }
                 });
-                return;
+                item = cc.loader.getItem(url);
+                return item && item.audio ? item.audio : null;
             }
             audio.play(0, loop);
             audio.setVolume(this._musicVolume);
 
             this._currMusic = audio;
+            return audio;
         },
 
         /**
@@ -439,12 +441,15 @@ JS.mixin(cc.Audio.prototype, {
          * @method playEffect
          * @param {String} url The path of the sound effect with filename extension.
          * @param {Boolean} loop Whether to loop the effect playing, default value is false
+         * @param {Boolean} volume
          * @return {Number|null} the audio id
          * @example
          * //example
          * var soundId = cc.audioEngine.playEffect(path);
          */
-        playEffect: function(url, loop){
+        playEffect: function(url, loop, volume){
+            volume = volume === undefined ? this._effectVolume : volume;
+
             // 如果只能够播放一个音频，则优先保证背景音乐
             if (SWB && this._currMusic && this._currMusic.getPlaying()) {
                 cc.log('Browser is only allowed to play one audio');
@@ -474,7 +479,7 @@ JS.mixin(cc.Audio.prototype, {
             var audio;
             if (effectList[i]) {
                 audio = effectList[i];
-                audio.setVolume(this._effectVolume);
+                audio.setVolume(volume);
                 audio.play(0, loop || false);
                 return audio;
             }
@@ -490,10 +495,11 @@ JS.mixin(cc.Audio.prototype, {
             if (!audio) {
                 // Force using webaudio for effects
                 cc.Audio.useWebAudio = true;
-                cc.loader.load(url, function (error, audio) {
+                audio = new cc.Audio(url);
+                cc.loader.load(url, function (error, loadAudio) {
                     if (error) return;
-                    audio = audio.cloneNode();
-                    audio.setVolume(cc.audioEngine._effectVolume);
+                    audio.setBuffer(loadAudio._element.buffer);
+                    audio.setVolume(volume);
                     audio.play(0, loop || false);
                     effectList.push(audio);
                 });
@@ -502,7 +508,7 @@ JS.mixin(cc.Audio.prototype, {
             }
 
             audio = audio.cloneNode();
-            audio.setVolume(this._effectVolume);
+            audio.setVolume(volume);
             audio.play(0, loop || false);
             effectList.push(audio);
 
