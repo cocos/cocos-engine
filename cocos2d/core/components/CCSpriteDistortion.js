@@ -41,6 +41,7 @@ var SpriteDistortion = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/SpriteDistortion',
         executeInEditMode: true,
+        requireComponent: cc.Sprite,
     },
 
     ctor: function() {
