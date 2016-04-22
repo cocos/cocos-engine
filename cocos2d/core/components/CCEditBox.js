@@ -445,15 +445,15 @@ var EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan: function() {
-        cc.Component.EventHandler.emitEvents(this.editingDidBegan);
+        cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
     },
 
     editBoxEditingDidEnded: function() {
-        cc.Component.EventHandler.emitEvents(this.editingDidEnded);
+        cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
     },
 
     editBoxTextChanged: function(editBox, text) {
-        cc.Component.EventHandler.emitEvents(this.textChanged, text);
+        cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
     },
 
     onLoad: function() {
