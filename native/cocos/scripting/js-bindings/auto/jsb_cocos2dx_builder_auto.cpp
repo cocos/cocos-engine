@@ -1420,6 +1420,7 @@ bool js_cocos2dx_builder_CCBReader_constructor(JSContext *cx, uint32_t argc, jsv
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     do {
+        ok = true;
         if (argc == 1) {
             cocosbuilder::CCBReader* arg0 = nullptr;
             do {
@@ -1456,6 +1457,7 @@ bool js_cocos2dx_builder_CCBReader_constructor(JSContext *cx, uint32_t argc, jsv
     } while(0);
 
     do {
+        ok = true;
         if (argc == 4) {
             cocosbuilder::NodeLoaderLibrary* arg0 = nullptr;
             do {
@@ -1528,6 +1530,7 @@ bool js_cocos2dx_builder_CCBReader_constructor(JSContext *cx, uint32_t argc, jsv
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj = new (std::nothrow) cocosbuilder::CCBReader();
             cocos2d::Ref *_ccobj = dynamic_cast<cocos2d::Ref *>(cobj);

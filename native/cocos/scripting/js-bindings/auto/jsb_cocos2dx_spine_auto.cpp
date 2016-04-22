@@ -616,6 +616,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     do {
+        ok = true;
         if (argc == 1) {
             spSkeletonData* arg0 = nullptr;
             #pragma warning NO CONVERSION TO NATIVE FOR spSkeletonData*
@@ -645,6 +646,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             spSkeletonData* arg0 = nullptr;
             #pragma warning NO CONVERSION TO NATIVE FOR spSkeletonData*
@@ -676,6 +678,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj = new (std::nothrow) spine::SkeletonRenderer();
             cocos2d::Ref *_ccobj = dynamic_cast<cocos2d::Ref *>(cobj);
@@ -701,6 +704,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -734,6 +738,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
     } while(0);
 
     do {
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -771,6 +776,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -803,6 +809,7 @@ bool js_cocos2dx_spine_SkeletonRenderer_constructor(JSContext *cx, uint32_t argc
     } while(0);
 
     do {
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1375,6 +1382,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     do {
+        ok = true;
         if (argc == 1) {
             spSkeletonData* arg0 = nullptr;
             #pragma warning NO CONVERSION TO NATIVE FOR spSkeletonData*
@@ -1404,6 +1412,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             spSkeletonData* arg0 = nullptr;
             #pragma warning NO CONVERSION TO NATIVE FOR spSkeletonData*
@@ -1435,6 +1444,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj = new (std::nothrow) spine::SkeletonAnimation();
             cocos2d::Ref *_ccobj = dynamic_cast<cocos2d::Ref *>(cobj);
@@ -1460,6 +1470,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1493,6 +1504,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1530,6 +1542,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1562,6 +1575,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_constructor(JSContext *cx, uint32_t arg
     } while(0);
 
     do {
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1615,6 +1629,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, jsva
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     do {
+        ok = true;
         if (argc == 1) {
             spSkeletonData* arg0 = nullptr;
             #pragma warning NO CONVERSION TO NATIVE FOR spSkeletonData*
@@ -1633,6 +1648,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, jsva
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             spSkeletonData* arg0 = nullptr;
             #pragma warning NO CONVERSION TO NATIVE FOR spSkeletonData*
@@ -1653,6 +1669,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, jsva
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj = new (std::nothrow) spine::SkeletonAnimation();
             cocos2d::Ref *_ccobj = dynamic_cast<cocos2d::Ref *>(cobj);
@@ -1667,6 +1684,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, jsva
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1689,6 +1707,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, jsva
     } while(0);
 
     do {
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1715,6 +1734,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, jsva
     } while(0);
 
     do {
+        ok = true;
         if (argc == 2) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
@@ -1736,6 +1756,7 @@ bool js_cocos2dx_spine_SkeletonAnimation_ctor(JSContext *cx, uint32_t argc, jsva
     } while(0);
 
     do {
+        ok = true;
         if (argc == 3) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);

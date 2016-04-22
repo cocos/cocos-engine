@@ -7967,6 +7967,7 @@ bool js_cocos2dx_studio_ComRender_constructor(JSContext *cx, uint32_t argc, jsva
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx);
     do {
+        ok = true;
         if (argc == 2) {
             cocos2d::Node* arg0 = nullptr;
             do {
@@ -8007,6 +8008,7 @@ bool js_cocos2dx_studio_ComRender_constructor(JSContext *cx, uint32_t argc, jsva
     } while(0);
 
     do {
+        ok = true;
         if (argc == 0) {
             cobj = new (std::nothrow) cocostudio::ComRender();
             cocos2d::Ref *_ccobj = dynamic_cast<cocos2d::Ref *>(cobj);
