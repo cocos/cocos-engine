@@ -1356,11 +1356,6 @@ if (cc.sys.isNative) {
  * @param {Vec2} event.detail - old anchor
  */
 /**
- * @event color-changed
- * @param {Event} event
- * @param {Color} event.detail - old color
- */
-/**
  * @event child-added
  * @param {Event} event
  * @param {Node} event.detail - child

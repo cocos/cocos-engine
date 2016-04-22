@@ -45,7 +45,6 @@ var ROTATION_CHANGED = 'rotation-changed';
 var SCALE_CHANGED = 'scale-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
-var COLOR_CHANGED = 'color-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
@@ -639,7 +638,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._opacity !== value) {
                     this._opacity = value;
                     this._sgNode.setOpacity(value);
-                    if (this._sizeProvider && this._sgNode !== this._sizeProvider && !this._cascadeOpacityEnabled) {
+                    if (this._sizeProvider && this._sgNode !== this._sizeProvider && !this._cascadeOpacityEnabled && this._sizeProvider.setOpacity) {
                         this._sizeProvider.setOpacity(value);
                     }
                 }
@@ -691,10 +690,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (CC_DEV && value.a !== 255) {
                         cc.warn('Should not set alpha via "color", set "opacity" please.');
                     }
-                    if (this._sizeProvider) {
+                    if (this._sizeProvider && this._sizeProvider.setColor) {
                         this._sizeProvider.setColor(this.value);
                     }
-                    this.emit(COLOR_CHANGED, old);
                 }
             },
         },
