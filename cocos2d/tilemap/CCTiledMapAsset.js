@@ -33,13 +33,6 @@ var TiledMapAsset = cc.Class({
     name: 'cc.TiledMapAsset',
     extends: cc.Asset,
 
-    ctor: function () {
-        this.tmxXmlStr = '';
-        this.tmxFolderPath = '';
-        this.textures = [];
-        this.tsxFiles = [];
-    },
-
     properties: {
         tmxXmlStr: {
             default: ''
