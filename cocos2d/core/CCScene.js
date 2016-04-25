@@ -67,7 +67,6 @@ cc.Scene = cc.Class({
     },
 
     _onHierarchyChanged: NIL,
-    _onColorChanged: NIL,
     _onAnchorChanged: NIL,
     _onOpacityModifyRGBChanged: NIL,
     _onCascadeChanged: NIL,

@@ -272,7 +272,7 @@ var View = cc._Class.extend({
      * @param {Function|Null} callback - The callback function
      */
     setResizeCallback: function (callback) {
-        if (cc.js.isFunction(callback) || callback == null) {
+        if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
     },

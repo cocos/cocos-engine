@@ -328,7 +328,7 @@ var Label = cc.Class({
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
         sgNode.setFontFileOrFamily(this.file);
-        if(this._useOriginalSize && CC_EDITOR){
+        if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
         } else {

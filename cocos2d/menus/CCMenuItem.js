@@ -172,7 +172,7 @@ cc.MenuItem = _ccsg.Node.extend(/** @lends cc.MenuItem# */{
                 return;
             if (locTarget && cc.js.isString(locCallback)) {
                 locTarget[locCallback](this);
-            } else if (locTarget && cc.js.isFunction(locCallback)) {
+            } else if (locTarget && typeof locCallback === 'function') {
                 locCallback.call(locTarget, this);
             } else
                 locCallback(this);
@@ -701,10 +701,10 @@ cc.MenuItemSprite = cc.MenuItem.extend(/** @lends cc.MenuItemSprite# */{
                 disabledImage = three;
                 callback = four;
                 target = five;
-            } else if (four !== undefined && cc.js.isFunction(four)) {
+            } else if (four !== undefined && typeof four === 'function') {
                 disabledImage = three;
                 callback = four;
-            } else if (four !== undefined && cc.js.isFunction(three)) {
+            } else if (four !== undefined && typeof three === 'function') {
                 target = four;
                 callback = three;
                 disabledImage = null;
@@ -1219,10 +1219,10 @@ cc.MenuItemToggle = cc.MenuItem.extend(/** @lends cc.MenuItemToggle# */{
     initWithItems: function (args) {
         var l = args.length;
         // passing callback.
-        if (cc.js.isFunction(args[args.length - 2])) {
+        if (typeof args[args.length - 2] === 'function') {
             this.initWithCallback(args[args.length - 2], args[args.length - 1]);
             l = l - 2;
-        } else if (cc.js.isFunction(args[args.length - 1])) {
+        } else if (typeof args[args.length - 1] === 'function') {
             this.initWithCallback(args[args.length - 1], null);
             l = l - 1;
         } else {

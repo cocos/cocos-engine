@@ -62,7 +62,7 @@ var RendererInSG = cc.Class({
             // sgSize is not a Vec2 in JSB
             if (sgSize.x !== 0 || sgSize.y !== 0) {
                 cc.error('Renderer error: Size of the cc._RendererInSG._sgNode must be zero');
-            } 
+            }
         }
     },
 
@@ -88,14 +88,14 @@ var RendererInSG = cc.Class({
     },
 
     _replaceSgNode: function (sgNode) {
-        if ( !(sgNode instanceof _ccsg.Node) && CC_EDITOR) {
+        if (CC_EDITOR && !(sgNode instanceof _ccsg.Node)) {
             throw new Error("Invalid sgNode. It must be an instance of _ccsg.Node");
         }
 
         var node = this.node;
         var replaced = node._sgNode;
 
-        if (replaced === sgNode && CC_EDITOR) {
+        if (CC_EDITOR && replaced === sgNode) {
             cc.warn('The same sgNode');
             return;
         }

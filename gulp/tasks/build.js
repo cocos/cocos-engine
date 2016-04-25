@@ -47,7 +47,6 @@ function getUglifyOptions (minify, global_defs) {
         return {
             compress: {
                 global_defs: global_defs,
-                conditionals: false,    // 如果为 true, 会把 if 压缩成 bool 表达式, 但 sourcemap 的行号就会乱掉
             }
         };
     }

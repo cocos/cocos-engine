@@ -49,25 +49,33 @@ EventListeners.prototype.invoke = function (event) {
         }
         else {
             endIndex = list.length - 1;
-            for (i = 0; i <= endIndex;) {
-                callingFunc = list[i];
-                target = list[i+1];
-                hasTarget = target && typeof target === 'object';
-                var increment;
-                if (hasTarget) {
-                    callingFunc.call(target, event);
-                    increment = 2;
+            if (key === cc.Director.EVENT_COMPONENT_UPDATE) {
+                for (i = 1; i <= endIndex; i += 2) {
+                    target = list[i];
+                    target.update(event.detail);
                 }
-                else {
-                    callingFunc.call(event.currentTarget, event);
-                    increment = 1;
-                }
+            }
+            else {
+                for (i = 0; i <= endIndex;) {
+                    callingFunc = list[i];
+                    target = list[i+1];
+                    hasTarget = target && typeof target === 'object';
+                    var increment;
+                    if (hasTarget) {
+                        callingFunc.call(target, event);
+                        increment = 2;
+                    }
+                    else {
+                        callingFunc.call(event.currentTarget, event);
+                        increment = 1;
+                    }
 
-                if (event._propagationImmediateStopped || i + increment > endIndex) {
-                    break;
-                }
+                    if (event._propagationImmediateStopped || i + increment > endIndex) {
+                        break;
+                    }
 
-                i += increment;
+                    i += increment;
+                }
             }
         }
     }
