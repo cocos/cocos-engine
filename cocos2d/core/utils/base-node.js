@@ -45,8 +45,6 @@ var ROTATION_CHANGED = 'rotation-changed';
 var SCALE_CHANGED = 'scale-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
-var COLOR_CHANGED = 'color-changed';
-var OPACITY_CHANGED = 'opacity-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
@@ -392,7 +390,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.x) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.x;
 
                         localPosition.x = value;
@@ -425,7 +423,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.y) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.y;
 
                         localPosition.y = value;
@@ -638,11 +636,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._opacity !== value) {
-                    var old = this._opacity;
                     this._opacity = value;
-                    this._sgNode.opacity = value;
-                    this._onColorChanged();
-                    this.emit(OPACITY_CHANGED, old);
+                    this._sgNode.setOpacity(value);
+                    if (this._sizeProvider && this._sgNode !== this._sizeProvider && !this._cascadeOpacityEnabled && this._sizeProvider.setOpacity) {
+                        this._sizeProvider.setOpacity(value);
+                    }
                 }
             },
             range: [0, 255]
@@ -690,10 +688,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     color.g = value.g;
                     color.b = value.b;
                     if (CC_DEV && value.a !== 255) {
-                        cc.warn('Should not set alpha via "color", use "opacity" please.');
+                        cc.warn('Should not set alpha via "color", set "opacity" please.');
                     }
-                    this._onColorChanged();
-                    this.emit(COLOR_CHANGED, old);
+                    if (this._sizeProvider && this._sizeProvider.setColor) {
+                        this._sizeProvider.setColor(this.value);
+                    }
                 }
             },
         },
@@ -745,8 +744,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     // called when the node's parent changed
     _onHierarchyChanged: null,
-    // called when the node's color or opacity changed
-    _onColorChanged: null,
     // called when the node's anchor changed
     _onAnchorChanged: null,
     // called when the node's cascadeOpacity or cascadeColor changed
@@ -907,7 +904,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var xValue;
-        if (yValue === undefined) {
+        if (typeof yValue === 'undefined') {
             xValue = newPosOrxValue.x;
             yValue = newPosOrxValue.y;
         }
@@ -923,20 +920,20 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         var oldPosition = new cc.Vec2(locPosition);
 
-        if (isFinite(xValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(xValue)) {
             locPosition.x = xValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'x of new position');
         }
-        if (isFinite(yValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(yValue)) {
             locPosition.y = yValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
 
-        this._sgNode.setPosition(locPosition);
+        this._sgNode.setPosition(xValue, yValue);
 
         if (this.emit) {
             this.emit(POSITION_CHANGED, oldPosition);
@@ -1208,7 +1205,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     addChild: function (child, localZOrder, tag) {
         localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
         var name, setTag = false;
-        if(cc.js.isUndefined(tag)){
+        if(typeof tag === 'undefined'){
             tag = undefined;
             name = child._name;
         } else if(cc.js.isString(tag)){

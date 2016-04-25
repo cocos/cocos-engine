@@ -262,7 +262,7 @@ prototype.destroy = function () {
     this._objFlags |= ToDestroy;
     objectsToDestroy.push(this);
 
-    if (deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating && CC_EDITOR) {
+    if (CC_EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
         // auto destroy immediate in edit mode
         deferredDestroyTimer = setImmediate(deferredDestroy);
     }

@@ -79,8 +79,7 @@ var Animation = cc.Class({
                 return this._defaultClip;
             },
             set: function (value) {
-                var engine = cc.engine;
-                if (!CC_EDITOR || (engine && engine.isPlaying)) {
+                if (!CC_EDITOR || (cc.engine && cc.engine.isPlaying)) {
                     return;
                 }
 

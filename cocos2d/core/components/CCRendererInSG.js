@@ -65,7 +65,7 @@ var RendererInSG = cc.Class({
     },
     onDestroy: function () {
         this._super();
-        
+
         var releasedByNode = this.node._sgNode;
         if (this._plainNode !== releasedByNode) {
             this._plainNode.release();
@@ -73,14 +73,14 @@ var RendererInSG = cc.Class({
     },
 
     _replaceSgNode: function (sgNode) {
-        if ( !(sgNode instanceof _ccsg.Node) && CC_EDITOR) {
+        if (CC_EDITOR && !(sgNode instanceof _ccsg.Node)) {
             throw new Error("Invalid sgNode. It must be an instance of _ccsg.Node");
         }
 
         var node = this.node;
         var replaced = node._sgNode;
 
-        if (replaced === sgNode && CC_EDITOR) {
+        if (CC_EDITOR && replaced === sgNode) {
             cc.warn('The same sgNode');
             return;
         }
