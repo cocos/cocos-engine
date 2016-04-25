@@ -66,37 +66,58 @@ cc.SpriteFrame.prototype._ctor = function (filename, rect, rotated, offset, orig
 };
 
 cc.SpriteFrame.prototype._initWithTexture = cc.SpriteFrame.prototype.initWithTexture;
-cc.SpriteFrame.prototype.initWithTexture = function (textureOrTextureFile, rect, rotated, offset, originalSize) {
-    this.setTexture(textureOrTextureFile, rect, rotated, offset, originalSize);
+cc.SpriteFrame.prototype.initWithTexture = function (texture, rect, rotated, offset, originalSize, _uuid) {
+    this.setTexture(texture, rect, rotated, offset, originalSize, _uuid);
 };
 
-cc.SpriteFrame.prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, originalSize) {
-    var texture = textureOrTextureFile;
+cc.SpriteFrame.prototype.setTexture = function (textureOrTextureFile, rect, rotated, offset, originalSize, _uuid) {
 
-    if (cc.js.isString(texture)){
-        this._textureFilename = texture;
-        texture = cc.textureCache.addImage(texture);
+    var localTexture;
+    if (!textureOrTextureFile && _uuid) {
+        // deserialize texture from uuid
+        var info = cc.AssetLibrary._getAssetInfoInRuntime(_uuid);
+        if (!info) {
+            cc.error('SpriteFrame: Failed to load sprite texture "%s"', _uuid);
+            return false;
+        }
+
+        this._textureFilename = info.url;
+
+        localTexture = cc.textureCache.addImage(info.url);
     }
-
-    if (texture instanceof cc.Texture2D) {
-        if (texture && texture.isLoaded()) {
-
-            if (rect) {
-                this._checkRect(texture);
-            }
-            else {
-                rect = cc.rect(0, 0, texture.width, texture.height);
-            }
-
-            offset = offset || cc.p(0, 0);
-            originalSize = originalSize || rect;
-            rotated = rotated || false;
-
-            this._initWithTexture(texture, rect, rotated, offset, originalSize);
-
-            this.emit('load');
+    else {
+        if (cc.js.isString(textureOrTextureFile)) {
+            this._textureFilename = textureOrTextureFile;
+            localTexture = cc.textureCache.addImage(textureOrTextureFile);
+        }
+        else if (textureOrTextureFile instanceof cc.Texture2D) {
+            this._textureFilename = "";
+            localTexture = textureOrTextureFile;
         }
     }
+
+    if (localTexture instanceof cc.Texture2D && localTexture.isLoaded()) {
+
+        if (!rect) {
+            rect = cc.rect(0, 0, localTexture.getPixelWidth(), localTexture.getPixelHeight());
+        }
+
+        offset = offset || cc.p(0, 0);
+        originalSize = originalSize || rect;
+        rotated = rotated || false;
+
+        if (this.insetTop === undefined) {
+            this.insetTop = 0;
+            this.insetBottom = 0;
+            this.insetLeft = 0;
+            this.insetRight = 0;
+        }
+
+        this._initWithTexture(localTexture, rect, rotated, offset, originalSize);
+    }
+
+    this.emit('load');
+    this._checkRect(this.getTexture());
     return true;
 };
 
