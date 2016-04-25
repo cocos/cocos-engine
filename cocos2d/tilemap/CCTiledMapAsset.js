@@ -63,7 +63,7 @@ var TiledMapAsset = cc.Class({
     createNode: function (callback) {
         var node = new cc.Node(this.name);
         var tiledMap = node.addComponent(cc.TiledMap);
-        tiledMap.tmxFile = this;
+        tiledMap.tmxAsset = this;
 
         return callback(null, node);
     }
