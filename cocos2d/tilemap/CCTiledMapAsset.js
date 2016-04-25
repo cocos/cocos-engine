@@ -60,7 +60,7 @@ var TiledMapAsset = cc.Class({
         }
     },
 
-    createNode: function (callback) {
+    createNode: CC_EDITOR && function (callback) {
         var node = new cc.Node(this.name);
         var tiledMap = node.addComponent(cc.TiledMap);
         tiledMap.tmxAsset = this;
