@@ -40,6 +40,8 @@ cc.js.mixin(cc.game, {
     RENDER_TYPE_CANVAS: 0,
     RENDER_TYPE_WEBGL: 1,
     RENDER_TYPE_OPENGL: 2,
+
+    EVENT_GAME_INITED: "game_inited",
     
     CONFIG_KEY: {
         width: 'width',
@@ -105,10 +107,12 @@ cc.js.mixin(cc.game, {
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
+                    self.emit(self.EVENT_GAME_INITED);
                     if (cb) cb();
                 });
             }
             else {
+                self.emit(self.EVENT_GAME_INITED);
                 if (cb) cb();
             }
 
