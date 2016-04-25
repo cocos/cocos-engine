@@ -46,7 +46,7 @@ var SpriteDistortion = cc.Class({
 
     ctor: function() {
         this._distortionOffset = cc.v2(0.0,0.0);
-        this._distortionScale = cc.v2(1.0,1.0);
+        this._distortionTiling = cc.v2(1.0,1.0);
         this._spriteSGNode = null;
     },
 
@@ -69,27 +69,23 @@ var SpriteDistortion = cc.Class({
             }
         },
 
-    },
-
-    properties: {
         /**
-         * !#en Change the UV offset for distortion rendering.
-         * !#zh 在渲染时改变UV的整体偏移.
-         * @property offset
+         * !#en Change the UV scale for distortion rendering.
+         * !#zh 在渲染时改变UV的寻址系数
+         * @property tiling
          * @type {Vec2}
          * @example
-         * distortion.scale = new cc.Vec2(0.5, 0.3);;
+         * distortion.tiling = new cc.Vec2(0.5, 0.3);;
          */
-        scale: {
+        tiling: {
             get: function() {
-                return this._distortionScale;
+                return this._distortionTiling;
             },
             set:function(value) {
-                this._distortionScale.x = value.x;
-                this._distortionScale.y = value.y;
+                this._distortionTiling.x = value.x;
+                this._distortionTiling.y = value.y;
             }
         },
-
     },
 
     onEnable: function () {
@@ -98,7 +94,7 @@ var SpriteDistortion = cc.Class({
         if(this._spriteSGNode) {
             sgNode.setState(cc.Scale9Sprite.state.DISTORTION);
             sgNode._distortionOffset = this._distortionOffset;
-            sgNode._distortionScale = this._distortionScale;
+            sgNode._distortionTiling = this._distortionTiling;
         }
     },
 

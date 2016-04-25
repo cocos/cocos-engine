@@ -70,8 +70,8 @@ if (_ccsg.Node.WebGLRenderCmd) {
                   this._node._distortionOffset.x, this._node._distortionOffset.y
                 );
                 this._shaderProgram.setUniformLocationWith2f(
-                  cc.Scale9Sprite.WebGLRenderCmd._distortionScale,
-                  this._node._distortionScale.x, this._node._distortionScale.y
+                  cc.Scale9Sprite.WebGLRenderCmd._distortionTiling,
+                  this._node._distortionTiling.x, this._node._distortionTiling.y
                 );
             }
             ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
@@ -198,7 +198,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
 
         cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = shader;
         cc.Scale9Sprite.WebGLRenderCmd._distortionOffset = shader.getUniformLocationForName('u_offset');
-        cc.Scale9Sprite.WebGLRenderCmd._distortionScale = shader.getUniformLocationForName('u_offset_scale');
+        cc.Scale9Sprite.WebGLRenderCmd._distortionTiling = shader.getUniformLocationForName('u_offset_tiling');
         return shader;
     };
 
@@ -209,7 +209,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
         + "varying vec4 v_fragmentColor; \n"
         + "varying vec2 v_texCoord; \n"
         + "uniform vec2 u_offset; \n"
-        + "uniform vec2 u_offset_scale; \n"
+        + "uniform vec2 u_offset_tiling; \n"
         + "const float PI = 3.14159265359;\n"
         + "void main() \n"
         + "{ \n"
@@ -228,7 +228,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
         + "} else {\n"
         + "discard;\n"
         + "}\n"
-        + "uv = uv * u_offset_scale + u_offset;\n"
+        + "uv = uv * u_offset_tiling + u_offset;\n"
         + "uv = fract(uv); \n"
         + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
         + "}";
