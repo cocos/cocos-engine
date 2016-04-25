@@ -177,7 +177,7 @@ var TiledMap = cc.Class({
         },
 
         _tmxFile: {
-            default: '',
+            default: null,
             type: cc.TiledMapAsset
         },
         /**
