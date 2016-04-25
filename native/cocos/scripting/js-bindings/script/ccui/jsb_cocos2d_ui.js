@@ -500,6 +500,19 @@ if (ccui.VideoPlayer)
         this["VideoPlayer_"+event] = callback;
     };
 }
+
+ccui.Text.prototype._setString = ccui.Text.prototype.setString;
+ccui.Text.prototype.setString = function(text)
+{
+    var textType = typeof text;
+    if(textType === 'string')
+        this._setString(text);
+    else if(textType === 'number')
+        this._setString('' + text);
+    else
+        cc.log('ccui.Text.setString error: text is not string，is ' + (typeof text));
+};
+
 /*
  * UIWidget temporary solution to addChild
  * addNode and addChild function should be merged in ccui.Widget

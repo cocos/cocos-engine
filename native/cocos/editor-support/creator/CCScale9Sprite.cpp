@@ -181,17 +181,15 @@ public:
     }
     
     std::vector<cocos2d::Vec2>  _calculateVertices(cocos2d::SpriteFrame* spriteFrame, const cocos2d::Size& contentSize, float insetLeft, float insetRight, float insetTop, float insetBottom) {
-        float leftWidth, centerWidth, rightWidth;
-        float topHeight, centerHeight, bottomHeight;
+        float leftWidth, rightWidth;
+        float topHeight, bottomHeight;
         
         auto rect = spriteFrame->getRect();
         leftWidth = insetLeft;
         rightWidth = insetRight;
-        centerWidth = rect.size.width - leftWidth - rightWidth;
         
         topHeight = insetTop;
         bottomHeight = insetBottom;
-        centerHeight = rect.size.height - topHeight - bottomHeight;
         
         auto preferSize = contentSize;
         auto sizableWidth = preferSize.width - leftWidth - rightWidth;

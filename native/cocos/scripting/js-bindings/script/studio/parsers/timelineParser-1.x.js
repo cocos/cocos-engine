@@ -167,7 +167,7 @@
         var filePath = options["fileName"];
 
         var node;
-        if (filePath && "" !== filePath){
+        if (filePath){
             node = this.createNode(filePath);
         }else{
             node = new ccs.Node();
@@ -219,9 +219,9 @@
         var path = options["resourcePath"];
 
         var tmx = null;
-        if (tmxFile && "" !== tmxFile){
+        if (tmxFile){
             tmx = new cc.TMXTiledMap(tmxFile);
-        }else if (tmxString && "" !== tmxString && path && "" !== path){
+        }else if (tmxString && path){
             tmx = new cc.TMXTiledMap(tmxString, path);
         }
         return tmx;

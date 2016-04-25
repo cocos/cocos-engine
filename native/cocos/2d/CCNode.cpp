@@ -885,6 +885,11 @@ void Node::addChildHelper(Node* child, int localZOrder, int tag, const std::stri
     if (child == nullptr) {
         return;
     }
+    if (child->_parent != nullptr)
+    {
+        log("child already added. It can't be added again");
+        return;
+    }
     if (_children.empty())
     {
         this->childrenAlloc();
