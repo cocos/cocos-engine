@@ -668,6 +668,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
             var self = cc.director;
+            self._loadingScene = '';
             var scene;
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -694,7 +695,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = null;
                 }
             }
-            self._loadingScene = '';
             if (error && onLaunched) {
                 onLaunched(error);
             }
