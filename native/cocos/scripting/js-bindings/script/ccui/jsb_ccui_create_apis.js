@@ -129,14 +129,10 @@ ccui.TextField.prototype._ctor = function(placeholder, fontName, fontSize){
 
 ccui.RichElementText.prototype._ctor = function(tag, color, opacity, text, fontName, fontSize, flags, url)
 {
-    if(fontName == undefined)
-        fontName = "Helvetica";
-    if(text == undefined)
-        text = "";
-    if (flags == undefined)
-        flags = 0;
-    if (url == undefined)
-        url = "";
+    fontName = fontName || '';
+    text = text || '';
+    flags = flags || 0;
+    url = url || '';
 
     fontSize !== undefined && this.init(tag, color, opacity, text, fontName, fontSize, flags, url);
 };
@@ -153,7 +149,8 @@ if (ccui.WebView)
 {
     ccui.WebView.prototype._ctor = function(url){
         this.init();
-        url !== undefined && this.loadURL(url);
+        if(url)
+            this.loadURL(url);
     };
 }
 
@@ -161,7 +158,8 @@ if (ccui.VideoPlayer)
 {
     ccui.VideoPlayer.prototype._ctor = function(url){
         this.init();
-        url !== undefined && this.setURL(url);
+        if(url)
+            this.setURL(url);
     };
 }
 

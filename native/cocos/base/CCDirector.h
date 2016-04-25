@@ -490,13 +490,13 @@ public:
      */
     const std::thread::id& getCocos2dThreadId() const { return _cocos2d_thread_id; }
 
-    bool isPurgeDirectorInNextLoop() const { return _purgeDirectorInNextLoop; }
+    static bool isPurgeDirectorInNextLoop() { return PurgeDirectorInNextLoop; }
 
     void purgeDirector();
 protected:
     void reset();
 
-    bool _purgeDirectorInNextLoop; // this flag will be set to true in end()
+    static bool PurgeDirectorInNextLoop; // this flag will be set to true in end()
 
     void restartDirector();
     bool _restartDirectorInNextLoop; // this flag will be set to true in restart()

@@ -50,8 +50,7 @@ void HttpClient::networkThread()
 {
     increaseThreadCount();
 
-    while (true) @autoreleasepool {
-
+    while (true) {
         HttpRequest *request;
 
         // step 1: send http request if the requestQueue isn't empty
@@ -68,22 +67,20 @@ void HttpClient::networkThread()
             break;
         }
 
-        // Create a HttpResponse object, the default setting is http access failed
-        HttpResponse *response = new (std::nothrow) HttpResponse(request);
-
-        processResponse(response, _responseMessage);
-
-        // add response packet into queue
-        _responseQueueMutex.lock();
-        _responseQueue.pushBack(response);
-        _responseQueueMutex.unlock();
-
-        _schedulerMutex.lock();
-        if (Director::DirectorInstance)
+        if (Director::DirectorInstance && !Director::isPurgeDirectorInNextLoop())
         {
+            // Create a HttpResponse object, the default setting is http access failed
+            HttpResponse *response = new (std::nothrow) HttpResponse(request);
+            
+            processResponse(response, _responseMessage);
+            
+            // add response packet into queue
+            _responseQueueMutex.lock();
+            _responseQueue.pushBack(response);
+            _responseQueueMutex.unlock();
+            
             Director::DirectorInstance->getScheduler()->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this));
         }
-        _schedulerMutex.unlock();
     }
 
     // cleanup: if worker thread received quit signal, clean up un-completed request queue
@@ -106,8 +103,7 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
     char responseMessage[RESPONSE_BUFFER_SIZE] = { 0 };
     processResponse(response, responseMessage);
 
-    _schedulerMutex.lock();
-    if (Director::DirectorInstance)
+    if (Director::DirectorInstance && !Director::isPurgeDirectorInNextLoop())
     {
         Director::DirectorInstance->getScheduler()->performFunctionInCocosThread([this, response, request]{
             const ccHttpRequestCallback& callback = request->getCallback();
@@ -127,7 +123,6 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
             request->release();
         });
     }
-    _schedulerMutex.unlock();
     decreaseThreadCountAndMayDeleteThis();
 }
 

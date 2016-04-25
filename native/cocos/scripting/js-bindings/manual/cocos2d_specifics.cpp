@@ -5064,7 +5064,7 @@ void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) 
 bool js_console_log(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    if (argc == 1) {
+    if (argc >= 1) {
         std::string msg;
         bool ok = jsval_to_std_string(cx, args.get(0), &msg);
         if (!ok) {
@@ -5077,7 +5077,6 @@ bool js_console_log(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_console_log : wrong number of arguments");
     return false;
 }
 

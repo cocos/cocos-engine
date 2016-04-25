@@ -1966,198 +1966,117 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
     JSB_PRECONDITION( jsobj, "Not a valid JS object");
 
     // defaul values
-    const char *            defautlFontName         = "Arial";
-    const int               defaultFontSize         = 32;
-    TextHAlignment         defaultTextAlignment    = TextHAlignment::LEFT;
-    TextVAlignment defaultTextVAlignment   = TextVAlignment::TOP;
-
-    // by default shadow and stroke are off
-    out->_shadow._shadowEnabled = false;
-    out->_stroke._strokeEnabled = false;
-
-    // white text by default
-    out->_fontFillColor = Color3B::WHITE;
+    out->_fontName = "Arial";
+    out->_fontSize = 32;
+    out->_alignment = TextHAlignment::LEFT;
+    out->_vertAlignment = TextVAlignment::TOP;
 
     // font name
-    JS::RootedValue jsr(cx);
-    JS_GetProperty(cx, jsobj, "fontName", &jsr);
-    JS::ToString(cx, jsr);
-    JSStringWrapper wrapper(jsr);
-    const char* fontName = wrapper.get();
-
-    if (fontName && strlen(fontName) > 0)
-    {
-        out->_fontName  = fontName;
-    }
-    else
-    {
-        out->_fontName  = defautlFontName;
-    }
+    JS::RootedValue jsFontName(cx);
+    if (JS_GetProperty(cx, jsobj, "fontName", &jsFontName) && !jsFontName.isNullOrUndefined())
+        jsval_to_std_string(cx, jsFontName, &(out->_fontName));
 
     // font size
-    bool hasProperty, hasSecondProp;
-    JS_HasProperty(cx, jsobj, "fontSize", &hasProperty);
-    if ( hasProperty )
+    JS::RootedValue jsFontSize(cx);
+    if (JS_GetProperty(cx, jsobj, "fontSize", &jsFontSize) && !jsFontSize.isNullOrUndefined())
     {
-        JS_GetProperty(cx, jsobj, "fontSize", &jsr);
         double fontSize = 0.0;
-        JS::ToNumber(cx, jsr, &fontSize);
-        out->_fontSize  = fontSize;
-    }
-    else
-    {
-        out->_fontSize  = defaultFontSize;
+        JS::ToNumber(cx, jsFontSize, &fontSize);
+        out->_fontSize = fontSize;
     }
 
     // font alignment horizontal
-    JS_HasProperty(cx, jsobj, "textAlign", &hasProperty);
-    if ( hasProperty )
+    JS::RootedValue jsTextAlign(cx);
+    if (JS_GetProperty(cx, jsobj, "textAlign", &jsTextAlign) && !jsTextAlign.isNullOrUndefined())
     {
-        JS_GetProperty(cx, jsobj, "textAlign", &jsr);
-        double fontAlign = 0.0;
-        JS::ToNumber(cx, jsr, &fontAlign);
-        out->_alignment = (TextHAlignment)(int)fontAlign;
-    }
-    else
-    {
-        out->_alignment  = defaultTextAlignment;
+        double textAlign = 0.0;
+        JS::ToNumber(cx, jsTextAlign, &textAlign);
+        out->_alignment = (TextHAlignment)(int)textAlign;
     }
 
     // font alignment vertical
-    JS_HasProperty(cx, jsobj, "verticalAlign", &hasProperty);
-    if ( hasProperty )
+    JS::RootedValue jsVerticalAlign(cx);
+    if (JS_GetProperty(cx, jsobj, "verticalAlign", &jsVerticalAlign) && !jsVerticalAlign.isNullOrUndefined())
     {
-        JS_GetProperty(cx, jsobj, "verticalAlign", &jsr);
-        double fontAlign = 0.0;
-        JS::ToNumber(cx, jsr, &fontAlign);
-        out->_vertAlignment = (TextVAlignment)(int)fontAlign;
-    }
-    else
-    {
-        out->_vertAlignment  = defaultTextVAlignment;
+        double verticalAlign = 0.0;
+        JS::ToNumber(cx, jsVerticalAlign, &verticalAlign);
+        out->_vertAlignment = (TextVAlignment)(int)verticalAlign;
     }
 
     // font fill color
-    JS_HasProperty(cx, jsobj, "fillStyle", &hasProperty);
-    if ( hasProperty )
+    JS::RootedValue jsFillColor(cx);
+    if (JS_GetProperty(cx, jsobj, "fillStyle", &jsFillColor) && !jsFillColor.isNullOrUndefined())
     {
-        JS_GetProperty(cx, jsobj, "fillStyle", &jsr);
-
-        JS::RootedObject jsobjColor(cx);
-        JS::RootedValue jsvalColor(cx, jsr);
-        if (!JS_ValueToObject(cx, jsvalColor, &jsobjColor))
-            return false;
-
-        out->_fontFillColor = getColorFromJSObject(cx, jsobjColor);
+        jsval_to_cccolor3b(cx, jsFillColor, &(out->_fontFillColor));
     }
 
     // font rendering box dimensions
-    JS_HasProperty(cx, jsobj, "boundingWidth", &hasProperty);
-    JS_HasProperty(cx, jsobj, "boundingHeight", &hasSecondProp);
-    if ( hasProperty && hasSecondProp )
+    JS::RootedValue jsWidth(cx);
+    if (JS_GetProperty(cx, jsobj, "boundingWidth", &jsWidth) && !jsWidth.isNullOrUndefined())
     {
-        JS_GetProperty(cx, jsobj, "boundingWidth", &jsr);
-        double boundingW = 0.0;
-        JS::ToNumber(cx, jsr, &boundingW);
-
-        JS_GetProperty(cx, jsobj, "boundingHeight", &jsr);
-        double boundingH = 0.0;
-        JS::ToNumber(cx, jsr, &boundingH);
-
-        Size dimension;
-        dimension.width = boundingW;
-        dimension.height = boundingH;
-        out->_dimensions = dimension;
+        double boundingWidth = 0.0;
+        JS::ToNumber(cx, jsWidth, &boundingWidth);
+        out->_dimensions.width = boundingWidth;
+    }
+    JS::RootedValue jsHeight(cx);
+    if (JS_GetProperty(cx, jsobj, "boundingHeight", &jsHeight) && !jsHeight.isNullOrUndefined())
+    {
+        double boundingHeight = 0.0;
+        JS::ToNumber(cx, jsHeight, &boundingHeight);
+        out->_dimensions.height = boundingHeight;
     }
 
     // shadow
-    JS_HasProperty(cx, jsobj, "shadowEnabled", &hasProperty);
-    if ( hasProperty )
+    JS::RootedValue jsShadowEnabled(cx);
+    if (JS_GetProperty(cx, jsobj, "shadowEnabled", &jsShadowEnabled) && !jsShadowEnabled.isNullOrUndefined())
     {
-        JS_GetProperty(cx, jsobj, "shadowEnabled", &jsr);
-        out->_shadow._shadowEnabled  = ToBoolean(jsr);
-
-        if ( out->_shadow._shadowEnabled )
+        out->_shadow._shadowEnabled = ToBoolean(jsShadowEnabled);
+        if (out->_shadow._shadowEnabled)
         {
-            // default shadow values
-            out->_shadow._shadowOffset  = Size(5, 5);
-            out->_shadow._shadowBlur    = 1;
-            out->_shadow._shadowOpacity = 1;
-
-            // shado offset
-            JS_HasProperty(cx, jsobj, "shadowOffsetX", &hasProperty);
-            JS_HasProperty(cx, jsobj, "shadowOffsetY", &hasSecondProp);
-            if ( hasProperty && hasSecondProp )
+            JS::RootedValue jsOffsetX(cx);
+            if (JS_GetProperty(cx, jsobj, "shadowOffsetX", &jsOffsetX) && !jsOffsetX.isNullOrUndefined())
             {
-                JS_GetProperty(cx, jsobj, "shadowOffsetX", &jsr);
-                double offx = 0.0;
-                JS::ToNumber(cx, jsr, &offx);
-
-                JS_GetProperty(cx, jsobj, "shadowOffsetY", &jsr);
-                double offy = 0.0;
-                JS::ToNumber(cx, jsr, &offy);
-
-                Size offset;
-                offset.width = offx;
-                offset.height = offy;
-                out->_shadow._shadowOffset = offset;
+                double shadowOffsetX = 0.0;
+                JS::ToNumber(cx, jsOffsetX, &shadowOffsetX);
+                out->_shadow._shadowOffset.width = shadowOffsetX;
             }
-
-            // shadow blur
-            JS_HasProperty(cx, jsobj, "shadowBlur", &hasProperty);
-            if ( hasProperty )
+            JS::RootedValue jsOffsetY(cx);
+            if (JS_GetProperty(cx, jsobj, "shadowOffsetY", &jsOffsetY) && !jsOffsetY.isNullOrUndefined())
             {
-                JS_GetProperty(cx, jsobj, "shadowBlur", &jsr);
-                double shadowBlur = 0.0;
-                JS::ToNumber(cx, jsr, &shadowBlur);
-                out->_shadow._shadowBlur = shadowBlur;
+                double shadowOffsetY = 0.0;
+                JS::ToNumber(cx, jsOffsetY, &shadowOffsetY);
+                out->_shadow._shadowOffset.height = shadowOffsetY;
             }
-
-            // shadow intensity
-            JS_HasProperty(cx, jsobj, "shadowOpacity", &hasProperty);
-            if ( hasProperty )
+            
+            JS::RootedValue jsOpacity(cx);
+            if (JS_GetProperty(cx, jsobj, "shadowOpacity", &jsOpacity) && !jsOpacity.isNullOrUndefined())
             {
-                JS_GetProperty(cx, jsobj, "shadowOpacity", &jsr);
                 double shadowOpacity = 0.0;
-                JS::ToNumber(cx, jsr, &shadowOpacity);
+                JS::ToNumber(cx, jsOpacity, &shadowOpacity);
                 out->_shadow._shadowOpacity = shadowOpacity;
             }
         }
     }
 
     // stroke
-    JS_HasProperty(cx, jsobj, "strokeEnabled", &hasProperty);
-    if ( hasProperty )
+    JS::RootedValue jsStrokeEnabled(cx);
+    if (JS_GetProperty(cx, jsobj, "shadowEnabled", &jsStrokeEnabled) && !jsStrokeEnabled.isNullOrUndefined())
     {
-        JS_GetProperty(cx, jsobj, "strokeEnabled", &jsr);
-        out->_stroke._strokeEnabled  = ToBoolean(jsr);
-
-        if ( out->_stroke._strokeEnabled )
+        out->_stroke._strokeEnabled = ToBoolean(jsStrokeEnabled);
+        if (out->_stroke._strokeEnabled)
         {
-            // default stroke values
-            out->_stroke._strokeSize  = 1;
-            out->_stroke._strokeColor = Color3B::BLUE;
-
-            // stroke color
-            JS_HasProperty(cx, jsobj, "strokeStyle", &hasProperty);
-            if ( hasProperty )
+            JS::RootedValue jsStrokeColor(cx);
+            if (JS_GetProperty(cx, jsobj, "strokeStyle", &jsStrokeColor) && !jsStrokeColor.isNullOrUndefined())
             {
-                JS_GetProperty(cx, jsobj, "strokeStyle", &jsr);
-
-                JS::RootedObject jsobjStrokeColor(cx);
-                if (!JS_ValueToObject( cx, jsr, &jsobjStrokeColor ) )
-                    return false;
-                out->_stroke._strokeColor = getColorFromJSObject(cx, jsobjStrokeColor);
+                jsval_to_cccolor3b(cx, jsStrokeColor, &(out->_stroke._strokeColor));
             }
-
-            // stroke size
-            JS_HasProperty(cx, jsobj, "lineWidth", &hasProperty);
-            if ( hasProperty )
+            
+            JS::RootedValue jsLineWidth(cx);
+            if (JS_GetProperty(cx, jsobj, "lineWidth", &jsLineWidth) && !jsLineWidth.isNullOrUndefined())
             {
-                JS_GetProperty(cx, jsobj, "lineWidth", &jsr);
-                double strokeSize = 0.0;
-                JS::ToNumber(cx, jsr, &strokeSize);
-                out->_stroke._strokeSize = strokeSize;
+                double lineWidth = 0.0;
+                JS::ToNumber(cx, jsLineWidth, &lineWidth);
+                out->_stroke._strokeSize = lineWidth;
             }
         }
     }
