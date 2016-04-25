@@ -875,6 +875,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _fillStart: 0,
     _fillRange: Math.PI * 2,
     _distortionOffset: null,
+    _distortionScale: null,
     
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);

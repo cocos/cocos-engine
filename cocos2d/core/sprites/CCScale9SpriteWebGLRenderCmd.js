@@ -65,8 +65,14 @@ if (_ccsg.Node.WebGLRenderCmd) {
             this._shaderProgram.use();
             this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
             if(this._shaderProgram === cc.Scale9Sprite.WebGLRenderCmd._distortionProgram && this._node._distortionOffset) {
-                this._shaderProgram.setUniformLocationWith2f(cc.Scale9Sprite.WebGLRenderCmd._distortionLocation,
-                    this._node._distortionOffset.x, this._node._distortionOffset.y);
+                this._shaderProgram.setUniformLocationWith2f(
+                  cc.Scale9Sprite.WebGLRenderCmd._distortionOffset,
+                  this._node._distortionOffset.x, this._node._distortionOffset.y
+                );
+                this._shaderProgram.setUniformLocationWith2f(
+                  cc.Scale9Sprite.WebGLRenderCmd._distortionScale,
+                  this._node._distortionScale.x, this._node._distortionScale.y
+                );
             }
             ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
@@ -191,7 +197,8 @@ if (_ccsg.Node.WebGLRenderCmd) {
         shader.updateUniforms();
 
         cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = shader;
-        cc.Scale9Sprite.WebGLRenderCmd._distortionLocation = shader.getUniformLocationForName('u_offset');
+        cc.Scale9Sprite.WebGLRenderCmd._distortionOffset = shader.getUniformLocationForName('u_offset');
+        cc.Scale9Sprite.WebGLRenderCmd._distortionScale = shader.getUniformLocationForName('u_offset_scale');
         return shader;
     };
 
@@ -202,6 +209,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
         + "varying vec4 v_fragmentColor; \n"
         + "varying vec2 v_texCoord; \n"
         + "uniform vec2 u_offset; \n"
+        + "uniform vec2 u_offset_scale; \n"
         + "const float PI = 3.14159265359;\n"
         + "void main() \n"
         + "{ \n"
@@ -220,10 +228,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
         + "} else {\n"
         + "discard;\n"
         + "}\n"
-        + "uv.x /= 0.5;\n"
-        + "uv.y /= 0.5;\n"
-        + "uv.x += u_offset.x;\n"
-        + "uv.y += u_offset.y;\n"
+        + "uv = uv * u_offset_scale + u_offset;\n"
         + "uv = fract(uv); \n"
         + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
         + "}";
