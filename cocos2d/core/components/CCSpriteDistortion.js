@@ -46,6 +46,7 @@ var SpriteDistortion = cc.Class({
 
     ctor: function() {
         this._distortionOffset = cc.v2(0.0,0.0);
+        this._distortionTiling = cc.v2(1.0,1.0);
         this._spriteSGNode = null;
     },
 
@@ -68,6 +69,23 @@ var SpriteDistortion = cc.Class({
             }
         },
 
+        /**
+         * !#en Change the UV scale for distortion rendering.
+         * !#zh 在渲染时改变UV的寻址系数
+         * @property tiling
+         * @type {Vec2}
+         * @example
+         * distortion.tiling = new cc.Vec2(0.5, 0.3);;
+         */
+        tiling: {
+            get: function() {
+                return this._distortionTiling;
+            },
+            set:function(value) {
+                this._distortionTiling.x = value.x;
+                this._distortionTiling.y = value.y;
+            }
+        },
     },
 
     onEnable: function () {
@@ -76,6 +94,7 @@ var SpriteDistortion = cc.Class({
         if(this._spriteSGNode) {
             sgNode.setState(cc.Scale9Sprite.state.DISTORTION);
             sgNode._distortionOffset = this._distortionOffset;
+            sgNode._distortionTiling = this._distortionTiling;
         }
     },
 
