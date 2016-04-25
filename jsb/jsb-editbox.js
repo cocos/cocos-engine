@@ -50,16 +50,6 @@ _p.setMaxLength = function(maxLength) {
     this._setMaxLength(maxLength);
 }
 
-_p.editBoxEditingDidBegin = function (sender) {
-    this.editBoxEditingDidBegan(sender);
-}
-_p.editBoxEditingDidEnd = function (sender) {
-    this.editBoxEditingDidEnded(sender);
-}
-
-_p._onTouchBegan = function() {}
-_p._onTouchEnded = function() {}
-
 _p.setLineHeight = function () {}
 
 _p = null;
