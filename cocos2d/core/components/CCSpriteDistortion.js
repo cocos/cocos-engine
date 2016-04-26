@@ -45,8 +45,6 @@ var SpriteDistortion = cc.Class({
     },
 
     ctor: function() {
-        this._distortionOffset = cc.v2(0.0,0.0);
-        this._distortionTiling = cc.v2(1.0,1.0);
         this._spriteSGNode = null;
     },
 
@@ -59,6 +57,7 @@ var SpriteDistortion = cc.Class({
          * @example
          * distortion.offset = new cc.Vec2(0.5, 0.3);;
          */
+        _distortionOffset: cc.v2(0.0,0.0),
         offset: {
             get: function() {
                 return this._distortionOffset;
@@ -77,6 +76,7 @@ var SpriteDistortion = cc.Class({
          * @example
          * distortion.tiling = new cc.Vec2(0.5, 0.3);;
          */
+        _distortionTiling: cc.v2(1.0,1.0),
         tiling: {
             get: function() {
                 return this._distortionTiling;
