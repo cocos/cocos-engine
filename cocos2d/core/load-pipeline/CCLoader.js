@@ -238,15 +238,14 @@ JS.mixin(cc.loader, {
     },
 
     _resources: resources,
-    _getResUuid: function (url) {
-        var uuid = resources.getUuid(url);
+    _getResUuid: function (url, type) {
+        var uuid = resources.getUuid(url, type);
         if ( !uuid ) {
             var extname = cc.path.extname(url);
             if (extname) {
-                //cc.warn('Don\'t add extension for "%s".', url);
                 // strip extname
                 url = url.slice(0, - extname.length);
-                uuid = resources.getUuid(url);
+                uuid = resources.getUuid(url, type);
             }
         }
         return uuid;
@@ -260,23 +259,37 @@ JS.mixin(cc.loader, {
      * @method loadRes
      * @param {String} url - Url of the target resource.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
+     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} completeCallback - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
      * 
      * @example
      * 
-     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
-     * cc.loader.loadRes('imgs/cocos.png/cocos', function (err, spriteFrame) {
+     * // load the prefab (project/assets/resources/misc/character/cocos) from resources folder
+     * cc.loader.loadRes('misc/character/cocos', function (err, prefab) {
      *     if (err) {
      *         cc.error(err.message || err);
      *         return;
      *     }
-     *     cc.log('Result should be a sprite frame: ' + ( spriteFrame instanceof cc.SpriteFrame));
+     *     cc.log('Result should be a prefab: ' + (prefab instanceof cc.Prefab));
+     * });
+     *
+     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
+     * cc.loader.loadRes('imgs/cocos', cc.SpriteFrame, function (err, spriteFrame) {
+     *     if (err) {
+     *         cc.error(err.message || err);
+     *         return;
+     *     }
+     *     cc.log('Result should be a sprite frame: ' + (spriteFrame instanceof cc.SpriteFrame));
      * });
      */
-    loadRes: function (url, completeCallback) {
-        var uuid = this._getResUuid(url);
+    loadRes: function (url, type, completeCallback) {
+        if (!completeCallback && type && !cc.isChildClassOf(type, cc.RawAsset)) {
+            completeCallback = type;
+            type = null;
+        }
+        var uuid = this._getResUuid(url, type);
         if (uuid) {
             this.load(
                 {
@@ -289,7 +302,14 @@ JS.mixin(cc.loader, {
         }
         else {
             callInNextTick(function () {
-                completeCallback.call(null, new Error('Resources url "' + url + '" does not exist.'), null);
+                var info;
+                if (type) {
+                    info = cc.js.getClassName(type) + ' in "' + url + '" does not exist.';
+                }
+                else {
+                    info = 'Resources url "' + url + '" does not exist.';
+                }
+                completeCallback(new Error(info), null);
             });
         }
     },
@@ -302,14 +322,15 @@ JS.mixin(cc.loader, {
      * @method loadResAll
      * @param {String} url - Url of the target folder.
      *                       The url is relative to the "resources" folder.
+     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
      * @param {Object[]} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array. If error occurs, assets will be null.
      *
      * @example
      *
-     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
-     * cc.loader.loadResAll('imgs/cocos.png', function (err, assets) {
+     * // load the texture (resources/imgs/cocos.png) and sprite frame (resources/imgs/cocos.png/cocos)
+     * cc.loader.loadResAll('imgs/cocos', function (err, assets) {
      *     if (err) {
      *         cc.error(err);
      *         return;
@@ -318,8 +339,12 @@ JS.mixin(cc.loader, {
      *     var spriteFrame = assets[1];
      * });
      */
-    loadResAll: function (url, completeCallback) {
-        var uuids = resources.getUuidArray(url);
+    loadResAll: function (url, type, completeCallback) {
+        if (!completeCallback && type && !cc.isChildClassOf(type, cc.RawAsset)) {
+            completeCallback = type;
+            type = null;
+        }
+        var uuids = resources.getUuidArray(url, type);
         var remain = uuids.length;
         if (remain > 0) {
             var results = [];
@@ -353,7 +378,7 @@ JS.mixin(cc.loader, {
         }
         else {
             callInNextTick(function () {
-                completeCallback.call(null, null, []);
+                completeCallback(null, []);
             });
         }
     },

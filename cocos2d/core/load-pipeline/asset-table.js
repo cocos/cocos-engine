@@ -32,6 +32,11 @@ function AssetTable () {
     this._pathToUuid = {};
 }
 
+function Entry (uuid, type) {
+    this.uuid = uuid;
+    this.type = type;
+}
+
 cc.js.mixin(AssetTable.prototype, {
 
     ///**
@@ -47,30 +52,63 @@ cc.js.mixin(AssetTable.prototype, {
     //    return (path in this._pathToUuid);
     //},
     
-    getUuid: function (path) {
+    getUuid: function (path, type) {
         path = cc.url.normalize(path);
         if ( !path ) {
             return '';
         }
-        var uuid = this._pathToUuid[path];
-        if (uuid) {
-            return uuid;
+        var isChildClassOf = cc.isChildClassOf;
+        var p2u = this._pathToUuid;
+        var item = p2u[path];
+        if (item && (!type || isChildClassOf(item.type, type))) {
+            return item.uuid;
+        }
+
+        var p;
+        if (type) {
+            for (p in p2u) {
+                if (p.startsWith(path)) {
+                    var item = p2u[p];
+                    if (isChildClassOf(item.type, type)) {
+                        return item.uuid;
+                    }
+                }
+            }
         }
         else {
-            return '';
+            for (p in p2u) {
+                if (p.startsWith(path)) {
+                    return p2u[p].uuid;
+                }
+            }
         }
+        return '';
     },
 
-    getUuidArray: function (path) {
+    getUuidArray: function (path, type) {
         path = cc.url.normalize(path);
         if ( !path ) {
             return [];
         }
         var uuids = [];
         var p2u = this._pathToUuid;
-        for (var p in p2u) {
-            if (p.startsWith(path)) {
-                uuids.push(p2u[p]);
+        var p;
+        if (type) {
+            var isChildClassOf = cc.isChildClassOf;
+            for (p in p2u) {
+                if (p.startsWith(path)) {
+                    var item = p2u[p];
+                    if (isChildClassOf(item.type, type)) {
+                        uuids.push(item.uuid);
+                    }
+                }
+            }
+        }
+        else {
+            for (p in p2u) {
+                if (p.startsWith(path)) {
+                    uuids.push(p2u[p].uuid);
+                }
             }
         }
         return uuids;
@@ -87,15 +125,16 @@ cc.js.mixin(AssetTable.prototype, {
     
     /**
      * @method add
-     * @param {string} path - the path to load, should NOT include filename extensions.
-     * @param {string} uuid
+     * @param {String} path - the path to load, should NOT include filename extensions.
+     * @param {String} uuid
+     * @param {Function} type
      * @private
      */
-    add: function (path, uuid) {
+    add: function (path, uuid, type) {
         //// remove extname
         //// (can not use path.slice because length of extname maybe 0)
         //path = path.substring(0, path - cc.path.extname(path).length);
-        this._pathToUuid[path] = uuid;
+        this._pathToUuid[path] = new Entry(uuid, type);
     },
     _removeByPath: function (path) {
         delete this._pathToUuid[path];

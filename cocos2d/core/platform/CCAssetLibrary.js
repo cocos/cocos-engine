@@ -109,7 +109,7 @@ var AssetLibrary = {
 
     _getAssetInfoInRuntime: function (uuid) {
         var info = _uuidToRawAssets[uuid];
-        if (info && info.raw) {
+        if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
             return {
                 url: _rawAssetsBase + info.url,
                 raw: true,
@@ -295,15 +295,20 @@ var AssetLibrary = {
                 var assets = rawAssets[mountPoint];
                 for (var uuid in assets) {
                     var info = assets[uuid];
-                    var url = info.url;
-                    var raw = info.raw;
+                    var url = info[0];
+                    var typeId = info[1];
+                    var type = cc.js._getClassById(typeId);
+                    if (!type) {
+                        cc.error('Cannot get', typeId);
+                        continue;
+                    }
                     _uuidToRawAssets[uuid] = {
                         url: mountPoint + '/' + url,
-                        raw: !!raw,
+                        type: type,
                     };
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
-                        if ( !raw ) {
+                        if (cc.isChildClassOf(type, Asset)) {
                             var ext = cc.path.extname(url);
                             if (ext) {
                                 // trim base dir and extname
@@ -318,7 +323,7 @@ var AssetLibrary = {
                             url = url.slice(RES_DIR.length);
                         }
                         // register
-                        Loader._resources.add(url, uuid);
+                        Loader._resources.add(url, uuid, type);
                     }
                 }
             }
