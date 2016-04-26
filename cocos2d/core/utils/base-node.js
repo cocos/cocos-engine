@@ -691,7 +691,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                         cc.warn('Should not set alpha via "color", set "opacity" please.');
                     }
                     if (this._sizeProvider && this._sizeProvider.setColor) {
-                        this._sizeProvider.setColor(this.value);
+                        this._sizeProvider.setColor(value);
                     }
                 }
             },
