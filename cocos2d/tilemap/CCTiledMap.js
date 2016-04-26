@@ -671,6 +671,7 @@ var TiledMap = cc.Class({
             var child = logicChildren[i];
             var tmxLayer = child.getComponent(cc.TiledLayer);
             var zOrderValue = child.getSiblingIndex();
+            child.setLocalZOrder(zOrderValue);
             if (tmxLayer) {
                 if (tmxLayer._sgNode) {
                     tmxLayer._sgNode.setLocalZOrder(zOrderValue);
