@@ -60,7 +60,7 @@ var RendererInSG = cc.Class({
         if (CC_EDITOR) {
             var sgSize = this._sgNode.getContentSize();
             // sgSize is not a Vec2 in JSB
-            if (sgSize.x !== 0 || sgSize.y !== 0) {
+            if (sgSize.width !== 0 || sgSize.height !== 0) {
                 cc.error('Renderer error: Size of the cc._RendererInSG._sgNode must be zero');
             } 
         }
