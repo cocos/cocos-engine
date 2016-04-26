@@ -124,7 +124,17 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      */
     getContent: function (id) {
         var item = this.map[id];
-        return item ? item.content : null;
+        var ret = null;
+        if (item) {
+            if (item.content) {
+                ret = item.content;
+            }
+            else if (item.alias) {
+                ret = this.getContent(item.alias);
+            }
+        }
+
+        return ret;
     },
 
     /**
