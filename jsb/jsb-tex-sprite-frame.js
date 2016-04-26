@@ -124,6 +124,13 @@ cc.SpriteFrame.prototype._refreshTexture = function (texture) {
         var offset = this.getOffset();
         var rotated = this.isRotated();
 
+        if (this.insetTop === undefined) {
+            this.insetTop = 0;
+            this.insetBottom = 0;
+            this.insetLeft = 0;
+            this.insetRight = 0;
+        }
+
         this._initWithTexture(texture, rect, rotated, offset, originalSize);
 
         //dispatch 'load' event of cc.SpriteFrame
