@@ -110,7 +110,9 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     },
 
     /**
-     * Check whether all items are completed
+     * !#en Check whether all items are completed.
+     * !#zh 检查对于对象是否全部完成。
+     * @method isCompleted
      * @return {Boolean}
      */
     isCompleted: function () {
@@ -120,6 +122,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     /**
      * !#en Check whether an item is completed.
      * !#zh 检查指定对象是否完成。
+     * @method isItemCompleted
      * @param {String} id The item's id.
      * @return {Boolean}
      */
@@ -130,6 +133,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     /**
      * !#en Check whether an item exists.
      * !#zh 检查指定对象是否存在。
+     * @method exists
      * @param {String} id The item's id.
      * @return {Boolean}
      */
@@ -140,6 +144,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     /**
      * !#en Returns the content of an internal item.
      * !#zh 获取指定对象的内容。
+     * @method getContent
      * @param {String} id The item's id.
      * @return {Object}
      */
@@ -151,6 +156,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     /**
      * !#en Returns the error of an internal item.
      * !#zh 获取指定对象的错误信息。
+     * @method getError
      * @param {String} id The item's id.
      * @return {Object}
      */
@@ -211,7 +217,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     removeAllListeners: CallbacksInvoker.prototype.removeAll,
 
     /**
-     * Remove an item, can only remove completed item, ongoing item can not be removed
+     * Remove an item, can only remove completed item, ongoing item can not be removed.
      * @param {String} url
      */
     removeItem: function (url) {
