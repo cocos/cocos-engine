@@ -23,19 +23,45 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+var CircleCollider = cc.Class({
+    name: 'cc.CircleCollider',
+    extends: require('./CCCollider'),
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider',
+        executeInEditMode: true
+    },
+
+    properties: {
+        _offset: {
+            default: cc.v2(0, 0)
+        },
+
+        _radius: {
+            default: 50
+        },
+
+        offset: {
+            get: function () {
+                return this._offset;
+            },
+            set: function (value) {
+                this._offset = value;
+            },
+            type: cc.Vec2
+        },
+
+        radius: {
+            get: function () {
+                return this._radius;
+            },
+            set: function (value) {
+                if (value > 0) {
+                    this._radius = value;
+                }
+            }
+        }
     }
+});
 
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./collider');
-}
-
-require('./base-ui/CCWidgetManager');
+cc.CircleCollider = module.exports = CircleCollider;

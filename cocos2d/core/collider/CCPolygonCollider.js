@@ -23,19 +23,39 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+var PolygonCollider = cc.Class({
+    name: 'cc.PolygonCollider',
+    extends: require('./CCCollider'),
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Polygon Collider',
+        executeInEditMode: true
+    },
+
+    ctor: function () {
+        this.points = [cc.v2(-50, -50), cc.v2(-50, 50), cc.v2(50, 50), cc.v2(50, -50)];
+    },
+
+    properties: {
+        _offset: {
+            default: cc.v2(0, 0)
+        },
+
+        offset: {
+            get: function () {
+                return this._offset;
+            },
+            set: function (value) {
+                this._offset = value;
+            },
+            type: cc.Vec2
+        },
+
+        points: {
+            default: [],
+            type: [cc.Vec2]
+        }
     }
+});
 
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./collider');
-}
-
-require('./base-ui/CCWidgetManager');
+cc.PolygonCollider = module.exports = PolygonCollider;
