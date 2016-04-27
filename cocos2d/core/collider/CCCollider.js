@@ -23,6 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Collider component base class.
+ * !#zh 碰撞组件基类
+ * @class Collider
+ * @extends Component
+ */
 var Collider = cc.Class({
     name: 'cc.Collider',
     extends: cc.Component,
@@ -42,9 +48,17 @@ var Collider = cc.Class({
 
         editing: {
             default: false,
-            serializable: false
+            serializable: false,
+            tooltip: 'i18n:COMPONENT.collider.editing'
         },
 
+        /**
+         * !#en Collider component category.
+         * !#zh 碰撞组件所属类别
+         * @property category
+         * @type {Integer}
+         * @default 1
+         */
         category: {
             get: function () {
                 return this._category;
@@ -60,9 +74,17 @@ var Collider = cc.Class({
                     cc.director.getColliderManager().addCollider(this);   
                 }
             },
-            type: 'Integer'
+            type: 'Integer',
+            tooltip: 'i18n:COMPONENT.collider.category'
         },
 
+        /**
+         * !#en The collider mask can collide with this collider.
+         * !#zh 可以与碰撞组件相碰撞的组件掩码
+         * @property mask
+         * @type {Integer}
+         * @default 65535
+         */
         mask: {
             get: function () {
                 return this._mask;
@@ -78,7 +100,8 @@ var Collider = cc.Class({
                     cc.director.getColliderManager().addCollider(this);   
                 }
             },
-            type: 'Integer'
+            type: 'Integer',
+            tooltip: 'i18n:COMPONENT.collider.mask'
         }
     },
 

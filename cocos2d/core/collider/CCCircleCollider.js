@@ -23,6 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Circle Collider.
+ * !#zh 圆形碰撞组件
+ * @class CircleCollider
+ * @extends Component
+ */
 var CircleCollider = cc.Class({
     name: 'cc.CircleCollider',
     extends: require('./CCCollider'),
@@ -41,6 +47,12 @@ var CircleCollider = cc.Class({
             default: 50
         },
 
+        /**
+         * !#en Position offset
+         * !#zh 位置偏移量
+         * @property offset
+         * @type {Vec2}
+         */
         offset: {
             get: function () {
                 return this._offset;
@@ -51,6 +63,12 @@ var CircleCollider = cc.Class({
             type: cc.Vec2
         },
 
+        /**
+         * !#en Circle radius
+         * !#zh 圆形半径
+         * @property radius
+         * @type {Number}
+         */
         radius: {
             get: function () {
                 return this._radius;

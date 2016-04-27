@@ -23,6 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Box Collider.
+ * !#zh 包围盒碰撞组件
+ * @class BoxCollider
+ * @extends Component
+ */
 var BoxCollider = cc.Class({
     name: 'cc.BoxCollider',
     extends: cc.Collider,
@@ -41,6 +47,12 @@ var BoxCollider = cc.Class({
             default: cc.size(100, 100)
         },
 
+        /**
+         * !#en Position offset
+         * !#zh 位置偏移量
+         * @property offset
+         * @type {Vec2}
+         */
         offset: {
             get: function () {
                 return this._offset;
@@ -51,6 +63,12 @@ var BoxCollider = cc.Class({
             type: cc.Vec2
         },
 
+        /**
+         * !#en Box size
+         * !#zh 包围盒大小
+         * @property size
+         * @type {Size}
+         */
         size: {
             get: function () {
                 return this._size;

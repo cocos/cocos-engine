@@ -23,6 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Polygon Collider.
+ * !#zh 多边形碰撞组件
+ * @class PolygonCollider
+ * @extends Component
+ */
 var PolygonCollider = cc.Class({
     name: 'cc.PolygonCollider',
     extends: require('./CCCollider'),
@@ -41,6 +47,12 @@ var PolygonCollider = cc.Class({
             default: cc.v2(0, 0)
         },
 
+        /**
+         * !#en Position offset
+         * !#zh 位置偏移量
+         * @property offset
+         * @type {Vec2}
+         */
         offset: {
             get: function () {
                 return this._offset;
@@ -51,6 +63,12 @@ var PolygonCollider = cc.Class({
             type: cc.Vec2
         },
 
+        /**
+         * !#en Polygon points
+         * !#zh 多边形顶点数组
+         * @property points
+         * @type {[Vec2]}
+         */
         points: {
             default: [],
             type: [cc.Vec2]
