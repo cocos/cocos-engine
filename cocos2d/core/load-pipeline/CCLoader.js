@@ -369,7 +369,12 @@ JS.mixin(cc.loader, {
      * @returns {*}
      */
     getRes: function (url) {
-        return this._items.getContent(url);
+        var item = this._items.getContent(url);
+        if (!item) {
+            var uuid = this._getResUuid(url);
+            item = this._items.getContent(uuid);
+        }
+        return item;
     },
 
     /**
