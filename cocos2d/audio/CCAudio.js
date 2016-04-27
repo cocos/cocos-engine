@@ -494,7 +494,11 @@ JS.mixin(cc.Audio.prototype, {
                 audio = new cc.Audio(url);
                 cc.loader.load(url, function (error, loadAudio) {
                     if (error) return;
-                    audio.setBuffer(loadAudio._element.buffer);
+                    if (loadAudio._AUDIO_TYPE === 'WEBAUDIO')
+                        audio.setBuffer(loadAudio._element.buffer);
+                    else
+                        audio.setElement(loadAudio._element);
+
                     audio.setVolume(volume);
                     audio.play(0, loop || false);
                     effectList.push(audio);
