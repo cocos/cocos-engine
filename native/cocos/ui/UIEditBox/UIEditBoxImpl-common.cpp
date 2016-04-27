@@ -145,7 +145,7 @@ void EditBoxImplCommon::setFontColor(const Color4B& color)
 
 void EditBoxImplCommon::setPlaceholderFont(const char* pFontName, int fontSize)
 {
-    this->setNativePlaceholderFont(pFontName, fontSize * _label->getNodeToWorldAffineTransform().a);
+    this->setNativePlaceholderFont(pFontName, fontSize * _labelPlaceHolder->getNodeToWorldAffineTransform().a);
 
     if( strlen(pFontName) > 0)
     {
