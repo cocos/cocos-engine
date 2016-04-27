@@ -39,7 +39,7 @@ cc.Audio.touchPlayList = [
     //{ offset: 0, audio: audio }
 ];
 
-cc.Audio.bindTourch = false;
+cc.Audio.bindTouch = false;
 cc.Audio.touchStart = function () {
     var list = cc.Audio.touchPlayList;
     var item = null;
@@ -60,11 +60,11 @@ cc.Audio.WebAudio = function (buffer) {
 
     this._loop = false;
 
-    // 记录开始播放时音频时间轴上的时间戳
+    // The time stamp on the audio time axis when the recording begins to play.
     this._startTime = -1;
-    // 记录当前正在播放的 Source
+    // Record the currently playing 'Source'
     this._currentSource = null;
-    // 记录已经播放过的时间
+    // Record the time has been played
     this.playedLength = 0;
 
     this._currextTimer = null;
@@ -74,19 +74,17 @@ cc.Audio.WebAudio.prototype = {
     constructor: cc.Audio.WebAudio,
 
     get paused () {
-        // 如果当前音频是循环播放的，则 paused 为 false
-        // loop 会在 pause() 方法中清空
+        // If the current audio is a loop, paused is false
         if (this._currentSource && this._currentSource.loop)
             return false;
 
-        // startTime 没有值，为默认的 -1，则没有开始播放
+        // startTime default is -1
         if (this._startTime === -1)
             return true;
 
-        // 当前时间 - 开始播放的时间 是否 大于 音频的持续时间
+        // Current time -  Start playing time > Audio duration
         return this.context.currentTime - this._startTime > this.buffer.duration;
     },
-    set paused (bool) {},
 
     get loop () { return this._loop; },
     set loop (bool) { return this._loop = bool; },
@@ -99,7 +97,7 @@ cc.Audio.WebAudio.prototype = {
 
     play: function (offset) {
 
-        // 如果重复播放，需要停止之前一个音频
+        // If repeat play, you need to stop before an audio
         if (this._currentSource && !this.paused) {
             this._currentSource.stop(0);
             this.playedLength = 0;
@@ -132,9 +130,8 @@ cc.Audio.WebAudio.prototype = {
 
         this._currentSource = audio;
 
-        // 如果当前的音频上下文时间戳为 0
-        // 则有可能需要触摸事件才能真正开始播放音频
-        // 所以在这里加一个计时器，判断是否真正开始播放音频，如果没有，则传入touchPlay队列
+        // If the current audio context time stamp is 0
+        // There may be a need to touch events before you can actually start playing audio
         if (this.context.currentTime === 0) {
             var self = this;
             clearTimeout(this._currextTimer);
@@ -149,9 +146,9 @@ cc.Audio.WebAudio.prototype = {
         }
     },
     pause: function () {
-        // 记录当前已经播放的时间
+        // Record the time the current has been played
         this.playedLength = this.context.currentTime - this._startTime;
-        // 如果 playedLendth 超过了音频的持续时间，则应该取余数
+        // If more than the duration of the audio, Need to take the remainder
         this.playedLength %= this.buffer.duration;
         var audio = this._currentSource;
         this._currentSource = null;
@@ -171,8 +168,7 @@ JS.mixin(cc.Audio.prototype, {
         this._AUDIO_TYPE = "AUDIO";
         this._element = element;
 
-        // 防止部分浏览器播放结束后不重置 paused 标记
-        // 会造成判断播放状态错误
+        // Prevent partial browser from playing after the end does not reset the paused tag
         element.addEventListener('ended', function () {
             if (!element.loop) {
                 element.paused = true;
@@ -190,9 +186,9 @@ JS.mixin(cc.Audio.prototype, {
             cc.Audio.touchPlayList.push({ loop: loop, offset: offset, audio: this._element });
         }
 
-        if (cc.Audio.bindTourch === false) {
-            cc.Audio.bindTourch = true;
-            // 监听 body 的 touchstart 事件，在必要的时候播放音频
+        if (cc.Audio.bindTouch === false) {
+            cc.Audio.bindTouch = true;
+            // Listen to the touchstart body event and play the audio when necessary.
             cc.game.canvas.addEventListener('touchstart', cc.Audio.touchStart);
         }
     },
