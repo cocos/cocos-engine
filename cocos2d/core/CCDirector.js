@@ -365,7 +365,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._paused = true;
     },
 
-    /**
+    /*
      * Pops out a scene from the queue.<br/>
      * This scene will replace the running one.<br/>
      * The running scene will be deleted. If there are no more scenes in the stack the execution is terminated.<br/>
@@ -454,7 +454,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.startAnimation();
     },
 
-    /**
+    /*
      * Suspends the execution of the running scene, pushing it on the stack of suspended scenes.<br/>
      * The new scene will be executed.<br/>
      * Try to avoid big stacks of pushed scenes to reduce memory allocation.<br/>
@@ -672,6 +672,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
             var self = cc.director;
+            self._loadingScene = '';
             var scene;
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -698,7 +699,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = null;
                 }
             }
-            self._loadingScene = '';
             if (error && onLaunched) {
                 onLaunched(error);
             }

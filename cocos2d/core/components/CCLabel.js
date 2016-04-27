@@ -191,7 +191,7 @@ var Label = cc.Class({
         /**
          * !#en Overflow of label.
          * !#zh 文字显示超出范围时的处理方式。
-         * @property {Label.Overflow} overFlow
+         * @property {Label.Overflow} overflow
          */
         overflow: {
             default: Overflow.NONE,

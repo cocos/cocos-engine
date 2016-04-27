@@ -252,6 +252,7 @@ cc.js.mixin(cc.director, {
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
             var self = cc.director;
+            self._loadingScene = '';
             var scene;
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -272,7 +273,6 @@ cc.js.mixin(cc.director, {
                     scene = null;
                 }
             }
-            self._loadingScene = '';
             if (error && onLaunched) {
                 onLaunched(error);
             }
