@@ -35,6 +35,7 @@
 #include <mutex>
 #include <queue>
 #include <list>
+#include <unordered_set>
 
 #include "base/CCDirector.h"
 #include "base/CCScheduler.h"
@@ -135,9 +136,9 @@ public:
 protected:
     void wsThreadEntryFunc();
 private:
-    std::list<WsMessage*>* _subThreadWsMessageQueue;
+    std::list<WsMessage*> _subThreadWsMessageQueue;
     std::mutex   _subThreadWsMessageQueueMutex;
-    std::thread* _subThreadInstance;
+    std::thread _subThreadInstance;
     WebSocket* _ws;
     
     friend class WebSocket;
@@ -165,24 +166,19 @@ public:
 };
 
 WsThreadHelper::WsThreadHelper()
-: _subThreadInstance(nullptr)
-, _ws(nullptr)
+: _ws(nullptr)
 {
-    _subThreadWsMessageQueue = new (std::nothrow) std::list<WsMessage*>();
 }
 
 WsThreadHelper::~WsThreadHelper()
 {
-    joinWebSocketThread();
-    CC_SAFE_DELETE(_subThreadInstance);
-    delete _subThreadWsMessageQueue;
 }
 
 bool WsThreadHelper::createWebSocketThread(const WebSocket& ws)
 {
     _ws = const_cast<WebSocket*>(&ws);
 
-    _subThreadInstance = new (std::nothrow) std::thread(&WebSocket::onSubThreadLoop, _ws);
+    _subThreadInstance = std::thread(&WebSocket::onSubThreadLoop, _ws);
     return true;
 }
 
@@ -195,14 +191,14 @@ void WsThreadHelper::sendMessageToCocosThread(const std::function<void()>& cb)
 void WsThreadHelper::sendMessageToWebSocketThread(WsMessage *msg)
 {
     std::lock_guard<std::mutex> lk(_subThreadWsMessageQueueMutex);
-    _subThreadWsMessageQueue->push_back(msg);
+    _subThreadWsMessageQueue.push_back(msg);
 }
 
 void WsThreadHelper::joinWebSocketThread()
 {
-    if (_subThreadInstance->joinable())
+    if (_subThreadInstance.joinable())
     {
-        _subThreadInstance->join();
+        _subThreadInstance.join();
     }
 }
 
@@ -262,17 +258,15 @@ enum WS_MSG {
     WS_MSG_TO_SUBTRHEAD_SENDING_BINARY,
 };
 
-static std::vector<WebSocket*>* __websocketInstances = nullptr;
+static std::unordered_set<WebSocket*>* __websocketInstances = nullptr;
 
 void WebSocket::closeAllConnections()
 {
     if (__websocketInstances != nullptr)
     {
         auto copyInstances = *__websocketInstances;
-        ssize_t count = __websocketInstances->size();
-        for (ssize_t i = count-1; i >=0 ; i--)
+        for (auto&& instance : copyInstances)
         {
-            WebSocket* instance = copyInstances.at(i);
             instance->close();
         }
         
@@ -287,7 +281,6 @@ WebSocket::WebSocket()
 , _wsHelper(nullptr)
 , _wsInstance(nullptr)
 , _wsContext(nullptr)
-, _isDestroyed(std::make_shared<std::atomic<bool>>(false))
 , _delegate(nullptr)
 , _SSLConnection(0)
 , _wsProtocols(nullptr)
@@ -296,25 +289,36 @@ WebSocket::WebSocket()
     _receivedData.reserve(WS_RESERVE_RECEIVE_BUFFER_SIZE);
     if (__websocketInstances == nullptr)
     {
-        __websocketInstances = new (std::nothrow) std::vector<WebSocket*>();
+        __websocketInstances = new (std::nothrow) std::unordered_set<WebSocket*>();
     }
-
-    __websocketInstances->push_back(this);
+    __websocketInstances->insert(this);
 
     auto eventDispatcher = Director::getInstance()->getEventDispatcher();
-    auto isDestroyed = _isDestroyed;
+    auto instance = this;
     _resetDirectorListener = eventDispatcher->addCustomEventListener(Director::EVENT_RESET,
-                                                                     [this, isDestroyed](EventCustom*)
+                                                                     [instance](EventCustom*)
     {
-        if (*isDestroyed)
-            return;
-        close();
+        if (__websocketInstances && __websocketInstances->find(instance) != __websocketInstances->end())
+        {
+            instance->close();
+        }
     });
 }
 
 WebSocket::~WebSocket()
 {
-    *_isDestroyed = true;
+    if (__websocketInstances != nullptr)
+    {
+        auto iter =  __websocketInstances->find(this);
+        if (iter != __websocketInstances->end())
+        {
+            __websocketInstances->erase(iter);
+        }
+        else
+        {
+            LOGD("ERROR: WebSocket instance (%p) wasn't added to the container which saves websocket instances!\n", this);
+        }
+    }
     
     if (Director::DirectorInstance) {
         Director::DirectorInstance->getEventDispatcher()->removeEventListener(_resetDirectorListener);
@@ -331,19 +335,6 @@ WebSocket::~WebSocket()
         }
     }
     CC_SAFE_DELETE_ARRAY(_wsProtocols);
-
-    if (__websocketInstances != nullptr)
-    {
-        auto iter = std::find(__websocketInstances->begin(), __websocketInstances->end(), this);
-        if (iter != __websocketInstances->end())
-        {
-            __websocketInstances->erase(iter);
-        }
-        else
-        {
-            LOGD("ERROR: WebSocket instance (%p) wasn't added to the container which saves websocket instances!\n", this);
-        }
-    }
 }
 
 bool WebSocket::init(const Delegate& delegate,
@@ -533,7 +524,7 @@ void WebSocket::onSubThreadLoop()
         {
             _readStateMutex.unlock();
             _wsHelper->_subThreadWsMessageQueueMutex.lock();
-            bool isEmpty = _wsHelper->_subThreadWsMessageQueue->empty();
+            bool isEmpty = _wsHelper->_subThreadWsMessageQueue.empty();
             _wsHelper->_subThreadWsMessageQueueMutex.unlock();
             if (!isEmpty)
             {
@@ -644,15 +635,15 @@ void WebSocket::onClientWritable()
 {
     std::lock_guard<std::mutex> lk(_wsHelper->_subThreadWsMessageQueueMutex);
 
-    if (_wsHelper->_subThreadWsMessageQueue->empty())
+    if (_wsHelper->_subThreadWsMessageQueue.empty())
     {
         return;
     }
 
-    std::list<WsMessage*>::iterator iter = _wsHelper->_subThreadWsMessageQueue->begin();
+    std::list<WsMessage*>::iterator iter = _wsHelper->_subThreadWsMessageQueue.begin();
 
     ssize_t bytesWrite = 0;
-    if (iter != _wsHelper->_subThreadWsMessageQueue->end())
+    if (iter != _wsHelper->_subThreadWsMessageQueue.end())
     {
         WsMessage* subThreadMsg = *iter;
         Data* data = (Data*)subThreadMsg->obj;
@@ -683,7 +674,7 @@ void WebSocket::onClientWritable()
                 delete frame;
                 CC_SAFE_FREE(data->bytes);
                 CC_SAFE_DELETE(data);
-                _wsHelper->_subThreadWsMessageQueue->erase(iter);
+                _wsHelper->_subThreadWsMessageQueue.erase(iter);
                 CC_SAFE_DELETE(subThreadMsg);
                 return;
             }
@@ -725,7 +716,7 @@ void WebSocket::onClientWritable()
             delete ((WebSocketFrame*)data->ext);
             data->ext = nullptr;
             CC_SAFE_DELETE(data);
-            _wsHelper->_subThreadWsMessageQueue->erase(iter);
+            _wsHelper->_subThreadWsMessageQueue.erase(iter);
             CC_SAFE_DELETE(subThreadMsg);
 
             closeAsync();
@@ -764,7 +755,7 @@ void WebSocket::onClientWritable()
             delete ((WebSocketFrame*)data->ext);
             data->ext = nullptr;
             CC_SAFE_DELETE(data);
-            _wsHelper->_subThreadWsMessageQueue->erase(iter);
+            _wsHelper->_subThreadWsMessageQueue.erase(iter);
             CC_SAFE_DELETE(subThreadMsg);
 
             LOGD("-----------------------------------------------------------\n");
@@ -809,8 +800,8 @@ void WebSocket::onClientReceivedData(void* in, ssize_t len)
             frameData->push_back('\0');
         }
 
-        auto isDestroyed = _isDestroyed;
-        _wsHelper->sendMessageToCocosThread([this, frameData, frameSize, isBinary, isDestroyed](){
+        auto instance = this;
+        _wsHelper->sendMessageToCocosThread([instance, frameData, frameSize, isBinary](){
             // In UI thread
             LOGD("Notify data len %d to Cocos thread.\n", (int)frameSize);
 
@@ -819,13 +810,9 @@ void WebSocket::onClientReceivedData(void* in, ssize_t len)
             data.bytes = (char*)frameData->data();
             data.len = frameSize;
 
-            if (*isDestroyed)
+            if (__websocketInstances && __websocketInstances->find(instance) != __websocketInstances->end())
             {
-                LOGD("WebSocket instance was destroyed!\n");
-            }
-            else
-            {
-                _delegate->onMessage(this, data);
+                instance->_delegate->onMessage(instance, data);
             }
 
             delete frameData;
@@ -845,12 +832,11 @@ void WebSocket::onConnectionOpened()
     _readyState = State::OPEN;
     _readStateMutex.unlock();
 
-    auto isDestroyed = _isDestroyed;
-    _wsHelper->sendMessageToCocosThread([this, isDestroyed](){
-        if (*isDestroyed) {
-            LOGD("WebSocket instance was destroyed!\n");
-        } else {
-            _delegate->onOpen(this);
+    auto instance = this;
+    _wsHelper->sendMessageToCocosThread([instance](){
+        if (__websocketInstances && __websocketInstances->find(instance) != __websocketInstances->end())
+        {
+            instance->_delegate->onOpen(instance);
         }
     });
 }
@@ -863,12 +849,11 @@ void WebSocket::onConnectionError()
     _readyState = State::CLOSING;
     _readStateMutex.unlock();
 
-    auto isDestroyed = _isDestroyed;
-    _wsHelper->sendMessageToCocosThread([this, isDestroyed](){
-        if (*isDestroyed) {
-            LOGD("WebSocket instance was destroyed!\n");
-        } else {
-            _delegate->onError(this, ErrorCode::CONNECTION_FAILURE);
+    auto instance = this;
+    _wsHelper->sendMessageToCocosThread([instance](){
+        if (__websocketInstances && __websocketInstances->find(instance) != __websocketInstances->end())
+        {
+            instance->_delegate->onError(instance, ErrorCode::CONNECTION_FAILURE);
         }
     });
 }
@@ -887,14 +872,13 @@ void WebSocket::onConnectionClosed()
     _readyState = State::CLOSED;
     _readStateMutex.unlock();
     
-    auto isDestroyed = _isDestroyed;
-    _wsHelper->sendMessageToCocosThread([this, isDestroyed](){
-        if (*isDestroyed) {
-            LOGD("WebSocket instance was destroyed!\n");
-        } else {
+    auto instance = this;
+    _wsHelper->sendMessageToCocosThread([instance](){
+        if (__websocketInstances && __websocketInstances->find(instance) != __websocketInstances->end())
+        {
             //Waiting for the subThread safety exit
-            _wsHelper->joinWebSocketThread();
-            _delegate->onClose(this);
+            instance->_wsHelper->joinWebSocketThread();
+            instance->_delegate->onClose(instance);
         }
     });
 }

@@ -635,7 +635,9 @@ void EventDispatcher::removeEventListener(EventListener* listener)
 
         if (iter->second->empty())
         {
-            _priorityDirtyFlagMap.erase(listener->getTypeKey());
+            auto typeKey = listener->getTypeKey();
+            if(_priorityDirtyFlagMap.find(typeKey) != _priorityDirtyFlagMap.end())
+                _priorityDirtyFlagMap.erase(typeKey);
             auto list = iter->second;
             iter = _listenerMap.erase(iter);
             CC_SAFE_DELETE(list);

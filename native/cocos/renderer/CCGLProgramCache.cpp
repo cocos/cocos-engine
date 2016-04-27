@@ -301,6 +301,10 @@ void GLProgramCache::reloadDefaultGLPrograms()
     p = getGLProgram(GLProgram::SHADER_CAMERA_CLEAR);
     p->reset();
     loadDefaultGLProgram(p, kShaderType_CameraClear);
+    
+    p = getGLProgram(GLProgram::SHADER_NAME_POSITION_GRAYSCALE);
+    p->reset();
+    loadDefaultGLProgram(p, kShaderType_UIGrayScale);
 }
 
 void GLProgramCache::reloadDefaultGLProgramsRelativeToLights()
