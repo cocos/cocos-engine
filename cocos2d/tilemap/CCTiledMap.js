@@ -476,6 +476,11 @@ var TiledMap = cc.Class({
         this._applyFile();
     },
 
+    _resetSgSize: function () {
+        this.node.setContentSize(this._sgNode.getContentSize());
+        this._sgNode.setContentSize(0, 0);
+    },
+
     _onMapLoaded: function() {
         this._refreshLayerEntities();
         if (this._enabled) {
@@ -486,6 +491,8 @@ var TiledMap = cc.Class({
 
         // enable / disable the TiledLayer component
         this._setLayersEnabled(this._enabled);
+
+        this._resetSgSize();
     },
 
     _setLayersEnabled: function(enabled) {

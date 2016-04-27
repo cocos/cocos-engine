@@ -46,7 +46,7 @@ var RendererInSG = cc.Class({
             // will be released in onDestroy
             this._sgNode.retain();
         }
-        else {
+        else if (CC_EDITOR) {
             cc.error('Not support for asynchronous creating node in SG');
         }
         
@@ -55,17 +55,32 @@ var RendererInSG = cc.Class({
         this._plainNode.retain();
     },
 
+    onLoad: function () {
+        this._initSgNode();
+        if (CC_EDITOR) {
+            var sgSize = this._sgNode.getContentSize();
+            // sgSize is not a Vec2 in JSB
+            if (sgSize.width !== 0 || sgSize.height !== 0) {
+                cc.error('Renderer error: Size of the cc._RendererInSG._sgNode must be zero');
+            }
+        }
+    },
+
     onEnable: function () {
         this._replaceSgNode(this._sgNode);
-        this.node._ignoreAnchor = true;
+
+        // can not ignore anchor in render tree due to rotation bug which can't be fixed in JSB
+        // see https://github.com/cocos-creator/engine/pull/610
+        //this.node._ignoreAnchor = true;
     },
+
     onDisable: function () {
         this._replaceSgNode(this._plainNode);
-        this.node._ignoreAnchor = false;
+        //this.node._ignoreAnchor = false;
     },
-    onDestroy: function () {
-        this._super();
 
+    onDestroy: function () {
+        this._removeSgNode();
         var releasedByNode = this.node._sgNode;
         if (this._plainNode !== releasedByNode) {
             this._plainNode.release();

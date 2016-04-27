@@ -64,7 +64,16 @@ if (_ccsg.Node.WebGLRenderCmd) {
         {
             this._shaderProgram.use();
             this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-
+            if(this._shaderProgram === cc.Scale9Sprite.WebGLRenderCmd._distortionProgram && this._node._distortionOffset) {
+                this._shaderProgram.setUniformLocationWith2f(
+                  cc.Scale9Sprite.WebGLRenderCmd._distortionOffset,
+                  this._node._distortionOffset.x, this._node._distortionOffset.y
+                );
+                this._shaderProgram.setUniformLocationWith2f(
+                  cc.Scale9Sprite.WebGLRenderCmd._distortionTiling,
+                  this._node._distortionTiling.x, this._node._distortionTiling.y
+                );
+            }
             ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
             ccgl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
@@ -147,6 +156,8 @@ if (_ccsg.Node.WebGLRenderCmd) {
             node.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR));
         } else if (state === cc.Scale9Sprite.state.GRAY) {
             node.setShaderProgram(cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram());
+        } else if (state === cc.Scale9Sprite.state.DISTORTION) {
+            node.setShaderProgram(cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram());
         }
     };
 
@@ -177,5 +188,56 @@ if (_ccsg.Node.WebGLRenderCmd) {
         + "    vec4 c = texture2D(CC_Texture0, v_texCoord); \n"
         + "    gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b); \n"
         +"     gl_FragColor.w = c.w ; \n"
+        + "}";
+
+    cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
+    cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
+        var shader = cc.Scale9Sprite.WebGLRenderCmd._distortionProgram;
+        if(shader)
+            return shader;
+
+        shader = new cc.GLProgram();
+        shader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT, distortionSpriteShader.fShader);
+        shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+        shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
+        shader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+        shader.link();
+        shader.updateUniforms();
+
+        cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = shader;
+        cc.Scale9Sprite.WebGLRenderCmd._distortionOffset = shader.getUniformLocationForName('u_offset');
+        cc.Scale9Sprite.WebGLRenderCmd._distortionTiling = shader.getUniformLocationForName('u_offset_tiling');
+        return shader;
+    };
+
+    var distortionSpriteShader = {
+    };
+    distortionSpriteShader.shaderKey = 'cc.Sprite.Shader.Distortion';
+    distortionSpriteShader.fShader =  "precision lowp float;\n"
+        + "varying vec4 v_fragmentColor; \n"
+        + "varying vec2 v_texCoord; \n"
+        + "uniform vec2 u_offset; \n"
+        + "uniform vec2 u_offset_tiling; \n"
+        + "const float PI = 3.14159265359;\n"
+        + "void main() \n"
+        + "{ \n"
+        + "float halfPI = 0.5 * PI;\n"
+        + "float maxFactor = sin(halfPI);\n"
+        + "vec2 uv = v_texCoord;\n"
+        + "vec2 xy = 2.0 * uv.xy - 1.0;\n"
+        + "float d = length(xy);\n"
+        + "if (d < (2.0-maxFactor)) {\n"
+        + "d = length(xy * maxFactor);\n"
+        + "float z = sqrt(1.0 - d * d);\n"
+        + " float r = atan(d, z) / PI;\n"
+        + "float phi = atan(xy.y, xy.x);\n"
+        + "uv.x = r * cos(phi) + 0.5;\n"
+        + "uv.y = r * sin(phi) + 0.5;\n"
+        + "} else {\n"
+        + "discard;\n"
+        + "}\n"
+        + "uv = uv * u_offset_tiling + u_offset;\n"
+        + "uv = fract(uv); \n"
+        + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
         + "}";
 }

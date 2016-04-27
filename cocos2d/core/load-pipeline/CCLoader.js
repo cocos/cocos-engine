@@ -239,7 +239,6 @@ JS.mixin(cc.loader, {
 
     _resources: resources,
     _getResUuid: function (url) {
-        url = cc.url.normalize(url);
         var uuid = resources.getUuid(url);
         if ( !uuid ) {
             var extname = cc.path.extname(url);
@@ -260,15 +259,15 @@ JS.mixin(cc.loader, {
      * 
      * @method loadRes
      * @param {String} url - Url of the target resource.
-     *                        The url is relative to the "resources" folder, extensions must be omitted.
+     *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} completeCallback - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
      * 
      * @example
      * 
-     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder with no extension
-     * cc.loader.loadRes('imgs/cocos/cocos', function (err, spriteFrame) {
+     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
+     * cc.loader.loadRes('imgs/cocos.png/cocos', function (err, spriteFrame) {
      *     if (err) {
      *         cc.error(err.message || err);
      *         return;
@@ -291,6 +290,70 @@ JS.mixin(cc.loader, {
         else {
             callInNextTick(function () {
                 completeCallback.call(null, new Error('Resources url "' + url + '" does not exist.'), null);
+            });
+        }
+    },
+
+    /**
+     * Load all assets in a folder inside the "assets/resources" folder of your project.<br>
+     * <br>
+     * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
+     *
+     * @method loadResAll
+     * @param {String} url - Url of the target folder.
+     *                       The url is relative to the "resources" folder.
+     * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
+     * @param {Object[]} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array. If error occurs, assets will be null.
+     *
+     * @example
+     *
+     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
+     * cc.loader.loadResAll('imgs/cocos.png', function (err, assets) {
+     *     if (err) {
+     *         cc.error(err);
+     *         return;
+     *     }
+     *     var texture = assets[0];
+     *     var spriteFrame = assets[1];
+     * });
+     */
+    loadResAll: function (url, completeCallback) {
+        var uuids = resources.getUuidArray(url);
+        var remain = uuids.length;
+        if (remain > 0) {
+            var results = [];
+            var aborted = false;
+            function loaded (err, res) {
+                if (aborted) {
+                    return;
+                }
+                if (err) {
+                    aborted = true;
+                    completeCallback(err, null);
+                    return;
+                }
+                results.push(res);
+                --remain;
+                if (remain === 0) {
+                    completeCallback(null, results);
+                }
+            }
+            for (var i = 0, len = remain; i < len; ++i) {
+                var uuid = uuids[i];
+                this.load(
+                    {
+                        id: uuid,
+                        type: 'uuid',
+                        uuid: uuid
+                    },
+                    loaded
+                );
+            }
+        }
+        else {
+            callInNextTick(function () {
+                completeCallback.call(null, null, []);
             });
         }
     },
