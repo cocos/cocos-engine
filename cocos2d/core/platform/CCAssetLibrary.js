@@ -195,14 +195,14 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (CC_EDITOR && isScene(asset)) {
+                    if (CC_EDITOR || isScene(asset)) {
                         Loader.removeItem(uuid);
                     }
                     callback(error, asset);
                 });
             }
             else {
-                if (CC_EDITOR && isScene(asset)) {
+                if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(uuid);
                 }
                 callback(error, asset);
