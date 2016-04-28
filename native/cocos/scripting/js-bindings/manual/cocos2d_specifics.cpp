@@ -4003,7 +4003,7 @@ static jsval string_vector_to_jsval(JSContext* cx, const std::vector<std::string
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
 
     int i = 0;
-    for(std::vector<std::string>::const_iterator iter = arr.begin(); iter != arr.end(); ++iter, ++i) {
+    for(auto iter = arr.begin(); iter != arr.end(); ++iter, ++i) {
         JS::RootedValue arrElement(cx, std_string_to_jsval(cx, *iter));
         if(!JS_SetElement(cx, jsretArr, i, arrElement)) {
             break;

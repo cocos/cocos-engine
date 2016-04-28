@@ -88,7 +88,7 @@ ActionInterval* ActionFrame::getAction(float fDuration,ActionFrame* srcFrame)
     return this->getAction(fDuration);
 }
 
-void ActionFrame::setEasingParameter(std::vector<float>& parameter)
+void ActionFrame::setEasingParameter(const std::vector<float>& parameter)
 {
     _Parameter.clear();
 

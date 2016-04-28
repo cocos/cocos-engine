@@ -1079,7 +1079,7 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
         
     }
 
-	if (this->_indices.size() > 0 && this->_verts.size() > 0) {
+	if (!_indices.empty() && !_verts.empty()) {
 		cocos2d::TrianglesCommand::Triangles triangles;
 		triangles.indices = &this->_indices[0];
 		triangles.verts = &this->_verts[0];

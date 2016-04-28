@@ -189,7 +189,7 @@ public:
     *@parame parameter   the parameter for frame ease
     *
     */
-    virtual void setEasingParameter(std::vector<float>& parameter);
+    virtual void setEasingParameter(const std::vector<float>& parameter);
 protected:
     /**
     * Gets the Easing Action of ActionFrame.
