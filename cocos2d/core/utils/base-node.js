@@ -487,10 +487,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.x;
             },
             set: function (value) {
-                if (this._anchorPoint.x !== value) {
-                    var old = cc.v2(this._anchorPoint);
-                    this._anchorPoint.x = value;
-                    this._onAnchorChanged();
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.x !== value) {
+                    var old = new cc.Vec2(anchorPoint);
+                    anchorPoint.x = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
                     this.emit(ANCHOR_CHANGED, old);
                 }
             },
@@ -509,10 +513,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.y;
             },
             set: function (value) {
-                if (this._anchorPoint.y !== value) {
-                    var old = cc.v2(this._anchorPoint);
-                    this._anchorPoint.y = value;
-                    this._onAnchorChanged();
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.y !== value) {
+                    var old = new cc.Vec2(anchorPoint);
+                    anchorPoint.y = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
                     this.emit(ANCHOR_CHANGED, old);
                 }
             },
@@ -539,8 +547,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (value !== this._contentSize.width) {
-                    if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(value, sizeProvider._getHeight());
                     }
                     var clone = cc.size(this._contentSize);
                     this._contentSize.width = value;
@@ -570,8 +579,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (value !== this._contentSize.height) {
-                    if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(sizeProvider._getWidth(), value);
                     }
                     var clone = cc.size(this._contentSize);
                     this._contentSize.height = value;
@@ -598,7 +608,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this.__ignoreAnchor !== value) {
                     this.__ignoreAnchor = value;
                     this._sgNode.ignoreAnchor = value;
-                    this._onAnchorChanged();
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                        sizeProvider.ignoreAnchor = value;
+                    }
                     this.emit(ANCHOR_CHANGED, this._anchorPoint);
                 }
             },
@@ -638,8 +651,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._opacity !== value) {
                     this._opacity = value;
                     this._sgNode.setOpacity(value);
-                    if (this._sizeProvider && this._sgNode !== this._sizeProvider && !this._cascadeOpacityEnabled && this._sizeProvider.setOpacity) {
-                        this._sizeProvider.setOpacity(value);
+                    var sizeProvider = this._sizeProvider;
+                    if ( !this._cascadeOpacityEnabled &&
+                         sizeProvider instanceof _ccsg.Node &&
+                         this._sgNode !== sizeProvider
+                    ) {
+                        sizeProvider.setOpacity(value);
                     }
                 }
             },
@@ -662,7 +679,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._cascadeOpacityEnabled !== value) {
                     this._cascadeOpacityEnabled = value;
                     this._sgNode.cascadeOpacity = value;
-                    this._onCascadeChanged();
+
+                    var opacity = value ? 255 : this._opacity;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setOpacity(opacity);
+                    }
                 }
             },
         },
@@ -690,7 +712,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (CC_DEV && value.a !== 255) {
                         cc.warn('Should not set alpha via "color", set "opacity" please.');
                     }
-                    if (this._sizeProvider && this._sizeProvider.setColor) {
+                    if (this._sizeProvider instanceof _ccsg.Node) {
                         this._sizeProvider.setColor(value);
                     }
                 }
@@ -705,6 +727,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             enumerable: false
         });
 
+        /**
+         * Current scene graph node for this node.
+         *
+         * @property _sgNode
+         * @type {_ccsg.Node}
+         * @private
+         */
         var sgNode = this._sgNode = new _ccsg.Node();
         if (cc.sys.isNative) {
             sgNode.retain();
@@ -724,13 +753,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._dirtyFlags = DirtyFlags.ALL;
 
         /**
-         * Current active scene graph node which provides content size.
+         * Current active size provider for this node.
+         * Size provider can equals to this._sgNode.
          *
          * @property _sizeProvider
-         * @type {Object}
+         * @type {_ccsg.Node}
          * @private
          */
-        // _ccsg.Node
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
@@ -744,13 +773,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     // called when the node's parent changed
     _onHierarchyChanged: null,
-    // called when the node's anchor changed
-    _onAnchorChanged: null,
-    // called when the node's cascadeOpacity or cascadeColor changed
-    _onCascadeChanged: null,
-    // called when the node's isOpacityModifyRGB changed
-    _onOpacityModifyRGBChanged: null,
-
 
     /*
      * Initializes the instance of cc.Node
@@ -1002,7 +1024,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this._onAnchorChanged();
+        var sizeProvider = this._sizeProvider;
+        if (sizeProvider instanceof _ccsg.Node) {
+            sizeProvider.setAnchorPoint(locAnchorPoint);
+        }
         this.emit(ANCHOR_CHANGED, old);
     },
 
@@ -1726,7 +1751,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (this._opacityModifyRGB !== opacityValue) {
             this._opacityModifyRGB = opacityValue;
             this._sgNode.setOpacityModifyRGB(opacityValue);
-            this._onOpacityModifyRGBChanged();
+            var sizeProvider = this._sizeProvider;
+            if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                sizeProvider.setOpacityModifyRGB(opacityValue);
+            }
         }
     },
 
