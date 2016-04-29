@@ -219,11 +219,12 @@ JS.mixin(cc.loader, {
         // No new resources, complete directly
         if (totalCount === completedCount) {
             var id = resources[0].id || resources[0];
-            var result = this._items.map[id];
+            var content = this._items.getContent(id);
+            var error = this._items.getError(id);
             if (completeCallback) {
                 callInNextTick(function () {
                     if (singleRes) {
-                        completeCallback.call(self, result.error, result.content);
+                        completeCallback.call(self, error, content);
                     }
                     else {
                         completeCallback.call(self, null, self._items);
