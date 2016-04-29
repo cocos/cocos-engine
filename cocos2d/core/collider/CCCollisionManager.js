@@ -1,8 +1,9 @@
 var Contact = require('./CCContact');
+var CollisionType = Contact.CollisionType;
 
 /**
  * !#en
- * A simple collider component manager class. 
+ * A simple collision manager class. 
  * It will calculate whether the collider collides other colliders, if collides then call the callbacks.
  * !#zh
  * 一个简单的碰撞组件管理类，用于处理节点之间的碰撞组件是否产生了碰撞，并调用相应回调函数。
@@ -11,7 +12,7 @@ var Contact = require('./CCContact');
  * @example
  *
  * // Get the collider manager.
- * var manager = cc.director.getColliderManager();
+ * var manager = cc.director.getCollisionManager();
  *
  * // Enabled the colider manager.
  * manager.enabled = true;
@@ -55,7 +56,7 @@ var Contact = require('./CCContact');
 
  * 
  */
-var ColliderManager = cc.Class({
+var CollisionManager = cc.Class({
     mixins: [cc.EventTarget],
 
     properties: {
@@ -126,16 +127,27 @@ var ColliderManager = cc.Class({
     },
 
     collide: function (contact) {
-        var colliderType = contact.collider();
-        if (!colliderType) {
+        var collisionType = contact.updateState();
+        if (collisionType === CollisionType.None) {
             return;
         }
 
-        this._doCollide(colliderType, contact);        
+        this._doCollide(collisionType, contact);        
     },
 
-    _doCollide: function (type, contact) {
-        var contactFunc = 'on' + type;
+    _doCollide: function (collisionType, contact) {
+        var contactFunc;
+        switch (collisionType) {
+            case CollisionType.CollisionEnter:
+                contactFunc = 'onCollisionEnter';
+                break;
+            case CollisionType.CollisionStay:
+                contactFunc = 'onCollisionStay';
+                break;
+            case CollisionType.CollisionExit:
+                contactFunc = 'onCollisionExit';
+                break;
+        }
 
         var collider1 = contact.collider1;
         var collider2 = contact.collider2;
@@ -160,7 +172,7 @@ var ColliderManager = cc.Class({
     }, 
 
     shouldCollide: function (c1, c2) {
-        return c1.node !== c2.node && (c1.mask & c2.category) !== 0 && (c1.category & c2.mask) !== 0;
+        return c1.node !== c2.node && (c1.mask & c2.category) && (c1.category & c2.mask);
     },
 
     initCollider: function (collider) {
@@ -168,6 +180,8 @@ var ColliderManager = cc.Class({
             var world = collider.world = {};
             world.aabb = cc.rect();
             world.preAabb = cc.rect();
+            world.radius = 0;
+            world.position = cc.v2();
 
             if (collider instanceof cc.BoxCollider) {
                 world.points = [cc.v2(), cc.v2(), cc.v2(), cc.v2()];
@@ -176,8 +190,7 @@ var ColliderManager = cc.Class({
                 world.points = collider.points.slice(0, collider.points.length);
             }
             else if (collider instanceof cc.CircleCollider) {
-                world.radius = 0;
-                world.position = cc.v2();
+                world.points = [];
             }
         }
     },
@@ -293,7 +306,7 @@ var ColliderManager = cc.Class({
                     var contact = contacts[i];
                     if (contact.collider1 === collider || contact.collider2 === collider) {
                         if (contact.touching) {
-                            this._doCollide('CollisionExit', contact);
+                            this._doCollide(CollisionType.CollisionExit, contact);
                         }
 
                         contacts.splice(i, 1);
@@ -348,7 +361,7 @@ var ColliderManager = cc.Class({
  * @property {Boolean} enabledDebugDraw
  * @default false
  */
-cc.js.getset(ColliderManager.prototype, 'enabledDebugDraw', 
+cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw', 
     function () {
         return this._enabledDebugDraw;
     },
@@ -372,4 +385,4 @@ cc.js.getset(ColliderManager.prototype, 'enabledDebugDraw',
 );
 
 
-cc.ColliderManager = module.exports = ColliderManager;
+cc.CollisionManager = module.exports = CollisionManager;

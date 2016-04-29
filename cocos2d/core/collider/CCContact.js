@@ -1,6 +1,13 @@
 
 var Intersection = require('./CCIntersection');
 
+var CollisionType = cc.Enum({
+    None: 0,
+    CollisionEnter: 1,
+    CollisionStay: 2,
+    CollisionExit: 3
+});
+
 function Contact (collider1, collider2) {
     this.collider1 = collider1;
     this.collider2 = collider2;
@@ -27,7 +34,7 @@ function Contact (collider1, collider2) {
         this.collider2 = collider1;
     }
     else {
-        cc.error('Can\'t find testFunc for (%s, $s).', cc.js.getClassByName(collider1), cc.js.getClassByName(collider2));
+        cc.error('Can\'t find testFunc for (%s, $s).', cc.js.getClassName(collider1), cc.js.getClassName(collider2));
     }
 }
 
@@ -52,23 +59,26 @@ Contact.prototype.test = function () {
     return false;
 };
 
-Contact.prototype.collider = function () {
+Contact.prototype.updateState = function () {
     var result = this.test();
 
-    var type = '';
+    var type = CollisionType.None;
     if (result && !this.touching) {
         this.touching = true;
-        type = 'CollisionEnter';
+        type = CollisionType.CollisionEnter;
     }
     else if (result && this.touching) {
-        type = 'CollisionStay';
+        type = CollisionType.CollisionStay;
     }
     else if (!result && this.touching) {
         this.touching = false;
-        type = 'CollisionExit';
+        type = CollisionType.CollisionExit;
     }
 
     return type;
 };
+
+
+Contact.CollisionType = CollisionType;
 
 module.exports = Contact;

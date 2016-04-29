@@ -35,17 +35,11 @@ var BoxCollider = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.collider/Box Collider',
-        executeInEditMode: true
     },
 
     properties: {
-        _offset: {
-            default: cc.v2(0, 0)
-        },
-
-        _size: {
-            default: cc.size(100, 100)
-        },
+        _offset: cc.v2(0, 0),
+        _size: cc.size(100, 100),
 
         /**
          * !#en Position offset
@@ -74,12 +68,8 @@ var BoxCollider = cc.Class({
                 return this._size;
             },
             set: function (value) {
-                if (value.width > 0) {
-                    this._size.width = value.width;
-                }
-                if (value.height > 0) {
-                    this._size.height = value.height;
-                }
+                this._size.width = value.width < 0 ? 0 : value.width;
+                this._size.height = value.height < 0 ? 0 : value.height;
             },
             type: cc.Size
         }

@@ -35,17 +35,10 @@ var PolygonCollider = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.collider/Polygon Collider',
-        executeInEditMode: true
-    },
-
-    ctor: function () {
-        this.points = [cc.v2(-50, -50), cc.v2(-50, 50), cc.v2(50, 50), cc.v2(50, -50)];
     },
 
     properties: {
-        _offset: {
-            default: cc.v2(0, 0)
-        },
+        _offset: cc.v2(0, 0),
 
         /**
          * !#en Position offset
@@ -70,7 +63,9 @@ var PolygonCollider = cc.Class({
          * @type {[Vec2]}
          */
         points: {
-            default: [],
+            default: function () {
+                 return [cc.v2(-50, -50), cc.v2(-50, 50), cc.v2(50, 50), cc.v2(50, -50)]; 
+            },
             type: [cc.Vec2]
         }
     }

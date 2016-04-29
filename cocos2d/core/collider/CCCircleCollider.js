@@ -35,17 +35,11 @@ var CircleCollider = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.collider/Circle Collider',
-        executeInEditMode: true
     },
 
     properties: {
-        _offset: {
-            default: cc.v2(0, 0)
-        },
-
-        _radius: {
-            default: 50
-        },
+        _offset: cc.v2(0, 0),
+        _radius: 50,
 
         /**
          * !#en Position offset
@@ -74,9 +68,7 @@ var CircleCollider = cc.Class({
                 return this._radius;
             },
             set: function (value) {
-                if (value > 0) {
-                    this._radius = value;
-                }
+                this._radius = value < 0 ? 0 : value;
             }
         }
     }

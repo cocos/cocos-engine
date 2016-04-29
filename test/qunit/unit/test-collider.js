@@ -1,7 +1,7 @@
 largeModule('collider');
 
-test('collider manager', function() {
-    var manager = cc.director.getColliderManager();
+test('collision manager', function() {
+    var manager = cc.director.getCollisionManager();
     ok(manager);
 
     manager.enabled = true;
@@ -10,42 +10,42 @@ test('collider manager', function() {
     cc.director.getScene().addChild(node1);
     
     var box1 = node1.addComponent(cc.BoxCollider);
-    strictEqual( manager._colliders.length, 1, 'collider manager should add 1 collider');
+    strictEqual( manager._colliders.length, 1, 'collision manager should add 1 collider');
 
     var box2 = node1.addComponent(cc.BoxCollider);
-    strictEqual( manager._colliders.length, 2, 'collider manager should add 2 colliders');
+    strictEqual( manager._colliders.length, 2, 'collision manager should add 2 colliders');
 
     var node2 = new cc.Node();
     cc.director.getScene().addChild(node2);
     
     var box3 = node2.addComponent(cc.BoxCollider);
-    strictEqual( manager._colliders.length, 3, 'collider manager should add 3 colliders');
-    strictEqual( manager._contacts.length, 2, 'collider manager should add 2 contacts');
+    strictEqual( manager._colliders.length, 3, 'collision manager should add 3 colliders');
+    strictEqual( manager._contacts.length, 2, 'collision manager should add 2 contacts');
 
     var box4 = node2.addComponent(cc.BoxCollider);
     
-    strictEqual( manager._colliders.length, 4, 'collider manager should add 4 colliders');
-    strictEqual( manager._contacts.length, 4, 'collider manager should add 4 contacts');
+    strictEqual( manager._colliders.length, 4, 'collision manager should add 4 colliders');
+    strictEqual( manager._contacts.length, 4, 'collision manager should add 4 contacts');
 
     box4.mask = 0;
 
-    strictEqual( manager._colliders.length, 4, 'collider manager should add 4 colliders');
-    strictEqual( manager._contacts.length, 2, 'collider manager should add 2 contacts');
+    strictEqual( manager._colliders.length, 4, 'collision manager should add 4 colliders');
+    strictEqual( manager._contacts.length, 2, 'collision manager should add 2 contacts');
 
     box4.enabled = false;
-    strictEqual( manager._colliders.length, 3, 'collider manager should add 3 colliders');
+    strictEqual( manager._colliders.length, 3, 'collision manager should add 3 colliders');
 
     node1.parent = null;
     node2.parent = null;
 
-    strictEqual( manager._colliders.length, 0, 'collider manager should add 0 colliders');
-    strictEqual( manager._contacts.length, 0, 'collider manager should add 0 contacts');
+    strictEqual( manager._colliders.length, 0, 'collision manager should add 0 colliders');
+    strictEqual( manager._contacts.length, 0, 'collision manager should add 0 contacts');
 
     manager.enabled = false;
 });
 
 test('collider callback', function () {
-    var manager = cc.director.getColliderManager();
+    var manager = cc.director.getCollisionManager();
     manager.enabled = true;
 
     var callbacks = [];

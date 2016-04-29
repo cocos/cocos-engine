@@ -170,13 +170,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._animationManager = null;
         }
 
-        // collider manager
-        if (cc.ColliderManager) {
-            this._colliderManager = new cc.ColliderManager();
-            this._scheduler.scheduleUpdate(this._colliderManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        // collision manager
+        if (cc.CollisionManager) {
+            this._collisionManager = new cc.CollisionManager();
+            this._scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
         else {
-            this._colliderManager = null;
+            this._collisionManager = null;
         }
 
         // WidgetManager
@@ -461,8 +461,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Collider manager
-        if (this._colliderManager) {
-            this._scheduler.scheduleUpdate(this._colliderManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        if (this._collisionManager) {
+            this._scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
         this.startAnimation();
@@ -1086,12 +1086,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Returns the cc.ColliderManager associated with this director.
-     * @method getColliderManager
-     * @return {ColliderManager}
+     * Returns the cc.CollisionManager associated with this director.
+     * @method getCollisionManager
+     * @return {CollisionManager}
      */
-    getColliderManager: function () {
-        return this._colliderManager;
+    getCollisionManager: function () {
+        return this._collisionManager;
     },
 
     /**

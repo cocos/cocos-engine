@@ -33,17 +33,19 @@ var Collider = cc.Class({
     name: 'cc.Collider',
     extends: cc.Component,
 
+    editor: CC_EDITOR && {
+        executeInEditMode: true
+    },
+
     properties: {
         _category: {
             default: 1,
-            type: 'Integer',
-            range: [0, 65535]
+            type: cc.Integer
         },
 
         _mask: {
             default: 65535,
-            type: 'Integer',
-            range: [0, 65535]
+            type: cc.Integer
         },
 
         editing: {
@@ -65,16 +67,17 @@ var Collider = cc.Class({
             },
             set: function (value) {
                 if (!CC_EDITOR) {
-                    cc.director.getColliderManager().removeCollider(this);   
+                    cc.director.getCollisionManager().removeCollider(this);   
                 }
 
                 this._category = value;
 
                 if (!CC_EDITOR) {
-                    cc.director.getColliderManager().addCollider(this);   
+                    cc.director.getCollisionManager().addCollider(this);   
                 }
             },
-            type: 'Integer',
+            range: [0, 65535],
+            type: cc.Integer,
             tooltip: 'i18n:COMPONENT.collider.category'
         },
 
@@ -91,26 +94,27 @@ var Collider = cc.Class({
             },
             set: function (value) {
                 if (!CC_EDITOR) {
-                    cc.director.getColliderManager().removeCollider(this);   
+                    cc.director.getCollisionManager().removeCollider(this);   
                 }
 
                 this._mask = value;
 
                 if (!CC_EDITOR) {
-                    cc.director.getColliderManager().addCollider(this);   
+                    cc.director.getCollisionManager().addCollider(this);   
                 }
             },
-            type: 'Integer',
+            range: [0, 65535],
+            type: cc.Integer,
             tooltip: 'i18n:COMPONENT.collider.mask'
         }
     },
 
     onDisable: function () {
-        cc.director.getColliderManager().removeCollider(this);
+        cc.director.getCollisionManager().removeCollider(this);
     },
 
     onEnable: function () {
-        cc.director.getColliderManager().addCollider(this);
+        cc.director.getCollisionManager().addCollider(this);
     }
 });
 
