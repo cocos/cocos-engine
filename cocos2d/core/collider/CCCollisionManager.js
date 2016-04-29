@@ -180,17 +180,20 @@ var CollisionManager = cc.Class({
             var world = collider.world = {};
             world.aabb = cc.rect();
             world.preAabb = cc.rect();
+
             world.radius = 0;
-            world.position = cc.v2();
 
             if (collider instanceof cc.BoxCollider) {
+                world.position = null;
                 world.points = [cc.v2(), cc.v2(), cc.v2(), cc.v2()];
             }
             else if (collider instanceof cc.PolygonCollider) {
+                world.position = null;
                 world.points = collider.points.slice(0, collider.points.length);
             }
             else if (collider instanceof cc.CircleCollider) {
-                world.points = [];
+                world.position = cc.v2();
+                world.points = null;
             }
         }
     },
@@ -211,12 +214,16 @@ var CollisionManager = cc.Class({
             var size = collider.size;
             var rect = cc.rect(offset.x - size.width/2, offset.y - size.height/2, size.width, size.height);
             var wps = world.points;
-            cc.obbApplyAffineTransform(rect, t, wps[0], wps[1], wps[2], wps[3]);
+            var wp0 = wps[0];
+            var wp1 = wps[1];
+            var wp2 = wps[2];
+            var wp3 = wps[3];
+            cc.obbApplyAffineTransform(rect, t, wp0, wp1, wp2, wp3);
 
-            var minx = Math.min(Math.min(wps[0].x, wps[1].x), Math.min(wps[2].x, wps[3].x));
-            var miny = Math.min(Math.min(wps[0].y, wps[1].y), Math.min(wps[2].y, wps[3].y));
-            var maxx = Math.max(Math.max(wps[0].x, wps[1].x), Math.max(wps[2].x, wps[3].x));
-            var maxy = Math.max(Math.max(wps[0].y, wps[1].y), Math.max(wps[2].y, wps[3].y));
+            var minx = Math.min(wp0.x, wp1.x, wp2.x, wp3.x);
+            var miny = Math.min(wp0.y, wp1.y, wp2.y, wp3.y);
+            var maxx = Math.max(wp0.x, wp1.x, wp2.x, wp3.x);
+            var maxy = Math.max(wp0.y, wp1.y, wp2.y, wp3.y);
 
             aabb.x = minx;
             aabb.y = miny;
