@@ -41,6 +41,15 @@ cc.js.mixin(cc.director, {
             this._animationManager = null;
         }
 
+        // collider manager
+        if (cc.CollisionManager) {
+            this._collisionManager = new cc.CollisionManager();
+            this.getScheduler().scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+        else {
+            this._collisionManager = null;
+        }
+
         // WidgetManager
         cc._widgetManager.init(this);
     },
@@ -65,6 +74,11 @@ cc.js.mixin(cc.director, {
             this.getScheduler().scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
+        // Collision manager
+        if (this._collisionManager) {
+            this.getScheduler().scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
         this.startAnimation();
     },
 
@@ -75,6 +89,15 @@ cc.js.mixin(cc.director, {
      */
     getAnimationManager: function () {
         return this._animationManager;
+    },
+
+    /**
+     * Returns the cc.CollisionManager associated with this director.
+     * @method getCollisionManager
+     * @return {CollisionManager}
+     */
+    getCollisionManager: function () {
+        return this._collisionManager;
     },
 
     /**

@@ -23,19 +23,52 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+/**
+ * !#en Polygon Collider.
+ * !#zh 多边形碰撞组件
+ * @class PolygonCollider
+ * @extends Component
+ */
+var PolygonCollider = cc.Class({
+    name: 'cc.PolygonCollider',
+    extends: require('./CCCollider'),
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Polygon Collider',
+    },
+
+    properties: {
+        _offset: cc.v2(0, 0),
+
+        /**
+         * !#en Position offset
+         * !#zh 位置偏移量
+         * @property offset
+         * @type {Vec2}
+         */
+        offset: {
+            get: function () {
+                return this._offset;
+            },
+            set: function (value) {
+                this._offset = value;
+            },
+            type: cc.Vec2
+        },
+
+        /**
+         * !#en Polygon points
+         * !#zh 多边形顶点数组
+         * @property points
+         * @type {[Vec2]}
+         */
+        points: {
+            default: function () {
+                 return [cc.v2(-50, -50), cc.v2(-50, 50), cc.v2(50, 50), cc.v2(50, -50)]; 
+            },
+            type: [cc.Vec2]
+        }
     }
+});
 
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./collider');
-}
-
-require('./base-ui/CCWidgetManager');
+cc.PolygonCollider = module.exports = PolygonCollider;

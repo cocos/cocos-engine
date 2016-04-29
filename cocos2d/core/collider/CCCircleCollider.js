@@ -23,19 +23,55 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+/**
+ * !#en Circle Collider.
+ * !#zh 圆形碰撞组件
+ * @class CircleCollider
+ * @extends Component
+ */
+var CircleCollider = cc.Class({
+    name: 'cc.CircleCollider',
+    extends: require('./CCCollider'),
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider',
+    },
+
+    properties: {
+        _offset: cc.v2(0, 0),
+        _radius: 50,
+
+        /**
+         * !#en Position offset
+         * !#zh 位置偏移量
+         * @property offset
+         * @type {Vec2}
+         */
+        offset: {
+            get: function () {
+                return this._offset;
+            },
+            set: function (value) {
+                this._offset = value;
+            },
+            type: cc.Vec2
+        },
+
+        /**
+         * !#en Circle radius
+         * !#zh 圆形半径
+         * @property radius
+         * @type {Number}
+         */
+        radius: {
+            get: function () {
+                return this._radius;
+            },
+            set: function (value) {
+                this._radius = value < 0 ? 0 : value;
+            }
+        }
     }
+});
 
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./collider');
-}
-
-require('./base-ui/CCWidgetManager');
+cc.CircleCollider = module.exports = CircleCollider;

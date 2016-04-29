@@ -23,19 +23,57 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+/**
+ * !#en Box Collider.
+ * !#zh 包围盒碰撞组件
+ * @class BoxCollider
+ * @extends Component
+ */
+var BoxCollider = cc.Class({
+    name: 'cc.BoxCollider',
+    extends: cc.Collider,
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
+    editor: CC_EDITOR && {
+        menu: 'i18n:MAIN_MENU.component.collider/Box Collider',
+    },
+
+    properties: {
+        _offset: cc.v2(0, 0),
+        _size: cc.size(100, 100),
+
+        /**
+         * !#en Position offset
+         * !#zh 位置偏移量
+         * @property offset
+         * @type {Vec2}
+         */
+        offset: {
+            get: function () {
+                return this._offset;
+            },
+            set: function (value) {
+                this._offset = value;
+            },
+            type: cc.Vec2
+        },
+
+        /**
+         * !#en Box size
+         * !#zh 包围盒大小
+         * @property size
+         * @type {Size}
+         */
+        size: {
+            get: function () {
+                return this._size;
+            },
+            set: function (value) {
+                this._size.width = value.width < 0 ? 0 : value.width;
+                this._size.height = value.height < 0 ? 0 : value.height;
+            },
+            type: cc.Size
+        }
     }
+});
 
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./collider');
-}
-
-require('./base-ui/CCWidgetManager');
+cc.BoxCollider = module.exports = BoxCollider;
