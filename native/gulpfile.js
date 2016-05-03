@@ -11,7 +11,7 @@ var fs = require('fs');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'archive-prebuilt', 'upload-prebuilt'));
-gulp.task('make-simulator', gulpSequence('gen-simulator', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-simulator', gulpSequence('gen-simulator', 'update-simulator-config', 'archive-simulator', 'upload-simulator'));
 
 function execSync(cmd, workPath) {
   var execOptions = {
@@ -144,6 +144,21 @@ gulp.task('gen-simulator', function (cb) {
     cb();
     return;
   }
+});
+
+gulp.task('update-simulator-config', function () {
+    var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
+    if (!fs.existsSync(destPath)) {
+        console.error(`Cant\'t find simulator dir [${destPath}]`);
+    }
+    else {
+        // scripts
+        var scriptPath = '';
+
+        return gulp.src(['./cocos/scripting/js-bindings/script/**/*', '!**/.DS_Store'], {
+          base: './cocos/scripting/js-bindings'
+        }).pipe(gulp.dest(destPath));
+    }
 });
 
 gulp.task('archive-simulator', function () {
