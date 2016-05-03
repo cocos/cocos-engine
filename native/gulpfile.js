@@ -11,7 +11,7 @@ var fs = require('fs');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'archive-prebuilt', 'upload-prebuilt'));
-gulp.task('make-simulator', gulpSequence('gen-simulator', 'update-simulator-config', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-simulator', gulpSequence('update-simulator-config', 'archive-simulator', 'upload-simulator'));
 
 function execSync(cmd, workPath) {
   var execOptions = {
