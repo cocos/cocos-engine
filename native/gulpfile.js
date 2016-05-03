@@ -11,7 +11,7 @@ var fs = require('fs');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'archive-prebuilt', 'upload-prebuilt'));
-gulp.task('make-simulator', gulpSequence('gen-simulator', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-simulator', gulpSequence('update-simulator-config', 'archive-simulator', 'upload-simulator'));
 
 function execSync(cmd, workPath) {
   var execOptions = {
@@ -19,6 +19,22 @@ function execSync(cmd, workPath) {
     stdio : 'inherit'
   };
   ExecSync(cmd, execOptions);
+}
+
+function downloadSimulatorDLL(callback) {
+    var Download = require('download');
+    var destPath = Path.join('simulator', 'win32');
+    new Download({
+        mode: '755',
+        extract: true,
+        strip: 0
+    })
+        .get('http://192.168.52.109/TestBuilds/Fireball/simulator/dlls/dll.zip')
+        .dest(destPath)
+        .run(function(err, files) {
+            if (err) throw err;
+            else callback();
+        });
 }
 
 function upload2Ftp(localPath, ftpPath, config, cb) {
@@ -110,29 +126,6 @@ gulp.task('gen-simulator', function (cb) {
         cb();
         return;
       }
-
-      //var src, dest;
-
-      //if (process.platform === 'darwin') {
-      //  src = './cocos2d-x/simulator/mac/Simulator.app';
-      //  dest = './utils/simulator/mac/Simulator.app';
-      //}
-      //else {
-      //  src = './cocos2d-x/simulator/win32/';
-      //  dest = './utils/simulator/win32';
-      //}
-      //
-      //if (!Fs.existsSync(src)) {
-      //  console.error(`Can\'t find simulator [${src}]`);
-      //  cb();
-      //  return;
-      //}
-      //
-      //if (Fs.existsSync(dest)) {
-      //  Del.sync(dest, {force: true});
-      //}
-      //
-      //Fs.copySync(src, dest);
     });
     child.on('error', function () {
       console.error('Generate simulator failed');
@@ -144,6 +137,25 @@ gulp.task('gen-simulator', function (cb) {
     cb();
     return;
   }
+});
+
+gulp.task('update-simulator-config', function () {
+    var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
+    var updateScript = function () {
+      // scripts
+      return gulp.src(['./cocos/scripting/js-bindings/script/**/*', '!**/.DS_Store'], {
+        base: './cocos/scripting/js-bindings'
+      }).pipe(gulp.dest(destPath)); 
+    };
+    if (!fs.existsSync(destPath)) {
+        console.error(`Cant\'t find simulator dir [${destPath}]`);
+    } else {
+      if (process.platform === 'win32') {
+        downloadSimulatorDLL(updateScript);  
+      } else {
+        updateScript();
+      }
+    }
 });
 
 gulp.task('archive-simulator', function () {

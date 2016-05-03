@@ -7,10 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "ftp": "^0.3.10",
-    "gulp": "^3.9.1",
-    "gulp-sequence": "^0.4.5",
-    "gulp-zip": "^3.2.0"
+    "download": "4.4.3",
+    "ftp": "0.3.10",
+    "gulp": "3.9.1",
+    "gulp-sequence": "0.4.5",
+    "gulp-zip": "3.2.0"
   },
   "repository": {
     "type": "git",
