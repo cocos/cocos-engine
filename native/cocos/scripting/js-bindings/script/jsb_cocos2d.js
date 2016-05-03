@@ -1661,7 +1661,7 @@ cc.visibleRect.init();
 // Predefined font definition
 cc.FontDefinition = function () {
     this.fontName = "Arial";
-    this.fontSize = 12;
+    this.fontSize = 18;
     this.textAlign = cc.TEXT_ALIGNMENT_CENTER;
     this.verticalAlign = cc.VERTICAL_TEXT_ALIGNMENT_TOP;
     this.fillStyle = cc.color(255, 255, 255, 255);
@@ -1962,30 +1962,9 @@ cc.TMXLayer.prototype.getPositonAt = function(x, y){
     return this._getPositionAt(pos);
 };
 
-// Predefined font definition
-cc.FontDefinition = function () {
-    this.fontName = "Arial";
-    this.fontSize = 32;
-    this.textAlign = cc.TEXT_ALIGNMENT_CENTER;
-    this.verticalAlign = cc.VERTICAL_TEXT_ALIGNMENT_TOP;
-    this.fillStyle = cc.color(255, 255, 255, 255);
-    this.boundingWidth = 0;
-    this.boundingHeight = 0;
-
-    this.strokeEnabled = false;
-    this.strokeStyle = cc.color(255, 255, 255, 255);
-    this.lineWidth = 1;
-
-    this.shadowEnabled = false;
-    this.shadowOffsetX = 0;
-    this.shadowOffsetY = 0;
-    this.shadowBlur = 0;
-    this.shadowOpacity = 1.0;
-};
-
 //LabelTTF
 cc.LabelTTF.prototype.initWithString = function(text, fontName, fontSize, dimensions, hAlignment, vAlignment) {
-    var fontDef = {};
+    var fontDef = new cc.FontDefinition();
     if(typeof fontName === 'string') fontDef.fontName = fontName;
     if(typeof fontSize === 'number') fontDef.fontSize = fontSize;
     if(dimensions) {
