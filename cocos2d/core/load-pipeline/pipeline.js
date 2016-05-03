@@ -162,17 +162,17 @@ function getXMLHttpRequest () {
 /**
  * !#en
  * A pipeline describes a sequence of manipulations, each manipulation is called a pipe.</br>
- * It's designed for loading process, so items should be urls, and the url will be the identity of each item during the process.</br>
+ * It's designed for loading process. so items should be urls, and the url will be the identity of each item during the process.</br>
  * A list of items can flow in the pipeline and it will output the results of all pipes.</br>
  * They flow in the pipeline like water in tubes, they go through pipe by pipe separately.</br>
  * Finally all items will flow out the pipeline and the process is finished.
  *
  * !#zh
- * pipeline 描述了一系列的操作，每一个操作被称为 pipe。</br>
- * 它设计来作处理加载，所以 item 应该是 url，并且该 url 将是在处理中的每个 item 的身份标识。</br>
- * 一个 item 列表可以在 pipeline 中流动，它将输出所有 pipe 的结果。</br>
- * 它们穿过 pipeline 就像水在管子里流动，而且每个 pipe 单独穿过。</br>
- * 最后所有 items 将流出 pipeline 而且这过程将结束。
+ * pipeline 描述了一系列的操作，每个操作都被称为 pipe。</br>
+ * 它被设计来做加载过程的流程管理。所以 item 应该是 url，并且该 url 将是在处理中的每个 item 的身份标识。</br>
+ * 一个 item 列表可以在 pipeline 中流动，它将输出加载项经过所有 pipe 之后的结果。</br>
+ * 它们穿过 pipeline 就像水在管子里流动，将会按顺序流过每个 pipe。</br>
+ * 最后当所有加载项都流出 pipeline 时，整个加载流程就结束了。
  * @class Pipeline
  */
 /**
@@ -183,9 +183,9 @@ function getXMLHttpRequest () {
  * the id must be unique in the pipeline.</br>
  * It can also include `async` property to identify whether it's an asynchronous process.
  * !#zh
- * 构造函数，通过一系列的 pipe 来构造一个新的 pipeline，pipes 将在给定的顺序中被锁定。</br>
- * 一个 pipe 是一个对象，它包含了字符串的 ‘id’ 和 ‘handle’ 函数，在 pipeline 中 id 必须是唯一的。</br>
- * 它还可以包括 ‘async’ 属性以确定它是否是一个异步进程。
+ * 构造函数，通过一系列的 pipe 来构造一个新的 pipeline，pipes 将会在给定的顺序中被锁定。</br>
+ * 一个 pipe 就是一个对象，它包含了字符串类型的 ‘id’ 和 ‘handle’ 函数，在 pipeline 中 id 必须是唯一的。</br>
+ * 它还可以包括 ‘async’ 属性以确定它是否是一个异步过程。
  *
  * @method Pipeline
  * @param {Array} pipes
@@ -227,8 +227,8 @@ JS.mixin(Pipeline.prototype, {
      * Insert a new pipe at the given index of the pipeline. </br>
      * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
      * !#zh
-     * 插入一个新的 pipe 在给定索引的 pipeline。</br>
-     * 一个 pipe 必须包含一个字符串 ‘id’ 和 ‘handle’ 函数，该 id 在 pipeline 必须是唯一标识。
+     * 在给定的索引位置插入一个新的 pipe。</br>
+     * 一个 pipe 必须包含一个字符串类型的 ‘id’ 和 ‘handle’ 函数，该 id 在 pipeline 必须是唯一标识。
      * @method insertPipe
      * @param {Object} pipe The pipe to be inserted
      * @param {Number} index The index to insert
@@ -257,7 +257,7 @@ JS.mixin(Pipeline.prototype, {
      * A pipe must contain an `id` in string and a `handle` function, the id must be unique in the pipeline.
      * !#zh
      * 添加一个新的 pipe 到 pipeline 尾部。 </br>
-     * 该 pipe 必须包含一个字符串 ‘id’ 和 ‘handle’ 函数，该 id 在 pipeline 必须是唯一标识。
+     * 该 pipe 必须包含一个字符串类型 ‘id’ 和 ‘handle’ 函数，该 id 在 pipeline 必须是唯一标识。
      * @method appendPipe
      * @param {Object} pipe The pipe to be appended
      */
@@ -278,15 +278,15 @@ JS.mixin(Pipeline.prototype, {
      * Let new items flow into the pipeline. </br>
      * Each item can be a simple url string or an object,
      * if it's an object, it must contain `id` property. </br>
-     * You can specify its type by `type` property, by default, the type is the extension name in `src`. </br>
+     * You can specify its type by `type` property, by default, the type is the extension name in url. </br>
      * By adding a `skips` property including pipe ids, you can skip these pipe. </br>
      * The object can contain any supplementary property as you want. </br>
      * !#zh
-     * 让新的的 item 流入 pipeline 中。</br>
-     * 每个 item 可以是一个简单的 url 字符串或一个对象,
-     * 如果它是一个对象，他必须要包含 ‘id’ 属性。</br>
-     * 你可以指定它的 ‘type’ 属性类型，默认情况下，该类型是 ‘src’ 的后缀名。</br>
-     * 通过添加一个 包含 ‘skips’ 属性的 pipe，你可以跳过这些 pipe。</br>
+     * 让新的 item 流入 pipeline 中。</br>
+     * 这里的每个 item 可以是一个简单字符串类型的 url 或者是一个对象,
+     * 如果它是一个对象的话，他必须要包含 ‘id’ 属性。</br>
+     * 你也可以指定它的 ‘type’ 属性类型，默认情况下，该类型是 ‘url’ 的后缀名。</br>
+     * 也通过添加一个 包含 ‘skips’ 属性的 item 对象，你就可以跳过 skips 中包含的 pipe。</br>
      * 该对象可以包含任何附加属性。
      * @method flowIn
      * @param {Array} urlList
@@ -343,7 +343,7 @@ JS.mixin(Pipeline.prototype, {
      * found in the configuration file, and finish the loader pipe only after all dependencies are loaded (in the callback).
      * !#zh
      * 让新 items 流入 pipeline 并且当 item 列表完成时进行回调函数。</br>
-     * 这是现有的加载依赖项流，通常用于 pipe 逻辑。</br>
+     * 这个 API 的使用通常是为了加载依赖项。</br>
      * 例如：</br>
      * 我们需要加载一个场景配置的 JSON 文件，该场景会将所有的依赖项全部都加载完毕以后，进行回调表示加载完毕。
      * @method flowInDeps
@@ -447,11 +447,11 @@ JS.mixin(Pipeline.prototype, {
      * </br>
      * For example, an unzip pipe will generate more items, but you won't want them to pass unzip or download pipe again.
      * !#zh
-     * 复制 item 状态从一个源 item 对所有目标 items。</br>
-     * 新 items 从一个源 item 的 pipe 生成时很有用，</br>
-     * 那么你应该 flowIn 这些生成的 item 进入 pipeline，</br>
+     * 从一个源 item 向所有目标 item 复制它的 pipe 状态，用于避免重复通过部分 pipe。</br>
+     * 当一个源 item 生成了一系列新的 items 时很有用，</br>
+     * 你希望让这些新的依赖项进入 pipeline，但是又不希望它们通过源 item 已经经过的 pipe，</br>
      * 但是你可能希望他们源 item 已经通过并跳过所有 pipes，</br>
-     * 你可以用这个API实现它。
+     * 这个时候就可以使用这个 API。
      * @method copyItemStates
      * @param {Object} srcItem The source item
      * @param {Array|Object} dstItems A single destination item or an array of destination items
@@ -468,7 +468,7 @@ JS.mixin(Pipeline.prototype, {
 
     /**
      * !#en Returns whether the pipeline is flowing (contains item) currently.
-     * !#zh 获取 pipeline 当前是否是流动的。
+     * !#zh 获取 pipeline 当前是否正在处理中。
      * @method isFlowing
      * @return {Boolean}
      */
@@ -489,7 +489,7 @@ JS.mixin(Pipeline.prototype, {
     /**
      * !#en Returns an item in pipeline.
      * !#zh 获取指定 item。
-     * @method getItems
+     * @method getItem
      * @return {LoadingItems}
      */
     getItem: function (url) {
@@ -540,7 +540,7 @@ JS.mixin(Pipeline.prototype, {
 
     /**
      * !#en This is a callback which will be invoked while an item flow out the pipeline, you should overwrite this function.
-     * !#zh 这个回调函数将 item 流出 pipeline 时被调用，你应该重写该函数。
+     * !#zh 这个回调函数将在 item 流出 pipeline 时被调用，你应该重写该函数。
      * @method onProgress
      * @param {Number} completedCount The number of the items that are already completed.
      * @param {Number} totalCount The total number of the items.

@@ -228,9 +228,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Converts a view coordinate to an WebGL coordinate<br/>
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
      * Implementation can be found in CCDirectorWebGL.
-     * !#zh
-     * 将屏幕坐标转换为一个 OpenGL 坐标。<br/>
-     * 对于将(多点)触摸坐标转换为当前布局(横向或纵向)很有用。<br/>
+     * !#zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
      * @method convertToGL
      * @param {Vec2} uiPoint
      * @return {Vec2}
@@ -242,9 +240,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * Converts an OpenGL coordinate to a view coordinate<br/>
      * Useful to convert node points to window points for calls such as glScissor<br/>
      * Implementation can be found in CCDirectorWebGL.
-     * !#zh
-     * 将 OpenGL 坐标转换为屏幕坐标。<br/>
-     * 对于比如 glScissor 调用将 node 点转换到窗口点很有用。
+     * !#zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
      * @method convertToUI
      * @param {Vec2} glPoint
      * @return {Vec2}
@@ -316,7 +312,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._purgeDirectorInNextLoop = true;
     },
 
-    /**
+    /*
      * !#en
      * Returns the size in pixels of the surface. It could be different than the screen size.<br/>
      * High-res devices might have a higher surface size than the screen size.
@@ -328,7 +324,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         return this._contentScaleFactor;
     },
 
-    /**
+    /*
      * !#en
      * This object will be visited after the main scene is visited.<br/>
      * This object MUST implement the "visit" selector.<br/>
@@ -384,13 +380,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Returns the visible origin of the running scene.
-     * !#zh 获取可见视图的起始点，以点为单位。
+     * !#zh 获取视图在游戏内容中的坐标原点。
      * @method getVisibleOrigin
      * @return {Vec2}
      */
     getVisibleOrigin: null,
 
-    /**
+    /*
      * !#en Returns the z eye, only available in WebGL mode.
      * !#zh 获取 Z eye，只有在WebGL的模式下可用。
      * @method getZEye
@@ -502,7 +498,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this.startAnimation();
     },
 
-    /**
+    /*
      * !#en
      * Suspends the execution of the running scene, pushing it on the stack of suspended scenes.<br/>
      * The new scene will be executed.<br/>
@@ -799,7 +795,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#en
      * Enables or disables WebGL depth test.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js
-     * !#zh 启用/禁用深度测试.
+     * !#zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
      * @method setDepthTest
      * @param {Boolean} on
      */
@@ -809,7 +805,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#en
      * set color for clear screen.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js
-     * !#zh 设置空白场景的颜色值。
+     * !#zh 设置场景的默认擦除颜色（支持白色全透明，但不支持透明度为中间值）。
      * @method setClearColor
      * @param {Color} clearColor
      */
@@ -897,7 +893,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._projectionDelegate = delegate;
     },
 
-    /**
+    /*
      * !#en
      * Sets the view, where everything is rendered, do not call this function.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
@@ -921,12 +917,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#en
      * Update the view port.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
-     * !#zh 设置 glViewport。
+     * !#zh 设置视窗（请不要主动调用这个接口，除非你知道你在做什么）。
      * @method setViewport
      */
     setViewport: null,
 
-    /**
+    /*
      * !#en
      * Get the View, where everything is rendered.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
@@ -951,7 +947,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#en
      * Enables/disables OpenGL alpha blending.<br/>
      * Implementation can be found in CCDirectorCanvas.js/CCDirectorWebGL.js.
-     * !#zh 启用/禁用 alpha blending
+     * !#zh 启用/禁用 透明度融合。
      * @method setAlphaBlending
      * @param {Boolean} on
      */
@@ -977,7 +973,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * !#en
      * Returns current render Scene, normally you will never need to use this API.
      * In most case, you probably want to use `getScene` instead.
-     * !#zh 获取当前运行的场景。
+     * !#zh 获取当前运行的渲染场景，一般情况下，你不会需要用到这个接口，请使用 getScene。
      * @method getRunningScene
      * @private
      * @return {Scene}
@@ -988,7 +984,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Returns current logic Scene.
-     * !#zh 获取当前场景。
+     * !#zh 获取当前逻辑场景。
      * @method getScene
      * @return {Scene}
      * @example
@@ -1001,7 +997,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Returns the FPS value.
-     * !#zh 获取 FPS 数值。
+     * !#zh 获取单位帧执行时间。
      * @method getAnimationInterval
      * @return {Number}
      */
@@ -1033,7 +1029,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Returns seconds per frame.
-     * !#zh 获取每帧间隔几秒。 。
+     * !#zh 获取实际记录的上一帧执行时间，可能与单位帧执行时间（AnimationInterval）有出入。
      * @method getSecondsPerFrame
      * @return {Number}
      */
@@ -1053,7 +1049,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Returns whether or not the Director is paused.
-     * !#zh 获取 Director 是否暂停。
+     * !#zh 是否处于暂停状态。
      * @method isPaused
      * @return {Boolean}
      */
@@ -1063,7 +1059,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Returns how many frames were called since the director started.
-     * !#zh 获取 director 开始以来游戏运行的总帧数。
+     * !#zh 获取 director 启动以来游戏运行的总帧数。
      * @method getTotalFrames
      * @return {Number}
      */
@@ -1158,7 +1154,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
     },
 
-    /**
+    /*
      * !#en Returns the cc.AnimationManager associated with this director.
      * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）.
      * @method getAnimationManager
@@ -1236,7 +1232,7 @@ cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 
 /**
  * !#en The event which will be triggered after components update.
- * !#zh 组件 “update” 之后所触发的时间。
+ * !#zh 组件 “update” 时所触发的事件。
  * @event cc.Director.EVENT_COMPONENT_UPDATE
  * @param {Event} event
  * @param {Vec2} event.detail - The delta time from last frame
@@ -1245,7 +1241,7 @@ cc.Director.EVENT_COMPONENT_UPDATE = "director_component_update";
 
 /**
  * !#en The event which will be triggered after components late update.
- * !#zh 组件 “late update” 之后所触发的事件。
+ * !#zh 组件 “late update” 时所触发的事件。
  * @event cc.Director.EVENT_COMPONENT_LATE_UPDATE
  * @param {Event} event
  * @param {Vec2} event.detail - The delta time from last frame
@@ -1262,7 +1258,7 @@ cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
 
 /**
  * !#en The event which will be triggered before visiting the rendering scene graph.
- * !#zh 这将访问渲染场景图之前所触发的事件。
+ * !#zh 访问渲染场景树之前所触发的事件。
  * @event cc.Director.EVENT_BEFORE_VISIT
  * @param {Event} event
  */
@@ -1272,7 +1268,7 @@ cc.Director.EVENT_BEFORE_VISIT = "director_before_visit";
  * !#en
  * The event which will be triggered after visiting the rendering scene graph,
  * the render queue is ready but not rendered at this point.
- * !#zh 这将访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一点上不会呈现。
+ * !#zh 访问渲染场景图之后所触发的事件，渲染队列已准备就绪，但在这一时刻还没有呈现在画布上。
  * @event cc.Director.EVENT_AFTER_VISIT
  * @param {Event} event
  */
@@ -1280,7 +1276,7 @@ cc.Director.EVENT_AFTER_VISIT = "director_after_visit";
 
 /**
  * !#en The event which will be triggered after the rendering process.
- * !#zh 这将在渲染过程之后所触发的事件。
+ * !#zh 渲染过程之后所触发的事件。
  * @event cc.Director.EVENT_AFTER_DRAW
  * @param {Event} event
  */
