@@ -814,7 +814,8 @@ cc.LabelTTF.prototype._ctor = function(text, fontName, fontSize, dimensions, hAl
     }
     else {
         fontName = fontName || '';
-        fontSize = fontSize || 16;
+        if(!fontSize)
+            fontSize = 16;
         dimensions = dimensions || cc.size(0,0);
         hAlignment = hAlignment ? hAlignment : cc.TEXT_ALIGNMENT_LEFT;
         vAlignment = vAlignment ? vAlignment : cc.VERTICAL_TEXT_ALIGNMENT_TOP;
