@@ -186,7 +186,7 @@ std::vector<Node*> findChildren(const Node &node, const std::string &name)
     return vec;
 }
 
-#define MAX_ITOA_BUFFER_SIZE 256
+#define MAX_ITOA_BUFFER_SIZE 128
 double atof(const char* str)
 {
     if (str == nullptr)
