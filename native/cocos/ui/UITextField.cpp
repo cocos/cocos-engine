@@ -67,9 +67,9 @@ UICCTextField * UICCTextField::create(const std::string& placeholder, const std:
 
 void UICCTextField::onEnter()
 {
+    TextFieldTTF::onEnter();
     TextFieldTTF::setDelegate(this);
 }
-
 
 bool UICCTextField::onTextFieldAttachWithIME(TextFieldTTF *pSender)
 {
@@ -368,7 +368,7 @@ void TextField::onEnter()
 
 void TextField::initRenderer()
 {
-    _textFieldRenderer = UICCTextField::create("input words here", "Thonburi", 20);
+    _textFieldRenderer = UICCTextField::create("", "Thonburi", 20);
     addProtectedChild(_textFieldRenderer, TEXTFIELD_RENDERER_Z, -1);
 }
 
