@@ -144,7 +144,16 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      */
     getError: function (id) {
         var item = this.map[id];
-        return item ? item.error : null;
+        var ret = null;
+        if (item) {
+            if (item.error) {
+                ret = item.error;
+            } else if (item.alias) {
+                ret = this.getError(item.alias);
+            }
+        }
+
+        return ret;
     },
 
     /**

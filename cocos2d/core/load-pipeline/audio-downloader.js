@@ -79,10 +79,10 @@ function loadDomAudio (url, typeList, audio, cb) {
         if (__audioSupport.USE_LOADER_EVENT)
             dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
         clearTimeout(timer);
-        cb(null, audio);
+        cb(null, url);
     };
     var failure = function () {
-        cc.log('load audio failure - ' + realUrl);
+        cc.log('load audio failure - ' + url);
         success();
     };
     dom.addEventListener("canplaythrough", success, false);
@@ -103,15 +103,15 @@ function loadWebAudio (url, typeList, audio, cb) {
         context["decodeAudioData"](request.response, function(buffer){
             //success
             audio.setBuffer(buffer);
-            cb(null, audio);
+            cb(null, url);
         }, function(){
             //error
-            cb('decode error - ' + url, audio);
+            cb('decode error - ' + url, url);
         });
     };
 
     request.onerror = function(){
-        cb('request error - ' + url, audio);
+        cb('request error - ' + url, url);
     };
 
     request.send();

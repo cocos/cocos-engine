@@ -492,8 +492,11 @@ JS.mixin(cc.Audio.prototype, {
                 // Force using webaudio for effects
                 cc.Audio.useWebAudio = true;
                 audio = new cc.Audio(url);
-                cc.loader.load(url, function (error, loadAudio) {
+                cc.loader.load(url, function (error, url) {
                     if (error) return;
+                    var item = cc.loader.getItem(url);
+                    var loadAudio = item && item.audio ? item.audio : null;
+
                     if (loadAudio._AUDIO_TYPE === 'WEBAUDIO')
                         audio.setBuffer(loadAudio._element.buffer);
                     else
