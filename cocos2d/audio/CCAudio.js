@@ -284,9 +284,6 @@ JS.mixin(cc.Audio.prototype, {
                 bgMusic.stop();
             }
             var item = cc.loader.getItem(url);
-            if (item.alias) {
-                item = cc.loader.getItem(item.alias);
-            }
             var audio = item && item.audio ? item.audio : null;
             if (!audio) {
                 var self = this;
@@ -484,9 +481,6 @@ JS.mixin(cc.Audio.prototype, {
             }
 
             var item = cc.loader.getItem(url);
-            if (item.alias) {
-                item = cc.loader.getItem(item.alias);
-            }
             audio = item && item.audio ? item.audio : null;
             if (SWA && audio && audio._AUDIO_TYPE != "WEBAUDIO") {
                 //delete cc.loader.getRes(url);
@@ -501,9 +495,6 @@ JS.mixin(cc.Audio.prototype, {
                 cc.loader.load(url, function (error, url) {
                     if (error) return;
                     var item = cc.loader.getItem(url);
-                    if (item.alias) {
-                        item = cc.loader.getItem(item.alias);
-                    }
                     var loadAudio = item && item.audio ? item.audio : null;
 
                     if (loadAudio._AUDIO_TYPE === 'WEBAUDIO')

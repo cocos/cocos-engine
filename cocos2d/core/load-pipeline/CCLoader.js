@@ -203,7 +203,7 @@ JS.mixin(cc.loader, {
             var url = resources[i].id || resources[i];
             if (typeof url !== 'string')
                 continue;
-            var item = this._items.map[url];
+            var item = this.getItem(url);
             if ( !item || (item && !item.complete) ) {
                 this._items.addListener(url, loadedCheck);
                 checker[url] = null;
@@ -379,6 +379,23 @@ JS.mixin(cc.loader, {
      */
     getResCount: function () {
         return this._items.totalCount;
+    },
+
+    /**
+     * Returns an item in pipeline.
+     * @method getItem
+     * @return {LoadingItem}
+     */
+    getItem: function (url) {
+        var item = this._items.map[url];
+
+        if (!item)
+            return item;
+
+        if (item.alias)
+            item = this._items.map[item.alias];
+
+        return item;
     },
 
     /**
