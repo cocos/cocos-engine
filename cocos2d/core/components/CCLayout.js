@@ -408,7 +408,7 @@ var Layout = cc.Class({
         var row = 0;
         var containerResizeBoundary;
 
-        var maxHeightChildAnchor;
+        var maxHeightChildAnchor = cc.p(0, 0);
 
         var newChildWidth = this.cellSize.width;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
@@ -534,7 +534,7 @@ var Layout = cc.Class({
         var secondMaxWidth = 0;
         var column = 0;
         var containerResizeBoundary;
-        var maxWidthChildAnchor;
+        var maxWidthChildAnchor = cc.p(0, 0);
 
         var newChildHeight = this.cellSize.height;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
