@@ -194,17 +194,25 @@ double atof(const char* str)
         return 0.0;
     }
 
-    char buf[MAX_ITOA_BUFFER_SIZE];
-    strncpy(buf, str, MAX_ITOA_BUFFER_SIZE);
-
-    // strip string, only remain 7 numbers after '.'
-    char* dot = strchr(buf, '.');
-    if (dot != nullptr && dot - buf + 8 <  MAX_ITOA_BUFFER_SIZE)
+    auto dot = strchr(str, '.');
+    if (dot == nullptr)
     {
-        dot[8] = '\0';
+        return std::atof(str);
     }
-
-    return ::atof(buf);
+    else
+    {
+        char buf[MAX_ITOA_BUFFER_SIZE];
+        strncpy(buf, str, MAX_ITOA_BUFFER_SIZE);
+        
+        // strip string, only remain 7 numbers after '.'
+        auto index = dot - str + 8;
+        if (index <  MAX_ITOA_BUFFER_SIZE)
+        {
+            buf[index] = '\0';
+        }
+        
+        return std::atof(buf);
+    }
 }
 
 double gettime()
