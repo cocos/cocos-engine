@@ -456,13 +456,13 @@ var Button = cc.Class({
         this._pressed = false;
 
         if (!CC_EDITOR) {
-            this.node.off(cc.Node.EventType.TOUCH_START);
-            this.node.off(cc.Node.EventType.TOUCH_MOVE);
-            this.node.off(cc.Node.EventType.TOUCH_END);
-            this.node.off(cc.Node.EventType.TOUCH_CANCEL);
+            this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
+            this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+            this.node.off(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-            this.node.off(cc.Node.EventType.MOUSE_ENTER);
-            this.node.off(cc.Node.EventType.MOUSE_LEAVE);
+            this.node.off(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+            this.node.off(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
         } else {
             this.node.off('spriteframe-changed');
         }
