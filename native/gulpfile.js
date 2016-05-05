@@ -11,7 +11,7 @@ var fs = require('fs');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'archive-prebuilt', 'upload-prebuilt'));
-gulp.task('make-simulator', gulpSequence('update-simulator-config', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-simulator', gulpSequence('update-simulator-config', 'update-simulator-script', 'archive-simulator', 'upload-simulator'));
 
 function execSync(cmd, workPath) {
   var execOptions = {
@@ -140,6 +140,12 @@ gulp.task('gen-simulator', function (cb) {
 });
 
 gulp.task('update-simulator-config', function () {
+  var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
+  return gulp.src('./tools/simulator/config.json')
+          .pipe(gulp.dest(destPath));
+});
+
+gulp.task('update-simulator-script', function () {
     var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
     var updateScript = function () {
       // scripts
@@ -147,6 +153,7 @@ gulp.task('update-simulator-config', function () {
         base: './cocos/scripting/js-bindings'
       }).pipe(gulp.dest(destPath)); 
     };
+
     if (!fs.existsSync(destPath)) {
         console.error(`Cant\'t find simulator dir [${destPath}]`);
     } else {
