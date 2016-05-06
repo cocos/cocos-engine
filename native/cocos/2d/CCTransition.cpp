@@ -279,8 +279,8 @@ void TransitionRotoZoom:: onEnter()
     _inScene->setScale(0.001f);
     _outScene->setScale(1.0f);
 
-    _inScene->setAnchorPoint(Vec2(0.5f, 0.5f));
-    _outScene->setAnchorPoint(Vec2(0.5f, 0.5f));
+    _inScene->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
+    _outScene->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
     ActionInterval *rotozoom = (ActionInterval*)(Sequence::create
     (
@@ -335,8 +335,8 @@ void TransitionJumpZoom::onEnter()
 
     _inScene->setScale(0.5f);
     _inScene->setPosition(s.width, 0);
-    _inScene->setAnchorPoint(Vec2(0.5f, 0.5f));
-    _outScene->setAnchorPoint(Vec2(0.5f, 0.5f));
+    _inScene->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
+    _outScene->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
     ActionInterval *jump = JumpBy::create(_duration/4, Vec2(-s.width,0), s.width/4, 2);
     ActionInterval *scaleIn = ScaleTo::create(_duration/4, 1.0f);
@@ -403,7 +403,7 @@ void TransitionMoveInL::onEnter()
 
 ActionInterval* TransitionMoveInL::action()
 {
-    return MoveTo::create(_duration, Vec2(0,0));
+    return MoveTo::create(_duration, Vec2::ZERO);
 }
 
 ActionInterval* TransitionMoveInL::easeActionWithAction(ActionInterval* action)
@@ -1308,9 +1308,9 @@ void TransitionCrossFade::onEnter()
         return;
     }
 
-    inTexture->getSprite()->setAnchorPoint( Vec2(0.5f,0.5f) );
+    inTexture->getSprite()->setAnchorPoint( Vec2::ANCHOR_MIDDLE );
     inTexture->setPosition(size.width/2, size.height/2);
-    inTexture->setAnchorPoint( Vec2(0.5f,0.5f) );
+    inTexture->setAnchorPoint( Vec2::ANCHOR_MIDDLE );
 
     // render inScene to its texturebuffer
     inTexture->begin();
@@ -1319,9 +1319,9 @@ void TransitionCrossFade::onEnter()
 
     // create the second render texture for outScene
     RenderTexture* outTexture = RenderTexture::create((int)size.width, (int)size.height,Texture2D::PixelFormat::RGBA8888,GL_DEPTH24_STENCIL8);
-    outTexture->getSprite()->setAnchorPoint( Vec2(0.5f,0.5f) );
+    outTexture->getSprite()->setAnchorPoint( Vec2::ANCHOR_MIDDLE );
     outTexture->setPosition(size.width/2, size.height/2);
-    outTexture->setAnchorPoint( Vec2(0.5f,0.5f) );
+    outTexture->setAnchorPoint( Vec2::ANCHOR_MIDDLE );
 
     // render outScene to its texturebuffer
     outTexture->begin();

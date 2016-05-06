@@ -92,7 +92,7 @@ void LoadingBar::initRenderer()
     _barRenderer = Scale9Sprite::create();
     _barRenderer->setScale9Enabled(false);
     addProtectedChild(_barRenderer, BAR_RENDERER_Z, -1);
-    _barRenderer->setAnchorPoint(Vec2(0.0,0.5));
+    _barRenderer->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 }
 
 
@@ -107,11 +107,11 @@ void LoadingBar::setDirection(cocos2d::ui::LoadingBar::Direction direction)
     switch (_direction)
     {
         case Direction::LEFT:
-            _barRenderer->setAnchorPoint(Vec2(0.0f,0.5f));
+            _barRenderer->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
             _barRenderer->setPosition(Vec2(0,_contentSize.height*0.5f));
             break;
         case Direction::RIGHT:
-            _barRenderer->setAnchorPoint(Vec2(1.0f,0.5f));
+            _barRenderer->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
             _barRenderer->setPosition(Vec2(_totalLength,_contentSize.height*0.5f));
             break;
     }
@@ -163,10 +163,10 @@ void LoadingBar::setupTexture()
     switch (_direction)
     {
         case Direction::LEFT:
-            _barRenderer->setAnchorPoint(Vec2(0.0f,0.5f));
+            _barRenderer->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
             break;
         case Direction::RIGHT:
-            _barRenderer->setAnchorPoint(Vec2(1.0f,0.5f));
+            _barRenderer->setAnchorPoint(Vec2::ANCHOR_MIDDLE_RIGHT);
             break;
     }
     handleSpriteFlipX();

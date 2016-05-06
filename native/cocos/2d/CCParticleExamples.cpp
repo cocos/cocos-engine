@@ -307,7 +307,7 @@ bool ParticleSun::initWithTotalParticles(int numberOfParticles)
         setEmitterMode(Mode::GRAVITY);
 
         // Gravity Mode: gravity
-        setGravity(Vec2(0,0));
+        setGravity(Vec2::ZERO);
 
         // Gravity mode: radial acceleration
         setRadialAccel(0);
@@ -411,7 +411,7 @@ bool ParticleGalaxy::initWithTotalParticles(int numberOfParticles)
         setEmitterMode(Mode::GRAVITY);
 
         // Gravity Mode: gravity
-        setGravity(Vec2(0,0));
+        setGravity(Vec2::ZERO);
 
         // Gravity Mode: speed of particles
         setSpeed(60);
@@ -520,7 +520,7 @@ bool ParticleFlower::initWithTotalParticles(int numberOfParticles)
         setEmitterMode(Mode::GRAVITY);
 
         // Gravity Mode: gravity
-        setGravity(Vec2(0,0));
+        setGravity(Vec2::ZERO);
 
         // Gravity Mode: speed of particles
         setSpeed(80);
@@ -737,7 +737,7 @@ bool ParticleSpiral::initWithTotalParticles(int numberOfParticles)
         setEmitterMode(Mode::GRAVITY);
 
         // Gravity Mode: gravity
-        setGravity(Vec2(0,0));
+        setGravity(Vec2::ZERO);
 
         // Gravity Mode: speed of particles
         setSpeed(150);
@@ -845,7 +845,7 @@ bool ParticleExplosion::initWithTotalParticles(int numberOfParticles)
         setEmitterMode(Mode::GRAVITY);
 
         // Gravity Mode: gravity
-        setGravity(Vec2(0,0));
+        setGravity(Vec2::ZERO);
 
         // Gravity Mode: speed of particles
         setSpeed(70);
@@ -954,7 +954,7 @@ bool ParticleSmoke::initWithTotalParticles(int numberOfParticles)
         setEmitterMode(Mode::GRAVITY);
 
         // Gravity Mode: gravity
-        setGravity(Vec2(0,0));
+        setGravity(Vec2::ZERO);
 
         // Gravity Mode: radial acceleration
         setRadialAccel(0);
