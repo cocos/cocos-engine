@@ -1,3 +1,5 @@
-#!/usr/bin/sh
+#!/bin/bash
 
 echo "run script.sh"
+
+exit 0
