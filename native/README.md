@@ -1,6 +1,9 @@
 Cocos2d-x, compact version
 ==========================
 
+![travis-ic](https://travis-ci.org/cocos-creator/cocos2d-x-lite.svg?branch=develop )
+
+
 It is based on [cocos2d-x](https://github.com/cocos2d/cocos2d-x)[version 3.9], but remove 3D and other features. It works on iOS,OS X,Android and Windows. 
 
 ------------------------------------------------
