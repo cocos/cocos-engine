@@ -240,6 +240,10 @@ cc.js.mixin(cc.game, {
         config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
         config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
 
+        // Group List and Collide Map
+        this.groupList = config.groupList;
+        this.collideMap = config.collideMap;
+
         // Scene parser
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
 
