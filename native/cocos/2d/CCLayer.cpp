@@ -48,7 +48,7 @@ NS_CC_BEGIN
 Layer::Layer()
 {
     _ignoreAnchorPointForPosition = true;
-    setAnchorPoint(Vec2(0.5f, 0.5f));
+    setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 }
 
 Layer::~Layer()

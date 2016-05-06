@@ -113,7 +113,7 @@ bool EditBox::initWithSizeAndBackgroundSprite(const cocos2d::Size &size, cocos2d
         _backgroundSprite = pNormal9SpriteBg;
 
         this->setContentSize(size);
-        this->setPosition(Vec2(0, 0));
+        this->setPosition(Vec2::ZERO);
 
         _backgroundSprite->setPosition(Vec2(_contentSize.width/2, _contentSize.height/2));
         _backgroundSprite->setContentSize(size);
@@ -148,7 +148,7 @@ bool EditBox::initWithSizeAndBackgroundSprite(const Size& size,
             _backgroundSprite = Scale9Sprite::createWithSpriteFrameName(pNormal9SpriteBg);
         }
         this->setContentSize(size);
-        this->setPosition(Vec2(0, 0));
+        this->setPosition(Vec2::ZERO);
 
         _backgroundSprite->setPosition(Vec2(_contentSize.width/2, _contentSize.height/2));
         _backgroundSprite->setContentSize(size);

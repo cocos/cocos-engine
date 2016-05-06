@@ -113,7 +113,7 @@ bool ScrollView::initWithViewSize(Size size, Node *container/* = nullptr*/)
         {
             _container = Layer::create();
             _container->ignoreAnchorPointForPosition(false);
-            _container->setAnchorPoint(Vec2(0.0f, 0.0f));
+            _container->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         }
 
         this->setViewSize(size);
@@ -348,7 +348,7 @@ void ScrollView::setContainer(Node * pContainer)
     this->_container = pContainer;
 
     this->_container->ignoreAnchorPointForPosition(false);
-    this->_container->setAnchorPoint(Vec2(0.0f, 0.0f));
+    this->_container->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
     this->addChild(this->_container);
 

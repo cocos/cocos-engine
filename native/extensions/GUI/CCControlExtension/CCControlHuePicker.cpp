@@ -63,8 +63,8 @@ bool ControlHuePicker::initWithTargetAndPos(Node* target, Vec2 pos)
     if (Control::init())
     {
         // Add background and slider sprites
-        this->setBackground(ControlUtils::addSpriteToTargetWithPosAndAnchor("huePickerBackground.png", target, pos, Vec2(0.0f, 0.0f)));
-        this->setSlider(ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPicker.png", target, pos, Vec2(0.5f, 0.5f)));
+        this->setBackground(ControlUtils::addSpriteToTargetWithPosAndAnchor("huePickerBackground.png", target, pos, Vec2::ZERO));
+        this->setSlider(ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPicker.png", target, pos, Vec2::ANCHOR_MIDDLE));
 
         _slider->setPosition(pos.x, pos.y + _background->getBoundingBox().size.height * 0.5f);
         _startPos=pos;

@@ -60,7 +60,7 @@ MenuItem* MenuItem::create( const ccMenuCallback& callback)
 
 bool MenuItem::initWithCallback(const ccMenuCallback& callback)
 {
-    setAnchorPoint(Vec2(0.5f, 0.5f));
+    setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     _callback = callback;
     _enabled = true;
     _selected = false;
@@ -404,7 +404,7 @@ void MenuItemSprite::setSelectedImage(Node* image)
         if (image)
         {
             addChild(image);
-            image->setAnchorPoint(Vec2(0, 0));
+            image->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         }
 
         if (_selectedImage)
@@ -424,7 +424,7 @@ void MenuItemSprite::setDisabledImage(Node* image)
         if (image)
         {
             addChild(image);
-            image->setAnchorPoint(Vec2(0, 0));
+            image->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         }
 
         if (_disabledImage)

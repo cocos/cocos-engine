@@ -367,7 +367,7 @@ void ControlButton::setTitleLabelForState(Node* titleLabel, State state)
 
     _titleLabelDispatchTable.insert((int)state, titleLabel);
     titleLabel->setVisible(false);
-    titleLabel->setAnchorPoint(Vec2(0.5f, 0.5f));
+    titleLabel->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     addChild(titleLabel, 1);
 
     // If the current state if equal to the given state we update the layout
@@ -466,7 +466,7 @@ void ControlButton::setBackgroundSpriteForState(ui::Scale9Sprite* sprite, State 
 
     _backgroundSpriteDispatchTable.insert((int)state, sprite);
     sprite->setVisible(false);
-    sprite->setAnchorPoint(Vec2(0.5f, 0.5f));
+    sprite->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     addChild(sprite);
 
     if (this->_preferredSize.width != 0 || this->_preferredSize.height != 0)

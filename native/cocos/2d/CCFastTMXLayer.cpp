@@ -823,7 +823,7 @@ void TMXLayer::setupTileSprite(Sprite* sprite, Vec2 pos, int gid)
     if (gid & kTMXTileDiagonalFlag)
     {
         // put the anchor in the middle for ease of rotation.
-        sprite->setAnchorPoint(Vec2(0.5f,0.5f));
+        sprite->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         sprite->setPosition(getPositionAt(pos).x + sprite->getContentSize().height/2,
                                   getPositionAt(pos).y + sprite->getContentSize().width/2 );
 

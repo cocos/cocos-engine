@@ -122,7 +122,7 @@ void Slider::initRenderer()
     _barRenderer->setScale9Enabled(false);
     _progressBarRenderer->setScale9Enabled(false);
 
-    _progressBarRenderer->setAnchorPoint(Vec2(0.0f, 0.5f));
+    _progressBarRenderer->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
 
     addProtectedChild(_barRenderer, BASEBAR_RENDERER_Z, -1);
     addProtectedChild(_progressBarRenderer, PROGRESSBAR_RENDERER_Z, -1);
@@ -219,7 +219,7 @@ void Slider::loadProgressBarTexture(SpriteFrame* spriteframe)
 void Slider::setupProgressBarTexture()
 {
     this->updateChildrenDisplayedRGBA();
-    _progressBarRenderer->setAnchorPoint(Vec2(0.0f, 0.5f));
+    _progressBarRenderer->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
     _progressBarTextureSize = _progressBarRenderer->getContentSize();
     _progressBarRendererDirty = true;
 }
