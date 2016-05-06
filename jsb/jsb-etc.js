@@ -200,7 +200,8 @@ window._ccsg = {
     Label: cc.Label,
     EditBox: cc.EditBox,
     TMXTiledMap: cc.TMXTiledMap,
-    TMXLayer: cc.TMXLayer
+    TMXLayer: cc.TMXLayer,
+    MotionStreak: cc.MotionStreak
 };
 
 // rename cc.Class to cc._Class

@@ -164,7 +164,9 @@ cc.game.run({
 
         "src/SpritePolygonTest/SpritePolygonTest.js",
 
-        "src/NodeEventTest/NodeEventTest.js"
+        "src/NodeEventTest/NodeEventTest.js",
+
+        "src/MotionStreakTest/MotionStreakTest.js"
     ]
 }, function(){
     cc.view.enableRetina(false);
