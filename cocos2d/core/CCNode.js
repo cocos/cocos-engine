@@ -1006,37 +1006,6 @@ var Node = cc.Class({
         return clone;
     },
 
-    _onCascadeChanged: function () {
-        // update components which also in scene graph
-        var opacity = this._cascadeOpacityEnabled ? 255 : this._opacity;
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setOpacity(opacity);
-            }
-        }
-    },
-
-    _onAnchorChanged: function () {
-        // update components if also in scene graph
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setAnchorPoint(this._anchorPoint);
-                comp._sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
-            }
-        }
-    },
-
-    _onOpacityModifyRGBChanged: function () {
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
-            }
-        }
-    },
-
 // EVENTS
     /**
      * !#en

@@ -40,19 +40,21 @@ var RendererInSG = cc.Class({
          * @property {_ccsg.Node} _sgNode
          * @private
          */
-        this._sgNode = this._createSgNode();
-        if (this._sgNode) {
-            // retain immediately
-            // will be released in onDestroy
-            this._sgNode.retain();
-        }
-        else if (CC_EDITOR) {
+        var sgNode = this._sgNode = this._createSgNode();
+        if (CC_EDITOR && !sgNode) {
             cc.error('Not support for asynchronous creating node in SG');
         }
-        
+        if (CC_JSB) {
+            // retain immediately
+            // will be released in onDestroy
+            sgNode.retain();
+        }
+
         // The replacement node used when this component disabled 
         this._plainNode = new _ccsg.Node();
-        this._plainNode.retain();
+        if (CC_JSB) {
+            this._plainNode.retain();
+        }
     },
 
     onLoad: function () {
@@ -68,15 +70,10 @@ var RendererInSG = cc.Class({
 
     onEnable: function () {
         this._replaceSgNode(this._sgNode);
-
-        // can not ignore anchor in render tree due to rotation bug which can't be fixed in JSB
-        // see https://github.com/cocos-creator/engine/pull/610
-        //this.node._ignoreAnchor = true;
     },
 
     onDisable: function () {
         this._replaceSgNode(this._plainNode);
-        //this.node._ignoreAnchor = false;
     },
 
     onDestroy: function () {
