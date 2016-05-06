@@ -56,7 +56,7 @@ namespace ui {
         ,_renderingType(RenderingType::SLICE)
         ,_insideBounds(true)
     {
-        this->setAnchorPoint(Vec2(0.5,0.5));
+        this->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 #if CC_SPRITE_DEBUG_DRAW
         _debugDrawNode = DrawNode::create();
         addChild(_debugDrawNode);

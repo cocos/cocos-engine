@@ -139,12 +139,12 @@ bool ControlSlider::initWithSprites(Sprite * backgroundSprite, Sprite* progressS
         setContentSize(Size(maxRect.size.width, maxRect.size.height));
 
         // Add the slider background
-        _backgroundSprite->setAnchorPoint(Vec2(0.5f, 0.5f));
+         _backgroundSprite->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         _backgroundSprite->setPosition(this->getContentSize().width / 2, this->getContentSize().height / 2);
         addChild(_backgroundSprite);
 
         // Add the progress bar
-        _progressSprite->setAnchorPoint(Vec2(0.0f, 0.5f));
+         _progressSprite->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
         _progressSprite->setPosition(0.0f, this->getContentSize().height / 2);
         addChild(_progressSprite);
 

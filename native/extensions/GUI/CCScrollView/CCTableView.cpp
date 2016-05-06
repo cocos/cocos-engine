@@ -292,7 +292,7 @@ void TableView::_updateContentSize()
     {
         if (_direction == Direction::HORIZONTAL)
         {
-            this->setContentOffset(Vec2(0,0));
+            this->setContentOffset(Vec2::ZERO);
         }
         else
         {
@@ -418,7 +418,7 @@ void TableView::_moveCellOutOfSight(TableViewCell *cell)
 
 void TableView::_setIndexForCell(ssize_t index, TableViewCell *cell)
 {
-    cell->setAnchorPoint(Vec2(0.0f, 0.0f));
+    cell->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
     cell->setPosition(this->_offsetFromIndex(index));
     cell->setIdx(index);
 }

@@ -334,7 +334,7 @@ bool ControlSwitch::initWithMaskSprite(Sprite *maskSprite, Sprite * onSprite, Sp
         addChild(_switchSprite);
 
         ignoreAnchorPointForPosition(false);
-        setAnchorPoint(Vec2(0.5f, 0.5f));
+        setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         setContentSize(_switchSprite->getContentSize());
         return true;
     }

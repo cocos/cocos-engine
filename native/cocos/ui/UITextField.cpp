@@ -67,9 +67,9 @@ UICCTextField * UICCTextField::create(const std::string& placeholder, const std:
 
 void UICCTextField::onEnter()
 {
+    TextFieldTTF::onEnter();
     TextFieldTTF::setDelegate(this);
 }
-
 
 bool UICCTextField::onTextFieldAttachWithIME(TextFieldTTF *pSender)
 {
@@ -368,7 +368,7 @@ void TextField::onEnter()
 
 void TextField::initRenderer()
 {
-    _textFieldRenderer = UICCTextField::create("input words here", "Thonburi", 20);
+    _textFieldRenderer = UICCTextField::create("", "Thonburi", 20);
     addProtectedChild(_textFieldRenderer, TEXTFIELD_RENDERER_Z, -1);
 }
 
@@ -422,16 +422,15 @@ void TextField::setString(const std::string& text)
         }
     }
 
-    const char* content = strText.c_str();
     if (isPasswordEnabled())
     {
-        _textFieldRenderer->setPasswordText(content);
+        _textFieldRenderer->setPasswordText(strText);
         _textFieldRenderer->setString("");
-        _textFieldRenderer->insertText(content, strlen(content));
+        _textFieldRenderer->insertText(strText.c_str(), strText.size());
     }
     else
     {
-        _textFieldRenderer->setString(content);
+        _textFieldRenderer->setString(strText);
     }
     _textFieldRendererAdaptDirty = true;
     updateContentSizeWithTextureSize(_textFieldRenderer->getContentSize());

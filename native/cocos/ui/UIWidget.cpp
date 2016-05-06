@@ -210,7 +210,7 @@ bool Widget::init()
         setBright(true);
         onFocusChanged = CC_CALLBACK_2(Widget::onFocusChange,this);
         onNextFocusedWidget = nullptr;
-        this->setAnchorPoint(Vec2(0.5f, 0.5f));
+        this->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
         ignoreContentAdaptWithSize(true);
 

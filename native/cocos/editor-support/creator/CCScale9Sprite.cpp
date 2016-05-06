@@ -857,12 +857,12 @@ _quadsDirty(true),
 _isTriangle(false),
 _isTrimmedContentSize(true),
 _fillType(Scale9SpriteV2::FillType::HORIZONTAL),
-_fillCenter(cocos2d::Vec2(0,0)),
+_fillCenter(cocos2d::Vec2::ZERO),
 _fillStart(0),
 _fillRange(0),
 _needRebuildRenderCommand(true)
 {
-    this->setAnchorPoint(cocos2d::Vec2(0.5,0.5));
+    this->setAnchorPoint(cocos2d::Vec2::ANCHOR_MIDDLE);
     this->setGLProgramState(cocos2d::GLProgramState::getOrCreateWithGLProgramName(cocos2d::GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
 }
 

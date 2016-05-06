@@ -253,7 +253,7 @@ bool Sprite::initWithTexture(Texture2D *texture, const Rect& rect, bool rotated)
         _flippedX = _flippedY = false;
 
         // default transform anchor: center
-        setAnchorPoint(Vec2(0.5f, 0.5f));
+        setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
         // zwoptex default values
         _offsetPosition.setZero();
