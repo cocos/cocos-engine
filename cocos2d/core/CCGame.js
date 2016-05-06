@@ -581,6 +581,10 @@ var game = /** @lends cc.game# */{
         // Scene parser
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
 
+        // Collide Map and Group List
+        this.collideMap = config.collideMap;
+        this.groupList = config.groupList;
+
         this.config = config;
     },
 
