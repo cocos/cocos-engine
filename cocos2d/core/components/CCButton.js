@@ -314,9 +314,17 @@ var Button = cc.Class({
         if (!this.target) {
             this.target = this.node;
         }
+    },
 
+    onEnable: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
+        } else {
+            this.node.on('spriteframe-changed', function(event) {
+                if (this.transition === Transition.SPRITE) {
+                    this.normalSprite = event.detail.spriteFrame;
+                }
+            }.bind(this));
         }
     },
 
@@ -446,6 +454,18 @@ var Button = cc.Class({
     onDisable: function() {
         this._hovered = false;
         this._pressed = false;
+
+        if (!CC_EDITOR) {
+            this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMove, this);
+            this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+            this.node.off(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancel, this);
+
+            this.node.off(cc.Node.EventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+            this.node.off(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        } else {
+            this.node.off('spriteframe-changed');
+        }
     },
 
     _applyTransition: function (color, sprite) {
