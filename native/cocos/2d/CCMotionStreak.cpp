@@ -107,20 +107,10 @@ bool MotionStreak::initWithFade(float fade, float minSeg, float stroke, const Co
 
     _positionR.setZero();
     _fastMode = true;
-    _minSeg = (minSeg == -1.0f) ? stroke/5.0f : minSeg;
-    _minSeg *= _minSeg;
-
     _stroke = stroke;
-    _fadeDelta = 1.0f/fade;
 
-    _maxPoints = (int)(fade*60.0f)+2;
-    _nuPoints = 0;
-    _pointState = (float *)malloc(sizeof(float) * _maxPoints);
-    _pointVertexes = (Vec2*)malloc(sizeof(Vec2) * _maxPoints);
-
-    _vertices = (Vec2*)malloc(sizeof(Vec2) * _maxPoints * 2);
-    _texCoords = (Tex2F*)malloc(sizeof(Tex2F) * _maxPoints * 2);
-    _colorPointer =  (GLubyte*)malloc(sizeof(GLubyte) * _maxPoints * 2 * 4);
+    setMinSeg(minSeg);
+    setFadeTime(fade);
 
     // Set blend mode
     _blendFunc = BlendFunc::ALPHA_NON_PREMULTIPLIED;
@@ -220,6 +210,31 @@ void MotionStreak::setTexture(Texture2D *texture)
     }
 }
 
+float MotionStreak::getFadeTime()
+{
+    return 1.0f / _fadeDelta;
+}
+
+void MotionStreak::setFadeTime(float fade)
+{
+    _fadeDelta = 1.0f/fade;
+
+    _maxPoints = (int)(fade*60.0f)+2;
+    _nuPoints = 0;
+    _pointState = (float *)malloc(sizeof(float) * _maxPoints);
+    _pointVertexes = (Vec2*)malloc(sizeof(Vec2) * _maxPoints);
+
+    _vertices = (Vec2*)malloc(sizeof(Vec2) * _maxPoints * 2);
+    _texCoords = (Tex2F*)malloc(sizeof(Tex2F) * _maxPoints * 2);
+    _colorPointer =  (GLubyte*)malloc(sizeof(GLubyte) * _maxPoints * 2 * 4);
+}
+
+void MotionStreak::setMinSeg(float minSeg)
+{
+    _minSeg = (minSeg == -1.0f) ? _stroke / 5.0f : minSeg;
+    _minSeg *= _minSeg;
+}
+
 void MotionStreak::setBlendFunc(const BlendFunc &blendFunc)
 {
     _blendFunc = blendFunc;
@@ -232,12 +247,12 @@ const BlendFunc& MotionStreak::getBlendFunc() const
 
 void MotionStreak::setOpacity(GLubyte opacity)
 {
-    CCASSERT(false, "Set opacity no supported");
+    CCLOG("Set opacity no supported");
 }
 
 GLubyte MotionStreak::getOpacity() const
 {
-    CCASSERT(false, "Opacity no supported");
+    CCLOG("Opacity no supported");
     return 0;
 }
 
@@ -404,4 +419,3 @@ void MotionStreak::draw(Renderer *renderer, const Mat4 &transform, uint32_t flag
 }
 
 NS_CC_END
-
