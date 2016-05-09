@@ -64,7 +64,8 @@ namespace ui {
 
         virtual ~ListenerComponent()
         {
-            Director::DirectorInstance->getEventDispatcher()->removeEventListener(_touchListener);
+            if (Director::DirectorInstance)
+                Director::DirectorInstance->getEventDispatcher()->removeEventListener(_touchListener);
             _touchListener->release();
         }
 
