@@ -419,6 +419,18 @@ var Node = cc.Class({
                     this._objFlags &= ~DontDestroy;
                 }
             }
+        },
+
+        groupIndex: 0,
+
+        group: {
+            get: function () {
+                return cc.game.groupList[this.groupIndex] || '';
+            },
+
+            set: function (value) {
+                this.groupIndex = cc.game.groupList.indexOf(value);
+            }
         }
     },
 
