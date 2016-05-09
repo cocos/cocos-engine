@@ -101,4 +101,4 @@ require('./jsb-enums');
 require('./jsb-event');
 require('./jsb-action');
 require('./jsb-etc');
-
+require('./jsb-image');
