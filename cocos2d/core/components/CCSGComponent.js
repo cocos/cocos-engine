@@ -51,19 +51,12 @@ var SGComponent = cc.Class({
         }
     },
 
-    onLoad: function () {
-        this._initSgNode();
-        var sgNode = this._sgNode;
-        if ( !this.node._sizeProvider ) {
-            this.node._sizeProvider = sgNode;
-        }
-    },
-    onDestroy: function () {
-        if ( this.node._sizeProvider === this._sgNode ) {
-            this.node._sizeProvider = null;
-        }
-        this._removeSgNode();
-    },
+    //onLoad: function () {
+    //    this._initSgNode();
+    //},
+    //onDestroy: function () {
+    //    this._removeSgNode();
+    //},
 
     /**
      * Create and returns your new scene graph node (SGNode) to add to scene graph.

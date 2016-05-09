@@ -15,20 +15,21 @@ var HideInGame = 1 << 9;
 var HideInEditor = 1 << 10;
 
 var IsOnEnableCalled = 1 << 12;
-var IsOnLoadCalled = 1 << 13;
-var IsOnLoadStarted = 1 << 14;
-var IsOnStartCalled = 1 << 15;
+var IsEditorOnEnableCalled = 1 << 13;
+var IsOnLoadCalled = 1 << 14;
+var IsOnLoadStarted = 1 << 15;
+var IsOnStartCalled = 1 << 16;
 
-var IsRotationLocked = 1 << 16;
-var IsScaleLocked = 1 << 17;
-var IsAnchorLocked = 1 << 18;
-var IsSizeLocked = 1 << 19;
-var IsPositionLocked = 1 << 20;
+var IsRotationLocked = 1 << 17;
+var IsScaleLocked = 1 << 18;
+var IsAnchorLocked = 1 << 19;
+var IsSizeLocked = 1 << 20;
+var IsPositionLocked = 1 << 21;
 
 var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
-                       IsOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
+                       IsOnEnableCalled | IsEditorOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
                        /*RegisteredInEditor*/);
 
 /**
@@ -136,6 +137,7 @@ CCObject.Flags = {
     IsOnLoadStarted: IsOnLoadStarted,
     IsOnEnableCalled: IsOnEnableCalled,
     IsOnStartCalled: IsOnStartCalled,
+    IsEditorOnEnableCalled: IsEditorOnEnableCalled,
 
     IsPositionLocked: IsPositionLocked,
     IsRotationLocked: IsRotationLocked,
@@ -262,7 +264,7 @@ prototype.destroy = function () {
     this._objFlags |= ToDestroy;
     objectsToDestroy.push(this);
 
-    if (deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating && CC_EDITOR) {
+    if (CC_EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
         // auto destroy immediate in edit mode
         deferredDestroyTimer = setImmediate(deferredDestroy);
     }

@@ -43,90 +43,78 @@ function loadAudioFromExtList (url, typeList, audio, cb){
         return cb({status: 520, errorMessage: ERRSTR}, null);
     }
 
-    url = Path.changeExtname(url, typeList.splice(0, 1));
-
-    if (__audioSupport.WEB_AUDIO && cc.Audio.useWebAudio) {//Buffer
-        if (__audioSupport.webAudioCallback) {
-            __audioSupport.webAudioCallback(url);
-        }
-        var request = Pipeline.getXMLHttpRequest();
-        request.open('GET', url, true);
-        request.responseType = 'arraybuffer';
-
-        request.onload = function () {
-            context['decodeAudioData'](request.response, function (buffer) {
-                //success
-                audio.setBuffer(buffer);
-                cb(null, audio.src);
-            }, function() {
-                //error
-                loadAudioFromExtList(url, typeList, audio, cb);
-            });
-        };
-
-        request.onerror = function () {
-            cb({status: 520, errorMessage: ERRSTR}, null);
-        };
-
-        request.send();
-    } else {//DOM
-        var element = new Audio();
-        audio.setElement(element);
-        var cbCheck = false;
-        var termination = false;
-
-        var timer = setTimeout(function () {
-            if ( element.readyState === 0 ) {
-                emptied();
-            } else {
-                termination = true;
-                element.pause();
-                document.body.removeChild(element);
-                cb('Audio load timeout : ' + url, null);
-            }
-        }, 8000);
-
-        var success = function () {
-            if (!cbCheck) {
-                //element.pause();
-                try { 
-                    element.currentTime = 0;
-                    element.volume = 1; 
-                } catch (e) {}
-                audio.setElement(element);
-                element.removeEventListener('canplaythrough', success, false);
-                element.removeEventListener('error', failure, false);
-                element.removeEventListener('emptied', emptied, false);
-                !termination && cb(null, url);
-                cbCheck = true;
-                clearTimeout(timer);
-            }
-        };
-
-        var failure = function(){
-            if (!cbCheck) return;
-            element.removeEventListener('canplaythrough', success, false);
-            element.removeEventListener('error', failure, false);
-            element.removeEventListener('emptied', emptied, false);
-            !termination && loadAudioFromExtList(url, typeList, audio, cb);
-            cbCheck = true;
-            clearTimeout(timer);
-        };
-
-        var emptied = function(){
-            termination = true;
-            success();
-            cb(null, url);
-        };
-
-        element.addEventListener('canplaythrough', success, false);
-        element.addEventListener('error', failure, false);
-        if(__audioSupport.USE_EMPTIED_EVENT)
-            element.addEventListener('emptied', emptied, false);
-
-        document.body.appendChild(element);
-        element.src = url;
+    if (__audioSupport.WEB_AUDIO && cc.Audio.useWebAudio) {
+        loadWebAudio(url, typeList, audio, cb);
+    } else {
+        loadDomAudio(url, typeList, audio, cb);
     }
+}
+
+function loadDomAudio (url, typeList, audio, cb) {
+
+    var num = __audioSupport.ONE_SOURCE ? 1 : typeList.length;
+
+    // 加载统一使用dom
+    var dom = document.createElement('audio');
+    for (var i=0; i<num; i++) {
+        var source = document.createElement('source');
+        source.src = cc.path.changeExtname(url, typeList[i]);
+        dom.appendChild(source);
+    }
+
+    audio.setElement(dom);
+
+    var timer = setTimeout(function(){
+        if (dom.readyState === 0) {
+            failure();
+        } else {
+            success();
+        }
+    }, 8000);
+
+    var success = function () {
+        dom.removeEventListener("canplaythrough", success, false);
+        dom.removeEventListener("error", failure, false);
+        dom.removeEventListener("emptied", success, false);
+        if (__audioSupport.USE_LOADER_EVENT)
+            dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
+        clearTimeout(timer);
+        cb(null, url);
+    };
+    var failure = function () {
+        cc.log('load audio failure - ' + url);
+        success();
+    };
+    dom.addEventListener("canplaythrough", success, false);
+    dom.addEventListener("error", failure, false);
+    if(__audioSupport.USE_LOADER_EVENT)
+        dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
+}
+
+function loadWebAudio (url, typeList, audio, cb) {
+    if (!context) return;
+
+    var request = Pipeline.getXMLHttpRequest();
+    request.open("GET", url, true);
+    request.responseType = "arraybuffer";
+
+    // Our asynchronous callback
+    request.onload = function () {
+        context["decodeAudioData"](request.response, function(buffer){
+            //success
+            audio.setBuffer(buffer);
+            cb(null, url);
+        }, function(){
+            //error
+            cb('decode error - ' + url, url);
+        });
+    };
+
+    request.onerror = function(){
+        cb('request error - ' + url, url);
+    };
+
+    request.send();
 }
 
 function downloadAudio (item, callback) {
@@ -146,23 +134,7 @@ function downloadAudio (item, callback) {
         }
     }
 
-    if (__audioSupport.WEB_AUDIO && cc.Audio.useWebAudio) {
-        try {
-            var volume = context['createGain']();
-            volume['gain'].value = 1;
-            volume['connect'](context['destination']);
-            audio = new cc.Audio(context, volume, url);
-            if (__audioSupport.NEED_MANUAL_LOOP) {
-                audio._manualLoop = true;
-            }
-        } catch(err) {
-            __audioSupport.WEB_AUDIO = false;
-            cc.warn('The current browser don\'t support web audio');
-            audio = new cc.Audio(null, null, url);
-        }
-    } else {
-        audio = new cc.Audio(null, null, url);
-    }
+    audio = new cc.Audio(url);
 
     // hack for audio to be found before loaded
     item.content = url;

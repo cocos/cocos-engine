@@ -79,8 +79,7 @@ var Animation = cc.Class({
                 return this._defaultClip;
             },
             set: function (value) {
-                var engine = cc.engine;
-                if (!CC_EDITOR || (engine && engine.isPlaying)) {
+                if (!CC_EDITOR || (cc.engine && cc.engine.isPlaying)) {
                     return;
                 }
 
@@ -113,12 +112,8 @@ var Animation = cc.Class({
             get: function () {
                 return this._currentClip;
             },
-            set: function (value, force) {
+            set: function (value) {
                 this._currentClip = value;
-
-                if (CC_EDITOR && force && value) {
-                    this._updateClip(value);
-                }
             },
             type: AnimationClip,
             visible: false
@@ -504,7 +499,7 @@ var Animation = cc.Class({
         }
     },
 
-    _updateClip: (CC_TEST || CC_EDITOR) && function (clip, clipName) {
+    _updateClip: (CC_TEST || CC_EDITOR) && function (clip, clipName, notReload) {
         this._init();
 
         clipName = clipName || clip.name;
@@ -536,8 +531,10 @@ var Animation = cc.Class({
             oldState._name = clipName;
         }
 
-        oldState._clip = clip;
-        this._animator._reloadClip(oldState);
+        if (!notReload) {
+            oldState._clip = clip;
+            this._animator._reloadClip(oldState);
+        }
     }
 });
 

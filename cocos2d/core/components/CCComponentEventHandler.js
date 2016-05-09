@@ -80,15 +80,15 @@ cc.Component.EventHandler = cc.Class({
         /**
          * @method emitEvents
          * @param {Component.EventHandler[]} events
-         * @param {*} params
          * @statics
          */
-        emitEvents: function(events, params) {
+        emitEvents: function(events) {
+            'use strict';
             for (var i = 0, l = events.length; i < l; i++) {
                 var event = events[i];
                 if (! event instanceof cc.Component.EventHandler) continue;
 
-                event.emit(params);
+                event.emit(Array.prototype.slice.call(arguments,1));
             }
         }
     },
@@ -113,6 +113,6 @@ cc.Component.EventHandler = cc.Class({
         var handler = comp[this.handler];
         if (typeof(handler) !== 'function') return;
 
-        handler.call(comp, params);
+        handler.apply(comp, params);
     }
 });

@@ -135,7 +135,7 @@ function parseType (val, type, className, propName) {
 }
 
 function postCheckType (val, type, className, propName) {
-    if (typeof type === 'function' && CC_EDITOR) {
+    if (CC_EDITOR && typeof type === 'function') {
         if (cc.Class._isCCClass(type) && val.serializable !== false && !cc.js._getClassId(type, false)) {
             cc.warn('Can not serialize "%s.%s" because the specified type is anonymous, please provide a class name or set the "serializable" attribute of "%s.%s" to "false".', className, propName, className, propName);
         }
@@ -206,7 +206,7 @@ module.exports = function (properties, className, cls) {
                         className, propName);
                 }
             }
-            if (!val.override && cls.__props__.indexOf(propName) !== -1 && CC_DEV) {
+            if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
                 var baseClass = cc.js.getClassName(getBaseClassWherePropertyDefined(propName, cls));
                 cc.warn('"%s.%s" hides inherited property "%s.%s". To make the current property override that implementation, add the `override: true` attribute please.', className, propName, baseClass, propName);

@@ -1,0 +1,19 @@
+<link rel="import" href="packages://inspector/share/meta-header.html">
+
+<dom-module id="tiled-map-inspector">
+    <link rel="import" type="css" href="packages://inspector/share/common.css">
+
+    <template>
+        <inspector-meta-header
+            target="[[target]]"
+            icon="unpack://engine/cocos2d/tilemap/editor/tiled-map.png"
+            dirty="{{dirty}}"
+        >
+        </inspector-meta-header>
+    </template>
+
+    <script>
+        Editor.registerElement({
+        });
+    </script>
+</dom-module>

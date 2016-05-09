@@ -61,7 +61,7 @@ jsbLabel.prototype.getOverflow = function() {
 if (!jsbLabel.prototype.isSystemFontUsed) {
     jsbLabel.prototype.isSystemFontUsed = function() {
         return this._isSystemFontUsed;
-    }
+    };
 
     jsbLabel.prototype.setSystemFontUsed = function(value) {
         this._isSystemFontUsed = value;
@@ -87,7 +87,7 @@ jsbLabel.prototype.setFontSize = function (size) {
 
 jsbLabel.prototype.getFontSize = function () {
     return this._fontSize;
-}
+};
 
 jsbLabel.prototype.enableWrapText = jsbLabel.prototype.enableWrap || function(){};
 jsbLabel.prototype.isWrapTextEnabled = jsbLabel.prototype.isWrapEnabled || function(){};

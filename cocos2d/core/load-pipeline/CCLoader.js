@@ -203,7 +203,7 @@ JS.mixin(cc.loader, {
             var url = resources[i].id || resources[i];
             if (typeof url !== 'string')
                 continue;
-            var item = this._items.map[url];
+            var item = this.getItem(url);
             if ( !item || (item && !item.complete) ) {
                 this._items.addListener(url, loadedCheck);
                 checker[url] = null;
@@ -219,11 +219,12 @@ JS.mixin(cc.loader, {
         // No new resources, complete directly
         if (totalCount === completedCount) {
             var id = resources[0].id || resources[0];
-            var result = this._items.map[id];
+            var content = this._items.getContent(id);
+            var error = this._items.getError(id);
             if (completeCallback) {
                 callInNextTick(function () {
                     if (singleRes) {
-                        completeCallback.call(self, result.error, result.content);
+                        completeCallback.call(self, error, content);
                     }
                     else {
                         completeCallback.call(self, null, self._items);
@@ -239,7 +240,6 @@ JS.mixin(cc.loader, {
 
     _resources: resources,
     _getResUuid: function (url) {
-        url = cc.url.normalize(url);
         var uuid = resources.getUuid(url);
         if ( !uuid ) {
             var extname = cc.path.extname(url);
@@ -260,15 +260,15 @@ JS.mixin(cc.loader, {
      * 
      * @method loadRes
      * @param {String} url - Url of the target resource.
-     *                        The url is relative to the "resources" folder, extensions must be omitted.
+     *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} completeCallback - Callback invoked when the resource loaded.
      * @param {Error} completeCallback.error - The error info or null if loaded successfully.
      * @param {Object} completeCallback.resource - The loaded resource if it can be found otherwise returns null.
      * 
      * @example
      * 
-     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder with no extension
-     * cc.loader.loadRes('imgs/cocos/cocos', function (err, spriteFrame) {
+     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
+     * cc.loader.loadRes('imgs/cocos.png/cocos', function (err, spriteFrame) {
      *     if (err) {
      *         cc.error(err.message || err);
      *         return;
@@ -296,6 +296,70 @@ JS.mixin(cc.loader, {
     },
 
     /**
+     * Load all assets in a folder inside the "assets/resources" folder of your project.<br>
+     * <br>
+     * Note: All asset urls in Creator use forward slashes, urls using backslashes will not work.
+     *
+     * @method loadResAll
+     * @param {String} url - Url of the target folder.
+     *                       The url is relative to the "resources" folder.
+     * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
+     * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.
+     * @param {Object[]} completeCallback.assets - An array of all loaded assets. If nothing to load, assets will be an empty array. If error occurs, assets will be null.
+     *
+     * @example
+     *
+     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
+     * cc.loader.loadResAll('imgs/cocos.png', function (err, assets) {
+     *     if (err) {
+     *         cc.error(err);
+     *         return;
+     *     }
+     *     var texture = assets[0];
+     *     var spriteFrame = assets[1];
+     * });
+     */
+    loadResAll: function (url, completeCallback) {
+        var uuids = resources.getUuidArray(url);
+        var remain = uuids.length;
+        if (remain > 0) {
+            var results = [];
+            var aborted = false;
+            function loaded (err, res) {
+                if (aborted) {
+                    return;
+                }
+                if (err) {
+                    aborted = true;
+                    completeCallback(err, null);
+                    return;
+                }
+                results.push(res);
+                --remain;
+                if (remain === 0) {
+                    completeCallback(null, results);
+                }
+            }
+            for (var i = 0, len = remain; i < len; ++i) {
+                var uuid = uuids[i];
+                this.load(
+                    {
+                        id: uuid,
+                        type: 'uuid',
+                        uuid: uuid
+                    },
+                    loaded
+                );
+            }
+        }
+        else {
+            callInNextTick(function () {
+                completeCallback.call(null, null, []);
+            });
+        }
+    },
+
+    /**
      * Get resource data by id. <br>
      * When you load resources with {{#crossLink "loader/load:method"}}{{/crossLink}} or {{#crossLink "loader/loadRes:method"}}{{/crossLink}},
      * the url will be the unique identity of the resource.
@@ -315,6 +379,23 @@ JS.mixin(cc.loader, {
      */
     getResCount: function () {
         return this._items.totalCount;
+    },
+
+    /**
+     * Returns an item in pipeline.
+     * @method getItem
+     * @return {LoadingItem}
+     */
+    getItem: function (url) {
+        var item = this._items.map[url];
+
+        if (!item)
+            return item;
+
+        if (item.alias)
+            item = this._items.map[item.alias];
+
+        return item;
     },
 
     /**

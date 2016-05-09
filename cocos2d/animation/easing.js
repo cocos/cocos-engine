@@ -1,4 +1,5 @@
 var Easing = {
+    constant: function () { return 0; },
     linear: function (k) { return k; },
 
     // quad

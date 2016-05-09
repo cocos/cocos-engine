@@ -91,9 +91,9 @@ cc.g_NumberOfDraws = 0;
  * <p>
  *   cc.director 也同步定时器与显示器的刷新速率。
  *   <br/>
- *   特点和局限性:<br/>
+ *   特点和局限性: <br/>
  *      - 将计时器 & 渲染与显示器的刷新频率同步。<br/>
- *      - 只支持动画的间隔 1/60 1/30 & 1/15<br/>
+ *      - 只支持动画的间隔 1/60 1/30 & 1/15。<br/>
  * </p>
  *
  * @class Director
@@ -199,6 +199,15 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._animationManager = null;
         }
 
+        // collision manager
+        if (cc.CollisionManager) {
+            this._collisionManager = new cc.CollisionManager();
+            this._scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+        else {
+            this._collisionManager = null;
+        }
+
         // WidgetManager
         cc._widgetManager.init(this);
     },
@@ -223,7 +232,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._lastUpdate = now;
     },
 
-    /**
+    /*
      * !#en
      * Converts a view coordinate to an WebGL coordinate<br/>
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
@@ -257,7 +266,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             var renderer = cc.renderer;
             if (renderer.childrenOrderDirty) {
                 renderer.clearRenderCommands();
-                this._runningScene._renderCmd._curLevel = 0;                          //level start from 0;
+                this._runningScene._renderCmd._curLevel = 0; //level start from 0;
                 this._runningScene.visit();
                 renderer.resetFlag();
             }
@@ -409,7 +418,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         this._paused = true;
     },
 
-    /**
+    /*
      * Pops out a scene from the queue.<br/>
      * This scene will replace the running one.<br/>
      * The running scene will be deleted. If there are no more scenes in the stack the execution is terminated.<br/>
@@ -493,6 +502,11 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         // Animation manager
         if (this._animationManager) {
             this._scheduler.scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
+        // Collider manager
+        if (this._collisionManager) {
+            this._scheduler.scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
         this.startAnimation();
@@ -727,6 +741,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
             var self = cc.director;
+            self._loadingScene = '';
             var scene;
             if (error) {
                 error = 'Failed to load scene: ' + error;
@@ -753,7 +768,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = null;
                 }
             }
-            self._loadingScene = '';
             if (error && onLaunched) {
                 onLaunched(error);
             }
@@ -955,13 +969,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en
-     * Returns whether or not the replaced scene will receive the cleanup message.<br>
+     * Returns whether or not the replaced scene will receive the cleanup message.<br/>
      * If the new scene is pushed, then the old scene won't receive the "cleanup" message.<br/>
      * If the new scene replaces the old one, the it will receive the "cleanup" message.
      * !#zh
      * 更换场景时是否接收清理消息。<br>
-     * 如果新场景是采用 push 方式进入的，那么旧的场景将不会接收到 “cleanup” 消息。<br>
-     * 如果新场景取代旧的场景，它将会接收到 “cleanup” 消息。<br>
+     * 如果新场景是采用 push 方式进入的，那么旧的场景将不会接收到 “cleanup” 消息。<br/>
+     * 如果新场景取代旧的场景，它将会接收到 “cleanup” 消息。</br>
      * @method isSendCleanupToScene
      * @return {Boolean}
      */
@@ -1135,7 +1149,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Returns the cc.ActionManager associated with this director.
-     * !#zh 获取和 director 相关联的 cc.ActionManager（动作管理器）.
+     * !#zh 获取和 director 相关联的 cc.ActionManager（动作管理器）。
      * @method getActionManager
      * @return {ActionManager}
      */
@@ -1144,7 +1158,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
     /**
      * !#en Sets the cc.ActionManager associated with this director.
-     * !#zh 设置和 director 相关联的 cc.ActionManager（动作管理器）.
+     * !#zh 设置和 director 相关联的 cc.ActionManager（动作管理器）。
      * @method setActionManager
      * @param {ActionManager} actionManager
      */
@@ -1156,12 +1170,21 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /*
      * !#en Returns the cc.AnimationManager associated with this director.
-     * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）.
+     * !#zh 获取和 director 相关联的 cc.AnimationManager（动画管理器）。
      * @method getAnimationManager
      * @return {AnimationManager}
      */
     getAnimationManager: function () {
         return this._animationManager;
+    },
+
+    /**
+     * Returns the cc.CollisionManager associated with this director.
+     * @method getCollisionManager
+     * @return {CollisionManager}
+     */
+    getCollisionManager: function () {
+        return this._collisionManager;
     },
 
     /**

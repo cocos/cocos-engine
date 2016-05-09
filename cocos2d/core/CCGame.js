@@ -39,6 +39,7 @@ var game = /** @lends cc.game# */{
     EVENT_HIDE: "game_on_hide",
     EVENT_SHOW: "game_on_show",
     EVENT_RESIZE: "game_on_resize",
+    EVENT_GAME_INITED: "game_inited",
     EVENT_RENDERER_INITED: "renderer_inited",
 
     RENDER_TYPE_CANVAS: 0,
@@ -336,10 +337,12 @@ var game = /** @lends cc.game# */{
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
+                    self.emit(self.EVENT_GAME_INITED);
                     if (cb) cb();
                 });
             }
             else {
+                self.emit(self.EVENT_GAME_INITED);
                 if (cb) cb();
             }
 
@@ -578,6 +581,10 @@ var game = /** @lends cc.game# */{
         // Scene parser
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
 
+        // Collide Map and Group List
+        this.collideMap = config.collideMap;
+        this.groupList = config.groupList;
+
         this.config = config;
     },
 
@@ -676,16 +683,16 @@ var game = /** @lends cc.game# */{
         if (this.config[this.CONFIG_KEY.registerSystemEvent])
             cc.inputManager.registerSystemEvent(this.canvas);
 
-        if (!cc.js.isUndefined(document.hidden)) {
+        if (typeof document.hidden !== 'undefined') {
             hidden = "hidden";
             visibilityChange = "visibilitychange";
-        } else if (!cc.js.isUndefined(document.mozHidden)) {
+        } else if (typeof document.mozHidden !== 'undefined') {
             hidden = "mozHidden";
             visibilityChange = "mozvisibilitychange";
-        } else if (!cc.js.isUndefined(document.msHidden)) {
+        } else if (typeof document.msHidden !== 'undefined') {
             hidden = "msHidden";
             visibilityChange = "msvisibilitychange";
-        } else if (!cc.js.isUndefined(document.webkitHidden)) {
+        } else if (typeof document.webkitHidden !== 'undefined') {
             hidden = "webkitHidden";
             visibilityChange = "webkitvisibilitychange";
         }

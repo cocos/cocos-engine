@@ -185,7 +185,7 @@ var Layout = cc.Class({
             set: function(value) {
                 this._N$layoutType = value;
 
-                if (this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -218,7 +218,7 @@ var Layout = cc.Class({
                 }
 
                 this._resize = value;
-                if (this.type !== Type.NONE && value === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this.type !== Type.NONE && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -257,7 +257,7 @@ var Layout = cc.Class({
             tooltip: 'i18n:COMPONENT.layout.start_axis',
             type: AxisDirection,
             notify: function() {
-                if (this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;

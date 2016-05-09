@@ -87,6 +87,7 @@ var Label = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Label',
         help: 'i18n:COMPONENT.help_url.label',
+        inspector: 'app://editor/page/inspector/label.html',
     },
 
     properties: {
@@ -191,7 +192,7 @@ var Label = cc.Class({
         /**
          * !#en Overflow of label.
          * !#zh 文字显示超出范围时的处理方式。
-         * @property {Label.Overflow} overFlow
+         * @property {Label.Overflow} overflow
          */
         overflow: {
             default: Overflow.NONE,
@@ -364,7 +365,7 @@ var Label = cc.Class({
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
         sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
-        if(this._useOriginalSize && CC_EDITOR){
+        if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
         } else {

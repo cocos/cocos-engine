@@ -29,314 +29,223 @@ var JS = require('../core/platform/js');
 /**
  * Encapsulate DOM and webAudio
  */
-cc.Audio = function (context, volume, url) {
-    //TODO Maybe loader shift in will be better
-    this.volume = 1;
-    this.loop = false;
-    this._touch = false;
-
-    this._playing = false;
-    this._AUDIO_TYPE = "AUDIO";
-    this._pause = false;
-
-    //Web Audio
-    this._buffer = null;
-    this._currentSource = null;
-    this._startTime = null;
-    this._currentTime = null;
-    this._context = null;
-    this._volume = null;
-
-    this._ignoreEnded = false;
-    this._manualLoop = false;
-
-    //DOM Audio
-    this._element = null;
-
-    context && (this._context = context);
-    volume && (this._volume = volume);
-    if (context && volume) {
-        this._AUDIO_TYPE = "WEBAUDIO";
-    }
+cc.Audio = function (url) {
     this.src = url;
+    this._element = null;
+    this._AUDIO_TYPE = 'AUDIO';
 };
 
-cc.Audio.useWebAudio = false;
+cc.Audio.touchPlayList = [
+    //{ offset: 0, audio: audio }
+];
+
+cc.Audio.bindTouch = false;
+cc.Audio.touchStart = function () {
+    var list = cc.Audio.touchPlayList;
+    var item = null;
+    while (item = list.pop()) {
+        item.audio.loop = !!item.loop;
+        item.audio.play(item.offset);
+    }
+};
+
+cc.Audio.WebAudio = function (buffer) {
+    this.buffer = buffer;
+    this.context = cc.sys.__audioSupport.context;
+
+    var volume = this.context['createGain']();
+    volume['gain'].value = 1;
+    volume['connect'](this.context['destination']);
+    this._volume = volume;
+
+    this._loop = false;
+
+    // The time stamp on the audio time axis when the recording begins to play.
+    this._startTime = -1;
+    // Record the currently playing 'Source'
+    this._currentSource = null;
+    // Record the time has been played
+    this.playedLength = 0;
+
+    this._currextTimer = null;
+};
+
+cc.Audio.WebAudio.prototype = {
+    constructor: cc.Audio.WebAudio,
+
+    get paused () {
+        // If the current audio is a loop, paused is false
+        if (this._currentSource && this._currentSource.loop)
+            return false;
+
+        // startTime default is -1
+        if (this._startTime === -1)
+            return true;
+
+        // Current time -  Start playing time > Audio duration
+        return this.context.currentTime - this._startTime > this.buffer.duration;
+    },
+
+    get loop () { return this._loop; },
+    set loop (bool) { return this._loop = bool; },
+
+    get volume () { return this._volume['gain'].value; },
+    set volume (num) { return this._volume['gain'].value = num; },
+
+    get currentTime () { return this.playedLength; },
+    set currentTime (num) { return this.playedLength = num; },
+
+    play: function (offset) {
+
+        // If repeat play, you need to stop before an audio
+        if (this._currentSource && !this.paused) {
+            this._currentSource.stop(0);
+            this.playedLength = 0;
+        }
+
+        var audio = this.context["createBufferSource"]();
+        audio.buffer = this.buffer;
+        audio["connect"](this._volume);
+        audio.loop = this._loop;
+
+        this._startTime = this.context.currentTime;
+        offset = offset || this.playedLength;
+
+        var duration = this.buffer.duration;
+        if (!this._loop) {
+            if (audio.start)
+                audio.start(0, offset, duration - offset);
+            else if (audio["notoGrainOn"])
+                audio["noteGrainOn"](0, offset, duration - offset);
+            else
+                audio["noteOn"](0, offset, duration - offset);
+        } else {
+            if (audio.start)
+                audio.start(0);
+            else if (audio["notoGrainOn"])
+                audio["noteGrainOn"](0);
+            else
+                audio["noteOn"](0);
+        }
+
+        this._currentSource = audio;
+
+        // If the current audio context time stamp is 0
+        // There may be a need to touch events before you can actually start playing audio
+        if (this.context.currentTime === 0) {
+            var self = this;
+            clearTimeout(this._currextTimer);
+            this._currextTimer = setTimeout(function () {
+                if (self.context.currentTime === 0) {
+                    cc.Audio.touchPlayList.push({
+                        offset: offset,
+                        audio: self
+                    });
+                }
+            }, 10);
+        }
+    },
+    pause: function () {
+        // Record the time the current has been played
+        this.playedLength = this.context.currentTime - this._startTime;
+        // If more than the duration of the audio, Need to take the remainder
+        this.playedLength %= this.buffer.duration;
+        var audio = this._currentSource;
+        this._currentSource = null;
+        this._startTime = -1;
+        if (audio)
+            audio.stop(0);
+    }
+};
 
 JS.mixin(cc.Audio.prototype, {
-    _setBufferCallback: null,
-    setBuffer: function(buffer){
-        if(!buffer) return;
-        var playing = this._playing;
+    setBuffer: function (buffer) {
         this._AUDIO_TYPE = "WEBAUDIO";
-
-        if(this._buffer && this._buffer !== buffer && this.getPlaying())
-            this.stop();
-
-        this._buffer = buffer;
-        if(playing)
-            this.play();
-
-        this._volume["gain"].value = this.volume;
-        this._setBufferCallback && this._setBufferCallback(buffer);
+        this._element = new cc.Audio.WebAudio(buffer);
     },
 
-    _setElementCallback: null,
-    setElement: function(element){
-        if(!element) return;
-        var playing = this._playing;
+    setElement: function (element) {
         this._AUDIO_TYPE = "AUDIO";
-
-        if(this._element && this._element !== element && this.getPlaying())
-            this.stop();
-
         this._element = element;
-        if(playing)
-            this.play();
 
-        element.volume = this.volume;
-        element.loop = this.loop;
-        this._setElementCallback && this._setElementCallback(element);
-    },
-
-    play: function(offset, loop){
-        this._playing = true;
-        this.loop = loop === undefined ? this.loop : loop;
-        if(this._AUDIO_TYPE === "AUDIO"){
-            this._playOfAudio(offset);
-        }else{
-            this._playOfWebAudio(offset);
-        }
-    },
-
-    getPlaying: function(){
-        // if(!this._playing){
-        //     return false;
-        // }
-        if(this._AUDIO_TYPE === "AUDIO"){
-            var audio = this._element;
-            if(!audio || this._pause || audio.ended){
-                return this._playing = false;
+        // Prevent partial browser from playing after the end does not reset the paused tag
+        element.addEventListener('ended', function () {
+            if (!element.loop) {
+                element.paused = true;
             }
-            return true;
-        }
-        var sourceNode = this._currentSource;
-        if(!sourceNode || !sourceNode["playbackState"])
-            return true;
-        return this._currentTime + this._context.currentTime - this._startTime < sourceNode.buffer.duration;
+        });
     },
 
-    _playOfWebAudio: function(offset){
-        var cs = this._currentSource;
-        if(!this._buffer){
-            return;
-        }
-        if(!this._pause && cs){
-            if(this._context.currentTime === 0 || this._currentTime + this._context.currentTime - this._startTime > cs.buffer.duration)
-                this._stopOfWebAudio();
-            else
-                return;
-        }
-        var audio = this._context["createBufferSource"]();
-        audio.buffer = this._buffer;
-        audio["connect"](this._volume);
-        if(this._manualLoop)
-            audio.loop = false;
-        else
-            audio.loop = this.loop;
-        this._startTime = this._context.currentTime;
-        this._currentTime = offset || 0;
-        this._ignoreEnded = false;
+    play: function (offset, loop) {
+        if (!this._element) return;
+        this._element.loop = loop;
+        this._element.play();
 
-        /*
-         * Safari on iOS 6 only supports noteOn(), noteGrainOn(), and noteOff() now.(iOS 6.1.3)
-         * The latest version of chrome has supported start() and stop()
-         * start() & stop() are specified in the latest specification (written on 04/26/2013)
-         *      Reference: https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html
-         * noteOn(), noteGrainOn(), and noteOff() are specified in Draft 13 version (03/13/2012)
-         *      Reference: http://www.w3.org/2011/audio/drafts/2WD/Overview.html
-         */
-        if(audio.start){
-            audio.start(0, offset || 0);
-        }else if(audio["noteGrainOn"]){
-            var duration = audio.buffer.duration;
-            if (this.loop) {
-                /*
-                 * On Safari on iOS 6, if loop == true, the passed in @param duration will be the duration from now on.
-                 * In other words, the sound will keep playing the rest of the music all the time.
-                 * On latest chrome desktop version, the passed in duration will only be the duration in this cycle.
-                 * Now that latest chrome would have start() method, it is prepared for iOS here.
-                 */
-                audio["noteGrainOn"](0, offset, duration);
-            } else {
-                audio["noteGrainOn"](0, offset, duration - offset);
-            }
-        }else {
-            // if only noteOn() is supported, resuming sound will NOT work
-            audio["noteOn"](0);
+        if (this._AUDIO_TYPE === 'AUDIO' && this._element.paused) {
+            this.stop();
+            cc.Audio.touchPlayList.push({ loop: loop, offset: offset, audio: this._element });
         }
-        this._currentSource = audio;
-        var self = this;
-        audio["onended"] = function(){
-            if(self._manualLoop && self._playing && self.loop){
-                self.stop();
-                self.play();
-                return;
-            }
-            if(self._ignoreEnded){
-                self._ignoreEnded = false;
-            }else{
-                if(!self._pause)
-                    self.stop();
-                else
-                    self._playing = false;
-            }
-        };
-    },
 
-    _playOfAudio: function(){
-        var audio = this._element;
-        if(audio){
-            audio.loop = this.loop;
-            audio.play();
+        if (cc.Audio.bindTouch === false) {
+            cc.Audio.bindTouch = true;
+            // Listen to the touchstart body event and play the audio when necessary.
+            cc.game.canvas.addEventListener('touchstart', cc.Audio.touchStart);
         }
     },
 
-    stop: function(){
-        this._playing = false;
-        if(this._AUDIO_TYPE === "AUDIO"){
-            this._stopOfAudio();
-        }else{
-            this._stopOfWebAudio();
-        }
+    getPlaying: function () {
+        if (!this._element) return true;
+        return !this._element.paused;
     },
 
-    _stopOfWebAudio: function(){
-        var audio = this._currentSource;
-        this._ignoreEnded = true;
-        if(audio){
-            audio.stop(0);
-            this._currentSource = null;
-        }
+    stop: function () {
+        if (!this._element) return;
+        this._element.pause();
+        try{
+            this._element.currentTime = 0;
+        } catch (err) {}
     },
 
-    _stopOfAudio: function(){
-        var audio = this._element;
-        if(audio){
-            audio.pause();
-            if (audio.duration)
-                audio.currentTime = 0;
-        }
+    pause: function () {
+        if (!this._element) return;
+        this._element.pause();
     },
 
-    pause: function(){
-        if(this.getPlaying() === false)
-            return;
-        this._playing = false;
-        this._pause = true;
-        if(this._AUDIO_TYPE === "AUDIO"){
-            this._pauseOfAudio();
-        }else{
-            this._pauseOfWebAudio();
-        }
+    resume: function () {
+        if (!this._element) return;
+        this._element.play();
     },
 
-    _pauseOfWebAudio: function(){
-        this._currentTime += this._context.currentTime - this._startTime;
-        var audio = this._currentSource;
-        if(audio){
-            audio.stop(0);
-        }
+    setVolume: function (volume) {
+        if (!this._element) return;
+        this._element.volume = volume;
     },
 
-    _pauseOfAudio: function(){
-        var audio = this._element;
-        if(audio){
-            audio.pause();
-        }
+    getVolume: function () {
+        if (!this._element) return;
+        return this._element.volume;
     },
 
-    resume: function(){
-        if(this._pause){
-            if(this._AUDIO_TYPE === "AUDIO"){
-                this._resumeOfAudio();
-            }else{
-                this._resumeOfWebAudio();
-            }
-            this._pause = false;
-            this._playing = true;
-        }
-    },
-
-    _resumeOfWebAudio: function(){
-        var audio = this._currentSource;
-        if(audio){
-            this._startTime = this._context.currentTime;
-            var offset = this._currentTime % audio.buffer.duration;
-            this._playOfWebAudio(offset);
-        }
-    },
-
-    _resumeOfAudio: function(){
-        var audio = this._element;
-        if(audio){
-            audio.play();
-        }
-    },
-
-    setVolume: function(volume){
-        if(volume > 1) volume = 1;
-        if(volume < 0) volume = 0;
-        this.volume = volume;
-        if(this._AUDIO_TYPE === "AUDIO"){
-            if(this._element){
-                this._element.volume = volume;
-            }
-        }else{
-            if(this._volume){
-                this._volume["gain"].value = volume;
-            }
-        }
-    },
-
-    getVolume: function(){
-        return this.volume;
-    },
-
-    cloneNode: function(){
-        var audio, self;
-        if(this._AUDIO_TYPE === "AUDIO"){
-            audio = new cc.Audio();
-
+    cloneNode: function () {
+        var audio = new cc.Audio(this.src);
+        if (this._AUDIO_TYPE === "AUDIO") {
             var elem = document.createElement("audio");
+            var sources = elem.getElementsByTagName('source');
+            for (var i=0; i<sources.length; i++) {
+                elem.appendChild(sources[i]);
+            }
             elem.src = this.src;
             audio.setElement(elem);
-        }else{
-            var volume = this._context["createGain"]();
-            volume["gain"].value = 1;
-            volume["connect"](this._context["destination"]);
-            audio = new cc.Audio(this._context, volume, this.src);
-            if(this._buffer){
-                audio.setBuffer(this._buffer);
-            }else{
-                self = this;
-                this._setBufferCallback = function(buffer){
-                    audio.setBuffer(buffer);
-                    self._setBufferCallback = null;
-                };
-            }
-            audio._manualLoop = this._manualLoop;
+        } else {
+            audio.setBuffer(this._element.buffer);
         }
-        audio._AUDIO_TYPE = this._AUDIO_TYPE;
         return audio;
     }
-
 });
 
 (function(polyfill){
 
-    var SWA = polyfill.WEB_AUDIO,
-        SWC = polyfill.AUTOPLAY;
+    var SWA = polyfill.WEB_AUDIO, SWB = polyfill.ONLY_ONE;
 
     /**
      * !#en cc.audioEngine is the singleton object, it provide simple audio APIs.
@@ -353,29 +262,8 @@ JS.mixin(cc.Audio.prototype, {
     cc.audioEngine = {
         _currMusic: null,
         _musicVolume: 1,
-        _autoplayed: false,
 
         features: polyfill,
-
-        // Autoplay on iOS and some other android browsers in which the music must be played in an event callback.
-        _autoplay: function (url, loop, isMusic) {
-            var self = this;
-            if (cc.game.canvas) {
-                if (!self._autoplayed) {
-                    self._autoplayed = true;
-                }
-                var delayedPlay = function () {
-                    if (isMusic) {
-                        self.playMusic(url, loop, true);
-                    }
-                    else {
-                        self.playEffect(url, loop);
-                    }
-                    cc.game.canvas.removeEventListener("touchstart", delayedPlay);
-                };
-                cc.game.canvas.addEventListener("touchstart", delayedPlay, false);
-            }
-        },
 
         /**
          * !#en Play music.
@@ -390,13 +278,7 @@ JS.mixin(cc.Audio.prototype, {
          * //example
          * cc.audioEngine.playMusic(path, false);
          */
-        playMusic: function(url, loop, immediate){
-
-            if (!SWC && !immediate) {
-                this._autoplay(url, loop, true);
-                return;
-            }
-
+        playMusic: function(url, loop){
             var bgMusic = this._currMusic;
             if (bgMusic && bgMusic.getPlaying()) {
                 bgMusic.stop();
@@ -414,12 +296,14 @@ JS.mixin(cc.Audio.prototype, {
                         self._currMusic = audio;
                     }
                 });
-                return;
+                item = cc.loader.getItem(url);
+                return item && item.audio ? item.audio : null;
             }
             audio.play(0, loop);
             audio.setVolume(this._musicVolume);
 
             this._currMusic = audio;
+            return audio;
         },
 
         /**
@@ -553,15 +437,19 @@ JS.mixin(cc.Audio.prototype, {
          * @method playEffect
          * @param {String} url The path of the sound effect with filename extension.
          * @param {Boolean} loop Whether to loop the effect playing, default value is false
+         * @param {Boolean} volume
          * @return {Number|null} the audio id
          * @example
          * //example
          * var soundId = cc.audioEngine.playEffect(path);
          */
-        playEffect: function(url, loop){
-            if (!SWC && !this._autoplayed) {
-                this._autoplay(url, loop, false);
-                return;
+        playEffect: function(url, loop, volume){
+            volume = volume === undefined ? this._effectVolume : volume;
+
+            // 如果只能够播放一个音频，则优先保证背景音乐
+            if (SWB && this._currMusic && this._currMusic.getPlaying()) {
+                cc.log('Browser is only allowed to play one audio');
+                return null;
             }
 
             var effectList = this._audioPool[url];
@@ -587,33 +475,45 @@ JS.mixin(cc.Audio.prototype, {
             var audio;
             if (effectList[i]) {
                 audio = effectList[i];
-                audio.setVolume(this._effectVolume);
+                audio.setVolume(volume);
                 audio.play(0, loop || false);
-            } else {
-                var item = cc.loader.getItem(url);
-                audio = item && item.audio ? item.audio : null;
-                if (audio && audio._AUDIO_TYPE != "WEBAUDIO") {
-                    delete cc.loader.getRes(url);
-                    cc.loader.release(url);
-                    audio = null;
-                }
-
-                if (!audio) {
-                    // Force using webaudio for effects
-                    cc.Audio.useWebAudio = true;
-                    cc.loader.load(url);
-                    cc.Audio.useWebAudio = false;
-                    item = cc.loader.getItem(url);
-                    audio = item && item.audio ? item.audio : null;
-                    if (!audio) {
-                        return;
-                    }
-                }
-                audio = audio.cloneNode();
-                audio.setVolume(this._effectVolume);
-                audio.play(0, loop || false);
-                effectList.push(audio);
+                return audio;
             }
+
+            var item = cc.loader.getItem(url);
+            audio = item && item.audio ? item.audio : null;
+            if (SWA && audio && audio._AUDIO_TYPE != "WEBAUDIO") {
+                //delete cc.loader.getRes(url);
+                cc.loader.release(url);
+                audio = null;
+            }
+
+            if (!audio) {
+                // Force using webaudio for effects
+                cc.Audio.useWebAudio = true;
+                audio = new cc.Audio(url);
+                cc.loader.load(url, function (error, url) {
+                    if (error) return;
+                    var item = cc.loader.getItem(url);
+                    var loadAudio = item && item.audio ? item.audio : null;
+
+                    if (loadAudio._AUDIO_TYPE === 'WEBAUDIO')
+                        audio.setBuffer(loadAudio._element.buffer);
+                    else
+                        audio.setElement(loadAudio._element);
+
+                    audio.setVolume(volume);
+                    audio.play(0, loop || false);
+                    effectList.push(audio);
+                });
+                cc.Audio.useWebAudio = false;
+                return audio;
+            }
+
+            audio = audio.cloneNode();
+            audio.setVolume(volume);
+            audio.play(0, loop || false);
+            effectList.push(audio);
 
             return audio;
         },

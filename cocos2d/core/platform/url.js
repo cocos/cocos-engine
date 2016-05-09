@@ -49,10 +49,12 @@ cc.url = {
     _builtinRawAssets: '',
     
     normalize: function (url) {
-        if (url[0] === '.' && url[1] === '/') {
+        if (url.charCodeAt(0) === 46 && url.charCodeAt(1) === 47) {
+            // strip './'
             url = url.slice(2);
         }
-        else if (url[0] === '/') {
+        else if (url.charCodeAt(0) === 47) {
+            // strip '/'
             url = url.slice(1);
         }
         return url;
@@ -67,7 +69,7 @@ cc.url = {
      * @example {@link utils/api/engine/docs/cocos2d/core/platform/url/raw.js}
      */
     raw: function (url) {
-        if (!this._rawAssets && CC_EDITOR) {
+        if (CC_EDITOR && !this._rawAssets) {
             cc.error('Failed to init asset\'s raw path.');
             return '';
         }

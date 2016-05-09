@@ -29,6 +29,7 @@ var IdGenerater = require('../platform/id-generater');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
+var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
 var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
 var IsOnStartCalled = Flags.IsOnStartCalled;
@@ -47,18 +48,18 @@ var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_F
 
 function callOnEnable (self, enable) {
     if (CC_EDITOR) {
-        //if (enable ) {
-        //    if ( !(self._objFlags & IsEditorOnEnabledCalled) ) {
-        //        editorCallback.onComponentEnabled(self);
-        //        self._objFlags |= IsEditorOnEnabledCalled;
-        //    }
-        //}
-        //else {
-        //    if (self._objFlags & IsEditorOnEnabledCalled) {
-        //        editorCallback.onComponentDisabled(self);
-        //        self._objFlags &= ~IsEditorOnEnabledCalled;
-        //    }
-        //}
+        if (enable) {
+            if ( !(self._objFlags & IsEditorOnEnableCalled) ) {
+                cc.engine.emit('component-enabled', self.uuid);
+                self._objFlags |= IsEditorOnEnableCalled;
+            }
+        }
+        else {
+            if (self._objFlags & IsEditorOnEnableCalled) {
+                cc.engine.emit('component-disabled', self.uuid);
+                self._objFlags &= ~IsEditorOnEnableCalled;
+            }
+        }
         if ( !(cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
             return;
         }
@@ -81,29 +82,25 @@ function callOnEnable (self, enable) {
             }
 
             cc.director.getScheduler().resumeTarget(self);
-
             _registerEvent(self, true);
 
             self._objFlags |= IsOnEnableCalled;
         }
     }
-    else {
-        if (enableCalled) {
-            if (self.onDisable) {
-                if (CC_EDITOR) {
-                    callOnDisableInTryCatch(self);
-                }
-                else {
-                    self.onDisable();
-                }
+    else if (enableCalled) {
+        if (self.onDisable) {
+            if (CC_EDITOR) {
+                callOnDisableInTryCatch(self);
             }
-
-            cc.director.getScheduler().pauseTarget(self);
-
-            _registerEvent(self, false);
-
-            self._objFlags &= ~IsOnEnableCalled;
+            else {
+                self.onDisable();
+            }
         }
+
+        cc.director.getScheduler().pauseTarget(self);
+        _registerEvent(self, false);
+
+        self._objFlags &= ~IsOnEnableCalled;
     }
 }
 

@@ -150,7 +150,17 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      */
     getContent: function (id) {
         var item = this.map[id];
-        return item ? item.content : null;
+        var ret = null;
+        if (item) {
+            if (item.content) {
+                ret = item.content;
+            }
+            else if (item.alias) {
+                ret = this.getContent(item.alias);
+            }
+        }
+
+        return ret;
     },
 
     /**
@@ -162,7 +172,16 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      */
     getError: function (id) {
         var item = this.map[id];
-        return item ? item.error : null;
+        var ret = null;
+        if (item) {
+            if (item.error) {
+                ret = item.error;
+            } else if (item.alias) {
+                ret = this.getError(item.alias);
+            }
+        }
+
+        return ret;
     },
 
     /**
