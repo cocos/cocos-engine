@@ -167,14 +167,21 @@ long getCharacterCountInUTF8String(const std::string& utf8)
 
 } //namespace StringUtils {
 
+namespace
+{
+    int wcslen_internal(const unsigned short* str)
+    {
+        if (str == nullptr)
+            return -1;
+        int i=0;
+        while(*str++) i++;
+        return i;
+    }
+}
 
 int cc_wcslen(const unsigned short* str)
 {
-    if (str == nullptr)
-        return -1;
-    int i=0;
-    while(*str++) i++;
-    return i;
+    return wcslen_internal(str);
 }
 
 void cc_utf8_trim_ws(std::vector<unsigned short>* str)
@@ -224,7 +231,7 @@ std::vector<unsigned short> cc_utf16_vec_from_utf16_str(const unsigned short* st
     if (str == nullptr)
         return str_new;
 
-    int len = cc_wcslen(str);
+    int len = wcslen_internal(str);
 
     for (int i = 0; i < len; ++i)
     {
@@ -267,7 +274,7 @@ char * cc_utf16_to_utf8 (const unsigned short  *str,
 
 
     std::u16string utf16;
-    int utf16Len = len < 0 ? cc_wcslen(str) : len;
+    int utf16Len = len < 0 ? wcslen_internal(str) : len;
 
     for (int i = 0; i < utf16Len; ++i)
     {

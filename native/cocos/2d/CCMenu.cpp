@@ -137,7 +137,7 @@ bool Menu::initWithArray(const Vector<MenuItem*>& arrayOfItems)
         Size s = _director->getWinSize();
 
         this->ignoreAnchorPointForPosition(true);
-        setAnchorPoint(Vec2(0.5f, 0.5f));
+        setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         this->setContentSize(s);
 
         setPosition(s.width/2, s.height/2);

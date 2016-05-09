@@ -58,7 +58,7 @@ bool ComponentContainer::add(Component *com)
     CCASSERT(com->getOwner() == nullptr, "Component already added. It can't be added again");
     do
     {
-        if (com == nullptr || com->getOwner() == nullptr) {
+        if (com == nullptr || com->getOwner() != nullptr) {
             break;
         }
 

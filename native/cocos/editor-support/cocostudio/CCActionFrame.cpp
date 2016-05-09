@@ -88,7 +88,7 @@ ActionInterval* ActionFrame::getAction(float fDuration,ActionFrame* srcFrame)
     return this->getAction(fDuration);
 }
 
-void ActionFrame::setEasingParameter(std::vector<float>& parameter)
+void ActionFrame::setEasingParameter(const std::vector<float>& parameter)
 {
     _Parameter.clear();
 
@@ -221,7 +221,7 @@ ActionInterval* ActionFrame::getEasingAction(ActionInterval* action)
 //////////////////////////////////////////////////////////////////////////
 
 ActionMoveFrame::ActionMoveFrame()
-    : _position(Vec2(0.0f,0.0f))
+    : _position(Vec2::ZERO)
 {
     _frameType = (int)kKeyframeMove;
 }
@@ -229,7 +229,7 @@ ActionMoveFrame::~ActionMoveFrame()
 {
 
 }
-void ActionMoveFrame::setPosition(Vec2 pos)
+void ActionMoveFrame::setPosition(const Vec2& pos)
 {
     _position = pos;
 }
@@ -357,7 +357,7 @@ ActionTintFrame::~ActionTintFrame()
 
 }
 
-void ActionTintFrame::setColor(Color3B ccolor)
+void ActionTintFrame::setColor(const Color3B& ccolor)
 {
     _color = ccolor;
 }

@@ -140,7 +140,7 @@ static bool isVariable(const char* str, char* outName, size_t outSize)
         size_t size = len - 3;
         if (size > (outSize - 1))
             size = outSize - 1;
-        strncpy(outName, str + 2, len - 3);
+        strncpy(outName, str + 2, size);
         outName[len - 3] = 0;
         return true;
     }
@@ -667,7 +667,7 @@ Properties* Properties::getNamespace(const char* id, bool searchNames, bool recu
 {
     CCASSERT(id, "invalid id");
 
-    for (std::vector<Properties*>::const_iterator it = _namespaces.begin(); it < _namespaces.end(); ++it)
+    for (auto it = _namespaces.begin(); it < _namespaces.end(); ++it)
     {
         Properties* p = *it;
         if (strcmp(searchNames ? p->_namespace.c_str() : p->_id.c_str(), id) == 0)
@@ -700,7 +700,7 @@ bool Properties::exists(const char* name) const
     if (name == NULL)
         return false;
 
-    for (std::vector<Property>::const_iterator itr = _properties.begin(); itr != _properties.end(); ++itr)
+    for (auto itr = _properties.begin(); itr != _properties.end(); ++itr)
     {
         if (itr->name == name)
             return true;
@@ -790,7 +790,7 @@ const char* Properties::getString(const char* name, const char* defaultValue) co
             return getVariable(variable, defaultValue);
         }
 
-        for (std::vector<Property>::const_iterator itr = _properties.begin(); itr != _properties.end(); ++itr)
+        for (auto itr = _properties.begin(); itr != _properties.end(); ++itr)
         {
             if (itr->name == name)
             {
@@ -824,7 +824,7 @@ bool Properties::setString(const char* name, const char* value)
 {
     if (name)
     {
-        for (std::vector<Property>::iterator itr = _properties.begin(); itr != _properties.end(); ++itr)
+        for (auto itr = _properties.begin(); itr != _properties.end(); ++itr)
         {
             if (itr->name == name)
             {

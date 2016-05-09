@@ -235,32 +235,33 @@ _p._ctor = function(normalImage, selectedImage, three, four, five) {
         callback = null,
         target = null;
 
-    if (normalImage === undefined) {
+    if (!normalImage) {
+        //undefined || null || ''
         cc.MenuItemImage.prototype.init.call(this);
     }
     else {
-        if (four === undefined)  {
-            callback = three;
-        }
-        else if (five === undefined) {
-            if (typeof three === 'function') {
-                callback = three;
-                target = four;
+        var imageIndex = 0;
+        var imageArray = new Array();
+        for (var i = 0; i < arguments.length && i < 5; ++i) {
+            if(typeof arguments[i] === 'function')
+                callback = arguments[i];
+            else if (typeof arguments[i] === 'object')
+                target = arguments[i];
+            else if (typeof arguments[i] === 'string')
+            {
+                imageArray[imageIndex] = arguments[i];
+                imageIndex += 1;
             }
-            else {
-                disabledImage = three;
-                callback = four;
-            }
         }
-        else if (five) {
-            disabledImage = three;
-            callback = four;
-            target = five;
-        }
-        callback = callback ? callback.bind(target) : null;
+
+        if(!callback)
+            callback = null;
+        else if(callback && target)
+            callback = callback.bind(target);
+
         var normalSprite = new cc.Sprite(normalImage);
-        var selectedSprite = new cc.Sprite(selectedImage);
-        var disabledSprite = disabledImage ? new cc.Sprite(disabledImage) : new cc.Sprite(normalImage);
+        var selectedSprite = imageArray[1] ? new cc.Sprite(imageArray[1]) : new cc.Sprite(normalImage);
+        var disabledSprite = imageArray[2] ? new cc.Sprite(imageArray[2]) : new cc.Sprite(normalImage);
         this.initWithNormalSprite(normalSprite, selectedSprite, disabledSprite, callback);
     }
 };
@@ -813,7 +814,8 @@ cc.LabelTTF.prototype._ctor = function(text, fontName, fontSize, dimensions, hAl
     }
     else {
         fontName = fontName || '';
-        fontSize = fontSize || 16;
+        if(!fontSize)
+            fontSize = 16;
         dimensions = dimensions || cc.size(0,0);
         hAlignment = hAlignment ? hAlignment : cc.TEXT_ALIGNMENT_LEFT;
         vAlignment = vAlignment ? vAlignment : cc.VERTICAL_TEXT_ALIGNMENT_TOP;

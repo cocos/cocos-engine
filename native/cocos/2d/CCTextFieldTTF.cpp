@@ -120,7 +120,7 @@ bool TextFieldTTF::initWithPlaceHolder(const std::string& placeholder, const Siz
 }
 bool TextFieldTTF::initWithPlaceHolder(const std::string& placeholder, const std::string& fontName, float fontSize)
 {
-    _placeHolder = std::string(placeholder);
+    _placeHolder = placeholder;
     setSystemFontName(fontName);
     setSystemFontSize(fontSize);
     Label::setTextColor(_colorSpaceHolder);

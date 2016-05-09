@@ -1306,7 +1306,7 @@ cc._initSys = function(config, CONFIG_KEY){
         str += "os : " + self.os + "\r\n";
         str += "platform : " + self.platform + "\r\n";
         cc.log(str);
-    }
+    };
 
     platform = locSys.platform;
     locSys.isMobile = ( platform === locSys.ANDROID ||
@@ -1410,9 +1410,9 @@ cc._initDebugSetting = function (mode) {
 //+++++++++++++++++++++++++something about CCGame begin+++++++++++++++++++++++++++
 
 /**
- * @type {Object}
- * @name cc.game
  * An object to boot the game.
+ * @class
+ * @name cc.game
  */
 cc.game = {
     DEBUG_MODE_NONE : 0,
@@ -1446,7 +1446,7 @@ cc.game = {
 
     _prepareCalled : false,//whether the prepare function has been called
     _prepared : false,//whether the engine has prepared
-    _paused : true,//whether the game is paused
+    _paused : false,//whether the game is paused
 
     _intervalId : null,//interval target of main
 

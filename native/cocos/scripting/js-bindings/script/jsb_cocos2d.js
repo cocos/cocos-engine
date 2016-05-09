@@ -1661,7 +1661,7 @@ cc.visibleRect.init();
 // Predefined font definition
 cc.FontDefinition = function () {
     this.fontName = "Arial";
-    this.fontSize = 12;
+    this.fontSize = 18;
     this.textAlign = cc.TEXT_ALIGNMENT_CENTER;
     this.verticalAlign = cc.VERTICAL_TEXT_ALIGNMENT_TOP;
     this.fillStyle = cc.color(255, 255, 255, 255);
@@ -2963,6 +2963,15 @@ cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(){
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
 }
 
+cc.Node.prototype._setPositionX = cc.Node.prototype.setPositionX;
+cc.Node.prototype.setPositionX = function(posX)
+{
+    if (typeof posX === 'number') {
+        this._setPositionX(posX);
+    }
+    else
+        cc.log('cc.Node.setPositionX error:value is not number');
+};
 
 //
 // Script Component

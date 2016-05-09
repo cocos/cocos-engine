@@ -2620,8 +2620,10 @@ bool js_cocos2dx_ActionInterval_easing(JSContext *cx, uint32_t argc, jsval *vp)
             JS_ValueToObject(cx, vpi, &tmp) &&
             JS_GetProperty(cx, tmp, "tag", &jsTag) &&
             JS::ToNumber(cx, jsTag, &tag);
-        JS_GetProperty(cx, tmp, "param", &jsParam) && JS::ToNumber(cx, jsParam, &parameter);
-        bool hasParam = (parameter == parameter);
+        
+        bool hasParam = JS_GetProperty(cx, tmp, "param", &jsParam) && !jsParam.isUndefined();
+        JS::ToNumber(cx, jsParam, &parameter);
+        
         if (!ok) continue;
 
         cocos2d::ActionEase* action;
@@ -4001,7 +4003,7 @@ static jsval string_vector_to_jsval(JSContext* cx, const std::vector<std::string
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, 0));
 
     int i = 0;
-    for(std::vector<std::string>::const_iterator iter = arr.begin(); iter != arr.end(); ++iter, ++i) {
+    for(auto iter = arr.begin(); iter != arr.end(); ++iter, ++i) {
         JS::RootedValue arrElement(cx, std_string_to_jsval(cx, *iter));
         if(!JS_SetElement(cx, jsretArr, i, arrElement)) {
             break;
@@ -4643,48 +4645,6 @@ void __JSPlistDelegator::textHandler(void *ctx, const char *ch, int len) {
     }
 }
 
-bool jsval_to_TTFConfig(JSContext *cx, jsval v, TTFConfig* ret) {
-    JS::RootedObject tmp(cx);
-    JS::RootedValue js_fontFilePath(cx);
-    JS::RootedValue js_fontSize(cx);
-    JS::RootedValue js_outlineSize(cx);
-    JS::RootedValue js_glyphs(cx);
-    JS::RootedValue js_customGlyphs(cx);
-    JS::RootedValue js_distanceFieldEnable(cx);
-
-    std::string fontFilePath,customGlyphs;
-    double fontSize, glyphs, outlineSize;
-
-    JS::RootedValue jsv(cx, v);
-    bool ok = jsv.isObject() &&
-        JS_ValueToObject(cx, jsv, &tmp) &&
-        JS_GetProperty(cx, tmp, "fontFilePath", &js_fontFilePath) &&
-        JS_GetProperty(cx, tmp, "fontSize", &js_fontSize) &&
-        JS_GetProperty(cx, tmp, "outlineSize", &js_outlineSize) &&
-        JS_GetProperty(cx, tmp, "glyphs", &js_glyphs) &&
-        JS_GetProperty(cx, tmp, "customGlyphs", &js_customGlyphs) &&
-        JS_GetProperty(cx, tmp, "distanceFieldEnable", &js_distanceFieldEnable) &&
-        JS::ToNumber(cx, js_fontSize, &fontSize) &&
-        JS::ToNumber(cx, js_outlineSize, &outlineSize) &&
-        JS::ToNumber(cx, js_glyphs, &glyphs) &&
-        jsval_to_std_string(cx,js_fontFilePath,&ret->fontFilePath) &&
-        jsval_to_std_string(cx,js_customGlyphs,&customGlyphs);
-    bool distanceFieldEnable = JS::ToBoolean(js_distanceFieldEnable);
-
-    JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-
-    ret->fontSize = (int)fontSize;
-    ret->outlineSize = (int)outlineSize;
-    ret->glyphs = GlyphCollection((int)glyphs);
-    ret->distanceFieldEnabled = distanceFieldEnable;
-    if(ret->glyphs == GlyphCollection::CUSTOM && customGlyphs.length() > 0)
-        ret->customGlyphs = customGlyphs.c_str();
-    else
-        ret->customGlyphs = nullptr;
-
-    return true;
-}
-
 bool js_cocos2dx_Label_createWithTTF(JSContext *cx, uint32_t argc, jsval *vp)
 {
     if (argc < 2)
@@ -5104,7 +5064,7 @@ void js_register_cocos2dx_EventKeyboard(JSContext *cx, JS::HandleObject global) 
 bool js_console_log(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    if (argc == 1) {
+    if (argc >= 1) {
         std::string msg;
         bool ok = jsval_to_std_string(cx, args.get(0), &msg);
         if (!ok) {
@@ -5117,7 +5077,6 @@ bool js_console_log(JSContext *cx, uint32_t argc, jsval *vp)
         return true;
     }
 
-    JS_ReportError(cx, "js_console_log : wrong number of arguments");
     return false;
 }
 

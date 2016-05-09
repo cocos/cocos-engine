@@ -779,15 +779,17 @@ FontAtlas * FontFNT::createFontAtlas()
     // Purge uniform hash
     HASH_ITER(hh, _configuration->_fontDefDictionary, currentElement, tmp)
     {
-
-        FontLetterDefinition tempDefinition;
-
         fontDef = currentElement->fontDef;
+        if (fontDef.charID > 65535) {
+            CCLOGWARN("Warning: 65535 < fontDef.charID (%u), ignored", fontDef.charID);
+            continue;
+        }
+        
         Rect tempRect;
-
         tempRect = fontDef.rect;
         tempRect = CC_RECT_PIXELS_TO_POINTS(tempRect);
 
+        FontLetterDefinition tempDefinition;
         tempDefinition.offsetX  = fontDef.xOffset;
         tempDefinition.offsetY  = fontDef.yOffset;
 

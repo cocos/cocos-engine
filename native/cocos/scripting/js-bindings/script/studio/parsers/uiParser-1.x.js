@@ -98,14 +98,14 @@
             widget.setScaleY(scaleY);
 
         var rotation = options["rotation"];
-        if(cc.isValidValue(rotation) && rotation !== 0)
+        if(rotation)
             widget.setRotation(rotation);
 
         if(options["visible"] === false)
             widget.setVisible(false);
 
         var ZOrder = options["ZOrder"];
-        if(cc.isValidValue(ZOrder) && ZOrder !== 0)
+        if(ZOrder)
             widget.setLocalZOrder(ZOrder);
 
         var layout = options["layoutParameter"];
@@ -302,7 +302,7 @@
             var sw = options["scale9Width"];
             var sh = options["scale9Height"];
             if (cc.isValidValue(sw) && cc.isValidValue(sh))
-                button.setSize(cc.size(sw, sh));
+                button.setContentSize(cc.size(sw, sh));
         }
         var text = options["text"];
         if (text)
@@ -389,7 +389,7 @@
             var sw = options["scale9Width"];
             var sh = options["scale9Height"];
             if (cc.isValidValue(sw) && cc.isValidValue(sh)) {
-                widget.setSize(cc.size(sw, sh));
+                widget.setContentSize(cc.size(sw, sh));
             }
 
             var cx = options["capInsetsX"];

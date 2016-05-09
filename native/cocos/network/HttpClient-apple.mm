@@ -50,8 +50,7 @@ void HttpClient::networkThread()
 {
     increaseThreadCount();
 
-    while (true) @autoreleasepool {
-
+    while (true) {
         HttpRequest *request;
 
         // step 1: send http request if the requestQueue isn't empty
@@ -68,22 +67,20 @@ void HttpClient::networkThread()
             break;
         }
 
-        // Create a HttpResponse object, the default setting is http access failed
-        HttpResponse *response = new (std::nothrow) HttpResponse(request);
-
-        processResponse(response, _responseMessage);
-
-        // add response packet into queue
-        _responseQueueMutex.lock();
-        _responseQueue.pushBack(response);
-        _responseQueueMutex.unlock();
-
-        _schedulerMutex.lock();
-        if (Director::DirectorInstance)
+        if (Director::DirectorInstance && !Director::isPurgeDirectorInNextLoop())
         {
+            // Create a HttpResponse object, the default setting is http access failed
+            HttpResponse *response = new (std::nothrow) HttpResponse(request);
+            
+            processResponse(response, _responseMessage);
+            
+            // add response packet into queue
+            _responseQueueMutex.lock();
+            _responseQueue.pushBack(response);
+            _responseQueueMutex.unlock();
+            
             Director::DirectorInstance->getScheduler()->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this));
         }
-        _schedulerMutex.unlock();
     }
 
     // cleanup: if worker thread received quit signal, clean up un-completed request queue
@@ -106,8 +103,7 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
     char responseMessage[RESPONSE_BUFFER_SIZE] = { 0 };
     processResponse(response, responseMessage);
 
-    _schedulerMutex.lock();
-    if (Director::DirectorInstance)
+    if (Director::DirectorInstance && !Director::isPurgeDirectorInNextLoop())
     {
         Director::DirectorInstance->getScheduler()->performFunctionInCocosThread([this, response, request]{
             const ccHttpRequestCallback& callback = request->getCallback();
@@ -127,7 +123,6 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
             request->release();
         });
     }
-    _schedulerMutex.unlock();
     decreaseThreadCountAndMayDeleteThis();
 }
 
@@ -156,7 +151,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
     if(!headers.empty())
     {
         /* append custom headers one by one */
-        for (std::vector<std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
+        for (auto it = headers.begin(); it != headers.end(); ++it)
         {
             unsigned long i = it->find(':', 0);
             unsigned long length = it->size();
@@ -287,13 +282,13 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
         [header deleteCharactersInRange:range];
     }
     NSData *headerData = [header dataUsingEncoding:NSUTF8StringEncoding];
-    std::vector<char> *headerBuffer = (std::vector<char>*)headerStream;
+    auto headerBuffer = (std::vector<char>*)headerStream;
     const void* headerptr = [headerData bytes];
     long headerlen = [headerData length];
     headerBuffer->insert(headerBuffer->end(), (char*)headerptr, (char*)headerptr+headerlen);
 
     //handle response data
-    std::vector<char> *recvBuffer = (std::vector<char>*)stream;
+    auto recvBuffer = (std::vector<char>*)stream;
     const void* ptr = [httpAsynConn.responseData bytes];
     long len = [httpAsynConn.responseData length];
     recvBuffer->insert(recvBuffer->end(), (char*)ptr, (char*)ptr+len);
