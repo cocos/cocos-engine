@@ -137,6 +137,12 @@
         notEqual(first.uuid, second.uuid, 'The id of instances should be different');
     });
 
+    test('apply node', function () {
+        var newNode = cc.instantiate(prefab);
+        var newPrefab = _Scene.PrefabUtils.createAppliedPrefab(newNode);
+        strictEqual(newPrefab.data._prefab.fileId, prefab.data._prefab.fileId, "fileId should not changed during apply");
+    });
+
     asyncTest('revert prefab', function () {
         // stub
         cc.loader.insertPipe({

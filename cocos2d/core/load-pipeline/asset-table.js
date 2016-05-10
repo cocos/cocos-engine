@@ -23,6 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+function Entry (uuid, type) {
+    this.uuid = uuid;
+    this.type = type;
+}
+
 /**
  * AssetTable is used to find asset's uuid by url
  * @class AssetTable
@@ -32,9 +37,12 @@ function AssetTable () {
     this._pathToUuid = {};
 }
 
-function Entry (uuid, type) {
-    this.uuid = uuid;
-    this.type = type;
+function isMatchByWord (path, test) {
+    if (path.length > test.length) {
+        var nextAscii = path.charCodeAt(test.length);
+        return (nextAscii === 46 || nextAscii === 47); // '.' or '/'
+    }
+    return true;
 }
 
 cc.js.mixin(AssetTable.prototype, {
@@ -54,32 +62,23 @@ cc.js.mixin(AssetTable.prototype, {
     
     getUuid: function (path, type) {
         path = cc.url.normalize(path);
-        if ( !path ) {
-            return '';
-        }
-        var isChildClassOf = cc.isChildClassOf;
-        var p2u = this._pathToUuid;
-        var item = p2u[path];
-        if (item && (!type || isChildClassOf(item.type, type))) {
-            return item.uuid;
-        }
-
-        var p;
-        if (type) {
-            for (p in p2u) {
-                if (p.startsWith(path)) {
-                    var item = p2u[p];
-                    if (isChildClassOf(item.type, type)) {
-                        return item.uuid;
+        var item = this._pathToUuid[path];
+        if (item) {
+            if (Array.isArray(item)) {
+                if (type) {
+                    for (var i = 0; i < item.length; i++) {
+                        var entry = item[i];
+                        if (cc.isChildClassOf(entry.type, type)) {
+                            return entry.uuid;
+                        }
                     }
                 }
-            }
-        }
-        else {
-            for (p in p2u) {
-                if (p.startsWith(path)) {
-                    return p2u[p].uuid;
+                else {
+                    return item[0].uuid;
                 }
+            }
+            else if (!type || cc.isChildClassOf(item.type, type)) {
+                return item.uuid;
             }
         }
         return '';
@@ -87,58 +86,98 @@ cc.js.mixin(AssetTable.prototype, {
 
     getUuidArray: function (path, type) {
         path = cc.url.normalize(path);
-        if ( !path ) {
-            return [];
-        }
+        var path2uuid = this._pathToUuid;
         var uuids = [];
-        var p2u = this._pathToUuid;
-        var p;
+        var p, i;
         if (type) {
             var isChildClassOf = cc.isChildClassOf;
-            for (p in p2u) {
-                if (p.startsWith(path)) {
-                    var item = p2u[p];
-                    if (isChildClassOf(item.type, type)) {
-                        uuids.push(item.uuid);
+            for (p in path2uuid) {
+                if (p.startsWith(path) && isMatchByWord(p, path)) {
+                    var item = path2uuid[p];
+                    if (Array.isArray(item)) {
+                        for (i = 0; i < item.length; i++) {
+                            var entry = item[i];
+                            if (isChildClassOf(entry.type, type)) {
+                                uuids.push(entry.uuid);
+                            }
+                        }
+                    }
+                    else {
+                        if (isChildClassOf(item.type, type)) {
+                            uuids.push(item.uuid);
+                        }
                     }
                 }
             }
         }
         else {
-            for (p in p2u) {
-                if (p.startsWith(path)) {
-                    uuids.push(p2u[p].uuid);
+            for (p in path2uuid) {
+                if (p.startsWith(path) && isMatchByWord(p, path)) {
+                    var item = path2uuid[p];
+                    if (Array.isArray(item)) {
+                        for (i = 0; i < item.length; i++) {
+                            uuids.push(item[i].uuid);
+                        }
+                    }
+                    else {
+                        uuids.push(item.uuid);
+                    }
                 }
             }
         }
         return uuids;
     },
 
-    /**
-     * Returns all asset paths in the table.
-     * @method getAllPaths
-     * @return {string[]}
-     */
-    getAllPaths: function () {
-        return Object.keys(this._pathToUuid);
-    },
+    ///**
+    // * Returns all asset paths in the table.
+    // * @method getAllPaths
+    // * @return {string[]}
+    // */
+    //getAllPaths: function () {
+    //    return Object.keys(this._pathToUuid);
+    //},
     
     /**
      * @method add
      * @param {String} path - the path to load, should NOT include filename extensions.
      * @param {String} uuid
      * @param {Function} type
+     * @param {Boolean} isMainAsset
      * @private
      */
-    add: function (path, uuid, type) {
-        //// remove extname
-        //// (can not use path.slice because length of extname maybe 0)
-        //path = path.substring(0, path - cc.path.extname(path).length);
-        this._pathToUuid[path] = new Entry(uuid, type);
+    add: function (path, uuid, type, isMainAsset) {
+        // remove extname
+        // (can not use path.slice because length of extname maybe 0)
+        path = path.substring(0, path.length - cc.path.extname(path).length);
+        var newEntry = new Entry(uuid, type);
+        var pathToUuid = this._pathToUuid;
+        var exists = pathToUuid[path];
+        if (exists) {
+            if (Array.isArray(exists)) {
+                if (isMainAsset) {
+                    // load main asset first
+                    exists.unshift(newEntry);
+                }
+                else {
+                    exists.push(newEntry);
+                }
+            }
+            else {
+                if (isMainAsset) {
+                    pathToUuid[path] = [newEntry, exists];
+                }
+                else {
+                    pathToUuid[path] = [exists, newEntry];
+                }
+            }
+        }
+        else {
+            pathToUuid[path] = newEntry;
+        }
     },
-    _removeByPath: function (path) {
-        delete this._pathToUuid[path];
-    }
+    //_removeByPath: function (path) {
+    //    delete this._pathToUuid[path];
+    //}
     //_removeByUuid: function (uuid) {
     //    for (var path in this._pathToUuid) {
     //        if (this._pathToUuid[path] === uuid) {
@@ -147,6 +186,9 @@ cc.js.mixin(AssetTable.prototype, {
     //        }
     //    }
     //}
+    reset: function () {
+        this._pathToUuid = {}
+    }
 });
 
 module.exports = AssetTable;

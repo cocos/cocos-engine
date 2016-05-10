@@ -246,6 +246,9 @@ JS.mixin(cc.loader, {
                 // strip extname
                 url = url.slice(0, - extname.length);
                 uuid = resources.getUuid(url, type);
+                if (uuid) {
+                    cc.warn('loadRes: should not specify the extname in ' + url + extname);
+                }
             }
         }
         return uuid;
@@ -321,7 +324,7 @@ JS.mixin(cc.loader, {
      *
      * @method loadResAll
      * @param {String} url - Url of the target folder.
-     *                       The url is relative to the "resources" folder.
+     *                       The url is relative to the "resources" folder, extensions must be omitted.
      * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
      * @param {Function} completeCallback - A callback which is called when all assets have been loaded, or an error occurs.
      * @param {Error} completeCallback.error - If one of the asset failed, the complete callback is immediately called with the error. If all assets are loaded successfully, error will be null.

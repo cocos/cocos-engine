@@ -288,6 +288,8 @@ var AssetLibrary = {
         _rawAssetsBase = options.rawAssetsBase;
 
         _uuidToRawAssets = {};
+        var resources = Loader._resources;
+        resources.reset();
         var rawAssets = options.rawAssets;
         if (rawAssets) {
             var RES_DIR = 'resources/';
@@ -322,8 +324,9 @@ var AssetLibrary = {
                         else {
                             url = url.slice(RES_DIR.length);
                         }
+                        var isSubAsset = info[2] === 1;
                         // register
-                        Loader._resources.add(url, uuid, type);
+                        resources.add(url, uuid, type, !isSubAsset);
                     }
                 }
             }

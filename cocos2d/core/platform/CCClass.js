@@ -341,7 +341,7 @@ cc.isChildClassOf = function (subclass, superclass) {
             return true;
         }
         // js class
-        var dunderProto = Object.getPrototypeOf(subclass.prototype);
+        var dunderProto = subclass.prototype && Object.getPrototypeOf(subclass.prototype);
         while (dunderProto) {
             subclass = dunderProto.constructor;
             if (subclass === superclass) {
