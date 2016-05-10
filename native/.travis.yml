@@ -1,4 +1,5 @@
 language: cpp
+env:
 os:
   - linux
   - osx
