@@ -26,6 +26,33 @@
 
 var EventTarget = require("../cocos2d/core/event/event-target");
 
+function setVisible (visible) {
+    _ccsg.Node.prototype.setVisible.call(this, visible);
+    this._renderCmd.setDirtyRecursively(true);
+}
+
+function isVisible () {
+   return this.isVisible();
+}
+
+function ignoreAnchorPointForPosition (relative) {
+    if(this._batchNode){
+        cc.log(cc._LogInfos.Sprite.ignoreAnchorPointForPosition);
+        return;
+    }
+    _ccsg.Node.prototype.ignoreAnchorPointForPosition.call(this, relative);
+}
+
+function isIgnoreAnchorPointForPosition () {
+    return this.isIgnoreAnchorPointForPosition();
+}
+
+function isOpacityModifyRGB () {
+    return this._opacityModifyRGB;
+}
+
+
+
 /**
  * <p>_ccsg.Sprite is a 2d image ( http://en.wikipedia.org/wiki/Sprite_(computer_graphics) )  <br/>
  *
@@ -86,43 +113,67 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
 _ccsg.Sprite = _ccsg.Node.extend({
-	dirty:false,
-	atlasIndex:0,
-    textureAtlas:null,
+    name: "ccsg.Sprite",
+    extends: _ccsg.Node,
 
-    _batchNode:null,
-    _recursiveDirty:null, //Whether all of the sprite's children needs to be updated
-    _hasChildren:null, //Whether the sprite contains children
-    _shouldBeHidden:false, //should not be drawn because one of the ancestors is not visible
-    _transformToBatch:null,
+    properties: {
+        dirty: false,
+        atlasIndex: 0,
+        textureAtlas: null,
 
-    //
-    // Data used when the sprite is self-rendered
-    //
-    _blendFunc:null, //It's required for CCTextureProtocol inheritance
-    _texture:null, //cc.Texture2D object that is used to render the sprite
+        _batchNode: null,
+        _recursiveDirty: null, //Whether all of the sprite's children needs to be updated
+        _hasChildren: null, //Whether the sprite contains children
+        _shouldBeHidden: false, //should not be drawn because one of the ancestors is not visible
+        _transformToBatch: null,
 
-    //
-    // Shared data
-    //
-    // texture
-    _rect:null, //Rectangle of cc.Texture2D
-    _rectRotated:false, //Whether the texture is rotated
+        //
+        // Data used when the sprite is self-rendered
+        //
+        _blendFunc: null, //It's required for CCTextureProtocol inheritance
+        _texture: null, //cc.Texture2D object that is used to render the sprite
 
-    // Offset Position (used by Zwoptex)
-    _offsetPosition:null, // absolute
-    _unflippedOffsetPositionFromCenter:null,
+        //
+        // Shared data
+        //
+        // texture
+        _rect: null, //Rectangle of cc.Texture2D
+        _rectRotated: false, //Whether the texture is rotated
 
-    _opacityModifyRGB:false,
+        // Offset Position (used by Zwoptex)
+        _offsetPosition: null, // absolute
+        _unflippedOffsetPositionFromCenter: null,
 
-    // image is flipped
-    _flippedX:false, //Whether the sprite is flipped horizontally or not.
-    _flippedY:false, //Whether the sprite is flipped vertically or not.
+        _opacityModifyRGB: false,
 
-    _textureLoaded:false,
-    _className:"Sprite",
+        // image is flipped
+        _flippedX: false, //Whether the sprite is flipped horizontally or not.
+        _flippedY: false, //Whether the sprite is flipped vertically or not.
 
-    ctor: function (fileName, rect, rotated) {
+        _textureLoaded: false,
+        _className: "Sprite",
+
+        visible: {
+            get: isVisible,
+            set: setVisible
+        },
+
+        ignoreAnchor: {
+            get: isIgnoreAnchorPointForPosition,
+            set: ignoreAnchorPointForPosition
+        },
+
+        opacityModifyRGB: {
+            get: isOpacityModifyRGB
+        }
+    },
+
+    ctor: function () {
+
+        var fileName = arguments[0];
+        var rect = arguments[1];
+        var rotated = arguments[2];
+
         var self = this;
         _ccsg.Node.prototype.ctor.call(self);
         EventTarget.call(self);

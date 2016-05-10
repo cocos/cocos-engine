@@ -27,6 +27,46 @@
 var PNGReader = require('../cocos2d/particle/CCPNGReader');
 var tiffReader = require('../cocos2d/particle/CCTIFFReader');
 
+function setRotation (newRotation) {
+    this._transformSystemDirty = true;
+    _ccsg.Node.prototype.setRotation.call(this, newRotation);
+}
+
+function getRotation () {
+    return this.getRotation();
+}
+
+function setScale (scale, scaleY) {
+    this._transformSystemDirty = true;
+    _ccsg.Node.prototype.setScale.call(this, scale, scaleY);
+}
+
+function getScale () {
+    return this.getScale();
+}
+
+function setScaleX (newScaleX) {
+    this._transformSystemDirty = true;
+    _ccsg.Node.prototype.setScaleX.call(this, newScaleX);
+}
+
+function getScaleX () {
+    return this.getScaleX();
+}
+
+function setScaleY (newScaleY) {
+    this._transformSystemDirty = true;
+    _ccsg.Node.prototype.setScaleY.call(this, newScaleY);
+}
+
+function getScaleY () {
+    return this.getScaleY();
+}
+
+function isOpacityModifyRGB () {
+    return this._opacityModifyRGB;
+}
+
 // ideas taken from:
 //   . The ocean spray in your face [Jeff Lander]
 //      http://www.double.co.nz/dust/col0798.pdf
@@ -213,72 +253,103 @@ cc.Particle.TemporaryPoints = [
  *  emitter.radialAccel = 15;
  *  emitter.startSpin = 0;
  */
-_ccsg.ParticleSystem = _ccsg.Node.extend({
-    _className:"ParticleSystem",
-    //***********variables*************
-    _plistFile: "",
-    //! time elapsed since the start of the system (in seconds)
-    _elapsed: 0,
-    _dontTint: false,
+_ccsg.ParticleSystem = cc.Class({
+    name: "ccsg.ParticleSystem",
+    extends: _ccsg.Node,
 
-    // Different modes
-    //! Mode A:Gravity + Tangential Accel + Radial Accel
-    modeA: null,
-    //! Mode B: circular movement (gravity, radial accel and tangential accel don't are not used in this mode)
-    modeB: null,
+    properties: {
 
-    //private POINTZERO for ParticleSystem
-    _pointZeroForParticle: cc.p(0, 0),
+        _className: "ParticleSystem",
+        //***********variables*************
+        _plistFile: "",
+        //! time elapsed since the start of the system (in seconds)
+        _elapsed: 0,
+        _dontTint: false,
 
-    //! Array of particles
-    _particles: null,
+        // Different modes
+        //! Mode A:Gravity + Tangential Accel + Radial Accel
+        modeA: null,
+        //! Mode B: circular movement (gravity, radial accel and tangential accel don't are not used in this mode)
+        modeB: null,
 
-    // color modulate
-    //  BOOL colorModulate;
+        //private POINTZERO for ParticleSystem
+        _pointZeroForParticle: cc.p(0, 0),
 
-    //! How many particles can be emitted per second
-    _emitCounter: 0,
-    //!  particle idx
-    _particleIdx: 0,
+        //! Array of particles
+        _particles: null,
 
-    _batchNode: null,
-    atlasIndex: 0,
+        // color modulate
+        //  BOOL colorModulate;
 
-    //true if scaled or rotated
-    _transformSystemDirty: false,
-    _allocatedParticles: 0,
+        //! How many particles can be emitted per second
+        _emitCounter: 0,
+        //!  particle idx
+        _particleIdx: 0,
 
-    _isActive: false,
-    particleCount: 0,
-    duration: 0,
-    _sourcePosition: null,
-    _posVar: null,
-    life: 0,
-    lifeVar: 0,
-    angle: 0,
-    angleVar: 0,
-    startSize: 0,
-    startSizeVar: 0,
-    endSize: 0,
-    endSizeVar: 0,
-    _startColor: null,
-    _startColorVar: null,
-    _endColor: null,
-    _endColorVar: null,
-    startSpin: 0,
-    startSpinVar: 0,
-    endSpin: 0,
-    endSpinVar: 0,
-    emissionRate: 0,
-    _totalParticles: 0,
-    _texture: null,
-    _blendFunc: null,
-    _opacityModifyRGB: false,
-    positionType: null,
-    autoRemoveOnFinish: false,
-    emitterMode: 0,
+        _batchNode: null,
+        atlasIndex: 0,
 
-    _textureLoaded: null,
+        //true if scaled or rotated
+        _transformSystemDirty: false,
+        _allocatedParticles: 0,
+
+        _isActive: false,
+        particleCount: 0,
+        duration: 0,
+        _sourcePosition: null,
+        _posVar: null,
+        life: 0,
+        lifeVar: 0,
+        angle: 0,
+        angleVar: 0,
+        startSize: 0,
+        startSizeVar: 0,
+        endSize: 0,
+        endSizeVar: 0,
+        _startColor: null,
+        _startColorVar: null,
+        _endColor: null,
+        _endColorVar: null,
+        startSpin: 0,
+        startSpinVar: 0,
+        endSpin: 0,
+        endSpinVar: 0,
+        emissionRate: 0,
+        _totalParticles: 0,
+        _texture: null,
+        _blendFunc: null,
+        _opacityModifyRGB: false,
+        positionType: null,
+        autoRemoveOnFinish: false,
+        emitterMode: 0,
+
+        _textureLoaded: null,
+
+        rotation: {
+            get: getRotation,
+            set: setRotation
+        },
+
+        scale: {
+            get: getScale,
+            set: setScale
+        },
+
+        scaleX: {
+            get: getScaleX,
+            set: setScaleX
+        },
+
+        scaleY: {
+            get: getScaleY,
+            set: setScaleY
+        },
+
+        opacityModifyRGB: {
+            get: isOpacityModifyRGB
+        }
+
+    },
 
     /**
      * <p> return the string found by key in dict. <br/>
@@ -288,8 +359,9 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      * Constructor of ccsg.ParticleSystem
      * @param {String|Number} plistFile
      */
-    ctor:function (plistFile) {
-        _ccsg.Node.prototype.ctor.call(this);
+    ctor:function () {
+        var plistFile = arguments[0];
+
         this.emitterMode = _ccsg.ParticleSystem.Mode.GRAVITY;
         this.modeA = new _ccsg.ParticleSystem.ModeA();
         this.modeB = new _ccsg.ParticleSystem.ModeB();

@@ -25,6 +25,25 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+function setColor (color) {
+    this._sprite.color = color;
+    this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
+}
+
+function getColor () {
+    return this._sprite.color;
+}
+
+function setOpacity (opacity) {
+    this._sprite.opacity = opacity;
+    //this._renderCmd._updateColor();
+    this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
+}
+
+function getOpacity () {
+    return this._sprite.opacity;
+}
+
 /**
  * cc.Progresstimer is a subclass of ccsg.Node.   <br/>
  * It renders the inner sprite according to the percentage.<br/>
@@ -47,22 +66,38 @@
  * @property {Boolean}      reverseDir      - Indicate whether the direction is reversed.
  *
  */
-cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
-    _type:null,
-    _percentage:0.0,
-    _sprite:null,
+cc.ProgressTimer = cc.Class({
+    name: "cc.ProgressTimer",
+    extends: _ccsg.Node,
 
-    _midPoint:null,
-    _barChangeRate:null,
-    _reverseDirection:false,
-    _className:"ProgressTimer",
+    properties: {
+        _type: null,
+        _percentage: 0.0,
+        _sprite: null,
+
+        _midPoint: null,
+        _barChangeRate: null,
+        _reverseDirection: false,
+        _className: "ProgressTimer",
+
+        color: {
+            get: getColor,
+            set: setColor
+        },
+
+        opacity: {
+            get: getOpacity,
+            set: setOpacity
+        }
+    },
 
     /**
      * constructor of cc.ProgressTimer
      * @function
      * @param {_ccsg.Sprite} sprite
      */
-    ctor: function(sprite){
+    ctor: function(){
+        var sprite = arguments[0];
         _ccsg.Node.prototype.ctor.call(this);
 
         this._type = cc.ProgressTimer.Type.RADIAL;

@@ -24,6 +24,26 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+function _getWidth () {
+    if (this._needUpdateTexture)
+        this._renderCmd._updateTTF();
+    return _ccsg.Sprite.prototype._getWidth.call(this);
+}
+
+function _setWidth (width) {
+    this._setWidth(width);
+}
+
+function _getHeight () {
+    if (this._needUpdateTexture)
+        this._renderCmd._updateTTF();
+    return _ccsg.Sprite.prototype._getHeight.call(this);
+}
+
+function _setHeight (height) {
+    this._setHeight(width);
+}
+
 /**
  * <p>cc.LabelTTF is a subclass of cc.TextureNode that knows how to render text labels with system font or a ttf font file<br/>
  * All features from _ccsg.Sprite are valid in cc.LabelTTF<br/>
@@ -63,42 +83,58 @@
  * @property {Number}       shadowOpacity   - The opacity of shadow
  * @property {Number}       shadowBlur      - The blur size of shadow
  */
-cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
-    _dimensions: null,
-    _hAlignment: cc.TextAlignment.CENTER,
-    _vAlignment: cc.VerticalTextAlignment.TOP,
-    _fontName: null,
-    _fontSize: 0.0,
-    _string: "",
-    _originalText: null,
-    _onCacheCanvasMode: true,
+cc.LabelTTF = cc.Class({
+    name: "cc.LabelTTF",
+    extends: _ccsg.Sprite,
 
-    // font shadow
-    _shadowEnabled: false,
-    _shadowOffset: null,
-    _shadowOpacity: 0,
-    _shadowBlur: 0,
-    _shadowColor: null,
+    properties: {
 
-    // font stroke
-    _strokeEnabled: false,
-    _strokeColor: null,
-    _strokeSize: 0,
+        _dimensions: null,
+        _hAlignment: cc.TextAlignment.CENTER,
+        _vAlignment: cc.VerticalTextAlignment.TOP,
+        _fontName: null,
+        _fontSize: 0.0,
+        _string: "",
+        _originalText: null,
+        _onCacheCanvasMode: true,
 
-    // font tint
-    _textFillColor: null,
+        // font shadow
+        _shadowEnabled: false,
+        _shadowOffset: null,
+        _shadowOpacity: 0,
+        _shadowBlur: 0,
+        _shadowColor: null,
 
-    _strokeShadowOffsetX: 0,
-    _strokeShadowOffsetY: 0,
-    _needUpdateTexture: false,
+        // font stroke
+        _strokeEnabled: false,
+        _strokeColor: null,
+        _strokeSize: 0,
 
-    _lineWidths: null,
-    _className: "LabelTTF",
+        // font tint
+        _textFillColor: null,
 
-    //for web
-    _fontStyle: "normal",
-    _fontWeight: "normal",
-    _lineHeight: "normal",
+        _strokeShadowOffsetX: 0,
+        _strokeShadowOffsetY: 0,
+        _needUpdateTexture: false,
+
+        _lineWidths: null,
+        _className: "LabelTTF",
+
+        //for web
+        _fontStyle: "normal",
+        _fontWeight: "normal",
+        _lineHeight: "normal",
+
+        width: {
+            get: _getWidth,
+            set: _setWidth
+        },
+
+        height: {
+            get: _getHeight,
+            set: _setHeight
+        }
+    },
 
     /**
      * Initializes the cc.LabelTTF with a font name, alignment, dimension and font size, do not call it by yourself,

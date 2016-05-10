@@ -27,19 +27,35 @@
 
 var spine = sp.spine;
 
-sp._SGSkeleton = _ccsg.Node.extend({
-    _skeleton: null,
-    _rootBone: null,
-    _timeScale: 1,
-    _debugSlots: false,
-    _debugBones: false,
-    _premultipliedAlpha: false,
-    _ownsSkeletonData: null,
-    _atlas: null,
-    _blendFunc: null,
+function isOpacityModifyRGB () {
+    return this._premultipliedAlpha;
+}
 
-    ctor: function(skeletonDataFile, atlasFile, scale) {
-        _ccsg.Node.prototype.ctor.call(this);
+sp._SGSkeleton = cc.Class({
+    name: "sp._SGSkeleton",
+    extends: _ccsg.Node,
+
+    properties: {
+        _skeleton: null,
+        _rootBone: null,
+        _timeScale: 1,
+        _debugSlots: false,
+        _debugBones: false,
+        _premultipliedAlpha: false,
+        _ownsSkeletonData: null,
+        _atlas: null,
+        _blendFunc: null,
+
+        opacityModifyRGB: {
+            get: isOpacityModifyRGB
+        }
+
+    },
+
+    ctor: function() {
+        var skeletonDataFile = arguments[0];
+        var atlasFile = arguments[1];
+        var scale = arguments[2];
         this._blendFunc = {src: cc.macro.BLEND_SRC, dst: cc.macro.BLEND_DST};
 
         if(arguments.length === 0)

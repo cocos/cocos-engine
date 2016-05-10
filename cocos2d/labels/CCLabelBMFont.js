@@ -30,6 +30,51 @@
  http://www.angelcode.com/products/bmfont/ (Free, Windows only)
  ****************************************************************************/
 
+function _setAnchorX (x) {
+    _ccsg.Node.prototype._setAnchorX.call(this, x);
+    this.updateLabel();
+}
+
+function _getAnchorX () {
+    return this._getAnchorX();
+}
+
+function _setAnchorY (y) {
+    _ccsg.Node.prototype._setAnchorY.call(this, y);
+    this.updateLabel();
+}
+
+function _getAnchorY () {
+    return this._getAnchorY();
+}
+
+function setScale (scale, scaleY) {
+    _ccsg.Node.prototype.setScale.call(this, scale, scaleY);
+    this.updateLabel();
+}
+
+function getScale () {
+    return this.getScale();
+}
+
+function setScaleX (scaleX) {
+    _ccsg.Node.prototype.setScaleX.call(this, scaleX);
+    this.updateLabel();
+}
+
+function getScaleX () {
+    return this.getScaleX();
+}
+
+function setScaleY (scaleY) {
+    _ccsg.Node.prototype.setScaleY.call(this, scaleY);
+    this.updateLabel();
+}
+
+function getScaleY () {
+    return this.getScaleY();
+}
+
 /**
  * @constant
  * @type Number
@@ -86,33 +131,63 @@ cc.LABEL_AUTOMATIC_WIDTH = -1;
  * // Example 03
  * var label3 = new cc.LabelBMFont("This is a \n test case", "test.fnt", 200, cc.TextAlignment.LEFT, cc.p(0,0));
  */
-cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
-    //property string is Getter and Setter.
-    //property textAlign is Getter and Setter.
-    //property boundingWidth is Getter and Setter.
-    _opacityModifyRGB: false,
+cc.LabelBMFont = cc.Class({
+    name: "cc.LabelBMFont",
+    extends: cc.SpriteBatchNode,
 
-    _string: "",
-    _config: null,
+    properties: {
+        //property string is Getter and Setter.
+        //property textAlign is Getter and Setter.
+        //property boundingWidth is Getter and Setter.
+        _opacityModifyRGB: false,
 
-    // name of fntFile
-    _fntFile: "",
+        _string: "",
+        _config: null,
 
-    // initial string without line breaks
-    _initialString: "",
+        // name of fntFile
+        _fntFile: "",
 
-    // alignment of all lines
-    _alignment: cc.TextAlignment.CENTER,
+        // initial string without line breaks
+        _initialString: "",
 
-    // max width until a line break is added
-    _width: -1,
-    _lineBreakWithoutSpaces: false,
-    _imageOffset: null,
+        // alignment of all lines
+        _alignment: cc.TextAlignment.CENTER,
 
-    _reusedChar: null,
+        // max width until a line break is added
+        _width: -1,
+        _lineBreakWithoutSpaces: false,
+        _imageOffset: null,
 
-    _textureLoaded: false,
-    _className: "LabelBMFont",
+        _reusedChar: null,
+
+        _textureLoaded: false,
+        _className: "LabelBMFont",
+
+        anchorX: {
+            get: _getAnchorX,
+            set: _setAnchorX
+        },
+
+        anchorY: {
+            get: _getAnchorY,
+            set: _setAnchorY
+        },
+
+        scale: {
+            get: getScale,
+            set: setScale
+        },
+
+        scaleX: {
+            get: getScaleX,
+            set: setScaleX
+        },
+
+        scaleY: {
+            get: getScaleY,
+            set: setScaleY
+        }
+    },
 
     _createRenderCmd: function(){
         if(cc._renderType === cc.game.RENDER_TYPE_WEBGL)
@@ -151,7 +226,13 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
      * @param {cc.TextAlignment} [alignment=cc.TextAlignment.LEFT]
      * @param {cc.Vec2} [imageOffset=cc.p(0,0)]
      */
-    ctor: function (str, fntFile, width, alignment, imageOffset) {
+    ctor: function () {
+        var str = arguments[0];
+        var fntFile = arguments[1];
+        var width = arguments[2];
+        var alignment = arguments[3];
+        var imageOffset = arguments[4];
+
         cc.SpriteBatchNode.prototype.ctor.call(this);
         cc.EventTarget.call(this);
 

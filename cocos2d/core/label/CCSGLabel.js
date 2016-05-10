@@ -26,6 +26,28 @@
 
 var EventTarget = require("../cocos2d/core/event/event-target");
 
+function _getWidth () {
+    if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        this._updateLabel();
+    }
+    return _ccsg.Node.prototype._getWidth.call(this);
+}
+
+function _setWidth (width) {
+    this._setWidth(width);
+}
+
+function _getHeight () {
+    if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        this._updateLabel();
+    }
+    return _ccsg.Node.prototype._getHeight.call(this);
+}
+
+function _setHeight (height) {
+    this._setHeight(width);
+}
+
 var FontLetterDefinition = function() {
     this._u = 0;
     this._v = 0;
@@ -104,32 +126,50 @@ var LetterInfo = function() {
     this._lineIndex = 0;
 };
 
-_ccsg.Label = _ccsg.Node.extend({
-    _hAlign: cc.TextAlignment.LEFT, //0 left, 1 center, 2 right
-    _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
-    _string: "",
-    _fontSize: 40,
-    _drawFontsize: 40,
-    _overFlow: 0, //see _ccsg.Label.Overflow
-    _isWrapText: true,
-    _spacingX: 0,
+_ccsg.Label = cc.Class({
+    name: "ccsg.Label",
+    extends: _ccsg.Node,
 
-    _blendFunc: null,
-    _isUseSystemFont: true,
-    _labelType: 0, //0 is ttf, 1 is bmfont.
-    _fontHandle: "", //a ttf font name or a bmfont file path.
-    _lineSpacing: 0,
+    properties: {
+        _hAlign: cc.TextAlignment.LEFT, //0 left, 1 center, 2 right
+        _vAlign: cc.VerticalTextAlignment.TOP, //0 bottom,1 center, 2 top
+        _string: "",
+        _fontSize: 40,
+        _drawFontsize: 40,
+        _overFlow: 0, //see _ccsg.Label.Overflow
+        _isWrapText: true,
+        _spacingX: 0,
 
-    _maxLineWidth:  0,
-    _labelDimensions:  cc.size(0, 0),
-    _labelWidth:  0,
-    _labelHeight:  0,
+        _blendFunc: null,
+        _isUseSystemFont: true,
+        _labelType: 0, //0 is ttf, 1 is bmfont.
+        _fontHandle: "", //a ttf font name or a bmfont file path.
+        _lineSpacing: 0,
 
-    _lineHeight: 40,
-    _className: "Label",
+        _maxLineWidth: 0,
+        _labelDimensions: cc.size(0, 0),
+        _labelWidth: 0,
+        _labelHeight: 0,
+
+        _lineHeight: 40,
+        _className: "Label",
+
+        width: {
+            get: _getWidth,
+            set: _setWidth
+        },
+
+        height: {
+            get: _getHeight,
+            set: _setHeight
+        }
+    },
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
-    ctor: function(string, fontHandle) {
+    ctor: function() {
+        var string = arguments[0];
+        var fontHandle = arguments[1];
+
         EventTarget.call(this);
 
         fontHandle = fontHandle || "";
@@ -137,7 +177,6 @@ _ccsg.Label = _ccsg.Node.extend({
         string = string || "";
         this._string = string;
 
-        _ccsg.Node.prototype.ctor.call(this);
         this.setAnchorPoint(cc.p(0.5, 0.5));
         _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
