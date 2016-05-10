@@ -364,7 +364,7 @@ void Configuration::loadConfigFile(const std::string& filename)
     else
         _valueDict[name] = Value(_maxSpotLightInShader);
 
-    Director::DirectorInstance->getEventDispatcher()->dispatchEvent(_loadedEvent);
+    Director::getInstance()->getEventDispatcher()->dispatchEvent(_loadedEvent);
 }
 
 NS_CC_END
