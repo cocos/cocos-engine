@@ -61,10 +61,10 @@ bool ControlSaturationBrightnessPicker::initWithTargetAndPos(Node* target, Vec2 
     if (Control::init())
     {
         // Add background and slider sprites
-        _background=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPickerBackground.png", target, pos, Vec2(0.0f, 0.0f));
-        _overlay=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPickerOverlay.png", target, pos, Vec2(0.0f, 0.0f));
-        _shadow=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPickerShadow.png", target, pos, Vec2(0.0f, 0.0f));
-        _slider=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPicker.png", target, pos, Vec2(0.5f, 0.5f));
+        _background=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPickerBackground.png", target, pos, Vec2::ZERO);
+        _overlay=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPickerOverlay.png", target, pos, Vec2::ZERO);
+        _shadow=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPickerShadow.png", target, pos, Vec2::ZERO);
+        _slider=ControlUtils::addSpriteToTargetWithPosAndAnchor("colourPicker.png", target, pos, Vec2::ANCHOR_MIDDLE);
 
         _startPos=pos; // starting position of the colour picker
         boxPos          = 35;    // starting position of the virtual box area for picking a colour

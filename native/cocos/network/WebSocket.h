@@ -30,7 +30,6 @@
 #ifndef __CC_WEBSOCKET_H__
 #define __CC_WEBSOCKET_H__
 
-#include <atomic>
 #include <string>
 #include <vector>
 #include <mutex>
@@ -227,7 +226,7 @@ private:
     std::mutex   _readStateMutex;
     State        _readyState;
     std::string  _host;
-    unsigned int _port;
+    int _port;
     std::string  _path;
 
     std::vector<char> _receivedData;
@@ -238,7 +237,7 @@ private:
 
     struct lws*         _wsInstance;
     struct lws_context* _wsContext;
-    std::shared_ptr<std::atomic<bool>> _isDestroyed;
+
     Delegate* _delegate;
     int _SSLConnection;
     struct lws_protocols* _wsProtocols;

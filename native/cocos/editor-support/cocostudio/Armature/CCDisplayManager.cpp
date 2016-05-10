@@ -436,13 +436,13 @@ Rect DisplayManager::getBoundingBox() const
 
 Vec2 DisplayManager::getAnchorPoint() const
 {
-    CS_RETURN_IF(!_displayRenderNode) Vec2(0, 0);
+    CS_RETURN_IF(!_displayRenderNode) Vec2::ANCHOR_BOTTOM_LEFT;
     return _displayRenderNode->getAnchorPoint();
 }
 
 Vec2 DisplayManager::getAnchorPointInPoints() const
 {
-    CS_RETURN_IF(!_displayRenderNode) Vec2(0, 0);
+    CS_RETURN_IF(!_displayRenderNode) Vec2::ANCHOR_BOTTOM_LEFT;
     return _displayRenderNode->getAnchorPointInPoints();
 }
 

@@ -663,7 +663,10 @@ bool jsval_to_array_of_cpvect( JSContext *cx, jsval vp, cpVect**verts, int *numV
 
         double value = 0;
         ok = JS::ToNumber(cx, valarg, &value);
-        JSB_PRECONDITION( ok, "Error converting value to nsobject");
+        if (!ok) {
+            free(array);
+        }
+        JSB_PRECONDITION(ok, "Error converting value to nsobject");
 
         if(i%2==0)
             array[i/2].x = value;

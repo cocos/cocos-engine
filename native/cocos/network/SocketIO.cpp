@@ -76,7 +76,7 @@ public:
     std::vector<std::string> getData()const{ return _args; };
     virtual std::string stringify()const;
 
-    static SocketIOPacket * createPacketWithType(std::string type, SocketIOVersion version);
+    static SocketIOPacket * createPacketWithType(const std::string& type, SocketIOVersion version);
     static SocketIOPacket * createPacketWithTypeIndex(int type, SocketIOVersion version);
 protected:
     std::string _pId;//id message
@@ -171,7 +171,7 @@ std::string SocketIOPacket::toString()const
 int SocketIOPacket::typeAsNumber()const
 {
     std::string::size_type num = 0;
-    std::vector<std::string>::const_iterator item = std::find(_types.begin(), _types.end(), _type);
+    auto item = std::find(_types.begin(), _types.end(), _type);
     if (item != _types.end())
     {
         num = item - _types.begin();
@@ -251,7 +251,7 @@ SocketIOPacketV10x::SocketIOPacketV10x()
 int SocketIOPacketV10x::typeAsNumber()const
 {
     std::vector<std::string>::size_type num = 0;
-    std::vector<std::string>::const_iterator item = std::find(_typesMessage.begin(), _typesMessage.end(), _type);
+    auto item = std::find(_typesMessage.begin(), _typesMessage.end(), _type);
     if (item != _typesMessage.end())
     {//it's a message
         num = item - _typesMessage.begin();
@@ -302,7 +302,7 @@ SocketIOPacketV10x::~SocketIOPacketV10x()
     _endpoint = "";
 }
 
-SocketIOPacket * SocketIOPacket::createPacketWithType(std::string type, SocketIOPacket::SocketIOVersion version)
+SocketIOPacket * SocketIOPacket::createPacketWithType(const std::string& type, SocketIOPacket::SocketIOVersion version)
 {
     SocketIOPacket *ret;
     switch (version)
@@ -986,6 +986,12 @@ void SIOClientImpl::onClose(WebSocket* ws)
         {
             iter->second->socketClosed();
         }
+        // discard this client
+        _connected = false;
+        if (Director::DirectorInstance)
+            Director::DirectorInstance->getScheduler()->unscheduleAllForTarget(this);
+        
+        SocketIO::getInstance()->removeSocket(_uri);
     }
 
     this->release();

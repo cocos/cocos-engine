@@ -155,14 +155,17 @@ void TableView::updateCellAtIndex(ssize_t idx)
         return;
     }
 
-    TableViewCell* cell = this->cellAtIndex(idx);
+    TableViewCell* cell = cellAtIndex(idx);
     if (cell)
     {
-        this->_moveCellOutOfSight(cell);
+        _moveCellOutOfSight(cell);
     }
     cell = _dataSource->tableCellAtIndex(this, idx);
-    this->_setIndexForCell(idx, cell);
-    this->_addCellIfNecessary(cell);
+    if (cell)
+    {
+        _setIndexForCell(idx, cell);
+        _addCellIfNecessary(cell);
+    }
 }
 
 void TableView::insertCellAtIndex(ssize_t idx)
@@ -289,7 +292,7 @@ void TableView::_updateContentSize()
     {
         if (_direction == Direction::HORIZONTAL)
         {
-            this->setContentOffset(Vec2(0,0));
+            this->setContentOffset(Vec2::ZERO);
         }
         else
         {
@@ -415,7 +418,7 @@ void TableView::_moveCellOutOfSight(TableViewCell *cell)
 
 void TableView::_setIndexForCell(ssize_t index, TableViewCell *cell)
 {
-    cell->setAnchorPoint(Vec2(0.0f, 0.0f));
+    cell->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
     cell->setPosition(this->_offsetFromIndex(index));
     cell->setIdx(index);
 }

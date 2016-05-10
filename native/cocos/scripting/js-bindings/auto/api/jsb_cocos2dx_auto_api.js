@@ -91,26 +91,6 @@ hasPremultipliedAlpha : function (
 },
 
 /**
- * @method initWithMipmaps
- * @param {cc._MipmapInfo} arg0
- * @param {int} arg1
- * @param {cc.Texture2D::PixelFormat} arg2
- * @param {int} arg3
- * @param {int} arg4
- * @return {bool}
- */
-initWithMipmaps : function (
-map, 
-int, 
-pixelformat, 
-int, 
-int 
-)
-{
-    return false;
-},
-
-/**
  * @method getPixelsHigh
  * @return {int}
  */
@@ -956,16 +936,6 @@ getTag : function (
 },
 
 /**
- * @method getonEnterTransitionDidFinishCallback
- * @return {function}
- */
-getonEnterTransitionDidFinishCallback : function (
-)
-{
-    return std::function<void ()>;
-},
-
-/**
  * @method getNodeToWorldAffineTransform
  * @return {cc.AffineTransform}
  */
@@ -1159,16 +1129,6 @@ node
 )
 {
     return cc.AffineTransform;
-},
-
-/**
- * @method getOnEnterCallback
- * @return {function}
- */
-getOnEnterCallback : function (
-)
-{
-    return std::function<void ()>;
 },
 
 /**
@@ -1715,16 +1675,6 @@ float
 },
 
 /**
- * @method getOnExitCallback
- * @return {function}
- */
-getOnExitCallback : function (
-)
-{
-    return std::function<void ()>;
-},
-
-/**
  * @method getChildByTag
  * @param {int} arg0
  * @return {cc.Node}
@@ -1902,16 +1852,6 @@ str,
 func 
 )
 {
-},
-
-/**
- * @method getonExitTransitionDidStartCallback
- * @return {function}
- */
-getonExitTransitionDidStartCallback : function (
-)
-{
-    return std::function<void ()>;
 },
 
 /**
@@ -2430,16 +2370,6 @@ glcontextattrs
 {
 },
 
-/**
- * @method getGLContextAttrs
- * @return {GLContextAttrs}
- */
-getGLContextAttrs : function (
-)
-{
-    return GLContextAttrs;
-},
-
 };
 
 /**
@@ -2453,16 +2383,6 @@ cc.Director = {
 pause : function (
 )
 {
-},
-
-/**
- * @method isPurgeDirectorInNextLoop
- * @return {bool}
- */
-isPurgeDirectorInNextLoop : function (
-)
-{
-    return false;
 },
 
 /**
@@ -3073,6 +2993,16 @@ getActionManager : function (
 )
 {
     return cc.ActionManager;
+},
+
+/**
+ * @method isPurgeDirectorInNextLoop
+ * @return {bool}
+ */
+isPurgeDirectorInNextLoop : function (
+)
+{
+    return false;
 },
 
 /**
@@ -7219,20 +7149,6 @@ ActionCamera : function (
 cc.OrbitCamera = {
 
 /**
- * @method sphericalRadius
- * @param {float} arg0
- * @param {float} arg1
- * @param {float} arg2
- */
-sphericalRadius : function (
-float, 
-float, 
-float 
-)
-{
-},
-
-/**
  * @method initWithDuration
  * @param {float} arg0
  * @param {float} arg1
@@ -10022,30 +9938,6 @@ ShatteredTiles3D : function (
 cc.ShuffleTiles = {
 
 /**
- * @method placeTile
- * @param {vec2_object} arg0
- * @param {cc.Tile} arg1
- */
-placeTile : function (
-vec2, 
-tile 
-)
-{
-},
-
-/**
- * @method shuffle
- * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- */
-shuffle : function (
-int, 
-int 
-)
-{
-},
-
-/**
  * @method initWithDuration
  * @param {float} arg0
  * @param {size_object} arg1
@@ -10287,18 +10179,6 @@ vec2
  */
 turnOffTile : function (
 vec2 
-)
-{
-},
-
-/**
- * @method shuffle
- * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- */
-shuffle : function (
-int, 
-int 
 )
 {
 },
@@ -10848,20 +10728,6 @@ clone : function (
  */
 setGLProgram : function (
 glprogram 
-)
-{
-},
-
-/**
- * @method setUniformFloatv
-* @param {int|String} int
-* @param {int|int} int
-* @param {float|float} float
-*/
-setUniformFloatv : function(
-str,
-int,
-float 
 )
 {
 },
@@ -16520,48 +16386,6 @@ getRenderFormat : function (
 },
 
 /**
- * @method getData
- * @return {unsigned char}
- */
-getData : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getMipmaps
- * @return {cc._MipmapInfo}
- */
-getMipmaps : function (
-)
-{
-    return cc._MipmapInfo;
-},
-
-/**
- * @method initWithRawData
- * @param {unsigned char} arg0
- * @param {int} arg1
- * @param {int} arg2
- * @param {int} arg3
- * @param {int} arg4
- * @param {bool} arg5
- * @return {bool}
- */
-initWithRawData : function (
-char, 
-int, 
-int, 
-int, 
-int, 
-bool 
-)
-{
-    return false;
-},
-
-/**
  * @method setPVRImagesHavePremultipliedAlpha
  * @param {bool} arg0
  */
@@ -18562,16 +18386,6 @@ int
 },
 
 /**
- * @method getUniformFlags
- * @return {cc.GLProgram::UniformFlags}
- */
-getUniformFlags : function (
-)
-{
-    return cc.GLProgram::UniformFlags;
-},
-
-/**
  * @method getUniformLocationForName
  * @param {char} arg0
  * @return {int}
@@ -18765,18 +18579,6 @@ str
 )
 {
     return 0;
-},
-
-/**
- * @method getVertexAttrib
- * @param {String} arg0
- * @return {cc.VertexAttrib}
- */
-getVertexAttrib : function (
-str 
-)
-{
-    return cc.VertexAttrib;
 },
 
 /**
@@ -20015,16 +19817,6 @@ TextFieldTTF : function (
 cc.ParallaxNode = {
 
 /**
- * @method getParallaxArray
-* @return {cc._ccArray|cc._ccArray}
-*/
-getParallaxArray : function(
-)
-{
-    return cc._ccArray;
-},
-
-/**
  * @method addChild
  * @param {cc.Node} arg0
  * @param {int} arg1
@@ -20046,16 +19838,6 @@ vec2
  */
 removeAllChildrenWithCleanup : function (
 bool 
-)
-{
-},
-
-/**
- * @method setParallaxArray
- * @param {cc._ccArray} arg0
- */
-setParallaxArray : function (
-_ccarray 
 )
 {
 },
@@ -20669,16 +20451,6 @@ releaseMap : function (
 },
 
 /**
- * @method getTGAInfo
- * @return {cc.sImageTGA}
- */
-getTGAInfo : function (
-)
-{
-    return cc.sImageTGA;
-},
-
-/**
  * @method getTileAt
  * @param {vec2_object} arg0
  * @return {color3b_object}
@@ -20698,16 +20470,6 @@ vec2
 setTile : function (
 color3b, 
 vec2 
-)
-{
-},
-
-/**
- * @method setTGAInfo
- * @param {cc.sImageTGA} arg0
- */
-setTGAInfo : function (
-simagetga 
 )
 {
 },
@@ -20812,16 +20574,6 @@ map
  * @method releaseMap
  */
 releaseMap : function (
-)
-{
-},
-
-/**
- * @method setTiles
- * @param {unsigned int} arg0
- */
-setTiles : function (
-int 
 )
 {
 },

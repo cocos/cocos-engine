@@ -130,8 +130,8 @@ void FlipX3D::update(float time)
 
     Vec3 v0, v1, v, diff;
 
-    v0 = getOriginalVertex(Vec2(1.0f, 1.0f));
-    v1 = getOriginalVertex(Vec2());
+    v0 = getOriginalVertex(Vec2::ONE);
+    v1 = getOriginalVertex(Vec2::ZERO);
 
     float    x0 = v0.x;
     float    x1 = v1.x;
@@ -224,8 +224,8 @@ void FlipY3D::update(float time)
 
     Vec3    v0, v1, v, diff;
 
-    v0 = getOriginalVertex(Vec2(1.0f, 1.0f));
-    v1 = getOriginalVertex(Vec2());
+    v0 = getOriginalVertex(Vec2::ONE);
+    v1 = getOriginalVertex(Vec2::ZERO);
 
     float    y0 = v0.y;
     float    y1 = v1.y;

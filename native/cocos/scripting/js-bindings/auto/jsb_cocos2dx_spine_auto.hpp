@@ -16,7 +16,6 @@ bool js_cocos2dx_spine_SkeletonRenderer_setTimeScale(JSContext *cx, uint32_t arg
 bool js_cocos2dx_spine_SkeletonRenderer_getDebugSlotsEnabled(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonRenderer_setAttachment(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonRenderer_setBonesToSetupPose(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_spine_SkeletonRenderer_initWithData(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonRenderer_setDebugSlotsEnabled(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonRenderer_setSlotsToSetupPose(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonRenderer_setToSetupPose(JSContext *cx, uint32_t argc, jsval *vp);
@@ -44,19 +43,14 @@ void register_all_cocos2dx_spine(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_spine_SkeletonAnimation_setStartListener(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_setTrackEventListener(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_getState(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setTrackCompleteListener(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_onTrackEntryEvent(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setTrackStartListener(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_update(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_setCompleteListener(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_setTrackEndListener(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_setEventListener(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_setMix(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_setEndListener(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_initialize(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_clearTracks(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_clearTrack(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_spine_SkeletonAnimation_onAnimationStateEvent(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_createWithFile(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_spine_SkeletonAnimation_SkeletonAnimation(JSContext *cx, uint32_t argc, jsval *vp);
 

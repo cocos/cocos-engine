@@ -43,7 +43,7 @@ NS_CC_BEGIN
 
 namespace ui {
 
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_ERROR,"",__VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_ERROR,"cocos EditBoxImplAndroid",__VA_ARGS__)
 static void editBoxEditingDidBegin(int index);
 static void editBoxEditingDidChanged(int index, const std::string& text);
 static void editBoxEditingDidEnd(int index, const std::string& text);
@@ -101,7 +101,7 @@ void EditBoxImplAndroid::createNativeControl(const Rect& frame)
     auto uiTop = frameSize.height /2 - (rightTop.y - winSize.height / 2) * glView->getScaleY();
     auto uiWidth = (rightTop.x - leftBottom.x) * glView->getScaleX();
     auto uiHeight = (rightTop.y - leftBottom.y) * glView->getScaleY();
-    LOGD("scaleX = %f", glView->getScaleX());
+    
     _editBoxIndex = JniHelper::callStaticIntMethod(editBoxClassName, "createEditBox",
                                                    (int)uiLeft, (int)uiTop, (int)uiWidth, (int)uiHeight,
                                                    (float)glView->getScaleX());
@@ -173,10 +173,12 @@ void EditBoxImplAndroid::setNativePlaceHolder(const char* pText)
     JniHelper::callStaticVoidMethod(editBoxClassName, "setPlaceHolderText", _editBoxIndex, pText);
 }
 
-
 void EditBoxImplAndroid::setNativeVisible(bool visible)
-{ // don't need to be implemented on android platform.
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setVisible", _editBoxIndex, visible);
+{
+    if (!visible)
+    {
+        nativeCloseKeyboard();
+    }
 }
 
 void EditBoxImplAndroid::updateNativeFrame(const Rect& rect)
@@ -206,6 +208,7 @@ void editBoxEditingDidBegin(int index)
         s_allEditBoxes[index]->editBoxEditingDidBegin();
     }
 }
+
 void editBoxEditingDidChanged(int index, const std::string& text)
 {
     auto it = s_allEditBoxes.find(index);

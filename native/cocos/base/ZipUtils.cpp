@@ -620,7 +620,7 @@ unsigned char *ZipFile::getFileData(const std::string &fileName, ssize_t *size)
         CC_BREAK_IF(!_data->zipFile);
         CC_BREAK_IF(fileName.empty());
 
-        ZipFilePrivate::FileListContainer::const_iterator it = _data->fileList.find(fileName);
+        auto it = _data->fileList.find(fileName);
         CC_BREAK_IF(it ==  _data->fileList.end());
 
         ZipEntryInfo fileInfo = it->second;

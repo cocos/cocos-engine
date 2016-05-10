@@ -73,11 +73,11 @@ bool ProgressTimer::initWithSprite(Sprite* sp)
     _vertexData = nullptr;
     _vertexDataCount = 0;
 
-    setAnchorPoint(Vec2(0.5f,0.5f));
+    setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     _type = Type::RADIAL;
     _reverseDirection = false;
-    setMidpoint(Vec2(0.5f, 0.5f));
-    setBarChangeRate(Vec2(1,1));
+    setMidpoint(Vec2::ANCHOR_MIDDLE);
+    setBarChangeRate(Vec2::ONE);
     setSprite(sp);
 
     // shader state
@@ -246,7 +246,7 @@ GLubyte ProgressTimer::getOpacity() const
 
 void ProgressTimer::setMidpoint(const Vec2& midPoint)
 {
-    _midpoint = midPoint.getClampPoint(Vec2::ZERO, Vec2(1, 1));
+    _midpoint = midPoint.getClampPoint(Vec2::ZERO, Vec2::ONE);
 }
 
 ///
@@ -448,20 +448,20 @@ void ProgressTimer::updateBar()
             _vertexData = (V2F_C4B_T2F*)malloc(_vertexDataCount * sizeof(V2F_C4B_T2F));
             CCASSERT( _vertexData, "CCProgressTimer. Not enough memory");
             //    TOPLEFT 1
-            _vertexData[0].texCoords = textureCoordFromAlphaPoint(Vec2(0,1));
-            _vertexData[0].vertices = vertexFromAlphaPoint(Vec2(0,1));
+            _vertexData[0].texCoords = textureCoordFromAlphaPoint(Vec2::UNIT_Y);
+            _vertexData[0].vertices = vertexFromAlphaPoint(Vec2::UNIT_Y);
 
             //    BOTLEFT 1
-            _vertexData[1].texCoords = textureCoordFromAlphaPoint(Vec2(0,0));
-            _vertexData[1].vertices = vertexFromAlphaPoint(Vec2(0,0));
+            _vertexData[1].texCoords = textureCoordFromAlphaPoint(Vec2::ZERO);
+            _vertexData[1].vertices = vertexFromAlphaPoint(Vec2::ZERO);
 
             //    TOPRIGHT 2
-            _vertexData[6].texCoords = textureCoordFromAlphaPoint(Vec2(1,1));
-            _vertexData[6].vertices = vertexFromAlphaPoint(Vec2(1,1));
+            _vertexData[6].texCoords = textureCoordFromAlphaPoint(Vec2::ONE);
+            _vertexData[6].vertices = vertexFromAlphaPoint(Vec2::ONE);
 
             //    BOTRIGHT 2
-            _vertexData[7].texCoords = textureCoordFromAlphaPoint(Vec2(1,0));
-            _vertexData[7].vertices = vertexFromAlphaPoint(Vec2(1,0));
+            _vertexData[7].texCoords = textureCoordFromAlphaPoint(Vec2::UNIT_X);
+            _vertexData[7].vertices = vertexFromAlphaPoint(Vec2::UNIT_X);
         }
 
         //    TOPRIGHT 1

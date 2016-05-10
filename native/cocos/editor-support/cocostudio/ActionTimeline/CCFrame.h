@@ -121,7 +121,7 @@ public:
     virtual void onEnter(Frame *nextFrame, int currentFrameIndex) override;
     virtual Frame* clone() override;
 
-    inline void setTextureName(std::string textureName) { _textureName = textureName;}
+    inline void setTextureName(const std::string& textureName) { _textureName = textureName;}
     inline std::string getTextureName() const { return _textureName; }
 
 protected:
@@ -371,7 +371,7 @@ public:
     virtual void onEnter(Frame *nextFrame, int currentFrameIndex) override;
     virtual Frame* clone() override;
 
-    inline void setEvent(std::string event) { _event = event;}
+    inline void setEvent(const std::string& event) { _event = event;}
     inline std::string getEvent() const { return _event; }
 
 protected:

@@ -158,6 +158,7 @@ void ImageView::setTextureRect(const Rect &rect)
     else
     {
         auto sprite = _imageRenderer->getSprite();
+        _imageRenderer->setScale9Enabled(false);
         if (sprite)
         {
             sprite->setTextureRect(rect);
@@ -166,6 +167,9 @@ void ImageView::setTextureRect(const Rect &rect)
         {
             CCLOG("Warning!! you should load texture before set the texture's rect!");
         }
+        
+        _imageRenderer->setContentSize(rect.size);
+        setupTexture();
     }
 }
 

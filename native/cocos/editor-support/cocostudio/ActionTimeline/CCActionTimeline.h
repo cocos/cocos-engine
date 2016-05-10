@@ -80,7 +80,7 @@ public:
     ActionTimeline();
     virtual ~ActionTimeline();
 
-    virtual void play(std::string animationName, bool loop);
+    virtual void play(const std::string& animationName, bool loop);
 
     virtual bool init();
 
@@ -153,7 +153,7 @@ public:
 
     /** AnimationInfo*/
     virtual void addAnimationInfo(const AnimationInfo& animationInfo);
-    virtual void removeAnimationInfo(std::string animationName);
+    virtual void removeAnimationInfo(const std::string& animationName);
     virtual bool IsAnimationInfoExists(const std::string& animationName);
     virtual const AnimationInfo& getAnimationInfo(const std::string& animationName);
     /**add a frame end call back to animation's end frame

@@ -82,6 +82,7 @@ NS_CC_BEGIN
 extern const char* cocos2dVersion();
 
 Director* Director::DirectorInstance = nullptr;
+bool Director::PurgeDirectorInNextLoop = false;
 
 const char *Director::EVENT_PROJECTION_CHANGED = "director_projection_changed";
 const char *Director::EVENT_AFTER_DRAW = "director_after_draw";
@@ -131,7 +132,7 @@ bool Director::init()
     _paused = false;
 
     // purge ?
-    _purgeDirectorInNextLoop = false;
+    PurgeDirectorInNextLoop = false;
 
     // restart ?
     _restartDirectorInNextLoop = false;
@@ -183,17 +184,8 @@ Director::~Director()
     CC_SAFE_RELEASE(_runningScene);
     CC_SAFE_RELEASE(_notificationNode);
     
-    if (_scheduler)
-    {
-        delete _scheduler;
-        _scheduler = nullptr;
-    }
-    
-    if (_actionManager)
-    {
-        delete _actionManager;
-        _actionManager = nullptr;
-    }
+    CC_SAFE_RELEASE(_scheduler);
+    CC_SAFE_RELEASE(_actionManager);
 
     delete _eventBeforeUpdate;
     delete _eventAfterUpdate;
@@ -206,11 +198,7 @@ Director::~Director()
 
     delete _console;
     
-    if (_eventDispatcher)
-    {
-        delete _eventDispatcher;
-        _eventDispatcher = nullptr;
-    }
+    CC_SAFE_RELEASE(_eventDispatcher);
     
     // delete _lastUpdate
     CC_SAFE_DELETE(_lastUpdate);
@@ -913,7 +901,7 @@ void Director::popToSceneStackLevel(int level)
 
 void Director::end()
 {
-    _purgeDirectorInNextLoop = true;
+    PurgeDirectorInNextLoop = true;
 }
 
 void Director::restart()
@@ -1334,10 +1322,10 @@ void DisplayLinkDirector::startAnimation()
 
 void DisplayLinkDirector::mainLoop()
 {
-    if (_purgeDirectorInNextLoop)
+    if (PurgeDirectorInNextLoop)
     {
-        _purgeDirectorInNextLoop = false;
         purgeDirector();
+        PurgeDirectorInNextLoop = false;
     }
     else if (_restartDirectorInNextLoop)
     {

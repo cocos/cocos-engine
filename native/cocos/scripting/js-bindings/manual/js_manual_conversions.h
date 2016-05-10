@@ -106,6 +106,7 @@ bool jsval_cccolor_to_opacity(JSContext *cx, JS::HandleValue v, int32_t* ret);
 bool jsval_to_ccarray_of_CCPoint(JSContext* cx, JS::HandleValue v, cocos2d::Point **points, int *numPoints);
 bool jsval_to_ccacceleration(JSContext* cx, JS::HandleValue v, cocos2d::Acceleration* ret);
 bool jsval_to_quaternion(JSContext *cx, JS::HandleValue vp, cocos2d::Quaternion* ret);
+bool jsval_to_TTFConfig(JSContext *cx, JS::HandleValue, cocos2d::TTFConfig* ret);
 
 // forward declaration
 js_proxy_t* jsb_get_js_proxy(JS::HandleObject jsObj);
