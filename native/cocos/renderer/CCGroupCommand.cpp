@@ -87,7 +87,8 @@ void GroupCommand::init(float globalOrder)
 
 GroupCommand::~GroupCommand()
 {
-    Director::DirectorInstance->getRenderer()->getGroupCommandManager()->releaseGroupID(_renderQueueID);
+    if(Director::DirectorInstance)
+        Director::DirectorInstance->getRenderer()->getGroupCommandManager()->releaseGroupID(_renderQueueID);
 }
 
 NS_CC_END
