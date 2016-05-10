@@ -33,7 +33,4 @@ install_android_ndk()
 #we only use osx for generate bindings
 if [ $TRAVIS_OS_NAME == 'osx' ]; then
     install_android_ndk
-else
-    echo "Unknown \$PLATFORM: '$PLATFORM'"
-    exit 1
 fi
