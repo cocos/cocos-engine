@@ -2386,16 +2386,6 @@ pause : function (
 },
 
 /**
- * @method isPurgeDirectorInNextLoop
- * @return {bool}
- */
-isPurgeDirectorInNextLoop : function (
-)
-{
-    return false;
-},
-
-/**
  * @method setEventDispatcher
  * @param {cc.EventDispatcher} arg0
  */
@@ -3003,6 +2993,16 @@ getActionManager : function (
 )
 {
     return cc.ActionManager;
+},
+
+/**
+ * @method isPurgeDirectorInNextLoop
+ * @return {bool}
+ */
+isPurgeDirectorInNextLoop : function (
+)
+{
+    return false;
 },
 
 /**

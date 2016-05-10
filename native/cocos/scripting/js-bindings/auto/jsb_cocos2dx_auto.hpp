@@ -307,7 +307,6 @@ void js_cocos2dx_Director_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_Director_pause(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setEventDispatcher(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setContentScaleFactor(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, jsval *vp);
@@ -371,6 +370,7 @@ bool js_cocos2dx_Director_getEventDispatcher(JSContext *cx, uint32_t argc, jsval
 bool js_cocos2dx_Director_replaceScene(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setAnimationInterval(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_getActionManager(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_getInstance(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_Scheduler_class;
