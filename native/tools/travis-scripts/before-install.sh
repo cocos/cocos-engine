@@ -30,18 +30,8 @@ install_android_ndk()
     mv android-ndk-r9d android-ndk
 }
 
-
-if [ $TRAVIS_OS_NAME == 'linux' ]; then
-
-    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-    sudo apt-get update
-    sudo apt-get install gcc-4.7 g++-4.7
-    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6
-    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-4.7
-    g++ --version
-    bash $COCOS2DX_ROOT/build/install-deps-linux.sh
-    install_android_ndk
-elif [ $TRAVIS_OS_NAME == 'osx' ]; then
+#we only use osx for generate bindings
+if [ $TRAVIS_OS_NAME == 'osx' ]; then
     install_android_ndk
 else
     echo "Unknown \$PLATFORM: '$PLATFORM'"
