@@ -3,6 +3,8 @@ env:
   matrix:
   - GEN_BINDING=YES
   - GEN_COCOS_FILES=YES
+  - PLATFORM=android
+  - PLATFORM=mac-ios
 script:
 - tools/travis-scripts/run-script.sh
 before_install:

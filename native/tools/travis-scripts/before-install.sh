@@ -1,5 +1,57 @@
 #!/bin/bash
 
-echo "before install script"
+# exit this script if any commmand fails
+set -e
 
-exit 0
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+COCOS2DX_ROOT="$DIR"/../..
+HOST_NAME=""
+
+pushd $COCOS2DX_ROOT
+python download-deps.py -r=yes
+popd
+
+mkdir -p $HOME/bin
+cd $HOME/bin
+
+install_android_ndk()
+{
+    # Download android ndk
+    if [ "$PLATFORM"x = "mac-ios"x ]; then
+        HOST_NAME="darwin"
+    else
+        HOST_NAME="linux"
+    fi
+    echo "Download android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2 ..."
+    curl -O http://dl.google.com/android/ndk/android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2
+    echo "Decompress android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2 ..."
+    tar xjf android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2
+    # Rename ndk
+    mv android-ndk-r9d android-ndk
+}
+
+
+if [ "$GEN_COCOS_FILES"x = "YES"x ]; then
+    exit 0
+elif [ "$GEN_BINDING"x = "YES"x ]; then
+    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+        exit 0
+    fi
+    install_android_ndk
+elif [ "$PLATFORM"x = "linux"x ]; then
+    sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+    sudo apt-get update
+    sudo apt-get install gcc-4.7 g++-4.7
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.6 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.6
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 90 --slave /usr/bin/g++ g++ /usr/bin/g++-4.7
+    g++ --version
+    bash $COCOS2DX_ROOT/build/install-deps-linux.sh
+    install_android_ndk
+elif [ "$PLATFORM"x = "android"x ]; then
+    install_android_ndk
+elif [ "$PLATFORM"x = "mac-ios"x ]; then
+    install_android_ndk
+else
+    echo "Unknown \$PLATFORM: '$PLATFORM'"
+    exit 1
+fi
