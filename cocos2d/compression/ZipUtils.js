@@ -25,7 +25,18 @@ cc.Codec.unzip = function () {
  */
 cc.Codec.unzipBase64 = function () {
     var tmpInput = cc.Codec.Base64.decode.apply(cc.Codec.Base64, arguments);
-    return cc.Codec.GZip.gunzip.apply(cc.Codec.GZip, [tmpInput]);
+    // if not zipped, just skip
+    var input;
+    try {
+        input = cc.Codec.GZip.gunzip.apply(cc.Codec.GZip, [tmpInput]);
+    }
+    catch(e) {
+        if (tmpInput.length > 8) {
+            tmpInput = tmpInput.slice(7);
+            input = tmpInput;
+        }
+    }
+    return input
 };
 
 /**
