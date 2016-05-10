@@ -17,7 +17,7 @@ cd $HOME/bin
 install_android_ndk()
 {
     # Download android ndk
-    if [ "$PLATFORM"x = "mac-ios"x ]; then
+    if [ $TRAVIS_OS_NAME = 'osx' ]; then
         HOST_NAME="darwin"
     else
         HOST_NAME="linux"
@@ -31,14 +31,14 @@ install_android_ndk()
 }
 
 
-if [ "$GEN_COCOS_FILES"x = "YES"x ]; then
-    exit 0
-elif [ "$GEN_BINDING"x = "YES"x ]; then
-    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+if [ $TRAVIS_OS_NAME == 'linux' ]; then
+    if [ "$GEN_COCOS_FILES"x = "YES"x ]; then
         exit 0
+    elif [ "$GEN_BINDING"x = "YES"x ]; then
+        if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+            exit 0
+        fi
     fi
-    install_android_ndk
-elif [ "$PLATFORM"x = "linux"x ]; then
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
     sudo apt-get update
     sudo apt-get install gcc-4.7 g++-4.7
@@ -47,9 +47,13 @@ elif [ "$PLATFORM"x = "linux"x ]; then
     g++ --version
     bash $COCOS2DX_ROOT/build/install-deps-linux.sh
     install_android_ndk
-elif [ "$PLATFORM"x = "android"x ]; then
-    install_android_ndk
-elif [ "$PLATFORM"x = "mac-ios"x ]; then
+elif [ $TRAVIS_OS_NAME == 'osx' ]; then
+    if [ "$GEN_COCOS_FILES"x = "YES"x ]; then
+        exit 0
+    elif [ "$GEN_BINDING"x = "YES"x ]; then
+        exit 0
+    fi
+
     install_android_ndk
 else
     echo "Unknown \$PLATFORM: '$PLATFORM'"

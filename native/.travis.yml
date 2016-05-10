@@ -1,10 +1,12 @@
 language: cpp
 env:
   matrix:
+    # we only use linux to gen bindings and cocos files
   - GEN_BINDING=YES
   - GEN_COCOS_FILES=YES
-  - PLATFORM=android
-  - PLATFORM=mac-ios
+os:
+  - linux
+  - osx
 script:
 - tools/travis-scripts/run-script.sh
 before_install:
