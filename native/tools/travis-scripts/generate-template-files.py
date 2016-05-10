@@ -91,10 +91,10 @@ class CocosFileList:
                       self.__bInclude("%s/" %item)
                     ):
                         foundLuaModule = False
-                        for luaPath in self.luaPath:
-                            if relativePath.upper().find(luaPath.upper()) == 0:
-                                foundLuaModule = True
-                                break
+                        # for luaPath in self.luaPath:
+                        #     if relativePath.upper().find(luaPath.upper()) == 0:
+                        #         foundLuaModule = True
+                        #         break
 
                         foundJSModule = False
                         for jsPath in self.jsPath:
@@ -130,10 +130,10 @@ class CocosFileList:
                             continue
                 # print(relativePath)
                 foundLuaModule = False
-                for luaPath in self.luaPath:
-                    if relativePath.upper().find(luaPath.upper()) == 0:
-                        foundLuaModule = True
-                        break
+                # for luaPath in self.luaPath:
+                #     if relativePath.upper().find(luaPath.upper()) == 0:
+                #         foundLuaModule = True
+                #         break
 
                 foundJSModule = False
                 for jsPath in self.jsPath:
@@ -170,7 +170,7 @@ class CocosFileList:
         """
         f = open(fileName,"w")
         self.fileList_com.sort()
-        self.fileList_lua.sort()
+        # self.fileList_lua.sort()
         self.fileList_js.sort()
         content ={'common':self.fileList_com,'lua':self.fileList_lua,'js':self.fileList_js}
         json.dump(content,f,sort_keys=True,indent=4)

@@ -6,6 +6,11 @@
 Thumbs.db
 .git
 
+/node_modules
+/tools/make-package/cocos2d-x.zip
+/simulator_*.zip
+/prebuilt_*.zip
+
 # ignore copy files
 /lib
 /linux-build
