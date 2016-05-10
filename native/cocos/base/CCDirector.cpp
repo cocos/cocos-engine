@@ -839,15 +839,15 @@ void Director::popScene()
     if (_runningScene == nullptr)
         return;
 
-    _scenesStack.popBack();
     ssize_t c = _scenesStack.size();
 
-    if (c == 0)
+    if (c <= 1)
     {
         end();
     }
     else
     {
+        _scenesStack.popBack();
         _sendCleanupToScene = true;
         _nextScene = _scenesStack.at(c - 1);
     }
