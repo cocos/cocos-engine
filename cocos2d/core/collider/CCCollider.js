@@ -63,7 +63,7 @@ var Collider = cc.Class({
         mask: {
             default: 0,
             visible: false,
-            serializable: false,
+            serializable: false
         }
     },
 
@@ -74,7 +74,7 @@ var Collider = cc.Class({
         var collideMap = cc.game.collideMap[groupIndex];
         if (!collideMap) {
           this.mask = 0;
-          cc.warn('Cant\'t find collider map for group index [%s]', groupIndex);
+          cc.warn('Cant\'t find collider map for group index : ' + groupIndex);
           return;
         }
 
@@ -88,10 +88,16 @@ var Collider = cc.Class({
     },
 
     onDisable: function () {
+        if (CC_EDITOR) {
+            return;
+        }
         cc.director.getCollisionManager().removeCollider(this);
     },
 
     onEnable: function () {
+        if (CC_EDITOR) {
+            return;
+        }
         cc.director.getCollisionManager().addCollider(this);
     }
 });
