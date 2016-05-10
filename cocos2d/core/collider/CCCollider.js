@@ -33,21 +33,7 @@ var Collider = cc.Class({
     name: 'cc.Collider',
     extends: cc.Component,
 
-    editor: CC_EDITOR && {
-        executeInEditMode: true
-    },
-
     properties: {
-        _category: {
-            default: 1,
-            type: cc.Integer
-        },
-
-        _mask: {
-            default: 65535,
-            type: cc.Integer
-        },
-
         editing: {
             default: false,
             serializable: false,
@@ -59,26 +45,12 @@ var Collider = cc.Class({
          * !#zh 碰撞组件所属类别
          * @property category
          * @type {Integer}
-         * @default 1
+         * @default 0
          */
         category: {
-            get: function () {
-                return this._category;
-            },
-            set: function (value) {
-                if (!CC_EDITOR) {
-                    cc.director.getCollisionManager().removeCollider(this);   
-                }
-
-                this._category = value;
-
-                if (!CC_EDITOR) {
-                    cc.director.getCollisionManager().addCollider(this);   
-                }
-            },
-            range: [0, 65535],
-            type: cc.Integer,
-            tooltip: 'i18n:COMPONENT.collider.category'
+            default: 0,
+            visible: false,
+            serializable: false
         },
 
         /**
@@ -86,27 +58,33 @@ var Collider = cc.Class({
          * !#zh 可以与碰撞组件相碰撞的组件掩码
          * @property mask
          * @type {Integer}
-         * @default 65535
+         * @default 0
          */
         mask: {
-            get: function () {
-                return this._mask;
-            },
-            set: function (value) {
-                if (!CC_EDITOR) {
-                    cc.director.getCollisionManager().removeCollider(this);   
-                }
-
-                this._mask = value;
-
-                if (!CC_EDITOR) {
-                    cc.director.getCollisionManager().addCollider(this);   
-                }
-            },
-            range: [0, 65535],
-            type: cc.Integer,
-            tooltip: 'i18n:COMPONENT.collider.mask'
+            default: 0,
+            visible: false,
+            serializable: false,
         }
+    },
+
+    onLoad: function () {
+        var groupIndex = this.node.groupIndex;
+        this.category = 1 << groupIndex;
+
+        var collideMap = cc.game.collideMap[groupIndex];
+        if (!collideMap) {
+          this.mask = 0;
+          cc.warn('Cant\'t find collider map for group index [%s]', groupIndex);
+          return;
+        }
+
+        var mask = 0;
+        for (var i = 0, l = collideMap.length; i < l; i++) {
+          if (collideMap[i]) {
+            mask += 1 << i;
+          }
+        }
+        this.mask = mask;
     },
 
     onDisable: function () {
