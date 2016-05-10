@@ -48,9 +48,8 @@ if [ $TRAVIS_OS_NAME == 'linux' ]; then
     bash $COCOS2DX_ROOT/build/install-deps-linux.sh
     install_android_ndk
 elif [ $TRAVIS_OS_NAME == 'osx' ]; then
-    if [ "$GEN_COCOS_FILES"x = "YES"x ]; then
-        exit 0
-    elif [ "$GEN_BINDING"x = "YES"x ]; then
+    if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+        echo "Mac is only used for PR build."
         exit 0
     fi
 
