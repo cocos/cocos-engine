@@ -29,7 +29,7 @@ JS_COMMIT_PATH="cocos/scripting/js-bindings/auto"
 # Exit on error
 set -e
 
-if [ $TRAVIS_OS_NAME == 'linux' ]; then
+if [ $TRAVIS_OS_NAME == 'osx' ]; then
     mkdir -p $HOME/bin
     pushd $HOME/bin
     curl -O http://pyyaml.org/download/pyyaml/PyYAML-3.10.zip
