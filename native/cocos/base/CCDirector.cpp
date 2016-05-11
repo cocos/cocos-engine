@@ -204,8 +204,6 @@ Director::~Director()
     CC_SAFE_DELETE(_lastUpdate);
 
     Configuration::destroyInstance();
-    
-    Texture2D::fouceDeleteALLTexture2D();
 
     DirectorInstance = nullptr;
 }
@@ -360,6 +358,7 @@ void Director::calculateDeltaTime()
 
     *_lastUpdate = now;
 }
+
 float Director::getDeltaTime() const
 {
     return _deltaTime;
@@ -825,6 +824,11 @@ void Director::replaceScene(Scene *scene)
 void Director::pushScene(Scene *scene)
 {
     CCASSERT(scene, "the scene should not null");
+    if (scene == nullptr)
+    {
+        log("Director::pushScene error:the scene is null!");
+        return;
+    }
 
     _sendCleanupToScene = false;
 
@@ -835,16 +839,21 @@ void Director::pushScene(Scene *scene)
 void Director::popScene()
 {
     CCASSERT(_runningScene != nullptr, "running scene should not null");
+    if (_runningScene == nullptr)
+    {
+        log("Director::popScene error:running scene is null!");
+        return;
+    }
 
-    _scenesStack.popBack();
     ssize_t c = _scenesStack.size();
 
-    if (c == 0)
+    if (c <= 1)
     {
         end();
     }
     else
     {
+        _scenesStack.popBack();
         _sendCleanupToScene = true;
         _nextScene = _scenesStack.at(c - 1);
     }

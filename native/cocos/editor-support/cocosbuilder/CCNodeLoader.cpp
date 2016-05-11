@@ -585,7 +585,7 @@ SpriteFrame * NodeLoader::parsePropTypeSpriteFrame(Node * pNode, Node * pParent,
         if (spriteSheet.empty())
         {
             spriteFile = ccbReader->getCCBRootPath() + spriteFile;
-            Texture2D * texture = Director::DirectorInstance->getTextureCache()->addImage(spriteFile.c_str());
+            Texture2D * texture = Director::DirectorInstance->getTextureCache()->addImage(spriteFile);
             if(texture != nullptr) {
                 Rect bounds = Rect(0, 0, texture->getContentSize().width, texture->getContentSize().height);
                 spriteFrame = SpriteFrame::createWithTexture(texture, bounds);
@@ -643,7 +643,7 @@ Texture2D* NodeLoader::parsePropTypeTexture(Node * pNode, Node * pParent, CCBRea
 
     if (!spriteFile.empty())
     {
-        return Director::DirectorInstance->getTextureCache()->addImage(spriteFile.c_str());
+        return Director::DirectorInstance->getTextureCache()->addImage(spriteFile);
     }
     else
     {
