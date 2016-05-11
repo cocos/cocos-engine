@@ -197,6 +197,40 @@ cc._rectApplyAffineTransformIn = function(rect, anAffineTransform){
 };
 
 /**
+ * !#en Apply the affine transformation on a rect, and truns to an Oriented Bounding Box.
+ * !#zh 应用 Rect 到仿射变换矩阵上, 并转换为有向包围盒
+ * @method obbApplyAffineTransform
+ * @param {Rect} rect
+ * @param {AffineTransform} anAffineTransform
+ * @param {Vec2} out_bl
+ * @param {Vec2} out_tl
+ * @param {Vec2} out_tr
+ * @param {Vec2} out_br
+ */
+cc.obbApplyAffineTransform = function (rect, anAffineTransform, out_bl, out_tl, out_tr, out_br) {
+    var x = rect.x;
+    var y = rect.y;
+    var width = rect.width;
+    var height = rect.height;
+
+    var tx = anAffineTransform.a * x + anAffineTransform.c * y + anAffineTransform.tx;
+    var ty = anAffineTransform.b * x + anAffineTransform.d * y + anAffineTransform.ty;
+    var xa = anAffineTransform.a * width;
+    var xb = anAffineTransform.b * width;
+    var yc = anAffineTransform.c * height;
+    var yd = anAffineTransform.d * height;
+
+    out_tl.x = tx;
+    out_tl.y = ty;
+    out_tr.x = xa + tx;
+    out_tr.y = xb + ty;
+    out_bl.x = yc + tx;
+    out_bl.y = yd + ty;
+    out_br.x = xa + yc + tx;
+    out_br.y = xb + yd + ty;
+};
+
+/**
  * !#en Create a new affine transformation with a base transformation matrix and a translation based on it.
  * !#zh 基于一个基础矩阵加上一个平移操作来创建一个新的矩阵。
  * @method affineTransformTranslate

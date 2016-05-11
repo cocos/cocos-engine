@@ -88,7 +88,7 @@ var AssetLibrary = {
 
     _queryAssetInfoInEditor: function (uuid, callback) {
         if (CC_EDITOR) {
-            Editor.Ipc.sendToMain( 'scene:query-asset-info-by-uuid', uuid, function (info) {
+            Editor.Ipc.sendToMain('scene:query-asset-info-by-uuid', uuid, function (err, info) {
                 if (info) {
                     Editor.UuidCache.cache(info.url, uuid);
                     var ctor = Editor.assets[info.type];
@@ -109,7 +109,7 @@ var AssetLibrary = {
 
     _getAssetInfoInRuntime: function (uuid) {
         var info = _uuidToRawAssets[uuid];
-        if (info && info.raw) {
+        if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
             return {
                 url: _rawAssetsBase + info.url,
                 raw: true,
@@ -195,14 +195,14 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (isScene(asset) || CC_EDITOR) {
+                    if (CC_EDITOR || isScene(asset)) {
                         Loader.removeItem(uuid);
                     }
                     callback(error, asset);
                 });
             }
             else {
-                if (isScene(asset) || CC_EDITOR) {
+                if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(uuid);
                 }
                 callback(error, asset);
@@ -233,7 +233,7 @@ var AssetLibrary = {
             }
             if (thisTick) {
                 callInNextTick(function () {
-                    if (isScene(asset) || CC_EDITOR) {
+                    if (CC_EDITOR || isScene(asset)) {
                         Loader.removeItem(randomUuid);
                     }
                     asset._uuid = '';
@@ -241,7 +241,7 @@ var AssetLibrary = {
                 });
             }
             else {
-                if (isScene(asset) || CC_EDITOR) {
+                if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(randomUuid);
                 }
                 asset._uuid = '';
@@ -288,6 +288,8 @@ var AssetLibrary = {
         _rawAssetsBase = options.rawAssetsBase;
 
         _uuidToRawAssets = {};
+        var resources = Loader._resources;
+        resources.reset();
         var rawAssets = options.rawAssets;
         if (rawAssets) {
             var RES_DIR = 'resources/';
@@ -295,15 +297,20 @@ var AssetLibrary = {
                 var assets = rawAssets[mountPoint];
                 for (var uuid in assets) {
                     var info = assets[uuid];
-                    var url = info.url;
-                    var raw = info.raw;
+                    var url = info[0];
+                    var typeId = info[1];
+                    var type = cc.js._getClassById(typeId);
+                    if (!type) {
+                        cc.error('Cannot get', typeId);
+                        continue;
+                    }
                     _uuidToRawAssets[uuid] = {
                         url: mountPoint + '/' + url,
-                        raw: !!raw,
+                        type: type,
                     };
                     // init resources
                     if (mountPoint === 'assets' && url.startsWith(RES_DIR)) {
-                        if ( !raw ) {
+                        if (cc.isChildClassOf(type, Asset)) {
                             var ext = cc.path.extname(url);
                             if (ext) {
                                 // trim base dir and extname
@@ -317,8 +324,9 @@ var AssetLibrary = {
                         else {
                             url = url.slice(RES_DIR.length);
                         }
+                        var isSubAsset = info[2] === 1;
                         // register
-                        Loader._resources.add(url, uuid);
+                        resources.add(url, uuid, type, !isSubAsset);
                     }
                 }
             }

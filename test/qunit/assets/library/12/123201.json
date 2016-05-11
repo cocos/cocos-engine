@@ -1,0 +1,16 @@
+{
+  "__type__": "TestSprite",
+  "rawTexture": null,
+  "texture": {
+    "__uuid__": "123200"
+  },
+  "rotated": false,
+  "trim": false,
+  "trimThreshold": 1,
+  "trimLeft": 10,
+  "trimTop": 20,
+  "width": 89,
+  "height": 44,
+  "x": 0,
+  "y": 49
+}

@@ -52,8 +52,8 @@ function Size (width, height) {
         height = width.height;
         width = width.width;
     }
-    this.width = typeof width === 'number' ? width : 0;
-    this.height = typeof height === 'number' ? height : 0;
+    this.width = width || 0;
+    this.height = height || 0;
 }
 JS.extend(Size, ValueType);
 require('../platform/CCClass').fastDefine('cc.Size', Size, ['width', 'height']);

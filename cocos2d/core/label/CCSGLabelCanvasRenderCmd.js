@@ -52,6 +52,7 @@
         }
     };
 
+
     proto._syncStatus = function (parentCmd) {
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
@@ -75,12 +76,13 @@
         if (opacityDirty)
             this._syncDisplayOpacity();
 
-        if(colorDirty || opacityDirty || (locFlag & flags.textDirty)){
+        if(colorDirty || opacityDirty || (this._dirtyFlag & flags.textDirty)){
             this._rebuildLabelSkin();
         }
 
-        if (locFlag & flags.transformDirty)                 //update the transform
+        if (this._dirtyFlag & flags.transformDirty) {
             this.transform(parentCmd);
+        }
     };
 
     proto._getLineHeight = function () {

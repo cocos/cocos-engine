@@ -419,6 +419,42 @@ var Node = cc.Class({
                     this._objFlags &= ~DontDestroy;
                 }
             }
+        },
+
+        /**
+         * !#en
+         * Group index of node.<br/>
+         * Which Group this node belongs to will resolve that this node's collision components can collide with which other collision componentns.<br/>
+         * !#zh
+         * 节点的分组索引。<br/>
+         * 节点的分组将关系到节点的碰撞组件可以与哪些碰撞组件相碰撞。<br/>
+         * @property groupIndex
+         * @type {Integer}
+         * @default 0
+         */
+        groupIndex: {
+            default: 0,
+            type: cc.Integer
+        },
+
+        /**
+         * !#en
+         * Group of node.<br/>
+         * Which Group this node belongs to will resolve that this node's collision components can collide with which other collision componentns.<br/>
+         * !#zh
+         * 节点的分组。<br/>
+         * 节点的分组将关系到节点的碰撞组件可以与哪些碰撞组件相碰撞。<br/>
+         * @property group
+         * @type {String}
+         */
+        group: {
+            get: function () {
+                return cc.game.groupList[this.groupIndex] || '';
+            },
+
+            set: function (value) {
+                this.groupIndex = cc.game.groupList.indexOf(value);
+            }
         }
     },
 
@@ -647,7 +683,7 @@ var Node = cc.Class({
      */
     addComponent: function (typeOrClassName) {
 
-        if ((this._objFlags & Destroying) && CC_EDITOR) {
+        if (CC_EDITOR && (this._objFlags & Destroying)) {
             cc.error('isDestroying');
             return null;
         }
@@ -684,7 +720,7 @@ var Node = cc.Class({
             return null;
         }
 
-        if (constructor._disallowMultiple && CC_EDITOR) {
+        if (CC_EDITOR && constructor._disallowMultiple) {
             if (!this._checkMultipleComp(constructor)) {
                 return null;
             }
@@ -1004,50 +1040,6 @@ var Node = cc.Class({
         clone._onBatchCreated();
 
         return clone;
-    },
-
-    _onColorChanged: function () {
-        // update components if also in scene graph
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setColor(this._color);
-                if ( !this._cascadeOpacityEnabled ) {
-                    comp._sgNode.setOpacity(this._opacity);
-                }
-            }
-        }
-    },
-
-    _onCascadeChanged: function () {
-        // update components which also in scene graph
-        var opacity = this._cascadeOpacityEnabled ? 255 : this._opacity;
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setOpacity(opacity);
-            }
-        }
-    },
-
-    _onAnchorChanged: function () {
-        // update components if also in scene graph
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setAnchorPoint(this._anchorPoint);
-                comp._sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
-            }
-        }
-    },
-
-    _onOpacityModifyRGBChanged: function () {
-        for (var c = 0; c < this._components.length; ++c) {
-            var comp = this._components[c];
-            if (comp instanceof cc._SGComponent && comp.isValid && comp._sgNode) {
-                comp._sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
-            }
-        }
     },
 
 // EVENTS
@@ -1403,16 +1395,6 @@ if (cc.sys.isNative) {
  * @event anchor-changed
  * @param {Event} event
  * @param {Vec2} event.detail - old anchor
- */
-/**
- * @event color-changed
- * @param {Event} event
- * @param {Color} event.detail - old color
- */
-/**
- * @event opacity-changed
- * @param {Event} event
- * @param {Number} event.detail - old opacity
  */
 /**
  * @event child-added

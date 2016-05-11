@@ -35,7 +35,14 @@
  */
 var BitmapFont = cc.Class({
     name: 'cc.BitmapFont',
-    extends: cc.Font
+    extends: cc.Font,
+
+    properties: {
+        texture: {
+            default: null,
+            url: cc.Texture2D
+        }
+    }
 });
 
 cc.BitmapFont = BitmapFont;

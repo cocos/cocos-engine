@@ -37,6 +37,12 @@ cc.js.mixin(cc.game, {
     _persistRootNodes: {},
     _ignoreRemovePersistNode: null,
 
+    RENDER_TYPE_CANVAS: 0,
+    RENDER_TYPE_WEBGL: 1,
+    RENDER_TYPE_OPENGL: 2,
+
+    EVENT_GAME_INITED: "game_inited",
+    
     CONFIG_KEY: {
         width: 'width',
         height: 'height',
@@ -101,10 +107,12 @@ cc.js.mixin(cc.game, {
                 cc.loader.load(jsList, function (err) {
                     if (err) throw new Error(JSON.stringify(err));
                     self._prepared = true;
+                    self.emit(self.EVENT_GAME_INITED);
                     if (cb) cb();
                 });
             }
             else {
+                self.emit(self.EVENT_GAME_INITED);
                 if (cb) cb();
             }
 
@@ -231,6 +239,10 @@ cc.js.mixin(cc.game, {
         }
         config[CONFIG_KEY.showFPS] = (CONFIG_KEY.showFPS in config) ? (!!config[CONFIG_KEY.showFPS]) : true;
         config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
+
+        // Group List and Collide Map
+        this.groupList = config.groupList || [];
+        this.collisionMatrix = config.collisionMatrix || [];
 
         // Scene parser
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);

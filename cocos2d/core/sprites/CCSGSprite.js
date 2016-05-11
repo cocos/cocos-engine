@@ -996,6 +996,6 @@ _ccsg.Sprite.INDEX_NOT_INITIALIZED = -1;
 cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 
 
-cc.assert(cc.js.isFunction(cc._tmp.PrototypeSprite), cc._LogInfos.MissingFile, "SpritesPropertyDefine.js");
+cc.assert(typeof cc._tmp.PrototypeSprite === 'function', cc._LogInfos.MissingFile, "SpritesPropertyDefine.js");
 cc._tmp.PrototypeSprite();
 delete cc._tmp.PrototypeSprite;

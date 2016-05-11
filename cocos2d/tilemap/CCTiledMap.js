@@ -170,29 +170,23 @@ var TiledMap = cc.Class({
     },
 
     properties: {
-        _isLoading: {
-            default: false,
-            serializable: false,
-        },
-        
         // the detached array of TiledLayer 
         _detachedLayers: {
             default: [],
             serializable: false,
         },
 
+        _tmxFile: {
+            default: null,
+            type: cc.TiledMapAsset
+        },
         /**
-         * !#en The tmx file.
-         * !#zh tmx 文件。
-         * @property {String} tmxFile
+         * !#en The TiledMap Asset.
+         * !#zh TiledMap 资源。
+         * @property {cc.TiledMapAsset} tmxAsset
          * @default ""
          */
-        _tmxFile: {
-            default: '',
-            url: cc.TiledMapAsset
-        },
-
-        tmxFile : {
+        tmxAsset : {
             get: function () {
                 return this._tmxFile;
             },
@@ -202,17 +196,7 @@ var TiledMap = cc.Class({
                     this._applyFile();
                 }
             },
-            url: cc.TiledMapAsset
-        },
-
-        /**
-         * !#en The event handler to be called when the map is loaded.
-         * !#zh 在加载在地图时要调用的事件处理程序。
-         * @property {Component.EventHandler} mapLoaded
-         */
-        mapLoaded: {
-            default: [],
-            type: cc.Component.EventHandler,
+            type: cc.TiledMapAsset
         }
     },
 
@@ -345,54 +329,12 @@ var TiledMap = cc.Class({
         this._sgNode.setProperties(properties);
     },
 
-    /*
-     * Initializes the instance of cc.TiledMap with tmxFile.
-     * The mapLoaded events will be emitted when the map is loaded.
-     * @method initWithTMXFile
-     * @param {String} tmxFile
-     */
     initWithTMXFile:function (tmxFile) {
-        this._tmxFile = tmxFile;
+        cc.error('Method "initWithTMXFile" is no effect now, please set property "tmxAsset" instead.');
     },
 
-    /*
-     * Initializes the instance of cc.TiledMap with tmxString.
-     * The mapLoaded events will be emitted when the map is loaded.
-     * @method initWithXML
-     * @param {String} tmxString
-     * @param {String} resourcePath
-     */
     initWithXML:function(tmxString, resourcePath){
-        // clear the tmx file
-        this._tmxFile = null;
-
-        // preload textures & init the _tileMap
-        var self = this;
-        var sgNode = self._sgNode;
-        var mapInfo = new cc.TMXMapInfo(tmxString, resourcePath);
-        if (!mapInfo) {
-            self._onMapLoaded(new Error('Parse map info failed.'));
-            return;
-        }
-
-        self._isLoading = true;
-        if (cc.sys.isNative) {
-            // TODO Consider to remove the setTimeout
-            // In native environment, the reason of using setTimeout:
-            // If not use setTimeout, the _sgNode of cc.TiledLayer
-            // will be removed from the scene graph.
-            setTimeout(function() {
-                sgNode.initWithXML(tmxString, resourcePath);
-                self._onMapLoaded();
-            }, 0);
-        } else {
-            this._preloadTextures(mapInfo, function (err, results) {
-                if (!err) {
-                    sgNode.initWithXML(tmxString, resourcePath);
-                }
-                self._onMapLoaded(err);
-            });
-        }
+        cc.error('Method "initWithXML" is no effect now, please set property "tmxAsset" instead.');
     },
 
     /**
@@ -486,9 +428,15 @@ var TiledMap = cc.Class({
     },
 
     onEnable: function () {
+        if (this._detachedLayers.length === 0) {
+            // When the TiledMap loaded first time, the detachedLayers is empty.
+            // Should move the layers in sgNode to detachedLayers.
+            this._moveLayersInSgNode(this._sgNode);
+        }
+
         this._super();
 
-        if (this._tmxFile && ! this._isLoading) {
+        if (this._tmxFile) {
             // refresh layer entities
             this._refreshLayerEntities();
         }
@@ -502,14 +450,7 @@ var TiledMap = cc.Class({
         this._super();
 
         // disable the TiledLayer component in logic children
-        var logicChildren = this.node.getChildren();
-        for (var i = logicChildren.length - 1; i >= 0; i--) {
-            var child = logicChildren[i];
-            var tmxLayer = child.getComponent(cc.TiledLayer);
-            if (tmxLayer) {
-                tmxLayer.enabled = false;
-            }
-        }
+        this._setLayersEnabled(false);
 
         // remove the sg children for tmx layers (which not maintained by TiledLayer)
         var restoredSgNode = this._plainNode;
@@ -535,54 +476,33 @@ var TiledMap = cc.Class({
         this._applyFile();
     },
 
-    _preloadTextures: function(mapInfo, cb) {
-        var sets = mapInfo.getTilesets();
-        if (sets) {
-            var textures = sets.map(function (set) {
-                return set.sourceImage;
-            });
-
-            cc.loader.load(textures, function (err) {
-                cb(err, textures);
-            });
-        }
-        else {
-            if (cb) cb();
-        }
+    _resetSgSize: function () {
+        this.node.setContentSize(this._sgNode.getContentSize());
+        this._sgNode.setContentSize(0, 0);
     },
 
-    _preloadTmx: function(file, cb) {
-        var self = this;
-        cc.loader.load(file, function (err) {
-            if (err) {
-                if (cb) cb(err || new Error('Preload TMX failed: unknown error'));
-                return;
-            }
-
-            var mapInfo = new cc.TMXMapInfo(file);
-            if (!mapInfo) {
-                cb(new Error('Parse map info failed.'));
-                return;
-            }
-
-            self._preloadTextures(mapInfo, cb);
-        });
-    },
-
-    _onMapLoaded: function(err) {
-        this._isLoading = false;
-        if ( !err ) {
-            if (this._enabled) {
-                this._refreshLayerEntities();
-                this._anchorChanged();
-            } else {
-                this._moveLayersInSgNode(this._sgNode);
-            }
+    _onMapLoaded: function() {
+        this._refreshLayerEntities();
+        if (this._enabled) {
+            this._anchorChanged();
+        } else {
+            this._moveLayersInSgNode(this._sgNode);
         }
 
-        if (!CC_EDITOR) {
-            // if it's not in Editor, emit mapLoaded events.
-            cc.Component.EventHandler.emitEvents(this.mapLoaded, err);
+        // enable / disable the TiledLayer component
+        this._setLayersEnabled(this._enabled);
+
+        this._resetSgSize();
+    },
+
+    _setLayersEnabled: function(enabled) {
+        var logicChildren = this.node.getChildren();
+        for (var i = logicChildren.length - 1; i >= 0; i--) {
+            var child = logicChildren[i];
+            var tmxLayer = child.getComponent(cc.TiledLayer);
+            if (tmxLayer) {
+                tmxLayer.enabled = enabled;
+            }
         }
     },
 
@@ -758,6 +678,7 @@ var TiledMap = cc.Class({
             var child = logicChildren[i];
             var tmxLayer = child.getComponent(cc.TiledLayer);
             var zOrderValue = child.getSiblingIndex();
+            child.setLocalZOrder(zOrderValue);
             if (tmxLayer) {
                 if (tmxLayer._sgNode) {
                     tmxLayer._sgNode.setLocalZOrder(zOrderValue);
@@ -775,26 +696,11 @@ var TiledMap = cc.Class({
         var file = this._tmxFile;
         var self = this;
         if (file) {
-            self._isLoading = true;
-            if (cc.sys.isNative) {
-                // TODO Consider to remove the setTimeout
-                // In native environment, the reason of using setTimeout:
-                // If not use setTimeout, the _sgNode of cc.TiledLayer
-                // will be removed from the scene graph.
-                setTimeout(function() {
-                    if (sgNode.initWithTMXFile(file)) {
-                        self._onMapLoaded();
-                    } else {
-                        self._onMapLoaded(new Error('Parse map info failed.'));
-                    }
-                }, 0);
-            } else {
-                this._preloadTmx(file, function (err, results) {
-                    if (!err) {
-                        sgNode.initWithTMXFile(file);
-                    }
-                    self._onMapLoaded(err);
-                });
+            var resPath = cc.url._rawAssets + file.tmxFolderPath;
+            resPath = cc.path._setEndWithSep(resPath, false);
+            var ret = sgNode.initWithXML(file.tmxXmlStr, resPath);
+            if (ret) {
+                self._onMapLoaded();
             }
         } else {
             // tmx file is cleared
@@ -804,13 +710,18 @@ var TiledMap = cc.Class({
                 sgNode.removeChild(layers[i]);
             }
 
-            // 2. if the component is enabled,
-            //    should remove the entities for tmx layers in node
-            if (self._enabled) {
-                self._removeLayerEntities();
-            }
+            // 2. clean the detached layers
+            this._detachedLayers.length = 0;
+
+            // 3. remove the logic nodes of TiledLayer
+            self._removeLayerEntities();
         }
     },
 });
 
 cc.TiledMap = module.exports = TiledMap;
+cc.js.obsolete(cc.TiledMap.prototype, 'cc.TiledMap.tmxFile', 'tmxAsset', true);
+cc.js.get(cc.TiledMap.prototype, 'mapLoaded', function () {
+    cc.error('Property "mapLoaded" is unused now. Please write the logic to the callback "start".');
+    return [];
+}, false);

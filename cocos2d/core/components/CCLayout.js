@@ -185,7 +185,7 @@ var Layout = cc.Class({
             set: function(value) {
                 this._N$layoutType = value;
 
-                if (this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -218,7 +218,7 @@ var Layout = cc.Class({
                 }
 
                 this._resize = value;
-                if (this.type !== Type.NONE && value === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this.type !== Type.NONE && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -257,7 +257,7 @@ var Layout = cc.Class({
             tooltip: 'i18n:COMPONENT.layout.start_axis',
             type: AxisDirection,
             notify: function() {
-                if (this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -353,7 +353,9 @@ var Layout = cc.Class({
     },
 
     onLoad: function() {
-        this.node.setContentSize(this._layoutSize);
+        if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
+            this.node.setContentSize(this._layoutSize);
+        }
 
         this.node.on('size-changed', this._resized, this);
         this.node.on('anchor-changed', this._doLayoutDirty, this);
@@ -406,7 +408,7 @@ var Layout = cc.Class({
         var row = 0;
         var containerResizeBoundary;
 
-        var maxHeightChildAnchor;
+        var maxHeightChildAnchorY = 0;
 
         var newChildWidth = this.cellSize.width;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
@@ -434,7 +436,7 @@ var Layout = cc.Class({
             if (child.height >= tempMaxHeight) {
                 secondMaxHeight = tempMaxHeight;
                 tempMaxHeight = child.height;
-                maxHeightChildAnchor = child.getAnchorPoint();
+                maxHeightChildAnchorY = child.getAnchorPoint().y;
             }
 
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
@@ -481,14 +483,14 @@ var Layout = cc.Class({
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 containerResizeBoundary = containerResizeBoundary || this.node._contentSize.height;
                 signX = -1;
-                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchor.y + this.padding);
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.padding);
                 if (tempFinalPositionY < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
             }
             else {
                 containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.height;
-                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchor.y + this.padding);
+                tempFinalPositionY  = finalPositionY +  signX * (topMarign * maxHeightChildAnchorY + this.padding);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
@@ -532,7 +534,7 @@ var Layout = cc.Class({
         var secondMaxWidth = 0;
         var column = 0;
         var containerResizeBoundary;
-        var maxWidthChildAnchor;
+        var maxWidthChildAnchorX = 0;
 
         var newChildHeight = this.cellSize.height;
         if (this.type !== Type.GRID && this.resizeMode === ResizeMode.CHILDREN) {
@@ -561,7 +563,7 @@ var Layout = cc.Class({
             if (child.width >= tempMaxWidth) {
                 secondMaxWidth = tempMaxWidth;
                 tempMaxWidth = child.width;
-                maxWidthChildAnchor = child.getAnchorPoint();
+                maxWidthChildAnchorX = child.getAnchorPoint().x;
             }
 
             if (this.verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
@@ -608,14 +610,14 @@ var Layout = cc.Class({
             if (this.horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
                 containerResizeBoundary = containerResizeBoundary || this.node._contentSize.width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchor.x + this.padding);
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.padding);
                 if (tempFinalPositionX < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
             }
             else {
                 containerResizeBoundary = containerResizeBoundary || -this.node._contentSize.width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchor.x + this.padding);
+                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this.padding);
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }

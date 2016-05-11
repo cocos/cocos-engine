@@ -781,7 +781,7 @@ var ParticleSystem = cc.Class({
             if (this._custom) {
                 var missCustomTexture = !this._texture;
                 if (missCustomTexture) {
-                    this._applyFile(this._applyCustoms.bind(this));
+                    this._applyFile();
                 }
                 else {
                     this._applyCustoms();
@@ -884,7 +884,7 @@ var ParticleSystem = cc.Class({
 
     // PRIVATE METHODS
 
-    _applyFile: function (done) {
+    _applyFile: function () {
         var sgNode = this._sgNode;
         var file = this._file;
         if (file) {
@@ -924,10 +924,9 @@ var ParticleSystem = cc.Class({
                     self._applyAutoRemove();
                 }
 
-                //
-
-                if (done) {
-                    done();
+                // if become custom after loading
+                if (self._custom) {
+                    self._applyCustoms();
                 }
             });
         }

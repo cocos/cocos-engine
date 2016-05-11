@@ -52,18 +52,31 @@ var RendererUnderSG = cc.Class({
 
     // You should reimplement this function if your _sgNode maybe null.
     onLoad: function () {
-        this._super();
+        this._initSgNode();
+        var sgNode = this._sgNode;
+        if ( !this.node._sizeProvider ) {
+            this.node._sizeProvider = sgNode;
+        }
         this._appendSgNode(this._sgNode);
     },
+
     onEnable: function () {
         if (this._sgNode) {
             this._sgNode.setVisible(true);
         }
     },
+
     onDisable: function () {
         if (this._sgNode) {
             this._sgNode.setVisible(false);
         }
+    },
+
+    onDestroy: function () {
+        if ( this.node._sizeProvider === this._sgNode ) {
+            this.node._sizeProvider = null;
+        }
+        this._removeSgNode();
     },
 
     _appendSgNode: function (sgNode) {

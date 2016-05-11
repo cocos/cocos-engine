@@ -420,7 +420,7 @@ var EditBox = cc.Class({
 
         this._createBackgroundSprite();
 
-        if(this._useOriginalSize && CC_EDITOR){
+        if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
         } else {
@@ -445,15 +445,15 @@ var EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan: function() {
-        cc.Component.EventHandler.emitEvents(this.editingDidBegan);
+        cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
     },
 
     editBoxEditingDidEnded: function() {
-        cc.Component.EventHandler.emitEvents(this.editingDidEnded);
+        cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
     },
 
     editBoxTextChanged: function(editBox, text) {
-        cc.Component.EventHandler.emitEvents(this.textChanged, text);
+        cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
     },
 
     onLoad: function() {
@@ -465,8 +465,10 @@ var EditBox = cc.Class({
     },
 
     _registerEvent: function () {
-        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        if(!CC_JSB) {
+            this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+            this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        }
     },
 
     _onTouchBegan: function(event) {
@@ -484,5 +486,15 @@ var EditBox = cc.Class({
     }
 
 });
+
+if(CC_JSB) {
+    EditBox.prototype.editBoxEditingDidBegin = function (sender) {
+        this.editBoxEditingDidBegan(sender);
+    }
+
+    EditBox.prototype.editBoxEditingDidEnd = function (sender) {
+        this.editBoxEditingDidEnded(sender);
+    }
+}
 
 cc.EditBox = module.exports = EditBox;

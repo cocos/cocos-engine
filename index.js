@@ -72,7 +72,7 @@ if (CC_EDITOR) {
 if (isMainProcess) {
     Editor.versions['cocos2d'] = require('./package.json').version;
 }
-else if (CC_DEV) {
+else {
     require('./cocos2d/deprecated');
 }
 

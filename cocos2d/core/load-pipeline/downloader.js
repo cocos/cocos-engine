@@ -263,6 +263,15 @@ function downloadUuid (item, callback) {
             item.url = url;
             item.isRawAsset = isRawAsset;
             if (isRawAsset) {
+                self.pipeline._items.map[url] = {
+                    id: url,
+                    url: url,
+                    type: Path.extname(url).toLowerCase().substr(1),
+                    error: null,
+                    alias: item.id,
+                    complete: true
+                };
+
                 var ext = Path.extname(url).toLowerCase();
                 if (!ext) {
                     callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));

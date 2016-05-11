@@ -119,28 +119,6 @@ cc.TextureCache.prototype.addImage = function(url, cb, target) {
     }
 };
 
-// cc.SpriteFrame
-cc.SpriteFrame.prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
-    if (originalSize !== undefined) {
-        if(filename instanceof cc.Texture2D) {
-            this.initWithTexture(filename, rect, rotated, offset, originalSize);
-        }
-        else {
-            this.initWithTexture(filename, rect, rotated, offset, originalSize);
-        }
-    } else if (rect !== undefined) {
-        if(filename instanceof cc.Texture2D) {
-            this.initWithTexture(filename, rect);
-        }
-        else {
-            this.initWithTextureFilename(filename, rect);
-        }
-    } else if (filename instanceof cc.Texture2D) {
-        rect = cc.rect(0, 0, filename.getPixelWidth(), filename.getPixelHeight());
-        this.initWithTexture(filename, rect);
-    }
-};
-
 // setTimeout, setInterval, clearTimeout, clearInteval
 var _windowTimeIntervalId = 0;
 var _windowTimeFunHash = {};
@@ -222,7 +200,8 @@ window._ccsg = {
     Label: cc.Label,
     EditBox: cc.EditBox,
     TMXTiledMap: cc.TMXTiledMap,
-    TMXLayer: cc.TMXLayer
+    TMXLayer: cc.TMXLayer,
+    MotionStreak: cc.MotionStreak
 };
 
 // rename cc.Class to cc._Class
@@ -230,3 +209,8 @@ cc._Class = cc.Class;
 
 // fix cc.formatStr (#2630)
 cc.formatStr = cc.js.formatStr;
+
+// disabled premultiplied alpha for png
+if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
+    cc.Image.setPNGPremultipliedAlphaEnabled(false);
+}

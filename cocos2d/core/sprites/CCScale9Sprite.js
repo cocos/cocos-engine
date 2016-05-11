@@ -874,6 +874,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     //normalized filled start and range
     _fillStart: 0,
     _fillRange: Math.PI * 2,
+    _distortionOffset: null,
+    _distortionTiling: null,
 
     ctor: function (textureOrSpriteFrame) {
         _ccsg.Node.prototype.ctor.call(this);
@@ -1249,7 +1251,7 @@ cc.defineGetterSetter(_p, "insetBottom", _p.getInsetBottom, _p.setInsetBottom);
 
 _p = null;
 
-cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
+cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1, DISTORTION: 2};
 
 /**
  * Enum for sprite type

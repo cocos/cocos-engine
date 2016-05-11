@@ -129,7 +129,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _className: "Label",
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
-    ctor: function(string, fontHandle) {
+    ctor: function(string, fontHandle, textureUrl) {
         EventTarget.call(this);
 
         fontHandle = fontHandle || "";
@@ -142,7 +142,7 @@ _ccsg.Label = _ccsg.Node.extend({
         _ccsg.Node.prototype.setContentSize.call(this, cc.size(128, 128));
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
 
-        this.setFontFileOrFamily(fontHandle);
+        this.setFontFileOrFamily(fontHandle, textureUrl);
         this.setString(this._string);
     },
 
@@ -160,8 +160,6 @@ _ccsg.Label = _ccsg.Node.extend({
         this._letterOffsetY =  0;
         this._tailoredTopY =  0;
         this._tailoredBottomY =  0;
-        this._config =  null;
-        this._fontAtlas =  null;
         this._bmfontScale =  1.0;
         this._additionalKerning =  0;
         this._horizontalKernings =  [];
@@ -321,7 +319,7 @@ _ccsg.Label = _ccsg.Node.extend({
         return this._lineHeight;
     },
 
-    setFontFileOrFamily: function(fontHandle) {
+    setFontFileOrFamily: function(fontHandle, textureUrl) {
         fontHandle = fontHandle || "Arial";
         var extName = cc.path.extname(fontHandle);
 
@@ -343,7 +341,7 @@ _ccsg.Label = _ccsg.Node.extend({
         } else if (extName === ".fnt") {
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
-            this._initBMFontWithString(this._string, fontHandle);
+            this._initBMFontWithString(this._string, fontHandle, textureUrl);
         }
         this._notifyLabelSkinDirty();
     },
@@ -996,14 +994,14 @@ cc.BMFontHelper = {
 
     },
 
-    _initBMFontWithString: function(str, fntFile) {
+    _initBMFontWithString: function(str, fntFile, textureUrl) {
         var self = this;
         if (self._config) {
             cc.log("_ccsg.Label._initBMFontWithString(): re-init is no longer supported");
             return false;
         }
         this._string = str;
-        this._setBMFontFile(fntFile);
+        this._setBMFontFile(fntFile, textureUrl);
     },
 
     _createSpriteBatchNode: function(texture) {
@@ -1079,14 +1077,13 @@ cc.BMFontHelper = {
         }
     },
 
-    _setBMFontFile: function(filename) {
+    _setBMFontFile: function(filename, textureUrl) {
         if (filename) {
             this._fontHandle = filename;
             var self = this;
             if (this._labelType === _ccsg.Label.Type.BMFont) {
                 this._resetBMFont();
 
-                var texture;
                 cc.loader.load(this._fontHandle, function(err, config) {
                     if (err) {
                         cc.log("_ccsg.Label._initBMFontWithString(): Impossible to create font. Please check file");
@@ -1094,7 +1091,7 @@ cc.BMFontHelper = {
 
                     self._config = config;
                     self._createFontChars();
-                    texture = cc.textureCache.addImage(self._config.atlasName);
+                    var texture = cc.textureCache.addImage(textureUrl || self._config.atlasName);
                     var locIsLoaded = texture.isLoaded();
                     self._textureLoaded = locIsLoaded;
                     if (!locIsLoaded) {

@@ -23,180 +23,154 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var callInNextTick = require('./../platform/utils').callInNextTick;
-
-function normalizePath (path) {
-    if (path.charCodeAt(0) === 46 && path.charCodeAt(1) === 47) { 
-        // strip './'
-        path = path.slice(2);
-    }
-    else if (path.charCodeAt(0) === 47) {
-        // strip '/'
-        path = path.slice(1);
-    }
-    return path;
+function Entry (uuid, type) {
+    this.uuid = uuid;
+    this.type = type;
 }
 
-var GLOB = '**/*';
-
-/**
- * AssetTable is used to find asset's uuid by url
+/*
+ * !#en AssetTable is used to find asset's uuid by url.
+ * !#zh AssetTable 用于查找资源的 uuid 和 url。
  * @class AssetTable
  * @constructor
  */
+
 function AssetTable () {
     this._pathToUuid = {};
 }
-AssetTable._hasWildcard = function (path) {
-    return path.endsWith(GLOB);
-};
-cc.js.mixin(AssetTable.prototype, {
 
-    ///**
-    // * Check if the table contains a specific object. <br/>
-    // * <br/>
-    // * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
-    // *
-    // * @method contains
-    // * @param {string} path - (not support wildcard)
-    // * @return {boolean}
-    // */
-    //contains: function (path) {
-    //    return (path in this._pathToUuid);
-    //},
+function isMatchByWord (path, test) {
+    if (path.length > test.length) {
+        var nextAscii = path.charCodeAt(test.length);
+        return (nextAscii === 46 || nextAscii === 47); // '.' or '/'
+    }
+    return true;
+}
+
+cc.js.mixin(AssetTable.prototype, {
     
-    getUuid: function (path) {
-        path = normalizePath(path);
-        if ( !path ) {
-            return '';
-        }
-        var uuid = this._pathToUuid[path];
-        if (uuid) {
-            return uuid;
-        }
-        else if (AssetTable._hasWildcard(path)) {
-            var uuids = [];
-            var pathNoWildcard = path.slice(0, - GLOB.length);
-            for (var p in this._pathToUuid) {
-                if (p.startsWith(pathNoWildcard)) {
-                    var uuid = this._pathToUuid[p];
-                    uuids.push(uuid);
+    getUuid: function (path, type) {
+        path = cc.url.normalize(path);
+        var item = this._pathToUuid[path];
+        if (item) {
+            if (Array.isArray(item)) {
+                if (type) {
+                    for (var i = 0; i < item.length; i++) {
+                        var entry = item[i];
+                        if (cc.isChildClassOf(entry.type, type)) {
+                            return entry.uuid;
+                        }
+                    }
+                }
+                else {
+                    return item[0].uuid;
                 }
             }
-            return uuids;
+            else if (!type || cc.isChildClassOf(item.type, type)) {
+                return item.uuid;
+            }
+        }
+        return '';
+    },
+
+    getUuidArray: function (path, type) {
+        path = cc.url.normalize(path);
+        var path2uuid = this._pathToUuid;
+        var uuids = [];
+        var p, i;
+        if (type) {
+            var isChildClassOf = cc.isChildClassOf;
+            for (p in path2uuid) {
+                if (p.startsWith(path) && isMatchByWord(p, path)) {
+                    var item = path2uuid[p];
+                    if (Array.isArray(item)) {
+                        for (i = 0; i < item.length; i++) {
+                            var entry = item[i];
+                            if (isChildClassOf(entry.type, type)) {
+                                uuids.push(entry.uuid);
+                            }
+                        }
+                    }
+                    else {
+                        if (isChildClassOf(item.type, type)) {
+                            uuids.push(item.uuid);
+                        }
+                    }
+                }
+            }
         }
         else {
-            return '';
+            for (p in path2uuid) {
+                if (p.startsWith(path) && isMatchByWord(p, path)) {
+                    var item = path2uuid[p];
+                    if (Array.isArray(item)) {
+                        for (i = 0; i < item.length; i++) {
+                            uuids.push(item[i].uuid);
+                        }
+                    }
+                    else {
+                        uuids.push(item.uuid);
+                    }
+                }
+            }
         }
+        return uuids;
     },
 
     /**
-     * Returns all asset paths in the table.
+     * !#en Returns all asset paths in the table.
+     * !#zh 返回表中的所有资源路径。
      * @method getAllPaths
      * @return {string[]}
      */
     getAllPaths: function () {
         return Object.keys(this._pathToUuid);
     },
-
-    //_loadByWildcard: function (path, callback) {
-    //    var results = [];
-    //    var remain = 0;
-    //    var aborted = false;
-    //    function onLoad (err, asset) {
-    //        if (aborted) {
-    //            return;
-    //        }
-    //        if (asset) {
-    //            results.push(asset);
-    //            if (--remain <= 0) {
-    //                callback(null, results);
-    //            }
-    //        }
-    //        else {
-    //            aborted = true;
-    //            callback(err, results);
-    //            callback = null;
-    //        }
-    //    }
-    //    
-    //    var pathNoWildcard = path.slice(0, - GLOB.length);
-    //    for (var p in this._pathToUuid) {
-    //        if (p.startsWith(pathNoWildcard)) {
-    //            ++remain;
-    //            var uuid = this._pathToUuid[p];
-    //            cc.AssetLibrary.loadAsset(uuid, onLoad);
-    //        }
-    //    }
-    //    return remain > 0;
-    //},
-
-    ///**
-    // * Loads asset with path from the table asynchronously. <br/>
-    // * <br/>
-    // * wildcard: <br/>
-    // * 如果路径以 &#42;&#42;&#47;&#42; 作为结尾，则该路径下的所有资源都会被加载，含子文件夹。
-    // * 此时 callback 的第二参数将返回数组，如果文件夹下没有资源，数组长度将会是 0。如果加载出错，数组内的元素将不全。
-    // * 
-    // * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
-    // *
-    // * @method load
-    // * @param {string} path
-    // * @param {function} [callback]
-    // * @param {string} callback.param error - null or the error info
-    // * @param {object} callback.param data - the loaded object or null
-    // * @param {boolean} [quiet=false] - If true, the callback will not invoked even if asset is not found.
-    // * @return {boolean} start loading
-    // */
-    //load: function (path, callback, quiet) {
-    //    if ( !path ) {
-    //        if ( !quiet ) {
-    //            callInNextTick(callback, 'Argument must be non-nil', null);
-    //        }
-    //        return false;
-    //    }
-    //    path = normalizePath(path);
-    //    var uuid = this._pathToUuid[path];
-    //    if (uuid) {
-    //        AssetLibrary.loadAsset(uuid, callback);
-    //        return true;
-    //    }
-    //    else if (AssetTable._hasWildcard(path)) {
-    //        var loading = this._loadByWildcard(path, callback);
-    //        if ( !loading && !quiet ) {
-    //            callInNextTick(callback, null, []);
-    //        }
-    //        return loading;
-    //    }
-    //    else if (! quiet) {
-    //        callInNextTick(callback, 'Path not exists', null);
-    //        return false;
-    //    }
-    //},
     
     /**
+     * !#en TODO
+     * !#zh 以路径为 key，uuid 为值添加到表中。
      * @method add
-     * @param {string} path - the path to load, should NOT include filename extensions.
-     * @param {string} uuid
+     * @param {String} path - the path to load, should NOT include filename extensions.
+     * @param {String} uuid
+     * @param {Function} type
+     * @param {Boolean} isMainAsset
      * @private
      */
-    add: function (path, uuid) {
-        //// remove extname
-        //// (can not use path.slice because length of extname maybe 0)
-        //path = path.substring(0, path - cc.path.extname(path).length);
-        this._pathToUuid[path] = uuid;
+    add: function (path, uuid, type, isMainAsset) {
+        // remove extname
+        // (can not use path.slice because length of extname maybe 0)
+        path = path.substring(0, path.length - cc.path.extname(path).length);
+        var newEntry = new Entry(uuid, type);
+        var pathToUuid = this._pathToUuid;
+        var exists = pathToUuid[path];
+        if (exists) {
+            if (Array.isArray(exists)) {
+                if (isMainAsset) {
+                    // load main asset first
+                    exists.unshift(newEntry);
+                }
+                else {
+                    exists.push(newEntry);
+                }
+            }
+            else {
+                if (isMainAsset) {
+                    pathToUuid[path] = [newEntry, exists];
+                }
+                else {
+                    pathToUuid[path] = [exists, newEntry];
+                }
+            }
+        }
+        else {
+            pathToUuid[path] = newEntry;
+        }
     },
-    _removeByPath: function (path) {
-        delete this._pathToUuid[path];
+
+    reset: function () {
+        this._pathToUuid = {};
     }
-    //_removeByUuid: function (uuid) {
-    //    for (var path in this._pathToUuid) {
-    //        if (this._pathToUuid[path] === uuid) {
-    //            delete this._pathToUuid[path];
-    //            return;
-    //        }
-    //    }
-    //}
 });
 
 module.exports = AssetTable;

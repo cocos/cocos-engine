@@ -246,6 +246,7 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
     var startRatioOffset = 0;
 
     var EPSILON = 1e-6;
+    var newType = DynamicAnimCurve.Linear;
 
     // do not need to compute last path
     for (var i = 0, l = motionPaths.length; i < l-1; i++) {
@@ -329,9 +330,11 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
             }
         }
 
+        newType = type === 'constant' ? type : DynamicAnimCurve.Linear;
+
         for (var j = 0, l2 = results.length; j < l2; j++) {
             var newRatio = ratio + startRatioOffset + speed * j * betweenRatio;
-            addNewDatas(results[j], DynamicAnimCurve.Linear, newRatio);
+            addNewDatas(results[j], newType, newRatio);
         }
 
         if (Math.abs(progress - 1) > EPSILON) // progress > 1
@@ -341,7 +344,7 @@ function sampleMotionPaths (motionPaths, data, duration, fps) {
     }
 
     if (ratios[ratios.length - 1] !== newRatios[newRatios.length -1]) {
-        addNewDatas(values[values.length - 1], DynamicAnimCurve.Linear, ratios[ratios.length - 1]);
+        addNewDatas(values[values.length - 1], newType, ratios[ratios.length - 1]);
     }
 }
 

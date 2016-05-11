@@ -161,9 +161,15 @@ var Sprite = cc.Class({
                 return this._spriteFrame;
             },
             set: function (value, force) {
+                if (this._spriteFrame === value) {
+                    return;
+                }
                 var lastSprite = this._spriteFrame;
                 this._spriteFrame = value;
                 this._applySpriteFrame(lastSprite);
+                if (CC_EDITOR) {
+                    this.node.emit('spriteframe-changed', this);
+                }
             },
             type: cc.SpriteFrame,
         },
@@ -499,7 +505,7 @@ var Sprite = cc.Class({
         return this._sgNode.getInsetBottom();
     },
 
-    onLoad: function () {
+    onLoad: CC_EDITOR && function () {
         this._super();
         this.node.on('size-changed', this._resized, this);
     },
@@ -512,7 +518,7 @@ var Sprite = cc.Class({
         }
     },
 
-    onDestroy: function () {
+    onDestroy: CC_EDITOR && function () {
         this._super();
         this.node.off('size-changed', this._resized, this);
     },
@@ -594,7 +600,7 @@ var Sprite = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-        
+
         this._applySpriteFrame(null);
 
         // should keep the size of the sg node the same as entity,
@@ -613,7 +619,7 @@ var Sprite = cc.Class({
         sgNode.setBlendFunc(this._blendFunc);
     },
 
-    _resized: function () {
+    _resized: CC_EDITOR && function () {
         if (this._spriteFrame) {
             var actualSize = this.node.getContentSize();
             var expectedW = actualSize.width;

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 var JS = cc.js;
-var SceneGraphHelper = require('./scene-graph-helper');
+var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
@@ -45,8 +45,6 @@ var ROTATION_CHANGED = 'rotation-changed';
 var SCALE_CHANGED = 'scale-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
-var COLOR_CHANGED = 'color-changed';
-var OPACITY_CHANGED = 'opacity-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
@@ -246,13 +244,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._localZOrder;
             },
             set: function (value) {
-                this._localZOrder = value;
-                this._sgNode.zIndex = value;
+                if (this._localZOrder !== value) {
+                    this._localZOrder = value;
+                    this._sgNode.zIndex = value;
 
-                if (!CC_JSB && this._parent) {
-                    this._parent._reorderChildDirty = true;
-                    this._parent._delaySort();
-                    cc.eventManager._setDirtyForNode(this);
+                    if (!CC_JSB && this._parent) {
+                        this._parent._reorderChildDirty = true;
+                        this._parent._delaySort();
+                        cc.eventManager._setDirtyForNode(this);
+                    }
                 }
             }
         },
@@ -392,7 +392,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.x) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.x;
 
                         localPosition.x = value;
@@ -425,7 +425,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.y) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.y;
 
                         localPosition.y = value;
@@ -489,10 +489,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.x;
             },
             set: function (value) {
-                if (this._anchorPoint.x !== value) {
-                    var old = cc.v2(this._anchorPoint);
-                    this._anchorPoint.x = value;
-                    this._onAnchorChanged();
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.x !== value) {
+                    var old = new cc.Vec2(anchorPoint);
+                    anchorPoint.x = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
                     this.emit(ANCHOR_CHANGED, old);
                 }
             },
@@ -511,10 +515,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.y;
             },
             set: function (value) {
-                if (this._anchorPoint.y !== value) {
-                    var old = cc.v2(this._anchorPoint);
-                    this._anchorPoint.y = value;
-                    this._onAnchorChanged();
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.y !== value) {
+                    var old = new cc.Vec2(anchorPoint);
+                    anchorPoint.y = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
                     this.emit(ANCHOR_CHANGED, old);
                 }
             },
@@ -541,8 +549,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (value !== this._contentSize.width) {
-                    if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(value, sizeProvider._getHeight());
                     }
                     var clone = cc.size(this._contentSize);
                     this._contentSize.width = value;
@@ -572,8 +581,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (value !== this._contentSize.height) {
-                    if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(sizeProvider._getWidth(), value);
                     }
                     var clone = cc.size(this._contentSize);
                     this._contentSize.height = value;
@@ -600,7 +610,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this.__ignoreAnchor !== value) {
                     this.__ignoreAnchor = value;
                     this._sgNode.ignoreAnchor = value;
-                    this._onAnchorChanged();
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                        sizeProvider.ignoreAnchor = value;
+                    }
                     this.emit(ANCHOR_CHANGED, this._anchorPoint);
                 }
             },
@@ -638,11 +651,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._opacity !== value) {
-                    var old = this._opacity;
                     this._opacity = value;
-                    this._sgNode.opacity = value;
-                    this._onColorChanged();
-                    this.emit(OPACITY_CHANGED, old);
+                    this._sgNode.setOpacity(value);
+                    var sizeProvider = this._sizeProvider;
+                    if ( !this._cascadeOpacityEnabled &&
+                         sizeProvider instanceof _ccsg.Node &&
+                         this._sgNode !== sizeProvider
+                    ) {
+                        sizeProvider.setOpacity(value);
+                    }
                 }
             },
             range: [0, 255]
@@ -664,7 +681,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._cascadeOpacityEnabled !== value) {
                     this._cascadeOpacityEnabled = value;
                     this._sgNode.cascadeOpacity = value;
-                    this._onCascadeChanged();
+
+                    var opacity = value ? 255 : this._opacity;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setOpacity(opacity);
+                    }
                 }
             },
         },
@@ -690,10 +712,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     color.g = value.g;
                     color.b = value.b;
                     if (CC_DEV && value.a !== 255) {
-                        cc.warn('Should not set alpha via "color", use "opacity" please.');
+                        cc.warn('Should not set alpha via "color", set "opacity" please.');
                     }
-                    this._onColorChanged();
-                    this.emit(COLOR_CHANGED, old);
+                    if (this._sizeProvider instanceof _ccsg.Node) {
+                        this._sizeProvider.setColor(value);
+                    }
                 }
             },
         },
@@ -706,6 +729,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             enumerable: false
         });
 
+        /**
+         * Current scene graph node for this node.
+         *
+         * @property _sgNode
+         * @type {_ccsg.Node}
+         * @private
+         */
         var sgNode = this._sgNode = new _ccsg.Node();
         if (cc.sys.isNative) {
             sgNode.retain();
@@ -725,13 +755,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._dirtyFlags = DirtyFlags.ALL;
 
         /**
-         * Current active scene graph node which provides content size.
+         * Current active size provider for this node.
+         * Size provider can equals to this._sgNode.
          *
          * @property _sizeProvider
-         * @type {Object}
+         * @type {_ccsg.Node}
          * @private
          */
-        // _ccsg.Node
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
@@ -745,15 +775,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     // called when the node's parent changed
     _onHierarchyChanged: null,
-    // called when the node's color or opacity changed
-    _onColorChanged: null,
-    // called when the node's anchor changed
-    _onAnchorChanged: null,
-    // called when the node's cascadeOpacity or cascadeColor changed
-    _onCascadeChanged: null,
-    // called when the node's isOpacityModifyRGB changed
-    _onOpacityModifyRGBChanged: null,
-
 
     /*
      * Initializes the instance of cc.Node
@@ -907,7 +928,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var xValue;
-        if (yValue === undefined) {
+        if (typeof yValue === 'undefined') {
             xValue = newPosOrxValue.x;
             yValue = newPosOrxValue.y;
         }
@@ -923,20 +944,20 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         var oldPosition = new cc.Vec2(locPosition);
 
-        if (isFinite(xValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(xValue)) {
             locPosition.x = xValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'x of new position');
         }
-        if (isFinite(yValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(yValue)) {
             locPosition.y = yValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
 
-        this._sgNode.setPosition(locPosition);
+        this._sgNode.setPosition(xValue, yValue);
 
         if (this.emit) {
             this.emit(POSITION_CHANGED, oldPosition);
@@ -1005,7 +1026,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this._onAnchorChanged();
+        var sizeProvider = this._sizeProvider;
+        if (sizeProvider instanceof _ccsg.Node) {
+            sizeProvider.setAnchorPoint(locAnchorPoint);
+        }
         this.emit(ANCHOR_CHANGED, old);
     },
 
@@ -1208,7 +1232,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     addChild: function (child, localZOrder, tag) {
         localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
         var name, setTag = false;
-        if(cc.js.isUndefined(tag)){
+        if(typeof tag === 'undefined'){
             tag = undefined;
             name = child._name;
         } else if(cc.js.isString(tag)){
@@ -1729,7 +1753,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (this._opacityModifyRGB !== opacityValue) {
             this._opacityModifyRGB = opacityValue;
             this._sgNode.setOpacityModifyRGB(opacityValue);
-            this._onOpacityModifyRGBChanged();
+            var sizeProvider = this._sizeProvider;
+            if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                sizeProvider.setOpacityModifyRGB(opacityValue);
+            }
         }
     },
 
@@ -1833,36 +1860,31 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     sortAllChildren: function () {
         if (this._reorderChildDirty) {
-            var _children = this._children;
-
-            if (!_children) {
-                this._reorderChildDirty = false;
-                return;
-            }
-
-            // insertion sort
-            var len = _children.length, i, j, child;
-            for (i = 1; i < len; i++){
-                child = _children[i];
-                j = i - 1;
-
-                //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
-                while(j >= 0){
-                    if (child._localZOrder < _children[j]._localZOrder) {
-                        _children[j+1] = _children[j];
-                    } else if (child._localZOrder === _children[j]._localZOrder && 
-                               child._sgNode.arrivalOrder < _children[j]._sgNode.arrivalOrder) {
-                        _children[j+1] = _children[j];
-                    } else {
-                        break;
-                    }
-                    j--;
-                }
-                _children[j+1] = child;
-            }
-
             this._reorderChildDirty = false;
-            this.emit(CHILD_REORDER);
+            var _children = this._children;
+            if (_children.length > 1) {
+                // insertion sort
+                var len = _children.length, i, j, child;
+                for (i = 1; i < len; i++){
+                    child = _children[i];
+                    j = i - 1;
+
+                    //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
+                    while(j >= 0){
+                        if (child._localZOrder < _children[j]._localZOrder) {
+                            _children[j+1] = _children[j];
+                        } else if (child._localZOrder === _children[j]._localZOrder &&
+                                   child._sgNode.arrivalOrder < _children[j]._sgNode.arrivalOrder) {
+                            _children[j+1] = _children[j];
+                        } else {
+                            break;
+                        }
+                        j--;
+                    }
+                    _children[j+1] = child;
+                }
+                this.emit(CHILD_REORDER);
+            }
         }
         cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
@@ -1884,7 +1906,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         var arrivalOrder = sgNode.arrivalOrder;
         sgNode.setLocalZOrder(this._localZOrder);
-        sgNode.arrivalOrder = arrivalOrder;
+        sgNode.arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
+
         sgNode.setGlobalZOrder(this._globalZOrder);
 
         sgNode.setOpacity(this._opacity);
@@ -1911,7 +1934,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    // The deserializer for sgNode which will be called before components onLoad
+    /*
+     * The deserializer for sgNode which will be called before components onLoad
+     * @param {Boolean} [skipChildrenInEditor=false]
+     */
     _onBatchCreated: function () {
         this._updateDummySgNode();
 
@@ -1931,7 +1957,30 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    _removeSgNode: SceneGraphHelper.removeSgNode,
+    onRestore: CC_EDITOR && function () {
+        this._updateDummySgNode();
+
+        var sgParent = this._parent && this._parent._sgNode;
+        if (this._sgNode._parent !== sgParent) {
+            if (this._sgNode._parent) {
+                this._sgNode.removeFromParent();
+            }
+            if (sgParent) {
+                sgParent.addChild(this._sgNode);
+            }
+        }
+
+        if (this._activeInHierarchy) {
+            cc.director.getActionManager().resumeTarget(this);
+            cc.eventManager.resumeTarget(this);
+        }
+        else {
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+        }
+    },
+
+    _removeSgNode: SgHelper.removeSgNode,
 });
 
 
@@ -2066,32 +2115,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
  * @param {Number} localZOrder
  * @example
  * node.setLocalZOrder(1);
- */
-
-/*
- * !#en
- * Returns whether the anchor point will be ignored when you position this node.<br/>
- * When anchor point ignored, position will be calculated based on the origin point (0, 0) in parent's coordinates.
- * !#zh
- * 返回这个节点位置时，是否会忽略这个锚点。<br/>
- * 当锚点被忽略时，在父坐标系中的原点（0，0）计算位置。
- * @method isIgnoreAnchorPointForPosition
- * @return {Boolean} true if the anchor point will be ignored when you position this node.
- */
-
-/*
- * !#en
- * Sets whether the anchor point will be ignored when you position this node.                              <br/>
- * When anchor point ignored, position will be calculated based on the origin point (0, 0) in parent's coordinates.  <br/>
- * This is an internal method, only used by CCLayer and CCScene. Don't call it outside framework.        <br/>
- * The default value is false, while in CCLayer and CCScene are true
- * !#zh
- * 设置抹点为（0，0）当你摆放这个节点的时候。
- * 这是一个内部方法，仅仅被 Layer 和 Scene 使用。不要在框架外调用。默认值是 false，但是在 Layer 和 Scene 中是 true.
- * @method ignoreAnchorPointForPosition
- * @param {Boolean} newValue - true if anchor point will be ignored when you position this node
- * @example
- * node.ignoreAnchorPointForPosition(true);
  */
 
 /**

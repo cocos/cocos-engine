@@ -3,32 +3,33 @@ var JS = require('./js');
 // definitions for CCObject.Flags
 
 var Destroyed = 1 << 0;
-var ToDestroy = 1 << 1;
-var DontSave = 1 << 2;
-var EditorOnly = 1 << 3;
-var Dirty = 1 << 4;
-var DontDestroy = 1 << 5;
-var Destroying = 1 << 6;
-var Activating = 1 << 7;
-//var RegisteredInEditor = 1 << 8;
+var RealDestroyed = 1 << 1;
+var ToDestroy = 1 << 2;
+var DontSave = 1 << 3;
+var EditorOnly = 1 << 4;
+var Dirty = 1 << 5;
+var DontDestroy = 1 << 6;
+var Destroying = 1 << 7;
+var Activating = 1 << 8;
 var HideInGame = 1 << 9;
 var HideInEditor = 1 << 10;
 
 var IsOnEnableCalled = 1 << 12;
-var IsOnLoadCalled = 1 << 13;
-var IsOnLoadStarted = 1 << 14;
-var IsOnStartCalled = 1 << 15;
+var IsEditorOnEnableCalled = 1 << 13;
+var IsOnLoadCalled = 1 << 14;
+var IsOnLoadStarted = 1 << 15;
+var IsOnStartCalled = 1 << 16;
 
-var IsRotationLocked = 1 << 16;
-var IsScaleLocked = 1 << 17;
-var IsAnchorLocked = 1 << 18;
-var IsSizeLocked = 1 << 19;
-var IsPositionLocked = 1 << 20;
+var IsRotationLocked = 1 << 17;
+var IsScaleLocked = 1 << 18;
+var IsAnchorLocked = 1 << 19;
+var IsSizeLocked = 1 << 20;
+var IsPositionLocked = 1 << 21;
 
 var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
-                       IsOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
+                       IsOnEnableCalled | IsEditorOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
                        /*RegisteredInEditor*/);
 
 /**
@@ -136,6 +137,7 @@ CCObject.Flags = {
     IsOnLoadStarted: IsOnLoadStarted,
     IsOnEnableCalled: IsOnEnableCalled,
     IsOnStartCalled: IsOnStartCalled,
+    IsEditorOnEnableCalled: IsEditorOnEnableCalled,
 
     IsPositionLocked: IsPositionLocked,
     IsRotationLocked: IsRotationLocked,
@@ -227,6 +229,12 @@ JS.get(prototype, 'isValid', function () {
     return !(this._objFlags & Destroyed);
 });
 
+if (CC_DEV) {
+    JS.get(prototype, 'isRealValid', function () {
+        return !(this._objFlags & RealDestroyed);
+    });
+}
+
 var deferredDestroyTimer = null;
 
 /**
@@ -256,7 +264,7 @@ prototype.destroy = function () {
     this._objFlags |= ToDestroy;
     objectsToDestroy.push(this);
 
-    if (deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating && CC_EDITOR) {
+    if (CC_EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
         // auto destroy immediate in edit mode
         deferredDestroyTimer = setImmediate(deferredDestroy);
     }
@@ -264,33 +272,27 @@ prototype.destroy = function () {
 };
 
 if (CC_DEV) {
-    /**
+    /*
      * !#en
      * In fact, Object's "destroy" will not trigger the destruct operation in Firebal Editor.
      * The destruct operation will be executed by Undo system later.
      * !#zh
      * 事实上，对象的 “destroy” 不会在编辑器中触发析构操作，
-     * 析构操作将在 Undo 系统中延后执行。
+     * 析构操作将在 Undo 系统中**延后**执行。
      * @method realDestroyInEditor
-     * @example
-     * cc.log(obj.realDestroyInEditor());
+     * @private
      */
     prototype.realDestroyInEditor = function () {
-        if (this._objFlags & Destroyed) {
+        if ( !(this._objFlags & Destroyed) ) {
+            cc.warn('object not yet destroyed');
+            return;
+        }
+        if (this._objFlags & RealDestroyed) {
             cc.warn('object already destroyed');
-            return false;
+            return;
         }
-        if (this._objFlags & ToDestroy) {
-            return false;
-        }
-        this._objFlags |= ToDestroy;
-        objectsToDestroy.push(this);
-
-        if (deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating && CC_EDITOR) {
-            // auto destroy immediate in edit mode
-            deferredDestroyTimer = setImmediate(deferredDestroy);
-        }
-        return true;
+        this._destruct();
+        this._objFlags |= RealDestroyed;
     };
 }
 
@@ -303,9 +305,6 @@ if (CC_DEV) {
  * @private
  */
 prototype._destruct = function () {
-    if (CC_EDITOR && !(this._objFlags & Destroyed)) {
-        return cc.error('object not yet destroyed');
-    }
     // 所有可枚举到的属性，都会被清空
     for (var key in this) {
         if (this.hasOwnProperty(key)) {
@@ -340,11 +339,9 @@ prototype._destroyImmediate = function () {
     }
 
     if (!CC_EDITOR || cc.engine._isPlaying) {
-        // 这里 _destruct 将由编辑器进行调用
         this._destruct();
     }
 
-    // mark destroyed
     this._objFlags |= Destroyed;
 };
 

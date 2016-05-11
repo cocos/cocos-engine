@@ -4,7 +4,7 @@ if (typeof CustomEvent === 'undefined') {
     }
 }
 
-if (typeof Set == 'undefined') {
+if (typeof Set === 'undefined') {
     // very simple polyfill
     Set = function () {
         this.values = [];
@@ -14,6 +14,17 @@ if (typeof Set == 'undefined') {
     };
     Set.prototype.add = function (value) {
         this.values.push(value);
+    };
+}
+
+if (typeof setImmediate === 'undefined') {
+    window.setImmediate = function (func) {
+        'use strict';
+        console.assert(arguments.length <= 1, 'not support params');
+        return setTimeout(func, 0);
+    };
+    window.clearImmediate = function (immediateID) {
+        clearTimeout(immediateID);
     };
 }
 
@@ -46,6 +57,13 @@ if (!Function.prototype.bind) {
         return fBound;
     };
 }
+
+//if (!Array.prototype.includes) {
+//    // This will break test-node-serialization.js
+//    Array.prototype.includes = function (value) {
+//        return this.indexOf(value) !== -1;
+//    };
+//}
 
 var isPhantomJS = window.navigator.userAgent.indexOf('PhantomJS') !== -1;
 if (isPhantomJS) {
