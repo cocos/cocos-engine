@@ -3,7 +3,6 @@
         "README.md", 
         "build/cocos2d-win32.sln", 
         "build/cocos2d_libs.xcodeproj/project.pbxproj", 
-        "build/cocos2d_libs.xcodeproj/project.xcworkspace/xcshareddata/cocos2d_libs.xcscmblueprint", 
         "cocos/2d/CCAction.cpp", 
         "cocos/2d/CCAction.h", 
         "cocos/2d/CCActionCamera.cpp", 
@@ -2778,16 +2777,6 @@
         "licenses/LICENSE_unicode.txt", 
         "licenses/LICENSE_zlib.txt", 
         "package.json", 
-        "simulator/mac/Simulator.app/Contents/Info.plist", 
-        "simulator/mac/Simulator.app/Contents/MacOS/Simulator", 
-        "simulator/mac/Simulator.app/Contents/PkgInfo", 
-        "simulator/mac/Simulator.app/Contents/Resources/Base.lproj/ConsoleWindow.nib", 
-        "simulator/mac/Simulator.app/Contents/Resources/Base.lproj/MainMenu.nib", 
-        "simulator/mac/Simulator.app/Contents/Resources/Icon.icns", 
-        "simulator/mac/Simulator.app/Contents/Resources/config.json", 
-        "simulator/mac/Simulator.app/Contents/Resources/lang", 
-        "simulator/mac/Simulator.app/Contents/Resources/zh-Hans.lproj/ConsoleWindow.strings", 
-        "simulator/mac/Simulator.app/Contents/Resources/zh-Hans.lproj/MainMenu.nib", 
         "tools/coding-style/tailing-spaces.py", 
         "tools/simulator/.cocos-project.json", 
         "tools/simulator/.project", 
@@ -3253,7 +3242,6 @@
         "tools/tojs/cocos2dx_studio.ini", 
         "tools/tojs/cocos2dx_ui.ini", 
         "tools/tojs/creator.ini", 
-        "tools/tojs/genbindings.py", 
-        "tools/tojs/userconf.ini"
+        "tools/tojs/genbindings.py"
     ]
 }
