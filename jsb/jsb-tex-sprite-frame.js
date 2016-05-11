@@ -200,4 +200,5 @@ cc.js.set(cc.SpriteFrame.prototype, '_textureFilenameSetter', function (url) {
 });
 
 // Assets
+cc.js.setClassName('cc.Texture2D', cc.Texture2D);
 cc.js.setClassName('cc.SpriteFrame', cc.SpriteFrame);
