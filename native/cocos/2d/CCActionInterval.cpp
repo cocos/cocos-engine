@@ -2377,7 +2377,9 @@ void Animate::update(float t)
             _currFrameIndex = i;
             AnimationFrame* frame = frames.at(_currFrameIndex);
             frameToDisplay = frame->getSpriteFrame();
-            static_cast<Sprite*>(_target)->setSpriteFrame(frameToDisplay);
+            CCASSERT(_target, "Animate::update error: _target should not null");
+            if(_target)
+                static_cast<Sprite*>(_target)->setSpriteFrame(frameToDisplay);
 
             const ValueMap& dict = frame->getUserInfo();
             if ( !dict.empty() )

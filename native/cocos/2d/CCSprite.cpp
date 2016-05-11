@@ -620,7 +620,9 @@ void Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
     if(_insideBounds)
 #endif
     {
-        if (_texture == nullptr) {
+        CCASSERT(_glProgramState, "Sprite::draw error: _glProgramState should not null");
+        if (_texture == nullptr || _glProgramState == nullptr)
+        {
             return;
         }
 
