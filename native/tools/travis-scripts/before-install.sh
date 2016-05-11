@@ -26,10 +26,10 @@ install_android_ndk()
     echo "Decompress android-ndk-r11c-${HOST_NAME}-x86_64.zip ..."
     unzip -q android-ndk-r11c-${HOST_NAME}-x86_64.zip
     # Rename ndk
-    mv android-ndk-r9d android-ndk
+    mv android-ndk-r11c android-ndk
 }
 
 #we only use osx for generate bindings
-if [ $TRAVIS_OS_NAME == 'osx' ]; then
+if [ $TRAVIS_OS_NAME == 'linux' ]; then
     install_android_ndk
 fi
