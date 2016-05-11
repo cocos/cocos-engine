@@ -210,23 +210,24 @@ void MotionStreak::setTexture(Texture2D *texture)
     }
 }
 
-float MotionStreak::getFadeTime()
-{
-    return 1.0f / _fadeDelta;
-}
-
 void MotionStreak::setFadeTime(float fade)
 {
-    _fadeDelta = 1.0f/fade;
+    CC_SAFE_FREE(_pointState);
+    CC_SAFE_FREE(_pointVertexes);
+    CC_SAFE_FREE(_vertices);
+    CC_SAFE_FREE(_colorPointer);
+    CC_SAFE_FREE(_texCoords);
 
-    _maxPoints = (int)(fade*60.0f)+2;
+    _fadeDelta = 1.0f / fade;
+
+    _maxPoints = (int)(fade * 60.0f) + 2;
     _nuPoints = 0;
     _pointState = (float *)malloc(sizeof(float) * _maxPoints);
     _pointVertexes = (Vec2*)malloc(sizeof(Vec2) * _maxPoints);
 
     _vertices = (Vec2*)malloc(sizeof(Vec2) * _maxPoints * 2);
     _texCoords = (Tex2F*)malloc(sizeof(Tex2F) * _maxPoints * 2);
-    _colorPointer =  (GLubyte*)malloc(sizeof(GLubyte) * _maxPoints * 2 * 4);
+    _colorPointer = (GLubyte*)malloc(sizeof(GLubyte) * _maxPoints * 2 * 4);
 }
 
 void MotionStreak::setMinSeg(float minSeg)

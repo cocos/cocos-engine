@@ -80,7 +80,7 @@ public:
      *
      * @return float fadeTime.
      */
-    float getFadeTime();
+    inline float getFadeTime() const { return 1.0 / _fadeDelta; }
     /** Sets trail fragment fade time, in seconds.
      *
      * @param fade.
