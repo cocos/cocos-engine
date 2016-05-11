@@ -22,10 +22,10 @@ install_android_ndk()
     else
         HOST_NAME="linux"
     fi
-    echo "Download android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2 ..."
-    curl -O http://dl.google.com/android/ndk/android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2
-    echo "Decompress android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2 ..."
-    tar xjf android-ndk-r9d-${HOST_NAME}-x86_64.tar.bz2
+    echo "Download android-ndk-r11c-${HOST_NAME}-x86_64.zip ..."
+    curl -O http://dl.google.com/android/repository/android-ndk-r11c-${HOST_NAME}-x86_64.zip
+    echo "Decompress android-ndk-r11c-${HOST_NAME}-x86_64.zip ..."
+    unzip android-ndk-r11c-${HOST_NAME}-x86_64.zip
     # Rename ndk
     mv android-ndk-r9d android-ndk
 }
