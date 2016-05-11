@@ -46,19 +46,6 @@ function isMatchByWord (path, test) {
 }
 
 cc.js.mixin(AssetTable.prototype, {
-
-    ///**
-    // * Check if the table contains a specific object. <br/>
-    // * <br/>
-    // * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
-    // *
-    // * @method contains
-    // * @param {string} path - (not support wildcard)
-    // * @return {boolean}
-    // */
-    //contains: function (path) {
-    //    return (path in this._pathToUuid);
-    //},
     
     getUuid: function (path, type) {
         path = cc.url.normalize(path);
@@ -127,15 +114,6 @@ cc.js.mixin(AssetTable.prototype, {
         }
         return uuids;
     },
-
-    ///**
-    // * Returns all asset paths in the table.
-    // * @method getAllPaths
-    // * @return {string[]}
-    // */
-    //getAllPaths: function () {
-    //    return Object.keys(this._pathToUuid);
-    //},
     
     /**
      * @method add
@@ -175,17 +153,7 @@ cc.js.mixin(AssetTable.prototype, {
             pathToUuid[path] = newEntry;
         }
     },
-    //_removeByPath: function (path) {
-    //    delete this._pathToUuid[path];
-    //}
-    //_removeByUuid: function (uuid) {
-    //    for (var path in this._pathToUuid) {
-    //        if (this._pathToUuid[path] === uuid) {
-    //            delete this._pathToUuid[path];
-    //            return;
-    //        }
-    //    }
-    //}
+
     reset: function () {
         this._pathToUuid = {}
     }

@@ -341,6 +341,16 @@ JS.mixin(cc.loader, {
      *     var texture = assets[0];
      *     var spriteFrame = assets[1];
      * });
+     *
+     * // load all textures in "resources/imgs/"
+     * cc.loader.loadResAll('imgs', cc.Texture2D, function (err, textures) {
+     *     if (err) {
+     *         cc.error(err);
+     *         return;
+     *     }
+     *     var texture1 = textures[0];
+     *     var texture2 = textures[1];
+     * });
      */
     loadResAll: function (url, type, completeCallback) {
         if (!completeCallback && type && !cc.isChildClassOf(type, cc.RawAsset)) {
