@@ -855,7 +855,7 @@ void Director::popScene()
     {
         _scenesStack.popBack();
         _sendCleanupToScene = true;
-        _nextScene = _scenesStack.at(c - 1);
+        _nextScene = _scenesStack.at(c - 2);
     }
 }
 
