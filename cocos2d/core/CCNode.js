@@ -419,6 +419,42 @@ var Node = cc.Class({
                     this._objFlags &= ~DontDestroy;
                 }
             }
+        },
+
+        /**
+         * !#en
+         * Group index of node.<br/>
+         * Which Group this node belongs to will resolve that this node's collision components can collide with which other collision componentns.<br/>
+         * !#zh
+         * 节点的分组索引。<br/>
+         * 节点的分组将关系到节点的碰撞组件可以与哪些碰撞组件相碰撞。<br/>
+         * @property groupIndex
+         * @type {Integer}
+         * @default 0
+         */
+        groupIndex: {
+            default: 0,
+            type: cc.Integer
+        },
+
+        /**
+         * !#en
+         * Group of node.<br/>
+         * Which Group this node belongs to will resolve that this node's collision components can collide with which other collision componentns.<br/>
+         * !#zh
+         * 节点的分组。<br/>
+         * 节点的分组将关系到节点的碰撞组件可以与哪些碰撞组件相碰撞。<br/>
+         * @property group
+         * @type {String}
+         */
+        group: {
+            get: function () {
+                return cc.game.groupList[this.groupIndex] || '';
+            },
+
+            set: function (value) {
+                this.groupIndex = cc.game.groupList.indexOf(value);
+            }
         }
     },
 

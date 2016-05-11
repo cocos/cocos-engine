@@ -241,8 +241,8 @@ cc.js.mixin(cc.game, {
         config[CONFIG_KEY.engineDir] = config[CONFIG_KEY.engineDir] || 'frameworks/cocos2d-html5';
 
         // Group List and Collide Map
-        this.groupList = config.groupList;
-        this.collideMap = config.collideMap;
+        this.groupList = config.groupList || [];
+        this.collisionMatrix = config.collisionMatrix || [];
 
         // Scene parser
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);

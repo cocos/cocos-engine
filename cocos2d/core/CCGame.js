@@ -582,8 +582,8 @@ var game = /** @lends cc.game# */{
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
 
         // Collide Map and Group List
-        this.collideMap = config.collideMap;
-        this.groupList = config.groupList;
+        this.collisionMatrix = config.collisionMatrix || [];
+        this.groupList = config.groupList || [];
 
         this.config = config;
     },
