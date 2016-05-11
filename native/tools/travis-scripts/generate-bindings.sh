@@ -29,7 +29,7 @@ JS_COMMIT_PATH="cocos/scripting/js-bindings/auto"
 # Exit on error
 set -e
 
-if [ "$PLATFORM"x = "mac-ios"x ]; then
+if [ $TRAVIS_OS_NAME == 'osx' ]; then
     mkdir -p $HOME/bin
     pushd $HOME/bin
     curl -O http://pyyaml.org/download/pyyaml/PyYAML-3.10.zip
@@ -42,8 +42,6 @@ if [ "$PLATFORM"x = "mac-ios"x ]; then
     cd Cheetah-2.4.4
     sudo python setup.py install 2> /dev/null > /dev/null
     popd
-elif [ $(command -v apt-get) ]; then
-    sudo apt-get --force-yes --yes install python-yaml python-cheetah
 fi
 
 generate_bindings_glue_codes()
@@ -54,10 +52,7 @@ generate_bindings_glue_codes()
     popd
 }
 
-if [ "$GEN_BINDING"x != "YES"x ]; then
-    generate_bindings_glue_codes
-    exit 0
-fi
+generate_bindings_glue_codes
 
 pushd "$PROJECT_ROOT"
 #Set git user for cocos2d-js repo
