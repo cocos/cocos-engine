@@ -569,6 +569,7 @@ var ScrollView = cc.Class({
         var anchor = options.anchor;
         var applyToHorizontal = options.applyToHorizontal;
         var applyToVertical = options.applyToVertical;
+        this._calculateBoundary();
 
         anchor = cc.pClamp(anchor, cc.p(0, 0), cc.p(1, 1));
 
@@ -694,6 +695,7 @@ var ScrollView = cc.Class({
 
     _handlePressLogic: function() {
         this._autoScrolling = false;
+        this._calculateBoundary();
 
         this._touchMovePreviousTimestamp = getTimeInMilliseconds();
         this._touchMoveDisplacements = [];

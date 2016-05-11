@@ -342,6 +342,14 @@ var testNames = [
         }
     },
     {
+        title:"MotionStreak Test",
+        platforms: PLATFORM_JSB_AND_WEBGL,
+        linksrc:"src/MotionStreakTest/MotionStreakTest.js",
+        testScene:function () {
+            return new MotionStreakTestScene();
+        }
+    },
+    {
         title:"OpenGL Test",
         resource:g_opengl_resources,
         platforms: PLATFORM_JSB_AND_WEBGL,

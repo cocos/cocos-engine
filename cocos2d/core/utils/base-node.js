@@ -244,13 +244,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._localZOrder;
             },
             set: function (value) {
-                this._localZOrder = value;
-                this._sgNode.zIndex = value;
+                if (this._localZOrder !== value) {
+                    this._localZOrder = value;
+                    this._sgNode.zIndex = value;
 
-                if (!CC_JSB && this._parent) {
-                    this._parent._reorderChildDirty = true;
-                    this._parent._delaySort();
-                    cc.eventManager._setDirtyForNode(this);
+                    if (!CC_JSB && this._parent) {
+                        this._parent._reorderChildDirty = true;
+                        this._parent._delaySort();
+                        cc.eventManager._setDirtyForNode(this);
+                    }
                 }
             }
         },
@@ -1858,36 +1860,31 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     sortAllChildren: function () {
         if (this._reorderChildDirty) {
-            var _children = this._children;
-
-            if (!_children) {
-                this._reorderChildDirty = false;
-                return;
-            }
-
-            // insertion sort
-            var len = _children.length, i, j, child;
-            for (i = 1; i < len; i++){
-                child = _children[i];
-                j = i - 1;
-
-                //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
-                while(j >= 0){
-                    if (child._localZOrder < _children[j]._localZOrder) {
-                        _children[j+1] = _children[j];
-                    } else if (child._localZOrder === _children[j]._localZOrder && 
-                               child._sgNode.arrivalOrder < _children[j]._sgNode.arrivalOrder) {
-                        _children[j+1] = _children[j];
-                    } else {
-                        break;
-                    }
-                    j--;
-                }
-                _children[j+1] = child;
-            }
-
             this._reorderChildDirty = false;
-            this.emit(CHILD_REORDER);
+            var _children = this._children;
+            if (_children.length > 1) {
+                // insertion sort
+                var len = _children.length, i, j, child;
+                for (i = 1; i < len; i++){
+                    child = _children[i];
+                    j = i - 1;
+
+                    //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
+                    while(j >= 0){
+                        if (child._localZOrder < _children[j]._localZOrder) {
+                            _children[j+1] = _children[j];
+                        } else if (child._localZOrder === _children[j]._localZOrder &&
+                                   child._sgNode.arrivalOrder < _children[j]._sgNode.arrivalOrder) {
+                            _children[j+1] = _children[j];
+                        } else {
+                            break;
+                        }
+                        j--;
+                    }
+                    _children[j+1] = child;
+                }
+                this.emit(CHILD_REORDER);
+            }
         }
         cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
@@ -1909,7 +1906,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         var arrivalOrder = sgNode.arrivalOrder;
         sgNode.setLocalZOrder(this._localZOrder);
-        sgNode.arrivalOrder = arrivalOrder;
+        sgNode.arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
+
         sgNode.setGlobalZOrder(this._globalZOrder);
 
         sgNode.setOpacity(this._opacity);

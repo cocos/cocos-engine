@@ -102,7 +102,11 @@ var srcs = [
 
     './cocos2d/physics/CCPhysicsDebugNode.js',
     './cocos2d/physics/CCPhysicsDebugNodeCanvasRenderCmd.js',
-    './cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js'
+    './cocos2d/physics/CCPhysicsDebugNodeWebGLRenderCmd.js',
+
+    './cocos2d/motion-streak/CCSGMotionStreak.js',
+    './cocos2d/motion-streak/CCSGMotionStreakWebGLRenderCmd.js'
+
 ];
 
 var header = new Buffer('(function (cc, ccui, ccs, cp) {\n');

@@ -58,6 +58,13 @@ if (!Function.prototype.bind) {
     };
 }
 
+//if (!Array.prototype.includes) {
+//    // This will break test-node-serialization.js
+//    Array.prototype.includes = function (value) {
+//        return this.indexOf(value) !== -1;
+//    };
+//}
+
 var isPhantomJS = window.navigator.userAgent.indexOf('PhantomJS') !== -1;
 if (isPhantomJS) {
     QUnit.config.notrycatch = true;

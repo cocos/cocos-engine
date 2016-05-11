@@ -161,9 +161,15 @@ var Sprite = cc.Class({
                 return this._spriteFrame;
             },
             set: function (value, force) {
+                if (this._spriteFrame === value) {
+                    return;
+                }
                 var lastSprite = this._spriteFrame;
                 this._spriteFrame = value;
                 this._applySpriteFrame(lastSprite);
+                if (CC_EDITOR) {
+                    this.node.emit('spriteframe-changed', this);
+                }
             },
             type: cc.SpriteFrame,
         },

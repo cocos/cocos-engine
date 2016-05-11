@@ -31,6 +31,10 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/particle/CCParticleSystem');
 }
 
+if (!(CC_EDITOR && Editor.isCoreLevel)) {
+    require('./cocos2d/motion-streak/CCMotionStreak');
+}
+
 require('./cocos2d/tilemap/CCTiledMapAsset');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/tilemap/CCTiledMap');
