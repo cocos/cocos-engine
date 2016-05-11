@@ -1216,17 +1216,17 @@ cc.TMXLayer.prototype.tileFlagsAt = cc.TMXLayer.prototype.getTileFlagsAt;
 
 sys.localStorage._setItem = sys.localStorage.setItem;
 sys.localStorage.setItem = function(itemKey,itemValue) {
-    if (itemKey && itemValue) {
-        if (typeof itemKey !== 'string') {
-            cc.log("sys.localStorage.setItem Warning: itemKey[" + itemKey + "] is not string!");
-            itemKey = '' + itemKey;
+    if (typeof itemKey === 'string') {
+        if(itemValue !== undefined && itemValue !== null)
+        {
+            if (typeof itemValue !== 'string') {
+                cc.log("sys.localStorage.setItem Warning: itemValue[" + itemValue + "] is not string!");
+                itemValue = '' + itemValue;
+            }
+            sys.localStorage._setItem(itemKey, itemValue);
         }
-        if (typeof itemValue !== 'string') {
-            cc.log("sys.localStorage.setItem Warning: itemValue[" + itemValue + "] is not string!");
-            itemValue = '' + itemValue;
-        }
-
-        sys.localStorage._setItem(itemKey, itemValue);
     }
+    else
+        cc.log("sys.localStorage.setItem Warning: itemKey[" + itemKey + "] is not string!");
 }
 
