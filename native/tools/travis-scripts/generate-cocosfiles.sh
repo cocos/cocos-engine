@@ -18,10 +18,7 @@ generate_cocosfiles_json()
     ./generate-template-files.py
 }
 
-if [ "$GEN_COCOS_FILES"x != "YES"x ]; then
-    generate_cocosfiles_json
-    exit 0
-fi
+generate_cocosfiles_json
 
 pushd "$PROJECT_ROOT"
 #Set git user for cocos2d-x repo
