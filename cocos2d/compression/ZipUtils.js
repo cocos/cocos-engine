@@ -24,8 +24,14 @@ cc.Codec.unzip = function () {
  * @returns {String} Unpacked byte string
  */
 cc.Codec.unzipBase64 = function () {
-    var tmpInput = cc.Codec.Base64.decode.apply(cc.Codec.Base64, arguments);
-    return cc.Codec.GZip.gunzip.apply(cc.Codec.GZip, [tmpInput]);
+    var buffer = cc.Codec.Base64.decode.apply(cc.Codec.Base64, arguments);
+    try {
+        return cc.Codec.GZip.gunzip.call(cc.Codec.GZip, buffer);
+    }
+    catch(e) {
+        // if not zipped, just skip
+        return buffer.slice(7); // get image data
+    }
 };
 
 /**
