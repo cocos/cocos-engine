@@ -38,53 +38,7 @@ var Collider = cc.Class({
             default: false,
             serializable: false,
             tooltip: 'i18n:COMPONENT.collider.editing'
-        },
-
-        /**
-         * !#en Collider component category.
-         * !#zh 碰撞组件所属类别
-         * @property category
-         * @type {Integer}
-         * @default 0
-         */
-        category: {
-            default: 0,
-            visible: false,
-            serializable: false
-        },
-
-        /**
-         * !#en The collider mask can collide with this collider.
-         * !#zh 可以与碰撞组件相碰撞的组件掩码
-         * @property mask
-         * @type {Integer}
-         * @default 0
-         */
-        mask: {
-            default: 0,
-            visible: false,
-            serializable: false
         }
-    },
-
-    onLoad: function () {
-        var groupIndex = this.node.groupIndex;
-        this.category = 1 << groupIndex;
-
-        var collideMap = cc.game.collideMap[groupIndex];
-        if (!collideMap) {
-          this.mask = 0;
-          cc.warn('Cant\'t find collider map for group index : ' + groupIndex);
-          return;
-        }
-
-        var mask = 0;
-        for (var i = 0, l = collideMap.length; i < l; i++) {
-          if (collideMap[i]) {
-            mask += 1 << i;
-          }
-        }
-        this.mask = mask;
     },
 
     onDisable: function () {
