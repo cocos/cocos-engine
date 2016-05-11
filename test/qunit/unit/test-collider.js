@@ -7,7 +7,7 @@ test('collision manager', function() {
     manager.enabled = true;
 
     cc.game.groupList = ['Default'];
-    cc.game.collideMap = [[true]];
+    cc.game.collisionMatrix = [[true]];
 
     var node1 = new cc.Node();
     cc.director.getScene().addChild(node1);

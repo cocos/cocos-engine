@@ -42,16 +42,10 @@ var Collider = cc.Class({
     },
 
     onDisable: function () {
-        if (CC_EDITOR) {
-            return;
-        }
         cc.director.getCollisionManager().removeCollider(this);
     },
 
     onEnable: function () {
-        if (CC_EDITOR) {
-            return;
-        }
         cc.director.getCollisionManager().addCollider(this);
     }
 });

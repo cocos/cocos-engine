@@ -242,7 +242,7 @@ cc.js.mixin(cc.game, {
 
         // Group List and Collide Map
         this.groupList = config.groupList || [];
-        this.collideMap = config.collideMap || [];
+        this.collisionMatrix = config.collisionMatrix || [];
 
         // Scene parser
         this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);

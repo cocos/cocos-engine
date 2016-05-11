@@ -173,8 +173,8 @@ var CollisionManager = cc.Class({
 
     shouldCollide: function (c1, c2) {
         var node1 = c1.node, node2 = c2.node;
-        var collideMap = cc.game.collideMap;
-        return c1.node !== c2.node && collideMap[node1.groupIndex][node2.groupIndex];
+        var collisionMatrix = cc.game.collisionMatrix;
+        return node1 !== node2 && collisionMatrix[node1.groupIndex][node2.groupIndex];
     },
 
     initCollider: function (collider) {
