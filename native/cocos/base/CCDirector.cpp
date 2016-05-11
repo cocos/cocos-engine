@@ -825,7 +825,10 @@ void Director::pushScene(Scene *scene)
 {
     CCASSERT(scene, "the scene should not null");
     if (scene == nullptr)
+    {
+        log("Director::pushScene error:the scene is null!");
         return;
+    }
 
     _sendCleanupToScene = false;
 
@@ -837,7 +840,10 @@ void Director::popScene()
 {
     CCASSERT(_runningScene != nullptr, "running scene should not null");
     if (_runningScene == nullptr)
+    {
+        log("Director::popScene error:running scene is null!");
         return;
+    }
 
     ssize_t c = _scenesStack.size();
 

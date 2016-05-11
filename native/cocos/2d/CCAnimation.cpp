@@ -168,9 +168,15 @@ void Animation::addSpriteFrameWithFile(const std::string& filename)
 {
     Texture2D *texture = Director::DirectorInstance->getTextureCache()->addImage(filename);
     Rect rect = Rect::ZERO;
-    rect.size = texture->getContentSize();
-    SpriteFrame *frame = SpriteFrame::createWithTexture(texture, rect);
-    addSpriteFrame(frame);
+    CCASSERT(texture, "Animation::addSpriteFrameWithFile texture should not null");
+    if (texture)
+    {
+        rect.size = texture->getContentSize();
+        SpriteFrame *frame = SpriteFrame::createWithTexture(texture, rect);
+        addSpriteFrame(frame);
+    }
+    else
+        log("Animation::addSpriteFrameWithFile error: faile to add SpriteFrame(%s)", filename.c_str());
 }
 
 void Animation::addSpriteFrameWithTexture(Texture2D *pobTexture, const Rect& rect)

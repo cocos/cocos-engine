@@ -388,6 +388,12 @@ int Renderer::createRenderQueue()
 
 void Renderer::processRenderCommand(RenderCommand* command)
 {
+    CCASSERT(command, "Renderer::processRenderCommand:command should not null");
+    if(command == nullptr)
+    {
+        return;
+    }
+    
     auto commandType = command->getType();
     if( RenderCommand::Type::TRIANGLES_COMMAND == commandType)
     {
@@ -558,7 +564,6 @@ void Renderer::visitRenderQueue(RenderQueue& queue)
             RenderState::StateBlock::_defaultState->setDepthTest(true);
             RenderState::StateBlock::_defaultState->setDepthWrite(true);
             RenderState::StateBlock::_defaultState->setBlend(true);
-
         }
         else
         {
