@@ -6,6 +6,8 @@ Thumbs.db
 /tools/make-package/cocos2d-x.zip
 /simulator_*.zip
 /prebuilt_*.zip
+/prebuilt_mk
+/prebuilt_mk*.zip
 
 # Ignore files build by Visual Studio
 *.obj
