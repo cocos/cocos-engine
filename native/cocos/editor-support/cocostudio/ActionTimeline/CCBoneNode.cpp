@@ -380,7 +380,7 @@ void BoneNode::visit(cocos2d::Renderer *renderer, const cocos2d::Mat4& parentTra
 
 void BoneNode::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags)
 {
-    _customCommand.init(_globalZOrder, transform, flags);
+    _customCommand.init(_globalZOrder);
     _customCommand.func = CC_CALLBACK_0(BoneNode::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
 

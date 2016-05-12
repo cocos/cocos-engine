@@ -40,12 +40,12 @@ TrianglesCommand::TrianglesCommand()
     _type = RenderCommand::Type::TRIANGLES_COMMAND;
 }
 
-void TrianglesCommand::init(float globalOrder, GLuint textureID, GLProgramState* glProgramState, BlendFunc blendType, const Triangles& triangles,const Mat4& mv, uint32_t flags)
+void TrianglesCommand::init(float globalOrder, GLuint textureID, GLProgramState* glProgramState, const BlendFunc& blendType, const Triangles& triangles,const Mat4& mv, uint32_t flags)
 {
     CCASSERT(glProgramState, "Invalid GLProgramState");
     CCASSERT(glProgramState->getVertexAttribsFlags() == 0, "No custom attributes are supported in QuadCommand");
 
-    RenderCommand::init(globalOrder, mv, flags);
+    _globalOrder = globalOrder;
 
     _triangles = triangles;
     if(_triangles.indexCount % 3 != 0)
@@ -72,7 +72,6 @@ TrianglesCommand::~TrianglesCommand()
 
 void TrianglesCommand::generateMaterialID()
 {
-
     if(_glProgramState->getUniformCount() > 0)
     {
         _materialID = Renderer::MATERIAL_ID_DO_NOT_BATCH;

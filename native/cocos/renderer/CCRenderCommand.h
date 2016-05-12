@@ -72,7 +72,7 @@ public:
      @param modelViewTransform Modelview matrix when submitting the render command.
      @param flags Flag used to indicate whether the command should be draw at 3D mode or not.
      */
-    void init(float globalZOrder, const Mat4& modelViewTransform, uint32_t flags);
+    void init(float globalZOrder);
 
     /** Get global Z order. */
     inline float getGlobalOrder() const { return _globalOrder; }

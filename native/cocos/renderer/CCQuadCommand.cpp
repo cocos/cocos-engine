@@ -51,7 +51,7 @@ void QuadCommand::init(float globalOrder, GLuint textureID, GLProgramState* shad
     CCASSERT(shader, "Invalid GLProgramState");
     CCASSERT(shader->getVertexAttribsFlags() == 0, "No custom attributes are supported in QuadCommand");
 
-    RenderCommand::init(globalOrder, mv, flags);
+    _globalOrder = globalOrder;
 
     _quadsCount = quadCount;
     _quads = quads;
