@@ -1157,11 +1157,11 @@ void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t paren
     _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
     _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
-    int i = 0;
-
     if(!_children.empty())
     {
         sortAllChildren();
+        
+        int i = 0;
         // draw children zOrder < 0
         for( ; i < _children.size(); i++ )
         {

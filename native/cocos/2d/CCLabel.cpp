@@ -1529,13 +1529,13 @@ void Label::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
                 it.second->updateTransform();
             }
             auto textureAtlas = _batchNodes.at(0)->getTextureAtlas();
-            _quadCommand.init(_globalZOrder, textureAtlas->getTexture()->getName(), getGLProgramState(),
+            _quadCommand.init(_globalZOrder, textureAtlas->getTexture()->getName(), _glProgramState,
                 _blendFunc, textureAtlas->getQuads(), textureAtlas->getTotalQuads(), transform, flags);
             renderer->addCommand(&_quadCommand);
         }
         else
         {
-            _customCommand.init(_globalZOrder, transform, flags);
+            _customCommand.init(_globalZOrder);
             _customCommand.func = CC_CALLBACK_0(Label::onDraw, this, transform, transformUpdated);
 
             renderer->addCommand(&_customCommand);
