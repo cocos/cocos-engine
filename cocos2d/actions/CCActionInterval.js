@@ -2235,7 +2235,7 @@ cc.TintTo = cc.ActionInterval.extend({
             red = red.r;
         }
 
-		blue !== undefined && this.initWithDuration(duration, red, green, blue);
+        blue !== undefined && this.initWithDuration(duration, red, green, blue);
     },
 
     /*
