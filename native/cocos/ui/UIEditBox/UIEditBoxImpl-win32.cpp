@@ -917,9 +917,9 @@ void EditBoxImplWin::onWin32InputBoxClose(INT_PTR buttonId)
 
 void EditBoxImplWin::onWin32InputBoxTextChange(const char *pText)
 {
-    thiz->_isEditing = false;  // Prevent recursive calls
-    thiz->setText(pText);
-    thiz->_isEditing = true;
+    _isEditing = false;  // Prevent recursive calls
+    setText(pText);
+    _isEditing = true;
 
     if (_delegate != nullptr)
     {
