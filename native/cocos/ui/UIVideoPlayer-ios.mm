@@ -45,7 +45,7 @@ using namespace cocos2d::experimental::ui;
 - (void) resume;
 - (void) stop;
 - (void) seekTo:(float) sec;
-- (void) setVisible:(bool) visible;
+- (void) setVisible:(BOOL) visible;
 - (void) setKeepRatioEnabled:(bool) enabled;
 - (void) setFullScreenEnabled:(bool) enabled;
 - (bool) isFullScreenEnabled;
@@ -207,7 +207,7 @@ using namespace cocos2d::experimental::ui;
     }
 }
 
--(void) setVisible:(bool)visible
+-(void) setVisible:(BOOL)visible
 {
     if (self.moviePlayer != NULL) {
         [self.moviePlayer.view setHidden:!visible];
@@ -347,6 +347,19 @@ void VideoPlayer::setFullScreenEnabled(bool enabled)
     [((UIVideoViewWrapperIos*)_videoView) setFullScreenEnabled:enabled];
 }
 
+void VideoPlayer::onEnter()
+{
+    Widget::onEnter();
+    if (isVisible())
+        [((UIVideoViewWrapperIos*)_videoView) setVisible:YES];
+}
+
+void VideoPlayer::onExit()
+{
+    Widget::onExit();
+    [((UIVideoViewWrapperIos*)_videoView) setVisible:NO];
+}
+
 void VideoPlayer::setKeepAspectRatioEnabled(bool enable)
 {
     if (_keepAspectRatioEnabled != enable)
@@ -405,10 +418,10 @@ void VideoPlayer::setVisible(bool visible)
 {
     cocos2d::ui::Widget::setVisible(visible);
 
-    if (! _videoURL.empty())
-    {
-        [((UIVideoViewWrapperIos*)_videoView) setVisible:visible];
-    }
+    if (!visible)
+        [((UIVideoViewWrapperIos*)_videoView) setVisible:NO];
+    else if(isRunning())
+        [((UIVideoViewWrapperIos*)_videoView) setVisible:YES];
 }
 
 void VideoPlayer::addEventListener(const VideoPlayer::ccVideoPlayerCallback& callback)
