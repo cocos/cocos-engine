@@ -172,16 +172,16 @@ CocoLoader::~CocoLoader()
 
 }
 
-bool    CocoLoader::ReadCocoBinBuff(char* pBinBuff)
+bool CocoLoader::ReadCocoBinBuff(char* pBinBuff)
 {
     if(m_pMemoryBuff)return true;
     char*    pTempBuff = pBinBuff;
 
     m_pFileHeader = (stCocoFileHeader*)pTempBuff;
     pTempBuff += sizeof(stCocoFileHeader);
-    char*   pStartAddr = m_pMemoryBuff = pTempBuff;
+    char* pStartAddr = m_pMemoryBuff = pTempBuff;
 
-    char*    pDestBuff = new char[m_pFileHeader->m_nDataSize];
+    char* pDestBuff = new char[m_pFileHeader->m_nDataSize];
     if (m_pFileHeader->m_nCompressSize > 0)
     {
         uLongf        dwSrcSize  = m_pFileHeader->m_nCompressSize;

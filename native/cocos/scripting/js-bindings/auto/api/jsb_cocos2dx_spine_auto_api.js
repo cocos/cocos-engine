@@ -51,18 +51,6 @@ setBonesToSetupPose : function (
 },
 
 /**
- * @method initWithData
- * @param {spSkeletonData} arg0
- * @param {bool} arg1
- */
-initWithData : function (
-spskeletondata, 
-bool 
-)
-{
-},
-
-/**
  * @method setDebugSlotsEnabled
  * @param {bool} arg0
  */
@@ -273,46 +261,6 @@ getState : function (
 },
 
 /**
- * @method setTrackCompleteListener
- * @param {spTrackEntry} arg0
- * @param {function} arg1
- */
-setTrackCompleteListener : function (
-sptrackentry, 
-func 
-)
-{
-},
-
-/**
- * @method onTrackEntryEvent
- * @param {int} arg0
- * @param {spEventType} arg1
- * @param {spEvent} arg2
- * @param {int} arg3
- */
-onTrackEntryEvent : function (
-int, 
-speventtype, 
-spevent, 
-int 
-)
-{
-},
-
-/**
- * @method setTrackStartListener
- * @param {spTrackEntry} arg0
- * @param {function} arg1
- */
-setTrackStartListener : function (
-sptrackentry, 
-func 
-)
-{
-},
-
-/**
  * @method update
  * @param {float} arg0
  */
@@ -327,18 +275,6 @@ float
  * @param {function} arg0
  */
 setCompleteListener : function (
-func 
-)
-{
-},
-
-/**
- * @method setTrackEndListener
- * @param {spTrackEntry} arg0
- * @param {function} arg1
- */
-setTrackEndListener : function (
-sptrackentry, 
 func 
 )
 {
@@ -398,22 +334,6 @@ clearTracks : function (
  * @method clearTrack
  */
 clearTrack : function (
-)
-{
-},
-
-/**
- * @method onAnimationStateEvent
- * @param {int} arg0
- * @param {spEventType} arg1
- * @param {spEvent} arg2
- * @param {int} arg3
- */
-onAnimationStateEvent : function (
-int, 
-speventtype, 
-spevent, 
-int 
 )
 {
 },

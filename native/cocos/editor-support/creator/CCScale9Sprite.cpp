@@ -181,17 +181,15 @@ public:
     }
     
     std::vector<cocos2d::Vec2>  _calculateVertices(cocos2d::SpriteFrame* spriteFrame, const cocos2d::Size& contentSize, float insetLeft, float insetRight, float insetTop, float insetBottom) {
-        float leftWidth, centerWidth, rightWidth;
-        float topHeight, centerHeight, bottomHeight;
+        float leftWidth, rightWidth;
+        float topHeight, bottomHeight;
         
         auto rect = spriteFrame->getRect();
         leftWidth = insetLeft;
         rightWidth = insetRight;
-        centerWidth = rect.size.width - leftWidth - rightWidth;
         
         topHeight = insetTop;
         bottomHeight = insetBottom;
-        centerHeight = rect.size.height - topHeight - bottomHeight;
         
         auto preferSize = contentSize;
         auto sizableWidth = preferSize.width - leftWidth - rightWidth;
@@ -859,12 +857,12 @@ _quadsDirty(true),
 _isTriangle(false),
 _isTrimmedContentSize(true),
 _fillType(Scale9SpriteV2::FillType::HORIZONTAL),
-_fillCenter(cocos2d::Vec2(0,0)),
+_fillCenter(cocos2d::Vec2::ZERO),
 _fillStart(0),
 _fillRange(0),
 _needRebuildRenderCommand(true)
 {
-    this->setAnchorPoint(cocos2d::Vec2(0.5,0.5));
+    this->setAnchorPoint(cocos2d::Vec2::ANCHOR_MIDDLE);
     this->setGLProgramState(cocos2d::GLProgramState::getOrCreateWithGLProgramName(cocos2d::GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
 }
 
@@ -1081,7 +1079,7 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
         
     }
 
-	if (this->_indices.size() > 0 && this->_verts.size() > 0) {
+	if (!_indices.empty() && !_verts.empty()) {
 		cocos2d::TrianglesCommand::Triangles triangles;
 		triangles.indices = &this->_indices[0];
 		triangles.verts = &this->_verts[0];

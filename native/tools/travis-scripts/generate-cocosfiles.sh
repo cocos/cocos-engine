@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$DIR"/../..
 
 COMMITTAG="[AUTO][ci skip]: updating cocos2dx_files.json"
-PUSH_REPO="https://api.github.com/repos/cocos2d/cocos2d-x/pulls"
+PUSH_REPO="https://api.github.com/repos/cocos-creator/cocos2d-x-lite/pulls"
 OUTPUT_FILE_PATH="${PROJECT_ROOT}/templates/cocos2dx_files.json"
 FETCH_REMOTE_BRANCH=$1
 COMMIT_PATH="templates/cocos2dx_files.json"
@@ -18,10 +18,7 @@ generate_cocosfiles_json()
     ./generate-template-files.py
 }
 
-if [ "$GEN_COCOS_FILES"x != "YES"x ]; then
-    generate_cocosfiles_json
-    exit 0
-fi
+generate_cocosfiles_json
 
 pushd "$PROJECT_ROOT"
 #Set git user for cocos2d-x repo
@@ -90,8 +87,7 @@ git add .
 git checkout -b "$COCOS_BRANCH"
 git commit -m "$COMMITTAG"
 #Set remotes
-git remote add upstream https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x.git 2> /dev/null > /dev/null
-# 4. In Cocos2D-X repo, Push the commit to cocos2d-x repository
+git remote add upstream https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git 2> /dev/null > /dev/null
 echo "Pushing to Robot's repo ..."
 git push -fq upstream "$COCOS_BRANCH" 2> /dev/null
 

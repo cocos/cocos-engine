@@ -635,7 +635,9 @@ void EventDispatcher::removeEventListener(EventListener* listener)
 
         if (iter->second->empty())
         {
-            _priorityDirtyFlagMap.erase(listener->getTypeKey());
+            auto typeKey = listener->getTypeKey();
+            if(_priorityDirtyFlagMap.find(typeKey) != _priorityDirtyFlagMap.end())
+                _priorityDirtyFlagMap.erase(typeKey);
             auto list = iter->second;
             iter = _listenerMap.erase(iter);
             CC_SAFE_DELETE(list);
@@ -767,7 +769,6 @@ void EventDispatcher::dispatchEventToListeners(EventListenerVector* listeners, c
 
                 if (l->isEnabled() && !l->isPaused() && l->isRegistered() && onEvent(l))
                 {
-                    shouldStopPropagation = true;
                     break;
                 }
             }
@@ -873,7 +874,7 @@ void EventDispatcher::dispatchTouchEvent(EventTouch* event)
                         }
                     }
                 }
-                else if (listener->_claimedTouches.size() > 0
+                else if (!listener->_claimedTouches.empty()
                          && ((removedIter = std::find(listener->_claimedTouches.begin(), listener->_claimedTouches.end(), *touchesIter)) != listener->_claimedTouches.end()))
                 {
                     isClaimed = true;
@@ -950,7 +951,7 @@ void EventDispatcher::dispatchTouchEvent(EventTouch* event)
     //
     // process standard handlers 2nd
     //
-    if (allAtOnceListeners && mutableTouches.size() > 0)
+    if (allAtOnceListeners && !mutableTouches.empty())
     {
 
         auto onTouchesEvent = [&](EventListener* l) -> bool{

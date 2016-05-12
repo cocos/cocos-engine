@@ -159,9 +159,8 @@ public:
             JS::RootedValue args(cx, OBJECT_TO_JSVAL(jsobj));
             ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(_JSDelegate.ref()), "onclose", 1, args.address());
             
-            auto copy = &p->obj;
+            JS::RemoveObjectRoot(cx, &p->obj);
             jsb_remove_proxy(p);
-            JS::RemoveObjectRoot(cx, copy);
         }
         
         // Delete WebSocket instance
@@ -175,7 +174,7 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
 
-        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr)
+        if (Director::DirectorInstance == nullptr || ScriptEngineManager::ShareInstance == nullptr || Director::DirectorInstance->getRunningScene() == nullptr)
             return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -283,7 +282,6 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
 
     if (argc == 1 || argc == 2)
     {
-
         std::string url;
 
         do {
@@ -293,12 +291,8 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
 
         JS::RootedObject proto(cx, js_cocos2dx_websocket_prototype);
         JS::RootedObject obj(cx, JS_NewObject(cx, js_cocos2dx_websocket_class, proto, JS::NullPtr()));
-        //JS::RootedObject obj(cx, JS_NewObjectForConstructor(cx, js_cocos2dx_websocket_class, args));
 
-        WebSocket* cobj = new (std::nothrow) WebSocket();
-        auto delegate = new (std::nothrow) JSB_WebSocketDelegate(cx);
-        delegate->setJSDelegate(obj);
-
+        WebSocket* cobj = nullptr;
         if (argc == 2)
         {
             std::vector<std::string> protocols;
@@ -334,13 +328,19 @@ bool js_cocos2dx_extension_WebSocket_constructor(JSContext *cx, uint32_t argc, j
                     protocols.push_back(protocol);
                 }
             }
+            
+            cobj = new (std::nothrow) WebSocket();
+            auto delegate = new (std::nothrow) JSB_WebSocketDelegate(cx);
+            delegate->setJSDelegate(obj);
             cobj->init(*delegate, url, &protocols);
         }
         else
         {
+            cobj = new (std::nothrow) WebSocket();
+            auto delegate = new (std::nothrow) JSB_WebSocketDelegate(cx);
+            delegate->setJSDelegate(obj);
             cobj->init(*delegate, url);
         }
-
 
         JS_DefineProperty(cx, obj, "URL", args.get(0), JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY);
 
@@ -377,8 +377,8 @@ static bool js_cocos2dx_extension_WebSocket_get_readyState(JSContext *cx, uint32
     }
 }
 
-void register_jsb_websocket(JSContext *cx, JS::HandleObject global) {
-
+void register_jsb_websocket(JSContext *cx, JS::HandleObject global)
+{
     js_cocos2dx_websocket_class = (JSClass *)calloc(1, sizeof(JSClass));
     js_cocos2dx_websocket_class->name = "WebSocket";
     js_cocos2dx_websocket_class->addProperty = JS_PropertyStub;

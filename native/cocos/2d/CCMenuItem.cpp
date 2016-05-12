@@ -60,7 +60,7 @@ MenuItem* MenuItem::create( const ccMenuCallback& callback)
 
 bool MenuItem::initWithCallback(const ccMenuCallback& callback)
 {
-    setAnchorPoint(Vec2(0.5f, 0.5f));
+    setAnchorPoint(Vec2::ANCHOR_MIDDLE);
     _callback = callback;
     _enabled = true;
     _selected = false;
@@ -89,14 +89,6 @@ void MenuItem::activate()
         {
             _callback(this);
         }
-#if CC_ENABLE_SCRIPT_BINDING
-        if (kScriptTypeNone != _scriptType && ScriptEngineManager::ShareInstance)
-        {
-            BasicScriptData data(this);
-            ScriptEvent scriptEvent(kMenuClickedEvent,&data);
-            ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&scriptEvent);
-        }
-#endif
     }
 }
 
@@ -391,7 +383,8 @@ void MenuItemSprite::setNormalImage(Node* image)
         if (image)
         {
             addChild(image);
-            image->setAnchorPoint(Vec2(0, 0));
+            image->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
+            setContentSize(image->getContentSize());
         }
 
         if (_normalImage)
@@ -400,7 +393,6 @@ void MenuItemSprite::setNormalImage(Node* image)
         }
 
         _normalImage = image;
-        this->setContentSize(_normalImage->getContentSize());
         this->updateImagesVisibility();
     }
 }
@@ -412,7 +404,7 @@ void MenuItemSprite::setSelectedImage(Node* image)
         if (image)
         {
             addChild(image);
-            image->setAnchorPoint(Vec2(0, 0));
+            image->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         }
 
         if (_selectedImage)
@@ -432,7 +424,7 @@ void MenuItemSprite::setDisabledImage(Node* image)
         if (image)
         {
             addChild(image);
-            image->setAnchorPoint(Vec2(0, 0));
+            image->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         }
 
         if (_disabledImage)
@@ -544,7 +536,7 @@ void MenuItemSprite::updateImagesVisibility()
 {
     if (_enabled)
     {
-        if (_normalImage)   _normalImage->setVisible(true);
+        if (_normalImage) _normalImage->setVisible(true);
         if (_selectedImage) _selectedImage->setVisible(false);
         if (_disabledImage) _disabledImage->setVisible(false);
     }
@@ -552,13 +544,13 @@ void MenuItemSprite::updateImagesVisibility()
     {
         if (_disabledImage)
         {
-            if (_normalImage)   _normalImage->setVisible(false);
+            if (_normalImage) _normalImage->setVisible(false);
             if (_selectedImage) _selectedImage->setVisible(false);
             if (_disabledImage) _disabledImage->setVisible(true);
         }
         else
         {
-            if (_normalImage)   _normalImage->setVisible(true);
+            if (_normalImage) _normalImage->setVisible(true);
             if (_selectedImage) _selectedImage->setVisible(false);
             if (_disabledImage) _disabledImage->setVisible(false);
         }

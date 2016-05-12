@@ -41,10 +41,8 @@ class CocosFileList:
         self.inludeConfig=[]
         self.rootDir = ""
         self.fileList_com=[]
-        self.fileList_lua=[]
         self.fileList_js=[]
 
-        self.luaPath = ["cocos/scripting/lua-bindings", "external/lua", "tools/bindings-generator", "tools/tolua"]
         self.jsPath = ["cocos/scripting/js-bindings", "external/spidermonkey", "tools/bindings-generator", "tools/tojs" ]
 
     def readIngoreFile(self, fileName):
@@ -90,11 +88,6 @@ class CocosFileList:
                       self.__bInclude(item) or
                       self.__bInclude("%s/" %item)
                     ):
-                        foundLuaModule = False
-                        for luaPath in self.luaPath:
-                            if relativePath.upper().find(luaPath.upper()) == 0:
-                                foundLuaModule = True
-                                break
 
                         foundJSModule = False
                         for jsPath in self.jsPath:
@@ -102,9 +95,7 @@ class CocosFileList:
                                 foundJSModule = True
                                 break
 
-                        if foundLuaModule:
-                            self.fileList_lua.append("%s/" %relativePath)
-                        elif foundJSModule:
+                        if foundJSModule:
                             self.fileList_js.append("%s/" %relativePath)
                         else:
                             self.fileList_com.append("%s/" %relativePath)
@@ -129,11 +120,6 @@ class CocosFileList:
                         ):
                             continue
                 # print(relativePath)
-                foundLuaModule = False
-                for luaPath in self.luaPath:
-                    if relativePath.upper().find(luaPath.upper()) == 0:
-                        foundLuaModule = True
-                        break
 
                 foundJSModule = False
                 for jsPath in self.jsPath:
@@ -141,9 +127,7 @@ class CocosFileList:
                         foundJSModule = True
                         break
 
-                if foundLuaModule:
-                    self.fileList_lua.append(relativePath)
-                elif foundJSModule:
+                if foundJSModule:
                     self.fileList_js.append(relativePath)
                 else:
                     self.fileList_com.append(relativePath)
@@ -170,9 +154,8 @@ class CocosFileList:
         """
         f = open(fileName,"w")
         self.fileList_com.sort()
-        self.fileList_lua.sort()
         self.fileList_js.sort()
-        content ={'common':self.fileList_com,'lua':self.fileList_lua,'js':self.fileList_js}
+        content ={'common':self.fileList_com,'js':self.fileList_js}
         json.dump(content,f,sort_keys=True,indent=4)
         f.close()
         return True

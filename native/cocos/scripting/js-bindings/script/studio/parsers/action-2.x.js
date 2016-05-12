@@ -149,7 +149,8 @@
                 frame.setAnchorPoint(cc.p(anchorx, anchory));
                 return frame;
             }
-        },{
+        },
+        {
             name: "AnchorPoint",
             handle: function(options){
                 var frame = new ccs.AnchorPointFrame();
@@ -158,7 +159,8 @@
                 frame.setAnchorPoint(cc.p(anchorx, anchory));
                 return frame;
             }
-        },{
+        },
+        {
             name: "InnerAction",
             handle: function(options){
                 var frame = new ccs.InnerActionFrame();
@@ -197,7 +199,7 @@
                 var frame, texture, plist, path, spriteFrame;
                 frame = new ccs.TextureFrame();
                 texture = options["TextureFile"];
-                if(texture != null) {
+                if(texture) {
                     plist = texture["Plist"];
                     path = texture["Path"];
                     spriteFrame = cc.spriteFrameCache.getSpriteFrame(path);

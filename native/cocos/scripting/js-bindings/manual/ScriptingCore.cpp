@@ -415,7 +415,7 @@ void registerDefaultClasses(JSContext* cx, JS::HandleObject global) {
 
     // register some global functions
     JS_DefineFunction(cx, global, "require", ScriptingCore::executeScript, 1, JSPROP_PERMANENT);
-    JS_DefineFunction(cx, global, "log", ScriptingCore::log, 0, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "log", ScriptingCore::log, 0, JSPROP_PERMANENT);
     JS_DefineFunction(cx, global, "executeScript", ScriptingCore::executeScript, 1, JSPROP_READONLY | JSPROP_PERMANENT);
     JS_DefineFunction(cx, global, "forceGC", ScriptingCore::forceGC, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 
@@ -600,7 +600,7 @@ void ScriptingCore::createGlobalContext() {
 
     runScript("script/jsb_prepare.js", globalRef, _cx);
 
-    for (std::vector<sc_register_sth>::iterator it = registrationList.begin(); it != registrationList.end(); it++) {
+    for (auto it = registrationList.begin(); it != registrationList.end(); it++) {
         sc_register_sth callback = *it;
         callback(_cx, _global.ref());
     }
@@ -704,6 +704,7 @@ JS::PersistentRootedScript* ScriptingCore::compileScript(const std::string& path
     if (compileSucceed) {
         return script;
     } else {
+        cocos2d::log("ScriptingCore:: compileScript fail:%s", path.c_str());
         CC_SAFE_DELETE(script);
         return nullptr;
     }

@@ -151,7 +151,7 @@ bool TextureAtlas::initWithFile(const std::string& file, ssize_t capacity)
     }
     else
     {
-        CCLOG("cocos2d: Could not open file: %s", file.c_str());
+        CCLOG("TextureAtlas::initWithFile error: Could not open file: %s", file.c_str());
         return false;
     }
 }

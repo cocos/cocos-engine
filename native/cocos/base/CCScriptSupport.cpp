@@ -167,7 +167,10 @@ void ScriptEngineManager::destroyInstance()
 
 bool ScriptEngineManager::sendActionEventToJS(Action* actionObject, int eventType, void* param)
 {
-    auto scriptEngine = getInstance()->getScriptEngine();
+    if (ShareInstance == nullptr)
+        return false;
+    
+    auto scriptEngine = ShareInstance->getScriptEngine();
 
     ActionObjectScriptData data(actionObject,(int*)&eventType, param);
     ScriptEvent scriptEvent(kScriptActionEvent,(void*)&data);
@@ -179,7 +182,10 @@ bool ScriptEngineManager::sendActionEventToJS(Action* actionObject, int eventTyp
 
 bool ScriptEngineManager::sendNodeEventToJS(Node* node, int action)
 {
-    auto scriptEngine = getInstance()->getScriptEngine();
+    if (ShareInstance == nullptr)
+        return false;
+    
+    auto scriptEngine = ShareInstance->getScriptEngine();
 
     if (scriptEngine->isCalledFromScript())
     {
@@ -199,7 +205,10 @@ bool ScriptEngineManager::sendNodeEventToJS(Node* node, int action)
 
 bool ScriptEngineManager::sendNodeEventToJSExtended(Node* node, int action)
 {
-    auto scriptEngine = getInstance()->getScriptEngine();
+    if (ShareInstance == nullptr)
+        return false;
+    
+    auto scriptEngine = ShareInstance->getScriptEngine();
 
     if (!scriptEngine->isCalledFromScript())
     {
@@ -214,7 +223,10 @@ bool ScriptEngineManager::sendNodeEventToJSExtended(Node* node, int action)
 
 void ScriptEngineManager::sendNodeEventToLua(Node* node, int action)
 {
-    auto scriptEngine = getInstance()->getScriptEngine();
+    if (ShareInstance == nullptr)
+        return;
+    
+    auto scriptEngine = ShareInstance->getScriptEngine();
 
     BasicScriptData data(node,(void*)&action);
     ScriptEvent scriptEvent(kNodeEvent,(void*)&data);

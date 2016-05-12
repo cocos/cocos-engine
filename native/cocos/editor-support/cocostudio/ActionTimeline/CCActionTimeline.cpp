@@ -93,7 +93,7 @@ bool ActionTimeline::init()
     return true;
 }
 
-void ActionTimeline::play(std::string name, bool loop)
+void ActionTimeline::play(const std::string& name, bool loop)
 {
     if (name.empty() || _animationInfos.find(name) == _animationInfos.end())
     {
@@ -193,7 +193,7 @@ ActionTimeline* ActionTimeline::clone() const
 
 void ActionTimeline::step(float delta)
 {
-    if (!_playing || _timelineMap.size() == 0 || _duration == 0)
+    if (!_playing || _timelineMap.empty() || _duration == 0)
     {
         return;
     }
@@ -310,7 +310,7 @@ void ActionTimeline::addAnimationInfo(const AnimationInfo& animationInfo)
     addFrameEndCallFunc(animationInfo.endIndex, animationInfo.name, animationInfo.clipEndCallBack);
 }
 
-void ActionTimeline::removeAnimationInfo(std::string animationName)
+void ActionTimeline::removeAnimationInfo(const std::string& animationName)
 {
     auto clipIter = _animationInfos.find(animationName);
     if (clipIter == _animationInfos.end())

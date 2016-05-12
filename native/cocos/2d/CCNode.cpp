@@ -189,7 +189,7 @@ Node::~Node()
 #endif
 
     if (_running) {
-        log("Node still marked as running on node destruction! Was base class onExit() called in derived class onExit() implementations?");
+        CCLOG("Node still marked as running on node destruction! Was base class onExit() called in derived class onExit() implementations?");
     }
     CC_SAFE_RELEASE(_eventDispatcher);
 }
@@ -730,6 +730,8 @@ Node* Node::getChildByTag(int tag) const
 Node* Node::getChildByName(const std::string& name) const
 {
     CCASSERT(!name.empty(), "Invalid name");
+    if (name.empty())
+        return nullptr;
 
     std::hash<std::string> h;
     size_t hash = h(name);
@@ -881,6 +883,11 @@ void Node::addChild(Node* child, int localZOrder, const std::string &name)
 void Node::addChildHelper(Node* child, int localZOrder, int tag, const std::string &name, bool setTag)
 {
     if (child == nullptr) {
+        return;
+    }
+    if (child->_parent != nullptr)
+    {
+        log("child already added. It can't be added again");
         return;
     }
     if (_children.empty())

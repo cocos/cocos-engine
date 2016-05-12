@@ -144,7 +144,7 @@ Sprite* Sprite::create()
 
 bool Sprite::init()
 {
-    return initWithTexture(nullptr, Rect::ZERO );
+    return initWithTexture(nullptr, Rect::ZERO, false);
 }
 
 bool Sprite::initWithTexture(Texture2D *texture)
@@ -158,7 +158,7 @@ bool Sprite::initWithTexture(Texture2D *texture)
     Rect rect = Rect::ZERO;
     rect.size = texture->getContentSize();
 
-    return initWithTexture(texture, rect);
+    return initWithTexture(texture, rect, false);
 }
 
 bool Sprite::initWithTexture(Texture2D *texture, const Rect& rect)
@@ -175,7 +175,7 @@ bool Sprite::initWithFile(const std::string& filename)
     {
         Rect rect = Rect::ZERO;
         rect.size = texture->getContentSize();
-        return initWithTexture(texture, rect);
+        return initWithTexture(texture, rect, false);
     }
 
     return false;
@@ -188,7 +188,7 @@ bool Sprite::initWithFile(const std::string &filename, const Rect& rect)
     Texture2D *texture = _director->getTextureCache()->addImage(filename);
     if (texture)
     {
-        return initWithTexture(texture, rect);
+        return initWithTexture(texture, rect, false);
     }
 
     return false;
@@ -253,7 +253,7 @@ bool Sprite::initWithTexture(Texture2D *texture, const Rect& rect, bool rotated)
         _flippedX = _flippedY = false;
 
         // default transform anchor: center
-        setAnchorPoint(Vec2(0.5f, 0.5f));
+        setAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
         // zwoptex default values
         _offsetPosition.setZero();
@@ -336,7 +336,7 @@ void Sprite::setTexture(const std::string &filename)
     Texture2D *texture = _director->getTextureCache()->addImage(filename);
 
     setTexture(texture);
-
+    _unflippedOffsetPositionFromCenter = Vec2::ZERO;
     Rect rect = Rect::ZERO;
     if (texture)
         rect.size = texture->getContentSize();
@@ -620,7 +620,9 @@ void Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
     if(_insideBounds)
 #endif
     {
-        if (_texture == nullptr) {
+        CCASSERT(_glProgramState, "Sprite::draw error: _glProgramState should not null");
+        if (_texture == nullptr || _glProgramState == nullptr)
+        {
             return;
         }
 
