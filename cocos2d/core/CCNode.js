@@ -1377,15 +1377,6 @@ if (cc.sys.isNative) {
  * @param {Vec2} event.detail - old position
  */
 /**
- * @event rotation-changed
- * @param {Event} event
- * @param {Number} event.detail - old rotation x
- */
-/**
- * @event scale-changed
- * @param {Event} event
- * @param {Vec2} event.detail - old scale
- */
 /**
  * @event size-changed
  * @param {Event} event
