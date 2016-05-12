@@ -127,6 +127,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     _lineHeight: 40,
     _outlined: false,
+    _outlineColor: null,
     _className: "Label",
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
@@ -263,6 +264,14 @@ _ccsg.Label = _ccsg.Node.extend({
     setOutlined: function(value) {
         this._outlined = !!value;
         this._notifyLabelSkinDirty();
+    },
+
+    getOutlineColor: function() {
+        return this._outlineColor;
+    },
+
+    setOutlineColor: function(value) {
+        this._outlineColor = cc.color(value);
     },
 
     _updateWrapText: function(overflow){

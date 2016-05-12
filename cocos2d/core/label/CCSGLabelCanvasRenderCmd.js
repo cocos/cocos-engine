@@ -431,10 +431,13 @@
 
         //do real rendering
         for (var i = 0; i < this._splitedStrings.length; ++i) {
-            if(this._node.isOutlined()) {
+            this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+            if(this._node.isOutlined())
+            {
+                var strokeColor = this._node.getOutlineColor() || cc.color(255,255,255,255);
+                this._labelContext.globalCompositeOperation = 'source-over';
+                this._labelContext.strokeStyle = 'rgb(' + strokeColor.r + ',' + strokeColor.g + ',' + strokeColor.b + ')';
                 this._labelContext.strokeText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
-            } else {
-                this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
             }
         }
 
