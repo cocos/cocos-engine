@@ -333,7 +333,11 @@ JS.mixin(EventTarget.prototype, {
             return;
         }
         //don't emit event when bubble listeners are not exists.
-        if(!this._bubblingListeners || !this._bubblingListeners._callbackTable[message]) {
+        if(!this._bubblingListeners) {
+            return;
+        }
+        var listeners = this._bubblingListeners._callbackTable[message];
+        if (!listeners || listeners.length === 0) {
             return;
         }
 
