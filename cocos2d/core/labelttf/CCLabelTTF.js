@@ -859,4 +859,17 @@ cc.LabelTTF.__getFontHeightByDiv = function (fontName, fontSize) {
 
 };
 
+// fireball#2856
+
+var labelTTFPro = cc.LabelTTF.prototype;
+Object.defineProperty(labelTTFPro, 'width', {
+    get: labelTTFPro._getWidth,
+    set: _ccsg.Node.prototype._setWidth
+});
+
+Object.defineProperty(labelTTFPro, 'height', {
+    get: labelTTFPro._getHeight,
+    set: _ccsg.Node.prototype._setHeight
+});
+
 cc.LabelTTF.__fontHeightCache = {};
