@@ -999,3 +999,20 @@ cc.js.addon(_ccsg.Sprite.prototype, EventTarget.prototype);
 cc.assert(cc.js.isFunction(cc._tmp.PrototypeSprite), cc._LogInfos.MissingFile, "SpritesPropertyDefine.js");
 cc._tmp.PrototypeSprite();
 delete cc._tmp.PrototypeSprite;
+
+// fireball#2856
+
+var spritePro = _ccsg.Sprite.prototype;
+Object.defineProperty(spritePro, 'visible', {
+    get: _ccsg.Node.prototype.isVisible,
+    set: spritePro.setVisible
+});
+
+Object.defineProperty(spritePro, 'ignoreAnchor', {
+    get: _ccsg.Node.prototype.isIgnoreAnchorPointForPosition,
+    set: spritePro.ignoreAnchorPointForPosition
+});
+
+Object.defineProperty(spritePro, 'opacityModifyRGB', {
+    get: spritePro.isOpacityModifyRGB
+});

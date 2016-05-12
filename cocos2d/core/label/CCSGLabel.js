@@ -1134,3 +1134,17 @@ _ccsg.Label.Overflow = cc.Enum({
     SHRINK: 2,
     RESIZE_HEIGHT: 3
 });
+
+
+// fireball#2856
+
+var labelPro = _ccsg.Label.prototype;
+Object.defineProperty(labelPro, 'width', {
+    get: labelPro._getWidth,
+    set: _ccsg.Node.prototype._setWidth
+});
+
+Object.defineProperty(labelPro, 'height', {
+    get: labelPro._getHeight,
+    set: _ccsg.Node.prototype._setHeight
+});
