@@ -669,7 +669,7 @@ bool jsval_to_TTFConfig(JSContext *cx, JS::HandleValue v, cocos2d::TTFConfig* re
         if (JS_GetProperty(cx, tmp, "glyphs", &js_glyphs) && !js_glyphs.isUndefined())
         {
             if (JS::ToNumber(cx, js_glyphs, &glyphs))
-                ret->glyphs = (GlyphCollection)glyphs;
+                ret->glyphs = (GlyphCollection)((int)glyphs);
         }
         
         if (JS_GetProperty(cx, tmp, "customGlyphs", &js_customGlyphs) && !js_customGlyphs.isUndefined())
