@@ -27,7 +27,7 @@ function searchDependFiles(tmxFile, cb) {
     for (var i = 0, n = images.length; i < n ; i++) {
       var imageCfg = images[i].getAttribute('source');
       if (imageCfg) {
-        var imgPath = cc.path.changeBasename(sourcePath, imageCfg);
+        var imgPath = Path.join(Path.dirname(sourcePath), imageCfg);
         textures.push(imgPath);
       }
     }
@@ -39,7 +39,7 @@ function searchDependFiles(tmxFile, cb) {
     var tileset = tilesetElements[i];
     var sourceTSX = tileset.getAttribute('source');
     if (sourceTSX) {
-      var tsxPath = cc.path.changeBasename(tmxFile, sourceTSX);
+      var tsxPath = Path.join(Path.dirname(tmxFile), sourceTSX);
 
       if (Fs.existsSync(tsxPath)) {
         tsxFiles.push(tsxPath);
