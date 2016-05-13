@@ -27,6 +27,16 @@
             "height": 640
         },
         {
+            "title": "iPhone 6 (1334x750)",
+            "width": 1334,
+            "height": 750
+        },
+        {
+            "title": "iPhone 6 Plus (1920x1080)",
+            "width": 1920,
+            "height": 1080
+        },
+        {
             "title": "iPad (1024x768)",
             "width": 1024,
             "height": 768
@@ -50,11 +60,6 @@
             "title": "Android (1280x720)",
             "width": 1280,
             "height": 720
-        },
-        {
-            "title": "Android (1920x1080)",
-            "width": 1920,
-            "height": 1080
         }
     ]
 }
