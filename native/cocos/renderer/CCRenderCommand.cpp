@@ -41,28 +41,9 @@ RenderCommand::~RenderCommand()
 {
 }
 
-void RenderCommand::init(float globalZOrder, const cocos2d::Mat4 &transform, uint32_t flags)
+void RenderCommand::init(float globalZOrder)
 {
     _globalOrder = globalZOrder;
-    _depth = 0;
-}
-
-void printBits(ssize_t const size, void const * const ptr)
-{
-    unsigned char *b = (unsigned char*) ptr;
-    unsigned char byte;
-    ssize_t i, j;
-
-    for (i=size-1;i>=0;i--)
-    {
-        for (j=7;j>=0;j--)
-        {
-            byte = b[i] & (1<<j);
-            byte >>= j;
-            printf("%u", byte);
-        }
-    }
-    puts("");
 }
 
 void RenderCommand::printID()

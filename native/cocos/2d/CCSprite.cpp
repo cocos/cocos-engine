@@ -626,7 +626,7 @@ void Sprite::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
             return;
         }
 
-        _trianglesCommand.init(_globalZOrder, _texture->getName(), getGLProgramState(), _blendFunc, _polyInfo.triangles, transform, flags);
+        _trianglesCommand.init(_globalZOrder, _texture->getName(), _glProgramState, _blendFunc, _polyInfo.triangles, transform, flags);
         renderer->addCommand(&_trianglesCommand);
 
 #if CC_SPRITE_DEBUG_DRAW

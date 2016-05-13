@@ -301,11 +301,13 @@ void Director::drawScene()
         _notificationNode->visit(_renderer, Mat4::IDENTITY, 0);
     }
 
+    _renderer->render();
+    
     if (_displayStats)
     {
         showStats();
+        _renderer->render();
     }
-    _renderer->render();
 
     _eventDispatcher->dispatchEvent(_eventAfterDraw);
 
@@ -855,7 +857,7 @@ void Director::popScene()
     {
         _scenesStack.popBack();
         _sendCleanupToScene = true;
-        _nextScene = _scenesStack.at(c - 1);
+        _nextScene = _scenesStack.at(c - 2);
     }
 }
 
