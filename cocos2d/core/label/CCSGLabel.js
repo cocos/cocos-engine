@@ -272,6 +272,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     setOutlineColor: function(value) {
         this._outlineColor = cc.color(value);
+        this._notifyLabelSkinDirty();
     },
 
     _updateWrapText: function(overflow){
