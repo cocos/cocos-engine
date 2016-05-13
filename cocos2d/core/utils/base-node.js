@@ -709,7 +709,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         });
 
         var sgNode = this._sgNode = new _ccsg.Node();
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             sgNode.retain();
             var entity = this;
             sgNode.onEnter = function () {
