@@ -541,7 +541,7 @@ void ProgressTimer::draw(Renderer *renderer, const Mat4 &transform, uint32_t fla
     if( ! _vertexData || ! _sprite)
         return;
 
-    _customCommand.init(_globalZOrder, transform, flags);
+    _customCommand.init(_globalZOrder);
     _customCommand.func = CC_CALLBACK_0(ProgressTimer::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
 }

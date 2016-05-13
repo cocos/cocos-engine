@@ -304,21 +304,21 @@ void DrawNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
     if(_bufferCount)
     {
-        _customCommand.init(_globalZOrder, transform, flags);
+        _customCommand.init(_globalZOrder);
         _customCommand.func = CC_CALLBACK_0(DrawNode::onDraw, this, transform, flags);
         renderer->addCommand(&_customCommand);
     }
 
     if(_bufferCountGLPoint)
     {
-        _customCommandGLPoint.init(_globalZOrder, transform, flags);
+        _customCommandGLPoint.init(_globalZOrder);
         _customCommandGLPoint.func = CC_CALLBACK_0(DrawNode::onDrawGLPoint, this, transform, flags);
         renderer->addCommand(&_customCommandGLPoint);
     }
 
     if(_bufferCountGLLine)
     {
-        _customCommandGLLine.init(_globalZOrder, transform, flags);
+        _customCommandGLLine.init(_globalZOrder);
         _customCommandGLLine.func = CC_CALLBACK_0(DrawNode::onDrawGLLine, this, transform, flags);
         renderer->addCommand(&_customCommandGLLine);
     }
