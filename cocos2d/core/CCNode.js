@@ -539,6 +539,14 @@ var Node = cc.Class({
         this._releaseAllActions();
 
         // Remove all listeners
+        if (CC_JSB && this._touchListener) {
+            this._touchListener.release();
+            this._touchListener = null;
+        }
+        if (CC_JSB && this._mouseListener) {
+            this._mouseListener.release();
+            this._mouseListener = null;
+        }
         cc.eventManager.removeListeners(this);
         for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
             var target = this.__eventTargets[i];
@@ -567,8 +575,9 @@ var Node = cc.Class({
                 this._parent = null;
             }
         }
-        else {
+        else if (CC_JSB) {
             this._sgNode.release();
+            this._sgNode = null;
         }
     },
 
