@@ -109,7 +109,7 @@ cc.LayerLoader = cc.NodeLoader.extend({
             //node.setMouseEnabled(check);
         } else if (propertyName === PROPERTY_KEYBOARD_ENABLED || propertyName === PROPERTY_IS_KEYBOARD_ENABLED) {
             // TODO XXX
-            if(node.setKeyboardEnabled && !cc.sys.isNative) {
+            if(!CC_JSB && node.setKeyboardEnabled) {
                 node.setKeyboardEnabled(check);
             } else {
                 cc.log("The property '" + PROPERTY_IS_KEYBOARD_ENABLED + "' is not supported!");

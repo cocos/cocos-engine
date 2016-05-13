@@ -809,7 +809,9 @@ sp.Skeleton = cc.Class({
         // recreate sgNode...
         var sgNode = self._sgNode = self._createSgNode();
         if (sgNode) {
-            sgNode.retain();
+            if (CC_JSB) {
+                sgNode.retain();
+            }
             sgNode.setContentSize(0, 0);    // restore content size
             self._initSgNode();
             self._appendSgNode(sgNode);

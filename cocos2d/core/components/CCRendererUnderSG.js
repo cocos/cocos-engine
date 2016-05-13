@@ -43,7 +43,7 @@ var RendererUnderSG = cc.Class({
          * @private
          */
         this._sgNode = this._createSgNode();
-        if (this._sgNode) {
+        if (CC_JSB && this._sgNode) {
             // retain immediately
             // will be released in onDestroy
             this._sgNode.retain();

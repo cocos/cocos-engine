@@ -522,7 +522,7 @@ var ScrollView = cc.Class({
     _onMouseWheel: function(event) {
         var deltaMove = cc.p(0, 0);
         var wheelPrecision = 1.0 / 40;
-        if(cc.sys.isNative) {
+        if(CC_JSB) {
             wheelPrecision = 7;
         }
         if(this.vertical) {

@@ -78,9 +78,11 @@ var RendererInSG = cc.Class({
 
     onDestroy: function () {
         this._removeSgNode();
-        var releasedByNode = this.node._sgNode;
-        if (this._plainNode !== releasedByNode) {
-            this._plainNode.release();
+        if (CC_JSB) {
+            var releasedByNode = this.node._sgNode;
+            if (this._plainNode !== releasedByNode) {
+                this._plainNode.release();
+            }
         }
     },
 

@@ -907,7 +907,7 @@ cc.macro = {
      * @type {Number}
      * @readonly
      */
-    REPEAT_FOREVER: cc.sys.isNative ? 0xffffffff : (Number.MAX_VALUE - 1),
+    REPEAT_FOREVER: CC_JSB ? 0xffffffff : (Number.MAX_VALUE - 1),
 
     /**
      * @property FLT_EPSILON
