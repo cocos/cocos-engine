@@ -25,6 +25,9 @@
 
 'use strict';
 
+require('../cocos2d/core/platform/CCClass');
+require('../cocos2d/core/assets/CCAsset');
+
 // cc.spriteFrameAnimationCache = cc.animationCache;
 // cc.SpriteFrameAnimation = cc.Animation;
 
@@ -44,6 +47,10 @@ cc.textureCache.getTextureForKey = function (key) {
 };
 
 // cc.Texture2D
+
+cc.Class._fastDefine('cc.Texture2D', cc.Texture2D, []);
+cc.Texture2D.$super = cc.RawAsset;
+
 cc.Texture2D.prototype.isLoaded = function () {
     return true;
 };
@@ -51,6 +58,10 @@ cc.Texture2D.prototype.getPixelWidth = cc.Texture2D.prototype.getPixelsWide;
 cc.Texture2D.prototype.getPixelHeight = cc.Texture2D.prototype.getPixelsHigh;
 
 // cc.SpriteFrame
+
+cc.Class._fastDefine('cc.SpriteFrame', cc.SpriteFrame, []);
+cc.SpriteFrame.$super = cc.Asset;
+
 cc.js.mixin(cc.SpriteFrame.prototype, cc.EventTarget.prototype);
 cc.SpriteFrame.prototype.textureLoaded = function () {
     return this.getTexture() !== null;
@@ -198,7 +209,3 @@ cc.js.set(cc.SpriteFrame.prototype, '_textureFilenameSetter', function (url) {
         this._refreshTexture(texture);
     }
 });
-
-// Assets
-cc.js.setClassName('cc.Texture2D', cc.Texture2D);
-cc.js.setClassName('cc.SpriteFrame', cc.SpriteFrame);
