@@ -752,8 +752,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this.__ignoreAnchor = false;
     },
 
-    _onPreDestroy: function () {
+    _onPreDestroy: CC_JSB && function () {
         this._sgNode.release();
+        this._sgNode = null;
     },
 
     // ABSTRACT INTERFACES

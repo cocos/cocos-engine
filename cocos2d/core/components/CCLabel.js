@@ -319,7 +319,7 @@ var Label = cc.Class({
         }
 
         // node should be resize whenever font changed, needed only on web
-        if (!cc.sys.isNative) {
+        if (!CC_JSB) {
             this._sgNode.on('load', this._updateNodeSize, this);
         }
 
@@ -351,7 +351,9 @@ var Label = cc.Class({
         var textureUrl = isAsset ? this.font.texture : '';
 
         this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
-        this._sgNode.retain();
+        if (CC_JSB) {
+            this._sgNode.retain();
+        }
         var sgNode = this._sgNode;
 
         // TODO

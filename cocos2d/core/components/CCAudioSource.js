@@ -66,7 +66,7 @@ var AudioSource = cc.Class({
          */
         isPlaying: {
             get: function () {
-                return (!cc.sys.isNative && this.audio && this.audio.getPlaying());
+                return (!CC_JSB && this.audio && this.audio.getPlaying());
             },
             visible: false
         },
@@ -104,7 +104,7 @@ var AudioSource = cc.Class({
             set: function (value) {
                 this._volume = value;
                 if (this.audio) {
-                    if (cc.sys.isNative) {
+                    if (CC_JSB) {
                         cc.audioEngine.setEffectsVolume(value);
                     }
                     else {
@@ -130,7 +130,7 @@ var AudioSource = cc.Class({
                 this._mute = value;
                 if (this.audio) {
                     if (this._mute) {
-                        if (cc.sys.isNative) {
+                        if (CC_JSB) {
                             cc.audioEngine.setEffectsVolume(0);
                         }
                         else {
@@ -138,7 +138,7 @@ var AudioSource = cc.Class({
                         }
                     }
                     else {
-                        if (cc.sys.isNative) {
+                        if (CC_JSB) {
                             cc.audioEngine.setEffectsVolume(this._volume);
                         }
                         else {
@@ -206,7 +206,7 @@ var AudioSource = cc.Class({
     play: function () {
         if ( this._clip ) {
             var volume = this._mute ? 0 : this._volume;
-            if (cc.sys.isNative) {
+            if (CC_JSB) {
                 audioEngine.playEffect(this._clip, this._loop);
                 cc.audioEngine.setEffectsVolume(volume);
             }

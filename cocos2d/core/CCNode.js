@@ -485,7 +485,7 @@ var Node = cc.Class({
         this.__eventTargets = [];
 
         // Retained actions for JSB
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             this._retainedActions = [];
         }
     },
@@ -1089,7 +1089,9 @@ var Node = cc.Class({
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler
                 });
-                this._touchListener.retain();
+                if (CC_JSB) {
+                    this._touchListener.retain();
+                }
                 cc.eventManager.addListener(this._touchListener, this);
             }
         }
@@ -1105,7 +1107,9 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
-                this._mouseListener.retain();
+                if (CC_JSB) {
+                    this._mouseListener.retain();
+                }
                 cc.eventManager.addListener(this._mouseListener, this);
             }
         }
@@ -1247,7 +1251,7 @@ var Node = cc.Class({
             return;
         cc.assert(action, cc._LogInfos.Node.runAction);
 
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             this._retainAction(action);
             this._sgNode._owner = this;
         }
@@ -1336,14 +1340,14 @@ var Node = cc.Class({
     },
 
     _retainAction: function (action) {
-        if (cc.sys.isNative && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
+        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
             this._retainedActions.push(action);
             action.retain();
         }
     },
 
     _releaseAllActions: function () {
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             for (var i = 0; i < this._retainedActions.length; ++i) {
                 this._retainedActions[i].release();
             }
@@ -1355,7 +1359,7 @@ var Node = cc.Class({
 
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.
 // We need a mechanisme to guarentee the persistence of system event listeners.
-if (cc.sys.isNative) {
+if (CC_JSB) {
     cc.js.getset(Node.prototype, '_sgNode',
         function () {
             return this.__sgNode;
