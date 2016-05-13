@@ -10,8 +10,8 @@ var Path = require('path');
 var fs = require('fs');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
-gulp.task('make-prebuilt', gulpSequence('gen-libs', 'archive-prebuilt', 'upload-prebuilt'));
-gulp.task('make-simulator', gulpSequence('update-simulator-config', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-prebuilt', gulpSequence('gen-libs', 'collect-prebuilt-mk', 'archive-prebuilt-mk', 'archive-prebuilt', 'upload-prebuilt', 'upload-prebuilt-mk'));
+gulp.task('make-simulator', gulpSequence('update-simulator-config', 'update-simulator-script', 'archive-simulator', 'upload-simulator'));
 
 function execSync(cmd, workPath) {
   var execOptions = {
@@ -139,7 +139,22 @@ gulp.task('gen-simulator', function (cb) {
   }
 });
 
+gulp.task('collect-prebuilt-mk', function () {
+  return gulp.src([
+    '**/prebuilt-mk/Android.mk',
+    ], {
+    base: './',
+    ignore: 'prebuilt_mk/**/*'
+  }).pipe(gulp.dest('prebuilt_mk'));
+});
+
 gulp.task('update-simulator-config', function () {
+  var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
+  return gulp.src('./tools/simulator/config.json')
+          .pipe(gulp.dest(destPath));
+});
+
+gulp.task('update-simulator-script', function () {
     var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
     var updateScript = function () {
       // scripts
@@ -147,6 +162,7 @@ gulp.task('update-simulator-config', function () {
         base: './cocos/scripting/js-bindings'
       }).pipe(gulp.dest(destPath)); 
     };
+
     if (!fs.existsSync(destPath)) {
         console.error(`Cant\'t find simulator dir [${destPath}]`);
     } else {
@@ -156,6 +172,12 @@ gulp.task('update-simulator-config', function () {
         updateScript();
       }
     }
+});
+
+gulp.task('archive-prebuilt-mk', function () {
+  return gulp.src('./prebuilt_mk/**/*')
+    .pipe(zip('prebuilt_mk_' + process.platform + '.zip'))
+    .pipe(gulp.dest('./'));
 });
 
 gulp.task('archive-simulator', function () {
@@ -169,6 +191,11 @@ gulp.task('archive-prebuilt', function () {
     base: './'
   }).pipe(zip('prebuilt_' + process.platform + '.zip'))
     .pipe(gulp.dest('./'));
+});
+
+gulp.task('upload-prebuilt-mk', function (cb) {
+  var zipFileName = 'prebuilt_mk_' + process.platform + '.zip';
+  uploadZipFile(zipFileName, '.', cb);
 });
 
 gulp.task('upload-prebuilt', function (cb) {
