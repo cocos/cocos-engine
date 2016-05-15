@@ -306,7 +306,7 @@ var Label = cc.Class({
         Overflow: Overflow,
     },
 
-    onLoad: function () {
+    __preload: function () {
         this._super();
 
         var sgSizeInitialized = this._sgNode._isUseSystemFont;

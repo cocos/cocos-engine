@@ -313,7 +313,7 @@ sp.Skeleton = cc.Class({
 
     // IMPLEMENT
 
-    onLoad: function () {
+    __preload: function () {
         // sgNode 的尺寸不是很可靠 同时 Node 的框框也没办法和渲染匹配 只好强制尺寸为零
         var Flags = cc.Object.Flags;
         this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);

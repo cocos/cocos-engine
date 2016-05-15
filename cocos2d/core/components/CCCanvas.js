@@ -136,7 +136,7 @@ var Canvas = cc.Class({
         this._thisOnResized = this.onResized.bind(this);
     },
 
-    onLoad: function () {
+    __preload: function () {
         var Flags = cc.Object.Flags;
         this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
 

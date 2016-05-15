@@ -1024,7 +1024,7 @@ var ScrollView = cc.Class({
     },
 
     //component life cycle methods
-    onLoad: function () {
+    __preload: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
             if(cc.isValid(this.content)) {

@@ -716,7 +716,7 @@ var ParticleSystem = cc.Class({
 
     // LIFE-CYCLE METHODS
 
-    onLoad: function () {
+    __preload: function () {
         this._super();
         // auto play
         if (!CC_EDITOR || cc.engine.isPlaying) {

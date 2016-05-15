@@ -51,7 +51,7 @@ var SGComponent = cc.Class({
         }
     },
 
-    //onLoad: function () {
+    //__preload: function () {
     //    this._initSgNode();
     //},
     //onDestroy: function () {

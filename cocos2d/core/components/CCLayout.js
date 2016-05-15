@@ -352,7 +352,7 @@ var Layout = cc.Class({
         AxisDirection: AxisDirection,
     },
 
-    onLoad: function() {
+    __preload: function() {
         if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
             this.node.setContentSize(this._layoutSize);
         }

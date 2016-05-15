@@ -146,7 +146,7 @@ var Animation = cc.Class({
         }
     },
 
-    onLoad: function () {
+    __preload: function () {
         if (CC_EDITOR) return;
 
         this._init();
