@@ -143,7 +143,7 @@ function loadUuid (item, callback) {
         return Object;
     };
 
-    var tdInfo = cc.sys.isNative ? new cc.deserialize.Details() : (item.deserializeInfo || _tdInfo);
+    var tdInfo = CC_JSB ? new cc.deserialize.Details() : (item.deserializeInfo || _tdInfo);
 
     var asset;
     try {

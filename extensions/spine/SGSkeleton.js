@@ -329,3 +329,10 @@ sp._SGSkeleton = _ccsg.Node.extend({
         this._skeleton.update(dt);
     }
 });
+
+
+// fireball#2856
+
+Object.defineProperty(sp._SGSkeleton.prototype, 'opacityModifyRGB', {
+    get: sp._SGSkeleton.prototype.isOpacityModifyRGB
+});

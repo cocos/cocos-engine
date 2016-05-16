@@ -485,7 +485,7 @@ var Node = cc.Class({
         this.__eventTargets = [];
 
         // Retained actions for JSB
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             this._retainedActions = [];
         }
     },
@@ -539,6 +539,14 @@ var Node = cc.Class({
         this._releaseAllActions();
 
         // Remove all listeners
+        if (CC_JSB && this._touchListener) {
+            this._touchListener.release();
+            this._touchListener = null;
+        }
+        if (CC_JSB && this._mouseListener) {
+            this._mouseListener.release();
+            this._mouseListener = null;
+        }
         cc.eventManager.removeListeners(this);
         for (i = 0, len = this.__eventTargets.length; i < len; ++i) {
             var target = this.__eventTargets[i];
@@ -567,8 +575,9 @@ var Node = cc.Class({
                 this._parent = null;
             }
         }
-        else {
+        else if (CC_JSB) {
             this._sgNode.release();
+            this._sgNode = null;
         }
     },
 
@@ -977,6 +986,7 @@ var Node = cc.Class({
         if (activeInHierarchyBefore !== shouldActiveNow) {
             this._onActivatedInHierarchy(shouldActiveNow);
         }
+        cc._widgetManager._nodesOrderDirty = true;
         if (CC_DEV) {
             var scene = cc.director.getScene();
             var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
@@ -1080,7 +1090,9 @@ var Node = cc.Class({
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler
                 });
-                this._touchListener.retain();
+                if (CC_JSB) {
+                    this._touchListener.retain();
+                }
                 cc.eventManager.addListener(this._touchListener, this);
             }
         }
@@ -1096,7 +1108,9 @@ var Node = cc.Class({
                     onMouseUp: _mouseUpHandler,
                     onMouseScroll: _mouseWheelHandler,
                 });
-                this._mouseListener.retain();
+                if (CC_JSB) {
+                    this._mouseListener.retain();
+                }
                 cc.eventManager.addListener(this._mouseListener, this);
             }
         }
@@ -1238,7 +1252,7 @@ var Node = cc.Class({
             return;
         cc.assert(action, cc._LogInfos.Node.runAction);
 
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             this._retainAction(action);
             this._sgNode._owner = this;
         }
@@ -1327,14 +1341,14 @@ var Node = cc.Class({
     },
 
     _retainAction: function (action) {
-        if (cc.sys.isNative && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
+        if (CC_JSB && action instanceof cc.Action && this._retainedActions.indexOf(action) === -1) {
             this._retainedActions.push(action);
             action.retain();
         }
     },
 
     _releaseAllActions: function () {
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             for (var i = 0; i < this._retainedActions.length; ++i) {
                 this._retainedActions[i].release();
             }
@@ -1346,7 +1360,7 @@ var Node = cc.Class({
 
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.
 // We need a mechanisme to guarentee the persistence of system event listeners.
-if (cc.sys.isNative) {
+if (CC_JSB) {
     cc.js.getset(Node.prototype, '_sgNode',
         function () {
             return this.__sgNode;
@@ -1377,15 +1391,6 @@ if (cc.sys.isNative) {
  * @param {Vec2} event.detail - old position
  */
 /**
- * @event rotation-changed
- * @param {Event} event
- * @param {Number} event.detail - old rotation x
- */
-/**
- * @event scale-changed
- * @param {Event} event
- * @param {Vec2} event.detail - old scale
- */
 /**
  * @event size-changed
  * @param {Event} event

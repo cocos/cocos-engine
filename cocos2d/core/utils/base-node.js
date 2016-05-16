@@ -41,8 +41,6 @@ function setMaxZOrder (node) {
 }
 
 var POSITION_CHANGED = 'position-changed';
-var ROTATION_CHANGED = 'rotation-changed';
-var SCALE_CHANGED = 'scale-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
 var CHILD_ADDED = 'child-added';
@@ -274,10 +272,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._rotationX !== value || this._rotationY !== value ) {
-                    var old = this._rotationX;
                     this._rotationX = this._rotationY = value;
                     this._sgNode.rotation = value;
-                    this.emit(ROTATION_CHANGED, old);
                 }
             }
         },
@@ -297,10 +293,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._rotationX !== value) {
-                    var old = this._rotationX;
                     this._rotationX = value;
                     this._sgNode.rotationX = value;
-                    this.emit(ROTATION_CHANGED, old);
                 }
             },
         },
@@ -320,12 +314,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._rotationY !== value) {
-                    // yes, ROTATION_CHANGED always send last rotation x...
-                    var oldX = this._rotationX;
-
                     this._rotationY = value;
                     this._sgNode.rotationY = value;
-                    this.emit(ROTATION_CHANGED, oldX);
                 }
             },
         },
@@ -345,10 +335,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._scaleX !== value) {
-                    var oldX = this._scaleX;
                     this._scaleX = value;
                     this._sgNode.scaleX = value;
-                    this.emit(SCALE_CHANGED, new cc.Vec2(oldX, this._scaleY));
                 }
             },
         },
@@ -368,10 +356,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._scaleY !== value) {
-                    var oldY = this._scaleY;
                     this._scaleY = value;
                     this._sgNode.scaleY = value;
-                    this.emit(SCALE_CHANGED, new cc.Vec2(this._scaleX, oldY));
                 }
             },
         },
@@ -707,7 +693,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if ( !this._color.equals(value) ) {
                     var color = this._color;
-                    var old = cc.color(color);
                     color.r = value.r;
                     color.g = value.g;
                     color.b = value.b;
@@ -737,7 +722,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @private
          */
         var sgNode = this._sgNode = new _ccsg.Node();
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             sgNode.retain();
             var entity = this;
             sgNode.onEnter = function () {
@@ -767,8 +752,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this.__ignoreAnchor = false;
     },
 
-    _onPreDestroy: function () {
+    _onPreDestroy: CC_JSB && function () {
         this._sgNode.release();
+        this._sgNode = null;
     },
 
     // ABSTRACT INTERFACES
@@ -890,11 +876,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             scaleY = (scaleY || scaleY === 0) ? scaleY : scale;
         }
         if (this._scaleX !== scale || this._scaleY !== scaleY) {
-            var old = new cc.Vec2(this._scaleX, this._scaleY);
             this._scaleX = scale;
             this._scaleY = scaleY;
             this._sgNode.setScale(scale, scaleY);
-            this.emit(SCALE_CHANGED, old);
         }
     },
 

@@ -342,3 +342,15 @@ cc.ProgressTimer.Type = cc.Enum({
     RADIAL: 0,
     BAR: 1
 });
+
+// fireball#2856
+var progressTimerPro = cc.ProgressTimer.prototype;
+Object.defineProperty(progressTimerPro, 'color', {
+    get: progressTimerPro.getColor,
+    set: progressTimerPro.setColor
+});
+
+Object.defineProperty(progressTimerPro, 'opacity', {
+    get: progressTimerPro.getOpacity,
+    set: progressTimerPro.setOpacity
+});

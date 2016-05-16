@@ -35,7 +35,7 @@ require('./requiring-frame');
 require('./CCSys');
 require('./CCMacro');
 
-if (cc.sys.isBrowser || cc.sys.isNative) {
+if (CC_JSB || cc.sys.isBrowser) {
     require('./CCAssetLibrary');
 }
 
