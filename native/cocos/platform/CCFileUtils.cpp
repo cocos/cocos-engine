@@ -939,6 +939,8 @@ void FileUtils::setDefaultResourceRootPath(const std::string& resRootPath)
                 else
                     newSearchPathArray.push_back(iter.substr(tmp));
             }
+            else
+                newSearchPathArray.push_back(iter);
         }
         
         _defaultResRootPath = resRootPath;
