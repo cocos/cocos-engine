@@ -25,7 +25,7 @@
 
 /**
  * !#en Outline effect used to change the display, only used for TTF font
- * !#zh 描边效果组建,用于字体描边,只能用于系统字体
+ * !#zh 描边效果组件,用于字体描边,只能用于系统字体
  * @class LabelOutline
  * @extends Component
  * @example
