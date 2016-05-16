@@ -303,7 +303,9 @@ _ccsg.VideoPlayer.EventType = {
             //IOS does not display video images
             video.play();
             if(!node._played){
-                video.pause();
+                if (!this._playing) {
+                    video.pause();
+                }
                 video.currentTime = 0;
             }
             this.updateMatrix(this._worldTransform);
@@ -352,6 +354,7 @@ _ccsg.VideoPlayer.EventType = {
         video.style.bottom = "0px";
         video.style.left = "0px";
         video.className = "cocosVideo";
+        video.setAttribute('preload', true);
         this._video = video;
         cc.container.appendChild(video);
     };
@@ -385,9 +388,9 @@ _ccsg.VideoPlayer.EventType = {
         if (!video) return;
 
         this._played = true;
-        video.pause();
         if (this._playing) {
             // 恢复到视频起始位置
+            video.pause();
             video.currentTime = 0;
         }
 
