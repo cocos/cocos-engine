@@ -654,6 +654,9 @@ test('attach events', function () {
 });
 
 test('release sg node', function () {
+    var isJSB = CC_JSB;
+    CC_JSB = true;
+
     var parent = new cc.Node();
     var child = new cc.Node();
     child.parent = parent;
@@ -673,6 +676,8 @@ test('release sg node', function () {
 
     strictEqual(parentReleased, true, 'should release parent sg node');
     strictEqual(childReleased, true, 'should release child sg node');
+
+    CC_JSB = isJSB;
 });
 
 test('getBoundingBox', function () {

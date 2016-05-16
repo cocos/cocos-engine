@@ -5,11 +5,11 @@
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
  Chukong Aipu reserves all rights not expressly granted to you.
@@ -106,7 +106,8 @@ var AudioSource = cc.Class({
                 if (this.audio) {
                     if (cc.sys.isNative) {
                         cc.audioEngine.setEffectsVolume(value);
-                    } else {
+                    }
+                    else {
                         this.audio.setVolume(value);
                     }
                 }
@@ -129,13 +130,13 @@ var AudioSource = cc.Class({
                 this._mute = value;
                 if (this.audio) {
                     if (this._mute) {
-                        if (cc.sys.isNative) {
+                        if (CC_JSB) {
                             cc.audioEngine.setEffectsVolume(0);
                         } else {
                             this.audio.setVolume(0);
                         }
                     } else {
-                        if (cc.sys.isNative) {
+                        if (CC_JSB) {
                             cc.audioEngine.setEffectsVolume(this._volume);
                         } else {
                             this.audio.setVolume(this._volume);
@@ -204,7 +205,7 @@ var AudioSource = cc.Class({
             var volume = this._mute ? 0 : this._volume;
             this.audio = audioEngine.playEffect(this._clip, this._loop, volume);
 
-            if (cc.sys.isNative) {
+            if (CC_JSB) {
                 cc.audioEngine.setEffectsVolume(volume);
             }
         }

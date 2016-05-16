@@ -112,7 +112,9 @@ var Mask = cc.Class({
 
     _createSgNode: function () {
         this._clippingStencil = new cc.DrawNode();
-        this._clippingStencil.retain();
+        if (CC_JSB) {
+            this._clippingStencil.retain();
+        }
         return new cc.ClippingNode(this._clippingStencil);
     },
 
@@ -131,9 +133,10 @@ var Mask = cc.Class({
         this.node.off('anchor-changed', this._refreshStencil, this);
     },
     
-    onDestroy: function () {
+    onDestroy: CC_JSB && function () {
         this._super();
         this._clippingStencil.release();
+        this._clippingStencil = null;
     },
 
     _calculateCircle: function(center, radius, segements) {
