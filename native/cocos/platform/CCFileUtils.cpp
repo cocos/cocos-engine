@@ -929,12 +929,20 @@ void FileUtils::setDefaultResourceRootPath(const std::string& resRootPath)
     if (!_searchPathArray.empty() && !_defaultResRootPath.empty())
     {
         auto tmp = _defaultResRootPath.length();
+        std::vector<std::string> newSearchPathArray;
         for (auto& iter : _searchPathArray)
         {
-            iter = iter.substr(tmp);
+            if (iter.find(_defaultResRootPath) == 0)
+            {
+                if (iter.length() == tmp)
+                    newSearchPathArray.push_back("");
+                else
+                    newSearchPathArray.push_back(iter.substr(tmp));
+            }
         }
+        
         _defaultResRootPath = resRootPath;
-        setSearchPaths(_searchPathArray);
+        setSearchPaths(newSearchPathArray);
     }
     else
     {
