@@ -986,6 +986,7 @@ var Node = cc.Class({
         if (activeInHierarchyBefore !== shouldActiveNow) {
             this._onActivatedInHierarchy(shouldActiveNow);
         }
+        cc._widgetManager._nodesOrderDirty = true;
         if (CC_DEV) {
             var scene = cc.director.getScene();
             var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);

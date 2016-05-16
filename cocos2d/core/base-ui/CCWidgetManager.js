@@ -115,6 +115,7 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         alignToParent(node, widget);
+        widgetManager._nodesWithWidget.push(node);
         if (!CC_EDITOR && widget.isAlignOnce) {
             widget.enabled = false;
         }
@@ -132,7 +133,17 @@ function refreshScene () {
     var scene = cc.director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
-        visitNode(scene);
+        if (widgetManager._nodesOrderDirty) {
+            widgetManager._nodesWithWidget.length = 0;
+            visitNode(scene);
+            widgetManager._nodesOrderDirty = false;
+        } else {
+            var totalLength = widgetManager._nodesWithWidget.length;
+            for(var i = 0; i < totalLength; i++) {
+                var node = widgetManager._nodesWithWidget[i];
+                alignToParent(node, node._widget);
+            }
+        }
         widgetManager.isAligning = false;
     }
 }
@@ -223,11 +234,18 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
 
 var widgetManager = cc._widgetManager = {
     isAligning: false,
+    _nodesOrderDirty: true,
+    _nodesWithWidget: [],
     init: function (director) {
         director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
+        director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this._resetNodesOrderDirty);
+    },
+    _resetNodesOrderDirty: function() {
+        this._nodesOrderDirty = true;
     },
     add: function (widget) {
         widget.node._widget = widget;
+        this._resetNodesOrderDirty();
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.on('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.on('size-changed', adjustWidgetToAllowResizingInEditor, widget);
@@ -235,6 +253,7 @@ var widgetManager = cc._widgetManager = {
     },
     remove: function (widget) {
         widget.node._widget = null;
+        this._resetNodesOrderDirty();
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);

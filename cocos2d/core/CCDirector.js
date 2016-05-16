@@ -739,6 +739,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      */
     _loadSceneByUuid: function (uuid, onLaunched, onUnloaded) {
         //cc.AssetLibrary.unloadAsset(uuid);     // force reload
+        cc._widgetManager._nodesWithWidget.length = 0;
         cc.AssetLibrary.loadAsset(uuid, function (error, sceneAsset) {
             var self = cc.director;
             self._loadingScene = '';
