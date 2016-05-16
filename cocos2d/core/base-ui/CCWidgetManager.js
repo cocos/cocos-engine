@@ -234,18 +234,14 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
 
 var widgetManager = cc._widgetManager = {
     isAligning: false,
-    _nodesOrderDirty: true,
+    _nodesOrderDirty: false,
     _nodesWithWidget: [],
     init: function (director) {
         director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
-        director.on(cc.Director.EVENT_BEFORE_SCENE_LAUNCH, this._resetNodesOrderDirty);
-    },
-    _resetNodesOrderDirty: function() {
-        this._nodesOrderDirty = true;
     },
     add: function (widget) {
         widget.node._widget = widget;
-        this._resetNodesOrderDirty();
+        this._nodesOrderDirty = true;
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.on('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.on('size-changed', adjustWidgetToAllowResizingInEditor, widget);
@@ -253,7 +249,10 @@ var widgetManager = cc._widgetManager = {
     },
     remove: function (widget) {
         widget.node._widget = null;
-        this._resetNodesOrderDirty();
+        var index = this._nodesWithWidget.indexOf(widget.node);
+        if (index > -1) {
+            this._nodesWithWidget.splice(index, 1);
+        }
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);
