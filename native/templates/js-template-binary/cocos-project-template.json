@@ -54,6 +54,10 @@
                 "include":[
                    "tojs"
                 ]
+             },
+             {
+               "from":"cocos/platform/android/java/src/org/cocos2dx/lib",
+               "to":"frameworks/runtime-src/proj.android/src/org/cocos2dx/lib"
              }
          ],
          "project_rename":{
