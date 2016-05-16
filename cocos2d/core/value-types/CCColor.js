@@ -67,7 +67,7 @@ var Color = (function () {
         this.a = typeof a === 'number' ? a : 255;
     }
     JS.extend(Color, ValueType);
-    require('../platform/CCClass').fastDefine('cc.Color', Color, ['r', 'g', 'b', 'a']);
+    require('../platform/CCClass').fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
 
     var DefaultColors = {
         // color: [r, g, b, a]

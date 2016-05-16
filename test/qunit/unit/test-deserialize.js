@@ -179,17 +179,18 @@ if (TestEditorExtends) {
     });
 
     testWithTarget('circular reference by object', function (useTarget) {
-        var MyAsset = (function () {
-            var _super = cc.Asset;
-            function MyAsset () {
-                _super.call(this);
+        var MyAsset = cc.Class({
+            name: 'MyAsset',
+            extends: cc.Asset,
+            ctor: function () {
                 this.refSelf = this;
                 this.refToMain = null;
+            },
+            properties: {
+                refSelf: null,
+                refToMain: null
             }
-            cc.js.extend(MyAsset, cc.Asset);
-            cc.js.setClassName('MyAsset', MyAsset);
-            return MyAsset;
-        })();
+        });
 
         var asset = new MyAsset();
         var mainAsset = { myAsset: asset };

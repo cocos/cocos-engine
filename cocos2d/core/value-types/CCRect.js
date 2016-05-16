@@ -59,7 +59,7 @@ function Rect (x, y, w, h) {
     this.height = h || 0;
 }
 JS.extend(Rect, ValueType);
-require('../platform/CCClass').fastDefine('cc.Rect', Rect, ['x', 'y', 'width', 'height']);
+require('../platform/CCClass').fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
 /**
  * !#en Creates a rectangle from two coordinate values.

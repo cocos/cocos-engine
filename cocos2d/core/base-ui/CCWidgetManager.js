@@ -138,9 +138,9 @@ function refreshScene () {
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
         } else {
-            var totalLength = widgetManager._nodesWithWidget.length;
-            for(var i = 0; i < totalLength; i++) {
-                var node = widgetManager._nodesWithWidget[i];
+            var nodes = widgetManager._nodesWithWidget;
+            for (var i = 0, len = nodes.length; i < len; i++) {
+                var node = nodes[i];
                 alignToParent(node, node._widget);
             }
         }
