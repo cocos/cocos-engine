@@ -181,7 +181,7 @@ var MotionStreak = cc.Class({
          * @type {Color}
          * @default cc.Color.WHITE
          * @example
-         * motionStreak.fastMode = true;
+         * motionStreak.color = new cc.Color(255, 255, 255);
          */
         _color: cc.Color.WHITE,
         color: {
@@ -194,7 +194,6 @@ var MotionStreak = cc.Class({
                     this._motionStreak.tintWithColor(value);
                 }
             },
-            animatable: false,
             tooltip: 'i18n:COMPONENT.motionStreak.color'
         },
 
