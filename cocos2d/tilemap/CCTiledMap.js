@@ -696,7 +696,13 @@ var TiledMap = cc.Class({
         var file = this._tmxFile;
         var self = this;
         if (file) {
-            var resPath = cc.url._rawAssets + file.tmxFolderPath;
+            var tmxFolderPath = file.tmxFolderPath;
+            if (cc.sys.os === cc.sys.OS_WINDOWS) {
+                tmxFolderPath = tmxFolderPath.replace('/', '\\');
+            } else {
+                tmxFolderPath = tmxFolderPath.replace('\\', '/');
+            }
+            var resPath = cc.url._rawAssets + tmxFolderPath;
             resPath = cc.path._setEndWithSep(resPath, false);
             var ret = sgNode.initWithXML(file.tmxXmlStr, resPath);
             if (ret) {
