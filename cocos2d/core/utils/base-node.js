@@ -1800,16 +1800,24 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             }
 
             // update rendering scene graph, sort them by arrivalOrder
-            var siblings = this._parent._children;
+            var parent = this._parent;
+            var siblings = parent._children;
             for (var i = 0, len = siblings.length; i < len; i++) {
-                var sibling = siblings[i];
-                sibling._sgNode.arrivalOrder = i;
-            }
-            if ( !CC_JSB ) {
-                cc.renderer.childrenOrderDirty = true;
-                this._parent._sgNode._reorderChildDirty = true;
-                this._parent._reorderChildDirty = true;
-                this._parent._delaySort();
+                var sibling = siblings[i]._sgNode;
+                if (CC_JSB) {
+                    // Reset zorder to update their arrival order
+                    var zOrder = sibling.getLocalZOrder();
+                    sibling.setLocalZOrder(zOrder+1);
+                    sibling.setLocalZOrder(zOrder);
+                }
+                else {
+                    sibling.arrivalOrder = i;
+                    cc.renderer.childrenOrderDirty = true;
+                    parent._sgNode._reorderChildDirty = true;
+                    parent._reorderChildDirty = true;
+                    parent._delaySort();
+                    cc.eventManager._setDirtyForNode(siblings[i]);
+                }
             }
         }
     },
