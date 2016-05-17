@@ -24,27 +24,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-function getPositionX () {
-    return this._positionR.x;
-}
-
-function setPositionX (x) {
-    this._positionR.x = x;
-    if(!this.startingPositionInitialized)
-        this.startingPositionInitialized = true;
-}
-
-function getPositionY () {
-    return  this._positionR.y;
-}
-
-function setPositionY (y) {
-    this._positionR.y = y;
-    if(!this.startingPositionInitialized)
-        this.startingPositionInitialized = true;
-}
-
 /**
  * converts a line to a polygon
  * @param {Float32Array} points
@@ -103,16 +82,17 @@ function vertexLineToPolygon (points, stroke, vertices, offset, nuPoints) {
 
         var v1 = cc.v2(vertices[idx * 2], vertices[idx * 2 + 1]);
         var v2 = cc.v2(vertices[(idx + 1) * 2], vertices[(idx + 1) * 2 + 1]);
-        var v3 = cc.v2(vertices[idx1 * 2], vertices[idx1 * 2]);
+        var v3 = cc.v2(vertices[idx1 * 2], vertices[idx1 * 2 + 1]);
         var v4 = cc.v2(vertices[(idx1 + 1) * 2], vertices[(idx1 + 1) * 2 + 1]);
 
         //BOOL fixVertex = !ccpLineIntersect(ccp(p1.x, p1.y), ccp(p4.x, p4.y), ccp(p2.x, p2.y), ccp(p3.x, p3.y), &s, &t);
-        var fixVertexResult = !vertexLineIntersect(v1.x, v1.y, v4.x, v4.y, v2.x, v2.y, v3.x, v3.y);
-        if (!fixVertexResult.isSuccess)
+        var fixVertexResult = vertexLineIntersect(v1.x, v1.y, v4.x, v4.y, v2.x, v2.y, v3.x, v3.y);
+        var isSuccess = !fixVertexResult.isSuccess;
+        if (!isSuccess)
             if (fixVertexResult.value < 0.0 || fixVertexResult.value > 1.0)
-                fixVertexResult.isSuccess = true;
+                isSuccess = true;
 
-        if (fixVertexResult.isSuccess) {
+        if (isSuccess) {
             vertices[idx1 * 2] = v4.x;
             vertices[idx1 * 2 + 1] = v4.y;
             vertices[(idx1 + 1) * 2] = v3.x;
@@ -207,50 +187,34 @@ function vertexListIsClockwise (verts) {
  * //example
  * new _ccsg.MotionStreak(2, 3, 32, cc.Color.GREEN, s_streak);
  */
-_ccsg.MotionStreak = cc.Class({
-    name: "MotionStreak",
-    extends: _ccsg.Node,
+_ccsg.MotionStreak = _ccsg.Node.extend({
+    texture: null,
+    fastMode: false,
+    startingPositionInitialized: false,
 
-    properties: {
-        texture: null,
-        fastMode: false,
-        startingPositionInitialized: false,
+    _blendFunc: null,
 
-        _blendFunc: null,
+    _stroke: 0,
+    _fadeDelta: 0,
+    _minSeg: 0,
 
-        _stroke: 0,
-        _fadeDelta: 0,
-        _minSeg: 0,
+    _maxPoints: 0,
+    _nuPoints: 0,
+    _previousNuPoints: 0,
 
-        _maxPoints: 0,
-        _nuPoints: 0,
-        _previousNuPoints: 0,
+    /* Pointers */
+    _pointVertexes: null,
+    _pointState: null,
 
-        /* Pointers */
-        _pointVertexes: null,
-        _pointState: null,
+    // webgl
+    _vertices: null,
+    _colorPointer: null,
+    _texCoords: null,
 
-        // webgl
-        _vertices: null,
-        _colorPointer: null,
-        _texCoords: null,
-
-        _verticesBuffer: null,
-        _colorPointerBuffer: null,
-        _texCoordsBuffer: null,
-        _className: "MotionStreak",
-
-        x: {
-            get: getPositionX,
-            set: setPositionX
-        },
-
-        y: {
-            get: getPositionY,
-            set: setPositionY
-        }
-
-    },
+    _verticesBuffer: null,
+    _colorPointerBuffer: null,
+    _texCoordsBuffer: null,
+    _className: "MotionStreak",
 
     /**
      * creates and initializes a motion streak with fade in seconds, minimum segments, stroke's width, color, texture filename or texture   <br/>
@@ -261,14 +225,8 @@ _ccsg.MotionStreak = cc.Class({
      * @param {Number} color
      * @param {string|cc.Texture2D} texture texture filename or texture
      */
-    ctor: function () {
-
-        var fade = arguments[0];
-        var minSeg = arguments[1];
-        var stroke = arguments[2];
-        var color = arguments[3];
-        var texture = arguments[4];
-
+    ctor: function (fade, minSeg, stroke, color, texture) {
+        _ccsg.Node.prototype.ctor.call(this);
         this._positionR = cc.p(0, 0);
         this._blendFunc = new cc.BlendFunc(cc.SRC_ALPHA, cc.ONE_MINUS_SRC_ALPHA);
 
@@ -726,3 +684,15 @@ _ccsg.MotionStreak = cc.Class({
     }
 });
 
+// fireball#2856
+
+var motionStreakPro = _ccsg.MotionStreak.prototype;
+Object.defineProperty(motionStreakPro, 'x', {
+    get: motionStreakPro.getPositionX,
+    set: motionStreakPro.setPositionX
+});
+
+Object.defineProperty(motionStreakPro, 'y', {
+    get: motionStreakPro.getPositionY,
+    set: motionStreakPro.setPositionY
+});
