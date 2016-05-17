@@ -928,14 +928,17 @@ CCClass._isCCClass = function (constructor) {
 // @method _fastDefine
 // @param {String} className
 // @param {Function} constructor
-// @param {string[]} serializableFields
+// @param {Object} serializableFields
 // @private
 //
 CCClass._fastDefine = function (className, constructor, serializableFields) {
     JS.setClassName(className, constructor);
-    constructor.__props__ = serializableFields;
-    for (var i = 0; i < serializableFields.length; i++) {
-        Attr.attr(constructor, serializableFields[i], { visible: false });
+    //constructor.__ctors__ = constructor.__ctors__ || null;
+    var props = constructor.__props__ = Object.keys(serializableFields);
+    for (var i = 0; i < props.length; i++) {
+        var key = props[i];
+        var val = serializableFields[key];
+        Attr.attr(constructor, key, { visible: false, default: val });
     }
 };
 
