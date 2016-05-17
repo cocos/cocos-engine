@@ -175,6 +175,30 @@ var MotionStreak = cc.Class({
         },
 
         /**
+         * !#en The color of the MotionStreak.
+         * !#zh 拖尾的颜色
+         * @property color
+         * @type {Color}
+         * @default cc.Color.WHITE
+         * @example
+         * motionStreak.fastMode = true;
+         */
+        _color: cc.Color.WHITE,
+        color: {
+            get: function () {
+                return this._color;
+            },
+            set: function (value) {
+                this._color = value;
+                if (this._motionStreak) {
+                    this._motionStreak.tintWithColor(value);
+                }
+            },
+            animatable: false,
+            tooltip: 'i18n:COMPONENT.motionStreak.color'
+        },
+
+        /**
          * !#en The fast Mode.
          * !#zh 是否启用了快速模式。当启用快速模式，新的点会被更快地添加，但精度较低。
          * @property fastMode
@@ -232,7 +256,7 @@ var MotionStreak = cc.Class({
         this._root = new _ccsg.Node();
         var motionStreak = new _ccsg.MotionStreak();
         if (this._texture) {
-            motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture);
+            motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this._color, this._texture);
         }
         motionStreak.setFastMode(this._fastMode);
         this._root.addChild(motionStreak);
@@ -241,8 +265,6 @@ var MotionStreak = cc.Class({
             sgNode.addChild(this._root, -10);
         }
         this._motionStreak = motionStreak;
-        // TODO: use sizeProvider when merge to dev branch.
-        this.node.on('color-changed', this._colorChanged, this);
     },
 
     lateUpdate: function (delta) {
@@ -255,19 +277,7 @@ var MotionStreak = cc.Class({
             this._motionStreak.setPosition(worldMt.tx, worldMt.ty);
             this._motionStreak.update(delta);
         }
-    },
-
-    onDestroy: function () {
-        // TODO: use sizeProvider when merge to dev branch.
-        this.node.off('color-changed', this._colorChanged, this);
-    },
-
-    _colorChanged: function () {
-        if (this._motionStreak) {
-            this._motionStreak.tintWithColor(this.node.color);
-        }
     }
-
 });
 
 cc.MotionStreak = module.exports = MotionStreak;
