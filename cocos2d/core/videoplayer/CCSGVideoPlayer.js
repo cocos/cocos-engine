@@ -333,7 +333,7 @@ _ccsg.VideoPlayer.EventType = {
     };
 
     proto.bindEvent = function () {
-        var node = this._node, video = this._video;
+        var node = this._node, video = this._video, self = this;
         //binding event
         video.addEventListener("ended", function(){
             this._playing = false;
@@ -344,6 +344,13 @@ _ccsg.VideoPlayer.EventType = {
         });
         video.addEventListener("pause", function(){
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PAUSED);
+        });
+        video.addEventListener("click", function () {
+            if (video.paused) {
+                self.play();
+            } else {
+                self.pause();
+            }
         });
     };
 
