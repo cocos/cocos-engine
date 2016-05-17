@@ -449,8 +449,6 @@
     proto._rebuildLabelSkin = function () {
         this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
         var node = this._node;
-        this._realRenderingSize = _ccsg.Node.prototype.getContentSize.call(node);
-
         node._updateLabel();
     };
 })();
@@ -468,7 +466,6 @@
         this._quad = new cc.V3F_C4B_T2F_Quad();
         this._quadDirty = true;
         this._splitedStrings = null;
-        this._realRenderingSize = cc.size(-10, -10);
     };
 
     var proto = _ccsg.Label.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
