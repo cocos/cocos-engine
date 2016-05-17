@@ -2386,16 +2386,6 @@ pause : function (
 },
 
 /**
- * @method isPurgeDirectorInNextLoop
- * @return {bool}
- */
-isPurgeDirectorInNextLoop : function (
-)
-{
-    return false;
-},
-
-/**
  * @method setEventDispatcher
  * @param {cc.EventDispatcher} arg0
  */
@@ -3003,6 +2993,16 @@ getActionManager : function (
 )
 {
     return cc.ActionManager;
+},
+
+/**
+ * @method isPurgeDirectorInNextLoop
+ * @return {bool}
+ */
+isPurgeDirectorInNextLoop : function (
+)
+{
+    return false;
 },
 
 /**
@@ -13436,6 +13436,16 @@ texture2d
 },
 
 /**
+ * @method setMinSeg
+ * @param {float} arg0
+ */
+setMinSeg : function (
+float 
+)
+{
+},
+
+/**
  * @method getTexture
  * @return {cc.Texture2D}
  */
@@ -13456,11 +13466,31 @@ color3b
 },
 
 /**
+ * @method getMinSeg
+ * @return {float}
+ */
+getMinSeg : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method setBlendFunc
  * @param {cc.BlendFunc} arg0
  */
 setBlendFunc : function (
 blendfunc 
+)
+{
+},
+
+/**
+ * @method setFadeTime
+ * @param {float} arg0
+ */
+setFadeTime : function (
+float 
 )
 {
 },
@@ -13473,6 +13503,16 @@ setStartingPositionInitialized : function (
 bool 
 )
 {
+},
+
+/**
+ * @method getFadeTime
+ * @return {float}
+ */
+getFadeTime : function (
+)
+{
+    return 0;
 },
 
 /**

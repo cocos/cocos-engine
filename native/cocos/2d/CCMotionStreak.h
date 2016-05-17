@@ -76,6 +76,26 @@ public:
      */
     void reset();
 
+    /** Get trail fragment fade time, in seconds.
+     *
+     * @return float fadeTime.
+     */
+    inline float getFadeTime() const { return 1.0 / _fadeDelta; }
+    /** Sets trail fragment fade time, in seconds.
+     *
+     * @param fade.
+     */
+    void setFadeTime(float fade);
+    /** Get minimum segment size.
+     *
+     * @return float minSeg.
+     */
+    inline float getMinSeg() const { return _minSeg; }
+    /** Sets minimum segment size.
+     *
+     * @param minSeg.
+     */
+    void setMinSeg(float minSeg);
     /** When fast mode is enabled, new points are added faster but with lower precision.
      *
      * @return True if fast mode is enabled.

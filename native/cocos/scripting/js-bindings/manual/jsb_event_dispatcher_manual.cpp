@@ -41,8 +41,15 @@ bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *v
             if (!ok)
                 return false;
 
-            CCASSERT(jsret.isBoolean(), "the return value of onTouchBegan isn't boolean");
-            return jsret.toBoolean();
+            // Solve the crash when there is no return value of onTouchBegan.
+            // related issue : https://github.com/cocos-creator/fireball/issues/2557
+            // CCASSERT(jsret.isBoolean(), "the return value of onTouchBegan isn't boolean");
+            // return jsret.toBoolean();
+            if (jsret.isBoolean()) {
+                return jsret.toBoolean();
+            } else {
+                return false;
+            }
         };
 
         ret->onTouchMoved = [ret](Touch* touch, Event* event) {
