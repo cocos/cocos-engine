@@ -436,7 +436,7 @@
                 var strokeColor = this._node.getOutlineColor() || cc.color(255,255,255,255);
                 this._labelContext.globalCompositeOperation = 'source-over';
                 this._labelContext.strokeStyle = 'rgb(' + strokeColor.r + ',' + strokeColor.g + ',' + strokeColor.b + ')';
-                this._labelContext.lineWidth = this._node.getOutlineWidth();
+                this._labelContext.lineWidth = this._node.getOutlineWidth() * 2;
                 this._labelContext.strokeText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
             }
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
