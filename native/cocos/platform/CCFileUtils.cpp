@@ -923,7 +923,7 @@ void FileUtils::setWritablePath(const std::string& writablePath)
 
 void FileUtils::setDefaultResourceRootPath(const std::string& resRootPath)
 {
-	if (resRootPath.empty() || _defaultResRootPath == resRootPath)
+    if (resRootPath.empty() || _defaultResRootPath == resRootPath)
         return;
 
     if (!_searchPathArray.empty() && !_defaultResRootPath.empty())
