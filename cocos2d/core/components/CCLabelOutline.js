@@ -58,6 +58,7 @@ var LabelOutline = cc.Class({
          * outline.color = new cc.Color(0.5, 0.3, 0.7, 1.0);;
          */
         _color: cc.color(255,255,255,255),
+        _width: 1,
         color: {
             get: function() {
                 return this._color;
@@ -69,6 +70,25 @@ var LabelOutline = cc.Class({
                 }
             }
         },
+        /**
+         * !#en Change the outline width
+         * !#zh 改变描边的宽度
+         * @property width
+         * @type {Number}
+         * @example
+         * outline.width = 3;
+         */
+        width: {
+            get: function() {
+                return this._width;
+            },
+            set: function(value) {
+                this._width = value;
+                if(this._labelSGNode) {
+                    this._labelSGNode.setOutlineWidth(value);
+                }
+            }
+        },
     },
 
     onEnable: function () {
@@ -77,6 +97,7 @@ var LabelOutline = cc.Class({
         if(this._labelSGNode) {
             sgNode.setOutlined(true);
             sgNode.setOutlineColor(cc.color(this._color));
+            sgNode.setOutlineWidth(this._width);
         }
     },
 
