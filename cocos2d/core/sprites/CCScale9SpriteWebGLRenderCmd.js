@@ -132,13 +132,11 @@ if (_ccsg.Node.WebGLRenderCmd) {
 
     proto._updateDisplayOpacity = function(parentOpacity){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-        var node = this._node;
         this._colorOpacityDirty = true;
     };
 
     proto._updateDisplayColor = function(parentColor){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-        var node = this._node;
         this._colorOpacityDirty = true;
     };
 
