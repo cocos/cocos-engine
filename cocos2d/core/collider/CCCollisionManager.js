@@ -113,6 +113,8 @@ var CollisionManager = cc.Class({
             this.collide(contacts[i]);
         }
 
+        this._updating = false;
+
         // do remove collider
         var removeList = this._removeList;
         for (i = 0, l = removeList.length; i < l; i++) {
@@ -122,8 +124,6 @@ var CollisionManager = cc.Class({
 
         // draw colliders
         this.drawColliders();
-
-        this._updating = false;
     },
 
     collide: function (contact) {
