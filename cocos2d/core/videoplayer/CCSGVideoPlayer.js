@@ -57,9 +57,9 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         this._renderCmd.pause();
     },
 
-    resume: function () {
-        this._renderCmd.resume();
-    },
+    //resume: function () {
+    //    this._renderCmd.resume();
+    //},
 
     stop: function () {
         this._renderCmd.stop();
@@ -256,17 +256,16 @@ _ccsg.VideoPlayer.EventType = {
 
         if(polyfill.devicePixelRatio){
             var dpr = window.devicePixelRatio;
-            scaleX = scaleX / dpr;
-            scaleY = scaleY / dpr;
+            scaleX /= dpr;
+            scaleY /= dpr;
         }
 
-        var cw = node._contentSize.width, ch = node._contentSize.height;
-        var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY,
-            tx = t.tx*scaleX - (1-t.a)/2*cw, // + cw*node._scaleX/2*scaleX,
-            ty = t.ty*scaleY - (1-t.d)/2*ch; // + ch*node._scaleY/2*scaleY;
-        var matrix = "matrix(" + a + "," + c + "," + b + "," + d + "," + tx + "," + -ty + ")";
-        this._video.style["transform"] = matrix;
-        this._video.style["-webkit-transform"] = matrix;
+        var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
+        var matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + t.tx + "," + -t.ty + ")";
+        this._video.style['transform'] = matrix;
+        this._video.style['-webkit-transform'] = matrix;
+        this._video.style['transform-origin'] = '0px 100% 0px';
+        this._video.style['-webkit-transform-origin'] = '0px 100% 0px';
     };
 
     proto.updateURL = function (path) {
@@ -302,7 +301,7 @@ _ccsg.VideoPlayer.EventType = {
             video.style["visibility"] = "visible";
             //IOS does not display video images
             video.play();
-            if(!node._played){
+            if(!this._played){
                 if (!this._playing) {
                     video.pause();
                 }
@@ -407,9 +406,9 @@ _ccsg.VideoPlayer.EventType = {
         }
     };
 
-    proto.resume = function () {
-        this.play();
-    };
+    //proto.resume = function () {
+    //    this.play();
+    //};
 
     proto.pause = function () {
         var video = this._video;
