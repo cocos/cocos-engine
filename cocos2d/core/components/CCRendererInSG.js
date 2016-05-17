@@ -57,7 +57,7 @@ var RendererInSG = cc.Class({
         }
     },
 
-    onLoad: function () {
+    __preload: function () {
         this._initSgNode();
         if (CC_EDITOR) {
             var sgSize = this._sgNode.getContentSize();

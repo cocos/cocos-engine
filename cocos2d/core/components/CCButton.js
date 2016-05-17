@@ -310,7 +310,7 @@ var Button = cc.Class({
         Transition: Transition,
     },
 
-    onLoad: function () {
+    __preload: function () {
         if (!this.target) {
             this.target = this.node;
         }

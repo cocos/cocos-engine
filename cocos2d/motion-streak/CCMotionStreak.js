@@ -225,7 +225,7 @@ var MotionStreak = cc.Class({
         this._motionStreak.reset();
     },
 
-    onLoad: function () {
+    __preload: function () {
         if (this._root) {
             return;
         }

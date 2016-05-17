@@ -505,7 +505,7 @@ var Sprite = cc.Class({
         return this._sgNode.getInsetBottom();
     },
 
-    onLoad: CC_EDITOR && function () {
+    __preload: CC_EDITOR && function () {
         this._super();
         this.node.on('size-changed', this._resized, this);
     },
