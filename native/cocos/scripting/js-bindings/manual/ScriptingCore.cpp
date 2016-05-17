@@ -254,7 +254,6 @@ void ScriptingCore::executeJSFunctionWithThisObj(JS::HandleValue thisObj,
 
 void js_log(const char *format, ...)
 {
-#if COCOS2D_DEBUG
     if (_js_log_buf == NULL)
     {
         _js_log_buf = (char *)calloc(sizeof(char), MAX_LOG_LENGTH+1);
@@ -268,7 +267,6 @@ void js_log(const char *format, ...)
     {
         log("%s", _js_log_buf);
     }
-#endif
 }
 
 bool JSBCore_platform(JSContext *cx, uint32_t argc, jsval *vp)
