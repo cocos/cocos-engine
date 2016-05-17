@@ -588,7 +588,7 @@ cc.Scheduler = cc._Class.extend({
             case "string":
                 return key === timer.getKey();
             case "function":
-                return key === timer._callback || timer.getSelector();
+                return key === timer._callback || key === timer.getSelector();
         }
     },
 

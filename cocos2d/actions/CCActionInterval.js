@@ -2229,7 +2229,13 @@ cc.TintTo = cc.ActionInterval.extend({
         this._to = cc.color(0, 0, 0);
         this._from = cc.color(0, 0, 0);
 
-		blue !== undefined && this.initWithDuration(duration, red, green, blue);
+        if (red instanceof cc.Color) {
+            blue = red.b;
+            green = red.g;
+            red = red.r;
+        }
+
+        blue !== undefined && this.initWithDuration(duration, red, green, blue);
     },
 
     /*

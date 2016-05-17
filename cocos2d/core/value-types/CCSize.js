@@ -56,7 +56,7 @@ function Size (width, height) {
     this.height = height || 0;
 }
 JS.extend(Size, ValueType);
-require('../platform/CCClass').fastDefine('cc.Size', Size, ['width', 'height']);
+require('../platform/CCClass').fastDefine('cc.Size', Size, { width: 0, height: 0});
 
 /**
  * !#en return a Size object with width = 0 and height = 0.

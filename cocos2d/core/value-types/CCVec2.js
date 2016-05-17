@@ -25,7 +25,7 @@
 
 var ValueType = require('./CCValueType');
 var JS = require('../platform/js');
-var FireClass = require('../platform/CCClass');
+var CCClass = require('../platform/CCClass');
 
 /**
  * !#en Representation of 2D vectors and points.
@@ -56,7 +56,7 @@ function Vec2 (x, y) {
     this.y = y || 0;
 }
 JS.extend(Vec2, ValueType);
-FireClass.fastDefine('cc.Vec2', Vec2, ['x', 'y']);
+CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 
 JS.mixin(Vec2.prototype, {
 

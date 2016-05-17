@@ -68,7 +68,6 @@ var AssetLibrary = {
     loadAsset: function (uuid, callback, options) {
         // var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
         // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
-
         var item = {
             id: uuid,
             type: 'uuid'
@@ -184,31 +183,20 @@ var AssetLibrary = {
      */
     _loadAssetByUuid: function (item, callback) {
         var uuid = item.id;
-        var thisTick = true;
         if (typeof uuid !== 'string') {
             return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
         }
-
         Loader.load(item, function (error, asset) {
             if (error || !asset) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
-            if (thisTick) {
-                callInNextTick(function () {
-                    if (CC_EDITOR || isScene(asset)) {
-                        Loader.removeItem(uuid);
-                    }
-                    callback(error, asset);
-                });
+            else if (CC_EDITOR || isScene(asset)) {
+                Loader.removeItem(uuid);
             }
-            else {
-                if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(uuid);
-                }
+            if (callback) {
                 callback(error, asset);
             }
         });
-        thisTick = false;
     },
 
     /**
@@ -220,7 +208,6 @@ var AssetLibrary = {
      */
     loadJson: function (json, callback) {
         var randomUuid = '' + ((new Date()).getTime() + Math.random());
-        var thisTick = true;
         var item = {
             id: randomUuid,
             type: 'uuid',
@@ -231,24 +218,14 @@ var AssetLibrary = {
             if (error) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
-            if (thisTick) {
-                callInNextTick(function () {
-                    if (CC_EDITOR || isScene(asset)) {
-                        Loader.removeItem(randomUuid);
-                    }
-                    asset._uuid = '';
-                    callback(error, asset);
-                });
+            else if (CC_EDITOR || isScene(asset)) {
+                Loader.removeItem(randomUuid);
             }
-            else {
-                if (CC_EDITOR || isScene(asset)) {
-                    Loader.removeItem(randomUuid);
-                }
-                asset._uuid = '';
+            asset._uuid = '';
+            if (callback) {
                 callback(error, asset);
             }
         });
-        thisTick = false;
     },
 
     /**

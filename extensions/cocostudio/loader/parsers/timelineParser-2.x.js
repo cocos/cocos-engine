@@ -233,7 +233,7 @@
             node = new _ccsg.ParticleSystem(path);
             self.generalAttributes(node, json);
             node.setPositionType(_ccsg.ParticleSystem.Type.GROUPED);
-            !cc.sys.isNative && node.setDrawMode(_ccsg.ParticleSystem.TEXTURE_MODE);
+            !CC_JSB && node.setDrawMode(_ccsg.ParticleSystem.TEXTURE_MODE);
 
             var blendData = json["BlendFunc"];
             if(json["BlendFunc"]){
@@ -575,7 +575,7 @@
             var path = fontResource["Path"];
             //resoutceType = fontResource["Type"];
             if(path != null){
-                if (cc.sys.isNative) {
+                if (CC_JSB) {
                     fontName = cc.path.join(cc.loader.resPath, resourcePath, path);
                 } else {
                     fontName = path.match(/([^\/]+)\.(\S+)/);
@@ -659,7 +659,7 @@
             var path = fontResource["Path"];
             //resoutceType = fontResource["Type"];
             if(path != null){
-                if (cc.sys.isNative) {
+                if (CC_JSB) {
                     fontName = cc.path.join(cc.loader.resPath, resourcePath, path);
                 } else {
                     fontName = path.match(/([^\/]+)\.(\S+)/);
@@ -1134,7 +1134,7 @@
             var path = fontResource["Path"];
             //resoutceType = fontResource["Type"];
             if(path != null){
-                if (cc.sys.isNative) {
+                if (CC_JSB) {
                     fontName = cc.path.join(cc.loader.resPath, resourcePath, path);
                 } else {
                     fontName = path.match(/([^\/]+)\.(\S+)/);
@@ -1153,7 +1153,7 @@
 
         if (!widget.isIgnoreContentAdaptWithSize()){
             setContentSize(widget, json["Size"]);
-            if (cc.sys.isNative)
+            if (CC_JSB)
                 widget.getVirtualRenderer().setLineBreakWithoutSpace(true);
         }
 

@@ -866,3 +866,32 @@ cc.LabelBMFont = cc.SpriteBatchNode.extend(/** @lends cc.LabelBMFont# */{
 cc.LabelBMFont.create = function (str, fntFile, width, alignment, imageOffset) {
     return new cc.LabelBMFont(str, fntFile, width, alignment, imageOffset);
 };
+
+// fireball#2856
+
+var ccsgNodePro = _ccsg.Node.prototype;
+var labelBMFontPro = cc.LabelBMFont.prototype;
+Object.defineProperty(labelBMFontPro, 'anchorX', {
+    get: ccsgNodePro._getAnchorX,
+    set: labelBMFontPro._setAnchorX
+});
+
+Object.defineProperty(labelBMFontPro, 'anchorY', {
+    get: ccsgNodePro._getAnchorY,
+    set: labelBMFontPro._setAnchorY
+});
+
+Object.defineProperty(labelBMFontPro, 'scale', {
+    get: ccsgNodePro.getScale,
+    set: labelBMFontPro.setScale
+});
+
+Object.defineProperty(labelBMFontPro, 'scaleX', {
+    get: ccsgNodePro.getScaleX,
+    set: labelBMFontPro.setScaleX
+});
+
+Object.defineProperty(labelBMFontPro, 'scaleY', {
+    get: ccsgNodePro.getScaleY,
+    set: labelBMFontPro.setScaleY
+});

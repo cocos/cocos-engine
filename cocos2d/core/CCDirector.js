@@ -676,47 +676,52 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     //  @Scene loading section
 
+    _getSceneUuid: function (key) {
+        var scenes = cc.game._sceneInfos;
+        if (typeof key === 'string') {
+            if (!key.endsWith('.fire')) {
+                key += '.fire';
+            }
+            if (key[0] !== '/' && !key.startsWith('db://assets/')) {
+                key = '/' + key;    // 使用全名匹配
+            }
+            // search scene
+            for (var i = 0; i < scenes.length; i++) {
+                var info = scenes[i];
+                if (info.url.endsWith(key)) {
+                    return info.uuid;
+                }
+            }
+        }
+        else if (typeof key === 'number') {
+            if (0 <= key && key < scenes.length) {
+                return scenes[key].uuid;
+            }
+            else {
+                cc.error('loadScene: The scene index to load (%s) is out of range.', key);
+            }
+        }
+        else {
+            cc.error('loadScene: Unknown name type to load: "%s"', key);
+        }
+        return null;
+    },
+
     /**
      * !#en Loads the scene by its name.
      * !#zh 通过场景名称进行加载场景。
+     *
      * @method loadScene
      * @param {String} sceneName - The name of the scene to load.
      * @param {Function} [onLaunched] - callback, will be called after scene launched.
      * @return {Boolean} if error, return false
      */
     loadScene: function (sceneName, onLaunched, _onUnloaded) {
-        var uuid, info;
         if (this._loadingScene) {
-            cc.error('[loadScene] Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
+            cc.error('loadScene: Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
             return false;
         }
-        if (typeof sceneName === 'string') {
-            if (!sceneName.endsWith('.fire')) {
-                sceneName += '.fire';
-            }
-            if (sceneName[0] !== '/' && !sceneName.startsWith('db://assets/')) {
-                sceneName = '/' + sceneName;    // 使用全名匹配
-            }
-            // search scene
-            for (var i = 0; i < cc.game._sceneInfos.length; i++) {
-                info = cc.game._sceneInfos[i];
-                var url = info.url;
-                if (url.endsWith(sceneName)) {
-                    uuid = info.uuid;
-                    break;
-                }
-            }
-        }
-        else {
-            info = cc.game._sceneInfos[sceneName];
-            if (typeof info === 'object') {
-                uuid = info.uuid;
-            }
-            else {
-                cc.error('[loadScene] The scene index to load (%s) is out of range.', sceneName);
-                return false;
-            }
-        }
+        var uuid = this._getSceneUuid(sceneName);
         if (uuid) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
@@ -724,8 +729,43 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             return true;
         }
         else {
-            cc.error('[loadScene] Can not load the scene "%s" because it has not been added to the build settings before play.', sceneName);
+            cc.error('loadScene: Can not load the scene "%s" because it was not in the build settings before playing.', sceneName);
             return false;
+        }
+    },
+
+    /**
+     * !#en
+     * Preloads the scene to reduces loading time. You can call this method at any time you want.
+     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.
+     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not
+     * yet finished, the scene will be launched after loaded automatically.
+     * !#zh 预加载场景，你可以在任何时候调用这个方法。
+     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。
+     * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
+     *
+     * @method preloadScene
+     * @param {String} sceneName - The name of the scene to preload.
+     * @param {Function} [onLoaded] - callback, will be called after scene loaded.
+     * @param {Error} onLoaded.error - null or the error object.
+     */
+    preloadScene: function (sceneName, onLoaded) {
+        var uuid = this._getSceneUuid(sceneName);
+        if (uuid) {
+            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
+            cc.loader.load({ id: uuid, type: 'uuid' }, function (error, asset) {
+                if (error) {
+                    cc.error('Failed to preload "%s", %s', sceneName, error.message);
+                }
+                if (onLoaded) {
+                    onLoaded(error, asset);
+                }
+            });
+        }
+        else {
+            var error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
+            onLoaded(new Error(error));
+            cc.error('preloadScene: ' + error);
         }
     },
 

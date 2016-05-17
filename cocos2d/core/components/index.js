@@ -45,4 +45,5 @@ module.exports = [
     require('./CCEditBox'),
     require('./CCVideoPlayer'),
     require('./CCSpriteDistortion'),
+    require('./CCLabelOutline'),
 ];
