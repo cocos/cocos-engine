@@ -29,20 +29,38 @@ sp._SGSkeleton.WebGLRenderCmd = function (renderableObject) {
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
     this._needDraw = true;
     this.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR));
-    this._tmpQuad = new cc.V3F_C4B_T2F_Quad();
+    this._capacity = 128;
+
+    this._indices = new Uint16Array(this._capacity);
+    var elementSize = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT;
+    this._elementArrayBuffer = new ArrayBuffer(elementSize * this._capacity);
+    this._setupVBO()
 };
 
 var proto = sp._SGSkeleton.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
 proto.constructor = sp._SGSkeleton.WebGLRenderCmd;
-
+proto._setupVBO = function () {
+    var gl = cc._renderContext;
+    //create WebGLBuffer
+    this._bufferVBO = gl.createBuffer();
+    this._elementWebBuffer = gl.createBuffer();
+}
+proto._resizeCapacity = function(newCapacity){
+  this._capacity = newCapacity
+  this._indices = new Uint16Array(this._capacity);
+  var elementSize = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT;
+  this._elementArrayBuffer = new ArrayBuffer(elementSize * this._capacity);
+}
 proto.rendering = function (ctx) {
-    var node = this._node, tmpQuad = this._tmpQuad;
+    var self = this;
+    var node = this._node;
     var color = node.getColor(), locSkeleton = node._skeleton;
 
-    var textureAtlas, attachment, slot, i, n;
+    var blendMode, textureAtlas, attachment, slot, i, n;
     var locBlendFunc = node._blendFunc;
     var premultiAlpha = node._premultipliedAlpha;
-    var blendMode = -1;
+    var elementCount = 0;
+    var indiceIndex = 0;
 
     this._shaderProgram.use();
     this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
@@ -63,15 +81,16 @@ proto.rendering = function (ctx) {
         if (!slot.attachment)
             continue;
         attachment = slot.attachment;
-
+        var meshPoints = null;
         switch(slot.attachment.type) {
             case sp.ATTACHMENT_TYPE.REGION:
-                this._updateRegionAttachmentQuad(attachment, slot, tmpQuad, premultiAlpha);
+                meshPoints = this._updateRegionAttachmentQuad(attachment, slot, premultiAlpha);
                 break;
             case sp.ATTACHMENT_TYPE.MESH:
-                this._updateMeshAttachmentQuad(attachment, slot, tmpQuad, premultiAlpha);
+                meshPoints = this._updateMeshAttachmentQuad(attachment, slot, premultiAlpha);
                 break;
             case sp.ATTACHMENT_TYPE.SKINNED_MESH:
+                meshPoints = this._updateSkinnedMeshAttachmentQuad(attachment, slot, premultiAlpha);
                 break;
             default:
                 continue;
@@ -81,8 +100,9 @@ proto.rendering = function (ctx) {
 
         if (slot.data.blendMode !== blendMode) {
             if (textureAtlas) {
-                textureAtlas.drawQuads();
-                textureAtlas.removeAllQuads();
+              drawNow()
+              elementCount=0;
+              indiceIndex=0;
             }
             blendMode = slot.data.blendMode;
             switch (blendMode) {
@@ -103,25 +123,74 @@ proto.rendering = function (ctx) {
             }
         }
         else if (regionTextureAtlas !== textureAtlas && textureAtlas) {
-            textureAtlas.drawQuads();
-            textureAtlas.removeAllQuads();
+          drawNow()
+          elementCount=0;
+          indiceIndex=0;
         }
         textureAtlas = regionTextureAtlas;
 
-        var quadCount = textureAtlas.getTotalQuads();
-        if (textureAtlas.getCapacity() == quadCount) {
-            textureAtlas.drawQuads();
-            textureAtlas.removeAllQuads();
-            if (!textureAtlas.resizeCapacity(textureAtlas.getCapacity() * 2))
-                return;
+        var need = 0;
+        if(attachment.type==sp.ATTACHMENT_TYPE.REGION){
+          need = 6;
+        }
+        else{
+          need = attachment.triangles.length
+        }
+        if(this._capacity < indiceIndex + need){
+          drawNow()
+          elementCount=0;
+          indiceIndex=0;
+          this._resizeCapacity(this._capacity * 2);
+          while(this._capacity < need){
+            this._resizeCapacity(this._capacity * 2);
+          }
         }
 
-        textureAtlas.updateQuad(tmpQuad, quadCount);
+        var oldCount = elementCount;
+        for(var j = 0;j<meshPoints.length;j++){
+          var meshPoint = meshPoints[j]
+          var temp = new cc.V3F_C4B_T2F(
+             meshPoint.vertices
+            ,meshPoint.colors
+            ,meshPoint.texCoords
+            ,this._elementArrayBuffer
+            ,cc.V3F_C4B_T2F.BYTES_PER_ELEMENT * elementCount)
+
+          elementCount++;
+        }
+        switch(slot.attachment.type) {
+            case sp.ATTACHMENT_TYPE.REGION:
+                this._indices[indiceIndex  ]= oldCount + 1;
+                this._indices[indiceIndex+1]= oldCount + 2;
+                this._indices[indiceIndex+2]= oldCount + 3;
+                this._indices[indiceIndex+3]= oldCount + 1;
+                this._indices[indiceIndex+4]= oldCount + 0;
+                this._indices[indiceIndex+5]= oldCount + 3;
+                indiceIndex+=6;
+                break;
+            case sp.ATTACHMENT_TYPE.MESH:
+                var triangles = attachment.triangles
+                for(var j = 0;j<triangles.length;j++){
+                  this._indices[indiceIndex+j]=oldCount+triangles[j]
+                }
+                indiceIndex+=triangles.length;
+                break;
+            case sp.ATTACHMENT_TYPE.SKINNED_MESH:
+                var triangles = attachment.triangles
+                for(var j = 0;j<triangles.length;j++){
+                  this._indices[indiceIndex+j]=oldCount+triangles[j]
+                }
+                indiceIndex+=triangles.length;
+                break;
+            default:
+                continue;
+        }
     }
 
     if (textureAtlas) {
-        textureAtlas.drawQuads();
-        textureAtlas.removeAllQuads();
+        drawNow()
+        elementCount=0;
+        indiceIndex=0;
     }
 
     if (node._debugBones || node._debugSlots) {
@@ -133,23 +202,48 @@ proto.rendering = function (ctx) {
 
         if (node._debugSlots) {
             // Slots.
-            drawingUtil.setDrawColor(0, 0, 255, 255);
-            drawingUtil.setLineWidth(1);
-
             for (i = 0, n = locSkeleton.slots.length; i < n; i++) {
                 slot = locSkeleton.drawOrder[i];
-                if (!slot.attachment || slot.attachment.type != sp.ATTACHMENT_TYPE.REGION)
+                drawingUtil.setLineWidth(1);
+                if (!slot.attachment)
                     continue;
-                attachment = slot.attachment;
-                this._updateRegionAttachmentQuad(attachment, slot, tmpQuad);
+                if(slot.attachment.type == sp.ATTACHMENT_TYPE.REGION){
+                  drawingUtil.setDrawColor(0, 0, 255, 255);
+                  attachment = slot.attachment;
+                  var points = this._updateRegionAttachmentQuad(attachment, slot);
 
-                var points = [];
-                points.push(cc.p(tmpQuad.bl.vertices.x, tmpQuad.bl.vertices.y));
-                points.push(cc.p(tmpQuad.br.vertices.x, tmpQuad.br.vertices.y));
-                points.push(cc.p(tmpQuad.tr.vertices.x, tmpQuad.tr.vertices.y));
-                points.push(cc.p(tmpQuad.tl.vertices.x, tmpQuad.tl.vertices.y));
+                  var dbg_points = [];
 
-                drawingUtil.drawPoly(points, 4, true);
+                  for(var k = 0;k<points.length;k++){
+                    dbg_points.push(cc.p(points[k].vertices.x,points[k].vertices.y));
+                  }
+                  drawingUtil.drawPoly(dbg_points, dbg_points.length, true);
+                }
+                else if(slot.attachment.type == sp.ATTACHMENT_TYPE.MESH){
+                  drawingUtil.setDrawColor(0, 255, 0, 255);
+                  attachment = slot.attachment;
+
+                  var points = this._updateMeshAttachmentQuad(attachment, slot);
+
+                  var dbg_points = [];
+
+                  for(var k = 0;k<points.length;k++){
+                     dbg_points.push(cc.p(points[k].vertices.x,points[k].vertices.y));
+                  }
+                  drawingUtil.drawPoly(dbg_points, dbg_points.length, true);
+                }
+                else if(slot.attachment.type == sp.ATTACHMENT_TYPE.SKINNED_MESH){
+                  drawingUtil.setDrawColor(0, 255, 255, 255);
+                  attachment = slot.attachment;
+                  var points = this._updateSkinnedMeshAttachmentQuad(attachment, slot);
+
+                  var dbg_points = [];
+
+                  for(var k = 0;k<points.length;k++){
+                     dbg_points.push(cc.p(points[k].vertices.x,points[k].vertices.y));
+                  }
+                  drawingUtil.drawPoly(dbg_points, dbg_points.length, true);
+                }
             }
         }
 
@@ -161,8 +255,8 @@ proto.rendering = function (ctx) {
 
             for (i = 0, n = locSkeleton.bones.length; i < n; i++) {
                 bone = locSkeleton.bones[i];
-                var x = bone.data.length * bone.m00 + bone.worldX;
-                var y = bone.data.length * bone.m10 + bone.worldY;
+                var x = bone.data.length * bone.a + bone.worldX;
+                var y = bone.data.length * bone.c + bone.worldY;
                 drawingUtil.drawLine(cc.p(bone.worldX, bone.worldY), cc.p(x, y));
             }
 
@@ -180,14 +274,36 @@ proto.rendering = function (ctx) {
         }
         cc.math.glPopMatrix();
     }
+    function drawNow(){
+      if(!textureAtlas || !textureAtlas.texture.isLoaded()){
+        return;
+      }
+      var gl = cc._renderContext;
+      cc.gl.bindTexture2D(textureAtlas.texture)
+      cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER,self._elementWebBuffer)
+      gl.bufferData(gl.ARRAY_BUFFER,self._elementArrayBuffer,gl.DYNAMIC_DRAW)
+
+      gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION,3,gl.FLOAT,false,24,0);
+      gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);          // colors
+      gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, self._bufferVBO);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, self._indices,gl.DYNAMIC_DRAW)
+
+      gl.drawElements(gl.TRIANGLES, indiceIndex, gl.UNSIGNED_SHORT, 0);
+
+      cc.g_NumberOfDraws++;
+    }
 };
 
 proto._createChildFormSkeletonData = function(){};
 
 proto._updateChild = function(){};
 
-proto._updateRegionAttachmentQuad = function(attachment, slot, quad, premultipliedAlpha) {
-    var vertices = {};
+proto._updateRegionAttachmentQuad = function(attachment, slot, premultipliedAlpha) {
+    var vertices = [];
     attachment.computeVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot.bone, vertices);
     var r = slot.bone.skeleton.r * slot.r * 255;
     var g = slot.bone.skeleton.g * slot.g * 255;
@@ -201,66 +317,67 @@ proto._updateRegionAttachmentQuad = function(attachment, slot, quad, premultipli
     }
     var a = normalizedAlpha * 255;
 
-    quad.bl.colors.r = quad.tl.colors.r = quad.tr.colors.r = quad.br.colors.r = r;
-    quad.bl.colors.g = quad.tl.colors.g = quad.tr.colors.g = quad.br.colors.g = g;
-    quad.bl.colors.b = quad.tl.colors.b = quad.tr.colors.b = quad.br.colors.b = b;
-    quad.bl.colors.a = quad.tl.colors.a = quad.tr.colors.a = quad.br.colors.a = a;
-
-    var VERTEX = sp.VERTEX_INDEX;
-    quad.bl.vertices.x = vertices[VERTEX.X1];
-    quad.bl.vertices.y = vertices[VERTEX.Y1];
-    quad.tl.vertices.x = vertices[VERTEX.X2];
-    quad.tl.vertices.y = vertices[VERTEX.Y2];
-    quad.tr.vertices.x = vertices[VERTEX.X3];
-    quad.tr.vertices.y = vertices[VERTEX.Y3];
-    quad.br.vertices.x = vertices[VERTEX.X4];
-    quad.br.vertices.y = vertices[VERTEX.Y4];
-
-    quad.bl.texCoords.u = attachment.uvs[VERTEX.X1];
-    quad.bl.texCoords.v = attachment.uvs[VERTEX.Y1];
-    quad.tl.texCoords.u = attachment.uvs[VERTEX.X2];
-    quad.tl.texCoords.v = attachment.uvs[VERTEX.Y2];
-    quad.tr.texCoords.u = attachment.uvs[VERTEX.X3];
-    quad.tr.texCoords.v = attachment.uvs[VERTEX.Y3];
-    quad.br.texCoords.u = attachment.uvs[VERTEX.X4];
-    quad.br.texCoords.v = attachment.uvs[VERTEX.Y4];
-};
-
-proto._updateMeshAttachmentQuad = function(attachment, slot, quad, premultipliedAlpha) {
-    var vertices = {};
-    attachment.computeWorldVertices(slot.bone.x, slot.bone.y, slot, vertices);
-    var r = slot.bone.skeleton.r * slot.r * 255;
-    var g = slot.bone.skeleton.g * slot.g * 255;
-    var b = slot.bone.skeleton.b * slot.b * 255;
-    var normalizedAlpha = slot.bone.skeleton.a * slot.a;
-    if (premultipliedAlpha) {
-        r *= normalizedAlpha;
-        g *= normalizedAlpha;
-        b *= normalizedAlpha;
+    var color = cc.color(r,g,b,a)
+    var result = []
+    for(var i = 0;i<vertices.length;i+=2){
+      result.push({
+         vertices:new cc.Vertex2F(vertices[i],vertices[i+1]),
+         colors:color,
+         texCoords:new cc.Tex2F(attachment.uvs[i],attachment.uvs[i+1])
+      })
     }
-    var a = normalizedAlpha * 255;
 
-    quad.bl.colors.r = quad.tl.colors.r = quad.tr.colors.r = quad.br.colors.r = r;
-    quad.bl.colors.g = quad.tl.colors.g = quad.tr.colors.g = quad.br.colors.g = g;
-    quad.bl.colors.b = quad.tl.colors.b = quad.tr.colors.b = quad.br.colors.b = b;
-    quad.bl.colors.a = quad.tl.colors.a = quad.tr.colors.a = quad.br.colors.a = a;
-
-    var VERTEX = sp.VERTEX_INDEX;
-    quad.bl.vertices.x = vertices[VERTEX.X1];
-    quad.bl.vertices.y = vertices[VERTEX.Y1];
-    quad.tl.vertices.x = vertices[VERTEX.X2];
-    quad.tl.vertices.y = vertices[VERTEX.Y2];
-    quad.tr.vertices.x = vertices[VERTEX.X3];
-    quad.tr.vertices.y = vertices[VERTEX.Y3];
-    quad.br.vertices.x = vertices[VERTEX.X4];
-    quad.br.vertices.y = vertices[VERTEX.Y4];
-
-    quad.bl.texCoords.u = attachment.uvs[VERTEX.X1];
-    quad.bl.texCoords.v = attachment.uvs[VERTEX.Y1];
-    quad.tl.texCoords.u = attachment.uvs[VERTEX.X2];
-    quad.tl.texCoords.v = attachment.uvs[VERTEX.Y2];
-    quad.tr.texCoords.u = attachment.uvs[VERTEX.X3];
-    quad.tr.texCoords.v = attachment.uvs[VERTEX.Y3];
-    quad.br.texCoords.u = attachment.uvs[VERTEX.X4];
-    quad.br.texCoords.v = attachment.uvs[VERTEX.Y4];
+    return result;
 };
+
+proto._updateMeshAttachmentQuad = function(attachment, slot, premultipliedAlpha) {
+  var vertices = [];
+  attachment.computeWorldVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot, vertices);
+  var r = slot.bone.skeleton.r * slot.r * 255;
+  var g = slot.bone.skeleton.g * slot.g * 255;
+  var b = slot.bone.skeleton.b * slot.b * 255;
+  var normalizedAlpha = slot.bone.skeleton.a * slot.a;
+  if (premultipliedAlpha) {
+      r *= normalizedAlpha;
+      g *= normalizedAlpha;
+      b *= normalizedAlpha;
+  }
+  var a = normalizedAlpha * 255;
+
+  var color = cc.color(r,g,b,a)
+  var result = []
+  for(var i = 0;i<vertices.length;i+=2){
+    result.push({
+       vertices:new cc.Vertex2F(vertices[i],vertices[i+1]),
+       //vertices:new cc.Vertex2F(0,0),
+       colors:color,
+       texCoords:new cc.Tex2F(attachment.uvs[i],attachment.uvs[i+1])
+    })
+  }
+  return result;
+};
+proto._updateSkinnedMeshAttachmentQuad = function(attachment, slot, premultipliedAlpha){
+  var vertices = [];
+  attachment.computeWorldVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot, vertices);
+  var r = slot.bone.skeleton.r * slot.r * 255;
+  var g = slot.bone.skeleton.g * slot.g * 255;
+  var b = slot.bone.skeleton.b * slot.b * 255;
+  var normalizedAlpha = slot.bone.skeleton.a * slot.a;
+  if (premultipliedAlpha) {
+      r *= normalizedAlpha;
+      g *= normalizedAlpha;
+      b *= normalizedAlpha;
+  }
+  var a = normalizedAlpha * 255;
+  var color = cc.color(r,g,b,a)
+  var result = []
+  for(var i = 0;i<vertices.length;i+=2){
+    result.push({
+       vertices:new cc.Vertex2F(vertices[i],vertices[i+1]),
+       //vertices:new cc.Vertex2F(0,0),
+       colors:color,
+       texCoords:new cc.Tex2F(attachment.uvs[i],attachment.uvs[i+1])
+    })
+  }
+  return result;
+}
