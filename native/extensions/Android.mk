@@ -10,6 +10,10 @@ LOCAL_ARM_MODE := arm
 endif
 
 LOCAL_SRC_FILES := \
+assets-manager/Manifest.cpp \
+assets-manager/AssetsManagerEx.cpp \
+assets-manager/CCEventAssetsManagerEx.cpp \
+assets-manager/CCEventListenerAssetsManagerEx.cpp \
 GUI/CCControlExtension/CCControl.cpp \
 GUI/CCControlExtension/CCControlButton.cpp \
 GUI/CCControlExtension/CCControlColourPicker.cpp \
