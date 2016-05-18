@@ -390,7 +390,7 @@ bool ContourData::init()
     return true;
 }
 
-void ContourData::addVertex(Vec2 &vertex)
+void ContourData::addVertex(const cocos2d::Vec2& vertex)
 {
     vertexList.push_back(vertex);
 }

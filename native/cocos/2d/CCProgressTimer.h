@@ -178,7 +178,7 @@ protected:
     void onDraw(const Mat4 &transform, uint32_t flags);
 
     Tex2F textureCoordFromAlphaPoint(Vec2 alpha);
-    Vec2 vertexFromAlphaPoint(Vec2 alpha);
+    Vec2 vertexFromAlphaPoint(const Vec2& alpha);
     void updateProgress();
     void updateBar();
     void updateRadial();

@@ -92,7 +92,7 @@ public:
 
 protected:
     void updateSliderPosition(Vec2 location);
-    bool checkSliderPosition(Vec2 location);
+    bool checkSliderPosition(const Vec2& location);
 
     virtual bool onTouchBegan(Touch* touch, Event* pEvent) override;
     virtual void onTouchMoved(Touch *pTouch, Event *pEvent) override;

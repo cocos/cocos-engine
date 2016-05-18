@@ -167,7 +167,7 @@ Tex2F ProgressTimer::textureCoordFromAlphaPoint(Vec2 alpha)
     return Tex2F(min.x * (1.f - alpha.x) + max.x * alpha.x, min.y * (1.f - alpha.y) + max.y * alpha.y);
 }
 
-Vec2 ProgressTimer::vertexFromAlphaPoint(Vec2 alpha)
+Vec2 ProgressTimer::vertexFromAlphaPoint(const Vec2& alpha)
 {
     Vec2 ret(0.0f, 0.0f);
     if (!_sprite) {

@@ -68,8 +68,8 @@ public:
     virtual void onTouchMoved(Touch *pTouch, Event *pEvent) override;
 
 protected:
-    void updateSliderPosition(Vec2 location);
-    bool checkSliderPosition(Vec2 location);
+    void updateSliderPosition(const Vec2& location);
+    bool checkSliderPosition(const Vec2& location);
 
     //maunally put in the setters
     CC_SYNTHESIZE_READONLY(float, _hue, Hue);

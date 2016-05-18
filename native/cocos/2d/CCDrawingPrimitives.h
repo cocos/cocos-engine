@@ -120,7 +120,7 @@ namespace DrawPrimitives
      * @param origin The rectangle origin.
      * @param destination The rectangle destination.
      */
-    CC_DEPRECATED_ATTRIBUTE void CC_DLL drawRect(Vec2 origin, Vec2 destination);
+    CC_DEPRECATED_ATTRIBUTE void CC_DLL drawRect(const Vec2& origin, const Vec2& destination);
 
     /** Draws a solid rectangle given the origin and destination point measured in points.
      * The origin and the destination can not have the same x and y coordinate.
@@ -130,7 +130,7 @@ namespace DrawPrimitives
      * @param color The rectangle color.
      * @since 1.1
      */
-    CC_DEPRECATED_ATTRIBUTE void CC_DLL drawSolidRect(Vec2 origin, Vec2 destination, Color4F color);
+    CC_DEPRECATED_ATTRIBUTE void CC_DLL drawSolidRect(const Vec2& origin, const Vec2& destination, const Color4F& color);
 
     /** Draws a polygon given a pointer to point coordinates and the number of vertices measured in points.
      * The polygon can be closed or open.

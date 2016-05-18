@@ -232,7 +232,7 @@ void ScrollView::setContentOffset(Vec2 offset, bool animated/* = false*/)
     }
 }
 
-void ScrollView::setContentOffsetInDuration(Vec2 offset, float dt)
+void ScrollView::setContentOffsetInDuration(const Vec2& offset, float dt)
 {
     FiniteTimeAction *scroll, *expire;
     if (_animatedScrollAction) {

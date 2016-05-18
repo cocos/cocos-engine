@@ -38,8 +38,8 @@ namespace cocostudio {
 
 
 //! hit test function
-bool CC_STUDIO_DLL isSpriteContainPoint(cocos2d::Sprite *sprite, cocos2d::Vec2 point);
-bool CC_STUDIO_DLL isSpriteContainPoint(cocos2d::Sprite *sprite, cocos2d::Vec2 point, cocos2d::Vec2 &outPoint);
+bool CC_STUDIO_DLL isSpriteContainPoint(cocos2d::Sprite *sprite, const cocos2d::Vec2& point);
+bool CC_STUDIO_DLL isSpriteContainPoint(cocos2d::Sprite *sprite, const cocos2d::Vec2& point, cocos2d::Vec2 &outPoint);
 
 #define CC_SPRITE_CONTAIN_POINT(sprite, point) isSpriteContainPoint((sprite), (point))
 #define CC_SPRITE_CONTAIN_POINT_WITH_RETURN(sprite, point, outPoint) isSpriteContainPoint((sprite), (point), outPoint)
