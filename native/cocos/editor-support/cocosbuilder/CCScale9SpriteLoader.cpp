@@ -25,7 +25,7 @@ void Scale9SpriteLoader::onHandlePropTypeSpriteFrame(Node * pNode, Node * pParen
     }
 }
 
-void Scale9SpriteLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, Color3B pColor3B, CCBReader * ccbReader) {
+void Scale9SpriteLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, const Color3B& pColor3B, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_COLOR) == 0) {
         ((cocos2d::ui::Scale9Sprite *)pNode)->setColor(pColor3B);
     } else {
@@ -41,7 +41,7 @@ void Scale9SpriteLoader::onHandlePropTypeByte(Node * pNode, Node * pParent, cons
     }
 }
 
-void Scale9SpriteLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, BlendFunc pBlendFunc, CCBReader * ccbReader) {
+void Scale9SpriteLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, const BlendFunc& pBlendFunc, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_BLENDFUNC) == 0) {
         // TODO Not exported by CocosBuilder yet!
         // ((Scale9Sprite *)pNode)->setBlendFunc(pBlendFunc);
@@ -50,7 +50,7 @@ void Scale9SpriteLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent,
     }
 }
 
-void Scale9SpriteLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char * pPropertyName, Size pSize, CCBReader * ccbReader) {
+void Scale9SpriteLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char * pPropertyName, const Size& pSize, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_CONTENTSIZE) == 0) {
         //((Scale9Sprite *)pNode)->setContentSize(pSize);
     } else if(strcmp(pPropertyName, PROPERTY_PREFEREDSIZE) == 0) {

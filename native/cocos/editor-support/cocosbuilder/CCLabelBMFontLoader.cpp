@@ -10,7 +10,7 @@ namespace cocosbuilder {
 #define PROPERTY_FNTFILE "fntFile"
 #define PROPERTY_STRING "string"
 
-void LabelBMFontLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, Color3B pColor3B, CCBReader * ccbReader) {
+void LabelBMFontLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, const Color3B& pColor3B, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_COLOR) == 0) {
         ((Label *)pNode)->setColor(pColor3B);
     } else {
@@ -26,7 +26,7 @@ void LabelBMFontLoader::onHandlePropTypeByte(Node * pNode, Node * pParent, const
     }
 }
 
-void LabelBMFontLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, BlendFunc pBlendFunc, CCBReader * ccbReader) {
+void LabelBMFontLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, const BlendFunc& pBlendFunc, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_BLENDFUNC) == 0) {
         ((Label *)pNode)->setBlendFunc(pBlendFunc);
     } else {
