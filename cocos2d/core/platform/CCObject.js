@@ -146,7 +146,7 @@ CCObject.Flags = {
     IsSizeLocked: IsSizeLocked,
 };
 
-require('./CCClass').fastDefine('cc.Object', CCObject, ['_name', '_objFlags']);
+require('./CCClass').fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
 
 // internal static
 

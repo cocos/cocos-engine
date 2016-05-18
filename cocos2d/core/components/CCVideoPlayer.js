@@ -116,6 +116,18 @@ var VideoPlayer = cc.Class({
         this._updateSgNode();
         sgNode.setContentSize(this.node.getContentSize());
     },
+
+    play: function () {
+        this._sgNode.play();
+    },
+
+    pause: function () {
+        this._sgNode.pause();
+    },
+
+    seekTo: function ( time ) {
+        this._sgNode.seekTo(time);
+    }
 });
 
 cc.VideoPlayer = module.exports = VideoPlayer;

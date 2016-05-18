@@ -109,7 +109,7 @@ cc.Asset = cc.Class({
          * @default null
          * @private
          */
-        _rawFiles: undefined
+        _rawFiles: null
     },
 
     statics: {
@@ -160,7 +160,7 @@ cc.Asset = cc.Class({
      * @private
      */
     _setRawFiles: function (rawFiles) {
-        this._rawFiles = rawFiles.length > 0 ? rawFiles : undefined;
+        this._rawFiles = rawFiles.length > 0 ? rawFiles : null;
     }
 });
 

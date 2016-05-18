@@ -57,9 +57,9 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         this._renderCmd.pause();
     },
 
-    resume: function () {
-        this._renderCmd.resume();
-    },
+    //resume: function () {
+    //    this._renderCmd.resume();
+    //},
 
     stop: function () {
         this._renderCmd.stop();
@@ -256,17 +256,16 @@ _ccsg.VideoPlayer.EventType = {
 
         if(polyfill.devicePixelRatio){
             var dpr = window.devicePixelRatio;
-            scaleX = scaleX / dpr;
-            scaleY = scaleY / dpr;
+            scaleX /= dpr;
+            scaleY /= dpr;
         }
 
-        var cw = node._contentSize.width, ch = node._contentSize.height;
-        var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY,
-            tx = t.tx*scaleX - (1-t.a)/2*cw, // + cw*node._scaleX/2*scaleX,
-            ty = t.ty*scaleY - (1-t.d)/2*ch; // + ch*node._scaleY/2*scaleY;
-        var matrix = "matrix(" + a + "," + c + "," + b + "," + d + "," + tx + "," + -ty + ")";
-        this._video.style["transform"] = matrix;
-        this._video.style["-webkit-transform"] = matrix;
+        var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
+        var matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + t.tx + "," + -t.ty + ")";
+        this._video.style['transform'] = matrix;
+        this._video.style['-webkit-transform'] = matrix;
+        this._video.style['transform-origin'] = '0px 100% 0px';
+        this._video.style['-webkit-transform-origin'] = '0px 100% 0px';
     };
 
     proto.updateURL = function (path) {
@@ -302,8 +301,10 @@ _ccsg.VideoPlayer.EventType = {
             video.style["visibility"] = "visible";
             //IOS does not display video images
             video.play();
-            if(!node._played){
-                video.pause();
+            if(!this._played){
+                if (!this._playing) {
+                    video.pause();
+                }
                 video.currentTime = 0;
             }
             this.updateMatrix(this._worldTransform);
@@ -332,7 +333,7 @@ _ccsg.VideoPlayer.EventType = {
     };
 
     proto.bindEvent = function () {
-        var node = this._node, video = this._video;
+        var node = this._node, video = this._video, self = this;
         //binding event
         video.addEventListener("ended", function(){
             this._playing = false;
@@ -344,6 +345,13 @@ _ccsg.VideoPlayer.EventType = {
         video.addEventListener("pause", function(){
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PAUSED);
         });
+        video.addEventListener("click", function () {
+            if (video.paused) {
+                self.play();
+            } else {
+                self.pause();
+            }
+        });
     };
 
     proto.createDom = function () {
@@ -352,6 +360,7 @@ _ccsg.VideoPlayer.EventType = {
         video.style.bottom = "0px";
         video.style.left = "0px";
         video.className = "cocosVideo";
+        video.setAttribute('preload', true);
         this._video = video;
         cc.container.appendChild(video);
     };
@@ -385,9 +394,9 @@ _ccsg.VideoPlayer.EventType = {
         if (!video) return;
 
         this._played = true;
-        video.pause();
         if (this._playing) {
             // 恢复到视频起始位置
+            video.pause();
             video.currentTime = 0;
         }
 
@@ -404,9 +413,9 @@ _ccsg.VideoPlayer.EventType = {
         }
     };
 
-    proto.resume = function () {
-        this.play();
-    };
+    //proto.resume = function () {
+    //    this.play();
+    //};
 
     proto.pause = function () {
         var video = this._video;
