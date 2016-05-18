@@ -20,6 +20,34 @@
  * THE SOFTWARE.
  */
 
+/**
+ * @type {Object}
+ * @name jsb.AssetsManager
+ * jsb.AssetsManager is the native AssetsManager for your game resources or scripts.
+ * please refer to this document to know how to use it: http://www.cocos2d-x.org/docs/manual/framework/html5/v3/assets-manager/en
+ * Only available in JSB
+ */
+jsb.AssetsManager = cc.AssetsManager;
+delete cc.AssetsManager;
+/**
+ * @type {Object}
+ * @name jsb.EventListenerAssetsManager
+ * jsb.EventListenerAssetsManager is the native event listener for AssetsManager.
+ * please refer to this document to know how to use it: http://www.cocos2d-x.org/docs/manual/framework/html5/v3/assets-manager/en
+ * Only available in JSB
+ */
+jsb.EventListenerAssetsManager = cc.EventListenerAssetsManager;
+delete cc.EventListenerAssetsManager;
+/**
+ * @type {Object}
+ * @name jsb.EventAssetsManager
+ * jsb.EventAssetsManager is the native event for AssetsManager.
+ * please refer to this document to know how to use it: http://www.cocos2d-x.org/docs/manual/framework/html5/v3/assets-manager/en
+ * Only available in JSB
+ */
+jsb.EventAssetsManager = cc.EventAssetsManager;
+delete cc.EventAssetsManager;
+
 // move from jsb_cocos2d
 //start------------------------------
 cc.ControlButton.extend = cc.Class.extend;
@@ -196,6 +224,18 @@ cc.CONTROL_STEPPER_LABELFONT = "CourierNewPSMT";
 cc.AUTOREPEAT_DELTATIME = 0.15;
 cc.AUTOREPEAT_INCREASETIME_INCREMENT = 12;
 
+
+jsb.EventAssetsManager.ERROR_NO_LOCAL_MANIFEST = 0;
+jsb.EventAssetsManager.ERROR_DOWNLOAD_MANIFEST = 1;
+jsb.EventAssetsManager.ERROR_PARSE_MANIFEST = 2;
+jsb.EventAssetsManager.NEW_VERSION_FOUND = 3;
+jsb.EventAssetsManager.ALREADY_UP_TO_DATE = 4;
+jsb.EventAssetsManager.UPDATE_PROGRESSION = 5;
+jsb.EventAssetsManager.ASSET_UPDATED = 6;
+jsb.EventAssetsManager.ERROR_UPDATING = 7;
+jsb.EventAssetsManager.UPDATE_FINISHED = 8;
+jsb.EventAssetsManager.UPDATE_FAILED = 9;
+jsb.EventAssetsManager.ERROR_DECOMPRESS = 10;
 
 cc.ScrollView.extend = cc.Class.extend;
 cc.TableView.extend = cc.Class.extend;
