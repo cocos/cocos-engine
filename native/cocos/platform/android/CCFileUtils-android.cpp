@@ -34,8 +34,8 @@ THE SOFTWARE.
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#define  LOG_TAG    "CCFileUtils-android.cpp"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+#define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, "cocos2d-x FileUtils-android" ,__VA_ARGS__)
+#define LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, "cocos2d-x FileUtils-android", __VA_ARGS__)
 
 //using namespace std;
 
@@ -236,11 +236,23 @@ Data FileUtilsAndroid::getData(const std::string& filename, bool forString)
         return Data::Null;
     }
 
+    std::string fullPath = fullPathForFilename(filename);
+    if(fullPath.empty())
+    {
+        LOGD("Get data from file(%s) failed!", filename.c_str());
+        return Data::Null;
+    }
+
     unsigned char* data = nullptr;
     ssize_t size = 0;
-    std::string fullPath = fullPathForFilename(filename);
+
     if (fullPath[0] != '/')
     {
+        if (nullptr == FileUtilsAndroid::assetmanager) {
+            LOGD("FileUtilsAndroid::getData error:assetmanager is nullptr");
+            return Data::Null;
+        }
+
         std::string relativePath = std::string();
 
         size_t position = fullPath.find("assets/");
@@ -252,18 +264,12 @@ Data FileUtilsAndroid::getData(const std::string& filename, bool forString)
         }
         CCLOGINFO("relative path = %s", relativePath.c_str());
 
-        if (nullptr == FileUtilsAndroid::assetmanager) {
-            LOGD("... FileUtilsAndroid::assetmanager is nullptr");
-            return Data::Null;
-        }
-
         // read asset data
-        AAsset* asset =
-            AAssetManager_open(FileUtilsAndroid::assetmanager,
+        AAsset* asset = AAssetManager_open(FileUtilsAndroid::assetmanager,
                                relativePath.c_str(),
                                AASSET_MODE_UNKNOWN);
         if (nullptr == asset) {
-            LOGD("asset is nullptr,%s", relativePath.c_str());
+            LOGD("asset is nullptr,%s", filename.c_str());
             return Data::Null;
         }
 
@@ -331,9 +337,7 @@ Data FileUtilsAndroid::getData(const std::string& filename, bool forString)
     Data ret;
     if (data == nullptr || size == 0)
     {
-        std::string msg = "Get data from file(";
-        msg.append(filename).append(") failed!");
-        CCLOG("%s", msg.c_str());
+        LOGD("Get data from file(%s) failed!", filename.c_str());
     }
     else
     {
