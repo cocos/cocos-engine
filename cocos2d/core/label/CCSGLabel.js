@@ -477,20 +477,26 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     getContentSize: function() {
-        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        var locFlag = this._renderCmd._dirtyFlag;
+        if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
+            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
     },
     _getWidth: function () {
-        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        var locFlag = this._renderCmd._dirtyFlag;
+        if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
+            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
         }
         return _ccsg.Node.prototype._getWidth.call(this);
     },
     _getHeight: function () {
-        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        var locFlag = this._renderCmd._dirtyFlag;
+        if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
+            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },
@@ -1104,6 +1110,14 @@ cc.BMFontHelper = {
                 this._horizontalKernings[i] = 0;
             }
             prev = key;
+        }
+    },
+
+    getBMFontOriginalSize: function() {
+        if (this._config) {
+            return this._config.fontSize;
+        } else {
+            return -1;
         }
     },
 
