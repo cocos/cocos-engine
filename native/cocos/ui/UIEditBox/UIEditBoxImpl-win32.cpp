@@ -304,7 +304,7 @@ INT_PTR CWin32InputBox::InputBoxEx(WIN32INPUTBOX_PARAM *param,
             dlgTemplate->y = param->yPos;
     }
 
-    CCAssert(s_win32InputBox == nullptr, "Only one instance of Win32InputBox allowed");
+    CCASSERT(s_win32InputBox == nullptr, "Only one instance of Win32InputBox allowed");
 
     s_win32InputBox = new (std::nothrow) CWin32InputBox(param);
     s_win32InputBox->_returnType = eReturnType;
@@ -487,7 +487,7 @@ void CWin32InputBox::InitDialog()
     default:
         break;
     }
-    CCAssert(_getMsgHook == NULL, "Windows Message hook already set");
+    CCASSERT(_getMsgHook == NULL, "Windows Message hook already set");
 
     // To make the enter key work, here need a Windows Message hook.
     // Please refer to https://support.microsoft.com/en-us/kb/187988
