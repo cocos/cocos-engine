@@ -249,14 +249,13 @@ var MotionStreak = cc.Class({
     },
 
     __preload: function () {
-        if (this._root) {
+        if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
+            cc.warn("MotionStreak only support WebGL mode.");
             return;
         }
         this._root = new _ccsg.Node();
         var motionStreak = new _ccsg.MotionStreak();
-        if (this._texture) {
-            motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this._color, this._texture);
-        }
+        motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture || null);
         motionStreak.setFastMode(this._fastMode);
         this._root.addChild(motionStreak);
         var sgNode = this.node._sgNode;
@@ -271,9 +270,14 @@ var MotionStreak = cc.Class({
             return;
         }
         if (this._motionStreak) {
-            var worldMt = this.node.getNodeToWorldTransform();
-            this._root.setPosition(-worldMt.tx, -worldMt.ty);
-            this._motionStreak.setPosition(worldMt.tx, worldMt.ty);
+            // add root for let the global coordinates effective
+            var node = this.node;
+            var worldMt = node.getNodeToWorldTransform();
+            // calculation anchor coordinates
+            var tx = worldMt.tx - (node.width / 2 + node.anchorX * node.width);
+            var ty = worldMt.ty - (node.height / 2 + node.anchorY * node.height);
+            this._root.setPosition(-tx, -ty);
+            this._motionStreak.setPosition(tx, ty);
             this._motionStreak.update(delta);
         }
     }
