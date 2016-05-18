@@ -56,8 +56,11 @@
                 ]
              },
              {
-               "from":"cocos/platform/android/java/src/org/cocos2dx/lib",
-               "to":"frameworks/runtime-src/proj.android/src/org/cocos2dx/lib"
+               "from":"cocos/platform/android/java/src",
+               "to":"frameworks/runtime-src/proj.android/src",
+               "include": [
+                  "*.java"
+               ]
              }
          ],
          "project_rename":{
