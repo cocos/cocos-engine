@@ -34,7 +34,6 @@ proto.constructor = cc.Scale9Sprite.CanvasRenderCmd;
 
 proto._updateDisplayOpacity = function(parentOpacity){
     _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-    var node = this._node;
 };
 
 proto._updateDisplayColor = function(parentColor){

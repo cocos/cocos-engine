@@ -4,7 +4,10 @@
 
         <!-- editor-framework environment -->
         <script type="text/javascript" src="editor-framework://lib/renderer/page-init.js"></script>
-        <link rel="import" href="editor-framework://lib/renderer/ui/ui.html">
+        <script type="text/javascript" src="app://bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+        <link rel="import" href="app://bower_components/polymer/polymer.html">
+        <link rel="import" href="app://bower_components/iron-flex-layout/iron-flex-layout.html">
+        <link rel="stylesheet" href="app://bower_components/fontawesome/css/font-awesome.min.css">
 
         <!-- test-framework environment -->
         <script type="text/javascript" src="app://bower_components/mocha/mocha.js"></script>
@@ -20,13 +23,13 @@
         </script>
 
         <!-- cocos html5 -->
-        <script type="text/javascript" src="app://engine/bin/cocos2d-js.js"></script>
+        <script type="text/javascript" src="unpack://engine/bin/cocos2d-js.js"></script>
     </head>
 
     <body>
         <h1>Testing Cocos2d-JS</h1>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-        <script type="text/javascript" src="app://engine/test/page/index.js"></script>
+        <script type="text/javascript" src="unpack://engine/test/page/index.js"></script>
     </body>
 </html>

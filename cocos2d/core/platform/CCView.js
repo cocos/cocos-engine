@@ -117,7 +117,7 @@ var View = cc._Class.extend({
     // The visible rect in content's coordinate in point
     _visibleRect: null,
 	_retinaEnabled: false,
-    _autoFullScreen: true,
+    _autoFullScreen: false,
     // The device's pixel ratio (for retina displays)
     _devicePixelRatio: 1,
     // the view name
@@ -171,6 +171,7 @@ var View = cc._Class.extend({
 
 	    var sys = cc.sys;
         _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
+        _t.enableAutoFullScreen(sys.isMobile && sys.browserType !== sys.BROWSER_TYPE_BAIDU);
         cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
         // Setup system default resolution policies
@@ -272,7 +273,7 @@ var View = cc._Class.extend({
      * @param {Function|Null} callback - The callback function
      */
     setResizeCallback: function (callback) {
-        if (cc.js.isFunction(callback) || callback == null) {
+        if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
     },
@@ -389,7 +390,14 @@ var View = cc._Class.extend({
      * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
      */
     enableAutoFullScreen: function(enabled) {
-        this._autoFullScreen = enabled ? true : false;
+        if (enabled && enabled !== this._autoFullScreen && cc.sys.isMobile && this._frame === document.documentElement) {
+            // Automatically full screen when user touches on mobile version
+            this._autoFullScreen = true;
+            cc.screen.autoFullScreen(this._frame);
+        }
+        else {
+            this._autoFullScreen = false;
+        }
     },
 
     /**
@@ -928,11 +936,6 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
 
     _setupContainer: function (view, w, h) {
         var frame = cc.game.frame;
-        if (cc.view._autoFullScreen && cc.sys.isMobile && frame === document.documentElement) {
-            // Automatically full screen when user touches on mobile version
-            cc.screen.autoFullScreen(frame);
-        }
-
         var locCanvasElement = cc.game.canvas, locContainer = cc.game.container;
         // Setup container
         locContainer.style.width = locCanvasElement.style.width = w + "px";

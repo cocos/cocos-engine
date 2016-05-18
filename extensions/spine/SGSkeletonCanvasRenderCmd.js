@@ -135,7 +135,7 @@ proto._createSprite = function(slot, attachment){
     var texture = rendererObject.page._texture;
     var rect = new cc.Rect(rendererObject.x, rendererObject.y, rendererObject.width, rendererObject.height);
     var sprite = new _ccsg.Sprite();
-    sprite.initWithTexture(rendererObject.page._texture, rect, rendererObject.rotate, false);
+    sprite.initWithTexture(texture, rect, rendererObject.rotate, false);
     sprite._rect.width = attachment.width;
     sprite._rect.height = attachment.height;
     sprite.setContentSize(attachment.width, attachment.height);
@@ -151,7 +151,7 @@ proto._createSprite = function(slot, attachment){
 
 proto._updateChild = function(){
     var locSkeleton = this._node._skeleton, slots = locSkeleton.slots;
-    var i, n, selSprite;
+    var i, n, selSprite, ax, ay;
 
     var slot, attachment, slotNode;
     for(i = 0, n = slots.length; i < n; i++){
@@ -181,8 +181,17 @@ proto._updateChild = function(){
                 }
             }
             var bone = slot.bone;
-            slotNode.setPosition(bone.worldX + attachment.x * bone.m00 + attachment.y * bone.m01,
-                bone.worldY + attachment.x * bone.m10 + attachment.y * bone.m11);
+            if (attachment.regionOffsetX === 0 && attachment.regionOffsetY === 0) {
+                ax = attachment.x;
+                ay = attachment.y;
+            }
+            else {
+                //var regionScaleX = attachment.width / attachment.regionOriginalWidth * attachment.scaleX;
+                //ax = attachment.x + attachment.regionOffsetX * regionScaleX - (attachment.width * attachment.scaleX - attachment.regionWidth * regionScaleX) / 2;
+                ax = (attachment.offset[0] + attachment.offset[4]) * 0.5;
+                ay = (attachment.offset[1] + attachment.offset[5]) * 0.5;
+            }
+            slotNode.setPosition(bone.worldX + ax * bone.m00 + ay * bone.m01, bone.worldY + ax * bone.m10 + ay * bone.m11);
             slotNode.setScale(bone.worldScaleX, bone.worldScaleY);
 
             //set the color and opacity

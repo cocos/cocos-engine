@@ -130,8 +130,18 @@ if (_ccsg.Node.WebGLRenderCmd) {
 
     };
 
+    proto._syncDisplayOpacity = function (parentOpacity) {
+        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayOpacity.call(this, parentOpacity);
+        this._colorOpacityDirty = true;
+    };
+
     proto._updateDisplayOpacity = function(parentOpacity){
         _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
+        this._colorOpacityDirty = true;
+    };
+
+    proto._syncDisplayColor = function (parentColor) {
+        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayColor.call(this, parentColor);
         this._colorOpacityDirty = true;
     };
 

@@ -35,11 +35,11 @@ require('./requiring-frame');
 require('./CCSys');
 require('./CCMacro');
 
-if (cc.sys.isBrowser || cc.sys.isNative) {
+if (CC_JSB || cc.sys.isBrowser) {
     require('./CCAssetLibrary');
 }
 
-if (!CC_JSB && !(CC_EDITOR && Editor.isCoreLevel)) {
+if (!CC_JSB && !(CC_EDITOR && Editor.isMainProcess)) {
     require('./miniFramework');
     require('./CCVisibleRect');
 }

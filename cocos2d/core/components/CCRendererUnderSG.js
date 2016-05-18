@@ -37,13 +37,13 @@ var RendererUnderSG = cc.Class({
         /**
          * Reference to the instance of _ccsg.Node
          * If it is possible to return null from your overloaded _createSgNode,
-         * then you should always check for null before using this property and reimplement onLoad.
+         * then you should always check for null before using this property and reimplement `__preload`.
          *
          * @property {_ccsg.Node} _sgNode
          * @private
          */
         this._sgNode = this._createSgNode();
-        if (this._sgNode) {
+        if (CC_JSB && this._sgNode) {
             // retain immediately
             // will be released in onDestroy
             this._sgNode.retain();
@@ -51,7 +51,7 @@ var RendererUnderSG = cc.Class({
     },
 
     // You should reimplement this function if your _sgNode maybe null.
-    onLoad: function () {
+    __preload: function () {
         this._initSgNode();
         var sgNode = this._sgNode;
         if ( !this.node._sizeProvider ) {

@@ -8,7 +8,7 @@
 Re: cocos-creator/fireball#
 
 Changes proposed in this pull request:
-- 
-- 
+* 
+* 
 
 @cocos-creator/engine-admins

@@ -420,7 +420,7 @@ var EditBox = cc.Class({
 
         this._createBackgroundSprite();
 
-        if(this._useOriginalSize && CC_EDITOR){
+        if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
         } else {
@@ -445,18 +445,18 @@ var EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan: function() {
-        cc.Component.EventHandler.emitEvents(this.editingDidBegan);
+        cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
     },
 
     editBoxEditingDidEnded: function() {
-        cc.Component.EventHandler.emitEvents(this.editingDidEnded);
+        cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
     },
 
     editBoxTextChanged: function(editBox, text) {
-        cc.Component.EventHandler.emitEvents(this.textChanged, text);
+        cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
     },
 
-    onLoad: function() {
+    __preload: function() {
         this._super();
 
         if (!CC_EDITOR) {

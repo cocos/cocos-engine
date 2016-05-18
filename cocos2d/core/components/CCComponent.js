@@ -29,36 +29,41 @@ var IdGenerater = require('../platform/id-generater');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
+var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
+var IsPreloadCalled = Flags.IsPreloadCalled;
 var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
 var IsOnStartCalled = Flags.IsOnStartCalled;
+
+// only use eval in editor
 
 var ExecInTryCatchTmpl = CC_EDITOR && '(function call_FUNC_InTryCatch(c){try{c._FUNC_()}catch(e){cc._throw(e)}})';
 if (CC_TEST) {
     ExecInTryCatchTmpl = '(function call_FUNC_InTryCatch (c) { c._FUNC_() })';
 }
-var callOnEnableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onEnable'));
-var callOnDisableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDisable'));
+var callPreloadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, '__preload'));
 var callOnLoadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLoad'));
+var callOnEnableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onEnable'));
 var callStartInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'start'));
+var callOnDisableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDisable'));
 var callOnDestroyInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDestroy'));
 var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onFocusInEditor'));
 var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditor'));
 
 function callOnEnable (self, enable) {
     if (CC_EDITOR) {
-        //if (enable ) {
-        //    if ( !(self._objFlags & IsEditorOnEnabledCalled) ) {
-        //        editorCallback.onComponentEnabled(self);
-        //        self._objFlags |= IsEditorOnEnabledCalled;
-        //    }
-        //}
-        //else {
-        //    if (self._objFlags & IsEditorOnEnabledCalled) {
-        //        editorCallback.onComponentDisabled(self);
-        //        self._objFlags &= ~IsEditorOnEnabledCalled;
-        //    }
-        //}
+        if (enable) {
+            if ( !(self._objFlags & IsEditorOnEnableCalled) ) {
+                cc.engine.emit('component-enabled', self.uuid);
+                self._objFlags |= IsEditorOnEnableCalled;
+            }
+        }
+        else {
+            if (self._objFlags & IsEditorOnEnableCalled) {
+                cc.engine.emit('component-disabled', self.uuid);
+                self._objFlags &= ~IsEditorOnEnableCalled;
+            }
+        }
         if ( !(cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
             return;
         }
@@ -75,30 +80,31 @@ function callOnEnable (self, enable) {
                 }
             }
 
-            cc.director.getScheduler().resumeTarget(self);
+            var deactivatedDuringOnEnable = !self.node._activeInHierarchy;
+            if (deactivatedDuringOnEnable) {
+                return;
+            }
 
+            cc.director.getScheduler().resumeTarget(self);
             _registerEvent(self, true);
 
             self._objFlags |= IsOnEnableCalled;
         }
     }
-    else {
-        if (enableCalled) {
-            if (self.onDisable) {
-                if (CC_EDITOR) {
-                    callOnDisableInTryCatch(self);
-                }
-                else {
-                    self.onDisable();
-                }
+    else if (enableCalled) {
+        if (self.onDisable) {
+            if (CC_EDITOR) {
+                callOnDisableInTryCatch(self);
             }
-
-            cc.director.getScheduler().pauseTarget(self);
-
-            _registerEvent(self, false);
-
-            self._objFlags &= ~IsOnEnableCalled;
+            else {
+                self.onDisable();
+            }
         }
+
+        cc.director.getScheduler().pauseTarget(self);
+        _registerEvent(self, false);
+
+        self._objFlags &= ~IsOnEnableCalled;
     }
 }
 
@@ -150,33 +156,42 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
     this.lateUpdate(event.detail);
 };
 
-//var createInvoker = function (timerFunc, timerWithKeyFunc, errorInfo) {
-//    return function (functionOrMethodName, time) {
-//        var ms = (time || 0) * 1000;
-//        var self = this;
-//        if (typeof functionOrMethodName === "function") {
-//            return timerFunc(function () {
-//                if (self.isValid) {
-//                    functionOrMethodName.call(self);
-//                }
-//            }, ms);
-//        }
-//        else {
-//            var method = this[functionOrMethodName];
-//            if (typeof method === 'function') {
-//                var key = this.id + '.' + functionOrMethodName;
-//                timerWithKeyFunc(function () {
-//                    if (self.isValid) {
-//                        method.call(self);
-//                    }
-//                }, ms, key);
-//            }
-//            else {
-//                cc.error('Can not %s %s.%s because it is not a valid function.', errorInfo, JS.getClassName(this), functionOrMethodName);
-//            }
-//        }
-//    };
-//};
+function _callPreloadOnNode (node) {
+    // set _activeInHierarchy to true before invoking onLoad
+    // to allow preload triggered on nodes which created in parent's onLoad dynamically.
+    node._activeInHierarchy = true;
+
+    var comps = node._components;
+    var i = 0, len = comps.length;
+    for (; i < len; ++i) {
+        var component = comps[i];
+        if (!(component._objFlags & IsPreloadCalled) && typeof component.__preload === 'function') {
+            if (CC_EDITOR) {
+                callPreloadInTryCatch(component);
+            }
+            else {
+                component.__preload();
+            }
+            component._objFlags |= IsPreloadCalled;
+        }
+    }
+    var children = node._children;
+    for (i = 0, len = children.length; i < len; ++i) {
+        var child = children[i];
+        if (child._active) {
+            _callPreloadOnNode(child);
+        }
+    }
+}
+
+function _callPreloadOnComponent (component) {
+    if (CC_EDITOR) {
+        callPreloadInTryCatch(component);
+    }
+    else {
+        component.__preload();
+    }
+}
 
 var idGenerater = new IdGenerater('Comp');
 
@@ -283,7 +298,7 @@ var Component = cc.Class({
                         var NewComp = cc.js._getClassById(classId);
                         if (cc.isChildClassOf(NewComp, cc.Component)) {
                             cc.warn('Sorry, replacing component script is not yet implemented.');
-                            //Editor.sendToWindows('reload:window-scripts', Editor._Sandbox.compiled);
+                            //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
                         }
                         else {
                             cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
@@ -393,6 +408,17 @@ var Component = cc.Class({
      * @method lateUpdate
      */
     lateUpdate: null,
+
+    /**
+     * `__preload` is called before every onLoad.
+     * It is used to initialize the builtin components internally,
+     * to avoid checking whether onLoad is called before every public method calls.
+     * This method should be removed if script priority is supported.
+     *
+     * @method __preload
+     * @private
+     */
+    __preload: null,
 
     /**
      * !#en When attaching to an active node or its node first activated.
@@ -521,75 +547,6 @@ var Component = cc.Class({
         return this.node.getComponentsInChildren(typeOrClassName);
     },
 
-    ///**
-    // * Invokes the method on this component after a specified delay.
-    // * The method will be invoked even if this component is disabled, but will not invoked if this component is
-    // * destroyed.
-    // *
-    // * @method invoke
-    // * @param {function|string} functionOrMethodName
-    // * @param {number} [delay=0] - The number of seconds that the function call should be delayed by. If omitted, it defaults to 0. The actual delay may be longer.
-    // * @return {number} - Will returns a new InvokeID if the functionOrMethodName is type function. InvokeID is the numerical ID of the invoke, which can be used later with cancelInvoke().
-    // * @example {@link examples/Fire/Component/invoke.js }
-    // */
-    //invoke: createInvoker(Timer.setTimeout, Timer.setTimeoutWithKey, 'invoke'),
-    //
-    ///**
-    // * Invokes the method on this component repeatedly, with a fixed time delay between each call.
-    // * The method will be invoked even if this component is disabled, but will not invoked if this component is
-    // * destroyed.
-    // *
-    // * @method repeat
-    // * @param {function|string} functionOrMethodName
-    // * @param {number} [delay=0] - The number of seconds that the function call should wait before each call to the method. If omitted, it defaults to 0. The actual delay may be longer.
-    // * @return {number} - Will returns a new RepeatID if the method is type function. RepeatID is the numerical ID of the repeat, which can be used later with cancelRepeat().
-    // * @example {@link examples/Fire/Component/repeat.js}
-    // */
-    //repeat: createInvoker(Timer.setInterval, Timer.setIntervalWithKey, 'repeat'),
-    //
-    ///**
-    // * Cancels previous invoke calls with methodName or InvokeID on this component.
-    // * When using methodName, all calls with the same methodName will be canceled.
-    // * InvokeID is the identifier of the invoke action you want to cancel, as returned by invoke().
-    // *
-    // * @method cancelInvoke
-    // * @param {string|number} methodNameOrInvokeId
-    // * @example {@link examples/Fire/Component/cancelInvoke.js}
-    // */
-    //cancelInvoke: function (methodNameOrInvokeId) {
-    //    if (typeof methodNameOrInvokeId === 'string') {
-    //        var key = this.id + '.' + methodNameOrInvokeId;
-    //        Timer.clearTimeoutByKey(key);
-    //    }
-    //    else {
-    //        Timer.clearTimeout(methodNameOrInvokeId);
-    //    }
-    //},
-    //
-    ///**
-    // * Cancels previous repeat calls with methodName or RepeatID on this component.
-    // * When using methodName, all calls with the same methodName will be canceled.
-    // * RepeatID is the identifier of the repeat action you want to cancel, as returned by repeat().
-    // *
-    // * @method cancelRepeat
-    // * @param {string|number} methodNameOrRepeatId
-    // * @example {@link examples/Fire/Component/cancelRepeat.js}
-    // */
-    //cancelRepeat: function (methodNameOrRepeatId) {
-    //    if (typeof methodNameOrRepeatId === 'string') {
-    //        var key = this.id + '.' + methodNameOrRepeatId;
-    //        Timer.clearIntervalByKey(key);
-    //    }
-    //    else {
-    //        Timer.clearInterval(methodNameOrRepeatId);
-    //    }
-    //},
-    //
-    //isInvoking: function (methodName) {
-    //    var key = this.id + '.' + methodName;
-    //    return Timer.hasTimeoutKey(key);
-    //},
-
     // VIRTUAL
 
     /**
@@ -666,7 +623,7 @@ var Component = cc.Class({
     },
 
     __onNodeActivated: CC_EDITOR ? function (active) {
-        if (!(this._objFlags & IsOnLoadStarted) &&
+        if (active && !(this._objFlags & IsOnLoadStarted) &&
             (cc.engine._isPlaying || this.constructor._executeInEditMode)) {
             this._objFlags |= IsOnLoadStarted;
 
@@ -689,20 +646,30 @@ var Component = cc.Class({
                 _Scene.AssetsWatcher.start(this);
             }
         }
-
         if (this._enabled) {
+            if (active) {
+                var deactivatedOnLoading = !this.node._activeInHierarchy;
+                if (deactivatedOnLoading) {
+                    return;
+                }
+            }
             callOnEnable(this, active);
         }
     } : function (active) {
-        if (!(this._objFlags & IsOnLoadStarted)) {
+        if (active && !(this._objFlags & IsOnLoadStarted)) {
             this._objFlags |= IsOnLoadStarted;
             if (this.onLoad) {
                 this.onLoad();
             }
             this._objFlags |= IsOnLoadCalled;
         }
-
         if (this._enabled) {
+            if (active) {
+                var deactivatedOnLoading = !this.node._activeInHierarchy;
+                if (deactivatedOnLoading) {
+                    return;
+                }
+            }
             callOnEnable(this, active);
         }
     },
@@ -919,6 +886,15 @@ Object.defineProperty(Component, '_registerEditorProps', {
                 }
             }
         }
+    }
+});
+
+Object.defineProperties(Component, {
+    _callPreloadOnNode: {
+        value: _callPreloadOnNode
+    },
+    _callPreloadOnComponent: {
+        value: _callPreloadOnComponent
     }
 });
 

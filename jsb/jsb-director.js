@@ -41,6 +41,15 @@ cc.js.mixin(cc.director, {
             this._animationManager = null;
         }
 
+        // collider manager
+        if (cc.CollisionManager) {
+            this._collisionManager = new cc.CollisionManager();
+            this.getScheduler().scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+        else {
+            this._collisionManager = null;
+        }
+
         // WidgetManager
         cc._widgetManager.init(this);
     },
@@ -65,6 +74,11 @@ cc.js.mixin(cc.director, {
             this.getScheduler().scheduleUpdate(this._animationManager, cc.Scheduler.PRIORITY_SYSTEM, false);
         }
 
+        // Collision manager
+        if (this._collisionManager) {
+            this.getScheduler().scheduleUpdate(this._collisionManager, cc.Scheduler.PRIORITY_SYSTEM, false);
+        }
+
         this.startAnimation();
     },
 
@@ -75,6 +89,15 @@ cc.js.mixin(cc.director, {
      */
     getAnimationManager: function () {
         return this._animationManager;
+    },
+
+    /**
+     * Returns the cc.CollisionManager associated with this director.
+     * @method getCollisionManager
+     * @return {CollisionManager}
+     */
+    getCollisionManager: function () {
+        return this._collisionManager;
     },
 
     /**
@@ -187,6 +210,37 @@ cc.js.mixin(cc.director, {
 
     //  @Scene loading section
 
+    _getSceneUuid: function (key) {
+        var scenes = cc.game._sceneInfos;
+        if (typeof key === 'string') {
+            if (!key.endsWith('.fire')) {
+                key += '.fire';
+            }
+            if (key[0] !== '/' && !key.startsWith('db://assets/')) {
+                key = '/' + key;    // 使用全名匹配
+            }
+            // search scene
+            for (var i = 0; i < scenes.length; i++) {
+                var info = scenes[i];
+                if (info.url.endsWith(key)) {
+                    return info.uuid;
+                }
+            }
+        }
+        else if (typeof key === 'number') {
+            if (0 <= key && key < scenes.length) {
+                return scenes[key].uuid;
+            }
+            else {
+                cc.error('loadScene: The scene index to load (%s) is out of range.', key);
+            }
+        }
+        else {
+            cc.error('loadScene: Unknown name type to load: "%s"', key);
+        }
+        return null;
+    },
+
     /**
      * Loads the scene by its name.
      * @method loadScene
@@ -195,48 +249,41 @@ cc.js.mixin(cc.director, {
      * @param {Function} [onUnloaded] - callback, will be called when the previous scene was unloaded.
      * @return {Boolean} if error, return false
      */
-    loadScene: function (sceneName, onLaunched, onUnloaded) {
-        var uuid, info;
+    loadScene: function (sceneName, onLaunched, _onUnloaded) {
         if (this._loadingScene) {
-            cc.error('[loadScene] Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
+            cc.error('loadScene: Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
             return false;
         }
-        if (typeof sceneName === 'string') {
-            if (!sceneName.endsWith('.fire')) {
-                sceneName += '.fire';
-            }
-            if (sceneName[0] !== '/' && !sceneName.startsWith('db://assets/')) {
-                sceneName = '/' + sceneName;    // 使用全名匹配
-            }
-            // search scene
-            for (var i = 0; i < cc.game._sceneInfos.length; i++) {
-                info = cc.game._sceneInfos[i];
-                var url = info.url;
-                if (url.endsWith(sceneName)) {
-                    uuid = info.uuid;
-                    break;
-                }
-            }
-        }
-        else {
-            info = cc.game._sceneInfos[sceneName];
-            if (typeof info === 'object') {
-                uuid = info.uuid;
-            }
-            else {
-                cc.error('[loadScene] The scene index to load (%s) is out of range.', sceneName);
-                return false;
-            }
-        }
+        var uuid = this._getSceneUuid(sceneName);
         if (uuid) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            this._loadSceneByUuid(uuid, onLaunched, onUnloaded);
+            this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
             return true;
         }
         else {
-            cc.error('[loadScene] Can not load the scene "%s" because it has not been added to the build settings before play.', sceneName);
+            cc.error('loadScene: Can not load the scene "%s" because it was not in the build settings before playing.', sceneName);
             return false;
+        }
+    },
+
+    preloadScene: function (sceneName, onLoaded) {
+        var uuid = this._getSceneUuid(sceneName);
+        if (uuid) {
+            this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
+            cc.loader.load({ id: uuid, type: 'uuid' }, function (error, asset) {
+                if (error) {
+                    cc.error('Failed to preload "%s", %s', sceneName, error.message);
+                }
+                if (onLoaded) {
+                    onLoaded(error, asset);
+                }
+            });
+        }
+        else {
+            var error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
+            onLoaded(new Error(error));
+            cc.error('preloadScene: ' + error);
         }
     },
 

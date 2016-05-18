@@ -53,13 +53,13 @@ function Rect (x, y, w, h) {
         h = x.height;
         x = x.x;
     }
-    this.x = typeof x === 'number' ? x : 0.0;
-    this.y = typeof y === 'number' ? y : 0.0;
-    this.width = typeof w === 'number' ? w : 0.0;
-    this.height = typeof h === 'number' ? h : 0.0;
+    this.x = x || 0;
+    this.y = y || 0;
+    this.width = w || 0;
+    this.height = h || 0;
 }
 JS.extend(Rect, ValueType);
-require('../platform/CCClass').fastDefine('cc.Rect', Rect, ['x', 'y', 'width', 'height']);
+require('../platform/CCClass').fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
 /**
  * !#en Creates a rectangle from two coordinate values.

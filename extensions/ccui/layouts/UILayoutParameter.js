@@ -114,7 +114,7 @@ ccui.LayoutParameter = ccui.Class.extend(/** @lends ccui.LayoutParameter# */{
      * @param {ccui.Margin} margin
      */
     setMargin: function (margin) {
-        if(cc.js.isObject(margin)){
+        if(typeof margin === 'object'){
             this._margin.left = margin.left;
             this._margin.top = margin.top;
             this._margin.right = margin.right;

@@ -115,6 +115,7 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         alignToParent(node, widget);
+        widgetManager._nodesWithWidget.push(node);
         if (!CC_EDITOR && widget.isAlignOnce) {
             widget.enabled = false;
         }
@@ -132,7 +133,17 @@ function refreshScene () {
     var scene = cc.director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
-        visitNode(scene);
+        if (widgetManager._nodesOrderDirty) {
+            widgetManager._nodesWithWidget.length = 0;
+            visitNode(scene);
+            widgetManager._nodesOrderDirty = false;
+        } else {
+            var nodes = widgetManager._nodesWithWidget;
+            for (var i = 0, len = nodes.length; i < len; i++) {
+                var node = nodes[i];
+                alignToParent(node, node._widget);
+            }
+        }
         widgetManager.isAligning = false;
     }
 }
@@ -223,11 +234,14 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
 
 var widgetManager = cc._widgetManager = {
     isAligning: false,
+    _nodesOrderDirty: false,
+    _nodesWithWidget: [],
     init: function (director) {
         director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
     },
     add: function (widget) {
         widget.node._widget = widget;
+        this._nodesOrderDirty = true;
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.on('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.on('size-changed', adjustWidgetToAllowResizingInEditor, widget);
@@ -235,6 +249,10 @@ var widgetManager = cc._widgetManager = {
     },
     remove: function (widget) {
         widget.node._widget = null;
+        var index = this._nodesWithWidget.indexOf(widget.node);
+        if (index > -1) {
+            this._nodesWithWidget.splice(index, 1);
+        }
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);
             widget.node.off('size-changed', adjustWidgetToAllowResizingInEditor, widget);

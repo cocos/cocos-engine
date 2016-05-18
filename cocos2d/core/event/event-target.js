@@ -328,14 +328,22 @@ JS.mixin(EventTarget.prototype, {
      * @param {*} [detail] - whatever argument the message needs
      */
     emit: function (message, detail) {
-        if ( typeof message === 'string' ) {
-            var event = new cc.Event.EventCustom(message);
-            event.detail = detail;
-            _doSendEvent(this, event);
-        }
-        else {
+        if (typeof message !== 'string') {
             cc.error('The message must be provided');
+            return;
         }
+        //don't emit event when bubble listeners are not exists.
+        if(!this._bubblingListeners) {
+            return;
+        }
+        var listeners = this._bubblingListeners._callbackTable[message];
+        if (!listeners || listeners.length === 0) {
+            return;
+        }
+
+        var event = new cc.Event.EventCustom(message);
+        event.detail = detail;
+        _doSendEvent(this, event);
     },
 
     /*

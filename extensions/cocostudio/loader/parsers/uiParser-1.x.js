@@ -470,7 +470,7 @@
         }
         var fn = options["fontName"];
         if (fn != null){
-            if(cc.sys.isNative){
+            if(CC_JSB){
                 if(regTTF.test(fn)){
                     widget.setFontName(cc.path.join(cc.loader.resPath, resourcePath, fn));
                 }else{
@@ -618,7 +618,7 @@
             widget.setFontSize(fs);
         var fn = options["fontName"];
         if (fn != null){
-            if(cc.sys.isNative){
+            if(CC_JSB){
                 if(regTTF.test(fn)){
                     widget.setFontName(cc.path.join(cc.loader.resPath, resourcePath, fn));
                 }else{

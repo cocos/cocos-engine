@@ -185,7 +185,7 @@ cc.LoaderLayer = cc.Layer.extend({
     _preloadSource: function () {
         cc.log("cc.LoaderLayer is preloading resource group: " + this._groupname);
         this._resetLoadingLabel();
-        if (cc.sys.isNative) {
+        if (CC_JSB) {
             cc.Loader.preload(this._groupname, this._preload_native, this);
         } else {
             this._preload_html5();
@@ -244,7 +244,6 @@ cc.LoaderLayer = cc.Layer.extend({
                     self._callback(true);
                 }
             }
-            self._callback.call(this._target, !status.isFailed);
         });
     },
     _preload_native: function (status) {
@@ -283,7 +282,7 @@ cc.LoaderLayer = cc.Layer.extend({
     },
     _addToScene: function () {
         if (this._preloadCount == 0 && !this._isPreloadFromFailed) {
-            if (cc.sys.isNative && cc.LoaderLayer._useDefaultSource) {
+            if (CC_JSB && cc.LoaderLayer._useDefaultSource) {
                 var config = cc.runtime.config.design_resolution;
                 var isLandscape = false;
                 var isLargeThanResource = false;

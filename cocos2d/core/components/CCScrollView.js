@@ -522,7 +522,7 @@ var ScrollView = cc.Class({
     _onMouseWheel: function(event) {
         var deltaMove = cc.p(0, 0);
         var wheelPrecision = 1.0 / 40;
-        if(cc.sys.isNative) {
+        if(CC_JSB) {
             wheelPrecision = 7;
         }
         if(this.vertical) {
@@ -1024,14 +1024,22 @@ var ScrollView = cc.Class({
     },
 
     //component life cycle methods
-    onLoad: function () {
+    __preload: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
+            if(cc.isValid(this.content)) {
+                this.content.on('size-changed', this._calculateBoundary, this);
+            }
+            this.node.on('size-changed', this._calculateBoundary, this);
+            this._calculateBoundary();
         }
     },
 
-    start: function() {
-        this._calculateBoundary();
+    onDestroy: function() {
+        if(cc.isValid(this.content)) {
+            this.content.off('size-changed', this._calculateBoundary, this);
+        }
+        this.node.off('size-changed', this._calculateBoundary, this);
     },
 
     update: function(dt) {

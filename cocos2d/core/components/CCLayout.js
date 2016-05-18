@@ -185,7 +185,7 @@ var Layout = cc.Class({
             set: function(value) {
                 this._N$layoutType = value;
 
-                if (this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this.type !== Type.NONE && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -218,7 +218,7 @@ var Layout = cc.Class({
                 }
 
                 this._resize = value;
-                if (this.type !== Type.NONE && value === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this.type !== Type.NONE && value === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -257,7 +257,7 @@ var Layout = cc.Class({
             tooltip: 'i18n:COMPONENT.layout.start_axis',
             type: AxisDirection,
             notify: function() {
-                if (this._resize === ResizeMode.CONTAINER && CC_EDITOR && !cc.engine.isPlaying) {
+                if (CC_EDITOR && this._resize === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
                     var reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
                     if (reLayouted) {
                         return;
@@ -352,7 +352,7 @@ var Layout = cc.Class({
         AxisDirection: AxisDirection,
     },
 
-    onLoad: function() {
+    __preload: function() {
         if(cc.sizeEqualToSize(this.node.getContentSize(), cc.size(0, 0))) {
             this.node.setContentSize(this._layoutSize);
         }
@@ -406,7 +406,7 @@ var Layout = cc.Class({
         var tempMaxHeight = 0;
         var secondMaxHeight = 0;
         var row = 0;
-        var containerResizeBoundary;
+        var containerResizeBoundary = 0;
 
         var maxHeightChildAnchorY = 0;
 
@@ -533,7 +533,7 @@ var Layout = cc.Class({
         var tempMaxWidth = 0;
         var secondMaxWidth = 0;
         var column = 0;
-        var containerResizeBoundary;
+        var containerResizeBoundary = 0;
         var maxWidthChildAnchorX = 0;
 
         var newChildHeight = this.cellSize.height;

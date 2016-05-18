@@ -186,9 +186,9 @@ proto._createChildFormSkeletonData = function(){};
 
 proto._updateChild = function(){};
 
-proto._updateRegionAttachmentQuad = function(self, slot, quad, premultipliedAlpha) {
+proto._updateRegionAttachmentQuad = function(attachment, slot, quad, premultipliedAlpha) {
     var vertices = {};
-    self.computeVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot.bone, vertices);
+    attachment.computeVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot.bone, vertices);
     var r = slot.bone.skeleton.r * slot.r * 255;
     var g = slot.bone.skeleton.g * slot.g * 255;
     var b = slot.bone.skeleton.b * slot.b * 255;
@@ -216,19 +216,19 @@ proto._updateRegionAttachmentQuad = function(self, slot, quad, premultipliedAlph
     quad.br.vertices.x = vertices[VERTEX.X4];
     quad.br.vertices.y = vertices[VERTEX.Y4];
 
-    quad.bl.texCoords.u = self.uvs[VERTEX.X1];
-    quad.bl.texCoords.v = self.uvs[VERTEX.Y1];
-    quad.tl.texCoords.u = self.uvs[VERTEX.X2];
-    quad.tl.texCoords.v = self.uvs[VERTEX.Y2];
-    quad.tr.texCoords.u = self.uvs[VERTEX.X3];
-    quad.tr.texCoords.v = self.uvs[VERTEX.Y3];
-    quad.br.texCoords.u = self.uvs[VERTEX.X4];
-    quad.br.texCoords.v = self.uvs[VERTEX.Y4];
+    quad.bl.texCoords.u = attachment.uvs[VERTEX.X1];
+    quad.bl.texCoords.v = attachment.uvs[VERTEX.Y1];
+    quad.tl.texCoords.u = attachment.uvs[VERTEX.X2];
+    quad.tl.texCoords.v = attachment.uvs[VERTEX.Y2];
+    quad.tr.texCoords.u = attachment.uvs[VERTEX.X3];
+    quad.tr.texCoords.v = attachment.uvs[VERTEX.Y3];
+    quad.br.texCoords.u = attachment.uvs[VERTEX.X4];
+    quad.br.texCoords.v = attachment.uvs[VERTEX.Y4];
 };
 
-proto._updateMeshAttachmentQuad = function(self, slot, quad, premultipliedAlpha) {
+proto._updateMeshAttachmentQuad = function(attachment, slot, quad, premultipliedAlpha) {
     var vertices = {};
-    self.computeWorldVertices(slot.bone.x, slot.bone.y, slot, vertices);
+    attachment.computeWorldVertices(slot.bone.x, slot.bone.y, slot, vertices);
     var r = slot.bone.skeleton.r * slot.r * 255;
     var g = slot.bone.skeleton.g * slot.g * 255;
     var b = slot.bone.skeleton.b * slot.b * 255;
@@ -255,12 +255,12 @@ proto._updateMeshAttachmentQuad = function(self, slot, quad, premultipliedAlpha)
     quad.br.vertices.x = vertices[VERTEX.X4];
     quad.br.vertices.y = vertices[VERTEX.Y4];
 
-    quad.bl.texCoords.u = self.uvs[VERTEX.X1];
-    quad.bl.texCoords.v = self.uvs[VERTEX.Y1];
-    quad.tl.texCoords.u = self.uvs[VERTEX.X2];
-    quad.tl.texCoords.v = self.uvs[VERTEX.Y2];
-    quad.tr.texCoords.u = self.uvs[VERTEX.X3];
-    quad.tr.texCoords.v = self.uvs[VERTEX.Y3];
-    quad.br.texCoords.u = self.uvs[VERTEX.X4];
-    quad.br.texCoords.v = self.uvs[VERTEX.Y4];
+    quad.bl.texCoords.u = attachment.uvs[VERTEX.X1];
+    quad.bl.texCoords.v = attachment.uvs[VERTEX.Y1];
+    quad.tl.texCoords.u = attachment.uvs[VERTEX.X2];
+    quad.tl.texCoords.v = attachment.uvs[VERTEX.Y2];
+    quad.tr.texCoords.u = attachment.uvs[VERTEX.X3];
+    quad.tr.texCoords.v = attachment.uvs[VERTEX.Y3];
+    quad.br.texCoords.u = attachment.uvs[VERTEX.X4];
+    quad.br.texCoords.v = attachment.uvs[VERTEX.Y4];
 };

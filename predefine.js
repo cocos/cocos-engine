@@ -24,7 +24,10 @@
  ****************************************************************************/
 
 /**
- * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace
+ * !#en
+ * The main namespace of Cocos2d-JS, all engine core classes, functions, properties and constants are defined in this namespace.
+ * !#zh
+ * Cocos 引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
  * @module cc
  * @main cc
  */
@@ -67,7 +70,7 @@ if (!CC_JSB) {
     require('./cocos2d/core/CCDirectorWebGL');
     require('./cocos2d/core/CCDirectorCanvas');
 
-    if (!(CC_EDITOR && Editor.isCoreLevel)) {
+    if (!(CC_EDITOR && Editor.isMainProcess)) {
         require('./cocos2d/core/platform/CCSAXParser');
         require('./cocos2d/core/platform/CCView');
         require('./cocos2d/core/platform/CCScreen');

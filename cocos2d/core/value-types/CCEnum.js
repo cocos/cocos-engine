@@ -61,6 +61,10 @@ cc.Enum = function (obj) {
 
         var reverseKey = '' + val;
         if (key !== reverseKey) {
+            if (enumType.hasOwnProperty(reverseKey) && CC_EDITOR) {
+                cc.error('%s already defined in Enum.', reverseKey);
+                continue;
+            }
             Object.defineProperty(enumType, reverseKey, {
                 value: key,
                 enumerable: false

@@ -26,12 +26,40 @@
 /**
  * Class for tiled map asset handling.
  * @class TiledMapAsset
- * @extends RawAsset
+ * @extends Asset
  * @constructor
  */
 var TiledMapAsset = cc.Class({
     name: 'cc.TiledMapAsset',
-    extends: cc.RawAsset,
+    extends: cc.Asset,
+
+    properties: {
+        tmxXmlStr: {
+            default: ''
+        },
+
+        tmxFolderPath : {
+            default: ''
+        },
+
+        textures: {
+            default: [],
+            url: [cc.Texture2D]
+        },
+
+        tsxFiles: {
+            default: [],
+            url: [cc.RawAsset]
+        }
+    },
+
+    createNode: CC_EDITOR && function (callback) {
+        var node = new cc.Node(this.name);
+        var tiledMap = node.addComponent(cc.TiledMap);
+        tiledMap.tmxAsset = this;
+
+        return callback(null, node);
+    }
 });
 
 cc.TiledMapAsset = TiledMapAsset;

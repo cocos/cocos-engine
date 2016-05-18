@@ -775,7 +775,7 @@ cc.LabelTTF = _ccsg.Sprite.extend(/** @lends cc.LabelTTF# */{
     }
 });
 
-cc.assert(cc.js.isFunction(cc._tmp.PrototypeLabelTTF), cc._LogInfos.MissingFile, "LabelTTFPropertyDefine.js");
+cc.assert(typeof cc._tmp.PrototypeLabelTTF === 'function', cc._LogInfos.MissingFile, "LabelTTFPropertyDefine.js");
 cc._tmp.PrototypeLabelTTF();
 delete cc._tmp.PrototypeLabelTTF;
 

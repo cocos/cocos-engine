@@ -40,7 +40,9 @@ cc.Scene = cc.Class({
 
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
-        sgNode.retain();
+        if (CC_JSB) {
+            sgNode.retain();
+        }
         sgNode.setAnchorPoint(0.0, 0.0);
         this._anchorPoint.x = 0.0;
         this._anchorPoint.y = 0.0;
@@ -67,10 +69,6 @@ cc.Scene = cc.Class({
     },
 
     _onHierarchyChanged: NIL,
-    _onColorChanged: NIL,
-    _onAnchorChanged: NIL,
-    _onOpacityModifyRGBChanged: NIL,
-    _onCascadeChanged: NIL,
 
     _load: function () {
         if ( ! this._inited) {

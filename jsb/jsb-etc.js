@@ -209,3 +209,8 @@ cc._Class = cc.Class;
 
 // fix cc.formatStr (#2630)
 cc.formatStr = cc.js.formatStr;
+
+// disabled premultiplied alpha for png
+if (cc.Image && cc.Image.setPNGPremultipliedAlphaEnabled) {
+    cc.Image.setPNGPremultipliedAlphaEnabled(false);
+}

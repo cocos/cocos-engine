@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 var JS = cc.js;
-var SceneGraphHelper = require('./scene-graph-helper');
+var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var DirtyFlags = require('./misc').DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
@@ -41,12 +41,8 @@ function setMaxZOrder (node) {
 }
 
 var POSITION_CHANGED = 'position-changed';
-var ROTATION_CHANGED = 'rotation-changed';
-var SCALE_CHANGED = 'scale-changed';
 var SIZE_CHANGED = 'size-changed';
 var ANCHOR_CHANGED = 'anchor-changed';
-var COLOR_CHANGED = 'color-changed';
-var OPACITY_CHANGED = 'opacity-changed';
 var CHILD_ADDED = 'child-added';
 var CHILD_REMOVED = 'child-removed';
 var CHILD_REORDER = 'child-reorder';
@@ -276,10 +272,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._rotationX !== value || this._rotationY !== value ) {
-                    var old = this._rotationX;
                     this._rotationX = this._rotationY = value;
                     this._sgNode.rotation = value;
-                    this.emit(ROTATION_CHANGED, old);
                 }
             }
         },
@@ -299,10 +293,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._rotationX !== value) {
-                    var old = this._rotationX;
                     this._rotationX = value;
                     this._sgNode.rotationX = value;
-                    this.emit(ROTATION_CHANGED, old);
                 }
             },
         },
@@ -322,12 +314,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._rotationY !== value) {
-                    // yes, ROTATION_CHANGED always send last rotation x...
-                    var oldX = this._rotationX;
-
                     this._rotationY = value;
                     this._sgNode.rotationY = value;
-                    this.emit(ROTATION_CHANGED, oldX);
                 }
             },
         },
@@ -347,10 +335,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._scaleX !== value) {
-                    var oldX = this._scaleX;
                     this._scaleX = value;
                     this._sgNode.scaleX = value;
-                    this.emit(SCALE_CHANGED, new cc.Vec2(oldX, this._scaleY));
                 }
             },
         },
@@ -370,10 +356,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._scaleY !== value) {
-                    var oldY = this._scaleY;
                     this._scaleY = value;
                     this._sgNode.scaleY = value;
-                    this.emit(SCALE_CHANGED, new cc.Vec2(this._scaleX, oldY));
                 }
             },
         },
@@ -394,7 +378,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.x) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.x;
 
                         localPosition.x = value;
@@ -427,7 +411,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var localPosition = this._position;
                 if (value !== localPosition.y) {
-                    if (isFinite(value) || !CC_EDITOR) {
+                    if (!CC_EDITOR || isFinite(value)) {
                         var oldValue = localPosition.y;
 
                         localPosition.y = value;
@@ -491,10 +475,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.x;
             },
             set: function (value) {
-                if (this._anchorPoint.x !== value) {
-                    var old = cc.v2(this._anchorPoint);
-                    this._anchorPoint.x = value;
-                    this._onAnchorChanged();
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.x !== value) {
+                    var old = new cc.Vec2(anchorPoint);
+                    anchorPoint.x = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
                     this.emit(ANCHOR_CHANGED, old);
                 }
             },
@@ -513,10 +501,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._anchorPoint.y;
             },
             set: function (value) {
-                if (this._anchorPoint.y !== value) {
-                    var old = cc.v2(this._anchorPoint);
-                    this._anchorPoint.y = value;
-                    this._onAnchorChanged();
+                var anchorPoint = this._anchorPoint;
+                if (anchorPoint.y !== value) {
+                    var old = new cc.Vec2(anchorPoint);
+                    anchorPoint.y = value;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setAnchorPoint(anchorPoint);
+                    }
                     this.emit(ANCHOR_CHANGED, old);
                 }
             },
@@ -543,8 +535,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (value !== this._contentSize.width) {
-                    if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(value, this._sizeProvider._getHeight());
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(value, sizeProvider._getHeight());
                     }
                     var clone = cc.size(this._contentSize);
                     this._contentSize.width = value;
@@ -574,8 +567,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (value !== this._contentSize.height) {
-                    if (this._sizeProvider) {
-                        this._sizeProvider.setContentSize(this._sizeProvider._getWidth(), value);
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider) {
+                        sizeProvider.setContentSize(sizeProvider._getWidth(), value);
                     }
                     var clone = cc.size(this._contentSize);
                     this._contentSize.height = value;
@@ -602,7 +596,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this.__ignoreAnchor !== value) {
                     this.__ignoreAnchor = value;
                     this._sgNode.ignoreAnchor = value;
-                    this._onAnchorChanged();
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                        sizeProvider.ignoreAnchor = value;
+                    }
                     this.emit(ANCHOR_CHANGED, this._anchorPoint);
                 }
             },
@@ -640,11 +637,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
             set: function (value) {
                 if (this._opacity !== value) {
-                    var old = this._opacity;
                     this._opacity = value;
-                    this._sgNode.opacity = value;
-                    this._onColorChanged();
-                    this.emit(OPACITY_CHANGED, old);
+                    this._sgNode.setOpacity(value);
+                    var sizeProvider = this._sizeProvider;
+                    if ( !this._cascadeOpacityEnabled &&
+                         sizeProvider instanceof _ccsg.Node &&
+                         this._sgNode !== sizeProvider
+                    ) {
+                        sizeProvider.setOpacity(value);
+                    }
                 }
             },
             range: [0, 255]
@@ -666,7 +667,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._cascadeOpacityEnabled !== value) {
                     this._cascadeOpacityEnabled = value;
                     this._sgNode.cascadeOpacity = value;
-                    this._onCascadeChanged();
+
+                    var opacity = value ? 255 : this._opacity;
+                    var sizeProvider = this._sizeProvider;
+                    if (sizeProvider instanceof _ccsg.Node) {
+                        sizeProvider.setOpacity(opacity);
+                    }
                 }
             },
         },
@@ -687,15 +693,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 if ( !this._color.equals(value) ) {
                     var color = this._color;
-                    var old = cc.color(color);
                     color.r = value.r;
                     color.g = value.g;
                     color.b = value.b;
                     if (CC_DEV && value.a !== 255) {
-                        cc.warn('Should not set alpha via "color", use "opacity" please.');
+                        cc.warn('Should not set alpha via "color", set "opacity" please.');
                     }
-                    this._onColorChanged();
-                    this.emit(COLOR_CHANGED, old);
+                    if (this._sizeProvider instanceof _ccsg.Node) {
+                        this._sizeProvider.setColor(value);
+                    }
                 }
             },
         },
@@ -708,6 +714,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             enumerable: false
         });
 
+        /**
+         * Current scene graph node for this node.
+         *
+         * @property _sgNode
+         * @type {_ccsg.Node}
+         * @private
+         */
         var sgNode = this._sgNode = new _ccsg.Node();
         if (CC_JSB) {
             sgNode.retain();
@@ -727,35 +740,27 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._dirtyFlags = DirtyFlags.ALL;
 
         /**
-         * Current active scene graph node which provides content size.
+         * Current active size provider for this node.
+         * Size provider can equals to this._sgNode.
          *
          * @property _sizeProvider
-         * @type {Object}
+         * @type {_ccsg.Node}
          * @private
          */
-        // _ccsg.Node
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
     },
 
-    _onPreDestroy: function () {
+    _onPreDestroy: CC_JSB && function () {
         this._sgNode.release();
+        this._sgNode = null;
     },
 
     // ABSTRACT INTERFACES
 
     // called when the node's parent changed
     _onHierarchyChanged: null,
-    // called when the node's color or opacity changed
-    _onColorChanged: null,
-    // called when the node's anchor changed
-    _onAnchorChanged: null,
-    // called when the node's cascadeOpacity or cascadeColor changed
-    _onCascadeChanged: null,
-    // called when the node's isOpacityModifyRGB changed
-    _onOpacityModifyRGBChanged: null,
-
 
     /*
      * Initializes the instance of cc.Node
@@ -871,11 +876,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             scaleY = (scaleY || scaleY === 0) ? scaleY : scale;
         }
         if (this._scaleX !== scale || this._scaleY !== scaleY) {
-            var old = new cc.Vec2(this._scaleX, this._scaleY);
             this._scaleX = scale;
             this._scaleY = scaleY;
             this._sgNode.setScale(scale, scaleY);
-            this.emit(SCALE_CHANGED, old);
         }
     },
 
@@ -909,7 +912,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setPosition: function (newPosOrxValue, yValue) {
         var xValue;
-        if (yValue === undefined) {
+        if (typeof yValue === 'undefined') {
             xValue = newPosOrxValue.x;
             yValue = newPosOrxValue.y;
         }
@@ -925,20 +928,20 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         var oldPosition = new cc.Vec2(locPosition);
 
-        if (isFinite(xValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(xValue)) {
             locPosition.x = xValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'x of new position');
         }
-        if (isFinite(yValue) || !CC_EDITOR) {
+        if (!CC_EDITOR || isFinite(yValue)) {
             locPosition.y = yValue;
         }
         else {
             return cc.error(ERR_INVALID_NUMBER, 'y of new position');
         }
 
-        this._sgNode.setPosition(locPosition);
+        this._sgNode.setPosition(xValue, yValue);
 
         if (this.emit) {
             this.emit(POSITION_CHANGED, oldPosition);
@@ -1007,7 +1010,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this._onAnchorChanged();
+        var sizeProvider = this._sizeProvider;
+        if (sizeProvider instanceof _ccsg.Node) {
+            sizeProvider.setAnchorPoint(locAnchorPoint);
+        }
         this.emit(ANCHOR_CHANGED, old);
     },
 
@@ -1210,7 +1216,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     addChild: function (child, localZOrder, tag) {
         localZOrder = localZOrder === undefined ? child._localZOrder : localZOrder;
         var name, setTag = false;
-        if(cc.js.isUndefined(tag)){
+        if(typeof tag === 'undefined'){
             tag = undefined;
             name = child._name;
         } else if(cc.js.isString(tag)){
@@ -1224,20 +1230,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         cc.assert(child, cc._LogInfos.Node.addChild_3);
         cc.assert(child._parent === null, "child already added. It can't be added again");
 
-        this._addChildHelper(child, localZOrder, tag, name, setTag);
-    },
+        // invokes the parent setter
+        child.parent = this;
 
-    _addChildHelper: function(child, localZOrder, tag, name, setTag){
-        this._insertChild(child, localZOrder);
+        child.zIndex = localZOrder;
         if (setTag)
             child.setTag(tag);
         else
             child.setName(name);
-    },
-
-    _insertChild: function (child, z) {
-        child.parent = this;
-        child.zIndex = z;
     },
 
     // composition: REMOVE
@@ -1284,14 +1284,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * node.removeChild(newNode, false);
      */
     removeChild: function (child, cleanup) {
-        // explicit nil handling
-        if (this._children.length === 0)
-            return;
-
-        if (cleanup === undefined)
-            cleanup = true;
-        if (this._children.indexOf(child) > -1)
-            this._detachChild(child, cleanup);
+        if (this._children.indexOf(child) > -1) {
+            // If you don't do cleanup, the child's actions will not get removed and the
+            if (cleanup || cleanup === undefined) {
+                child.cleanup();
+            }
+            // invoke the parent setter
+            child.parent = null;
+        }
     },
 
     /**
@@ -1354,22 +1354,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             }
         }
         this._children.length = 0;
-    },
-
-    _detachChild: function (child, doCleanup) {
-        // IMPORTANT:
-        //  - 1st do onExit
-        //  - 2nd cleanup
-        //if (this._running) {
-        //    child.onExitTransitionDidStart();
-        //    child.onExit();
-        //}
-
-        // If you don't do cleanup, the child's actions will not get removed and the
-        if (doCleanup)
-            child.cleanup();
-
-        child.parent = null;
     },
 
     setNodeDirty: function(){
@@ -1753,7 +1737,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (this._opacityModifyRGB !== opacityValue) {
             this._opacityModifyRGB = opacityValue;
             this._sgNode.setOpacityModifyRGB(opacityValue);
-            this._onOpacityModifyRGBChanged();
+            var sizeProvider = this._sizeProvider;
+            if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                sizeProvider.setOpacityModifyRGB(opacityValue);
+            }
         }
     },
 
@@ -1939,7 +1926,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    // The deserializer for sgNode which will be called before components onLoad
+    /*
+     * The deserializer for sgNode which will be called before components onLoad
+     * @param {Boolean} [skipChildrenInEditor=false]
+     */
     _onBatchCreated: function () {
         this._updateDummySgNode();
 
@@ -1959,7 +1949,30 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    _removeSgNode: SceneGraphHelper.removeSgNode,
+    onRestore: CC_EDITOR && function () {
+        this._updateDummySgNode();
+
+        var sgParent = this._parent && this._parent._sgNode;
+        if (this._sgNode._parent !== sgParent) {
+            if (this._sgNode._parent) {
+                this._sgNode.removeFromParent();
+            }
+            if (sgParent) {
+                sgParent.addChild(this._sgNode);
+            }
+        }
+
+        if (this._activeInHierarchy) {
+            cc.director.getActionManager().resumeTarget(this);
+            cc.eventManager.resumeTarget(this);
+        }
+        else {
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+        }
+    },
+
+    _removeSgNode: SgHelper.removeSgNode,
 });
 
 

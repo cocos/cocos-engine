@@ -196,9 +196,9 @@ cc.SpriteFrame.prototype._checkRect = function (texture) {
         cc.error(cc._LogInfos.RectHeight, texture.url);
     }
 };
-var getTextureJSB = cc.SpriteFrame.prototype.getTexture;
+cc.SpriteFrame.prototype._getTexture = cc.SpriteFrame.prototype.getTexture;
 cc.SpriteFrame.prototype.getTexture = function () {
-    var tex = getTextureJSB.call(this);
+    var tex = this._getTexture();
     this._texture = tex;
     return tex;
 };

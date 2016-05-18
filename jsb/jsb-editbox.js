@@ -48,8 +48,6 @@ _p.setMaxLength = function(maxLength) {
         maxLength = Number.MAX_VALUE;
     }
     this._setMaxLength(maxLength);
-}
+};
 
-_p.setLineHeight = function () {}
-
-_p = null;
+_p.setLineHeight = function () {};

@@ -28,11 +28,13 @@ function Entry (uuid, type) {
     this.type = type;
 }
 
-/**
- * AssetTable is used to find asset's uuid by url
+/*
+ * !#en AssetTable is used to find asset's uuid by url.
+ * !#zh AssetTable 用于查找资源的 uuid 和 url。
  * @class AssetTable
  * @constructor
  */
+
 function AssetTable () {
     this._pathToUuid = {};
 }
@@ -114,8 +116,20 @@ cc.js.mixin(AssetTable.prototype, {
         }
         return uuids;
     },
+
+    /**
+     * !#en Returns all asset paths in the table.
+     * !#zh 返回表中的所有资源路径。
+     * @method getAllPaths
+     * @return {string[]}
+     */
+    getAllPaths: function () {
+        return Object.keys(this._pathToUuid);
+    },
     
     /**
+     * !#en TODO
+     * !#zh 以路径为 key，uuid 为值添加到表中。
      * @method add
      * @param {String} path - the path to load, should NOT include filename extensions.
      * @param {String} uuid
@@ -155,7 +169,7 @@ cc.js.mixin(AssetTable.prototype, {
     },
 
     reset: function () {
-        this._pathToUuid = {}
+        this._pathToUuid = {};
     }
 });
 
