@@ -1107,6 +1107,14 @@ cc.BMFontHelper = {
         }
     },
 
+    getBMFontOriginSize: function() {
+        if (this._config) {
+            return this._config.fontSize;
+        } else {
+            return -1;
+        }
+    },
+
     _setBMFontFile: function(filename, textureUrl) {
         if (filename) {
             this._fontHandle = filename;
