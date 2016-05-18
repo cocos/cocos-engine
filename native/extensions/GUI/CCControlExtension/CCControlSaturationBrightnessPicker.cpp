@@ -56,7 +56,7 @@ ControlSaturationBrightnessPicker::~ControlSaturationBrightnessPicker()
     _slider     = nullptr;
 }
 
-bool ControlSaturationBrightnessPicker::initWithTargetAndPos(Node* target, Vec2 pos)
+bool ControlSaturationBrightnessPicker::initWithTargetAndPos(Node* target, const Vec2& pos)
 {
     if (Control::init())
     {
@@ -77,7 +77,7 @@ bool ControlSaturationBrightnessPicker::initWithTargetAndPos(Node* target, Vec2 
     }
 }
 
-ControlSaturationBrightnessPicker* ControlSaturationBrightnessPicker::create(Node* target, Vec2 pos)
+ControlSaturationBrightnessPicker* ControlSaturationBrightnessPicker::create(Node* target, const Vec2& pos)
 {
     ControlSaturationBrightnessPicker *pRet = new (std::nothrow) ControlSaturationBrightnessPicker();
     pRet->initWithTargetAndPos(target, pos);

@@ -49,7 +49,7 @@ ControlHuePicker::~ControlHuePicker()
     CC_SAFE_RELEASE(_slider);
 }
 
-ControlHuePicker* ControlHuePicker::create(Node* target, Vec2 pos)
+ControlHuePicker* ControlHuePicker::create(Node* target, const Vec2& pos)
 {
     ControlHuePicker *pRet = new (std::nothrow) ControlHuePicker();
     pRet->initWithTargetAndPos(target, pos);
@@ -58,7 +58,7 @@ ControlHuePicker* ControlHuePicker::create(Node* target, Vec2 pos)
 }
 
 
-bool ControlHuePicker::initWithTargetAndPos(Node* target, Vec2 pos)
+bool ControlHuePicker::initWithTargetAndPos(Node* target, const Vec2& pos)
 {
     if (Control::init())
     {

@@ -50,7 +50,7 @@ TableView* TableView::create(TableViewDataSource* dataSource, Size size, Node *c
     return table;
 }
 
-bool TableView::initWithViewSize(Size size, Node* container/* = nullptr*/)
+bool TableView::initWithViewSize(const Size& size, Node* container/* = nullptr*/)
 {
     if (ScrollView::initWithViewSize(size,container))
     {
