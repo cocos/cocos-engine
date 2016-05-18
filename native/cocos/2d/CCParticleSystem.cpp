@@ -712,15 +712,16 @@ dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
             _particleData.modeA.tangentialAccel[i] = modeA.tangentialAccel + modeA.tangentialAccelVar * RANDOM_M11(&RANDSEED);
         }
 
+        Vec2 dir;
         // rotation is dir
         if( modeA.rotationIsDir )
         {
             for (int i = start; i < _particleCount; ++i)
             {
                 float a = CC_DEGREES_TO_RADIANS( _angle + _angleVar * RANDOM_M11(&RANDSEED) );
-                Vec2 v(cosf( a ), sinf( a ));
                 float s = modeA.speed + modeA.speedVar * RANDOM_M11(&RANDSEED);
-                Vec2 dir = v * s;
+                dir.x = cosf( a ) * s;
+                dir.y = sinf( a ) * s;
                 _particleData.modeA.dirX[i] = dir.x;//v * s ;
                 _particleData.modeA.dirY[i] = dir.y;
                 _particleData.rotation[i] = -CC_RADIANS_TO_DEGREES(dir.getAngle());
@@ -731,9 +732,9 @@ dc[i] = (dc[i] - c[i]) / _particleData.timeToLive[i];\
             for (int i = start; i < _particleCount; ++i)
             {
                 float a = CC_DEGREES_TO_RADIANS( _angle + _angleVar * RANDOM_M11(&RANDSEED) );
-                Vec2 v(cosf( a ), sinf( a ));
                 float s = modeA.speed + modeA.speedVar * RANDOM_M11(&RANDSEED);
-                Vec2 dir = v * s;
+                dir.x = cosf( a ) * s;
+                dir.y = sinf( a ) * s;
                 _particleData.modeA.dirX[i] = dir.x;//v * s ;
                 _particleData.modeA.dirY[i] = dir.y;
             }

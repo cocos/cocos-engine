@@ -77,7 +77,7 @@ void ControlButtonLoader::onHandlePropTypePoint(Node * pNode, Node * pParent, co
     }
 }
 
-void ControlButtonLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char * pPropertyName, Size pSize, CCBReader * ccbReader) {
+void ControlButtonLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char * pPropertyName, const Size& pSize, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_PREFEREDSIZE) == 0) {
         ((ControlButton *)pNode)->setPreferredSize(pSize);
     } else {
@@ -103,7 +103,7 @@ void ControlButtonLoader::onHandlePropTypeSpriteFrame(Node * pNode, Node * pPare
     }
 }
 
-void ControlButtonLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, Color3B pColor3B, CCBReader * ccbReader) {
+void ControlButtonLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, const Color3B& pColor3B, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_TITLECOLOR_NORMAL) == 0) {
         ((ControlButton *)pNode)->setTitleColorForState(pColor3B, Control::State::NORMAL);
     } else if(strcmp(pPropertyName, PROPERTY_TITLECOLOR_HIGHLIGHTED) == 0) {

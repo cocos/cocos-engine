@@ -117,7 +117,7 @@ void ParticleSystemQuadLoader::onHandlePropTypeColor4FVar(Node * pNode, Node * p
     }
 }
 
-void ParticleSystemQuadLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, BlendFunc pBlendFunc, CCBReader * ccbReader) {
+void ParticleSystemQuadLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, const BlendFunc& pBlendFunc, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_BLENDFUNC) == 0) {
         ((ParticleSystemQuad *)pNode)->setBlendFunc(pBlendFunc);
     } else {
