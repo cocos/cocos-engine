@@ -593,6 +593,11 @@ var ScrollView = cc.Class({
 
     _calculateBoundary: function() {
         if (this.content) {
+            //refresh content size
+            var layout = this.content.getComponent(cc.Layout);
+            if(layout) {
+                layout.lateUpdate();
+            }
             var scrollViewSize = this.node.getContentSize();
 
             var leftBottomPosition = this._convertToContentParentSpace(cc.p(0, 0));
@@ -608,7 +613,6 @@ var ScrollView = cc.Class({
     _convertToContentParentSpace: function(position) {
         var scrollViewPositionInWorldSpace = this.node.convertToWorldSpace(position);
         var contentParent = this.content.parent;
-
         return contentParent.convertToNodeSpaceAR(scrollViewPositionInWorldSpace);
     },
 
@@ -1027,18 +1031,15 @@ var ScrollView = cc.Class({
     __preload: function () {
         if (!CC_EDITOR) {
             this._registerEvent();
-            if(cc.isValid(this.content)) {
-                this.content.on('size-changed', this._calculateBoundary, this);
-            }
             this.node.on('size-changed', this._calculateBoundary, this);
-            this._calculateBoundary();
         }
     },
 
+    start: function() {
+        this._calculateBoundary();
+    },
+
     onDestroy: function() {
-        if(cc.isValid(this.content)) {
-            this.content.off('size-changed', this._calculateBoundary, this);
-        }
         this.node.off('size-changed', this._calculateBoundary, this);
     },
 
