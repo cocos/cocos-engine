@@ -793,6 +793,180 @@ cc.pRotateByAngle = function (v, pivot, angle) {
 };
 
 /**
+ * Calculates sum of two points.
+ * @method pAdd
+ * @param {Vec2} v1
+ * @param {Vec2} v2
+ * @return {Vec2}
+ */
+cc.pAdd = function (v1, v2) {
+    return cc.p(v1.x + v2.x, v1.y + v2.y);
+};
+
+/**
+ * Calculates the square distance between two points (not calling sqrt() ).
+ * @method pDistanceSQ
+ * @param {Vec2} point1
+ * @param {Vec2} point2
+ * @return {Number}
+ */
+cc.pDistanceSQ = function(point1, point2){
+    return cc.pLengthSQ(cc.pSub(point1,point2));
+};
+
+/**
+ * Calculates the distance between two points.
+ * @method pDistance
+ * @param {Vec2} v1
+ * @param {Vec2} v2
+ * @return {Number}
+ */
+cc.pDistance = function (v1, v2) {
+    return cc.pLength(cc.pSub(v1, v2));
+};
+
+/**
+ * Calculates difference of two points.
+ * @method pSub
+ * @param {Vec2} v1
+ * @param {Vec2} v2
+ * @return {Vec2}
+ */
+cc.pSub = function (v1, v2) {
+    return cc.p(v1.x - v2.x, v1.y - v2.y);
+};
+
+/**
+ * Returns opposite of Vec2.
+ * @method pNeg
+ * @param {Vec2} point
+ * @return {Vec2}
+ */
+cc.pNeg = function (point) {
+    return cc.p(-point.x, -point.y);
+};
+
+/**
+ * Returns point multiplied by given factor.
+ * @method pMult
+ * @param {Vec2} point
+ * @param {Number} floatVar
+ * @return {Vec2}
+ */
+cc.pMult = function (point, floatVar) {
+    return cc.p(point.x * floatVar, point.y * floatVar);
+};
+
+/**
+ * Calculates midpoint between two points.
+ * @method pMidpoint
+ * @param {Vec2} v1
+ * @param {Vec2} v2
+ * @return {Vec2}
+ */
+cc.pMidpoint = function (v1, v2) {
+    return cc.pMult(cc.pAdd(v1, v2), 0.5);
+};
+
+/**
+ * Calculates dot product of two points.
+ * @method pDot
+ * @param {Vec2} v1
+ * @param {Vec2} v2
+ * @return {Number}
+ */
+cc.pDot = function (v1, v2) {
+    return v1.x * v2.x + v1.y * v2.y;
+};
+
+/**
+ * Calculates cross product of two points.
+ * @method pCross
+ * @param {Vec2} v1
+ * @param {Vec2} v2
+ * @return {Number}
+ */
+cc.pCross = function (v1, v2) {
+    return v1.x * v2.y - v1.y * v2.x;
+};
+
+/**
+ * Calculates perpendicular of v,
+ * rotated 90 degrees counter-clockwise -- cross(v, perp(v)) greater than 0.
+ * @method pPerp
+ * @param {Vec2} point
+ * @return {Vec2}
+ */
+cc.pPerp = function (point) {
+    return cc.p(-point.y, point.x);
+};
+
+/**
+ * Calculates perpendicular of v,
+ * rotated 90 degrees clockwise -- cross(v, rperp(v)) smaller than 0.
+ * @method pRPerp
+ * @param {Vec2} point
+ * @return {Vec2}
+ */
+cc.pRPerp = function (point) {
+    return cc.p(point.y, -point.x);
+};
+
+/**
+ * Calculates the projection of v1 over v2.
+ * @method pProject
+ * @param {Vec2} v1
+ * @param {Vec2} v2
+ * @return {Vec2}
+ */
+cc.pProject = function (v1, v2) {
+    return cc.pMult(v2, cc.pDot(v1, v2) / cc.pDot(v2, v2));
+};
+
+/**
+ * Returns this vector with a magnitude of 1.
+ * @method pNormalize
+ * @param {Vec2} v
+ * @return {Vec2}
+ */
+cc.pNormalize = function (v) {
+    var n = cc.pLength(v);
+    return n === 0 ? cc.p(v) : cc.pMult(v, 1.0 / n);
+};
+
+/**
+ * Clamp a point between from and to.
+ * @method pClamp
+ * @param {Vec2} p
+ * @param {Vec2} min_inclusive
+ * @param {Vec2} max_inclusive
+ * @return {Vec2}
+ */
+cc.pClamp = function (p, min_inclusive, max_inclusive) {
+    return cc.p(cc.clampf(p.x, min_inclusive.x, max_inclusive.x), cc.clampf(p.y, min_inclusive.y, max_inclusive.y));
+};
+
+/**
+ * Calculates the square length of a cc.Vec2 (not calling sqrt() ).
+ * @method pLengthSQ
+ * @param  {Vec2} v
+ * @return {Number}
+ */
+cc.pLengthSQ = function (v) {
+    return cc.pDot(v, v);
+};
+
+/**
+ * Calculates distance between point an origin.
+ * @method pLength
+ * @param  {Vec2} v
+ * @return {Number}
+ */
+cc.pLength = function (v) {
+    return Math.sqrt(cc.pLengthSQ(v));
+};
+
+/**
  * A general line-line intersection test
  * @param {cc.Point} A A is the startpoint for the first line P1 = (p1 - p2).
  * @param {cc.Point} B B is the endpoint for the first line P1 = (p1 - p2).

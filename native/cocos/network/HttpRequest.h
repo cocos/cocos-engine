@@ -328,10 +328,10 @@ public:
      *
      * @return std::vector<std::string> the string vector of custom-defined headers.
      */
-       inline std::vector<std::string> getHeaders() const
-       {
-           return _headers;
-       }
+    inline std::vector<std::string> getHeaders() const
+    {
+        return _headers;
+    }
 
 protected:
     // properties

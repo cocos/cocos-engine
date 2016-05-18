@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013 cocos2d-x.org
+ Copyright (c) 2015-2016 cocos2d-x.org
 
  http://www.cocos2d-x.org
 

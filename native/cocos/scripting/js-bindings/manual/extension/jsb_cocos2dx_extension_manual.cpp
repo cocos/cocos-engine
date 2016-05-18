@@ -872,6 +872,8 @@ bool js_load_remote_image(JSContext *cx, uint32_t argc, jsval *vp)
 extern JSObject* jsb_cocos2d_extension_ScrollView_prototype;
 extern JSObject* jsb_cocos2d_extension_TableView_prototype;
 extern JSObject* jsb_cocos2d_extension_Control_prototype;
+extern JSObject* jsb_cocos2d_extension_AssetsManagerEx_prototype;
+extern JSObject* jsb_cocos2d_extension_Manifest_prototype;
 
 void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject global)
 {
@@ -880,6 +882,12 @@ void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject glob
     JS::RootedObject tmpObj(cx);
     get_or_create_js_obj(cx, global, "cc", &ccObj);
 
+    JS::RootedObject am(cx, jsb_cocos2d_extension_AssetsManagerEx_prototype); 
+    JS_DefineFunction(cx, am, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, am, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS::RootedObject manifest(cx, jsb_cocos2d_extension_Manifest_prototype); 
+    JS_DefineFunction(cx, manifest, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, manifest, "release", js_cocos2dx_release, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     tmpObj.set(jsb_cocos2d_extension_ScrollView_prototype);
     JS_DefineFunction(cx, tmpObj, "setDelegate", js_cocos2dx_CCScrollView_setDelegate, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS::RootedObject tableview(cx, jsb_cocos2d_extension_TableView_prototype);

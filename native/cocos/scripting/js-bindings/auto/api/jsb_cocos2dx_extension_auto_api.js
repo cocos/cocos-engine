@@ -4,6 +4,311 @@
 var cc = cc || {};
 
 /**
+ * @class EventAssetsManagerEx
+ */
+cc.EventAssetsManager = {
+
+/**
+ * @method getAssetsManagerEx
+ * @return {cc.AssetsManagerEx}
+ */
+getAssetsManagerEx : function (
+)
+{
+    return cc.AssetsManagerEx;
+},
+
+/**
+ * @method getAssetId
+ * @return {String}
+ */
+getAssetId : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method getCURLECode
+ * @return {int}
+ */
+getCURLECode : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getMessage
+ * @return {String}
+ */
+getMessage : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method getCURLMCode
+ * @return {int}
+ */
+getCURLMCode : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getPercentByFile
+ * @return {float}
+ */
+getPercentByFile : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getEventCode
+ * @return {cc.EventAssetsManagerEx::EventCode}
+ */
+getEventCode : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getPercent
+ * @return {float}
+ */
+getPercent : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method EventAssetsManagerEx
+ * @constructor
+ * @param {String} arg0
+ * @param {cc.AssetsManagerEx} arg1
+ * @param {cc.EventAssetsManagerEx::EventCode} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ * @param {String} arg5
+ * @param {String} arg6
+ * @param {int} arg7
+ * @param {int} arg8
+ */
+EventAssetsManagerEx : function (
+str, 
+assetsmanagerex, 
+eventcode, 
+float, 
+float, 
+str, 
+str, 
+int, 
+int 
+)
+{
+},
+
+};
+
+/**
+ * @class Manifest
+ */
+cc.Manifest = {
+
+/**
+ * @method getManifestFileUrl
+ * @return {String}
+ */
+getManifestFileUrl : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method isVersionLoaded
+ * @return {bool}
+ */
+isVersionLoaded : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method isLoaded
+ * @return {bool}
+ */
+isLoaded : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method getPackageUrl
+ * @return {String}
+ */
+getPackageUrl : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method getVersion
+ * @return {String}
+ */
+getVersion : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method getVersionFileUrl
+ * @return {String}
+ */
+getVersionFileUrl : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method getSearchPaths
+ * @return {Array}
+ */
+getSearchPaths : function (
+)
+{
+    return new Array();
+},
+
+};
+
+/**
+ * @class AssetsManagerEx
+ */
+cc.AssetsManager = {
+
+/**
+ * @method getState
+ * @return {cc.AssetsManagerEx::State}
+ */
+getState : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method checkUpdate
+ */
+checkUpdate : function (
+)
+{
+},
+
+/**
+ * @method getStoragePath
+ * @return {String}
+ */
+getStoragePath : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method update
+ */
+update : function (
+)
+{
+},
+
+/**
+ * @method getLocalManifest
+ * @return {cc.Manifest}
+ */
+getLocalManifest : function (
+)
+{
+    return cc.Manifest;
+},
+
+/**
+ * @method getRemoteManifest
+ * @return {cc.Manifest}
+ */
+getRemoteManifest : function (
+)
+{
+    return cc.Manifest;
+},
+
+/**
+ * @method downloadFailedAssets
+ */
+downloadFailedAssets : function (
+)
+{
+},
+
+/**
+ * @method create
+ * @param {String} arg0
+ * @param {String} arg1
+ * @return {cc.AssetsManagerEx}
+ */
+create : function (
+str, 
+str 
+)
+{
+    return cc.AssetsManagerEx;
+},
+
+/**
+ * @method AssetsManagerEx
+ * @constructor
+ * @param {String} arg0
+ * @param {String} arg1
+ */
+AssetsManagerEx : function (
+str, 
+str 
+)
+{
+},
+
+};
+
+/**
+ * @class EventListenerAssetsManagerEx
+ */
+cc.EventListenerAssetsManager = {
+
+/**
+ * @method EventListenerAssetsManagerEx
+ * @constructor
+ */
+EventListenerAssetsManagerEx : function (
+)
+{
+},
+
+};
+
+/**
  * @class Control
  */
 cc.Control = {

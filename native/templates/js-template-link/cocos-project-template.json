@@ -19,6 +19,15 @@
                "proj.win32/HelloJavascript.sdf"
             ]
          },
+         "append_dir":[
+             {
+               "from":"cocos/platform/android/java/src",
+               "to":"frameworks/runtime-src/proj.android/src",
+               "include": [
+                  "*.java"
+               ]
+             }
+         ],
          "project_rename":{
             "src_project_name":"HelloJavascript",
             "files":[
