@@ -1107,7 +1107,7 @@ cc.BMFontHelper = {
         }
     },
 
-    getBMFontOriginSize: function() {
+    getBMFontOriginalSize: function() {
         if (this._config) {
             return this._config.fontSize;
         } else {

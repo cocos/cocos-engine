@@ -244,7 +244,7 @@ var Label = cc.Class({
             },
             set: function (value) {
                 this._N$file = value;
-                this.BMFontOriginSize = -1;
+                this.bmFontOriginalSize = -1;
                 if (this._sgNode) {
 
                     if ( typeof value === 'string' ) {
@@ -291,7 +291,8 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.system_font',
         },
 
-        BMFontOriginSize: {
+        bmFontOriginalSize: {
+            displayName: 'BMFont Original Size',
             default: -1,
             serializable: false,
             readonly: true
@@ -395,7 +396,7 @@ var Label = cc.Class({
             }
 
             if (this._sgNode._labelType === LabelType.BMFont) {
-                this.BMFontOriginSize = this._sgNode.getBMFontOriginSize();
+                this.bmFontOriginalSize = this._sgNode.getBMFontOriginalSize();
             }
         }
     }
