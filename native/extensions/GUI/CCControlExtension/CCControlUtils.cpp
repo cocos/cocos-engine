@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 NS_CC_EXT_BEGIN
 
-Sprite* ControlUtils::addSpriteToTargetWithPosAndAnchor(const char* spriteName, Node * target, Vec2 pos, Vec2 anchor)
+Sprite* ControlUtils::addSpriteToTargetWithPosAndAnchor(const char* spriteName, Node * target, const Vec2& pos, const Vec2& anchor)
 {
     Sprite *sprite =Sprite::createWithSpriteFrameName(spriteName);
 
