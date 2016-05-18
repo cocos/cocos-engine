@@ -156,7 +156,7 @@ void ControlSaturationBrightnessPicker::updateSliderPosition(Vec2 sliderPosition
     _brightness = fabs((_startPos.y + (float)boxPos - sliderPosition.y)/(float)boxSize);
 }
 
-bool ControlSaturationBrightnessPicker::checkSliderPosition(Vec2 location)
+bool ControlSaturationBrightnessPicker::checkSliderPosition(const Vec2& location)
 {
     // Clamp the position of the icon within the circle
 

@@ -127,7 +127,7 @@ public:
      * @param offset    The new offset.
      * @param dt        The animation duration.
      */
-    void setContentOffsetInDuration(Vec2 offset, float dt);
+    void setContentOffsetInDuration(const Vec2& offset, float dt);
 
     /**
      * Halts the movement animation of the inner content started with setContentOffset() or setContentOffsetInDuration()

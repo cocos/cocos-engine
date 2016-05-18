@@ -179,7 +179,7 @@ void drawLine(const Vec2& origin, const Vec2& destination)
     CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,2);
 }
 
-void drawRect( Vec2 origin, Vec2 destination )
+void drawRect( const Vec2& origin, const Vec2& destination )
 {
     drawLine(Vec2(origin.x, origin.y), Vec2(destination.x, origin.y));
     drawLine(Vec2(destination.x, origin.y), Vec2(destination.x, destination.y));
@@ -187,7 +187,7 @@ void drawRect( Vec2 origin, Vec2 destination )
     drawLine(Vec2(origin.x, destination.y), Vec2(origin.x, origin.y));
 }
 
-void drawSolidRect(Vec2 origin, Vec2 destination, Color4F color)
+void drawSolidRect(const Vec2& origin, const Vec2& destination, const Color4F& color)
 {
     Vec2 vertices[] = {
         origin,

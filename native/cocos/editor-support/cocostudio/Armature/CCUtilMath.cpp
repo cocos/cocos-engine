@@ -29,7 +29,7 @@ using namespace cocos2d;
 
 namespace cocostudio {
 
-bool isSpriteContainPoint(Sprite *sprite, Vec2 point, Vec2 &outPoint)
+bool isSpriteContainPoint(Sprite *sprite, const Vec2& point, Vec2 &outPoint)
 {
     outPoint = sprite->convertToNodeSpace(point);
 
@@ -39,7 +39,7 @@ bool isSpriteContainPoint(Sprite *sprite, Vec2 point, Vec2 &outPoint)
     return r.containsPoint(outPoint);
 }
 
-bool isSpriteContainPoint(Sprite *sprite, Vec2 point)
+bool isSpriteContainPoint(Sprite *sprite, const Vec2& point)
 {
     Vec2 p;
     return isSpriteContainPoint(sprite, point, p);
