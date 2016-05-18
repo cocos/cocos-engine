@@ -254,6 +254,7 @@ void ScriptingCore::executeJSFunctionWithThisObj(JS::HandleValue thisObj,
 
 void js_log(const char *format, ...)
 {
+#if COCOS2D_DEBUG
     if (_js_log_buf == NULL)
     {
         _js_log_buf = (char *)calloc(sizeof(char), MAX_LOG_LENGTH+1);
@@ -267,6 +268,7 @@ void js_log(const char *format, ...)
     {
         log("%s", _js_log_buf);
     }
+#endif
 }
 
 bool JSBCore_platform(JSContext *cx, uint32_t argc, jsval *vp)
@@ -923,6 +925,7 @@ void ScriptingCore::reportError(JSContext *cx, const char *message, JSErrorRepor
 bool ScriptingCore::log(JSContext* cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+#if COCOS2D_DEBUG
     if (argc > 0) {
         JSString *string = JS::ToString(cx, args.get(0));
         if (string) {
@@ -930,6 +933,7 @@ bool ScriptingCore::log(JSContext* cx, uint32_t argc, jsval *vp)
             js_log("%s", wrapper.get());
         }
     }
+#endif
     args.rval().setUndefined();
     return true;
 }
