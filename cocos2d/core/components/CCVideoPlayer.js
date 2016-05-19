@@ -96,7 +96,19 @@ var VideoPlayer = cc.Class({
         }
     },
 
+    onLoad: function() {
+        this._super();
+
+        if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+            this.enabled = false;
+        }
+    },
+
     _createSgNode: function () {
+        if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+            console.log('VideoPlayer is not supported on Mac and Windows!');
+            return null;
+        }
         return new _ccsg.VideoPlayer();
     },
 
@@ -113,8 +125,10 @@ var VideoPlayer = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-        this._updateSgNode();
-        sgNode.setContentSize(this.node.getContentSize());
+        if(sgNode) {
+            this._updateSgNode();
+            sgNode.setContentSize(this.node.getContentSize());
+        }
     },
 
     play: function () {

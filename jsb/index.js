@@ -95,6 +95,7 @@ require('./jsb-tex-sprite-frame');
 require('./jsb-scale9sprite');
 require('./jsb-label');
 require('./jsb-editbox');
+require('./jsb-videoplayer');
 require('./jsb-particle');
 require('./jsb-spine');
 require('./jsb-enums');
