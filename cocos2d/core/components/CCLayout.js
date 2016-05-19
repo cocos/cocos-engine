@@ -358,6 +358,7 @@ var Layout = cc.Class({
         }
 
         this.node.on('size-changed', this._resized, this);
+
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
         this.node.on('child-removed', this._childrenAddOrDeleted, this);
