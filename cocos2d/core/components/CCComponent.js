@@ -115,16 +115,31 @@ function _registerEvent (self, on) {
         cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
     }
 
-    if (self.update) {
-        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-        else cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+    if (!self.update && !self.lateUpdate) {
+        return;
     }
 
-    if (self.lateUpdate) {
-        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
-        else cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
+    if (on) {
+        cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+    }
+    else {
+        cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+        cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+        cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
     }
 }
+
+var _registerUpdateEvent = function () {
+    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this);
+
+    if (this.update) {
+        cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this);
+    }
+
+    if (this.lateUpdate) {
+        cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this);
+    }
+};
 
 var _callStart = CC_EDITOR ? function () {
     callStartInTryCatch(this);
