@@ -358,11 +358,10 @@ var Label = cc.Class({
         var fntRawUrl = isAsset ? this.font.rawUrl : '';
         var textureUrl = isAsset ? this.font.texture : '';
 
-        this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
+        var sgNode = this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
         if (CC_JSB) {
-            this._sgNode.retain();
+            sgNode.retain();
         }
-        var sgNode = this._sgNode;
 
         // TODO
         // sgNode.enableRichText = this.enableRichText;
@@ -374,7 +373,6 @@ var Label = cc.Class({
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
-        sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
