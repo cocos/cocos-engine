@@ -36,18 +36,44 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
  */
 var game = /** @lends cc.game# */{
 
+    /**
+     * Event triggered when game hide to background.
+     * Please note that this event is not 100% guaranteed to be fired.
+     * @constant
+     * @type {String}
+     * @example
+     * cc.game.on(cc.game.EVENT_HIDE, function () {
+     *     cc.audioEngine.pauseMusic();
+     *     cc.audioEngine.pauseAllEffects();
+     * });
+     */
     EVENT_HIDE: "game_on_hide",
+
+    /**
+     * Event triggered when game back to foreground
+     * Please note that this event is not 100% guaranteed to be fired.
+     * @constant
+     * @type {String}
+     */
     EVENT_SHOW: "game_on_show",
-    EVENT_RESIZE: "game_on_resize",
+
+    /**
+     * Event triggered after game inited, at this point all engine objects and game scripts are loaded
+     * @constant
+     * @type {String}
+     */
     EVENT_GAME_INITED: "game_inited",
+
+    /**
+     * Event triggered after renderer inited, at this point you will be able to use the render context
+     * @constant
+     * @type {String}
+     */
     EVENT_RENDERER_INITED: "renderer_inited",
 
     RENDER_TYPE_CANVAS: 0,
     RENDER_TYPE_WEBGL: 1,
     RENDER_TYPE_OPENGL: 2,
-
-    _eventHide: null,
-    _eventShow: null,
 
     _persistRootNodes: {},
     _ignoreRemovePersistNode: null,
@@ -672,12 +698,7 @@ var game = /** @lends cc.game# */{
     },
 
     _initEvents: function () {
-        var win = window, self = this, hidden, visibilityChange, _undef = "undefined";
-
-        this._eventHide = this._eventHide || new cc.Event.EventCustom(this.EVENT_HIDE);
-        this._eventHide.setUserData(this);
-        this._eventShow = this._eventShow || new cc.Event.EventCustom(this.EVENT_SHOW);
-        this._eventShow.setUserData(this);
+        var win = window, hidden, visibilityChange, _undef = "undefined";
 
         // register system events
         if (this.config[this.CONFIG_KEY.registerSystemEvent])
@@ -698,12 +719,10 @@ var game = /** @lends cc.game# */{
         }
 
         var onHidden = function () {
-            if (cc.eventManager && game._eventHide)
-                cc.eventManager.dispatchEvent(game._eventHide);
+            game.emit(game.EVENT_HIDE, game);
         };
         var onShow = function () {
-            if (cc.eventManager && game._eventShow)
-                cc.eventManager.dispatchEvent(game._eventShow);
+            game.emit(game.EVENT_SHOW, game);
         };
 
         if (hidden) {
@@ -725,10 +744,10 @@ var game = /** @lends cc.game# */{
             win.addEventListener("pageshow", onShow, false);
         }
 
-        cc.eventManager.addCustomListener(game.EVENT_HIDE, function () {
+        this.on(game.EVENT_HIDE, function () {
             game.pause();
         });
-        cc.eventManager.addCustomListener(game.EVENT_SHOW, function () {
+        this.on(game.EVENT_SHOW, function () {
             game.resume();
         });
     }

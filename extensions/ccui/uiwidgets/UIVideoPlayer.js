@@ -262,7 +262,7 @@ ccui.VideoPlayer = ccui.Widget.extend(/** @lends ccui.VideoPlayer# */{
 ccui.VideoPlayer.elements = [];
 ccui.VideoPlayer.pauseElements = [];
 
-cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+cc.game.on(cc.game.EVENT_HIDE, function () {
     var list = ccui.VideoPlayer.elements;
     for(var node, i=0; i<list.length; i++){
         node = list[i];
@@ -272,7 +272,7 @@ cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
         }
     }
 });
-cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+cc.game.on(cc.game.EVENT_SHOW, function () {
     var list = ccui.VideoPlayer.pauseElements;
     var node = list.pop();
     while(node){
