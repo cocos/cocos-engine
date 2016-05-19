@@ -747,7 +747,7 @@ else {
         // check Web Audio's context
         var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
-        __audioSupport = { ONLY_ONE: true, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
+        __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 
         if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
             __audioSupport.DELAY_CREATE_CTX = true;
