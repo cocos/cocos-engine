@@ -11,7 +11,7 @@ var fs = require('fs');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'collect-prebuilt-mk', 'archive-prebuilt-mk', 'archive-prebuilt', 'upload-prebuilt', 'upload-prebuilt-mk'));
-gulp.task('make-simulator', gulpSequence('update-simulator-config', 'update-simulator-script', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-simulator', gulpSequence('update-simulator-config', 'archive-simulator', 'upload-simulator'));
 
 function execSync(cmd, workPath) {
   var execOptions = {
@@ -148,7 +148,7 @@ gulp.task('collect-prebuilt-mk', function () {
   }).pipe(gulp.dest('prebuilt_mk'));
 });
 
-gulp.task('update-simulator-config', function () {
+gulp.task('update-simulator-config', ['update-simulator-script'], function () {
   var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
   return gulp.src('./tools/simulator/config.json')
           .pipe(gulp.dest(destPath));
