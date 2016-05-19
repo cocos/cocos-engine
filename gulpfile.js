@@ -33,27 +33,30 @@ MinifyOriginCocos2d = false;     // true - compile by closure, false - just conc
 paths = {
     src: './src',
     jsEntry: './index.js',
-    JSBEntries: [
-        './jsb/index.js',
-        './extends.js'
-    ],
     outDir: './bin',
     outFile: 'cocos2d-js.js',
-    JSBOutFile: 'jsb.js',
 
-    JSBSkipModules: [
-        '../../cocos2d/core/CCGame',
-        '../../cocos2d/core/textures/CCTexture2D',
-        '../../cocos2d/core/sprites/CCSpriteFrame',
-        '../../cocos2d/core/event/event',
-        '../../cocos2d/core/load-pipeline/audio-downloader',
-        '../../cocos2d/audio/CCAudio',
-        '../../extensions/spine/SGSkeleton',
-        '../../extensions/spine/SGSkeletonAnimation',
-        '../../extensions/spine/SGSkeletonCanvasRenderCmd',
-        '../../extensions/spine/SGSkeletonWebGLRenderCmd',
-        '../../extensions/spine/lib/spine',
-    ],
+    jsb: {
+        entries: [
+            './jsb/index.js',
+            './extends.js'
+        ],
+        outFile: 'jsb_polyfill.js',
+        outFileDev: 'jsb_polyfill.dev.js',
+        skipModules: [
+            '../../cocos2d/core/CCGame',
+            '../../cocos2d/core/textures/CCTexture2D',
+            '../../cocos2d/core/sprites/CCSpriteFrame',
+            '../../cocos2d/core/event/event',
+            '../../cocos2d/core/load-pipeline/audio-downloader',
+            '../../cocos2d/audio/CCAudio',
+            '../../extensions/spine/SGSkeleton',
+            '../../extensions/spine/SGSkeletonAnimation',
+            '../../extensions/spine/SGSkeletonCanvasRenderCmd',
+            '../../extensions/spine/SGSkeletonWebGLRenderCmd',
+            '../../extensions/spine/lib/spine',
+        ],
+    },
 
     test: {
         src: 'test/qunit/unit/**/*.js',
@@ -61,6 +64,10 @@ paths = {
         jsEntryEditorExtends: '../editor/test-utils/engine-extends-entry.js',     // only available in editor
         dest: 'bin/cocos2d-js-for-test.js',
         destEditorExtends: 'bin/cocos2d-js-extends-for-test.js'
+    },
+
+    preview: {
+        dest: 'bin/cocos2d-js-for-preview.js',
     },
 
     modularCocos2d: './bin/modular-cocos2d.js',
