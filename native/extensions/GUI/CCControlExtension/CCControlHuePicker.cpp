@@ -49,7 +49,7 @@ ControlHuePicker::~ControlHuePicker()
     CC_SAFE_RELEASE(_slider);
 }
 
-ControlHuePicker* ControlHuePicker::create(Node* target, Vec2 pos)
+ControlHuePicker* ControlHuePicker::create(Node* target, const Vec2& pos)
 {
     ControlHuePicker *pRet = new (std::nothrow) ControlHuePicker();
     pRet->initWithTargetAndPos(target, pos);
@@ -58,7 +58,7 @@ ControlHuePicker* ControlHuePicker::create(Node* target, Vec2 pos)
 }
 
 
-bool ControlHuePicker::initWithTargetAndPos(Node* target, Vec2 pos)
+bool ControlHuePicker::initWithTargetAndPos(Node* target, const Vec2& pos)
 {
     if (Control::init())
     {
@@ -124,7 +124,7 @@ void ControlHuePicker::setEnabled(bool enabled)
     }
 }
 
-void ControlHuePicker::updateSliderPosition(Vec2 location)
+void ControlHuePicker::updateSliderPosition(const Vec2& location)
 {
 
     // Clamp the position of the icon within the circle
@@ -149,7 +149,7 @@ void ControlHuePicker::updateSliderPosition(Vec2 location)
     sendActionsForControlEvents(Control::EventType::VALUE_CHANGED);
 }
 
-bool ControlHuePicker::checkSliderPosition(Vec2 location)
+bool ControlHuePicker::checkSliderPosition(const Vec2& location)
 {
     // compute the distance between the current location and the center
     double distance = sqrt(pow (location.x + 10, 2) + pow(location.y, 2));

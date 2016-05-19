@@ -49,7 +49,7 @@ NS_CC_EXT_BEGIN
 class CC_EX_DLL ControlHuePicker : public Control
 {
 public:
-    static ControlHuePicker* create(Node* target, Vec2 pos);
+    static ControlHuePicker* create(Node* target, const Vec2& pos);
     /**
      * @js ctor
      */
@@ -59,7 +59,7 @@ public:
      * @lua NA
      */
     virtual ~ControlHuePicker();
-    virtual bool initWithTargetAndPos(Node* target, Vec2 pos);
+    virtual bool initWithTargetAndPos(Node* target, const Vec2& pos);
 
     virtual void setEnabled(bool enabled) override;
 
@@ -68,8 +68,8 @@ public:
     virtual void onTouchMoved(Touch *pTouch, Event *pEvent) override;
 
 protected:
-    void updateSliderPosition(Vec2 location);
-    bool checkSliderPosition(Vec2 location);
+    void updateSliderPosition(const Vec2& location);
+    bool checkSliderPosition(const Vec2& location);
 
     //maunally put in the setters
     CC_SYNTHESIZE_READONLY(float, _hue, Hue);

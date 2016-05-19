@@ -2449,7 +2449,7 @@ jsval vector_vec2_to_jsval(JSContext *cx, const std::vector<cocos2d::Vec2>& v)
     JS::RootedObject jsretArr(cx, JS_NewArrayObject(cx, v.size()));
 
     int i = 0;
-    for (const cocos2d::Vec2 obj : v)
+    for (const cocos2d::Vec2& obj : v)
     {
         JS::RootedValue arrElement(cx);
         arrElement = vector2_to_jsval(cx, obj);

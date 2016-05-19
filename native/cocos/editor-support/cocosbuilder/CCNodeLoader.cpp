@@ -998,7 +998,7 @@ Node * NodeLoader::parsePropTypeCCBFile(Node * pNode, Node * pParent, CCBReader 
 
 
 
-void NodeLoader::onHandlePropTypePosition(Node * pNode, Node * pParent, const char* pPropertyName, Vec2 pPosition, CCBReader * ccbReader) {
+void NodeLoader::onHandlePropTypePosition(Node * pNode, Node * pParent, const char* pPropertyName, const Vec2& pPosition, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_POSITION) == 0) {
         pNode->setPosition(pPosition);
     } else {
@@ -1006,7 +1006,7 @@ void NodeLoader::onHandlePropTypePosition(Node * pNode, Node * pParent, const ch
     }
 }
 
-void NodeLoader::onHandlePropTypePoint(Node * pNode, Node * pParent, const char* pPropertyName, Vec2 pPoint, CCBReader * ccbReader) {
+void NodeLoader::onHandlePropTypePoint(Node * pNode, Node * pParent, const char* pPropertyName, const Vec2& pPoint, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_ANCHORPOINT) == 0) {
         pNode->setAnchorPoint(pPoint);
     } else {
@@ -1014,11 +1014,11 @@ void NodeLoader::onHandlePropTypePoint(Node * pNode, Node * pParent, const char*
     }
 }
 
-void NodeLoader::onHandlePropTypePointLock(Node * pNode, Node * pParent, const char* pPropertyName, Vec2 pPointLock, CCBReader * ccbReader) {
+void NodeLoader::onHandlePropTypePointLock(Node * pNode, Node * pParent, const char* pPropertyName, const Vec2& pPointLock, CCBReader * ccbReader) {
     ASSERT_FAIL_UNEXPECTED_PROPERTY(pPropertyName);
 }
 
-void NodeLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char* pPropertyName, Size pSize, CCBReader * ccbReader) {
+void NodeLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char* pPropertyName, const Size& pSize, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_CONTENTSIZE) == 0) {
         pNode->setContentSize(pSize);
     } else {
@@ -1115,7 +1115,7 @@ void NodeLoader::onHandlePropTypeByte(Node * pNode, Node * pParent, const char* 
     ASSERT_FAIL_UNEXPECTED_PROPERTY(pPropertyName);
 }
 
-void NodeLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char* pPropertyName, Color3B pColor3B, CCBReader * ccbReader) {
+void NodeLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char* pPropertyName, const Color3B& pColor3B, CCBReader * ccbReader) {
     ASSERT_FAIL_UNEXPECTED_PROPERTY(pPropertyName);
 }
 
@@ -1127,7 +1127,7 @@ void NodeLoader::onHandlePropTypeFlip(Node * pNode, Node * pParent, const char* 
     ASSERT_FAIL_UNEXPECTED_PROPERTY(pPropertyName);
 }
 
-void NodeLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char* pPropertyName, BlendFunc pBlendFunc, CCBReader * ccbReader) {
+void NodeLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char* pPropertyName, const BlendFunc& pBlendFunc, CCBReader * ccbReader) {
     ASSERT_FAIL_UNEXPECTED_PROPERTY(pPropertyName);
 }
 

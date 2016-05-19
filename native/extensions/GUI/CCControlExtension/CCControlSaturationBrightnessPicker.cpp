@@ -56,7 +56,7 @@ ControlSaturationBrightnessPicker::~ControlSaturationBrightnessPicker()
     _slider     = nullptr;
 }
 
-bool ControlSaturationBrightnessPicker::initWithTargetAndPos(Node* target, Vec2 pos)
+bool ControlSaturationBrightnessPicker::initWithTargetAndPos(Node* target, const Vec2& pos)
 {
     if (Control::init())
     {
@@ -77,7 +77,7 @@ bool ControlSaturationBrightnessPicker::initWithTargetAndPos(Node* target, Vec2 
     }
 }
 
-ControlSaturationBrightnessPicker* ControlSaturationBrightnessPicker::create(Node* target, Vec2 pos)
+ControlSaturationBrightnessPicker* ControlSaturationBrightnessPicker::create(Node* target, const Vec2& pos)
 {
     ControlSaturationBrightnessPicker *pRet = new (std::nothrow) ControlSaturationBrightnessPicker();
     pRet->initWithTargetAndPos(target, pos);
@@ -156,7 +156,7 @@ void ControlSaturationBrightnessPicker::updateSliderPosition(Vec2 sliderPosition
     _brightness = fabs((_startPos.y + (float)boxPos - sliderPosition.y)/(float)boxSize);
 }
 
-bool ControlSaturationBrightnessPicker::checkSliderPosition(Vec2 location)
+bool ControlSaturationBrightnessPicker::checkSliderPosition(const Vec2& location)
 {
     // Clamp the position of the icon within the circle
 

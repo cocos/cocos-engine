@@ -925,6 +925,7 @@ void ScriptingCore::reportError(JSContext *cx, const char *message, JSErrorRepor
 bool ScriptingCore::log(JSContext* cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+#if COCOS2D_DEBUG
     if (argc > 0) {
         JSString *string = JS::ToString(cx, args.get(0));
         if (string) {
@@ -932,6 +933,7 @@ bool ScriptingCore::log(JSContext* cx, uint32_t argc, jsval *vp)
             js_log("%s", wrapper.get());
         }
     }
+#endif
     args.rval().setUndefined();
     return true;
 }

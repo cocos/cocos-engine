@@ -11,7 +11,7 @@ using namespace cocos2d;
 
 namespace cocosbuilder {
 
-void LayerGradientLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, Color3B pColor3B, CCBReader * ccbReader) {
+void LayerGradientLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, const Color3B& pColor3B, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_STARTCOLOR) == 0) {
         ((LayerGradient *)pNode)->setStartColor(pColor3B);
     } else if(strcmp(pPropertyName, PROPERTY_ENDCOLOR) == 0) {
@@ -31,7 +31,7 @@ void LayerGradientLoader::onHandlePropTypeByte(Node * pNode, Node * pParent, con
     }
 }
 
-void LayerGradientLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, BlendFunc pBlendFunc, CCBReader * ccbReader) {
+void LayerGradientLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, const BlendFunc& pBlendFunc, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_BLENDFUNC) == 0) {
         ((LayerGradient *)pNode)->setBlendFunc(pBlendFunc);
     } else {
@@ -40,7 +40,7 @@ void LayerGradientLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent
 }
 
 
-void LayerGradientLoader::onHandlePropTypePoint(Node * pNode, Node * pParent, const char * pPropertyName, Vec2 pPoint, CCBReader * ccbReader) {
+void LayerGradientLoader::onHandlePropTypePoint(Node * pNode, Node * pParent, const char * pPropertyName, const Vec2& pPoint, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_VECTOR) == 0) {
         ((LayerGradient *)pNode)->setVector(pPoint);
 

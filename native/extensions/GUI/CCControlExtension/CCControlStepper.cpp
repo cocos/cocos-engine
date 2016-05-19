@@ -253,7 +253,7 @@ void ControlStepper::update(float dt)
 
 //// ControlStepper Private Methods
 
-void ControlStepper::updateLayoutUsingTouchLocation(Vec2 location)
+void ControlStepper::updateLayoutUsingTouchLocation(const Vec2& location)
 {
     if (location.x < _minusSprite->getContentSize().width
         && _value > _minimumValue)

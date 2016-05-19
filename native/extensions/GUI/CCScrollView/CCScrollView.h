@@ -83,7 +83,7 @@ public:
      * @param container parent object
      * @return autoreleased scroll view object
      */
-    static ScrollView* create(Size size, Node* container = NULL);
+    static ScrollView* create(const Size& size, Node* container = NULL);
 
     /**
      * Returns an autoreleased scroll view object.
@@ -110,7 +110,7 @@ public:
      * @param container parent object
      * @return scroll view object
      */
-    bool initWithViewSize(Size size, Node* container = NULL);
+    bool initWithViewSize(const Size& size, Node* container = NULL);
 
     /**
      * Sets a new content offset. It ignores max/min offset. It just sets what's given. (just like UIKit's UIScrollView)
@@ -127,7 +127,7 @@ public:
      * @param offset    The new offset.
      * @param dt        The animation duration.
      */
-    void setContentOffsetInDuration(Vec2 offset, float dt);
+    void setContentOffsetInDuration(const Vec2& offset, float dt);
 
     /**
      * Halts the movement animation of the inner content started with setContentOffset() or setContentOffsetInDuration()
@@ -208,7 +208,7 @@ public:
      * Hence, this scroll view will use a separate size property.
      */
     Size getViewSize() const { return _viewSize; }
-    void setViewSize(Size size);
+    void setViewSize(const Size& size);
 
     Node * getContainer();
     void setContainer(Node * pContainer);

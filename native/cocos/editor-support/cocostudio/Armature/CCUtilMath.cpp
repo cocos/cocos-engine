@@ -29,7 +29,7 @@ using namespace cocos2d;
 
 namespace cocostudio {
 
-bool isSpriteContainPoint(Sprite *sprite, Vec2 point, Vec2 &outPoint)
+bool isSpriteContainPoint(Sprite *sprite, const Vec2& point, Vec2 &outPoint)
 {
     outPoint = sprite->convertToNodeSpace(point);
 
@@ -39,14 +39,14 @@ bool isSpriteContainPoint(Sprite *sprite, Vec2 point, Vec2 &outPoint)
     return r.containsPoint(outPoint);
 }
 
-bool isSpriteContainPoint(Sprite *sprite, Vec2 point)
+bool isSpriteContainPoint(Sprite *sprite, const Vec2& point)
 {
     Vec2 p;
     return isSpriteContainPoint(sprite, point, p);
 }
 
 
-Vec2 bezierTo(float t, Vec2 &point1, Vec2 &point2, Vec2 &point3)
+Vec2 bezierTo(float t, const Vec2 &point1, const Vec2 &point2, const Vec2 &point3)
 {
 
     Vec2 p;
@@ -57,7 +57,7 @@ Vec2 bezierTo(float t, Vec2 &point1, Vec2 &point2, Vec2 &point3)
     return p;
 }
 
-Vec2 bezierTo(float t, Vec2 &point1, Vec2 &point2, Vec2 &point3, Vec2 &point4)
+Vec2 bezierTo(float t, const Vec2 &point1, const Vec2 &point2, const Vec2 &point3, const Vec2 &point4)
 {
     Vec2 p;
 
@@ -67,7 +67,7 @@ Vec2 bezierTo(float t, Vec2 &point1, Vec2 &point2, Vec2 &point3, Vec2 &point4)
     return p;
 }
 
-Vec2 circleTo(float t, Vec2 &center, float radius, float fromRadian, float radianDif)
+Vec2 circleTo(float t, const Vec2 &center, float radius, float fromRadian, float radianDif)
 {
     Vec2 p;
 

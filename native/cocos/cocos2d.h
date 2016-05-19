@@ -162,10 +162,6 @@ THE SOFTWARE.
 #include "renderer/CCVertexAttribBinding.h"
 #include "renderer/CCVertexIndexBuffer.h"
 #include "renderer/CCVertexIndexData.h"
-#include "renderer/CCPrimitive.h"
-#include "renderer/CCPrimitiveCommand.h"
-#include "renderer/CCTrianglesCommand.h"
-#include "renderer/CCRenderState.h"
 #include "renderer/ccGLStateCache.h"
 #include "renderer/ccShaders.h"
 

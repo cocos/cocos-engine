@@ -118,16 +118,16 @@ public:
     virtual void setMinimumValue(float val);
 
 protected:
-    void sliderBegan(Vec2 location);
-    void sliderMoved(Vec2 location);
-    void sliderEnded(Vec2 location);
+    void sliderBegan(const Vec2& location);
+    void sliderMoved(const Vec2& location);
+    void sliderEnded(const Vec2& location);
 
     virtual bool onTouchBegan(Touch* touch, Event* pEvent) override;
     virtual void onTouchMoved(Touch *pTouch, Event *pEvent) override;
     virtual void onTouchEnded(Touch *pTouch, Event *pEvent) override;
 
     /** Returns the value for the given location. */
-    float valueForLocation(Vec2 location);
+    float valueForLocation(const Vec2& location);
 
     //maunally put in the setters
     /** Contains the receiver's current value. */

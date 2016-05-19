@@ -84,18 +84,18 @@ public:
     virtual void onTouchEnded(Touch *pTouch, Event *pEvent) override;
 
     /** Factorize the event dispath into these methods. */
-    void potentiometerBegan(Vec2 location);
-    void potentiometerMoved(Vec2 location);
-    void potentiometerEnded(Vec2 location);
+    void potentiometerBegan(const Vec2& location);
+    void potentiometerMoved(const Vec2& location);
+    void potentiometerEnded(const Vec2& location);
 
     /** Returns the distance between the point1 and point2. */
-    float distanceBetweenPointAndPoint(Vec2 point1, Vec2 point2);
+    float distanceBetweenPointAndPoint(const Vec2& point1, const Vec2& point2);
     /** Returns the angle in degree between line1 and line2. */
     float angleInDegreesBetweenLineFromPoint_toPoint_toLineFromPoint_toPoint(
-        Vec2 beginLineA,
-        Vec2 endLineA,
-        Vec2 beginLineB,
-        Vec2 endLineB);
+        const Vec2& beginLineA,
+        const Vec2& endLineA,
+        const Vec2& beginLineB,
+        const Vec2& endLineB);
 
 protected:
     /** Contains the receiver’s current value. */

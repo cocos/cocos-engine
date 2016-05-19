@@ -14,7 +14,7 @@ using namespace cocos2d;
 
 namespace cocosbuilder {
 
-void LabelTTFLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, Color3B pColor3B, CCBReader * ccbReader) {
+void LabelTTFLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, const char * pPropertyName, const Color3B& pColor3B, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_COLOR) == 0) {
         ((Label *)pNode)->setColor(pColor3B);
     } else {
@@ -30,7 +30,7 @@ void LabelTTFLoader::onHandlePropTypeByte(Node * pNode, Node * pParent, const ch
     }
 }
 
-void LabelTTFLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, BlendFunc pBlendFunc, CCBReader * ccbReader) {
+void LabelTTFLoader::onHandlePropTypeBlendFunc(Node * pNode, Node * pParent, const char * pPropertyName, const BlendFunc& pBlendFunc, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_BLENDFUNC) == 0) {
         ((Label *)pNode)->setBlendFunc(pBlendFunc);
     } else {
@@ -72,7 +72,7 @@ void LabelTTFLoader::onHandlePropTypeIntegerLabeled(Node * pNode, Node * pParent
     }
 }
 
-void LabelTTFLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char * pPropertyName, Size size, CCBReader * ccbReader) {
+void LabelTTFLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const char * pPropertyName, const Size& size, CCBReader * ccbReader) {
     if(strcmp(pPropertyName, PROPERTY_DIMENSIONS) == 0) {
         ((Label *)pNode)->setDimensions(size.width,size.height);
     } else {

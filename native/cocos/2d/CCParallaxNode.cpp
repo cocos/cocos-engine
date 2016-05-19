@@ -32,7 +32,7 @@ NS_CC_BEGIN
 class PointObject : public Ref
 {
 public:
-    static PointObject * create(Vec2 ratio, Vec2 offset)
+    static PointObject * create(const Vec2& ratio, const Vec2& offset)
     {
         PointObject *ret = new (std::nothrow) PointObject();
         ret->initWithPoint(ratio, offset);
@@ -40,7 +40,7 @@ public:
         return ret;
     }
 
-    bool initWithPoint(Vec2 ratio, Vec2 offset)
+    bool initWithPoint(const Vec2& ratio, const Vec2& offset)
     {
         _ratio = ratio;
         _offset = offset;

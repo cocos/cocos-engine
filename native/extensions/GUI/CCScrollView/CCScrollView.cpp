@@ -74,7 +74,7 @@ ScrollView::~ScrollView()
 
 }
 
-ScrollView* ScrollView::create(Size size, Node* container/* = nullptr*/)
+ScrollView* ScrollView::create(const Size& size, Node* container/* = nullptr*/)
 {
     ScrollView* pRet = new (std::nothrow) ScrollView();
     if (pRet && pRet->initWithViewSize(size, container))
@@ -103,7 +103,7 @@ ScrollView* ScrollView::create()
 }
 
 
-bool ScrollView::initWithViewSize(Size size, Node *container/* = nullptr*/)
+bool ScrollView::initWithViewSize(const Size& size, Node *container/* = nullptr*/)
 {
     if (Layer::init())
     {
@@ -232,7 +232,7 @@ void ScrollView::setContentOffset(Vec2 offset, bool animated/* = false*/)
     }
 }
 
-void ScrollView::setContentOffsetInDuration(Vec2 offset, float dt)
+void ScrollView::setContentOffsetInDuration(const Vec2& offset, float dt)
 {
     FiniteTimeAction *scroll, *expire;
     if (_animatedScrollAction) {
@@ -326,7 +326,7 @@ void ScrollView::updateTweenAction(float value, const std::string& key)
     this->setZoomScale(value);
 }
 
-void ScrollView::setViewSize(Size size)
+void ScrollView::setViewSize(const Size& size)
 {
     _viewSize = size;
     Layer::setContentSize(size);

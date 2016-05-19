@@ -39,7 +39,7 @@ protected:
      * @js NA
      * @lua NA
      */
-    virtual void onHandlePropTypePoint(cocos2d::Node * pNode, cocos2d::Node * pParent, const char * pPropertyName, cocos2d::Vec2 pPoint, CCBReader * ccbReader);
+    virtual void onHandlePropTypePoint(cocos2d::Node * pNode, cocos2d::Node * pParent, const char * pPropertyName, const cocos2d::Vec2& pPoint, CCBReader * ccbReader);
     /**
      * @js NA
      * @lua NA
@@ -64,7 +64,7 @@ protected:
      * @js NA
      * @lua NA
      */
-    virtual void onHandlePropTypeBlendFunc(cocos2d::Node * pNode, cocos2d::Node * pParent, const char * pPropertyName, cocos2d::BlendFunc pBlendFunc, CCBReader * ccbReader);
+    virtual void onHandlePropTypeBlendFunc(cocos2d::Node * pNode, cocos2d::Node * pParent, const char * pPropertyName, const cocos2d::BlendFunc& pBlendFunc, CCBReader * ccbReader);
     /**
      * @js NA
      * @lua NA

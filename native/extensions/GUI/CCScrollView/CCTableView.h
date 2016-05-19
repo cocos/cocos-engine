@@ -197,7 +197,7 @@ public:
      */
     virtual ~TableView();
 
-    bool initWithViewSize(Size size, Node* container = NULL);
+    bool initWithViewSize(const Size& size, Node* container = NULL);
 
     /**
      * data source

@@ -74,9 +74,9 @@ public:
      * @lua NA
      */
     virtual ~ControlSaturationBrightnessPicker();
-    virtual bool initWithTargetAndPos(Node* target, Vec2 pos);
+    virtual bool initWithTargetAndPos(Node* target, const Vec2& pos);
 
-    static ControlSaturationBrightnessPicker* create(Node* target, Vec2 pos);
+    static ControlSaturationBrightnessPicker* create(Node* target, const Vec2& pos);
 
     virtual void setEnabled(bool enabled) override;
     /**
@@ -92,7 +92,7 @@ public:
 
 protected:
     void updateSliderPosition(Vec2 location);
-    bool checkSliderPosition(Vec2 location);
+    bool checkSliderPosition(const Vec2& location);
 
     virtual bool onTouchBegan(Touch* touch, Event* pEvent) override;
     virtual void onTouchMoved(Touch *pTouch, Event *pEvent) override;

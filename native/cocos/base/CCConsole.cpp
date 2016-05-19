@@ -107,7 +107,7 @@ static std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 //isFloat taken from http://stackoverflow.com/questions/447206/c-isfloat-function
-static bool isFloat( std::string myString ) {
+static bool isFloat(const std::string& myString ) {
     std::istringstream iss(myString);
     float f;
     iss >> std::noskipws >> f; // noskipws considers leading whitespace invalid

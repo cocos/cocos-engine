@@ -294,7 +294,7 @@ void ControlSlider::needsLayout()
     _progressSprite->setTextureRect(textureRect, _progressSprite->isTextureRectRotated(), textureRect.size);
 }
 
-void ControlSlider::sliderBegan(Vec2 location)
+void ControlSlider::sliderBegan(const Vec2& location)
 {
     this->setSelected(true);
     _thumbSprite->setVisible(false);
@@ -302,12 +302,12 @@ void ControlSlider::sliderBegan(Vec2 location)
     setValue(valueForLocation(location));
 }
 
-void ControlSlider::sliderMoved(Vec2 location)
+void ControlSlider::sliderMoved(const Vec2& location)
 {
     setValue(valueForLocation(location));
 }
 
-void ControlSlider::sliderEnded(Vec2 location)
+void ControlSlider::sliderEnded(const Vec2& location)
 {
     if (this->isSelected())
     {
@@ -318,7 +318,7 @@ void ControlSlider::sliderEnded(Vec2 location)
     this->setSelected(false);
 }
 
-float ControlSlider::valueForLocation(Vec2 location)
+float ControlSlider::valueForLocation(const Vec2& location)
 {
     float percent = location.x/ _backgroundSprite->getContentSize().width;
     return MAX(MIN(_minimumValue + percent * (_maximumValue - _minimumValue), _maximumAllowedValue), _minimumAllowedValue);
