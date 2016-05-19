@@ -501,44 +501,6 @@ var Animation = cc.Class({
 
             this._nameToState[state.name] = state;
         }
-    },
-
-    _updateClip: (CC_TEST || CC_EDITOR) && function (clip, clipName, notReload) {
-        this._init();
-
-        clipName = clipName || clip.name;
-
-        var oldState;
-        for (var name in this._nameToState) {
-            var state = this._nameToState[name];
-            var stateClip = state.clip;
-            if (equalClips(stateClip, clip)) {
-                if (!clip._uuid) clip._uuid = stateClip._uuid;
-                oldState = state;
-                break;
-            }
-        }
-
-        if (!oldState) {
-            cc.error('Can\'t find state from clip [' + clipName + ']');
-            return;
-        }
-
-        var clips = this._clips;
-        var index = clips.indexOf(oldState.clip);
-        clips[index] = clip;
-
-        // clip name changed
-        if (oldState.name !== clipName) {
-            delete this._nameToState[oldState.name];
-            this._nameToState[clipName] = oldState;
-            oldState._name = clipName;
-        }
-
-        if (!notReload) {
-            oldState._clip = clip;
-            this._animator._reloadClip(oldState);
-        }
     }
 });
 
