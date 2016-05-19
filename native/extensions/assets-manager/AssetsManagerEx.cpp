@@ -31,7 +31,7 @@
 #ifdef MINIZIP_FROM_SYSTEM
 #include <minizip/unzip.h>
 #else // from our embedded sources
-#include "unzip.h"
+#include "unzip/unzip.h"
 #endif
 #include "base/CCAsyncTaskPool.h"
 
