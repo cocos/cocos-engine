@@ -144,6 +144,43 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
     this.getContentSize();
 };
 
+jsbLabel.prototype.setOutlined = function(value) {
+    this._outlined = value;
+    if(!!this._outlined) {
+        this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
+    } else {
+        //1 equals cpp outline effect
+        this.disableEffect(1);
+    }
+};
+
+jsbLabel.prototype.setOutlineWidth = function(value) {
+    this._outlineWidth = value;
+    if(!!this._outlined) {
+        this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
+    }
+};
+
+jsbLabel.prototype.setOutlineColor = function(value) {
+    this._outlineColor = cc.color(value);
+    if(!!this._outlined) {
+        this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
+    }
+};
+
+jsbLabel.prototype.isOutlined = function(value) {
+    return !!this._outlined;
+};
+
+jsbLabel.prototype.getOutlineWidth = function(value) {
+    return this._outlineWidth || 1;
+};
+
+jsbLabel.prototype.getOutlineColor = function(value) {
+    return this._outlineColor || cc.color(255,255,255,255);
+};
+
+
 cc.Label = function (string, fontHandle) {
     fontHandle = fontHandle || "Arial";
     var extName = cc.path.extname(fontHandle);
