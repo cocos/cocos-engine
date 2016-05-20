@@ -256,6 +256,10 @@ var Label = cc.Class({
                     var fntRawUrl = isAsset ? value.rawUrl : '';
                     var textureUrl = isAsset ? value.texture : '';
                     this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
+
+                    if (value instanceof cc.BitmapFont) {
+                        this.bmFontOriginalSize = value.originalSize;
+                    }
                 }
             },
             type: cc.Font,
@@ -391,10 +395,6 @@ var Label = cc.Class({
             }
             if ( !this.node._sizeProvider ) {
                 this.node._sizeProvider = this._sgNode;
-            }
-
-            if (this._sgNode._labelType === LabelType.BMFont) {
-                this.bmFontOriginalSize = this._sgNode.getBMFontOriginalSize();
             }
         }
     }
