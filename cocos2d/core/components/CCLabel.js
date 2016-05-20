@@ -286,11 +286,7 @@ var Label = cc.Class({
                         this._sgNode.setFontFileOrFamily('Arial');
                     }
                 } else {
-                    value = this._N$file;
-                    var isAsset = value instanceof cc.Font;
-                    var fntRawUrl = isAsset ? value.rawUrl : '';
-                    var textureUrl = isAsset ? value.texture : '';
-                    this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
+                    this.font = this._N$file
                 }
 
             },
