@@ -124,12 +124,15 @@ var View = cc._Class.extend({
     _viewName: "",
     // Custom callback for resize event
     _resizeCallback: null,
+
     _scaleX: 1,
     _originalScaleX: 1,
     _scaleY: 1,
     _originalScaleY: 1,
-    _indexBitsUsed: 0,
-    _maxTouches: 5,
+
+    _isRotated: false,
+    _orientation: 3,
+
     _resolutionPolicy: null,
     _rpExactFit: null,
     _rpShowAll: null,
@@ -138,11 +141,6 @@ var View = cc._Class.extend({
     _rpFixedWidth: null,
     _initialized: false,
 
-    _captured: false,
-    _wnd: null,
-    _hDC: null,
-    _hRC: null,
-    _supportTouch: false,
     _contentTranslateLeftTop: null,
 
     _frameZoomFactor: 1.0,
@@ -181,8 +179,6 @@ var View = cc._Class.extend({
         _t._rpFixedHeight = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
-        _t._hDC = cc.game.canvas;
-        _t._hRC = cc._renderContext;
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
     },
 
@@ -278,10 +274,48 @@ var View = cc._Class.extend({
         }
     },
 
+    /**
+     * Sets the orientation of the game, it can be landscape, portrait or auto.
+     * When set it to landscape or portrait, and screen w/h ratio doesn't fit, 
+     * cc.view will automatically rotate the game canvas using CSS.
+     * Note that this function doesn't have any effect in native, 
+     * in native, you need to set the application orientation in native project settings
+     * @method setOrientation
+     * @param {Number} orientation - Possible values: cc.macro.ORIENTATION_LANDSCAPE | cc.macro.ORIENTATION_PORTRAIT | cc.macro.ORIENTATION_AUTO
+     */
+    setOrientation: function (orientation) {
+        orientation = orientation & cc.macro.ORIENTATION_AUTO;
+        if (orientation) {
+            this._orientation = orientation;
+        }
+    },
+
     _initFrameSize: function () {
         var locFrameSize = this._frameSize;
-        locFrameSize.width = __BrowserGetter.availWidth(cc.game.frame);
-        locFrameSize.height = __BrowserGetter.availHeight(cc.game.frame);
+        var w = __BrowserGetter.availWidth(cc.game.frame);
+        var h = __BrowserGetter.availHeight(cc.game.frame);
+        var isLandscape = w >= h;
+
+        if (CC_EDITOR || !cc.sys.isMobile ||
+            (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
+            (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
+            locFrameSize.width = w;
+            locFrameSize.height = h;
+            cc.container.style['-webkit-transform'] = 'rotate(0deg)';
+            cc.container.style.transform = 'rotate(0deg)';
+            cc.container.style.margin = '0';
+            this._isRotated = false;
+        }
+        else {
+            locFrameSize.width = h;
+            locFrameSize.height = w;
+            cc.container.style['-webkit-transform'] = 'rotate(90deg)';
+            cc.container.style.transform = 'rotate(90deg)';
+            cc.container.style['-webkit-transform-origin'] = '0px 0px 0px';
+            cc.container.style.transformOrigin = '0px 0px 0px';
+            cc.container.style.marginLeft = '100%';
+            this._isRotated = true;
+        }
     },
 
     // hack
@@ -411,19 +445,13 @@ var View = cc._Class.extend({
     },
 
     /**
-     * Force destroying EGL view, subclass must implement this method.
-     */
-    end: function () {
-    },
-
-    /**
      * Get whether render system is ready(no matter opengl or canvas),<br/>
      * this name is for the compatibility with cocos2d-x, subclass must implement this method.
-     * @method isOpenGLReady
+     * @method isViewReady
      * @return {Boolean}
      */
-    isOpenGLReady: function () {
-        return (this._hDC !== null && this._hRC !== null);
+    isViewReady: function () {
+        return cc.game.canvas && cc._renderContext;
     },
 
     /*
@@ -435,20 +463,6 @@ var View = cc._Class.extend({
         this._frameZoomFactor = zoomFactor;
         this.centerWindow();
         cc.director.setProjection(cc.director.getProjection());
-    },
-
-    /**
-     * Exchanges the front and back buffers, subclass must implement this method.
-     */
-    swapBuffers: function () {
-    },
-
-    /**
-     * Open or close IME keyboard , subclass must implement this method.
-     * @method setIMEKeyboardState
-     * @param {Boolean} isOpen
-     */
-    setIMEKeyboardState: function (isOpen) {
     },
 
     /**
@@ -470,7 +484,7 @@ var View = cc._Class.extend({
         return this._contentTranslateLeftTop;
     },
 
-    /**
+    /*
      * Not support on native.<br/>
      * On web, it sets the size of the canvas.
      * @method setCanvasSize
@@ -493,7 +507,7 @@ var View = cc._Class.extend({
         this._resizeEvent();
     },
 
-    /**
+    /*
      * Returns the canvas size of the view.<br/>
      * On native platforms, it returns the screen size since the view is a fullscreen view.<br/>
      * On web, it returns the size of the canvas element.
@@ -530,12 +544,6 @@ var View = cc._Class.extend({
         //this.centerWindow();
         this._resizeEvent();
         cc.director.setProjection(cc.director.getProjection());
-    },
-
-    /**
-     * Empty function
-     */
-    centerWindow: function () {
     },
 
     /**
@@ -681,7 +689,7 @@ var View = cc._Class.extend({
             vb.y = -vp.y / this._scaleY;
             vb.width = cc.game.canvas.width / this._scaleX;
             vb.height = cc.game.canvas.height / this._scaleY;
-            cc._renderContext.setOffset && cc._renderContext.setOffset(vp.x, -vp.y)
+            cc._renderContext.setOffset && cc._renderContext.setOffset(vp.x, -vp.y);
         }
 
         // reset director's member variables to fit visible rect
@@ -862,7 +870,9 @@ var View = cc._Class.extend({
      * @return {Vec2}
      */
     convertToLocationInView: function (tx, ty, relatedPos) {
-        return {x: this._devicePixelRatio * (tx - relatedPos.left), y: this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty)};
+        var x = this._devicePixelRatio * (tx - relatedPos.left);
+        var y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
+        return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
     },
 
     _convertMouseToLocationInView: function(point, relatedPos) {
@@ -872,16 +882,18 @@ var View = cc._Class.extend({
     },
 
     _convertTouchesWithScale: function(touches){
-        var locViewPortRect = this._viewPortRect, locScaleX = this._scaleX, locScaleY = this._scaleY, selTouch, selPoint, selPrePoint;
+        var locViewPortRect = this._viewPortRect, locScaleX = this._scaleX, locScaleY = this._scaleY, locWidth = this._viewPortRect.width,
+            selTouch, selPoint, selPrePoint, y;
         for( var i = 0; i < touches.length; i ++){
             selTouch = touches[i];
             selPoint = selTouch._point;
 	        selPrePoint = selTouch._prevPoint;
             selStartPoint = selTouch._startPoint;
-            selTouch._setPoint((selPoint.x - locViewPortRect.x) / locScaleX,
-                (selPoint.y - locViewPortRect.y) / locScaleY);
-            selTouch._setPrevPoint((selPrePoint.x - locViewPortRect.x) / locScaleX,
-                (selPrePoint.y - locViewPortRect.y) / locScaleY);
+
+            selPoint.x = (selPoint.x - locViewPortRect.x) / locScaleX;
+            selPoint.y = (selPoint.y - locViewPortRect.y) / locScaleY;
+            selPrePoint.x = (selPrePoint.x - locViewPortRect.x) / locScaleX;
+            selPrePoint.y = (selPrePoint.y - locViewPortRect.y) / locScaleY;
             selStartPoint.x = (selStartPoint.x - locViewPortRect.x) / locScaleX;
             selStartPoint.y = (selStartPoint.y - locViewPortRect.y) / locScaleY;
         }
@@ -935,35 +947,23 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
     },
 
     _setupContainer: function (view, w, h) {
-        var frame = cc.game.frame;
-        var locCanvasElement = cc.game.canvas, locContainer = cc.game.container;
-        // Setup container
-        locContainer.style.width = locCanvasElement.style.width = w + "px";
-        locContainer.style.height = locCanvasElement.style.height = h + "px";
+        var locCanvas = cc.game.canvas, locContainer = cc.game.container;
+        if (cc.sys.os === cc.sys.OS_ANDROID) {
+            document.body.style.width = (view._isRotated ? h : w) + 'px';
+            document.body.style.height = (view._isRotated ? w : h) + 'px';
+        }
+
+        // Setup style
+        locContainer.style.width = locCanvas.style.width = w + 'px';
+        locContainer.style.height = locCanvas.style.height = h + 'px';
         // Setup pixel ratio for retina display
         var devicePixelRatio = view._devicePixelRatio = 1;
         if (view.isRetinaEnabled())
-            devicePixelRatio = view._devicePixelRatio = window.devicePixelRatio || 1;
+            devicePixelRatio = view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
         // Setup canvas
-        locCanvasElement.width = w * devicePixelRatio;
-        locCanvasElement.height = h * devicePixelRatio;
+        locCanvas.width = w * devicePixelRatio;
+        locCanvas.height = h * devicePixelRatio;
         cc._renderContext.resetCache && cc._renderContext.resetCache();
-
-        var body = document.body, style;
-        if (body && (style = body.style)) {
-            style.paddingTop = style.paddingTop || "0px";
-            style.paddingRight = style.paddingRight || "0px";
-            style.paddingBottom = style.paddingBottom || "0px";
-            style.paddingLeft = style.paddingLeft || "0px";
-            style.borderTop = style.borderTop || "0px";
-            style.borderRight = style.borderRight || "0px";
-            style.borderBottom = style.borderBottom || "0px";
-            style.borderLeft = style.borderLeft || "0px";
-            style.marginTop = style.marginTop || "0px";
-            style.marginRight = style.marginRight || "0px";
-            style.marginBottom = style.marginBottom || "0px";
-            style.marginLeft = style.marginLeft || "0px";
-        }
     },
 
     _fixContainer: function () {
@@ -975,9 +975,7 @@ cc.ContainerStrategy = cc._Class.extend(/** @lends cc.ContainerStrategy# */{
         bs.height = window.innerHeight + "px";
         bs.overflow = "hidden";
         // Body size solution doesn't work on all mobile browser so this is the aleternative: fixed container
-        var contStyle = cc.container.style;
-        contStyle.position = "fixed";
-        contStyle.left = contStyle.top = "0px";
+        cc.container.style.position = "fixed";
         // Reposition body
         document.body.scrollTop = 0;
     }
@@ -1054,8 +1052,8 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @extends ContainerStrategy
      */
     var EqualToFrame = cc.ContainerStrategy.extend({
-        apply: function (view) {
-            this._setupContainer(view, view._frameSize.width, view._frameSize.height);
+        apply: function (view, designedResolution) {
+            this._setupContainer(view, view._frameSize.width, view._frameSize.height, designedResolution.width, designedResolution.height);
         }
     });
 
@@ -1078,12 +1076,12 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             containerW = frameW - 2 * offx;
             containerH = frameH - 2 * offy;
 
-            this._setupContainer(view, containerW, containerH);
-            // Setup container's margin
-            containerStyle.marginLeft = offx + "px";
-            containerStyle.marginRight = offx + "px";
-            containerStyle.marginTop = offy + "px";
-            containerStyle.marginBottom = offy + "px";
+            this._setupContainer(view, containerW, containerH, designW, designH);
+            // Setup container's padding
+            containerStyle.paddingLeft = offx + "px";
+            containerStyle.paddinRight = offx + "px";
+            containerStyle.paddinTop = offy + "px";
+            containerStyle.paddinBottom = offy + "px";
         }
     });
 
@@ -1124,8 +1122,8 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @extends ContainerStrategy
      */
     var OriginalContainer = cc.ContainerStrategy.extend({
-        apply: function (view) {
-            this._setupContainer(view, cc.game.canvas.width, cc.game.canvas.height);
+        apply: function (view, designedResolution) {
+            this._setupContainer(view, cc.game.canvas.width, cc.game.canvas.height, designedResolution.width, designedResolution.height);
         }
     });
 
