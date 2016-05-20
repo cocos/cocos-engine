@@ -419,7 +419,7 @@ var Animation = cc.Class({
      * !#en Remove clip from the animation list. This will remove the clip and any animation states based on it.
      * !#zh
      * 从动画列表中移除指定的动画剪辑，<br/>
-     * 如果动画剪辑正在播放并且 force 参数为 true，这会停止该动画剪辑，然后在移除该动画剪辑，反之为 false，则会停止该动画。
+     * 如果动画正在播放并且 force 参数为 true，则会停止该动画，然后移除该动画剪辑和相关的动画，反之为 false，则不会做任何动作。
      * @method removeClip
      * @param {AnimationClip} clip
      * @param {Boolean} force If force is true, then will always remove the clip and any animation states based on it.
