@@ -655,15 +655,6 @@ var game = /** @lends cc.game# */{
         localCanvas.setAttribute("width", width || 480);
         localCanvas.setAttribute("height", height || 320);
         localCanvas.setAttribute("tabindex", 99);
-        localCanvas.style.outline = "none";
-        localConStyle = localContainer.style;
-        localConStyle.width = (width || 480) + "px";
-        localConStyle.height = (height || 320) + "px";
-        localConStyle.margin = "0 auto";
-
-        localConStyle.position = 'relative';
-        localConStyle.overflow = 'hidden';
-        localContainer.top = '100%';
 
         if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             this._renderContext = cc._renderContext = cc.webglContext

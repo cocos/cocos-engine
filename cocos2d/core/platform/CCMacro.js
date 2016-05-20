@@ -1060,44 +1060,28 @@ cc.macro = {
     WEB_ORIENTATION_LANDSCAPE_RIGHT: 90,
 
     /**
-     * Device oriented vertically, home button on the bottom (UIDeviceOrientationPortrait)
-     * @property DEVICE_ORIENTATION_PORTRAIT
+     * Oriented vertically
+     * @property ORIENTATION_PORTRAIT
      * @type {Number}
      * @readonly
      */
-    DEVICE_ORIENTATION_PORTRAIT: 0,
+    ORIENTATION_PORTRAIT: 1,
 
     /**
-     * Device oriented horizontally, home button on the right (UIDeviceOrientationLandscapeLeft)
-     * @property DEVICE_ORIENTATION_LANDSCAPE_LEFT
+     * Oriented horizontally
+     * @property ORIENTATION_LANDSCAPE
      * @type {Number}
      * @readonly
      */
-    DEVICE_ORIENTATION_LANDSCAPE_LEFT: 1,
+    ORIENTATION_LANDSCAPE: 2,
 
     /**
-     * Device oriented vertically, home button on the top (UIDeviceOrientationPortraitUpsideDown)
-     * @property DEVICE_ORIENTATION_PORTRAIT_UPSIDE_DOWN
+     * Oriented automatically
+     * @property ORIENTATION_AUTO
      * @type {Number}
      * @readonly
      */
-    DEVICE_ORIENTATION_PORTRAIT_UPSIDE_DOWN: 2,
-
-    /**
-     * Device oriented horizontally, home button on the left (UIDeviceOrientationLandscapeRight)
-     * @property DEVICE_ORIENTATION_LANDSCAPE_RIGHT
-     * @type {Number}
-     * @readonly
-     */
-    DEVICE_ORIENTATION_LANDSCAPE_RIGHT: 3,
-
-    /**
-     * In browsers, we only support 2 orientations by change window size.
-     * @property DEVICE_MAX_ORIENTATIONS
-     * @type {Number}
-     * @readonly
-     */
-    DEVICE_MAX_ORIENTATIONS: 2,
+    ORIENTATION_AUTO: 3,
 
 
     DENSITYDPI_DEVICE: 'device-dpi',
