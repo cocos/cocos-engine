@@ -943,6 +943,15 @@ CCClass._fastDefine = function (className, constructor, serializableFields) {
 
 CCClass.attr = Attr.attr;
 
+var PrimitiveTypes = {
+    // Specify that the input value must be integer in Inspector.
+    // Also used to indicates that the type of elements in array or the type of value in dictionary is integer.
+    Integer: 'Number',
+    // Indicates that the type of elements in array or the type of value in dictionary is double.
+    Float: 'Number',
+    Boolean: 'Boolean',
+    String: 'String',
+};
 var tmpAttrs = [];
 function parseAttributes (attrs, className, propName) {
     var ERR_Type = CC_DEV ? 'The %s of %s must be type %s' : '';
@@ -952,63 +961,52 @@ function parseAttributes (attrs, className, propName) {
 
     var type = attrs.type;
     if (type) {
-        switch (type) {
-            // Specify that the input value must be integer in Inspector.
-            // Also used to indicates that the type of elements in array or the type of value in dictionary is integer.
-            case 'Integer':
-                result.push( { type: 'Integer'/*, expectedTypeOf: 'number'*/ } );
-                break;
-            // Indicates that the type of elements in array or the type of value in dictionary is double.
-            case 'Float':
-                result.push( { type: 'Float'/*, expectedTypeOf: 'number'*/ } );
-                break;
-            case 'Boolean':
-                result.push({
-                    type: 'Boolean',
-                    //expectedTypeOf: 'number',
-                    _onAfterProp: getTypeChecker('Boolean', 'Boolean')
-                });
-                break;
-            case 'String':
-                result.push({
-                    type: 'String',
-                    //expectedTypeOf: 'string',
-                    _onAfterProp: getTypeChecker('String', 'String')
-                });
-                break;
-            case 'Object':
-                if (CC_DEV) {
-                    cc.error('Please define "type" parameter of %s.%s as the actual constructor.', className, propName);
-                }
-                break;
-            default:
-                if (type === Attr.ScriptUuid) {
-                    var attr = Attr.ObjectType(cc.ScriptAsset);
-                    attr.type = 'Script';
-                    result.push(attr);
-                }
-                else {
-                    if (typeof type === 'object') {
-                        if (Enum.isEnum(type)) {
-                            result.push({
-                                type: 'Enum',
-                                //expectedTypeOf: 'number',
-                                enumList: Enum.getList(type)
-                            });
-                        }
-                        else if (CC_DEV) {
-                            cc.error('Please define "type" parameter of %s.%s as the constructor of %s.', className, propName, type);
-                        }
-                    }
-                    else if (typeof type === 'function') {
-                        result.push(Attr.ObjectType(type));
-                        //result.push( { expectedTypeOf: 'object' } );
+        var primitiveType = PrimitiveTypes[type];
+        if (primitiveType) {
+            result.push({
+                type: type,
+                _onAfterProp: getTypeChecker(primitiveType, 'cc.' + type)
+            });
+        }
+        else if (type === 'Object') {
+            if (CC_DEV) {
+                cc.error('Please define "type" parameter of %s.%s as the actual constructor.', className, propName);
+            }
+        }
+        else {
+            if (type === Attr.ScriptUuid) {
+                var attr = Attr.ObjectType(cc.ScriptAsset);
+                attr.type = 'Script';
+                result.push(attr);
+            }
+            else {
+                if (typeof type === 'object') {
+                    if (Enum.isEnum(type)) {
+                        result.push({
+                            type: 'Enum',
+                            enumList: Enum.getList(type)
+                        });
                     }
                     else if (CC_DEV) {
-                        cc.error('Unknown "type" parameter of %s.%s：%s', className, propName, type);
+                        cc.error('Please define "type" parameter of %s.%s as the constructor of %s.', className, propName, type);
                     }
                 }
-                break;
+                else if (typeof type === 'function') {
+                    if (attrs.url) {
+                        result.push({
+                            type: 'Object',
+                            ctor: type,
+                            _onAfterProp: getTypeChecker('String', 'cc.String')
+                        });
+                    }
+                    else {
+                        result.push(Attr.ObjectType(type));
+                    }
+                }
+                else if (CC_DEV) {
+                    cc.error('Unknown "type" parameter of %s.%s：%s', className, propName, type);
+                }
+            }
         }
     }
 

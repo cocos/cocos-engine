@@ -255,7 +255,6 @@ sp.Skeleton = cc.Class({
          */
         loop: {
             default: true,
-            type: Boolean,
             tooltip: 'i18n:COMPONENT.skeleton.loop'
         },
 

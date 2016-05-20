@@ -176,8 +176,10 @@ module.exports = function (properties, className, cls) {
                     };
                 }
                 else {
-                    val = {
-                        default: cc.isChildClassOf(type, cc.ValueType) ? (new type()) : null,
+                    val = cc.isChildClassOf(type, cc.ValueType) ? {
+                        default: new type()
+                    } : {
+                        default: null,
                         type: val
                     };
                 }
