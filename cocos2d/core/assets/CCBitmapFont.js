@@ -44,8 +44,7 @@ var BitmapFont = cc.Class({
         },
 
         fontSize: {
-            default: -1,
-            readonly: true
+            default: -1
         }
     }
 });
