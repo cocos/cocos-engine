@@ -343,14 +343,14 @@ cc.Director.EVENT_COMPONENT_UPDATE = 'director_component_update';
 cc.Director.EVENT_COMPONENT_LATE_UPDATE = 'director_component_late_update';
 
 cc.eventManager.addCustomListener(cc.Director.EVENT_BEFORE_UPDATE, function () {
-    var dt = 1 / 60;
+    var dt = cc.director.getDeltaTime();
     // Call start for new added components
     cc.director.emit(cc.Director.EVENT_BEFORE_UPDATE);
     // Update for components
     cc.director.emit(cc.Director.EVENT_COMPONENT_UPDATE, dt);
 });
 cc.eventManager.addCustomListener(cc.Director.EVENT_AFTER_UPDATE, function () {
-    var dt = 1 / 60;
+    var dt = cc.director.getDeltaTime();
     // Late update for components
     cc.director.emit(cc.Director.EVENT_COMPONENT_LATE_UPDATE, dt);
     // User can use this event to do things after update
