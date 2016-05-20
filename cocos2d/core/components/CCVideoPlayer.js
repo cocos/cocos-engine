@@ -21,8 +21,35 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Video is playing.
+ * !#zh 视频正在播放中
+ * @property {String} PLAYING
+ */
+/**
+ * !#en Video is paused.
+ * !#zh 视频暂停播放了
+ * @property {String} PAUSED
+ */
+/**
+ * !#en Video is stopped.
+ * !#zh 视频停止播放了。
+ * @property {String} STOPPED
+ */
+/**
+ * !#en Video is completed.
+ * !#zh 视频播放完成了
+ * @property {String} COMPLETED
+ */
 var EventType = _ccsg.VideoPlayer.EventType;
 
+
+/**
+ * !#en cc.VideoPlayer is a component for playing videos, you can use it for showing videos in your game.
+ * !#zh Video 组件，用于在游戏中播放视频
+ * @class VideoPlayer
+ * @extends _RendererUnderSG
+ */
 var VideoPlayer = cc.Class({
     name: 'cc.VideoPlayer',
     extends: cc._RendererUnderSG,
@@ -30,12 +57,19 @@ var VideoPlayer = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/VideoPlayer',
         inspector: 'app://editor/page/inspector/videoplayer.html',
+        help: 'i18n:COMPONENT.help_url.videoplayer',
     },
 
     properties: {
 
         _resourceType: 0,
+        /**
+         * !#en The resource type of videoplayer, 0 for remote url and 1 for local file path.
+         * !#zh 视频来源：0 表示远程视频 URL，1 表示本地视频地址。
+         * @property {Number} resourceType
+         */
         resourceType: {
+            tooltip: 'i18n:COMPONENT.videoplayer.resourceType',
             type: cc.Integer, // 0: remote | 1: local
             set: function ( value ) {
                 value = value - 0;
@@ -48,7 +82,13 @@ var VideoPlayer = cc.Class({
         },
 
         _url: '',
+        /**
+         * !#en The remote URL of video.
+         * !#zh 远程视频的 URL
+         * @property {String} url
+         */
         url: {
+            tooltip: 'i18n:COMPONENT.videoplayer.url',
             type: cc.String,
             set: function ( url ) {
                 this._url = url;
@@ -63,7 +103,13 @@ var VideoPlayer = cc.Class({
             default: null,
             url: cc.RawAsset
         },
+        /**
+         * !#en The local video full path.
+         * !#zh 本地视频的 URL
+         * @property {String} video
+         */
         video: {
+            tooltip: 'i18n:COMPONENT.videoplayer.video',
             get: function () {
                 return this._video;
             },
@@ -77,8 +123,13 @@ var VideoPlayer = cc.Class({
         },
 
         _time: 0,
-
+        /**
+         * !#en The start time when video start to play.
+         * !#zh  从哪个时间点开始播放视频
+         * @property {Float} currentTime
+         */
         currentTime: {
+            tooltip: 'i18n:COMPONENT.videoplayer.currentTime',
             type: cc.Float,
             set: function ( time ) {
                 this._time = time;
@@ -89,7 +140,13 @@ var VideoPlayer = cc.Class({
             }
         },
 
+        /**
+         * !#en Whether keep the aspect ration of the original video.
+         * !#zh 是否保持视频原来的宽高比
+         * @property {Boolean} keepAspectRatio
+         */
         keepAspectRatio: {
+            tooltip: 'i18n:COMPONENT.videoplayer.keepAspectRatio',
             default: true,
             type: cc.Boolean,
             notify: function () {
@@ -97,7 +154,13 @@ var VideoPlayer = cc.Class({
             }
         },
 
+        /**
+         * !#en Whether play video in fullscreen mode.
+         * !#zh 是否全屏播放视频
+         * @property {Boolean} keepAspectRatio
+         */
         enableFullscreen: {
+            tooltip: 'i18n:COMPONENT.videoplayer.enableFullscreen',
             default: false,
             type: cc.Boolean,
             notify: function() {
@@ -105,6 +168,11 @@ var VideoPlayer = cc.Class({
             }
         },
 
+        /**
+         * !#en the video player's callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.
+         * !#zh 视频播放回调函数，该回调函数会在特定情况被触发，比如播放中，暂时，停止和完成播放。
+         * @property {cc.Component.EventHandler} onVideoPlayerEvent
+         */
         onVideoPlayerEvent: {
             default: [],
             type: cc.Component.EventHandler,
@@ -181,6 +249,12 @@ var VideoPlayer = cc.Class({
     play: function () {
         if(this._sgNode) {
             this._sgNode.play();
+        }
+    },
+
+    resume: function() {
+        if (this._sgNode) {
+            this._sgNode.resume();
         }
     },
 
