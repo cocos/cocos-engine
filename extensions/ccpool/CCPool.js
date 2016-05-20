@@ -26,19 +26,17 @@
 
 /**
  * !#en
+ *  Attention: In creator, it's strongly not recommended to use cc.pool to manager cc.Node.
+ *  We provided {{#crossLink "NodePool"}}cc.NodePool{{/crossLink}} instead.
+ * 
  *  cc.pool is a singleton object serves as an object cache pool.<br/>
  *  It can helps you to improve your game performance for objects which need frequent release and recreate operations<br/>
- *  Some common use case is :<br/>
- *      1. Bullets in game (die very soon, massive creation and recreation, no side effect on other objects)<br/>
- *      2. Blocks in candy crash (massive creation and recreation)<br/>
- *      etc...
  * !#zh
+ * 首先请注意，在 Creator 中我们强烈不建议使用 cc.pool 来管理 cc.Node 节点对象，请使用 {{#crossLink "NodePool"}}cc.NodePool{{/crossLink}} 代替
+ * 因为 cc.pool 是面向类来设计的，而 cc.Node 中使用 Component 来进行组合，它的类永远都一样，实际却千差万别。
+ *
  * cc.pool 是一个单例对象，用作为对象缓存池。<br/>
  * 它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁<br/>
- * 一些常见的用例是：<br/>
- *      1.在游戏中的子弹（死亡很快，频繁创建，对其他对象无副作用）<br/>
- *      2.糖果粉碎传奇中的木块（频繁创建）。
- *      等等....
  * @class pool
  */
 cc.pool = /** @lends cc.pool# */{
@@ -50,7 +48,7 @@ cc.pool = /** @lends cc.pool# */{
 
     _autoRelease: function (obj) {
         var running = obj._running === undefined ? false : !obj._running;
-        cc.director.getScheduler().schedule(this._releaseCB, obj, 0, 0, 0, running)
+        cc.director.getScheduler().schedule(this._releaseCB, obj, 0, 0, 0, running);
     },
 
     /**

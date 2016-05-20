@@ -53,5 +53,6 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
         require('./external/chipmunk/chipmunk.js');
     }
     
+    require('./extensions/ccpool/CCNodePool.js');
     require('./extensions/ccpool/CCPool.js');
 }

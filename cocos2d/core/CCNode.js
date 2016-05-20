@@ -592,7 +592,7 @@ var Node = cc.Class({
      * 传入参数也可以是脚本的名称。
      * @method getComponent
      * @param {Function|String} typeOrClassName
-     * @returns {Component}
+     * @return {Component}
      * @example
      * // get sprite component.
      * var sprite = node.getComponent(cc.Sprite);
@@ -612,7 +612,7 @@ var Node = cc.Class({
      * !#zh 返回节点上指定类型的所有组件。
      * @method getComponents
      * @param {Function|String} typeOrClassName
-     * @returns {Component[]}
+     * @return {Component[]}
      * @example
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
@@ -631,7 +631,7 @@ var Node = cc.Class({
      * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @method getComponentInChildren
      * @param {Function|String} typeOrClassName
-     * @returns {Component}
+     * @return {Component}
      * @example
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
@@ -650,7 +650,7 @@ var Node = cc.Class({
      * !#zh 递归查找所有子节点中指定类型的组件。
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
-     * @returns {Component[]}
+     * @return {Component[]}
      * @example
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
@@ -685,7 +685,7 @@ var Node = cc.Class({
      * !#zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @method addComponent
      * @param {Function|String} typeOrClassName - The constructor or the class name of the component to add
-     * @returns {Component} - The newly added component
+     * @return {Component} - The newly added component
      * @example
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
