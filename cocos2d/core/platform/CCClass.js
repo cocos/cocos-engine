@@ -180,7 +180,7 @@ function defineGetSet (cls, name, propName, val, attrs) {
     var d = Object.getOwnPropertyDescriptor(proto, propName);
 
     if (getter) {
-        if (d && d.get && CC_DEV) {
+        if (CC_DEV && d && d.get) {
             cc.error('"%s": the getter of "%s" is already defined!', name, propName);
             return;
         }
@@ -847,7 +847,6 @@ function CCClass (options) {
                 if (INVALID_STATICS.indexOf(staticPropName) !== -1) {
                     cc.error('Cannot define %s.%s because static member name can not be "%s".', name, staticPropName,
                         staticPropName);
-                    continue;
                 }
             }
         }

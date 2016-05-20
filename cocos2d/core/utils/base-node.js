@@ -1227,6 +1227,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             name = "";
         }
 
+        if (CC_DEV && !(child instanceof cc.Node)) {
+            return cc.error('addChild: The child to add must be instance of cc.Node, not %s.', cc.js.getClassName(child));
+        }
         cc.assert(child, cc._LogInfos.Node.addChild_3);
         cc.assert(child._parent === null, "child already added. It can't be added again");
 

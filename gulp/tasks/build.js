@@ -86,10 +86,12 @@ function getUglifyOptions (minify, global_defs) {
     }
 }
 
-function rebundle(bundler) {
+function rebundle_html_dev_min(bundler) {
+    console.log('compiling...');
+
     var dev = uglify(getUglifyOptions(false, {
         CC_EDITOR: false,
-        CC_DEV: false,
+        CC_DEV: true,
         CC_TEST: false,
         CC_JSB: false
     }));
@@ -113,30 +115,25 @@ function rebundle(bundler) {
         .pipe(gulp.dest(paths.outDir));
 }
 
-function rebundle_test(bundler, suffix) {
-
-    var PreProcess = false;
-    var TestEditorExtends = true;   // if PreProcess
-    var SourceMap = false;          // if PreProcess
+function rebundle(bundler, name, options) {
+    var macros = options && options.macros;     // default false
+    // only if macros                           // default false
+    var sourceMaps = !!((options && ('sourceMaps' in options)) ? options.sourceMaps : macros);
+    var minify = !!(options && options.minify); // default false
 
     var bundle = bundler.bundle()
         .on('error', handleErrors.handler)
         .pipe(handleErrors())
-        .pipe(source(paths.outFile))
-        .pipe(buffer())
-        .pipe(rename({ suffix: suffix }));
+        .pipe(source(name))
+        .pipe(buffer());
 
-    if (PreProcess) {
-        if (SourceMap) {
+    if (macros) {
+        console.log('compiling...');
+        if (sourceMaps) {
             bundle = bundle.pipe(sourcemaps.init({loadMaps: true}));
         }
-        bundle = bundle.pipe(uglify(getUglifyOptions(false, {
-                CC_EDITOR: TestEditorExtends,
-                CC_DEV: TestEditorExtends || true,
-                CC_TEST: true,
-                CC_JSB: false
-            })));
-        if (SourceMap) {
+        bundle = bundle.pipe(uglify(getUglifyOptions(minify, macros)));
+        if (sourceMaps) {
             bundle = bundle.pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}));
         }
     }
@@ -159,10 +156,8 @@ function createBundler(entryFiles) {
 }
 
 gulp.task('build-html5', ['build-modular-cocos2d'], function () {
-    console.log('This will take some minutes...');
-    return rebundle(createBundler(paths.jsEntry));
+    return rebundle_html_dev_min(createBundler(paths.jsEntry));
 });
-
 
 gulp.task('clean-test', function (done) {
     Del([paths.test.destEditorExtends, paths.test.dest],
@@ -173,13 +168,13 @@ gulp.task('clean-test', function (done) {
 });
 
 gulp.task('build-test', ['build-modular-cocos2d', 'clean-test'], function () {
-    var engine = rebundle_test(createBundler(paths.jsEntry), '-for-test');
+    var engine = rebundle(createBundler(paths.jsEntry), Path.basename(paths.test.dest));
     if (Fs.existsSync(paths.test.jsEntryEditorExtends)) {
         var bundler = createBundler(paths.test.jsEntryEditorExtends);
         //bundler = bundler.transform(babelify.configure({
         //    presets: ["es2015"]
         //}));
-        var editorExtends = rebundle_test(bundler, '-extends-for-test');
+        var editorExtends = rebundle(bundler, Path.basename(paths.test.destEditorExtends));
         return es.merge(engine, editorExtends);
     }
     else {
@@ -188,50 +183,46 @@ gulp.task('build-test', ['build-modular-cocos2d', 'clean-test'], function () {
     }
 });
 
-function rebundle_jsb(bundler, minify, suffix) {
-    var SourceMap = false;
-    var skips = paths.JSBSkipModules;
+gulp.task('build-preview', ['build-modular-cocos2d'], function () {
+    return rebundle(createBundler(paths.jsEntry), Path.basename(paths.preview.dest), {
+        macros: {
+            CC_EDITOR: false,
+            CC_DEV: true,
+            CC_TEST: false,
+            CC_JSB: false
+        },
+        sourceMaps: true
+    });
+});
+
+function rebundle_jsb(bundler, name, minify) {
+    var skips = paths.jsb.skipModules;
     for (var i = 0; i < skips.length; ++i) {
         bundler.ignore(require.resolve(skips[i]));
     }
-    var bundle = bundler.bundle()
-        .on('error', handleErrors.handler)
-        .pipe(handleErrors())
-        .pipe(source(paths.JSBOutFile))
-        .pipe(buffer())
-        .pipe(rename({ suffix: suffix }));
-    if (SourceMap) {
-        bundle = bundle.pipe(sourcemaps.init({loadMaps: true}));
-    }
-    bundle = bundle.pipe(uglify(getUglifyOptions(minify, {
-        CC_EDITOR: false,
-        CC_DEV: false,
-        CC_TEST: false,
-        CC_JSB: true
-    })));
-    if (SourceMap) {
-        bundle = bundle.pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}));
-    }
-    return bundle.pipe(gulp.dest(paths.outDir));
+    rebundle(bundler, name, {
+        minify: minify,
+        macros: {
+            CC_EDITOR: false,
+            CC_DEV: false,
+            CC_TEST: false,
+            CC_JSB: true
+        }
+    });
 }
 
 gulp.task('build-jsb-extends-min', function () {
-    var jsbPolyfill = rebundle_jsb(createBundler(paths.JSBEntries), true, '_polyfill');
+    var jsbPolyfill = rebundle_jsb(createBundler(paths.jsb.entries), paths.jsb.outFile, true);
     return jsbPolyfill;
 });
-
 gulp.task('build-jsb-extends-dev', function () {
-    var jsbPolyfill = rebundle_jsb(createBundler(paths.JSBEntries), false, '_polyfill.dev');
+    var jsbPolyfill = rebundle_jsb(createBundler(paths.jsb.entries), paths.jsb.outFileDev, false);
     return jsbPolyfill;
 });
 
+gulp.task('build', ['build-html5', 'build-preview', 'build-jsb-extends-min', 'build-jsb-extends-dev']);
 
-gulp.task('build', ['build-html5', 'build-jsb-extends-min', 'build-jsb-extends-dev']);
-
-gulp.task('fast-build', ['build-dev'], function () {
-    console.warn('[fast-build] is obsoleted, use [build-dev] instead please.');
-});
-
-gulp.task('build-dev', ['build-test', 'build-jsb-extends-min', 'build-jsb-extends-dev'], function (done) {
-    Del(['./bin/cocos2d-js.js', './bin/cocos2d-js-min.js',], done);
+gulp.task('build-dev', ['build-preview', 'build-jsb-extends-dev'], function (done) {
+    // make dist version dirty
+    Del(['./bin/cocos2d-js.js', './bin/cocos2d-js-min.js', './bin/jsb_polyfill.js'], done);
 });

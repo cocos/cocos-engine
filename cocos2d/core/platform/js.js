@@ -223,8 +223,8 @@ function getTempCID () {
     return TCID_PREFIX + (id++);
 }
 
-js._isTempClassId = function (id) {
-    return CC_DEV && (typeof id !== 'string' || id.startsWith(TCID_PREFIX));
+var isTempClassId = CC_DEV && function (id) {
+    return typeof id !== 'string' || id.startsWith(TCID_PREFIX);
 };
 
 // id 注册
@@ -348,7 +348,7 @@ cc.js.unregisterClass to remove the id of unused class';
         var res;
         if (typeof obj === 'function' && obj.prototype.hasOwnProperty('__cid__')) {
             res = obj.prototype.__cid__;
-            if (!allowTempId && js._isTempClassId(res)) {
+            if (!allowTempId && CC_DEV && isTempClassId(res)) {
                 return '';
             }
             return res;
@@ -357,7 +357,7 @@ cc.js.unregisterClass to remove the id of unused class';
             var prototype = obj.constructor.prototype;
             if (prototype && prototype.hasOwnProperty('__cid__')) {
                 res = obj.__cid__;
-                if (!allowTempId && js._isTempClassId(res)) {
+                if (!allowTempId && CC_DEV && isTempClassId(res)) {
                     return '';
                 }
                 return res;

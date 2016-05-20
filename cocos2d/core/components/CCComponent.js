@@ -295,7 +295,7 @@ var Component = cc.Class({
                 var id = this._id;
                 if ( !id ) {
                     id = this._id = idGenerater.getNewId();
-                    if (CC_DEV) {
+                    if (CC_EDITOR || CC_TEST) {
                         cc.engine.attachedObjsForEditor[id] = this;
                     }
                 }
@@ -724,7 +724,7 @@ var Component = cc.Class({
         // do remove component
         this.node._removeComponent(this);
 
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_TEST) {
             delete cc.engine.attachedObjsForEditor[this._id];
         }
     },
@@ -815,7 +815,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
 
     // INHERITABLE STATIC MEMBERS
 
@@ -849,7 +849,7 @@ Object.defineProperty(Component, '_registerEditorProps', {
         if (reqComp) {
             cls._requireComponent = reqComp;
         }
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_TEST) {
             var name = cc.js.getClassName(cls);
             for (var key in props) {
                 var val = props[key];

@@ -232,7 +232,7 @@ JS.get(prototype, 'isValid', function () {
     return !(this._objFlags & Destroyed);
 });
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
     JS.get(prototype, 'isRealValid', function () {
         return !(this._objFlags & RealDestroyed);
     });
@@ -274,7 +274,7 @@ prototype.destroy = function () {
     return true;
 };
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
     /*
      * !#en
      * In fact, Object's "destroy" will not trigger the destruct operation in Firebal Editor.
@@ -390,7 +390,7 @@ cc.isValid = function (value) {
     }
 };
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
     Object.defineProperty(CCObject, '_willDestroy', {
         value: function (obj) {
             return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
