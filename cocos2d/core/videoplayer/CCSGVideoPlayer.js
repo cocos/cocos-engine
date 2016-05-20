@@ -428,6 +428,10 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (!video) return;
         video.pause();
+        var node = this._node;
+        setTimeout(function(){
+            node._dispatchEvent(_ccsg.VideoPlayer.EventType.STOPPED);
+        }, 0);
         // 恢复到视频起始位置
         video.currentTime = 0;
         this._playing = false;

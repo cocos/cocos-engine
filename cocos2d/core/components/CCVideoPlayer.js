@@ -21,6 +21,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var EventType = _ccsg.VideoPlayer.EventType;
+
 var VideoPlayer = cc.Class({
     name: 'cc.VideoPlayer',
     extends: cc._RendererUnderSG,
@@ -90,24 +92,45 @@ var VideoPlayer = cc.Class({
         keepAspectRatio: {
             default: true,
             type: cc.Boolean,
-            notify: function (enable) {
-                this._sgNode.setKeepAspectRatioEnabled(enable);
+            notify: function () {
+                this._sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
             }
-        }
+        },
+
+        enableFullscreen: {
+            default: false,
+            type: cc.Boolean,
+            notify: function() {
+                this._sgNode.setFullScreenEnabled(this.enableFullscreen);
+            }
+        },
+
+        onVideoPlayerEvent: {
+            default: [],
+            type: cc.Component.EventHandler,
+        },
+    },
+
+    statics: {
+        EventType: EventType
     },
 
     onLoad: function() {
         this._super();
 
-        if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-            this.enabled = false;
+        if(cc.sys.isNative) {
+            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+                this.enabled = false;
+            }
         }
     },
 
     _createSgNode: function () {
-        if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-            console.log('VideoPlayer is not supported on Mac and Windows!');
-            return null;
+        if(cc.sys.isNative) {
+            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+                console.log('VideoPlayer is not supported on Mac and Windows!');
+                return null;
+            }
         }
         return new _ccsg.VideoPlayer();
     },
@@ -119,29 +142,66 @@ var VideoPlayer = cc.Class({
         } else {
             sgNode.setURL(this._video || '');
         }
-        sgNode.seekTo(this.currentTime);
-        sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
     },
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
         if(sgNode) {
             this._updateSgNode();
+
+            sgNode.seekTo(this.currentTime);
+            sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
+            sgNode.setFullScreenEnabled(this.enableFullscreen);
             sgNode.setContentSize(this.node.getContentSize());
+            this.pause();
+
+            sgNode.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
+            sgNode.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
+            sgNode.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
+            sgNode.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
         }
     },
 
+    onPlaying: function(){
+        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.PLAYING);
+    },
+
+    onPasued: function() {
+        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.PAUSED);
+    },
+
+    onStopped: function() {
+        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.STOPPED);
+    },
+
+    onCompleted: function() {
+        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.COMPLETED);
+    },
+
     play: function () {
-        this._sgNode.play();
+        if(this._sgNode) {
+            this._sgNode.play();
+        }
     },
 
     pause: function () {
-        this._sgNode.pause();
+        if(this._sgNode) {
+            this._sgNode.pause();
+        }
     },
 
     seekTo: function ( time ) {
-        this._sgNode.seekTo(time);
-    }
+        if(this._sgNode) {
+            this._sgNode.seekTo(time);
+        }
+    },
+
+    stop: function() {
+        if(this._sgNode) {
+            this._sgNode.stop();
+        }
+    },
+
 });
 
 cc.VideoPlayer = module.exports = VideoPlayer;
