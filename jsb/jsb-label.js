@@ -58,18 +58,6 @@ jsbLabel.prototype.getOverflow = function() {
     return this._overFlow;
 };
 
-if (!jsbLabel.prototype.isSystemFontUsed) {
-    jsbLabel.prototype.isSystemFontUsed = function() {
-        return this._isSystemFontUsed;
-    };
-
-    jsbLabel.prototype.setSystemFontUsed = function(value) {
-        this._isSystemFontUsed = value;
-        this.setSystemFontName("Arial");
-        this.setSystemFontSize(this.getFontSize());
-    }
-}
-
 jsbLabel.prototype.setFontSize = function (size) {
     this._fontSize = size;
     if (this._labelType === _ccsg.Label.Type.SystemFont) {

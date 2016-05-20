@@ -245,7 +245,7 @@ var Label = cc.Class({
             set: function (value) {
                 this._N$file = value;
                 this._bmFontOriginalSize = -1;
-                if (this._sgNode) {
+                if (this._sgNode && !this._isSystemFontUsed) {
 
                     if ( typeof value === 'string' ) {
                         cc.warn('Sorry, the cc.Font has been modified from Raw Asset to Asset.' +
@@ -276,18 +276,17 @@ var Label = cc.Class({
          */
         useSystemFont: {
             get: function(){
-                if (this._sgNode) {
-                    this._isSystemFontUsed = this._sgNode.isSystemFontUsed();
-                }
                 return this._isSystemFontUsed;
             },
             set: function(value){
-                this._isSystemFontUsed = value;
+                this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
                     if (this._sgNode) {
-                        this._sgNode.setSystemFontUsed(value);
+                        this._sgNode.setFontFileOrFamily('Arial');
                     }
+                } else {
+                    this.font = this._N$file
                 }
 
             },
