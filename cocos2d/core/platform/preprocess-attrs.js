@@ -142,7 +142,7 @@ function postCheckType (val, type, className, propName) {
     }
 }
 
-function getBaseClassWherePropertyDefined (propName, cls) {
+function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     if (CC_DEV) {
         var res;
         for (; cls && cls.__props__ && cls.__props__.indexOf(propName) !== -1; cls = cls.$super) {
@@ -208,7 +208,7 @@ module.exports = function (properties, className, cls) {
             }
             if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
-                var baseClass = cc.js.getClassName(getBaseClassWherePropertyDefined(propName, cls));
+                var baseClass = cc.js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
                 cc.warn('"%s.%s" hides inherited property "%s.%s". To make the current property override that implementation, add the `override: true` attribute please.', className, propName, baseClass, propName);
             }
             var notify = val.notify;
