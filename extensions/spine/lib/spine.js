@@ -979,7 +979,8 @@ spine.FfdTimeline.prototype = {
 	apply: function (skeleton, lastTime, time, firedEvents, alpha) {
 		var slot = skeleton.slots[this.slotIndex];
 		var slotAttachment = slot.attachment;
-		if (slotAttachment != this.attachment && (!slotAttachment.inheritFFD || slotAttachment.parentMesh != sourceAttachment)) return;
+		if (!slotAttachment) return;
+		if (slotAttachment != this.attachment && (!slotAttachment.inheritFFD || slotAttachment.parentMesh != this.attachment)) return;
 
 		var frames = this.frames;
 		if (time < frames[0]) return; // Time is before first frame.
@@ -1467,8 +1468,6 @@ spine.RegionAttachment.prototype = {
 		y += bone.worldY;
 		var m00 = bone.a, m01 = bone.b, m10 = bone.c, m11 = bone.d;
 		var offset = this.offset;
-
-
 		vertices[0/*X1*/] = offset[0/*X1*/] * m00 + offset[1/*Y1*/] * m01 + x;
 		vertices[1/*Y1*/] = offset[0/*X1*/] * m10 + offset[1/*Y1*/] * m11 + y;
 		vertices[2/*X2*/] = offset[2/*X2*/] * m00 + offset[3/*Y2*/] * m01 + x;
@@ -2116,16 +2115,16 @@ spine.SkeletonJson.prototype = {
 			if (!map["parent"]) {
 				var uvs = this.getFloatArray(map, "uvs", 1);
 				var vertices = this.getFloatArray(map, "vertices", 1);
-				var weights = [];
-				var bones = [];
-				for (var i = 0, n = vertices.length; i < n; ) {
+				var weights = new spine.Float32Array(uvs.length * 3 * 3);
+				var bones = new spine.Uint32Array(uvs.length * 3);
+				for (var i = 0, b = 0, w = 0, n = vertices.length; i < n; ) {
 					var boneCount = vertices[i++] | 0;
-					bones[bones.length] = boneCount;
+					bones[b++] = boneCount;
 					for (var nn = i + boneCount * 4; i < nn; ) {
-						bones[bones.length] = vertices[i];
-						weights[weights.length] = vertices[i + 1] * scale;
-						weights[weights.length] = vertices[i + 2] * scale;
-						weights[weights.length] = vertices[i + 3];
+						bones[b++] = vertices[i];
+						weights[w++] = vertices[i + 1] * scale;
+						weights[w++] = vertices[i + 2] * scale;
+						weights[w++] = vertices[i + 3];
 						i += 4;
 					}
 				}
