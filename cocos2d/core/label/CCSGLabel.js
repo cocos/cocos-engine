@@ -115,7 +115,6 @@ _ccsg.Label = _ccsg.Node.extend({
     _spacingX: 0,
 
     _blendFunc: null,
-    _isUseSystemFont: true,
     _labelType: 0, //0 is ttf, 1 is bmfont.
     _fontHandle: "", //a ttf font name or a bmfont file path.
     _lineSpacing: 0,
@@ -176,18 +175,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this._spriteBatchNode = null;
         }
     },
-    isSystemFontUsed: function() {
-        return this._isUseSystemFont;
-    },
 
-    setSystemFontUsed: function(value) {
-        if (this._isUseSystemFont === value) return;
-
-        if (value) {
-            this.setFontFileOrFamily("Arial");
-        }
-        this._isUseSystemFont = value;
-    },
     setHorizontalAlign: function(align) {
         if (this._hAlign === align) return;
         this._hAlign = align;
@@ -359,12 +347,10 @@ _ccsg.Label = _ccsg.Node.extend({
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
             this._notifyLabelSkinDirty();
-            this._isUseSystemFont = true;
             this.emit('load');
             return;
         }
 
-        this._isUseSystemFont = false;
         if (extName === ".ttf") {
             this._labelType = _ccsg.Label.Type.TTF;
             this._fontHandle = this._loadTTFFont(fontHandle);
