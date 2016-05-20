@@ -120,6 +120,7 @@ cc.TextureCache.prototype.addImage = function(url, cb, target) {
 };
 
 // View
+cc.view.isViewReady = cc.view.isOpenGLReady;
 cc.view.setOrientation = function () {};
 
 // setTimeout, setInterval, clearTimeout, clearInteval

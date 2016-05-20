@@ -680,29 +680,43 @@ else {
 
     var _supportCanvas = !!_tmpCanvas1.getContext("2d");
     var _supportWebGL = false;
-    var tmpCanvas = document.createElement("CANVAS");
     if (win.WebGLRenderingContext) {
+        var tmpCanvas = document.createElement("CANVAS");
         try{
             var context = cc.create3DContext(tmpCanvas, {'stencil': true, 'preserveDrawingBuffer': true });
             if(context) {
                 _supportWebGL = true;
             }
 
-            // Accept only Android 5+ default browser and QQ Browser 6.2+
-            if (sys.os === sys.OS_ANDROID) {
-                _supportWebGL = false;
-                // QQ Brwoser 6.2+
-                var browserVer = parseFloat(sys.browserVersion);
-                if (sys.browserType === sys.BROWSER_TYPE_MOBILE_QQ && browserVer >= 6.2) {
-                    _supportWebGL = true;
-                }
-                // Android 5+ default browser
-                else if (sys.osMainVersion && sys.osMainVersion >= 5 && sys.browserType === sys.BROWSER_TYPE_ANDROID) {
-                    _supportWebGL = true;
+            if (_supportWebGL && sys.os === sys.OS_ANDROID) {
+                switch (sys.browserType) {
+                case sys.BROWSER_TYPE_MOBILE_QQ:
+                case sys.BROWSER_TYPE_BAIDU:
+                case sys.BROWSER_TYPE_BAIDU_APP:
+                    // QQ & Baidu Brwoser 6.2+ (using blink kernel)
+                    var browserVer = parseFloat(sys.browserVersion);
+                    if (browserVer >= 6.2) {
+                        _supportWebGL = true;
+                    }
+                    else {
+                        _supportWebGL = false;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_ANDROID:
+                    // Android 5+ default browser
+                    if (sys.osMainVersion && sys.osMainVersion >= 5) {
+                        _supportWebGL = true;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_UNKNOWN:
+                case sys.BROWSER_TYPE_360:
+                case sys.BROWSER_TYPE_MIUI:
+                    _supportWebGL = false;
                 }
             }
         }
         catch (e) {}
+        tmpCanvas = null;
     }
 
     /**
