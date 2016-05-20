@@ -244,7 +244,7 @@ var Label = cc.Class({
             },
             set: function (value) {
                 this._N$file = value;
-                this.bmFontOriginalSize = -1;
+                this._bmFontOriginalSize = -1;
                 if (this._sgNode) {
 
                     if ( typeof value === 'string' ) {
@@ -256,10 +256,10 @@ var Label = cc.Class({
                     var fntRawUrl = isAsset ? value.rawUrl : '';
                     var textureUrl = isAsset ? value.texture : '';
                     this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
+                }
 
-                    if (value instanceof cc.BitmapFont) {
-                        this.bmFontOriginalSize = value.originalSize;
-                    }
+                if (value instanceof cc.BitmapFont) {
+                    this._bmFontOriginalSize = value.fontSize;
                 }
             },
             type: cc.Font,
@@ -295,11 +295,13 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.system_font',
         },
 
-        bmFontOriginalSize: {
+        _bmFontOriginalSize: {
             displayName: 'BMFont Original Size',
             default: -1,
             serializable: false,
-            readonly: true
+            readonly: true,
+            visible: true,
+            animatable: false
         }
 
         // TODO
@@ -361,6 +363,9 @@ var Label = cc.Class({
         var isAsset = this.font instanceof cc.Font;
         var fntRawUrl = isAsset ? this.font.rawUrl : '';
         var textureUrl = isAsset ? this.font.texture : '';
+        if (this.font instanceof cc.BitmapFont) {
+            this._bmFontOriginalSize = this.font.fontSize;
+        }
 
         var sgNode = this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
         if (CC_JSB) {

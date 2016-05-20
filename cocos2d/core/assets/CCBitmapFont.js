@@ -43,7 +43,7 @@ var BitmapFont = cc.Class({
             url: cc.Texture2D
         },
 
-        originalSize: {
+        fontSize: {
             default: -1,
             readonly: true
         }
