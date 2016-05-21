@@ -814,9 +814,7 @@ sp.Skeleton = cc.Class({
             sgNode.setContentSize(0, 0);    // restore content size
             self._initSgNode();
             self._appendSgNode(sgNode);
-            if ( !self.node._sizeProvider ) {
-                self.node._sizeProvider = sgNode;
-            }
+            self._registSizeProvider();
         }
 
         if (CC_EDITOR) {

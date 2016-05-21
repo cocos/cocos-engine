@@ -398,9 +398,7 @@ var Label = cc.Class({
             if (this.overflow === Overflow.NONE) {
                 this.node.setContentSize(this._sgNode.getContentSize());
             }
-            if ( !this.node._sizeProvider ) {
-                this.node._sizeProvider = this._sgNode;
-            }
+            this._registSizeProvider();
         }
     }
  });

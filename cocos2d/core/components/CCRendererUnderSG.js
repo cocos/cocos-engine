@@ -53,10 +53,7 @@ var RendererUnderSG = cc.Class({
     // You should reimplement this function if your _sgNode maybe null.
     __preload: function () {
         this._initSgNode();
-        var sgNode = this._sgNode;
-        if ( !this.node._sizeProvider ) {
-            this.node._sizeProvider = sgNode;
-        }
+        this._registSizeProvider();
         this._appendSgNode(this._sgNode);
     },
 
