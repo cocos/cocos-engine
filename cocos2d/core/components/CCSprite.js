@@ -599,9 +599,8 @@ var Sprite = cc.Class({
     },
 
     _initSgNode: function () {
-        var sgNode = this._sgNode;
-
         this._applySpriteFrame(null);
+        var sgNode = this._sgNode;
 
         // should keep the size of the sg node the same as entity,
         // otherwise setContentSize may not take effect
