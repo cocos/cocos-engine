@@ -125,7 +125,7 @@ var VideoPlayer = cc.Class({
         _time: 0,
         /**
          * !#en The current time when video start to play.
-         * !#zh  从哪个时间点开始播放视频
+         * !#zh  从当前时间点开始播放视频
          * @property {Float} currentTime
          */
         currentTime: {
@@ -186,7 +186,7 @@ var VideoPlayer = cc.Class({
 
     onLoad: function() {
 
-        if(cc.sys.isNative) {
+        if(CC_JSB) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
                 this.enabled = false;
             }
@@ -194,7 +194,7 @@ var VideoPlayer = cc.Class({
     },
 
     _createSgNode: function () {
-        if(cc.sys.isNative) {
+        if(CC_JSB) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
                 console.log('VideoPlayer is not supported on Mac and Windows!');
                 return null;
