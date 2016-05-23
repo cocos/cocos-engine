@@ -126,6 +126,7 @@ tags
 !/tools/bindings-generator/tools/win32/*
 !/cocos/platform/android/java/libs
 !/cocos/platform/android/ControllerManualAdapter/libs
+!/external/win32/libs/Debug/*
 
 v*-deps-*.zip
 v*-lua-runtime-*.zip
