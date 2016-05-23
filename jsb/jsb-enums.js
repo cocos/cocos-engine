@@ -33,6 +33,7 @@ cc.ProgressTimer.Type = cc.Enum({
     BAR: 1
 });
 
+_ccsg.VideoPlayer.EventType = ccui.VideoPlayer.EventType;
 
 cc.EditBox.InputMode = cc.Enum({
 

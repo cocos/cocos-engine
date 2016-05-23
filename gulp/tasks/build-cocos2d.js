@@ -70,6 +70,8 @@ var srcs = [
     './cocos2d/core/editbox/CCSGEditBox.js',
     './cocos2d/core/editBox/CCdomNode.js',
 
+    './cocos2d/core/videoplayer/CCSGVideoPlayer.js',
+
     './cocos2d/render-texture/CCRenderTexture.js',
     './cocos2d/render-texture/CCRenderTextureCanvasRenderCmd.js',
     './cocos2d/render-texture/CCRenderTextureWebGLRenderCmd.js',
