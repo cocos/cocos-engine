@@ -112,6 +112,36 @@ for (var i = 0; i < actionArr.length; ++i) {
     }
 }
 
+// Special call func
+cc.callFunc = function (selector, selectorTarget, data) {
+    var callback = function (sender, data) {
+        if (sender) {
+            sender = sender._owner || sender;
+        }
+        selector.call(this, sender, data);
+    };
+    var action = cc.CallFunc.create(callback, selectorTarget, data);
+    action.retain();
+    action._retained = true;
+    return action;
+};
+
+cc.CallFunc.prototype._ctor = function (selector, selectorTarget, data) {
+    if(selector !== undefined){
+        var callback = function (sender, data) {
+            if (sender) {
+                sender = sender._owner || sender;
+            }
+            selector.call(this, sender, data);
+        };
+        if(selectorTarget === undefined)
+            this.initWithFunction(callback);
+        else this.initWithFunction(callback, selectorTarget, data);
+    }
+    this.retain();
+    this._retained = true;
+};
+
 function setChainFuncReplacer (proto, name) {
     var oldFunc = proto[name];
     proto[name] = function () {

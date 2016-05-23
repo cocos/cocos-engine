@@ -91,6 +91,19 @@ cc.Event.EventCustom = function (type, bubbles) {
 };
 cc.js.extend(cc.Event.EventCustom, cc.Event);
 cc.js.mixin(cc.Event.EventCustom.prototype, {
+    stopPropagation: function () {
+        this._propagationStopped = true;
+    },
+    isStopped: function () {
+        return this._propagationStopped || this._propagationImmediateStopped;
+    },
+    getCurrentTarget: function () {
+        return this.currentTarget;
+    },
+    getType: function () {
+        return this.type;
+    },
+
     setUserData: function (data) {
         this.detail = data;
     },
