@@ -203,6 +203,7 @@ window._ccsg = {
     ParticleSystem: cc.ParticleSystem,
     Label: cc.Label,
     EditBox: cc.EditBox,
+    VideoPlayer: cc.VideoPlayer,
     TMXTiledMap: cc.TMXTiledMap,
     TMXLayer: cc.TMXLayer,
     MotionStreak: cc.MotionStreak
