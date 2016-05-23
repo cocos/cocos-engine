@@ -52,6 +52,79 @@ test('should not cause an infinite loops if re-activated in onLoad', function ()
     ok('done');
 });
 
+// Since the modification event-listeners.js will lead to test ‘remove and add again during invoking’ infinite loop
+//test('start of the component which created during another start', function () {
+//    var TestComp = cc.Class({
+//        extends: cc.Component,
+//        start: function () {
+//            strictEqual(this.inited, true, 'should be called after another start finished');
+//        }
+//    });
+//
+//    var node = new cc.Node();
+//    cc.director.getScene().addChild(node);
+//    var comp = node.addComponent(cc.Component);
+//    comp.start = function () {
+//        var test = new cc.Node();
+//        var testComp = test.addComponent(TestComp);
+//        this.node.addChild(test);
+//        testComp.inited = true;
+//    };
+//});
+
+test('start', function () {
+    var TestComp = cc.Class({
+        extends: cc.Component,
+        start: function () {
+            this.inited = true;
+        },
+        update: function (dt) {
+            strictEqual(this.inited, true, 'should always invoke before update');
+            this.enable = false;
+        }
+    });
+
+    var node = new cc.Node();
+    var comp = node.addComponent(cc.Component);
+    comp.start = function () {
+        var test = new cc.Node();
+        test.addComponent(TestComp);
+        this.node.addChild(test);
+    };
+    cc.director.getScene().addChild(node);
+    // run comp
+    cc.game.step();
+    // run TestComp
+    cc.game.step();
+});
+
+test('lateUpdate', function () {
+    var TestComp = cc.Class({
+        extends: cc.Component,
+        update: function () {
+            this.updated = true;
+        },
+        lateUpdate: function (dt) {
+            strictEqual(this.updated, true, 'should always invoke before update');
+            this.enable = false;
+        }
+    });
+
+    var node = new cc.Node();
+    var comp = node.addComponent(cc.Component);
+    comp.update = function () {
+        var test = new cc.Node();
+        test.addComponent(TestComp);
+        this.node.addChild(test);
+        this.enabled = false;
+    };
+    cc.director.getScene().addChild(node);
+    // run comp
+    cc.game.step();
+    // run TestComp
+    cc.game.step();
+});
+
 //test('should not call lifecycle methods if not executeInEditMode', function () {
 //    var Comp = cc.Class({
 //        extends: CallbackTester,

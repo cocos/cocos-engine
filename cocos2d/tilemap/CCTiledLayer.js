@@ -61,9 +61,7 @@ var TiledLayer = cc.Class({
         if ( !this.enabledInHierarchy ) {
             sgNode.setVisible(false);
         }
-        if ( !this.node._sizeProvider ) {
-            this.node._sizeProvider = sgNode;
-        }
+        this._registSizeProvider();
         var node = this.node;
         sgNode.setAnchorPoint(node.getAnchorPoint());
     },

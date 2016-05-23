@@ -244,6 +244,10 @@ var Label = cc.Class({
             },
             set: function (value) {
                 this._N$file = value;
+                this._bmFontOriginalSize = -1;
+                if (value && this._isSystemFontUsed)
+                    this.useSystemFont = false;
+
                 if (this._sgNode) {
 
                     if ( typeof value === 'string' ) {
@@ -255,6 +259,10 @@ var Label = cc.Class({
                     var fntRawUrl = isAsset ? value.rawUrl : '';
                     var textureUrl = isAsset ? value.texture : '';
                     this._sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
+                }
+
+                if (value instanceof cc.BitmapFont) {
+                    this._bmFontOriginalSize = value.fontSize;
                 }
             },
             type: cc.Font,
@@ -271,23 +279,29 @@ var Label = cc.Class({
          */
         useSystemFont: {
             get: function(){
-                if (this._sgNode) {
-                    this._isSystemFontUsed = this._sgNode.isSystemFontUsed();
-                }
                 return this._isSystemFontUsed;
             },
             set: function(value){
-                this._isSystemFontUsed = value;
+                this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
                     if (this._sgNode) {
-                        this._sgNode.setSystemFontUsed(value);
+                        this._sgNode.setFontFileOrFamily('Arial');
                     }
                 }
 
             },
             animatable: false,
             tooltip: 'i18n:COMPONENT.label.system_font',
+        },
+
+        _bmFontOriginalSize: {
+            displayName: 'BMFont Original Size',
+            default: -1,
+            serializable: false,
+            readonly: true,
+            visible: true,
+            animatable: false
         }
 
         // TODO
@@ -349,12 +363,16 @@ var Label = cc.Class({
         var isAsset = this.font instanceof cc.Font;
         var fntRawUrl = isAsset ? this.font.rawUrl : '';
         var textureUrl = isAsset ? this.font.texture : '';
-
-        this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
-        if (CC_JSB) {
-            this._sgNode.retain();
+        if (this.font instanceof cc.BitmapFont) {
+            this._bmFontOriginalSize = this.font.fontSize;
         }
-        var sgNode = this._sgNode;
+
+        var sgNode = this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
+        sgNode.setVisible(false);
+
+        if (CC_JSB) {
+            sgNode.retain();
+        }
 
         // TODO
         // sgNode.enableRichText = this.enableRichText;
@@ -366,7 +384,6 @@ var Label = cc.Class({
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
-        sgNode.setFontFileOrFamily(fntRawUrl, textureUrl);
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
             this._useOriginalSize = false;
@@ -383,9 +400,7 @@ var Label = cc.Class({
             if (this.overflow === Overflow.NONE) {
                 this.node.setContentSize(this._sgNode.getContentSize());
             }
-            if ( !this.node._sizeProvider ) {
-                this.node._sizeProvider = this._sgNode;
-            }
+            this._registSizeProvider();
         }
     }
  });

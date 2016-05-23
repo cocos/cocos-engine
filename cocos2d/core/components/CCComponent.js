@@ -115,16 +115,31 @@ function _registerEvent (self, on) {
         cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
     }
 
-    if (self.update) {
-        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-        else cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+    if (!self.update && !self.lateUpdate) {
+        return;
     }
 
-    if (self.lateUpdate) {
-        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
-        else cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
+    if (on) {
+        cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+    }
+    else {
+        cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+        cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+        cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
     }
 }
+
+var _registerUpdateEvent = function () {
+    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this);
+
+    if (this.update) {
+        cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this);
+    }
+
+    if (this.lateUpdate) {
+        cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this);
+    }
+};
 
 var _callStart = CC_EDITOR ? function () {
     callStartInTryCatch(this);
@@ -280,7 +295,7 @@ var Component = cc.Class({
                 var id = this._id;
                 if ( !id ) {
                     id = this._id = idGenerater.getNewId();
-                    if (CC_DEV) {
+                    if (CC_EDITOR || CC_TEST) {
                         cc.engine.attachedObjsForEditor[id] = this;
                     }
                 }
@@ -357,7 +372,7 @@ var Component = cc.Class({
          */
         enabledInHierarchy: {
             get: function () {
-                return this._enabled && this.node._activeInHierarchy;
+                return this._objFlags & IsOnEnableCalled;
             },
             visible: false
         },
@@ -709,7 +724,7 @@ var Component = cc.Class({
         // do remove component
         this.node._removeComponent(this);
 
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_TEST) {
             delete cc.engine.attachedObjsForEditor[this._id];
         }
     },
@@ -800,7 +815,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
 
     // INHERITABLE STATIC MEMBERS
 
@@ -834,7 +849,7 @@ Object.defineProperty(Component, '_registerEditorProps', {
         if (reqComp) {
             cls._requireComponent = reqComp;
         }
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_TEST) {
             var name = cc.js.getClassName(cls);
             for (var key in props) {
                 var val = props[key];

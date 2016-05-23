@@ -358,6 +358,7 @@ var Layout = cc.Class({
         }
 
         this.node.on('size-changed', this._resized, this);
+
         this.node.on('anchor-changed', this._doLayoutDirty, this);
         this.node.on('child-added', this._childrenAddOrDeleted, this);
         this.node.on('child-removed', this._childrenAddOrDeleted, this);
@@ -406,7 +407,7 @@ var Layout = cc.Class({
         var tempMaxHeight = 0;
         var secondMaxHeight = 0;
         var row = 0;
-        var containerResizeBoundary;
+        var containerResizeBoundary = 0;
 
         var maxHeightChildAnchorY = 0;
 
@@ -533,7 +534,7 @@ var Layout = cc.Class({
         var tempMaxWidth = 0;
         var secondMaxWidth = 0;
         var column = 0;
-        var containerResizeBoundary;
+        var containerResizeBoundary = 0;
         var maxWidthChildAnchorX = 0;
 
         var newChildHeight = this.cellSize.height;
