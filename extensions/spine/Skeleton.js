@@ -70,6 +70,34 @@ sp.Skeleton = cc.Class({
     properties: {
 
         /**
+         * !#en The skeletal animation is paused?
+         * !#zh 该骨骼动画是否暂停。
+         * @property paused
+         * @type {Boolean}
+         * @readOnly
+         * @default false
+         */
+        _paused: false,
+        paused: {
+            get: function () {
+                return this._paused;
+            },
+            set: function (value) {
+                this._paused = value;
+                if (!this._sgNode) {
+                    return;
+                }
+                if (value) {
+                    this._sgNode.pause();
+                }
+                else {
+                    this._sgNode.resume();
+                }
+            },
+            visible: false
+        },
+
+        /**
          * !#en
          * The skeleton data contains the skeleton information (bind pose bones, slots, draw order,
          * attachments, skins, etc) and animations but does not hold any state.<br/>
@@ -352,6 +380,15 @@ sp.Skeleton = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
         sgNode.setTimeScale(this.timeScale);
+
+        var self = this;
+        sgNode.onEnter = function () {
+            _ccsg.Node.prototype.onEnter.call(this);
+            if (self._paused) {
+                this.pause();
+            }
+        };
+
         //if (!CC_EDITOR) {
         //    function animationCallback (ccObj, trackIndex, type, event, loopCount) {
         //        var eventType = AnimEvents[type];3
