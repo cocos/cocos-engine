@@ -120,11 +120,6 @@
          },
          "modify_files": [
             {
-               "file_path": "config.json",
-               "pattern": "\\\"isLandscape\\\"\\s*:.*,",
-               "replace_string": "\"isLandscape\": false,"
-            },
-            {
                "file_path": "main.js",
                "pattern": "setDesignResolutionSize\\(\\s*(\\d+),\\s*(\\d+),(.*)\\)",
                "replace_string": "setDesignResolutionSize(\\2, \\1,\\3)"
