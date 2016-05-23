@@ -92,7 +92,7 @@ cc.NodePool.prototype = {
                 handler.unuse();
             }
 
-            this._pool.unshift(obj);
+            this._pool.push(obj);
         }
     },
 
