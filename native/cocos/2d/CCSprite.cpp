@@ -359,13 +359,23 @@ void Sprite::setTexture(Texture2D *texture)
         if (texture == nullptr)
         {
             Image* image = new (std::nothrow) Image();
-            bool isOK = image->initWithRawData(cc_2x2_white_image, sizeof(cc_2x2_white_image), 2, 2, 8);
-            CC_UNUSED_PARAM(isOK);
-            CCASSERT(isOK, "The 2x2 empty texture was created unsuccessfully.");
-
-            texture = _director->getTextureCache()->addImage(image, CC_2x2_WHITE_IMAGE_KEY);
-            CC_SAFE_RELEASE(image);
+            if(image)
+            {
+                bool isOK = image->initWithRawData(cc_2x2_white_image, sizeof(cc_2x2_white_image), 2, 2, 8);
+                CCASSERT(isOK, "The 2x2 empty texture was created unsuccessfully.");
+                if (isOK)
+                    texture = _director->getTextureCache()->addImage(image, CC_2x2_WHITE_IMAGE_KEY);
+                
+                image->release();
+            }
         }
+    }
+    
+    CCASSERT(texture, "texture should not nullptr!");
+    if(texture == nullptr)
+    {
+        log("Sprite::setTexture error:texture should not nullptr!");
+        return;
     }
 
     if (!_batchNode && _texture != texture)
