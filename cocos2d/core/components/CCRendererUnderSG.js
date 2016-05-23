@@ -42,15 +42,19 @@ var RendererUnderSG = cc.Class({
          * @property {_ccsg.Node} _sgNode
          * @private
          */
-        this._sgNode = this._createSgNode();
-        if (CC_JSB && this._sgNode) {
-            // retain immediately
-            // will be released in onDestroy
-            this._sgNode.retain();
+        var sgNode = this._sgNode = this._createSgNode();
+        if (sgNode) {
+            if (CC_JSB) {
+                // retain immediately
+                // will be released in onDestroy
+                sgNode.retain();
+            }
+            sgNode.setVisible(false);   // should not visible before onEnable
         }
     },
 
-    // You should reimplement this function if your _sgNode maybe null.
+    // You should reimplement this function if your _sgNode maybe null,
+    // and remember to hide the sgNode if component.enabledInHierarchy is false.
     __preload: function () {
         this._initSgNode();
         var sgNode = this._sgNode;

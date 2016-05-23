@@ -368,6 +368,8 @@ var Label = cc.Class({
         }
 
         var sgNode = this._sgNode = new _ccsg.Label(this.string, fntRawUrl, textureUrl);
+        sgNode.setVisible(false);
+
         if (CC_JSB) {
             sgNode.retain();
         }

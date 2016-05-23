@@ -372,7 +372,7 @@ var Component = cc.Class({
          */
         enabledInHierarchy: {
             get: function () {
-                return this._enabled && this.node._activeInHierarchy;
+                return this._objFlags & IsOnEnableCalled;
             },
             visible: false
         },

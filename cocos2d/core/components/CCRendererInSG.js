@@ -41,6 +41,7 @@ var RendererInSG = cc.Class({
          * @private
          */
         var sgNode = this._sgNode = this._createSgNode();
+        sgNode.setVisible(false);
         if (CC_EDITOR && !sgNode) {
             cc.error('Not support for asynchronous creating node in SG');
         }
