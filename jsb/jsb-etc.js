@@ -119,6 +119,9 @@ cc.TextureCache.prototype.addImage = function(url, cb, target) {
     }
 };
 
+// View
+cc.view.setOrientation = function () {};
+
 // setTimeout, setInterval, clearTimeout, clearInteval
 var _windowTimeIntervalId = 0;
 var _windowTimeFunHash = {};

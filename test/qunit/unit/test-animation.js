@@ -503,64 +503,6 @@ test('Animation Component', function () {
 });
 
 
-test('CCAnimation._updateClip', function () {
-    var entity = new cc.Node();
-    var animation = entity.addComponent(cc.Animation);
-
-    entity.x = 400;
-
-    var clip = new cc.AnimationClip();
-    clip._name = 'test';
-    clip._duration = 1;
-    clip.curveData = {
-        props: {
-            x: [
-                {frame: 0, value: 0},
-                {frame: 1, value: 100}
-            ]
-        }
-    };
-
-    animation.addClip(clip);
-    animation._init();
-
-    animation.play('test');
-    animation.setCurrentTime(0.5, 'test');
-    animation.sample();
-
-    strictEqual(entity.x, 50, 'entity x should be 50');
-
-    var newClip = new cc.AnimationClip();
-    newClip._name = 'test';
-    newClip._duration = 1;
-    newClip.curveData = {
-        props: {
-            x: [
-                {frame: 0.5, value: 0},
-                {frame: 1, value: 100}
-            ]
-        }
-    };
-
-    animation._updateClip(newClip);
-    animation.sample();
-
-    var clips = animation.getClips();
-
-    strictEqual(clips.length, 1, 'animation clips length should be 1 after update clip');
-    strictEqual(clips[0], newClip, 'animation clips should only include new clip');
-    strictEqual(animation.getAnimationState(newClip.name).clip, newClip, 'new animation state\'s clip should be new clip');
-
-    strictEqual(entity.x, 0, 'entity x should be 0');
-
-    clip = new cc.AnimationClip();
-    clip._name = 'test2';
-    animation.addClip(clip);
-
-    animation._updateClip(newClip);
-    strictEqual(clips.indexOf(newClip), 0, 'clip index should be 0');
-});
-
 test('sampleMotionPaths', function () {
     var sampleMotionPaths = cc._Test.sampleMotionPaths;
 

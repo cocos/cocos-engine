@@ -352,8 +352,8 @@ var Node = cc.Class({
                 value = !!value;
                 if (this._active !== value) {
                     this._active = value;
-                    var canActiveInHierarchy = (this._parent && this._parent._activeInHierarchy);
-                    if (canActiveInHierarchy) {
+                    var couldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy);
+                    if (couldActiveInHierarchy) {
                         this._onActivatedInHierarchy(value);
                         this.emit('active-in-hierarchy-changed', this);
                     }
@@ -515,7 +515,7 @@ var Node = cc.Class({
         var parent = this._parent;
         var destroyByParent = parent && (parent._objFlags & Destroying);
         if ( !destroyByParent ) {
-            if (CC_DEV) {
+            if (CC_EDITOR || CC_TEST) {
                 this._registerIfAttached(false);
             }
         }
@@ -592,7 +592,7 @@ var Node = cc.Class({
      * 传入参数也可以是脚本的名称。
      * @method getComponent
      * @param {Function|String} typeOrClassName
-     * @returns {Component}
+     * @return {Component}
      * @example
      * // get sprite component.
      * var sprite = node.getComponent(cc.Sprite);
@@ -612,7 +612,7 @@ var Node = cc.Class({
      * !#zh 返回节点上指定类型的所有组件。
      * @method getComponents
      * @param {Function|String} typeOrClassName
-     * @returns {Component[]}
+     * @return {Component[]}
      * @example
      * var sprites = node.getComponents(cc.Sprite);
      * var tests = node.getComponents("Test");
@@ -631,7 +631,7 @@ var Node = cc.Class({
      * !#zh 递归查找所有子节点中第一个匹配指定类型的组件。
      * @method getComponentInChildren
      * @param {Function|String} typeOrClassName
-     * @returns {Component}
+     * @return {Component}
      * @example
      * var sprite = node.getComponentInChildren(cc.Sprite);
      * var Test = node.getComponentInChildren("Test");
@@ -650,7 +650,7 @@ var Node = cc.Class({
      * !#zh 递归查找所有子节点中指定类型的组件。
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
-     * @returns {Component[]}
+     * @return {Component[]}
      * @example
      * var sprites = node.getComponentsInChildren(cc.Sprite);
      * var tests = node.getComponentsInChildren("Test");
@@ -685,7 +685,7 @@ var Node = cc.Class({
      * !#zh 向节点添加一个指定类型的组件类，你还可以通过传入脚本的名称来添加组件。
      * @method addComponent
      * @param {Function|String} typeOrClassName - The constructor or the class name of the component to add
-     * @returns {Component} - The newly added component
+     * @return {Component} - The newly added component
      * @example
      * var sprite = node.addComponent(cc.Sprite);
      * var test = node.addComponent("Test");
@@ -759,6 +759,9 @@ var Node = cc.Class({
         this._components.push(component);
 
         if (this._activeInHierarchy) {
+            if (typeof component.__preload === 'function') {
+                cc.Component._callPreloadOnComponent(component);
+            }
             // call onLoad/onEnable
             component.__onNodeActivated(true);
         }
@@ -803,6 +806,9 @@ var Node = cc.Class({
         this._components.splice(index, 0, comp);
 
         if (this._activeInHierarchy) {
+            if (typeof comp.__preload === 'function') {
+                cc.Component._callPreloadOnComponent(comp);
+            }
             // call onLoad/onEnable
             comp.__onNodeActivated(true);
         }
@@ -875,7 +881,7 @@ var Node = cc.Class({
 
     // INTERNAL
 
-    _registerIfAttached: CC_DEV && function (register) {
+    _registerIfAttached: (CC_EDITOR || CC_TEST) && function (register) {
         if (register) {
             cc.engine.attachedObjsForEditor[this.uuid] = this;
             cc.engine.emit('node-attach-to-scene', {target: this});
@@ -892,7 +898,7 @@ var Node = cc.Class({
         }
     },
 
-    _onActivatedInHierarchy: function (newActive) {
+    _activeRecursively: function (newActive) {
         var cancelActivation = false;
         if (this._objFlags & Activating) {
             if (newActive) {
@@ -943,7 +949,7 @@ var Node = cc.Class({
         for (var i = 0, len = this._children.length; i < len; ++i) {
             var child = this._children[i];
             if (child._active) {
-                child._onActivatedInHierarchy(newActive);
+                child._activeRecursively(newActive);
                 if (newActive && !this._activeInHierarchy) {
                     // deactivated during activating
                     this._objFlags &= ~Activating;
@@ -973,6 +979,13 @@ var Node = cc.Class({
         this._objFlags &= ~Activating;
     },
 
+    _onActivatedInHierarchy: function (newActive) {
+        if (newActive) {
+            cc.Component._callPreloadOnNode(this);
+        }
+        this._activeRecursively(newActive);
+    },
+
     _onHierarchyChanged: function (oldParent) {
         var newParent = this._parent;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
@@ -987,7 +1000,7 @@ var Node = cc.Class({
             this._onActivatedInHierarchy(shouldActiveNow);
         }
         cc._widgetManager._nodesOrderDirty = true;
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_TEST) {
             var scene = cc.director.getScene();
             var inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             var inCurrentSceneNow = newParent && newParent.isChildOf(scene);
@@ -1024,7 +1037,7 @@ var Node = cc.Class({
     },
 
     _deactivateChildComponents: function () {
-        // 和 _onActivatedInHierarchy 类似但不修改 this._activeInHierarchy
+        // 和 _activeRecursively 类似但不修改 this._activeInHierarchy
         var originCount = this._components.length;
         for (var c = 0; c < originCount; ++c) {
             var component = this._components[c];
@@ -1058,7 +1071,7 @@ var Node = cc.Class({
      * Register a callback of a specific event type on Node.<br/>
      * Use this method to register touch or mouse event permit propagation based on scene graph,
      * you can propagate the event to the parents or swallow it by calling stopPropagation on the event.<br/>
-     * It's the recommended way to register touch/mouse event for Node, 
+     * It's the recommended way to register touch/mouse event for Node,
      * please do not use cc.eventManager directly for Node.
      * !#zh
      * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的调用者。<br/>
@@ -1248,7 +1261,7 @@ var Node = cc.Class({
      * node.runAction(action);
      */
     runAction: function (action) {
-        if (!this.active) 
+        if (!this.active)
             return;
         cc.assert(action, cc._LogInfos.Node.runAction);
 

@@ -505,7 +505,7 @@ var Sprite = cc.Class({
         return this._sgNode.getInsetBottom();
     },
 
-    onLoad: CC_EDITOR && function () {
+    __preload: CC_EDITOR && function () {
         this._super();
         this.node.on('size-changed', this._resized, this);
     },
@@ -599,9 +599,8 @@ var Sprite = cc.Class({
     },
 
     _initSgNode: function () {
-        var sgNode = this._sgNode;
-
         this._applySpriteFrame(null);
+        var sgNode = this._sgNode;
 
         // should keep the size of the sg node the same as entity,
         // otherwise setContentSize may not take effect

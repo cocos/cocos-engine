@@ -456,7 +456,7 @@ var EditBox = cc.Class({
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
     },
 
-    onLoad: function() {
+    __preload: function() {
         this._super();
 
         if (!CC_EDITOR) {

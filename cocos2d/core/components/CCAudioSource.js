@@ -66,7 +66,7 @@ var AudioSource = cc.Class({
          */
         isPlaying: {
             get: function () {
-                return (!CC_JSB && this.audio && this.audio.getPlaying());
+                return (!cc.sys.isNative && this.audio && this.audio.getPlaying());
             },
             visible: false
         },
@@ -104,7 +104,7 @@ var AudioSource = cc.Class({
             set: function (value) {
                 this._volume = value;
                 if (this.audio) {
-                    if (CC_JSB) {
+                    if (cc.sys.isNative) {
                         cc.audioEngine.setEffectsVolume(value);
                     }
                     else {
@@ -132,16 +132,13 @@ var AudioSource = cc.Class({
                     if (this._mute) {
                         if (CC_JSB) {
                             cc.audioEngine.setEffectsVolume(0);
-                        }
-                        else {
+                        } else {
                             this.audio.setVolume(0);
                         }
-                    }
-                    else {
+                    } else {
                         if (CC_JSB) {
                             cc.audioEngine.setEffectsVolume(this._volume);
-                        }
-                        else {
+                        } else {
                             this.audio.setVolume(this._volume);
                         }
                     }
@@ -206,14 +203,10 @@ var AudioSource = cc.Class({
     play: function () {
         if ( this._clip ) {
             var volume = this._mute ? 0 : this._volume;
+            this.audio = audioEngine.playEffect(this._clip, this._loop, volume);
+
             if (CC_JSB) {
-                audioEngine.playEffect(this._clip, this._loop);
                 cc.audioEngine.setEffectsVolume(volume);
-            }
-            else {
-                this.audio = audioEngine.playEffect(this._clip, this._loop);
-                if (this.audio)
-                    this.audio.setVolume(volume);
             }
         }
     },

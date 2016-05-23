@@ -175,6 +175,29 @@ var MotionStreak = cc.Class({
         },
 
         /**
+         * !#en The color of the MotionStreak.
+         * !#zh 拖尾的颜色
+         * @property color
+         * @type {Color}
+         * @default cc.Color.WHITE
+         * @example
+         * motionStreak.color = new cc.Color(255, 255, 255);
+         */
+        _color: cc.Color.WHITE,
+        color: {
+            get: function () {
+                return this._color;
+            },
+            set: function (value) {
+                this._color = value;
+                if (this._motionStreak) {
+                    this._motionStreak.tintWithColor(value);
+                }
+            },
+            tooltip: 'i18n:COMPONENT.motionStreak.color'
+        },
+
+        /**
          * !#en The fast Mode.
          * !#zh 是否启用了快速模式。当启用快速模式，新的点会被更快地添加，但精度较低。
          * @property fastMode
@@ -225,15 +248,14 @@ var MotionStreak = cc.Class({
         this._motionStreak.reset();
     },
 
-    onLoad: function () {
-        if (this._root) {
+    __preload: function () {
+        if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL && !CC_JSB) {
+            cc.warn("MotionStreak only support WebGL mode.");
             return;
         }
         this._root = new _ccsg.Node();
         var motionStreak = new _ccsg.MotionStreak();
-        if (this._texture) {
-            motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture);
-        }
+        motionStreak.initWithFade(this._fadeTime, this._minSeg, this._stroke, this.node.color, this._texture || null);
         motionStreak.setFastMode(this._fastMode);
         this._root.addChild(motionStreak);
         var sgNode = this.node._sgNode;
@@ -241,8 +263,6 @@ var MotionStreak = cc.Class({
             sgNode.addChild(this._root, -10);
         }
         this._motionStreak = motionStreak;
-        // TODO: use sizeProvider when merge to dev branch.
-        this.node.on('color-changed', this._colorChanged, this);
     },
 
     lateUpdate: function (delta) {
@@ -250,24 +270,17 @@ var MotionStreak = cc.Class({
             return;
         }
         if (this._motionStreak) {
-            var worldMt = this.node.getNodeToWorldTransform();
-            this._root.setPosition(-worldMt.tx, -worldMt.ty);
-            this._motionStreak.setPosition(worldMt.tx, worldMt.ty);
+            // add root for let the global coordinates effective
+            var node = this.node;
+            var worldMt = node.getNodeToWorldTransform();
+            // calculation anchor coordinates
+            var tx = worldMt.tx - (node.width / 2 + node.anchorX * node.width);
+            var ty = worldMt.ty - (node.height / 2 + node.anchorY * node.height);
+            this._root.setPosition(-tx, -ty);
+            this._motionStreak.setPosition(tx, ty);
             this._motionStreak.update(delta);
         }
-    },
-
-    onDestroy: function () {
-        // TODO: use sizeProvider when merge to dev branch.
-        this.node.off('color-changed', this._colorChanged, this);
-    },
-
-    _colorChanged: function () {
-        if (this._motionStreak) {
-            this._motionStreak.tintWithColor(this.node.color);
-        }
     }
-
 });
 
 cc.MotionStreak = module.exports = MotionStreak;

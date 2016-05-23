@@ -115,7 +115,6 @@ _ccsg.Label = _ccsg.Node.extend({
     _spacingX: 0,
 
     _blendFunc: null,
-    _isUseSystemFont: true,
     _labelType: 0, //0 is ttf, 1 is bmfont.
     _fontHandle: "", //a ttf font name or a bmfont file path.
     _lineSpacing: 0,
@@ -128,6 +127,7 @@ _ccsg.Label = _ccsg.Node.extend({
     _lineHeight: 40,
     _outlined: false,
     _outlineColor: null,
+    _outlineWidth: 1,
     _className: "Label",
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
@@ -175,18 +175,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this._spriteBatchNode = null;
         }
     },
-    isSystemFontUsed: function() {
-        return this._isUseSystemFont;
-    },
 
-    setSystemFontUsed: function(value) {
-        if (this._isUseSystemFont === value) return;
-
-        if (value) {
-            this.setFontFileOrFamily("Arial");
-        }
-        this._isUseSystemFont = value;
-    },
     setHorizontalAlign: function(align) {
         if (this._hAlign === align) return;
         this._hAlign = align;
@@ -273,6 +262,15 @@ _ccsg.Label = _ccsg.Node.extend({
         this._notifyLabelSkinDirty();
     },
 
+    setOutlineWidth: function(value) {
+        this._outlineWidth = value;
+        this._notifyLabelSkinDirty();
+    },
+
+    getOutlineWidth: function() {
+        return this._outlineWidth;
+    },
+
     _updateWrapText: function(overflow){
         if ( overflow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
             this._isWrapText = true;
@@ -349,12 +347,10 @@ _ccsg.Label = _ccsg.Node.extend({
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
             this._notifyLabelSkinDirty();
-            this._isUseSystemFont = true;
             this.emit('load');
             return;
         }
 
-        this._isUseSystemFont = false;
         if (extName === ".ttf") {
             this._labelType = _ccsg.Label.Type.TTF;
             this._fontHandle = this._loadTTFFont(fontHandle);
@@ -467,20 +463,26 @@ _ccsg.Label = _ccsg.Node.extend({
     },
 
     getContentSize: function() {
-        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        var locFlag = this._renderCmd._dirtyFlag;
+        if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
+            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
     },
     _getWidth: function () {
-        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        var locFlag = this._renderCmd._dirtyFlag;
+        if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
+            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
         }
         return _ccsg.Node.prototype._getWidth.call(this);
     },
     _getHeight: function () {
-        if (!CC_EDITOR && !cc.sizeEqualToSize(this._contentSize, this._renderCmd._realRenderingSize)) {
+        var locFlag = this._renderCmd._dirtyFlag;
+        if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
+            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },

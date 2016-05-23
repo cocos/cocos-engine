@@ -173,14 +173,20 @@ var EditorOnly = {
     _canUsedInGetter: false
 };
 
-function getTypeChecker (type, attrName, objectTypeCtor) {
+function getTypeChecker (type, attrName) {
     if (CC_DEV) {
         return function (constructor, mainPropName) {
+            var propInfo = '"' + JS.getClassName(constructor) + '.' + mainPropName + '"';
             var mainPropAttrs = cc.Class.attr(constructor, mainPropName) || {};
-            if (mainPropAttrs.type !== type) {
-                cc.warn('Can only indicate one type attribute for %s.%s.', JS.getClassName(constructor),
-                    mainPropName);
-                return;
+            if (!mainPropAttrs.saveUrlAsAsset) {
+                var mainPropAttrsType = mainPropAttrs.type;
+                if (mainPropAttrsType === cc.Integer || mainPropAttrsType === cc.Float) {
+                    mainPropAttrsType = 'Number';
+                }
+                if (mainPropAttrsType !== type) {
+                    cc.warn('Can only indicate one type attribute for %s.', propInfo);
+                    return;
+                }
             }
             if (!mainPropAttrs.hasOwnProperty('default')) {
                 return;
@@ -196,23 +202,44 @@ function getTypeChecker (type, attrName, objectTypeCtor) {
             var defaultType = typeof defaultVal;
             var type_lowerCase = type.toLowerCase();
             if (defaultType === type_lowerCase) {
-                if (type_lowerCase === 'object') {
-                    if (defaultVal && !(defaultVal instanceof objectTypeCtor)) {
-                        cc.warn('The default value of %s.%s is not instance of %s.',
-                            JS.getClassName(constructor), mainPropName, JS.getClassName(objectTypeCtor));
+                if (!mainPropAttrs.saveUrlAsAsset) {
+                    if (type_lowerCase === 'object') {
+                        if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
+                            cc.warn('The default value of %s is not instance of %s.',
+                                propInfo, JS.getClassName(mainPropAttrs.ctor));
+                        }
+                        else {
+                            return;
+                        }
                     }
-                    else {
-                        return;
+                    else if (type !== 'Number') {
+                        cc.warn('No needs to indicate the "%s" attribute for %s, which its default value is type of %s.',
+                            attrName, propInfo, type);
                     }
-                }
-                else {
-                    cc.warn('No needs to indicate the "%s" attribute for %s.%s, which its default value is type of %s.',
-                        attrName, JS.getClassName(constructor), mainPropName, type);
                 }
             }
             else if (defaultType !== 'function') {
-                cc.warn('Can not indicate the "%s" attribute for %s.%s, which its default value is type of %s.',
-                    attrName, JS.getClassName(constructor), mainPropName, defaultType);
+                if (type === cc.String && defaultVal == null) {
+                    if (!cc.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
+                        cc.warn('The default value of %s must be an empty string.', propInfo);
+                    }
+                }
+                else if (mainPropAttrs.ctor === String && (defaultType === 'string' || defaultVal == null)) {
+                    mainPropAttrs.type = cc.String;
+                    cc.warn('The type of %s must be cc.String, not String.', propInfo);
+                }
+                else if (mainPropAttrs.ctor === Boolean && defaultType === 'boolean') {
+                    mainPropAttrs.type = cc.Boolean;
+                    cc.warn('The type of %s must be cc.Boolean, not Boolean.', propInfo);
+                }
+                else if (mainPropAttrs.ctor === Number && defaultType === 'number') {
+                    mainPropAttrs.type = cc.Float;
+                    cc.warn('The type of %s must be cc.Float or cc.Integer, not Number.', propInfo);
+                }
+                else {
+                    cc.warn('Can not indicate the "%s" attribute for %s, which its default value is type of %s.',
+                        attrName, propInfo, defaultType);
+                }
             }
             delete mainPropAttrs.type;
         };
@@ -223,33 +250,32 @@ function ObjectType (typeCtor) {
     return {
         type: 'Object',
         ctor: typeCtor,
-        // _onAfterProp: (function () {
-        //     if (CC_DEV) {
-        //         return function (classCtor, mainPropName) {
-        //             var check = getTypeChecker('Object', 'ObjectType', typeCtor);
-        //             check(classCtor, mainPropName);
-        //             // check ValueType
-        //             var mainPropAttrs = cc.Class.attr(classCtor, mainPropName) || {};
-        //             if (!Array.isArray(mainPropAttrs.default) && typeof typeCtor.prototype.clone === 'function') {
-        //                 var typename = JS.getClassName(typeCtor);
-        //                 var hasDefault = mainPropAttrs.default === null || mainPropAttrs.default === undefined;
-        //                 if (hasDefault) {
-        //                     cc.warn('%s is a ValueType, no need to specify the "type" of "%s.%s", ' +
-        //                               'because the type information can obtain from its default value directly.',
-        //                         typename, JS.getClassName(classCtor), mainPropName, typename);
-        //                 }
-        //                 else {
-        //                     cc.warn('%s is a ValueType, no need to specify the "type" of "%s.%s", ' +
-        //                               'just set the default value to "new %s()" and it will be handled properly.',
-        //                         typename, JS.getClassName(classCtor), mainPropName, typename);
-        //                 }
-        //             }
-        //         };
-        //     }
-        //     else {
-        //         return undefined;
-        //     }
-        // })()
+        _onAfterProp: CC_DEV && function (classCtor, mainPropName) {
+            getTypeChecker('Object', 'type')(classCtor, mainPropName);
+            // check ValueType
+            var mainPropAttrs = cc.Class.attr(classCtor, mainPropName) || {};
+            var def = mainPropAttrs.default;
+            if (typeof def === 'function') {
+                try {
+                    def = def();
+                }
+                catch (e) {
+                    return;
+                }
+            }
+            if (!Array.isArray(def) && cc.isChildClassOf(typeCtor, cc.ValueType)) {
+                var typename = JS.getClassName(typeCtor);
+                var info = cc.js.formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
+                    JS.getClassName(classCtor), mainPropName, typename);
+                if (mainPropAttrs.default) {
+                    cc.log(info);
+                }
+                else {
+                    cc.warn(info + ' Just set the default value to "new %s()" and it will be handled properly.',
+                        typename, JS.getClassName(classCtor), mainPropName, typename);
+                }
+            }
+        }
     };
 }
 

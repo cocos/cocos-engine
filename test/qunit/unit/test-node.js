@@ -517,6 +517,32 @@ test('activation logic for component in hierarchy', function () {
     });
 })();
 
+test('call onLoad on dynamic created child component in onLoad', function () {
+    var node = new cc.Node();
+    var child = new cc.Node();
+
+    var onLoadCalled = false;
+
+    var ChildComponent = cc.Class({
+        extends: cc.Component,
+        editor: {
+            executeInEditMode: true
+        },
+        onLoad: function () {
+            onLoadCalled = true;
+        }
+    });
+
+    var testComp = node.addComponent(cc.Component);
+    testComp.onLoad = function () {
+        child.addComponent(ChildComponent);
+        strictEqual(onLoadCalled, true, 'Child onLoad should be called during onLoad');
+    };
+
+    child.parent = node;
+    node.parent = cc.director.getScene();
+});
+
 test('destroy', function () {
     var parent = new cc.Node();
     var child = new cc.Node();

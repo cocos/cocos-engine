@@ -51,7 +51,7 @@ var SGComponent = cc.Class({
         }
     },
 
-    //onLoad: function () {
+    //__preload: function () {
     //    this._initSgNode();
     //},
     //onDestroy: function () {
@@ -79,6 +79,21 @@ var SGComponent = cc.Class({
      * @private
      */
     _removeSgNode: SceneGraphHelper.removeSgNode,
+
+    _registSizeProvider: function () {
+        if ( !this.node._sizeProvider ) {
+            this.node._sizeProvider = this._sgNode;
+        }
+        else if (CC_DEV) {
+            var name = cc.js.getClassName(this);
+            if (this.node.getComponent(cc.Canvas)) {
+                cc.error('Should not add renderer component (%s) to a Canvas node.', name);
+            }
+            else {
+                cc.error('Should not add %s to a node which size is already used by its other component.', name);
+            }
+        }
+    }
 });
 
 cc._SGComponent = module.exports = SGComponent;

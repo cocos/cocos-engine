@@ -30,18 +30,22 @@ var IdGenerater = require('../platform/id-generater');
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
 var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
+var IsPreloadCalled = Flags.IsPreloadCalled;
 var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
 var IsOnStartCalled = Flags.IsOnStartCalled;
+
+// only use eval in editor
 
 var ExecInTryCatchTmpl = CC_EDITOR && '(function call_FUNC_InTryCatch(c){try{c._FUNC_()}catch(e){cc._throw(e)}})';
 if (CC_TEST) {
     ExecInTryCatchTmpl = '(function call_FUNC_InTryCatch (c) { c._FUNC_() })';
 }
-var callOnEnableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onEnable'));
-var callOnDisableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDisable'));
+var callPreloadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, '__preload'));
 var callOnLoadInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLoad'));
+var callOnEnableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onEnable'));
 var callStartInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'start'));
+var callOnDisableInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDisable'));
 var callOnDestroyInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onDestroy'));
 var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onFocusInEditor'));
 var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditor'));
@@ -111,16 +115,31 @@ function _registerEvent (self, on) {
         cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
     }
 
-    if (self.update) {
-        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
-        else cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+    if (!self.update && !self.lateUpdate) {
+        return;
     }
 
-    if (self.lateUpdate) {
-        if (on) cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
-        else cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
+    if (on) {
+        cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+    }
+    else {
+        cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, self);
+        cc.director.off(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, self);
+        cc.director.off(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, self);
     }
 }
+
+var _registerUpdateEvent = function () {
+    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _registerUpdateEvent, this);
+
+    if (this.update) {
+        cc.director.on(cc.Director.EVENT_COMPONENT_UPDATE, _callUpdate, this);
+    }
+
+    if (this.lateUpdate) {
+        cc.director.on(cc.Director.EVENT_COMPONENT_LATE_UPDATE, _callLateUpdate, this);
+    }
+};
 
 var _callStart = CC_EDITOR ? function () {
     callStartInTryCatch(this);
@@ -152,33 +171,42 @@ var _callLateUpdate = CC_EDITOR ? function (event) {
     this.lateUpdate(event.detail);
 };
 
-//var createInvoker = function (timerFunc, timerWithKeyFunc, errorInfo) {
-//    return function (functionOrMethodName, time) {
-//        var ms = (time || 0) * 1000;
-//        var self = this;
-//        if (typeof functionOrMethodName === "function") {
-//            return timerFunc(function () {
-//                if (self.isValid) {
-//                    functionOrMethodName.call(self);
-//                }
-//            }, ms);
-//        }
-//        else {
-//            var method = this[functionOrMethodName];
-//            if (typeof method === 'function') {
-//                var key = this.id + '.' + functionOrMethodName;
-//                timerWithKeyFunc(function () {
-//                    if (self.isValid) {
-//                        method.call(self);
-//                    }
-//                }, ms, key);
-//            }
-//            else {
-//                cc.error('Can not %s %s.%s because it is not a valid function.', errorInfo, JS.getClassName(this), functionOrMethodName);
-//            }
-//        }
-//    };
-//};
+function _callPreloadOnNode (node) {
+    // set _activeInHierarchy to true before invoking onLoad
+    // to allow preload triggered on nodes which created in parent's onLoad dynamically.
+    node._activeInHierarchy = true;
+
+    var comps = node._components;
+    var i = 0, len = comps.length;
+    for (; i < len; ++i) {
+        var component = comps[i];
+        if (!(component._objFlags & IsPreloadCalled) && typeof component.__preload === 'function') {
+            if (CC_EDITOR) {
+                callPreloadInTryCatch(component);
+            }
+            else {
+                component.__preload();
+            }
+            component._objFlags |= IsPreloadCalled;
+        }
+    }
+    var children = node._children;
+    for (i = 0, len = children.length; i < len; ++i) {
+        var child = children[i];
+        if (child._active) {
+            _callPreloadOnNode(child);
+        }
+    }
+}
+
+function _callPreloadOnComponent (component) {
+    if (CC_EDITOR) {
+        callPreloadInTryCatch(component);
+    }
+    else {
+        component.__preload();
+    }
+}
 
 var idGenerater = new IdGenerater('Comp');
 
@@ -267,7 +295,7 @@ var Component = cc.Class({
                 var id = this._id;
                 if ( !id ) {
                     id = this._id = idGenerater.getNewId();
-                    if (CC_DEV) {
+                    if (CC_EDITOR || CC_TEST) {
                         cc.engine.attachedObjsForEditor[id] = this;
                     }
                 }
@@ -344,7 +372,7 @@ var Component = cc.Class({
          */
         enabledInHierarchy: {
             get: function () {
-                return this._enabled && this.node._activeInHierarchy;
+                return this._objFlags & IsOnEnableCalled;
             },
             visible: false
         },
@@ -395,6 +423,17 @@ var Component = cc.Class({
      * @method lateUpdate
      */
     lateUpdate: null,
+
+    /**
+     * `__preload` is called before every onLoad.
+     * It is used to initialize the builtin components internally,
+     * to avoid checking whether onLoad is called before every public method calls.
+     * This method should be removed if script priority is supported.
+     *
+     * @method __preload
+     * @private
+     */
+    __preload: null,
 
     /**
      * !#en When attaching to an active node or its node first activated.
@@ -685,7 +724,7 @@ var Component = cc.Class({
         // do remove component
         this.node._removeComponent(this);
 
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_TEST) {
             delete cc.engine.attachedObjsForEditor[this._id];
         }
     },
@@ -776,7 +815,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
 
     // INHERITABLE STATIC MEMBERS
 
@@ -810,7 +849,7 @@ Object.defineProperty(Component, '_registerEditorProps', {
         if (reqComp) {
             cls._requireComponent = reqComp;
         }
-        if (CC_DEV) {
+        if (CC_EDITOR || CC_TEST) {
             var name = cc.js.getClassName(cls);
             for (var key in props) {
                 var val = props[key];
@@ -862,6 +901,15 @@ Object.defineProperty(Component, '_registerEditorProps', {
                 }
             }
         }
+    }
+});
+
+Object.defineProperties(Component, {
+    _callPreloadOnNode: {
+        value: _callPreloadOnNode
+    },
+    _callPreloadOnComponent: {
+        value: _callPreloadOnComponent
     }
 });
 

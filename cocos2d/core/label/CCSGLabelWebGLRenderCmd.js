@@ -50,7 +50,6 @@ _ccsg.Label.WebGLRenderCmd = function(renderableObject){
     this._quadDirty = true;
     this._splitedStrings = null;
     this._drawFontsize = 0;
-    this._realRenderingSize = cc.size(-10, -10);
 };
 
 var proto = _ccsg.Label.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);

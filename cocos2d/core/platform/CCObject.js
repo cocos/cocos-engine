@@ -14,8 +14,9 @@ var Activating = 1 << 8;
 var HideInGame = 1 << 9;
 var HideInEditor = 1 << 10;
 
-var IsOnEnableCalled = 1 << 12;
-var IsEditorOnEnableCalled = 1 << 13;
+var IsOnEnableCalled = 1 << 11;
+var IsEditorOnEnableCalled = 1 << 12;
+var IsPreloadCalled = 1 << 13;
 var IsOnLoadCalled = 1 << 14;
 var IsOnLoadStarted = 1 << 15;
 var IsOnStartCalled = 1 << 16;
@@ -29,7 +30,8 @@ var IsPositionLocked = 1 << 21;
 var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
-                       IsOnEnableCalled | IsEditorOnEnableCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled
+                       IsPreloadCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled |
+                       IsOnEnableCalled | IsEditorOnEnableCalled
                        /*RegisteredInEditor*/);
 
 /**
@@ -133,6 +135,7 @@ CCObject.Flags = {
 
     // FLAGS FOR COMPONENT
 
+    IsPreloadCalled: IsPreloadCalled,
     IsOnLoadCalled: IsOnLoadCalled,
     IsOnLoadStarted: IsOnLoadStarted,
     IsOnEnableCalled: IsOnEnableCalled,
@@ -229,7 +232,7 @@ JS.get(prototype, 'isValid', function () {
     return !(this._objFlags & Destroyed);
 });
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
     JS.get(prototype, 'isRealValid', function () {
         return !(this._objFlags & RealDestroyed);
     });
@@ -271,7 +274,7 @@ prototype.destroy = function () {
     return true;
 };
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
     /*
      * !#en
      * In fact, Object's "destroy" will not trigger the destruct operation in Firebal Editor.
@@ -387,7 +390,7 @@ cc.isValid = function (value) {
     }
 };
 
-if (CC_DEV) {
+if (CC_EDITOR || CC_TEST) {
     Object.defineProperty(CCObject, '_willDestroy', {
         value: function (obj) {
             return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;

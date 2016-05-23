@@ -122,7 +122,7 @@ cc.eventManager = {
     _isEnabled: false,
     _nodePriorityIndex: 0,
 
-    _internalCustomListenerIDs:[cc.game.EVENT_HIDE, cc.game.EVENT_SHOW],
+    _internalCustomListenerIDs:[],
 
     _setDirtyForNode: function (node) {
         // Mark the node dirty only when there is an event listener associated with it.

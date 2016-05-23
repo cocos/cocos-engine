@@ -31,7 +31,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/particle/CCParticleSystem');
 }
 
-if (!(CC_EDITOR && Editor.isCoreLevel)) {
+if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/motion-streak/CCMotionStreak');
 }
 
@@ -53,5 +53,6 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
         require('./external/chipmunk/chipmunk.js');
     }
     
+    require('./extensions/ccpool/CCNodePool.js');
     require('./extensions/ccpool/CCPool.js');
 }

@@ -185,7 +185,6 @@ var VideoPlayer = cc.Class({
     },
 
     onLoad: function() {
-        this._super();
 
         if(cc.sys.isNative) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {

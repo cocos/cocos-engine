@@ -241,12 +241,20 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
      * @param {String} url
      */
     removeItem: function (url) {
-        if (this.completed[url]) {
-            delete this.completed[url];
-            delete this.map[url];
-            this.completedCount--;
-            this.totalCount--;
+        var item = this.map[url];
+        if (!item) return;
+
+        if (!this.completed[item.alias || url]) return;
+
+        delete this.completed[url];
+        delete this.map[url];
+        if (item.alias) {
+            delete this.completed[item.alias];
+            delete this.map[item.alias];
         }
+
+        this.completedCount--;
+        this.totalCount--;
     },
 
     complete: function (url) {

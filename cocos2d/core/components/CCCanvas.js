@@ -136,7 +136,7 @@ var Canvas = cc.Class({
         this._thisOnResized = this.onResized.bind(this);
     },
 
-    onLoad: function () {
+    __preload: function () {
         var Flags = cc.Object.Flags;
         this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
 
@@ -149,8 +149,15 @@ var Canvas = cc.Class({
         if ( !this.node._sizeProvider ) {
             this.node._sizeProvider = designResolutionWrapper;
         }
-        else {
-            cc.error('CCCanvas: Node can only have one size.');
+        else if (CC_DEV) {
+            var renderer = this.node.getComponent(cc._RendererUnderSG);
+            if (renderer) {
+                cc.error('Should not add Canvas to a node which already contains a renderer component (%s).',
+                    cc.js.getClassName(renderer));
+            }
+            else {
+                cc.error('Should not add Canvas to a node which size is already used by its other component.');
+            }
         }
 
         cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this.alignWithScreen, this);

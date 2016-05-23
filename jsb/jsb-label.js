@@ -58,18 +58,6 @@ jsbLabel.prototype.getOverflow = function() {
     return this._overFlow;
 };
 
-if (!jsbLabel.prototype.isSystemFontUsed) {
-    jsbLabel.prototype.isSystemFontUsed = function() {
-        return this._isSystemFontUsed;
-    };
-
-    jsbLabel.prototype.setSystemFontUsed = function(value) {
-        this._isSystemFontUsed = value;
-        this.setSystemFontName("Arial");
-        this.setSystemFontSize(this.getFontSize());
-    }
-}
-
 jsbLabel.prototype.setFontSize = function (size) {
     this._fontSize = size;
     if (this._labelType === _ccsg.Label.Type.SystemFont) {
@@ -143,6 +131,43 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
     //FIXME: hack for bmfont crash. remove this line when it fixed in native
     this.getContentSize();
 };
+
+jsbLabel.prototype.setOutlined = function(value) {
+    this._outlined = value;
+    if(!!this._outlined) {
+        this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
+    } else {
+        //1 equals cpp outline effect
+        this.disableEffect(1);
+    }
+};
+
+jsbLabel.prototype.setOutlineWidth = function(value) {
+    this._outlineWidth = value;
+    if(!!this._outlined) {
+        this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
+    }
+};
+
+jsbLabel.prototype.setOutlineColor = function(value) {
+    this._outlineColor = cc.color(value);
+    if(!!this._outlined) {
+        this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
+    }
+};
+
+jsbLabel.prototype.isOutlined = function(value) {
+    return !!this._outlined;
+};
+
+jsbLabel.prototype.getOutlineWidth = function(value) {
+    return this._outlineWidth || 1;
+};
+
+jsbLabel.prototype.getOutlineColor = function(value) {
+    return this._outlineColor || cc.color(255,255,255,255);
+};
+
 
 cc.Label = function (string, fontHandle) {
     fontHandle = fontHandle || "Arial";

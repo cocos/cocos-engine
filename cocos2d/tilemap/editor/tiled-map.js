@@ -69,7 +69,7 @@ class TiledMapMeta extends CustomAssetMeta {
     this.tsxFiles = [];
   }
 
-  static version () { return '1.0.1'; }
+  static version () { return '1.0.2'; }
   static defaultType() { return 'tiled-map'; }
 
   import (fspath, cb) {
@@ -83,6 +83,7 @@ class TiledMapMeta extends CustomAssetMeta {
       asset.name = Path.basenameNoExt(fspath);
       asset.tmxXmlStr = data;
       asset.tmxFolderPath = Path.relative(AssetRootUrl, Url.dirname(db.fspathToUrl(fspath)));
+      asset.tmxFolderPath = asset.tmxFolderPath.replace('\\', '/');
 
       searchDependFiles(fspath, (err, info) => {
         if (err) {
