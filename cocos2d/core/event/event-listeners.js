@@ -45,7 +45,8 @@ EventListeners.prototype.invoke = function (event) {
 
     if (list) {
         if (list.length === 1) {
-            list[0].call(event.currentTarget, event);
+            callingFunc = list[0];
+            callingFunc.call && callingFunc.call(event.currentTarget, event);
         }
         else {
             endIndex = list.length - 1;
@@ -58,20 +59,22 @@ EventListeners.prototype.invoke = function (event) {
             else {
                 for (i = 0; i <= endIndex;) {
                     callingFunc = list[i];
-                    target = list[i+1];
-                    hasTarget = target && typeof target === 'object';
-                    var increment;
-                    if (hasTarget) {
-                        callingFunc.call(target, event);
-                        increment = 2;
-                    }
-                    else {
-                        callingFunc.call(event.currentTarget, event);
-                        increment = 1;
-                    }
+                    var increment = 1;
+                    // cheap detection for function
+                    if (callingFunc.call) {
+                        target = list[i+1];
+                        hasTarget = target && typeof target === 'object';
+                        if (hasTarget) {
+                            callingFunc.call(target, event);
+                            increment = 2;
+                        }
+                        else {
+                            callingFunc.call(event.currentTarget, event);
+                        }
 
-                    if (event._propagationImmediateStopped || i + increment > endIndex) {
-                        break;
+                        if (event._propagationImmediateStopped || i + increment > endIndex) {
+                            break;
+                        }
                     }
 
                     i += increment;
@@ -82,18 +85,7 @@ EventListeners.prototype.invoke = function (event) {
     this._invoking[key] = false;
 
     // Delay removing
-    var removeList = this._toRemove[key];
-    if (removeList) {
-        for (i = 0; i < removeList.length; ++i) {
-            var toRemove = removeList[i];
-            this.remove(key, toRemove[0], toRemove[1]);
-        }
-        delete this._toRemove[key];
-    }
-    if (this._toRemoveAll) {
-        this.removeAll(this._toRemoveAll);
-        this._toRemoveAll = null;
-    }
+    this._clearToRemove(key);
 };
 
 module.exports = EventListeners;
