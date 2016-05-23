@@ -57,10 +57,7 @@ var RendererUnderSG = cc.Class({
     // and remember to hide the sgNode if component.enabledInHierarchy is false.
     __preload: function () {
         this._initSgNode();
-        var sgNode = this._sgNode;
-        if ( !this.node._sizeProvider ) {
-            this.node._sizeProvider = sgNode;
-        }
+        this._registSizeProvider();
         this._appendSgNode(this._sgNode);
     },
 
