@@ -439,8 +439,8 @@ cc.Sequence = cc.ActionInterval.extend({
  *
  * // create sequence with array
  * var seq = cc.sequence(actArray);
- * todo: It should be use new
  */
+// todo: It should be use new
 cc.sequence = function (/*Multiple Arguments*/tempArray) {
     var paramArray = (tempArray instanceof Array) ? tempArray : arguments;
     if ((paramArray.length > 0) && (paramArray[paramArray.length - 1] == null))
