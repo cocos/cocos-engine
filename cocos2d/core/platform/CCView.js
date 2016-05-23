@@ -1079,9 +1079,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
             this._setupContainer(view, containerW, containerH, designW, designH);
             // Setup container's padding
             containerStyle.paddingLeft = offx + "px";
-            containerStyle.paddinRight = offx + "px";
-            containerStyle.paddinTop = offy + "px";
-            containerStyle.paddinBottom = offy + "px";
+            containerStyle.paddingRight = offx + "px";
+            containerStyle.paddingTop = offy + "px";
+            containerStyle.paddingBottom = offy + "px";
         }
     });
 
