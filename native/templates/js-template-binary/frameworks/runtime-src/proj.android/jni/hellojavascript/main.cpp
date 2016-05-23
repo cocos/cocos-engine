@@ -18,11 +18,6 @@ void cocos_android_app_init (JNIEnv* env) {
 
 extern "C"
 {
-    bool Java_org_cocos2dx_javascript_AppActivity_nativeIsLandScape(JNIEnv *env, jobject thisz)
-    {
-        return SimpleConfigParser::getInstance()->isLanscape();
-    }
-
     bool Java_org_cocos2dx_javascript_AppActivity_nativeIsDebug(JNIEnv *env, jobject thisz)
     {
 #if (COCOS2D_DEBUG > 0)

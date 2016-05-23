@@ -45,12 +45,7 @@ public class AppActivity extends Cocos2dxActivity{
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        
-        if(nativeIsLandScape()) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-        }
+
         if(nativeIsDebug()){
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
@@ -76,8 +71,7 @@ public class AppActivity extends Cocos2dxActivity{
     public static String getLocalIpAddress() {
         return hostIPAdress;
     }
-    
-    private static native boolean nativeIsLandScape();
+
     private static native boolean nativeIsDebug();
     
 }
