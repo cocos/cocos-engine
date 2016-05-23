@@ -21,27 +21,28 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * !#en Video is playing.
- * !#zh 视频正在播放中
- * @property {String} PLAYING
- */
-/**
- * !#en Video is paused.
- * !#zh 视频暂停播放了
- * @property {String} PAUSED
- */
-/**
- * !#en Video is stopped.
- * !#zh 视频停止播放了。
- * @property {String} STOPPED
- */
-/**
- * !#en Video is completed.
- * !#zh 视频播放完成了
- * @property {String} COMPLETED
- */
 var EventType = _ccsg.VideoPlayer.EventType;
+
+
+/**
+ * !#en Enum for video resouce type type.
+ * !#zh 视频来源
+ * @enum VideoPlayer.ResourceType
+ */
+var ResourceType = cc.Enum({
+    /**
+     * !#en The remote resource type.
+     * !#zh 远程视频
+     * @property {Number} REMOTE
+     */
+    REMOTE: 0,
+    /**
+     * !#en The local resouce type.
+     * !#zh 本地视频
+     * @property {Number} LOCAL
+     */
+    LOCAL: 1
+});
 
 
 /**
@@ -62,17 +63,16 @@ var VideoPlayer = cc.Class({
 
     properties: {
 
-        _resourceType: 0,
+        _resourceType: ResourceType.REMOTE,
         /**
-         * !#en The resource type of videoplayer, 0 for remote url and 1 for local file path.
-         * !#zh 视频来源：0 表示远程视频 URL，1 表示本地视频地址。
-         * @property {Number} resourceType
+         * !#en The resource type of videoplayer, REMOTE for remote url and LOCAL for local file path.
+         * !#zh 视频来源：REMOTE 表示远程视频 URL，LOCAL 表示本地视频地址。
+         * @property {VideoPlayer.ResourceType} resourceType
          */
         resourceType: {
             tooltip: 'i18n:COMPONENT.videoplayer.resourceType',
-            type: cc.Integer, // 0: remote | 1: local
+            type: ResourceType,
             set: function ( value ) {
-                value = value - 0;
                 this._resourceType = value;
                 this._updateSgNode();
             },
@@ -81,25 +81,25 @@ var VideoPlayer = cc.Class({
             }
         },
 
-        _url: '',
+        _remoteURL: '',
         /**
          * !#en The remote URL of video.
          * !#zh 远程视频的 URL
-         * @property {String} url
+         * @property {String} remoteURL
          */
-        url: {
+        remoteURL: {
             tooltip: 'i18n:COMPONENT.videoplayer.url',
             type: cc.String,
             set: function ( url ) {
-                this._url = url;
+                this._remoteURL = url;
                 this._updateSgNode();
             },
             get: function () {
-                return this._url;
+                return this._remoteURL;
             }
         },
 
-        _video: {
+        _clip: {
             default: null,
             url: cc.RawAsset
         },
@@ -108,15 +108,15 @@ var VideoPlayer = cc.Class({
          * !#zh 本地视频的 URL
          * @property {String} video
          */
-        video: {
+        clip: {
             tooltip: 'i18n:COMPONENT.videoplayer.video',
             get: function () {
-                return this._video;
+                return this._clip;
             },
             set: function ( value ) {
                 if (typeof value !== 'string')
                     value = '';
-                this._video = value;
+                this._clip = value;
                 this._updateSgNode();
             },
             url: cc.RawAsset
@@ -124,7 +124,7 @@ var VideoPlayer = cc.Class({
 
         _time: 0,
         /**
-         * !#en The start time when video start to play.
+         * !#en The current time when video start to play.
          * !#zh  从哪个时间点开始播放视频
          * @property {Float} currentTime
          */
@@ -157,30 +157,31 @@ var VideoPlayer = cc.Class({
         /**
          * !#en Whether play video in fullscreen mode.
          * !#zh 是否全屏播放视频
-         * @property {Boolean} keepAspectRatio
+         * @property {Boolean} isFullscreen
          */
-        enableFullscreen: {
-            tooltip: 'i18n:COMPONENT.videoplayer.enableFullscreen',
+        isFullscreen: {
+            tooltip: 'i18n:COMPONENT.videoplayer.isFullscreen',
             default: false,
             type: cc.Boolean,
             notify: function() {
-                this._sgNode.setFullScreenEnabled(this.enableFullscreen);
+                this._sgNode.setFullScreenEnabled(this.isFullscreen);
             }
         },
 
         /**
          * !#en the video player's callback, it will be triggered when certain event occurs, like: playing, paused, stopped and completed.
          * !#zh 视频播放回调函数，该回调函数会在特定情况被触发，比如播放中，暂时，停止和完成播放。
-         * @property {cc.Component.EventHandler} onVideoPlayerEvent
+         * @property {cc.Component.EventHandler[]} videoPlayerEvent
          */
-        onVideoPlayerEvent: {
+        videoPlayerEvent: {
             default: [],
             type: cc.Component.EventHandler,
         },
     },
 
     statics: {
-        EventType: EventType
+        EventType: EventType,
+        ResourceType: ResourceType
     },
 
     onLoad: function() {
@@ -205,10 +206,10 @@ var VideoPlayer = cc.Class({
 
     _updateSgNode: function () {
         var sgNode = this._sgNode;
-        if (this.resourceType === 0) {
-            sgNode.setURL(this.url);
+        if (this.resourceType === ResourceType.REMOTE) {
+            sgNode.setURL(this.remoteURL);
         } else {
-            sgNode.setURL(this._video || '');
+            sgNode.setURL(this._clip || '');
         }
     },
 
@@ -219,7 +220,7 @@ var VideoPlayer = cc.Class({
 
             sgNode.seekTo(this.currentTime);
             sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
-            sgNode.setFullScreenEnabled(this.enableFullscreen);
+            sgNode.setFullScreenEnabled(this.isFullscreen);
             sgNode.setContentSize(this.node.getContentSize());
             this.pause();
 
@@ -231,19 +232,19 @@ var VideoPlayer = cc.Class({
     },
 
     onPlaying: function(){
-        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.PLAYING);
+        cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
     },
 
     onPasued: function() {
-        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.PAUSED);
+        cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
     },
 
     onStopped: function() {
-        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.STOPPED);
+        cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
     },
 
     onCompleted: function() {
-        cc.Component.EventHandler.emitEvents(this.onVideoPlayerEvent, this, EventType.COMPLETED);
+        cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
     },
 
     play: function () {
@@ -261,12 +262,6 @@ var VideoPlayer = cc.Class({
     pause: function () {
         if(this._sgNode) {
             this._sgNode.pause();
-        }
-    },
-
-    seekTo: function ( time ) {
-        if(this._sgNode) {
-            this._sgNode.seekTo(time);
         }
     },
 
