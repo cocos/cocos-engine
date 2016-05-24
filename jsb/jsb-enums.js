@@ -33,7 +33,17 @@ cc.ProgressTimer.Type = cc.Enum({
     BAR: 1
 });
 
-_ccsg.VideoPlayer.EventType = ccui.VideoPlayer.EventType;
+//FIXME: should delete this line after implementing the VideoPlayer on Mac and Windows
+if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+    cc.VideoPlayer = {};
+}
+
+cc.VideoPlayer.EventType = {
+    PLAYING: "play",
+    PAUSED: "pause",
+    STOPPED: "stop",
+    COMPLETED: "complete"
+};
 
 cc.EditBox.InputMode = cc.Enum({
 

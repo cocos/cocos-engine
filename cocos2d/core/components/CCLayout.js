@@ -505,12 +505,17 @@ var Layout = cc.Class({
 
     _getVerticalBaseHeight: function (children) {
         var newHeight = 0;
+        var activeChildCount = 0;
         if (this.resizeMode === ResizeMode.CONTAINER) {
             children.forEach(function(child) {
+                if (!child.activeInHierarchy) {
+                    return;
+                }
+                activeChildCount++;
                 newHeight += child.height;
             });
 
-            newHeight += (children.length - 1) * this.spacingY + 2 * this.padding;
+            newHeight += (activeChildCount - 1) * this.spacingY + 2 * this.padding;
         }
         else {
             newHeight = this.node.getContentSize().height;
@@ -755,11 +760,16 @@ var Layout = cc.Class({
 
     _getHorizontalBaseWidth: function (children) {
         var newWidth = 0;
+        var activeChildCount = 0;
         if (this.resizeMode === ResizeMode.CONTAINER) {
             children.forEach(function(child) {
+                if(!child.activeInHierarchy) {
+                    return;
+                }
+                activeChildCount++;
                 newWidth += child.width;
             });
-            newWidth += (children.length - 1) * this.spacingX + 2 * this.padding;
+            newWidth += (activeChildCount - 1) * this.spacingX + 2 * this.padding;
         }
         else {
             newWidth = this.node.getContentSize().width;

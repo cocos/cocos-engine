@@ -407,6 +407,7 @@ cc.DOM.methods = /** @lends cc.DOM# */{
         this.dom.remove();
     },
     setOpacity:function (o) {
+        _ccsg.Node.prototype.setOpacity.call(this, o);
         this._opacity = o;
         this.dom.style.opacity = o / 255;
     },
