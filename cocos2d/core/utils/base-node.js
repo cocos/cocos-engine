@@ -1501,6 +1501,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             // ensure transform computed
             cc.director._visitScene();
         }
+        if (CC_JSB) {
+            // should also support omit argument in JSB
+            nodePoint = nodePoint || new cc.Vec2(0, 0);
+        }
         var worldPositionIgnoreAnchorPoint = this._sgNode.convertToWorldSpace(nodePoint);
         return cc.pSub(worldPositionIgnoreAnchorPoint, cc.p(this._anchorPoint.x * this._contentSize.width, this._anchorPoint.y * this._contentSize.height));
     },
@@ -1552,6 +1556,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         if (this._sgNode.isIgnoreAnchorPointForPosition()) {
             // see https://github.com/cocos-creator/engine/pull/391
+            if (CC_JSB) {
+                // should also support omit argument in JSB
+                nodePoint = nodePoint || new cc.Vec2(0, 0);
+            }
             return cc.v2(this._sgNode.convertToWorldSpace(nodePoint));
         }
         else {
