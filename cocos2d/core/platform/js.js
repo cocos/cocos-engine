@@ -366,7 +366,7 @@ cc.js.unregisterClass to remove the id of unused class';
         return '';
     };
 
-    if (CC_EDITOR) {
+    if (CC_DEV) {
         Object.defineProperty(js, '_registeredClassIds', {
             get: function () {
                 var dump = {};
