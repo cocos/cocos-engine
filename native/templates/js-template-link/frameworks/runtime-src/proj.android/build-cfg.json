@@ -1,10 +1,10 @@
 {
     "ndk_module_path" :[
-        "${COCOS_X_ROOT}/cocos2d-x",
-        "${COCOS_X_ROOT}/cocos2d-x/cocos",
-        "${COCOS_X_ROOT}/cocos2d-x/external",
-        "${COCOS_X_ROOT}/cocos2d-x/external/android/include",
-        "${COCOS_X_ROOT}/cocos2d-x/external/android/spidermonkey"
+        "${COCOS_X_ROOT}",
+        "${COCOS_X_ROOT}/cocos",
+        "${COCOS_X_ROOT}/external",
+        "${COCOS_X_ROOT}/external/android/include",
+        "${COCOS_X_ROOT}/external/android/spidermonkey"
     ],
     "copy_resources": [
         {
@@ -20,7 +20,7 @@
             "to": ""
         },
         {
-            "from": "${DIR_TO_COCOS_X_ROOT}/cocos2d-x/cocos/scripting/js-bindings/script",
+            "from": "${COCOS_X_ROOT}/cocos/scripting/js-bindings/script",
             "to": "script"
         },
         {

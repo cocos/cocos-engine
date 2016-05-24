@@ -17,7 +17,7 @@
             "to": ""
         },
         {
-            "from": "${DIR_TO_COCOS_X_ROOT}/cocos2d-x/cocos/scripting/js-bindings/script",
+            "from": "${COCOS_X_ROOT}/cocos/scripting/js-bindings/script",
             "to": "script"
         }
     ]
