@@ -1889,26 +1889,27 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     _updateDummySgNode: function () {
-        var sgNode = this._sgNode;
+        var self = this;
+        var sgNode = self._sgNode;
 
-        sgNode.setPosition(this._position);
-        sgNode.setRotationX(this._rotationX);
-        sgNode.setRotationY(this._rotationY);
-        sgNode.setScale(this._scaleX, this._scaleY);
-        sgNode.setSkewX(this._skewX);
-        sgNode.setSkewY(this._skewY);
-        sgNode.ignoreAnchorPointForPosition(this.__ignoreAnchor);
+        sgNode.setPosition(self._position);
+        sgNode.setRotationX(self._rotationX);
+        sgNode.setRotationY(self._rotationY);
+        sgNode.setScale(self._scaleX, self._scaleY);
+        sgNode.setSkewX(self._skewX);
+        sgNode.setSkewY(self._skewY);
+        sgNode.ignoreAnchorPointForPosition(self.__ignoreAnchor);
 
         var arrivalOrder = sgNode.arrivalOrder;
-        sgNode.setLocalZOrder(this._localZOrder);
+        sgNode.setLocalZOrder(self._localZOrder);
         sgNode.arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
 
-        sgNode.setGlobalZOrder(this._globalZOrder);
+        sgNode.setGlobalZOrder(self._globalZOrder);
 
-        sgNode.setOpacity(this._opacity);
-        sgNode.setOpacityModifyRGB(this._opacityModifyRGB);
-        sgNode.setCascadeOpacityEnabled(this._cascadeOpacityEnabled);
-        sgNode.setTag(this._tag);
+        sgNode.setOpacity(self._opacity);
+        sgNode.setOpacityModifyRGB(self._opacityModifyRGB);
+        sgNode.setCascadeOpacityEnabled(self._cascadeOpacityEnabled);
+        sgNode.setTag(self._tag);
     },
     
     _updateSgNode: function () {
@@ -1954,6 +1955,22 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
     onRestore: CC_EDITOR && function () {
         this._updateDummySgNode();
+
+        var sizeProvider = this._sizeProvider;
+        if (sizeProvider) {
+            sizeProvider.setContentSize(this._contentSize);
+            if (sizeProvider instanceof _ccsg.Node) {
+                sizeProvider.setAnchorPoint(this._anchorPoint);
+                sizeProvider.setColor(this._color);
+                if (sizeProvider !== this._sgNode) {
+                    sizeProvider.ignoreAnchor = this.__ignoreAnchor;
+                    sizeProvider.setOpacityModifyRGB(this._opacityModifyRGB);
+                    if ( !this._cascadeOpacityEnabled ) {
+                        sizeProvider.setOpacity(this._opacity);
+                    }
+                }
+            }
+        }
 
         var sgParent = this._parent && this._parent._sgNode;
         if (this._sgNode._parent !== sgParent) {
