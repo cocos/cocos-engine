@@ -46,14 +46,18 @@ EventListeners.prototype.invoke = function (event) {
     if (list) {
         if (list.length === 1) {
             callingFunc = list[0];
-            callingFunc.call && callingFunc.call(event.currentTarget, event);
+            if (callingFunc.call) {
+                callingFunc.call(event.currentTarget, event);
+            }
         }
         else {
             endIndex = list.length - 1;
             if (key === cc.Director.EVENT_COMPONENT_UPDATE) {
                 for (i = 1; i <= endIndex; i += 2) {
                     target = list[i];
-                    target.update(event.detail);
+                    if (target.update) {
+                        target.update(event.detail);
+                    }
                 }
             }
             else {
