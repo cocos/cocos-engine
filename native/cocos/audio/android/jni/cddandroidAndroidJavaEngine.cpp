@@ -57,7 +57,7 @@ AndroidJavaEngine::~AndroidJavaEngine()
     {
         stopAllEffects();
     }
-    JniHelper::callStaticVoidMethod(CLASS_NAME, "destoryAudioEngine");
+    JniHelper::callStaticVoidMethod(CLASS_NAME, "destroyAudioEngine");
 }
 
 void AndroidJavaEngine::preloadBackgroundMusic(const char* filePath) {

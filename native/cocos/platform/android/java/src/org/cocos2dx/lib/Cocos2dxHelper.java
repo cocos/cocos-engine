@@ -259,7 +259,7 @@ public class Cocos2dxHelper {
         sCocosSound.stopAllEffects();
     }
 
-    public static void destoryAudioEngine() {
+    public static void destroyAudioEngine() {
         if (sCocosMusic != null)
         {
             sCocosMusic.end();
@@ -273,7 +273,7 @@ public class Cocos2dxHelper {
     }
 
     public static void reset() {
-        destoryAudioEngine();
+        destroyAudioEngine();
         onActivityResultListeners.clear();
 
         if (sAccelerometer != null) {
