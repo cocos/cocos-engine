@@ -35,7 +35,7 @@
  * @class Component.EventHandler
  * @example
  * // Create new EventHandler
- * var eventHandler = cc.Component.EventHandler();
+ * var eventHandler = new cc.Component.EventHandler();
  * eventHandler.target = newTarget;
  * eventHandler.component = "MainMenu";
  * eventHandler.handler = "OnClick"
@@ -100,7 +100,10 @@ cc.Component.EventHandler = cc.Class({
      * @param {*} params
      * @example
      * // Call Function
-     * var eventHandler = cc.Component.EventHandler(target, "MainMenu", "OnClick");
+     * var eventHandler = new cc.Component.EventHandler();
+     * eventHandler.target = newTarget;
+     * eventHandler.component = "MainMenu";
+     * eventHandler.handler = "OnClick"
      * eventHandler.emit("This is the argument to the callback function!");
      */
     emit: function(params) {
