@@ -1831,7 +1831,6 @@ _ccsg.Node = cc.Class({
      * @return {cc.Vec2}
      */
     convertToWorldSpace: function (nodePoint) {
-        nodePoint = nodePoint || cc.p(0,0);
         return cc.pointApplyAffineTransform(nodePoint, this.getNodeToWorldTransform());
     },
 
@@ -1854,7 +1853,6 @@ _ccsg.Node = cc.Class({
      * @return {cc.Vec2}
      */
     convertToWorldSpaceAR: function (nodePoint) {
-        nodePoint = nodePoint || cc.p(0,0);
         var pt = cc.pAdd(nodePoint, this._renderCmd.getAnchorPointInPoints());
         return this.convertToWorldSpace(pt);
     },
