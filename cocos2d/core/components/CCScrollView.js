@@ -586,7 +586,35 @@ var ScrollView = cc.Class({
 
         this._outOfBoundaryAmountDirty = true;
 
-        //TODO: process bouncing and container move event
+        if(this.elastic)
+        {
+            for(var direction = Direction.TOP; direction < Direction.RIGHT; ++direction)
+            {
+                if(this._isOutOfBoundaryWithDirection(direction))
+                {
+                    this._processScrollEvent(direction, true);
+                }
+            }
+        }
+    },
+
+    _isOutOfBoundaryWithDirection: function(direction) {
+        var outOfBoundary = this._getHowMuchOutOfBoundary();
+        switch(direction) {
+            case Direction.TOP:
+                return outOfBoundary.y > 0;
+                break;
+            case Direction.BOTTOM:
+                return outOfBoundary.y < 0;
+                break;
+            case Direction.LEFT:
+                return outOfBoundary.x < 0;
+                break;
+            case Direction.Right:
+                return outOfBoundary.x > 0;
+                break;
+        }
+        return false;
     },
 
     /**
