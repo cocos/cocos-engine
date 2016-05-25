@@ -68,14 +68,14 @@ function alignToParent (node, widget) {
 
     var anchor = node.getAnchorPoint();
 
-    var width, x = node._position.x, anchorX = anchor.x;
+    var width, x = node._position.x, anchorX = anchor.x, scaleX = node._scaleX;
     if (widget.isStretchWidth) {
         width = localRight - localLeft;
-        node.width = width;
+        node.width = width / scaleX;
         x = localLeft + anchorX * width;
     }
     else {
-        width = node.width;
+        width = node.width * scaleX;
         if (widget.isAlignHorizontalCenter) {
             var parentCenter = (0.5 - parentAnchor.x) * parentWidth;    // no offset
             x = parentCenter + (anchorX - 0.5) * width;
@@ -88,14 +88,14 @@ function alignToParent (node, widget) {
         }
     }
 
-    var height, y = node._position.y, anchorY = anchor.y;
+    var height, y = node._position.y, anchorY = anchor.y, scaleY = node._scaleY;
     if (widget.isStretchHeight) {
         height = localTop - localBottom;
-        node.height = height;
+        node.height = height / scaleY;
         y = localBottom + anchorY * height;
     }
     else {
-        height = node.height;
+        height = node.height * scaleY;
         if (widget.isAlignVerticalCenter) {
             var parentMiddle = (0.5 - parentAnchor.y) * parentHeight;    // no offset
             y = parentMiddle + (anchorY - 0.5) * height;
