@@ -26,6 +26,8 @@
 var JS = cc.js;
 var CallbacksHandler = require('../platform/callbacks-invoker').CallbacksHandler;
 
+var REMOVE_PLACEHOLDER = CallbacksHandler.REMOVE_PLACEHOLDER;
+
 // Extends CallbacksHandler to handle and invoke event callbacks.
 function EventListeners () {
     CallbacksHandler.call(this);
@@ -46,7 +48,7 @@ EventListeners.prototype.invoke = function (event) {
     if (list) {
         if (list.length === 1) {
             callingFunc = list[0];
-            if (callingFunc.call) {
+            if (callingFunc !== REMOVE_PLACEHOLDER) {
                 callingFunc.call(event.currentTarget, event);
             }
         }
@@ -55,7 +57,7 @@ EventListeners.prototype.invoke = function (event) {
             if (key === cc.Director.EVENT_COMPONENT_UPDATE) {
                 for (i = 1; i <= endIndex; i += 2) {
                     target = list[i];
-                    if (target.update) {
+                    if (target !== REMOVE_PLACEHOLDER) {
                         target.update(event.detail);
                     }
                 }
@@ -65,7 +67,7 @@ EventListeners.prototype.invoke = function (event) {
                     callingFunc = list[i];
                     var increment = 1;
                     // cheap detection for function
-                    if (callingFunc.call) {
+                    if (callingFunc !== REMOVE_PLACEHOLDER) {
                         target = list[i+1];
                         hasTarget = target && typeof target === 'object';
                         if (hasTarget) {
