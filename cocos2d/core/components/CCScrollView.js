@@ -39,6 +39,74 @@ var getTimeInMilliseconds = function() {
 };
 
 /**
+ * !#en Enum for ScrollView event type.
+ * !#zh 滚动视图事件类型
+ * @enum ScrollView.EventType
+ */
+var EventType = cc.Enum({
+    /**
+     * !#en The event emmitted when ScrollView scroll to the top boundary of inner container
+     * !#zh 滚动视图滚动到顶部边界事件
+     * @property {Number} SCROLL_TO_TOP
+     */
+    SCROLL_TO_TOP : 0,
+    /**
+     * !#en The event emmitted when ScrollView scroll to the bottom boundary of inner container
+     * !#zh 滚动视图滚动到底部边界事件
+     * @property {Number} SCROLL_TO_BOTTOM
+     */
+    SCROLL_TO_BOTTOM : 1,
+    /**
+     * !#en The event emmitted when ScrollView scroll to the left boundary of inner container
+     * !#zh 滚动视图滚动到左边界事件
+     * @property {Number} SCROLL_TO_LEFT
+     */
+    SCROLL_TO_LEFT : 2,
+    /**
+     * !#en The event emmitted when ScrollView scroll to the right boundary of inner container
+     * !#zh 滚动视图滚动到右边界事件
+     * @property {Number} SCROLL_TO_RIGHT
+     */
+    SCROLL_TO_RIGHT : 3,
+    /**
+     * !#en The event emmitted when ScrollView is scrolling
+     * !#zh 滚动视图正在滚动时发出的事件
+     * @property {Number} SCROLLING
+     */
+    SCROLLING : 4,
+    /**
+     * !#en The event emmitted when ScrollView scroll to the top boundary of inner container and start bounce
+     * !#zh 滚动视图滚动到顶部边界并且开始回弹时发出的事件
+     * @property {Number} BOUNCE_TOP
+     */
+    BOUNCE_TOP : 5,
+    /**
+     * !#en The event emmitted when ScrollView scroll to the bottom boundary of inner container and start bounce
+     * !#zh 滚动视图滚动到底部边界并且开始回弹时发出的事件
+     * @property {Number} BOUNCE_BOTTOM
+     */
+    BOUNCE_BOTTOM : 6,
+    /**
+     * !#en The event emmitted when ScrollView scroll to the left boundary of inner container and start bounce
+     * !#zh 滚动视图滚动到左边界并且开始回弹时发出的事件
+     * @property {Number} BOUNCE_LEFT
+     */
+    BOUNCE_LEFT : 7,
+    /**
+     * !#en The event emmitted when ScrollView scroll to the right boundary of inner container and start bounce
+     * !#zh 滚动视图滚动到右边界并且开始回弹时发出的事件
+     * @property {Number} BOUNCE_RIGHT
+     */
+    BOUNCE_RIGHT : 8,
+    /**
+     * !#en The event emmitted when ScrollView scroll ended
+     * !#zh 滚动视图滚动滚动结束的时候发出的事件
+     * @property {Number} AUTOSCROLL_ENDED
+     */
+    AUTOSCROLL_ENDED : 9
+});
+
+/**
  * !#en
  * Layout container for a view hierarchy that can be scrolled by the user,
  * allowing it to be larger than the physical display.
