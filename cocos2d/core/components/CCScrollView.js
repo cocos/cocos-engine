@@ -783,7 +783,7 @@ var ScrollView = cc.Class({
             realMove = cc.pAdd(realMove, outOfBoundary);
         }
 
-        var scrollEventType = '';
+        var scrollEventType = -1;
 
         if (realMove.y > 0) { //up
             var icBottomPos = this.content.y - this.content.anchorY * this.content.height;
@@ -819,7 +819,7 @@ var ScrollView = cc.Class({
             this._dispatchEvent(EventType.SCROLLING);
         }
 
-        if (scrollEventType) {
+        if (scrollEventType !== -1) {
             this._dispatchEvent(scrollEventType);
         }
 
