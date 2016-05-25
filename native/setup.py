@@ -484,7 +484,7 @@ class SetEnvVar(object):
             self._force_update_env(COCOS_CONSOLE_ROOT, cocos_consle_root)
     def set_cocos_x_root(self):
         print("->Check environment variable %s" % COCOS_X_ROOT)
-        cocos_x_root = os.path.dirname(self.current_absolute_path)
+        cocos_x_root = self.current_absolute_path
         old_dir = self._find_environment_variable(COCOS_X_ROOT)
         if old_dir is None:
             # add environment variable
