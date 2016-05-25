@@ -754,8 +754,10 @@ var Component = cc.Class({
      * @param {Number} [repeat=cc.macro.REPEAT_FOREVER]    The selector will be executed (repeat + 1) times, you can use kCCRepeatForever for tick infinitely.
      * @param {Number} [delay=0]     The amount of time that the first tick will wait before execution.
      * @example
-     * var squashAction = cc.scaleTo(0.2, 1, 0.6);
-     * this.seq = cc.sequence(squashAction);
+     * var timeCallback = function (dt) {
+     *   cc.log("time: " + dt);
+     * }
+     * this.schedule(timeCallback, 1);
      */
     schedule: function (callback, interval, repeat, delay) {
         cc.assert(callback, cc._LogInfos.Node.schedule);
@@ -776,8 +778,10 @@ var Component = cc.Class({
      * @param {function} callback  A function wrapped as a selector
      * @param {Number} [delay=0]  The amount of time that the first tick will wait before execution.
      * @example
-     * var squashAction = cc.scaleTo(0.2, 1, 0.6);
-     * this.seq = cc.scheduleOnce(squashAction);
+     * var timeCallback = function (dt) {
+     *   cc.log("time: " + dt);
+     * }
+     * this.scheduleOnce(timeCallback, 2);
      */
     scheduleOnce: function (callback, delay) {
         this.schedule(callback, 0, 0, delay);

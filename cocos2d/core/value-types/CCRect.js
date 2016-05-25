@@ -566,7 +566,7 @@ cc.rectUnion = function (rectA, rectB) {
 /**
  * !#en Returns the overlapping portion of 2 rectangles.
  * !#zh 返回 2 个矩形重叠的部分。
- * @method rectUnion
+ * @method rectIntersection
  * @param {Rect} rectA
  * @param {Rect} rectB
  * @return {Rect}
