@@ -38,6 +38,7 @@ var CallbacksHandler = (function () {
 
 // Avoid to equal to user set target (null for example)
 var REMOVE_PLACEHOLDER = Number.POSITIVE_INFINITY;
+CallbacksHandler.REMOVE_PLACEHOLDER = REMOVE_PLACEHOLDER;
 
 CallbacksHandler.prototype._clearToRemove = function (key) {
     var list = this._callbackTable[key];
@@ -238,7 +239,7 @@ CallbacksInvoker.prototype.invoke = function (key, p1, p2, p3, p4, p5) {
             var callingFunc = list[i];
             var increment = 1;
             // cheap detection for function
-            if (callingFunc.call) {
+            if (callingFunc !== REMOVE_PLACEHOLDER) {
                 var target = list[i + 1];
                 var hasTarget = target && typeof target === 'object';
                 if (hasTarget) {
@@ -278,7 +279,7 @@ CallbacksInvoker.prototype.invokeAndRemove = function (key, p1, p2, p3, p4, p5) 
             callingFunc = list[i];
             increment = 1;
             // cheap detection for function
-            if (callingFunc.call) {
+            if (callingFunc !== REMOVE_PLACEHOLDER) {
                 target = list[i+1];
                 if (target && typeof target === 'object') {
                     callingFunc.call(target, p1, p2, p3, p4, p5);
