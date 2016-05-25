@@ -106,6 +106,13 @@ var EventType = cc.Enum({
     AUTOSCROLL_ENDED : 9
 });
 
+var Direction = cc.Enum({
+    TOP: 0,
+    BOTTOM: 1,
+    LEFT: 2,
+    RIGHT: 3
+});
+
 /**
  * !#en
  * Layout container for a view hierarchy that can be scrolled by the user,
@@ -267,7 +274,21 @@ var ScrollView = cc.Class({
                 }
             },
             animatable: false
+        },
+
+        /**
+         * !#en Scrollview events callback
+         * !#zh 滚动视图的事件回调函数
+         * @property {Component.EventHandler[]} scrollEvents
+         */
+        scrollEvents: {
+            default: [],
+            type: cc.Component.EventHandler
         }
+    },
+
+    statics: {
+        EventType: EventType,
     },
 
     /**
@@ -762,7 +783,86 @@ var ScrollView = cc.Class({
             realMove = cc.pAdd(realMove, outOfBoundary);
         }
 
+        var scrolledToLeft = false;
+        var scrolledToRight = false;
+        var scrolledToTop = false;
+        var scrolledToBottom = false;
+
+        if (realMove.y > 0) { //up
+            var icBottomPos = this.content.y - this.content.anchorY * this.content.height;
+
+            if (icBottomPos + realMove.y > this._bottomBoundary) {
+                scrolledToBottom = true;
+            }
+        }
+        else if (realMove.y < 0) { //down
+            var icTopPos = this.content.y - this.content.anchorY * this.content.height + this.content.height;
+
+            if(icTopPos + realMove.y <= this._topBoundary) {
+                scrolledToTop = true;
+            }
+        }
+        else if (realMove.x < 0) { //left
+            var icRightPos = this.content.x - this.content.anchorX * this.content.width + this.content.width;
+            if (icRightPos + realMove.x <= this._rightBoundary) {
+                scrolledToRight = true;
+            }
+        }
+        else if (realMove.x > 0) { //right
+            var icLeftPos = this.content.x - this.content.anchorX * this.content.width;
+            if (icLeftPos + realMove.x >= this._leftBoundary) {
+                scrolledToLeft = true;
+            }
+        }
+
         this._moveContent(realMove, false);
+
+        if(realMove.x != 0 || realMove.y != 0)
+        {
+            this._dispatchEvent(EventType.SCROLLING);
+        }
+
+        if (scrolledToTop) {
+            this._processScrollEvent(Direction.TOP, false);
+        }
+
+        if (scrolledToBottom) {
+            this._processScrollEvent(Direction.BOTTOM, false);
+        }
+
+        if (scrolledToLeft) {
+            this._processScrollEvent(Direction.LEFT, false);
+        }
+
+        if (scrolledToRight) {
+            this._processScrollEvent(Direction.RIGHT, false);
+        }
+
+    },
+
+    /**
+     * @property  direction 0: top, 1: bottom, 2: left, 3:right
+     */
+    _processScrollEvent: function(direction, bounce) {
+        var eventType = -1;
+        switch (direction) {
+            case Direction.TOP:
+                eventType = bounce ? EventType.BOUNCE_TOP : EventType.SCROLL_TO_TOP;
+                break;
+            case Direction.BOTTOM:
+                eventType = bounce ? EventType.BOUNCE_BOTTOM : EventType.SCROLL_TO_BOTTOM;
+                break;
+            case Direction.LEFT:
+                eventType = bounce ? EventType.BOUNCE_LEFT : EventType.SCROLL_TO_LEFT;
+                break;
+            case Direction.RIGHT:
+                eventType = bounce ? EventType.BOUNCE_RIGHT : EventType.SCROLL_TO_RIGHT;
+                break;
+            default:
+                cc.error('processScrollEvent: The direction is wrong!');
+                break;
+        }
+        this._dispatchEvent(eventType);
     },
 
     _handlePressLogic: function() {
@@ -897,6 +997,7 @@ var ScrollView = cc.Class({
 
         if (reachedEnd) {
             this._autoScrolling = false;
+            this._dispatchEvent(EventType.AUTOSCROLL_ENDED);
         }
 
         var contentPos = cc.pSub(newPosition, this.getContentPosition());
@@ -1093,6 +1194,10 @@ var ScrollView = cc.Class({
         if (this.verticalScrollBar) {
             this.verticalScrollBar._onTouchEnded();
         }
+    },
+
+    _dispatchEvent: function(event) {
+        cc.Component.EventHandler.emitEvents(this.scrollEvents, this, event);
     },
 
     //component life cycle methods
