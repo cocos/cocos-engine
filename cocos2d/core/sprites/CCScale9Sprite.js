@@ -1134,6 +1134,26 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         }
     },
 
+    setDistortionTiling: function(valueOrX, y) {
+        if(y == undefined) {
+            y = valueOrX.y;
+            valueOrX = valueOrX.x;
+        }
+        this._distortionTiling = this._distortionTiling || cc.v2(0,0);
+        this._distortionTiling.x = valueOrX;
+        this._distortionTiling.y = y;
+    },
+
+    setDistortionOffset: function(valueOrX, y) {
+        if(y == undefined) {
+            y = valueOrX.y;
+            valueOrX = valueOrX.x;
+        }
+        this._distortionOffset = this._distortionOffset || cc.v2(0,0);
+        this._distortionOffset.x = valueOrX;
+        this._distortionOffset.y = y;
+    },
+
     getFillCenter: function() {
         return cc.v2(this._fillCenter);
     },
