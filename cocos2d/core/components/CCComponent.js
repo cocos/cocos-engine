@@ -180,7 +180,7 @@ function _callPreloadOnNode (node) {
     var i = 0, len = comps.length;
     for (; i < len; ++i) {
         var component = comps[i];
-        if (!(component._objFlags & IsPreloadCalled) && typeof component.__preload === 'function') {
+        if (component && !(component._objFlags & IsPreloadCalled) && typeof component.__preload === 'function') {
             if (CC_EDITOR) {
                 callPreloadInTryCatch(component);
             }

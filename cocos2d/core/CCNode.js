@@ -929,7 +929,7 @@ var Node = cc.Class({
                 }
             }
             else {
-                if (CC_EDITOR) {
+                if (CC_DEV) {
                     cc.error('Sorry, the component of "%s" which with an index of %s is corrupted! It has been removed.',
                              this.name, c);
                     console.log('Corrupted component value:', component);

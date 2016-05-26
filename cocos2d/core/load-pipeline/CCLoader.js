@@ -136,7 +136,7 @@ JS.mixin(cc.loader, {
     load: function(resources, progressCallback, completeCallback) {
         
         // COMPATIBLE WITH 0.X
-        if (typeof resources === 'string' && resources.startsWith('resources://')) {
+        if (CC_DEV && typeof resources === 'string' && resources.startsWith('resources://')) {
             cc.warn('Sorry, the "resources://" protocol is obsoleted, use cc.loader.loadRes instead please.');
             this.loadRes(resources.slice('resources://'.length), progressCallback, completeCallback);
             return;
