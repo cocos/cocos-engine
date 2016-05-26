@@ -711,6 +711,7 @@ else {
                 case sys.BROWSER_TYPE_UNKNOWN:
                 case sys.BROWSER_TYPE_360:
                 case sys.BROWSER_TYPE_MIUI:
+                default:
                     _supportWebGL = false;
                 }
             }
