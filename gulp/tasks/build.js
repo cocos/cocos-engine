@@ -221,7 +221,7 @@ gulp.task('build-jsb-extends-dev', function () {
 });
 
 gulp.task('build', ['build-html5', 'build-preview', 'build-jsb-extends-min', 'build-jsb-extends-dev']);
-
+gulp.task('build-min', ['build-html5', 'build-jsb-extends-min']);
 gulp.task('build-dev', ['build-preview', 'build-jsb-extends-dev'], function (done) {
     // make dist version dirty
     Del(['./bin/cocos2d-js.js', './bin/cocos2d-js-min.js', './bin/jsb_polyfill.js'], done);
