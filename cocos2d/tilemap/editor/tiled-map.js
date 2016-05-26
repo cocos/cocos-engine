@@ -9,13 +9,8 @@ const Url = require('fire-url');
 const DOMParser = require('xmldom').DOMParser;
 const TMX_ENCODING = { encoding: 'utf-8' };
 
-function searchDependFiles(tmxFile, cb) {
-  if (!Fs.existsSync(tmxFile)) {
-    return cb(new Error(`${tmxFile} is not found!`));
-  }
-
-  var fileContent = Fs.readFileSync(tmxFile, 'utf-8');
-  var doc = new DOMParser().parseFromString(fileContent);
+function searchDependFiles(tmxFile, tmxFileData, cb) {
+  var doc = new DOMParser().parseFromString(tmxFileData);
   if (!doc) {
     return cb(new Error(`Parse ${tmxFile} failed.`));
   }
@@ -65,11 +60,12 @@ const AssetRootUrl = 'db://assets/';
 class TiledMapMeta extends CustomAssetMeta {
   constructor (assetdb) {
     super(assetdb);
-    this.textures = [];
-    this.tsxFiles = [];
+    this._tmxData = '';
+    this._textures = [];
+    this._tsxFiles = [];
   }
 
-  static version () { return '1.0.2'; }
+  static version () { return '1.0.3'; }
   static defaultType() { return 'tiled-map'; }
 
   import (fspath, cb) {
@@ -78,28 +74,31 @@ class TiledMapMeta extends CustomAssetMeta {
         return cb(err);
       }
 
-      var db = this._assetdb;
-      var asset = new cc.TiledMapAsset();
-      asset.name = Path.basenameNoExt(fspath);
-      asset.tmxXmlStr = data;
-      asset.tmxFolderPath = Path.relative(AssetRootUrl, Url.dirname(db.fspathToUrl(fspath)));
-      asset.tmxFolderPath = asset.tmxFolderPath.replace('\\', '/');
-
-      searchDependFiles(fspath, (err, info) => {
+      this._tmxData = data;
+      searchDependFiles(fspath, data, (err, info) => {
         if (err) {
           return cb(err);
         }
 
-        this.textures = info.textures.map(p => db.fspathToUrl(p));
-        this.tsxFiles = info.tsxFiles.map(p => db.fspathToUrl(p));
+        this._textures = info.textures;
+        this._tsxFiles = info.tsxFiles;
 
-        asset.textures = this.textures;
-        asset.tsxFiles = this.tsxFiles;
-
-        db.saveAssetToLibrary(this.uuid, asset);
         cb();
       });
     });
+  }
+
+  postImport ( fspath, cb ) {
+    var db = this._assetdb;
+    var asset = new cc.TiledMapAsset();
+    asset.name = Path.basenameNoExt(fspath);
+    asset.tmxXmlStr = this._tmxData;
+    asset.tmxFolderPath = Path.relative(AssetRootUrl, Url.dirname(db.fspathToUrl(fspath)));
+    asset.tmxFolderPath = asset.tmxFolderPath.replace('\\', '/');
+    asset.textures = this._textures.map(p => db.fspathToUrl(p));
+    asset.tsxFiles = this._tsxFiles.map(p => db.fspathToUrl(p));
+    db.saveAssetToLibrary(this.uuid, asset);
+    cb();
   }
 }
 
