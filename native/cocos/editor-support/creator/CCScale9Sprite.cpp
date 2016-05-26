@@ -28,6 +28,8 @@
 #include "base/CCDirector.h"
 #include "2d/CCSpriteFrameCache.h"
 #include "renderer/CCRenderer.h"
+#include "renderer/CCGLProgramCache.h"
+#include "renderer/ccShaders.h"
 
 namespace creator {
     
@@ -930,7 +932,62 @@ void Scale9SpriteV2::enableTrimmedContentSize(bool isTrimmed) {
 
 void Scale9SpriteV2::setState(State state) {
     this->_brightState = state;
-    //todo add rendering code
+    auto programCache = cocos2d::GLProgramCache::getInstance();
+    if(!programCache) return;
+    if(Scale9SpriteV2::State::DISTORTION == state) {
+        static std::string distortionProgramKey = "cocos2d_creator_Scale9SpriteV2_distortionProgram";
+        cocos2d::GLProgram* distortionProgram(nullptr);
+            distortionProgram = programCache->getGLProgram(distortionProgramKey);
+            if(!distortionProgram) {
+                //TODO: add implementation;
+                std::string fShader = "";
+                fShader = fShader
+                + "varying vec4 v_fragmentColor; \n"
+                + "varying vec2 v_texCoord; \n"
+                + "uniform vec2 u_offset; \n"
+                + "uniform vec2 u_offset_tiling; \n"
+                + "const float PI = 3.14159265359;\n"
+                + "void main() \n"
+                + "{ \n"
+                + "float halfPI = 0.5 * PI;\n"
+                + "float maxFactor = sin(halfPI);\n"
+                + "vec2 uv = v_texCoord;\n"
+                + "vec2 xy = 2.0 * uv.xy - 1.0;\n"
+                + "float d = length(xy);\n"
+                + "if (d < (2.0-maxFactor)) {\n"
+                + "d = length(xy * maxFactor);\n"
+                + "float z = sqrt(1.0 - d * d);\n"
+                + " float r = atan(d, z) / PI;\n"
+                + "float phi = atan(xy.y, xy.x);\n"
+                + "uv.x = r * cos(phi) + 0.5;\n"
+                + "uv.y = r * sin(phi) + 0.5;\n"
+                + "} else {\n"
+                + "discard;\n"
+                + "}\n"
+                + "uv = uv * u_offset_tiling + u_offset;\n"
+                + "uv = fract(uv); \n"
+                + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
+                + "}";
+                
+                distortionProgram = cocos2d::GLProgram::createWithByteArrays(cocos2d::ccPositionTextureColor_noMVP_vert, fShader.c_str());
+                
+                distortionProgram->link();
+                programCache->addGLProgram(distortionProgram, distortionProgramKey);
+        }
+        
+        if(distortionProgram) {
+            auto glProgramState = cocos2d::GLProgramState::create(distortionProgram);
+            glProgramState->setUniformVec2("u_offset", cocos2d::Vec2(0,0));
+            glProgramState->setUniformVec2("u_offset_tiling", cocos2d::Vec2(1,1));
+            this->setGLProgramState(glProgramState);
+        }
+    } else {
+        auto program = programCache->getGLProgram(cocos2d::GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP);
+        this->setGLProgram(program);
+    }
+    
+
+    
 }
 
 void Scale9SpriteV2::setRenderingType(RenderingType type) {

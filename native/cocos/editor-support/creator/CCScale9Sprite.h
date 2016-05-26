@@ -58,6 +58,7 @@ public:
     {
         NORMAL = 0,
         GRAY = 1,
+        DISTORTION = 2,
     };
 
 public:
