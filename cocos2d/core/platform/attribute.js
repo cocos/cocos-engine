@@ -241,6 +241,9 @@ function getTypeChecker (type, attrName) {
                         attrName, propInfo, defaultType);
                 }
             }
+            else {
+                return;
+            }
             delete mainPropAttrs.type;
         };
     }
