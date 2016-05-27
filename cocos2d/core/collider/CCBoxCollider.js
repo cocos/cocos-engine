@@ -54,7 +54,8 @@ var BoxCollider = cc.Class({
             set: function (value) {
                 this._offset = value;
             },
-            type: cc.Vec2
+            type: cc.Vec2,
+            animatable: false
         },
 
         /**
@@ -71,7 +72,8 @@ var BoxCollider = cc.Class({
                 this._size.width = value.width < 0 ? 0 : value.width;
                 this._size.height = value.height < 0 ? 0 : value.height;
             },
-            type: cc.Size
+            type: cc.Size,
+            animatable: false
         }
     }
 });
