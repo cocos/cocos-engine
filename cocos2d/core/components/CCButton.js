@@ -377,6 +377,7 @@ var Button = cc.Class({
 
         this._pressed = true;
         this._updateState();
+        event.stopPropagation();
     },
 
     _onTouchMove: function (event) {
@@ -395,6 +396,7 @@ var Button = cc.Class({
         var sprite = this[state + 'Sprite'];
 
         this._applyTransition(color, sprite);
+        event.stopPropagation();
     },
 
     _onTouchEnded: function (event) {
@@ -405,6 +407,7 @@ var Button = cc.Class({
         }
         this._pressed = false;
         this._updateState();
+        event.stopPropagation();
     },
 
     _onTouchCancel: function () {

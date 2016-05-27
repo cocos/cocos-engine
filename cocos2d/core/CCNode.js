@@ -1083,6 +1083,10 @@ var Node = cc.Class({
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
      * @param {Object} [target] - The target to invoke the callback, can be null
+     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
+     *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
+     *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
+     *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
      * // add Node Touch Event
@@ -1091,7 +1095,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
      */
-    on: function (type, callback, target) {
+    on: function (type, callback, target, useCapture) {
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
                 this._touchListener = cc.EventListener.create({
@@ -1127,7 +1131,7 @@ var Node = cc.Class({
                 cc.eventManager.addListener(this._mouseListener, this);
             }
         }
-        EventTarget.prototype.on.call(this, type, callback, target);
+        this._EventTargetOn(type, callback, target, useCapture);
     },
 
     /**
@@ -1139,13 +1143,17 @@ var Node = cc.Class({
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} callback - The callback to remove.
      * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Boolean} useCapture - Specifies whether the callback being removed was registered as a capturing callback or not.
+     *                              If not specified, useCapture defaults to false. If a callback was registered twice,
+     *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
+     *                              does not affect a non-capturing version of the same listener, and vice versa.
      * @example
      * // remove Node TOUCH_START Event.
      * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      */
-    off: function (type, callback, target) {
-        EventTarget.prototype.off.call(this, type, callback, target);
+    off: function (type, callback, target, useCapture) {
+        this._EventTargetOff(this, type, callback, target, useCapture);
 
         if (_touchEvents.indexOf(type) !== -1) {
             this._checkTouchListeners();
@@ -1164,7 +1172,7 @@ var Node = cc.Class({
      * node.targetOff(target);
      */
     targetOff: function (target) {
-        EventTarget.prototype.targetOff.call(this, target);
+        this._EventTargetTargetOff(this, target);
 
         this._checkTouchListeners();
         this._checkMouseListeners();
@@ -1226,6 +1234,17 @@ var Node = cc.Class({
         }
         else {
             return false;
+        }
+    },
+
+    // Store all capturing parents that are listening to the same event in the array
+    _getCapturingTargets: function (type, array) {
+        var parent = this.parent;
+        while (parent) {
+            if (parent.hasEventListener(type, true)) {
+                array.push(parent);
+            }
+            parent = parent.parent;
         }
     },
 

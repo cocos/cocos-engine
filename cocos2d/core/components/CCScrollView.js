@@ -601,11 +601,11 @@ var ScrollView = cc.Class({
 
     //private methods
     _registerEvent: function() {
-        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
-        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this);
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     },
 
     _onMouseWheel: function(event) {
@@ -629,6 +629,7 @@ var ScrollView = cc.Class({
             this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
         }
+        event.preventDefault();
         event.stopPropagation();
     },
 
@@ -739,6 +740,8 @@ var ScrollView = cc.Class({
             }
             this._handleMoveLogic(touch);
         }
+        // TODO: detect move distance, if distance greater than a seuil, then prevent default.
+        event.preventDefault();
         event.stopPropagation();
     },
 
@@ -754,7 +757,6 @@ var ScrollView = cc.Class({
         if(this.content){
             this._handleReleaseLogic(touch);
         }
-        event.stopPropagation();
     },
 
     _processDeltaMove: function(deltaMove) {
