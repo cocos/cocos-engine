@@ -166,6 +166,9 @@ private:
     std::vector<unsigned short> _indices;
     cocos2d::TrianglesCommand _renderCommand;
     
+    cocos2d::Vec2 _distortionOffset;
+    cocos2d::Vec2 _distortionTiling;
+    
 };
 
 }

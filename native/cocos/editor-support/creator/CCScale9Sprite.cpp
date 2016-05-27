@@ -845,6 +845,8 @@ public:
     }
 };
 
+static std::string distortionProgramKey = "cocos2d_creator_Scale9SpriteV2_distortionProgram";
+    
 //begin of Scale9 sprite implementation
 Scale9SpriteV2::Scale9SpriteV2() :
 _spriteFrame(nullptr),
@@ -860,6 +862,8 @@ _isTriangle(false),
 _isTrimmedContentSize(true),
 _fillType(Scale9SpriteV2::FillType::HORIZONTAL),
 _fillCenter(cocos2d::Vec2::ZERO),
+_distortionOffset(cocos2d::Vec2::ZERO),
+_distortionTiling(cocos2d::Vec2::ONE),
 _fillStart(0),
 _fillRange(0),
 _needRebuildRenderCommand(true)
@@ -935,7 +939,6 @@ void Scale9SpriteV2::setState(State state) {
     auto programCache = cocos2d::GLProgramCache::getInstance();
     if(!programCache) return;
     if(Scale9SpriteV2::State::DISTORTION == state) {
-        static std::string distortionProgramKey = "cocos2d_creator_Scale9SpriteV2_distortionProgram";
         cocos2d::GLProgram* distortionProgram(nullptr);
             distortionProgram = programCache->getGLProgram(distortionProgramKey);
             if(!distortionProgram) {
@@ -977,8 +980,8 @@ void Scale9SpriteV2::setState(State state) {
         
         if(distortionProgram) {
             auto glProgramState = cocos2d::GLProgramState::create(distortionProgram);
-            glProgramState->setUniformVec2("u_offset", cocos2d::Vec2(0,0));
-            glProgramState->setUniformVec2("u_offset_tiling", cocos2d::Vec2(1,1));
+            glProgramState->setUniformVec2("u_offset", this->_distortionOffset);
+            glProgramState->setUniformVec2("u_offset_tiling", this->_distortionTiling);
             this->setGLProgramState(glProgramState);
         }
     } else {
@@ -1095,11 +1098,17 @@ void Scale9SpriteV2::updateColor() {
 }
 
 void Scale9SpriteV2::setDistortionOffset(const cocos2d::Vec2& v) {
-    cocos2d::log("void Scale9SpriteV2::setDistortionOffset(const cocos2d::Vec2& v) called!");
+    this->_distortionOffset = v;
+    if(this->_brightState == Scale9SpriteV2::State::DISTORTION ) {
+        _glProgramState->setUniformVec2("u_offset", v);
+    }
 }
 
 void Scale9SpriteV2::setDistortionTiling(const cocos2d::Vec2& v) {
-    cocos2d::log("void Scale9SpriteV2::setDistortionTiling(const cocos2d::Vec2& v) called!");
+    this->_distortionTiling = v;
+    if(this->_brightState == Scale9SpriteV2::State::DISTORTION ) {
+        _glProgramState->setUniformVec2("u_offset_tiling", v);
+    }
 }
 
 void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) {
