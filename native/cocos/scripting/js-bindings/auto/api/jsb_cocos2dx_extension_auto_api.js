@@ -298,6 +298,20 @@ str
 cc.EventListenerAssetsManager = {
 
 /**
+ * @method init
+ * @param {cc.AssetsManagerEx} arg0
+ * @param {function} arg1
+ * @return {bool}
+ */
+init : function (
+assetsmanagerex, 
+func 
+)
+{
+    return false;
+},
+
+/**
  * @method EventListenerAssetsManagerEx
  * @constructor
  */

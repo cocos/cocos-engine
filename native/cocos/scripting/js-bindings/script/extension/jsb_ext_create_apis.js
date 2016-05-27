@@ -20,11 +20,17 @@
  * THE SOFTWARE.
  */
 
+'use strict';
+
 /************************************************************
  *
  * Constructors with built in init function
  *
  ************************************************************/
+
+jsb.EventListenerAssetsManager.prototype._ctor = function(assetsManager, callback) {
+    callback !== undefined && this.init(assetsManager, callback);
+};
 
 cc.ControlButton.prototype._ctor = function(label, backgroundSprite, fontSize, fontName, autoSizeWithLabel ){
     if (autoSizeWithLabel !== undefined && backgroundSprite) {
