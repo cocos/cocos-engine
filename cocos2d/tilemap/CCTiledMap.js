@@ -443,7 +443,7 @@ var TiledMap = cc.Class({
 
         this.node.on('anchor-changed', this._anchorChanged, this);
         this.node.on('child-added', this._childAdded, this);
-        this.node.on('child-reorder', this._reorderChildren, this);
+        this.node.on('child-reorder', this._syncChildrenOrder, this);
     },
 
     onDisable: function () {
@@ -458,7 +458,7 @@ var TiledMap = cc.Class({
 
         this.node.off('anchor-changed', this._anchorChanged, this);
         this.node.off('child-added', this._childAdded, this);
-        this.node.off('child-reorder', this._reorderChildren, this);
+        this.node.off('child-reorder', this._syncChildrenOrder, this);
     },
 
     onDestroy: function() {
@@ -642,7 +642,7 @@ var TiledMap = cc.Class({
         }
 
         // reorder the children
-        this._reorderChildren();
+        this._syncChildrenOrder();
     },
 
     _anchorChanged: function() {
@@ -672,7 +672,7 @@ var TiledMap = cc.Class({
         }
     },
 
-    _reorderChildren: function() {
+    _syncChildrenOrder: function() {
         var logicChildren = this.node.children;
         for (var i = 0, n = logicChildren.length; i < n; i++) {
             var child = logicChildren[i];
