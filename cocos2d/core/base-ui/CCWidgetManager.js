@@ -23,6 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var TOP     = 1 << 0;
+var MID     = 1 << 1;   // vertical center
+var BOT     = 1 << 2;
+var LEFT    = 1 << 3;
+var CENTER  = 1 << 4;   // horizontal center
+var RIGHT   = 1 << 5;
+var HORIZONTAL = LEFT | CENTER | RIGHT;
+var VERTICAL = TOP | MID | BOT;
+
 // returns a readonly size of the parent node
 function getParentSize (parent) {
     if (parent instanceof cc.Scene) {
@@ -36,75 +45,107 @@ function getParentSize (parent) {
     }
 }
 
+// align to borders by adjusting node's position and size (ignore rotation)
 function alignToParent (node, widget) {
+    var visibleRect;
+
     var parent = node._parent;
     var parentSize = getParentSize(parent);
-    var parentWidth = parentSize.width;
-    var parentHeight = parentSize.height;
     var parentAnchor = parent._anchorPoint;
-    var localLeft, localRight, localTop, localBottom;
-    if (!CC_EDITOR && parent instanceof cc.Scene) {
-        var visibleRect = cc.visibleRect;
-        localLeft = visibleRect.left.x;
-        localRight = visibleRect.right.x;
-        localBottom = visibleRect.bottom.y;
-        localTop = visibleRect.top.y;
-    }
-    else {
-        localLeft = -parentAnchor.x * parentWidth;
-        localRight = localLeft + parentWidth;
-        localBottom = -parentAnchor.y * parentHeight;
-        localTop = localBottom + parentHeight;
-    }
 
-    // adjust borders according to offsets
-
-    localLeft += widget._isAbsLeft ? widget._left : widget._left * parentWidth;
-    localRight -= widget._isAbsRight ? widget._right : widget._right * parentWidth;
-    localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * parentHeight;
-    localTop -= widget._isAbsTop ? widget._top : widget._top * parentHeight;
-
-    // align to borders by adjusting node's position and size (ignore rotation and scaling)
-
+    var isRoot = !CC_EDITOR && parent instanceof cc.Scene;
+    var x = node._position.x, y = node._position.y;
     var anchor = node.getAnchorPoint();
 
-    var width, x = node._position.x, anchorX = anchor.x, scaleX = node._scaleX;
-    if (widget.isStretchWidth) {
-        width = localRight - localLeft;
-        node.width = width / scaleX;
-        x = localLeft + anchorX * width;
-    }
-    else {
-        width = node.width * scaleX;
-        if (widget.isAlignHorizontalCenter) {
-            var parentCenter = (0.5 - parentAnchor.x) * parentWidth;    // no offset
-            x = parentCenter + (anchorX - 0.5) * width;
+    if (widget._alignFlags & HORIZONTAL) {
+
+        var parentWidth = parentSize.width;
+        var localLeft, localRight;
+        if (isRoot) {
+            visibleRect = cc.visibleRect;
+            localLeft = visibleRect.left.x;
+            localRight = visibleRect.right.x;
         }
-        else if (widget.isAlignLeft) {
+        else {
+            localLeft = -parentAnchor.x * parentWidth;
+            localRight = localLeft + parentWidth;
+        }
+
+        // adjust borders according to offsets
+
+        localLeft += widget._isAbsLeft ? widget._left : widget._left * parentWidth;
+        localRight -= widget._isAbsRight ? widget._right : widget._right * parentWidth;
+
+        //
+
+        var width, anchorX = anchor.x, scaleX = node._scaleX;
+        if (scaleX < 0) {
+            anchorX = 1.0 - anchorX;
+            scaleX = -scaleX;
+        }
+        if (widget.isStretchWidth) {
+            width = localRight - localLeft;
+            node.width = width / scaleX;
             x = localLeft + anchorX * width;
         }
-        else if (widget.isAlignRight) {
-            x = localRight + anchorX * width - width;
+        else {
+            width = node.width * scaleX;
+            if (widget.isAlignHorizontalCenter) {
+                var parentCenter = (0.5 - parentAnchor.x) * parentWidth;    // no offset
+                x = parentCenter + (anchorX - 0.5) * width;
+            }
+            else if (widget.isAlignLeft) {
+                x = localLeft + anchorX * width;
+            }
+            else {
+                x = localRight + (anchorX - 1) * width;
+            }
         }
     }
 
-    var height, y = node._position.y, anchorY = anchor.y, scaleY = node._scaleY;
-    if (widget.isStretchHeight) {
-        height = localTop - localBottom;
-        node.height = height / scaleY;
-        y = localBottom + anchorY * height;
-    }
-    else {
-        height = node.height * scaleY;
-        if (widget.isAlignVerticalCenter) {
-            var parentMiddle = (0.5 - parentAnchor.y) * parentHeight;    // no offset
-            y = parentMiddle + (anchorY - 0.5) * height;
+    if (widget._alignFlags & VERTICAL) {
+
+        var parentHeight = parentSize.height;
+        var localTop, localBottom;
+        if (isRoot) {
+            visibleRect = cc.visibleRect;
+            localBottom = visibleRect.bottom.y;
+            localTop = visibleRect.top.y;
         }
-        else if (widget.isAlignBottom) {
+        else {
+            localBottom = -parentAnchor.y * parentHeight;
+            localTop = localBottom + parentHeight;
+        }
+
+        // adjust borders according to offsets
+
+        localBottom += widget._isAbsBottom ? widget._bottom : widget._bottom * parentHeight;
+        localTop -= widget._isAbsTop ? widget._top : widget._top * parentHeight;
+
+        //
+
+        var height, anchorY = anchor.y, scaleY = node._scaleY;
+        if (scaleY < 0) {
+            anchorY = 1.0 - anchorY;
+            scaleY = -scaleY;
+        }
+        if (widget.isStretchHeight) {
+            height = localTop - localBottom;
+            node.height = height / scaleY;
             y = localBottom + anchorY * height;
         }
-        else if (widget.isAlignTop) {
-            y = localTop + anchorY * height - height;
+        else {
+            height = node.height * scaleY;
+            if (widget.isAlignVerticalCenter) {
+                var parentMiddle = (0.5 - parentAnchor.y) * parentHeight;    // no offset
+                y = parentMiddle + (anchorY - 0.5) * height;
+            }
+            else if (widget.isAlignBottom) {
+                y = localBottom + anchorY * height;
+            }
+            else {
+                y = localTop + (anchorY - 1) * height;
+            }
         }
     }
 
@@ -232,7 +273,15 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
 };
 
 
-var widgetManager = cc._widgetManager = {
+var widgetManager = cc._widgetManager = module.exports = {
+    _AlignFlags: {
+        TOP: TOP,
+        MID: MID,       // vertical center
+        BOT: BOT,
+        LEFT: LEFT,
+        CENTER: CENTER, // horizontal center
+        RIGHT: RIGHT
+    },
     isAligning: false,
     _nodesOrderDirty: false,
     _nodesWithWidget: [],
