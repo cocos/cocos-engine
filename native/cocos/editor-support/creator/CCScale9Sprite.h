@@ -58,6 +58,7 @@ public:
     {
         NORMAL = 0,
         GRAY = 1,
+        DISTORTION = 2,
     };
 
 public:
@@ -122,6 +123,10 @@ public:
     float getFillRange() const { return this->_fillRange; }
     
     virtual void draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) override;
+public:
+    //for distortion sprite
+    void setDistortionOffset(const cocos2d::Vec2& v);
+    void setDistortionTiling(const cocos2d::Vec2& v);
 protected:
     virtual void updateColor() override;
 
@@ -160,6 +165,9 @@ private:
     std::vector<cocos2d::V3F_C4B_T2F> _verts;
     std::vector<unsigned short> _indices;
     cocos2d::TrianglesCommand _renderCommand;
+    
+    cocos2d::Vec2 _distortionOffset;
+    cocos2d::Vec2 _distortionTiling;
     
 };
 

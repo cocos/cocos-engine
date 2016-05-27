@@ -121,6 +121,16 @@ renderingtype
 },
 
 /**
+ * @method setDistortionOffset
+ * @param {vec2_object} arg0
+ */
+setDistortionOffset : function (
+vec2 
+)
+{
+},
+
+/**
  * @method setFillCenter
 * @param {float|vec2_object} float
 * @param {float} float
@@ -184,6 +194,16 @@ getInsetBottom : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method setDistortionTiling
+ * @param {vec2_object} arg0
+ */
+setDistortionTiling : function (
+vec2 
+)
+{
 },
 
 /**
