@@ -1094,6 +1094,14 @@ void Scale9SpriteV2::updateColor() {
     this->_needRebuildRenderCommand = true;
 }
 
+void Scale9SpriteV2::setDistortionOffset(const cocos2d::Vec2& v) {
+    cocos2d::log("void Scale9SpriteV2::setDistortionOffset(const cocos2d::Vec2& v) called!");
+}
+
+void Scale9SpriteV2::setDistortionTiling(const cocos2d::Vec2& v) {
+    cocos2d::log("void Scale9SpriteV2::setDistortionTiling(const cocos2d::Vec2& v) called!");
+}
+
 void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) {
     if (!this->_spriteFrame || !this->_spriteFrame->getTexture()) {
         return;

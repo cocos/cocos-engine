@@ -123,6 +123,10 @@ public:
     float getFillRange() const { return this->_fillRange; }
     
     virtual void draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags) override;
+public:
+    //for distortion sprite
+    void setDistortionOffset(const cocos2d::Vec2& v);
+    void setDistortionTiling(const cocos2d::Vec2& v);
 protected:
     virtual void updateColor() override;
 
