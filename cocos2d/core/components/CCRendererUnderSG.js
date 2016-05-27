@@ -85,9 +85,6 @@ var RendererUnderSG = cc.Class({
             return;
         }
 
-        if ( !this.enabled ) {
-            sgNode.setVisible(false);
-        }
         var node = this.node;
         sgNode.setColor(node._color);
         if ( !node._cascadeOpacityEnabled ) {

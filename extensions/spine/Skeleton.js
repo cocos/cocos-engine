@@ -848,7 +848,9 @@ sp.Skeleton = cc.Class({
             if (CC_JSB) {
                 sgNode.retain();
             }
-            sgNode.setVisible(false);
+            if ( !self.enabledInHierarchy ) {
+                sgNode.setVisible(false);
+            }
             sgNode.setContentSize(0, 0);    // restore content size
             self._initSgNode();
             self._appendSgNode(sgNode);
