@@ -33,7 +33,7 @@ if (cc.Scale9SpriteV2) {
     cc.Scale9Sprite = cc.Scale9SpriteV2;
 }
 
-cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1};
+cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1, DISTORTION: 2};
 
 /**
  * Enum for sprite type

@@ -65,6 +65,9 @@ var SpriteDistortion = cc.Class({
             set:function(value) {
                 this._distortionOffset.x = value.x;
                 this._distortionOffset.y = value.y;
+                if(this._spriteSGNode) {
+                    this._spriteSGNode.setDistortionOffset(this._distortionOffset);
+                }
             }
         },
 
@@ -84,6 +87,9 @@ var SpriteDistortion = cc.Class({
             set:function(value) {
                 this._distortionTiling.x = value.x;
                 this._distortionTiling.y = value.y;
+                if(this._spriteSGNode) {
+                    this._spriteSGNode.setDistortionTiling(this._distortionTiling);
+                }
             }
         },
     },
@@ -93,8 +99,8 @@ var SpriteDistortion = cc.Class({
         var sgNode = this._spriteSGNode = sprite && sprite._sgNode;
         if(this._spriteSGNode) {
             sgNode.setState(cc.Scale9Sprite.state.DISTORTION);
-            sgNode._distortionOffset = this._distortionOffset;
-            sgNode._distortionTiling = this._distortionTiling;
+            sgNode.setDistortionOffset(this._distortionOffset);
+            sgNode.setDistortionTiling(this._distortionTiling);
         }
     },
 
