@@ -46,13 +46,13 @@ var TiledLayer = cc.Class({
             this._sgNode.setVisible(false);
         }
     },
-    //onDestroy: function () {
-    //    if ( this.node._sizeProvider === this._sgNode ) {
-    //        this.node._sizeProvider = null;
-    //    }
-    //    this._removeSgNode();
-    //},
-    
+
+    onDestroy: function () {
+        if ( this.node._sizeProvider === this._sgNode ) {
+            this.node._sizeProvider = null;
+        }
+    },
+
     _initSgNode: function() {
         var sgNode = this._sgNode;
         if ( !sgNode ) {

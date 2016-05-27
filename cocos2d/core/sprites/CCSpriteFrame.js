@@ -248,10 +248,9 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     var tempTexture = new cc.Texture2D();
                     tempTexture.initWithElement(tempElement);
                     tempTexture.handleLoadedTexture();
+                    // _refreshTexture will be recalled in setTexture
                     self.setTexture(tempTexture);
-
-                    var rect = self.getRect();
-                    self.setRect(cc.rect(0, 0, rect.width, rect.height));
+                    return;
                 }
                 var w = texture.width, h = texture.height;
 
@@ -382,10 +381,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             maxY += rect.height;
         }
         if (maxX > texture.getPixelWidth()) {
-            cc.error(cc._LogInfos.RectWidth, texture.url);
+            cc.error(cc._LogInfos.RectWidth, texture.url + '/' + this.name);
         }
         if (maxY > texture.getPixelHeight()) {
-            cc.error(cc._LogInfos.RectHeight, texture.url);
+            cc.error(cc._LogInfos.RectHeight, texture.url + '/' + this.name);
         }
     },
 
