@@ -192,9 +192,9 @@ var View = cc._Class.extend({
         }
 
         // Check frame size changed or not
-        var prevFrameW = view._frameSize.width, prevFrameH = view._frameSize.height;
+        var prevFrameW = view._frameSize.width, prevFrameH = view._frameSize.height, prevRotated = view._isRotated;
         view._initFrameSize();
-        if (view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
+        if (view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH)
             return;
 
         // Frame size changed, do resize works
@@ -880,12 +880,12 @@ var View = cc._Class.extend({
     },
 
     _convertTouchesWithScale: function(touches){
-        var locViewPortRect = this._viewPortRect, locScaleX = this._scaleX, locScaleY = this._scaleY, locWidth = this._viewPortRect.width,
-            selTouch, selPoint, selPrePoint, y;
+        var locViewPortRect = this._viewPortRect, locScaleX = this._scaleX, locScaleY = this._scaleY,
+            selTouch, selPoint, selPrePoint, selStartPoint;
         for( var i = 0; i < touches.length; i ++){
             selTouch = touches[i];
             selPoint = selTouch._point;
-	        selPrePoint = selTouch._prevPoint;
+            selPrePoint = selTouch._prevPoint;
             selStartPoint = selTouch._startPoint;
 
             selPoint.x = (selPoint.x - locViewPortRect.x) / locScaleX;
@@ -1050,7 +1050,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @extends ContainerStrategy
      */
     var EqualToFrame = cc.ContainerStrategy.extend({
-        apply: function (view, designedResolution) {
+        apply: function (view) {
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
         }
     });
@@ -1076,13 +1076,13 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
 
             this._setupContainer(view, containerW, containerH);
             if (!CC_EDITOR) {
+                // Setup container's margin and padding
                 if (view._isRotated) {
                     containerStyle.marginLeft = frameH + 'px';
                 }
                 else {
                     containerStyle.margin = '0px';
                 }
-                // Setup container's padding
                 containerStyle.paddingLeft = offx + "px";
                 containerStyle.paddingRight = offx + "px";
                 containerStyle.paddingTop = offy + "px";
@@ -1128,7 +1128,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      * @extends ContainerStrategy
      */
     var OriginalContainer = cc.ContainerStrategy.extend({
-        apply: function (view, designedResolution) {
+        apply: function (view) {
             this._setupContainer(view, cc.game.canvas.width, cc.game.canvas.height);
         }
     });
