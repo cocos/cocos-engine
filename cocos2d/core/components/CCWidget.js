@@ -23,13 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-// Mask for AlignFlags
-var TOP     = 1 << 0;
-var MID     = 1 << 1;   // vertical center
-var BOT     = 1 << 2;
-var LEFT    = 1 << 3;
-var CENTER  = 1 << 4;   // horizontal center
-var RIGHT   = 1 << 5;
+var WidgetManager = require('../base-ui/CCWidgetManager');
+var AlignFlags = WidgetManager._AlignFlags;
+var TOP     = AlignFlags.TOP;
+var MID     = AlignFlags.MID;
+var BOT     = AlignFlags.BOT;
+var LEFT    = AlignFlags.LEFT;
+var CENTER  = AlignFlags.CENTER;
+var RIGHT   = AlignFlags.RIGHT;
 var TOP_BOT = TOP | BOT;
 var LEFT_RIGHT = LEFT | RIGHT;
 
@@ -421,11 +422,11 @@ var Widget = cc.Class({
     },
 
     onEnable: function () {
-        cc._widgetManager.add(this);
+        WidgetManager.add(this);
     },
 
     onDisable: function () {
-        cc._widgetManager.remove(this);
+        WidgetManager.remove(this);
     },
 
     _setAlign: function (flag, isAlign) {
@@ -462,20 +463,7 @@ var Widget = cc.Class({
 
             if (CC_EDITOR && !cc.engine._isPlaying && this.node._parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment chagned
-                var type;
-                if (flag & TOP) {
-                    type = 'top';
-                }
-                else if (flag & LEFT) {
-                    type = 'left';
-                }
-                else if (flag & RIGHT) {
-                    type = 'right';
-                }
-                else if (flag & BOT) {
-                    type = 'bottom';
-                }
-                cc._widgetManager.updateOffsetsToStayPut(this, type);
+                WidgetManager.updateOffsetsToStayPut(this, flag);
             }
         }
         else {
