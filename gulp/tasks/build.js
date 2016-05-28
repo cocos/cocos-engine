@@ -29,10 +29,13 @@ var Del = require('del');
 
 var gulp = require('gulp');
 var mirror = require('gulp-mirror');
+var pipe = require('multipipe');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
 var es = require('event-stream');
+var size = require('gulp-size');
+var chalk = require('chalk');
 
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
@@ -86,31 +89,61 @@ function getUglifyOptions (minify, global_defs) {
     }
 }
 
+function printSizes (sizeGetter, minSizeGetter, zippedSizeGetter) {
+    return es.through(null, function () {
+        console.log('Size of web engine: zipped: ' + chalk.cyan(zippedSizeGetter.size.toLocaleString() + 'B') +
+                    ', minimized: ' + chalk.cyan(minSizeGetter.size.toLocaleString() + 'B') +
+                    ', raw: ' + chalk.cyan(sizeGetter.size.toLocaleString() + 'B') +
+                    ', compression ratio: ' + chalk.magenta((zippedSizeGetter.size / sizeGetter.size * 100).toFixed(2) + '%'));
+        this.emit('end');
+    });
+}
+
 function rebundle_html_dev_min(bundler) {
-    console.log('compiling...');
+    console.log('Compiling ' + paths.outFileDev + ' and ' + paths.outFile + ' ...');
 
-    var dev = uglify(getUglifyOptions(false, {
-        CC_EDITOR: false,
-        CC_DEV: true,
-        CC_TEST: false,
-        CC_JSB: false
-    }));
+    function createSizeGetter (gzip) {
+        return size({
+            gzip: gzip,
+            pretty: false,
+            showTotal: false,
+            showFiles: false,
+        });
+    }
 
-    var min = rename({ suffix: '-min' });
-    min.pipe(uglify(getUglifyOptions(true, {
+    var sizeGetter = createSizeGetter(false);
+    var minSizeGetter = createSizeGetter(false);
+    var zippedSizeGetter = createSizeGetter(true);
+
+    var devPipes = [
+        uglify(getUglifyOptions(false, {
+            CC_EDITOR: false,
+            CC_DEV: true,
+            CC_TEST: false,
+            CC_JSB: false
+        })),
+        sizeGetter
+    ];
+    var minPipes = [
+        rename(paths.outFile),
+        uglify(getUglifyOptions(true, {
             CC_EDITOR: false,
             CC_DEV: false,
             CC_TEST: false,
             CC_JSB: false
-        })));
+        })),
+        minSizeGetter,
+        zippedSizeGetter,
+    ];
 
     return bundler.bundle()
         .on('error', handleErrors.handler)
         .pipe(handleErrors())
-        .pipe(source(paths.outFile))
+        .pipe(source(paths.outFileDev))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(mirror(dev, min))
+        .pipe(mirror(pipe(devPipes), pipe(minPipes)))
+        .pipe(printSizes(sizeGetter, minSizeGetter, zippedSizeGetter))
         .pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}))
         .pipe(gulp.dest(paths.outDir));
 }
@@ -128,7 +161,7 @@ function rebundle(bundler, name, options) {
         .pipe(buffer());
 
     if (macros) {
-        console.log('compiling...');
+        console.log('Compiling ' + name + ' ...');
         if (sourceMaps) {
             bundle = bundle.pipe(sourcemaps.init({loadMaps: true}));
         }
