@@ -135,6 +135,7 @@ var ScrollView = cc.Class({
         this._touchMoveDisplacements = [];
         this._touchMoveTimeDeltas = [];
         this._touchMovePreviousTimestamp = 0;
+        this._touchMoved = false;
 
         this._autoScrolling = false;
         this._autoScrollAttenuate = false;
@@ -629,7 +630,6 @@ var ScrollView = cc.Class({
             this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
         }
-        event.preventDefault();
         event.stopPropagation();
     },
 
@@ -712,7 +712,7 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handlePressLogic(touch);
         }
-        event.stopPropagation();
+        this._touchMoved = false;
     },
 
     _cancelButtonClick: function(touch) {
@@ -740,8 +740,8 @@ var ScrollView = cc.Class({
             }
             this._handleMoveLogic(touch);
         }
-        // TODO: detect move distance, if distance greater than a seuil, then prevent default.
-        event.preventDefault();
+        this._touchMoved = true;
+        // TODO: detect move distance, if distance greater than a seuil, then stop propagation.
         event.stopPropagation();
     },
 
@@ -750,7 +750,9 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handleReleaseLogic(touch);
         }
-        event.stopPropagation();
+        if (this._touchMoved) {
+            event.stopPropagation();
+        }
     },
     _onTouchCancelled: function(event) {
         var touch = event.touch;

@@ -34,6 +34,7 @@ var _doDispatchEvent = function (owner, event) {
     event.target = owner;
 
     // Event.CAPTURING_PHASE
+    cachedArray.length = 0;
     owner._getCapturingTargets(event.type, cachedArray);
     // capturing
     event.eventPhase = 1;
@@ -44,8 +45,9 @@ var _doDispatchEvent = function (owner, event) {
             // fire event
             target._capturingListeners.invoke(event);
             // check if propagation stopped
-            if (event._defaultPrevented) {
-                break;
+            if (event._propagationStopped) {
+                cachedArray.length = 0;
+                return;
             }
         }
     }
@@ -54,12 +56,10 @@ var _doDispatchEvent = function (owner, event) {
     // Event.AT_TARGET
     // checks if destroyed in capturing callbacks
     if (owner._isTargetActive(event.type)) {
-        if (!event._defaultPrevented) {
-            _doSendEvent(owner, event);
-        }
+        _doSendEvent(owner, event);
     }
 
-    if (event.bubbles && !event._propagationStopped) {
+    if (!event._propagationStopped && event.bubbles) {
         // Event.BUBBLING_PHASE
         owner._getBubblingTargets(event.type, cachedArray);
         // propagate
@@ -72,6 +72,7 @@ var _doDispatchEvent = function (owner, event) {
                 target._bubblingListeners.invoke(event);
                 // check if propagation stopped
                 if (event._propagationStopped) {
+                    cachedArray.length = 0;
                     return;
                 }
             }
@@ -305,15 +306,10 @@ JS.mixin(EventTarget.prototype, {
      *
      * @method dispatchEvent
      * @param {Event} event - The Event object that is dispatched into the event flow
-     * @return {Boolean} - returns true if either the event's preventDefault() method was not invoked,
-     *                      or its cancelable attribute value is false, and false otherwise.
      */
     dispatchEvent: function (event) {
         _doDispatchEvent(this, event);
         cachedArray.length = 0;
-        var notPrevented = ! event._defaultPrevented;
-        // event.unuse();
-        return notPrevented;
     },
 
     /**
