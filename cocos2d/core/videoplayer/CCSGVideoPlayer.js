@@ -143,7 +143,7 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
 
     setVisible: function ( visible ) {
         _ccsg.Node.prototype.setVisible.call(this, visible);
-        this._renderCmd.updateDisplay();
+        this._renderCmd.updateVisibility();
     }
 });
 
@@ -326,7 +326,7 @@ _ccsg.VideoPlayer.EventType = {
                 }
                 video.currentTime = 0;
             }
-            this.updateDisplay();
+            this.updateVisibility();
             this.updateMatrix();
         }.bind(this);
         video.addEventListener(polyfill.event, cb);
@@ -374,7 +374,7 @@ _ccsg.VideoPlayer.EventType = {
         });
     };
 
-    proto.updateDisplay = function () {
+    proto.updateVisibility = function () {
         var node = this._node;
         if (!this._video) return;
         var video = this._video;
