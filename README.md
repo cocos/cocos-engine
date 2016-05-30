@@ -33,21 +33,22 @@ This is all you have to do to set engine development environment.
 gulp build
 ```
 
-### Unit Test
+### Test
 
-#### Install test environment
+#### Prerequisite
 
-```bash
-npm install gulp-qunit
-```
+ - Install [express](http://expressjs.com/) `npm install express`
+ - Install gulp-qunit `npm install gulp-qunit@1.3.0`
 
-#### Test in CLI
+#### Unit Test
+
+##### Test in CLI
 
 ```bash
 npm test
 ```
 
-#### Test in browser
+##### Test in browser
 
 1. Build for testing. <br>
 
@@ -55,11 +56,15 @@ npm test
     gulp build-test
     ```
 
-2. Start a http server in cloned project folder.
+2. Start express in cloned project folder.
 
-3. Open [http://127.0.0.1:8511/bin/qunit-runner.html](http://127.0.0.1:8511/bin/qunit-runner.html) in your browser.
+    ```
+    node test/qunit/server.js
+    ```
 
-### Visual Test
+3. Open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in your browser.
+
+#### Visual Test
 
 1. Build for testing.<br>
 
@@ -67,9 +72,13 @@ npm test
     gulp build-test
     ```
 
-2. Start a http server in cloned project folder.
+2. Start express in cloned project folder.
 
-3. Open [http://127.0.0.1:8512/test/visual-tests/index.html](http://127.0.0.1:8512/test/visual-tests/index.html) in your browser.
+    ```
+    node test/visual-tests/server.js
+    ```
+
+3. Open [http://localhost:8512/test/visual-tests/index.html](http://localhost:8512/test/visual-tests/index.html) in your browser.
 
 ## Links
 
