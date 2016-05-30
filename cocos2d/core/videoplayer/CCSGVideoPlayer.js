@@ -139,6 +139,11 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         var index = list.indexOf(this);
         if(index !== -1)
             list.splice(index, 1);
+    },
+
+    setVisible: function ( visible ) {
+        _ccsg.Node.prototype.setVisible.call(this, visible);
+        this._renderCmd.updateDisplay();
     }
 });
 
@@ -298,7 +303,6 @@ _ccsg.VideoPlayer.EventType = {
             node.setContentSize(video.clientWidth, video.clientHeight);
             video.removeEventListener(polyfill.event, cb);
             video.currentTime = 0;
-            video.style["visibility"] = "visible";
             //IOS does not display video images
             video.play();
             if(!this._played){
@@ -307,6 +311,7 @@ _ccsg.VideoPlayer.EventType = {
                 }
                 video.currentTime = 0;
             }
+            this.updateDisplay();
             this.updateMatrix(this._worldTransform);
         }.bind(this);
         video.addEventListener(polyfill.event, cb);
@@ -352,6 +357,18 @@ _ccsg.VideoPlayer.EventType = {
                 self.pause();
             }
         });
+    };
+
+    proto.updateDisplay = function () {
+        var node = this._node;
+        if (!this._video) return;
+        var video = this._video;
+        if (node.visible) {
+            video.style.visibility = 'visible';
+        } else {
+            video.style.visibility = 'hidden';
+            video.pause();
+        }
     };
 
     proto.createDom = function () {
