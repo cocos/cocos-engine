@@ -484,6 +484,44 @@ var ScrollView = cc.Class({
         }
     },
 
+
+    /**
+     * !#en Scroll with an offset related to the ScrollView's origin.
+     * !#zh 视图内容在规定时间内将滚动到 ScrollView 相对偏移位置上。
+     * @method scrollToOffset
+     * @param {Vec2} position - A Vec2, the value of which each axis between 0 and (contentSize.width/height - scrollSize.width/height).
+     * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
+     * the content will jump to the specific offset of ScrollView immediately.
+     * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
+     * @example
+     * // Scroll to middle position in 0.1 second in x-axis
+     * var maxScrollOffset = this.getMaxScrollOffset();
+     * scrollView.scrollToOffset(cc.p(maxScrollOffset.x / 2, 0), 0.1);
+     */
+    scrollToOffset: function(position, timeInSecond, attenuated) {
+        var maxScrollOffset = this.getMaxScrollOffset();
+
+        var anchor = cc.pClamp(cc.p(position.x / maxScrollOffset.x, (maxScrollOffset.y - position.y ) / maxScrollOffset.y),
+                           cc.p(0, 0), cc.p(1, 1));
+
+        this.scrollTo(anchor, timeInSecond, attenuated);
+    },
+
+    getScrollOffset: function() {
+        var bottomDeta = Math.abs(this._getContentBottomBoundary() - this._bottomBoundary);
+        var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
+        var maxScrollOffset = this.getMaxScrollOffset();
+
+        return cc.p(leftDeta, maxScrollOffset.y - bottomDeta);
+    },
+
+    getMaxScrollOffset: function() {
+        var scrollSize = this.node.getContentSize();
+        var contentSize = this.content.getContentSize();
+
+        return cc.p(contentSize.width - scrollSize.width, contentSize.height - scrollSize.height);
+    },
+
     /**
      * !#en Scroll the content to the horizontal percent position of ScrollView.
      * !#zh 视图内容在规定时间内将滚动到 ScrollView 水平方向的百分比位置上。
