@@ -509,7 +509,7 @@ var ScrollView = cc.Class({
     },
 
     /**
-     * !#en Get the current scroll offset related to scrollview 's top left origin.
+     * !#en  Get the positive offset value corresponds to the content's top left boundary.
      * !#zh  获取滚动视图相对于左上角原点的当前滚动偏移
      * @method getScrollOffset
      * @return {Vec2}  - A Vec2 value indicate the current scroll offset.
@@ -526,7 +526,7 @@ var ScrollView = cc.Class({
      * !#en Get the maximize available  scroll offset
      * !#zh 获取滚动视图最大可以滚动的偏移量
      * @method getMaxScrollOffset
-     * @return {Ve2c} - A Vec2 value indicate the maximize scroll offset in x and y axis.
+     * @return {Vec2} - A Vec2 value indicate the maximize scroll offset in x and y axis.
      */
     getMaxScrollOffset: function() {
         var scrollSize = this.node.getContentSize();
