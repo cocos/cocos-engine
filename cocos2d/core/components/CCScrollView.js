@@ -486,10 +486,11 @@ var ScrollView = cc.Class({
 
 
     /**
-     * !#en Scroll with an offset related to the ScrollView's origin.
-     * !#zh 视图内容在规定时间内将滚动到 ScrollView 相对偏移位置上。
+     * !#en Scroll with an offset related to the ScrollView's top left origin, if timeInSecond is omitted, then it will jump to the
+     *       specific offset immediately.
+     * !#zh 视图内容在规定时间内将滚动到 ScrollView 相对左上角原点的偏移位置, 如果 timeInSecond参数不传，则立即滚动到指定偏移位置。
      * @method scrollToOffset
-     * @param {Vec2} position - A Vec2, the value of which each axis between 0 and (contentSize.width/height - scrollSize.width/height).
+     * @param {Vec2} offset - A Vec2, the value of which each axis between 0 and maxScrollOffset
      * @param {Number} [timeInSecond=0] - Scroll time in second, if you don't pass timeInSecond,
      * the content will jump to the specific offset of ScrollView immediately.
      * @param {Boolean} [attenuated=true] - Whether the scroll acceleration attenuated, default is true.
@@ -498,15 +499,21 @@ var ScrollView = cc.Class({
      * var maxScrollOffset = this.getMaxScrollOffset();
      * scrollView.scrollToOffset(cc.p(maxScrollOffset.x / 2, 0), 0.1);
      */
-    scrollToOffset: function(position, timeInSecond, attenuated) {
+    scrollToOffset: function(offset, timeInSecond, attenuated) {
         var maxScrollOffset = this.getMaxScrollOffset();
 
-        var anchor = cc.pClamp(cc.p(position.x / maxScrollOffset.x, (maxScrollOffset.y - position.y ) / maxScrollOffset.y),
+        var anchor = cc.pClamp(cc.p(offset.x / maxScrollOffset.x, (maxScrollOffset.y - offset.y ) / maxScrollOffset.y),
                            cc.p(0, 0), cc.p(1, 1));
 
         this.scrollTo(anchor, timeInSecond, attenuated);
     },
 
+    /**
+     * !#en Get the current scroll offset related to scrollview 's top left origin.
+     * !#zh  获取滚动视图相对于左上角原点的当前滚动偏移
+     * @method getScrollOffset
+     * @return {Vec2}  - A Vec2 value indicate the current scroll offset.
+     */
     getScrollOffset: function() {
         var bottomDeta = Math.abs(this._getContentBottomBoundary() - this._bottomBoundary);
         var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
@@ -515,6 +522,12 @@ var ScrollView = cc.Class({
         return cc.p(leftDeta, maxScrollOffset.y - bottomDeta);
     },
 
+    /**
+     * !#en Get the maximize available  scroll offset
+     * !#zh 获取滚动视图最大可以滚动的偏移量
+     * @method getMaxScrollOffset
+     * @return {Ve2c} - A Vec2 value indicate the maximize scroll offset in x and y axis.
+     */
     getMaxScrollOffset: function() {
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();
