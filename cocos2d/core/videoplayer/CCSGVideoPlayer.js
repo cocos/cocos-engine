@@ -139,6 +139,11 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         var index = list.indexOf(this);
         if(index !== -1)
             list.splice(index, 1);
+    },
+
+    setVisible: function ( visible ) {
+        _ccsg.Node.prototype.setVisible.call(this, visible);
+        this._renderCmd.updateVisibility();
     }
 });
 
@@ -207,12 +212,17 @@ _ccsg.VideoPlayer.EventType = {
             video._polyfill.canPlayType.push(".webm");
     })();
 
-    if(cc.sys.OS_IOS === cc.sys.os){
-        video._polyfill.devicePixelRatio = true;
-        video._polyfill.event = "progress";
-    }
     if(cc.sys.browserType === cc.sys.BROWSER_TYPE_FIREFOX){
         video._polyfill.autoplayAfterOperation = true;
+    }
+
+    if (
+        cc.sys.OS_ANDROID === cc.sys.os && (
+        cc.sys.browserType === cc.sys.BROWSER_TYPE_SOUGOU ||
+        cc.sys.browserType === cc.sys.BROWSER_TYPE_360
+    )
+    ) {
+        video._polyfill.zoomInvalid = true;
     }
 
     var style = document.createElement("style");
@@ -251,17 +261,27 @@ _ccsg.VideoPlayer.EventType = {
     proto.updateMatrix = function () {
         if (!this._video) return;
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
+        var dpr = cc.view._devicePixelRatio;
         var t = node.getNodeToWorldTransform();
         if (!t) return;
 
-        if(polyfill.devicePixelRatio){
-            var dpr = window.devicePixelRatio;
-            scaleX /= dpr;
-            scaleY /= dpr;
+        scaleX /= dpr;
+        scaleY /= dpr;
+
+        var container = cc.container;
+        var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
+
+        var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
+        var offsetY = container && container.style.paddingBottom && parseInt(container.style.paddingBottom);
+        var tx = t.tx * scaleX + offsetX, ty = t.ty * scaleY + offsetY;
+
+        if (polyfill.zoomInvalid) {
+            this.updateSize(node._contentSize.width * a, node._contentSize.height * d);
+            a = 1;
+            d = 1;
         }
 
-        var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
-        var matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + t.tx + "," + -t.ty + ")";
+        var matrix = "matrix(" + a + "," + -b + "," + -c + "," + d + "," + tx + "," + -ty + ")";
         this._video.style['transform'] = matrix;
         this._video.style['-webkit-transform'] = matrix;
         this._video.style['transform-origin'] = '0px 100% 0px';
@@ -295,10 +315,9 @@ _ccsg.VideoPlayer.EventType = {
             if(this._loaded == true)
                 return;
             this._loaded = true;
-            node.setContentSize(video.clientWidth, video.clientHeight);
+            node.setContentSize(node._contentSize.width, node._contentSize.height);
             video.removeEventListener(polyfill.event, cb);
             video.currentTime = 0;
-            video.style["visibility"] = "visible";
             //IOS does not display video images
             video.play();
             if(!this._played){
@@ -307,7 +326,8 @@ _ccsg.VideoPlayer.EventType = {
                 }
                 video.currentTime = 0;
             }
-            this.updateMatrix(this._worldTransform);
+            this.updateVisibility();
+            this.updateMatrix();
         }.bind(this);
         video.addEventListener(polyfill.event, cb);
 
@@ -352,6 +372,18 @@ _ccsg.VideoPlayer.EventType = {
                 self.pause();
             }
         });
+    };
+
+    proto.updateVisibility = function () {
+        var node = this._node;
+        if (!this._video) return;
+        var video = this._video;
+        if (node.visible) {
+            video.style.visibility = 'visible';
+        } else {
+            video.style.visibility = 'hidden';
+            video.pause();
+        }
     };
 
     proto.createDom = function () {
@@ -441,7 +473,15 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (!video) return;
 
-        video.currentTime = sec;
+        if (this._loaded) {
+            video.currentTime = sec;
+        } else {
+            var cb = function () {
+                video.currentTime = sec;
+                video.removeEventListener(polyfill.event, cb);
+            };
+            video.addEventListener(polyfill.event, cb);
+        }
         if(_ccsg.VideoPlayer._polyfill.autoplayAfterOperation && this.isPlaying()){
             setTimeout(function(){
                 video.play();
