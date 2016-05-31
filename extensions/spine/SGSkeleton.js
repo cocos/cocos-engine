@@ -281,7 +281,6 @@ sp._SGSkeleton = _ccsg.Node.extend({
             this.setContentSize(skeletonData.width / cc.director.getContentScaleFactor(), skeletonData.height / cc.director.getContentScaleFactor());
 
         this._skeleton = new spine.Skeleton(skeletonData);
-        this._skeleton.updateWorldTransform();
         this._rootBone = this._skeleton.getRootBone();
         this._ownsSkeletonData = ownsSkeletonData;
 
