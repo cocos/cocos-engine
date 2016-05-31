@@ -57,9 +57,9 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         this._renderCmd.pause();
     },
 
-    //resume: function () {
-    //    this._renderCmd.resume();
-    //},
+    _resume: function () {
+        this._renderCmd.play();
+    },
 
     stop: function () {
         this._renderCmd.stop();
@@ -116,6 +116,10 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     },
 
     setContentSize: function (width, height) {
+        if (width.width !== undefined && width.height !== undefined) {
+            height = width.height;
+            width = width.width;
+        }
         _ccsg.Node.prototype.setContentSize.call(this, width, height);
         this._renderCmd.updateSize(width, height);
     },
@@ -244,6 +248,7 @@ _ccsg.VideoPlayer.EventType = {
         // 有一些浏览器第一次播放视频需要特殊处理，这个标记用来标识是否播放过
         this._played = false;
         this._playing = false;
+        this._ignorePause = false;
     };
 
     var proto = _ccsg.VideoPlayer.RenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
@@ -356,13 +361,16 @@ _ccsg.VideoPlayer.EventType = {
         var node = this._node, video = this._video, self = this;
         //binding event
         video.addEventListener("ended", function(){
+            if (self._video !== video) return;
             this._playing = false;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.COMPLETED);
         }.bind(this));
         video.addEventListener("play", function(){
+            if (self._video !== video) return;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PLAYING);
         });
         video.addEventListener("pause", function(){
+            if (self._ignorePause || self._video !== video) return;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PAUSED);
         });
         video.addEventListener("click", function () {
@@ -436,18 +444,12 @@ _ccsg.VideoPlayer.EventType = {
             setTimeout(function(){
                 video.play();
                 self._playing = true;
-                self._stopped = false;
             }, 20);
         }else{
             video.play();
             this._playing = true;
-            this._stopped = false;
         }
     };
-
-    //proto.resume = function () {
-    //    this.play();
-    //};
 
     proto.pause = function () {
         var video = this._video;
@@ -459,11 +461,13 @@ _ccsg.VideoPlayer.EventType = {
     proto.stop = function () {
         var video = this._video;
         if (!video) return;
+        this._ignorePause = true;
         video.pause();
         var node = this._node;
         setTimeout(function(){
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.STOPPED);
-        }, 0);
+            this._ignorePause = false;
+        }.bind(this), 0);
         // 恢复到视频起始位置
         video.currentTime = 0;
         this._playing = false;
