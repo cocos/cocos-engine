@@ -447,7 +447,6 @@ sp.Skeleton = cc.Class({
      * @example
      * var bone = spine.findBone('head');
      * cc.log(bone.worldX); // return 0;
-     * spine.setToSetupPose();
      * spine.updateWorldTransform();
      * bone = spine.findBone('head');
      * cc.log(bone.worldX); // return -23.12;
