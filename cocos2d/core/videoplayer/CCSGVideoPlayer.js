@@ -361,16 +361,16 @@ _ccsg.VideoPlayer.EventType = {
         var node = this._node, video = this._video, self = this;
         //binding event
         video.addEventListener("ended", function(){
+            if (self._video !== video) return;
             this._playing = false;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.COMPLETED);
         }.bind(this));
         video.addEventListener("play", function(){
+            if (self._video !== video) return;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PLAYING);
         });
         video.addEventListener("pause", function(){
-            if (self._ignorePause) {
-                return true;
-            }
+            if (self._ignorePause || self._video !== video) return;
             node._dispatchEvent(_ccsg.VideoPlayer.EventType.PAUSED);
         });
         video.addEventListener("click", function () {
