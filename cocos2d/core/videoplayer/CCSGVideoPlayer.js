@@ -57,9 +57,9 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         this._renderCmd.pause();
     },
 
-    //resume: function () {
-    //    this._renderCmd.resume();
-    //},
+    resume: function () {
+        this._renderCmd.resume();
+    },
 
     stop: function () {
         this._renderCmd.stop();
@@ -116,6 +116,10 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     },
 
     setContentSize: function (width, height) {
+        if (width.width !== undefined && width.height !== undefined) {
+            height = width.height;
+            width = width.width;
+        }
         _ccsg.Node.prototype.setContentSize.call(this, width, height);
         this._renderCmd.updateSize(width, height);
     },
@@ -445,9 +449,9 @@ _ccsg.VideoPlayer.EventType = {
         }
     };
 
-    //proto.resume = function () {
-    //    this.play();
-    //};
+    proto.resume = function () {
+        this.play();
+    };
 
     proto.pause = function () {
         var video = this._video;
