@@ -405,7 +405,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Pause the director's ticker.
-     * !#zh 暂停正在运行的场景。
+     * !#zh 暂停正在运行的场景，该暂停只会停止 Scheduler，但是不会停止渲染和 UI 响应。
      * @method pause
      */
     pause: function () {
@@ -816,7 +816,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
     /**
      * !#en Resume director after pause, if the current scene is not paused, nothing will happen.
-     * !#zh 恢复暂停场景, 如果当前场景没有暂停将没任何事情发生。
+     * !#zh 恢复暂停场景，恢复 Scheduler，如果当前场景没有暂停将没任何事情发生。
      * @method resume
      */
     resume: function () {
