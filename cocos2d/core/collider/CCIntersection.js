@@ -10,10 +10,10 @@ var Intersection = {};
  * !#en Test line and line
  * !#zh 测试线段与线段是否相交
  * @method lineLine
- * @param {Vec2} a1 
- * @param {Vec2} a2
- * @param {Vec2} b1
- * @param {Vec2} b2
+ * @param {Vec2} a1 - The start point of the first line
+ * @param {Vec2} a2 - The end point of the first line
+ * @param {Vec2} b1 - The start point of the second line
+ * @param {Vec2} b2 - The end point of the second line
  * @return {boolean}
  */
 function lineLine ( a1, a2, b1, b2 ) {
@@ -41,9 +41,9 @@ Intersection.lineLine = lineLine;
  * !#en Test line and rect
  * !#zh 测试线段与矩形是否相交
  * @method lineRect
- * @param {Vec2} a1
- * @param {Vec2} a2
- * @param {Vec2} b
+ * @param {Vec2} a1 - The start point of the line
+ * @param {Vec2} a2 - The end point of the line
+ * @param {Rect} b - The rect
  * @return {boolean}
  */
 function lineRect ( a1, a2, b ) {
@@ -73,9 +73,9 @@ Intersection.lineRect = lineRect;
  * !#en Test line and polygon
  * !#zh 测试线段与多边形是否相交
  * @method linePolygon
- * @param {Vec2} a1
- * @param {Vec2} a2
- * @param {[Vec2]} b
+ * @param {Vec2} a1 - The start point of the line
+ * @param {Vec2} a2 - The end point of the line
+ * @param {[Vec2]} b - The polygon, a set of points
  * @return {boolean}
  */
 function linePolygon ( a1, a2, b ) {
@@ -98,8 +98,8 @@ Intersection.linePolygon = linePolygon;
  * !#en Test rect and rect
  * !#zh 测试矩形与矩形是否相交
  * @method rectRect
- * @param {Rect} a
- * @param {Rect} b
+ * @param {Rect} a - The first rect
+ * @param {Rect} b - The second rect
  * @return {boolean}
  */
 function rectRect ( a, b ) {
@@ -128,8 +128,8 @@ Intersection.rectRect = rectRect;
  * !#en Test rect and polygon
  * !#zh 测试矩形与多边形是否相交
  * @method rectPolygon
- * @param {Rect} a
- * @param {[Vec2]} b
+ * @param {Rect} a - The rect
+ * @param {[Vec2]} b - The polygon, a set of points
  * @return {boolean}
  */
 function rectPolygon ( a, b ) {
@@ -180,8 +180,8 @@ Intersection.rectPolygon = rectPolygon;
  * !#en Test polygon and polygon
  * !#zh 测试多边形与多边形是否相交
  * @method polygonPolygon
- * @param {[Vec2]} a
- * @param {[Vec2]} b
+ * @param {[Vec2]} a - The first polygon, a set of points
+ * @param {[Vec2]} b - The second polygon, a set of points
  * @return {boolean}
  */
 function polygonPolygon ( a, b ) {
@@ -235,7 +235,7 @@ Intersection.circleCircle = circleCircle;
  * !#en Test polygon and circle
  * !#zh 测试矩形与圆形是否相交
  * @method polygonCircle
- * @param {[Vec2]} polygon
+ * @param {[Vec2]} polygon - The Polygon, a set of points
  * @param {Object} circle - Object contains position and radius
  * @return {boolean}
  */
@@ -263,8 +263,8 @@ Intersection.polygonCircle = polygonCircle;
  * !#en Test whether the point is in the polygon
  * !#zh 测试一个点是否在一个多边形中
  * @method pointInPolygon
- * @param {Vec2} point
- * @param {[Vec2]} polygon
+ * @param {Vec2} point - The point
+ * @param {[Vec2]} polygon - The polygon, a set of points
  * @return {boolean}
  */
 function pointInPolygon (point, polygon) {
@@ -293,9 +293,9 @@ Intersection.pointInPolygon = pointInPolygon;
  * !#en Calculate the distance of point to line.
  * !#zh 计算点到直线的距离。如果这是一条线段并且垂足不在线段内，则会计算点到线段端点的距离。
  * @method pointLineDistance
- * @param {Vec2} point
- * @param {Vec2} start - start point of line
- * @param {Vec2} end - end point of line
+ * @param {Vec2} point - The point
+ * @param {Vec2} start - The start point of line
+ * @param {Vec2} end - The end point of line
  * @param {boolean} isSegment - whether this line is a segment
  * @return {boolean}
  */
