@@ -8,10 +8,10 @@ var CollisionType = Contact.CollisionType;
  * !#zh
  * 一个简单的碰撞组件管理类，用于处理节点之间的碰撞组件是否产生了碰撞，并调用相应回调函数。
  *
- * @class ColliderManager
+ * @class CollisionManager
  * @example
  *
- * // Get the collider manager.
+ * // Get the collision manager.
  * var manager = cc.director.getCollisionManager();
  *
  * // Enabled the colider manager.
@@ -24,7 +24,7 @@ var CollisionType = Contact.CollisionType;
  * manager.enabledDrawBoundingBox = true;
  *
  * 
- * // Collider callback
+ * // Collision callback
  * onCollisionEnter: function (other, self) {
  *     this.node.color = cc.Color.RED;
  *     this.touchingNumber ++;
