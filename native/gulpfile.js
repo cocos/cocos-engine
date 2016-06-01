@@ -87,7 +87,15 @@ gulp.task('init', function(cb) {
 });
 
 gulp.task('gen-libs', function(cb) {
-  execSync('./tools/cocos2d-console/bin/cocos gen-libs -m release', '.');
+  var cocosConsoleRoot = './tools/cocos2d-console/bin';
+  var cocosConsoleBin;
+  if (process.platform === 'darwin') {
+    cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos');
+  }
+  else {
+    cocosConsoleBin = Path.join(cocosConsoleRoot, 'cocos.bat');
+  }
+  execSync(cocosConsoleBin + ' gen-libs -m release', '.');
   cb();
 });
 
