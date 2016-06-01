@@ -240,8 +240,8 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * !#en Pause the game.
-     * !#zh 暂停游戏。
+     * !#en Pause the game，pause main loop.
+     * !#zh 暂停游戏，暂停的是整个主循环。
      * @method pause
      */
     pause: function () {
@@ -257,7 +257,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * !#en Resume the game from pause.
-     * !#zh 继续游戏
+     * !#zh 继续游戏，继续的是整个主循环。
      * @method resume
      */
     resume: function () {

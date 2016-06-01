@@ -440,6 +440,24 @@ sp.Skeleton = cc.Class({
     // RENDERER
 
     /**
+     * !#en Computes the world SRT from the local SRT for each bone.
+     * !#zh 重新更新所有骨骼的世界 Transform，
+     * 当获取 bone 的数值未更新时，即可使用该函数进行更新数值。
+     * @method updateWorldTransform
+     * @example
+     * var bone = spine.findBone('head');
+     * cc.log(bone.worldX); // return 0;
+     * spine.updateWorldTransform();
+     * bone = spine.findBone('head');
+     * cc.log(bone.worldX); // return -23.12;
+     */
+    updateWorldTransform: function () {
+        if (this._sgNode) {
+            this._sgNode.updateWorldTransform();
+        }
+    },
+
+    /**
      * !#en Sets the bones and slots to the setup pose.
      * !#zh 还原到起始动作
      * @method setToSetupPose

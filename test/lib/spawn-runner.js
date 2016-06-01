@@ -4,7 +4,7 @@ if (cc.sys.platform === cc.sys.EDITOR_CORE) {
     var Ipc = require('ipc');
     var Path = require('path');
     var Url = require('url');
-    var BrowserWindow = require('browser-window');
+    var Electron = require('electron');
 
     var spawnWorker = function (title, scriptUrl, debug) {
         describe(title, function () {
@@ -32,7 +32,7 @@ if (cc.sys.platform === cc.sys.EDITOR_CORE) {
                     done();
                 });
 
-                win = new BrowserWindow({
+                win = new Electron.BrowserWindow({
                     title: title,
                     width: 400,
                     height: 400,

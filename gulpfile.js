@@ -34,7 +34,8 @@ paths = {
     src: './src',
     jsEntry: './index.js',
     outDir: './bin',
-    outFile: 'cocos2d-js.js',
+    outFileDev: 'cocos2d-js.js',
+    outFile: 'cocos2d-js-min.js',
 
     jsb: {
         entries: [
