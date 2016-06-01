@@ -425,7 +425,8 @@
 
         var startPosition = this._calculateFillTextStartPosition();
         var lineHeight = this._getLineHeight();
-
+        //use round for line join to avoid sharp intersect point
+        this._labelContext.lineJoin = 'round';
         var color = this._displayedColor;
         this._labelContext.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
 
