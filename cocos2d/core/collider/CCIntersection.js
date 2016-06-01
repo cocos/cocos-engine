@@ -7,8 +7,10 @@
 var Intersection = {};
 
 /**
+ * !#en Test line and line
+ * !#zh 测试线段与线段是否相交
  * @method lineLine
- * @param {Vec2} a1
+ * @param {Vec2} a1 
  * @param {Vec2} a2
  * @param {Vec2} b1
  * @param {Vec2} b2
@@ -36,6 +38,8 @@ function lineLine ( a1, a2, b1, b2 ) {
 Intersection.lineLine = lineLine;
 
 /**
+ * !#en Test line and rect
+ * !#zh 测试线段与矩形是否相交
  * @method lineRect
  * @param {Vec2} a1
  * @param {Vec2} a2
@@ -66,6 +70,8 @@ function lineRect ( a1, a2, b ) {
 Intersection.lineRect = lineRect;
 
 /**
+ * !#en Test line and polygon
+ * !#zh 测试线段与多边形是否相交
  * @method linePolygon
  * @param {Vec2} a1
  * @param {Vec2} a2
@@ -89,6 +95,8 @@ function linePolygon ( a1, a2, b ) {
 Intersection.linePolygon = linePolygon;
 
 /**
+ * !#en Test rect and rect
+ * !#zh 测试矩形与矩形是否相交
  * @method rectRect
  * @param {Rect} a
  * @param {Rect} b
@@ -117,6 +125,8 @@ function rectRect ( a, b ) {
 Intersection.rectRect = rectRect;
 
 /**
+ * !#en Test rect and polygon
+ * !#zh 测试矩形与多边形是否相交
  * @method rectPolygon
  * @param {Rect} a
  * @param {[Vec2]} b
@@ -167,6 +177,8 @@ function rectPolygon ( a, b ) {
 Intersection.rectPolygon = rectPolygon;
 
 /**
+ * !#en Test polygon and polygon
+ * !#zh 测试多边形与多边形是否相交
  * @method polygonPolygon
  * @param {[Vec2]} a
  * @param {[Vec2]} b
@@ -202,7 +214,54 @@ function polygonPolygon ( a, b ) {
 Intersection.polygonPolygon = polygonPolygon;
 
 
+
 /**
+ * !#en Test circle and circle
+ * !#zh 测试圆形与圆形是否相交
+ * @method circleCircle
+ * @param {Object} a - Object contains position and radius
+ * @param {Object} b - Object contains position and radius
+ * @return {boolean}
+ */
+function circleCircle (a, b) {
+    var distance = a.position.sub(b.position).mag();
+    return distance < (a.radius + b.radius);
+}
+
+Intersection.circleCircle = circleCircle;
+
+
+/**
+ * !#en Test polygon and circle
+ * !#zh 测试矩形与圆形是否相交
+ * @method polygonCircle
+ * @param {[Vec2]} polygon
+ * @param {Object} circle - Object contains position and radius
+ * @return {boolean}
+ */
+function polygonCircle (polygon, circle) {
+    var position = circle.position;
+    if (pointInPolygon(position, polygon)) {
+        return true;
+    }
+
+    for (var i = 0, l = polygon.length; i < l; i++) {
+        var start = i === 0 ? polygon[polygon.length - 1] : polygon[i- 1];
+        var end = polygon[i];
+
+        if (pointLineDistance(position, start, end, true) < circle.radius) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+Intersection.polygonCircle = polygonCircle;
+
+/**
+ * !#en Test whether the point is in the polygon
+ * !#zh 测试一个点是否在一个多边形中
  * @method pointInPolygon
  * @param {Vec2} point
  * @param {[Vec2]} polygon
@@ -229,47 +288,6 @@ function pointInPolygon (point, polygon) {
 }
 
 Intersection.pointInPolygon = pointInPolygon;
-
-
-/**
- * @method circleCircle
- * @param {Object} a - Object contains position and radius
- * @param {Object} b - Object contains position and radius
- * @return {boolean}
- */
-function circleCircle (a, b) {
-    var distance = a.position.sub(b.position).mag();
-    return distance < (a.radius + b.radius);
-}
-
-Intersection.circleCircle = circleCircle;
-
-
-/**
- * @method polygonCircle
- * @param {[Vec2]} polygon
- * @param {Object} circle - Object contains position and radius
- * @return {boolean}
- */
-function polygonCircle (polygon, circle) {
-    var position = circle.position;
-    if (pointInPolygon(position, polygon)) {
-        return true;
-    }
-
-    for (var i = 0, l = polygon.length; i < l; i++) {
-        var start = i === 0 ? polygon[polygon.length - 1] : polygon[i- 1];
-        var end = polygon[i];
-
-        if (pointLineDistance(position, start, end, true) < circle.radius) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-Intersection.polygonCircle = polygonCircle;
 
 /**
  * !#en Calculate the distance of point to line.
