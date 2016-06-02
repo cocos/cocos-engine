@@ -135,7 +135,7 @@
     //Note: Here the maxWidth is the label's content width.
     proto._fragmentText = function (strArr, maxWidth, ctx) {
         //check the first character
-
+        maxWidth -= 2 * this._getMargin();
         var wrappedWords = [];
         //fast return if strArr is empty
         if(strArr.length === 0) {
@@ -237,10 +237,11 @@
 
             if (node._isWrapText) {
                 var totalLength = 0;
+                var canvasWidthNoMargin = this._canvasSize.width - 2* this._getMargin();
                 for (i = 0; i < paragraphedStrings.length; ++i) {
-                    totalLength += ((paragraphLength[i] / this._canvasSize.width + 1) | 0) * this._canvasSize.width;
+                    totalLength += ((paragraphLength[i] / canvasWidthNoMargin + 1) | 0) * canvasWidthNoMargin;
                 }
-                var scale = this._canvasSize.width * ((this._canvasSize.height / this._getLineHeight()) | 0) / totalLength;
+                var scale = canvasWidthNoMargin * ((this._canvasSize.height / this._getLineHeight()) | 0) / totalLength;
                 node._fontSize = (drawFontize * Math.min(Math.sqrt(scale), 1)) | 0;
                 fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
 
@@ -258,7 +259,7 @@
                         maxLength = paragraphLength[i];
                     }
                 }
-                var scaleX = this._canvasSize.width / maxLength;
+                var scaleX = (this._canvasSize.width - 2 * this._getMargin()) / maxLength;
                 var scaleY = this._canvasSize.height / totalHeight;
 
                 node._fontSize = (drawFontize * Math.min(1, scaleX, scaleY)) | 0;
@@ -267,6 +268,10 @@
         }
 
         return fontDesc;
+    };
+
+    proto._getMargin = function() {
+        return (this._node && this._node._margin) || 0;
     };
 
     proto._calculateParagraphLength = function(paragraphedStrings, ctx) {
@@ -329,7 +334,7 @@
             }
             canvasSizeY = this._splitedStrings.length * this._getLineHeight();
 
-            this._canvasSize.width = parseFloat(canvasSizeX.toFixed(2));
+            this._canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * this._getMargin();
             this._canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
             _ccsg.Node.prototype.setContentSize.call(node, this._canvasSize);
         }
@@ -347,13 +352,13 @@
         var firstLinelabelY;
 
         if (cc.TextAlignment.RIGHT === node._hAlign) {
-            labelX = this._canvasSize.width;
+            labelX = this._canvasSize.width - this._getMargin();
         }
         else if (cc.TextAlignment.CENTER === node._hAlign) {
             labelX = this._canvasSize.width / 2;
         }
         else {
-            labelX = 0;
+            labelX = 0 + this._getMargin();
         }
 
         if (cc.VerticalTextAlignment.TOP === node._vAlign) {

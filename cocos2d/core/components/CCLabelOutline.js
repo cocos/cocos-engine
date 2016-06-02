@@ -86,6 +86,7 @@ var LabelOutline = cc.Class({
                 this._width = value;
                 if(this._labelSGNode) {
                     this._labelSGNode.setOutlineWidth(value);
+                    this._labelSGNode.setMargin(value);
                 }
             }
         },
@@ -98,12 +99,14 @@ var LabelOutline = cc.Class({
             sgNode.setOutlined(true);
             sgNode.setOutlineColor(cc.color(this._color));
             sgNode.setOutlineWidth(this._width);
+            sgNode.setMargin(this._width);
         }
     },
 
     onDisable: function () {
         if(this._labelSGNode) {
             this._labelSGNode.setOutlined(false);
+            this._labelSGNode.setMargin(0);
         }
 
         this._labelSGNode = null;
