@@ -129,6 +129,8 @@ _ccsg.Label = _ccsg.Node.extend({
     _outlineColor: null,
     _outlineWidth: 1,
     _className: "Label",
+    //used for left and right margin
+    _margin : 0,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
     ctor: function(string, fontHandle, textureUrl) {
@@ -207,6 +209,10 @@ _ccsg.Label = _ccsg.Node.extend({
         this._notifyLabelSkinDirty();
     },
 
+    setMargin: function(value) {
+        this._margin = value;
+        this._notifyLabelSkinDirty();
+    },
 
     getString: function() {
         return this._string;
