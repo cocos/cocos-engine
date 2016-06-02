@@ -135,6 +135,7 @@ var ScrollView = cc.Class({
         this._touchMoveDisplacements = [];
         this._touchMoveTimeDeltas = [];
         this._touchMovePreviousTimestamp = 0;
+        this._touchMoved = false;
 
         this._autoScrolling = false;
         this._autoScrollAttenuate = false;
@@ -652,11 +653,11 @@ var ScrollView = cc.Class({
 
     //private methods
     _registerEvent: function() {
-        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
-        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this);
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.on(cc.Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     },
 
     _onMouseWheel: function(event) {
@@ -762,7 +763,7 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handlePressLogic(touch);
         }
-        event.stopPropagation();
+        this._touchMoved = false;
     },
 
     _cancelButtonClick: function(touch) {
@@ -790,6 +791,8 @@ var ScrollView = cc.Class({
             }
             this._handleMoveLogic(touch);
         }
+        this._touchMoved = true;
+        // TODO: detect move distance, if distance greater than a seuil, then stop propagation.
         event.stopPropagation();
     },
 
@@ -798,14 +801,15 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handleReleaseLogic(touch);
         }
-        event.stopPropagation();
+        if (this._touchMoved) {
+            event.stopPropagation();
+        }
     },
     _onTouchCancelled: function(event) {
         var touch = event.touch;
         if(this.content){
             this._handleReleaseLogic(touch);
         }
-        event.stopPropagation();
     },
 
     _processDeltaMove: function(deltaMove) {
