@@ -94,7 +94,7 @@ class TiledMapMeta extends CustomAssetMeta {
     asset.name = Path.basenameNoExt(fspath);
     asset.tmxXmlStr = this._tmxData;
     asset.tmxFolderPath = Path.relative(AssetRootUrl, Url.dirname(db.fspathToUrl(fspath)));
-    asset.tmxFolderPath = asset.tmxFolderPath.replace('\\', '/');
+    asset.tmxFolderPath = asset.tmxFolderPath.replace(/\\/g, '/');
     asset.textures = this._textures.map(p => db.fspathToUrl(p));
     asset.tsxFiles = this._tsxFiles.map(p => db.fspathToUrl(p));
     db.saveAssetToLibrary(this.uuid, asset);

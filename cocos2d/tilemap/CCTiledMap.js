@@ -695,6 +695,14 @@ var TiledMap = cc.Class({
         if (file) {
             var resPath = cc.url._rawAssets + file.tmxFolderPath;
             resPath = cc.path._setEndWithSep(resPath, false);
+
+            if (CC_EDITOR && cc.sys.os === cc.sys.OS_WINDOWS) {
+                // In windows editor, the key of loaded textures are using '/'.
+                // But the value of cc.url._rawAssets is using '\'
+                // So, here should change the separater.
+                resPath = resPath.replace(/\\/g, '/');
+            }
+
             var ret = sgNode.initWithXML(file.tmxXmlStr, resPath);
             if (ret) {
                 self._onMapLoaded();
