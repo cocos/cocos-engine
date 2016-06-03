@@ -169,7 +169,7 @@ function downloadImage (item, callback, isCrossOrigin) {
             img.removeEventListener('error', errorCallback);
 
             if (img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
-                downloadImage(url, callback, false);
+                downloadImage(item, callback, false);
             }
             else {
                 callback('Load image (' + url + ') failed');
