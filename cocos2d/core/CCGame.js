@@ -225,6 +225,7 @@ var game = /** @lends cc.game# */{
         config[CONFIG_KEY.frameRate] = frameRate;
         if (self._intervalId)
             window.cancelAnimationFrame(self._intervalId);
+        self._intervalId = 0;
         self._paused = true;
         self._setAnimFrame();
         self._runMainLoop();
