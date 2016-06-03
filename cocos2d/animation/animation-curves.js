@@ -104,8 +104,7 @@ var DynamicAnimCurve = cc.Class({
             value = fromVal + (toVal - fromVal) * ratio;
         }
         else {
-            var lerp = fromVal.lerp;
-            if (lerp) {
+            if (fromVal && fromVal.lerp) {
                 value = fromVal.lerp(toVal, ratio);
             }
             else {
