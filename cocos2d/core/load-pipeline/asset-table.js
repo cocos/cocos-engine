@@ -75,6 +75,9 @@ cc.js.mixin(AssetTable.prototype, {
 
     getUuidArray: function (path, type) {
         path = cc.url.normalize(path);
+        if (path[path.length - 1] === '/') {
+            path = path.slice(0, -1);
+        }
         var path2uuid = this._pathToUuid;
         var uuids = [];
         var p, i;

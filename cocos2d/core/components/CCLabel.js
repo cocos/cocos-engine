@@ -327,10 +327,6 @@ var Label = cc.Class({
         if (sgSizeInitialized) {
             this._updateNodeSize();
         }
-        else if (this.node._sizeProvider === this._sgNode) {
-            // should not provide size for node if size not ready (#853)
-            this.node._sizeProvider = null;
-        }
 
         // node should be resize whenever font changed, needed only on web
         if (!CC_JSB) {
@@ -399,9 +395,6 @@ var Label = cc.Class({
         if (initialized) {
             if (this.overflow === Overflow.NONE) {
                 this.node.setContentSize(this._sgNode.getContentSize());
-            }
-            if (this.node._sizeProvider !== this._sgNode) {
-                this._registSizeProvider();
             }
         }
     }
