@@ -343,6 +343,12 @@ _ccsg.Label = _ccsg.Node.extend({
         return this._lineHeight;
     },
 
+    getBMFontLineHeight : function() {
+        if(this._fontAtlas) {
+            return this._fontAtlas._lineHeight;
+        }
+    },
+
     setFontFileOrFamily: function(fontHandle, textureUrl) {
         fontHandle = fontHandle || "Arial";
         var extName = cc.path.extname(fontHandle);
