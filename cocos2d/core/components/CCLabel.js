@@ -382,7 +382,9 @@ var Label = cc.Class({
         sgNode.setString(this.string);
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
-            this.lineHeight = sgNode.getBMFontLineHeight();
+            if (this.font instanceof cc.BitmapFont) {
+                this.lineHeight = sgNode.getBMFontLineHeight();
+            }
             this._useOriginalSize = false;
         } else {
             sgNode.setContentSize(this.node.getContentSize());
