@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "base/CCEventDispatcher.h"
 #include "base/CCEventKeyboard.h"
 #include "base/CCEventMouse.h"
+#include "base/CCEventCustom.h"
 #include "base/CCIMEDispatcher.h"
 #include "base/ccUtils.h"
 #include "base/ccUTF8.h"
@@ -786,6 +787,10 @@ void GLViewImpl::onGLFWWindowSizeFunCallback(GLFWwindow *window, int width, int 
         setFrameSize(frameWidth, frameHeight);
         setDesignResolutionSize(baseDesignSize.width, baseDesignSize.height, baseResolutionPolicy);
         Director::getInstance()->setViewport();
+        
+        EventCustom event("window-resize");
+        auto dispatcher = Director::DirectorInstance->getEventDispatcher();
+        dispatcher->dispatchEvent(&event);
     }
 }
 

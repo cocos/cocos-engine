@@ -788,6 +788,11 @@ cc.view.getTargetDensityDPI = function() {return cc.DENSITYDPI_DEVICE;};
 
 cc.eventManager = cc.director.getEventDispatcher();
 
+cc.eventManager.addCustomListener('window-resize', function () {
+    cc.winSize = cc.director.getWinSize();
+    cc.visibleRect.init();
+});
+
 cc.audioEngine = cc.AudioEngine.getInstance();
 cc.audioEngine.end = function(){
     this.stopMusic();
