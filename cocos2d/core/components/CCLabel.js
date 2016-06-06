@@ -382,6 +382,9 @@ var Label = cc.Class({
         sgNode.setString(this.string);
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
+            if (this.font instanceof cc.BitmapFont) {
+                this.lineHeight = sgNode.getBMFontLineHeight();
+            }
             this._useOriginalSize = false;
         } else {
             sgNode.setContentSize(this.node.getContentSize());
@@ -393,7 +396,7 @@ var Label = cc.Class({
     _updateNodeSize: function () {
         var initialized = this._sgNode && this._sgNode.parent;
         if (initialized) {
-            if (this.overflow === Overflow.NONE) {
+            if (this.overflow === Overflow.NONE || this.overflow === Overflow.RESIZE_HEIGHT) {
                 this.node.setContentSize(this._sgNode.getContentSize());
             }
         }
