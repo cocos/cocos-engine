@@ -133,7 +133,18 @@ var Canvas = cc.Class({
     },
 
     ctor: function () {
-        this._thisOnResized = this.onResized.bind(this);
+        if (CC_JSB) {
+            this._thisOnResized = cc.EventListener.create({
+                event: cc.EventListener.CUSTOM,
+                eventName: "window-resize",
+                callback: this.onResized.bind(this)
+            });
+
+            this._thisOnResized.retain();
+        }
+        else {
+            this._thisOnResized = this.onResized.bind(this);
+        }
     },
 
     __preload: function () {
@@ -173,6 +184,9 @@ var Canvas = cc.Class({
                 cc.eventManager.addCustomListener('canvas-resize', this._thisOnResized);
             }
         }
+        else {
+            cc.eventManager.addListener(this._thisOnResized, 1);
+        }
 
         this.applySettings();
         this.onResized();
@@ -195,6 +209,10 @@ var Canvas = cc.Class({
             else {
                 cc.eventManager.removeCustomListeners('canvas-resize', this._thisOnResized);
             }
+        }
+        else {
+            cc.eventManager.removeListener(this._thisOnResized);
+            this._thisOnResized.release();
         }
 
         if (Canvas.instance === this) {
