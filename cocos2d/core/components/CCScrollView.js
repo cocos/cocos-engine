@@ -502,8 +502,19 @@ var ScrollView = cc.Class({
     scrollToOffset: function(offset, timeInSecond, attenuated) {
         var maxScrollOffset = this.getMaxScrollOffset();
 
-        var anchor = cc.pClamp(cc.p(offset.x / maxScrollOffset.x, (maxScrollOffset.y - offset.y ) / maxScrollOffset.y),
-                           cc.p(0, 0), cc.p(1, 1));
+        var anchor = cc.p(0, 0);
+        //if maxScrollOffset is 0, then always align the content's top left origin to the top left corner of its parent
+        if (maxScrollOffset.x === 0) {
+            anchor.x = 0;
+        } else {
+            anchor.x = offset.x / maxScrollOffset.x;
+        }
+
+        if (maxScrollOffset.y === 0) {
+            anchor.y = 1;
+        } else {
+            anchor.y = (maxScrollOffset.y - offset.y ) / maxScrollOffset.y;
+        }
 
         this.scrollTo(anchor, timeInSecond, attenuated);
     },
@@ -515,11 +526,11 @@ var ScrollView = cc.Class({
      * @return {Vec2}  - A Vec2 value indicate the current scroll offset.
      */
     getScrollOffset: function() {
-        var bottomDeta = Math.abs(this._getContentBottomBoundary() - this._bottomBoundary);
-        var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
         var maxScrollOffset = this.getMaxScrollOffset();
+        var topDelta =  this._topBoundary -  this._getContentTopBoundary();
+        var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
 
-        return cc.p(leftDeta, maxScrollOffset.y - bottomDeta);
+        return cc.p(leftDeta, topDelta);
     },
 
     /**
@@ -531,8 +542,13 @@ var ScrollView = cc.Class({
     getMaxScrollOffset: function() {
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();
+        var horizontalMaximizeOffset =  contentSize.width - scrollSize.width;
+        var verticalMaximizeOffset = contentSize.height - scrollSize.height;
+        horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
+        verticalMaximizeOffset = verticalMaximizeOffset >=0 ? verticalMaximizeOffset : 0;
 
-        return cc.p(contentSize.width - scrollSize.width, contentSize.height - scrollSize.height);
+
+        return cc.p(horizontalMaximizeOffset, verticalMaximizeOffset);
     },
 
     /**
@@ -715,19 +731,24 @@ var ScrollView = cc.Class({
 
         var scrollSize = this.node.getContentSize();
         var contentSize = this.content.getContentSize();
-        var bottomDeta = Math.abs(this._getContentBottomBoundary() - this._bottomBoundary);
-        var leftDeta = Math.abs(this._getContentLeftBoundary() - this._leftBoundary);
+        var bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
+        bottomDeta = -bottomDeta;
+
+        var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
+        leftDeta = -leftDeta;
 
         var moveDelta = cc.p(0, 0);
+        var totalScrollDelta = 0;
         if (applyToHorizontal) {
-            moveDelta.x = (contentSize.width - scrollSize.width) * anchor.x - leftDeta;
+            totalScrollDelta = contentSize.width - scrollSize.width;
+            moveDelta.x = leftDeta - totalScrollDelta * anchor.x;
         }
 
         if (applyToVertical) {
-            moveDelta.y = (contentSize.height - scrollSize.height) * anchor.y - bottomDeta;
+            totalScrollDelta = contentSize.height - scrollSize.height;
+            moveDelta.y = bottomDeta - totalScrollDelta * anchor.y;
         }
 
-        moveDelta = cc.pNeg(moveDelta);
         return moveDelta;
     },
 
