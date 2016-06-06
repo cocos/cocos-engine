@@ -54,8 +54,7 @@ var CircleCollider = cc.Class({
             set: function (value) {
                 this._offset = value;
             },
-            type: cc.Vec2,
-            animatable: false
+            type: cc.Vec2
         },
 
         /**
@@ -70,8 +69,7 @@ var CircleCollider = cc.Class({
             },
             set: function (value) {
                 this._radius = value < 0 ? 0 : value;
-            },
-            animatable: false
+            }
         }
     }
 });
