@@ -595,10 +595,10 @@ cc.Scheduler = cc._Class.extend({
     /**
      * !#en
      * Unschedules a callback for a callback and a given target.
-     * If you want to unschedule the "update", use `unscheudleUpdate()`
+     * If you want to unschedule the "update", use `unscheduleUpdate()`
      * !#zh
      * 根据指定的回调函数和调用对象。
-     * 如果需要取消 update 定时器，请使用 unscheudleUpdate()。
+     * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
      * @method unschedule
      * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
@@ -1003,10 +1003,10 @@ cc.Scheduler = cc._Class.extend({
     /**
      * !#en
      * Unschedule a callback function for a given target.<br/>
-     * If you want to unschedule the "update", use unscheudleUpdateForTarget.
+     * If you want to unschedule the "update", use unscheduleUpdateForTarget.
      * !#zh
      * 根据指定的回调函数和调用对象对象取消相应的定时器。<br/>
-     * 如果需要取消 update 定时器，请使用 unscheudleUpdateForTarget()。
+     * 如果需要取消 update 定时器，请使用 unscheduleUpdateForTarget()。
      * @method unscheduleCallbackForTarget
      * @deprecated since v3.4 please use .unschedule
      * @param {Object} target

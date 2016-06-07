@@ -98,6 +98,39 @@ test('start', function () {
     cc.game.step();
 });
 
+test('start should only', function () {
+    var TestComp1 = cc.Class({
+        extends: cc.Component,
+        start: function () {
+            this.target = cc.find('node2');
+            this.target.active = false;
+            this.target.active = true;
+        }
+    });
+
+    var called = false;
+    var TestComp2 = cc.Class({
+        extends: cc.Component,
+        start: function () {
+            strictEqual(called, false, 'start should not been called');
+            called = true;
+        }
+    });
+
+    var node1 = new cc.Node();
+    cc.director.getScene().addChild(node1);
+    node1.addComponent(TestComp1);
+
+    var node2 = new cc.Node();
+    node2.name = 'node2';
+    cc.director.getScene().addChild(node2);
+    node2.addComponent(TestComp2);
+    // run TestComp1
+    cc.game.step();
+    // run TestComp2
+    cc.game.step();
+});
+
 test('lateUpdate', function () {
     var TestComp = cc.Class({
         extends: cc.Component,

@@ -111,8 +111,13 @@ function callOnEnable (self, enable) {
 function _registerEvent (self, on) {
     if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) return;
 
-    if (on && self.start && !(self._objFlags & IsOnStartCalled)) {
-        cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
+    if (self.start && !(self._objFlags & IsOnStartCalled)) {
+        if (on) {
+            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
+        }
+        else {
+            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
+        }
     }
 
     if (!self.update && !self.lateUpdate) {
@@ -142,9 +147,11 @@ var _registerUpdateEvent = function () {
 };
 
 var _callStart = CC_EDITOR ? function () {
+    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
     callStartInTryCatch(this);
     this._objFlags |= IsOnStartCalled;
 } : function () {
+    cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
     this.start();
     this._objFlags |= IsOnStartCalled;
 };

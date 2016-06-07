@@ -327,10 +327,6 @@ var Label = cc.Class({
         if (sgSizeInitialized) {
             this._updateNodeSize();
         }
-        else if (this.node._sizeProvider === this._sgNode) {
-            // should not provide size for node if size not ready (#853)
-            this.node._sizeProvider = null;
-        }
 
         // node should be resize whenever font changed, needed only on web
         if (!CC_JSB) {
@@ -386,6 +382,9 @@ var Label = cc.Class({
         sgNode.setString(this.string);
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
+            if (this.font instanceof cc.BitmapFont) {
+                this.lineHeight = sgNode.getBMFontLineHeight();
+            }
             this._useOriginalSize = false;
         } else {
             sgNode.setContentSize(this.node.getContentSize());
@@ -397,11 +396,8 @@ var Label = cc.Class({
     _updateNodeSize: function () {
         var initialized = this._sgNode && this._sgNode.parent;
         if (initialized) {
-            if (this.overflow === Overflow.NONE) {
+            if (this.overflow === Overflow.NONE || this.overflow === Overflow.RESIZE_HEIGHT) {
                 this.node.setContentSize(this._sgNode.getContentSize());
-            }
-            if (this.node._sizeProvider !== this._sgNode) {
-                this._registSizeProvider();
             }
         }
     }

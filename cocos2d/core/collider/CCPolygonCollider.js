@@ -53,8 +53,7 @@ var PolygonCollider = cc.Class({
             set: function (value) {
                 this._offset = value;
             },
-            type: cc.Vec2,
-            animatable: false
+            type: cc.Vec2
         },
 
         /**
@@ -67,8 +66,7 @@ var PolygonCollider = cc.Class({
             default: function () {
                  return [cc.v2(-50, -50), cc.v2(-50, 50), cc.v2(50, 50), cc.v2(50, -50)]; 
             },
-            type: [cc.Vec2],
-            animatable: false
+            type: [cc.Vec2]
         }
     }
 });

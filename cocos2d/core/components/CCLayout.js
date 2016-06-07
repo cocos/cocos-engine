@@ -654,12 +654,13 @@ var Layout = cc.Class({
             var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                                                                                    allChildrenBoundingBox.y + allChildrenBoundingBox.height));
 
-            var newSize = cc.size(rightTopInParentSpace.x - leftBottomInParentSpace.x,
-                                  rightTopInParentSpace.y - leftBottomInParentSpace.y);
+            var newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
+                                  parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
 
             var layoutPosition = this.node.getPosition();
-            var newAnchor = cc.p((layoutPosition.x - leftBottomInParentSpace.x) / newSize.width,
-                                 (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height);
+            var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
+            var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
+            var newAnchor = cc.p(parseFloat(newAnchorX.toFixed(2)), parseFloat(newAnchorY.toFixed(2)));
 
             this.node.setAnchorPoint(newAnchor);
             this.node.setContentSize(newSize);

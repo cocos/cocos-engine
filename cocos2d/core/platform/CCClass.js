@@ -399,7 +399,7 @@ function define (className, baseClasses, mixins, constructor, options) {
             }
             if (frame.beh) {
                 cc.error('Each script can have at most one Component.');
-                return;
+                return cls;
             }
             var uuid = frame.uuid;
             if (uuid) {
