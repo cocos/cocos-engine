@@ -380,7 +380,7 @@ int SimulatorWin::run()
     std::stringstream title;
     title << "Cocos Simulator (" << _project.getFrameScale() * 100 << "%)";
     initGLContextAttrs();
-    auto glview = GLViewImpl::createWithRect(title.str(), frameRect, frameScale);
+    auto glview = GLViewImpl::createWithRect(title.str(), frameRect, frameScale, true);
     _hwnd = glview->getWin32Window();
     player::PlayerWin::createWithHwnd(_hwnd);
     DragAcceptFiles(_hwnd, TRUE);
