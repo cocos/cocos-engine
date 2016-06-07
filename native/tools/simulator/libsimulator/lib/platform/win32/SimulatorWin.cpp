@@ -323,7 +323,7 @@ int SimulatorWin::run()
     std::stringstream title;
     title << "Cocos Simulator - " << ConfigParser::getInstance()->getInitViewName();
     initGLContextAttrs();
-    auto glview = GLViewImpl::createWithRect(title.str(), frameRect, frameScale);
+    auto glview = GLViewImpl::createWithRect(title.str(), frameRect, frameScale, true);
     _hwnd = glview->getWin32Window();
     DragAcceptFiles(_hwnd, TRUE);
     //SendMessage(_hwnd, WM_SETICON, ICON_BIG, (LPARAM)icon);
