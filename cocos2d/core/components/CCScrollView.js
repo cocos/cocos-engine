@@ -812,7 +812,10 @@ var ScrollView = cc.Class({
             }
             this._handleMoveLogic(touch);
         }
-        this._touchMoved = true;
+        var deltaMove = touch.getDelta();
+        if (cc.pLength(deltaMove) > 7) {
+            this._touchMoved = true;
+        }
         // TODO: detect move distance, if distance greater than a seuil, then stop propagation.
         event.stopPropagation();
     },
