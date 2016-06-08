@@ -51,7 +51,6 @@ cc.js.mixin(cc.Event.prototype, {
     currentTarget: null,
     eventPhase: 0,
     bubbles: false,
-    _defaultPrevented: false,
     _propagationStopped: false,
     _propagationImmediateStopped: false,
 
@@ -60,16 +59,12 @@ cc.js.mixin(cc.Event.prototype, {
         this.target = null;
         this.currentTarget = null;
         this.eventPhase = cc.Event.NONE;
-        this._defaultPrevented = false;
         this._propagationStopped = false;
         this._propagationImmediateStopped = false;
     },
     reuse: function (type, bubbles) {
         this.type = type;
         this.bubbles = bubbles || false;
-    },
-    preventDefault: function () {
-        this._defaultPrevented = true;
     },
     stopPropagationImmediate: function () {
         this._propagationImmediateStopped = true;
@@ -81,7 +76,6 @@ cc.Event.EventCustom = function (type, bubbles) {
     this.target = null;
     this.currentTarget = null;
     this.eventPhase = 0;
-    this._defaultPrevented = false;
     this._propagationStopped = false;
     this._propagationImmediateStopped = false;
 
@@ -153,7 +147,6 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
                                 event.currentTarget = nodeOrPriority;
                                 event.bubbles = false;
                                 event.eventPhase = 0;
-                                event._defaultPrevented = false;
                                 event._propagationStopped = false;
                                 event._propagationImmediateStopped = false;
                             }

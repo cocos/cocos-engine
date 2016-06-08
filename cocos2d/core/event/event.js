@@ -88,14 +88,6 @@ cc.Event = function(type, bubbles) {
     this.eventPhase = 0;
 
     /*
-     * Indicates whether or not event.preventDefault() has been called on the event.
-     * @property _defaultPrevented
-     * @type {Boolean}
-     * @private
-     */
-    this._defaultPrevented = false;
-
-    /*
      * Indicates whether or not event.stopPropagation() has been called on the event.
      * @property _propagationStopped
      * @type {Boolean}
@@ -125,7 +117,6 @@ cc.Event.prototype = {
         this.target = null;
         this.currentTarget = null;
         this.eventPhase = cc.Event.NONE;
-        this._defaultPrevented = false;
         this._propagationStopped = false;
         this._propagationImmediateStopped = false;
     },
@@ -139,16 +130,6 @@ cc.Event.prototype = {
     reuse: function (type, bubbles) {
         this.type = type;
         this.bubbles = bubbles || false;
-    },
-
-    /**
-     * !#en
-     * If invoked when the cancelable attribute value is true, signals to the operation that caused event to be dispatched that it needs to be canceled.
-     * !#zh 捕获阶段时，阻止传递给最终目标。
-     * @method preventDefault
-     */
-    preventDefault: function () {
-        this._defaultPrevented = true;
     },
 
     /**
