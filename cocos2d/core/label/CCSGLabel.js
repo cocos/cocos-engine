@@ -667,9 +667,10 @@ cc.BMFontHelper = {
         var newWidth = (typeof size.width === 'number') ? size.width : size;
         var newHeight = (typeof size.height === 'number') ? size.height : height;
 
+        var oldSize = this.getContentSize();
         _ccsg.Node.prototype.setContentSize.call(this, size, height);
 
-        if (this._labelType === _ccsg.Label.Type.BMFont) {
+        if (newHeight !== oldSize.height || newWidth !== oldSize.width) {
 
             if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
                 newHeight = 0;
@@ -679,10 +680,6 @@ cc.BMFontHelper = {
                 newWidth = 0;
                 newHeight = 0;
             }
-        }
-
-
-        if (newHeight !== this._labelHeight || newWidth !== this._labelWidth) {
 
             this._labelWidth = newWidth;
             this._labelHeight = newHeight;
