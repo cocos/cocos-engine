@@ -296,12 +296,15 @@ public:
         auto hRepeat = contentSize.width / rectWidth;
         auto vRepeat = contentSize.height / rectHeight;
         
-        quads.resize(ceilf(hRepeat) * ceilf(vRepeat));
         int quadIndex = 0;
+        if(ceilf(hRepeat) * ceilf(vRepeat) > (65536 / 4)) {
+            CCLOGERROR("too many tiles, only 16384 tiles will be show");
+        }
+        quads.resize(fminf(ceilf(hRepeat) * ceilf(vRepeat), 65536 / 4));
         for (int hindex = 0; hindex < ceilf(hRepeat); ++hindex) {
             for (int vindex = 0; vindex < ceilf(vRepeat); ++vindex) {
                 auto& quad = quads[quadIndex++];
-                
+    
                 quad.bl.colors = colorOpacity;
                 quad.br.colors = colorOpacity;
                 quad.tl.colors = colorOpacity;
@@ -324,6 +327,7 @@ public:
                     quad.tr.texCoords = cocos2d::Tex2F(u0 + (u1 - u0) * fminf(1, vRepeat - vindex), v1 + (v0 - v1) * fminf(1, hRepeat - hindex));
                     
                 }
+                if(quadIndex >= quads.size()) break;
             }
         }
         return quads;
