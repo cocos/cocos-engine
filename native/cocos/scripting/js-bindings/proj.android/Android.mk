@@ -9,6 +9,8 @@ ifeq ($(USE_ARM_MODE),1)
 LOCAL_ARM_MODE := arm
 endif
 
+LOCAL_SRC_FILES := ../manual/platform/android/CCJavascriptJavaBridge.cpp
+
 LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
                    ../auto/jsb_cocos2dx_experimental_webView_auto.cpp \
                    ../auto/jsb_cocos2dx_experimental_video_auto.cpp \
