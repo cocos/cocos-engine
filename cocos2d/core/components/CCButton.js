@@ -357,10 +357,6 @@ var Button = cc.Class({
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     },
 
-    _cancelButtonClick: function(){
-        this._pressed = false;
-    },
-
     _applyTarget: function () {
         var target = this.target;
         if (target) {
