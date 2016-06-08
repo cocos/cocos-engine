@@ -65,8 +65,8 @@ proto._updateDisplayOpacity = function (parentOpacity) {
 proto.rendering = function (ctx) {
     var node = this._node;
 
-    if(node._labelType === _ccsg.Label.Type.TTF ||
-      node._labelType === _ccsg.Label.Type.SystemFont){
+    if(node.getString() && (node._labelType === _ccsg.Label.Type.TTF ||
+       node._labelType === _ccsg.Label.Type.SystemFont)){
         var gl = ctx || cc._renderContext ;
 
         this._shaderProgram.use();
