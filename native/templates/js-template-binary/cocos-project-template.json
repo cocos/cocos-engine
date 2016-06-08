@@ -61,6 +61,13 @@
                "include": [
                   "*.java"
                ]
+             },
+             {
+               "from":"cocos/platform/android/java/libs",
+               "to":"frameworks/runtime-src/proj.android/libs",
+               "include": [
+                  "*.jar"
+               ]
              }
          ],
          "project_rename":{
