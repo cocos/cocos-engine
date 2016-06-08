@@ -37,8 +37,8 @@ gulp build
 
 #### Prerequisite
 
- - Install [express](http://expressjs.com/) `npm install express`
- - Install gulp-qunit `npm install gulp-qunit@1.3.0`
+ - Install [express](http://expressjs.com/): `npm install express`
+ - Install gulp-qunit: `npm install gulp-qunit@1.3.0`
 
 #### Unit Test
 
