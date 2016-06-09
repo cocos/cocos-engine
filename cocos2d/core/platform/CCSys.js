@@ -551,6 +551,8 @@ else {
             browserType = sys.BROWSER_TYPE_MAXTHON;
         else if (browserType === "opr")
             browserType = sys.BROWSER_TYPE_OPERA;
+        else if (browserType === "chrome")
+            browserType = sys.BROWSER_TYPE_CHROME;
 
         sys.browserType = browserType;
     })();
@@ -706,6 +708,15 @@ else {
                     // Android 5+ default browser
                     if (sys.osMainVersion && sys.osMainVersion >= 5) {
                         _supportWebGL = true;
+                    }
+                    break;
+                case sys.BROWSER_TYPE_CHROME:
+                    // Chrome on android supports WebGL from v. 30
+                    var browserVer = parseFloat(sys.browserVersion);
+                    if(browserVer >= 30.0) {
+                      _supportWebGL = true;
+                    } else {
+                      _supportWebGL = false;
                     }
                     break;
                 case sys.BROWSER_TYPE_UNKNOWN:
