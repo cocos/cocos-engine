@@ -88,7 +88,7 @@ var _doSendEvent = function (owner, event) {
     event.currentTarget = owner;
     if (owner._capturingListeners) {
         owner._capturingListeners.invoke(event);
-        if (event._propagationStopped) {
+        if (event._propagationImmediateStopped) {
             return;
         }
     }
