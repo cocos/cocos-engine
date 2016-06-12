@@ -467,33 +467,6 @@ var TiledLayer = cc.Class({
         }
     },
 
-
-    /**
-     * !#en Tile set information for the layer.
-     * !#zh 获取 layer 的 Tileset 信息。
-     * @deprecated Please use getTileSet instead.
-     * @method getTileset
-     * @return {TMXTilesetInfo}
-     * @example
-     * var tileset = tiledLayer.getTileset();
-     */
-    getTileset:function () {
-        return this.getTileSet();
-    },
-
-    /**
-     * !#en Tile set information for the layer.
-     * !#zh 设置 layer 的 Tileset 信息。
-     * @deprecated Please use setTileSet instead.
-     * @method setTileset
-     * @param {TMXTilesetInfo} tileset
-     * @example
-     * tiledLayer.getTileset(tileset);
-     */
-    setTileset:function (tileset) {
-        this.setTileSet(tileset);
-    },
-
     /**
      * !#en Layer orientation, which is the same as the map orientation.
      * !#zh 获取 Layer 方向(同地图方向)。
