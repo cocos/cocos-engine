@@ -285,13 +285,13 @@ function syncSkewUpdate (dt) {
     }
 }
 
-// function syncOpacityUpdate (dt) {
-//     this._jsbUpdate(dt);
-//     var target = this.getTarget();
-//     if (target._owner) {
-//         target._owner.opacity = target.getOpacity();
-//     }
-// }
+function syncOpacityUpdate (dt) {
+    this._jsbUpdate(dt);
+    var target = this.getTarget();
+    if (target._owner) {
+        target._owner.opacity = target.getOpacity();
+    }
+}
 
 function syncColorUpdate (dt) {
     this._jsbUpdate(dt);
@@ -301,25 +301,27 @@ function syncColorUpdate (dt) {
     }
 }
 
+// Sub classes must be registered before their super class.
+// Otherwise, JSB there will be internal Error: "too much recursion".
 var actionUpdate = {
-    'MoveTo' : syncPositionUpdate,
-    'MoveBy' : syncPositionUpdate,
-    'JumpTo' : syncPositionUpdate,
-    'JumpBy' : syncPositionUpdate,
-    'Place' : syncPositionUpdate,
-    'RotateTo' : syncRotationUpdate,
-    'RotateBy' : syncRotationUpdate,
-    'ScaleTo' : syncScaleUpdate,
-    'ScaleBy' : syncScaleUpdate,
-    'RemoveSelf' : syncRemoveSelfUpdate,
-    'SkewTo' : syncSkewUpdate,
-    'SkewBy' : syncSkewUpdate,
-    // 'Blink' : syncOpacityUpdate,
-    // 'FadeTo' : syncOpacityUpdate,
-    // 'FadeIn' : syncOpacityUpdate,
-    // 'FadeOut' : syncOpacityUpdate,
-    'TintTo' : syncColorUpdate,
-    'TintBy' : syncColorUpdate
+    'MoveTo': syncPositionUpdate,
+    'MoveBy': syncPositionUpdate,
+    'JumpTo': syncPositionUpdate,
+    'JumpBy': syncPositionUpdate,
+    'Place': syncPositionUpdate,
+    'RotateTo': syncRotationUpdate,
+    'RotateBy': syncRotationUpdate,
+    'ScaleTo': syncScaleUpdate,
+    'ScaleBy': syncScaleUpdate,
+    'RemoveSelf': syncRemoveSelfUpdate,
+    'SkewTo': syncSkewUpdate,
+    'SkewBy': syncSkewUpdate,
+    'Blink': syncOpacityUpdate,
+    'FadeIn': syncOpacityUpdate,
+    'FadeOut': syncOpacityUpdate,
+    'FadeTo': syncOpacityUpdate,
+    'TintTo': syncColorUpdate,
+    'TintBy': syncColorUpdate
 };
 
 for (var key in actionUpdate) {
