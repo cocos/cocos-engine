@@ -86,33 +86,23 @@ var AnimationClip = cc.Class({
          * !#en Crate clip with a set of sprite frames
          * !#zh 使用一组序列帧图片来创建动画剪辑
          * @property {[cc.SpriteFrame]} spriteFrames
-         * @property {Object} opts
+         * @property {Number} sample
          * @return {AnimationClip}
          * @example
          *
-         * var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, {
-         *     name: 'run',
-         *     sample: 10,
-         *     wrapMode: cc.WrapMode.Loop
-         * });
+         * var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, 10);
          * 
          */
-        createWithSpriteFrames: function (spriteFrames, opts) {
+        createWithSpriteFrames: function (spriteFrames, sample) {
             if (!Array.isArray(spriteFrames)) {
                 cc.error('sprite frames must be an Array.');
                 return null;
             }
 
             var clip = new AnimationClip();
-            for (var key in opts) {
-                if (key in clip) {
-                    clip[key] = opts[key];
-                }
-            }
+            clip.sample = sample || clip.sample;
 
-            if (clip._duration === 0) {
-                clip._duration = spriteFrames.length / clip.sample;
-            }
+            clip._duration = spriteFrames.length / clip.sample;
 
             var frames = [];
             var step = 1 / clip.sample;

@@ -67,24 +67,15 @@ var SpriteAtlas = cc.Class({
 
     /**
      * Returns the sprite frames in sprite atlas.
-     * If regex is specified, then only the sprite frame which name correspond to the given regex will be return.
      * @method getSpriteFrames
-     * @param {Object} regex
      * @returns {[cc.SpriteFrame]}
      */
-    getSpriteFrames: function (regex) {
+    getSpriteFrames: function () {
         var frames = [];
         var spriteFrames = this._spriteFrames;
         
         for (var key in spriteFrames) {
-            if (regex && regex.test) {
-                if (regex.test(key)) {
-                    frames.push(spriteFrames[key]);
-                }
-            }
-            else {
-                frames.push(spriteFrames[key]);
-            }
+            frames.push(spriteFrames[key]);
         }
 
         return frames;

@@ -12,10 +12,8 @@ test('animation clip', function() {
 
     var frames = atlas.getSpriteFrames();
 
-    var clip = cc.AnimationClip.createWithSpriteFrames(frames, {
-        name: 'run',
-        sample: 10
-    });
+    var clip = cc.AnimationClip.createWithSpriteFrames(frames, 10);
+    clip.name = 'run';
 
     strictEqual(clip.name, 'run', 'AnimationClip name should be run');
 

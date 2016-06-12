@@ -15,9 +15,6 @@ test('sprite atlas', function() {
 
     var frames = atlas.getSpriteFrames();
     strictEqual(frames.length, 6, 'Atlas should get all sprite frames');
-
-    frames = atlas.getSpriteFrames(/^run_/);
-    strictEqual(frames.length, 3, 'Atlas should get sprite frames which name start with run_');
     strictEqual(frames[0].name, 'run_0');
     strictEqual(frames[1].name, 'run_1');
     strictEqual(frames[2].name, 'run_2');
