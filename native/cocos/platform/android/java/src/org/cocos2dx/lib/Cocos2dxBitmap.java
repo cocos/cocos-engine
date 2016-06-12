@@ -121,17 +121,10 @@ public final class Cocos2dxBitmap {
         return paint.getTypeface();
     }
 
-    public static boolean createTextBitmapShadowStroke(byte[] bytes,  final String fontName, int fontSize,
+    public static boolean createTextBitmapShadowStroke(final String string,  final String fontName, int fontSize,
                                                     int fontTintR, int fontTintG, int fontTintB, int fontTintA,
                                                     int alignment, int width, int height, 
-                                                    boolean shadow, float shadowDX, float shadowDY, float shadowBlur, float shadowOpacity, 
-                                                    boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA, float strokeSize, boolean enableWrap, int overflow) {
-        String string;
-        if (bytes == null || bytes.length == 0) {
-          return false;
-        } else {
-          string = new String(bytes);
-        }
+                                                       boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA, float strokeSize, boolean enableWrap, int overflow) {
 
         Layout.Alignment hAlignment = Layout.Alignment.ALIGN_NORMAL;
         int horizontalAlignment = alignment & 0x0F;

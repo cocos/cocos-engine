@@ -89,7 +89,7 @@ public:
     {
             JniMethodInfo methodInfo;
             if (! JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/lib/Cocos2dxBitmap", "createTextBitmapShadowStroke",
-                "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZFFFFZIIIIFZI)Z"))
+                                                 "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZIIIIFZI)Z"))
             {
                 CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
                 return false;
