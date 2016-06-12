@@ -81,6 +81,59 @@ var AnimationClip = cc.Class({
         }
     },
 
+    statics: {
+        /**
+         * !#en Crate clip with a set of sprite frames
+         * !#zh 使用一组序列帧图片来创建动画剪辑
+         * @property {[cc.SpriteFrame]} spriteFrames
+         * @property {Object} opts
+         * @return {AnimationClip}
+         * @example
+         *
+         * var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, {
+         *     name: 'run',
+         *     sample: 10,
+         *     wrapMode: cc.WrapMode.Loop
+         * });
+         * 
+         */
+        createWithSpriteFrames: function (spriteFrames, opts) {
+            if (!Array.isArray(spriteFrames)) {
+                cc.error('sprite frames must be an Array.');
+                return null;
+            }
+
+            var clip = new AnimationClip();
+            for (var key in opts) {
+                if (key in clip) {
+                    clip[key] = opts[key];
+                }
+            }
+
+            if (clip._duration === 0) {
+                clip._duration = spriteFrames.length / clip.sample;
+            }
+
+            var frames = [];
+            var step = 1 / clip.sample;
+
+            for (var i = 0, l = spriteFrames.length; i < l; i++) {
+                frames[i] = { frame: (i * step), value: spriteFrames[i] };
+            }
+
+            clip.curveData = {
+                comps: {
+                    // component
+                    'cc.Sprite': {
+                        // component properties
+                        'spriteFrame': frames
+                    }
+                }
+            };
+
+            return clip;
+        }
+    }
 });
 
 cc.AnimationClip = module.exports = AnimationClip;
