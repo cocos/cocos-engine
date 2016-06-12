@@ -441,14 +441,14 @@ var TiledLayer = cc.Class({
     /**
      * !#en Tile set information for the layer.
      * !#zh 获取 layer 的 Tileset 信息。
-     * @method getTileset
+     * @method getTileSet
      * @return {TMXTilesetInfo}
      * @example
-     * var tileset = tiledLayer.getTileset();
+     * var tileset = tiledLayer.getTileSet();
      */
-    getTileset:function () {
+    getTileSet:function () {
         if (this._sgNode) {
-            return this._sgNode.getTileset();
+            return this._sgNode.getTileSet();
         }
         return null;
     },
@@ -456,15 +456,42 @@ var TiledLayer = cc.Class({
     /**
      * !#en Tile set information for the layer.
      * !#zh 设置 layer 的 Tileset 信息。
+     * @method setTileSet
+     * @param {TMXTilesetInfo} tileset
+     * @example
+     * tiledLayer.setTileSet(tileset);
+     */
+    setTileSet:function (tileset) {
+        if (this._sgNode) {
+            this._sgNode.setTileSet(tileset);
+        }
+    },
+
+
+    /**
+     * !#en Tile set information for the layer.
+     * !#zh 获取 layer 的 Tileset 信息。
+     * @deprecated Please use getTileSet instead.
+     * @method getTileset
+     * @return {TMXTilesetInfo}
+     * @example
+     * var tileset = tiledLayer.getTileset();
+     */
+    getTileset:function () {
+        return this.getTileSet();
+    },
+
+    /**
+     * !#en Tile set information for the layer.
+     * !#zh 设置 layer 的 Tileset 信息。
+     * @deprecated Please use setTileSet instead.
      * @method setTileset
      * @param {TMXTilesetInfo} tileset
      * @example
      * tiledLayer.getTileset(tileset);
      */
     setTileset:function (tileset) {
-        if (this._sgNode) {
-            this._sgNode.setTileset(tileset);
-        }
+        this.setTileSet(tileset);
     },
 
     /**
