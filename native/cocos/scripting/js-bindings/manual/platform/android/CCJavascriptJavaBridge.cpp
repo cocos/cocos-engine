@@ -40,13 +40,13 @@ JNIEXPORT jint JNICALL Java_org_cocos2dx_lib_Cocos2dxJavascriptJavaBridge_evalSt
   (JNIEnv *env, jclass cls, jstring value)
 {
     bool strFlag = false;
-    std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
+    std::string strValue = cocos2d::JniHelper::getStringUTFCharsJNI(env, value, &strFlag);
     if (!strFlag)
     {
         CCLOG("Cocos2dxJavascriptJavaBridge_evalString error, invalid string code");
         return 0;
     }
-    ScriptingCore::getInstance()->evalString(strValue.c_str());
+    ScriptingCore::getInstance()->evalString(strValue.c_str(), nullptr);
     return 1;
 }
 
@@ -84,7 +84,7 @@ bool JavascriptJavaBridge::CallInfo::execute(void)
 
         case TypeString:
             m_retjstring = (jstring)m_env->CallStaticObjectMethod(m_classID, m_methodID);
-            std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
+            std::string strValue = cocos2d::JniHelper::getStringUTFCharsJNI(m_env, m_retjstring);
             
             m_ret.stringValue = new string(strValue);
             break;
@@ -124,7 +124,7 @@ bool JavascriptJavaBridge::CallInfo::executeWithArgs(jvalue *args)
 
          case TypeString:
              m_retjstring = (jstring)m_env->CallStaticObjectMethodA(m_classID, m_methodID, args);
-             std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
+             std::string strValue = cocos2d::JniHelper::getStringUTFCharsJNI(m_env, m_retjstring);
              m_ret.stringValue = new string(strValue);
              break;
      }
