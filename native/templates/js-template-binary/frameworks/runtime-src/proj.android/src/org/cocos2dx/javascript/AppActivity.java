@@ -33,8 +33,11 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.WindowManager;
+
+// For JS and JAVA reflection test, you can delete it if it's your own project
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+// -------------------------------------
 
 // The name of .so is specified in AndroidMenifest.xml. NativityActivity will load it automatically for you.
 // You can use "System.loadLibrary()" to load other .so files.
@@ -76,7 +79,8 @@ public class AppActivity extends Cocos2dxActivity{
     }
 
     private static native boolean nativeIsDebug();
-    
+
+    // For JS and JAVA reflection test, you can delete it if it's your own project
     public static void showAlertDialog(final String title,final String message) {
         // Here be sure to use runOnUiThread
         app.runOnUiThread(new Runnable() {
