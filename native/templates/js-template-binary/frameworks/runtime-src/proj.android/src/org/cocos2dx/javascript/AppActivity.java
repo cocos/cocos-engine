@@ -33,7 +33,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.view.WindowManager;
-
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 // The name of .so is specified in AndroidMenifest.xml. NativityActivity will load it automatically for you.
 // You can use "System.loadLibrary()" to load other .so files.
@@ -41,11 +42,13 @@ import android.view.WindowManager;
 public class AppActivity extends Cocos2dxActivity{
 
     static String hostIPAdress = "0.0.0.0";
+    private static AppActivity app = null;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-
+        app = this;
         if(nativeIsDebug()){
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
@@ -74,4 +77,16 @@ public class AppActivity extends Cocos2dxActivity{
 
     private static native boolean nativeIsDebug();
     
+    public static void showAlertDialog(final String title,final String message) {
+        // Here be sure to use runOnUiThread
+        app.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog alertDialog = new AlertDialog.Builder(app).create();
+                alertDialog.setTitle(title);
+                alertDialog.setMessage(message);
+                alertDialog.show();
+            }
+        });
+   }
 }
