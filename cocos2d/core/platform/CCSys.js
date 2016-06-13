@@ -306,10 +306,8 @@ sys.EDITOR_PAGE = 102;
  * @default 103
  */
 sys.EDITOR_CORE = 103;
-
 /**
- *
- _WECHAT
+ * BROWSER_TYPE_WECHAT
  * @property {String} BROWSER_TYPE_WECHAT
  * @readOnly
  * @default "wechat"
