@@ -29,6 +29,7 @@
 
 #include "CCDevice.h"
 #include "base/ccTypes.h"
+#include "platform/apple/CCDevice-apple.h"
 #include "base/CCEventDispatcher.h"
 #include "base/CCEventAcceleration.h"
 #include "base/CCDirector.h"
@@ -61,6 +62,24 @@ static NSAttributedString* __attributedStringWithFontSize(NSMutableAttributedStr
     return [[attributedString copy] autorelease];
 }
 
+static CGFloat _calculateTextDrawStartHeight(cocos2d::Device::TextAlign align, CGSize realDimensions, CGSize dimensions)
+{
+    float startH = 0;
+    // vertical alignment
+    unsigned int vAlignment = ((int)align >> 4) & 0x0F;
+    switch (vAlignment) {
+            //bottom
+        case 2:startH = dimensions.height - realDimensions.height;break;
+            //top
+        case 1:startH = 0;break;
+            //center
+        case 3: startH = (dimensions.height - realDimensions.height) / 2;break;
+        default:
+            break;
+    }
+    return startH;
+}
+
 static CGSize _calculateShrinkedSizeForString(NSAttributedString **str, id font, CGSize constrainSize, bool enableWrap, int& newFontSize)
 {
     CGRect actualSize = CGRectMake(0, 0, constrainSize.width + 1, constrainSize.height + 1);
@@ -76,7 +95,7 @@ static CGSize _calculateShrinkedSizeForString(NSAttributedString **str, id font,
             *str = __attributedStringWithFontSize(mutableString, fontSize);
 
             CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)*str);
-            CGSize targetSize = CGSizeMake(CGFLOAT_MAX, constrainSize.height);
+            CGSize targetSize = CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX);
             CGSize fitSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRangeMake(0, [(*str) length]), NULL, targetSize, NULL);
             CFRelease(framesetter);
             if (fitSize.width == 0 || fitSize.height == 0) {
@@ -301,13 +320,22 @@ typedef struct
 
 } tImageInfo;
 
-static CGSize _calculateStringSize(NSAttributedString *str, id font, CGSize *constrainSize)
+static CGSize _calculateStringSize(NSAttributedString *str, id font, CGSize *constrainSize, bool enableWrap, int overflow)
 {
     CGSize textRect = CGSizeZero;
     textRect.width = constrainSize->width > 0 ? constrainSize->width
-    : 0x7fffffff;
+    : CGFLOAT_MAX;
     textRect.height = constrainSize->height > 0 ? constrainSize->height
-    : 0x7fffffff;
+    : CGFLOAT_MAX;
+    
+    if (overflow == 1) {
+        if(!enableWrap) {
+            textRect.width = CGFLOAT_MAX;
+            textRect.height = CGFLOAT_MAX;
+        } else {
+            textRect.height = CGFLOAT_MAX;
+        }
+    }
 
     CGSize dim;
     dim = [str boundingRectWithSize:CGSizeMake(textRect.width, textRect.height)
@@ -319,11 +347,6 @@ static CGSize _calculateStringSize(NSAttributedString *str, id font, CGSize *con
 
     return dim;
 }
-
-// refer Image::ETextAlign
-#define ALIGN_TOP    1
-#define ALIGN_CENTER 3
-#define ALIGN_BOTTOM 2
 
 static id _createSystemFont( const char * fontName, int size)
 {
@@ -345,57 +368,6 @@ static id _createSystemFont( const char * fontName, int size)
     return font;
 }
 
-static NSMutableParagraphStyle* _calculateParagraphStyle(bool enableWrap, int overflow)
-{
-    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    if (enableWrap) {
-        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-    }
-    else {
-        if (overflow == 1) {
-            paragraphStyle.lineBreakMode = NSLineBreakByClipping;
-        }
-        
-        if (overflow == 3) {
-            paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-        }
-    }
-    return paragraphStyle;
-}
-
-static NSTextAlignment _calculateTextAlignment(cocos2d::Device::TextAlign align)
-{
-    unsigned uHoriFlag = (int)align & 0x0f;
-    NSTextAlignment nsAlign = (2 == uHoriFlag) ? NSTextAlignmentRight
-    : (3 == uHoriFlag) ? NSTextAlignmentCenter
-    : NSTextAlignmentLeft;
-    
-    return nsAlign;
-}
-
-static int _calculateTextDrawStartHeight(cocos2d::Device::TextAlign align, CGSize dim, CGSize constrainSize)
-{
-    int startH = 0;
-    if (constrainSize.height > dim.height)
-    {
-        // vertical alignment
-        unsigned int vAlignment = ((int)align >> 4) & 0x0F;
-        if (vAlignment == ALIGN_TOP)
-        {
-            startH = 0;
-        }
-        else if (vAlignment == ALIGN_CENTER)
-        {
-            startH = (constrainSize.height - dim.height) / 2;
-        }
-        else
-        {
-            startH = constrainSize.height - dim.height;
-        }
-    }
-    return startH;
-}
-
 static bool _initWithString(const char * text, cocos2d::Device::TextAlign align, const char * fontName, int size, tImageInfo* info, bool enableWrap, int overflow)
 {
 
@@ -409,13 +381,12 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
         CC_BREAK_IF(! font);
         
         NSString * str          = [NSString stringWithUTF8String:text];
-        CGSize dim, constrainSize;
-        
-        constrainSize.width     = info->width;
-        constrainSize.height    = info->height;
+        CGSize dimensions;
+        dimensions.width     = info->width;
+        dimensions.height    = info->height;
 
-        NSTextAlignment nsAlign = _calculateTextAlignment(align);
-        NSMutableParagraphStyle* paragraphStyle = _calculateParagraphStyle(enableWrap, overflow);
+        NSTextAlignment nsAlign = FontUtils::_calculateTextAlignment(align);
+        NSMutableParagraphStyle* paragraphStyle = FontUtils::_calculateParagraphStyle(enableWrap, overflow);
         paragraphStyle.alignment = nsAlign;
 
         // measure text size with specified font and determine the rectangle to draw text in
@@ -435,38 +406,44 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
                                                                                    attributes:tokenAttributesDict] autorelease];
 
         int shrinkFontSize = size;
-
+        CGSize realDimensions;
         if (overflow == 2) {
-            dim = _calculateShrinkedSizeForString(&stringWithAttributes, font, constrainSize, enableWrap, shrinkFontSize);
+            realDimensions = _calculateShrinkedSizeForString(&stringWithAttributes, font, dimensions, enableWrap, shrinkFontSize);
         } else {
-            dim = _calculateStringSize(stringWithAttributes, font, &constrainSize);
+            realDimensions = _calculateStringSize(stringWithAttributes, font, &dimensions, enableWrap, overflow);
         }
 
+        
+        CC_BREAK_IF(realDimensions.width <= 0 || realDimensions.height <= 0);
+        if (dimensions.width <= 0) {
+            dimensions.width = realDimensions.width;
+        }
+        if (dimensions.height <= 0) {
+            dimensions.height = realDimensions.height;
+        }
 
         // compute start point
-        int startH = _calculateTextDrawStartHeight(align, dim, constrainSize);
-
-        // adjust text rect
-        if (constrainSize.width > 0 && constrainSize.width > dim.width)
-        {
-            dim.width = constrainSize.width;
-        }
-        if (constrainSize.height > 0 && constrainSize.height > dim.height)
-        {
-            dim.height = constrainSize.height;
-        }
+        CGFloat yPadding = _calculateTextDrawStartHeight(align, realDimensions, dimensions);
+        CGFloat xPadding = FontUtils::_calculateTextDrawStartWidth(align, realDimensions, dimensions);
+        
+        NSInteger POTWide = dimensions.width;
+        NSInteger POTHigh = dimensions.height;
+        
+        CGRect textRect = CGRectMake(xPadding, yPadding,
+                                     realDimensions.width, realDimensions.height);
 
 
-        unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * (int)(dim.width * dim.height * 4));
-        memset(data, 0, (int)(dim.width * dim.height * 4));
+        NSUInteger textureSize = POTWide * POTHigh * 4;
+        unsigned char* data = (unsigned char*)malloc(sizeof(unsigned char) * textureSize);
+        memset(data, 0, textureSize);
 
         // draw text
         CGColorSpaceRef colorSpace  = CGColorSpaceCreateDeviceRGB();
         CGContextRef context        = CGBitmapContextCreate(data,
-                                                            dim.width,
-                                                            dim.height,
+                                                            POTWide,
+                                                            POTHigh,
                                                             8,
-                                                            (int)(dim.width) * 4,
+                                                            POTWide * 4,
                                                             colorSpace,
                                                             kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
         if (!context)
@@ -477,11 +454,14 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
         }
 
         // text color
-        CGContextSetRGBFillColor(context, info->tintColorR,
-                                 info->tintColorG, info->tintColorB, info->tintColorA);
+        CGContextSetRGBFillColor(context,
+                                 info->tintColorR,
+                                 info->tintColorG,
+                                 info->tintColorB,
+                                 info->tintColorA);
 
         // move Y rendering to the top of the image
-        CGContextTranslateCTM(context, 0.0f, dim.height);
+        CGContextTranslateCTM(context, 0.0f, POTHigh);
         
         //NOTE: NSString draws in UIKit referential i.e. renders upside-down compared to CGBitmapContext referential
         CGContextScaleCTM(context, 1.0f, -1.0f);
@@ -490,21 +470,9 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
 
         CGColorSpaceRelease(colorSpace);
 
-        // compute the rect used for rendering the text
-        // based on wether shadows or stroke are enabled
-
-        float textOriginX  = 0;
-        float textOrigingY = startH;
-
-        float textWidth    = dim.width;
-        float textHeight   = dim.height;
-
-        CGRect rect = CGRectMake(textOriginX, textOrigingY, textWidth, textHeight);
-
         CGContextSetShouldSubpixelQuantizeFonts(context, false);
 
-        CGContextBeginTransparencyLayerWithRect(context, rect, NULL);
-
+        CGContextBeginTransparencyLayerWithRect(context, textRect, NULL);
 
 
         if ( info->hasStroke )
@@ -528,18 +496,18 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
                                                                                        attributes:tokenAttributesDict2] autorelease];
             
             if(overflow == 2){
-                _calculateShrinkedSizeForString(&strokeString, font, constrainSize, enableWrap, shrinkFontSize);
+                _calculateShrinkedSizeForString(&strokeString, font, dimensions, enableWrap, shrinkFontSize);
             }
 
 
-            [strokeString drawInRect:rect];
+            [strokeString drawInRect:textRect];
 
         }
 
         CGContextSetTextDrawingMode(context, kCGTextFill);
 
         // actually draw the text in the context
-        [stringWithAttributes drawInRect:rect];
+        [stringWithAttributes drawInRect:textRect];
 
         CGContextEndTransparencyLayer(context);
 
@@ -552,8 +520,8 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
         // output params
         info->data                 = data;
         info->isPremultipliedAlpha = true;
-        info->width                = dim.width;
-        info->height               = dim.height;
+        info->width                = static_cast<int>(POTWide);
+        info->height               = static_cast<int>(POTHigh);
         bRet                        = true;
 
     } while (0);

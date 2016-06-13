@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <Cocoa/Cocoa.h>
 #include <string>
 #include "base/ccTypes.h"
+#include "platform/apple/CCDevice-apple.h"
 
 NS_CC_BEGIN
 
@@ -83,13 +84,22 @@ typedef struct
     unsigned char* data;
 } tImageInfo;
 
-static NSSize _calculateStringSize(NSAttributedString *str, id font, CGSize *constrainSize)
+static NSSize _calculateStringSize(NSAttributedString *str, id font, CGSize *constrainSize, bool enableWrap, int overflow)
 {
     NSSize textRect = NSZeroSize;
     textRect.width = constrainSize->width > 0 ? constrainSize->width
-    : 0x7fffffff;
+    : CGFLOAT_MAX;
     textRect.height = constrainSize->height > 0 ? constrainSize->height
-    : 0x7fffffff;
+    : CGFLOAT_MAX;
+    
+    if (overflow == 1) {
+        if (!enableWrap) {
+            textRect.width = CGFLOAT_MAX;
+            textRect.height = CGFLOAT_MAX;
+        } else {
+            textRect.height = CGFLOAT_MAX;
+        }
+    }
     
     NSSize dim;
 #ifdef __MAC_10_11
@@ -123,7 +133,7 @@ static NSSize _calculateRealSizeForString(NSAttributedString **str, id font, NSS
             NSMutableAttributedString *mutableString = [[*str mutableCopy] autorelease];
             *str = __attributedStringWithFontSize(mutableString, fontSize);
 
-            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( CGFLOAT_MAX, constrainSize.height)
+            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( CGFLOAT_MAX, CGFLOAT_MAX)
                                             options:NSStringDrawingUsesLineFragmentOrigin
                                             context:nil].size;
             
@@ -194,32 +204,23 @@ static NSFont* _createSystemFont(const char* fontName, int size)
     return font;
 }
 
-static NSMutableParagraphStyle* _calculateParagraphStyle(bool enableWrap, int overflow)
-{
-    NSMutableParagraphStyle* paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    if (enableWrap) {
-        paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-    }
-    else {
-        if (overflow == 1) {
-            paragraphStyle.lineBreakMode = NSLineBreakByClipping;
-        }
-        
-        if (overflow == 3) {
-            paragraphStyle.lineBreakMode = NSLineBreakByWordWrapping;
-        }
-    }
-    return paragraphStyle;
-}
 
-static NSTextAlignment _calculateTextAlignment(cocos2d::Device::TextAlign align)
+static CGFloat _calculateTextDrawStartHeight(cocos2d::Device::TextAlign align, CGSize realDimensions, CGSize dimensions)
 {
-    unsigned uHoriFlag = (int)align & 0x0f;
-    NSTextAlignment nsAlign = (2 == uHoriFlag) ? NSTextAlignmentRight
-    : (3 == uHoriFlag) ? NSTextAlignmentCenter
-    : NSTextAlignmentLeft;
-    
-    return nsAlign;
+    float startH = 0;
+    // vertical alignment
+    unsigned int vAlignment = ((int)align >> 4) & 0x0F;
+    switch (vAlignment) {
+            //bottom
+        case 1:startH = dimensions.height - realDimensions.height;break;
+            //top
+        case 2:startH = 0;break;
+            //center
+        case 3: startH = (dimensions.height - realDimensions.height) / 2;break;
+        default:
+            break;
+    }
+    return startH;
 }
 
 
@@ -248,9 +249,9 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
         }
         
         // alignment
-        NSTextAlignment textAlign = _calculateTextAlignment(align);
+        NSTextAlignment textAlign = FontUtils::_calculateTextAlignment(align);
         
-        NSMutableParagraphStyle *paragraphStyle = _calculateParagraphStyle(enableWrap, overflow);
+        NSMutableParagraphStyle *paragraphStyle = FontUtils::_calculateParagraphStyle(enableWrap, overflow);
         [paragraphStyle setAlignment:textAlign];
         
         // attribute
@@ -268,7 +269,7 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
         if (overflow == 2) {
             realDimensions = _calculateRealSizeForString(&stringWithAttributes, font, dimensions, enableWrap);
         } else {
-            realDimensions = _calculateStringSize(stringWithAttributes, font, &dimensions);
+            realDimensions = _calculateStringSize(stringWithAttributes, font, &dimensions, enableWrap, overflow);
         }
         
 
@@ -285,25 +286,9 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
       
         
         //Alignment
-        CGFloat xPadding = 0;
-        switch (textAlign) {
-            case NSLeftTextAlignment: xPadding = 0; break;
-            case NSCenterTextAlignment: xPadding = (dimensions.width - realDimensions.width) / 2.0f; break;
-            case NSRightTextAlignment: xPadding = dimensions.width - realDimensions.width; break;
-            default: break;
-        }
+        CGFloat xPadding = FontUtils::_calculateTextDrawStartWidth(align, realDimensions, dimensions);
         
-        CGFloat yPadding = 0.f;
-        unsigned vertFlag = ((int)align >> 4) & 0x0f;
-        switch (vertFlag) {
-            // align to top
-            case 1: yPadding = dimensions.height - realDimensions.height; break;
-            // align to bottom
-            case 2: yPadding = 0.f; break;
-            // align to center
-            case 3: yPadding = (dimensions.height - realDimensions.height) / 2.0f; break;
-            default: break;
-        }
+        CGFloat yPadding = _calculateTextDrawStartHeight(align, realDimensions, dimensions);
         
         NSInteger POTWide = dimensions.width;
         NSInteger POTHigh = dimensions.height;
