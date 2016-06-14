@@ -36,6 +36,7 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 
 #define helperClassName "org/cocos2dx/lib/Cocos2dxHelper"
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_ERROR,"",__VA_ARGS__)
 
 NS_CC_BEGIN
 
@@ -89,7 +90,7 @@ public:
     {
             JniMethodInfo methodInfo;
             if (! JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/lib/Cocos2dxBitmap", "createTextBitmapShadowStroke",
-                "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZFFFFZIIIIF)Z"))
+                                                 "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZIIIIFZI)Z"))
             {
                 CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
                 return false;
@@ -115,15 +116,16 @@ public:
            auto jstrText = JniHelper::newStringUTFJNI(methodInfo.env, text);
            jstring jstrFont = methodInfo.env->NewStringUTF(fullPathOrFontName.c_str());
            bool ret = true;
-
            if(!methodInfo.env->CallStaticBooleanMethod(methodInfo.classID, methodInfo.methodID, jstrText,
-               jstrFont, textDefinition._fontSize, textDefinition._fontFillColor.r, textDefinition._fontFillColor.g,
-               textDefinition._fontFillColor.b, textDefinition._fontAlpha,
-               eAlignMask, nWidth, nHeight,
-               textDefinition._shadow._shadowEnabled, textDefinition._shadow._shadowOffset.width, -textDefinition._shadow._shadowOffset.height,
-               textDefinition._shadow._shadowBlur, textDefinition._shadow._shadowOpacity,
-               textDefinition._stroke._strokeEnabled, textDefinition._stroke._strokeColor.r, textDefinition._stroke._strokeColor.g,
-               textDefinition._stroke._strokeColor.b, textDefinition._stroke._strokeAlpha, textDefinition._stroke._strokeSize))
+                                                       jstrFont, textDefinition._fontSize,
+                                                       textDefinition._fontFillColor.r, textDefinition._fontFillColor.g,
+                                                       textDefinition._fontFillColor.b, textDefinition._fontAlpha,
+                                                       eAlignMask, nWidth, nHeight,
+                                                       textDefinition._stroke._strokeEnabled,
+                                                       textDefinition._stroke._strokeColor.r, textDefinition._stroke._strokeColor.g,
+                                                       textDefinition._stroke._strokeColor.b, textDefinition._stroke._strokeAlpha,
+                                                       textDefinition._stroke._strokeSize,
+                                                       textDefinition._enableWrap, textDefinition._overflow))
            {
                 ret = false;
            }

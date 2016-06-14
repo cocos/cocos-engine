@@ -276,7 +276,7 @@ public:
      @param hAlignment The font horizontal text alignment type.
      @param vAlignment The font vertical text alignment type.
      */
-    bool initWithString(const std::string& text,  const std::string &fontName, float fontSize, const Size& dimensions = Size(0, 0), TextHAlignment hAlignment = TextHAlignment::CENTER, TextVAlignment vAlignment = TextVAlignment::TOP);
+    bool initWithString(const std::string& text,  const std::string &fontName, float fontSize, const Size& dimensions = Size(0, 0), TextHAlignment hAlignment = TextHAlignment::CENTER, TextVAlignment vAlignment = TextVAlignment::TOP, bool enableWrap = true, int overflow = 0);
 
     /** Initializes a texture from a string using a text definition.
 

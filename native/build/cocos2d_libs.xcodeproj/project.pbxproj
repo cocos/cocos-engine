@@ -634,6 +634,10 @@
 		29394CF519B01DBA00D2DE1A /* UIWebViewImpl-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 29394CEE19B01DBA00D2DE1A /* UIWebViewImpl-ios.h */; };
 		29394CF619B01DBA00D2DE1A /* UIWebViewImpl-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29394CEF19B01DBA00D2DE1A /* UIWebViewImpl-ios.mm */; };
 		29394CF719B01DBA00D2DE1A /* UIWebViewImpl-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 29394CEF19B01DBA00D2DE1A /* UIWebViewImpl-ios.mm */; };
+		294D7D9A1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */ = {isa = PBXBuildFile; fileRef = 294D7D981D0E93A2002CE7B7 /* CCDevice-apple.h */; };
+		294D7D9B1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */ = {isa = PBXBuildFile; fileRef = 294D7D981D0E93A2002CE7B7 /* CCDevice-apple.h */; };
+		294D7D9C1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 294D7D991D0E93A2002CE7B7 /* CCDevice-apple.mm */; };
+		294D7D9D1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 294D7D991D0E93A2002CE7B7 /* CCDevice-apple.mm */; };
 		2980F0221BA9A5550059E678 /* CCUIEditBoxIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2980F0171BA9A5550059E678 /* CCUIEditBoxIOS.h */; };
 		2980F0231BA9A5550059E678 /* CCUIEditBoxIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2980F0181BA9A5550059E678 /* CCUIEditBoxIOS.mm */; };
 		2980F0241BA9A5550059E678 /* CCUIMultilineTextField.h in Headers */ = {isa = PBXBuildFile; fileRef = 2980F0191BA9A5550059E678 /* CCUIMultilineTextField.h */; };
@@ -1740,6 +1744,8 @@
 		29394CED19B01DBA00D2DE1A /* UIWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UIWebView.mm; sourceTree = "<group>"; };
 		29394CEE19B01DBA00D2DE1A /* UIWebViewImpl-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebViewImpl-ios.h"; sourceTree = "<group>"; };
 		29394CEF19B01DBA00D2DE1A /* UIWebViewImpl-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIWebViewImpl-ios.mm"; sourceTree = "<group>"; };
+		294D7D981D0E93A2002CE7B7 /* CCDevice-apple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCDevice-apple.h"; sourceTree = "<group>"; };
+		294D7D991D0E93A2002CE7B7 /* CCDevice-apple.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCDevice-apple.mm"; sourceTree = "<group>"; };
 		2958244919873D8E00F9746D /* UIScale9Sprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIScale9Sprite.cpp; sourceTree = "<group>"; };
 		2958244A19873D8E00F9746D /* UIScale9Sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIScale9Sprite.h; sourceTree = "<group>"; };
 		2980F0171BA9A5550059E678 /* CCUIEditBoxIOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCUIEditBoxIOS.h; sourceTree = "<group>"; };
@@ -3488,6 +3494,8 @@
 		50ABBF1A1926664700A911A9 /* apple */ = {
 			isa = PBXGroup;
 			children = (
+				294D7D981D0E93A2002CE7B7 /* CCDevice-apple.h */,
+				294D7D991D0E93A2002CE7B7 /* CCDevice-apple.mm */,
 				50ABBF1B1926664700A911A9 /* CCFileUtils-apple.h */,
 				50ABBF1C1926664700A911A9 /* CCFileUtils-apple.mm */,
 				50ABBF1D1926664700A911A9 /* CCLock-apple.cpp */,
@@ -3841,6 +3849,7 @@
 				1A5701E0180BCB8C0088DEC7 /* CCLayer.h in Headers */,
 				1A5701E4180BCB8C0088DEC7 /* CCScene.h in Headers */,
 				15AE1BDD19AAE01E00C27E9E /* CCControlUtils.h in Headers */,
+				294D7D9A1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
 				A6F0D7A21C2796020029CC44 /* CCStencilStateManager.hpp in Headers */,
 				B29A7E0919EE1B7700872B35 /* AttachmentLoader.h in Headers */,
 				B29A7E3319EE1B7700872B35 /* SlotData.h in Headers */,
@@ -4142,6 +4151,7 @@
 				15AE193119AAD35100C27E9E /* CCActionManagerEx.h in Headers */,
 				15AE185B19AAD31200C27E9E /* CDOpenALSupport.h in Headers */,
 				1A570064180BC5A10088DEC7 /* CCAction.h in Headers */,
+				294D7D9B1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
 				15AE1BA819AADFDF00C27E9E /* UIRelativeBox.h in Headers */,
 				503DD8EC1926736A00CD74DD /* CCGLViewImpl-ios.h in Headers */,
 				15AE18D819AAD33D00C27E9E /* CCScrollViewLoader.h in Headers */,
@@ -4600,6 +4610,7 @@
 				1A570061180BC5A10088DEC7 /* CCAction.cpp in Sources */,
 				15AE1BDC19AAE01E00C27E9E /* CCControlUtils.cpp in Sources */,
 				B29A7DE919EE1B7700872B35 /* EventData.c in Sources */,
+				294D7D9C1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */,
 				50ABBEC51925AB6F00A911A9 /* etc1.cpp in Sources */,
 				15AE1B5B19AADA9900C27E9E /* UITextAtlas.cpp in Sources */,
 				1A570065180BC5A10088DEC7 /* CCActionCamera.cpp in Sources */,
@@ -5172,6 +5183,7 @@
 				50ABBDB21925AB4100A911A9 /* ccShaders.cpp in Sources */,
 				50ABBD451925AB0000A911A9 /* CCVertex.cpp in Sources */,
 				50ABBEB01925AB6F00A911A9 /* CCUserDefault.cpp in Sources */,
+				294D7D9D1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */,
 				50ABBE521925AB6F00A911A9 /* CCEventDispatcher.cpp in Sources */,
 				52B47A2F1A5349A3004E4C60 /* HttpAsynConnection-apple.m in Sources */,
 				15AE1B8019AADA9A00C27E9E /* UITextAtlas.cpp in Sources */,
