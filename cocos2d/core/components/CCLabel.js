@@ -23,7 +23,48 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Enum for text alignment.
+ * !#zh 文本横向对齐类型
+ * @enum Label.HorizontalAlign
+ */
+/**
+ * !#en Alignment left for text.
+ * !#zh 文本内容左对齐。
+ * @property {Number} LEFT
+ */
+/**
+ * !#en Alignment center for text.
+ * !#zh 文本内容居中对齐。
+ * @property {Number} CENTER
+ */
+/**
+ * !#en Alignment right for text.
+ * !#zh 文本内容右边对齐。
+ * @property {Number} RIGHT
+ */
 var HorizontalAlign = cc.TextAlignment;
+
+/**
+ * !#en Enum for vertical text alignment.
+ * !#zh 文本垂直对齐类型
+ * @enum Label.VerticalAlign
+ */
+/**
+ * !#en Vertical alignment top for text.
+ * !#zh 文本顶部对齐。
+ * @property {Number} TOP
+ */
+/**
+ * !#en Vertical alignment center for text.
+ * !#zh 文本居中对齐。
+ * @property {Number} CENTER
+ */
+/**
+ * !#en Vertical alignment bottom for text.
+ * !#zh 文本底部对齐。
+ * @property {Number} BOTTOM
+ */
 var VerticalAlign = cc.VerticalTextAlignment;
 
 /**
@@ -112,7 +153,7 @@ var Label = cc.Class({
         /**
          * !#en Horizontal Alignment of label.
          * !#zh 文本内容的水平对齐方式。
-         * @property {Label.TextAlignment} horizontalAlign
+         * @property {Label.HorizontalAlign} horizontalAlign
          */
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
@@ -129,7 +170,7 @@ var Label = cc.Class({
         /**
          * !#en Vertical Alignment of label.
          * !#zh 文本内容的垂直对齐方式。
-         * @property {Label.VerticalTextAlignment} verticalAlign
+         * @property {Label.VerticalAlign} verticalAlign
          */
         verticalAlign: {
             default: VerticalAlign.TOP,
