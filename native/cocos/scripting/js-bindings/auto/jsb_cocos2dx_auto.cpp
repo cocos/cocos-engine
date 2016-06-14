@@ -463,6 +463,82 @@ bool js_cocos2dx_Texture2D_initWithString(JSContext *cx, uint32_t argc, jsval *v
         }
     } while(0);
 
+    do {
+        bool ok = true;
+        if (argc == 7) {
+            std::string arg0;
+            ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+            if (!ok) { break; }
+            std::string arg1;
+            ok = true;
+            ok &= jsval_to_std_string(cx, args.get(1), &arg1);
+            if (!ok) { break; }
+            double arg2 = 0;
+            ok = true;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
+            if (!ok) { break; }
+            cocos2d::Size arg3;
+            ok = true;
+            ok &= jsval_to_ccsize(cx, args.get(3), &arg3);
+            if (!ok) { break; }
+            cocos2d::TextHAlignment arg4;
+            ok = true;
+            ok &= jsval_to_int32(cx, args.get(4), (int32_t *)&arg4);
+            if (!ok) { break; }
+            cocos2d::TextVAlignment arg5;
+            ok = true;
+            ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
+            if (!ok) { break; }
+            bool arg6;
+            arg6 = JS::ToBoolean(args.get(6));
+            bool ret = cobj->initWithString(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            jsval jsret = JSVAL_NULL;
+            jsret = BOOLEAN_TO_JSVAL(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
+    do {
+        bool ok = true;
+        if (argc == 8) {
+            std::string arg0;
+            ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+            if (!ok) { break; }
+            std::string arg1;
+            ok = true;
+            ok &= jsval_to_std_string(cx, args.get(1), &arg1);
+            if (!ok) { break; }
+            double arg2 = 0;
+            ok = true;
+            ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
+            if (!ok) { break; }
+            cocos2d::Size arg3;
+            ok = true;
+            ok &= jsval_to_ccsize(cx, args.get(3), &arg3);
+            if (!ok) { break; }
+            cocos2d::TextHAlignment arg4;
+            ok = true;
+            ok &= jsval_to_int32(cx, args.get(4), (int32_t *)&arg4);
+            if (!ok) { break; }
+            cocos2d::TextVAlignment arg5;
+            ok = true;
+            ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
+            if (!ok) { break; }
+            bool arg6;
+            arg6 = JS::ToBoolean(args.get(6));
+            int arg7 = 0;
+            ok = true;
+            ok &= jsval_to_int32(cx, args.get(7), (int32_t *)&arg7);
+            if (!ok) { break; }
+            bool ret = cobj->initWithString(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            jsval jsret = JSVAL_NULL;
+            jsret = BOOLEAN_TO_JSVAL(ret);
+            args.rval().set(jsret);
+            return true;
+        }
+    } while(0);
+
     JS_ReportError(cx, "js_cocos2dx_Texture2D_initWithString : wrong number of arguments");
     return false;
 }
