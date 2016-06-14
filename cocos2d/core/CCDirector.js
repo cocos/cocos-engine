@@ -140,7 +140,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         EventTarget.call(self);
         self._lastUpdate = Date.now();
-        cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+        cc.game.on(cc.game.EVENT_SHOW, function () {
             self._lastUpdate = Date.now();
         });
     },
