@@ -74,10 +74,10 @@ var VideoPlayer = cc.Class({
             type: ResourceType,
             set: function ( value ) {
                 this._resourceType = value;
-                this._updateSgNode();
+                this._updateVideoSource();
             },
             get: function () {
-                return this._resourceType
+                return this._resourceType;
             }
         },
 
@@ -92,7 +92,7 @@ var VideoPlayer = cc.Class({
             type: cc.String,
             set: function ( url ) {
                 this._remoteURL = url;
-                this._updateSgNode();
+                this._updateVideoSource();
             },
             get: function () {
                 return this._remoteURL;
@@ -117,7 +117,7 @@ var VideoPlayer = cc.Class({
                 if (typeof value !== 'string')
                     value = '';
                 this._clip = value;
-                this._updateSgNode();
+                this._updateVideoSource();
             },
             url: cc.RawAsset
         },
@@ -203,7 +203,7 @@ var VideoPlayer = cc.Class({
         return new _ccsg.VideoPlayer();
     },
 
-    _updateSgNode: function () {
+    _updateVideoSource: function () {
         var sgNode = this._sgNode;
         if (this.resourceType === ResourceType.REMOTE) {
             sgNode.setURL(this.remoteURL);
@@ -215,7 +215,7 @@ var VideoPlayer = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
         if(sgNode) {
-            this._updateSgNode();
+            this._updateVideoSource();
 
             sgNode.seekTo(this.currentTime);
             sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
