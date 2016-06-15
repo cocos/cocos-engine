@@ -787,32 +787,16 @@ var ScrollView = cc.Class({
         this._touchMoved = false;
     },
 
-    _cancelButtonClick: function(touch) {
-        var deltaMove = touch.getDelta();
-        var needCancelTouch = false;
-        if (cc.sys.isMobile) {
-            //FIXME: touch move delta should be calculated by DPI.
-            var TOUCH_CANCEL_POINT = 7;
-            if (cc.pLength(deltaMove) > TOUCH_CANCEL_POINT) {
-                needCancelTouch = true;
-            }
-        } else {
-            needCancelTouch = true;
-        }
-
-        return needCancelTouch;
-    },
-
     _onTouchMoved: function(event) {
         var touch = event.touch;
         if (this.content) {
-            var buttonComponent = event.target.getComponent(cc.Button);
-            if (buttonComponent && this._cancelButtonClick(touch)) {
-                buttonComponent._cancelButtonClick();
-            }
             this._handleMoveLogic(touch);
         }
-        this._touchMoved = true;
+        var deltaMove = touch.getDelta();
+        //FIXME: touch move delta should be calculated by DPI.
+        if (cc.pLength(deltaMove) > 7) {
+            this._touchMoved = true;
+        }
         // TODO: detect move distance, if distance greater than a seuil, then stop propagation.
         event.stopPropagation();
     },

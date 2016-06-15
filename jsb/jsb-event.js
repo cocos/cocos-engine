@@ -237,7 +237,7 @@ cc.js.mixin(cc.EventTouch.prototype, {
     },
 
     getID:function () {
-        return this.touch ? this.getID() : null;
+        return this.touch ? this.touch.getID() : null;
     },
 
     getDelta: function () {

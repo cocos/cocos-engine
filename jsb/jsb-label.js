@@ -156,6 +156,10 @@ jsbLabel.prototype.setOutlineColor = function(value) {
     }
 };
 
+jsbLabel.prototype.setMargin = function(value) {
+    //add an empty here, needed to be implemented by native
+}
+
 jsbLabel.prototype.isOutlined = function(value) {
     return !!this._outlined;
 };

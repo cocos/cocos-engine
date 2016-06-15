@@ -1153,7 +1153,7 @@ var Node = cc.Class({
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      */
     off: function (type, callback, target, useCapture) {
-        this._EventTargetOff(this, type, callback, target, useCapture);
+        this._EventTargetOff(type, callback, target, useCapture);
 
         if (_touchEvents.indexOf(type) !== -1) {
             this._checkTouchListeners();

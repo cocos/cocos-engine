@@ -309,6 +309,11 @@ var tiledQuadGenerator = {
         //build quads
         var hRepeat = contentSize.width / rectWidth;
         var vRepeat = contentSize.height / rectHeight;
+
+        if(Math.ceil(hRepeat) * Math.ceil(vRepeat) > (65536 / 4)) {
+            cc.error("too many tiles, only 16384 tiles will be show");
+        }
+
         for (var hindex = 0; hindex < Math.ceil(hRepeat); ++hindex) {
             for (var vindex = 0; vindex < Math.ceil(vRepeat); ++vindex) {
                 var quad;
@@ -337,6 +342,9 @@ var tiledQuadGenerator = {
 
                 }
                 quads.push(quad);
+                if(quads.length >= 65536 / 4) {
+                    break;
+                }
             }
         }
         return quads;

@@ -117,11 +117,13 @@ var RendererInSG = cc.Class({
         
         // replace parent
         var parentNode = replaced.getParent();
-        parentNode.removeChild(replaced);
-        parentNode.addChild(sgNode);
-        sgNode.arrivalOrder = replaced.arrivalOrder;
-        if ( !CC_JSB ) {
-            cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
+        if (parentNode) {
+            parentNode.removeChild(replaced);
+            parentNode.addChild(sgNode);
+            sgNode.arrivalOrder = replaced.arrivalOrder;
+            if ( !CC_JSB ) {
+                cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
+            }
         }
 
         // apply node's property

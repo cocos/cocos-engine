@@ -205,7 +205,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
      * Tile set information for the layer
      * @return {cc.TMXTilesetInfo}
      */
-    getTileset:function () {
+    getTileSet:function () {
         return this.tileset;
     },
 
@@ -213,7 +213,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
      * Tile set information for the layer
      * @param {cc.TMXTilesetInfo} Var
      */
-    setTileset:function (Var) {
+    setTileSet:function (Var) {
         this.tileset = Var;
     },
 

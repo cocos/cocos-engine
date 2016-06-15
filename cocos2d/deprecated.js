@@ -206,6 +206,24 @@ if (CC_DEV) {
         return cc.js.array.copy;
     });
 
+    /**
+     * Get the Tile set information for the layer.
+     * @memberof cc.TiledLayer
+     * @deprecated
+     * @return {TMXTilesetInfo}
+     * @function
+     */
+    js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.getTileset', 'getTileSet');
+
+    /**
+     * Set the Tile set information for the layer.
+     * @memberof cc.TiledLayer
+     * @deprecated
+     * @param {TMXTilesetInfo}
+     * @function
+     */
+    js.obsolete(cc.TiledLayer.prototype, 'cc.TiledLayer.setTileset', 'setTileSet');
+
     Object.defineProperty(cc._SGComponent.prototype, 'visible', {
         get: function () {
             cc.warn('The "visible" property of %s is deprecated, use "enabled" instead please.', cc.js.getClassName(this));
