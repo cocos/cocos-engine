@@ -246,24 +246,44 @@ var VideoPlayer = cc.Class({
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
     },
 
+    /**
+     * !#en If a video is paused, call this method could resume playing. If a video is stopped, call this method to play from scratch.
+     * !#zh 如果视频被暂停播放了，调用这个接口可以继续播放。如果视频被停止播放了，调用这个接口可以从头开始播放。
+     * @method play
+     */
     play: function () {
         if(this._sgNode) {
             this._sgNode.play();
         }
     },
 
+    /**
+     * !#en If a video is paused, call this method to resume playing.
+     * !#zh 如果一个视频播放被暂停播放了，调用这个接口可以继续播放。
+     * @method resume
+     */
     resume: function() {
         if (this._sgNode) {
             this._sgNode.resume();
         }
     },
 
+    /**
+     * !#en If a video is playing, call this method to pause playing.
+     * !#zh 如果一个视频正在播放，调用这个接口可以暂停播放。
+     * @method pause
+     */
     pause: function () {
         if(this._sgNode) {
             this._sgNode.pause();
         }
     },
 
+    /**
+     * !#en If a video is playing, call this method to stop playing immediately.
+     * !#zh 如果一个视频正在播放，调用这个接口可以立马停止播放。
+     * @method stop
+     */
     stop: function() {
         if(this._sgNode) {
             this._sgNode.stop();
