@@ -546,6 +546,8 @@ public:
         , _dimensions(Size::ZERO)
         , _fontFillColor(Color3B::WHITE)
         , _fontAlpha(255)
+        , _enableWrap(true)
+        , _overflow(0)
     {}
 
     /// font name
@@ -566,7 +568,10 @@ public:
     FontShadow            _shadow;
     /// font stroke
     FontStroke            _stroke;
-
+    /// enable text wrap
+    bool                  _enableWrap;
+    /// enable shrink font size
+    int                  _overflow;
 };
 
 /**

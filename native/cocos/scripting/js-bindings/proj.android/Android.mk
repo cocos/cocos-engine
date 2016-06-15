@@ -46,7 +46,8 @@ LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
                    ../manual/chipmunk/js_bindings_chipmunk_auto_classes.cpp \
                    ../manual/chipmunk/js_bindings_chipmunk_functions.cpp \
                    ../manual/chipmunk/js_bindings_chipmunk_manual.cpp \
-                   ../manual/chipmunk/js_bindings_chipmunk_registration.cpp
+                   ../manual/chipmunk/js_bindings_chipmunk_registration.cpp \
+                   ../manual/platform/android/CCJavascriptJavaBridge.cpp
 
 LOCAL_CFLAGS := -DCOCOS2D_JAVASCRIPT
 
@@ -55,6 +56,7 @@ LOCAL_EXPORT_CFLAGS := -DCOCOS2D_JAVASCRIPT
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../manual \
                     $(LOCAL_PATH)/../manual/cocostudio \
                     $(LOCAL_PATH)/../manual/spine \
+                    $(LOCAL_PATH)/../manual/platform/android \
                     $(LOCAL_PATH)/../auto \
                     $(LOCAL_PATH)/../../../2d \
                     $(LOCAL_PATH)/../../../base \

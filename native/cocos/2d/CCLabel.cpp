@@ -1630,6 +1630,7 @@ void Label::setSystemFontName(const std::string& systemFont)
     if (systemFont != _systemFont)
     {
         _systemFont = systemFont;
+        _currentLabelType = LabelType::STRING_TEXTURE;
         _systemFontDirty = true;
     }
 }
@@ -1640,6 +1641,7 @@ void Label::setSystemFontSize(float fontSize)
     {
         _systemFontSize = fontSize;
         _originalFontSize = fontSize;
+        _currentLabelType = LabelType::STRING_TEXTURE;
         _systemFontDirty = true;
     }
 }
@@ -1981,6 +1983,8 @@ FontDefinition Label::_getFontDefinition() const
     systemFontDef._fontFillColor.b = _textColor.b;
     systemFontDef._fontAlpha = _textColor.a;
     systemFontDef._shadow._shadowEnabled = false;
+    systemFontDef._enableWrap = _enableWrap;
+    systemFontDef._overflow = (int)_overflow;
 
     if (_currLabelEffect == LabelEffect::OUTLINE && _outlineSize > 0.f)
     {
@@ -1999,7 +2003,7 @@ FontDefinition Label::_getFontDefinition() const
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID) && (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
     if (systemFontDef._stroke._strokeEnabled)
     {
-        CCLOGERROR("Currently only supported on iOS and Android!");
+        CCLOGERROR("Stroke Currently only supported on iOS and Android!");
     }
     systemFontDef._stroke._strokeEnabled = false;
 #endif
@@ -2037,8 +2041,7 @@ float Label::getRenderingFontSize()const
 
 void Label::enableWrap(bool enable)
 {
-    if(enable == _enableWrap || _overflow == Overflow::RESIZE_HEIGHT
-       || _currentLabelType == LabelType::STRING_TEXTURE){
+    if(enable == _enableWrap || _overflow == Overflow::RESIZE_HEIGHT){
         return;
     }
 
@@ -2059,15 +2062,9 @@ void Label::setOverflow(Overflow overflow)
     if(_overflow == overflow){
         return;
     }
-
+    
     if (_currentLabelType == LabelType::CHARMAP) {
         if (overflow == Overflow::SHRINK) {
-            return;
-        }
-    }
-
-    if (_currentLabelType == LabelType::STRING_TEXTURE) {
-        if (overflow == Overflow::CLAMP || overflow == Overflow::SHRINK) {
             return;
         }
     }
