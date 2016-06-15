@@ -1172,7 +1172,7 @@ var Node = cc.Class({
      * node.targetOff(target);
      */
     targetOff: function (target) {
-        this._EventTargetTargetOff(this, target);
+        this._EventTargetTargetOff(target);
 
         this._checkTouchListeners();
         this._checkMouseListeners();
