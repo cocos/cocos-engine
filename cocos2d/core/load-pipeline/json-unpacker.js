@@ -32,7 +32,7 @@ function JsonUnpacker () {
  * @param {String} data
  */
 JsonUnpacker.prototype.read = function (indices, data) {
-    var jsons = JSON.parse(data);
+    var jsons = typeof data === 'string' ? JSON.parse(data) : data;
     if (jsons.length !== indices.length) {
         cc.error('Pack indices and data do not match in size');
     }
@@ -50,3 +50,5 @@ JsonUnpacker.prototype.retrieve = function (key) {
 if (CC_TEST) {
     cc._Test.JsonUnpacker = JsonUnpacker;
 }
+
+module.exports = JsonUnpacker;

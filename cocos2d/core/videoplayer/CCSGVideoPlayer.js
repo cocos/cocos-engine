@@ -167,7 +167,7 @@ cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
     }
 });
 
-cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+cc.game.on(cc.game.EVENT_SHOW, function () {
     var list = _ccsg.VideoPlayer.pauseElements;
     var node = list.pop();
     while(node){
