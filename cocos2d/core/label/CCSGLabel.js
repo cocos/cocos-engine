@@ -1012,6 +1012,9 @@ cc.BMFontHelper = {
             //calculate the word boundary
 
             letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
+            if (!letterDef) {
+                break;
+            }
             letterX = nextLetterX + letterDef._offsetX * this._bmfontScale;
 
             if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth && !this._isspace_unicode(character) && this._maxLineWidth > 0) {
