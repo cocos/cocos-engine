@@ -267,4 +267,21 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     }
 });
 
+if (CC_EDITOR) {
+    LoadingItems.prototype.refreshItemUrl = function (id, oldUrl, newUrl) {
+        var item = this.map[id];
+        if (item) {
+            item.url = newUrl;
+        }
+
+        item = this.map[oldUrl];
+        if (item) {
+            item.id = newUrl;
+            item.url = newUrl;
+            this.map[newUrl] = item;
+            delete this.map[oldUrl];
+        }
+    };
+}
+
 module.exports = LoadingItems;
