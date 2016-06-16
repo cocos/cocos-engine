@@ -133,7 +133,14 @@ var Button = cc.Class({
         interactable: {
             default: true,
             tooltip: 'i18n:COMPONENT.button.interactable',
-            notify: function () {
+            notify: function (oldValue) {
+                if(CC_EDITOR) {
+                    if(oldValue) {
+                        this._previousNormalSprite = this.normalSprite;
+                    } else {
+                        this.normalSprite = this._previousNormalSprite;
+                    }
+                }
                 this._updateState();
             },
             animatable: false
