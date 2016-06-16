@@ -38,6 +38,7 @@ import android.os.Message;
 import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -246,6 +247,8 @@ public abstract class Cocos2dxActivity extends Activity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.hideVirtualButton();
+
         onLoadNativeLibraries();
 
         COCOS_ACTIVITY = this;
@@ -280,6 +283,7 @@ public abstract class Cocos2dxActivity extends Activity {
     @Override
     protected void onResume() {
         Log.d(TAG, "onResume()");
+        this.hideVirtualButton();
         super.onResume();
         resumeIfHasFocus();
     }
@@ -295,6 +299,7 @@ public abstract class Cocos2dxActivity extends Activity {
 
     private void resumeIfHasFocus() {
         if(isHasFocus) {
+            this.hideVirtualButton();
             Cocos2dxHelper.onResume();
             mGLSurfaceView.onResume();
         }
@@ -382,6 +387,20 @@ public abstract class Cocos2dxActivity extends Activity {
         glSurfaceView.setEGLConfigChooser(chooser);
 
         return glSurfaceView;
+    }
+
+    protected void hideVirtualButton() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
     }
 
    private static boolean isAndroidEmulator() {
