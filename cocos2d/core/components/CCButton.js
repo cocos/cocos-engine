@@ -111,6 +111,9 @@ var Button = cc.Class({
         this._toColor = null;
         this._time = 0;
         this._transitionFinished = true;
+        if(CC_EDITOR) {
+            this._previousNormalSprite = null;
+        }
     },
 
     editor: CC_EDITOR && {
@@ -133,7 +136,14 @@ var Button = cc.Class({
         interactable: {
             default: true,
             tooltip: 'i18n:COMPONENT.button.interactable',
-            notify: function () {
+            notify: function (oldValue) {
+                if(CC_EDITOR) {
+                    if(oldValue) {
+                        this._previousNormalSprite = this.normalSprite;
+                    } else {
+                        this.normalSprite = this._previousNormalSprite;
+                    }
+                }
                 this._updateState();
             },
             animatable: false
