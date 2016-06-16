@@ -72,12 +72,12 @@ void Label::computeAlignmentOffset()
     }
 }
 
-static int getFirstCharLen(const std::u16string& utf16Text, int startIndex, int textLen)
+int Label::getFirstCharLen(const std::u16string& utf16Text, int startIndex, int textLen)
 {
     return 1;
 }
 
-static int getFirstWordLen(const std::u16string& utf16Text, int startIndex, int textLen)
+int Label::getFirstWordLen(const std::u16string& utf16Text, int startIndex, int textLen)
 {
     auto character = utf16Text[startIndex];
     if (StringUtils::isCJKUnicode(character) || StringUtils::isUnicodeSpace(character) || character == '\n')
@@ -86,9 +86,26 @@ static int getFirstWordLen(const std::u16string& utf16Text, int startIndex, int 
     }
 
     int len = 1;
+    FontLetterDefinition letterDef;
+    auto nextLetterX = 0;
+    auto contentScaleFactor = CC_CONTENT_SCALE_FACTOR();
     for (int index = startIndex + 1; index < textLen; ++index)
     {
         character = utf16Text[index];
+        if (_fontAtlas->getLetterDefinitionForChar(character, letterDef) == false)
+        {
+            break;
+        }
+        auto letterX = (nextLetterX + letterDef.offsetX * _bmfontScale) / contentScaleFactor;
+        if (_maxLineWidth > 0.f && letterX + letterDef.width * _bmfontScale > _maxLineWidth
+            && !StringUtils::isUnicodeSpace(character))
+        {
+            if(len >= 2) {
+                return len -1;
+            }
+        }
+
+        nextLetterX += letterDef.xAdvance * _bmfontScale + _additionalKerning;
         if (character == '\n' || StringUtils::isUnicodeSpace(character) || StringUtils::isCJKUnicode(character))
         {
             break;
@@ -239,12 +256,12 @@ bool Label::multilineTextWrap(std::function<int(const std::u16string&, int, int)
 
 bool Label::multilineTextWrapByWord()
 {
-    return multilineTextWrap(std::bind(getFirstWordLen, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    return multilineTextWrap(std::bind(CC_CALLBACK_3(Label::getFirstWordLen, this), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 bool Label::multilineTextWrapByChar()
 {
-      return multilineTextWrap(std::bind(getFirstCharLen, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+      return multilineTextWrap(std::bind(CC_CALLBACK_3(Label::getFirstCharLen, this) , std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
 bool Label::isVerticalClamp()
