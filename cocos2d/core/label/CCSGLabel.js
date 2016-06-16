@@ -1004,8 +1004,25 @@ cc.BMFontHelper = {
         }
 
         var len = 1;
+        var nextLetterX = 0;
+        var letterDef;
+        var letterX;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
+            //calculate the word boundary
+
+            letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
+            if (!letterDef) {
+                break;
+            }
+            letterX = nextLetterX + letterDef._offsetX * this._bmfontScale;
+
+            if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth && !this._isspace_unicode(character) && this._maxLineWidth > 0) {
+                if(len >= 2) {
+                    return len - 1;
+                }
+            }
+            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
             if (character === "\n" || this._isspace_unicode(character) || this._isCJK_unicode(character)) {
                 break;
             }
