@@ -84,9 +84,10 @@ var AnimationClip = cc.Class({
     statics: {
         /**
          * !#en Crate clip with a set of sprite frames
-         * !#zh 使用一组序列帧图片来创建动画剪辑
-         * @property {[cc.SpriteFrame]} spriteFrames
-         * @property {Number} sample
+         * !#zh 使用一组序列帧图片来创建动画剪辑】
+         * @method createWithSpriteFrames
+         * @param {[cc.SpriteFrame]} spriteFrames
+         * @param {Number} sample
          * @return {AnimationClip}
          * @example
          *
