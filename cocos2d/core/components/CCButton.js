@@ -111,6 +111,9 @@ var Button = cc.Class({
         this._toColor = null;
         this._time = 0;
         this._transitionFinished = true;
+        if(CC_EDITOR) {
+            this._previousNormalSprite = null;
+        }
     },
 
     editor: CC_EDITOR && {
