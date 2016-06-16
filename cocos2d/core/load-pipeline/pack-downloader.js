@@ -39,6 +39,7 @@ module.exports = {
             // double check cache after load
             var unpacker = globalUnpackers[packUuid];
             if (!unpacker) {
+                console.log('Load pack %s for %s', packUuid, uuid);
                 unpacker = globalUnpackers[packUuid] = new JsonUnpacker();
             }
             unpacker.read(packIndices[packUuid], packJson);
