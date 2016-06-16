@@ -526,6 +526,80 @@ var TiledLayer = cc.Class({
             this._sgNode.setProperties(properties);
         }
     },
+    /**
+    * setup tiles beyond pos
+    *   初始化某座标周围的格子
+    *   pos中的x y 是指地图中的x, y指第几个格子 
+    *   distance pos周边的多少格内会被显示
+    */
+    setupTilesBeyondPos:function(pos, distance){
+        cc.log("setupTilesBeyondPos", pos, distance)
+        if (!this._sgNode) return;
+        if (!this._setupedTiles) this._setupedTiles = [];
+        var layerSize = this.getLayerSize()
+        var _minX = pos.x - distance;
+        var _maxX = pos.x + distance;
+        var _minY = pos.y - distance;
+        var _maxY = pos.y + distance;
+        _minX = _minX < 0 ? 0 : _minX;
+        _maxX = _maxX > layerSize.width - 1 ? layerSize.width - 1 : _maxX;
+        _minY = _minY < 0 ? 0 : _minY;
+        _maxY = _maxY > layerSize.height - 1 ? layerSize.height - 1 : _maxY;
+        for (var _y = _minY; _y <= _maxY; _y++) {
+            for (var _x = _minX; _x <= _maxX; _x++) {
+                var z = _x + layerSize.width * _y;
+                var gid = this._sgNode.tiles[z];
+                if (gid !== 0) {
+                    var sign = _x+'-'+_y
+                    if (this.inArray(sign, this._setupedTiles)) {//已添加的格子
+                        continue;
+                    }
+                    this._setupedTiles.push(sign)
+                    // cc.log("_appendTileForGID", _x, _y)
+                    var _tile = this._sgNode._insertTileForGID(gid, cc.p(_x, _y));
+                    // cc.log("fuckme", _tile)
+                    // Optimization: update min and max GID rendered by the layer
+                    this._sgNode._minGID = Math.min(gid, this._sgNode._minGID);
+                    this._sgNode._maxGID = Math.max(gid, this._sgNode._maxGID);
+                }
+            }
+        }
+    },
+    /**
+    *   移除跟离超过pos distance的格子
+    */
+    removeTilesAwayPos:function(pos, distance){
+        cc.log("removeTilesAwayPos", pos, distance)
+        if (!this._sgNode) return;
+        if (!this._setupedTiles) this._setupedTiles = [];
+        var length = this._setupedTiles.length
+        for (var j = 0; j < length; j++) {
+            var _sign = this._setupedTiles.shift()
+            var _signArray = _sign.split("-")
+            var _x = parseInt(_signArray[0]), _y = parseInt(_signArray[1])
+            if (Math.abs(_x - pos.x) > distance || Math.abs(_y - pos.y) > distance) {
+                this.removeTileAt(_x, _y)
+            } else {
+                this._setupedTiles.push(_sign)
+            }
+        }
+    },
+
+    inArray:function(val, array){
+        for (var _k in array) {
+            var _v = array[_k]
+            if (_v == val) return true;
+        }
+        return false;
+    },
+    /**
+    *   设置层展示
+    */
+    insertTileForGID:function(gid, pos, y){
+        if (this._sgNode) {
+            this._sgNode._insertTileForGID(gid, pos, y);
+        }
+    },
 });
 
 cc.TiledLayer = module.exports = TiledLayer;

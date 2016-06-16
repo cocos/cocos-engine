@@ -261,6 +261,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         var size = layerInfo._layerSize;
         var totalNumberOfTiles = parseInt(size.width * size.height);
         var capacity = totalNumberOfTiles * 0.35 + 1; // 35 percent is occupied ?
+        capacity = 500
         var texture;
         if (tilesetInfo)
             texture = cc.textureCache.addImage(tilesetInfo.sourceImage);
@@ -499,7 +500,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
             var z = 0 | (pos.x + pos.y * this._layerSize.width);
             var atlasIndex = this._atlasIndexForExistantZ(z);
             // remove tile from GID map
-            this.tiles[z] = 0;
+            // this.tiles[z] = 0;
 
             // remove tile from atlas position array
             this._atlasIndexArray.splice(atlasIndex, 1);
@@ -575,8 +576,13 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         this._parseInternalProperties();
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS)
             this._setNodeDirtyForCache();
-
+        //add by yangzhu start
         var locLayerHeight = this._layerSize.height, locLayerWidth = this._layerSize.width;
+        if(locLayerHeight > 125 || locLayerWidth > 125){
+            cc.log("地图过大,使用layer.setupTilesBeyondPos 和 layer.removeTilesAwayPos处理tiles显隐")
+            return
+        }
+        //end
         for (var y = 0; y < locLayerHeight; y++) {
             for (var x = 0; x < locLayerWidth; x++) {
                 var pos = x + locLayerWidth * y;
@@ -591,7 +597,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
                 }
             }
         }
-
+        
         if (!((this._maxGID >= this.tileset.firstGid) && (this._minGID >= this.tileset.firstGid))) {
             cc.log("cocos2d:TMX: Only 1 tileset per layer is supported");
         }
