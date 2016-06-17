@@ -467,7 +467,7 @@ _ccsg.Label = _ccsg.Node.extend({
 
     _updateLabel: function () {
         if (this._labelType === _ccsg.Label.Type.BMFont) {
-            var contentSize = this.getContentSize();
+            var contentSize = this._contentSize;
             var newWidth = contentSize.width;
             var newHeight = contentSize.height;
             this._setupBMFontOverflowMetrics(newWidth, newHeight);
