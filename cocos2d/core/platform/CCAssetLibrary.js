@@ -26,6 +26,7 @@
 var Asset = require('../assets/CCAsset');
 var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
+var PackDownloader = require('../load-pipeline/pack-downloader');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -38,7 +39,7 @@ var Loader = require('../load-pipeline/CCLoader');
 
 var _libraryBase = '';
 var _rawAssetsBase = '';     // The base dir for raw assets in runtime
-var _uuidToRawAssets;
+var _uuidToRawAsset = {};
 
 function isScene (asset) {
     return asset && (asset.constructor === cc.SceneAsset || asset instanceof cc.Scene);
@@ -107,7 +108,7 @@ var AssetLibrary = {
     },
 
     _getAssetInfoInRuntime: function (uuid) {
-        var info = _uuidToRawAssets[uuid];
+        var info = _uuidToRawAsset[uuid];
         if (info && !cc.isChildClassOf(info.type, cc.Asset)) {
             return {
                 url: _rawAssetsBase + info.url,
@@ -249,6 +250,7 @@ var AssetLibrary = {
      * @param {Object} options.mountPaths - mount point of actual urls for raw assets (only used in editor)
      * @param {Object} [options.rawAssets] - uuid to raw asset's urls (only used in runtime)
      * @param {String} [options.rawAssetsBase] - base of raw asset's urls (only used in runtime)
+     * @param {String} [options.packedAssets] - packed assets (only used in runtime)
      */
     init: function (options) {
         if (CC_EDITOR && _libraryBase) {
@@ -264,7 +266,8 @@ var AssetLibrary = {
 
         _rawAssetsBase = options.rawAssetsBase;
 
-        _uuidToRawAssets = {};
+        // init raw assets
+
         var resources = Loader._resources;
         resources.reset();
         var rawAssets = options.rawAssets;
@@ -281,7 +284,7 @@ var AssetLibrary = {
                         cc.error('Cannot get', typeId);
                         continue;
                     }
-                    _uuidToRawAssets[uuid] = {
+                    _uuidToRawAsset[uuid] = {
                         url: mountPoint + '/' + url,
                         type: type,
                     };
@@ -308,6 +311,12 @@ var AssetLibrary = {
                 }
             }
         }
+
+        if (options.packedAssets) {
+            PackDownloader.initPacks(options.packedAssets);
+        }
+
+        // init mount paths
 
         var mountPaths = options.mountPaths;
         if (!mountPaths) {
