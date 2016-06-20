@@ -154,6 +154,115 @@ var simpleQuadGenerator = {
     }
 };
 
+var cropQuadGenerator = {
+    _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, isTrimmedContentSize) {
+        var quads = [];
+        //build vertices
+        var vertices = this._calculateVertices(spriteFrame, contentSize, isTrimmedContentSize);
+
+        //build uvs
+        var uvs = this._calculateUVs(spriteFrame, contentSize);
+
+        //build quads
+        var quad;
+        quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad)|| new cc.V3F_C4B_T2F_Quad();
+
+        quad._bl.colors = colorOpacity;
+        quad._br.colors = colorOpacity;
+        quad._tl.colors = colorOpacity;
+        quad._tr.colors = colorOpacity;
+
+        quad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
+        quad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
+        quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
+        quad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
+
+        if (!spriteFrame._rotated) {
+            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quad._br.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+            quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+        } else {
+            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
+            quad._br.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
+            quad._tl.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
+        }
+        quads.push(quad);
+        return quads;
+    },
+
+    _calculateVertices: function (spriteFrame, contentSize, isTrimmedContentSize) {
+        var x0, x3;
+        var y0, y3;
+        if (isTrimmedContentSize) {
+            x0 = 0;
+            x3 = contentSize.width;
+
+            y0 = 0;
+            y3 = contentSize.height;
+        } else {
+            var originalSize = spriteFrame.getOriginalSize();
+            var rect = spriteFrame.getRect();
+            var offset = spriteFrame.getOffset();
+            var scaleX = contentSize.width / originalSize.width;
+            var scaleY = contentSize.height / originalSize.height;
+            var trimmLeft = offset.x + (originalSize.width - rect.width) / 2;
+            var trimmRight = offset.x - (originalSize.width - rect.width) / 2;
+            var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
+            var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
+
+            x0 = trimmLeft * scaleX;
+            x3 = contentSize.width + trimmRight * scaleX;
+            y0 = trimmedBottom * scaleY;
+            y3 = contentSize.height + trimmedTop * scaleY;
+        }
+
+        var vertices = [];
+        vertices.push(cc.p(x0, y0));
+        vertices.push(cc.p(x3, y3));
+
+        return vertices;
+    },
+
+    _calculateUVs: function (spriteFrame, contentSize) {
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+
+        var textureRect = spriteFrame.getRect();
+
+        //uv computation should take spritesheet into account.
+        var u0, u3;
+        var v0, v3;
+
+        var w = spriteFrame._rotated ?  textureRect.height : textureRect.width;
+        var h = spriteFrame._rotated ?  textureRect.width : textureRect.height;
+
+        var scaleX = contentSize.width / textureRect.width;
+        var scaleY = contentSize.height / textureRect.height;
+        
+        var diffX = 0;
+        var diffY = 0;
+        if (scaleX > scaleY) {
+            diffY = ((contentSize.height / scaleX) - textureRect.size.height) * 0.5;
+        } else {
+            diffX = ((contentSize.width / scaleY) - textureRect.size.width) * 0.5;
+        }
+
+        u0 = (textureRect.x - diffX) / atlasWidth;
+        u3 = (textureRect.x + w + diffX) / atlasWidth;
+        
+        v0 = (textureRect.y - diffY) / atlasHeight;
+        v3 = (textureRect.y + h + diffY) / atlasHeight;
+
+        var uvCoordinates = [];
+        uvCoordinates.push(cc.p(u0, v3));
+        uvCoordinates.push(cc.p(u3, v0));
+
+        return uvCoordinates;
+    }
+};
+
 var scale9QuadGenerator = {
     _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, insetLeft, insetRight, insetTop, insetBottom) {
         var quads = [];
@@ -1246,6 +1355,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 this._quads = fillResult.quad;
                 this._rawQuad = fillResult.rawQuad;
             }
+        } else if (this._renderingType === cc.Scale9Sprite.RenderingType.CROP) {
+            this._quads = cropQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
         } else {
             this._quads = [];
             cc.error("Can not generate quad");
@@ -1301,7 +1412,11 @@ cc.Scale9Sprite.RenderingType = cc.Enum({
     /*
      * @property {Number} FILLED
      */
-    FILLED: 3
+    FILLED: 3,
+    /*
+     * @property {Number} CROP
+     */
+    CROP: 4,
 });
 
 cc.Scale9Sprite.FillType = cc.Enum({
