@@ -125,6 +125,12 @@ var Label = cc.Class({
     name: 'cc.Label',
     extends: cc._RendererUnderSG,
 
+    ctor: function() {
+        if(CC_EDITOR) {
+            this._userDefinedFontSize = 40;
+        }
+    },
+
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Label',
         help: 'i18n:COMPONENT.help_url.label',
@@ -146,6 +152,9 @@ var Label = cc.Class({
                 if (this._sgNode) {
                     this._sgNode.setString(this.string);
                     this._updateNodeSize();
+                    if(CC_EDITOR && this.overflow === cc.Label.Overflow.SHRINK) {
+                        this.fontSize = this._userDefinedFontSize;
+                    }
                 }
             }
         },
@@ -199,6 +208,9 @@ var Label = cc.Class({
             },
             set: function(value){
                 this._fontSize = value;
+                if(CC_EDITOR) {
+                    this._userDefinedFontSize = value;
+                }
                 if (this._sgNode) {
                     this._sgNode.setFontSize(value);
                     this._updateNodeSize();
@@ -284,10 +296,15 @@ var Label = cc.Class({
                 return this._N$file;
             },
             set: function (value) {
+                //if delete the font, we should change isSystemFontUsed to true
+                if(!value) {
+                    this._isSystemFontUsed = true;
+                }
+
                 this._N$file = value;
                 this._bmFontOriginalSize = -1;
                 if (value && this._isSystemFontUsed)
-                    this.useSystemFont = false;
+                    this._isSystemFontUsed = false;
 
                 if (this._sgNode) {
 
@@ -323,6 +340,8 @@ var Label = cc.Class({
                 return this._isSystemFontUsed;
             },
             set: function(value){
+                if(!value && this._isSystemFontUsed) return;
+
                 this._isSystemFontUsed = !!value;
                 if (value) {
                     this.font = null;
@@ -421,6 +440,9 @@ var Label = cc.Class({
         sgNode.enableWrapText( this._enableWrapText );
         sgNode.setLineHeight(this._lineHeight);
         sgNode.setString(this.string);
+        if (CC_EDITOR) {
+            this._userDefinedFontSize = this.fontSize;
+        }
         if (CC_EDITOR && this._useOriginalSize) {
             this.node.setContentSize(sgNode.getContentSize());
             if (this.font instanceof cc.BitmapFont) {

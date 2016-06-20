@@ -448,8 +448,30 @@ _ccsg.Label = _ccsg.Node.extend({
         return new cc.BlendFunc(this._blendFunc.src, this._blendFunc.dst);
     },
 
+    _setupBMFontOverflowMetrics: function(newWidth, newHeight) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+            newHeight = 0;
+        }
+
+        if (this._overFlow === _ccsg.Label.Overflow.NONE) {
+            newWidth = 0;
+            newHeight = 0;
+        }
+
+        this._labelWidth = newWidth;
+        this._labelHeight = newHeight;
+        this._labelDimensions.width = newWidth;
+        this._labelDimensions.height = newHeight;
+        this._maxLineWidth = newWidth;
+    },
+
     _updateLabel: function () {
         if (this._labelType === _ccsg.Label.Type.BMFont) {
+            var contentSize = this._contentSize;
+            var newWidth = contentSize.width;
+            var newHeight = contentSize.height;
+            this._setupBMFontOverflowMetrics(newWidth, newHeight);
+
             this._updateContent();
             this.setColor(this.color);
         } else if (this._labelType === _ccsg.Label.Type.TTF
@@ -510,7 +532,7 @@ cc.BMFontHelper = {
 
             this._textDesiredHeight = 0;
             this._linesWidth = [];
-            if (this._maxLineWidth > 0 && !this._lineBreakWithoutSpaces) {
+            if (!this._lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
                 this._multilineTextWrapByChar();
@@ -672,21 +694,7 @@ cc.BMFontHelper = {
 
         if (newHeight !== oldSize.height || newWidth !== oldSize.width) {
 
-            if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
-                newHeight = 0;
-            }
-
-            if (this._overFlow === _ccsg.Label.Overflow.NONE) {
-                newWidth = 0;
-                newHeight = 0;
-            }
-
-            this._labelWidth = newWidth;
-            this._labelHeight = newHeight;
-            this._labelDimensions.width = newWidth;
-            this._labelDimensions.height = newHeight;
-
-            this._maxLineWidth = newWidth;
+            this._setupBMFontOverflowMetrics(newWidth, newHeight);
 
             if (this._drawFontsize > 0) {
                 this._restoreFontSize();
@@ -822,6 +830,7 @@ cc.BMFontHelper = {
         if (this._labelHeight <= 0) {
             contentSize.height = parseFloat(this._textDesiredHeight.toFixed(2));
         }
+
         _ccsg.Node.prototype.setContentSize.call(this, contentSize);
 
         this._tailoredTopY = contentSize.height;
@@ -902,7 +911,7 @@ cc.BMFontHelper = {
             this._fontAtlas.assignLetterDefinitions(tempLetterDefinition);
             this._fontAtlas.scaleFontLetterDefinition(scale);
             this._lineHeight = originalLineHeight * scale;
-            if (this._maxLineWidth > 0 && !this._lineBreakWithoutSpaces) {
+            if (!this._lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
                 this._multilineTextWrapByChar();
