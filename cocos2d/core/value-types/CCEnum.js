@@ -67,7 +67,7 @@ cc.Enum = function (obj) {
             }
             Object.defineProperty(enumType, reverseKey, {
                 value: key,
-                enumerable: false
+                // enumerable is false by default
             });
         }
     }

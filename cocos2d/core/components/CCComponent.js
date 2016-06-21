@@ -241,12 +241,6 @@ var Component = cc.Class({
             _Scene.AssetsWatcher.initComponent(this);
         }
 
-        // dont reset _id when destroyed
-        Object.defineProperty(this, '_id', {
-            value: '',
-            enumerable: false
-        });
-
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
     },
@@ -736,6 +730,23 @@ var Component = cc.Class({
         }
     },
 
+    _destruct: function () {
+        // The same as super but dont reset _id when destroyed
+        for (var key in this) {
+            if (this.hasOwnProperty(key) && key !== '_id') {
+                switch (typeof this[key]) {
+                    case 'string':
+                        this[key] = '';
+                        break;
+                    case 'object':
+                    case 'function':
+                        this[key] = null;
+                        break;
+                }
+            }
+        }
+    },
+
     _instantiate: function () {
         var clone = cc.instantiate._clone(this, this);
         clone.node = null;
@@ -837,8 +848,8 @@ if (CC_EDITOR || CC_TEST) {
 
     // NON-INHERITED STATIC MEMBERS
 
-    Object.defineProperty(Component, '_inspector', { value: '', enumerable: false });
-    Object.defineProperty(Component, '_icon', { value: '', enumerable: false });
+    Object.defineProperty(Component, '_inspector', { value: '', writable: true });
+    Object.defineProperty(Component, '_icon', { value: '', writable: true });
 
     // COMPONENT HELPERS
 
@@ -883,11 +894,11 @@ Object.defineProperty(Component, '_registerEditorProps', {
                         break;
 
                     case 'inspector':
-                        Object.defineProperty(cls, '_inspector', { value: val });
+                        Object.defineProperty(cls, '_inspector', { value: val, writable: true });
                         break;
 
                     case 'icon':
-                        Object.defineProperty(cls, '_icon', { value: val });
+                        Object.defineProperty(cls, '_icon', { value: val, writable: true });
                         break;
 
                     case 'menu':

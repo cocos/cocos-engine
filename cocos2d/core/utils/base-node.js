@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 var JS = cc.js;
 var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
@@ -712,11 +713,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     ctor: function () {
-        // dont reset _id when destroyed
-        Object.defineProperty(this, '_id', {
-            value: '',
-            enumerable: false
-        });
 
         /**
          * Current scene graph node for this node.
@@ -759,6 +755,23 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     _onPreDestroy: CC_JSB && function () {
         this._sgNode.release();
         this._sgNode = null;
+    },
+
+    _destruct: function () {
+        // The same as super but dont reset _id when destroyed
+        for (var key in this) {
+            if (this.hasOwnProperty(key) && key !== '_id') {
+                switch (typeof this[key]) {
+                    case 'string':
+                        this[key] = '';
+                        break;
+                    case 'object':
+                    case 'function':
+                        this[key] = null;
+                        break;
+                }
+            }
+        }
     },
 
     // ABSTRACT INTERFACES
