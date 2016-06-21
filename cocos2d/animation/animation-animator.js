@@ -286,6 +286,24 @@ function initClipData (root, state) {
         }
     }
 
+    // property curves
+
+    var curveData = clip.curveData;
+    var childrenCurveDatas = curveData.paths;
+
+    createTargetCurves(root, curveData);
+
+    for (var namePath in childrenCurveDatas) {
+        var target = cc.find(namePath, root);
+
+        if (!target) {
+            continue;
+        }
+
+        var childCurveDatas = childrenCurveDatas[namePath];
+        createTargetCurves(target, childCurveDatas);
+    }
+
     // events curve
 
     var events = clip.events;
@@ -316,24 +334,6 @@ function initClipData (root, state) {
 
             eventInfo.add(eventData.func, eventData.params);
         }
-    }
-
-    // property curves
-
-    var curveData = clip.curveData;
-    var childrenCurveDatas = curveData.paths;
-
-    createTargetCurves(root, curveData);
-
-    for (var namePath in childrenCurveDatas) {
-        var target = cc.find(namePath, root);
-
-        if (!target) {
-            continue;
-        }
-
-        var childCurveDatas = childrenCurveDatas[namePath];
-        createTargetCurves(target, childCurveDatas);
     }
 }
 
