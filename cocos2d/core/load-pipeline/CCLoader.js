@@ -490,4 +490,10 @@ JS.mixin(cc.loader, {
     }
 });
 
+if (CC_EDITOR) {
+    cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
+        this._items.refreshItemUrl(uuid, oldUrl, newUrl);
+    };
+}
+
 module.exports = cc.loader;

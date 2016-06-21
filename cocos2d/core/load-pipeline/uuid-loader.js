@@ -46,15 +46,18 @@ function loadDepends (pipeline, item, asset, tdInfo, callback) {
     var ownerList = JS.array.copy(tdInfo.uuidObjList);
     var propList = JS.array.copy(tdInfo.uuidPropList);
 
-    var depends = new Array(dependsSrcs.length);
+    var depends = [];
     // load depends assets
     for (var i = 0; i < dependsSrcs.length; i++) {
         var dependSrc = dependsSrcs[i];
-        depends[i] = {
+        if (dependSrc === uuid) {
+            continue;
+        }
+        depends.push({
             id: dependSrc,
             type: 'uuid',
             uuid: dependSrc
-        };
+        });
     }
     // load raw
     if (tdInfo.rawProp) {
@@ -104,6 +107,9 @@ function loadDepends (pipeline, item, asset, tdInfo, callback) {
             }
             asset._uuid = uuid;
             callback(null, asset);
+            if (CC_EDITOR) {
+                cc.loader.removeItem(uuid);
+            }
         });
     }
     else {

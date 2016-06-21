@@ -25,6 +25,7 @@
 var JS = require('../platform/js');
 var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
+var PackDownloader = require('./pack-downloader');
 
 var downloadAudio;
 if (!CC_EDITOR || !Editor.isMainProcess) {
@@ -47,7 +48,7 @@ function isUrlCrossOrigin (url) {
     var endIndex = url.indexOf('/', startIndex + 3);
     var urlOrigin = (endIndex === -1) ? url : url.substring(0, endIndex);
     return urlOrigin !== location.origin;
-};
+}
 
 var _noCacheRex = /\?/;
 function urlAppendTimestamp (url) {
@@ -263,28 +264,30 @@ function downloadUuid (item, callback) {
             item.url = url;
             item.isRawAsset = isRawAsset;
             if (isRawAsset) {
-                self.pipeline._items.map[url] = {
-                    id: url,
-                    url: url,
-                    type: Path.extname(url).toLowerCase().substr(1),
-                    error: null,
-                    alias: item.id,
-                    complete: true
-                };
-
                 var ext = Path.extname(url).toLowerCase();
                 if (!ext) {
                     callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));
                     return;
                 }
                 ext = ext.substr(1);
+                self.pipeline._items.map[url] = {
+                    id: url,
+                    url: url,
+                    type: ext,
+                    error: null,
+                    alias: item.id,
+                    complete: true
+                };
                 // Dispatch to other raw type downloader
                 var downloadFunc = self.extMap[ext] || self.extMap['default'];
                 item.type = ext;
                 downloadFunc(item, callback);
             }
             else {
-                self.extMap['json'](item, callback);
+                var loadByPack = PackDownloader.load(item, callback);
+                if (!loadByPack) {
+                    self.extMap['json'](item, callback);
+                }
             }
         }
     });
@@ -339,9 +342,6 @@ var defaultMap = {
 
     // Deserializer
     'uuid' : downloadUuid,
-    'prefab' : downloadUuid,
-    'fire' : downloadUuid,
-    'scene' : downloadUuid,
 
     'default' : downloadText
 };

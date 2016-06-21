@@ -109,6 +109,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 return this._name;
             },
             set: function (value) {
+                if (CC_DEV && value.indexOf('/') !== -1) {
+                    cc.error('Node name can not include \'/\'.');
+                    return;
+                }
                 this._name = value;
             },
         },

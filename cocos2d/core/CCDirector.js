@@ -800,6 +800,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                     scene = sceneAsset;
                 }
                 if (scene instanceof cc.Scene) {
+                    scene._name = sceneAsset._name;
                     self.runSceneImmediate(scene, onUnloaded, onLaunched);
                 }
                 else {

@@ -144,7 +144,11 @@ function rebundle_html_dev_min(bundler) {
         .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(mirror(pipe(devPipes), pipe(minPipes)))
         .pipe(printSizes(sizeGetter, minSizeGetter, zippedSizeGetter))
-        .pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}))
+        .pipe(sourcemaps.write('./', {
+            sourceRoot: './',
+            includeContent: true,
+            addComment: true
+        }))
         .pipe(gulp.dest(paths.outDir));
 }
 
@@ -167,7 +171,11 @@ function rebundle(bundler, name, options) {
         }
         bundle = bundle.pipe(uglify(getUglifyOptions(minify, macros)));
         if (sourceMaps) {
-            bundle = bundle.pipe(sourcemaps.write('./', {sourceRoot: './', addComment: true}));
+            bundle = bundle.pipe(sourcemaps.write('./', {
+                sourceRoot: '../',
+                includeContent: false,
+                addComment: true
+            }));
         }
     }
     bundle = bundle.pipe(gulp.dest(paths.outDir));

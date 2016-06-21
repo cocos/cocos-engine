@@ -9,7 +9,7 @@ const Fs = require('fire-fs');
 const Path = require('fire-path');
 const Spine = require('../lib/spine');
 
-const ATLAS_EXTS = ['.atlas', '.txt', ''];
+const ATLAS_EXTS = ['.atlas', '.txt', '.atlas.txt', ''];
 const SPINE_ENCODING = { encoding: 'utf-8' };
 
 const CustomAssetMeta = Editor.metas['custom-asset'];
@@ -62,16 +62,18 @@ class TextureParser {
         var base = Path.dirname(this.atlasPath);
         var path = Path.resolve(base, name);
         var uuid = Editor.assetdb.fspathToUuid(path);
-        if (!uuid) {
-            return;
+        if (uuid) {
+            console.log('UUID is initialized for "%s".', path);
+            var url = Editor.assetdb.uuidToUrl(uuid);
+            this.textures.push(url);
         }
-        //if (!uuid) {
-        //    cc.error('Can not find texture "%s" for atlas "%s"', line, this.atlasPath);
-        //    return;
-        //}
-        //var texture = Editor.serialize.asAsset(uuid);
-        var url = Editor.assetdb.uuidToUrl(uuid);
-        this.textures.push(url);
+        else if (!Fs.existsSync(path)) {
+            Editor.error('Can not find texture "%s" for atlas "%s"', line, this.atlasPath);
+        }
+        else {
+            // AssetDB may call postImport more than once, we can get uuid in the next time.
+            console.warn('WARN: UUID not yet initialized for "%s".', path);
+        }
     }
     unload () {}
 }
@@ -136,7 +138,7 @@ class SpineMeta extends CustomAssetMeta {
         return res;
     }
     
-    import (fspath, cb) {
+    postImport (fspath, cb) {
         Fs.readFile(fspath, SPINE_ENCODING, (err, data) => {
             if (err) {
                 return cb(err);

@@ -241,7 +241,9 @@
                 for (i = 0; i < paragraphedStrings.length; ++i) {
                     totalLength += ((paragraphLength[i] / canvasWidthNoMargin + 1) | 0) * canvasWidthNoMargin;
                 }
-                var scale = canvasWidthNoMargin * ((this._canvasSize.height / this._getLineHeight()) | 0) / totalLength;
+                var heightRatio = this._canvasSize.height / this._getLineHeight();
+                heightRatio = heightRatio < 1 ? 1: heightRatio;
+                var scale = canvasWidthNoMargin * (heightRatio | 0) / totalLength;
                 node._fontSize = (drawFontize * Math.min(Math.sqrt(scale), 1)) | 0;
                 fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
 
