@@ -964,6 +964,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 if (cc.sizeEqualToSize(self._contentSize, cc.size(0, 0))) {
                     self.setContentSize(self._spriteFrame.getRect());
                 }
+                self._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
             };
             if (spriteFrame.textureLoaded()) {
                 onResourceDataLoaded();
