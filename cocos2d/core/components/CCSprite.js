@@ -393,19 +393,6 @@ var Sprite = cc.Class({
     },
 
     /**
-     * !#en Query the sprite's original size.
-     * !#zh 获取精灵原始大小
-     * @method getOriginalSize
-     * @return {Size} Sprite size.
-     * @example
-     * var originalSize = sprite.getOriginalSize();
-     * cc.log("Original Size:" + originalSize);
-     */
-    getOriginalSize: function () {
-        return this._sgNode.getOriginalSize();
-    },
-
-    /**
      * !#en Change the left sprite's cap inset.
      * !#zh 设置精灵左边框-用于九宫格。
      * @method setInsetLeft
