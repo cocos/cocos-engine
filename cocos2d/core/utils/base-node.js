@@ -157,7 +157,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (oldParent) {
                     if (!(oldParent._objFlags & Destroying)) {
                         var removeAt = oldParent._children.indexOf(this);
-                        if (removeAt < 0 && CC_EDITOR) {
+                        if (CC_DEV && removeAt < 0) {
                             return cc.error('Internal error, should not remove unknown node from parent.');
                         }
                         oldParent._children.splice(removeAt, 1);
@@ -389,13 +389,21 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                         }
 
                         localPosition.x = value;
-                        this._sgNode.x = value;
+                        this._sgNode.setPositionX(value);
 
-                        if (CC_EDITOR) {
-                            this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
-                        }
-                        else {
-                            this.emit(POSITION_CHANGED);
+                        // fast check event
+                        var capListeners = this._capturingListeners &&
+                                           this._capturingListeners._callbackTable[POSITION_CHANGED];
+                        var bubListeners = this._bubblingListeners &&
+                                           this._bubblingListeners._callbackTable[POSITION_CHANGED];
+                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                            // send event
+                            if (CC_EDITOR) {
+                                this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                            }
+                            else {
+                                this.emit(POSITION_CHANGED);
+                            }
                         }
                     }
                     else {
@@ -427,13 +435,21 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                         }
 
                         localPosition.y = value;
-                        this._sgNode.y = value;
+                        this._sgNode.setPositionY(value);
 
-                        if (CC_EDITOR) {
-                            this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
-                        }
-                        else {
-                            this.emit(POSITION_CHANGED);
+                        // fast check event
+                        var capListeners = this._capturingListeners &&
+                                           this._capturingListeners._callbackTable[POSITION_CHANGED];
+                        var bubListeners = this._bubblingListeners &&
+                                           this._bubblingListeners._callbackTable[POSITION_CHANGED];
+                        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+                            // send event
+                            if (CC_EDITOR) {
+                                this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                            }
+                            else {
+                                this.emit(POSITION_CHANGED);
+                            }
                         }
                     }
                     else {
@@ -666,12 +682,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (this._opacity !== value) {
                     this._opacity = value;
                     this._sgNode.setOpacity(value);
-                    var sizeProvider = this._sizeProvider;
-                    if ( !this._cascadeOpacityEnabled &&
-                         sizeProvider instanceof _ccsg.Node &&
-                         this._sgNode !== sizeProvider
-                    ) {
-                        sizeProvider.setOpacity(value);
+                    if (!this._cascadeOpacityEnabled) {
+                        var sizeProvider = this._sizeProvider;
+                        if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
+                            sizeProvider.setOpacity(value);
+                        }
                     }
                 }
             },
@@ -969,11 +984,19 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         this._sgNode.setPosition(xValue, yValue);
 
-        if (CC_EDITOR) {
-            this.emit(POSITION_CHANGED, oldPosition);
-        }
-        else {
-            this.emit(POSITION_CHANGED);
+        // fast check event
+        var capListeners = this._capturingListeners &&
+                           this._capturingListeners._callbackTable[POSITION_CHANGED];
+        var bubListeners = this._bubblingListeners &&
+                           this._bubblingListeners._callbackTable[POSITION_CHANGED];
+        if ((capListeners && capListeners.length > 0) || (bubListeners && bubListeners.length > 0)) {
+            // send event
+            if (CC_EDITOR) {
+                this.emit(POSITION_CHANGED, oldPosition);
+            }
+            else {
+                this.emit(POSITION_CHANGED);
+            }
         }
     },
 

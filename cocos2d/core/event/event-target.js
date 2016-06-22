@@ -324,16 +324,13 @@ JS.mixin(EventTarget.prototype, {
      * @param {*} [detail] - whatever argument the message needs
      */
     emit: function (message, detail) {
-        if (typeof message !== 'string') {
+        if (CC_DEV && typeof message !== 'string') {
             cc.error('The message must be provided');
             return;
         }
         //don't emit event when listeners are not exists.
-        if(!this._bubblingListeners && !this._capturingListeners) {
-            return;
-        }
-        var caplisteners = this._capturingListeners ? this._capturingListeners._callbackTable[message] : null;
-        var bublisteners = this._bubblingListeners ? this._bubblingListeners._callbackTable[message] : null;
+        var caplisteners = this._capturingListeners && this._capturingListeners._callbackTable[message];
+        var bublisteners = this._bubblingListeners && this._bubblingListeners._callbackTable[message];
         if ((!caplisteners || caplisteners.length === 0) && (!bublisteners || bublisteners.length === 0)) {
             return;
         }
