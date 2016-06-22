@@ -84,4 +84,21 @@ var DirtyFlags = misc.DirtyFlags = {
 
 DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
 
+misc.destructIgnoreId = function () {
+    // The same as Object._destruct but dont reset _id when destroyed
+    for (var key in this) {
+        if (this.hasOwnProperty(key) && key !== '_id') {
+            switch (typeof this[key]) {
+                case 'string':
+                    this[key] = '';
+                    break;
+                case 'object':
+                case 'function':
+                    this[key] = null;
+                    break;
+            }
+        }
+    }
+};
+
 module.exports = misc;

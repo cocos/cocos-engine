@@ -26,6 +26,7 @@
 require('../platform/CCObject');
 require('../CCNode');
 var IdGenerater = require('../platform/id-generater');
+var Misc = require('../utils/misc');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -730,22 +731,7 @@ var Component = cc.Class({
         }
     },
 
-    _destruct: function () {
-        // The same as super but dont reset _id when destroyed
-        for (var key in this) {
-            if (this.hasOwnProperty(key) && key !== '_id') {
-                switch (typeof this[key]) {
-                    case 'string':
-                        this[key] = '';
-                        break;
-                    case 'object':
-                    case 'function':
-                        this[key] = null;
-                        break;
-                }
-            }
-        }
-    },
+    _destruct: Misc.destructIgnoreId,
 
     _instantiate: function () {
         var clone = cc.instantiate._clone(this, this);

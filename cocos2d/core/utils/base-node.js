@@ -26,7 +26,8 @@
 var JS = cc.js;
 var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
-var DirtyFlags = require('./misc').DirtyFlags;
+var Misc = require('./misc');
+var DirtyFlags = Misc.DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
 
 // called after changing parent
@@ -757,22 +758,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sgNode = null;
     },
 
-    _destruct: function () {
-        // The same as super but dont reset _id when destroyed
-        for (var key in this) {
-            if (this.hasOwnProperty(key) && key !== '_id') {
-                switch (typeof this[key]) {
-                    case 'string':
-                        this[key] = '';
-                        break;
-                    case 'object':
-                    case 'function':
-                        this[key] = null;
-                        break;
-                }
-            }
-        }
-    },
+    _destruct: Misc.destructIgnoreId,
 
     // ABSTRACT INTERFACES
 
@@ -2013,52 +1999,27 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 });
 
 
-(function () {
+// Define public getter and setter methods to ensure api compatibility.
 
-    // Define public getter and setter methods to ensure api compatibility.
+var SameNameGetSets = ['name', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
+                       'scale', 'scaleX', 'scaleY', 'children', 'childrenCount', 'parent', 'running',
+                       /*'actionManager',*/ 'scheduler', /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
+var DiffNameGetSets = {
+    x: ['getPositionX', 'setPositionX'],
+    y: ['getPositionY', 'setPositionY'],
+    zIndex: ['getLocalZOrder', 'setLocalZOrder'],
+    //running: ['isRunning'],
+    opacityModifyRGB: ['isOpacityModifyRGB'],
+    cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
+    cascadeColor: ['isCascadeColorEnabled', 'setCascadeColorEnabled'],
+    //// privates
+    //width: ['_getWidth', '_setWidth'],
+    //height: ['_getHeight', '_setHeight'],
+    //anchorX: ['_getAnchorX', '_setAnchorX'],
+    //anchorY: ['_getAnchorY', '_setAnchorY'],
+};
+Misc.propertyDefine(BaseNode, SameNameGetSets, DiffNameGetSets);
 
-    var SameNameGetSets = ['name', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
-                           'scale', 'scaleX', 'scaleY', 'children', 'childrenCount', 'parent', 'running',
-                           /*'actionManager',*/ 'scheduler', /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
-    var DiffNameGetSets = {
-        x: ['getPositionX', 'setPositionX'],
-        y: ['getPositionY', 'setPositionY'],
-        zIndex: ['getLocalZOrder', 'setLocalZOrder'],
-        //running: ['isRunning'],
-        opacityModifyRGB: ['isOpacityModifyRGB'],
-        cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
-        cascadeColor: ['isCascadeColorEnabled', 'setCascadeColorEnabled'],
-        //// privates
-        //width: ['_getWidth', '_setWidth'],
-        //height: ['_getHeight', '_setHeight'],
-        //anchorX: ['_getAnchorX', '_setAnchorX'],
-        //anchorY: ['_getAnchorY', '_setAnchorY'],
-    };
-    var propName, np = BaseNode.prototype;
-    for (var i = 0; i < SameNameGetSets.length; i++) {
-        propName = SameNameGetSets[i];
-        var suffix = propName[0].toUpperCase() + propName.slice(1);
-        var pd = Object.getOwnPropertyDescriptor(np, propName);
-        if (pd) {
-            if (pd.get) np['get' + suffix] = pd.get;
-            if (pd.set) np['set' + suffix] = pd.set;
-        }
-        else {
-            JS.getset(np, propName, np['get' + suffix], np['set' + suffix]);
-        }
-    }
-    for (propName in DiffNameGetSets) {
-        var getset = DiffNameGetSets[propName];
-        var pd = Object.getOwnPropertyDescriptor(np, propName);
-        if (pd) {
-            np[getset[0]] = pd.get;
-            if (getset[1]) np[getset[1]] = pd.set;
-        }
-        else {
-            JS.getset(np, propName, np[getset[0]], np[getset[1]]);
-        }
-    }
-})();
 
 /**
  * !#en position of node.
