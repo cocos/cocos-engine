@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
 var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
 var Misc = require('./misc');
@@ -385,13 +384,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 var localPosition = this._position;
                 if (value !== localPosition.x) {
                     if (!CC_EDITOR || isFinite(value)) {
-                        var oldValue = localPosition.x;
+                        if (CC_EDITOR) {
+                            var oldValue = localPosition.x;
+                        }
 
                         localPosition.x = value;
                         this._sgNode.x = value;
 
-                        if (this.emit) {
+                        if (CC_EDITOR) {
                             this.emit(POSITION_CHANGED, new cc.Vec2(oldValue, localPosition.y));
+                        }
+                        else {
+                            this.emit(POSITION_CHANGED);
                         }
                     }
                     else {
@@ -418,13 +422,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 var localPosition = this._position;
                 if (value !== localPosition.y) {
                     if (!CC_EDITOR || isFinite(value)) {
-                        var oldValue = localPosition.y;
+                        if (CC_EDITOR) {
+                            var oldValue = localPosition.y;
+                        }
 
                         localPosition.y = value;
                         this._sgNode.y = value;
 
-                        if (this.emit) {
+                        if (CC_EDITOR) {
                             this.emit(POSITION_CHANGED, new cc.Vec2(localPosition.x, oldValue));
+                        }
+                        else {
+                            this.emit(POSITION_CHANGED);
                         }
                     }
                     else {
@@ -483,13 +492,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.x !== value) {
-                    var old = new cc.Vec2(anchorPoint);
                     anchorPoint.x = value;
                     var sizeProvider = this._sizeProvider;
                     if (sizeProvider instanceof _ccsg.Node) {
                         sizeProvider.setAnchorPoint(anchorPoint);
                     }
-                    this.emit(ANCHOR_CHANGED, old);
+                    this.emit(ANCHOR_CHANGED);
                 }
             },
         },
@@ -509,13 +517,12 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             set: function (value) {
                 var anchorPoint = this._anchorPoint;
                 if (anchorPoint.y !== value) {
-                    var old = new cc.Vec2(anchorPoint);
                     anchorPoint.y = value;
                     var sizeProvider = this._sizeProvider;
                     if (sizeProvider instanceof _ccsg.Node) {
                         sizeProvider.setAnchorPoint(anchorPoint);
                     }
-                    this.emit(ANCHOR_CHANGED, old);
+                    this.emit(ANCHOR_CHANGED);
                 }
             },
         },
@@ -545,9 +552,16 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (sizeProvider) {
                         sizeProvider.setContentSize(value, sizeProvider._getHeight());
                     }
-                    var clone = cc.size(this._contentSize);
+                    if (CC_EDITOR) {
+                        var clone = cc.size(this._contentSize);
+                    }
                     this._contentSize.width = value;
-                    this.emit(SIZE_CHANGED, clone);
+                    if (CC_EDITOR) {
+                        this.emit(SIZE_CHANGED, clone);
+                    }
+                    else {
+                        this.emit(SIZE_CHANGED);
+                    }
                 }
             },
         },
@@ -577,9 +591,16 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (sizeProvider) {
                         sizeProvider.setContentSize(sizeProvider._getWidth(), value);
                     }
-                    var clone = cc.size(this._contentSize);
+                    if (CC_EDITOR) {
+                        var clone = cc.size(this._contentSize);
+                    }
                     this._contentSize.height = value;
-                    this.emit(SIZE_CHANGED, clone);
+                    if (CC_EDITOR) {
+                        this.emit(SIZE_CHANGED, clone);
+                    }
+                    else {
+                        this.emit(SIZE_CHANGED);
+                    }
                 }
             },
         },
@@ -606,7 +627,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     if (sizeProvider instanceof _ccsg.Node && sizeProvider !== this._sgNode) {
                         sizeProvider.ignoreAnchor = value;
                     }
-                    this.emit(ANCHOR_CHANGED, this._anchorPoint);
+                    this.emit(ANCHOR_CHANGED);
                 }
             },
         },
@@ -929,7 +950,9 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             return;
         }
 
-        var oldPosition = new cc.Vec2(locPosition);
+        if (CC_EDITOR) {
+            var oldPosition = new cc.Vec2(locPosition);
+        }
 
         if (!CC_EDITOR || isFinite(xValue)) {
             locPosition.x = xValue;
@@ -946,8 +969,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         this._sgNode.setPosition(xValue, yValue);
 
-        if (this.emit) {
+        if (CC_EDITOR) {
             this.emit(POSITION_CHANGED, oldPosition);
+        }
+        else {
+            this.emit(POSITION_CHANGED);
         }
     },
 
@@ -999,17 +1025,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      */
     setAnchorPoint: function (point, y) {
         var locAnchorPoint = this._anchorPoint;
-        var old;
         if (y === undefined) {
             if ((point.x === locAnchorPoint.x) && (point.y === locAnchorPoint.y))
                 return;
-            old = cc.v2(locAnchorPoint);
             locAnchorPoint.x = point.x;
             locAnchorPoint.y = point.y;
         } else {
             if ((point === locAnchorPoint.x) && (y === locAnchorPoint.y))
                 return;
-            old = cc.v2(locAnchorPoint);
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
@@ -1017,7 +1040,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (sizeProvider instanceof _ccsg.Node) {
             sizeProvider.setAnchorPoint(locAnchorPoint);
         }
-        this.emit(ANCHOR_CHANGED, old);
+        this.emit(ANCHOR_CHANGED);
     },
 
     /**
@@ -1079,20 +1102,29 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (height === undefined) {
             if ((size.width === locContentSize.width) && (size.height === locContentSize.height))
                 return;
-            clone = cc.size(locContentSize);
+            if (CC_EDITOR) {
+                clone = cc.size(locContentSize);
+            }
             locContentSize.width = size.width;
             locContentSize.height = size.height;
         } else {
             if ((size === locContentSize.width) && (height === locContentSize.height))
                 return;
-            clone = cc.size(locContentSize);
+            if (CC_EDITOR) {
+                clone = cc.size(locContentSize);
+            }
             locContentSize.width = size;
             locContentSize.height = height;
         }
         if (this._sizeProvider) {
             this._sizeProvider.setContentSize(locContentSize);
         }
-        this.emit(SIZE_CHANGED, clone);
+        if (CC_EDITOR) {
+            this.emit(SIZE_CHANGED, clone);
+        }
+        else {
+            this.emit(SIZE_CHANGED);
+        }
     },
 
     /**
