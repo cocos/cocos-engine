@@ -26,6 +26,7 @@
 require('../platform/CCObject');
 require('../CCNode');
 var IdGenerater = require('../platform/id-generater');
+var Misc = require('../utils/misc');
 
 var Flags = cc.Object.Flags;
 var IsOnEnableCalled = Flags.IsOnEnableCalled;
@@ -240,12 +241,6 @@ var Component = cc.Class({
         if (CC_EDITOR && !CC_TEST && window._Scene) {
             _Scene.AssetsWatcher.initComponent(this);
         }
-
-        // dont reset _id when destroyed
-        Object.defineProperty(this, '_id', {
-            value: '',
-            enumerable: false
-        });
 
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
@@ -736,6 +731,8 @@ var Component = cc.Class({
         }
     },
 
+    _destruct: Misc.destructIgnoreId,
+
     _instantiate: function () {
         var clone = cc.instantiate._clone(this, this);
         clone.node = null;
@@ -837,8 +834,8 @@ if (CC_EDITOR || CC_TEST) {
 
     // NON-INHERITED STATIC MEMBERS
 
-    Object.defineProperty(Component, '_inspector', { value: '', enumerable: false });
-    Object.defineProperty(Component, '_icon', { value: '', enumerable: false });
+    Object.defineProperty(Component, '_inspector', { value: '', writable: true });
+    Object.defineProperty(Component, '_icon', { value: '', writable: true });
 
     // COMPONENT HELPERS
 
@@ -883,11 +880,11 @@ Object.defineProperty(Component, '_registerEditorProps', {
                         break;
 
                     case 'inspector':
-                        Object.defineProperty(cls, '_inspector', { value: val });
+                        Object.defineProperty(cls, '_inspector', { value: val, writable: true });
                         break;
 
                     case 'icon':
-                        Object.defineProperty(cls, '_icon', { value: val });
+                        Object.defineProperty(cls, '_icon', { value: val, writable: true });
                         break;
 
                     case 'menu':

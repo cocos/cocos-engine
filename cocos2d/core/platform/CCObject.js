@@ -192,8 +192,7 @@ if (CC_EDITOR) {
                 clearImmediate(deferredDestroyTimer);
                 deferredDestroyTimer = null;
             }
-        },
-        enumerable: false
+        }
     });
 }
 
