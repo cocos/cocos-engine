@@ -46,18 +46,15 @@ function loadDepends (pipeline, item, asset, tdInfo, callback) {
     var ownerList = JS.array.copy(tdInfo.uuidObjList);
     var propList = JS.array.copy(tdInfo.uuidPropList);
 
-    var depends = [];
+    var depends = new Array(dependsSrcs.length);
     // load depends assets
     for (var i = 0; i < dependsSrcs.length; i++) {
         var dependSrc = dependsSrcs[i];
-        if (dependSrc === uuid) {
-            continue;
-        }
-        depends.push({
+        depends[i] = {
             id: dependSrc,
             type: 'uuid',
             uuid: dependSrc
-        });
+        };
     }
     // load raw
     if (tdInfo.rawProp) {
