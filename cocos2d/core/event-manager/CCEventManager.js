@@ -76,11 +76,11 @@ var __getListenerID = function (event) {
         return cc._EventListenerAcceleration.LISTENER_ID;
     if (type === eventType.KEYBOARD)
         return cc._EventListenerKeyboard.LISTENER_ID;
-    if (type === eventType.MOUSE)
+    if (type.startsWith(eventType.MOUSE))
         return cc._EventListenerMouse.LISTENER_ID;
     if (type === eventType.FOCUS)
         return cc._EventListenerFocus.LISTENER_ID;
-    if (type === eventType.TOUCH){
+    if (type.startsWith(eventType.TOUCH)){
         // Touch listener is very special, it contains two kinds of listeners, EventListenerTouchOneByOne and EventListenerTouchAllAtOnce.
         // return UNKNOWN instead.
         cc.log(cc._LogInfos._getListenerID);
@@ -395,7 +395,7 @@ cc.eventManager = {
         if(locInDispatch > 1)
             return;
 
-        if (event.getType() === cc.Event.TOUCH) {
+        if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._onUpdateListeners(cc._EventListenerTouchOneByOne.LISTENER_ID);
             this._onUpdateListeners(cc._EventListenerTouchAllAtOnce.LISTENER_ID);
         } else
@@ -593,6 +593,10 @@ cc.eventManager = {
     },
 
     _visitTarget: function (node, isRootNode) {
+        // sortAllChildren is performed the next frame, but the event is executed immediately.
+        if (node._reorderChildDirty) {
+            node.sortAllChildren();
+        }
         var children = node.getChildren(), i = 0;
         var childrenCount = children.length, locGlobalZOrderNodeMap = this._globalZOrderNodeMap, locNodeListenersMap = this._nodeListenersMap;
 
@@ -967,7 +971,7 @@ cc.eventManager = {
         this._inDispatch++;
         if(!event || !event.getType)
             throw new Error("event is undefined");
-        if (event.getType() === cc.Event.TOUCH) {
+        if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._dispatchTouchEvent(event);
             this._inDispatch--;
             return;
