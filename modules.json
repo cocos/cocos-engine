@@ -117,7 +117,8 @@
   {
     "name": "Animation",
     "entries": [
-      "./cocos2d/core/components/CCAnimation.js"
+      "./cocos2d/core/components/CCAnimation.js",
+      "./cocos2d/animation/index.js"
     ]
   },
   {
@@ -129,9 +130,7 @@
   {
     "name": "Collider",
     "entries": [
-      "./cocos2d/core/collider/CCBoxCollider.js",
-      "./cocos2d/core/collider/CCCircleCollider.js",
-      "./cocos2d/core/collider/CCPolygonCollider.js"
+      "./cocos2d/core/collider/index.js"
     ]
   }
 ]
