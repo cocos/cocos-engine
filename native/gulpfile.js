@@ -7,7 +7,7 @@ var Ftp = require('ftp');
 var ExecSync = require('child_process').execSync;
 var spawn = require('child_process').spawn;
 var Path = require('path');
-var fs = require('fs');
+var fs = require('fs-extra');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'collect-prebuilt-mk', 'archive-prebuilt-mk', 'archive-prebuilt', 'upload-prebuilt', 'upload-prebuilt-mk'));
@@ -156,28 +156,35 @@ gulp.task('collect-prebuilt-mk', function () {
   }).pipe(gulp.dest('prebuilt_mk'));
 });
 
-gulp.task('update-simulator-config', ['update-simulator-script'], function () {
-  var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
-  return gulp.src('./tools/simulator/config.json')
-          .pipe(gulp.dest(destPath));
+gulp.task('update-simulator-config', ['update-simulator-script'], function (cb) {
+  var destPath = process.platform === 'win32' ? './simulator/win32/config.json' : './simulator/mac/Simulator.app/Contents/Resources/config.json';
+  fs.copy('./tools/simulator/config.json', destPath, cb);
 });
 
-gulp.task('update-simulator-script', function () {
-    var destPath = process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
-    var updateScript = function () {
-      // scripts
-      return gulp.src(['./cocos/scripting/js-bindings/script/**/*', '!**/.DS_Store'], {
-        base: './cocos/scripting/js-bindings'
-      }).pipe(gulp.dest(destPath)); 
+gulp.task('update-simulator-script', function (cb) {
+    var destPath = process.platform === 'win32' ? './simulator/win32/script' : './simulator/mac/Simulator.app/Contents/Resources/script';
+    var updateScript = function (callback) {
+      fs.copy('./cocos/scripting/js-bindings/script', destPath, {
+        clobber: true,
+        filter: function(name) {
+          if (name.startsWith('.DS_Store')) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      }, callback);
     };
 
     if (!fs.existsSync(destPath)) {
         console.error(`Cant\'t find simulator dir [${destPath}]`);
     } else {
       if (process.platform === 'win32') {
-        downloadSimulatorDLL(updateScript);  
+        downloadSimulatorDLL(function () {
+          updateScript(cb);
+        });
       } else {
-        updateScript();
+        updateScript(cb);
       }
     }
 });

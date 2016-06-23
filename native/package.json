@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "download": "4.4.3",
+    "fs-extra": "0.30.0",
     "ftp": "0.3.10",
     "gulp": "3.9.1",
     "gulp-sequence": "0.4.5",
