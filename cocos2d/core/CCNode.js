@@ -486,6 +486,7 @@ var Node = cc.Class({
 
         // Retained actions for JSB
         if (CC_JSB) {
+            this.__sgNode = null;
             this._retainedActions = [];
         }
     },
@@ -1220,7 +1221,8 @@ var Node = cc.Class({
                 for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {}
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
-                    return parent._hitTest(point);
+                    var comp = parent.getComponent(cc.Mask);
+                    return (comp && comp.enabledInHierarchy) ? parent._hitTest(point) : true;
                 }
                 // mask parent no longer exists
                 else {
@@ -1393,23 +1395,32 @@ var Node = cc.Class({
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.
 // We need a mechanisme to guarentee the persistence of system event listeners.
 if (CC_JSB) {
+    var updateListeners = function () {
+        if (!this._activeInHierarchy) {
+            cc.eventManager.pauseTarget(this);
+        }
+    };
+
     cc.js.getset(Node.prototype, '_sgNode',
         function () {
             return this.__sgNode;
         },
         function (value) {
             this.__sgNode = value;
-            if (this._touchListener) {
-                this._touchListener.retain();
-                cc.eventManager.removeListener(this._touchListener);
-                cc.eventManager.addListener(this._touchListener, this);
-                this._touchListener.release();
-            }
-            if (this._mouseListener) {
-                this._mouseListener.retain();
-                cc.eventManager.removeListener(this._mouseListener);
-                cc.eventManager.addListener(this._mouseListener, this);
-                this._mouseListener.release();
+            if (this._touchListener || this._mouseListener) {
+                if (this._touchListener) {
+                    this._touchListener.retain();
+                    cc.eventManager.removeListener(this._touchListener);
+                    cc.eventManager.addListener(this._touchListener, this);
+                    this._touchListener.release();
+                }
+                if (this._mouseListener) {
+                    this._mouseListener.retain();
+                    cc.eventManager.removeListener(this._mouseListener);
+                    cc.eventManager.addListener(this._mouseListener, this);
+                    this._mouseListener.release();
+                }
+                cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, updateListeners, this);
             }
         },
         true
