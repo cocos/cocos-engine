@@ -48,7 +48,11 @@ require('./predefine');
 var isMainProcess = CC_EDITOR && Editor.isMainProcess;
 if (!isMainProcess) {
     // LOAD ORIGIN COCOS2D COMPILED BY CLOSURE
-    require('./bin/modular-cocos2d');
+    try {
+        require('./bin/modular-cocos2d');
+    } catch (error) {
+        require('./bin/modular-cocos2d-cut');
+    }
 }
 else {
     // load modules for editor's core-level which included in modular-cocos2d.js

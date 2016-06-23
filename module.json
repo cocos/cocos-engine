@@ -1,0 +1,147 @@
+[
+  {
+    "name": "Core",
+    "locked": true,
+    "includes": []
+  },
+  {
+    "name": "Canvas",
+    "locked": true,
+    "includes": [
+      "./cocos2d/core/components/CCCanvas.js"
+    ]
+  },
+  {
+    "name": "Sprite",
+    "locked": true,
+    "includes": [
+      "./cocos2d/core/components/CCSprite.js"
+    ]
+  },
+  {
+    "name": "Label",
+    "includes": [
+      "./cocos2d/core/components/CCLabel.js"
+    ]
+  },
+  {
+    "name": "Mask",
+    "includes": [
+      "./cocos2d/core/components/CCMask.js"
+    ]
+  },
+  {
+    "name": "CCSpriteDistortion",
+    "includes": [
+      "./cocos2d/core/components/CCSpriteDistortion.js"
+    ]
+  },
+  {
+    "name": "LabelOutline",
+    "includes": [
+      "./cocos2d/core/components/CCLabelOutline.js"
+    ]
+  },
+  {
+    "name": "ParticleSystem",
+    "includes": [
+      "./cocos2d/particle.CCParticleSystem.js"
+    ]
+  },
+  {
+    "name": "TiledMap",
+    "includes": [
+      "./cocos2d/tilemap/CCTiledMap.js"
+    ]
+  },
+  {
+    "name": "Spine Skeleton",
+    "includes": [
+      "./extensions/spine/index.js"
+    ]
+  },
+  {
+    "name": "Widget",
+    "includes": [
+      "./cocos2d/core/components/CCWidget.js"
+    ]
+  },
+  {
+    "name": "Button",
+    "includes": [
+      "./cocos2d/core/components/CCButton.js"
+    ]
+  },
+  {
+    "name": "ProgressBar",
+    "includes": [
+      "./cocos2d/core/components/CCProgressBar.js"
+    ]
+  },
+  {
+    "name": "ScrollBar",
+    "includes": [
+      "./cocos2d/core/components/CCScrollBar.js"
+    ]
+  },
+  {
+    "name": "ScrollView",
+    "includes": [
+      "./cocos2d/core/components/CCScrollView.js"
+    ]
+  },
+  {
+    "name": "Layout",
+    "includes": [
+      "./cocos2d/core/components/CCLayout.js"
+    ]
+  },
+  {
+    "name": "EditorBox",
+    "includes": [
+      "./cocos2d/core/components/CCEditBox.js"
+    ]
+  },
+  {
+    "name": "VideoPlayer",
+    "includes": [
+      "./cocos2d/core/components/CCVideoPlayer.js"
+    ]
+  },
+  {
+    "name": "AudioSource",
+    "includes": [
+      "./cocos2d/core/components/CCAudioSource.js"
+    ]
+  },
+  {
+    "name": "Animation",
+    "includes": [
+      "./cocos2d/core/components/CCAnimation.js"
+    ]
+  },
+  {
+    "name": "MotionStreak",
+    "includes": [
+      "./cocos2d/motion-streak/CCMotionStreak.js"
+    ]
+  },
+  {
+    "name": "BoxCollider",
+    "includes": [
+      "./cocos2d/core/collider/CCBoxCollider.js"
+    ]
+  },
+  {
+    "name": "CircleCollider",
+    "includes": [
+      "./cocos2d/core/collider/CCCircleCollider.js"
+    ]
+  },
+  {
+    "name": "PolygonCollider",
+    "includes": [
+      "./cocos2d/core/collider/CCPolygonCollider.js"
+    ]
+  }
+]
