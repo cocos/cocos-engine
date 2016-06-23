@@ -1417,21 +1417,19 @@ if (CC_JSB) {
 }
 
 /**
- *
  * @event position-changed
  * @param {Event} event
- * @param {Vec2} event.detail - old position
+ * @param {Vec2} event.detail - The old position, but this parameter is only available in editor!
  */
 /**
 /**
  * @event size-changed
  * @param {Event} event
- * @param {Size} event.detail - old size
+ * @param {Size} event.detail - The old size, but this parameter is only available in editor!
  */
 /**
  * @event anchor-changed
  * @param {Event} event
- * @param {Vec2} event.detail - old anchor
  */
 /**
  * @event child-added

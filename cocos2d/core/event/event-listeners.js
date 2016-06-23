@@ -55,10 +55,11 @@ EventListeners.prototype.invoke = function (event) {
         else {
             endIndex = list.length - 1;
             if (key === cc.Director.EVENT_COMPONENT_UPDATE) {
+                var dt = event.detail;
                 for (i = 1; i <= endIndex; i += 2) {
                     target = list[i];
                     if (target !== REMOVE_PLACEHOLDER) {
-                        target.update(event.detail);
+                        target.update(dt);
                     }
                 }
             }
