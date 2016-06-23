@@ -127,20 +127,10 @@
     ]
   },
   {
-    "name": "BoxCollider",
+    "name": "Collider",
     "entries": [
-      "./cocos2d/core/collider/CCBoxCollider.js"
-    ]
-  },
-  {
-    "name": "CircleCollider",
-    "entries": [
-      "./cocos2d/core/collider/CCCircleCollider.js"
-    ]
-  },
-  {
-    "name": "PolygonCollider",
-    "entries": [
+      "./cocos2d/core/collider/CCBoxCollider.js",
+      "./cocos2d/core/collider/CCCircleCollider.js",
       "./cocos2d/core/collider/CCPolygonCollider.js"
     ]
   }
