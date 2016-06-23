@@ -91,7 +91,7 @@ gulp.task('build-jsb-extends-dev', function (done) {
     ], './bin/jsb_polyfill.dev.js', jsbSkipModules, done);
 });
 
-gulp.task('build-jsb-extends-min', function () {
+gulp.task('build-jsb-extends-min', function (done) {
     Engine.buildJsbMin([
         './jsb/index.js',
         './extends.js'
@@ -110,7 +110,7 @@ gulp.task('build-min', ['build-html5', 'build-jsb']);
 gulp.task('clean-test', function (done) {
     Test.clean([
         './bin/cocos2d-js-extends-for-test.js',
-        'bin/cocos2d-js-for-test.js'
+        './bin/cocos2d-js-for-test.js'
     ], done);
 });
 

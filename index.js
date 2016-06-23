@@ -51,7 +51,11 @@ if (!isMainProcess) {
     try {
         require('./bin/modular-cocos2d');
     } catch (error) {
-        require('./bin/modular-cocos2d-cut');
+        if (error.code === 'MODULE_NOT_FOUND') {
+            require('./bin/modular-cocos2d-cut');
+        } else {
+            throw error;
+        }
     }
 }
 else {
