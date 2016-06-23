@@ -804,9 +804,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this.__ignoreAnchor = false;
     },
 
-    _onPreDestroy: CC_JSB && function () {
-        this._sgNode.release();
-        this._sgNode = null;
+    _onPreDestroy: function () {
+        if (CC_JSB) {
+            this._sgNode.release();
+            this._sgNode = null;
+        }
+        //cc.eventManager.removeListeners(this);
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
 
     _destruct: Misc.destructIgnoreId,
