@@ -26,7 +26,7 @@
 'use strict';
 
 const Utils = require('./utils');
-const Path = require('path');
+const Path = require('fire-path');
 
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');
@@ -87,7 +87,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, callback) {
         .on('end', callback);
 };
 
-exports.buildPreview = function (sourceFile, outputFile) {
+exports.buildPreview = function (sourceFile, outputFile, callback) {
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
@@ -111,10 +111,11 @@ exports.buildPreview = function (sourceFile, outputFile) {
             includeContent: false,
             addComment: true
         }))
-        .pipe(Gulp.dest(outDir));
+        .pipe(Gulp.dest(outDir))
+        .on('end', callback);
 };
 
-exports.buildJsbDev = function (sourceFile, outputFile, jsbSkipModules, callback) {
+exports.buildJsb = function (sourceFile, outputFile, jsbSkipModules, callback) {
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 

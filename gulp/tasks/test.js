@@ -59,7 +59,7 @@ exports.build = function (sourceFile, outputFile, callback) {
         EventStream.merge(engine, editorExtends)
         .on('end', callback);
     } else {
-        callback();
+        engine.on('end', callback);
     }
 };
 
@@ -80,7 +80,7 @@ exports.unit = function (outDir, libs, callback) {
         .on('end', callback);
 };
 
-exports.test = function () {
+exports.test = function (callback) {
     var qunit;
     try {
         qunit = require('gulp-qunit');
@@ -89,5 +89,6 @@ exports.test = function () {
         throw e;
     }
     return Gulp.src('bin/qunit-runner.html', { read: false })
-        .pipe(qunit({ timeout: 5 }));
+        .pipe(qunit({ timeout: 5 }))
+        .on('end', callback);
 };

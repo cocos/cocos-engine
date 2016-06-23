@@ -66,8 +66,8 @@ gulp.task('build-cocos2d-min', ['build-modular-cocos2d'], function (done) {
 
 gulp.task('build-html5', ['build-cocos2d-dev', 'build-cocos2d-min']);
 
-gulp.task('build-preview', ['build-modular-cocos2d'], function () {
-    Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js');
+gulp.task('build-preview', ['build-modular-cocos2d'], function (done) {
+    Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done);
 });
 
 var jsbSkipModules = [
@@ -85,7 +85,7 @@ var jsbSkipModules = [
 ];
 
 gulp.task('build-jsb-extends-dev', function (done) {
-    Engine.buildJsbDev([
+    Engine.buildJsb([
         './jsb/index.js',
         './extends.js'
     ], './bin/jsb_polyfill.dev.js', jsbSkipModules, done);
@@ -124,16 +124,16 @@ gulp.task('unit-runner', [], function (done) {
     ], done);
 });
 
-gulp.task('test', ['build-test', 'unit-runner'], function () {
-    Test.test();
+gulp.task('test', ['build-test', 'unit-runner'], function (done) {
+    Test.test(done);
 });
 
 gulp.task('visual-test', ['build-test'], Shell.task([
     'sh ./test/visual-tests/run.sh'
 ]));
 
-gulp.task('test-no-build', function () {
-    Test.test();
+gulp.task('test-no-build', function (done) {
+    Test.test(done);
 });
 
 ////////////
