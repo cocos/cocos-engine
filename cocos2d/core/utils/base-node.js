@@ -30,15 +30,30 @@ var DirtyFlags = Misc.DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
 
 // called after changing parent
-function setMaxZOrder (node) {
-    var siblings = node.parent.getChildren();
-    var z = 0;
-    if (siblings.length >= 2) {
-        var prevNode = siblings[siblings.length - 2];
-        z = prevNode.getOrderOfArrival() + 1;
+function updateZOrder (node) {
+    var sgNode = node._sgNode;
+    if (CC_JSB) {
+        // Reset zorder to update their arrival order in JSB
+        var zOrder = sgNode.getLocalZOrder();
+        sgNode.setLocalZOrder(zOrder + 1);
+        sgNode.setLocalZOrder(zOrder);
     }
-    node.setOrderOfArrival(z);
-    return z;
+    else {
+        var sgSiblings = sgNode.parent.getChildren();
+        if (sgSiblings.length >= 2) {
+            var prevNode = sgSiblings[sgSiblings.length - 2];
+            sgNode.arrivalOrder = prevNode.arrivalOrder + 1;
+        }
+        else {
+            sgNode.arrivalOrder = 0;
+        }
+        cc.renderer.childrenOrderDirty = true;
+        var parent = node._parent;
+        parent._sgNode._reorderChildDirty = true;
+        parent._reorderChildDirty = true;
+        parent._delaySort();
+        cc.eventManager._setDirtyForNode(node);
+    }
 }
 
 var POSITION_CHANGED = 'position-changed';
@@ -140,20 +155,20 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                         return;
                     }
                 }
-                var node = this._sgNode;
-                if (node.parent) {
-                    node.parent.removeChild(node, false);
-                }
-                if (value) {
-                    var parent = value._sgNode;
-                    parent.addChild(node);
-                    setMaxZOrder(node);
-                    value._children.push(this);
-                    value.emit(CHILD_ADDED, this);
+                var sgNode = this._sgNode;
+                if (sgNode.parent) {
+                    sgNode.parent.removeChild(sgNode, false);
                 }
                 //
                 var oldParent = this._parent;
                 this._parent = value || null;
+                if (value) {
+                    var parent = value._sgNode;
+                    parent.addChild(sgNode);
+                    updateZOrder(this);
+                    value._children.push(this);
+                    value.emit(CHILD_ADDED, this);
+                }
                 if (oldParent) {
                     if (!(oldParent._objFlags & Destroying)) {
                         var removeAt = oldParent._children.indexOf(this);
