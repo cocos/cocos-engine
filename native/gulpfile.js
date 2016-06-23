@@ -162,7 +162,8 @@ gulp.task('update-simulator-config', ['update-simulator-script'], function (cb) 
 });
 
 gulp.task('update-simulator-script', function (cb) {
-    var destPath = process.platform === 'win32' ? './simulator/win32/script' : './simulator/mac/Simulator.app/Contents/Resources/script';
+    var simulatorPath =  process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
+    var destPath = simulatorPath + '/script';
     var updateScript = function (callback) {
       fs.copy('./cocos/scripting/js-bindings/script', destPath, {
         clobber: true,
@@ -176,8 +177,8 @@ gulp.task('update-simulator-script', function (cb) {
       }, callback);
     };
 
-    if (!fs.existsSync(destPath)) {
-        console.error(`Cant\'t find simulator dir [${destPath}]`);
+    if (!fs.existsSync(simulatorPath)) {
+        console.error(`Cant\'t find simulator dir [${simulatorPath}]`);
     } else {
       if (process.platform === 'win32') {
         downloadSimulatorDLL(function () {
