@@ -28,6 +28,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Looper;
+import android.renderscript.Type;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -148,6 +150,7 @@ public class Cocos2dxEditBoxHelper {
                     public void afterTextChanged(Editable s) {
 
                     }
+
                 });
 
 
@@ -187,8 +190,7 @@ public class Cocos2dxEditBoxHelper {
                                 (keyCode == KeyEvent.KEYCODE_ENTER)) {
                             //if editbox doesn't support multiline, just hide the keyboard
                             if ((editBox.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != InputType.TYPE_TEXT_FLAG_MULTI_LINE) {
-                                Cocos2dxEditBoxHelper.closeKeyboard(index);
-                                Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().requestFocus();
+                                Cocos2dxEditBoxHelper.closeKeyboardOnUiThread(index);
                                 return true;
                             }
                         }
@@ -201,8 +203,7 @@ public class Cocos2dxEditBoxHelper {
                     @Override
                     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                         if (actionId == EditorInfo.IME_ACTION_DONE) {
-                            Cocos2dxEditBoxHelper.closeKeyboard(index);
-                            Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().requestFocus();
+                            Cocos2dxEditBoxHelper.closeKeyboardOnUiThread(index);
                         }
                         return false;
                     }
@@ -235,6 +236,14 @@ public class Cocos2dxEditBoxHelper {
                 if (editBox != null) {
                     Typeface tf;
                     if (!fontName.isEmpty()) {
+                        if (fontName.endsWith(".ttf")) {
+                            try {
+                                tf = Cocos2dxTypefaces.get(Cocos2dxActivity.COCOS_ACTIVITY.getContext(), fontName);
+                            } catch (final Exception e) {
+                                Log.e("Cocos2dxEditBoxHelper", "error to create ttf type face: " + fontName);
+                                tf = Typeface.create(fontName, Typeface.NORMAL);
+                            }
+                        }
                         tf  =  Typeface.create(fontName, Typeface.NORMAL);
                     }else{
                         tf = Typeface.DEFAULT;
@@ -306,13 +315,6 @@ public class Cocos2dxEditBoxHelper {
                 Cocos2dxEditBox editBox = sEditBoxArray.get(index);
                 if (editBox != null) {
                     editBox.setVisibility(visible ? View.VISIBLE : View.GONE);
-                    if (visible) {
-                        editBox.requestFocus();
-                        Cocos2dxEditBoxHelper.openKeyboard(index);
-                    }else{
-                        Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().requestFocus();
-                        Cocos2dxEditBoxHelper.closeKeyboard(index);
-                    }
                 }
             }
         });
@@ -380,21 +382,51 @@ public class Cocos2dxEditBoxHelper {
         });
     }
 
-    public static void openKeyboard(int index) {
-        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+    public static void openKeyboard(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                openKeyboardOnUiThread(index);
+            }
+        });
+    }
+
+    public static void closeKeyboard(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                closeKeyboardOnUiThread(index);
+            }
+        });
+    }
+
+    private static void openKeyboardOnUiThread(int index) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Log.e(TAG, "openKeyboardOnUiThread doesn't run on UI thread!");
+            return;
+        }
+
+        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.COCOS_ACTIVITY.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         Cocos2dxEditBox editBox = sEditBoxArray.get(index);
         if (null != editBox) {
+            editBox.requestFocus();
             imm.showSoftInput(editBox, 0);
             Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().setSoftKeyboardShown(true);
         }
     }
 
-    public static void closeKeyboard(int index) {
-        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+    private static void closeKeyboardOnUiThread(int index) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            Log.e(TAG, "closeKeyboardOnUiThread doesn't run on UI thread!");
+            return;
+        }
+
+        final InputMethodManager imm = (InputMethodManager) Cocos2dxActivity.COCOS_ACTIVITY.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         Cocos2dxEditBox editBox = sEditBoxArray.get(index);
         if (null != editBox) {
             imm.hideSoftInputFromWindow(editBox.getWindowToken(), 0);
             Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().setSoftKeyboardShown(false);
+            Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().requestFocus();
         }
     }
 }
