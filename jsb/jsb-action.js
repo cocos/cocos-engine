@@ -112,6 +112,10 @@ for (var i = 0; i < actionArr.length; ++i) {
     }
 }
 
+cc.follow = function (followedNode, rect) {
+    return new cc.Follow(followedNode._sgNode, rect);
+};
+
 // Special call func
 cc.callFunc = function (selector, selectorTarget, data) {
     var callback = function (sender, data) {

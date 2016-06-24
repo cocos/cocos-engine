@@ -486,7 +486,6 @@ var Node = cc.Class({
 
         // Retained actions for JSB
         if (CC_JSB) {
-            this.__sgNode = null;
             this._retainedActions = [];
         }
     },
