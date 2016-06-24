@@ -802,11 +802,30 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
+
+        // Support for ActionManager and EventManager
+        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+
+        /**
+         * Register all related EventTargets,
+         * all event callbacks will be removed in _onPreDestroy
+         * @property __eventTargets
+         * @type {EventTarget[]}
+         * @private
+         */
+        this.__eventTargets = [];
     },
 
-    _onPreDestroy: CC_JSB && function () {
-        this._sgNode.release();
-        this._sgNode = null;
+    _onPreDestroy: function () {
+        if (CC_JSB) {
+            this._sgNode.release();
+            this._sgNode = null;
+        }
+        cc.eventManager.removeListeners(this);
+        for (var i = 0, len = this.__eventTargets.length; i < len; ++i) {
+            var target = this.__eventTargets[i];
+            target && target.targetOff(this);
+        }
     },
 
     _destruct: Misc.destructIgnoreId,
@@ -2092,17 +2111,20 @@ Misc.propertyDefine(BaseNode, SameNameGetSets, DiffNameGetSets);
 
 
 /**
- * !#en position of node.
- * !#zh 节点相对父节点的坐标。
+ * !#en The local position in its parent's coordinate system.<br>
+ * PS: The returned value is a copy of current position, so modification of the copy will not take effect for the actual position of the node.
+ * !#zh 节点相对父节点的坐标。<br>
+ * 注意：返回值会是当前 position 的副本，所以对该副本所做的修改并不会影响节点的实际坐标。
  * @property position
  * @type {Vec2}
  * @example
- * node.position = new cc.Vec2(0, 0);
+ * node.position = new cc.Vec2(0, 0);  // OK!
+ * node.position.addSelf(new cc.Vec2(1, 0));  // Invalid!
  */
 
 /**
- * !#en Scale of node.
- * !#zh 节点缩放
+ * !#en The local scale relative to the parent.
+ * !#zh 节点相对父节点的缩放。
  * @property scale
  * @type {Number}
  * @example
