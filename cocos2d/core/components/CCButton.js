@@ -416,10 +416,6 @@ var Button = cc.Class({
         event.stopPropagation();
     },
 
-    _cancelButtonClick: function(){
-        this._pressed = false;
-    },
-
     _onTouchCancel: function () {
         if (!this.interactable || !this.enabledInHierarchy) return;
 

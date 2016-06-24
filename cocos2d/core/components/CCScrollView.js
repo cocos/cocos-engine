@@ -798,7 +798,7 @@ var ScrollView = cc.Class({
             this._touchMoved = true;
             var buttonComponent = event.target.getComponent(cc.Button);
             if (buttonComponent) {
-                buttonComponent._cancelButtonClick();
+                buttonComponent._onTouchCancel();
             }
         }
         // TODO: detect move distance, if distance greater than a seuil, then stop propagation.
