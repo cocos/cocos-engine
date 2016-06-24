@@ -463,9 +463,6 @@ var Node = cc.Class({
         this._name = typeof name !== 'undefined' ? name : 'New Node';
         this._activeInHierarchy = false;
 
-        // Support for ActionManager and EventManager
-        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
-
         // cache component
         this._widget = null;
 
@@ -474,15 +471,6 @@ var Node = cc.Class({
 
         // Mouse event listener
         this._mouseListener = null;
-
-        /**
-         * Register all related EventTargets,
-         * all event callbacks will be removed in _onPreDestroy
-         * @property __eventTargets
-         * @type {EventTarget[]}
-         * @private
-         */
-        this.__eventTargets = [];
 
         // Retained actions for JSB
         if (CC_JSB) {
