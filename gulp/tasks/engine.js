@@ -54,23 +54,11 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
         CC_JSB: false
     });
 
-    var rawSize = Size({ gzip: false, pretty: false, showTotal: false, showFiles: false });
-    var zippedSize = Size({ gzip: true, pretty: false, showTotal: false, showFiles: false });
-
     bundler.bundle()
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
         .pipe(Uglify(uglifyOption))
-        .pipe(rawSize)
-        .pipe(zippedSize)
-        .pipe(EventStream.through(null, function () {
-            var raw = rawSize.size;
-            var zipped = zippedSize.size;
-            var percent = ((zipped / raw) * 100).toFixed(2);
-            console.log(`Size of ${outputFile}: raw: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
-            this.emit('end');
-        }))
         .pipe(Sourcemaps.write('./', {
             sourceRoot: './',
             includeContent: true,
@@ -110,7 +98,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback) 
             var raw = rawSize.size;
             var zipped = zippedSize.size;
             var percent = ((zipped / raw) * 100).toFixed(2);
-            console.log(`Size of ${outputFile}: raw: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
+            console.log(`Size of ${outputFile}: minimized: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
             this.emit('end');
         }))
         .pipe(Sourcemaps.write('./', {
