@@ -490,11 +490,11 @@ var EditBox = cc.Class({
 if(CC_JSB) {
     EditBox.prototype.editBoxEditingDidBegin = function (sender) {
         this.editBoxEditingDidBegan(sender);
-    }
+    };
 
     EditBox.prototype.editBoxEditingDidEnd = function (sender) {
         this.editBoxEditingDidEnded(sender);
-    }
+    };
 }
 
 cc.EditBox = module.exports = EditBox;
