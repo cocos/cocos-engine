@@ -1,9 +1,9 @@
 /*global _ccsg */
 
 /****************************************************************************
- Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2012 James Chen
+ Copyright (c) 2011-2012 cocos2d-x.org
 
  http://www.cocos2d-x.org
 
@@ -196,7 +196,6 @@ cc.EditBoxDelegate = cc._Class.extend({
 });
 
 var EditBoxImpl = function(editBox) {
-    this._domInputSprite = null;
     this._spriteDOM = null;
     this._edTxt = null;
     this._edFontSize = 14;
@@ -210,25 +209,16 @@ EditBoxImpl.prototype = {
     constructor: EditBoxImpl,
 
     createNativeControl: function(size) {
-        var tmpDOMSprite = this._domInputSprite = new _ccsg.Sprite();
-        tmpDOMSprite.draw = function () {};  //redefine draw function
-        this._editBox.addChild(tmpDOMSprite);
-        this._spriteDOM = tmpDOMSprite;
-
         this._createDomTextArea();
-
-        cc.DOM.convert(tmpDOMSprite);
-
         this._addDomInputControl();
 
-        this._domInputSprite.dom.showTooltipDiv = false;
-        this._domInputSprite.dom.style.width = (size.width - 6) + 'px';
-        this._domInputSprite.dom.style.height = (size.height - 6) + 'px';
+        // this._domInputSprite.dom.showTooltipDiv = false;
+        // this._domInputSprite.dom.style.width = (size.width - 6) + 'px';
+        // this._domInputSprite.dom.style.height = (size.height - 6) + 'px';
 
-        tmpDOMSprite.canvas.remove();
 
-        this._domInputSprite.x = 3;
-        this._domInputSprite.y = 3;
+        // this._domInputSprite.x = 3;
+        // this._domInputSprite.y = 3;
 
         this._createLabels();
     },
@@ -618,15 +608,7 @@ EditBoxImpl.prototype = {
         });
 
         return tmpEdTxt;
-    },
-
-    _removeDomInputControl: function() {
-        this._domInputSprite.dom.removeChild(this._edTxt);
-    },
-
-    _addDomInputControl: function () {
-        this._domInputSprite.dom.appendChild(this._edTxt);
-    },
+    }
 };
 
 /**
@@ -661,7 +643,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _editBoxInputFlag: InputFlag.SENSITIVE,
     _keyboardReturnType: KeyboardReturnType.DEFAULT,
     _maxLength: 50,
-    _nativeControl: null,
 
     _text: '',
     _textColor: null,
@@ -671,8 +652,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
     _placeholderFontSize: 14,
     _placeholderColor: null,
 
-    _adjustHeight: 18,
-    _tooltip: false,
     _className: 'EditBox',
 
     /**
@@ -688,9 +667,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._textColor = cc.Color.WHITE;
         this._placeholderColor = cc.Color.GRAY;
         _ccsg.Node.prototype.setContentSize.call(this, size);
-
-        var editBoxImpl = this._nativeControl = new EditBoxImpl(this);
-        editBoxImpl.createNativeControl(size);
 
         //because cc.DOM.convert will replace editbox's setContentSize method.
         //here is a hack to provide a better version of setContentSize.
@@ -976,22 +952,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._keyboardReturnType = returnType;
     },
 
-    keyboardWillShow: function (info) {
-        var rectTracked = _ccsg.EditBox.getRect(this);
-        // some adjustment for margin between the keyboard and the edit box.
-        rectTracked.y -= 4;
-        // if the keyboard area doesn't intersect with the tracking node area, nothing needs to be done.
-        if (!rectTracked.intersectsRect(info.end)) {
-            cc.log("needn't to adjust view layout.");
-            return;
-        }
-
-        // assume keyboard at the bottom of screen, calculate the vertical adjustment.
-        this._adjustHeight = info.end.getMaxY() - rectTracked.getMinY();
-
-        //callback
-    },
-
     /**
      * @warning HTML5 Only
      * @param {cc.Size} size
@@ -1056,18 +1016,6 @@ _p.returnType;
 cc.defineGetterSetter(_p, 'returnType', null, _p.setReturnType);
 
 _p = null;
-
-/**
- * get the rect of a node in world coordinate frame
- * @function
- * @param {_ccsg.Node} node
- * @return {cc.Rect}
- */
-_ccsg.EditBox.getRect = function (node) {
-    var contentSize = node.getContentSize();
-    var rect = cc.rect(0, 0, contentSize.width, contentSize.height);
-    return cc.rectApplyAffineTransform(rect, node.getNodeToWorldTransform());
-};
 
 _ccsg.EditBox.InputMode = InputMode;
 _ccsg.EditBox.InputFlag = InputFlag;
