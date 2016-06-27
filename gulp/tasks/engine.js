@@ -33,13 +33,20 @@ const Gulp = require('gulp');
 const Buffer = require('vinyl-buffer');
 const Uglify = require('gulp-uglify');
 const Sourcemaps = require('gulp-sourcemaps');
+const Size = require('gulp-size');
+const EventStream = require('event-stream');
+const Chalk = require('chalk');
 const HandleErrors = require('../util/handleErrors');
 
-exports.buildCocosJs = function (sourceFile, outputFile, callback) {
+exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
     var bundler = Utils.createBundler(sourceFile);
-    bundler.exclude('./bin/modular-cocos2d-cut.js');
+
+    excludes && excludes.forEach(function (file) {
+        bundler.exclude(file);
+    });
+
     var uglifyOption = Utils.uglifyOptions(false, {
         CC_EDITOR: false,
         CC_DEV: true,
@@ -47,11 +54,23 @@ exports.buildCocosJs = function (sourceFile, outputFile, callback) {
         CC_JSB: false
     });
 
+    var rawSize = Size({ gzip: false, pretty: false, showTotal: false, showFiles: false });
+    var zippedSize = Size({ gzip: true, pretty: false, showTotal: false, showFiles: false });
+
     bundler.bundle()
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
         .pipe(Uglify(uglifyOption))
+        .pipe(rawSize)
+        .pipe(zippedSize)
+        .pipe(EventStream.through(null, function () {
+            var raw = rawSize.size;
+            var zipped = zippedSize.size;
+            var percent = ((zipped / raw) * 100).toFiexed(2);
+            console.log(`Size of ${outputFile}: raw: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
+            this.emit('end');
+        }))
         .pipe(Sourcemaps.write('./', {
             sourceRoot: './',
             includeContent: true,
@@ -61,11 +80,15 @@ exports.buildCocosJs = function (sourceFile, outputFile, callback) {
         .on('end', callback);
 };
 
-exports.buildCocosJsMin = function (sourceFile, outputFile, callback) {
+exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback) {
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
     var bundler = Utils.createBundler(sourceFile);
-    bundler.exclude('./bin/modular-cocos2d-cut.js');
+
+    excludes && excludes.forEach(function (file) {
+        bundler.exclude(file);
+    });
+
     var uglifyOption = Utils.uglifyOptions(true, {
         CC_EDITOR: false,
         CC_DEV: false,
@@ -73,11 +96,23 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, callback) {
         CC_JSB: false
     });
 
+    var rawSize = Size({ gzip: false, pretty: false, showTotal: false, showFiles: false });
+    var zippedSize = Size({ gzip: true, pretty: false, showTotal: false, showFiles: false });
+
     bundler.bundle()
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(Sourcemaps.init({loadMaps: true}))
         .pipe(Uglify(uglifyOption))
+        .pipe(rawSize)
+        .pipe(zippedSize)
+        .pipe(EventStream.through(null, function () {
+            var raw = rawSize.size;
+            var zipped = zippedSize.size;
+            var percent = ((zipped / raw) * 100).toFiexed(2);
+            console.log(`Size of ${outputFile}: raw: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
+            this.emit('end');
+        }))
         .pipe(Sourcemaps.write('./', {
             sourceRoot: './',
             includeContent: true,

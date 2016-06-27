@@ -57,11 +57,11 @@ gulp.task('build-modular-cocos2d', ['build-all-modular', 'build-cut-modular']);
 /////////////
 
 gulp.task('build-cocos2d-dev', ['build-modular-cocos2d'], function (done) {
-    Engine.buildCocosJs('./index.js', './bin/cocos2d-js.js', done);
+    Engine.buildCocosJs('./index.js', './bin/cocos2d-js.js', ['./bin/modular-cocos2d-cut.js'], done);
 });
 
 gulp.task('build-cocos2d-min', ['build-modular-cocos2d'], function (done) {
-    Engine.buildCocosJsMin('./index.js', './bin/cocos2d-js-min.js', done);
+    Engine.buildCocosJsMin('./index.js', './bin/cocos2d-js-min.js', ['./bin/modular-cocos2d-cut.js'], done);
 });
 
 gulp.task('build-html5', ['build-cocos2d-dev', 'build-cocos2d-min']);
