@@ -334,10 +334,8 @@ _ccsg.Node.RenderCmd.prototype = {
         }
         return this._transform;
     },
-
-    _syncStatus: function (parentCmd) {
-        //  In the visit logic does not restore the _dirtyFlag
-        //  Because child elements need parent's _dirtyFlag to change himself
+    propagateFlags: function(parentCmd) {
+        //return;
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
@@ -356,12 +354,17 @@ _ccsg.Node.RenderCmd.prototype = {
         if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
             locFlag |= flags.transformDirty;
 
+        this._dirtyFlag = locFlag;
+    },
+    _syncStatus: function (parentCmd) {
+        //  In the visit logic does not restore the _dirtyFlag
+        //  Because child elements need parent's _dirtyFlag to change himself
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty,
             transformDirty = locFlag & flags.transformDirty;
-
-        this._dirtyFlag = locFlag;
-
+        
         if (colorDirty)
             //update the color
             this._syncDisplayColor();
@@ -451,6 +454,7 @@ proto.transform = function (parentCmd, recursive) {
 
 proto.visit = function (parentCmd) {
     var node = this._node;
+    this.propagateFlags(parentCmd);
     // quick return if not visible
     if (!node._visible)
         return;
