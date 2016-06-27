@@ -57,7 +57,7 @@
         _editState = NO;
         self.frameRect = frameRect;
         self.editBox = editBox;
-        self.dataInputMode = cocos2d::ui::EditBox::InputFlag::INITIAL_CAPS_ALL_CHARACTERS;
+        self.dataInputMode = cocos2d::ui::EditBox::InputFlag::LOWERCASE_ALL_CHARACTERS;
         self.keyboardReturnType = cocos2d::ui::EditBox::KeyboardReturnType::DEFAULT;
 
         [self createMultiLineTextField];
@@ -204,8 +204,13 @@
 
         case cocos2d::ui::EditBox::InputFlag::SENSITIVE:
             self.textInput.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.textInput.autocapitalizationType = UITextAutocapitalizationTypeNone;
             break;
-
+            
+        case cocos2d::ui::EditBox::InputFlag::LOWERCASE_ALL_CHARACTERS:
+            self.textInput.autocapitalizationType = UITextAutocapitalizationTypeNone;
+            break;
+            
         default:
             break;
     }
