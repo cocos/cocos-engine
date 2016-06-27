@@ -334,7 +334,7 @@ _ccsg.Node.RenderCmd.prototype = {
         }
         return this._transform;
     },
-    propagateFlags: function(parentCmd) {
+    _propagateFlags: function(parentCmd) {
         //return;
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
@@ -364,7 +364,7 @@ _ccsg.Node.RenderCmd.prototype = {
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty,
             transformDirty = locFlag & flags.transformDirty;
-        
+
         if (colorDirty)
             //update the color
             this._syncDisplayColor();
@@ -454,7 +454,7 @@ proto.transform = function (parentCmd, recursive) {
 
 proto.visit = function (parentCmd) {
     var node = this._node;
-    this.propagateFlags(parentCmd);
+    this._propagateFlags(parentCmd);
     // quick return if not visible
     if (!node._visible)
         return;

@@ -165,7 +165,7 @@ proto._cangodhelpme = function (godhelpme) {
 
 proto.visit = function(parentCmd){
     var node = this._node;
-    this.propagateFlags(parentCmd);
+    this._propagateFlags(parentCmd);
     // quick return if not visible
     if (!node._visible)
         return;
