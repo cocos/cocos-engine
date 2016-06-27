@@ -67,7 +67,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
         .pipe(EventStream.through(null, function () {
             var raw = rawSize.size;
             var zipped = zippedSize.size;
-            var percent = ((zipped / raw) * 100).toFiexed(2);
+            var percent = ((zipped / raw) * 100).toFixed(2);
             console.log(`Size of ${outputFile}: raw: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
             this.emit('end');
         }))
@@ -109,7 +109,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback) 
         .pipe(EventStream.through(null, function () {
             var raw = rawSize.size;
             var zipped = zippedSize.size;
-            var percent = ((zipped / raw) * 100).toFiexed(2);
+            var percent = ((zipped / raw) * 100).toFixed(2);
             console.log(`Size of ${outputFile}: raw: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
             this.emit('end');
         }))
