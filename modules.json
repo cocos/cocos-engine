@@ -132,5 +132,19 @@
     "entries": [
       "./cocos2d/core/collider/index.js"
     ]
+  },
+
+
+  {
+    "name": "Action",
+    "entries": [
+      "./cocos2d/actions/index.js"
+    ]
+  },
+  {
+    "name": "Audio",
+    "entries": [
+      "./cocos2d/audio/CCAudio.js"
+    ]
   }
 ]

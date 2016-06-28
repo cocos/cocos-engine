@@ -1,7 +1,9 @@
 var js = cc.js;
 
 // Label
-js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
+if (cc.Label) {
+    js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
+}
 
 if (CC_DEV) {
 
@@ -259,10 +261,14 @@ if (CC_DEV) {
 
     deprecateEnum(cc, 'cc.TEXT_ALIGNMENT', 'cc.TextAlignment');
     deprecateEnum(cc, 'cc.VERTICAL_TEXT_ALIGNMENT', 'cc.VerticalTextAlignment');
-    deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.TYPE', '_ccsg.ParticleSystem.Type');
-    deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.MODE', '_ccsg.ParticleSystem.Mode');
-    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.TYPE', 'cc.ParticleSystem.PositionType');
-    deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.EmitterMode');
+    if (_ccsg.ParticleSystem) {
+        deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.TYPE', '_ccsg.ParticleSystem.Type');
+        deprecateEnum(_ccsg.ParticleSystem, '_ccsg.ParticleSystem.MODE', '_ccsg.ParticleSystem.Mode');
+    }
+    if (cc.ParticleSystem) {
+        deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.TYPE', 'cc.ParticleSystem.PositionType');
+        deprecateEnum(cc.ParticleSystem, 'cc.ParticleSystem.MODE', 'cc.ParticleSystem.EmitterMode');
+    }
     // deprecateEnum(cc.ProgressTimer, 'cc.ProgressTimer.TYPE', 'cc.ProgressTimer.Type');
     deprecateEnum(cc.game, 'cc.game.DEBUG_MODE', 'cc.DebugMode');
     deprecateEnum(cc, 'cc', 'cc.Texture2D.WrapMode', false);
@@ -566,9 +572,11 @@ if (CC_DEV) {
     });
 
     //ui
-    js.obsolete(cc.Layout.prototype, 'cc.Layout.layoutType', 'type');
-    js.obsolete(cc.Layout.prototype, 'cc.Layout.ResizeType', 'ResizeMode');
-    js.obsolete(cc.Layout.prototype, 'cc.Layout.resize', 'resizeMode');
+    if (cc.Layout) {
+        js.obsolete(cc.Layout.prototype, 'cc.Layout.layoutType', 'type');
+        js.obsolete(cc.Layout.prototype, 'cc.Layout.ResizeType', 'ResizeMode');
+        js.obsolete(cc.Layout.prototype, 'cc.Layout.resize', 'resizeMode');
+    }
 
     markAsRemoved(cc.Scale9Sprite, [
         'init',
