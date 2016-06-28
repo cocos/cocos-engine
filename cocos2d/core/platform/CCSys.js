@@ -764,6 +764,13 @@ else {
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
 
+        if (sys.os === sys.OS_IOS) {
+            // IOS no event that used to parse completed callback
+            // this time is not complete, can not play
+            //
+            __audioSupport.USE_LOADER_EVENT = 'loadedmetadata';
+        }
+
         if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
             __audioSupport.DELAY_CREATE_CTX = true;
             __audioSupport.USE_LOADER_EVENT = 'canplay';
