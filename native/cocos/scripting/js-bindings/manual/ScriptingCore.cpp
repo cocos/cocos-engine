@@ -380,6 +380,22 @@ bool JSB_core_restartVM(JSContext *cx, uint32_t argc, jsval *vp)
     return true;
 };
 
+bool JSB_closeWindow(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    EventListenerCustom* _event = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_DRAW, [&](EventCustom *event) {
+        Director::getInstance()->getEventDispatcher()->removeEventListener(_event);
+        _event->release();
+
+        ScriptingCore::getInstance()->cleanup();
+    }
+    _event->retain();
+    Director::getInstance()->end();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    exit(0);
+#endif
+    return true;
+};
+
 void registerDefaultClasses(JSContext* cx, JS::HandleObject global) {
     // first, try to get the ns
     JS::RootedValue nsval(cx);
@@ -425,6 +441,7 @@ void registerDefaultClasses(JSContext* cx, JS::HandleObject global) {
     JS_DefineFunction(cx, global, "__restartVM", JSB_core_restartVM, 0, JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_ENUMERATE );
     JS_DefineFunction(cx, global, "__cleanScript", JSB_cleanScript, 1, JSPROP_READONLY | JSPROP_PERMANENT);
     JS_DefineFunction(cx, global, "__isObjectValid", ScriptingCore::isObjectValid, 1, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, global, "close", JSB_closeWindow, 0, JSPROP_READONLY | JSPROP_PERMANENT);
 }
 
 static void sc_finalize(JSFreeOp *freeOp, JSObject *obj) {
@@ -604,6 +621,7 @@ void ScriptingCore::createGlobalContext() {
         sc_register_sth callback = *it;
         callback(_cx, _global.ref());
     }
+    _needCleanup = true;
 }
 
 static std::string RemoveFileExt(const std::string& filePath) {
@@ -843,6 +861,10 @@ void ScriptingCore::recordJSRelease(cocos2d::Ref *object)
 
 void ScriptingCore::cleanup()
 {
+    if (!_needCleanup) {
+         return;
+    }
+
     if(_runLoop)
     {
         delete _runLoop;
@@ -888,6 +910,8 @@ void ScriptingCore::cleanup()
     _js_global_type_map.clear();
     cleanAllScript();
     registrationList.clear();
+
+    _needCleanup = false;
 }
 
 void ScriptingCore::reportError(JSContext *cx, const char *message, JSErrorReport *report)
