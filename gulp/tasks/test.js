@@ -40,27 +40,18 @@ const Utils = require('./utils');
 exports.build = function (sourceFile, outputFile, callback) {
     var jsEntryEditorExtends = '../editor/test-utils/engine-extends-entry.js';
 
+    if (Fs.existsSync(jsEntryEditorExtends)) {
+        sourceFile = [sourceFile, jsEntryEditorExtends];
+    }
+
     var bundler = Utils.createBundler(sourceFile);
     var engine = bundler.bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(Path.basename(outputFile)))
         .pipe(Buffer())
-        .pipe(Gulp.dest(Path.dirname(outputFile)));
-
-    if (Fs.existsSync(jsEntryEditorExtends)) {
-        var editorExtends = Utils.createBundler(jsEntryEditorExtends)
-            .bundle()
-            .on('error', HandleErrors.handler)
-            .pipe(HandleErrors())
-            .pipe(Source(Path.basename(jsEntryEditorExtends)))
-            .pipe(Buffer())
-            .pipe(Gulp.dest(Path.dirname(outputFile)));
-        EventStream.merge(engine, editorExtends)
+        .pipe(Gulp.dest(Path.dirname(outputFile)))
         .on('end', callback);
-    } else {
-        engine.on('end', callback);
-    }
 };
 
 exports.clean = function (list, callback) {
