@@ -83,6 +83,7 @@ private:
     mozilla::Maybe<JS::PersistentRootedObject> _global;
     mozilla::Maybe<JS::PersistentRootedObject> _debugGlobal;
     SimpleRunLoop* _runLoop;
+    bool _needCleanup;
 
     bool _callFromScript;
     std::unordered_map<cocos2d::Ref*, int> _jsRetainRefMap;

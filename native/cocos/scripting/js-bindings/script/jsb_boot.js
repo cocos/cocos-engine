@@ -1512,6 +1512,13 @@ cc.game = {
     },
 
     /**
+     * End game, it will close the game window
+     */
+    end: function () {
+        close();
+    },
+
+    /**
      * Run game.
      */
     run : function(){
