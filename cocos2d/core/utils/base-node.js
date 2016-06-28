@@ -769,11 +769,30 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
+
+        // Support for ActionManager and EventManager
+        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
+
+        /**
+         * Register all related EventTargets,
+         * all event callbacks will be removed in _onPreDestroy
+         * @property __eventTargets
+         * @type {EventTarget[]}
+         * @private
+         */
+        this.__eventTargets = [];
     },
 
-    _onPreDestroy: CC_JSB && function () {
-        this._sgNode.release();
-        this._sgNode = null;
+    _onPreDestroy: function () {
+        if (CC_JSB) {
+            this._sgNode.release();
+            this._sgNode = null;
+        }
+        cc.eventManager.removeListeners(this);
+        for (var i = 0, len = this.__eventTargets.length; i < len; ++i) {
+            var target = this.__eventTargets[i];
+            target && target.targetOff(this);
+        }
     },
 
     // ABSTRACT INTERFACES
