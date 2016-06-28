@@ -125,7 +125,7 @@ proto.getTexture = function(){
 
 proto.visit = function(parentCmd){
     var node = this._node;
-    this._propagateFlags(parentCmd);
+    this._propagateFlagsDown(parentCmd);
     //TODO: it will implement dynamic compute child cutting automation.
     var i, len, locChildren = node._children;
     // quick return if not visible

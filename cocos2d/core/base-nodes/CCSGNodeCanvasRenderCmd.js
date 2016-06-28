@@ -334,7 +334,7 @@ _ccsg.Node.RenderCmd.prototype = {
         }
         return this._transform;
     },
-    _propagateFlags: function(parentCmd) {
+    _propagateFlagsDown: function(parentCmd) {
         //return;
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
@@ -454,7 +454,7 @@ proto.transform = function (parentCmd, recursive) {
 
 proto.visit = function (parentCmd) {
     var node = this._node;
-    this._propagateFlags(parentCmd);
+    this._propagateFlagsDown(parentCmd);
     // quick return if not visible
     if (!node._visible)
         return;

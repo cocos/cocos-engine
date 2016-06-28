@@ -143,7 +143,7 @@
 
         var node = this._node, children = node._children;
         var len = children.length;
-        this._propagateFlags(parentCmd);
+        this._propagateFlagsDown(parentCmd);
         // quick return if not visible
         if (!node._visible || len === 0)
             return;
@@ -295,7 +295,7 @@
         }
 
         var node = this._node;
-        this._propagateFlags(parentCmd);
+        this._propagateFlagsDown(parentCmd);
         // quick return if not visible
         if (!node._visible)
             return;

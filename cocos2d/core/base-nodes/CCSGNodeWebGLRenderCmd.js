@@ -45,7 +45,7 @@ proto._updateColor = function(){};
 
 proto.visit = function (parentCmd) {
     var node = this._node;
-    this._propagateFlags(parentCmd);
+    this._propagateFlagsDown(parentCmd);
     // quick return if not visible
     if (!node._visible)
         return;
