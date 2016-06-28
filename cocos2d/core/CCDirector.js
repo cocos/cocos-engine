@@ -209,7 +209,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // WidgetManager
-        cc._widgetManager.init(this);
+        if (cc._widgetManager) {
+            cc._widgetManager.init(this);
+        }
     },
 
     /**

@@ -134,9 +134,15 @@ cc.profiler = (function () {
     };
 
     var afterProjection = function(){
-        _FPSLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-        _SPFLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-        _drawsLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        if (_FPSLabel) {
+            _FPSLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        }
+        if (_SPFLabel) {
+            _SPFLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        }
+        if (_drawsLabel) {
+            _drawsLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        }
     };
 
     var profiler = {

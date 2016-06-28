@@ -44,7 +44,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
     var bundler = Utils.createBundler(sourceFile);
 
     excludes && excludes.forEach(function (file) {
-        bundler.exclude(file);
+        bundler.ignore(file);
     });
 
     var uglifyOption = Utils.uglifyOptions(false, {
@@ -54,27 +54,27 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, callback) {
         CC_JSB: false
     });
 
-    bundler.bundle()
-        .pipe(Source(outFile))
-        .pipe(Buffer())
-        .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Uglify(uglifyOption))
-        .pipe(Sourcemaps.write('./', {
-            sourceRoot: './',
-            includeContent: true,
-            addComment: true
-        }))
-        .pipe(Gulp.dest(outDir))
-        .on('end', callback);
+    bundler = bundler.bundle();
+    bundler = bundler.pipe(Source(outFile));
+    bundler = bundler.pipe(Buffer());
+    bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+    bundler = bundler.pipe(Uglify(uglifyOption));
+    bundler = bundler.pipe(Sourcemaps.write('./', {
+        sourceRoot: './',
+        includeContent: true,
+        addComment: true
+    }));
+    bundler = bundler.pipe(Gulp.dest(outDir));
+    return bundler.on('end', callback);
 };
 
-exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback) {
+exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, createMap) {
     var outDir = Path.dirname(outputFile);
     var outFile = Path.basename(outputFile);
     var bundler = Utils.createBundler(sourceFile);
 
     excludes && excludes.forEach(function (file) {
-        bundler.exclude(file);
+        bundler.ignore(file);
     });
 
     var uglifyOption = Utils.uglifyOptions(true, {
@@ -87,27 +87,29 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback) 
     var rawSize = Size({ gzip: false, pretty: false, showTotal: false, showFiles: false });
     var zippedSize = Size({ gzip: true, pretty: false, showTotal: false, showFiles: false });
 
-    bundler.bundle()
-        .pipe(Source(outFile))
-        .pipe(Buffer())
-        .pipe(Sourcemaps.init({loadMaps: true}))
-        .pipe(Uglify(uglifyOption))
-        .pipe(rawSize)
-        .pipe(zippedSize)
-        .pipe(EventStream.through(null, function () {
-            var raw = rawSize.size;
-            var zipped = zippedSize.size;
-            var percent = ((zipped / raw) * 100).toFixed(2);
-            console.log(`Size of ${outputFile}: minimized: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
-            this.emit('end');
-        }))
-        .pipe(Sourcemaps.write('./', {
+    bundler = bundler.bundle();
+    bundler = bundler.pipe(Source(outFile));
+    bundler = bundler.pipe(Buffer());
+    if (createMap !== false)
+        bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
+    bundler = bundler.pipe(Uglify(uglifyOption));
+    bundler = bundler.pipe(rawSize);
+    bundler = bundler.pipe(zippedSize);
+    bundler = bundler.pipe(EventStream.through(null, function () {
+        var raw = rawSize.size;
+        var zipped = zippedSize.size;
+        var percent = ((zipped / raw) * 100).toFixed(2);
+        console.log(`Size of ${outputFile}: minimized: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
+        this.emit('end');
+    }));
+    if (createMap !== false)
+        bundler = bundler.pipe(Sourcemaps.write('./', {
             sourceRoot: './',
             includeContent: true,
             addComment: true
-        }))
-        .pipe(Gulp.dest(outDir))
-        .on('end', callback);
+        }));
+    bundler = bundler.pipe(Gulp.dest(outDir));
+    return bundler.on('end', callback);
 };
 
 exports.buildPreview = function (sourceFile, outputFile, callback) {
