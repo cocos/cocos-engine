@@ -25,8 +25,8 @@
 
 'use strict';
 
-const Path = require('fire-path');
-const Fs = require('fire-fs');
+const Path = require('path');
+const Fs = require('fs');
 const Del = require('del');
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');

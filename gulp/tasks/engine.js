@@ -26,7 +26,7 @@
 'use strict';
 
 const Utils = require('./utils');
-const Path = require('fire-path');
+const Path = require('path');
 
 const Source = require('vinyl-source-stream');
 const Gulp = require('gulp');

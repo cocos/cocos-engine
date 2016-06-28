@@ -1,7 +1,7 @@
 var gulp = require('gulp');
 var Watchify = require('watchify');
 var Browserify = require('browserify');
-var Fs = require('fire-fs');
+var Fs = require('fs');
 
 function watchFile(opts) {
     var bundler = new Browserify(opts.entries, {
