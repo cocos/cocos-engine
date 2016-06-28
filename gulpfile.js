@@ -25,7 +25,7 @@
 
 'use strict';
 
-const Path = require('fire-path');
+const Path = require('path');
 const gulp = require('gulp');
 const Del = require('del');
 const Shell = require('gulp-shell');
