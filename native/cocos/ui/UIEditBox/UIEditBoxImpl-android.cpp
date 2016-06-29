@@ -36,6 +36,7 @@
 #include "math/Vec2.h"
 #include "ui/UIHelper.h"
 #include "base/CCDirector.h"
+#include "platform/CCFileUtils.h"
 
 NS_CC_BEGIN
 
@@ -112,8 +113,18 @@ void EditBoxImplAndroid::setNativeFont(const char* pFontName, int fontSize)
 {
     auto director = cocos2d::Director::getInstance();
     auto glView = director->getOpenGLView();
+    auto isFontFileExists = cocos2d::FileUtils::getInstance()->isFileExist(pFontName);
+    std::string realFontPath = pFontName;
+    if (isFontFileExists)
+    {
+        realFontPath = cocos2d::FileUtils::getInstance()->fullPathForFilename(pFontName);
+        if (realFontPath.find("assets/") == 0)
+        {
+            realFontPath = realFontPath.substr(strlen("assets/"));
+        }
+    }
     JniHelper::callStaticVoidMethod(editBoxClassName, "setFont",
-                                    _editBoxIndex, pFontName,
+                                    _editBoxIndex, realFontPath,
                                     (float)fontSize * glView->getScaleX());
 }
 
@@ -174,11 +185,8 @@ void EditBoxImplAndroid::setNativePlaceHolder(const char* pText)
 }
 
 void EditBoxImplAndroid::setNativeVisible(bool visible)
-{
-    if (!visible)
-    {
-        nativeCloseKeyboard();
-    }
+{ // don't need to be implemented on android platform.
+    JniHelper::callStaticVoidMethod(editBoxClassName, "setVisible", _editBoxIndex, visible);
 }
 
 void EditBoxImplAndroid::updateNativeFrame(const Rect& rect)
@@ -191,7 +199,7 @@ void EditBoxImplAndroid::updateNativeFrame(const Rect& rect)
 void EditBoxImplAndroid::nativeOpenKeyboard()
 {
     //it will also open up the soft keyboard
-    JniHelper::callStaticVoidMethod(editBoxClassName, "setVisible", _editBoxIndex, true);
+    JniHelper::callStaticVoidMethod(editBoxClassName, "openKeyboard", _editBoxIndex);
 }
 
 
@@ -229,7 +237,7 @@ void editBoxEditingDidEnd(int index, const std::string& text)
 
 const char* EditBoxImplAndroid::getNativeDefaultFontName()
 {
-    return "";
+    return "sans-serif";
 }
 
 } //end of ui namespace
