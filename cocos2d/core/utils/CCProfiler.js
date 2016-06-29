@@ -30,17 +30,21 @@ cc.profiler = (function () {
     var _inited = false, _showFPS = false;
     var _frames = 0, _frameRate = 0, _lastSPF = 0, _accumDt = 0;
     var _afterVisitListener = null,
-        _FPSLabel = document.createElement('div'),
-        _SPFLabel = document.createElement('div'),
-        _drawsLabel = document.createElement('div'),
-        _fps = document.createElement('div');
-
+        _FPSLabel = null,
+        _SPFLabel = null,
+        _drawsLabel = null,
+        _fps = null;
     var LEVEL_DET_FACTOR = 0.6, _levelDetCycle = 10;
     var LEVELS = [0, 10, 20, 30];
     var _fpsCount = [0, 0, 0, 0];
     var _currLevel = 3, _analyseCount = 0, _totalFPS = 0;
 
     var createStatsLabel = function () {
+        _FPSLabel = document.createElement('div');
+        _SPFLabel = document.createElement('div');
+        _drawsLabel = document.createElement('div');
+        _fps = document.createElement('div');
+
         _fps.id = 'fps';
         _fps.style.position = 'absolute';
         _fps.style.padding = '3px';
