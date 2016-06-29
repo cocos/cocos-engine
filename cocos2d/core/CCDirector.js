@@ -625,7 +625,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        cc.renderer.clear();
+        //cc.renderer.clear();
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     },
 
