@@ -167,7 +167,7 @@ cc.profiler = (function () {
 
         hideStats: function () {
             _showFPS = false;
-            if (_fps.parentElement === cc.container) {
+            if (_fps && _fps.parentElement === cc.container) {
                 cc.container.removeChild(_fps);
             }
         },
