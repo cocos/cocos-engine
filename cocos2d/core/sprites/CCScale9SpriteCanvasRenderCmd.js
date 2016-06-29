@@ -95,19 +95,14 @@ proto.rendering = function (ctx, scaleX, scaleY) {
             sw = (rawQuad._tr.texCoords.u - rawQuad._bl.texCoords.u) * textureWidth;
             sh = (rawQuad._bl.texCoords.v - rawQuad._tr.texCoords.v) * textureHeight;
 
-            x = x * scaleX;
-            y = y * scaleY;
-            w = w * scaleX;
-            h = h * scaleY;
-
             wrapper.save();
             context.beginPath();
 
             var quads = node._quads;
             for( var i = 0; i < quads.length; ++i) {
-                context.moveTo(quads[i]._tl.vertices.x * scaleX, -quads[i]._tl.vertices.y * scaleY);
-                context.lineTo(quads[i]._bl.vertices.x * scaleX, -quads[i]._bl.vertices.y * scaleY);
-                context.lineTo(quads[i]._tr.vertices.x * scaleX, -quads[i]._tr.vertices.y * scaleY);
+                context.moveTo(quads[i]._tl.vertices.x, -quads[i]._tl.vertices.y);
+                context.lineTo(quads[i]._bl.vertices.x, -quads[i]._bl.vertices.y);
+                context.lineTo(quads[i]._tr.vertices.x, -quads[i]._tr.vertices.y);
             }
 
             context.clip();
@@ -138,11 +133,6 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                 sy = quads[i]._tl.texCoords.v * textureHeight;
                 sw = (quads[i]._tr.texCoords.u - quads[i]._bl.texCoords.u) * textureWidth;
                 sh = (quads[i]._bl.texCoords.v - quads[i]._tr.texCoords.v) * textureHeight;
-
-                x = x * scaleX;
-                y = y * scaleY;
-                w = w * scaleX;
-                h = h * scaleY;
 
                 if (this._textureToRender._pattern !== "") {
                     wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));

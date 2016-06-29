@@ -272,7 +272,7 @@ cc.rendererCanvas = {
             this.save();
             this._context.transform(t.a, -t.b, -t.c, t.d, t.tx * scaleX, -(t.ty * scaleY));
         } else {
-            this._context.setTransform(t.a, -t.b, -t.c, t.d, this._offsetX + t.tx * scaleX, this._realOffsetY - (t.ty * scaleY));
+            this._context.setTransform(scaleX * t.a, scaleY * -t.b, scaleX * -t.c, scaleY * t.d, this._offsetX + t.tx * scaleX, this._realOffsetY - (t.ty * scaleY));
         }
     };
 
