@@ -108,13 +108,8 @@ inputManager.didAccelerate = function (eventData) {
         z = (eventData["alpha"] / 90) * 0.981;
     }
 
-    if(cc.sys.os === cc.sys.OS_ANDROID){
-        mAcceleration.x = -x;
-        mAcceleration.y = -y;
-    }else{
-        mAcceleration.x = x;
-        mAcceleration.y = y;
-    }
+    mAcceleration.x = x;
+    mAcceleration.y = y;
     mAcceleration.z = z;
 
     mAcceleration.timestamp = eventData.timeStamp || Date.now();
