@@ -375,11 +375,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._renderCmd.setInputFlag(inputFlag);
     },
 
-    getText: function () {
-        cc.log('Please use the getString');
-        return this.getString();
-    },
-
     getString: function () {
         return this._text;
     },
@@ -478,12 +473,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
 (function (polyfill) {
     var EditBoxImpl = function () {
-
     };
 
     var proto = EditBoxImpl.prototype = Object.create(Object.prototype);
-
-
 
     proto.updateMatrix = function () {
         if (!this._edTxt) return;
