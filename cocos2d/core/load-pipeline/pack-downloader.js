@@ -96,13 +96,16 @@ module.exports = {
 
         var unpacker = globalUnpackers[packUuid];
         if (unpacker) {
-            var json = unpacker.retrieve(uuid);
-            if (json) {
-                callback(null, json);
-            }
-            else {
-                error(callback, uuid, packUuid);
-            }
+            // ensure async
+            setTimeout(function () {
+                var json = unpacker.retrieve(uuid);
+                if (json) {
+                    callback(null, json);
+                }
+                else {
+                    error(callback, uuid, packUuid);
+                }
+            }, 0);
         }
         else {
             this._loadNewPack(uuid, packUuid, callback);
