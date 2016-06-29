@@ -385,6 +385,7 @@ cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw',
             cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneLaunched, this);
         }
         else if (!value && this._enabledDebugDraw) {
+            this._debugDrawer.clear();
             cc.director.getScene()._sgNode.removeChild(this._debugDrawer);
             cc.director.off(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneLaunched, this);
         }
