@@ -1161,6 +1161,7 @@ _ccsg.Node = cc.Class({
             if (this._isTransitionFinished)
                 child.onEnterTransitionDidFinish();
         }
+        child._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
         if (this._cascadeColorEnabled)
             child._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
         if (this._cascadeOpacityEnabled)
