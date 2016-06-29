@@ -116,6 +116,13 @@ cc.follow = function (followedNode, rect) {
     return new cc.Follow(followedNode._sgNode, rect);
 };
 
+cc.Follow.prototype.update = function(dt) {
+    var target = this.getTarget();
+    if (target._owner) {
+        target._owner.setPosition(target.getPosition());
+    }
+};
+
 // Special call func
 cc.callFunc = function (selector, selectorTarget, data) {
     var callback = function (sender, data) {
