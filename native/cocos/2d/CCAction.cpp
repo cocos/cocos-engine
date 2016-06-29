@@ -58,6 +58,16 @@ Action::~Action()
     CCLOGINFO("deallocing Action: %p - tag: %i", this, _tag);
 }
 
+void Action::sendUpdateEventToScript(float dt, Action *actionObject)
+{
+#if CC_ENABLE_SCRIPT_BINDING
+	if (_scriptType == kScriptTypeJavascript)
+	{
+		ScriptEngineManager::sendActionEventToJS(actionObject, kActionUpdate, (void *)&dt);
+	}
+#endif
+}
+
 std::string Action::description() const
 {
     return StringUtils::format("<Action | Tag = %d", _tag);
@@ -271,6 +281,14 @@ void Follow::step(float dt)
 {
     CC_UNUSED_PARAM(dt);
 
+    Vec2 targetWorldPos = _target->convertToWorldSpaceAR(Vec2::ZERO);
+    Vec2 followedWorldPos = _followedNode->convertToWorldSpaceAR(Vec2::ZERO);
+    // Calculation of Action and follow the offset value
+    Vec2 delta = targetWorldPos - followedWorldPos;
+    // Calculation Centre Point and follow the offset value
+    Vec2 offset = _halfScreenSize - followedWorldPos;
+    Vec2 tempPos = _target->getParent()->convertToNodeSpaceAR(followedWorldPos + delta + offset);
+
     if(_boundarySet)
     {
         // whole map fits inside a single screen, no need to modify the position - unless map boundaries are increased
@@ -278,16 +296,15 @@ void Follow::step(float dt)
         {
             return;
         }
-
-        Vec2 tempPos = _halfScreenSize - _followedNode->getPosition();
-
         _target->setPosition(clampf(tempPos.x, _leftBoundary, _rightBoundary),
                                    clampf(tempPos.y, _bottomBoundary, _topBoundary));
     }
     else
     {
-        _target->setPosition(_halfScreenSize - _followedNode->getPosition());
+        _target->setPosition(tempPos);
     }
+
+    sendUpdateEventToScript(dt, this);
 }
 
 bool Follow::isDone() const
