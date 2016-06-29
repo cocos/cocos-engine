@@ -133,7 +133,7 @@ function wrapFile() {
     });
     var footerFile = new File({
         cwd: cwd, base: cwd, path: Path.resolve('footer.js'),
-        contents: new Buffer('\n}).call(window, cc, ccui, ccs, cp);\n')
+        contents: new Buffer('\n}).call(window, cc, ccui, ccs, cp);\nexports.success=true;\n')
     });
     var isHeaderInserted = false;
     return es.through(function (file) {
