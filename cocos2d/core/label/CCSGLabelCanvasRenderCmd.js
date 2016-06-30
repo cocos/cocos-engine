@@ -29,7 +29,50 @@
 
     };
 
+
     var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
+
+    //https://videlais.com/2014/03/16/the-many-and-varied-problems-with-measuring-font-height-for-html5-canvas/
+    proto.determineFontHeightInPixels = function (fontStyle, text, canvasWidth, canvasHeight) {
+        var result = 0;
+        var fontDraw = document.createElement("canvas");
+        fontDraw.width = 100;
+        fontDraw.height = canvasHeight;
+        var ctx = fontDraw.getContext('2d');
+        ctx.fillRect(0, 0, fontDraw.width, fontDraw.height);
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = 'white';
+        ctx.font = fontStyle;
+        ctx.fillText("M", 0, 0);
+        var pixels = ctx.getImageData(0, 0, fontDraw.width, fontDraw.height).data;
+        var start = -1;
+        var end = -1;
+        for (var row = 0; row < fontDraw.height; row++)
+        {
+            for (var column = 0; column < fontDraw.width; column++)
+            {
+                var index = (row * fontDraw.width + column) * 4;
+                if (pixels[index] === 0) {
+                    if (column === fontDraw.width - 1 && start !== -1) {
+                        end = row;
+                        row = fontDraw.height;
+                        break;
+                    }
+                    continue;
+                }
+                else
+                {
+                    if (start === -1)
+                    {
+                        start = row;
+                    }
+                    break;
+                }
+            }
+        }
+        result = end - start;
+        return result;
+    };
 
 
     proto.updateStatus = function () {
@@ -95,7 +138,11 @@
             nodeSpacingY = nodeSpacingY * node._fontSize / node._drawFontsize;
         }
         //float to integer, much faster than Math.floor
-        return nodeSpacingY | 0;
+        var lineHeight = nodeSpacingY | 0;
+        if (node._overFlow === _ccsg.Label.Overflow.SHRINK && node._fontSize < node._drawFontsize) {
+            lineHeight = this._lineHeight;
+        }
+        return lineHeight;
     };
 
     proto._prepareQuad = function () {
@@ -207,7 +254,9 @@
                     sText = text.substr(0, fuzzyLen);
                 }
             }
-            wrappedWords.push(sText);
+            if (sText.trim().length > 0) {
+                wrappedWords.push(sText);
+            }
             text = sLine || tmpText;
             allWidth = ctx.measureText(text).width;
         }
@@ -222,9 +271,8 @@
     proto._calculateLabelFont = function() {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
-        var drawFontize = node._fontSize;
 
-        var fontDesc = drawFontize.toString() + 'px ';
+        var fontDesc = this._drawFontsize.toString() + 'px ';
         var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
         fontDesc = fontDesc + fontFamily;
         this._labelContext.font = fontDesc;
@@ -233,28 +281,65 @@
 
         if (_ccsg.Label.Overflow.SHRINK === node._overFlow) {
             this._splitedStrings = paragraphedStrings;
-            var i;
+            var i = 0;
+            var totalHeight = 0;
+            var maxLength = 0;
 
             if (node._isWrapText) {
-                var totalLength = 0;
-                var canvasWidthNoMargin = this._canvasSize.width - 2* this._getMargin();
-                for (i = 0; i < paragraphedStrings.length; ++i) {
-                    totalLength += ((paragraphLength[i] / canvasWidthNoMargin + 1) | 0) * canvasWidthNoMargin;
-                }
-                var heightRatio = this._canvasSize.height / this._getLineHeight();
-                heightRatio = heightRatio < 1 ? 1: heightRatio;
-                var scale = canvasWidthNoMargin * (heightRatio | 0) / totalLength;
-                node._fontSize = (drawFontize * Math.min(Math.sqrt(scale), 1)) | 0;
-                fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
 
-                this._splitedStrings = [];
-                for (var i = 0; i < paragraphedStrings.length; ++i) {
-                    this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], this._canvasSize.width, this._labelContext));
+                var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
+                var canvasHeightNoMargin = this._canvasSize.height - 2 * this._getMargin();
+                totalHeight = canvasHeightNoMargin + 1;
+                maxLength = canvasWidthNoMargin + 1;
+                var actualFontSize = this._drawFontsize + 1;
+                var textFragment = "";
+                // optimize for less calculation time
+                if (actualFontSize > this._canvasSize.height) {
+                    actualFontSize = this._canvasSize.height;
+                }
+
+                while (totalHeight > canvasHeightNoMargin || maxLength > canvasWidthNoMargin) {
+                    actualFontSize = actualFontSize - 1;
+                    node._fontSize = actualFontSize;
+                    fontDesc = actualFontSize.toString() + 'px ' + fontFamily;
+                    this._labelContext.font = fontDesc;
+
+                    this._splitedStrings = [];
+                    totalHeight = 0;
+                    for (i = 0; i < paragraphedStrings.length; ++i) {
+                        var j = 0;
+                        textFragment = this._fragmentText(paragraphedStrings[i],
+                                                              canvasWidthNoMargin,
+                                                              this._labelContext);
+                        var isBiggerSize = false;
+                        while(j < textFragment.length) {
+                            var measureHeight = this.determineFontHeightInPixels(fontDesc,
+                                                                            textFragment[j],
+                                                                            canvasWidthNoMargin,
+                                                                                 canvasHeightNoMargin);
+                            var measureWidth = this._labelContext.measureText(textFragment[j]).width;
+                            // console.log("width = " + measureWidth + ", height = " + measureHeight);
+                            if (measureHeight <= 0) {
+                                isBiggerSize = true;
+                                break;
+                            } else {
+                                maxLength = measureWidth;
+                                if(actualFontSize < node._drawFontsize) {
+                                    this._lineHeight = measureHeight + 4;
+                                }
+                                totalHeight += Math.max(measureHeight, this._getLineHeight());
+                            }
+                            ++j;
+                        }
+                        if (isBiggerSize) {
+                            break;
+                        }
+                        this._splitedStrings = this._splitedStrings.concat(textFragment);
+                    }
                 }
             }
             else {
-                var maxLength = 0;
-                var totalHeight = paragraphedStrings.length * this._getLineHeight();
+                totalHeight = paragraphedStrings.length * this._getLineHeight();
 
                 for (i = 0; i < paragraphedStrings.length; ++i) {
                     if (maxLength < paragraphLength[i]) {
@@ -264,7 +349,7 @@
                 var scaleX = (this._canvasSize.width - 2 * this._getMargin()) / maxLength;
                 var scaleY = this._canvasSize.height / totalHeight;
 
-                node._fontSize = (drawFontize * Math.min(1, scaleX, scaleY)) | 0;
+                node._fontSize = (this._drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
                 fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
             }
         }
@@ -299,7 +384,6 @@
 
     proto._calculateSplitedStrings = function() {
         var node = this._node;
-        var ctx = this._labelContext;
 
         var paragraphedStrings = node._string.split('\n');
 
@@ -307,7 +391,10 @@
         if (node._isWrapText) {
             this._splitedStrings = [];
             for (i = 0; i < paragraphedStrings.length; ++i) {
-                this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], this._canvasSize.width, ctx));
+                var textFragment = this._fragmentText(paragraphedStrings[i],
+                                                      this._canvasSize.width,
+                                                      this._labelContext);
+                this._splitedStrings = this._splitedStrings.concat(textFragment);
             }
         }
         else {
@@ -406,8 +493,9 @@
 
     proto._bakeLabel = function () {
         var node = this._node;
-
+        this._drawFontsize = node._drawFontsize;
         this._canvasSize = this._calculateCanvasSize();
+        this._lineHeight = node._lineHeight;
 
         //Note: don't change the calling order of the following 3 statements
         this._fontDesc = this._calculateLabelFont();
@@ -427,7 +515,6 @@
     proto._updateTexture = function() {
         this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
 
-        this._fontDesc = this._calculateLabelFont();
         this._labelContext.font = this._fontDesc;
 
         var startPosition = this._calculateFillTextStartPosition();
@@ -445,7 +532,8 @@
                 this._labelContext.globalCompositeOperation = 'source-over';
                 this._labelContext.strokeStyle = 'rgb(' + strokeColor.r + ',' + strokeColor.g + ',' + strokeColor.b + ')';
                 this._labelContext.lineWidth = this._node.getOutlineWidth() * 2;
-                this._labelContext.strokeText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+                this._labelContext.strokeText(this._splitedStrings[i],
+                                              startPosition.x, startPosition.y + i * lineHeight);
             }
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
         }
