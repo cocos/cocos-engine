@@ -387,7 +387,7 @@ bool JSB_closeWindow(JSContext *cx, uint32_t argc, jsval *vp)
         _event->release();
 
         ScriptingCore::getInstance()->cleanup();
-    }
+    });
     _event->retain();
     Director::getInstance()->end();
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
