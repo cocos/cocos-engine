@@ -35,6 +35,7 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./CCScene');
 
     require('./components');
+    require('./graphics');
     require('./collider');
 }
 
