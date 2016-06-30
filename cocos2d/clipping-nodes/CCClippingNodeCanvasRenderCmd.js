@@ -44,7 +44,7 @@ proto.setStencil = function(stencil){
     if (stencil instanceof cc.DrawNode) {
 
     }else{
-        cc.error('do not support other type as stencil');
+        cc.error('only cc.DrawNode is accepted as stencil');
     }
 };
 
