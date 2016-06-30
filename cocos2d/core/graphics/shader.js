@@ -22,21 +22,30 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+ 
+var vert = [
+    'attribute vec4 a_position;',
+    '',
+    'void main()',
+    '{',
+    // '    gl_Position = CC_MVPMatrix * a_position;',
+    '    gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;',
+    '}'
+];
 
-require('./platform');
-require('./assets');
-
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
-    }
-
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./graphics');
-    require('./collider');
-}
-
-require('./base-ui/CCWidgetManager');
+var frag = [
+    '#ifdef GL_ES',
+    'precision mediump float;',
+    '#endif',
+    '',
+    'uniform vec4 color;',
+    '',
+    'void main(void) {',
+    '    gl_FragColor = color;',
+    '}'
+];
+    
+module.exports = {
+    vert: vert.join(' \n'),
+    frag: frag.join(' \n')
+};

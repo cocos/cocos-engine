@@ -23,20 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./platform');
-require('./assets');
+'use strict';
 
-if (!CC_EDITOR || !Editor.isMainProcess) {
-    if (!CC_JSB) {
-        require('./sprites/CCSpriteFrameCache');
-    }
-
-    require('./CCNode');
-    require('./CCScene');
-
-    require('./components');
-    require('./graphics');
-    require('./collider');
+var GraphicsNode;
+if (!cc.sys.isNative) {
+    GraphicsNode = _ccsg.GraphicsNode = require('./graphics-node');
+}
+else {
+    GraphicsNode = _ccsg.GraphicsNode = cc.GraphicsNode;
 }
 
-require('./base-ui/CCWidgetManager');
+var misc = require('../utils/misc');
+misc.propertyDefine(GraphicsNode, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'deviceRatio', 'strokeColor', 'fillColor'], {});
+
+require('./graphics');
