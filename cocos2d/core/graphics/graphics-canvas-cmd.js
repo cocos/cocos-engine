@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
 var Js = cc.js;
 
 var LineCap     = require('./types').LineCap;
@@ -265,12 +265,7 @@ Js.mixin(_p, {
     }
 });
 
-
-cc.defineGetterSetter(_p, 'strokeColor', null, _p.setStrokeColor);
-cc.defineGetterSetter(_p, 'fillColor',   null, _p.setFillColor);
-cc.defineGetterSetter(_p, 'lineWidth',   null, _p.setLineWidth);
-cc.defineGetterSetter(_p, 'lineCap',     null, _p.setLineCap);
-cc.defineGetterSetter(_p, 'lineJoin',    null, _p.setLineJoin);
-cc.defineGetterSetter(_p, 'miterLimit',  null, _p.setMiterLimit);
+var misc = require('../utils/misc');
+misc.propertyDefine(CanvasRenderCmd, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'strokeColor', 'fillColor'], {});
 
 module.exports = CanvasRenderCmd;

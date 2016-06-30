@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
+
 var CanvasRenderCmd = require('./graphics-canvas-cmd');
 var WebGLRenderCmd  = require('./graphics-webgl-cmd');
 
@@ -167,12 +167,5 @@ Js.mixin(_p, {
         this._renderCmd.fill();
     }
 });
-
-cc.defineGetterSetter(_p, 'strokeColor', _p.getStrokeColor, _p.setStrokeColor);
-cc.defineGetterSetter(_p, 'fillColor',   _p.getFillColor,   _p.setFillColor);
-cc.defineGetterSetter(_p, 'lineWidth',   _p.getLineWidth,   _p.setLineWidth);
-cc.defineGetterSetter(_p, 'lineCap',     _p.getLineCap,     _p.setLineCap);
-cc.defineGetterSetter(_p, 'lineJoin',    _p.getLineJoin,    _p.setLineJoin);
-
 
 module.exports = GraphicsNode;

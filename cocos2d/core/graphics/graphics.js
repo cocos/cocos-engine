@@ -157,7 +157,7 @@ var Graphics = cc.Class({
     },
 
     _createSgNode: function () {
-        return new cc.GraphicsNode();
+        return new _ccsg.GraphicsNode();
     },
 
     _initSgNode: function () {
