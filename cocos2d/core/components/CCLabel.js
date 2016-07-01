@@ -115,6 +115,28 @@ var Overflow = _ccsg.Label.Overflow;
  * @property {Number} SystemFont
  */
 var LabelType = _ccsg.Label.Type;
+
+
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
+
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -137,6 +159,18 @@ var Label = cc.Class({
         inspector: 'app://editor/page/inspector/label.html',
     },
 
+    _updateSgNodeString: function() {
+        this._sgNode.setString(this.string);
+        this._updateNodeSize();
+    },
+
+    _updateSgNodeFontSize: function() {
+        if (this._sgNode) {
+            this._sgNode.setFontSize(this._fontSize);
+            this._updateNodeSize();
+        }
+    },
+
     properties: {
         _useOriginalSize: true,
         /**
@@ -150,10 +184,13 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.string',
             notify: function () {
                 if (this._sgNode) {
-                    this._sgNode.setString(this.string);
-                    this._updateNodeSize();
-                    if(CC_EDITOR && this.overflow === cc.Label.Overflow.SHRINK) {
-                        this.fontSize = this._userDefinedFontSize;
+                    if (CC_EDITOR) {
+                        if(this.overflow === cc.Label.Overflow.SHRINK) {
+                            this.fontSize = this._userDefinedFontSize;
+                        }
+                        this._debouncedUpdateSgNodeString();
+                    } else {
+                        this._updateSgNodeString();
                     }
                 }
             }
@@ -193,6 +230,27 @@ var Label = cc.Class({
             animatable: false
         },
 
+        _actualFontSize: {
+            default: 40,
+        },
+
+        /**
+         * !#en The actual rendering font size in shrink mode
+         * !#zh SHRINK 模式下面文本实际渲染的字体大小
+         * @property {Number} actualFontSize
+         */
+        actualFontSize: {
+            displayName: 'Actual Font Size',
+            animatable: false,
+            readonly: true,
+            get: function () {
+                if (this._sgNode) {
+                    this._actualFontSize = this._sgNode.getFontSize();
+                }
+                return this._actualFontSize;
+            }
+        },
+
         _fontSize: 40,
         /**
          * !#en Font size of label.
@@ -201,19 +259,15 @@ var Label = cc.Class({
          */
         fontSize: {
             get: function(){
-                if (this._sgNode) {
-                    this._fontSize = this._sgNode.getFontSize();
-                }
                 return this._fontSize;
             },
             set: function(value){
                 this._fontSize = value;
                 if(CC_EDITOR) {
                     this._userDefinedFontSize = value;
-                }
-                if (this._sgNode) {
-                    this._sgNode.setFontSize(value);
-                    this._updateNodeSize();
+                    this._debouncedUpdateFontSize();
+                } else {
+                    this._updateSgNodeFontSize();
                 }
             },
             tooltip: 'i18n:COMPONENT.label.font_size',
@@ -382,6 +436,10 @@ var Label = cc.Class({
 
     __preload: function () {
         this._super();
+        if (CC_EDITOR) {
+            this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
+            this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize, 200);
+        }
 
         var sgSizeInitialized = this._sgNode._isUseSystemFont;
         if (sgSizeInitialized) {
