@@ -36,18 +36,6 @@ function downloadScript (item, callback) {
     callback(null, url);
 }
 
-function downloadText (item, callback) {
-    var url = item.url;
-
-    var result = jsb.fileUtils.getStringFromFile(url);
-    if (typeof result === 'string' && result) {
-        callback(null, result);
-    }
-    else {
-        callback(new Error('Download text failed: ' + url));
-    }
-}
-
 function downloadAudio (item, callback) {
     callback(null, item.url);
 }
@@ -75,22 +63,6 @@ cc.loader.addDownloadHandlers({
     'mp4' : downloadAudio,
     'm4a' : downloadAudio,
 
-    // Txt
-    'txt' : downloadText,
-    'xml' : downloadText,
-    'vsh' : downloadText,
-    'fsh' : downloadText,
-    'atlas' : downloadText,
-
-    'tmx' : downloadText,
-    'tsx' : downloadText,
-
-    'json' : downloadText,
-    'ExportJson' : downloadText,
-    'plist' : downloadText,
-
-    'fnt' : downloadText,
-
     // Font
     'font' : empty,
     'eot' : empty,
@@ -98,8 +70,6 @@ cc.loader.addDownloadHandlers({
     'woff' : empty,
     'svg' : empty,
     'ttc' : empty,
-
-    'default' : downloadText
 });
 
 

@@ -625,7 +625,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        cc.renderer.clear();
+        //cc.renderer.clear();
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     },
 
@@ -647,7 +647,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Delay run / replace scene to the end of the frame
-        this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+        this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     },

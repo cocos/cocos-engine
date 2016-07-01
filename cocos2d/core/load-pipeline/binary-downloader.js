@@ -113,6 +113,6 @@ function downloadBinary (url, callback) {
         };
     }
     xhr.send(null);
-};
+}
 
 module.exports = downloadBinary;

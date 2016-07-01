@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 var JsonUnpacker = require('./json-unpacker');
+var downloadText = require('./text-downloader');
 
 // {assetUuid: packUuid}
 var uuidToPack = {};
@@ -55,7 +56,7 @@ module.exports = {
 
     _loadNewPack: function (uuid, packUuid, callback) {
         var packUrl = cc.AssetLibrary.getImportedDir(packUuid) + '/' + packUuid + '.json';
-        cc.loader.load(packUrl, function (err, packJson) {
+        downloadText({ url: packUrl }, function (err, packJson) {
             if (err) {
                 cc.error('Failed to download package for ' + uuid);
                 return callback(err);
@@ -96,13 +97,16 @@ module.exports = {
 
         var unpacker = globalUnpackers[packUuid];
         if (unpacker) {
-            var json = unpacker.retrieve(uuid);
-            if (json) {
-                callback(null, json);
-            }
-            else {
-                error(callback, uuid, packUuid);
-            }
+            // ensure async
+            setTimeout(function () {
+                var json = unpacker.retrieve(uuid);
+                if (json) {
+                    callback(null, json);
+                }
+                else {
+                    error(callback, uuid, packUuid);
+                }
+            }, 0);
         }
         else {
             this._loadNewPack(uuid, packUuid, callback);
