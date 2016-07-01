@@ -162,9 +162,6 @@ var Label = cc.Class({
     _updateSgNodeString: function() {
         this._sgNode.setString(this.string);
         this._updateNodeSize();
-        if(CC_EDITOR && this.overflow === cc.Label.Overflow.SHRINK) {
-            this.fontSize = this._userDefinedFontSize;
-        }
     },
 
     _updateSgNodeFontSize: function() {
@@ -188,6 +185,9 @@ var Label = cc.Class({
             notify: function () {
                 if (this._sgNode) {
                     if (CC_EDITOR) {
+                        if(this.overflow === cc.Label.Overflow.SHRINK) {
+                            this.fontSize = this._userDefinedFontSize;
+                        }
                         this._debouncedUpdateSgNodeString();
                     } else {
                         this._updateSgNodeString();
@@ -234,6 +234,11 @@ var Label = cc.Class({
             default: 40,
         },
 
+        /**
+         * !#en The actual rendering font size in shrink mode
+         * !#zh SHRINK 模式下面文本实际渲染的字体大小
+         * @property {Number} actualFontSize
+         */
         actualFontSize: {
             displayName: 'Actual Font Size',
             animatable: false,
@@ -431,8 +436,10 @@ var Label = cc.Class({
 
     __preload: function () {
         this._super();
-        this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString.bind(this), 200);
-        this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize.bind(this), 200);
+        if (CC_EDITOR) {
+            this._debouncedUpdateSgNodeString = debounce(this._updateSgNodeString, 200);
+            this._debouncedUpdateFontSize = debounce(this._updateSgNodeFontSize, 200);
+        }
 
         var sgSizeInitialized = this._sgNode._isUseSystemFont;
         if (sgSizeInitialized) {
