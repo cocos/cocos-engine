@@ -283,11 +283,9 @@ void Follow::step(float dt)
 
     Vec2 targetWorldPos = _target->convertToWorldSpaceAR(Vec2::ZERO);
     Vec2 followedWorldPos = _followedNode->convertToWorldSpaceAR(Vec2::ZERO);
-    // Calculation of Action and follow the offset value
+    // compute the offset between followed and target node
     Vec2 delta = targetWorldPos - followedWorldPos;
-    // Calculation Centre Point and follow the offset value
-    Vec2 offset = _halfScreenSize - followedWorldPos;
-    Vec2 tempPos = _target->getParent()->convertToNodeSpaceAR(followedWorldPos + delta + offset);
+    Vec2 tempPos = _target->getParent()->convertToNodeSpaceAR(delta + _halfScreenSize);
 
     if(_boundarySet)
     {
