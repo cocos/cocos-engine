@@ -324,7 +324,7 @@ JS.mixin(Downloader.prototype, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers: function (extMap) {
-        this.extMap = JS.mixin(this.extMap, extMap);
+        JS.mixin(this.extMap, extMap);
     },
 
     handle: function (item, callback) {
