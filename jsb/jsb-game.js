@@ -148,16 +148,21 @@ cc.js.mixin(cc.game, {
 
 //  @ Persist root node section
     /**
-     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition
+     * !#en
+     * Add a persistent root node to the game, the persistent node won't be destroyed during scene transition.<br/>
+     * The target node must be placed in the root level of hierarchy, otherwise this API won't have any effect.
+     * !#zh
+     * 声明常驻根节点，该节点不会被在场景切换中被销毁。<br/>
+     * 目标节点必须位于为层级的根节点，否则无效。
      * @method addPersistRootNode
-     * @param {ENode} node - The node to be made persistent
+     * @param {Node} node - The node to be made persistent
      */
     addPersistRootNode: function (node) {
-        if (!(node instanceof cc.Node) || !node._id) {
+        if (!(node instanceof cc.Node) || !node.uuid) {
             cc.warn('The target can not be made persist because it\'s not a cc.Node or it doesn\'t have _id property.');
             return;
         }
-        var id = node._id;
+        var id = node.uuid;
         if (!this._persistRootNodes[id]) {
             var scene = cc.director._scene;
             if (cc.isValid(scene)) {
