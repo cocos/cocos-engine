@@ -429,7 +429,7 @@ var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.Rend
 proto.constructor = _ccsg.Node.CanvasRenderCmd;
 
 proto._notifyRegionStatus = function(status) {
-    if(this._regionFlag < status) {
+    if(this._needDraw && this._regionFlag < status) {
         this._regionFlag = status;
     }
 };
@@ -440,6 +440,9 @@ proto._updateCurrentRegions = function() {
     var temp = this._currentRegion;
     this._currentRegion = this._oldRegion;
     this._oldRegion = temp;
+    if(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble === this._regionFlag && (!this._currentRegion.isEmpty())) {
+        this._oldRegion.union(this._currentRegion);
+    }
     this._currentRegion.updateRegion(bb, this._worldTransform);
 };
 
