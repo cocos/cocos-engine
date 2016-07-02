@@ -119,7 +119,7 @@ cc.rendererCanvas = {
         wrapper.computeRealOffsetY();
         var dirtyList = this._dirtyRegion.getDirtyRegions();
         var locCmds = this._renderCmds, i, len;
-        var allNeedDraw = this._allNeedDraw || !dirtyRegion.enabled || true;
+        var allNeedDraw = this._allNeedDraw || !dirtyRegion.enabled;
         if(!allNeedDraw) {
             this._collectDirtyRegion();
             this._beginDrawDirtyRegion(wrapper);
