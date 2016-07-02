@@ -43,7 +43,7 @@
         ctx.textBaseline = 'top';
         ctx.fillStyle = 'white';
         ctx.font = fontStyle;
-        ctx.fillText("M", 0, 0);
+        ctx.fillText(text, 0, 0);
         var pixels = ctx.getImageData(0, 0, fontDraw.width, fontDraw.height).data;
         var start = -1;
         var end = -1;
