@@ -325,7 +325,7 @@
                             } else {
                                 maxLength = measureWidth;
                                 if(actualFontSize < node._drawFontsize) {
-                                    this._lineHeight = measureHeight + 4;
+                                    this._lineHeight = measureHeight * 1.2;
                                 }
                                 totalHeight += Math.max(measureHeight, this._getLineHeight());
                             }
