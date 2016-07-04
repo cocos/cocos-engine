@@ -657,6 +657,10 @@ var Layout = cc.Class({
         var allChildrenBoundingBox = null;
 
         children.forEach(function(child){
+            if (!child.activeInHierarchy) {
+                return;
+            }
+
             if(!allChildrenBoundingBox){
                 allChildrenBoundingBox = child.getBoundingBoxToWorld();
             } else {
