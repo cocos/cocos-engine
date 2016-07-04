@@ -203,7 +203,7 @@ cc.js.mixin(cc.director, {
         }
 
         // Delay run / replace scene to the end of the frame
-        this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+        this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     },

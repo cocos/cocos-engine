@@ -26,6 +26,10 @@ var JS = require('../platform/js');
 var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
 var PackDownloader = require('./pack-downloader');
+// var downloadBinary = require('./binary-downloader');
+var downloadText = require('./text-downloader');
+
+var urlAppendTimestamp = require('./utils').urlAppendTimestamp;
 
 var downloadAudio;
 if (!CC_EDITOR || !Editor.isMainProcess) {
@@ -33,32 +37,6 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
 }
 else {
     downloadAudio = null;
-}
-// var downloadBinary = require('binary-downloader');
-
-function isUrlCrossOrigin (url) {
-    if (!url) {
-        cc.log('invalid URL');
-        return false;
-    }
-    var startIndex = url.indexOf('://');
-    if (startIndex === -1)
-        return false;
-
-    var endIndex = url.indexOf('/', startIndex + 3);
-    var urlOrigin = (endIndex === -1) ? url : url.substring(0, endIndex);
-    return urlOrigin !== location.origin;
-}
-
-var _noCacheRex = /\?/;
-function urlAppendTimestamp (url) {
-    if (cc.game.config['noCache'] && typeof url === 'string') {
-        if(_noCacheRex.test(url))
-            url += '&_t=' + (new Date() - 0);
-        else
-            url += '?_t=' + (new Date() - 0);
-    }
-    return url;
 }
 
 function downloadScript (item, callback, isAsync) {
@@ -82,47 +60,6 @@ function downloadScript (item, callback, isAsync) {
     s.addEventListener('load', loadHandler, false);
     s.addEventListener('error', errorHandler, false);
     d.body.appendChild(s);
-}
-
-function downloadText (item, callback) {
-    var url = item.url,
-        xhr = Pipeline.getXMLHttpRequest(),
-        errInfo = 'Load ' + url + ' failed!',
-        navigator = window.navigator;
-
-    url = urlAppendTimestamp(url);
-
-    xhr.open('GET', url, true);
-    if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
-        // IE-specific logic here
-        xhr.setRequestHeader('Accept-Charset', 'utf-8');
-        xhr.onreadystatechange = function () {
-            if(xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    callback(null, xhr.responseText);
-                }
-                else {
-                    callback({status:xhr.status, errorMessage:errInfo});
-                }
-            }
-        };
-    } else {
-        if (xhr.overrideMimeType) xhr.overrideMimeType('text\/plain; charset=utf-8');
-        xhr.onload = function () {
-            if(xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    callback(null, xhr.responseText);
-                }
-                else {
-                    callback({status:xhr.status, errorMessage:errInfo});
-                }
-            }
-        };
-        xhr.onerror = function(){
-            callback({status:xhr.status, errorMessage:errInfo});
-        };
-    }
-    xhr.send(null);
 }
 
 function downloadTextSync (item) {
@@ -387,7 +324,7 @@ JS.mixin(Downloader.prototype, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers: function (extMap) {
-        this.extMap = JS.mixin(this.extMap, extMap);
+        JS.mixin(this.extMap, extMap);
     },
 
     handle: function (item, callback) {

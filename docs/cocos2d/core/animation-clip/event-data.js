@@ -1,3 +1,6 @@
+// frame    : The exactly time in second.
+// func     : Callback function name
+// params   : Callback parameters
 [
     { frame: 0, func: 'onAnimationEvent1', params:['param-1', 'param-2'] },
     { frame: 2, func: 'onAnimationEvent3', params:['param-1', 'param-2'] },

@@ -249,8 +249,8 @@ var AudioSource = cc.Class({
      */
     rewind: function(){
         if ( this.audio ) {
-            cc.audioEngine.stopEffect(this.audio);
-            cc.audioEngine.playEffect(this.audio);
+            this.stop();
+            this.play();
         }
     },
 

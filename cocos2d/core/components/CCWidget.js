@@ -390,7 +390,7 @@ var Widget = cc.Class({
          * @default false
          */
         isAlignOnce: {
-            default: false,
+            default: true,
             tooltip: 'i18n:COMPONENT.widget.align_once',
             displayName: "AlignOnce"
         },

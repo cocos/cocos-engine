@@ -217,10 +217,13 @@ var _Deserializer = (function () {
     var _dereference = function (self) {
         // 这里不采用遍历反序列化结果的方式，因为反序列化的结果如果引用到复杂的外部库，很容易堆栈溢出。
         var deserializedList = self.deserializedList;
+        var idPropList = self._idPropList;
+        var idList = self._idList;
+        var idObjList = self._idObjList;
         for (var i = 0, len = self._idList.length; i < len; i++) {
-            var propName = self._idPropList[i];
-            var id = self._idList[i];
-            self._idObjList[i][propName] = deserializedList[id];
+            var propName = idPropList[i];
+            var id = idList[i];
+            idObjList[i][propName] = deserializedList[id];
         }
     };
 
@@ -387,8 +390,8 @@ var _Deserializer = (function () {
             }
         }
         if (props[props.length - 1] === '_$erialized') {
-            // save original serialized data
-            obj._$erialized = serialized;
+            // deep copy original serialized data
+            obj._$erialized = JSON.parse(JSON.stringify(serialized));
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
             _deserializePrimitiveObject(self, obj._$erialized, serialized);
         }
@@ -523,6 +526,8 @@ cc.deserialize = function (data, result, options) {
         data = JSON.parse(data);
     }
 
+    //var oldJson = JSON.stringify(data, null, 2);
+
     if (createAssetRefs && !result) {
         result = new Details();
     }
@@ -533,6 +538,11 @@ cc.deserialize = function (data, result, options) {
     if (createAssetRefs) {
         result.assignAssetsBy(Editor.serialize.asAsset);
     }
+
+    //var afterJson = JSON.stringify(data, null, 2);
+    //if (oldJson !== afterJson) {
+    //    throw new Error('JSON SHOULD not changed');
+    //}
 
     return deserializer.deserializedData;
 };

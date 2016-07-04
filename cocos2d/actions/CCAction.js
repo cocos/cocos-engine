@@ -528,19 +528,20 @@ cc.Follow = cc.Action.extend({
     },
 
     step:function (dt) {
-        var tempPosX = this._followedNode.x;
-        var tempPosY = this._followedNode.y;
-        tempPosX = this._halfScreenSize.x - tempPosX;
-        tempPosY = this._halfScreenSize.y - tempPosY;
+        var targetWorldPos = this.target.convertToWorldSpaceAR(cc.Vec2.ZERO);
+        var followedWorldPos = this._followedNode.convertToWorldSpaceAR(cc.Vec2.ZERO);
+        // compute the offset between followed and target node
+        var delta = cc.pSub(targetWorldPos, followedWorldPos);
+        var tempPos = this.target.parent.convertToNodeSpaceAR(cc.pAdd(delta, this._halfScreenSize));
 
         if (this._boundarySet) {
             // whole map fits inside a single screen, no need to modify the position - unless map boundaries are increased
             if (this._boundaryFullyCovered)
                 return;
 
-	        this.target.setPosition(cc.clampf(tempPosX, this.leftBoundary, this.rightBoundary), cc.clampf(tempPosY, this.bottomBoundary, this.topBoundary));
+	        this.target.setPosition(cc.clampf(tempPos.x, this.leftBoundary, this.rightBoundary), cc.clampf(tempPos.y, this.bottomBoundary, this.topBoundary));
         } else {
-            this.target.setPosition(tempPosX, tempPosY);
+            this.target.setPosition(tempPos.x, tempPos.y);
         }
     },
 
