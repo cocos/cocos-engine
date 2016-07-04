@@ -188,14 +188,16 @@ JS.mixin(cc.loader, {
             }
             // All url completed
             if (completeCallback) {
-                if (singleRes) {
-                    completeCallback.call(self, item.error, item.content);
-                }
-                else {
-                    completeCallback.call(self, error, self._items);
-                }
+                callInNextTick(function () {
+                    if (singleRes) {
+                        completeCallback.call(self, item.error, item.content);
+                    }
+                    else {
+                        completeCallback.call(self, error, self._items);
+                    }
+                    completeCallback = null;
+                });
             }
-            completeCallback = null;
         }
 
         // Add loaded listeners
