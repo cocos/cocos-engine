@@ -22,7 +22,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     for (var i = 0, n = images.length; i < n ; i++) {
       var imageCfg = images[i].getAttribute('source');
       if (imageCfg) {
-        var imgPath = Path.join(Path.dirname(sourcePath), imageCfg);
+        var imgPath = Path.normalize(Path.join(Path.dirname(sourcePath), imageCfg));
         textures.push(imgPath);
       }
     }
@@ -34,7 +34,7 @@ function searchDependFiles(tmxFile, tmxFileData, cb) {
     var tileset = tilesetElements[i];
     var sourceTSX = tileset.getAttribute('source');
     if (sourceTSX) {
-      var tsxPath = Path.join(Path.dirname(tmxFile), sourceTSX);
+      var tsxPath = Path.normalize(Path.join(Path.dirname(tmxFile), sourceTSX));
 
       if (Fs.existsSync(tsxPath)) {
         tsxFiles.push(tsxPath);
@@ -65,7 +65,7 @@ class TiledMapMeta extends CustomAssetMeta {
     this._tsxFiles = [];
   }
 
-  static version () { return '1.0.3'; }
+  static version () { return '1.0.4'; }
   static defaultType() { return 'tiled-map'; }
 
   import (fspath, cb) {
