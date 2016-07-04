@@ -43,7 +43,7 @@
         ctx.textBaseline = 'top';
         ctx.fillStyle = 'white';
         ctx.font = fontStyle;
-        ctx.fillText("M", 0, 0);
+        ctx.fillText(text, 0, 0);
         var pixels = ctx.getImageData(0, 0, fontDraw.width, fontDraw.height).data;
         var start = -1;
         var end = -1;
@@ -325,7 +325,7 @@
                             } else {
                                 maxLength = measureWidth;
                                 if(actualFontSize < node._drawFontsize) {
-                                    this._lineHeight = measureHeight + 4;
+                                    this._lineHeight = measureHeight * 1.2;
                                 }
                                 totalHeight += Math.max(measureHeight, this._getLineHeight());
                             }
