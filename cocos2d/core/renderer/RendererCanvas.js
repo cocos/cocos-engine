@@ -36,10 +36,19 @@ cc.rendererCanvas = {
     _clearFillStyle: "rgb(0, 0, 0)",
     _dirtyRegion: null,
     _allNeedDraw: true,
+    _enableDirtyRegion: false,
 
     getRenderCmd: function (renderableObject) {
         //TODO Add renderCmd pool here
         return renderableObject._createRenderCmd();
+    },
+
+    enableDirtyRegion : function (enabled) {
+        this._enableDirtyRegion = enabled;
+    },
+
+    isDirtyRegionEnabled: function () {
+        return this._enableDirtyRegion;
     },
 
     _collectDirtyRegion: function() {
@@ -119,7 +128,7 @@ cc.rendererCanvas = {
         wrapper.computeRealOffsetY();
         var dirtyList = this._dirtyRegion.getDirtyRegions();
         var locCmds = this._renderCmds, i, len;
-        var allNeedDraw = this._allNeedDraw || !dirtyRegion.enabled;
+        var allNeedDraw = this._allNeedDraw || !this._enableDirtyRegion;
         if(!allNeedDraw) {
             this._collectDirtyRegion();
             this._beginDrawDirtyRegion(wrapper);

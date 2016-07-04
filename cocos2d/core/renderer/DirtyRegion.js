@@ -190,7 +190,6 @@ function unionArea(r1, r2) {
 }
 
 var DirtyRegion = function() {
-    this.enabled = true;
     this.dirtyList = [];
     this.hasClipRect = false;
     this.clipWidth = 0;
