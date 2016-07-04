@@ -360,8 +360,8 @@ var Layout = cc.Class({
         this.node.on('size-changed', this._resized, this);
 
         this.node.on('anchor-changed', this._doLayoutDirty, this);
-        this.node.on('child-added', this._childrenAddOrDeleted, this);
-        this.node.on('child-removed', this._childrenAddOrDeleted, this);
+        this.node.on('child-added', this._childAdded, this);
+        this.node.on('child-removed', this._childRemoved, this);
         this.node.on('child-reorder', this._doLayoutDirty, this);
 
         this._updateChildrenEventListener();
@@ -381,8 +381,23 @@ var Layout = cc.Class({
         }.bind(this));
     },
 
-    _childrenAddOrDeleted: function() {
-        this._updateChildrenEventListener();
+    _childAdded: function(event) {
+        var child = event.detail;
+        child.on('size-changed', this._doLayoutDirty, this);
+        child.on('position-changed', this._doLayoutDirty, this);
+        child.on('anchor-changed', this._doLayoutDirty, this);
+        child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
+
+        this._doLayoutDirty();
+    },
+
+    _childRemoved: function(event) {
+        var child = event.detail;
+        child.off('size-changed', this._doLayoutDirty, this);
+        child.off('position-changed', this._doLayoutDirty, this);
+        child.off('anchor-changed', this._doLayoutDirty, this);
+        child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
+
         this._doLayoutDirty();
     },
 
@@ -642,6 +657,10 @@ var Layout = cc.Class({
         var allChildrenBoundingBox = null;
 
         children.forEach(function(child){
+            if (!child.activeInHierarchy) {
+                return;
+            }
+
             if(!allChildrenBoundingBox){
                 allChildrenBoundingBox = child.getBoundingBoxToWorld();
             } else {
