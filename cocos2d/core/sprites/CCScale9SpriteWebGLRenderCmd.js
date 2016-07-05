@@ -28,12 +28,13 @@ if (_ccsg.Node.WebGLRenderCmd) {
     cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
         _ccsg.Node.WebGLRenderCmd.call(this, renderable);
         this._needDraw = true;
-        this._cachedParent = null;
-        this._cacheDirty = false;
-        this._quadWebBuffer = cc._renderContext.createBuffer();
-        this._quadIndexBuffer = cc._renderContext.createBuffer();
-        this._indices = new Int16Array(54);
-        this._colorOpacityDirty = false;
+        // this._quadWebBuffer = cc._renderContext.createBuffer();
+        // this._quadIndexBuffer = cc._renderContext.createBuffer();
+        // this._indices = new Int16Array(54);
+
+        this._color = new Uint32Array(1);
+        this._dirty = false;
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
     };
 
     var proto = cc.Scale9Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -50,12 +51,6 @@ if (_ccsg.Node.WebGLRenderCmd) {
 
         if(node._quadsDirty){
             node._rebuildQuads();
-            this._colorOpacityDirty = false;
-            needRebuildWebBuffer = true;
-        }
-        if(this._colorOpacityDirty) {
-            node._onColorOpacityDirty();
-            this._colorOpacityDirty = false;
             needRebuildWebBuffer = true;
         }
         var gl = ctx || cc._renderContext ;
@@ -74,10 +69,10 @@ if (_ccsg.Node.WebGLRenderCmd) {
                   this._node._distortionTiling.x, this._node._distortionTiling.y
                 );
             }
-            ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
+            cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
             //optimize performance for javascript
-            ccgl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
-            ccgl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+            cc.gl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
+            cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._quadIndexBuffer);
@@ -123,41 +118,18 @@ if (_ccsg.Node.WebGLRenderCmd) {
 
             gl.drawElements(gl.TRIANGLES, (node._isTriangle ? 3 : 6) * quadsLength,gl.UNSIGNED_SHORT,0);
 
-
             cc.g_NumberOfDraws += 1;
-
         }
 
     };
 
-    proto._syncDisplayOpacity = function (parentOpacity) {
-        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayOpacity.call(this, parentOpacity);
-        this._colorOpacityDirty = true;
-    };
-
-    proto._updateDisplayOpacity = function(parentOpacity){
-        _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-        this._colorOpacityDirty = true;
-    };
-
-    proto._syncDisplayColor = function (parentColor) {
-        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayColor.call(this, parentColor);
-        this._colorOpacityDirty = true;
-    };
-
-    proto._updateDisplayColor = function(parentColor){
-        _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-        this._colorOpacityDirty = true;
-    };
-
     proto.setState = function (state) {
-        var node = this._node;
         if (state === cc.Scale9Sprite.state.NORMAL) {
-            node.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR));
+            this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
         } else if (state === cc.Scale9Sprite.state.GRAY) {
-            node.setShaderProgram(cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram());
+            this._shaderProgram = cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram();
         } else if (state === cc.Scale9Sprite.state.DISTORTION) {
-            node.setShaderProgram(cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram());
+            this._shaderProgram = cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram();
         }
     };
 
@@ -168,7 +140,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
             return grayShader;
 
         grayShader = new cc.GLProgram();
-        grayShader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
+        grayShader.initWithVertexShaderByteArray(cc.PresetShaders.SPRITE_POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
         grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
         grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
         grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
@@ -197,7 +169,7 @@ if (_ccsg.Node.WebGLRenderCmd) {
             return shader;
 
         shader = new cc.GLProgram();
-        shader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT, distortionSpriteShader.fShader);
+        shader.initWithVertexShaderByteArray(cc.PresetShaders.SPRITE_POSITION_TEXTURE_COLOR_VERT, distortionSpriteShader.fShader);
         shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
         shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
         shader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);

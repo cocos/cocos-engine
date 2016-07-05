@@ -596,6 +596,77 @@ cc.color = function color (r, g, b, a) {
     return  new cc.Color(r, g, b, a);
 };
 
+cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
+    if (cc._renderType !== cc.game.RENDER_TYPE_WEBGL) {
+        return;
+    }
+
+    var _p = cc.Color.prototype;
+    cc.Color = function (r, g, b, a, arrayBuffer, offset) {
+        this._arrayBuffer = arrayBuffer || new ArrayBuffer(cc.Color.BYTES_PER_ELEMENT);
+        this._offset = offset || 0;
+
+        var locArrayBuffer = this._arrayBuffer, locOffset = this._offset;
+        this._view = new Uint8Array(locArrayBuffer, locOffset, 4);
+
+        this._view[0] = r || 0;
+        this._view[1] = g || 0;
+        this._view[2] = b || 0;
+        this._view[3] = (a == null) ? 255 : a;
+
+        if (a === undefined)
+            this.a_undefined = true;
+    };
+    cc.Color.prototype = _p;
+    cc.Color.prototype.constructor = cc.Color;
+
+    cc.color = function (r, g, b, a, arrayBuffer, offset) {
+        if (r === undefined)
+            return new cc.Color(0, 0, 0, 255, arrayBuffer, offset);
+        if (cc.isString(r)) {
+            var color = cc.hexToColor(r);
+            return new cc.Color(color.r, color.g, color.b, color.a);
+        }
+        if (cc.isObject(r))
+            return new cc.Color(r.r, r.g, r.b, r.a, r.arrayBuffer, r.offset);
+        return new cc.Color(r, g, b, a, arrayBuffer, offset);
+    };
+    /**
+     * @constant
+     * @type {number}
+     */
+    cc.Color.BYTES_PER_ELEMENT = 4;
+
+    _p._getR = function () {
+        return this._view[0];
+    };
+    _p._setR = function (value) {
+        this._view[0] = value < 0 ? 0 : value;
+    };
+    _p._getG = function () {
+        return this._view[1];
+    };
+    _p._setG = function (value) {
+        this._view[1] = value < 0 ? 0 : value;
+    };
+    _p._getB = function () {
+        return this._view[2];
+    };
+    _p._setB = function (value) {
+        this._view[2] = value < 0 ? 0 : value;
+    };
+    _p._getA = function () {
+        return this._view[3];
+    };
+    _p._setA = function (value) {
+        this._view[3] = value < 0 ? 0 : value;
+    };
+    cc.defineGetterSetter(_p, "r", _p._getR, _p._setR);
+    cc.defineGetterSetter(_p, "g", _p._getG, _p._setG);
+    cc.defineGetterSetter(_p, "b", _p._getB, _p._setB);
+    cc.defineGetterSetter(_p, "a", _p._getA, _p._setA);
+});
+
 
 // Functional style API, for backward compatibility
 

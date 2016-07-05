@@ -105,7 +105,7 @@
 
     proto.releaseData = function(){};
 
-    proto.initCmd = function(){};
+    proto.resetVertexData = function(){};
 
     proto._updateProgress = function(){
         var node = this._node;
@@ -192,8 +192,6 @@
         }
     };
 
-    proto._updateColor = function(){};
-
     proto._syncStatus = function (parentCmd) {
         var node = this._node;
         if(!node._sprite)
@@ -220,20 +218,27 @@
 
         if (colorDirty){
             spriteCmd._syncDisplayColor();
+            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.colorDirty ^ spriteCmd._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & flags.colorDirty ^ this._dirtyFlag;
         }
 
         if (opacityDirty){
             spriteCmd._syncDisplayOpacity();
+            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.opacityDirty ^ spriteCmd._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & flags.opacityDirty ^ this._dirtyFlag;
         }
 
         if(colorDirty || opacityDirty){
             spriteCmd._updateColor();
-            //this._updateColor();
         }
 
         if (locFlag & flags.transformDirty) {
             //update the transform
             this.transform(parentCmd);
+        }
+
+        if (locFlag & flags.orderDirty) {
+            this._dirtyFlag = this._dirtyFlag & flags.orderDirty ^ this._dirtyFlag;
         }
     };
 
@@ -250,15 +255,18 @@
 
         if(colorDirty){
             spriteCmd._updateDisplayColor();
+            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.colorDirty ^ spriteCmd._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & flags.colorDirty ^ this._dirtyFlag;
         }
 
         if(opacityDirty){
             spriteCmd._updateDisplayOpacity();
+            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.opacityDirty ^ spriteCmd._dirtyFlag;
+            this._dirtyFlag = this._dirtyFlag & flags.opacityDirty ^ this._dirtyFlag;
         }
 
         if(colorDirty || opacityDirty){
             spriteCmd._updateColor();
-            //this._updateColor();
         }
 
         if(locFlag & flags.transformDirty){

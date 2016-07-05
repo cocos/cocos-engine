@@ -1321,6 +1321,7 @@ _ccsg.Node = cc.Class({
         child.arrivalOrder = cc.s_globalOrderOfArrival;
         cc.s_globalOrderOfArrival++;
         child._setLocalZOrder(zOrder);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.orderDirty);
     },
 
     /**
@@ -1776,18 +1777,9 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        var t;
-        if (this._renderCmd && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
-            t = this._renderCmd._worldTransform;
-        }
-        else {
-            //TODO renderCmd has a WorldTransform
-            t = this.getNodeToParentTransform();
-            for (var p = this._parent; p !== null; p = p.parent) {
-                t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
-            }
-        }
-        return t;
+        // Update the transform is needed
+        this._renderCmd.getNodeToParentTransform();
+        return this._renderCmd._worldTransform;
     },
 
     /**
@@ -1832,6 +1824,7 @@ _ccsg.Node = cc.Class({
      * @return {cc.Vec2}
      */
     convertToWorldSpace: function (nodePoint) {
+        nodePoint = nodePoint || cc.v2(0, 0);
         return cc.pointApplyAffineTransform(nodePoint, this.getNodeToWorldTransform());
     },
 
@@ -1854,6 +1847,7 @@ _ccsg.Node = cc.Class({
      * @return {cc.Vec2}
      */
     convertToWorldSpaceAR: function (nodePoint) {
+        nodePoint = nodePoint || cc.v2(0, 0);
         var pt = cc.pAdd(nodePoint, this._renderCmd.getAnchorPointInPoints());
         return this.convertToWorldSpace(pt);
     },

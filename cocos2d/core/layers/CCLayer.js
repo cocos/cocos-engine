@@ -36,11 +36,10 @@ cc.Layer = _ccsg.Node.extend(/** @lends cc.Layer# */{
      * <p>Constructor of cc.Layer, override it to extend the construction behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
     ctor: function () {
-        var nodep = _ccsg.Node.prototype;
-        nodep.ctor.call(this);
+        _ccsg.Node.prototype.ctor.call(this);
         this._ignoreAnchorPointForPosition = true;
-        nodep.setAnchorPoint.call(this, 0.5, 0.5);
-        nodep.setContentSize.call(this, cc.winSize);
+        this.setAnchorPoint(0.5, 0.5);
+        this.setContentSize(cc.winSize);
     },
 
     /**
@@ -227,21 +226,6 @@ cc.LayerColor = cc.Layer.extend(/** @lends cc.LayerColor# */{
             locBlendFunc.dst = dst;
         }
         this._renderCmd.updateBlendFunc(locBlendFunc);
-    },
-
-    _setWidth: function(width){
-        _ccsg.Node.prototype._setWidth.call(this, width);
-        this._renderCmd._updateSquareVerticesWidth(width);
-    },
-
-    _setHeight: function(height){
-        _ccsg.Node.prototype._setHeight.call(this, height);
-        this._renderCmd._updateSquareVerticesHeight(height);
-    },
-
-    setContentSize: function(size, height){
-        cc.Layer.prototype.setContentSize.call(this, size, height);
-        this._renderCmd._updateSquareVertices(size, height);
     },
 
     _createRenderCmd: function(){

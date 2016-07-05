@@ -628,36 +628,40 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                     cc.log("cc.TMXMapInfo.parseXMLFile(): unsupported compression method");
                     return null;
                 }
+                var tiles;
                 switch (compression) {
                     case 'gzip':
-                        layer._tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
+                        tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
                         break;
                     case 'zlib':
                         var inflator = new Zlib.Inflate(cc.Codec.Base64.decodeAsArray(nodeValue, 1));
-                        layer._tiles = uint8ArrayToUint32Array(inflator.decompress());
+                        tiles = uint8ArrayToUint32Array(inflator.decompress());
                         break;
                     case null:
                     case '':
                         // Uncompressed
                         if (encoding === "base64")
-                            layer._tiles = cc.Codec.Base64.decodeAsArray(nodeValue, 4);
+                            tiles = cc.Codec.Base64.decodeAsArray(nodeValue, 4);
                         else if (encoding === "csv") {
-                            layer._tiles = [];
+                            tiles = [];
                             var csvTiles = nodeValue.split(',');
                             for (var csvIdx = 0; csvIdx < csvTiles.length; csvIdx++)
-                                layer._tiles.push(parseInt(csvTiles[csvIdx]));
+                                tiles.push(parseInt(csvTiles[csvIdx]));
                         } else {
                             //XML format
                             var selDataTiles = data.getElementsByTagName("tile");
-                            layer._tiles = [];
+                            tiles = [];
                             for (var xmlIdx = 0; xmlIdx < selDataTiles.length; xmlIdx++)
-                                layer._tiles.push(parseInt(selDataTiles[xmlIdx].getAttribute("gid")));
+                                tiles.push(parseInt(selDataTiles[xmlIdx].getAttribute("gid")));
                         }
                         break;
                     default:
                         if(this.layerAttrs === cc.TMXLayerInfo.ATTRIB_NONE)
                             cc.log("cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported");
                         break;
+                }
+                if (tiles) {
+                    layer._tiles = new Uint32Array(tiles);
                 }
 
                 // The parent element is the last layer

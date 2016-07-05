@@ -1220,17 +1220,35 @@ cc.macro = {
      */
     SHADER_POSITION_TEXTURECOLOR: "ShaderPositionTextureColor",
     /**
+     * @property SHADER_SPRITE_POSITION_TEXTURECOLOR
+     * @type {String}
+     * @readonly
+     */
+    SHADER_SPRITE_POSITION_TEXTURECOLOR: "ShaderSpritePositionTextureColor",
+    /**
      * @property SHADER_POSITION_TEXTURECOLORALPHATEST
      * @type {String}
      * @readonly
      */
     SHADER_POSITION_TEXTURECOLORALPHATEST: "ShaderPositionTextureColorAlphaTest",
     /**
+     * @property SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST
+     * @type {String}
+     * @readonly
+     */
+    SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST: "ShaderSpritePositionTextureColorAlphaTest",
+    /**
      * @property SHADER_POSITION_COLOR
      * @type {String}
      * @readonly
      */
     SHADER_POSITION_COLOR: "ShaderPositionColor",
+    /**
+     * @property SHADER_SPRITE_POSITION_COLOR
+     * @type {String}
+     * @readonly
+     */
+    SHADER_SPRITE_POSITION_COLOR: "ShaderSpritePositionColor",
     /**
      * @property SHADER_POSITION_TEXTURE
      * @type {String}

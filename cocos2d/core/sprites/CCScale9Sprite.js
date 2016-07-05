@@ -27,7 +27,7 @@
  Created by Jung Sang-Taik on 2012-03-16
  ****************************************************************************/
 
-EventTarget = require("../cocos2d/core/event/event-target");
+var EventTarget = require("../cocos2d/core/event/event-target");
 
 /*
  * <p>
@@ -1144,7 +1144,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     setDistortionTiling: function(valueOrX, y) {
-        if(y == undefined) {
+        if(y === undefined) {
             y = valueOrX.y;
             valueOrX = valueOrX.x;
         }
@@ -1154,7 +1154,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     setDistortionOffset: function(valueOrX, y) {
-        if(y == undefined) {
+        if(y === undefined) {
             y = valueOrX.y;
             valueOrX = valueOrX.x;
         }
@@ -1265,17 +1265,9 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 var _p = cc.Scale9Sprite.prototype;
 cc.js.addon(_p, EventTarget.prototype);
 // Extended properties
-/** @expose */
-_p.insetLeft;
 cc.defineGetterSetter(_p, "insetLeft", _p.getInsetLeft, _p.setInsetLeft);
-/** @expose */
-_p.insetTop;
 cc.defineGetterSetter(_p, "insetTop", _p.getInsetTop, _p.setInsetTop);
-/** @expose */
-_p.insetRight;
 cc.defineGetterSetter(_p, "insetRight", _p.getInsetRight, _p.setInsetRight);
-/** @expose */
-_p.insetBottom;
 cc.defineGetterSetter(_p, "insetBottom", _p.getInsetBottom, _p.setInsetBottom);
 
 _p = null;

@@ -38,7 +38,6 @@ proto._updateDisplayOpacity = function(parentOpacity){
 
 proto._updateDisplayColor = function(parentColor){
     _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-    var node = this._node;
     this._originalTexture = this._textureToRender = null;
 };
 
