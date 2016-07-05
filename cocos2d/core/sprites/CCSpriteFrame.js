@@ -27,15 +27,39 @@
 var EventTarget = require("../event/event-target");
 
 /**
+ * !#en
  * A cc.SpriteFrame has:<br/>
  *  - texture: A cc.Texture2D that will be used by the _ccsg.Sprite<br/>
  *  - rectangle: A rectangle of the texture<br/>
  * <br/>
  * You can modify the frame of a _ccsg.Sprite by doing:<br/>
  *
+ * Note: It's not recommended to use SpriteFrame constructor (new SpriteFrame)
+ * to create SpriteFrame instance since it's memory will be unable to manage. <br/>
+ * Instead please use cc.loader.loadRes to get SpriteFrame instance from loading,
+ * or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.
+ *
+ * !#zh
+ * 一个 SpriteFrame 包含：<br/>
+ *  - 纹理：会被 Sprite 使用的 Texture2D 对象。<br/>
+ *  - 矩形：在纹理中的矩形区域。<br/>
+ * 注意：目前只建议通过以下几个方式进行创建 SpriteFrame：<br/>
+ *  - 可以在你的组件上定义一个 SpriteFrame 类型并通过拖动 SpriteFrame 资源进行赋值。<br/>
+ *  - 通过 cc.loader.loadRes 或 atlas.getSpriteFrame 来获得 spriteFrame 实例。
+ *
  * @class SpriteFrame
  * @extends Asset
  * @constructor
+ * @example
+ * // load a cc.SpriteFrame with image path (Recommend)
+ * var self = this;
+ * var url = "test assets/PurpleMonster";
+ * cc.loader.loadRes(url, cc.SpriteFrame, function (err, spriteFrame) {
+ *  var node = new cc.Node("New Sprite");
+ *  var sprite = node.addComponent(cc.Sprite);
+ *  sprite.spriteFrame = spriteFrame;
+ *  node.parent = self.node
+ * });
  */
 cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
@@ -66,16 +90,29 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Constructor of SpriteFrame class
+     * !#en
+     * Constructor of SpriteFrame class. <br/>
+     * Node: It's not recommended to use SpriteFrame constructor (new SpriteFrame), <br/>
+     * Because the instance in the native environment requires the user to manually manage memory, <br/>
+     * or you might cause serious errors.
+     * !#zh
+     * SpriteFrame 类的构造函数。<br/>
+     * 注意：不建议用户使用构造函数进行创建，因为该实例在原生环境下需要用户手动管理内存，不然会导致严重错误。
      * @method SpriteFrame
      * @param {String|Texture2D} [filename]
      * @param {Rect} [rect]
      * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
      * @param {Vec2} [offset] - The offset of the frame in the texture
      * @param {Size} [originalSize] - The size of the frame in the texture
-     * @example {@link utils/api/engine/docs/cocos2d/core/sprites/SpriteFrame.js}
      */
     ctor: function () {
+        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !cc.game._isCloning) {
+            cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) " +
+                "to create SpriteFrame instance since it's memory will be unable to manage. " +
+                "Instead please use cc.loader.loadRes to get SpriteFrame instance from loading, " +
+                "or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.")
+        }
+
         var filename = arguments[0];
         var rect = arguments[1];
         var rotated = arguments[2];
@@ -94,7 +131,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._rotated = false;
 
         /**
-         * Top border of the sprite
+         * !#en Top border of the sprite
+         * !#zh sprite 的顶部边框
          * @property insetTop
          * @type {Number}
          * @default 0
@@ -102,7 +140,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.insetTop = 0;
 
         /**
-         * Bottom border of the sprite
+         * !#en Bottom border of the sprite
+         * !#zh sprite 的底部边框
          * @property insetBottom
          * @type {Number}
          * @default 0
@@ -110,7 +149,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.insetBottom = 0;
 
         /**
-         * Left border of the sprite
+         * !#en Left border of the sprite
+         * !#zh sprite 的左边边框
          * @property insetLeft
          * @type {Number}
          * @default 0
@@ -118,7 +158,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.insetLeft = 0;
 
         /**
-         * Right border of the sprite
+         * !#en Right border of the sprite
+         * !#zh sprite 的左边边框
          * @property insetRight
          * @type {Number}
          * @default 0
@@ -142,7 +183,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns whether the texture have been loaded
+     * !#en Returns whether the texture have been loaded
+     * !#zh 返回是否已加载纹理
      * @method textureLoaded
      * @returns {boolean}
      */
@@ -162,7 +204,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns whether the sprite frame is rotated in the texture.
+     * !#en Returns whether the sprite frame is rotated in the texture.
+     * !#zh 获取 SpriteFrame 是否旋转
      * @method isRotated
      * @return {Boolean}
      */
@@ -171,7 +214,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Set whether the sprite frame is rotated in the texture.
+     * !#en Set whether the sprite frame is rotated in the texture.
+     * !#zh 设置 SpriteFrame 是否旋转
      * @method setRotated
      * @param {Boolean} bRotated
      */
@@ -180,7 +224,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the rect of the sprite frame in the texture.
+     * !#en Returns the rect of the sprite frame in the texture.
+     * !#zh 获取 SpriteFrame 的纹理矩形区域
      * @method getRect
      * @return {Rect}
      */
@@ -189,7 +234,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the rect of the sprite frame in the texture.
+     * !#en Sets the rect of the sprite frame in the texture.
+     * !#zh 设置 SpriteFrame 的纹理矩形区域
      * @method setRect
      * @param {Rect} rect
      */
@@ -198,7 +244,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the original size of the trimmed image.
+     * !#en Returns the original size of the trimmed image.
+     * !#zh 获取修剪前的原始大小
      * @method getOriginalSize
      * @return {Size}
      */
@@ -207,7 +254,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the original size of the trimmed image.
+     * !#en Sets the original size of the trimmed image.
+     * !#zh 设置修剪前的原始大小
      * @method setOriginalSize
      * @param {Size} size
      */
@@ -221,7 +269,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the texture of the frame.
+     * !#en Returns the texture of the frame.
+     * !#zh 获取使用的纹理实例
      * @method getTexture
      * @return {Texture2D}
      */
@@ -230,7 +279,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the texture of the frame, the texture is retained automatically.
+     * !#en Sets the texture of the frame, the texture is retained automatically.
+     * !#zh 设置使用的纹理实例，会被 retain。
      * @method _refreshTexture
      * @param {Texture2D} texture
      */
@@ -291,7 +341,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the offset of the frame in the texture.
+     * !#en Returns the offset of the frame in the texture.
+     * !#zh 获取偏移量
      * @method getOffset
      * @return {Vec2}
      */
@@ -300,7 +351,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the offset of the frame in the texture.
+     * !#en Sets the offset of the frame in the texture.
+     * !#zh 设置偏移量
      * @method setOffset
      * @param {Vec2} offsets
      */
@@ -309,7 +361,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Clone the sprite frame.
+     * !#en Clone the sprite frame.
+     * !#zh 克隆 SpriteFrame
      * @method clone
      * @return {SpriteFrame}
      */
@@ -317,7 +370,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return new cc.SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
-    /**
+    /*
      * Initializes SpriteFrame with Texture, rect, rotated, offset and originalSize in pixels.<br/>
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
      * @method initWithTexture
@@ -457,14 +510,14 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
 var proto = cc.SpriteFrame.prototype;
 
-/**
+/*
  * Copy the sprite frame
  * @method copyWithZone
  * @return {SpriteFrame}
  */
 proto.copyWithZone = proto.clone;
 
-/**
+/*
  * Copy the sprite frame
  * @method copy
  * @returns {SpriteFrame}
