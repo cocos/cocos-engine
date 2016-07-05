@@ -37,6 +37,7 @@ cc.rendererCanvas = {
     _dirtyRegion: null,
     _allNeedDraw: true,
     _enableDirtyRegion: false,
+    _debugDirtyRegion: false,
 
     getRenderCmd: function (renderableObject) {
         //TODO Add renderCmd pool here
@@ -95,7 +96,7 @@ cc.rendererCanvas = {
     },
 
     _debugDrawDirtyRegion: function(ctxWrapper) {
-        return;
+        if(!this._debugDirtyRegion) return;
         var ctx = ctxWrapper.getContext();
         var dirtyList = this._dirtyRegion.getDirtyRegions();
         //add clip
