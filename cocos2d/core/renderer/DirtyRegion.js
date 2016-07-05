@@ -1,3 +1,4 @@
+//Region is used to label a rect which world axis aligned.
 var Region = function () {
     this._minX = 0;
     this._minY = 0;
@@ -35,6 +36,7 @@ regionProto.setTo = function (minX, minY, maxX, maxY) {
     return this;
 };
 
+//convert region to int values which is fast for clipping
 regionProto.intValues = function () {
     this._minX = Math.floor(this._minX);
     this._minY = Math.floor(this._minY);
@@ -43,12 +45,14 @@ regionProto.intValues = function () {
     this.updateArea();
 };
 
+//update the area of region
 regionProto.updateArea = function () {
     this._width = this._maxX - this._minX;
     this._height = this._maxY - this._minY;
     this._area = this._width * this._height;
 };
 
+//merge two region into one
 regionProto.union = function (target) {
     if(this.isEmpty()) {
         this.setTo(target._minX, target._minY, target._maxX, target._maxY);
@@ -94,6 +98,7 @@ regionProto.union = function (target) {
 //    this.updateArea();
 //};
 
+//set region to empty
 regionProto.setEmpty = function () {
     this._minX = 0;
     this._minY = 0;
@@ -108,6 +113,7 @@ regionProto.isEmpty = function () {
     return this._width <= 0 || this._height <= 0;
 };
 
+//check whether two region is intersects or not
 regionProto.intersects = function (target) {
     if (this.isEmpty() || target.isEmpty()) {
         return false;
@@ -123,6 +129,7 @@ regionProto.intersects = function (target) {
     return max <= min;
 };
 
+//update region by a rotated bounds
 regionProto.updateRegion = function (bounds, matrix) {
     if (bounds.width == 0 || bounds.height == 0) {
         this.setEmpty();
@@ -195,6 +202,7 @@ regionProto.updateRegion = function (bounds, matrix) {
     this._area = this._width * this._height;
 };
 
+//get the area of the unioned region of r1 and r2
 function unionArea(r1, r2) {
     var minX = r1._minX < r2._minX ? r1._minX : r2._minX;
     var minY = r1._minY < r2._minY ? r1._minY : r2._minY;
@@ -203,6 +211,8 @@ function unionArea(r1, r2) {
     return (maxX - minX) * (maxY - minY);
 }
 
+//DirtyRegion is used to collect the dirty area which need to be rerendered in canvas
+//there may be many small regions which is dirty, the dirty region will merge it into several big one to optimise performance
 var DirtyRegion = function() {
     this.dirtyList = [];
     this.hasClipRect = false;
@@ -213,6 +223,7 @@ var DirtyRegion = function() {
 };
 var dirtyRegionProto = DirtyRegion.prototype;
 
+//clip rect, regions will not be considered if it is outside
 dirtyRegionProto.setClipRect = function(width, height) {
     this.hasClipRect = true;
     this.clipRectChanged = true;
@@ -221,6 +232,7 @@ dirtyRegionProto.setClipRect = function(width, height) {
     this.clipArea = this.clipWidth * this.clipHeight;
 };
 
+//add a new region which is dirty (need to be rendered)
 dirtyRegionProto.addRegion = function(target) {
     var minX = target._minX, minY = target._minY, maxX = target._maxX, maxY = target._maxY;
 
@@ -251,6 +263,7 @@ dirtyRegionProto.addRegion = function(target) {
     return true;
 };
 
+//clear all the dirty regions
 dirtyRegionProto.clear = function() {
     var dirtyList = this.dirtyList;
     var length = dirtyList.length;
@@ -260,6 +273,7 @@ dirtyRegionProto.clear = function() {
     dirtyList.length = 0;
 };
 
+//get the merged dirty regions
 dirtyRegionProto.getDirtyRegions = function() {
     var dirtyList = this.dirtyList;
     if (this.clipRectChanged) {
@@ -281,6 +295,7 @@ dirtyRegionProto.getDirtyRegions = function() {
     return this.dirtyList;
 };
 
+//merge the small dirty regions into bigger region, to improve the performance of dirty regions
 dirtyRegionProto.mergeDirtyList = function(dirtyList) {
     var length = dirtyList.length;
     if (length < 2) {
