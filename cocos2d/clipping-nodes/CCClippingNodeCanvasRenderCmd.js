@@ -64,9 +64,9 @@ proto._drawStencilCommand = function (ctx, scaleX, scaleY) {
     for(var index = 0; index < stencilBuffer.length; ++index) {
         var vertices = stencilBuffer[index].verts;
         if(vertices.length < 3) continue;
-        context.moveTo(vertices[0].x, -vertices[0].y);
+        context.moveTo(vertices[0].x * scaleX, -vertices[0].y * scaleY);
         for(var vIndex = 1; vIndex < vertices.length; ++vIndex) {
-            context.lineTo(vertices[vIndex].x, -vertices[vIndex].y);
+            context.lineTo(vertices[vIndex].x * scaleX, -vertices[vIndex].y * scaleY);
         }
     }
     //end draw elements

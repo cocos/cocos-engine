@@ -79,12 +79,14 @@ cc.rendererCanvas = {
         var dirtyList = this._dirtyRegion.getDirtyRegions();
         ctx.save();
         //add clip
-        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, ctxWrapper._scaleX, ctxWrapper._scaleY);
+        var scaleX = ctxWrapper._scaleX;
+        var scaleY = ctxWrapper._scaleY;
+        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, scaleX, scaleY);
 
         ctx.beginPath();
         for(var index = 0, count = dirtyList.length; index < count; ++index) {
             var region = dirtyList[index];
-            ctx.rect(region._minX, -region._maxY, region._width, region._height);
+            ctx.rect(region._minX * scaleX , -region._maxY * scaleY, region._width * scaleX, region._height * scaleY);
         }
 
         ctx.clip();
@@ -100,12 +102,14 @@ cc.rendererCanvas = {
         var ctx = ctxWrapper.getContext();
         var dirtyList = this._dirtyRegion.getDirtyRegions();
         //add clip
-        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, ctxWrapper._scaleX, ctxWrapper._scaleY);
+        var scaleX = ctxWrapper._scaleX;
+        var scaleY = ctxWrapper._scaleY;
+        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, scaleX, scaleY);
 
         ctx.beginPath();
         for(var index = 0, count = dirtyList.length; index < count; ++index) {
             var region = dirtyList[index];
-            ctx.rect(region._minX, -region._maxY, region._width, region._height);
+            ctx.rect(region._minX * scaleX, -region._maxY * scaleY, region._width * scaleX, region._height * scaleY);
         }
         var oldstyle = ctx.fillStyle;
         ctx.fillStyle = 'green';
@@ -378,7 +382,7 @@ cc.rendererCanvas = {
             this.save();
             this._context.transform(t.a, -t.b, -t.c, t.d, t.tx * scaleX, -(t.ty * scaleY));
         } else {
-            this._context.setTransform(scaleX * t.a, scaleY * -t.b, scaleX * -t.c, scaleY * t.d, this._offsetX + t.tx * scaleX, this._realOffsetY - (t.ty * scaleY));
+            this._context.setTransform(t.a, -t.b, -t.c, t.d, this._offsetX + t.tx * scaleX, this._realOffsetY - (t.ty * scaleY));
         }
     };
 
