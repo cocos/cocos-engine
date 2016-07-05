@@ -66,7 +66,11 @@ function upload2Ftp(localPath, ftpPath, config, cb) {
 }
 
 function uploadZipFile (zipFileName, path, cb) {
-  var remotePath = Path.join('TestBuilds','Fireball', 'cocos2d-x', zipFileName);
+  var branch = getCurrentBranch();
+  if (branch === 'develop') {
+    branch = 'dev';
+  }
+  var remotePath = Path.join('TestBuilds','Fireball', 'cocos2d-x', branch, zipFileName);
   var zipFilePath = Path.join(path, zipFileName);
   upload2Ftp(zipFilePath, remotePath, {
     host: '192.168.52.109',
@@ -78,6 +82,13 @@ function uploadZipFile (zipFileName, path, cb) {
     }
     cb();
   });
+}
+
+function getCurrentBranch() {
+    var spawnSync = require('child_process').spawnSync;
+    var output = spawnSync('git', ['symbolic-ref', '--short', '-q', 'HEAD']);
+    // console.log(output);
+    return output.stdout.toString().trim();
 }
 
 gulp.task('init', function(cb) {
@@ -152,7 +163,7 @@ gulp.task('collect-prebuilt-mk', function () {
     '**/prebuilt-mk/Android.mk',
     ], {
     base: './',
-    ignore: 'prebuilt_mk/**/*'
+    ignore: './prebuilt_mk/**/*'
   }).pipe(gulp.dest('prebuilt_mk'));
 });
 
