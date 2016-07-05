@@ -5,7 +5,9 @@ LOCAL_MODULE := creator_static
 
 LOCAL_MODULE_FILENAME := libcreator
 
-LOCAL_SRC_FILES := CCScale9Sprite.cpp
+LOCAL_SRC_FILES := CCScale9Sprite.cpp \
+    CCGraphicsNode.cpp \
+    Triangulate.cpp    
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
 

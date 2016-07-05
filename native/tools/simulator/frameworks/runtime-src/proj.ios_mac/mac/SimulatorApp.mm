@@ -383,7 +383,7 @@ static void glfwDropFunc(GLFWwindow *window, int count, const char **files)
     const cocos2d::Rect frameRect = cocos2d::Rect(0, 0, frameSize.width, frameSize.height);
     std::stringstream title;
     title << "Cocos Simulator (" << _project.getFrameScale() * 100 << "%)";
-    GLViewImpl *eglView = GLViewImpl::createWithRect(title.str(), frameRect, frameScale);
+    GLViewImpl *eglView = GLViewImpl::createWithRect(title.str(), frameRect, frameScale, true);
     
     auto director = Director::getInstance();
     director->setOpenGLView(eglView);
