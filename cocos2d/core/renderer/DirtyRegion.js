@@ -12,6 +12,20 @@ var Region = function () {
 
 var regionProto = Region.prototype;
 
+var regionPool = [];
+
+function regionCreate() {
+    var region = regionPool.pop();
+    if (!region) {
+        region = new Region();
+    }
+    return region;
+}
+
+function regionRelease(region) {
+    regionPool.push(region);
+}
+
 regionProto.setTo = function (minX, minY, maxX, maxY) {
     this._minX = minX;
     this._minY = minY;
@@ -231,7 +245,7 @@ dirtyRegionProto.addRegion = function(target) {
         return true;
     }
     var dirtyList = this.dirtyList;
-    var region = new Region();
+    var region = regionCreate();
     dirtyList.push(region.setTo(minX, minY, maxX, maxY));
     this.mergeDirtyList(dirtyList);
     return true;
@@ -240,9 +254,9 @@ dirtyRegionProto.addRegion = function(target) {
 dirtyRegionProto.clear = function() {
     var dirtyList = this.dirtyList;
     var length = dirtyList.length;
-    //for (var i = 0; i < length; i++) {
-    //Region.release(dirtyList[i]);
-    //}
+    for (var i = 0; i < length; i++) {
+        regionRelease(dirtyList[i]);
+    }
     dirtyList.length = 0;
 };
 
@@ -251,7 +265,7 @@ dirtyRegionProto.getDirtyRegions = function() {
     if (this.clipRectChanged) {
         this.clipRectChanged = false;
         this.clear();
-        var region = new Region();
+        var region = regionCreate();
         dirtyList.push(region.setTo(0, 0, this.clipWidth, this.clipHeight));
     }
     else {
@@ -290,13 +304,14 @@ dirtyRegionProto.mergeDirtyList = function(dirtyList) {
             }
         }
     }
-    if (hasClipRect && (totalArea / this.clipArea) > 0.95) {//当脏矩形的面积已经超过屏幕95%时，直接放弃后续的所有标记。
+    //if the area of dirty region exceed 95% of the screen, skip the following dirty regions merge
+    if (hasClipRect && (totalArea / this.clipArea) > 0.95) {
         this.clipRectChanged = true;
     }
     if (mergeA != mergeB) {
         var region = dirtyList[mergeB];
         dirtyList[mergeA].union(region);
-        //Region.release(region);
+        regionRelease(region);
         dirtyList.splice(mergeB, 1);
         return true;
     }
