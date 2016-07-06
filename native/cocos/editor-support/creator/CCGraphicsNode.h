@@ -162,7 +162,7 @@ public:
 
     void arc(float cx, float cy, float r, float startAngle, float endAngle, bool counterclockwise);
     void rect(float x, float y, float w, float h);
-    void roundedRect(float x, float y, float w, float h, float r);
+    void roundRect(float x, float y, float w, float h, float r);
     void ellipse(float cx, float cy, float rx, float ry);
     void circle(float cx, float cy, float r);
     

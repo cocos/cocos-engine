@@ -271,7 +271,7 @@ void GraphicsNode::rect(float x, float y, float w, float h)
     _curPath->complex = false;
 }
 
-void GraphicsNode::roundedRect(float x, float y, float w, float h, float r)
+void GraphicsNode::roundRect(float x, float y, float w, float h, float r)
 {
     if (r < 0.1f) {
         rect(x,y,w,h);
