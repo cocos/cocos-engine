@@ -161,7 +161,7 @@ var _Deserializer = (function () {
     ///**
     // * @param {Boolean} isEditor - if false, "editorOnly" properties will be discarded
     // */
-    function _Deserializer(jsonObj, result, target, classFinder) {
+    function _Deserializer(jsonObj, result, target, classFinder, customEnv) {
         this._classFinder = classFinder;
         if (ENABLE_TARGET) {
             this._target = target;
@@ -170,6 +170,7 @@ var _Deserializer = (function () {
         this._idObjList = [];
         this._idPropList = [];
         this.result = result || new Details();
+        this.customEnv = customEnv;
 
         if (Array.isArray(jsonObj)) {
             var jsonArray = jsonObj;
@@ -517,6 +518,7 @@ cc.deserialize = function (data, result, options) {
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     var createAssetRefs = (options && options.createAssetRefs) || cc.sys.platform === cc.sys.EDITOR_CORE;
     var target = ENABLE_TARGET && (options && options.target);
+    var customEnv = (options && options.customEnv);
 
     if (CC_EDITOR && Buffer.isBuffer(data)) {
         data = data.toString();
@@ -532,7 +534,7 @@ cc.deserialize = function (data, result, options) {
         result = new Details();
     }
     cc.game._isCloning = true;
-    var deserializer = new _Deserializer(data, result, target, classFinder);
+    var deserializer = new _Deserializer(data, result, target, classFinder, customEnv);
     cc.game._isCloning = false;
 
     if (createAssetRefs) {
