@@ -223,13 +223,13 @@ cc.js.mixin(cc.director, {
             for (var i = 0; i < scenes.length; i++) {
                 var info = scenes[i];
                 if (info.url.endsWith(key)) {
-                    return info.uuid;
+                    return info;
                 }
             }
         }
         else if (typeof key === 'number') {
             if (0 <= key && key < scenes.length) {
-                return scenes[key].uuid;
+                return scenes[key];
             }
             else {
                 cc.error('loadScene: The scene index to load (%s) is out of range.', key);
@@ -239,6 +239,12 @@ cc.js.mixin(cc.director, {
             cc.error('loadScene: Unknown name type to load: "%s"', key);
         }
         return null;
+    },
+
+    setRuntimeLaunchScene: function (sceneName) {
+        // should not preload launch scene in runtime
+        var info = this._getSceneUuid(sceneName);
+        this._launchSceneUuid = info.uuid;
     },
 
     /**
@@ -254,11 +260,32 @@ cc.js.mixin(cc.director, {
             cc.error('loadScene: Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
             return false;
         }
-        var uuid = this._getSceneUuid(sceneName);
-        if (uuid) {
+        var info = this._getSceneUuid(sceneName);
+        if (info) {
+            var uuid = info.uuid;
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+            if (CC_JSB && cc.runtime && uuid !== this._launchSceneUuid) {
+                var self = this;
+                var groupName = cc.path.basename(info.url) + '_' + info.uuid;
+                console.log('==> start preload: ' + groupName);
+                var ensureAsync = false;
+                cc.LoaderLayer.preload([groupName], function () {
+                    console.log('==> end preload: ' + groupName);
+                    if (ensureAsync) {
+                        self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                    }
+                    else {
+                        setTimeout(function () {
+                            self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                        }, 0);
+                    }
+                });
+                ensureAsync = true;
+            }
+            else {
+                this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+            }
             return true;
         }
         else {
@@ -268,10 +295,10 @@ cc.js.mixin(cc.director, {
     },
 
     preloadScene: function (sceneName, onLoaded) {
-        var uuid = this._getSceneUuid(sceneName);
-        if (uuid) {
+        var info = this._getSceneUuid(sceneName);
+        if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ id: uuid, type: 'uuid' }, function (error, asset) {
+            cc.loader.load({ id: info.uuid, type: 'uuid' }, function (error, asset) {
                 if (error) {
                     cc.error('Failed to preload "%s", %s', sceneName, error.message);
                 }

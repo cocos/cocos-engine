@@ -29,8 +29,8 @@
 
     };
 
-    var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
 
+    var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
 
     proto.updateStatus = function () {
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
@@ -90,12 +90,12 @@
         var node = this._node;
         if (nodeSpacingY === 0) {
             nodeSpacingY = node._fontSize;
+        } else {
+            nodeSpacingY = nodeSpacingY * node._fontSize / this._drawFontsize;
         }
-        else {
-            nodeSpacingY = nodeSpacingY * node._fontSize / node._drawFontsize;
-        }
-        //float to integer, much faster than Math.floor
-        return nodeSpacingY | 0;
+
+        var lineHeight = nodeSpacingY | 0;
+        return lineHeight;
     };
 
     proto._prepareQuad = function () {
@@ -154,9 +154,10 @@
 
             //Increased while cycle maximum ceiling. default 100 time
             var checkWhile = 0;
+            var checkCount = 10;
 
             //Exceeded the size
-            while (width > maxWidth && checkWhile++ < 100) {
+            while (width > maxWidth && checkWhile++ < checkCount) {
                 fuzzyLen *= maxWidth / width;
                 fuzzyLen = fuzzyLen | 0;
                 tmpText = text.substr(fuzzyLen);
@@ -166,7 +167,7 @@
             checkWhile = 0;
 
             //Find the truncation point
-            while (width < maxWidth && checkWhile++ < 100) {
+            while (width < maxWidth && checkWhile++ < checkCount) {
                 if (tmpText) {
                     var exec = label_wordRex.exec(tmpText);
                     pushNum = exec ? exec[0].length : 1;
@@ -207,7 +208,9 @@
                     sText = text.substr(0, fuzzyLen);
                 }
             }
-            wrappedWords.push(sText);
+            if (sText.trim().length > 0) {
+                wrappedWords.push(sText);
+            }
             text = sLine || tmpText;
             allWidth = ctx.measureText(text).width;
         }
@@ -222,9 +225,8 @@
     proto._calculateLabelFont = function() {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
-        var drawFontize = node._fontSize;
 
-        var fontDesc = drawFontize.toString() + 'px ';
+        var fontDesc = this._drawFontsize.toString() + 'px ';
         var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
         fontDesc = fontDesc + fontFamily;
         this._labelContext.font = fontDesc;
@@ -233,28 +235,65 @@
 
         if (_ccsg.Label.Overflow.SHRINK === node._overFlow) {
             this._splitedStrings = paragraphedStrings;
-            var i;
+            var i = 0;
+            var totalHeight = 0;
+            var maxLength = 0;
 
             if (node._isWrapText) {
-                var totalLength = 0;
-                var canvasWidthNoMargin = this._canvasSize.width - 2* this._getMargin();
-                for (i = 0; i < paragraphedStrings.length; ++i) {
-                    totalLength += ((paragraphLength[i] / canvasWidthNoMargin + 1) | 0) * canvasWidthNoMargin;
-                }
-                var heightRatio = this._canvasSize.height / this._getLineHeight();
-                heightRatio = heightRatio < 1 ? 1: heightRatio;
-                var scale = canvasWidthNoMargin * (heightRatio | 0) / totalLength;
-                node._fontSize = (drawFontize * Math.min(Math.sqrt(scale), 1)) | 0;
-                fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
 
-                this._splitedStrings = [];
-                for (var i = 0; i < paragraphedStrings.length; ++i) {
-                    this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], this._canvasSize.width, this._labelContext));
+                var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
+                var canvasHeightNoMargin = this._canvasSize.height - 2 * this._getMargin();
+                totalHeight = canvasHeightNoMargin + 1;
+                maxLength = canvasWidthNoMargin + 1;
+                var actualFontSize = this._drawFontsize + 1;
+                var textFragment = "";
+                var tryDivideByTwo = true;
+                var startShrinkFontSize = actualFontSize | 0;
+
+                while (totalHeight > canvasHeightNoMargin || maxLength > canvasWidthNoMargin) {
+                    if (tryDivideByTwo) {
+                        actualFontSize = (startShrinkFontSize / 2) | 0;
+                    } else {
+                        actualFontSize = startShrinkFontSize - 1;
+                        startShrinkFontSize = actualFontSize;
+                    }
+                    if(actualFontSize <= 0) {
+                        cc.log("Label font size can't be shirnked less than 0!");
+                        break;
+                    }
+                    node._fontSize = actualFontSize;
+                    fontDesc = actualFontSize.toString() + 'px ' + fontFamily;
+                    this._labelContext.font = fontDesc;
+
+                    this._splitedStrings = [];
+                    totalHeight = 0;
+                    for (i = 0; i < paragraphedStrings.length; ++i) {
+                        var j = 0;
+                        textFragment = this._fragmentText(paragraphedStrings[i],
+                                                          canvasWidthNoMargin,
+                                                          this._labelContext);
+                        var isBiggerSize = false;
+                        while(j < textFragment.length) {
+                            var measureWidth = this._labelContext.measureText(textFragment[j]).width;
+                            maxLength = measureWidth;
+                            totalHeight += this._getLineHeight();
+                            ++j;
+                        }
+                        this._splitedStrings = this._splitedStrings.concat(textFragment);
+                    }
+
+                    if(tryDivideByTwo) {
+                        if (totalHeight > canvasHeightNoMargin) {
+                            startShrinkFontSize = actualFontSize | 0;
+                        } else {
+                            tryDivideByTwo = false;
+                            totalHeight = canvasHeightNoMargin + 1;
+                        }
+                    }
                 }
             }
             else {
-                var maxLength = 0;
-                var totalHeight = paragraphedStrings.length * this._getLineHeight();
+                totalHeight = paragraphedStrings.length * this._getLineHeight();
 
                 for (i = 0; i < paragraphedStrings.length; ++i) {
                     if (maxLength < paragraphLength[i]) {
@@ -264,7 +303,7 @@
                 var scaleX = (this._canvasSize.width - 2 * this._getMargin()) / maxLength;
                 var scaleY = this._canvasSize.height / totalHeight;
 
-                node._fontSize = (drawFontize * Math.min(1, scaleX, scaleY)) | 0;
+                node._fontSize = (this._drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
                 fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
             }
         }
@@ -299,7 +338,6 @@
 
     proto._calculateSplitedStrings = function() {
         var node = this._node;
-        var ctx = this._labelContext;
 
         var paragraphedStrings = node._string.split('\n');
 
@@ -307,7 +345,10 @@
         if (node._isWrapText) {
             this._splitedStrings = [];
             for (i = 0; i < paragraphedStrings.length; ++i) {
-                this._splitedStrings = this._splitedStrings.concat(this._fragmentText(paragraphedStrings[i], this._canvasSize.width, ctx));
+                var textFragment = this._fragmentText(paragraphedStrings[i],
+                                                      this._canvasSize.width,
+                                                      this._labelContext);
+                this._splitedStrings = this._splitedStrings.concat(textFragment);
             }
         }
         else {
@@ -406,7 +447,7 @@
 
     proto._bakeLabel = function () {
         var node = this._node;
-
+        this._drawFontsize = node._drawFontsize;
         this._canvasSize = this._calculateCanvasSize();
 
         //Note: don't change the calling order of the following 3 statements
@@ -427,7 +468,6 @@
     proto._updateTexture = function() {
         this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
 
-        this._fontDesc = this._calculateLabelFont();
         this._labelContext.font = this._fontDesc;
 
         var startPosition = this._calculateFillTextStartPosition();
@@ -445,7 +485,8 @@
                 this._labelContext.globalCompositeOperation = 'source-over';
                 this._labelContext.strokeStyle = 'rgb(' + strokeColor.r + ',' + strokeColor.g + ',' + strokeColor.b + ')';
                 this._labelContext.lineWidth = this._node.getOutlineWidth() * 2;
-                this._labelContext.strokeText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+                this._labelContext.strokeText(this._splitedStrings[i],
+                                              startPosition.x, startPosition.y + i * lineHeight);
             }
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
         }

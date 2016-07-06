@@ -353,7 +353,6 @@ JS.mixin(Pipeline.prototype, {
      */
     flowInDeps: function (urlList, callback) {
         var checker = {};
-        var count = 0;
 
         var items = this._items;
         function loadedCheck (item) {
@@ -379,18 +378,18 @@ JS.mixin(Pipeline.prototype, {
             if ( !item ) {
                 items.addListener(url, loadedCheck);
                 checker[url] = null;
-                count++;
             }
             else {
                 checker[url] = item;
             }
         }
+        var accepted = this.flowIn(urlList);
         // No new resources, complete directly
-        if (count === 0) {
+        if (accepted.length === 0) {
             callback && callback.call(this, checker);
             callback = null;
         }
-        return this.flowIn(urlList);
+        return accepted;
     },
 
     complete: function () {

@@ -142,7 +142,11 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
     };
 
     _p.setClearColor = function (clearColor) {
-        cc.renderer._clearColor = clearColor;
+        var locClearColor = cc.renderer._clearColor;
+        locClearColor.r = clearColor.r / 255;
+        locClearColor.g = clearColor.g / 255;
+        locClearColor.b = clearColor.b / 255;
+        locClearColor.a = clearColor.a / 255;
     };
 
     _p.setOpenGLView = function (openGLView) {
