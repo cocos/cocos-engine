@@ -902,7 +902,7 @@ void ScriptingCore::reportError(JSContext *cx, const char *message, JSErrorRepor
         __android_log_print(ANDROID_LOG_ERROR, "cocos js error:", "%s line:%u msg:%s",
                             fileName.c_str(), report->lineno, msg.c_str());
 #else
-        printf("%s:%u:%s\n", fileName.c_str(), report->lineno, msg.c_str());
+        cocos2d::log("%s:%u:%s\n", fileName.c_str(), report->lineno, msg.c_str());
 #endif
         // Should clear pending exception, otherwise it will trigger infinite loop
         if (JS_IsExceptionPending(cx)) {
