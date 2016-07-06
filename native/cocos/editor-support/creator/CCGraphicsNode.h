@@ -119,7 +119,7 @@ typedef struct Command Command;
 typedef std::vector< Command* > CommandVector;
 
 
-class GraphicsNode: public cocos2d::Node
+class CC_DLL GraphicsNode : public cocos2d::Node
 {
 public:
 
