@@ -1240,11 +1240,23 @@ var ScrollView = cc.Class({
         this.node.off('size-changed', this._calculateBoundary, this);
     },
 
+    onDisable: function() {
+        if (this.horizontalScrollBar) {
+            this.horizontalScrollBar.reset();
+        }
+
+        if (this.verticalScrollBar) {
+            this.verticalScrollBar.reset();
+        }
+        this._autoScrolling = false;
+        this._autoScrollAccumulatedTime = this._autoScrollTotalTime;
+    },
+
     update: function(dt) {
         if (this._autoScrolling) {
             this._processAutoScrolling(dt);
         }
-    },
+    }
 });
 
 cc.ScrollView = module.exports = ScrollView;
