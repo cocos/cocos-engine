@@ -784,7 +784,7 @@ Js.mixin(_p, {
             var nIndices = 0;
 
             if (path.complex) {
-                var data = this._vertsBuffer.slice(offset * 2, this._vertsOffset * 2);
+                var data = new Float32Array(this._vertsBuffer.buffer, offset * 8, (this._vertsOffset - offset) * 2); 
                 var newIndices = Earcut(data, null, 2);
 
                 if (!newIndices || newIndices.length === 0) {
