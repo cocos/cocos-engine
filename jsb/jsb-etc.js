@@ -209,6 +209,10 @@ window._ccsg = {
     MotionStreak: cc.MotionStreak
 };
 
+// __errorHandler
+window.__errorHandler = function (err) {
+};
+
 // rename cc.Class to cc._Class
 cc._Class = cc.Class;
 

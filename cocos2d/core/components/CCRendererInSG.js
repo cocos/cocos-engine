@@ -104,12 +104,12 @@ var RendererInSG = cc.Class({
         
         // replace children
         var children = replaced.getChildren().slice();
-        replaced.removeAllChildren();
+        replaced.removeAllChildren(false);
         if (sgNode.getChildrenCount() > 0) {
             if (CC_EDITOR) {
                 cc.warn('The replacement sgNode should not contain any child.');
             }
-            sgNode.removeAllChildren();
+            sgNode.removeAllChildren(false);
         }
         for (var i = 0, len = children.length; i < len; ++i) {
             sgNode.addChild(children[i]);
