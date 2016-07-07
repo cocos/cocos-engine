@@ -33,7 +33,6 @@ const Gulp = require('gulp');
 const Buffer = require('vinyl-buffer');
 const Uglify = require('gulp-uglify');
 const Sourcemaps = require('gulp-sourcemaps');
-const Size = require('gulp-size');
 const EventStream = require('event-stream');
 const Chalk = require('chalk');
 const HandleErrors = require('../util/handleErrors');
@@ -84,8 +83,17 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
         CC_JSB: false
     });
 
-    var rawSize = Size({ gzip: false, pretty: false, showTotal: false, showFiles: false });
-    var zippedSize = Size({ gzip: true, pretty: false, showTotal: false, showFiles: false });
+    var Size = null;
+    try {
+        Size = require('gulp-size');
+    } catch (error) {
+        Size = null;
+    }
+
+    if (Size) {
+        var rawSize = Size({ gzip: false, pretty: false, showTotal: false, showFiles: false });
+        var zippedSize = Size({ gzip: true, pretty: false, showTotal: false, showFiles: false });
+    }
 
     bundler = bundler.bundle();
     bundler = bundler.pipe(Source(outFile));
@@ -93,15 +101,17 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
     if (createMap !== false)
         bundler = bundler.pipe(Sourcemaps.init({loadMaps: true}));
     bundler = bundler.pipe(Uglify(uglifyOption));
-    bundler = bundler.pipe(rawSize);
-    bundler = bundler.pipe(zippedSize);
-    bundler = bundler.pipe(EventStream.through(null, function () {
-        var raw = rawSize.size;
-        var zipped = zippedSize.size;
-        var percent = ((zipped / raw) * 100).toFixed(2);
-        console.log(`Size of ${outputFile}: minimized: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
-        this.emit('end');
-    }));
+    if (Size) {
+        bundler = bundler.pipe(rawSize);
+        bundler = bundler.pipe(zippedSize);
+        bundler = bundler.pipe(EventStream.through(null, function () {
+            var raw = rawSize.size;
+            var zipped = zippedSize.size;
+            var percent = ((zipped / raw) * 100).toFixed(2);
+            console.log(`Size of ${outputFile}: minimized: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
+            this.emit('end');
+        }));
+    }
     if (createMap !== false)
         bundler = bundler.pipe(Sourcemaps.write('./', {
             sourceRoot: './',
