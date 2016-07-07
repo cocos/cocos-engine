@@ -327,9 +327,14 @@ var Scrollbar = cc.Class({
         }
     },
 
-    reset: function() {
+    hide: function() {
         this._autoHideRemainingTime = 0;
         this._setOpacity(0);
+    },
+
+    show: function() {
+        this._autoHideRemainingTime = 0;
+        this._setOpacity(this._opacity);
     },
 
     update: function(dt) {
