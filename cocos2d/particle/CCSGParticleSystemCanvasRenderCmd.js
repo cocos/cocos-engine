@@ -33,6 +33,8 @@ _ccsg.ParticleSystem.CanvasRenderCmd = function(renderable){
     this._shapeType = _ccsg.ParticleSystem.BALL_SHAPE;
 
     this._pointRect = cc.rect(0, 0, 0, 0);
+    //region for local bb
+    this._localRegion = new cc.Region();
     this._tintCache = document.createElement("canvas");
 };
 var proto = _ccsg.ParticleSystem.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
@@ -66,6 +68,34 @@ proto.updateQuadWithParticle = function (particle, newPosition) {
 
 proto.updateParticlePosition = function(particle, position){
     cc.pIn(particle.drawPos, position);
+};
+
+var particleRegion = new cc.Region();
+proto.updateLocalBB = function() {
+    var region = this._localRegion;
+    var particles = this._node._particles;
+    region.setEmpty();
+    for(var index = particles.length - 1; index >=0; --index) {
+        var particle = particles[index];
+        var pos = particle.drawPos;
+        var size = particle.size * 1.415 /*a little bigger than sqrt(2)*/;
+        particleRegion.setTo(pos.x - size, pos.y - size, pos.x + size, pos.y + size);
+        region.union(particleRegion);
+    }
+
+};
+
+proto.getLocalBB = function() {
+    //todo replace it with custom implementation
+    var region = this._localRegion;
+    return {x: region._minX, y: region._minY, width: region._maxX - region._minX, height: region._maxY - region._minY};
+};
+
+proto.updateStatus = function() {
+    _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
+    this._updateCurrentRegions();
+    this._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble;
+    this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.contentDirty ^ this._dirtyFlag;
 };
 
 proto.rendering = function (ctx, scaleX, scaleY) {
@@ -152,6 +182,7 @@ proto._changeTextureColor = function(texture, color, rect){
 
 proto.initTexCoordsWithRect = function(pointRect){
     this._pointRect = pointRect;
+    this._pointRadius = Math.sqrt(pointRect.width * pointRect.width + pointRect.height * pointRect.height);
 };
 
 proto.setTotalParticles = function(tp){

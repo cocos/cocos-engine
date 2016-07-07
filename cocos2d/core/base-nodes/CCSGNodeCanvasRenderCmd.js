@@ -427,23 +427,25 @@ _ccsg.Node.CanvasRenderCmd.RegionStatus = {
 
 var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
 proto.constructor = _ccsg.Node.CanvasRenderCmd;
-
 proto._notifyRegionStatus = function(status) {
     if(this._needDraw && this._regionFlag < status) {
         this._regionFlag = status;
     }
 };
 
-proto._updateCurrentRegions = function() {
+proto.getLocalBB = function() {
     var node = this._node;
-    var bb = {x: 0, y: 0, width: node._getWidth(), height: node._getHeight()};
+    return {x: 0, y: 0, width: node._getWidth(), height: node._getHeight()};
+};
+
+proto._updateCurrentRegions = function() {
     var temp = this._currentRegion;
     this._currentRegion = this._oldRegion;
     this._oldRegion = temp;
     if(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble === this._regionFlag && (!this._currentRegion.isEmpty())) {
         this._oldRegion.union(this._currentRegion);
     }
-    this._currentRegion.updateRegion(bb, this._worldTransform);
+    this._currentRegion.updateRegion(this.getLocalBB(), this._worldTransform);
 };
 
 proto.transform = function (parentCmd, recursive) {
