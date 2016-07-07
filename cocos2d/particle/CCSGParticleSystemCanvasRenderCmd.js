@@ -71,6 +71,7 @@ proto.updateParticlePosition = function(particle, position){
 };
 
 var particleRegion = new cc.Region();
+var localBB = new cc.Rect();
 proto.updateLocalBB = function() {
     var region = this._localRegion;
     var particles = this._node._particles;
@@ -83,12 +84,13 @@ proto.updateLocalBB = function() {
         region.union(particleRegion);
     }
 
+    localBB.x = region._minX; localBB.y = region._minY;
+    localBB.width = region._maxX - region._minX;
+    localBB.height = region._maxY - region._minY;
 };
 
 proto.getLocalBB = function() {
-    //todo replace it with custom implementation
-    var region = this._localRegion;
-    return {x: region._minX, y: region._minY, width: region._maxX - region._minX, height: region._maxY - region._minY};
+    return localBB;
 };
 
 proto.updateStatus = function() {
@@ -182,7 +184,6 @@ proto._changeTextureColor = function(texture, color, rect){
 
 proto.initTexCoordsWithRect = function(pointRect){
     this._pointRect = pointRect;
-    this._pointRadius = Math.sqrt(pointRect.width * pointRect.width + pointRect.height * pointRect.height);
 };
 
 proto.setTotalParticles = function(tp){

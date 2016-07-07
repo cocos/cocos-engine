@@ -169,8 +169,9 @@ cc.rendererCanvas = {
         }
 
         if(!allNeedDraw) {
-            this._endDrawDirtyRegion(ctx);
+            //draw debug info for dirty region if it is needed
             this._debugDrawDirtyRegion(wrapper);
+            this._endDrawDirtyRegion(ctx);
         }
 
         dirtyRegion.clear();

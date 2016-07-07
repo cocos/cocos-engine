@@ -1648,7 +1648,6 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      */
     update:function (dt) {
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
-        var pointRadius = Math.sqrt();
         if (this._isActive && this.emissionRate) {
             var rate = 1.0 / this.emissionRate;
             //issue #1201, prevent bursts of particles, due to too high emitCounter

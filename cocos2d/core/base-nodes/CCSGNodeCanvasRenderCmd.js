@@ -415,7 +415,6 @@ _ccsg.Node.CanvasRenderCmd = function (renderable) {
     this._cacheDirty = false;
     this._currentRegion = new cc.Region();
     this._oldRegion = new cc.Region();
-    this._dirtyRegion = new cc.Region();
     this._regionFlag = 0;
 };
 
@@ -433,15 +432,20 @@ proto._notifyRegionStatus = function(status) {
     }
 };
 
+var localBB = new cc.Rect();
 proto.getLocalBB = function() {
     var node = this._node;
-    return {x: 0, y: 0, width: node._getWidth(), height: node._getHeight()};
+    localBB.x = localBB.y = 0;
+    localBB.width = node._getWidth();
+    localBB.height = node._getHeight();
+    return localBB;
 };
 
 proto._updateCurrentRegions = function() {
     var temp = this._currentRegion;
     this._currentRegion = this._oldRegion;
     this._oldRegion = temp;
+    //hittest will call the transform, and set region flag to DirtyDouble, and the changes need to be considered for rendering
     if(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble === this._regionFlag && (!this._currentRegion.isEmpty())) {
         this._oldRegion.union(this._currentRegion);
     }
