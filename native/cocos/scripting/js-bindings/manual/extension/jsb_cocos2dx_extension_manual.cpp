@@ -700,22 +700,25 @@ static bool js_cocos2dx_CCControl_removeTargetWithActionForControlEvents(JSConte
     return false;
 }
 
-__JSDownloaderDelegator::__JSDownloaderDelegator(JSContext *cx, const std::string &url, int callbackIndex)
+__JSDownloaderDelegator::__JSDownloaderDelegator(JSContext *cx, JS::HandleObject obj, const std::string &url, JS::HandleObject callback)
 : _cx(cx)
 , _url(url)
-, _callbackIndex(callbackIndex)
 {
+    _obj.construct(_cx, obj);
+    _jsCallback.construct(_cx, callback);
 }
 
 __JSDownloaderDelegator::~__JSDownloaderDelegator()
 {
+    _obj.destroyIfConstructed();
+    _jsCallback.destroyIfConstructed();
     _downloader->onTaskError = (nullptr);
     _downloader->onDataTaskSuccess = (nullptr);
 }
 
-__JSDownloaderDelegator *__JSDownloaderDelegator::create(JSContext *cx, const std::string &url, int callbackIndex)
+__JSDownloaderDelegator *__JSDownloaderDelegator::create(JSContext *cx, JS::HandleObject obj, const std::string &url, JS::HandleObject callback)
 {
-    __JSDownloaderDelegator *delegate = new (std::nothrow) __JSDownloaderDelegator(cx, url, callbackIndex);
+    __JSDownloaderDelegator *delegate = new (std::nothrow) __JSDownloaderDelegator(cx, obj, url, callback);
     delegate->autorelease();
     return delegate;
 }
@@ -784,19 +787,15 @@ void __JSDownloaderDelegator::onError()
 {
     Director::getInstance()->getScheduler()->performFunctionInCocosThread([this]
     {
-        auto sc = ScriptingCore::getInstance();
-        JS::RootedObject globalObj(_cx, sc->getGlobalObject());
-        JS::RootedValue runtimeValue(_cx);
-        JS_GetProperty(_cx, globalObj, "jsb", &runtimeValue);
-        JS::RootedObject runtimeObj(_cx, runtimeValue.toObjectOrNull());
-
-        jsval valArr[3];
-        valArr[0] = INT_TO_JSVAL(_callbackIndex);
-        valArr[1] = BOOLEAN_TO_JSVAL(false);
-
-        JS::RootedValue retVal(_cx);
-        JS_CallFunctionName(_cx, runtimeObj, "onDownloadRemoteFile", JS::HandleValueArray::fromMarkedLocation(2, valArr), &retVal);
-
+        JS::RootedValue callback(_cx, OBJECT_TO_JSVAL(_jsCallback.ref()));
+        if (!callback.isNull()) {
+            JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
+            JSAutoCompartment ac(_cx, global);
+            
+            jsval succeed = BOOLEAN_TO_JSVAL(false);
+            JS::RootedValue retval(_cx);
+            JS_CallFunctionValue(_cx, global, callback, JS::HandleValueArray::fromMarkedLocation(1, &succeed), &retval);
+        }
         release();
     });
 }
@@ -809,11 +808,10 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
         JS::RootedObject global(_cx, ScriptingCore::getInstance()->getGlobalObject());
         JSAutoCompartment ac(_cx, global);
 
-        jsval valArr[3];
-        valArr[0] = INT_TO_JSVAL(_callbackIndex);
+        jsval valArr[2];
         if (tex)
         {
-            valArr[1] = BOOLEAN_TO_JSVAL(true);
+            valArr[0] = BOOLEAN_TO_JSVAL(true);
             js_proxy_t* p = jsb_get_native_proxy(tex);
             if (!p)
             {
@@ -823,23 +821,20 @@ void __JSDownloaderDelegator::onSuccess(Texture2D *tex)
                 p = jsb_new_proxy(tex, obj);
                 JS::AddNamedObjectRoot(_cx, &p->obj, "cocos2d::Texture2D");
             }
-            valArr[2] = OBJECT_TO_JSVAL(p->obj);
+            valArr[1] = OBJECT_TO_JSVAL(p->obj);
         }
         else
         {
-            valArr[1] = BOOLEAN_TO_JSVAL(false);
-            valArr[2] = JSVAL_NULL;
+            valArr[0] = BOOLEAN_TO_JSVAL(false);
+            valArr[1] = JSVAL_NULL;
         }
 
-        auto sc = ScriptingCore::getInstance();
-        JS::RootedObject globalObj(_cx, sc->getGlobalObject());
-        JS::RootedValue runtimeValue(_cx);
-        JS_GetProperty(_cx, globalObj, "jsb", &runtimeValue);
-        JS::RootedObject runtimeObj(_cx, runtimeValue.toObjectOrNull());
-
-        JS::RootedValue retVal(_cx);
-        JS_CallFunctionName(_cx, runtimeObj, "onDownloadRemoteFile", JS::HandleValueArray::fromMarkedLocation(3, valArr), &retVal);
-
+        JS::RootedValue callback(_cx, OBJECT_TO_JSVAL(_jsCallback.ref()));
+        if (!callback.isNull())
+        {
+            JS::RootedValue retval(_cx);
+            JS_CallFunctionValue(_cx, global, callback, JS::HandleValueArray::fromMarkedLocation(2, valArr), &retval);
+        }
         release();
     }
 }
@@ -854,17 +849,15 @@ bool js_load_remote_image(JSContext *cx, uint32_t argc, jsval *vp)
         std::string url;
         bool ok = jsval_to_std_string(cx, args.get(0), &url);
         JSB_PRECONDITION2(ok, cx, false, "js_load_remote_image : Error processing arguments");
-        int callbackIndex;
-        jsval_to_int(cx, args.get(1), &callbackIndex);
-        JSB_PRECONDITION2(ok, cx, false, "js_load_remote_image : Error processing arguments");
-
-        __JSDownloaderDelegator *delegate = __JSDownloaderDelegator::create(cx, url, callbackIndex);
+        JS::RootedObject callback(cx, args.get(1).toObjectOrNull());
+        
+        __JSDownloaderDelegator *delegate = __JSDownloaderDelegator::create(cx, obj, url, callback);
         delegate->downloadAsync();
-
+        
         args.rval().setUndefined();
         return true;
     }
-
+    
     JS_ReportError(cx, "js_load_remote_image : wrong number of arguments");
     return false;
 }
@@ -905,6 +898,6 @@ void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject glob
     JS::RootedObject jsbObj(cx);
     get_or_create_js_obj(cx, global, "jsb", &jsbObj);
 
-    JS_DefineFunction(cx, jsbObj, "__loadRemoteImg", js_load_remote_image, 2, JSPROP_READONLY | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, jsbObj, "loadRemoteImg", js_load_remote_image, 2, JSPROP_READONLY | JSPROP_PERMANENT);
 }
 
