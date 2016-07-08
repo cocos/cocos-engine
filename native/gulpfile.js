@@ -159,11 +159,11 @@ gulp.task('gen-simulator', function (cb) {
 });
 
 gulp.task('collect-prebuilt-mk', function () {
+  fs.removeSync('./prebuilt_mk');
   return gulp.src([
     '**/prebuilt-mk/Android.mk',
     ], {
-    base: './',
-    ignore: './prebuilt_mk/**/*'
+    base: './'
   }).pipe(gulp.dest('prebuilt_mk'));
 });
 
