@@ -36,10 +36,10 @@ public:
     void downloadAsync();
     void download();
 
-    static __JSDownloaderDelegator *create(JSContext *cx, const std::string &url, int callbackIndex);
+    static __JSDownloaderDelegator *create(JSContext *cx, JS::HandleObject obj, const std::string &url, JS::HandleObject callback);
 
 protected:
-    __JSDownloaderDelegator(JSContext *cx, const std::string &url, int callbackIndex);
+    __JSDownloaderDelegator(JSContext *cx, JS::HandleObject obj, const std::string &url, JS::HandleObject callback);
     ~__JSDownloaderDelegator();
 
     void startDownload();
@@ -50,7 +50,8 @@ private:
     std::shared_ptr<cocos2d::network::Downloader> _downloader;
     std::string _url;
     JSContext *_cx;
-    int _callbackIndex;
+    mozilla::Maybe<JS::PersistentRootedObject> _jsCallback;
+    mozilla::Maybe<JS::PersistentRootedObject> _obj;
 };
 
 void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject global);
