@@ -560,7 +560,6 @@ cc.Repeat = cc.ActionInterval.extend({
             // don't set a instant action back or update it, it has no use because it has no duration
             if (!this._actionInstant) {
                 if (this._total === locTimes) {
-                    locInnerAction.update(1);
                     locInnerAction.stop();
                 } else {
                     // issue #390 prevent jerk, use right update
