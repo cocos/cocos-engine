@@ -161,3 +161,9 @@ cc.loader.addLoadHandlers({
     'webp' : loadImage,
     'image' : loadImage
 });
+
+cc.Follow.prototype._ctor = function (followedNode, rect) {
+    if(followedNode)
+        rect ? this.initWithTarget(followedNode, rect)
+            : this.initWithTarget(followedNode);
+};
