@@ -477,7 +477,6 @@ _ccsg.Label = _ccsg.Node.extend({
         } else if (this._labelType === _ccsg.Label.Type.TTF
                    || this._labelType === _ccsg.Label.Type.SystemFont) {
             this._renderCmd._bakeLabel();
-            this._renderCmd._prepareQuad();
         }
     },
 

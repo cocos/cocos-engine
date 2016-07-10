@@ -35,71 +35,81 @@ var _batchedInfo = {
         shader: null
     },
 
-    _quadIndexBuffer = null,
-    _quadVertexBuffer = null,
+    _indexBuffer = null,
+    _vertexBuffer = null,
     // Total vertex size
-    _vertexSize = 0,
+    _maxVertexSize = 0,
     // Current batching vertex size
     _batchingSize = 0,
+    // Current batching index size
+    _indexSize = 0,
+    // Float size per vertex
     _sizePerVertex = 6,
     // buffer data and views
     _vertexData = null,
     _vertexDataSize = 0,
     _vertexDataF32 = null,
     _vertexDataUI32 = null,
+    _indexData = null,
+    _prevIndexSize = false,
+    _pureQuad = true,
     _IS_IOS = false;
 
 
 // Inspired from @Heishe's gotta-batch-them-all branch
 // https://github.com/Talisca/cocos2d-html5/commit/de731f16414eb9bcaa20480006897ca6576d362c
-function updateQuadBuffer (numQuads) {
+function updateBuffer (numQuads) {
     var gl = cc._renderContext;
-    // Update index buffer and fill up
-    if (_quadIndexBuffer) {
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _quadIndexBuffer);
-
-        var indices = new Uint16Array(numQuads * 6);
+    // Update index buffer size
+    if (_indexBuffer) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
+        _indexData = new Uint16Array(numQuads * 6);
         var currentQuad = 0;
         for (var i = 0, len = numQuads * 6; i < len; i += 6) {
-            indices[i] = currentQuad + 0;
-            indices[i + 1] = currentQuad + 1;
-            indices[i + 2] = currentQuad + 2;
-            indices[i + 3] = currentQuad + 1;
-            indices[i + 4] = currentQuad + 2;
-            indices[i + 5] = currentQuad + 3;
+            _indexData[i] = currentQuad + 0;
+            _indexData[i + 1] = currentQuad + 1;
+            _indexData[i + 2] = currentQuad + 2;
+            _indexData[i + 3] = currentQuad + 1;
+            _indexData[i + 4] = currentQuad + 2;
+            _indexData[i + 5] = currentQuad + 3;
             currentQuad += 4;
         }
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _indexData, gl.DYNAMIC_DRAW);
     }
-
-    if (_quadVertexBuffer) {
+    // Update vertex buffer size
+    if (_vertexBuffer) {
         _vertexDataSize = numQuads * 4 * _sizePerVertex;
         var byteLength = _vertexDataSize * 4;
         _vertexData = new ArrayBuffer(byteLength);
         _vertexDataF32 = new Float32Array(_vertexData);
         _vertexDataUI32 = new Uint32Array(_vertexData);
         // Init buffer data
-        gl.bindBuffer(gl.ARRAY_BUFFER, _quadVertexBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
     }
-    _vertexSize = numQuads * 4;
+    _maxVertexSize = numQuads * 4;
 }
 
 // Inspired from @Heishe's gotta-batch-them-all branch
 // https://github.com/Talisca/cocos2d-html5/commit/de731f16414eb9bcaa20480006897ca6576d362c
 function initQuadBuffer (numQuads) {
     var gl = cc._renderContext;
-    if (_quadIndexBuffer === null) {
+    if (_indexBuffer === null) {
         // TODO do user need to release the memory ?
-        _quadVertexBuffer = gl.createBuffer();
-        _quadIndexBuffer = gl.createBuffer();
+        _vertexBuffer = gl.createBuffer();
+        _indexBuffer = gl.createBuffer();
 
-        updateQuadBuffer(numQuads);
+        updateBuffer(numQuads);
     }
     else {
-        updateQuadBuffer(numQuads);
+        updateBuffer(numQuads);
     }
 }
+
+var VertexType = cc.Enum({
+    QUAD : 0,
+    TRIANGLE : 1
+});
 
 cc.rendererWebGL = {
     mat4Identity: null,
@@ -107,6 +117,8 @@ cc.rendererWebGL = {
     childrenOrderDirty: true,
     assignedZ: 0,
     assignedZStep: 1/100,
+
+    VertexType: VertexType,
 
     _transformNodePool: [],                              //save nodes transform dirty
     _renderCmds: [],                                     //save renderer commands
@@ -131,7 +143,7 @@ cc.rendererWebGL = {
     },
 
     getVertexSize: function () {
-        return _vertexSize;
+        return _maxVertexSize;
     },
 
     getRenderCmd: function (renderableObject) {
@@ -261,17 +273,43 @@ cc.rendererWebGL = {
         }
     },
 
-    _increaseBatchingSize: function (increment) {
+    _increaseBatchingSize: function (increment, vertexType) {
+        vertexType = vertexType || VertexType.QUAD;
+        var i, curr;
+        switch (vertexType) {
+        case VertexType.QUAD:
+            for (i = 0; i < increment; i += 4) {
+                curr = _batchingSize + i;
+                _indexData[_indexSize++] = curr + 0;
+                _indexData[_indexSize++] = curr + 1;
+                _indexData[_indexSize++] = curr + 2;
+                _indexData[_indexSize++] = curr + 1;
+                _indexData[_indexSize++] = curr + 2;
+                _indexData[_indexSize++] = curr + 3;
+            }
+            break;
+        case VertexType.TRIANGLE:
+            _pureQuad = false;
+            for (i = 0; i < increment; i += 3) {
+                curr = _batchingSize + i;
+                _indexData[_indexSize++] = curr + 0;
+                _indexData[_indexSize++] = curr + 1;
+                _indexData[_indexSize++] = curr + 2;
+            }
+            break;
+        default:
+            return;
+        }
         _batchingSize += increment;
     },
 
     _uploadBufferData: function (cmd) {
-        if (_batchingSize >= _vertexSize) {
+        if (_batchingSize >= _maxVertexSize) {
             this._batchRendering();
         }
 
         // Check batching
-        var texture = cmd._node._texture;
+        var texture = cmd._texture || cmd._node._texture;
         var blendSrc = cmd._node._blendFunc.src;
         var blendDst = cmd._node._blendFunc.dst;
         var shader = cmd._shaderProgram;
@@ -291,6 +329,31 @@ cc.rendererWebGL = {
         // Upload vertex data
         var len = cmd.uploadData(_vertexDataF32, _vertexDataUI32, _batchingSize * _sizePerVertex);
         if (len > 0) {
+            var i, curr, type = cmd.vertexType || VertexType.QUAD;
+            switch (type) {
+            case VertexType.QUAD:
+                for (i = 0; i < len; i += 4) {
+                    curr = _batchingSize + i;
+                    _indexData[_indexSize++] = curr + 0;
+                    _indexData[_indexSize++] = curr + 1;
+                    _indexData[_indexSize++] = curr + 2;
+                    _indexData[_indexSize++] = curr + 1;
+                    _indexData[_indexSize++] = curr + 2;
+                    _indexData[_indexSize++] = curr + 3;
+                }
+                break;
+            case VertexType.TRIANGLE:
+                _pureQuad = false;
+                for (i = 0; i < len; i += 3) {
+                    curr = _batchingSize + i;
+                    _indexData[_indexSize++] = curr + 0;
+                    _indexData[_indexSize++] = curr + 1;
+                    _indexData[_indexSize++] = curr + 2;
+                }
+                break;
+            default:
+                return;
+            }
             _batchingSize += len;
         }
     },
@@ -304,6 +367,7 @@ cc.rendererWebGL = {
         var texture = _batchedInfo.texture;
         var shader = _batchedInfo.shader;
         var count = _batchingSize / 4;
+        var uploadAll = _batchingSize > _maxVertexSize * 0.5;
 
         if (shader) {
             shader.use();
@@ -313,9 +377,9 @@ cc.rendererWebGL = {
         cc.gl.blendFunc(_batchedInfo.blendSrc, _batchedInfo.blendDst);
         cc.gl.bindTexture2DN(0, texture);                   // = cc.gl.bindTexture2D(texture);
 
-        var _bufferchanged = !gl.bindBuffer(gl.ARRAY_BUFFER, _quadVertexBuffer);
+        var _bufferchanged = !gl.bindBuffer(gl.ARRAY_BUFFER, _vertexBuffer);
         // upload the vertex data to the gl buffer
-        if (_batchingSize > _vertexSize * 0.5) {
+        if (uploadAll) {
             gl.bufferData(gl.ARRAY_BUFFER, _vertexDataF32, gl.DYNAMIC_DRAW);
         }
         else {
@@ -332,12 +396,28 @@ cc.rendererWebGL = {
             gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, gl.FLOAT, false, 24, 16);
         }
 
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _quadIndexBuffer);
-        gl.drawElements(gl.TRIANGLES, count * 6, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, _indexBuffer);
+        if (!_prevIndexSize || !_pureQuad || _indexSize > _prevIndexSize) {
+            if (uploadAll) {
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _indexData, gl.DYNAMIC_DRAW);
+            }
+            else {
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, _indexData.subarray(0, _indexSize), gl.DYNAMIC_DRAW);
+            }
+        }
+        gl.drawElements(gl.TRIANGLES, _indexSize, gl.UNSIGNED_SHORT, 0);
 
         cc.g_NumberOfDraws++;
 
+        if (_pureQuad) {
+            _prevIndexSize = _indexSize;
+        }
+        else {
+            _prevIndexSize = 0;
+            _pureQuad = true;
+        }
         _batchingSize = 0;
+        _indexSize = 0;
     },
 
     /**
@@ -346,11 +426,11 @@ cc.rendererWebGL = {
      */
     rendering: function (ctx, cmds) {
         var locCmds = cmds || this._renderCmds,
-            i, len, cmd, next, batchCount,
+            i, len, cmd,
             context = ctx || cc._renderContext;
 
         // Reset buffer for rendering
-        context.bindBuffer(gl.ARRAY_BUFFER, null);
+        context.bindBuffer(context.ARRAY_BUFFER, null);
 
         for (i = 0, len = locCmds.length; i < len; ++i) {
             cmd = locCmds[i];

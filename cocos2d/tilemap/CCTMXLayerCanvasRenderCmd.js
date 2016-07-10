@@ -22,17 +22,23 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc.TMXLayer.CanvasRenderCmd = function(renderable){
-    cc.Node.CanvasRenderCmd.call(this, renderable);
+var Orientation = null;
+var TileFlag = null;
+var FLIPPED_MASK = null;
+
+_ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
+    _ccsg.Node.CanvasRenderCmd.call(this, renderable);
     this._needDraw = true;
+
+    if (!Orientation) {
+        Orientation = cc.TiledMap.Orientation;
+        TileFlag = cc.TiledMap.TileFlag;
+        FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+    }
 };
 
-var proto = cc.TMXLayer.CanvasRenderCmd.prototype = Object.create(cc.Node.CanvasRenderCmd.prototype);
-proto.constructor = cc.TMXLayer.CanvasRenderCmd;
-
-var Orientation = cc.TiledMap.Orientation;
-var TileFlag = cc.TiledMap.TileFlag;
-var FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+var proto = _ccsg.TMXLayer.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
+proto.constructor = _ccsg.TMXLayer.CanvasRenderCmd;
 
 proto.visit = function (parentCmd) {
     var node = this._node, renderer = cc.renderer;

@@ -149,7 +149,7 @@ cc.shaderCache = /** @lends cc.shaderCache# */{
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 break;
             case this.TYPE_SPRITE_POSITION_COLOR:
-                program.initWithVertexShaderByteArray(shaders.SPRITE_POSITION_COLOR_VERT, shaders,POSITION_COLOR_FRAG);
+                program.initWithVertexShaderByteArray(shaders.SPRITE_POSITION_COLOR_VERT, shaders.POSITION_COLOR_FRAG);
                 program.addAttribute(macro.ATTRIBUTE_NAME_POSITION, macro.VERTEX_ATTRIB_POSITION);
                 program.addAttribute(macro.ATTRIBUTE_NAME_COLOR, macro.VERTEX_ATTRIB_COLOR);
                 break;

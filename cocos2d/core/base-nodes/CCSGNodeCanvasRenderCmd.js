@@ -149,13 +149,6 @@ _ccsg.Node.RenderCmd.prototype = {
             t = this._transform,
             wt = this._worldTransform;         //get the world transform
 
-        if (node._usingNormalizedPosition && node._parent) {
-            var conSize = node._parent._contentSize;
-            node._position.x = node._normalizedPosition.x * conSize.width;
-            node._position.y = node._normalizedPosition.y * conSize.height;
-            node._normalizedPositionDirty = false;
-        }
-
         var hasRotation = node._rotationX || node._rotationY;
         var hasSkew = node._skewX || node._skewY;
         var sx = node._scaleX, sy = node._scaleY;

@@ -510,8 +510,20 @@ else {
     sys.language = currLanguage;
 
     // Get the os of system
-    var iOS = ( ua.match(/(iPad|iPhone|iPod)/i) ? true : false );
-    var isAndroid = ua.match(/android/i) || nav.platform.match(/android/i) ? true : false;
+    var isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
+    var uaResult = /android (\d+(?:\.\d+)+)/i.exec(ua) || /android (\d+(?:\.\d+)+)/i.exec(nav.platform);
+    if (uaResult) {
+        isAndroid = true;
+        osVersion = uaResult[1] || '';
+        osMainVersion = parseInt(osVersion) || 0;
+    }
+    uaResult = /(iPad|iPhone|iPod).*OS ((\d+_?){2,3})/i.exec(ua);
+    if (uaResult) {
+        iOS = true;
+        osVersion = uaResult[2] || '';
+        osMainVersion = parseInt(osVersion) || 0;
+    }
+
     var osName = sys.OS_UNKNOWN;
     if (nav.appVersion.indexOf("Win") !== -1) osName = sys.OS_WINDOWS;
     else if (iOS) osName = sys.OS_IOS;
@@ -525,6 +537,16 @@ else {
      * @property {String} os
      */
     sys.os = osName;
+    /**
+     * Indicate the running os version
+     * @property {String} osVersion
+     */
+    sys.osVersion = osVersion;
+    /**
+     * Indicate the running os main version
+     * @property {Number} osMainVersion
+     */
+    sys.osMainVersion = osMainVersion;
 
     /**
      * Indicate the running browser type
@@ -689,7 +711,6 @@ else {
 
             if (_supportWebGL && sys.os === sys.OS_ANDROID) {
                 var browserVer = parseFloat(sys.browserVersion);
-
                 switch (sys.browserType) {
                 case sys.BROWSER_TYPE_MOBILE_QQ:
                 case sys.BROWSER_TYPE_BAIDU:
@@ -719,7 +740,6 @@ else {
                 case sys.BROWSER_TYPE_UNKNOWN:
                 case sys.BROWSER_TYPE_360:
                 case sys.BROWSER_TYPE_MIUI:
-                default:
                     _supportWebGL = false;
                 }
             }

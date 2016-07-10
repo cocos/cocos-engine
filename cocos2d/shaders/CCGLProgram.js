@@ -26,6 +26,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var macro = cc.macro;
+var math = cc.math;
+
 /**
  * Class that implements a WebGL program
  * @class

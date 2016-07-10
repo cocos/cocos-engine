@@ -22,8 +22,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-cc.TMXLayer.WebGLRenderCmd = function(renderableObject){
-    cc.Node.WebGLRenderCmd.call(this, renderableObject);
+var Orientation = null;
+var TileFlag = null;
+var FLIPPED_MASK = null;
+
+_ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
+    _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
     this._needDraw = true;
     this._vertices = [
         {x:0, y:0},
@@ -40,14 +44,16 @@ cc.TMXLayer.WebGLRenderCmd = function(renderableObject){
     radian = radian * 3;
     this._sin270 = Math.sin(radian);
     this._cos270 = Math.cos(radian);
+
+    if (!Orientation) {
+        Orientation = cc.TiledMap.Orientation;
+        TileFlag = cc.TiledMap.TileFlag;
+        FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+    }
 };
 
-var proto = cc.TMXLayer.WebGLRenderCmd.prototype = Object.create(cc.Node.WebGLRenderCmd.prototype);
-proto.constructor = cc.TMXLayer.WebGLRenderCmd;
-
-var Orientation = cc.TiledMap.Orientation;
-var TileFlag = cc.TiledMap.TileFlag;
-var FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+var proto = _ccsg.TMXLayer.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+proto.constructor = _ccsg.TMXLayer.WebGLRenderCmd;
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
     var node = this._node, hasRotation = (node._rotationX || node._rotationY),
@@ -118,7 +124,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         for (col = startCol; col < maxCol; ++col) {
             // No more buffer
             if (offset + 24 > f32buffer.length) {
-                cc.renderer._increaseBatchingSize((offset - vertexDataOffset) / 6);
+                cc.renderer._increaseBatchingSize((offset - vertexDataOffset) / 6, cc.renderer.VertexType.QUAD);
                 cc.renderer._batchRendering();
                 vertexDataOffset = 0;
                 offset = 0;

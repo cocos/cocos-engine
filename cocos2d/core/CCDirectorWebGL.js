@@ -30,17 +30,6 @@ require('../kazmath');
 
 var math = cc.math;
 
-var GLToClipTransform = function (transformOut) {
-    //var projection = new math.Matrix4();
-    //math.glGetMatrix(math.KM_GL_PROJECTION, projection);
-    math.glGetMatrix(math.KM_GL_PROJECTION, transformOut);
-
-    var modelview = new math.Matrix4();
-    math.glGetMatrix(math.KM_GL_MODELVIEW, modelview);
-
-    transformOut.multiply(modelview);
-};
-
 cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
 
     // Do nothing under other render mode
@@ -95,10 +84,10 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
                 math.glMatrixMode(math.KM_GL_PROJECTION);
                 math.glLoadIdentity();
                 var orthoMatrix = math.Matrix4.createOrthographicProjection(
-                    -ox,
-                    size.width - ox,
-                    -oy,
-                    size.height - oy,
+                    0,
+                    size.width,
+                    0,
+                    size.height,
                     -1024, 1024);
                 math.glMultMatrix(orthoMatrix);
                 math.glMatrixMode(math.KM_GL_MODELVIEW);
@@ -185,40 +174,6 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     };
 
-    _p._beforeVisitScene = function () {
-        math.glPushMatrix();
-    };
-
-    _p._afterVisitScene = function () {
-        math.glPopMatrix();
-    };
-
-    _p.convertToGL = function (uiPoint) {
-        var transform = new math.Matrix4();
-        GLToClipTransform(transform);
-
-        var transformInv = transform.inverse();
-
-        // Calculate z=0 using -> transform*[0, 0, 0, 1]/w
-        var zClip = transform.mat[14] / transform.mat[15];
-        var glSize = this._openGLView.getDesignResolutionSize();
-        var glCoord = new math.Vec3(2.0 * uiPoint.x / glSize.width - 1.0, 1.0 - 2.0 * uiPoint.y / glSize.height, zClip);
-        glCoord.transformCoord(transformInv);
-        return cc.p(glCoord.x, glCoord.y);
-    };
-
-    _p.convertToUI = function (glPoint) {
-        var transform = new math.Matrix4();
-        GLToClipTransform(transform);
-
-        var clipCoord = new math.Vec3(glPoint.x, glPoint.y, 0.0);
-        // Need to calculate the zero depth from the transform.
-        clipCoord.transformCoord(transform);
-
-        var glSize = this._openGLView.getDesignResolutionSize();
-        return cc.p(glSize.width * (clipCoord.x * 0.5 + 0.5), glSize.height * (-clipCoord.y * 0.5 + 0.5));
-    };
-
     _p.getVisibleSize = function () {
         //if (this._openGLView) {
         return this._openGLView.getVisibleSize();
@@ -266,9 +221,6 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
     _p.setGLDefaultValues = function () {
         var _t = this;
         _t.setAlphaBlending(true);
-        // XXX: Fix me, should enable/disable depth test according the depth format as cocos2d-iphone did
-        // [self setDepthTest: view_.depthFormat];
-        _t.setDepthTest(false);
         _t.setProjection(_t._projection);
 
         // set other opengl default values
