@@ -56,16 +56,9 @@ var Collider = cc.Class({
 
     onDisable: function () {
         cc.director.getCollisionManager().removeCollider(this);
-        this.node.off('group-changed', this.onGroupChanged, this);
     },
 
     onEnable: function () {
-        cc.director.getCollisionManager().addCollider(this);
-        this.node.on('group-changed', this.onGroupChanged, this);
-    },
-
-    onGroupChanged: function () {
-        cc.director.getCollisionManager().removeCollider(this);
         cc.director.getCollisionManager().addCollider(this);
     }
 });
