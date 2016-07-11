@@ -49,7 +49,7 @@ var isMainProcess = CC_EDITOR && Editor.isMainProcess;
 if (!isMainProcess) {
     // LOAD ORIGIN COCOS2D COMPILED BY CLOSURE
     require('./bin/modular-cocos2d');
-    if (!CC_EDITOR) {
+    if (!CC_EDITOR && !CC_TEST) {
         require('./bin/modular-cocos2d-cut');
     }
 }
