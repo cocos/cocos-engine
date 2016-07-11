@@ -25,31 +25,37 @@
  ****************************************************************************/
 
 /**
- * !#en cc.TMXObjectGroup represents the TMX object group.
+ * !#en _ccsg.TMXObjectGroup represents the TMX object group.
  * !#zh TMXObjectGroup 用来表示 TMX 对象组。
  * @class TMXObjectGroup
- * @extends cc._Class
+ * @extends _ccsg.Node
  *
  * @property {Array}    properties  - Properties from the group. They can be added using tilemap editors
  * @property {String}   groupName   - Name of the group
  */
-cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
-	properties: null,
+_ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
+	  properties: null,
     groupName: "",
 
     _positionOffset: null,
-    _objects: null,
+    _mapInfo: null,
 
     /**
-     * <p>The cc.TMXObjectGroup's constructor. <br/>
+     * <p>The _ccsg.TMXObjectGroup's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.TMXObjectGroup()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      */
-    ctor:function () {
-        this.groupName = "";
-        this._positionOffset = cc.p(0,0);
-        this.properties = [];
-        this._objects = [];
+    ctor:function (groupInfo, mapInfo) {
+        _ccsg.Node.prototype.ctor.call(this);
+        this._initGroup(groupInfo, mapInfo);
+    },
+
+    _initGroup: function (groupInfo, mapInfo) {
+        this.groupName = groupInfo.name;
+        this._positionOffset = groupInfo.offset;
+        this._mapInfo = mapInfo;
+        this.properties = groupInfo.getProperties();
+        this.setObjects(groupInfo._objects);
     },
 
     /**
@@ -98,7 +104,7 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * tMXObjectGroup.setProperties(obj);
      */
     setProperties:function (Var) {
-        this.properties.push(Var);
+        this.properties = Var;
     },
 
     /**
@@ -157,12 +163,11 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * var object = tMXObjectGroup.getObject("Group");
      */
     getObject: function(objectName){
-        if (this._objects && this._objects.length > 0) {
-            var locObjects = this._objects;
-            for (var i = 0, len = locObjects.length; i < len; i++) {
-                var name = locObjects[i]["name"];
-                if (name && name === objectName)
-                    return locObjects[i];
+        var locChildren = this.getChildren();
+        for (var i = 0, len = locChildren.length; i < len; i++) {
+            var child = locChildren[i];
+            if (child && child.isTmxObject && child.getObjectName() === objectName) {
+                return child;
             }
         }
         // object not found
@@ -178,7 +183,15 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * var objects = tMXObjectGroup.getObjects();
      */
     getObjects:function () {
-        return this._objects;
+        var retArr = [];
+        var locChildren = this.getChildren();
+        for (var i = 0, len = locChildren.length; i < len; i++) {
+            var child = locChildren[i];
+            if (child && child.isTmxObject) {
+                retArr.push(child);
+            }
+        }
+        return retArr;
     },
 
     /**
@@ -190,6 +203,34 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * tMXObjectGroup.setObjects(objects);
      */
     setObjects:function (objects) {
-        this._objects.push(objects);
+        if (objects instanceof Array) {
+            this._objects = objects;
+        } else {
+            this._objects = [];
+        }
+
+        // remove the objects added before
+        var locChildren = this.getChildren();
+        var i, n;
+        for (i = 0, n = locChildren.length; i < n; i++) {
+            var child = locChildren[i];
+            if (child && child.isTmxObject) {
+                this.removeChild(child);
+            }
+        }
+
+        // add objects
+        for (i = 0, n = objects.length; i < n; i++) {
+            var objInfo = objects[i];
+            var object;
+            if (objInfo.type === 'image') {
+                object = new _ccsg.TMXObjectImage(objInfo, this._mapInfo);
+            } else {
+                object = new _ccsg.TMXObjectShape(objInfo, this._mapInfo);
+            }
+
+            // TODO addChild in order with property cc.TMXObjectGroupInfo._draworder
+            this.addChild(object, i, i);
+        }
     }
 });

@@ -81,7 +81,6 @@
  *
  * @property {Array}    properties      - Properties from the map. They can be added using tilemap editors
  * @property {Number}   mapOrientation  - Map orientation
- * @property {Array}    objectGroups    - Object groups of the map
  * @property {Number}   mapWidth        - Width of the map
  * @property {Number}   mapHeight       - Height of the map
  * @property {Number}   tileWidth       - Width of a tile
@@ -102,7 +101,6 @@
 _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
 	properties: null,
 	mapOrientation: null,
-	objectGroups: null,
 
     //the map's size property measured in tiles
     _mapSize: null,
@@ -210,15 +208,13 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
      * @return {Array}
      */
     getObjectGroups:function () {
-        return this.objectGroups;
-    },
-
-    /**
-     * object groups
-     * @param {Array} Var
-     */
-    setObjectGroups:function (Var) {
-        this.objectGroups = Var;
+        var retArr = [], locChildren = this._children;
+        for(var i = 0, len = locChildren.length;i< len;i++){
+            var group = locChildren[i];
+            if(group && group instanceof _ccsg.TMXObjectGroup)
+                retArr.push(group);
+        }
+        return retArr;
     },
 
     /**
@@ -285,7 +281,6 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
         this._mapSize = mapInfo.getMapSize();
         this._tileSize = mapInfo.getTileSize();
         this.mapOrientation = mapInfo.orientation;
-        this.objectGroups = mapInfo.getObjectGroups();
         this.properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
 
@@ -298,18 +293,33 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
             }
         }
 
+        // remove the object groups added before
+        var oldGroups = this.getObjectGroups();
+        for (j = 0, n = oldGroups.length; j < n; j++) {
+            var group = oldGroups[j];
+            if (group) {
+                this.removeChild(group);
+            }
+        }
+
         var idx = 0;
-        var layers = mapInfo.getLayers();
-        if (layers) {
-            var layerInfo = null;
-            for (var i = 0, len = layers.length; i < len; i++) {
-                layerInfo = layers[i];
-                if (layerInfo && layerInfo.visible) {
-                    var child = this._parseLayer(layerInfo, mapInfo);
+        var children = mapInfo.getAllChildren();
+        if (children && children.length > 0) {
+            for (var i = 0, len = children.length; i < len; i++) {
+                var childInfo = children[i];
+                var child;
+                if (childInfo instanceof cc.TMXLayerInfo && childInfo.visible) {
+                    child = this._parseLayer(childInfo, mapInfo);
                     this.addChild(child, idx, idx);
                     // update content size with the max size
-	                this.width = Math.max(this.width, child.width);
-	                this.height = Math.max(this.height, child.height);
+                    this.width = Math.max(this.width, child.width);
+                    this.height = Math.max(this.height, child.height);
+                    idx++;
+                }
+
+                if (childInfo instanceof  cc.TMXObjectGroupInfo) {
+                    child = new _ccsg.TMXObjectGroup(childInfo, mapInfo);
+                    this.addChild(child, idx, idx);
                     idx++;
                 }
             }
@@ -341,7 +351,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
         var locChildren = this._children;
         for (var i = 0; i < locChildren.length; i++) {
             var layer = locChildren[i];
-            if (layer && layer.layerName === layerName)
+            if (layer && layer instanceof _ccsg.TMXLayer && layer.layerName === layerName)
                 return layer;
         }
         // layer not found
@@ -356,13 +366,11 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
     getObjectGroup:function (groupName) {
         if(!groupName || groupName.length === 0)
             throw new Error("_ccsg.TMXTiledMap.getObjectGroup(): groupName should be non-null or non-empty string.");
-        if (this.objectGroups) {
-            for (var i = 0; i < this.objectGroups.length; i++) {
-                var objectGroup = this.objectGroups[i];
-                if (objectGroup && objectGroup.groupName === groupName) {
-                    return objectGroup;
-                }
-            }
+        var locChildren = this._children;
+        for (var i = 0; i < locChildren.length; i++) {
+            var group = locChildren[i];
+            if (group && group instanceof _ccsg.TMXObjectGroup && group.groupName === layerName)
+                return group;
         }
         // objectGroup not found
         return null;
