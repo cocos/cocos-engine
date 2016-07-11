@@ -334,9 +334,7 @@ var CollisionManager = cc.Class({
 
     onNodeGroupChanged: function (event) {
         var node = event.currentTarget;
-        var colliders = node._components.filter(function (comp) {
-            return comp instanceof cc.Collider;
-        });
+        var colliders = node.getComponents(cc.Collider);
 
         for (var i = 0, l = colliders.length; i < l; i++) {
             this.removeCollider(colliders[i]);
