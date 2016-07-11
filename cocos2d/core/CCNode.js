@@ -140,6 +140,8 @@ var _mouseEvents = [
     EventType.MOUSE_WHEEL,
 ];
 
+var GROUP_CHANGED = 'group-changed';
+
 var currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
@@ -454,6 +456,7 @@ var Node = cc.Class({
 
             set: function (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                this.emit(GROUP_CHANGED);
             }
         }
     },
@@ -1441,6 +1444,10 @@ if (CC_JSB) {
  */
 /**
  * @event child-reorder
+ * @param {Event} event
+ */
+/**
+ * @event group-changed
  * @param {Event} event
  */
 /**
