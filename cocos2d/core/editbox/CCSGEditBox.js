@@ -479,6 +479,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
     proto.updateMatrix = function () {
         if (!this._edTxt) return;
+
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         var dpr = cc.view._devicePixelRatio;
         var t = node.getNodeToWorldTransform();
@@ -508,8 +509,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.updateVisibility = function () {
-        var node = this._node;
         if (!this._edTxt) return;
+
+        var node = this._node;
         var editBox = this._edTxt;
         if (node.visible) {
             editBox.style.visibility = 'visible';
@@ -787,6 +789,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setFontColor = function (color) {
+        if(!this._edTxt) return;
+
         if (this._edTxt.value !== this._editBox._placeholderText) {
             this._edTxt.style.color = cc.colorToHex(color);
         }
@@ -798,6 +802,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setMaxLength = function (maxLength) {
+        if(!this._edTxt) return;
         this._edTxt.maxLength = maxLength;
     };
 
@@ -811,6 +816,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setInputFlag = function (inputFlag) {
+        if(!this._edTxt) return;
+
         if ((this._edTxt.value !== this._placeholderText) && (inputFlag === InputFlag.PASSWORD))
             this._edTxt.type = 'password';
         else
@@ -843,6 +850,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setString = function (text) {
+        if(!this._edTxt) return;
+
         if (text !== null) {
             this._edTxt.value = text;
 
@@ -869,6 +878,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._updateDOMFontStyle = function() {
+        if(!this._edTxt) return;
+
         if (this._edTxt.value !== '') {
             this._edTxt.style.fontFamily = this._edFontName;
             this._edTxt.style.fontSize = this._edFontSize + 'px';
