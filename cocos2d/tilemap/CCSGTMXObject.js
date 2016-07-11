@@ -33,6 +33,8 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
             return false;
         }
 
+        this.setVisible(objInfo.visible);
+
         // init the image
         var rect = useTileset.rectForGID(this.gid);
         var texture = cc.textureCache.addImage(cc.path._normalize(useTileset.sourceImage));
@@ -103,10 +105,6 @@ cc.TMXObjectHelper = {
 
     setObjectName: function(name) {
         this._name = name;
-    },
-
-    initNodeProps: function() {
-
     }
 };
 

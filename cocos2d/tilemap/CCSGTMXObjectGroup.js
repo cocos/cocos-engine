@@ -56,6 +56,8 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
         this._mapInfo = mapInfo;
         this.properties = groupInfo.getProperties();
         this.setObjects(groupInfo._objects);
+
+        this.setVisible(groupInfo.visible);
     },
 
     /**

@@ -768,7 +768,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             objectGroup._opacity = 255;
 
         var visible = selGroup.getAttribute('visible');
-        if (visible)
+        if (visible && parseInt(visible) === 0)
             objectGroup.visible = false;
 
         var color = selGroup.getAttribute('color');
@@ -822,6 +822,13 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                     for (var k = 0; k < docObjProps.length; k++)
                         objectProp[docObjProps[k].getAttribute('name')] = docObjProps[k].getAttribute('value');
                 }
+
+                // visible
+                var visibleAttr = selObj.getAttribute('visible');
+                if (visibleAttr && parseInt(visibleAttr) === 0)
+                    objectProp['visible'] = false;
+                else
+                    objectProp['visible'] = true;
 
                 // image
                 var gid = selObj.getAttribute('gid');
