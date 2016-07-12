@@ -265,11 +265,15 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     this._localZOrder = value;
                     this._sgNode.zIndex = value;
 
-                    if (!CC_JSB && this._parent) {
+                    if(this._parent) {
                         this._parent._reorderChildDirty = true;
                         this._parent._delaySort();
-                        cc.eventManager._setDirtyForNode(this);
+
+                        if (!CC_JSB) {
+                            cc.eventManager._setDirtyForNode(this);
+                        }
                     }
+
                 }
             }
         },
