@@ -32,6 +32,7 @@ NS_CC_BEGIN
 class TMXLayerInfo;
 class TMXTilesetInfo;
 class TMXMapInfo;
+namespace experimental {
 class TMXLayer;
 
 /**
@@ -242,6 +243,7 @@ private:
 
 // end of tilemap_parallax_nodes group
 /** @} */
+} //end of namespace experimental
 
 NS_CC_END
 
