@@ -241,6 +241,12 @@ cc.js.mixin(cc.director, {
         return null;
     },
 
+    setRuntimeLaunchScene: function (sceneName) {
+        // should not preload launch scene in runtime
+        var info = this._getSceneUuid(sceneName);
+        this._launchSceneUuid = info.uuid;
+    },
+
     /**
      * Loads the scene by its name.
      * @method loadScene
@@ -259,11 +265,23 @@ cc.js.mixin(cc.director, {
             var uuid = info.uuid;
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            if (CC_JSB && cc.runtime) {
+            if (CC_JSB && cc.runtime && uuid !== this._launchSceneUuid) {
                 var self = this;
-                cc.LoaderLayer.preload([cc.path.basename(info.url) + '_' + info.uuid], function () {
-                    self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                var groupName = cc.path.basename(info.url) + '_' + info.uuid;
+                console.log('==> start preload: ' + groupName);
+                var ensureAsync = false;
+                cc.LoaderLayer.preload([groupName], function () {
+                    console.log('==> end preload: ' + groupName);
+                    if (ensureAsync) {
+                        self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                    }
+                    else {
+                        setTimeout(function () {
+                            self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                        }, 0);
+                    }
                 });
+                ensureAsync = true;
             }
             else {
                 this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);

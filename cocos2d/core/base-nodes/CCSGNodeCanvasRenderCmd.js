@@ -44,7 +44,8 @@ _ccsg.Node._dirtyFlags = {
     orderDirty:     1 << 5,
     textDirty:      1 << 6,
     gradientDirty:  1 << 7,
-    COUNT: 8
+    contentDirty: 1<<8,
+    COUNT: 9
 };
 cc.js.get(_ccsg.Node._dirtyFlags, 'all', function () {
     var count = _ccsg.Node._dirtyFlags.COUNT;
@@ -77,8 +78,8 @@ _ccsg.Node.RenderCmd = function(renderable){
     this._displayedColor = cc.color(255, 255, 255, 255);
     this._cascadeColorEnabledDirty = false;
     this._cascadeOpacityEnabledDirty = false;
-
     this._curLevel = -1;
+
 };
 
 _ccsg.Node.RenderCmd.prototype = {
@@ -138,6 +139,7 @@ _ccsg.Node.RenderCmd.prototype = {
        var node = this._node;
        var locDispColor = this._displayedColor, locRealColor = node._realColor;
        var i, len, selChildren, item;
+        this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
        if (this._cascadeColorEnabledDirty && !node._cascadeColorEnabled) {
            locDispColor.r = locRealColor.r;
            locDispColor.g = locRealColor.g;
@@ -178,6 +180,7 @@ _ccsg.Node.RenderCmd.prototype = {
     _updateDisplayOpacity: function (parentOpacity) {
         var node = this._node;
         var i, len, selChildren, item;
+        this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
         if (this._cascadeOpacityEnabledDirty && !node._cascadeOpacityEnabled) {
             this._displayedOpacity = node._realOpacity;
             selChildren = node._children;
@@ -248,14 +251,12 @@ _ccsg.Node.RenderCmd.prototype = {
 
         if(colorDirty || opacityDirty)
             this._updateColor();
-
         if(locFlag & flags.transformDirty){
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
             this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
         }
     },
-
     getNodeToParentTransform: function () {
         var node = this._node;
         if (this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty) {
@@ -412,11 +413,44 @@ _ccsg.Node.CanvasRenderCmd = function (renderable) {
     _ccsg.Node.RenderCmd.call(this, renderable);
     this._cachedParent = null;
     this._cacheDirty = false;
+    this._currentRegion = new cc.Region();
+    this._oldRegion = new cc.Region();
+    this._regionFlag = 0;
+};
 
+_ccsg.Node.CanvasRenderCmd.RegionStatus = {
+    NotDirty: 0,    //the region is not dirty
+    Dirty: 1,       //the region is dirty, because of color, opacity or context
+    DirtyDouble: 2  //the region is moved, the old and the new one need considered when rendering
 };
 
 var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
 proto.constructor = _ccsg.Node.CanvasRenderCmd;
+proto._notifyRegionStatus = function(status) {
+    if(this._needDraw && this._regionFlag < status) {
+        this._regionFlag = status;
+    }
+};
+
+var localBB = new cc.Rect();
+proto.getLocalBB = function() {
+    var node = this._node;
+    localBB.x = localBB.y = 0;
+    localBB.width = node._getWidth();
+    localBB.height = node._getHeight();
+    return localBB;
+};
+
+proto._updateCurrentRegions = function() {
+    var temp = this._currentRegion;
+    this._currentRegion = this._oldRegion;
+    this._oldRegion = temp;
+    //hittest will call the transform, and set region flag to DirtyDouble, and the changes need to be considered for rendering
+    if(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble === this._regionFlag && (!this._currentRegion.isEmpty())) {
+        this._oldRegion.union(this._currentRegion);
+    }
+    this._currentRegion.updateRegion(this.getLocalBB(), this._worldTransform);
+};
 
 proto.transform = function (parentCmd, recursive) {
     // transform for canvas
@@ -441,6 +475,9 @@ proto.transform = function (parentCmd, recursive) {
         worldT.tx = t.tx;
         worldT.ty = t.ty;
     }
+
+    this._updateCurrentRegions();
+    this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
     if (recursive) {
         var locChildren = this._node._children;
         if (!locChildren || locChildren.length === 0)

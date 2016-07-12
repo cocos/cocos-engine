@@ -40,82 +40,78 @@ function isSceneObj (json) {
 }
 
 function loadDepends (pipeline, item, asset, tdInfo, callback) {
-    var uuid = item.id,
-        url = item.url;
-    var dependsSrcs = JS.array.copy(tdInfo.uuidList);
+    var uuid = item.id;
+    var uuidList = tdInfo.uuidList;
     var ownerList = JS.array.copy(tdInfo.uuidObjList);
     var propList = JS.array.copy(tdInfo.uuidPropList);
 
-    var depends = new Array(dependsSrcs.length);
+    var depends = new Array(uuidList.length);
     // load depends assets
-    for (var i = 0; i < dependsSrcs.length; i++) {
-        var dependSrc = dependsSrcs[i];
+    for (var i = 0; i < uuidList.length; i++) {
+        var dependUuid = uuidList[i];
         depends[i] = {
-            id: dependSrc,
+            id: dependUuid,
             type: 'uuid',
-            uuid: dependSrc
+            uuid: dependUuid
         };
     }
     // load raw
     if (tdInfo.rawProp) {
-        dependsSrcs.push(url);
         ownerList.push(asset);
         propList.push(tdInfo.rawProp);
-        depends.push(url);
+        depends.push(item.url);
     }
-    if (depends.length > 0) {
-        pipeline.flowInDeps(depends, function (items) {
-            var item;
-            for (var src in items) {
-                item = items[src];
-                if (item.uuid && item.content) {
-                    item.content._uuid = item.uuid;
-                }
-            }
-            for (var i = 0; i < dependsSrcs.length; i++) {
-                var dependSrc = dependsSrcs[i];
-                var obj = ownerList[i];
-                var dependProp = propList[i];
-                item = items[dependSrc];
-                if (item) {
-                    if (item.complete) {
-                        var value = item.isRawAsset ? item.url : item.content;
-                        obj[dependProp] = value;
-                    }
-                    else {
-                        var loadCallback = function (item) {
-                            var value = item.isRawAsset ? item.url : item.content;
-                            this.obj[this.prop] = value;
-                        };
-                        var target = {
-                            obj: obj,
-                            prop: dependProp
-                        };
-                        // Hack to get a better behavior
-                        var list = pipeline.getItems()._callbackTable[dependSrc];
-                        if (list) {
-                            list.unshift(loadCallback, target);
-                        }
-                        else {
-                            pipeline.getItems().add(dependSrc, loadCallback, target);
-                        }
-                    }
-                }
-            }
-            asset._uuid = uuid;
-            callback(null, asset);
-            if (CC_EDITOR) {
-                cc.loader.removeItem(uuid);
-            }
-        });
-    }
-    else {
+    // fast path
+    if (depends.length === 0) {
         asset._uuid = uuid;
-        callback(null, asset);
+        return callback(null, asset);
     }
 
-    // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
-    tdInfo.reset();
+    pipeline.flowInDeps(depends, function (items) {
+        var item;
+        for (var src in items) {
+            item = items[src];
+            if (item.uuid && item.content) {
+                item.content._uuid = item.uuid;
+            }
+        }
+        for (var i = 0; i < depends.length; i++) {
+            var dependSrc = depends[i].uuid;
+            var obj = ownerList[i];
+            var dependProp = propList[i];
+            item = items[dependSrc];
+            if (item) {
+                if (item.complete) {
+                    var value = item.isRawAsset ? item.url : item.content;
+                    obj[dependProp] = value;
+                }
+                else {
+                    // item was removed from cache, but ready in pipeline actually
+                    var loadCallback = function (item) {
+                        var value = item.isRawAsset ? item.url : item.content;
+                        this.obj[this.prop] = value;
+                    };
+                    var target = {
+                        obj: obj,
+                        prop: dependProp
+                    };
+                    // Hack to get a better behavior
+                    var list = pipeline.getItems()._callbackTable[dependSrc];
+                    if (list) {
+                        list.unshift(loadCallback, target);
+                    }
+                    else {
+                        pipeline.getItems().add(dependSrc, loadCallback, target);
+                    }
+                }
+            }
+        }
+        asset._uuid = uuid;
+        callback(null, asset);
+        if (CC_EDITOR) {
+            cc.loader.removeItem(uuid);
+        }
+    });
 }
 
 function loadUuid (item, callback) {
@@ -161,6 +157,9 @@ function loadUuid (item, callback) {
     }
 
     loadDepends(this.pipeline, item, asset, tdInfo, callback);
+
+    // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
+    tdInfo.reset();
 }
 
 module.exports = loadUuid;

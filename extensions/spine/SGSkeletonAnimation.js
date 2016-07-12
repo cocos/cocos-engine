@@ -202,6 +202,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
     update: function (dt) {
         this._super(dt);
         dt *= this._timeScale;
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         this._state.update(dt);
         this._state.apply(this._skeleton);
         this._skeleton.updateWorldTransform();

@@ -106,18 +106,18 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
-        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !cc.game._isCloning) {
-            cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) " +
-                "to create SpriteFrame instance since it's memory will be unable to manage. " +
-                "Instead please use cc.loader.loadRes to get SpriteFrame instance from loading, " +
-                "or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.")
-        }
-
         var filename = arguments[0];
         var rect = arguments[1];
         var rotated = arguments[2];
         var offset = arguments[3];
         var originalSize = arguments[4];
+
+        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !CC_TEST && !cc.game._isCloning) {
+            cc.warn('It\'s not recommended to use SpriteFrame constructor (new SpriteFrame) ' +
+                    'to create SpriteFrame instance since it\'s memory will be unable to manage. ' +
+                    'Instead please use cc.loader.loadRes to get SpriteFrame instance from loading, ' +
+                    'or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.')
+        }
 
         // the location of the sprite on rendering texture
         this._rect = null;
