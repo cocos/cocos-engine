@@ -2121,7 +2121,7 @@ bool js_cocos2dx_CCScheduler_isScheduled(JSContext *cx, uint32_t argc, jsval *vp
                 break;
             }
         }
-    	args.rval().set(BOOLEAN_TO_JSVAL(isScheduled));
+        args.rval().set(BOOLEAN_TO_JSVAL(isScheduled));
         return true;
     }
     JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
