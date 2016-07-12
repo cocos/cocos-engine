@@ -30,7 +30,7 @@ var StudioComponent = cc.Class({
     extends: cc.Component,
 
     editor: CC_EDITOR && {
-        inspector: 'unpack://engine/extensions/cocostudio/editor/studio-component.html'
+        inspector: 'unpack://engine/extensions/cocostudio/editor/studio-component.js'
     },
 
     properties: CC_EDITOR && {

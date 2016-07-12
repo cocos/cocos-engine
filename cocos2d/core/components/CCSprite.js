@@ -118,7 +118,7 @@ var Sprite = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
         help: 'i18n:COMPONENT.help_url.sprite',
-        inspector: 'app://editor/page/inspector/sprite.html',
+        inspector: 'packages://inspector/inspectors/comps/sprite.js',
     },
 
     ctor: function() {

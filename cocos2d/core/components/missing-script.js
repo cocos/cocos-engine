@@ -34,7 +34,7 @@ var MissingScript = cc.Class({
     name: 'cc.MissingScript', 
     extends: cc.Component,
     editor: {
-        inspector: 'app://editor/page/inspector/missing-script.html',
+        inspector: 'packages://inspector/inspectors/comps/missing-script.js',
     },
     properties: {
         //_scriptUuid: {

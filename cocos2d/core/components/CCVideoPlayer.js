@@ -57,7 +57,7 @@ var VideoPlayer = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/VideoPlayer',
-        inspector: 'app://editor/page/inspector/videoplayer.html',
+        inspector: 'packages://inspector/inspectors/comps/videoplayer.js',
         help: 'i18n:COMPONENT.help_url.videoplayer',
     },
 
