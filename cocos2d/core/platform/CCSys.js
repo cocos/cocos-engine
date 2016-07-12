@@ -143,7 +143,7 @@ sys.LANGUAGE_POLISH = "pl";
  * @property {String} LANGUAGE_UNKNOWN
  * @readOnly
  */
-sys.LANGUAGE_UNKNOWN = "unkonwn";
+sys.LANGUAGE_UNKNOWN = "unknown";
 
 /**
  * @property {String} OS_IOS
@@ -491,7 +491,7 @@ else {
          * Indicate whether system is mobile system
          * @property {Boolean} isMobile
          */
-        sys.isMobile = ua.indexOf('mobile') !== -1 || ua.indexOf('android') !== -1;
+        sys.isMobile = /mobile|android|mqqbrowser|micromessenger|miuibrowser/.test(ua);
 
         /**
          * Indicate the running platform
@@ -551,11 +551,6 @@ else {
             browserType = sys.BROWSER_TYPE_MAXTHON;
         else if (browserType === "opr")
             browserType = sys.BROWSER_TYPE_OPERA;
-
-        // Adjustment
-        if (!sys.isMobile && /mqqbrowser|micromessenger|miuibrowser/.exec(ua)) {
-            sys.isMobile = true;
-        }
 
         sys.browserType = browserType;
     })();
