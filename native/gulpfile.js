@@ -11,7 +11,7 @@ var fs = require('fs-extra');
 
 gulp.task('make-cocos2d-x', gulpSequence('gen-cocos2d-x', 'upload-cocos2d-x'));
 gulp.task('make-prebuilt', gulpSequence('gen-libs', 'collect-prebuilt-mk', 'archive-prebuilt-mk', 'archive-prebuilt', 'upload-prebuilt', 'upload-prebuilt-mk'));
-gulp.task('make-simulator', gulpSequence('update-simulator-config', 'archive-simulator', 'upload-simulator'));
+gulp.task('make-simulator', gulpSequence('update-simulator-config', 'update-simulator-dll', 'archive-simulator', 'upload-simulator'));
 
 function execSync(cmd, workPath) {
   var execOptions = {
@@ -172,6 +172,14 @@ gulp.task('update-simulator-config', ['update-simulator-script'], function (cb) 
   fs.copy('./tools/simulator/config.json', destPath, cb);
 });
 
+gulp.task('update-simulator-dll', function (cb) {
+  if (process.platform === 'win32') {
+    downloadSimulatorDLL(cb);
+  } else {
+    cb();
+  }
+});
+
 gulp.task('update-simulator-script', function (cb) {
     var simulatorPath =  process.platform === 'win32' ? './simulator/win32' : './simulator/mac/Simulator.app/Contents/Resources';
     var destPath = simulatorPath + '/script';
@@ -191,13 +199,7 @@ gulp.task('update-simulator-script', function (cb) {
     if (!fs.existsSync(simulatorPath)) {
         console.error(`Cant\'t find simulator dir [${simulatorPath}]`);
     } else {
-      if (process.platform === 'win32') {
-        downloadSimulatorDLL(function () {
-          updateScript(cb);
-        });
-      } else {
-        updateScript(cb);
-      }
+      updateScript(cb);
     }
 });
 
