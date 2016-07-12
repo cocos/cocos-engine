@@ -55,6 +55,8 @@ var dataPool = {
     }
 };
 
+var webgl;
+
 /*
  * <p>
  * A 9-slice sprite for cocos2d UI.                                                                    <br/>
@@ -117,14 +119,14 @@ var simpleQuadGenerator = {
             sprite._vertices = vertices;
         }
         // bl, br, tl, tr
-        vertices[0] = l * wt.a + b * wt.c + wt.tx;
-        vertices[1] = l * wt.b + b * wt.d + wt.ty;
-        vertices[2] = r * wt.a + b * wt.c + wt.tx;
-        vertices[3] = r * wt.b + b * wt.d + wt.ty;
-        vertices[4] = l * wt.a + t * wt.c + wt.tx;
-        vertices[5] = l * wt.b + t * wt.d + wt.ty;
-        vertices[6] = r * wt.a + t * wt.c + wt.tx;
-        vertices[7] = r * wt.b + t * wt.d + wt.ty;
+        vertices[0] = webgl ? l * wt.a + b * wt.c + wt.tx : l;
+        vertices[1] = webgl ? l * wt.b + b * wt.d + wt.ty : b;
+        vertices[2] = webgl ? r * wt.a + b * wt.c + wt.tx : r;
+        vertices[3] = webgl ? r * wt.b + b * wt.d + wt.ty : b;
+        vertices[4] = webgl ? l * wt.a + t * wt.c + wt.tx : l;
+        vertices[5] = webgl ? l * wt.b + t * wt.d + wt.ty : t;
+        vertices[6] = webgl ? r * wt.a + t * wt.c + wt.tx : r;
+        vertices[7] = webgl ? r * wt.b + t * wt.d + wt.ty : t;
     },
 
     _calculateUVs: function (sprite, spriteFrame) {
@@ -212,8 +214,8 @@ var scale9QuadGenerator = {
         var offset = 0;
         for (var row = 0; row < 4; row++) {
             for (var col = 0; col < 4; col++) {
-                vertices[offset] = x[col] * wt.a + y[row] * wt.c + wt.tx;
-                vertices[offset+1] = x[col] * wt.b + y[row] * wt.d + wt.ty;
+                vertices[offset] = webgl ? x[col] * wt.a + y[row] * wt.c + wt.tx : x[col];
+                vertices[offset+1] = webgl ? x[col] * wt.b + y[row] * wt.d + wt.ty : y[row];
                 offset += 2;
             }
         }
@@ -336,14 +338,14 @@ var tiledQuadGenerator = {
                 r = rectWidth * Math.min(hindex + 1, hRepeat);
                 t = rectHeight * Math.min(vindex + 1, vRepeat);
                 // bl.x, bl.y, br.x, br.y, tl.x, tl.y, tr.x, tr.y
-                vertices[offset] = l * wt.a + b * wt.c + wt.tx;
-                vertices[offset + 1] = l * wt.b + b * wt.d + wt.ty;
-                vertices[offset + 2] = r * wt.a + b * wt.c + wt.tx;
-                vertices[offset + 3] = r * wt.b + b * wt.d + wt.ty;
-                vertices[offset + 4] = l * wt.a + t * wt.c + wt.tx;
-                vertices[offset + 5] = l * wt.b + t * wt.d + wt.ty;
-                vertices[offset + 6] = r * wt.a + t * wt.c + wt.tx;
-                vertices[offset + 7] = r * wt.b + t * wt.d + wt.ty;
+                vertices[offset] = webgl ? l * wt.a + b * wt.c + wt.tx : l;
+                vertices[offset + 1] = webgl ? l * wt.b + b * wt.d + wt.ty : b;
+                vertices[offset + 2] = webgl ? r * wt.a + b * wt.c + wt.tx : r;
+                vertices[offset + 3] = webgl ? r * wt.b + b * wt.d + wt.ty : b;
+                vertices[offset + 4] = webgl ? l * wt.a + t * wt.c + wt.tx : l;
+                vertices[offset + 5] = webgl ? l * wt.b + t * wt.d + wt.ty : t;
+                vertices[offset + 6] = webgl ? r * wt.a + t * wt.c + wt.tx : r;
+                vertices[offset + 7] = webgl ? r * wt.b + t * wt.d + wt.ty : t;
 
                 if (!spriteFrame._rotated) {
                     uvs[offset] = u0;
@@ -413,14 +415,14 @@ var fillQuadGeneratorBar = {
         }
 
         //build quads
-        vertices[0] = l * wt.a + b * wt.c + wt.tx;
-        vertices[1] = l * wt.b + b * wt.d + wt.ty;
-        vertices[2] = r * wt.a + b * wt.c + wt.tx;
-        vertices[3] = r * wt.b + b * wt.d + wt.ty;
-        vertices[4] = l * wt.a + t * wt.c + wt.tx;
-        vertices[5] = l * wt.b + t * wt.d + wt.ty;
-        vertices[6] = r * wt.a + t * wt.c + wt.tx;
-        vertices[7] = r * wt.b + t * wt.d + wt.ty;
+        vertices[0] = webgl ? l * wt.a + b * wt.c + wt.tx : l;
+        vertices[1] = webgl ? l * wt.b + b * wt.d + wt.ty : b;
+        vertices[2] = webgl ? r * wt.a + b * wt.c + wt.tx : r;
+        vertices[3] = webgl ? r * wt.b + b * wt.d + wt.ty : b;
+        vertices[4] = webgl ? l * wt.a + t * wt.c + wt.tx : l;
+        vertices[5] = webgl ? l * wt.b + t * wt.d + wt.ty : t;
+        vertices[6] = webgl ? r * wt.a + t * wt.c + wt.tx : r;
+        vertices[7] = webgl ? r * wt.b + t * wt.d + wt.ty : t;
 
         var quadUV = new Array(8);
         if (!spriteFrame._rotated) {
@@ -488,6 +490,7 @@ var fillQuadGeneratorBar = {
                 cc.error('Unrecognized fill type in bar fill');
                 break;
         }
+        sprite._vertCount = 4;
     }
 };
 
@@ -513,8 +516,8 @@ var fillQuadGeneratorRadial = {
         while (fillStart < 0.0) fillStart += 1.0;
         var cx = fillCenter.x * contentSize.width,
             cy = fillCenter.y * contentSize.height;
-        var center = cc.v2( cx * wt.a + cy * wt.c + wt.tx,
-                            cx * wt.b + cy * wt.d + wt.ty);
+        var center = cc.v2( webgl ? cx * wt.a + cy * wt.c + wt.tx : cx,
+                            webgl ? cx * wt.b + cy * wt.d + wt.ty : cy);
 
         fillStart *= Math.PI * 2;
         fillRange *= Math.PI * 2;
@@ -784,10 +787,10 @@ var fillQuadGeneratorRadial = {
         x3 = contentSize.width;
         y3 = contentSize.height;
 
-        this._vertices[0].x = x0 * wt.a + y0 * wt.c + wt.tx;
-        this._vertices[0].y = x0 * wt.b + y0 * wt.d + wt.ty;
-        this._vertices[1].x = x3 * wt.a + y3 * wt.c + wt.tx;
-        this._vertices[1].y = x3 * wt.b + y3 * wt.d + wt.ty;
+        this._vertices[0].x = webgl ? x0 * wt.a + y0 * wt.c + wt.tx : x0;
+        this._vertices[0].y = webgl ? x0 * wt.b + y0 * wt.d + wt.ty : y0;
+        this._vertices[1].x = webgl ? x3 * wt.a + y3 * wt.c + wt.tx : x3;
+        this._vertices[1].y = webgl ? x3 * wt.b + y3 * wt.d + wt.ty : y3;
     },
 
     _calculateUVs : function (spriteFrame) {
@@ -880,6 +883,8 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         else if (textureOrSpriteFrame instanceof cc.Texture2D) {
             this.initWithTexture(textureOrSpriteFrame);
         }
+
+        if (webgl === undefined) webgl = cc._renderType === cc.game.RENDER_TYPE_WEBGL;
     },
 
     loaded: function () {
@@ -1223,8 +1228,6 @@ cc.defineGetterSetter(_p, 'insetLeft', _p.getInsetLeft, _p.setInsetLeft);
 cc.defineGetterSetter(_p, 'insetTop', _p.getInsetTop, _p.setInsetTop);
 cc.defineGetterSetter(_p, 'insetRight', _p.getInsetRight, _p.setInsetRight);
 cc.defineGetterSetter(_p, 'insetBottom', _p.getInsetBottom, _p.setInsetBottom);
-
-_p = null;
 
 cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1, DISTORTION: 2};
 

@@ -81,6 +81,7 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
 };
 
 proto._uploadVertices = function (vertices, uvs, color, z, f32buffer, ui32buffer, offset) {
+    // src: bl, br, tl, tr
     var count = this._node._vertCount;
     for (var i = 0, srcOff = 0; i < count; i++, srcOff += 2) {
         f32buffer[offset] = vertices[srcOff];
@@ -92,20 +93,6 @@ proto._uploadVertices = function (vertices, uvs, color, z, f32buffer, ui32buffer
         offset += 6;
     }
     return count;
-};
-
-proto._uploadBar = function (vertices, uvs, color, z, f32buffer, ui32buffer, offset) {
-    // src: bl, br, tl, tr
-    for (var srcOff = 0; srcOff < 8; srcOff += 2) {            
-        f32buffer[offset] = vertices[srcOff];
-        f32buffer[offset + 1] = vertices[srcOff+1];
-        f32buffer[offset + 2] = z;
-        ui32buffer[offset + 3] = color[0];
-        f32buffer[offset + 4] = uvs[srcOff];
-        f32buffer[offset + 5] = uvs[srcOff+1];
-        offset += 6;
-    }
-    return 4;
 };
 
 proto.transform = function (parentCmd, recursive) {
@@ -160,23 +147,18 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     switch (node._renderingType) {
     case types.SIMPLE:
     case types.TILED:
+    case types.FILLED:
         len = this._uploadVertices(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
-        this.vertexType = cc.renderer.VertexType.QUAD;
         break;
     case types.SLICED:
         len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+        break;
+    }
+    if (node._renderingType === types.FILLED && node._fillType === cc.Scale9Sprite.FillType.RADIAL) {
+        this.vertexType = cc.renderer.VertexType.TRIANGLE;
+    }
+    else {
         this.vertexType = cc.renderer.VertexType.QUAD;
-        break;
-    case types.FILLED:
-        if (node._fillType === cc.Scale9Sprite.FillType.RADIAL) {
-            len = this._uploadVertices(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
-            this.vertexType = cc.renderer.VertexType.TRIANGLE;
-        }
-        else {
-            len = this._uploadBar(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
-            this.vertexType = cc.renderer.VertexType.QUAD;
-        }
-        break;
     }
     return len;
 };
