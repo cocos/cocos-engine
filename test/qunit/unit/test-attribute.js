@@ -11,59 +11,53 @@ test('base', function () {
 
     strictEqual(cc.Class.attr(MyCompBase, 'baseVal').data, 'waha', 'can get attribute');
 
-    cc.Class.attr(MyCompBase, 'baseVal').foo = { bar: 524 };
-    strictEqual(cc.Class.attr(MyCompBase, 'baseVal').foo.bar, 524, 'can assign directly');
-
-    var attr = cc.Class.attr(MyCompBase, 'baseVal', {
+    cc.Class.attr(MyCompBase, 'baseVal', {
         cool: 'nice'
     });
-    ok(attr.data && attr.cool && attr.foo, 'can merge multi attribute');
+    var attr = cc.Class.attr(MyCompBase, 'baseVal');
+    ok(attr.data && attr.cool, 'can have multi attribute');
 
     cc.Class.attr(MyCompBase, 'baseVal', {
         data: false
     });
+    attr = cc.Class.attr(MyCompBase, 'baseVal');
     strictEqual(attr.data, false, 'can change attribute');
-
-    // inherit
-
-    var MyComp1 = function () { };
-    cc.js.extend(MyComp1, MyCompBase);
-    var MyComp2 = function () { };
-    cc.js.extend(MyComp2, MyCompBase);
-
-    strictEqual(cc.Class.attr(MyComp1, 'baseVal').cool, 'nice', 'can get inherited attribute');
-    cc.Class.attr(MyComp1, 'baseVal', {cool: 'good'});
-    strictEqual(cc.Class.attr(MyComp1, 'baseVal').cool, 'good', 'can override inherited attribute');
-
-    // yes, current implement of attr is not based on real javascript prototype
-    strictEqual(cc.Class.attr(MyCompBase, 'baseVal').cool, 'good', 'Oh yes, sub prop of base class will be pulluted!');
-
-    cc.Class.attr(MyComp1, 'subVal', {}).cool = 'very nice';
-    strictEqual(cc.Class.attr(MyComp1, 'subVal').cool, 'very nice', 'can have own attribute');
-
-    strictEqual(cc.Class.attr(MyCompBase, 'subVal'), undefined, 'main prop of base class not pulluted');
-    strictEqual(cc.Class.attr(MyComp2, 'subVal'), undefined, 'sibling class not pulluted');
 });
 
-test('not object type', function () {
-    var MyCompBase = function () {};
-    cc.Class.attr(MyCompBase, 'subVal', false);
-    strictEqual(cc.Class.attr(MyCompBase, 'subVal'), false, 'attr should set to false');
-    cc.Class.attr(MyCompBase, 'subVal', true);
-    strictEqual(cc.Class.attr(MyCompBase, 'subVal'), true, 'attr should set to true');
+test('inherit', function () {
+    function MyCompBase () { }
+    function MyComp1 () { }
+    cc.js.extend(MyComp1, MyCompBase);
+    function MyComp2 () { }
+    cc.js.extend(MyComp2, MyCompBase);
+
+    cc.Class.attr(MyCompBase, 'baseVal', {
+        cool: 'nice'
+    });
+    strictEqual(cc.Class.attr(MyComp1, 'baseVal').cool, 'nice', 'can get inherited attribute');
+
+    cc.Class.attr(MyComp1, 'baseVal', {cool: 'good'});
+    strictEqual(cc.Class.attr(MyComp1, 'baseVal').cool, 'good', 'can override inherited attribute');
+    strictEqual(cc.Class.attr(MyCompBase, 'baseVal').cool, 'nice', 'Sub prop of base class should not be pulluted!');
+
+    cc.Class.attr(MyComp1, 'subVal', { cool: 'very nice' });
+    strictEqual(cc.Class.attr(MyComp1, 'subVal').cool, 'very nice', 'can have own attribute');
+
+    strictEqual(cc.Class.attr(MyCompBase, 'subVal').cool, undefined, 'main prop of base class not pulluted');
+    strictEqual(cc.Class.attr(MyComp2, 'subVal').cool, undefined, 'sibling class not pulluted');
 });
 
 test('dynamic attribute for instance', function () {
     var MyCompBase = function () {};
     var comp = new MyCompBase();
 
-    cc.Class.attr(MyCompBase, 'subVal', false);
-    cc.Class.attr(comp, 'subVal', true);
-    strictEqual(cc.Class.attr(MyCompBase, 'subVal'), false, 'class attr should set to false');
-    strictEqual(cc.Class.attr(comp, 'subVal'), true, 'instance attr should set to true');
+    cc.Class.attr(MyCompBase, 'subVal', { value: false });
+    cc.Class.attr(comp, 'subVal', { value: true });
+    strictEqual(cc.Class.attr(MyCompBase, 'subVal').value, false, 'class attr should set to false');
+    strictEqual(cc.Class.attr(comp, 'subVal').value, true, 'instance attr should set to true');
 
-    cc.Class.attr(MyCompBase, 'baseVal', 123);
-    strictEqual(cc.Class.attr(comp, 'baseVal'), 123, 'instance attr should inherited from base');
+    cc.Class.attr(MyCompBase, 'baseVal', { value: 123 });
+    strictEqual(cc.Class.attr(comp, 'baseVal').value, 123, 'instance attr should inherited from base');
 
 
     cc.Class.attr(MyCompBase, 'readonly', {a: false});
