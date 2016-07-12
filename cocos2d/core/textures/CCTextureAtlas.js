@@ -669,9 +669,10 @@ if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             //vertices
             //gl.bindBuffer(gl.ARRAY_BUFFER, _t._buffersVBO[0]);
             // XXX: update is done in draw... perhaps it should be done in a timer
-            cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-
             gl.bindBuffer(gl.ARRAY_BUFFER, _t._quadsWebBuffer);
+            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+            gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
             if (_t.dirty){
                 gl.bufferData(gl.ARRAY_BUFFER, _t._quadsArrayBuffer, gl.DYNAMIC_DRAW);
                 _t.dirty = false;

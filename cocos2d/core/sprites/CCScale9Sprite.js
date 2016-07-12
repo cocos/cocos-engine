@@ -78,18 +78,17 @@ var dataPool = {
  */
 var simpleQuadGenerator = {
     _rebuildQuads_base: function (sprite, spriteFrame, contentSize, isTrimmedContentSize) {
-        var vertices = sprite._vertices,
-            wt = sprite._renderCmd._worldTransform,
-            uvs = sprite._uvs;
         //build vertices
-        this._calculateVertices(vertices, wt, spriteFrame, contentSize, isTrimmedContentSize);
+        this._calculateVertices(sprite, spriteFrame, contentSize, isTrimmedContentSize);
         //build uvs
-        this._calculateUVs(uvs, spriteFrame);
+        this._calculateUVs(sprite, spriteFrame);
         sprite._vertCount = 4;
     },
 
-    _calculateVertices: function (vertices, wt, spriteFrame, contentSize, isTrimmedContentSize) {
-        var l, b, r, t;
+    _calculateVertices: function (sprite, spriteFrame, contentSize, isTrimmedContentSize) {
+        var vertices = sprite._vertices,
+            wt = sprite._renderCmd._worldTransform,
+            l, b, r, t;
         if (isTrimmedContentSize) {
             l = 0;
             b = 0;
@@ -115,6 +114,7 @@ var simpleQuadGenerator = {
         if (vertices.length < 8) {
             dataPool.put(vertices);
             vertices = dataPool.get(8) || new Float32Array(8);
+            sprite._vertices = vertices;
         }
         // bl, br, tl, tr
         vertices[0] = l * wt.a + b * wt.c + wt.tx;
@@ -127,7 +127,8 @@ var simpleQuadGenerator = {
         vertices[7] = r * wt.b + t * wt.d + wt.ty;
     },
 
-    _calculateUVs: function (uvs, spriteFrame) {
+    _calculateUVs: function (sprite, spriteFrame) {
+        var uvs = sprite._uvs;
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
         var textureRect = spriteFrame._rect;
@@ -151,6 +152,7 @@ var simpleQuadGenerator = {
         if (uvs.length < 8) {
             dataPool.put(uvs);
             uvs = dataPool.get(8) || new Float32Array(8);
+            sprite._uvs = uvs;
         }
         uvs[0] = l; uvs[1] = b;
         uvs[2] = r; uvs[3] = b;
@@ -161,16 +163,15 @@ var simpleQuadGenerator = {
 
 var scale9QuadGenerator = {
     _rebuildQuads_base: function (sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
-        var vertices = sprite._vertices,
-            wt = sprite._renderCmd._worldTransform,
-            uvs = sprite._uvs;
         //build vertices
-        this._calculateVertices(vertices, wt, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom);
+        this._calculateVertices(sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom);
         //build uvs
-        this._calculateUVs(uvs, spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
+        this._calculateUVs(sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
     },
 
-    _calculateVertices: function (vertices, wt, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
+    _calculateVertices: function (sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
+        var vertices = sprite._vertices;
+        var wt = sprite._renderCmd._worldTransform;
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
 
@@ -206,6 +207,7 @@ var scale9QuadGenerator = {
         if (vertices.length < 32) {
             dataPool.put(vertices);
             vertices = dataPool.get(32) || new Float32Array(32);
+            sprite._vertices = vertices;
         }
         var offset = 0;
         for (var row = 0; row < 4; row++) {
@@ -217,7 +219,8 @@ var scale9QuadGenerator = {
         }
     },
 
-    _calculateUVs: function (uvs, spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
+    _calculateUVs: function (sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
+        var uvs = sprite._uvs;
         var rect = spriteFrame._rect;
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
@@ -235,40 +238,45 @@ var scale9QuadGenerator = {
         var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
-        var u0, u1, u2, u3;
-        var v0, v1, v2, v3;
+        var u = new Array(4);
+        var v = new Array(4);
 
         if (spriteFrame._rotated) {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (bottomHeight + textureRect.x) / atlasWidth;
-            u2 = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
-            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+            u[0] = textureRect.x / atlasWidth;
+            u[1] = (bottomHeight + textureRect.x) / atlasWidth;
+            u[2] = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
+            u[3] = (textureRect.x + textureRect.height) / atlasWidth;
 
-            v0 = textureRect.y / atlasHeight;
-            v1 = (leftWidth + textureRect.y) / atlasHeight;
-            v2 = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
-            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+            v[3] = textureRect.y / atlasHeight;
+            v[2] = (leftWidth + textureRect.y) / atlasHeight;
+            v[1] = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
+            v[0] = (textureRect.y + textureRect.width) / atlasHeight;
         }
         else {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (leftWidth + textureRect.x) / atlasWidth;
-            u2 = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
-            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+            u[0] = textureRect.x / atlasWidth;
+            u[1] = (leftWidth + textureRect.x) / atlasWidth;
+            u[2] = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
+            u[3] = (textureRect.x + textureRect.width) / atlasWidth;
 
-            v0 = textureRect.y / atlasHeight;
-            v1 = (topHeight + textureRect.y) / atlasHeight;
-            v2 = (topHeight + centerHeight + textureRect.y) / atlasHeight;
-            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+            v[3] = textureRect.y / atlasHeight;
+            v[2] = (topHeight + textureRect.y) / atlasHeight;
+            v[1] = (topHeight + centerHeight + textureRect.y) / atlasHeight;
+            v[0] = (textureRect.y + textureRect.height) / atlasHeight;
         }
 
-        if (uvs.length < 8) {
+        if (uvs.length < 32) {
             dataPool.put(uvs);
-            uvs = dataPool.get(8) || new Float32Array(8);
+            uvs = dataPool.get(32) || new Float32Array(32);
+            sprite._uvs = uvs;
         }
-        uvs[0] = u0; uvs[1] = v3;
-        uvs[2] = u1; uvs[3] = v2;
-        uvs[4] = u2; uvs[5] = v1;
-        uvs[6] = u3; uvs[7] = v0;
+        var offset = 0;
+        for (var row = 0; row < 4; row++) {
+            for (var col = 0; col < 4; col++) {
+                uvs[offset] = u[col];
+                uvs[offset+1] = v[row];
+                offset += 2;
+            }
+        }
     }
 };
 
@@ -311,13 +319,15 @@ var tiledQuadGenerator = {
         if (vertices.length < dataLength) {
             dataPool.put(vertices);
             vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._vertices = vertices;
         }
         if (uvs.length < dataLength) {
             dataPool.put(uvs);
             uvs = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._uvs = uvs;
         }
 
-        var offset, l, b, r, t;
+        var offset = 0, l, b, r, t;
         sprite._vertCount = 0;
         for (var vindex = 0; vindex < row; ++vindex) {
             for (var hindex = 0; hindex < col; ++hindex) {
@@ -394,10 +404,12 @@ var fillQuadGeneratorBar = {
         if (vertices.length < 8) {
             dataPool.put(vertices);
             vertices = dataPool.get(8) || new Float32Array(8);
+            sprite._vertices = vertices;
         }
         if (uvs.length < 8) {
             dataPool.put(uvs);
             uvs = dataPool.get(8) || new Float32Array(8);
+            sprite._uvs = uvs;
         }
 
         //build quads
@@ -446,31 +458,31 @@ var fillQuadGeneratorBar = {
                 vertices[6] = progressEnd;
 
                 uvs[0] = quadUV[0] + (quadUV[2] - quadUV[0]) * fillStart;
-                uvs[1] = quadUV[1] + (quadUV[3] - quadUV[1]) * fillStart;
+                uvs[1] = quadUV[1];
                 uvs[2] = quadUV[0] + (quadUV[2] - quadUV[0]) * fillEnd;
-                uvs[3] = quadUV[1] + (quadUV[3] - quadUV[1]) * fillEnd;
+                uvs[3] = quadUV[3];
                 uvs[4] = quadUV[4] + (quadUV[6] - quadUV[4]) * fillStart;
-                uvs[5] = quadUV[5] + (quadUV[7] - quadUV[5]) * fillStart;
+                uvs[5] = quadUV[5];
                 uvs[6] = quadUV[4] + (quadUV[6] - quadUV[4]) * fillEnd;
-                uvs[7] = quadUV[5] + (quadUV[7] - quadUV[5]) * fillEnd;
+                uvs[7] = quadUV[7];
                 break;
             case cc.Scale9Sprite.FillType.VERTICAL:
-                progressStart = vertices[1] + (vertices[3] - vertices[1]) * fillStart;
-                progressEnd = vertices[1] + (vertices[3] - vertices[1]) * fillEnd;
+                progressStart = vertices[1] + (vertices[5] - vertices[1]) * fillStart;
+                progressEnd = vertices[1] + (vertices[5] - vertices[1]) * fillEnd;
 
                 vertices[1] = progressStart;
                 vertices[3] = progressStart;
                 vertices[5] = progressEnd;
                 vertices[7] = progressEnd;
 
-                uvs[0] = quadUV[0].u + (quadUV[4].u - quadUV[0].u) * fillStart;
-                uvs[1] = quadUV[1].v + (quadUV[5].v - quadUV[1].v) * fillStart;
-                uvs[2] = quadUV[2].u + (quadUV[6].u - quadUV[2].u) * fillStart;
-                uvs[3] = quadUV[3].v + (quadUV[7].v - quadUV[3].v) * fillStart;
-                uvs[4] = quadUV[0].u + (quadUV[4].u - quadUV[0].u) * fillEnd;
-                uvs[5] = quadUV[0].v + (quadUV[5].v - quadUV[1].v) * fillEnd;
-                uvs[6] = quadUV[2].u + (quadUV[6].u - quadUV[2].u) * fillEnd;
-                uvs[7] = quadUV[3].v + (quadUV[7].v - quadUV[3].v) * fillEnd;
+                uvs[0] = quadUV[0];
+                uvs[1] = quadUV[1] + (quadUV[5] - quadUV[1]) * fillStart;
+                uvs[2] = quadUV[2];
+                uvs[3] = quadUV[3] + (quadUV[7] - quadUV[3]) * fillStart;
+                uvs[4] = quadUV[4];
+                uvs[5] = quadUV[1] + (quadUV[5] - quadUV[1]) * fillEnd;
+                uvs[6] = quadUV[6];
+                uvs[7] = quadUV[3] + (quadUV[7] - quadUV[3]) * fillEnd;
                 break;
             default:
                 cc.error('Unrecognized fill type in bar fill');
@@ -499,9 +511,10 @@ var fillQuadGeneratorRadial = {
         //do round fill start [0,1), include 0, exclude 1
         while (fillStart >= 1.0) fillStart -= 1.0;
         while (fillStart < 0.0) fillStart += 1.0;
-        var center = cc.v2(fillCenter);
-        center.x *= contentSize.width;
-        center.y *= contentSize.height;
+        var cx = fillCenter.x * contentSize.width,
+            cy = fillCenter.y * contentSize.height;
+        var center = cc.v2( cx * wt.a + cy * wt.c + wt.tx,
+                            cx * wt.b + cy * wt.d + wt.ty);
 
         fillStart *= Math.PI * 2;
         fillRange *= Math.PI * 2;
@@ -574,14 +587,16 @@ var fillQuadGeneratorRadial = {
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart, this._intersectPoint_1);
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart + fillRange, this._intersectPoint_2);
 
-        var dataLength = 3 * 7 * 8;
+        var dataLength = 3 * 5 * 8;
         if (vertices.length < dataLength) {
             dataPool.put(vertices);
             vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._vertices = vertices;
         }
         if (uvs.length < dataLength) {
             dataPool.put(uvs);
             uvs = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._uvs = uvs;
         }
 
         var offset = 0, count = 0;
@@ -598,8 +613,8 @@ var fillQuadGeneratorRadial = {
                 continue;
             }
             //test against
-            var startAngle = this._getVertAngle(center,this._vertPos[triangle[0]]);
-            var endAngle = this._getVertAngle(center,this._vertPos[triangle[1]]);
+            var startAngle = this._getVertAngle(center, this._vertPos[triangle[0]]);
+            var endAngle = this._getVertAngle(center, this._vertPos[triangle[1]]);
             if(endAngle < startAngle) endAngle += Math.PI * 2;
             startAngle -= Math.PI * 2;
             endAngle -= Math.PI * 2;

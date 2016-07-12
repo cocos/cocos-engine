@@ -27,7 +27,7 @@ _ccsg.MotionStreak.WebGLRenderCmd = function(renderableObject){
     this._needDraw = true;
     this._matrix = new cc.math.Matrix4();
     this._matrix.identity();
-    this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_POSITION_TEXTURECOLOR);
+    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
 };
 
 _ccsg.MotionStreak.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);

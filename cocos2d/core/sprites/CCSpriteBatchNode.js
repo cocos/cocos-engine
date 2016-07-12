@@ -1,3 +1,4 @@
+
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
@@ -66,7 +67,7 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
         this._blendFunc = new cc.BlendFunc(cc.macro.BLEND_SRC, cc.macro.BLEND_DST);
 
         var texture2D;
-        if (cc.js,isString(fileImage)) {
+        if (cc.js.isString(fileImage)) {
             texture2D = cc.textureCache.getTextureForKey(fileImage);
             if (!texture2D)
                 texture2D = cc.textureCache.addImage(fileImage);
@@ -395,8 +396,8 @@ cc.SpriteBatchNode = _ccsg.Node.extend(/** @lends cc.SpriteBatchNode# */{
     },
 
     _isValidChild: function (child) {
-        if (!(child instanceof cc.Sprite)) {
-            cc.log(cc._LogInfos.Sprite,addChild_4);
+        if (!(child instanceof _ccsg.Sprite)) {
+            cc.log(cc._LogInfos.Sprite.addChild_4);
             return false;
         }
         if (child.texture !== this._texture) {

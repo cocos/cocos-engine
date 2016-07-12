@@ -254,12 +254,8 @@ _ccsg.VideoPlayer.EventType = {
     var proto = _ccsg.VideoPlayer.RenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = _ccsg.VideoPlayer.RenderCmd;
 
-    proto.resize = function () {
-
-    };
-
     proto.transform = function (parentCmd, recursive) {
-        _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        this.originTransform(parentCmd, recursive);
         this.updateMatrix();
     };
 
@@ -267,8 +263,7 @@ _ccsg.VideoPlayer.EventType = {
         if (!this._video) return;
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         var dpr = cc.view._devicePixelRatio;
-        var t = node.getNodeToWorldTransform();
-        if (!t) return;
+        var t = this._worldTransform;
 
         scaleX /= dpr;
         scaleY /= dpr;

@@ -575,8 +575,6 @@ cc.BMFontHelper = {
         var ret = true;
 
         this._spriteBatchNode.removeAllChildren();
-
-
         var letterClamp = false;
         for (var ctr = 0; ctr < this._string.length; ++ctr) {
             if (this._lettersInfo[ctr]._valid) {
@@ -625,7 +623,7 @@ cc.BMFontHelper = {
 
                 if (this._reusedRect.height > 0 && this._reusedRect.width > 0) {
                     var fontChar = this.getChildByTag(ctr);
-                    var locTexture = this._spriteBatchNode._renderCmd._texture || this._spriteBatchNode.textureAtlas.texture;
+                    var locTexture = this._spriteBatchNode._texture;
 
                     if (!fontChar) {
                         fontChar = new _ccsg.Sprite();

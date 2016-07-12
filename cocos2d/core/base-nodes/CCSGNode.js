@@ -1777,9 +1777,10 @@ _ccsg.Node = cc.Class({
      * @return {cc.AffineTransform}
      */
     getNodeToWorldTransform: function () {
-        // Update the transform is needed
-        this._renderCmd.getNodeToParentTransform();
-        return this._renderCmd._worldTransform;
+        var t = this.getNodeToParentTransform();
+        for (var p = this._parent; p !== null; p = p.parent)
+            t = cc.affineTransformConcat(t, p.getNodeToParentTransform());
+        return t;
     },
 
     /**

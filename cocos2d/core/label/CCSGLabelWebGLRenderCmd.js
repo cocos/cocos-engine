@@ -69,9 +69,8 @@ proto._updateDisplayOpacity = function (parentOpacity) {
 proto.transform = function (parentCmd, recursive) {
     this.originTransform(parentCmd, recursive);
 
-    var node = this._node,
-        lx = node._position.x, rx = lx + this._labelCanvas.width,
-        by = node._position.y, ty = by + this._labelCanvas.height,
+    var lx = 0, rx = this._labelCanvas.width,
+        by = 0, ty = this._labelCanvas.height,
         wt = this._worldTransform;
 
     var vertices = this._vertices;

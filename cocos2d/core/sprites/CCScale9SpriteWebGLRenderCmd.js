@@ -39,43 +39,41 @@ var proto = cc.Scale9Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.
 proto.constructor = cc.Scale9Sprite.WebGLRenderCmd;
 
 proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, offset) {
-    var ioff, joff, off;
-    for (var i = 0; i < 3; ++i) {
-        for (var j = 0; j < 3; ++j) {
-            ioff = i * 2;
-            joff = j * 2;
-            off = i*8 + j*2;
+    var off;
+    for (var r = 0; r < 3; ++r) {
+        for (var c = 0; c < 3; ++c) {
+            off = r*8 + c*2;
             // lb
             f32buffer[offset] = vertices[off];
             f32buffer[offset+1] = vertices[off+1];
             f32buffer[offset+2] = z;
             ui32buffer[offset+3] = color[0];
-            f32buffer[offset+4] = uvs[ioff];
-            f32buffer[offset+5] = uvs[joff+1];
+            f32buffer[offset+4] = uvs[off];
+            f32buffer[offset+5] = uvs[off+1];
             offset += 6;
             // rb
             f32buffer[offset] = vertices[off+2];
             f32buffer[offset + 1] = vertices[off+3];
             f32buffer[offset + 2] = z;
             ui32buffer[offset + 3] = color[0];
-            f32buffer[offset + 4] = uvs[ioff+2];
-            f32buffer[offset + 5] = uvs[joff+1];
+            f32buffer[offset + 4] = uvs[off+2];
+            f32buffer[offset + 5] = uvs[off+3];
             offset += 6;
             // lt
             f32buffer[offset] = vertices[off+8];
             f32buffer[offset + 1] = vertices[off+9];
             f32buffer[offset + 2] = z;
             ui32buffer[offset + 3] = color[0];
-            f32buffer[offset + 4] = uvs[ioff];
-            f32buffer[offset + 5] = uvs[joff+3];
+            f32buffer[offset + 4] = uvs[off+8];
+            f32buffer[offset + 5] = uvs[off+9];
             offset += 6;
             // rt
             f32buffer[offset] = vertices[off+10];
             f32buffer[offset + 1] = vertices[off+11];
             f32buffer[offset + 2] = z;
             ui32buffer[offset + 3] = color[0];
-            f32buffer[offset + 4] = uvs[ioff+2];
-            f32buffer[offset + 5] = uvs[joff+3];
+            f32buffer[offset + 4] = uvs[off+10];
+            f32buffer[offset + 5] = uvs[off+11];
             offset += 6;
         }
     }
@@ -163,9 +161,11 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     case types.SIMPLE:
     case types.TILED:
         len = this._uploadVertices(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+        this.vertexType = cc.renderer.VertexType.QUAD;
         break;
     case types.SLICED:
         len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+        this.vertexType = cc.renderer.VertexType.QUAD;
         break;
     case types.FILLED:
         if (node._fillType === cc.Scale9Sprite.FillType.RADIAL) {
@@ -174,14 +174,9 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         }
         else {
             len = this._uploadBar(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+            this.vertexType = cc.renderer.VertexType.QUAD;
         }
         break;
-    }
-    if (node._fillType === cc.Scale9Sprite.FillType.RADIAL) {
-        this.vertexType = cc.renderer.VertexType.TRIANGLE;
-    }
-    else {
-        this.vertexType = cc.renderer.VertexType.QUAD;
     }
     return len;
 };

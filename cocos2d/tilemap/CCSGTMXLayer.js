@@ -113,7 +113,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
     _fillTextureGrids: function (tileset, texId) {
         var tex = this._textures[texId];
         if (!tex.isLoaded()) {
-            tex.addEventListener("load", function () {
+            tex.once('load', function () {
                 this._fillTextureGrids(tileset, tex);
             }, this);
             return;
@@ -137,9 +137,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
             maxGid = tileset.firstGid + count,
             grids = this._texGrids,
             grid = null,
-            override = grids[gid] ? true : false,
-
-            t, l, r, b;
+            override = grids[gid] ? true : false;
 
         for (; gid < maxGid; ++gid) {
             // Avoid overlapping
@@ -173,7 +171,6 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
      */
     initWithTilesetInfo:function (tilesetInfo, layerInfo, mapInfo) {
         var size = layerInfo._layerSize;
-        var totalNumberOfTiles = parseInt(size.width * size.height);
 
         // layerInfo
         this.layerName = layerInfo.name;
@@ -193,13 +190,13 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 
         var tilesets = mapInfo._tilesets;
         if (tilesets) {
-            this._textures = [];
-            this._texGrids = [];
             var i, len = tilesets.length, tileset, tex;
+            this._textures = new Array(len);
+            this._texGrids = [];
             for (i = 0; i < len; ++i) {
                 tileset = tilesets[i];
                 tex = cc.textureCache.addImage(tileset.sourceImage);
-                this._textures.push(tex);
+                this._textures[i] = tex;
                 this._fillTextureGrids(tileset, i);
                 if (tileset === tilesetInfo) {
                     this._texture = tex;
@@ -209,13 +206,13 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
 
         // offset (after layer orientation is set);
         var offset = this._calculateLayerOffset(layerInfo.offset);
-        this.setPosition(cc.pointPixelsToPoints(offset));
+        this.setPosition(offset);
 
         // Parse cocos2d properties
         this._parseInternalProperties();
 
-        this.setContentSize(cc.sizePixelsToPoints(cc.size(this._layerSize.width * this._mapTileSize.width,
-            this._layerSize.height * this._mapTileSize.height)));
+        this.setContentSize(this._layerSize.width * this._mapTileSize.width,
+                            this._layerSize.height * this._mapTileSize.height);
         this._useAutomaticVertexZ = false;
         this._vertexZvalue = 0;
         return true;
