@@ -552,6 +552,11 @@ else {
         else if (browserType === "opr")
             browserType = sys.BROWSER_TYPE_OPERA;
 
+        // Adjustment
+        if (!sys.isMobile && /mqqbrowser|micromessenger|miuibrowser/.exec(ua)) {
+            sys.isMobile = true;
+        }
+
         sys.browserType = browserType;
     })();
 
