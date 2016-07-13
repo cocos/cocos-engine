@@ -119,7 +119,7 @@ cc.NodePool.prototype = {
             obj.removeFromParent(false);
 
             // Invoke pool handler
-            var handler = obj.getComponent(this.poolHandlerComp);
+            var handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
             if (handler && handler.unuse) {
                 handler.unuse();
             }
@@ -150,7 +150,7 @@ cc.NodePool.prototype = {
             this._pool.length = last;
 
             // Invoke pool handler
-            var handler = obj.getComponent(this.poolHandlerComp);
+            var handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
             if (handler && handler.reuse) {
                 handler.reuse.apply(handler, arguments);
             }

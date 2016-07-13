@@ -588,11 +588,9 @@ var Node = cc.Class({
      * var test = node.getComponent("Test");
      */
     getComponent: function (typeOrClassName) {
-        if (typeOrClassName) {
-            var constructor = getConstructor(typeOrClassName);
-            if (constructor) {
-                return findComponent(this, constructor);
-            }
+        var constructor = getConstructor(typeOrClassName);
+        if (constructor) {
+            return findComponent(this, constructor);
         }
         return null;
     },
@@ -608,12 +606,9 @@ var Node = cc.Class({
      * var tests = node.getComponents("Test");
      */
     getComponents: function (typeOrClassName) {
-        var components = [];
-        if (typeOrClassName) {
-            var constructor = getConstructor(typeOrClassName);
-            if (constructor) {
-                findComponents(this, constructor, components);
-            }
+        var constructor = getConstructor(typeOrClassName), components = [];
+        if (constructor) {
+            findComponents(this, constructor, components);
         }
         return components;
     },
@@ -629,11 +624,9 @@ var Node = cc.Class({
      * var Test = node.getComponentInChildren("Test");
      */
     getComponentInChildren: function (typeOrClassName) {
-        if (typeOrClassName) {
-            var constructor = getConstructor(typeOrClassName);
-            if (constructor) {
-                return findChildComponent(this._children, constructor);
-            }
+        var constructor = getConstructor(typeOrClassName);
+        if (constructor) {
+            return findChildComponent(this._children, constructor);
         }
         return null;
     },
@@ -649,12 +642,9 @@ var Node = cc.Class({
      * var tests = node.getComponentsInChildren("Test");
      */
     getComponentsInChildren: function (typeOrClassName) {
-        var components = [];
-        if (typeOrClassName) {
-            var constructor = getConstructor(typeOrClassName);
-            if (constructor) {
-                findChildComponents(this._children, constructor, components);
-            }
+        var constructor = getConstructor(typeOrClassName), components = [];
+        if (constructor) {
+            findChildComponents(this._children, constructor, components);
         }
         return components;
     },
