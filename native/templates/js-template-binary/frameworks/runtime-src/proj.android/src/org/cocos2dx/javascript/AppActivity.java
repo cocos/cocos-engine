@@ -38,6 +38,10 @@ import android.view.WindowManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 // -------------------------------------
+import org.cocos2dx.javascript.SDKWrapper;
+
+import android.content.Context;
+import android.content.Intent;
 
 // The name of .so is specified in AndroidMenifest.xml. NativityActivity will load it automatically for you.
 // You can use "System.loadLibrary()" to load other .so files.
@@ -56,6 +60,7 @@ public class AppActivity extends Cocos2dxActivity{
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
         hostIPAdress = getHostIpAddress();
+        SDKWrapper.getInstance().init(this);
     }
     
     @Override
@@ -63,6 +68,8 @@ public class AppActivity extends Cocos2dxActivity{
         Cocos2dxGLSurfaceView glSurfaceView = new Cocos2dxGLSurfaceView(this);
         // TestCpp should create stencil buffer
         glSurfaceView.setEGLConfigChooser(5, 6, 5, 0, 16, 8);
+
+        SDKWrapper.getInstance().setGLSurfaceView(glSurfaceView);
 
         return glSurfaceView;
     }
@@ -93,4 +100,46 @@ public class AppActivity extends Cocos2dxActivity{
             }
         });
    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SDKWrapper.getInstance().onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SDKWrapper.getInstance().onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SDKWrapper.getInstance().onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        SDKWrapper.getInstance().onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        SDKWrapper.getInstance().onNewIntent(intent);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        SDKWrapper.getInstance().onRestart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SDKWrapper.getInstance().onStop();
+    }
 }

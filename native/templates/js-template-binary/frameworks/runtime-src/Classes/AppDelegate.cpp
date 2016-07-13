@@ -12,6 +12,13 @@
 #include "js_module_register.h"
 #endif
 
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+#include "SDKManager.h"
+#include "jsb_anysdk_protocols_auto.hpp"
+#include "manualanysdkbindings.hpp"
+using namespace anysdk::framework;
+#endif
+
 USING_NS_CC;
 using namespace CocosDenshion;
 
@@ -28,6 +35,10 @@ AppDelegate::~AppDelegate()
     // NOTE:Please don't remove this call if you want to debug with Cocos Code IDE
     RuntimeEngine::getInstance()->end();
 #endif
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
+    SDKManager::getInstance()->purge();
+#endif
 }
 
 //if you want a different context,just modify the value of glContextAttrs
@@ -43,6 +54,9 @@ void AppDelegate::initGLContextAttrs()
 
 bool AppDelegate::applicationDidFinishLaunching()
 {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS && PACKAGE_AS
+    SDKManager::getInstance()->loadAllPlugins();
+#endif
     // initialize director
     auto director = Director::getInstance();
 
@@ -71,6 +85,10 @@ bool AppDelegate::applicationDidFinishLaunching()
     js_module_register();
     
     ScriptingCore* sc = ScriptingCore::getInstance();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS    
+    sc->addRegisterCallback(register_all_anysdk_framework);
+    sc->addRegisterCallback(register_all_anysdk_manual);
+#endif
     sc->start();
     sc->runScript("script/jsb_boot.js");
 #if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
