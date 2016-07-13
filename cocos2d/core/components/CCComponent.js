@@ -308,24 +308,24 @@ var Component = cc.Class({
 
         __scriptAsset: CC_EDITOR && {
             get: function () {},
-            set: function (value) {
-                if (this.__scriptUuid !== value) {
-                    if (value && Editor.UuidUtils.isUuid(value._uuid)) {
-                        var classId = Editor.UuidUtils.compressUuid(value._uuid);
-                        var NewComp = cc.js._getClassById(classId);
-                        if (cc.isChildClassOf(NewComp, cc.Component)) {
-                            cc.warn('Sorry, replacing component script is not yet implemented.');
-                            //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
-                        }
-                        else {
-                            cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
-                        }
-                    }
-                    else {
-                        cc.error('Invalid Script');
-                    }
-                }
-            },
+            //set: function (value) {
+            //    if (this.__scriptUuid !== value) {
+            //        if (value && Editor.UuidUtils.isUuid(value._uuid)) {
+            //            var classId = Editor.UuidUtils.compressUuid(value._uuid);
+            //            var NewComp = cc.js._getClassById(classId);
+            //            if (cc.isChildClassOf(NewComp, cc.Component)) {
+            //                cc.warn('Sorry, replacing component script is not yet implemented.');
+            //                //Editor.Ipc.sendToWins('reload:window-scripts', Editor._Sandbox.compiled);
+            //            }
+            //            else {
+            //                cc.error('Can not find a component in the script which uuid is "%s".', value._uuid);
+            //            }
+            //        }
+            //        else {
+            //            cc.error('Invalid Script');
+            //        }
+            //    }
+            //},
             displayName: 'Script',
             type: cc._Script,
             tooltip: 'i18n:INSPECTOR.component.script'
@@ -445,8 +445,8 @@ var Component = cc.Class({
     onLoad: null,
 
     /**
-     * !#en Called before all scripts' update if the Component is enabled.
-     * !#zh 如果该组件启用，则在所有组件的 update 之前调用。
+     * !#en Called before all scripts' update if the Component is enabled the first time.
+     * !#zh 如果该组件第一次启用，则在所有组件的 update 之前调用。
      * @method start
      */
     start: null,

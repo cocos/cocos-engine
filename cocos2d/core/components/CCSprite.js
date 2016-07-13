@@ -563,12 +563,14 @@ var Sprite = cc.Class({
             oldFrame.off('load', this._onSpriteFrameLoaded, this);
         }
 
-        if (this._spriteFrame) {
-            if (this._spriteFrame.textureLoaded()) {
+        var spriteFrame = this._spriteFrame;
+        if (spriteFrame) {
+            if (spriteFrame.textureLoaded()) {
                 this._onSpriteFrameLoaded(null);
             }
             else {
-                this._spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+                spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+                spriteFrame.ensureLoadTexture();
             }
         }
         else {
@@ -577,7 +579,7 @@ var Sprite = cc.Class({
 
         if (CC_EDITOR) {
             // Set atlas
-            this._applyAtlas(this._spriteFrame);
+            this._applyAtlas(spriteFrame);
         }
     },
 

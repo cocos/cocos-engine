@@ -53,6 +53,10 @@ var TiledMapAsset = cc.Class({
         }
     },
 
+    statics: {
+        preventDeferredLoadDependents: true
+    },
+
     createNode: CC_EDITOR && function (callback) {
         var node = new cc.Node(this.name);
         var tiledMap = node.addComponent(cc.TiledMap);

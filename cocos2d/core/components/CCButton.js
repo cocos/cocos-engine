@@ -327,6 +327,20 @@ var Button = cc.Class({
     },
 
     onEnable: function () {
+        // check sprite frames
+        if (this.normalSprite) {
+            this.normalSprite.ensureLoadTexture();
+        }
+        if (this.hoverSprite) {
+            this.hoverSprite.ensureLoadTexture();
+        }
+        if (this.pressedSprite) {
+            this.pressedSprite.ensureLoadTexture();
+        }
+        if (this.disabledSprite) {
+            this.disabledSprite.ensureLoadTexture();
+        }
+        //
         if (!CC_EDITOR) {
             this._registerEvent();
         } else {
