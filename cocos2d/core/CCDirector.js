@@ -284,12 +284,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (this._beforeVisitScene)
             this._beforeVisitScene();
 
-        // visit EC
-        if (this._scene) {
-            // clear flags
-            clearFlags(this._scene);
-        }
-
         // update the scene
         this._visitScene();
 
@@ -1504,13 +1498,3 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @type {Number}
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
-
-// clear dirtyFlags for EC
-function clearFlags (node) {
-    var children = node._children;
-    for (var i = 0, len = children.length; i < len; i++) {
-        var child = children[i];
-        child._dirtyFlags = 0;
-        clearFlags(child);
-    }
-}

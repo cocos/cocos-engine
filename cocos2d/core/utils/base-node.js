@@ -25,7 +25,6 @@
 var JS = cc.js;
 var SgHelper = require('./scene-graph-helper');
 var Destroying = require('../platform/CCObject').Flags.Destroying;
-var DirtyFlags = require('./misc').DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
 
 // called after changing parent
@@ -755,8 +754,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         if (!cc.game._isCloning) {
             sgNode.cascadeOpacity = true;
         }
-
-        this._dirtyFlags = DirtyFlags.ALL;
 
         /**
          * Current active size provider for this node.

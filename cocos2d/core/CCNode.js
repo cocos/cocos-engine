@@ -478,9 +478,9 @@ var Node = cc.Class({
         }
     },
 
-    statics: {
-        _DirtyFlags: require('./utils/misc').DirtyFlags
-    },
+    //statics: {
+    //    _DirtyFlags: require('./utils/misc').DirtyFlags
+    //},
 
     // OVERRIDES
 
