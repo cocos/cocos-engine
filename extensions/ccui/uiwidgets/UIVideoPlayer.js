@@ -380,7 +380,7 @@ ccui.VideoPlayer.EventType = {
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
             this.updateMatrix(this._worldTransform, cc.view._scaleX, cc.view._scaleY);
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.transformDirty;
         }
     };
 

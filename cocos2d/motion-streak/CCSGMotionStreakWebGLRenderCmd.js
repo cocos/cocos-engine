@@ -44,13 +44,13 @@ _ccsg.MotionStreak.WebGLRenderCmd.prototype.rendering = function(ctx){
         // update the color
         this._updateDisplayColor();
 
-        var wt = this._worldTransform;
-        this._matrix.mat[0] = wt.a;
-        this._matrix.mat[4] = wt.c;
-        this._matrix.mat[12] = wt.tx;
-        this._matrix.mat[1] = wt.b;
-        this._matrix.mat[5] = wt.d;
-        this._matrix.mat[13] = wt.ty;
+        var wt = this._worldTransform, mat = this._matrix.mat;
+        mat[0] = wt.a;
+        mat[4] = wt.c;
+        mat[12] = wt.tx;
+        mat[1] = wt.b;
+        mat[5] = wt.d;
+        mat[13] = wt.ty;
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);

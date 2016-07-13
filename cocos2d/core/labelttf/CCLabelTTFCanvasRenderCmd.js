@@ -314,7 +314,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
 
         if (this._dirtyFlag & flags.transformDirty){
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.transformDirty;
         }
     };
 
@@ -388,7 +388,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     proto.constructor = cc.LabelTTF.CacheRenderCmd;
 
     proto._updateTexture = function () {
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         var node = this._node;
         this._updateTTF();
         var width = this._texRect.width, height = this._texRect.height;
@@ -465,9 +465,8 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     };
 
     proto._updateTexture = function () {
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         var node = this._node;
-        var scale = cc.view.getDevicePixelRatio();
         this._updateTTF();
         if (node._string.length === 0) {
             node.setTextureRect(this._texRect);

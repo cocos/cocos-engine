@@ -59,7 +59,7 @@
             this._cacheDirty = true;
             if(this._updateCache === 0)
                 this._updateCache = 2;
-            this._dirtyFlag = locFlag & flags.orderDirty ^ locFlag;
+            this._dirtyFlag &= ~flags.orderDirty;
         }
 
         _ccsg.Node.RenderCmd.prototype.updateStatus.call(this);
@@ -71,14 +71,14 @@
             this._cacheDirty = true;
             if(this._updateCache === 0)
                 this._updateCache = 2;
-            this._dirtyFlag = locFlag & flags.orderDirty ^ locFlag;
+            this._dirtyFlag &= ~flags.orderDirty;
         }
         _ccsg.Node.RenderCmd.prototype._syncStatus.call(this, parentCmd);
     };
 
     proto.transform = function (parentCmd, recursive) {
         var wt = this._worldTransform;
-        var a = wt.a, b = wt.b, c = wt.c, d = wt.d, tx = wt.tx, ty = wt.ty;
+        var a = wt.a, b = wt.b, c = wt.c, d = wt.d;
         _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
         if(( wt.a !== a || wt.b !== b || wt.c !== c || wt.d !== d ) && this._updateCache === 0)
             this._updateCache = 2;
@@ -402,7 +402,7 @@
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         if (locFlag & flags.gradientDirty) {
             this._dirtyFlag |= flags.colorDirty;
-            this._dirtyFlag = locFlag & flags.gradientDirty ^ locFlag;
+            this._dirtyFlag &= ~flags.gradientDirty;
         }
 
         _ccsg.Node.RenderCmd.prototype.updateStatus.call(this);
@@ -412,7 +412,7 @@
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         if (locFlag & flags.gradientDirty) {
             this._dirtyFlag |= flags.colorDirty;
-            this._dirtyFlag = locFlag & flags.gradientDirty ^ locFlag;
+            this._dirtyFlag &= ~flags.gradientDirty;
         }
 
         _ccsg.Node.RenderCmd.prototype._syncStatus.call(this, parentCmd);

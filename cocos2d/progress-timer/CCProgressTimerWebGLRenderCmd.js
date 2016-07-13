@@ -123,14 +123,14 @@
 
         if (colorDirty){
             spriteCmd._syncDisplayColor();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.colorDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.colorDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if (opacityDirty){
             spriteCmd._syncDisplayOpacity();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.opacityDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.opacityDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){
@@ -144,7 +144,7 @@
 
         if (locFlag & flags.textureDirty) {
             this._updateProgressData();
-            this._dirtyFlag = this._dirtyFlag & flags.textureDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~flags.textureDirty;
         }
 
         spriteCmd._dirtyFlag = 0;
@@ -163,14 +163,14 @@
 
         if(colorDirty){
             spriteCmd._updateDisplayColor();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.colorDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.colorDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if(opacityDirty){
             spriteCmd._updateDisplayOpacity();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.opacityDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.opacityDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){
@@ -183,12 +183,12 @@
         }
 
         if (locFlag & flags.orderDirty) {
-            this._dirtyFlag = this._dirtyFlag & flags.orderDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~flags.orderDirty;
         }
 
         if (locFlag & flags.textureDirty) {
             this._updateProgressData();
-            this._dirtyFlag = this._dirtyFlag & flags.textureDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~flags.textureDirty;
         }
     };
 
@@ -209,7 +209,8 @@
 
     proto.initCmd = function () {
         if (!this._vertexData) {
-            this._vertexWebGLBuffer = cc._renderContext.createBuffer();
+            var gl = cc._renderContext;
+            this._vertexWebGLBuffer = gl.createBuffer();
             
             var vertexDataLen = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT;
             this._vertexArrayBuffer = new ArrayBuffer(MAX_VERTEX_COUNT * vertexDataLen);

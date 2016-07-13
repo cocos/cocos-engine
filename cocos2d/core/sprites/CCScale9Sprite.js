@@ -590,7 +590,7 @@ var fillQuadGeneratorRadial = {
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart, this._intersectPoint_1);
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart + fillRange, this._intersectPoint_2);
 
-        var dataLength = 3 * 5 * 8;
+        var dataLength = 3 * 5 * 2;
         if (vertices.length < dataLength) {
             dataPool.put(vertices);
             vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
@@ -611,7 +611,7 @@ var fillQuadGeneratorRadial = {
             //all in
             if(fillRange >= Math.PI * 2) {
                 this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
-                offset += 24;
+                offset += 6;
                 count += 3;
                 continue;
             }
@@ -633,7 +633,7 @@ var fillQuadGeneratorRadial = {
                         //startAngle to endAngle
                         this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
                     }
-                    offset += 24;
+                    offset += 6;
                     count += 3;
                 } else {
                     //startAngle < fillStart
@@ -642,12 +642,12 @@ var fillQuadGeneratorRadial = {
                     } else if(endAngle <= fillEnd) {
                         //fillStart to endAngle
                         this._generateTriangle(offset, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]]);
-                        offset += 24;
+                        offset += 6;
                         count += 3;
                     } else {
                         //fillStart to fillEnd
                         this._generateTriangle(offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
-                        offset += 24;
+                        offset += 6;
                         count += 3;
                     }
                 }
@@ -671,12 +671,12 @@ var fillQuadGeneratorRadial = {
         // tl: 0, 1
         // bl: 2, 3
         // tr: 4, 5
-        vertices[0]  = vert0.x;
-        vertices[1]  = vert0.y;
-        vertices[2]  = vert1.x;
-        vertices[3]  = vert1.y;
-        vertices[4]  = vert2.x;
-        vertices[5]  = vert2.y;
+        vertices[offset]  = vert0.x;
+        vertices[offset+1]  = vert0.y;
+        vertices[offset+2]  = vert1.x;
+        vertices[offset+3]  = vert1.y;
+        vertices[offset+4]  = vert2.x;
+        vertices[offset+5]  = vert2.y;
 
         progressX = (vert0.x - v0x) / (v1x - v0x);
         progressY = (vert0.y - v0y) / (v1y - v0y);

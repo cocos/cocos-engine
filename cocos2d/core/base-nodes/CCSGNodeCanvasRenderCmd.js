@@ -65,6 +65,8 @@ _ccsg.Node._requestDirtyFlag = function (key) {
     return value;
 };
 
+var ONE_DEGREE = Math.PI / 180;
+
 //-------------------------Base -------------------------
 _ccsg.Node.RenderCmd = function(renderable){
     this._dirtyFlag = 1;                           //need update the transform at first.
@@ -161,7 +163,7 @@ _ccsg.Node.RenderCmd.prototype = {
 
             // rotation
             if (hasRotation) {
-                var rotationRadiansX = node._rotationX * 0.017453292519943295;  //0.017453292519943295 = (Math.PI / 180);   for performance
+                var rotationRadiansX = node._rotationX * ONE_DEGREE;
                 c = Math.sin(rotationRadiansX);
                 d = Math.cos(rotationRadiansX);
                 if (node._rotationY === node._rotationX) {
@@ -169,7 +171,7 @@ _ccsg.Node.RenderCmd.prototype = {
                     b = -c;
                 }
                 else {
-                    var rotationRadiansY = node._rotationY * 0.017453292519943295;  //0.017453292519943295 = (Math.PI / 180);   for performance
+                    var rotationRadiansY = node._rotationY * ONE_DEGREE;
                     a = Math.cos(rotationRadiansY);
                     b = -Math.sin(rotationRadiansY);
                 }
@@ -183,8 +185,8 @@ _ccsg.Node.RenderCmd.prototype = {
 
             // skew
             if (hasSkew) {
-                var skx = Math.tan(node._skewX * Math.PI / 180);
-                var sky = Math.tan(node._skewY * Math.PI / 180);
+                var skx = Math.tan(node._skewX * ONE_DEGREE);
+                var sky = Math.tan(node._skewY * ONE_DEGREE);
                 if (skx === Infinity)
                     skx = 99999999;
                 if (sky === Infinity)
@@ -365,7 +367,7 @@ _ccsg.Node.RenderCmd.prototype = {
                }
            }
        }
-       this._dirtyFlag = this._dirtyFlag & dirtyFlags.colorDirty ^ this._dirtyFlag;
+       this._dirtyFlag &= ~dirtyFlags.colorDirty;
    },
 
     _updateDisplayOpacity: function (parentOpacity) {
@@ -400,7 +402,7 @@ _ccsg.Node.RenderCmd.prototype = {
                 }
             }
         }
-        this._dirtyFlag = this._dirtyFlag & dirtyFlags.opacityDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~dirtyFlags.opacityDirty;
     },
 
     _syncDisplayColor : function (parentColor) {
@@ -446,7 +448,7 @@ _ccsg.Node.RenderCmd.prototype = {
         if(locFlag & dirtyFlags.transformDirty){
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~dirtyFlags.transformDirty;
         }
     },
 

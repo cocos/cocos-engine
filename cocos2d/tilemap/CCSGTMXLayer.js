@@ -55,13 +55,14 @@
  * @property {Number}               tileWidth           - Width of a tile
  * @property {Number}               tileHeight          - Height of a tile
  */
-_ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
+_ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
     tiles: null,
     tileset: null,
     layerOrientation: null,
     properties: null,
     layerName: "",
 
+    _texture: null,
     _textures: null,
     _texGrids: null,
     _spriteTiles: null,
@@ -699,7 +700,6 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
     },
 
     _setupTileSprite:function (sprite, pos, gid) {
-        var z = pos.x + pos.y * this._layerSize.width;
         var posInPixel = this.getPositionAt(pos);
         sprite.setPosition(posInPixel);
         sprite.setVertexZ(this._vertexZForPos(pos));
@@ -750,10 +750,10 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
             switch (this.layerOrientation) {
                 case cc.TiledMap.Orientation.ISO:
                     maxVal = this._layerSize.width + this._layerSize.height;
-                    ret = -(maxVal - (pos.x + pos.y));
+                    ret = -(maxVal - (x + y));
                     break;
                 case cc.TiledMap.Orientation.ORTHO:
-                    ret = -(this._layerSize.height - pos.y);
+                    ret = -(this._layerSize.height - y);
                     break;
                 case cc.TiledMap.Orientation.HEX:
                     cc.log("TMX Hexa zOrder not supported");
@@ -768,5 +768,3 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         return ret;
     }
 });
-
-var _p = _ccsg.TMXLayer.prototype;

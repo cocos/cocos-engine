@@ -89,7 +89,8 @@
         }
 
         //draw sprite
-        var image = locSprite._texture.getHtmlElementObj();
+        var texture = locSprite._renderCmd._textureToRender || locSprite._texture;
+        var image = texture.getHtmlElementObj();
         if (locSprite._renderCmd._colorized) {
             context.drawImage(image,
                 0, 0, locTextureCoord.width, locTextureCoord.height,
@@ -218,14 +219,14 @@
 
         if (colorDirty){
             spriteCmd._syncDisplayColor();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.colorDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.colorDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if (opacityDirty){
             spriteCmd._syncDisplayOpacity();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.opacityDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.opacityDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){
@@ -238,7 +239,7 @@
         }
 
         if (locFlag & flags.orderDirty) {
-            this._dirtyFlag = this._dirtyFlag & flags.orderDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~flags.orderDirty;
         }
     };
 
@@ -255,14 +256,14 @@
 
         if(colorDirty){
             spriteCmd._updateDisplayColor();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.colorDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.colorDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if(opacityDirty){
             spriteCmd._updateDisplayOpacity();
-            spriteCmd._dirtyFlag = spriteCmd._dirtyFlag & flags.opacityDirty ^ spriteCmd._dirtyFlag;
-            this._dirtyFlag = this._dirtyFlag & flags.opacityDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){

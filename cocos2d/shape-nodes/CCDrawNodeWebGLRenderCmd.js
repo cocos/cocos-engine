@@ -35,13 +35,13 @@ cc.DrawNode.WebGLRenderCmd.prototype.constructor = cc.DrawNode.WebGLRenderCmd;
 cc.DrawNode.WebGLRenderCmd.prototype.rendering = function (ctx) {
     var node = this._node;
     if (node._buffer.length > 0) {
-        var wt = this._worldTransform;
-        this._matrix.mat[0] = wt.a;
-        this._matrix.mat[4] = wt.c;
-        this._matrix.mat[12] = wt.tx;
-        this._matrix.mat[1] = wt.b;
-        this._matrix.mat[5] = wt.d;
-        this._matrix.mat[13] = wt.ty;
+        var wt = this._worldTransform, mat = this._matrix.mat;
+        mat[0] = wt.a;
+        mat[4] = wt.c;
+        mat[12] = wt.tx;
+        mat[1] = wt.b;
+        mat[5] = wt.d;
+        mat[13] = wt.ty;
 
         cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
         this._shaderProgram.use();

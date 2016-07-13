@@ -51,7 +51,7 @@ var _batchedInfo = {
     _vertexDataF32 = null,
     _vertexDataUI32 = null,
     _indexData = null,
-    _prevIndexSize = false,
+    _prevIndexSize = 0,
     _pureQuad = true,
     _IS_IOS = false;
 
@@ -309,7 +309,8 @@ cc.rendererWebGL = {
         }
 
         // Check batching
-        var texture = cmd._texture || cmd._node._texture;
+        var node = cmd._node;
+        var texture = cmd._texture || node._texture || node._spriteFrame._texture;
         var blendSrc = cmd._node._blendFunc.src;
         var blendDst = cmd._node._blendFunc.dst;
         var shader = cmd._shaderProgram;
@@ -366,7 +367,6 @@ cc.rendererWebGL = {
         var gl = cc._renderContext;
         var texture = _batchedInfo.texture;
         var shader = _batchedInfo.shader;
-        var count = _batchingSize / 4;
         var uploadAll = _batchingSize > _maxVertexSize * 0.5;
 
         if (shader) {

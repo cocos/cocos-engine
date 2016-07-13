@@ -29,7 +29,6 @@ cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
     this._needDraw = true;
 
     this.vertexType = cc.renderer.VertexType.QUAD;
-    this._texture = null;
     this._color = new Uint32Array(1);
     this._dirty = false;
     this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
@@ -104,8 +103,6 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     var node = this._node;
     if (!node._spriteFrame || !node._spriteFrame.textureLoaded() || this._displayedOpacity === 0)
         return;
-
-    this._texture = node._spriteFrame._texture;
 
     // Rebuild vertex data
     if (node._quadsDirty) {

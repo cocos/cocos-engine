@@ -499,7 +499,7 @@ _ccsg.Label = _ccsg.Node.extend({
         var locFlag = this._renderCmd._dirtyFlag;
         if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
-            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
+            this._renderCmd._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
     },
@@ -507,7 +507,7 @@ _ccsg.Label = _ccsg.Node.extend({
         var locFlag = this._renderCmd._dirtyFlag;
         if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
-            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
+            this._renderCmd._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         }
         return _ccsg.Node.prototype._getWidth.call(this);
     },
@@ -515,7 +515,7 @@ _ccsg.Label = _ccsg.Node.extend({
         var locFlag = this._renderCmd._dirtyFlag;
         if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
-            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
+            this._renderCmd._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },

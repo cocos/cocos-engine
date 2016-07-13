@@ -49,7 +49,7 @@
 
         if (this._dirtyFlag & flags.transformDirty){
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.transformDirty;
         }
     };
 
@@ -473,7 +473,7 @@
     };
 
     proto._rebuildLabelSkin = function () {
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         var node = this._node;
         node._updateLabel();
     };

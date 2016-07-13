@@ -84,13 +84,13 @@
         var context = ctx || cc._renderContext;
         var node = this._node;
 
-        var wt = this._worldTransform;
-        this._matrix.mat[0] = wt.a;
-        this._matrix.mat[4] = wt.c;
-        this._matrix.mat[12] = wt.tx;
-        this._matrix.mat[1] = wt.b;
-        this._matrix.mat[5] = wt.d;
-        this._matrix.mat[13] = wt.ty;
+        var wt = this._worldTransform, mat = this._matrix.mat;
+        mat[0] = wt.a;
+        mat[4] = wt.c;
+        mat[12] = wt.tx;
+        mat[1] = wt.b;
+        mat[5] = wt.d;
+        mat[13] = wt.ty;
 
         this._shaderProgram.use();
         this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);
@@ -175,7 +175,7 @@
         if (locFlag & flags.gradientDirty) {
             this._dirtyFlag |= flags.colorDirty;
             this._updateVertex();
-            this._dirtyFlag = locFlag & flags.gradientDirty ^ locFlag;
+            this._dirtyFlag &= ~flags.gradientDirty;
         }
 
         _ccsg.Node.RenderCmd.prototype.updateStatus.call(this);
@@ -186,7 +186,7 @@
         if (locFlag & flags.gradientDirty) {
             this._dirtyFlag |= flags.colorDirty;
             this._updateVertex();
-            this._dirtyFlag = locFlag & flags.gradientDirty ^ locFlag;
+            this._dirtyFlag &= ~flags.gradientDirty;
         }
 
         _ccsg.Node.RenderCmd.prototype._syncStatus.call(this, parentCmd);
@@ -296,13 +296,13 @@
         context.enable(context.SCISSOR_TEST);
         cc.view.setScissorInPoints(clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height);
 
-        var wt = this._worldTransform;
-        this._matrix.mat[0] = wt.a;
-        this._matrix.mat[4] = wt.c;
-        this._matrix.mat[12] = wt.tx;
-        this._matrix.mat[1] = wt.b;
-        this._matrix.mat[5] = wt.d;
-        this._matrix.mat[13] = wt.ty;
+        var wt = this._worldTransform, mat = this._matrix.mat;
+        mat[0] = wt.a;
+        mat[4] = wt.c;
+        mat[12] = wt.tx;
+        mat[1] = wt.b;
+        mat[5] = wt.d;
+        mat[13] = wt.ty;
 
         //draw gradient layer
         this._shaderProgram.use();
