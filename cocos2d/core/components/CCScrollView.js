@@ -632,6 +632,16 @@ var ScrollView = cc.Class({
     },
 
     /**
+     * !#en  Stop auto scroll immediately
+     * !#zh  停止自动滚动, 调用此 API 可以让 Scrollview 立即停止滚动
+     * @method stopAutoScroll
+     */
+    stopAutoScroll: function() {
+        this._autoScrolling = false;
+        this._autoScrollAccumulatedTime = this._autoScrollTotalTime;
+    },
+
+    /**
      * !#en Modify the content position.
      * !#zh 设置当前视图内容的坐标点。
      * @method setContentPosition
@@ -1295,8 +1305,7 @@ var ScrollView = cc.Class({
 
     onDisable: function() {
         this._hideScrollbar();
-        this._autoScrolling = false;
-        this._autoScrollAccumulatedTime = this._autoScrollTotalTime;
+        this.stopAutoScroll();
     },
 
     update: function(dt) {
