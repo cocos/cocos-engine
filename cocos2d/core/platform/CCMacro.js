@@ -1606,7 +1606,8 @@ cc.macro = {
      * @property {Number} ENABLE_GL_STATE_CACHE
      * @readonly
      */
-    ENABLE_GL_STATE_CACHE: 1
+    // Editors do not need to cache fix bug for https://github.com/cocos-creator/fireball/issues/3079
+    ENABLE_GL_STATE_CACHE: CC_EDITOR ? 0 : 1
 };
 
 /**
