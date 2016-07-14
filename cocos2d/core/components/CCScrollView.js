@@ -756,7 +756,7 @@ var ScrollView = cc.Class({
         if (this.content) {
             //refresh content size
             var layout = this.content.getComponent(cc.Layout);
-            if(layout) {
+            if(layout && layout.enabledInHierarchy) {
                 layout.lateUpdate();
             }
             var scrollViewSize = this.node.getContentSize();
