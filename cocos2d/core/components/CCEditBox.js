@@ -417,31 +417,36 @@ var EditBox = cc.Class({
 
     _initSgNode: function() {
         var sgNode = this._sgNode;
+        if(sgNode) {
+            if(!CC_JSB) {
+                sgNode.createDomElementIfNeeded();
+            }
 
-        this._createBackgroundSprite();
+            this._createBackgroundSprite();
 
-        if (CC_EDITOR && this._useOriginalSize) {
-            this.node.setContentSize(sgNode.getContentSize());
-            this._useOriginalSize = false;
-        } else {
-            sgNode.setContentSize(this.node.getContentSize());
+            if (CC_EDITOR && this._useOriginalSize) {
+                this.node.setContentSize(sgNode.getContentSize());
+                this._useOriginalSize = false;
+            } else {
+                sgNode.setContentSize(this.node.getContentSize());
+            }
+
+            sgNode.inputMode = this.inputMode;
+            sgNode.maxLength = this.maxLength;
+
+            sgNode.string = this._string;
+            sgNode.fontSize = this.fontSize;
+            sgNode.fontColor = this.fontColor;
+            sgNode.placeholder = this.placeholder;
+            sgNode.placeholderFontSize = this.placeholderFontSize;
+            sgNode.placeholderFontColor = this.placeholderFontColor;
+            sgNode.inputFlag = this.inputFlag;
+            sgNode.returnType = this.returnType;
+            sgNode.setLineHeight(this.lineHeight);
+
+
+            sgNode.setDelegate(this);
         }
-
-        sgNode.inputMode = this.inputMode;
-        sgNode.maxLength = this.maxLength;
-
-        sgNode.string = this._string;
-        sgNode.fontSize = this.fontSize;
-        sgNode.fontColor = this.fontColor;
-        sgNode.placeholder = this.placeholder;
-        sgNode.placeholderFontSize = this.placeholderFontSize;
-        sgNode.placeholderFontColor = this.placeholderFontColor;
-        sgNode.inputFlag = this.inputFlag;
-        sgNode.returnType = this.returnType;
-        sgNode.setLineHeight(this.lineHeight);
-
-
-        sgNode.setDelegate(this);
     },
 
     editBoxEditingDidBegan: function() {

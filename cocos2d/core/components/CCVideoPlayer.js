@@ -215,6 +215,9 @@ var VideoPlayer = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
         if(sgNode) {
+            if(!CC_JSB) {
+                sgNode.createDomElementIfNeeded();
+            }
             this._updateVideoSource();
 
             sgNode.seekTo(this.currentTime);
