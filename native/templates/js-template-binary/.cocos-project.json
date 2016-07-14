@@ -1,4 +1,3 @@
 {
-    "engine_type": "prebuilt", 
-    "engine_version": "cocos2d-x-3.10"
+    "engine_type": "prebuilt"
 }
