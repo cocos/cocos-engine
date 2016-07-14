@@ -934,24 +934,24 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * !#en Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
      * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
      * @method setScale
-     * @param {Number|Vec2} scale - scaleX or scale
+     * @param {Number|Vec2} scaleX - scaleX or scale
      * @param {Number} [scaleY=scale]
      * @example
      * node.setScale(cc.v2(1, 1));
      * node.setScale(1, 1);
      */
-    setScale: function (scale, scaleY) {
-        if (scale instanceof cc.Vec2) {
-            scaleY = scale.y;
-            scale = scale.x
+    setScale: function (scaleX, scaleY) {
+        if (typeof scaleX === 'object') {
+            scaleY = scaleX.y;
+            scaleX = scaleX.x
         }
         else {
-            scaleY = (scaleY || scaleY === 0) ? scaleY : scale;
+            scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
         }
-        if (this._scaleX !== scale || this._scaleY !== scaleY) {
-            this._scaleX = scale;
+        if (this._scaleX !== scaleX || this._scaleY !== scaleY) {
+            this._scaleX = scaleX;
             this._scaleY = scaleY;
-            this._sgNode.setScale(scale, scaleY);
+            this._sgNode.setScale(scaleX, scaleY);
         }
     },
 

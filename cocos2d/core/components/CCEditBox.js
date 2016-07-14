@@ -407,7 +407,7 @@ var EditBox = cc.Class({
         var bgSprite = new cc.Scale9Sprite();
         bgSprite.setRenderingType(cc.Scale9Sprite.RenderingType.SLICED);
         if (this.backgroundImage) {
-
+            this.backgroundImage.ensureLoadTexture();
             bgSprite.setSpriteFrame(this.backgroundImage);
             this._applyCapInset(bgSprite);
         }

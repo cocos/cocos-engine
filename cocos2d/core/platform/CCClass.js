@@ -1031,6 +1031,7 @@ function parseAttributes (attrs, className, propName) {
 
     parseSimpleAttr('rawType', 'string', Attr.RawType);
     parseSimpleAttr('editorOnly', 'boolean', Attr.EditorOnly);
+    //parseSimpleAttr('preventDeferredLoad', 'boolean');
     if (CC_DEV) {
         parseSimpleAttr('displayName', 'string');
         parseSimpleAttr('multiline', 'boolean', {multiline: true});

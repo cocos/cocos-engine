@@ -331,15 +331,16 @@ cc.js.mixin(cc.director, {
             if (error) {
                 error = 'Failed to load scene: ' + error;
                 cc.error(error);
-                if (CC_EDITOR) {
+                if (CC_DEV) {
                     console.assert(false, error);
                 }
             }
             else {
-                scene = sceneAsset.scene;
-                if (scene instanceof cc.Scene) {
+                if (sceneAsset instanceof cc.SceneAsset) {
+                    scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
-                    self.runScene(scene, onUnloaded, onLaunched);
+                    scene._name = sceneAsset._name;
+                    self.runSceneImmediate(scene, onUnloaded, onLaunched);
                 }
                 else {
                     error = 'The asset ' + uuid + ' is not a scene';

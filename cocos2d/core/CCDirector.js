@@ -809,7 +809,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             if (error) {
                 error = 'Failed to load scene: ' + error;
                 cc.error(error);
-                if (CC_EDITOR) {
+                if (CC_DEV) {
                     console.assert(false, error);
                 }
             }
@@ -817,12 +817,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 if (sceneAsset instanceof cc.SceneAsset) {
                     scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
-                }
-                else {
-                    // hack for preview
-                    scene = sceneAsset;
-                }
-                if (scene instanceof cc.Scene) {
                     scene._name = sceneAsset._name;
                     self.runSceneImmediate(scene, onUnloaded, onLaunched);
                 }
