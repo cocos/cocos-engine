@@ -191,8 +191,8 @@ cc.rendererCanvas = {
     _renderingToCacheCanvas: function (ctx, instanceID, scaleX, scaleY) {
         if (!ctx)
             cc.log("The context of RenderTexture is invalid.");
-        scaleX = cc.isUndefined(scaleX) ? 1 : scaleX;
-        scaleY = cc.isUndefined(scaleY) ? 1 : scaleY;
+        scaleX = scaleX === undefined ? 1 : scaleX;
+        scaleY = scaleY === undefined ? 1 : scaleY;
         instanceID = instanceID || this._currentID;
         var locCmds = this._cacheToCanvasCmds[instanceID], i, len;
         ctx.computeRealOffsetY();
@@ -230,7 +230,7 @@ cc.rendererCanvas = {
         }
 
         var locIDs = this._cacheInstanceIds;
-        cc.arrayRemoveObject(locIDs, instanceID);
+        cc.js.array.remove(locIDs, instanceID);
     },
 
     resetFlag: function () {

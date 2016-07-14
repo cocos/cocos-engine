@@ -104,7 +104,7 @@
         }
     };
 
-    proto._addChild = function(){
+    proto._addChild = function(child){
         child._lateChild = true;
     };
 })();

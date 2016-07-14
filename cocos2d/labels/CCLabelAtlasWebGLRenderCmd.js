@@ -34,19 +34,17 @@
     proto._updateColor = function () {
         if (this._colorF32Array) {
             var locDisplayedColor = this._displayedColor;
-            var a = this._displayedOpacity / 255;
+            var a = this._displayedOpacity / 255, coef;
             if (this._node._opacityModifyRGB) {
-                this._colorF32Array[0] = locDisplayedColor.r * a / 255;
-                this._colorF32Array[1] = locDisplayedColor.g * a / 255;
-                this._colorF32Array[2] = locDisplayedColor.b * a / 255;
-                this._colorF32Array[3] = a;
+               coef = a / 255;
             }
             else {
-                this._colorF32Array[0] = locDisplayedColor.r / 255;
-                this._colorF32Array[1] = locDisplayedColor.g / 255;
-                this._colorF32Array[2] = locDisplayedColor.b / 255;
-                this._colorF32Array[3] = a;
+               coef = 1 / 255;
             }
+            this._colorF32Array[0] = locDisplayedColor.r * coef;
+            this._colorF32Array[1] = locDisplayedColor.g * coef;
+            this._colorF32Array[2] = locDisplayedColor.b * coef;
+            this._colorF32Array[3] = a;
         }
     };
 

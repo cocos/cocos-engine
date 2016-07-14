@@ -10,8 +10,8 @@
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Chukong Aipu reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,6 +23,9 @@
  ****************************************************************************/
 
 // Internal variables
+
+var BATCH_QUAD_COUNT = 2000;
+
     // Batching general informations
 var _batchedInfo = {
         // The batched texture, all batching element should have the same texture
@@ -98,12 +101,8 @@ function initQuadBuffer (numQuads) {
         // TODO do user need to release the memory ?
         _vertexBuffer = gl.createBuffer();
         _indexBuffer = gl.createBuffer();
-
-        updateBuffer(numQuads);
     }
-    else {
-        updateBuffer(numQuads);
-    }
+    updateBuffer(numQuads);
 }
 
 var VertexType = cc.Enum({
@@ -136,7 +135,7 @@ cc.rendererWebGL = {
 
         this.mat4Identity = new cc.math.Matrix4();
         this.mat4Identity.identity();
-        initQuadBuffer(2000);
+        initQuadBuffer(BATCH_QUAD_COUNT);
         if (cc.sys.os === cc.sys.OS_IOS) {
             _IS_IOS = true;
         }

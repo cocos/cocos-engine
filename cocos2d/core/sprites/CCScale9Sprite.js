@@ -119,14 +119,26 @@ var simpleQuadGenerator = {
             sprite._vertices = vertices;
         }
         // bl, br, tl, tr
-        vertices[0] = webgl ? l * wt.a + b * wt.c + wt.tx : l;
-        vertices[1] = webgl ? l * wt.b + b * wt.d + wt.ty : b;
-        vertices[2] = webgl ? r * wt.a + b * wt.c + wt.tx : r;
-        vertices[3] = webgl ? r * wt.b + b * wt.d + wt.ty : b;
-        vertices[4] = webgl ? l * wt.a + t * wt.c + wt.tx : l;
-        vertices[5] = webgl ? l * wt.b + t * wt.d + wt.ty : t;
-        vertices[6] = webgl ? r * wt.a + t * wt.c + wt.tx : r;
-        vertices[7] = webgl ? r * wt.b + t * wt.d + wt.ty : t;
+        if (webgl) {
+            vertices[0] = l * wt.a + b * wt.c + wt.tx;
+            vertices[1] = l * wt.b + b * wt.d + wt.ty;
+            vertices[2] = r * wt.a + b * wt.c + wt.tx;
+            vertices[3] = r * wt.b + b * wt.d + wt.ty;
+            vertices[4] = l * wt.a + t * wt.c + wt.tx;
+            vertices[5] = l * wt.b + t * wt.d + wt.ty;
+            vertices[6] = r * wt.a + t * wt.c + wt.tx;
+            vertices[7] = r * wt.b + t * wt.d + wt.ty;
+        }
+        else {
+            vertices[0] = l;
+            vertices[1] = b;
+            vertices[2] = r;
+            vertices[3] = b;
+            vertices[4] = l;
+            vertices[5] = t;
+            vertices[6] = r;
+            vertices[7] = t;
+        }
     },
 
     _calculateUVs: function (sprite, spriteFrame) {
@@ -211,12 +223,23 @@ var scale9QuadGenerator = {
             vertices = dataPool.get(32) || new Float32Array(32);
             sprite._vertices = vertices;
         }
-        var offset = 0;
-        for (var row = 0; row < 4; row++) {
-            for (var col = 0; col < 4; col++) {
-                vertices[offset] = webgl ? x[col] * wt.a + y[row] * wt.c + wt.tx : x[col];
-                vertices[offset+1] = webgl ? x[col] * wt.b + y[row] * wt.d + wt.ty : y[row];
-                offset += 2;
+        var offset = 0, row, col;
+        if (webgl) {
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    vertices[offset] = x[col] * wt.a + y[row] * wt.c + wt.tx;
+                    vertices[offset+1] = x[col] * wt.b + y[row] * wt.d + wt.ty;
+                    offset += 2;
+                }
+            }
+        }
+        else {
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    vertices[offset] = x[col];
+                    vertices[offset+1] = y[row];
+                    offset += 2;
+                }
             }
         }
     },
@@ -338,14 +361,26 @@ var tiledQuadGenerator = {
                 r = rectWidth * Math.min(hindex + 1, hRepeat);
                 t = rectHeight * Math.min(vindex + 1, vRepeat);
                 // bl.x, bl.y, br.x, br.y, tl.x, tl.y, tr.x, tr.y
-                vertices[offset] = webgl ? l * wt.a + b * wt.c + wt.tx : l;
-                vertices[offset + 1] = webgl ? l * wt.b + b * wt.d + wt.ty : b;
-                vertices[offset + 2] = webgl ? r * wt.a + b * wt.c + wt.tx : r;
-                vertices[offset + 3] = webgl ? r * wt.b + b * wt.d + wt.ty : b;
-                vertices[offset + 4] = webgl ? l * wt.a + t * wt.c + wt.tx : l;
-                vertices[offset + 5] = webgl ? l * wt.b + t * wt.d + wt.ty : t;
-                vertices[offset + 6] = webgl ? r * wt.a + t * wt.c + wt.tx : r;
-                vertices[offset + 7] = webgl ? r * wt.b + t * wt.d + wt.ty : t;
+                if (webgl) {
+                    vertices[offset] = l * wt.a + b * wt.c + wt.tx;
+                    vertices[offset + 1] = l * wt.b + b * wt.d + wt.ty;
+                    vertices[offset + 2] = r * wt.a + b * wt.c + wt.tx;
+                    vertices[offset + 3] = r * wt.b + b * wt.d + wt.ty;
+                    vertices[offset + 4] = l * wt.a + t * wt.c + wt.tx;
+                    vertices[offset + 5] = l * wt.b + t * wt.d + wt.ty;
+                    vertices[offset + 6] = r * wt.a + t * wt.c + wt.tx;
+                    vertices[offset + 7] = r * wt.b + t * wt.d + wt.ty;
+                }
+                else {
+                    vertices[offset] = l;
+                    vertices[offset + 1] = b;
+                    vertices[offset + 2] = r;
+                    vertices[offset + 3] = b;
+                    vertices[offset + 4] = l;
+                    vertices[offset + 5] = t;
+                    vertices[offset + 6] = r;
+                    vertices[offset + 7] = t;
+                }
 
                 if (!spriteFrame._rotated) {
                     uvs[offset] = u0;
@@ -415,14 +450,26 @@ var fillQuadGeneratorBar = {
         }
 
         //build quads
-        vertices[0] = webgl ? l * wt.a + b * wt.c + wt.tx : l;
-        vertices[1] = webgl ? l * wt.b + b * wt.d + wt.ty : b;
-        vertices[2] = webgl ? r * wt.a + b * wt.c + wt.tx : r;
-        vertices[3] = webgl ? r * wt.b + b * wt.d + wt.ty : b;
-        vertices[4] = webgl ? l * wt.a + t * wt.c + wt.tx : l;
-        vertices[5] = webgl ? l * wt.b + t * wt.d + wt.ty : t;
-        vertices[6] = webgl ? r * wt.a + t * wt.c + wt.tx : r;
-        vertices[7] = webgl ? r * wt.b + t * wt.d + wt.ty : t;
+        if (webgl) {
+            vertices[0] = l * wt.a + b * wt.c + wt.tx;
+            vertices[1] = l * wt.b + b * wt.d + wt.ty;
+            vertices[2] = r * wt.a + b * wt.c + wt.tx;
+            vertices[3] = r * wt.b + b * wt.d + wt.ty;
+            vertices[4] = l * wt.a + t * wt.c + wt.tx;
+            vertices[5] = l * wt.b + t * wt.d + wt.ty;
+            vertices[6] = r * wt.a + t * wt.c + wt.tx;
+            vertices[7] = r * wt.b + t * wt.d + wt.ty;
+        }
+        else {
+            vertices[0] = l;
+            vertices[1] = b;
+            vertices[2] = r;
+            vertices[3] = b;
+            vertices[4] = l;
+            vertices[5] = t;
+            vertices[6] = r;
+            vertices[7] = t;
+        }
 
         var quadUV = new Array(8);
         if (!spriteFrame._rotated) {
@@ -787,10 +834,18 @@ var fillQuadGeneratorRadial = {
         x3 = contentSize.width;
         y3 = contentSize.height;
 
-        this._vertices[0].x = webgl ? x0 * wt.a + y0 * wt.c + wt.tx : x0;
-        this._vertices[0].y = webgl ? x0 * wt.b + y0 * wt.d + wt.ty : y0;
-        this._vertices[1].x = webgl ? x3 * wt.a + y3 * wt.c + wt.tx : x3;
-        this._vertices[1].y = webgl ? x3 * wt.b + y3 * wt.d + wt.ty : y3;
+        if (webgl) {
+            this._vertices[0].x = x0 * wt.a + y0 * wt.c + wt.tx;
+            this._vertices[0].y = x0 * wt.b + y0 * wt.d + wt.ty;
+            this._vertices[1].x = x3 * wt.a + y3 * wt.c + wt.tx;
+            this._vertices[1].y = x3 * wt.b + y3 * wt.d + wt.ty;
+        }
+        else {
+            this._vertices[0].x = x0;
+            this._vertices[0].y = y0;
+            this._vertices[1].x = x3;
+            this._vertices[1].y = y3;
+        }
     },
 
     _calculateUVs : function (spriteFrame) {
