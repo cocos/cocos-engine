@@ -92,9 +92,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     /**
      * !#en
      * Constructor of SpriteFrame class. <br/>
-     * Node: It's not recommended to use SpriteFrame constructor (new SpriteFrame), <br/>
-     * Because the instance in the native environment requires the user to manually manage memory, <br/>
-     * or you might cause serious errors.
+     * Node: It's not recommended to use SpriteFrame constructor (new Sprite)
+     * because its memory usage can't be tracked in native environment, <br/>
+     * if you know what you are doing, you may need to manually retain it after creation then
+     * release it when you no longer need it.
      * !#zh
      * SpriteFrame 类的构造函数。<br/>
      * 注意：不建议用户使用构造函数进行创建，因为该实例在原生环境下需要用户手动管理内存，不然会导致严重错误。
@@ -107,10 +108,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      */
     ctor: function () {
         if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !cc.game._isCloning) {
-            cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) " +
-                "to create SpriteFrame instance since it's memory will be unable to manage. " +
-                "Instead please use cc.loader.loadRes to get SpriteFrame instance from loading, " +
-                "or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.")
+            cc.warn("It's not recommended to use SpriteFrame constructor (new Sprite) because its memory usage can't be tracked in native environment, if you know what you are doing, you may need to manually retain it after creation then release it when you no longer need it.");
         }
 
         var filename = arguments[0];
