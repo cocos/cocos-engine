@@ -339,7 +339,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         if (gid === 0)
             return tile;
 
-        var z = 0 | (Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width);
+        var z = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
         tile = this.getChildByTag(z);
         // tile not created yet. create it
         if (!tile) {
@@ -380,7 +380,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
             return null;
         }
 
-        var idx = 0 | (Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width);
+        var idx = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         var tile = this.tiles[idx];
 
@@ -407,7 +407,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
             return null;
         }
 
-        var idx = 0 | (Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width);
+        var idx = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         var tile = this.tiles[idx];
 
@@ -498,7 +498,7 @@ _ccsg.TMXLayer = cc.SpriteBatchNode.extend(/** @lends _ccsg.TMXLayer# */{
         if (gid !== 0) {
             if (cc._renderType === cc.game.RENDER_TYPE_CANVAS)
                 this._setNodeDirtyForCache();
-            var z = 0 | (Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width);
+            var z = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
             var atlasIndex = this._atlasIndexForExistantZ(z);
             // remove tile from GID map
             this.tiles[z] = 0;
