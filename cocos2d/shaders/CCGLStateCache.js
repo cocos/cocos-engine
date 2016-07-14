@@ -107,21 +107,6 @@ cc.gl.deleteProgram = function (program) {
     gl.deleteProgram(program);
 };
 
-/*
- * Uses a blending function in case it not already used.<br/>
- * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will use glContext.blendFunc() directly.
- * @function
- * @param {Number} sfactor
- * @param {Number} dfactor
- */
-cc.gl.blendFunc = ENABLE_GL_STATE_CACHE ? function (sfactor, dfactor) {
-    if ((sfactor !== _blendingSource) || (dfactor !== _blendingDest)) {
-        _blendingSource = sfactor;
-        _blendingDest = dfactor;
-        cc.gl.setBlending(sfactor, dfactor);
-    }
-} : cc.gl.setBlending;
-
 /**
  * @function
  * @param {Number} sfactor
@@ -138,6 +123,21 @@ cc.gl.setBlending = function (sfactor, dfactor) {
         //ctx.blendFuncSeparate(ctx.SRC_ALPHA, dfactor, sfactor, dfactor);
     }
 };
+
+/*
+ * Uses a blending function in case it not already used.<br/>
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will use glContext.blendFunc() directly.
+ * @function
+ * @param {Number} sfactor
+ * @param {Number} dfactor
+ */
+cc.gl.blendFunc = ENABLE_GL_STATE_CACHE ? function (sfactor, dfactor) {
+    if ((sfactor !== _blendingSource) || (dfactor !== _blendingDest)) {
+        _blendingSource = sfactor;
+        _blendingDest = dfactor;
+        cc.gl.setBlending(sfactor, dfactor);
+    }
+} : cc.gl.setBlending;
 
 /**
  * @function
