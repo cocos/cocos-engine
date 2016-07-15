@@ -147,6 +147,12 @@ var simpleQuadGenerator = {
         var atlasHeight = spriteFrame._texture.getPixelHeight();
         var textureRect = spriteFrame._rect;
 
+        if (uvs.length < 8) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(8) || new Float32Array(8);
+            sprite._uvs = uvs;
+        }
+
         //uv computation should take spritesheet into account.
         var l, b, r, t;
 
@@ -155,23 +161,21 @@ var simpleQuadGenerator = {
             b = (textureRect.y + textureRect.width) / atlasHeight;
             r = (textureRect.x + textureRect.height) / atlasWidth;
             t = textureRect.y / atlasHeight;
+            uvs[0] = l; uvs[1] = t;
+            uvs[2] = l; uvs[3] = b;
+            uvs[4] = r; uvs[5] = t;
+            uvs[6] = r; uvs[7] = b;
         }
         else {
             l = textureRect.x / atlasWidth;
             b = (textureRect.y + textureRect.height) / atlasHeight;
             r = (textureRect.x + textureRect.width) / atlasWidth;
             t = textureRect.y / atlasHeight;
+            uvs[0] = l; uvs[1] = b;
+            uvs[2] = r; uvs[3] = b;
+            uvs[4] = l; uvs[5] = t;
+            uvs[6] = r; uvs[7] = t;
         }
-
-        if (uvs.length < 8) {
-            dataPool.put(uvs);
-            uvs = dataPool.get(8) || new Float32Array(8);
-            sprite._uvs = uvs;
-        }
-        uvs[0] = l; uvs[1] = b;
-        uvs[2] = r; uvs[3] = b;
-        uvs[4] = l; uvs[5] = t;
-        uvs[6] = r; uvs[7] = t;
     }
 };
 
@@ -262,9 +266,16 @@ var scale9QuadGenerator = {
         centerHeight = rect.height - topHeight - bottomHeight;
         var textureRect = spriteFrame._rect;
 
+        if (uvs.length < 32) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(32) || new Float32Array(32);
+            sprite._uvs = uvs;
+        }
+
         //uv computation should take spritesheet into account.
         var u = new Array(4);
         var v = new Array(4);
+        var offset = 0, row, col;
 
         if (spriteFrame._rotated) {
             u[0] = textureRect.x / atlasWidth;
@@ -276,6 +287,14 @@ var scale9QuadGenerator = {
             v[2] = (leftWidth + textureRect.y) / atlasHeight;
             v[1] = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
             v[0] = (textureRect.y + textureRect.width) / atlasHeight;
+            
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    uvs[offset] = u[row];
+                    uvs[offset+1] = v[3-col];
+                    offset += 2;
+                }
+            }
         }
         else {
             u[0] = textureRect.x / atlasWidth;
@@ -287,19 +306,13 @@ var scale9QuadGenerator = {
             v[2] = (topHeight + textureRect.y) / atlasHeight;
             v[1] = (topHeight + centerHeight + textureRect.y) / atlasHeight;
             v[0] = (textureRect.y + textureRect.height) / atlasHeight;
-        }
 
-        if (uvs.length < 32) {
-            dataPool.put(uvs);
-            uvs = dataPool.get(32) || new Float32Array(32);
-            sprite._uvs = uvs;
-        }
-        var offset = 0;
-        for (var row = 0; row < 4; row++) {
-            for (var col = 0; col < 4; col++) {
-                uvs[offset] = u[col];
-                uvs[offset+1] = v[row];
-                offset += 2;
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    uvs[offset] = u[col];
+                    uvs[offset+1] = v[row];
+                    offset += 2;
+                }
             }
         }
     }
@@ -320,14 +333,14 @@ var tiledQuadGenerator = {
         if (spriteFrame._rotated) {
             u0 = textureRect.x / atlasWidth;
             u1 = (textureRect.x + textureRect.height) / atlasWidth;
-            v0 = textureRect.y / atlasHeight;
-            v1 = (textureRect.y + textureRect.width) / atlasHeight;
+            v0 = (textureRect.y + textureRect.width) / atlasHeight;
+            v1 = textureRect.y / atlasHeight;
         }
         else {
             u0 = textureRect.x / atlasWidth;
             u1 = (textureRect.x + textureRect.width) / atlasWidth;
-            v0 = textureRect.y / atlasHeight;
-            v1 = (textureRect.y + textureRect.height) / atlasHeight;
+            v0 = (textureRect.y + textureRect.height) / atlasHeight;
+            v1 = textureRect.y / atlasHeight;
         }
         
         //build quads
