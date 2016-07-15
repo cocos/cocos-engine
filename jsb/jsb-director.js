@@ -156,15 +156,17 @@ cc.js.mixin(cc.director, {
         if (scene instanceof cc.Scene) {
             this._scene = scene;
             sgScene = scene._sgNode;
-            
-            // Re-attach persist nodes
+
+            // Re-attach or replace persist nodes
             for (id in persistNodes) {
                 node = persistNodes[id];
                 var existNode = scene.getChildByUuid(id);
-                // Scene contains the persist node, should not reattach, should update the persist node
                 if (existNode) {
-                    persistNodes[id] = existNode;
-                    existNode._persistNode = true;
+                    // scene also contains the persist node, select the old one
+                    var index = existNode.getSiblingIndex();
+                    existNode._destroyImmediate();
+                    node.parent = scene;
+                    node.setSiblingIndex(index);
                 }
                 else {
                     node.parent = scene;
