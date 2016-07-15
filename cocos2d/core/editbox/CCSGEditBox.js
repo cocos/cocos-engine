@@ -248,6 +248,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._renderCmd.updateVisibility();
     },
 
+    createDomElementIfNeeded: function () {
+        if(!this._renderCmd._edTxt) {
+            this._renderCmd.createNativeControl();
+        }
+    },
+
     cleanup: function () {
         this._renderCmd._removeDomInputControl();
         this.stopAllActions();
