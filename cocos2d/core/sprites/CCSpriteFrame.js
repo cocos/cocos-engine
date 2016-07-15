@@ -110,7 +110,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
-        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !cc.game._isCloning) {
+        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !CC_TEST && !cc.game._isCloning) {
             cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) because its memory usage can't be tracked in native environment, if you know what you are doing, you may need to manually retain it after creation then release it when you no longer need it.");
         }
 
