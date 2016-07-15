@@ -256,6 +256,11 @@ _ccsg.Node.RenderCmd.prototype = {
             this._transform = cc.affineTransformConcat(t, node._additionalTransform);
         }
 
+        if (this._currentRegion) {
+            this._updateCurrentRegions();
+            this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
+        }
+
         if (recursive) {
             var locChildren = this._node._children;
             if (!locChildren || locChildren.length === 0)

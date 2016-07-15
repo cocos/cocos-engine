@@ -1326,6 +1326,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             return;
         }
 
+        // Culling
         if (webgl) {
             var x0 = cornerId[0], x1 = cornerId[1], x2 = cornerId[2], x3 = cornerId[3],
                 y0 = cornerId[0]+1, y1 = cornerId[1]+1, y2 = cornerId[2]+1, y3 = cornerId[3]+1;
@@ -1334,6 +1335,16 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 ((vert[y0]-vb.y) & (vert[y1]-vb.y) & (vert[y2]-vb.y) & (vert[y3]-vb.y)) >> 31 || // All outside bottom
                 ((vt.y-vert[y0]) & (vt.y-vert[y1]) & (vt.y-vert[y2]) & (vt.y-vert[y3])) >> 31)   // All outside top
             {
+                this._renderCmd._needDraw = false;
+            }
+            else {
+                this._renderCmd._needDraw = true;
+            }
+        }
+        else {
+            var bb = this._renderCmd._currentRegion,
+                l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY;
+            if (r < vl.x || l > vr.x || t < vb.y || b > vt.y) {
                 this._renderCmd._needDraw = false;
             }
             else {

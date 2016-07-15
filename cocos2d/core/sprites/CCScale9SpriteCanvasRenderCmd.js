@@ -37,6 +37,11 @@ cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
 var proto = cc.Scale9Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = cc.Scale9Sprite.CanvasRenderCmd;
 
+proto.transform = function (parentCmd, recursive) {
+    this.originTransform(parentCmd, recursive);
+    this._node._rebuildQuads();
+};
+
 proto._updateDisplayColor = function(parentColor){
     _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
     this._originalTexture = this._textureToRender = null;

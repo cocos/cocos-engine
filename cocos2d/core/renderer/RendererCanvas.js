@@ -154,7 +154,7 @@ cc.rendererCanvas = {
 
         for (i = 0, len = locCmds.length; i < len; i++) {
             var cmd = locCmds[i];
-            if (cmd._needDraw) continue;
+            if (!cmd._needDraw) continue;
             
             var needRendering = false;
             var cmdRegion = cmd._currentRegion;
