@@ -55,7 +55,7 @@
  * Constructor for creating a pool for a specific node template (usually a prefab). You can pass a component (type or name) argument for handling event for reusing and recycling node.
  * !#zh
  * 使用构造函数来创建一个节点专用的对象池，您可以传递一个组件类型或名称，用于处理节点回收和复用时的事件逻辑。
- * @param {Function|String} poolHandlerComp !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
+ * @param {[Function|String]} poolHandlerComp !#en The constructor or the class name of the component to control the unuse/reuse logic. !#zh 处理节点回收和复用事件逻辑的组件类型或名称。
  * @method NodePool
  * @example
  *  properties: {
@@ -119,7 +119,7 @@ cc.NodePool.prototype = {
             obj.removeFromParent(false);
 
             // Invoke pool handler
-            var handler = obj.getComponent(this.poolHandlerComp);
+            var handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
             if (handler && handler.unuse) {
                 handler.unuse();
             }
@@ -150,7 +150,7 @@ cc.NodePool.prototype = {
             this._pool.length = last;
 
             // Invoke pool handler
-            var handler = obj.getComponent(this.poolHandlerComp);
+            var handler = this.poolHandlerComp ? obj.getComponent(this.poolHandlerComp) : null;
             if (handler && handler.reuse) {
                 handler.reuse.apply(handler, arguments);
             }

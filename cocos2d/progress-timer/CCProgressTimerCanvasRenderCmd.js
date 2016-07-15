@@ -89,7 +89,8 @@
         }
 
         //draw sprite
-        var image = locSprite._texture.getHtmlElementObj();
+        var texture = locSprite._renderCmd._textureToRender || locSprite._texture;
+        var image = texture.getHtmlElementObj();
         if (locSprite._renderCmd._colorized) {
             context.drawImage(image,
                 0, 0, locTextureCoord.width, locTextureCoord.height,
@@ -105,7 +106,7 @@
 
     proto.releaseData = function(){};
 
-    proto.initCmd = function(){};
+    proto.resetVertexData = function(){};
 
     proto._updateProgress = function(){
         var node = this._node;
@@ -192,8 +193,6 @@
         }
     };
 
-    proto._updateColor = function(){};
-
     proto._syncStatus = function (parentCmd) {
         var node = this._node;
         if(!node._sprite)
@@ -220,20 +219,27 @@
 
         if (colorDirty){
             spriteCmd._syncDisplayColor();
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if (opacityDirty){
             spriteCmd._syncDisplayOpacity();
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){
             spriteCmd._updateColor();
-            //this._updateColor();
         }
 
         if (locFlag & flags.transformDirty) {
             //update the transform
             this.transform(parentCmd);
+        }
+
+        if (locFlag & flags.orderDirty) {
+            this._dirtyFlag &= ~flags.orderDirty;
         }
     };
 
@@ -250,15 +256,18 @@
 
         if(colorDirty){
             spriteCmd._updateDisplayColor();
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if(opacityDirty){
             spriteCmd._updateDisplayOpacity();
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){
             spriteCmd._updateColor();
-            //this._updateColor();
         }
 
         if(locFlag & flags.transformDirty){

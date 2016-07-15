@@ -23,18 +23,23 @@
  ****************************************************************************/
 
 var macro = cc.macro;
-var ccgl = cc.gl;
 
 //Sprite's WebGL render command
 _ccsg.Sprite.WebGLRenderCmd = function (renderable) {
     _ccsg.Node.WebGLRenderCmd.call(this, renderable);
     this._needDraw = true;
 
-    this._quad = new cc.V3F_C4B_T2F_Quad();
-    this._quadWebBuffer = cc._renderContext.createBuffer();
-    this._quadDirty = true;
+    this._vertices = [
+        {x: 0, y: 0, u: 0, v: 0}, // tl
+        {x: 0, y: 0, u: 0, v: 0}, // bl
+        {x: 0, y: 0, u: 0, v: 0}, // tr
+        {x: 0, y: 0, u: 0, v: 0}  // br
+    ];
+    this._color = new Uint32Array(1);
     this._dirty = false;
     this._recursiveDirty = false;
+
+    this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
 };
 
 var proto = _ccsg.Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -86,33 +91,6 @@ proto.isFrameDisplayed = function (frame) {
         && cc.pointEqualToPoint(frame.getOffset(), node._unflippedOffsetPositionFromCenter));
 };
 
-proto._init = function () {
-    var tempColor = {r: 255, g: 255, b: 255, a: 255}, quad = this._quad;
-    quad.bl.colors = tempColor;
-    quad.br.colors = tempColor;
-    quad.tl.colors = tempColor;
-    quad.tr.colors = tempColor;
-    this._quadDirty = true;
-};
-
-proto._resetForBatchNode = function () {
-    var node = this._node;
-    var x1 = node._offsetPosition.x;
-    var y1 = node._offsetPosition.y;
-    var x2 = x1 + node._rect.width;
-    var y2 = y1 + node._rect.height;
-    var locQuad = this._quad;
-    locQuad.bl.vertices = {x: x1, y: y1, z: 0};
-    locQuad.br.vertices = {x: x2, y: y1, z: 0};
-    locQuad.tl.vertices = {x: x1, y: y2, z: 0};
-    locQuad.tr.vertices = {x: x2, y: y2, z: 0};
-    this._quadDirty = true;
-};
-
-proto.getQuad = function () {
-    return this._quad;
-};
-
 proto._updateForSetSpriteFrame = function () {};
 
 proto._spriteFrameLoadedCallback = function (event) {
@@ -141,21 +119,24 @@ proto._textureLoadedCallback = function (event) {
     // by default use "Self Render".
     // if the sprite is added to a batchnode, then it will automatically switch to "batchnode Render"
     node.setBatchNode(node._batchNode);
-    this._quadDirty = true;
     node.emit("load");
+
+    // Force refresh the render command list
+    cc.renderer.childrenOrderDirty = true;
 };
 
 proto._setTextureCoords = function (rect) {
     var node = this._node;
 
     var tex = node._batchNode ? node.textureAtlas.texture : node._texture;
+    var uvs = this._vertices;
     if (!tex)
         return;
 
     var atlasWidth = tex.pixelWidth;
     var atlasHeight = tex.pixelHeight;
 
-    var left, right, top, bottom, tempSwap, locQuad = this._quad;
+    var left, right, top, bottom, tempSwap;
     if (node._rectRotated) {
         if (macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
             left = (2 * rect.x + 1) / (2 * atlasWidth);
@@ -181,14 +162,14 @@ proto._setTextureCoords = function (rect) {
             right = tempSwap;
         }
 
-        locQuad.bl.texCoords.u = left;
-        locQuad.bl.texCoords.v = top;
-        locQuad.br.texCoords.u = left;
-        locQuad.br.texCoords.v = bottom;
-        locQuad.tl.texCoords.u = right;
-        locQuad.tl.texCoords.v = top;
-        locQuad.tr.texCoords.u = right;
-        locQuad.tr.texCoords.v = bottom;
+        uvs[0].u = right;  // tl
+        uvs[0].v = top;    // tl
+        uvs[1].u = left;   // bl
+        uvs[1].v = top;    // bl
+        uvs[2].u = right;  // tr
+        uvs[2].v = bottom; // tr
+        uvs[3].u = left;   // br
+        uvs[3].v = bottom; // br
     } else {
         if (macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL) {
             left = (2 * rect.x + 1) / (2 * atlasWidth);
@@ -214,63 +195,18 @@ proto._setTextureCoords = function (rect) {
             bottom = tempSwap;
         }
 
-        locQuad.bl.texCoords.u = left;
-        locQuad.bl.texCoords.v = bottom;
-        locQuad.br.texCoords.u = right;
-        locQuad.br.texCoords.v = bottom;
-        locQuad.tl.texCoords.u = left;
-        locQuad.tl.texCoords.v = top;
-        locQuad.tr.texCoords.u = right;
-        locQuad.tr.texCoords.v = top;
+        uvs[0].u = left;   // tl
+        uvs[0].v = top;    // tl
+        uvs[1].u = left;   // bl
+        uvs[1].v = bottom; // bl
+        uvs[2].u = right;  // tr
+        uvs[2].v = top;    // tr
+        uvs[3].u = right;  // br
+        uvs[3].v = bottom; // br
     }
-    this._quadDirty = true;
-};
-
-proto.transform = function(parentCmd, recursive){
-    _ccsg.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
-    this._dirty = true;     //use for batching
 };
 
 proto._setColorDirty = function () {};
-
-proto._updateColor = function () {
-    var node = this._node,
-        locDisplayedColor = this._displayedColor, 
-        r = locDisplayedColor.r,
-        g = locDisplayedColor.g,
-        b = locDisplayedColor.b,
-        a = locDisplayedColor.a = this._displayedOpacity;
-    // special opacity for premultiplied textures
-    if (node._opacityModifyRGB) {
-        locDisplayedColor.r *= a / 255.0;
-        locDisplayedColor.g *= a / 255.0;
-        locDisplayedColor.b *= a / 255.0;
-    }
-    var locQuad = this._quad;
-    locQuad.bl.colors = locDisplayedColor;
-    locQuad.br.colors = locDisplayedColor;
-    locQuad.tl.colors = locDisplayedColor;
-    locQuad.tr.colors = locDisplayedColor;
-
-    // Roll back color
-    locDisplayedColor.r = r;
-    locDisplayedColor.g = g;
-    locDisplayedColor.b = b;
-
-    // renders using Sprite Manager
-    if (node._batchNode) {
-        if (node.atlasIndex !== _ccsg.Sprite.INDEX_NOT_INITIALIZED) {
-            node.textureAtlas.updateQuad(locQuad, node.atlasIndex)
-        } else {
-            // no need to set it recursively
-            // update dirty_, don't update recursiveDirty_
-            this._dirty = true;
-        }
-    }
-    // self render
-    // do nothing
-    this._quadDirty = true;
-};
 
 proto._updateBlendFunc = function () {
     if (this._batchNode) {
@@ -304,103 +240,14 @@ proto._setTexture = function (texture) {
             node._textureLoaded = texture ? texture._textureLoaded : false;
             node._texture = texture;
             this._updateBlendFunc();
+
+            if (node._textureLoaded) {
+                // Force refresh the render command list
+                cc.renderer.childrenOrderDirty = true;
+            }
         }
     }
 
-    if (texture)
-        this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_POSITION_TEXTURECOLOR);
-    else
-        this._shaderProgram = cc.shaderCache.programForKey(macro.SHADER_POSITION_COLOR);
-
-};
-
-proto.updateTransform = function () {                                    //called only at batching.
-    var _t = this, node = this._node;
-
-    // recalculate matrix only if it is dirty
-    if (this._dirty) {
-        var locQuad = _t._quad, locParent = node._parent;
-        // If it is not visible, or one of its ancestors is not visible, then do nothing:
-        if (!node._visible || ( locParent && locParent !== node._batchNode && locParent._shouldBeHidden)) {
-            locQuad.br.vertices = locQuad.tl.vertices = locQuad.tr.vertices = locQuad.bl.vertices = {x: 0, y: 0, z: 0};
-            node._shouldBeHidden = true;
-        } else {
-            node._shouldBeHidden = false;
-            if(this._dirtyFlag !== 0){    //because changing color and opacity uses dirty flag at visit, but visit doesn't call at batching.
-                this.updateStatus();
-                this._dirtyFlag = 0;
-            }
-
-            if (!locParent || locParent === node._batchNode) {
-                node._transformToBatch = _t.getNodeToParentTransform();
-            } else {
-                node._transformToBatch = cc.affineTransformConcat(_t.getNodeToParentTransform(), locParent._transformToBatch);
-            }
-
-            //
-            // calculate the Quad based on the Affine Matrix
-            //
-            var locTransformToBatch = node._transformToBatch;
-            var rect = node._rect;
-            var x1 = node._offsetPosition.x;
-            var y1 = node._offsetPosition.y;
-
-            var x2 = x1 + rect.width;
-            var y2 = y1 + rect.height;
-            var x = locTransformToBatch.tx;
-            var y = locTransformToBatch.ty;
-
-            var cr = locTransformToBatch.a;
-            var sr = locTransformToBatch.b;
-            var cr2 = locTransformToBatch.d;
-            var sr2 = -locTransformToBatch.c;
-            var ax = x1 * cr - y1 * sr2 + x;
-            var ay = x1 * sr + y1 * cr2 + y;
-
-            var bx = x2 * cr - y1 * sr2 + x;
-            var by = x2 * sr + y1 * cr2 + y;
-
-            var cx = x2 * cr - y2 * sr2 + x;
-            var cy = x2 * sr + y2 * cr2 + y;
-
-            var dx = x1 * cr - y2 * sr2 + x;
-            var dy = x1 * sr + y2 * cr2 + y;
-
-            var locVertexZ = node._vertexZ;
-            if (!macro.SPRITEBATCHNODE_RENDER_SUBPIXEL) {
-                ax = 0 | ax;
-                ay = 0 | ay;
-                bx = 0 | bx;
-                by = 0 | by;
-                cx = 0 | cx;
-                cy = 0 | cy;
-                dx = 0 | dx;
-                dy = 0 | dy;
-            }
-            locQuad.bl.vertices = {x: ax, y: ay, z: locVertexZ};
-            locQuad.br.vertices = {x: bx, y: by, z: locVertexZ};
-            locQuad.tl.vertices = {x: dx, y: dy, z: locVertexZ};
-            locQuad.tr.vertices = {x: cx, y: cy, z: locVertexZ};
-        }
-        node.textureAtlas.updateQuad(locQuad, node.atlasIndex);
-        node._recursiveDirty = false;
-        this._dirty = false;
-    }
-
-    // recursively iterate over children
-    if (node._hasChildren)
-        node._arrayMakeObjectsPerformSelector(node._children, _ccsg.Node._stateCallbackType.updateTransform);
-
-    /*if (macro.SPRITE_DEBUG_DRAW) {               //TODO
-        // draw bounding box
-        var vertices = [
-            cc.p(_t._quad.bl.vertices.x, _t._quad.bl.vertices.y),
-            cc.p(_t._quad.br.vertices.x, _t._quad.br.vertices.y),
-            cc.p(_t._quad.tr.vertices.x, _t._quad.tr.vertices.y),
-            cc.p(_t._quad.tl.vertices.x, _t._quad.tl.vertices.y)
-        ];
-        cc._drawingUtil.drawPoly(vertices, 4, true);
-    }*/
 };
 
 proto._checkTextureBoundary = function (texture, rect, rotated) {
@@ -422,79 +269,61 @@ proto._checkTextureBoundary = function (texture, rect, rotated) {
     }
 };
 
-proto.rendering = function (ctx) {
+proto.transform = function (parentCmd, recursive) {
+    this.originTransform(parentCmd, recursive);
+
+    var node = this._node,
+        lx = node._offsetPosition.x, rx = lx + node._rect.width,
+        by = node._offsetPosition.y, ty = by + node._rect.height,
+        wt = this._worldTransform;
+
+    var vertices = this._vertices;
+    vertices[0].x = lx * wt.a + ty * wt.c + wt.tx; // tl
+    vertices[0].y = lx * wt.b + ty * wt.d + wt.ty;
+    vertices[1].x = lx * wt.a + by * wt.c + wt.tx; // bl
+    vertices[1].y = lx * wt.b + by * wt.d + wt.ty;
+    vertices[2].x = rx * wt.a + ty * wt.c + wt.tx; // tr
+    vertices[2].y = rx * wt.b + ty * wt.d + wt.ty;
+    vertices[3].x = rx * wt.a + by * wt.c + wt.tx; // br
+    vertices[3].y = rx * wt.b + by * wt.d + wt.ty;
+};
+
+proto.needDraw = function () {
     var node = this._node, locTexture = node._texture;
-    if ((locTexture &&!locTexture._textureLoaded) || this._displayedOpacity === 0)
-        return;
+    return (this._needDraw && locTexture);
+};
 
-    var gl = ctx || cc._renderContext;
-    //cc.assert(!_t._batchNode, "If _ccsg.Sprite is being rendered by cc.SpriteBatchNode, _ccsg.Sprite#draw SHOULD NOT be called");
+proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
+    var node = this._node, locTexture = node._texture;
+    if (!(locTexture && locTexture._textureLoaded && node._rect.width && node._rect.height) || !this._displayedOpacity)
+        return 0;
 
-    if (locTexture) {
-        if (locTexture._textureLoaded) {
-            this._shaderProgram.use();
-            this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-
-            ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
-            //optimize performance for javascript
-            ccgl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
-            ccgl.enableVertexAttribs(macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
-            if (this._quadDirty) {
-                gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.DYNAMIC_DRAW);
-                this._quadDirty = false;
-            }
-            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //macro.VERTEX_ATTRIB_POSITION
-            gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //macro.VERTEX_ATTRIB_COLOR
-            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //macro.VERTEX_ATTRIB_TEX_COORDS
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        }
-    } else {
-        this._shaderProgram.use();
-        this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-
-        ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
-        ccgl.bindTexture2D(null);
-
-        ccgl.enableVertexAttribs(macro.VERTEX_ATTRIB_FLAG_POSITION | macro.VERTEX_ATTRIB_FLAG_COLOR);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
-        if (this._quadDirty) {
-            gl.bufferData(gl.ARRAY_BUFFER, this._quad.arrayBuffer, gl.STATIC_DRAW);
-            this._quadDirty = false;
-        }
-        gl.vertexAttribPointer(macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);
-        gl.vertexAttribPointer(macro.VERTEX_ATTRIB_COLOR, 4, gl.UNSIGNED_BYTE, true, 24, 12);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    // Fill in vertex data with quad information (4 vertices for sprite)
+    var opacity = this._displayedOpacity;
+    var r = this._displayedColor.r,
+        g = this._displayedColor.g,
+        b = this._displayedColor.b;
+    if (node._opacityModifyRGB) {
+        var a = opacity / 255;
+        r *= a;
+        g *= a;
+        b *= a;
     }
-    cc.g_NumberOfDraws++;
+    this._color[0] = ((opacity<<24) | (b<<16) | (g<<8) | r);
+    var z = node._vertexZ;
 
-    if (macro.SPRITE_DEBUG_DRAW === 0 && !node._showNode)
-        return;
+    var vertices = this._vertices;
+    var i, len = vertices.length, vertex, offset = vertexDataOffset;
+    for (i = 0; i < len; ++i) {
+        vertex = vertices[i];
+        f32buffer[offset] = vertex.x;
+        f32buffer[offset + 1] = vertex.y;
+        f32buffer[offset + 2] = z;
+        ui32buffer[offset + 3] = this._color[0];
+        f32buffer[offset + 4] = vertex.u;
+        f32buffer[offset + 5] = vertex.v;
+        offset += 6;
+    }
 
-    cc.math.glMatrixMode(cc.math.KM_GL_MODELVIEW);
-    //cc.math.glPushMatrixWitMat4(node._stackMatrix);
-    cc.current_stack.stack.push(cc.current_stack.top);
-    cc.current_stack.top = this._stackMatrix;
-
-    if (macro.SPRITE_DEBUG_DRAW === 1 || node._showNode) {
-        // draw bounding box
-        var locQuad = this._quad;
-        var verticesG1 = [
-            cc.p(locQuad.tl.vertices.x, locQuad.tl.vertices.y),
-            cc.p(locQuad.bl.vertices.x, locQuad.bl.vertices.y),
-            cc.p(locQuad.br.vertices.x, locQuad.br.vertices.y),
-            cc.p(locQuad.tr.vertices.x, locQuad.tr.vertices.y)
-        ];
-        cc._drawingUtil.drawPoly(verticesG1, 4, true);
-    } else if (macro.SPRITE_DEBUG_DRAW === 2) {
-        // draw texture box
-        var drawRectG2 = node.getTextureRect();
-        var offsetPixG2 = node.getOffsetPosition();
-        var verticesG2 = [cc.p(offsetPixG2.x, offsetPixG2.y), cc.p(offsetPixG2.x + drawRectG2.width, offsetPixG2.y),
-            cc.p(offsetPixG2.x + drawRectG2.width, offsetPixG2.y + drawRectG2.height), cc.p(offsetPixG2.x, offsetPixG2.y + drawRectG2.height)];
-        cc._drawingUtil.drawPoly(verticesG2, 4, true);
-    } // CC_SPRITE_DEBUG_DRAW
-    cc.current_stack.top = cc.current_stack.stack.pop();
+    return len;
 };

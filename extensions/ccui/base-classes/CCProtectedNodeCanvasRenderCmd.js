@@ -70,7 +70,7 @@
                     }
                 }
             }
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.colorDirty;
         },
 
         _updateDisplayOpacity: function (parentOpacity) {
@@ -112,7 +112,7 @@
                     }
                 }
             }
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.opacityDirty;
         },
 
         _changeProtectedChild: function (child) {

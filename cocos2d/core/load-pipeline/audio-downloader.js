@@ -51,7 +51,6 @@ function loadAudioFromExtList (url, typeList, audio, cb){
 }
 
 function loadDomAudio (url, typeList, audio, cb) {
-
     var num = __audioSupport.ONE_SOURCE ? 1 : typeList.length;
 
     // 加载统一使用dom

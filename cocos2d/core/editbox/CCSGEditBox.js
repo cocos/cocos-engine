@@ -436,7 +436,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
 var _p = _ccsg.EditBox.prototype;
 
 // Extended properties
-_p.font;
 cc.defineGetterSetter(_p, 'font', null, _p._setFont);
 cc.defineGetterSetter(_p, 'fontName', null, _p.setFontName);
 cc.defineGetterSetter(_p, 'fontSize', null, _p.setFontSize);
@@ -481,8 +480,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (!this._edTxt) return;
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         var dpr = cc.view._devicePixelRatio;
-        var t = node.getNodeToWorldTransform();
-        if (!t) return;
+        var t = this._worldTransform;
 
         scaleX /= dpr;
         scaleY /= dpr;
@@ -682,16 +680,16 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         var placeholderLabelSize = this._placeholderLabel.getContentSize();
 
         if (this._editBox._editBoxInputMode === InputMode.ANY){
-            this._textLabel.setPosition(cc.p(0, editBoxSize.height));
-            this._placeholderLabel.setPosition(cc.p(0, editBoxSize.height));
+            this._textLabel.setPosition(0, editBoxSize.height);
+            this._placeholderLabel.setPosition(0, editBoxSize.height);
             this._placeholderLabel.setVerticalAlign(cc.VerticalTextAlignment.TOP);
             this._textLabel.setVerticalAlign(cc.VerticalTextAlignment.TOP);
             this._textLabel.enableWrapText(true);
         }
         else {
             this._textLabel.enableWrapText(false);
-            this._textLabel.setPosition(cc.p(0, editBoxSize.height));
-            this._placeholderLabel.setPosition(cc.p(0, (editBoxSize.height + placeholderLabelSize.height) / 2));
+            this._textLabel.setPosition(0, editBoxSize.height);
+            this._placeholderLabel.setPosition(0, (editBoxSize.height + placeholderLabelSize.height) / 2);
             this._placeholderLabel.setVerticalAlign(cc.VerticalTextAlignment.CENTER);
             this._textLabel.setVerticalAlign(cc.VerticalTextAlignment.CENTER);
         }
@@ -741,7 +739,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (this._edTxt.value === '') {
             this._placeholderLabel.setVisible(true);
             this._placeholderLabel.setString(this._editBox._placeholderText);
-
         }
         else {
             this._updateLabelString();
@@ -939,7 +936,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     canvasRenderCmdProto.constructor = _ccsg.EditBox.CanvasRenderCmd;
 
     canvasRenderCmdProto.transform = function (parentCmd, recursive) {
-        _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        this.originTransform(parentCmd, recursive);
         this.updateMatrix();
     };
 
@@ -955,7 +952,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     webGLRenderCmdProto.constructor = _ccsg.EditBox.WebGLRenderCmd;
 
     webGLRenderCmdProto.transform = function (parentCmd, recursive) {
-        _ccsg.Node.WebGLRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        this.originTransform(parentCmd, recursive);
         this.updateMatrix();
     };
 

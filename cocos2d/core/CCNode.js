@@ -610,7 +610,6 @@ var Node = cc.Class({
         if (constructor) {
             findComponents(this, constructor, components);
         }
-
         return components;
     },
 
@@ -629,7 +628,6 @@ var Node = cc.Class({
         if (constructor) {
             return findChildComponent(this._children, constructor);
         }
-
         return null;
     },
 
@@ -648,7 +646,6 @@ var Node = cc.Class({
         if (constructor) {
             findChildComponents(this._children, constructor, components);
         }
-
         return components;
     },
 

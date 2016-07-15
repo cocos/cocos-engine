@@ -29,6 +29,8 @@
     cc.PhysicsDebugNode.WebGLRenderCmd = function (renderableObject) {
         _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
+        this._matrix = new cc.math.Matrix4();
+        this._matrix.identity();
     };
 
     cc.PhysicsDebugNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -42,10 +44,18 @@
         node._space.eachShape(cc.DrawShape.bind(node));
         node._space.eachConstraint(cc.DrawConstraint.bind(node));
 
+        var wt = this._worldTransform, mat = this._matrix.mat;
+        mat[0] = wt.a;
+        mat[4] = wt.c;
+        mat[12] = wt.tx;
+        mat[1] = wt.b;
+        mat[5] = wt.d;
+        mat[13] = wt.ty;
+
         //cc.DrawNode.prototype.draw.call(node);
         cc.gl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
         this._shaderProgram.use();
-        this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
+        this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);
         node._render();
 
         node.clear();

@@ -40,7 +40,6 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     ctor: function(skeletonDataFile, atlasFile, scale) {
         _ccsg.Node.prototype.ctor.call(this);
-        this._blendFunc = {src: cc.macro.BLEND_SRC, dst: cc.macro.BLEND_DST};
 
         if(arguments.length === 0)
             this.init();
@@ -57,9 +56,8 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     init: function () {
         _ccsg.Node.prototype.init.call(this);
-        //this.setOpacityModifyRGB(true);
-        this._blendFunc.src = cc.macro.ONE;
-        this._blendFunc.dst = cc.macro.ONE_MINUS_SRC_ALPHA;
+        this._premultipliedAlpha = (cc._renderType === cc.game.RENDER_TYPE_WEBGL && cc.OPTIMIZE_BLEND_FUNC_FOR_PREMULTIPLIED_ALPHA);
+        this._blendFunc = {src: cc.BLEND_SRC, dst: cc.BLEND_DST};
         this.scheduleUpdate();
     },
 
@@ -259,15 +257,15 @@ sp._SGSkeleton = _ccsg.Node.extend({
      * Sets the premultiplied alpha value to sp._SGSkeleton.
      * @param {Number} alpha
      */
-    setOpacityModifyRGB: function (alpha) {
-        this._premultipliedAlpha = alpha;
+    setPremultipliedAlpha: function (premultiplied) {
+        this._premultipliedAlpha = premultiplied;
     },
 
     /**
      * Returns whether to enable premultiplied alpha.
      * @returns {boolean}
      */
-    isOpacityModifyRGB: function () {
+    isPremultipliedAlpha: function () {
         return this._premultipliedAlpha;
     },
 
@@ -281,6 +279,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
             this.setContentSize(skeletonData.width / cc.director.getContentScaleFactor(), skeletonData.height / cc.director.getContentScaleFactor());
 
         this._skeleton = new spine.Skeleton(skeletonData);
+        this._skeleton.updateWorldTransform();
         this._rootBone = this._skeleton.getRootBone();
         this._ownsSkeletonData = ownsSkeletonData;
 

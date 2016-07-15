@@ -49,7 +49,7 @@
 
         if (this._dirtyFlag & flags.transformDirty){
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.transformDirty;
         }
     };
 
@@ -97,30 +97,6 @@
 
         var lineHeight = nodeSpacingY | 0;
         return lineHeight;
-    };
-
-    proto._prepareQuad = function () {
-        var quad = this._quad;
-        var white = cc.color(255, 255, 255, this._displayedOpacity);
-        var width = this._node._contentSize.width;
-        var height = this._node._contentSize.height;
-        quad._bl.colors = white;
-        quad._br.colors = white;
-        quad._tl.colors = white;
-        quad._tr.colors = white;
-
-        quad._bl.vertices = new cc.Vertex3F(0, 0, 0);
-        quad._br.vertices = new cc.Vertex3F(width, 0, 0);
-        quad._tl.vertices = new cc.Vertex3F(0, height, 0);
-        quad._tr.vertices = new cc.Vertex3F(width, height, 0);
-
-        //texture coordinate should be y-flipped
-        quad._bl.texCoords = new cc.Tex2F(0, 1);
-        quad._br.texCoords = new cc.Tex2F(1, 1);
-        quad._tl.texCoords = new cc.Tex2F(0, 0);
-        quad._tr.texCoords = new cc.Tex2F(1, 0);
-
-        this._quadDirty = true;
     };
 
     var label_wrapinspection = true;
@@ -492,12 +468,12 @@
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
         }
 
-        this._labelTexture._textureLoaded = false;
-        this._labelTexture.handleLoadedTexture();
+        this._texture._textureLoaded = false;
+        this._texture.handleLoadedTexture();
     };
 
     proto._rebuildLabelSkin = function () {
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         var node = this._node;
         node._updateLabel();
     };
@@ -507,14 +483,12 @@
     _ccsg.Label.CanvasRenderCmd = function (renderableObject) {
         _ccsg.Node.CanvasRenderCmd.call(this, renderableObject);
         this._needDraw = true;
-        this._labelTexture = new cc.Texture2D();
+        this._texture = new cc.Texture2D();
         this._labelCanvas = document.createElement('canvas');
         this._labelCanvas.width = 1;
         this._labelCanvas.height = 1;
         this._labelContext = this._labelCanvas.getContext('2d');
-        this._labelTexture.initWithElement(this._labelCanvas);
-        this._quad = new cc.V3F_C4B_T2F_Quad();
-        this._quadDirty = true;
+        this._texture.initWithElement(this._labelCanvas);
         this._splitedStrings = null;
     };
 
@@ -540,7 +514,7 @@
             wrapper.setCompositeOperation(_ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(node._blendFunc));
             wrapper.setGlobalAlpha(alpha);
 
-            if (this._labelTexture) {
+            if (this._texture) {
                 var sx, sy, sw, sh;
                 var x, y, w, h;
 
@@ -550,8 +524,8 @@
                 h = this._node._contentSize.height;
 
 
-                var textureWidth = this._labelTexture.getPixelWidth();
-                var textureHeight = this._labelTexture.getPixelHeight();
+                var textureWidth = this._texture.getPixelWidth();
+                var textureHeight = this._texture.getPixelHeight();
 
                 sx = 0;
                 sy = 0;
@@ -563,9 +537,9 @@
                 w = w * scaleX;
                 h = h * scaleY;
 
-                var image = this._labelTexture._htmlElementObj;
-                if (this._labelTexture._pattern !== '') {
-                    wrapper.setFillStyle(context.createPattern(image, this._labelTexture._pattern));
+                var image = this._texture._htmlElementObj;
+                if (this._texture._pattern !== '') {
+                    wrapper.setFillStyle(context.createPattern(image, this._texture._pattern));
                     context.fillRect(x, y, w, h);
                 }
                 else {

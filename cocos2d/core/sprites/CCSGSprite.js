@@ -86,8 +86,8 @@ var EventTarget = require("../cocos2d/core/event/event-target");
  * @property {cc.V3F_C4B_T2F_Quad}  quad                - <@readonly> The quad (tex coords, vertex coords and color) information.
  */
 _ccsg.Sprite = _ccsg.Node.extend({
-	dirty:false,
-	atlasIndex:0,
+        dirty:false,
+        atlasIndex:0,
     textureAtlas:null,
 
     _batchNode:null,
@@ -227,12 +227,12 @@ _ccsg.Sprite = _ccsg.Node.extend({
         return cc.p(this._offsetPosition);
     },
 
-	_getOffsetX: function () {
-		return this._offsetPosition.x;
-	},
-	_getOffsetY: function () {
-		return this._offsetPosition.y;
-	},
+    _getOffsetX: function () {
+        return this._offsetPosition.x;
+    },
+    _getOffsetY: function () {
+        return this._offsetPosition.y;
+    },
 
     /**
      * Returns the blend function
@@ -318,25 +318,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         if (this._reorderChildDirty) {
             var _children = this._children;
 
-            // insertion sort
-            var len = _children.length, i, j, tmp;
-            for(i=1; i<len; i++){
-                tmp = _children[i];
-                j = i - 1;
-
-                //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
-                while(j >= 0){
-                    if(tmp._localZOrder < _children[j]._localZOrder){
-                        _children[j+1] = _children[j];
-                    }else if(tmp._localZOrder === _children[j]._localZOrder && tmp.arrivalOrder < _children[j].arrivalOrder){
-                        _children[j+1] = _children[j];
-                    }else{
-                        break;
-                    }
-                    j--;
-                }
-                _children[j+1] = tmp;
-            }
+            _ccsg.Node.prototype.sortAllChildren.call(this);
 
             if (this._batchNode) {
                 this._arrayMakeObjectsPerformSelector(_children, _ccsg.Node._stateCallbackType.sortAllChildren);
@@ -554,7 +536,7 @@ _ccsg.Sprite = _ccsg.Node.extend({
         return this._texture;
     },
 
-	_softInit: function (fileName, rect, rotated) {
+    _softInit: function (fileName, rect, rotated) {
         if (fileName === undefined)
             _ccsg.Sprite.prototype.init.call(this);
         else if (cc.js.isString(fileName)) {
@@ -585,14 +567,14 @@ _ccsg.Sprite = _ccsg.Node.extend({
                 this.initWithTexture(texture2d);
             }
         }
-	},
+    },
 
     /**
      * Returns the quad (tex coords, vertex coords and color) information.
      * @return {cc.V3F_C4B_T2F_Quad|null} Returns a cc.V3F_C4B_T2F_Quad object when render mode is WebGL, returns null when render mode is Canvas.
      */
     getQuad:function () {
-        return this._renderCmd.getQuad();
+        return null;
     },
 
     /**
@@ -642,7 +624,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
         _t._offsetPosition.y = 0;
         _t._hasChildren = false;
 
-        this._renderCmd._init();
         // updated in "useSelfRender"
         // Atlas: TexCoords
         _t.setTextureRect(cc.rect(0, 0, 0, 0), false, cc.size(0, 0));
@@ -717,8 +698,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
         _t._offsetPosition.y = 0;
         _t._hasChildren = false;
 
-        this._renderCmd._init();
-
         var locTextureLoaded = texture.isLoaded();
         _t._textureLoaded = locTextureLoaded;
 
@@ -758,14 +737,15 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @param {cc.Rect} rect a rect of texture
      * @param {Boolean} [rotated] Whether or not the texture is rotated
      * @param {cc.Size} [untrimmedSize] The original pixels size of the texture
+     * @param {Boolean} [needConvert] contentScaleFactor switch
      */
-    setTextureRect: function (rect, rotated, untrimmedSize) {
+    setTextureRect: function (rect, rotated, untrimmedSize, needConvert) {
         var _t = this;
         _t._rectRotated = rotated || false;
         _t.setContentSize(untrimmedSize || rect);
 
         _t.setVertexRect(rect);
-        _t._renderCmd._setTextureCoords(rect);
+        _t._renderCmd._setTextureCoords(rect, needConvert);
 
         var relativeOffsetX = _t._unflippedOffsetPositionFromCenter.x, relativeOffsetY = _t._unflippedOffsetPositionFromCenter.y;
         if (_t._flippedX)
@@ -775,26 +755,9 @@ _ccsg.Sprite = _ccsg.Node.extend({
         var locRect = _t._rect;
         _t._offsetPosition.x = relativeOffsetX + (_t._contentSize.width - locRect.width) / 2;
         _t._offsetPosition.y = relativeOffsetY + (_t._contentSize.height - locRect.height) / 2;
-
-        // rendering using batch node
-        if (_t._batchNode) {
-            // update dirty, don't update _recursiveDirty
-            _t.dirty = true;
-        } else {
-            // self rendering
-            // Atlas: Vertex
-            this._renderCmd._resetForBatchNode();
-        }
     },
 
     // BatchNode methods
-    /**
-     * Updates the quad according the the rotation, position, scale values.
-     * @function
-     */
-    updateTransform: function(){
-        this._renderCmd.updateTransform();
-    },
 
     /**
      * Add child to sprite (override ccsg.Node)
@@ -842,20 +805,24 @@ _ccsg.Sprite = _ccsg.Node.extend({
         var pNewTexture = newFrame.getTexture();
         var locTextureLoaded = newFrame.textureLoaded();
         if (!locTextureLoaded) {
-            if (pNewTexture !== _t._texture)
-                _t.setTexture(pNewTexture);
             _t._textureLoaded = false;
             newFrame.once("load", function (event) {
                 var sender = event.currentTarget;
                 _t._textureLoaded = true;
+                var locNewTexture = sender.getTexture();
+                if (locNewTexture !== _t._texture)
+                    _t._setTexture(locNewTexture);
                 _t.setTextureRect(sender.getRect(), sender.isRotated(), sender.getOriginalSize());
                 _t.emit("load");
-                _t.setColor(_t.color);
+                _t.setColor(_t._realColor);
             }, _t);
-        }else{
+        } else {
+            _t._textureLoaded = true;
             // update texture before updating texture rect
-            if (pNewTexture !== _t._texture)
-                _t.setTexture(pNewTexture);
+            if (pNewTexture !== _t._texture) {
+                _t._setTexture(pNewTexture);
+                _t.setColor(_t._realColor);
+            }
             _t.setTextureRect(newFrame.getRect(), newFrame.isRotated(), newFrame.getOriginalSize());
         }
         this._renderCmd._updateForSetSpriteFrame(pNewTexture);
@@ -922,8 +889,6 @@ _ccsg.Sprite = _ccsg.Node.extend({
             _t.textureAtlas = null;
             _t._recursiveDirty = false;
             _t.dirty = false;
-
-            this._renderCmd._resetForBatchNode();
         } else {
             // using batch
             _t._transformToBatch = cc.affineTransformIdentity();
