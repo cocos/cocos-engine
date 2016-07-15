@@ -24,7 +24,12 @@
 
 cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
     _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-    this._needDraw = true;
+    if (this._node.loaded()) {
+        this._needDraw = true;
+    }
+    else {
+        this._needDraw = false;
+    }
     this._state = cc.Scale9Sprite.state.NORMAL;
     this._originalTexture = this._textureToRender = null;
 };

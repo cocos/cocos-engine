@@ -258,7 +258,7 @@ cc.rendererWebGL = {
     },
     
     pushRenderCommand: function (cmd) {
-        if(!cmd.needDraw())
+        if(!cmd.rendering && !cmd.uploadData)
             return;
         if (this._isCacheToBufferOn) {
             var currentId = this._currentID, locCmdBuffer = this._cacheToBufferCmds;
@@ -433,6 +433,7 @@ cc.rendererWebGL = {
 
         for (i = 0, len = locCmds.length; i < len; ++i) {
             cmd = locCmds[i];
+            if (!cmd._needDraw) continue;
 
             if (cmd.uploadData) {
                 this._uploadBufferData(cmd);

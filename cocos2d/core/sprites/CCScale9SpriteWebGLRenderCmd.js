@@ -26,7 +26,12 @@ var ccgl = cc.gl;
 
 cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
     _ccsg.Node.WebGLRenderCmd.call(this, renderable);
-    this._needDraw = true;
+    if (this._node.loaded()) {
+        this._needDraw = true;
+    }
+    else {
+        this._needDraw = false;
+    }
 
     this.vertexType = cc.renderer.VertexType.QUAD;
     this._color = new Uint32Array(1);
@@ -96,13 +101,14 @@ proto._uploadVertices = function (vertices, uvs, color, z, f32buffer, ui32buffer
 
 proto.transform = function (parentCmd, recursive) {
     this.originTransform(parentCmd, recursive);
-    this._node._quadsDirty = true;
+    this._node._rebuildQuads();
 };
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     var node = this._node;
-    if (!node._spriteFrame || !node._spriteFrame.textureLoaded() || this._displayedOpacity === 0)
-        return;
+    if (!node._spriteFrame || !node._spriteFrame.textureLoaded() || this._displayedOpacity === 0) {
+        return 0;
+    }
 
     // Rebuild vertex data
     if (node._quadsDirty) {
