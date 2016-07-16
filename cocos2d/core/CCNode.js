@@ -454,6 +454,7 @@ var Node = cc.Class({
 
             set: function (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                this.emit('group-changed');
             }
         }
     },
@@ -1438,6 +1439,10 @@ if (CC_JSB) {
  */
 /**
  * @event child-reorder
+ * @param {Event} event
+ */
+/**
+ * @event group-changed
  * @param {Event} event
  */
 /**
