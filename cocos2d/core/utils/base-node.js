@@ -105,7 +105,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _globalZOrder: 0,
         _tag: cc.macro.NODE_TAG_INVALID,
         _opacityModifyRGB: false,
-        _reorderChildDirty: false,
 
         // API
 
@@ -766,6 +765,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
+        this._reorderChildDirty = false;
 
         // Support for ActionManager and EventManager
         this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
