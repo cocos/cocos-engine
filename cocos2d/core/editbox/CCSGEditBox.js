@@ -417,12 +417,12 @@ _ccsg.EditBox = _ccsg.Node.extend({
         if (this._editBoxInputMode === inputMode) return;
 
         var oldText = this.getString();
+        this._editBoxInputMode = inputMode;
 
         this._renderCmd.setInputMode(inputMode);
         this._renderCmd.transform();
 
         this.setString(oldText);
-        this._editBoxInputMode = inputMode;
         this._renderCmd._updateLabelPosition(this.getContentSize());
     },
 
@@ -578,12 +578,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
 
-            if (editBox._editBoxInputFlag === InputFlag.PASSWORD) {
-                thisPointer._edTxt.type = 'password';
-            } else {
-                thisPointer._edTxt.type = 'text';
-            }
-
             if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
             }
@@ -729,6 +723,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._updateLabelString = function() {
+        this._updateInputType();
+
         this._textLabel.setVisible(true);
         this._textLabel.setString(this._editBox._text);
         if (this._edTxt.type === 'password') {
@@ -821,13 +817,36 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         this._placeholderLabel.setColor(color);
     };
 
+    proto._updateInputType = function () {
+        if(this._editBox._keyboardReturnType === KeyboardReturnType.SEARCH) {
+            this._edTxt.type = 'search';
+        }
+
+        var inputMode = this._editBox._editBoxInputMode;
+        if(inputMode === InputMode.EMAIL_ADDR) {
+            this._edTxt.type = 'email';
+        } else if(inputMode === InputMode.NUMERIC ||
+                 inputMode === InputMode.DECIMAL) {
+            this._edTxt.type = 'number';
+        } else if(inputMode === InputMode.PHONE_NUMBER) {
+            this._edTxt.type = 'number';
+            this._edTxt.pattern = '[0-9]*';
+        } else if(inputMode === InputMode.URL) {
+            this._edTxt.type = 'url';
+        } else {
+            this._edTxt.type = 'text';
+        }
+
+
+        if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD) {
+            this._edTxt.type = 'password';
+        }
+    };
+
     proto.setInputFlag = function (inputFlag) {
         if(!this._edTxt) return;
 
-        if ((this._edTxt.value !== this._placeholderText) && (inputFlag === InputFlag.PASSWORD))
-            this._edTxt.type = 'password';
-        else
-            this._edTxt.type = 'text';
+        this._updateInputType();
 
         this._edTxt.style.textTransform = 'none';
 
@@ -841,16 +860,16 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto.setInputMode = function (inputMode) {
+        this._removeDomInputControl();
         if (inputMode === InputMode.ANY) {
-            this._removeDomInputControl();
             this._createDomTextArea();
-            this._addDomInputControl();
         }
-        else if(this._editBox._editBoxInputMode === InputMode.ANY) {
-            this._removeDomInputControl();
+        else {
             this._createDomInput();
-            this._addDomInputControl();
         }
+        this._addDomInputControl();
+
+        this._updateInputType();
         var contentSize = this._node.getContentSize();
         this.updateSize(contentSize.width, contentSize.height);
     };
@@ -862,7 +881,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this._edTxt.value = text;
 
             if (text === '') {
-                this._edTxt.type = 'text';
                 this._placeholderLabel.setString(this._editBox._placeholderText);
                 this._placeholderLabel.setColor(this._editBox._placeholderColor);
                 this._placeholderLabel.setVisible(true);
@@ -872,12 +890,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                 this._edTxt.style.color = cc.colorToHex(this._editBox._textColor);
                 this._textLabel.setColor(this._editBox._textColor);
                 this._placeholderLabel.setVisible(false);
-                if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD) {
-                    this._edTxt.type = 'password';
-                }
-                else {
-                    this._edTxt.type = 'text';
-                }
+
                 this._updateLabelString();
             }
         }
@@ -889,10 +902,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         if (this._edTxt.value !== '') {
             this._edTxt.style.fontFamily = this._edFontName;
             this._edTxt.style.fontSize = this._edFontSize + 'px';
-            if (this._editBox._editBoxInputFlag === InputFlag.PASSWORD)
-                this._edTxt.type = 'password';
-            else
-                this._edTxt.type = 'text';
         }
         this._textLabel.setFontSize(this._edFontSize);
         this._textLabel.setFontFileOrFamily(this._edFontName);
