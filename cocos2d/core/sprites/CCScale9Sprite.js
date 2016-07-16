@@ -55,7 +55,9 @@ var dataPool = {
     }
 };
 
-var webgl;
+var webgl, 
+    vl, vb, vt, vr, 
+    cornerId = [];
 
 /*
  * <p>
@@ -139,6 +141,11 @@ var simpleQuadGenerator = {
             vertices[6] = r;
             vertices[7] = t;
         }
+
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
     },
 
     _calculateUVs: function (sprite, spriteFrame) {
@@ -246,6 +253,11 @@ var scale9QuadGenerator = {
                 }
             }
         }
+
+        cornerId[0] = 0;
+        cornerId[1] = 6;
+        cornerId[2] = 24;
+        cornerId[3] = 30;
     },
 
     _calculateUVs: function (sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
@@ -419,6 +431,11 @@ var tiledQuadGenerator = {
                 if (offset > dataLength) return;
             }
         }
+
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
     }
 };
 
@@ -551,6 +568,11 @@ var fillQuadGeneratorBar = {
                 break;
         }
         sprite._vertCount = 4;
+
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
     }
 };
 
@@ -717,6 +739,11 @@ var fillQuadGeneratorRadial = {
             }
         }
         sprite._vertCount = count;
+
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
     },
 
     _generateTriangle: function(offset, vert0, vert1, vert2) {
@@ -952,7 +979,13 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this.initWithTexture(textureOrSpriteFrame);
         }
 
-        if (webgl === undefined) webgl = cc._renderType === cc.game.RENDER_TYPE_WEBGL;
+        if (webgl === undefined) {
+            webgl = cc._renderType === cc.game.RENDER_TYPE_WEBGL;
+            vl = cc.visibleRect.left;
+            vr = cc.visibleRect.right;
+            vt = cc.visibleRect.top;
+            vb = cc.visibleRect.bottom;
+        }
     },
 
     loaded: function () {
@@ -1007,11 +1040,13 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (spriteFrame) {
             this._spriteFrame = spriteFrame;
             this._quadsDirty = true;
+            this._renderCmd._needDraw = false;
             var self = this;
             var onResourceDataLoaded = function () {
                 if (cc.sizeEqualToSize(self._contentSize, cc.size(0, 0))) {
                     self.setContentSize(self._spriteFrame._rect);
                 }
+                self._renderCmd._needDraw = true;
                 self._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
             };
             if (spriteFrame.textureLoaded()) {
@@ -1242,14 +1277,21 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     _rebuildQuads: function () {
-        if (!this.loaded() || this._quadsDirty === false) return;
+        if (!this._spriteFrame || !this._spriteFrame._textureLoaded) {
+            this._renderCmd._needDraw = false;
+            return;
+        }
         this._isTriangle = false;
+        var vert;
         if (this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
             simpleQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._isTrimmedContentSize);
+            vert = this._vertices;
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
             scale9QuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+            vert = this._vertices;
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
             tiledQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize());
+            vert = this._vertices;
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             var fillstart = this._fillStart;
             var fillRange = this._fillRange;
@@ -1266,6 +1308,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 fillRange = fillRange < 0.0 ? 0.0 : fillRange;
                 fillRange = fillRange - fillstart;
                 fillQuadGeneratorBar._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._fillType, fillstart, fillRange);
+                vert = this._vertices;
             } else {
                 this._isTriangle = true;
                 if (!this._rawVerts) {
@@ -1273,11 +1316,42 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                     this._rawUvs = dataPool.get(8) || new Float32Array(8);
                 }
                 fillQuadGeneratorRadial._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._fillCenter,fillstart, fillRange);
+                vert = this._rawVerts;
             }
         } else {
             this._quads = [];
+            this._quadsDirty = false;
+            this._renderCmd._needDraw = false;
             cc.error('Can not generate quad');
+            return;
         }
+
+        // Culling
+        if (webgl) {
+            var x0 = cornerId[0], x1 = cornerId[1], x2 = cornerId[2], x3 = cornerId[3],
+                y0 = cornerId[0]+1, y1 = cornerId[1]+1, y2 = cornerId[2]+1, y3 = cornerId[3]+1;
+            if (((vert[x0]-vl.x) & (vert[x1]-vl.x) & (vert[x2]-vl.x) & (vert[x3]-vl.x)) >> 31 || // All outside left
+                ((vr.x-vert[x0]) & (vr.x-vert[x1]) & (vr.x-vert[x2]) & (vr.x-vert[x3])) >> 31 || // All outside right
+                ((vert[y0]-vb.y) & (vert[y1]-vb.y) & (vert[y2]-vb.y) & (vert[y3]-vb.y)) >> 31 || // All outside bottom
+                ((vt.y-vert[y0]) & (vt.y-vert[y1]) & (vt.y-vert[y2]) & (vt.y-vert[y3])) >> 31)   // All outside top
+            {
+                this._renderCmd._needDraw = false;
+            }
+            else {
+                this._renderCmd._needDraw = true;
+            }
+        }
+        else {
+            var bb = this._renderCmd._currentRegion,
+                l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY;
+            if (r < vl.x || l > vr.x || t < vb.y || b > vt.y) {
+                this._renderCmd._needDraw = false;
+            }
+            else {
+                this._renderCmd._needDraw = true;
+            }
+        }
+
         this._quadsDirty = false;
     },
     _createRenderCmd: function () {

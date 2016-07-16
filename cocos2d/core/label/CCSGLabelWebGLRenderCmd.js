@@ -73,15 +73,28 @@ proto.transform = function (parentCmd, recursive) {
         by = 0, ty = this._labelCanvas.height,
         wt = this._worldTransform;
 
-    var vertices = this._vertices;
-    vertices[0].x = lx * wt.a + ty * wt.c + wt.tx; // tl
-    vertices[0].y = lx * wt.b + ty * wt.d + wt.ty;
-    vertices[1].x = lx * wt.a + by * wt.c + wt.tx; // bl
-    vertices[1].y = lx * wt.b + by * wt.d + wt.ty;
-    vertices[2].x = rx * wt.a + ty * wt.c + wt.tx; // tr
-    vertices[2].y = rx * wt.b + ty * wt.d + wt.ty;
-    vertices[3].x = rx * wt.a + by * wt.c + wt.tx; // br
-    vertices[3].y = rx * wt.b + by * wt.d + wt.ty;
+    var vert = this._vertices;
+    vert[0].x = lx * wt.a + ty * wt.c + wt.tx; // tl
+    vert[0].y = lx * wt.b + ty * wt.d + wt.ty;
+    vert[1].x = lx * wt.a + by * wt.c + wt.tx; // bl
+    vert[1].y = lx * wt.b + by * wt.d + wt.ty;
+    vert[2].x = rx * wt.a + ty * wt.c + wt.tx; // tr
+    vert[2].y = rx * wt.b + ty * wt.d + wt.ty;
+    vert[3].x = rx * wt.a + by * wt.c + wt.tx; // br
+    vert[3].y = rx * wt.b + by * wt.d + wt.ty;
+
+    var rect = cc.visibleRect,
+        vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;
+    if (((vert[0].x-vl) & (vert[1].x-vl) & (vert[2].x-vl) & (vert[3].x-vl)) >> 31 || // All outside left
+        ((vr-vert[0].x) & (vr-vert[1].x) & (vr-vert[2].x) & (vr-vert[3].x)) >> 31 || // All outside right
+        ((vert[0].y-vb) & (vert[1].y-vb) & (vert[2].y-vb) & (vert[3].y-vb)) >> 31 || // All outside bottom
+        ((vt-vert[0].y) & (vt-vert[1].y) & (vt-vert[2].y) & (vt-vert[3].y)) >> 31)   // All outside top
+    {
+        this._needDraw = false;
+    }
+    else {
+        this._needDraw = true;
+    }
 };
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {

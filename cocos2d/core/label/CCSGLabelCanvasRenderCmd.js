@@ -25,10 +25,7 @@
 
  ****************************************************************************/
 (function () {
-    _ccsg.Label.TTFLabelBaker = function () {
-
-    };
-
+    _ccsg.Label.TTFLabelBaker = function () {};
 
     var proto = _ccsg.Label.TTFLabelBaker.prototype = Object.create(Object.prototype);
 
@@ -37,19 +34,19 @@
         var colorDirty = locFlag & flags.colorDirty,
             opacityDirty = locFlag & flags.opacityDirty;
 
-        if (colorDirty)
+        if (colorDirty) 
             this._updateDisplayColor();
         if (opacityDirty)
             this._updateDisplayOpacity();
 
-        if(colorDirty || opacityDirty || (locFlag & flags.textDirty)){
+        if (colorDirty || opacityDirty || (locFlag & flags.textDirty)) {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
             this._rebuildLabelSkin();
         }
 
-        if (this._dirtyFlag & flags.transformDirty){
+        if (this._dirtyFlag & flags.transformDirty) {
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.transformDirty;
+            this._dirtyFlag &= ~flags.transformDirty;
         }
     };
 
@@ -58,13 +55,13 @@
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
         var parentNode = parentCmd ? parentCmd._node : null;
 
-        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
+        if (parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
             locFlag |= flags.colorDirty;
 
-        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
+        if (parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
             locFlag |= flags.opacityDirty;
 
-        if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
+        if (parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
             locFlag |= flags.transformDirty;
 
         var colorDirty = locFlag & flags.colorDirty,
@@ -77,7 +74,7 @@
         if (opacityDirty)
             this._syncDisplayOpacity();
 
-        if(colorDirty || opacityDirty || (this._dirtyFlag & flags.textDirty)){
+        if (colorDirty || opacityDirty || (this._dirtyFlag & flags.textDirty)) {
             this._rebuildLabelSkin();
         }
 
@@ -496,6 +493,21 @@
     cc.js.mixin(proto, _ccsg.Label.TTFLabelBaker.prototype);
 
     proto.constructor = _ccsg.Label.CanvasRenderCmd;
+
+    proto.transform = function (parentCmd, recursive) {
+        this.originTransform(parentCmd, recursive);
+
+        var bb = this._currentRegion,
+            l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY,
+            rect = cc.visibleRect,
+            vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;
+        if (r < vl || l > vr || t < vb || b > vt) {
+            this._needDraw = false;
+        }
+        else {
+            this._needDraw = true;
+        }
+    };
 
     proto.rendering = function (ctx, scaleX, scaleY) {
         var node = this._node;

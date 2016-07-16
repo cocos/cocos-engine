@@ -33,9 +33,6 @@ cc.CustomRenderCmd = function (target, func) {
             return;
         this._callback.call(this._target, ctx, scaleX, scaleY);
     };
-    this.needDraw = function () {
-        return this._needDraw;
-    };
 };
 
 var dirtyFlags = _ccsg.Node._dirtyFlags = {
@@ -90,10 +87,6 @@ _ccsg.Node.RenderCmd = function(renderable){
 
 _ccsg.Node.RenderCmd.prototype = {
     constructor: _ccsg.Node.RenderCmd,
-
-    needDraw: function () {
-        return this._needDraw;
-    },
 
     getAnchorPointInPoints: function(){
         return cc.p(this._anchorPointInPoints);
@@ -261,6 +254,11 @@ _ccsg.Node.RenderCmd.prototype = {
 
         if (node._additionalTransformDirty) {
             this._transform = cc.affineTransformConcat(t, node._additionalTransform);
+        }
+
+        if (this._currentRegion) {
+            this._updateCurrentRegions();
+            this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
         }
 
         if (recursive) {
@@ -530,7 +528,7 @@ _ccsg.Node.CanvasRenderCmd.RegionStatus = {
 var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
 proto.constructor = _ccsg.Node.CanvasRenderCmd;
 proto._notifyRegionStatus = function(status) {
-    if(this._needDraw && this._regionFlag < status) {
+    if (this._needDraw && this._regionFlag < status) {
         this._regionFlag = status;
     }
 };

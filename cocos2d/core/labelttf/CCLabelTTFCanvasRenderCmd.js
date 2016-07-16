@@ -305,29 +305,41 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     };
 
     proto.updateStatus = function () {
-        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag,
+            transformDirty = locFlag & flags.transformDirty;
 
         if (locFlag & flags.textDirty)
             this._updateTexture();
 
+        if (transformDirty) {
+            // Avoid invoke transform multiple times
+            this._dirtyFlag &= ~flags.transformDirty;
+        }
+
         _ccsg.Node.RenderCmd.prototype.updateStatus.call(this);
 
-        if (this._dirtyFlag & flags.transformDirty){
+        if (transformDirty) {
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.transformDirty;
         }
     };
 
     proto._syncStatus = function (parentCmd) {
-        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag,
+            transformDirty = locFlag & flags.transformDirty;
 
         if (locFlag & flags.textDirty)
             this._updateTexture();
 
+        if (transformDirty) {
+            // Avoid invoke transform multiple times
+            this._dirtyFlag &= ~flags.transformDirty;
+        }
+
         _ccsg.Node.RenderCmd.prototype._syncStatus.call(this, parentCmd);
 
-        if (locFlag & flags.transformDirty)
+        if (transformDirty) {
             this.transform(parentCmd);
+        }
     };
 
     proto.drawLabels = function (context, xOffset, yOffsetArray) {

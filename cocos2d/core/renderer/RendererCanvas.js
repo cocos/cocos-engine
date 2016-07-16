@@ -154,9 +154,11 @@ cc.rendererCanvas = {
 
         for (i = 0, len = locCmds.length; i < len; i++) {
             var cmd = locCmds[i];
+            if (!cmd._needDraw) continue;
+            
             var needRendering = false;
             var cmdRegion = cmd._currentRegion;
-            if(!cmdRegion || allNeedDraw) {
+            if (!cmdRegion || allNeedDraw) {
                 needRendering = true;
             } else {
                 for(var index = 0, count = dirtyList.length; index < count; ++index) {
@@ -166,12 +168,12 @@ cc.rendererCanvas = {
                     }
                 }
             }
-            if(needRendering) {
+            if (needRendering) {
                 cmd.rendering(wrapper, scaleX, scaleY);
             }
         }
 
-        if(!allNeedDraw) {
+        if (!allNeedDraw) {
             //draw debug info for dirty region if it is needed
             this._debugDrawDirtyRegion(wrapper);
             this._endDrawDirtyRegion(ctx);
@@ -273,7 +275,7 @@ cc.rendererCanvas = {
     },
 
     pushRenderCommand: function (cmd) {
-        if(!cmd.needDraw())
+        if(!cmd.rendering)
             return;
         if (this._isCacheToCanvasOn) {
             var currentId = this._currentID, locCmdBuffer = this._cacheToCanvasCmds;

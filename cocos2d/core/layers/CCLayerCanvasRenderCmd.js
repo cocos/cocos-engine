@@ -87,7 +87,6 @@
     proto.bake = function(){
         if (!this._isBaked) {
             this._needDraw = true;
-            cc.renderer.childrenOrderDirty = true;
             //limit: 1. its children's blendfunc are invalid.
             this._isBaked = this._cacheDirty = true;
             if(this._updateCache === 0)
@@ -106,7 +105,6 @@
 
     proto.unbake = function(){
         if (this._isBaked) {
-            cc.renderer.childrenOrderDirty = true;
             this._needDraw = false;
             this._isBaked = false;
             this._cacheDirty = true;

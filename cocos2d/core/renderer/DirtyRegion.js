@@ -131,7 +131,7 @@ regionProto.intersects = function (target) {
 
 //update region by a rotated bounds
 regionProto.updateRegion = function (bounds, matrix) {
-    if (bounds.width == 0 || bounds.height == 0) {
+    if (bounds.width === 0 || bounds.height === 0) {
         this.setEmpty();
         return;
     }
@@ -147,7 +147,7 @@ regionProto.updateRegion = function (bounds, matrix) {
     var xMax = x + bounds.width;
     var yMax = y + bounds.height;
     var minX, minY, maxX, maxY;
-    if (a == 1.0 && b == 0.0 && c == 0.0 && d == 1.0) {
+    if (a === 1 && b === 0 && c === 0 && d === 1) {
         minX = x + tx - 1;
         minY = y + ty - 1;
         maxX = xMax + tx + 1;
@@ -323,7 +323,7 @@ dirtyRegionProto.mergeDirtyList = function(dirtyList) {
     if (hasClipRect && (totalArea / this.clipArea) > 0.95) {
         this.clipRectChanged = true;
     }
-    if (mergeA != mergeB) {
+    if (mergeA !== mergeB) {
         var region = dirtyList[mergeB];
         dirtyList[mergeA].union(region);
         regionRelease(region);
