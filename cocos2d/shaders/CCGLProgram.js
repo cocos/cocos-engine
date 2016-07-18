@@ -26,14 +26,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var HashUniformEntry = function (value, location, hh) {
-    this.value = value;
-    this.location = location;
-    this.hh = hh || {};
-};
-
-var math = cc.math;
 var macro = cc.macro;
+var math = cc.math;
 
 /**
  * Class that implements a WebGL program
@@ -50,28 +44,31 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
     _usesTime: false,
 
     // Uniform cache
-    _updateUniformLocation: function (location, data, bytes) {
-        if (location == null)
+    _updateUniformLocation: function (location) {
+        if (!location)
             return false;
 
-        var updated = true;
-        var element = null;
-        for (var i = 0; i < this._hashForUniforms.length; i++)
-            if (this._hashForUniforms[i].location == location)
-                element = this._hashForUniforms[i];
+        var updated;
+        var element = this._hashForUniforms[location];
 
         if (!element) {
-            element = new HashUniformEntry();
-            // key
-            element.location = location;
-            // value
-            element.value = data;
-            this._hashForUniforms.push(element);
+            element = [
+                arguments[1],
+                arguments[2],
+                arguments[3],
+                arguments[4]
+            ];
+            this._hashForUniforms[location] = element;
+            updated = true;
         } else {
-            if (element.value == data)
-                updated = false;
-            else
-                element.value = data;
+            updated = false;
+            var count = arguments.length-1;
+            for (var i = 0; i < count; ++i) {
+                if (arguments[i+1] !== element[i]) {
+                    element[i] = arguments[i+1];
+                    updated = true;
+                }
+            }
         }
 
         return updated;
@@ -119,8 +116,8 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 	 * @returns {cc.GLProgram}
 	 */
     ctor: function (vShaderFileName, fShaderFileName, glContext) {
-        this._uniforms = [];
-        this._hashForUniforms = [];
+        this._uniforms = {};
+        this._hashForUniforms = {};
         this._glContext = glContext || cc._renderContext;
 
 		vShaderFileName && fShaderFileName && this.init(vShaderFileName, fShaderFileName);
@@ -173,7 +170,10 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
 
         if (this._fragShader)
             locGL.attachShader(this._programObj, this._fragShader);
-        this._hashForUniforms.length = 0;
+
+        for (var key in this._hashForUniforms) {
+            delete this._hashForUniforms[key];
+        }
 
         cc.checkGLErrorDebug();
         return true;
@@ -287,18 +287,24 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this.setUniformLocationWith1i(this._uniforms[macro.UNIFORM_SAMPLER], 0);
     },
 
+    _addUniformLocation: function (name) {
+        var location = this._glContext.getUniformLocation(this._programObj, name);
+        this._uniforms[name] = location;
+    },
+
     /**
      * calls retrieves the named uniform location for this shader program.
      * @param {String} name
      * @returns {Number}
      */
-    getUniformLocationForName:function(name){
-        if(!name)
+    getUniformLocationForName: function (name) {
+        if (!name)
             throw new Error("cc.GLProgram.getUniformLocationForName(): uniform name should be non-null");
-        if(!this._programObj)
+        if (!this._programObj)
             throw new Error("cc.GLProgram.getUniformLocationForName(): Invalid operation. Cannot get uniform location when program is not initialized");
 
-        return this._glContext.getUniformLocation(this._programObj, name);
+        var location = this._uniforms[name] || this._glContext.getUniformLocation(this._programObj, name);
+        return location;
     },
 
     /**
@@ -323,9 +329,17 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} i1
      */
     setUniformLocationWith1i: function (location, i1) {
-        var updated = this._updateUniformLocation(location, i1);
-        if (updated)
-            this._glContext.uniform1i(location, i1);
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, i1);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform1i(locObj, i1);
+            }
+        }
+        else {
+            gl.uniform1i(location, i1);
+        }
     },
 
     /**
@@ -334,12 +348,18 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} i1
      * @param {Number} i2
      */
-    setUniformLocationWith2i:function(location, i1,i2){
-        var intArray= [i1,i2];
-        var updated =  this._updateUniformLocation(location, intArray);
-
-        if( updated )
-            this._glContext.uniform2i(location, i1, i2);
+    setUniformLocationWith2i: function (location, i1, i2) {
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, i1, i2);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform2i(locObj, i1, i2);
+            }
+        }
+        else {
+            gl.uniform2i(location, i1, i2);
+        }
     },
 
     /**
@@ -349,12 +369,18 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} i2
      * @param {Number} i3
      */
-    setUniformLocationWith3i:function(location, i1, i2, i3){
-        var intArray = [i1,i2,i3];
-        var updated =  this._updateUniformLocation(location, intArray);
-
-        if( updated )
-            this._glContext.uniform3i(location, i1, i2, i3);
+    setUniformLocationWith3i: function (location, i1, i2, i3) {
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, i1, i2, i3);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform3i(locObj, i1, i2, i3);
+            }
+        }
+        else {
+            gl.uniform3i(location, i1, i2, i3);
+        }
     },
 
     /**
@@ -365,12 +391,18 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} i3
      * @param {Number} i4
      */
-    setUniformLocationWith4i:function(location, i1, i2, i3, i4){
-        var intArray = [i1,i2,i3,i4];
-        var updated =  this._updateUniformLocation(location, intArray);
-
-        if( updated )
-            this._glContext.uniform4i(location, i1, i2, i3, i4);
+    setUniformLocationWith4i: function (location, i1, i2, i3, i4) {
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, i1, i2, i3, i4);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform4i(locObj, i1, i2, i3, i4);
+            }
+        }
+        else {
+            gl.uniform4i(location, i1, i2, i3, i4);
+        }
     },
 
     /**
@@ -379,11 +411,9 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Int32Array} intArray
      * @param {Number} numberOfArrays
      */
-    setUniformLocationWith2iv:function(location, intArray, numberOfArrays){
-        var updated =  this._updateUniformLocation(location, intArray);
-
-        if( updated )
-            this._glContext.uniform2iv(location, intArray);
+    setUniformLocationWith2iv: function (location, intArray) {
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniform2iv(locObj, intArray);
     },
 
     /**
@@ -392,24 +422,19 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Int32Array} intArray
      * @param {Number} numberOfArrays
      */
-    setUniformLocationWith3iv:function(location, intArray, numberOfArrays){
-        var updated =  this._updateUniformLocation(location, intArray);
-
-        if( updated )
-            this._glContext.uniform3iv(location, intArray);
+    setUniformLocationWith3iv:function(location, intArray){
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniform3iv(locObj, intArray);
     },
 
     /**
      * calls glUniform4iv only if the values are different than the previous call for this same shader program.
      * @param {WebGLUniformLocation} location
      * @param {Int32Array} intArray
-     * @param {Number} numberOfArrays
      */
-    setUniformLocationWith4iv:function(location, intArray, numberOfArrays){
-        var updated =  this._updateUniformLocation(location, intArray);
-
-        if( updated )
-            this._glContext.uniform4iv(location, intArray);
+    setUniformLocationWith4iv:function(location, intArray){
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniform4iv(locObj, intArray);
     },
 
     /**
@@ -418,7 +443,7 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} i1
      */
     setUniformLocationI32: function (location, i1) {
-        this.setUniformLocationWith1i(arguments[0], arguments[1]);
+        this.setUniformLocationWith1i(location, i1);
     },
 
     /**
@@ -427,9 +452,17 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} f1
      */
     setUniformLocationWith1f: function (location, f1) {
-        var updated = this._updateUniformLocation(location, f1);
-        if (updated)
-            this._glContext.uniform1f(location, f1);
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, f1);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform1f(locObj, f1);
+            }
+        }
+        else {
+            gl.uniform1f(location, f1);
+        }
     },
 
     /**
@@ -439,10 +472,17 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} f2
      */
     setUniformLocationWith2f: function (location, f1, f2) {
-        var floats = [f1, f2];
-        var updated = this._updateUniformLocation(location, floats);
-        if (updated)
-            this._glContext.uniform2f(location, f1, f2);
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, f1, f2);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform2f(locObj, f1, f2);
+            }
+        }
+        else {
+            gl.uniform2f(location, f1, f2);
+        }
     },
 
     /**
@@ -453,10 +493,17 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} f3
      */
     setUniformLocationWith3f: function (location, f1, f2, f3) {
-        var floats = [f1, f2, f3];
-        var updated = this._updateUniformLocation(location, floats);
-        if (updated)
-            this._glContext.uniform3f(location, f1, f2, f3);
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, f1, f2, f3);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform3f(locObj, f1, f2, f3);
+            }
+        }
+        else {
+            gl.uniform3f(location, f1, f2, f3);
+        }
     },
 
     /**
@@ -468,58 +515,57 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
      * @param {Number} f4
      */
     setUniformLocationWith4f: function (location, f1, f2, f3, f4) {
-        var floats = [f1, f2, f3, f4];
-        var updated = this._updateUniformLocation(location, floats);
-        if (updated)
-            this._glContext.uniform4f(location, f1, f2, f3, f4);
+        var gl = this._glContext;
+        if (typeof location === 'string') {
+            var updated = this._updateUniformLocation(location, f1, f2, f3, f4);
+            if (updated) {
+                var locObj = this.getUniformLocationForName(location);
+                gl.uniform4f(locObj, f1, f2, f3, f4);
+            }
+        }
+        else {
+            gl.uniform4f(location, f1, f2, f3, f4);
+        }
     },
 
     /**
      * calls glUniform2fv only if the values are different than the previous call for this same shader program.
      * @param {WebGLUniformLocation} location
      * @param {Float32Array} floatArray
-     * @param {Number} numberOfArrays
      */
-    setUniformLocationWith2fv: function (location, floatArray, numberOfArrays) {
-        var updated = this._updateUniformLocation(location, floatArray);
-        if (updated)
-            this._glContext.uniform2fv(location, floatArray);
+    setUniformLocationWith2fv: function (location, floatArray) {
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniform2fv(locObj, floatArray);
     },
 
     /**
      * calls glUniform3fv only if the values are different than the previous call for this same shader program.
      * @param {WebGLUniformLocation} location
      * @param {Float32Array} floatArray
-     * @param {Number} numberOfArrays
      */
-    setUniformLocationWith3fv: function (location, floatArray, numberOfArrays) {
-        var updated = this._updateUniformLocation(location, floatArray);
-        if (updated)
-            this._glContext.uniform3fv(location, floatArray);
+    setUniformLocationWith3fv: function (location, floatArray) {
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniform3fv(locObj, floatArray);
     },
 
     /**
      * calls glUniform4fv only if the values are different than the previous call for this same shader program.
      * @param {WebGLUniformLocation} location
      * @param {Float32Array} floatArray
-     * @param {Number} numberOfArrays
      */
-    setUniformLocationWith4fv: function (location, floatArray, numberOfArrays) {
-        var updated = this._updateUniformLocation(location, floatArray);
-        if (updated)
-            this._glContext.uniform4fv(location, floatArray);
+    setUniformLocationWith4fv: function (location, floatArray) {
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniform4fv(locObj, floatArray);
     },
 
     /**
      * calls glUniformMatrix4fv only if the values are different than the previous call for this same shader program.
      * @param {WebGLUniformLocation} location
      * @param {Float32Array} matrixArray
-     * @param {Number} numberOfMatrices
      */
-    setUniformLocationWithMatrix4fv: function (location, matrixArray, numberOfMatrices) {
-        var updated = this._updateUniformLocation(location, matrixArray);
-        if (updated)
-            this._glContext.uniformMatrix4fv(location, false, matrixArray);
+    setUniformLocationWithMatrix4fv: function (location, matrixArray) {
+        var locObj = typeof location === 'string' ? this.getUniformLocationForName(location) : location;
+        this._glContext.uniformMatrix4fv(locObj, false, matrixArray);
     },
 
     setUniformLocationF32: function () {
@@ -633,6 +679,10 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);
     },
 
+    _updateProjectionUniform: function(){
+        this._glContext.uniformMatrix4fv(this._uniforms[macro.UNIFORM_PMATRIX], false, math.projection_matrix_stack.top.mat);  
+    },
+
     /**
      * returns the vertexShader error log
      * @return {String}
@@ -696,12 +746,10 @@ cc.GLProgram = cc._Class.extend(/** @lends cc.GLProgram# */{
         this._programObj = null;
 
         // Purge uniform hash
-        for (var i = 0; i < this._hashForUniforms.length; i++) {
-            this._hashForUniforms[i].value = null;
-            this._hashForUniforms[i] = null;
+        for (var key in this._hashForUniforms) {
+            this._hashForUniforms[key].length = 0;
+            delete this._hashForUniforms[key];
         }
-
-        this._hashForUniforms.length = 0;
     },
 
     /**

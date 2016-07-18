@@ -25,12 +25,8 @@
  ****************************************************************************/
 
 var _currentProjectionMatrix = -1;
-var _vertexAttribPosition = false;
-var _vertexAttribColor = false;
-var _vertexAttribTexCoords = false;
 
 var macro = cc.macro;
-
 var ENABLE_GL_STATE_CACHE = macro.ENABLE_GL_STATE_CACHE;
 
 var MAX_ACTIVETEXTURE = 0,
@@ -42,7 +38,6 @@ var MAX_ACTIVETEXTURE = 0,
     _uVAO = 0;
 if (ENABLE_GL_STATE_CACHE) {
     MAX_ACTIVETEXTURE = 16;
-
     _currentShaderProgram = -1;
     _currentBoundTexture = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
     _blendingSource = -1;
@@ -50,6 +45,64 @@ if (ENABLE_GL_STATE_CACHE) {
     _GLServerState = 0;
     if(macro.TEXTURE_ATLAS_USE_VAO)
         _uVAO = 0;
+
+    var _currBuffers = {};
+
+    WebGLRenderingContext.prototype.glBindBuffer = WebGLRenderingContext.prototype.bindBuffer;
+    WebGLRenderingContext.prototype.bindBuffer = function (target, buffer) {
+        if (_currBuffers[target] !== buffer) {
+            this.glBindBuffer(target, buffer);
+            _currBuffers[target] = buffer;
+            return false;
+        }
+        else {
+            return true;
+        }
+    };
+
+    WebGLRenderingContext.prototype.glEnableVertexAttribArray = WebGLRenderingContext.prototype.enableVertexAttribArray;
+    WebGLRenderingContext.prototype.enableVertexAttribArray = function (index) {
+        if (index === macro.VERTEX_ATTRIB_FLAG_POSITION) {
+            if (!this._vertexAttribPosition) {
+                this.glEnableVertexAttribArray(index);
+                this._vertexAttribPosition = true;
+            }
+        }
+        else if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
+            if (!this._vertexAttribColor) {
+                this.glEnableVertexAttribArray(index);
+                this._vertexAttribColor = true;
+            }
+        }
+        else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
+            if (!this._vertexAttribTexCoords) {
+                this.glEnableVertexAttribArray(index);
+                this._vertexAttribTexCoords = true;
+            }
+        }
+        else {
+            this.glEnableVertexAttribArray(index);
+        }
+    };
+
+    WebGLRenderingContext.prototype.glDisableVertexAttribArray = WebGLRenderingContext.prototype.disableVertexAttribArray;
+    WebGLRenderingContext.prototype.disableVertexAttribArray = function (index) {
+        if (index === macro.VERTEX_ATTRIB_FLAG_COLOR) {
+            if (this._vertexAttribColor) {
+                this.glDisableVertexAttribArray(index);
+                this._vertexAttribColor = false;
+            }
+        }
+        else if (index === macro.VERTEX_ATTRIB_FLAG_TEX_COORDS) {
+            if (this._vertexAttribTexCoords) {
+                this.glDisableVertexAttribArray(index);
+                this._vertexAttribTexCoords = false;
+            }
+        }
+        else if (index !== 0) {
+            this.glDisableVertexAttribArray(index);
+        }
+    };
 }
 
 // GL State Cache functions
@@ -64,9 +117,6 @@ cc.gl = {};
 cc.gl.invalidateStateCache = function () {
     cc.math.glFreeAll();
     _currentProjectionMatrix = -1;
-    _vertexAttribPosition = false;
-    _vertexAttribColor = false;
-    _vertexAttribTexCoords = false;
     if (ENABLE_GL_STATE_CACHE) {
         _currentShaderProgram = -1;
         for (var i = 0; i < MAX_ACTIVETEXTURE; i++) {
@@ -107,21 +157,6 @@ cc.gl.deleteProgram = function (program) {
     gl.deleteProgram(program);
 };
 
-/*
- * Uses a blending function in case it not already used.<br/>
- * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will use glContext.blendFunc() directly.
- * @function
- * @param {Number} sfactor
- * @param {Number} dfactor
- */
-cc.gl.blendFunc = ENABLE_GL_STATE_CACHE ? function (sfactor, dfactor) {
-    if ((sfactor !== _blendingSource) || (dfactor !== _blendingDest)) {
-        _blendingSource = sfactor;
-        _blendingDest = dfactor;
-        cc.gl.setBlending(sfactor, dfactor);
-    }
-} : cc.gl.setBlending;
-
 /**
  * @function
  * @param {Number} sfactor
@@ -138,6 +173,21 @@ cc.gl.setBlending = function (sfactor, dfactor) {
         //ctx.blendFuncSeparate(ctx.SRC_ALPHA, dfactor, sfactor, dfactor);
     }
 };
+
+/*
+ * Uses a blending function in case it not already used.<br/>
+ * If cc.macro.ENABLE_GL_STATE_CACHE is disabled, it will use glContext.blendFunc() directly.
+ * @function
+ * @param {Number} sfactor
+ * @param {Number} dfactor
+ */
+cc.gl.blendFunc = ENABLE_GL_STATE_CACHE ? function (sfactor, dfactor) {
+    if ((sfactor !== _blendingSource) || (dfactor !== _blendingDest)) {
+        _blendingSource = sfactor;
+        _blendingDest = dfactor;
+        cc.gl.setBlending(sfactor, dfactor);
+    }
+} : cc.gl.setBlending;
 
 /**
  * @function
@@ -180,52 +230,6 @@ cc.gl.blendResetToCache = function () {
  */
 cc.gl.setProjectionMatrixDirty = function () {
     _currentProjectionMatrix = -1;
-};
-
-/**
- * <p>
- *    Will enable the vertex attribs that are passed as flags.  <br/>
- *    Possible flags:                                           <br/>
- *    cc.macro.VERTEX_ATTRIB_FLAG_POSITION                             <br/>
- *    cc.macro.VERTEX_ATTRIB_FLAG_COLOR                                <br/>
- *    cc.macro.VERTEX_ATTRIB_FLAG_TEX_COORDS                            <br/>
- *                                                              <br/>
- *    These flags can be ORed. The flags that are not present, will be disabled.
- * </p>
- * @function
- * @param {cc.macro.VERTEX_ATTRIB_FLAG_POSITION | cc.macro.VERTEX_ATTRIB_FLAG_COLOR | cc.macro.VERTEX_ATTRIB_FLAG_TEX_OORDS} flags
- */
-cc.gl.enableVertexAttribs = function (flags) {
-    /* Position */
-    var ctx = cc._renderContext;
-    var enablePosition = ( flags & macro.VERTEX_ATTRIB_FLAG_POSITION );
-    if (enablePosition !== _vertexAttribPosition) {
-        if (enablePosition)
-            ctx.enableVertexAttribArray(macro.VERTEX_ATTRIB_POSITION);
-        else
-            ctx.disableVertexAttribArray(macro.VERTEX_ATTRIB_POSITION);
-        _vertexAttribPosition = enablePosition;
-    }
-
-    /* Color */
-    var enableColor = (flags & macro.VERTEX_ATTRIB_FLAG_COLOR);
-    if (enableColor !== _vertexAttribColor) {
-        if (enableColor)
-            ctx.enableVertexAttribArray(macro.VERTEX_ATTRIB_COLOR);
-        else
-            ctx.disableVertexAttribArray(macro.VERTEX_ATTRIB_COLOR);
-        _vertexAttribColor = enableColor;
-    }
-
-    /* Tex Coords */
-    var enableTexCoords = (flags & macro.VERTEX_ATTRIB_FLAG_TEX_COORDS);
-    if (enableTexCoords !== _vertexAttribTexCoords) {
-        if (enableTexCoords)
-            ctx.enableVertexAttribArray(macro.VERTEX_ATTRIB_TEX_COORDS);
-        else
-            ctx.disableVertexAttribArray(macro.VERTEX_ATTRIB_TEX_COORDS);
-        _vertexAttribTexCoords = enableTexCoords;
-    }
 };
 
 /**

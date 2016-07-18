@@ -231,6 +231,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         var locElement = self._htmlElementObj;
         self._contentSize.width = locElement.width;
         self._contentSize.height = locElement.height;
+        self._textureLoaded = true;
 
         //dispatch load event to listener.
         self.emit("load");
@@ -868,6 +869,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
                 self._hasPremultipliedAlpha = premultiplied;
                 self._hasMipmaps = false;
+                self._textureLoaded = true;
 
                 //dispatch load event to listener.
                 self.emit("load");

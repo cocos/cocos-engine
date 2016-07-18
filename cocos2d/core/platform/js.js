@@ -149,6 +149,9 @@ var js = {
                 cc.error('The class to extend must be non-nil');
                 return;
             }
+            if (Object.keys(cls.prototype).length > 0) {
+                cc.error('Class should be extended before assigning any prototype members.');
+            }
         }
         for (var p in base) if (base.hasOwnProperty(p)) cls[p] = base[p];
         cls.prototype = Object.create(base.prototype);

@@ -454,6 +454,7 @@ var Node = cc.Class({
 
             set: function (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                this.emit('group-changed');
             }
         }
     },
@@ -610,7 +611,6 @@ var Node = cc.Class({
         if (constructor) {
             findComponents(this, constructor, components);
         }
-
         return components;
     },
 
@@ -629,7 +629,6 @@ var Node = cc.Class({
         if (constructor) {
             return findChildComponent(this._children, constructor);
         }
-
         return null;
     },
 
@@ -648,7 +647,6 @@ var Node = cc.Class({
         if (constructor) {
             findChildComponents(this._children, constructor, components);
         }
-
         return components;
     },
 
@@ -1441,6 +1439,10 @@ if (CC_JSB) {
  */
 /**
  * @event child-reorder
+ * @param {Event} event
+ */
+/**
+ * @event group-changed
  * @param {Event} event
  */
 /**

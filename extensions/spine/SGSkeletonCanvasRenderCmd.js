@@ -101,7 +101,7 @@ proto.updateStatus = function() {
     _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
     this._updateCurrentRegions();
     this._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble;
-    this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.contentDirty ^ this._dirtyFlag;
+    this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.contentDirty;
 };
 
 proto.getLocalBB = function() {
@@ -218,7 +218,7 @@ proto._updateChild = function(){
             }
 
             //hack for sprite
-            selSprite._renderCmd._displayedOpacity = 0 | (locSkeleton.a * slot.a * 255);
+            selSprite._renderCmd._displayedOpacity = 0 | (this._node.getOpacity() * locSkeleton.a * slot.a);
             var r = 0 | (locSkeleton.r * slot.r * 255), g = 0 | (locSkeleton.g * slot.g * 255), b = 0 | (locSkeleton.b * slot.b * 255);
             selSprite.setColor(cc.color(r,g,b));
             selSprite._renderCmd._updateColor();

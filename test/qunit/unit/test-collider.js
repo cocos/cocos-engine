@@ -6,8 +6,8 @@ test('collision manager', function() {
 
     manager.enabled = true;
 
-    cc.game.groupList = ['Default'];
-    cc.game.collisionMatrix = [[true]];
+    cc.game.groupList = ['Default', 'Test'];
+    cc.game.collisionMatrix = [[true, false], [false, true]];
 
     var node1 = new cc.Node();
     cc.director.getScene().addChild(node1);
@@ -29,6 +29,12 @@ test('collision manager', function() {
     
     strictEqual( manager._colliders.length, 4, 'collision manager should add 4 colliders');
     strictEqual( manager._contacts.length, 4, 'collision manager should add 4 contacts');
+
+    node1.group = 'Test';
+    strictEqual( manager._contacts.length, 0, 'collision manager should add 0 contacts');
+
+    node2.group = 'Test';
+    strictEqual( manager._contacts.length, 4, 'collision manager should add 0 contacts');
 
     box4.enabled = false;
     strictEqual( manager._colliders.length, 3, 'collision manager should add 3 colliders');

@@ -268,6 +268,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             var renderer = cc.renderer;
             if (renderer.childrenOrderDirty) {
                 renderer.clearRenderCommands();
+                cc.renderer.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
                 this._runningScene.visit();
                 renderer.resetFlag();
@@ -1497,7 +1498,7 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @constant
  * @type {Number}
  */
-cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_3D;
+cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
 
 // clear dirtyFlags for EC
 function clearFlags (node) {
