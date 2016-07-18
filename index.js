@@ -30,7 +30,7 @@
 eval(
     /* use EVAL to prevent the uglify from renaming symbols */
     'if(typeof CC_TEST=="undefined")' +
-        'CC_TEST=typeof describe!="undefined"||typeof QUnit=="object";' +
+        'CC_TEST=typeof tap=="object"||typeof QUnit=="object";' +
     'if(typeof CC_EDITOR=="undefined")' +
         'CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions;' +
     'if(typeof CC_DEV=="undefined")' +
