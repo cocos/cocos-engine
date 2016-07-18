@@ -1343,5 +1343,13 @@ std::string FileUtils::getFileExtension(const std::string& filePath) const
     return fileExtension;
 }
 
+void FileUtils::valueMapCompact(ValueMap &valueMap)
+{
+}
+
+void FileUtils::valueVectorCompact(ValueVector &valueVector)
+{
+}
+
 NS_CC_END
 
