@@ -63,6 +63,8 @@ public:
     virtual bool removeDirectory(const std::string& dirPath) override;
 private:
     bool isFileExistInternal(const std::string& filePath,bool& isDirectory) const;
+    virtual void valueMapCompact(ValueMap& valueMap) override;
+    virtual void valueVectorCompact(ValueVector& valueVector) override;
 
     NSBundle* getBundle() const;
     NSBundle* _bundle;
