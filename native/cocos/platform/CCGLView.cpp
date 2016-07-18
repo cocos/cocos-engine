@@ -152,7 +152,7 @@ void GLView::updateDesignResolutionSize()
         auto director = Director::DirectorInstance;
         director->_winSizeInPoints = getDesignResolutionSize();
         director->_isStatusLabelUpdated = true;
-        director->setGLDefaultValues();
+        director->setProjection(director->getProjection());
     }
 }
 
