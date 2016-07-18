@@ -41,6 +41,7 @@ THE SOFTWARE.
 #include "base/CCString.h"
 
 NS_CC_BEGIN
+namespace experimental {
 
 const int TMXLayer::FAST_TMX_ORIENTATION_ORTHO = 0;
 const int TMXLayer::FAST_TMX_ORIENTATION_HEX = 1;
@@ -868,6 +869,7 @@ std::string TMXLayer::getDescription() const
     return StringUtils::format("<FastTMXLayer | tag = %d, size = %d,%d>", _tag, (int)_mapTileSize.width, (int)_mapTileSize.height);
 }
 
+} //end of namespace experimental
 
 NS_CC_END
 
