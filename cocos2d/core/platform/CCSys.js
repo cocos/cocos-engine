@@ -683,7 +683,7 @@ else {
     if (win.WebGLRenderingContext) {
         var tmpCanvas = document.createElement("CANVAS");
         try{
-            var context = cc.create3DContext(tmpCanvas, {'stencil': true, 'preserveDrawingBuffer': true });
+            var context = cc.create3DContext(tmpCanvas, {'stencil': true});
             if(context) {
                 _supportWebGL = true;
             }

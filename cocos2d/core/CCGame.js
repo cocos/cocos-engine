@@ -661,7 +661,6 @@ var game = /** @lends cc.game# */{
             this._renderContext = cc._renderContext = cc.webglContext
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
-                'preserveDrawingBuffer': true,
                 'antialias': !cc.sys.isMobile,
                 'alpha': true
             });
