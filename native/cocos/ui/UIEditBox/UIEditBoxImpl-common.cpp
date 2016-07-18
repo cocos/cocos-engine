@@ -106,7 +106,7 @@ void EditBoxImplCommon::placeInactiveLabels(const Size& size)
         _label->setVerticalAlignment(TextVAlignment::TOP);
         _label->enableWrap(true);
         
-        _labelPlaceHolder->setPosition(Vec2(CC_EDIT_BOX_PADDING, size.height));
+        _labelPlaceHolder->setPosition(Vec2(CC_EDIT_BOX_PADDING, size.height - CC_EDIT_BOX_PADDING));
         _labelPlaceHolder->setVerticalAlignment(TextVAlignment::TOP);
     }
     else {
