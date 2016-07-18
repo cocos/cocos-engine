@@ -183,11 +183,12 @@ function refreshScene () {
         } else {
             var i, node, nodes = widgetManager._nodesWithWidget, len = nodes.length;
             if (CC_EDITOR && _Scene.AnimUtils.curAnimState) {
+                var editingNode = _Scene.AnimUtils.curRootNode;
                 // always check isAlignOnce because animation mode maybe changed
                 for (i = len - 1; i >= 0; i--) {
                     node = nodes[i];
                     var widget = node._widget;
-                    if (widget.isAlignOnce) {
+                    if (widget.isAlignOnce && node.isChildOf(editingNode)) {
                         // widget contains in _nodesWithWidget should aligned at least once
                         widget.enabled = false;
                     }
