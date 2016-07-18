@@ -418,14 +418,6 @@ var Label = cc.Class({
             animatable: false
         }
 
-        // TODO
-        // enableRichText: {
-        //     default: false,
-        //     notify: function () {
-        //         this._sgNode.enableRichText = this.enableRichText;
-        //     }
-        // }
-
     },
 
     statics: {
@@ -453,16 +445,6 @@ var Label = cc.Class({
 
     },
 
-    onEnable: function() {
-        this._super();
-        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this._updateNodeSize, this);
-    },
-
-    onDisable: function() {
-        this._super();
-        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this._updateNodeSize, this);
-    },
-
     _createSgNode: function () {
         return null;
     },
@@ -487,9 +469,6 @@ var Label = cc.Class({
         if (CC_JSB) {
             sgNode.retain();
         }
-
-        // TODO
-        // sgNode.enableRichText = this.enableRichText;
 
         sgNode.setHorizontalAlign( this.horizontalAlign );
         sgNode.setVerticalAlign( this.verticalAlign );
