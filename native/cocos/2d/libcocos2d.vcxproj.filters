@@ -301,7 +301,13 @@
     <ClCompile Include="CCTileMapAtlas.cpp">
       <Filter>2d</Filter>
     </ClCompile>
+    <ClCompile Include="CCTMXLayer.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
     <ClCompile Include="CCTMXObjectGroup.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="CCTMXTiledMap.cpp">
       <Filter>2d</Filter>
     </ClCompile>
     <ClCompile Include="CCTMXXMLParser.cpp">
@@ -1169,7 +1175,13 @@
     <ClInclude Include="CCTileMapAtlas.h">
       <Filter>2d</Filter>
     </ClInclude>
+    <ClInclude Include="CCTMXLayer.h">
+      <Filter>2d</Filter>
+    </ClInclude>
     <ClInclude Include="CCTMXObjectGroup.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="CCTMXTiledMap.h">
       <Filter>2d</Filter>
     </ClInclude>
     <ClInclude Include="CCTMXXMLParser.h">

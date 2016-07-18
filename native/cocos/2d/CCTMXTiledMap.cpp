@@ -1,5 +1,8 @@
 /****************************************************************************
-Copyright (c) 2014-2016 Chukong Technologies Inc.
+Copyright (c) 2009-2010 Ricardo Quesada
+Copyright (c) 2010-2012 cocos2d-x.org
+Copyright (c) 2011      Zynga Inc.
+Copyright (c) 2013-2014 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -21,14 +24,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "2d/CCFastTMXTiledMap.h"
-#include "2d/CCFastTMXLayer.h"
+#include "2d/CCTMXTiledMap.h"
+#include "2d/CCTMXXMLParser.h"
+#include "2d/CCTMXLayer.h"
+#include "2d/CCSprite.h"
+#include "base/ccUTF8.h"
 #include "base/CCString.h"
 
 NS_CC_BEGIN
-namespace experimental {
 
-// implementation FastTMXTiledMap
+// implementation TMXTiledMap
 
 TMXTiledMap * TMXTiledMap::create(const std::string& tmxFile)
 {
@@ -56,10 +61,9 @@ TMXTiledMap* TMXTiledMap::createWithXML(const std::string& tmxString, const std:
 
 bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
 {
-    CCASSERT(!tmxFile.empty(), "FastTMXTiledMap: tmx file should not be empty");
-    if (tmxFile.empty()) {
-        return false;
-    }
+    CCASSERT(tmxFile.size()>0, "TMXTiledMap: tmx file should not be empty");
+
+    _tmxFile = tmxFile;
 
     setContentSize(Size::ZERO);
 
@@ -69,7 +73,7 @@ bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
     {
         return false;
     }
-    CCASSERT( !mapInfo->getTilesets().empty(), "FastTMXTiledMap: Map not found. Please check the filename.");
+    CCASSERT( !mapInfo->getTilesets().empty(), "TMXTiledMap: Map not found. Please check the filename.");
     buildWithMapInfo(mapInfo);
 
     return true;
@@ -77,11 +81,13 @@ bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
 
 bool TMXTiledMap::initWithXML(const std::string& tmxString, const std::string& resourcePath)
 {
+    _tmxFile = tmxString;
+
     setContentSize(Size::ZERO);
 
     TMXMapInfo *mapInfo = TMXMapInfo::createWithXML(tmxString, resourcePath);
 
-    CCASSERT( !mapInfo->getTilesets().empty(), "FastTMXTiledMap: Map not found. Please check the filename.");
+    CCASSERT( !mapInfo->getTilesets().empty(), "TMXTiledMap: Map not found. Please check the filename.");
     buildWithMapInfo(mapInfo);
 
     return true;
@@ -89,7 +95,9 @@ bool TMXTiledMap::initWithXML(const std::string& tmxString, const std::string& r
 
 TMXTiledMap::TMXTiledMap()
     :_mapSize(Size::ZERO)
-    ,_tileSize(Size::ZERO)
+    ,_tileSize(Size::ZERO)        
+    ,_tmxFile("")
+    , _tmxLayerNum(0)
 {
 }
 
@@ -103,12 +111,15 @@ TMXLayer * TMXTiledMap::parseLayer(TMXLayerInfo *layerInfo, TMXMapInfo *mapInfo)
     TMXTilesetInfo *tileset = tilesetForLayer(layerInfo, mapInfo);
     if (tileset == nullptr)
         return nullptr;
-
+    
     TMXLayer *layer = TMXLayer::create(tileset, layerInfo, mapInfo);
 
-    // tell the layerinfo to release the ownership of the tiles map.
-    layerInfo->_ownTiles = false;
-    layer->setupTiles();
+    if (nullptr != layer)
+    {
+        // tell the layerinfo to release the ownership of the tiles map.
+        layerInfo->_ownTiles = false;
+        layer->setupTiles();
+    }
 
     return layer;
 }
@@ -117,34 +128,37 @@ TMXTilesetInfo * TMXTiledMap::tilesetForLayer(TMXLayerInfo *layerInfo, TMXMapInf
 {
     Size size = layerInfo->_layerSize;
     auto& tilesets = mapInfo->getTilesets();
-
-    for (auto iter = tilesets.crbegin(); iter != tilesets.crend(); ++iter)
+    if (tilesets.size()>0)
     {
-        TMXTilesetInfo* tilesetInfo = *iter;
-        if (tilesetInfo)
+        TMXTilesetInfo* tileset = nullptr;
+        for (auto iter = tilesets.crbegin(); iter != tilesets.crend(); ++iter)
         {
-            for( int y=0; y < size.height; y++ )
+            tileset = *iter;
+            if (tileset)
             {
-                for( int x=0; x < size.width; x++ )
+                for( int y=0; y < size.height; y++ )
                 {
-                    int pos = static_cast<int>(x + size.width * y);
-                    int gid = layerInfo->_tiles[ pos ];
-
-                    // gid are stored in little endian.
-                    // if host is big endian, then swap
-                    //if( o == CFByteOrderBigEndian )
-                    //    gid = CFSwapInt32( gid );
-                    /* We support little endian.*/
-
-                    // FIXME: gid == 0 --> empty tile
-                    if( gid != 0 )
+                    for( int x=0; x < size.width; x++ )
                     {
-                        // Optimization: quick return
-                        // if the layer is invalid (more than 1 tileset per layer) an CCASSERT will be thrown later
-                        if( (gid & kTMXFlippedMask) >= tilesetInfo->_firstGid )
-                            return tilesetInfo;
+                        int pos = static_cast<int>(x + size.width * y);
+                        int gid = layerInfo->_tiles[ pos ];
+
+                        // gid are stored in little endian.
+                        // if host is big endian, then swap
+                        //if( o == CFByteOrderBigEndian )
+                        //    gid = CFSwapInt32( gid );
+                        /* We support little endian.*/
+
+                        // FIXME:: gid == 0 --> empty tile
+                        if( gid != 0 ) 
+                        {
+                            // Optimization: quick return
+                            // if the layer is invalid (more than 1 tileset per layer) an CCAssert will be thrown later
+                            if( (gid & kTMXFlippedMask) >= tileset->_firstGid )
+                                return tileset;
+                        }
                     }
-                }
+                }        
             }
         }
     }
@@ -166,39 +180,35 @@ void TMXTiledMap::buildWithMapInfo(TMXMapInfo* mapInfo)
 
     _tileProperties = mapInfo->getTileProperties();
 
-    int idx=0;
+    int idx = 0;
 
     auto& layers = mapInfo->getLayers();
-    for(const auto &layerInfo : layers) {
-        if (layerInfo->_visible)
-        {
+    for (const auto &layerInfo : layers) {
+        if (layerInfo->_visible) {
             TMXLayer *child = parseLayer(layerInfo, mapInfo);
             if (child == nullptr) {
                 idx++;
                 continue;
             }
             addChild(child, idx, idx);
-
             // update content size with the max size
             const Size& childSize = child->getContentSize();
             Size currentSize = this->getContentSize();
-            currentSize.width = std::max( currentSize.width, childSize.width );
-            currentSize.height = std::max( currentSize.height, childSize.height );
+            currentSize.width = std::max(currentSize.width, childSize.width);
+            currentSize.height = std::max(currentSize.height, childSize.height);
             this->setContentSize(currentSize);
 
             idx++;
         }
     }
+    _tmxLayerNum = idx;
 }
 
 // public
 TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
 {
-    CCASSERT(!layerName.empty(), "Invalid layer name!");
-    if (layerName.empty()) {
-        return nullptr;
-    }
-
+    CCASSERT(layerName.size() > 0, "Invalid layer name!");
+    
     for (auto& child : _children)
     {
         TMXLayer* layer = dynamic_cast<TMXLayer*>(child);
@@ -217,12 +227,9 @@ TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
 
 TMXObjectGroup * TMXTiledMap::getObjectGroup(const std::string& groupName) const
 {
-    CCASSERT(!groupName.empty(), "Invalid group name!");
-    if (groupName.empty()) {
-        return nullptr;
-    }
+    CCASSERT(groupName.size() > 0, "Invalid group name!");
 
-    if (!_objectGroups.empty())
+    if (_objectGroups.size()>0)
     {
         TMXObjectGroup* objectGroup = nullptr;
         for (auto iter = _objectGroups.cbegin(); iter != _objectGroups.cend(); ++iter)
@@ -243,7 +250,7 @@ Value TMXTiledMap::getProperty(const std::string& propertyName) const
 {
     if (_properties.find(propertyName) != _properties.end())
         return _properties.at(propertyName);
-
+    
     return Value();
 }
 
@@ -251,16 +258,28 @@ Value TMXTiledMap::getPropertiesForGID(int GID) const
 {
     if (_tileProperties.find(GID) != _tileProperties.end())
         return _tileProperties.at(GID);
-
+    
     return Value();
+}
+
+bool TMXTiledMap::getPropertiesForGID(int GID, Value** value)
+{
+    if (_tileProperties.find(GID) != _tileProperties.end()) {
+        *value = &_tileProperties.at(GID);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 std::string TMXTiledMap::getDescription() const
 {
-    return StringUtils::format("<FastTMXTiledMap | Tag = %d, Layers = %d", _tag, static_cast<int>(_children.size()));
+    return StringUtils::format("<TMXTiledMap | Tag = %d, Layers = %d", _tag, static_cast<int>(_children.size()));
 }
 
-} //end of namespace experimental
+int TMXTiledMap::getLayerNum()
+{
+    return _tmxLayerNum;
+}
 
 NS_CC_END
-
