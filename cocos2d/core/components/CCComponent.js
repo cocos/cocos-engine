@@ -33,7 +33,7 @@ var IsEditorOnEnableCalled = Flags.IsEditorOnEnableCalled;
 var IsPreloadCalled = Flags.IsPreloadCalled;
 var IsOnLoadStarted = Flags.IsOnLoadStarted;
 var IsOnLoadCalled = Flags.IsOnLoadCalled;
-var IsOnStartCalled = Flags.IsOnStartCalled;
+var IsStartCalled = Flags.IsStartCalled;
 
 // only use eval in editor
 
@@ -111,7 +111,7 @@ function callOnEnable (self, enable) {
 function _registerEvent (self, on) {
     if (CC_EDITOR && !(self.constructor._executeInEditMode || cc.engine._isPlaying)) return;
 
-    if (self.start && !(self._objFlags & IsOnStartCalled)) {
+    if (self.start && !(self._objFlags & IsStartCalled)) {
         if (on) {
             cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, _callStart, self);
         }
@@ -149,11 +149,11 @@ var _registerUpdateEvent = function () {
 var _callStart = CC_EDITOR ? function () {
     cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
     callStartInTryCatch(this);
-    this._objFlags |= IsOnStartCalled;
+    this._objFlags |= IsStartCalled;
 } : function () {
     cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, _callStart, this);
     this.start();
-    this._objFlags |= IsOnStartCalled;
+    this._objFlags |= IsStartCalled;
 };
 
 var _callUpdate = CC_EDITOR ? function (event) {
@@ -714,20 +714,23 @@ var Component = cc.Class({
         // Remove all listeners
         cc.eventManager.removeListeners(this);
 
+        //
+        if (CC_EDITOR && !CC_TEST) {
+            _Scene.AssetsWatcher.stop(this);
+        }
+
         // onDestroy
-        if (CC_EDITOR) {
-            if ( !CC_TEST ) {
-                _Scene.AssetsWatcher.stop(this);
-            }
-            if (cc.engine._isPlaying || this.constructor._executeInEditMode) {
-                if (this.onDestroy) {
+        if (this.onDestroy && (this._objFlags & IsOnLoadCalled)) {
+            if (CC_EDITOR) {
+                if (cc.engine._isPlaying || this.constructor._executeInEditMode) {
                     callOnDestroyInTryCatch(this);
                 }
             }
+            else {
+                this.onDestroy();
+            }
         }
-        else if (this.onDestroy) {
-            this.onDestroy();
-        }
+
         // do remove component
         this.node._removeComponent(this);
 
