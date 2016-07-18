@@ -178,10 +178,9 @@ test('Inherit', function () {
 
     strictEqual(Dog.$super, Animal, 'can get super');
 
-    strictEqual(cc.Class.attr(Animal, 'myName'), cc.Class.attr(Dog, 'myName'),
-                "inheritance chain shares the same property's attribute");
+    strictEqual(cc.Class.attr(Animal, 'myName').tooltip, undefined, "override should not change attribute of super class");
     strictEqual(cc.Class.attr(Dog, 'myName').tooltip, 'String', 'can modify attribute');
-    strictEqual(cc.Class.attr(Dog, 'weight'), undefined, 'base property not added');
+    strictEqual(cc.Class.attr(Dog, 'weight').default, undefined, 'base property not added');
 
     var husky = new Husky();
     var dog = new Dog();
