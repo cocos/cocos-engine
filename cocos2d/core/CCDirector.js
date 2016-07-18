@@ -220,16 +220,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     calculateDeltaTime: function () {
         var now = Date.now();
 
-        // new delta time.
         if (this._nextDeltaTimeZero) {
             this._deltaTime = 0;
             this._nextDeltaTimeZero = false;
         } else {
             this._deltaTime = (now - this._lastUpdate) / 1000;
+            if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
+                this._deltaTime = 1 / 60.0;
         }
-
-        if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 0.2))
-            this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
     },
