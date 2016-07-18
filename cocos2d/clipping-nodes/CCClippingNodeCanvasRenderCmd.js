@@ -25,9 +25,6 @@
 //-------------------------- ClippingNode's canvas render cmd --------------------------------
 cc.ClippingNode.CanvasRenderCmd = function(renderable){
     _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-    this._needDraw = false;
-
-    this._clipElemType = false;
 
     this._rendererClipCmd = new cc.CustomRenderCmd(this, this._drawStencilCommand);
     this._rendererRestoreCmd = new cc.CustomRenderCmd(this, this._restoreCmdCallback);
@@ -43,67 +40,16 @@ proto.setStencil = function(stencil){
 
     this._node._stencil = stencil;
 
-    // For shape stencil, rewrite the draw of stencil ,only init the clip path and draw nothing.
-    //else
     if (stencil instanceof cc.DrawNode) {
-        if(stencil._buffer){
-            for(var i=0; i<stencil._buffer.length; i++){
-                stencil._buffer[i].isFill = false;
-                stencil._buffer[i].isStroke = false;
-            }
-        }
 
-        stencil._renderCmd.rendering = function (ctx, scaleX, scaleY) {
-            scaleX = scaleX || cc.view.getScaleX();
-            scaleY = scaleY ||cc.view.getScaleY();
-            var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
-
-            var t = this._transform;
-            context.transform(t.a, t.b, t.c, t.d, t.tx * scaleX, -t.ty * scaleY);
-            for (var i = 0; i < stencil._buffer.length; i++) {
-                var vertices = stencil._buffer[i].verts;
-                //TODO: need support circle etc
-                //cc.assert(cc.vertexListIsClockwise(vertices),
-                //    "Only clockwise polygons should be used as stencil");
-
-                var firstPoint = vertices[0];
-                context.moveTo(firstPoint.x * scaleX, -firstPoint.y * scaleY);
-                for (var j = vertices.length - 1; j > 0; j--)
-                    context.lineTo(vertices[j].x * scaleX, -vertices[j].y * scaleY);
-            }
-        };
     }else{
-        cc.error('do not support other type as stencil');
-        //stencil._parent = this._node;
-    }
-};
-
-proto._setStencilCompositionOperation = function(stencil){
-     if(!stencil)
-        return;
-    var node = this._node;
-    if(stencil._renderCmd && stencil._renderCmd._blendFuncStr)          //it is a hack way.
-        stencil._renderCmd._blendFuncStr = (node.inverted ? "destination-out" : "destination-in");
-
-    if(!stencil._children)
-        return;
-    var children = stencil._children;
-    for(var i = 0, len = children.length; i < len; i++){
-         this._setStencilCompositionOperation(children[i]);
+        cc.error('only cc.DrawNode is accepted as stencil');
     }
 };
 
 proto._restoreCmdCallback = function (ctx) {
-    var locCache = cc.ClippingNode.CanvasRenderCmd._getSharedCache();
-    var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
+    var wrapper = ctx || cc._renderContext;
     wrapper.restore();
-};
-
-proto.transform = function(parentCmd, recursive){
-    _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
-    var node = this._node;
-    if(node._stencil && node._stencil._renderCmd)
-        node._stencil._renderCmd.transform(this, recursive);
 };
 
 proto._drawStencilCommand = function (ctx, scaleX, scaleY) {
@@ -154,9 +100,4 @@ proto.visit = function(parentCmd){
         cc.renderer.pushRenderCommand(this._rendererRestoreCmd);
     }
     this._dirtyFlag = 0;
-};
-
-cc.ClippingNode.CanvasRenderCmd._sharedCache = null;
-cc.ClippingNode.CanvasRenderCmd._getSharedCache = function () {
-    return (cc.ClippingNode.CanvasRenderCmd._sharedCache) || (cc.ClippingNode.CanvasRenderCmd._sharedCache = document.createElement("canvas"));
 };

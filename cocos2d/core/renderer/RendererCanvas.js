@@ -25,6 +25,9 @@
 
 cc.rendererCanvas = {
     childrenOrderDirty: true,
+    assignedZ: 0,
+    assignedZStep: 1/10000,
+    
     _transformNodePool: [],                              //save nodes transform dirty
     _renderCmds: [],                                     //save renderer commands
 
@@ -34,25 +37,150 @@ cc.rendererCanvas = {
     _currentID: 0,
     _clearColor: cc.color(),                                  //background color,default BLACK
     _clearFillStyle: "rgb(0, 0, 0)",
+    _dirtyRegion: null,
+    _allNeedDraw: true,
+    _enableDirtyRegion: false,
+    _debugDirtyRegion: false,
 
     getRenderCmd: function (renderableObject) {
         //TODO Add renderCmd pool here
         return renderableObject._createRenderCmd();
     },
 
+    enableDirtyRegion : function (enabled) {
+        this._enableDirtyRegion = enabled;
+    },
+
+    isDirtyRegionEnabled: function () {
+        return this._enableDirtyRegion;
+    },
+
+    _collectDirtyRegion: function() {
+        //collect dirtyList
+        var locCmds = this._renderCmds, i, len;
+        var dirtyRegion = this._dirtyRegion;
+        for (i = 0, len = locCmds.length; i < len; i++) {
+            var cmd = locCmds[i];
+            var regionFlag  = cmd._regionFlag;
+            var oldRegion = cmd._oldRegion;
+            var currentRegion = cmd._currentRegion;
+            if(regionFlag > _ccsg.Node.CanvasRenderCmd.RegionStatus.NotDirty) {
+                //add
+                (!currentRegion.isEmpty()) && dirtyRegion.addRegion(currentRegion);
+                if(cmd._regionFlag > _ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty) {
+                    (!oldRegion.isEmpty()) && dirtyRegion.addRegion(oldRegion);
+                }
+
+                cmd._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.NotDirty;
+            }
+
+        }
+    },
+
+    _beginDrawDirtyRegion: function(ctxWrapper) {
+        var ctx = ctxWrapper.getContext();
+        var dirtyList = this._dirtyRegion.getDirtyRegions();
+        ctx.save();
+        //add clip
+        var scaleX = ctxWrapper._scaleX;
+        var scaleY = ctxWrapper._scaleY;
+        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, scaleX, scaleY);
+
+        ctx.beginPath();
+        for(var index = 0, count = dirtyList.length; index < count; ++index) {
+            var region = dirtyList[index];
+            ctx.rect(region._minX * scaleX , -region._maxY * scaleY, region._width * scaleX, region._height * scaleY);
+        }
+
+        ctx.clip();
+        //end add clip
+    },
+
+    _endDrawDirtyRegion: function(ctx) {
+        ctx.restore();
+    },
+
+    _debugDrawDirtyRegion: function(ctxWrapper) {
+        if(!this._debugDirtyRegion) return;
+        var ctx = ctxWrapper.getContext();
+        var dirtyList = this._dirtyRegion.getDirtyRegions();
+        //add clip
+        var scaleX = ctxWrapper._scaleX;
+        var scaleY = ctxWrapper._scaleY;
+        ctxWrapper.setTransform({a:1, b:0, c:0, d:1, tx:0,ty:0}, scaleX, scaleY);
+
+        ctx.beginPath();
+        for(var index = 0, count = dirtyList.length; index < count; ++index) {
+            var region = dirtyList[index];
+            ctx.rect(region._minX * scaleX, -region._maxY * scaleY, region._width * scaleX, region._height * scaleY);
+        }
+        var oldstyle = ctx.fillStyle;
+        ctx.fillStyle = 'green';
+        ctx.fill();
+        ctx.fillStyle = oldstyle;
+        //end add clip
+    },
     /**
      * drawing all renderer command to context (default is cc._renderContext)
      * @param {cc.CanvasContextWrapper} [ctx=cc._renderContext]
      */
-    rendering: function (ctx) {
-        var locCmds = this._renderCmds, i, len,
-            scaleX = cc.view.getScaleX(),
+    rendering: function (ctxWrapper) {
+        var dirtyRegion = this._dirtyRegion = this._dirtyRegion || new cc.DirtyRegion();
+        var viewport = cc._canvas;
+        var wrapper = ctxWrapper || cc._renderContext;
+        var ctx = wrapper.getContext();
+
+        var scaleX = cc.view.getScaleX(),
             scaleY = cc.view.getScaleY();
-        var context = ctx || cc._renderContext;
-        context.computeRealOffsetY();
-        for (i = 0, len = locCmds.length; i < len; i++) {
-            locCmds[i].rendering(context, scaleX, scaleY);
+        wrapper.setViewScale(scaleX,scaleY);
+        wrapper.computeRealOffsetY();
+        var dirtyList = this._dirtyRegion.getDirtyRegions();
+        var locCmds = this._renderCmds, i, len;
+        var allNeedDraw = this._allNeedDraw || !this._enableDirtyRegion;
+        if(!allNeedDraw) {
+            this._collectDirtyRegion();
+            this._beginDrawDirtyRegion(wrapper);
         }
+
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, viewport.width, viewport.height);
+        if (this._clearColor.r !== 0 ||
+            this._clearColor.g !== 0 ||
+            this._clearColor.b !== 0) {
+            wrapper.setFillStyle(this._clearFillStyle);
+            wrapper.setGlobalAlpha(this._clearColor.a);
+            ctx.fillRect(0, 0, viewport.width, viewport.height);
+        }
+
+        for (i = 0, len = locCmds.length; i < len; i++) {
+            var cmd = locCmds[i];
+            if (!cmd._needDraw) continue;
+            
+            var needRendering = false;
+            var cmdRegion = cmd._currentRegion;
+            if (!cmdRegion || allNeedDraw) {
+                needRendering = true;
+            } else {
+                for(var index = 0, count = dirtyList.length; index < count; ++index) {
+                    if(dirtyList[index].intersects(cmdRegion)) {
+                        needRendering = true;
+                        break;
+                    }
+                }
+            }
+            if (needRendering) {
+                cmd.rendering(wrapper, scaleX, scaleY);
+            }
+        }
+
+        if (!allNeedDraw) {
+            //draw debug info for dirty region if it is needed
+            this._debugDrawDirtyRegion(wrapper);
+            this._endDrawDirtyRegion(ctx);
+        }
+
+        dirtyRegion.clear();
+        this._allNeedDraw = false;
     },
 
     /**
@@ -65,19 +193,17 @@ cc.rendererCanvas = {
     _renderingToCacheCanvas: function (ctx, instanceID, scaleX, scaleY) {
         if (!ctx)
             cc.log("The context of RenderTexture is invalid.");
-        scaleX = (typeof scaleX === 'undefined') ? 1 : scaleX;
-        scaleY = (typeof scaleY === 'undefined') ? 1 : scaleY;
+        scaleX = scaleX === undefined ? 1 : scaleX;
+        scaleY = scaleY === undefined ? 1 : scaleY;
         instanceID = instanceID || this._currentID;
         var locCmds = this._cacheToCanvasCmds[instanceID], i, len;
         ctx.computeRealOffsetY();
         for (i = 0, len = locCmds.length; i < len; i++) {
             locCmds[i].rendering(ctx, scaleX, scaleY);
         }
-        locCmds.length = 0;
-        var locIDs = this._cacheInstanceIds;
-        delete this._cacheToCanvasCmds[instanceID];
-        cc.js.array.remove(locIDs, instanceID);
+        this._removeCache(instanceID);
 
+        var locIDs = this._cacheInstanceIds;
         if (locIDs.length === 0)
             this._isCacheToCanvasOn = false;
         else
@@ -97,6 +223,18 @@ cc.rendererCanvas = {
         this._isCacheToCanvasOn = false;
     },
 
+    _removeCache: function (instanceID) {
+        instanceID = instanceID || this._currentID;
+        var cmds = this._cacheToCanvasCmds[instanceID];
+        if (cmds) {
+            cmds.length = 0;
+            delete this._cacheToCanvasCmds[instanceID];
+        }
+
+        var locIDs = this._cacheInstanceIds;
+        cc.js.array.remove(locIDs, instanceID);
+    },
+
     resetFlag: function () {
         this.childrenOrderDirty = false;
         this._transformNodePool.length = 0;
@@ -109,8 +247,7 @@ cc.rendererCanvas = {
 
         //transform node
         for (var i = 0, len = locPool.length; i < len; i++) {
-            if (locPool[i]._dirtyFlag !== 0)
-                locPool[i].updateStatus();
+            locPool[i].updateStatus();
         }
         locPool.length = 0;
     },
@@ -128,28 +265,17 @@ cc.rendererCanvas = {
     },
 
     clear: function () {
-        var viewport = cc._canvas;
-        var wrapper = cc._renderContext;
-        var ctx = wrapper.getContext();
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, viewport.width, viewport.height);
-        if (this._clearColor.r !== 0 ||
-            this._clearColor.g !== 0 || 
-            this._clearColor.b !== 0) {
-            wrapper.setFillStyle(this._clearFillStyle);
-            wrapper.setGlobalAlpha(this._clearColor.a);
-            ctx.fillRect(0, 0, viewport.width, viewport.height);
-        }
     },
 
     clearRenderCommands: function () {
         this._renderCmds.length = 0;
         this._cacheInstanceIds.length = 0;
         this._isCacheToCanvasOn = false;
+        this._allNeedDraw = true;
     },
 
     pushRenderCommand: function (cmd) {
-        if(!cmd._needDraw)
+        if(!cmd.rendering)
             return;
         if (this._isCacheToCanvasOn) {
             var currentId = this._currentID, locCmdBuffer = this._cacheToCanvasCmds;

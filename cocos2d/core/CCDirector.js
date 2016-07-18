@@ -268,6 +268,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             var renderer = cc.renderer;
             if (renderer.childrenOrderDirty) {
                 renderer.clearRenderCommands();
+                cc.renderer.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
                 this._runningScene.visit();
                 renderer.resetFlag();
@@ -728,11 +729,23 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             var uuid = info.uuid;
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            if (CC_JSB && cc.runtime) {
+            if (CC_JSB && cc.runtime && uuid !== this._launchSceneUuid) {
                 var self = this;
-                cc.LoaderLayer.preload([cc.path.basename(info.url) + '_' + info.uuid], function () {
-                    self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                var groupName = cc.path.basename(info.url) + '_' + info.uuid;
+                console.log('==> start preload: ' + groupName);
+                var ensureAsync = false;
+                cc.LoaderLayer.preload([groupName], function () {
+                    console.log('==> end preload: ' + groupName);
+                    if (ensureAsync) {
+                        self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                    }
+                    else {
+                        setTimeout(function () {
+                            self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                        }, 0);
+                    }
                 });
+                ensureAsync = true;
             }
             else {
                 this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
@@ -797,7 +810,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             if (error) {
                 error = 'Failed to load scene: ' + error;
                 cc.error(error);
-                if (CC_EDITOR) {
+                if (CC_DEV) {
                     console.assert(false, error);
                 }
             }
@@ -805,12 +818,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 if (sceneAsset instanceof cc.SceneAsset) {
                     scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
-                }
-                else {
-                    // hack for preview
-                    scene = sceneAsset;
-                }
-                if (scene instanceof cc.Scene) {
                     scene._name = sceneAsset._name;
                     self.runSceneImmediate(scene, onUnloaded, onLaunched);
                 }
@@ -1491,7 +1498,7 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @constant
  * @type {Number}
  */
-cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_3D;
+cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
 
 // clear dirtyFlags for EC
 function clearFlags (node) {

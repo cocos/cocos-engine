@@ -1647,6 +1647,7 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
      * @param {Number} dt delta time
      */
     update:function (dt) {
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         if (this._isActive && this.emissionRate) {
             var rate = 1.0 / this.emissionRate;
             //issue #1201, prevent bursts of particles, due to too high emitCounter
@@ -1790,10 +1791,12 @@ _ccsg.ParticleSystem = _ccsg.Node.extend({
                     if (this.particleCount === 0 && this.autoRemoveOnFinish) {
                         this.unscheduleUpdate();
                         this._parent.removeChild(this, true);
+                        this._renderCmd.updateLocalBB && this._renderCmd.updateLocalBB();
                         return;
                     }
                 }
             }
+            this._renderCmd.updateLocalBB && this._renderCmd.updateLocalBB();
             this._transformSystemDirty = false;
         }
 

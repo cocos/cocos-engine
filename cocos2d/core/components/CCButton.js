@@ -119,7 +119,7 @@ var Button = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Button',
         help: 'i18n:COMPONENT.help_url.button',
-        inspector: 'app://editor/page/inspector/button/button.html',
+        inspector: 'packages://inspector/inspectors/comps/button.js',
         executeInEditMode: true
     },
 
@@ -327,6 +327,20 @@ var Button = cc.Class({
     },
 
     onEnable: function () {
+        // check sprite frames
+        if (this.normalSprite) {
+            this.normalSprite.ensureLoadTexture();
+        }
+        if (this.hoverSprite) {
+            this.hoverSprite.ensureLoadTexture();
+        }
+        if (this.pressedSprite) {
+            this.pressedSprite.ensureLoadTexture();
+        }
+        if (this.disabledSprite) {
+            this.disabledSprite.ensureLoadTexture();
+        }
+        //
         if (!CC_EDITOR) {
             this._registerEvent();
         } else {

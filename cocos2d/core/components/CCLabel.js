@@ -156,7 +156,7 @@ var Label = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Label',
         help: 'i18n:COMPONENT.help_url.label',
-        inspector: 'app://editor/page/inspector/label.html',
+        inspector: 'packages://inspector/inspectors/comps/label.js',
     },
 
     _updateSgNodeString: function() {

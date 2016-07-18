@@ -25,6 +25,7 @@
 
 var CCObject = require('./CCObject');
 var PersistentMask = CCObject.Flags.PersistentMask;
+var Attr = require('./attribute');
 var _isDomNode = require('./utils').isDomNode;
 
 /**
@@ -128,11 +129,12 @@ var enumerateObject = function (obj, parent) {
     obj._iN$t = clone;
     objsToClearTmpVar.push(obj);
     if (cc.Class._isCCClass(klass)) {
+        var DELIMETER = Attr.DELIMETER;
         var props = klass.__props__;
+        var attrs = Attr.getClassAttrs(klass);
         for (var p = 0; p < props.length; p++) {
             key = props[p];
-            var attrs = cc.Class.attr(klass, key);
-            if (attrs.serializable !== false) {
+            if (attrs[key + DELIMETER + 'serializable'] !== false) {
                 value = obj[key];
                 type = typeof value;
                 if (type === 'object') {

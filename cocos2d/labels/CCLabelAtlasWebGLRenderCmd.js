@@ -31,6 +31,23 @@
     var proto = cc.LabelAtlas.WebGLRenderCmd.prototype = Object.create(cc.AtlasNode.WebGLRenderCmd.prototype);
     proto.constructor = cc.LabelAtlas.WebGLRenderCmd;
 
+    proto._updateColor = function () {
+        if (this._colorF32Array) {
+            var locDisplayedColor = this._displayedColor;
+            var a = this._displayedOpacity / 255, coef;
+            if (this._node._opacityModifyRGB) {
+               coef = a / 255;
+            }
+            else {
+               coef = 1 / 255;
+            }
+            this._colorF32Array[0] = locDisplayedColor.r * coef;
+            this._colorF32Array[1] = locDisplayedColor.g * coef;
+            this._colorF32Array[2] = locDisplayedColor.b * coef;
+            this._colorF32Array[3] = a;
+        }
+    };
+
     proto.setCascade = function(){
         var node = this._node;
         node._cascadeOpacityEnabled = true;
@@ -67,8 +84,6 @@
         if (n > locTextureAtlas.getCapacity())
             cc.log("cc.LabelAtlas._updateAtlasValues(): Invalid String length");
         var quads = locTextureAtlas.quads;
-        var locDisplayedColor = this._displayedColor;
-        var curColor = {r: locDisplayedColor.r, g: locDisplayedColor.g, b: locDisplayedColor.b, a: node._displayedOpacity};
         var locItemWidth = node._itemWidth;
         var locItemHeight = node._itemHeight;
         for (var i = 0, cr = -1; i < n; i++) {
@@ -117,11 +132,10 @@
             locQuadTR.vertices.x = cr * locItemWidth + locItemWidth;
             locQuadTR.vertices.y = node._itemHeight;
             locQuadTR.vertices.z = 0.0;
-            locQuadTL.colors = curColor;
-            locQuadTR.colors = curColor;
-            locQuadBL.colors = curColor;
-            locQuadBR.colors = curColor;
         }
+
+        this._updateColor();
+
         this.updateContentSize(i, cr+1);
         if (n > 0) {
             locTextureAtlas.dirty = true;

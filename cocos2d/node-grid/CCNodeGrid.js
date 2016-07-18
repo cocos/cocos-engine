@@ -82,46 +82,6 @@ cc.NodeGrid = _ccsg.Node.extend({
         this._target = target;
     },
 
-    _transformForWebGL: function () {
-        //optimize performance for javascript
-        var t4x4 = this._transform4x4, topMat4 = cc.current_stack.top;
-
-        // Convert 3x3 into 4x4 matrix
-        var trans = this.getNodeToParentTransform();
-        var t4x4Mat = t4x4.mat;
-        t4x4Mat[0] = trans.a;
-        t4x4Mat[4] = trans.c;
-        t4x4Mat[12] = trans.tx;
-        t4x4Mat[1] = trans.b;
-        t4x4Mat[5] = trans.d;
-        t4x4Mat[13] = trans.ty;
-
-        // Update Z vertex manually
-        //this._transform4x4.mat[14] = this._vertexZ;
-        t4x4Mat[14] = this._vertexZ;
-
-        //optimize performance for Javascript
-        topMat4.multiply(t4x4) ; // = cc.math.glMultMatrix(this._transform4x4);
-
-        // XXX: Expensive calls. Camera should be integrated into the cached affine matrix
-        if (this._camera !== null && !(this.grid && this.grid.isActive())) {
-            var app = this._renderCmd._anchorPointInPoints,
-                apx = app.x, apy = app.y,
-                translate = (apx !== 0.0 || apy !== 0.0);
-            if (translate) {
-                if(!cc.macro.SPRITEBATCHNODE_RENDER_SUBPIXEL) {
-                    apx = 0 | apx;
-                    apy = 0 | apy;
-                }
-                cc.kmGLTranslatef(apx, apy, 0);
-                this._camera.locate();
-                cc.kmGLTranslatef(-apx, -apy, 0);
-            } else {
-                this._camera.locate();
-            }
-        }
-    },
-
     _createRenderCmd: function(){
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL)
             return new cc.NodeGrid.WebGLRenderCmd(this);

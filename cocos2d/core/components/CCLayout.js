@@ -156,7 +156,7 @@ var Layout = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Layout',
         help: 'i18n:COMPONENT.help_url.layout',
-        inspector: 'app://editor/page/inspector/cclayout.html',
+        inspector: 'packages://inspector/inspectors/comps/cclayout.js',
         executeInEditMode: true,
     },
 

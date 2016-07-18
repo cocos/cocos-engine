@@ -637,7 +637,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         //running: {
-        //    get: 
+        //    get:
         //},
 
         /**
@@ -826,6 +826,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             var target = this.__eventTargets[i];
             target && target.targetOff(this);
         }
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
 
     _destruct: Misc.destructIgnoreId,
@@ -934,24 +935,24 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * !#en Sets the scale factor of the node. 1.0 is the default scale factor. This function can modify the X and Y scale at the same time.
      * !#zh 设置节点的缩放比例，默认值为 1.0。这个函数可以在同一时间修改 X 和 Y 缩放。
      * @method setScale
-     * @param {Number|Vec2} scale - scaleX or scale
+     * @param {Number|Vec2} scaleX - scaleX or scale
      * @param {Number} [scaleY=scale]
      * @example
      * node.setScale(cc.v2(1, 1));
      * node.setScale(1, 1);
      */
-    setScale: function (scale, scaleY) {
-        if (scale instanceof cc.Vec2) {
-            scaleY = scale.y;
-            scale = scale.x
+    setScale: function (scaleX, scaleY) {
+        if (typeof scaleX === 'object') {
+            scaleY = scaleX.y;
+            scaleX = scaleX.x
         }
         else {
-            scaleY = (scaleY || scaleY === 0) ? scaleY : scale;
+            scaleY = (scaleY || scaleY === 0) ? scaleY : scaleX;
         }
-        if (this._scaleX !== scale || this._scaleY !== scaleY) {
-            this._scaleX = scale;
+        if (this._scaleX !== scaleX || this._scaleY !== scaleY) {
+            this._scaleX = scaleX;
             this._scaleY = scaleY;
-            this._sgNode.setScale(scale, scaleY);
+            this._sgNode.setScale(scaleX, scaleY);
         }
     },
 
@@ -1484,7 +1485,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         return false;
     },
-    
+
     /**
      * !#en Returns the world affine transform matrix. The matrix is in Pixels.
      * !#zh 返回节点到世界坐标系的仿射变换矩阵。矩阵单位是像素。
@@ -1503,8 +1504,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var mat = this._sgNode.getNodeToWorldTransform();
 
         if (this._isSgTransformArToMe(contentSize)) {
-            // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case, 
-            // we should translate to bottem left to consistent with it 
+            // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case,
+            // we should translate to bottem left to consistent with it
             // see https://github.com/cocos-creator/engine/pull/391
             var tx = - this._anchorPoint.x * contentSize.width;
             var ty = - this._anchorPoint.y * contentSize.height;
@@ -1726,7 +1727,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         return mat;
     },
-    
+
     /**
      * !#en
      * Returns a "world" axis aligned bounding box of the node.<br/>
@@ -1752,7 +1753,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var width = size.width;
         var height = size.height;
         var rect = cc.rect(- this._anchorPoint.x * width, - this._anchorPoint.y * height, width, height);
-        
+
         var transAR = cc.affineTransformConcat(this.getNodeToParentTransformAR(), parentTransformAR);
         cc._rectApplyAffineTransformIn(rect, transAR);
 
@@ -1939,10 +1940,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     /**
-     * !#en Sorts the children array depends on children's zIndex and arrivalOrder, 
+     * !#en Sorts the children array depends on children's zIndex and arrivalOrder,
      * normally you won't need to invoke this function.
      * !#zh 根据子节点的 zIndex 和 arrivalOrder 进行排序，正常情况下开发者不需要手动调用这个函数。
-     * 
+     *
      * @method sortAllChildren
      */
     sortAllChildren: function () {
@@ -2003,14 +2004,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         sgNode.setCascadeOpacityEnabled(self._cascadeOpacityEnabled);
         sgNode.setTag(self._tag);
     },
-    
+
     _updateSgNode: function () {
         this._updateDummySgNode();
         var sgNode = this._sgNode;
         sgNode.setAnchorPoint(this._anchorPoint);
         sgNode.setVisible(this._active);
         sgNode.setColor(this._color);
-        
+
         // update ActionManager and EventManager because sgNode maybe changed
         if (this._activeInHierarchy) {
             cc.director.getActionManager().resumeTarget(this);
@@ -2109,18 +2110,6 @@ var DiffNameGetSets = {
 };
 Misc.propertyDefine(BaseNode, SameNameGetSets, DiffNameGetSets);
 
-
-/**
- * !#en The local position in its parent's coordinate system.<br>
- * PS: The returned value is a copy of current position, so modification of the copy will not take effect for the actual position of the node.
- * !#zh 节点相对父节点的坐标。<br>
- * 注意：返回值会是当前 position 的副本，所以对该副本所做的修改并不会影响节点的实际坐标。
- * @property position
- * @type {Vec2}
- * @example
- * node.position = new cc.Vec2(0, 0);  // OK!
- * node.position.addSelf(new cc.Vec2(1, 0));  // Invalid!
- */
 
 /**
  * !#en The local scale relative to the parent.

@@ -44,6 +44,7 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
      * <p>The _ccsg.TMXObjectGroup's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.TMXObjectGroup()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
+     * @method ctor
      */
     ctor:function (groupInfo, mapInfo) {
         _ccsg.Node.prototype.ctor.call(this);

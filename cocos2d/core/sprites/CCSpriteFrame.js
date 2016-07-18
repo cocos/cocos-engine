@@ -81,9 +81,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                         // just packing
                         return;
                     }
-
-                    var texture = cc.textureCache.addImage(url);
-                    this._refreshTexture(texture);
+                    this._loadTexture();
                 }
             }
         }
@@ -106,18 +104,18 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
-        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !cc.game._isCloning) {
-            cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) " +
-                "to create SpriteFrame instance since it's memory will be unable to manage. " +
-                "Instead please use cc.loader.loadRes to get SpriteFrame instance from loading, " +
-                "or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.")
-        }
-
         var filename = arguments[0];
         var rect = arguments[1];
         var rotated = arguments[2];
         var offset = arguments[3];
         var originalSize = arguments[4];
+
+        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !CC_TEST && !cc.game._isCloning) {
+            cc.warn('It\'s not recommended to use SpriteFrame constructor (new SpriteFrame) ' +
+                    'to create SpriteFrame instance since it\'s memory will be unable to manage. ' +
+                    'Instead please use cc.loader.loadRes to get SpriteFrame instance from loading, ' +
+                    'or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.')
+        }
 
         // the location of the sprite on rendering texture
         this._rect = null;
@@ -373,7 +371,7 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     /*
      * Initializes SpriteFrame with Texture, rect, rotated, offset and originalSize in pixels.<br/>
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
-     * @method initWithTexture
+     * @method setTexture
      * @param {String|Texture2D} texture
      * @param {Rect} [rect=null]
      * @param {Boolean} [rotated=false]
@@ -381,27 +379,25 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */
-    initWithTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
-        this.setTexture(textureOrTextureFile, rect, rotated, offset, originalSize);
-    },
-
     setTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
-
         if (rect) {
             this.setRect(rect);
-        } else {
+        }
+        else {
             this._rect = null;
         }
 
         if (offset) {
             this.setOffset(offset);
-        } else {
+        }
+        else {
             this._offset = null;
         }
 
         if (originalSize) {
             this.setOriginalSize(originalSize);
-        } else {
+        }
+        else {
             this._originalSize = null;
         }
 
@@ -411,15 +407,47 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         var texture = textureOrTextureFile;
         if (cc.js.isString(texture)) {
             this._textureFilename = texture;
-            texture = cc.textureCache.addImage(texture);
+            this._loadTexture();
         }
-        if (texture instanceof cc.Texture2D) {
+        else if (texture instanceof cc.Texture2D) {
             this._refreshTexture(texture);
-        } else {
+        }
+        else {
             //todo log error
         }
 
         return true;
+    },
+
+    _loadTexture: function () {
+        if (this._textureFilename) {
+            var texture = cc.textureCache.addImage(this._textureFilename);
+            this._refreshTexture(texture);
+        }
+    },
+
+    /**
+     * !#en If a loading scene is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
+     * associated by user's custom Components in the scene, will not preload automatically.
+     * These textures will be load when Sprite component is going to render the SpriteFrames.
+     * You can call this method if you want to load the texture early.
+     * !#zh 当加载中的场景被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
+     * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
+     *
+     * @method ensureLoadTexture
+     * @example
+     * if (spriteFrame.textureLoaded()) {
+     *     this._onSpriteFrameLoaded();
+     * }
+     * else {
+     *     spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+     *     spriteFrame.ensureLoadTexture();
+     * }
+     */
+    ensureLoadTexture: function () {
+        if (!this._texture) {
+            this._loadTexture();
+        }
     },
 
     _checkRect: function (texture) {
@@ -503,24 +531,15 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         // load texture via _textureFilenameSetter
         var textureUuid = data.texture;
         if (textureUuid) {
-            handle.result.push(this, '_textureFilenameSetter', textureUuid);
+            var dontLoadTexture = (handle.customEnv && handle.customEnv.deferredLoadRaw);
+            var receiver = dontLoadTexture ? '_textureFilename' : '_textureFilenameSetter';
+            handle.result.push(this, receiver, textureUuid);
         }
     }
 });
 
 var proto = cc.SpriteFrame.prototype;
 
-/*
- * Copy the sprite frame
- * @method copyWithZone
- * @return {SpriteFrame}
- */
 proto.copyWithZone = proto.clone;
-
-/*
- * Copy the sprite frame
- * @method copy
- * @returns {SpriteFrame}
- */
 proto.copy = proto.clone;
-
+proto.initWithTexture = proto.setTexture;

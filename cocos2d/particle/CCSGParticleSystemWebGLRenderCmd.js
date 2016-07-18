@@ -29,6 +29,9 @@ _ccsg.ParticleSystem.WebGLRenderCmd = function(renderable){
     _ccsg.Node.WebGLRenderCmd.call(this, renderable);
     this._needDraw = true;
 
+    this._matrix = new cc.math.Matrix4();
+    this._matrix.identity();
+
     this._buffersVBO = [0, 0];
     this._quads = [];
     this._indices = [];
@@ -185,16 +188,26 @@ proto.rendering = function (ctx) {
 
     var gl = ctx || cc._renderContext;
 
-    this._shaderProgram.use();
-    this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);     //;
+    var wt = this._worldTransform, mat = this._matrix.mat;
+    mat[0] = wt.a;
+    mat[4] = wt.c;
+    mat[12] = wt.tx;
+    mat[1] = wt.b;
+    mat[5] = wt.d;
+    mat[13] = wt.ty;
 
-    cc.gl.bindTexture2D(node._texture);
+    this._shaderProgram.use();
+    this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);     //;
+
+    cc.gl.bindTexture2DN(0, node._texture);
     cc.gl.blendFuncForParticle(node._blendFunc.src, node._blendFunc.dst);
 
     //
     // Using VBO without VAO
     //
-    cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+    gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+    gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+    gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
     gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, gl.FLOAT, false, 24, 0);               // vertices
@@ -358,7 +371,7 @@ proto._allocMemory = function(){
 proto.postStep = function(){
     var gl = cc._renderContext;
     gl.bindBuffer(gl.ARRAY_BUFFER, this._buffersVBO[0]);
-    gl.bufferData(gl.ARRAY_BUFFER, this._quadsArrayBuffer, gl.DYNAMIC_DRAW);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._quadsArrayBuffer);
 };
 
 proto._setBlendAdditive = function(){

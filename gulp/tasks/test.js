@@ -44,8 +44,9 @@ exports.build = function (sourceFile, outputFile, callback) {
         sourceFile = [sourceFile, jsEntryEditorExtends]
     }
 
-    var bundler = Utils.createBundler(sourceFile);
-    var engine = bundler.bundle()
+    Utils.createBundler(sourceFile)
+        .ignore('./bin/modular-cocos2d-cut.js')
+        .bundle()
         .on('error', HandleErrors.handler)
         .pipe(HandleErrors())
         .pipe(Source(Path.basename(outputFile)))

@@ -122,6 +122,9 @@ function WebGLRenderCmd (renderable) {
     this._indicesBuffer = null;
     this._indicesDirty = false;
 
+    this._matrix = new cc.math.Matrix4();
+    this._matrix.identity();
+
     this._paths = [];
     this._points = [];
 
@@ -133,7 +136,7 @@ function WebGLRenderCmd (renderable) {
     this._shader = new cc.GLProgram();
     this._shader.initWithVertexShaderByteArray(Shader.vert, Shader.frag);
     this._shader.retain();
-    this._shader.addAttribute(cc.ATTRIBUTE_NAME_POSITION, cc.VERTEX_ATTRIB_POSITION);
+    this._shader.addAttribute(cc.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
     this._shader.link();
     this._shader.updateUniforms();
 
@@ -393,8 +396,7 @@ Js.mixin(_p, {
             this._indicesDirty = false;
         }
 
-        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POSITION);
-
+        gl.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
         gl.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, gl.FLOAT, false, VERTS_BYTE_LENGTH, 0);
 
         var shader = this._shader;
@@ -418,12 +420,19 @@ Js.mixin(_p, {
     },
 
     rendering: function () {
-        var node = this._node;
         cc.gl.blendFunc(this._blendFunc.src, this._blendFunc.dst);
+
+        var wt = this._worldTransform, mat = this._matrix.mat;
+        mat[0] = wt.a;
+        mat[4] = wt.c;
+        mat[12] = wt.tx;
+        mat[1] = wt.b;
+        mat[5] = wt.d;
+        mat[13] = wt.ty;
 
         var shader = this._shader;
         shader.use();
-        shader._setUniformForMVPMatrixWithMat4(this._stackMatrix);
+        shader._setUniformForMVPMatrixWithMat4(this._matrix);
 
         this._render();
     },
@@ -525,7 +534,8 @@ Js.mixin(_p, {
                 // Calculate segment direction and length
                 var dPos = p1.sub(p0);
                 p0.len = dPos.mag();
-                dPos.normalizeSelf();
+                if (dPos.x || dPos.y)
+                    dPos.normalizeSelf();
                 p0.dx = dPos.x;
                 p0.dy = dPos.y;
                 // Advance
