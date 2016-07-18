@@ -111,6 +111,10 @@ var modules = {
         './cocos2d/core/videoplayer/CCSGVideoPlayer.js'
     ],
 
+    'WebView': [
+        './cocos2d/core/webview/CCSGWebView.js'
+    ],
+
     'MotionStreak': [
         './cocos2d/motion-streak/CCSGMotionStreak.js',
         './cocos2d/motion-streak/CCSGMotionStreakWebGLRenderCmd.js',
