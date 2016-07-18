@@ -172,19 +172,7 @@ void TMXLayer::setupTiles()
     {
         for (int x=0; x < _layerSize.width; x++)
         {
-            int newX = x;
-            // fix correct render ordering in Hexagonal maps when stagger axis == x
-            if (_staggerAxis == TMXStaggerAxis_X && _layerOrientation == TMXOrientationHex)
-            {
-                int one_or_zero = (_staggerIndex == TMXStaggerIndex_Odd) ? 1 : 0;
-                int zero_or_one = one_or_zero ^ 1;
-                if (x >= (int)_layerSize.width/2)
-                    newX = (x - (int)_layerSize.width/2) * 2 + one_or_zero;
-                else
-                    newX = x * 2 + zero_or_one;
-            }
-
-            int pos = static_cast<int>(newX + _layerSize.width * y);
+            int pos = static_cast<int>(x + _layerSize.width * y);
             int gid = _tiles[ pos ];
 
             // gid are stored in little endian.
@@ -196,7 +184,7 @@ void TMXLayer::setupTiles()
             // FIXME:: gid == 0 --> empty tile
             if (gid != 0) 
             {
-                this->appendTileForGID(gid, Vec2(newX, y));
+                this->appendTileForGID(gid, Vec2(x, y));
             }
         }
     }
