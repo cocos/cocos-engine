@@ -1223,6 +1223,8 @@ void Widget::copyProperties(Widget *widget)
     setFlippedY(widget->isFlippedY());
     setColor(widget->getColor());
     setOpacity(widget->getOpacity());
+    setCascadeColorEnabled(widget->isCascadeColorEnabled());
+    setCascadeOpacityEnabled(widget->isCascadeOpacityEnabled());
     _touchEventCallback = widget->_touchEventCallback;
     _touchEventListener = widget->_touchEventListener;
     _touchEventSelector = widget->_touchEventSelector;
