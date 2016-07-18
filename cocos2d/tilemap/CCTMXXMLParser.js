@@ -813,10 +813,8 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;
                 objectProp["height"] = parseFloat(selObj.getAttribute('height')) || 0;
 
-                objectProp["x"] = (((selObj.getAttribute('x') || 0) | 0) + objectGroup.offset.x) / getContentScaleFactor;
-                var y = (((selObj.getAttribute('y') || 0) | 0) + objectGroup.offset.y) / getContentScaleFactor;
-                // Correct y position. (Tiled uses Flipped, cocos2d uses Standard)
-                objectProp["y"] = (parseInt(this.getMapSize().height * this.getTileSize().height) - y - objectProp["height"]) / cc.director.getContentScaleFactor();
+                objectProp["x"] = (selObj.getAttribute('x') || 0) / getContentScaleFactor;
+                objectProp["y"] = (selObj.getAttribute('y') || 0) / getContentScaleFactor;
 
                 objectProp["rotation"] = parseInt(selObj.getAttribute('rotation')) || 0;
 

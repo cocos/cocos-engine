@@ -69,7 +69,7 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
         switch(mapOri) {
         case cc.TiledMap.Orientation.ORTHO:
             this.setAnchorPoint(cc.p(0, 0));
-            this.setPosition(objInfo.x, objInfo.y + objInfo.height);
+            this.setPosition(objInfo.x, mapInfo._mapSize.height * mapInfo._tileSize.height - objInfo.y);
             break;
         case cc.TiledMap.Orientation.ISO:
             this.setAnchorPoint(cc.p(0.5, 0));

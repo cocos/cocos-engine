@@ -56,9 +56,27 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
         this._positionOffset = groupInfo.offset;
         this._mapInfo = mapInfo;
         this.properties = groupInfo.getProperties();
+        this.setContentSize(mapInfo._tileSize.width * mapInfo._mapSize.width, mapInfo._tileSize.height * mapInfo._mapSize.height);
+        this._initPosWithMapInfo(groupInfo, mapInfo);
         this.setObjects(groupInfo._objects);
 
         this.setVisible(groupInfo.visible);
+    },
+
+    _initPosWithMapInfo: function (groupInfo, mapInfo) {
+        var mapOri = mapInfo.getOrientation();
+        switch(mapOri) {
+            case cc.TiledMap.Orientation.ORTHO:
+                this.setAnchorPoint(cc.p(0, 0));
+                this.setPosition(this._positionOffset.x, -this._positionOffset.y);
+                break;
+            case cc.TiledMap.Orientation.ISO:
+                break;
+            case cc.TiledMap.Orientation.HEX:
+                break;
+            default:
+                break;
+        }
     },
 
     /**

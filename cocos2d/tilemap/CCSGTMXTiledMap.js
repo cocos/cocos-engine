@@ -369,7 +369,7 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
         var locChildren = this._children;
         for (var i = 0; i < locChildren.length; i++) {
             var group = locChildren[i];
-            if (group && group instanceof _ccsg.TMXObjectGroup && group.groupName === layerName)
+            if (group && group instanceof _ccsg.TMXObjectGroup && group.groupName === groupName)
                 return group;
         }
         // objectGroup not found
