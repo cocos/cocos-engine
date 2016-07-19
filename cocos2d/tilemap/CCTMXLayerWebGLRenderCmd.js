@@ -36,7 +36,7 @@ _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
         {x:0, y:0}
     ];
     this._color = new Uint32Array(1);
-    this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
+    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
 
     var radian = Math.PI * 90 / 180;
     this._sin90 = Math.sin(radian);
@@ -64,9 +64,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         return 0;
     }
 
-    var scalex = cc.view._scaleX,
-        scaley = cc.view._scaleY,
-        maptw = node._mapTileSize.width,
+    var maptw = node._mapTileSize.width,
         mapth = node._mapTileSize.height,
         tilew = node.tileset._tileSize.width / cc.director._contentScaleFactor,
         tileh = node.tileset._tileSize.height / cc.director._contentScaleFactor,
@@ -80,12 +78,12 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         spTiles = node._spriteTiles,
         wt = this._worldTransform,
         a = wt.a, b = wt.b, c = wt.c, d = wt.d, tx = wt.tx, ty = wt.ty,
-        ox = -node._contentSize.width * node._anchorPoint.x,
-        oy = -node._contentSize.height * node._anchorPoint.y,
+        ox = node._position.x,
+        oy = node._position.y,
         mapx = ox * a + oy * c + tx,
         mapy = ox * b + oy * d + ty;
 
-    var opacity = this._displayedOpacity,
+    var opacity = node._opacity,
         cr = this._displayedColor.r,
         cg = this._displayedColor.g,
         cb = this._displayedColor.b;

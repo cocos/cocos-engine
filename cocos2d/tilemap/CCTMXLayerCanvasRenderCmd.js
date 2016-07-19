@@ -98,7 +98,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     var node = this._node, hasRotation = (node._rotationX || node._rotationY),
         layerOrientation = node.layerOrientation,
         tiles = node.tiles,
-        alpha = this._displayedOpacity / 255;
+        alpha = node._opacity / 255;
 
     if (!tiles || alpha <= 0) {
         return;
@@ -117,8 +117,8 @@ proto.rendering = function (ctx, scaleX, scaleY) {
         grids = node._texGrids,
         spTiles = node._spriteTiles,
         wt = this._worldTransform,
-        ox = -node._contentSize.width * node._anchorPoint.x,
-        oy = -node._contentSize.height * node._anchorPoint.y,
+        ox = node._position.x,
+        oy = node._position.y,
         a = wt.a, b = wt.b, c = wt.c, d = wt.d,
         mapx = ox * a + oy * c + wt.tx,
         mapy = ox * b + oy * d + wt.ty;
