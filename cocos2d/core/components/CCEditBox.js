@@ -417,6 +417,9 @@ var EditBox = cc.Class({
 
     _initSgNode: function() {
         var sgNode = this._sgNode;
+        if(!CC_JSB) {
+            sgNode.createDomElementIfNeeded();
+        }
 
         this._createBackgroundSprite();
 
@@ -439,7 +442,6 @@ var EditBox = cc.Class({
         sgNode.inputFlag = this.inputFlag;
         sgNode.returnType = this.returnType;
         sgNode.setLineHeight(this.lineHeight);
-
 
         sgNode.setDelegate(this);
     },

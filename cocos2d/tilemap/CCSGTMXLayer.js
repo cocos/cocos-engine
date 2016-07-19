@@ -412,7 +412,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             return tile;
         }
 
-        var z = 0 | (x + y * this._layerSize.width);
+        var z = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
         tile = this._spriteTiles[z];
         // tile not created yet. create it
         if (!tile) {
@@ -425,7 +425,6 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             tile.setVertexZ(vertexZ);
             tile.setAnchorPoint(0, 0);
             tile.setOpacity(this._opacity);
-
             this.addChild(tile, vertexZ, z);
         }
         return tile;
@@ -456,7 +455,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             return null;
         }
 
-        var idx = 0 | (x + y * this._layerSize.width);
+        var idx = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         var tile = this.tiles[idx];
 
@@ -485,6 +484,9 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             pos = posOrX;
             flags = flagsOrY;
         }
+
+        pos.x = Math.floor(pos.x);
+        pos.y = Math.floor(pos.y);
         if(pos.x >= this._layerSize.width || pos.y >= this._layerSize.height || pos.x < 0 || pos.y < 0) {
             throw new Error("_ccsg.TMXLayer.setTileGID(): invalid position");
         }
@@ -562,7 +564,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             return null;
         }
 
-        var idx = 0 | (pos.x + pos.y * this._layerSize.width);
+        var idx = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
         // Bits on the far end of the 32-bit global tile ID are used for tile flags
         var tile = this.tiles[idx];
 
@@ -593,7 +595,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
 
         var gid = this.getTileGIDAt(pos);
         if (gid !== 0) {
-            var z = 0 | (pos.x + pos.y * this._layerSize.width);
+            var z = Math.floor(pos.x) + Math.floor(pos.y) * this._layerSize.width;
             // remove tile from GID map
             this.tiles[z] = 0;
 
@@ -614,6 +616,8 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
     getPositionAt:function (pos, y) {
         if (y !== undefined)
             pos = cc.p(pos, y);
+        pos.x = Math.floor(pos.x);
+        pos.y = Math.floor(pos.y);
         var ret = cc.p(0,0);
         switch (this.layerOrientation) {
             case cc.TiledMap.Orientation.ORTHO:

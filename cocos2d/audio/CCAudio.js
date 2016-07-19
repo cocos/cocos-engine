@@ -273,7 +273,6 @@ JS.mixin(cc.Audio.prototype, {
          * @method playMusic
          * @param {String} url - The path of the music file without filename extension.
          * @param {Boolean} loop - Whether the music loop or not.
-         * @param {Boolean} immediate - Whether immediately play music.
          * @example
          * //example
          * cc.audioEngine.playMusic(path, false);

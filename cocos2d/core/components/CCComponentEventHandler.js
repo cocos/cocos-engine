@@ -97,14 +97,14 @@ cc.Component.EventHandler = cc.Class({
      * !#en Emit event with params
      * !#zh 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
      * @method emit
-     * @param {*} params
+     * @param {Array} params
      * @example
      * // Call Function
      * var eventHandler = new cc.Component.EventHandler();
      * eventHandler.target = newTarget;
      * eventHandler.component = "MainMenu";
      * eventHandler.handler = "OnClick"
-     * eventHandler.emit("This is the argument to the callback function!");
+     * eventHandler.emit(["param1", "param2", ....]);
      */
     emit: function(params) {
         var target = this.target;

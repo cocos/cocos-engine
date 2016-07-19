@@ -24,9 +24,7 @@
  ****************************************************************************/
 
 // Run jsb.js before all polyfills
-cc.initEngine({
-    debugMode: cc.game.DEBUG_MODE_INFO
-});
+cc.initEngine();
 
 if (!cc.ClassManager) {
     cc.ClassManager = window.ClassManager || {
@@ -56,3 +54,5 @@ require('../cocos2d/core/value-types');
 require('../cocos2d/core/utils/find');
 require('../cocos2d/core/event');
 require('../CCDebugger');
+
+cc._initDebugSetting(cc.game.DEBUG_MODE_INFO);

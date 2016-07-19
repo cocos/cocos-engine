@@ -29,29 +29,11 @@ var Misc = require('./misc');
 var DirtyFlags = Misc.DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
 
-// called after changing parent
-function updateZOrder (node) {
-    var sgNode = node._sgNode;
-    if (CC_JSB) {
-        // Reset zorder to update their arrival order in JSB
-        var zOrder = sgNode.getLocalZOrder();
-        sgNode.setLocalZOrder(zOrder + 1);
-        sgNode.setLocalZOrder(zOrder);
-    }
-    else {
-        var sgSiblings = sgNode.parent.getChildren();
-        if (sgSiblings.length >= 2) {
-            var prevNode = sgSiblings[sgSiblings.length - 2];
-            sgNode.arrivalOrder = prevNode.arrivalOrder + 1;
-        }
-        else {
-            sgNode.arrivalOrder = 0;
-        }
-        cc.renderer.childrenOrderDirty = true;
-        var parent = node._parent;
-        parent._sgNode._reorderChildDirty = true;
-        parent._reorderChildDirty = true;
-        parent._delaySort();
+function updateOrder (node) {
+    var parent = node._parent;
+    parent._reorderChildDirty = true;
+    parent._delaySort();
+    if (!CC_JSB) {
         cc.eventManager._setDirtyForNode(node);
     }
 }
@@ -107,7 +89,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _globalZOrder: 0,
         _tag: cc.macro.NODE_TAG_INVALID,
         _opacityModifyRGB: false,
-        _reorderChildDirty: false,
 
         // API
 
@@ -165,7 +146,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (value) {
                     var parent = value._sgNode;
                     parent.addChild(sgNode);
-                    updateZOrder(this);
+                    updateOrder(this);
                     value._children.push(this);
                     value.emit(CHILD_ADDED, this);
                 }
@@ -266,10 +247,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     this._localZOrder = value;
                     this._sgNode.zIndex = value;
 
-                    if (!CC_JSB && this._parent) {
-                        this._parent._reorderChildDirty = true;
-                        this._parent._delaySort();
-                        cc.eventManager._setDirtyForNode(this);
+                    if(this._parent) {
+                        updateOrder(this);
                     }
                 }
             }
@@ -789,8 +768,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             sgNode.cascadeOpacity = true;
         }
 
-        this._dirtyFlags = DirtyFlags.ALL;
-
         /**
          * Current active size provider for this node.
          * Size provider can equals to this._sgNode.
@@ -802,6 +779,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
+        this._reorderChildDirty = false;
 
         // Support for ActionManager and EventManager
         this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
@@ -1908,12 +1886,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 }
                 else {
                     sibling.arrivalOrder = i;
-                    cc.renderer.childrenOrderDirty = true;
-                    parent._sgNode._reorderChildDirty = true;
-                    parent._reorderChildDirty = true;
-                    parent._delaySort();
                     cc.eventManager._setDirtyForNode(siblings[i]);
                 }
+            }
+            if (!CC_JSB) {
+                cc.renderer.childrenOrderDirty = true;
+                parent._sgNode._reorderChildDirty = true;
+                parent._reorderChildDirty = true;
+                parent._delaySort();
             }
         }
     },

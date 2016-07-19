@@ -156,9 +156,11 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         alignToParent(node, widget);
-        widgetManager._nodesWithWidget.push(node);
-        if (!CC_EDITOR && widget.isAlignOnce) {
+        if ((!CC_EDITOR || _Scene.AnimUtils.curAnimState) && widget.isAlignOnce) {
             widget.enabled = false;
+        }
+        else {
+            widgetManager._nodesWithWidget.push(node);
         }
     }
     var children = node._children;
@@ -179,14 +181,31 @@ function refreshScene () {
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
         } else {
-            var nodes = widgetManager._nodesWithWidget;
-            for (var i = 0, len = nodes.length; i < len; i++) {
-                var node = nodes[i];
-                alignToParent(node, node._widget);
+            var i, node, nodes = widgetManager._nodesWithWidget, len = nodes.length;
+            if (CC_EDITOR && _Scene.AnimUtils.curAnimState) {
+                // always check isAlignOnce because animation mode maybe changed
+                for (i = len - 1; i >= 0; i--) {
+                    node = nodes[i];
+                    var widget = node._widget;
+                    if (widget.isAlignOnce) {
+                        // widget contains in _nodesWithWidget should aligned at least once
+                        widget.enabled = false;
+                    }
+                    else {
+                        alignToParent(node, widget);
+                    }
+                }
+            }
+            else {
+                for (i = 0; i < len; i++) {
+                    node = nodes[i];
+                    alignToParent(node, node._widget);
+                }
             }
         }
         widgetManager.isAligning = false;
     }
+
 }
 
 var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
