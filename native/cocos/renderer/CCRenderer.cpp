@@ -333,11 +333,12 @@ void Renderer::mapBuffers()
     // Avoid changing the element buffer for whatever VAO might be bound.
     GL::bindVAO(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, _buffersVBO[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(_verts[0]) * VBO_SIZE, _verts, GL_DYNAMIC_DRAW);
+    // fix performance issue on some Android devices
+    // glBindBuffer(GL_ARRAY_BUFFER, _buffersVBO[0]);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(_verts[0]) * VBO_SIZE, _verts, GL_DYNAMIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, _quadbuffersVBO[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(_quadVerts[0]) * VBO_SIZE, _quadVerts, GL_DYNAMIC_DRAW);
+    // glBindBuffer(GL_ARRAY_BUFFER, _quadbuffersVBO[0]);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(_quadVerts[0]) * VBO_SIZE, _quadVerts, GL_DYNAMIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

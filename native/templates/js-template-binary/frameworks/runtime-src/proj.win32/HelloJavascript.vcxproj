@@ -139,9 +139,7 @@ xcopy "$(COCOS_X_ROOT)\cocos\scripting\js-bindings\script" "$(LocalDebuggerWorki
 xcopy "$(ProjectDir)..\..\..\src" "$(LocalDebuggerWorkingDirectory)\src" /D /E /I /F /Y
 xcopy "$(ProjectDir)..\..\..\res" "$(LocalDebuggerWorkingDirectory)\res" /D /E /I /F /Y
 copy "$(ProjectDir)..\..\..\main.js" "$(LocalDebuggerWorkingDirectory)" /Y
-copy "$(ProjectDir)..\..\..\project.json" "$(LocalDebuggerWorkingDirectory)" /Y
-xcopy /Y /Q "$(OutDir)*.dll" "$(LocalDebuggerWorkingDirectory)"
-xcopy /Y /Q "$(ProjectDir)..\Classes\ide-support\lang" "$(LocalDebuggerWorkingDirectory)"</Command>
+copy "$(ProjectDir)..\..\..\project.json" "$(LocalDebuggerWorkingDirectory)" /Y</Command>
       <Outputs>$(TargetName).cab</Outputs>
       <Inputs>$(TargetFileName)</Inputs>
     </CustomBuildStep>
@@ -198,20 +196,13 @@ xcopy /Y /Q "$(COCOS_X_ROOT)\prebuilt\win32\*.*" "$(OutDir)"
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Classes\ide-support\RuntimeJsImpl.cpp" />
-    <ClCompile Include="..\Classes\ide-support\SimpleConfigParser.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="..\Classes\AppDelegate.cpp" />
-    <ClCompile Include="SimulatorWin.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Classes\ide-support\CodeIDESupport.h" />
-    <ClInclude Include="..\Classes\ide-support\RuntimeJsImpl.h" />
-    <ClInclude Include="..\Classes\ide-support\SimpleConfigParser.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="..\Classes\AppDelegate.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SimulatorWin.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc" />

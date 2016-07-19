@@ -975,14 +975,14 @@ bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_lineTo : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_creator_GraphicsNode_roundedRect(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_roundedRect : Invalid Native Object");
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_roundRect : Invalid Native Object");
     if (argc == 5) {
         double arg0 = 0;
         double arg1 = 0;
@@ -994,13 +994,13 @@ bool js_creator_GraphicsNode_roundedRect(JSContext *cx, uint32_t argc, jsval *vp
         ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
         ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
         ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
-        JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_roundedRect : Error processing arguments");
-        cobj->roundedRect(arg0, arg1, arg2, arg3, arg4);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_roundRect : Error processing arguments");
+        cobj->roundRect(arg0, arg1, arg2, arg3, arg4);
         args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_creator_GraphicsNode_roundedRect : wrong number of arguments: %d, was expecting %d", argc, 5);
+    JS_ReportError(cx, "js_creator_GraphicsNode_roundRect : wrong number of arguments: %d, was expecting %d", argc, 5);
     return false;
 }
 bool js_creator_GraphicsNode_stroke(JSContext *cx, uint32_t argc, jsval *vp)
@@ -1664,7 +1664,7 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         JS_FN("quadraticCurveTo", js_creator_GraphicsNode_quadraticCurveTo, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("moveTo", js_creator_GraphicsNode_moveTo, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("lineTo", js_creator_GraphicsNode_lineTo, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("roundedRect", js_creator_GraphicsNode_roundedRect, 5, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("roundRect", js_creator_GraphicsNode_roundRect, 5, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("stroke", js_creator_GraphicsNode_stroke, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("arc", js_creator_GraphicsNode_arc, 6, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setLineJoin", js_creator_GraphicsNode_setLineJoin, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),

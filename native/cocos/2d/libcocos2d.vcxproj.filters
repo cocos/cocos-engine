@@ -301,7 +301,13 @@
     <ClCompile Include="CCTileMapAtlas.cpp">
       <Filter>2d</Filter>
     </ClCompile>
+    <ClCompile Include="CCTMXLayer.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
     <ClCompile Include="CCTMXObjectGroup.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
+    <ClCompile Include="CCTMXTiledMap.cpp">
       <Filter>2d</Filter>
     </ClCompile>
     <ClCompile Include="CCTMXXMLParser.cpp">
@@ -1001,6 +1007,12 @@
     <ClCompile Include="..\..\extensions\assets-manager\Manifest.cpp">
       <Filter>extension\AssetManager</Filter>
     </ClCompile>
+    <ClCompile Include="..\editor-support\creator\CCGraphicsNode.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\editor-support\creator\Triangulate.cpp">
+      <Filter>creator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos2d.h" />
@@ -1163,7 +1175,13 @@
     <ClInclude Include="CCTileMapAtlas.h">
       <Filter>2d</Filter>
     </ClInclude>
+    <ClInclude Include="CCTMXLayer.h">
+      <Filter>2d</Filter>
+    </ClInclude>
     <ClInclude Include="CCTMXObjectGroup.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="CCTMXTiledMap.h">
       <Filter>2d</Filter>
     </ClInclude>
     <ClInclude Include="CCTMXXMLParser.h">
@@ -1980,6 +1998,12 @@
     <ClInclude Include="..\..\extensions\assets-manager\Manifest.h">
       <Filter>extension\AssetManager</Filter>
     </ClInclude>
+    <ClInclude Include="..\editor-support\creator\CCGraphicsNode.h">
+      <Filter>creator</Filter>
+    </ClInclude>
+    <ClInclude Include="..\editor-support\creator\Triangulate.h">
+      <Filter>creator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\math\Mat4.inl">
@@ -2004,5 +2028,11 @@
       <Filter>math</Filter>
     </None>
     <None Include="cocos2d.def" />
+    <None Include="..\editor-support\creator\CCGraphicsNode.frag">
+      <Filter>creator</Filter>
+    </None>
+    <None Include="..\editor-support\creator\CCGraphicsNode.vert">
+      <Filter>creator</Filter>
+    </None>
   </ItemGroup>
 </Project>

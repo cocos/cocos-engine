@@ -54,7 +54,7 @@ void register_all_creator(JSContext* cx, JS::HandleObject obj);
 bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_creator_GraphicsNode_roundedRect(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_GraphicsNode_stroke(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_creator_GraphicsNode_setLineJoin(JSContext *cx, uint32_t argc, jsval *vp);

@@ -296,7 +296,9 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\editor-support\cocostudio\CocoStudio.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\DictionaryHelper.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\WidgetCallBackHandlerProtocol.cpp" />
+    <ClCompile Include="..\editor-support\creator\CCGraphicsNode.cpp" />
     <ClCompile Include="..\editor-support\creator\CCScale9Sprite.cpp" />
+    <ClCompile Include="..\editor-support\creator\Triangulate.cpp" />
     <ClCompile Include="..\math\CCAffineTransform.cpp" />
     <ClCompile Include="..\math\CCGeometry.cpp" />
     <ClCompile Include="..\math\CCVertex.cpp" />
@@ -434,7 +436,9 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="CCSpriteFrameCache.cpp" />
     <ClCompile Include="CCTextFieldTTF.cpp" />
     <ClCompile Include="CCTileMapAtlas.cpp" />
+    <ClCompile Include="CCTMXLayer.cpp" />
     <ClCompile Include="CCTMXObjectGroup.cpp" />
+    <ClCompile Include="CCTMXTiledMap.cpp" />
     <ClCompile Include="CCTMXXMLParser.cpp" />
     <ClCompile Include="CCTransition.cpp" />
     <ClCompile Include="CCTransitionPageTurn.cpp" />
@@ -611,7 +615,9 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\editor-support\cocostudio\CSParse3DBinary_generated.h" />
     <ClInclude Include="..\editor-support\cocostudio\DictionaryHelper.h" />
     <ClInclude Include="..\editor-support\cocostudio\WidgetCallBackHandlerProtocol.h" />
+    <ClInclude Include="..\editor-support\creator\CCGraphicsNode.h" />
     <ClInclude Include="..\editor-support\creator\CCScale9Sprite.h" />
+    <ClInclude Include="..\editor-support\creator\Triangulate.h" />
     <ClInclude Include="..\math\CCAffineTransform.h" />
     <ClInclude Include="..\math\CCGeometry.h" />
     <ClInclude Include="..\math\CCMath.h" />
@@ -762,7 +768,9 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="CCSpriteFrameCache.h" />
     <ClInclude Include="CCTextFieldTTF.h" />
     <ClInclude Include="CCTileMapAtlas.h" />
+    <ClInclude Include="CCTMXLayer.h" />
     <ClInclude Include="CCTMXObjectGroup.h" />
+    <ClInclude Include="CCTMXTiledMap.h" />
     <ClInclude Include="CCTMXXMLParser.h" />
     <ClInclude Include="CCTransition.h" />
     <ClInclude Include="CCTransitionPageTurn.h" />
@@ -770,6 +778,8 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="CCTweenFunction.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\editor-support\creator\CCGraphicsNode.frag" />
+    <None Include="..\editor-support\creator\CCGraphicsNode.vert" />
     <None Include="..\math\Mat4.inl" />
     <None Include="..\math\MathUtil.inl" />
     <None Include="..\math\MathUtilNeon.inl" />

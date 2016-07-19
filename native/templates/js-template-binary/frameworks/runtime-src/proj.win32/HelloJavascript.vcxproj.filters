@@ -11,9 +11,6 @@
     <Filter Include="Classes">
       <UniqueIdentifier>{e93a77e1-af1e-4400-87d3-504b62ebdbb0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Classes\ide-support">
-      <UniqueIdentifier>{5bec5a39-9bec-42e8-a3e4-823d4eacec56}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,15 +18,6 @@
     </ClCompile>
     <ClCompile Include="..\Classes\AppDelegate.cpp">
       <Filter>Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\ide-support\RuntimeJsImpl.cpp">
-      <Filter>Classes\ide-support</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Classes\ide-support\SimpleConfigParser.cpp">
-      <Filter>Classes\ide-support</Filter>
-    </ClCompile>
-    <ClCompile Include="SimulatorWin.cpp">
-      <Filter>win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -40,18 +28,6 @@
       <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="..\Classes\ide-support\CodeIDESupport.h">
-      <Filter>Classes\ide-support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\ide-support\RuntimeJsImpl.h">
-      <Filter>Classes\ide-support</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Classes\ide-support\SimpleConfigParser.h">
-      <Filter>Classes\ide-support</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulatorWin.h">
-      <Filter>win32</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="game.rc">

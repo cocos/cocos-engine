@@ -128,6 +128,7 @@ public class Cocos2dxEditBoxHelper {
 
                 Cocos2dxActivity.ROOT_LAYOUT.addView(editBox, lParams);
 
+                editBox.setTag(false);
                 editBox.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -135,20 +136,20 @@ public class Cocos2dxEditBoxHelper {
 
                     @Override
                     public void onTextChanged(final CharSequence s, int start, int before, int count) {
-                        //The optimization can't be turn on due to unknown keyboard hide in some custom keyboard
-//                        Cocos2dxActivity.ROOT_LAYOUT.setEnableForceDoLayout(false);
 
-                        Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Cocos2dxEditBoxHelper.__editBoxEditingChanged(index, s.toString());
-                            }
-                        });
                     }
 
+                    //http://stackoverflow.com/questions/21713246/addtextchangedlistener-and-ontextchanged-are-always-called-when-android-fragment
                     @Override
-                    public void afterTextChanged(Editable s) {
-
+                    public void afterTextChanged(final Editable s) {
+                        if(!s.toString().equals("") && (Boolean)editBox.getTag()) {
+                            Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Cocos2dxEditBoxHelper.__editBoxEditingChanged(index, s.toString());
+                                }
+                            });
+                        }
                     }
 
                 });
@@ -158,6 +159,7 @@ public class Cocos2dxEditBoxHelper {
 
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
+                        editBox.setTag(true);
                         if (hasFocus) {
                             Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new Runnable() {
                                 @Override
