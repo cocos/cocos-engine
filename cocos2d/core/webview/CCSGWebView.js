@@ -19,7 +19,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-_ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
+_ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
 
     ctor: function (path) {
         _ccsg.Node.prototype.ctor.call(this);

@@ -24,9 +24,9 @@
 
 
 /**
- * !#en cc.VideoPlayer is a component for playing videos, you can use it for showing videos in your game.
- * !#zh Video 组件，用于在游戏中播放视频
- * @class VideoPlayer
+ * !#en cc.WebView is a component for display web pages in the game
+ * !#zh WebView 组件，用于在游戏中显示网页
+ * @class WebView
  * @extends _RendererUnderSG
  */
 var WebView = cc.Class({
