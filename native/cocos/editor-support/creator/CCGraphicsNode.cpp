@@ -84,7 +84,7 @@ GraphicsNode::GraphicsNode()
 {
     _miterLimit = 10.0f;
     
-    setDeviceRatio(2);
+    setDeviceRatio(1);
 
     _strokeColor = Color4F::BLACK;
     _fillColor = Color4F::WHITE;
@@ -641,8 +641,10 @@ void GraphicsNode::expandStroke(float w, int lineCap, int lineJoin, float miterL
                 vset(p1->x + (p1->dmx * w), p1->y + (p1->dmy * w), 0,1);
                 vset(p1->x - (p1->dmx * w), p1->y - (p1->dmy * w), 1,1);
             }
-            p0 = p1;
-            p1 = pts[j+1];
+			if (!loop || (loop && j < (e - 1))) {
+				p0 = p1;
+				p1 = pts[j + 1];
+			}
         }
 
         if (loop) {
@@ -742,8 +744,11 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                 } else {
                     vset(p1->x + (p1->dmx * woff), p1->y + (p1->dmy * woff), 0.5f,1);
                 }
-                p0 = p1;
-                p1 = pts[j+1];
+                
+				if (j < (pathSize - 1)) {
+					p0 = p1;
+					p1 = pts[j + 1];
+				}
             }
         } else {
             for (j = 0; j < pathSize; ++j) {
@@ -809,8 +814,11 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                     vset(p1->x + (p1->dmx * lw), p1->y + (p1->dmy * lw), lu,1);
                     vset(p1->x - (p1->dmx * rw), p1->y - (p1->dmy * rw), ru,1);
                 }
-                p0 = p1;
-                p1 = pts[j+1];
+
+				if (j < (pathSize - 1)) {
+					p0 = p1;
+					p1 = pts[j + 1];
+				}
             }
             
             // Loop it
@@ -854,15 +862,17 @@ void GraphicsNode::flattenPaths()
             p0 = pts.back();
         }
 
-        for(int j = 0, size = pts.size(); j < size; j++) {
+        for (int j = 0, size = pts.size(); j < size; j++) {
             // Calculate segment direction and length
             p0->dx = p1->x - p0->x;
             p0->dy = p1->y - p0->y;
             p0->len = normalize(&p0->dx, &p0->dy);
 
             // Advance
-            p0 = p1;
-            p1 = pts[j+1];
+			if (j < (size - 1)) {
+				p0 = p1;
+				p1 = pts[j + 1];
+			}
         }
     }
 }
@@ -870,14 +880,14 @@ void GraphicsNode::flattenPaths()
 
 void GraphicsNode::calculateJoins(float w, int lineJoin, float miterLimit)
 {
-    int i, j, il, jl;
+    int i, j, ii, jj;
     float iw = 0.0f;
 
     if (w > 0.0f)
         iw = 1.0f / w;
 
     // Calculate which joins needs extra vertices to append, and gather vertex count.
-    for (i = _pathOffset, il = _nPath; i < il; i++) {
+    for (i = _pathOffset, ii = _nPath; i < ii; i++) {
         Path* path = _paths[i];
 
         VecPointVector& pts = path->points;
@@ -887,7 +897,7 @@ void GraphicsNode::calculateJoins(float w, int lineJoin, float miterLimit)
 
         path->nbevel = 0;
 
-        for (j = 0, jl = pts.size(); j < jl; j++) {
+        for (j = 0, jj = pts.size(); j < jj; j++) {
             float dlx0, dly0, dlx1, dly1, dmr2, cross, limit;
             dlx0 = p0->dy;
             dly0 = -p0->dx;
@@ -931,8 +941,10 @@ void GraphicsNode::calculateJoins(float w, int lineJoin, float miterLimit)
             if ((p1->flags & (PT_BEVEL | PT_INNERBEVEL)) != 0)
                 path->nbevel++;
 
-            p0 = p1;
-            p1 = pts[j+1];
+			if (j < (jj - 1)) {
+				p0 = p1;
+				p1 = pts[j + 1];
+			}
         }
 
         path->convex = nleft == pts.size();
