@@ -115,7 +115,7 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         var tex = this._textures[texId];
         if (!tex.isLoaded()) {
             tex.once('load', function () {
-                this._fillTextureGrids(tileset, tex);
+                this._fillTextureGrids(tileset, texId);
             }, this);
             return;
         }

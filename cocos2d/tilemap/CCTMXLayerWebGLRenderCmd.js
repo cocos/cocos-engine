@@ -64,9 +64,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         return 0;
     }
 
-    var scalex = cc.view._scaleX,
-        scaley = cc.view._scaleY,
-        maptw = node._mapTileSize.width,
+    var maptw = node._mapTileSize.width,
         mapth = node._mapTileSize.height,
         tilew = node.tileset._tileSize.width / cc.director._contentScaleFactor,
         tileh = node.tileset._tileSize.height / cc.director._contentScaleFactor,
@@ -85,7 +83,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         mapx = ox * a + oy * c + tx,
         mapy = ox * b + oy * d + ty;
 
-    var opacity = this._displayedOpacity,
+    var opacity = node._opacity,
         cr = this._displayedColor.r,
         cg = this._displayedColor.g,
         cb = this._displayedColor.b;

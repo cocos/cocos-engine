@@ -98,7 +98,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     var node = this._node, hasRotation = (node._rotationX || node._rotationY),
         layerOrientation = node.layerOrientation,
         tiles = node.tiles,
-        alpha = this._displayedOpacity / 255;
+        alpha = node._opacity / 255;
 
     if (!tiles || alpha <= 0) {
         return;
