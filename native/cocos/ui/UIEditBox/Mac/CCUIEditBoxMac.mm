@@ -171,6 +171,10 @@
 - (void)controlTextDidEndEditing:(NSNotification *)notification
 {
     _editState = NO;
+    if ( [[[notification userInfo] objectForKey:@"NSTextMovement"] intValue] == NSReturnTextMovement )
+    {
+        getEditBoxImplMac()->editBoxEditingReturn();
+    }
     
     getEditBoxImplMac()->editBoxEditingDidEnd([self getText]);
 }
@@ -322,6 +326,10 @@
     if (maxLength < 0)
     {
         return YES;
+    }
+    
+    if ([replacementString isEqualToString:[NSString stringWithUTF8String:"\n"]]) {
+        getEditBoxImplMac()->editBoxEditingReturn();
     }
     
     if (affectedCharRange.length + affectedCharRange.location > textView.string.length) {

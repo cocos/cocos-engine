@@ -78,7 +78,7 @@ namespace ui {
          * This method is called when the return button was pressed or the outside area of keyboard was touched.
          * @param editBox The edit box object that generated the event.
          */
-        virtual void editBoxReturn(EditBox* editBox) = 0;
+        virtual void editBoxEditingReturn(EditBox* editBox) = 0;
 
     };
 

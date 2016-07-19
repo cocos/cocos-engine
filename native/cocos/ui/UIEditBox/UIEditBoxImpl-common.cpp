@@ -338,7 +338,6 @@ void EditBoxImplCommon::editBoxEditingDidEnd(const std::string& text)
     if (pDelegate != nullptr)
     {
         pDelegate->editBoxEditingDidEnd(_editBox);
-        pDelegate->editBoxReturn(_editBox);
     }
 
 #if CC_ENABLE_SCRIPT_BINDING
@@ -378,6 +377,15 @@ void EditBoxImplCommon::editBoxEditingChanged(const std::string& text)
         cocos2d::ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
     }
 #endif
+}
+    
+void  EditBoxImplCommon::editBoxEditingReturn()
+{
+    cocos2d::ui::EditBoxDelegate *pDelegate = _editBox->getDelegate();
+    if (pDelegate != nullptr)
+    {
+        pDelegate->editBoxEditingReturn(_editBox);
+    }
 }
 
 
