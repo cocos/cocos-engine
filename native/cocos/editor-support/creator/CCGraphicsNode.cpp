@@ -44,7 +44,7 @@
 
 #define VECTOR_INIT_VERTS_SIZE 256
 
-#define VECTOR_KAPPA90 0.5522847493f	// Length proportional to radius of a cubic bezier handle for 90deg arcs.
+#define VECTOR_KAPPA90 0.5522847493f    // Length proportional to radius of a cubic bezier handle for 90deg arcs.
 
 #define EPSILON 0.0000000001f
 
@@ -89,7 +89,7 @@ GraphicsNode::GraphicsNode()
     _strokeColor = Color4F::BLACK;
     _fillColor = Color4F::WHITE;
 
-	_verts = (VecVertex*)malloc(sizeof(VecVertex) * _nVerts);
+    _verts = (VecVertex*)malloc(sizeof(VecVertex) * _nVerts);
     _indices = (GLushort*)malloc(sizeof(GLushort) * _nIndices);
 
     auto glprogram = GLProgram::createWithByteArrays(ccGraphicsVert, ccGraphicsFrag);
@@ -180,7 +180,7 @@ void GraphicsNode::arcTo(float x1, float y1, float x2, float y2, float radius)
     a = acosf(dx0*dx1 + dy0*dy1);
     d = radius / tanf(a/2.0f);
 
-    //	printf("a=%f° d=%f\n", a/NVG_PI*180.0f, d);
+    //    printf("a=%f° d=%f\n", a/NVG_PI*180.0f, d);
 
     if (d > 10000.0f) {
         lineTo(x1,y1);
@@ -641,10 +641,10 @@ void GraphicsNode::expandStroke(float w, int lineCap, int lineJoin, float miterL
                 vset(p1->x + (p1->dmx * w), p1->y + (p1->dmy * w), 0,1);
                 vset(p1->x - (p1->dmx * w), p1->y - (p1->dmy * w), 1,1);
             }
-			if (!loop || (loop && j < (e - 1))) {
-				p0 = p1;
-				p1 = pts[j + 1];
-			}
+            if (!loop || (loop && j < (e - 1))) {
+                p0 = p1;
+                p1 = pts[j + 1];
+            }
         }
 
         if (loop) {
@@ -745,10 +745,10 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                     vset(p1->x + (p1->dmx * woff), p1->y + (p1->dmy * woff), 0.5f,1);
                 }
                 
-				if (j < (pathSize - 1)) {
-					p0 = p1;
-					p1 = pts[j + 1];
-				}
+                if (j < (pathSize - 1)) {
+                    p0 = p1;
+                    p1 = pts[j + 1];
+                }
             }
         } else {
             for (j = 0; j < pathSize; ++j) {
@@ -799,8 +799,8 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
             // Create only half a fringe for convex shapes so that
             // the shape can be rendered without stenciling.
             if (convex) {
-                lw = woff;	// This should generate the same vertex as fill inset above.
-                lu = 0.5f;	// Set outline fade at middle.
+                lw = woff;    // This should generate the same vertex as fill inset above.
+                lu = 0.5f;    // Set outline fade at middle.
             }
             
             // Looping
@@ -815,10 +815,10 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
                     vset(p1->x - (p1->dmx * rw), p1->y - (p1->dmy * rw), ru,1);
                 }
 
-				if (j < (pathSize - 1)) {
-					p0 = p1;
-					p1 = pts[j + 1];
-				}
+                if (j < (pathSize - 1)) {
+                    p0 = p1;
+                    p1 = pts[j + 1];
+                }
             }
             
             // Loop it
@@ -869,10 +869,10 @@ void GraphicsNode::flattenPaths()
             p0->len = normalize(&p0->dx, &p0->dy);
 
             // Advance
-			if (j < (size - 1)) {
-				p0 = p1;
-				p1 = pts[j + 1];
-			}
+            if (j < (size - 1)) {
+                p0 = p1;
+                p1 = pts[j + 1];
+            }
         }
     }
 }
@@ -941,10 +941,10 @@ void GraphicsNode::calculateJoins(float w, int lineJoin, float miterLimit)
             if ((p1->flags & (PT_BEVEL | PT_INNERBEVEL)) != 0)
                 path->nbevel++;
 
-			if (j < (jj - 1)) {
-				p0 = p1;
-				p1 = pts[j + 1];
-			}
+            if (j < (jj - 1)) {
+                p0 = p1;
+                p1 = pts[j + 1];
+            }
         }
 
         path->convex = nleft == pts.size();
