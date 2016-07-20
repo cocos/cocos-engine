@@ -73,12 +73,22 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
             break;
         case cc.TiledMap.Orientation.ISO:
             this.setAnchorPoint(cc.p(0.5, 0));
-            let posIdx = cc.p(objInfo.x / mapInfo._tileSize.width * 2, objInfo.y / mapInfo._tileSize.height);
-            let pos = cc.p(mapInfo._tileSize.width / 2 * ( mapInfo._mapSize.width + posIdx.x - posIdx.y),
+            var posIdx = cc.p(objInfo.x / mapInfo._tileSize.width * 2, objInfo.y / mapInfo._tileSize.height);
+            var pos = cc.p(mapInfo._tileSize.width / 2 * ( mapInfo._mapSize.width + posIdx.x - posIdx.y),
                            mapInfo._tileSize.height / 2 * ( mapInfo._mapSize.height * 2 - posIdx.x - posIdx.y));
             this.setPosition(pos);
             break;
         case cc.TiledMap.Orientation.HEX:
+            this.setAnchorPoint(cc.p(0, 0));
+            var x = objInfo.x;
+            var y = 0;
+            if (mapInfo.getStaggerAxis() === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
+                y = mapInfo._tileSize.height * (mapInfo._mapSize.height + 0.5) - objInfo.y;
+            }
+            else if (mapInfo.getStaggerAxis() === cc.TiledMap.StaggerAxis.STAGGERAXIS_Y) {
+                y = (mapInfo._tileSize.height + mapInfo.getHexSideLength()) * Math.floor(mapInfo._mapSize.height / 2) + mapInfo._tileSize.height * (mapInfo._mapSize.height % 2) - objInfo.y;
+            }
+            this.setPosition(cc.p(x, y));
             break;
         default:
             break;
