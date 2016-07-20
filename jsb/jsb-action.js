@@ -332,7 +332,8 @@ var actionUpdate = {
     'FadeOut': syncOpacityUpdate,
     'FadeTo': syncOpacityUpdate,
     'TintTo': syncColorUpdate,
-    'TintBy': syncColorUpdate
+    'TintBy': syncColorUpdate,
+    'BezierBy': syncPositionUpdate
 };
 
 for (var key in actionUpdate) {
