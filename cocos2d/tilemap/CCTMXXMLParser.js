@@ -182,6 +182,9 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
     //Margin
     margin:0,
 
+    // tile offset
+    tileOffset: null,
+
     //Filename containing the tiles (should be sprite sheet / texture atlas)
     sourceImage:"",
 
@@ -190,6 +193,7 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
 
     ctor:function () {
         this._tileSize = cc.size(0, 0);
+        this.tileOffset = cc.p(0, 0);
         this.imageSize = cc.size(0, 0);
     },
 
@@ -273,6 +277,11 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     _resources:"",
     _currentFirstGID:0,
 
+    // hex map values
+    _staggerAxis: null,
+    _staggerIndex: null,
+    _hexSideLength: 0,
+
     /**
      * Creates a TMX Format with a tmx file or content string                           <br/>
      * Constructor of cc.TMXMapInfo
@@ -312,6 +321,54 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      */
     setOrientation:function (value) {
         this.orientation = value;
+    },
+
+    /**
+     * Gets the staggerAxis of map.
+     * @return {cc.TiledMap.StaggerAxis}
+     */
+    getStaggerAxis:function () {
+        return this._staggerAxis;
+    },
+
+    /**
+     * Set the staggerAxis of map.
+     * @param {cc.TiledMap.StaggerAxis} value
+     */
+    setStaggerAxis:function (value) {
+        this._staggerAxis = value;
+    },
+
+    /**
+     * Gets stagger index
+     * @return {cc.TiledMap.StaggerIndex}
+     */
+    getStaggerIndex:function () {
+        return this._staggerIndex;
+    },
+
+    /**
+     * Set the stagger index.
+     * @param {cc.TiledMap.StaggerIndex} value
+     */
+    setStaggerIndex:function (value) {
+        this._staggerIndex = value;
+    },
+
+    /**
+     * Gets Hex side length.
+     * @return {Number}
+     */
+    getHexSideLength:function () {
+        return this._hexSideLength;
+    },
+
+    /**
+     * Set the Hex side length.
+     * @param {Number} value
+     */
+    setHexSideLength:function (value) {
+        this._hexSideLength = value;
     },
 
     /**
@@ -547,6 +604,9 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
         var version = map.getAttribute('version');
         var orientationStr = map.getAttribute('orientation');
+        var staggerAxisStr = map.getAttribute('staggeraxis');
+        var staggerIndexStr = map.getAttribute('staggerindex');
+        var hexSideLengthStr = map.getAttribute('hexsidelength');
 
         if (map.nodeName === "map") {
             if (version !== "1.0" && version !== null)
@@ -560,6 +620,24 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 this.orientation = cc.TiledMap.Orientation.HEX;
             else if (orientationStr !== null)
                 cc.log("cocos2d: TMXFomat: Unsupported orientation:" + orientationStr);
+
+            if (staggerAxisStr === 'x') {
+                this.setStaggerAxis(cc.TiledMap.StaggerAxis.STAGGERAXIS_X);
+            }
+            else if (staggerAxisStr === 'y') {
+                this.setStaggerAxis(cc.TiledMap.StaggerAxis.STAGGERAXIS_Y);
+            }
+
+            if (staggerIndexStr === 'odd') {
+                this.setStaggerIndex(cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD);
+            }
+            else if (staggerIndexStr === 'even') {
+                this.setStaggerIndex(cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN);
+            }
+
+            if (hexSideLengthStr) {
+                this.setHexSideLength(parseFloat(hexSideLengthStr));
+            }
 
             var mapSize = cc.size(0, 0);
             mapSize.width = parseFloat(map.getAttribute('width'));
@@ -628,6 +706,14 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                     tileset.sourceImage = this._resources + (this._resources ? "/" : "") + imagename;
                 }
                 this.setTilesets(tileset);
+
+                // parse tile offset
+                var offset = selTileset.getElementsByTagName('tileoffset')[0];
+                if (offset) {
+                    var offsetX = parseFloat(offset.getAttribute('x'));
+                    var offsetY = parseFloat(offset.getAttribute('y'));
+                    tileset.tileOffset = cc.p(offsetX, offsetY);
+                }
 
                 // PARSE  <tile>
                 var tiles = selTileset.getElementsByTagName('tile');

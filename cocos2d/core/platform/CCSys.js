@@ -143,7 +143,7 @@ sys.LANGUAGE_POLISH = "pl";
  * @property {String} LANGUAGE_UNKNOWN
  * @readOnly
  */
-sys.LANGUAGE_UNKNOWN = "unkonwn";
+sys.LANGUAGE_UNKNOWN = "unknown";
 
 /**
  * @property {String} OS_IOS
@@ -490,7 +490,7 @@ else {
          * Indicate whether system is mobile system
          * @property {Boolean} isMobile
          */
-        sys.isMobile = ua.indexOf('mobile') !== -1 || ua.indexOf('android') !== -1;
+        sys.isMobile = /mobile|android|mqqbrowser|micromessenger|miuibrowser/.test(ua);
 
         /**
          * Indicate the running platform
@@ -704,7 +704,7 @@ else {
     if (win.WebGLRenderingContext) {
         var tmpCanvas = document.createElement("CANVAS");
         try{
-            var context = cc.create3DContext(tmpCanvas, {'stencil': true, 'preserveDrawingBuffer': true });
+            var context = cc.create3DContext(tmpCanvas, {'stencil': true});
             if(context) {
                 _supportWebGL = true;
             }

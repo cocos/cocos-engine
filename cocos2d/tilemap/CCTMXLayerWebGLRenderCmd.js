@@ -25,6 +25,8 @@
 var Orientation = null;
 var TileFlag = null;
 var FLIPPED_MASK = null;
+var StaggerAxis = null;
+var StaggerIndex = null;
 
 _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
@@ -36,7 +38,7 @@ _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
         {x:0, y:0}
     ];
     this._color = new Uint32Array(1);
-    this._shaderProgram = cc.shaderCache.programForKey(cc.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
+    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLORALPHATEST);
 
     var radian = Math.PI * 90 / 180;
     this._sin90 = Math.sin(radian);
@@ -49,6 +51,8 @@ _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
         Orientation = cc.TiledMap.Orientation;
         TileFlag = cc.TiledMap.TileFlag;
         FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+        StaggerAxis = cc.TiledMap.StaggerAxis;
+        StaggerIndex = cc.TiledMap.StaggerIndex;
     }
 };
 
@@ -64,9 +68,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         return 0;
     }
 
-    var scalex = cc.view._scaleX,
-        scaley = cc.view._scaleY,
-        maptw = node._mapTileSize.width,
+    var maptw = node._mapTileSize.width,
         mapth = node._mapTileSize.height,
         tilew = node.tileset._tileSize.width / cc.director._contentScaleFactor,
         tileh = node.tileset._tileSize.height / cc.director._contentScaleFactor,
@@ -80,12 +82,12 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         spTiles = node._spriteTiles,
         wt = this._worldTransform,
         a = wt.a, b = wt.b, c = wt.c, d = wt.d, tx = wt.tx, ty = wt.ty,
-        ox = -node._contentSize.width * node._anchorPoint.x,
-        oy = -node._contentSize.height * node._anchorPoint.y,
+        ox = node._position.x,
+        oy = node._position.y,
         mapx = ox * a + oy * c + tx,
         mapy = ox * b + oy * d + ty;
 
-    var opacity = this._displayedOpacity,
+    var opacity = node._opacity,
         cr = this._displayedColor.r,
         cg = this._displayedColor.g,
         cb = this._displayedColor.b;
@@ -120,6 +122,17 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         wa = a, wb = b, wc = c, wd = d, wtx = tx, wty = ty, // world
         flagged = false, flippedX = false, flippedY = false,
         vertices = this._vertices;
+
+    if (layerOrientation === Orientation.HEX) {
+        var axis = node._staggerAxis,
+            index = node._staggerIndex,
+            hexSideLength = node._hexSideLength,
+            tileOffset = node.tileset.tileOffset;
+        var odd_even = (index === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        var diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
+        var diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
+    }
+
     for (row = startRow; row < maxRow; ++row) {
         for (col = startCol; col < maxCol; ++col) {
             // No more buffer
@@ -155,8 +168,10 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
                 z = node._vertexZ + cc.renderer.assignedZStep * (node.height - bottom) / node.height;
                 break;
             case Orientation.HEX:
-                left = col * maptw * 3 / 4;
-                bottom = (rows - row - 1) * mapth + ((col % 2 === 1) ? (-mapth / 2) : 0);
+                var diffX2 = (axis === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? (maptw / 2 * odd_even) : 0;
+                left = col * (maptw - diffX1) + diffX2 + tileOffset.x;
+                var diffY2 = (axis === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? (mapth/2 * -odd_even) : 0;
+                bottom = (rows - row - 1) * (mapth -diffY1) + diffY2 - tileOffset.y;
                 z = node._vertexZ + cc.renderer.assignedZStep * (node.height - bottom) / node.height;
                 break;
             }

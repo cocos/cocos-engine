@@ -346,7 +346,7 @@ var Animation = cc.Class({
         this._init();
         var state = this._nameToState[name];
 
-        if (CC_EDITOR && !state) {
+        if (CC_EDITOR && (!state || !cc.js.array.contains(this._clips, state.clip))) {
             this._didInit = false;
 
             if (this.animator) {
@@ -488,6 +488,8 @@ var Animation = cc.Class({
     },
 
     _createStates: function() {
+        this._nameToState = {};
+        
         // create animation states
         var state = null;
         var defaultClipState = false;

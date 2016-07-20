@@ -148,7 +148,6 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
         // Configuration. Gather GPU info
         var conf = cc.configuration;
         conf.gatherGPUInfo();
-        conf.dumpInfo();
 
         // set size
         //_t._winSizeInPoints = _t._openGLView.getDesignResolutionSize();

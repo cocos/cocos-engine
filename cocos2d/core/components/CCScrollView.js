@@ -527,7 +527,6 @@ var ScrollView = cc.Class({
      * @return {Vec2}  - A Vec2 value indicate the current scroll offset.
      */
     getScrollOffset: function() {
-        var maxScrollOffset = this.getMaxScrollOffset();
         var topDelta =  this._topBoundary -  this._getContentTopBoundary();
         var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
 
@@ -630,6 +629,16 @@ var ScrollView = cc.Class({
         } else {
             this._moveContent(moveDelta);
         }
+    },
+
+    /**
+     * !#en  Stop auto scroll immediately
+     * !#zh  停止自动滚动, 调用此 API 可以让 Scrollview 立即停止滚动
+     * @method stopAutoScroll
+     */
+    stopAutoScroll: function() {
+        this._autoScrolling = false;
+        this._autoScrollAccumulatedTime = this._autoScrollTotalTime;
     },
 
     /**
@@ -757,8 +766,8 @@ var ScrollView = cc.Class({
         if (this.content) {
             //refresh content size
             var layout = this.content.getComponent(cc.Layout);
-            if(layout) {
-                layout.lateUpdate();
+            if(layout && layout.enabledInHierarchy) {
+                layout._updateLayout();
             }
             var scrollViewSize = this.node.getContentSize();
 
@@ -769,6 +778,45 @@ var ScrollView = cc.Class({
             var topRightPosition = this._convertToContentParentSpace(cc.p(scrollViewSize.width, scrollViewSize.height));
             this._rightBoundary = topRightPosition.x;
             this._topBoundary = topRightPosition.y;
+
+            var contentSize = this.content.getContentSize();
+
+            var bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
+            bottomDeta = -bottomDeta;
+            var moveDelta = cc.p(0, 0);
+            var totalScrollDelta = 0;
+
+            var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
+            leftDeta = -leftDeta;
+
+            if (contentSize.height < scrollViewSize.height) {
+                totalScrollDelta = contentSize.height - scrollViewSize.height;
+                moveDelta.y = bottomDeta - totalScrollDelta;
+
+                if (this.verticalScrollBar) {
+                    this.verticalScrollBar.hide();
+                }
+            } else {
+                if (this.verticalScrollBar) {
+                    this.verticalScrollBar.show();
+                }
+            }
+
+            if (contentSize.width < scrollViewSize.width) {
+                totalScrollDelta = contentSize.width - scrollViewSize.width;
+                moveDelta.x = leftDeta;
+
+                if (this.horizontalScrollBar) {
+                    this.horizontalScrollBar.hide();
+                }
+
+            } else {
+                if (this.horizontalScrollBar) {
+                    this.horizontalScrollBar.show();
+                }
+            }
+
+            this._moveContent(moveDelta);
         }
     },
 
@@ -891,7 +939,6 @@ var ScrollView = cc.Class({
 
     _handlePressLogic: function() {
         this._autoScrolling = false;
-        this._calculateBoundary();
 
         this._touchMovePreviousTimestamp = getTimeInMilliseconds();
         this._touchMoveDisplacements = [];
@@ -1229,6 +1276,9 @@ var ScrollView = cc.Class({
         if (!CC_EDITOR) {
             this._registerEvent();
             this.node.on('size-changed', this._calculateBoundary, this);
+            if(this.content) {
+                this.content.on('size-changed', this._calculateBoundary, this);
+            }
         }
     },
 
@@ -1238,18 +1288,24 @@ var ScrollView = cc.Class({
 
     onDestroy: function() {
         this.node.off('size-changed', this._calculateBoundary, this);
+        if(this.content) {
+            this.content.off('size-changed', this._calculateBoundary, this);
+        }
     },
 
-    onDisable: function() {
+    _hideScrollbar: function () {
         if (this.horizontalScrollBar) {
-            this.horizontalScrollBar.reset();
+            this.horizontalScrollBar.hide();
         }
 
         if (this.verticalScrollBar) {
-            this.verticalScrollBar.reset();
+            this.verticalScrollBar.hide();
         }
-        this._autoScrolling = false;
-        this._autoScrollAccumulatedTime = this._autoScrollTotalTime;
+    },
+
+    onDisable: function() {
+        this._hideScrollbar();
+        this.stopAutoScroll();
     },
 
     update: function(dt) {

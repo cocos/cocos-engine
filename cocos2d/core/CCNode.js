@@ -479,9 +479,9 @@ var Node = cc.Class({
         }
     },
 
-    statics: {
-        _DirtyFlags: require('./utils/misc').DirtyFlags
-    },
+    //statics: {
+    //    _DirtyFlags: require('./utils/misc').DirtyFlags
+    //},
 
     // OVERRIDES
 
@@ -781,6 +781,10 @@ var Node = cc.Class({
             }
         }
         if (ctor._requireComponent) {
+            if (index === this._components.length) {
+                // If comp should be last component, increase the index because required component added
+                ++index;
+            }
             var depend = this.addComponent(ctor._requireComponent);
             if (!depend) {
                 // depend conflicts
