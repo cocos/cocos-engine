@@ -191,7 +191,7 @@ cc.EditBoxDelegate = cc._Class.extend({
      * This method is called when the return button was pressed.
      * @param {cc.EditBox} sender
      */
-    editBoxReturn: function (sender) {
+    editBoxEditingReturn: function (sender) {
     }
 });
 
@@ -565,8 +565,8 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                 editBox._text = this.value;
                 thisPointer._updateEditBoxContentStyle();
                 thisPointer.hidden();
-                if (editBox._delegate && editBox._delegate.editBoxReturn) {
-                    editBox._delegate.editBoxReturn(editBox);
+                if (editBox._delegate && editBox._delegate.editBoxEditingReturn) {
+                    editBox._delegate.editBoxEditingReturn(editBox);
                 }
                 cc._canvas.focus();
             }
@@ -639,6 +639,17 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                 editBox._delegate.editBoxEditingDidBegan(editBox);
             }
 
+        });
+        tmpEdTxt.addEventListener('keypress', function (e) {
+            var editBox = thisPointer._editBox;
+
+            if (e.keyCode === cc.KEY.enter) {
+                e.stopPropagation();
+
+                if (editBox._delegate && editBox._delegate.editBoxEditingReturn) {
+                    editBox._delegate.editBoxEditingReturn(editBox);
+                }
+            }
         });
         tmpEdTxt.addEventListener('blur', function () {
             var editBox = thisPointer._editBox;
