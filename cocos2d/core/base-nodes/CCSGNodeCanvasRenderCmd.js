@@ -35,7 +35,7 @@ cc.CustomRenderCmd = function (target, func) {
     };
 };
 
-_ccsg.Node._dirtyFlags = {
+var dirtyFlags = _ccsg.Node._dirtyFlags = {
     transformDirty: 1 << 0,
     visibleDirty:   1 << 1,
     colorDirty:     1 << 2,
@@ -44,22 +44,25 @@ _ccsg.Node._dirtyFlags = {
     orderDirty:     1 << 5,
     textDirty:      1 << 6,
     gradientDirty:  1 << 7,
-    contentDirty: 1<<8,
+    textureDirty:   1 << 8,
+    contentDirty:   1 << 9,
     COUNT: 9
 };
-cc.js.get(_ccsg.Node._dirtyFlags, 'all', function () {
-    var count = _ccsg.Node._dirtyFlags.COUNT;
+cc.js.get(dirtyFlags, 'all', function () {
+    var count = dirtyFlags.COUNT;
     return (1 << count) - 1;
 }, false);
 _ccsg.Node._requestDirtyFlag = function (key) {
-    cc.assert(!_ccsg.Node._dirtyFlags[key], cc._LogInfos.Node._requestDirtyFlag, key);
+    cc.assert(!dirtyFlags[key], cc._LogInfos.Node._requestDirtyFlag, key);
 
-    var count = _ccsg.Node._dirtyFlags.COUNT;
+    var count = dirtyFlags.COUNT;
     var value = 1 << count;
-    _ccsg.Node._dirtyFlags[key] = value;
-    _ccsg.Node._dirtyFlags.COUNT++;
+    dirtyFlags[key] = value;
+    dirtyFlags.COUNT++;
     return value;
 };
+
+var ONE_DEGREE = Math.PI / 180;
 
 //-------------------------Base -------------------------
 _ccsg.Node.RenderCmd = function(renderable){
@@ -100,16 +103,16 @@ _ccsg.Node.RenderCmd.prototype = {
 
     setCascadeColorEnabledDirty: function(){
         this._cascadeColorEnabledDirty = true;
-        this.setDirtyFlag(_ccsg.Node._dirtyFlags.colorDirty);
+        this.setDirtyFlag(dirtyFlags.colorDirty);
     },
 
     setCascadeOpacityEnabledDirty:function(){
         this._cascadeOpacityEnabledDirty = true;
-        this.setDirtyFlag(_ccsg.Node._dirtyFlags.opacityDirty);
+        this.setDirtyFlag(dirtyFlags.opacityDirty);
     },
 
     getParentToNodeTransform: function(){
-        if(this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty)
+        if(this._dirtyFlag & dirtyFlags.transformDirty)
             this._inverse = cc.affineTransformInvert(this.getNodeToParentTransform());
         return this._inverse;
     },
@@ -120,7 +123,7 @@ _ccsg.Node.RenderCmd.prototype = {
         var locAPP = this._anchorPointInPoints, locSize = this._node._contentSize, locAnchorPoint = this._node._anchorPoint;
         locAPP.x = locSize.width * locAnchorPoint.x;
         locAPP.y = locSize.height * locAnchorPoint.y;
-        this.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        this.setDirtyFlag(dirtyFlags.transformDirty);
     },
 
     setDirtyFlag: function(dirtyFlag){
@@ -133,6 +136,194 @@ _ccsg.Node.RenderCmd.prototype = {
         if(this._node && this._node._parent && this._node._parent._renderCmd)
             return this._node._parent._renderCmd;
         return null;
+    },
+
+    transform: function (parentCmd, recursive) {
+        var node = this._node,
+            pt = parentCmd ? parentCmd._worldTransform : null,
+            t = this._transform,
+            wt = this._worldTransform;         //get the world transform
+
+        var hasRotation = node._rotationX || node._rotationY;
+        var hasSkew = node._skewX || node._skewY;
+        var sx = node._scaleX, sy = node._scaleY;
+        var appX = this._anchorPointInPoints.x, appY = this._anchorPointInPoints.y;
+        var a = 1, b = 0, c = 0, d = 1;
+        if (hasRotation || hasSkew) {
+            // position 
+            t.tx = node._position.x;
+            t.ty = node._position.y;
+
+            // rotation
+            if (hasRotation) {
+                var rotationRadiansX = node._rotationX * ONE_DEGREE;
+                c = Math.sin(rotationRadiansX);
+                d = Math.cos(rotationRadiansX);
+                if (node._rotationY === node._rotationX) {
+                    a = d;
+                    b = -c;
+                }
+                else {
+                    var rotationRadiansY = node._rotationY * ONE_DEGREE;
+                    a = Math.cos(rotationRadiansY);
+                    b = -Math.sin(rotationRadiansY);
+                }
+            }
+
+            // scale
+            t.a = a *= sx;
+            t.b = b *= sx;
+            t.c = c *= sy;
+            t.d = d *= sy;
+
+            // skew
+            if (hasSkew) {
+                var skx = Math.tan(node._skewX * ONE_DEGREE);
+                var sky = Math.tan(node._skewY * ONE_DEGREE);
+                if (skx === Infinity)
+                    skx = 99999999;
+                if (sky === Infinity)
+                    sky = 99999999;
+                t.a = a + b * sky;
+                t.b = b + a * sky;
+                t.c = c + d * skx;
+                t.d = d + c * skx;
+            }
+
+            if (appX || appY) {
+                t.tx -= t.a * appX + t.c * appY;
+                t.ty -= t.b * appX + t.d * appY;
+                // adjust anchorPoint
+                if (node._ignoreAnchorPointForPosition) {
+                    t.tx += appX;
+                    t.ty += appY;
+                }
+            }
+
+            if (pt) {
+                // cc.AffineTransformConcat is incorrect at get world transform
+                wt.a = t.a * pt.a + t.b * pt.c;                               //a
+                wt.b = t.a * pt.b + t.b * pt.d;                               //b
+                wt.c = t.c * pt.a + t.d * pt.c;                               //c
+                wt.d = t.c * pt.b + t.d * pt.d;                               //d
+                wt.tx = pt.a * t.tx + pt.c * t.ty + pt.tx;
+                wt.ty = pt.d * t.ty + pt.ty + pt.b * t.tx;
+            } else {
+                wt.a = t.a;
+                wt.b = t.b;
+                wt.c = t.c;
+                wt.d = t.d;
+                wt.tx = t.tx;
+                wt.ty = t.ty;
+            }
+        }
+        else {
+            t.a = sx;
+            t.b = 0;
+            t.c = 0;
+            t.d = sy;
+            t.tx = node._position.x;
+            t.ty = node._position.y;
+
+            if (appX || appY) {
+                t.tx -= t.a * appX;
+                t.ty -= t.d * appY;
+                // adjust anchorPoint
+                if (node._ignoreAnchorPointForPosition) {
+                    t.tx += appX;
+                    t.ty += appY;
+                }
+            }
+
+            if (pt) {
+                wt.a  = t.a  * pt.a + t.b  * pt.c;
+                wt.b  = t.a  * pt.b + t.b  * pt.d;
+                wt.c  = t.c  * pt.a + t.d  * pt.c;
+                wt.d  = t.c  * pt.b + t.d  * pt.d;
+                wt.tx = t.tx * pt.a + t.ty * pt.c + pt.tx;
+                wt.ty = t.tx * pt.b + t.ty * pt.d + pt.ty;
+            } else {
+                wt.a = t.a;
+                wt.b = t.b;
+                wt.c = t.c;
+                wt.d = t.d;
+                wt.tx = t.tx;
+                wt.ty = t.ty;
+            }
+        }
+
+        if (node._additionalTransformDirty) {
+            this._transform = cc.affineTransformConcat(t, node._additionalTransform);
+        }
+
+        if (this._currentRegion) {
+            this._updateCurrentRegions();
+            this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
+        }
+
+        if (recursive) {
+            var locChildren = this._node._children;
+            if (!locChildren || locChildren.length === 0)
+                return;
+            var i, len;
+            for (i = 0, len = locChildren.length; i < len; i++) {
+                locChildren[i]._renderCmd.transform(this, recursive);
+            }
+        }
+
+        this._cacheDirty = true;
+    },
+
+    getNodeToParentTransform: function () {
+        if (this._dirtyFlag & dirtyFlags.transformDirty) {
+            this.transform();
+        }
+        return this._transform;
+    },
+
+    _propagateFlagsDown: function(parentCmd) {
+        //return;
+        var locFlag = this._dirtyFlag;
+        var parentNode = parentCmd ? parentCmd._node : null;
+
+        //  There is a possibility:
+        //    The parent element changed color, child element not change
+        //    This will cause the parent element changed color
+        //    But while the child element does not enter the circulation
+        //    Here will be reset state in last
+        //    In order the child elements get the parent state
+        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & dirtyFlags.colorDirty))
+            locFlag |= dirtyFlags.colorDirty;
+
+        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & dirtyFlags.opacityDirty))
+            locFlag |= dirtyFlags.opacityDirty;
+
+        if(parentCmd && (parentCmd._dirtyFlag & dirtyFlags.transformDirty))
+            locFlag |= dirtyFlags.transformDirty;
+
+        this._dirtyFlag = locFlag;
+    },
+
+    visit: function (parentCmd) {
+        var node = this._node, renderer = cc.renderer;
+
+        parentCmd = parentCmd || this.getParentRenderCmd();
+        if (parentCmd) {
+            this._curLevel = parentCmd._curLevel + 1;
+        }
+        this._propagateFlagsDown(parentCmd);
+
+        // quick return if not visible
+        if (!node._visible)
+            return;
+
+        if (isNaN(node._customZ)) {
+            node._vertexZ = renderer.assignedZ;
+            renderer.assignedZ += renderer.assignedZStep;
+        }
+
+        this._syncStatus(parentCmd);
+        this.visitChildren();
     },
 
     _updateDisplayColor: function (parentColor) {
@@ -174,7 +365,7 @@ _ccsg.Node.RenderCmd.prototype = {
                }
            }
        }
-       this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.colorDirty ^ this._dirtyFlag;
+       this._dirtyFlag &= ~dirtyFlags.colorDirty;
    },
 
     _updateDisplayOpacity: function (parentOpacity) {
@@ -209,7 +400,7 @@ _ccsg.Node.RenderCmd.prototype = {
                 }
             }
         }
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.opacityDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~dirtyFlags.opacityDirty;
     },
 
     _syncDisplayColor : function (parentColor) {
@@ -240,9 +431,9 @@ _ccsg.Node.RenderCmd.prototype = {
     _updateColor: function(){},
 
     updateStatus: function () {
-        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
-        var colorDirty = locFlag & flags.colorDirty,
-            opacityDirty = locFlag & flags.opacityDirty;
+        var locFlag = this._dirtyFlag;
+        var colorDirty = locFlag & dirtyFlags.colorDirty,
+            opacityDirty = locFlag & dirtyFlags.opacityDirty;
         if(colorDirty)
             this._updateDisplayColor();
 
@@ -251,120 +442,22 @@ _ccsg.Node.RenderCmd.prototype = {
 
         if(colorDirty || opacityDirty)
             this._updateColor();
-        if(locFlag & flags.transformDirty){
+
+        if(locFlag & dirtyFlags.transformDirty){
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
+            this._dirtyFlag &= ~dirtyFlags.transformDirty;
         }
     },
-    getNodeToParentTransform: function () {
-        var node = this._node;
-        if (this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty) {
-            var t = this._transform;// quick reference
 
-            // base position
-            t.tx = node._position.x;
-            t.ty = node._position.y;
-
-            // rotation Cos and Sin
-            var a = 1, b = 0,
-                c = 0, d = 1;
-            if (node._rotationX) {
-                var rotationRadiansX = node._rotationX * 0.017453292519943295;  //0.017453292519943295 = (Math.PI / 180);   for performance
-                c = Math.sin(rotationRadiansX);
-                d = Math.cos(rotationRadiansX);
-            }
-
-            if (node._rotationY) {
-                var rotationRadiansY = node._rotationY * 0.017453292519943295;  //0.017453292519943295 = (Math.PI / 180);   for performance
-                a = Math.cos(rotationRadiansY);
-                b = -Math.sin(rotationRadiansY);
-            }
-            t.a = a;
-            t.b = b;
-            t.c = c;
-            t.d = d;
-
-            var lScaleX = node._scaleX, lScaleY = node._scaleY;
-            var appX = this._anchorPointInPoints.x, appY = this._anchorPointInPoints.y;
-
-            // Firefox on Vista and XP crashes
-            // GPU thread in case of scale(0.0, 0.0)
-            var sx = (lScaleX < 0.000001 && lScaleX > -0.000001) ? 0.000001 : lScaleX,
-                sy = (lScaleY < 0.000001 && lScaleY > -0.000001) ? 0.000001 : lScaleY;
-
-            // scale
-            if (lScaleX !== 1 || lScaleY !== 1) {
-                a = t.a *= sx;
-                b = t.b *= sx;
-                c = t.c *= sy;
-                d = t.d *= sy;
-            }
-
-            // skew
-            if (node._skewX || node._skewY) {
-                // offset the anchorpoint
-                var skx = Math.tan(-node._skewX * Math.PI / 180);
-                var sky = Math.tan(-node._skewY * Math.PI / 180);
-                if (skx === Infinity)
-                    skx = 99999999;
-                if (sky === Infinity)
-                    sky = 99999999;
-                var xx = appY * skx;
-                var yy = appX * sky;
-                t.a = a - c * sky;
-                t.b = b - d * sky;
-                t.c = c - a * skx;
-                t.d = d - b * skx;
-                t.tx += a * xx + c * yy;
-                t.ty += b * xx + d * yy;
-            }
-
-            // adjust anchorPoint
-            t.tx -= a * appX + c * appY;
-            t.ty -= b * appX + d * appY;
-
-            // if ignore anchorPoint
-            if (node._ignoreAnchorPointForPosition) {
-                t.tx += appX;
-                t.ty += appY;
-            }
-
-            if (node._additionalTransformDirty)
-                this._transform = cc.affineTransformConcat(t, node._additionalTransform);
-        }
-        return this._transform;
-    },
-    _propagateFlagsDown: function(parentCmd) {
-        //return;
-        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
-        var parentNode = parentCmd ? parentCmd._node : null;
-
-        //  There is a possibility:
-        //    The parent element changed color, child element not change
-        //    This will cause the parent element changed color
-        //    But while the child element does not enter the circulation
-        //    Here will be reset state in last
-        //    In order the child elements get the parent state
-        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
-            locFlag |= flags.colorDirty;
-
-        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
-            locFlag |= flags.opacityDirty;
-
-        if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
-            locFlag |= flags.transformDirty;
-
-        this._dirtyFlag = locFlag;
-    },
     _syncStatus: function (parentCmd) {
         //  In the visit logic does not restore the _dirtyFlag
         //  Because child elements need parent's _dirtyFlag to change himself
-        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        var locFlag = this._dirtyFlag;
 
-        var colorDirty = locFlag & flags.colorDirty,
-            opacityDirty = locFlag & flags.opacityDirty,
-            transformDirty = locFlag & flags.transformDirty;
+        var colorDirty = locFlag & dirtyFlags.colorDirty,
+            opacityDirty = locFlag & dirtyFlags.opacityDirty,
+            transformDirty = locFlag & dirtyFlags.transformDirty;
 
         if (colorDirty)
             //update the color
@@ -379,10 +472,11 @@ _ccsg.Node.RenderCmd.prototype = {
 
         if (transformDirty)
             //update the transform
-            this.transform(parentCmd, true);
+            this.transform(parentCmd);
     },
 
     visitChildren: function(){
+        var renderer = cc.renderer;
         var node = this._node;
         var i, children = node._children, child;
         var len = children.length;
@@ -391,20 +485,27 @@ _ccsg.Node.RenderCmd.prototype = {
             // draw children zOrder < 0
             for (i = 0; i < len; i++) {
                 child = children[i];
-                if (child._localZOrder < 0)
+                if (child._localZOrder < 0) {
                     child._renderCmd.visit(this);
-                else
+                }
+                else {
                     break;
+                }
             }
-            cc.renderer.pushRenderCommand(this);
-            for (; i < len; i++)
+
+            renderer.pushRenderCommand(this);
+            for (; i < len; i++) {
                 children[i]._renderCmd.visit(this);
+            }
         } else {
-            cc.renderer.pushRenderCommand(this);
+            renderer.pushRenderCommand(this);
         }
         this._dirtyFlag = 0;
     }
 };
+
+_ccsg.Node.RenderCmd.prototype.originVisit = _ccsg.Node.RenderCmd.prototype.visit;
+_ccsg.Node.RenderCmd.prototype.originTransform = _ccsg.Node.RenderCmd.prototype.transform;
 
 //-----------------------Canvas ---------------------------
 
@@ -427,7 +528,7 @@ _ccsg.Node.CanvasRenderCmd.RegionStatus = {
 var proto = _ccsg.Node.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.RenderCmd.prototype);
 proto.constructor = _ccsg.Node.CanvasRenderCmd;
 proto._notifyRegionStatus = function(status) {
-    if(this._needDraw && this._regionFlag < status) {
+    if (this._needDraw && this._regionFlag < status) {
         this._regionFlag = status;
     }
 };
@@ -450,57 +551,6 @@ proto._updateCurrentRegions = function() {
         this._oldRegion.union(this._currentRegion);
     }
     this._currentRegion.updateRegion(this.getLocalBB(), this._worldTransform);
-};
-
-proto.transform = function (parentCmd, recursive) {
-    // transform for canvas
-    var t = this.getNodeToParentTransform(),
-        worldT = this._worldTransform;         //get the world transform
-    this._cacheDirty = true;
-    if (parentCmd) {
-        var pt = parentCmd._worldTransform;
-        // cc.AffineTransformConcat is incorrect at get world transform
-        worldT.a = t.a * pt.a + t.b * pt.c;                               //a
-        worldT.b = t.a * pt.b + t.b * pt.d;                               //b
-        worldT.c = t.c * pt.a + t.d * pt.c;                               //c
-        worldT.d = t.c * pt.b + t.d * pt.d;                               //d
-
-        worldT.tx = pt.a * t.tx + pt.c * t.ty + pt.tx;
-        worldT.ty = pt.d * t.ty + pt.ty + pt.b * t.tx;
-    } else {
-        worldT.a = t.a;
-        worldT.b = t.b;
-        worldT.c = t.c;
-        worldT.d = t.d;
-        worldT.tx = t.tx;
-        worldT.ty = t.ty;
-    }
-
-    this._updateCurrentRegions();
-    this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
-    if (recursive) {
-        var locChildren = this._node._children;
-        if (!locChildren || locChildren.length === 0)
-            return;
-        var i, len;
-        for (i = 0, len = locChildren.length; i < len; i++) {
-            locChildren[i]._renderCmd.transform(this, recursive);
-        }
-    }
-};
-
-proto.visit = function (parentCmd) {
-    var node = this._node;
-    this._propagateFlagsDown(parentCmd);
-    // quick return if not visible
-    if (!node._visible)
-        return;
-
-    parentCmd = parentCmd || this.getParentRenderCmd();
-    if (parentCmd)
-        this._curLevel = parentCmd._curLevel + 1;
-    this._syncStatus(parentCmd);
-    this.visitChildren();
 };
 
 proto.setDirtyFlag = function (dirtyFlag, child) {

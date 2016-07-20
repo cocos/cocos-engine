@@ -192,6 +192,7 @@ function _resetGame (w, h) {
     }
     cc.director.purgeDirector();
     cc.loader.releaseAll();
+
     cc.director.runSceneImmediate(new cc.Scene());
     //cc.director.pause();
 }
@@ -201,11 +202,15 @@ _resetGame(64, 64);
 var SetupEngine = {
     setup: function () {
         _resetGame(256, 512);
-        //// check error
-        //Engine._renderContext.checkMatchCurrentScene(true);
     },
     teardown: function () {
-        //Engine._launchScene(new cc._Scene());
+        // remove persist nodes
+        var persistNodeUuids = Object.keys(cc.game._persistRootNodes);
+        for (var i = 0; i < persistNodeUuids.length; i++) {
+            var uuid = persistNodeUuids[i];
+            cc.game.removePersistRootNode(cc.game._persistRootNodes[uuid]);
+        }
+
         cc.game.pause();
         // check error
         cc._Test.SceneGraphUtils.checkMatchCurrentScene();

@@ -665,7 +665,7 @@ var ParticleSystem = cc.Class({
     extends: cc._RendererUnderSG,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/ParticleSystem',
-        inspector: 'app://editor/page/inspector/particle-system/index.html',
+        inspector: 'packages://inspector/inspectors/comps/particle-system.js',
         playOnFocus: true,
     },
 

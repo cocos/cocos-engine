@@ -25,6 +25,7 @@
 
 var CCObject = require('./CCObject');
 var PersistentMask = CCObject.Flags.PersistentMask;
+var Attr = require('./attribute');
 var _isDomNode = require('./utils').isDomNode;
 
 /**
@@ -89,7 +90,7 @@ var objsToClearTmpVar = [];   // 用于重设临时变量
 ///**
 // * Do instantiate object, the object to instantiate must be non-nil.
 // * 这是一个通用的 instantiate 方法，可能效率比较低。
-// * 之后可以给各种类型重载快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
+// * 之后可以给各种类型重写快速实例化的特殊实现，但应该在单元测试中将结果和这个方法的结果进行对比。
 // * 值得注意的是，这个方法不可重入，不支持 mixin。
 // *
 // * @param {Object} obj - 该方法仅供内部使用，用户需负责保证参数合法。什么参数是合法的请参考 cc.instantiate 的实现。
@@ -128,11 +129,12 @@ var enumerateObject = function (obj, parent) {
     obj._iN$t = clone;
     objsToClearTmpVar.push(obj);
     if (cc.Class._isCCClass(klass)) {
+        var DELIMETER = Attr.DELIMETER;
         var props = klass.__props__;
+        var attrs = Attr.getClassAttrs(klass);
         for (var p = 0; p < props.length; p++) {
             key = props[p];
-            var attrs = cc.Class.attr(klass, key);
-            if (attrs.serializable !== false) {
+            if (attrs[key + DELIMETER + 'serializable'] !== false) {
                 value = obj[key];
                 type = typeof value;
                 if (type === 'object') {

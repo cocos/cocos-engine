@@ -76,11 +76,13 @@ var js = {
     },
 
     /**
-     * copy all properties not defined in obj from arguments[1...n]
+     * This method is deprecated, use cc.js.mixin please.<br>
+     * Copy all properties not defined in obj from arguments[1...n]
      * @method addon
      * @param {Object} obj object to extend its properties
      * @param {Object} ...sourceObj source object to copy properties from
      * @return {Object} the result obj
+     * @deprecated
      */
     addon: function (obj) {
         'use strict';
@@ -146,6 +148,9 @@ var js = {
             if (!cls) {
                 cc.error('The class to extend must be non-nil');
                 return;
+            }
+            if (Object.keys(cls.prototype).length > 0) {
+                cc.error('Class should be extended before assigning any prototype members.');
             }
         }
         for (var p in base) if (base.hasOwnProperty(p)) cls[p] = base[p];

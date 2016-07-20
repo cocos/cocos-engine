@@ -26,44 +26,64 @@
  * cc.ProgressTimer's rendering objects of WebGL
  */
 (function(){
+    var MAX_VERTEX_COUNT = 8;
+
     cc.ProgressTimer.WebGLRenderCmd = function(renderableObject){
         _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
         this._needDraw = true;
+        this._progressDirty = true;
 
-        this._vertexWebGLBuffer = cc._renderContext.createBuffer();
-        this._vertexDataCount = 0;
-        this._vertexData = null;
-        this._vertexArrayBuffer = null;
-        this._vertexDataDirty = false;
+        this._bl = cc.p();
+        this._tr = cc.p();
+
+        this.initCmd();
     };
 
     var proto = cc.ProgressTimer.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
     proto.constructor = cc.ProgressTimer.WebGLRenderCmd;
 
+    proto.transform = function (parentCmd, recursive) {
+        this.originTransform(parentCmd, recursive);
+        var sp = this._node._sprite;
+        sp._renderCmd.transform(this, recursive);
+
+        var lx = sp._offsetPosition.x, rx = lx + sp._rect.width,
+            by = sp._offsetPosition.y, ty = by + sp._rect.height,
+            wt = this._worldTransform;
+        this._bl.x = lx * wt.a + by * wt.c + wt.tx;
+        this._bl.y = lx * wt.b + by * wt.d + wt.ty;
+        this._tr.x = rx * wt.a + ty * wt.c + wt.tx;
+        this._tr.y = rx * wt.b + ty * wt.d + wt.ty;
+
+        this._updateProgressData();
+    };
+
     proto.rendering = function (ctx) {
         var node = this._node;
         var context = ctx || cc._renderContext;
-        if (!this._vertexData || !node._sprite)
+        if (this._vertexDataCount === 0 || !node._sprite)
             return;
 
         this._shaderProgram.use();
-        this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
+        this._shaderProgram._updateProjectionUniform();
 
         var blendFunc = node._sprite._blendFunc;
         cc.gl.blendFunc(blendFunc.src, blendFunc.dst);
-        cc.gl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-
         cc.gl.bindTexture2D(node._sprite.texture);
-
         context.bindBuffer(context.ARRAY_BUFFER, this._vertexWebGLBuffer);
+
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_POSITION);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_COLOR);
+        context.enableVertexAttribArray(cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+
         if (this._vertexDataDirty) {
-            context.bufferData(context.ARRAY_BUFFER, this._vertexArrayBuffer, context.DYNAMIC_DRAW);
+            context.bufferSubData(context.ARRAY_BUFFER, 0, this._float32View);
             this._vertexDataDirty = false;
         }
-        var locVertexDataLen = cc.V2F_C4B_T2F.BYTES_PER_ELEMENT;
-        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 2, context.FLOAT, false, locVertexDataLen, 0);
-        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, locVertexDataLen, 8);
-        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, context.FLOAT, false, locVertexDataLen, 12);
+        var locVertexDataLen = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT;
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_POSITION, 3, context.FLOAT, false, locVertexDataLen, 0);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_COLOR, 4, context.UNSIGNED_BYTE, true, locVertexDataLen, 12);
+        context.vertexAttribPointer(cc.macro.VERTEX_ATTRIB_TEX_COORDS, 2, context.FLOAT, false, locVertexDataLen, 16);
 
         if (node._type === cc.ProgressTimer.Type.RADIAL)
             context.drawArrays(context.TRIANGLE_FAN, 0, this._vertexDataCount);
@@ -98,26 +118,34 @@
         var spriteCmd = node._sprite._renderCmd;
         var spriteFlag = spriteCmd._dirtyFlag;
 
-        var colorDirty = spriteFlag & flags.colorDirty,
-            opacityDirty = spriteFlag & flags.opacityDirty;
+        var colorDirty = (locFlag | spriteFlag) & flags.colorDirty,
+            opacityDirty = (locFlag | spriteFlag) & flags.opacityDirty;
 
         if (colorDirty){
             spriteCmd._syncDisplayColor();
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if (opacityDirty){
             spriteCmd._syncDisplayOpacity();
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){
-            spriteCmd._updateColor();
             this._updateColor();
         }
 
-        //if (locFlag & flags.transformDirty) {
+        if (locFlag & flags.transformDirty) {
             //update the transform
-        this.transform(parentCmd);
-        //}
+            this.transform(parentCmd);
+        }
+
+        if (locFlag & flags.textureDirty) {
+            this._updateProgressData();
+            this._dirtyFlag &= ~flags.textureDirty;
+        }
 
         spriteCmd._dirtyFlag = 0;
     };
@@ -130,21 +158,22 @@
         var spriteCmd = node._sprite._renderCmd;
         var spriteFlag = spriteCmd._dirtyFlag;
 
-        var colorDirty = spriteFlag & flags.colorDirty,
-            opacityDirty = spriteFlag & flags.opacityDirty;
+        var colorDirty = (locFlag | spriteFlag) & flags.colorDirty,
+            opacityDirty = (locFlag | spriteFlag) & flags.opacityDirty;
 
         if(colorDirty){
             spriteCmd._updateDisplayColor();
-            this._dirtyFlag = this._dirtyFlag & flags.colorDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.colorDirty;
+            this._dirtyFlag &= ~flags.colorDirty;
         }
 
         if(opacityDirty){
             spriteCmd._updateDisplayOpacity();
-            this._dirtyFlag = this._dirtyFlag & flags.opacityDirty ^ this._dirtyFlag;
+            spriteCmd._dirtyFlag &= ~flags.opacityDirty;
+            this._dirtyFlag &= ~flags.opacityDirty;
         }
 
         if(colorDirty || opacityDirty){
-            spriteCmd._updateColor();
             this._updateColor();
         }
 
@@ -152,27 +181,62 @@
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
         }
+
+        if (locFlag & flags.orderDirty) {
+            this._dirtyFlag &= ~flags.orderDirty;
+        }
+
+        if (locFlag & flags.textureDirty) {
+            this._updateProgressData();
+            this._dirtyFlag &= ~flags.textureDirty;
+        }
     };
 
     proto.releaseData = function(){
         if (this._vertexData) {
             //release all previous information
+            var webglBuffer = this._vertexWebGLBuffer;
+            setTimeout(function () {
+                cc._renderContext.deleteBuffer(webglBuffer);
+            }, 0.1);
+            this._vertexWebGLBuffer = null;
             this._vertexData = null;
+            this._float32View = null;
             this._vertexArrayBuffer = null;
             this._vertexDataCount = 0;
         }
     };
 
-    proto.initCmd = function(){
-        this._vertexData = null;
-        this._vertexArrayBuffer = null;
-        this._vertexDataCount = 0;
+    proto.initCmd = function () {
+        if (!this._vertexData) {
+            var gl = cc._renderContext;
+            this._vertexWebGLBuffer = gl.createBuffer();
+            
+            var vertexDataLen = cc.V3F_C4B_T2F.BYTES_PER_ELEMENT;
+            this._vertexArrayBuffer = new ArrayBuffer(MAX_VERTEX_COUNT * vertexDataLen);
+            this._float32View = new Float32Array(this._vertexArrayBuffer);
+            this._vertexData = [];
+            for (var i = 0; i < MAX_VERTEX_COUNT; i++) {
+                this._vertexData[i] = new cc.V3F_C4B_T2F(null, null, null, this._vertexArrayBuffer, i * vertexDataLen);
+            }
 
-        //shader program
-        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR);
+            // Init buffer data
+            gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexWebGLBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this._float32View, gl.DYNAMIC_DRAW);
+
+            this._vertexDataCount = 0;
+            this._vertexDataDirty = true;
+
+            //shader program
+            this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
+        }
     };
 
-    proto._updateProgress = function(){
+    proto.resetVertexData = function () {
+        this._vertexDataCount = 0;
+    };
+
+    proto._updateProgressData = function () {
         var node = this._node;
         var locType = node._type;
         if(locType === cc.ProgressTimer.Type.RADIAL)
@@ -180,6 +244,10 @@
         else if(locType === cc.ProgressTimer.Type.BAR)
             this._updateBar();
         this._vertexDataDirty = true;
+    };
+
+    proto._updateProgress = function () {
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.textureDirty);
     };
 
     /**
@@ -226,74 +294,61 @@
 
         var locVertexData;
         if (!this._reverseDirection) {
-            if (!this._vertexData) {
+            if (!this._vertexDataCount) {
                 this._vertexDataCount = 4;
-                var vertexDataLen = cc.V2F_C4B_T2F.BYTES_PER_ELEMENT, locCount = 4;
-                this._vertexArrayBuffer = new ArrayBuffer(locCount * vertexDataLen);
-                this._vertexData = [];
-                for (i = 0; i < locCount; i++)
-                    this._vertexData[i] = new cc.V2F_C4B_T2F(null, null, null, this._vertexArrayBuffer, i * vertexDataLen);
             }
-
             locVertexData = this._vertexData;
             //    TOPLEFT
-            locVertexData[0].texCoords = this._textureCoordFromAlphaPoint(cc.p(min.x, max.y));
-            locVertexData[0].vertices = this._vertexFromAlphaPoint(cc.p(min.x, max.y));
+            this._textureCoordFromAlphaPoint(locVertexData[0].texCoords, min.x, max.y);
+            this._vertexFromAlphaPoint(locVertexData[0].vertices, min.x, max.y);
 
             //    BOTLEFT
-            locVertexData[1].texCoords = this._textureCoordFromAlphaPoint(cc.p(min.x, min.y));
-            locVertexData[1].vertices = this._vertexFromAlphaPoint(cc.p(min.x, min.y));
+            this._textureCoordFromAlphaPoint(locVertexData[1].texCoords, min.x, min.y);
+            this._vertexFromAlphaPoint(locVertexData[1].vertices, min.x, min.y);
 
             //    TOPRIGHT
-            locVertexData[2].texCoords = this._textureCoordFromAlphaPoint(cc.p(max.x, max.y));
-            locVertexData[2].vertices = this._vertexFromAlphaPoint(cc.p(max.x, max.y));
+            this._textureCoordFromAlphaPoint(locVertexData[2].texCoords, max.x, max.y);
+            this._vertexFromAlphaPoint(locVertexData[2].vertices, max.x, max.y);
 
             //    BOTRIGHT
-            locVertexData[3].texCoords = this._textureCoordFromAlphaPoint(cc.p(max.x, min.y));
-            locVertexData[3].vertices = this._vertexFromAlphaPoint(cc.p(max.x, min.y));
+            this._textureCoordFromAlphaPoint(locVertexData[3].texCoords, max.x, min.y);
+            this._vertexFromAlphaPoint(locVertexData[3].vertices, max.x, min.y);
         } else {
-            if (!this._vertexData) {
+            locVertexData = this._vertexData;
+            if (!this._vertexDataCount) {
                 this._vertexDataCount = 8;
-                var rVertexDataLen = cc.V2F_C4B_T2F.BYTES_PER_ELEMENT, rLocCount = 8;
-                this._vertexArrayBuffer = new ArrayBuffer(rLocCount * rVertexDataLen);
-                var rTempData = [];
-                for (i = 0; i < rLocCount; i++)
-                    rTempData[i] = new cc.V2F_C4B_T2F(null, null, null, this._vertexArrayBuffer, i * rVertexDataLen);
                 //    TOPLEFT 1
-                rTempData[0].texCoords = this._textureCoordFromAlphaPoint(cc.p(0, 1));
-                rTempData[0].vertices = this._vertexFromAlphaPoint(cc.p(0, 1));
+                this._textureCoordFromAlphaPoint(locVertexData[0].texCoords, 0, 1);
+                this._vertexFromAlphaPoint(locVertexData[0].vertices, 0, 1);
 
                 //    BOTLEFT 1
-                rTempData[1].texCoords = this._textureCoordFromAlphaPoint(cc.p(0, 0));
-                rTempData[1].vertices = this._vertexFromAlphaPoint(cc.p(0, 0));
+                this._textureCoordFromAlphaPoint(locVertexData[1].texCoords, 0, 0);
+                this._vertexFromAlphaPoint(locVertexData[1].vertices, 0, 0);
 
                 //    TOPRIGHT 2
-                rTempData[6].texCoords = this._textureCoordFromAlphaPoint(cc.p(1, 1));
-                rTempData[6].vertices = this._vertexFromAlphaPoint(cc.p(1, 1));
+                this._textureCoordFromAlphaPoint(locVertexData[6].texCoords, 1, 1);
+                this._vertexFromAlphaPoint(locVertexData[6].vertices, 1, 1);
 
                 //    BOTRIGHT 2
-                rTempData[7].texCoords = this._textureCoordFromAlphaPoint(cc.p(1, 0));
-                rTempData[7].vertices = this._vertexFromAlphaPoint(cc.p(1, 0));
-
-                this._vertexData = rTempData;
+                this._textureCoordFromAlphaPoint(locVertexData[7].texCoords, 1, 0);
+                this._vertexFromAlphaPoint(locVertexData[7].vertices, 1, 0);
             }
 
-            locVertexData = this._vertexData;
             //    TOPRIGHT 1
-            locVertexData[2].texCoords = this._textureCoordFromAlphaPoint(cc.p(min.x, max.y));
-            locVertexData[2].vertices = this._vertexFromAlphaPoint(cc.p(min.x, max.y));
+            this._textureCoordFromAlphaPoint(locVertexData[2].texCoords, min.x, max.y);
+            this._vertexFromAlphaPoint(locVertexData[2].vertices, min.x, max.y);
 
             //    BOTRIGHT 1
-            locVertexData[3].texCoords = this._textureCoordFromAlphaPoint(cc.p(min.x, min.y));
-            locVertexData[3].vertices = this._vertexFromAlphaPoint(cc.p(min.x, min.y));
+            this._textureCoordFromAlphaPoint(locVertexData[3].texCoords, min.x, min.y);
+            this._vertexFromAlphaPoint(locVertexData[3].vertices, min.x, min.y);
 
             //    TOPLEFT 2
-            locVertexData[4].texCoords = this._textureCoordFromAlphaPoint(cc.p(max.x, max.y));
-            locVertexData[4].vertices = this._vertexFromAlphaPoint(cc.p(max.x, max.y));
+            this._textureCoordFromAlphaPoint(locVertexData[4].texCoords, max.x, max.y);
+            this._vertexFromAlphaPoint(locVertexData[4].vertices, max.x, max.y);
 
             //    BOTLEFT 2
-            locVertexData[5].texCoords = this._textureCoordFromAlphaPoint(cc.p(max.x, min.y));
-            locVertexData[5].vertices = this._vertexFromAlphaPoint(cc.p(max.x, min.y));
+            this._textureCoordFromAlphaPoint(locVertexData[5].texCoords, max.x, min.y);
+            this._vertexFromAlphaPoint(locVertexData[5].vertices, max.x, min.y);
         }
         this._updateColor();
     };
@@ -389,47 +444,31 @@
         var sameIndexCount = true;
         if (this._vertexDataCount !== index + 3) {
             sameIndexCount = false;
-            this._vertexData = null;
-            this._vertexArrayBuffer = null;
-            this._vertexDataCount = 0;
-        }
-
-        if (!this._vertexData) {
             this._vertexDataCount = index + 3;
-            var locCount = this._vertexDataCount, vertexDataLen = cc.V2F_C4B_T2F.BYTES_PER_ELEMENT;
-            this._vertexArrayBuffer = new ArrayBuffer(locCount * vertexDataLen);
-            var locData = [];
-            for (i = 0; i < locCount; i++)
-                locData[i] = new cc.V2F_C4B_T2F(null, null, null, this._vertexArrayBuffer, i * vertexDataLen);
-
-            this._vertexData = locData;
-            if(!this._vertexData){
-                cc.log( "cc.ProgressTimer._updateRadial() : Not enough memory");
-                return;
-            }
         }
+
         this._updateColor();
 
         var locVertexData = this._vertexData;
         if (!sameIndexCount) {
             //    First we populate the array with the m_tMidpoint, then all
             //    vertices/texcoords/colors of the 12 'o clock start and edges and the hitpoint
-            locVertexData[0].texCoords = this._textureCoordFromAlphaPoint(locMidPoint);
-            locVertexData[0].vertices = this._vertexFromAlphaPoint(locMidPoint);
+            this._textureCoordFromAlphaPoint(locVertexData[0].texCoords, locMidPoint.x, locMidPoint.y);
+            this._vertexFromAlphaPoint(locVertexData[0].vertices, locMidPoint.x, locMidPoint.y);
 
-            locVertexData[1].texCoords = this._textureCoordFromAlphaPoint(topMid);
-            locVertexData[1].vertices = this._vertexFromAlphaPoint(topMid);
+            this._textureCoordFromAlphaPoint(locVertexData[1].texCoords, topMid.x, topMid.y);
+            this._vertexFromAlphaPoint(locVertexData[1].vertices, topMid.x, topMid.y);
 
             for (i = 0; i < index; i++) {
                 var alphaPoint = this._boundaryTexCoord(i);
-                locVertexData[i + 2].texCoords = this._textureCoordFromAlphaPoint(alphaPoint);
-                locVertexData[i + 2].vertices = this._vertexFromAlphaPoint(alphaPoint);
+                this._textureCoordFromAlphaPoint(locVertexData[i + 2].texCoords, alphaPoint.x, alphaPoint.y);
+                this._vertexFromAlphaPoint(locVertexData[i + 2].vertices, alphaPoint.x, alphaPoint.y);
             }
         }
 
         //    hitpoint will go last
-        locVertexData[this._vertexDataCount - 1].texCoords = this._textureCoordFromAlphaPoint(hit);
-        locVertexData[this._vertexDataCount - 1].vertices = this._vertexFromAlphaPoint(hit);
+        this._textureCoordFromAlphaPoint(locVertexData[this._vertexDataCount - 1].texCoords, hit.x, hit.y);
+        this._vertexFromAlphaPoint(locVertexData[this._vertexDataCount - 1].vertices, hit.x, hit.y);
     };
 
     proto._boundaryTexCoord = function (index) {
@@ -443,44 +482,59 @@
         return cc.p(0,0);
     };
 
-    proto._textureCoordFromAlphaPoint = function (alpha) {
+    proto._textureCoordFromAlphaPoint = function (coords, ax, ay) {
         var locSprite = this._node._sprite;
         if (!locSprite) {
-            return {u:0, v:0}; //new cc.Tex2F(0, 0);
+            coords.u = 0;
+            coords.v = 0;
+            return;
         }
-        var quad = locSprite.quad;
-        var min = cc.p(quad.bl.texCoords.u, quad.bl.texCoords.v);
-        var max = cc.p(quad.tr.texCoords.u, quad.tr.texCoords.v);
+        var uvs = locSprite._renderCmd._vertices,
+            bl = uvs[1],
+            tr = uvs[2];
+        var min = cc.p(bl.u, bl.v);
+        var max = cc.p(tr.u, tr.v);
 
         //  Fix bug #1303 so that progress timer handles sprite frame texture rotation
         if (locSprite.textureRectRotated) {
-            var temp = alpha.x;
-            alpha.x = alpha.y;
-            alpha.y = temp;
+            var temp = ax;
+            ax = ay;
+            ay = temp;
         }
-        return {u: min.x * (1 - alpha.x) + max.x * alpha.x, v: min.y * (1 - alpha.y) + max.y * alpha.y};
+        coords.u = min.x * (1 - ax) + max.x * ax;
+        coords.v = min.y * (1 - ay) + max.y * ay;
     };
 
-    proto._vertexFromAlphaPoint = function (alpha) {
-        var locSprite = this._node._sprite;
-        if (!locSprite) {
-            return {x: 0, y: 0};
-        }
-        var quad = locSprite.quad;
-        var min = cc.p(quad.bl.vertices.x, quad.bl.vertices.y);
-        var max = cc.p(quad.tr.vertices.x, quad.tr.vertices.y);
-        return {x: min.x * (1 - alpha.x) + max.x * alpha.x, y: min.y * (1 - alpha.y) + max.y * alpha.y};
+    proto._vertexFromAlphaPoint = function (vertex, ax, ay) {
+        vertex.x = this._bl.x * (1 - ax) + this._tr.x * ax;
+        vertex.y = this._bl.y * (1 - ay) + this._tr.y * ay;
+        vertex.z = this._node._vertexZ;
     };
 
     proto._updateColor = function(){
-        var node = this._node;
-        if (!node._sprite || !this._vertexData)
+        var sp = this._node._sprite;
+        if (!this._vertexDataCount || !sp)
             return;
 
-        var sc = node._sprite.quad.tl.colors;
+        var color = this._displayedColor;
+        var spColor = sp._renderCmd._displayedColor;
+        var r = spColor.r;
+        var g = spColor.g;
+        var b = spColor.b;
+        var a = sp._renderCmd._displayedOpacity / 255;
+        if (sp._opacityModifyRGB) {
+            r *= a;
+            g *= a;
+            b *= a;
+        }
+        color.r = r;
+        color.g = g;
+        color.b = b;
+        color.a = sp._renderCmd._displayedOpacity;
         var locVertexData = this._vertexData;
-        for (var i = 0, len = this._vertexDataCount; i < len; ++i)
-            locVertexData[i].colors = sc;
+        for (var i = 0, len = this._vertexDataCount; i < len; ++i) {
+            locVertexData[i].colors = color;
+        }
         this._vertexDataDirty = true;
     };
 })();

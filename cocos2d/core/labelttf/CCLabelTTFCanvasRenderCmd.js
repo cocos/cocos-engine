@@ -47,6 +47,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
         this._isMultiLine = false;
         this._status = [];
         this._renderingIndex = 0;
+
         this._texRect = cc.rect();
     };
     var proto = cc.LabelTTF.RenderCmd.prototype;
@@ -174,15 +175,17 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
         var node = this._node;
         var scale = cc.view.getDevicePixelRatio();
         var locStrokeShadowOffsetX = node._strokeShadowOffsetX, locStrokeShadowOffsetY = node._strokeShadowOffsetY;
-        var locContentSizeHeight = node._contentSize.height * scale - locStrokeShadowOffsetY, locVAlignment = node._vAlignment;
+        var locContentSizeHeight = node._contentSize.height * scale - locStrokeShadowOffsetY, 
+            locVAlignment = node._vAlignment, 
+            locHAlignment = node._hAlignment;
         var dx = locStrokeShadowOffsetX * 0.5,
             dy = locContentSizeHeight + locStrokeShadowOffsetY * 0.5;
         var xOffset = 0, yOffset = 0, OffsetYArray = [];
         var locContentWidth = node._contentSize.width * scale - locStrokeShadowOffsetX;
 
         //lineHeight
-        var lineHeight = node.getLineHeight();
-        var transformTop = (lineHeight - this._fontClientHeight) / 2;
+        var lineHeight = node.getLineHeight() * scale;
+        var transformTop = (lineHeight - this._fontClientHeight * scale) / 2;
 
         if (locHAlignment === cc.TextAlignment.RIGHT)
             xOffset += locContentWidth;
@@ -227,7 +230,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
         context.setTransform(1, 0, 0, 1, locStatus.contextTransform.x, locStatus.contextTransform.y);
         var xOffset = locStatus.xOffset;
         var yOffsetArray = locStatus.OffsetYArray;
-        this.drawLabels(context, xOffset, yOffsetArray)
+        this.drawLabels(context, xOffset, yOffsetArray);
     };
 
     proto._checkWarp = function (strArr, i, maxWidth) {
@@ -302,56 +305,41 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     };
 
     proto.updateStatus = function () {
-        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
-        var colorDirty = locFlag & flags.colorDirty,
-            opacityDirty = locFlag & flags.opacityDirty;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag,
+            transformDirty = locFlag & flags.transformDirty;
 
-        if (colorDirty)
-            this._updateDisplayColor();
-        if (opacityDirty)
-            this._updateDisplayOpacity();
-
-        if(colorDirty || opacityDirty){
-            this._updateColor();
-        }else if(locFlag & flags.textDirty)
+        if (locFlag & flags.textDirty)
             this._updateTexture();
 
-        if (this._dirtyFlag & flags.transformDirty){
+        if (transformDirty) {
+            // Avoid invoke transform multiple times
+            this._dirtyFlag &= ~flags.transformDirty;
+        }
+
+        _ccsg.Node.RenderCmd.prototype.updateStatus.call(this);
+
+        if (transformDirty) {
             this.transform(this.getParentRenderCmd(), true);
-            this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.transformDirty ^ this._dirtyFlag;
         }
     };
 
     proto._syncStatus = function (parentCmd) {
-        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
-        var parentNode = parentCmd ? parentCmd._node : null;
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag,
+            transformDirty = locFlag & flags.transformDirty;
 
-        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
-            locFlag |= flags.colorDirty;
-
-        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
-            locFlag |= flags.opacityDirty;
-
-        if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
-            locFlag |= flags.transformDirty;
-
-        var colorDirty = locFlag & flags.colorDirty,
-            opacityDirty = locFlag & flags.opacityDirty;
-
-        this._dirtyFlag = locFlag;
-
-        if (colorDirty)
-            this._syncDisplayColor();
-        if (opacityDirty)
-            this._syncDisplayOpacity();
-
-        if(colorDirty || opacityDirty){
-            this._updateColor();
-        }else if(locFlag & flags.textDirty)
+        if (locFlag & flags.textDirty)
             this._updateTexture();
 
-        if (locFlag & flags.transformDirty)                 //update the transform
+        if (transformDirty) {
+            // Avoid invoke transform multiple times
+            this._dirtyFlag &= ~flags.transformDirty;
+        }
+
+        _ccsg.Node.RenderCmd.prototype._syncStatus.call(this, parentCmd);
+
+        if (transformDirty) {
             this.transform(parentCmd);
+        }
     };
 
     proto.drawLabels = function (context, xOffset, yOffsetArray) {
@@ -392,7 +380,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
             context.fillText(line, xOffset, yOffsetArray[i]);
         }
         cc.g_NumberOfDraws++;
-    }
+    };
 })();
 
 (function(){
@@ -412,7 +400,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     proto.constructor = cc.LabelTTF.CacheRenderCmd;
 
     proto._updateTexture = function () {
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         var node = this._node;
         this._updateTTF();
         var width = this._texRect.width, height = this._texRect.height;
@@ -427,7 +415,7 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
 
         if (node._string.length === 0) {
             locLabelCanvas.width = width;
-            locLabelCanvas.height = locContentSize.height || 1;
+            locLabelCanvas.height = height;
             node._texture && node._texture.handleLoadedTexture();
             node.setTextureRect(this._texRect);
             return true;
@@ -489,9 +477,8 @@ cc.LabelTTF._firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
     };
 
     proto._updateTexture = function () {
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.textDirty ^ this._dirtyFlag;
+        this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         var node = this._node;
-        var scale = cc.view.getDevicePixelRatio();
         this._updateTTF();
         if (node._string.length === 0) {
             node.setTextureRect(this._texRect);

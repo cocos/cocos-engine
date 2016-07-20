@@ -25,6 +25,7 @@
 
 var JS = require('./js');
 var CCObject = require('./CCObject');
+var Attr = require('./attribute');
 
 var EDITOR = CC_DEV;
 var ENABLE_TARGET = EDITOR;
@@ -344,20 +345,21 @@ var _Deserializer = (function () {
     }
 
     function _deserializeFireClass(self, obj, serialized, klass, target) {
+        var DELIMETER = Attr.DELIMETER;
         var props = klass.__props__;
+        var attrs = Attr.getClassAttrs(klass);
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
-            var attrs = cc.Class.attr(klass, propName);
             // assume all prop in __props__ must have attr
-            var rawType = attrs.rawType;
+            var rawType = attrs[propName + DELIMETER + 'rawType'];
             if (!rawType) {
-                if (!EDITOR && attrs.editorOnly) {
+                if (!EDITOR && attrs[propName + DELIMETER + 'editorOnly']) {
                     var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
                     if ( !mayUsedInPersistRoot ) {
                         continue;   // skip editor only if not editor
                     }
                 }
-                if (attrs.serializable === false) {
+                if (attrs[propName + DELIMETER + 'serializable'] === false) {
                     continue;   // skip nonSerialized
                 }
                 var prop = serialized[propName];

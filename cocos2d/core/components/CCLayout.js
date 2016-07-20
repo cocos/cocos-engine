@@ -156,7 +156,7 @@ var Layout = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Layout',
         help: 'i18n:COMPONENT.help_url.layout',
-        inspector: 'app://editor/page/inspector/cclayout.html',
+        inspector: 'packages://inspector/inspectors/comps/cclayout.js',
         executeInEditMode: true,
     },
 
@@ -831,7 +831,15 @@ var Layout = cc.Class({
         }
     },
 
-    lateUpdate: function() {
+    onEnable: function () {
+        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this._updateLayout, this);
+    },
+
+    onDisable: function () {
+        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this._updateLayout, this);
+    },
+
+    _updateLayout: function() {
         if (this._layoutDirty && this.node.children.length > 0) {
             this._doLayout();
             this._layoutDirty = false;

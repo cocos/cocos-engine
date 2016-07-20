@@ -220,16 +220,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     calculateDeltaTime: function () {
         var now = Date.now();
 
-        // new delta time.
         if (this._nextDeltaTimeZero) {
             this._deltaTime = 0;
             this._nextDeltaTimeZero = false;
         } else {
             this._deltaTime = (now - this._lastUpdate) / 1000;
+            if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
+                this._deltaTime = 1 / 60.0;
         }
-
-        if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 0.2))
-            this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
     },
@@ -268,6 +266,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             var renderer = cc.renderer;
             if (renderer.childrenOrderDirty) {
                 renderer.clearRenderCommands();
+                cc.renderer.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
                 this._runningScene.visit();
                 renderer.resetFlag();
@@ -283,12 +282,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         if (this._beforeVisitScene)
             this._beforeVisitScene();
-
-        // visit EC
-        if (this._scene) {
-            // clear flags
-            clearFlags(this._scene);
-        }
 
         // update the scene
         this._visitScene();
@@ -592,10 +585,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             for (id in persistNodes) {
                 node = persistNodes[id];
                 var existNode = scene.getChildByUuid(id);
-                // Scene contains the persist node, should not reattach, should update the persist node
                 if (existNode) {
-                    persistNodes[id] = existNode;
-                    existNode._persistNode = true;
+                    // scene also contains the persist node, select the old one
+                    var index = existNode.getSiblingIndex();
+                    existNode._destroyImmediate();
+                    node.parent = scene;
+                    node.setSiblingIndex(index);
                 }
                 else {
                     node.parent = scene;
@@ -1497,14 +1492,4 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @constant
  * @type {Number}
  */
-cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_3D;
-
-// clear dirtyFlags for EC
-function clearFlags (node) {
-    var children = node._children;
-    for (var i = 0, len = children.length; i < len; i++) {
-        var child = children[i];
-        child._dirtyFlags = 0;
-        clearFlags(child);
-    }
-}
+cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
