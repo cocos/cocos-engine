@@ -43,11 +43,7 @@ _ccsg.Sprite.CanvasRenderCmd = function (renderable) {
 var proto = _ccsg.Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = _ccsg.Sprite.CanvasRenderCmd;
 
-proto._init = function () {};
-
 proto.setDirtyRecursively = function (value) {};
-
-proto._resetForBatchNode = function () {};
 
 proto._setTexture = function (texture) {
     var node = this._node;
@@ -189,11 +185,6 @@ proto._updateColor = function(){
     }
 };
 
-proto.getQuad = function () {
-    //throw an error. it doesn't support this function.
-    return null;
-};
-
 proto._updateForSetSpriteFrame = function (pNewTexture, textureLoaded){
     this._colorized = false;
     this._textureCoord.renderX = this._textureCoord.x;
@@ -204,39 +195,6 @@ proto._updateForSetSpriteFrame = function (pNewTexture, textureLoaded){
         if (curColor.r !== 255 || curColor.g !== 255 || curColor.b !== 255)
             this._updateColor();
     }
-};
-
-proto.updateTransform = function () {      //TODO need delete, because Canvas needn't
-    var _t = this, node = this._node;
-
-    // re-calculate matrix only if it is dirty
-    if (node.dirty) {
-        // If it is not visible, or one of its ancestors is not visible, then do nothing:
-        var locParent = node._parent;
-        if (!node._visible || ( locParent && locParent !== node._batchNode && locParent._shouldBeHidden)) {
-            node._shouldBeHidden = true;
-        } else {
-            node._shouldBeHidden = false;
-
-            if (!locParent || locParent === node._batchNode) {
-                node._transformToBatch = _t.getNodeToParentTransform();
-            } else {
-                //cc.assert(_t._parent instanceof _ccsg.Sprite, "Logic error in CCSprite. Parent must be a CCSprite");
-                node._transformToBatch = cc.affineTransformConcat(_t.getNodeToParentTransform(), locParent._transformToBatch);
-            }
-        }
-        node._recursiveDirty = false;
-        node.dirty = false;
-    }
-
-    // recursively iterate over children
-    if (node._hasChildren)
-        node._arrayMakeObjectsPerformSelector(node._children, _ccsg.Node._stateCallbackType.updateTransform);
-};
-
-proto._updateDisplayColor = function (parentColor) {
-    _ccsg.Node.CanvasRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-    //this._updateColor();
 };
 
 proto._spriteFrameLoadedCallback = function (event) {

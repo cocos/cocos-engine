@@ -1,8 +1,5 @@
 /****************************************************************************
- Copyright (c) 2008-2010 Ricardo Quesada
- Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
- Copyright (c) 2012 Neofect. All rights reserved.
+ Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -23,11 +20,44 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-
- Created by Jung Sang-Taik on 2012-03-16
  ****************************************************************************/
 
-EventTarget = require("../cocos2d/core/event/event-target");
+var EventTarget = require("../cocos2d/core/event/event-target");
+
+var dataPool = {
+    _pool: {},
+    _lengths: [],
+    put: function (data) {
+        var length = data.length;
+        if (!this._pool[length]) {
+            this._pool[length] = [data];
+            this._lengths.push(length);
+            this._lengths.sort();
+        }
+        else {
+            this._pool[length].push(data);
+        }
+    },
+    get: function (length) {
+        var id;
+        for (var i = 0; i < this._lengths.length; i++) {
+            if (this._lengths[i] >= length) {
+                id = this._lengths[i];
+                break;
+            }
+        }
+        if (id) {
+            return this._pool[id].pop();
+        }
+        else {
+            return undefined;
+        }
+    }
+};
+
+var webgl, 
+    vl, vb, vt, vr, 
+    cornerId = [];
 
 /*
  * <p>
@@ -51,55 +81,26 @@ EventTarget = require("../cocos2d/core/event/event-target");
  * @property {Number}   insetBottom     - The bottom inset of the 9-slice sprite
  */
 var simpleQuadGenerator = {
-    _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, isTrimmedContentSize) {
-        var quads = [];
+    _rebuildQuads_base: function (sprite, spriteFrame, contentSize, isTrimmedContentSize) {
         //build vertices
-        var vertices = this._calculateVertices(spriteFrame, contentSize, isTrimmedContentSize);
-
+        this._calculateVertices(sprite, spriteFrame, contentSize, isTrimmedContentSize);
         //build uvs
-        var uvs = this._calculateUVs(spriteFrame);
-
-        //build quads
-        var quad;
-        quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad)|| new cc.V3F_C4B_T2F_Quad();
-
-        quad._bl.colors = colorOpacity;
-        quad._br.colors = colorOpacity;
-        quad._tl.colors = colorOpacity;
-        quad._tr.colors = colorOpacity;
-
-        quad._bl.vertices = new cc.Vertex3F(vertices[0].x, vertices[0].y, 0);
-        quad._br.vertices = new cc.Vertex3F(vertices[1].x, vertices[0].y, 0);
-        quad._tl.vertices = new cc.Vertex3F(vertices[0].x, vertices[1].y, 0);
-        quad._tr.vertices = new cc.Vertex3F(vertices[1].x, vertices[1].y, 0);
-
-        if (!spriteFrame._rotated) {
-            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            quad._br.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
-            quad._tl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
-        } else {
-            quad._bl.texCoords = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            quad._br.texCoords = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            quad._tl.texCoords = new cc.Tex2F(uvs[1].x, uvs[1].y);
-            quad._tr.texCoords = new cc.Tex2F(uvs[1].x, uvs[0].y);
-        }
-        quads.push(quad);
-        return quads;
+        this._calculateUVs(sprite, spriteFrame);
+        sprite._vertCount = 4;
     },
 
-    _calculateVertices: function (spriteFrame, contentSize, isTrimmedContentSize) {
-        var x0, x3;
-        var y0, y3;
+    _calculateVertices: function (sprite, spriteFrame, contentSize, isTrimmedContentSize) {
+        var vertices = sprite._vertices,
+            wt = sprite._renderCmd._worldTransform,
+            l, b, r, t;
         if (isTrimmedContentSize) {
-            x0 = 0;
-            x3 = contentSize.width;
-
-            y0 = 0;
-            y3 = contentSize.height;
+            l = 0;
+            b = 0;
+            r = contentSize.width;
+            t = contentSize.height;
         } else {
             var originalSize = spriteFrame.getOriginalSize();
-            var rect = spriteFrame.getRect();
+            var rect = spriteFrame._rect;
             var offset = spriteFrame.getOffset();
             var scaleX = contentSize.width / originalSize.width;
             var scaleY = contentSize.height / originalSize.height;
@@ -108,95 +109,94 @@ var simpleQuadGenerator = {
             var trimmedBottom = offset.y + (originalSize.height - rect.height) / 2;
             var trimmedTop = offset.y - (originalSize.height - rect.height) / 2;
 
-            x0 = trimmLeft * scaleX;
-            x3 = contentSize.width + trimmRight * scaleX;
-            y0 = trimmedBottom * scaleY;
-            y3 = contentSize.height + trimmedTop * scaleY;
+            l = trimmLeft * scaleX;
+            b = trimmedBottom * scaleY;
+            r = contentSize.width + trimmRight * scaleX;
+            t = contentSize.height + trimmedTop * scaleY;
         }
 
-        var vertices = [];
-        vertices.push(cc.p(x0, y0));
-        vertices.push(cc.p(x3, y3));
-
-        return vertices;
-    },
-
-    _calculateUVs: function (spriteFrame) {
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
-
-        var textureRect = spriteFrame.getRect();
-
-        //uv computation should take spritesheet into account.
-        var u0, u3;
-        var v0, v3;
-
-        if (spriteFrame._rotated) {
-            u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.height) / atlasWidth;
-
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+        if (vertices.length < 8) {
+            dataPool.put(vertices);
+            vertices = dataPool.get(8) || new Float32Array(8);
+            sprite._vertices = vertices;
+        }
+        // bl, br, tl, tr
+        if (webgl) {
+            vertices[0] = l * wt.a + b * wt.c + wt.tx;
+            vertices[1] = l * wt.b + b * wt.d + wt.ty;
+            vertices[2] = r * wt.a + b * wt.c + wt.tx;
+            vertices[3] = r * wt.b + b * wt.d + wt.ty;
+            vertices[4] = l * wt.a + t * wt.c + wt.tx;
+            vertices[5] = l * wt.b + t * wt.d + wt.ty;
+            vertices[6] = r * wt.a + t * wt.c + wt.tx;
+            vertices[7] = r * wt.b + t * wt.d + wt.ty;
         }
         else {
-            u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.width) / atlasWidth;
-
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+            vertices[0] = l;
+            vertices[1] = b;
+            vertices[2] = r;
+            vertices[3] = b;
+            vertices[4] = l;
+            vertices[5] = t;
+            vertices[6] = r;
+            vertices[7] = t;
         }
 
-        var uvCoordinates = [];
-        uvCoordinates.push(cc.p(u0, v3));
-        uvCoordinates.push(cc.p(u3, v0));
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
+    },
 
-        return uvCoordinates;
+    _calculateUVs: function (sprite, spriteFrame) {
+        var uvs = sprite._uvs;
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+        var textureRect = spriteFrame._rect;
+
+        if (uvs.length < 8) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(8) || new Float32Array(8);
+            sprite._uvs = uvs;
+        }
+
+        //uv computation should take spritesheet into account.
+        var l, b, r, t;
+
+        if (spriteFrame._rotated) {
+            l = textureRect.x / atlasWidth;
+            b = (textureRect.y + textureRect.width) / atlasHeight;
+            r = (textureRect.x + textureRect.height) / atlasWidth;
+            t = textureRect.y / atlasHeight;
+            uvs[0] = l; uvs[1] = t;
+            uvs[2] = l; uvs[3] = b;
+            uvs[4] = r; uvs[5] = t;
+            uvs[6] = r; uvs[7] = b;
+        }
+        else {
+            l = textureRect.x / atlasWidth;
+            b = (textureRect.y + textureRect.height) / atlasHeight;
+            r = (textureRect.x + textureRect.width) / atlasWidth;
+            t = textureRect.y / atlasHeight;
+            uvs[0] = l; uvs[1] = b;
+            uvs[2] = r; uvs[3] = b;
+            uvs[4] = l; uvs[5] = t;
+            uvs[6] = r; uvs[7] = t;
+        }
     }
 };
 
 var scale9QuadGenerator = {
-    _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity, insetLeft, insetRight, insetTop, insetBottom) {
-        var quads = [];
+    _rebuildQuads_base: function (sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
         //build vertices
-        var vertices = this._calculateVertices(spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom);
-
+        this._calculateVertices(sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom);
         //build uvs
-        var uvs = this._calculateUVs(spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
-
-        //build quads
-        var quad;
-        for (var i = 0; i < 3; ++i) {
-            for (var j = 0; j < 3; ++j) {
-                quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
-                quad._bl.colors = colorOpacity;
-                quad._br.colors = colorOpacity;
-                quad._tl.colors = colorOpacity;
-                quad._tr.colors = colorOpacity;
-
-                quad._bl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j].y, 0);
-                quad._br.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j].y, 0);
-                quad._tl.vertices = new cc.Vertex3F(vertices[i].x, vertices[j + 1].y, 0);
-                quad._tr.vertices = new cc.Vertex3F(vertices[i + 1].x, vertices[j + 1].y, 0);
-
-                if (!spriteFrame._rotated) {
-                    quad._bl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j].y);
-                    quad._br.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j].y);
-                    quad._tl.texCoords = new cc.Tex2F(uvs[i].x, uvs[j + 1].y);
-                    quad._tr.texCoords = new cc.Tex2F(uvs[i + 1].x, uvs[j + 1].y);
-                } else {
-                    quad._bl.texCoords = new cc.Tex2F(uvs[j].x, uvs[3 - i].y);
-                    quad._br.texCoords = new cc.Tex2F(uvs[j].x, uvs[3 - (i + 1)].y);
-                    quad._tl.texCoords = new cc.Tex2F(uvs[j + 1].x, uvs[3 - i].y);
-                    quad._tr.texCoords = new cc.Tex2F(uvs[j + 1].x, uvs[3 - (i + 1)].y);
-                }
-                quads.push(quad);
-            }
-        }
-
-        return quads;
+        this._calculateUVs(sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
     },
 
-    _calculateVertices: function (spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
+    _calculateVertices: function (sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
+        var vertices = sprite._vertices;
+        var wt = sprite._renderCmd._worldTransform;
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
 
@@ -218,28 +218,50 @@ var scale9QuadGenerator = {
         yScale = yScale > 1 ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
-        var x0, x1, x2, x3;
-        var y0, y1, y2, y3;
-        x0 = 0;
-        x1 = leftWidth * xScale;
-        x2 = x1 + sizableWidth;
-        x3 = preferSize.width;
+        var x = new Array(4);
+        var y = new Array(4);
+        x[0] = 0;
+        x[1] = leftWidth * xScale;
+        x[2] = x[1] + sizableWidth;
+        x[3] = preferSize.width;
+        y[0] = 0;
+        y[1] = bottomHeight * yScale;
+        y[2] = y[1] + sizableHeight;
+        y[3] = preferSize.height;
 
-        y0 = 0;
-        y1 = bottomHeight * yScale;
-        y2 = y1 + sizableHeight;
-        y3 = preferSize.height;
+        if (vertices.length < 32) {
+            dataPool.put(vertices);
+            vertices = dataPool.get(32) || new Float32Array(32);
+            sprite._vertices = vertices;
+        }
+        var offset = 0, row, col;
+        if (webgl) {
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    vertices[offset] = x[col] * wt.a + y[row] * wt.c + wt.tx;
+                    vertices[offset+1] = x[col] * wt.b + y[row] * wt.d + wt.ty;
+                    offset += 2;
+                }
+            }
+        }
+        else {
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    vertices[offset] = x[col];
+                    vertices[offset+1] = y[row];
+                    offset += 2;
+                }
+            }
+        }
 
-        var vertices = [];
-        vertices.push(cc.p(x0, y0));
-        vertices.push(cc.p(x1, y1));
-        vertices.push(cc.p(x2, y2));
-        vertices.push(cc.p(x3, y3));
-
-        return vertices;
+        cornerId[0] = 0;
+        cornerId[1] = 6;
+        cornerId[2] = 24;
+        cornerId[3] = 30;
     },
 
-    _calculateUVs: function (spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
+    _calculateUVs: function (sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
+        var uvs = sprite._uvs;
         var rect = spriteFrame._rect;
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
@@ -254,374 +276,415 @@ var scale9QuadGenerator = {
         topHeight = insetTop;
         bottomHeight = insetBottom;
         centerHeight = rect.height - topHeight - bottomHeight;
+        var textureRect = spriteFrame._rect;
 
-        var textureRect = spriteFrame.getRect();
+        if (uvs.length < 32) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(32) || new Float32Array(32);
+            sprite._uvs = uvs;
+        }
 
         //uv computation should take spritesheet into account.
-        var u0, u1, u2, u3;
-        var v0, v1, v2, v3;
+        var u = new Array(4);
+        var v = new Array(4);
+        var offset = 0, row, col;
 
         if (spriteFrame._rotated) {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (bottomHeight + textureRect.x) / atlasWidth;
-            u2 = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
-            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+            u[0] = textureRect.x / atlasWidth;
+            u[1] = (bottomHeight + textureRect.x) / atlasWidth;
+            u[2] = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
+            u[3] = (textureRect.x + textureRect.height) / atlasWidth;
 
-            v0 = textureRect.y / atlasHeight;
-            v1 = (leftWidth + textureRect.y) / atlasHeight;
-            v2 = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
-            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+            v[3] = textureRect.y / atlasHeight;
+            v[2] = (leftWidth + textureRect.y) / atlasHeight;
+            v[1] = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
+            v[0] = (textureRect.y + textureRect.width) / atlasHeight;
+            
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    uvs[offset] = u[row];
+                    uvs[offset+1] = v[3-col];
+                    offset += 2;
+                }
+            }
         }
         else {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (leftWidth + textureRect.x) / atlasWidth;
-            u2 = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
-            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+            u[0] = textureRect.x / atlasWidth;
+            u[1] = (leftWidth + textureRect.x) / atlasWidth;
+            u[2] = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
+            u[3] = (textureRect.x + textureRect.width) / atlasWidth;
 
-            v0 = textureRect.y / atlasHeight;
-            v1 = (topHeight + textureRect.y) / atlasHeight;
-            v2 = (topHeight + centerHeight + textureRect.y) / atlasHeight;
-            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+            v[3] = textureRect.y / atlasHeight;
+            v[2] = (topHeight + textureRect.y) / atlasHeight;
+            v[1] = (topHeight + centerHeight + textureRect.y) / atlasHeight;
+            v[0] = (textureRect.y + textureRect.height) / atlasHeight;
+
+            for (row = 0; row < 4; row++) {
+                for (col = 0; col < 4; col++) {
+                    uvs[offset] = u[col];
+                    uvs[offset+1] = v[row];
+                    offset += 2;
+                }
+            }
         }
-
-        var uvCoordinates = [];
-        uvCoordinates.push(cc.p(u0, v3));
-        uvCoordinates.push(cc.p(u1, v2));
-        uvCoordinates.push(cc.p(u2, v1));
-        uvCoordinates.push(cc.p(u3, v0));
-
-        return uvCoordinates;
     }
 };
 
 var tiledQuadGenerator = {
-    _rebuildQuads_base: function (spriteFrame, contentSize, colorOpacity) {
-        var quads = [];
-
+    _rebuildQuads_base: function (sprite, spriteFrame, contentSize) {
+        var vertices = sprite._vertices,
+            wt = sprite._renderCmd._worldTransform,
+            uvs = sprite._uvs;
         //build uvs
-        var uvs = this._calculateUVs(spriteFrame);
-        var u0 = uvs[0].x;
-        var v0 = uvs[0].y;
-        var u1 = uvs[1].x;
-        var v1 = uvs[1].y;
-        var rectWidth = spriteFrame.getRect().width;
-        var rectHeight = spriteFrame.getRect().height;
-        //build quads
-        var hRepeat = contentSize.width / rectWidth;
-        var vRepeat = contentSize.height / rectHeight;
-
-        if(Math.ceil(hRepeat) * Math.ceil(vRepeat) > (65536 / 4)) {
-            cc.error("too many tiles, only 16384 tiles will be show");
-        }
-
-        for (var hindex = 0; hindex < Math.ceil(hRepeat); ++hindex) {
-            for (var vindex = 0; vindex < Math.ceil(vRepeat); ++vindex) {
-                var quad;
-                quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
-
-                quad._bl.colors = colorOpacity;
-                quad._br.colors = colorOpacity;
-                quad._tl.colors = colorOpacity;
-                quad._tr.colors = colorOpacity;
-
-                quad._bl.vertices = new cc.Vertex3F(rectWidth * hindex, rectHeight * vindex, 0);
-                quad._br.vertices = new cc.Vertex3F(rectWidth * Math.min(hindex + 1, hRepeat), rectHeight * vindex, 0);
-                quad._tl.vertices = new cc.Vertex3F(rectWidth * hindex, rectHeight * Math.min(vindex + 1, vRepeat), 0);
-                quad._tr.vertices = new cc.Vertex3F(rectWidth * Math.min(hindex + 1, hRepeat), rectHeight * Math.min(vindex + 1, vRepeat), 0);
-
-                if (!spriteFrame._rotated) {
-                    quad._bl.texCoords = new cc.Tex2F(u0, v0);
-                    quad._br.texCoords = new cc.Tex2F(u0 + (u1 - u0) * Math.min(1, hRepeat - hindex), v0);
-                    quad._tl.texCoords = new cc.Tex2F(u0, v0 + (v1 - v0) * Math.min(1, vRepeat - vindex));
-                    quad._tr.texCoords = new cc.Tex2F(u0 + (u1 - u0) * Math.min(1, hRepeat - hindex), v0 + (v1 - v0) * Math.min(1, vRepeat - vindex));
-                } else {
-                    quad._bl.texCoords = new cc.Tex2F(u0, v1);
-                    quad._br.texCoords = new cc.Tex2F(u0, v1 + (v0 - v1) * Math.min(1, hRepeat - hindex));
-                    quad._tl.texCoords = new cc.Tex2F(u0 + (u1 - u0) * Math.min(1, vRepeat - vindex), v1);
-                    quad._tr.texCoords = new cc.Tex2F(u0 + (u1 - u0) * Math.min(1, vRepeat - vindex), v1 + (v0 - v1) * Math.min(1, hRepeat - hindex));
-
-                }
-                quads.push(quad);
-                if(quads.length >= 65536 / 4) {
-                    break;
-                }
-            }
-        }
-        return quads;
-    },
-
-    _calculateUVs: function (spriteFrame) {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
-
-        var textureRect = spriteFrame.getRect();
+        var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
-        var u0, u3;
-        var v0, v3;
-
+        var u0, v0, u1, v1;
         if (spriteFrame._rotated) {
             u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.height) / atlasWidth;
-
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+            u1 = (textureRect.x + textureRect.height) / atlasWidth;
+            v0 = (textureRect.y + textureRect.width) / atlasHeight;
+            v1 = textureRect.y / atlasHeight;
         }
         else {
             u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+            u1 = (textureRect.x + textureRect.width) / atlasWidth;
+            v0 = (textureRect.y + textureRect.height) / atlasHeight;
+            v1 = textureRect.y / atlasHeight;
+        }
+        
+        //build quads
+        var rectWidth = textureRect.width;
+        var rectHeight = textureRect.height;
+        var hRepeat = contentSize.width / rectWidth;
+        var vRepeat = contentSize.height / rectHeight;
+        var row = Math.ceil(vRepeat), col = Math.ceil(hRepeat);
 
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+        if (row * col > (65536 / 4)) {
+            cc.error('too many tiles, only 16384 tiles will be show');
+        }
+        var dataLength = row * col * 4 * 2;
+        if (vertices.length < dataLength) {
+            dataPool.put(vertices);
+            vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._vertices = vertices;
+        }
+        if (uvs.length < dataLength) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._uvs = uvs;
         }
 
-        var uvCoordinates = [];
-        uvCoordinates.push(cc.p(u0, v3));
-        uvCoordinates.push(cc.p(u3, v0));
+        var offset = 0, l, b, r, t;
+        sprite._vertCount = 0;
+        for (var vindex = 0; vindex < row; ++vindex) {
+            for (var hindex = 0; hindex < col; ++hindex) {
+                l = rectWidth * hindex;
+                b = rectHeight * vindex;
+                r = rectWidth * Math.min(hindex + 1, hRepeat);
+                t = rectHeight * Math.min(vindex + 1, vRepeat);
+                // bl.x, bl.y, br.x, br.y, tl.x, tl.y, tr.x, tr.y
+                if (webgl) {
+                    vertices[offset] = l * wt.a + b * wt.c + wt.tx;
+                    vertices[offset + 1] = l * wt.b + b * wt.d + wt.ty;
+                    vertices[offset + 2] = r * wt.a + b * wt.c + wt.tx;
+                    vertices[offset + 3] = r * wt.b + b * wt.d + wt.ty;
+                    vertices[offset + 4] = l * wt.a + t * wt.c + wt.tx;
+                    vertices[offset + 5] = l * wt.b + t * wt.d + wt.ty;
+                    vertices[offset + 6] = r * wt.a + t * wt.c + wt.tx;
+                    vertices[offset + 7] = r * wt.b + t * wt.d + wt.ty;
+                }
+                else {
+                    vertices[offset] = l;
+                    vertices[offset + 1] = b;
+                    vertices[offset + 2] = r;
+                    vertices[offset + 3] = b;
+                    vertices[offset + 4] = l;
+                    vertices[offset + 5] = t;
+                    vertices[offset + 6] = r;
+                    vertices[offset + 7] = t;
+                }
 
-        return uvCoordinates;
+                if (!spriteFrame._rotated) {
+                    uvs[offset] = u0;
+                    uvs[offset + 1] = v0;
+                    uvs[offset + 2] = r = u0 + (u1 - u0) * Math.min(1, hRepeat - hindex);
+                    uvs[offset + 3] = v0;
+                    uvs[offset + 4] = u0;
+                    uvs[offset + 5] = t = v0 + (v1 - v0) * Math.min(1, vRepeat - vindex);
+                    uvs[offset + 6] = r;
+                    uvs[offset + 7] = t;
+                } else {
+                    uvs[offset] = u0;
+                    uvs[offset + 1] = v1;
+                    uvs[offset + 2] = u0;
+                    uvs[offset + 3] = t = v1 + (v0 - v1) * Math.min(1, hRepeat - hindex);
+                    uvs[offset + 4] = r = u0 + (u1 - u0) * Math.min(1, vRepeat - vindex);
+                    uvs[offset + 5] = v1;
+                    uvs[offset + 6] = r;
+                    uvs[offset + 7] = t;
+                }
+                offset += 8;
+                sprite._vertCount += 4;
+                if (offset > dataLength) return;
+            }
+        }
+
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
     }
 };
 
 var fillQuadGeneratorBar = {
     //percentage from 0 to 1;
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillType, fillStart, fillRange) {
+    _rebuildQuads_base : function (sprite, spriteFrame, contentSize, fillType, fillStart, fillRange) {
+        var vertices = sprite._vertices,
+            wt = sprite._renderCmd._worldTransform,
+            uvs = sprite._uvs;
         var fillEnd;
         //build vertices
-        var vertices = this._calculateVertices(spriteFrame, contentSize);
-
+        var l = 0, b = 0, 
+            r = contentSize.width, t = contentSize.height;
         //build uvs
-        var uvs = this._calculateUVs(spriteFrame);
+        var atlasWidth = spriteFrame._texture.getPixelWidth();
+        var atlasHeight = spriteFrame._texture.getPixelHeight();
+        var textureRect = spriteFrame._rect;
+        //uv computation should take spritesheet into account.
+        var ul, vb, ur, vt;
+        if (spriteFrame._rotated) {
+            ul = textureRect.x / atlasWidth;
+            vb = (textureRect.y + textureRect.width) / atlasHeight;
+            ur = (textureRect.x + textureRect.height) / atlasWidth;
+            vt = textureRect.y / atlasHeight;
+        }
+        else {
+            ul = textureRect.x / atlasWidth;
+            vb = (textureRect.y + textureRect.height) / atlasHeight;
+            ur = (textureRect.x + textureRect.width) / atlasWidth;
+            vt = textureRect.y / atlasHeight;
+        }
+
+        if (vertices.length < 8) {
+            dataPool.put(vertices);
+            vertices = dataPool.get(8) || new Float32Array(8);
+            sprite._vertices = vertices;
+        }
+        if (uvs.length < 8) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(8) || new Float32Array(8);
+            sprite._uvs = uvs;
+        }
 
         //build quads
-        var quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
+        if (webgl) {
+            vertices[0] = l * wt.a + b * wt.c + wt.tx;
+            vertices[1] = l * wt.b + b * wt.d + wt.ty;
+            vertices[2] = r * wt.a + b * wt.c + wt.tx;
+            vertices[3] = r * wt.b + b * wt.d + wt.ty;
+            vertices[4] = l * wt.a + t * wt.c + wt.tx;
+            vertices[5] = l * wt.b + t * wt.d + wt.ty;
+            vertices[6] = r * wt.a + t * wt.c + wt.tx;
+            vertices[7] = r * wt.b + t * wt.d + wt.ty;
+        }
+        else {
+            vertices[0] = l;
+            vertices[1] = b;
+            vertices[2] = r;
+            vertices[3] = b;
+            vertices[4] = l;
+            vertices[5] = t;
+            vertices[6] = r;
+            vertices[7] = t;
+        }
 
-        quad._bl.colors = colorOpacity;
-        quad._br.colors = colorOpacity;
-        quad._tl.colors = colorOpacity;
-        quad._tr.colors = colorOpacity;
-
-        quad._bl.vertices.x = quad._tl.vertices.x = vertices[0].x;
-        quad._br.vertices.x = quad._tr.vertices.x = vertices[1].x;
-
-        quad._bl.vertices.y = quad._br.vertices.y = vertices[0].y;
-        quad._tl.vertices.y = quad._tr.vertices.y = vertices[1].y;
-
-        var quadUV = [null,null,null,null];
-
+        var quadUV = new Array(8);
         if (!spriteFrame._rotated) {
-            quadUV[0] = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            quadUV[1] = new cc.Tex2F(uvs[1].x, uvs[0].y);
-            quadUV[2] = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            quadUV[3] = new cc.Tex2F(uvs[1].x, uvs[1].y);
+            quadUV[0] = quadUV[4] = ul;
+            quadUV[2] = quadUV[6] = ur;
+            quadUV[1] = quadUV[3] = vb;
+            quadUV[5] = quadUV[7] = vt;
         } else {
-            quadUV[0] = new cc.Tex2F(uvs[0].x, uvs[1].y);
-            quadUV[1] = new cc.Tex2F(uvs[0].x, uvs[0].y);
-            quadUV[2]= new cc.Tex2F(uvs[1].x, uvs[1].y);
-            quadUV[3]= new cc.Tex2F(uvs[1].x, uvs[0].y);
+            quadUV[0] = quadUV[2] = ul;
+            quadUV[4] = quadUV[6] = ur;
+            quadUV[3] = quadUV[7] = vb;
+            quadUV[1] = quadUV[5] = vt;
         }
 
         //do clamp
         fillStart = fillStart > 1 ? 1 : fillStart;
         fillStart = fillStart < 0 ? 0 : fillStart;
-
         fillRange = fillRange < 0 ? 0 : fillRange;
-
         fillEnd = fillStart + fillRange;
-
         fillEnd = fillEnd > 1 ? 1 : fillEnd;
 
+        // bl : 0, 1
+        // br : 2, 3
+        // tl : 4, 5
+        // tr : 6, 7
         var progressStart, progressEnd;
         switch (fillType) {
             case cc.Scale9Sprite.FillType.HORIZONTAL:
-                progressStart = vertices[0].x + (vertices[1].x - vertices[0].x) * fillStart;
-                progressEnd = vertices[0].x + (vertices[1].x - vertices[0].x) * fillEnd;
+                progressStart = vertices[0] + (vertices[2] - vertices[0]) * fillStart;
+                progressEnd = vertices[0] + (vertices[2] - vertices[0]) * fillEnd;
 
-                quad._bl.vertices.x = progressStart;
-                quad._tl.vertices.x = progressStart;
+                vertices[0] = progressStart;
+                vertices[2] = progressEnd;
+                vertices[4] = progressStart;
+                vertices[6] = progressEnd;
 
-                quad._br.vertices.x = progressEnd;
-                quad._tr.vertices.x = progressEnd;
-
-                quad._bl.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * fillStart;
-                quad._bl.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * fillStart;
-
-                quad._tl.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillStart;
-                quad._tl.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillStart;
-
-                quad._br.texCoords.u = quadUV[0].u + (quadUV[1].u - quadUV[0].u) * fillEnd;
-                quad._br.texCoords.v = quadUV[0].v + (quadUV[1].v - quadUV[0].v) * fillEnd;
-
-                quad._tr.texCoords.u = quadUV[2].u + (quadUV[3].u - quadUV[2].u) * fillEnd;
-                quad._tr.texCoords.v = quadUV[2].v + (quadUV[3].v - quadUV[2].v) * fillEnd;
+                uvs[0] = quadUV[0] + (quadUV[2] - quadUV[0]) * fillStart;
+                uvs[1] = quadUV[1];
+                uvs[2] = quadUV[0] + (quadUV[2] - quadUV[0]) * fillEnd;
+                uvs[3] = quadUV[3];
+                uvs[4] = quadUV[4] + (quadUV[6] - quadUV[4]) * fillStart;
+                uvs[5] = quadUV[5];
+                uvs[6] = quadUV[4] + (quadUV[6] - quadUV[4]) * fillEnd;
+                uvs[7] = quadUV[7];
                 break;
             case cc.Scale9Sprite.FillType.VERTICAL:
-                progressStart = vertices[0].y + (vertices[1].y - vertices[0].y) * fillStart;
-                progressEnd = vertices[0].y + (vertices[1].y - vertices[0].y) * fillEnd;
+                progressStart = vertices[1] + (vertices[5] - vertices[1]) * fillStart;
+                progressEnd = vertices[1] + (vertices[5] - vertices[1]) * fillEnd;
 
-                quad._bl.vertices.y = progressStart;
-                quad._br.vertices.y = progressStart;
+                vertices[1] = progressStart;
+                vertices[3] = progressStart;
+                vertices[5] = progressEnd;
+                vertices[7] = progressEnd;
 
-                quad._tl.vertices.y = progressEnd;
-                quad._tr.vertices.y = progressEnd;
-
-                quad._bl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * fillStart;
-                quad._bl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * fillStart;
-
-                quad._br.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * fillStart;
-                quad._br.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * fillStart;
-
-                quad._tl.texCoords.u = quadUV[0].u + (quadUV[2].u - quadUV[0].u) * fillEnd;
-                quad._tl.texCoords.v = quadUV[0].v + (quadUV[2].v - quadUV[0].v) * fillEnd;
-
-                quad._tr.texCoords.u = quadUV[1].u + (quadUV[3].u - quadUV[1].u) * fillEnd;
-                quad._tr.texCoords.v = quadUV[1].v + (quadUV[3].v - quadUV[1].v) * fillEnd;
+                uvs[0] = quadUV[0];
+                uvs[1] = quadUV[1] + (quadUV[5] - quadUV[1]) * fillStart;
+                uvs[2] = quadUV[2];
+                uvs[3] = quadUV[3] + (quadUV[7] - quadUV[3]) * fillStart;
+                uvs[4] = quadUV[4];
+                uvs[5] = quadUV[1] + (quadUV[5] - quadUV[1]) * fillEnd;
+                uvs[6] = quadUV[6];
+                uvs[7] = quadUV[3] + (quadUV[7] - quadUV[3]) * fillEnd;
                 break;
             default:
-                cc.error("Unrecognized fill type in bar fill");
+                cc.error('Unrecognized fill type in bar fill');
                 break;
         }
+        sprite._vertCount = 4;
 
-        return [quad];
-    },
-
-    _calculateVertices : function (spriteFrame, contentSize) {
-
-        var x0,x3;
-        var y0,y3;
-        x0 = 0;
-        x3 = contentSize.width;
-
-        y0 = 0;
-        y3 = contentSize.height;
-
-        return [cc.p(x0, y0), cc.p(x3, y3)];
-    },
-
-    _calculateUVs : function (spriteFrame) {
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
-
-        var textureRect = spriteFrame.getRect();
-
-        //uv computation should take spritesheet into account.
-        var u0, u3;
-        var v0, v3;
-
-        if (spriteFrame._rotated) {
-            u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.height) / atlasWidth;
-
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.width) / atlasHeight;
-        }
-        else {
-            u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.width) / atlasWidth;
-
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.height) / atlasHeight;
-        }
-
-        return [cc.p(u0, v3),cc.p(u3, v0)];
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
     }
 };
 
 var fillQuadGeneratorRadial = {
-    _rebuildQuads_base : function (spriteFrame, contentSize, colorOpacity, fillCenter, fillStart,fillRange) {
+    _vertPos: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
+    _vertices: [cc.v2(0,0),cc.v2(0,0)],
+    _uvs: [cc.v2(0,0),cc.v2(0,0)],
+    _intersectPoint_1: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
+    _intersectPoint_2: [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)],
+    outVerts: null,
+    outUvs: null,
+    rawVerts: null,
+    rawUvs: null,
+
+    _rebuildQuads_base : function (sprite, spriteFrame, contentSize, fillCenter, fillStart, fillRange) {
+        var vertices = sprite._vertices,
+            uvs = sprite._uvs,
+            rawVerts = sprite._rawVerts,
+            rawUvs = sprite._rawUvs,
+            wt = sprite._renderCmd._worldTransform;
         //do round fill start [0,1), include 0, exclude 1
         while (fillStart >= 1.0) fillStart -= 1.0;
         while (fillStart < 0.0) fillStart += 1.0;
-        var center = cc.v2(fillCenter);
-
-        center.x *= contentSize.width;
-        center.y *= contentSize.height;
+        var cx = fillCenter.x * contentSize.width,
+            cy = fillCenter.y * contentSize.height;
+        var center = cc.v2( webgl ? cx * wt.a + cy * wt.c + wt.tx : cx,
+                            webgl ? cx * wt.b + cy * wt.d + wt.ty : cy);
 
         fillStart *= Math.PI * 2;
         fillRange *= Math.PI * 2;
         var fillEnd = fillStart + fillRange;
-        if(!this._inited) {
-            this._inited = true;
-            this._vertPos = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
-            this._vertices = [cc.v2(0,0),cc.v2(0,0)];
-            this._uvs = [cc.v2(0,0),cc.v2(0,0)];
-            this._intersectPoint_1 = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
-            this._intersectPoint_2 = [cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0), cc.v2(0, 0)];
-        }
+
+        this.outVerts = vertices;
+        this.outUvs = uvs;
+        this.rawVerts = rawVerts;
+        this.rawUvs = rawUvs;
 
         //build vertices
-        this._calculateVertices(spriteFrame, contentSize);
+        this._calculateVertices(wt, spriteFrame, contentSize);
         //build uvs
         this._calculateUVs(spriteFrame);
 
-        this._vertPos[0].x = this._vertPos[3].x = this._vertices[0].x;
-        this._vertPos[1].x = this._vertPos[2].x = this._vertices[1].x;
-        this._vertPos[0].y = this._vertPos[1].y = this._vertices[0].y;
-        this._vertPos[2].y = this._vertPos[3].y = this._vertices[1].y;
+        var _vertPos = this._vertPos,
+            _vertices = this._vertices;
+
+        _vertPos[0].x = _vertPos[3].x = _vertices[0].x;
+        _vertPos[1].x = _vertPos[2].x = _vertices[1].x;
+        _vertPos[0].y = _vertPos[1].y = _vertices[0].y;
+        _vertPos[2].y = _vertPos[3].y = _vertices[1].y;
 
         //fallback
         //todo remove it if outside is implemented
-        if(center.x > this._vertices[1].x) {
-            center.x = this._vertices[1].x;
+        if(center.x > _vertices[1].x) {
+            center.x = _vertices[1].x;
         }
-        if(center.x < this._vertices[0].x) {
-            center.x = this._vertices[0].x;
+        if(center.x < _vertices[0].x) {
+            center.x = _vertices[0].x;
         }
-        if(center.y < this._vertices[0].y) {
-            center.y = this._vertices[0].y;
+        if(center.y < _vertices[0].y) {
+            center.y = _vertices[0].y;
         }
-        if(center.y > this._vertices[1].y) {
-            center.y = this._vertices[1].y;
+        if(center.y > _vertices[1].y) {
+            center.y = _vertices[1].y;
         }
-
-        var rawQuad;
-        rawQuad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
-
-        rawQuad._bl.colors = colorOpacity;
-        rawQuad._br.colors = colorOpacity;
-        rawQuad._tl.colors = colorOpacity;
-        rawQuad._tr.colors = colorOpacity;
-
-        rawQuad._bl.vertices.x = rawQuad._tl.vertices.x = this._vertices[0].x;
-        rawQuad._br.vertices.x = rawQuad._tr.vertices.x = this._vertices[1].x;
-
-        rawQuad._bl.vertices.y = rawQuad._br.vertices.y = this._vertices[0].y;
-        rawQuad._tl.vertices.y = rawQuad._tr.vertices.y = this._vertices[1].y;
-
+        
+        rawVerts[0] = rawVerts[4] = this._vertices[0].x;
+        rawVerts[2] = rawVerts[6] = this._vertices[1].x;
+        rawVerts[1] = rawVerts[3] = this._vertices[0].y;
+        rawVerts[5] = rawVerts[7] = this._vertices[1].y;
 
         if (!spriteFrame._rotated) {
-            rawQuad._bl.texCoords.u = rawQuad._tl.texCoords.u = this._uvs[0].x;
-            rawQuad._bl.texCoords.v = rawQuad._br.texCoords.v = this._uvs[0].y;
-            rawQuad._br.texCoords.u = rawQuad._tr.texCoords.u = this._uvs[1].x;
-            rawQuad._tl.texCoords.v = rawQuad._tr.texCoords.v = this._uvs[1].y;
-
+            rawUvs[0] = rawUvs[4] = this._uvs[0].x;
+            rawUvs[2] = rawUvs[6] = this._uvs[1].x;
+            rawUvs[1] = rawUvs[3] = this._uvs[0].y;
+            rawUvs[5] = rawUvs[7] = this._uvs[1].y;
         } else {
-            rawQuad._bl.texCoords.u = rawQuad._br.texCoords.u = this._uvs[0].x;
-            rawQuad._tl.texCoords.u = rawQuad._tr.texCoords.u = this._uvs[1].x;
-            rawQuad._br.texCoords.v = rawQuad._tr.texCoords.v = this._uvs[0].y;
-            rawQuad._bl.texCoords.v = rawQuad._tl.texCoords.v = this._uvs[1].y;
-
+            rawUvs[0] = rawUvs[2] = this._uvs[0].x;
+            rawUvs[4] = rawUvs[6] = this._uvs[1].x;
+            rawUvs[3] = rawUvs[7] = this._uvs[0].y;
+            rawUvs[1] = rawUvs[5] = this._uvs[1].y;
         }
 
         var triangles = [null, null, null, null];
-
         if(center.x !== this._vertices[0].x) {
-            triangles[0] = [3,0];
+            triangles[0] = [3, 0];
         }
         if(center.x !== this._vertices[1].x) {
-            triangles[2] = [1,2];
+            triangles[2] = [1, 2];
         }
         if(center.y !== this._vertices[0].y) {
-            triangles[1] = [0,1];
+            triangles[1] = [0, 1];
         }
         if(center.y !== this._vertices[1].y) {
-            triangles[3] = [2,3];
+            triangles[3] = [2, 3];
         }
 
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart, this._intersectPoint_1);
         this._getInsectedPoints(this._vertices[0].x, this._vertices[1].x, this._vertices[0].y, this._vertices[1].y, center, fillStart + fillRange, this._intersectPoint_2);
 
-        var quads = [];
+        var dataLength = 3 * 5 * 2;
+        if (vertices.length < dataLength) {
+            dataPool.put(vertices);
+            vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._vertices = vertices;
+        }
+        if (uvs.length < dataLength) {
+            dataPool.put(uvs);
+            uvs = dataPool.get(dataLength) || new Float32Array(dataLength);
+            sprite._uvs = uvs;
+        }
+
+        var offset = 0, count = 0;
         for(var triangleIndex = 0; triangleIndex < 4; ++triangleIndex) {
             var triangle = triangles[triangleIndex];
             if(triangle === null) {
@@ -629,12 +692,14 @@ var fillQuadGeneratorRadial = {
             }
             //all in
             if(fillRange >= Math.PI * 2) {
-                quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
+                this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
+                offset += 6;
+                count += 3;
                 continue;
             }
             //test against
-            var startAngle = this._getVertAngle(center,this._vertPos[triangle[0]]);
-            var endAngle = this._getVertAngle(center,this._vertPos[triangle[1]]);
+            var startAngle = this._getVertAngle(center, this._vertPos[triangle[0]]);
+            var endAngle = this._getVertAngle(center, this._vertPos[triangle[1]]);
             if(endAngle < startAngle) endAngle += Math.PI * 2;
             startAngle -= Math.PI * 2;
             endAngle -= Math.PI * 2;
@@ -645,75 +710,82 @@ var fillQuadGeneratorRadial = {
                 } else if (startAngle >= fillStart) {
                     if(endAngle >= fillEnd) {
                         //startAngle to fillEnd
-                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex],colorOpacity));
+                        this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
                     } else {
                         //startAngle to endAngle
-                        quads.push(this._generateTriangle(rawQuad, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]],colorOpacity));
+                        this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
                     }
+                    offset += 6;
+                    count += 3;
                 } else {
                     //startAngle < fillStart
                     if(endAngle <= fillStart) {
                         //all out
                     } else if(endAngle <= fillEnd) {
                         //fillStart to endAngle
-                        quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]],colorOpacity));
+                        this._generateTriangle(offset, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]]);
+                        offset += 6;
+                        count += 3;
                     } else {
                         //fillStart to fillEnd
-                        quads.push(this._generateTriangle(rawQuad, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex],colorOpacity));
+                        this._generateTriangle(offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
+                        offset += 6;
+                        count += 3;
                     }
                 }
-
                 //add 2 * PI
                 startAngle += Math.PI * 2;
                 endAngle += Math.PI * 2;
             }
-
         }
+        sprite._vertCount = count;
 
-        var result = {};
-        result.quad = quads;
-        result.rawQuad = rawQuad;
-        return result;
-
+        cornerId[0] = 0;
+        cornerId[1] = 2;
+        cornerId[2] = 4;
+        cornerId[3] = 6;
     },
 
-    _generateTriangle: function(rawQuad, vert0, vert1, vert2 , colorOpacity) {
-        var rawQuad_bl = rawQuad._bl;
-        var rawQuad_br = rawQuad._br;
-        var rawQuad_tl = rawQuad._tl;
-        var rawQuad_tr = rawQuad._tr;
-
-        var v0x = rawQuad_bl.vertices.x;
-        var v0y = rawQuad_bl.vertices.y;
-        var v1x = rawQuad_tr.vertices.x;
-        var v1y = rawQuad_tr.vertices.y;
+    _generateTriangle: function(offset, vert0, vert1, vert2) {
+        var rawVerts = this.rawVerts;
+        var rawUvs = this.rawUvs;
+        var vertices = this.outVerts;
+        var v0x = rawVerts[0];
+        var v0y = rawVerts[1];
+        var v1x = rawVerts[6];
+        var v1y = rawVerts[7];
         var progressX, progressY;
-        var quad = cc.pool.getFromPool(cc.V3F_C4B_T2F_Quad) || new cc.V3F_C4B_T2F_Quad();
-        quad._tl.vertices.x  = vert0.x;
-        quad._tl.vertices.y  = vert0.y;
-
-        quad._bl.vertices.x  = vert1.x;
-        quad._bl.vertices.y  = vert1.y;
-
-        quad._tr.vertices.x  = vert2.x;
-        quad._tr.vertices.y  = vert2.y;
-        quad._tl.colors = colorOpacity;
-        quad._bl.colors = colorOpacity;
-        quad._tr.colors = colorOpacity;
+        // tl: 0, 1
+        // bl: 2, 3
+        // tr: 4, 5
+        vertices[offset]  = vert0.x;
+        vertices[offset+1]  = vert0.y;
+        vertices[offset+2]  = vert1.x;
+        vertices[offset+3]  = vert1.y;
+        vertices[offset+4]  = vert2.x;
+        vertices[offset+5]  = vert2.y;
 
         progressX = (vert0.x - v0x) / (v1x - v0x);
         progressY = (vert0.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, rawQuad_bl.texCoords,rawQuad_br.texCoords,rawQuad_tr.texCoords,rawQuad_tl.texCoords, quad._tl.texCoords);
+        this._generateUV(progressX, progressY, rawUvs, offset);
 
         progressX = (vert1.x - v0x) / (v1x - v0x);
         progressY = (vert1.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, rawQuad_bl.texCoords,rawQuad_br.texCoords,rawQuad_tr.texCoords,rawQuad_tl.texCoords,quad._bl.texCoords);
+        this._generateUV(progressX, progressY, rawUvs, offset + 2);
 
         progressX = (vert2.x - v0x) / (v1x - v0x);
         progressY = (vert2.y - v0y) / (v1y - v0y);
-        this._generateUV(progressX, progressY, rawQuad_bl.texCoords,rawQuad_br.texCoords,rawQuad_tr.texCoords,rawQuad_tl.texCoords,quad._tr.texCoords);
+        this._generateUV(progressX, progressY, rawUvs, offset + 4);
+    },
 
-        return quad;
+    _generateUV : function(progressX, progressY, uvs, offset) {
+        var out = this.outUvs;
+        var px1 = uvs[0] + (uvs[2] - uvs[0]) * progressX;
+        var px2 = uvs[4] + (uvs[6] - uvs[4]) * progressX;
+        var py1 = uvs[1] + (uvs[3] - uvs[1]) * progressX;
+        var py2 = uvs[5] + (uvs[7] - uvs[5]) * progressX;
+        out[offset] = px1 + (px2 - px1) * progressY;
+        out[offset+1] = py1 + (py2 - py1) * progressY;
     },
 
     _isAngleIn : function(angle, start, rangeAngle) {
@@ -795,37 +867,31 @@ var fillQuadGeneratorRadial = {
         return result;
     },
 
-    _generateUV : function(progressX, progressY, uvbl, uvbr, uvtr, uvtl, result) {
-        var px1 = uvbl.u + (uvbr.u-uvbl.u) * progressX;
-        var px2 = uvtl.u + (uvtr.u-uvtl.u) * progressX;
-        var py1 = uvbl.v + (uvbr.v-uvbl.v) * progressX;
-        var py2 = uvtl.v + (uvtr.v-uvtl.v) * progressX;
-        result.u = px1 + (px2 - px1) * progressY;
-        result.v = py1 + (py2 - py1) * progressY;
-    },
-
-
-    _calculateVertices : function (spriteFrame, contentSize) {
-
-        var x0,x3;
-        var y0,y3;
+    _calculateVertices : function (wt, spriteFrame, contentSize) {
+        var x0, x3, y0, y3;
         x0 = 0;
-        x3 = contentSize.width;
-
         y0 = 0;
+        x3 = contentSize.width;
         y3 = contentSize.height;
 
-        this._vertices[0].x = x0;
-        this._vertices[0].y = y0;
-        this._vertices[1].x = x3;
-        this._vertices[1].y = y3;
+        if (webgl) {
+            this._vertices[0].x = x0 * wt.a + y0 * wt.c + wt.tx;
+            this._vertices[0].y = x0 * wt.b + y0 * wt.d + wt.ty;
+            this._vertices[1].x = x3 * wt.a + y3 * wt.c + wt.tx;
+            this._vertices[1].y = x3 * wt.b + y3 * wt.d + wt.ty;
+        }
+        else {
+            this._vertices[0].x = x0;
+            this._vertices[0].y = y0;
+            this._vertices[1].x = x3;
+            this._vertices[1].y = y3;
+        }
     },
 
     _calculateUVs : function (spriteFrame) {
         var atlasWidth = spriteFrame._texture.getPixelWidth();
         var atlasHeight = spriteFrame._texture.getPixelHeight();
-
-        var textureRect = spriteFrame.getRect();
+        var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
         var u0, u3;
@@ -850,7 +916,6 @@ var fillQuadGeneratorRadial = {
         this._uvs[0].y = v3;
         this._uvs[1].x = u3;
         this._uvs[1].y = v0;
-
     }
 };
 
@@ -869,10 +934,13 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _renderingType: 1,
     //bright or not
     _brightState: 0,
-    //rendering quads
-    _quads: [],
+    //rendering quads shared by canvas and webgl
+    _rawVerts: null,
+    _rawUvs: null,
+    _vertices: null,
+    _uvs: null,
+    _vertCount: 0,
     _quadsDirty: true,
-    _rawQuad: null,
     _isTriangle: false,
     _isTrimmedContentSize: true,
     //fill type
@@ -891,7 +959,12 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
         this._fillCenter = cc.v2(0,0);
         this.setAnchorPoint(cc.p(0.5, 0.5));
-        //
+        // Init vertex data for simple
+        this._rawVerts = null;
+        this._rawUvs = null;
+        this._vertices = dataPool.get(8) || new Float32Array(8);
+        this._uvs = dataPool.get(8) || new Float32Array(8);
+        // Init sprite frame
         if (typeof textureOrSpriteFrame === 'string') {
             var frame = cc.spriteFrameCache.getSpriteFrame(textureOrSpriteFrame);
             if (frame) {
@@ -904,6 +977,14 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         }
         else if (textureOrSpriteFrame instanceof cc.Texture2D) {
             this.initWithTexture(textureOrSpriteFrame);
+        }
+
+        if (webgl === undefined) {
+            webgl = cc._renderType === cc.game.RENDER_TYPE_WEBGL;
+            vl = cc.visibleRect.left;
+            vr = cc.visibleRect.right;
+            vt = cc.visibleRect.top;
+            vb = cc.visibleRect.bottom;
         }
     },
 
@@ -959,11 +1040,13 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (spriteFrame) {
             this._spriteFrame = spriteFrame;
             this._quadsDirty = true;
+            this._renderCmd._needDraw = false;
             var self = this;
             var onResourceDataLoaded = function () {
                 if (cc.sizeEqualToSize(self._contentSize, cc.size(0, 0))) {
-                    self.setContentSize(self._spriteFrame.getRect());
+                    self.setContentSize(self._spriteFrame._rect);
                 }
+                self._renderCmd._needDraw = true;
                 self._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
             };
             if (spriteFrame.textureLoaded()) {
@@ -1144,7 +1227,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     setDistortionTiling: function(valueOrX, y) {
-        if(y == undefined) {
+        if(y === undefined) {
             y = valueOrX.y;
             valueOrX = valueOrX.x;
         }
@@ -1154,7 +1237,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     },
 
     setDistortionOffset: function(valueOrX, y) {
-        if(y == undefined) {
+        if(y === undefined) {
             y = valueOrX.y;
             valueOrX = valueOrX.x;
         }
@@ -1193,38 +1276,22 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         return this._fillRange;
     },
 
-    _onColorOpacityDirty: function () {
-        var color = this.getDisplayedColor();
-        color.a = this.getDisplayedOpacity();
-        var index;
-        var quadLength = this._quads.length;
-        for (index = 0; index < quadLength; ++index) {
-            //svar quad = this._quads[index];
-            this._quads[index]._bl.colors = color;
-            this._quads[index]._br.colors = color;
-            this._quads[index]._tl.colors = color;
-            this._quads[index]._tr.colors = color;
-        }
-    },
-
     _rebuildQuads: function () {
-        if (!this.loaded() || this._quadsDirty === false) return;
-        //put quads back
-        for(var quadIndex = 0; quadIndex < this._quads.length; ++quadIndex) {
-            cc.pool.putInPool(this._quads[quadIndex]);
+        if (!this._spriteFrame || !this._spriteFrame._textureLoaded) {
+            this._renderCmd._needDraw = false;
+            return;
         }
-        this._rawQuad && cc.pool.putInPool(this._rawQuad);
-        this._rawQuad = null;
-        this._quads = [];
-        var color = this.getDisplayedColor();
-        color.a = this.getDisplayedOpacity();
         this._isTriangle = false;
+        var vert;
         if (this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
-            this._quads = simpleQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._isTrimmedContentSize);
+            simpleQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._isTrimmedContentSize);
+            vert = this._vertices;
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
-            this._quads = scale9QuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+            scale9QuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+            vert = this._vertices;
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
-            this._quads = tiledQuadGenerator._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color);
+            tiledQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize());
+            vert = this._vertices;
         } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             var fillstart = this._fillStart;
             var fillRange = this._fillRange;
@@ -1232,7 +1299,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 fillstart += fillRange;
                 fillRange = -fillRange;
             }
-            if(this._fillType !== cc.Scale9Sprite.FillType.RADIAL) {
+            if (this._fillType !== cc.Scale9Sprite.FillType.RADIAL) {
                 fillRange = fillstart + fillRange;
                 fillstart = fillstart > 1.0 ? 1.0 : fillstart;
                 fillstart = fillstart < 0.0 ? 0.0 : fillstart;
@@ -1240,17 +1307,51 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 fillRange = fillRange > 1.0 ? 1.0 : fillRange;
                 fillRange = fillRange < 0.0 ? 0.0 : fillRange;
                 fillRange = fillRange - fillstart;
-                this._quads = fillQuadGeneratorBar._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color, this._fillType, fillstart,fillRange);
+                fillQuadGeneratorBar._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._fillType, fillstart, fillRange);
+                vert = this._vertices;
             } else {
                 this._isTriangle = true;
-                var fillResult = fillQuadGeneratorRadial._rebuildQuads_base(this._spriteFrame, this.getContentSize(), color,this._fillCenter,fillstart,fillRange);
-                this._quads = fillResult.quad;
-                this._rawQuad = fillResult.rawQuad;
+                if (!this._rawVerts) {
+                    this._rawVerts = dataPool.get(8) || new Float32Array(8);
+                    this._rawUvs = dataPool.get(8) || new Float32Array(8);
+                }
+                fillQuadGeneratorRadial._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._fillCenter,fillstart, fillRange);
+                vert = this._rawVerts;
             }
         } else {
             this._quads = [];
-            cc.error("Can not generate quad");
+            this._quadsDirty = false;
+            this._renderCmd._needDraw = false;
+            cc.error('Can not generate quad');
+            return;
         }
+
+        // Culling
+        if (webgl) {
+            var x0 = cornerId[0], x1 = cornerId[1], x2 = cornerId[2], x3 = cornerId[3],
+                y0 = cornerId[0]+1, y1 = cornerId[1]+1, y2 = cornerId[2]+1, y3 = cornerId[3]+1;
+            if (((vert[x0]-vl.x) & (vert[x1]-vl.x) & (vert[x2]-vl.x) & (vert[x3]-vl.x)) >> 31 || // All outside left
+                ((vr.x-vert[x0]) & (vr.x-vert[x1]) & (vr.x-vert[x2]) & (vr.x-vert[x3])) >> 31 || // All outside right
+                ((vert[y0]-vb.y) & (vert[y1]-vb.y) & (vert[y2]-vb.y) & (vert[y3]-vb.y)) >> 31 || // All outside bottom
+                ((vt.y-vert[y0]) & (vt.y-vert[y1]) & (vt.y-vert[y2]) & (vt.y-vert[y3])) >> 31)   // All outside top
+            {
+                this._renderCmd._needDraw = false;
+            }
+            else {
+                this._renderCmd._needDraw = true;
+            }
+        }
+        else {
+            var bb = this._renderCmd._currentRegion,
+                l = bb._minX, r = bb._maxX, b = bb._minY, t = bb._maxY;
+            if (r < vl.x || l > vr.x || t < vb.y || b > vt.y) {
+                this._renderCmd._needDraw = false;
+            }
+            else {
+                this._renderCmd._needDraw = true;
+            }
+        }
+
         this._quadsDirty = false;
     },
     _createRenderCmd: function () {
@@ -1265,20 +1366,10 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 var _p = cc.Scale9Sprite.prototype;
 cc.js.addon(_p, EventTarget.prototype);
 // Extended properties
-/** @expose */
-_p.insetLeft;
-cc.defineGetterSetter(_p, "insetLeft", _p.getInsetLeft, _p.setInsetLeft);
-/** @expose */
-_p.insetTop;
-cc.defineGetterSetter(_p, "insetTop", _p.getInsetTop, _p.setInsetTop);
-/** @expose */
-_p.insetRight;
-cc.defineGetterSetter(_p, "insetRight", _p.getInsetRight, _p.setInsetRight);
-/** @expose */
-_p.insetBottom;
-cc.defineGetterSetter(_p, "insetBottom", _p.getInsetBottom, _p.setInsetBottom);
-
-_p = null;
+cc.defineGetterSetter(_p, 'insetLeft', _p.getInsetLeft, _p.setInsetLeft);
+cc.defineGetterSetter(_p, 'insetTop', _p.getInsetTop, _p.setInsetTop);
+cc.defineGetterSetter(_p, 'insetRight', _p.getInsetRight, _p.setInsetRight);
+cc.defineGetterSetter(_p, 'insetBottom', _p.getInsetBottom, _p.setInsetBottom);
 
 cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1, DISTORTION: 2};
 

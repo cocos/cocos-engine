@@ -454,6 +454,7 @@ var Node = cc.Class({
 
             set: function (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                this.emit('group-changed');
             }
         }
     },
@@ -478,9 +479,9 @@ var Node = cc.Class({
         }
     },
 
-    statics: {
-        _DirtyFlags: require('./utils/misc').DirtyFlags
-    },
+    //statics: {
+    //    _DirtyFlags: require('./utils/misc').DirtyFlags
+    //},
 
     // OVERRIDES
 
@@ -610,7 +611,6 @@ var Node = cc.Class({
         if (constructor) {
             findComponents(this, constructor, components);
         }
-
         return components;
     },
 
@@ -629,7 +629,6 @@ var Node = cc.Class({
         if (constructor) {
             return findChildComponent(this._children, constructor);
         }
-
         return null;
     },
 
@@ -648,7 +647,6 @@ var Node = cc.Class({
         if (constructor) {
             findChildComponents(this._children, constructor, components);
         }
-
         return components;
     },
 
@@ -783,6 +781,10 @@ var Node = cc.Class({
             }
         }
         if (ctor._requireComponent) {
+            if (index === this._components.length) {
+                // If comp should be last component, increase the index because required component added
+                ++index;
+            }
             var depend = this.addComponent(ctor._requireComponent);
             if (!depend) {
                 // depend conflicts
@@ -1441,6 +1443,10 @@ if (CC_JSB) {
  */
 /**
  * @event child-reorder
+ * @param {Event} event
+ */
+/**
+ * @event group-changed
  * @param {Event} event
  */
 /**

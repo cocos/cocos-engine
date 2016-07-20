@@ -35,17 +35,17 @@ var EventTarget = require("../event/event-target");
  * You can modify the frame of a _ccsg.Sprite by doing:<br/>
  *
  * Note: It's not recommended to use SpriteFrame constructor (new SpriteFrame)
- * to create SpriteFrame instance since it's memory will be unable to manage. <br/>
- * Instead please use cc.loader.loadRes to get SpriteFrame instance from loading,
- * or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.
+ * because its memory usage can't be tracked in native environment, <br/>
+ * if you know what you are doing, you may need to manually retain it after creation then
+ * release it when you no longer need it.
  *
  * !#zh
  * 一个 SpriteFrame 包含：<br/>
  *  - 纹理：会被 Sprite 使用的 Texture2D 对象。<br/>
  *  - 矩形：在纹理中的矩形区域。<br/>
- * 注意：目前只建议通过以下几个方式进行创建 SpriteFrame：<br/>
- *  - 可以在你的组件上定义一个 SpriteFrame 类型并通过拖动 SpriteFrame 资源进行赋值。<br/>
- *  - 通过 cc.loader.loadRes 或 atlas.getSpriteFrame 来获得 spriteFrame 实例。
+ * 注意：<br/>
+ *   不建议用户使用构造函数进行创建，因为其内存使用情况，不能在本地环境中进行跟踪，需要用户手动管理内存，不然会导致严重错误。<br/>
+ *   如果你知道你在做什么，你可能需要手动将其保留在创建之后，然后释放它。
  *
  * @class SpriteFrame
  * @extends Asset
@@ -90,12 +90,16 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     /**
      * !#en
      * Constructor of SpriteFrame class. <br/>
-     * Node: It's not recommended to use SpriteFrame constructor (new SpriteFrame), <br/>
-     * Because the instance in the native environment requires the user to manually manage memory, <br/>
-     * or you might cause serious errors.
+     * Note: It's not recommended to use SpriteFrame constructor (new SpriteFrame)
+     * because its memory usage can't be tracked in native environment, <br/>
+     * if you know what you are doing, you may need to manually retain it after creation then
+     * release it when you no longer need it.
      * !#zh
      * SpriteFrame 类的构造函数。<br/>
-     * 注意：不建议用户使用构造函数进行创建，因为该实例在原生环境下需要用户手动管理内存，不然会导致严重错误。
+     * 注意：<br/>
+     *    不建议用户使用构造函数进行创建，因为其内存使用情况，不能在本地环境中进行跟踪，
+     *    需要用户手动管理内存，不然会导致严重错误。<br/>
+     *    如果你知道你在做什么，你可能需要手动将其保留在创建之后，然后释放它。
      * @method SpriteFrame
      * @param {String|Texture2D} [filename]
      * @param {Rect} [rect]
@@ -104,18 +108,16 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize] - The size of the frame in the texture
      */
     ctor: function () {
+
+        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !CC_TEST && !cc.game._isCloning) {
+            cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) because its memory usage can't be tracked in native environment, if you know what you are doing, you may need to manually retain it after creation then release it when you no longer need it.");
+        }
+
         var filename = arguments[0];
         var rect = arguments[1];
         var rotated = arguments[2];
         var offset = arguments[3];
         var originalSize = arguments[4];
-
-        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !CC_TEST && !cc.game._isCloning) {
-            cc.warn('It\'s not recommended to use SpriteFrame constructor (new SpriteFrame) ' +
-                    'to create SpriteFrame instance since it\'s memory will be unable to manage. ' +
-                    'Instead please use cc.loader.loadRes to get SpriteFrame instance from loading, ' +
-                    'or define a cc.SpriteFrame property in your component and drag the SpriteFrame onto it.')
-        }
 
         // the location of the sprite on rendering texture
         this._rect = null;

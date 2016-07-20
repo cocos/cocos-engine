@@ -1,7 +1,7 @@
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -27,7 +27,7 @@
 //-----------------------Shader_Position_uColor Shader Source--------------------------
 
 /**
- * Predefined constants
+ * Predefined propertys
  * @class PresetShaders
  * @readonly
  * @type {Object}
@@ -84,14 +84,26 @@ cc.PresetShaders = {
             + "varying lowp vec4 v_fragmentColor;\n"
             + "void main()\n"
             + "{\n"
-            //+ "    gl_Position = CC_MVPMatrix * a_position;  \n"
             + "    gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;  \n"
+            + "    v_fragmentColor = a_color;             \n"
+            + "}",
+
+    /**
+     * @property SPRITE_POSITION_COLOR_VERT
+     * @type {String}
+     */
+    SPRITE_POSITION_COLOR_VERT : "attribute vec4 a_position;\n"
+            + "attribute vec4 a_color;\n"
+            + "varying lowp vec4 v_fragmentColor;\n"
+            + "void main()\n"
+            + "{\n"
+            + "    gl_Position = CC_PMatrix * a_position;  \n"
             + "    v_fragmentColor = a_color;             \n"
             + "}",
 
     // --------------------- Shader_PositionColorLengthTexture Shader source------------------------
     /**
-     * @constant
+     * @property POSITION_COLOR_LENGTH_TEXTURE_FRAG
      * @type {String}
      */
     POSITION_COLOR_LENGTH_TEXTURE_FRAG : "// #extension GL_OES_standard_derivatives : enable\n"
@@ -107,7 +119,7 @@ cc.PresetShaders = {
             + "}",
 
     /**
-     * @constant
+     * @property POSITION_COLOR_LENGTH_TEXTURE_VERT
      * @type {String}
      */
     POSITION_COLOR_LENGTH_TEXTURE_VERT : "attribute mediump vec4 a_position; \n"
@@ -125,7 +137,7 @@ cc.PresetShaders = {
 
     // ----------------------Shader_PositionTexture Shader Source-------------------------------------
     /**
-     * @constant
+     * @property POSITION_TEXTURE_FRAG
      * @type {String}
      */
     POSITION_TEXTURE_FRAG : "precision lowp float;   \n"
@@ -136,7 +148,7 @@ cc.PresetShaders = {
             + "}",
 
     /**
-     * @constant
+     * @property POSITION_TEXTURE_VERT
      * @type {String}
      */
     POSITION_TEXTURE_VERT : "attribute vec4 a_position; \n"
@@ -151,7 +163,7 @@ cc.PresetShaders = {
 
     // ------------------------Shader_PositionTexture_uColor Shader Source-------------------------------
     /**
-     * @constant
+     * @property POSITION_TEXTURE_UCOLOR_FRAG
      * @type {String}
      */
     POSITION_TEXTURE_UCOLOR_FRAG : "precision lowp float;  \n"
@@ -163,7 +175,7 @@ cc.PresetShaders = {
             + "}",
 
     /**
-     * @constant
+     * @property POSITION_TEXTURE_UCOLOR_VERT
      * @type {String}
      */
     POSITION_TEXTURE_UCOLOR_VERT : "attribute vec4 a_position;\n"
@@ -178,7 +190,7 @@ cc.PresetShaders = {
 
     //---------------------Shader_PositionTextureA8Color Shader source-------------------------------
     /**
-     * @constant
+     * @property POSITION_TEXTURE_A8COLOR_FRAG
      * @type {String}
      */
     POSITION_TEXTURE_A8COLOR_FRAG : "precision lowp float;  \n"
@@ -192,7 +204,7 @@ cc.PresetShaders = {
             + "}",
 
     /**
-     * @constant
+     * @property POSITION_TEXTURE_A8COLOR_VERT
      * @type {String}
      */
     POSITION_TEXTURE_A8COLOR_VERT : "attribute vec4 a_position; \n"
@@ -202,7 +214,6 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texCoord; \n"
             + "void main() \n"
             + "{ \n"
-            //+ "    gl_Position = CC_MVPMatrix * a_position;  \n"
             + "    gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;  \n"
             + "    v_fragmentColor = a_color; \n"
             + "    v_texCoord = a_texCoord; \n"
@@ -210,7 +221,7 @@ cc.PresetShaders = {
 
     // ------------------------Shader_PositionTextureColor Shader source------------------------------------
     /**
-     * @constant
+     * @property POSITION_TEXTURE_COLOR_FRAG
      * @type {String}
      */
     POSITION_TEXTURE_COLOR_FRAG : "precision lowp float;\n"
@@ -222,7 +233,7 @@ cc.PresetShaders = {
             + "}",
 
     /**
-     * @constant
+     * @property POSITION_TEXTURE_COLOR_VERT
      * @type {String}
      */
     POSITION_TEXTURE_COLOR_VERT : "attribute vec4 a_position; \n"
@@ -232,15 +243,30 @@ cc.PresetShaders = {
             + "varying mediump vec2 v_texCoord; \n"
             + "void main() \n"
             + "{ \n"
-            //+ "    gl_Position = CC_MVPMatrix * a_position;  \n"
             + "    gl_Position = (CC_PMatrix * CC_MVMatrix) * a_position;  \n"
+            + "    v_fragmentColor = a_color; \n"
+            + "    v_texCoord = a_texCoord; \n"
+            + "}",
+
+    /**
+     * @property SPRITE_POSITION_TEXTURE_COLOR_VERT
+     * @type {String}
+     */
+    SPRITE_POSITION_TEXTURE_COLOR_VERT : "attribute vec4 a_position; \n"
+            + "attribute vec2 a_texCoord; \n"
+            + "attribute vec4 a_color;  \n"
+            + "varying lowp vec4 v_fragmentColor; \n"
+            + "varying mediump vec2 v_texCoord; \n"
+            + "void main() \n"
+            + "{ \n"
+            + "    gl_Position = CC_PMatrix * a_position;  \n"
             + "    v_fragmentColor = a_color; \n"
             + "    v_texCoord = a_texCoord; \n"
             + "}",
 
     //-----------------------Shader_PositionTextureColorAlphaTest_frag Shader Source----------------------------
     /**
-     * @constant
+     * @property POSITION_TEXTURE_COLOR_ALPHATEST_FRAG
      * @type {String}
      */
     POSITION_TEXTURE_COLOR_ALPHATEST_FRAG : "precision lowp float;   \n"
@@ -259,7 +285,7 @@ cc.PresetShaders = {
 
     //-----------------------ShaderEx_SwitchMask_frag Shader Source----------------------------
     /**
-     * @constant
+     * @property EX_SWITCHMASK_FRAG
      * @type {String}
      */
     EX_SWITCHMASK_FRAG : "precision lowp float; \n"

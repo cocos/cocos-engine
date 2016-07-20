@@ -29,29 +29,11 @@ var Misc = require('./misc');
 var DirtyFlags = Misc.DirtyFlags;
 var IdGenerater = require('../platform/id-generater');
 
-// called after changing parent
-function updateZOrder (node) {
-    var sgNode = node._sgNode;
-    if (CC_JSB) {
-        // Reset zorder to update their arrival order in JSB
-        var zOrder = sgNode.getLocalZOrder();
-        sgNode.setLocalZOrder(zOrder + 1);
-        sgNode.setLocalZOrder(zOrder);
-    }
-    else {
-        var sgSiblings = sgNode.parent.getChildren();
-        if (sgSiblings.length >= 2) {
-            var prevNode = sgSiblings[sgSiblings.length - 2];
-            sgNode.arrivalOrder = prevNode.arrivalOrder + 1;
-        }
-        else {
-            sgNode.arrivalOrder = 0;
-        }
-        cc.renderer.childrenOrderDirty = true;
-        var parent = node._parent;
-        parent._sgNode._reorderChildDirty = true;
-        parent._reorderChildDirty = true;
-        parent._delaySort();
+function updateOrder (node) {
+    var parent = node._parent;
+    parent._reorderChildDirty = true;
+    parent._delaySort();
+    if (!CC_JSB) {
         cc.eventManager._setDirtyForNode(node);
     }
 }
@@ -107,7 +89,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         _globalZOrder: 0,
         _tag: cc.macro.NODE_TAG_INVALID,
         _opacityModifyRGB: false,
-        _reorderChildDirty: false,
 
         // API
 
@@ -165,7 +146,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 if (value) {
                     var parent = value._sgNode;
                     parent.addChild(sgNode);
-                    updateZOrder(this);
+                    updateOrder(this);
                     value._children.push(this);
                     value.emit(CHILD_ADDED, this);
                 }
@@ -266,10 +247,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     this._localZOrder = value;
                     this._sgNode.zIndex = value;
 
-                    if (!CC_JSB && this._parent) {
-                        this._parent._reorderChildDirty = true;
-                        this._parent._delaySort();
-                        cc.eventManager._setDirtyForNode(this);
+                    if(this._parent) {
+                        updateOrder(this);
                     }
                 }
             }
@@ -637,7 +616,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         //running: {
-        //    get: 
+        //    get:
         //},
 
         /**
@@ -789,8 +768,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             sgNode.cascadeOpacity = true;
         }
 
-        this._dirtyFlags = DirtyFlags.ALL;
-
         /**
          * Current active size provider for this node.
          * Size provider can equals to this._sgNode.
@@ -802,6 +779,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sizeProvider = null;
 
         this.__ignoreAnchor = false;
+        this._reorderChildDirty = false;
 
         // Support for ActionManager and EventManager
         this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
@@ -826,6 +804,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             var target = this.__eventTargets[i];
             target && target.targetOff(this);
         }
+        cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);
     },
 
     _destruct: Misc.destructIgnoreId,
@@ -1484,7 +1463,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         return false;
     },
-    
+
     /**
      * !#en Returns the world affine transform matrix. The matrix is in Pixels.
      * !#zh 返回节点到世界坐标系的仿射变换矩阵。矩阵单位是像素。
@@ -1503,8 +1482,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var mat = this._sgNode.getNodeToWorldTransform();
 
         if (this._isSgTransformArToMe(contentSize)) {
-            // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case, 
-            // we should translate to bottem left to consistent with it 
+            // _sgNode.getNodeToWorldTransform is not anchor relative (AR), in this case,
+            // we should translate to bottem left to consistent with it
             // see https://github.com/cocos-creator/engine/pull/391
             var tx = - this._anchorPoint.x * contentSize.width;
             var ty = - this._anchorPoint.y * contentSize.height;
@@ -1726,7 +1705,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
         return mat;
     },
-    
+
     /**
      * !#en
      * Returns a "world" axis aligned bounding box of the node.<br/>
@@ -1752,7 +1731,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var width = size.width;
         var height = size.height;
         var rect = cc.rect(- this._anchorPoint.x * width, - this._anchorPoint.y * height, width, height);
-        
+
         var transAR = cc.affineTransformConcat(this.getNodeToParentTransformAR(), parentTransformAR);
         cc._rectApplyAffineTransformIn(rect, transAR);
 
@@ -1907,12 +1886,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                 }
                 else {
                     sibling.arrivalOrder = i;
-                    cc.renderer.childrenOrderDirty = true;
-                    parent._sgNode._reorderChildDirty = true;
-                    parent._reorderChildDirty = true;
-                    parent._delaySort();
                     cc.eventManager._setDirtyForNode(siblings[i]);
                 }
+            }
+            if (!CC_JSB) {
+                cc.renderer.childrenOrderDirty = true;
+                parent._sgNode._reorderChildDirty = true;
+                parent._reorderChildDirty = true;
+                parent._delaySort();
             }
         }
     },
@@ -1939,10 +1920,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     },
 
     /**
-     * !#en Sorts the children array depends on children's zIndex and arrivalOrder, 
+     * !#en Sorts the children array depends on children's zIndex and arrivalOrder,
      * normally you won't need to invoke this function.
      * !#zh 根据子节点的 zIndex 和 arrivalOrder 进行排序，正常情况下开发者不需要手动调用这个函数。
-     * 
+     *
      * @method sortAllChildren
      */
     sortAllChildren: function () {
@@ -2003,14 +1984,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         sgNode.setCascadeOpacityEnabled(self._cascadeOpacityEnabled);
         sgNode.setTag(self._tag);
     },
-    
+
     _updateSgNode: function () {
         this._updateDummySgNode();
         var sgNode = this._sgNode;
         sgNode.setAnchorPoint(this._anchorPoint);
         sgNode.setVisible(this._active);
         sgNode.setColor(this._color);
-        
+
         // update ActionManager and EventManager because sgNode maybe changed
         if (this._activeInHierarchy) {
             cc.director.getActionManager().resumeTarget(this);
@@ -2109,18 +2090,6 @@ var DiffNameGetSets = {
 };
 Misc.propertyDefine(BaseNode, SameNameGetSets, DiffNameGetSets);
 
-
-/**
- * !#en The local position in its parent's coordinate system.<br>
- * PS: The returned value is a copy of current position, so modification of the copy will not take effect for the actual position of the node.
- * !#zh 节点相对父节点的坐标。<br>
- * 注意：返回值会是当前 position 的副本，所以对该副本所做的修改并不会影响节点的实际坐标。
- * @property position
- * @type {Vec2}
- * @example
- * node.position = new cc.Vec2(0, 0);  // OK!
- * node.position.addSelf(new cc.Vec2(1, 0));  // Invalid!
- */
 
 /**
  * !#en The local scale relative to the parent.

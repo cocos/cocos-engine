@@ -35,6 +35,7 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         _ccsg.Node.prototype.ctor.call(this);
         // 播放结束等事件处理的队列
         this._EventList = {};
+        this._renderCmd.createDom();
     },
 
     _createRenderCmd: function(){
@@ -71,6 +72,12 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
 
     isPlaying: function () {
         return this._renderCmd.isPlaying();
+    },
+
+    createDomElementIfNeeded: function () {
+        if (!this._renderCmd._video) {
+            this._renderCmd.createDom();
+        }
     },
 
     setKeepAspectRatioEnabled: function () {
@@ -254,12 +261,8 @@ _ccsg.VideoPlayer.EventType = {
     var proto = _ccsg.VideoPlayer.RenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = _ccsg.VideoPlayer.RenderCmd;
 
-    proto.resize = function () {
-
-    };
-
     proto.transform = function (parentCmd, recursive) {
-        _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        this.originTransform(parentCmd, recursive);
         this.updateMatrix();
     };
 
@@ -267,8 +270,7 @@ _ccsg.VideoPlayer.EventType = {
         if (!this._video) return;
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         var dpr = cc.view._devicePixelRatio;
-        var t = node.getNodeToWorldTransform();
-        if (!t) return;
+        var t = this._worldTransform;
 
         scaleX /= dpr;
         scaleY /= dpr;
@@ -297,9 +299,6 @@ _ccsg.VideoPlayer.EventType = {
         var source, video, extname;
         var node = this._node;
 
-        if (!this._video) {
-            this.createDom();
-        }
 
         if (this._url == path) {
             return;
@@ -312,6 +311,7 @@ _ccsg.VideoPlayer.EventType = {
 
         this.removeDom();
         this.createDom();
+
         this.bindEvent();
 
         video = this._video;
@@ -418,6 +418,7 @@ _ccsg.VideoPlayer.EventType = {
                 cc.container.removeChild(video);
         }
         this._video = null;
+        this._url = "";
     };
 
     proto.updateSize = function (width, height) {

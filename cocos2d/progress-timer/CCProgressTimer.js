@@ -75,6 +75,21 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
         sprite && this.initWithSprite(sprite);
     },
 
+    onEnter: function () {
+        this._super();
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            this._renderCmd.initCmd();
+            this._renderCmd._updateProgress();
+        }
+    },
+
+    cleanup: function () {
+        if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            this._renderCmd.releaseData();
+        }
+        this._super();
+    },
+
     /**
      *    Midpoint is used to modify the progress start position.
      *    If you're using radials type then the midpoint changes the center point
@@ -214,7 +229,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     setReverseProgress: function(reverse){
         if (this._reverseDirection !== reverse){
             this._reverseDirection = reverse;
-            this._renderCmd.releaseData();
+            this._renderCmd.resetVertexData();
         }
     },
 
@@ -226,11 +241,14 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     setSprite: function(sprite){
         if (this._sprite !== sprite) {
             this._sprite = sprite;
-            if(sprite)
-                this.setContentSize(sprite.width,sprite.height);
-            else
+            if(sprite) {
+                this.setContentSize(sprite.width, sprite.height);
+                sprite.ignoreAnchorPointForPosition(true);
+            }
+            else {
                 this.setContentSize(0,0);
-            this._renderCmd.releaseData();
+            }
+            this._renderCmd.resetVertexData();
         }
     },
 
@@ -242,7 +260,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     setType: function(type){
         if (type !== this._type){
             this._type = type;
-            this._renderCmd.releaseData();
+            this._renderCmd.resetVertexData();
         }
     },
 
@@ -254,7 +272,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
     setReverseDirection: function(reverse){
         if (this._reverseDirection !== reverse){
             this._reverseDirection = reverse;
-            this._renderCmd.releaseData();
+            this._renderCmd.resetVertexData();
         }
     },
 
@@ -273,7 +291,7 @@ cc.ProgressTimer = _ccsg.Node.extend(/** @lends cc.ProgressTimer# */{
         this.midPoint = cc.p(0.5, 0.5);
         this.barChangeRate = cc.p(1, 1);
         this.setSprite(sprite);
-        this._renderCmd.initCmd();
+        this._renderCmd.resetVertexData();
         return true;
     },
 

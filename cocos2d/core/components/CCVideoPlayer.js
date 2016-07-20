@@ -57,7 +57,7 @@ var VideoPlayer = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/VideoPlayer',
-        inspector: 'app://editor/page/inspector/videoplayer.html',
+        inspector: 'packages://inspector/inspectors/comps/videoplayer.js',
         help: 'i18n:COMPONENT.help_url.videoplayer',
     },
 
@@ -215,6 +215,9 @@ var VideoPlayer = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
         if(sgNode) {
+            if(!CC_JSB) {
+                sgNode.createDomElementIfNeeded();
+            }
             this._updateVideoSource();
 
             sgNode.seekTo(this.currentTime);

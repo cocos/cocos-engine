@@ -402,7 +402,6 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
         var layer = new _ccsg.TMXLayer(tileset, layerInfo, mapInfo);
         // tell the layerinfo to release the ownership of the tiles map.
         layerInfo.ownTiles = false;
-        layer.setupTiles();
         return layer;
     },
 

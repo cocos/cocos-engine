@@ -35,7 +35,6 @@ cc._LogInfos = {
     },
 
     configuration: {
-        dumpInfo: "cocos2d: **** WARNING **** CC_ENABLE_PROFILERS is defined. Disable it when you finish profiling (from CCMacro.js)",
         loadConfigFile: "Expected 'data' dict, but not found. Config file: %s",
         loadConfigFile_2: "Please load the resource first : %s",
     },

@@ -102,24 +102,28 @@ var Button = cc.Class({
     extends: require('./CCComponent'),
 
     ctor: function () {
-        this._pressed = false;
-        this._hovered = false;
-
+        this._resetState();
         this._sprite = null;
 
-        this._fromColor = null;
-        this._toColor = null;
-        this._time = 0;
-        this._transitionFinished = true;
         if(CC_EDITOR) {
             this._previousNormalSprite = null;
         }
     },
 
+    _resetState: function () {
+        this._pressed = false;
+        this._hovered = false;
+
+        this._fromColor = null;
+        this._toColor = null;
+        this._time = 0;
+        this._transitionFinished = true;
+    },
+
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Button',
         help: 'i18n:COMPONENT.help_url.button',
-        inspector: 'app://editor/page/inspector/button/button.html',
+        inspector: 'packages://inspector/inspectors/comps/button.js',
         executeInEditMode: true
     },
 
@@ -145,6 +149,10 @@ var Button = cc.Class({
                     }
                 }
                 this._updateState();
+
+                if(!this.interactable) {
+                    this._resetState();
+                }
             },
             animatable: false
         },
@@ -437,7 +445,7 @@ var Button = cc.Class({
         this._updateState();
     },
 
-    _onMouseMoveIn: function (event) {
+    _onMouseMoveIn: function () {
         if (this._pressed || !this.interactable || !this.enabledInHierarchy) return;
 
         if (!this._hovered) {

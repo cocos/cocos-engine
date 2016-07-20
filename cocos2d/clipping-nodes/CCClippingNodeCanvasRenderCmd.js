@@ -25,7 +25,6 @@
 //-------------------------- ClippingNode's canvas render cmd --------------------------------
 cc.ClippingNode.CanvasRenderCmd = function(renderable){
     _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-    this._needDraw = false;
 
     this._rendererClipCmd = new cc.CustomRenderCmd(this, this._drawStencilCommand);
     this._rendererRestoreCmd = new cc.CustomRenderCmd(this, this._restoreCmdCallback);

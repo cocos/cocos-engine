@@ -69,20 +69,20 @@ misc.NextPOT = function (x) {
     return x + 1;
 };
 
-var DirtyFlags = misc.DirtyFlags = {
-    TRANSFORM: 1 << 0,
-    SIZE: 1 << 1,
-    //Visible:
-    //Color:
-    //Opacity
-    //Cache
-    //Order
-    //Text
-    //Gradient
-    ALL: (1 << 2) - 1
-};
-
-DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
+//var DirtyFlags = misc.DirtyFlags = {
+//    TRANSFORM: 1 << 0,
+//    SIZE: 1 << 1,
+//    //Visible:
+//    //Color:
+//    //Opacity
+//    //Cache
+//    //Order
+//    //Text
+//    //Gradient
+//    ALL: (1 << 2) - 1
+//};
+//
+//DirtyFlags.WIDGET = DirtyFlags.TRANSFORM | DirtyFlags.SIZE;
 
 misc.destructIgnoreId = function () {
     // The same as Object._destruct but dont reset _id when destroyed
