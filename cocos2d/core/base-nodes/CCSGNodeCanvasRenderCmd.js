@@ -63,6 +63,30 @@ _ccsg.Node._requestDirtyFlag = function (key) {
 };
 
 var ONE_DEGREE = Math.PI / 180;
+var stack = new Array(50);
+
+function transformChildTree (root) {
+    var index = 1;
+    var children, child, curr, parentCmd, i, len;
+    stack[0] = root;
+    while (index) {
+        index--;
+        curr = stack[index];
+        // Avoid memory leak
+        stack[index] = null;
+        if (!curr) continue;
+        children = curr._children;
+        if (children && children.length > 0) {
+            parentCmd = curr._renderCmd;
+            for (i = 0, len = children.length; i < len; ++i) {
+                child = children[i];
+                stack[index] = child;
+                index++;
+                child._renderCmd.transform(parentCmd);
+            }
+        }
+    }
+}
 
 //-------------------------Base -------------------------
 _ccsg.Node.RenderCmd = function(renderable){
@@ -252,23 +276,13 @@ _ccsg.Node.RenderCmd.prototype = {
             }
         }
 
-        if (node._additionalTransformDirty) {
-            this._transform = cc.affineTransformConcat(t, node._additionalTransform);
-        }
-
         if (this._currentRegion) {
             this._updateCurrentRegions();
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble);
         }
 
         if (recursive) {
-            var locChildren = this._node._children;
-            if (!locChildren || locChildren.length === 0)
-                return;
-            var i, len;
-            for (i = 0, len = locChildren.length; i < len; i++) {
-                locChildren[i]._renderCmd.transform(this, recursive);
-            }
+            transformChildTree(node);
         }
 
         this._cacheDirty = true;
