@@ -103,19 +103,15 @@ proto.rendering = function (ctx, scaleX, scaleY) {
             sw = (rawUvs[6] - rawUvs[0]) * textureWidth;
             sh = (rawUvs[1] - rawUvs[7]) * textureHeight;
 
-            x = x * scaleX;
-            y = y * scaleY;
-            w = w * scaleX;
-            h = h * scaleY;
 
             wrapper.save();
             context.beginPath();
             var triangleCount = Math.floor(node._vertCount / 3);
 
             for (i = 0, off = 0; i < triangleCount; i++) {
-                context.moveTo(vertices[off++] * scaleX, -vertices[off++] * scaleY);
-                context.lineTo(vertices[off++] * scaleX, -vertices[off++] * scaleY);
-                context.lineTo(vertices[off++] * scaleX, -vertices[off++] * scaleY);
+                context.moveTo(vertices[off++], -vertices[off++]);
+                context.lineTo(vertices[off++], -vertices[off++]);
+                context.lineTo(vertices[off++], -vertices[off++]);
             }
 
             context.clip();
@@ -144,10 +140,6 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                     w = vertices[off+10] - x;
                     h = vertices[off+11] - y;
                     y = - y - h;
-                    x = x * scaleX;
-                    y = y * scaleY;
-                    w = w * scaleX;
-                    h = h * scaleY;
 
                     sx = uvs[off] * textureWidth;
                     sy = uvs[off+11] * textureHeight;
@@ -176,11 +168,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                 sy = uvs[off+7] * textureHeight;
                 sw = (uvs[off+6] - uvs[off]) * textureWidth;
                 sh = (uvs[off+1] - uvs[off+7]) * textureHeight;
-
-                x = x * scaleX;
-                y = y * scaleY;
-                w = w * scaleX;
-                h = h * scaleY;
+                
 
                 if (this._textureToRender._pattern !== '') {
                     wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));
