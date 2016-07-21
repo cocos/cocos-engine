@@ -145,7 +145,8 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             maxGid = tileset.firstGid + count,
             grids = this._texGrids,
             grid = null,
-            override = grids[gid] ? true : false;
+            override = grids[gid] ? true : false,
+            texelCorrect = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
 
         for (; gid < maxGid; ++gid) {
             // Avoid overlapping
@@ -162,10 +163,10 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
                 t: 0, l: 0, r: 0, b: 0
             };
             tileset.rectForGID(gid, grid);
-            grid.t = grid.y / imageH;
-            grid.l = grid.x / imageW;
-            grid.r = (grid.x + grid.width) / imageW;
-            grid.b = (grid.y + grid.height) / imageH;
+            grid.t = (grid.y + texelCorrect) / imageH;
+            grid.l = (grid.x + texelCorrect) / imageW;
+            grid.r = (grid.x + grid.width - texelCorrect) / imageW;
+            grid.b = (grid.y + grid.height - texelCorrect) / imageH;
             grids[gid] = grid;
         }
     },

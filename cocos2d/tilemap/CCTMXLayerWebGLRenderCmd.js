@@ -121,16 +121,17 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         w = tilew * a, h = tileh * d, gt, gl, gb, gr,
         wa = a, wb = b, wc = c, wd = d, wtx = tx, wty = ty, // world
         flagged = false, flippedX = false, flippedY = false,
-        vertices = this._vertices;
+        vertices = this._vertices,
+        axis, tileOffset, diffX1, diffY1, odd_even;
 
     if (layerOrientation === Orientation.HEX) {
-        var axis = node._staggerAxis,
-            index = node._staggerIndex,
-            hexSideLength = node._hexSideLength,
-            tileOffset = node.tileset.tileOffset;
-        var odd_even = (index === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
-        var diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
-        var diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
+        var index = node._staggerIndex,
+            hexSideLength = node._hexSideLength;
+        axis = node._staggerAxis;
+        tileOffset = node.tileset.tileOffset;
+        odd_even = (index === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
+        diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
     }
 
     for (row = startRow; row < maxRow; ++row) {
