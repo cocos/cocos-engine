@@ -809,7 +809,7 @@ cc.Scheduler = cc._Class.extend({
      * @method pauseAllTargets
      */
     pauseAllTargets:function () {
-        return this.pauseAllTargetsWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
+        this.pauseAllTargetsWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
     },
 
     /**
@@ -823,8 +823,6 @@ cc.Scheduler = cc._Class.extend({
      * @param {Number} minPriority
      */
     pauseAllTargetsWithMinPriority:function (minPriority) {
-        var idsWithSelectors = [];
-
         var self = this, element, locArrayForTimers = self._arrayForTimers;
         var i, li;
         // Custom Selectors
@@ -832,7 +830,6 @@ cc.Scheduler = cc._Class.extend({
             element = locArrayForTimers[i];
             if (element) {
                 element.paused = true;
-                idsWithSelectors.push(element.target);
             }
         }
 
@@ -843,7 +840,6 @@ cc.Scheduler = cc._Class.extend({
                 if (entry) {
                     if(entry.priority >= minPriority){
 						entry.paused = true;
-                        idsWithSelectors.push(entry.target);
                     }
                 }
             }
@@ -854,7 +850,6 @@ cc.Scheduler = cc._Class.extend({
                 entry = this._updates0List[i];
                 if (entry) {
 					entry.paused = true;
-                    idsWithSelectors.push(entry.target);
                 }
             }
         }
@@ -864,12 +859,9 @@ cc.Scheduler = cc._Class.extend({
             if (entry) {
                 if(entry.priority >= minPriority){
 					entry.paused = true;
-                    idsWithSelectors.push(entry.target);
                 }
             }
         }
-
-        return idsWithSelectors;
     },
 
     /**
