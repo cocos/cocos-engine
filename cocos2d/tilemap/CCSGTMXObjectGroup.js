@@ -56,7 +56,22 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
         this._positionOffset = groupInfo.offset;
         this._mapInfo = mapInfo;
         this.properties = groupInfo.getProperties();
-        this.setContentSize(mapInfo._tileSize.width * mapInfo._mapSize.width, mapInfo._tileSize.height * mapInfo._mapSize.height);
+
+        var mapSize = mapInfo._mapSize;
+        var tileSize = mapInfo._tileSize;
+        if (mapInfo.orientation === cc.TiledMap.Orientation.HEX) {
+            var width = 0, height = 0;
+            if (mapInfo.getStaggerAxis() === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
+                height = tileSize.height * (mapSize.height + 0.5);
+                width = (tileSize.width + mapInfo.getHexSideLength()) * Math.floor(mapSize.width / 2) + tileSize.width * (mapSize.width % 2);
+            } else {
+                width = tileSize.width * (mapSize.width + 0.5);
+                height = (tileSize.height + mapInfo.getHexSideLength()) * Math.floor(mapSize.height / 2) + tileSize.height * (mapSize.height % 2);
+            }
+            this.setContentSize(width, height);
+        } else {
+            this.setContentSize(mapSize.width * tileSize.width, mapSize.height * tileSize.height);
+        }
         this.setAnchorPoint(cc.p(0, 0));
         this.setPosition(this._positionOffset.x, -this._positionOffset.y);
         this.setObjects(groupInfo._objects);

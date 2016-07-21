@@ -284,22 +284,13 @@ _ccsg.TMXTiledMap = _ccsg.Node.extend(/** @lends _ccsg.TMXTiledMap# */{
         this.properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
 
-        // remove the layers added before
-        var oldLayers = this.allLayers();
-        for (var j = 0, n = oldLayers.length; j < n; j++) {
-            var layer = oldLayers[j];
-            if (layer) {
-                this.removeChild(layer);
-            }
-        }
-
-        // remove the object groups added before
-        var oldGroups = this.getObjectGroups();
-        for (j = 0, n = oldGroups.length; j < n; j++) {
-            var group = oldGroups[j];
-            if (group) {
-                this.removeChild(group);
-            }
+        // remove the layers & object groups added before
+        var oldChildren = this._children;
+        var childCount = oldChildren.length;
+        for(var j = childCount - 1; j >= 0; j--){
+            var childNode = oldChildren[j];
+            if (childNode && (childNode instanceof _ccsg.TMXLayer || childNode instanceof _ccsg.TMXObjectGroup))
+                this.removeChild(childNode);
         }
 
         var idx = 0;
