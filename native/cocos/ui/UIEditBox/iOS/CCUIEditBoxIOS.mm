@@ -305,9 +305,11 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)sender
 {
+    getEditBoxImplIOS()->editBoxEditingReturn();
     if (sender == self.textInput) {
         [sender resignFirstResponder];
     }
+
     return NO;
 }
 
@@ -355,6 +357,10 @@
     if (maxLength < 0)
     {
         return YES;
+    }
+    
+    if ([text isEqualToString:[NSString stringWithUTF8String:"\n"]]) {
+        getEditBoxImplIOS()->editBoxEditingReturn();
     }
 
     // Prevent crashing undo bug http://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield

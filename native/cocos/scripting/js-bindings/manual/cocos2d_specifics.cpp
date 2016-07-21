@@ -2128,6 +2128,85 @@ bool js_cocos2dx_CCScheduler_isScheduled(JSContext *cx, uint32_t argc, jsval *vp
     return false;
 }
 
+bool js_cocos2dx_CCScheduler_pauseAllTargets(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : nullptr);
+    TEST_NATIVE_OBJECT(cx, cobj);
+
+    if (argc == 0) {
+        cobj->pauseAllTargets();
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+
+bool js_cocos2dx_CCScheduler_pauseAllTargetsWithMinPriority(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : nullptr);
+    TEST_NATIVE_OBJECT(cx, cobj);
+    bool ok = true;
+    if (argc == 1) {
+        int arg0;
+        ok &= jsval_to_int32(cx, args.get(0), (int32_t *)&arg0);
+        JSB_PRECONDITION2(ok, cx, false, "Error processing arguments");
+        cobj->pauseAllTargetsWithMinPriority(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+
+bool js_cocos2dx_CCScheduler_resumeTargets(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::Scheduler* cobj = (cocos2d::Scheduler *)(proxy ? proxy->ptr : nullptr);
+    TEST_NATIVE_OBJECT(cx, cobj);
+    bool ok = true;
+
+    if (argc == 1) {
+        JS::RootedValue v(cx, args.get(0));
+
+        bool ok = v.isObject() && JS_ValueToObject(cx, v, &obj);
+        JSB_PRECONDITION3(ok, cx, false, "Error converting value to object");
+        JSB_PRECONDITION3(obj && JS_IsArrayObject(cx, obj), cx, false, "Object must be an array");
+
+        uint32_t len = 0;
+        JS_GetArrayLength(cx, obj, &len);
+
+        std::set<void*> arg0;
+
+        for (uint32_t i = 0; i < len; i++) {
+        JS::RootedValue value(cx);
+            if (JS_GetElement(cx, obj, i, &value)) {
+                if (value.isObject()) {
+                    JS::RootedObject element(cx, value.toObjectOrNull());
+                    arg0.insert(element);
+                }
+            }
+        }
+
+        cobj->resumeTargets(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
+
 bool js_forceGC(JSContext *cx, uint32_t argc, jsval *vp) {
     JSRuntime *rt = JS_GetRuntime(cx);
     JS_GC(rt);
@@ -5071,6 +5150,9 @@ void register_cocos2dx_js_core(JSContext* cx, JS::HandleObject global)
     JS_DefineFunction(cx, tmpObj, "unscheduleAllCallbacksWithMinPriority", js_cocos2dx_CCScheduler_unscheduleAllCallbacksWithMinPriority, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "isTargetPaused", js_cocos2dx_CCScheduler_isTargetPaused, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, tmpObj, "isScheduled", js_cocos2dx_CCScheduler_isScheduled, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, tmpObj, "pauseAllTargets", js_cocos2dx_CCScheduler_pauseAllTargets, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, tmpObj, "pauseAllTargetsWithMinPriority", js_cocos2dx_CCScheduler_pauseAllTargetsWithMinPriority, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, tmpObj, "resumeTargets", js_cocos2dx_CCScheduler_resumeTargets, 1, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     tmpObj.set(jsb_cocos2d_ActionManager_prototype);
     JS_DefineFunction(cx, tmpObj, "retain", js_cocos2dx_retain, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);

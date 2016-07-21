@@ -157,13 +157,13 @@ public:
         ScriptingCore::getInstance()->executeFunctionWithOwner(_JSDelegate.ref().get(), "editBoxTextChanged", 2, dataVal);
     }
 
-    virtual void editBoxReturn(EditBox* editBox) override
+    virtual void editBoxEditingReturn(EditBox* editBox) override
     {
         js_proxy_t * p = jsb_get_native_proxy(editBox);
         if (!p) return;
 
         jsval arg = OBJECT_TO_JSVAL(p->obj);
-        ScriptingCore::getInstance()->executeFunctionWithOwner(_JSDelegate.ref().get(), "editBoxReturn", 1, &arg);
+        ScriptingCore::getInstance()->executeFunctionWithOwner(_JSDelegate.ref().get(), "editBoxEditingReturn", 1, &arg);
     }
 
     void setJSDelegate(JS::HandleValue pJSDelegate)

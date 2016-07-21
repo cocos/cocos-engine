@@ -9,7 +9,7 @@
 #ifndef  _APP_DELEGATE_H_
 #define  _APP_DELEGATE_H_
 
-#include "cocos2d.h"
+#include "platform/CCApplication.h"
 /**
  @brief    The cocos2d Application.
  
@@ -43,5 +43,5 @@ public:
     virtual void applicationWillEnterForeground();
 };
 
-#endif  // __APP_DELEGATE_H__
+#endif // _APP_DELEGATE_H_
 

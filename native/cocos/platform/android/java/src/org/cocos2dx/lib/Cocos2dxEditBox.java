@@ -132,6 +132,42 @@ public class Cocos2dxEditBox extends EditText {
         this.setLayoutParams(layoutParams);
     }
 
+    public void setInputTextAlignment(int hAlign, int vAlign) {
+        int gravity;
+
+        switch (hAlign) {
+            case 0:
+                gravity = Gravity.LEFT;
+                break;
+            case 1:
+                gravity = Gravity.CENTER_HORIZONTAL;
+                break;
+            case 2:
+                gravity = Gravity.RIGHT;
+                break;
+            default:
+                gravity = Gravity.LEFT;
+                break;
+        }
+
+        switch (vAlign) {
+            case 0:
+                gravity = gravity | Gravity.TOP;
+                break;
+            case 1:
+                gravity = gravity | Gravity.CENTER_VERTICAL;
+                break;
+            case 2:
+                gravity = gravity | Gravity.BOTTOM;
+                break;
+            default:
+                gravity = gravity | Gravity.CENTER_VERTICAL;
+                break;
+        }
+
+        this.setGravity(gravity);
+    }
+
     public float getOpenGLViewScaleX() {
         return mScaleX;
     }
@@ -175,10 +211,11 @@ public class Cocos2dxEditBox extends EditText {
     }
 
     public  void setInputMode(int inputMode){
-
+        this.setInputTextAlignment(0, 1);
         switch (inputMode) {
             case kEditBoxInputModeAny:
                 this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+                this.setInputTextAlignment(0, 0);
                 break;
             case kEditBoxInputModeEmailAddr:
                 this.mInputModeConstraints = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;

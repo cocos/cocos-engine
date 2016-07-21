@@ -436,7 +436,9 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="CCSpriteFrameCache.cpp" />
     <ClCompile Include="CCTextFieldTTF.cpp" />
     <ClCompile Include="CCTileMapAtlas.cpp" />
+    <ClCompile Include="CCTMXLayer.cpp" />
     <ClCompile Include="CCTMXObjectGroup.cpp" />
+    <ClCompile Include="CCTMXTiledMap.cpp" />
     <ClCompile Include="CCTMXXMLParser.cpp" />
     <ClCompile Include="CCTransition.cpp" />
     <ClCompile Include="CCTransitionPageTurn.cpp" />
@@ -766,7 +768,9 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="CCSpriteFrameCache.h" />
     <ClInclude Include="CCTextFieldTTF.h" />
     <ClInclude Include="CCTileMapAtlas.h" />
+    <ClInclude Include="CCTMXLayer.h" />
     <ClInclude Include="CCTMXObjectGroup.h" />
+    <ClInclude Include="CCTMXTiledMap.h" />
     <ClInclude Include="CCTMXXMLParser.h" />
     <ClInclude Include="CCTransition.h" />
     <ClInclude Include="CCTransitionPageTurn.h" />

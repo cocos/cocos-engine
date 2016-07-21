@@ -132,8 +132,7 @@ cc.isValidValue = function(obj) {
  * @returns {boolean}
  */
 cc.isObject = function(obj) {
-    return (obj && obj.__nativeObj !== undefined) ||
-        ( typeof obj === "object" && Object.prototype.toString.call(obj) === '[object Object]' );
+    return ( obj !== null && typeof obj === "object" );
 };
 
 /**

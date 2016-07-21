@@ -3,7 +3,6 @@
 #include "platform/android/jni/JniHelper.h"
 #include <jni.h>
 #include <android/log.h>
-#include "ide-support/SimpleConfigParser.h"
 #if PACKAGE_AS
 #include "PluginJniHelper.h"
 #include "SDKManager.h"
@@ -27,16 +26,7 @@ void cocos_android_app_init (JNIEnv* env) {
 
 extern "C"
 {
-    bool Java_org_cocos2dx_javascript_AppActivity_nativeIsDebug(JNIEnv *env, jobject thisz)
-    {
-#if (COCOS2D_DEBUG > 0)
-        return true;
-#else
-        return false;    
-#endif
-    }
-
-    	void Java_org_cocos2dx_javascript_SDKWrapper_nativeLoadAllPlugins(JNIEnv*  env, jobject thiz)
+    void Java_org_cocos2dx_javascript_SDKWrapper_nativeLoadAllPlugins(JNIEnv*  env, jobject thiz)
 	{
 #if PACKAGE_AS
     	SDKManager::getInstance()->loadAllPlugins();
