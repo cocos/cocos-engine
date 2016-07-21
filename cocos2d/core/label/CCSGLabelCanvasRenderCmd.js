@@ -544,11 +544,6 @@
                 sw = textureWidth;
                 sh = textureHeight;
 
-                x = x * scaleX;
-                y = y * scaleY;
-                w = w * scaleX;
-                h = h * scaleY;
-
                 var image = this._texture._htmlElementObj;
                 if (this._texture._pattern !== '') {
                     wrapper.setFillStyle(context.createPattern(image, this._texture._pattern));

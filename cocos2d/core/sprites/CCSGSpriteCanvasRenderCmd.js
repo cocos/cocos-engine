@@ -140,10 +140,10 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     sw = locTextureCoord.width;
     sh = locTextureCoord.height;
 
-    x = locX * scaleX;
-    y = locY * scaleY;
-    w = locWidth * scaleX;
-    h = locHeight * scaleY;
+    x = locX;
+    y = locY;
+    w = locWidth;
+    h = locHeight;
 
     if (texture&& texture._htmlElementObj) {
         image = texture._htmlElementObj;
@@ -160,7 +160,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
         if (locTextureCoord.validRect) {
             var curColor = this._displayedColor;
             wrapper.setFillStyle("rgba(" + curColor.r + "," + curColor.g + "," + curColor.b + ",1)");
-            context.fillRect(x, y, contentSize.width * scaleX, contentSize.height * scaleY);
+            context.fillRect(x, y, contentSize.width, contentSize.height);
         }
     }
     if(node._flippedX || node._flippedY)

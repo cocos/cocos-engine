@@ -70,7 +70,7 @@ cc.js.mixin( cc.DrawNode.CanvasRenderCmd.prototype, {
         wrapper.setFillStyle("rgba(" + (0 | locColor.r) + "," + (0 | locColor.g) + "," + (0 | locColor.b) + "," + locColor.a / 255 + ")");
 
         ctx.beginPath();
-        ctx.arc(locPos.x * scaleX, -locPos.y * scaleY, locRadius * scaleX, 0, Math.PI * 2, false);
+        ctx.arc(locPos.x, -locPos.y, locRadius, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
     },
@@ -86,8 +86,8 @@ cc.js.mixin( cc.DrawNode.CanvasRenderCmd.prototype, {
         ctx.lineWidth = locLineWidth * scaleX;
         ctx.beginPath();
         ctx.lineCap = locLineCap;
-        ctx.moveTo(locFrom.x * scaleX, -locFrom.y * scaleY);
-        ctx.lineTo(locTo.x * scaleX, -locTo.y * scaleY);
+        ctx.moveTo(locFrom.x, -locFrom.y);
+        ctx.lineTo(locTo.x, -locTo.y);
         ctx.stroke();
     },
 
@@ -113,9 +113,9 @@ cc.js.mixin( cc.DrawNode.CanvasRenderCmd.prototype, {
                 + (0 | locLineColor.b) + "," + locLineColor.a / 255 + ")");
 
         ctx.beginPath();
-        ctx.moveTo(firstPoint.x * scaleX, -firstPoint.y * scaleY);
+        ctx.moveTo(firstPoint.x, -firstPoint.y);
         for (var i = 1, len = locVertices.length; i < len; i++)
-            ctx.lineTo(locVertices[i].x * scaleX, -locVertices[i].y * scaleY);
+            ctx.lineTo(locVertices[i].x, -locVertices[i].y);
 
         if (locIsClosePolygon)
             ctx.closePath();
