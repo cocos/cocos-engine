@@ -294,13 +294,13 @@ var scale9QuadGenerator = {
 
         if (spriteFrame._rotated) {
             u[0] = (textureRect.x + texelCorrect) / atlasWidth;
-            u[1] = (bottomHeight + textureRect.x - texelCorrect) / atlasWidth;
-            u[2] = (bottomHeight + centerHeight + textureRect.x - texelCorrect) / atlasWidth;
+            u[1] = (bottomHeight + textureRect.x) / atlasWidth;
+            u[2] = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
             u[3] = (textureRect.x + textureRect.height - texelCorrect) / atlasWidth;
 
             v[3] = (textureRect.y + texelCorrect) / atlasHeight;
-            v[2] = (leftWidth + textureRect.y - texelCorrect) / atlasHeight;
-            v[1] = (leftWidth + centerWidth + textureRect.y - texelCorrect) / atlasHeight;
+            v[2] = (leftWidth + textureRect.y) / atlasHeight;
+            v[1] = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
             v[0] = (textureRect.y + textureRect.width - texelCorrect) / atlasHeight;
             
             for (row = 0; row < 4; row++) {
@@ -313,13 +313,13 @@ var scale9QuadGenerator = {
         }
         else {
             u[0] = (textureRect.x + texelCorrect) / atlasWidth;
-            u[1] = (leftWidth + textureRect.x - texelCorrect) / atlasWidth;
-            u[2] = (leftWidth + centerWidth + textureRect.x - texelCorrect) / atlasWidth;
+            u[1] = (leftWidth + textureRect.x) / atlasWidth;
+            u[2] = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
             u[3] = (textureRect.x + textureRect.width - texelCorrect) / atlasWidth;
 
             v[3] = (textureRect.y + texelCorrect) / atlasHeight;
-            v[2] = (topHeight + textureRect.y - texelCorrect) / atlasHeight;
-            v[1] = (topHeight + centerHeight + textureRect.y - texelCorrect) / atlasHeight;
+            v[2] = (topHeight + textureRect.y) / atlasHeight;
+            v[1] = (topHeight + centerHeight + textureRect.y) / atlasHeight;
             v[0] = (textureRect.y + textureRect.height - texelCorrect) / atlasHeight;
 
             for (row = 0; row < 4; row++) {
