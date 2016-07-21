@@ -74,6 +74,11 @@ public class Cocos2dxEditBoxHelper {
         editBoxEditingDidEnd(index, text);
     }
 
+    private static native void editBoxEditingReturn(int index);
+    public static void __editBoxEditingReturn(int index) {
+        editBoxEditingReturn(index);
+    }
+
     public Cocos2dxEditBoxHelper() {
         sEditBoxArray = new SparseArray<Cocos2dxEditBox>();
     }
@@ -190,10 +195,14 @@ public class Cocos2dxEditBoxHelper {
                         // If the event is a key-down event on the "enter" button
                         if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                                 (keyCode == KeyEvent.KEYCODE_ENTER)) {
+
                             //if editbox doesn't support multiline, just hide the keyboard
                             if ((editBox.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != InputType.TYPE_TEXT_FLAG_MULTI_LINE) {
+                                Cocos2dxEditBoxHelper.runEditBoxEditingReturnInGLThread(index);
                                 Cocos2dxEditBoxHelper.closeKeyboardOnUiThread(index);
                                 return true;
+                            } else {
+                                Cocos2dxEditBoxHelper.runEditBoxEditingReturnInGLThread(index);
                             }
                         }
                         return false;
@@ -215,6 +224,15 @@ public class Cocos2dxEditBoxHelper {
             }
         });
         return sViewTag++;
+    }
+
+    private static  void runEditBoxEditingReturnInGLThread(final int index) {
+        Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBoxHelper.__editBoxEditingReturn(index);
+            }
+        });
     }
 
     public static void removeEditBox(final int index) {
