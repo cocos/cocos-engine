@@ -63,22 +63,6 @@ cc.loader.addDownloadHandlers({
     'mp4' : downloadAudio,
     'm4a' : downloadAudio,
 
-    // Txt
-    'txt' : empty,
-    'xml' : empty,
-    'vsh' : empty,
-    'fsh' : empty,
-    'atlas' : empty,
-
-    'tmx' : empty,
-    'tsx' : empty,
-
-    'json' : empty,
-    'ExportJson' : empty,
-    'plist' : empty,
-
-    'fnt' : empty,
-
     // Font
     'font' : empty,
     'eot' : empty,
@@ -86,8 +70,6 @@ cc.loader.addDownloadHandlers({
     'woff' : empty,
     'svg' : empty,
     'ttc' : empty,
-
-    'default' : empty
 });
 
 
