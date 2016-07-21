@@ -83,6 +83,18 @@ var TiledObject = cc.Class({
             this._sgNode = null;
         }
     },
+
+    // The method will remove self component from the node,
+    // and try to remove the node from scene graph.
+    // It should only be invoked by cc.TiledMap
+    // DO NOT use it manually.
+    _tryRemoveNode: function() {
+        this.node.removeComponent(cc.TiledObject);
+        if (this.node._components.length === 1 &&
+            this.node.getChildren().length === 0) {
+            this.node.removeFromParent();
+        }
+    }
 });
 
 cc.TiledObject = module.exports = TiledObject;

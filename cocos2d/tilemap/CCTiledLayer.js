@@ -526,6 +526,18 @@ var TiledLayer = cc.Class({
             this._sgNode.setProperties(properties);
         }
     },
+
+    // The method will remove self component from the node,
+    // and try to remove the node from scene graph.
+    // It should only be invoked by cc.TiledMap
+    // DO NOT use it manually.
+    _tryRemoveNode: function() {
+        this.node.removeComponent(cc.TiledLayer);
+        if (this.node._components.length === 1 &&
+            this.node.getChildren().length === 0) {
+            this.node.removeFromParent();
+        }
+    }
 });
 
 cc.TiledLayer = module.exports = TiledLayer;

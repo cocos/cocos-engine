@@ -39,6 +39,8 @@ require('./cocos2d/tilemap/CCTiledMapAsset');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./cocos2d/tilemap/CCTiledMap');
     require('./cocos2d/tilemap/CCTiledLayer');
+    require('./cocos2d/tilemap/CCTiledObject');
+    require('./cocos2d/tilemap/CCTiledObjectGroup');
 }
 
 if (!(CC_EDITOR && Editor.isMainProcess)) {

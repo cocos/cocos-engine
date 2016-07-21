@@ -228,6 +228,31 @@ var TiledObjectGroup = cc.Class({
 
         return ret;
     },
+
+    // The method will remove self component from the node,
+    // and try to remove the node from scene graph.
+    // It should only be invoked by cc.TiledMap
+    // DO NOT use it manually.
+    _tryRemoveNode: function() {
+        // remove the component
+        this.node.removeComponent(cc.TiledObjectGroup);
+
+        // remove the TMXObject
+        var groupChildren = this.node.getChildren();
+        for (var j = groupChildren.length - 1; j >= 0; j--) {
+            var groupChild = groupChildren[j];
+            var tmxObject = groupChild.getComponent(cc.TiledObject);
+            if (tmxObject) {
+                tmxObject._tryRemoveNode();
+            }
+        }
+
+        // try to remove the object group
+        if (this.node._components.length === 1 &&
+            this.node.getChildren().length === 0) {
+            this.node.removeFromParent();
+        }
+    }
 });
 
 cc.TiledObjectGroup = module.exports = TiledObjectGroup;
