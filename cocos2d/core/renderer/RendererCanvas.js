@@ -39,8 +39,11 @@ cc.rendererCanvas = {
     _clearFillStyle: "rgb(0, 0, 0)",
     _dirtyRegion: null,
     _allNeedDraw: true,
-    _enableDirtyRegion: false,
+    _enableDirtyRegion: true,
     _debugDirtyRegion: false,
+
+    //max dirty Region count, default is 10
+    _dirtyRegionCountThreshold: 10,
 
     getRenderCmd: function (renderableObject) {
         //TODO Add renderCmd pool here
@@ -55,26 +58,40 @@ cc.rendererCanvas = {
         return this._enableDirtyRegion;
     },
 
+    setDirtyRegionCountThreshold: function(threshold) {
+        this._dirtyRegionCountThreshold = threshold;
+    },
+
     _collectDirtyRegion: function() {
         //collect dirtyList
         var locCmds = this._renderCmds, i, len;
         var dirtyRegion = this._dirtyRegion;
+        var localStatus = _ccsg.Node.CanvasRenderCmd.RegionStatus;
+        var dirtryRegionCount = 0;
+        var result = true;
         for (i = 0, len = locCmds.length; i < len; i++) {
             var cmd = locCmds[i];
             var regionFlag  = cmd._regionFlag;
             var oldRegion = cmd._oldRegion;
             var currentRegion = cmd._currentRegion;
-            if(regionFlag > _ccsg.Node.CanvasRenderCmd.RegionStatus.NotDirty) {
+            if(regionFlag > localStatus.NotDirty) {
+                ++dirtryRegionCount;
+                if(dirtryRegionCount > this._dirtyRegionCountThreshold)
+                    result = false;
                 //add
-                (!currentRegion.isEmpty()) && dirtyRegion.addRegion(currentRegion);
-                if(cmd._regionFlag > _ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty) {
-                    (!oldRegion.isEmpty()) && dirtyRegion.addRegion(oldRegion);
+                if(result) {
+                    (!currentRegion.isEmpty()) && dirtyRegion.addRegion(currentRegion);
+                    if(cmd._regionFlag > localStatus.Dirty) {
+                        (!oldRegion.isEmpty()) && dirtyRegion.addRegion(oldRegion);
+                    }
                 }
 
-                cmd._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.NotDirty;
+                cmd._regionFlag = localStatus.NotDirty;
             }
 
         }
+
+        return result;
     },
 
     _beginDrawDirtyRegion: function(ctxWrapper) {
@@ -138,7 +155,10 @@ cc.rendererCanvas = {
         var locCmds = this._renderCmds, i, len;
         var allNeedDraw = this._allNeedDraw || !this._enableDirtyRegion;
         if(!allNeedDraw) {
-            this._collectDirtyRegion();
+            allNeedDraw = allNeedDraw || !this._collectDirtyRegion();
+        }
+
+        if(!allNeedDraw) {
             this._beginDrawDirtyRegion(wrapper);
         }
 
