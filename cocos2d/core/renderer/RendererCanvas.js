@@ -89,7 +89,7 @@ cc.rendererCanvas = {
         ctx.beginPath();
         for(var index = 0, count = dirtyList.length; index < count; ++index) {
             var region = dirtyList[index];
-            ctx.rect(region._minX * scaleX , -region._maxY * scaleY, region._width * scaleX, region._height * scaleY);
+            ctx.rect(region._minX , -region._maxY, region._width, region._height);
         }
 
         ctx.clip();
@@ -112,7 +112,7 @@ cc.rendererCanvas = {
         ctx.beginPath();
         for(var index = 0, count = dirtyList.length; index < count; ++index) {
             var region = dirtyList[index];
-            ctx.rect(region._minX * scaleX, -region._maxY * scaleY, region._width * scaleX, region._height * scaleY);
+            ctx.rect(region._minX, -region._maxY, region._width, region._height);
         }
         var oldstyle = ctx.fillStyle;
         ctx.fillStyle = 'green';
