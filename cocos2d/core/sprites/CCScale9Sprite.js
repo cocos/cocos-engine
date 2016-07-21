@@ -55,7 +55,8 @@ var dataPool = {
     }
 };
 
-var webgl, 
+var FIX_ARTIFACTS_BY_STRECHING_TEXEL = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL,
+    webgl, 
     vl, vb, vt, vr, 
     cornerId = [];
 
@@ -162,22 +163,24 @@ var simpleQuadGenerator = {
 
         //uv computation should take spritesheet into account.
         var l, b, r, t;
+        var texelCorrectX = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasWidth : 0;
+        var texelCorrectY = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasHeight : 0;
 
         if (spriteFrame._rotated) {
-            l = textureRect.x / atlasWidth;
-            b = (textureRect.y + textureRect.width) / atlasHeight;
-            r = (textureRect.x + textureRect.height) / atlasWidth;
-            t = textureRect.y / atlasHeight;
+            l = textureRect.x / atlasWidth + texelCorrectX;
+            b = (textureRect.y + textureRect.width) / atlasHeight - texelCorrectY;
+            r = (textureRect.x + textureRect.height) / atlasWidth - texelCorrectX;
+            t = textureRect.y / atlasHeight + texelCorrectY;
             uvs[0] = l; uvs[1] = t;
             uvs[2] = l; uvs[3] = b;
             uvs[4] = r; uvs[5] = t;
             uvs[6] = r; uvs[7] = b;
         }
         else {
-            l = textureRect.x / atlasWidth;
-            b = (textureRect.y + textureRect.height) / atlasHeight;
-            r = (textureRect.x + textureRect.width) / atlasWidth;
-            t = textureRect.y / atlasHeight;
+            l = textureRect.x / atlasWidth + texelCorrectX;
+            b = (textureRect.y + textureRect.height) / atlasHeight - texelCorrectY;
+            r = (textureRect.x + textureRect.width) / atlasWidth - texelCorrectX;
+            t = textureRect.y / atlasHeight + texelCorrectY;
             uvs[0] = l; uvs[1] = b;
             uvs[2] = r; uvs[3] = b;
             uvs[4] = l; uvs[5] = t;
@@ -288,17 +291,19 @@ var scale9QuadGenerator = {
         var u = new Array(4);
         var v = new Array(4);
         var offset = 0, row, col;
+        var texelCorrectX = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasWidth : 0;
+        var texelCorrectY = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasHeight : 0;
 
         if (spriteFrame._rotated) {
-            u[0] = textureRect.x / atlasWidth;
-            u[1] = (bottomHeight + textureRect.x) / atlasWidth;
-            u[2] = (bottomHeight + centerHeight + textureRect.x) / atlasWidth;
-            u[3] = (textureRect.x + textureRect.height) / atlasWidth;
+            u[0] = textureRect.x / atlasWidth + texelCorrectX;
+            u[1] = (bottomHeight + textureRect.x) / atlasWidth - texelCorrectX;
+            u[2] = (bottomHeight + centerHeight + textureRect.x) / atlasWidth - texelCorrectX;
+            u[3] = (textureRect.x + textureRect.height) / atlasWidth - texelCorrectX;
 
-            v[3] = textureRect.y / atlasHeight;
-            v[2] = (leftWidth + textureRect.y) / atlasHeight;
-            v[1] = (leftWidth + centerWidth + textureRect.y) / atlasHeight;
-            v[0] = (textureRect.y + textureRect.width) / atlasHeight;
+            v[3] = textureRect.y / atlasHeight + texelCorrectY;
+            v[2] = (leftWidth + textureRect.y) / atlasHeight - texelCorrectY;
+            v[1] = (leftWidth + centerWidth + textureRect.y) / atlasHeight - texelCorrectY;
+            v[0] = (textureRect.y + textureRect.width) / atlasHeight - texelCorrectY;
             
             for (row = 0; row < 4; row++) {
                 for (col = 0; col < 4; col++) {
@@ -309,15 +314,15 @@ var scale9QuadGenerator = {
             }
         }
         else {
-            u[0] = textureRect.x / atlasWidth;
-            u[1] = (leftWidth + textureRect.x) / atlasWidth;
-            u[2] = (leftWidth + centerWidth + textureRect.x) / atlasWidth;
-            u[3] = (textureRect.x + textureRect.width) / atlasWidth;
+            u[0] = textureRect.x / atlasWidth + texelCorrectX;
+            u[1] = (leftWidth + textureRect.x) / atlasWidth - texelCorrectX;
+            u[2] = (leftWidth + centerWidth + textureRect.x) / atlasWidth - texelCorrectX;
+            u[3] = (textureRect.x + textureRect.width) / atlasWidth - texelCorrectX;
 
-            v[3] = textureRect.y / atlasHeight;
-            v[2] = (topHeight + textureRect.y) / atlasHeight;
-            v[1] = (topHeight + centerHeight + textureRect.y) / atlasHeight;
-            v[0] = (textureRect.y + textureRect.height) / atlasHeight;
+            v[3] = textureRect.y / atlasHeight + texelCorrectY;
+            v[2] = (topHeight + textureRect.y) / atlasHeight - texelCorrectY;
+            v[1] = (topHeight + centerHeight + textureRect.y) / atlasHeight - texelCorrectY;
+            v[0] = (textureRect.y + textureRect.height) / atlasHeight - texelCorrectY;
 
             for (row = 0; row < 4; row++) {
                 for (col = 0; col < 4; col++) {
@@ -342,17 +347,19 @@ var tiledQuadGenerator = {
 
         //uv computation should take spritesheet into account.
         var u0, v0, u1, v1;
+        var texelCorrectX = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasWidth : 0;
+        var texelCorrectY = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasHeight : 0;
         if (spriteFrame._rotated) {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (textureRect.x + textureRect.height) / atlasWidth;
-            v0 = (textureRect.y + textureRect.width) / atlasHeight;
-            v1 = textureRect.y / atlasHeight;
+            u0 = textureRect.x / atlasWidth + texelCorrectX;
+            u1 = (textureRect.x + textureRect.height) / atlasWidth - texelCorrectX;
+            v0 = (textureRect.y + textureRect.width) / atlasHeight - texelCorrectY;
+            v1 = textureRect.y / atlasHeight + texelCorrectY;
         }
         else {
-            u0 = textureRect.x / atlasWidth;
-            u1 = (textureRect.x + textureRect.width) / atlasWidth;
-            v0 = (textureRect.y + textureRect.height) / atlasHeight;
-            v1 = textureRect.y / atlasHeight;
+            u0 = textureRect.x / atlasWidth + texelCorrectX;
+            u1 = (textureRect.x + textureRect.width) / atlasWidth - texelCorrectX;
+            v0 = (textureRect.y + textureRect.height) / atlasHeight - texelCorrectY;
+            v1 = textureRect.y / atlasHeight + texelCorrectY;
         }
         
         //build quads
@@ -455,17 +462,19 @@ var fillQuadGeneratorBar = {
         var textureRect = spriteFrame._rect;
         //uv computation should take spritesheet into account.
         var ul, vb, ur, vt;
+        var texelCorrectX = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasWidth : 0;
+        var texelCorrectY = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasHeight : 0;
         if (spriteFrame._rotated) {
-            ul = textureRect.x / atlasWidth;
-            vb = (textureRect.y + textureRect.width) / atlasHeight;
-            ur = (textureRect.x + textureRect.height) / atlasWidth;
-            vt = textureRect.y / atlasHeight;
+            ul = textureRect.x / atlasWidth + texelCorrectX;
+            vb = (textureRect.y + textureRect.width) / atlasHeight - texelCorrectY;
+            ur = (textureRect.x + textureRect.height) / atlasWidth - texelCorrectX;
+            vt = textureRect.y / atlasHeight + texelCorrectY;
         }
         else {
-            ul = textureRect.x / atlasWidth;
-            vb = (textureRect.y + textureRect.height) / atlasHeight;
-            ur = (textureRect.x + textureRect.width) / atlasWidth;
-            vt = textureRect.y / atlasHeight;
+            ul = textureRect.x / atlasWidth + texelCorrectX;
+            vb = (textureRect.y + textureRect.height) / atlasHeight - texelCorrectY;
+            ur = (textureRect.x + textureRect.width) / atlasWidth - texelCorrectX;
+            vt = textureRect.y / atlasHeight + texelCorrectY;
         }
 
         if (vertices.length < 8) {
@@ -894,22 +903,23 @@ var fillQuadGeneratorRadial = {
         var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
-        var u0, u3;
-        var v0, v3;
+        var u0, u3, v0, v3;
+        var texelCorrectX = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasWidth : 0;
+        var texelCorrectY = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 / atlasHeight : 0;
 
         if (spriteFrame._rotated) {
-            u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.height) / atlasWidth;
+            u0 = textureRect.x / atlasWidth + texelCorrectX;
+            u3 = (textureRect.x + textureRect.height) / atlasWidth - texelCorrectX;
 
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.width) / atlasHeight;
+            v0 = textureRect.y / atlasHeight + texelCorrectY;
+            v3 = (textureRect.y + textureRect.width) / atlasHeight - texelCorrectY;
         }
         else {
-            u0 = textureRect.x / atlasWidth;
-            u3 = (textureRect.x + textureRect.width) / atlasWidth;
+            u0 = textureRect.x / atlasWidth + texelCorrectX;
+            u3 = (textureRect.x + textureRect.width) / atlasWidth - texelCorrectX;
 
-            v0 = textureRect.y / atlasHeight;
-            v3 = (textureRect.y + textureRect.height) / atlasHeight;
+            v0 = textureRect.y / atlasHeight + texelCorrectY;
+            v3 = (textureRect.y + textureRect.height) / atlasHeight - texelCorrectY;
         }
 
         this._uvs[0].x = u0;
