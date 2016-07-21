@@ -222,8 +222,20 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         // Parse cocos2d properties
         this._parseInternalProperties();
 
-        this.setContentSize(this._layerSize.width * this._mapTileSize.width,
-                            this._layerSize.height * this._mapTileSize.height);
+        if (this.layerOrientation === cc.TiledMap.Orientation.HEX) {
+            var width = 0, height = 0;
+            if (this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
+                height = mapInfo._tileSize.height * (this._layerSize.height + 0.5);
+                width = (mapInfo._tileSize.width + this._hexSideLength) * Math.floor(this._layerSize.width / 2) + mapInfo._tileSize.width * (this._layerSize.width % 2);
+            } else {
+                width = mapInfo._tileSize.width * (this._layerSize.width + 0.5);
+                height = (mapInfo._tileSize.height + this._hexSideLength) * Math.floor(this._layerSize.height / 2) + mapInfo._tileSize.height * (this._layerSize.height % 2);
+            }
+            this.setContentSize(width, height);
+        } else {
+            this.setContentSize(this._layerSize.width * this._mapTileSize.width,
+                this._layerSize.height * this._mapTileSize.height);
+        }
         this._useAutomaticVertexZ = false;
         this._vertexZvalue = 0;
         return true;
