@@ -886,16 +886,21 @@ var View = cc._Class.extend({
             selTouch, selPoint, selPrePoint, selStartPoint;
         for( var i = 0; i < touches.length; i ++){
             selTouch = touches[i];
+            hasStartPoint = selTouch._startPointCaptured;
             selPoint = selTouch._point;
             selPrePoint = selTouch._prevPoint;
-            selStartPoint = selTouch._startPoint;
 
             selPoint.x = (selPoint.x - locViewPortRect.x) / locScaleX;
             selPoint.y = (selPoint.y - locViewPortRect.y) / locScaleY;
             selPrePoint.x = (selPrePoint.x - locViewPortRect.x) / locScaleX;
             selPrePoint.y = (selPrePoint.y - locViewPortRect.y) / locScaleY;
-            selStartPoint.x = (selStartPoint.x - locViewPortRect.x) / locScaleX;
-            selStartPoint.y = (selStartPoint.y - locViewPortRect.y) / locScaleY;
+
+            if (!hasStartPoint) {
+                selStartPoint = selTouch._startPoint;
+                selStartPoint.x = selPoint.x;
+                selStartPoint.y = selPoint.y;
+                selTouch._startPointCaptured = true;
+            }
         }
     }
 });
