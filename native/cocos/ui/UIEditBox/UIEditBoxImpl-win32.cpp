@@ -894,7 +894,7 @@ void EditBoxImplWin::onWin32InputBoxClose(INT_PTR buttonId)
     {
         _delegate->editBoxTextChanged(_editBox, getText());
         _delegate->editBoxEditingDidEnd(_editBox);
-        _delegate->editBoxReturn(_editBox);
+        _delegate->editBoxEditingReturn(_editBox);
     }
 
 #if CC_ENABLE_SCRIPT_BINDING
