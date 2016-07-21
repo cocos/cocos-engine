@@ -168,12 +168,12 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
      * @param {Number} h
      */
     setContentSize: function(w, h){
-        _ccsg.Widget.prototype.setContentSize.call(this, w, h);
+        _ccsg.Node.prototype.setContentSize.call(this, w, h);
         if(h === undefined){
             h = w.height;
             w = w.width;
         }
-        this._renderCmd.changeSize(w, h);
+        this._renderCmd.updateSize(w, h);
     },
 
     /**
@@ -234,39 +234,18 @@ _ccsg.WebView.EventType = {
 
         this._div = null;
         this._iframe = null;
-
-        if(polyfill.enableDiv){
-            this._div = document.createElement("div");
-            this._div.style["-webkit-overflow"] = "auto";
-            this._div.style["-webkit-overflow-scrolling"] = "touch";
-            this._iframe = document.createElement("iframe");
-            this._div.appendChild(this._iframe);
-        }else{
-            this._div = this._iframe = document.createElement("iframe");
-        }
-
-        if(polyfill.enableBG)
-            this._div.style["background"] = "#FFF";
-
-        this._iframe.addEventListener("load", function(){
-            node._dispatchEvent(_ccsg.WebView.EventType.LOADED);
-        });
-        this._iframe.addEventListener("error", function(){
-            node._dispatchEvent(_ccsg.WebView.EventType.ERROR);
-        });
-        this._div.style["background"] = "#FFF";
-        this._div.style.height = "200px";
-        this._div.style.width = "300px";
-        this._div.style.overflow = "scroll";
         this._listener = null;
+
+        this.createDom();
         this.initStyle();
+        this.initEvent();
     };
 
     var proto = _ccsg.WebView.RenderCmd.prototype = Object.create(RenderCmd.prototype);
     proto.constructor = _ccsg.WebView.RenderCmd;
 
     proto.transform = function (parentCmd, recursive) {
-        RenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        this.originTransform(parentCmd, recursive);
         this.updateMatrix();
     };
 
@@ -281,31 +260,14 @@ _ccsg.WebView.EventType = {
         }
     };
 
-    proto.visit = function(){
-        var self = this,
-            container = cc.container,
-            eventManager = cc.eventManager;
-        if(this._node._visible){
-            container.appendChild(this._div);
-            if(this._listener === null)
-                this._listener = eventManager.addCustomListener(cc.game.EVENT_RESIZE, function () {
-                    self.resize();
-                });
-        }else{
-            var hasChild = false;
-            if('contains' in container) {
-                hasChild = container.contains(this._div);
-            }else {
-                hasChild = container.compareDocumentPosition(this._div) % 16;
-            }
-            if(hasChild)
-                container.removeChild(this._div);
-            var list = eventManager._listenersMap[cc.game.EVENT_RESIZE].getFixedPriorityListeners();
-            eventManager._removeListenerInVector(list, this._listener);
-            this._listener = null;
-        }
-        this.updateStatus();
-        this.resize(cc.view);
+    proto.initEvent = function () {
+        var node = this._node;
+        this._iframe.addEventListener("load", function(){
+            node._dispatchEvent(_ccsg.WebView.EventType.LOADED);
+        });
+        this._iframe.addEventListener("error", function(){
+            node._dispatchEvent(_ccsg.WebView.EventType.ERROR);
+        });
     };
 
     proto.resize = function(view){
@@ -322,15 +284,13 @@ _ccsg.WebView.EventType = {
     };
 
     proto.updateMatrix = function(){
+        if (!this._div) return;
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
+        var dpr = cc.view._devicePixelRatio;
+        var t = this._worldTransform;
 
-        if(polyfill.devicePixelRatio && scaleX !== 1 && scaleX !== 1){
-            var dpr = cc.view._devicePixelRatio;
-            scaleX /= dpr;
-            scaleY /= dpr;
-        }
-        var t = node.getNodeToWorldTransform();
-        if (!t) return;
+        scaleX /= dpr;
+        scaleY /= dpr;
 
         var container = cc.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
@@ -365,12 +325,35 @@ _ccsg.WebView.EventType = {
         iframe.addEventListener("load", cb);
     };
 
-    proto.changeSize = function(w, h){
+    proto.updateSize = function(w, h){
         var div = this._div;
         if(div){
             div.style["width"] = w+"px";
             div.style["height"] = h+"px";
         }
+    };
+
+    proto.createDom = function () {
+        if(polyfill.enableDiv){
+            this._div = document.createElement("div");
+            this._div.style["-webkit-overflow"] = "auto";
+            this._div.style["-webkit-overflow-scrolling"] = "touch";
+            this._iframe = document.createElement("iframe");
+            this._div.appendChild(this._iframe);
+        }else{
+            this._div = this._iframe = document.createElement("iframe");
+        }
+
+        if(polyfill.enableBG)
+            this._div.style["background"] = "#FFF";
+
+        this._div.style["background"] = "#FFF";
+        var contentSize = this._node._contentSize;
+        this._div.style.height = contentSize.height + "px";
+        this._div.style.width = contentSize.width + "px";
+        this._div.style.overflow = "scroll";
+        this._div.style.border = "none";
+        cc.container.appendChild(this._div);
     };
 
     proto.removeDom = function(){
@@ -380,11 +363,11 @@ _ccsg.WebView.EventType = {
             if('contains' in cc.container) {
                 hasChild = cc.container.contains(div);
             }else {
-hasChild = cc.container.compareDocumentPosition(div) % 16;
-}
-if(hasChild)
-    cc.container.removeChild(div);
-}
-};
+                hasChild = cc.container.compareDocumentPosition(div) % 16;
+            }
+            if(hasChild)
+                cc.container.removeChild(div);
+        }
+    };
 
 })(_ccsg.WebView._polyfill);
