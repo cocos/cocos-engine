@@ -21,6 +21,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Video event type
+ * !#zh 视频事件类型
+ * @enum VideoPlayer.EventType
+ */
+/**
+ * !#en play
+ * !#zh 播放
+ * @property {Number} PLAYING
+ */
+/**
+ * !#en pause
+ * !#zh 暂停
+ * @property {Number} PAUSED
+ */
+/**
+ * !#en stop
+ * !#zh 停止
+ * @property {Number} STOPPED
+ */
+/**
+ * !#en play end
+ * !#zh 播放结束
+ * @property {Number} COMPLETED
+ */
 var EventType = _ccsg.VideoPlayer.EventType;
 
 
