@@ -459,7 +459,7 @@ sys.isNative = false;
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object';
 
-if (typeof Editor !== 'undefined' && Editor.isMainProcess) {
+if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
     sys.language = sys.LANGUAGE_UNKNOWN;
@@ -481,7 +481,7 @@ else {
     var win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
     var ua = nav.userAgent.toLowerCase();
 
-    if (cc.isEditor) {
+    if (CC_EDITOR) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_PAGE;
     }
