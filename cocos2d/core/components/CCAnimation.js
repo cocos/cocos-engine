@@ -167,9 +167,7 @@ var Animation = cc.Class({
     },
 
     __preload: function () {
-        if (CC_EDITOR) return;
-
-        this._init();
+        if (CC_EDITOR || !this.enabled) return;
 
         if (this.playOnLoad && this._defaultClip) {
             var state = this.getAnimationState(this._defaultClip.name);
