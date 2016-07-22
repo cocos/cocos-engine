@@ -3,7 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "triangulate.h"
+#include "Triangulate.h"
 
 #define EPSILON 0.0000000001f
 
