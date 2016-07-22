@@ -183,10 +183,6 @@ cc.game.on(cc.game.EVENT_SHOW, function () {
     }
 });
 
-/**
- * The VideoPlayer support list of events
- * @type {{PLAYING: string, PAUSED: string, STOPPED: string, COMPLETED: string}}
- */
 _ccsg.VideoPlayer.EventType = {
     PLAYING: 0,
     PAUSED: 1,
