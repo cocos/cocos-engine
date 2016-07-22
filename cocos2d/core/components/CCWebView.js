@@ -21,7 +21,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var EventType = _ccsg.WebView.EventType;
 
+/*
+ * !#en WebView event type
+ * !#zh   WebView 事件类型
+ * @enum WebView.EventType
+ */
+
+/*
+ * !#en Web page Load completed.
+ * !#zh  网页加载完成
+ * @property {String} LOADED
+ */
 
 /**
  * !#en cc.WebView is a component for display web pages in the game
@@ -41,7 +53,12 @@ var WebView = cc.Class({
         _useOriginalSize: true,
 
         _url: '',
-        url: {
+        /**
+         * !#en A given URL to be loaded by the WebView, it should have a http or https prefix.
+         * !#zh 指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串
+         * @property {String} URL
+         */
+        URL: {
             type: String,
             get: function () {
                 return this._url;
@@ -49,16 +66,26 @@ var WebView = cc.Class({
             set: function (url) {
                 this._url = url;
                 var sgNode = this._sgNode;
-                if (!sgNode) return;
-                sgNode.loadURL(url);
+                if (sgNode) {
+                    sgNode.loadURL(url);
+                }
             }
+        },
+
+        /**
+         * !#en The webview's event callback , it will be triggered when web page finished loading.
+         * !#zh WebView 的回调事件，当网页加载完成之后会回调此函数
+         * @property {cc.Component.EventHandler[]} webViewEvent
+         */
+        webViewEvent: {
+            default: [],
+            type: cc.Component.EventHandler,
         }
     },
 
-    // statics: {
-    //     EventType: EventType,
-    //     ResourceType: ResourceType
-    // },
+    statics: {
+        EventType: EventType,
+    },
 
     _createSgNode: function () {
         return new _ccsg.WebView();
@@ -66,7 +93,9 @@ var WebView = cc.Class({
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
-        if (!sgNode) return;
+
+        sgNode.setEventListener(EventType.LOADED , this._onWebViewLoaded.bind(this));
+
         sgNode.loadURL(this._url);
 
         if (CC_EDITOR && this._useOriginalSize) {
@@ -77,12 +106,8 @@ var WebView = cc.Class({
         }
     },
 
-    onLoad: function () {
-
-    },
-
-    reload: function () {
-
+    _onWebViewLoaded: function () {
+        cc.Component.EventHandler.emitEvents(this.webViewEvent, this, EventType.LOADED);
     }
 
 });
