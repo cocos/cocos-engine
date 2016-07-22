@@ -44,7 +44,7 @@ module.exports = [
     require('./CCLayout'),
     require('./CCEditBox'),
     require('./CCVideoPlayer'),
-    require('../webview/CCWebView'),
+    require('./CCWebView'),
     require('./CCSpriteDistortion'),
     require('./CCLabelOutline'),
 ];
