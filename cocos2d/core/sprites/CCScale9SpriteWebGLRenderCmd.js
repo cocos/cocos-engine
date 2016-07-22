@@ -39,8 +39,9 @@ cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
     this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
 };
 
-var proto = cc.Scale9Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-proto.constructor = cc.Scale9Sprite.WebGLRenderCmd;
+var Scale9Sprite = cc.Scale9Sprite;
+var proto = Scale9Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+proto.constructor = Scale9Sprite.WebGLRenderCmd;
 
 proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, offset) {
     var off;
@@ -106,7 +107,7 @@ proto.transform = function (parentCmd, recursive) {
 
 proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     var node = this._node;
-    if (!node._spriteFrame || !node._spriteFrame.textureLoaded() || this._displayedOpacity === 0) {
+    if (this._displayedOpacity === 0) {
         return 0;
     }
 
@@ -115,15 +116,14 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         node._rebuildQuads();
     }
 
-    // this._shaderProgram.use();
-    if (this._shaderProgram === cc.Scale9Sprite.WebGLRenderCmd._distortionProgram && this._node._distortionOffset) {
+    if (node._distortionOffset && this._shaderProgram === Scale9Sprite.WebGLRenderCmd._distortionProgram) {
         this._shaderProgram.setUniformLocationWith2f(
-          cc.Scale9Sprite.WebGLRenderCmd._distortionOffset,
-          this._node._distortionOffset.x, this._node._distortionOffset.y
+          Scale9Sprite.WebGLRenderCmd._distortionOffset,
+          node._distortionOffset.x, node._distortionOffset.y
         );
         this._shaderProgram.setUniformLocationWith2f(
-          cc.Scale9Sprite.WebGLRenderCmd._distortionTiling,
-          this._node._distortionTiling.x, this._node._distortionTiling.y
+          Scale9Sprite.WebGLRenderCmd._distortionTiling,
+          node._distortionTiling.x, node._distortionTiling.y
         );
     }
 
@@ -144,7 +144,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     // Upload data
     var vertices = node._vertices;
     var uvs = node._uvs;
-    var types = cc.Scale9Sprite.RenderingType;
+    var types = Scale9Sprite.RenderingType;
     var offset = vertexDataOffset;
     var len = 0;
     switch (node._renderingType) {
@@ -157,7 +157,7 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
         len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
         break;
     }
-    if (node._renderingType === types.FILLED && node._fillType === cc.Scale9Sprite.FillType.RADIAL) {
+    if (node._renderingType === types.FILLED && node._fillType === Scale9Sprite.FillType.RADIAL) {
         this.vertexType = cc.renderer.VertexType.TRIANGLE;
     }
     else {
@@ -167,18 +167,18 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 };
 
 proto.setState = function (state) {
-    if (state === cc.Scale9Sprite.state.NORMAL) {
+    if (state === Scale9Sprite.state.NORMAL) {
         this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
-    } else if (state === cc.Scale9Sprite.state.GRAY) {
+    } else if (state === Scale9Sprite.state.GRAY) {
         this._shaderProgram = cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram();
-    } else if (state === cc.Scale9Sprite.state.DISTORTION) {
+    } else if (state === Scale9Sprite.state.DISTORTION) {
         this._shaderProgram = cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram();
     }
 };
 
-cc.Scale9Sprite.WebGLRenderCmd._grayShaderProgram = null;
-cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram = function(){
-    var grayShader = cc.Scale9Sprite.WebGLRenderCmd._grayShaderProgram;
+Scale9Sprite.WebGLRenderCmd._grayShaderProgram = null;
+Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram = function(){
+    var grayShader = Scale9Sprite.WebGLRenderCmd._grayShaderProgram;
     if (grayShader)
         return grayShader;
 
@@ -190,11 +190,11 @@ cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram = function(){
     grayShader.link();
     grayShader.updateUniforms();
 
-    cc.Scale9Sprite.WebGLRenderCmd._grayShaderProgram = grayShader;
+    Scale9Sprite.WebGLRenderCmd._grayShaderProgram = grayShader;
     return grayShader;
 };
 
-cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
+Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
     "precision lowp float;\n"
     + "varying vec4 v_fragmentColor; \n"
     + "varying vec2 v_texCoord; \n"
@@ -205,9 +205,9 @@ cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
     +"     gl_FragColor.w = c.w ; \n"
     + "}";
 
-cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
-cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
-    var shader = cc.Scale9Sprite.WebGLRenderCmd._distortionProgram;
+Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
+Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
+    var shader = Scale9Sprite.WebGLRenderCmd._distortionProgram;
     if(shader)
         return shader;
 
@@ -219,9 +219,9 @@ cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
     shader.link();
     shader.updateUniforms();
 
-    cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = shader;
-    cc.Scale9Sprite.WebGLRenderCmd._distortionOffset = shader.getUniformLocationForName('u_offset');
-    cc.Scale9Sprite.WebGLRenderCmd._distortionTiling = shader.getUniformLocationForName('u_offset_tiling');
+    Scale9Sprite.WebGLRenderCmd._distortionProgram = shader;
+    Scale9Sprite.WebGLRenderCmd._distortionOffset = shader.getUniformLocationForName('u_offset');
+    Scale9Sprite.WebGLRenderCmd._distortionTiling = shader.getUniformLocationForName('u_offset_tiling');
     return shader;
 };
 
