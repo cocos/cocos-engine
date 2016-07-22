@@ -12,11 +12,16 @@ endif
 
 LOCAL_SRC_FILES := \
 ../../Classes/AppDelegate.cpp \
-hellojavascript/main.cpp
+hellojavascript/main.cpp \
+../../Classes/SDKManager.cpp \
+../../Classes/jsb_anysdk_basic_conversions.cpp \
+../../Classes/manualanysdkbindings.cpp \
+../../Classes/jsb_anysdk_protocols_auto.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes \
 
 LOCAL_STATIC_LIBRARIES := cocos2d_js_static
+LOCAL_WHOLE_STATIC_LIBRARIES := PluginProtocolStatic
 
 include $(BUILD_SHARED_LIBRARY)
 

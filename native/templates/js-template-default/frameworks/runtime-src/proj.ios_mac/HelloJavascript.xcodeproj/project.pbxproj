@@ -58,6 +58,16 @@
 		A922754C1517C094001B78AA /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A922754B1517C094001B78AA /* UIKit.framework */; };
 		A922754E1517C094001B78AA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A922754D1517C094001B78AA /* Foundation.framework */; };
 		A92275501517C094001B78AA /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A922754F1517C094001B78AA /* CoreGraphics.framework */; };
+		AB2EB9E31D34F56100695C92 /* jsb_anysdk_basic_conversions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB2EB9DB1D34F56100695C92 /* jsb_anysdk_basic_conversions.cpp */; };
+		AB2EB9E41D34F56100695C92 /* jsb_anysdk_protocols_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB2EB9DD1D34F56100695C92 /* jsb_anysdk_protocols_auto.cpp */; };
+		AB2EB9E51D34F56100695C92 /* manualanysdkbindings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB2EB9DF1D34F56100695C92 /* manualanysdkbindings.cpp */; };
+		AB2EB9E61D34F56100695C92 /* SDKManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB2EB9E11D34F56100695C92 /* SDKManager.cpp */; };
+		AB45A0FB1D34F7A400033ACB /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB45A0FA1D34F7A400033ACB /* CFNetwork.framework */; };
+		AB45A0FD1D34F7B000033ACB /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB45A0FC1D34F7B000033ACB /* CoreFoundation.framework */; };
+		AB45A0FF1D34F7C000033ACB /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB45A0FE1D34F7C000033ACB /* MobileCoreServices.framework */; };
+		AB45A1011D34F7CC00033ACB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB45A1001D34F7CC00033ACB /* SystemConfiguration.framework */; };
+		AB45A1031D34F7E100033ACB /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB45A1021D34F7E100033ACB /* GameController.framework */; };
+		ABE457011D35194300F1F400 /* libPluginProtocol.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ABE457001D35194300F1F400 /* libPluginProtocol.a */; };
 		BA3A85EC1A724AE900924D24 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3A85EB1A724AE900924D24 /* Security.framework */; };
 		BA4E718119EB6E3F00932425 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA4E718019EB6E3E00932425 /* MediaPlayer.framework */; };
 		BAEE4D841AC40C11003BEB0F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BAEE4D831AC40C11003BEB0F /* Security.framework */; };
@@ -283,6 +293,20 @@
 		A922754B1517C094001B78AA /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A922754D1517C094001B78AA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A922754F1517C094001B78AA /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		AB2EB9DB1D34F56100695C92 /* jsb_anysdk_basic_conversions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_anysdk_basic_conversions.cpp; sourceTree = "<group>"; };
+		AB2EB9DC1D34F56100695C92 /* jsb_anysdk_basic_conversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsb_anysdk_basic_conversions.h; sourceTree = "<group>"; };
+		AB2EB9DD1D34F56100695C92 /* jsb_anysdk_protocols_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_anysdk_protocols_auto.cpp; sourceTree = "<group>"; };
+		AB2EB9DE1D34F56100695C92 /* jsb_anysdk_protocols_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_anysdk_protocols_auto.hpp; sourceTree = "<group>"; };
+		AB2EB9DF1D34F56100695C92 /* manualanysdkbindings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = manualanysdkbindings.cpp; sourceTree = "<group>"; };
+		AB2EB9E01D34F56100695C92 /* manualanysdkbindings.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = manualanysdkbindings.hpp; sourceTree = "<group>"; };
+		AB2EB9E11D34F56100695C92 /* SDKManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDKManager.cpp; sourceTree = "<group>"; };
+		AB2EB9E21D34F56100695C92 /* SDKManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDKManager.h; sourceTree = "<group>"; };
+		AB45A0FA1D34F7A400033ACB /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		AB45A0FC1D34F7B000033ACB /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		AB45A0FE1D34F7C000033ACB /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = DEVELOPER_DIR; };
+		AB45A1001D34F7CC00033ACB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = DEVELOPER_DIR; };
+		AB45A1021D34F7E100033ACB /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
+		ABE457001D35194300F1F400 /* libPluginProtocol.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libPluginProtocol.a; path = ../../cocos2d-x/external/ios/libs//libPluginProtocol.a; sourceTree = "<group>"; };
 		BA3A85EB1A724AE900924D24 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		BA4E718019EB6E3E00932425 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.0.sdk/System/Library/Frameworks/MediaPlayer.framework; sourceTree = DEVELOPER_DIR; };
 		BA4E718219EB6E4600932425 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.0.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
@@ -329,11 +353,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB45A1031D34F7E100033ACB /* GameController.framework in Frameworks */,
+				AB45A1011D34F7CC00033ACB /* SystemConfiguration.framework in Frameworks */,
+				AB45A0FF1D34F7C000033ACB /* MobileCoreServices.framework in Frameworks */,
+				AB45A0FD1D34F7B000033ACB /* CoreFoundation.framework in Frameworks */,
+				AB45A0FB1D34F7A400033ACB /* CFNetwork.framework in Frameworks */,
 				294D7D7C1D0D667B002CE7B7 /* CoreText.framework in Frameworks */,
 				FA676C761C71AFA200E091E3 /* libiconv.dylib in Frameworks */,
 				BA3A85EC1A724AE900924D24 /* Security.framework in Frameworks */,
 				BA4E718119EB6E3F00932425 /* MediaPlayer.framework in Frameworks */,
 				C037820C18BF77C500FE4F13 /* libjscocos2d iOS.a in Frameworks */,
+				ABE457011D35194300F1F400 /* libPluginProtocol.a in Frameworks */,
 				1A676839180E9C1E0076BC67 /* libcocos2dx iOS.a in Frameworks */,
 				D6B061241803AB9F0077942B /* CoreMotion.framework in Frameworks */,
 				1A82F5FB169AC92500C4B13A /* libsqlite3.dylib in Frameworks */,
@@ -439,6 +469,12 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ABE457001D35194300F1F400 /* libPluginProtocol.a */,
+				AB45A1021D34F7E100033ACB /* GameController.framework */,
+				AB45A1001D34F7CC00033ACB /* SystemConfiguration.framework */,
+				AB45A0FE1D34F7C000033ACB /* MobileCoreServices.framework */,
+				AB45A0FC1D34F7B000033ACB /* CoreFoundation.framework */,
+				AB45A0FA1D34F7A400033ACB /* CFNetwork.framework */,
 				294D7D7B1D0D667B002CE7B7 /* CoreText.framework */,
 				4D697BDC1CBD303100A5AF29 /* libjs_static.a */,
 				4D697BD91CBD301C00A5AF29 /* libjs_static.a */,
@@ -498,6 +534,14 @@
 		D4545214156E28EF00887EB5 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				AB2EB9DB1D34F56100695C92 /* jsb_anysdk_basic_conversions.cpp */,
+				AB2EB9DC1D34F56100695C92 /* jsb_anysdk_basic_conversions.h */,
+				AB2EB9DD1D34F56100695C92 /* jsb_anysdk_protocols_auto.cpp */,
+				AB2EB9DE1D34F56100695C92 /* jsb_anysdk_protocols_auto.hpp */,
+				AB2EB9DF1D34F56100695C92 /* manualanysdkbindings.cpp */,
+				AB2EB9E01D34F56100695C92 /* manualanysdkbindings.hpp */,
+				AB2EB9E11D34F56100695C92 /* SDKManager.cpp */,
+				AB2EB9E21D34F56100695C92 /* SDKManager.h */,
 				D4545215156E28EF00887EB5 /* AppDelegate.cpp */,
 				D4545216156E28EF00887EB5 /* AppDelegate.h */,
 			);
@@ -734,7 +778,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				509D4AC917EBB2AB00697056 /* RootViewController.mm in Sources */,
+				AB2EB9E51D34F56100695C92 /* manualanysdkbindings.cpp in Sources */,
 				D4545227156E28EF00887EB5 /* AppDelegate.cpp in Sources */,
+				AB2EB9E41D34F56100695C92 /* jsb_anysdk_protocols_auto.cpp in Sources */,
+				AB2EB9E61D34F56100695C92 /* SDKManager.cpp in Sources */,
+				AB2EB9E31D34F56100695C92 /* jsb_anysdk_basic_conversions.cpp in Sources */,
 				509D4AC817EBB2AB00697056 /* main.m in Sources */,
 				509D4ABC17EBB2AB00697056 /* AppController.mm in Sources */,
 			);
@@ -910,17 +958,18 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					CC_TARGET_OS_IPHONE,
 					"$(inherited)",
+					PACKAGE_AS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../cocos2d-x/external/ios/libs";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../cocos2d-x/cocos/platform/ios $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/auto $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/manual $(SRCROOT)/../../cocos2d-x/external/ios/include $(SRCROOT)/../../cocos2d-x/external/ios/include/spidermonkey";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../cocos2d-x/cocos/platform/ios $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/auto $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/manual $(SRCROOT)/../../cocos2d-x/external/ios/include $(SRCROOT)/../../cocos2d-x/external/ios/include/spidermonkey $(SRCROOT)/../../cocos2d-x/external/ios/include/anysdk";
 				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Debug;
@@ -938,17 +987,18 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					CC_TARGET_OS_IPHONE,
 					"$(inherited)",
+					PACKAGE_AS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = ios/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1.1;
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../cocos2d-x/external/ios/libs";
-				OTHER_LDFLAGS = "";
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				STRIP_PNG_TEXT = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../cocos2d-x/cocos/platform/ios $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/auto $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/manual $(SRCROOT)/../../cocos2d-x/external/ios/include $(SRCROOT)/../../cocos2d-x/external/ios/include/spidermonkey";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) $(SRCROOT)/../../cocos2d-x/cocos/platform/ios $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/auto $(SRCROOT)/../../cocos2d-x/plugin/jsbindings/manual $(SRCROOT)/../../cocos2d-x/external/ios/include $(SRCROOT)/../../cocos2d-x/external/ios/include/spidermonkey $(SRCROOT)/../../cocos2d-x/external/ios/include/anysdk";
 				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Release;

@@ -20,7 +20,6 @@
             "exclude":[
                "proj.android/bin",
                "proj.android/assets",
-               "proj.android/libs",
                "proj.ios_mac/HelloJavascript.xcodeproj/project.xcworkspace",
                "proj.ios_mac/HelloJavascript.xcodeproj/xcuserdata",
                "proj.win32/Debug.win32",

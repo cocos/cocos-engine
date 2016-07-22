@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugin_login_title">Account login</string>
+    <string name="plugin_login_account">Account</string>
+    <string name="plugin_login_password">Password</string>
+    <string name="plugin_login">Login</string>
+    <string name="plugin_cancel">Cancel</string>
+    <string name="plugin_pay_content">Do you confirm the payment？</string>
+    <string name="plugin_pay">Pay</string>
+    <string name="plugin_rank">Rank</string>
+    <string name="plugin_achievement">Achievement</string>
+    <string name="plugin_center">Platform center</string>
+    <string name="plugin_showTool">Show toolbar</string>
+    <string name="plugin_hideTool">Hide toolbar</string>
+    <string name="plugin_realNameRegister">Real-name registration</string>
+    <string name="plugin_antiAddictionQuery">Anti-addiction query</string>
+    <string name="plugin_exit">Exit</string>
+    <string name="plugin_pause">Pause the game</string>
+    <string name="plugin_sure">Confirm</string>
+    <string name="plugin_accountSwitch">Switch account</string>
+    <string name="plugin_logout">Logout</string>
+    <string name="plugin_submitLoginGameRole">Submit the role information</string>
+    <string name="plugin_tips">Test mode, not for official release!</string>
+    <string name="plugin_waiting">Just a moment please</string>
+    <string name="plugin_data">Data is communication</string>
+    
+    
+    
+</resources>
