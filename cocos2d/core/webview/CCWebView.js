@@ -68,6 +68,7 @@ var WebView = cc.Class({
         var sgNode = this._sgNode;
         if (!sgNode) return;
         sgNode.loadURL(this._url);
+        sgNode.setContentSize(this.node.getContentSize());
     },
 
     onLoad: function () {

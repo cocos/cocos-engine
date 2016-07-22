@@ -164,16 +164,16 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
 
     /**
      * Set the contentSize
-     * @param {Number} w
-     * @param {Number} h
+     * @param {Number} width
+     * @param {Number} height
      */
-    setContentSize: function(w, h){
-        _ccsg.Node.prototype.setContentSize.call(this, w, h);
-        if(h === undefined){
-            h = w.height;
-            w = w.width;
+    setContentSize: function(width, height){
+        if (width.width !== undefined && width.height !== undefined) {
+            height = width.height;
+            width = width.width;
         }
-        this._renderCmd.updateSize(w, h);
+        _ccsg.Node.prototype.setContentSize.call(this, width, height);
+        this._renderCmd.updateSize(width, height);
     },
 
     /**
