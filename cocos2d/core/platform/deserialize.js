@@ -27,8 +27,6 @@ var JS = require('./js');
 var CCObject = require('./CCObject');
 var Attr = require('./attribute');
 
-var ENABLE_TARGET = CC_DEV;
-
 // HELPERS
 
 /**
@@ -144,13 +142,11 @@ Details.prototype.push = function (obj, propName, uuid) {
 // IMPLEMENT OF DESERIALIZATION
 
 var _Deserializer = (function () {
-    ///**
-    // * @param {Boolean} isEditor - if false, "editorOnly" properties will be discarded
-    // */
-    function _Deserializer(jsonObj, result, target, classFinder, customEnv) {
+    function _Deserializer(jsonObj, result, target, classFinder, customEnv, ignoreEditorOnly) {
         this._classFinder = classFinder;
-        if (ENABLE_TARGET) {
+        if (CC_DEV) {
             this._target = target;
+            this._ignoreEditorOnly = ignoreEditorOnly;
         }
         this._idList = [];
         this._idObjList = [];
@@ -166,7 +162,7 @@ var _Deserializer = (function () {
             for (var i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
                     var mainTarget;
-                    if (ENABLE_TARGET) {
+                    if (CC_DEV) {
                         mainTarget = (i === 0 && target);
                     }
                     this.deserializedList[i] = _deserializeObject(this, jsonArray[i], mainTarget);
@@ -243,7 +239,7 @@ var _Deserializer = (function () {
                 this.result.uuidPropList.push(propName);
             }
             else {
-                if (ENABLE_TARGET) {
+                if (CC_DEV) {
                     obj[propName] = _deserializeObject(this, jsonObj, target && target[propName]);
                 }
                 else {
@@ -284,7 +280,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     if (prop) {
-                        if (ENABLE_TARGET) {
+                        if (CC_DEV) {
                             self._deserializeObjField(instance, prop, propName, self._target && instance);
                         }
                         else {
@@ -313,7 +309,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     if (prop) {
-                        if (ENABLE_TARGET) {
+                        if (CC_DEV) {
                             self._deserializeObjField(instance, prop, propName, self._target && instance);
                         }
                         else {
@@ -338,10 +334,11 @@ var _Deserializer = (function () {
             // assume all prop in __props__ must have attr
             var rawType = attrs[propName + DELIMETER + 'rawType'];
             if (!rawType) {
-                if (!CC_DEV && attrs[propName + DELIMETER + 'editorOnly']) {
+                if (((CC_EDITOR && self._ignoreEditorOnly) || (!CC_EDITOR && CC_DEV))
+                    && attrs[propName + DELIMETER + 'editorOnly']) {
                     var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
                     if ( !mayUsedInPersistRoot ) {
-                        continue;   // skip editor only if not editor
+                        continue;   // skip editor only if in preview
                     }
                 }
                 if (attrs[propName + DELIMETER + 'serializable'] === false) {
@@ -356,7 +353,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     if (prop) {
-                        if (ENABLE_TARGET) {
+                        if (CC_DEV) {
                             self._deserializeObjField(obj, prop, propName, target && obj);
                         }
                         else {
@@ -409,7 +406,7 @@ var _Deserializer = (function () {
                 return null;
             }
 
-            if (ENABLE_TARGET && target) {
+            if (CC_DEV && target) {
                 // use target
                 if ( !(target instanceof klass) ) {
                     cc.warn('Type of target to deserialize not matched with data: target is %s, data is %s',
@@ -441,14 +438,14 @@ var _Deserializer = (function () {
 
             // embedded primitive javascript object
 
-            obj = (ENABLE_TARGET && target) || {};
+            obj = (CC_DEV && target) || {};
             _deserializePrimitiveObject(self, obj, serialized);
         }
         else {
 
             // Array
 
-            if (ENABLE_TARGET && target) {
+            if (CC_DEV && target) {
                 target.length = serialized.length;
                 obj = target;
             }
@@ -459,7 +456,7 @@ var _Deserializer = (function () {
             for (var i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    if (ENABLE_TARGET) {
+                    if (CC_DEV) {
                         self._deserializeObjField(obj, prop, '' + i, target && obj);
                     }
                     else {
@@ -504,8 +501,9 @@ cc.deserialize = function (data, result, options) {
     var classFinder = (options && options.classFinder) || JS._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     var createAssetRefs = (options && options.createAssetRefs) || cc.sys.platform === cc.sys.EDITOR_CORE;
-    var target = ENABLE_TARGET && (options && options.target);
-    var customEnv = (options && options.customEnv);
+    var target = CC_DEV && (options && options.target);
+    var customEnv = options && options.customEnv;
+    var ignoreEditorOnly = options && options.ignoreEditorOnly;
 
     if (CC_EDITOR && Buffer.isBuffer(data)) {
         data = data.toString();
@@ -521,7 +519,7 @@ cc.deserialize = function (data, result, options) {
         result = new Details();
     }
     cc.game._isCloning = true;
-    var deserializer = new _Deserializer(data, result, target, classFinder, customEnv);
+    var deserializer = new _Deserializer(data, result, target, classFinder, customEnv, ignoreEditorOnly);
     cc.game._isCloning = false;
 
     if (createAssetRefs) {
