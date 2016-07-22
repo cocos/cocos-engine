@@ -163,10 +163,14 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
                 t: 0, l: 0, r: 0, b: 0
             };
             tileset.rectForGID(gid, grid);
-            grid.t = (grid.y + texelCorrect) / imageH;
-            grid.l = (grid.x + texelCorrect) / imageW;
-            grid.r = (grid.x + grid.width - texelCorrect) / imageW;
-            grid.b = (grid.y + grid.height - texelCorrect) / imageH;
+            grid.x += texelCorrect;
+            grid.y += texelCorrect;
+            grid.width -= texelCorrect*2;
+            grid.height -= texelCorrect*2;
+            grid.t = (grid.y) / imageH;
+            grid.l = (grid.x) / imageW;
+            grid.r = (grid.x + grid.width) / imageW;
+            grid.b = (grid.y + grid.height) / imageH;
             grids[gid] = grid;
         }
     },
