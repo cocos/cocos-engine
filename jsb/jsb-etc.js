@@ -71,6 +71,9 @@ cc.js.mixin(cc.path, {
 
 // cc.Scheduler
 cc.Scheduler.prototype.schedule = function (callback, target, interval, repeat, delay, paused) {
+    repeat = repeat || cc.macro.REPEAT_FOREVER;
+    delay =  delay || 0;
+    paused = paused || false;
     this.scheduleCallbackForTarget(target, callback, interval, repeat, delay, paused);
 };
 cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
