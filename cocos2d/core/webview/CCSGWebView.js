@@ -23,6 +23,7 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
 
     ctor: function (path) {
         _ccsg.Node.prototype.ctor.call(this);
+        this.setContentSize(cc.size(300, 200));
         this._EventList = {};
         if(path)
             this.loadURL(path);

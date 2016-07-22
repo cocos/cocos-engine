@@ -38,9 +38,9 @@ var WebView = cc.Class({
     },
 
     properties: {
+        _useOriginalSize: true,
 
         _url: '',
-
         url: {
             type: String,
             get: function () {
@@ -68,7 +68,13 @@ var WebView = cc.Class({
         var sgNode = this._sgNode;
         if (!sgNode) return;
         sgNode.loadURL(this._url);
-        sgNode.setContentSize(this.node.getContentSize());
+
+        if (CC_EDITOR && this._useOriginalSize) {
+            this.node.setContentSize(sgNode.getContentSize());
+            this._useOriginalSize = false;
+        } else {
+            sgNode.setContentSize(this.node.getContentSize());
+        }
     },
 
     onLoad: function () {
