@@ -437,9 +437,9 @@ var tiledQuadGenerator = {
         }
 
         cornerId[0] = 0;
-        cornerId[1] = 2;
-        cornerId[2] = 4;
-        cornerId[3] = 6;
+        cornerId[1] = col * 8 + 2;
+        cornerId[2] = dataLength - col * 8 + 4;
+        cornerId[3] = dataLength - 2;
     }
 };
 
