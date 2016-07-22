@@ -867,7 +867,8 @@ _ccsg.Node = cc.Class({
      */
     setParent: function (parent) {
         this._parent = parent;
-        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
+        var dirtyFlags = _ccsg.Node._dirtyFlags;
+        this._renderCmd.setDirtyFlag(dirtyFlags.transformDirty | dirtyFlags.opacityDirty);
     },
 
     /**
