@@ -188,10 +188,10 @@ cc.game.on(cc.game.EVENT_SHOW, function () {
  * @type {{PLAYING: string, PAUSED: string, STOPPED: string, COMPLETED: string}}
  */
 _ccsg.VideoPlayer.EventType = {
-    PLAYING: "play",
-    PAUSED: "pause",
-    STOPPED: "stop",
-    COMPLETED: "complete"
+    PLAYING: 0,
+    PAUSED: 1,
+    STOPPED: 2,
+    COMPLETED: 3
 };
 
 (function (video) {
