@@ -18,6 +18,15 @@
                "proj.win32/HelloJavascript.sdf"
             ]
          },
+         "append_dir":[
+            {
+               "from":"extensions/anysdk/js-bindings/",
+               "to":"frameworks/runtime-src/Classes",
+               "include": [
+                  "*"
+               ]
+            }
+         ],
          "append_x_engine":{
             "from":".",
             "to":"frameworks/cocos2d-x"

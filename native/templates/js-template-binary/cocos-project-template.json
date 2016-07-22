@@ -41,6 +41,13 @@
                "include": [
                   "*.jar"
                ]
+             },
+             {
+               "from":"extensions/anysdk/js-bindings/",
+               "to":"frameworks/runtime-src/Classes",
+               "include": [
+                  "*"
+               ]
              }
          ],
          "project_rename":{
