@@ -1226,3 +1226,101 @@ test('animation removeClip', function () {
     strictEqual(animation._clips.indexOf(clip2), -1, 'clip2 will be removed even clip2 is playing if force is true');
 });
 
+test('animation callback', function () {
+    var type; 
+
+    function callback (event) {
+        var state = event.detail;
+
+        strictEqual(state instanceof cc.AnimationState, true);
+        strictEqual(state.name === 'move', true);
+
+        type = event.type;
+    }
+
+    var entity = new cc.Node();
+    var animation = entity.addComponent(cc.Animation);
+
+    var clip = new cc.AnimationClip();
+    clip._name = 'move';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+    animation.addClip(clip);
+
+    var state = animation.getAnimationState('move');
+
+    animation.on('play', callback);
+    animation.on('pause', callback);
+    animation.on('resume', callback);
+    animation.on('finished', callback);
+
+    animation.play('move');
+    strictEqual(type === 'play', true, 'should trigger play callback');
+
+    animation.pause('move');
+    strictEqual(type === 'pause', true, 'should trigger pause callback');
+
+    animation.resume('move');
+    strictEqual(type === 'resume', true, 'should trigger resume callback');
+
+    state.update(0);
+    state.update(1);
+    strictEqual(type === 'finished', true, 'should trigger finished callback');
+
+    type = '';
+
+    animation.off('play', callback);
+
+    animation.play('move');
+    strictEqual(type === '', true, 'should not trigger callback');
+
+    animation.off('pause', callback);
+    animation.off('resume', callback);
+
+    animation.pause('move');
+    strictEqual(type === 'pause', false, 'should not trigger pause callback');
+
+    animation.on('resume', callback);
+    animation.resume('move');
+    strictEqual(type === 'resume', true, 'should trigger resume callback');
+
+    animation.on('stop', callback);
+    state.update(1);
+    strictEqual(type === 'stop', true, 'should trigger stop callback');
+
+
+    clip = new cc.AnimationClip();
+    clip._name = 'move2';
+    clip._duration = 1;
+    clip.curveData = {
+        props: {
+            x: [
+                {frame: 0, value: 0},
+                {frame: 1, value: 100}
+            ]
+        }
+    };
+    animation.addClip(clip);
+
+    var list = [];
+    function callback2 (event) {
+        list.push([event.detail.name, event.type]);
+    }
+
+    animation.play('move');
+
+    animation.on('play', callback2);
+    animation.on('stop', callback2);
+
+    animation.play('move2');
+
+    deepEqual(list, [['move2', 'play'], ['move', 'stop']]);
+});
+
