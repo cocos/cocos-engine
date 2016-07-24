@@ -66,20 +66,16 @@ var Details = function () {
 
     if (CC_DEV) {
         /**
-         * 用户可以指定一个在反序列化结束时会被触发的回调，该回调会传回反序列化时统计到的所有解析过的字段。
+         * 用户可以指定一个在反序列化过程中会被触发的回调，该回调会在反序列化之前调用，并且传回反序列化时解析到的字段。
          * NOTE:
+         * - only available in editor
          * - 会被传回的字段仅限于非 Asset 类型，并且如果字段值为 null 或 undefined，则可能不会被传回。
-         * - 该回调在 DeserializeInfo 第一次调用 reset 时就会被清空。
-         * @callback visitorInEditor
-         * @param {Object[]} objs
-         * @param {String[]} propNames
-         * @param {Object} _Deserializer
+         * @callback visit
+         * @param {Object} obj
+         * @param {String} propName
          * @private
          */
-        this.visitorInEditor = null;
-
-        this.visitObjList = [];
-        this.visitPropList = [];
+        this.visit = null;
     }
 };
 /**
@@ -92,18 +88,8 @@ Details.prototype.reset = function () {
     this.rawProp = '';
     //this.rawObjList.length = 0;
     //this.rawPropList.length = 0;
-
-    if (CC_DEV) {
-        this.visitorInEditor = null;
-        this.visitObjList.length = 0;
-        this.visitPropList.length = 0;
-    }
 };
 if (CC_DEV) {
-    Details.prototype.visitLater = function (obj, propName) {
-        this.visitObjList.push(obj);
-        this.visitPropList.push(propName);
-    };
     Details.prototype.assignAssetsBy = function (getter) {
         for (var i = 0, len = this.uuidList.length; i < len; i++) {
             var uuid = this.uuidList[i];
@@ -190,11 +176,6 @@ var _Deserializer = (function () {
 
         // dereference
         _dereference(this);
-
-        // call visitor after all properties initialized
-        if (CC_DEV) {
-            this._callVisitorInEditor();
-        }
     }
 
     function _dereference (self) {
@@ -210,16 +191,7 @@ var _Deserializer = (function () {
         }
     }
 
-    if (CC_DEV) {
-        _Deserializer.prototype._callVisitorInEditor = function () {
-            var result = this.result;
-            if (result.visitorInEditor) {
-                result.visitorInEditor(result.visitObjList, result.visitPropList, this);
-            }
-        };
-    }
-
-        // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
+    // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
     _Deserializer.prototype._deserializeObjField = function (obj, jsonObj, propName, target) {
         var id = jsonObj.__id__;
         if (typeof id === 'undefined') {
@@ -245,8 +217,8 @@ var _Deserializer = (function () {
                 else {
                     obj[propName] = _deserializeObject(this, jsonObj);
                 }
-                if (CC_DEV && this.result.visitorInEditor) {
-                    this.result.visitLater(obj, propName);
+                if (CC_DEV && this.result.visit) {
+                    this.result.visit(obj, propName);
                 }
             }
         }
@@ -260,8 +232,8 @@ var _Deserializer = (function () {
                 this._idObjList.push(obj);
                 this._idPropList.push(propName);
             }
-            if (CC_DEV && this.result.visitorInEditor) {
-                this.result.visitLater(obj, propName);
+            if (CC_DEV && this.result.visit) {
+                this.result.visit(obj, propName);
             }
         }
     };
@@ -273,8 +245,8 @@ var _Deserializer = (function () {
                 if (typeof prop !== 'object') {
                     if (propName !== '__type__'/* && k != '__id__'*/) {
                         instance[propName] = prop;
-                        if (CC_DEV && self.result.visitorInEditor) {
-                            self.result.visitLater(instance, propName);
+                        if (CC_DEV && self.result.visit) {
+                            self.result.visit(instance, propName);
                         }
                     }
                 }
@@ -399,13 +371,7 @@ var _Deserializer = (function () {
             if (!klass) {
                 var noLog = self._classFinder === JS._getClassById;
                 if (noLog) {
-                    if (CC_EDITOR && Editor.UuidUtils.isUuid(type)) {
-                        type = Editor.UuidUtils.decompressUuid(type);
-                        cc.warn('Can not find script "%s"', type);
-                    }
-                    else {
-                        cc.warn('Can not find class "%s"', type);
-                    }
+                    cc.deserialize.reportMissingClass(type);
                 }
                 return null;
             }
@@ -469,9 +435,8 @@ var _Deserializer = (function () {
                 }
                 else {
                     obj[i] = prop;
-
-                    if (CC_DEV && self.result.visitorInEditor) {
-                        self.result.visitLater(obj, '' + i);
+                    if (CC_DEV && self.result.visit) {
+                        self.result.visit(obj, '' + i);
                     }
                 }
             }
@@ -537,3 +502,12 @@ cc.deserialize = function (data, result, options) {
 };
 
 cc.deserialize.Details = Details;
+cc.deserialize.reportMissingClass = function (id) {
+    if (CC_EDITOR && Editor.UuidUtils.isUuid(id)) {
+        id = Editor.UuidUtils.decompressUuid(id);
+        cc.warn('Can not find script "%s"', id);
+    }
+    else {
+        cc.warn('Can not find class "%s"', id);
+    }
+};
