@@ -197,7 +197,7 @@ var _Deserializer = (function () {
         }
     }
 
-    var _dereference = function (self) {
+    function _dereference (self) {
         // 这里不采用遍历反序列化结果的方式，因为反序列化的结果如果引用到复杂的外部库，很容易堆栈溢出。
         var deserializedList = self.deserializedList;
         var idPropList = self._idPropList;
@@ -208,7 +208,7 @@ var _Deserializer = (function () {
             var id = idList[i];
             idObjList[i][propName] = deserializedList[id];
         }
-    };
+    }
 
     if (CC_DEV) {
         _Deserializer.prototype._callVisitorInEditor = function () {
@@ -386,8 +386,8 @@ var _Deserializer = (function () {
     // * @param {Object} serialized - The obj to deserialize, must be non-nil
     // * @param {Object} [target=null]
     // */
-    var _deserializeObject = function (self, serialized, target) {
-        var propName, prop;
+    function _deserializeObject (self, serialized, target) {
+        var prop;
         var obj = null;     // the obj to return
         var klass = null;
         if (serialized.__type__) {
@@ -397,12 +397,16 @@ var _Deserializer = (function () {
             var type = serialized.__type__;
             klass = self._classFinder(type);
             if (!klass) {
-                if (CC_EDITOR && Editor.UuidUtils.isUuid(type)) {
-                    type = Editor.UuidUtils.decompressUuid(type);
-                    cc.warn('Can not find script "%s"', type);
-                    return null;
+                var noLog = self._classFinder === JS._getClassById;
+                if (noLog) {
+                    if (CC_EDITOR && Editor.UuidUtils.isUuid(type)) {
+                        type = Editor.UuidUtils.decompressUuid(type);
+                        cc.warn('Can not find script "%s"', type);
+                    }
+                    else {
+                        cc.warn('Can not find class "%s"', type);
+                    }
                 }
-                cc.warn('Can not find class "%s"', type);
                 return null;
             }
 
@@ -473,12 +477,10 @@ var _Deserializer = (function () {
             }
         }
         return obj;
-    };
+    }
 
     return _Deserializer;
 })();
-
-// FACADE
 
 /**
  * @module cc

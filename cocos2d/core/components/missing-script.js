@@ -90,6 +90,13 @@ var MissingScript = cc.Class({
                 return cls;
             }
             if (id) {
+                if (CC_EDITOR && Editor.UuidUtils.isUuid(id)) {
+                    id = Editor.UuidUtils.decompressUuid(id);
+                    cc.warn('Can not find script "%s"', id);
+                }
+                else {
+                    cc.warn('Can not find class "%s"', id);
+                }
                 return MissingScript;
             }
             return null;
