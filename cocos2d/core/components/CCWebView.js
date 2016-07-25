@@ -75,9 +75,27 @@ var WebView = cc.Class({
         /**
          * !#en The webview's event callback , it will be triggered when web page finished loading.
          * !#zh WebView 的回调事件，当网页加载完成之后会回调此函数
-         * @property {cc.Component.EventHandler[]} webViewEvent
+         * @property {cc.Component.EventHandler[]} webViewLoadedEvent
          */
-        webViewEvent: {
+        webViewLoadedEvent: {
+            default: [],
+            type: cc.Component.EventHandler,
+        },
+        /**
+         * !#en The webview's event callback , it will be triggered when web page is loading.
+         * !#zh WebView 的回调事件，当网页加载时会回调此函数
+         * @property {cc.Component.EventHandler[]} webViewLoadingEvent
+         */
+        webViewLoadingEvent: {
+            default: [],
+            type: cc.Component.EventHandler,
+        },
+        /**
+         * !#en The webview's event callback , it will be triggered when there are errors when loading.
+         * !#zh WebView 的回调事件，当网页加载出错时会回调此函数
+         * @property {cc.Component.EventHandler[]} webViewErrorEvent
+         */
+        webViewErrorEvent: {
             default: [],
             type: cc.Component.EventHandler,
         }
@@ -127,15 +145,16 @@ var WebView = cc.Class({
     },
 
     _onWebViewLoaded: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewEvent, this, EventType.LOADED);
+        cc.Component.EventHandler.emitEvents(this.webViewLoadedEvent, this, EventType.LOADED);
     },
 
     _onWebViewLoading: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewEvent, this, EventType.LOADING);
+        cc.Component.EventHandler.emitEvents(this.webViewLoadingEvent, this, EventType.LOADING);
+        return true;
     },
 
     _onWebViewLoadError: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewEvent, this, EventType.ERROR);
+        cc.Component.EventHandler.emitEvents(this.webViewErrorEvent, this, EventType.ERROR);
     }
 
 });
