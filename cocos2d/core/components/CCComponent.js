@@ -358,6 +358,10 @@ var Component = cc.Class({
                         callOnEnable(this, value);
                     }
                 }
+
+                if (CC_EDITOR) {
+                    cc.engine.updateAnimatingInEditMode();
+                }
             },
             visible: false
         },
