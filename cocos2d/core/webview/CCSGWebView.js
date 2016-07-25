@@ -21,12 +21,16 @@
 
 _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
 
-    ctor: function (path) {
+    ctor: function () {
         _ccsg.Node.prototype.ctor.call(this);
         this.setContentSize(cc.size(300, 200));
         this._EventList = {};
-        if(path)
-            this.loadURL(path);
+    },
+
+    createDomElementIfNeeded: function () {
+        if (!this._renderCmd._div) {
+            this._renderCmd.createNativeControl();
+        }
     },
 
     setJavascriptInterfaceScheme: function(scheme){},
@@ -187,15 +191,11 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
     }
 });
 
-/**
- * The WebView support list of events
- * @type {{LOADING: string, LOADED: string, ERROR: string}}
- */
 _ccsg.WebView.EventType = {
-    LOADING: "loading",
-    LOADED: "load",
-    ERROR: "error",
-    JS_EVALUATED: "js"
+    LOADING: 0,
+    LOADED: 1,
+    ERROR: 2,
+    JS_EVALUATED: 3
 };
 
 (function(){
@@ -236,10 +236,6 @@ _ccsg.WebView.EventType = {
         this._div = null;
         this._iframe = null;
         this._listener = null;
-
-        this.createDom();
-        this.initStyle();
-        this.initEvent();
     };
 
     var proto = _ccsg.WebView.RenderCmd.prototype = Object.create(RenderCmd.prototype);
@@ -286,6 +282,7 @@ _ccsg.WebView.EventType = {
 
     proto.updateMatrix = function(){
         if (!this._div) return;
+
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         var dpr = cc.view._devicePixelRatio;
         var t = this._worldTransform;
@@ -357,6 +354,12 @@ _ccsg.WebView.EventType = {
         cc.container.appendChild(this._div);
     };
 
+    proto.createNativeControl = function () {
+        this.createDom();
+        this.initStyle();
+        this.initEvent();
+    };
+
     proto.removeDom = function(){
         var div = this._div;
         if(div){
@@ -369,6 +372,7 @@ _ccsg.WebView.EventType = {
             if(hasChild)
                 cc.container.removeChild(div);
         }
+        this._div = null;
     };
 
 })(_ccsg.WebView._polyfill);

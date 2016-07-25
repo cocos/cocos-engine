@@ -87,14 +87,34 @@ var WebView = cc.Class({
         EventType: EventType,
     },
 
+    onLoad: function() {
+        if(CC_JSB) {
+            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+                this.enabled = false;
+            }
+        }
+    },
+
     _createSgNode: function () {
+        if(CC_JSB) {
+            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+                console.log('WebView is not supported on Mac and Windows!');
+                return null;
+            }
+        }
         return new _ccsg.WebView();
     },
 
     _initSgNode: function () {
         var sgNode = this._sgNode;
+        if (!sgNode) return;
 
+        if(!CC_JSB) {
+            sgNode.createDomElementIfNeeded();
+        }
         sgNode.setEventListener(EventType.LOADED , this._onWebViewLoaded.bind(this));
+        sgNode.setEventListener(EventType.LOADING , this._onWebViewLoading.bind(this));
+        sgNode.setEventListener(EventType.ERROR , this._onWebViewLoadError.bind(this));
 
         sgNode.loadURL(this._url);
 
@@ -108,6 +128,14 @@ var WebView = cc.Class({
 
     _onWebViewLoaded: function () {
         cc.Component.EventHandler.emitEvents(this.webViewEvent, this, EventType.LOADED);
+    },
+
+    _onWebViewLoading: function () {
+        cc.Component.EventHandler.emitEvents(this.webViewEvent, this, EventType.LOADING);
+    },
+
+    _onWebViewLoadError: function () {
+        cc.Component.EventHandler.emitEvents(this.webViewEvent, this, EventType.ERROR);
     }
 
 });
