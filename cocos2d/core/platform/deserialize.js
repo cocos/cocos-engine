@@ -297,23 +297,25 @@ var _Deserializer = (function () {
         //--self.stackCounter;
     }
 
+    var RAW_TYPE = Attr.DELIMETER + 'rawType';
+    var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
+    var SERIALIZABLE = Attr.DELIMETER + 'serializable';
+
     function _deserializeFireClass(self, obj, serialized, klass, target) {
-        var DELIMETER = Attr.DELIMETER;
         var props = klass.__props__;
         var attrs = Attr.getClassAttrs(klass);
         for (var p = 0; p < props.length; p++) {
             var propName = props[p];
-            // assume all prop in __props__ must have attr
-            var rawType = attrs[propName + DELIMETER + 'rawType'];
+            var rawType = attrs[propName + RAW_TYPE];
             if (!rawType) {
-                if (((CC_EDITOR && self._ignoreEditorOnly) || (!CC_EDITOR && CC_DEV))
-                    && attrs[propName + DELIMETER + 'editorOnly']) {
+                if (((CC_EDITOR && self._ignoreEditorOnly) || (!CC_EDITOR && CC_DEV && !CC_TEST))
+                    && attrs[propName + EDITOR_ONLY]) {
                     var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
                     if ( !mayUsedInPersistRoot ) {
                         continue;   // skip editor only if in preview
                     }
                 }
-                if (attrs[propName + DELIMETER + 'serializable'] === false) {
+                if (attrs[propName + SERIALIZABLE] === false) {
                     continue;   // skip nonSerialized
                 }
                 var prop = serialized[propName];
@@ -367,7 +369,7 @@ var _Deserializer = (function () {
             // Type Object (including CCClass)
 
             var type = serialized.__type__;
-            klass = self._classFinder(type);
+            klass = self._classFinder(type, serialized);
             if (!klass) {
                 var noLog = self._classFinder === JS._getClassById;
                 if (noLog) {
