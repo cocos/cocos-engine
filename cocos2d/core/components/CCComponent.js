@@ -52,6 +52,48 @@ var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_
 var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditor'));
 
 function callOnEnable (self, enable) {
+    
+    if (!CC_EDITOR || (cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
+        var enableCalled = self._objFlags & IsOnEnableCalled;
+        if (enable) {
+            if (!enableCalled) {
+                if (self.onEnable) {
+                    if (CC_EDITOR) {
+                        callOnEnableInTryCatch(self);
+                    }
+                    else {
+                        self.onEnable();
+                    }
+                }
+
+                var deactivatedDuringOnEnable = !self.node._activeInHierarchy;
+                if (deactivatedDuringOnEnable) {
+                    return;
+                }
+
+                cc.director.getScheduler().resumeTarget(self);
+                _registerEvent(self, true);
+
+                self._objFlags |= IsOnEnableCalled;
+            }
+        }
+        else if (enableCalled) {
+            if (self.onDisable) {
+                if (CC_EDITOR) {
+                    callOnDisableInTryCatch(self);
+                }
+                else {
+                    self.onDisable();
+                }
+            }
+
+            cc.director.getScheduler().pauseTarget(self);
+            _registerEvent(self, false);
+
+            self._objFlags &= ~IsOnEnableCalled;
+        }
+    }
+
     if (CC_EDITOR) {
         if (enable) {
             if ( !(self._objFlags & IsEditorOnEnableCalled) ) {
@@ -65,47 +107,6 @@ function callOnEnable (self, enable) {
                 self._objFlags &= ~IsEditorOnEnableCalled;
             }
         }
-        if ( !(cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
-            return;
-        }
-    }
-    var enableCalled = self._objFlags & IsOnEnableCalled;
-    if (enable) {
-        if (!enableCalled) {
-            if (self.onEnable) {
-                if (CC_EDITOR) {
-                    callOnEnableInTryCatch(self);
-                }
-                else {
-                    self.onEnable();
-                }
-            }
-
-            var deactivatedDuringOnEnable = !self.node._activeInHierarchy;
-            if (deactivatedDuringOnEnable) {
-                return;
-            }
-
-            cc.director.getScheduler().resumeTarget(self);
-            _registerEvent(self, true);
-
-            self._objFlags |= IsOnEnableCalled;
-        }
-    }
-    else if (enableCalled) {
-        if (self.onDisable) {
-            if (CC_EDITOR) {
-                callOnDisableInTryCatch(self);
-            }
-            else {
-                self.onDisable();
-            }
-        }
-
-        cc.director.getScheduler().pauseTarget(self);
-        _registerEvent(self, false);
-
-        self._objFlags &= ~IsOnEnableCalled;
     }
 }
 
