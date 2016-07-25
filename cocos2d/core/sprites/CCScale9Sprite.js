@@ -257,7 +257,7 @@ var scale9QuadGenerator = {
         cornerId[3] = 30;
 
         //build uvs
-        if (this._uvsDirty) {
+        if (sprite._uvsDirty) {
             this._calculateUVs(sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
         }
     },
@@ -681,12 +681,12 @@ var fillQuadGeneratorRadial = {
         if (vertices.length < dataLength) {
             dataPool.put(vertices);
             vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
-            sprite._vertices = vertices;
+            this.outVerts = sprite._vertices = vertices;
         }
         if (uvs.length < dataLength) {
             dataPool.put(uvs);
             uvs = dataPool.get(dataLength) || new Float32Array(dataLength);
-            sprite._uvs = uvs;
+            this.outUvs = sprite._uvs = uvs;
         }
 
         var offset = 0, count = 0;
