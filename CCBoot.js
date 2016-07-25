@@ -87,8 +87,6 @@ cc._canvas = null;
 cc.container = null;
 cc._gameDiv = null;
 
-cc.isEditor = typeof Editor !== 'undefined';
-
 require('./cocos2d/core/utils');
 require('./cocos2d/core/platform/CCSys');
 

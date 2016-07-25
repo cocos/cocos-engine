@@ -216,7 +216,7 @@ var Button = cc.Class({
         disabledColor: {
             default: cc.color(124, 124, 124),
             displayName: 'Disabled',
-            tooltip: 'i18n:COMPONENT.button.diabled_color',
+            tooltip: 'i18n:COMPONENT.button.disabled_color',
             notify: function () {
                 this._updateState();
             }

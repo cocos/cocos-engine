@@ -75,14 +75,14 @@
         if (node._type === cc.ProgressTimer.Type.BAR) {
             var locBarRect = this._barRect;
             context.beginPath();
-            context.rect(locBarRect.x * scaleX, locBarRect.y * scaleY, locBarRect.width * scaleX, locBarRect.height * scaleY);
+            context.rect(locBarRect.x, locBarRect.y, locBarRect.width, locBarRect.height);
             context.clip();
             context.closePath();
         } else if (node._type === cc.ProgressTimer.Type.RADIAL) {
-            var locOriginX = this._origin.x * scaleX;
-            var locOriginY = this._origin.y * scaleY;
+            var locOriginX = this._origin.x;
+            var locOriginY = this._origin.y;
             context.beginPath();
-            context.arc(locOriginX, locOriginY, this._radius * scaleY, this._PI180 * this._startAngle, this._PI180 * this._endAngle, this._counterClockWise);
+            context.arc(locOriginX, locOriginY, this._radius , this._PI180 * this._startAngle, this._PI180 * this._endAngle, this._counterClockWise);
             context.lineTo(locOriginX, locOriginY);
             context.clip();
             context.closePath();
@@ -94,11 +94,11 @@
         if (locSprite._renderCmd._colorized) {
             context.drawImage(image,
                 0, 0, locTextureCoord.width, locTextureCoord.height,
-                locX * scaleX, locY * scaleY, locWidth * scaleX, locHeight * scaleY);
+                locX, locY, locWidth, locHeight);
         } else {
             context.drawImage(image,
                 locTextureCoord.renderX, locTextureCoord.renderY, locTextureCoord.width, locTextureCoord.height,
-                locX * scaleX, locY * scaleY, locWidth * scaleX, locHeight * scaleY);
+                locX, locY, locWidth, locHeight);
         }
         wrapper.restore();
         cc.g_NumberOfDraws++;

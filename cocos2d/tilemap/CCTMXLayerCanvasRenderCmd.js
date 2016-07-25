@@ -25,6 +25,8 @@
 var Orientation = null;
 var TileFlag = null;
 var FLIPPED_MASK = null;
+var StaggerAxis = null;
+var StaggerIndex = null;
 
 _ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
     _ccsg.Node.CanvasRenderCmd.call(this, renderable);
@@ -34,6 +36,8 @@ _ccsg.TMXLayer.CanvasRenderCmd = function(renderable){
         Orientation = cc.TiledMap.Orientation;
         TileFlag = cc.TiledMap.TileFlag;
         FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+        StaggerAxis = cc.TiledMap.StaggerAxis;
+        StaggerIndex = cc.TiledMap.StaggerIndex;
     }
 };
 
@@ -142,7 +146,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
 
     var i, row, col, colOffset = startRow * cols, z, 
         gid, grid, tex, cmd,
-        top, left, bottom, right, dw = tilew * scaleX, dh = tileh * scaleY,
+        top, left, bottom, right, dw = tilew, dh = tileh,
         w = tilew * a, h = tileh * d, gt, gl, gb, gr,
         flippedX = false, flippedY = false;
 
@@ -162,6 +166,18 @@ proto.rendering = function (ctx, scaleX, scaleY) {
 
     wrapper.setTransform(wt, scaleX, scaleY);
     wrapper.setGlobalAlpha(alpha);
+
+    var axis, tileOffset, odd_even, diffX1, diffY1;
+
+    if (layerOrientation === Orientation.HEX) {
+        var index = node._staggerIndex,
+            hexSideLength = node._hexSideLength;
+        axis = node._staggerAxis;
+        tileOffset = node.tileset.tileOffset;
+        odd_even = (index === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
+        diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
+    }
 
     for (row = startRow; row < maxRow; ++row) {
         for (col = startCol; col < maxCol; ++col) {
@@ -197,8 +213,10 @@ proto.rendering = function (ctx, scaleX, scaleY) {
                 bottom = -mapth / 2 * ( rows * 2 - col - row - 2);
                 break;
             case Orientation.HEX:
-                left = col * maptw * 3 / 4;
-                bottom = -(rows - row - 1) * mapth + ((col % 2 === 1) ? (-mapth / 2) : 0);
+                var diffX2 = (axis === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? (maptw / 2 * odd_even) : 0;
+                left = col * (maptw - diffX1) + diffX2 + tileOffset.x;
+                var diffY2 = (axis === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? (mapth/2 * -odd_even) : 0;
+                bottom = -(rows - row - 1) * (mapth -diffY1) - diffY2 + tileOffset.y;
                 break;
             }
             right = left + tilew;
@@ -240,7 +258,7 @@ proto.rendering = function (ctx, scaleX, scaleY) {
 
             context.drawImage(tex._htmlElementObj,
                 grid.x, grid.y, grid.width, grid.height,
-                left*scaleX, top*scaleY, dw, dh);
+                left, top, dw, dh);
             // Revert flip
             if (flippedX) {
                 context.scale(-1, 1);

@@ -149,6 +149,50 @@ var TileFlag = cc.Enum({
     FLIPPED_MASK: (~((0x80000000 | 0x40000000 | 0x20000000) >>> 0)) >>> 0
 });
 
+/*
+ * !#en The stagger axis of Hex tiled map.
+ * !#zh 六边形地图的 stagger axis 值
+ * @enum TiledMap.StaggerAxis
+ * @static
+ */
+var StaggerAxis = cc.Enum({
+    /**
+     * @property STAGGERAXIS_X
+     * @type {Number}
+     * @static
+     */
+    STAGGERAXIS_X : 0,
+
+    /**
+     * @property STAGGERAXIS_Y
+     * @type {Number}
+     * @static
+     */
+    STAGGERAXIS_Y : 1
+});
+
+/*
+ * !#en The stagger index of Hex tiled map.
+ * !#zh 六边形地图的 stagger index 值
+ * @enum TiledMap.StaggerIndex
+ * @static
+ */
+var StaggerIndex = cc.Enum({
+    /**
+     * @property STAGGERINDEX_ODD
+     * @type {Number}
+     * @static
+     */
+    STAGGERINDEX_ODD : 0,
+
+    /**
+     * @property STAGGERINDEX_EVEN
+     * @type {Number}
+     * @static
+     */
+    STAGGERINDEX_EVEN : 1
+});
+
 /**
  * !#en Renders a TMX Tile Map in the scene.
  * !#zh 在场景中渲染一个 tmx 格式的 Tile Map。
@@ -166,7 +210,9 @@ var TiledMap = cc.Class({
     statics: {
         Orientation: Orientation,
         Property: Property,
-        TileFlag: TileFlag
+        TileFlag: TileFlag,
+        StaggerAxis: StaggerAxis,
+        StaggerIndex: StaggerIndex,
     },
 
     properties: {

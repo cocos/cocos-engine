@@ -27,8 +27,7 @@ var JS = require('./js');
 var CCObject = require('./CCObject');
 var Attr = require('./attribute');
 
-var EDITOR = CC_DEV;
-var ENABLE_TARGET = EDITOR;
+var ENABLE_TARGET = CC_DEV;
 
 // HELPERS
 
@@ -67,7 +66,7 @@ var Details = function () {
      */
     this.rawProp = '';
 
-    if (EDITOR) {
+    if (CC_DEV) {
         /**
          * 用户可以指定一个在反序列化结束时会被触发的回调，该回调会传回反序列化时统计到的所有解析过的字段。
          * NOTE:
@@ -96,16 +95,24 @@ Details.prototype.reset = function () {
     //this.rawObjList.length = 0;
     //this.rawPropList.length = 0;
 
-    if (EDITOR) {
+    if (CC_DEV) {
         this.visitorInEditor = null;
         this.visitObjList.length = 0;
         this.visitPropList.length = 0;
     }
 };
-if (EDITOR) {
+if (CC_DEV) {
     Details.prototype.visitLater = function (obj, propName) {
         this.visitObjList.push(obj);
         this.visitPropList.push(propName);
+    };
+    Details.prototype.assignAssetsBy = function (getter) {
+        for (var i = 0, len = this.uuidList.length; i < len; i++) {
+            var uuid = this.uuidList[i];
+            var obj = this.uuidObjList[i];
+            var prop = this.uuidPropList[i];
+            obj[prop] = getter(uuid);
+        }
     };
 }
 /**
@@ -121,28 +128,6 @@ Details.prototype.getUuidOf = function (obj, propName) {
         }
     }
     return "";
-};
-/**
- * @method assignAssetsBy
- * @param {Function} getter
- * @return {Boolean} success
- */
-Details.prototype.assignAssetsBy = function (getter) {
-    var success = true;
-    for (var i = 0, len = this.uuidList.length; i < len; i++) {
-        var uuid = this.uuidList[i];
-        var asset = getter(uuid);
-        if (asset) {
-            var obj = this.uuidObjList[i];
-            var prop = this.uuidPropList[i];
-            obj[prop] = asset;
-        }
-        else {
-            cc.error('Failed to assign asset: ' + uuid);
-            success = false;
-        }
-    }
-    return success;
 };
 /**
  * @method push
@@ -211,7 +196,7 @@ var _Deserializer = (function () {
         _dereference(this);
 
         // call visitor after all properties initialized
-        if (EDITOR) {
+        if (CC_DEV) {
             this._callVisitorInEditor();
         }
     }
@@ -229,7 +214,7 @@ var _Deserializer = (function () {
         }
     };
 
-    if (EDITOR) {
+    if (CC_DEV) {
         _Deserializer.prototype._callVisitorInEditor = function () {
             var result = this.result;
             if (result.visitorInEditor) {
@@ -264,7 +249,7 @@ var _Deserializer = (function () {
                 else {
                     obj[propName] = _deserializeObject(this, jsonObj);
                 }
-                if (this.result.visitorInEditor && EDITOR) {
+                if (CC_DEV && this.result.visitorInEditor) {
                     this.result.visitLater(obj, propName);
                 }
             }
@@ -279,7 +264,7 @@ var _Deserializer = (function () {
                 this._idObjList.push(obj);
                 this._idPropList.push(propName);
             }
-            if (this.result.visitorInEditor && EDITOR) {
+            if (CC_DEV && this.result.visitorInEditor) {
                 this.result.visitLater(obj, propName);
             }
         }
@@ -292,7 +277,7 @@ var _Deserializer = (function () {
                 if (typeof prop !== 'object') {
                     if (propName !== '__type__'/* && k != '__id__'*/) {
                         instance[propName] = prop;
-                        if (self.result.visitorInEditor && EDITOR) {
+                        if (CC_DEV && self.result.visitorInEditor) {
                             self.result.visitLater(instance, propName);
                         }
                     }
@@ -353,7 +338,7 @@ var _Deserializer = (function () {
             // assume all prop in __props__ must have attr
             var rawType = attrs[propName + DELIMETER + 'rawType'];
             if (!rawType) {
-                if (!EDITOR && attrs[propName + DELIMETER + 'editorOnly']) {
+                if (!CC_DEV && attrs[propName + DELIMETER + 'editorOnly']) {
                     var mayUsedInPersistRoot = (obj instanceof cc.Node && propName === '_id');
                     if ( !mayUsedInPersistRoot ) {
                         continue;   // skip editor only if not editor
@@ -484,7 +469,7 @@ var _Deserializer = (function () {
                 else {
                     obj[i] = prop;
 
-                    if (self.result.visitorInEditor && EDITOR) {
+                    if (CC_DEV && self.result.visitorInEditor) {
                         self.result.visitLater(obj, '' + i);
                     }
                 }

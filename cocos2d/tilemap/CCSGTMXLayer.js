@@ -83,6 +83,11 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
     //used for retina display
     _contentScaleFactor: null,
 
+    // used for hex map
+    _staggerAxis: null,
+    _staggerIndex: null,
+    _hexSideLength: 0,
+
     _className:"TMXLayer",
 
     /**
@@ -99,6 +104,8 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         this._layerSize = cc.size(0, 0);
         this._mapTileSize = cc.size(0, 0);
         this._spriteTiles = {};
+        this._staggerAxis = cc.TiledMap.StaggerAxis.STAGGERAXIS_Y;
+        this._staggerIndex = cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN;
 
         if(mapInfo !== undefined)
             this.initWithTilesetInfo(tilesetInfo, layerInfo, mapInfo);
@@ -138,7 +145,8 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
             maxGid = tileset.firstGid + count,
             grids = this._texGrids,
             grid = null,
-            override = grids[gid] ? true : false;
+            override = grids[gid] ? true : false,
+            texelCorrect = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
 
         for (; gid < maxGid; ++gid) {
             // Avoid overlapping
@@ -155,8 +163,12 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
                 t: 0, l: 0, r: 0, b: 0
             };
             tileset.rectForGID(gid, grid);
-            grid.t = grid.y / imageH;
-            grid.l = grid.x / imageW;
+            grid.x += texelCorrect;
+            grid.y += texelCorrect;
+            grid.width -= texelCorrect*2;
+            grid.height -= texelCorrect*2;
+            grid.t = (grid.y) / imageH;
+            grid.l = (grid.x) / imageW;
             grid.r = (grid.x + grid.width) / imageW;
             grid.b = (grid.y + grid.height) / imageH;
             grids[gid] = grid;
@@ -181,6 +193,9 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         this._minGID = layerInfo._minGID;
         this._maxGID = layerInfo._maxGID;
         this._opacity = layerInfo._opacity;
+        this._staggerAxis = mapInfo.getStaggerAxis();
+        this._staggerIndex = mapInfo.getStaggerIndex();
+        this._hexSideLength = mapInfo.getHexSideLength();
 
         // tilesetInfo
         this.tileset = tilesetInfo;
@@ -212,8 +227,20 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
         // Parse cocos2d properties
         this._parseInternalProperties();
 
-        this.setContentSize(this._layerSize.width * this._mapTileSize.width,
-                            this._layerSize.height * this._mapTileSize.height);
+        if (this.layerOrientation === cc.TiledMap.Orientation.HEX) {
+            var width = 0, height = 0;
+            if (this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
+                height = mapInfo._tileSize.height * (this._layerSize.height + 0.5);
+                width = (mapInfo._tileSize.width + this._hexSideLength) * Math.floor(this._layerSize.width / 2) + mapInfo._tileSize.width * (this._layerSize.width % 2);
+            } else {
+                width = mapInfo._tileSize.width * (this._layerSize.width + 0.5);
+                height = (mapInfo._tileSize.height + this._hexSideLength) * Math.floor(this._layerSize.height / 2) + mapInfo._tileSize.height * (this._layerSize.height % 2);
+            }
+            this.setContentSize(width, height);
+        } else {
+            this.setContentSize(this._layerSize.width * this._mapTileSize.width,
+                this._layerSize.height * this._mapTileSize.height);
+        }
         this._useAutomaticVertexZ = false;
         this._vertexZvalue = 0;
         return true;
@@ -646,9 +673,37 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
     },
 
     _positionForHexAt:function (pos) {
-        var diffY = (pos.x % 2 === 1) ? (-this._mapTileSize.height / 2) : 0;
-        return cc.p(pos.x * this._mapTileSize.width * 3 / 4,
-            (this._layerSize.height - pos.y - 1) * this._mapTileSize.height + diffY);
+        var xy = cc.p(0, 0);
+        var offset = this.tileset.tileOffset;
+
+        var odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        switch (this._staggerAxis)
+        {
+            case cc.TiledMap.StaggerAxis.STAGGERAXIS_Y:
+            {
+                var diffX = 0;
+                if (pos.y % 2 === 1)
+                {
+                    diffX = this._mapTileSize.width/2 * odd_even;
+                }
+                xy = cc.p(pos.x * this._mapTileSize.width+diffX+offset.x,
+                    (this._layerSize.height - pos.y - 1) * (this._mapTileSize.height-(this._mapTileSize.height-this._hexSideLength)/2)-offset.y);
+                break;
+            }
+            case cc.TiledMap.StaggerAxis.STAGGERAXIS_X:
+            {
+                var diffY = 0;
+                if (pos.x % 2 === 1)
+                {
+                    diffY = this._mapTileSize.height/2 * -odd_even;
+                }
+
+                xy = cc.p(pos.x * (this._mapTileSize.width-(this._mapTileSize.width-this._hexSideLength)/2)+offset.x,
+                    (this._layerSize.height - pos.y - 1) * this._mapTileSize.height + diffY-offset.y);
+                break;
+            }
+        }
+        return xy;
     },
 
     _calculateLayerOffset:function (pos) {
@@ -662,8 +717,18 @@ _ccsg.TMXLayer = _ccsg.Node.extend(/** @lends _ccsg.TMXLayer# */{
                     (this._mapTileSize.height / 2 ) * (-pos.x - pos.y));
                 break;
             case cc.TiledMap.Orientation.HEX:
-                if(pos.x !== 0 || pos.y !== 0)
-                    cc.log("offset for hexagonal map not implemented yet");
+                if(this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_Y)
+                {
+                    var diffX = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN) ? this._mapTileSize.width/2 : 0;
+                    ret = cc.p(pos.x * this._mapTileSize.width + diffX,
+                               -pos.y * (this._mapTileSize.height - (this._mapTileSize.width - this._hexSideLength) / 2));
+                }
+                else if(this._staggerAxis === cc.TiledMap.StaggerAxis.STAGGERAXIS_X)
+                {
+                    var diffY = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? this._mapTileSize.height/2 : 0;
+                    ret = cc.p(pos.x * (this._mapTileSize.width - (this._mapTileSize.width - this._hexSideLength) / 2),
+                               -pos.y * this._mapTileSize.height + diffY);
+                }
                 break;
         }
         return ret;

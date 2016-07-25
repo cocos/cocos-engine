@@ -51,18 +51,22 @@ cc.textureCache.getTextureForKey = function (key) {
 cc.Class._fastDefine('cc.Texture2D', cc.Texture2D, []);
 cc.Texture2D.$super = cc.RawAsset;
 
-cc.Texture2D.prototype.isLoaded = function () {
+var prototype = cc.Texture2D.prototype;
+
+prototype.isLoaded = function () {
     return true;
 };
-cc.Texture2D.prototype.getPixelWidth = cc.Texture2D.prototype.getPixelsWide;
-cc.Texture2D.prototype.getPixelHeight = cc.Texture2D.prototype.getPixelsHigh;
+prototype.getPixelWidth = prototype.getPixelsWide;
+prototype.getPixelHeight = prototype.getPixelsHigh;
+cc.js.get(prototype, 'pixelWidth', prototype.getPixelWidth);
+cc.js.get(prototype, 'pixelHeight', prototype.getPixelHeight);
 
 // cc.SpriteFrame
 
 cc.Class._fastDefine('cc.SpriteFrame', cc.SpriteFrame, []);
 cc.SpriteFrame.$super = cc.Asset;
 
-var prototype = cc.SpriteFrame.prototype;
+prototype = cc.SpriteFrame.prototype;
 
 cc.js.mixin(prototype, cc.EventTarget.prototype);
 prototype.textureLoaded = function () {

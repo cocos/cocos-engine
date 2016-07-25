@@ -25,7 +25,7 @@
 
 require('../platform/CCObject');
 require('../CCNode');
-var IdGenerater = require('../platform/id-generater');
+var idGenerater = new (require('../platform/id-generater'))('Comp');
 var Misc = require('../utils/misc');
 
 var Flags = cc.Object.Flags;
@@ -216,8 +216,6 @@ function _callPreloadOnComponent (component) {
     }
 }
 
-var idGenerater = new IdGenerater('Comp');
-
 /**
  * !#en
  * Base class for everything attached to Node(Entity).<br/>
@@ -237,11 +235,12 @@ var Component = cc.Class({
     name: 'cc.Component',
     extends: cc.Object,
 
-    ctor: function () {
-        if (CC_EDITOR && !CC_TEST && window._Scene) {
-            _Scene.AssetsWatcher.initComponent(this);
-        }
+    ctor: (CC_EDITOR && window._Scene && _Scene.AssetsWatcher) ? function () {
+        _Scene.AssetsWatcher.initComponent(this);
 
+        // Support for Scheduler
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
+    } : function () {
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
     },

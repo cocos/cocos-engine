@@ -380,6 +380,16 @@ var EditBox = cc.Class({
         editingDidEnded: {
             default: [],
             type: cc.Component.EventHandler,
+        },
+
+        /**
+         * !#en The event handler to be called when return key is pressed. Windows is not supported.
+         * !#zh 当用户按下回车按键时的事件回调，目前不支持 windows 平台
+         * @property {Component.EventHandler} editingReturn
+         */
+        editingReturn: {
+            default: [],
+            type: cc.Component.EventHandler
         }
 
     },
@@ -456,6 +466,10 @@ var EditBox = cc.Class({
 
     editBoxTextChanged: function(editBox, text) {
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
+    },
+
+    editBoxEditingReturn: function() {
+        cc.Component.EventHandler.emitEvents(this.editingReturn, this);
     },
 
     __preload: function() {

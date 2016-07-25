@@ -25,6 +25,8 @@
 var Orientation = null;
 var TileFlag = null;
 var FLIPPED_MASK = null;
+var StaggerAxis = null;
+var StaggerIndex = null;
 
 _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
     _ccsg.Node.WebGLRenderCmd.call(this, renderableObject);
@@ -49,6 +51,8 @@ _ccsg.TMXLayer.WebGLRenderCmd = function(renderableObject){
         Orientation = cc.TiledMap.Orientation;
         TileFlag = cc.TiledMap.TileFlag;
         FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+        StaggerAxis = cc.TiledMap.StaggerAxis;
+        StaggerIndex = cc.TiledMap.StaggerIndex;
     }
 };
 
@@ -117,7 +121,19 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         w = tilew * a, h = tileh * d, gt, gl, gb, gr,
         wa = a, wb = b, wc = c, wd = d, wtx = tx, wty = ty, // world
         flagged = false, flippedX = false, flippedY = false,
-        vertices = this._vertices;
+        vertices = this._vertices,
+        axis, tileOffset, diffX1, diffY1, odd_even;
+
+    if (layerOrientation === Orientation.HEX) {
+        var index = node._staggerIndex,
+            hexSideLength = node._hexSideLength;
+        axis = node._staggerAxis;
+        tileOffset = node.tileset.tileOffset;
+        odd_even = (index === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
+        diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
+    }
+
     for (row = startRow; row < maxRow; ++row) {
         for (col = startCol; col < maxCol; ++col) {
             // No more buffer
@@ -153,8 +169,10 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
                 z = node._vertexZ + cc.renderer.assignedZStep * (node.height - bottom) / node.height;
                 break;
             case Orientation.HEX:
-                left = col * maptw * 3 / 4;
-                bottom = (rows - row - 1) * mapth + ((col % 2 === 1) ? (-mapth / 2) : 0);
+                var diffX2 = (axis === StaggerAxis.STAGGERAXIS_Y && row % 2 === 1) ? (maptw / 2 * odd_even) : 0;
+                left = col * (maptw - diffX1) + diffX2 + tileOffset.x;
+                var diffY2 = (axis === StaggerAxis.STAGGERAXIS_X && col % 2 === 1) ? (mapth/2 * -odd_even) : 0;
+                bottom = (rows - row - 1) * (mapth -diffY1) + diffY2 - tileOffset.y;
                 z = node._vertexZ + cc.renderer.assignedZStep * (node.height - bottom) / node.height;
                 break;
             }

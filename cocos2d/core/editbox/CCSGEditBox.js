@@ -26,6 +26,30 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+// https://segmentfault.com/q/1010000002914610
+var SCROLLY = 40;
+var TIMER_NAME = 400;
+
+function scrollWindowUp(editBox) {
+    if (cc.sys.os === cc.sys.OS_IOS && cc.sys.osMainVersion === 9) {
+        var worldPos = editBox.convertToWorldSpace(cc.p(0,0));
+        var windowHeight = cc.visibleRect.height;
+        var windowWidth = cc.visibleRect.width;
+        var factor = 0.5;
+        if(windowWidth > windowHeight) {
+            factor = 0.7;
+        }
+        setTimeout(function() {
+            if(window.scrollY < SCROLLY && worldPos.y < windowHeight * factor) {
+                var scrollOffset = windowHeight * factor - worldPos.y - window.scrollY;
+                if (scrollOffset < 35) scrollOffset = 35;
+                if (scrollOffset > 320) scrollOffset = 320;
+                window.scrollTo(0, scrollOffset);
+            }
+        }, TIMER_NAME);
+    }
+}
+
 var capitalize = function(string) {
     return string.replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
 };
@@ -191,7 +215,7 @@ cc.EditBoxDelegate = cc._Class.extend({
      * This method is called when the return button was pressed.
      * @param {cc.EditBox} sender
      */
-    editBoxReturn: function (sender) {
+    editBoxEditingReturn: function (sender) {
     }
 });
 
@@ -565,16 +589,19 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                 editBox._text = this.value;
                 thisPointer._updateEditBoxContentStyle();
                 thisPointer.hidden();
-                if (editBox._delegate && editBox._delegate.editBoxReturn) {
-                    editBox._delegate.editBoxReturn(editBox);
+                if (editBox._delegate && editBox._delegate.editBoxEditingReturn) {
+                    editBox._delegate.editBoxEditingReturn(editBox);
                 }
                 cc._canvas.focus();
             }
         });
+
         tmpEdTxt.addEventListener('focus', function () {
             var editBox = thisPointer._editBox;
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
+
+            scrollWindowUp(editBox);
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
@@ -584,7 +611,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             editBox._text = this.value;
             thisPointer._updateEditBoxContentStyle();
-
+            window.scrollY = 0;
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
             }
@@ -635,15 +662,29 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
 
+            scrollWindowUp(editBox);
+
             if (editBox._delegate && editBox._delegate.editBoxEditingDidBegan) {
                 editBox._delegate.editBoxEditingDidBegan(editBox);
             }
 
         });
+        tmpEdTxt.addEventListener('keypress', function (e) {
+            var editBox = thisPointer._editBox;
+
+            if (e.keyCode === cc.KEY.enter) {
+                e.stopPropagation();
+
+                if (editBox._delegate && editBox._delegate.editBoxEditingReturn) {
+                    editBox._delegate.editBoxEditingReturn(editBox);
+                }
+            }
+        });
         tmpEdTxt.addEventListener('blur', function () {
             var editBox = thisPointer._editBox;
             editBox._text = this.value;
             thisPointer._updateEditBoxContentStyle();
+            window.scrollY = 0;
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
