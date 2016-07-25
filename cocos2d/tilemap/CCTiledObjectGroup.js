@@ -22,6 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+/**
+ * !#en Renders the TMX object group.
+ * !#zh 渲染 tmx object group。
+ * @class TiledObjectGroup
+ * @extends _SGComponent
+ */
 var TiledObjectGroup = cc.Class({
     name: 'cc.TiledObjectGroup',
 
@@ -51,12 +58,8 @@ var TiledObjectGroup = cc.Class({
         if ( !sgNode ) {
             return;
         }
-        if ( !this.enabledInHierarchy ) {
-            sgNode.setVisible(false);
-        }
         this._registSizeProvider();
-        var node = this.node;
-        sgNode.setAnchorPoint(node.getAnchorPoint());
+        sgNode.setAnchorPoint(this.node.getAnchorPoint());
     },
 
     _replaceSgNode: function(sgNode) {
@@ -195,13 +198,8 @@ var TiledObjectGroup = cc.Class({
      * var object = tMXObjectGroup.getObject("Group");
      */
     getObject: function(objectName){
-        var logicChildren = this.node.children;
-        for (var i = 0, n = logicChildren.length; i < n; i++) {
-            var child = logicChildren[i];
-            var tmxObject = child.getComponent(cc.TiledObject);
-            if (tmxObject && tmxObject.getObjectName() === objectName) {
-                return tmxObject;
-            }
+        if (this._sgNode) {
+            return this._sgNode.getObject(objectName);
         }
 
         return null;
@@ -216,17 +214,11 @@ var TiledObjectGroup = cc.Class({
      * var objects = tMXObjectGroup.getObjects();
      */
     getObjects:function () {
-        var logicChildren = this.node.children;
-        var ret = [];
-        for (var i = 0, n = logicChildren.length; i < n; i++) {
-            var child = logicChildren[i];
-            var tmxObject = child.getComponent(cc.TiledObject);
-            if (tmxObject) {
-                ret.push(tmxObject);
-            }
+        if (this._sgNode) {
+            return this._sgNode.getObjects();
         }
 
-        return ret;
+        return [];
     },
 
     // The method will remove self component from the node,
@@ -236,16 +228,6 @@ var TiledObjectGroup = cc.Class({
     _tryRemoveNode: function() {
         // remove the component
         this.node.removeComponent(cc.TiledObjectGroup);
-
-        // remove the TMXObject
-        var groupChildren = this.node.getChildren();
-        for (var j = groupChildren.length - 1; j >= 0; j--) {
-            var groupChild = groupChildren[j];
-            var tmxObject = groupChild.getComponent(cc.TiledObject);
-            if (tmxObject) {
-                tmxObject._tryRemoveNode();
-            }
-        }
 
         // try to remove the object group
         if (this.node._components.length === 1 &&

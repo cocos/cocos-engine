@@ -656,8 +656,8 @@ var TiledMap = cc.Class({
                     // the tmx object group should be updated
                     existedGroups.push(child);
                     var newSGGroup = this._sgNode.getObjectGroup(groupName);
-                    tmxGroup.enabled = newSGGroup.isVisible();
                     tmxGroup._replaceSgNode(newSGGroup);
+                    tmxGroup.enabled = newSGGroup.isVisible();
                 }
             } else {
                 otherChildrenInfo.push({child: child, index: child.getSiblingIndex()});
@@ -729,10 +729,10 @@ var TiledMap = cc.Class({
                     cc.error('Add component TiledLayer into node failed.');
                 }
 
-                node.enabled = sgGroup.isVisible();
                 addedGroup._replaceSgNode(sgGroup);
                 node.setSiblingIndex(sgGroup.getLocalZOrder());
                 node.setAnchorPoint(this.node.getAnchorPoint());
+                addedGroup.enabled = sgGroup.isVisible();
             } else {
                 existedGroups[theIndex].setSiblingIndex(sgGroup.getLocalZOrder());
             }

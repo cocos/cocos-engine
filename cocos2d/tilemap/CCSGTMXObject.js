@@ -5,11 +5,12 @@
 _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
     ctor:function (objInfo, mapInfo) {
         _ccsg.Sprite.prototype.ctor.call(this);
+        this._setProperties(objInfo);
         this.initWithMapInfo(objInfo, mapInfo);
     },
 
     initWithMapInfo: function (objInfo, mapInfo) {
-        this.setObjectName(objInfo.name);
+        this._setObjectName(objInfo.name);
         this.id = objInfo.id;
         this.gid = objInfo.gid;
         this.type = objInfo.type;
@@ -100,25 +101,52 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
 _ccsg.TMXObjectShape = _ccsg.Node.extend(/** @lends cc.TMXObjectShape# */{
     ctor:function (objInfo, mapInfo) {
         _ccsg.Node.prototype.ctor.call(this);
-        this.setObjectName(objInfo.name);
+        this._setProperties(objInfo);
+        this._setObjectName(objInfo.name);
     }
 });
 
-// methods for tmxObject
-cc.TMXObjectHelper = {
+/**
+ * !#en Renders the TMX object.
+ * !#zh 渲染 tmx object。
+ * @class TMXObject
+ * @extends _ccsg.Node
+ */
+cc.TMXObject = {
     isTmxObject: true,
     offset: cc.p(0, 0),
     gid: 0,
-    _name: '',
+    name: '',
     type: '',
     id: 0,
+    _properties: null,
 
+    /**
+     * !#en Get the name of object
+     * !#zh 获取对象的名称
+     * @method getObjectName
+     * @return {String}
+     */
     getObjectName: function() {
-        return this._name;
+        return this.name;
     },
 
-    setObjectName: function(name) {
-        this._name = name;
+    /**
+     * !#en Get the property of object
+     * !#zh 获取对象的属性
+     * @method getProperty
+     * @return {Object}
+     */
+    getProperty: function (propName) {
+        return this._properties[propName];
+    },
+
+    _setObjectName: function(name) {
+        this.name = name;
+    },
+
+    _setProperties: function (props) {
+        this._properties = props;
     }
 };
 

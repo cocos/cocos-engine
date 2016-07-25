@@ -912,10 +912,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
                 // visible
                 var visibleAttr = selObj.getAttribute('visible');
-                if (visibleAttr && parseInt(visibleAttr) === 0)
-                    objectProp['visible'] = false;
-                else
-                    objectProp['visible'] = true;
+                objectProp['visible'] = ! (visibleAttr && parseInt(visibleAttr) === 0);
 
                 // image
                 var gid = selObj.getAttribute('gid');
