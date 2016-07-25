@@ -1076,6 +1076,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             this._blendFunc.src = blendFunc || cc.macro.BLEND_SRC;
             this._blendFunc.dst = dst || cc.macro.BLEND_DST;
         }
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     /**
@@ -1106,6 +1107,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (this._isTrimmedContentSize !== isTrimmed) {
             this._isTrimmedContentSize = isTrimmed;
             this._quadsDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
 
@@ -1120,6 +1122,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setState: function (state) {
         this._brightState = state;
         this._renderCmd.setState(state);
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     /**
@@ -1138,6 +1141,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (this._renderingType === type) return;
         this._renderingType = type;
         this._quadsDirty = true;
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
     /**
      * get the rendering type, could be simple or slice
@@ -1153,6 +1157,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetLeft: function (insetLeft) {
         this._insetLeft = insetLeft;
         this._quadsDirty = true;
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
     /**
      * get the left border of 9 slice sprite, the result is specified before trimmed.
@@ -1168,6 +1173,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetTop: function (insetTop) {
         this._insetTop = insetTop;
         this._quadsDirty = true;
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     /**
@@ -1185,6 +1191,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetRight: function (insetRight) {
         this._insetRight = insetRight;
         this._quadsDirty = true;
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     /**
@@ -1202,6 +1209,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetBottom: function (insetBottom) {
         this._insetBottom = insetBottom;
         this._quadsDirty = true;
+        this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
     /**
      * get the bottom border of 9 slice sprite, the result is specified before trimmed.
@@ -1217,6 +1225,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._fillType = value;
         if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             this._quadsDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
 
@@ -1228,6 +1237,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._fillCenter = cc.v2(value,y);
         if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED && this._fillType === cc.Scale9Sprite.FillType.RADIAL) {
             this._quadsDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
 
@@ -1261,6 +1271,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._fillStart = value;
         if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
             this._quadsDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
 
@@ -1274,6 +1285,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         this._fillRange = value;
         if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED ) {
             this._quadsDirty = true;
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
 
