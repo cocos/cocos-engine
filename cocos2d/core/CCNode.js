@@ -752,10 +752,6 @@ var Node = cc.Class({
             component.__onNodeActivated(true);
         }
 
-        if (CC_EDITOR) {
-            cc.engine.updateAnimatingInEditMode();
-        }
-
         return component;
     },
 
@@ -806,10 +802,6 @@ var Node = cc.Class({
             // call onLoad/onEnable
             comp.__onNodeActivated(true);
         }
-
-        if (CC_EDITOR) {
-            cc.engine.updateAnimatingInEditMode();
-        }
     },
 
     /**
@@ -837,10 +829,6 @@ var Node = cc.Class({
         }
         if (component) {
             component.destroy();
-        }
-
-        if (CC_EDITOR) {
-            cc.engine.updateAnimatingInEditMode();
         }
     },
 
@@ -878,10 +866,6 @@ var Node = cc.Class({
             else if (component.node !== this) {
                 cc.error('Component not owned by this entity');
             }
-        }
-
-        if (CC_EDITOR) {
-            cc.engine.updateAnimatingInEditMode();
         }
     },
 
