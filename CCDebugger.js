@@ -333,7 +333,7 @@ cc.DebugMode = Enum({
     /**
      * !#en The debug mode none.
      * !#zh 禁止模式，禁止显示任何日志信息。
-     * @property NONE.
+     * @property NONE
      * @type {Number}
      * @static
      */
