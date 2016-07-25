@@ -37,19 +37,11 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
         this.setVisible(objInfo.visible);
 
         // init the image
-        var rect = useTileset.rectForGID(this.gid);
-        var texture = cc.textureCache.addImage(cc.path._normalize(useTileset.sourceImage));
-        var initRet = this.initWithTexture(texture, rect);
-        if (!initRet) {
-            return false;
-        }
+        var texture = cc.textureCache.addImage(cc.path._normalize(tileset.sourceImage));
+        this._initWithTileset(objInfo, texture, useTileset);
 
         // init the position & anchor point with map info
         this._initPosWithMapInfo(objInfo, mapInfo);
-
-        // set scale
-        this.setScaleX(objInfo.width / rect.size.width);
-        this.setScaleY(objInfo.height / rect.size.height);
 
         // set rotation
         this.setRotation(objInfo.rotation);
@@ -63,6 +55,24 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
         }
 
         return true;
+    },
+
+    _initWithTileset: function(objInfo, texture, tileset) {
+        if (!texture.isLoaded()) {
+            texture.once('load', function () {
+                this._initWithTileset(objInfo, texture, tileset);
+            }, this);
+            return;
+        }
+
+        tileset.imageSize.width = texture.width;
+        tileset.imageSize.height = texture.height;
+        var rect = tileset.rectForGID(this.gid);
+        this.initWithTexture(texture, rect);
+
+        // set scale
+        this.setScaleX(objInfo.width / rect.size.width);
+        this.setScaleY(objInfo.height / rect.size.height);
     },
 
     _initPosWithMapInfo: function (objInfo, mapInfo) {
@@ -150,5 +160,5 @@ cc.TMXObject = {
     }
 };
 
-cc.js.mixin(_ccsg.TMXObjectImage.prototype, cc.TMXObjectHelper);
-cc.js.mixin(_ccsg.TMXObjectShape.prototype, cc.TMXObjectHelper);
+cc.js.mixin(_ccsg.TMXObjectImage.prototype, cc.TMXObject);
+cc.js.mixin(_ccsg.TMXObjectShape.prototype, cc.TMXObject);

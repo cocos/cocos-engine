@@ -134,10 +134,10 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
      * @method getGroupName
      * @return {String}
      * @example
-     * var groupName = tMXObjectGroup.getGroupName;
+     * var groupName = tMXObjectGroup.getGroupName();
      */
     getGroupName:function () {
-        return this.groupName.toString();
+        return this.groupName;
     },
 
     /**
