@@ -762,6 +762,47 @@ var ScrollView = cc.Class({
         return moveDelta;
     },
 
+    _moveContentToTopLeft: function (scrollViewSize) {
+        var contentSize = this.content.getContentSize();
+
+        var bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
+        bottomDeta = -bottomDeta;
+        var moveDelta = cc.p(0, 0);
+        var totalScrollDelta = 0;
+
+        var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
+        leftDeta = -leftDeta;
+
+        if (contentSize.height < scrollViewSize.height) {
+            totalScrollDelta = contentSize.height - scrollViewSize.height;
+            moveDelta.y = bottomDeta - totalScrollDelta;
+
+            if (this.verticalScrollBar) {
+                this.verticalScrollBar.hide();
+            }
+        } else {
+            if (this.verticalScrollBar) {
+                this.verticalScrollBar.show();
+            }
+        }
+
+        if (contentSize.width < scrollViewSize.width) {
+            totalScrollDelta = contentSize.width - scrollViewSize.width;
+            moveDelta.x = leftDeta;
+
+            if (this.horizontalScrollBar) {
+                this.horizontalScrollBar.hide();
+            }
+
+        } else {
+            if (this.horizontalScrollBar) {
+                this.horizontalScrollBar.show();
+            }
+        }
+
+        this._moveContent(moveDelta);
+    },
+
     _calculateBoundary: function() {
         if (this.content) {
             //refresh content size
@@ -779,44 +820,9 @@ var ScrollView = cc.Class({
             this._rightBoundary = topRightPosition.x;
             this._topBoundary = topRightPosition.y;
 
-            var contentSize = this.content.getContentSize();
-
-            var bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
-            bottomDeta = -bottomDeta;
-            var moveDelta = cc.p(0, 0);
-            var totalScrollDelta = 0;
-
-            var leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
-            leftDeta = -leftDeta;
-
-            if (contentSize.height < scrollViewSize.height) {
-                totalScrollDelta = contentSize.height - scrollViewSize.height;
-                moveDelta.y = bottomDeta - totalScrollDelta;
-
-                if (this.verticalScrollBar) {
-                    this.verticalScrollBar.hide();
-                }
-            } else {
-                if (this.verticalScrollBar) {
-                    this.verticalScrollBar.show();
-                }
+            if(!CC_EDITOR) {
+                this._moveContentToTopLeft(scrollViewSize);
             }
-
-            if (contentSize.width < scrollViewSize.width) {
-                totalScrollDelta = contentSize.width - scrollViewSize.width;
-                moveDelta.x = leftDeta;
-
-                if (this.horizontalScrollBar) {
-                    this.horizontalScrollBar.hide();
-                }
-
-            } else {
-                if (this.horizontalScrollBar) {
-                    this.horizontalScrollBar.show();
-                }
-            }
-
-            this._moveContent(moveDelta);
         }
     },
 
