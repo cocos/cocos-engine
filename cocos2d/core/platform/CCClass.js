@@ -291,22 +291,24 @@ function instantiateProps (instance, itsClass) {
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
         var attrKey = prop + DELIMETER + 'default';
-        var def = attrs[attrKey];
-        if (def !== undefined) {  // getter does not have default
+        if (attrKey in attrs) {  // getter does not have default
+            var def = attrs[attrKey];
             // default maybe 0
-            if (typeof def === 'object' && def) {
-                if (typeof def.clone === 'function') {
-                    def = def.clone();
+            if (def) {
+                if (typeof def === 'object' && def) {
+                    if (typeof def.clone === 'function') {
+                        def = def.clone();
+                    }
+                    else if (Array.isArray(def)) {
+                        def = [];
+                    }
+                    else {
+                        def = {};
+                    }
                 }
-                else if (Array.isArray(def)) {
-                    def = [];
+                else if (typeof def === 'function') {
+                    def = getDefault(def);
                 }
-                else {
-                    def = {};
-                }
-            }
-            else if (typeof def === 'function') {
-                def = getDefault(def);
             }
             instance[prop] = def;
         }
