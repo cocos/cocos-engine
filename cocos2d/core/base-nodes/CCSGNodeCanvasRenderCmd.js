@@ -448,6 +448,12 @@ _ccsg.Node.RenderCmd.prototype = {
         var locFlag = this._dirtyFlag;
         var colorDirty = locFlag & dirtyFlags.colorDirty,
             opacityDirty = locFlag & dirtyFlags.opacityDirty;
+
+        if(locFlag & dirtyFlags.contentDirty) {
+            this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
+            this._dirtyFlag &= ~dirtyFlags.contentDirty;
+        }
+
         if(colorDirty)
             this._updateDisplayColor();
 
