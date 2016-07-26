@@ -247,7 +247,6 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._placeholderColor = cc.Color.GRAY;
 
         this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
-        this._renderCmd.createNativeControl();
     },
 
     _createRenderCmd: function () {
@@ -549,6 +548,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._createDomInput = function () {
+        this._removeDomInputControl();
         var thisPointer = this;
         var tmpEdTxt = this._edTxt = document.createElement('input');
         tmpEdTxt.type = 'text';
@@ -626,6 +626,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._createDomTextArea = function () {
+        this._removeDomInputControl();
         var thisPointer = this;
         var tmpEdTxt = this._edTxt = document.createElement('textarea');
         tmpEdTxt.type = 'text';
@@ -985,7 +986,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         this._editBox = node;
 
         //it's a dom node, may be assigned with Input or TextArea.
-        this._edTxt = null;
         this._edFontSize = 14;
         this._edFontName = 'Arial';
         this._textLabel = null;

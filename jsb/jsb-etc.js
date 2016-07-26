@@ -207,6 +207,7 @@ window._ccsg = {
     Label: cc.Label,
     EditBox: cc.EditBox,
     VideoPlayer: cc.VideoPlayer,
+    WebView: cc.WebView,
     TMXTiledMap: cc.TMXTiledMap,
     TMXLayer: cc.TMXLayer,
     MotionStreak: cc.MotionStreak

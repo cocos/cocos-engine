@@ -23,28 +23,4 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCComponent');
-require('./CCRendererInSG');
-require('./CCRendererUnderSG');
-require('./CCComponentEventHandler');
-require('./missing-script');
-
-module.exports = [
-    require('./CCSprite'),
-    require('./CCWidget'),
-    require('./CCCanvas'),
-    require('./CCAudioSource'),
-    require('./CCAnimation'),
-    require('./CCButton'),
-    require('./CCLabel'),
-    require('./CCProgressBar'),
-    require('./CCMask'),
-    require('./CCScrollBar'),
-    require('./CCScrollView'),
-    require('./CCLayout'),
-    require('./CCEditBox'),
-    require('./CCVideoPlayer'),
-    require('./CCWebView'),
-    require('./CCSpriteDistortion'),
-    require('./CCLabelOutline'),
-];
+cc.WebView = ccui.WebView;
