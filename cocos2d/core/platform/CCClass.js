@@ -338,9 +338,14 @@ cc.isChildClassOf = function (subclass, superclass) {
             return true;
         }
         for (;;) {
-            var proto = subclass.prototype; // binded function do not have prototype
-            var dunderProto = proto && Object.getPrototypeOf(proto);
-            subclass = dunderProto && dunderProto.constructor;
+            if (CC_JSB && subclass.$super) {
+                subclass = subclass.$super;
+            }
+            else {
+                var proto = subclass.prototype; // binded function do not have prototype
+                var dunderProto = proto && Object.getPrototypeOf(proto);
+                subclass = dunderProto && dunderProto.constructor;
+            }
             if (!subclass) {
                 return false;
             }
@@ -356,8 +361,13 @@ cc.isChildClassOf = function (subclass, superclass) {
 function getInheritanceChain (klass) {
     var chain = [];
     for (;;) {
-        var dunderProto = Object.getPrototypeOf(klass.prototype);
-        klass = dunderProto && dunderProto.constructor;
+        if (CC_JSB && klass.$super) {
+            klass = klass.$super;
+        }
+        else {
+            var dunderProto = Object.getPrototypeOf(klass.prototype);
+            klass = dunderProto && dunderProto.constructor;
+        }
         if (!klass) {
             break;
         }
