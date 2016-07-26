@@ -39,7 +39,7 @@ var game = /** @lends cc.game# */{
     /**
      * Event triggered when game hide to background.
      * Please note that this event is not 100% guaranteed to be fired.
-     * @constant
+     * @property
      * @type {String}
      * @example
      * cc.game.on(cc.game.EVENT_HIDE, function () {
@@ -52,21 +52,21 @@ var game = /** @lends cc.game# */{
     /**
      * Event triggered when game back to foreground
      * Please note that this event is not 100% guaranteed to be fired.
-     * @constant
+     * @property
      * @type {String}
      */
     EVENT_SHOW: "game_on_show",
 
     /**
      * Event triggered after game inited, at this point all engine objects and game scripts are loaded
-     * @constant
+     * @property
      * @type {String}
      */
     EVENT_GAME_INITED: "game_inited",
 
     /**
      * Event triggered after renderer inited, at this point you will be able to use the render context
-     * @constant
+     * @property
      * @type {String}
      */
     EVENT_RENDERER_INITED: "renderer_inited",
@@ -80,7 +80,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * Key of config
-     * @constant
+     * @property
      * @type {Object}
      */
     CONFIG_KEY: {
