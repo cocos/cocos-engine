@@ -351,10 +351,6 @@ function RawType (typename) {
     };
 }
 
-function Range (min, max) {
-   return { min: min, max: max };
-}
-
 module.exports = {
     attr: attr,
     getClassAttrs: getClassAttrs,
@@ -366,5 +362,4 @@ module.exports = {
     ObjectType: ObjectType,
     RawType: RawType,
     ScriptUuid: {},      // the value will be represented as a uuid string
-    Range: Range
 };

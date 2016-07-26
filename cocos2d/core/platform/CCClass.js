@@ -1078,6 +1078,7 @@ function parseAttributes (attrs, className, propName) {
         parseSimpleAttr('multiline', 'boolean', {multiline: true});
         parseSimpleAttr('readonly', 'boolean', {readonly: true});
         parseSimpleAttr('tooltip', 'string');
+        parseSimpleAttr('slide', 'boolean');
     }
 
     if (attrs.url) {
@@ -1115,7 +1116,7 @@ function parseAttributes (attrs, className, propName) {
     if (range) {
         if (Array.isArray(range)) {
             if (range.length >= 2) {
-                result.push(Attr.Range(range[0], range[1]));
+                result.push({ min: range[0], max: range[1], step: range[2] });
             }
             else if (CC_DEV) {
                 cc.error('The length of range array must be 2');
