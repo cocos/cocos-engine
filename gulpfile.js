@@ -49,7 +49,9 @@ gulp.task('build-cut-modular', function (done) {
     Modular.buildModular('modular-cocos2d-cut.js', './bin', [], done);
 });
 
-gulp.task('build-modular-cocos2d', ['build-all-modular', 'build-cut-modular']);
+gulp.task('build-modular-cocos2d', ['build-all-modular', 'build-cut-modular'], function (done) {
+    Del(['./bin/.cache'], done);
+});
 
 
 /////////////
