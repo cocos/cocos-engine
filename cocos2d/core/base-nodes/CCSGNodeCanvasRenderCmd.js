@@ -64,6 +64,10 @@ _ccsg.Node._requestDirtyFlag = function (key) {
 
 var ONE_DEGREE = Math.PI / 180;
 var stack = new Array(50);
+var flagStack = new Array(50);
+var VISIT = 1 << 0;
+var QUEUE = 1 << 1;
+var COMPLETE = 1 << 2;
 
 function transformChildTree (root) {
     var index = 1;
@@ -85,6 +89,24 @@ function transformChildTree (root) {
                 child._renderCmd.transform(parentCmd);
             }
         }
+    }
+}
+
+function visit (renderer, cmd, parentCmd) {
+    var node = cmd._node;
+    if (parentCmd) {
+        cmd._curLevel = parentCmd._curLevel + 1;
+    }
+    cmd._propagateFlagsDown(parentCmd);
+
+    if (isNaN(node._customZ)) {
+        node._vertexZ = renderer.assignedZ;
+        renderer.assignedZ += renderer.assignedZStep;
+    }
+
+    cmd._syncStatus(parentCmd);
+    if (node._children.length > 0) {
+        node.sortAllChildren();
     }
 }
 
@@ -318,26 +340,103 @@ _ccsg.Node.RenderCmd.prototype = {
         this._dirtyFlag = locFlag;
     },
 
-    visit: function (parentCmd) {
-        var node = this._node, renderer = cc.renderer;
+    visit: function () {
+        var root = this._node,
+            renderer = cc.renderer,
+            level = 0, childLvl, len, flag,
+            children, siblings, parent, parentCmd,
+            cid = 0, childId, curr = root;
 
-        parentCmd = parentCmd || this.getParentRenderCmd();
-        if (parentCmd) {
-            this._curLevel = parentCmd._curLevel + 1;
+        // preset level states
+        stack.fill(0);
+        flagStack.fill(0);
+
+        // Exit when current node equals to root, and root level have been visited
+        // stack to record current sibling index, flagStack to record current node visit state
+        while (curr !== root || !(flagStack[0] & QUEUE)) {
+            flag = flagStack[level];
+            parent = curr._parent;
+            // Skip the curr sub tree
+            if (!curr._visible) {
+                if (!parent) break;
+                siblings = parent._children;
+                len = siblings.length;
+                cid ++;
+                if (cid >= len) {
+                    curr = parent;
+                    level--;
+                    cid = stack[level];
+                }
+                else {
+                    curr = siblings[cid];
+                    // Reset
+                    flagStack[level] = 0;
+                    // flagStack[level+1] = 0;
+                    stack[level] = cid;
+                    // stack[level+1] = 0;
+                }
+                continue;
+            }
+
+            // Visit
+            children = curr._children;
+            len = children.length;
+            if (!(flag & VISIT)) {
+                parentCmd = parent ? parent._renderCmd : null;
+                visit(renderer, curr._renderCmd, parentCmd);
+                flagStack[level] |= VISIT;
+                // Reset dirty flag cause no longer need to transfer to children
+                if (flagStack[level] & COMPLETE) curr._renderCmd._dirtyFlag = 0;
+            }
+
+            childLvl = level + 1;
+            childId = stack[childLvl];
+            // Push current to render queue
+            if (!(flag & QUEUE) && (len === 0 || children[childId]._localZOrder >= 0)) {
+                renderer.pushRenderCommand(curr._renderCmd);
+                flagStack[level] |= QUEUE;
+            }
+
+            // Enter children level
+            if (!(flag & COMPLETE) && childId < len) {
+                stack[level] = cid;
+                // Find correct child id
+                cid = childId;
+                curr = children[cid];
+                level++;
+                continue;
+            }
+
+            // Exit to parent level
+            if (level > 0 && curr._localZOrder >= 0 && !(flagStack[level-1] & QUEUE)) {
+                curr = parent;
+                level--;
+                cid = stack[level];
+                continue;
+            }
+
+            // Loop to next sibling in the same level
+            if (!parent) break;
+            siblings = parent._children;
+            len = siblings.length;
+            cid ++;
+            if (cid >= len) {
+                curr = parent;
+                level--;
+                cid = stack[level];
+                flagStack[level] |= COMPLETE;
+                // Reset dirty flag cause no longer need to transfer to children
+                if (flagStack[level] & VISIT) curr._renderCmd._dirtyFlag = 0;
+            }
+            else {
+                curr = siblings[cid];
+                // Reset
+                flagStack[level] = 0;
+                stack[level] = cid;
+            }
+            flagStack[childLvl] = 0;
+            stack[childLvl] = 0;
         }
-        this._propagateFlagsDown(parentCmd);
-
-        // quick return if not visible
-        if (!node._visible)
-            return;
-
-        if (isNaN(node._customZ)) {
-            node._vertexZ = renderer.assignedZ;
-            renderer.assignedZ += renderer.assignedZStep;
-        }
-
-        this._syncStatus(parentCmd);
-        this.visitChildren();
     },
 
     _updateDisplayColor: function (parentColor) {
@@ -465,7 +564,9 @@ _ccsg.Node.RenderCmd.prototype = {
 
         if(locFlag & dirtyFlags.transformDirty){
             //update the transform
-            this.transform(this.getParentRenderCmd(), true);
+            var node = this._node;
+            var parentCmd = node && node._parent ? node._parent._renderCmd : null;
+            this.transform(parentCmd, true);
             this._dirtyFlag &= ~dirtyFlags.transformDirty;
         }
     },
@@ -493,34 +594,6 @@ _ccsg.Node.RenderCmd.prototype = {
         if (transformDirty)
             //update the transform
             this.transform(parentCmd);
-    },
-
-    visitChildren: function(){
-        var renderer = cc.renderer;
-        var node = this._node;
-        var i, children = node._children, child;
-        var len = children.length;
-        if (len > 0) {
-            node.sortAllChildren();
-            // draw children zOrder < 0
-            for (i = 0; i < len; i++) {
-                child = children[i];
-                if (child._localZOrder < 0) {
-                    child._renderCmd.visit(this);
-                }
-                else {
-                    break;
-                }
-            }
-
-            renderer.pushRenderCommand(this);
-            for (; i < len; i++) {
-                children[i]._renderCmd.visit(this);
-            }
-        } else {
-            renderer.pushRenderCommand(this);
-        }
-        this._dirtyFlag = 0;
     }
 };
 
