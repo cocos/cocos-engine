@@ -310,7 +310,7 @@ var Downloader = function (extMap) {
     this.id = ID;
     this.async = true;
     this.pipeline = null;
-    this.maxConcurrent = 2;
+    this.maxConcurrent = cc.sys.isMobile ? 2 : 512;
     this._curConcurrent = 0;
     this._loadQueue = [];
 
@@ -331,21 +331,16 @@ JS.mixin(Downloader.prototype, {
         var self = this;
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
         if (this._curConcurrent < this.maxConcurrent) {
-            if (cc.sys.isMobile) {
-                this._curConcurrent++;
-            }
+            this._curConcurrent++;
             downloadFunc.call(this, item, function (err, result) {
-                if (cc.sys.isMobile) {
-                    // Concurrent logic
-                    self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-
-                    while (self._curConcurrent < self.maxConcurrent) {
-                        var nextOne = self._loadQueue.shift();
-                        if (!nextOne) {
-                            break;
-                        }
-                        self.handle(nextOne.item, nextOne.callback);
+                // Concurrent logic
+                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+                while (self._curConcurrent < self.maxConcurrent) {
+                    var nextOne = self._loadQueue.shift();
+                    if (!nextOne) {
+                        break;
                     }
+                    self.handle(nextOne.item, nextOne.callback);
                 }
 
                 callback && callback(err, result);
