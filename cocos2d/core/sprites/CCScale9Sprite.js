@@ -84,13 +84,6 @@ var FIX_ARTIFACTS_BY_STRECHING_TEXEL = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL
 var simpleQuadGenerator = {
     _rebuildQuads_base: function (sprite, spriteFrame, contentSize, isTrimmedContentSize) {
         //build vertices
-        this._calculateVertices(sprite, spriteFrame, contentSize, isTrimmedContentSize);
-        //build uvs
-        this._calculateUVs(sprite, spriteFrame);
-        sprite._vertCount = 4;
-    },
-
-    _calculateVertices: function (sprite, spriteFrame, contentSize, isTrimmedContentSize) {
         var vertices = sprite._vertices,
             wt = sprite._renderCmd._worldTransform,
             l, b, r, t;
@@ -100,9 +93,9 @@ var simpleQuadGenerator = {
             r = contentSize.width;
             t = contentSize.height;
         } else {
-            var originalSize = spriteFrame.getOriginalSize();
+            var originalSize = spriteFrame._originalSize;
             var rect = spriteFrame._rect;
-            var offset = spriteFrame.getOffset();
+            var offset = spriteFrame._offset;
             var scaleX = contentSize.width / originalSize.width;
             var scaleY = contentSize.height / originalSize.height;
             var trimmLeft = offset.x + (originalSize.width - rect.width) / 2;
@@ -147,12 +140,19 @@ var simpleQuadGenerator = {
         cornerId[1] = 2;
         cornerId[2] = 4;
         cornerId[3] = 6;
+
+        //build uvs
+        if (sprite._uvsDirty) {
+            this._calculateUVs(sprite, spriteFrame);
+        }
+
+        sprite._vertCount = 4;
     },
 
     _calculateUVs: function (sprite, spriteFrame) {
         var uvs = sprite._uvs;
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
+        var atlasWidth = spriteFrame._texture._pixelsWide;
+        var atlasHeight = spriteFrame._texture._pixelsHigh;
         var textureRect = spriteFrame._rect;
 
         if (uvs.length < 8) {
@@ -189,24 +189,19 @@ var simpleQuadGenerator = {
 };
 
 var scale9QuadGenerator = {
+    x: new Array(4),
+    y: new Array(4),
     _rebuildQuads_base: function (sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
         //build vertices
-        this._calculateVertices(sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom);
-        //build uvs
-        this._calculateUVs(sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
-    },
-
-    _calculateVertices: function (sprite, spriteFrame, contentSize, insetLeft, insetRight, insetTop, insetBottom) {
         var vertices = sprite._vertices;
         var wt = sprite._renderCmd._worldTransform;
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
-
         var rect = spriteFrame._rect;
+
         leftWidth = insetLeft;
         rightWidth = insetRight;
         centerWidth = rect.width - leftWidth - rightWidth;
-
         topHeight = insetTop;
         bottomHeight = insetBottom;
         centerHeight = rect.height - topHeight - bottomHeight;
@@ -220,8 +215,8 @@ var scale9QuadGenerator = {
         yScale = yScale > 1 ? 1 : yScale;
         sizableWidth = sizableWidth < 0 ? 0 : sizableWidth;
         sizableHeight = sizableHeight < 0 ? 0 : sizableHeight;
-        var x = new Array(4);
-        var y = new Array(4);
+        var x = this.x;
+        var y = this.y;
         x[0] = 0;
         x[1] = leftWidth * xScale;
         x[2] = x[1] + sizableWidth;
@@ -260,25 +255,30 @@ var scale9QuadGenerator = {
         cornerId[1] = 6;
         cornerId[2] = 24;
         cornerId[3] = 30;
+
+        //build uvs
+        if (sprite._uvsDirty) {
+            this._calculateUVs(sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom);
+        }
     },
 
     _calculateUVs: function (sprite, spriteFrame, insetLeft, insetRight, insetTop, insetBottom) {
         var uvs = sprite._uvs;
         var rect = spriteFrame._rect;
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
+        var atlasWidth = spriteFrame._texture._pixelsWide;
+        var atlasHeight = spriteFrame._texture._pixelsHigh;
 
         //caculate texture coordinate
         var leftWidth, centerWidth, rightWidth;
         var topHeight, centerHeight, bottomHeight;
+        var textureRect = spriteFrame._rect;
+
         leftWidth = insetLeft;
         rightWidth = insetRight;
         centerWidth = rect.width - leftWidth - rightWidth;
-
         topHeight = insetTop;
         bottomHeight = insetBottom;
         centerHeight = rect.height - topHeight - bottomHeight;
-        var textureRect = spriteFrame._rect;
 
         if (uvs.length < 32) {
             dataPool.put(uvs);
@@ -287,10 +287,10 @@ var scale9QuadGenerator = {
         }
 
         //uv computation should take spritesheet into account.
-        var u = new Array(4);
-        var v = new Array(4);
-        var offset = 0, row, col;
+        var u = this.x;
+        var v = this.y;
         var texelCorrect = FIX_ARTIFACTS_BY_STRECHING_TEXEL ? 0.5 : 0;
+        var offset = 0, row, col;
 
         if (spriteFrame._rotated) {
             u[0] = (textureRect.x + texelCorrect) / atlasWidth;
@@ -339,8 +339,8 @@ var tiledQuadGenerator = {
             wt = sprite._renderCmd._worldTransform,
             uvs = sprite._uvs;
         //build uvs
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
+        var atlasWidth = spriteFrame._texture._pixelsWide;
+        var atlasHeight = spriteFrame._texture._pixelsHigh;
         var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
@@ -454,8 +454,8 @@ var fillQuadGeneratorBar = {
         var l = 0, b = 0, 
             r = contentSize.width, t = contentSize.height;
         //build uvs
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
+        var atlasWidth = spriteFrame._texture._pixelsWide;
+        var atlasHeight = spriteFrame._texture._pixelsHigh;
         var textureRect = spriteFrame._rect;
         //uv computation should take spritesheet into account.
         var ul, vb, ur, vt;
@@ -532,7 +532,7 @@ var fillQuadGeneratorBar = {
         // tr : 6, 7
         var progressStart, progressEnd;
         switch (fillType) {
-            case cc.Scale9Sprite.FillType.HORIZONTAL:
+            case FillType.HORIZONTAL:
                 progressStart = vertices[0] + (vertices[2] - vertices[0]) * fillStart;
                 progressEnd = vertices[0] + (vertices[2] - vertices[0]) * fillEnd;
 
@@ -550,7 +550,7 @@ var fillQuadGeneratorBar = {
                 uvs[6] = quadUV[4] + (quadUV[6] - quadUV[4]) * fillEnd;
                 uvs[7] = quadUV[7];
                 break;
-            case cc.Scale9Sprite.FillType.VERTICAL:
+            case FillType.VERTICAL:
                 progressStart = vertices[1] + (vertices[5] - vertices[1]) * fillStart;
                 progressEnd = vertices[1] + (vertices[5] - vertices[1]) * fillEnd;
 
@@ -681,12 +681,12 @@ var fillQuadGeneratorRadial = {
         if (vertices.length < dataLength) {
             dataPool.put(vertices);
             vertices = dataPool.get(dataLength) || new Float32Array(dataLength);
-            sprite._vertices = vertices;
+            this.outVerts = sprite._vertices = vertices;
         }
         if (uvs.length < dataLength) {
             dataPool.put(uvs);
             uvs = dataPool.get(dataLength) || new Float32Array(dataLength);
-            sprite._uvs = uvs;
+            this.outUvs = sprite._uvs = uvs;
         }
 
         var offset = 0, count = 0;
@@ -894,8 +894,8 @@ var fillQuadGeneratorRadial = {
     },
 
     _calculateUVs : function (spriteFrame) {
-        var atlasWidth = spriteFrame._texture.getPixelWidth();
-        var atlasHeight = spriteFrame._texture.getPixelHeight();
+        var atlasWidth = spriteFrame._texture._pixelsWide;
+        var atlasHeight = spriteFrame._texture._pixelsHigh;
         var textureRect = spriteFrame._rect;
 
         //uv computation should take spritesheet into account.
@@ -946,6 +946,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     _uvs: null,
     _vertCount: 0,
     _quadsDirty: true,
+    _uvsDirty: true,
     _isTriangle: false,
     _isTrimmedContentSize: true,
     //fill type
@@ -1045,6 +1046,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (spriteFrame) {
             this._spriteFrame = spriteFrame;
             this._quadsDirty = true;
+            this._uvsDirty = true;
             this._renderCmd._needDraw = false;
             var self = this;
             var onResourceDataLoaded = function () {
@@ -1141,6 +1143,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if (this._renderingType === type) return;
         this._renderingType = type;
         this._quadsDirty = true;
+        this._uvsDirty = true;
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
     /**
@@ -1157,6 +1160,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetLeft: function (insetLeft) {
         this._insetLeft = insetLeft;
         this._quadsDirty = true;
+        this._uvsDirty = true;
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
     /**
@@ -1173,6 +1177,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetTop: function (insetTop) {
         this._insetTop = insetTop;
         this._quadsDirty = true;
+        this._uvsDirty = true;
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
@@ -1191,6 +1196,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetRight: function (insetRight) {
         this._insetRight = insetRight;
         this._quadsDirty = true;
+        this._uvsDirty = true;
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
@@ -1209,6 +1215,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
     setInsetBottom: function (insetBottom) {
         this._insetBottom = insetBottom;
         this._quadsDirty = true;
+        this._uvsDirty = true;
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
     /**
@@ -1223,7 +1230,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._fillType === value)
             return;
         this._fillType = value;
-        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
+        if(this._renderingType === RenderingType.FILLED) {
             this._quadsDirty = true;
             this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
@@ -1235,7 +1242,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
     setFillCenter: function(value, y) {
         this._fillCenter = cc.v2(value,y);
-        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED && this._fillType === cc.Scale9Sprite.FillType.RADIAL) {
+        if(this._renderingType === RenderingType.FILLED && this._fillType === FillType.RADIAL) {
             this._quadsDirty = true;
             this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
@@ -1269,7 +1276,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._fillStart === value)
             return;
         this._fillStart = value;
-        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
+        if(this._renderingType === RenderingType.FILLED) {
             this._quadsDirty = true;
             this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
@@ -1283,7 +1290,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         if(this._fillRange === value)
             return;
         this._fillRange = value;
-        if(this._renderingType === cc.Scale9Sprite.RenderingType.FILLED ) {
+        if(this._renderingType === RenderingType.FILLED ) {
             this._quadsDirty = true;
             this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
         }
@@ -1299,24 +1306,24 @@ cc.Scale9Sprite = _ccsg.Node.extend({
             return;
         }
         this._isTriangle = false;
-        var vert;
-        if (this._renderingType === cc.Scale9Sprite.RenderingType.SIMPLE) {
-            simpleQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._isTrimmedContentSize);
-            vert = this._vertices;
-        } else if (this._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
-            scale9QuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
-            vert = this._vertices;
-        } else if (this._renderingType === cc.Scale9Sprite.RenderingType.TILED) {
-            tiledQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this.getContentSize());
-            vert = this._vertices;
-        } else if (this._renderingType === cc.Scale9Sprite.RenderingType.FILLED) {
+        switch (this._renderingType) {
+        case RenderingType.SIMPLE:
+            simpleQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._isTrimmedContentSize);
+            break;
+        case RenderingType.SLICED:
+            scale9QuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._insetLeft, this._insetRight, this._insetTop, this._insetBottom);
+            break;
+        case RenderingType.TILED:
+            tiledQuadGenerator._rebuildQuads_base(this, this._spriteFrame, this._contentSize);
+            break;
+        case RenderingType.FILLED:
             var fillstart = this._fillStart;
             var fillRange = this._fillRange;
             if(fillRange < 0) {
                 fillstart += fillRange;
                 fillRange = -fillRange;
             }
-            if (this._fillType !== cc.Scale9Sprite.FillType.RADIAL) {
+            if (this._fillType !== FillType.RADIAL) {
                 fillRange = fillstart + fillRange;
                 fillstart = fillstart > 1.0 ? 1.0 : fillstart;
                 fillstart = fillstart < 0.0 ? 0.0 : fillstart;
@@ -1324,20 +1331,19 @@ cc.Scale9Sprite = _ccsg.Node.extend({
                 fillRange = fillRange > 1.0 ? 1.0 : fillRange;
                 fillRange = fillRange < 0.0 ? 0.0 : fillRange;
                 fillRange = fillRange - fillstart;
-                fillQuadGeneratorBar._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._fillType, fillstart, fillRange);
-                vert = this._vertices;
+                fillQuadGeneratorBar._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._fillType, fillstart, fillRange);
             } else {
                 this._isTriangle = true;
                 if (!this._rawVerts) {
                     this._rawVerts = dataPool.get(8) || new Float32Array(8);
                     this._rawUvs = dataPool.get(8) || new Float32Array(8);
                 }
-                fillQuadGeneratorRadial._rebuildQuads_base(this, this._spriteFrame, this.getContentSize(), this._fillCenter,fillstart, fillRange);
-                vert = this._rawVerts;
+                fillQuadGeneratorRadial._rebuildQuads_base(this, this._spriteFrame, this._contentSize, this._fillCenter,fillstart, fillRange);
             }
-        } else {
-            this._quads = [];
+            break;
+        default:
             this._quadsDirty = false;
+            this._uvsDirty = false;
             this._renderCmd._needDraw = false;
             cc.error('Can not generate quad');
             return;
@@ -1345,12 +1351,13 @@ cc.Scale9Sprite = _ccsg.Node.extend({
 
         // Culling
         if (webgl) {
-            var x0 = cornerId[0], x1 = cornerId[1], x2 = cornerId[2], x3 = cornerId[3],
-                y0 = cornerId[0]+1, y1 = cornerId[1]+1, y2 = cornerId[2]+1, y3 = cornerId[3]+1;
-            if (((vert[x0]-vl.x) & (vert[x1]-vl.x) & (vert[x2]-vl.x) & (vert[x3]-vl.x)) >> 31 || // All outside left
-                ((vr.x-vert[x0]) & (vr.x-vert[x1]) & (vr.x-vert[x2]) & (vr.x-vert[x3])) >> 31 || // All outside right
-                ((vert[y0]-vb.y) & (vert[y1]-vb.y) & (vert[y2]-vb.y) & (vert[y3]-vb.y)) >> 31 || // All outside bottom
-                ((vt.y-vert[y0]) & (vt.y-vert[y1]) & (vt.y-vert[y2]) & (vt.y-vert[y3])) >> 31)   // All outside top
+            var vert = this._isTriangle ? this._rawVerts : this._vertices,
+                x0 = vert[cornerId[0]], x1 = vert[cornerId[1]], x2 = vert[cornerId[2]], x3 = vert[cornerId[3]],
+                y0 = vert[cornerId[0]+1], y1 = vert[cornerId[1]+1], y2 = vert[cornerId[2]+1], y3 = vert[cornerId[3]+1];
+            if (((x0-vl.x) & (x1-vl.x) & (x2-vl.x) & (x3-vl.x)) >> 31 || // All outside left
+                ((vr.x-x0) & (vr.x-x1) & (vr.x-x2) & (vr.x-x3)) >> 31 || // All outside right
+                ((y0-vb.y) & (y1-vb.y) & (y2-vb.y) & (y3-vb.y)) >> 31 || // All outside bottom
+                ((vt.y-y0) & (vt.y-y1) & (vt.y-y2) & (vt.y-y3)) >> 31)   // All outside top
             {
                 this._renderCmd._needDraw = false;
             }
@@ -1370,6 +1377,7 @@ cc.Scale9Sprite = _ccsg.Node.extend({
         }
 
         this._quadsDirty = false;
+        this._uvsDirty = false;
     },
     _createRenderCmd: function () {
         if (cc._renderType === cc.game.RENDER_TYPE_CANVAS)
@@ -1394,7 +1402,7 @@ cc.Scale9Sprite.state = {NORMAL: 0, GRAY: 1, DISTORTION: 2};
  * Enum for sprite type
  * @enum SpriteType
  */
-cc.Scale9Sprite.RenderingType = cc.Enum({
+var RenderingType = cc.Scale9Sprite.RenderingType = cc.Enum({
     /**
      * @property {Number} SIMPLE
      */
@@ -1413,7 +1421,7 @@ cc.Scale9Sprite.RenderingType = cc.Enum({
     FILLED: 3
 });
 
-cc.Scale9Sprite.FillType = cc.Enum({
+var FillType = cc.Scale9Sprite.FillType = cc.Enum({
     HORIZONTAL: 0,
     VERTICAL: 1,
     RADIAL:2,
