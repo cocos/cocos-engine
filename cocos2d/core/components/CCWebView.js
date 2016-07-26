@@ -56,9 +56,9 @@ var WebView = cc.Class({
         /**
          * !#en A given URL to be loaded by the WebView, it should have a http or https prefix.
          * !#zh 指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串
-         * @property {String} URL
+         * @property {String} url
          */
-        URL: {
+        url: {
             type: String,
             get: function () {
                 return this._url;
@@ -75,27 +75,27 @@ var WebView = cc.Class({
         /**
          * !#en The webview's event callback , it will be triggered when web page finished loading.
          * !#zh WebView 的回调事件，当网页加载完成之后会回调此函数
-         * @property {cc.Component.EventHandler[]} webViewLoadedEvent
+         * @property {cc.Component.EventHandler[]} webViewLoadedEvents
          */
-        webViewLoadedEvent: {
+        webViewLoadedEvents: {
             default: [],
             type: cc.Component.EventHandler,
         },
         /**
          * !#en The webview's event callback , it will be triggered when web page is loading.
          * !#zh WebView 的回调事件，当网页加载时会回调此函数
-         * @property {cc.Component.EventHandler[]} webViewLoadingEvent
+         * @property {cc.Component.EventHandler[]} webViewLoadingEvents
          */
-        webViewLoadingEvent: {
+        webViewLoadingEvents: {
             default: [],
             type: cc.Component.EventHandler,
         },
         /**
          * !#en The webview's event callback , it will be triggered when there are errors when loading.
          * !#zh WebView 的回调事件，当网页加载出错时会回调此函数
-         * @property {cc.Component.EventHandler[]} webViewErrorEvent
+         * @property {cc.Component.EventHandler[]} webViewErrorEvents
          */
-        webViewErrorEvent: {
+        webViewErrorEvents: {
             default: [],
             type: cc.Component.EventHandler,
         }
@@ -105,11 +105,9 @@ var WebView = cc.Class({
         EventType: EventType,
     },
 
-    onLoad: function() {
-        if(CC_JSB) {
-            if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
-                this.enabled = false;
-            }
+    onLoad: CC_JSB && function() {
+        if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+            this.enabled = false;
         }
     },
 
@@ -145,16 +143,16 @@ var WebView = cc.Class({
     },
 
     _onWebViewLoaded: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewLoadedEvent, this, EventType.LOADED);
+        cc.Component.EventHandler.emitEvents(this.webViewLoadedEvents, this, EventType.LOADED);
     },
 
     _onWebViewLoading: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewLoadingEvent, this, EventType.LOADING);
+        cc.Component.EventHandler.emitEvents(this.webViewLoadingEvents, this, EventType.LOADING);
         return true;
     },
 
     _onWebViewLoadError: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewErrorEvent, this, EventType.ERROR);
+        cc.Component.EventHandler.emitEvents(this.webViewErrorEvents, this, EventType.ERROR);
     }
 
 });
