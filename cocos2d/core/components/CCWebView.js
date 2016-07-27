@@ -21,18 +21,30 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var EventType = _ccsg.WebView.EventType;
-
-/*
+/**
  * !#en WebView event type
- * !#zh   WebView 事件类型
+ * !#zh 网页视图事件类型
  * @enum WebView.EventType
  */
+var EventType = _ccsg.WebView.EventType;
 
-/*
+
+/**
  * !#en Web page Load completed.
  * !#zh  网页加载完成
  * @property {String} LOADED
+ */
+
+/**
+ * !#en Web page is loading.
+ * !#zh  网页加载中
+ * @property {String} LOADING
+ */
+
+/**
+ * !#en Web page error occurs when loading.
+ * !#zh  网页加载出错
+ * @property {String} ERROR
  */
 
 /**
@@ -60,6 +72,7 @@ var WebView = cc.Class({
          */
         url: {
             type: String,
+            tooltip: 'i18n:COMPONENT.webview.url',
             get: function () {
                 return this._url;
             },
@@ -73,32 +86,14 @@ var WebView = cc.Class({
         },
 
         /**
-         * !#en The webview's event callback , it will be triggered when web page finished loading.
-         * !#zh WebView 的回调事件，当网页加载完成之后会回调此函数
-         * @property {cc.Component.EventHandler[]} webViewLoadedEvents
+         * !#en The webview's event callback , it will be triggered when certain webview event occurs.
+         * !#zh WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数
+         * @property {cc.Component.EventHandler[]} webviewLoadedEvents
          */
-        webViewLoadedEvents: {
+        webviewEvents: {
             default: [],
             type: cc.Component.EventHandler,
         },
-        /**
-         * !#en The webview's event callback , it will be triggered when web page is loading.
-         * !#zh WebView 的回调事件，当网页加载时会回调此函数
-         * @property {cc.Component.EventHandler[]} webViewLoadingEvents
-         */
-        webViewLoadingEvents: {
-            default: [],
-            type: cc.Component.EventHandler,
-        },
-        /**
-         * !#en The webview's event callback , it will be triggered when there are errors when loading.
-         * !#zh WebView 的回调事件，当网页加载出错时会回调此函数
-         * @property {cc.Component.EventHandler[]} webViewErrorEvents
-         */
-        webViewErrorEvents: {
-            default: [],
-            type: cc.Component.EventHandler,
-        }
     },
 
     statics: {
@@ -143,16 +138,16 @@ var WebView = cc.Class({
     },
 
     _onWebViewLoaded: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewLoadedEvents, this, EventType.LOADED);
-    },
-
-    _onWebViewLoading: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewLoadingEvents, this, EventType.LOADING);
+        cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
         return true;
     },
 
+    _onWebViewLoading: function () {
+        cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
+    },
+
     _onWebViewLoadError: function () {
-        cc.Component.EventHandler.emitEvents(this.webViewErrorEvents, this, EventType.ERROR);
+        cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR);
     }
 
 });
