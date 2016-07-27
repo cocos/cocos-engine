@@ -29,6 +29,9 @@ var JS = cc.js;
 var cachedArray = new Array(16);
 cachedArray.length = 0;
 
+var eventPool = new Array(8);
+eventPool.length = 0;
+
 var _doDispatchEvent = function (owner, event) {
     var target, i;
     event.target = owner;
@@ -56,7 +59,15 @@ var _doDispatchEvent = function (owner, event) {
     // Event.AT_TARGET
     // checks if destroyed in capturing callbacks
     if (owner._isTargetActive(event.type)) {
-        _doSendEvent(owner, event);
+        // Event.AT_TARGET
+        event.eventPhase = 2;
+        event.currentTarget = owner;
+        if (owner._capturingListeners) {
+            owner._capturingListeners.invoke(event);
+        }
+        if (!event._propagationImmediateStopped && owner._bubblingListeners) {
+            owner._bubblingListeners.invoke(event);
+        }
     }
 
     if (!event._propagationStopped && event.bubbles) {
@@ -79,22 +90,6 @@ var _doDispatchEvent = function (owner, event) {
         }
     }
     cachedArray.length = 0;
-};
-
-
-var _doSendEvent = function (owner, event) {
-    // Event.AT_TARGET
-    event.eventPhase = 2;
-    event.currentTarget = owner;
-    if (owner._capturingListeners) {
-        owner._capturingListeners.invoke(event);
-        if (event._propagationImmediateStopped) {
-            return;
-        }
-    }
-    if (owner._bubblingListeners) {
-        owner._bubblingListeners.invoke(event);
-    }
 };
 
 /**
@@ -335,9 +330,26 @@ JS.mixin(EventTarget.prototype, {
             return;
         }
 
-        var event = new cc.Event.EventCustom(message);
+        var event = eventPool.pop() || new cc.Event.EventCustom(message);
+        event.type = message;
         event.detail = detail;
-        _doSendEvent(this, event);
+
+        // Event.AT_TARGET
+        event.eventPhase = 2;
+        event.currentTarget = this;
+        if (caplisteners) {
+            this._capturingListeners.invoke(event);
+        }
+        if (bublisteners && !event._propagationImmediateStopped) {
+            this._bubblingListeners.invoke(event);
+        }
+
+        // Reuse custom event
+        if (!event.keep) {
+            event.type = '';
+            event.detail = null;
+            eventPool.push(event);
+        }
     },
 
     /*

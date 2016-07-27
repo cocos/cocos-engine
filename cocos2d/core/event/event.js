@@ -53,7 +53,7 @@ cc.Event = function(type, bubbles) {
      * @property bubbles
      * @type {Boolean}
      */
-    this.bubbles = bubbles || false;
+    this.bubbles = !!bubbles;
 
     /**
      * !#en A reference to the target to which the event was originally dispatched.
@@ -261,6 +261,17 @@ var EventCustom = function (type, bubbles) {
      * @type {Object}
      */
     this.detail = null;
+
+    /**
+     * !#en Flag to indicate whether keep the event object alive after processing,
+     * value is false by default, the event shouldn't be used outside event handler logic, 
+     * because it will be cached and reused for other event handling process.
+     * !#zh 用于标记是否在事件处理结束后保持事件对象可用，默认值是 false，
+     * 表示事件处理完成后，会立即回收事件对象并留待后续复用。如果设置为 true，则不会回收。
+     * @property keep
+     * @type {Boolean}
+     */
+    this.keep = false;
 };
 
 JS.extend(EventCustom, cc.Event);
