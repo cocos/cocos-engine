@@ -142,7 +142,7 @@ gulp.task('test-no-build', function (done) {
 // global //
 ////////////
 
-gulp.task('build-dev', ['build-preview', 'build-jsb'], function (done) 
+gulp.task('build-dev', ['build-preview', 'build-jsb'], function (done) {
     // make dist version dirty
     Del(['./bin/.cache'], done);
 });
