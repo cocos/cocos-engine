@@ -83,7 +83,7 @@ asyncTest('Load with dependencies', function () {
             dep2,
             dep3
         ];
-        this.pipeline.flowInDeps(resources, function (deps) {
+        this.pipeline.flowInDeps(item.id, resources, function (deps) {
             callback(null, result);
         });
     }

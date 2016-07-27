@@ -97,7 +97,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         return callback(null, asset);
     }
 
-    pipeline.flowInDeps(depends, function (items) {
+    pipeline.flowInDeps(uuid, depends, function (items) {
         var item;
         for (var src in items) {
             item = items[src];
