@@ -351,7 +351,7 @@ JS.mixin(Pipeline.prototype, {
      * @param {Function} callback
      * @return {Array} Items accepted by the pipeline
      */
-    flowInDeps: function (owner, urlList, callback) {
+    flowInDeps: function (urlList, callback) {
         var checker = {};
 
         var items = this._items;
@@ -375,12 +375,12 @@ JS.mixin(Pipeline.prototype, {
                 continue;
             }
             var item = items.map[url];
-            if ( item && (url === owner || item.complete) ) {
-                checker[url] = item;
-            }
-            else {
+            if ( !item ) {
                 items.addListener(url, loadedCheck);
                 checker[url] = null;
+            }
+            else {
+                checker[url] = item;
             }
         }
         var accepted = this.flowIn(urlList);
