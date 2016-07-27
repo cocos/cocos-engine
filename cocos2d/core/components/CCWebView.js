@@ -23,7 +23,7 @@
 
 /**
  * !#en WebView event type
- * !#zh 网页视图加载事件类型
+ * !#zh 网页视图事件类型
  * @enum WebView.EventType
  */
 var EventType = _ccsg.WebView.EventType;
