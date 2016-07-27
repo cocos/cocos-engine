@@ -338,9 +338,14 @@ cc.isChildClassOf = function (subclass, superclass) {
             return true;
         }
         for (;;) {
-            var proto = subclass.prototype; // binded function do not have prototype
-            var dunderProto = proto && Object.getPrototypeOf(proto);
-            subclass = dunderProto && dunderProto.constructor;
+            if (CC_JSB && subclass.$super) {
+                subclass = subclass.$super;
+            }
+            else {
+                var proto = subclass.prototype; // binded function do not have prototype
+                var dunderProto = proto && Object.getPrototypeOf(proto);
+                subclass = dunderProto && dunderProto.constructor;
+            }
             if (!subclass) {
                 return false;
             }
@@ -356,8 +361,13 @@ cc.isChildClassOf = function (subclass, superclass) {
 function getInheritanceChain (klass) {
     var chain = [];
     for (;;) {
-        var dunderProto = Object.getPrototypeOf(klass.prototype);
-        klass = dunderProto && dunderProto.constructor;
+        if (CC_JSB && klass.$super) {
+            klass = klass.$super;
+        }
+        else {
+            var dunderProto = Object.getPrototypeOf(klass.prototype);
+            klass = dunderProto && dunderProto.constructor;
+        }
         if (!klass) {
             break;
         }
@@ -1068,6 +1078,7 @@ function parseAttributes (attrs, className, propName) {
         parseSimpleAttr('multiline', 'boolean', {multiline: true});
         parseSimpleAttr('readonly', 'boolean', {readonly: true});
         parseSimpleAttr('tooltip', 'string');
+        parseSimpleAttr('slide', 'boolean');
     }
 
     if (attrs.url) {
@@ -1105,7 +1116,7 @@ function parseAttributes (attrs, className, propName) {
     if (range) {
         if (Array.isArray(range)) {
             if (range.length >= 2) {
-                result.push(Attr.Range(range[0], range[1]));
+                result.push({ min: range[0], max: range[1], step: range[2] });
             }
             else if (CC_DEV) {
                 cc.error('The length of range array must be 2');
