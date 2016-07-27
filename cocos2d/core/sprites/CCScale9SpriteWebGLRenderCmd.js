@@ -85,21 +85,6 @@ proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, 
     return 36;
 };
 
-proto._uploadVertices = function (vertices, uvs, color, z, f32buffer, ui32buffer, offset) {
-    // src: bl, br, tl, tr
-    var count = this._node._vertCount;
-    for (var i = 0, srcOff = 0; i < count; i++, srcOff += 2) {
-        f32buffer[offset] = vertices[srcOff];
-        f32buffer[offset + 1] = vertices[srcOff+1];
-        f32buffer[offset + 2] = z;
-        ui32buffer[offset + 3] = color[0];
-        f32buffer[offset + 4] = uvs[srcOff];
-        f32buffer[offset + 5] = uvs[srcOff+1];
-        offset += 6;
-    }
-    return count;
-};
-
 proto.transform = function (parentCmd, recursive) {
     this.originTransform(parentCmd, recursive);
     this._node._rebuildQuads();
@@ -151,7 +136,17 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
     case types.SIMPLE:
     case types.TILED:
     case types.FILLED:
-        len = this._uploadVertices(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+        // Inline for performance
+        len = this._node._vertCount;
+        for (var i = 0, srcOff = 0; i < len; i++, srcOff += 2) {
+            f32buffer[offset] = vertices[srcOff];
+            f32buffer[offset + 1] = vertices[srcOff+1];
+            f32buffer[offset + 2] = z;
+            ui32buffer[offset + 3] = this._color[0];
+            f32buffer[offset + 4] = uvs[srcOff];
+            f32buffer[offset + 5] = uvs[srcOff+1];
+            offset += 6;
+        }
         break;
     case types.SLICED:
         len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);

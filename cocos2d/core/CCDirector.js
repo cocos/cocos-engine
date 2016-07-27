@@ -296,16 +296,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             this._afterVisitScene();
     },
 
-    render: function (deltaTime) {
-        cc.g_NumberOfDraws = 0;
-        cc.renderer.clear();
-
-        cc.renderer.rendering(cc._renderContext);
-        this._totalFrames++;
-
-        this.emit(cc.Director.EVENT_AFTER_DRAW);
-    },
-
     _beforeVisitScene: null,
     _afterVisitScene: null,
 
@@ -1389,7 +1379,16 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
         }
 
         this.visit();
-        this.render();
+
+        // Render
+        cc.g_NumberOfDraws = 0;
+        cc.renderer.clear();
+
+        cc.renderer.rendering(cc._renderContext);
+        this._totalFrames++;
+
+        this.emit(cc.Director.EVENT_AFTER_DRAW);
+
     } : function () {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
@@ -1421,7 +1420,15 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             }
 
             this.visit(this._deltaTime);
-            this.render(this._deltaTime);
+
+            // Render
+            cc.g_NumberOfDraws = 0;
+            cc.renderer.clear();
+
+            cc.renderer.rendering(cc._renderContext);
+            this._totalFrames++;
+
+            this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             this._calculateMPF();
         }

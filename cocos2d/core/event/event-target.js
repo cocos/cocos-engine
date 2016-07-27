@@ -56,7 +56,15 @@ var _doDispatchEvent = function (owner, event) {
     // Event.AT_TARGET
     // checks if destroyed in capturing callbacks
     if (owner._isTargetActive(event.type)) {
-        _doSendEvent(owner, event);
+        // Event.AT_TARGET
+        event.eventPhase = 2;
+        event.currentTarget = owner;
+        if (owner._capturingListeners) {
+            owner._capturingListeners.invoke(event);
+        }
+        if (!event._propagationImmediateStopped && owner._bubblingListeners) {
+            owner._bubblingListeners.invoke(event);
+        }
     }
 
     if (!event._propagationStopped && event.bubbles) {
@@ -79,22 +87,6 @@ var _doDispatchEvent = function (owner, event) {
         }
     }
     cachedArray.length = 0;
-};
-
-
-var _doSendEvent = function (owner, event) {
-    // Event.AT_TARGET
-    event.eventPhase = 2;
-    event.currentTarget = owner;
-    if (owner._capturingListeners) {
-        owner._capturingListeners.invoke(event);
-        if (event._propagationImmediateStopped) {
-            return;
-        }
-    }
-    if (owner._bubblingListeners) {
-        owner._bubblingListeners.invoke(event);
-    }
 };
 
 /**
@@ -337,7 +329,16 @@ JS.mixin(EventTarget.prototype, {
 
         var event = new cc.Event.EventCustom(message);
         event.detail = detail;
-        _doSendEvent(this, event);
+
+        // Event.AT_TARGET
+        event.eventPhase = 2;
+        event.currentTarget = this;
+        if (caplisteners) {
+            this._capturingListeners.invoke(event);
+        }
+        if (bublisteners && !event._propagationImmediateStopped) {
+            this._bubblingListeners.invoke(event);
+        }
     },
 
     /*
