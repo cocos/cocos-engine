@@ -645,6 +645,7 @@ var Node = cc.Class({
     getComponentsInChildren: function (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
         if (constructor) {
+            findComponents(this, constructor, components);
             findChildComponents(this._children, constructor, components);
         }
         return components;

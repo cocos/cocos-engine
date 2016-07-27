@@ -550,8 +550,8 @@ var Component = cc.Class({
     },
 
     /**
-     * !#en Returns the components of supplied type in any of its children using depth first search.
-     * !#zh 递归查找所有子节点中指定类型的组件。
+     * !#en Returns the components of supplied type in self and any of its children using depth first search.
+     * !#zh 递归查找所有子节点中指定类型的组件（包含自身）。
      *
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName

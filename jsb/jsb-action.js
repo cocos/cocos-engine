@@ -123,6 +123,33 @@ cc.Follow.prototype.update = function(dt) {
     }
 };
 
+cc.Show.prototype.update = function (dt) {
+    var target = this.getTarget();
+    var _renderComps = target._owner.getComponentsInChildren();
+    for (var i = 0; i < _renderComps.length; ++i) {
+        var render = _renderComps[i];
+        render.enabled = true;
+    }
+};
+
+cc.Hide.prototype.update = function (dt) {
+    var target = this.getTarget();
+    var _renderComps = target._owner.getComponentsInChildren();
+    for (var i = 0; i < _renderComps.length; ++i) {
+        var render = _renderComps[i];
+        render.enabled = false;
+    }
+};
+
+cc.ToggleVisibility.prototype.update = function (dt) {
+    var target = this.getTarget();
+    var _renderComps = target._owner.getComponentsInChildren();
+    for (var i = 0; i < _renderComps.length; ++i) {
+        var render = _renderComps[i];
+        render.enabled = true;
+    }
+};
+
 // Special call func
 cc.callFunc = function (selector, selectorTarget, data) {
     var callback = function (sender, data) {
