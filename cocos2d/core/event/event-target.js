@@ -29,9 +29,6 @@ var JS = cc.js;
 var cachedArray = new Array(16);
 cachedArray.length = 0;
 
-var eventPool = new Array(8);
-eventPool.length = 0;
-
 var _doDispatchEvent = function (owner, event) {
     var target, i;
     event.target = owner;
@@ -330,8 +327,7 @@ JS.mixin(EventTarget.prototype, {
             return;
         }
 
-        var event = eventPool.pop() || new cc.Event.EventCustom(message);
-        event.type = message;
+        var event = new cc.Event.EventCustom(message);
         event.detail = detail;
 
         // Event.AT_TARGET
@@ -342,13 +338,6 @@ JS.mixin(EventTarget.prototype, {
         }
         if (bublisteners && !event._propagationImmediateStopped) {
             this._bubblingListeners.invoke(event);
-        }
-
-        // Reuse custom event
-        if (!event.keep) {
-            event.type = '';
-            event.detail = null;
-            eventPool.push(event);
         }
     },
 
