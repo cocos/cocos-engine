@@ -100,11 +100,9 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             var item = items[i];
             var id = item.id;
             // No duplicated url
-            if (!this.completed[id]) {
-                if (!this.map[id]) {
-                    this.map[id] = item;
-                }
-                list.push(this.map[id]);
+            if (!this.map[id]) {
+                this.map[item.id] = item;
+                list.push(item);
             }
         }
         this.totalCount += list.length;
