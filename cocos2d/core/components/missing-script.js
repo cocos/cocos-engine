@@ -26,9 +26,22 @@
 var JS = cc.js;
 
 /*
+ * A temp fallback to contain the original serialized data which can not be loaded.
+ */
+var MissingClass = cc.Class({
+    name: 'cc.MissingClass',
+    properties: {
+        // the serialized data for original object
+        _$erialized: {
+            default: null,
+            visible: false,
+            editorOnly: true
+        }
+    },
+});
+
+/*
  * A temp fallback to contain the original component which can not be loaded.
- * Actually, this class will be used whenever a class failed to deserialize,
- * regardless of whether it is child class of component.
  */
 var MissingScript = cc.Class({
     name: 'cc.MissingScript', 
@@ -84,13 +97,19 @@ var MissingScript = cc.Class({
          * @param {string} id
          * @return {function} constructor
          */
-        safeFindClass: function (id) {
+        safeFindClass: function (id, data) {
             var cls = JS._getClassById(id);
             if (cls) {
                 return cls;
             }
             if (id) {
-                return MissingScript;
+                cc.deserialize.reportMissingClass(id);
+                if (data.node && (CC_EDITOR && Editor.UuidUtils.isUuid(id))) {
+                    return MissingScript;
+                }
+                else {
+                    return MissingClass;
+                }
             }
             return null;
         }
