@@ -33,7 +33,9 @@ else {
     GraphicsNode = _ccsg.GraphicsNode = cc.GraphicsNode;
 }
 
-var misc = require('../utils/misc');
-misc.propertyDefine(GraphicsNode, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'deviceRatio', 'strokeColor', 'fillColor'], {});
+if (GraphicsNode) {
+    var misc = require('../utils/misc');
+    misc.propertyDefine(GraphicsNode, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'deviceRatio', 'strokeColor', 'fillColor'], {});
+}
 
 require('./graphics');

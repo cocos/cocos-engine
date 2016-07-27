@@ -26,6 +26,17 @@
 var LineCap      = require('./types').LineCap;
 var LineJoin     = require('./types').LineJoin;
 
+var func = function () {};
+
+function createEmptyGraphicsNode () {
+    var sgNode = new _ccsg.Node();
+    ['moveTo', 'lineTo', 'bezierCurveTo', 'quadraticCurveTo', 'arc', 'ellipse', 'circle', 'rect', 'roundRect', 'fillRect', 'clear', 'close', 'stroke', 'fill'].forEach(function (funcName) {
+        sgNode[funcName] = func;
+    });
+
+    return sgNode;
+}
+
 /**
  * @class Graphics
  * @extends _RendererUnderSG
@@ -157,6 +168,10 @@ var Graphics = cc.Class({
     },
 
     _createSgNode: function () {
+        if (!_ccsg.GraphicsNode) {
+            return createEmptyGraphicsNode();
+        }
+
         return new _ccsg.GraphicsNode();
     },
 
