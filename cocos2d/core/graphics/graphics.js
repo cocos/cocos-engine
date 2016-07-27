@@ -27,14 +27,6 @@ var LineCap      = require('./types').LineCap;
 var LineJoin     = require('./types').LineJoin;
 
 
-
-function createEmptyGraphicsNode () {
-    var sgNode = new _ccsg.Node();
-
-
-    return sgNode;
-}
-
 /**
  * @class Graphics
  * @extends _RendererUnderSG
