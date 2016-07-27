@@ -633,8 +633,8 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Returns all components of supplied type in any of its children.
-     * !#zh 递归查找所有子节点中指定类型的组件。
+     * !#en Returns all components of supplied type in self or any of its children.
+     * !#zh 递归查找自身或所有子节点中指定类型的组件
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
      * @return {Component[]}
