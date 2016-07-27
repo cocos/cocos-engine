@@ -119,6 +119,16 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
     }
     else {
         if (extName === '.ttf') {
+            if(!this._ttfConfig) {
+                this._ttfConfig = {
+                    fontFilePath: fontHandle,
+                    fontSize: 40,
+                    outlineSize: 0,
+                    glyphs: 0,
+                    customGlyphs: "",
+                    distanceFieldEnable: false
+                };
+            }
             this._labelType = _ccsg.Label.Type.TTF;
             this._ttfConfig.fontFilePath = fontHandle;
             this.setTTFConfig(this._ttfConfig);
@@ -133,8 +143,8 @@ jsbLabel.prototype.setFontFileOrFamily = function (fontHandle) {
 };
 
 jsbLabel.prototype.setOutlined = function(value) {
-    this._outlined = value;
-    if(!!this._outlined) {
+    this._outlined = !!value;
+    if(this._outlined) {
         this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
     } else {
         //1 equals cpp outline effect
@@ -144,31 +154,31 @@ jsbLabel.prototype.setOutlined = function(value) {
 
 jsbLabel.prototype.setOutlineWidth = function(value) {
     this._outlineWidth = value;
-    if(!!this._outlined) {
+    if(this._outlined) {
         this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
     }
 };
 
 jsbLabel.prototype.setOutlineColor = function(value) {
     this._outlineColor = cc.color(value);
-    if(!!this._outlined) {
+    if(this._outlined) {
         this.enableOutline(this.getOutlineColor(), this.getOutlineWidth());
     }
 };
 
-jsbLabel.prototype.setMargin = function(value) {
+jsbLabel.prototype.setMargin = function() {
     //add an empty here, needed to be implemented by native
-}
-
-jsbLabel.prototype.isOutlined = function(value) {
-    return !!this._outlined;
 };
 
-jsbLabel.prototype.getOutlineWidth = function(value) {
+jsbLabel.prototype.isOutlined = function() {
+    return this._outlined;
+};
+
+jsbLabel.prototype.getOutlineWidth = function() {
     return this._outlineWidth || 1;
 };
 
-jsbLabel.prototype.getOutlineColor = function(value) {
+jsbLabel.prototype.getOutlineColor = function() {
     return this._outlineColor || cc.color(255,255,255,255);
 };
 
