@@ -154,40 +154,45 @@ cc.affineTransformIdentity = function () {
  * @param {AffineTransform} anAffineTransform
  * @return {Rect}
  */
-cc.rectApplyAffineTransform = function (rect, anAffineTransform) {
-    var top = cc.rectGetMinY(rect);
-    var left = cc.rectGetMinX(rect);
-    var right = cc.rectGetMaxX(rect);
-    var bottom = cc.rectGetMaxY(rect);
+cc.rectApplyAffineTransform = function (rect, t) {
+    var ol = rect.x;
+    var ob = rect.y;
+    var or = ol + rect.width;
+    var ot = ob + rect.height;
+    var lbx = t.a * ol + t.c * ob + t.tx;
+    var lby = t.b * ol + t.d * ob + t.ty;
+    var rbx = t.a * or + t.c * ob + t.tx;
+    var rby = t.b * or + t.d * ob + t.ty;
+    var ltx = t.a * ol + t.c * ot + t.tx;
+    var lty = t.b * ol + t.d * ot + t.ty;
+    var rtx = t.a * or + t.c * ot + t.tx;
+    var rty = t.b * or + t.d * ot + t.ty;
 
-    var topLeft = cc.pointApplyAffineTransform(left, top, anAffineTransform);
-    var topRight = cc.pointApplyAffineTransform(right, top, anAffineTransform);
-    var bottomLeft = cc.pointApplyAffineTransform(left, bottom, anAffineTransform);
-    var bottomRight = cc.pointApplyAffineTransform(right, bottom, anAffineTransform);
-
-    var minX = Math.min(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x);
-    var maxX = Math.max(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x);
-    var minY = Math.min(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y);
-    var maxY = Math.max(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y);
-
+    var minX = Math.min(lbx, rbx, ltx, rtx);
+    var maxX = Math.max(lbx, rbx, ltx, rtx);
+    var minY = Math.min(lby, rby, lty, rty);
+    var maxY = Math.max(lby, rby, lty, rty);
     return cc.rect(minX, minY, (maxX - minX), (maxY - minY));
 };
 
-cc._rectApplyAffineTransformIn = function(rect, anAffineTransform){
-    var top = cc.rectGetMinY(rect);
-    var left = cc.rectGetMinX(rect);
-    var right = cc.rectGetMaxX(rect);
-    var bottom = cc.rectGetMaxY(rect);
+cc._rectApplyAffineTransformIn = function(rect, t){
+    var ol = rect.x;
+    var ob = rect.y;
+    var or = ol + rect.width;
+    var ot = ob + rect.height;
+    var lbx = t.a * ol + t.c * ob + t.tx;
+    var lby = t.b * ol + t.d * ob + t.ty;
+    var rbx = t.a * or + t.c * ob + t.tx;
+    var rby = t.b * or + t.d * ob + t.ty;
+    var ltx = t.a * ol + t.c * ot + t.tx;
+    var lty = t.b * ol + t.d * ot + t.ty;
+    var rtx = t.a * or + t.c * ot + t.tx;
+    var rty = t.b * or + t.d * ot + t.ty;
 
-    var topLeft = cc.pointApplyAffineTransform(left, top, anAffineTransform);
-    var topRight = cc.pointApplyAffineTransform(right, top, anAffineTransform);
-    var bottomLeft = cc.pointApplyAffineTransform(left, bottom, anAffineTransform);
-    var bottomRight = cc.pointApplyAffineTransform(right, bottom, anAffineTransform);
-
-    var minX = Math.min(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x);
-    var maxX = Math.max(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x);
-    var minY = Math.min(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y);
-    var maxY = Math.max(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y);
+    var minX = Math.min(lbx, rbx, ltx, rtx);
+    var maxX = Math.max(lbx, rbx, ltx, rtx);
+    var minY = Math.min(lby, rby, lty, rty);
+    var maxY = Math.max(lby, rby, lty, rty);
 
     rect.x = minX;
     rect.y = minY;
