@@ -140,7 +140,7 @@ private:
     std::mutex   _subThreadWsMessageQueueMutex;
     std::thread _subThreadInstance;
     WebSocket* _ws;
-    
+
     friend class WebSocket;
 };
 
@@ -269,7 +269,7 @@ void WebSocket::closeAllConnections()
         {
             instance->close();
         }
-        
+
         delete __websocketInstances;
         __websocketInstances = nullptr;
     }
@@ -319,11 +319,11 @@ WebSocket::~WebSocket()
             LOGD("ERROR: WebSocket instance (%p) wasn't added to the container which saves websocket instances!\n", this);
         }
     }
-    
+
     if (Director::DirectorInstance) {
         Director::DirectorInstance->getEventDispatcher()->removeEventListener(_resetDirectorListener);
     }
-    
+
     LOGD("In the destructor of WebSocket (%p)\n", this);
     CC_SAFE_DELETE(_wsHelper);
 
@@ -484,7 +484,7 @@ void WebSocket::close()
         _readStateMutex.unlock();
         return;
     }
-    
+
     // Sets the state to 'closed' to make sure 'onConnectionClosed' which is
     // invoked by websocket thread don't post 'close' message to Cocos thread since
     // WebSocket instance is destroyed at next frame.
@@ -494,7 +494,7 @@ void WebSocket::close()
 
     LOGD("Waiting WebSocket (%p) to exit!\n", this);
     _wsHelper->joinWebSocketThread();
-    
+
     // Since 'onConnectionClosed' didn't post message to Cocos Thread for invoking 'onClose' callback, do it here.
     // onClose must be invoked at the end of this method.
     _delegate->onClose(this);
@@ -517,7 +517,7 @@ WebSocket::State WebSocket::getReadyState()
 void WebSocket::onSubThreadLoop()
 {
     onSubThreadStarted();
-    
+
     while (true) {
         _readStateMutex.lock();
         if (_wsContext && (_readyState == State::CONNECTING || _readyState == State::OPEN))
@@ -530,7 +530,7 @@ void WebSocket::onSubThreadLoop()
             {
                 lws_callback_on_writable(_wsInstance);
             }
-            
+
             lws_service(_wsContext, 50);
         }
         else
@@ -540,14 +540,14 @@ void WebSocket::onSubThreadLoop()
             break;
         }
     }
-    
+
     onSubThreadEnded();
 }
 
 void WebSocket::onSubThreadStarted()
 {
     LOGD("WebSocket::onSubThreadStarted, instance: %p\n", this);
-    
+
     static const struct lws_extension exts[] = {
         {
             "permessage-deflate",
@@ -600,11 +600,12 @@ void WebSocket::onSubThreadStarted()
             if (_wsProtocols[i+1].callback != nullptr) name += ", ";
         }
 
-        char ads_port[50];
-        sprintf(ads_port, "%s:%d", _host.c_str(), _port);
-        
+        char portStr[10];
+        sprintf(portStr, "%d", _port);
+        std::string ads_port = _host + ":" + portStr;
+
         lws_client_connect_info cInfo = {_wsContext, _host.c_str(), (int)_port, _SSLConnection,
-                                      _path.c_str(), ads_port, _host.c_str(),
+                                      _path.c_str(), ads_port.c_str(), ads_port.c_str(),
             name.c_str(), -1,nullptr,nullptr};
         _wsInstance = lws_client_connect_via_info(&cInfo);
 
@@ -626,7 +627,7 @@ void WebSocket::onSubThreadEnded()
         lws_context_destroy(_wsContext);
         _wsContext = nullptr;
     }
-    
+
     LOGD("WebSocket::onSubThreadEnded, instance: %p\n", this);
 }
 
@@ -870,7 +871,7 @@ void WebSocket::onConnectionClosed()
     LOGD("WebSocket (%p) onConnectionClosed ...\n", this);
     _readyState = State::CLOSED;
     _readStateMutex.unlock();
-    
+
     auto instance = this;
     _wsHelper->sendMessageToCocosThread([instance](){
         if (__websocketInstances && __websocketInstances->find(instance) != __websocketInstances->end())
@@ -908,7 +909,7 @@ int WebSocket::onSocketCallback(struct lws *wsi,
         case LWS_CALLBACK_CLIENT_WRITEABLE:
             onClientWritable();
             break;
-            
+
         case LWS_CALLBACK_GET_THREAD_ID:
             break;
         default:
