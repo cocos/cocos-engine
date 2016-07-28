@@ -601,6 +601,13 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
+            if(cc.view.isAutoFullScreenEnabled()) {
+                thisPointer.__fullscreen = true;
+                cc.view.enableAutoFullScreen(false);
+                cc.screen.exitFullScreen();
+            } else {
+                thisPointer.__fullscreen = false;
+            }
 
             scrollWindowUp(editBox);
 
@@ -612,6 +619,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             var editBox = thisPointer._editBox;
             editBox._text = this.value;
             thisPointer._updateEditBoxContentStyle();
+            if(thisPointer.__fullscreen) {
+                cc.view.enableAutoFullScreen(true);
+            }
             window.scrollY = 0;
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
@@ -663,6 +673,13 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
             this.style.fontSize = thisPointer._edFontSize + 'px';
             this.style.color = cc.colorToHex(editBox._textColor);
+            if(cc.view.isAutoFullScreenEnabled()) {
+                thisPointer.__fullscreen = true;
+                cc.view.enableAutoFullScreen(false);
+                cc.screen.exitFullScreen();
+            } else {
+                thisPointer.__fullscreen = false;
+            }
 
             scrollWindowUp(editBox);
 
@@ -687,6 +704,9 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
             editBox._text = this.value;
             thisPointer._updateEditBoxContentStyle();
             window.scrollY = 0;
+            if(thisPointer.__fullscreen) {
+                cc.view.enableAutoFullScreen(true);
+            }
 
             if (editBox._delegate && editBox._delegate.editBoxEditingDidEnded) {
                 editBox._delegate.editBoxEditingDidEnded(editBox);
