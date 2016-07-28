@@ -139,11 +139,11 @@ var WebView = cc.Class({
 
     _onWebViewLoaded: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
-        return true;
     },
 
     _onWebViewLoading: function () {
         cc.Component.EventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
+        return true;
     },
 
     _onWebViewLoadError: function () {
