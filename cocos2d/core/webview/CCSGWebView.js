@@ -188,6 +188,11 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
         this._renderCmd.removeDom();
         this.stopAllActions();
         this.unscheduleAllCallbacks();
+    },
+
+    setVisible: function ( visible ) {
+        _ccsg.Node.prototype.setVisible.call(this, visible);
+        this._renderCmd.updateVisibility();
     }
 });
 
@@ -318,6 +323,7 @@ _ccsg.WebView.EventType = {
         var self = this;
         var cb = function(){
             self._loaded = true;
+            self.updateVisibility();
             iframe.removeEventListener("load", cb);
         };
         iframe.addEventListener("load", cb);
@@ -373,6 +379,17 @@ _ccsg.WebView.EventType = {
                 cc.container.removeChild(div);
         }
         this._div = null;
+    };
+
+    proto.updateVisibility = function () {
+        var node = this._node;
+        if (!this._div) return;
+        var div = this._div;
+        if (node.visible) {
+            div.style.visibility = 'visible';
+        } else {
+            div.style.visibility = 'hidden';
+        }
     };
 
 })(_ccsg.WebView._polyfill);
