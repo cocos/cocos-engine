@@ -2,6 +2,24 @@
       "do_default":{
          "exclude_from_template":[
             "frameworks/runtime-src"
+         ],
+         "append_dir":[
+            {
+               "from":"extensions/anysdk/",
+               "to":"",
+               "include": [
+                  ".cocos-package.json"
+               ]
+            },
+            {
+               "from":"extensions/anysdk/js-bindings/",
+               "to":"frameworks/runtime-src/Classes",
+               "include": [
+                  "*.h",
+                  "*.cpp",
+                  "*.hpp"
+               ]
+            }
          ]
       },
       "do_add_native_support":{
@@ -34,10 +52,17 @@
                ]
              },
              {
-               "from":"extensions/anysdk/js-bindings/",
-               "to":"frameworks/runtime-src/Classes",
-               "include": [
-                  "*"
+               "from":"extensions/anysdk/platform/android",
+               "to":"frameworks/runtime-src/proj.android",
+               "exclude": [
+                  "res/mipmap"
+               ]
+             },
+             {
+               "from":"extensions/anysdk/platform/android",
+               "to":"frameworks/runtime-src/proj.android-studio/app",
+               "exclude": [
+                  "res/drawable"
                ]
              }
          ],

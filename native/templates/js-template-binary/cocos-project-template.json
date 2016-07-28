@@ -10,6 +10,22 @@
                "include": [
                   "*.js"
                ]
+            },
+            {
+               "from":"extensions/anysdk/",
+               "to":"",
+               "include": [
+                  ".cocos-package.json"
+               ]
+            },
+            {
+               "from":"extensions/anysdk/js-bindings/",
+               "to":"frameworks/runtime-src/Classes",
+               "include": [
+                  "*.h",
+                  "*.cpp",
+                  "*.hpp"
+               ]
             }
          ]
       },
@@ -43,10 +59,10 @@
                ]
              },
              {
-               "from":"extensions/anysdk/js-bindings/",
-               "to":"frameworks/runtime-src/Classes",
-               "include": [
-                  "*"
+               "from":"extensions/anysdk/platform/android",
+               "to":"frameworks/runtime-src/proj.android",
+               "exclude": [
+                  "res/mipmap"
                ]
              }
          ],
