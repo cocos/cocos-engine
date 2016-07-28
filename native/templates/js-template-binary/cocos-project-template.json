@@ -10,6 +10,22 @@
                "include": [
                   "*.js"
                ]
+            },
+            {
+               "from":"extensions/anysdk/",
+               "to":"",
+               "include": [
+                  ".cocos-package.json"
+               ]
+            },
+            {
+               "from":"extensions/anysdk/js-bindings/",
+               "to":"frameworks/runtime-src/Classes",
+               "include": [
+                  "*.h",
+                  "*.cpp",
+                  "*.hpp"
+               ]
             }
          ]
       },
@@ -20,7 +36,6 @@
             "exclude":[
                "proj.android/bin",
                "proj.android/assets",
-               "proj.android/libs",
                "proj.ios_mac/HelloJavascript.xcodeproj/project.xcworkspace",
                "proj.ios_mac/HelloJavascript.xcodeproj/xcuserdata",
                "proj.win32/Debug.win32",
@@ -41,6 +56,13 @@
                "to":"frameworks/runtime-src/proj.android/libs",
                "include": [
                   "*.jar"
+               ]
+             },
+             {
+               "from":"extensions/anysdk/platform/android",
+               "to":"frameworks/runtime-src/proj.android",
+               "exclude": [
+                  "res/mipmap"
                ]
              }
          ],

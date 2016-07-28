@@ -1,0 +1,90 @@
+{
+    "anysdk": {
+        "args": {
+            "noupdate": 0, 
+            "staging": 1, 
+            "verbose": 1, 
+            "plugin": "~/.cocos/package/plugins/cocospackage-multi_anysdk/", 
+            "skip_patch": 0, 
+            "area": "cn", 
+            "server": "download.anysdk.com/cocospackage/v1/", 
+            "project": "./", 
+            "platform": "android", 
+            "command": "import", 
+            "mode": "debug", 
+            "installer": "~/cocos2d-x-3.10/tools/cocos2d-console/plugins/plugin_package/cocospackage.py", 
+            "config": "config.json"
+        }, 
+        "name": "cocospackage-multi_anysdk", 
+        "constants": {
+            "ANDROID_STUDIO_JNI_DIR": "frameworks/runtime-src/proj.android-studio/app/jni/", 
+            "suffix": "JsTutorial", 
+            "COCOS_BACKUP_DIR": "cocospackage-backup-2016-07-11-18-29-08/", 
+            "COCOS_PROJECT_DIR": "./", 
+            "COCOS_2DX_INSTALLATION_VERSION": "3.10.0", 
+            "PLUGIN_PATCH_PATH": "~/.cocos/package/plugins/cocospackage-multi_anysdk/patchs/", 
+            "android_js_sources": [
+                "../../Classes/jsb_anysdk_basic_conversions.cpp", 
+                "../../Classes/manualanysdkbindings.cpp", 
+                "../../Classes/jsb_anysdk_protocols_auto.cpp"
+            ], 
+            "ANDROID_STUDIO_PROJECT_DIR": "frameworks/runtime-src/proj.android-studio/", 
+            "ANDROID_COCOS_PACKAGE_ROOT": "frameworks/cocos2d-x/cocos/platform/android/java/", 
+            "PLUGIN_LUA_PATH": "~/.cocos/package/plugins/cocospackage-multi_anysdk/luabindings/", 
+            "ios_sources": [
+                "SDKManager.cpp", 
+                "SDKManager.cpp"
+            ], 
+            "PLUGIN_JS_PATH": "~/.cocos/package/plugins/cocospackage-multi_anysdk/jsbindings/", 
+            "ANDROID_STUDIO_ACTIVITY_NAME": "AppActivity", 
+            "ios_js_sources": [
+                "jsb_anysdk_basic_conversions.cpp", 
+                "manualanysdkbindings.cpp", 
+                "jsb_anysdk_protocols_auto.cpp"
+            ], 
+            "COCOS_PROJECT_HINT": "frameworks/runtime-src/", 
+            "ANDROID_STUDIO_PROPERTIES": "frameworks/runtime-src/proj.android-studio/app/build.gradle", 
+            "COCOS_ENGINE_TYPE": "unknown", 
+            "ANDROID_PROJECT_DIR": "frameworks/runtime-src/proj.android/", 
+            "ANDROID_COCOS_SRC_DIR": "frameworks/cocos2d-x/cocos/platform/android/java/src/org/cocos2dx/lib/", 
+            "COCOS_CLASSES_DIR": "frameworks/runtime-src/Classes/", 
+            "XCODE_PROJECT": "frameworks/runtime-src/proj.ios_mac/HelloJavascript.xcodeproj/project.pbxproj", 
+            "COCOSPACKAGE_DIR": "~/.cocos/package/", 
+            "ANDROID_STUDIO_ACTIVITY_PATH": "frameworks/runtime-src/proj.android-studio/app/src/org/cocos2dx/javascript/", 
+            "ANDROID_SDK_DIR": "~/sdk/", 
+            "COCOS_2DX_ROOT": "~/cocos2d-x-3.10/", 
+            "PLUGIN_ROOT": "~/.cocos/package/plugins/cocospackage-multi_anysdk/", 
+            "COCOSPACKAGE_PUGIN_NAME": "~/.cocos/package/plugins/cocospackage-multi_anysdk/", 
+            "ANDROID_MANIFEST": "frameworks/runtime-src/proj.android/AndroidManifest.xml", 
+            "ANDROID_STUDIO_MANIFEST": "frameworks/runtime-src/proj.android-studio/app/AndroidManifest.xml", 
+            "ANDROID_JNI_DIR": "frameworks/runtime-src/proj.android/jni/", 
+            "ANDROID_ACTIVITY_NAME": "AppActivity", 
+            "IOS_PROJECT_DIR": "frameworks/runtime-src/proj.ios_mac/", 
+            "XCODE_PROJECT_CXX_LIBRARY": "libc++", 
+            "ANDROID_STUDIO_MK": "frameworks/runtime-src/proj.android-studio/app/jni/Android.mk", 
+            "PLUGIN_ANDROID_PATH": "~/.cocos/package/plugins/cocospackage-multi_anysdk/android/", 
+            "XCODE_PROJECT_DIR": "frameworks/runtime-src/proj.ios_mac/HelloJavascript.xcodeproj/", 
+            "COCOS_PACKAGE_DIR": "~/cocos2d-x-lite/external/package/", 
+            "url": "http://docs.anysdk.com/JsTutorial", 
+            "COCOS_PROJECT_TYPE": "js", 
+            "COCOS_2DX_VERSION": "3.10.0", 
+            "ANDROID_PROPERTIES": "frameworks/runtime-src/proj.android/project.properties", 
+            "PLUGIN_IOS_PATH": "~/.cocos/package/plugins/cocospackage-multi_anysdk/ios/", 
+            "ANDROID_ACTIVITY_PATH": "frameworks/runtime-src/proj.android/src/org/cocos2dx/javascript/", 
+            "android_sources": [
+                "../../Classes/SDKManager.cpp", 
+                "../../Classes/SDKManager.cpp"
+            ], 
+            "ANDROID_MK": "frameworks/runtime-src/proj.android/jni/Android.mk", 
+            "ANDROID_STUDIO_LIBS_DIR": "frameworks/cocos2d-x/cocos/platform/android/libcocos2dx/libs/", 
+            "ANDROID_LIBS_DIR": "frameworks/cocos2d-x/cocos/platform/android/java/libs/", 
+            "COCOS_RESOURCES_DIR": "res/"
+        }, 
+        "versions": {
+            "mini_cocospackage_version": "0.8.0", 
+            "code": "1001", 
+            "show_version": "2.0.1_2.2.1", 
+            "update_content": "2016\u5e747\u670810\u66f4\u65b0  \n  1\u3001\u6846\u67b6\u652f\u6301cocos2d-x-3.9.1 \u5f15\u64ce \n 2\u3001patchs \u6587\u4ef6\u652f\u6301cocos2d-x-3.12"
+        }
+    }
+}
