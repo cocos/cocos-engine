@@ -487,7 +487,7 @@ _ccsg.Node.RenderCmd.prototype = {
             //update the opacity
             this._syncDisplayOpacity();
 
-        if(colorDirty)
+        if(colorDirty || opacityDirty)
             this._updateColor();
 
         if (transformDirty)
