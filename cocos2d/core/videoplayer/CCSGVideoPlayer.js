@@ -383,9 +383,20 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (node.visible) {
             video.style.visibility = 'visible';
+            cc.container.appendChild(video);
         } else {
             video.style.visibility = 'hidden';
             video.pause();
+            if(video){
+                var hasChild = false;
+                if('contains' in cc.container) {
+                    hasChild = cc.container.contains(video);
+                }else {
+                    hasChild = cc.container.compareDocumentPosition(video) % 16;
+                }
+                if(hasChild)
+                    cc.container.removeChild(video);
+            }
         }
     };
 

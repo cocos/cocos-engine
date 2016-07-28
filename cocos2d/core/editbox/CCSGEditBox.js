@@ -542,8 +542,17 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         var editBox = this._edTxt;
         if (node.visible) {
             editBox.style.visibility = 'visible';
+            cc.container.appendChild(editBox);
         } else {
             editBox.style.visibility = 'hidden';
+            var hasChild = false;
+            if('contains' in cc.container) {
+                hasChild = cc.container.contains(editBox);
+            }else {
+                hasChild = cc.container.compareDocumentPosition(editBox) % 16;
+            }
+            if(hasChild)
+                cc.container.removeChild(editBox);
         }
     };
 

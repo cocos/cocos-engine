@@ -238,6 +238,7 @@ _ccsg.WebView.EventType = {
     _ccsg.WebView.RenderCmd = function(node){
         RenderCmd.call(this, node);
 
+        this._parent = null;
         this._div = null;
         this._iframe = null;
         this._listener = null;
@@ -387,8 +388,19 @@ _ccsg.WebView.EventType = {
         var div = this._div;
         if (node.visible) {
             div.style.visibility = 'visible';
+            cc.container.appendChild(div);
         } else {
             div.style.visibility = 'hidden';
+            if(div){
+                var hasChild = false;
+                if('contains' in cc.container) {
+                    hasChild = cc.container.contains(div);
+                }else {
+                    hasChild = cc.container.compareDocumentPosition(div) % 16;
+                }
+                if(hasChild)
+                    cc.container.removeChild(div);
+            }
         }
     };
 
