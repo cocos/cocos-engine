@@ -846,17 +846,20 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handleMoveLogic(touch);
         }
-        var deltaMove = touch.getDelta();
+        var deltaMove = cc.pSub(touch.getLocation(), touch.getStartLocation());
         //FIXME: touch move delta should be calculated by DPI.
         if (cc.pLength(deltaMove) > 7) {
             this._touchMoved = true;
-            var buttonComponent = event.target.getComponent(cc.Button);
-            if (buttonComponent) {
-                buttonComponent._onTouchCancel();
+            if (event.target !== this.node) {
+                // Simulate touch cancel for target node
+                var cancelEvent = new cc.Event.EventTouch(event.getTouches(), event.bubbles);
+                cancelEvent.type = cc.Node.EventType.TOUCH_CANCEL;
+                cancelEvent.touch = event.touch;
+                cancelEvent.simulate = true;
+                event.target.dispatchEvent(cancelEvent);
             }
+            event.stopPropagation();
         }
-        // TODO: detect move distance, if distance greater than a seuil, then stop propagation.
-        event.stopPropagation();
     },
 
     _onTouchEnded: function(event) {
@@ -869,9 +872,12 @@ var ScrollView = cc.Class({
         }
     },
     _onTouchCancelled: function(event) {
-        var touch = event.touch;
-        if(this.content){
-            this._handleReleaseLogic(touch);
+        // Filte touch cancel event send from self
+        if (!event.simulate) {
+            var touch = event.touch;
+            if(this.content){
+                this._handleReleaseLogic(touch);
+            }
         }
     },
 
