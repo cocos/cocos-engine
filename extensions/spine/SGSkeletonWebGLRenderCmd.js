@@ -39,7 +39,7 @@ proto.constructor = sp._SGSkeleton.WebGLRenderCmd;
 
 proto.rendering = function (ctx) {
     var node = this._node, tmpQuad = this._tmpQuad;
-    var color = node.getColor(), locSkeleton = node._skeleton;
+    var color = this._displayedColor, locSkeleton = node._skeleton;
 
     var textureAtlas, attachment, slot, i, n;
     var locBlendFunc = node._blendFunc;
@@ -60,7 +60,7 @@ proto.rendering = function (ctx) {
     locSkeleton.r = color.r / 255;
     locSkeleton.g = color.g / 255;
     locSkeleton.b = color.b / 255;
-    locSkeleton.a = node.getOpacity() / 255;
+    locSkeleton.a = this._displayedOpacity / 255;
     if (premultiAlpha) {
         locSkeleton.r *= locSkeleton.a;
         locSkeleton.g *= locSkeleton.a;
