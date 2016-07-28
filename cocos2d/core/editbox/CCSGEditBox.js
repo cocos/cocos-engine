@@ -29,6 +29,7 @@
 // https://segmentfault.com/q/1010000002914610
 var SCROLLY = 40;
 var TIMER_NAME = 400;
+var LEFT_PADDING = 2;
 
 function scrollWindowUp(editBox) {
     if (cc.sys.os === cc.sys.OS_IOS && cc.sys.osMainVersion === 9) {
@@ -565,7 +566,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.display = 'none';
         tmpEdTxt.style.position = "absolute";
         tmpEdTxt.style.bottom = "0px";
-        tmpEdTxt.style.left = "0px";
+        tmpEdTxt.style.left = LEFT_PADDING + "px";
         tmpEdTxt.style.className = "cocosEditBox";
 
         tmpEdTxt.addEventListener('input', function () {
@@ -645,7 +646,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.display = 'none';
         tmpEdTxt.style.position = "absolute";
         tmpEdTxt.style.bottom = "0px";
-        tmpEdTxt.style.left = "0px";
+        tmpEdTxt.style.left = LEFT_PADDING + "px";
         tmpEdTxt.style.className = "cocosEditBox";
 
         tmpEdTxt.addEventListener('input', function () {
@@ -719,21 +720,22 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._updateLabelPosition = function (editBoxSize) {
-        this._textLabel.setContentSize(editBoxSize);
+        var labelContentSize = cc.size(editBoxSize.width - LEFT_PADDING, editBoxSize.height);
+        this._textLabel.setContentSize(labelContentSize);
         this._placeholderLabel.setLineHeight(editBoxSize.height);
         var placeholderLabelSize = this._placeholderLabel.getContentSize();
 
         if (this._editBox._editBoxInputMode === InputMode.ANY){
-            this._textLabel.setPosition(0, editBoxSize.height);
-            this._placeholderLabel.setPosition(0, editBoxSize.height);
+            this._textLabel.setPosition(LEFT_PADDING, editBoxSize.height);
+            this._placeholderLabel.setPosition(LEFT_PADDING, editBoxSize.height);
             this._placeholderLabel.setVerticalAlign(cc.VerticalTextAlignment.TOP);
             this._textLabel.setVerticalAlign(cc.VerticalTextAlignment.TOP);
             this._textLabel.enableWrapText(true);
         }
         else {
             this._textLabel.enableWrapText(false);
-            this._textLabel.setPosition(0, editBoxSize.height);
-            this._placeholderLabel.setPosition(0, (editBoxSize.height + placeholderLabelSize.height) / 2);
+            this._textLabel.setPosition(LEFT_PADDING, editBoxSize.height);
+            this._placeholderLabel.setPosition(LEFT_PADDING, (editBoxSize.height + placeholderLabelSize.height) / 2);
             this._placeholderLabel.setVerticalAlign(cc.VerticalTextAlignment.CENTER);
             this._textLabel.setVerticalAlign(cc.VerticalTextAlignment.CENTER);
         }
