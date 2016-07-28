@@ -171,7 +171,6 @@ var View = cc._Class.extend({
 
         var sys = cc.sys;
         _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
-        _t.enableAutoFullScreen(sys.isMobile && sys.browserType !== sys.BROWSER_TYPE_BAIDU);
         cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
         // Setup system default resolution policies
