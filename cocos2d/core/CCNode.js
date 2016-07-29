@@ -1212,7 +1212,7 @@ var Node = cc.Class({
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
                     var comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? parent._hitTest(point) : true;
+                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(point) : true;
                 }
                 // mask parent no longer exists
                 else {
