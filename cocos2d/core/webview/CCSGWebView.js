@@ -188,6 +188,11 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
         this._renderCmd.removeDom();
         this.stopAllActions();
         this.unscheduleAllCallbacks();
+    },
+
+    setVisible: function ( visible ) {
+        _ccsg.Node.prototype.setVisible.call(this, visible);
+        this._renderCmd.updateVisibility();
     }
 });
 
@@ -233,6 +238,7 @@ _ccsg.WebView.EventType = {
     _ccsg.WebView.RenderCmd = function(node){
         RenderCmd.call(this, node);
 
+        this._parent = null;
         this._div = null;
         this._iframe = null;
         this._listener = null;
@@ -290,7 +296,7 @@ _ccsg.WebView.EventType = {
         scaleX /= dpr;
         scaleY /= dpr;
 
-        var container = cc.container;
+        var container = cc.game.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
 
         var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
@@ -318,6 +324,7 @@ _ccsg.WebView.EventType = {
         var self = this;
         var cb = function(){
             self._loaded = true;
+            self.updateVisibility();
             iframe.removeEventListener("load", cb);
         };
         iframe.addEventListener("load", cb);
@@ -351,7 +358,7 @@ _ccsg.WebView.EventType = {
         this._div.style.width = contentSize.width + "px";
         this._div.style.overflow = "scroll";
         this._div.style.border = "none";
-        cc.container.appendChild(this._div);
+        cc.game.container.appendChild(this._div);
     };
 
     proto.createNativeControl = function () {
@@ -364,15 +371,37 @@ _ccsg.WebView.EventType = {
         var div = this._div;
         if(div){
             var hasChild = false;
-            if('contains' in cc.container) {
-                hasChild = cc.container.contains(div);
+            if('contains' in cc.game.container) {
+                hasChild = cc.game.container.contains(div);
             }else {
-                hasChild = cc.container.compareDocumentPosition(div) % 16;
+                hasChild = cc.game.container.compareDocumentPosition(div) % 16;
             }
             if(hasChild)
-                cc.container.removeChild(div);
+                cc.game.container.removeChild(div);
         }
         this._div = null;
+    };
+
+    proto.updateVisibility = function () {
+        var node = this._node;
+        if (!this._div) return;
+        var div = this._div;
+        if (node.visible) {
+            div.style.visibility = 'visible';
+            cc.game.container.appendChild(div);
+        } else {
+            div.style.visibility = 'hidden';
+            if(div){
+                var hasChild = false;
+                if('contains' in cc.game.container) {
+                    hasChild = cc.game.container.contains(div);
+                }else {
+                    hasChild = cc.game.container.compareDocumentPosition(div) % 16;
+                }
+                if(hasChild)
+                    cc.game.container.removeChild(div);
+            }
+        }
     };
 
 })(_ccsg.WebView._polyfill);
