@@ -34,6 +34,10 @@ var SceneGraphUtils = {
                 parent.removeChild(node);
             }
             node.release();
+            if (this._sgNode._entity) {
+                this._sgNode._entity = null;
+            }
+            this._sgNode = null;
         }
     },
 };

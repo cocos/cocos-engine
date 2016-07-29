@@ -755,10 +755,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var sgNode = this._sgNode = new _ccsg.Node();
         if (CC_JSB) {
             sgNode.retain();
-            var entity = this;
+            sgNode._entity = this;
             sgNode.onEnter = function () {
                 _ccsg.Node.prototype.onEnter.call(this);
-                if (!entity._active) {
+                if (this._entity && !this._entity._active) {
                     cc.director.getActionManager().pauseTarget(this);
                     cc.eventManager.pauseTarget(this);
                 }
@@ -797,6 +797,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     _onPreDestroy: function () {
         if (CC_JSB) {
             this._sgNode.release();
+            this._sgNode._entity = null;
             this._sgNode = null;
         }
         cc.eventManager.removeListeners(this);
@@ -843,7 +844,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    /**
+    /*
      * !#en
      * Defines the oder in which the nodes are renderer.
      * Nodes that have a Global Z Order lower, are renderer first.
@@ -880,7 +881,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sgNode.setGlobalZOrder(globalZOrder);
     },
 
-    /**
+    /*
      * !#en Return the Node's Global Z Order.
      * !#zh 获取节点的全局 Z 顺序。
      * @method getGlobalZOrder
