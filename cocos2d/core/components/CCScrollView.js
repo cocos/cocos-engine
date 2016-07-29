@@ -1105,7 +1105,6 @@ var ScrollView = cc.Class({
     _startAttenuatingAutoScroll: function(deltaMove, initialVelocity) {
         var time = this._calculateAutoScrollTimeByInitalSpeed(cc.pLength(initialVelocity));
 
-        var originalMoveLength = cc.pLength(deltaMove);
 
         var targetDelta = cc.pNormalize(deltaMove);
         var contentSize = this.content.getContentSize();
@@ -1119,10 +1118,23 @@ var ScrollView = cc.Class({
 
         targetDelta = cc.p(targetDelta.x * totalMoveWidth * (1 - this.brake) * attenuatedFactorX, targetDelta.y * totalMoveHeight * attenuatedFactorY * (1 - this.brake));
 
-        targetDelta = cc.pAdd(deltaMove, targetDelta);
+        var originalMoveLength = cc.pLength(deltaMove);
         var factor = cc.pLength(targetDelta) / originalMoveLength;
+        targetDelta = cc.pAdd(targetDelta, deltaMove);
 
-        time = time * factor;
+        if(this.brake > 0 && factor > 7) {
+            factor = Math.sqrt(factor);
+            targetDelta = cc.pAdd(cc.pMult(deltaMove, factor), deltaMove);
+        }
+
+        if(this.brake > 0 && factor > 3) {
+            factor = 3;
+            time = time * factor;
+        }
+
+        if(this.brake === 0 && factor > 1) {
+            time = time * factor;
+        }
 
         this._startAutoScroll(targetDelta, time, true);
     },
@@ -1171,7 +1183,8 @@ var ScrollView = cc.Class({
             return cc.pAdd(a, b);
         }, totalMovement);
 
-        return cc.p(totalMovement.x / totalTime, totalMovement.y / totalTime);
+        return cc.p(totalMovement.x * (1 - this.brake) / totalTime,
+                    totalMovement.y * (1 - this.brake) / totalTime);
     },
 
     _flattenVectorByDirection: function(vector) {
