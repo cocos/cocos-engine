@@ -975,34 +975,6 @@ bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_creator_GraphicsNode_lineTo : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
-bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_roundRect : Invalid Native Object");
-    if (argc == 5) {
-        double arg0 = 0;
-        double arg1 = 0;
-        double arg2 = 0;
-        double arg3 = 0;
-        double arg4 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
-        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
-        JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_roundRect : Error processing arguments");
-        cobj->roundRect(arg0, arg1, arg2, arg3, arg4);
-        args.rval().setUndefined();
-        return true;
-    }
-
-    JS_ReportError(cx, "js_creator_GraphicsNode_roundRect : wrong number of arguments: %d, was expecting %d", argc, 5);
-    return false;
-}
 bool js_creator_GraphicsNode_stroke(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1033,13 +1005,13 @@ bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, jsval *vp)
         double arg2 = 0;
         double arg3 = 0;
         double arg4 = 0;
-        int arg5 = 0;
+        bool arg5;
         ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
         ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
         ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
         ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
         ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
-        ok &= jsval_to_int32(cx, args.get(5), (int32_t *)&arg5);
+        arg5 = JS::ToBoolean(args.get(5));
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_arc : Error processing arguments");
         cobj->arc(arg0, arg1, arg2, arg3, arg4, arg5);
         args.rval().setUndefined();
@@ -1109,6 +1081,26 @@ bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, jsval *vp)
     }
 
     JS_ReportError(cx, "js_creator_GraphicsNode_ellipse : wrong number of arguments: %d, was expecting %d", argc, 4);
+    return false;
+}
+bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setLineWidth : Invalid Native Object");
+    if (argc == 1) {
+        double arg0 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setLineWidth : Error processing arguments");
+        cobj->setLineWidth(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_GraphicsNode_setLineWidth : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_creator_GraphicsNode_fill(JSContext *cx, uint32_t argc, jsval *vp)
@@ -1187,6 +1179,34 @@ bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, jsval *vp)
     }
 
     JS_ReportError(cx, "js_creator_GraphicsNode_circle : wrong number of arguments: %d, was expecting %d", argc, 3);
+    return false;
+}
+bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_roundRect : Invalid Native Object");
+    if (argc == 5) {
+        double arg0 = 0;
+        double arg1 = 0;
+        double arg2 = 0;
+        double arg3 = 0;
+        double arg4 = 0;
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
+        JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_roundRect : Error processing arguments");
+        cobj->roundRect(arg0, arg1, arg2, arg3, arg4);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_GraphicsNode_roundRect : wrong number of arguments: %d, was expecting %d", argc, 5);
     return false;
 }
 bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, jsval *vp)
@@ -1333,24 +1353,6 @@ bool js_creator_GraphicsNode_getFillColor(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_creator_GraphicsNode_getFillColor : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_getLineWidth : Invalid Native Object");
-    if (argc == 0) {
-        double ret = cobj->getLineWidth();
-        jsval jsret = JSVAL_NULL;
-        jsret = DOUBLE_TO_JSVAL(ret);
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportError(cx, "js_creator_GraphicsNode_getLineWidth : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
 bool js_creator_GraphicsNode_beginPath(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1449,26 +1451,6 @@ bool js_creator_GraphicsNode_getLineJoin(JSContext *cx, uint32_t argc, jsval *vp
     JS_ReportError(cx, "js_creator_GraphicsNode_getLineJoin : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setLineWidth : Invalid Native Object");
-    if (argc == 1) {
-        double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setLineWidth : Error processing arguments");
-        cobj->setLineWidth(arg0);
-        args.rval().setUndefined();
-        return true;
-    }
-
-    JS_ReportError(cx, "js_creator_GraphicsNode_setLineWidth : wrong number of arguments: %d, was expecting %d", argc, 1);
-    return false;
-}
 bool js_creator_GraphicsNode_getLineCap(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1550,6 +1532,24 @@ bool js_creator_GraphicsNode_getDeviceRatio(JSContext *cx, uint32_t argc, jsval 
     JS_ReportError(cx, "js_creator_GraphicsNode_getDeviceRatio : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
+bool js_creator_GraphicsNode_getLineWidth(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    creator::GraphicsNode* cobj = (creator::GraphicsNode *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_getLineWidth : Invalid Native Object");
+    if (argc == 0) {
+        double ret = cobj->getLineWidth();
+        jsval jsret = JSVAL_NULL;
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_creator_GraphicsNode_getLineWidth : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
 bool js_creator_GraphicsNode_setStrokeColor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1607,7 +1607,7 @@ bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp
     JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
     args.rval().set(OBJECT_TO_JSVAL(obj));
     // link the native object with the javascript object
-    js_proxy_t* p = jsb_new_proxy(cobj, obj);
+    jsb_new_proxy(cobj, obj);
     if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
     return true;
@@ -1664,33 +1664,33 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         JS_FN("quadraticCurveTo", js_creator_GraphicsNode_quadraticCurveTo, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("moveTo", js_creator_GraphicsNode_moveTo, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("lineTo", js_creator_GraphicsNode_lineTo, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("roundRect", js_creator_GraphicsNode_roundRect, 5, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("stroke", js_creator_GraphicsNode_stroke, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("arc", js_creator_GraphicsNode_arc, 6, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setLineJoin", js_creator_GraphicsNode_setLineJoin, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("close", js_creator_GraphicsNode_close, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("ellipse", js_creator_GraphicsNode_ellipse, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setLineWidth", js_creator_GraphicsNode_setLineWidth, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("fill", js_creator_GraphicsNode_fill, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getStrokeColor", js_creator_GraphicsNode_getStrokeColor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setLineCap", js_creator_GraphicsNode_setLineCap, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("circle", js_creator_GraphicsNode_circle, 3, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("roundRect", js_creator_GraphicsNode_roundRect, 5, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("bezierCurveTo", js_creator_GraphicsNode_bezierCurveTo, 6, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("arcTo", js_creator_GraphicsNode_arcTo, 5, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("fillRect", js_creator_GraphicsNode_fillRect, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("onDraw", js_creator_GraphicsNode_onDraw, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setFillColor", js_creator_GraphicsNode_setFillColor, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getFillColor", js_creator_GraphicsNode_getFillColor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getLineWidth", js_creator_GraphicsNode_getLineWidth, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("beginPath", js_creator_GraphicsNode_beginPath, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setDeviceRatio", js_creator_GraphicsNode_setDeviceRatio, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("rect", js_creator_GraphicsNode_rect, 4, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getMiterLimit", js_creator_GraphicsNode_getMiterLimit, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getLineJoin", js_creator_GraphicsNode_getLineJoin, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("setLineWidth", js_creator_GraphicsNode_setLineWidth, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getLineCap", js_creator_GraphicsNode_getLineCap, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setMiterLimit", js_creator_GraphicsNode_setMiterLimit, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("clear", js_creator_GraphicsNode_clear, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getDeviceRatio", js_creator_GraphicsNode_getDeviceRatio, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getLineWidth", js_creator_GraphicsNode_getLineWidth, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setStrokeColor", js_creator_GraphicsNode_setStrokeColor, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("ctor", js_creator_GraphicsNode_ctor, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END

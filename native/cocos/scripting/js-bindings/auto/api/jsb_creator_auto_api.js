@@ -377,24 +377,6 @@ float
 },
 
 /**
- * @method roundedRect
- * @param {float} arg0
- * @param {float} arg1
- * @param {float} arg2
- * @param {float} arg3
- * @param {float} arg4
- */
-roundedRect : function (
-float, 
-float, 
-float, 
-float, 
-float 
-)
-{
-},
-
-/**
  * @method stroke
  */
 stroke : function (
@@ -409,7 +391,7 @@ stroke : function (
  * @param {float} arg2
  * @param {float} arg3
  * @param {float} arg4
- * @param {int} arg5
+ * @param {bool} arg5
  */
 arc : function (
 float, 
@@ -417,7 +399,7 @@ float,
 float, 
 float, 
 float, 
-int 
+bool 
 )
 {
 },
@@ -451,6 +433,16 @@ ellipse : function (
 float, 
 float, 
 float, 
+float 
+)
+{
+},
+
+/**
+ * @method setLineWidth
+ * @param {float} arg0
+ */
+setLineWidth : function (
 float 
 )
 {
@@ -491,6 +483,24 @@ linecap
  * @param {float} arg2
  */
 circle : function (
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method roundRect
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ * @param {float} arg3
+ * @param {float} arg4
+ */
+roundRect : function (
+float, 
+float, 
 float, 
 float, 
 float 
@@ -585,16 +595,6 @@ getFillColor : function (
 },
 
 /**
- * @method getStrokeWidth
- * @return {float}
- */
-getStrokeWidth : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method beginPath
  */
 beginPath : function (
@@ -649,16 +649,6 @@ getLineJoin : function (
 },
 
 /**
- * @method setStrokeWidth
- * @param {float} arg0
- */
-setStrokeWidth : function (
-float 
-)
-{
-},
-
-/**
  * @method getLineCap
  * @return {creator::LineCap}
  */
@@ -691,6 +681,16 @@ clear : function (
  * @return {float}
  */
 getDeviceRatio : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getLineWidth
+ * @return {float}
+ */
+getLineWidth : function (
 )
 {
     return 0;
