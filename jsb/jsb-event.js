@@ -32,6 +32,11 @@ cc.Event.CAPTURING_PHASE = 1;
 cc.Event.AT_TARGET = 2;
 cc.Event.BUBBLING_PHASE = 3;
 
+cc.Event.EventMouse = cc.EventMouse;
+cc.Event.EventTouch = cc.EventTouch;
+cc.Event.EventAcceleration = cc.EventAcceleration;
+cc.Event.EventKeyboard = cc.EventKeyboard;
+
 var proto = cc.Event.prototype;
 proto._getCurrentTarget = proto.getCurrentTarget;
 proto.getCurrentTarget = function () {
