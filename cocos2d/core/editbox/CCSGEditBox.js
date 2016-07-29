@@ -515,7 +515,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         scaleX /= dpr;
         scaleY /= dpr;
 
-        var container = cc.container;
+        var container = cc.game.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
 
         var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
@@ -542,17 +542,17 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         var editBox = this._edTxt;
         if (node.visible) {
             editBox.style.visibility = 'visible';
-            cc.container.appendChild(editBox);
+            cc.game.container.appendChild(editBox);
         } else {
             editBox.style.visibility = 'hidden';
             var hasChild = false;
-            if('contains' in cc.container) {
-                hasChild = cc.container.contains(editBox);
+            if('contains' in cc.game.container) {
+                hasChild = cc.game.container.contains(editBox);
             }else {
-                hasChild = cc.container.compareDocumentPosition(editBox) % 16;
+                hasChild = cc.game.container.compareDocumentPosition(editBox) % 16;
             }
             if(hasChild)
-                cc.container.removeChild(editBox);
+                cc.game.container.removeChild(editBox);
         }
     };
 
@@ -973,20 +973,20 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     };
 
     proto._addDomInputControl = function () {
-        cc.container.appendChild(this._edTxt);
+        cc.game.container.appendChild(this._edTxt);
     };
 
     proto._removeDomInputControl = function () {
         var editBox = this._edTxt;
         if(editBox){
             var hasChild = false;
-            if('contains' in cc.container) {
-                hasChild = cc.container.contains(editBox);
+            if('contains' in cc.game.container) {
+                hasChild = cc.game.container.contains(editBox);
             }else {
-                hasChild = cc.container.compareDocumentPosition(editBox) % 16;
+                hasChild = cc.game.container.compareDocumentPosition(editBox) % 16;
             }
             if(hasChild)
-                cc.container.removeChild(editBox);
+                cc.game.container.removeChild(editBox);
         }
         this._edTxt = null;
     };

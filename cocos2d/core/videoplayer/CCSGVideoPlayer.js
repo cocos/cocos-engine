@@ -270,7 +270,7 @@ _ccsg.VideoPlayer.EventType = {
         scaleX /= dpr;
         scaleY /= dpr;
 
-        var container = cc.container;
+        var container = cc.game.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
 
         var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
@@ -383,19 +383,19 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (node.visible) {
             video.style.visibility = 'visible';
-            cc.container.appendChild(video);
+            cc.game.container.appendChild(video);
         } else {
             video.style.visibility = 'hidden';
             video.pause();
             if(video){
                 var hasChild = false;
-                if('contains' in cc.container) {
-                    hasChild = cc.container.contains(video);
+                if('contains' in cc.game.container) {
+                    hasChild = cc.game.container.contains(video);
                 }else {
-                    hasChild = cc.container.compareDocumentPosition(video) % 16;
+                    hasChild = cc.game.container.compareDocumentPosition(video) % 16;
                 }
                 if(hasChild)
-                    cc.container.removeChild(video);
+                    cc.game.container.removeChild(video);
             }
         }
     };
@@ -408,20 +408,20 @@ _ccsg.VideoPlayer.EventType = {
         video.className = "cocosVideo";
         video.setAttribute('preload', true);
         this._video = video;
-        cc.container.appendChild(video);
+        cc.game.container.appendChild(video);
     };
 
     proto.removeDom = function () {
         var video = this._video;
         if(video){
             var hasChild = false;
-            if('contains' in cc.container) {
-                hasChild = cc.container.contains(video);
+            if('contains' in cc.game.container) {
+                hasChild = cc.game.container.contains(video);
             }else {
-                hasChild = cc.container.compareDocumentPosition(video) % 16;
+                hasChild = cc.game.container.compareDocumentPosition(video) % 16;
             }
             if(hasChild)
-                cc.container.removeChild(video);
+                cc.game.container.removeChild(video);
         }
         this._video = null;
         this._url = "";
