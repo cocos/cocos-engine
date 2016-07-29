@@ -37,7 +37,6 @@ var SceneGraphUtils = {
             if (this._sgNode._entity) {
                 this._sgNode._entity = null;
             }
-            this._sgNode = null;
         }
     },
 };
