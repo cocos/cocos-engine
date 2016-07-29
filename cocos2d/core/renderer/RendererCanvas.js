@@ -390,14 +390,7 @@ cc.rendererCanvas = {
     };
 
     proto.setFillStyle = function(fillStyle){
-        if (this._saveCount > 0) {
-            this._context.fillStyle = fillStyle;
-        } else {
-            if (this._currentFillStyle !== fillStyle) {
-                this._currentFillStyle = fillStyle;
-                this._context.fillStyle = fillStyle;
-            }
-        }
+        this._context.fillStyle = fillStyle;
     };
 
     proto.setStrokeStyle = function(strokeStyle){
