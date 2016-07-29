@@ -42,14 +42,23 @@
                "from":"extensions/anysdk/platform/android",
                "to":"frameworks/runtime-src/proj.android",
                "exclude": [
-                  "res/mipmap"
+                  "res/mipmap",
+                  "res/mipmap-layout/"
                ]
              },
              {
                "from":"extensions/anysdk/platform/android",
                "to":"frameworks/runtime-src/proj.android-studio/app",
                "exclude": [
-                  "res/drawable"
+                  "res/drawable",
+                  "res/mipmap-layout/"
+               ]
+             },
+             {
+               "from":"extensions/anysdk/platform/android/res/mipmap-layout/",
+               "to":"frameworks/runtime-src/proj.android-studio/app/res/layout",
+               "include": [
+                  "*"
                ]
              }
          ],
