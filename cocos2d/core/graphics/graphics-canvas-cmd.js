@@ -47,12 +47,19 @@ var CanvasRenderCmd = function (renderable) {
 var _p = CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 _p.constructor = CanvasRenderCmd;
 
+_p._updateCurrentRegions = function() {
+    var temp = this._currentRegion;
+    this._currentRegion = this._oldRegion;
+    this._oldRegion = temp;
+    this._currentRegion.setTo(0,0, cc.visibleRect.width, cc.visibleRect.height);
+};
+
 _p.rendering = function (ctx, scaleX, scaleY) {
     var wrapper = ctx || cc._renderContext, context = wrapper.getContext();
     wrapper.setTransform(this._worldTransform, scaleX, scaleY);
     
     context.save();
-    context.scale(scaleX, -scaleY);
+    context.scale(1, -1);
 
     var endPath = true;
     var cmds = this.cmds;
@@ -246,6 +253,7 @@ Js.mixin(_p, {
 
     fillRect: function (x, y, w, h) {
         this.cmds.push(['fillRect', arguments]);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     close: function () {
@@ -254,14 +262,17 @@ Js.mixin(_p, {
 
     stroke: function () {
         this.cmds.push(['stroke', arguments]);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     fill: function () {
         this.cmds.push(['fill', arguments]);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     },
 
     clear: function () {
         this.cmds.push(['clear']);
+        this.setDirtyFlag(_ccsg.Node._dirtyFlags.contentDirty);
     }
 });
 
