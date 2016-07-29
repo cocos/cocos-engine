@@ -1283,6 +1283,10 @@
 		B276EF641988D1D500CD400F /* CCVertexIndexBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = B276EF5D1988D1D500CD400F /* CCVertexIndexBuffer.h */; };
 		B276EF651988D1D500CD400F /* CCVertexIndexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B276EF5E1988D1D500CD400F /* CCVertexIndexBuffer.cpp */; };
 		B276EF661988D1D500CD400F /* CCVertexIndexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B276EF5E1988D1D500CD400F /* CCVertexIndexBuffer.cpp */; };
+		B291B51B1D4A106A00BBB345 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B5171D4A106A00BBB345 /* libjpeg.a */; };
+		B291B51C1D4A106A00BBB345 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B5181D4A106A00BBB345 /* libpng.a */; };
+		B291B51D1D4A106A00BBB345 /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B5191D4A106A00BBB345 /* libtiff.a */; };
+		B291B51E1D4A106A00BBB345 /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B51A1D4A106A00BBB345 /* libwebp.a */; };
 		B29A7DC719EE1B7700872B35 /* SkeletonRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B29A7D8A19EE1B7700872B35 /* SkeletonRenderer.cpp */; };
 		B29A7DC819EE1B7700872B35 /* SkeletonRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B29A7D8A19EE1B7700872B35 /* SkeletonRenderer.cpp */; };
 		B29A7DC919EE1B7700872B35 /* SlotData.c in Sources */ = {isa = PBXBuildFile; fileRef = B29A7D8B19EE1B7700872B35 /* SlotData.c */; };
@@ -2205,6 +2209,10 @@
 		B276EF5C1988D1D500CD400F /* CCVertexIndexData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCVertexIndexData.cpp; sourceTree = "<group>"; };
 		B276EF5D1988D1D500CD400F /* CCVertexIndexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCVertexIndexBuffer.h; sourceTree = "<group>"; };
 		B276EF5E1988D1D500CD400F /* CCVertexIndexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCVertexIndexBuffer.cpp; sourceTree = "<group>"; };
+		B291B5171D4A106A00BBB345 /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjpeg.a; path = ../external/ios/libs/libjpeg.a; sourceTree = "<group>"; };
+		B291B5181D4A106A00BBB345 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = ../external/ios/libs/libpng.a; sourceTree = "<group>"; };
+		B291B5191D4A106A00BBB345 /* libtiff.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtiff.a; path = ../external/ios/libs/libtiff.a; sourceTree = "<group>"; };
+		B291B51A1D4A106A00BBB345 /* libwebp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebp.a; path = ../external/ios/libs/libwebp.a; sourceTree = "<group>"; };
 		B29A7D8A19EE1B7700872B35 /* SkeletonRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonRenderer.cpp; sourceTree = "<group>"; };
 		B29A7D8B19EE1B7700872B35 /* SlotData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SlotData.c; sourceTree = "<group>"; };
 		B29A7D8C19EE1B7700872B35 /* Skeleton.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Skeleton.c; sourceTree = "<group>"; };
@@ -2353,8 +2361,12 @@
 			files = (
 				A60A9D661C200E5A0070800A /* libchipmunk.a in Frameworks */,
 				EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */,
+				B291B51D1D4A106A00BBB345 /* libtiff.a in Frameworks */,
 				ED6822341BECB14500ED75EA /* libfreetype.a in Frameworks */,
+				B291B51B1D4A106A00BBB345 /* libjpeg.a in Frameworks */,
+				B291B51E1D4A106A00BBB345 /* libwebp.a in Frameworks */,
 				A07A4CAF1783777C0073F6A7 /* Foundation.framework in Frameworks */,
+				B291B51C1D4A106A00BBB345 /* libpng.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2413,19 +2425,8 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				A6A554241C2A7C4400FDD954 /* libssl.a */,
-				A6A554221C2A7C3100FDD954 /* libcrypto.a */,
-				A6A554201C2A7C1300FDD954 /* libcurl.a */,
-				A6A5541E1C2A7BF700FDD954 /* libchipmunk.a */,
-				A60A9D651C200E5A0070800A /* libchipmunk.a */,
-				EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */,
-				ED3057C81BEC7DA80083C3ED /* libfreetype.a */,
-				ED3057C91BEC7DA80083C3ED /* libglfw3.a */,
-				ED3057CA1BEC7DA80083C3ED /* libjpeg.a */,
-				ED3057CB1BEC7DA80083C3ED /* libpng.a */,
-				ED3057CC1BEC7DA80083C3ED /* libtiff.a */,
-				ED3057CD1BEC7DA80083C3ED /* libwebsockets.a */,
-				ED3057BE1BEC78580083C3ED /* libfreetype.a */,
+				B291B5161D4A0FEA00BBB345 /* ios */,
+				B291B5151D4A0FE300BBB345 /* mac */,
 				B21770461977ED34009EE11B /* QuartzCore.framework */,
 				B21770431977ED07009EE11B /* Cocoa.framework */,
 				B21770411977ECF8009EE11B /* ApplicationServices.framework */,
@@ -3643,6 +3644,37 @@
 				A679D1121C74BB3A00620A6C /* CCUtilMath.h */,
 			);
 			name = Armature;
+			sourceTree = "<group>";
+		};
+		B291B5151D4A0FE300BBB345 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				A6A554201C2A7C1300FDD954 /* libcurl.a */,
+				ED3057C81BEC7DA80083C3ED /* libfreetype.a */,
+				A6A5541E1C2A7BF700FDD954 /* libchipmunk.a */,
+				ED3057C91BEC7DA80083C3ED /* libglfw3.a */,
+				ED3057CB1BEC7DA80083C3ED /* libpng.a */,
+				ED3057CC1BEC7DA80083C3ED /* libtiff.a */,
+				ED3057CA1BEC7DA80083C3ED /* libjpeg.a */,
+				ED3057CD1BEC7DA80083C3ED /* libwebsockets.a */,
+				A6A554221C2A7C3100FDD954 /* libcrypto.a */,
+				A6A554241C2A7C4400FDD954 /* libssl.a */,
+			);
+			name = mac;
+			sourceTree = "<group>";
+		};
+		B291B5161D4A0FEA00BBB345 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				B291B5171D4A106A00BBB345 /* libjpeg.a */,
+				B291B5181D4A106A00BBB345 /* libpng.a */,
+				B291B5191D4A106A00BBB345 /* libtiff.a */,
+				B291B51A1D4A106A00BBB345 /* libwebp.a */,
+				EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */,
+				A60A9D651C200E5A0070800A /* libchipmunk.a */,
+				ED3057BE1BEC78580083C3ED /* libfreetype.a */,
+			);
+			name = ios;
 			sourceTree = "<group>";
 		};
 		BA679B271CEC371100F875FA /* assets-manager */ = {

@@ -35,8 +35,6 @@ THE SOFTWARE.
 extern "C"
 {
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
-
 #if CC_USE_PNG
 #include "png/png.h"
 #endif //CC_USE_PNG
@@ -48,8 +46,6 @@ extern "C"
 #if CC_USE_JPEG
 #include "jpeg/jpeglib.h"
 #endif // CC_USE_JPEG
-
-#endif // (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
 
 #include "base/etc1.h"
 
@@ -270,7 +266,6 @@ namespace
         int offset;
     }tImageSource;
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
 
 #ifdef CC_USE_PNG
     static void pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t length)
@@ -288,7 +283,6 @@ namespace
         }
     }
 #endif //CC_USE_PNG
-#endif // (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
 }
 
 Texture2D::PixelFormat getDevicePixelFormat(Texture2D::PixelFormat format)
@@ -1342,6 +1336,8 @@ bool Image::saveImageToJPG(const std::string& filePath)
 #endif // CC_USE_JPEG
 }
 
+#endif // (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
+
 namespace
 {
     /*
@@ -1833,8 +1829,6 @@ bool Image::initWithTiffData(const unsigned char * data, ssize_t dataLen)
     return false;
 #endif //CC_USE_TIFF
 }
-
-#endif // (CC_TARGET_PLATFORM != CC_PLATFORM_IOS)
 
 void Image::premultipliedAlpha()
 {
