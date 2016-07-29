@@ -292,6 +292,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._texture = texture;
             function textureLoadedCallback () {
                 self._textureLoaded = true;
+                var w = texture.width, h = texture.height;
+
                 if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
                     var tempElement = texture.getHtmlElementObj();
                     tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, self.getRect());
@@ -300,13 +302,13 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     tempTexture.handleLoadedTexture();
                     self._texture = tempTexture;
                     self._rotated = false;
-                    self.setRect(cc.rect(0, 0, self._texture.width, self._texture.height));
-                    return;
+                    w = self._texture.width;
+                    h = self._texture.height;
+                    self.setRect(cc.rect(0, 0, w, h));
                 }
-                var w = texture.width, h = texture.height;
 
                 if (self._rect) {
-                    self._checkRect(texture);
+                    self._checkRect(self._texture);
                 }
                 else {
                     self.setRect(cc.rect(0, 0, w, h));
