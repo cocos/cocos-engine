@@ -248,6 +248,7 @@ _ccsg.EditBox = _ccsg.Node.extend({
         this._placeholderColor = cc.Color.GRAY;
 
         this.initWithSizeAndBackgroundSprite(size, normal9SpriteBg);
+        this._renderCmd._createLabels();
     },
 
     _createRenderCmd: function () {
@@ -991,7 +992,6 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
     proto.createNativeControl = function() {
         this._createDomTextArea();
         this._addDomInputControl();
-        this._createLabels();
     };
 
     proto._addDomInputControl = function () {
