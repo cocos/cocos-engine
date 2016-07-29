@@ -298,8 +298,9 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     var tempTexture = new cc.Texture2D();
                     tempTexture.initWithElement(tempElement);
                     tempTexture.handleLoadedTexture();
-                    // _refreshTexture will be recalled in setTexture
-                    self.setTexture(tempTexture);
+                    self._texture = tempTexture;
+                    self._rotated = false;
+                    self.setRect(cc.rect(0, 0, self._texture.width, self._texture.height));
                     return;
                 }
                 var w = texture.width, h = texture.height;
