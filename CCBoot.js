@@ -58,7 +58,7 @@ _p = null;
  * @name cc.ENGINE_VERSION
  */
 var engineVersion;
-engineVersion = '1.2.0-rc.1';
+engineVersion = '1.2.0-rc.2';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**
