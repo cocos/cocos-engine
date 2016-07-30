@@ -115,7 +115,7 @@ var MissingScript = cc.Class({
         }
     },
     onLoad: function () {
-        cc.warn('The referenced component script on node "%s" is missing!', this.node.name);
+        cc.warn('Script attached to "%s" is missing or invalid.', this.node.name);
     }
 });
 
