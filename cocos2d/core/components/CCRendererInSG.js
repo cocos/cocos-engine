@@ -83,6 +83,7 @@ var RendererInSG = cc.Class({
             var releasedByNode = this.node._sgNode;
             if (this._plainNode !== releasedByNode) {
                 this._plainNode.release();
+                this._plainNode = null;
             }
         }
     },
@@ -94,6 +95,7 @@ var RendererInSG = cc.Class({
 
         var node = this.node;
         var replaced = node._sgNode;
+        replaced._entity = null;
 
         if (CC_EDITOR && replaced === sgNode) {
             cc.warn('The same sgNode');
@@ -125,10 +127,11 @@ var RendererInSG = cc.Class({
                 cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
             }
         }
+        replaced.release();
 
         // apply node's property
-
         node._sgNode = sgNode;
+        node._sgNode._entity = node;
         node._updateSgNode();
     },
 });

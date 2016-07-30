@@ -536,7 +536,7 @@ EventTouch.CANCELED = 3;
  * @param {Object} acc - The acceleration
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */
-EventAcceleration = function (acc, bubbles) {
+var EventAcceleration = function (acc, bubbles) {
     cc.Event.call(this, Event.ACCELERATION, bubbles);
     this._acc = acc;
 };
@@ -552,7 +552,7 @@ JS.extend(EventAcceleration, cc.Event);
  * @param {Boolean} isPressed - A boolean indicating whether the key have been pressed
  * @param {Boolean} bubbles - A boolean indicating whether the event bubbles up through the tree or not
  */
-EventKeyboard = function (keyCode, isPressed, bubbles) {
+var EventKeyboard = function (keyCode, isPressed, bubbles) {
     cc.Event.call(this, Event.KEYBOARD, bubbles);
     this._keyCode = keyCode;
     this._isPressed = isPressed;

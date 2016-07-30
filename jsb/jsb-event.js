@@ -32,23 +32,29 @@ cc.Event.CAPTURING_PHASE = 1;
 cc.Event.AT_TARGET = 2;
 cc.Event.BUBBLING_PHASE = 3;
 
-cc.Event.prototype._getCurrentTarget = cc.Event.prototype.getCurrentTarget;
-cc.Event.prototype.getCurrentTarget = function () {
-    return this.currentTarget || this._getCurrentTarget();
+cc.Event.EventMouse = cc.EventMouse;
+cc.Event.EventTouch = cc.EventTouch;
+cc.Event.EventAcceleration = cc.EventAcceleration;
+cc.Event.EventKeyboard = cc.EventKeyboard;
+
+var proto = cc.Event.prototype;
+proto._getCurrentTarget = proto.getCurrentTarget;
+proto.getCurrentTarget = function () {
+    return this._currentTarget || this._getCurrentTarget();
 };
-cc.Event.prototype._stopPropagation = cc.Event.prototype.stopPropagation;
-cc.Event.prototype.stopPropagation = function () {
+proto._stopPropagation = proto.stopPropagation;
+proto.stopPropagation = function () {
     this._propagationStopped = true;
     this._stopPropagation();
 };
-cc.Event.prototype._isStopped = cc.Event.prototype.isStopped;
-cc.Event.prototype.isStopped = function () {
+proto._isStopped = proto.isStopped;
+proto.isStopped = function () {
     return this._propagationStopped || this._propagationImmediateStopped || this._isStopped();
 };
-cc.js.mixin(cc.Event.prototype, {
+cc.js.mixin(proto, {
     type: 'no_type',
-    target: null,
-    currentTarget: null,
+    _target: null,
+    _currentTarget: null,
     eventPhase: 0,
     bubbles: false,
     _propagationStopped: false,
@@ -56,8 +62,8 @@ cc.js.mixin(cc.Event.prototype, {
 
     unuse: function () {
         this.type = cc.Event.NO_TYPE;
-        this.target = null;
-        this.currentTarget = null;
+        this._target = null;
+        this._currentTarget = null;
         this.eventPhase = cc.Event.NONE;
         this._propagationStopped = false;
         this._propagationImmediateStopped = false;
@@ -69,6 +75,18 @@ cc.js.mixin(cc.Event.prototype, {
     stopPropagationImmediate: function () {
         this._propagationImmediateStopped = true;
     },
+});
+cc.js.getset(proto, 'target', function () {
+    if (!this._target) {
+        var currentTarget = this._currentTarget || this._getCurrentTarget();
+        this._target = currentTarget._entity || currentTarget;
+    }
+    return this._target;
+}, function (value) {
+    this._target = value;
+});
+cc.js.getset(proto, 'currentTarget', proto.getCurrentTarget, function (value) {
+    this._currentTarget = value;
 });
 
 // cc.Event.EventCustom
@@ -127,34 +145,6 @@ cc.eventManager.addListener = function(listener, nodeOrPriority) {
         }
         if (nodeOrPriority instanceof cc.Node) {
             node = nodeOrPriority._sgNode;
-        }
-        // rebind target
-        if (node !== nodeOrPriority) {
-            var keys = Object.keys(listener);
-            // Overwrite all functions
-            for (var i = 0; i < keys.length; ++i) {
-                var key = keys[i];
-                var value = listener[key];
-                if (typeof value === 'function') {
-                    // var _value = value;
-                    listener[key] = (function (realCallback) {
-                        return function (event1, event2) {
-                            // event must be the last argument, and arguments count could be 1 or 2 
-                            var event = event2 || event1;
-                            // Augment event object to fit cc.Event
-                            if (event) {
-                                event.target = nodeOrPriority;
-                                event.currentTarget = nodeOrPriority;
-                                event.bubbles = false;
-                                event.eventPhase = 0;
-                                event._propagationStopped = false;
-                                event._propagationImmediateStopped = false;
-                            }
-                            return realCallback.call(this, event1, event2);
-                        };
-                    })(value);
-                }
-            }
         }
         cc.eventManager.addEventListenerWithSceneGraphPriority(listener, node);
     }
