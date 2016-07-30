@@ -127,7 +127,7 @@ var RendererInSG = cc.Class({
                 cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
             }
         }
-        replaced.release();
+        // replaced.release();
 
         // apply node's property
         node._sgNode = sgNode;
