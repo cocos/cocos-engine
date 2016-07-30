@@ -530,10 +530,14 @@ var Node = cc.Class({
         // Remove all listeners
         if (CC_JSB && this._touchListener) {
             this._touchListener.release();
+            this._touchListener.owner = null;
+            this._touchListener.mask = null;
             this._touchListener = null;
         }
         if (CC_JSB && this._mouseListener) {
             this._mouseListener.release();
+            this._mouseListener.owner = null;
+            this._mouseListener.mask = null;
             this._mouseListener = null;
         }
         cc.eventManager.removeListeners(this);
@@ -566,6 +570,7 @@ var Node = cc.Class({
         }
         else if (CC_JSB) {
             this._sgNode.release();
+            this._sgNode._entity = null;
             this._sgNode = null;
         }
     },
