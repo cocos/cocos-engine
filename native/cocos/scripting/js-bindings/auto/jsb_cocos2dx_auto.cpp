@@ -61315,6 +61315,26 @@ bool js_cocos2dx_TMXLayer_setLayerOrientation(JSContext *cx, uint32_t argc, jsva
     JS_ReportError(cx, "js_cocos2dx_TMXLayer_setLayerOrientation : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
+bool js_cocos2dx_TMXLayer_setTileOpacity(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    cocos2d::TMXLayer* cobj = (cocos2d::TMXLayer *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_TMXLayer_setTileOpacity : Invalid Native Object");
+    if (argc == 1) {
+        uint16_t arg0;
+        ok &= jsval_to_uint16(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_cocos2dx_TMXLayer_setTileOpacity : Error processing arguments");
+        cobj->setTileOpacity(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_cocos2dx_TMXLayer_setTileOpacity : wrong number of arguments: %d, was expecting %d", argc, 1);
+    return false;
+}
 bool js_cocos2dx_TMXLayer_releaseMap(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -61878,6 +61898,7 @@ void js_register_cocos2dx_TMXLayer(JSContext *cx, JS::HandleObject global) {
         JS_FN("getTileGIDAt", js_cocos2dx_TMXLayer_getTileGIDAt, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getPositionAt", js_cocos2dx_TMXLayer_getPositionAt, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setLayerOrientation", js_cocos2dx_TMXLayer_setLayerOrientation, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setTileOpacity", js_cocos2dx_TMXLayer_setTileOpacity, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("releaseMap", js_cocos2dx_TMXLayer_releaseMap, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getLayerSize", js_cocos2dx_TMXLayer_getLayerSize, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setMapTileSize", js_cocos2dx_TMXLayer_setMapTileSize, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
