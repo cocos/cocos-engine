@@ -163,6 +163,7 @@ cc.Touch = cc._Class.extend(/** @lends cc.Touch# */{
         this._id = id;
         if(!this._startPointCaptured){
             this._startPoint = cc.p(this._point);
+            cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
     },
