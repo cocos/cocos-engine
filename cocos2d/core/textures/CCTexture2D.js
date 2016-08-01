@@ -233,6 +233,16 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         self._pixelHeight = self._contentSize.height = locElement.height;
         self._textureLoaded = true;
 
+        // anti-alias
+        if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            if (cc.view._antiAliasEnabled) {
+                self.setAntiAliasTexParameters();
+            }
+            else {
+                self.setAliasTexParameters();
+            }
+        }
+
         //dispatch load event to listener.
         self.emit("load");
     },
