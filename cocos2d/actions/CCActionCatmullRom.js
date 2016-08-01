@@ -70,36 +70,6 @@ cc.cardinalSplineAt = function (p0, p1, p2, p3, tension, t) {
 };
 
 /*
- * returns a new copy of the array reversed.
- * @method reverseControlPoints
- * @param {Array} controlPoints
- * @return {Array}
- */
-cc.reverseControlPoints = function (controlPoints) {
-    var newArray = [];
-    for (var i = controlPoints.length - 1; i >= 0; i--) {
-        newArray.push(cc.p(controlPoints[i].x, controlPoints[i].y));
-    }
-    return newArray;
-};
-
-
-/*
- * returns a new clone of the controlPoints
- * @method cloneControlPoints
- * @param {Array} controlPoints
- * @returns {Array}
- */
-cc.cloneControlPoints = function (controlPoints) {
-    var newArray = [];
-    for (var i = 0; i < controlPoints.length; i++)
-        newArray.push(cc.p(controlPoints[i].x, controlPoints[i].y));
-    return newArray;
-};
-
-cc.copyControlPoints = cc.cloneControlPoints;
-
-/*
  * returns a point from the array
  * @method getControlPointAt
  * @param {Array} controlPoints
@@ -111,20 +81,20 @@ cc.getControlPointAt = function (controlPoints, pos) {
     return controlPoints[p];
 };
 
-/*
- * reverse the current control point array inline, without generating a new one <br />
- * @method reverseControlPointsInline
- * @param {Array} controlPoints
- */
-cc.reverseControlPointsInline = function (controlPoints) {
-    var len = controlPoints.length;
-    var mid = 0 | (len / 2);
-    for (var i = 0; i < mid; ++i) {
-        var temp = controlPoints[i];
-        controlPoints[i] = controlPoints[len - i - 1];
-        controlPoints[len - i - 1] = temp;
+function reverseControlPoints (controlPoints) {
+    var newArray = [];
+    for (var i = controlPoints.length - 1; i >= 0; i--) {
+        newArray.push(cc.p(controlPoints[i].x, controlPoints[i].y));
     }
-};
+    return newArray;
+}
+
+function cloneControlPoints (controlPoints) {
+    var newArray = [];
+    for (var i = 0; i < controlPoints.length; i++)
+        newArray.push(cc.p(controlPoints[i].x, controlPoints[i].y));
+    return newArray;
+}
 
 
 /*
@@ -157,15 +127,6 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
         tension !== undefined && this.initWithDuration(duration, points, tension);
     },
 
-    /*
-     * initializes the action with a duration and an array of points
-     * @method initWithDuration
-     * @param {Number} duration
-     * @param {Array} points array of control points
-     * @param {Number} tension
-     *
-     * @return {Boolean}
-     */
     initWithDuration:function (duration, points, tension) {
         if(!points || points.length === 0)
             throw new Error("Invalid configuration. It must at least have one control point");
@@ -180,7 +141,7 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
 
     clone:function () {
         var action = new cc.CardinalSplineTo();
-        action.initWithDuration(this._duration, cc.copyControlPoints(this._points), this._tension);
+        action.initWithDuration(this._duration, cloneControlPoints(this._points), this._tension);
         return action;
     },
 
@@ -234,7 +195,7 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
     },
 
     reverse:function () {
-        var reversePoints = cc.reverseControlPoints(this._points);
+        var reversePoints = reverseControlPoints(this._points);
         return cc.cardinalSplineTo(this._duration, reversePoints, this._tension);
     },
 
@@ -257,7 +218,7 @@ cc.CardinalSplineTo = cc.ActionInterval.extend({
         return this._points;
     },
 
-    /*
+    /**
      * Points setter
      * @method setPoints
      * @param {Array} points
@@ -329,7 +290,7 @@ cc.CardinalSplineBy = cc.CardinalSplineTo.extend({
         }
 
         // convert to "diffs" to "reverse absolute"
-        var reverseArray = cc.reverseControlPoints(copyConfig);
+        var reverseArray = reverseControlPoints(copyConfig);
 
         // 1st element (which should be 0,0) should be here too
         p = reverseArray[ reverseArray.length - 1 ];
@@ -351,7 +312,7 @@ cc.CardinalSplineBy = cc.CardinalSplineTo.extend({
         return cc.cardinalSplineBy(this._duration, reverseArray, this._tension);
     },
 
-    /*
+    /**
      * update position of target
      * @method updatePosition
      * @param {Vec2} newPos
@@ -365,14 +326,9 @@ cc.CardinalSplineBy = cc.CardinalSplineTo.extend({
         this.target.setPosition(posX, posY);
     },
 
-    /*
-     * returns a new clone of the action
-     * @method clone
-     * @returns {CardinalSplineBy}
-     */
     clone:function () {
         var a = new cc.CardinalSplineBy();
-        a.initWithDuration(this._duration, cc.copyControlPoints(this._points), this._tension);
+        a.initWithDuration(this._duration, cloneControlPoints(this._points), this._tension);
         return a;
     }
 });
@@ -412,19 +368,13 @@ cc.CatmullRomTo = cc.CardinalSplineTo.extend({
         points && this.initWithDuration(dt, points);
     },
 
-    /*
-     * Initializes the action with a duration and an array of points
-     * @method initWithDuration
-     * @param {Number} dt
-     * @param {Array} points
-     */
     initWithDuration:function (dt, points) {
         return cc.CardinalSplineTo.prototype.initWithDuration.call(this, dt, points, 0.5);
     },
 
     clone:function () {
         var action = new cc.CatmullRomTo();
-        action.initWithDuration(this._duration, cc.copyControlPoints(this._points));
+        action.initWithDuration(this._duration, cloneControlPoints(this._points));
         return action;
     }
 });
@@ -466,20 +416,13 @@ cc.CatmullRomBy = cc.CardinalSplineBy.extend({
         points && this.initWithDuration(dt, points);
     },
 
-    /*
-     * initializes the action with a duration and an array of points
-     *
-     * @method initWithDuration
-     * @param {Number} dt
-     * @param {Array} points
-     */
     initWithDuration:function (dt, points) {
         return cc.CardinalSplineTo.prototype.initWithDuration.call(this, dt, points, 0.5);
     },
 
     clone:function () {
         var action = new cc.CatmullRomBy();
-        action.initWithDuration(this._duration, cc.copyControlPoints(this._points));
+        action.initWithDuration(this._duration, cloneControlPoints(this._points));
         return action;
     }
 });
