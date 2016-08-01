@@ -20575,6 +20575,16 @@ int
 },
 
 /**
+ * @method setTileOpacity
+ * @param {unsigned char} arg0
+ */
+setTileOpacity : function (
+char 
+)
+{
+},
+
+/**
  * @method releaseMap
  */
 releaseMap : function (
