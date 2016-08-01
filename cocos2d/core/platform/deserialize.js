@@ -467,12 +467,13 @@ var _Deserializer = (function () {
  * @return {object} the main data(asset)
  */
 cc.deserialize = function (data, result, options) {
-    var classFinder = (options && options.classFinder) || JS._getClassById;
+    options = options || {};
+    var classFinder = options.classFinder || JS._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
-    var createAssetRefs = (options && options.createAssetRefs) || cc.sys.platform === cc.sys.EDITOR_CORE;
-    var target = CC_DEV && (options && options.target);
-    var customEnv = options && options.customEnv;
-    var ignoreEditorOnly = options && options.ignoreEditorOnly;
+    var createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
+    var target = CC_DEV && options.target;
+    var customEnv = options.customEnv;
+    var ignoreEditorOnly = options.ignoreEditorOnly;
 
     if (CC_EDITOR && Buffer.isBuffer(data)) {
         data = data.toString();

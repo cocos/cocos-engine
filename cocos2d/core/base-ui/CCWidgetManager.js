@@ -156,7 +156,7 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         alignToParent(node, widget);
-        if ((!CC_EDITOR || _Scene.AnimUtils.curAnimState) && widget.isAlignOnce) {
+        if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.isAlignOnce) {
             widget.enabled = false;
         }
         else {
@@ -172,7 +172,34 @@ function visitNode (node) {
     }
 }
 
+if (CC_EDITOR) {
+    var animationState = {
+        previewing: false,
+        time: 0,
+        animatedSinceLastFrame: false,
+    };
+}
+
 function refreshScene () {
+    // check animation editor
+    if (CC_EDITOR) {
+        var nowPreviewing = !!_Scene.AnimUtils.curAnimState;
+        if (nowPreviewing !== animationState.previewing) {
+            animationState.previewing = nowPreviewing;
+            if (nowPreviewing) {
+                animationState.animatedSinceLastFrame = true;
+                animationState.time = _Scene.AnimUtils.curAnimState.time;
+            }
+            else {
+                animationState.animatedSinceLastFrame = false;
+            }
+        }
+        else if (nowPreviewing && animationState.time !== _Scene.AnimUtils.curAnimState.time) {
+            animationState.animatedSinceLastFrame = true;
+            animationState.time = _Scene.AnimUtils.curAnimState.time;
+        }
+    }
+
     var scene = cc.director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
@@ -180,14 +207,14 @@ function refreshScene () {
             widgetManager._nodesWithWidget.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
-        } else {
+        }
+        else {
             var i, node, nodes = widgetManager._nodesWithWidget, len = nodes.length;
             if (CC_EDITOR && _Scene.AnimUtils.curAnimState) {
-                // always check isAlignOnce because animation mode maybe changed
                 for (i = len - 1; i >= 0; i--) {
                     node = nodes[i];
                     var widget = node._widget;
-                    if (widget.isAlignOnce) {
+                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame) {
                         // widget contains in _nodesWithWidget should aligned at least once
                         widget.enabled = false;
                     }
@@ -206,6 +233,10 @@ function refreshScene () {
         widgetManager.isAligning = false;
     }
 
+    // check animation editor
+    if (CC_EDITOR) {
+        animationState.animatedSinceLastFrame = false;
+    }
 }
 
 var adjustWidgetToAllowMovingInEditor = CC_EDITOR && function (event) {
