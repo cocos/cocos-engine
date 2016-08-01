@@ -204,6 +204,18 @@ void TMXLayer::setupTiles()
     }
 }
 
+void TMXLayer::setTileOpacity(unsigned char opacity) {
+    _opacity = opacity;
+    for (int i = 0; i < _layerSize.width; i++) {
+        for (int j = 0; j < _layerSize.height; j++) {
+            Sprite* theTile = getTileAt(Vec2(i, j));
+            if (theTile) {
+                theTile->setOpacity(_opacity);
+            }
+        }
+    }
+}
+
 // TMXLayer - Properties
 Value TMXLayer::getProperty(const std::string& propertyName) const
 {
