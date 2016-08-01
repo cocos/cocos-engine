@@ -379,15 +379,6 @@ var Sprite = cc.Class({
         SizeMode: SizeMode,
     },
 
-    /**
-     * !#en Sets whether the sprite is visible or not.
-     * !#zh 设置精灵是否可见
-     * @method setVisible
-     * @param {Boolean} visible
-     * @override
-     * @example
-     * sprite.setVisible(false);
-     */
     setVisible: function (visible) {
         this.enabled = visible;
     },
