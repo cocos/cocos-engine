@@ -484,7 +484,7 @@ _ccsg.Label = _ccsg.Node.extend({
         if (CC_EDITOR) {
             this._updateLabel();
         } else {
-            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty|_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
     _createRenderCmd: function() {
