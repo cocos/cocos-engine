@@ -350,6 +350,24 @@ var TiledLayer = cc.Class({
     },
 
     /**
+     * !#en Set the opacity of all tiles
+     * !#zh 设置所有 Tile 的透明度
+     * @method setTileOpacity
+     * @param {Number} opacity
+     * @example
+     * tiledLayer.setTileOpacity(128);
+     */
+    setTileOpacity: function(opacity) {
+        if (this._sgNode) {
+            if (CC_JSB) {
+                this._sgNode.setTileOpacity(opacity);
+            } else {
+                this._sgNode._opacity = opacity;
+            }
+        }
+    },
+
+    /**
      * !#en Gets layer size.
      * !#zh 获得层大小。
      * @method getLayerSize
