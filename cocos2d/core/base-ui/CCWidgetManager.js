@@ -182,7 +182,7 @@ if (CC_EDITOR) {
 
 function refreshScene () {
     // check animation editor
-    if (CC_EDITOR) {
+    if (CC_EDITOR && window._Scene && _Scene.AnimUtils) {
         var nowPreviewing = !!_Scene.AnimUtils.curAnimState;
         if (nowPreviewing !== animationState.previewing) {
             animationState.previewing = nowPreviewing;
@@ -210,7 +210,7 @@ function refreshScene () {
         }
         else {
             var i, node, nodes = widgetManager._nodesWithWidget, len = nodes.length;
-            if (CC_EDITOR && _Scene.AnimUtils.curAnimState) {
+            if (CC_EDITOR && window._Scene && _Scene.AnimUtils && _Scene.AnimUtils.curAnimState) {
                 for (i = len - 1; i >= 0; i--) {
                     node = nodes[i];
                     var widget = node._widget;
