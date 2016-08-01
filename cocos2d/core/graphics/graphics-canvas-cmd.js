@@ -70,7 +70,8 @@ _p.rendering = function (ctx, scaleX, scaleY) {
         if (ctxCmd === 'clear') {
             cmds.splice(0, i+1);
             i = 0;
-            return;
+            l = cmds.length;
+            continue;
         }
         else if (ctxCmd === 'moveTo' && endPath) {
             context.beginPath();
