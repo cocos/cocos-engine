@@ -259,6 +259,12 @@ cc.js.mixin(cc.game, {
     }
 });
 
-
 cc.EventTarget.call(cc.game);
 cc.js.addon(cc.game, cc.EventTarget.prototype);
+
+cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+    cc.game.emit(cc.game.EVENT_HIDE, cc.game);
+});
+cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+    cc.game.emit(cc.game.EVENT_SHOW, cc.game);
+});
