@@ -67,6 +67,14 @@ void TMXLayerInfo::setProperties(ValueMap var)
     _properties = var;
 }
 
+TMXObjectGroupInfo::TMXObjectGroupInfo()
+: _groupName("")
+{
+}
+TMXObjectGroupInfo::~TMXObjectGroupInfo()
+{
+    CCLOGINFO("deallocing TMXObjectGroup: %p", this);
+}
 // implementation TMXTilesetInfo
 TMXTilesetInfo::TMXTilesetInfo()
     :_firstGid(0)
@@ -378,6 +386,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         float y = attributeDict["y"].asFloat();
         layer->_offset.set(x, y);
 
+        tmxMapInfo->getAllChildren().pushBack(layer);
         tmxMapInfo->getLayers().pushBack(layer);
         layer->release();
 
@@ -386,13 +395,41 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
     }
     else if (elementName == "objectgroup")
     {
-        TMXObjectGroup *objectGroup = new (std::nothrow) TMXObjectGroup();
-        objectGroup->setGroupName(attributeDict["name"].asString());
+        TMXObjectGroupInfo *objectGroup = new (std::nothrow) TMXObjectGroupInfo();
+        objectGroup->_groupName = attributeDict["name"].asString();
         Vec2 positionOffset;
-        positionOffset.x = attributeDict["x"].asFloat() * tmxMapInfo->getTileSize().width;
-        positionOffset.y = attributeDict["y"].asFloat() * tmxMapInfo->getTileSize().height;
-        objectGroup->setPositionOffset(positionOffset);
+        positionOffset.x = attributeDict["offsetx"].asFloat();
+        positionOffset.y = attributeDict["offsety"].asFloat();
+        objectGroup->_positionOffset = CC_POINT_PIXELS_TO_POINTS(positionOffset);
+        
+        // object group color
+        Value& colorValue = attributeDict["color"];
+        if (colorValue.isNull()) {
+            objectGroup->_color = Color3B(255, 255, 255);
+        } else {
+            std::string colorStr = colorValue.asString();
+            auto startPos = colorStr.find("#");
+            if (startPos != string::npos) {
+                colorStr.replace(startPos, 1, "");
+            }
+            int num = stoi(colorStr.c_str(), 0, 16);
+            int r = num / 0x10000;
+            int g = (num / 0x100) % 0x100;
+            int b = num % 0x100;
+            
+            objectGroup->_color = Color3B(r, g, b);
+        }
+        
+        // object group opacity
+        Value& opacityValue = attributeDict["opacity"];
+        float percent = opacityValue.isNull() ? 1.0 : opacityValue.asFloat();
+        objectGroup->_opacity = 255 * percent;
+        
+        // object group visible
+        Value& visibleValue = attributeDict["visible"];
+        objectGroup->_visible = visibleValue.isNull() ? true : visibleValue.asBool();
 
+        tmxMapInfo->getAllChildren().pushBack(objectGroup);
         tmxMapInfo->getObjectGroups().pushBack(objectGroup);
         objectGroup->release();
 
@@ -470,7 +507,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
     }
     else if (elementName == "object")
     {
-        TMXObjectGroup* objectGroup = tmxMapInfo->getObjectGroups().back();
+        TMXObjectGroupInfo* objectGroup = tmxMapInfo->getObjectGroups().back();
 
         // The value for "type" was blank or not a valid class name
         // Create an instance of TMXObjectInfo to store the object and its properties
@@ -486,24 +523,36 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
 
         // But X and Y since they need special treatment
         // X
-        int x = attributeDict["x"].asInt();
+        int x = attributeDict["x"].asFloat();
         // Y
-        int y = attributeDict["y"].asInt();
+        int y = attributeDict["y"].asFloat();
 
-        Vec2 p(x + objectGroup->getPositionOffset().x, _mapSize.height * _tileSize.height - y  - objectGroup->getPositionOffset().y - attributeDict["height"].asInt());
-        p = CC_POINT_PIXELS_TO_POINTS(p);
-        dict["x"] = Value(p.x);
-        dict["y"] = Value(p.y);
+        dict["x"] = Value(x);
+        dict["y"] = Value(y);
+        
+        int width = attributeDict["width"].asFloat();
+        int height = attributeDict["height"].asFloat();
+        dict["width"] = Value(width);
+        dict["height"] = Value(height);
+        
+        // visible
+        Value& visibleValue = attributeDict["visible"];
+        dict["visible"] = Value(visibleValue.isNull() ? true : visibleValue.asBool());
+        
+        // rotation
+        Value& rotationValue = attributeDict["rotation"];
+        dict["rotation"] = Value(rotationValue.isNull() ? 0.0 : rotationValue.asFloat());
 
-        int width = attributeDict["width"].asInt();
-        int height = attributeDict["height"].asInt();
-        Size s(width, height);
-        s = CC_SIZE_PIXELS_TO_POINTS(s);
-        dict["width"] = Value(s.width);
-        dict["height"] = Value(s.height);
+        // default type is rect
+        dict["type"] = Value(TMXObjectType::TMXObjectTypeRect);
+
+        // if has gid, the type is image
+        if (!dict["gid"].isNull()) {
+            dict["type"] = Value(TMXObjectType::TMXObjectTypeImage);
+        }
 
         // Add the object to the objectGroup
-        objectGroup->getObjects().push_back(Value(dict));
+        objectGroup->_objects.push_back(Value(dict));
 
         // The parent element is now "object"
         tmxMapInfo->setParentElement(TMXPropertyObject);
@@ -534,7 +583,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         else if ( tmxMapInfo->getParentElement() == TMXPropertyObjectGroup )
         {
             // The parent element is the last object group
-            TMXObjectGroup* objectGroup = tmxMapInfo->getObjectGroups().back();
+            TMXObjectGroupInfo* objectGroup = tmxMapInfo->getObjectGroups().back();
             Value value = attributeDict["value"];
             std::string key = attributeDict["name"].asString();
             objectGroup->getProperties().insert(std::make_pair(key, value));
@@ -542,8 +591,8 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         else if ( tmxMapInfo->getParentElement() == TMXPropertyObject )
         {
             // The parent element is the last object
-            TMXObjectGroup* objectGroup = tmxMapInfo->getObjectGroups().back();
-            ValueMap& dict = objectGroup->getObjects().rbegin()->asValueMap();
+            TMXObjectGroupInfo* objectGroup = tmxMapInfo->getObjectGroups().back();
+            ValueMap& dict = objectGroup->_objects.rbegin()->asValueMap();
 
             std::string propertyName = attributeDict["name"].asString();
             dict[propertyName] = attributeDict["value"];
@@ -559,8 +608,9 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
     else if (elementName == "polygon")
     {
         // find parent object's dict and add polygon-points to it
-        TMXObjectGroup* objectGroup = _objectGroups.back();
-        ValueMap& dict = objectGroup->getObjects().rbegin()->asValueMap();
+        TMXObjectGroupInfo* objectGroup = _objectGroups.back();
+        ValueMap& dict = objectGroup->_objects.rbegin()->asValueMap();
+        dict["type"] = Value(TMXObjectType::TMXObjectTypePolygon);
 
         // get points value string
         std::string value = attributeDict["points"].asString();
@@ -583,15 +633,13 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
                 // set x
                 if (std::getline(pointStream, xStr, ','))
                 {
-                    int x = atoi(xStr.c_str()) + (int)objectGroup->getPositionOffset().x;
-                    pointDict["x"] = Value(x);
+                    pointDict["x"] = Value(atof(xStr.c_str()));
                 }
 
                 // set y
                 if (std::getline(pointStream, yStr, ','))
                 {
-                    int y = atoi(yStr.c_str()) + (int)objectGroup->getPositionOffset().y;
-                    pointDict["y"] = Value(y);
+                    pointDict["y"] = Value(atof(yStr.c_str()));
                 }
 
                 // add to points array
@@ -604,9 +652,9 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
     else if (elementName == "polyline")
     {
         // find parent object's dict and add polyline-points to it
-        TMXObjectGroup* objectGroup = _objectGroups.back();
-        ValueMap& dict = objectGroup->getObjects().rbegin()->asValueMap();
-
+        TMXObjectGroupInfo* objectGroup = _objectGroups.back();
+        ValueMap& dict = objectGroup->_objects.rbegin()->asValueMap();
+        dict["type"] = Value(TMXObjectType::TMXObjectTypePolyline);
         // get points value string
         std::string value = attributeDict["points"].asString();
         if (!value.empty())
@@ -628,15 +676,13 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
                 // set x
                 if (std::getline(pointStream, xStr, ','))
                 {
-                    int x = atoi(xStr.c_str()) + (int)objectGroup->getPositionOffset().x;
-                    pointDict["x"] = Value(x);
+                    pointDict["x"] = Value(atof(xStr.c_str()));
                 }
 
                 // set y
                 if (std::getline(pointStream, yStr, ','))
                 {
-                    int y = atoi(yStr.c_str()) + (int)objectGroup->getPositionOffset().y;
-                    pointDict["y"] = Value(y);
+                    pointDict["y"] = Value(atof(yStr.c_str()));
                 }
 
                 // add to points array
@@ -645,6 +691,11 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
 
             dict["polylinePoints"] = Value(pointsArray);
         }
+    }
+    else if (elementName == "ellipse") {
+        TMXObjectGroupInfo* objectGroup = _objectGroups.back();
+        ValueMap& dict = objectGroup->_objects.rbegin()->asValueMap();
+        dict["type"] = Value(TMXObjectType::TMXObjectTypeEllipse);
     }
 }
 

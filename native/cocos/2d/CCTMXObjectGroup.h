@@ -31,24 +31,116 @@ THE SOFTWARE.
 #include "math/CCGeometry.h"
 #include "base/CCValue.h"
 #include "base/CCRef.h"
+#include "2d/CCSprite.h"
+#include "2d/CCDrawNode.h"
 
 NS_CC_BEGIN
 
+typedef enum TMXObjectType_ {
+    TMXObjectTypeRect,
+    TMXObjectTypeEllipse,
+    TMXObjectTypePolygon,
+    TMXObjectTypePolyline,
+    TMXObjectTypeImage
+} TMXObjectType;
+class TMXMapInfo;
+class TMXObjectGroupInfo;
+class Color4F;
 /**
  * @addtogroup _2d
  * @{
  */
 
+/** @brief TMXObject represents the TMX object.
+ * @since v3.12
+ */
+class CC_DLL TMXObject: public Ref
+{
+public:
+    TMXObject(ValueMap objectInfo);
+    virtual ~TMXObject();
+
+    inline const std::string& getObjectName() { return _objectName; };
+    inline void setObjectName(std::string& name) { _objectName = name; };
+    
+    Value getProperty(const std::string& propertyName) const;
+
+    inline const ValueMap& getProperties() const { return _properties; };
+    inline void setProperties(const ValueMap& properties) { _properties = properties; };
+    
+    inline TMXObjectType getObjectType() { return _type; };
+    inline int getId() { return _id; };
+    inline uint32_t getGid() { return _gid; };
+    inline Vec2 getOffset() { return _offset; };
+    inline Size getObjectSize() { return _objectSize; };
+    inline bool getObjectVisible() { return _objectVisible; };
+    inline float getObjectRotation() { return _objectRotation; };
+    
+protected:
+    TMXObjectType _type;
+    std::string   _objectName;
+    Vec2          _offset;
+    Size          _objectSize;
+    uint32_t      _gid;
+    int           _id;
+    ValueMap      _properties;
+    bool          _objectVisible;
+    float         _objectRotation;
+};
+
+/** @brief TMXObjectImage represents the TMX object image.
+ * @since v3.12
+ */
+class CC_DLL TMXObjectImage : public Sprite, public TMXObject
+{
+public:
+    TMXObjectImage(const ValueMap& objectInfo, TMXMapInfo* mapInfo, const Size& groupSize);
+    virtual ~TMXObjectImage();
+
+protected:
+    bool _initWithMapInfo(TMXMapInfo* mapInfo);
+    void _initPosWithMapInfo(TMXMapInfo* mapInfo);
+    
+    Size _groupSize;
+};
+
+/** @brief TMXObjectShape represents the TMX object shapes.
+ * @since v3.12
+ */
+class CC_DLL TMXObjectShape : public DrawNode, public TMXObject
+{
+public:
+    TMXObjectShape(const ValueMap& objectInfo, TMXMapInfo* mapInfo, const Size& groupSize, const Color3B& color);
+    virtual ~TMXObjectShape();
+
+protected:
+    void _initShape(const ValueMap& objectInfo);
+
+    void _drawRect();
+    void _drawEllipse();
+    void _drawPoly(const ValueMap& objectInfo, const Vec2& originPos, bool isPolygon);
+    
+    // internal methods for iso map
+    Vec2 _getPosByOffset(const Vec2& offset);
+    
+    int _mapOrientation;
+    Size _groupSize;
+    Color4F _groupColor;
+
+private:
+    TMXMapInfo* _mapInfo;
+};
+
 /** @brief TMXObjectGroup represents the TMX object group.
  * @since v0.99.0
  */
-class CC_DLL TMXObjectGroup : public Ref
+class CC_DLL TMXObjectGroup : public Node
 {
 public:
     /**
      * @js ctor
      */
-    TMXObjectGroup();
+    TMXObjectGroup(TMXObjectGroupInfo* groupInfo, TMXMapInfo* mapInfo);
     /**
      * @js NA
      * @lua NA
@@ -80,7 +172,7 @@ public:
      *
      * @return Return the dictionary for the specific object name.
      */
-    ValueMap getObject(const std::string& objectName) const;
+    TMXObject* getObject(const std::string& objectName);
 
     /** Gets the offset position of child objects.
      *
@@ -113,26 +205,17 @@ public:
      *
      * @return The array of the objects.
      */
-    inline const ValueVector& getObjects() const { return _objects; };
-    inline ValueVector& getObjects() { return _objects; };
-
-    /** Sets the array of the objects.
-     *
-     * @param objects The array of the objects.
-     */
-    inline void setObjects(const ValueVector& objects) {
-        _objects = objects;
-    };
-
+    Vector<TMXObject*> getObjects();
+    
 protected:
+    void _initGroup(TMXObjectGroupInfo* groupInfo, TMXMapInfo* mapInfo);
+
     /** name of the group */
     std::string _groupName;
     /** offset position of child objects */
     Vec2 _positionOffset;
     /** list of properties stored in a dictionary */
     ValueMap _properties;
-    /** array of the objects */
-    ValueVector _objects;
 };
 
 // end of tilemap_parallax_nodes group
