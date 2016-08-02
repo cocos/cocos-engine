@@ -48,6 +48,9 @@ if (ENABLE_GL_STATE_CACHE) {
 
     var _currBuffers = {};
 
+    // IE 10 WebGLRenderingContext does not exist
+    if (!window.WebGLRenderingContext) return;
+
     WebGLRenderingContext.prototype.glBindBuffer = WebGLRenderingContext.prototype.bindBuffer;
     WebGLRenderingContext.prototype.bindBuffer = function (target, buffer) {
         if (_currBuffers[target] !== buffer) {
