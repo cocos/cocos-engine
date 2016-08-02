@@ -484,28 +484,6 @@ var fillQuadGeneratorBar = {
             sprite._uvs = uvs;
         }
 
-        //build quads
-        if (webgl) {
-            vertices[0] = l * wt.a + b * wt.c + wt.tx;
-            vertices[1] = l * wt.b + b * wt.d + wt.ty;
-            vertices[2] = r * wt.a + b * wt.c + wt.tx;
-            vertices[3] = r * wt.b + b * wt.d + wt.ty;
-            vertices[4] = l * wt.a + t * wt.c + wt.tx;
-            vertices[5] = l * wt.b + t * wt.d + wt.ty;
-            vertices[6] = r * wt.a + t * wt.c + wt.tx;
-            vertices[7] = r * wt.b + t * wt.d + wt.ty;
-        }
-        else {
-            vertices[0] = l;
-            vertices[1] = b;
-            vertices[2] = r;
-            vertices[3] = b;
-            vertices[4] = l;
-            vertices[5] = t;
-            vertices[6] = r;
-            vertices[7] = t;
-        }
-
         var quadUV = new Array(8);
         if (!spriteFrame._rotated) {
             quadUV[0] = quadUV[4] = ul;
@@ -533,13 +511,11 @@ var fillQuadGeneratorBar = {
         var progressStart, progressEnd;
         switch (fillType) {
             case FillType.HORIZONTAL:
-                progressStart = vertices[0] + (vertices[2] - vertices[0]) * fillStart;
-                progressEnd = vertices[0] + (vertices[2] - vertices[0]) * fillEnd;
+                progressStart = l + (r - l) * fillStart;
+                progressEnd = l + (r - l) * fillEnd;
 
-                vertices[0] = progressStart;
-                vertices[2] = progressEnd;
-                vertices[4] = progressStart;
-                vertices[6] = progressEnd;
+                l = progressStart;
+                r = progressEnd;
 
                 uvs[0] = quadUV[0] + (quadUV[2] - quadUV[0]) * fillStart;
                 uvs[1] = quadUV[1];
@@ -551,13 +527,11 @@ var fillQuadGeneratorBar = {
                 uvs[7] = quadUV[7];
                 break;
             case FillType.VERTICAL:
-                progressStart = vertices[1] + (vertices[5] - vertices[1]) * fillStart;
-                progressEnd = vertices[1] + (vertices[5] - vertices[1]) * fillEnd;
+                progressStart = b + (t - b) * fillStart;
+                progressEnd = b + (t - b) * fillEnd;
 
-                vertices[1] = progressStart;
-                vertices[3] = progressStart;
-                vertices[5] = progressEnd;
-                vertices[7] = progressEnd;
+                b = progressStart;
+                t = progressEnd;
 
                 uvs[0] = quadUV[0];
                 uvs[1] = quadUV[1] + (quadUV[5] - quadUV[1]) * fillStart;
@@ -572,6 +546,28 @@ var fillQuadGeneratorBar = {
                 cc.error('Unrecognized fill type in bar fill');
                 break;
         }
+
+        //build vertices
+        if (webgl) {
+            vertices[0] = l * wt.a + b * wt.c + wt.tx;
+            vertices[1] = l * wt.b + b * wt.d + wt.ty;
+            vertices[2] = r * wt.a + b * wt.c + wt.tx;
+            vertices[3] = r * wt.b + b * wt.d + wt.ty;
+            vertices[4] = l * wt.a + t * wt.c + wt.tx;
+            vertices[5] = l * wt.b + t * wt.d + wt.ty;
+            vertices[6] = r * wt.a + t * wt.c + wt.tx;
+            vertices[7] = r * wt.b + t * wt.d + wt.ty;
+        } else{
+            vertices[0] = l;
+            vertices[1] = b;
+            vertices[2] = r;
+            vertices[3] = b;
+            vertices[4] = l;
+            vertices[5] = t;
+            vertices[6] = r;
+            vertices[7] = t;
+        }
+
         sprite._vertCount = 4;
 
         cornerId[0] = 0;
