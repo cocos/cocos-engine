@@ -343,9 +343,7 @@ function syncColorUpdate (dt) {
 // Sub classes must be registered before their super class.
 // Otherwise, JSB there will be internal Error: "too much recursion".
 var actionUpdate = {
-    'MoveTo': syncPositionUpdate,
     'MoveBy': syncPositionUpdate,
-    'JumpTo': syncPositionUpdate,
     'JumpBy': syncPositionUpdate,
     'Place': syncPositionUpdate,
     'CardinalSplineTo': syncPositionUpdate,
