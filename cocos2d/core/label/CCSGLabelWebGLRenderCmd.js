@@ -104,16 +104,11 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
         return 0;
 
     // Fill in vertex data with quad information (4 vertices for sprite)
+    //use 255 because color has been set when baking label
     var opacity = this._displayedOpacity;
-    var r = this._displayedColor.r,
-        g = this._displayedColor.g,
-        b = this._displayedColor.b;
-    if (node._opacityModifyRGB) {
-        var a = opacity / 255;
-        r *= a;
-        g *= a;
-        b *= a;
-    }
+    var r = 255,
+        g = 255,
+        b = 255;
     this._color[0] = ((opacity<<24) | (b<<16) | (g<<8) | r);
     var z = node._vertexZ;
 
