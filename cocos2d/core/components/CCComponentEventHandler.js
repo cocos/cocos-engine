@@ -80,7 +80,7 @@ cc.Component.EventHandler = cc.Class({
         /**
          * @method emitEvents
          * @param {Component.EventHandler[]} events
-         * @param {Any} ...params
+         * @param {any} ...params
          * @statics
          */
         emitEvents: function(events) {

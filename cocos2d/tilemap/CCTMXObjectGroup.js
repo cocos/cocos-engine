@@ -32,10 +32,15 @@
  */
 
 /**
- * @property {Array}    properties  - Properties from the group. They can be added using tilemap editors
+ * Properties from the group. They can be added using tilemap editors.
+ * @property properties
+ * @type {Array}
  */
+
 /**
- * @property {String}   groupName   - Name of the group
+ * Name of the group
+ * @property groupName
+ * @type {String}
  */
 cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
 	properties: null,
