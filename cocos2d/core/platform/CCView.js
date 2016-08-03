@@ -150,6 +150,8 @@ var View = cc._Class.extend({
     _isAdjustViewPort: true,
     _targetDensityDPI: null,
 
+    _antiAliasEnabled: false,
+
     /**
      * Constructor of View
      */
@@ -181,6 +183,7 @@ var View = cc._Class.extend({
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
+        _t.enableAntiAlias(true);
     },
 
     // Resize helper functions
@@ -413,6 +416,56 @@ var View = cc._Class.extend({
      */
     isRetinaEnabled: function() {
         return this._retinaEnabled;
+    },
+
+    /**
+     * !#en Whether to Enable on anti-alias
+     * !#zh 是否开启抗锯齿
+     * @method enableAntiAlias
+     * @param {Boolean} enabled - Enable or not anti-alias
+     */
+    enableAntiAlias: function (enabled) {
+        if (this._antiAliasEnabled === enabled) {
+            return;
+        }
+        this._antiAliasEnabled = enabled;
+        if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            var map = cc.loader._items.map;
+            for (var key in map) {
+                var item = map[key];
+                var tex = item && item.content instanceof cc.Texture2D ? item.content : null;
+                if (tex) {
+                    if (enabled) {
+                        tex.setAntiAliasTexParameters();
+                    }
+                    else {
+                        tex.setAliasTexParameters();
+                    }
+                }
+            }
+        }
+        else if(cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            var ctx = cc._canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = enabled;
+            ctx.mozImageSmoothingEnabled = enabled;
+            // refresh canvas
+            var dirtyRegion = cc.rendererCanvas._dirtyRegion;
+            if (dirtyRegion) {
+                var oldRegion = new cc.Region();
+                oldRegion.setTo(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+                dirtyRegion.addRegion(oldRegion);
+            }
+        }
+    },
+
+    /**
+     * !#en Returns whether the current enable on anti-alias
+     * !#zh 返回当前是否抗锯齿
+     * @method isAntiAliasEnabled
+     * @param {Boolean}
+     */
+    isAntiAliasEnabled: function () {
+        return this._antiAliasEnabled;
     },
 
     /**
