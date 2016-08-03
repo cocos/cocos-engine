@@ -33,17 +33,22 @@
  * @main anysdk
  */
 var anysdk = anysdk || {};
-
 /**
  * !#en
  * agent manager of plugin
  * !#zh
  * 插件管理对象
- * @property {object} anysdk.agentManager
+ * @property {anysdk.AgentManager} agentManager
  */
 anysdk.agentManager = anysdk.AgentManager.getInstance();
+
 /**
+ * !#en
+ * agent manager of plugin
+ * !#zh
+ * 插件管理类
  * @class AgentManager
+ * @constructor
  */
 anysdk.AgentManager = {
     /**
@@ -103,7 +108,7 @@ anysdk.AgentManager = {
      * get IAP system plugins 
      * !#zh
      * 获取支付系统插件
-     * @method getIAPPlugin
+     * @method getIAPPlugins
      * @return {anysdk.ProtocolIAP}
      */
     getIAPPlugins: function(){
@@ -274,8 +279,7 @@ anysdk.AgentManager = {
      * @method setIsAnaylticsEnabled
      * @param {boolean} enabled 
      */
-    setIsAnaylticsEnabled: function(enabled)
-    {
+    setIsAnaylticsEnabled: function(enabled){
     },
 
     /**
@@ -284,9 +288,9 @@ anysdk.AgentManager = {
      * !#zh
      * 销毁单例 
      * @method end
+     * @static
      */
-    end: function()
-    {
+    end: function(){
     },
 
     /**
@@ -296,12 +300,14 @@ anysdk.AgentManager = {
      * 获取单例
      * @method getInstance
      * @return {anysdk.AgentManager}
+     * @static
      */
-    getInstance: function()
-    {
+    getInstance: function(){
         return anysdk.AgentManager;
     },
 };
+
+
 
 /**
  * !#en 
@@ -364,28 +370,26 @@ anysdk.PluginProtocol = {
     },        
 
     /**
-     * @brief methods for reflections
      * !#en 
      * void methods for reflections with parameter
      * !#zh
      * 反射调用带参数的void方法
      * @method callFuncWithParam
      * @param {String} funName
-     * @param {String} [...args] optional arguments
+     * @param {Object|anysdk.PluginParam} [...args] optional arguments
      * @expose
      */
     callFuncWithParam: function(funName){
     },
 
     /**
-     * @brief methods for reflections
      * !#en 
      * String methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 String 方法
      * @method callStringFuncWithParam
      * @param {String} funName
-     * @param {String} [...args] optional arguments
+     * @param {Object|anysdk.PluginParam} [...args] optional arguments
      * @return {String}
      * @expose
      */
@@ -394,14 +398,13 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * @brief methods for reflections
      * !#en 
      * int methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 Int 方法
      * @method callIntFuncWithParam
      * @param {String} funName
-     * @param {String} [...args] optional arguments
+     * @param {Object|anysdk.PluginParam} [...args] optional arguments
      * @return {Number} Type:int
      * @expose
      */
@@ -410,14 +413,13 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * @brief methods for reflections
      * !#en 
      * boolean methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 boolean 方法
      * @method callBoolFuncWithParam
      * @param {String} funName
-     * @param {String} [...args] optional arguments
+     * @param {Object|anysdk.PluginParam} [...args] optional arguments
      * @return {boolean}
      * @expose
      */
@@ -426,14 +428,13 @@ anysdk.PluginProtocol = {
     },
 
     /**
-     * @brief methods for reflections
      * !#en 
      * float methods for reflections with parameter
      * !#zh
      * 反射调用带参数的 float 方法
-     * @method callBoolFuncWithParam
+     * @method callFloatFuncWithParam
      * @param {String} funName
-     * @param {String} [...args] optional arguments
+     * @param {Object|anysdk.PluginParam} [...args] optional arguments
      * @return {Number} Type:float
      * @expose
      */
@@ -443,7 +444,12 @@ anysdk.PluginProtocol = {
 };
 
 /**
+ * !#en
+ * user protocol
+ * !#zh
+ * 用户系统协议接口
  * @class ProtocolUser
+ * @extends PluginProtocol
  */
 anysdk.ProtocolUser = PluginProtocol.extend({
 
@@ -453,7 +459,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
      * !#zh
      * 登录接口
      * @method login
-     * @param {String} [...args] optional arguments
+     * @param {String|Objcet} [...args] optional arguments
      */
     login: function(){
     },
@@ -500,7 +506,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
      * !#en 
      * set listener
      * !#zh
-     * 设置自定义系统的监听
+     * 设置用户系统的监听
      * @method setListener
      * @param {Function} listener        
      * @param {Object} target
@@ -512,8 +518,8 @@ anysdk.ProtocolUser = PluginProtocol.extend({
      * !#en 
      * get listener
      * !#zh
+     * 获取用户系统的监听
      * @method getListener
-     * 获取自定义系统的监听
      * @return {Function} listener        
      */
     getListener: function() {
@@ -616,7 +622,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
      * !#zh
      * 提交角色信息，调用前需要判断属性是否存在
      * @method submitLoginGameRole
-     * @param {String} data 
+     * @param {Object} data 
      */
     submitLoginGameRole: function(data){
     },
@@ -627,7 +633,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
      * !#zh
      * 获取用户信息，调用前需要判断属性是否存在
      * @method getUserInfo
-     * @param {String} info 
+     * @param {Object} info 
      */
     getUserInfo:function(info){
     },
@@ -639,7 +645,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
      * !#zh
      * 设置登录类型，调用前需要判断属性是否存在
      * @method getAvailableLoginType
-     * @param {String} info 
+     * @param {Object} info 
      */
     getAvailableLoginType:function(info){
     },
@@ -683,7 +689,12 @@ anysdk.ProtocolUser = PluginProtocol.extend({
 
 
 /**
+ * !#en
+ * IAP protocol
+ * !#zh
+ * 支付系统协议接口
  * @class ProtocolIAP
+ * @extends PluginProtocol
  */
 anysdk.ProtocolIAP = PluginProtocol.extend({
 
@@ -737,7 +748,7 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
      * !#en 
      * set listener
      * !#zh
-     * 设置自定义系统的监听
+     * 设置支付系统的监听
      * @method setListener
      * @param {Function} listener        
      * @param {Object} target
@@ -749,8 +760,8 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
      * !#en 
      * get listener
      * !#zh
+     * 获取支付系统的监听
      * @method getListener
-     * 获取自定义系统的监听
      * @return {Function} listener        
      */
     getListener: function() {
@@ -760,7 +771,12 @@ anysdk.ProtocolIAP = PluginProtocol.extend({
 });
 
 /**
+ * !#en
+ * analytics protocol
+ * !#zh
+ * 统计系统协议接口
  * @class ProtocolAnalytics
+ * @extends PluginProtocol
  */
 anysdk.ProtocolAnalytics = PluginProtocol.extend({
 
@@ -1011,7 +1027,12 @@ anysdk.ProtocolAnalytics = PluginProtocol.extend({
 });
 
 /**
+ * !#en
+ * share protocol
+ * !#zh
+ * 分享系统协议接口
  * @class ProtocolShare
+ * @extends PluginProtocol
  */
 anysdk.ProtocolShare = PluginProtocol.extend({
 
@@ -1029,7 +1050,7 @@ anysdk.ProtocolShare = PluginProtocol.extend({
      * !#en 
      * set listener
      * !#zh
-     * 设置自定义系统的监听
+     * 设置分享系统的监听
      * @method setListener
      * @param {Function} listener        
      * @param {Object} target
@@ -1041,8 +1062,8 @@ anysdk.ProtocolShare = PluginProtocol.extend({
      * !#en 
      * get listener
      * !#zh
+     * 获取分享系统的监听
      * @method getListener
-     * 获取自定义系统的监听
      * @return {Function} listener        
      */
     getListener: function() {
@@ -1052,7 +1073,12 @@ anysdk.ProtocolShare = PluginProtocol.extend({
 
 
 /**
+ * !#en
+ * ads protocol
+ * !#zh
+ * 广告系统协议接口
  * @class ProtocolAds
+ * @extends PluginProtocol
  */
 anysdk.ProtocolAds = PluginProtocol.extend({
     /*
@@ -1130,7 +1156,7 @@ anysdk.ProtocolAds = PluginProtocol.extend({
      * !#en 
      * set listener
      * !#zh
-     * 设置自定义系统的监听
+     * 设置广告系统的监听
      * @method setListener
      * @param {Function} listener        
      * @param {Object} target
@@ -1142,8 +1168,8 @@ anysdk.ProtocolAds = PluginProtocol.extend({
      * !#en 
      * get listener
      * !#zh
+     * 获取广告系统的监听
      * @method getListener
-     * 获取自定义系统的监听
      * @return {Function} listener        
      */
     getListener: function() {
@@ -1153,7 +1179,12 @@ anysdk.ProtocolAds = PluginProtocol.extend({
 });
 
 /**
+ * !#en
+ * social protocol
+ * !#zh
+ * 社交系统协议接口
  * @class ProtocolSocial
+ * @extends PluginProtocol
  */
 anysdk.ProtocolSocial = PluginProtocol.extend({
 
@@ -1225,7 +1256,7 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
      * !#en 
      * set listener
      * !#zh
-     * 设置自定义系统的监听
+     * 设置社交系统的监听
      * @method setListener
      * @param {Function} listener        
      * @param {Object} target
@@ -1237,8 +1268,8 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
      * !#en 
      * get listener
      * !#zh
+     * 获取社交系统的监听
      * @method getListener
-     * 获取自定义系统的监听
      * @return {Function} listener        
      */
     getListener: function() {
@@ -1281,7 +1312,12 @@ anysdk.ProtocolSocial = PluginProtocol.extend({
 });
 
 /**
+ * !#en
+ * push protocol
+ * !#zh
+ * 推送系统协议接口
  * @class ProtocolPush
+ * @extends PluginProtocol
  */
 anysdk.ProtocolPush = PluginProtocol.extend({
 
@@ -1353,7 +1389,7 @@ anysdk.ProtocolPush = PluginProtocol.extend({
      * !#en 
      * set listener
      * !#zh
-     * 设置自定义系统的监听
+     * 设置推送系统的监听
      * @method setListener
      * @param {Function} listener        
      * @param {Object} target
@@ -1365,8 +1401,8 @@ anysdk.ProtocolPush = PluginProtocol.extend({
      * !#en 
      * get listener
      * !#zh
+     * 获取推送系统的监听
      * @method getListener
-     * 获取自定义系统的监听
      * @return {Function} listener        
      */
     getListener: function() {
@@ -1376,7 +1412,12 @@ anysdk.ProtocolPush = PluginProtocol.extend({
 });
 
 /**
+ * !#en
+ * crash protocol
+ * !#zh
+ * 崩溃分析系统协议接口
  * @class ProtocolCrash
+ * @extends PluginProtocol
  */
 anysdk.ProtocolCrash = PluginProtocol.extend({
 
@@ -1419,7 +1460,12 @@ anysdk.ProtocolCrash = PluginProtocol.extend({
 });
 
 /**
+ * !#en
+ * REC protocol
+ * !#zh
+ * 录屏系统协议接口
  * @class ProtocolREC
+ * @extends PluginProtocol
  */
 anysdk.ProtocolREC = PluginProtocol.extend({
 
@@ -1458,7 +1504,7 @@ anysdk.ProtocolREC = PluginProtocol.extend({
      * !#en 
      * set listener
      * !#zh
-     * 设置自定义系统的监听
+     * 设置录屏系统的监听
      * @method setListener
      * @param {Function} listener        
      * @param {Object} target
@@ -1470,8 +1516,8 @@ anysdk.ProtocolREC = PluginProtocol.extend({
      * !#en 
      * get listener
      * !#zh
+     * 获取录屏系统的监听
      * @method getListener
-     * 获取自定义系统的监听
      * @return {Function} listener        
      */
     getListener: function() {
@@ -1587,7 +1633,12 @@ anysdk.ProtocolREC = PluginProtocol.extend({
 
 
 /**
+ * !#en
+ * ad tracking protocol
+ * !#zh
+ * 广告追踪系统协议接口
  * @class ProtocolAdTracking
+ * @extends PluginProtocol
  */
 anysdk.ProtocolAdTracking = PluginProtocol.extend({
 
@@ -1674,7 +1725,12 @@ anysdk.ProtocolAdTracking = PluginProtocol.extend({
 });
 
 /**
+ * !#en
+ * custom protocol
+ * !#zh
+ * 自定义系统协议接口
  * @class ProtocolCustom
+ * @extends PluginProtocol
  */
 anysdk.ProtocolCustom = PluginProtocol.extend({
     /**
@@ -1701,6 +1757,30 @@ anysdk.ProtocolCustom = PluginProtocol.extend({
         return Function;
     },
 });
+
+/**
+ * !#en
+ * Data structure class
+ * !#zh
+ * 数据结构类
+ * @constructor
+ * @class PluginParam
+ */
+anysdk.PluginParam = {
+    /**
+     * !#en 
+     * create plugin parameters
+     * !#zh
+     * 创建对象
+     * @method create
+     * @static
+     * @param {Number|String|Object} parameters
+     * @return {anysdk.PluginParam}
+     */
+    create: function(parameters) {
+        return anysdk.PluginParam
+    },
+};
 
 /**
  * !#en The callback of user system
@@ -2692,8 +2772,6 @@ anysdk.RECResultCode = {
      */
     kRECExtension: 90000
 };
-
-
 
 
 
