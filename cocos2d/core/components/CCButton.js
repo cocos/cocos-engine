@@ -103,6 +103,12 @@ var Button = cc.Class({
 
     ctor: function () {
         this._resetState();
+
+        this._fromColor = null;
+        this._toColor = null;
+        this._time = 0;
+        this._transitionFinished = true;
+
         this._sprite = null;
 
         if(CC_EDITOR) {
@@ -114,10 +120,6 @@ var Button = cc.Class({
         this._pressed = false;
         this._hovered = false;
 
-        this._fromColor = null;
-        this._toColor = null;
-        this._time = 0;
-        this._transitionFinished = true;
     },
 
     editor: CC_EDITOR && {
