@@ -117,6 +117,8 @@
                                       font, NSFontAttributeName,
                                       [NSColor grayColor], NSForegroundColorAttributeName,
                                       nil];
+        [self setLineBreakMode:NSLineBreakByTruncatingTail];
+
     }
 
     return self;
