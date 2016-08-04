@@ -28,7 +28,7 @@
 
 /// @cond DO_NOT_SHOW
 
-#include "CCFont.h"
+#include "2d/CCFont.h"
 
 NS_CC_BEGIN
 
@@ -48,6 +48,8 @@ public:
     virtual FontAtlas *createFontAtlas() override;
     void setFontSize(float fontSize);
     int getOriginalFontSize()const;
+
+    static void reloadBMFontResource(const std::string& fntFilePath);
 
 protected:
 

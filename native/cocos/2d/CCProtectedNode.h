@@ -50,8 +50,8 @@ public:
      * Creates a ProtectedNode with no argument.
      *@return A instance of ProtectedNode.
      */
-    static ProtectedNode * create();
-
+    static ProtectedNode * create(void);
+    
     /// @{
     /// @name Children and Parent
 

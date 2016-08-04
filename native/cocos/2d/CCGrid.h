@@ -56,7 +56,7 @@ public:
      * @js NA
      * @lua NA
      */
-    virtual ~GridBase();
+    virtual ~GridBase(void);
 
     /**@{
      Init the Grid base.
@@ -74,34 +74,34 @@ public:
     /** @{
     Getter and setter of the active state of the grid.
     */
-    inline bool isActive() const { return _active; }
+    inline bool isActive(void) const { return _active; }
     void setActive(bool active);
     /**@}*/
 
     /** Get number of times that the grid will be reused. */
-    inline int getReuseGrid() const { return _reuseGrid; }
+    inline int getReuseGrid(void) const { return _reuseGrid; }
     /** Set number of times that the grid will be reused. */
     inline void setReuseGrid(int reuseGrid) { _reuseGrid = reuseGrid; }
 
     /** Size of the grid. */
-    inline const Size& getGridSize() const { return _gridSize; }
+    inline const Size& getGridSize(void) const { return _gridSize; }
     /**Set the size of the grid.*/
     inline void setGridSize(const Size& gridSize) { _gridSize = gridSize; }
 
     /** Pixels between the grids. */
-    inline const Vec2& getStep() const { return _step; }
+    inline const Vec2& getStep(void) const { return _step; }
     /**Get the pixels between the grids.*/
     inline void setStep(const Vec2& step) { _step = step; }
 
     /** is texture flipped. */
-    inline bool isTextureFlipped() const { return _isTextureFlipped; }
+    inline bool isTextureFlipped(void) const { return _isTextureFlipped; }
     /**Set the texture flipped or not.*/
     void setTextureFlipped(bool flipped);
 
     /**@{
      Init and reset the status when render effects by using the grid.
      */
-    void beforeDraw();
+    void beforeDraw(void);
     void afterDraw(Node *target);
     /**@}*/
 
@@ -114,15 +114,15 @@ public:
     /**@}*/
 
     /**Interface used to blit the texture with grid to screen.*/
-    virtual void blit();
+    virtual void blit(void);
     /**Interface, Reuse the grid vertices.*/
-    virtual void reuse();
+    virtual void reuse(void);
     /**Interface, Calculate the vertices used for the blit.*/
-    virtual void calculateVertexPoints();
-
+    virtual void calculateVertexPoints(void);
+    
     /**Change projection to 2D for grabbing.*/
-    void set2DProjection();
-
+    void set2DProjection(void);
+    
     /**
      * @brief Set the effect grid rect.
      * @param rect The effect grid rect.
@@ -171,7 +171,7 @@ public:
      * @js NA
      * @lua NA
      */
-    ~Grid3D();
+    ~Grid3D(void);
 
     /** Returns the vertex at a given position.
      * @js NA

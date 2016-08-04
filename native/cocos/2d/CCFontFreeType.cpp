@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include "2d/CCFontFreeType.h"
 #include FT_BBOX_H
 #include "edtaa3func/edtaa3func.h"
-#include "CCFontAtlas.h"
+#include "2d/CCFontAtlas.h"
 #include "base/CCDirector.h"
 #include "base/ccUTF8.h"
 #include "platform/CCFileUtils.h"
@@ -641,6 +641,18 @@ const char* FontFreeType::getGlyphCollection() const
     }
 
     return glyphCollection;
+}
+
+void FontFreeType::releaseFont(const std::string &fontName)
+{
+    auto item = s_cacheFontData.begin();
+    while (s_cacheFontData.end() != item)
+    {
+        if (item->first.find(fontName) != std::string::npos)
+            item = s_cacheFontData.erase(item);
+        else
+            item++;
+    }
 }
 
 NS_CC_END

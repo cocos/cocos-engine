@@ -94,7 +94,7 @@ bool MotionStreak::initWithFade(float fade, float minSeg, float stroke, const Co
 {
     CCASSERT(!path.empty(), "Invalid filename");
 
-    Texture2D *texture = _director->getTextureCache()->addImage(path);
+    Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(path);
     return initWithFade(fade, minSeg, stroke, color, texture);
 }
 
@@ -102,7 +102,7 @@ bool MotionStreak::initWithFade(float fade, float minSeg, float stroke, const Co
 {
     Node::setPosition(Vec2::ZERO);
     setAnchorPoint(Vec2::ZERO);
-    ignoreAnchorPointForPosition(true);
+    setIgnoreAnchorPointForPosition(true);
     _startingPositionInitialized = false;
 
     _positionR.setZero();
@@ -195,7 +195,7 @@ void MotionStreak::tintWithColor(const Color3B& colors)
     }
 }
 
-Texture2D* MotionStreak::getTexture() const
+Texture2D* MotionStreak::getTexture(void) const
 {
     return _texture;
 }
@@ -241,7 +241,7 @@ void MotionStreak::setBlendFunc(const BlendFunc &blendFunc)
     _blendFunc = blendFunc;
 }
 
-const BlendFunc& MotionStreak::getBlendFunc() const
+const BlendFunc& MotionStreak::getBlendFunc(void) const
 {
     return _blendFunc;
 }
@@ -414,7 +414,7 @@ void MotionStreak::draw(Renderer *renderer, const Mat4 &transform, uint32_t flag
 {
     if(_nuPoints <= 1)
         return;
-    _customCommand.init(_globalZOrder);
+    _customCommand.init(_globalZOrder, transform, flags);
     _customCommand.func = CC_CALLBACK_0(MotionStreak::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
 }

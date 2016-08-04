@@ -27,8 +27,8 @@ THE SOFTWARE.
 
 #include "2d/CCScene.h"
 #include "base/CCDirector.h"
+#include "base/ccUTF8.h"
 #include "renderer/CCRenderer.h"
-#include "base/CCString.h"
 
 NS_CC_BEGIN
 
@@ -44,7 +44,7 @@ Scene::~Scene()
 
 bool Scene::init()
 {
-    auto size = _director->getWinSize();
+    auto size = Director::getInstance()->getWinSize();
     return initWithSize(size);
 }
 

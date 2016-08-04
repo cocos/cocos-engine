@@ -28,8 +28,8 @@ THE SOFTWARE.
 #include "base/CCTouch.h"
 #include "base/CCEventListenerTouch.h"
 #include "base/CCEventDispatcher.h"
+#include "base/ccUTF8.h"
 #include "platform/CCStdC.h"
-#include "base/CCString.h"
 
 #include <vector>
 
@@ -134,9 +134,9 @@ bool Menu::initWithArray(const Vector<MenuItem*>& arrayOfItems)
     {
         _enabled = true;
         // menu in the center of the screen
-        Size s = _director->getWinSize();
+        Size s = Director::getInstance()->getWinSize();
 
-        this->ignoreAnchorPointForPosition(true);
+        this->setIgnoreAnchorPointForPosition(true);
         setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         this->setContentSize(s);
 
@@ -237,10 +237,9 @@ void Menu::onExit()
 
 void Menu::removeChild(Node* child, bool cleanup)
 {
-    MenuItem *menuItem = dynamic_cast<MenuItem*>(child);
-    CCASSERT(menuItem != nullptr, "Menu only supports MenuItem objects as children");
-
-    if (_selectedItem == menuItem)
+    CCASSERT(dynamic_cast<MenuItem*>(child) != nullptr, "Menu only supports MenuItem objects as children");
+    
+    if (_selectedItem == child)
     {
         _selectedItem = nullptr;
     }
@@ -341,7 +340,7 @@ void Menu::alignItemsVerticallyWithPadding(float padding)
     }
 }
 
-void Menu::alignItemsHorizontally()
+void Menu::alignItemsHorizontally(void)
 {
     this->alignItemsHorizontallyWithPadding(kDefaultPadding);
 }
@@ -414,7 +413,7 @@ void Menu::alignItemsInColumnsWithArray(const ValueVector& rows)
     // check if too many rows/columns for available menu items
     CCASSERT(! columnsOccupied, "columnsOccupied should be 0.");
 
-    Size winSize = _director->getWinSize();
+    Size winSize = Director::getInstance()->getWinSize();
 
     row = 0;
     rowHeight = 0;
@@ -516,7 +515,7 @@ void Menu::alignItemsInRowsWithArray(const ValueVector& columns)
     // check if too many rows/columns for available menu items.
     CCASSERT(! rowsOccupied, "rowsOccupied should be 0.");
 
-    Size winSize = _director->getWinSize();
+    Size winSize = Director::getInstance()->getWinSize();
 
     column = 0;
     columnWidth = 0;
@@ -555,20 +554,17 @@ void Menu::alignItemsInRowsWithArray(const ValueVector& columns)
 MenuItem* Menu::getItemForTouch(Touch *touch)
 {
     Vec2 touchLocation = touch->getLocation();
-    if (!_children.empty())
+    for (const auto &item: _children)
     {
-        for (auto iter = _children.crbegin(); iter != _children.crend(); ++iter)
+        MenuItem* child = dynamic_cast<MenuItem*>(item);
+        if (child && child->isVisible() && child->isEnabled())
         {
-            MenuItem* child = dynamic_cast<MenuItem*>(*iter);
-            if (child && child->isVisible() && child->isEnabled())
+            Vec2 local = child->convertToNodeSpace(touchLocation);
+            Rect r = child->rect();
+            r.origin.setZero();
+            if (r.containsPoint(local))
             {
-                Vec2 local = child->convertToNodeSpace(touchLocation);
-                Rect r = child->rect();
-                r.origin.setZero();
-                if (r.containsPoint(local))
-                {
-                    return child;
-                }
+                return child;
             }
         }
     }

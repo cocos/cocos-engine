@@ -207,7 +207,7 @@ public:
     @brief Get the value of amplitude rate.
     @return the value of amplitude rate.
     */
-    inline float getRate() const { return _rate; }
+    inline float getRate(void) const { return _rate; }
     /**
     @brief Set the value of amplitude rate.
     @param rate Specify the value of amplitude rate.

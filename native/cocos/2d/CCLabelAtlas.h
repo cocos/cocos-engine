@@ -27,7 +27,7 @@ THE SOFTWARE.
 #ifndef __CCLABEL_ATLAS_H__
 #define __CCLABEL_ATLAS_H__
 
-#include "CCAtlasNode.h"
+#include "2d/CCAtlasNode.h"
 #if CC_LABELATLAS_DEBUG_DRAW
 #include "renderer/CCCustomCommand.h"
 #include "2d/CCDrawNode.h"
@@ -83,7 +83,7 @@ public:
     bool initWithString(const std::string& string, Texture2D* texture, int itemWidth, int itemHeight, int startCharMap);
 
     virtual void setString(const std::string &label) override;
-    virtual const std::string& getString() const override;
+    virtual const std::string& getString(void) const override;
 
     virtual void updateAtlasValues() override;
     /**

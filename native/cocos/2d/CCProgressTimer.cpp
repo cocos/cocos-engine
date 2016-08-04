@@ -81,11 +81,11 @@ bool ProgressTimer::initWithSprite(Sprite* sp)
     setSprite(sp);
 
     // shader state
-    setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
+    setGLProgramState(sp->getGLProgramState()/*GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR)*/);
     return true;
 }
 
-ProgressTimer::~ProgressTimer()
+ProgressTimer::~ProgressTimer(void)
 {
     CC_SAFE_FREE(_vertexData);
     CC_SAFE_RELEASE(_sprite);
@@ -104,6 +104,16 @@ void ProgressTimer::setSprite(Sprite *sprite)
 {
     if (sprite && _sprite != sprite)
     {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            if (_sprite)
+                sEngine->releaseScriptObject(this, _sprite);
+            if (sprite)
+                sEngine->retainScriptObject(this, sprite);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         CC_SAFE_RETAIN(sprite);
         CC_SAFE_RELEASE(_sprite);
         _sprite = sprite;
@@ -181,7 +191,7 @@ Vec2 ProgressTimer::vertexFromAlphaPoint(const Vec2& alpha)
     return ret;
 }
 
-void ProgressTimer::updateColor()
+void ProgressTimer::updateColor(void)
 {
     if (!_sprite) {
         return;
@@ -197,7 +207,7 @@ void ProgressTimer::updateColor()
     }
 }
 
-void ProgressTimer::updateProgress()
+void ProgressTimer::updateProgress(void)
 {
     switch (_type)
     {
@@ -258,7 +268,7 @@ void ProgressTimer::setMidpoint(const Vec2& midPoint)
 //    It now deals with flipped texture. If you run into this problem, just use the
 //    sprite property and enable the methods flipX, flipY.
 ///
-void ProgressTimer::updateRadial()
+void ProgressTimer::updateRadial(void)
 {
     if (!_sprite) {
         return;
@@ -390,7 +400,7 @@ void ProgressTimer::updateRadial()
 //    It now deals with flipped texture. If you run into this problem, just use the
 //    sprite property and enable the methods flipX, flipY.
 ///
-void ProgressTimer::updateBar()
+void ProgressTimer::updateBar(void)
 {
     if (!_sprite) {
         return;
@@ -541,7 +551,7 @@ void ProgressTimer::draw(Renderer *renderer, const Mat4 &transform, uint32_t fla
     if( ! _vertexData || ! _sprite)
         return;
 
-    _customCommand.init(_globalZOrder);
+    _customCommand.init(_globalZOrder, transform, flags);
     _customCommand.func = CC_CALLBACK_0(ProgressTimer::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
 }

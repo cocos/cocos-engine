@@ -23,7 +23,7 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "2d/CCFastTMXTiledMap.h"
 #include "2d/CCFastTMXLayer.h"
-#include "base/CCString.h"
+#include "base/ccUTF8.h"
 
 NS_CC_BEGIN
 namespace experimental {
@@ -56,11 +56,8 @@ TMXTiledMap* TMXTiledMap::createWithXML(const std::string& tmxString, const std:
 
 bool TMXTiledMap::initWithTMXFile(const std::string& tmxFile)
 {
-    CCASSERT(!tmxFile.empty(), "FastTMXTiledMap: tmx file should not be empty");
-    if (tmxFile.empty()) {
-        return false;
-    }
-
+    CCASSERT(tmxFile.size()>0, "FastTMXTiledMap: tmx file should not be empty");
+    
     setContentSize(Size::ZERO);
 
     TMXMapInfo *mapInfo = TMXMapInfo::create(tmxFile);
@@ -140,7 +137,7 @@ TMXTilesetInfo * TMXTiledMap::tilesetForLayer(TMXLayerInfo *layerInfo, TMXMapInf
                     if( gid != 0 )
                     {
                         // Optimization: quick return
-                        // if the layer is invalid (more than 1 tileset per layer) an CCASSERT will be thrown later
+                        // if the layer is invalid (more than 1 tileset per layer) an CCAssert will be thrown later
                         if( (gid & kTMXFlippedMask) >= tilesetInfo->_firstGid )
                             return tilesetInfo;
                     }
@@ -194,11 +191,8 @@ void TMXTiledMap::buildWithMapInfo(TMXMapInfo* mapInfo)
 // public
 TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
 {
-    CCASSERT(!layerName.empty(), "Invalid layer name!");
-    if (layerName.empty()) {
-        return nullptr;
-    }
-
+    CCASSERT(layerName.size() > 0, "Invalid layer name!");
+    
     for (auto& child : _children)
     {
         TMXLayer* layer = dynamic_cast<TMXLayer*>(child);
@@ -217,12 +211,9 @@ TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
 
 TMXObjectGroup * TMXTiledMap::getObjectGroup(const std::string& groupName) const
 {
-    CCASSERT(!groupName.empty(), "Invalid group name!");
-    if (groupName.empty()) {
-        return nullptr;
-    }
+    CCASSERT(groupName.size() > 0, "Invalid group name!");
 
-    if (!_objectGroups.empty())
+    if (_objectGroups.size()>0)
     {
         TMXObjectGroup* objectGroup = nullptr;
         for (auto iter = _objectGroups.cbegin(); iter != _objectGroups.cend(); ++iter)

@@ -46,7 +46,6 @@ void ActionCamera::startWithTarget(Node *target)
 
 ActionCamera* ActionCamera::clone() const
 {
-    // no copy constructor
     auto action = new (std::nothrow) ActionCamera();
     if (action)
     {
@@ -195,11 +194,11 @@ void OrbitCamera::startWithTarget(Node *target)
 
     float r, zenith, azimuth;
     this->sphericalRadius(&r, &zenith, &azimuth);
-    if( isnan(_radius) )
+    if( std::isnan(_radius) )
         _radius = r;
-    if( isnan(_angleZ) )
+    if( std::isnan(_angleZ) )
         _angleZ = (float)CC_RADIANS_TO_DEGREES(zenith);
-    if( isnan(_angleX) )
+    if( std::isnan(_angleX) )
         _angleX = (float)CC_RADIANS_TO_DEGREES(azimuth);
 
     _radZ = (float)CC_DEGREES_TO_RADIANS(_angleZ);

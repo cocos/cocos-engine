@@ -80,7 +80,7 @@ int Label::getFirstCharLen(const std::u16string& utf16Text, int startIndex, int 
 int Label::getFirstWordLen(const std::u16string& utf16Text, int startIndex, int textLen)
 {
     auto character = utf16Text[startIndex];
-    if (StringUtils::isCJKUnicode(character) || StringUtils::isUnicodeSpace(character) || character == '\n')
+    if (StringUtils::isCJKUnicode(character) || StringUtils::isUnicodeSpace(character) || character == (char16_t)TextFormatter::NewLine)
     {
         return 1;
     }
@@ -106,7 +106,8 @@ int Label::getFirstWordLen(const std::u16string& utf16Text, int startIndex, int 
         }
 
         nextLetterX += letterDef.xAdvance * _bmfontScale + _additionalKerning;
-        if (character == '\n' || StringUtils::isUnicodeSpace(character) || StringUtils::isCJKUnicode(character))
+
+        if (character == (char16_t)TextFormatter::NewLine || StringUtils::isUnicodeSpace(character) || StringUtils::isCJKUnicode(character))
         {
             break;
         }
@@ -128,7 +129,7 @@ void Label::updateBMFontScale()
     }
 }
 
-bool Label::multilineTextWrap(std::function<int(const std::u16string&, int, int)> nextTokenLen)
+bool Label::multilineTextWrap(const std::function<int(const std::u16string&, int, int)>& nextTokenLen)
 {
     int textLen = getStringLength();
     int lineIndex = 0;
@@ -143,13 +144,14 @@ bool Label::multilineTextWrap(std::function<int(const std::u16string&, int, int)
     float lowestY = 0.f;
     FontLetterDefinition letterDef;
     Vec2 letterPosition;
+    bool nextChangeSize = true;
 
     this->updateBMFontScale();
 
     for (int index = 0; index < textLen; )
     {
         auto character = _utf16Text[index];
-        if (character == '\n')
+        if (character == (char16_t)TextFormatter::NewLine)
         {
             _linesWidth.push_back(letterRight);
             letterRight = 0.f;
@@ -171,8 +173,15 @@ bool Label::multilineTextWrap(std::function<int(const std::u16string&, int, int)
         {
             int letterIndex = index + tmp;
             character = _utf16Text[letterIndex];
-            if (character == '\r')
+            if (character == (char16_t)TextFormatter::CarriageReturn)
             {
+                recordPlaceholderInfo(letterIndex, character);
+                continue;
+            }
+            // \b - Next char not change x position
+            if (character == (char16_t)TextFormatter::NextCharNoChangeX)
+            {
+                nextChangeSize = false;
                 recordPlaceholderInfo(letterIndex, character);
                 continue;
             }
@@ -185,7 +194,7 @@ bool Label::multilineTextWrap(std::function<int(const std::u16string&, int, int)
 
             auto letterX = (nextLetterX + letterDef.offsetX * _bmfontScale) / contentScaleFactor;
             if (_enableWrap && _maxLineWidth > 0.f && nextTokenX > 0.f && letterX + letterDef.width * _bmfontScale > _maxLineWidth
-                && !StringUtils::isUnicodeSpace(character))
+                && !StringUtils::isUnicodeSpace(character) && nextChangeSize)
             {
                 _linesWidth.push_back(letterRight);
                 letterRight = 0.f;
@@ -202,11 +211,15 @@ bool Label::multilineTextWrap(std::function<int(const std::u16string&, int, int)
             letterPosition.y = (nextTokenY - letterDef.offsetY * _bmfontScale) / contentScaleFactor;
             recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
 
-            if (_horizontalKernings && letterIndex < textLen - 1)
-                nextLetterX += _horizontalKernings[letterIndex + 1];
-            nextLetterX += letterDef.xAdvance * _bmfontScale + _additionalKerning;
+            if (nextChangeSize)
+            {
+                if (_horizontalKernings && letterIndex < textLen - 1)
+                    nextLetterX += _horizontalKernings[letterIndex + 1];
+                nextLetterX += letterDef.xAdvance * _bmfontScale + _additionalKerning;
 
-            tokenRight = letterPosition.x + letterDef.width * _bmfontScale;
+                tokenRight = nextLetterX / contentScaleFactor;
+            }
+            nextChangeSize = true;
 
             if (tokenHighestY < letterPosition.y)
                 tokenHighestY = letterPosition.y;
@@ -256,12 +269,12 @@ bool Label::multilineTextWrap(std::function<int(const std::u16string&, int, int)
 
 bool Label::multilineTextWrapByWord()
 {
-    return multilineTextWrap(std::bind(CC_CALLBACK_3(Label::getFirstWordLen, this), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    return multilineTextWrap(CC_CALLBACK_3(Label::getFirstWordLen, this));
 }
 
 bool Label::multilineTextWrapByChar()
 {
-      return multilineTextWrap(std::bind(CC_CALLBACK_3(Label::getFirstCharLen, this) , std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+    return multilineTextWrap(CC_CALLBACK_3(Label::getFirstCharLen, this));
 }
 
 bool Label::isVerticalClamp()
@@ -311,7 +324,7 @@ bool Label::isHorizontalClamp()
     return letterClamp;
 }
 
-void Label::shrinkLabelToContentSize(std::function<bool(void)> lambda)
+void Label::shrinkLabelToContentSize(const std::function<bool(void)>& lambda)
 {
     float fontSize = this->getRenderingFontSize();
 

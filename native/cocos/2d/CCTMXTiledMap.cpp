@@ -29,7 +29,6 @@ THE SOFTWARE.
 #include "2d/CCTMXLayer.h"
 #include "2d/CCSprite.h"
 #include "base/ccUTF8.h"
-#include "base/CCString.h"
 
 NS_CC_BEGIN
 

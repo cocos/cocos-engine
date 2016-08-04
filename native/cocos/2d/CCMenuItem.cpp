@@ -30,8 +30,8 @@ THE SOFTWARE.
 #include "2d/CCSprite.h"
 #include "2d/CCLabelAtlas.h"
 #include "2d/CCLabel.h"
+#include "base/ccUTF8.h"
 #include <stdarg.h>
-#include "base/CCString.h"
 
 NS_CC_BEGIN
 
@@ -89,6 +89,14 @@ void MenuItem::activate()
         {
             _callback(this);
         }
+#if CC_ENABLE_SCRIPT_BINDING
+        if (kScriptTypeLua == _scriptType)
+        {
+            BasicScriptData data(this);
+            ScriptEvent scriptEvent(kMenuClickedEvent, &data);
+            ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&scriptEvent);
+        }
+#endif
     }
 }
 
@@ -186,6 +194,12 @@ void MenuItemLabel::setString(const std::string& label)
     this->setContentSize(_label->getContentSize());
 }
 
+std::string MenuItemLabel::getString() const
+{
+    auto label = dynamic_cast<LabelProtocol*>(_label);
+    return label->getString();
+}
+
 void MenuItemLabel::activate()
 {
     if(_enabled)
@@ -268,7 +282,7 @@ MenuItemAtlasFont * MenuItemAtlasFont::create(const std::string& value, const st
 
 bool MenuItemAtlasFont::initWithString(const std::string& value, const std::string& charMapFile, int itemWidth, int itemHeight, char startCharMap, const ccMenuCallback& callback)
 {
-    CCASSERT( !value.empty(), "value length must be greater than 0");
+    CCASSERT( value.size() != 0, "value length must be greater than 0");
     LabelAtlas *label = LabelAtlas::create();
     label->initWithString(value, charMapFile, itemWidth, itemHeight, startCharMap);
     if (MenuItemLabel::initWithLabel(label, callback))
@@ -384,7 +398,6 @@ void MenuItemSprite::setNormalImage(Node* image)
         {
             addChild(image);
             image->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-            setContentSize(image->getContentSize());
         }
 
         if (_normalImage)
@@ -393,6 +406,7 @@ void MenuItemSprite::setNormalImage(Node* image)
         }
 
         _normalImage = image;
+        this->setContentSize(_normalImage->getContentSize());
         this->updateImagesVisibility();
     }
 }
@@ -573,7 +587,7 @@ MenuItemImage* MenuItemImage::create()
     return nullptr;
 }
 
-bool MenuItemImage::init()
+bool MenuItemImage::init(void)
 {
     return initWithNormalImage("", "", "", (const ccMenuCallback&)nullptr);
 }
@@ -618,17 +632,17 @@ bool MenuItemImage::initWithNormalImage(const std::string& normalImage, const st
     Node *selectedSprite = nullptr;
     Node *disabledSprite = nullptr;
 
-    if (!normalImage.empty())
+    if (normalImage.size() >0)
     {
         normalSprite = Sprite::create(normalImage);
     }
 
-    if (!selectedImage.empty())
+    if (selectedImage.size() >0)
     {
         selectedSprite = Sprite::create(selectedImage);
     }
 
-    if(!disabledImage.empty())
+    if(disabledImage.size() >0)
     {
         disabledSprite = Sprite::create(disabledImage);
     }
@@ -661,6 +675,20 @@ MenuItemToggle * MenuItemToggle::createWithCallback(const ccMenuCallback &callba
 {
     MenuItemToggle *ret = new (std::nothrow) MenuItemToggle();
     ret->MenuItem::initWithCallback(callback);
+    ret->autorelease();
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        for (const auto &item : menuItems)
+        {
+            if (item)
+            {
+                sEngine->retainScriptObject(ret, item);
+            }
+        }
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     ret->_subItems = menuItems;
     ret->_selectedIndex = UINT_MAX;
     ret->setSelectedIndex(0);
@@ -705,9 +733,20 @@ bool MenuItemToggle::initWithCallback(const ccMenuCallback &callback, MenuItem *
 
     int z = 0;
     MenuItem *i = item;
+    
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    
     while(i)
     {
         z++;
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, i);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         _subItems.pushBack(i);
         i = va_arg(args, MenuItem*);
     }
@@ -730,7 +769,7 @@ bool MenuItemToggle::initWithItem(MenuItem *item)
 
     if (item)
     {
-        _subItems.pushBack(item);
+        addSubItem(item);
     }
     _selectedIndex = UINT_MAX;
     this->setSelectedIndex(0);
@@ -743,19 +782,30 @@ bool MenuItemToggle::initWithItem(MenuItem *item)
 
 void MenuItemToggle::addSubItem(MenuItem *item)
 {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, item);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _subItems.pushBack(item);
 }
 
-MenuItemToggle::~MenuItemToggle()
+void MenuItemToggle::cleanup()
 {
     for(const auto &item : _subItems) {
+#if defined(CC_NATIVE_CONTROL_SCRIPT) && !CC_NATIVE_CONTROL_SCRIPT
+        ScriptEngineManager::getInstance()->getScriptEngine()->releaseScriptObject(this, item);
+#endif
         item->cleanup();
     }
+    MenuItem::cleanup();
 }
 
 void MenuItemToggle::setSelectedIndex(unsigned int index)
 {
-    if( index != _selectedIndex && !_subItems.empty())
+    if( index != _selectedIndex && _subItems.size() > 0 )
     {
         _selectedIndex = index;
         if (_selectedItem)

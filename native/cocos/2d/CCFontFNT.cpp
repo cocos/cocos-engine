@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "2d/CCFontFNT.h"
+#include <cmath>
 #include <set>
 #include "base/uthash.h"
 #include "2d/CCFontAtlas.h"
@@ -31,8 +32,8 @@
 #include "base/CCConfiguration.h"
 #include "base/CCDirector.h"
 #include "base/CCMap.h"
+#include "base/ccUTF8.h"
 #include "renderer/CCTextureCache.h"
-#include "base/CCString.h"
 
 using namespace std;
 NS_CC_BEGIN
@@ -94,7 +95,7 @@ typedef struct _KerningHashElement
 {
     int                key;        // key for the hash. 16-bit for 1st element, 16-bit for 2nd element
     int                amount;
-    UT_hash_handle    hh;
+    UT_hash_handle     hh;
 } tKerningHashElement;
 
 /** @brief BMFontConfiguration has parsed configuration of the .fnt file
@@ -240,7 +241,7 @@ BMFontConfiguration::~BMFontConfiguration()
     CC_SAFE_DELETE(_characterSet);
 }
 
-std::string BMFontConfiguration::description() const
+std::string BMFontConfiguration::description(void) const
 {
     return StringUtils::format(
         "<BMFontConfiguration = " CC_FORMAT_PRINTF_SIZE_T " | Glphys:%d Kernings:%d | Image = %s>",
@@ -274,46 +275,32 @@ void BMFontConfiguration::purgeFontDefDictionary()
 
 std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& controlFile)
 {
-    Data data = FileUtils::getInstance()->getDataFromFile(controlFile);
-    CCASSERT((!data.isNull()), "BMFontConfiguration::parseConfigFile | Open file error.");
-    if (data.isNull()) {
+    std::string data;
+    if (FileUtils::getInstance()->getContents(controlFile, &data) != FileUtils::Status::OK || data.empty())
+    {
         return nullptr;
     }
-
-    if (memcmp("BMF", data.getBytes(), 3) == 0) {
+    if (data.size() >= (sizeof("BMP") - 1) && memcmp("BMF", data.c_str(), sizeof("BMP") - 1) == 0) {
         // Handle fnt file of binary format
-        std::set<unsigned int>* ret = parseBinaryConfigFile(data.getBytes(), data.getSize(), controlFile);
+        std::set<unsigned int>* ret = parseBinaryConfigFile((unsigned char*)&data.front(), data.size(), controlFile);
         return ret;
     }
-
-    if (data.getBytes()[0] == 0)
+    if (data[0] == 0)
     {
         CCLOG("cocos2d: Error parsing FNTfile %s", controlFile.c_str());
         return nullptr;
     }
-
-    // Handle fnt file of string format, allocate one extra byte '\0' at the end since c string needs it.
-    // 'strchr' finds a char until it gets a '\0', if 'contents' self doesn't end with '\0',
-    // 'strchr' will search '\n' out of 'contents' 's buffer size, it will trigger potential and random crashes since
-    // lineLength may bigger than 512 and 'memcpy(line, contents + parseCount, lineLength);' will cause stack buffer overflow.
-    // Please note that 'contents' needs to be freed before this function returns.
-    auto contents = (char*)malloc(data.getSize() + 1);
-    if (contents == nullptr)
-    {
-        CCLOGERROR("BMFontConfiguration::parseConfigFile, out of memory!");
-        return nullptr;
-    }
-    memcpy(contents, data.getBytes(), data.getSize());
-    // Ensure the last byte is '\0'
-    contents[data.getSize()] = '\0';
-    auto contentsLen = strlen(contents);
-
+    auto contents = data.c_str();
+    
     std::set<unsigned int> *validCharsString = new (std::nothrow) std::set<unsigned int>();
-    char line[300];
+    
+    auto contentsLen = strlen(contents);
+    char line[512] = {0};
+    
     auto next = strchr(contents, '\n');
     auto base = contents;
-    int lineLength = 0;
-    int parseCount = 0;
+    size_t lineLength = 0;
+    size_t parseCount = 0;
     while (next)
     {
         lineLength = ((int)(next - base));
@@ -367,9 +354,7 @@ std::set<unsigned int>* BMFontConfiguration::parseConfigFile(const std::string& 
             this->parseKerningEntry(line);
         }
     }
-
-    free(contents);
-
+    
     return validCharsString;
 }
 
@@ -396,7 +381,7 @@ std::set<unsigned int>* BMFontConfiguration::parseBinaryConfigFile(unsigned char
         {
             /*
              fontSize       2   int      0
-             bitField       1   bits     2  bit 0: smooth, bit 1: unicode, bit 2: italic, bit 3: bold, bit 4: fixedHeigth, bits 5-7: reserved
+             bitField       1   bits     2  bit 0: smooth, bit 1: unicode, bit 2: italic, bit 3: bold, bit 4: fixedHeight, bits 5-7: reserved
              charSet        1   uint     3
              stretchH       2   uint     4
              aa             1   uint     6
@@ -506,7 +491,7 @@ std::set<unsigned int>* BMFontConfiguration::parseBinaryConfigFile(unsigned char
         }
         else if (blockId == 5) {
             /*
-             first  4   uint    0+c*10     These fields are repeated until all kerning pairs have been described
+             first  4   uint    0+c*10 	These fields are repeated until all kerning pairs have been described
              second 4   uint    4+c*10
              amount 2   int     8+c*10
              */
@@ -659,7 +644,7 @@ FontFNT * FontFNT::create(const std::string& fntFilePath, const Vec2& imageOffse
         return nullptr;
 
     // add the texture
-    Texture2D *tempTexture = Director::DirectorInstance->getTextureCache()->addImage(newConf->getAtlasName());
+    Texture2D *tempTexture = Director::getInstance()->getTextureCache()->addImage(newConf->getAtlasName());
     if (!tempTexture)
     {
         return nullptr;
@@ -701,12 +686,12 @@ int * FontFNT::getHorizontalKerningForTextUTF16(const std::u16string& text, int 
     outNumLetters = static_cast<int>(text.length());
 
     if (!outNumLetters)
-        return 0;
-
+        return nullptr;
+    
     int *sizes = new (std::nothrow) int[outNumLetters];
     if (!sizes)
-        return 0;
-
+        return nullptr;
+    
     for (int c = 0; c < outNumLetters; ++c)
     {
         if (c < (outNumLetters-1))
@@ -766,7 +751,7 @@ FontAtlas * FontFNT::createFontAtlas()
     int originalFontSize = _configuration->_fontSize;
     float originalLineHeight = _configuration->_commonHeight;
     float factor = 0.0f;
-    if (fabs(_fontSize - originalFontSize) < FLT_EPSILON) {
+    if (std::abs(_fontSize - originalFontSize) < FLT_EPSILON) {
         factor = 1.0f;
     }else {
         factor = _fontSize / originalFontSize;
@@ -779,17 +764,14 @@ FontAtlas * FontFNT::createFontAtlas()
     // Purge uniform hash
     HASH_ITER(hh, _configuration->_fontDefDictionary, currentElement, tmp)
     {
-        fontDef = currentElement->fontDef;
-        if (fontDef.charID > 65535) {
-            CCLOGWARN("Warning: 65535 < fontDef.charID (%u), ignored", fontDef.charID);
-            continue;
-        }
         
+        FontLetterDefinition tempDefinition;
+        
+        fontDef = currentElement->fontDef;
         Rect tempRect;
         tempRect = fontDef.rect;
         tempRect = CC_RECT_PIXELS_TO_POINTS(tempRect);
-
-        FontLetterDefinition tempDefinition;
+        
         tempDefinition.offsetX  = fontDef.xOffset;
         tempDefinition.offsetY  = fontDef.yOffset;
 
@@ -805,15 +787,19 @@ FontAtlas * FontFNT::createFontAtlas()
         tempDefinition.validDefinition = true;
         tempDefinition.xAdvance = fontDef.xAdvance;
         // add the new definition
-        tempAtlas->addLetterDefinition(fontDef.charID,tempDefinition);
+        if (65535 < fontDef.charID) {
+            CCLOGWARN("Warning: 65535 < fontDef.charID (%u), ignored", fontDef.charID);
+        } else {
+            tempAtlas->addLetterDefinition(fontDef.charID,tempDefinition);
+        }
     }
-
+    
     // add the texture (only one texture for now)
-    Texture2D *tempTexture = Director::DirectorInstance->getTextureCache()->addImage(_configuration->getAtlasName());
-    if (tempTexture == nullptr)
-    {
-        tempAtlas->release();
-        return 0;
+    
+    Texture2D *tempTexture = Director::getInstance()->getTextureCache()->addImage(_configuration->getAtlasName());
+    if (!tempTexture) {
+        CC_SAFE_RELEASE(tempAtlas);
+        return nullptr;
     }
 
     // add the texture
@@ -823,6 +809,26 @@ FontAtlas * FontFNT::createFontAtlas()
     return tempAtlas;
 }
 
+void FontFNT::reloadBMFontResource(const std::string& fntFilePath)
+{
+    if (s_configurations == nullptr)
+    {
+        s_configurations = new (std::nothrow) Map<std::string, BMFontConfiguration*>();
+    }
+
+    BMFontConfiguration *ret = s_configurations->at(fntFilePath);
+    if (ret != nullptr)
+    {
+        s_configurations->erase(fntFilePath);
+    }
+    ret = BMFontConfiguration::create(fntFilePath);
+    if (ret)
+    {
+        s_configurations->insert(fntFilePath, ret);
+        Director::getInstance()->getTextureCache()->reloadTexture(ret->getAtlasName());
+
+    }
+}
 
 NS_CC_END
 

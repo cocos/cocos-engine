@@ -277,7 +277,7 @@ void ShuffleTiles::startWithTarget(Node *target)
 
     if (_seed != (unsigned int)-1)
     {
-        srand(_seed);
+        std::srand(_seed);
     }
 
     _tilesCount = _gridSize.width * _gridSize.height;
@@ -568,7 +568,7 @@ TurnOffTiles* TurnOffTiles::clone() const
     return TurnOffTiles::create(_duration, _gridSize, _seed);
 }
 
-TurnOffTiles::~TurnOffTiles()
+TurnOffTiles::~TurnOffTiles(void)
 {
     CC_SAFE_DELETE_ARRAY(_tilesOrder);
 }
@@ -603,7 +603,7 @@ void TurnOffTiles::startWithTarget(Node *target)
 
     if (_seed != (unsigned int)-1)
     {
-        srand(_seed);
+        std::srand(_seed);
     }
 
     _tilesCount = _gridSize.width * _gridSize.height;
@@ -792,7 +792,7 @@ SplitRows* SplitRows::clone() const
 void SplitRows::startWithTarget(Node *target)
 {
     TiledGrid3DAction::startWithTarget(target);
-    _winSize = Director::DirectorInstance->getWinSizeInPixels();
+    _winSize = Director::getInstance()->getWinSizeInPixels();
 }
 
 void SplitRows::update(float time)
@@ -847,7 +847,7 @@ SplitCols* SplitCols::clone() const
 void SplitCols::startWithTarget(Node *target)
 {
     TiledGrid3DAction::startWithTarget(target);
-    _winSize = Director::DirectorInstance->getWinSizeInPixels();
+    _winSize = Director::getInstance()->getWinSizeInPixels();
 }
 
 void SplitCols::update(float time)

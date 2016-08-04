@@ -156,11 +156,11 @@ public:
      */
     virtual void setEnabled(bool value) { _enabled = value; };
 
-    virtual bool onTouchBegan(Touch* touch, Event* event);
-    virtual void onTouchEnded(Touch* touch, Event* event);
-    virtual void onTouchCancelled(Touch* touch, Event* event);
-    virtual void onTouchMoved(Touch* touch, Event* event);
-
+    virtual bool onTouchBegan(Touch* touch, Event* event) override;
+    virtual void onTouchEnded(Touch* touch, Event* event) override;
+    virtual void onTouchCancelled(Touch* touch, Event* event) override;
+    virtual void onTouchMoved(Touch* touch, Event* event) override;
+    
     // overrides
     virtual void removeChild(Node* child, bool cleanup) override;
 
@@ -172,7 +172,7 @@ public:
     virtual void onEnter() override;
     virtual void onExit() override;
     virtual void setOpacityModifyRGB(bool bValue) override {CC_UNUSED_PARAM(bValue);}
-    virtual bool isOpacityModifyRGB() const override { return false;}
+    virtual bool isOpacityModifyRGB(void) const override { return false;}
 
     virtual std::string getDescription() const override;
 

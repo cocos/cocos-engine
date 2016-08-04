@@ -81,6 +81,13 @@ typedef struct _ttfConfig
     }
 } TTFConfig;
 
+enum class TextFormatter : char
+{
+    NewLine = '\n',
+    CarriageReturn = '\r',
+    NextCharNoChangeX = '\b'
+};
+
 class Sprite;
 class SpriteBatchNode;
 class DrawNode;
@@ -364,7 +371,7 @@ public:
     /**
      * Enables strikethrough.
      * Underline and Strikethrough cannot be enabled at the same time.
-     * Strikethough is like an underline but at the middle of the glyph
+     * Strikethrough is like an underline but at the middle of the glyph
      */
     void enableStrikethrough();
     /**
@@ -635,8 +642,8 @@ protected:
 
     bool multilineTextWrapByChar();
     bool multilineTextWrapByWord();
-    bool multilineTextWrap(std::function<int(const std::u16string&, int, int)> lambda);
-    void shrinkLabelToContentSize(std::function<bool(void)> lambda);
+    bool multilineTextWrap(const std::function<int(const std::u16string&, int, int)>& lambda);
+    void shrinkLabelToContentSize(const std::function<bool(void)>& lambda);
     bool isHorizontalClamp();
     bool isVerticalClamp();
     float getRenderingFontSize()const;

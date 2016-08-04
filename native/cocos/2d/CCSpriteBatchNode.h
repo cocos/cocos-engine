@@ -244,8 +244,8 @@ CC_CONSTRUCTOR_ACCESS:
      * @lua init
      */
     bool initWithFile(const std::string& fileImage, ssize_t capacity = DEFAULT_CAPACITY);
-    virtual bool init() override;
-
+    bool init() override;
+    
 protected:
     /** Updates a quad at a certain index into the texture atlas. The Sprite won't be added into the children array.
      This method should be called only when you are dealing with very big AtlasSprite and when most of the Sprite won't be updated.
