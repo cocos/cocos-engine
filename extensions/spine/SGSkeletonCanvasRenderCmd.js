@@ -97,6 +97,17 @@ proto.rendering = function (wrapper, scaleX, scaleY) {
     }
 };
 
+proto.updateStatus = function() {
+    _ccsg.Node.CanvasRenderCmd.prototype.updateStatus.call(this);
+    this._updateCurrentRegions();
+    this._regionFlag = _ccsg.Node.CanvasRenderCmd.RegionStatus.DirtyDouble;
+    this._dirtyFlag &= ~_ccsg.Node._dirtyFlags.contentDirty;
+};
+
+proto.getLocalBB = function() {
+    return this._node.getBoundingBox();
+};
+
 proto._updateRegionAttachmentSlot = function(attachment, slot, points) {
     if(!points)
         return;
@@ -151,6 +162,7 @@ proto._createSprite = function(slot, attachment){
 
 proto._updateChild = function(){
     var locSkeleton = this._node._skeleton, slots = locSkeleton.slots;
+    var color = this._displayedColor, opacity = this._displayedOpacity;
     var i, n, selSprite, ax, ay;
 
     var slot, attachment, slotNode;
@@ -207,8 +219,8 @@ proto._updateChild = function(){
             }
 
             //hack for sprite
-            selSprite._renderCmd._displayedOpacity = 0 | (locSkeleton.a * slot.a * 255);
-            var r = 0 | (locSkeleton.r * slot.r * 255), g = 0 | (locSkeleton.g * slot.g * 255), b = 0 | (locSkeleton.b * slot.b * 255);
+            selSprite._renderCmd._displayedOpacity = 0 | (opacity * slot.a);
+            var r = 0 | (color.r * slot.r), g = 0 | (color.g * slot.g), b = 0 | (color.b * slot.b);
             selSprite.setColor(cc.color(r,g,b));
             selSprite._renderCmd._updateColor();
         } else if (type === spine.AttachmentType.skinnedmesh) {

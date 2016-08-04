@@ -188,14 +188,16 @@ JS.mixin(cc.loader, {
             }
             // All url completed
             if (completeCallback) {
-                if (singleRes) {
-                    completeCallback.call(self, item.error, item.content);
-                }
-                else {
-                    completeCallback.call(self, error, self._items);
-                }
+                callInNextTick(function () {
+                    if (singleRes) {
+                        completeCallback.call(self, item.error, item.content);
+                    }
+                    else {
+                        completeCallback.call(self, error, self._items);
+                    }
+                    completeCallback = null;
+                });
             }
-            completeCallback = null;
         }
 
         // Add loaded listeners
@@ -489,5 +491,11 @@ JS.mixin(cc.loader, {
         this.clear();
     }
 });
+
+if (CC_EDITOR) {
+    cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
+        this._items.refreshItemUrl(uuid, oldUrl, newUrl);
+    };
+}
 
 module.exports = cc.loader;

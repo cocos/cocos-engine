@@ -39,80 +39,135 @@ function isSceneObj (json) {
            );
 }
 
-function loadDepends (pipeline, item, asset, tdInfo, callback) {
-    var uuid = item.id,
-        url = item.url;
-    var dependsSrcs = JS.array.copy(tdInfo.uuidList);
-    var ownerList = JS.array.copy(tdInfo.uuidObjList);
-    var propList = JS.array.copy(tdInfo.uuidPropList);
-
-    var depends = new Array(dependsSrcs.length);
-    // load depends assets
-    for (var i = 0; i < dependsSrcs.length; i++) {
-        var dependSrc = dependsSrcs[i];
-        depends[i] = {
-            id: dependSrc,
-            type: 'uuid',
-            uuid: dependSrc
-        };
-    }
-    // load raw
-    if (tdInfo.rawProp) {
-        dependsSrcs.push(url);
-        ownerList.push(asset);
-        propList.push(tdInfo.rawProp);
-        depends.push(url);
-    }
-    if (depends.length > 0) {
-        pipeline.flowInDeps(depends, function (items) {
-            var item;
-            for (var src in items) {
-                item = items[src];
-                if (item.uuid && item.content) {
-                    item.content._uuid = item.uuid;
-                }
+function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRuntime, callback) {
+    var uuid = item.id, uuidList = tdInfo.uuidList;
+    var objList, propList, depends;
+    var i, dependUuid;
+    if (deferredLoadRawAssetsInRuntime) {
+        objList = [];
+        propList = [];
+        depends = [];
+        // parse depends assets
+        for (i = 0; i < uuidList.length; i++) {
+            dependUuid = uuidList[i];
+            var obj = tdInfo.uuidObjList[i];
+            var prop = tdInfo.uuidPropList[i];
+            var info = cc.AssetLibrary._getAssetInfoInRuntime(dependUuid);
+            if (info.raw) {
+                // skip preloading raw assets
+                var url = info.url;
+                obj[prop] = url;
             }
-            for (var i = 0; i < dependsSrcs.length; i++) {
-                var dependSrc = dependsSrcs[i];
-                var obj = ownerList[i];
-                var dependProp = propList[i];
-                item = items[dependSrc];
-                if (item) {
-                    if (item.complete) {
-                        var value = item.isRawAsset ? item.url : item.content;
-                        obj[dependProp] = value;
-                    }
-                    else {
-                        var loadCallback = function (item) {
-                            var value = item.isRawAsset ? item.url : item.content;
-                            this.obj[this.prop] = value;
-                        };
-                        var target = {
-                            obj: obj,
-                            prop: dependProp
-                        };
-                        // Hack to get a better behavior
-                        var list = pipeline.getItems()._callbackTable[dependSrc];
-                        if (list) {
-                            list.unshift(loadCallback, target);
-                        }
-                        else {
-                            pipeline.getItems().add(dependSrc, loadCallback, target);
-                        }
-                    }
-                }
+            else {
+                objList.push(obj);
+                propList.push(prop);
+                // declare depends assets
+                depends.push({
+                    id: dependUuid,
+                    type: 'uuid',
+                    uuid: dependUuid,
+                    deferredLoadRaw: true,
+                });
             }
-            asset._uuid = uuid;
-            callback(null, asset);
-        });
+        }
     }
     else {
+        objList = JS.array.copy(tdInfo.uuidObjList);
+        propList = JS.array.copy(tdInfo.uuidPropList);
+        depends = new Array(uuidList.length);
+        // declare depends assets
+        for (i = 0; i < uuidList.length; i++) {
+            dependUuid = uuidList[i];
+            depends[i] = {
+                id: dependUuid,
+                type: 'uuid',
+                uuid: dependUuid
+            };
+        }
+    }
+    // declare raw
+    if (tdInfo.rawProp) {
+        objList.push(asset);
+        propList.push(tdInfo.rawProp);
+        depends.push(item.url);
+    }
+    // fast path
+    if (depends.length === 0) {
         asset._uuid = uuid;
-        callback(null, asset);
+        return callback(null, asset);
     }
 
-    // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
-    tdInfo.reset();
+    pipeline.flowInDeps(depends, function (items) {
+        var item;
+        for (var src in items) {
+            item = items[src];
+            if (item.uuid && item.content) {
+                item.content._uuid = item.uuid;
+            }
+        }
+        for (var i = 0; i < depends.length; i++) {
+            var dependSrc = depends[i].uuid;
+            var dependObj = objList[i];
+            var dependProp = propList[i];
+            item = items[dependSrc];
+            if (item) {
+                if (item.complete) {
+                    var value = item.isRawAsset ? item.url : item.content;
+                    dependObj[dependProp] = value;
+                }
+                else {
+                    // item was removed from cache, but ready in pipeline actually
+                    var loadCallback = function (item) {
+                        var value = item.isRawAsset ? item.url : item.content;
+                        this.obj[this.prop] = value;
+                    };
+                    var target = {
+                        obj: dependObj,
+                        prop: dependProp
+                    };
+                    // Hack to get a better behavior
+                    var list = pipeline.getItems()._callbackTable[dependSrc];
+                    if (list) {
+                        list.unshift(loadCallback, target);
+                    }
+                    else {
+                        pipeline.getItems().add(dependSrc, loadCallback, target);
+                    }
+                }
+            }
+        }
+        asset._uuid = uuid;
+        callback(null, asset);
+        if (CC_EDITOR) {
+            cc.loader.removeItem(uuid);
+        }
+    });
+}
+
+// can deferred load raw assets in runtime
+function canDeferredLoad (asset, item, isScene) {
+    if (CC_EDITOR) {
+        return false;
+    }
+    var res = item.deferredLoadRaw;
+    if (res) {
+        // check if asset support deferred
+        if (asset instanceof cc.Asset && asset.constructor.preventDeferredLoadDependents) {
+            res = false;
+        }
+    }
+    else if (isScene) {
+        if (asset instanceof cc.SceneAsset) {
+            res = asset.asyncLoadAssets;
+            if (res) {
+                cc.log('deferred load raw assets for ' + item.id);
+            }
+        }
+        //else if (asset instanceof cc.Scene) {
+        //    deferredLoadRawAssetsInRuntime = asset._asyncLoadAssets;
+        //}
+    }
+    return res;
 }
 
 function loadUuid (item, callback) {
@@ -134,7 +189,8 @@ function loadUuid (item, callback) {
         return;
     }
 
-    var classFinder = isSceneObj(json) ? cc._MissingScript.safeFindClass : function (id) {
+    var isScene = isSceneObj(json);
+    var classFinder = isScene ? cc._MissingScript.safeFindClass : function (id) {
         var cls = JS._getClassById(id);
         if (cls) {
             return cls;
@@ -149,7 +205,8 @@ function loadUuid (item, callback) {
     try {
         asset = cc.deserialize(json, tdInfo, {
             classFinder: classFinder,
-            target: item.existingAsset
+            target: item.existingAsset,
+            customEnv: item
         });
     }
     catch (e) {
@@ -157,7 +214,11 @@ function loadUuid (item, callback) {
         return;
     }
 
-    loadDepends(this.pipeline, item, asset, tdInfo, callback);
+    var deferredLoad = canDeferredLoad(asset, item, isScene);
+    loadDepends(this.pipeline, item, asset, tdInfo, deferredLoad, callback);
+
+    // tdInfo 是用来重用的临时对象，每次使用后都要重设，这样才对 GC 友好。
+    tdInfo.reset();
 }
 
 module.exports = loadUuid;

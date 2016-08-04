@@ -68,9 +68,13 @@ JS.getset(state, 'curveLoaded',
 state.onPlay = function () {
     // replay
     this.setTime(0);
+
+    AnimationNode.prototype.onPlay.call(this);
 };
 
 state.onStop = function () {
+    AnimationNode.prototype.onStop.call(this);
+    
     if (this.animator) {
         this.animator.removeAnimation(this);
     }

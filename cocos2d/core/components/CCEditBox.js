@@ -164,7 +164,7 @@ var EditBox = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/EditBox',
-        inspector: 'app://editor/page/inspector/cceditbox.html',
+        inspector: 'packages://inspector/inspectors/comps/cceditbox.js',
         help: 'i18n:COMPONENT.help_url.editbox',
         executeInEditMode: true,
     },
@@ -380,6 +380,16 @@ var EditBox = cc.Class({
         editingDidEnded: {
             default: [],
             type: cc.Component.EventHandler,
+        },
+
+        /**
+         * !#en The event handler to be called when return key is pressed. Windows is not supported.
+         * !#zh 当用户按下回车按键时的事件回调，目前不支持 windows 平台
+         * @property {Component.EventHandler} editingReturn
+         */
+        editingReturn: {
+            default: [],
+            type: cc.Component.EventHandler
         }
 
     },
@@ -407,7 +417,7 @@ var EditBox = cc.Class({
         var bgSprite = new cc.Scale9Sprite();
         bgSprite.setRenderingType(cc.Scale9Sprite.RenderingType.SLICED);
         if (this.backgroundImage) {
-
+            this.backgroundImage.ensureLoadTexture();
             bgSprite.setSpriteFrame(this.backgroundImage);
             this._applyCapInset(bgSprite);
         }
@@ -417,6 +427,9 @@ var EditBox = cc.Class({
 
     _initSgNode: function() {
         var sgNode = this._sgNode;
+        if(!CC_JSB) {
+            sgNode.createDomElementIfNeeded();
+        }
 
         this._createBackgroundSprite();
 
@@ -440,7 +453,6 @@ var EditBox = cc.Class({
         sgNode.returnType = this.returnType;
         sgNode.setLineHeight(this.lineHeight);
 
-
         sgNode.setDelegate(this);
     },
 
@@ -454,6 +466,10 @@ var EditBox = cc.Class({
 
     editBoxTextChanged: function(editBox, text) {
         cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
+    },
+
+    editBoxEditingReturn: function() {
+        cc.Component.EventHandler.emitEvents(this.editingReturn, this);
     },
 
     __preload: function() {
@@ -490,11 +506,11 @@ var EditBox = cc.Class({
 if(CC_JSB) {
     EditBox.prototype.editBoxEditingDidBegin = function (sender) {
         this.editBoxEditingDidBegan(sender);
-    }
+    };
 
     EditBox.prototype.editBoxEditingDidEnd = function (sender) {
         this.editBoxEditingDidEnded(sender);
-    }
+    };
 }
 
 cc.EditBox = module.exports = EditBox;

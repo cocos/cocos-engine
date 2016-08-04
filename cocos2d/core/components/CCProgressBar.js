@@ -244,6 +244,7 @@ var ProgressBar = cc.Class({
             default: 1,
             type: 'Float',
             range: [0, 1, 0.1],
+            slide: true,
             tooltip: 'i18n:COMPONENT.progress.progress',
             notify: function() {
                 this._updateBarStatus();

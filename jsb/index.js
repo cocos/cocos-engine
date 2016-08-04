@@ -58,7 +58,9 @@ if (_engineNumberVersion) {
 cc.initEngine = function (config, cb) {
     require('script/jsb.js');
     cc._renderType = cc.game.RENDER_TYPE_OPENGL;
-    cc._initDebugSetting(config[cc.game.CONFIG_KEY.debugMode]);
+    if (config) {
+        cc._initDebugSetting(config[cc.game.CONFIG_KEY.debugMode]);
+    }
     cc._engineLoaded = true;
     cc.log(cc.ENGINE_VERSION);
     if (cb) cb();
@@ -96,9 +98,14 @@ require('./jsb-scale9sprite');
 require('./jsb-label');
 require('./jsb-editbox');
 require('./jsb-videoplayer');
+require('./jsb-webview.js');
 require('./jsb-particle');
 require('./jsb-spine');
 require('./jsb-enums');
 require('./jsb-event');
 require('./jsb-action');
 require('./jsb-etc');
+
+if (cc.runtime) {
+    require('./versions/jsb-polyfill-runtime');
+}

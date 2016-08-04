@@ -156,9 +156,11 @@ function visitNode (node) {
     var widget = node._widget;
     if (widget) {
         alignToParent(node, widget);
-        widgetManager._nodesWithWidget.push(node);
-        if (!CC_EDITOR && widget.isAlignOnce) {
+        if ((!CC_EDITOR || animationState.animatedSinceLastFrame) && widget.isAlignOnce) {
             widget.enabled = false;
+        }
+        else {
+            widgetManager._nodesWithWidget.push(node);
         }
     }
     var children = node._children;
@@ -170,7 +172,34 @@ function visitNode (node) {
     }
 }
 
+if (CC_EDITOR) {
+    var animationState = {
+        previewing: false,
+        time: 0,
+        animatedSinceLastFrame: false,
+    };
+}
+
 function refreshScene () {
+    // check animation editor
+    if (CC_EDITOR && window._Scene && _Scene.AnimUtils) {
+        var nowPreviewing = !!_Scene.AnimUtils.curAnimState;
+        if (nowPreviewing !== animationState.previewing) {
+            animationState.previewing = nowPreviewing;
+            if (nowPreviewing) {
+                animationState.animatedSinceLastFrame = true;
+                animationState.time = _Scene.AnimUtils.curAnimState.time;
+            }
+            else {
+                animationState.animatedSinceLastFrame = false;
+            }
+        }
+        else if (nowPreviewing && animationState.time !== _Scene.AnimUtils.curAnimState.time) {
+            animationState.animatedSinceLastFrame = true;
+            animationState.time = _Scene.AnimUtils.curAnimState.time;
+        }
+    }
+
     var scene = cc.director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
@@ -178,14 +207,35 @@ function refreshScene () {
             widgetManager._nodesWithWidget.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
-        } else {
-            var nodes = widgetManager._nodesWithWidget;
-            for (var i = 0, len = nodes.length; i < len; i++) {
-                var node = nodes[i];
-                alignToParent(node, node._widget);
+        }
+        else {
+            var i, node, nodes = widgetManager._nodesWithWidget, len = nodes.length;
+            if (CC_EDITOR && window._Scene && _Scene.AnimUtils && _Scene.AnimUtils.curAnimState) {
+                for (i = len - 1; i >= 0; i--) {
+                    node = nodes[i];
+                    var widget = node._widget;
+                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame) {
+                        // widget contains in _nodesWithWidget should aligned at least once
+                        widget.enabled = false;
+                    }
+                    else {
+                        alignToParent(node, widget);
+                    }
+                }
+            }
+            else {
+                for (i = 0; i < len; i++) {
+                    node = nodes[i];
+                    alignToParent(node, node._widget);
+                }
             }
         }
         widgetManager.isAligning = false;
+    }
+
+    // check animation editor
+    if (CC_EDITOR) {
+        animationState.animatedSinceLastFrame = false;
     }
 }
 

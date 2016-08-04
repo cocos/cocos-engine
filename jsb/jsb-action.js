@@ -112,6 +112,44 @@ for (var i = 0; i < actionArr.length; ++i) {
     }
 }
 
+cc.follow = function (followedNode, rect) {
+    return new cc.Follow(followedNode._sgNode, rect);
+};
+
+cc.Follow.prototype.update = function(dt) {
+    var target = this.getTarget();
+    if (target._owner) {
+        target._owner.setPosition(target.getPosition());
+    }
+};
+
+cc.Show.prototype.update = function (dt) {
+    var target = this.getTarget();
+    var _renderComps = target._owner.getComponentsInChildren();
+    for (var i = 0; i < _renderComps.length; ++i) {
+        var render = _renderComps[i];
+        render.enabled = true;
+    }
+};
+
+cc.Hide.prototype.update = function (dt) {
+    var target = this.getTarget();
+    var _renderComps = target._owner.getComponentsInChildren();
+    for (var i = 0; i < _renderComps.length; ++i) {
+        var render = _renderComps[i];
+        render.enabled = false;
+    }
+};
+
+cc.ToggleVisibility.prototype.update = function (dt) {
+    var target = this.getTarget();
+    var _renderComps = target._owner.getComponentsInChildren();
+    for (var i = 0; i < _renderComps.length; ++i) {
+        var render = _renderComps[i];
+        render.enabled = true;
+    }
+};
+
 // Special call func
 cc.callFunc = function (selector, selectorTarget, data) {
     var callback = function (sender, data) {
@@ -285,13 +323,13 @@ function syncSkewUpdate (dt) {
     }
 }
 
-// function syncOpacityUpdate (dt) {
-//     this._jsbUpdate(dt);
-//     var target = this.getTarget();
-//     if (target._owner) {
-//         target._owner.opacity = target.getOpacity();
-//     }
-// }
+function syncOpacityUpdate (dt) {
+    this._jsbUpdate(dt);
+    var target = this.getTarget();
+    if (target._owner) {
+        target._owner.opacity = target.getOpacity();
+    }
+}
 
 function syncColorUpdate (dt) {
     this._jsbUpdate(dt);
@@ -301,25 +339,27 @@ function syncColorUpdate (dt) {
     }
 }
 
+// Sub classes must be registered before their super class.
+// Otherwise, JSB there will be internal Error: "too much recursion".
 var actionUpdate = {
-    'MoveTo' : syncPositionUpdate,
-    'MoveBy' : syncPositionUpdate,
-    'JumpTo' : syncPositionUpdate,
-    'JumpBy' : syncPositionUpdate,
-    'Place' : syncPositionUpdate,
-    'RotateTo' : syncRotationUpdate,
-    'RotateBy' : syncRotationUpdate,
-    'ScaleTo' : syncScaleUpdate,
-    'ScaleBy' : syncScaleUpdate,
-    'RemoveSelf' : syncRemoveSelfUpdate,
-    'SkewTo' : syncSkewUpdate,
-    'SkewBy' : syncSkewUpdate,
-    // 'Blink' : syncOpacityUpdate,
-    // 'FadeTo' : syncOpacityUpdate,
-    // 'FadeIn' : syncOpacityUpdate,
-    // 'FadeOut' : syncOpacityUpdate,
-    'TintTo' : syncColorUpdate,
-    'TintBy' : syncColorUpdate
+    'MoveTo': syncPositionUpdate,
+    'MoveBy': syncPositionUpdate,
+    'JumpTo': syncPositionUpdate,
+    'JumpBy': syncPositionUpdate,
+    'Place': syncPositionUpdate,
+    'RotateTo': syncRotationUpdate,
+    'RotateBy': syncRotationUpdate,
+    'ScaleTo': syncScaleUpdate,
+    'ScaleBy': syncScaleUpdate,
+    'RemoveSelf': syncRemoveSelfUpdate,
+    'SkewTo': syncSkewUpdate,
+    'SkewBy': syncSkewUpdate,
+    'Blink': syncOpacityUpdate,
+    'FadeIn': syncOpacityUpdate,
+    'FadeOut': syncOpacityUpdate,
+    'FadeTo': syncOpacityUpdate,
+    'TintTo': syncColorUpdate,
+    'TintBy': syncColorUpdate
 };
 
 for (var key in actionUpdate) {

@@ -308,9 +308,8 @@ _ccsg.MotionStreak = _ccsg.Node.extend({
      * @param {cc.Texture2D} texture
      */
     setTexture:function (texture) {
-        if (texture && this.texture !== texture) {
+        if (this.texture !== texture)
             this.texture = texture;
-        }
     },
 
     /**

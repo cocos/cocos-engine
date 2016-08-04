@@ -57,8 +57,12 @@ var AudioSource = cc.Class({
         _loop: false,
 
         /**
-         * !#en Is the audio source playing (Read Only).
-         * !#zh 该音频剪辑是否正播放（只读）。
+         * !#en
+         * Is the audio source playing (Read Only). <br/>
+         * Note: isPlaying is not supported for Native platforms.
+         * !#zh
+         * 该音频剪辑是否正播放（只读）。<br/>
+         * 注意：Native 平台暂时不支持 isPlaying。
          * @property isPlaying
          * @type {Boolean}
          * @readOnly
@@ -245,8 +249,8 @@ var AudioSource = cc.Class({
      */
     rewind: function(){
         if ( this.audio ) {
-            cc.audioEngine.stopEffect(this.audio);
-            cc.audioEngine.playEffect(this.audio);
+            this.stop();
+            this.play();
         }
     },
 

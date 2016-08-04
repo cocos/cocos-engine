@@ -454,6 +454,7 @@ var Node = cc.Class({
 
             set: function (value) {
                 this.groupIndex = cc.game.groupList.indexOf(value);
+                this.emit('group-changed');
             }
         }
     },
@@ -462,9 +463,6 @@ var Node = cc.Class({
         var name = arguments[0];
         this._name = typeof name !== 'undefined' ? name : 'New Node';
         this._activeInHierarchy = false;
-
-        // Support for ActionManager and EventManager
-        this.__instanceId = this._id || cc.ClassManager.getNewInstanceId();
 
         // cache component
         this._widget = null;
@@ -475,24 +473,15 @@ var Node = cc.Class({
         // Mouse event listener
         this._mouseListener = null;
 
-        /**
-         * Register all related EventTargets,
-         * all event callbacks will be removed in _onPreDestroy
-         * @property __eventTargets
-         * @type {EventTarget[]}
-         * @private
-         */
-        this.__eventTargets = [];
-
         // Retained actions for JSB
         if (CC_JSB) {
             this._retainedActions = [];
         }
     },
 
-    statics: {
-        _DirtyFlags: require('./utils/misc').DirtyFlags
-    },
+    //statics: {
+    //    _DirtyFlags: require('./utils/misc').DirtyFlags
+    //},
 
     // OVERRIDES
 
@@ -541,10 +530,14 @@ var Node = cc.Class({
         // Remove all listeners
         if (CC_JSB && this._touchListener) {
             this._touchListener.release();
+            this._touchListener.owner = null;
+            this._touchListener.mask = null;
             this._touchListener = null;
         }
         if (CC_JSB && this._mouseListener) {
             this._mouseListener.release();
+            this._mouseListener.owner = null;
+            this._mouseListener.mask = null;
             this._mouseListener = null;
         }
         cc.eventManager.removeListeners(this);
@@ -577,6 +570,7 @@ var Node = cc.Class({
         }
         else if (CC_JSB) {
             this._sgNode.release();
+            this._sgNode._entity = null;
             this._sgNode = null;
         }
     },
@@ -622,7 +616,6 @@ var Node = cc.Class({
         if (constructor) {
             findComponents(this, constructor, components);
         }
-
         return components;
     },
 
@@ -641,13 +634,12 @@ var Node = cc.Class({
         if (constructor) {
             return findChildComponent(this._children, constructor);
         }
-
         return null;
     },
 
     /**
-     * !#en Returns all components of supplied type in any of its children.
-     * !#zh 递归查找所有子节点中指定类型的组件。
+     * !#en Returns all components of supplied type in self or any of its children.
+     * !#zh 递归查找自身或所有子节点中指定类型的组件
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
      * @return {Component[]}
@@ -658,9 +650,9 @@ var Node = cc.Class({
     getComponentsInChildren: function (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
         if (constructor) {
+            findComponents(this, constructor, components);
             findChildComponents(this._children, constructor, components);
         }
-
         return components;
     },
 
@@ -795,6 +787,10 @@ var Node = cc.Class({
             }
         }
         if (ctor._requireComponent) {
+            if (index === this._components.length) {
+                // If comp should be last component, increase the index because required component added
+                ++index;
+            }
             var depend = this.addComponent(ctor._requireComponent);
             if (!depend) {
                 // depend conflicts
@@ -1083,6 +1079,10 @@ var Node = cc.Class({
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {Event} callback.param event
      * @param {Object} [target] - The target to invoke the callback, can be null
+     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
+     *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
+     *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
+     *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
      * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
      * // add Node Touch Event
@@ -1091,7 +1091,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_END, callback, this.node);
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
      */
-    on: function (type, callback, target) {
+    on: function (type, callback, target, useCapture) {
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
                 this._touchListener = cc.EventListener.create({
@@ -1127,7 +1127,7 @@ var Node = cc.Class({
                 cc.eventManager.addListener(this._mouseListener, this);
             }
         }
-        EventTarget.prototype.on.call(this, type, callback, target);
+        this._EventTargetOn(type, callback, target, useCapture);
     },
 
     /**
@@ -1139,13 +1139,17 @@ var Node = cc.Class({
      * @param {String} type - A string representing the event type being removed.
      * @param {Function} callback - The callback to remove.
      * @param {Object} [target] - The target to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Boolean} useCapture - Specifies whether the callback being removed was registered as a capturing callback or not.
+     *                              If not specified, useCapture defaults to false. If a callback was registered twice,
+     *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
+     *                              does not affect a non-capturing version of the same listener, and vice versa.
      * @example
      * // remove Node TOUCH_START Event.
      * node.on(cc.Node.EventType.TOUCH_START, callback, this.node);
      * node.off(cc.Node.EventType.TOUCH_START, callback, this.node);
      */
-    off: function (type, callback, target) {
-        EventTarget.prototype.off.call(this, type, callback, target);
+    off: function (type, callback, target, useCapture) {
+        this._EventTargetOff(type, callback, target, useCapture);
 
         if (_touchEvents.indexOf(type) !== -1) {
             this._checkTouchListeners();
@@ -1164,7 +1168,7 @@ var Node = cc.Class({
      * node.targetOff(target);
      */
     targetOff: function (target) {
-        EventTarget.prototype.targetOff.call(this, target);
+        this._EventTargetTargetOff(target);
 
         this._checkTouchListeners();
         this._checkMouseListeners();
@@ -1212,7 +1216,8 @@ var Node = cc.Class({
                 for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {}
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
-                    return parent._hitTest(point);
+                    var comp = parent.getComponent(cc.Mask);
+                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(point) : true;
                 }
                 // mask parent no longer exists
                 else {
@@ -1226,6 +1231,17 @@ var Node = cc.Class({
         }
         else {
             return false;
+        }
+    },
+
+    // Store all capturing parents that are listening to the same event in the array
+    _getCapturingTargets: function (type, array) {
+        var parent = this.parent;
+        while (parent) {
+            if (parent.hasEventListener(type, true)) {
+                array.push(parent);
+            }
+            parent = parent.parent;
         }
     },
 
@@ -1374,23 +1390,32 @@ var Node = cc.Class({
 // In JSB, when inner sg node being replaced, the system event listeners will be cleared.
 // We need a mechanisme to guarentee the persistence of system event listeners.
 if (CC_JSB) {
+    var updateListeners = function () {
+        if (!this._activeInHierarchy) {
+            cc.eventManager.pauseTarget(this);
+        }
+    };
+
     cc.js.getset(Node.prototype, '_sgNode',
         function () {
             return this.__sgNode;
         },
         function (value) {
             this.__sgNode = value;
-            if (this._touchListener) {
-                this._touchListener.retain();
-                cc.eventManager.removeListener(this._touchListener);
-                cc.eventManager.addListener(this._touchListener, this);
-                this._touchListener.release();
-            }
-            if (this._mouseListener) {
-                this._mouseListener.retain();
-                cc.eventManager.removeListener(this._mouseListener);
-                cc.eventManager.addListener(this._mouseListener, this);
-                this._mouseListener.release();
+            if (this._touchListener || this._mouseListener) {
+                if (this._touchListener) {
+                    this._touchListener.retain();
+                    cc.eventManager.removeListener(this._touchListener);
+                    cc.eventManager.addListener(this._touchListener, this);
+                    this._touchListener.release();
+                }
+                if (this._mouseListener) {
+                    this._mouseListener.retain();
+                    cc.eventManager.removeListener(this._mouseListener);
+                    cc.eventManager.addListener(this._mouseListener, this);
+                    this._mouseListener.release();
+                }
+                cc.director.once(cc.Director.EVENT_BEFORE_UPDATE, updateListeners, this);
             }
         },
         true
@@ -1398,21 +1423,19 @@ if (CC_JSB) {
 }
 
 /**
- *
  * @event position-changed
  * @param {Event} event
- * @param {Vec2} event.detail - old position
+ * @param {Vec2} event.detail - The old position, but this parameter is only available in editor!
  */
 /**
 /**
  * @event size-changed
  * @param {Event} event
- * @param {Size} event.detail - old size
+ * @param {Size} event.detail - The old size, but this parameter is only available in editor!
  */
 /**
  * @event anchor-changed
  * @param {Event} event
- * @param {Vec2} event.detail - old anchor
  */
 /**
  * @event child-added
@@ -1426,6 +1449,10 @@ if (CC_JSB) {
  */
 /**
  * @event child-reorder
+ * @param {Event} event
+ */
+/**
+ * @event group-changed
  * @param {Event} event
  */
 /**

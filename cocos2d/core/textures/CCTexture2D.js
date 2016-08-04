@@ -85,6 +85,8 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         this._textureLoaded = false;
         this._htmlElementObj = null;
         this._contentSize = cc.size(0, 0);
+        this._pixelWidth = 0;
+        this._pixelHeight = 0;
 
         if (cc._renderType === game.RENDER_TYPE_CANVAS) {
             this._pattern = "";
@@ -96,8 +98,6 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
             this._hasPremultipliedAlpha = false;
             this._pixelFormat = Texture2D.defaultPixelFormat;
-            this._pixelsWide = 0;
-            this._pixelsHigh = 0;
             this._hasPremultipliedAlpha = false;
             this._hasMipmaps = false;
 
@@ -111,7 +111,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @return {Number}
      */
     getPixelWidth: function () {
-        return this._contentSize.width;
+        return this._pixelWidth;
     },
 
     /**
@@ -120,7 +120,7 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
      * @return {Number}
      */
     getPixelHeight: function () {
-        return this._contentSize.height;
+        return this._pixelHeight;
     },
 
     /**
@@ -162,8 +162,8 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
         if (!element)
             return;
         this._htmlElementObj = element;
-        this._contentSize.width = element.width;
-        this._contentSize.height = element.height;
+        this._pixelWidth = this._contentSize.width = element.width;
+        this._pixelHeight = this._contentSize.height = element.height;
         this._textureLoaded = true;
     },
 
@@ -229,8 +229,9 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
             return;
 
         var locElement = self._htmlElementObj;
-        self._contentSize.width = locElement.width;
-        self._contentSize.height = locElement.height;
+        self._pixelWidth = self._contentSize.width = locElement.width;
+        self._pixelHeight = self._contentSize.height = locElement.height;
+        self._textureLoaded = true;
 
         //dispatch load event to listener.
         self.emit("load");
@@ -715,13 +716,6 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
     } else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
         JS.mixin(Texture2D.prototype, {
-            getPixelWidth: function () {
-                return this._pixelsWide;
-            },
-
-            getPixelHeight: function () {
-                return this._pixelsHigh;
-            },
 
             initWithData: function (data, pixelFormat, pixelsWide, pixelsHigh, contentSize) {
                 var self = this, tex2d = Texture2D;
@@ -783,8 +777,8 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
                 self._contentSize.width = contentSize.width;
                 self._contentSize.height = contentSize.height;
-                self._pixelsWide = pixelsWide;
-                self._pixelsHigh = pixelsHigh;
+                self._pixelWidth = pixelsWide;
+                self._pixelHeight = pixelsHigh;
                 self._pixelFormat = pixelFormat;
 
                 self._hasPremultipliedAlpha = false;
@@ -862,12 +856,13 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 var pixelsWide = self._htmlElementObj.width;
                 var pixelsHigh = self._htmlElementObj.height;
 
-                self._pixelsWide = self._contentSize.width = pixelsWide;
-                self._pixelsHigh = self._contentSize.height = pixelsHigh;
+                self._pixelWidth = self._contentSize.width = pixelsWide;
+                self._pixelHeight = self._contentSize.height = pixelsHigh;
                 self._pixelFormat = Texture2D.PIXEL_FORMAT_RGBA8888;
 
                 self._hasPremultipliedAlpha = premultiplied;
                 self._hasMipmaps = false;
+                self._textureLoaded = true;
 
                 //dispatch load event to listener.
                 self.emit("load");
@@ -880,7 +875,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 if(magFilter !== undefined)
                     texParams = {minFilter: texParams, magFilter: magFilter, wrapS: wrapS, wrapT: wrapT};
 
-                cc.assert((_t._pixelsWide === misc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === misc.NextPOT(_t._pixelsHigh)) ||
+                cc.assert((_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight)) ||
                     (texParams.wrapS === gl.CLAMP_TO_EDGE && texParams.wrapT === gl.CLAMP_TO_EDGE),
                     "WebGLRenderingContext.CLAMP_TO_EDGE should be used in NPOT textures");
 
@@ -915,7 +910,7 @@ game.once(game.EVENT_RENDERER_INITED, function () {
 
             generateMipmap: function () {
                 var _t = this;
-                cc.assert(_t._pixelsWide === misc.NextPOT(_t._pixelsWide) && _t._pixelsHigh === misc.NextPOT(_t._pixelsHigh), "Mimpap texture only works in POT textures");
+                cc.assert(_t._pixelWidth === misc.NextPOT(_t._pixelWidth) && _t._pixelHeight === misc.NextPOT(_t._pixelHeight), "Mimpap texture only works in POT textures");
 
                 cc.gl.bindTexture2D(_t);
                 cc._renderContext.generateMipmap(cc._renderContext.TEXTURE_2D);

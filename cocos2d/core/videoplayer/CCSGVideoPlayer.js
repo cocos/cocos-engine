@@ -73,6 +73,12 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
         return this._renderCmd.isPlaying();
     },
 
+    createDomElementIfNeeded: function () {
+        if (!this._renderCmd._video) {
+            this._renderCmd.createDom();
+        }
+    },
+
     setKeepAspectRatioEnabled: function () {
         cc.log("On the web is always keep the aspect ratio");
     },
@@ -167,7 +173,7 @@ cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
     }
 });
 
-cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+cc.game.on(cc.game.EVENT_SHOW, function () {
     var list = _ccsg.VideoPlayer.pauseElements;
     var node = list.pop();
     while(node){
@@ -176,15 +182,11 @@ cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
     }
 });
 
-/**
- * The VideoPlayer support list of events
- * @type {{PLAYING: string, PAUSED: string, STOPPED: string, COMPLETED: string}}
- */
 _ccsg.VideoPlayer.EventType = {
-    PLAYING: "play",
-    PAUSED: "pause",
-    STOPPED: "stop",
-    COMPLETED: "complete"
+    PLAYING: 0,
+    PAUSED: 1,
+    STOPPED: 2,
+    COMPLETED: 3
 };
 
 (function (video) {
@@ -254,12 +256,8 @@ _ccsg.VideoPlayer.EventType = {
     var proto = _ccsg.VideoPlayer.RenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
     proto.constructor = _ccsg.VideoPlayer.RenderCmd;
 
-    proto.resize = function () {
-
-    };
-
     proto.transform = function (parentCmd, recursive) {
-        _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
+        this.originTransform(parentCmd, recursive);
         this.updateMatrix();
     };
 
@@ -267,13 +265,12 @@ _ccsg.VideoPlayer.EventType = {
         if (!this._video) return;
         var node = this._node, scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         var dpr = cc.view._devicePixelRatio;
-        var t = node.getNodeToWorldTransform();
-        if (!t) return;
+        var t = this._worldTransform;
 
         scaleX /= dpr;
         scaleY /= dpr;
 
-        var container = cc.container;
+        var container = cc.game.container;
         var a = t.a * scaleX, b = t.b, c = t.c, d = t.d * scaleY;
 
         var offsetX = container && container.style.paddingLeft &&  parseInt(container.style.paddingLeft);
@@ -297,9 +294,6 @@ _ccsg.VideoPlayer.EventType = {
         var source, video, extname;
         var node = this._node;
 
-        if (!this._video) {
-            this.createDom();
-        }
 
         if (this._url == path) {
             return;
@@ -312,6 +306,7 @@ _ccsg.VideoPlayer.EventType = {
 
         this.removeDom();
         this.createDom();
+
         this.bindEvent();
 
         video = this._video;
@@ -388,9 +383,20 @@ _ccsg.VideoPlayer.EventType = {
         var video = this._video;
         if (node.visible) {
             video.style.visibility = 'visible';
+            cc.game.container.appendChild(video);
         } else {
             video.style.visibility = 'hidden';
             video.pause();
+            if(video){
+                var hasChild = false;
+                if('contains' in cc.game.container) {
+                    hasChild = cc.game.container.contains(video);
+                }else {
+                    hasChild = cc.game.container.compareDocumentPosition(video) % 16;
+                }
+                if(hasChild)
+                    cc.game.container.removeChild(video);
+            }
         }
     };
 
@@ -402,22 +408,23 @@ _ccsg.VideoPlayer.EventType = {
         video.className = "cocosVideo";
         video.setAttribute('preload', true);
         this._video = video;
-        cc.container.appendChild(video);
+        cc.game.container.appendChild(video);
     };
 
     proto.removeDom = function () {
         var video = this._video;
         if(video){
             var hasChild = false;
-            if('contains' in cc.container) {
-                hasChild = cc.container.contains(video);
+            if('contains' in cc.game.container) {
+                hasChild = cc.game.container.contains(video);
             }else {
-                hasChild = cc.container.compareDocumentPosition(video) % 16;
+                hasChild = cc.game.container.compareDocumentPosition(video) % 16;
             }
             if(hasChild)
-                cc.container.removeChild(video);
+                cc.game.container.removeChild(video);
         }
         this._video = null;
+        this._url = "";
     };
 
     proto.updateSize = function (width, height) {

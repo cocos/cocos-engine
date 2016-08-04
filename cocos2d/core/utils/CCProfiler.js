@@ -27,43 +27,43 @@
  * @class profiler
  */
 cc.profiler = (function () {
-    var _inited = false, 
-        _showFPS = false;
-    var _frames = 0, 
-        _frameRate = 0,
-        _lastSPF = 0,
-        _accumDt = 0;
-    var _FPSLabel = null,
+    var _inited = false, _showFPS = false;
+    var _frames = 0, _frameRate = 0, _lastSPF = 0, _accumDt = 0;
+    var _afterVisitListener = null,
+        _FPSLabel = null,
         _SPFLabel = null,
-        _drawsLabel = null;
-
+        _drawsLabel = null,
+        _fps = null;
     var LEVEL_DET_FACTOR = 0.6, _levelDetCycle = 10;
     var LEVELS = [0, 10, 20, 30];
     var _fpsCount = [0, 0, 0, 0];
     var _currLevel = 3, _analyseCount = 0, _totalFPS = 0;
 
     var createStatsLabel = function () {
-        var fontSize = 0;
-        var w = cc.winSize.width, h = cc.winSize.height;
-        var locStatsPosition = cc.macro.DIRECTOR_STATS_POSITION;
-        if (w > h)
-            fontSize = 0 | (h / 320 * 20);
-        else
-            fontSize = 0 | (w / 320 * 20);
+        _FPSLabel = document.createElement('div');
+        _SPFLabel = document.createElement('div');
+        _drawsLabel = document.createElement('div');
+        _fps = document.createElement('div');
 
-        _FPSLabel = new _ccsg.Label("000.0", "Arial");
-        _SPFLabel = new _ccsg.Label("0.000", "Arial");
-        _drawsLabel = new _ccsg.Label("0000", "Arial");
-        _FPSLabel.setFontSize(fontSize);
-        _SPFLabel.setFontSize(fontSize);
-        _drawsLabel.setFontSize(fontSize);
-        _FPSLabel.setContentSize(120, 40);
-        _SPFLabel.setContentSize(120, 40);
-        _drawsLabel.setContentSize(120, 40);
+        _fps.id = 'fps';
+        _fps.style.position = 'absolute';
+        _fps.style.padding = '3px';
+        _fps.style.textAlign = 'left';
+        _fps.style.backgroundColor = 'rgb(0, 0, 34)';
+        _fps.style.bottom = cc.macro.DIRECTOR_STATS_POSITION.y + '0px';
+        _fps.style.left = cc.macro.DIRECTOR_STATS_POSITION.x + 'px';
+        _fps.style.width = '45px';
+        _fps.style.height = '60px';
 
-        _drawsLabel.setPosition(_drawsLabel.width / 2 + locStatsPosition.x, 40 * 5 / 2 + locStatsPosition.y);
-        _SPFLabel.setPosition(_SPFLabel.width / 2 + locStatsPosition.x, 40 * 3 / 2 + locStatsPosition.y);
-        _FPSLabel.setPosition(_FPSLabel.width / 2 + locStatsPosition.x, 40 / 2 + locStatsPosition.y);
+        var labels = [_drawsLabel, _SPFLabel, _FPSLabel];
+        for (var i = 0; i < 3; ++i) {
+            var style = labels[i].style;
+            style.color = 'rgb(0, 255, 255)';
+            style.font = 'bold 12px Helvetica, Arial';
+            style.lineHeight = '20px';
+            style.width = '100%';
+            _fps.appendChild(labels[i]);
+        }
     };
 
     var analyseFPS = function (fps) {
@@ -120,23 +120,11 @@ cc.profiler = (function () {
             }
 
             if (_showFPS) {
-                _SPFLabel.setString(_lastSPF.toFixed(3));
-                _FPSLabel.setString(_frameRate.toFixed(1));
-                _drawsLabel.setString((0 | cc.g_NumberOfDraws).toString());
+                _SPFLabel.innerText = _lastSPF.toFixed(3);
+                _FPSLabel.innerText = _frameRate.toFixed(1);
+                _drawsLabel.innerText = (0 | cc.g_NumberOfDraws).toString();
             }
         }
-
-        if (_showFPS) {
-            _FPSLabel.visit();
-            _SPFLabel.visit();
-            _drawsLabel.visit();
-        }
-    };
-
-    var afterProjection = function(){
-        _FPSLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-        _SPFLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
-        _drawsLabel._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
     };
 
     var profiler = {
@@ -157,12 +145,10 @@ cc.profiler = (function () {
 
         resumeProfiling: function () {
             cc.director.on(cc.Director.EVENT_AFTER_VISIT, afterVisit);
-            cc.director.on(cc.Director.EVENT_PROJECTION_CHANGED, afterProjection);
         },
 
         stopProfiling: function () {
             cc.director.off(cc.Director.EVENT_AFTER_VISIT, afterVisit);
-            cc.director.off(cc.Director.EVENT_PROJECTION_CHANGED, afterProjection);
         },
 
         isShowingStats: function () {
@@ -170,24 +156,25 @@ cc.profiler = (function () {
         },
 
         showStats: function () {
-            if (_ccsg.Label && !_FPSLabel) {
-                createStatsLabel();
-            }
-            if (_FPSLabel) {
-                _showFPS = true;
-            }
             if (!_inited) {
                 this.init();
             }
+            if (_fps.parentElement === null) {
+                cc.container.appendChild(_fps);
+            }
+            _showFPS = true;
         },
 
         hideStats: function () {
             _showFPS = false;
-            cc.renderer.childrenOrderDirty = true;
+            if (_fps && _fps.parentElement === cc.container) {
+                cc.container.removeChild(_fps);
+            }
         },
 
         init: function () {
             if (!_inited) {
+                createStatsLabel();
                 this.resumeProfiling();
                 _inited = true;
             }

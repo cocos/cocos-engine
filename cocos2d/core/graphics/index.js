@@ -23,10 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Path = require('path');
-var gulp = require('gulp');
-var del = require('del');
+'use strict';
 
-gulp.task('clean', function (done) {
-    del(Path.join(paths.outDir, '**/*'));
-});
+var GraphicsNode;
+if (!cc.sys.isNative) {
+    GraphicsNode = _ccsg.GraphicsNode = require('./graphics-node');
+}
+else {
+    GraphicsNode = _ccsg.GraphicsNode = cc.GraphicsNode;
+}
+
+if (GraphicsNode) {
+    var misc = require('../utils/misc');
+    misc.propertyDefine(GraphicsNode, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'deviceRatio', 'strokeColor', 'fillColor'], {});
+}
+
+require('./graphics');

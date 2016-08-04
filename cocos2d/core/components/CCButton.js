@@ -102,10 +102,17 @@ var Button = cc.Class({
     extends: require('./CCComponent'),
 
     ctor: function () {
+        this._resetState();
+        this._sprite = null;
+
+        if(CC_EDITOR) {
+            this._previousNormalSprite = null;
+        }
+    },
+
+    _resetState: function () {
         this._pressed = false;
         this._hovered = false;
-
-        this._sprite = null;
 
         this._fromColor = null;
         this._toColor = null;
@@ -116,7 +123,7 @@ var Button = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Button',
         help: 'i18n:COMPONENT.help_url.button',
-        inspector: 'app://editor/page/inspector/button/button.html',
+        inspector: 'packages://inspector/inspectors/comps/button.js',
         executeInEditMode: true
     },
 
@@ -133,8 +140,19 @@ var Button = cc.Class({
         interactable: {
             default: true,
             tooltip: 'i18n:COMPONENT.button.interactable',
-            notify: function () {
+            notify: function (oldValue) {
+                if(CC_EDITOR) {
+                    if(oldValue) {
+                        this._previousNormalSprite = this.normalSprite;
+                    } else {
+                        this.normalSprite = this._previousNormalSprite;
+                    }
+                }
                 this._updateState();
+
+                if(!this.interactable) {
+                    this._resetState();
+                }
             },
             animatable: false
         },
@@ -198,7 +216,7 @@ var Button = cc.Class({
         disabledColor: {
             default: cc.color(124, 124, 124),
             displayName: 'Disabled',
-            tooltip: 'i18n:COMPONENT.button.diabled_color',
+            tooltip: 'i18n:COMPONENT.button.disabled_color',
             notify: function () {
                 this._updateState();
             }
@@ -317,6 +335,20 @@ var Button = cc.Class({
     },
 
     onEnable: function () {
+        // check sprite frames
+        if (this.normalSprite) {
+            this.normalSprite.ensureLoadTexture();
+        }
+        if (this.hoverSprite) {
+            this.hoverSprite.ensureLoadTexture();
+        }
+        if (this.pressedSprite) {
+            this.pressedSprite.ensureLoadTexture();
+        }
+        if (this.disabledSprite) {
+            this.disabledSprite.ensureLoadTexture();
+        }
+        //
         if (!CC_EDITOR) {
             this._registerEvent();
         } else {
@@ -357,10 +389,6 @@ var Button = cc.Class({
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     },
 
-    _cancelButtonClick: function(){
-        this._pressed = false;
-    },
-
     _applyTarget: function () {
         var target = this.target;
         if (target) {
@@ -377,6 +405,7 @@ var Button = cc.Class({
 
         this._pressed = true;
         this._updateState();
+        event.stopPropagation();
     },
 
     _onTouchMove: function (event) {
@@ -395,6 +424,7 @@ var Button = cc.Class({
         var sprite = this[state + 'Sprite'];
 
         this._applyTransition(color, sprite);
+        event.stopPropagation();
     },
 
     _onTouchEnded: function (event) {
@@ -405,6 +435,7 @@ var Button = cc.Class({
         }
         this._pressed = false;
         this._updateState();
+        event.stopPropagation();
     },
 
     _onTouchCancel: function () {
@@ -414,7 +445,7 @@ var Button = cc.Class({
         this._updateState();
     },
 
-    _onMouseMoveIn: function (event) {
+    _onMouseMoveIn: function () {
         if (this._pressed || !this.interactable || !this.enabledInHierarchy) return;
 
         if (!this._hovered) {

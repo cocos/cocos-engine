@@ -25,6 +25,7 @@
 
 require('./downloader');
 require('./loader');
+require('./json-unpacker');
 
 require('./loading-items');
 require('./pipeline');

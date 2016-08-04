@@ -217,17 +217,6 @@ cc.configuration = /** @lends cc.configuration# */{
     },
 
     /**
-     * Dumps the current configuration on the console
-     */
-    dumpInfo: function(){
-         if(cc.macro.ENABLE_GL_STATE_CACHE === 0){
-             cc.log("");
-             cc.log(cc._LogInfos.configuration.dumpInfo);
-             cc.log("")
-         }
-    },
-
-    /**
      * gathers OpenGL / GPU information
      */
     gatherGPUInfo: function(){

@@ -51,7 +51,7 @@ cc.RawAsset = cc.Class({
         Object.defineProperty(this, '_uuid', {
             value: '',
             writable: true,
-            enumerable: false   // avoid uuid being assigned to empty string during destroy,
+            // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
         });
     },
 
@@ -84,8 +84,8 @@ cc.RawAsset = cc.Class({
 Object.defineProperty(cc.RawAsset, 'isRawAssetType', {
     value: function (ctor) {
         return cc.isChildClassOf(ctor, cc.RawAsset) && !cc.isChildClassOf(ctor, cc.Asset);
-    },
-    enumerable: false
+    }
+    // enumerable is false by default
 });
 
 module.exports = cc.RawAsset;

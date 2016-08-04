@@ -26,84 +26,113 @@
 var JS = require('./js');
 var isPlainEmptyObj = require('./utils').isPlainEmptyObj_DEV;
 
+function createAttrsSingle (owner, ownerCtor, superAttrs) {
+    var AttrsCtor;
+    if (CC_DEV) {
+        var ctorName = ownerCtor.name + '_ATTRS';
+        if (owner !== ownerCtor) {
+            ctorName += '_INSTANCE';
+        }
+        AttrsCtor = eval('(function ' + ctorName + '(){})');
+    }
+    else {
+        AttrsCtor = function () {};
+    }
+    if (superAttrs) {
+        JS.extend(AttrsCtor, superAttrs.constructor);
+    }
+    var attrs = new AttrsCtor();
+    Object.defineProperty(owner, '__attrs__', {
+        value: attrs,
+    });
+    return attrs;
+}
+
+// subclass should not have __attrs__
+function createAttrs (subclass) {
+    var superClass;
+    var chains = cc.Class.getInheritanceChain(subclass);
+    for (var i = chains.length - 1; i >= 0; i--) {
+        var cls = chains[i];
+        var attrs = cls.__attrs__;
+        if (!attrs) {
+            superClass = chains[i + 1];
+            createAttrsSingle(cls, cls, superClass && superClass.__attrs__);
+        }
+    }
+    superClass = chains[0];
+    createAttrsSingle(subclass, subclass, superClass && superClass.__attrs__);
+    return subclass.__attrs__;
+}
+
+var DELIMETER = '$_$';
+
 // /**
 //  * @class Class
 //  */
 
-// *
+//  *
 //  * Tag the class with any meta attributes, then return all current attributes assigned to it.
 //  * This function holds only the attributes, not their implementations.
 //  *
 //  * @method attr
-//  * @param {Function|Object} constructor - the class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
-//  * @param {String} propertyName - the name of property or function, used to retrieve the attributes
-//  * @param {Object} [attributes] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
-//  * @return {Object|Undefined} return all attributes associated with the property. if none undefined will be returned
+//  * @param {Function|Object} ctor - the class or instance. If instance, the attribute will be dynamic and only available for the specified instance.
+//  * @param {String} propName - the name of property or function, used to retrieve the attributes
+//  * @param {Object} [newAttrs] - the attribute table to mark, new attributes will merged with existed attributes. Attribute whose key starts with '_' will be ignored.
 //  * @static
 //  * @private
-//  * @example {@link utils/api/engine/docs/cocos2d/core/platform/attribute/attr.js}
- 
-function attr (constructor, propertyName, attributes) {
-    var key = '_attr$' + propertyName;
-    var instance, attrs, name;
-    if (typeof constructor === 'function') {
-        // attributes in class
-        instance = constructor.prototype;
-        attrs = instance[key];
-        if (typeof attributes !== 'undefined') {
-            // set
-            if (typeof attributes === 'object') {
-                if (!attrs) {
-                    instance[key] = attrs = {};
-                }
-                for (name in attributes) {
-                    if (name[0] !== '_') {
-                        attrs[name] = attributes[name];
-                    }
-                }
-            }
-            else {
-                instance[key] = attributes;
-                return attributes;
-            }
-        }
-        return attrs;
+function attr (ctor, propName, newAttrs) {
+    var attrs, setter, key;
+    if (typeof ctor === 'function') {
+        // attributes shared between instances
+        attrs = ctor.__attrs__ || createAttrs(ctor);
+        setter = attrs.constructor.prototype;
     }
     else {
         // attributes in instance
-        instance = constructor;
-        if (typeof attributes !== 'undefined') {
-            // set
-            if (typeof attributes === 'object') {
-                if (instance.hasOwnProperty(key)) {
-                    attrs = instance[key];
-                }
-                if (!attrs) {
-                    instance[key] = attrs = {};
-                }
-                for (name in attributes) {
-                    if (name[0] !== '_') {
-                        attrs[name] = attributes[name];
-                    }
-                }
-                return JS.addon({}, attrs, instance.constructor.prototype[key]);
-            }
-            else {
-                instance[key] = attributes;
-                return attributes;
+        var instance = ctor;
+        attrs = instance.__attrs__;
+        if (!attrs) {
+            ctor = instance.constructor;
+            var clsAttrs = ctor.__attrs__ || createAttrs(ctor);
+            attrs = createAttrsSingle(instance, ctor, clsAttrs);
+        }
+        setter = attrs;
+    }
+
+    if (typeof newAttrs === 'undefined') {
+        // get
+        var prefix = propName + DELIMETER;
+        var ret = {};
+        for (key in attrs) {
+            if (key.startsWith(prefix)) {
+                ret[key.slice(prefix.length)] = attrs[key];
             }
         }
-        else {
-            // get
-            attrs = instance[key];
-            if (typeof attrs === 'object') {
-                return JS.addon({}, attrs, instance.constructor.prototype[key]);
+        return ret;
+    }
+    else {
+        // set
+        if (typeof newAttrs === 'object') {
+            for (key in newAttrs) {
+                if (key.charCodeAt(0) !== 95 /* _ */) {
+                    setter[propName + DELIMETER + key] = newAttrs[key];
+                }
             }
-            else {
-                return attrs;
-            }
+        }
+        else if (CC_DEV) {
+            cc.error('attribute must be type object');
         }
     }
+}
+
+function getClassAttrs (ctor) {
+    return ctor.__attrs__ || createAttrs(ctor);
+}
+
+function setClassAttr (ctor, propName, key, value) {
+    var attrs = ctor.__attrs__ || createAttrs(ctor);
+    attrs.constructor.prototype[propName + DELIMETER + key] = value;
 }
 
 /**
@@ -177,7 +206,7 @@ function getTypeChecker (type, attrName) {
     if (CC_DEV) {
         return function (constructor, mainPropName) {
             var propInfo = '"' + JS.getClassName(constructor) + '.' + mainPropName + '"';
-            var mainPropAttrs = cc.Class.attr(constructor, mainPropName) || {};
+            var mainPropAttrs = attr(constructor, mainPropName);
             if (!mainPropAttrs.saveUrlAsAsset) {
                 var mainPropAttrsType = mainPropAttrs.type;
                 if (mainPropAttrsType === cc.Integer || mainPropAttrsType === cc.Float) {
@@ -256,21 +285,21 @@ function ObjectType (typeCtor) {
         _onAfterProp: CC_DEV && function (classCtor, mainPropName) {
             getTypeChecker('Object', 'type')(classCtor, mainPropName);
             // check ValueType
-            var mainPropAttrs = cc.Class.attr(classCtor, mainPropName) || {};
-            var def = mainPropAttrs.default;
-            if (typeof def === 'function') {
+            var defaultDef = getClassAttrs(classCtor)[mainPropName + DELIMETER + 'default'];
+            var defaultVal = defaultDef;
+            if (typeof defaultDef === 'function') {
                 try {
-                    def = def();
+                    defaultVal = defaultDef();
                 }
                 catch (e) {
                     return;
                 }
             }
-            if (!Array.isArray(def) && cc.isChildClassOf(typeCtor, cc.ValueType)) {
+            if (!Array.isArray(defaultVal) && cc.isChildClassOf(typeCtor, cc.ValueType)) {
                 var typename = JS.getClassName(typeCtor);
                 var info = cc.js.formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
                     JS.getClassName(classCtor), mainPropName, typename);
-                if (mainPropAttrs.default) {
+                if (defaultDef) {
                     cc.log(info);
                 }
                 else {
@@ -298,11 +327,11 @@ function RawType (typename) {
                     cc.error('RawType is only available for Assets');
                     return false;
                 }
+                var attrs = getClassAttrs(constructor);
                 var found = false;
                 for (var p = 0; p < constructor.__props__.length; p++) {
                     var propName = constructor.__props__[p];
-                    var attrs = cc.Class.attr(constructor, propName);
-                    var rawType = attrs.rawType;
+                    var rawType = attrs[propName + DELIMETER + 'rawType'];
                     if (rawType) {
                         var containsUppercase = (rawType.toLowerCase() !== rawType);
                         if (containsUppercase) {
@@ -322,17 +351,15 @@ function RawType (typename) {
     };
 }
 
-function Range (min, max) {
-   return { min: min, max: max };
-}
-
 module.exports = {
     attr: attr,
+    getClassAttrs: getClassAttrs,
+    setClassAttr: setClassAttr,
+    DELIMETER: DELIMETER,
     getTypeChecker: getTypeChecker,
     NonSerialized: NonSerialized,
     EditorOnly: EditorOnly,
     ObjectType: ObjectType,
     RawType: RawType,
     ScriptUuid: {},      // the value will be represented as a uuid string
-    Range: Range
 };

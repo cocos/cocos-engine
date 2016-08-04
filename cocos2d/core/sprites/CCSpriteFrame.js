@@ -27,15 +27,39 @@
 var EventTarget = require("../event/event-target");
 
 /**
+ * !#en
  * A cc.SpriteFrame has:<br/>
  *  - texture: A cc.Texture2D that will be used by the _ccsg.Sprite<br/>
  *  - rectangle: A rectangle of the texture<br/>
  * <br/>
  * You can modify the frame of a _ccsg.Sprite by doing:<br/>
  *
+ * Note: It's not recommended to use SpriteFrame constructor (new SpriteFrame)
+ * because its memory usage can't be tracked in native environment, <br/>
+ * if you know what you are doing, you may need to manually retain it after creation then
+ * release it when you no longer need it.
+ *
+ * !#zh
+ * 一个 SpriteFrame 包含：<br/>
+ *  - 纹理：会被 Sprite 使用的 Texture2D 对象。<br/>
+ *  - 矩形：在纹理中的矩形区域。<br/>
+ * 注意：<br/>
+ *   不建议用户使用构造函数进行创建，因为其内存使用情况，不能在本地环境中进行跟踪，需要用户手动管理内存，不然会导致严重错误。<br/>
+ *   如果你知道你在做什么，你可能需要手动将其保留在创建之后，然后释放它。
+ *
  * @class SpriteFrame
  * @extends Asset
  * @constructor
+ * @example
+ * // load a cc.SpriteFrame with image path (Recommend)
+ * var self = this;
+ * var url = "test assets/PurpleMonster";
+ * cc.loader.loadRes(url, cc.SpriteFrame, function (err, spriteFrame) {
+ *  var node = new cc.Node("New Sprite");
+ *  var sprite = node.addComponent(cc.Sprite);
+ *  sprite.spriteFrame = spriteFrame;
+ *  node.parent = self.node
+ * });
  */
 cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     name: 'cc.SpriteFrame',
@@ -57,25 +81,38 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                         // just packing
                         return;
                     }
-
-                    var texture = cc.textureCache.addImage(url);
-                    this._refreshTexture(texture);
+                    this._loadTexture();
                 }
             }
         }
     },
 
     /**
-     * Constructor of SpriteFrame class
+     * !#en
+     * Constructor of SpriteFrame class. <br/>
+     * Note: It's not recommended to use SpriteFrame constructor (new SpriteFrame)
+     * because its memory usage can't be tracked in native environment, <br/>
+     * if you know what you are doing, you may need to manually retain it after creation then
+     * release it when you no longer need it.
+     * !#zh
+     * SpriteFrame 类的构造函数。<br/>
+     * 注意：<br/>
+     *    不建议用户使用构造函数进行创建，因为其内存使用情况，不能在本地环境中进行跟踪，
+     *    需要用户手动管理内存，不然会导致严重错误。<br/>
+     *    如果你知道你在做什么，你可能需要手动将其保留在创建之后，然后释放它。
      * @method SpriteFrame
      * @param {String|Texture2D} [filename]
      * @param {Rect} [rect]
      * @param {Boolean} [rotated] - Whether the frame is rotated in the texture
      * @param {Vec2} [offset] - The offset of the frame in the texture
      * @param {Size} [originalSize] - The size of the frame in the texture
-     * @example {@link utils/api/engine/docs/cocos2d/core/sprites/SpriteFrame.js}
      */
     ctor: function () {
+
+        if (CC_DEV && (!CC_EDITOR || Editor.isRendererProcess) && !CC_TEST && !cc.game._isCloning) {
+            cc.warn("It's not recommended to use SpriteFrame constructor (new SpriteFrame) because its memory usage can't be tracked in native environment, if you know what you are doing, you may need to manually retain it after creation then release it when you no longer need it.");
+        }
+
         var filename = arguments[0];
         var rect = arguments[1];
         var rotated = arguments[2];
@@ -94,7 +131,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._rotated = false;
 
         /**
-         * Top border of the sprite
+         * !#en Top border of the sprite
+         * !#zh sprite 的顶部边框
          * @property insetTop
          * @type {Number}
          * @default 0
@@ -102,7 +140,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.insetTop = 0;
 
         /**
-         * Bottom border of the sprite
+         * !#en Bottom border of the sprite
+         * !#zh sprite 的底部边框
          * @property insetBottom
          * @type {Number}
          * @default 0
@@ -110,7 +149,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.insetBottom = 0;
 
         /**
-         * Left border of the sprite
+         * !#en Left border of the sprite
+         * !#zh sprite 的左边边框
          * @property insetLeft
          * @type {Number}
          * @default 0
@@ -118,7 +158,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this.insetLeft = 0;
 
         /**
-         * Right border of the sprite
+         * !#en Right border of the sprite
+         * !#zh sprite 的左边边框
          * @property insetRight
          * @type {Number}
          * @default 0
@@ -142,7 +183,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns whether the texture have been loaded
+     * !#en Returns whether the texture have been loaded
+     * !#zh 返回是否已加载纹理
      * @method textureLoaded
      * @returns {boolean}
      */
@@ -162,7 +204,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns whether the sprite frame is rotated in the texture.
+     * !#en Returns whether the sprite frame is rotated in the texture.
+     * !#zh 获取 SpriteFrame 是否旋转
      * @method isRotated
      * @return {Boolean}
      */
@@ -171,7 +214,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Set whether the sprite frame is rotated in the texture.
+     * !#en Set whether the sprite frame is rotated in the texture.
+     * !#zh 设置 SpriteFrame 是否旋转
      * @method setRotated
      * @param {Boolean} bRotated
      */
@@ -180,7 +224,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the rect of the sprite frame in the texture.
+     * !#en Returns the rect of the sprite frame in the texture.
+     * !#zh 获取 SpriteFrame 的纹理矩形区域
      * @method getRect
      * @return {Rect}
      */
@@ -189,7 +234,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the rect of the sprite frame in the texture.
+     * !#en Sets the rect of the sprite frame in the texture.
+     * !#zh 设置 SpriteFrame 的纹理矩形区域
      * @method setRect
      * @param {Rect} rect
      */
@@ -198,7 +244,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the original size of the trimmed image.
+     * !#en Returns the original size of the trimmed image.
+     * !#zh 获取修剪前的原始大小
      * @method getOriginalSize
      * @return {Size}
      */
@@ -207,7 +254,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the original size of the trimmed image.
+     * !#en Sets the original size of the trimmed image.
+     * !#zh 设置修剪前的原始大小
      * @method setOriginalSize
      * @param {Size} size
      */
@@ -221,7 +269,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the texture of the frame.
+     * !#en Returns the texture of the frame.
+     * !#zh 获取使用的纹理实例
      * @method getTexture
      * @return {Texture2D}
      */
@@ -230,7 +279,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the texture of the frame, the texture is retained automatically.
+     * !#en Sets the texture of the frame, the texture is retained automatically.
+     * !#zh 设置使用的纹理实例，会被 retain。
      * @method _refreshTexture
      * @param {Texture2D} texture
      */
@@ -242,20 +292,23 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             this._texture = texture;
             function textureLoadedCallback () {
                 self._textureLoaded = true;
+                var w = texture.width, h = texture.height;
+
                 if (self._rotated && cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
                     var tempElement = texture.getHtmlElementObj();
                     tempElement = _ccsg.Sprite.CanvasRenderCmd._cutRotateImageToCanvas(tempElement, self.getRect());
                     var tempTexture = new cc.Texture2D();
                     tempTexture.initWithElement(tempElement);
                     tempTexture.handleLoadedTexture();
-                    // _refreshTexture will be recalled in setTexture
-                    self.setTexture(tempTexture);
-                    return;
+                    self._texture = tempTexture;
+                    self._rotated = false;
+                    w = self._texture.width;
+                    h = self._texture.height;
+                    self.setRect(cc.rect(0, 0, w, h));
                 }
-                var w = texture.width, h = texture.height;
 
                 if (self._rect) {
-                    self._checkRect(texture);
+                    self._checkRect(self._texture);
                 }
                 else {
                     self.setRect(cc.rect(0, 0, w, h));
@@ -291,7 +344,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Returns the offset of the frame in the texture.
+     * !#en Returns the offset of the frame in the texture.
+     * !#zh 获取偏移量
      * @method getOffset
      * @return {Vec2}
      */
@@ -300,7 +354,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Sets the offset of the frame in the texture.
+     * !#en Sets the offset of the frame in the texture.
+     * !#zh 设置偏移量
      * @method setOffset
      * @param {Vec2} offsets
      */
@@ -309,7 +364,8 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
-     * Clone the sprite frame.
+     * !#en Clone the sprite frame.
+     * !#zh 克隆 SpriteFrame
      * @method clone
      * @return {SpriteFrame}
      */
@@ -317,10 +373,10 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         return new cc.SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
-    /**
+    /*
      * Initializes SpriteFrame with Texture, rect, rotated, offset and originalSize in pixels.<br/>
      * Please pass parameters to the constructor to initialize the sprite, do not call this function yourself.
-     * @method initWithTexture
+     * @method setTexture
      * @param {String|Texture2D} texture
      * @param {Rect} [rect=null]
      * @param {Boolean} [rotated=false]
@@ -328,27 +384,25 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */
-    initWithTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
-        this.setTexture(textureOrTextureFile, rect, rotated, offset, originalSize);
-    },
-
     setTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
-
         if (rect) {
             this.setRect(rect);
-        } else {
+        }
+        else {
             this._rect = null;
         }
 
         if (offset) {
             this.setOffset(offset);
-        } else {
+        }
+        else {
             this._offset = null;
         }
 
         if (originalSize) {
             this.setOriginalSize(originalSize);
-        } else {
+        }
+        else {
             this._originalSize = null;
         }
 
@@ -358,15 +412,47 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         var texture = textureOrTextureFile;
         if (cc.js.isString(texture)) {
             this._textureFilename = texture;
-            texture = cc.textureCache.addImage(texture);
+            this._loadTexture();
         }
-        if (texture instanceof cc.Texture2D) {
+        else if (texture instanceof cc.Texture2D) {
             this._refreshTexture(texture);
-        } else {
+        }
+        else {
             //todo log error
         }
 
         return true;
+    },
+
+    _loadTexture: function () {
+        if (this._textureFilename) {
+            var texture = cc.textureCache.addImage(this._textureFilename);
+            this._refreshTexture(texture);
+        }
+    },
+
+    /**
+     * !#en If a loading scene is marked as `asyncLoadAssets`, all the textures of the SpriteFrame which
+     * associated by user's custom Components in the scene, will not preload automatically.
+     * These textures will be load when Sprite component is going to render the SpriteFrames.
+     * You can call this method if you want to load the texture early.
+     * !#zh 当加载中的场景被标记为 `asyncLoadAssets` 时，用户在场景中由自定义组件关联到的所有 SpriteFrame 的贴图都不会被提前加载。
+     * 只有当 Sprite 组件要渲染这些 SpriteFrame 时，才会检查贴图是否加载。如果你希望加载过程提前，你可以手工调用这个方法。
+     *
+     * @method ensureLoadTexture
+     * @example
+     * if (spriteFrame.textureLoaded()) {
+     *     this._onSpriteFrameLoaded();
+     * }
+     * else {
+     *     spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+     *     spriteFrame.ensureLoadTexture();
+     * }
+     */
+    ensureLoadTexture: function () {
+        if (!this._texture) {
+            this._loadTexture();
+        }
     },
 
     _checkRect: function (texture) {
@@ -450,24 +536,15 @@ cc.SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         // load texture via _textureFilenameSetter
         var textureUuid = data.texture;
         if (textureUuid) {
-            handle.result.push(this, '_textureFilenameSetter', textureUuid);
+            var dontLoadTexture = (handle.customEnv && handle.customEnv.deferredLoadRaw);
+            var receiver = dontLoadTexture ? '_textureFilename' : '_textureFilenameSetter';
+            handle.result.push(this, receiver, textureUuid);
         }
     }
 });
 
 var proto = cc.SpriteFrame.prototype;
 
-/**
- * Copy the sprite frame
- * @method copyWithZone
- * @return {SpriteFrame}
- */
 proto.copyWithZone = proto.clone;
-
-/**
- * Copy the sprite frame
- * @method copy
- * @returns {SpriteFrame}
- */
 proto.copy = proto.clone;
-
+proto.initWithTexture = proto.setTexture;

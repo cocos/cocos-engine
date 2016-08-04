@@ -130,6 +130,9 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
     //Margin
     margin:0,
 
+    // tile offset
+    tileOffset: null,
+
     //Filename containing the tiles (should be sprite sheet / texture atlas)
     sourceImage:"",
 
@@ -138,6 +141,7 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
 
     ctor:function () {
         this._tileSize = cc.size(0, 0);
+        this.tileOffset = cc.p(0, 0);
         this.imageSize = cc.size(0, 0);
     },
 
@@ -146,13 +150,13 @@ cc.TMXTilesetInfo = cc._Class.extend(/** @lends cc.TMXTilesetInfo# */{
      * @param {Number} gid
      * @return {cc.Rect}
      */
-    rectForGID:function (gid) {
-        var rect = cc.rect(0, 0, 0, 0);
+    rectForGID:function (gid, result) {
+        var rect = result || cc.rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;
         gid &= cc.TiledMap.TileFlag.FLIPPED_MASK;
         gid = gid - parseInt(this.firstGid, 10);
-        var max_x = parseInt((this.imageSize.width - this.margin + this.spacing) / (this._tileSize.width + this.spacing), 10);
+        var max_x = parseInt((this.imageSize.width - this.margin * 2 + this.spacing) / (this._tileSize.width + this.spacing), 10);
         rect.x = parseInt((gid % max_x) * (this._tileSize.width + this.spacing) + this.margin, 10);
         rect.y = parseInt(parseInt(gid / max_x, 10) * (this._tileSize.height + this.spacing) + this.margin, 10);
         return rect;
@@ -220,6 +224,11 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     _resources:"",
     _currentFirstGID:0,
 
+    // hex map values
+    _staggerAxis: null,
+    _staggerIndex: null,
+    _hexSideLength: 0,
+
     /**
      * Creates a TMX Format with a tmx file or content string                           <br/>
      * Constructor of cc.TMXMapInfo
@@ -258,6 +267,54 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
      */
     setOrientation:function (value) {
         this.orientation = value;
+    },
+
+    /**
+     * Gets the staggerAxis of map.
+     * @return {cc.TiledMap.StaggerAxis}
+     */
+    getStaggerAxis:function () {
+        return this._staggerAxis;
+    },
+
+    /**
+     * Set the staggerAxis of map.
+     * @param {cc.TiledMap.StaggerAxis} value
+     */
+    setStaggerAxis:function (value) {
+        this._staggerAxis = value;
+    },
+
+    /**
+     * Gets stagger index
+     * @return {cc.TiledMap.StaggerIndex}
+     */
+    getStaggerIndex:function () {
+        return this._staggerIndex;
+    },
+
+    /**
+     * Set the stagger index.
+     * @param {cc.TiledMap.StaggerIndex} value
+     */
+    setStaggerIndex:function (value) {
+        this._staggerIndex = value;
+    },
+
+    /**
+     * Gets Hex side length.
+     * @return {Number}
+     */
+    getHexSideLength:function () {
+        return this._hexSideLength;
+    },
+
+    /**
+     * Set the Hex side length.
+     * @param {Number} value
+     */
+    setHexSideLength:function (value) {
+        this._hexSideLength = value;
     },
 
     /**
@@ -487,6 +544,9 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
 
         var version = map.getAttribute('version');
         var orientationStr = map.getAttribute('orientation');
+        var staggerAxisStr = map.getAttribute('staggeraxis');
+        var staggerIndexStr = map.getAttribute('staggerindex');
+        var hexSideLengthStr = map.getAttribute('hexsidelength');
 
         if (map.nodeName === "map") {
             if (version !== "1.0" && version !== null)
@@ -500,6 +560,24 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 this.orientation = cc.TiledMap.Orientation.HEX;
             else if (orientationStr !== null)
                 cc.log("cocos2d: TMXFomat: Unsupported orientation:" + orientationStr);
+
+            if (staggerAxisStr === 'x') {
+                this.setStaggerAxis(cc.TiledMap.StaggerAxis.STAGGERAXIS_X);
+            }
+            else if (staggerAxisStr === 'y') {
+                this.setStaggerAxis(cc.TiledMap.StaggerAxis.STAGGERAXIS_Y);
+            }
+
+            if (staggerIndexStr === 'odd') {
+                this.setStaggerIndex(cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD);
+            }
+            else if (staggerIndexStr === 'even') {
+                this.setStaggerIndex(cc.TiledMap.StaggerIndex.STAGGERINDEX_EVEN);
+            }
+
+            if (hexSideLengthStr) {
+                this.setHexSideLength(parseFloat(hexSideLengthStr));
+            }
 
             var mapSize = cc.size(0, 0);
             mapSize.width = parseFloat(map.getAttribute('width'));
@@ -569,6 +647,14 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 }
                 this.setTilesets(tileset);
 
+                // parse tile offset
+                var offset = selTileset.getElementsByTagName('tileoffset')[0];
+                if (offset) {
+                    var offsetX = parseFloat(offset.getAttribute('x'));
+                    var offsetY = parseFloat(offset.getAttribute('y'));
+                    tileset.tileOffset = cc.p(offsetX, offsetY);
+                }
+
                 // PARSE  <tile>
                 var tiles = selTileset.getElementsByTagName('tile');
                 if (tiles) {
@@ -628,36 +714,40 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                     cc.log("cc.TMXMapInfo.parseXMLFile(): unsupported compression method");
                     return null;
                 }
+                var tiles;
                 switch (compression) {
                     case 'gzip':
-                        layer._tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
+                        tiles = cc.Codec.unzipBase64AsArray(nodeValue, 4);
                         break;
                     case 'zlib':
                         var inflator = new Zlib.Inflate(cc.Codec.Base64.decodeAsArray(nodeValue, 1));
-                        layer._tiles = uint8ArrayToUint32Array(inflator.decompress());
+                        tiles = uint8ArrayToUint32Array(inflator.decompress());
                         break;
                     case null:
                     case '':
                         // Uncompressed
                         if (encoding === "base64")
-                            layer._tiles = cc.Codec.Base64.decodeAsArray(nodeValue, 4);
+                            tiles = cc.Codec.Base64.decodeAsArray(nodeValue, 4);
                         else if (encoding === "csv") {
-                            layer._tiles = [];
+                            tiles = [];
                             var csvTiles = nodeValue.split(',');
                             for (var csvIdx = 0; csvIdx < csvTiles.length; csvIdx++)
-                                layer._tiles.push(parseInt(csvTiles[csvIdx]));
+                                tiles.push(parseInt(csvTiles[csvIdx]));
                         } else {
                             //XML format
                             var selDataTiles = data.getElementsByTagName("tile");
-                            layer._tiles = [];
+                            tiles = [];
                             for (var xmlIdx = 0; xmlIdx < selDataTiles.length; xmlIdx++)
-                                layer._tiles.push(parseInt(selDataTiles[xmlIdx].getAttribute("gid")));
+                                tiles.push(parseInt(selDataTiles[xmlIdx].getAttribute("gid")));
                         }
                         break;
                     default:
                         if(this.layerAttrs === cc.TMXLayerInfo.ATTRIB_NONE)
                             cc.log("cc.TMXMapInfo.parseXMLFile(): Only base64 and/or gzip/zlib maps are supported");
                         break;
+                }
+                if (tiles) {
+                    layer._tiles = new Uint32Array(tiles);
                 }
 
                 // The parent element is the last layer

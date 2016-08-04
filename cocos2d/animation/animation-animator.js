@@ -37,8 +37,25 @@ p.playState = function (state, startTime) {
     this.play();
 };
 
+p.addAnimation = function (anim) {
+    Animator.prototype.addAnimation.call(this, anim);
+
+    var listeners = this.animation._listeners;
+    for (var i = 0, l = listeners.length; i < l; i++) {
+        var listener = listeners[i];
+        anim.on(listener[0], listener[1], listener[2], listener[3]);
+    }
+};
+
 p.removeAnimation = function (anim) {
+    var listeners = this.animation._listeners;
+    for (var i = 0, l = listeners.length; i < l; i++) {
+        var listener = listeners[i];
+        anim.off(listener[0], listener[1], listener[2], listener[3]);
+    }
+    
     Animator.prototype.removeAnimation.call(this, anim);
+
     anim.animator = null;
 };
 
@@ -286,6 +303,24 @@ function initClipData (root, state) {
         }
     }
 
+    // property curves
+
+    var curveData = clip.curveData;
+    var childrenCurveDatas = curveData.paths;
+
+    createTargetCurves(root, curveData);
+
+    for (var namePath in childrenCurveDatas) {
+        var target = cc.find(namePath, root);
+
+        if (!target) {
+            continue;
+        }
+
+        var childCurveDatas = childrenCurveDatas[namePath];
+        createTargetCurves(target, childCurveDatas);
+    }
+
     // events curve
 
     var events = clip.events;
@@ -316,24 +351,6 @@ function initClipData (root, state) {
 
             eventInfo.add(eventData.func, eventData.params);
         }
-    }
-
-    // property curves
-
-    var curveData = clip.curveData;
-    var childrenCurveDatas = curveData.paths;
-
-    createTargetCurves(root, curveData);
-
-    for (var namePath in childrenCurveDatas) {
-        var target = cc.find(namePath, root);
-
-        if (!target) {
-            continue;
-        }
-
-        var childCurveDatas = childrenCurveDatas[namePath];
-        createTargetCurves(target, childCurveDatas);
     }
 }
 

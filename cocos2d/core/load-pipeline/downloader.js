@@ -25,6 +25,11 @@
 var JS = require('../platform/js');
 var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
+var PackDownloader = require('./pack-downloader');
+// var downloadBinary = require('./binary-downloader');
+var downloadText = require('./text-downloader');
+
+var urlAppendTimestamp = require('./utils').urlAppendTimestamp;
 
 var downloadAudio;
 if (!CC_EDITOR || !Editor.isMainProcess) {
@@ -32,32 +37,6 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
 }
 else {
     downloadAudio = null;
-}
-// var downloadBinary = require('binary-downloader');
-
-function isUrlCrossOrigin (url) {
-    if (!url) {
-        cc.log('invalid URL');
-        return false;
-    }
-    var startIndex = url.indexOf('://');
-    if (startIndex === -1)
-        return false;
-
-    var endIndex = url.indexOf('/', startIndex + 3);
-    var urlOrigin = (endIndex === -1) ? url : url.substring(0, endIndex);
-    return urlOrigin !== location.origin;
-};
-
-var _noCacheRex = /\?/;
-function urlAppendTimestamp (url) {
-    if (cc.game.config['noCache'] && typeof url === 'string') {
-        if(_noCacheRex.test(url))
-            url += '&_t=' + (new Date() - 0);
-        else
-            url += '?_t=' + (new Date() - 0);
-    }
-    return url;
 }
 
 function downloadScript (item, callback, isAsync) {
@@ -81,47 +60,6 @@ function downloadScript (item, callback, isAsync) {
     s.addEventListener('load', loadHandler, false);
     s.addEventListener('error', errorHandler, false);
     d.body.appendChild(s);
-}
-
-function downloadText (item, callback) {
-    var url = item.url,
-        xhr = Pipeline.getXMLHttpRequest(),
-        errInfo = 'Load ' + url + ' failed!',
-        navigator = window.navigator;
-
-    url = urlAppendTimestamp(url);
-
-    xhr.open('GET', url, true);
-    if (/msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent)) {
-        // IE-specific logic here
-        xhr.setRequestHeader('Accept-Charset', 'utf-8');
-        xhr.onreadystatechange = function () {
-            if(xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    callback(null, xhr.responseText);
-                }
-                else {
-                    callback({status:xhr.status, errorMessage:errInfo});
-                }
-            }
-        };
-    } else {
-        if (xhr.overrideMimeType) xhr.overrideMimeType('text\/plain; charset=utf-8');
-        xhr.onload = function () {
-            if(xhr.readyState === 4) {
-                if (xhr.status === 200 || xhr.status === 0) {
-                    callback(null, xhr.responseText);
-                }
-                else {
-                    callback({status:xhr.status, errorMessage:errInfo});
-                }
-            }
-        };
-        xhr.onerror = function(){
-            callback({status:xhr.status, errorMessage:errInfo});
-        };
-    }
-    xhr.send(null);
 }
 
 function downloadTextSync (item) {
@@ -169,7 +107,7 @@ function downloadImage (item, callback, isCrossOrigin) {
             img.removeEventListener('error', errorCallback);
 
             if (img.crossOrigin && img.crossOrigin.toLowerCase() === 'anonymous') {
-                downloadImage(url, callback, false);
+                downloadImage(item, callback, false);
             }
             else {
                 callback('Load image (' + url + ') failed');
@@ -263,28 +201,30 @@ function downloadUuid (item, callback) {
             item.url = url;
             item.isRawAsset = isRawAsset;
             if (isRawAsset) {
-                self.pipeline._items.map[url] = {
-                    id: url,
-                    url: url,
-                    type: Path.extname(url).toLowerCase().substr(1),
-                    error: null,
-                    alias: item.id,
-                    complete: true
-                };
-
                 var ext = Path.extname(url).toLowerCase();
                 if (!ext) {
                     callback(new Error('Download Uuid: can not find type of raw asset[' + uuid + ']: ' + url));
                     return;
                 }
                 ext = ext.substr(1);
+                self.pipeline._items.map[url] = {
+                    id: url,
+                    url: url,
+                    type: ext,
+                    error: null,
+                    alias: item.id,
+                    complete: true
+                };
                 // Dispatch to other raw type downloader
                 var downloadFunc = self.extMap[ext] || self.extMap['default'];
                 item.type = ext;
                 downloadFunc(item, callback);
             }
             else {
-                self.extMap['json'](item, callback);
+                var loadByPack = PackDownloader.load(item, callback);
+                if (!loadByPack) {
+                    self.extMap['json'](item, callback);
+                }
             }
         }
     });
@@ -339,9 +279,6 @@ var defaultMap = {
 
     // Deserializer
     'uuid' : downloadUuid,
-    'prefab' : downloadUuid,
-    'fire' : downloadUuid,
-    'scene' : downloadUuid,
 
     'default' : downloadText
 };
@@ -373,7 +310,7 @@ var Downloader = function (extMap) {
     this.id = ID;
     this.async = true;
     this.pipeline = null;
-    this.maxConcurrent = 2;
+    this.maxConcurrent = cc.sys.isMobile ? 2 : 512;
     this._curConcurrent = 0;
     this._loadQueue = [];
 
@@ -387,28 +324,23 @@ JS.mixin(Downloader.prototype, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addHandlers: function (extMap) {
-        this.extMap = JS.mixin(this.extMap, extMap);
+        JS.mixin(this.extMap, extMap);
     },
 
     handle: function (item, callback) {
         var self = this;
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
         if (this._curConcurrent < this.maxConcurrent) {
-            if (cc.sys.isMobile) {
-                this._curConcurrent++;
-            }
+            this._curConcurrent++;
             downloadFunc.call(this, item, function (err, result) {
-                if (cc.sys.isMobile) {
-                    // Concurrent logic
-                    self._curConcurrent = Math.max(0, self._curConcurrent - 1);
-
-                    while (self._curConcurrent < self.maxConcurrent) {
-                        var nextOne = self._loadQueue.shift();
-                        if (!nextOne) {
-                            break;
-                        }
-                        self.handle(nextOne.item, nextOne.callback);
+                // Concurrent logic
+                self._curConcurrent = Math.max(0, self._curConcurrent - 1);
+                while (self._curConcurrent < self.maxConcurrent) {
+                    var nextOne = self._loadQueue.shift();
+                    if (!nextOne) {
+                        break;
                     }
+                    self.handle(nextOne.item, nextOne.callback);
                 }
 
                 callback && callback(err, result);

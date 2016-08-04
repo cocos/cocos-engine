@@ -30,7 +30,7 @@
 eval(
     /* use EVAL to prevent the uglify from renaming symbols */
     'if(typeof CC_TEST=="undefined")' +
-        'CC_TEST=typeof describe!="undefined"||typeof QUnit=="object";' +
+        'CC_TEST=typeof tap=="object"||typeof QUnit=="object";' +
     'if(typeof CC_EDITOR=="undefined")' +
         'CC_EDITOR=typeof Editor=="object"&&typeof process=="object"&&"electron" in process.versions;' +
     'if(typeof CC_DEV=="undefined")' +
@@ -49,6 +49,9 @@ var isMainProcess = CC_EDITOR && Editor.isMainProcess;
 if (!isMainProcess) {
     // LOAD ORIGIN COCOS2D COMPILED BY CLOSURE
     require('./bin/modular-cocos2d');
+    if (!CC_EDITOR && !CC_TEST) {
+        require('./bin/modular-cocos2d-cut');
+    }
 }
 else {
     // load modules for editor's core-level which included in modular-cocos2d.js

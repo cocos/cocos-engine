@@ -148,7 +148,7 @@ function defineProp (cls, className, propName, defaultValue, attrs) {
     }
 
     // set default value
-    Attr.attr(cls, propName, { 'default': defaultValue });
+    Attr.setClassAttr(cls, propName, 'default', defaultValue);
 
     appendProp(cls, propName);
 
@@ -228,7 +228,7 @@ function defineGetSet (cls, name, propName, val, attrs) {
         }
 
         if (CC_DEV) {
-            Attr.attr(cls, propName, {hasGetter: true}); // 方便 editor 做判断
+            Attr.setClassAttr(cls, propName, 'hasGetter', true); // 方便 editor 做判断
         }
     }
 
@@ -243,7 +243,7 @@ function defineGetSet (cls, name, propName, val, attrs) {
                 configurable: true,
                 enumerable: true
             });
-            Attr.attr(cls, propName, {hasSetter: true}); // 方便 editor 做判断
+            Attr.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
         }
         else {
             if (d) {
@@ -280,7 +280,9 @@ function getDefault (defaultVal) {
     return defaultVal;
 }
 
+var DELIMETER = Attr.DELIMETER;
 function instantiateProps (instance, itsClass) {
+    var attrs = Attr.getClassAttrs(itsClass);
     var propList = itsClass.__props__;
     if (propList === null) {
         deferredInitializer.init();
@@ -288,9 +290,10 @@ function instantiateProps (instance, itsClass) {
     }
     for (var i = 0; i < propList.length; i++) {
         var prop = propList[i];
-        var attrs = Attr.attr(itsClass, prop);
-        if (attrs && attrs.hasOwnProperty('default')) {  // getter does not have default, default maybe 0
-            var def = attrs.default;
+        var attrKey = prop + DELIMETER + 'default';
+        if (attrKey in attrs) {  // getter does not have default
+            var def = attrs[attrKey];
+            // default maybe 0
             if (def) {
                 if (typeof def === 'object' && def) {
                     if (typeof def.clone === 'function') {
@@ -331,27 +334,49 @@ cc.isChildClassOf = function (subclass, superclass) {
             }
             return false;
         }
-        // fireclass
-        for (; subclass && subclass.$super; subclass = subclass.$super) {
-            if (subclass === superclass) {
-                return true;
-            }
-        }
         if (subclass === superclass) {
             return true;
         }
-        // js class
-        var dunderProto = subclass.prototype && Object.getPrototypeOf(subclass.prototype);
-        while (dunderProto) {
-            subclass = dunderProto.constructor;
+        for (;;) {
+            if (CC_JSB && subclass.$super) {
+                subclass = subclass.$super;
+            }
+            else {
+                var proto = subclass.prototype; // binded function do not have prototype
+                var dunderProto = proto && Object.getPrototypeOf(proto);
+                subclass = dunderProto && dunderProto.constructor;
+            }
+            if (!subclass) {
+                return false;
+            }
             if (subclass === superclass) {
                 return true;
             }
-            dunderProto = Object.getPrototypeOf(subclass.prototype);
         }
     }
     return false;
 };
+
+// get all super classes
+function getInheritanceChain (klass) {
+    var chain = [];
+    for (;;) {
+        if (CC_JSB && klass.$super) {
+            klass = klass.$super;
+        }
+        else {
+            var dunderProto = Object.getPrototypeOf(klass.prototype);
+            klass = dunderProto && dunderProto.constructor;
+        }
+        if (!klass) {
+            break;
+        }
+        if (klass !== Object) {
+            chain.push(klass);
+        }
+    }
+    return chain;
+}
 
 function doDefine (className, baseClass, mixins, constructor, options) {
     var fireClass = _createCtor(constructor, baseClass, mixins, className, options);
@@ -381,6 +406,12 @@ function doDefine (className, baseClass, mixins, constructor, options) {
             for (var p in mixin)
                 if (mixin.hasOwnProperty(p) && INVALID_STATICS.indexOf(p) < 0)
                     fireClass[p] = mixin[p];
+
+            // mixin attributes
+            if (CCClass._isCCClass(mixin)) {
+                JS.mixin(Attr.getClassAttrs(fireClass).constructor.prototype,
+                         Attr.getClassAttrs(mixin).constructor.prototype);
+            }
         }
         // restore constuctor overridden by mixin
         fireClass.prototype.constructor = fireClass;
@@ -395,16 +426,16 @@ function define (className, baseClasses, mixins, constructor, options) {
         var frame = cc._RFpeek();
         if (frame) {
             if (CC_DEV && constructor) {
-                cc.warn('cc.Class: Should not define constructor for cc.Component.');
+                cc.warn('Should not define constructor for cc.Component %s.', className);
             }
             if (frame.beh) {
                 cc.error('Each script can have at most one Component.');
-                return;
+                return cls;
             }
             var uuid = frame.uuid;
             if (uuid) {
                 if (CC_EDITOR && className) {
-                    cc.warn('Should not specify class name for Component which defines in project.');
+                    cc.warn('Should not specify class name %s for Component which defines in project.', className);
                 }
             }
             //else {
@@ -937,11 +968,21 @@ CCClass._fastDefine = function (className, constructor, serializableFields) {
     for (var i = 0; i < props.length; i++) {
         var key = props[i];
         var val = serializableFields[key];
-        Attr.attr(constructor, key, { visible: false, default: val });
+        Attr.setClassAttr(constructor, key, 'visible', false);
+        Attr.setClassAttr(constructor, key, 'default', val);
     }
 };
 
+CCClass.Attr = Attr;
 CCClass.attr = Attr.attr;
+
+/**
+ * Return all super classes
+ * @method getInheritanceChain
+ * @param {Function} constructor
+ * @return {Function[]}
+ */
+CCClass.getInheritanceChain = getInheritanceChain;
 
 var PrimitiveTypes = {
     // Specify that the input value must be integer in Inspector.
@@ -1031,11 +1072,13 @@ function parseAttributes (attrs, className, propName) {
 
     parseSimpleAttr('rawType', 'string', Attr.RawType);
     parseSimpleAttr('editorOnly', 'boolean', Attr.EditorOnly);
+    //parseSimpleAttr('preventDeferredLoad', 'boolean');
     if (CC_DEV) {
         parseSimpleAttr('displayName', 'string');
         parseSimpleAttr('multiline', 'boolean', {multiline: true});
         parseSimpleAttr('readonly', 'boolean', {readonly: true});
         parseSimpleAttr('tooltip', 'string');
+        parseSimpleAttr('slide', 'boolean');
     }
 
     if (attrs.url) {
@@ -1073,7 +1116,7 @@ function parseAttributes (attrs, className, propName) {
     if (range) {
         if (Array.isArray(range)) {
             if (range.length >= 2) {
-                result.push(Attr.Range(range[0], range[1]));
+                result.push({ min: range[0], max: range[1], step: range[2] });
             }
             else if (CC_DEV) {
                 cc.error('The length of range array must be 2');

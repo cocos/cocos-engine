@@ -83,6 +83,7 @@ var RendererInSG = cc.Class({
             var releasedByNode = this.node._sgNode;
             if (this._plainNode !== releasedByNode) {
                 this._plainNode.release();
+                this._plainNode = null;
             }
         }
     },
@@ -94,6 +95,7 @@ var RendererInSG = cc.Class({
 
         var node = this.node;
         var replaced = node._sgNode;
+        replaced._entity = null;
 
         if (CC_EDITOR && replaced === sgNode) {
             cc.warn('The same sgNode');
@@ -104,12 +106,12 @@ var RendererInSG = cc.Class({
         
         // replace children
         var children = replaced.getChildren().slice();
-        replaced.removeAllChildren();
+        replaced.removeAllChildren(false);
         if (sgNode.getChildrenCount() > 0) {
             if (CC_EDITOR) {
                 cc.warn('The replacement sgNode should not contain any child.');
             }
-            sgNode.removeAllChildren();
+            sgNode.removeAllChildren(false);
         }
         for (var i = 0, len = children.length; i < len; ++i) {
             sgNode.addChild(children[i]);
@@ -117,16 +119,19 @@ var RendererInSG = cc.Class({
         
         // replace parent
         var parentNode = replaced.getParent();
-        parentNode.removeChild(replaced);
-        parentNode.addChild(sgNode);
-        sgNode.arrivalOrder = replaced.arrivalOrder;
-        if ( !CC_JSB ) {
-            cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
+        if (parentNode) {
+            parentNode.removeChild(replaced);
+            parentNode.addChild(sgNode);
+            sgNode.arrivalOrder = replaced.arrivalOrder;
+            if ( !CC_JSB ) {
+                cc.renderer.childrenOrderDirty = parentNode._reorderChildDirty = true;
+            }
         }
+        // replaced.release();
 
         // apply node's property
-
         node._sgNode = sgNode;
+        node._sgNode._entity = node;
         node._updateSgNode();
     },
 });

@@ -38,11 +38,23 @@ if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
     cc.VideoPlayer = {};
 }
 
+//FIXME: should delete this line after implementing the VideoPlayer on Mac and Windows
+if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+    cc.WebView = {};
+}
+
 cc.VideoPlayer.EventType = {
-    PLAYING: "play",
-    PAUSED: "pause",
-    STOPPED: "stop",
-    COMPLETED: "complete"
+    PLAYING: 0,
+    PAUSED: 1,
+    STOPPED: 2,
+    COMPLETED: 3
+};
+
+cc.WebView.EventType = {
+    LOADING: 0,
+    LOADED: 1,
+    ERROR: 2,
+    JS_EVALUATED: 3
 };
 
 cc.EditBox.InputMode = cc.Enum({

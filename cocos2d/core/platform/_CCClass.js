@@ -69,12 +69,13 @@ Class.extend = function (props) {
 
     var classId = ClassManager.getNewID();
     ClassManager[classId] = _super;
-    // Copy the properties over onto the new prototype. We make function
-    // properties non-eumerable as this makes typeof === 'function' check
+
+    // Copy the properties over onto the new prototype. We keep function
+    // properties non-eumerable as default, this makes typeof === 'function' check
     // unneccessary in the for...in loop used 1) for generating Class()
     // 2) for cc.clone and perhaps more. It is also required to make
     // these function properties cacheable in Carakan.
-    var desc = { writable: true, enumerable: false, configurable: true };
+    var nonEnumerableDesc = { writable: true, configurable: true };
 
     prototype.__instanceId = null;
 
@@ -87,17 +88,15 @@ Class.extend = function (props) {
     }
 
     _Class.id = classId;
-    // desc = { writable: true, enumerable: false, configurable: true,
-    //          value: XXX }; Again, we make this non-enumerable.
-    desc.value = classId;
-    Object.defineProperty(prototype, '__cid__', desc);
+    nonEnumerableDesc.value = classId;
+    Object.defineProperty(prototype, '__cid__', nonEnumerableDesc);
 
     // Populate our constructed prototype object
     _Class.prototype = prototype;
 
     // Enforce the constructor to be what we expect
-    desc.value = _Class;
-    Object.defineProperty(_Class.prototype, 'constructor', desc);
+    nonEnumerableDesc.value = _Class;
+    Object.defineProperty(_Class.prototype, 'constructor', nonEnumerableDesc);
 
     for(var idx = 0, li = arguments.length; idx < li; ++idx) {
         var prop = arguments[idx];
@@ -107,7 +106,7 @@ Class.extend = function (props) {
             var hasSuperCall = fnTest.test(prop[name]);
 
             if (isFunc && override && hasSuperCall) {
-                desc.value = (function (name, fn) {
+                nonEnumerableDesc.value = (function (name, fn) {
                     return function () {
                         var tmp = this._super;
 
@@ -123,10 +122,10 @@ Class.extend = function (props) {
                         return ret;
                     };
                 })(name, prop[name]);
-                Object.defineProperty(prototype, name, desc);
+                Object.defineProperty(prototype, name, nonEnumerableDesc);
             } else if (isFunc) {
-                desc.value = prop[name];
-                Object.defineProperty(prototype, name, desc);
+                nonEnumerableDesc.value = prop[name];
+                Object.defineProperty(prototype, name, nonEnumerableDesc);
             } else {
                 prototype[name] = prop[name];
             }
@@ -160,7 +159,7 @@ cc.defineGetterSetter = function (proto, prop, getter, setter, getterName, sette
         getter && proto.__defineGetter__(prop, getter);
         setter && proto.__defineSetter__(prop, setter);
     } else if (Object.defineProperty) {
-        var desc = { enumerable: false, configurable: true };
+        var desc = { configurable: true };     // enumerable is false by default
         getter && (desc.get = getter);
         setter && (desc.set = setter);
         Object.defineProperty(proto, prop, desc);
@@ -203,8 +202,10 @@ cc.clone = function (obj) {
     for (var key in obj) {
         var copy = obj[key];
         // Beware that typeof null == "object" !
-        if (((typeof copy) === "object") && copy &&
-            !(copy instanceof _ccsg.Node) && !(copy instanceof HTMLElement)) {
+        if (typeof copy === "object" &&
+            copy &&
+            !(copy instanceof _ccsg.Node) &&
+            (CC_JSB || !(copy instanceof HTMLElement))) {
             newObj[key] = cc.clone(copy);
         } else {
             newObj[key] = copy;

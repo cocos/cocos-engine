@@ -223,11 +223,13 @@ var Scrollbar = cc.Class({
     },
 
     _conditionalDisableScrollBar: function (contentSize, scrollViewSize) {
-        if(contentSize.width <= scrollViewSize.width && this.direction === Direction.HORIZONTAL){
+        if(contentSize.width <= scrollViewSize.width
+           && this.direction === Direction.HORIZONTAL){
             return true;
         }
 
-        if(contentSize.height <= scrollViewSize.height && this.direction === Direction.VERTICAL){
+        if(contentSize.height <= scrollViewSize.height
+           && this.direction === Direction.VERTICAL){
             return true;
         }
         return false;
@@ -323,6 +325,16 @@ var Scrollbar = cc.Class({
         if (this.enableAutoHide) {
             this._setOpacity(0);
         }
+    },
+
+    hide: function() {
+        this._autoHideRemainingTime = 0;
+        this._setOpacity(0);
+    },
+
+    show: function() {
+        this._autoHideRemainingTime = 0;
+        this._setOpacity(this._opacity);
     },
 
     update: function(dt) {

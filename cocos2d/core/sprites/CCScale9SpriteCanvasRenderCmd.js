@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -24,7 +24,12 @@
 
 cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
     _ccsg.Node.CanvasRenderCmd.call(this, renderable);
-    this._needDraw = true;
+    if (this._node.loaded()) {
+        this._needDraw = true;
+    }
+    else {
+        this._needDraw = false;
+    }
     this._state = cc.Scale9Sprite.state.NORMAL;
     this._originalTexture = this._textureToRender = null;
 };
@@ -32,13 +37,13 @@ cc.Scale9Sprite.CanvasRenderCmd = function (renderable) {
 var proto = cc.Scale9Sprite.CanvasRenderCmd.prototype = Object.create(_ccsg.Node.CanvasRenderCmd.prototype);
 proto.constructor = cc.Scale9Sprite.CanvasRenderCmd;
 
-proto._updateDisplayOpacity = function(parentOpacity){
-    _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
+proto.transform = function (parentCmd, recursive) {
+    this.originTransform(parentCmd, recursive);
+    this._node._rebuildQuads();
 };
 
 proto._updateDisplayColor = function(parentColor){
     _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-    var node = this._node;
     this._originalTexture = this._textureToRender = null;
 };
 
@@ -54,16 +59,16 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     var locDisplayOpacity = this._displayedOpacity;
     var alpha =  locDisplayOpacity/ 255;
     var locTexture = null;
-    if(node._spriteFrame) locTexture = node._spriteFrame._texture;
+    if (node._spriteFrame) locTexture = node._spriteFrame._texture;
     if (!node.loaded() || locDisplayOpacity === 0)
         return;
-    if(this._textureToRender === null || this._originalTexture !== locTexture){
+    if (this._textureToRender === null || this._originalTexture !== locTexture) {
         this._textureToRender = this._originalTexture = locTexture;
         if (cc.Scale9Sprite.state.GRAY === this._state) {
             this._textureToRender = this._textureToRender._generateGrayTexture();
         }
         var color = node.getDisplayedColor();
-        if(locTexture && (color.r !== 255 || color.g !==255 || color.b !== 255))
+        if (locTexture && (color.r !== 255 || color.g !==255 || color.b !== 255))
             this._textureToRender = this._textureToRender._generateColorTexture(color.r,color.g,color.b);
     }
 
@@ -72,50 +77,50 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     wrapper.setCompositeOperation(_ccsg.Node.CanvasRenderCmd._getCompositeOperationByBlendFunc(node._blendFunc));
     wrapper.setGlobalAlpha(alpha);
 
-    if(this._textureToRender) {
-        if(node._quadsDirty){
+    if (this._textureToRender) {
+        if (node._quadsDirty) {
             node._rebuildQuads();
         }
         var sx,sy,sw,sh;
         var x, y, w,h;
-        var textureWidth = this._textureToRender.getPixelWidth();
-        var textureHeight = this._textureToRender.getPixelHeight();
+        var textureWidth = this._textureToRender._pixelWidth;
+        var textureHeight = this._textureToRender._pixelHeight;
         var image = this._textureToRender._htmlElementObj;
+        var vertices = node._vertices;
+        var uvs = node._uvs;
+        var i = 0, off = 0;
 
-        if(node._isTriangle) {
-            var rawQuad = node._rawQuad;
-            x = rawQuad._bl.vertices.x;
-            y = rawQuad._bl.vertices.y;
-            w = rawQuad._tr.vertices.x - rawQuad._bl.vertices.x;
-            h = rawQuad._tr.vertices.y - rawQuad._bl.vertices.y;
+        if (node._isTriangle) {
+            var rawVerts = node._rawVerts, rawUvs = node._rawUvs;
+            x = rawVerts[0];
+            y = rawVerts[1];
+            w = rawVerts[6] - x;
+            h = rawVerts[7] - y;
             y = - y - h;
 
-            sx = rawQuad._tl.texCoords.u * textureWidth;
-            sy = rawQuad._tl.texCoords.v * textureHeight;
-            sw = (rawQuad._tr.texCoords.u - rawQuad._bl.texCoords.u) * textureWidth;
-            sh = (rawQuad._bl.texCoords.v - rawQuad._tr.texCoords.v) * textureHeight;
+            sx = rawUvs[4] * textureWidth;
+            sy = rawUvs[5] * textureHeight;
+            sw = (rawUvs[6] - rawUvs[0]) * textureWidth;
+            sh = (rawUvs[1] - rawUvs[7]) * textureHeight;
 
-            x = x * scaleX;
-            y = y * scaleY;
-            w = w * scaleX;
-            h = h * scaleY;
 
             wrapper.save();
             context.beginPath();
+            var triangleCount = Math.floor(node._vertCount / 3);
 
-            var quads = node._quads;
-            for( var i = 0; i < quads.length; ++i) {
-                context.moveTo(quads[i]._tl.vertices.x * scaleX, -quads[i]._tl.vertices.y * scaleY);
-                context.lineTo(quads[i]._bl.vertices.x * scaleX, -quads[i]._bl.vertices.y * scaleY);
-                context.lineTo(quads[i]._tr.vertices.x * scaleX, -quads[i]._tr.vertices.y * scaleY);
+            for (i = 0, off = 0; i < triangleCount; i++) {
+                context.moveTo(vertices[off++], -vertices[off++]);
+                context.lineTo(vertices[off++], -vertices[off++]);
+                context.lineTo(vertices[off++], -vertices[off++]);
             }
 
             context.clip();
-            if (this._textureToRender._pattern !== "") {
+            if (this._textureToRender._pattern !== '') {
                 wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));
                 context.fillRect(x, y, w, h);
-            } else {
-                if(sw !== 0 && sh !== 0 && w !== 0 && h !== 0) {
+            } 
+            else {
+                if (sw > 0 && sh > 0 && w > 0 && h > 0) {
                     context.drawImage(image,
                         sx, sy, sw, sh,
                         x, y, w, h);
@@ -123,40 +128,61 @@ proto.rendering = function (ctx, scaleX, scaleY) {
             }
 
             wrapper.restore();
+            cc.g_NumberOfDraws += triangleCount;
+        } 
+        else if (node._renderingType === cc.Scale9Sprite.RenderingType.SLICED) {
+            // Sliced use a special vertices layout 16 vertices for 9 quads
+            for (var r = 0; r < 3; ++r) {
+                for (var c = 0; c < 3; ++c) {
+                    off = r*8 + c*2;
+                    x = vertices[off];
+                    y = vertices[off+1];
+                    w = vertices[off+10] - x;
+                    h = vertices[off+11] - y;
+                    y = - y - h;
 
-        } else {
-            var quads = node._quads;
-            for( var i = 0; i < quads.length; ++i)
-            {
-                x = quads[i]._bl.vertices.x;
-                y = quads[i]._bl.vertices.y;
-                w = quads[i]._tr.vertices.x - quads[i]._bl.vertices.x;
-                h = quads[i]._tr.vertices.y - quads[i]._bl.vertices.y;
-                y = - y - h;
+                    sx = uvs[off] * textureWidth;
+                    sy = uvs[off+11] * textureHeight;
+                    sw = (uvs[off+10] - uvs[off]) * textureWidth;
+                    sh = (uvs[off+1] - uvs[off+11]) * textureHeight;
 
-                sx = quads[i]._tl.texCoords.u * textureWidth;
-                sy = quads[i]._tl.texCoords.v * textureHeight;
-                sw = (quads[i]._tr.texCoords.u - quads[i]._bl.texCoords.u) * textureWidth;
-                sh = (quads[i]._bl.texCoords.v - quads[i]._tr.texCoords.v) * textureHeight;
-
-                x = x * scaleX;
-                y = y * scaleY;
-                w = w * scaleX;
-                h = h * scaleY;
-
-                if (this._textureToRender._pattern !== "") {
-                    wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));
-                    context.fillRect(x, y, w, h);
-                } else {
-                    if(sw !== 0 && sh !== 0 && w !== 0 && h !== 0) {
+                    if (sw > 0 && sh > 0 && w > 0 && h > 0) {
                         context.drawImage(image,
                             sx, sy, sw, sh,
                             x, y, w, h);
                     }
                 }
             }
+            cc.g_NumberOfDraws += 9;
+        }
+        else {
+            var quadCount = Math.floor(node._vertCount / 4);
+            for (i = 0, off = 0; i < quadCount; i++) {
+                x = vertices[off];
+                y = vertices[off+1];
+                w = vertices[off+6] - x;
+                h = vertices[off+7] - y;
+                y = - y - h;
 
+                sx = uvs[off] * textureWidth;
+                sy = uvs[off+7] * textureHeight;
+                sw = (uvs[off+6] - uvs[off]) * textureWidth;
+                sh = (uvs[off+1] - uvs[off+7]) * textureHeight;
+                
+
+                if (this._textureToRender._pattern !== '') {
+                    wrapper.setFillStyle(context.createPattern(image, this._textureToRender._pattern));
+                    context.fillRect(x, y, w, h);
+                } else {
+                    if (sw > 0 && sh > 0 && w > 0 && h > 0) {
+                        context.drawImage(image,
+                            sx, sy, sw, sh,
+                            x, y, w, h);
+                    }
+                }
+                off += 8;
+            }
+            cc.g_NumberOfDraws += quadCount;
         }
-        }
-    cc.g_NumberOfDraws += quads.length;
-}
+    }
+};

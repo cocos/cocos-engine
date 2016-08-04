@@ -53,9 +53,32 @@
         }
     };
 
+    proto.updateStatus = function () {
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        if (locFlag & flags.orderDirty) {
+            this._cacheDirty = true;
+            if(this._updateCache === 0)
+                this._updateCache = 2;
+            this._dirtyFlag &= ~flags.orderDirty;
+        }
+
+        _ccsg.Node.RenderCmd.prototype.updateStatus.call(this);
+    };
+
+    proto._syncStatus = function (parentCmd) {
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        if (locFlag & flags.orderDirty) {
+            this._cacheDirty = true;
+            if(this._updateCache === 0)
+                this._updateCache = 2;
+            this._dirtyFlag &= ~flags.orderDirty;
+        }
+        _ccsg.Node.RenderCmd.prototype._syncStatus.call(this, parentCmd);
+    };
+
     proto.transform = function (parentCmd, recursive) {
         var wt = this._worldTransform;
-        var a = wt.a, b = wt.b, c = wt.c, d = wt.d, tx = wt.tx, ty = wt.ty;
+        var a = wt.a, b = wt.b, c = wt.c, d = wt.d;
         _ccsg.Node.CanvasRenderCmd.prototype.transform.call(this, parentCmd, recursive);
         if(( wt.a !== a || wt.b !== b || wt.c !== c || wt.d !== d ) && this._updateCache === 0)
             this._updateCache = 2;
@@ -64,7 +87,6 @@
     proto.bake = function(){
         if (!this._isBaked) {
             this._needDraw = true;
-            cc.renderer.childrenOrderDirty = true;
             //limit: 1. its children's blendfunc are invalid.
             this._isBaked = this._cacheDirty = true;
             if(this._updateCache === 0)
@@ -83,7 +105,6 @@
 
     proto.unbake = function(){
         if (this._isBaked) {
-            cc.renderer.childrenOrderDirty = true;
             this._needDraw = false;
             this._isBaked = false;
             this._cacheDirty = true;
@@ -137,21 +158,19 @@
 
     proto.visit = function(parentCmd){
         if(!this._isBaked){
-            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
+            this.originVisit(parentCmd);
             return;
         }
 
         var node = this._node, children = node._children;
         var len = children.length;
+        this._propagateFlagsDown(parentCmd);
         // quick return if not visible
         if (!node._visible || len === 0)
             return;
 
         this._syncStatus(parentCmd);
         cc.renderer.pushRenderCommand(this);
-        this._cacheDirty = true;
-        if(this._updateCache === 0)
-            this._updateCache = 2;
 
         //the bakeSprite is drawing
         this._bakeSprite.visit(this);
@@ -224,7 +243,7 @@
             + (0 | curColor.b) + ", 1)");  //TODO: need cache the color string
 
         wrapper.setTransform(this._worldTransform, scaleX, scaleY);
-        context.fillRect(0, 0, locWidth * scaleX, -locHeight * scaleY);
+        context.fillRect(0, 0, locWidth, -locHeight);
 
         cc.g_NumberOfDraws++;
     };
@@ -289,11 +308,12 @@
 
     proto.visit = function(parentCmd){
         if(!this._isBaked){
-            _ccsg.Node.CanvasRenderCmd.prototype.visit.call(this, parentCmd);
+            this.originVisit();
             return;
         }
 
         var node = this._node;
+        this._propagateFlagsDown(parentCmd);
         // quick return if not visible
         if (!node._visible)
             return;
@@ -331,30 +351,6 @@
     };
 })();
 
-(function () {
-    cc.LayerGradient.RenderCmd = {
-        updateStatus: function () {
-            var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
-            var colorDirty = locFlag & flags.colorDirty,
-                opacityDirty = locFlag & flags.opacityDirty;
-            if(colorDirty)
-                this._updateDisplayColor();
-
-            if(opacityDirty)
-                this._updateDisplayOpacity();
-
-            if(colorDirty || opacityDirty || (locFlag & flags.gradientDirty))
-                this._updateColor();
-
-            if(locFlag & flags.transformDirty)
-                //update the transform
-                this.transform(this.getParentRenderCmd(), true);
-
-            this._dirtyFlag = 0;
-        }
-    };
-})();
-
 /**
  * cc.LayerGradient's rendering objects of Canvas
  */
@@ -368,7 +364,6 @@
         this._endStopStr = null;
     };
     var proto = cc.LayerGradient.CanvasRenderCmd.prototype = Object.create(cc.LayerColor.CanvasRenderCmd.prototype);
-    cc.js.mixin(proto, cc.LayerGradient.RenderCmd);
     proto.constructor = cc.LayerGradient.CanvasRenderCmd;
 
     proto.rendering = function (ctx, scaleX, scaleY) {
@@ -382,7 +377,7 @@
         var locWidth = node._contentSize.width, locHeight = node._contentSize.height;
         wrapper.setCompositeOperation(this._blendFuncStr);
         wrapper.setGlobalAlpha(opacity);
-        var gradient = context.createLinearGradient(this._startPoint.x*scaleX, this._startPoint.y*scaleY, this._endPoint.x*scaleX, this._endPoint.y*scaleY);
+        var gradient = context.createLinearGradient(this._startPoint.x, this._startPoint.y, this._endPoint.x, this._endPoint.y);
 
         if(node._colorStops){  //Should always fall here now
              for(var i=0; i < node._colorStops.length; i++) {
@@ -397,49 +392,34 @@
         wrapper.setFillStyle(gradient);
 
         wrapper.setTransform(this._worldTransform, scaleX, scaleY);
-        context.fillRect(0, 0, locWidth * scaleX, -locHeight * scaleY);
+        context.fillRect(0, 0, locWidth, -locHeight);
         cc.g_NumberOfDraws++;
+    };
+
+    proto.updateStatus = function () {
+        var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
+        if (locFlag & flags.gradientDirty) {
+            this._dirtyFlag |= flags.colorDirty;
+            this._dirtyFlag &= ~flags.gradientDirty;
+        }
+
+        _ccsg.Node.RenderCmd.prototype.updateStatus.call(this);
     };
 
     proto._syncStatus = function (parentCmd) {
         var flags = _ccsg.Node._dirtyFlags, locFlag = this._dirtyFlag;
-        var parentNode = parentCmd ? parentCmd._node : null;
-
-        if(parentNode && parentNode._cascadeColorEnabled && (parentCmd._dirtyFlag & flags.colorDirty))
-            locFlag |= flags.colorDirty;
-
-        if(parentNode && parentNode._cascadeOpacityEnabled && (parentCmd._dirtyFlag & flags.opacityDirty))
-            locFlag |= flags.opacityDirty;
-
-        if(parentCmd && (parentCmd._dirtyFlag & flags.transformDirty))
-            locFlag |= flags.transformDirty;
-
-        var colorDirty = locFlag & flags.colorDirty,
-            opacityDirty = locFlag & flags.opacityDirty;
-
-        this._dirtyFlag = locFlag;
-
-        if (colorDirty)
-            this._syncDisplayColor();
-
-        if (opacityDirty)
-            this._syncDisplayOpacity();
-
-        if (locFlag & flags.transformDirty) {
-            //update the transform
-            this.transform(parentCmd);
+        if (locFlag & flags.gradientDirty) {
+            this._dirtyFlag |= flags.colorDirty;
+            this._dirtyFlag &= ~flags.gradientDirty;
         }
 
-        if (colorDirty || opacityDirty || (locFlag & flags.gradientDirty)){
-            this._updateColor();
-        }
+        _ccsg.Node.RenderCmd.prototype._syncStatus.call(this, parentCmd);
     };
 
-    proto._updateColor = function(){
+    proto._updateColor = function() {
         var node = this._node;
         var contentSize = node._contentSize;
         var tWidth = contentSize.width * 0.5, tHeight = contentSize.height * 0.5;
-        this._dirtyFlag = this._dirtyFlag & _ccsg.Node._dirtyFlags.gradientDirty ^ this._dirtyFlag;
 
         //fix the bug of gradient layer
         var angle = cc.pAngleSigned(cc.p(0, -1), node._alongVector);

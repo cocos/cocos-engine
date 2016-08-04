@@ -49,7 +49,7 @@ var Widget = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Widget',
         help: 'i18n:COMPONENT.help_url.widget',
-        inspector: 'app://editor/page/inspector/widget/index.html',
+        inspector: 'packages://inspector/inspectors/comps/ccwidget.js',
         executeInEditMode: true,
         disallowMultiple: true,
     },
@@ -390,7 +390,7 @@ var Widget = cc.Class({
          * @default false
          */
         isAlignOnce: {
-            default: false,
+            default: true,
             tooltip: 'i18n:COMPONENT.widget.align_once',
             displayName: "AlignOnce"
         },

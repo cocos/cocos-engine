@@ -36,7 +36,25 @@ function equalClips (clip1, clip2) {
 
 /**
  * !#en The animation component is used to play back animations.
+ *   
+ * Animation provide several events to register：
+ *  - play : Emit when egine playing animation
+ *  - stop : Emit when stop playing animation
+ *  - pause : Emit when pause animation
+ *  - resume : Emit when resume animation
+ *  - lastframe : If animation repeat coutn is larger than 1, emit when animation play to the last frame
+ *  - finished : Emit when finish playing animation
+ *
  * !#zh Animation 组件用于播放动画。你能指定动画剪辑到动画组件并从脚本控制播放。
+ *   
+ * Animation 提供了一系列可注册的事件：
+ *  - play : 开始播放时
+ *  - stop : 停止播放时
+ *  - pause : 暂停播放时
+ *  - resume : 恢复播放时
+ *  - lastframe : 假如动画循环次数大于 1，当动画播放到最后一帧时
+ *  - finished : 动画播放完成时
+ * 
  * @class Animation
  * @extends CCComponent
  */
@@ -58,6 +76,8 @@ var Animation = cc.Class({
         this._didInit = false;
 
         this._currentClip = null;
+
+        this._listeners = [];
     },
 
     properties: {
@@ -147,9 +167,7 @@ var Animation = cc.Class({
     },
 
     __preload: function () {
-        if (CC_EDITOR) return;
-
-        this._init();
+        if (CC_EDITOR || !this.enabled) return;
 
         if (this.playOnLoad && this._defaultClip) {
             var state = this.getAnimationState(this._defaultClip.name);
@@ -346,7 +364,7 @@ var Animation = cc.Class({
         this._init();
         var state = this._nameToState[name];
 
-        if (CC_EDITOR && !state) {
+        if (CC_EDITOR && (!state || !cc.js.array.contains(this._clips, state.clip))) {
             this._didInit = false;
 
             if (this.animator) {
@@ -471,6 +489,98 @@ var Animation = cc.Class({
         this._animator.sample();
     },
 
+
+    /**
+     * !#en 
+     * Register animation event callback.
+     * The event argumetns will provide the AnimationState which emit the event.
+     * When play an animation, will auto register the event callback to the AnimationState, and unregister the event callback from the AnimationState when animation stopped.
+     * !#zh
+     * 注册动画事件回调。
+     * 回调的事件里将会附上发送事件的 AnimationState。
+     * 当播放一个动画时，会自动将事件注册到对应的 AnimationState 上，停止播放时会将事件从这个 AnimationState 上取消注册。
+     * @method on
+     * @param {String} type - A string representing the event type to listen for.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {Event} callback.param event
+     * @param {Object} target - The target to invoke the callback, can be null
+     * @param {Boolean} useCapture - When set to true, the capture argument prevents callback
+     *                              from being invoked when the event's eventPhase attribute value is BUBBLING_PHASE.
+     *                              When false, callback will NOT be invoked when event's eventPhase attribute value is CAPTURING_PHASE.
+     *                              Either way, callback will be invoked when event's eventPhase attribute value is AT_TARGET.
+     *
+     * @example
+     * onPlay: function (event) {
+     *     var state = event.detail;    // state instanceof cc.AnimationState
+     *     var type = event.type;       // type === 'play';
+     * }
+     * 
+     * // register event to all animation
+     * animation.on('', 'play',      this.onPlay,        this);
+     */
+    on: function (type, callback, target, useCapture) {
+        this._init();
+        var listeners = this._listeners;
+
+        for (var i = 0, l = listeners.length; i < l; i++) {
+            var listener = listeners[i];
+            if (listener[0] === type &&
+                listener[1] === callback &&
+                listener[2] === target &&
+                listener[3] === useCapture) {
+                return;
+            }
+        }
+
+        var anims = this._animator.playingAnims;
+        for (var j = 0, jj = anims.length; j < jj; j++) {
+            anims[j].on(type, callback, target, useCapture);
+        }
+
+        listeners.push([type, callback, target, useCapture]);
+    },
+
+
+    /**
+     * !#en
+     * Unregister animation event callback.
+     * !#zh
+     * 取消注册动画事件回调。
+     * @method off
+     * @param {String} type - A string representing the event type being removed.
+     * @param {Function} callback - The callback to remove.
+     * @param {Object} target - The target to invoke the callback, if it's not given, only callback without target will be removed
+     * @param {Boolean} useCapture - Specifies whether the callback being removed was registered as a capturing callback or not.
+     *                              If not specified, useCapture defaults to false. If a callback was registered twice,
+     *                              one with capture and one without, each must be removed separately. Removal of a capturing callback
+     *                              does not affect a non-capturing version of the same listener, and vice versa.
+     *
+     * @example
+     * // unregister event to all animation
+     * animation.off('', 'play',      this.onPlay,        this);
+     */
+    off: function (type, callback, target, useCapture) {
+        this._init();
+        var listeners = this._listeners;
+
+        for (var i = listeners.length - 1; i >= 0; i--) {
+            var listener = listeners[i];
+            if (listener[0] === type &&
+                listener[1] === callback &&
+                listener[2] === target &&
+                listener[3] === useCapture) {
+
+                var anims = this._animator.playingAnims;
+                for (var j = 0, jj = anims.length; j < jj; j++) {
+                    anims[j].off(type, callback, target, useCapture);
+                }
+
+                listeners.splice(i, 1);
+            }
+        }
+    },
+
     ///////////////////////////////////////////////////////////////////////////////
     // Internal Methods
     ///////////////////////////////////////////////////////////////////////////////
@@ -488,6 +598,8 @@ var Animation = cc.Class({
     },
 
     _createStates: function() {
+        this._nameToState = {};
+        
         // create animation states
         var state = null;
         var defaultClipState = false;
@@ -517,6 +629,5 @@ var Animation = cc.Class({
         }
     }
 });
-
 
 cc.Animation = module.exports = Animation;

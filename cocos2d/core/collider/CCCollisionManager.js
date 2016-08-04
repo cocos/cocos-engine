@@ -295,6 +295,8 @@ var CollisionManager = cc.Class({
         if (index !== -1) {
             this._removeList.splice(index, 1);
         }
+
+        collider.node.on('group-changed', this.onNodeGroupChanged, this);
     },
 
     removeCollider: function (collider) {
@@ -322,9 +324,21 @@ var CollisionManager = cc.Class({
                     }
                 }
             }
+
+            collider.node.off('group-changed', this.onNodeGroupChanged, this);
         }
         else {
             cc.error('collider not added or already removed');
+        }
+    },
+
+    onNodeGroupChanged: function (event) {
+        var node = event.currentTarget;
+        var colliders = node.getComponents(cc.Collider);
+
+        for (var i = 0, l = colliders.length; i < l; i++) {
+            this.removeCollider(colliders[i]);
+            this.addCollider(colliders[i]);
         }
     },
 
@@ -385,6 +399,7 @@ cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw',
             cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneLaunched, this);
         }
         else if (!value && this._enabledDebugDraw) {
+            this._debugDrawer.clear();
             cc.director.getScene()._sgNode.removeChild(this._debugDrawer);
             cc.director.off(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneLaunched, this);
         }

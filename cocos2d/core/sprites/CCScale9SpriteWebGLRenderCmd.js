@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2014 Chukong Technologies Inc.
+ Copyright (c) 2016 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -24,196 +24,205 @@
 
 var ccgl = cc.gl;
 
-if (_ccsg.Node.WebGLRenderCmd) {
-    cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
-        _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+cc.Scale9Sprite.WebGLRenderCmd = function (renderable) {
+    _ccsg.Node.WebGLRenderCmd.call(this, renderable);
+    if (this._node.loaded()) {
         this._needDraw = true;
-        this._cachedParent = null;
-        this._cacheDirty = false;
-        this._quadWebBuffer = cc._renderContext.createBuffer();
-        this._quadIndexBuffer = cc._renderContext.createBuffer();
-        this._indices = new Int16Array(54);
-        this._colorOpacityDirty = false;
-    };
+    }
+    else {
+        this._needDraw = false;
+    }
 
-    var proto = cc.Scale9Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
-    proto.constructor = cc.Scale9Sprite.WebGLRenderCmd;
+    this.vertexType = cc.renderer.VertexType.QUAD;
+    this._color = new Uint32Array(1);
+    this._dirty = false;
+    this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
+};
 
-    proto.rendering = function (ctx){
-        var node = this._node;
+var Scale9Sprite = cc.Scale9Sprite;
+var proto = Scale9Sprite.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
+proto.constructor = Scale9Sprite.WebGLRenderCmd;
 
-        var locTexture = null;
-        if(node._spriteFrame) locTexture = node._spriteFrame._texture;
-        if (!node.loaded() || this._displayedOpacity === 0)
-            return;
-        var needRebuildWebBuffer = false;
-
-        if(node._quadsDirty){
-            node._rebuildQuads();
-            this._colorOpacityDirty = false;
-            needRebuildWebBuffer = true;
+proto._uploadSliced = function (vertices, uvs, color, z, f32buffer, ui32buffer, offset) {
+    var off;
+    for (var r = 0; r < 3; ++r) {
+        for (var c = 0; c < 3; ++c) {
+            off = r*8 + c*2;
+            // lb
+            f32buffer[offset] = vertices[off];
+            f32buffer[offset+1] = vertices[off+1];
+            f32buffer[offset+2] = z;
+            ui32buffer[offset+3] = color[0];
+            f32buffer[offset+4] = uvs[off];
+            f32buffer[offset+5] = uvs[off+1];
+            offset += 6;
+            // rb
+            f32buffer[offset] = vertices[off+2];
+            f32buffer[offset + 1] = vertices[off+3];
+            f32buffer[offset + 2] = z;
+            ui32buffer[offset + 3] = color[0];
+            f32buffer[offset + 4] = uvs[off+2];
+            f32buffer[offset + 5] = uvs[off+3];
+            offset += 6;
+            // lt
+            f32buffer[offset] = vertices[off+8];
+            f32buffer[offset + 1] = vertices[off+9];
+            f32buffer[offset + 2] = z;
+            ui32buffer[offset + 3] = color[0];
+            f32buffer[offset + 4] = uvs[off+8];
+            f32buffer[offset + 5] = uvs[off+9];
+            offset += 6;
+            // rt
+            f32buffer[offset] = vertices[off+10];
+            f32buffer[offset + 1] = vertices[off+11];
+            f32buffer[offset + 2] = z;
+            ui32buffer[offset + 3] = color[0];
+            f32buffer[offset + 4] = uvs[off+10];
+            f32buffer[offset + 5] = uvs[off+11];
+            offset += 6;
         }
-        if(this._colorOpacityDirty) {
-            node._onColorOpacityDirty();
-            this._colorOpacityDirty = false;
-            needRebuildWebBuffer = true;
+    }
+    return 36;
+};
+
+proto.transform = function (parentCmd, recursive) {
+    this.originTransform(parentCmd, recursive);
+    this._node._rebuildQuads();
+};
+
+proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
+    var node = this._node;
+    if (this._displayedOpacity === 0) {
+        return 0;
+    }
+
+    // Rebuild vertex data
+    if (node._quadsDirty) {
+        node._rebuildQuads();
+    }
+
+    if (node._distortionOffset && this._shaderProgram === Scale9Sprite.WebGLRenderCmd._distortionProgram) {
+        this._shaderProgram.setUniformLocationWith2f(
+          Scale9Sprite.WebGLRenderCmd._distortionOffset,
+          node._distortionOffset.x, node._distortionOffset.y
+        );
+        this._shaderProgram.setUniformLocationWith2f(
+          Scale9Sprite.WebGLRenderCmd._distortionTiling,
+          node._distortionTiling.x, node._distortionTiling.y
+        );
+    }
+
+    // Color & z
+    var opacity = this._displayedOpacity;
+    var r = this._displayedColor.r,
+        g = this._displayedColor.g,
+        b = this._displayedColor.b;
+    if (node._opacityModifyRGB) {
+        var a = opacity / 255;
+        r *= a;
+        g *= a;
+        b *= a;
+    }
+    this._color[0] = ((opacity<<24) | (b<<16) | (g<<8) | r);
+    var z = node._vertexZ;
+
+    // Upload data
+    var vertices = node._vertices;
+    var uvs = node._uvs;
+    var types = Scale9Sprite.RenderingType;
+    var offset = vertexDataOffset;
+    var len = 0;
+    switch (node._renderingType) {
+    case types.SIMPLE:
+    case types.TILED:
+    case types.FILLED:
+        // Inline for performance
+        len = this._node._vertCount;
+        for (var i = 0, srcOff = 0; i < len; i++, srcOff += 2) {
+            f32buffer[offset] = vertices[srcOff];
+            f32buffer[offset + 1] = vertices[srcOff+1];
+            f32buffer[offset + 2] = z;
+            ui32buffer[offset + 3] = this._color[0];
+            f32buffer[offset + 4] = uvs[srcOff];
+            f32buffer[offset + 5] = uvs[srcOff+1];
+            offset += 6;
         }
-        var gl = ctx || cc._renderContext ;
+        break;
+    case types.SLICED:
+        len = this._uploadSliced(vertices, uvs, this._color, z, f32buffer, ui32buffer, offset);
+        break;
+    }
+    if (node._renderingType === types.FILLED && node._fillType === Scale9Sprite.FillType.RADIAL) {
+        this.vertexType = cc.renderer.VertexType.TRIANGLE;
+    }
+    else {
+        this.vertexType = cc.renderer.VertexType.QUAD;
+    }
+    return len;
+};
 
-        if(locTexture != null)
-        {
-            this._shaderProgram.use();
-            this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
-            if(this._shaderProgram === cc.Scale9Sprite.WebGLRenderCmd._distortionProgram && this._node._distortionOffset) {
-                this._shaderProgram.setUniformLocationWith2f(
-                  cc.Scale9Sprite.WebGLRenderCmd._distortionOffset,
-                  this._node._distortionOffset.x, this._node._distortionOffset.y
-                );
-                this._shaderProgram.setUniformLocationWith2f(
-                  cc.Scale9Sprite.WebGLRenderCmd._distortionTiling,
-                  this._node._distortionTiling.x, this._node._distortionTiling.y
-                );
-            }
-            ccgl.blendFunc(node._blendFunc.src, node._blendFunc.dst);
-            //optimize performance for javascript
-            ccgl.bindTexture2DN(0, locTexture);                   // = cc.gl.bindTexture2D(locTexture);
-            ccgl.enableVertexAttribs(cc.macro.VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+proto.setState = function (state) {
+    if (state === Scale9Sprite.state.NORMAL) {
+        this._shaderProgram = cc.shaderCache.programForKey(cc.macro.SHADER_SPRITE_POSITION_TEXTURECOLOR);
+    } else if (state === Scale9Sprite.state.GRAY) {
+        this._shaderProgram = cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram();
+    } else if (state === Scale9Sprite.state.DISTORTION) {
+        this._shaderProgram = cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram();
+    }
+};
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, this._quadWebBuffer);
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this._quadIndexBuffer);
-            var quads = node._quads;
-            var bufferOffset = 0;
-            var quadsLength = quads.length;
-            var requiredIndicesLength = quadsLength * (node._isTriangle ? 3 : 6);
-            if (quadsLength === 0) return;
-            if (needRebuildWebBuffer)
-            {
-                //reallocate indices if indices is not enought or is too big
-                var indices = this._indices;
-                if((indices.length < requiredIndicesLength) || (indices.length > requiredIndicesLength + 128)) {
-                    indices = this._indices = new Int16Array(requiredIndicesLength + 64);
-                }
-
-                var indiceIndex = 0;
-                gl.bufferData(gl.ARRAY_BUFFER,quads[0].arrayBuffer.byteLength * quads.length, gl.DYNAMIC_DRAW);
-                for(var i = 0; i < quads.length; ++i) {
-                    gl.bufferSubData(gl.ARRAY_BUFFER, bufferOffset,quads[i].arrayBuffer);
-                    bufferOffset = bufferOffset + quads[i].arrayBuffer.byteLength;
-                    if(node._isTriangle === true) {
-                        indices[indiceIndex] = i * 4;
-                        indices[indiceIndex+1] = i * 4 + 1;
-                        indices[indiceIndex+2] = i * 4 + 2;
-                        indiceIndex += 3;
-                    } else {
-                        indices[indiceIndex] = i * 4;
-                        indices[indiceIndex+1] = i * 4 + 1;
-                        indices[indiceIndex+2] = i * 4 + 2;
-                        indices[indiceIndex+3] = i * 4 + 3;
-                        indices[indiceIndex+4] = i * 4 + 2;
-                        indices[indiceIndex+5] = i * 4 + 1;
-                        indiceIndex += 6;
-                    }
-                }
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices, gl.DYNAMIC_DRAW);
-
-            }
-            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);                   //cc.macro.VERTEX_ATTRIB_POSITION
-            gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 24, 12);           //cc.macro.VERTEX_ATTRIB_COLOR
-            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16);                  //cc.macro.VERTEX_ATTRIB_TEX_COORDS
-
-            gl.drawElements(gl.TRIANGLES, (node._isTriangle ? 3 : 6) * quadsLength,gl.UNSIGNED_SHORT,0);
-
-
-            cc.g_NumberOfDraws += 1;
-
-        }
-
-    };
-
-    proto._syncDisplayOpacity = function (parentOpacity) {
-        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayOpacity.call(this, parentOpacity);
-        this._colorOpacityDirty = true;
-    };
-
-    proto._updateDisplayOpacity = function(parentOpacity){
-        _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayOpacity.call(this, parentOpacity);
-        this._colorOpacityDirty = true;
-    };
-
-    proto._syncDisplayColor = function (parentColor) {
-        _ccsg.Node.WebGLRenderCmd.prototype._syncDisplayColor.call(this, parentColor);
-        this._colorOpacityDirty = true;
-    };
-
-    proto._updateDisplayColor = function(parentColor){
-        _ccsg.Node.WebGLRenderCmd.prototype._updateDisplayColor.call(this, parentColor);
-        this._colorOpacityDirty = true;
-    };
-
-    proto.setState = function (state) {
-        var node = this._node;
-        if (state === cc.Scale9Sprite.state.NORMAL) {
-            node.setShaderProgram(cc.shaderCache.programForKey(cc.macro.SHADER_POSITION_TEXTURECOLOR));
-        } else if (state === cc.Scale9Sprite.state.GRAY) {
-            node.setShaderProgram(cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram());
-        } else if (state === cc.Scale9Sprite.state.DISTORTION) {
-            node.setShaderProgram(cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram());
-        }
-    };
-
-    cc.Scale9Sprite.WebGLRenderCmd._grayShaderProgram = null;
-    cc.Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram = function(){
-        var grayShader = cc.Scale9Sprite.WebGLRenderCmd._grayShaderProgram;
-        if(grayShader)
-            return grayShader;
-
-        grayShader = new cc.GLProgram();
-        grayShader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
-        grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
-        grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
-        grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
-        grayShader.link();
-        grayShader.updateUniforms();
-
-        cc.Scale9Sprite.WebGLRenderCmd._grayShaderProgram = grayShader;
+Scale9Sprite.WebGLRenderCmd._grayShaderProgram = null;
+Scale9Sprite.WebGLRenderCmd._getGrayShaderProgram = function(){
+    var grayShader = Scale9Sprite.WebGLRenderCmd._grayShaderProgram;
+    if (grayShader)
         return grayShader;
-    };
 
-    cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
-        "precision lowp float;\n"
-        + "varying vec4 v_fragmentColor; \n"
-        + "varying vec2 v_texCoord; \n"
-        + "void main() \n"
-        + "{ \n"
-        + "    vec4 c = texture2D(CC_Texture0, v_texCoord); \n"
-        + "    gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b); \n"
-        +"     gl_FragColor.w = c.w ; \n"
-        + "}";
+    grayShader = new cc.GLProgram();
+    grayShader.initWithVertexShaderByteArray(cc.PresetShaders.SPRITE_POSITION_TEXTURE_COLOR_VERT, cc.Scale9Sprite.WebGLRenderCmd._grayShaderFragment);
+    grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+    grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
+    grayShader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+    grayShader.link();
+    grayShader.updateUniforms();
 
-    cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
-    cc.Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
-        var shader = cc.Scale9Sprite.WebGLRenderCmd._distortionProgram;
-        if(shader)
-            return shader;
+    Scale9Sprite.WebGLRenderCmd._grayShaderProgram = grayShader;
+    return grayShader;
+};
 
-        shader = new cc.GLProgram();
-        shader.initWithVertexShaderByteArray(cc.PresetShaders.POSITION_TEXTURE_COLOR_VERT, distortionSpriteShader.fShader);
-        shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
-        shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
-        shader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
-        shader.link();
-        shader.updateUniforms();
+Scale9Sprite.WebGLRenderCmd._grayShaderFragment =
+    "precision lowp float;\n"
+    + "varying vec4 v_fragmentColor; \n"
+    + "varying vec2 v_texCoord; \n"
+    + "void main() \n"
+    + "{ \n"
+    + "    vec4 c = texture2D(CC_Texture0, v_texCoord); \n"
+    + "    gl_FragColor.xyz = vec3(0.2126*c.r + 0.7152*c.g + 0.0722*c.b); \n"
+    +"     gl_FragColor.w = c.w ; \n"
+    + "}";
 
-        cc.Scale9Sprite.WebGLRenderCmd._distortionProgram = shader;
-        cc.Scale9Sprite.WebGLRenderCmd._distortionOffset = shader.getUniformLocationForName('u_offset');
-        cc.Scale9Sprite.WebGLRenderCmd._distortionTiling = shader.getUniformLocationForName('u_offset_tiling');
+Scale9Sprite.WebGLRenderCmd._distortionProgram = null;
+Scale9Sprite.WebGLRenderCmd._getDistortionProgram = function(){
+    var shader = Scale9Sprite.WebGLRenderCmd._distortionProgram;
+    if(shader)
         return shader;
-    };
 
-    var distortionSpriteShader = {
-    };
-    distortionSpriteShader.shaderKey = 'cc.Sprite.Shader.Distortion';
-    distortionSpriteShader.fShader =  "precision lowp float;\n"
+    shader = new cc.GLProgram();
+    shader.initWithVertexShaderByteArray(cc.PresetShaders.SPRITE_POSITION_TEXTURE_COLOR_VERT, distortionSpriteShader.fShader);
+    shader.addAttribute(cc.macro.ATTRIBUTE_NAME_POSITION, cc.macro.VERTEX_ATTRIB_POSITION);
+    shader.addAttribute(cc.macro.ATTRIBUTE_NAME_COLOR, cc.macro.VERTEX_ATTRIB_COLOR);
+    shader.addAttribute(cc.macro.ATTRIBUTE_NAME_TEX_COORD, cc.macro.VERTEX_ATTRIB_TEX_COORDS);
+    shader.link();
+    shader.updateUniforms();
+
+    Scale9Sprite.WebGLRenderCmd._distortionProgram = shader;
+    Scale9Sprite.WebGLRenderCmd._distortionOffset = shader.getUniformLocationForName('u_offset');
+    Scale9Sprite.WebGLRenderCmd._distortionTiling = shader.getUniformLocationForName('u_offset_tiling');
+    return shader;
+};
+
+var distortionSpriteShader = {
+    shaderKey: 'cc.Sprite.Shader.Distortion',
+    fShader:  "precision lowp float;\n"
         + "varying vec4 v_fragmentColor; \n"
         + "varying vec2 v_texCoord; \n"
         + "uniform vec2 u_offset; \n"
@@ -239,5 +248,5 @@ if (_ccsg.Node.WebGLRenderCmd) {
         + "uv = uv * u_offset_tiling + u_offset;\n"
         + "uv = fract(uv); \n"
         + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
-        + "}";
-}
+        + "}"
+};

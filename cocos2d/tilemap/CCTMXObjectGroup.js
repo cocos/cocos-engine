@@ -29,9 +29,18 @@
  * !#zh TMXObjectGroup 用来表示 TMX 对象组。
  * @class TMXObjectGroup
  * @extends cc._Class
- *
- * @property {Array}    properties  - Properties from the group. They can be added using tilemap editors
- * @property {String}   groupName   - Name of the group
+ */
+
+/**
+ * Properties from the group. They can be added using tilemap editors.
+ * @property properties
+ * @type {Array}
+ */
+
+/**
+ * Name of the group
+ * @property groupName
+ * @type {String}
  */
 cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
 	properties: null,
@@ -44,6 +53,7 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * <p>The cc.TMXObjectGroup's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.TMXObjectGroup()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
+     * @method ctor
      */
     ctor:function () {
         this.groupName = "";

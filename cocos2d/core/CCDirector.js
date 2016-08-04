@@ -140,7 +140,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         EventTarget.call(self);
         self._lastUpdate = Date.now();
-        cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+        cc.game.on(cc.game.EVENT_SHOW, function () {
             self._lastUpdate = Date.now();
         });
     },
@@ -209,7 +209,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // WidgetManager
-        cc._widgetManager.init(this);
+        if (cc._widgetManager) {
+            cc._widgetManager.init(this);
+        }
     },
 
     /**
@@ -218,16 +220,14 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     calculateDeltaTime: function () {
         var now = Date.now();
 
-        // new delta time.
         if (this._nextDeltaTimeZero) {
             this._deltaTime = 0;
             this._nextDeltaTimeZero = false;
         } else {
             this._deltaTime = (now - this._lastUpdate) / 1000;
+            if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 1))
+                this._deltaTime = 1 / 60.0;
         }
-
-        if ((cc.game.config[cc.game.CONFIG_KEY.debugMode] > 0) && (this._deltaTime > 0.2))
-            this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
     },
@@ -266,8 +266,9 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             var renderer = cc.renderer;
             if (renderer.childrenOrderDirty) {
                 renderer.clearRenderCommands();
+                cc.renderer.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
-                this._runningScene.visit();
+                this._runningScene._renderCmd.visit();
                 renderer.resetFlag();
             }
             else if (renderer.transformDirty()) {
@@ -282,12 +283,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (this._beforeVisitScene)
             this._beforeVisitScene();
 
-        // visit EC
-        if (this._scene) {
-            // clear flags
-            clearFlags(this._scene);
-        }
-
         // update the scene
         this._visitScene();
 
@@ -299,16 +294,6 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
 
         if (this._afterVisitScene)
             this._afterVisitScene();
-    },
-
-    render: function (deltaTime) {
-        cc.g_NumberOfDraws = 0;
-        cc.renderer.clear();
-
-        cc.renderer.rendering(cc._renderContext);
-        this._totalFrames++;
-
-        this.emit(cc.Director.EVENT_AFTER_DRAW);
     },
 
     _beforeVisitScene: null,
@@ -404,8 +389,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     getZEye: null,
 
     /**
-     * !#en Pause the director's ticker.
-     * !#zh 暂停正在运行的场景，该暂停只会停止 Scheduler，但是不会停止渲染和 UI 响应。
+     * !#en Pause the director's ticker, only involve the game logic execution.
+     * It won't pause the rendering process nor the event manager.
+     * If you want to pause the entier game including rendering, audio and event, 
+     * please use {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}
+     * !#zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。
+     * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}。
      * @method pause
      */
     pause: function () {
@@ -590,10 +579,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             for (id in persistNodes) {
                 node = persistNodes[id];
                 var existNode = scene.getChildByUuid(id);
-                // Scene contains the persist node, should not reattach, should update the persist node
                 if (existNode) {
-                    persistNodes[id] = existNode;
-                    existNode._persistNode = true;
+                    // scene also contains the persist node, select the old one
+                    var index = existNode.getSiblingIndex();
+                    existNode._destroyImmediate();
+                    node.parent = scene;
+                    node.setSiblingIndex(index);
                 }
                 else {
                     node.parent = scene;
@@ -623,7 +614,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        cc.renderer.clear();
+        //cc.renderer.clear();
         this.emit(cc.Director.EVENT_AFTER_SCENE_LAUNCH, scene);
     },
 
@@ -645,7 +636,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         }
 
         // Delay run / replace scene to the end of the frame
-        this.once(cc.Director.EVENT_AFTER_DRAW, function () {
+        this.once(cc.Director.EVENT_AFTER_UPDATE, function () {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     },
@@ -689,13 +680,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             for (var i = 0; i < scenes.length; i++) {
                 var info = scenes[i];
                 if (info.url.endsWith(key)) {
-                    return info.uuid;
+                    return info;
                 }
             }
         }
         else if (typeof key === 'number') {
             if (0 <= key && key < scenes.length) {
-                return scenes[key].uuid;
+                return scenes[key];
             }
             else {
                 cc.error('loadScene: The scene index to load (%s) is out of range.', key);
@@ -721,11 +712,32 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             cc.error('loadScene: Failed to load scene "%s" because "%s" is already loading', sceneName, this._loadingScene);
             return false;
         }
-        var uuid = this._getSceneUuid(sceneName);
-        if (uuid) {
+        var info = this._getSceneUuid(sceneName);
+        if (info) {
+            var uuid = info.uuid;
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+            if (CC_JSB && cc.runtime && uuid !== this._launchSceneUuid) {
+                var self = this;
+                var groupName = cc.path.basename(info.url) + '_' + info.uuid;
+                console.log('==> start preload: ' + groupName);
+                var ensureAsync = false;
+                cc.LoaderLayer.preload([groupName], function () {
+                    console.log('==> end preload: ' + groupName);
+                    if (ensureAsync) {
+                        self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                    }
+                    else {
+                        setTimeout(function () {
+                            self._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+                        }, 0);
+                    }
+                });
+                ensureAsync = true;
+            }
+            else {
+                this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+            }
             return true;
         }
         else {
@@ -750,10 +762,10 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
      * @param {Error} onLoaded.error - null or the error object.
      */
     preloadScene: function (sceneName, onLoaded) {
-        var uuid = this._getSceneUuid(sceneName);
-        if (uuid) {
+        var info = this._getSceneUuid(sceneName);
+        if (info) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            cc.loader.load({ id: uuid, type: 'uuid' }, function (error, asset) {
+            cc.loader.load({ id: info.uuid, type: 'uuid' }, function (error, asset) {
                 if (error) {
                     cc.error('Failed to preload "%s", %s', sceneName, error.message);
                 }
@@ -786,7 +798,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             if (error) {
                 error = 'Failed to load scene: ' + error;
                 cc.error(error);
-                if (CC_EDITOR) {
+                if (CC_DEV) {
                     console.assert(false, error);
                 }
             }
@@ -794,12 +806,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 if (sceneAsset instanceof cc.SceneAsset) {
                     scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
-                }
-                else {
-                    // hack for preview
-                    scene = sceneAsset;
-                }
-                if (scene instanceof cc.Scene) {
+                    scene._name = sceneAsset._name;
                     self.runSceneImmediate(scene, onUnloaded, onLaunched);
                 }
                 else {
@@ -815,8 +822,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * !#en Resume director after pause, if the current scene is not paused, nothing will happen.
-     * !#zh 恢复暂停场景，恢复 Scheduler，如果当前场景没有暂停将没任何事情发生。
+     * !#en Resume game logic execution after pause, if the current scene is not paused, nothing will happen.
+     * !#zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
      * @method resume
      */
     resume: function () {
@@ -1376,7 +1383,16 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
         }
 
         this.visit();
-        this.render();
+
+        // Render
+        cc.g_NumberOfDraws = 0;
+        cc.renderer.clear();
+
+        cc.renderer.rendering(cc._renderContext);
+        this._totalFrames++;
+
+        this.emit(cc.Director.EVENT_AFTER_DRAW);
+
     } : function () {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
@@ -1408,7 +1424,15 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
             }
 
             this.visit(this._deltaTime);
-            this.render(this._deltaTime);
+
+            // Render
+            cc.g_NumberOfDraws = 0;
+            cc.renderer.clear();
+
+            cc.renderer.rendering(cc._renderContext);
+            this._totalFrames++;
+
+            this.emit(cc.Director.EVENT_AFTER_DRAW);
 
             this._calculateMPF();
         }
@@ -1479,14 +1503,4 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @constant
  * @type {Number}
  */
-cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_3D;
-
-// clear dirtyFlags for EC
-function clearFlags (node) {
-    var children = node._children;
-    for (var i = 0, len = children.length; i < len; i++) {
-        var child = children[i];
-        child._dirtyFlags = 0;
-        clearFlags(child);
-    }
-}
+cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;

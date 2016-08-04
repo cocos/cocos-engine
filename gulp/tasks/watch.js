@@ -1,17 +1,16 @@
 var gulp = require('gulp');
-var watchify = require('watchify');
-var browserify = require('browserify');
+var Watchify = require('watchify');
+var Browserify = require('browserify');
 var Fs = require('fs');
-var Path = require('path');
 
 function watchFile(opts) {
-    var bundler = new browserify(opts.entries, {
+    var bundler = new Browserify(opts.entries, {
         cache: {},
         packageCache: {},
         debug: true,
         detectGlobals: false,    // dont insert `process`, `global`, `__filename`, and `__dirname`
         bundleExternal: false,   // dont bundle external modules
-        plugin: [watchify]
+        plugin: [Watchify]
     });
      
     bundler.on('update', bundle);
@@ -46,26 +45,24 @@ function watchFile(opts) {
     return bundle();
 }
 
-gulp.task('watch-preview', function () {
+exports.preview = function (sourceFile, outputFile) {
     return watchFile({
-        entries: paths.jsEntry,
-        dest: paths.preview.dest,
+        entries: sourceFile,
+        dest: outputFile,
         prefix: 'CC_DEV = true;\n'
     });
-});
+};
 
-gulp.task('watch-jsb-polyfill', function () {
+exports.jsbPolyfill = function (sourceFile, outputFile, skipModules) {
     return watchFile({
-        entries: paths.jsb.entries,
-        dest: Path.join(paths.outDir, paths.jsb.outFileDev),
+        entries: sourceFile,
+        dest: outputFile,
         prefix: function () {
             var prefix = 'CC_DEV = true;\n';
             prefix += 'CC_JSB = true;\n';
-            
+
             return prefix;
         },
-        skips: paths.jsb.skipModules
+        skips: skipModules
     });
-});
-
-gulp.task('watch-dev-files', ['watch-preview', 'watch-jsb-polyfill']);
+};

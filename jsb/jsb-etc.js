@@ -71,6 +71,9 @@ cc.js.mixin(cc.path, {
 
 // cc.Scheduler
 cc.Scheduler.prototype.schedule = function (callback, target, interval, repeat, delay, paused) {
+    repeat = isFinite(repeat) ? repeat : cc.macro.REPEAT_FOREVER;
+    delay =  delay || 0;
+    paused = !!paused;
     this.scheduleCallbackForTarget(target, callback, interval, repeat, delay, paused);
 };
 cc.Scheduler.prototype.scheduleUpdate = cc.Scheduler.prototype.scheduleUpdateForTarget;
@@ -204,9 +207,14 @@ window._ccsg = {
     Label: cc.Label,
     EditBox: cc.EditBox,
     VideoPlayer: cc.VideoPlayer,
+    WebView: cc.WebView,
     TMXTiledMap: cc.TMXTiledMap,
     TMXLayer: cc.TMXLayer,
     MotionStreak: cc.MotionStreak
+};
+
+// __errorHandler
+window.__errorHandler = function (err) {
 };
 
 // rename cc.Class to cc._Class

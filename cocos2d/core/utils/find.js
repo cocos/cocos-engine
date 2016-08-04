@@ -43,10 +43,20 @@ cc.find = module.exports = function (path, referenceNode) {
     if (!referenceNode) {
         var scene = cc.director.getScene();
         if (!scene) {
-            cc.warn('Can not get current scene.');
+            if (CC_DEV) {
+                cc.warn('Can not get current scene.');
+            }
+            return null;
+        }
+        else if (CC_DEV && !scene.isValid) {
+            cc.warn('Scene is destroyed');
             return null;
         }
         referenceNode = scene;
+    }
+    else if (CC_DEV && !referenceNode.isValid) {
+        cc.warn('reference node is destroyed');
+        return null;
     }
 
     var match = referenceNode;

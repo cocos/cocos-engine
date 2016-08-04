@@ -143,7 +143,7 @@ sys.LANGUAGE_POLISH = "pl";
  * @property {String} LANGUAGE_UNKNOWN
  * @readOnly
  */
-sys.LANGUAGE_UNKNOWN = "unkonwn";
+sys.LANGUAGE_UNKNOWN = "unknown";
 
 /**
  * @property {String} OS_IOS
@@ -306,7 +306,6 @@ sys.EDITOR_PAGE = 102;
  * @default 103
  */
 sys.EDITOR_CORE = 103;
-
 /**
  * BROWSER_TYPE_WECHAT
  * @property {String} BROWSER_TYPE_WECHAT
@@ -460,7 +459,7 @@ sys.isNative = false;
  */
 sys.isBrowser = typeof window === 'object' && typeof document === 'object';
 
-if (typeof Editor !== 'undefined' && Editor.isMainProcess) {
+if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
     sys.language = sys.LANGUAGE_UNKNOWN;
@@ -482,7 +481,7 @@ else {
     var win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
     var ua = nav.userAgent.toLowerCase();
 
-    if (cc.isEditor) {
+    if (CC_EDITOR) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_PAGE;
     }
@@ -491,7 +490,7 @@ else {
          * Indicate whether system is mobile system
          * @property {Boolean} isMobile
          */
-        sys.isMobile = ua.indexOf('mobile') !== -1 || ua.indexOf('android') !== -1;
+        sys.isMobile = /mobile|android|mqqbrowser|micromessenger|miuibrowser/.test(ua);
 
         /**
          * Indicate the running platform
@@ -511,8 +510,20 @@ else {
     sys.language = currLanguage;
 
     // Get the os of system
-    var iOS = ( ua.match(/(iPad|iPhone|iPod)/i) ? true : false );
-    var isAndroid = ua.match(/android/i) || nav.platform.match(/android/i) ? true : false;
+    var isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
+    var uaResult = /android (\d+(?:\.\d+)+)/i.exec(ua) || /android (\d+(?:\.\d+)+)/i.exec(nav.platform);
+    if (uaResult) {
+        isAndroid = true;
+        osVersion = uaResult[1] || '';
+        osMainVersion = parseInt(osVersion) || 0;
+    }
+    uaResult = /(iPad|iPhone|iPod).*OS ((\d+_?){2,3})/i.exec(ua);
+    if (uaResult) {
+        iOS = true;
+        osVersion = uaResult[2] || '';
+        osMainVersion = parseInt(osVersion) || 0;
+    }
+
     var osName = sys.OS_UNKNOWN;
     if (nav.appVersion.indexOf("Win") !== -1) osName = sys.OS_WINDOWS;
     else if (iOS) osName = sys.OS_IOS;
@@ -526,6 +537,16 @@ else {
      * @property {String} os
      */
     sys.os = osName;
+    /**
+     * Indicate the running os version
+     * @property {String} osVersion
+     */
+    sys.osVersion = osVersion;
+    /**
+     * Indicate the running os main version
+     * @property {Number} osMainVersion
+     */
+    sys.osMainVersion = osMainVersion;
 
     /**
      * Indicate the running browser type
@@ -683,18 +704,18 @@ else {
     if (win.WebGLRenderingContext) {
         var tmpCanvas = document.createElement("CANVAS");
         try{
-            var context = cc.create3DContext(tmpCanvas, {'stencil': true, 'preserveDrawingBuffer': true });
+            var context = cc.create3DContext(tmpCanvas, {'stencil': true});
             if(context) {
                 _supportWebGL = true;
             }
 
             if (_supportWebGL && sys.os === sys.OS_ANDROID) {
+                var browserVer = parseFloat(sys.browserVersion);
                 switch (sys.browserType) {
                 case sys.BROWSER_TYPE_MOBILE_QQ:
                 case sys.BROWSER_TYPE_BAIDU:
                 case sys.BROWSER_TYPE_BAIDU_APP:
                     // QQ & Baidu Brwoser 6.2+ (using blink kernel)
-                    var browserVer = parseFloat(sys.browserVersion);
                     if (browserVer >= 6.2) {
                         _supportWebGL = true;
                     }
@@ -708,10 +729,18 @@ else {
                         _supportWebGL = true;
                     }
                     break;
+                case sys.BROWSER_TYPE_CHROME:
+                    // Chrome on android supports WebGL from v. 30
+                    if(browserVer >= 30.0) {
+                      _supportWebGL = true;
+                    } else {
+                      _supportWebGL = false;
+                    }
+                    break;
                 case sys.BROWSER_TYPE_UNKNOWN:
                 case sys.BROWSER_TYPE_360:
                 case sys.BROWSER_TYPE_MIUI:
-                default:
+                case sys.BROWSER_TYPE_UC:
                     _supportWebGL = false;
                 }
             }
@@ -763,6 +792,13 @@ else {
         var supportWebAudio = !!(window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
         __audioSupport = { ONLY_ONE: false, WEB_AUDIO: supportWebAudio, DELAY_CREATE_CTX: false };
+
+        if (sys.os === sys.OS_IOS) {
+            // IOS no event that used to parse completed callback
+            // this time is not complete, can not play
+            //
+            __audioSupport.USE_LOADER_EVENT = 'loadedmetadata';
+        }
 
         if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
             __audioSupport.DELAY_CREATE_CTX = true;

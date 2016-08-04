@@ -76,11 +76,11 @@ var __getListenerID = function (event) {
         return cc._EventListenerAcceleration.LISTENER_ID;
     if (type === eventType.KEYBOARD)
         return cc._EventListenerKeyboard.LISTENER_ID;
-    if (type === eventType.MOUSE)
+    if (type.startsWith(eventType.MOUSE))
         return cc._EventListenerMouse.LISTENER_ID;
     if (type === eventType.FOCUS)
         return cc._EventListenerFocus.LISTENER_ID;
-    if (type === eventType.TOUCH){
+    if (type.startsWith(eventType.TOUCH)){
         // Touch listener is very special, it contains two kinds of listeners, EventListenerTouchOneByOne and EventListenerTouchAllAtOnce.
         // return UNKNOWN instead.
         cc.log(cc._LogInfos._getListenerID);
@@ -117,6 +117,7 @@ cc.eventManager = {
     _nodePriorityMap: {},
     _globalZOrderNodeMap: {},
     _toAddedListeners: [],
+    _toRemovedListeners: [],
     _dirtyNodes: [],
     _inDispatch: 0,
     _isEnabled: false,
@@ -359,13 +360,17 @@ cc.eventManager = {
 
         var fixedPriorityListeners = listeners.getFixedPriorityListeners();
         var sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
-        var i, selListener;
+        var i, selListener, idx, toRemovedListeners = this._toRemovedListeners;
 
         if (sceneGraphPriorityListeners) {
             for (i = 0; i < sceneGraphPriorityListeners.length;) {
                 selListener = sceneGraphPriorityListeners[i];
                 if (!selListener._isRegistered()) {
                     cc.js.array.remove(sceneGraphPriorityListeners, selListener);
+                    // if item in toRemove list, remove it from the list
+                    idx = toRemovedListeners.indexOf(selListener);
+                    if(idx !== -1)
+                        toRemovedListeners.splice(idx, 1);
                 } else
                     ++i;
             }
@@ -374,8 +379,13 @@ cc.eventManager = {
         if (fixedPriorityListeners) {
             for (i = 0; i < fixedPriorityListeners.length;) {
                 selListener = fixedPriorityListeners[i];
-                if (!selListener._isRegistered())
+                if (!selListener._isRegistered()) {
                     cc.js.array.remove(fixedPriorityListeners, selListener);
+                    // if item in toRemove list, remove it from the list
+                    idx = toRemovedListeners.indexOf(selListener);
+                    if(idx !== -1)
+                        toRemovedListeners.splice(idx, 1);
+                }
                 else
                     ++i;
             }
@@ -395,7 +405,7 @@ cc.eventManager = {
         if(locInDispatch > 1)
             return;
 
-        if (event.getType() === cc.Event.TOUCH) {
+        if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._onUpdateListeners(cc._EventListenerTouchOneByOne.LISTENER_ID);
             this._onUpdateListeners(cc._EventListenerTouchAllAtOnce.LISTENER_ID);
         } else
@@ -416,6 +426,32 @@ cc.eventManager = {
                 this._forceAddEventListener(locToAddedListeners[i]);
             this._toAddedListeners.length = 0;
         }
+
+        if(this._toRemovedListeners.length !== 0)
+            this._cleanToRemovedListeners();
+    },
+
+    //Remove all listeners in _toRemoveListeners list and cleanup
+    _cleanToRemovedListeners: function() {
+        var toRemovedListeners = this._toRemovedListeners;
+        for(var i = 0; i< toRemovedListeners.length; i++) {
+            var selListener = toRemovedListeners[i];
+            var listeners = this._listenersMap[selListener._getListenerID()];
+            if (!listeners)
+                continue;
+
+            var idx, fixedPriorityListeners = listeners.getFixedPriorityListeners(), sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
+
+            if (sceneGraphPriorityListeners) {
+                idx = sceneGraphPriorityListeners.indexOf(selListener);
+                sceneGraphPriorityListeners.splice(idx, 1);
+            }
+            if (fixedPriorityListeners) {
+                idx = fixedPriorityListeners.indexOf(selListener);
+                fixedPriorityListeners.splice(idx, 1);
+            }
+        }
+        toRemovedListeners.length = 0;
     },
 
     _onTouchEventCallback: function(listener, argsObj){
@@ -593,6 +629,10 @@ cc.eventManager = {
     },
 
     _visitTarget: function (node, isRootNode) {
+        // sortAllChildren is performed the next frame, but the event is executed immediately.
+        if (node._reorderChildDirty) {
+            node.sortAllChildren();
+        }
         var children = node.getChildren(), i = 0;
         var childrenCount = children.length, locGlobalZOrderNodeMap = this._globalZOrderNodeMap, locNodeListenersMap = this._nodeListenersMap;
 
@@ -783,6 +823,8 @@ cc.eventManager = {
 
                 if (this._inDispatch === 0)
                     cc.js.array.remove(listeners, selListener);
+                else
+                    this._toRemovedListeners.push(selListener);
                 return true;
             }
         }
@@ -967,7 +1009,7 @@ cc.eventManager = {
         this._inDispatch++;
         if(!event || !event.getType)
             throw new Error("event is undefined");
-        if (event.getType() === cc.Event.TOUCH) {
+        if (event.getType().startsWith(cc.Event.TOUCH)) {
             this._dispatchTouchEvent(event);
             this._inDispatch--;
             return;

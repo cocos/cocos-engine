@@ -91,6 +91,8 @@ switch(__BrowserGetter.adaptationType){
         break;
 }
 
+var _scissorRect = cc.rect();
+
 /**
  * cc.view is the singleton object which represents the game window.<br/>
  * It's main task include: <br/>
@@ -116,7 +118,7 @@ var View = cc._Class.extend({
     _viewPortRect: null,
     // The visible rect in content's coordinate in point
     _visibleRect: null,
-	_retinaEnabled: false,
+    _retinaEnabled: false,
     _autoFullScreen: false,
     // The device's pixel ratio (for retina displays)
     _devicePixelRatio: 1,
@@ -167,9 +169,8 @@ var View = cc._Class.extend({
         _t._contentTranslateLeftTop = {left: 0, top: 0};
         _t._viewName = "Cocos2dHTML5";
 
-	    var sys = cc.sys;
+        var sys = cc.sys;
         _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
-        _t.enableAutoFullScreen(sys.isMobile && sys.browserType !== sys.BROWSER_TYPE_BAIDU);
         cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
         // Setup system default resolution policies
@@ -393,26 +394,26 @@ var View = cc._Class.extend({
         this._isAdjustViewPort = enabled;
     },
 
-	/**
-	 * Retina support is enabled by default for Apple device but disabled for other devices,<br/>
-	 * it takes effect only when you called setDesignResolutionPolicy<br/>
+    /**
+     * Retina support is enabled by default for Apple device but disabled for other devices,<br/>
+     * it takes effect only when you called setDesignResolutionPolicy<br/>
      * Only useful on web
      * @method enableRetina
-	 * @param {Boolean} enabled - Enable or disable retina display
-	 */
-	enableRetina: function(enabled) {
-		this._retinaEnabled = !!enabled;
-	},
+     * @param {Boolean} enabled - Enable or disable retina display
+     */
+    enableRetina: function(enabled) {
+        this._retinaEnabled = !!enabled;
+    },
 
-	/**
-	 * Check whether retina display is enabled.<br/>
+    /**
+     * Check whether retina display is enabled.<br/>
      * Only useful on web
      * @method isRetinaEnabled
-	 * @return {Boolean}
-	 */
-	isRetinaEnabled: function() {
-		return this._retinaEnabled;
-	},
+     * @return {Boolean}
+     */
+    isRetinaEnabled: function() {
+        return this._retinaEnabled;
+    },
 
     /**
      * If enabled, the application will try automatically to enter full screen mode on mobile devices<br/>
@@ -422,10 +423,10 @@ var View = cc._Class.extend({
      * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
      */
     enableAutoFullScreen: function(enabled) {
-        if (enabled && enabled !== this._autoFullScreen && cc.sys.isMobile && this._frame === document.documentElement) {
+        if (enabled && enabled !== this._autoFullScreen && cc.sys.isMobile && cc.game.frame === document.documentElement) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;
-            cc.screen.autoFullScreen(this._frame);
+            cc.screen.autoFullScreen(cc.game.frame);
         }
         else {
             this._autoFullScreen = false;
@@ -774,11 +775,15 @@ var View = cc._Class.extend({
      * @param {Number} h
      */
     setScissorInPoints: function (x, y, w, h) {
-        var locFrameZoomFactor = this._frameZoomFactor, locScaleX = this._scaleX, locScaleY = this._scaleY;
-        cc._renderContext.scissor((x * locScaleX * locFrameZoomFactor + this._viewPortRect.x * locFrameZoomFactor),
-            (y * locScaleY * locFrameZoomFactor + this._viewPortRect.y * locFrameZoomFactor),
-            (w * locScaleX * locFrameZoomFactor),
-            (h * locScaleY * locFrameZoomFactor));
+        var zoomFactor = this._frameZoomFactor, scaleX = this._scaleX, scaleY = this._scaleY;
+        _scissorRect.x = x;
+        _scissorRect.y = y;
+        _scissorRect.width = w;
+        _scissorRect.height = h;
+        cc._renderContext.scissor(x * scaleX * zoomFactor + this._viewPortRect.x * zoomFactor,
+                                  y * scaleY * zoomFactor + this._viewPortRect.y * zoomFactor,
+                                  w * scaleX * zoomFactor,
+                                  h * scaleY * zoomFactor);
     },
 
     /**
@@ -787,8 +792,7 @@ var View = cc._Class.extend({
      * @return {Boolean}
      */
     isScissorEnabled: function () {
-        var gl = cc._renderContext;
-        return gl.isEnabled(gl.SCISSOR_TEST);
+        return cc._renderContext.isEnabled(gl.SCISSOR_TEST);
     },
 
     /**
@@ -797,10 +801,7 @@ var View = cc._Class.extend({
      * @return {Rect}
      */
     getScissorRect: function () {
-        var gl = cc._renderContext, scaleX = this._scaleX, scaleY = this._scaleY;
-        var boxArr = gl.getParameter(gl.SCISSOR_BOX);
-        return cc.rect((boxArr[0] - this._viewPortRect.x) / scaleX, (boxArr[1] - this._viewPortRect.y) / scaleY,
-            boxArr[2] / scaleX, boxArr[3] / scaleY);
+        return cc.rect(_scissorRect);
     },
 
     /**
@@ -873,27 +874,30 @@ var View = cc._Class.extend({
         return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
     },
 
-    _convertMouseToLocationInView: function(point, relatedPos) {
-        var locViewPortRect = this._viewPortRect, _t = this;
-        point.x = ((_t._devicePixelRatio * (point.x - relatedPos.left)) - locViewPortRect.x) / _t._scaleX;
-        point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - point.y) - locViewPortRect.y) / _t._scaleY;
+    _convertMouseToLocationInView: function (point, relatedPos) {
+        var viewport = this._viewPortRect, _t = this;
+        point.x = ((_t._devicePixelRatio * (point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
+        point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - point.y) - viewport.y) / _t._scaleY;
     },
 
-    _convertTouchesWithScale: function(touches){
-        var locViewPortRect = this._viewPortRect, locScaleX = this._scaleX, locScaleY = this._scaleY,
-            selTouch, selPoint, selPrePoint, selStartPoint;
-        for( var i = 0; i < touches.length; i ++){
+    _convertPointWithScale: function (point) {
+        var viewport = this._viewPortRect;
+        point.x = (point.x - viewport.x) / this._scaleX;
+        point.y = (point.y - viewport.y) / this._scaleY;
+    },
+
+    _convertTouchesWithScale: function (touches) {
+        var viewport = this._viewPortRect, scaleX = this._scaleX, scaleY = this._scaleY,
+            selTouch, selPoint, selPrePoint;
+        for( var i = 0; i < touches.length; i++){
             selTouch = touches[i];
             selPoint = selTouch._point;
             selPrePoint = selTouch._prevPoint;
-            selStartPoint = selTouch._startPoint;
 
-            selPoint.x = (selPoint.x - locViewPortRect.x) / locScaleX;
-            selPoint.y = (selPoint.y - locViewPortRect.y) / locScaleY;
-            selPrePoint.x = (selPrePoint.x - locViewPortRect.x) / locScaleX;
-            selPrePoint.y = (selPrePoint.y - locViewPortRect.y) / locScaleY;
-            selStartPoint.x = (selStartPoint.x - locViewPortRect.x) / locScaleX;
-            selStartPoint.y = (selStartPoint.y - locViewPortRect.y) / locScaleY;
+            selPoint.x = (selPoint.x - viewport.x) / scaleX;
+            selPoint.y = (selPoint.y - viewport.y) / scaleY;
+            selPrePoint.x = (selPrePoint.x - viewport.x) / scaleX;
+            selPrePoint.y = (selPrePoint.y - viewport.y) / scaleY;
         }
     }
 });
@@ -993,9 +997,9 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
     },
 
     _buildResult: function (containerW, containerH, contentW, contentH, scaleX, scaleY) {
-	    // Makes content fit better the canvas
-	    Math.abs(containerW - contentW) < 2 && (contentW = containerW);
-	    Math.abs(containerH - contentH) < 2 && (contentH = containerH);
+        // Makes content fit better the canvas
+        Math.abs(containerW - contentW) < 2 && (contentW = containerW);
+        Math.abs(containerH - contentH) < 2 && (contentH = containerH);
 
         var viewport = cc.rect(Math.round((containerW - contentW) / 2),
                                Math.round((containerH - contentH) / 2),
@@ -1097,7 +1101,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      */
     var EqualToWindow = EqualToFrame.extend({
         preApply: function (view) {
-	        this._super(view);
+            this._super(view);
             cc.game.frame = document.documentElement;
         },
 
@@ -1113,7 +1117,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      */
     var ProportionalToWindow = ProportionalToFrame.extend({
         preApply: function (view) {
-	        this._super(view);
+            this._super(view);
             cc.game.frame = document.documentElement;
         },
 
@@ -1161,7 +1165,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
                 scaleX = containerW / designW, scaleY = containerH / designH, scale = 0,
                 contentW, contentH;
 
-	        scaleX < scaleY ? (scale = scaleX, contentW = containerW, contentH = designH * scale)
+            scaleX < scaleY ? (scale = scaleX, contentW = containerW, contentH = designH * scale)
                 : (scale = scaleY, contentW = designW * scale, contentH = containerH);
 
             return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
@@ -1235,7 +1239,7 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
  * @param {ContentStrategy} contentStg The content strategy
  */
 cc.ResolutionPolicy = cc._Class.extend(/** @lends cc.ResolutionPolicy# */{
-	_containerStrategy: null,
+    _containerStrategy: null,
     _contentStrategy: null,
 
     /**

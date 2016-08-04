@@ -156,7 +156,7 @@ var Layout = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Layout',
         help: 'i18n:COMPONENT.help_url.layout',
-        inspector: 'app://editor/page/inspector/cclayout.html',
+        inspector: 'packages://inspector/inspectors/comps/cclayout.js',
         executeInEditMode: true,
     },
 
@@ -360,8 +360,8 @@ var Layout = cc.Class({
         this.node.on('size-changed', this._resized, this);
 
         this.node.on('anchor-changed', this._doLayoutDirty, this);
-        this.node.on('child-added', this._childrenAddOrDeleted, this);
-        this.node.on('child-removed', this._childrenAddOrDeleted, this);
+        this.node.on('child-added', this._childAdded, this);
+        this.node.on('child-removed', this._childRemoved, this);
         this.node.on('child-reorder', this._doLayoutDirty, this);
 
         this._updateChildrenEventListener();
@@ -381,8 +381,23 @@ var Layout = cc.Class({
         }.bind(this));
     },
 
-    _childrenAddOrDeleted: function() {
-        this._updateChildrenEventListener();
+    _childAdded: function(event) {
+        var child = event.detail;
+        child.on('size-changed', this._doLayoutDirty, this);
+        child.on('position-changed', this._doLayoutDirty, this);
+        child.on('anchor-changed', this._doLayoutDirty, this);
+        child.on('active-in-hierarchy-changed', this._doLayoutDirty, this);
+
+        this._doLayoutDirty();
+    },
+
+    _childRemoved: function(event) {
+        var child = event.detail;
+        child.off('size-changed', this._doLayoutDirty, this);
+        child.off('position-changed', this._doLayoutDirty, this);
+        child.off('anchor-changed', this._doLayoutDirty, this);
+        child.off('active-in-hierarchy-changed', this._doLayoutDirty, this);
+
         this._doLayoutDirty();
     },
 
@@ -642,6 +657,10 @@ var Layout = cc.Class({
         var allChildrenBoundingBox = null;
 
         children.forEach(function(child){
+            if (!child.activeInHierarchy) {
+                return;
+            }
+
             if(!allChildrenBoundingBox){
                 allChildrenBoundingBox = child.getBoundingBoxToWorld();
             } else {
@@ -654,12 +673,13 @@ var Layout = cc.Class({
             var rightTopInParentSpace = this.node.parent.convertToNodeSpaceAR(cc.p(allChildrenBoundingBox.x + allChildrenBoundingBox.width,
                                                                                    allChildrenBoundingBox.y + allChildrenBoundingBox.height));
 
-            var newSize = cc.size(rightTopInParentSpace.x - leftBottomInParentSpace.x,
-                                  rightTopInParentSpace.y - leftBottomInParentSpace.y);
+            var newSize = cc.size(parseFloat((rightTopInParentSpace.x - leftBottomInParentSpace.x).toFixed(2)),
+                                  parseFloat((rightTopInParentSpace.y - leftBottomInParentSpace.y).toFixed(2)));
 
             var layoutPosition = this.node.getPosition();
-            var newAnchor = cc.p((layoutPosition.x - leftBottomInParentSpace.x) / newSize.width,
-                                 (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height);
+            var newAnchorX = (layoutPosition.x - leftBottomInParentSpace.x) / newSize.width;
+            var newAnchorY = (layoutPosition.y - leftBottomInParentSpace.y) / newSize.height;
+            var newAnchor = cc.p(parseFloat(newAnchorX.toFixed(2)), parseFloat(newAnchorY.toFixed(2)));
 
             this.node.setAnchorPoint(newAnchor);
             this.node.setContentSize(newSize);
@@ -811,7 +831,15 @@ var Layout = cc.Class({
         }
     },
 
-    lateUpdate: function() {
+    onEnable: function () {
+        cc.director.on(cc.Director.EVENT_BEFORE_VISIT, this._updateLayout, this);
+    },
+
+    onDisable: function () {
+        cc.director.off(cc.Director.EVENT_BEFORE_VISIT, this._updateLayout, this);
+    },
+
+    _updateLayout: function() {
         if (this._layoutDirty && this.node.children.length > 0) {
             this._doLayout();
             this._layoutDirty = false;

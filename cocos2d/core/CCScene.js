@@ -38,6 +38,16 @@ cc.Scene = cc.Class({
     name: 'cc.Scene',
     extends: require('./utils/base-node'),
 
+    //properties: {
+    //    /**
+    //     * !#en Indicates the raw assets of this scene can be load after scene launched.
+    //     * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
+    //     * @property {Boolean} _asyncLoadAssets
+    //     * @default false
+    //     */
+    //    _asyncLoadAssets: false
+    //},
+
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
         if (CC_JSB) {
@@ -103,7 +113,7 @@ cc.Scene = cc.Class({
 
 module.exports = cc.Scene;
 
-if (CC_EDITOR) {
+if (CC_DEV) {
     var ERR = '"%s" is not defined in the Scene, it is only defined in child nodes.';
     Object.defineProperties(cc.Scene.prototype, {
         active: {

@@ -28,6 +28,8 @@
 cc.ParticleBatchNode.WebGLRenderCmd = function(renderable){
     _ccsg.Node.WebGLRenderCmd.call(this, renderable);
     this._needDraw = true;
+    this._matrix = new cc.math.Matrix4();
+    this._matrix.identity();
 };
 
 var proto = cc.ParticleBatchNode.WebGLRenderCmd.prototype = Object.create(_ccsg.Node.WebGLRenderCmd.prototype);
@@ -38,8 +40,16 @@ proto.rendering = function (ctx) {
     if (_t.textureAtlas.totalQuads === 0)
         return;
 
+    var wt = this._worldTransform, mat = this._matrix.mat;
+    mat[0] = wt.a;
+    mat[4] = wt.c;
+    mat[12] = wt.tx;
+    mat[1] = wt.b;
+    mat[5] = wt.d;
+    mat[13] = wt.ty;
+
     this._shaderProgram.use();
-    this._shaderProgram._setUniformForMVPMatrixWithMat4(this._stackMatrix);
+    this._shaderProgram._setUniformForMVPMatrixWithMat4(this._matrix);
     cc.gl.blendFuncForParticle(_t._blendFunc.src, _t._blendFunc.dst);
     _t.textureAtlas.drawQuads();
 };
@@ -60,13 +70,12 @@ proto.visit = function(parentCmd){
     if (!node._visible)
         return;
 
-    var currentStack = cc.current_stack;
-    currentStack.stack.push(currentStack.top);
+    parentCmd = parentCmd || this.getParentRenderCmd();
+    if (parentCmd)
+        this._curLevel = parentCmd._curLevel + 1;
     this._syncStatus(parentCmd);
-    currentStack.top = this._stackMatrix;
-    //this.draw(ctx);
+
     cc.renderer.pushRenderCommand(this);
 
     this._dirtyFlag = 0;
-    cc.math.glPopMatrix();
 };

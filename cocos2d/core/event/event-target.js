@@ -34,8 +34,9 @@ var _doDispatchEvent = function (owner, event) {
     event.target = owner;
 
     // Event.CAPTURING_PHASE
+    cachedArray.length = 0;
     owner._getCapturingTargets(event.type, cachedArray);
-    // propagate
+    // capturing
     event.eventPhase = 1;
     for (i = cachedArray.length - 1; i >= 0; --i) {
         target = cachedArray[i];
@@ -45,6 +46,7 @@ var _doDispatchEvent = function (owner, event) {
             target._capturingListeners.invoke(event);
             // check if propagation stopped
             if (event._propagationStopped) {
+                cachedArray.length = 0;
                 return;
             }
         }
@@ -54,13 +56,18 @@ var _doDispatchEvent = function (owner, event) {
     // Event.AT_TARGET
     // checks if destroyed in capturing callbacks
     if (owner._isTargetActive(event.type)) {
-        _doSendEvent(owner, event);
-        if (event._propagationStopped) {
-            return;
+        // Event.AT_TARGET
+        event.eventPhase = 2;
+        event.currentTarget = owner;
+        if (owner._capturingListeners) {
+            owner._capturingListeners.invoke(event);
+        }
+        if (!event._propagationImmediateStopped && owner._bubblingListeners) {
+            owner._bubblingListeners.invoke(event);
         }
     }
 
-    if (event.bubbles) {
+    if (!event._propagationStopped && event.bubbles) {
         // Event.BUBBLING_PHASE
         owner._getBubblingTargets(event.type, cachedArray);
         // propagate
@@ -73,28 +80,13 @@ var _doDispatchEvent = function (owner, event) {
                 target._bubblingListeners.invoke(event);
                 // check if propagation stopped
                 if (event._propagationStopped) {
+                    cachedArray.length = 0;
                     return;
                 }
             }
         }
     }
     cachedArray.length = 0;
-};
-
-
-var _doSendEvent = function (owner, event) {
-    // Event.AT_TARGET
-    event.eventPhase = 2;
-    event.currentTarget = owner;
-    if (owner._capturingListeners) {
-        owner._capturingListeners.invoke(event);
-        if (event._propagationStopped) {
-            return;
-        }
-    }
-    if (owner._bubblingListeners) {
-        owner._bubblingListeners.invoke(event);
-    }
 };
 
 /**
@@ -147,12 +139,13 @@ JS.mixin(EventTarget.prototype, {
      * !#en Checks whether the EventTarget object has any callback registered for a specific type of event.
      * !#zh 检查事件目标对象是否为不特定类型的事件注册的回调。
      * @param {String} type - The type of event.
-     * @param {Boolean} A value of true if a callback of the specified type is registered; false otherwise.
+     * @param {Boolean} checkCapture - Check for capturing or bubbling phase, check bubbling phase by default.
+     * @return {Boolean} True if a callback of the specified type is registered in specified phase; false otherwise.
      */
-    hasEventListener: function (type) {
-        if (this._bubblingListeners && this._bubblingListeners.has(type))
+    hasEventListener: function (type, checkCapture) {
+        if (checkCapture && this._capturingListeners && this._capturingListeners.has(type))
             return true;
-        if (this._capturingListeners && this._capturingListeners.has(type))
+        if (!checkCapture && this._bubblingListeners && this._bubblingListeners.has(type))
             return true;
         return false;
     },
@@ -305,15 +298,10 @@ JS.mixin(EventTarget.prototype, {
      *
      * @method dispatchEvent
      * @param {Event} event - The Event object that is dispatched into the event flow
-     * @return {Boolean} - returns true if either the event's preventDefault() method was not invoked,
-     *                      or its cancelable attribute value is false, and false otherwise.
      */
     dispatchEvent: function (event) {
         _doDispatchEvent(this, event);
         cachedArray.length = 0;
-        var notPrevented = ! event._defaultPrevented;
-        // event.unuse();
-        return notPrevented;
     },
 
     /**
@@ -328,22 +316,29 @@ JS.mixin(EventTarget.prototype, {
      * @param {*} [detail] - whatever argument the message needs
      */
     emit: function (message, detail) {
-        if (typeof message !== 'string') {
+        if (CC_DEV && typeof message !== 'string') {
             cc.error('The message must be provided');
             return;
         }
-        //don't emit event when bubble listeners are not exists.
-        if(!this._bubblingListeners) {
-            return;
-        }
-        var listeners = this._bubblingListeners._callbackTable[message];
-        if (!listeners || listeners.length === 0) {
+        //don't emit event when listeners are not exists.
+        var caplisteners = this._capturingListeners && this._capturingListeners._callbackTable[message];
+        var bublisteners = this._bubblingListeners && this._bubblingListeners._callbackTable[message];
+        if ((!caplisteners || caplisteners.length === 0) && (!bublisteners || bublisteners.length === 0)) {
             return;
         }
 
         var event = new cc.Event.EventCustom(message);
         event.detail = detail;
-        _doSendEvent(this, event);
+
+        // Event.AT_TARGET
+        event.eventPhase = 2;
+        event.currentTarget = this;
+        if (caplisteners) {
+            this._capturingListeners.invoke(event);
+        }
+        if (bublisteners && !event._propagationImmediateStopped) {
+            this._bubblingListeners.invoke(event);
+        }
     },
 
     /*
@@ -388,5 +383,10 @@ JS.mixin(EventTarget.prototype, {
         // Object can override this method to make event propagable.
     }
 });
+// Improve performance of function call (avoid using EventTarget.prototype.on.call)
+EventTarget.prototype._EventTargetOn = EventTarget.prototype.on;
+EventTarget.prototype._EventTargetOnce = EventTarget.prototype.once;
+EventTarget.prototype._EventTargetOff = EventTarget.prototype.off;
+EventTarget.prototype._EventTargetTargetOff = EventTarget.prototype.targetOff;
 
 cc.EventTarget = module.exports = EventTarget;

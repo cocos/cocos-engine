@@ -150,6 +150,10 @@ var SkeletonData = cc.Class({
         scale: 1
     },
 
+    statics: {
+        preventDeferredLoadDependents: true
+    },
+
     // PUBLIC
 
     createNode: function (callback) {

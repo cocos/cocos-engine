@@ -595,10 +595,10 @@ cc.Scheduler = cc._Class.extend({
     /**
      * !#en
      * Unschedules a callback for a callback and a given target.
-     * If you want to unschedule the "update", use `unscheudleUpdate()`
+     * If you want to unschedule the "update", use `unscheduleUpdate()`
      * !#zh
      * 根据指定的回调函数和调用对象。
-     * 如果需要取消 update 定时器，请使用 unscheudleUpdate()。
+     * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
      * @method unschedule
      * @param {Function} callback The callback to be unscheduled
      * @param {Object} target The target bound to the callback.
@@ -809,7 +809,7 @@ cc.Scheduler = cc._Class.extend({
      * @method pauseAllTargets
      */
     pauseAllTargets:function () {
-        return this.pauseAllTargetsWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
+        this.pauseAllTargetsWithMinPriority(cc.Scheduler.PRIORITY_SYSTEM);
     },
 
     /**
@@ -823,8 +823,6 @@ cc.Scheduler = cc._Class.extend({
      * @param {Number} minPriority
      */
     pauseAllTargetsWithMinPriority:function (minPriority) {
-        var idsWithSelectors = [];
-
         var self = this, element, locArrayForTimers = self._arrayForTimers;
         var i, li;
         // Custom Selectors
@@ -832,7 +830,6 @@ cc.Scheduler = cc._Class.extend({
             element = locArrayForTimers[i];
             if (element) {
                 element.paused = true;
-                idsWithSelectors.push(element.target);
             }
         }
 
@@ -843,7 +840,6 @@ cc.Scheduler = cc._Class.extend({
                 if (entry) {
                     if(entry.priority >= minPriority){
 						entry.paused = true;
-                        idsWithSelectors.push(entry.target);
                     }
                 }
             }
@@ -854,7 +850,6 @@ cc.Scheduler = cc._Class.extend({
                 entry = this._updates0List[i];
                 if (entry) {
 					entry.paused = true;
-                    idsWithSelectors.push(entry.target);
                 }
             }
         }
@@ -864,12 +859,9 @@ cc.Scheduler = cc._Class.extend({
             if (entry) {
                 if(entry.priority >= minPriority){
 					entry.paused = true;
-                    idsWithSelectors.push(entry.target);
                 }
             }
         }
-
-        return idsWithSelectors;
     },
 
     /**
@@ -1003,10 +995,10 @@ cc.Scheduler = cc._Class.extend({
     /**
      * !#en
      * Unschedule a callback function for a given target.<br/>
-     * If you want to unschedule the "update", use unscheudleUpdateForTarget.
+     * If you want to unschedule the "update", use unscheduleUpdateForTarget.
      * !#zh
      * 根据指定的回调函数和调用对象对象取消相应的定时器。<br/>
-     * 如果需要取消 update 定时器，请使用 unscheudleUpdateForTarget()。
+     * 如果需要取消 update 定时器，请使用 unscheduleUpdateForTarget()。
      * @method unscheduleCallbackForTarget
      * @deprecated since v3.4 please use .unschedule
      * @param {Object} target

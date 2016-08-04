@@ -29,6 +29,8 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     View = require('./platform/CCView');
 }
 
+var _isMusicPlaying = false;
+
 /**
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
@@ -39,7 +41,7 @@ var game = /** @lends cc.game# */{
     /**
      * Event triggered when game hide to background.
      * Please note that this event is not 100% guaranteed to be fired.
-     * @constant
+     * @property
      * @type {String}
      * @example
      * cc.game.on(cc.game.EVENT_HIDE, function () {
@@ -52,21 +54,21 @@ var game = /** @lends cc.game# */{
     /**
      * Event triggered when game back to foreground
      * Please note that this event is not 100% guaranteed to be fired.
-     * @constant
+     * @property
      * @type {String}
      */
     EVENT_SHOW: "game_on_show",
 
     /**
      * Event triggered after game inited, at this point all engine objects and game scripts are loaded
-     * @constant
+     * @property
      * @type {String}
      */
     EVENT_GAME_INITED: "game_inited",
 
     /**
      * Event triggered after renderer inited, at this point you will be able to use the render context
-     * @constant
+     * @property
      * @type {String}
      */
     EVENT_RENDERER_INITED: "renderer_inited",
@@ -80,7 +82,7 @@ var game = /** @lends cc.game# */{
 
     /**
      * Key of config
-     * @constant
+     * @property
      * @type {Object}
      */
     CONFIG_KEY: {
@@ -225,6 +227,7 @@ var game = /** @lends cc.game# */{
         config[CONFIG_KEY.frameRate] = frameRate;
         if (self._intervalId)
             window.cancelAnimationFrame(self._intervalId);
+        self._intervalId = 0;
         self._paused = true;
         self._setAnimFrame();
         self._runMainLoop();
@@ -240,15 +243,26 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * !#en Pause the game，pause main loop.
-     * !#zh 暂停游戏，暂停的是整个主循环。
+     * !#en Pause the game main loop. This will pause: 
+     * game logic execution, rendering process, event manager, background music and all audio effects.
+     * This is different with cc.director.pause which only pause the game logic execution.
+     * !#zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 cc.director.pause 不同。
      * @method pause
      */
     pause: function () {
         if (this._paused) return;
         this._paused = true;
         // Pause audio engine
-        cc.audioEngine && cc.audioEngine._pausePlaying();
+        if (cc.audioEngine) {
+            _isMusicPlaying = cc.audioEngine.isMusicPlaying();
+            cc.audioEngine.stopAllEffects();
+            cc.audioEngine.pauseMusic();
+        }
+        // Pause event
+        var scene = cc.director.getScene() || cc.director.getRunningScene();
+        if (scene) {
+            cc.eventManager.pauseTarget(scene, true);
+        }
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimationFrame(this._intervalId);
@@ -256,15 +270,23 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * !#en Resume the game from pause.
-     * !#zh 继续游戏，继续的是整个主循环。
+     * !#en Resume the game from pause. This will resume: 
+     * game logic execution, rendering process, event manager, background music and all audio effects.
+     * !#zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      * @method resume
      */
     resume: function () {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        cc.audioEngine && cc.audioEngine._resumePlaying();
+        if (cc.audioEngine && _isMusicPlaying) {
+            cc.audioEngine.resumeMusic();
+        }
+        // Resume event
+        var scene = cc.director.getScene() || cc.director.getRunningScene();
+        if (scene) {
+            cc.eventManager.resumeTarget(scene, true);
+        }
         // Resume main loop
         this._runMainLoop();
     },
@@ -290,6 +312,13 @@ var game = /** @lends cc.game# */{
         cc.audioEngine && cc.audioEngine.end();
 
         game.onStart();
+    },
+
+    /**
+     * End game, it will close the game window
+     */
+    end: function () {
+        close();
     },
 
 //  @Game loading
@@ -660,7 +689,6 @@ var game = /** @lends cc.game# */{
             this._renderContext = cc._renderContext = cc.webglContext
              = cc.create3DContext(localCanvas, {
                 'stencil': true,
-                'preserveDrawingBuffer': true,
                 'antialias': !cc.sys.isMobile,
                 'alpha': true
             });
@@ -669,10 +697,15 @@ var game = /** @lends cc.game# */{
         if (this._renderContext) {
             cc.renderer = cc.rendererWebGL;
             win.gl = this._renderContext; // global variable declared in CCMacro.js
+            cc.renderer.init();
             cc.shaderCache._init();
             cc._drawingUtil = new cc.DrawingPrimitiveWebGL(this._renderContext);
             cc.textureCache._initializingRenderer();
+            cc.glExt = {};
+            cc.glExt.instanced_arrays = win.gl.getExtension("ANGLE_instanced_arrays");
+            cc.glExt.element_uint = win.gl.getExtension("OES_element_index_uint");
         } else {
+            cc._renderType = game.RENDER_TYPE_CANVAS;
             cc.renderer = cc.rendererCanvas;
             this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
             cc._drawingUtil = cc.DrawingPrimitiveCanvas ? new cc.DrawingPrimitiveCanvas(this._renderContext) : null;

@@ -11,15 +11,15 @@ var Dirty = 1 << 5;
 var DontDestroy = 1 << 6;
 var Destroying = 1 << 7;
 var Activating = 1 << 8;
-var HideInGame = 1 << 9;
-var HideInEditor = 1 << 10;
+//var HideInGame = 1 << 9;
+//var HideInEditor = 1 << 10;
 
 var IsOnEnableCalled = 1 << 11;
 var IsEditorOnEnableCalled = 1 << 12;
 var IsPreloadCalled = 1 << 13;
 var IsOnLoadCalled = 1 << 14;
 var IsOnLoadStarted = 1 << 15;
-var IsOnStartCalled = 1 << 16;
+var IsStartCalled = 1 << 16;
 
 var IsRotationLocked = 1 << 17;
 var IsScaleLocked = 1 << 18;
@@ -27,12 +27,15 @@ var IsAnchorLocked = 1 << 19;
 var IsSizeLocked = 1 << 20;
 var IsPositionLocked = 1 << 21;
 
-var Hide = HideInGame | HideInEditor;
+//var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
 var PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Activating |
-                       IsPreloadCalled | IsOnLoadStarted | IsOnLoadCalled | IsOnStartCalled |
-                       IsOnEnableCalled | IsEditorOnEnableCalled
+                       IsPreloadCalled | IsOnLoadStarted | IsOnLoadCalled | IsStartCalled |
+                       IsOnEnableCalled | IsEditorOnEnableCalled |
+                       IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
                        /*RegisteredInEditor*/);
+// TODO
+//var PersistentMask = Destroyed | RealDestroyed | DontSave | EditorOnly;
 
 /**
  * The base class of most of all the objects in Fireball.
@@ -99,36 +102,36 @@ CCObject.Flags = {
     Destroying: Destroying,
     Activating: Activating,
 
-    /**
-     * !#en
-     * Hide in game and hierarchy.
-     * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-     * !#zh
-     * 在游戏和层级中隐藏该对象。<br/>
-     * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-     * @property {Number} HideInGame
-     */
-    HideInGame: HideInGame,
+    ///**
+    // * !#en
+    // * Hide in game and hierarchy.
+    // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+    // * !#zh
+    // * 在游戏和层级中隐藏该对象。<br/>
+    // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+    // * @property {Number} HideInGame
+    // */
+    //HideInGame: HideInGame,
 
     // FLAGS FOR EDITOR
 
-    /**
-     * !#en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-     * !#zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-     * @property {Number} HideInEditor
-     */
-    HideInEditor: HideInEditor,
+    ///**
+    // * !#en This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+    // * !#zh 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+    // * @property {Number} HideInEditor
+    // */
+    //HideInEditor: HideInEditor,
 
-    /**
-     * !#en
-     * Hide in game view, hierarchy, and scene view... etc.
-     * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
-     * !#zh
-     * 在游戏视图，层级，场景视图等等...中隐藏该对象。
-     * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
-     * @property {Number} Hide
-     */
-    Hide: Hide,
+    ///**
+    // * !#en
+    // * Hide in game view, hierarchy, and scene view... etc.
+    // * This flag is readonly, it can only be used as an argument of scene.addEntity() or Entity.createWithFlags().
+    // * !#zh
+    // * 在游戏视图，层级，场景视图等等...中隐藏该对象。
+    // * 该标记只读，它只能被用作 scene.addEntity()的一个参数。
+    // * @property {Number} Hide
+    // */
+    //Hide: Hide,
 
     //// UUID Registered in editor
     //RegisteredInEditor: RegisteredInEditor,
@@ -139,7 +142,7 @@ CCObject.Flags = {
     IsOnLoadCalled: IsOnLoadCalled,
     IsOnLoadStarted: IsOnLoadStarted,
     IsOnEnableCalled: IsOnEnableCalled,
-    IsOnStartCalled: IsOnStartCalled,
+    IsStartCalled: IsStartCalled,
     IsEditorOnEnableCalled: IsEditorOnEnableCalled,
 
     IsPositionLocked: IsPositionLocked,
@@ -189,8 +192,7 @@ if (CC_EDITOR) {
                 clearImmediate(deferredDestroyTimer);
                 deferredDestroyTimer = null;
             }
-        },
-        enumerable: false
+        }
     });
 }
 
@@ -243,14 +245,14 @@ var deferredDestroyTimer = null;
 /**
  * !#en
  * Destroy this Object, and release all its own references to other objects.<br/>
+ * Actual object destruction will delayed until before rendering.
  * <br/>
- * After destroy, this CCObject is not usable any more.<br/>
- * You can use cc.isValid(obj) (or obj.isValid if obj is non-nil) to check whether the object is destroyed before
- * accessing it.
+ * After destroy, this CCObject is not usable any more.
+ * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
  * !#zh
  * 销毁该对象，并释放所有它对其它对象的引用。<br/>
- * 销毁后，CCObject 不再可用。<br/>
- * 您可以在访问对象之前使用 cc.isValid(obj)（或 obj.isValid 如果 obj 不为 null）来检查对象是否已被销毁。
+ * 销毁后，CCObject 不再可用。您可以在访问对象之前使用 cc.isValid(obj) 来检查对象是否已被销毁。
+ * 实际销毁操作会延迟到当前帧渲染前执行。
  * @method destroy
  * @return {Boolean} whether it is the first time the destroy being called
  * @example

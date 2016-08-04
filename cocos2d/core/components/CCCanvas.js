@@ -133,12 +133,26 @@ var Canvas = cc.Class({
     },
 
     ctor: function () {
-        this._thisOnResized = this.onResized.bind(this);
+        if (CC_JSB) {
+            this._thisOnResized = cc.EventListener.create({
+                event: cc.EventListener.CUSTOM,
+                eventName: "window-resize",
+                callback: this.onResized.bind(this)
+            });
+
+            this._thisOnResized.retain();
+        }
+        else {
+            this._thisOnResized = this.onResized.bind(this);
+        }
     },
 
     __preload: function () {
-        var Flags = cc.Object.Flags;
-        this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
+        if (CC_DEV) {
+            var Flags = cc.Object.Flags;
+            this._objFlags &= Flags.PersistentMask; // for 1.0 project
+            this._objFlags |= (Flags.IsPositionLocked | Flags.IsAnchorLocked | Flags.IsSizeLocked);
+        }
 
         if (Canvas.instance) {
             return cc.error("Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time",
@@ -173,6 +187,9 @@ var Canvas = cc.Class({
                 cc.eventManager.addCustomListener('canvas-resize', this._thisOnResized);
             }
         }
+        else {
+            cc.eventManager.addListener(this._thisOnResized, 1);
+        }
 
         this.applySettings();
         this.onResized();
@@ -195,6 +212,10 @@ var Canvas = cc.Class({
             else {
                 cc.eventManager.removeCustomListeners('canvas-resize', this._thisOnResized);
             }
+        }
+        else {
+            cc.eventManager.removeListener(this._thisOnResized);
+            this._thisOnResized.release();
         }
 
         if (Canvas.instance === this) {

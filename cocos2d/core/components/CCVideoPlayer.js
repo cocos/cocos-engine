@@ -21,6 +21,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Video event type
+ * !#zh 视频事件类型
+ * @enum VideoPlayer.EventType
+ */
+/**
+ * !#en play
+ * !#zh 播放
+ * @property {Number} PLAYING
+ */
+/**
+ * !#en pause
+ * !#zh 暂停
+ * @property {Number} PAUSED
+ */
+/**
+ * !#en stop
+ * !#zh 停止
+ * @property {Number} STOPPED
+ */
+/**
+ * !#en play end
+ * !#zh 播放结束
+ * @property {Number} COMPLETED
+ */
 var EventType = _ccsg.VideoPlayer.EventType;
 
 
@@ -57,7 +82,7 @@ var VideoPlayer = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/VideoPlayer',
-        inspector: 'app://editor/page/inspector/videoplayer.html',
+        inspector: 'packages://inspector/inspectors/comps/videoplayer.js',
         help: 'i18n:COMPONENT.help_url.videoplayer',
     },
 
@@ -74,10 +99,10 @@ var VideoPlayer = cc.Class({
             type: ResourceType,
             set: function ( value ) {
                 this._resourceType = value;
-                this._updateSgNode();
+                this._updateVideoSource();
             },
             get: function () {
-                return this._resourceType
+                return this._resourceType;
             }
         },
 
@@ -92,7 +117,7 @@ var VideoPlayer = cc.Class({
             type: cc.String,
             set: function ( url ) {
                 this._remoteURL = url;
-                this._updateSgNode();
+                this._updateVideoSource();
             },
             get: function () {
                 return this._remoteURL;
@@ -117,7 +142,7 @@ var VideoPlayer = cc.Class({
                 if (typeof value !== 'string')
                     value = '';
                 this._clip = value;
-                this._updateSgNode();
+                this._updateVideoSource();
             },
             url: cc.RawAsset
         },
@@ -203,7 +228,7 @@ var VideoPlayer = cc.Class({
         return new _ccsg.VideoPlayer();
     },
 
-    _updateSgNode: function () {
+    _updateVideoSource: function () {
         var sgNode = this._sgNode;
         if (this.resourceType === ResourceType.REMOTE) {
             sgNode.setURL(this.remoteURL);
@@ -215,7 +240,10 @@ var VideoPlayer = cc.Class({
     _initSgNode: function () {
         var sgNode = this._sgNode;
         if(sgNode) {
-            this._updateSgNode();
+            if(!CC_JSB) {
+                sgNode.createDomElementIfNeeded();
+            }
+            this._updateVideoSource();
 
             sgNode.seekTo(this.currentTime);
             sgNode.setKeepAspectRatioEnabled(this.keepAspectRatio);
@@ -246,24 +274,44 @@ var VideoPlayer = cc.Class({
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
     },
 
+    /**
+     * !#en If a video is paused, call this method could resume playing. If a video is stopped, call this method to play from scratch.
+     * !#zh 如果视频被暂停播放了，调用这个接口可以继续播放。如果视频被停止播放了，调用这个接口可以从头开始播放。
+     * @method play
+     */
     play: function () {
         if(this._sgNode) {
             this._sgNode.play();
         }
     },
 
+    /**
+     * !#en If a video is paused, call this method to resume playing.
+     * !#zh 如果一个视频播放被暂停播放了，调用这个接口可以继续播放。
+     * @method resume
+     */
     resume: function() {
         if (this._sgNode) {
             this._sgNode.resume();
         }
     },
 
+    /**
+     * !#en If a video is playing, call this method to pause playing.
+     * !#zh 如果一个视频正在播放，调用这个接口可以暂停播放。
+     * @method pause
+     */
     pause: function () {
         if(this._sgNode) {
             this._sgNode.pause();
         }
     },
 
+    /**
+     * !#en If a video is playing, call this method to stop playing immediately.
+     * !#zh 如果一个视频正在播放，调用这个接口可以立马停止播放。
+     * @method stop
+     */
     stop: function() {
         if(this._sgNode) {
             this._sgNode.stop();

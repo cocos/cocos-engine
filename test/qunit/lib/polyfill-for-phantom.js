@@ -115,3 +115,7 @@ if (isPhantomJS) {
         });
     })();
 }
+
+if (typeof WebGLRenderingContext === 'undefined') {
+    window.WebGLRenderingContext = function () {};
+}

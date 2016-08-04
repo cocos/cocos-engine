@@ -120,6 +120,40 @@ var Mask = cc.Class({
 
     _initSgNode: function () {},
 
+    _hitTest: function (point) {
+        var size = this.node.getContentSize(),
+            w = size.width,
+            h = size.height,
+            trans = this.node.getNodeToWorldTransform();
+
+        if (this._type === MaskType.RECT) {
+            var rect = cc.rect(0, 0, w, h);
+            cc._rectApplyAffineTransformIn(rect, trans);
+            var left = point.x - rect.x,
+                right = rect.x + rect.width - point.x,
+                bottom = point.y - rect.y,
+                top = rect.y + rect.height - point.y;
+            if (left >= 0 && right >= 0 && top >= 0 && bottom >= 0) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            var a = w/2, b = h/2;
+            var cx = trans.a * a + trans.c * b + trans.tx;
+            var cy = trans.b * a + trans.d * b + trans.ty;
+            var px = point.x - cx, py = point.y - cy;
+            if (px * px / (a * a) + py * py / (b * b) < 1) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    },
+
     onEnable: function () {
         this._refreshStencil();
         this._super();

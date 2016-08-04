@@ -129,6 +129,8 @@ _ccsg.Label = _ccsg.Node.extend({
     _outlineColor: null,
     _outlineWidth: 1,
     _className: "Label",
+    //used for left and right margin
+    _margin : 0,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
     ctor: function(string, fontHandle, textureUrl) {
@@ -207,6 +209,10 @@ _ccsg.Label = _ccsg.Node.extend({
         this._notifyLabelSkinDirty();
     },
 
+    setMargin: function(value) {
+        this._margin = value;
+        this._notifyLabelSkinDirty();
+    },
 
     getString: function() {
         return this._string;
@@ -337,6 +343,12 @@ _ccsg.Label = _ccsg.Node.extend({
         return this._lineHeight;
     },
 
+    getBMFontLineHeight : function() {
+        if(this._fontAtlas) {
+            return this._fontAtlas._lineHeight;
+        }
+    },
+
     setFontFileOrFamily: function(fontHandle, textureUrl) {
         fontHandle = fontHandle || "Arial";
         var extName = cc.path.extname(fontHandle);
@@ -436,14 +448,35 @@ _ccsg.Label = _ccsg.Node.extend({
         return new cc.BlendFunc(this._blendFunc.src, this._blendFunc.dst);
     },
 
+    _setupBMFontOverflowMetrics: function(newWidth, newHeight) {
+        if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
+            newHeight = 0;
+        }
+
+        if (this._overFlow === _ccsg.Label.Overflow.NONE) {
+            newWidth = 0;
+            newHeight = 0;
+        }
+
+        this._labelWidth = newWidth;
+        this._labelHeight = newHeight;
+        this._labelDimensions.width = newWidth;
+        this._labelDimensions.height = newHeight;
+        this._maxLineWidth = newWidth;
+    },
+
     _updateLabel: function () {
         if (this._labelType === _ccsg.Label.Type.BMFont) {
+            var contentSize = this._contentSize;
+            var newWidth = contentSize.width;
+            var newHeight = contentSize.height;
+            this._setupBMFontOverflowMetrics(newWidth, newHeight);
+
             this._updateContent();
             this.setColor(this.color);
         } else if (this._labelType === _ccsg.Label.Type.TTF
                    || this._labelType === _ccsg.Label.Type.SystemFont) {
             this._renderCmd._bakeLabel();
-            this._renderCmd._prepareQuad();
         }
     },
 
@@ -451,7 +484,7 @@ _ccsg.Label = _ccsg.Node.extend({
         if (CC_EDITOR) {
             this._updateLabel();
         } else {
-            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty|_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
     _createRenderCmd: function() {
@@ -466,7 +499,7 @@ _ccsg.Label = _ccsg.Node.extend({
         var locFlag = this._renderCmd._dirtyFlag;
         if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
-            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
+            this._renderCmd._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         }
         return _ccsg.Node.prototype.getContentSize.call(this);
     },
@@ -474,7 +507,7 @@ _ccsg.Label = _ccsg.Node.extend({
         var locFlag = this._renderCmd._dirtyFlag;
         if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
-            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
+            this._renderCmd._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         }
         return _ccsg.Node.prototype._getWidth.call(this);
     },
@@ -482,7 +515,7 @@ _ccsg.Label = _ccsg.Node.extend({
         var locFlag = this._renderCmd._dirtyFlag;
         if (locFlag & _ccsg.Node._dirtyFlags.textDirty) {
             this._updateLabel();
-            this._renderCmd._dirtyFlag &= _ccsg.Node._dirtyFlags.textDirty ^ this._renderCmd._dirtyFlag;
+            this._renderCmd._dirtyFlag &= ~_ccsg.Node._dirtyFlags.textDirty;
         }
         return _ccsg.Node.prototype._getHeight.call(this);
     },
@@ -498,7 +531,7 @@ cc.BMFontHelper = {
 
             this._textDesiredHeight = 0;
             this._linesWidth = [];
-            if (this._maxLineWidth > 0 && !this._lineBreakWithoutSpaces) {
+            if (!this._lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
                 this._multilineTextWrapByChar();
@@ -542,8 +575,6 @@ cc.BMFontHelper = {
         var ret = true;
 
         this._spriteBatchNode.removeAllChildren();
-
-
         var letterClamp = false;
         for (var ctr = 0; ctr < this._string.length; ++ctr) {
             if (this._lettersInfo[ctr]._valid) {
@@ -592,7 +623,7 @@ cc.BMFontHelper = {
 
                 if (this._reusedRect.height > 0 && this._reusedRect.width > 0) {
                     var fontChar = this.getChildByTag(ctr);
-                    var locTexture = this._spriteBatchNode._renderCmd._texture || this._spriteBatchNode.textureAtlas.texture;
+                    var locTexture = this._spriteBatchNode._texture;
 
                     if (!fontChar) {
                         fontChar = new _ccsg.Sprite();
@@ -655,29 +686,12 @@ cc.BMFontHelper = {
         var newWidth = (typeof size.width === 'number') ? size.width : size;
         var newHeight = (typeof size.height === 'number') ? size.height : height;
 
+        var oldSize = this.getContentSize();
         _ccsg.Node.prototype.setContentSize.call(this, size, height);
 
-        if (this._labelType === _ccsg.Label.Type.BMFont) {
+        if (newHeight !== oldSize.height || newWidth !== oldSize.width) {
 
-            if (this._overFlow === _ccsg.Label.Overflow.RESIZE_HEIGHT) {
-                newHeight = 0;
-            }
-
-            if (this._overFlow === _ccsg.Label.Overflow.NONE) {
-                newWidth = 0;
-                newHeight = 0;
-            }
-        }
-
-
-        if (newHeight !== this._labelHeight || newWidth !== this._labelWidth) {
-
-            this._labelWidth = newWidth;
-            this._labelHeight = newHeight;
-            this._labelDimensions.width = newWidth;
-            this._labelDimensions.height = newHeight;
-
-            this._maxLineWidth = newWidth;
+            this._setupBMFontOverflowMetrics(newWidth, newHeight);
 
             if (this._drawFontsize > 0) {
                 this._restoreFontSize();
@@ -813,6 +827,7 @@ cc.BMFontHelper = {
         if (this._labelHeight <= 0) {
             contentSize.height = parseFloat(this._textDesiredHeight.toFixed(2));
         }
+
         _ccsg.Node.prototype.setContentSize.call(this, contentSize);
 
         this._tailoredTopY = contentSize.height;
@@ -893,7 +908,7 @@ cc.BMFontHelper = {
             this._fontAtlas.assignLetterDefinitions(tempLetterDefinition);
             this._fontAtlas.scaleFontLetterDefinition(scale);
             this._lineHeight = originalLineHeight * scale;
-            if (this._maxLineWidth > 0 && !this._lineBreakWithoutSpaces) {
+            if (!this._lineBreakWithoutSpaces) {
                 this._multilineTextWrapByWord();
             } else {
                 this._multilineTextWrapByChar();
@@ -995,8 +1010,25 @@ cc.BMFontHelper = {
         }
 
         var len = 1;
+        var nextLetterX = 0;
+        var letterDef;
+        var letterX;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
+            //calculate the word boundary
+
+            letterDef = this._fontAtlas.getLetterDefinitionForChar(character);
+            if (!letterDef) {
+                break;
+            }
+            letterX = nextLetterX + letterDef._offsetX * this._bmfontScale;
+
+            if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth && !this._isspace_unicode(character) && this._maxLineWidth > 0) {
+                if(len >= 2) {
+                    return len - 1;
+                }
+            }
+            nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
             if (character === "\n" || this._isspace_unicode(character) || this._isCJK_unicode(character)) {
                 break;
             }
