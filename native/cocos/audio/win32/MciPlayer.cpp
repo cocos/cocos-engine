@@ -1,4 +1,4 @@
-#include "MciPlayer.h"
+#include "audio/win32/MciPlayer.h"
 #include <tchar.h>
 #include "platform/CCFileUtils.h"
 
@@ -235,4 +235,3 @@ LRESULT WINAPI _SoundPlayProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 }
 
 } // end of namespace CocosDenshion
-

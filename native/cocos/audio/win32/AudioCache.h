@@ -34,9 +34,9 @@
 #ifdef OPENAL_PLAIN_INCLUDES
 #include <al.h>
 #else
-#include "OpenalSoft/al.h"
+#include <AL/al.h>
 #endif
-#include "CCPlatformMacros.h"
+#include "platform/CCPlatformMacros.h"
 
 #define QUEUEBUFFER_NUM 5
 #define QUEUEBUFFER_TIME_STEP 0.1f
