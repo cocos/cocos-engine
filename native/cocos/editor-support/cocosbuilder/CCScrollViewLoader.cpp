@@ -1,4 +1,4 @@
-#include "CCScrollViewLoader.h"
+#include "editor-support/cocosbuilder/CCScrollViewLoader.h"
 
 using namespace cocos2d;
 using namespace cocos2d::extension;
@@ -55,4 +55,3 @@ void ScrollViewLoader::onHandlePropTypeIntegerLabeled(Node * pNode, Node * pPare
 }
 
 }
-

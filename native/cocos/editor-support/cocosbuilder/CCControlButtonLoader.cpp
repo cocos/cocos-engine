@@ -1,4 +1,4 @@
-#include "CCControlButtonLoader.h"
+#include "editor-support/cocosbuilder/CCControlButtonLoader.h"
 
 using namespace cocos2d;
 using namespace cocos2d::extension;
@@ -116,4 +116,3 @@ void ControlButtonLoader::onHandlePropTypeColor3(Node * pNode, Node * pParent, c
 }
 
 };
-

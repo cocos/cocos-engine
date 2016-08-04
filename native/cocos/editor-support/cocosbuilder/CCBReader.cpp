@@ -7,15 +7,15 @@
 #include "2d/CCSpriteFrameCache.h"
 #include "renderer/CCTextureCache.h"
 
-#include "CCBReader.h"
-#include "CCNodeLoader.h"
-#include "CCNodeLoaderLibrary.h"
-#include "CCNodeLoaderListener.h"
-#include "CCBMemberVariableAssigner.h"
-#include "CCBSelectorResolver.h"
-#include "CCBAnimationManager.h"
-#include "CCBSequenceProperty.h"
-#include "CCBKeyframe.h"
+#include "editor-support/cocosbuilder/CCBReader.h"
+#include "editor-support/cocosbuilder/CCNodeLoader.h"
+#include "editor-support/cocosbuilder/CCNodeLoaderLibrary.h"
+#include "editor-support/cocosbuilder/CCNodeLoaderListener.h"
+#include "editor-support/cocosbuilder/CCBMemberVariableAssigner.h"
+#include "editor-support/cocosbuilder/CCBSelectorResolver.h"
+#include "editor-support/cocosbuilder/CCBAnimationManager.h"
+#include "editor-support/cocosbuilder/CCBSequenceProperty.h"
+#include "editor-support/cocosbuilder/CCBKeyframe.h"
 #include <sstream>
 
 using namespace cocos2d;
@@ -145,8 +145,8 @@ bool CCBReader::init()
     pActionManager->release();
 
     // Setup resolution scale and container size
-    _animationManager->setRootContainerSize(Director::DirectorInstance->getWinSize());
-
+    _animationManager->setRootContainerSize(Director::getInstance()->getWinSize());
+    
     return true;
 }
 
@@ -202,7 +202,7 @@ Node* CCBReader::readNodeGraphFromFile(const char *pCCBFileName)
 
 Node* CCBReader::readNodeGraphFromFile(const char* pCCBFileName, Ref* pOwner)
 {
-    return this->readNodeGraphFromFile(pCCBFileName, pOwner, Director::DirectorInstance->getWinSize());
+    return this->readNodeGraphFromFile(pCCBFileName, pOwner, Director::getInstance()->getWinSize());
 }
 
 Node* CCBReader::readNodeGraphFromFile(const char *pCCBFileName, Ref *pOwner, const Size &parentSize)
@@ -220,13 +220,12 @@ Node* CCBReader::readNodeGraphFromFile(const char *pCCBFileName, Ref *pOwner, co
         strCCBFileName += strSuffix;
     }
 
-    auto fileUtils = FileUtils::getInstance();
-    std::string strPath = fileUtils->fullPathForFilename(strCCBFileName);
+    std::string strPath = FileUtils::getInstance()->fullPathForFilename(strCCBFileName);
     if (strPath.empty()) {
         return nullptr;
     }
 
-    auto dataPtr = std::make_shared<Data>(fileUtils->getDataFromFile(strPath));
+    auto dataPtr = std::make_shared<Data>(FileUtils::getInstance()->getDataFromFile(strPath));
     if (dataPtr->isNull()) {
         return nullptr;
     }
@@ -281,7 +280,7 @@ Scene* CCBReader::createSceneWithNodeGraphFromFile(const char *pCCBFileName)
 
 Scene* CCBReader::createSceneWithNodeGraphFromFile(const char *pCCBFileName, Ref *pOwner)
 {
-    return createSceneWithNodeGraphFromFile(pCCBFileName, pOwner, Director::DirectorInstance->getWinSize());
+    return createSceneWithNodeGraphFromFile(pCCBFileName, pOwner, Director::getInstance()->getWinSize());
 }
 
 Scene* CCBReader::createSceneWithNodeGraphFromFile(const char *pCCBFileName, Ref *pOwner, const Size &parentSize)
@@ -620,13 +619,6 @@ Node * CCBReader::readNodeGraph(Node * pParent)
         node = embeddedNode;
     }
 
-#ifdef CCB_ENABLE_JAVASCRIPT
-    /*
-     if (memberVarAssignmentType && memberVarAssignmentName && ![memberVarAssignmentName isEqualToString:@""])
-     {
-     [[JSCocoa sharedController] setObject:node withName:memberVarAssignmentName];
-     }*/
-#else
     if (memberVarAssignmentType != TargetType::NONE)
     {
         if(!_jsControlled)
@@ -655,7 +647,7 @@ Node * CCBReader::readNodeGraph(Node * pParent)
 
                     if(!assigned && this->_CCBMemberVariableAssigner != nullptr)
                     {
-                        _CCBMemberVariableAssigner->onAssignCCBMemberVariable(target, memberVarAssignmentName.c_str(), node);
+                        assigned = this->_CCBMemberVariableAssigner->onAssignCCBMemberVariable(target, memberVarAssignmentName.c_str(), node);
                     }
                 }
             }
@@ -696,16 +688,14 @@ Node * CCBReader::readNodeGraph(Node * pParent)
 
                         if(!customAssigned && this->_CCBMemberVariableAssigner != nullptr)
                         {
-                            _CCBMemberVariableAssigner->onAssignCCBCustomProperty(target, iter->first.c_str(), iter->second);
+                            customAssigned = this->_CCBMemberVariableAssigner->onAssignCCBCustomProperty(target, iter->first.c_str(), iter->second);
                         }
                     }
                 }
             }
         }
     }
-
-#endif // CCB_ENABLE_JAVASCRIPT
-
+    
     delete _animatedProps;
     _animatedProps = nullptr;
 
@@ -807,7 +797,7 @@ CCBKeyframe* CCBReader::readKeyframe(PropertyType type)
         {
             spriteFile = _CCBRootPath + spriteFile;
 
-            Texture2D *texture = Director::DirectorInstance->getTextureCache()->addImage(spriteFile);
+            Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(spriteFile);
             Rect bounds = Rect(0, 0, texture->getContentSize().width, texture->getContentSize().height);
 
             spriteFrame = SpriteFrame::createWithTexture(texture, bounds);
@@ -1091,4 +1081,3 @@ void CCBReader::setResolutionScale(float scale)
 }
 
 };
-
