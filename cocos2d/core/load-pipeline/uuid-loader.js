@@ -159,9 +159,9 @@ function canDeferredLoad (asset, item, isScene) {
     else if (isScene) {
         if (asset instanceof cc.SceneAsset) {
             res = asset.asyncLoadAssets;
-            if (res) {
-                cc.log('deferred load raw assets for ' + item.id);
-            }
+            //if (res) {
+            //    cc.log('deferred load raw assets for ' + item.id);
+            //}
         }
         //else if (asset instanceof cc.Scene) {
         //    deferredLoadRawAssetsInRuntime = asset._asyncLoadAssets;

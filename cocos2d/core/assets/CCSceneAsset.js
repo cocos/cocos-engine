@@ -42,7 +42,14 @@ var Scene = cc.Class({
          * @property {Boolean} asyncLoadAssets
          * @default undefined
          */
-        asyncLoadAssets: undefined
+        asyncLoadAssets: undefined,
+
+        //// backup prefab assets in editor
+        //// {string} assetUuid: {cc.Node} rootInPrefab
+        //_prefabDatas: {
+        //    default: null,
+        //    editorOnly: true
+        //}
     },
 });
 
