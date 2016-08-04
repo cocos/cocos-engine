@@ -45,6 +45,7 @@ class Touch;
 class CC_DLL EventListenerTouchOneByOne : public EventListener
 {
 public:
+    static const std::string LISTENER_ID;
 
     /** Create a one by one touch event listener.
      */
@@ -99,6 +100,8 @@ private:
 class CC_DLL EventListenerTouchAllAtOnce : public EventListener
 {
 public:
+    static const std::string LISTENER_ID;
+
     /** Create a all at once event listener.
      *
      * @return An autoreleased EventListenerTouchAllAtOnce object.
@@ -136,4 +139,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__cocos2d_libs__CCTouchEventListener__) */
-

@@ -24,55 +24,22 @@
 
 #include "base/CCEventListener.h"
 #include "base/CCConsole.h"
-#include "base/CCEventListenerCustom.h"
 
 NS_CC_BEGIN
 
 EventListener::EventListener()
-{
-}
-
-EventListener::~EventListener()
+{}
+    
+EventListener::~EventListener() 
 {
     CCLOGINFO("In the destructor of EventListener. %p", this);
 }
 
-bool EventListener::init(Type t, const std::function<void(Event*)>& callback)
+bool EventListener::init(Type t, const ListenerID& listenerID, const std::function<void(Event*)>& callback)
 {
     _onEvent = callback;
     _type = t;
-    switch (_type) {
-        case Type::TOUCH_ONE_BY_ONE:
-            _typeKey = TYPEKEY_TOUCH_ONE_BY_ONE;
-            break;
-        case Type::TOUCH_ALL_AT_ONCE:
-            _typeKey = TYPEKEY_ALL_AT_ONCE;
-            break;
-        case Type::ACCELERATION:
-            _typeKey = TYPEKEY_ACCELERATION;
-            break;
-        case Type::KEYBOARD:
-            _typeKey = TYPEKEY_KEYBOARD;
-            break;
-        case Type::MOUSE:
-            _typeKey = TYPEKEY_MOUSE;
-            break;
-        case Type::FOCUS:
-            _typeKey = TYPEKEY_FOCUS;
-            break;
-        case Type::GAME_CONTROLLER:
-            _typeKey = TYPEKEY_GAME_CONTROLLER;
-            break;
-        case Type::CUSTOM:
-        {
-            auto customListener = static_cast<EventListenerCustom*>(this);
-            _typeKey = getHashCode(customListener->getEventName());
-            break;
-        }
-        default:
-            break;
-    }
-
+    _listenerID = listenerID;
     _isRegistered = false;
     _paused = true;
     _isEnabled = true;
@@ -85,15 +52,4 @@ bool EventListener::checkAvailable()
     return (_onEvent != nullptr);
 }
 
-size_t EventListener::getHashCode(const std::string& eventName)
-{
-    static std::hash<std::string> h;
-    if (eventName.empty()) {
-        return EventListener::TYPEKEY_CUSTOM;
-    } else {
-        return h(eventName);
-    }
-}
-
 NS_CC_END
-

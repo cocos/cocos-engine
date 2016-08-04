@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "CCStencilStateManager.hpp"
+#include "base/CCStencilStateManager.hpp"
 #include "base/CCDirector.h"
 #include "renderer/CCGLProgramCache.h"
 #include "renderer/ccGLStateCache.h"
@@ -58,7 +58,7 @@ StencilStateManager::StencilStateManager()
 
 void StencilStateManager::drawFullScreenQuadClearStencil()
 {
-    Director* director = Director::DirectorInstance;
+    Director* director = Director::getInstance();
     CCASSERT(nullptr != director, "Director is null when setting matrix stack");
 
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
@@ -293,4 +293,3 @@ void StencilStateManager::onAfterVisit()
 
 
 NS_CC_END
-

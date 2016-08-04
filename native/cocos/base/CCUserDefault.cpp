@@ -394,7 +394,7 @@ void UserDefault::setDataForKey(const char* pKey, const Data& value) {
         return;
     }
 
-    char *encodedData = 0;
+    char *encodedData = nullptr;
 
     base64Encode(value.getBytes(), static_cast<unsigned int>(value.getSize()), &encodedData);
 
@@ -526,4 +526,3 @@ void UserDefault::deleteValueForKey(const char* key)
 NS_CC_END
 
 #endif // (CC_TARGET_PLATFORM != CC_PLATFORM_IOS && CC_PLATFORM != CC_PLATFORM_ANDROID)
-

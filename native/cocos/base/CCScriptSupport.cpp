@@ -32,14 +32,11 @@
 
 bool CC_DLL cc_assert_script_compatible(const char *msg)
 {
-    if (cocos2d::ScriptEngineManager::ShareInstance) {
-        auto engine = cocos2d::ScriptEngineManager::ShareInstance->getScriptEngine();
-        if (engine && engine->handleAssert(msg))
-        {
-            return true;
-        }
+    cocos2d::ScriptEngineProtocol* engine = cocos2d::ScriptEngineManager::getInstance()->getScriptEngine();
+    if (engine && engine->handleAssert(msg))
+    {
+        return true;
     }
-
     return false;
 }
 
@@ -55,14 +52,14 @@ ScriptHandlerEntry* ScriptHandlerEntry::create(int handler)
     return entry;
 }
 
-ScriptHandlerEntry::~ScriptHandlerEntry()
+ScriptHandlerEntry::~ScriptHandlerEntry(void)
 {
-    if (_handler != 0 && ScriptEngineManager::ShareInstance)
+    if (_handler != 0 )
     {
-        ScriptEngineManager::ShareInstance->getScriptEngine()->removeScriptHandler(_handler);
+        ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_handler);
         LUALOG("[LUA] Remove event handler: %d", _handler);
+        _handler = 0;
     }
-    _handler = 0;
 }
 
 //
@@ -85,7 +82,7 @@ bool SchedulerScriptHandlerEntry::init(float interval, bool paused)
     return true;
 }
 
-SchedulerScriptHandlerEntry::~SchedulerScriptHandlerEntry()
+SchedulerScriptHandlerEntry::~SchedulerScriptHandlerEntry(void)
 {
     _timer->release();
     LUALOG("[LUA] DEL script schedule %d, entryID: %d", _handler, _entryId);
@@ -106,7 +103,7 @@ TouchScriptHandlerEntry* TouchScriptHandlerEntry::create(int handler,
     return entry;
 }
 
-TouchScriptHandlerEntry::~TouchScriptHandlerEntry()
+TouchScriptHandlerEntry::~TouchScriptHandlerEntry(void)
 {
 }
 
@@ -122,9 +119,10 @@ bool TouchScriptHandlerEntry::init(bool isMultiTouches, int priority, bool swall
 //
 // // ScriptEngineManager
 
-ScriptEngineManager* ScriptEngineManager::ShareInstance = nullptr;
+static ScriptEngineManager* s_pSharedScriptEngineManager = nullptr;
 
-ScriptEngineManager::~ScriptEngineManager()
+
+ScriptEngineManager::~ScriptEngineManager(void)
 {
     removeScriptEngine();
 }
@@ -138,7 +136,7 @@ void ScriptEngineManager::setScriptEngine(ScriptEngineProtocol *scriptEngine)
     }
 }
 
-void ScriptEngineManager::removeScriptEngine()
+void ScriptEngineManager::removeScriptEngine(void)
 {
     if (_scriptEngine)
     {
@@ -149,29 +147,26 @@ void ScriptEngineManager::removeScriptEngine()
 
 ScriptEngineManager* ScriptEngineManager::getInstance()
 {
-    if (ShareInstance == nullptr)
+    if (!s_pSharedScriptEngineManager)
     {
-        ShareInstance = new (std::nothrow) ScriptEngineManager();
+        s_pSharedScriptEngineManager = new (std::nothrow) ScriptEngineManager();
     }
-    return ShareInstance;
+    return s_pSharedScriptEngineManager;
 }
 
 void ScriptEngineManager::destroyInstance()
 {
-    if (ShareInstance)
+    if (s_pSharedScriptEngineManager)
     {
-        delete ShareInstance;
-        ShareInstance = nullptr;
+        delete s_pSharedScriptEngineManager;
+        s_pSharedScriptEngineManager = nullptr;
     }
 }
 
 bool ScriptEngineManager::sendActionEventToJS(Action* actionObject, int eventType, void* param)
 {
-    if (ShareInstance == nullptr)
-        return false;
+    auto scriptEngine = getInstance()->getScriptEngine();
     
-    auto scriptEngine = ShareInstance->getScriptEngine();
-
     ActionObjectScriptData data(actionObject,(int*)&eventType, param);
     ScriptEvent scriptEvent(kScriptActionEvent,(void*)&data);
     if (scriptEngine->sendEvent(&scriptEvent))
@@ -182,11 +177,8 @@ bool ScriptEngineManager::sendActionEventToJS(Action* actionObject, int eventTyp
 
 bool ScriptEngineManager::sendNodeEventToJS(Node* node, int action)
 {
-    if (ShareInstance == nullptr)
-        return false;
+    auto scriptEngine = getInstance()->getScriptEngine();
     
-    auto scriptEngine = ShareInstance->getScriptEngine();
-
     if (scriptEngine->isCalledFromScript())
     {
         // Should only be invoked at root class Node
@@ -205,11 +197,8 @@ bool ScriptEngineManager::sendNodeEventToJS(Node* node, int action)
 
 bool ScriptEngineManager::sendNodeEventToJSExtended(Node* node, int action)
 {
-    if (ShareInstance == nullptr)
-        return false;
+    auto scriptEngine = getInstance()->getScriptEngine();
     
-    auto scriptEngine = ShareInstance->getScriptEngine();
-
     if (!scriptEngine->isCalledFromScript())
     {
         BasicScriptData data(node,(void*)&action);
@@ -223,11 +212,8 @@ bool ScriptEngineManager::sendNodeEventToJSExtended(Node* node, int action)
 
 void ScriptEngineManager::sendNodeEventToLua(Node* node, int action)
 {
-    if (ShareInstance == nullptr)
-        return;
+    auto scriptEngine = getInstance()->getScriptEngine();
     
-    auto scriptEngine = ShareInstance->getScriptEngine();
-
     BasicScriptData data(node,(void*)&action);
     ScriptEvent scriptEvent(kNodeEvent,(void*)&data);
 

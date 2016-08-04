@@ -75,6 +75,8 @@ Data& Data::operator= (Data&& other)
 
 void Data::move(Data& other)
 {
+    clear();
+    
     _bytes = other._bytes;
     _size = other._size;
 
@@ -122,5 +124,13 @@ void Data::clear()
     _size = 0;
 }
 
-NS_CC_END
+unsigned char* Data::takeBuffer(ssize_t* size)
+{
+    auto buffer = getBytes();
+    if (size)
+        *size = getSize();
+    fastSet(nullptr, 0);
+    return buffer;
+}
 
+NS_CC_END

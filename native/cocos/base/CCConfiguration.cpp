@@ -51,6 +51,7 @@ Configuration::Configuration()
 , _supportsShareableVAO(false)
 , _supportsOESDepth24(false)
 , _supportsOESPackedDepthStencil(false)
+, _supportsOESMapBuffer(false)
 , _maxSamplesAllowed(0)
 , _maxTextureUnits(0)
 , _glExtensions(nullptr)
@@ -65,7 +66,6 @@ bool Configuration::init()
 {
     _valueDict["cocos2d.x.version"] = Value(cocos2dVersion());
 
-    _valueDict["cocos2d.x.build_time"] = Value(__TIME__ " " __DATE__);
 
 #if CC_ENABLE_PROFILERS
     _valueDict["cocos2d.x.compiled_with_profiler"] = Value(true);
@@ -151,6 +151,9 @@ void Configuration::gatherGPUInfo()
 
     _supportsShareableVAO = checkForGLExtension("vertex_array_object");
     _valueDict["gl.supports_vertex_array_object"] = Value(_supportsShareableVAO);
+
+    _supportsOESMapBuffer = checkForGLExtension("GL_OES_mapbuffer");
+    _valueDict["gl.supports_OES_map_buffer"] = Value(_supportsOESMapBuffer);
 
     _supportsOESDepth24 = checkForGLExtension("GL_OES_depth24");
     _valueDict["gl.supports_OES_depth24"] = Value(_supportsOESDepth24);
@@ -254,6 +257,23 @@ bool Configuration::supportsShareableVAO() const
 #endif
 }
 
+bool Configuration::supportsMapBuffer() const
+{
+    // Fixes Github issue #16123
+    //
+    // XXX: Fixme. Should check GL ES and not iOS or Android
+    // For example, linux could be compiled with GL ES. Or perhaps in the future Android will
+    // support OpenGL. This is because glMapBufferOES() is an extension of OpenGL ES. And glMapBuffer()
+    // is always implemented in OpenGL.
+
+    // XXX: Warning. On iOS this is always `true`. Avoiding the comparison.
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    return _supportsOESMapBuffer;
+#else
+    return true;
+#endif
+}
+
 bool Configuration::supportsOESDepth24() const
 {
     return _supportsOESDepth24;
@@ -297,9 +317,6 @@ void Configuration::loadConfigFile(const std::string& filename)
 {
     ValueMap dict = FileUtils::getInstance()->getValueMapFromFile(filename);
     CCASSERT(!dict.empty(), "cannot create dictionary");
-    if (dict.empty()) {
-        return;
-    }
 
     // search for metadata
     bool validMetadata = false;
@@ -368,4 +385,3 @@ void Configuration::loadConfigFile(const std::string& filename)
 }
 
 NS_CC_END
-

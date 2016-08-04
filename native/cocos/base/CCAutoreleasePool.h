@@ -185,4 +185,3 @@ private:
 NS_CC_END
 
 #endif //__AUTORELEASEPOOL_H__
-

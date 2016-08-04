@@ -91,7 +91,7 @@ public:
      * @lua NA
      * @js NA
      */
-    int getHandler() {
+    int getHandler(void) {
         return _handler;
     }
 
@@ -102,7 +102,7 @@ public:
      * @lua NA
      * @js NA
      */
-    int getEntryId() {
+    int getEntryId(void) {
         return _entryId;
     }
 
@@ -153,7 +153,7 @@ public:
      * @js NA
      * @lua NA
      */
-    TimerScriptHandler* getTimer() {
+    TimerScriptHandler* getTimer(void) {
         return _timer;
     }
 
@@ -164,7 +164,7 @@ public:
      * @js NA
      * @lua NA
      */
-    bool isPaused() {
+    bool isPaused(void) {
         return _paused;
     }
     /**
@@ -172,7 +172,7 @@ public:
      * @js NA
      * @lua NA
      */
-    void markedForDeletion() {
+    void markedForDeletion(void) {
         _markedForDeletion = true;
     }
     /**
@@ -182,7 +182,7 @@ public:
      * @js NA
      * @lua NA
      */
-    bool isMarkedForDeletion() {
+    bool isMarkedForDeletion(void) {
         return _markedForDeletion;
     }
 
@@ -214,15 +214,15 @@ public:
 
     virtual ~TouchScriptHandlerEntry();
 
-    bool isMultiTouches() {
+    bool isMultiTouches(void) {
         return _isMultiTouches;
     }
 
-    int getPriority() {
+    int getPriority(void) {
         return _priority;
     }
 
-    bool getSwallowsTouches() {
+    bool getSwallowsTouches(void) {
         return _swallowsTouches;
     }
 
@@ -557,11 +557,18 @@ struct CommonScriptData
     : handler(inHandler),
       eventSource(inSource)
     {
-        strncpy(eventName, inName, 64);
-
+        if (nullptr == inName)
+        {
+            memset(eventName, 0, sizeof(eventName));
+        }
+        else
+        {
+            strncpy(eventName, inName, sizeof(eventName));
+        }
+        
         if (nullptr == inClassName)
         {
-            memset(eventSourceClassName, 0, 64*sizeof(char));
+            memset(eventSourceClassName, 0, sizeof(eventSourceClassName));
         }
         else
         {
@@ -643,15 +650,45 @@ public:
     virtual ccScriptType getScriptType() { return kScriptTypeNone; };
 
     /**
+     * Reflect the retain relationship to script scope
+     */
+    virtual void retainScriptObject(Ref* owner, Ref* target) {};
+
+    /**
+     * Add the script object to root object
+     */
+    virtual void rootScriptObject(Ref* target) {};
+
+    /**
+     * Reflect the release relationship to script scope
+     */
+    virtual void releaseScriptObject(Ref* owner, Ref* target) {};
+
+    /**
+     * Remove the script object from root object
+     */
+    virtual void unrootScriptObject(Ref* target) {};
+
+    /**
+     * Release all children native refs for the given node in script scope
+     */
+    virtual void releaseAllChildrenRecursive(Node* node) {};
+
+    /**
+     * Release all native refs for the given owner in script scope
+     */
+    virtual void releaseAllNativeRefs(cocos2d::Ref* owner) {};
+
+    /** 
      * Remove script object,The specific meaning should refer to the ScriptType.
      * For Lua, @see removeScriptObjectByObject of LuaEngine.
      *
      * @lua NA
      * @js NA
      */
-    virtual void removeScriptObjectByObject(Ref* obj) = 0;
+    virtual void removeScriptObjectByObject(Ref* obj) {};
 
-    /**
+    /** 
      * Remove script function handler, only LuaEngine class need to implement this function.
      * @see removeScriptHandler of LuaEngine.
      * @lua NA
@@ -750,6 +787,20 @@ public:
      * @js NA
      */
     virtual bool parseConfig(ConfigType type, const std::string& str) = 0;
+
+
+    /** Root a Reference.
+     It tells the Garbage Collector that the associated Scripting object should not be collected
+     */
+    virtual void rootObject(Ref* obj) {}
+
+    /** Unroot a Reference.
+     It tells the Garbage Collector that the associated Scripting object can be collected
+     */
+    virtual void unrootObject(Ref* obj) {}
+
+    /** Triggers the garbage collector */
+    virtual void garbageCollect() {}
 };
 
 class Node;
@@ -762,14 +813,13 @@ class Node;
 class CC_DLL ScriptEngineManager
 {
 public:
-    static ScriptEngineManager* ShareInstance;
     /**
      * Constructor of ScriptEngineManager.
      *
      * @lua NA
      * @js NA
      */
-    ~ScriptEngineManager();
+    ~ScriptEngineManager(void);
     /**
      * Get the ScriptEngineProtocol object.
      *
@@ -778,7 +828,7 @@ public:
      * @lua NA
      * @js NA
      */
-    ScriptEngineProtocol* getScriptEngine() {
+    ScriptEngineProtocol* getScriptEngine(void) {
         return _scriptEngine;
     }
     /**
@@ -798,7 +848,7 @@ public:
      * @lua NA
      * @js NA
      */
-    void removeScriptEngine();
+    void removeScriptEngine(void);
     /**
      * Get the instance of ScriptEngineManager object.
      *
@@ -848,7 +898,7 @@ public:
     static void sendNodeEventToLua(Node* node, int action);
 
 private:
-    ScriptEngineManager()
+    ScriptEngineManager(void)
     : _scriptEngine(nullptr)
     {
     }
@@ -866,4 +916,3 @@ NS_CC_END
 /// @}
 
 #endif // __SCRIPT_SUPPORT_H__
-

@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-ObjectFactory::TInfo::TInfo()
+ObjectFactory::TInfo::TInfo(void)
 :_class("")
 ,_fun(nullptr)
 ,_func(nullptr)
@@ -58,7 +58,7 @@ ObjectFactory::TInfo::TInfo(const TInfo &t)
     _func = t._func;
 }
 
-ObjectFactory::TInfo::~TInfo()
+ObjectFactory::TInfo::~TInfo(void)
 {
    _class = "";
    _fun = nullptr;
@@ -76,12 +76,12 @@ ObjectFactory::TInfo& ObjectFactory::TInfo::operator= (const TInfo &t)
 
 ObjectFactory* ObjectFactory::_sharedFactory = nullptr;
 
-ObjectFactory::ObjectFactory()
+ObjectFactory::ObjectFactory(void)
 {
 
 }
 
-ObjectFactory::~ObjectFactory()
+ObjectFactory::~ObjectFactory(void)
 {
     _typeMap.clear();
 }
@@ -124,4 +124,3 @@ void ObjectFactory::registerType(const TInfo &t)
 }
 
 NS_CC_END
-

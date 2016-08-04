@@ -42,6 +42,8 @@ NS_CC_BEGIN
 class CC_DLL EventListenerAcceleration : public EventListener
 {
 public:
+    static const std::string LISTENER_ID;
+    
     /** Create a acceleration EventListener.
      *
      * @param callback The acceleration callback method.
@@ -74,4 +76,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__cocos2d_libs__CCAccelerometerListener__) */
-

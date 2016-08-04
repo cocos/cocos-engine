@@ -24,7 +24,6 @@
 
 #include "base/CCEventCustom.h"
 #include "base/CCEvent.h"
-#include "base/CCEventListener.h"
 
 NS_CC_BEGIN
 
@@ -33,8 +32,6 @@ EventCustom::EventCustom(const std::string& eventName)
 , _userData(nullptr)
 , _eventName(eventName)
 {
-    _typeKey = EventListener::getHashCode(eventName);
 }
 
 NS_CC_END
-
