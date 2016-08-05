@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "HttpClient.h"
+#include "network/HttpClient.h"
 #include <queue>
 #include <errno.h>
 #include <curl/curl.h>
@@ -46,7 +46,7 @@ typedef size_t (*write_callback)(void *ptr, size_t size, size_t nmemb, void *str
 // Callback function used by libcurl for collect response data
 static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream)
 {
-    auto recvBuffer = (std::vector<char>*)stream;
+    std::vector<char> *recvBuffer = (std::vector<char>*)stream;
     size_t sizes = size * nmemb;
 
     // add data to the end of recvBuffer
@@ -59,7 +59,7 @@ static size_t writeData(void *ptr, size_t size, size_t nmemb, void *stream)
 // Callback function used by libcurl for collect header data
 static size_t writeHeaderData(void *ptr, size_t size, size_t nmemb, void *stream)
 {
-    auto recvBuffer = (std::vector<char>*)stream;
+    std::vector<char> *recvBuffer = (std::vector<char>*)stream;
     size_t sizes = size * nmemb;
 
     // add data to the end of recvBuffer
@@ -253,7 +253,7 @@ public:
         if(!headers.empty())
         {
             /* append custom headers one by one */
-            for (auto it = headers.begin(); it != headers.end(); ++it)
+            for (std::vector<std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
                 _headers = curl_slist_append(_headers,it->c_str());
             /* set custom headers for curl */
             if (!setOption(CURLOPT_HTTPHEADER, _headers))

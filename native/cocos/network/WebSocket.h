@@ -33,7 +33,8 @@
 #include <string>
 #include <vector>
 #include <mutex>
-#include <memory>
+#include <memory>  // for std::shared_ptr
+#include <atomic>
 
 #include "platform/CCPlatformMacros.h"
 #include "platform/CCStdC.h"
@@ -226,7 +227,7 @@ private:
     std::mutex   _readStateMutex;
     State        _readyState;
     std::string  _host;
-    int _port;
+    unsigned int _port;
     std::string  _path;
 
     std::vector<char> _receivedData;
@@ -237,7 +238,7 @@ private:
 
     struct lws*         _wsInstance;
     struct lws_context* _wsContext;
-
+    std::shared_ptr<std::atomic<bool>> _isDestroyed;
     Delegate* _delegate;
     int _SSLConnection;
     struct lws_protocols* _wsProtocols;
@@ -252,4 +253,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__CC_JSB_WEBSOCKET_H__) */
-

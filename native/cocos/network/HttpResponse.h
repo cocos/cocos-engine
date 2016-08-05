@@ -106,7 +106,7 @@ public:
     inline bool isSucceed() const
     {
         return _succeed;
-    };
+    }
 
     /**
      * Get the http response data.
