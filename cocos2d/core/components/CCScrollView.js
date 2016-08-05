@@ -1328,9 +1328,23 @@ var ScrollView = cc.Class({
         }
     },
 
-    onDisable: function() {
+    _showScrollbar: function () {
+        if (this.horizontalScrollBar) {
+            this.horizontalScrollBar.show();
+        }
+
+        if (this.verticalScrollBar) {
+            this.verticalScrollBar.show();
+        }
+    },
+
+    onDisable: function () {
         this._hideScrollbar();
         this.stopAutoScroll();
+    },
+
+    onEnable: function () {
+        this._showScrollbar();
     },
 
     update: function(dt) {
