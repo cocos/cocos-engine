@@ -149,10 +149,16 @@ void GLView::updateDesignResolutionSize()
         _viewPortRect.setRect((_screenSize.width - viewPortW) / 2, (_screenSize.height - viewPortH) / 2, viewPortW, viewPortH);
 
         // reset director's member variables to fit visible rect
-        auto director = Director::DirectorInstance;
+        auto director = Director::getInstance();
         director->_winSizeInPoints = getDesignResolutionSize();
         director->_isStatusLabelUpdated = true;
         director->setProjection(director->getProjection());
+
+        // Github issue #16139
+        // A default viewport is needed in order to display the FPS,
+        // since the FPS are rendered in the Director, and there is no viewport there.
+        // Everything, including the FPS should renderer in the Scene.
+        glViewport(0, 0, _screenSize.width, _screenSize.height);
     }
 }
 
@@ -183,7 +189,7 @@ const Size& GLView::getFrameSize() const
 
 void GLView::setFrameSize(float width, float height)
 {
-    _designResolutionSize = _screenSize = Size(width, height);
+    _screenSize = Size(width, height);
 }
 
 Rect GLView::getVisibleRect() const
@@ -306,7 +312,7 @@ void GLView::handleTouchesBegin(int num, intptr_t ids[], float xs[], float ys[])
     }
 
     touchEvent._eventCode = EventTouch::EventCode::BEGAN;
-    auto dispatcher = Director::DirectorInstance->getEventDispatcher();
+    auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(&touchEvent);
 }
 
@@ -363,7 +369,7 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
     }
 
     touchEvent._eventCode = EventTouch::EventCode::MOVED;
-    auto dispatcher = Director::DirectorInstance->getEventDispatcher();
+    auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(&touchEvent);
 }
 
@@ -417,7 +423,7 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
     }
 
     touchEvent._eventCode = eventCode;
-    auto dispatcher = Director::DirectorInstance->getEventDispatcher();
+    auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(&touchEvent);
 
     for (auto& touch : touchEvent._touches)

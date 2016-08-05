@@ -137,6 +137,13 @@ public:
     virtual Platform getTargetPlatform() = 0;
 
     /**
+     @brief Get application version.
+     * @js NA
+     * @lua NA
+     */
+    virtual std::string getVersion() = 0;
+
+    /**
      @brief Open url in default browser.
      @param String with url to open.
      @return True if the resource located by the URL was successfully opened; otherwise false.
@@ -152,4 +159,3 @@ public:
 NS_CC_END
 
 #endif    // __CC_APPLICATION_PROTOCOL_H__
-

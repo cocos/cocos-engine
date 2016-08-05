@@ -31,12 +31,10 @@ THE SOFTWARE.
 #include <android/log.h>
 #include <jni.h>
 #include "base/ccTypes.h"
-#include "base/ccUTF8.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/CCFileUtils.h"
 
-#define helperClassName "org/cocos2dx/lib/Cocos2dxHelper"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_ERROR,"",__VA_ARGS__)
+static const std::string helperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
 
 NS_CC_BEGIN
 
@@ -82,34 +80,32 @@ public:
     {
     }
 
-    bool getBitmapFromJavaShadowStroke( const std::string& text,
+    bool getBitmapFromJavaShadowStroke( const char *text,
                                         int nWidth,
                                         int nHeight,
                                         Device::TextAlign eAlignMask,
                       const FontDefinition& textDefinition )
     {
-            JniMethodInfo methodInfo;
-            if (! JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/lib/Cocos2dxBitmap", "createTextBitmapShadowStroke",
-                                                 "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZIIIIFZI)Z"))
-            {
-                CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
-                return false;
-            }
+           JniMethodInfo methodInfo;
+           if (! JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/lib/Cocos2dxBitmap", "createTextBitmapShadowStroke",
+               "([BLjava/lang/String;IIIIIIIIZFFFFZIIIIFZI)Z"))
+           {
+               CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
+               return false;
+           }
 
            // Do a full lookup for the font path using FileUtils in case the given font name is a relative path to a font file asset,
            // or the path has been mapped to a different location in the app package:
-            std::string fullPathOrFontName = textDefinition._fontName;
-            if(FileUtils::getInstance()->isFileExist(fullPathOrFontName))
-            {
-                fullPathOrFontName = FileUtils::getInstance()->fullPathForFilename(textDefinition._fontName);
-                // If the path name returned includes the 'assets' dir then that needs to be removed, because the android.content.Context
-                // requires this portion of the path to be omitted for assets inside the app package.
-                if (fullPathOrFontName.find("assets/") == 0)
-                {
-                    fullPathOrFontName = fullPathOrFontName.substr(strlen("assets/"));   // Chop out the 'assets/' portion of the path.
-                }
-            }
-
+           std::string fullPathOrFontName = textDefinition._fontName;
+           if(FileUtils::getInstance()->isFileExist(fullPathOrFontName)) {
+               fullPathOrFontName = FileUtils::getInstance()->fullPathForFilename(textDefinition._fontName);
+               // If the path name returned includes the 'assets' dir then that needs to be removed, because the android.content.Context
+               // requires this portion of the path to be omitted for assets inside the app package.
+               if (fullPathOrFontName.find("assets/") == 0)
+               {
+                   fullPathOrFontName = fullPathOrFontName.substr(strlen("assets/"));   // Chop out the 'assets/' portion of the path.
+               }
+           }
 
            /**create bitmap
             * this method call Cococs2dx.createBitmap()(java code) to create the bitmap, the java code
@@ -117,28 +113,29 @@ public:
             * and data.
             * use this approach to decrease the jni call number
            */
-           auto jstrText = JniHelper::newStringUTFJNI(methodInfo.env, text);
+           int count = strlen(text);
+           jbyteArray strArray = methodInfo.env->NewByteArray(count);
+           methodInfo.env->SetByteArrayRegion(strArray, 0, count, reinterpret_cast<const jbyte*>(text));
            jstring jstrFont = methodInfo.env->NewStringUTF(fullPathOrFontName.c_str());
-           bool ret = true;
-           if(!methodInfo.env->CallStaticBooleanMethod(methodInfo.classID, methodInfo.methodID, jstrText,
-                                                       jstrFont, textDefinition._fontSize,
-                                                       textDefinition._fontFillColor.r, textDefinition._fontFillColor.g,
-                                                       textDefinition._fontFillColor.b, textDefinition._fontAlpha,
-                                                       eAlignMask, nWidth, nHeight,
-                                                       textDefinition._stroke._strokeEnabled,
-                                                       textDefinition._stroke._strokeColor.r, textDefinition._stroke._strokeColor.g,
-                                                       textDefinition._stroke._strokeColor.b, textDefinition._stroke._strokeAlpha,
-                                                       textDefinition._stroke._strokeSize,
+
+           if(!methodInfo.env->CallStaticBooleanMethod(methodInfo.classID, methodInfo.methodID, strArray,
+               jstrFont, textDefinition._fontSize, textDefinition._fontFillColor.r, textDefinition._fontFillColor.g, 
+               textDefinition._fontFillColor.b, textDefinition._fontAlpha,
+               eAlignMask, nWidth, nHeight, 
+               textDefinition._shadow._shadowEnabled, textDefinition._shadow._shadowOffset.width, -textDefinition._shadow._shadowOffset.height, 
+               textDefinition._shadow._shadowBlur, textDefinition._shadow._shadowOpacity, 
+               textDefinition._stroke._strokeEnabled, textDefinition._stroke._strokeColor.r, textDefinition._stroke._strokeColor.g, 
+                                                       textDefinition._stroke._strokeColor.b, textDefinition._stroke._strokeAlpha, textDefinition._stroke._strokeSize,
                                                        textDefinition._enableWrap, textDefinition._overflow))
            {
-                ret = false;
+                return false;
            }
 
-           methodInfo.env->DeleteLocalRef(jstrText);
+           methodInfo.env->DeleteLocalRef(strArray);
            methodInfo.env->DeleteLocalRef(jstrFont);
            methodInfo.env->DeleteLocalRef(methodInfo.classID);
 
-           return ret;
+           return true;
     }
 
 public:
@@ -153,7 +150,7 @@ static BitmapDC& sharedBitmapDC()
     return s_BmpDC;
 }
 
-Data Device::getTextureDataForText(const std::string& text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
+Data Device::getTextureDataForText(const char * text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
 {
     Data ret;
     do
@@ -204,4 +201,3 @@ extern "C"
         env->GetByteArrayRegion(pixels, 0, size, (jbyte*)bitmapDC._data);
     }
 };
-

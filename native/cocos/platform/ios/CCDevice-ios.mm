@@ -27,7 +27,7 @@
 #include "platform/CCPlatformConfig.h"
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
-#include "CCDevice.h"
+#include "platform/CCDevice.h"
 #include "base/ccTypes.h"
 #include "platform/apple/CCDevice-apple.h"
 #include "base/CCEventDispatcher.h"
@@ -36,7 +36,9 @@
 #import <UIKit/UIKit.h>
 
 // Accelerometer
+#if !defined(CC_TARGET_OS_TVOS)
 #import<CoreMotion/CoreMotion.h>
+#endif
 #import<CoreFoundation/CoreFoundation.h>
 #import <CoreText/CoreText.h>
 // Vibrate
@@ -154,6 +156,7 @@ static CGSize _calculateShrinkedSizeForString(NSAttributedString **str, id font,
 
 #define SENSOR_DELAY_GAME 0.02
 
+#if !defined(CC_TARGET_OS_TVOS)
 @interface CCAccelerometerDispatcher : NSObject<UIAccelerometerDelegate>
 {
     cocos2d::Acceleration *_acceleration;
@@ -246,15 +249,16 @@ static CCAccelerometerDispatcher* s_pAccelerometerDispatcher;
         case UIInterfaceOrientationPortrait:
             break;
         default:
-            NSAssert(false, @"unknow orientation");
+            NSAssert(false, @"unknown orientation");
     }
 
     cocos2d::EventAcceleration event(*_acceleration);
-    auto dispatcher = cocos2d::Director::DirectorInstance->getEventDispatcher();
+    auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(&event);
 }
-
 @end
+#endif // !defined(CC_TARGET_OS_TVOS)
+
 
 //
 
@@ -284,16 +288,18 @@ int Device::getDPI()
 }
 
 
-
-
 void Device::setAccelerometerEnabled(bool isEnabled)
 {
+#if !defined(CC_TARGET_OS_TVOS)
     [[CCAccelerometerDispatcher sharedAccelerometerDispatcher] setAccelerometerEnabled:isEnabled];
+#endif
 }
 
 void Device::setAccelerometerInterval(float interval)
 {
+#if !defined(CC_TARGET_OS_TVOS)
     [[CCAccelerometerDispatcher sharedAccelerometerDispatcher] setAccelerometerInterval:interval];
+#endif
 }
 
 typedef struct
@@ -381,6 +387,8 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
         CC_BREAK_IF(! font);
         
         NSString * str          = [NSString stringWithUTF8String:text];
+        CC_BREAK_IF(!str);
+
         CGSize dimensions;
         dimensions.width     = info->width;
         dimensions.height    = info->height;
@@ -396,7 +404,7 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
                                                    blue:info->tintColorB
                                                   alpha:info->tintColorA];
 
-        //adjust text rect acoording to overflow
+        // adjust text rect according to overflow
         NSMutableDictionary* tokenAttributesDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                              foregroundColor,NSForegroundColorAttributeName,
                                              font, NSFontAttributeName,
@@ -530,7 +538,7 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
 }
 
 
-Data Device::getTextureDataForText(const std::string& text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
+Data Device::getTextureDataForText(const char * text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
 {
     Data ret;
 
@@ -554,7 +562,7 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
         info.tintColorB             = textDefinition._fontFillColor.b / 255.0f;
         info.tintColorA             = textDefinition._fontAlpha / 255.0f;
 
-        if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow))
+        if (! _initWithString(text, align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow))
         {
             break;
         }
@@ -573,7 +581,7 @@ void Device::setKeepScreenOn(bool value)
 }
 
 /*!
- @brief Only works on iOS devices that support vibration (such as iPhone). Shoud only be used for important alerts.  Use risks rejection in iTunes Store.
+ @brief Only works on iOS devices that support vibration (such as iPhone). Should only be used for important alerts. Use risks rejection in iTunes Store.
  @param duration ignored for iOS
  */
 void Device::vibrate(float duration)

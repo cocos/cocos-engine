@@ -57,6 +57,7 @@ class CC_DLL GLViewImpl : public GLView
 {
 public:
     static GLViewImpl* create(const std::string& viewName);
+    static GLViewImpl* create(const std::string& viewName, bool resizable);
     static GLViewImpl* createWithRect(const std::string& viewName, const Rect& size, float frameZoomFactor = 1.0f, bool resizable = false);
     static GLViewImpl* createWithFullScreen(const std::string& viewName);
     static GLViewImpl* createWithFullScreen(const std::string& viewName, const GLFWvidmode &videoMode, GLFWmonitor *monitor);
@@ -112,7 +113,7 @@ public:
 #endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
 
 protected:
-    GLViewImpl();
+    GLViewImpl(bool initglfw = true);
     virtual ~GLViewImpl();
 
     bool initWithRect(const std::string& viewName, Rect rect, float frameZoomFactor, bool resizable);
@@ -160,4 +161,3 @@ private:
 NS_CC_END   // end of namespace   cocos2d
 
 #endif  // end of __CC_EGLViewImpl_DESKTOP_H__
-

@@ -30,7 +30,7 @@
 #define ERRNO         ((int)GetLastError())
 #define SET_ERRNO(x)  (SetLastError((DWORD)(x)))
 
-#include "inet_pton_mingw.h"
+#include "platform/win32/inet_pton_mingw.h"
 
 #define ENABLE_IPV6
 
@@ -234,4 +234,3 @@ inet_pton6(const char *src, unsigned char *dst)
 #endif /* ENABLE_IPV6 */
 
 #endif /* HAVE_INET_PTON */
-

@@ -26,21 +26,23 @@ THE SOFTWARE.
 #include <jni.h>
 #include <android/log.h>
 #include <string>
-#include "JniHelper.h"
-#include "CCFileUtils-android.h"
+#include "platform/android/jni/JniHelper.h"
+#include "platform/android/CCFileUtils-android.h"
 #include "android/asset_manager_jni.h"
-#include "base/CCString.h"
-#include "Java_org_cocos2dx_lib_Cocos2dxHelper.h"
+#include "platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
 
 #include "base/ccUTF8.h"
 
 #define  LOG_TAG    "Java_org_cocos2dx_lib_Cocos2dxHelper.cpp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
-#define HELPER_JAVA_CLASS "org/cocos2dx/lib/Cocos2dxHelper"
+static const std::string className = "org/cocos2dx/lib/Cocos2dxHelper";
 
 static EditTextCallback s_editTextCallback = nullptr;
 static void* s_ctx = nullptr;
+
+static int __deviceSampleRate = 44100;
+static int __deviceAudioBufferSizeInFrames = 192;
 
 using namespace cocos2d;
 using namespace std;
@@ -53,9 +55,15 @@ extern "C" {
         g_apkPath = JniHelper::jstring2string(apkPath);
     }
 
-    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetContext(JNIEnv* env, jobject thiz, jobject classLoader, jobject assetManager) {
-        JniHelper::setClassLoaderFrom(classLoader);
+    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetContext(JNIEnv*  env, jobject thiz, jobject context, jobject assetManager) {
+        JniHelper::setClassLoaderFrom(context);
         FileUtilsAndroid::setassetmanager(AAssetManager_fromJava(env, assetManager));
+    }
+
+    JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetAudioDeviceInfo(JNIEnv*  env, jobject thiz, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames) {
+        __deviceSampleRate = deviceSampleRate;
+        __deviceAudioBufferSizeInFrames = deviceAudioBufferSizeInFrames;
+        LOGD("nativeSetAudioDeviceInfo: sampleRate: %d, bufferSizeInFrames: %d", __deviceSampleRate, __deviceAudioBufferSizeInFrames);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxHelper_nativeSetEditTextDialogResult(JNIEnv* env, jobject obj, jbyteArray text) {
@@ -84,14 +92,49 @@ const char * getApkPath() {
 }
 
 std::string getPackageNameJNI() {
-    return JniHelper::callStaticStringMethod(HELPER_JAVA_CLASS, "getCocos2dxPackageName");
+    return JniHelper::callStaticStringMethod(className, "getCocos2dxPackageName");
+}
+
+int getObbAssetFileDescriptorJNI(const char* path, long* startOffset, long* size) {
+    JniMethodInfo methodInfo;
+    int fd = 0;
+    
+    if (JniHelper::getStaticMethodInfo(methodInfo, className.c_str(), "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J")) {
+        jstring stringArg = methodInfo.env->NewStringUTF(path);
+        jlongArray newArray = (jlongArray)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg);
+        jsize theArrayLen = methodInfo.env->GetArrayLength(newArray);
+        
+        if (theArrayLen == 3) {
+            jboolean copy = JNI_FALSE;
+            jlong *array = methodInfo.env->GetLongArrayElements(newArray, &copy);
+            fd = static_cast<int>(array[0]);
+            *startOffset = array[1];
+            *size = array[2];
+            methodInfo.env->ReleaseLongArrayElements(newArray, array, 0);
+        }
+        
+        methodInfo.env->DeleteLocalRef(methodInfo.classID);
+        methodInfo.env->DeleteLocalRef(stringArg);
+    }
+    
+    return fd;
+}
+
+int getDeviceSampleRate()
+{
+    return __deviceSampleRate;
+}
+
+int getDeviceAudioBufferSizeInFrames()
+{
+    return __deviceAudioBufferSizeInFrames;
 }
 
 void conversionEncodingJNI(const char* src, int byteSize, const char* fromCharset, char* dst, const char* newCharset)
 {
     JniMethodInfo methodInfo;
 
-    if (JniHelper::getStaticMethodInfo(methodInfo, HELPER_JAVA_CLASS, "conversionEncoding", "([BLjava/lang/String;Ljava/lang/String;)[B")) {
+    if (JniHelper::getStaticMethodInfo(methodInfo, className.c_str(), "conversionEncoding", "([BLjava/lang/String;Ljava/lang/String;)[B")) {
         jbyteArray strArray = methodInfo.env->NewByteArray(byteSize);
         methodInfo.env->SetByteArrayRegion(strArray, 0, byteSize, reinterpret_cast<const jbyte*>(src));
 
@@ -108,4 +151,3 @@ void conversionEncodingJNI(const char* src, int byteSize, const char* fromCharse
         methodInfo.env->DeleteLocalRef(methodInfo.classID);
     }
 }
-

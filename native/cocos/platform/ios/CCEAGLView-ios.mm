@@ -64,16 +64,17 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #include "platform/CCPlatformConfig.h"
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
-#import "CCEAGLView-ios.h"
+#import "platform/ios/CCEAGLView-ios.h"
 
 #import <QuartzCore/QuartzCore.h>
 
 #import "base/CCDirector.h"
+#import "deprecated/CCSet.h"
 #import "base/CCTouch.h"
 #import "base/CCIMEDispatcher.h"
-#import "CCGLViewImpl-ios.h"
-#import "CCES2Renderer-ios.h"
-#import "OpenGL_Internal-ios.h"
+#import "platform/ios/CCGLViewImpl-ios.h"
+#import "platform/ios/CCES2Renderer-ios.h"
+#import "platform/ios/OpenGL_Internal-ios.h"
 
 //CLASS IMPLEMENTATIONS:
 
@@ -257,9 +258,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
     // Avoid flicker. Issue #350
     //[director performSelectorOnMainThread:@selector(drawScene) withObject:nil waitUntilDone:YES];
-    if ([NSThread isMainThread] && cocos2d::Director::DirectorInstance)
+    if ([NSThread isMainThread])
     {
-        cocos2d::Director::DirectorInstance->drawScene();
+        cocos2d::Director::getInstance()->drawScene();
     }
 }
 
@@ -378,20 +379,14 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
             }
         }
     }
-
-    if (cocos2d::Director::DirectorInstance) {
-        auto glView = cocos2d::Director::DirectorInstance->getOpenGLView();
-        if (glView) {
-            glView->setIMEKeyboardState(false);
-        }
-    }
 }
 
 // Pass the touches to the superview
 #pragma mark CCEAGLView - Touch Delegate
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (cocos2d::Director::DirectorInstance == nullptr) {
+    cocos2d::Director *director = cocos2d::Director::getInstance();
+    if (director == nullptr) {
         return;
     }
 
@@ -412,7 +407,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     glview->handleTouchesBegin(i, (intptr_t*)ids, xs, ys);
 }
 
@@ -439,7 +434,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto glview = director->getOpenGLView();
     glview->handleTouchesMove(i, (intptr_t*)ids, xs, ys, fs, ms);
 }
 
@@ -457,7 +452,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     glview->handleTouchesEnd(i, (intptr_t*)ids, xs, ys);
 }
 
@@ -475,7 +470,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     glview->handleTouchesCancel(i, (intptr_t*)ids, xs, ys);
 }
 
@@ -728,7 +723,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)onUIKeyboardNotification:(NSNotification *)notif;
 {
-    if(cocos2d::Director::DirectorInstance == nullptr)
+    cocos2d::Director *director = cocos2d::Director::getInstance();
+    if(director == nullptr)
         return;
 
     NSString * type = notif.name;
@@ -743,8 +739,14 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     double aniDuration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] doubleValue];
 
     CGSize viewSize = self.frame.size;
-    CGFloat tmp;
 
+#if defined(CC_TARGET_OS_TVOS)
+    // statusBarOrientation not defined on tvOS, and also, orientation makes
+    // no sense on tvOS
+    begin.origin.y = viewSize.height - begin.origin.y - begin.size.height;
+    end.origin.y = viewSize.height - end.origin.y - end.size.height;
+#else
+    CGFloat tmp;
     switch (getFixedOrientation([[UIApplication sharedApplication] statusBarOrientation]))
     {
         case UIInterfaceOrientationPortrait:
@@ -786,8 +788,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         default:
             break;
     }
+#endif
 
-    auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto glview = director->getOpenGLView();
     float scaleX = glview->getScaleX();
     float scaleY = glview->getScaleY();
 
@@ -804,7 +807,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         end.size.height -= offestY;
     }
 
-    // Convert to desigin coordinate
+    // Convert to design coordinate
     begin = CGRectApplyAffineTransform(begin, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
     end = CGRectApplyAffineTransform(end, CGAffineTransformScale(CGAffineTransformIdentity, 1.0f/scaleX, 1.0f/scaleY));
 
@@ -831,7 +834,14 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         //CGSize screenSize = self.window.screen.bounds.size;
         dispatcher->dispatchKeyboardDidShow(notiInfo);
         caretRect_ = end;
-        caretRect_.origin.y = viewSize.height - (caretRect_.origin.y + caretRect_.size.height + [UIFont smallSystemFontSize]);
+
+#if defined(CC_TARGET_OS_TVOS)
+        // smallSystemFontSize not available on TVOS
+        int fontSize = 12;
+#else
+        int fontSize = [UIFont smallSystemFontSize];
+#endif
+        caretRect_.origin.y = viewSize.height - (caretRect_.origin.y + caretRect_.size.height + fontSize);
         caretRect_.size.height = 0;
         isKeyboardShown_ = YES;
     }
@@ -847,6 +857,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     }
 }
 
+#if !defined(CC_TARGET_OS_TVOS)
 UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrientation)
 {
     if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
@@ -855,6 +866,7 @@ UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrien
     }
     return statusBarOrientation;
 }
+#endif
 
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)dis
 {
@@ -867,11 +879,14 @@ UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrien
 
     if (dis < 0.0f) dis = 0.0f;
 
-    auto glview = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     dis *= glview->getScaleY();
 
     dis /= self.contentScaleFactor;
 
+#if defined(CC_TARGET_OS_TVOS)
+    self.frame = CGRectMake(originalRect_.origin.x, originalRect_.origin.y - dis, originalRect_.size.width, originalRect_.size.height);
+#else
     switch (getFixedOrientation([[UIApplication sharedApplication] statusBarOrientation]))
     {
         case UIInterfaceOrientationPortrait:
@@ -893,7 +908,8 @@ UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrien
         default:
             break;
     }
-
+#endif
+    
     [UIView commitAnimations];
 }
 
@@ -909,4 +925,3 @@ UIInterfaceOrientation getFixedOrientation(UIInterfaceOrientation statusBarOrien
 @end
 
 #endif // CC_PLATFORM_IOS
-

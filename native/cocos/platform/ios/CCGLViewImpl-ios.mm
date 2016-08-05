@@ -28,9 +28,10 @@
 
 #import <UIKit/UIKit.h>
 
-#include "CCEAGLView-ios.h"
-#include "CCDirectorCaller-ios.h"
-#include "CCGLViewImpl-ios.h"
+#include "platform/ios/CCEAGLView-ios.h"
+#include "platform/ios/CCDirectorCaller-ios.h"
+#include "platform/ios/CCGLViewImpl-ios.h"
+#include "deprecated/CCSet.h"
 #include "base/CCTouch.h"
 
 NS_CC_BEGIN
@@ -141,7 +142,10 @@ bool GLViewImpl::initWithRect(const std::string& viewName, const Rect& rect, flo
                                      multiSampling: NO
                                    numberOfSamples: 0];
 
+    // Not available on tvOS
+#if !defined(CC_TARGET_OS_TVOS)
     [eaglview setMultipleTouchEnabled:YES];
+#endif
 
     _screenSize.width = _designResolutionSize.width = [eaglview getWidth];
     _screenSize.height = _designResolutionSize.height = [eaglview getHeight];
@@ -195,10 +199,11 @@ void GLViewImpl::end()
 {
     [CCDirectorCaller destroy];
 
-    //runtime版本由宿主（eg：QQ浏览器）负责移除EAGLView
-    //CCEAGLView *eaglview = (CCEAGLView*) _eaglview;
-    //[eaglview removeFromSuperview];
+    // destroy EAGLView
+    CCEAGLView *eaglview = (CCEAGLView*) _eaglview;
 
+    [eaglview removeFromSuperview];
+    //[eaglview release];
     release();
 }
 
@@ -225,4 +230,3 @@ void GLViewImpl::setIMEKeyboardState(bool open)
 NS_CC_END
 
 #endif // CC_PLATFOR_IOS
-

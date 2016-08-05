@@ -41,10 +41,14 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     // Fields
     // ===========================================================
 
-    private long mLastTickInNanoSeconds = 0;
-    private int mScreenWidth = 0;
-    private int mScreenHeight = 0;
+    private long mLastTickInNanoSeconds;
+    private int mScreenWidth;
+    private int mScreenHeight;
     private boolean mNativeInitCompleted = false;
+
+    // ===========================================================
+    // Constructors
+    // ===========================================================
 
     // ===========================================================
     // Getter & Setter
@@ -55,8 +59,8 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     }
 
     public void setScreenWidthAndHeight(final int surfaceWidth, final int surfaceHeight) {
-        mScreenWidth = surfaceWidth;
-        mScreenHeight = surfaceHeight;
+        this.mScreenWidth = surfaceWidth;
+        this.mScreenHeight = surfaceHeight;
     }
 
     // ===========================================================
@@ -65,8 +69,8 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(final GL10 GL10, final EGLConfig EGLConfig) {
-        Cocos2dxRenderer.nativeInit(mScreenWidth, mScreenHeight);
-        mLastTickInNanoSeconds = System.nanoTime();
+        Cocos2dxRenderer.nativeInit(this.mScreenWidth, this.mScreenHeight);
+        this.mLastTickInNanoSeconds = System.nanoTime();
         mNativeInitCompleted = true;
     }
 
@@ -96,7 +100,7 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
             /*
              * Render time MUST be counted in, or the FPS will slower than appointed.
             */
-            mLastTickInNanoSeconds = System.nanoTime();
+            this.mLastTickInNanoSeconds = System.nanoTime();
             Cocos2dxRenderer.nativeRender();
         }
     }
@@ -174,5 +178,8 @@ public class Cocos2dxRenderer implements GLSurfaceView.Renderer {
     public String getContentText() {
         return Cocos2dxRenderer.nativeGetContentText();
     }
-}
 
+    // ===========================================================
+    // Inner and Anonymous Classes
+    // ===========================================================
+}

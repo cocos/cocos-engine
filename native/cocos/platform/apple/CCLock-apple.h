@@ -36,18 +36,17 @@ public:
     /**
      * @js ctor
      */
-    Lock();
+    Lock(void);
     /**
      * @js NA
      * @lua NA
      */
-    ~Lock();
+    ~Lock(void);
 
-    void lock();
-    void unlock();
+    void lock(void);
+    void unlock(void);
 };
 
 NS_CC_END
 
 #endif // __PLATFORM_IPHONE_PLATFORM_CCLOCK_H__
-

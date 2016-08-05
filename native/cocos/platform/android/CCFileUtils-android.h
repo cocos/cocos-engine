@@ -1,6 +1,6 @@
 /****************************************************************************
 Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
+Copyright (c) 2013-2014 Chukong Technologies Inc.
 
  http://www.cocos2d-x.org
 
@@ -38,6 +38,8 @@ Copyright (c) 2013-2016 Chukong Technologies Inc.
 
 NS_CC_BEGIN
 
+class ZipFile;
+
 /**
  * @addtogroup platform
  * @{
@@ -57,25 +59,14 @@ public:
 
     static void setassetmanager(AAssetManager* a);
     static AAssetManager* getAssetManager() { return assetmanager; }
+    static ZipFile* getObbFile() { return obbfile; }
 
     /* override functions */
-    virtual bool init() override;
+    bool init() override;
 
     virtual std::string getNewFilename(const std::string &filename) const override;
 
-    /** @deprecated Please use FileUtils::getDataFromFile or FileUtils::getStringFromFile instead. */
-    CC_DEPRECATED_ATTRIBUTE virtual unsigned char* getFileData(const std::string& filename, const char* mode, ssize_t * size) override;
-
-    /**
-     *  Gets string from a file.
-     */
-    virtual std::string getStringFromFile(const std::string& filename) override;
-
-    /**
-     *  Creates binary data from a file.
-     *  @return A data object.
-     */
-    virtual Data getDataFromFile(const std::string& filename) override;
+    virtual FileUtils::Status getContents(const std::string& filename, ResizableBuffer* buffer) override;
 
     virtual std::string getWritablePath() const override;
     virtual bool isAbsolutePath(const std::string& strPath) const override;
@@ -83,9 +74,9 @@ public:
 private:
     virtual bool isFileExistInternal(const std::string& strFilePath) const override;
     virtual bool isDirectoryExistInternal(const std::string& dirPath) const override;
-    Data getData(const std::string& filename, bool forString);
 
     static AAssetManager* assetmanager;
+    static ZipFile* obbfile;
 };
 
 // end of platform group
@@ -96,4 +87,3 @@ NS_CC_END
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 #endif // __CC_FILEUTILS_ANDROID_H__
-

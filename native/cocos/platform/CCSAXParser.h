@@ -73,7 +73,7 @@ public:
      * @js NA
      * @lua NA
      */
-    ~SAXParser();
+    ~SAXParser(void);
     /**
      * @js NA
      * @lua NA
@@ -118,4 +118,3 @@ NS_CC_END
 
 /// @endcond
 #endif //__CCSAXPARSER_H__
-

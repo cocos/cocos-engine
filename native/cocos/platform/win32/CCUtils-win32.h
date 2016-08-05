@@ -23,21 +23,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#import <Foundation/Foundation.h>
+#ifndef __CC_UTILS_WIN32_H__
+#define __CC_UTILS_WIN32_H__
 
-#include "platform/CCThread.h"
+#include "platform/CCPlatformMacros.h"
+
+#include <string>
 
 NS_CC_BEGIN
 
-void* ThreadHelper::createAutoreleasePool()
-{
-    id pool = [[NSAutoreleasePool alloc] init];
-    return pool;
-}
-
-void ThreadHelper::releaseAutoreleasePool(void *autoreleasePool)
-{
-    [(NSAutoreleasePool*)autoreleasePool release];
-}
+std::wstring CC_DLL StringUtf8ToWideChar(const std::string& strUtf8);
+std::string CC_DLL StringWideCharToUtf8(const std::wstring& strWideChar);
+std::string CC_DLL UTF8StringToMultiByte(const std::string& strUtf8);
 
 NS_CC_END
+
+#endif // __CC_UTILS_WIN32_H__

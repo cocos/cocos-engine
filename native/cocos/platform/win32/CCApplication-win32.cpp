@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <algorithm>
 #include "platform/CCFileUtils.h"
 #include <shellapi.h>
+#include <WinVer.h>
 /**
 @brief    This function change the PVRFrame show/hide setting in register.
 @param  bEnable If true show the PVRFrame window, otherwise hide.
@@ -40,7 +41,7 @@ static void PVRFrameEnableControlWindow(bool bEnable);
 NS_CC_BEGIN
 
 // sharedApplication pointer
-Application * Application::sm_pSharedApplication = 0;
+Application * Application::sm_pSharedApplication = nullptr;
 
 Application::Application()
 : _instance(nullptr)
@@ -220,6 +221,47 @@ Application::Platform Application::getTargetPlatform()
     return Platform::OS_WINDOWS;
 }
 
+std::string Application::getVersion()
+{
+    char verString[256] = { 0 };
+    TCHAR szVersionFile[MAX_PATH];
+    GetModuleFileName(NULL, szVersionFile, MAX_PATH);
+    DWORD  verHandle = NULL;
+    UINT   size = 0;
+    LPBYTE lpBuffer = NULL;
+    DWORD  verSize = GetFileVersionInfoSize(szVersionFile, &verHandle);
+    
+    if (verSize != NULL)
+    {
+        LPSTR verData = new char[verSize];
+        
+        if (GetFileVersionInfo(szVersionFile, verHandle, verSize, verData))
+        {
+            if (VerQueryValue(verData, L"\\", (VOID FAR* FAR*)&lpBuffer, &size))
+            {
+                if (size)
+                {
+                    VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO *)lpBuffer;
+                    if (verInfo->dwSignature == 0xfeef04bd)
+                    {
+                        
+                        // Doesn't matter if you are on 32 bit or 64 bit,
+                        // DWORD is always 32 bits, so first two revision numbers
+                        // come from dwFileVersionMS, last two come from dwFileVersionLS
+                        sprintf(verString, "%d.%d.%d.%d", (verInfo->dwFileVersionMS >> 16) & 0xffff,
+                                (verInfo->dwFileVersionMS >> 0) & 0xffff,
+                                (verInfo->dwFileVersionLS >> 16) & 0xffff,
+                                (verInfo->dwFileVersionLS >> 0) & 0xffff
+                                );
+                    }
+                }
+            }
+        }
+        delete[] verData;
+    }
+    return verString;
+}
+
 bool Application::openURL(const std::string &url)
 {
     WCHAR *temp = new WCHAR[url.size() + 1];
@@ -227,6 +269,25 @@ bool Application::openURL(const std::string &url)
     HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
     delete[] temp;
     return (size_t)r>32;
+}
+
+void Application::setResourceRootPath(const std::string& rootResDir)
+{
+    _resourceRootPath = rootResDir;
+    std::replace(_resourceRootPath.begin(), _resourceRootPath.end(), '\\', '/');
+    if (_resourceRootPath[_resourceRootPath.length() - 1] != '/')
+    {
+        _resourceRootPath += '/';
+    }
+    FileUtils* pFileUtils = FileUtils::getInstance();
+    std::vector<std::string> searchPaths = pFileUtils->getSearchPaths();
+    searchPaths.insert(searchPaths.begin(), _resourceRootPath);
+    pFileUtils->setSearchPaths(searchPaths);
+}
+
+const std::string& Application::getResourceRootPath(void)
+{
+    return _resourceRootPath;
 }
 
 void Application::setStartupScriptFilename(const std::string& startupScriptFile)
@@ -275,4 +336,3 @@ static void PVRFrameEnableControlWindow(bool bEnable)
 }
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-

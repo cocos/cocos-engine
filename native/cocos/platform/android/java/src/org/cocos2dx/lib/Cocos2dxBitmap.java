@@ -24,11 +24,14 @@ THE SOFTWARE.
  ****************************************************************************/
 package org.cocos2dx.lib;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.text.BoringLayout;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -50,6 +53,24 @@ public final class Cocos2dxBitmap {
     private static final int VERTICAL_ALIGN_TOP = 1;
     private static final int VERTICAL_ALIGN_BOTTOM = 2;
     private static final int VERTICAL_ALIGN_CENTER = 3;
+
+    // ===========================================================
+    // Fields
+    // ===========================================================
+
+    private static Context sContext;
+
+    // ===========================================================
+    // Getter & Setter
+    // ===========================================================
+
+    public static void setContext(final Context context) {
+        Cocos2dxBitmap.sContext = context;
+    }
+
+    // ===========================================================
+    // Methods for/from SuperClass/Interfaces
+    // ===========================================================
 
     // ===========================================================
     // Methods
@@ -121,10 +142,17 @@ public final class Cocos2dxBitmap {
         return paint.getTypeface();
     }
 
-    public static boolean createTextBitmapShadowStroke(final String string,  final String fontName, int fontSize,
+    public static boolean createTextBitmapShadowStroke(byte[] bytes,  final String fontName, int fontSize,
                                                     int fontTintR, int fontTintG, int fontTintB, int fontTintA,
                                                     int alignment, int width, int height, 
-                                                       boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA, float strokeSize, boolean enableWrap, int overflow) {
+                                                    boolean shadow, float shadowDX, float shadowDY, float shadowBlur, float shadowOpacity, 
+                                                    boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA, float strokeSize, boolean enableWrap, int overflow) {
+        String string;
+        if (bytes == null || bytes.length == 0) {
+          return false;
+        } else {
+          string = new String(bytes);
+        }
 
         Layout.Alignment hAlignment = Layout.Alignment.ALIGN_NORMAL;
         int horizontalAlignment = alignment & 0x0F;
@@ -233,7 +261,7 @@ public final class Cocos2dxBitmap {
         if (fontName.endsWith(".ttf")) {
             try {
                 final Typeface typeFace = Cocos2dxTypefaces.get(
-                        Cocos2dxActivity.COCOS_ACTIVITY, fontName);
+                        Cocos2dxBitmap.sContext, fontName);
                 paint.setTypeface(typeFace);
             } catch (final Exception e) {
                 Log.e("Cocos2dxBitmap", "error to create ttf type face: "
@@ -308,4 +336,3 @@ public final class Cocos2dxBitmap {
                 TextUtils.TruncateAt.END).toString();
     }
 }
-

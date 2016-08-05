@@ -45,4 +45,3 @@ THE SOFTWARE.
 
 /// @endcond
 #endif /* __PLATFORM_CCAPPLICATION_H__*/
-
