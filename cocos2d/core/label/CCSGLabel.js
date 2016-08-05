@@ -358,6 +358,7 @@ _ccsg.Label = _ccsg.Node.extend({
         if (!extName) {
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
+            this._blendFunc = cc.BlendFunc._alphaPremultiplied();
             this._notifyLabelSkinDirty();
             this.emit('load');
             return;
@@ -365,10 +366,12 @@ _ccsg.Label = _ccsg.Node.extend({
 
         if (extName === ".ttf") {
             this._labelType = _ccsg.Label.Type.TTF;
+            this._blendFunc = cc.BlendFunc._alphaPremultiplied();
             this._fontHandle = this._loadTTFFont(fontHandle);
         } else if (extName === ".fnt") {
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
+            this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
             this._initBMFontWithString(this._string, fontHandle, textureUrl);
         }
         this._notifyLabelSkinDirty();
