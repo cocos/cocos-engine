@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -39,28 +39,30 @@ extern "C" {
 #endif
 
 typedef enum {
-    SP_BLEND_MODE_NORMAL, SP_BLEND_MODE_ADDITIVE, SP_BLEND_MODE_MULTIPLY, SP_BLEND_MODE_SCREEN
+	SP_BLEND_MODE_NORMAL, SP_BLEND_MODE_ADDITIVE, SP_BLEND_MODE_MULTIPLY, SP_BLEND_MODE_SCREEN
 } spBlendMode;
 
 typedef struct spSlotData {
-    const char* const name;
-    const spBoneData* const boneData;
-    const char* attachmentName;
-    float r, g, b, a;
-    spBlendMode blendMode;
+	const int index;
+	const char* const name;
+	const spBoneData* const boneData;
+	const char* attachmentName;
+	float r, g, b, a;
+	spBlendMode blendMode;
 
 #ifdef __cplusplus
-    spSlotData() :
-        name(0),
-        boneData(0),
-        attachmentName(0),
-        r(0), g(0), b(0), a(0),
-        blendMode(SP_BLEND_MODE_NORMAL) {
-    }
+	spSlotData() :
+		index(0),
+		name(0),
+		boneData(0),
+		attachmentName(0),
+		r(0), g(0), b(0), a(0),
+		blendMode(SP_BLEND_MODE_NORMAL) {
+	}
 #endif
 } spSlotData;
 
-spSlotData* spSlotData_create (const char* name, spBoneData* boneData);
+spSlotData* spSlotData_create (const int index, const char* name, spBoneData* boneData);
 void spSlotData_dispose (spSlotData* self);
 
 /* @param attachmentName May be 0 for no setup pose attachment. */
@@ -83,4 +85,3 @@ typedef spSlotData SlotData;
 #endif
 
 #endif /* SPINE_SLOTDATA_H_ */
-

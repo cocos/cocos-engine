@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -29,37 +29,54 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#ifndef SPINE_POLYGONBATCH_H_
-#define SPINE_POLYGONBATCH_H_
+#ifndef SPINE_TRANSFORMCONSTRAINTDATA_H_
+#define SPINE_TRANSFORMCONSTRAINTDATA_H_
 
-#include "cocos2d.h"
+#include <spine/BoneData.h>
 
-namespace spine {
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-class PolygonBatch : public cocos2d::Ref {
-public:
-    static PolygonBatch* createWithCapacity (ssize_t capacity);
+typedef struct spTransformConstraintData {
+	const char* const name;
+	int bonesCount;
+	spBoneData** const bones;
+	spBoneData* target;
+	float rotateMix, translateMix, scaleMix, shearMix;
+	float offsetRotation, offsetX, offsetY, offsetScaleX, offsetScaleY, offsetShearY;
 
-    void add (const cocos2d::Texture2D* texture,
-        const float* vertices, const float* uvs, int verticesCount,
-        const int* triangles, int trianglesCount,
-        cocos2d::Color4B* color);
-    void flush ();
+#ifdef __cplusplus
+	spTransformConstraintData() :
+		name(0),
+		bonesCount(0),
+		bones(0),
+		target(0),
+		rotateMix(0),
+		translateMix(0),
+		scaleMix(0),
+		shearMix(0),
+		offsetRotation(0),
+		offsetX(0),
+		offsetY(0),
+		offsetScaleX(0),
+		offsetScaleY(0),
+		offsetShearY(0) {
+	}
+#endif
+} spTransformConstraintData;
 
-protected:
-    PolygonBatch();
-    virtual ~PolygonBatch();
-    bool initWithCapacity (ssize_t capacity);
+spTransformConstraintData* spTransformConstraintData_create (const char* name);
+void spTransformConstraintData_dispose (spTransformConstraintData* self);
 
-    ssize_t _capacity;
-    cocos2d::V2F_C4B_T2F* _vertices;
-    int _verticesCount;
-    GLushort* _triangles;
-    int _trianglesCount;
-    const cocos2d::Texture2D* _texture;
-};
+#ifdef SPINE_SHORT_NAMES
+typedef spTransformConstraintData TransformConstraintData;
+#define TransformConstraintData_create(...) spTransformConstraintData_create(__VA_ARGS__)
+#define TransformConstraintData_dispose(...) spTransformConstraintData_dispose(__VA_ARGS__)
+#endif
 
+#ifdef __cplusplus
 }
+#endif
 
-#endif // SPINE_POLYGONBATCH_H_
-
+#endif /* SPINE_TRANSFORMCONSTRAINTDATA_H_ */

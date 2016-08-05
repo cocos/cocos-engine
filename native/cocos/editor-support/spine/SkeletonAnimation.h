@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -47,59 +47,60 @@ typedef std::function<void(int trackIndex, spEvent* event)> EventListener;
   * played later. */
 class SkeletonAnimation: public SkeletonRenderer {
 public:
-    static SkeletonAnimation* createWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
-    static SkeletonAnimation* createWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
-    static SkeletonAnimation* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
+	CREATE_FUNC(SkeletonAnimation);
+	static SkeletonAnimation* createWithData (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
+	static SkeletonAnimation* createWithFile (const std::string& skeletonDataFile, spAtlas* atlas, float scale = 1);
+	static SkeletonAnimation* createWithFile (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
 
-    virtual void update (float deltaTime);
+	virtual void update (float deltaTime);
 
-    void setAnimationStateData (spAnimationStateData* stateData);
-    void setMix (const std::string& fromAnimation, const std::string& toAnimation, float duration);
+	void setAnimationStateData (spAnimationStateData* stateData);
+	void setMix (const std::string& fromAnimation, const std::string& toAnimation, float duration);
 
-    spTrackEntry* setAnimation (int trackIndex, const std::string& name, bool loop);
-    spTrackEntry* addAnimation (int trackIndex, const std::string& name, bool loop, float delay = 0);
-    spTrackEntry* getCurrent (int trackIndex = 0);
-    void clearTracks ();
-    void clearTrack (int trackIndex = 0);
+	spTrackEntry* setAnimation (int trackIndex, const std::string& name, bool loop);
+	spTrackEntry* addAnimation (int trackIndex, const std::string& name, bool loop, float delay = 0);
+    spAnimation* findAnimation(const std::string& name) const;
+	spTrackEntry* getCurrent (int trackIndex = 0);
+	void clearTracks ();
+	void clearTrack (int trackIndex = 0);
 
-    void setStartListener (const StartListener& listener);
-    void setEndListener (const EndListener& listener);
-    void setCompleteListener (const CompleteListener& listener);
-    void setEventListener (const EventListener& listener);
+	void setStartListener (const StartListener& listener);
+	void setEndListener (const EndListener& listener);
+	void setCompleteListener (const CompleteListener& listener);
+	void setEventListener (const EventListener& listener);
 
-    void setTrackStartListener (spTrackEntry* entry, const StartListener& listener);
-    void setTrackEndListener (spTrackEntry* entry, const EndListener& listener);
-    void setTrackCompleteListener (spTrackEntry* entry, const CompleteListener& listener);
-    void setTrackEventListener (spTrackEntry* entry, const EventListener& listener);
+	void setTrackStartListener (spTrackEntry* entry, const StartListener& listener);
+	void setTrackEndListener (spTrackEntry* entry, const EndListener& listener);
+	void setTrackCompleteListener (spTrackEntry* entry, const CompleteListener& listener);
+	void setTrackEventListener (spTrackEntry* entry, const EventListener& listener);
 
-    virtual void onAnimationStateEvent (int trackIndex, spEventType type, spEvent* event, int loopCount);
-    virtual void onTrackEntryEvent (int trackIndex, spEventType type, spEvent* event, int loopCount);
+	virtual void onAnimationStateEvent (int trackIndex, spEventType type, spEvent* event, int loopCount);
+	virtual void onTrackEntryEvent (int trackIndex, spEventType type, spEvent* event, int loopCount);
 
-    spAnimationState* getState() const;
+	spAnimationState* getState() const;
 
 CC_CONSTRUCTOR_ACCESS:
-    SkeletonAnimation ();
-    SkeletonAnimation (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
-    SkeletonAnimation (const std::string&skeletonDataFile, spAtlas* atlas, float scale = 1);
-    SkeletonAnimation (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
-    virtual ~SkeletonAnimation ();
-    void initialize ();
+	SkeletonAnimation ();
+	SkeletonAnimation (spSkeletonData* skeletonData, bool ownsSkeletonData = false);
+	SkeletonAnimation (const std::string&skeletonDataFile, spAtlas* atlas, float scale = 1);
+	SkeletonAnimation (const std::string& skeletonDataFile, const std::string& atlasFile, float scale = 1);
+	virtual ~SkeletonAnimation ();
+	void initialize ();
 
 protected:
-    spAnimationState* _state;
+	spAnimationState* _state;
 
-    bool _ownsAnimationStateData;
+	bool _ownsAnimationStateData;
 
-    StartListener _startListener;
-    EndListener _endListener;
-    CompleteListener _completeListener;
-    EventListener _eventListener;
+	StartListener _startListener;
+	EndListener _endListener;
+	CompleteListener _completeListener;
+	EventListener _eventListener;
 
 private:
-    typedef SkeletonRenderer super;
+	typedef SkeletonRenderer super;
 };
 
 }
 
 #endif /* SPINE_SKELETONANIMATION_H_ */
-

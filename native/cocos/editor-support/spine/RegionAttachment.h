@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -41,22 +41,22 @@ extern "C" {
 #endif
 
 typedef enum {
-    SP_VERTEX_X1 = 0, SP_VERTEX_Y1, SP_VERTEX_X2, SP_VERTEX_Y2, SP_VERTEX_X3, SP_VERTEX_Y3, SP_VERTEX_X4, SP_VERTEX_Y4
+	SP_VERTEX_X1 = 0, SP_VERTEX_Y1, SP_VERTEX_X2, SP_VERTEX_Y2, SP_VERTEX_X3, SP_VERTEX_Y3, SP_VERTEX_X4, SP_VERTEX_Y4
 } spVertexIndex;
 
 typedef struct spRegionAttachment {
-    spAttachment super;
-    const char* path;
-    float x, y, scaleX, scaleY, rotation, width, height;
-    float r, g, b, a;
+	spAttachment super;
+	const char* path;
+	float x, y, scaleX, scaleY, rotation, width, height;
+	float r, g, b, a;
 
-    void* rendererObject;
-    int regionOffsetX, regionOffsetY; /* Pixels stripped from the bottom left, unrotated. */
-    int regionWidth, regionHeight; /* Unrotated, stripped pixel size. */
-    int regionOriginalWidth, regionOriginalHeight; /* Unrotated, unstripped pixel size. */
+	void* rendererObject;
+	int regionOffsetX, regionOffsetY; /* Pixels stripped from the bottom left, unrotated. */
+	int regionWidth, regionHeight; /* Unrotated, stripped pixel size. */
+	int regionOriginalWidth, regionOriginalHeight; /* Unrotated, unstripped pixel size. */
 
-    float offset[8];
-    float uvs[8];
+	float offset[8];
+	float uvs[8];
 } spRegionAttachment;
 
 spRegionAttachment* spRegionAttachment_create (const char* name);
@@ -86,4 +86,3 @@ typedef spRegionAttachment RegionAttachment;
 #endif
 
 #endif /* SPINE_REGIONATTACHMENT_H_ */
-

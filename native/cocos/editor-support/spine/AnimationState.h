@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -41,61 +41,61 @@ extern "C" {
 #endif
 
 typedef enum {
-    SP_ANIMATION_START, SP_ANIMATION_END, SP_ANIMATION_COMPLETE, SP_ANIMATION_EVENT
+	SP_ANIMATION_START, SP_ANIMATION_END, SP_ANIMATION_COMPLETE, SP_ANIMATION_EVENT
 } spEventType;
 
 typedef struct spAnimationState spAnimationState;
 
 typedef void (*spAnimationStateListener) (spAnimationState* state, int trackIndex, spEventType type, spEvent* event,
-        int loopCount);
+		int loopCount);
 
 typedef struct spTrackEntry spTrackEntry;
 struct spTrackEntry {
-    spAnimationState* const state;
-    spTrackEntry* next;
-    spTrackEntry* previous;
-    spAnimation* animation;
-    int/*bool*/loop;
-    float delay, time, lastTime, endTime, timeScale;
-    spAnimationStateListener listener;
-    float mixTime, mixDuration, mix;
+	spAnimationState* const state;
+	spTrackEntry* next;
+	spTrackEntry* previous;
+	spAnimation* animation;
+	int/*bool*/loop;
+	float delay, time, lastTime, endTime, timeScale;
+	spAnimationStateListener listener;
+	float mixTime, mixDuration, mix;
 
-    void* rendererObject;
+	void* rendererObject;
 
 #ifdef __cplusplus
-    spTrackEntry() :
-        state(0),
-        next(0),
-        previous(0),
-        animation(0),
-        loop(0),
-        delay(0), time(0), lastTime(0), endTime(0), timeScale(0),
-        listener(0),
-        mixTime(0), mixDuration(0), mix(0),
-        rendererObject(0) {
-    }
+	spTrackEntry() :
+		state(0),
+		next(0),
+		previous(0),
+		animation(0),
+		loop(0),
+		delay(0), time(0), lastTime(0), endTime(0), timeScale(0),
+		listener(0),
+		mixTime(0), mixDuration(0), mix(0),
+		rendererObject(0) {
+	}
 #endif
 };
 
 struct spAnimationState {
-    spAnimationStateData* const data;
-    float timeScale;
-    spAnimationStateListener listener;
+	spAnimationStateData* const data;
+	float timeScale;
+	spAnimationStateListener listener;
 
-    int tracksCount;
-    spTrackEntry** tracks;
+	int tracksCount;
+	spTrackEntry** tracks;
 
-    void* rendererObject;
+	void* rendererObject;
 
 #ifdef __cplusplus
-    spAnimationState() :
-        data(0),
-        timeScale(0),
-        listener(0),
-        tracksCount(0),
-        tracks(0),
-        rendererObject(0) {
-    }
+	spAnimationState() :
+		data(0),
+		timeScale(0),
+		listener(0),
+		tracksCount(0),
+		tracks(0),
+		rendererObject(0) {
+	}
 #endif
 };
 
@@ -111,15 +111,15 @@ void spAnimationState_clearTrack (spAnimationState* self, int trackIndex);
 
 /** Set the current animation. Any queued animations are cleared. */
 spTrackEntry* spAnimationState_setAnimationByName (spAnimationState* self, int trackIndex, const char* animationName,
-        int/*bool*/loop);
+		int/*bool*/loop);
 spTrackEntry* spAnimationState_setAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop);
 
 /** Adds an animation to be played delay seconds after the current or last queued animation, taking into account any mix
  * duration. */
 spTrackEntry* spAnimationState_addAnimationByName (spAnimationState* self, int trackIndex, const char* animationName,
-        int/*bool*/loop, float delay);
+		int/*bool*/loop, float delay);
 spTrackEntry* spAnimationState_addAnimation (spAnimationState* self, int trackIndex, spAnimation* animation, int/*bool*/loop,
-        float delay);
+		float delay);
 
 spTrackEntry* spAnimationState_getCurrent (spAnimationState* self, int trackIndex);
 
@@ -150,4 +150,3 @@ typedef spAnimationState AnimationState;
 #endif
 
 #endif /* SPINE_ANIMATIONSTATE_H_ */
-
