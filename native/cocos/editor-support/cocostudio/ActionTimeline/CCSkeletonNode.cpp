@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#include "CCSkeletonNode.h"
+#include "editor-support/cocostudio/ActionTimeline/CCSkeletonNode.h"
 
 #include "base/CCDirector.h"
 #include "math/TransformUtils.h"
@@ -194,7 +194,7 @@ void SkeletonNode::visit(cocos2d::Renderer *renderer, const cocos2d::Mat4& paren
     {
         this->draw(renderer, _modelViewTransform, flags);
         // batch draw all sub bones
-        _batchBoneCommand.init(_globalZOrder);
+        _batchBoneCommand.init(_globalZOrder, _modelViewTransform, parentFlags);
         _batchBoneCommand.func = CC_CALLBACK_0(SkeletonNode::batchDrawAllSubBones, this, _modelViewTransform);
         renderer->addCommand(&_batchBoneCommand);
     }
@@ -203,7 +203,7 @@ void SkeletonNode::visit(cocos2d::Renderer *renderer, const cocos2d::Mat4& paren
 
 void SkeletonNode::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags)
 {
-    _customCommand.init(_globalZOrder);
+    _customCommand.init(_globalZOrder, transform, flags);
     _customCommand.func = CC_CALLBACK_0(SkeletonNode::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
     for (int i = 0; i < 8; ++i)
@@ -359,8 +359,7 @@ void SkeletonNode::updateOrderedAllbones()
 
 void SkeletonNode::sortOrderedAllBones()
 {
-    std::sort(_subOrderedAllBones.begin(), _subOrderedAllBones.end(), cocos2d::nodeComparisonLess);
+    sortNodes(this->_subOrderedAllBones);
 }
 
 NS_TIMELINE_END
-

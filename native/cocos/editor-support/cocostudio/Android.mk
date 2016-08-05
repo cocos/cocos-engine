@@ -5,11 +5,31 @@ LOCAL_MODULE := cocostudio_static
 
 LOCAL_MODULE_FILENAME := libcocostudio
 
+LOCAL_ARM_MODE := arm
+
 LOCAL_SRC_FILES := CCActionFrame.cpp \
 CCActionFrameEasing.cpp \
 CCActionManagerEx.cpp \
 CCActionNode.cpp \
 CCActionObject.cpp \
+CCArmature.cpp \
+CCBone.cpp \
+CCArmatureAnimation.cpp \
+CCProcessBase.cpp \
+CCTween.cpp \
+CCDatas.cpp \
+CCBatchNode.cpp \
+CCDecorativeDisplay.cpp \
+CCDisplayFactory.cpp \
+CCDisplayManager.cpp \
+CCSkin.cpp \
+CCColliderDetector.cpp \
+CCArmatureDataManager.cpp \
+CCArmatureDefine.cpp \
+CCDataReaderHelper.cpp \
+CCSpriteFrameCacheHelper.cpp \
+CCTransformHelp.cpp \
+CCUtilMath.cpp \
 CCComAttribute.cpp \
 CCComAudio.cpp \
 CCComController.cpp \
@@ -26,25 +46,8 @@ ActionTimeline/CCSkeletonNode.cpp \
 ActionTimeline/CCSkinNode.cpp \
 WidgetCallBackHandlerProtocol.cpp \
 CCComExtensionData.cpp \
-CocoStudio.cpp \
-Armature/CCArmature.cpp \
-Armature/CCBone.cpp \
-Armature/CCArmatureAnimation.cpp \
-Armature/CCProcessBase.cpp \
-Armature/CCTween.cpp \
-Armature/CCDatas.cpp \
-Armature/CCBatchNode.cpp \
-Armature/CCDecorativeDisplay.cpp \
-Armature/CCDisplayFactory.cpp \
-Armature/CCDisplayManager.cpp \
-Armature/CCSkin.cpp \
-Armature/CCColliderDetector.cpp \
-Armature/CCArmatureDataManager.cpp \
-Armature/CCArmatureDefine.cpp \
-Armature/CCDataReaderHelper.cpp \
-Armature/CCSpriteFrameCacheHelper.cpp \
-Armature/CCTransformHelp.cpp \
-Armature/CCUtilMath.cpp
+CocoStudio.cpp
+
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/..
 

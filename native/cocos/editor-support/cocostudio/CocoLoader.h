@@ -27,7 +27,7 @@
 
 #include <stdint.h>
 #include "json/document.h"
-#include "cocostudio/CocosStudioExport.h"
+#include "editor-support/cocostudio/CocosStudioExport.h"
 
 #pragma pack (4)
 
@@ -111,4 +111,3 @@ public:
 
 #pragma pack ()
 #endif
-

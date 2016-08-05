@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "CCActionTimelineNode.h"
+#include "editor-support/cocostudio/ActionTimeline/CCActionTimelineNode.h"
 
 USING_NS_CC;
 
@@ -88,4 +88,3 @@ ActionTimeline* ActionTimelineNode::getActionTimeline()
 }
 
 NS_TIMELINE_END
-
