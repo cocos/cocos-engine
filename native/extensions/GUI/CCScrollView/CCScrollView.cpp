@@ -45,7 +45,7 @@ NS_CC_EXT_BEGIN
 
 static float convertDistanceFromPointToInch(float pointDis)
 {
-    auto glview = Director::DirectorInstance->getOpenGLView();
+    auto glview = Director::getInstance()->getOpenGLView();
     float factor = ( glview->getScaleX() + glview->getScaleY() ) / 2;
     return pointDis * factor / Device::getDPI();
 }
@@ -112,7 +112,7 @@ bool ScrollView::initWithViewSize(const Size& size, Node *container/* = nullptr*
         if (!this->_container)
         {
             _container = Layer::create();
-            _container->ignoreAnchorPointForPosition(false);
+            _container->setIgnoreAnchorPointForPosition(false);
             _container->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         }
 
@@ -347,7 +347,7 @@ void ScrollView::setContainer(Node * pContainer)
     this->removeAllChildrenWithCleanup(true);
     this->_container = pContainer;
 
-    this->_container->ignoreAnchorPointForPosition(false);
+    this->_container->setIgnoreAnchorPointForPosition(false);
     this->_container->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
 
     this->addChild(this->_container);
@@ -560,7 +560,7 @@ void ScrollView::beforeDraw()
     //ScrollView don't support drawing in 3D space
     _beforeDrawCommand.init(_globalZOrder);
     _beforeDrawCommand.func = CC_CALLBACK_0(ScrollView::onBeforeDraw, this);
-    _director->getRenderer()->addCommand(&_beforeDrawCommand);
+    Director::getInstance()->getRenderer()->addCommand(&_beforeDrawCommand);
 }
 
 /**
@@ -572,7 +572,7 @@ void ScrollView::onBeforeDraw()
     {
         _scissorRestored = false;
         Rect frame = getViewRect();
-        auto glview = _director->getOpenGLView();
+        auto glview = Director::getInstance()->getOpenGLView();
 
         if (glview->isScissorEnabled()) {
             _scissorRestored = true;
@@ -597,7 +597,7 @@ void ScrollView::afterDraw()
 {
     _afterDrawCommand.init(_globalZOrder);
     _afterDrawCommand.func = CC_CALLBACK_0(ScrollView::onAfterDraw, this);
-    _director->getRenderer()->addCommand(&_afterDrawCommand);
+    Director::getInstance()->getRenderer()->addCommand(&_afterDrawCommand);
 }
 
 /**
@@ -609,7 +609,7 @@ void ScrollView::onAfterDraw()
     if (_clippingToBounds)
     {
         if (_scissorRestored) {//restore the parent's scissor rect
-            auto glview = _director->getOpenGLView();
+            auto glview = Director::getInstance()->getOpenGLView();
 
             glview->setScissorInPoints(_parentScissorRect.origin.x, _parentScissorRect.origin.y, _parentScissorRect.size.width, _parentScissorRect.size.height);
         }
@@ -632,9 +632,10 @@ void ScrollView::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    CCASSERT(nullptr != _director, "Director is null when seting matrix stack");
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    Director* director = Director::getInstance();
+    CCASSERT(nullptr != director, "Director is null when setting matrix stack");
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     this->beforeDraw();
 
@@ -673,7 +674,7 @@ void ScrollView::visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t
 
     this->afterDraw();
 
-    _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 bool ScrollView::onTouchBegan(Touch* touch, Event* event)

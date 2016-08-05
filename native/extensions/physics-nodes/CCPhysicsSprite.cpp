@@ -413,7 +413,7 @@ void PhysicsSprite::syncPhysicsTransform() const
 void PhysicsSprite::onEnter()
 {
     Node::onEnter();
-    _syncTransform = _director->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_UPDATE, std::bind(&PhysicsSprite::afterUpdate, this, std::placeholders::_1));
+    _syncTransform = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_UPDATE, std::bind(&PhysicsSprite::afterUpdate, this, std::placeholders::_1));
     _syncTransform->retain();
 }
 
@@ -421,7 +421,7 @@ void PhysicsSprite::onExit()
 {
     if (_syncTransform != nullptr)
     {
-        _director->getEventDispatcher()->removeEventListener(_syncTransform);
+        Director::getInstance()->getEventDispatcher()->removeEventListener(_syncTransform);
         _syncTransform->release();
     }
     Node::onExit();

@@ -240,11 +240,11 @@ public:
     bool isClippingToBounds() { return _clippingToBounds; }
     void setClippingToBounds(bool bClippingToBounds) { _clippingToBounds = bClippingToBounds; }
 
-    virtual bool onTouchBegan(Touch *touch, Event *event);
-    virtual void onTouchMoved(Touch *touch, Event *event);
-    virtual void onTouchEnded(Touch *touch, Event *event);
-    virtual void onTouchCancelled(Touch *touch, Event *event);
-
+    virtual bool onTouchBegan(Touch *touch, Event *event) override;
+    virtual void onTouchMoved(Touch *touch, Event *event) override;
+    virtual void onTouchEnded(Touch *touch, Event *event) override;
+    virtual void onTouchCancelled(Touch *touch, Event *event) override;
+    
     // Overrides
     virtual void setContentSize(const Size & size) override;
     virtual const Size& getContentSize() const override;
@@ -260,7 +260,7 @@ public:
 
     virtual void removeAllChildren() override;
     virtual void removeAllChildrenWithCleanup(bool cleanup) override;
-    virtual void removeChild(Node* child, bool cleaup = true) override;
+    virtual void removeChild(Node* child, bool cleanup = true) override;
     /**
      * CCActionTweenDelegate
      */
@@ -328,7 +328,7 @@ protected:
      */
     Node* _container;
     /**
-     * Determiens whether user touch is moved after begin phase.
+     * Determines whether user touch is moved after begin phase.
      */
     bool _touchMoved;
     /**
@@ -384,6 +384,9 @@ protected:
     CustomCommand _beforeDrawCommand;
     CustomCommand _afterDrawCommand;
 
+    /**
+     * Action created with setContentOffsetInDuration(), saved so it can be halted
+     */
     Action* _animatedScrollAction;
 };
 

@@ -76,7 +76,7 @@ bool ControlColourPicker::init()
         _hsv.v = 0;
 
         // Add image
-        _background=ControlUtils::addSpriteToTargetWithPosAndAnchor("menuColourPanelBackground.png", spriteSheet, Vec2::ZERO, Vec2::ANCHOR_MIDDLE);
+        _background=ControlUtils::addSpriteToTargetWithPosAndAnchor("menuColourPanelBackground.png", spriteSheet, Vec2::ZERO, Vec2(0.5f, 0.5f));
         if(!_background) return false;
         CC_SAFE_RETAIN(_background);
 
