@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include <stdlib.h>
 
 #include "base/ccMacros.h"
+#include "base/ccUTF8.h"
 #include "base/CCEventType.h"
 #include "base/CCDirector.h"
 #include "base/CCConfiguration.h"
@@ -41,7 +42,6 @@ THE SOFTWARE.
 #include "renderer/CCRenderer.h"
 #include "renderer/CCTexture2D.h"
 #include "platform/CCGL.h"
-#include "base/CCString.h"
 
 //According to some tests GL_TRIANGLE_STRIP is slower, MUCH slower. Probably I'm doing something very wrong
 
@@ -143,7 +143,7 @@ TextureAtlas * TextureAtlas::createWithTexture(Texture2D *texture, ssize_t capac
 bool TextureAtlas::initWithFile(const std::string& file, ssize_t capacity)
 {
     // retained in property
-    Texture2D *texture = Director::DirectorInstance->getTextureCache()->addImage(file);
+    Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(file);
 
     if (texture)
     {
@@ -606,7 +606,8 @@ void TextureAtlas::drawNumberOfQuads(ssize_t numberOfQuads, ssize_t start)
 
     GL::bindTexture2D(_texture->getName());
 
-    if (Configuration::getInstance()->supportsShareableVAO())
+    auto conf = Configuration::getInstance();
+    if (conf->supportsShareableVAO() && conf->supportsMapBuffer())
     {
         //
         // Using VBO and VAO

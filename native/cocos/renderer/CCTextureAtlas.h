@@ -209,7 +209,7 @@ public:
     void listenRendererRecreated(EventCustom* event);
 
     /** Whether or not the array buffer of the VBO needs to be updated.*/
-    inline bool isDirty() { return _dirty; }
+    inline bool isDirty(void) { return _dirty; }
     /** Specify if the array buffer of the VBO needs to be updated. */
     inline void setDirty(bool bDirty) { _dirty = bDirty; }
 

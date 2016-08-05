@@ -31,6 +31,8 @@
 
 #include "base/CCDirector.h"
 
+#include "xxhash/xxhash.h"
+
 NS_CC_BEGIN
 
 PrimitiveCommand::PrimitiveCommand()
@@ -52,9 +54,9 @@ void PrimitiveCommand::init(float globalOrder, GLuint textureID, GLProgramState*
     CCASSERT(glProgramState, "Invalid GLProgramState");
     CCASSERT(glProgramState->getVertexAttribsFlags() == 0, "No custom attributes are supported in PrimitiveCommand");
     CCASSERT(primitive != nullptr, "Could not render null primitive");
-
-    _globalOrder = globalOrder;
-
+    
+    RenderCommand::init(globalOrder, mv, flags);
+    
     _primitive = primitive;
 
     _mv = mv;
@@ -66,6 +68,11 @@ void PrimitiveCommand::init(float globalOrder, GLuint textureID, GLProgramState*
         _glProgramState = glProgramState;
 
     }
+}
+
+void PrimitiveCommand::init(float globalOrder, GLuint textureID, GLProgramState* glProgramState, BlendFunc blendType, Primitive* primitive,const Mat4& mv)
+{
+    init(globalOrder, textureID, glProgramState, blendType, primitive, mv, 0);
 }
 
 void PrimitiveCommand::execute() const
@@ -83,4 +90,3 @@ void PrimitiveCommand::execute() const
 }
 
 NS_CC_END
-

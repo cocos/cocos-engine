@@ -64,7 +64,7 @@ enum {
  * If CC_ENABLE_GL_STATE_CACHE it will reset the GL state cache.
  * @since v2.0.0
  */
-void CC_DLL invalidateStateCache();
+void CC_DLL invalidateStateCache(void);
 
 /**
  * Uses the GL program in case program is different than the current one.
@@ -96,13 +96,13 @@ void CC_DLL blendFunc(GLenum sfactor, GLenum dfactor);
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will just set the default blending mode using GL_FUNC_ADD.
  * @since v2.0.0
  */
-void CC_DLL blendResetToCache();
+void CC_DLL blendResetToCache(void);
 
 /**
  * Sets the projection matrix as dirty.
  * @since v2.0.0
  */
-void CC_DLL setProjectionMatrixDirty();
+void CC_DLL setProjectionMatrixDirty(void);
 
 /**
  * Will enable the vertex attribs that are passed as flags.
@@ -172,4 +172,3 @@ NS_CC_END
 
 
 #endif /* __CCGLSTATE_H__ */
-

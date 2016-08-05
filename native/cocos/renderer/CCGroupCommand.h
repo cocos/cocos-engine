@@ -30,7 +30,7 @@
 #include <unordered_map>
 
 #include "base/CCRef.h"
-#include "CCRenderCommand.h"
+#include "renderer/CCRenderCommand.h"
 
 /**
  * @addtogroup renderer
@@ -86,4 +86,3 @@ NS_CC_END
  @}
  */
 #endif //_CC_GROUPCOMMAND_H_
-
