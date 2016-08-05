@@ -389,8 +389,12 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     getZEye: null,
 
     /**
-     * !#en Pause the director's ticker.
-     * !#zh 暂停正在运行的场景，该暂停只会停止 Scheduler，但是不会停止渲染和 UI 响应。
+     * !#en Pause the director's ticker, only involve the game logic execution.
+     * It won't pause the rendering process nor the event manager.
+     * If you want to pause the entier game including rendering, audio and event, 
+     * please use {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}
+     * !#zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。
+     * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 {{#crossLink "Game.pause"}}cc.game.pause{{/crossLink}}。
      * @method pause
      */
     pause: function () {
@@ -818,8 +822,8 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * !#en Resume director after pause, if the current scene is not paused, nothing will happen.
-     * !#zh 恢复暂停场景，恢复 Scheduler，如果当前场景没有暂停将没任何事情发生。
+     * !#en Resume game logic execution after pause, if the current scene is not paused, nothing will happen.
+     * !#zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
      * @method resume
      */
     resume: function () {
