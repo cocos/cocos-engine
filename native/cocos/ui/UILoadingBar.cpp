@@ -39,6 +39,7 @@ LoadingBar::LoadingBar():
 _direction(Direction::LEFT),
 _percent(100.0),
 _totalLength(0),
+_textureFile(""),
 _barRenderer(nullptr),
 _renderBarTexType(TextureResType::LOCAL),
 _barRendererTextureSize(Size::ZERO),
@@ -130,6 +131,7 @@ void LoadingBar::loadTexture(const std::string& texture,TextureResType texType)
     {
         return;
     }
+    _textureFile = texture;
     _renderBarTexType = texType;
     switch (_renderBarTexType)
     {
@@ -420,7 +422,14 @@ void LoadingBar::copySpecialProperties(Widget *widget)
     }
 }
 
+ResourceData LoadingBar::getRenderFile()
+{
+    ResourceData rData;
+    rData.type = (int)_renderBarTexType;
+    rData.file = _textureFile;
+    return rData;
+}
+
 }
 
 NS_CC_END
-

@@ -38,15 +38,10 @@ static const float BOUNCE_BACK_DURATION = 1.0f;
 
 static float convertDistanceFromPointToInch(const Vec2& dis)
 {
-    auto glview = Director::DirectorInstance->getOpenGLView();
+    auto glview = Director::getInstance()->getOpenGLView();
     int dpi = Device::getDPI();
     float distance = Vec2(dis.x * glview->getScaleX() / dpi, dis.y * glview->getScaleY() / dpi).getLength();
     return distance;
-}
-
-static bool fltEqualZero(const Vec2& point)
-{
-    return (fabsf(point.x) <= 0.0001f && fabsf(point.y) <= 0.0001f);
 }
 
 namespace ui {
@@ -159,9 +154,13 @@ void ScrollView::onSizeChanged()
     setInnerContainerPosition(Vec2(0, _contentSize.height - _innerContainer->getContentSize().height));
 
     if (_verticalScrollBar != nullptr)
+    {
         _verticalScrollBar->onScrolled(getHowMuchOutOfBoundary());
+    }
     if (_horizontalScrollBar != nullptr)
+    {
         _horizontalScrollBar->onScrolled(getHowMuchOutOfBoundary());
+    }
 }
 
 void ScrollView::setInnerContainerSize(const Size &size)
@@ -389,8 +388,8 @@ Vec2 ScrollView::getHowMuchOutOfBoundary(const Vec2& addition)
     {
         return _outOfBoundaryAmount;
     }
-
-    Vec2 outOfBoundaryAmount;
+    
+    Vec2 outOfBoundaryAmount(Vec2::ZERO);
     if(_innerContainer->getLeftBoundary() + addition.x > _leftBoundary)
     {
         outOfBoundaryAmount.x = _leftBoundary - (_innerContainer->getLeftBoundary() + addition.x);
@@ -517,6 +516,12 @@ float ScrollView::getAutoScrollStopEpsilon() const
     return FLT_EPSILON;
 }
 
+
+bool ScrollView::fltEqualZero(const Vec2& point) const
+{
+    return (fabsf(point.x) <= 0.0001f && fabsf(point.y) <= 0.0001f);
+}
+
 void ScrollView::processAutoScrolling(float deltaTime)
 {
     // Make auto scroll shorter if it needs to deaccelerate.
@@ -535,7 +540,12 @@ void ScrollView::processAutoScrolling(float deltaTime)
 
     // Calculate the new position
     Vec2 newPosition = _autoScrollStartPosition + (_autoScrollTargetDelta * percentage);
-    bool reachedEnd = fabs(percentage - 1) <= getAutoScrollStopEpsilon();
+    bool reachedEnd = std::abs(percentage - 1) <= getAutoScrollStopEpsilon();
+    
+    if (reachedEnd)
+    {
+        newPosition = _autoScrollStartPosition + _autoScrollTargetDelta;
+    }
 
     if(_bounceEnabled)
     {
@@ -996,10 +1006,10 @@ void ScrollView::interceptTouchEvent(Widget::TouchEventType event, Widget *sende
             switch (_direction)
             {
                 case Direction::HORIZONTAL:
-                    offsetInInch = convertDistanceFromPointToInch(Vec2(fabs(sender->getTouchBeganPosition().x - touchPoint.x), 0));
+                    offsetInInch = convertDistanceFromPointToInch(Vec2(std::abs(sender->getTouchBeganPosition().x - touchPoint.x), 0));
                     break;
                 case Direction::VERTICAL:
-                    offsetInInch = convertDistanceFromPointToInch(Vec2(0, fabs(sender->getTouchBeganPosition().y - touchPoint.y)));
+                    offsetInInch = convertDistanceFromPointToInch(Vec2(0, std::abs(sender->getTouchBeganPosition().y - touchPoint.y)));
                     break;
                 case Direction::BOTH:
                     offsetInInch = convertDistanceFromPointToInch(sender->getTouchBeganPosition() - touchPoint);

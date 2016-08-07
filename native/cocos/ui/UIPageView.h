@@ -266,6 +266,44 @@ public:
      */
     const Color3B& getIndicatorSelectedIndexColor() const;
 
+    /**
+     * @brief Set color of page indicator's index nodes.
+     *
+     * @param color Space between nodes in pixel.
+     */
+    void setIndicatorIndexNodesColor(const Color3B& color);
+    
+    /**
+     * @brief Get the color of page indicator's index nodes.
+     *
+     * @return color
+     */
+    const Color3B& getIndicatorIndexNodesColor() const;
+    
+    /**
+     * @brief Set scale of page indicator's index nodes.
+     *
+     * @param indexNodesScale Scale of index nodes.
+     */
+    void setIndicatorIndexNodesScale(float indexNodesScale);
+    
+    /**
+     * sets texture for index nodes.
+     *
+     * @param fileName   File name of texture.
+     * @param resType    @see TextureResType .
+     */
+    void setIndicatorIndexNodesTexture(const std::string& texName,Widget::TextureResType texType = Widget::TextureResType::LOCAL);
+    
+    /**
+     * @brief Get scale of page indicator's index nodes.
+     *
+     * @return indexNodesScale
+     */
+    float getIndicatorIndexNodesScale() const;
+
+    void setAutoScrollStopEpsilon(float epsilon);
+
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
 
@@ -274,6 +312,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     void pageTurningEvent();
+    virtual float getAutoScrollStopEpsilon() const override;
 
     virtual void remedyLayoutParameter(Widget* item)override;
     virtual void moveInnerContainer(const Vec2& deltaMove, bool canStartBounceBack) override;
@@ -286,7 +325,6 @@ protected:
 
     void refreshIndicatorPosition();
 
-    virtual float getAutoScrollStopEpsilon() const override;
 protected:
     PageViewIndicator* _indicator;
     Vec2 _indicatorPositionAsAnchorPoint;
@@ -309,6 +347,7 @@ protected:
 #pragma warning (pop)
 #endif
     ccPageViewCallback _eventCallback;
+    float _autoScrollStopEpsilon;
 };
 
 }
@@ -317,4 +356,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__PageView__) */
-

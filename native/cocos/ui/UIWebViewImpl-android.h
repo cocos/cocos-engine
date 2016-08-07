@@ -83,6 +83,8 @@ namespace cocos2d {
 
                 virtual void setVisible(bool visible);
 
+                void setBounces(bool bounces);
+
                 static bool shouldStartLoading(const int viewTag, const std::string &url);
                 static void didFinishLoading(const int viewTag, const std::string &url);
                 static void didFailLoading(const int viewTag, const std::string &url);
@@ -101,4 +103,3 @@ namespace cocos2d {
 
 /// @endcond
 #endif /* __COCOS2D__UI__WEBVIEWIMPL_ANDROID_H_ */
-

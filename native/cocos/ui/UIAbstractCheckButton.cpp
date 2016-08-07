@@ -53,6 +53,11 @@ _frontCrossDisabledTexType(TextureResType::LOCAL),
 _zoomScale(0.1f),
 _backgroundTextureScaleX(1.0),
 _backgroundTextureScaleY(1.0),
+_backGroundFileName(""),
+_backGroundSelectedFileName(""),
+_frontCrossFileName(""),
+_backGroundDisabledFileName(""),
+_frontCrossDisabledFileName(""),
 _backGroundBoxRendererAdaptDirty(true),
 _backGroundSelectedBoxRendererAdaptDirty(true),
 _frontCrossRendererAdaptDirty(true),
@@ -133,6 +138,8 @@ void AbstractCheckButton::loadTextureBackGround(const std::string& backGround,Te
     {
         return;
     }
+
+    _backGroundFileName = backGround;
     _backGroundTexType = texType;
     switch (_backGroundTexType)
     {
@@ -170,9 +177,9 @@ void AbstractCheckButton::loadTextureBackGroundSelected(const std::string& backG
     {
         return;
     }
-
+    _backGroundSelectedFileName = backGroundSelected;
+    _isBackgroundSelectedTextureLoaded = !backGroundSelected.empty();
     _backGroundSelectedTexType = texType;
-    _isBackgroundSelectedTextureLoaded = true;
     switch (_backGroundSelectedTexType)
     {
         case TextureResType::LOCAL:
@@ -205,6 +212,7 @@ void AbstractCheckButton::loadTextureFrontCross(const std::string& cross,Texture
     {
         return;
     }
+    _frontCrossFileName = cross;
     _frontCrossTexType = texType;
     switch (_frontCrossTexType)
     {
@@ -238,8 +246,9 @@ void AbstractCheckButton::loadTextureBackGroundDisabled(const std::string& backG
     {
         return;
     }
+    _backGroundDisabledFileName = backGroundDisabled;
+    _isBackgroundDisabledTextureLoaded = !backGroundDisabled.empty();
     _backGroundDisabledTexType = texType;
-    _isBackgroundDisabledTextureLoaded = true;
     switch (_backGroundDisabledTexType)
     {
         case TextureResType::LOCAL:
@@ -579,7 +588,47 @@ void AbstractCheckButton::copySpecialProperties(Widget *widget)
     }
 }
 
+
+ResourceData AbstractCheckButton::getBackNormalFile()
+{
+    ResourceData rData;
+    rData.type = (int)_backGroundTexType;
+    rData.file = _backGroundFileName;
+    return rData;
+}
+
+ResourceData AbstractCheckButton::getBackPressedFile()
+{
+    ResourceData rData;
+    rData.type = (int)_backGroundSelectedTexType;
+    rData.file = _backGroundSelectedFileName;
+    return rData;
+}
+
+ResourceData AbstractCheckButton::getBackDisabledFile()
+{
+    ResourceData rData;
+    rData.type = (int)_backGroundDisabledTexType;
+    rData.file = _backGroundDisabledFileName;
+    return rData;
+}
+
+ResourceData AbstractCheckButton::getCrossNormalFile()
+{
+    ResourceData rData;
+    rData.type = (int)_frontCrossTexType;
+    rData.file = _frontCrossFileName;
+    return rData;
+}
+
+ResourceData AbstractCheckButton::getCrossDisabledFile()
+{
+    ResourceData rData;
+    rData.type = (int)_frontCrossDisabledTexType;
+    rData.file = _frontCrossDisabledFileName;
+    return rData;
+}
+
 }
 
 NS_CC_END
-

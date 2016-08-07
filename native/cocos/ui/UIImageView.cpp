@@ -39,6 +39,7 @@ ImageView::ImageView():
 _scale9Enabled(false),
 _prevIgnoreSize(true),
 _capInsets(Rect::ZERO),
+_textureFile(""),
 _imageRenderer(nullptr),
 _imageTexType(TextureResType::LOCAL),
 _imageTextureSize(_contentSize),
@@ -114,6 +115,7 @@ void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
     {
         return;
     }
+    _textureFile = fileName;
     _imageTexType = texType;
     switch (_imageTexType)
     {
@@ -289,7 +291,26 @@ void ImageView::copySpecialProperties(Widget *widget)
     }
 }
 
+ResourceData ImageView::getRenderFile()
+{
+    ResourceData rData;
+    rData.type = (int)_imageTexType;
+    rData.file = _textureFile;
+    return rData;
+}
+    
+void ImageView::setGLProgram(GLProgram* glProgram)
+{
+    Widget::setGLProgram(glProgram);
+    _imageRenderer->setGLProgram(glProgram);
+}
+    
+void ImageView::setGLProgramState(cocos2d::GLProgramState* glProgramState)
+{
+    Widget::setGLProgramState(glProgramState);
+    _imageRenderer->setGLProgramState(glProgramState);
+}
+
 }
 
 NS_CC_END
-

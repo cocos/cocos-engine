@@ -24,7 +24,7 @@
 
 /// @cond DO_NOT_SHOW
 
-#include "UIWebView.h"
+#include "ui/UIWebView.h"
 #include "platform/CCGLView.h"
 #include "base/CCDirector.h"
 #include "platform/CCFileUtils.h"
@@ -136,11 +136,32 @@ namespace experimental{
         void WebView::setVisible(bool visible)
         {
             Node::setVisible(visible);
-            
-            if(!visible || isRunning())
+            if (!visible || isRunning())
+            {
                 _impl->setVisible(visible);
+            }
         }
 
+        void WebView::onEnter()
+        {
+            Widget::onEnter();
+            if(isVisible())
+            {
+                _impl->setVisible(true);
+            }
+        }
+
+        void WebView::onExit()
+        {
+            Widget::onExit();
+            _impl->setVisible(false);
+        }
+        
+        void WebView::setBounces(bool bounces)
+        {
+          _impl->setBounces(bounces);
+        }
+        
         cocos2d::ui::Widget* WebView::createCloneInstance()
         {
             return WebView::create();
@@ -198,23 +219,9 @@ namespace experimental{
         {
             return _onJSCallback;
         }
-        
-        void WebView::onEnter()
-        {
-            Widget::onEnter();
-            if(isVisible())
-                _impl->setVisible(true);
-        }
-        
-        void WebView::onExit()
-        {
-            Widget::onExit();
-            _impl->setVisible(false);
-        }
 
     } // namespace ui
 } // namespace experimental
 } //namespace cocos2d
 
 /// @endcond
-

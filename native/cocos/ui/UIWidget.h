@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "ui/UILayoutParameter.h"
 #include "ui/GUIDefine.h"
 #include "ui/GUIExport.h"
+#include "ui/UIWidget.h"
 #include "base/CCMap.h"
 
 /**
@@ -156,8 +157,8 @@ public:
      * @js ctor
      * @lua new
      */
-    Widget();
-
+    Widget(void);
+    
     /**
      * Default destructor
      * @js NA
@@ -383,9 +384,11 @@ public:
     virtual void setScaleY(float scaleY) override;
     virtual void setScale(float scale) override;
     virtual void setScale(float scalex, float scaley) override;
+    using Node::setScaleZ;
     virtual float getScaleX() const override;
     virtual float getScaleY() const override;
     virtual float getScale() const override;
+    using Node::getScaleZ;
 
     /**
      * Checks a point if in parent's area.
@@ -750,7 +753,6 @@ CC_CONSTRUCTOR_ACCESS:
     //initializes state of widget.
     virtual bool init() override;
 
-protected:
     /*
      * @brief Sends the touch event to widget's parent, if a widget wants to handle touch event under another widget,
      *        it must override this function.
@@ -770,7 +772,6 @@ protected:
      * This method is called when a focus change event happens
      *@param widgetLostFocus  The widget which lose its focus
      *@param widgetGetFocus  The widget which get its focus
-     *@return void
      */
     void onFocusChange(Widget* widgetLostFocus, Widget* widgetGetFocus);
 
@@ -778,10 +779,10 @@ protected:
      * Dispatch a EventFocus through a EventDispatcher
      *@param widgetLoseFocus  The widget which lose its focus
      *@param widgetGetFocus he widget which get its focus
-     *@return void
      */
     void  dispatchFocusEvent(Widget* widgetLoseFocus, Widget* widgetGetFocus);
-
+    
+protected:
     /**
      * Get a normal state GLProgramState
      *@since v3.4
@@ -907,4 +908,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__Widget__) */
-

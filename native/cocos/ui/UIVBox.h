@@ -83,4 +83,3 @@ CC_CONSTRUCTOR_ACCESS:
 NS_CC_END
 
 #endif /* defined(__UIVBox__) */
-

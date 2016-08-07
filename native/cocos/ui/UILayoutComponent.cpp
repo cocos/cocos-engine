@@ -21,11 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "UIPageView.h"
-#include "UILayoutComponent.h"
+#include "ui/UIPageView.h"
+#include "ui/UILayoutComponent.h"
 #include "2d/CCNode.h"
-#include "GUIDefine.h"
-#include "UIHelper.h"
+#include "ui/GUIDefine.h"
+#include "ui/UIHelper.h"
 
 NS_CC_BEGIN
 
@@ -73,6 +73,23 @@ namespace ui {
         }
         CC_SAFE_DELETE(layout);
         return nullptr;
+    }
+
+    bool LayoutComponent::init()
+    {
+        bool ret = true;
+        do
+        {
+            if (!Component::init())
+            {
+                ret = false;
+                break;
+            }
+
+            //put layout component initialized code here
+
+        } while (0);
+        return ret;
     }
 
     Node* LayoutComponent::getOwnerParent()
@@ -635,8 +652,8 @@ namespace ui {
             PageView* page = static_cast<PageView*>(_owner);
             page->forceDoLayout();
 
-            auto _layoutVector = page->getItems();
-            for(auto& item : _layoutVector)
+            Vector<Widget*> _widgetVector = page->getItems();
+            for(auto& item : _widgetVector)
             {
                 ui::Helper::doLayout(item);
             }
@@ -659,4 +676,3 @@ namespace ui {
 }
 
 NS_CC_END
-

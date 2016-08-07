@@ -180,13 +180,19 @@ void TextBMFont::copySpecialProperties(Widget *widget)
     }
 }
 
+ResourceData TextBMFont::getRenderFile()
+{
+    ResourceData rData;
+    rData.type = 0;
+    rData.file = _fntFileName;
+    return rData;
+}
+
 void TextBMFont::resetRender()
 {
     removeProtectedChild(_labelBMFontRenderer);
     initRenderer();
 }
-
 }
 
 NS_CC_END
-
