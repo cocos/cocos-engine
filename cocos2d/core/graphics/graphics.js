@@ -178,6 +178,8 @@ var Graphics = cc.Class({
         sgNode.strokeColor = this._strokeColor;
         sgNode.fillColor = this._fillColor;
         sgNode.miterLimit = this._miterLimit;
+
+        sgNode.setContentSize(this.node.getContentSize(true));
     },
 
     /**
