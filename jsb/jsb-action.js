@@ -205,6 +205,7 @@ cc.Node.prototype.runAction = function (action) {
         action.release();
         action._retained = false;
     }
+    return action;
 };
 
 function getSGTarget (target) {
