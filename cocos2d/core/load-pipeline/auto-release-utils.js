@@ -15,6 +15,19 @@ function parseDepends (key, parsed) {
     }
 }
 
+function release (loader, key, nextSceneAssets) {
+    if (!nextSceneAssets || nextSceneAssets.indexOf(key) === -1) {
+        var item = loader.getItem(key);
+        if (item) {
+            loader.removeItem(key);
+            //console.log('auto release: ' + key);
+            if (item.content instanceof cc.Texture2D) {
+                cc.textureCache.removeTextureForKey(item.url);
+            }
+        }
+    }
+}
+
 module.exports = {
 
     // get asset url or uuid
@@ -49,10 +62,7 @@ module.exports = {
             for (i = 0; i < oldSceneAssets.length; i++) {
                 key = oldSceneAssets[i];
                 if (releaseSettings[key] !== false) {
-                    if (!nextSceneAssets || nextSceneAssets.indexOf(key) === -1) {
-                        loader.removeItem(key);
-                        //console.log('auto release: ' + key);
-                    }
+                    release(loader, key, nextSceneAssets);
                 }
             }
         }
@@ -63,10 +73,7 @@ module.exports = {
         for (i = 0; i < keys.length; i++) {
             key = keys[i];
             if (releaseSettings[key] === true) {
-                if (!nextSceneAssets || nextSceneAssets.indexOf(key) === -1) {
-                    loader.removeItem(key);
-                    //console.log('auto release: ' + key);
-                }
+                release(loader, key, nextSceneAssets);
             }
         }
     },
