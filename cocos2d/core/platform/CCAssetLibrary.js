@@ -89,7 +89,7 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
-                    asset.scene.dependAssets = AutoReleaseUtils.parseDepends(uuid);
+                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
                 }
                 if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(uuid);
@@ -210,7 +210,7 @@ var AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
-                    asset.scene.dependAssets = AutoReleaseUtils.parseDepends(randomUuid);
+                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
                 }
                 if (CC_EDITOR || isScene(asset)) {
                     Loader.removeItem(randomUuid);

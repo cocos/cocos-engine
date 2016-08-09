@@ -533,7 +533,20 @@ JS.mixin(CCLoader.prototype, {
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
     autoReleaseRecursively: function (assetOrUrl, autoRelease) {
-        // TODO
+        autoRelease = !!autoRelease;
+        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        if (key) {
+            this._autoReleaseSetting[key] = autoRelease;
+
+            var depends = AutoReleaseUtils.getDependsRecursively(key);
+            for (var i = 0; i < depends.length; i++) {
+                var depend = depends[i];
+                this._autoReleaseSetting[depend] = autoRelease;
+            }
+        }
+        else if (CC_DEV) {
+            cc.warn('No need to release non-cached asset.');
+        }
     },
 
     /**

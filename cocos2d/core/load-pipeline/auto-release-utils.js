@@ -1,6 +1,5 @@
 
 function parseDepends (key, parsed) {
-    parsed[key] = true;
     var item = cc.loader.getItem(key);
     if (item) {
         var depends = item.dependKeys;
@@ -8,6 +7,7 @@ function parseDepends (key, parsed) {
             for (var i = 0; i < depends.length; i++) {
                 var depend = depends[i];
                 if ( !parsed[depend] ) {
+                    parsed[depend] = true;
                     parseDepends(depend, parsed);
                 }
             }
@@ -78,8 +78,8 @@ module.exports = {
         }
     },
 
-    //
-    parseDepends: function (key) {
+    // get dependencies not including self
+    getDependsRecursively: function (key) {
         var depends = {};
         parseDepends(key, depends);
         return Object.keys(depends);
