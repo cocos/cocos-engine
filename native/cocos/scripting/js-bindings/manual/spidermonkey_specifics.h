@@ -23,8 +23,8 @@
 #ifndef __SPIDERMONKEY_SPECIFICS_H__
 #define __SPIDERMONKEY_SPECIFICS_H__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 #include "mozilla/Maybe.h"
 #include <unordered_map>
 
@@ -70,4 +70,3 @@ if (!native_obj) { \
 }
 
 #endif
-

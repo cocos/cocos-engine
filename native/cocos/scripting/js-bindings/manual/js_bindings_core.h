@@ -24,8 +24,8 @@
 #ifndef __JS_BINDINGS_CORE_H__
 #define __JS_BINDINGS_CORE_H__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,4 +75,3 @@ extern "C" {
 #endif
 
 #endif /* __JS_BINDINGS_CORE_H__ */
-

@@ -20,11 +20,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include "js_bindings_config.h"
-#include "js_bindings_core.h"
+#include "scripting/js-bindings/manual/js_bindings_config.h"
+#include "scripting/js-bindings/manual/js_bindings_core.h"
 
-// cocos2d registration files
-#include "cocos2d.h"
+// cocos2d + chipmunk registration files
+#include "scripting/js-bindings/manual/chipmunk/js_bindings_chipmunk_registration.h"
+
+#include "base/ccMacros.h"
+#include "base/uthash.h"
 
 //#pragma mark - Hash
 
@@ -162,4 +165,3 @@ bool JSB_do_nothing(JSContext *cx, uint32_t argc, jsval *vp)
     args.rval().setUndefined();
     return true;
 }
-

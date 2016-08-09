@@ -29,12 +29,12 @@
 #ifndef __FAKE_XMLHTTPREQUEST_H__
 #define __FAKE_XMLHTTPREQUEST_H__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 #include "network/HttpClient.h"
-#include "js_bindings_config.h"
-#include "ScriptingCore.h"
-#include "jsb_helper.h"
+#include "scripting/js-bindings/manual/js_bindings_config.h"
+#include "scripting/js-bindings/manual/ScriptingCore.h"
+#include "scripting/js-bindings/manual/jsb_helper.h"
 
 class MinXmlHttpRequest : public cocos2d::Ref
 {
@@ -56,6 +56,7 @@ public:
     static const unsigned short DONE = 4;
 
     MinXmlHttpRequest();
+    MinXmlHttpRequest(JSContext *cx);
     ~MinXmlHttpRequest();
 
     JS_BINDED_CLASS_GLUE(MinXmlHttpRequest);
@@ -102,15 +103,15 @@ private:
     std::string                       _type;
     char*                             _data;
     uint32_t                          _dataSize;
-    mozilla::Maybe<JS::PersistentRootedObject> _onloadstartCallback;
-    mozilla::Maybe<JS::PersistentRootedObject> _onabortCallback;
-    mozilla::Maybe<JS::PersistentRootedObject> _onerrorCallback;
-    mozilla::Maybe<JS::PersistentRootedObject> _onloadCallback;
-    mozilla::Maybe<JS::PersistentRootedObject> _onloadendCallback;
-    mozilla::Maybe<JS::PersistentRootedObject> _ontimeoutCallback;
-    mozilla::Maybe<JS::PersistentRootedObject> _onreadystateCallback;
+    JS::Heap<JSObject*>               _onloadstartCallback;
+    JS::Heap<JSObject*>               _onabortCallback;
+    JS::Heap<JSObject*>               _onerrorCallback;
+    JS::Heap<JSObject*>               _onloadCallback;
+    JS::Heap<JSObject*>               _onloadendCallback;
+    JS::Heap<JSObject*>               _ontimeoutCallback;
+    JS::Heap<JSObject*>               _onreadystateCallback;
     int                               _readyState;
-    long                               _status;
+    long                              _status;
     std::string                       _statusText;
     ResponseType                      _responseType;
     unsigned long long                _timeout;
@@ -123,7 +124,7 @@ private:
     std::unordered_map<std::string, std::string>          _httpHeader;
     std::unordered_map<std::string, std::string>          _requestHeader;
     bool                              _isAborted;
+    cocos2d::Scheduler*               _scheduler;
 };
 
 #endif
-
