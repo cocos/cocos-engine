@@ -1264,17 +1264,22 @@ var Node = cc.Class({
     /**
      * !#en
      * Executes an action, and returns the action that is executed.<br/>
-     * The node becomes the action's target. Refer to cc.Action's getTarget()<br/>
-     * Calling runAction while the node is not active won't have any effect.
+     * The node becomes the action's target. Refer to cc.Action's getTarget() <br/>
+     * Calling runAction while the node is not active won't have any effect. <br/>
+     * Note：You shouldn't modify the action after runAction, that won't take any effect.<br/>
+     * if you want to modify, when you define action plus.
      * !#zh
      * 执行并返回该执行的动作。该节点将会变成动作的目标。<br/>
-     * 调用 runAction 时，节点自身处于不激活状态将不会有任何效果。
+     * 调用 runAction 时，节点自身处于不激活状态将不会有任何效果。<br/>
+     * 注意：你不应该修改 runAction 后的动作，将无法发挥作用，如果想进行修改，请在定义 action 时加入。
      * @method runAction
      * @param {Action} action
      * @return {Action} An Action pointer
      * @example
      * var action = cc.scaleTo(0.2, 1, 0.6);
      * node.runAction(action);
+     * node.runAction(action).repeatForever(); // fail
+     * node.runAction(action.repeatForever()); // right
      */
     runAction: function (action) {
         if (!this.active)
