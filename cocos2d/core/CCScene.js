@@ -59,6 +59,9 @@ cc.Scene = cc.Class({
 
         this._activeInHierarchy = false;
         this._inited = !cc.game._isCloning;
+
+        // cache all depend assets for auto release
+        this.dependAssets = null;
     },
 
     destroy: function () {

@@ -29,9 +29,8 @@ var Downloader = require('./downloader');
 var Loader = require('./loader');
 var AssetTable = require('./asset-table');
 var callInNextTick = require('../platform/utils').callInNextTick;
+var AutoReleaseUtils = require('./auto-release-utils');
 
-var downloader = new Downloader();
-var loader = new Loader();
 var resources = new AssetTable();
 
 /**
@@ -40,13 +39,15 @@ var resources = new AssetTable();
  * @extends Pipeline
  * @static
  */
-cc.loader = new Pipeline([
-    downloader,
-    loader
-]);
+function CCLoader () {
+    var downloader = new Downloader();
+    var loader = new Loader();
 
+    Pipeline.call(this, [
+        downloader,
+        loader
+    ]);
 
-JS.mixin(cc.loader, {
     /**
      * The downloader in cc.loader's pipeline, it's by default the first pipe.
      * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
@@ -54,7 +55,7 @@ JS.mixin(cc.loader, {
      * @property downloader
      * @type {Object}
      */
-    downloader: downloader,
+    this.downloader = downloader;
 
     /**
      * The downloader in cc.loader's pipeline, it's by default the second pipe.
@@ -63,7 +64,13 @@ JS.mixin(cc.loader, {
      * @property loader
      * @type {Object}
      */
-    loader: loader,
+    this.loader = loader;
+
+    // assets to release automatically
+    this._autoReleaseSetting = {};
+}
+JS.extend(CCLoader, Pipeline);
+JS.mixin(CCLoader.prototype, {
 
     /**
      * Get XMLHttpRequest.
@@ -82,7 +89,7 @@ JS.mixin(cc.loader, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addDownloadHandlers: function (extMap) {
-        downloader.addHandlers(extMap);
+        this.downloader.addHandlers(extMap);
     },
 
     /**
@@ -96,7 +103,7 @@ JS.mixin(cc.loader, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addLoadHandlers: function (extMap) {
-        loader.addHandlers(extMap);
+        this.loader.addHandlers(extMap);
     },
 
     /**
@@ -489,8 +496,61 @@ JS.mixin(cc.loader, {
      */
     releaseAll: function () {
         this.clear();
-    }
+    },
+
+    // AUTO RELEASE
+
+    _baseRemoveItem: Pipeline.prototype.removeItem,
+
+    // override
+    removeItem: function (key) {
+        this._baseRemoveItem(key);
+        delete this._autoReleaseSetting[key];
+    },
+
+    /**
+     * Release the asset automatically when loading a new scene.
+     * When loading a new scene all assets in the scene are destroyed, then the assets in the new scene are loaded.
+     * In order to preserve an asset during scene loading call this method and pass in false.
+     *
+     * @method autoRelease
+     * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Boolean} autoRelease - indicates whether should release automatically
+     */
+    autoRelease: function (assetOrUrl, autoRelease) {
+        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        if (key) {
+            this._autoReleaseSetting[key] = !!autoRelease;
+        }
+        else if (CC_DEV) {
+            cc.warn('No need to release non-cached asset.');
+        }
+    },
+
+    /**
+     * @method autoReleaseRecursively
+     * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Boolean} autoRelease - indicates whether should release automatically
+     */
+    autoReleaseRecursively: function (assetOrUrl, autoRelease) {
+        // TODO
+    },
+
+    /**
+     * @method isAutoRelease
+     * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @returns {Boolean}
+     */
+    isAutoRelease: function (assetOrUrl) {
+        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        if (key) {
+            return !!this._autoReleaseSetting[key];
+        }
+        return false;
+    },
 });
+
+cc.loader = new CCLoader();
 
 if (CC_EDITOR) {
     cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
