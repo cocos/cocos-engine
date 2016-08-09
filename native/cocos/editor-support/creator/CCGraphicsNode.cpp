@@ -846,7 +846,7 @@ void GraphicsNode::flattenPaths()
 {
     if (_curPath && _curPath->points.size() <= 1) {
         _nPath --;
-		_curPath = _nPath > 0 ? _paths[_nPath - 1] : nullptr;
+        _curPath = _nPath > 0 ? _paths[_nPath - 1] : nullptr;
     }
     
     for (int i = _pathOffset; i < _nPath; i++) {
