@@ -302,7 +302,8 @@ JS.mixin(CCLoader.prototype, {
             completeCallback = type;
             type = null;
         }
-        var uuid = this._getResUuid(url, type);
+        var self = this;
+        var uuid = self._getResUuid(url, type);
         if (uuid) {
             this.load(
                 {
@@ -310,7 +311,15 @@ JS.mixin(CCLoader.prototype, {
                     type: 'uuid',
                     uuid: uuid
                 },
-                completeCallback
+                function (err, asset) {
+                    if (asset) {
+                        // should not release these assets, even if they are static referenced in the scene.
+                        self.autoReleaseRecursively(asset, false);
+                    }
+                    if (completeCallback) {
+                        completeCallback(err, asset);
+                    }
+                }
             );
         }
         else {
@@ -322,7 +331,9 @@ JS.mixin(CCLoader.prototype, {
                 else {
                     info = 'Resources url "' + url + '" does not exist.';
                 }
-                completeCallback(new Error(info), null);
+                if (completeCallback) {
+                    completeCallback(new Error(info), null);
+                }
             });
         }
     },
@@ -367,6 +378,7 @@ JS.mixin(CCLoader.prototype, {
             completeCallback = type;
             type = null;
         }
+        var self = this;
         var uuids = resources.getUuidArray(url, type);
         var remain = uuids.length;
         if (remain > 0) {
@@ -378,18 +390,25 @@ JS.mixin(CCLoader.prototype, {
                 }
                 if (err) {
                     aborted = true;
-                    completeCallback(err, null);
+                    if (completeCallback) {
+                        completeCallback(err, null);
+                    }
                     return;
                 }
                 results.push(res);
                 --remain;
                 if (remain === 0) {
-                    completeCallback(null, results);
+                    for (var i = 0; i < results.length; i++) {
+                        self.autoReleaseRecursively(results[i], false);
+                    }
+                    if (completeCallback) {
+                        completeCallback(null, results);
+                    }
                 }
             }
             for (var i = 0, len = remain; i < len; ++i) {
                 var uuid = uuids[i];
-                this.load(
+                self.load(
                     {
                         id: uuid,
                         type: 'uuid',
@@ -401,7 +420,9 @@ JS.mixin(CCLoader.prototype, {
         }
         else {
             callInNextTick(function () {
-                completeCallback(null, []);
+                if (completeCallback) {
+                    completeCallback(null, []);
+                }
             });
         }
     },
