@@ -314,7 +314,7 @@ JS.mixin(CCLoader.prototype, {
                 function (err, asset) {
                     if (asset) {
                         // should not release these assets, even if they are static referenced in the scene.
-                        self.autoReleaseRecursively(asset, false);
+                        self.setAutoReleaseRecursively(asset, false);
                     }
                     if (completeCallback) {
                         completeCallback(err, asset);
@@ -399,7 +399,7 @@ JS.mixin(CCLoader.prototype, {
                 --remain;
                 if (remain === 0) {
                     for (var i = 0; i < results.length; i++) {
-                        self.autoReleaseRecursively(results[i], false);
+                        self.setAutoReleaseRecursively(results[i], false);
                     }
                     if (completeCallback) {
                         completeCallback(null, results);
@@ -534,11 +534,11 @@ JS.mixin(CCLoader.prototype, {
      * When loading a new scene all assets in the scene are destroyed, then the assets in the new scene are loaded.
      * In order to preserve an asset during scene loading call this method and pass in false.
      *
-     * @method autoRelease
+     * @method setAutoRelease
      * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
-    autoRelease: function (assetOrUrl, autoRelease) {
+    setAutoRelease: function (assetOrUrl, autoRelease) {
         var key = AutoReleaseUtils.getKey(this, assetOrUrl);
         if (key) {
             this._autoReleaseSetting[key] = !!autoRelease;
@@ -549,11 +549,11 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * @method autoReleaseRecursively
+     * @method setAutoReleaseRecursively
      * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
-    autoReleaseRecursively: function (assetOrUrl, autoRelease) {
+    setAutoReleaseRecursively: function (assetOrUrl, autoRelease) {
         autoRelease = !!autoRelease;
         var key = AutoReleaseUtils.getKey(this, assetOrUrl);
         if (key) {
