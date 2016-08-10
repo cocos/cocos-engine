@@ -198,6 +198,14 @@ if (window.SocketIO) {
     window.io = window.SocketIO;
 }
 
+SocketIO.prototype._jsbEmit = SocketIO.prototype.emit;
+SocketIO.prototype.emit = function (uri, delegate) {
+    if (typeof delegate === 'object') {
+        delegate = JSON.stringify(delegate);
+    }
+    this._jsbEmit(uri, delegate);
+};
+
 // ccsg
 window._ccsg = {
     Node: cc.Node,
