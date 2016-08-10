@@ -35,12 +35,18 @@ var Scene = cc.Class({
     extends: cc.Asset,
 
     properties: {
+
+        /**
+         * @property {cc.Scene} scene
+         * @default null
+         */
         scene: null,
+
         /**
          * !#en Indicates the raw assets of this scene can be load after scene launched.
          * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
          * @property {Boolean} asyncLoadAssets
-         * @default undefined
+         * @default false
          */
         asyncLoadAssets: undefined,
 

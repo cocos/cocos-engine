@@ -458,21 +458,21 @@ function define (className, baseClasses, mixins, constructor, options) {
     return doDefine(className, baseClasses, mixins, constructor, options);
 }
 
-function _checkCtor (ctor) {
+function _checkCtor (ctor, className) {
     if (CC_DEV) {
         if (CCClass._isCCClass(ctor)) {
-            cc.error("Constructor can not be another CCClass");
+            cc.error('ctor of "%s" can not be another CCClass', className);
             return;
         }
         if (typeof ctor !== 'function') {
-            cc.error("Constructor of CCClass must be function type");
+            cc.error('ctor of "%s" must be function type', className);
             return;
         }
         if (ctor.length > 0) {
             // fireball-x/dev#138: To make a unified CCClass serialization process,
             // we don't allow parameters for constructor when creating instances of CCClass.
             // For advance user, construct arguments can still get from 'arguments'.
-            cc.warn("Can not instantiate CCClass with arguments.");
+            cc.warn('Can not instantiate CCClass "%s" with arguments.', className);
             return;
         }
     }
@@ -530,7 +530,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     var superCallBounded = options && baseClass && boundSuperCalls(baseClass, options);
 
     if (ctor && CC_DEV) {
-        _checkCtor(ctor);
+        _checkCtor(ctor, className);
     }
     // get base user constructors
     var ctors = [];
