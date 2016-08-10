@@ -581,10 +581,18 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
 
         tmpEdTxt.addEventListener('input', function () {
             var editBox = thisPointer._editBox;
+
+
+            if (this.value.length > this.maxLength) {
+                this.value = this.value.slice(0, this.maxLength);
+            }
+
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                editBox._text = this.value;
-                thisPointer._updateEditBoxContentStyle();
-                editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+                if (editBox._text.toLowerCase() !== this.value.toLowerCase()) {
+                    editBox._text = this.value;
+                    thisPointer._updateEditBoxContentStyle();
+                    editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+                }
             }
         });
         tmpEdTxt.addEventListener('keypress', function (e) {
@@ -597,6 +605,7 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
                     this.style.fontSize = editBox._placeholderFontSize + 'px';
                     this.style.color = cc.colorToHex(editBox._placeholderColor);
                 }
+
                 editBox._text = this.value;
                 thisPointer._updateEditBoxContentStyle();
                 thisPointer.hidden();
@@ -670,11 +679,17 @@ _ccsg.EditBox.KeyboardReturnType = KeyboardReturnType;
         tmpEdTxt.style.className = "cocosEditBox";
 
         tmpEdTxt.addEventListener('input', function () {
+            if (this.value.length > this.maxLength) {
+                this.value = this.value.slice(0, this.maxLength);
+            }
+
             var editBox = thisPointer._editBox;
             if (editBox._delegate && editBox._delegate.editBoxTextChanged) {
-                editBox._text = this.value;
-                thisPointer._updateEditBoxContentStyle();
-                editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+                if(editBox._text.toLowerCase() !== this.value.toLowerCase()) {
+                    editBox._text = this.value;
+                    thisPointer._updateEditBoxContentStyle();
+                    editBox._delegate.editBoxTextChanged(editBox, editBox._text);
+                }
             }
         });
 
