@@ -89,7 +89,6 @@ cc.Scheduler.prototype.unschedule = function (callback, target) {
 
 // Node
 var nodeProto = cc.Node.prototype;
-cc.defineGetterSetter(nodeProto, "arrivalOrder", nodeProto.getOrderOfArrival, nodeProto.setOrderOfArrival);
 cc.defineGetterSetter(nodeProto, "_parent", nodeProto.getParent, nodeProto.setParent);
 
 // TextureCache addImage

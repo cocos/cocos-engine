@@ -161,7 +161,7 @@ _ccsg.Node = cc.Class({
         this._running = false;
         this._reorderChildDirty = false;
         this._shaderProgram = null;
-        this.arrivalOrder = 0;
+        this._arrivalOrder = 0;
 
         this._additionalTransformDirty = false;
         this._isTransitionFinished = false;
@@ -892,7 +892,7 @@ _ccsg.Node = cc.Class({
      * @function
      * @param {Boolean} newValue true if anchor point will be ignored when you position this node
      */
-    ignoreAnchorPointForPosition: function (newValue) {
+    setIgnoreAnchorPointForPosition: function (newValue) {
         if (newValue !== this._ignoreAnchorPointForPosition) {
             this._ignoreAnchorPointForPosition = newValue;
             this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.transformDirty);
@@ -959,27 +959,17 @@ _ccsg.Node = cc.Class({
     },
 
     /**
-     * Returns the arrival order, indicates which children should be added previously.
-     * @function
-     * @return {Number} The arrival order.
-     */
-    getOrderOfArrival: function () {
-        return this.arrivalOrder;
-    },
-
-    /**
      * <p>
-     *     Sets the arrival order when this node has a same ZOrder with other children.                             <br/>
+     *     Update the arrival order.                             <br/>
      *                                                                                                              <br/>
      *     A node which called addChild subsequently will take a larger arrival order,                              <br/>
      *     If two children have the same Z order, the child with larger arrival order will be drawn later.
      * </p>
      * @function
-     * @warning This method is used internally for zOrder sorting, don't change this manually
-     * @param {Number} Var  The arrival order.
+     * @warning This method is used internally for zOrder sorting, don't call this method manually
      */
-    setOrderOfArrival: function (Var) {
-        this.arrivalOrder = Var;
+    updateOrderOfArrival: function () {
+        this._arrivalOrder = ++cc.s_globalOrderOfArrival;
     },
 
     /**
@@ -1154,7 +1144,7 @@ _ccsg.Node = cc.Class({
             child.setName(name);
 
         child.setParent(this);
-        child.setOrderOfArrival(cc.s_globalOrderOfArrival++);
+        child.updateOrderOfArrival();
 
         if( this._running ){
             child.onEnter();
@@ -1319,8 +1309,7 @@ _ccsg.Node = cc.Class({
     reorderChild: function (child, zOrder) {
         cc.assert(child, cc._LogInfos.Node.reorderChild);
         cc.renderer.childrenOrderDirty = this._reorderChildDirty = true;
-        child.arrivalOrder = cc.s_globalOrderOfArrival;
-        cc.s_globalOrderOfArrival++;
+        child.updateOrderOfArrival();
         child._setLocalZOrder(zOrder);
         this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.orderDirty);
     },
@@ -1347,7 +1336,7 @@ _ccsg.Node = cc.Class({
                 while(j >= 0){
                     if(tmp._localZOrder < _children[j]._localZOrder){
                         _children[j+1] = _children[j];
-                    }else if(tmp._localZOrder === _children[j]._localZOrder && tmp.arrivalOrder < _children[j].arrivalOrder){
+                    }else if(tmp._localZOrder === _children[j]._localZOrder && tmp._arrivalOrder < _children[j]._arrivalOrder){
                         _children[j+1] = _children[j];
                     }else{
                         break;

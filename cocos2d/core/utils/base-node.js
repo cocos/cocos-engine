@@ -1886,7 +1886,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     sibling.setLocalZOrder(zOrder);
                 }
                 else {
-                    sibling.arrivalOrder = i;
+                    sibling._arrivalOrder = i;
                     cc.eventManager._setDirtyForNode(siblings[i]);
                 }
             }
@@ -1943,7 +1943,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                         if (child._localZOrder < _children[j]._localZOrder) {
                             _children[j+1] = _children[j];
                         } else if (child._localZOrder === _children[j]._localZOrder &&
-                                   child._sgNode.arrivalOrder < _children[j]._sgNode.arrivalOrder) {
+                                   child._sgNode._arrivalOrder < _children[j]._sgNode._arrivalOrder) {
                             _children[j+1] = _children[j];
                         } else {
                             break;
@@ -1972,11 +1972,11 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         sgNode.setScale(self._scaleX, self._scaleY);
         sgNode.setSkewX(self._skewX);
         sgNode.setSkewY(self._skewY);
-        sgNode.ignoreAnchorPointForPosition(self.__ignoreAnchor);
+        sgNode.setIgnoreAnchorPointForPosition(self.__ignoreAnchor);
 
-        var arrivalOrder = sgNode.arrivalOrder;
+        var arrivalOrder = sgNode._arrivalOrder;
         sgNode.setLocalZOrder(self._localZOrder);
-        sgNode.arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
+        sgNode._arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
 
         sgNode.setGlobalZOrder(self._globalZOrder);
 
