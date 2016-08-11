@@ -20,7 +20,8 @@ function release (loader, key, nextSceneAssets) {
         var item = loader.getItem(key);
         if (item) {
             loader.removeItem(key);
-            //console.log('auto release: ' + key);
+            console.log('auto release: ' + key);
+            // TODO: Audio
             if (item.content instanceof cc.Texture2D) {
                 cc.textureCache.removeTextureForKey(item.url);
             }

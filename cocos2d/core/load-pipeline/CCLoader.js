@@ -530,12 +530,33 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
-     * Release the asset automatically when loading a new scene.
-     * When loading a new scene all assets in the scene are destroyed, then the assets in the new scene are loaded.
-     * In order to preserve an asset during scene loading call this method and pass in false.
+     * !#en
+     * Indicates whether to release the asset when loading a new scene.<br>
+     * By default, when loading a new scene, all assets in the previous scene will be released or preserved
+     * according to whether the previous scene checked the "Auto Release Assets" option.
+     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResAll`
+     * will not be affected by that option, remain not released by default.<br>
+     * Use this API to change the default behavior on a single asset, to force preserve or release specified asset when scene switching.<br>
+     * <br>
+     * See: {{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}, {{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     * !#zh
+     * 设置当场景切换时是否自动释放资源。<br>
+     * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。
+     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResAll` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 使用这个 API 可以在单个资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
+     * <br>
+     * 参考：{{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}，{{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     *
+     * @example
+     * // auto release the texture event if "Auto Release Assets" disabled in current scene
+     * cc.loader.setAutoRelease(texture2d, true);
+     * // don't release the texture even if "Auto Release Assets" enabled in current scene
+     * cc.loader.setAutoRelease(texture2d, false);
+     * // first parameter can be url
+     * cc.loader.setAutoRelease(audioUrl, false);
      *
      * @method setAutoRelease
-     * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
     setAutoRelease: function (assetOrUrl, autoRelease) {
@@ -549,8 +570,33 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
+     * !#en
+     * Indicates whether to release the asset and its referenced other assets when loading a new scene.<br>
+     * By default, when loading a new scene, all assets in the previous scene will be released or preserved
+     * according to whether the previous scene checked the "Auto Release Assets" option.
+     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResAll`
+     * will not be affected by that option, remain not released by default.<br>
+     * Use this API to change the default behavior on the specified asset and its recursively referenced assets, to force preserve or release specified asset when scene switching.<br>
+     * <br>
+     * See: {{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}, {{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     * !#zh
+     * 设置当场景切换时是否自动释放资源及资源引用的其它资源。<br>
+     * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。
+     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResAll` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 使用这个 API 可以在指定资源及资源递归引用到的所有资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
+     * <br>
+     * 参考：{{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}，{{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     *
+     * @example
+     * // auto release the SpriteFrame and its Texture event if "Auto Release Assets" disabled in current scene
+     * cc.loader.setAutoReleaseRecursively(spriteFrame, true);
+     * // don't release the SpriteFrame and its Texture even if "Auto Release Assets" enabled in current scene
+     * cc.loader.setAutoReleaseRecursively(spriteFrame, false);
+     * // don't release the Prefab and all the referenced assets
+     * cc.loader.setAutoReleaseRecursively(prefab, false);
+     *
      * @method setAutoReleaseRecursively
-     * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
     setAutoReleaseRecursively: function (assetOrUrl, autoRelease) {
@@ -571,8 +617,17 @@ JS.mixin(CCLoader.prototype, {
     },
 
     /**
+     * !#en
+     * Returns whether the asset is configured as auto released, despite how "Auto Release Assets" property is set on scene asset.<br>
+     * <br>
+     * See: {{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}, {{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}
+     *
+     * !#zh
+     * 返回指定的资源是否有被设置为自动释放，不论场景的“Auto Release Assets”如何设置。<br>
+     * <br>
+     * 参考：{{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}，{{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}
      * @method isAutoRelease
-     * @param {cc.Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
      * @returns {Boolean}
      */
     isAutoRelease: function (assetOrUrl) {
