@@ -348,6 +348,7 @@ var actionUpdate = {
     'JumpTo': syncPositionUpdate,
     'JumpBy': syncPositionUpdate,
     'Place': syncPositionUpdate,
+    'CardinalSplineTo': syncPositionUpdate,
     'RotateTo': syncRotationUpdate,
     'RotateBy': syncRotationUpdate,
     'ScaleTo': syncScaleUpdate,
