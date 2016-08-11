@@ -463,5 +463,12 @@ float GLView::getScaleY() const
     return _scaleY;
 }
 
-NS_CC_END
+void GLView::renderScene(Scene* scene, Renderer* renderer)
+{
+    CCASSERT(scene, "Invalid Scene");
+    CCASSERT(renderer, "Invalid Renderer");
 
+    scene->render(renderer, Mat4::IDENTITY, nullptr);
+}
+
+NS_CC_END

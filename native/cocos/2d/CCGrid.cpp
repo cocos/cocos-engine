@@ -36,7 +36,6 @@ THE SOFTWARE.
 #include "renderer/CCRenderState.h"
 #include "renderer/CCTexture2D.h"
 #include "platform/CCGL.h"
-#include "2d/CCCamera.h"
 
 NS_CC_BEGIN
 // implementation of GridBase
@@ -199,6 +198,7 @@ void GridBase::set2DProjection()
 {
     Director *director = Director::getInstance();
     Size    size = director->getWinSizeInPixels();
+    glViewport(0, 0, (GLsizei)(size.width), (GLsizei)(size.height) );
     
     director->loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 
@@ -238,10 +238,9 @@ void GridBase::afterDraw(cocos2d::Node *target)
     // restore projection
     Director *director = Director::getInstance();
     director->setProjection(_directorProjection);
-
-    director->setViewport();
-    const auto& vp = Camera::getDefaultViewport();
-    glViewport(vp._left, vp._bottom, vp._width, vp._height);
+    
+    Size size = director->getWinSizeInPixels();
+    glViewport(0, 0, (GLsizei)(size.width), (GLsizei)(size.height) );
 //    if (target->getCamera()->isDirty())
 //    {
 //        Vec2 offset = target->getAnchorPointInPoints();

@@ -262,7 +262,7 @@ public:
     * Set cursor position to hit letter, if enabled
     * @js NA
     */
-    void setCursorFromPoint(const Vec2 &point, const Camera* camera);
+    void setCursorFromPoint(const Vec2 &point);
 
 protected:
     //////////////////////////////////////////////////////////////////////////
@@ -315,4 +315,3 @@ NS_CC_END
 /// @}
 
 #endif    // __CC_TEXT_FIELD_H__
-

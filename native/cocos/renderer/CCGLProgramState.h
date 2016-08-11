@@ -251,9 +251,6 @@ public:
     /** gets-or-creates an instance of GLProgramState for a given GLProgramName */
     static GLProgramState* getOrCreateWithGLProgramName(const std::string& glProgramName );
 
-    /** gets-or-creates an instance of GLProgramState for the given GLProgramName & texture */
-    static GLProgramState* getOrCreateWithGLProgramName(const std::string& glProgramName, Texture2D* texture);
-
     /** gets-or-creates an instance of GLProgramState for given shaders */
     static GLProgramState* getOrCreateWithShaders(const std::string& vertexShader, const std::string& fragShader, const std::string& compileTimeDefines);
 

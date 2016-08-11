@@ -1183,8 +1183,8 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
 		cocos2d::TrianglesCommand::Triangles triangles;
 		triangles.indices = &this->_indices[0];
 		triangles.verts = &this->_verts[0];
-		triangles.vertCount = this->_verts.size();
-		triangles.indexCount = this->_indices.size();
+		triangles.vertCount = (int)this->_verts.size();
+		triangles.indexCount = (int)this->_indices.size();
 		auto texture = this->_spriteFrame->getTexture();
 		this->_renderCommand.init(_globalZOrder, texture->getName(), _glProgramState, _blendFunc, triangles, transform, 0);
 		renderer->addCommand(&this->_renderCommand);

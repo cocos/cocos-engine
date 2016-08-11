@@ -34,6 +34,7 @@
 
 static const int CC_EDIT_BOX_PADDING = 5;
 
+#define PASSWORD_CHAR "\u25CF"
 NS_CC_BEGIN
 
 namespace ui {

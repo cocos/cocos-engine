@@ -628,7 +628,7 @@ public:
      * Set cursor position to hit letter, if enabled
      * @js NA
      */
-    void setCursorFromPoint(const Vec2 &point, const Camera* camera);
+    void setCursorFromPoint(const Vec2 &point);
     
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;

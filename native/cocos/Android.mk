@@ -1,13 +1,11 @@
 LOCAL_PATH := $(call my-dir)
-#==============================================================
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := cocos2dx_internal_static
 LOCAL_MODULE_FILENAME := libcocos2dxinternal
 
-ifeq ($(USE_ARM_MODE),1)
 LOCAL_ARM_MODE := arm
-endif
 
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 MATHNEONFILE := math/MathUtil.cpp.neon
@@ -54,6 +52,7 @@ cocos2d.cpp \
 2d/CCLabelAtlas.cpp \
 2d/CCLabelTextFormatter.cpp \
 2d/CCLayer.cpp \
+2d/CCLight.cpp \
 2d/CCMenu.cpp \
 2d/CCMenuItem.cpp \
 2d/CCMotionStreak.cpp \
@@ -99,11 +98,13 @@ math/Vec2.cpp \
 math/Vec3.cpp \
 math/Vec4.cpp \
 base/CCNinePatchImageParser.cpp \
+base/CCStencilStateManager.cpp \
 base/CCAsyncTaskPool.cpp \
 base/CCAutoreleasePool.cpp \
 base/CCConfiguration.cpp \
 base/CCConsole.cpp \
 base/CCData.cpp \
+base/CCDataVisitor.cpp \
 base/CCDirector.cpp \
 base/CCEvent.cpp \
 base/CCEventAcceleration.cpp \
@@ -127,7 +128,6 @@ base/CCProperties.cpp \
 base/CCRef.cpp \
 base/CCScheduler.cpp \
 base/CCScriptSupport.cpp \
-base/CCStencilStateManager.cpp \
 base/CCTouch.cpp \
 base/CCUserDefault-android.cpp \
 base/CCUserDefault.cpp \
@@ -152,6 +152,9 @@ renderer/CCGLProgramCache.cpp \
 renderer/CCGLProgramState.cpp \
 renderer/CCGLProgramStateCache.cpp \
 renderer/CCGroupCommand.cpp \
+renderer/CCMaterial.cpp \
+renderer/CCMeshCommand.cpp \
+renderer/CCPass.cpp \
 renderer/CCPrimitive.cpp \
 renderer/CCPrimitiveCommand.cpp \
 renderer/CCQuadCommand.cpp \
@@ -166,6 +169,7 @@ renderer/CCVertexAttribBinding.cpp \
 renderer/CCVertexIndexBuffer.cpp \
 renderer/CCVertexIndexData.cpp \
 renderer/ccGLStateCache.cpp \
+renderer/CCFrameBuffer.cpp \
 renderer/ccShaders.cpp \
 storage/local-storage/LocalStorage-android.cpp \
 ../external/sources/ConvertUTF/ConvertUTFWrapper.cpp \
@@ -205,6 +209,12 @@ LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 
 # define the macro to compile through support/zip_support/ioapi.c
 LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions
+
+# Issues #9968
+#ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
+#    LOCAL_CFLAGS += -DHAVE_NEON=1
+#endif
+
 LOCAL_CPPFLAGS := -Wno-deprecated-declarations
 LOCAL_EXPORT_CFLAGS   := -DUSE_FILE32API
 LOCAL_EXPORT_CPPFLAGS := -Wno-deprecated-declarations

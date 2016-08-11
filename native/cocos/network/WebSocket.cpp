@@ -40,7 +40,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#include "libwebsockets.h"
+#include "websockets/libwebsockets.h"
 
 #define WS_RX_BUFFER_SIZE (65536)
 #define WS_RESERVE_RECEIVE_BUFFER_SIZE (4096)

@@ -341,7 +341,7 @@ void TextFieldTTF::setCursorPosition(std::size_t cursorPosition)
     }
 }
 
-void TextFieldTTF::setCursorFromPoint(const Vec2 &point, const Camera* camera)
+void TextFieldTTF::setCursorFromPoint(const Vec2 &point)
 {
     if (_cursorEnabled)
     {
@@ -352,26 +352,22 @@ void TextFieldTTF::setCursorFromPoint(const Vec2 &point, const Camera* camera)
 
         Rect rect;
         rect.size = getContentSize();
-        if (isScreenPointInRect(point, camera, getWorldToNodeTransform(), rect, nullptr))
+        
+        int latterPosition = 0;
+        for (; latterPosition < _lengthOfString; ++latterPosition)
         {
-            int latterPosition = 0;
-            for (; latterPosition < _lengthOfString; ++latterPosition)
+            if (_lettersInfo[latterPosition].valid)
             {
-                if (_lettersInfo[latterPosition].valid)
-                {
-                    auto sprite = getLetter(latterPosition);
-                    rect.size = sprite->getContentSize();
-                    if (isScreenPointInRect(point, camera, sprite->getWorldToNodeTransform(), rect, nullptr))
-                    {
-                        setCursorPosition(latterPosition);
-                        break;
-                    }
-                }
-            }
-            if (latterPosition == _lengthOfString)
-            {
+                auto sprite = getLetter(latterPosition);
+                rect.size = sprite->getContentSize();
+                
                 setCursorPosition(latterPosition);
+                break;
             }
+        }
+        if (latterPosition == _lengthOfString)
+        {
+            setCursorPosition(latterPosition);
         }
 
         // Set cursor
@@ -709,4 +705,3 @@ bool TextFieldTTF::isSecureTextEntry() const
 }
 
 NS_CC_END
-

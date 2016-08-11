@@ -33,7 +33,6 @@
 #include <string>
 
 #include "renderer/CCRenderState.h"
-#include "renderer/CCTechnique.h"
 #include "base/CCRef.h"
 #include "base/CCVector.h"
 #include "math/Vec2.h"

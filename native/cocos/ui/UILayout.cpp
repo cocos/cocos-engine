@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include "2d/CCSprite.h"
 #include "base/CCEventFocus.h"
 #include "base/CCStencilStateManager.hpp"
+#include "editor-support/cocostudio/CocosStudioExtension.h"
 
 
 NS_CC_BEGIN

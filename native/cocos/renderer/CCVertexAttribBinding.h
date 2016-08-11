@@ -127,4 +127,3 @@ extern std::string CC_DLL s_attributeNames[];//attribute names array
 NS_CC_END
 
 #endif // CC_VERTEXATTRIBUTEBINDING_H_
-

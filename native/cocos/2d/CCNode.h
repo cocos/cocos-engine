@@ -630,7 +630,7 @@ public:
      * @param ignore    true if anchor point will be (0,0) when you position this node.
      * @todo This method should be renamed as setIgnoreAnchorPointForPosition(bool) or something with "set".
      */
-    virtual void ignoreAnchorPointForPosition(bool ignore);
+    virtual void setIgnoreAnchorPointForPosition(bool ignore);
     /**
      * Gets whether the anchor point will be (0,0) when you position this node.
      *

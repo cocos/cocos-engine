@@ -52,6 +52,8 @@ THE SOFTWARE.
     #include "renderer/CCTextureCache.h"
 #endif
 
+#include <unordered_set>
+
 NS_CC_BEGIN
 
 namespace {
@@ -431,7 +433,7 @@ void Texture2D::convertRGBA8888ToRGB5A1(const unsigned char* data, ssize_t dataL
 //////////////////////////////////////////////////////////////////////////
 static std::unordered_set<Texture2D*> s_allGLTexture2D;
 
-void Texture2D::fouceDeleteALLTexture2D()
+void Texture2D::forceDeleteALLTexture2D()
 {
     auto copyMap = s_allGLTexture2D;
     for (auto&& it: copyMap) {
@@ -1098,7 +1100,7 @@ bool Texture2D::initWithString(const std::string& text, const std::string& fontN
 
 bool Texture2D::initWithString(const std::string& text, const FontDefinition& textDefinition)
 {
-    if(!text || 0 == strlen(text))
+    if(text.empty())
     {
         return false;
     }
@@ -1151,7 +1153,7 @@ bool Texture2D::initWithString(const std::string& text, const FontDefinition& te
     textDef._shadow._shadowEnabled = false;
 
     bool hasPremultipliedAlpha;
-    Data outData = Device::getTextureDataForText(text, textDef, align, imageWidth, imageHeight, hasPremultipliedAlpha);
+    Data outData = Device::getTextureDataForText(text.c_str(), textDef, align, imageWidth, imageHeight, hasPremultipliedAlpha);
     if(outData.isNull())
     {
         return false;
