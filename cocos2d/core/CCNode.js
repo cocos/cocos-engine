@@ -527,6 +527,11 @@ var Node = cc.Class({
         this.stopAllActions();
         this._releaseAllActions();
 
+        // Remove Node.currentHovered
+        if (currentHovered === this) {
+            currentHovered = null;
+        }
+
         // Remove all listeners
         if (CC_JSB && this._touchListener) {
             this._touchListener.release();
