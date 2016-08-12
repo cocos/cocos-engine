@@ -484,28 +484,6 @@ var fillQuadGeneratorBar = {
             sprite._uvs = uvs;
         }
 
-        //build quads
-        if (webgl) {
-            vertices[0] = l * wt.a + b * wt.c + wt.tx;
-            vertices[1] = l * wt.b + b * wt.d + wt.ty;
-            vertices[2] = r * wt.a + b * wt.c + wt.tx;
-            vertices[3] = r * wt.b + b * wt.d + wt.ty;
-            vertices[4] = l * wt.a + t * wt.c + wt.tx;
-            vertices[5] = l * wt.b + t * wt.d + wt.ty;
-            vertices[6] = r * wt.a + t * wt.c + wt.tx;
-            vertices[7] = r * wt.b + t * wt.d + wt.ty;
-        }
-        else {
-            vertices[0] = l;
-            vertices[1] = b;
-            vertices[2] = r;
-            vertices[3] = b;
-            vertices[4] = l;
-            vertices[5] = t;
-            vertices[6] = r;
-            vertices[7] = t;
-        }
-
         var quadUV = new Array(8);
         if (!spriteFrame._rotated) {
             quadUV[0] = quadUV[4] = ul;
@@ -533,13 +511,11 @@ var fillQuadGeneratorBar = {
         var progressStart, progressEnd;
         switch (fillType) {
             case FillType.HORIZONTAL:
-                progressStart = vertices[0] + (vertices[2] - vertices[0]) * fillStart;
-                progressEnd = vertices[0] + (vertices[2] - vertices[0]) * fillEnd;
+                progressStart = l + (r - l) * fillStart;
+                progressEnd = l + (r - l) * fillEnd;
 
-                vertices[0] = progressStart;
-                vertices[2] = progressEnd;
-                vertices[4] = progressStart;
-                vertices[6] = progressEnd;
+                l = progressStart;
+                r = progressEnd;
 
                 uvs[0] = quadUV[0] + (quadUV[2] - quadUV[0]) * fillStart;
                 uvs[1] = quadUV[1];
@@ -551,13 +527,11 @@ var fillQuadGeneratorBar = {
                 uvs[7] = quadUV[7];
                 break;
             case FillType.VERTICAL:
-                progressStart = vertices[1] + (vertices[5] - vertices[1]) * fillStart;
-                progressEnd = vertices[1] + (vertices[5] - vertices[1]) * fillEnd;
+                progressStart = b + (t - b) * fillStart;
+                progressEnd = b + (t - b) * fillEnd;
 
-                vertices[1] = progressStart;
-                vertices[3] = progressStart;
-                vertices[5] = progressEnd;
-                vertices[7] = progressEnd;
+                b = progressStart;
+                t = progressEnd;
 
                 uvs[0] = quadUV[0];
                 uvs[1] = quadUV[1] + (quadUV[5] - quadUV[1]) * fillStart;
@@ -572,6 +546,28 @@ var fillQuadGeneratorBar = {
                 cc.error('Unrecognized fill type in bar fill');
                 break;
         }
+
+        //build vertices
+        if (webgl) {
+            vertices[0] = l * wt.a + b * wt.c + wt.tx;
+            vertices[1] = l * wt.b + b * wt.d + wt.ty;
+            vertices[2] = r * wt.a + b * wt.c + wt.tx;
+            vertices[3] = r * wt.b + b * wt.d + wt.ty;
+            vertices[4] = l * wt.a + t * wt.c + wt.tx;
+            vertices[5] = l * wt.b + t * wt.d + wt.ty;
+            vertices[6] = r * wt.a + t * wt.c + wt.tx;
+            vertices[7] = r * wt.b + t * wt.d + wt.ty;
+        } else{
+            vertices[0] = l;
+            vertices[1] = b;
+            vertices[2] = r;
+            vertices[3] = b;
+            vertices[4] = l;
+            vertices[5] = t;
+            vertices[6] = r;
+            vertices[7] = t;
+        }
+
         sprite._vertCount = 4;
 
         cornerId[0] = 0;
@@ -603,8 +599,7 @@ var fillQuadGeneratorRadial = {
         while (fillStart < 0.0) fillStart += 1.0;
         var cx = fillCenter.x * contentSize.width,
             cy = fillCenter.y * contentSize.height;
-        var center = cc.v2( webgl ? cx * wt.a + cy * wt.c + wt.tx : cx,
-                            webgl ? cx * wt.b + cy * wt.d + wt.ty : cy);
+        var center = cc.v2( cx, cy);
 
         fillStart *= Math.PI * 2;
         fillRange *= Math.PI * 2;
@@ -697,7 +692,7 @@ var fillQuadGeneratorRadial = {
             }
             //all in
             if(fillRange >= Math.PI * 2) {
-                this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
+                this._generateTriangle(wt, offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
                 offset += 6;
                 count += 3;
                 continue;
@@ -715,10 +710,10 @@ var fillQuadGeneratorRadial = {
                 } else if (startAngle >= fillStart) {
                     if(endAngle >= fillEnd) {
                         //startAngle to fillEnd
-                        this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
+                        this._generateTriangle(wt, offset, center, this._vertPos[triangle[0]], this._intersectPoint_2[triangleIndex]);
                     } else {
                         //startAngle to endAngle
-                        this._generateTriangle(offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
+                        this._generateTriangle(wt, offset, center, this._vertPos[triangle[0]], this._vertPos[triangle[1]]);
                     }
                     offset += 6;
                     count += 3;
@@ -728,12 +723,12 @@ var fillQuadGeneratorRadial = {
                         //all out
                     } else if(endAngle <= fillEnd) {
                         //fillStart to endAngle
-                        this._generateTriangle(offset, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]]);
+                        this._generateTriangle(wt, offset, center, this._intersectPoint_1[triangleIndex], this._vertPos[triangle[1]]);
                         offset += 6;
                         count += 3;
                     } else {
                         //fillStart to fillEnd
-                        this._generateTriangle(offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
+                        this._generateTriangle(wt, offset, center, this._intersectPoint_1[triangleIndex], this._intersectPoint_2[triangleIndex]);
                         offset += 6;
                         count += 3;
                     }
@@ -751,7 +746,7 @@ var fillQuadGeneratorRadial = {
         cornerId[3] = 6;
     },
 
-    _generateTriangle: function(offset, vert0, vert1, vert2) {
+    _generateTriangle: function(wt, offset, vert0, vert1, vert2) {
         var rawVerts = this.rawVerts;
         var rawUvs = this.rawUvs;
         var vertices = this.outVerts;
@@ -763,12 +758,22 @@ var fillQuadGeneratorRadial = {
         // tl: 0, 1
         // bl: 2, 3
         // tr: 4, 5
-        vertices[offset]  = vert0.x;
-        vertices[offset+1]  = vert0.y;
-        vertices[offset+2]  = vert1.x;
-        vertices[offset+3]  = vert1.y;
-        vertices[offset+4]  = vert2.x;
-        vertices[offset+5]  = vert2.y;
+        if(webgl) {
+            vertices[offset]  = vert0.x * wt.a + vert0.y * wt.c + wt.tx;
+            vertices[offset+1]  = vert0.x * wt.b + vert0.y * wt.d + wt.ty;
+            vertices[offset+2]  = vert1.x * wt.a + vert1.y * wt.c + wt.tx;
+            vertices[offset+3]  = vert1.x * wt.b + vert1.y * wt.d + wt.ty;
+            vertices[offset+4]  = vert2.x * wt.a + vert2.y * wt.c + wt.tx;
+            vertices[offset+5]  = vert2.x * wt.b + vert2.y * wt.d + wt.ty;
+
+        } else {
+            vertices[offset]  = vert0.x;
+            vertices[offset+1]  = vert0.y;
+            vertices[offset+2]  = vert1.x;
+            vertices[offset+3]  = vert1.y;
+            vertices[offset+4]  = vert2.x;
+            vertices[offset+5]  = vert2.y;
+        }
 
         progressX = (vert0.x - v0x) / (v1x - v0x);
         progressY = (vert0.y - v0y) / (v1y - v0y);
@@ -879,18 +884,10 @@ var fillQuadGeneratorRadial = {
         x3 = contentSize.width;
         y3 = contentSize.height;
 
-        if (webgl) {
-            this._vertices[0].x = x0 * wt.a + y0 * wt.c + wt.tx;
-            this._vertices[0].y = x0 * wt.b + y0 * wt.d + wt.ty;
-            this._vertices[1].x = x3 * wt.a + y3 * wt.c + wt.tx;
-            this._vertices[1].y = x3 * wt.b + y3 * wt.d + wt.ty;
-        }
-        else {
-            this._vertices[0].x = x0;
-            this._vertices[0].y = y0;
-            this._vertices[1].x = x3;
-            this._vertices[1].y = y3;
-        }
+        this._vertices[0].x = x0;
+        this._vertices[0].y = y0;
+        this._vertices[1].x = x3;
+        this._vertices[1].y = y3;
     },
 
     _calculateUVs : function (spriteFrame) {

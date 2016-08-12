@@ -205,6 +205,7 @@ cc.Node.prototype.runAction = function (action) {
         action.release();
         action._retained = false;
     }
+    return action;
 };
 
 function getSGTarget (target) {
@@ -347,13 +348,12 @@ var actionUpdate = {
     'JumpTo': syncPositionUpdate,
     'JumpBy': syncPositionUpdate,
     'Place': syncPositionUpdate,
+    'CardinalSplineTo': syncPositionUpdate,
     'RotateTo': syncRotationUpdate,
     'RotateBy': syncRotationUpdate,
     'ScaleTo': syncScaleUpdate,
-    'ScaleBy': syncScaleUpdate,
     'RemoveSelf': syncRemoveSelfUpdate,
     'SkewTo': syncSkewUpdate,
-    'SkewBy': syncSkewUpdate,
     'Blink': syncOpacityUpdate,
     'FadeIn': syncOpacityUpdate,
     'FadeOut': syncOpacityUpdate,

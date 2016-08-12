@@ -29,6 +29,8 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     View = require('./platform/CCView');
 }
 
+var _isMusicPlaying = false;
+
 /**
  * !#en An object to boot the game.
  * !#zh 包含游戏主体信息并负责驱动游戏的游戏对象。
@@ -241,15 +243,26 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * !#en Pause the game，pause main loop.
-     * !#zh 暂停游戏，暂停的是整个主循环。
+     * !#en Pause the game main loop. This will pause: 
+     * game logic execution, rendering process, event manager, background music and all audio effects.
+     * This is different with cc.director.pause which only pause the game logic execution.
+     * !#zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 cc.director.pause 不同。
      * @method pause
      */
     pause: function () {
         if (this._paused) return;
         this._paused = true;
         // Pause audio engine
-        cc.audioEngine && cc.audioEngine._pausePlaying();
+        if (cc.audioEngine) {
+            _isMusicPlaying = cc.audioEngine.isMusicPlaying();
+            cc.audioEngine.stopAllEffects();
+            cc.audioEngine.pauseMusic();
+        }
+        // Pause event
+        var scene = cc.director.getScene() || cc.director.getRunningScene();
+        if (scene) {
+            cc.eventManager.pauseTarget(scene, true);
+        }
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimationFrame(this._intervalId);
@@ -257,15 +270,23 @@ var game = /** @lends cc.game# */{
     },
 
     /**
-     * !#en Resume the game from pause.
-     * !#zh 继续游戏，继续的是整个主循环。
+     * !#en Resume the game from pause. This will resume: 
+     * game logic execution, rendering process, event manager, background music and all audio effects.
+     * !#zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      * @method resume
      */
     resume: function () {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        cc.audioEngine && cc.audioEngine._resumePlaying();
+        if (cc.audioEngine && _isMusicPlaying) {
+            cc.audioEngine.resumeMusic();
+        }
+        // Resume event
+        var scene = cc.director.getScene() || cc.director.getRunningScene();
+        if (scene) {
+            cc.eventManager.resumeTarget(scene, true);
+        }
         // Resume main loop
         this._runMainLoop();
     },
