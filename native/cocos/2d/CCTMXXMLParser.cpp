@@ -544,11 +544,11 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         dict["rotation"] = Value(rotationValue.isNull() ? 0.0 : rotationValue.asFloat());
 
         // default type is rect
-        dict["type"] = Value(TMXObjectType::TMXObjectTypeRect);
+        dict["type"] = Value(static_cast<int>(TMXObjectType::RECT));
 
         // if has gid, the type is image
         if (!dict["gid"].isNull()) {
-            dict["type"] = Value(TMXObjectType::TMXObjectTypeImage);
+            dict["type"] = Value(static_cast<int>(TMXObjectType::IMAGE));
         }
 
         // Add the object to the objectGroup
@@ -610,7 +610,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         // find parent object's dict and add polygon-points to it
         TMXObjectGroupInfo* objectGroup = _objectGroups.back();
         ValueMap& dict = objectGroup->_objects.rbegin()->asValueMap();
-        dict["type"] = Value(TMXObjectType::TMXObjectTypePolygon);
+        dict["type"] = Value(static_cast<int>(TMXObjectType::POLYGON));
 
         // get points value string
         std::string value = attributeDict["points"].asString();
@@ -654,7 +654,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         // find parent object's dict and add polyline-points to it
         TMXObjectGroupInfo* objectGroup = _objectGroups.back();
         ValueMap& dict = objectGroup->_objects.rbegin()->asValueMap();
-        dict["type"] = Value(TMXObjectType::TMXObjectTypePolyline);
+        dict["type"] = Value(static_cast<int>(TMXObjectType::POLYLINE));
         // get points value string
         std::string value = attributeDict["points"].asString();
         if (!value.empty())
@@ -695,7 +695,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
     else if (elementName == "ellipse") {
         TMXObjectGroupInfo* objectGroup = _objectGroups.back();
         ValueMap& dict = objectGroup->_objects.rbegin()->asValueMap();
-        dict["type"] = Value(TMXObjectType::TMXObjectTypeEllipse);
+        dict["type"] = Value(static_cast<int>(TMXObjectType::ELLIPSE));
     }
 }
 

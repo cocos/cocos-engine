@@ -39,7 +39,7 @@ NS_CC_BEGIN
 TMXObject::TMXObject(ValueMap objectInfo)
 {
     _objectName = objectInfo["name"].asString();
-    _type = (TMXObjectType) objectInfo["type"].asInt();
+    _type = static_cast<TMXObjectType>(objectInfo["type"].asInt());
     _gid = objectInfo["gid"].isNull() ? 0 : objectInfo["gid"].asInt();
     _id = objectInfo["id"].asInt();
     _offset = Vec2(objectInfo["x"].asFloat(), objectInfo["y"].asFloat());
@@ -187,16 +187,16 @@ void TMXObjectShape::_initShape(const ValueMap& objectInfo)
     setRotation(_objectRotation);
 
     switch (_type) {
-        case TMXObjectTypeRect:
+        case TMXObjectType::RECT:
             _drawRect();
             break;
-        case TMXObjectTypeEllipse:
+        case TMXObjectType::ELLIPSE:
             _drawEllipse();
             break;
-        case TMXObjectTypePolygon:
+        case TMXObjectType::POLYGON:
             _drawPoly(objectInfo, originPos, true);
             break;
-        case TMXObjectTypePolyline:
+        case TMXObjectType::POLYLINE:
             _drawPoly(objectInfo, originPos, false);
             break;
         default:
@@ -496,7 +496,7 @@ void TMXObjectGroup::_initGroup(TMXObjectGroupInfo* groupInfo, TMXMapInfo* mapIn
     for (auto& object : objects) {
         auto objectInfo = object.asValueMap();
         Node* obj = nullptr;
-        if (objectInfo["type"].asInt() == TMXObjectTypeImage) {
+        if (objectInfo["type"].asInt() == static_cast<int>(TMXObjectType::IMAGE)) {
             obj = new TMXObjectImage(objectInfo, mapInfo, getContentSize());
         } else {
             obj = new TMXObjectShape(objectInfo, mapInfo, getContentSize(), groupInfo->_color);
