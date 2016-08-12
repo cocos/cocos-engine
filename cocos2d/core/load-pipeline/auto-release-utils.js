@@ -22,9 +22,17 @@ function release (loader, key, nextSceneAssets) {
             loader.removeItem(key);
             console.log('auto release: ' + key);
             // TODO: Audio
-            if (item.content instanceof cc.Texture2D) {
+            var asset = item.content;
+            if (asset instanceof cc.Texture2D) {
                 cc.textureCache.removeTextureForKey(item.url);
             }
+            //else if (asset instanceof cc.SpriteFrame) {
+            //    // for the "Temporary solution" in deserialize.js
+            //    console.log('release sprite frame: ' + key);
+            //    if (CC_JSB) {
+            //        asset.release();
+            //    }
+            //}
         }
     }
 }

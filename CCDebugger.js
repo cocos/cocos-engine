@@ -543,7 +543,13 @@ cc._initDebugSetting = function (mode) {
         }
     }
     cc._throw = CC_EDITOR ? Editor.error : function (error) {
-        cc.error(error.stack || error);
+        var stack = error.stack;
+        if (stack) {
+            cc.error(CC_JSB ? (error + '\n' + stack) : stack);
+        }
+        else {
+            cc.error(error);
+        }
     };
 };
 //+++++++++++++++++++++++++something about log end+++++++++++++++++++++++++++++

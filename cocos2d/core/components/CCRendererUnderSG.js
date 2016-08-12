@@ -32,6 +32,7 @@
  */
 var RendererUnderSG = cc.Class({
     extends: require('./CCSGComponent'),
+    name: 'cc._RendererUnderSG',
 
     ctor: function () {
         /**

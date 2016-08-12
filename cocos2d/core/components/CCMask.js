@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Base = cc._RendererInSG;
+
 /**
  * @class Mask
  * @extends _RendererInSG
@@ -51,7 +53,7 @@ var MaskType = cc.Enum({
 
 var Mask = cc.Class({
     name: 'cc.Mask',
-    extends: cc._RendererInSG,
+    extends: Base,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Mask',
@@ -167,12 +169,6 @@ var Mask = cc.Class({
         this.node.off('anchor-changed', this._refreshStencil, this);
     },
     
-    onDestroy: CC_JSB && function () {
-        this._super();
-        this._clippingStencil.release();
-        this._clippingStencil = null;
-    },
-
     _calculateCircle: function(center, radius, segements) {
         var polies =[];
         var anglePerStep = Math.PI * 2 / segements;
@@ -207,5 +203,15 @@ var Mask = cc.Class({
         }
     }
 });
+
+if (CC_JSB) {
+    // override onDestroy
+    Mask.prototype.__superOnDestroy = Base.prototype.onDestroy;
+    Mask.prototype.onDestroy = function () {
+        this.__superOnDestroy();
+        this._clippingStencil.release();
+        this._clippingStencil = null;
+    };
+}
 
 cc.Mask = module.exports = Mask;
