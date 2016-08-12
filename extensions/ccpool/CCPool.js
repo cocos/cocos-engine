@@ -38,6 +38,7 @@
  * cc.pool 是一个单例对象，用作为对象缓存池。<br/>
  * 它可以帮助您提高游戏性能，适用于优化对象的反复创建和销毁<br/>
  * @class pool
+ * @deprecated !#en Please use cc.NodePool instead !#zh 请使用 cc.NodePool 代替
  */
 cc.pool = /** @lends cc.pool# */{
     _pool: {},
