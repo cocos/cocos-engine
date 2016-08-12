@@ -238,7 +238,11 @@ TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
 
 TMXObjectGroup * TMXTiledMap::getObjectGroup(const std::string& groupName) const
 {
-    CCASSERT(groupName.size() > 0, "Invalid group name!");
+    CCASSERT(!groupName.empty(), "Invalid group name!");
+
+    if (groupName.empty()) {
+        return nullptr;
+    }
 
     for (auto& child : _children)
     {

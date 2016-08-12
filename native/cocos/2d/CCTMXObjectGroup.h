@@ -36,13 +36,14 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-typedef enum TMXObjectType_ {
-    TMXObjectTypeRect,
-    TMXObjectTypeEllipse,
-    TMXObjectTypePolygon,
-    TMXObjectTypePolyline,
-    TMXObjectTypeImage
-} TMXObjectType;
+enum class TMXObjectType {
+    RECT,
+    ELLIPSE,
+    POLYGON,
+    POLYLINE,
+    IMAGE
+};
+
 class TMXMapInfo;
 class TMXObjectGroupInfo;
 class Color4F;
