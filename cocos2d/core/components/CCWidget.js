@@ -301,7 +301,75 @@ var Widget = cc.Class({
             tooltip: 'i18n:COMPONENT.widget.right',
         },
 
+        /**
+         * !#en TODO
+         * !#zh 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
+         * @property horizontalCenter
+         * @type {Number}
+         * @default 0
+         */
+        horizontalCenter: {
+            get: function () {
+                return this._horizontalCenter;
+            },
+            set: function (value) {
+                this._horizontalCenter = value;
+            },
+            tooltip: 'i18n:COMPONENT.widget.horizontal_center',
+        },
+
+        /**
+         * !#en TODO
+         * !#zh 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
+         * @property verticalCenter
+         * @type {Number}
+         * @default 0
+         */
+        verticalCenter: {
+            get: function () {
+                return this._verticalCenter;
+            },
+            set: function (value) {
+                this._verticalCenter = value;
+            },
+            tooltip: 'i18n:COMPONENT.widget.vertical_center',
+        },
+
         // PARCENTAGE OR ABSOLUTE
+
+        /**
+         * !#en TODO
+         * !#zh 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比。
+         * @property isAbsoluteHorizontalCenter
+         * @type {Boolean}
+         * @default true
+         */
+        isAbsoluteHorizontalCenter: {
+            get: function () {
+                return this._isAbsHorizontalCenter;
+            },
+            set: function (value) {
+                this._isAbsHorizontalCenter = value;
+            },
+            animatable: false
+        },
+
+        /**
+         * !#en TODO
+         * !#zh 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比。
+         * @property isAbsoluteHorizontalCenter
+         * @type {Boolean}
+         * @default true
+         */
+        isAbsoluteVerticalCenter: {
+            get: function () {
+                return this._isAbsVerticalCenter;
+            },
+            set: function (value) {
+                this._isAbsVerticalCenter = value;
+            },
+            animatable: false
+        },
 
         /**
          * !#en
@@ -411,10 +479,14 @@ var Widget = cc.Class({
         _right: 0,
         _top: 0,
         _bottom: 0,
+        _verticalCenter: 0,
+        _horizontalCenter: 0,
         _isAbsLeft: true,
         _isAbsRight: true,
         _isAbsTop: true,
         _isAbsBottom: true,
+        _isAbsHorizontalCenter: true,
+        _isAbsVerticalCenter: true,
 
         // original size before align
         _originalWidth: 0,
