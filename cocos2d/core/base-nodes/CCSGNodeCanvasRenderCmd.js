@@ -208,10 +208,10 @@ _ccsg.Node.RenderCmd.prototype = {
                     skx = 99999999;
                 if (sky === Infinity)
                     sky = 99999999;
-                t.a = a + b * sky;
-                t.b = b + a * sky;
-                t.c = c + d * skx;
-                t.d = d + c * skx;
+                t.a = a + c * sky;
+                t.b = b + d * sky;
+                t.c = c + a * skx;
+                t.d = d + b * skx;
             }
 
             if (appX || appY) {
@@ -449,21 +449,21 @@ _ccsg.Node.RenderCmd.prototype = {
         var colorDirty = locFlag & dirtyFlags.colorDirty,
             opacityDirty = locFlag & dirtyFlags.opacityDirty;
 
-        if(locFlag & dirtyFlags.contentDirty) {
+        if (locFlag & dirtyFlags.contentDirty) {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
             this._dirtyFlag &= ~dirtyFlags.contentDirty;
         }
 
-        if(colorDirty)
+        if (colorDirty)
             this._updateDisplayColor();
 
-        if(opacityDirty)
+        if (opacityDirty)
             this._updateDisplayOpacity();
 
-        if(colorDirty || opacityDirty)
+        if (colorDirty || opacityDirty)
             this._updateColor();
 
-        if(locFlag & dirtyFlags.transformDirty){
+        if (locFlag & dirtyFlags.transformDirty) {
             //update the transform
             this.transform(this.getParentRenderCmd(), true);
             this._dirtyFlag &= ~dirtyFlags.transformDirty;
@@ -487,7 +487,7 @@ _ccsg.Node.RenderCmd.prototype = {
             //update the opacity
             this._syncDisplayOpacity();
 
-        if(colorDirty || opacityDirty)
+        if (colorDirty || opacityDirty)
             this._updateColor();
 
         if (transformDirty)
