@@ -29,9 +29,8 @@ var Downloader = require('./downloader');
 var Loader = require('./loader');
 var AssetTable = require('./asset-table');
 var callInNextTick = require('../platform/utils').callInNextTick;
+var AutoReleaseUtils = require('./auto-release-utils');
 
-var downloader = new Downloader();
-var loader = new Loader();
 var resources = new AssetTable();
 
 /**
@@ -40,13 +39,15 @@ var resources = new AssetTable();
  * @extends Pipeline
  * @static
  */
-cc.loader = new Pipeline([
-    downloader,
-    loader
-]);
+function CCLoader () {
+    var downloader = new Downloader();
+    var loader = new Loader();
 
+    Pipeline.call(this, [
+        downloader,
+        loader
+    ]);
 
-JS.mixin(cc.loader, {
     /**
      * The downloader in cc.loader's pipeline, it's by default the first pipe.
      * It's used to download files with several handlers: pure text, image, script, audio, font, uuid.
@@ -54,7 +55,7 @@ JS.mixin(cc.loader, {
      * @property downloader
      * @type {Object}
      */
-    downloader: downloader,
+    this.downloader = downloader;
 
     /**
      * The downloader in cc.loader's pipeline, it's by default the second pipe.
@@ -63,7 +64,13 @@ JS.mixin(cc.loader, {
      * @property loader
      * @type {Object}
      */
-    loader: loader,
+    this.loader = loader;
+
+    // assets to release automatically
+    this._autoReleaseSetting = {};
+}
+JS.extend(CCLoader, Pipeline);
+JS.mixin(CCLoader.prototype, {
 
     /**
      * Get XMLHttpRequest.
@@ -82,7 +89,7 @@ JS.mixin(cc.loader, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addDownloadHandlers: function (extMap) {
-        downloader.addHandlers(extMap);
+        this.downloader.addHandlers(extMap);
     },
 
     /**
@@ -96,7 +103,7 @@ JS.mixin(cc.loader, {
      * @param {Object} extMap Custom supported types with corresponded handler
      */
     addLoadHandlers: function (extMap) {
-        loader.addHandlers(extMap);
+        this.loader.addHandlers(extMap);
     },
 
     /**
@@ -295,7 +302,8 @@ JS.mixin(cc.loader, {
             completeCallback = type;
             type = null;
         }
-        var uuid = this._getResUuid(url, type);
+        var self = this;
+        var uuid = self._getResUuid(url, type);
         if (uuid) {
             this.load(
                 {
@@ -303,7 +311,15 @@ JS.mixin(cc.loader, {
                     type: 'uuid',
                     uuid: uuid
                 },
-                completeCallback
+                function (err, asset) {
+                    if (asset) {
+                        // should not release these assets, even if they are static referenced in the scene.
+                        self.setAutoReleaseRecursively(asset, false);
+                    }
+                    if (completeCallback) {
+                        completeCallback(err, asset);
+                    }
+                }
             );
         }
         else {
@@ -315,7 +331,9 @@ JS.mixin(cc.loader, {
                 else {
                     info = 'Resources url "' + url + '" does not exist.';
                 }
-                completeCallback(new Error(info), null);
+                if (completeCallback) {
+                    completeCallback(new Error(info), null);
+                }
             });
         }
     },
@@ -360,6 +378,7 @@ JS.mixin(cc.loader, {
             completeCallback = type;
             type = null;
         }
+        var self = this;
         var uuids = resources.getUuidArray(url, type);
         var remain = uuids.length;
         if (remain > 0) {
@@ -371,18 +390,25 @@ JS.mixin(cc.loader, {
                 }
                 if (err) {
                     aborted = true;
-                    completeCallback(err, null);
+                    if (completeCallback) {
+                        completeCallback(err, null);
+                    }
                     return;
                 }
                 results.push(res);
                 --remain;
                 if (remain === 0) {
-                    completeCallback(null, results);
+                    for (var i = 0; i < results.length; i++) {
+                        self.setAutoReleaseRecursively(results[i], false);
+                    }
+                    if (completeCallback) {
+                        completeCallback(null, results);
+                    }
                 }
             }
             for (var i = 0, len = remain; i < len; ++i) {
                 var uuid = uuids[i];
-                this.load(
+                self.load(
                     {
                         id: uuid,
                         type: 'uuid',
@@ -394,7 +420,9 @@ JS.mixin(cc.loader, {
         }
         else {
             callInNextTick(function () {
-                completeCallback(null, []);
+                if (completeCallback) {
+                    completeCallback(null, []);
+                }
             });
         }
     },
@@ -489,8 +517,129 @@ JS.mixin(cc.loader, {
      */
     releaseAll: function () {
         this.clear();
-    }
+    },
+
+    // AUTO RELEASE
+
+    _baseRemoveItem: Pipeline.prototype.removeItem,
+
+    // override
+    removeItem: function (key) {
+        this._baseRemoveItem(key);
+        delete this._autoReleaseSetting[key];
+    },
+
+    /**
+     * !#en
+     * Indicates whether to release the asset when loading a new scene.<br>
+     * By default, when loading a new scene, all assets in the previous scene will be released or preserved
+     * according to whether the previous scene checked the "Auto Release Assets" option.
+     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResAll`
+     * will not be affected by that option, remain not released by default.<br>
+     * Use this API to change the default behavior on a single asset, to force preserve or release specified asset when scene switching.<br>
+     * <br>
+     * See: {{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}, {{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     * !#zh
+     * 设置当场景切换时是否自动释放资源。<br>
+     * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。
+     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResAll` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 使用这个 API 可以在单个资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
+     * <br>
+     * 参考：{{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}，{{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     *
+     * @example
+     * // auto release the texture event if "Auto Release Assets" disabled in current scene
+     * cc.loader.setAutoRelease(texture2d, true);
+     * // don't release the texture even if "Auto Release Assets" enabled in current scene
+     * cc.loader.setAutoRelease(texture2d, false);
+     * // first parameter can be url
+     * cc.loader.setAutoRelease(audioUrl, false);
+     *
+     * @method setAutoRelease
+     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Boolean} autoRelease - indicates whether should release automatically
+     */
+    setAutoRelease: function (assetOrUrl, autoRelease) {
+        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        if (key) {
+            this._autoReleaseSetting[key] = !!autoRelease;
+        }
+        else if (CC_DEV) {
+            cc.warn('No need to release non-cached asset.');
+        }
+    },
+
+    /**
+     * !#en
+     * Indicates whether to release the asset and its referenced other assets when loading a new scene.<br>
+     * By default, when loading a new scene, all assets in the previous scene will be released or preserved
+     * according to whether the previous scene checked the "Auto Release Assets" option.
+     * On the other hand, assets dynamically loaded by using `cc.loader.loadRes` or `cc.loader.loadResAll`
+     * will not be affected by that option, remain not released by default.<br>
+     * Use this API to change the default behavior on the specified asset and its recursively referenced assets, to force preserve or release specified asset when scene switching.<br>
+     * <br>
+     * See: {{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}, {{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     * !#zh
+     * 设置当场景切换时是否自动释放资源及资源引用的其它资源。<br>
+     * 默认情况下，当加载新场景时，旧场景的资源根据旧场景是否勾选“Auto Release Assets”，将会被释放或者保留。
+     * 而使用 `cc.loader.loadRes` 或 `cc.loader.loadResAll` 动态加载的资源，则不受场景设置的影响，默认不自动释放。<br>
+     * 使用这个 API 可以在指定资源及资源递归引用到的所有资源上改变这个默认行为，强制在切换场景时保留或者释放指定资源。<br>
+     * <br>
+     * 参考：{{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}，{{#crossLink "loader/isAutoRelease:method"}}cc.loader.isAutoRelease{{/crossLink}}
+     *
+     * @example
+     * // auto release the SpriteFrame and its Texture event if "Auto Release Assets" disabled in current scene
+     * cc.loader.setAutoReleaseRecursively(spriteFrame, true);
+     * // don't release the SpriteFrame and its Texture even if "Auto Release Assets" enabled in current scene
+     * cc.loader.setAutoReleaseRecursively(spriteFrame, false);
+     * // don't release the Prefab and all the referenced assets
+     * cc.loader.setAutoReleaseRecursively(prefab, false);
+     *
+     * @method setAutoReleaseRecursively
+     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Boolean} autoRelease - indicates whether should release automatically
+     */
+    setAutoReleaseRecursively: function (assetOrUrl, autoRelease) {
+        autoRelease = !!autoRelease;
+        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        if (key) {
+            this._autoReleaseSetting[key] = autoRelease;
+
+            var depends = AutoReleaseUtils.getDependsRecursively(key);
+            for (var i = 0; i < depends.length; i++) {
+                var depend = depends[i];
+                this._autoReleaseSetting[depend] = autoRelease;
+            }
+        }
+        else if (CC_DEV) {
+            cc.warn('No need to release non-cached asset.');
+        }
+    },
+
+    /**
+     * !#en
+     * Returns whether the asset is configured as auto released, despite how "Auto Release Assets" property is set on scene asset.<br>
+     * <br>
+     * See: {{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}, {{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}
+     *
+     * !#zh
+     * 返回指定的资源是否有被设置为自动释放，不论场景的“Auto Release Assets”如何设置。<br>
+     * <br>
+     * 参考：{{#crossLink "loader/setAutoRelease:method"}}cc.loader.setAutoRelease{{/crossLink}}，{{#crossLink "loader/setAutoReleaseRecursively:method"}}cc.loader.setAutoReleaseRecursively{{/crossLink}}
+     * @method isAutoRelease
+     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @returns {Boolean}
+     */
+    isAutoRelease: function (assetOrUrl) {
+        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        if (key) {
+            return !!this._autoReleaseSetting[key];
+        }
+        return false;
+    },
 });
+
+cc.loader = new CCLoader();
 
 if (CC_EDITOR) {
     cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {

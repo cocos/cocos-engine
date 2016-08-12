@@ -38,15 +38,17 @@ cc.Scene = cc.Class({
     name: 'cc.Scene',
     extends: require('./utils/base-node'),
 
-    //properties: {
-    //    /**
-    //     * !#en Indicates the raw assets of this scene can be load after scene launched.
-    //     * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
-    //     * @property {Boolean} _asyncLoadAssets
-    //     * @default false
-    //     */
-    //    _asyncLoadAssets: false
-    //},
+    properties: {
+
+        /**
+         * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
+         * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
+         * @property {Boolean} autoReleaseAssets
+         * @default false
+         */
+        autoReleaseAssets: undefined,
+
+    },
 
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
@@ -59,6 +61,9 @@ cc.Scene = cc.Class({
 
         this._activeInHierarchy = false;
         this._inited = !cc.game._isCloning;
+
+        // cache all depend assets for auto release
+        this.dependAssets = null;
     },
 
     destroy: function () {

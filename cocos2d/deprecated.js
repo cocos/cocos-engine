@@ -210,6 +210,11 @@ if (CC_DEV) {
         return cc.js.array.copy;
     });
 
+    js.get(cc, 'PI', function () {
+        cc.warn(INFO, 'cc.PI', 'Math.PI');
+        return Math.PI;
+    });
+
     /**
      * Get the Tile set information for the layer.
      * @memberof cc.TiledLayer
