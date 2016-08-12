@@ -205,6 +205,10 @@ window._ccsg = {
     EditBox: cc.EditBox,
     VideoPlayer: cc.VideoPlayer,
     TMXTiledMap: cc.TMXTiledMap,
+    TMXObjectGroup: cc.TMXObjectGroup,
+    TMXObject: cc.TMXObject,
+    TMXObjectImage: cc.TMXObjetImage,
+    TMXObjectShape: cc.TMXObjectShape,
     TMXLayer: cc.TMXLayer,
     MotionStreak: cc.MotionStreak
 };
