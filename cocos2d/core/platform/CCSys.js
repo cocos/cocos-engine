@@ -232,7 +232,7 @@ sys.MACOS = 2;
  */
 sys.ANDROID = 3;
 /**
- * @property {Number} IOS
+ * @property {Number} IPHONE
  * @readOnly
  * @default 4
  */
