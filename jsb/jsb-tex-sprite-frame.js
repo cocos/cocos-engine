@@ -56,8 +56,10 @@ var prototype = cc.Texture2D.prototype;
 prototype.isLoaded = function () {
     return true;
 };
+prototype.releaseTexture = prototype.releaseGLTexture;
 prototype.getPixelWidth = prototype.getPixelsWide;
 prototype.getPixelHeight = prototype.getPixelsHigh;
+prototype.description = prototype.getDescription;
 cc.js.get(prototype, 'pixelWidth', prototype.getPixelWidth);
 cc.js.get(prototype, 'pixelHeight', prototype.getPixelHeight);
 

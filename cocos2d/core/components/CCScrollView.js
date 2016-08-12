@@ -849,14 +849,14 @@ var ScrollView = cc.Class({
         var deltaMove = cc.pSub(touch.getLocation(), touch.getStartLocation());
         //FIXME: touch move delta should be calculated by DPI.
         if (cc.pLength(deltaMove) > 7) {
-            this._touchMoved = true;
-            if (event.target !== this.node) {
+            if (!this._touchMoved && event.target !== this.node) {
                 // Simulate touch cancel for target node
                 var cancelEvent = new cc.Event.EventTouch(event.getTouches(), event.bubbles);
                 cancelEvent.type = cc.Node.EventType.TOUCH_CANCEL;
                 cancelEvent.touch = event.touch;
                 cancelEvent.simulate = true;
                 event.target.dispatchEvent(cancelEvent);
+                this._touchMoved = true;
             }
             event.stopPropagation();
         }
