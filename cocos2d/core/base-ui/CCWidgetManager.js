@@ -91,9 +91,9 @@ function alignToParent (node, widget) {
         else {
             width = node.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
-                var horizontalCenter = widget._isAbsHorizontalCenter ? widget._horizontalCenter : widget._horizontalCenter * parentWidth;
+                var localHorizontalCenter = widget._isAbsHorizontalCenter ? widget._horizontalCenter : widget._horizontalCenter * parentWidth;
                 var parentCenter = (0.5 - parentAnchor.x) * parentWidth;
-                x = parentCenter + (anchorX - 0.5) * width + horizontalCenter;
+                x = parentCenter + (anchorX - 0.5) * width + localHorizontalCenter;
             }
             else if (widget.isAlignLeft) {
                 x = localLeft + anchorX * width;
@@ -138,9 +138,9 @@ function alignToParent (node, widget) {
         else {
             height = node.height * scaleY;
             if (widget.isAlignVerticalCenter) {
-                var verticalCenter = widget._isAbsVerticalCenter ? widget._verticalCenter : widget._verticalCenter * parentHeight;
+                var localVerticalCenter = widget._isAbsVerticalCenter ? widget._verticalCenter : widget._verticalCenter * parentHeight;
                 var parentMiddle = (0.5 - parentAnchor.y) * parentHeight;
-                y = parentMiddle + (anchorY - 0.5) * height + verticalCenter;
+                y = parentMiddle + (anchorY - 0.5) * height + localVerticalCenter;
             }
             else if (widget.isAlignBottom) {
                 y = localBottom + anchorY * height;
@@ -309,14 +309,10 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
         this.right -= (this.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x);
     }
     if (this.isAlignHorizontalCenter) {
-        if (delta.x !== 0 && anchor.x !== 0.5) {
-            this.isAlignHorizontalCenter = false;
-        }
+        this.horizontalCenter -= (this.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x);
     }
     if (this.isAlignVerticalCenter) {
-        if (delta.y !== 0 && anchor.y !== 0.5) {
-            this.isAlignVerticalCenter = false;
-        }
+        this.verticalCenter -= (this.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y);
     }
 };
 

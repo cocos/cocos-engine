@@ -302,7 +302,9 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#en TODO
+         * !#en
+         * Horizontal aligns the midpoint offset value,
+         * the value can be negative, Only available in 'isAlignHorizontalCenter' open.
          * !#zh 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
          * @property horizontalCenter
          * @type {Number}
@@ -319,7 +321,9 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#en TODO
+         * !#en
+         * Vertical aligns the midpoint offset value,
+         * the value can be negative, Only available in 'isAlignVerticalCenter' open.
          * !#zh 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
          * @property verticalCenter
          * @type {Number}
@@ -338,8 +342,8 @@ var Widget = cc.Class({
         // PARCENTAGE OR ABSOLUTE
 
         /**
-         * !#en TODO
-         * !#zh 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比。
+         * !#en If true, horizontalCenter is pixel margin, otherwise is percentage (0 - 1) margin.
+         * !#zh 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
          * @property isAbsoluteHorizontalCenter
          * @type {Boolean}
          * @default true
@@ -355,8 +359,8 @@ var Widget = cc.Class({
         },
 
         /**
-         * !#en TODO
-         * !#zh 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比。
+         * !#en If true, verticalCenter is pixel margin, otherwise is percentage (0 - 1) margin.
+         * !#zh 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
          * @property isAbsoluteHorizontalCenter
          * @type {Boolean}
          * @default true
