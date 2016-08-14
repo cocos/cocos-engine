@@ -8,6 +8,8 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedValue initializing(cx);
     bool isNewValid = true;
+    JS::RootedObject global(cx, ScriptingCore::getInstance()->getGlobalObject());
+    isNewValid = JS_GetProperty(cx, global, "initializing", &initializing) && initializing.toBoolean();
     if (isNewValid)
     {
         TypeTest<T> t;
@@ -22,13 +24,11 @@ static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
         JS::RootedObject parent(cx, typeClass->parentProto.ref());
         JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
         
-        T* cobj = new T();
-        js_proxy_t *pp = jsb_new_proxy(cobj, _tmp);
-        AddObjectRoot(cx, &pp->obj);
         args.rval().set(OBJECT_TO_JSVAL(_tmp));
         return true;
     }
 
+    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
@@ -784,6 +784,10 @@ bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, jsval *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     creator::Scale9SpriteV2* cobj = new (std::nothrow) creator::Scale9SpriteV2();
+    cocos2d::Ref *_ccobj = dynamic_cast<cocos2d::Ref *>(cobj);
+    if (_ccobj) {
+        _ccobj->autorelease();
+    }
     TypeTest<creator::Scale9SpriteV2> t;
     js_type_class_t *typeClass = nullptr;
     std::string typeName = t.s_name();
@@ -796,7 +800,8 @@ bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, jsval *
     JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
     args.rval().set(OBJECT_TO_JSVAL(obj));
     // link the native object with the javascript object
-    jsb_new_proxy(cobj, obj);
+    js_proxy_t* p = jsb_new_proxy(cobj, obj);
+    AddNamedObjectRoot(cx, &p->obj, "creator::Scale9SpriteV2");
     if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
     return true;
@@ -805,7 +810,11 @@ bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, jsval *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     creator::Scale9SpriteV2 *nobj = new (std::nothrow) creator::Scale9SpriteV2();
+    if (nobj) {
+        nobj->autorelease();
+    }
     js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    AddNamedObjectRoot(cx, &p->obj, "creator::Scale9SpriteV2");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
@@ -817,18 +826,6 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 
 void js_creator_Scale9SpriteV2_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (Scale9SpriteV2)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        creator::Scale9SpriteV2 *nobj = static_cast<creator::Scale9SpriteV2 *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            nobj->release();
-        }
-        else jsb_remove_proxy(proxy);
-    }
 }
     
 void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) {
@@ -1595,6 +1592,10 @@ bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     creator::GraphicsNode* cobj = new (std::nothrow) creator::GraphicsNode();
+    cocos2d::Ref *_ccobj = dynamic_cast<cocos2d::Ref *>(cobj);
+    if (_ccobj) {
+        _ccobj->autorelease();
+    }
     TypeTest<creator::GraphicsNode> t;
     js_type_class_t *typeClass = nullptr;
     std::string typeName = t.s_name();
@@ -1607,7 +1608,8 @@ bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp
     JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
     args.rval().set(OBJECT_TO_JSVAL(obj));
     // link the native object with the javascript object
-    jsb_new_proxy(cobj, obj);
+    js_proxy_t* p = jsb_new_proxy(cobj, obj);
+    AddNamedObjectRoot(cx, &p->obj, "creator::GraphicsNode");
     if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
     return true;
@@ -1616,7 +1618,11 @@ bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     creator::GraphicsNode *nobj = new (std::nothrow) creator::GraphicsNode();
+    if (nobj) {
+        nobj->autorelease();
+    }
     js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    AddNamedObjectRoot(cx, &p->obj, "creator::GraphicsNode");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
@@ -1628,18 +1634,6 @@ extern JSObject *jsb_cocos2d_Node_prototype;
 
 void js_creator_GraphicsNode_finalize(JSFreeOp *fop, JSObject *obj) {
     CCLOGINFO("jsbindings: finalizing JS object %p (GraphicsNode)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        creator::GraphicsNode *nobj = static_cast<creator::GraphicsNode *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            nobj->release();
-        }
-        else jsb_remove_proxy(proxy);
-    }
 }
     
 void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
