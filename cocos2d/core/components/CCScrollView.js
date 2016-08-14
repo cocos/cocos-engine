@@ -272,7 +272,7 @@ var ScrollView = cc.Class({
 
         /**
          * !#en Scrollview events callback
-         * !#zh 滚动过程中的事件回调函数
+         * !#zh 滚动视图的事件回调函数
          * @property {Component.EventHandler[]} scrollEvents
          */
         scrollEvents: {
@@ -281,7 +281,7 @@ var ScrollView = cc.Class({
         },
 
         /**
-         * !#en If cancel inner events is set to true, the scroll behavior will cancel touch events on inner content nodes of the scroll view
+         * !#en If cancelInnerEvents is set to true, the scroll behavior will cancel touch events on inner content nodes of the scroll view
          * It's set to true by default.
          * !#zh 如果这个属性被设置为 true，那么滚动行为会取消 ScrollView 的子节点上注册的触摸事件，默认被设置为 true。
          * 注意，子节点上的 touchstart 事件仍然会触发，触点移动距离非常短的情况下 touchmove 和 touchend 也不会受影响。
