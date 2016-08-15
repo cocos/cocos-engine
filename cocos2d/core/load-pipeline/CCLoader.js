@@ -525,8 +525,9 @@ JS.mixin(CCLoader.prototype, {
 
     // override
     removeItem: function (key) {
-        this._baseRemoveItem(key);
+        var removed = this._baseRemoveItem(key);
         delete this._autoReleaseSetting[key];
+        return removed;
     },
 
     /**
