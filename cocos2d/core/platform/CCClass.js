@@ -848,6 +848,15 @@ function CCClass (options) {
             });
         }
         else if (CC_DEV) {
+            if (func === false && base && base.prototype) {
+                // check override
+                var overrided = base.prototype[funcName];
+                if (typeof overrided === 'function') {
+                    var baseFuc = JS.getClassName(base) + '.' + funcName;
+                    var subFuc = name + '.' + funcName;
+                    cc.warn('"%s" overrided "%s" but "%s" is defined as "false" so the super method will not be called. You can set "%s" to null to disable this warning.', subFuc, baseFuc, subFuc, subFuc);
+                }
+            }
             var correct = TYPO_TO_CORRECT[funcName];
             if (correct) {
                 cc.warn('Unknown type of %s.%s, maybe you want is "%s".', name, funcName, correct);

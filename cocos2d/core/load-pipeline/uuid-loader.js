@@ -215,7 +215,8 @@ function loadUuid (item, callback) {
         });
     }
     catch (e) {
-        callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + e.stack) );
+        var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
+        callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err) );
         return;
     }
 

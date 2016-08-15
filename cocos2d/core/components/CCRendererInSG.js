@@ -33,6 +33,7 @@
  */
 var RendererInSG = cc.Class({
     extends: require('./CCSGComponent'),
+    name: 'cc._RendererInSG',
 
     ctor: function () {
         /**
