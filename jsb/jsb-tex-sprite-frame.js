@@ -32,6 +32,7 @@ require('../cocos2d/core/assets/CCAsset');
 // cc.SpriteFrameAnimation = cc.Animation;
 
 // cc.textureCache.cacheImage
+
 cc.textureCache._textures = {};
 cc.textureCache.cacheImage = function (key, texture) {
     if (texture instanceof cc.Texture2D) {
@@ -75,7 +76,6 @@ prototype.textureLoaded = function () {
     return this.getTexture() !== null;
 };
 
-// cc.SpriteFrame
 prototype._ctor = function (filename, rect, rotated, offset, originalSize) {
     this._name = '';
     if (filename !== undefined) {
