@@ -1307,8 +1307,20 @@ var ScrollView = cc.Class({
         }
     },
 
+    _adjustContentOutOfBoundary: function () {
+        this._outOfBoundaryAmountDirty = true;
+        if(this._isOutOfBoundary()) {
+            var outOfBoundary = this._getHowMuchOutOfBoundary(cc.p(0, 0));
+            var newPosition = cc.pAdd(this.getContentPosition(), outOfBoundary);
+            if(this.content) {
+                this.content.setPosition(newPosition);
+            }
+        }
+    },
+
     start: function() {
         this._calculateBoundary();
+        cc.director.once(cc.Director.EVENT_AFTER_VISIT, this._adjustContentOutOfBoundary, this);
     },
 
     onDestroy: function() {
