@@ -1,11 +1,12 @@
-var js = cc.js;
 
-// Label
-if (cc.Label) {
-    js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
-}
+if (CC_DEV && typeof eruda === 'undefined') {
 
-if (CC_DEV) {
+    var js = cc.js;
+
+    // Label
+    if (cc.Label) {
+        js.obsolete(cc.Label.prototype,  'cc.Label.file', 'font', true);
+    }
 
     var INFO = cc._LogInfos.deprecated;
 
@@ -617,4 +618,41 @@ if (CC_DEV) {
             '*etTimeScale': 'timeScale',
         });
     }
+
+    // SCENE
+
+    var ERR = '"%s" is not defined in the Scene, it is only defined in normal nodes.';
+    Object.defineProperties(cc.Scene.prototype, {
+        active: {
+            get: function () {
+                cc.error(ERR, 'active');
+                return true;
+            },
+            set: function () {
+                cc.error(ERR, 'active');
+            }
+        },
+        activeInHierarchy: {
+            get: function () {
+                cc.error(ERR, 'activeInHierarchy');
+                return true;
+            },
+        },
+        getComponent: {
+            get: function () {
+                cc.error(ERR, 'getComponent');
+                return function () {
+                    return null;
+                };
+            }
+        },
+        addComponent: {
+            get: function () {
+                cc.error(ERR, 'addComponent');
+                return function () {
+                    return null;
+                };
+            }
+        },
+    });
 }
