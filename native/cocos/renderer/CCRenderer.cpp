@@ -34,6 +34,7 @@
 #include "renderer/CCMeshCommand.h"
 #include "renderer/CCGLProgramCache.h"
 #include "renderer/CCMaterial.h"
+#include "renderer/CCTechnique.h"
 #include "renderer/CCPass.h"
 #include "renderer/CCRenderState.h"
 #include "renderer/ccGLStateCache.h"
@@ -783,7 +784,7 @@ void Renderer::drawBatchedTriangles()
 //        glBufferSubData(GL_ARRAY_BUFFER, sizeof(_quads[0])*start, sizeof(_quads[0]) * n , &_quads[start] );
 
         // option 2: data
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(quads_[0]) * (n-start), &quads_[start], GL_DYNAMIC_DRAW);
+//        glBufferData(GL_ARRAY_BUFFER, sizeof(_verts[0]) * _filledVertex, _verts, GL_STATIC_DRAW);
 
         // option 3: orphaning + glMapBuffer
         // FIXME: in order to work as fast as possible, it must "and the exact same size and usage hints it had before."
@@ -801,6 +802,7 @@ void Renderer::drawBatchedTriangles()
     }
     else
     {
+        // Client Side Arrays
 #define kQuadSize sizeof(_verts[0])
         glBindBuffer(GL_ARRAY_BUFFER, _buffersVBO[0]);
 

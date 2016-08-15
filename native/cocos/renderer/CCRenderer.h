@@ -135,7 +135,7 @@ class GroupCommandManager;
 
 /* Class responsible for the rendering in.
 
-Whenever possible prefer to use `QuadCommand` objects since the renderer will automatically batch them.
+Whenever possible prefer to use `TrianglesCommand` objects since the renderer will automatically batch them.
  */
 class CC_DLL Renderer
 {
@@ -184,11 +184,11 @@ public:
     void setClearColor(const Color4F& clearColor);
     /* returns the number of drawn batches in the last frame */
     ssize_t getDrawnBatches() const { return _drawnBatches; }
-    /* RenderCommands (except) QuadCommand should update this value */
+    /* RenderCommands (except) TrianglesCommand should update this value */
     void addDrawnBatches(ssize_t number) { _drawnBatches += number; };
     /* returns the number of drawn triangles in the last frame */
     ssize_t getDrawnVertices() const { return _drawnVertices; }
-    /* RenderCommands (except) QuadCommand should update this value */
+    /* RenderCommands (except) TrianglesCommand should update this value */
     void addDrawnVertices(ssize_t number) { _drawnVertices += number; };
     /* clear draw stats */
     void clearDrawStats() { _drawnBatches = _drawnVertices = 0; }

@@ -25,12 +25,6 @@
 #include "scripting/js-bindings/manual/js_manual_conversions.h"
 
 #include "base/ccUTF8.h"
-#include "deprecated/CCBool.h"
-#include "deprecated/CCDictionary.h"
-#include "deprecated/CCDouble.h"
-#include "deprecated/CCFloat.h"
-#include "deprecated/CCInteger.h"
-#include "deprecated/CCString.h"
 #include "editor-support/cocostudio/CocosStudioExtension.h"
 #include "math/TransformUtils.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"

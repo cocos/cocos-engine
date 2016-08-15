@@ -862,7 +862,7 @@ JS_BINDED_FUNC_IMPL(MinXmlHttpRequest, send)
 void MinXmlHttpRequest::update(float dt)
 {
     _elapsedTime += dt;
-    if(_elapsedTime * 1000 >= _timeout && Director::getInstance())
+    if(_elapsedTime * 1000 >= _timeout && cocos2d::Director::getInstance())
     {
         if (_ontimeoutCallback)
         {

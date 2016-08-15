@@ -22,6 +22,9 @@
  */
 
 #include "scripting/js-bindings/manual/extension/jsb_cocos2dx_extension_manual.h"
+#include "base/CCDirector.h"
+#include "base/CCScheduler.h"
+#include "renderer/CCTextureCache.h"
 #include "extensions/cocos-ext.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"

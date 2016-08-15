@@ -43,6 +43,7 @@ Ref::Ref()
 : _referenceCount(1) // when the Ref is created, the reference count of it is 1
 #if CC_ENABLE_SCRIPT_BINDING
 , _luaID (0)
+, _rooted(false)
 #endif
 {
 #if CC_ENABLE_SCRIPT_BINDING

@@ -35,7 +35,7 @@
 #include "base/CCValue.h"
 #include "base/CCVector.h"
 #include "base/ccTypes.h"
-#include "deprecated/CCArray.h"
+#include "2d/CCLabel.h"
 #include "math/CCAffineTransform.h"
 #include "platform/CCPlatformMacros.h"
 #include "renderer/CCGLProgram.h"

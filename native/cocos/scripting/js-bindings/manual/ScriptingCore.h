@@ -344,7 +344,7 @@ public:
      * Gets the cached script objects for all executed js file
      * @return @~english The cached script object map
      */
-    std::unordered_map<std::string, JS::PersistentRootedScript*> &getFileScript();
+    std::unordered_map<std::string, JS::PersistentRootedScript*>& getFileScript();
     /**@~english
      * Clean all script objects
      */
@@ -405,7 +405,7 @@ public:
     /**@~english
      * Simulate a multi touch event and dispatch it to a js object.
      * @param eventType @~english The touch event type
-     * @param touches @~english Touchs list for multitouch
+     * @param touches @~english Touches list for multitouch
      * @param obj @~english The js object
      * @return @~english Return 1 if succeed, otherwise return 0.
      */
@@ -437,7 +437,7 @@ public:
     static bool log(JSContext *cx, uint32_t argc, jsval *vp);
 
     /**@~english
-     * Sets a js value to the targeted js obejct's reserved slot, which is not exposed to script environment.
+     * Sets a js value to the targeted js object's reserved slot, which is not exposed to script environment.
      * @param i @~english The slot index
      * @param obj @~english The targeted object
      * @param value @~english The js value to set to the slot
@@ -487,7 +487,7 @@ public:
     void debugProcessInput(const std::string& str);
     /**@~english
      * Enable the debug environment, mozilla Firefox's remote debugger or Code IDE can connect to it.
-     * @param port @~english The port to connect with the debug enviroment, default value is 5086
+     * @param port @~english The port to connect with the debug environment, default value is 5086
      */
     void enableDebugger(unsigned int port = 5086);
     /**@~english

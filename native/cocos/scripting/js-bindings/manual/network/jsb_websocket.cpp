@@ -24,6 +24,7 @@
 #include "scripting/js-bindings/manual/network/jsb_websocket.h"
 
 #include "base/ccUTF8.h"
+#include "base/CCDirector.h"
 #include "network/WebSocket.h"
 #include "platform/CCPlatformMacros.h"
 #include "scripting/js-bindings/manual/ScriptingCore.h"
@@ -78,7 +79,7 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
 
-        if (Director::getInstance() == nullptr || ScriptEngineManager::getInstance() == nullptr)
+        if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -99,7 +100,7 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (p == nullptr) return;
 
-        if (Director::getInstance() == nullptr || ScriptEngineManager::getInstance() == nullptr)
+        if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
@@ -150,7 +151,7 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
 
-        if (Director::getInstance() != nullptr && Director::getInstance()->getRunningScene() && ScriptEngineManager::getInstance() != nullptr)
+        if (cocos2d::Director::getInstance() != nullptr && cocos2d::Director::getInstance()->getRunningScene() && cocos2d::ScriptEngineManager::getInstance() != nullptr)
         {
             JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
             
@@ -179,7 +180,7 @@ public:
         js_proxy_t * p = jsb_get_native_proxy(ws);
         if (!p) return;
 
-        if (Director::getInstance() == nullptr || ScriptEngineManager::getInstance() == nullptr)
+        if (cocos2d::Director::getInstance() == nullptr || cocos2d::ScriptEngineManager::getInstance() == nullptr)
             return;
 
         JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET

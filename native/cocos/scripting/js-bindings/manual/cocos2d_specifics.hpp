@@ -25,6 +25,12 @@
 #define __JS_COCOS2D_X_SPECIFICS_H__
 
 #include "scripting/js-bindings/manual/ScriptingCore.h"
+
+#include "2d/CCScene.h"
+#include "2d/CCSprite.h"
+#include "base/CCEventListenerTouch.h"
+#include "base/CCRef.h"
+#include "base/uthash.h"
 #include "platform/CCSAXParser.h"
 
 class JSScheduleWrapper;

@@ -156,6 +156,7 @@ THE SOFTWARE.
 #include "renderer/CCRenderCommandPool.h"
 #include "renderer/CCRenderState.h"
 #include "renderer/CCRenderer.h"
+#include "renderer/CCTechnique.h"
 #include "renderer/CCTexture2D.h"
 #include "renderer/CCTextureCache.h"
 #include "renderer/CCTrianglesCommand.h"
