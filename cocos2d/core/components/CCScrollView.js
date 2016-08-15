@@ -1307,8 +1307,22 @@ var ScrollView = cc.Class({
         }
     },
 
+    _adjustContentOutOfBoundary: function () {
+        this._outOfBoundaryAmountDirty = true;
+        if(this._isOutOfBoundary()) {
+            var outOfBoundary = this._getHowMuchOutOfBoundary(cc.p(0, 0));
+            var newPosition = cc.pAdd(this.getContentPosition(), outOfBoundary);
+            if(this.content) {
+                this.content.setPosition(newPosition);
+            }
+        }
+    },
+
     start: function() {
         this._calculateBoundary();
+        //Because widget component will adjust content position and scrollview position is correct after visit
+        //So this event could make sure the content is on the correct position after loading.
+        cc.director.once(cc.Director.EVENT_AFTER_VISIT, this._adjustContentOutOfBoundary, this);
     },
 
     onDestroy: function() {
