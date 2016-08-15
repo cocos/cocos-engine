@@ -36,12 +36,12 @@ var Vec2  = cc.Vec2;
 var Js    = cc.js;
 
 // Math
-var PI = 3.14159265358979323846264338327;
 var INIT_VERTS_SIZE = 32;
 
 var VERTS_FLOAT_LENGTH = 2;
 var VERTS_BYTE_LENGTH  = 8;
 
+var PI      = Math.PI;
 var min     = Math.min;
 var max     = Math.max;
 var ceil    = Math.ceil;

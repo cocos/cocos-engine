@@ -1,6 +1,5 @@
 
-var PI = 3.14159265358979323846264338327;
-
+var PI      = Math.PI;
 var min     = Math.min;
 var max     = Math.max;
 var cos     = Math.cos;
