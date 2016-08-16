@@ -313,5 +313,15 @@ void executeVideoCallback(int index,int event)
     }
 }
 
+float VideoPlayer::currentTime() const
+{
+    return JniHelper::callStaticFloatMethod(videoHelperClassName, "getCurrentTime", _videoPlayerIndex);
+}
+
+float VideoPlayer::duration() const
+{
+    return JniHelper::callStaticFloatMethod(videoHelperClassName, "getDuration", _videoPlayerIndex);
+}
+
 #endif
 
