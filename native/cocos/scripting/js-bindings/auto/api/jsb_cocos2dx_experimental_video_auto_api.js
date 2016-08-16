@@ -47,6 +47,16 @@ bool
 },
 
 /**
+ * @method currentTime
+ * @return {float}
+ */
+currentTime : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method stop
  */
 stop : function (
@@ -112,6 +122,16 @@ isFullScreenEnabled : function (
 )
 {
     return false;
+},
+
+/**
+ * @method duration
+ * @return {float}
+ */
+duration : function (
+)
+{
+    return 0;
 },
 
 /**
