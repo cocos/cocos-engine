@@ -213,10 +213,11 @@ function refreshScene () {
         else {
             var i, node, nodes = widgetManager._nodesWithWidget, len = nodes.length;
             if (CC_EDITOR && window._Scene && _Scene.AnimUtils && _Scene.AnimUtils.curAnimState) {
+                var editingNode = _Scene.AnimUtils.curRootNode;
                 for (i = len - 1; i >= 0; i--) {
                     node = nodes[i];
                     var widget = node._widget;
-                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame) {
+                    if (widget.isAlignOnce && animationState.animatedSinceLastFrame && node.isChildOf(editingNode)) {
                         // widget contains in _nodesWithWidget should aligned at least once
                         widget.enabled = false;
                     }
