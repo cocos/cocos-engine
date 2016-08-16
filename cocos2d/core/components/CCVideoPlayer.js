@@ -164,6 +164,7 @@ var VideoPlayer = cc.Class({
                 if(this._sgNode) {
                     return this._sgNode.currentTime();
                 }
+                return -1;
             }
         },
 
@@ -327,6 +328,7 @@ var VideoPlayer = cc.Class({
         if(this._sgNode) {
             this._sgNode.duration();
         }
+        return -1;
     },
 
     /**
