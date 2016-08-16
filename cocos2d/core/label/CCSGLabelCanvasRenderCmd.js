@@ -471,7 +471,7 @@
         }
 
         this._texture._textureLoaded = false;
-        this._texture.handleLoadedTexture();
+        this._texture.handleLoadedTexture(true);
     };
 
     proto._rebuildLabelSkin = function () {
