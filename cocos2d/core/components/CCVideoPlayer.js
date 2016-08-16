@@ -151,7 +151,7 @@ var VideoPlayer = cc.Class({
         /**
          * !#en The current time when video start to play.
          * !#zh  从当前时间点开始播放视频
-         * @property {Float} currentTime
+         * @property {Number} currentTime
          */
         currentTime: {
             tooltip: 'i18n:COMPONENT.videoplayer.currentTime',

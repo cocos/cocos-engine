@@ -457,7 +457,7 @@ JS.mixin(CCLoader.prototype, {
     /**
      * Returns an item in pipeline.
      * @method getItem
-     * @return {LoadingItem}
+     * @return {Object}
      */
     getItem: function (url) {
         var item = this._items.map[url];
