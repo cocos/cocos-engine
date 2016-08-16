@@ -1979,7 +1979,7 @@ cc.DrawNode = cc._DrawNode.extend({
         lineColor = lineColor || this._drawColor;
         var points = [origin, cc.p(origin.x, destination.y), destination, cc.p(destination.x, origin.y)];
         if (fillColor)
-            cc._DrawNode.prototype.drawPoly.call(this, points, fillColor, lineWidth, lineColor);
+            cc._DrawNode.prototype.drawPolygon.call(this, points, points.length, fillColor, lineWidth, lineColor);
         else {
             points.push(origin);
             var drawSeg = cc._DrawNode.prototype.drawSegment;
@@ -2073,7 +2073,7 @@ cc.DrawNode = cc._DrawNode.extend({
         borderWidth = borderWidth || this._lineWidth;
         borderColor = borderColor || this._drawColor;
         if (fillColor)
-            cc._DrawNode.prototype.drawPoly.call(this, verts, fillColor, borderWidth, borderColor);
+            cc._DrawNode.prototype.drawPolygon.call(this, verts, verts.length, fillColor, borderWidth, borderColor);
         else {
             var first = verts[0];
             var last = verts[verts.length - 1];

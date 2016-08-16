@@ -504,11 +504,6 @@ CC_CONSTRUCTOR_ACCESS:
     : _selectedIndex(0)
     , _selectedItem(nullptr)
     {}
-    /**
-     * @js NA
-     * @lua NA
-     */
-    virtual ~MenuItemToggle();
 
     /** Initializes a menu item from a list of items with a callable object. */
     bool initWithCallback(const ccMenuCallback& callback, MenuItem* item, va_list args);

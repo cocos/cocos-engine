@@ -781,15 +781,6 @@ cc.DrawNode.prototype._ctor = function() {
     cc.DrawNode.prototype.init.call(this);
 };
 
-cc.LabelAtlas.prototype._ctor = function(strText, charMapFile, itemWidth, itemHeight, startCharMap) {
-    if(startCharMap != undefined){
-        startCharMap = startCharMap.charCodeAt(0);
-        cc.LabelAtlas.prototype.initWithString.call(this, strText, charMapFile, itemWidth, itemHeight, startCharMap);
-    }else if(charMapFile != undefined){
-        this.initWithString(strText, charMapFile);
-    }
-};
-
 cc.LabelBMFont.prototype._ctor = function(str, fntFile, width, alignment, imageOffset) {
     if( fntFile ) {
         str = str || '';
@@ -1129,19 +1120,6 @@ cc.MenuItemToggle.create = function(/* var args */) {
         return item;
     } else {
         return cc.MenuItemToggle._create.apply(this, arguments);
-    }
-};
-
-
-// LabelAtlas
-cc.LabelAtlas.create = function( a,b,c,d,e ) {
-
-    var n = arguments.length;
-
-    if ( n == 5) {
-        return cc.LabelAtlas._create(a,b,c,d,e.charCodeAt(0));
-    } else {
-        return cc.LabelAtlas._create.apply(this, arguments);
     }
 };
 

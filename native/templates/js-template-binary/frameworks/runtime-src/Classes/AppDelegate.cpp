@@ -1,5 +1,22 @@
 #include "AppDelegate.h"
 
+#include "platform/CCGLView.h"
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#include "platform/ios/CCGLViewImpl-ios.h"
+#endif // CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#include "platform/android/CCGLViewImpl-android.h"
+#endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#include "platform/desktop/CCGLViewImpl-desktop.h"
+#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#include "platform/desktop/CCGLViewImpl-desktop.h"
+#endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+
+#include "base/CCDirector.h"
+#include "base/CCEventDispatcher.h"
 #include "SimpleAudioEngine.h"
 
 #include "js_module_register.h"
@@ -44,9 +61,9 @@ bool AppDelegate::applicationDidFinishLaunching()
     auto glview = director->getOpenGLView();
     if(!glview) {
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-        glview = cocos2d::GLViewImpl::create("raphael");
+        glview = GLViewImpl::create("raphael");
 #else
-        glview = cocos2d::GLViewImpl::createWithRect("raphael", Rect(0,0,900,640));
+        glview = GLViewImpl::createWithRect("raphael", Rect(0,0,900,640));
 #endif
         director->setOpenGLView(glview);
     }
