@@ -326,7 +326,7 @@ var VideoPlayer = cc.Class({
      */
     getDuration: function() {
         if(this._sgNode) {
-            this._sgNode.duration();
+            return this._sgNode.duration();
         }
         return -1;
     },
