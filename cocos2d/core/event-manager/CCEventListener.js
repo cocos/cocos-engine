@@ -44,7 +44,7 @@
  * @param {Number} type
  * @param {Number} listenerID
  * @param {Number} callback
- * @return {EventListner}
+ * @return {EventListener}
  */
 cc.EventListener = cc._Class.extend(/** @lends cc.EventListener# */{
     _onEvent: null,          // Event callback function

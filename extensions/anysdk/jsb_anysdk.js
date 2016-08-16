@@ -459,7 +459,7 @@ anysdk.ProtocolUser = PluginProtocol.extend({
      * !#zh
      * 登录接口
      * @method login
-     * @param {String|Objcet} [...args] optional arguments
+     * @param {String|Object} [...args] optional arguments
      */
     login: function(){
     },

@@ -363,7 +363,7 @@ var Widget = cc.Class({
         /**
          * !#en If true, verticalCenter is pixel margin, otherwise is percentage (0 - 1) margin.
          * !#zh 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
-         * @property isAbsoluteHorizontalCenter
+         * @property isAbsoluteVerticalCenter
          * @type {Boolean}
          * @default true
          */
