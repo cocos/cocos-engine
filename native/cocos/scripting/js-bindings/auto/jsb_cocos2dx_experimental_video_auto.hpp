@@ -17,6 +17,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint3
 bool js_cocos2dx_experimental_video_VideoPlayer_getURL(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_play(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_setKeepAspectRatioEnabled(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_stop(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_setFullScreenEnabled(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_setFileName(JSContext *cx, uint32_t argc, jsval *vp);
@@ -24,6 +25,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_setURL(JSContext *cx, uint32_t a
 bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_onPlayEvent(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_seekTo(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t argc, jsval *vp);

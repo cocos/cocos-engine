@@ -26,24 +26,34 @@ package org.cocos2dx.lib;
 
 import android.graphics.Rect;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.VideoView;
 
 import org.cocos2dx.lib.Cocos2dxVideoView.OnVideoEventListener;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 public class Cocos2dxVideoHelper {
     static VideoHandler sVideoHandler = null;
 
-    private SparseArray<Cocos2dxVideoView> mVideoViews = null;
+    private static SparseArray<Cocos2dxVideoView> mVideoViews = null;
+    private static Handler sHandler = null;
+
 
     Cocos2dxVideoHelper()
     {
         sVideoHandler = new VideoHandler(this);
         mVideoViews = new SparseArray<Cocos2dxVideoView>();
+        sHandler = new Handler(Looper.myLooper());
     }
 
     private static int videoTag = 0;
@@ -60,6 +70,8 @@ public class Cocos2dxVideoHelper {
     private final static int VideoTaskRestart = 10;
     private final static int VideoTaskKeepRatio = 11;
     private final static int VideoTaskFullScreen = 12;
+    private final static int VideoTaskCurrentTime = 13;
+    private final static int VideoTaskDuration = 14;
     final static int KeyEventBack = 1000;
 
     static class VideoHandler extends Handler{
@@ -369,6 +381,58 @@ public class Cocos2dxVideoHelper {
             videoView.seekTo(msec);
         }
     }
+
+
+    public static <T> T callInMainThread(Callable<T> call) throws ExecutionException, InterruptedException {
+        FutureTask<T> task = new FutureTask<T>(call);
+        sHandler.post(task);
+        return task.get();
+    }
+
+    public static float getCurrentTime(final int index) {
+        Callable<Float> callable = new Callable<Float>() {
+            @Override
+            public Float call() throws Exception {
+                Cocos2dxVideoView viedo = mVideoViews.get(index);
+                float currentPosition = -1;
+                if (viedo != null) {
+                    currentPosition = viedo.getCurrentPosition() / 1000.0f;
+                }
+                return new Float(currentPosition);
+            }
+        };
+
+        try {
+            return callInMainThread(callable);
+        } catch (ExecutionException e) {
+            return -1;
+        } catch (InterruptedException e) {
+            return -1;
+        }
+    }
+
+    public  static  float getDuration(final int index) {
+        Callable<Float> callable = new Callable<Float>() {
+            @Override
+            public Float call() throws Exception {
+                Cocos2dxVideoView viedo = mVideoViews.get(index);
+                float duration = -1;
+                if (viedo != null) {
+                    duration = viedo.getDuration() / 1000.0f;
+                }
+                return new Float(duration);
+            }
+        };
+
+        try {
+            return callInMainThread(callable);
+        } catch (ExecutionException e) {
+            return -1;
+        } catch (InterruptedException e) {
+            return -1;
+        }
+    }
+
 
     public static void setVideoVisible(int index, boolean visible) {
         Message msg = Message.obtain();
