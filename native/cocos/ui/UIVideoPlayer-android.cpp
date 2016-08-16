@@ -227,7 +227,7 @@ void VideoPlayer::seekTo(float sec)
 
 bool VideoPlayer::isPlaying() const
 {
-    return _isPlaying;
+    return JniHelper::callStaticBooleanMethod(videoHelperClassName, "isPlaying", _videoPlayerIndex);
 }
 
 void VideoPlayer::setVisible(bool visible)
