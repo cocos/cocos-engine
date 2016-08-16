@@ -48,7 +48,7 @@ module.exports = {
             else if (assetOrUrl instanceof cc.Texture2D) {
                 return assetOrUrl.url;
             }
-            else if (assetOrUrl instanceof cc.Audio) {
+            else if (!CC_JSB && assetOrUrl instanceof cc.Audio) {
                 return assetOrUrl.src;
             }
             else if (CC_DEV) {
