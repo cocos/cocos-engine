@@ -174,6 +174,20 @@ test('Event test', function() {
                 style: {}
                }], "Failed path: Size with event");
 
+    var invalidEventTestString4 = "<size=20 click='event1\">hello world</>";
+    deepEqual(parser.parse(invalidEventTestString4),
+              [{text: "hello world",
+                style: {size: 20,
+                        event: {}}
+               }], "Failed path: event name quote not match.");
+
+    var invalidEventTestString5 = "<size=20 click=\"event1'>hello world</>";
+    deepEqual(parser.parse(invalidEventTestString5),
+              [{text: "hello world",
+                style: {size: 20,
+                        event: {}}
+               }], "Failed path: event name quote not match.");
+
 
 });
 
@@ -245,7 +259,7 @@ test('Integrate test', function() {
 });
 
 test('bold/italic/underline test', function () {
-    var stringWithBold = "<b>hello world</b>";
+    var stringWithBold = "<b></i><b>hello world</b>";
 
     deepEqual(parser.parse(stringWithBold),
               [{text: "hello world", style: {bold: true}}], "bold test");
