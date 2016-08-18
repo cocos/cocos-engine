@@ -96,7 +96,6 @@ var Texture2D = cc.Class(/** @lends cc.Texture2D# */{
             this._isGray = false;
         }
         else if (cc._renderType === game.RENDER_TYPE_WEBGL) {
-            this._hasPremultipliedAlpha = false;
             this._pixelFormat = Texture2D.defaultPixelFormat;
             this._hasPremultipliedAlpha = false;
             this._hasMipmaps = false;
