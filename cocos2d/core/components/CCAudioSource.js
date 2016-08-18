@@ -30,9 +30,8 @@
  * @extends Component
  */
 
-// todo jsb 中无法针对单独的音效对象进行设置（如音量大小等）
-
-var audioEngine = cc.audioEngine;
+var audioEngine = require('../../audio/CCAudioEngine');
+cc.audioEngine = audioEngine;
 
 var AudioSource = cc.Class({
     name: 'cc.AudioSource',
@@ -44,7 +43,7 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = null;
+        this.audioID = 0;
     },
 
     properties: {
@@ -70,7 +69,9 @@ var AudioSource = cc.Class({
          */
         isPlaying: {
             get: function () {
-                return (!cc.sys.isNative && this.audio && this.audio.getPlaying());
+                if (!this.audioID) return false;
+                var state = audioEngine.getState(this.audioID);
+                return state === audioEngine.AudioState.PLAYING;
             },
             visible: false
         },
@@ -107,14 +108,9 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._volume = value;
-                if (this.audio) {
-                    if (cc.sys.isNative) {
-                        cc.audioEngine.setEffectsVolume(value);
-                    }
-                    else {
-                        this.audio.setVolume(value);
-                    }
-                }
+                if (!this.audioID) return value;
+                audioEngine.setVolume(value);
+                return value;
             },
             tooltip: 'i18n:COMPONENT.audio.volume'
         },
@@ -132,21 +128,9 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._mute = value;
-                if (this.audio) {
-                    if (this._mute) {
-                        if (CC_JSB) {
-                            cc.audioEngine.setEffectsVolume(0);
-                        } else {
-                            this.audio.setVolume(0);
-                        }
-                    } else {
-                        if (CC_JSB) {
-                            cc.audioEngine.setEffectsVolume(this._volume);
-                        } else {
-                            this.audio.setVolume(this._volume);
-                        }
-                    }
-                }
+                if (!this.audioID) return value;
+                audioEngine.setVolume(0);
+                return value;
             },
             animatable: false,
             tooltip: 'i18n:COMPONENT.audio.mute',
@@ -165,7 +149,9 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._loop = value;
-                if (this.audio) this.audio.loop = this._loop;
+                if (!this.audioID) return value;
+                audioEngine.setLoop(value);
+                return value;
             },
             animatable: false,
             tooltip: 'i18n:COMPONENT.audio.loop'
@@ -207,11 +193,7 @@ var AudioSource = cc.Class({
     play: function () {
         if ( this._clip ) {
             var volume = this._mute ? 0 : this._volume;
-            this.audio = audioEngine.playEffect(this._clip, this._loop, volume);
-
-            if (CC_JSB) {
-                cc.audioEngine.setEffectsVolume(volume);
-            }
+            this.audioID = audioEngine.play2d(this._clip, this._loop, volume);
         }
     },
 
@@ -221,7 +203,8 @@ var AudioSource = cc.Class({
      * @method stop
      */
     stop: function () {
-        if ( this.audio ) cc.audioEngine.stopEffect(this.audio);
+        if (!this.audioID) return false;
+        audioEngine.stop(this.audioID);
     },
 
     /**
@@ -230,7 +213,8 @@ var AudioSource = cc.Class({
      * @method pause
      */
     pause: function () {
-        if ( this.audio ) cc.audioEngine.pauseEffect(this.audio);
+        if (!this.audioID) return false;
+        audioEngine.pause(this.audioID);
     },
 
     /**
@@ -239,7 +223,8 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        if ( this.audio ) cc.audioEngine.resumeEffect(this.audio);
+        if (!this.audioID) return false;
+        audioEngine.resume(this.audioID);
     },
 
     /**
@@ -248,11 +233,10 @@ var AudioSource = cc.Class({
      * @method rewind
      */
     rewind: function(){
-        if ( this.audio ) {
-            this.stop();
-            this.play();
-        }
-    },
+        if (!this.audioID) return false;
+        this.stop();
+        this.play();
+    }
 
 });
 
