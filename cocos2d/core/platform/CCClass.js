@@ -1003,10 +1003,10 @@ function parseAttributes (attrs, className, propName) {
     }
 
     function parseSimpleAttr (attrName, expectType, attrCreater) {
-        var val = attrs[attrName];
-        if (val) {
+        if (attrName in attrs) {
+            var val = attrs[attrName];
             if (typeof val === expectType) {
-                if (typeof attrCreater === 'undefined') {
+                if ( !attrCreater ) {
                     var attr = {};
                     attr[attrName] = val;
                     result.push(attr);
@@ -1016,7 +1016,7 @@ function parseAttributes (attrs, className, propName) {
                 }
             }
             else if (CC_DEV) {
-                cc.error('The %s of %s.%s must be type %s', attrName, className, propName, expectType);
+                cc.error(ERR_Type, attrName, className, propName, expectType);
             }
         }
     }
@@ -1070,13 +1070,16 @@ function parseAttributes (attrs, className, propName) {
                 result.push({ min: range[0], max: range[1], step: range[2] });
             }
             else if (CC_DEV) {
-                cc.error('The length of range array must be 2');
+                cc.error('The length of range array must be equal or greater than 2');
             }
         }
         else if (CC_DEV) {
-            cc.error(ERR_Type, '"range"', className + '.' + propName, 'array');
+            cc.error(ERR_Type, 'range', className, propName, 'array');
         }
     }
+    parseSimpleAttr('min', 'number');
+    parseSimpleAttr('max', 'number');
+    parseSimpleAttr('step', 'number');
 
     return result;
 }
