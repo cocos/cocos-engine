@@ -115,9 +115,7 @@ test('Event test', function() {
     deepEqual(parser.parse(eventTestString),
               [{text: "hello world", style: {
                   event: {
-                  click : "event1",
-                  hoverin : "event2",
-                  hoverout : "event3"
+                  click : "event1"
                   }}}], "Happy path 1");
 
     var eventTestStringFail1 = "<on click=' event1' hoverin'event2 ' hoverout=event3>hello world</on>";
@@ -143,7 +141,6 @@ test('Event test', function() {
               [{text: "hello world", style: {
                   size: 20,
                   event: {
-                      hoverin : "event2",
                   }}}], "Fail path 3");
 
 
@@ -164,7 +161,6 @@ test('Event test', function() {
                     size: 20,
                     event: {
                         click : "event1",
-                        hoverin : "event2"
                     }
                 }}], "Size with event");
 
@@ -259,10 +255,10 @@ test('Integrate test', function() {
 });
 
 test('bold/italic/underline test', function () {
-    var stringWithBold = "<b></i><b>hello world</b>";
+    var stringWithBold = "<b></i><b>hello \n world</b>";
 
     deepEqual(parser.parse(stringWithBold),
-              [{text: "hello world", style: {bold: true}}], "bold test");
+              [{text: "hello \n world", style: {bold: true}}], "bold test");
 
     var stringWithItalic = "<i>hello world</i>";
 

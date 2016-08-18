@@ -54,7 +54,7 @@ cc.HtmlTextParser.prototype = {
 
                 var tagEndIndex = htmlString.indexOf('>', startIndex);
                 if (tagEndIndex === -1) {
-                    cc.error('The tag is invalid!');
+                    // cc.error('The HTML tag is invalid!');
                     tagEndIndex = tagBeginIndex;
                 } else if (htmlString.charAt(tagBeginIndex + 1) === '\/'){
                     this._stack.pop();
@@ -157,7 +157,12 @@ cc.HtmlTextParser.prototype = {
                 index++;
             } else {
                 //skip the invalid attribute value
-                eventValue = eventString.match(/(\S)+/)[0];
+                var match = eventString.match(/(\S)+/);
+                if(match) {
+                    eventValue = match[0];
+                } else {
+                    eventValue = "";
+                }
                 index = eventValue.length;
             }
 
@@ -204,7 +209,7 @@ cc.HtmlTextParser.prototype = {
     },
 
     _getEventRegx: function () {
-        return /^(click|hoverin|hoverout)(\s)*=/;
+        return /^(click)(\s)*=/;
     },
 
     _escapeSpecialSymbol: function(str) {
@@ -217,3 +222,6 @@ cc.HtmlTextParser.prototype = {
         return str;
     }
 };
+
+
+cc.htmlTextParser = new cc.HtmlTextParser();
