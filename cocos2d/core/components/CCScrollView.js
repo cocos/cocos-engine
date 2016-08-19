@@ -813,6 +813,7 @@ var ScrollView = cc.Class({
         }
 
         this._moveContent(moveDelta);
+        this._adjustContentOutOfBoundary();
     },
 
     _calculateBoundary: function() {
@@ -1331,6 +1332,7 @@ var ScrollView = cc.Class({
             var newPosition = cc.pAdd(this.getContentPosition(), outOfBoundary);
             if(this.content) {
                 this.content.setPosition(newPosition);
+                this._updateScrollBar(0);
             }
         }
     },
