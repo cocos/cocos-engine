@@ -703,6 +703,9 @@ var View = cc._Class.extend({
             // reset director's member variables to fit visible rect
             director.setGLDefaultValues();
         }
+        else if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            cc.renderer._allNeedDraw = true;
+        }
 
         this._originalScaleX = this._scaleX;
         this._originalScaleY = this._scaleY;
