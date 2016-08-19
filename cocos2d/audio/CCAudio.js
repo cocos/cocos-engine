@@ -30,6 +30,7 @@ var JS = require('../core/platform/js');
  * Encapsulate DOM and webAudio
  */
 cc.Audio = function (url) {
+    this._break = false;
     this.src = url;
     this._element = null;
     this._AUDIO_TYPE = 'AUDIO';
@@ -177,6 +178,7 @@ JS.mixin(cc.Audio.prototype, {
     },
 
     play: function (offset, loop) {
+        this._break = false;
         if (!this._element) return;
         this._element.loop = loop;
         this._element.play();
@@ -199,6 +201,7 @@ JS.mixin(cc.Audio.prototype, {
     },
 
     stop: function () {
+        this._break = true;
         if (!this._element) return;
         this._element.pause();
         try{
@@ -207,11 +210,13 @@ JS.mixin(cc.Audio.prototype, {
     },
 
     pause: function () {
+        this._break = true;
         if (!this._element) return;
         this._element.pause();
     },
 
     resume: function () {
+        this._break = false;
         if (!this._element) return;
         this._element.play();
     },
@@ -496,12 +501,14 @@ JS.mixin(cc.Audio.prototype, {
                     var item = cc.loader.getItem(url);
                     var loadAudio = item && item.audio ? item.audio : null;
 
+                    if (!loadAudio) return;
                     if (loadAudio._AUDIO_TYPE === 'WEBAUDIO')
                         audio.setBuffer(loadAudio._element.buffer);
                     else
                         audio.setElement(loadAudio._element);
 
                     audio.setVolume(volume);
+                    if (audio._break) return;
                     audio.play(0, loop || false);
                     effectList.push(audio);
                 });
