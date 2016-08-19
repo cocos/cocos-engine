@@ -154,7 +154,7 @@ var View = cc._Class.extend({
      * Constructor of View
      */
     ctor: function () {
-        var _t = this, d = document, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
+        var _t = this, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
 
         __BrowserGetter.init(this);
 
@@ -703,6 +703,9 @@ var View = cc._Class.extend({
             // reset director's member variables to fit visible rect
             director.setGLDefaultValues();
         }
+        else if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            cc.renderer._allNeedDraw = true;
+        }
 
         this._originalScaleX = this._scaleX;
         this._originalScaleY = this._scaleY;
@@ -1055,7 +1058,15 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      */
     var EqualToFrame = cc.ContainerStrategy.extend({
         apply: function (view) {
+            var frameH = view._frameSize.height, containerStyle = cc.container.style;
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
+            // Setup container's margin and padding
+            if (view._isRotated) {
+                containerStyle.marginLeft = frameH + 'px';
+            }
+            else {
+                containerStyle.margin = '0px';
+            }
         }
     });
 

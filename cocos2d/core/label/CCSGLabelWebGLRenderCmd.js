@@ -69,7 +69,8 @@ proto._updateDisplayOpacity = function (parentOpacity) {
 proto.transform = function (parentCmd, recursive) {
     this.originTransform(parentCmd, recursive);
 
-    var lx = 0, rx = this._labelCanvas.width,
+    var node = this._node,
+        lx = 0, rx = this._labelCanvas.width,
         by = 0, ty = this._labelCanvas.height,
         wt = this._worldTransform;
 
@@ -82,6 +83,12 @@ proto.transform = function (parentCmd, recursive) {
     vert[2].y = rx * wt.b + ty * wt.d + wt.ty;
     vert[3].x = rx * wt.a + by * wt.c + wt.tx; // br
     vert[3].y = rx * wt.b + by * wt.d + wt.ty;
+
+    if (!node._string || (node._labelType !== _ccsg.Label.Type.TTF &&
+       node._labelType !== _ccsg.Label.Type.SystemFont)) {
+        // No culling for bmfont
+        return;
+    }
 
     var rect = cc.visibleRect,
         vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;

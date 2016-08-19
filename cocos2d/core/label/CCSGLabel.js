@@ -359,6 +359,7 @@ _ccsg.Label = _ccsg.Node.extend({
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
             this._blendFunc = cc.BlendFunc._alphaPremultiplied();
+            this._renderCmd._needDraw = true;
             this._notifyLabelSkinDirty();
             this.emit('load');
             return;
@@ -367,14 +368,33 @@ _ccsg.Label = _ccsg.Node.extend({
         if (extName === ".ttf") {
             this._labelType = _ccsg.Label.Type.TTF;
             this._blendFunc = cc.BlendFunc._alphaPremultiplied();
+            this._renderCmd._needDraw = true;
             this._fontHandle = this._loadTTFFont(fontHandle);
         } else if (extName === ".fnt") {
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
             this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
+            this._renderCmd._needDraw = false;
             this._initBMFontWithString(this._string, fontHandle, textureUrl);
         }
         this._notifyLabelSkinDirty();
+    },
+
+    cleanup: function () {
+        this._super();
+
+        //remove the created DIV and style due to loading @font-face
+        if(this._fontFaceStyle) {
+            if(document.body.contains(this._fontFaceStyle)) {
+                document.body.removeChild(this._fontFaceStyle);
+            }
+        }
+
+        if(this._preloadDiv) {
+            if(document.body.contains(this._preloadDiv)) {
+                document.body.removeChild(this._preloadDiv);
+            }
+        }
     },
 
     _loadTTFFont: function(fontHandle) {
@@ -398,6 +418,7 @@ _ccsg.Label = _ccsg.Node.extend({
                 fontStyle = document.createElement("style");
             fontStyle.type = "text/css";
             doc.body.appendChild(fontStyle);
+            this._fontFaceStyle = fontStyle;
 
             var fontStr = "";
             if (isNaN(fontFamilyName - 0))
@@ -418,6 +439,7 @@ _ccsg.Label = _ccsg.Node.extend({
             _divStyle.left = "-100px";
             _divStyle.top = "-100px";
             doc.body.appendChild(preloadDiv);
+            this._preloadDiv = preloadDiv;
             self.scheduleOnce(function () {
                 self._notifyLabelSkinDirty();
                 self.emit("load");
