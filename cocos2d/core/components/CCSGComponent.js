@@ -38,6 +38,7 @@ var SceneGraphHelper = require('../utils/scene-graph-helper');
  */
 var SGComponent = cc.Class({
     extends: require('./CCComponent'),
+    name: 'cc._SGComponent',
 
     editor: CC_EDITOR && {
         executeInEditMode: true,

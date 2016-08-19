@@ -332,7 +332,7 @@ JS.mixin(EventTarget.prototype, {
 
         // Event.AT_TARGET
         event.eventPhase = 2;
-        event.currentTarget = this;
+        event.target = event.currentTarget = this;
         if (caplisteners) {
             this._capturingListeners.invoke(event);
         }

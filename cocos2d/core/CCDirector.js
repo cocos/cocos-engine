@@ -26,6 +26,7 @@
 
 var EventTarget = require('./event/event-target');
 var Class = require('./platform/_CCClass');
+var AutoReleaseUtils = require('./load-pipeline/auto-release-utils');
 
 cc.g_NumberOfDraws = 0;
 
@@ -540,8 +541,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         var persistNodes = game._persistRootNodes;
 
         if (scene instanceof cc.Scene) {
-            // ensure scene initialized
-            scene._load();
+            scene._load();  // ensure scene initialized
         }
 
         // detach persist nodes
@@ -552,8 +552,13 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
             game._ignoreRemovePersistNode = null;
         }
 
-        // unload scene
         var oldScene = this._scene;
+
+        // auto release assets
+        var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
+        AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+
+        // unload scene
         if (cc.isValid(oldScene)) {
             oldScene.destroy();
         }

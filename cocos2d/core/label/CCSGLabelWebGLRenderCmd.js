@@ -69,7 +69,8 @@ proto._updateDisplayOpacity = function (parentOpacity) {
 proto.transform = function (parentCmd, recursive) {
     this.originTransform(parentCmd, recursive);
 
-    var lx = 0, rx = this._labelCanvas.width,
+    var node = this._node,
+        lx = 0, rx = this._labelCanvas.width,
         by = 0, ty = this._labelCanvas.height,
         wt = this._worldTransform;
 
@@ -82,6 +83,12 @@ proto.transform = function (parentCmd, recursive) {
     vert[2].y = rx * wt.b + ty * wt.d + wt.ty;
     vert[3].x = rx * wt.a + by * wt.c + wt.tx; // br
     vert[3].y = rx * wt.b + by * wt.d + wt.ty;
+
+    if (!node._string || (node._labelType !== _ccsg.Label.Type.TTF &&
+       node._labelType !== _ccsg.Label.Type.SystemFont)) {
+        // No culling for bmfont
+        return;
+    }
 
     var rect = cc.visibleRect,
         vl = rect.left.x, vr = rect.right.x, vt = rect.top.y, vb = rect.bottom.y;
@@ -105,7 +112,10 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset) {
 
     // Fill in vertex data with quad information (4 vertices for sprite)
     // Use 255 because color has been set when baking label
-    this._color[0] = ((this._displayedOpacity<<24) | (255<<16) | (255<<8) | 255);
+    // premultiplied alpha is used for labelTTF and system font
+    var opacity = this._displayedOpacity;
+    this._color[0] = ((opacity<<24) | (opacity<<16) | (opacity<<8) | opacity);
+
     var z = node._vertexZ;
 
     var vertices = this._vertices;

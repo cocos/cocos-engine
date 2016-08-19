@@ -249,7 +249,7 @@ JS.mixin(cc.Audio.prototype, {
 
     /**
      * !#en cc.audioEngine is the singleton object, it provide simple audio APIs.
-     * !#zn
+     * !#zh
      * cc.audioengine是单例对象。<br/>
      * 主要用来播放背景音乐和音效，背景音乐同一时间只能播放一个，而音效则可以同时播放多个。<br/>
      * 注意：<br/>

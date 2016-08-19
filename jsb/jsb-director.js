@@ -25,6 +25,8 @@
 
 'use strict';
 
+var AutoReleaseUtils = require('../cocos2d/core/load-pipeline/auto-release-utils');
+
 // cc.director
 cc.js.mixin(cc.director, {
     /**
@@ -122,8 +124,7 @@ cc.js.mixin(cc.director, {
         var persistNodes = game._persistRootNodes;
 
         if (scene instanceof cc.Scene) {
-            // ensure scene initialized
-            scene._load();
+            scene._load();  // ensure scene initialized
         }
 
         // detach persist nodes
@@ -134,8 +135,13 @@ cc.js.mixin(cc.director, {
             game._ignoreRemovePersistNode = null;
         }
 
-        // unload scene
         var oldScene = this._scene;
+
+        // auto release assets
+        var autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
+        AutoReleaseUtils.autoRelease(cc.loader, autoReleaseAssets, scene.dependAssets);
+
+        // unload scene
         if (cc.isValid(oldScene)) {
             oldScene.destroy();
         }

@@ -97,6 +97,9 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         return callback(null, asset);
     }
 
+    // cache dependencies for auto release
+    var dependKeys = item.dependKeys = [];
+
     pipeline.flowInDeps(depends, function (items) {
         var item;
         for (var src in items) {
@@ -114,12 +117,14 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                 if (item.complete) {
                     var value = item.isRawAsset ? item.url : item.content;
                     dependObj[dependProp] = value;
+                    dependKeys.push(item.isRawAsset ? item.url : dependSrc);
                 }
                 else {
                     // item was removed from cache, but ready in pipeline actually
                     var loadCallback = function (item) {
                         var value = item.isRawAsset ? item.url : item.content;
                         this.obj[this.prop] = value;
+                        dependKeys.push(item.isRawAsset ? item.url : item.uuid);
                     };
                     var target = {
                         obj: dependObj,
@@ -159,9 +164,9 @@ function canDeferredLoad (asset, item, isScene) {
     else if (isScene) {
         if (asset instanceof cc.SceneAsset) {
             res = asset.asyncLoadAssets;
-            if (res) {
-                cc.log('deferred load raw assets for ' + item.id);
-            }
+            //if (res) {
+            //    cc.log('deferred load raw assets for ' + item.id);
+            //}
         }
         //else if (asset instanceof cc.Scene) {
         //    deferredLoadRawAssetsInRuntime = asset._asyncLoadAssets;
@@ -210,7 +215,8 @@ function loadUuid (item, callback) {
         });
     }
     catch (e) {
-        callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + e.stack) );
+        var err = CC_JSB ? (e + '\n' + e.stack) : e.stack;
+        callback( new Error('Uuid Loader: Deserialize asset [' + item.id + '] failed : ' + err) );
         return;
     }
 

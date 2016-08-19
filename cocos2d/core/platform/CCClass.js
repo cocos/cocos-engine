@@ -458,21 +458,21 @@ function define (className, baseClasses, mixins, constructor, options) {
     return doDefine(className, baseClasses, mixins, constructor, options);
 }
 
-function _checkCtor (ctor) {
+function _checkCtor (ctor, className) {
     if (CC_DEV) {
         if (CCClass._isCCClass(ctor)) {
-            cc.error("Constructor can not be another CCClass");
+            cc.error('ctor of "%s" can not be another CCClass', className);
             return;
         }
         if (typeof ctor !== 'function') {
-            cc.error("Constructor of CCClass must be function type");
+            cc.error('ctor of "%s" must be function type', className);
             return;
         }
         if (ctor.length > 0) {
             // fireball-x/dev#138: To make a unified CCClass serialization process,
             // we don't allow parameters for constructor when creating instances of CCClass.
             // For advance user, construct arguments can still get from 'arguments'.
-            cc.warn("Can not instantiate CCClass with arguments.");
+            cc.warn('Can not instantiate CCClass "%s" with arguments.', className);
             return;
         }
     }
@@ -530,7 +530,7 @@ function _createCtor (ctor, baseClass, mixins, className, options) {
     var superCallBounded = options && baseClass && boundSuperCalls(baseClass, options);
 
     if (ctor && CC_DEV) {
-        _checkCtor(ctor);
+        _checkCtor(ctor, className);
     }
     // get base user constructors
     var ctors = [];
@@ -614,21 +614,21 @@ function _boundSuperCall (func, funcName, base) {
     var pd = JS.getPropertyDescriptor(base.prototype, funcName);
     if (pd) {
         superFunc = pd.value;
-        // ignore pd.get, assume that function defined by getter is just for warnings 
+        // ignore pd.get, assume that function defined by getter is just for warnings
         if (typeof superFunc === 'function') {
             var hasSuperCall = SuperCallReg.test(func);
             if (hasSuperCall) {
                 return function () {
                     var tmp = this._super;
-    
+
                     // Add a new ._super() method that is the same method but on the super-Class
                     this._super = superFunc;
-    
+
                     var ret = func.apply(this, arguments);
-    
+
                     // The method only need to be bound temporarily, so we remove it when we're done executing
                     this._super = tmp;
-    
+
                     return ret;
                 };
             }
@@ -690,81 +690,15 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
 }
 
 /**
- * @class _ComponentAttributes
- * @constructor
- */
-/**
- * Automatically add required component as a dependency.
- *
- * @property requireComponent
- * @type {Component}
- * @default null
- */
-/**
- * If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
- *
- * @property disallowMultiple
- * @type {Component}
- * @default null
- */
-/**
- * The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera".
- *
- * @property menu
- * @type {String}
- * @default ""
- */
-/**
- * Makes a component execute in edit mode.
- * By default, all components are only executed in play mode,
- * which means they will not have their callback functions executed while the Editor is in edit mode.
- *
- * @property executeInEditMode
- * @type {Boolean}
- * @default false
- */
-/**
- * This property is only available if executeInEditMode is true.
- * If specified, the editor's scene view will keep updating this node in 60 fps when it is selected,
- * otherwise, it will update only if necessary.
- *
- * @property playOnFocus
- * @type {Boolean}
- * @default false
- */
-/**
- * Specifying the url of the custom html to draw the component in inspector.
- *
- * @property inspector
- * @type {String}
- * @default ""
- */
-/**
- * Specifying the url of the icon to display in inspector.
- *
- * @property icon
- * @type {String}
- * @default ""
- */
-
-/**
- * The custom documentation URL
- *
- * @property help
- * @type {String}
- * @default ""
- */
-
-/**
  * @module cc
  */
 
 /**
  * !#en Defines a CCClass using the given specification, please see [Class](/en/scripting/class/) for details.
  * !#zh 定义一个 CCClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
- * 
+ *
  * @method Class
- * 
+ *
  * @param {Object} [options]
  * @param {String} [options.name] - The class name used for serialization.
  * @param {Function} [options.extends] - The base class.
@@ -772,9 +706,17 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * @param {Object} [options.properties] - The property definitions.
  * @param {Object} [options.statics] - The static members.
  * @param {Function[]} [options.mixins]
- * 
- * @param {Object} [options.editor] - attributes for Component, see {{#crossLink "_ComponentAttributes"}}ComponentAttributes{{/crossLink}}.
- * 
+ *
+ * @param {Object} [options.editor] - attributes for Component listed below.
+ * @param {Component} [options.editor.requireComponent] - Automatically add required component as a dependency.
+ * @param {Component} [options.editor.disallowMultiple] - If specified to a type, prevents Component of the same type (or subtype) to be added more than once to a Node.
+ * @param {String} [options.editor.menu] - The menu path to register a component to the editors "Component" menu. Eg. "Rendering/Camera".
+ * @param {Boolean} [options.editor.executeInEditMode] - Makes a component execute in edit mode. By default, all components are only executed in play mode, which means they will not have their callback functions executed while the Editor is in edit mode.
+ * @param {Boolean} [options.editor.playOnFocus] - This property is only available if executeInEditMode is true. If specified, the editor's scene view will keep updating this node in 60 fps when it is selected, otherwise, it will update only if necessary.
+ * @param {String} [options.editor.inspector] - Specifying the url of the custom html to draw the component in inspector.
+ * @param {String} [options.editor.icon] - Specifying the url of the icon to display in inspector.
+ * @param {String} [options.editor.help] - The custom documentation UR
+ *
  * @param {Function} [options.update] - lifecycle method for Component, see {{#crossLink "Component/update:method"}}{{/crossLink}}
  * @param {Function} [options.lateUpdate] - lifecycle method for Component, see {{#crossLink "Component/lateUpdate:method"}}{{/crossLink}}
  * @param {Function} [options.onLoad] - lifecycle method for Component, see {{#crossLink "Component/onLoad:method"}}{{/crossLink}}
@@ -786,9 +728,9 @@ function declareProperties (cls, className, properties, baseClass, mixins) {
  * @param {Function} [options.onLostFocusInEditor] - lifecycle method for Component, see {{#crossLink "Component/onLostFocusInEditor:method"}}{{/crossLink}}
  * @param {Function} [options.onRestore] - for Component only, see {{#crossLink "Component/onRestore:method"}}{{/crossLink}}
  * @param {Function} [options._getLocalBounds] - for Component only, see {{#crossLink "Component/_getLocalBounds:method"}}{{/crossLink}}
- * 
+ *
  * @return {Function} - the created class
- * 
+ *
  * @example
  // define base class
  var Node = cc.Class();
@@ -906,6 +848,15 @@ function CCClass (options) {
             });
         }
         else if (CC_DEV) {
+            if (func === false && base && base.prototype) {
+                // check override
+                var overrided = base.prototype[funcName];
+                if (typeof overrided === 'function') {
+                    var baseFuc = JS.getClassName(base) + '.' + funcName;
+                    var subFuc = name + '.' + funcName;
+                    cc.warn('"%s" overrided "%s" but "%s" is defined as "false" so the super method will not be called. You can set "%s" to null to disable this warning.', subFuc, baseFuc, subFuc, subFuc);
+                }
+            }
             var correct = TYPO_TO_CORRECT[funcName];
             if (correct) {
                 cc.warn('Unknown type of %s.%s, maybe you want is "%s".', name, funcName, correct);
@@ -1052,10 +1003,10 @@ function parseAttributes (attrs, className, propName) {
     }
 
     function parseSimpleAttr (attrName, expectType, attrCreater) {
-        var val = attrs[attrName];
-        if (val) {
+        if (attrName in attrs) {
+            var val = attrs[attrName];
             if (typeof val === expectType) {
-                if (typeof attrCreater === 'undefined') {
+                if ( !attrCreater ) {
                     var attr = {};
                     attr[attrName] = val;
                     result.push(attr);
@@ -1065,7 +1016,7 @@ function parseAttributes (attrs, className, propName) {
                 }
             }
             else if (CC_DEV) {
-                cc.error('The %s of %s.%s must be type %s', attrName, className, propName, expectType);
+                cc.error(ERR_Type, attrName, className, propName, expectType);
             }
         }
     }
@@ -1119,13 +1070,16 @@ function parseAttributes (attrs, className, propName) {
                 result.push({ min: range[0], max: range[1], step: range[2] });
             }
             else if (CC_DEV) {
-                cc.error('The length of range array must be 2');
+                cc.error('The length of range array must be equal or greater than 2');
             }
         }
         else if (CC_DEV) {
-            cc.error(ERR_Type, '"range"', className + '.' + propName, 'array');
+            cc.error(ERR_Type, 'range', className, propName, 'array');
         }
     }
+    parseSimpleAttr('min', 'number');
+    parseSimpleAttr('max', 'number');
+    parseSimpleAttr('step', 'number');
 
     return result;
 }
@@ -1142,5 +1096,5 @@ module.exports = {
 };
 
 if (CC_EDITOR) {
-    module.exports.getDefault = getDefault; 
+    module.exports.getDefault = getDefault;
 }

@@ -527,6 +527,11 @@ var Node = cc.Class({
         this.stopAllActions();
         this._releaseAllActions();
 
+        // Remove Node.currentHovered
+        if (currentHovered === this) {
+            currentHovered = null;
+        }
+
         // Remove all listeners
         if (CC_JSB && this._touchListener) {
             this._touchListener.release();
@@ -964,6 +969,12 @@ var Node = cc.Class({
             // activate
             cc.director.getActionManager().resumeTarget(this);
             cc.eventManager.resumeTarget(this);
+            if (this._touchListener) {
+                this._touchListener.mask = _searchMaskParent(this);
+            }
+            if (this._mouseListener) {
+                this._mouseListener.mask = _searchMaskParent(this);
+            }
         }
         else {
             // deactivate

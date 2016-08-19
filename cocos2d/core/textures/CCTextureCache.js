@@ -85,7 +85,7 @@ var textureCache = /** @lends cc.textureCache# */{
         return this._textures[textureKeyName];
     },
 
-    /**
+    /*
      * @method getKeyByTexture
      * @param {Image} texture
      * @return {String|Null}
