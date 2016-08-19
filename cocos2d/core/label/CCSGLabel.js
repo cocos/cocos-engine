@@ -384,15 +384,15 @@ _ccsg.Label = _ccsg.Node.extend({
         this._super();
 
         //remove the created DIV and style due to loading @font-face
-        if(this.__$fontStyle) {
-            if(document.body.contains(this.__$fontStyle)) {
-                document.body.removeChild(this.__$fontStyle);
+        if(this._fontFaceStyle) {
+            if(document.body.contains(this._fontFaceStyle)) {
+                document.body.removeChild(this._fontFaceStyle);
             }
         }
 
-        if(this.__$preloadDiv) {
-            if(document.body.contains(this.__$preloadDiv)) {
-                document.body.removeChild(this.__$preloadDiv);
+        if(this._preloadDiv) {
+            if(document.body.contains(this._preloadDiv)) {
+                document.body.removeChild(this._preloadDiv);
             }
         }
     },
@@ -418,7 +418,7 @@ _ccsg.Label = _ccsg.Node.extend({
                 fontStyle = document.createElement("style");
             fontStyle.type = "text/css";
             doc.body.appendChild(fontStyle);
-            this.__$fontStyle = fontStyle;
+            this._fontFaceStyle = fontStyle;
 
             var fontStr = "";
             if (isNaN(fontFamilyName - 0))
@@ -439,7 +439,7 @@ _ccsg.Label = _ccsg.Node.extend({
             _divStyle.left = "-100px";
             _divStyle.top = "-100px";
             doc.body.appendChild(preloadDiv);
-            this.__$preloadDiv = preloadDiv;
+            this._preloadDiv = preloadDiv;
             self.scheduleOnce(function () {
                 self._notifyLabelSkinDirty();
                 self.emit("load");
