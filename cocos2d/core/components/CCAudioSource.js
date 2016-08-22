@@ -203,7 +203,7 @@ var AudioSource = cc.Class({
      * @method stop
      */
     stop: function () {
-        if (!this.audioID) return false;
+        if (this.audioID === undefined) return false;
         audioEngine.stop(this.audioID);
     },
 
@@ -213,7 +213,7 @@ var AudioSource = cc.Class({
      * @method pause
      */
     pause: function () {
-        if (!this.audioID) return false;
+        if (this.audioID === undefined) return false;
         audioEngine.pause(this.audioID);
     },
 
@@ -223,7 +223,7 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        if (!this.audioID) return false;
+        if (this.audioID === undefined) return false;
         audioEngine.resume(this.audioID);
     },
 
@@ -233,7 +233,7 @@ var AudioSource = cc.Class({
      * @method rewind
      */
     rewind: function(){
-        if (!this.audioID) return false;
+        if (this.audioID === undefined) return false;
         this.stop();
         this.play();
     }

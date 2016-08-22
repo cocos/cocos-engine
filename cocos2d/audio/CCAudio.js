@@ -24,6 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var touchBinded = false;
+var touchPlayList = [
+    //{ offset: 0, audio: audio }
+];
+
 var Audio = function () {
     this._audioType = Audio.Type.UNKNOWN;
     this._element = null;
@@ -63,44 +68,74 @@ Audio.State = {
     };
     proto.off = function (event, callback) {
         var list = this._eventList[event];
-        if (!list) return;
+        if (!list) return false;
+        if (!callback) {
+            this._eventList[event] = [];
+            return true;
+        }
+
         for (var i=0; i<list.length; i++) {
             if (list[i] === callback) {
                 list.splice(i, 1);
                 break;
             }
         }
+        return true;
     };
 
     proto.mount = function (elem) {
         if (elem instanceof HTMLElement) {
-            this._element = elem;
+            this._element = document.createElement('audio');
+            this._element.src = elem.src;
             this._audioType = Audio.Type.DOM;
+            elem.addEventListener('ended', function () {
+                this.emit('ended', this);
+            }, this);
         } else {
             this._element = new webAudioElement(elem);
             this._audioType = Audio.Type.WEBAUDIO;
+            elem.onended = function () {
+                this.emit('ended', this);
+            };
         }
         this._state = Audio.State.INITIALZING;
     };
 
     proto.play = function () {
+        window.audio = this;
         if (!this._element) return;
         this._element.play();
-        this.emit(Audio.State.PLAYING);
+        this.emit('play');
         this._state = Audio.State.PLAYING;
+
+        if (this._audioType = Audio.Type.DOM && this._element.paused) {
+            this.stop();
+            touchPlayList.push({ offset: 0, audio: this._element });
+        }
+
+        if (touchBinded) return;
+        touchBinded = true;
+
+        // Listen to the touchstart body event and play the audio when necessary.
+        cc.game.canvas.addEventListener('touchstart', function () {
+            var item;
+            while (item = touchPlayList.pop()) {
+                item.audio.play(item.offset);
+            }
+        });
     };
 
     proto.pause = function () {
         if (!this._element) return;
         this._element.pause();
-        this.emit(Audio.State.PAUSED);
+        this.emit('pause');
         this._state = Audio.State.PAUSED;
     };
 
     proto.resume = function () {
         if (!this._element || this._element.currentTime === 0) return;
         this._element.play();
-        this.emit(Audio.State.PLAYING);
+        this.emit('play');
         this._state = Audio.State.PLAYING;
     };
 
@@ -108,7 +143,7 @@ Audio.State = {
         if (!this._element) return;
         this._element.pause();
         this._element.currentTime = 0;
-        this.emit(Audio.State.PAUSED);
+        this.emit('pause');
         this._state = Audio.State.PAUSED;
     };
 
@@ -192,18 +227,30 @@ var webAudioElement = function (buffer) {
 
         var startTime = offset;
         var endTime;
-        if (!this._loop) {
+        if (this._loop) {
+            if (audio.start)
+                audio.start(0, startTime);
+            else if (audio["notoGrainOn"])
+                audio["noteGrainOn"](0, startTime);
+            else
+                audio["noteOn"](0, startTime);
+        } else {
             endTime = duration - offset;
+            if (audio.start)
+                audio.start(0, startTime, endTime);
+            else if (audio["notoGrainOn"])
+                audio["noteGrainOn"](0, startTime, endTime);
+            else
+                audio["noteOn"](0, startTime, endTime);
         }
 
-        if (audio.start)
-            audio.start(0, startTime, endTime);
-        else if (audio["notoGrainOn"])
-            audio["noteGrainOn"](0, startTime, endTime);
-        else
-            audio["noteOn"](0, startTime, endTime);
-
         this._currentSource = audio;
+
+        audio.onended = function () {
+            if (this.onended) {
+                this.onended(this);
+            }
+        }.bind(this);
 
         // If the current audio context time stamp is 0
         // There may be a need to touch events before you can actually start playing audio
@@ -212,7 +259,7 @@ var webAudioElement = function (buffer) {
             clearTimeout(this._currextTimer);
             this._currextTimer = setTimeout(function () {
                 if (self._context.currentTime === 0) {
-                    cc.Audio.touchPlayList.push({
+                    touchPlayList.push({
                         offset: offset,
                         audio: self
                     });

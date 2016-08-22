@@ -55,17 +55,50 @@ var getAudioFromId = function (id) {
     return id2audio[id];
 };
 
+// Wait for playing queue
+var waitQueue = [];
+var addWaitQueue = function (id) {
+    var index = waitQueue.indexOf(id);
+    if (index !== -1) return false;
+    waitQueue.push(id);
+    return true;
+};
+var removeWaitQueue = function (id) {
+    var index = waitQueue.indexOf(id);
+    if (index === -1) return false;
+    waitQueue.splice(index, 1);
+    return true;
+};
+
 var audioEngine = {
 
     AudioState: Audio.State,
 
-    _maxWebAudioSize: 30720000, // 300kb * 1024 * 100
+    _maxWebAudioSize: 30720000, // 300kb * 1024
     _maxAudioInstance: 24,
 
     play2d: function (filePath, loop, volume/*, profile*/) {
         var item = cc.loader.getItem(filePath);
-        // todo 资源不存在
+
         var audio = getAudioFromPath(filePath);
+
+        // If the resource does not exist
+        if (!item) {
+            addWaitQueue(audio.instanceId);
+            cc.loader.load(filePath, function (error) {
+                if (!error) {
+                    var item = cc.loader.getItem(filePath);
+                    audio.mount(item.element || item.buffer);
+                    audio.setLoop(loop || false);
+                    audio.setVolume(volume || 1);
+                    if (removeWaitQueue(audio.instanceId)) {
+                        audio.play();
+                    }
+                }
+            });
+            return audio.instanceId;
+        }
+
         audio.mount(item.element || item.buffer);
         audio.setLoop(loop || false);
         audio.setVolume(volume || 1);
@@ -126,6 +159,12 @@ var audioEngine = {
     },
 
     setFinishCallback: function (audioID, callback) {
+        var audio = getAudioFromId(audioID);
+        if (!audio)
+            return false;
+
+        audio.off('ended');
+        audio.on('ended', callback);
     },
 
     pause: function (audioID) {
@@ -133,6 +172,7 @@ var audioEngine = {
         if (!audio || !audio.pause)
             return false;
         audio.pause();
+        removeWaitQueue(audioID);
         return true;
     },
     _pauseIDCache: [],
@@ -144,6 +184,9 @@ var audioEngine = {
                 this._pauseIDCache.push(id);
                 audio.pause();
             }
+        }
+        while (waitQueue.length > 0) {
+            this._pauseIDCache.push(waitQueue.pop());
         }
     },
     resume: function (audioID) {
@@ -169,6 +212,8 @@ var audioEngine = {
         if (!audio || !audio.stop)
             return false;
         audio.stop();
+        removeWaitQueue(audioID);
+        return true;
     },
     stopAll: function () {
         for (var id in id2audio) {
@@ -177,6 +222,7 @@ var audioEngine = {
                 audio.stop();
             }
         }
+        waitQueue = [];
     },
 
     setMaxAudioInstance: function (num) {
