@@ -74,8 +74,12 @@ var audioEngine = {
 
     AudioState: Audio.State,
 
-    _maxWebAudioSize: 30720000, // 300kb * 1024
+    _maxWebAudioSize: 307200, // 300kb * 1024
     _maxAudioInstance: 24,
+
+    play: function () {
+        this.play2d.apply(this, arguments);
+    },
 
     play2d: function (filePath, loop, volume/*, profile*/) {
         var item = cc.loader.getItem(filePath);
