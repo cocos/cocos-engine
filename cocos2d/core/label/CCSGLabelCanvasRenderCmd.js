@@ -39,6 +39,11 @@
         if (opacityDirty)
             this._updateDisplayOpacity();
 
+        if(locFlag & dirtyFlags.contentDirty) {
+            this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
+            this._dirtyFlag &= ~dirtyFlags.contentDirty;
+        }
+
         if (colorDirty || opacityDirty || (locFlag & flags.textDirty)) {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
             this._rebuildLabelSkin();
@@ -112,10 +117,11 @@
         maxWidth -= 2 * this._getMargin();
         var wrappedWords = [];
         //fast return if strArr is empty
-        if(strArr.length === 0) {
+        if(strArr.length === 0 || maxWidth < 0) {
             wrappedWords.push('');
             return wrappedWords;
         }
+
         var text = strArr;
         var allWidth = ctx.measureText(text).width;
         while (allWidth > maxWidth && text.length > 1) {
@@ -217,6 +223,11 @@
 
                 var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
                 var canvasHeightNoMargin = this._canvasSize.height - 2 * this._getMargin();
+                if(canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
+                    fontDesc = '1px ' + fontFamily;
+                    this._labelContext.font = fontDesc;
+                    return fontDesc;
+                }
                 totalHeight = canvasHeightNoMargin + 1;
                 maxLength = canvasWidthNoMargin + 1;
                 var actualFontSize = this._drawFontsize + 1;
@@ -246,7 +257,6 @@
                         textFragment = this._fragmentText(paragraphedStrings[i],
                                                           canvasWidthNoMargin,
                                                           this._labelContext);
-                        var isBiggerSize = false;
                         while(j < textFragment.length) {
                             var measureWidth = this._labelContext.measureText(textFragment[j]).width;
                             maxLength = measureWidth;
@@ -466,7 +476,7 @@
         }
 
         this._texture._textureLoaded = false;
-        this._texture.handleLoadedTexture();
+        this._texture.handleLoadedTexture(true);
     };
 
     proto._rebuildLabelSkin = function () {

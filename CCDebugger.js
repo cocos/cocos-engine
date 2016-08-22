@@ -451,8 +451,8 @@ cc._initDebugSetting = function (mode) {
          * - 在 Chrome 中，错误信息有红色的图标以及红色的消息文本。<br/>
          *
          * @method error
-         * @param {Any} obj - A JavaScript string containing zero or more substitution strings.
-         * @param {Any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+         * @param {any} obj - A JavaScript string containing zero or more substitution strings.
+         * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
          */
         if (CC_EDITOR) {
             cc.error = Editor.error;
@@ -484,8 +484,8 @@ cc._initDebugSetting = function (mode) {
              * - 在 Cocos Creator 中，警告信息显示是黄色的。<br/>
              * - 在 Chrome 中，警告信息有着黄色的图标以及黄色的消息文本。<br/>
              * @method warn
-             * @param {Any} obj - A JavaScript string containing zero or more substitution strings.
-             * @param {Any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+             * @param {any} obj - A JavaScript string containing zero or more substitution strings.
+             * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
             if (CC_EDITOR) {
                 cc.warn = Editor.warn;
@@ -509,8 +509,8 @@ cc._initDebugSetting = function (mode) {
              * !#en Outputs a message to the Cocos Creator Console (editor) or Web Console (runtime).
              * !#zh 输出一条消息到 Cocos Creator 编辑器的 Console 或运行时 Web 端的 Console 中。
              * @method log
-             * @param {Any} obj - A JavaScript string containing zero or more substitution strings.
-             * @param {Any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
+             * @param {any} obj - A JavaScript string containing zero or more substitution strings.
+             * @param {any} ...subst - JavaScript objects with which to replace substitution strings within msg. This gives you additional control over the format of the output.
              */
             if (CC_JSB) {
                 cc.log = jsbLog;
@@ -543,7 +543,13 @@ cc._initDebugSetting = function (mode) {
         }
     }
     cc._throw = CC_EDITOR ? Editor.error : function (error) {
-        cc.error(error.stack || error);
+        var stack = error.stack;
+        if (stack) {
+            cc.error(CC_JSB ? (error + '\n' + stack) : stack);
+        }
+        else {
+            cc.error(error);
+        }
     };
 };
 //+++++++++++++++++++++++++something about log end+++++++++++++++++++++++++++++

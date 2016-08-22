@@ -1610,7 +1610,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * treating the returned/received node point as anchor relative.
      * !#zh
      * 将一个点转换到世界空间坐标系。结果以 Vec2 为单位。<br/>
-     * 返回值将基于节点坐标。
+     * 返回值将基于世界坐标。
      * @method convertToWorldSpaceAR
      * @param {Vec2} nodePoint
      * @return {Vec2}

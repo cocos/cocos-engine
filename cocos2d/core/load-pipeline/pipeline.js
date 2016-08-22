@@ -509,6 +509,7 @@ JS.mixin(Pipeline.prototype, {
                 this.flowOut(item);
             }
             this._items.removeItem(url);
+            return true;
         }
         else {
             return false;

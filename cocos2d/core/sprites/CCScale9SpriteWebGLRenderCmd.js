@@ -103,13 +103,14 @@ proto.uploadData = function (f32buffer, ui32buffer, vertexDataOffset){
 
     if (node._distortionOffset && this._shaderProgram === Scale9Sprite.WebGLRenderCmd._distortionProgram) {
         this._shaderProgram.setUniformLocationWith2f(
-          Scale9Sprite.WebGLRenderCmd._distortionOffset,
-          node._distortionOffset.x, node._distortionOffset.y
+            Scale9Sprite.WebGLRenderCmd._distortionOffset,
+            node._distortionOffset.x, node._distortionOffset.y
         );
         this._shaderProgram.setUniformLocationWith2f(
-          Scale9Sprite.WebGLRenderCmd._distortionTiling,
-          node._distortionTiling.x, node._distortionTiling.y
+            Scale9Sprite.WebGLRenderCmd._distortionTiling,
+            node._distortionTiling.x, node._distortionTiling.y
         );
+        cc.renderer._breakBatch();
     }
 
     // Color & z
