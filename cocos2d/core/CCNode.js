@@ -1103,6 +1103,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
      */
     on: function (type, callback, target, useCapture) {
+        var newAdded = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
                 this._touchListener = cc.EventListener.create({
@@ -1118,6 +1119,7 @@ var Node = cc.Class({
                     this._touchListener.retain();
                 }
                 cc.eventManager.addListener(this._touchListener, this);
+                newAdded = true;
             }
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
@@ -1136,8 +1138,17 @@ var Node = cc.Class({
                     this._mouseListener.retain();
                 }
                 cc.eventManager.addListener(this._mouseListener, this);
+                newAdded = true;
             }
         }
+        if (newAdded && !this._activeInHierarchy) {
+            cc.director.getScheduler().schedule(function() {
+                if (this._activeInHierarchy) {
+                    cc.eventManager.pauseTarget(this);
+                }
+            }, this, 0, 0, 0, false);
+        }
+
         this._EventTargetOn(type, callback, target, useCapture);
     },
 
