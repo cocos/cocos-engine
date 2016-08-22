@@ -127,6 +127,8 @@ var View = cc._Class.extend({
     // Custom callback for resize event
     _resizeCallback: null,
 
+    _orientationChanging: false,
+
     _scaleX: 1,
     _originalScaleX: 1,
     _scaleY: 1,
@@ -210,6 +212,12 @@ var View = cc._Class.extend({
         }
     },
 
+    _orientationChange: function () {
+        this._orientationChanging = true;
+        this._resizeEvent();
+        this._orientationChanging = false;
+    },
+
     /**
      * <p>
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
@@ -249,14 +257,14 @@ var View = cc._Class.extend({
             if (!this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = true;
                 window.addEventListener('resize', this._resizeEvent);
-                window.addEventListener('orientationchange', this._resizeEvent);
+                window.addEventListener('orientationchange', this._orientationChange);
             }
         } else {
             //disable
             if (this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = false;
                 window.removeEventListener('resize', this._resizeEvent);
-                window.removeEventListener('orientationchange', this._resizeEvent);
+                window.removeEventListener('orientationchange', this._orientationChange);
             }
         }
     },
@@ -297,7 +305,7 @@ var View = cc._Class.extend({
         var h = __BrowserGetter.availHeight(cc.game.frame);
         var isLandscape = w >= h;
 
-        if (CC_EDITOR || !cc.sys.isMobile ||
+        if (CC_EDITOR || !this._orientationChanging || !cc.sys.isMobile ||
             (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
