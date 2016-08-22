@@ -634,7 +634,7 @@ var game = {
         modules && (config[CONFIG_KEY.modules] = modules);
 
         // Scene parser
-        this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
+        this._sceneInfos = config[CONFIG_KEY.scenes] || [];
 
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];

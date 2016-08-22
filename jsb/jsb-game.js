@@ -250,7 +250,7 @@ cc.js.mixin(cc.game, {
         this.collisionMatrix = config.collisionMatrix || [];
 
         // Scene parser
-        this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
+        this._sceneInfos = config[CONFIG_KEY.scenes] || [];
 
         cc.director.setDisplayStats(this.config[CONFIG_KEY.showFPS]);
         cc.director.setAnimationInterval(1.0/this.config[CONFIG_KEY.frameRate]);
