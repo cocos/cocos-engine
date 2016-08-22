@@ -140,7 +140,7 @@ var _mouseEvents = [
     EventType.MOUSE_WHEEL,
 ];
 
-var currentHovered = null;
+var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
     var pos = touch.getLocation();
@@ -194,12 +194,12 @@ var _mouseMoveHandler = function (event) {
         event.stopPropagation();
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (currentHovered) {
+            if (_currentHovered) {
                 event.type = EventType.MOUSE_LEAVE;
-                currentHovered.owner.dispatchEvent(event);
-                currentHovered._previousIn = false;
+                _currentHovered.dispatchEvent(event);
+                _currentHovered._mouseListener._previousIn = false;
             }
-            currentHovered = this;
+            _currentHovered = this.owner;
             event.type = EventType.MOUSE_ENTER;
             node.dispatchEvent(event);
             this._previousIn = true;
@@ -211,7 +211,7 @@ var _mouseMoveHandler = function (event) {
         event.type = EventType.MOUSE_LEAVE;
         node.dispatchEvent(event);
         this._previousIn = false;
-        currentHovered = null;
+        _currentHovered = null;
     }
 };
 var _mouseUpHandler = function (event) {
@@ -528,8 +528,8 @@ var Node = cc.Class({
         this._releaseAllActions();
 
         // Remove Node.currentHovered
-        if (currentHovered === this) {
-            currentHovered = null;
+        if (_currentHovered === this) {
+            _currentHovered = null;
         }
 
         // Remove all listeners
