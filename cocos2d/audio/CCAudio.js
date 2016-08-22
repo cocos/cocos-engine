@@ -102,7 +102,6 @@ Audio.State = {
     };
 
     proto.play = function () {
-        window.audio = this;
         if (!this._element) return;
         this._element.play();
         this.emit('play');
