@@ -1216,6 +1216,10 @@ var Node = cc.Class({
                 }
             }
 
+            if (_currentHovered === this) {
+                _currentHovered = null;
+            }
+
             cc.eventManager.removeListener(this._mouseListener);
             this._mouseListener = null;
         }
