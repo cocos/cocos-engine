@@ -258,11 +258,6 @@ var game = {
             cc.audioEngine.stopAllEffects();
             cc.audioEngine.pauseMusic();
         }
-        // Pause event
-        var scene = cc.director.getScene() || cc.director.getRunningScene();
-        if (scene) {
-            cc.eventManager.pauseTarget(scene, true);
-        }
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimationFrame(this._intervalId);
@@ -281,11 +276,6 @@ var game = {
         // Resume audio engine
         if (cc.audioEngine && _isMusicPlaying) {
             cc.audioEngine.resumeMusic();
-        }
-        // Resume event
-        var scene = cc.director.getScene() || cc.director.getRunningScene();
-        if (scene) {
-            cc.eventManager.resumeTarget(scene, true);
         }
         // Resume main loop
         this._runMainLoop();
