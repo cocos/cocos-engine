@@ -131,7 +131,7 @@ var VideoPlayer = cc.Class({
         /**
          * !#en The local video full path.
          * !#zh 本地视频的 URL
-         * @property {String} video
+         * @property {String} clip
          */
         clip: {
             tooltip: 'i18n:COMPONENT.videoplayer.video',
