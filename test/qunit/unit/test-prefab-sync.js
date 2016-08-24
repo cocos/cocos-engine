@@ -98,12 +98,6 @@
         ok(prefabInfo.asset, 'asset should be saved');
         strictEqual(prefabInfo.sync, true, 'sync should be saved');
         strictEqual(prefabInfo.fileId, parent.uuid, 'fileId should be saved');
-
-        //ok(reloadedParent.children.length > 0, 'children should be saved');
-        //var reloadedChild = reloadedParent.children[0];
-        //strictEqual(reloadedChild.y, 0, 'child position should not saved');
-        //notEqual(reloadedChild.name, child.name, 'child name should not saved');
-        //strictEqual(reloadedChild.active, true, 'child active should not saved');
     });
 
     test('prefab info in exported scene if syncable', function () {
@@ -173,87 +167,4 @@
         strictEqual(syncedChild._sgNode.parent === reloadedParent._sgNode, true, 'parent of child _sgNode should be synced');
     });
 
-    //
-    //test('re-instantiate an instantiated node', function () {
-    //    var first = cc.instantiate(prefab);
-    //    var second = cc.instantiate(first);
-    //    var secondInfo = second._prefab;
-    //
-    //    ok(second, "new node should be created");
-    //    ok(secondInfo, "new node should preserve the prefab info");
-    //    ok(secondInfo !== first._prefab, "prefab info should not the same");
-    //    ok(secondInfo.asset === prefab, "should reference to origin prefab asset in prefab info");
-    //    ok(secondInfo.root === second, "check root");
-    //    ok(secondInfo.fileId === first._prefab.fileId, "check fileId");
-    //
-    //    notEqual(first.uuid, second.uuid, 'The id of instances should be different');
-    //});
-    //
-    //test('apply node', function () {
-    //    var newNode = cc.instantiate(prefab);
-    //    var newPrefab = _Scene.PrefabUtils.createAppliedPrefab(newNode);
-    //    strictEqual(newPrefab.data._prefab.fileId, prefab.data._prefab.fileId, "fileId should not changed during apply");
-    //});
-    //
-    //asyncTest('revert prefab', function () {
-    //    // stub
-    //    cc.loader.insertPipe({
-    //        id : 'Prefab_Provider',
-    //        async : false,
-    //        handle : function (item) {
-    //            var url = item.id;
-    //            if (url === UUID) {
-    //                item.states['Downloader'] = cc.Pipeline.ItemState.COMPLETE;
-    //                return JSON.stringify(prefabJson);
-    //            }
-    //            else {
-    //                return;
-    //            }
-    //        }
-    //    }, 0);
-    //
-    //    var testNode = cc.instantiate(prefab);
-    //    var testChild = testNode.children[0];
-    //
-    //    testNode.scale = 0;
-    //    testNode.removeComponent(TestScript);
-    //    testNode.children[1].parent = null;
-    //    testChild.scale = cc.Vec2.ZERO;
-    //    testChild.addComponent(TestScript);
-    //
-    //    var newNode = new cc.Node();
-    //    newNode.parent = testChild;
-    //
-    //    var newNode2 = new cc.Node();
-    //    newNode2.parent = testNode;
-    //    newNode2.setSiblingIndex(0);
-    //
-    //    _Scene.PrefabUtils.revertPrefab(testNode, function () {
-    //        ok(testNode.getScaleX() === 123 && testNode.getScaleY() === 432, 'Revert property of the parent node');
-    //        ok(testNode.getComponent(TestScript).constructor === TestScript, 'Restore removed component');
-    //        var c = testNode.children[0];
-    //        ok(c.getScaleX() === 22 && c.getScaleY() === 11, 'Revert child node');
-    //        ok(testChild.getComponent(TestScript) == null, 'Remove added component');
-    //
-    //        ok(testNode.getComponent(TestScript).target === testChild, 'Should redirect reference to scene node');
-    //
-    //        strictEqual(testChild.children.length, 0, 'Should remove new node');
-    //
-    //        strictEqual(testNode.childrenCount, 2, 'Should create removed node');
-    //        var created = testNode.children[1];
-    //        ok(created._sgNode, 'Checking created node');
-    //
-    //        var comp = created.getComponent(MyComponent);
-    //        comp.resetExpect(CallbackTester.OnLoad, 'call onLoad while attaching to node');
-    //        comp.pushExpect(CallbackTester.OnEnable, 'then call onEnable if node active');
-    //
-    //        cc.director.getScene().addChild(testNode);
-    //
-    //        comp.stopTest();
-    //
-    //        strictEqual(newNode2.isValid, false, 'should remove new node which is not the last sibling');
-    //
-    //        start();
-    //    });
-    //});
 })();

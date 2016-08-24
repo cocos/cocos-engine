@@ -792,13 +792,14 @@ var Node = cc.Class({
                 return;
             }
         }
-        if (ctor._requireComponent) {
+        var ReqComp = ctor._requireComponent;
+        if (ReqComp && !this.getComponent(ReqComp)) {
             if (index === this._components.length) {
                 // If comp should be last component, increase the index because required component added
                 ++index;
             }
-            var depend = this.addComponent(ctor._requireComponent);
-            if (!depend) {
+            var depended = this.addComponent(ReqComp);
+            if (!depended) {
                 // depend conflicts
                 return null;
             }

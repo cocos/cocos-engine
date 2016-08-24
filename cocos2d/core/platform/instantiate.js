@@ -111,7 +111,7 @@ function doInstantiate (obj, parent) {
         cc.error('Can not instantiate array');
         return null;
     }
-    if (_isDomNode && _isDomNode(obj)) {
+    if (!CC_JSB && _isDomNode && _isDomNode(obj)) {
         cc.error('Can not instantiate DOM element');
         return null;
     }
