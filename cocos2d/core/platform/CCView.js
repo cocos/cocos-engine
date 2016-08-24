@@ -469,7 +469,7 @@ var View = cc._Class.extend({
      * !#en Returns whether the current enable on anti-alias
      * !#zh 返回当前是否抗锯齿
      * @method isAntiAliasEnabled
-     * @param {Boolean}
+     * @param {Boolean} enabled - Pass false to make pixel art sharp.
      */
     isAntiAliasEnabled: function () {
         return this._antiAliasEnabled;
