@@ -89,7 +89,7 @@ var RichText = cc.Class({
         },
 
         /**
-         * !#en Horizontal Alignment of label.
+         * !#en Horizontal Alignment of each line in RichText.
          * !#zh 文本内容的水平对齐方式。
          * @property {RichText.HorizontalAlign} horizontalAlign
          */
@@ -104,8 +104,8 @@ var RichText = cc.Class({
         },
 
         /**
-         * !#en Font size of label.
-         * !#zh 文本字体大小。
+         * !#en Font size of RichText.
+         * !#zh 富文本字体大小。
          * @property {Number} fontSize
          */
         fontSize: {
@@ -129,8 +129,8 @@ var RichText = cc.Class({
         },
 
         /**
-         * !#en Line Height of label.
-         * !#zh 文本行高。
+         * !#en Line Height of RichText.
+         * !#zh 富文本行高。
          * @property {Number} lineHeight
          */
         lineHeight: {
@@ -171,7 +171,7 @@ var RichText = cc.Class({
 
     },
 
-    _updateLabelSegmentColor: function() {
+    _updateLabelSegmentTextAttributes: function() {
         this._labelSegments.forEach(function(item) {
             this._applyTextAttribute(item);
         }.bind(this));
@@ -192,7 +192,7 @@ var RichText = cc.Class({
 
         var self = this;
         sgNode.setColor = function () {
-            self._updateLabelSegmentColor();
+            self._updateLabelSegmentTextAttributes();
         };
 
         sgNode._setContentSize = sgNode.setContentSize;
@@ -442,8 +442,53 @@ var RichText = cc.Class({
         this._lineCount++;
     },
 
+    _needsUpdateTextLayout: function (newTextArray) {
+        if(!this._textArray || !newTextArray) {
+            return true;
+        }
+
+        if(this._textArray.length !== newTextArray.length) {
+            return true;
+        }
+
+        for(var i = 0; i < this._textArray.length; ++i) {
+            var oldItem = this._textArray[i];
+            var newItem = newTextArray[i];
+            if(oldItem.text != newItem.text) {
+                return true;
+            } else {
+                if (oldItem.style) {
+                    if (newItem.style) {
+                        //TODO: add more when adding bold/italic/underline
+                        if(oldItem.style.size != newItem.style.size) {
+                            return true;
+                        }
+                    } else {
+                        if(oldItem.style.size) {
+                            return true;
+                        }
+                    }
+                } else {
+                    if (newItem.style) {
+                        if(newItem.style.size) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    },
+
     _updateRichText: function () {
-        this._textArray = cc.htmlTextParser.parse(this.string);
+        var newTextArray = cc.htmlTextParser.parse(this.string);
+        if(!this._needsUpdateTextLayout(newTextArray)) {
+            this._textArray = newTextArray;
+            this._updateLabelSegmentTextAttributes();
+            return;
+        }
+
+        this._textArray = newTextArray;
         var sgNode = this._sgNode;
         this._resetState();
 
