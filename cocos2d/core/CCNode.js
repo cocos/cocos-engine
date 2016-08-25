@@ -1143,7 +1143,7 @@ var Node = cc.Class({
         }
         if (newAdded && !this._activeInHierarchy) {
             cc.director.getScheduler().schedule(function() {
-                if (this._activeInHierarchy) {
+                if (!this._activeInHierarchy) {
                     cc.eventManager.pauseTarget(this);
                 }
             }, this, 0, 0, 0, false);
