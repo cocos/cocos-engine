@@ -99,6 +99,7 @@ var RichText = cc.Class({
             tooltip: 'i18n:COMPONENT.label.horizontal_align',
             animatable: false,
             notify: function () {
+                this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
         },
@@ -112,6 +113,7 @@ var RichText = cc.Class({
             default: 40,
             tooltip: 'i18n:COMPONENT.label.font_size',
             notify: function () {
+                this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
         },
@@ -124,6 +126,7 @@ var RichText = cc.Class({
         maxWidth: {
             default: 0,
             notify: function () {
+                this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
         },
@@ -137,6 +140,7 @@ var RichText = cc.Class({
             default: 40,
             tooltip: 'i18n:COMPONENT.label.line_height',
             notify: function () {
+                this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
         }
@@ -363,6 +367,7 @@ var RichText = cc.Class({
         this._lineCount = 1;
         this._labelWidth = 0;
         this._labelHeight = 0;
+        this._layoutDirty = true;
     },
 
     _addLabelSegment: function(stringToken, styleIndex) {
@@ -443,7 +448,7 @@ var RichText = cc.Class({
     },
 
     _needsUpdateTextLayout: function (newTextArray) {
-        if(!this._textArray || !newTextArray) {
+        if(this._layoutDirty || !this._textArray || !newTextArray) {
             return true;
         }
 
@@ -547,6 +552,7 @@ var RichText = cc.Class({
         sgNode._setContentSize(cc.size(this._labelWidth, this._labelHeight));
 
         this._updateRichTextPosition();
+        this._layoutDirty = false;
     },
 
     _isCJK_unicode: function(ch) {
