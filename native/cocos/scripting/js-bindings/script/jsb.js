@@ -65,6 +65,13 @@ if (cc.ControlButton) {
 if (cc.PhysicsSprite) {
     require('script/physicsSprite/jsb_physicsSprite.js');
 }
+
+if (window.cp) {
+    // chipmunk
+    require('script/chipmunk/jsb_chipmunk_constants.js');
+    require('script/chipmunk/jsb_chipmunk.js');
+}
+
 require('script/jsb_opengl_constants.js');
 require('script/jsb_opengl.js');
 
@@ -80,12 +87,6 @@ if (jsb.fileUtils.isFileExist('jsb_pluginx.js') || jsb.fileUtils.isFileExist('js
 
 if (window.sp) {
     require('script/jsb_spine.js');
-}
-
-if (window.cp) {
-    // chipmunk
-    require('script/chipmunk/jsb_chipmunk_constants.js');
-    require('script/chipmunk/jsb_chipmunk.js');
 }
 
 require("script/jsb_audioengine.js");

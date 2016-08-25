@@ -352,7 +352,7 @@ cc.defineGetterSetter(_proto, "layerWidth", _proto._getLayerWidth, _proto._setLa
 cc.defineGetterSetter(_proto, "layerHeight", _proto._getLayerHeight, _proto._setLayerHeight);
 cc.defineGetterSetter(_proto, "tileWidth", _proto._getTileWidth, _proto._setTileWidth);
 cc.defineGetterSetter(_proto, "tileHeight", _proto._getTileHeight, _proto._setTileHeight);
-cc.defineGetterSetter(_proto, "texture", _proto.getTexture);
+cc.defineGetterSetter(_proto, "texture", _proto.getTexture, _proto.setTexture);
 
 _proto = cc.TMXTiledMap.prototype;
 cc.defineGetterSetter(_proto, "properties", _proto.getProperties, _proto.setProperties);

@@ -26,7 +26,7 @@
 
 // CCConfig.js
 //
-cc.ENGINE_VERSION = "Cocos2d-JS v3.9";
+cc.ENGINE_VERSION = "Cocos2d-JS v3.13";
 
 cc.FIX_ARTIFACTS_BY_STRECHING_TEXEL = 0;
 cc.DIRECTOR_STATS_POSITION = {x: 0, y: 0};
@@ -200,7 +200,7 @@ cc.UNIFORM_RANDOM01 = 6;
 cc.UNIFORM_SAMPLER = 7;
 cc.UNIFORM_MAX = 8;
 
-// Shaders
+// Shaders 
 cc.UNIFORM_TIME_S = "CC_Time";
 cc.UNIFORM_COS_TIME_S   = 'CC_CosTime';
 cc.UNIFORM_COSTIME_S = "CC_CosTime";
@@ -879,7 +879,7 @@ cc.pDot = function (v1, v2) {
     return v1.x * v2.x + v1.y * v2.y;
 };
 
-/**
+/**_ComponentJS
  * Calculates cross product of two points.
  * @method pCross
  * @param {Vec2} v1
@@ -1769,14 +1769,7 @@ cc.Director.EVENT_BEFORE_UPDATE = "director_before_update";
 cc.Director.EVENT_AFTER_UPDATE = "director_after_update";
 cc.Director.EVENT_BEFORE_SCENE_LAUNCH = "director_before_scene_launch";
 
-cc.Director.prototype.runScene = function(scene){
-    if (!this.getRunningScene()) {
-        this.runWithScene(scene);
-    }
-    else {
-        this.replaceScene(scene);
-    }
-};
+cc.Director.prototype.runScene = cc.Director.prototype.replaceScene;
 
 cc.visibleRect = {
     topLeft:cc.p(0,0),
@@ -1835,7 +1828,7 @@ cc.visibleRect.init();
 // Predefined font definition
 cc.FontDefinition = function () {
     this.fontName = "Arial";
-    this.fontSize = 18;
+    this.fontSize = 12;
     this.textAlign = cc.TEXT_ALIGNMENT_CENTER;
     this.verticalAlign = cc.VERTICAL_TEXT_ALIGNMENT_TOP;
     this.fillStyle = cc.color(255, 255, 255, 255);
@@ -1950,6 +1943,9 @@ cc.cardinalSplineAt = function (p0, p1, p2, p3, tension, t) {
 };
 
 cc._DrawNode = cc.DrawNode;
+cc._DrawNode.prototype.drawPoly = function (verts, fillColor, borderWidth, borderColor) {
+    cc._DrawNode.prototype.drawPolygon.call(this, verts, verts.length, fillColor, borderWidth, borderColor);
+}
 cc.DrawNode = cc._DrawNode.extend({
     _drawColor: cc.color(255, 255, 255, 255),
     _lineWidth: 1,
@@ -1979,7 +1975,7 @@ cc.DrawNode = cc._DrawNode.extend({
         lineColor = lineColor || this._drawColor;
         var points = [origin, cc.p(origin.x, destination.y), destination, cc.p(destination.x, origin.y)];
         if (fillColor)
-            cc._DrawNode.prototype.drawPolygon.call(this, points, points.length, fillColor, lineWidth, lineColor);
+            cc._DrawNode.prototype.drawPoly.call(this, points, fillColor, lineWidth, lineColor);
         else {
             points.push(origin);
             var drawSeg = cc._DrawNode.prototype.drawSegment;
@@ -2070,19 +2066,11 @@ cc.DrawNode = cc._DrawNode.extend({
     },
 
     drawPoly:function (verts, fillColor, borderWidth, borderColor) {
-        borderWidth = borderWidth || this._lineWidth;
         borderColor = borderColor || this._drawColor;
         if (fillColor)
-            cc._DrawNode.prototype.drawPolygon.call(this, verts, verts.length, fillColor, borderWidth, borderColor);
+            cc._DrawNode.prototype.drawPoly.call(this, verts, fillColor, borderWidth, borderColor);
         else {
-            var first = verts[0];
-            var last = verts[verts.length - 1];
-
-            if (first.x !== last.x || first.y !== last.y) {
-                verts = verts.slice(0, verts.length);
-                verts.push(verts[0]);
-            }
-            
+            verts.push(verts[0]);
             var drawSeg = cc._DrawNode.prototype.drawSegment;
             for (var i = 0, len = verts.length; i < len - 1; i++)
                 drawSeg.call(this, verts[i], verts[i + 1], borderWidth, borderColor);
@@ -2969,8 +2957,7 @@ cc.Texture2D.prototype.handleLoadedTexture = function (premultipled) {};
 // MenuItem setCallback support target
 //
 cc.MenuItem.prototype._setCallback = cc.MenuItem.prototype.setCallback;
-cc.MenuItem.prototype.setCallback = function (callback, target)
-{
+cc.MenuItem.prototype.setCallback = function (callback, target) {
     this._setCallback(callback.bind(target));
 };
 
@@ -2998,6 +2985,26 @@ _p.setDisabledSpriteFrame = function(frame) {
 };
 
 cc.MenuItemToggle.prototype.selectedItem = cc.MenuItemToggle.prototype.getSelectedItem;
+
+// playMusic searchPaths
+if (cc.sys.os === cc.sys.OS_ANDROID && cc.audioEngine) {
+    cc.audioEngine._playMusic = cc.audioEngine.playMusic;
+    cc.audioEngine.playMusic = function () {
+        var args = arguments;
+        var searchPaths = jsb.fileUtils.getSearchPaths();
+        var path = args[0];
+        searchPaths.some(function (item) {
+            var temp = item + '/' + path;
+            var exists = jsb.fileUtils.isFileExist(temp);
+            if (exists) {
+                path = temp;
+                return true;
+            }
+        });
+        args[0] = path;
+        cc.audioEngine._playMusic.apply(cc.audioEngine, args);
+    };
+}
 
 //
 // Label overflow
@@ -3124,38 +3131,26 @@ cc.GLProgram.prototype.setUniformLocationWithMatrix2fv = function(){
     var tempArray = Array.prototype.slice.call(arguments);
     tempArray = Array.prototype.concat.call(tempArray, 2);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
-}
+};
 
 cc.GLProgram.prototype.setUniformLocationWithMatrix3fv = function(){
     var tempArray = Array.prototype.slice.call(arguments);
     tempArray = Array.prototype.concat.call(tempArray, 3);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
-}
+};
 cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(){
     var tempArray = Array.prototype.slice.call(arguments);
     tempArray = Array.prototype.concat.call(tempArray, 4);
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
-}
+};
 
-cc.Node.prototype._setPositionX = cc.Node.prototype.setPositionX;
-cc.Node.prototype.setPositionX = function(posX)
-{
-    if (typeof posX === 'number') {
-        this._setPositionX(posX);
+var jsbSetUniformCallback = cc.GLProgramState.prototype.setUniformCallback;
+cc.GLProgramState.prototype.setUniformCallback = function (uniform, callback) {
+    if (!jsb._root) {
+        jsb._root = {};
     }
-    else
-        cc.log('cc.Node.setPositionX error:value is not number');
+    var owner = jsb._root;
+    jsb.addRoot(owner, callback);
+    jsbSetUniformCallback.call(this, uniform, callback);
 };
 
-//
-// Script Component
-//
-cc._ComponentJS = cc.ComponentJS;
-cc.ComponentJS = function (filename) {
-    var comp = cc._ComponentJS.create(filename);
-    var res = comp.getScriptObject();
-    return res;
-}
-cc.ComponentJS.extend = function (prop) {
-    return cc._ComponentJS.extend(prop);
-};

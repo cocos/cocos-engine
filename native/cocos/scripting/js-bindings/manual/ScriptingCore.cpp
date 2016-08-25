@@ -529,8 +529,7 @@ bool ScriptingCore::evalString(const char *string, JS::MutableHandleValue outVal
         ok = JS::Compile(cx, global, op, content.c_str(), content.size(), &(*script) );
     }
     if (ok) {
-        JS::RootedValue rval(cx, outVal);
-        evaluatedOK = JS_ExecuteScript(cx, global, *script, &rval);
+        evaluatedOK = JS_ExecuteScript(cx, global, *script, outVal);
         if (false == evaluatedOK) {
             cocos2d::log("Evaluating %s failed (evaluatedOK == JS_FALSE)", content.c_str());
             JS_ReportPendingException(cx);
@@ -914,10 +913,34 @@ void ScriptingCore::cleanup()
 
 void ScriptingCore::reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
-    js_log("%s:%u:%s\n",
-            report->filename ? report->filename : "<no filename=\"filename\">",
-            (unsigned int) report->lineno,
-            message);
+    if (cx && report)
+    {
+        std::string fileName = report->filename ? report->filename : "<no filename=\"filename\">";
+        int32_t lineno = report->lineno;
+        std::string msg = message != nullptr ? message : "";
+
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+        __android_log_print(ANDROID_LOG_ERROR, "cocos js error:", "%s line:%u msg:%s",
+                            fileName.c_str(), report->lineno, msg.c_str());
+#else
+        cocos2d::log("%s:%u:%s\n", fileName.c_str(), report->lineno, msg.c_str());
+#endif
+        // Should clear pending exception, otherwise it will trigger infinite loop
+        if (JS_IsExceptionPending(cx)) {
+            JS_ClearPendingException(cx);
+        }
+
+        JS::Value dataVal[3] = {
+            std_string_to_jsval(cx, fileName),
+            int32_to_jsval(cx, lineno),
+            std_string_to_jsval(cx, msg)
+        };
+
+        auto sc = ScriptingCore::getInstance();
+        JS::RootedValue rval(cx);
+        JS::RootedValue global(cx, OBJECT_TO_JSVAL(sc->getGlobalObject()));
+        sc->executeFunctionWithOwner(global, "__errorHandler", 3, dataVal, &rval);
+    }
 };
 
 
