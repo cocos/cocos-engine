@@ -29,7 +29,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Looper;
-import android.renderscript.Type;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
