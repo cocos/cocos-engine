@@ -381,6 +381,12 @@ var RichText = cc.Class({
         this._sgNode.addChild(labelSegment);
         this._labelSegments.push(labelSegment);
 
+        if(CC_JSB) {
+            labelSegment.setOverflow(1);
+            var size = labelSegment.getContentSize();
+            labelSegment.setContentSize(size.width, this.lineHeight);
+        }
+
         return labelSegment;
     },
 
