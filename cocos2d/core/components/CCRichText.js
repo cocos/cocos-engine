@@ -65,6 +65,12 @@ var RichText = cc.Class({
         this._textArray = null;
 
         this._resetState();
+
+        if(CC_EDITOR) {
+            this._updateRichTextStatus = debounce(this._updateRichText, 200);
+        } else {
+            this._updateRichTextStatus = this._updateRichText;
+        }
     },
 
     editor: CC_EDITOR && {
@@ -74,7 +80,6 @@ var RichText = cc.Class({
 
 
     properties: {
-        _useOriginalSize: true,
         /**
          * !#en Content string of RichText.
          * !#zh 富文本显示的文本内容。
@@ -148,33 +153,21 @@ var RichText = cc.Class({
         }
     },
 
-    _updateRichTextStatus: function () {
-        if(this._sgNode) {
-            if(CC_EDITOR) {
-                this._debouncedUpdateRichText();
-            } else {
-                this._updateRichText();
-            }
-        }
-    },
-
     statics: {
         HorizontalAlign: HorizontalAlign,
         VerticalAlign: VerticalAlign
     },
 
-    _createSgNode: function () {
-        return null;
-    },
-
     __preload: function () {
         this._super();
-        if(CC_EDITOR) {
-            this._debouncedUpdateRichText = debounce(this._updateRichText, 200);
-        } else {
+
+        if (!CC_EDITOR) {
             this._registerEvents();
         }
+    },
 
+    _createSgNode: function () {
+        return new _ccsg.Node();
     },
 
     _updateLabelSegmentTextAttributes: function() {
@@ -184,11 +177,7 @@ var RichText = cc.Class({
     },
 
     _initSgNode: function () {
-
-        this._resetState();
-
-        var sgNode = this._sgNode = new _ccsg.Node();
-        sgNode.setVisible(false);
+        var sgNode = this._sgNode;
         sgNode.setCascadeOpacityEnabled(true);
 
         var self = this;
@@ -200,10 +189,6 @@ var RichText = cc.Class({
         sgNode.setContentSize = function () {};
 
         this._updateRichText();
-
-        if(CC_JSB) {
-            sgNode.retain();
-        }
     },
 
     _computeAlignmentOffset: function() {
@@ -647,14 +632,6 @@ var RichText = cc.Class({
         if(textStyle && textStyle.event) {
             if(textStyle.event.click) {
                 label._clickHandler = textStyle.event.click;
-            }
-
-            if(textStyle.event.hoverin) {
-                label._hoverinHandler = textStyle.event.hoverin;
-            }
-
-            if(textStyle.event.hoverout) {
-                label._hoveroutHandler = textStyle.event.hoverout;
             }
         }
     }

@@ -22,6 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var eventRegx = /^(click)(\s)*=/;
 /**
  * A utils class for parsing HTML texts. The parsed results will be an object array.
  */
@@ -134,7 +135,7 @@ cc.HtmlTextParser.prototype = {
     _processEventHandler: function (eventString) {
         var index = 0;
         var obj = {};
-        var eventNames = eventString.match(this._getEventRegx());
+        var eventNames = eventString.match(eventRegx);
         var isValidTag = false;
         while(eventNames) {
             var eventName = eventNames[0];
@@ -172,7 +173,7 @@ cc.HtmlTextParser.prototype = {
             }
 
             eventString = eventString.substring(index).trim();
-            eventNames = eventString.match(this._getEventRegx());
+            eventNames = eventString.match(eventRegx);
         }
 
         return obj;
@@ -206,10 +207,6 @@ cc.HtmlTextParser.prototype = {
         } else {
             this._resultObjectArray.push({text: value});
         }
-    },
-
-    _getEventRegx: function () {
-        return /^(click)(\s)*=/;
     },
 
     _escapeSpecialSymbol: function(str) {
