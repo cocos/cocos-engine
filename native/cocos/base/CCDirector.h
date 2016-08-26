@@ -492,6 +492,11 @@ public:
      Useful to know if certain code is already running on the cocos2d thread
      */
     const std::thread::id& getCocos2dThreadId() const { return _cocos2d_thread_id; }
+    
+    /**
+     * returns whether purge director in next loop
+     */
+    bool isPurgeDirectorInNextLoop() const { return _purgeDirectorInNextLoop; }
 
 protected:
     void reset();

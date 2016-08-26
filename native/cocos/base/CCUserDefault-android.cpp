@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #ifdef KEEP_COMPATABILITY
 #include "platform/CCFileUtils.h"
-#include "tinyxml2.h"
+#include "tinyxml2/tinyxml2.h"
 #endif
 
 static const std::string helperClassName = "org/cocos2dx/lib/Cocos2dxHelper";

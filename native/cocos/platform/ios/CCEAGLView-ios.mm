@@ -69,7 +69,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #import <QuartzCore/QuartzCore.h>
 
 #import "base/CCDirector.h"
-#import "deprecated/CCSet.h"
 #import "base/CCTouch.h"
 #import "base/CCIMEDispatcher.h"
 #import "platform/ios/CCGLViewImpl-ios.h"
@@ -434,7 +433,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
         ++i;
     }
 
-    auto glview = director->getOpenGLView();
+    auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     glview->handleTouchesMove(i, (intptr_t*)ids, xs, ys, fs, ms);
 }
 
