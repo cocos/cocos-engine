@@ -1120,7 +1120,7 @@ cc.BMFontHelper = {
         }
     },
 
-    _computeHorizontalKerningForText: function(text) {
+    _computeHorizontalKerningForText: function() {
         var stringLen = this.getStringLength();
         var locKerningDict = this._config.kerningDict;
 
@@ -1155,7 +1155,7 @@ cc.BMFontHelper = {
                     var locIsLoaded = texture.isLoaded();
                     self._textureLoaded = locIsLoaded;
                     if (!locIsLoaded) {
-                        texture.once("load", function(event) {
+                        texture.once("load", function() {
                             var self = this;
 
                             if (!self._spriteBatchNode) {

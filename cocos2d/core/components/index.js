@@ -47,4 +47,5 @@ module.exports = [
     require('./CCWebView'),
     require('./CCSpriteDistortion'),
     require('./CCLabelOutline'),
+    require('./CCRichText'),
 ];
