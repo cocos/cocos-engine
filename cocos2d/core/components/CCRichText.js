@@ -628,7 +628,12 @@ var RichText = cc.Class({
             textStyle = this._textArray[index].style;
         }
         if(textStyle && textStyle.color) {
-            label.setColor(cc.hexToColor(textStyle.color));
+            var colorValue = textStyle.color.toUpperCase();
+            if(cc.Color[colorValue]) {
+                label.setColor(cc.Color[colorValue]);
+            } else {
+                label.setColor(cc.hexToColor(textStyle.color));
+            }
         } else {
             label.setColor(this.node.color);
         }
