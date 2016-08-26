@@ -200,7 +200,6 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\base\CCConfiguration.cpp" />
     <ClCompile Include="..\base\CCConsole.cpp" />
     <ClCompile Include="..\base\CCData.cpp" />
-    <ClCompile Include="..\base\CCDataVisitor.cpp" />
     <ClCompile Include="..\base\CCDirector.cpp" />
     <ClCompile Include="..\base\CCEvent.cpp" />
     <ClCompile Include="..\base\CCEventAcceleration.cpp" />
@@ -526,7 +525,6 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\base\CCConfiguration.h" />
     <ClInclude Include="..\base\CCConsole.h" />
     <ClInclude Include="..\base\CCData.h" />
-    <ClInclude Include="..\base\CCDataVisitor.h" />
     <ClInclude Include="..\base\CCDirector.h" />
     <ClInclude Include="..\base\CCEvent.h" />
     <ClInclude Include="..\base\CCEventAcceleration.h" />

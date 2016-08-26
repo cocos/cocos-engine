@@ -54,7 +54,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
     private static Handler sHandler;
 
     private static Cocos2dxGLSurfaceView mCocos2dxGLSurfaceView;
-    private static Cocos2dxTextInputWrapper sCocos2dxTextInputWraper;
+    private static Cocos2dxTextInputWrapper sCocos2dxTextInputwrapper;
 
     private Cocos2dxRenderer mCocos2dxRenderer;
     private Cocos2dxEditBox mCocos2dxEditText;
@@ -91,7 +91,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
         this.setFocusableInTouchMode(true);
 
         Cocos2dxGLSurfaceView.mCocos2dxGLSurfaceView = this;
-        Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper = new Cocos2dxTextInputWrapper(this);
+        Cocos2dxGLSurfaceView.sCocos2dxTextInputwrapper = new Cocos2dxTextInputWrapper(this);
 
         Cocos2dxGLSurfaceView.sHandler = new Handler() {
             @Override
@@ -99,12 +99,12 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
                 switch (msg.what) {
                     case HANDLER_OPEN_IME_KEYBOARD:
                         if (null != Cocos2dxGLSurfaceView.this.mCocos2dxEditText && Cocos2dxGLSurfaceView.this.mCocos2dxEditText.requestFocus()) {
-                            Cocos2dxGLSurfaceView.this.mCocos2dxEditText.removeTextChangedListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper);
+                            Cocos2dxGLSurfaceView.this.mCocos2dxEditText.removeTextChangedListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputwrapper);
                             Cocos2dxGLSurfaceView.this.mCocos2dxEditText.setText("");
                             final String text = (String) msg.obj;
                             Cocos2dxGLSurfaceView.this.mCocos2dxEditText.append(text);
-                            Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper.setOriginText(text);
-                            Cocos2dxGLSurfaceView.this.mCocos2dxEditText.addTextChangedListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper);
+                            Cocos2dxGLSurfaceView.sCocos2dxTextInputwrapper.setOriginText(text);
+                            Cocos2dxGLSurfaceView.this.mCocos2dxEditText.addTextChangedListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputwrapper);
                             final InputMethodManager imm = (InputMethodManager) Cocos2dxGLSurfaceView.mCocos2dxGLSurfaceView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.showSoftInput(Cocos2dxGLSurfaceView.this.mCocos2dxEditText, 0);
                             Log.d("GLSurfaceView", "showSoftInput");
@@ -113,7 +113,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 
                     case HANDLER_CLOSE_IME_KEYBOARD:
                         if (null != Cocos2dxGLSurfaceView.this.mCocos2dxEditText) {
-                            Cocos2dxGLSurfaceView.this.mCocos2dxEditText.removeTextChangedListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper);
+                            Cocos2dxGLSurfaceView.this.mCocos2dxEditText.removeTextChangedListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputwrapper);
                             final InputMethodManager imm = (InputMethodManager) Cocos2dxGLSurfaceView.mCocos2dxGLSurfaceView.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                             imm.hideSoftInputFromWindow(Cocos2dxGLSurfaceView.this.mCocos2dxEditText.getWindowToken(), 0);
                             Cocos2dxGLSurfaceView.this.requestFocus();
@@ -160,8 +160,8 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
 
     public void setCocos2dxEditText(final Cocos2dxEditBox pCocos2dxEditText) {
         this.mCocos2dxEditText = pCocos2dxEditText;
-        if (null != this.mCocos2dxEditText && null != Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper) {
-            this.mCocos2dxEditText.setOnEditorActionListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputWraper);
+        if (null != this.mCocos2dxEditText && null != Cocos2dxGLSurfaceView.sCocos2dxTextInputwrapper) {
+            this.mCocos2dxEditText.setOnEditorActionListener(Cocos2dxGLSurfaceView.sCocos2dxTextInputwrapper);
             this.requestFocus();
         }
     }

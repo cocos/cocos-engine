@@ -385,9 +385,6 @@
     <ClCompile Include="..\base\CCData.cpp">
       <Filter>base</Filter>
     </ClCompile>
-    <ClCompile Include="..\base\CCDataVisitor.cpp">
-      <Filter>base</Filter>
-    </ClCompile>
     <ClCompile Include="..\base\CCDirector.cpp">
       <Filter>base</Filter>
     </ClCompile>
@@ -1365,9 +1362,6 @@
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\base\CCData.h">
-      <Filter>base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\base\CCDataVisitor.h">
       <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="..\base\CCDirector.h">

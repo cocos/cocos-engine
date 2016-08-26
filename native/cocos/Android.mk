@@ -52,7 +52,6 @@ cocos2d.cpp \
 2d/CCLabelAtlas.cpp \
 2d/CCLabelTextFormatter.cpp \
 2d/CCLayer.cpp \
-2d/CCLight.cpp \
 2d/CCMenu.cpp \
 2d/CCMenuItem.cpp \
 2d/CCMotionStreak.cpp \
@@ -104,7 +103,6 @@ base/CCAutoreleasePool.cpp \
 base/CCConfiguration.cpp \
 base/CCConsole.cpp \
 base/CCData.cpp \
-base/CCDataVisitor.cpp \
 base/CCDirector.cpp \
 base/CCEvent.cpp \
 base/CCEventAcceleration.cpp \
@@ -144,7 +142,6 @@ base/ccUTF8.cpp \
 base/ccUtils.cpp \
 base/etc1.cpp \
 base/pvr.cpp \
-base/CCString.cpp \
 renderer/CCBatchCommand.cpp \
 renderer/CCCustomCommand.cpp \
 renderer/CCGLProgram.cpp \
@@ -180,7 +177,13 @@ storage/local-storage/LocalStorage-android.cpp \
 ../external/sources/unzip/ioapi.cpp \
 ../external/sources/unzip/unzip.cpp \
 ../external/sources/edtaa3func/edtaa3func.cpp \
-../external/sources/xxhash/xxhash.c
+../external/sources/xxhash/xxhash.c \
+../external/sources/poly2tri/common/shapes.cc \
+../external/sources/poly2tri/sweep/advancing_front.cc \
+../external/sources/poly2tri/sweep/cdt.cc \
+../external/sources/poly2tri/sweep/sweep_context.cc \
+../external/sources/poly2tri/sweep/sweep.cc \
+../external/sources/clipper/clipper.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/platform \
@@ -207,6 +210,7 @@ LOCAL_STATIC_LIBRARIES += cocos_chipmunk_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
+LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
 
 # define the macro to compile through support/zip_support/ioapi.c
 LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions
