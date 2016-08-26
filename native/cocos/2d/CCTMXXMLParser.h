@@ -118,6 +118,48 @@ public:
     Vec2               _offset;
 };
 
+class CC_DLL TMXObjectGroupInfo : public Ref
+{
+public:
+    /**
+     * @js ctor
+     */
+    TMXObjectGroupInfo();
+    /**
+     * @js NA
+     * @lua NA
+     */
+    virtual ~TMXObjectGroupInfo();
+
+    /** Gets the list of properties stored in a dictionary.
+     *
+     * @return The list of properties stored in a dictionary.
+     */
+    inline ValueMap& getProperties() { return _properties; };
+    
+    /** Sets the list of properties.
+     *
+     * @param properties The list of properties.
+     */
+    inline void setProperties(const ValueMap& properties) {
+        _properties = properties;
+    };
+    
+public:
+    /** name of the group */
+    std::string _groupName;
+    /** offset position of child objects */
+    Vec2 _positionOffset;
+    /** list of properties stored in a dictionary */
+    ValueMap _properties;
+    /** array of the objects */
+    ValueVector _objects;
+
+    bool            _visible;
+    Color3B         _color;
+    unsigned char   _opacity;
+};
+
 /** @brief TMXTilesetInfo contains the information about the tilesets like:
 - Tileset name
 - Tileset spacing
@@ -233,10 +275,17 @@ public:
     };
 
     /// ObjectGroups
-    inline const Vector<TMXObjectGroup*>& getObjectGroups() const { return _objectGroups; };
-    inline Vector<TMXObjectGroup*>& getObjectGroups() { return _objectGroups; };
-    inline void setObjectGroups(const Vector<TMXObjectGroup*>& groups) {
+    inline const Vector<TMXObjectGroupInfo*>& getObjectGroups() const { return _objectGroups; };
+    inline Vector<TMXObjectGroupInfo*>& getObjectGroups() { return _objectGroups; };
+    inline void setObjectGroups(const Vector<TMXObjectGroupInfo*>& groups) {
         _objectGroups = groups;
+    };
+    
+    /// all children
+    inline const Vector<Ref*>& getAllChildren() const { return _allChildren; };
+    inline Vector<Ref*>& getAllChildren() { return _allChildren; };
+    inline void setAllChildren(const Vector<Ref*>& children) {
+        _allChildren = children;
     };
 
     /// parent element
@@ -303,7 +352,9 @@ protected:
     /// tilesets
     Vector<TMXTilesetInfo*> _tilesets;
     /// ObjectGroups
-    Vector<TMXObjectGroup*> _objectGroups;
+    Vector<TMXObjectGroupInfo*> _objectGroups;
+    /// all children
+    Vector<Ref*> _allChildren;
     /// parent element
     int _parentElement;
     /// parent GID
