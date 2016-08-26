@@ -69,6 +69,7 @@ var RichText = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/RichText',
+        help: 'i18n:COMPONENT.help_url.richtext',
     },
 
 
@@ -80,9 +81,9 @@ var RichText = cc.Class({
          * @property {String} string
          */
         string: {
-            default: 'Label',
+            default: '<color=#00ff00>Rich</c><color=#0fffff>Text</color>',
             multiline: true,
-            tooltip: 'i18n:COMPONENT.label.string',
+            tooltip: 'i18n:COMPONENT.richtext.string',
             notify: function () {
                 this._updateRichTextStatus();
             }
@@ -96,7 +97,7 @@ var RichText = cc.Class({
         horizontalAlign: {
             default: HorizontalAlign.LEFT,
             type: HorizontalAlign,
-            tooltip: 'i18n:COMPONENT.label.horizontal_align',
+            tooltip: 'i18n:COMPONENT.richtext.horizontal_align',
             animatable: false,
             notify: function () {
                 this._layoutDirty = true;
@@ -111,7 +112,7 @@ var RichText = cc.Class({
          */
         fontSize: {
             default: 40,
-            tooltip: 'i18n:COMPONENT.label.font_size',
+            tooltip: 'i18n:COMPONENT.richtext.font_size',
             notify: function () {
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -125,6 +126,7 @@ var RichText = cc.Class({
          */
         maxWidth: {
             default: 0,
+            tooltip: 'i18n:COMPONENT.richtext.max_width',
             notify: function () {
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -138,7 +140,7 @@ var RichText = cc.Class({
          */
         lineHeight: {
             default: 40,
-            tooltip: 'i18n:COMPONENT.label.line_height',
+            tooltip: 'i18n:COMPONENT.richtext.line_height',
             notify: function () {
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -183,16 +185,11 @@ var RichText = cc.Class({
 
     _initSgNode: function () {
 
+        this._resetState();
+
         var sgNode = this._sgNode = new _ccsg.Node();
+        sgNode.setVisible(false);
         sgNode.setCascadeOpacityEnabled(true);
-
-        if (this.enabledInHierarchy && !sgNode.isVisible()) {
-            sgNode.setVisible(true);
-        }
-
-        if ( !this.enabledInHierarchy ) {
-            sgNode.setVisible(false);
-        }
 
         var self = this;
         sgNode.setColor = function () {
