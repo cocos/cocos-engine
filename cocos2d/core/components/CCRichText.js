@@ -191,29 +191,6 @@ var RichText = cc.Class({
         this._updateRichText();
     },
 
-    _computeAlignmentOffset: function() {
-        this._linesOffsetX = [];
-        switch (this.horizontalAlign) {
-          case cc.TextAlignment.LEFT:
-              for (var i = 0; i < this._lineCount; ++i) {
-                  this._linesOffsetX.push(0);
-              }
-              break;
-          case cc.TextAlignment.CENTER:
-              this._linesWidth.forEach(function(lineWidth) {
-                  this._linesOffsetX.push((this._labelWidth - lineWidth) / 2);
-              }.bind(this));
-              break;
-          case cc.TextAlignment.RIGHT:
-              this._linesWidth.forEach(function(lineWidth) {
-                  this._linesOffsetX.push(this._labelWidth - lineWidth);
-              }.bind(this));
-              break;
-          default:
-              break;
-        }
-    },
-
     _measureText: function (string, styleIndex) {
         var label = new _ccsg.Label(string);
         label._styleIndex = styleIndex;
@@ -575,7 +552,6 @@ var RichText = cc.Class({
     },
 
     _updateRichTextPosition: function () {
-        this._computeAlignmentOffset();
 
         var nextTokenX = 0;
         var nextLineIndex = 1;
@@ -587,7 +563,20 @@ var RichText = cc.Class({
                 nextTokenX = 0;
                 nextLineIndex = lineCount;
             }
-            var lineOffsetX = this._linesOffsetX[lineCount - 1];
+            var lineOffsetX = 0;
+            switch (this.horizontalAlign) {
+              case cc.TextAlignment.LEFT:
+                  lineOffsetX = 0;
+                  break;
+              case cc.TextAlignment.CENTER:
+                  lineOffsetX = (this._labelWidth - this._linesWidth[lineCount - 1]) / 2;
+                  break;
+              case cc.TextAlignment.RIGHT:
+                  lineOffsetX = this._labelWidth - this._linesWidth[lineCount - 1];
+                  break;
+              default:
+                  break;
+            }
             label.setPositionX(nextTokenX + lineOffsetX);
 
             var labelSize = label.getContentSize();
