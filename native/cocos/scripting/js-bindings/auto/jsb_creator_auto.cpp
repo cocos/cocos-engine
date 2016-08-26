@@ -1,34 +1,12 @@
-#include "jsb_creator_auto.hpp"
-#include "cocos2d_specifics.hpp"
+#include "scripting/js-bindings/auto/jsb_creator_auto.hpp"
+#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "creator/CCScale9Sprite.h"
 #include "creator/CCGraphicsNode.h"
 
 template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedValue initializing(cx);
-    bool isNewValid = true;
-    if (isNewValid)
-    {
-        TypeTest<T> t;
-        js_type_class_t *typeClass = nullptr;
-        std::string typeName = t.s_name();
-        auto typeMapIter = _js_global_type_map.find(typeName);
-        CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
-        typeClass = typeMapIter->second;
-        CCASSERT(typeClass, "The value is null.");
-
-        JS::RootedObject proto(cx, typeClass->proto.ref());
-        JS::RootedObject parent(cx, typeClass->parentProto.ref());
-        JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-        
-        T* cobj = new T();
-        js_proxy_t *pp = jsb_new_proxy(cobj, _tmp);
-        AddObjectRoot(cx, &pp->obj);
-        args.rval().set(OBJECT_TO_JSVAL(_tmp));
-        return true;
-    }
-
+static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
@@ -68,7 +46,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, jsval *v
                 arg0 = (cocos2d::Texture2D*)(jsProxy ? jsProxy->ptr : NULL);
                 JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
             } while (0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->setTexture(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -82,7 +60,7 @@ bool js_creator_Scale9SpriteV2_setTexture(JSContext *cx, uint32_t argc, jsval *v
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->setTexture(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -178,7 +156,7 @@ bool js_creator_Scale9SpriteV2_setInsetBottom(JSContext *cx, uint32_t argc, jsva
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetBottom : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetBottom : Error processing arguments");
         cobj->setInsetBottom(arg0);
         args.rval().setUndefined();
@@ -198,7 +176,7 @@ bool js_creator_Scale9SpriteV2_setFillRange(JSContext *cx, uint32_t argc, jsval 
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setFillRange : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setFillRange : Error processing arguments");
         cobj->setFillRange(arg0);
         args.rval().setUndefined();
@@ -254,7 +232,7 @@ bool js_creator_Scale9SpriteV2_setInsetTop(JSContext *cx, uint32_t argc, jsval *
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetTop : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetTop : Error processing arguments");
         cobj->setInsetTop(arg0);
         args.rval().setUndefined();
@@ -318,12 +296,11 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, jsval
         bool ok = true;
         if (argc == 2) {
             double arg0 = 0;
-            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-            if (!ok) { break; }
+            ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+            if (!ok) { ok = true; break; }
             double arg1 = 0;
-            ok = true;
-            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-            if (!ok) { break; }
+            ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+            if (!ok) { ok = true; break; }
             cobj->setFillCenter(arg0, arg1);
             args.rval().setUndefined();
             return true;
@@ -335,7 +312,7 @@ bool js_creator_Scale9SpriteV2_setFillCenter(JSContext *cx, uint32_t argc, jsval
         if (argc == 1) {
             cocos2d::Vec2 arg0;
             ok &= jsval_to_vector2(cx, args.get(0), &arg0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             cobj->setFillCenter(arg0);
             args.rval().setUndefined();
             return true;
@@ -368,7 +345,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, jsva
                 arg0 = (cocos2d::SpriteFrame*)(jsProxy ? jsProxy->ptr : NULL);
                 JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
             } while (0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->setSpriteFrame(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -382,7 +359,7 @@ bool js_creator_Scale9SpriteV2_setSpriteFrame(JSContext *cx, uint32_t argc, jsva
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->setSpriteFrame(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -427,7 +404,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, jsv
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->initWithTexture(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -449,7 +426,7 @@ bool js_creator_Scale9SpriteV2_initWithTexture(JSContext *cx, uint32_t argc, jsv
                 arg0 = (cocos2d::Texture2D*)(jsProxy ? jsProxy->ptr : NULL);
                 JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
             } while (0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->initWithTexture(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -545,7 +522,7 @@ bool js_creator_Scale9SpriteV2_setFillStart(JSContext *cx, uint32_t argc, jsval 
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setFillStart : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setFillStart : Error processing arguments");
         cobj->setFillStart(arg0);
         args.rval().setUndefined();
@@ -588,11 +565,10 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, jsval 
         if (argc == 2) {
             unsigned int arg0 = 0;
             ok &= jsval_to_uint32(cx, args.get(0), &arg0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             unsigned int arg1 = 0;
-            ok = true;
             ok &= jsval_to_uint32(cx, args.get(1), &arg1);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             cobj->setBlendFunc(arg0, arg1);
             args.rval().setUndefined();
             return true;
@@ -604,7 +580,7 @@ bool js_creator_Scale9SpriteV2_setBlendFunc(JSContext *cx, uint32_t argc, jsval 
         if (argc == 1) {
             cocos2d::BlendFunc arg0;
             ok &= jsval_to_blendfunc(cx, args.get(0), &arg0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             cobj->setBlendFunc(arg0);
             args.rval().setUndefined();
             return true;
@@ -660,7 +636,7 @@ bool js_creator_Scale9SpriteV2_setInsetLeft(JSContext *cx, uint32_t argc, jsval 
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetLeft : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetLeft : Error processing arguments");
         cobj->setInsetLeft(arg0);
         args.rval().setUndefined();
@@ -685,7 +661,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
         if (argc == 1) {
             std::string arg0;
             ok &= jsval_to_std_string(cx, args.get(0), &arg0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -707,7 +683,7 @@ bool js_creator_Scale9SpriteV2_initWithSpriteFrame(JSContext *cx, uint32_t argc,
                 arg0 = (cocos2d::SpriteFrame*)(jsProxy ? jsProxy->ptr : NULL);
                 JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
             } while (0);
-            if (!ok) { break; }
+            if (!ok) { ok = true; break; }
             bool ret = cobj->initWithSpriteFrame(arg0);
             jsval jsret = JSVAL_NULL;
             jsret = BOOLEAN_TO_JSVAL(ret);
@@ -749,7 +725,7 @@ bool js_creator_Scale9SpriteV2_setInsetRight(JSContext *cx, uint32_t argc, jsval
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_Scale9SpriteV2_setInsetRight : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_Scale9SpriteV2_setInsetRight : Error processing arguments");
         cobj->setInsetRight(arg0);
         args.rval().setUndefined();
@@ -784,28 +760,23 @@ bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, jsval *
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     creator::Scale9SpriteV2* cobj = new (std::nothrow) creator::Scale9SpriteV2();
-    TypeTest<creator::Scale9SpriteV2> t;
-    js_type_class_t *typeClass = nullptr;
-    std::string typeName = t.s_name();
-    auto typeMapIter = _js_global_type_map.find(typeName);
-    CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
-    typeClass = typeMapIter->second;
-    CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto.ref());
-    JS::RootedObject parent(cx, typeClass->parentProto.ref());
-    JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-    args.rval().set(OBJECT_TO_JSVAL(obj));
+
+    js_type_class_t *typeClass = js_get_type_from_native<creator::Scale9SpriteV2>(cobj);
+
     // link the native object with the javascript object
-    jsb_new_proxy(cobj, obj);
-    if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::Scale9SpriteV2"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
     return true;
-}static bool js_creator_Scale9SpriteV2_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+}
+static bool js_creator_Scale9SpriteV2_ctor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     creator::Scale9SpriteV2 *nobj = new (std::nothrow) creator::Scale9SpriteV2();
-    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    auto newproxy = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &newproxy->obj, nobj, "creator::Scale9SpriteV2");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
@@ -813,23 +784,9 @@ bool js_creator_Scale9SpriteV2_constructor(JSContext *cx, uint32_t argc, jsval *
     return true;
 }
 
+
 extern JSObject *jsb_cocos2d_Node_prototype;
 
-void js_creator_Scale9SpriteV2_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (Scale9SpriteV2)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        creator::Scale9SpriteV2 *nobj = static_cast<creator::Scale9SpriteV2 *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            nobj->release();
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
     
 void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) {
     jsb_creator_Scale9SpriteV2_class = (JSClass *)calloc(1, sizeof(JSClass));
@@ -841,11 +798,9 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
     jsb_creator_Scale9SpriteV2_class->enumerate = JS_EnumerateStub;
     jsb_creator_Scale9SpriteV2_class->resolve = JS_ResolveStub;
     jsb_creator_Scale9SpriteV2_class->convert = JS_ConvertStub;
-    jsb_creator_Scale9SpriteV2_class->finalize = js_creator_Scale9SpriteV2_finalize;
     jsb_creator_Scale9SpriteV2_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -897,11 +852,16 @@ void js_register_creator_Scale9SpriteV2(JSContext *cx, JS::HandleObject global) 
         NULL, // no static properties
         st_funcs);
 
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_creator_Scale9SpriteV2_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "Scale9SpriteV2"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<creator::Scale9SpriteV2>(cx, jsb_creator_Scale9SpriteV2_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.Scale9SpriteV2.extend = cc.Class.extend; })()");
 }
+
 JSClass  *jsb_creator_GraphicsNode_class;
 JSObject *jsb_creator_GraphicsNode_prototype;
 
@@ -918,10 +878,10 @@ bool js_creator_GraphicsNode_quadraticCurveTo(JSContext *cx, uint32_t argc, jsva
         double arg1 = 0;
         double arg2 = 0;
         double arg3 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_quadraticCurveTo : Error processing arguments");
         cobj->quadraticCurveTo(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -942,8 +902,8 @@ bool js_creator_GraphicsNode_moveTo(JSContext *cx, uint32_t argc, jsval *vp)
     if (argc == 2) {
         double arg0 = 0;
         double arg1 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_moveTo : Error processing arguments");
         cobj->moveTo(arg0, arg1);
         args.rval().setUndefined();
@@ -964,8 +924,8 @@ bool js_creator_GraphicsNode_lineTo(JSContext *cx, uint32_t argc, jsval *vp)
     if (argc == 2) {
         double arg0 = 0;
         double arg1 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_lineTo : Error processing arguments");
         cobj->lineTo(arg0, arg1);
         args.rval().setUndefined();
@@ -1006,11 +966,11 @@ bool js_creator_GraphicsNode_arc(JSContext *cx, uint32_t argc, jsval *vp)
         double arg3 = 0;
         double arg4 = 0;
         bool arg5;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
-        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !std::isnan(arg4);
         arg5 = JS::ToBoolean(args.get(5));
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_arc : Error processing arguments");
         cobj->arc(arg0, arg1, arg2, arg3, arg4, arg5);
@@ -1070,10 +1030,10 @@ bool js_creator_GraphicsNode_ellipse(JSContext *cx, uint32_t argc, jsval *vp)
         double arg1 = 0;
         double arg2 = 0;
         double arg3 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_ellipse : Error processing arguments");
         cobj->ellipse(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -1093,7 +1053,7 @@ bool js_creator_GraphicsNode_setLineWidth(JSContext *cx, uint32_t argc, jsval *v
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setLineWidth : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setLineWidth : Error processing arguments");
         cobj->setLineWidth(arg0);
         args.rval().setUndefined();
@@ -1169,9 +1129,9 @@ bool js_creator_GraphicsNode_circle(JSContext *cx, uint32_t argc, jsval *vp)
         double arg0 = 0;
         double arg1 = 0;
         double arg2 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_circle : Error processing arguments");
         cobj->circle(arg0, arg1, arg2);
         args.rval().setUndefined();
@@ -1195,11 +1155,11 @@ bool js_creator_GraphicsNode_roundRect(JSContext *cx, uint32_t argc, jsval *vp)
         double arg2 = 0;
         double arg3 = 0;
         double arg4 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
-        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !std::isnan(arg4);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_roundRect : Error processing arguments");
         cobj->roundRect(arg0, arg1, arg2, arg3, arg4);
         args.rval().setUndefined();
@@ -1224,12 +1184,12 @@ bool js_creator_GraphicsNode_bezierCurveTo(JSContext *cx, uint32_t argc, jsval *
         double arg3 = 0;
         double arg4 = 0;
         double arg5 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
-        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
-        ok &= JS::ToNumber( cx, args.get(5), &arg5) && !isnan(arg5);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !std::isnan(arg4);
+        ok &= JS::ToNumber( cx, args.get(5), &arg5) && !std::isnan(arg5);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_bezierCurveTo : Error processing arguments");
         cobj->bezierCurveTo(arg0, arg1, arg2, arg3, arg4, arg5);
         args.rval().setUndefined();
@@ -1253,11 +1213,11 @@ bool js_creator_GraphicsNode_arcTo(JSContext *cx, uint32_t argc, jsval *vp)
         double arg2 = 0;
         double arg3 = 0;
         double arg4 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
-        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !isnan(arg4);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(4), &arg4) && !std::isnan(arg4);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_arcTo : Error processing arguments");
         cobj->arcTo(arg0, arg1, arg2, arg3, arg4);
         args.rval().setUndefined();
@@ -1280,10 +1240,10 @@ bool js_creator_GraphicsNode_fillRect(JSContext *cx, uint32_t argc, jsval *vp)
         double arg1 = 0;
         double arg2 = 0;
         double arg3 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_fillRect : Error processing arguments");
         cobj->fillRect(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -1379,7 +1339,7 @@ bool js_creator_GraphicsNode_setDeviceRatio(JSContext *cx, uint32_t argc, jsval 
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setDeviceRatio : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setDeviceRatio : Error processing arguments");
         cobj->setDeviceRatio(arg0);
         args.rval().setUndefined();
@@ -1402,10 +1362,10 @@ bool js_creator_GraphicsNode_rect(JSContext *cx, uint32_t argc, jsval *vp)
         double arg1 = 0;
         double arg2 = 0;
         double arg3 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
-        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !isnan(arg1);
-        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !isnan(arg2);
-        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !isnan(arg3);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(1), &arg1) && !std::isnan(arg1);
+        ok &= JS::ToNumber( cx, args.get(2), &arg2) && !std::isnan(arg2);
+        ok &= JS::ToNumber( cx, args.get(3), &arg3) && !std::isnan(arg3);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_rect : Error processing arguments");
         cobj->rect(arg0, arg1, arg2, arg3);
         args.rval().setUndefined();
@@ -1479,7 +1439,7 @@ bool js_creator_GraphicsNode_setMiterLimit(JSContext *cx, uint32_t argc, jsval *
     JSB_PRECONDITION2( cobj, cx, false, "js_creator_GraphicsNode_setMiterLimit : Invalid Native Object");
     if (argc == 1) {
         double arg0 = 0;
-        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !isnan(arg0);
+        ok &= JS::ToNumber( cx, args.get(0), &arg0) && !std::isnan(arg0);
         JSB_PRECONDITION2(ok, cx, false, "js_creator_GraphicsNode_setMiterLimit : Error processing arguments");
         cobj->setMiterLimit(arg0);
         args.rval().setUndefined();
@@ -1574,49 +1534,39 @@ bool js_creator_GraphicsNode_create(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
-        creator::GraphicsNode* ret = creator::GraphicsNode::create();
-        jsval jsret = JSVAL_NULL;
-        do {
-        if (ret) {
-            js_proxy_t *jsProxy = js_get_or_create_proxy<creator::GraphicsNode>(cx, (creator::GraphicsNode*)ret);
-            jsret = OBJECT_TO_JSVAL(jsProxy->obj);
-        } else {
-            jsret = JSVAL_NULL;
-        }
-    } while (0);
-        args.rval().set(jsret);
+
+        auto ret = creator::GraphicsNode::create();
+        js_type_class_t *typeClass = js_get_type_from_native<creator::GraphicsNode>(ret);
+        JS::RootedObject jsret(cx, jsb_ref_autoreleased_create_jsobject(cx, ret, typeClass, "creator::GraphicsNode"));
+        args.rval().set(OBJECT_TO_JSVAL(jsret));
         return true;
     }
     JS_ReportError(cx, "js_creator_GraphicsNode_create : wrong number of arguments");
     return false;
 }
+
 bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     creator::GraphicsNode* cobj = new (std::nothrow) creator::GraphicsNode();
-    TypeTest<creator::GraphicsNode> t;
-    js_type_class_t *typeClass = nullptr;
-    std::string typeName = t.s_name();
-    auto typeMapIter = _js_global_type_map.find(typeName);
-    CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
-    typeClass = typeMapIter->second;
-    CCASSERT(typeClass, "The value is null.");
-    JS::RootedObject proto(cx, typeClass->proto.ref());
-    JS::RootedObject parent(cx, typeClass->parentProto.ref());
-    JS::RootedObject obj(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-    args.rval().set(OBJECT_TO_JSVAL(obj));
+
+    js_type_class_t *typeClass = js_get_type_from_native<creator::GraphicsNode>(cobj);
+
     // link the native object with the javascript object
-    jsb_new_proxy(cobj, obj);
-    if (JS_HasProperty(cx, obj, "_ctor", &ok) && ok)
-        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
+    JS::RootedObject jsobj(cx, jsb_ref_create_jsobject(cx, cobj, typeClass, "creator::GraphicsNode"));
+    args.rval().set(OBJECT_TO_JSVAL(jsobj));
+    if (JS_HasProperty(cx, jsobj, "_ctor", &ok) && ok)
+        ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(jsobj), "_ctor", args);
     return true;
-}static bool js_creator_GraphicsNode_ctor(JSContext *cx, uint32_t argc, jsval *vp)
+}
+static bool js_creator_GraphicsNode_ctor(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     creator::GraphicsNode *nobj = new (std::nothrow) creator::GraphicsNode();
-    js_proxy_t* p = jsb_new_proxy(nobj, obj);
+    auto newproxy = jsb_new_proxy(nobj, obj);
+    jsb_ref_init(cx, &newproxy->obj, nobj, "creator::GraphicsNode");
     bool isFound = false;
     if (JS_HasProperty(cx, obj, "_ctor", &isFound) && isFound)
         ScriptingCore::getInstance()->executeFunctionWithOwner(OBJECT_TO_JSVAL(obj), "_ctor", args);
@@ -1624,23 +1574,9 @@ bool js_creator_GraphicsNode_constructor(JSContext *cx, uint32_t argc, jsval *vp
     return true;
 }
 
+
 extern JSObject *jsb_cocos2d_Node_prototype;
 
-void js_creator_GraphicsNode_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (GraphicsNode)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        creator::GraphicsNode *nobj = static_cast<creator::GraphicsNode *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            nobj->release();
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
     
 void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
     jsb_creator_GraphicsNode_class = (JSClass *)calloc(1, sizeof(JSClass));
@@ -1652,11 +1588,9 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
     jsb_creator_GraphicsNode_class->enumerate = JS_EnumerateStub;
     jsb_creator_GraphicsNode_class->resolve = JS_ResolveStub;
     jsb_creator_GraphicsNode_class->convert = JS_ConvertStub;
-    jsb_creator_GraphicsNode_class->finalize = js_creator_GraphicsNode_finalize;
     jsb_creator_GraphicsNode_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1712,11 +1646,16 @@ void js_register_creator_GraphicsNode(JSContext *cx, JS::HandleObject global) {
         NULL, // no static properties
         st_funcs);
 
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_creator_GraphicsNode_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "GraphicsNode"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::TrueHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<creator::GraphicsNode>(cx, jsb_creator_GraphicsNode_class, proto, parent_proto);
     anonEvaluate(cx, global, "(function () { cc.GraphicsNode.extend = cc.Class.extend; })()");
 }
+
 void register_all_creator(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);

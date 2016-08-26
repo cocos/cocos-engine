@@ -61,6 +61,7 @@ public:
 protected:
     void rotateBufferThread(int offsetFrame);
     bool play2d(AudioCache* cache);
+	int readPcmData(char* buffer, int bufferSize, const std::function<int/*readBytes*/(char* /*buf*/, int /*bytesToRead*/)>& fileReader);
 
     AudioCache* _audioCache;
 

@@ -2,8 +2,8 @@
 #ifndef __cocos2dx_extension_h__
 #define __cocos2dx_extension_h__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 
 extern JSClass  *jsb_cocos2d_extension_EventAssetsManagerEx_class;
 extern JSObject *jsb_cocos2d_extension_EventAssetsManagerEx_prototype;

@@ -1015,7 +1015,7 @@ static void myCollisionSeparate(cpArbiter *arb, cpSpace *space, void *data)
 void JSB_cpSpace_finalize(JSFreeOp *fop, JSObject *jsthis)
 {
     struct jsb_c_proxy_s *proxy = jsb_get_c_proxy_for_jsobject(jsthis);
-    if( proxy ) {
+    if ( proxy ) {
         CCLOGINFO("jsbindings: finalizing JS object %p (cpSpace), handle: %p", jsthis, proxy->handle);
 
         // space
@@ -1830,7 +1830,7 @@ bool JSB_cpSpace_eachConstraint(JSContext *cx, uint32_t argc, jsval *vp)
 
 //typedef void (*cpBodyShapeIteratorFunc)(cpBody *body, cpShape *shape, void *data);
 template<typename T>
-void JSB_cpBody_each_func(cpBody* body, T* cpObject, void* data)
+void JSB_cpBody_each_func(cpBody *body, T* cpObject, void *data)
 {
     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
@@ -2097,7 +2097,7 @@ bool JSB_cpArbiterGetShapes(JSContext *cx, uint32_t argc, jsval *vp)
 
     cpArbiter* arbiter = nullptr;
     if( ! jsval_to_opaque( cx, args.get(0), (void**) &arbiter ) )
-       return false;
+        return false;
 
     return __jsb_cpArbiter_getShapes(cx, args, arbiter, 0);
 }
@@ -2553,7 +2553,7 @@ static void unroot_jsobject_from_handle(void *handle)
 static void shapeFreeWrap(cpSpace *space, cpShape *shape, void *unused){
     cpSpaceRemoveShape(space, shape);
     unroot_jsobject_from_handle(shape);
-//  cpShapeFree(shape);
+    //  cpShapeFree(shape);
 }
 
 static void postShapeFree(cpShape *shape, cpSpace *space){
@@ -2563,7 +2563,7 @@ static void postShapeFree(cpShape *shape, cpSpace *space){
 static void constraintFreeWrap(cpSpace *space, cpConstraint *constraint, void *unused){
     cpSpaceRemoveConstraint(space, constraint);
     unroot_jsobject_from_handle(constraint);
-//  cpConstraintFree(constraint);
+    //  cpConstraintFree(constraint);
 }
 
 static void postConstraintFree(cpConstraint *constraint, cpSpace *space){
@@ -2573,7 +2573,7 @@ static void postConstraintFree(cpConstraint *constraint, cpSpace *space){
 static void bodyFreeWrap(cpSpace *space, cpBody *body, void *unused){
     cpSpaceRemoveBody(space, body);
     unroot_jsobject_from_handle(body);
-//  cpBodyFree(body);
+    //  cpBodyFree(body);
 }
 
 static void postBodyFree(cpBody *body, cpSpace *space){

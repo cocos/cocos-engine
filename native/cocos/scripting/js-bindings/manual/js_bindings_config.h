@@ -28,7 +28,7 @@
 
 /** @def JSB_ASSERT_ON_FAIL
  Whether or not to assert when the arguments or conversions are incorrect.
- It is recommened to turn it off in Release mode.
+ It is recommended to turn it off in Release mode.
  */
 #ifndef JSB_ASSERT_ON_FAIL
 #define JSB_ASSERT_ON_FAIL 0
