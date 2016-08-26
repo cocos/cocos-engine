@@ -123,6 +123,13 @@ namespace experimental{
             virtual void seekTo(float sec);
 
             /**
+             * Get the current play time, measure in seconds.
+             */
+            float currentTime()const;
+
+            float duration() const;
+
+            /**
              * Checks whether the VideoPlayer is playing.
              *
              * @return True if currently playing, false otherwise.

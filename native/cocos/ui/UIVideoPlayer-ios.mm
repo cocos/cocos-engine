@@ -46,6 +46,8 @@ using namespace cocos2d::experimental::ui;
 - (void) resume;
 - (void) stop;
 - (void) seekTo:(float) sec;
+- (float) currentTime;
+- (float) duration;
 - (void) setVisible:(BOOL) visible;
 - (void) setKeepRatioEnabled:(BOOL) enabled;
 - (void) setFullScreenEnabled:(BOOL) enabled;
@@ -206,6 +208,22 @@ using namespace cocos2d::experimental::ui;
     if (self.moviePlayer != NULL) {
         [self.moviePlayer setCurrentPlaybackTime:(sec)];
     }
+}
+
+-(float) currentTime
+{
+    if (self.moviePlayer != NULL) {
+        return [self.moviePlayer currentPlaybackTime];
+    }
+    return -1;
+}
+
+-(float) duration
+{
+    if (self.moviePlayer != NULL) {
+        return [self.moviePlayer duration];
+    }
+    return -1;
 }
 
 -(void) setVisible:(BOOL)visible
@@ -395,6 +413,16 @@ void VideoPlayer::seekTo(float sec)
     {
         [((UIVideoViewWrapperIos*)_videoView) seekTo:sec];
     }
+}
+
+float VideoPlayer::currentTime()const
+{
+    return [((UIVideoViewWrapperIos*)_videoView) currentTime];
+}
+
+float VideoPlayer::duration()const
+{
+    return [((UIVideoViewWrapperIos*)_videoView) duration];
 }
 
 bool VideoPlayer::isPlaying() const

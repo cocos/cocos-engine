@@ -227,7 +227,7 @@ void VideoPlayer::seekTo(float sec)
 
 bool VideoPlayer::isPlaying() const
 {
-    return _isPlaying;
+    return JniHelper::callStaticBooleanMethod(videoHelperClassName, "isPlaying", _videoPlayerIndex);
 }
 
 void VideoPlayer::setVisible(bool visible)
@@ -311,6 +311,16 @@ void executeVideoCallback(int index,int event)
     {
         s_allVideoPlayers[index]->onPlayEvent(event);
     }
+}
+
+float VideoPlayer::currentTime() const
+{
+    return JniHelper::callStaticFloatMethod(videoHelperClassName, "getCurrentTime", _videoPlayerIndex);
+}
+
+float VideoPlayer::duration() const
+{
+    return JniHelper::callStaticFloatMethod(videoHelperClassName, "getDuration", _videoPlayerIndex);
 }
 
 #endif
