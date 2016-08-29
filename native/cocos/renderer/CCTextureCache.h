@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include <functional>
 
 #include "base/CCRef.h"
+#include "base/CCVector.h"
 #include "renderer/CCTexture2D.h"
 #include "platform/CCImage.h"
 
@@ -150,6 +151,13 @@ public:
     * @return True if the reloading is succeed, otherwise return false.
     */
     bool reloadTexture(const std::string& fileName);
+
+    /**
+    * get all textures.
+    *
+    * @return all textures.
+    */
+    cocos2d::Vector<Texture2D*> getAllTextures() const;
 
     /** Purges the dictionary of loaded textures.
     * Call this method if you receive the "Memory Warning".

@@ -446,6 +446,7 @@ Texture2D::Texture2D()
 , _ninePatchInfo(nullptr)
 {
     s_allGLTexture2D.insert(this);
+    _antialiasEnabled = Director::getInstance()->getOpenGLView()->isAntiAliasEnabled();
 }
 
 Texture2D::~Texture2D()
