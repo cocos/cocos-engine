@@ -274,6 +274,7 @@ bool js_cocos2dx_GLView_getViewPortRect(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_cocos2dx_GLView_setContentScaleFactor(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_getContentScaleFactor(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_setIMEKeyboardState(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_GLView_isAntiAliasEnabled(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_setScissorInPoints(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_getViewName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_isOpenGLReady(JSContext *cx, uint32_t argc, jsval *vp);
@@ -291,6 +292,7 @@ bool js_cocos2dx_GLView_getResolutionPolicy(JSContext *cx, uint32_t argc, jsval 
 bool js_cocos2dx_GLView_isRetinaDisplay(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_setViewPortInPoints(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_getScissorRect(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_GLView_enableAntiAlias(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_getRetinaFactor(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_setViewName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_GLView_getVisibleRect(JSContext *cx, uint32_t argc, jsval *vp);
@@ -3443,6 +3445,7 @@ bool js_cocos2dx_TextureCache_unbindAllImageAsync(JSContext *cx, uint32_t argc, 
 bool js_cocos2dx_TextureCache_removeTextureForKey(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TextureCache_removeAllTextures(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TextureCache_addImageAsync(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_TextureCache_getAllTextures(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TextureCache_getDescription(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TextureCache_getCachedTextureInfo(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TextureCache_addImage(JSContext *cx, uint32_t argc, jsval *vp);
