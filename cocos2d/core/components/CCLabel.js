@@ -408,6 +408,33 @@ var Label = cc.Class({
             tooltip: 'i18n:COMPONENT.label.system_font',
         },
 
+        bold: {
+            default: false,
+            notify: function () {
+                if(this._sgNode) {
+                    this._sgNode.enableBold(this.bold);
+                }
+            }
+        },
+
+        italic: {
+            default: false,
+            notify: function () {
+                if(this._sgNode) {
+                    this._sgNode.enableItalics(this.italic);
+                }
+            }
+        },
+
+        underline: {
+            default: false,
+            notify: function () {
+                if(this._sgNode) {
+                    this._sgNode.enableUnderline(this.underline);
+                }
+            }
+        },
+
         _bmFontOriginalSize: {
             displayName: 'BMFont Original Size',
             default: -1,

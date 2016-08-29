@@ -1,3 +1,5 @@
+/*global dirtyFlags */
+
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
@@ -201,14 +203,28 @@
         return wrappedWords;
     };
 
+    proto._constructFontDesc = function () {
+        var node = this._node;
+        var fontDesc = node._fontSize.toString() + 'px ';
+        var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
+        fontDesc = fontDesc + fontFamily;
+        if(node._isBold) {
+            fontDesc = "bold " + fontDesc;
+        }
+
+        if(node._isItalic) {
+            fontDesc = "italic " + fontDesc;
+        }
+
+        return fontDesc;
+    };
+
 
     proto._calculateLabelFont = function() {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
 
-        var fontDesc = this._drawFontsize.toString() + 'px ';
-        var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
-        fontDesc = fontDesc + fontFamily;
+        var fontDesc = this._constructFontDesc();
         this._labelContext.font = fontDesc;
 
         var paragraphLength = this._calculateParagraphLength(paragraphedStrings, this._labelContext);
@@ -224,7 +240,7 @@
                 var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
                 var canvasHeightNoMargin = this._canvasSize.height - 2 * this._getMargin();
                 if(canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
-                    fontDesc = '1px ' + fontFamily;
+                    fontDesc = this._constructFontDesc();
                     this._labelContext.font = fontDesc;
                     return fontDesc;
                 }
@@ -247,8 +263,7 @@
                         break;
                     }
                     node._fontSize = actualFontSize;
-                    fontDesc = actualFontSize.toString() + 'px ' + fontFamily;
-                    this._labelContext.font = fontDesc;
+                    this._labelContext.font = this._constructFontDesc();
 
                     this._splitedStrings = [];
                     totalHeight = 0;
@@ -288,7 +303,7 @@
                 var scaleY = this._canvasSize.height / totalHeight;
 
                 node._fontSize = (this._drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
-                fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
+                fontDesc = this._constructFontDesc();
             }
         }
 
