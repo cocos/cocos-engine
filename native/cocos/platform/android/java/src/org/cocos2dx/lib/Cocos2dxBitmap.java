@@ -124,7 +124,8 @@ public final class Cocos2dxBitmap {
     public static boolean createTextBitmapShadowStroke(final String string,  final String fontName, int fontSize,
                                                     int fontTintR, int fontTintG, int fontTintB, int fontTintA,
                                                     int alignment, int width, int height, 
-                                                       boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA, float strokeSize, boolean enableWrap, int overflow) {
+                                                       boolean stroke, int strokeR, int strokeG, int strokeB, int strokeA,
+                                                       float strokeSize, boolean enableWrap, int overflow, boolean enableBold) {
 
         Layout.Alignment hAlignment = Layout.Alignment.ALIGN_NORMAL;
         int horizontalAlignment = alignment & 0x0F;
@@ -141,7 +142,7 @@ public final class Cocos2dxBitmap {
                 break;
         }
 
-        TextPaint paint = Cocos2dxBitmap.newPaint(fontName, fontSize);
+        TextPaint paint = Cocos2dxBitmap.newPaint(fontName, fontSize, enableBold);
 
         if (stroke) {
             paint.setStyle(TextPaint.Style.STROKE);
@@ -224,7 +225,7 @@ public final class Cocos2dxBitmap {
         return true;
     }
 
-    private static TextPaint newPaint(final String fontName, final int fontSize) {
+    private static TextPaint newPaint(final String fontName, final int fontSize, final boolean enableBold) {
         final TextPaint paint = new TextPaint();
         paint.setTextSize(fontSize);
         paint.setAntiAlias(true);
@@ -243,7 +244,11 @@ public final class Cocos2dxBitmap {
                 paint.setTypeface(Typeface.create(fontName, Typeface.NORMAL));
             }
         } else {
-            paint.setTypeface(Typeface.create(fontName, Typeface.NORMAL));
+            if(enableBold) {
+                paint.setTypeface(Typeface.create(fontName, Typeface.BOLD));
+            } else {
+                paint.setTypeface(Typeface.create(fontName, Typeface.NORMAL));
+            }
         }
 
         return paint;

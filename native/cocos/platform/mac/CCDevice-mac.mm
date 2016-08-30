@@ -188,22 +188,25 @@ static NSSize _calculateRealSizeForString(NSAttributedString **str, id font, NSS
     return CGSizeMake(actualSize.size.width, actualSize.size.height);
 }
 
-static NSFont* _createSystemFont(const char* fontName, int size)
+static NSFont* _createSystemFont(const char* fontName, int size, bool enableBold)
 {
     NSString * fntName = [NSString stringWithUTF8String:fontName];
     fntName = [[fntName lastPathComponent] stringByDeletingPathExtension];
-    
+    NSFontTraitMask mask = NSUnboldFontMask | NSUnitalicFontMask;
+    if (enableBold) {
+        mask = NSBoldFontMask | NSUnitalicFontMask;
+    }
     // font
     NSFont *font = [[NSFontManager sharedFontManager]
                     fontWithFamily:fntName
-                    traits:NSUnboldFontMask | NSUnitalicFontMask
+                    traits:mask
                     weight:0
                     size:size];
     
     if (font == nil) {
         font = [[NSFontManager sharedFontManager]
                 fontWithFamily:@"Arial"
-                traits:NSUnboldFontMask | NSUnitalicFontMask
+                traits: mask
                 weight:0
                 size:size];
     }
@@ -230,7 +233,7 @@ static CGFloat _calculateTextDrawStartHeight(cocos2d::Device::TextAlign align, C
 }
 
 
-static bool _initWithString(const char * text, Device::TextAlign align, const char * fontName, int size, tImageInfo* info, const Color3B* fontColor, int fontAlpha, bool enableWrap, int overflow)
+static bool _initWithString(const char * text, Device::TextAlign align, const char * fontName, int size, tImageInfo* info, const Color3B* fontColor, int fontAlpha, bool enableWrap, int overflow, bool enableBold)
 {
     bool ret = false;
     
@@ -240,7 +243,7 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
     do {
         NSString * string  = [NSString stringWithUTF8String:text];
         
-        id font = _createSystemFont(fontName, size);
+        id font = _createSystemFont(fontName, size, enableBold);
         CC_BREAK_IF(!font);
         
         // color
@@ -342,7 +345,8 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
 
         if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(),
                               textDefinition._fontSize, &info, &textDefinition._fontFillColor,
-                              textDefinition._fontAlpha, textDefinition._enableWrap, textDefinition._overflow))
+                              textDefinition._fontAlpha, textDefinition._enableWrap, textDefinition._overflow,
+                              textDefinition._enableBold))
         {
             break;
         }
