@@ -348,27 +348,35 @@ static CGSize _calculateStringSize(NSAttributedString *str, id font, CGSize *con
     return dim;
 }
 
-static id _createSystemFont( const char * fontName, int size)
+static id _createSystemFont( const char * fontName, int size, bool enableBold)
 {
     NSString * fntName      = [NSString stringWithUTF8String:fontName];
-    // On iOS custom fonts must be listed beforehand in the App info.plist (in order to be usable) and referenced only the by the font family name itself when
-    // calling [UIFont fontWithName]. Therefore even if the developer adds 'SomeFont.ttf' or 'fonts/SomeFont.ttf' to the App .plist, the font must
-    // be referenced as 'SomeFont' when calling [UIFont fontWithName]. Hence we strip out the folder path components and the extension here in order to get just
-    // the font family name itself. This stripping step is required especially for references to user fonts stored in CCB files; CCB files appear to store
-    // the '.ttf' extensions when referring to custom fonts.
-    fntName = [[fntName lastPathComponent] stringByDeletingPathExtension];
-    
-    // create the font
-    id font = [UIFont fontWithName:fntName size:size];
+    NSString* pathExtension = [fntName pathExtension];
+    id font = NULL;
+    if ([pathExtension length] > 0) {
+        // On iOS custom fonts must be listed beforehand in the App info.plist (in order to be usable) and referenced only the by the font family name itself when
+        // calling [UIFont fontWithName]. Therefore even if the developer adds 'SomeFont.ttf' or 'fonts/SomeFont.ttf' to the App .plist, the font must
+        // be referenced as 'SomeFont' when calling [UIFont fontWithName]. Hence we strip out the folder path components and the extension here in order to get just
+        // the font family name itself. This stripping step is required especially for references to user fonts stored in CCB files; CCB files appear to store
+        // the '.ttf' extensions when referring to custom fonts.
+        fntName = [[fntName lastPathComponent] stringByDeletingPathExtension];
+
+        // create the font
+        font = [UIFont fontWithName:fntName size:size];
+    }
     
     if (!font)
     {
-        font = [UIFont systemFontOfSize:size];
+        if (enableBold) {
+            font = [UIFont boldSystemFontOfSize:size];
+        } else {
+            font = [UIFont systemFontOfSize:size];
+        }
     }
     return font;
 }
 
-static bool _initWithString(const char * text, cocos2d::Device::TextAlign align, const char * fontName, int size, tImageInfo* info, bool enableWrap, int overflow)
+static bool _initWithString(const char * text, cocos2d::Device::TextAlign align, const char * fontName, int size, tImageInfo* info, bool enableWrap, int overflow, bool enableBold)
 {
 
     bool bRet = false;
@@ -376,7 +384,7 @@ static bool _initWithString(const char * text, cocos2d::Device::TextAlign align,
     {
         CC_BREAK_IF(! text || ! info);
 
-        id font = _createSystemFont(fontName, size);
+        id font = _createSystemFont(fontName, size, enableBold);
         
         CC_BREAK_IF(! font);
         
@@ -554,7 +562,7 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
         info.tintColorB             = textDefinition._fontFillColor.b / 255.0f;
         info.tintColorA             = textDefinition._fontAlpha / 255.0f;
 
-        if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow))
+        if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow, textDefinition._enableBold))
         {
             break;
         }
