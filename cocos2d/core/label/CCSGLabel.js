@@ -131,6 +131,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _className: "Label",
     //used for left and right margin
     _margin : 0,
+    //bold,italic, underline
+    _isBold: false,
+    _isItalic: false,
+    _isUnderline: false,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
     ctor: function(string, fontHandle, textureUrl) {
@@ -231,6 +235,21 @@ _ccsg.Label = _ccsg.Node.extend({
         this._isWrapText = enabled;
         this._rescaleWithOriginalFontSize();
 
+        this._notifyLabelSkinDirty();
+    },
+
+    enableItalics: function (enabled) {
+        this._isItalic = enabled;
+        this._notifyLabelSkinDirty();
+    },
+
+    enableBold: function (enabled) {
+        this._isBold = enabled;
+        this._notifyLabelSkinDirty();
+    },
+
+    enableUnderline: function (enabled) {
+        this._isUnderline = enabled;
         this._notifyLabelSkinDirty();
     },
 

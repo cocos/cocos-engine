@@ -299,10 +299,10 @@ var Button = cc.Class({
          *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite
          * !#zh
          * 需要过渡的目标。
-         * 当前按钮状态改变有：
+         * 当前按钮状态改变规则：
          * -如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。
          * -如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
-         * -如果 Transition type 选择 Button.Transition.NONE，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
+         * -如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
          * @property {Node} target
          */
         target: {

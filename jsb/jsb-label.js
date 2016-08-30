@@ -58,6 +58,33 @@ jsbLabel.prototype.getOverflow = function() {
     return this._overFlow;
 };
 
+jsbLabel.prototype._enableBold = jsbLabel.prototype.enableBold;
+jsbLabel.prototype.enableBold = function(enabled) {
+    if(enabled) {
+        this._enableBold();
+    } else {
+        this.disableEffect(5);
+    }
+};
+
+jsbLabel.prototype._enableItalics = jsbLabel.prototype.enableItalics;
+jsbLabel.prototype.enableItalics = function(enabled) {
+    if(enabled) {
+        this._enableItalics();
+    } else {
+        this.disableEffect(4);
+    }
+};
+
+jsbLabel.prototype._enableUnderline = jsbLabel.prototype.enableUnderline;
+jsbLabel.prototype.enableUnderline = function(enabled) {
+    if(enabled) {
+        this._enableUnderline();
+    } else {
+        this.disableEffect(6);
+    }
+};
+
 jsbLabel.prototype.setFontSize = function (size) {
     this._fontSize = size;
     if (this._labelType === _ccsg.Label.Type.SystemFont) {

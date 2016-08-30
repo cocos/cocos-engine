@@ -429,7 +429,6 @@ var RichText = cc.Class({
             } else {
                 if (oldItem.style) {
                     if (newItem.style) {
-                        //TODO: add more when adding bold/italic/underline
                         if(oldItem.style.size != newItem.style.size) {
                             return true;
                         }
@@ -596,6 +595,9 @@ var RichText = cc.Class({
         var index = label._styleIndex;
         label.setLineHeight(this.lineHeight);
         label.setVerticalAlign(VerticalAlign.CENTER);
+        label.enableBold(false);
+        label.enableItalics(false);
+        label.enableUnderline(false);
 
         var textStyle = null;
         if(this._textArray[index]) {
@@ -610,6 +612,18 @@ var RichText = cc.Class({
             }
         } else {
             label.setColor(this.node.color);
+        }
+
+        if(textStyle && textStyle.bold) {
+            label.enableBold(true);
+        }
+
+        if(textStyle && textStyle.italic) {
+            label.enableItalics(true);
+        }
+
+        if(textStyle && textStyle.underline) {
+            label.enableUnderline(true);
         }
 
         if(textStyle && textStyle.size) {
