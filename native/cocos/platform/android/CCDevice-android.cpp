@@ -90,7 +90,7 @@ public:
     {
             JniMethodInfo methodInfo;
             if (! JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/lib/Cocos2dxBitmap", "createTextBitmapShadowStroke",
-                                                 "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZIIIIFZI)Z"))
+                                                 "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZIIIIFZIZ)Z"))
             {
                 CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
                 return false;
@@ -129,7 +129,7 @@ public:
                                                        textDefinition._stroke._strokeColor.r, textDefinition._stroke._strokeColor.g,
                                                        textDefinition._stroke._strokeColor.b, textDefinition._stroke._strokeAlpha,
                                                        textDefinition._stroke._strokeSize,
-                                                       textDefinition._enableWrap, textDefinition._overflow))
+                                                       textDefinition._enableWrap, textDefinition._overflow, textDefinition._enableBold))
            {
                 ret = false;
            }

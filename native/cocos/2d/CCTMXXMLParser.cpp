@@ -412,7 +412,12 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
             if (startPos != string::npos) {
                 colorStr.replace(startPos, 1, "");
             }
-            int num = stoi(colorStr.c_str(), 0, 16);
+            // Android NDK 10 doesn't support std::stoi a/ std::stoul
+#if CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID
+            int num = std::stoi(colorStr);
+#else
+            int num = atoi(colorStr.c_str());
+#endif
             int r = num / 0x10000;
             int g = (num / 0x100) % 0x100;
             int b = num % 0x100;
