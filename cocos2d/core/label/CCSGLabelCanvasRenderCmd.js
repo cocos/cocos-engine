@@ -514,8 +514,8 @@
                 this._labelContext.beginPath();
                 this._labelContext.lineWidth = this._node._fontSize / 8;
                 this._labelContext.strokeStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
-                this._labelContext.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 2);
-                this._labelContext.lineTo(underlineStartPosition.x + this._labelCanvas.width, underlineStartPosition.y + i * lineHeight - 2);
+                this._labelContext.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
+                this._labelContext.lineTo(underlineStartPosition.x + this._labelCanvas.width, underlineStartPosition.y + i * lineHeight - 1);
                 this._labelContext.stroke();
                 this._labelContext.restore();
             }

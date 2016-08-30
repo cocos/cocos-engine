@@ -612,6 +612,18 @@ var RichText = cc.Class({
             label.setColor(this.node.color);
         }
 
+        if(textStyle && textStyle.bold) {
+            label.enableBold(true);
+        }
+
+        if(textStyle && textStyle.italic) {
+            label.enableItalics(true);
+        }
+
+        if(textStyle && textStyle.underline) {
+            label.enableUnderline(true);
+        }
+
         if(textStyle && textStyle.size) {
             label.setFontSize(textStyle.size);
         } else {
