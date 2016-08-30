@@ -460,9 +460,28 @@
 
     };
 
-    // proto._updateColor = function() {
-    //     this._rebuildLabelSkin();
-    // };
+
+    proto._calculateUnderlineStartPosition = function () {
+        var node = this._node;
+        var lineHeight = this._getLineHeight();
+        var lineCount = this._splitedStrings.length;
+        var labelX;
+        var firstLinelabelY;
+
+        labelX = 0 + this._getMargin();
+
+        if (cc.VerticalTextAlignment.TOP === node._vAlign) {
+            firstLinelabelY = node._fontSize;
+        }
+        else if (cc.VerticalTextAlignment.CENTER === node._vAlign) {
+            firstLinelabelY = this._canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + node._fontSize / 2;
+        }
+        else {
+            firstLinelabelY = this._canvasSize.height - lineHeight * (lineCount - 1);
+        }
+
+        return cc.p(labelX, firstLinelabelY);
+    };
 
     proto._updateTexture = function() {
         this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
@@ -475,6 +494,7 @@
         this._labelContext.lineJoin = 'round';
         var color = this._displayedColor;
         this._labelContext.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+        var underlineStartPosition;
 
         //do real rendering
         for (var i = 0; i < this._splitedStrings.length; ++i) {
@@ -488,6 +508,17 @@
                                               startPosition.x, startPosition.y + i * lineHeight);
             }
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+            if(this._node._isUnderline) {
+                underlineStartPosition = this._calculateUnderlineStartPosition();
+                this._labelContext.save();
+                this._labelContext.beginPath();
+                this._labelContext.lineWidth = this._node._fontSize / 8;
+                this._labelContext.strokeStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+                this._labelContext.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 2);
+                this._labelContext.lineTo(underlineStartPosition.x + this._labelCanvas.width, underlineStartPosition.y + i * lineHeight - 2);
+                this._labelContext.stroke();
+                this._labelContext.restore();
+            }
         }
 
         this._texture._textureLoaded = false;
