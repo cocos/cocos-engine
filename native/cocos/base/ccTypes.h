@@ -572,6 +572,7 @@ public:
     bool                  _enableWrap;
     /// enable shrink font size
     int                  _overflow;
+    bool                 _enableBold;
 };
 
 /**
