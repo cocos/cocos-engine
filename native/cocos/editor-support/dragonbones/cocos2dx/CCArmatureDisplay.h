@@ -72,6 +72,8 @@ private:
     */
     bool _checkVisibility(const cocos2d::Mat4& transform, const cocos2d::Size& size, const cocos2d::Rect& rect);
 
+    cocos2d::Vec2 projectGL(const cocos2d::Vec3& src) const;
+
 public:
     /**
      * Modify for polyInfo rect
