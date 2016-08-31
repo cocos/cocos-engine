@@ -30,7 +30,7 @@ var LineJoin    = require('./types').LineJoin;
 
 var Earcut = require('./earcut');
 
-var Helper = require('./Helper');
+var Helper = require('./helper');
 
 var Vec2  = cc.Vec2;
 var Js    = cc.js;

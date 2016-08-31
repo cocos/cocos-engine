@@ -139,9 +139,9 @@ _ccsg.VideoPlayer = _ccsg.Node.extend(/** @lends _ccsg.VideoPlayer# */{
     },
 
     cleanup: function () {
+        this._super();
+
         this._renderCmd.removeDom();
-        this.stopAllActions();
-        this.unscheduleAllCallbacks();
     },
 
     onEnter: function () {
