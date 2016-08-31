@@ -34,7 +34,7 @@
 #ifdef OPENAL_PLAIN_INCLUDES
 #include <al.h>
 #else
-#include <AL/al.h>
+#include <OpenalSoft/al.h>
 #endif
 #include "platform/CCPlatformMacros.h"
 #include "audio/win32/AudioCache.h"

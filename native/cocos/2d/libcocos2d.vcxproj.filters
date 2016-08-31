@@ -283,6 +283,9 @@
     <ClCompile Include="CCLabelTextFormatter.cpp">
       <Filter>2d</Filter>
     </ClCompile>
+    <ClCompile Include="CCLabelTTF.cpp">
+      <Filter>2d</Filter>
+    </ClCompile>
     <ClCompile Include="CCLayer.cpp">
       <Filter>2d</Filter>
     </ClCompile>
@@ -1257,6 +1260,9 @@
       <Filter>2d</Filter>
     </ClInclude>
     <ClInclude Include="CCLabelAtlas.h">
+      <Filter>2d</Filter>
+    </ClInclude>
+    <ClInclude Include="CCLabelTTF.h">
       <Filter>2d</Filter>
     </ClInclude>
     <ClInclude Include="CCLayer.h">

@@ -33,8 +33,8 @@
 #include "alc.h"
 #include "alext.h"
 #else
-#include "AL/alc.h"
-#include "AL/alext.h"
+#include "OpenalSoft/alc.h"
+#include "OpenalSoft/alext.h"
 #endif
 #include "audio/include/AudioEngine.h"
 #include "base/CCDirector.h"

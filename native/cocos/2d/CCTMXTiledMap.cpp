@@ -173,17 +173,17 @@ void TMXTiledMap::buildWithMapInfo(TMXMapInfo* mapInfo)
     _tileSize = mapInfo->getTileSize();
     _mapOrientation = mapInfo->getOrientation();
 
+    _objectGroups = mapInfo->getObjectGroups();
+
     _properties = mapInfo->getProperties();
 
     _tileProperties = mapInfo->getTileProperties();
 
     int idx = 0;
-    int layerCount = 0;
 
-    auto& children = mapInfo->getAllChildren();
-    for (const auto &childInfo : children) {
-        TMXLayerInfo* layerInfo = dynamic_cast<TMXLayerInfo*>(childInfo);
-        if (layerInfo && layerInfo->_visible) {
+    auto& layers = mapInfo->getLayers();
+    for (const auto &layerInfo : layers) {
+        if (layerInfo->_visible) {
             TMXLayer *child = parseLayer(layerInfo, mapInfo);
             if (child == nullptr) {
                 idx++;
@@ -198,17 +198,9 @@ void TMXTiledMap::buildWithMapInfo(TMXMapInfo* mapInfo)
             this->setContentSize(currentSize);
 
             idx++;
-            layerCount++;
-        }
-        TMXObjectGroupInfo* groupInfo = dynamic_cast<TMXObjectGroupInfo*>(childInfo);
-        if (groupInfo) {
-            TMXObjectGroup* group = new TMXObjectGroup(groupInfo, mapInfo);
-            group->autorelease();
-            addChild(group, idx, idx);
-            idx++;
         }
     }
-    _tmxLayerNum = layerCount;
+    _tmxLayerNum = idx;
 }
 
 // public
@@ -238,41 +230,23 @@ TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
 
 TMXObjectGroup * TMXTiledMap::getObjectGroup(const std::string& groupName) const
 {
-    CCASSERT(!groupName.empty(), "Invalid group name!");
+    CCASSERT(groupName.size() > 0, "Invalid group name!");
 
-    if (groupName.empty()) {
-        return nullptr;
-    }
-
-    for (auto& child : _children)
+    if (_objectGroups.size()>0)
     {
-        TMXObjectGroup* group = dynamic_cast<TMXObjectGroup*>(child);
-        if(group)
+        TMXObjectGroup* objectGroup = nullptr;
+        for (auto iter = _objectGroups.cbegin(); iter != _objectGroups.cend(); ++iter)
         {
-            if(groupName.compare( group->getGroupName()) == 0)
+            objectGroup = *iter;
+            if (objectGroup && objectGroup->getGroupName() == groupName)
             {
-                return group;
+                return objectGroup;
             }
         }
     }
 
     // objectGroup not found
     return nullptr;
-}
-
-Vector<TMXObjectGroup*> TMXTiledMap::getObjectGroups()
-{
-    Vector<TMXObjectGroup*> groups;
-    for (auto& child : _children)
-    {
-        TMXObjectGroup* group = dynamic_cast<TMXObjectGroup*>(child);
-        if(group)
-        {
-            groups.pushBack(group);
-        }
-    }
-
-    return groups;
 }
 
 Value TMXTiledMap::getProperty(const std::string& propertyName) const

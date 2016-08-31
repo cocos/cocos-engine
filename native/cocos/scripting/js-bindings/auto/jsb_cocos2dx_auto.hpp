@@ -312,6 +312,7 @@ void js_cocos2dx_Director_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_Director(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_Director_pause(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_Director_isPurgeDirectorInNextLoop(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setEventDispatcher(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_setContentScaleFactor(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_Director_getContentScaleFactor(JSContext *cx, uint32_t argc, jsval *vp);
@@ -3645,42 +3646,6 @@ bool js_cocos2dx_ParallaxNode_removeAllChildrenWithCleanup(JSContext *cx, uint32
 bool js_cocos2dx_ParallaxNode_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_ParallaxNode_ParallaxNode(JSContext *cx, uint32_t argc, jsval *vp);
 
-extern JSClass  *jsb_cocos2d_TMXObject_class;
-extern JSObject *jsb_cocos2d_TMXObject_prototype;
-
-bool js_cocos2dx_TMXObject_constructor(JSContext *cx, uint32_t argc, jsval *vp);
-void js_cocos2dx_TMXObject_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObject(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXObject_setObjectName(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getObjectSize(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getProperty(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getOffset(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_setProperties(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_TMXObject(JSContext *cx, uint32_t argc, jsval *vp);
-
-extern JSClass  *jsb_cocos2d_TMXObjectImage_class;
-extern JSObject *jsb_cocos2d_TMXObjectImage_prototype;
-
-bool js_cocos2dx_TMXObjectImage_constructor(JSContext *cx, uint32_t argc, jsval *vp);
-void js_cocos2dx_TMXObjectImage_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-
-extern JSClass  *jsb_cocos2d_TMXObjectShape_class;
-extern JSObject *jsb_cocos2d_TMXObjectShape_prototype;
-
-bool js_cocos2dx_TMXObjectShape_constructor(JSContext *cx, uint32_t argc, jsval *vp);
-void js_cocos2dx_TMXObjectShape_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-
 extern JSClass  *jsb_cocos2d_TMXObjectGroup_class;
 extern JSObject *jsb_cocos2d_TMXObjectGroup_prototype;
 
@@ -3697,6 +3662,7 @@ bool js_cocos2dx_TMXObjectGroup_setGroupName(JSContext *cx, uint32_t argc, jsval
 bool js_cocos2dx_TMXObjectGroup_getProperties(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObjectGroup_getGroupName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObjectGroup_setProperties(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_TMXObjectGroup_setObjects(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObjectGroup_TMXObjectGroup(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_TMXLayerInfo_class;
@@ -3709,17 +3675,6 @@ void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_TMXLayerInfo_setProperties(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXLayerInfo_getProperties(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXLayerInfo_TMXLayerInfo(JSContext *cx, uint32_t argc, jsval *vp);
-
-extern JSClass  *jsb_cocos2d_TMXObjectGroupInfo_class;
-extern JSObject *jsb_cocos2d_TMXObjectGroupInfo_prototype;
-
-bool js_cocos2dx_TMXObjectGroupInfo_constructor(JSContext *cx, uint32_t argc, jsval *vp);
-void js_cocos2dx_TMXObjectGroupInfo_finalize(JSContext *cx, JSObject *obj);
-void js_register_cocos2dx_TMXObjectGroupInfo(JSContext *cx, JS::HandleObject global);
-void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXObjectGroupInfo_setProperties(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObjectGroupInfo_getProperties(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObjectGroupInfo_TMXObjectGroupInfo(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_TMXTilesetInfo_class;
 extern JSObject *jsb_cocos2d_TMXTilesetInfo_prototype;
@@ -3738,7 +3693,7 @@ bool js_cocos2dx_TMXMapInfo_constructor(JSContext *cx, uint32_t argc, jsval *vp)
 void js_cocos2dx_TMXMapInfo_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_TMXMapInfo(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
-bool js_cocos2dx_TMXMapInfo_getAllChildren(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_TMXMapInfo_setCurrentString(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_getHexSideLength(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_setTileSize(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_initWithTMXFile(JSContext *cx, uint32_t argc, jsval *vp);
@@ -3759,14 +3714,12 @@ bool js_cocos2dx_TMXMapInfo_initWithXML(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_cocos2dx_TMXMapInfo_setParentGID(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_getLayerAttribs(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_getTileSize(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXMapInfo_setAllChildren(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_getTileProperties(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_isStoringCharacters(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_getExternalTilesetFileName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_getObjectGroups(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_getTMXFileName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_setStaggerIndex(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXMapInfo_setCurrentString(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_setProperties(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_setOrientation(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXMapInfo_setTileProperties(JSContext *cx, uint32_t argc, jsval *vp);
@@ -3822,6 +3775,7 @@ bool js_cocos2dx_TMXTiledMap_constructor(JSContext *cx, uint32_t argc, jsval *vp
 void js_cocos2dx_TMXTiledMap_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_TMXTiledMap(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_TMXTiledMap_setObjectGroups(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXTiledMap_getProperty(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXTiledMap_getLayerNum(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXTiledMap_setMapSize(JSContext *cx, uint32_t argc, jsval *vp);

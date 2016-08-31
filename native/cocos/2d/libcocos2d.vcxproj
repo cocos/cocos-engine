@@ -103,7 +103,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\Debug\*.*" "$(OutDir)"</Comm
       <ImportLibrary>$(TargetDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <ModuleDefinitionFile>cocos2d.def</ModuleDefinitionFile>
-      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -135,7 +135,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
 </Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -294,7 +294,6 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\editor-support\cocostudio\CCProcessBase.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCSkin.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCSpriteFrameCacheHelper.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\CCSSceneReader.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCTransformHelp.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCTween.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCUtilMath.cpp" />
@@ -429,6 +428,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="CCLabel.cpp" />
     <ClCompile Include="CCLabelAtlas.cpp" />
     <ClCompile Include="CCLabelTextFormatter.cpp" />
+    <ClCompile Include="CCLabelTTF.cpp" />
     <ClCompile Include="CCLayer.cpp" />
     <ClCompile Include="CCMenu.cpp" />
     <ClCompile Include="CCMenuItem.cpp" />
@@ -636,7 +636,6 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\editor-support\cocostudio\CCProcessBase.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCSkin.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCSpriteFrameCacheHelper.h" />
-    <ClInclude Include="..\editor-support\cocostudio\CCSSceneReader.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCTransformHelp.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCTween.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCUtilMath.h" />

@@ -173,7 +173,16 @@ public:
      *
      * @return Object groups.
      */
-    Vector<TMXObjectGroup*> getObjectGroups();
+    inline const Vector<TMXObjectGroup*>& getObjectGroups() const { return _objectGroups; };
+    inline Vector<TMXObjectGroup*>& getObjectGroups() { return _objectGroups; };
+    
+    /** Set object groups. 
+     *
+     * @param groups An object groups.
+     */
+    inline void setObjectGroups(const Vector<TMXObjectGroup*>& groups) {
+        _objectGroups = groups;
+    };
     
     /** Get properties.
      *
@@ -220,6 +229,7 @@ protected:
     /** map orientation */
     int _mapOrientation;
     /** object groups */
+    Vector<TMXObjectGroup*> _objectGroups;
     /** properties */
     ValueMap _properties;
 

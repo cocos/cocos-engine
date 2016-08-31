@@ -570,7 +570,7 @@ Data Device::getTextureDataForText(const char * text, const FontDefinition& text
         info.tintColorB             = textDefinition._fontFillColor.b / 255.0f;
         info.tintColorA             = textDefinition._fontAlpha / 255.0f;
 
-        if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow, textDefinition._enableBold))
+        if (! _initWithString(text, align, textDefinition._fontName.c_str(), textDefinition._fontSize, &info, textDefinition._enableWrap, textDefinition._overflow, textDefinition._enableBold))
         {
             break;
         }
