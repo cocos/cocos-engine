@@ -86,56 +86,57 @@ public:
                                         Device::TextAlign eAlignMask,
                       const FontDefinition& textDefinition )
     {
-           JniMethodInfo methodInfo;
-           if (! JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/lib/Cocos2dxBitmap", "createTextBitmapShadowStroke",
-               "([BLjava/lang/String;IIIIIIIIZFFFFZIIIIFZI)Z"))
-           {
-               CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
-               return false;
-           }
+        JniMethodInfo methodInfo;
+        if (! JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/lib/Cocos2dxBitmap", "createTextBitmapShadowStroke",
+                                             "(Ljava/lang/String;Ljava/lang/String;IIIIIIIIZIIIIFZIZ)Z"))
+        {
+            CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
+            return false;
+        }
 
-           // Do a full lookup for the font path using FileUtils in case the given font name is a relative path to a font file asset,
-           // or the path has been mapped to a different location in the app package:
-           std::string fullPathOrFontName = textDefinition._fontName;
-           if(FileUtils::getInstance()->isFileExist(fullPathOrFontName)) {
-               fullPathOrFontName = FileUtils::getInstance()->fullPathForFilename(textDefinition._fontName);
-               // If the path name returned includes the 'assets' dir then that needs to be removed, because the android.content.Context
-               // requires this portion of the path to be omitted for assets inside the app package.
-               if (fullPathOrFontName.find("assets/") == 0)
-               {
-                   fullPathOrFontName = fullPathOrFontName.substr(strlen("assets/"));   // Chop out the 'assets/' portion of the path.
-               }
-           }
+        // Do a full lookup for the font path using FileUtils in case the given font name is a relative path to a font file asset,
+        // or the path has been mapped to a different location in the app package:
+        std::string fullPathOrFontName = textDefinition._fontName;
+        if(FileUtils::getInstance()->isFileExist(fullPathOrFontName)) {
+            fullPathOrFontName = FileUtils::getInstance()->fullPathForFilename(textDefinition._fontName);
+            // If the path name returned includes the 'assets' dir then that needs to be removed, because the android.content.Context
+            // requires this portion of the path to be omitted for assets inside the app package.
+            if (fullPathOrFontName.find("assets/") == 0)
+            {
+                fullPathOrFontName = fullPathOrFontName.substr(strlen("assets/"));   // Chop out the 'assets/' portion of the path.
+            }
+        }
 
-           /**create bitmap
-            * this method call Cococs2dx.createBitmap()(java code) to create the bitmap, the java code
-            * will call Java_org_cocos2dx_lib_Cocos2dxBitmap_nativeInitBitmapDC() to init the width, height
-            * and data.
-            * use this approach to decrease the jni call number
-           */
-           int count = strlen(text);
-           jbyteArray strArray = methodInfo.env->NewByteArray(count);
-           methodInfo.env->SetByteArrayRegion(strArray, 0, count, reinterpret_cast<const jbyte*>(text));
-           jstring jstrFont = methodInfo.env->NewStringUTF(fullPathOrFontName.c_str());
+        /**create bitmap
+         * this method call Cococs2dx.createBitmap()(java code) to create the bitmap, the java code
+         * will call Java_org_cocos2dx_lib_Cocos2dxBitmap_nativeInitBitmapDC() to init the width, height
+         * and data.
+         * use this approach to decrease the jni call number
+         */
+        int count = strlen(text);
+        jbyteArray strArray = methodInfo.env->NewByteArray(count);
+        methodInfo.env->SetByteArrayRegion(strArray, 0, count, reinterpret_cast<const jbyte*>(text));
+        jstring jstrFont = methodInfo.env->NewStringUTF(fullPathOrFontName.c_str());
+        bool ret = true;
+        if(!methodInfo.env->CallStaticBooleanMethod(methodInfo.classID, methodInfo.methodID, jstrText,
+                                                    jstrFont, textDefinition._fontSize,
+                                                    textDefinition._fontFillColor.r, textDefinition._fontFillColor.g,
+                                                    textDefinition._fontFillColor.b, textDefinition._fontAlpha,
+                                                    eAlignMask, nWidth, nHeight,
+                                                    textDefinition._stroke._strokeEnabled,
+                                                    textDefinition._stroke._strokeColor.r, textDefinition._stroke._strokeColor.g,
+                                                    textDefinition._stroke._strokeColor.b, textDefinition._stroke._strokeAlpha,
+                                                    textDefinition._stroke._strokeSize,
+                                                    textDefinition._enableWrap, textDefinition._overflow, textDefinition._enableBold))
+        {
+            return false;
+        }
 
-           if(!methodInfo.env->CallStaticBooleanMethod(methodInfo.classID, methodInfo.methodID, strArray,
-               jstrFont, textDefinition._fontSize, textDefinition._fontFillColor.r, textDefinition._fontFillColor.g, 
-               textDefinition._fontFillColor.b, textDefinition._fontAlpha,
-               eAlignMask, nWidth, nHeight, 
-               textDefinition._shadow._shadowEnabled, textDefinition._shadow._shadowOffset.width, -textDefinition._shadow._shadowOffset.height, 
-               textDefinition._shadow._shadowBlur, textDefinition._shadow._shadowOpacity, 
-               textDefinition._stroke._strokeEnabled, textDefinition._stroke._strokeColor.r, textDefinition._stroke._strokeColor.g, 
-                                                       textDefinition._stroke._strokeColor.b, textDefinition._stroke._strokeAlpha, textDefinition._stroke._strokeSize,
-                                                       textDefinition._enableWrap, textDefinition._overflow))
-           {
-                return false;
-           }
+        methodInfo.env->DeleteLocalRef(strArray);
+        methodInfo.env->DeleteLocalRef(jstrFont);
+        methodInfo.env->DeleteLocalRef(methodInfo.classID);
 
-           methodInfo.env->DeleteLocalRef(strArray);
-           methodInfo.env->DeleteLocalRef(jstrFont);
-           methodInfo.env->DeleteLocalRef(methodInfo.classID);
-
-           return true;
+        return true;
     }
 
 public:

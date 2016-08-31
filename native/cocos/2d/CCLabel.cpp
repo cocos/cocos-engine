@@ -1130,14 +1130,14 @@ void Label::enableItalics()
 
 void Label::enableBold()
 {
-    if (!_boldEnabled)
+    if (!_boldEnabled && _currentLabelType != LabelType::STRING_TEXTURE)
     {
         // bold is implemented with outline
         enableShadow(Color4B::WHITE, Size(0.9f, 0), 0);
         // add one to kerning
         setAdditionalKerning(_additionalKerning+1);
-        _boldEnabled = true;
     }
+    _boldEnabled = true;
 }
 
 void Label::enableUnderline()
@@ -1371,8 +1371,29 @@ void Label::updateContent()
     if (_underlineNode)
     {
         _underlineNode->clear();
-
-        if (_numberOfLines)
+        
+        if(_currentLabelType == Label::LabelType::STRING_TEXTURE) {
+            // system font
+            const auto spriteSize = _textSprite->getContentSize();
+            
+            this->computeStringNumLines();
+            float startY = spriteSize.height / 2 - _lineHeight * (_numberOfLines - 1) / 2 - _systemFontSize / 2;
+            if (_numberOfLines > 0) {
+                // atlas font
+                _underlineNode->setLineWidth(_systemFontSize / 8);
+                for (int i=0; i<_numberOfLines; ++i)
+                {
+                    if (_strikethroughEnabled)
+                        startY += _systemFontSize / 2;
+                    // FIXME: Might not work with different vertical alignments
+                    _underlineNode->drawLine(Vec2(0, startY - 1),
+                                             Vec2(spriteSize.width, startY - 1), _textColorF);
+                }
+            }
+         
+        }
+        
+        else if(_numberOfLines)
         {
             const float charheight = (_textDesiredHeight / _numberOfLines);
             _underlineNode->setLineWidth(charheight/6);
@@ -1387,19 +1408,6 @@ void Label::updateContent()
                 float y = (_numberOfLines - i - 1) * charheight + offsety;
                 _underlineNode->drawLine(Vec2(_linesOffsetX[i],y), Vec2(_linesWidth[i] + _linesOffsetX[i],y), _textColorF);
             }
-        }
-        else if (_textSprite)
-        {
-            // system font
-            float y = 0;
-            const auto spriteSize = _textSprite->getContentSize();
-            _underlineNode->setLineWidth(spriteSize.height/6);
-
-            if (_strikethroughEnabled)
-                // FIXME: system fonts don't report the height of the font correctly. only the size of the texture, which is POT
-                y += spriteSize.height / 2;
-            // FIXME: Might not work with different vertical alignments
-            _underlineNode->drawLine(Vec2(0,y), Vec2(spriteSize.width,y), Color4F(_textSprite->getDisplayedColor()));
         }
     }
 
@@ -2016,6 +2024,7 @@ FontDefinition Label::_getFontDefinition() const
     systemFontDef._shadow._shadowEnabled = false;
     systemFontDef._enableWrap = _enableWrap;
     systemFontDef._overflow = (int)_overflow;
+    systemFontDef._enableBold = _boldEnabled;
 
     if (_currLabelEffect == LabelEffect::OUTLINE && _outlineSize > 0.f)
     {
