@@ -698,6 +698,8 @@ var ScrollView = cc.Class({
     },
 
     _onMouseWheel: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var deltaMove = cc.p(0, 0);
         var wheelPrecision = 1.0 / 40;
         if(CC_JSB) {
@@ -847,6 +849,8 @@ var ScrollView = cc.Class({
 
     // touch event handler
     _onTouchBegan: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var touch = event.touch;
         if (this.content) {
             this._handlePressLogic(touch);
@@ -855,6 +859,8 @@ var ScrollView = cc.Class({
     },
 
     _onTouchMoved: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var touch = event.touch;
         if (this.content) {
             this._handleMoveLogic(touch);
@@ -881,6 +887,8 @@ var ScrollView = cc.Class({
     },
 
     _onTouchEnded: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var touch = event.touch;
         if (this.content) {
             this._handleReleaseLogic(touch);
@@ -890,6 +898,8 @@ var ScrollView = cc.Class({
         }
     },
     _onTouchCancelled: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         // Filte touch cancel event send from self
         if (!event.simulate) {
             var touch = event.touch;
