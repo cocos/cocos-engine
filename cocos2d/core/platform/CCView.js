@@ -151,7 +151,7 @@ var View = cc._Class.extend({
     __resizeWithBrowserSize: false,
     _isAdjustViewPort: true,
     _targetDensityDPI: null,
-    _antiAliasEnabled: false,
+    _antiAliasEnabled: true,
 
     /**
      * Constructor of View
@@ -184,7 +184,6 @@ var View = cc._Class.extend({
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
-        _t.enableAntiAlias(true);
     },
 
     // Resize helper functions
@@ -469,7 +468,7 @@ var View = cc._Class.extend({
      * !#en Returns whether the current enable on anti-alias
      * !#zh 返回当前是否抗锯齿
      * @method isAntiAliasEnabled
-     * @param {Boolean} enabled - Pass false to make pixel art sharp.
+     * @return {Boolean}
      */
     isAntiAliasEnabled: function () {
         return this._antiAliasEnabled;
