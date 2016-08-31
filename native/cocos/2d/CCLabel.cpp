@@ -1351,23 +1351,20 @@ void Label::updateContent()
         
         if(_currentLabelType == Label::LabelType::STRING_TEXTURE) {
             // system font
-            float y = 0;
             const auto spriteSize = _textSprite->getContentSize();
-
-            this->computeStringNumLines();
             
+            this->computeStringNumLines();
+            float startY = spriteSize.height / 2 - _lineHeight * (_numberOfLines - 1) / 2 - _systemFontSize / 2;
             if (_numberOfLines > 0) {
                 // atlas font
-                const float charheight = (spriteSize.height / _numberOfLines);
-                _underlineNode->setLineWidth(charheight/10);
+                _underlineNode->setLineWidth(_systemFontSize / 8);
                 for (int i=0; i<_numberOfLines; ++i)
                 {
-                    float offsety = 0;
                     if (_strikethroughEnabled)
-                        offsety += charheight / 2;
+                        startY += _systemFontSize / 2;
                     // FIXME: Might not work with different vertical alignments
-                    y = (_numberOfLines - i - 1) * charheight + offsety;
-                    _underlineNode->drawLine(Vec2(0, y), Vec2(spriteSize.width,y), _textColorF);
+                    _underlineNode->drawLine(Vec2(0, startY - 1),
+                                             Vec2(spriteSize.width, startY - 1), _textColorF);
                 }
             }
          
