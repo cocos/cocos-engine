@@ -103,7 +103,13 @@ var EventType = cc.Enum({
      * !#zh 滚动视图滚动滚动结束的时候发出的事件
      * @property {Number} AUTOSCROLL_ENDED
      */
-    AUTOSCROLL_ENDED : 9
+    AUTOSCROLL_ENDED : 9,
+    /**
+     * !#en The event emmitted when user release the touch
+     * !#zh 当用户松手的时候会发出一个事件
+     * @property {Number} TOUCH_UP
+     */
+    TOUCH_UP : 10
 });
 
 /**
@@ -885,6 +891,7 @@ var ScrollView = cc.Class({
         if (this.content) {
             this._handleReleaseLogic(touch);
         }
+        this._dispatchEvent(EventType.TOUCH_UP);
         if (this._touchMoved) {
             event.stopPropagation();
         }
