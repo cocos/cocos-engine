@@ -99,7 +99,7 @@ public:
 
     }
 
-    bool setFont(const char * pFontName = nullptr, int nSize = 0)
+    bool setFont(const char * pFontName = nullptr, int nSize = 0, bool enableBold = false)
     {
         bool bRet = false;
         do
@@ -139,16 +139,27 @@ public:
                 tNewFont.lfCharSet = DEFAULT_CHARSET;
                 strcpy_s(tNewFont.lfFaceName, LF_FACESIZE, fontName.c_str());
             }
+
             if (nSize)
             {
                 tNewFont.lfHeight = -nSize;
             }
-            GetObjectA(_font,  sizeof(tOldFont), &tOldFont);
+
+            if (enableBold)
+            {
+                tNewFont.lfWeight = FW_BOLD;
+            }
+            else
+            {
+                tNewFont.lfWeight = FW_NORMAL;
+            }
+
+            GetObjectA(_font, sizeof(tOldFont), &tOldFont);
 
             if (tOldFont.lfHeight == tNewFont.lfHeight
+                && tOldFont.lfWeight == tNewFont.lfWeight
                 && 0 == strcmp(tOldFont.lfFaceName, tNewFont.lfFaceName))
             {
-                // already has the font
                 bRet = true;
                 break;
             }
@@ -175,7 +186,7 @@ public:
 
             // disable Cleartype
             tNewFont.lfQuality = ANTIALIASED_QUALITY;
-
+		
             // create new font
             _font = CreateFontIndirectA(&tNewFont);
             if (! _font)
@@ -438,7 +449,7 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
     {
         BitmapDC& dc = sharedBitmapDC();
 
-        if (! dc.setFont(textDefinition._fontName.c_str(), textDefinition._fontSize))
+        if (! dc.setFont(textDefinition._fontName.c_str(), textDefinition._fontSize, textDefinition._enableBold))
         {
             log("Can't found font(%s), use system default", textDefinition._fontName.c_str());
         }
