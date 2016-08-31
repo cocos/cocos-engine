@@ -263,7 +263,8 @@
                         break;
                     }
                     node._fontSize = actualFontSize;
-                    this._labelContext.font = this._constructFontDesc();
+                    fontDesc = this._constructFontDesc();
+                    this._labelContext.font = fontDesc;
 
                     this._splitedStrings = [];
                     totalHeight = 0;
