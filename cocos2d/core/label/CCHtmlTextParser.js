@@ -106,6 +106,14 @@ cc.HtmlTextParser.prototype = {
                 obj.event = eventObj;
             }
         }
+        header = attribute.match(/^(br(\s)*\/)/);
+        if(header && header[0].length > 0) {
+            tagName = header[0].trim();
+            attribute = attribute.substring(tagName.length).trim();
+            if(tagName.substring(0,2) === "br" && tagName[tagName.length-1] === "/") {
+                this._resultObjectArray.push({text: "", style: {newline: true}});
+            }
+        }
 
         header = attribute.match(/^(on|u|b|i)(\s)*/);
         if(header && header[0].length > 0) {
@@ -128,6 +136,7 @@ cc.HtmlTextParser.prototype = {
             eventObj = this._processEventHandler(attribute);
             obj.event = eventObj;
         }
+
 
         return obj;
     },

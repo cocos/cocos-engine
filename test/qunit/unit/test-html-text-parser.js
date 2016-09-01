@@ -270,3 +270,37 @@ test('bold/italic/underline test', function () {
     deepEqual(parser.parse(stringWithUnderline),
               [{text: "hello world", style: {underline: true}}], "underline test");
 });
+
+test('test br tag', function () {
+    var newlineTest = "<br/>";
+
+    deepEqual(parser.parse(newlineTest),
+              [{text: "", style: {newline: true}},], "newline element test");
+
+    var newlineTest2 = "hello <b>a< br  /></b> world";
+
+    deepEqual(parser.parse(newlineTest2),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: "", style: {newline: true}},
+               {text: " world"}
+              ], "newline element test");
+
+    var newlineTest3 = "< br />";
+
+    deepEqual(parser.parse(newlineTest3),
+              [{text: "", style: {newline: true}},], "newline element test");
+
+    var newlineTest4 = "<br></br>";
+
+    deepEqual(parser.parse(newlineTest4),
+              [], "newline element test");
+
+    var newlineTest5 = "hello <b>a<br></></b> world";
+
+    deepEqual(parser.parse(newlineTest5),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: " world"}
+              ], "newline element test");
+});
