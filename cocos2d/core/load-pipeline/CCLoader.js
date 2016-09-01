@@ -288,7 +288,7 @@ JS.mixin(CCLoader.prototype, {
      *     cc.log('Result should be a prefab: ' + (prefab instanceof cc.Prefab));
      * });
      *
-     * // load the sprite frame (project/assets/resources/imgs/cocos.png/cocos) from resources folder
+     * // load the sprite frame of (project/assets/resources/imgs/cocos.png) from resources folder
      * cc.loader.loadRes('imgs/cocos', cc.SpriteFrame, function (err, spriteFrame) {
      *     if (err) {
      *         cc.error(err.message || err);
@@ -353,7 +353,7 @@ JS.mixin(CCLoader.prototype, {
      *
      * @example
      *
-     * // load the texture (resources/imgs/cocos.png) and sprite frame (resources/imgs/cocos.png/cocos)
+     * // load the texture (resources/imgs/cocos.png) and the corresponding sprite frame
      * cc.loader.loadResAll('imgs/cocos', function (err, assets) {
      *     if (err) {
      *         cc.error(err);

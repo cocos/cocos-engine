@@ -126,6 +126,21 @@ var textureCache = /** @lends cc.textureCache# */{
     },
 
     /**
+     * #en get all textures
+     * #zh 获取所有贴图
+     * @method getAllTextures
+     * @return {Texture2D[]}
+     */
+    getAllTextures: function () {
+        var texs = [];
+        for (var key in this._textures) {
+            var item = this._textures[key];
+            texs.push(item);
+        }
+        return texs;
+    },
+
+    /**
      * <p>Purges the dictionary of loaded textures. <br />
      * Call this method if you receive the "Memory Warning"  <br />
      * In the short term: it will free some resources preventing your app from being killed  <br />

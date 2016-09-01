@@ -131,6 +131,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _className: "Label",
     //used for left and right margin
     _margin : 0,
+    //bold,italic, underline
+    _isBold: false,
+    _isItalic: false,
+    _isUnderline: false,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
     ctor: function(string, fontHandle, textureUrl) {
@@ -231,6 +235,21 @@ _ccsg.Label = _ccsg.Node.extend({
         this._isWrapText = enabled;
         this._rescaleWithOriginalFontSize();
 
+        this._notifyLabelSkinDirty();
+    },
+
+    enableItalics: function (enabled) {
+        this._isItalic = enabled;
+        this._notifyLabelSkinDirty();
+    },
+
+    enableBold: function (enabled) {
+        this._isBold = enabled;
+        this._notifyLabelSkinDirty();
+    },
+
+    enableUnderline: function (enabled) {
+        this._isUnderline = enabled;
         this._notifyLabelSkinDirty();
     },
 
@@ -380,6 +399,23 @@ _ccsg.Label = _ccsg.Node.extend({
         this._notifyLabelSkinDirty();
     },
 
+    cleanup: function () {
+        this._super();
+
+        //remove the created DIV and style due to loading @font-face
+        if(this._fontFaceStyle) {
+            if(document.body.contains(this._fontFaceStyle)) {
+                document.body.removeChild(this._fontFaceStyle);
+            }
+        }
+
+        if(this._preloadDiv) {
+            if(document.body.contains(this._preloadDiv)) {
+                document.body.removeChild(this._preloadDiv);
+            }
+        }
+    },
+
     _loadTTFFont: function(fontHandle) {
         var ttfIndex = fontHandle.lastIndexOf(".ttf");
         if (ttfIndex === -1) return fontHandle;
@@ -401,6 +437,7 @@ _ccsg.Label = _ccsg.Node.extend({
                 fontStyle = document.createElement("style");
             fontStyle.type = "text/css";
             doc.body.appendChild(fontStyle);
+            this._fontFaceStyle = fontStyle;
 
             var fontStr = "";
             if (isNaN(fontFamilyName - 0))
@@ -421,6 +458,7 @@ _ccsg.Label = _ccsg.Node.extend({
             _divStyle.left = "-100px";
             _divStyle.top = "-100px";
             doc.body.appendChild(preloadDiv);
+            this._preloadDiv = preloadDiv;
             self.scheduleOnce(function () {
                 self._notifyLabelSkinDirty();
                 self.emit("load");
@@ -1120,7 +1158,7 @@ cc.BMFontHelper = {
         }
     },
 
-    _computeHorizontalKerningForText: function(text) {
+    _computeHorizontalKerningForText: function() {
         var stringLen = this.getStringLength();
         var locKerningDict = this._config.kerningDict;
 
@@ -1155,7 +1193,7 @@ cc.BMFontHelper = {
                     var locIsLoaded = texture.isLoaded();
                     self._textureLoaded = locIsLoaded;
                     if (!locIsLoaded) {
-                        texture.once("load", function(event) {
+                        texture.once("load", function() {
                             var self = this;
 
                             if (!self._spriteBatchNode) {

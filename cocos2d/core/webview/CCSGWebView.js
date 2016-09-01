@@ -185,9 +185,9 @@ _ccsg.WebView = _ccsg.Node.extend(/** @lends _ccsg.WebView# */{
      * remove node
      */
     cleanup: function(){
+        this._super();
+
         this._renderCmd.removeDom();
-        this.stopAllActions();
-        this.unscheduleAllCallbacks();
     },
 
     setVisible: function ( visible ) {

@@ -873,6 +873,13 @@ game.once(game.EVENT_RENDERER_INITED, function () {
                 self._hasMipmaps = false;
                 self._textureLoaded = true;
 
+                if (cc.view._antiAliasEnabled) {
+                    self.setAntiAliasTexParameters();
+                }
+                else {
+                    self.setAliasTexParameters();
+                }
+
                 //dispatch load event to listener.
                 self.emit("load");
             },

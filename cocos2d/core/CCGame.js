@@ -253,11 +253,10 @@ var game = {
         if (this._paused) return;
         this._paused = true;
         // Pause audio engine
-        cc.audioEngine && cc.audioEngine.pauseAll();
-        // Pause event
-        var scene = cc.director.getScene() || cc.director.getRunningScene();
-        if (scene) {
-            cc.eventManager.pauseTarget(scene, true);
+        if (cc.audioEngine) {
+            _isMusicPlaying = cc.audioEngine.isMusicPlaying();
+            cc.audioEngine.stopAllEffects();
+            cc.audioEngine.pauseMusic();
         }
         // Pause main loop
         if (this._intervalId)
@@ -275,11 +274,8 @@ var game = {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        cc.audioEngine && cc.audioEngine.resumeAll();
-        // Resume event
-        var scene = cc.director.getScene() || cc.director.getRunningScene();
-        if (scene) {
-            cc.eventManager.resumeTarget(scene, true);
+        if (cc.audioEngine && _isMusicPlaying) {
+            cc.audioEngine.resumeMusic();
         }
         // Resume main loop
         this._runMainLoop();
@@ -628,7 +624,7 @@ var game = {
         modules && (config[CONFIG_KEY.modules] = modules);
 
         // Scene parser
-        this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
+        this._sceneInfos = config[CONFIG_KEY.scenes] || [];
 
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
@@ -701,6 +697,7 @@ var game = {
         } else {
             cc._renderType = game.RENDER_TYPE_CANVAS;
             cc.renderer = cc.rendererCanvas;
+            cc.renderer.init();
             this._renderContext = cc._renderContext = new cc.CanvasContextWrapper(localCanvas.getContext("2d"));
             cc._drawingUtil = cc.DrawingPrimitiveCanvas ? new cc.DrawingPrimitiveCanvas(this._renderContext) : null;
         }

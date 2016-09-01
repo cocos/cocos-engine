@@ -127,6 +127,8 @@ var View = cc._Class.extend({
     // Custom callback for resize event
     _resizeCallback: null,
 
+    _orientationChanging: false,
+
     _scaleX: 1,
     _originalScaleX: 1,
     _scaleY: 1,
@@ -149,6 +151,7 @@ var View = cc._Class.extend({
     __resizeWithBrowserSize: false,
     _isAdjustViewPort: true,
     _targetDensityDPI: null,
+    _antiAliasEnabled: true,
 
     _antiAliasEnabled: false,
 
@@ -156,7 +159,7 @@ var View = cc._Class.extend({
      * Constructor of View
      */
     ctor: function () {
-        var _t = this, d = document, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
+        var _t = this, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
 
         __BrowserGetter.init(this);
 
@@ -213,6 +216,12 @@ var View = cc._Class.extend({
         }
     },
 
+    _orientationChange: function () {
+        this._orientationChanging = true;
+        this._resizeEvent();
+        this._orientationChanging = false;
+    },
+
     /**
      * <p>
      * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
@@ -252,14 +261,14 @@ var View = cc._Class.extend({
             if (!this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = true;
                 window.addEventListener('resize', this._resizeEvent);
-                window.addEventListener('orientationchange', this._resizeEvent);
+                window.addEventListener('orientationchange', this._orientationChange);
             }
         } else {
             //disable
             if (this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = false;
                 window.removeEventListener('resize', this._resizeEvent);
-                window.removeEventListener('orientationchange', this._resizeEvent);
+                window.removeEventListener('orientationchange', this._orientationChange);
             }
         }
     },
@@ -300,7 +309,7 @@ var View = cc._Class.extend({
         var h = __BrowserGetter.availHeight(cc.game.frame);
         var isLandscape = w >= h;
 
-        if (CC_EDITOR || !cc.sys.isMobile ||
+        if (CC_EDITOR || !this._orientationChanging || !cc.sys.isMobile ||
             (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
@@ -420,7 +429,7 @@ var View = cc._Class.extend({
 
     /**
      * !#en Whether to Enable on anti-alias
-     * !#zh 是否开启抗锯齿
+     * !#zh 控制抗锯齿是否开启
      * @method enableAntiAlias
      * @param {Boolean} enabled - Enable or not anti-alias
      */
@@ -462,12 +471,11 @@ var View = cc._Class.extend({
      * !#en Returns whether the current enable on anti-alias
      * !#zh 返回当前是否抗锯齿
      * @method isAntiAliasEnabled
-     * @param {Boolean}
+     * @return {Boolean}
      */
     isAntiAliasEnabled: function () {
         return this._antiAliasEnabled;
     },
-
     /**
      * If enabled, the application will try automatically to enter full screen mode on mobile devices<br/>
      * You can pass true as parameter to enable it and disable it by passing false.<br/>
@@ -755,6 +763,9 @@ var View = cc._Class.extend({
         if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
             // reset director's member variables to fit visible rect
             director.setGLDefaultValues();
+        }
+        else if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            cc.renderer._allNeedDraw = true;
         }
 
         this._originalScaleX = this._scaleX;
@@ -1108,7 +1119,15 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      */
     var EqualToFrame = cc.ContainerStrategy.extend({
         apply: function (view) {
+            var frameH = view._frameSize.height, containerStyle = cc.container.style;
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
+            // Setup container's margin and padding
+            if (view._isRotated) {
+                containerStyle.marginLeft = frameH + 'px';
+            }
+            else {
+                containerStyle.margin = '0px';
+            }
         }
     });
 

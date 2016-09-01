@@ -109,6 +109,12 @@
     ]
   },
   {
+    "name": "RichText",
+    "entries": [
+      "./cocos2d/core/components/CCRichText.js"
+    ]
+  },
+  {
     "name": "AudioSource",
     "entries": [
       "./cocos2d/core/components/CCAudioSource.js"

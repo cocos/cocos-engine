@@ -280,9 +280,9 @@ _ccsg.EditBox = _ccsg.Node.extend({
     },
 
     cleanup: function () {
+        this._super();
+
         this._renderCmd._removeDomInputControl();
-        this.stopAllActions();
-        this.unscheduleAllCallbacks();
     },
 
     _onTouchBegan: function (touch) {
