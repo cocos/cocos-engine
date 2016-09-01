@@ -1,7 +1,7 @@
 #include "jsb_anysdk_basic_conversions.h"
 #include <math.h>
 
-#include "cocos2d_specifics.hpp"
+#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include <sstream>
 
 namespace anysdk { namespace framework {
@@ -196,54 +196,54 @@ bool jsval_to_StringMap(JSContext *cx, JS::HandleValue v, StringMap* ret)
     return jsval_to_TProductInfo(cx, v, ret);
 }
     
-// bool jsval_to_std_map_string_string(JSContext *cx, JS::HandleValue v, std::map<std::string, std::string>* ret)
-// {
-//     if (v.isNullOrUndefined())
-//     {
-//         return true;
-//     }
-    
-//     JS::RootedObject tmp(cx, v.toObjectOrNull());
-//     if (!tmp) {
-//         CCLOG("%s", "jsval_to_ccvaluemap: the jsval is not an object.");
-//         return false;
-//     }
-    
-//     JS::RootedObject it(cx, JS_NewPropertyIterator(cx, tmp));
-    
-//     while (true)
-//     {
-//         jsid idp;
-//         JS::RootedValue key(cx);
-//         if (! JS_NextProperty(cx, it, &idp) || ! JS_IdToValue(cx, idp, &key)) {
-//             return false; // error
-//         }
-        
-//         if (key.isNullOrUndefined()) {
-//             break; // end of iteration
-//         }
-        
-//         if (!key.isString()) {
-//             continue; // ignore integer properties
-//         }
-        
-//         JSStringWrapper keyWrapper(key.toString(), cx);
-        
-//         JS::RootedValue value(cx);
-//         JS_GetPropertyById(cx, tmp, JS::RootedId(cx, idp), &value);
-//         if (value.isString())
-//         {
-//             JSStringWrapper valueWapper(value.toString(), cx);
-//             ret->insert(std::make_pair(keyWrapper.get(), valueWapper.get()));
-//         }
-//         else
-//         {
-//             CCASSERT(false, "not a string");
-//         }
-//     }
-        
-//     return true;
-// }
+//bool jsval_to_std_map_string_string(JSContext *cx, JS::HandleValue v, std::map<std::string, std::string>* ret)
+//{
+//    if (v.isNullOrUndefined())
+//    {
+//        return true;
+//    }
+//    
+//    JS::RootedObject tmp(cx, v.toObjectOrNull());
+//    if (!tmp) {
+//        CCLOG("%s", "jsval_to_ccvaluemap: the jsval is not an object.");
+//        return false;
+//    }
+//    
+//    JS::RootedObject it(cx, JS_NewPropertyIterator(cx, tmp));
+//    
+//    while (true)
+//    {
+//        jsid idp;
+//        JS::RootedValue key(cx);
+//        if (! JS_NextProperty(cx, it, &idp) || ! JS_IdToValue(cx, idp, &key)) {
+//            return false; // error
+//        }
+//        
+//        if (key.isNullOrUndefined()) {
+//            break; // end of iteration
+//        }
+//        
+//        if (!key.isString()) {
+//            continue; // ignore integer properties
+//        }
+//        
+//        JSStringWrapper keyWrapper(key.toString(), cx);
+//        
+//        JS::RootedValue value(cx);
+//        JS_GetPropertyById(cx, tmp, JS::RootedId(cx, idp), &value);
+//        if (value.isString())
+//        {
+//            JSStringWrapper valueWapper(value.toString(), cx);
+//            ret->insert(std::make_pair(keyWrapper.get(), valueWapper.get()));
+//        }
+//        else
+//        {
+//            CCASSERT(false, "not a string");
+//        }
+//    }
+//        
+//    return true;
+//}
 
 jsval TProductInfo_to_jsval(JSContext *cx, TProductInfo& ret)
 {

@@ -26,7 +26,7 @@ THE SOFTWARE.
 #define __DICTIONARYHELPER_H__
 
 #include "json/document.h"
-#include "cocostudio/CocosStudioExport.h"
+#include "editor-support/cocostudio/CocosStudioExport.h"
 
 #define DICTOOL DictionaryHelper::getInstance()
 
@@ -66,4 +66,3 @@ public:
 }
 
 #endif /* defined(__CocoGUI__DictionaryHelper__) */
-

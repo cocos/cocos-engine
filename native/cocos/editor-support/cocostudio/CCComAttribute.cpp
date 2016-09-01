@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocostudio/CCComAttribute.h"
+#include "editor-support/cocostudio/CCComAttribute.h"
 #include "platform/CCFileUtils.h"
 
 using namespace cocos2d;
@@ -222,4 +222,3 @@ bool ComAttribute::parse(const std::string &jsonFile)
 }
 
 }
-

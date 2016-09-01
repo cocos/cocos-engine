@@ -51,7 +51,7 @@ class VertexAttribValue;
  * arrays, since it is slower than the server-side VAOs used by OpenGL
  * (when creating a VertexAttribBinding between a Mesh and Effect).
  */
-class VertexAttribBinding : public Ref
+class CC_DLL VertexAttribBinding : public Ref
 {
 public:
 
@@ -127,4 +127,3 @@ extern std::string CC_DLL s_attributeNames[];//attribute names array
 NS_CC_END
 
 #endif // CC_VERTEXATTRIBUTEBINDING_H_
-

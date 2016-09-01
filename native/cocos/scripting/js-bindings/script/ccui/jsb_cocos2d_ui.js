@@ -240,12 +240,13 @@ ccui.ScrollView.EVENT_BOUNCE_TOP = 5;
 ccui.ScrollView.EVENT_BOUNCE_BOTTOM = 6;
 ccui.ScrollView.EVENT_BOUNCE_LEFT = 7;
 ccui.ScrollView.EVENT_BOUNCE_RIGHT = 8;
+ccui.ScrollView.EVENT_CONTAINER_MOVED = 9;
+ccui.ScrollView.EVENT_AUTOSCROLL_ENDED = 10;
 
-ccui.ScrollView.AUTO_SCROLL_MAX_SPEED = 1000;
-ccui.ScrollView.SCROLLDIR_UP = cc.p(0, 1);
-ccui.ScrollView.SCROLLDIR_DOWN = cc.p(0, -1);
-ccui.ScrollView.SCROLLDIR_LEFT = cc.p(-1, 0);
-ccui.ScrollView.SCROLLDIR_RIGHT = cc.p(1, 0);
+ccui.ScrollView.MOVEDIR_TOP = 0;
+ccui.ScrollView.MOVEDIR_BOTTOM = 1;
+ccui.ScrollView.MOVEDIR_LEFT = 2;
+ccui.ScrollView.MOVEDIR_RIGHT = 3;
 
 /*
  * UIPageView
@@ -260,8 +261,8 @@ ccui.PageView.TOUCH_DIR_UP = 2;
 ccui.PageView.TOUCH_DIR_DOWN = 3;
 
 //PageView direction
-ccui.PageView.DIRECTION_HORIZONTAL = 0;
-ccui.PageView.DIRECTION_VERTICAL = 1;
+ccui.PageView.DIRECTION_LEFT = 0;
+ccui.PageView.DIRECTION_RIGHT = 1;
 
 /*
  * UIButton
@@ -271,7 +272,7 @@ ccui.PRESSED_RENDERER_ZORDER = -2;
 ccui.DISABLED_RENDERER_ZORDER = -2;
 ccui.TITLE_RENDERER_ZORDER = -1;
 
-ccui.Scale9Sprite.POSITIONS_CENTRE = 0;
+ccui.Scale9Sprite.POSITIONS_CENTRE = 0;                //CCScale9Sprite.js
 ccui.Scale9Sprite.POSITIONS_TOP = 1;
 ccui.Scale9Sprite.POSITIONS_LEFT = 2;
 ccui.Scale9Sprite.POSITIONS_RIGHT = 3;
@@ -403,16 +404,20 @@ ccui.Scale9Sprite.prototype.updateWithBatchNode = function (batchNode, originalR
 
 if (ccui.WebView)
 {
+    /**
+     * The WebView support list of events
+     * @type {{LOADING: string, LOADED: string, ERROR: string}}
+     */
     ccui.WebView.EventType = {
-        LOADING: 0,
-        LOADED: 1,
-        ERROR: 2,
-        JS_EVALUATED: 3
+        LOADING: "loading",
+        LOADED: "load",
+        ERROR: "error",
+        JS_EVALUATED: "js"
     };
 
     ccui.WebView.prototype._loadURL = ccui.WebView.prototype.loadURL;
     ccui.WebView.prototype.loadURL = function (url) {
-        if (url.indexOf("http://") >= 0 || url.indexOf("https://") >= 0)
+        if (url.indexOf("http://") >= 0)
         {
             this._loadURL(url);
         }
@@ -574,7 +579,7 @@ function _ui_applyEventListener(ctor) {
     var proto = ctor.prototype;
     proto._addEventListener = proto.addEventListener;
     proto.addEventListener = _ui_addEventListener;
-};
+}
 
 _ui_applyEventListener(ccui.CheckBox);
 _ui_applyEventListener(ccui.Slider);

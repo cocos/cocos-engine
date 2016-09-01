@@ -1,5 +1,5 @@
 #include "jsb_anysdk_protocols_auto.hpp"
-#include "cocos2d_specifics.hpp"
+#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
 #include "jsb_anysdk_basic_conversions.h"
 using namespace anysdk;
 #include "PluginManager.h"
@@ -18,31 +18,9 @@ using namespace anysdk;
 #include "ProtocolAdTracking.h"
 
 template<class T>
-static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp) {
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedValue initializing(cx);
-    bool isNewValid = true;
-    if (isNewValid)
-    {
-        TypeTest<T> t;
-        js_type_class_t *typeClass = nullptr;
-        std::string typeName = t.s_name();
-        auto typeMapIter = _js_global_type_map.find(typeName);
-        CCASSERT(typeMapIter != _js_global_type_map.end(), "Can't find the class type!");
-        typeClass = typeMapIter->second;
-        CCASSERT(typeClass, "The value is null.");
-
-        JS::RootedObject proto(cx, typeClass->proto.ref());
-        JS::RootedObject parent(cx, typeClass->parentProto.ref());
-        JS::RootedObject _tmp(cx, JS_NewObject(cx, typeClass->jsclass, proto, parent));
-        
-        T* cobj = new (std::nothrow) T();
-        js_proxy_t *pp = jsb_new_proxy(cobj, _tmp);
-        AddObjectRoot(cx, &pp->obj);
-        args.rval().set(OBJECT_TO_JSVAL(_tmp));
-        return true;
-    }
-
+static bool dummy_constructor(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS_ReportError(cx, "Constructor for the requested class is not available, please refer to the API reference.");
     return false;
 }
 
@@ -54,7 +32,7 @@ static bool js_is_native_obj(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     args.rval().setBoolean(true);
-    return true;
+    return true;    
 }
 JSClass  *jsb_anysdk_framework_PluginProtocol_class;
 JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
@@ -156,21 +134,6 @@ bool js_anysdk_framework_PluginProtocol_getSDKVersion(JSContext *cx, uint32_t ar
     return false;
 }
 
-void js_anysdk_framework_PluginProtocol_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (PluginProtocol)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::PluginProtocol *nobj = static_cast<anysdk::framework::PluginProtocol *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_PluginProtocol(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_PluginProtocol_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_PluginProtocol_class->name = "PluginProtocol";
@@ -181,11 +144,9 @@ void js_register_anysdk_framework_PluginProtocol(JSContext *cx, JS::HandleObject
     jsb_anysdk_framework_PluginProtocol_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_PluginProtocol_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_PluginProtocol_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_PluginProtocol_class->finalize = js_anysdk_framework_PluginProtocol_finalize;
     jsb_anysdk_framework_PluginProtocol_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -209,11 +170,15 @@ void js_register_anysdk_framework_PluginProtocol(JSContext *cx, JS::HandleObject
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_PluginProtocol_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "PluginProtocol"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::PluginProtocol>(cx, jsb_anysdk_framework_PluginProtocol_class, proto, JS::NullPtr());
 }
+
 JSClass  *jsb_anysdk_framework_PluginFactory_class;
 JSObject *jsb_anysdk_framework_PluginFactory_prototype;
 
@@ -228,15 +193,16 @@ bool js_anysdk_framework_PluginFactory_purgeFactory(JSContext *cx, uint32_t argc
     JS_ReportError(cx, "js_anysdk_framework_PluginFactory_purgeFactory : wrong number of arguments");
     return false;
 }
+
 bool js_anysdk_framework_PluginFactory_getInstance(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
+
         anysdk::framework::PluginFactory* ret = anysdk::framework::PluginFactory::getInstance();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::PluginFactory>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::PluginFactory>(cx, (anysdk::framework::PluginFactory*)ret));
     } else {
         jsret = JSVAL_NULL;
     };
@@ -247,21 +213,7 @@ bool js_anysdk_framework_PluginFactory_getInstance(JSContext *cx, uint32_t argc,
     return false;
 }
 
-void js_anysdk_framework_PluginFactory_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (PluginFactory)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::PluginFactory *nobj = static_cast<anysdk::framework::PluginFactory *>(proxy->ptr);
 
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_PluginFactory(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_PluginFactory_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_PluginFactory_class->name = "PluginFactory";
@@ -272,11 +224,9 @@ void js_register_anysdk_framework_PluginFactory(JSContext *cx, JS::HandleObject 
     jsb_anysdk_framework_PluginFactory_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_PluginFactory_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_PluginFactory_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_PluginFactory_class->finalize = js_anysdk_framework_PluginFactory_finalize;
     jsb_anysdk_framework_PluginFactory_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -299,11 +249,15 @@ void js_register_anysdk_framework_PluginFactory(JSContext *cx, JS::HandleObject 
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_PluginFactory_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "PluginFactory"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::PluginFactory>(cx, jsb_anysdk_framework_PluginFactory_class, proto, JS::NullPtr());
 }
+
 JSClass  *jsb_anysdk_framework_PluginManager_class;
 JSObject *jsb_anysdk_framework_PluginManager_prototype;
 
@@ -354,8 +308,7 @@ bool js_anysdk_framework_PluginManager_loadPlugin(JSContext *cx, uint32_t argc, 
         anysdk::framework::PluginProtocol* ret = cobj->loadPlugin(arg0, arg1);
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::PluginProtocol>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::PluginProtocol>(cx, (anysdk::framework::PluginProtocol*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -377,15 +330,16 @@ bool js_anysdk_framework_PluginManager_end(JSContext *cx, uint32_t argc, jsval *
     JS_ReportError(cx, "js_anysdk_framework_PluginManager_end : wrong number of arguments");
     return false;
 }
+
 bool js_anysdk_framework_PluginManager_getInstance(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
+
         anysdk::framework::PluginManager* ret = anysdk::framework::PluginManager::getInstance();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::PluginManager>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::PluginManager>(cx, (anysdk::framework::PluginManager*)ret));
     } else {
         jsret = JSVAL_NULL;
     };
@@ -396,21 +350,7 @@ bool js_anysdk_framework_PluginManager_getInstance(JSContext *cx, uint32_t argc,
     return false;
 }
 
-void js_anysdk_framework_PluginManager_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (PluginManager)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::PluginManager *nobj = static_cast<anysdk::framework::PluginManager *>(proxy->ptr);
 
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_PluginManager(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_PluginManager_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_PluginManager_class->name = "PluginManager";
@@ -421,11 +361,9 @@ void js_register_anysdk_framework_PluginManager(JSContext *cx, JS::HandleObject 
     jsb_anysdk_framework_PluginManager_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_PluginManager_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_PluginManager_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_PluginManager_class->finalize = js_anysdk_framework_PluginManager_finalize;
     jsb_anysdk_framework_PluginManager_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -450,11 +388,15 @@ void js_register_anysdk_framework_PluginManager(JSContext *cx, JS::HandleObject 
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_PluginManager_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "PluginManager"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::PluginManager>(cx, jsb_anysdk_framework_PluginManager_class, proto, JS::NullPtr());
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolAnalytics_class;
 JSObject *jsb_anysdk_framework_ProtocolAnalytics_prototype;
 
@@ -595,21 +537,6 @@ bool js_anysdk_framework_ProtocolAnalytics_logTimedEventEnd(JSContext *cx, uint3
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolAnalytics_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolAnalytics)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolAnalytics *nobj = static_cast<anysdk::framework::ProtocolAnalytics *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolAnalytics(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolAnalytics_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolAnalytics_class->name = "ProtocolAnalytics";
@@ -620,11 +547,9 @@ void js_register_anysdk_framework_ProtocolAnalytics(JSContext *cx, JS::HandleObj
     jsb_anysdk_framework_ProtocolAnalytics_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolAnalytics_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolAnalytics_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolAnalytics_class->finalize = js_anysdk_framework_ProtocolAnalytics_finalize;
     jsb_anysdk_framework_ProtocolAnalytics_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -651,11 +576,15 @@ void js_register_anysdk_framework_ProtocolAnalytics(JSContext *cx, JS::HandleObj
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolAnalytics_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolAnalytics"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolAnalytics>(cx, jsb_anysdk_framework_ProtocolAnalytics_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolIAP_class;
 JSObject *jsb_anysdk_framework_ProtocolIAP_prototype;
 
@@ -707,23 +636,9 @@ bool js_anysdk_framework_ProtocolIAP_resetPayState(JSContext *cx, uint32_t argc,
     return false;
 }
 
+
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolIAP_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolIAP)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolIAP *nobj = static_cast<anysdk::framework::ProtocolIAP *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolIAP(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolIAP_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolIAP_class->name = "ProtocolIAP";
@@ -734,11 +649,9 @@ void js_register_anysdk_framework_ProtocolIAP(JSContext *cx, JS::HandleObject gl
     jsb_anysdk_framework_ProtocolIAP_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolIAP_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolIAP_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolIAP_class->finalize = js_anysdk_framework_ProtocolIAP_finalize;
     jsb_anysdk_framework_ProtocolIAP_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -763,11 +676,15 @@ void js_register_anysdk_framework_ProtocolIAP(JSContext *cx, JS::HandleObject gl
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolIAP_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolIAP"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolIAP>(cx, jsb_anysdk_framework_ProtocolIAP_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolAds_class;
 JSObject *jsb_anysdk_framework_ProtocolAds_prototype;
 
@@ -924,21 +841,6 @@ bool js_anysdk_framework_ProtocolAds_spendPoints(JSContext *cx, uint32_t argc, j
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolAds_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolAds)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolAds *nobj = static_cast<anysdk::framework::ProtocolAds *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolAds(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolAds_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolAds_class->name = "ProtocolAds";
@@ -949,11 +851,9 @@ void js_register_anysdk_framework_ProtocolAds(JSContext *cx, JS::HandleObject gl
     jsb_anysdk_framework_ProtocolAds_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolAds_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolAds_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolAds_class->finalize = js_anysdk_framework_ProtocolAds_finalize;
     jsb_anysdk_framework_ProtocolAds_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -979,11 +879,15 @@ void js_register_anysdk_framework_ProtocolAds(JSContext *cx, JS::HandleObject gl
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolAds_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolAds"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolAds>(cx, jsb_anysdk_framework_ProtocolAds_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolSocial_class;
 JSObject *jsb_anysdk_framework_ProtocolSocial_prototype;
 
@@ -1080,21 +984,6 @@ bool js_anysdk_framework_ProtocolSocial_submitScore(JSContext *cx, uint32_t argc
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolSocial_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolSocial)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolSocial *nobj = static_cast<anysdk::framework::ProtocolSocial *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolSocial(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolSocial_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolSocial_class->name = "ProtocolSocial";
@@ -1105,11 +994,9 @@ void js_register_anysdk_framework_ProtocolSocial(JSContext *cx, JS::HandleObject
     jsb_anysdk_framework_ProtocolSocial_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolSocial_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolSocial_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolSocial_class->finalize = js_anysdk_framework_ProtocolSocial_finalize;
     jsb_anysdk_framework_ProtocolSocial_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1134,11 +1021,15 @@ void js_register_anysdk_framework_ProtocolSocial(JSContext *cx, JS::HandleObject
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolSocial_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolSocial"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolSocial>(cx, jsb_anysdk_framework_ProtocolSocial_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolUser_class;
 JSObject *jsb_anysdk_framework_ProtocolUser_prototype;
 
@@ -1180,6 +1071,8 @@ bool js_anysdk_framework_ProtocolUser_getUserID(JSContext *cx, uint32_t argc, js
 }
 bool js_anysdk_framework_ProtocolUser_login(JSContext *cx, uint32_t argc, jsval *vp)
 {
+    bool ok = true;
+    bool sok = true;
     anysdk::framework::ProtocolUser* cobj = nullptr;
 
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -1189,12 +1082,35 @@ bool js_anysdk_framework_ProtocolUser_login(JSContext *cx, uint32_t argc, jsval 
     cobj = (anysdk::framework::ProtocolUser *)(proxy ? proxy->ptr : nullptr);
     JSB_PRECONDITION2( cobj, cx, false, "js_anysdk_framework_ProtocolUser_login : Invalid Native Object");
     do {
-        bool ok = true;
         if (argc == 1) {
-            std::map<std::string, std::string> arg0;
-            ok &= jsval_to_std_map_string_string(cx, args.get(0), &arg0);
-            if (!ok) { break; }
-            cobj->login(arg0);
+            if (args.get(0).isString()) {
+                std::string arg0;
+                ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+                if(!sok) {sok = true; break; }
+                cobj->login(arg0);
+                args.rval().setUndefined();
+                return true; 
+            }else{
+                std::map<std::string, std::string> arg1;
+                sok &= jsval_to_std_map_string_string(cx, args.get(0), &arg1);
+                if(!sok) {sok = true; break; }
+                cobj->login(arg1);
+                args.rval().setUndefined();
+                return true; 
+            }
+        
+        }
+    } while(0);
+
+    do {
+        if (argc == 2) {
+            std::string arg0;
+            ok &= jsval_to_std_string(cx, args.get(0), &arg0);
+            if (!ok) { ok = true; break; }
+            std::string arg1;
+            ok &= jsval_to_std_string(cx, args.get(1), &arg1);
+            if (!ok) { ok = true; break; }
+            cobj->login(arg0, arg1);
             args.rval().setUndefined();
             return true;
         }
@@ -1232,21 +1148,6 @@ bool js_anysdk_framework_ProtocolUser_getPluginId(JSContext *cx, uint32_t argc, 
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolUser_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolUser)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolUser *nobj = static_cast<anysdk::framework::ProtocolUser *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolUser(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolUser_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolUser_class->name = "ProtocolUser";
@@ -1257,11 +1158,9 @@ void js_register_anysdk_framework_ProtocolUser(JSContext *cx, JS::HandleObject g
     jsb_anysdk_framework_ProtocolUser_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolUser_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolUser_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolUser_class->finalize = js_anysdk_framework_ProtocolUser_finalize;
     jsb_anysdk_framework_ProtocolUser_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1285,11 +1184,15 @@ void js_register_anysdk_framework_ProtocolUser(JSContext *cx, JS::HandleObject g
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolUser_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolUser"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolUser>(cx, jsb_anysdk_framework_ProtocolUser_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolPush_class;
 JSObject *jsb_anysdk_framework_ProtocolPush_prototype;
 
@@ -1368,21 +1271,6 @@ bool js_anysdk_framework_ProtocolPush_setAlias(JSContext *cx, uint32_t argc, jsv
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolPush_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolPush)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolPush *nobj = static_cast<anysdk::framework::ProtocolPush *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolPush(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolPush_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolPush_class->name = "ProtocolPush";
@@ -1393,11 +1281,9 @@ void js_register_anysdk_framework_ProtocolPush(JSContext *cx, JS::HandleObject g
     jsb_anysdk_framework_ProtocolPush_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolPush_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolPush_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolPush_class->finalize = js_anysdk_framework_ProtocolPush_finalize;
     jsb_anysdk_framework_ProtocolPush_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1421,11 +1307,15 @@ void js_register_anysdk_framework_ProtocolPush(JSContext *cx, JS::HandleObject g
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolPush_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolPush"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolPush>(cx, jsb_anysdk_framework_ProtocolPush_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolCrash_class;
 JSObject *jsb_anysdk_framework_ProtocolCrash_prototype;
 
@@ -1494,21 +1384,6 @@ bool js_anysdk_framework_ProtocolCrash_leaveBreadcrumb(JSContext *cx, uint32_t a
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolCrash_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolCrash)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolCrash *nobj = static_cast<anysdk::framework::ProtocolCrash *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolCrash(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolCrash_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolCrash_class->name = "ProtocolCrash";
@@ -1519,11 +1394,9 @@ void js_register_anysdk_framework_ProtocolCrash(JSContext *cx, JS::HandleObject 
     jsb_anysdk_framework_ProtocolCrash_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolCrash_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolCrash_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolCrash_class->finalize = js_anysdk_framework_ProtocolCrash_finalize;
     jsb_anysdk_framework_ProtocolCrash_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1546,11 +1419,15 @@ void js_register_anysdk_framework_ProtocolCrash(JSContext *cx, JS::HandleObject 
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolCrash_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolCrash"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolCrash>(cx, jsb_anysdk_framework_ProtocolCrash_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolREC_class;
 JSObject *jsb_anysdk_framework_ProtocolREC_prototype;
 
@@ -1609,21 +1486,6 @@ bool js_anysdk_framework_ProtocolREC_stopRecording(JSContext *cx, uint32_t argc,
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolREC_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolREC)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolREC *nobj = static_cast<anysdk::framework::ProtocolREC *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolREC(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolREC_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolREC_class->name = "ProtocolREC";
@@ -1634,11 +1496,9 @@ void js_register_anysdk_framework_ProtocolREC(JSContext *cx, JS::HandleObject gl
     jsb_anysdk_framework_ProtocolREC_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolREC_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolREC_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolREC_class->finalize = js_anysdk_framework_ProtocolREC_finalize;
     jsb_anysdk_framework_ProtocolREC_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1661,32 +1521,21 @@ void js_register_anysdk_framework_ProtocolREC(JSContext *cx, JS::HandleObject gl
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolREC_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolREC"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolREC>(cx, jsb_anysdk_framework_ProtocolREC_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolCustom_class;
 JSObject *jsb_anysdk_framework_ProtocolCustom_prototype;
 
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolCustom_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolCustom)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolCustom *nobj = static_cast<anysdk::framework::ProtocolCustom *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolCustom(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolCustom_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolCustom_class->name = "ProtocolCustom";
@@ -1697,11 +1546,9 @@ void js_register_anysdk_framework_ProtocolCustom(JSContext *cx, JS::HandleObject
     jsb_anysdk_framework_ProtocolCustom_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolCustom_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolCustom_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolCustom_class->finalize = js_anysdk_framework_ProtocolCustom_finalize;
     jsb_anysdk_framework_ProtocolCustom_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1721,11 +1568,15 @@ void js_register_anysdk_framework_ProtocolCustom(JSContext *cx, JS::HandleObject
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolCustom_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolCustom"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::ProtocolCustom>(cx, jsb_anysdk_framework_ProtocolCustom_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_ProtocolAdTracking_class;
 JSObject *jsb_anysdk_framework_ProtocolAdTracking_prototype;
 
@@ -1792,21 +1643,6 @@ bool js_anysdk_framework_ProtocolAdTracking_onRegister(JSContext *cx, uint32_t a
 
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;
 
-void js_anysdk_framework_ProtocolAdTracking_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (ProtocolAdTracking)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::ProtocolAdTracking *nobj = static_cast<anysdk::framework::ProtocolAdTracking *>(proxy->ptr);
-
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_ProtocolAdTracking(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_ProtocolAdTracking_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_ProtocolAdTracking_class->name = "ProtocolAdTracking";
@@ -1817,11 +1653,9 @@ void js_register_anysdk_framework_ProtocolAdTracking(JSContext *cx, JS::HandleOb
     jsb_anysdk_framework_ProtocolAdTracking_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_ProtocolAdTracking_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_ProtocolAdTracking_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_ProtocolAdTracking_class->finalize = js_anysdk_framework_ProtocolAdTracking_finalize;
     jsb_anysdk_framework_ProtocolAdTracking_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -1839,16 +1673,21 @@ void js_register_anysdk_framework_ProtocolAdTracking(JSContext *cx, JS::HandleOb
         cx, global,
         parent_proto,
         jsb_anysdk_framework_ProtocolAdTracking_class,
-        empty_constructor, 0, // no constructor
+        dummy_constructor<anysdk::framework::ProtocolAdTracking>, 0, // no constructor
         properties,
         funcs,
         NULL, // no static properties
         st_funcs);
+    JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolAdTracking_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "ProtocolAdTracking"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
 
     // add the proto and JSClass to the type->js info hash table
-    JS::RootedObject proto(cx, jsb_anysdk_framework_ProtocolAdTracking_prototype);
     jsb_register_class<anysdk::framework::ProtocolAdTracking>(cx, jsb_anysdk_framework_ProtocolAdTracking_class, proto, parent_proto);
 }
+
 JSClass  *jsb_anysdk_framework_AgentManager_class;
 JSObject *jsb_anysdk_framework_AgentManager_prototype;
 
@@ -1879,8 +1718,7 @@ bool js_anysdk_framework_AgentManager_getSocialPlugin(JSContext *cx, uint32_t ar
         anysdk::framework::ProtocolSocial* ret = cobj->getSocialPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolSocial>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolSocial>(cx, (anysdk::framework::ProtocolSocial*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -1902,8 +1740,7 @@ bool js_anysdk_framework_AgentManager_getPushPlugin(JSContext *cx, uint32_t argc
         anysdk::framework::ProtocolPush* ret = cobj->getPushPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolPush>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolPush>(cx, (anysdk::framework::ProtocolPush*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -1925,8 +1762,7 @@ bool js_anysdk_framework_AgentManager_getUserPlugin(JSContext *cx, uint32_t argc
         anysdk::framework::ProtocolUser* ret = cobj->getUserPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolUser>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolUser>(cx, (anysdk::framework::ProtocolUser*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -1948,8 +1784,7 @@ bool js_anysdk_framework_AgentManager_getAdTrackingPlugin(JSContext *cx, uint32_
         anysdk::framework::ProtocolAdTracking* ret = cobj->getAdTrackingPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolAdTracking>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolAdTracking>(cx, (anysdk::framework::ProtocolAdTracking*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -1971,8 +1806,7 @@ bool js_anysdk_framework_AgentManager_getCustomPlugin(JSContext *cx, uint32_t ar
         anysdk::framework::ProtocolCustom* ret = cobj->getCustomPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolCustom>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolCustom>(cx, (anysdk::framework::ProtocolCustom*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -2090,8 +1924,7 @@ bool js_anysdk_framework_AgentManager_getAdsPlugin(JSContext *cx, uint32_t argc,
         anysdk::framework::ProtocolAds* ret = cobj->getAdsPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolAds>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolAds>(cx, (anysdk::framework::ProtocolAds*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -2133,8 +1966,7 @@ bool js_anysdk_framework_AgentManager_getSharePlugin(JSContext *cx, uint32_t arg
         anysdk::framework::ProtocolShare* ret = cobj->getSharePlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolShare>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolShare>(cx, (anysdk::framework::ProtocolShare*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -2156,8 +1988,7 @@ bool js_anysdk_framework_AgentManager_getAnalyticsPlugin(JSContext *cx, uint32_t
         anysdk::framework::ProtocolAnalytics* ret = cobj->getAnalyticsPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolAnalytics>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolAnalytics>(cx, (anysdk::framework::ProtocolAnalytics*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -2179,8 +2010,7 @@ bool js_anysdk_framework_AgentManager_getRECPlugin(JSContext *cx, uint32_t argc,
         anysdk::framework::ProtocolREC* ret = cobj->getRECPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolREC>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolREC>(cx, (anysdk::framework::ProtocolREC*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -2202,8 +2032,7 @@ bool js_anysdk_framework_AgentManager_getCrashPlugin(JSContext *cx, uint32_t arg
         anysdk::framework::ProtocolCrash* ret = cobj->getCrashPlugin();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::ProtocolCrash>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+            jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::ProtocolCrash>(cx, (anysdk::framework::ProtocolCrash*)ret));
         } else {
             jsret = JSVAL_NULL;
         };
@@ -2225,15 +2054,16 @@ bool js_anysdk_framework_AgentManager_end(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_anysdk_framework_AgentManager_end : wrong number of arguments");
     return false;
 }
+
 bool js_anysdk_framework_AgentManager_getInstance(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     if (argc == 0) {
+
         anysdk::framework::AgentManager* ret = anysdk::framework::AgentManager::getInstance();
         jsval jsret = JSVAL_NULL;
         if (ret) {
-            js_proxy_t *proxy = js_get_or_create_proxy<anysdk::framework::AgentManager>(cx, ret);
-            jsret = OBJECT_TO_JSVAL(proxy->obj);
+        jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<anysdk::framework::AgentManager>(cx, (anysdk::framework::AgentManager*)ret));
     } else {
         jsret = JSVAL_NULL;
     };
@@ -2244,21 +2074,7 @@ bool js_anysdk_framework_AgentManager_getInstance(JSContext *cx, uint32_t argc, 
     return false;
 }
 
-void js_anysdk_framework_AgentManager_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (AgentManager)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::AgentManager *nobj = static_cast<anysdk::framework::AgentManager *>(proxy->ptr);
 
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_AgentManager(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_AgentManager_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_AgentManager_class->name = "AgentManager";
@@ -2269,11 +2085,9 @@ void js_register_anysdk_framework_AgentManager(JSContext *cx, JS::HandleObject g
     jsb_anysdk_framework_AgentManager_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_AgentManager_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_AgentManager_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_AgentManager_class->finalize = js_anysdk_framework_AgentManager_finalize;
     jsb_anysdk_framework_AgentManager_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -2314,10 +2128,15 @@ void js_register_anysdk_framework_AgentManager(JSContext *cx, JS::HandleObject g
         NULL, // no static properties
         st_funcs);
 
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_AgentManager_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "AgentManager"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::AgentManager>(cx, jsb_anysdk_framework_AgentManager_class, proto, JS::NullPtr());
 }
+
 JSClass  *jsb_anysdk_framework_JSBRelation_class;
 JSObject *jsb_anysdk_framework_JSBRelation_prototype;
 
@@ -2337,6 +2156,7 @@ bool js_anysdk_framework_JSBRelation_getMethodsOfPlugin(JSContext *cx, uint32_t 
             JSB_PRECONDITION2( arg0, cx, false, "Invalid Native Object");
         } while (0);
         JSB_PRECONDITION2(ok, cx, false, "js_anysdk_framework_JSBRelation_getMethodsOfPlugin : Error processing arguments");
+
         std::string ret = anysdk::framework::JSBRelation::getMethodsOfPlugin(arg0);
         jsval jsret = JSVAL_NULL;
         jsret = std_string_to_jsval(cx, ret);
@@ -2347,21 +2167,7 @@ bool js_anysdk_framework_JSBRelation_getMethodsOfPlugin(JSContext *cx, uint32_t 
     return false;
 }
 
-void js_anysdk_framework_JSBRelation_finalize(JSFreeOp *fop, JSObject *obj) {
-    CCLOGINFO("jsbindings: finalizing JS object %p (JSBRelation)", obj);
-    JSContext *cx = ScriptingCore::getInstance()->getGlobalContext();
-    JS::RootedObject jsobj(cx, obj);
-    auto proxy = jsb_get_js_proxy(jsobj);
-    if (proxy) {
-        anysdk::framework::JSBRelation *nobj = static_cast<anysdk::framework::JSBRelation *>(proxy->ptr);
 
-        if (nobj) {
-            jsb_remove_proxy(proxy);
-            delete nobj;
-        }
-        else jsb_remove_proxy(proxy);
-    }
-}
 void js_register_anysdk_framework_JSBRelation(JSContext *cx, JS::HandleObject global) {
     jsb_anysdk_framework_JSBRelation_class = (JSClass *)calloc(1, sizeof(JSClass));
     jsb_anysdk_framework_JSBRelation_class->name = "JSBRelation";
@@ -2372,11 +2178,9 @@ void js_register_anysdk_framework_JSBRelation(JSContext *cx, JS::HandleObject gl
     jsb_anysdk_framework_JSBRelation_class->enumerate = JS_EnumerateStub;
     jsb_anysdk_framework_JSBRelation_class->resolve = JS_ResolveStub;
     jsb_anysdk_framework_JSBRelation_class->convert = JS_ConvertStub;
-    jsb_anysdk_framework_JSBRelation_class->finalize = js_anysdk_framework_JSBRelation_finalize;
     jsb_anysdk_framework_JSBRelation_class->flags = JSCLASS_HAS_RESERVED_SLOTS(2);
 
     static JSPropertySpec properties[] = {
-        JS_PSG("__nativeObj", js_is_native_obj, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_PS_END
     };
 
@@ -2398,11 +2202,15 @@ void js_register_anysdk_framework_JSBRelation(JSContext *cx, JS::HandleObject gl
         funcs,
         NULL, // no static properties
         st_funcs);
-
-    // add the proto and JSClass to the type->js info hash table
     JS::RootedObject proto(cx, jsb_anysdk_framework_JSBRelation_prototype);
+    JS::RootedValue className(cx, std_string_to_jsval(cx, "JSBRelation"));
+    JS_SetProperty(cx, proto, "_className", className);
+    JS_SetProperty(cx, proto, "__nativeObj", JS::TrueHandleValue);
+    JS_SetProperty(cx, proto, "__is_ref", JS::FalseHandleValue);
+    // add the proto and JSClass to the type->js info hash table
     jsb_register_class<anysdk::framework::JSBRelation>(cx, jsb_anysdk_framework_JSBRelation_class, proto, JS::NullPtr());
 }
+
 void register_all_anysdk_framework(JSContext* cx, JS::HandleObject obj) {
     // Get the ns
     JS::RootedObject ns(cx);

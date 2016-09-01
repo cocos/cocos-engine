@@ -1,4 +1,4 @@
-#include "CCLayerGradientLoader.h"
+#include "editor-support/cocosbuilder/CCLayerGradientLoader.h"
 
 using namespace cocos2d;
 
@@ -52,4 +52,3 @@ void LayerGradientLoader::onHandlePropTypePoint(Node * pNode, Node * pParent, co
 }
 
 }
-

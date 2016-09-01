@@ -13,6 +13,26 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 
+class ShouldStartLoadingWorker implements Runnable {
+    private CountDownLatch mLatch;
+    private boolean[] mResult;
+    private final int mViewTag;
+    private final String mUrlString;
+
+    ShouldStartLoadingWorker(CountDownLatch latch, boolean[] result, int viewTag, String urlString) {
+        this.mLatch = latch;
+        this.mResult = result;
+        this.mViewTag = viewTag;
+        this.mUrlString = urlString;
+    }
+
+    @Override
+    public void run() {
+        this.mResult[0] = Cocos2dxWebViewHelper._shouldStartLoading(mViewTag, mUrlString);
+        this.mLatch.countDown(); // notify that result is ready
+    }
+}
+
 public class Cocos2dxWebView extends WebView {
     private static final String TAG = Cocos2dxWebViewHelper.class.getSimpleName();
 
@@ -60,10 +80,11 @@ public class Cocos2dxWebView extends WebView {
     class Cocos2dxWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, final String urlString) {
-            Cocos2dxActivity activity = Cocos2dxActivity.COCOS_ACTIVITY;
+            Cocos2dxActivity activity = (Cocos2dxActivity)getContext();
+
             try {
                 URI uri = URI.create(urlString);
-                if (uri.getScheme().equals(mJSScheme)) {
+                if (uri != null && uri.getScheme().equals(mJSScheme)) {
                     activity.runOnGLThread(new Runnable() {
                         @Override
                         public void run() {
@@ -95,8 +116,8 @@ public class Cocos2dxWebView extends WebView {
         @Override
         public void onPageFinished(WebView view, final String url) {
             super.onPageFinished(view, url);
-
-            Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new Runnable() {
+            Cocos2dxActivity activity = (Cocos2dxActivity)getContext();
+            activity.runOnGLThread(new Runnable() {
                 @Override
                 public void run() {
                     Cocos2dxWebViewHelper._didFinishLoading(mViewTag, url);
@@ -107,8 +128,8 @@ public class Cocos2dxWebView extends WebView {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, final String failingUrl) {
             super.onReceivedError(view, errorCode, description, failingUrl);
-
-            Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new Runnable() {
+            Cocos2dxActivity activity = (Cocos2dxActivity)getContext();
+            activity.runOnGLThread(new Runnable() {
                 @Override
                 public void run() {
                     Cocos2dxWebViewHelper._didFailLoading(mViewTag, failingUrl);
@@ -127,25 +148,4 @@ public class Cocos2dxWebView extends WebView {
         layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         this.setLayoutParams(layoutParams);
     }
-
-    class ShouldStartLoadingWorker implements Runnable {
-        private CountDownLatch mLatch;
-        private boolean[] mResult;
-        private final int mViewTag;
-        private final String mUrlString;
-
-        ShouldStartLoadingWorker(CountDownLatch latch, boolean[] result, int viewTag, String urlString) {
-            this.mLatch = latch;
-            this.mResult = result;
-            this.mViewTag = viewTag;
-            this.mUrlString = urlString;
-        }
-
-        @Override
-        public void run() {
-            this.mResult[0] = Cocos2dxWebViewHelper._shouldStartLoading(mViewTag, mUrlString);
-            this.mLatch.countDown(); // notify that result is ready
-        }
-    }
 }
-

@@ -26,6 +26,7 @@ THE SOFTWARE.
 #include "ui/UIScale9Sprite.h"
 #include "ui/UIHelper.h"
 #include "2d/CCSprite.h"
+#include "editor-support/cocostudio/CocosStudioExtension.h"
 
 NS_CC_BEGIN
 
@@ -67,7 +68,12 @@ _ballNTexType(TextureResType::LOCAL),
 _ballPTexType(TextureResType::LOCAL),
 _ballDTexType(TextureResType::LOCAL),
 _barRendererAdaptDirty(true),
-_progressBarRendererDirty(true)
+_progressBarRendererDirty(true),
+_textureFile(""),
+_progressBarTextureFile(""),
+_slidBallNormalTextureFile(""),
+_slidBallPressedTextureFile(""),
+_slidBallDisabledTextureFile("")
 {
     setTouchEnabled(true);
 }
@@ -146,6 +152,7 @@ void Slider::initRenderer()
 
 void Slider::loadBarTexture(const std::string& fileName, TextureResType texType)
 {
+    _textureFile = fileName;
     if (fileName.empty())
     {
         _barRenderer->resetRender();
@@ -188,6 +195,7 @@ void Slider::setupBarTexture()
 
 void Slider::loadProgressBarTexture(const std::string& fileName, TextureResType texType)
 {
+    _progressBarTextureFile = fileName;
     if (fileName.empty())
     {
         _progressBarRenderer->resetRender();
@@ -313,6 +321,7 @@ void Slider::loadSlidBallTextures(const std::string& normal,
 
 void Slider::loadSlidBallTextureNormal(const std::string& normal,TextureResType texType)
 {
+    _slidBallNormalTextureFile = normal;
     if (normal.empty())
     {
         _slidBallNormalRenderer->init();
@@ -342,6 +351,7 @@ void Slider::loadSlidBallTextureNormal(SpriteFrame* spriteframe)
 
 void Slider::loadSlidBallTexturePressed(const std::string& pressed,TextureResType texType)
 {
+    _slidBallPressedTextureFile = pressed;
     if (pressed.empty())
     {
         _slidBallPressedRenderer->init();
@@ -374,6 +384,7 @@ void Slider::loadSlidBallTexturePressed(SpriteFrame* spriteframe)
 
 void Slider::loadSlidBallTextureDisabled(const std::string& disabled,TextureResType texType)
 {
+    _slidBallDisabledTextureFile = disabled;
     if (disabled.empty())
     {
         _slidBallDisabledRenderer->init();
@@ -740,7 +751,42 @@ void Slider::copySpecialProperties(Widget *widget)
     }
 }
 
+ResourceData Slider::getBackFile()
+{
+    ResourceData rData;
+    rData.type = (int)_barTexType;
+    rData.file = _textureFile;
+    return rData;
+}
+ResourceData Slider::getProgressBarFile()
+{
+    ResourceData rData;
+    rData.type = (int)_progressBarTexType;
+    rData.file = _progressBarTextureFile;
+    return rData;
+}
+ResourceData Slider::getBallNormalFile()
+{
+    ResourceData rData;
+    rData.type = (int)_ballNTexType;
+    rData.file = _slidBallNormalTextureFile;
+    return rData;
+}
+ResourceData Slider::getBallPressedFile()
+{
+    ResourceData rData;
+    rData.type = (int)_ballPTexType;
+    rData.file = _slidBallPressedTextureFile;
+    return rData;
+}
+ResourceData Slider::getBallDisabledFile()
+{
+    ResourceData rData;
+    rData.type = (int)_ballDTexType;
+    rData.file = _slidBallDisabledTextureFile;
+    return rData;
+}
+
 }
 
 NS_CC_END
-

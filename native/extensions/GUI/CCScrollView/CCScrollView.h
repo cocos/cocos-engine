@@ -244,7 +244,7 @@ public:
     virtual void onTouchMoved(Touch *touch, Event *event);
     virtual void onTouchEnded(Touch *touch, Event *event);
     virtual void onTouchCancelled(Touch *touch, Event *event);
-
+    
     // Overrides
     virtual void setContentSize(const Size & size) override;
     virtual const Size& getContentSize() const override;
@@ -260,7 +260,7 @@ public:
 
     virtual void removeAllChildren() override;
     virtual void removeAllChildrenWithCleanup(bool cleanup) override;
-    virtual void removeChild(Node* child, bool cleaup = true) override;
+    virtual void removeChild(Node* child, bool cleanup = true) override;
     /**
      * CCActionTweenDelegate
      */
@@ -328,7 +328,7 @@ protected:
      */
     Node* _container;
     /**
-     * Determiens whether user touch is moved after begin phase.
+     * Determines whether user touch is moved after begin phase.
      */
     bool _touchMoved;
     /**
@@ -384,6 +384,9 @@ protected:
     CustomCommand _beforeDrawCommand;
     CustomCommand _afterDrawCommand;
 
+    /**
+     * Action created with setContentOffsetInDuration(), saved so it can be halted
+     */
     Action* _animatedScrollAction;
 };
 

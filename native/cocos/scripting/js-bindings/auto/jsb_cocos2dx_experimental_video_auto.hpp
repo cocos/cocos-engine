@@ -1,10 +1,10 @@
 #include "base/ccConfig.h"
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)
 #ifndef __cocos2dx_experimental_video_h__
 #define __cocos2dx_experimental_video_h__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 
 extern JSClass  *jsb_cocos2d_experimental_ui_VideoPlayer_class;
 extern JSObject *jsb_cocos2d_experimental_ui_VideoPlayer_prototype;
@@ -32,4 +32,4 @@ bool js_cocos2dx_experimental_video_VideoPlayer_create(JSContext *cx, uint32_t a
 bool js_cocos2dx_experimental_video_VideoPlayer_VideoPlayer(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif // __cocos2dx_experimental_video_h__
-#endif //#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#endif //#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)

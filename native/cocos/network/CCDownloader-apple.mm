@@ -25,8 +25,8 @@
 #include "network/CCDownloader-apple.h"
 
 #include "network/CCDownloader.h"
+#include "base/ccUTF8.h"
 #include <queue>
-#include "base/CCString.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //  OC Classes Declaration
@@ -553,9 +553,7 @@ namespace cocos2d { namespace network {
 
         if ('/' == [destPath characterAtIndex:0])
         {
-            // absolute path, need add prefix
-            NSString *prefix = @"file://";
-            destURL = [NSURL URLWithString:[prefix stringByAppendingString: destPath]];
+            destURL = [NSURL fileURLWithPath:destPath];
             break;
         }
 

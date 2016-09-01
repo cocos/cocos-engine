@@ -34,10 +34,10 @@
 #ifdef OPENAL_PLAIN_INCLUDES
 #include <al.h>
 #else
-#include "OpenalSoft/al.h"
+#include <OpenalSoft/al.h>
 #endif
-#include "CCPlatformMacros.h"
-#include "AudioCache.h"
+#include "platform/CCPlatformMacros.h"
+#include "audio/win32/AudioCache.h"
 
 NS_CC_BEGIN
 namespace experimental{
@@ -61,6 +61,7 @@ public:
 protected:
     void rotateBufferThread(int offsetFrame);
     bool play2d(AudioCache* cache);
+	int readPcmData(char* buffer, int bufferSize, const std::function<int/*readBytes*/(char* /*buf*/, int /*bytesToRead*/)>& fileReader);
 
     AudioCache* _audioCache;
 

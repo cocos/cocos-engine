@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 extern unsigned char cc_fps_images_png[];
-unsigned int cc_fps_images_len();
+unsigned int cc_fps_images_len(void);
 
 #ifdef __cplusplus
 }
@@ -40,4 +40,3 @@ unsigned int cc_fps_images_len();
 
 /// @endcond
 #endif // __BASE_CCFPSIMAGES__H
-

@@ -272,6 +272,15 @@ CC_ASSERT(__gl_error_code == GL_NO_ERROR, "Error"); \
 } while(0)
 #endif
 
+ /*********************************/
+ /** 64bits Program Sense Macros **/
+ /*********************************/
+#if defined(_M_X64) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) || defined(__x86_64)
+#define CC_64BITS 1
+#else
+#define CC_64BITS 0
+#endif
+
 
 /** @def CC_INCREMENT_GL_DRAWS_BY_ONE
  Increments the GL Draws counts by one.
@@ -300,4 +309,3 @@ CC_ASSERT(__gl_error_code == GL_NO_ERROR, "Error"); \
 #define CC_CALLBACK_3(__selector__,__target__, ...) std::bind(&__selector__,__target__, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, ##__VA_ARGS__)
 
 #endif // __BASE_CCMACROS_H__
-

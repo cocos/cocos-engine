@@ -45,6 +45,8 @@ class Event;
 class CC_DLL EventListenerKeyboard : public EventListener
 {
 public:
+    static const std::string LISTENER_ID;
+    
     /** Create a keyboard event listener.
      *
      * @return An autoreleased EventListenerKeyboard object.
@@ -68,4 +70,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__cocos2d_libs__CCKeyboardEventListener__) */
-

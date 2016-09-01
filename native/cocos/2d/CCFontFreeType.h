@@ -28,13 +28,23 @@
 
 /// @cond DO_NOT_SHOW
 
-#include "CCFont.h"
+#include "2d/CCFont.h"
 
 #include <string>
-#include "freetype/ft2build.h"
+#include <ft2build.h>
 
-#include "freetype/freetype.h"
-#include "freetype/ftstroke.h"
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+#define generic GenericFromFreeTypeLibrary
+#define internal InternalFromFreeTypeLibrary
+#endif
+
+#include FT_FREETYPE_H
+#include FT_STROKER_H
+
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+#undef generic
+#undef internal
+#endif
 
 NS_CC_BEGIN
 
@@ -66,6 +76,9 @@ public:
 
     virtual FontAtlas* createFontAtlas() override;
     virtual int getFontMaxHeight() const override { return _lineHeight; }
+
+    static void releaseFont(const std::string &fontName);
+
 private:
     static const char* _glyphASCII;
     static const char* _glyphNEHE;

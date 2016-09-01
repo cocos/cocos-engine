@@ -149,8 +149,7 @@
                 frame.setAnchorPoint(cc.p(anchorx, anchory));
                 return frame;
             }
-        },
-        {
+        },{
             name: "AnchorPoint",
             handle: function(options){
                 var frame = new ccs.AnchorPointFrame();
@@ -159,8 +158,7 @@
                 frame.setAnchorPoint(cc.p(anchorx, anchory));
                 return frame;
             }
-        },
-        {
+        },{
             name: "InnerAction",
             handle: function(options){
                 var frame = new ccs.InnerActionFrame();
@@ -175,12 +173,12 @@
             name: "CColor",
             handle: function(options){
                 var frame = new ccs.ColorFrame();
-                var color = options['Color'];
+                var color = options["Color"];
                 if(!color) color = {};
-                color['R'] = cc.isValidValue(color['R']) ? color['R'] : 255;
-                color['G'] = cc.isValidValue(color['G']) ? color['G'] : 255;
-                color['B'] = cc.isValidValue(color['B']) ? color['B'] : 255;
-                frame.setColor(cc.color(color['R'], color['G'], color['B']));
+                color["R"] = color["R"] === undefined ? 255 : color["R"];
+                color["G"] = color["G"] === undefined ? 255 : color["G"];
+                color["B"] = color["B"] === undefined ? 255 : color["B"];
+                frame.setColor(cc.color(color["R"], color["G"], color["B"]));
                 return frame;
             }
         },
@@ -199,7 +197,7 @@
                 var frame, texture, plist, path, spriteFrame;
                 frame = new ccs.TextureFrame();
                 texture = options["TextureFile"];
-                if(texture) {
+                if(texture != null) {
                     plist = texture["Plist"];
                     path = texture["Path"];
                     spriteFrame = cc.spriteFrameCache.getSpriteFrame(path);
@@ -250,7 +248,7 @@
                 var singleFrameIndex = options["SingleFrameIndex"];
 
                 var frameIndex = options["FrameIndex"];
-                if(cc.isValidValue(frameIndex))
+                if(frameIndex !== undefined)
                     frame.setFrameIndex(frameIndex);
 
                 frame.setInnerActionType(ccs.InnerActionType[innerActionType]);
@@ -268,7 +266,7 @@
             handle: function(options){
                 var frame = new ccs.BlendFuncFrame();
                 var blendFunc = options["BlendFunc"];
-                if(blendFunc && cc.isValidValue(blendFunc["Src"]) && cc.isValidValue(blendFunc["Dst"]))
+                if(blendFunc && blendFunc["Src"] !== undefined && blendFunc["Dst"] !== undefined)
                     frame.setBlendFunc(new cc.BlendFunc(blendFunc["Src"], blendFunc["Dst"]));
                 return frame;
             }
@@ -312,7 +310,6 @@
         });
     });
 
-    load.registerParser("action", "2.*", parser);
     load.registerParser("action", "*", parser);
 
 })(ccs._load, ccs._parser);

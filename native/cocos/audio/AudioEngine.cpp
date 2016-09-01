@@ -31,11 +31,11 @@
 #include "base/ccUtils.h"
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-#include "android/AudioEngine-inl.h"
+#include "audio/android/AudioEngine-inl.h"
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC
-#include "apple/AudioEngine-inl.h"
+#include "audio/apple/AudioEngine-inl.h"
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-#include "win32/AudioEngine-win32.h"
+#include "audio/win32/AudioEngine-win32.h"
 #endif
 
 #define TIME_DELAY_PRECISION 0.0001
@@ -360,15 +360,23 @@ void AudioEngine::stopAll()
 
 void AudioEngine::uncache(const std::string &filePath)
 {
-    if(_audioPathIDMap.find(filePath) != _audioPathIDMap.end()){
-        auto itEnd = _audioPathIDMap[filePath].end();
-        for (auto it = _audioPathIDMap[filePath].begin() ; it != itEnd; ++it) {
-            auto audioID = *it;
+    auto audioIDsIter = _audioPathIDMap.find(filePath);
+    if (audioIDsIter != _audioPathIDMap.end())
+    {
+        //@Note: For safely iterating elements from the audioID list, we need to copy the list
+        // since 'AudioEngine::remove' may be invoked in '_audioEngineImpl->stop' synchronously.
+        // If this happens, it will break the iteration, and crash will appear on some devices.
+        std::list<int> copiedIDs(audioIDsIter->second);
+        
+        for (int audioID : copiedIDs)
+        {
             _audioEngineImpl->stop(audioID);
 
             auto itInfo = _audioIDInfoMap.find(audioID);
-            if (itInfo != _audioIDInfoMap.end()){
-                if (itInfo->second.profileHelper) {
+            if (itInfo != _audioIDInfoMap.end())
+            {
+                if (itInfo->second.profileHelper)
+                {
                     itInfo->second.profileHelper->audioIDs.remove(audioID);
                 }
                 _audioIDInfoMap.erase(audioID);
@@ -384,7 +392,8 @@ void AudioEngine::uncache(const std::string &filePath)
 
 void AudioEngine::uncacheAll()
 {
-    if(!_audioEngineImpl){
+    if (!_audioEngineImpl)
+    {
         return;
     }
     stopAll();
@@ -536,4 +545,3 @@ void AudioEngine::addTask(const std::function<void()>& task)
         s_threadPool->addTask(task);
     }
 }
-

@@ -30,7 +30,7 @@
 #import <UIKit/UIKit.h>
 
 #import "math/CCGeometry.h"
-#import "CCDirectorCaller-ios.h"
+#import "platform/ios/CCDirectorCaller-ios.h"
 
 NS_CC_BEGIN
 
@@ -38,16 +38,14 @@ Application* Application::sm_pSharedApplication = nullptr;
 
 Application::Application()
 {
-    if (sm_pSharedApplication) {
-        log("func:%s:,error:sm_pSharedApplication should be nullptr", __FUNCTION__);
-    }
+    CC_ASSERT(! sm_pSharedApplication);
     sm_pSharedApplication = this;
 }
 
 Application::~Application()
 {
     CC_ASSERT(this == sm_pSharedApplication);
-    sm_pSharedApplication = nullptr;
+    sm_pSharedApplication = 0;
 }
 
 int Application::run()
@@ -70,6 +68,7 @@ void Application::setAnimationInterval(float interval)
 
 Application* Application::getInstance()
 {
+    CC_ASSERT(sm_pSharedApplication);
     return sm_pSharedApplication;
 }
 
@@ -143,6 +142,14 @@ Application::Platform Application::getTargetPlatform()
     }
 }
 
+std::string Application::getVersion() {
+    NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    if (version) {
+        return [version UTF8String];
+    }
+    return "";
+}
+
 bool Application::openURL(const std::string &url)
 {
     NSString* msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
@@ -157,4 +164,3 @@ void Application::applicationScreenSizeChanged(int newWidth, int newHeight) {
 NS_CC_END
 
 #endif // CC_PLATFORM_IOS
-

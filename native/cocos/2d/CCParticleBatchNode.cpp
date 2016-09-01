@@ -35,7 +35,8 @@
 #include "renderer/CCQuadCommand.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCTextureAtlas.h"
-#include "base/CCString.h"
+#include "base/CCProfiling.h"
+#include "base/ccUTF8.h"
 
 NS_CC_BEGIN
 
@@ -103,7 +104,7 @@ bool ParticleBatchNode::initWithTexture(Texture2D *tex, int capacity)
  */
 bool ParticleBatchNode::initWithFile(const std::string& fileImage, int capacity)
 {
-    Texture2D *tex = _director->getTextureCache()->addImage(fileImage);
+    Texture2D *tex = Director::getInstance()->getTextureCache()->addImage(fileImage);
     return initWithTexture(tex, capacity);
 }
 
@@ -130,12 +131,13 @@ void ParticleBatchNode::visit(Renderer *renderer, const Mat4 &parentTransform, u
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    Director* director = Director::getInstance();
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     draw(renderer, _modelViewTransform, flags);
 
-    _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 // override addChild:

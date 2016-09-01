@@ -1,4 +1,4 @@
-#include "CCLabelTTFLoader.h"
+#include "editor-support/cocosbuilder/CCLabelTTFLoader.h"
 
 using namespace cocos2d;
 
@@ -81,4 +81,3 @@ void LabelTTFLoader::onHandlePropTypeSize(Node * pNode, Node * pParent, const ch
 }
 
 }
-

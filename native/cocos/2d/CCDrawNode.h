@@ -38,7 +38,7 @@
 
 NS_CC_BEGIN
 
-#define DEFAULT_LINE_WIDTH 2
+static const int DEFAULT_LINE_WIDTH = 2;
 
 class PointArray;
 /**

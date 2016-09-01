@@ -267,8 +267,8 @@ const Vec2& PhysicsSprite::getPosFromPhysics() const
     static Vec2 s_physicPosion;
 #if CC_ENABLE_CHIPMUNK_INTEGRATION
 
-    cpVect cpPos = cpBodyGetPos(_CPBody);
-    s_physicPosion.set(cpPos.x, cpPos.y);
+    cpVect cpPos = cpBodyGetPosition(_CPBody);
+    s_physicPosion = Vec2(cpPos.x, cpPos.y);
 
 #elif CC_ENABLE_BOX2D_INTEGRATION
 
@@ -285,7 +285,7 @@ void PhysicsSprite::setPosition(float x, float y)
 #if CC_ENABLE_CHIPMUNK_INTEGRATION
 
     cpVect cpPos = cpv(x, y);
-    cpBodySetPos(_CPBody, cpPos);
+    cpBodySetPosition(_CPBody, cpPos);
 
 #elif CC_ENABLE_BOX2D_INTEGRATION
 
@@ -356,11 +356,11 @@ void PhysicsSprite::syncPhysicsTransform() const
     // For more info see: http://www.cocos2d-iphone.org/forum/topic/68990
 
 #if CC_ENABLE_CHIPMUNK_INTEGRATION
-
-    cpVect rot = (_ignoreBodyRotation ? cpvforangle(-CC_DEGREES_TO_RADIANS(_rotationX)) : _CPBody->rot);
-    float x = _CPBody->p.x + rot.x * -_anchorPointInPoints.x * _scaleX - rot.y * -_anchorPointInPoints.y * _scaleY;
-    float y = _CPBody->p.y + rot.y * -_anchorPointInPoints.x * _scaleX + rot.x * -_anchorPointInPoints.y * _scaleY;
-
+    
+    cpVect rot = (_ignoreBodyRotation ? cpvforangle(-CC_DEGREES_TO_RADIANS(_rotationX)) : cpBodyGetRotation(_CPBody));
+    float x = cpBodyGetPosition(_CPBody).x + rot.x * -_anchorPointInPoints.x * _scaleX - rot.y * -_anchorPointInPoints.y * _scaleY;
+    float y = cpBodyGetPosition(_CPBody).y + rot.y * -_anchorPointInPoints.x * _scaleX + rot.x * -_anchorPointInPoints.y * _scaleY;
+    
     if (_ignoreAnchorPointForPosition)
     {
         x += _anchorPointInPoints.x;
@@ -413,7 +413,7 @@ void PhysicsSprite::syncPhysicsTransform() const
 void PhysicsSprite::onEnter()
 {
     Node::onEnter();
-    _syncTransform = _director->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_UPDATE, std::bind(&PhysicsSprite::afterUpdate, this, std::placeholders::_1));
+    _syncTransform = Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_AFTER_UPDATE, std::bind(&PhysicsSprite::afterUpdate, this, std::placeholders::_1));
     _syncTransform->retain();
 }
 
@@ -421,7 +421,7 @@ void PhysicsSprite::onExit()
 {
     if (_syncTransform != nullptr)
     {
-        _director->getEventDispatcher()->removeEventListener(_syncTransform);
+        Director::getInstance()->getEventDispatcher()->removeEventListener(_syncTransform);
         _syncTransform->release();
     }
     Node::onExit();
@@ -439,4 +439,3 @@ void PhysicsSprite::afterUpdate(EventCustom *event)
 NS_CC_EXT_END
 
 #endif // CC_ENABLE_CHIPMUNK_INTEGRATION || CC_ENABLE_BOX2D_INTEGRATION
-

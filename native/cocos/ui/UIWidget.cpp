@@ -34,6 +34,8 @@ THE SOFTWARE.
 #include "renderer/CCGLProgram.h"
 #include "renderer/CCGLProgramState.h"
 #include "renderer/ccShaders.h"
+#include "2d/CCSprite.h"
+#include "ui/UIScale9Sprite.h"
 
 NS_CC_BEGIN
 
@@ -120,7 +122,7 @@ void Widget::FocusNavigationController::addKeyboardEventListener()
     {
         _keyboardListener = EventListenerKeyboard::create();
         _keyboardListener->onKeyReleased = CC_CALLBACK_2(Widget::FocusNavigationController::onKeypadKeyPressed, this);
-        EventDispatcher* dispatcher = Director::DirectorInstance->getEventDispatcher();
+        EventDispatcher* dispatcher = Director::getInstance()->getEventDispatcher();
         dispatcher->addEventListenerWithFixedPriority(_keyboardListener, _keyboardEventPriority);
     }
 }
@@ -129,7 +131,7 @@ void Widget::FocusNavigationController::removeKeyboardEventListener()
 {
     if (nullptr != _keyboardListener)
     {
-        EventDispatcher* dispatcher = Director::DirectorInstance->getEventDispatcher();
+        EventDispatcher* dispatcher = Director::getInstance()->getEventDispatcher();
         dispatcher->removeEventListener(_keyboardListener);
         _keyboardListener = nullptr;
     }
@@ -951,7 +953,7 @@ bool Widget::hitTest(const Vec2 &pt) const
 bool Widget::isClippingParentContainsPoint(const Vec2 &pt)
 {
     _affectByClipping = false;
-    auto parent = getParent();
+    Node* parent = getParent();
     Widget* clippingParent = nullptr;
     while (parent)
     {
@@ -1179,6 +1181,16 @@ void Widget::copyClonedWidgetChildren(Widget* model)
 GLProgramState* Widget::getNormalGLProgramState()const
 {
     GLProgramState *glState = nullptr;
+    auto virtualRender = const_cast<Widget*>(this)->getVirtualRenderer();
+    Texture2D* virtualTexture = nullptr;
+    if (auto sp = dynamic_cast<Sprite*>(virtualRender))
+    {
+        virtualTexture = sp->getTexture();
+    }
+    else if (auto scale9sp = dynamic_cast<Scale9Sprite*>(virtualRender))
+    {
+        virtualTexture = scale9sp->getSprite() != nullptr ? scale9sp->getSprite()->getTexture() : nullptr;
+    }
     glState = GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP);
     return glState;
 }
@@ -1186,6 +1198,16 @@ GLProgramState* Widget::getNormalGLProgramState()const
 GLProgramState* Widget::getGrayGLProgramState()const
 {
     GLProgramState *glState = nullptr;
+    auto virtualRender = const_cast<Widget*>(this)->getVirtualRenderer();
+    Texture2D* virtualTexture = nullptr;
+    if (auto sp = dynamic_cast<cocos2d::Sprite*>(virtualRender))
+    {
+        virtualTexture = sp->getTexture();
+    }
+    else if (auto scale9sp = dynamic_cast<Scale9Sprite*>(virtualRender))
+    {
+        virtualTexture = scale9sp->getSprite() != nullptr ? scale9sp->getSprite()->getTexture() : nullptr;
+    }
     glState = GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_GRAYSCALE);
     return glState;
 }
@@ -1293,7 +1315,7 @@ void Widget::copyProperties(Widget *widget)
         float originalScale = Node::getScaleX();
         if (_flippedX)
         {
-            originalScale = originalScale * -1.0;
+            originalScale = originalScale * -1.0f;
         }
         return originalScale;
     }
@@ -1303,7 +1325,7 @@ void Widget::copyProperties(Widget *widget)
         float originalScale = Node::getScaleY();
         if (_flippedY)
         {
-            originalScale = originalScale * -1.0;
+            originalScale = originalScale * -1.0f;
         }
         return originalScale;
     }
@@ -1413,7 +1435,7 @@ void Widget::dispatchFocusEvent(cocos2d::ui::Widget *widgetLoseFocus, cocos2d::u
         }
 
         EventFocus event(widgetLoseFocus, widgetGetFocus);
-        auto dispatcher = cocos2d::Director::DirectorInstance->getEventDispatcher();
+        auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
         dispatcher->dispatchEvent(&event);
     }
 
@@ -1498,4 +1520,3 @@ bool Widget::isLayoutComponentEnabled()const
 
 }
 NS_CC_END
-

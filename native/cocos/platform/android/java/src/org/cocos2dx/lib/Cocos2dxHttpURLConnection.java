@@ -105,8 +105,8 @@ public class Cocos2dxHttpURLConnection
                 caInput = new BufferedInputStream(new FileInputStream(sslFilename));
             }else {
                 String assetString = "assets/";
-                String assetsFileName = sslFilename.substring(assetString.length());
-                caInput = new BufferedInputStream(Cocos2dxActivity.COCOS_ACTIVITY.getAssets().open(assetsFileName));
+                String assetsfilenameString = sslFilename.substring(assetString.length());
+                caInput = new BufferedInputStream(Cocos2dxHelper.getActivity().getAssets().open(assetsfilenameString));
             }
 
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -275,15 +275,15 @@ public class Cocos2dxHttpURLConnection
 
         try {
             byte[] buffer = new byte[1024];
-            int size = 0;
-            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            int size   = 0;
+            ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
             while((size = in.read(buffer, 0 , 1024)) != -1)
             {
-                byteStream.write(buffer, 0, size);
+                bytestream.write(buffer, 0, size);
             }
-            byte retBuffer[] = byteStream.toByteArray();
-            byteStream.close();
-            return retBuffer;
+            byte retbuffer[] = bytestream.toByteArray();
+            bytestream.close();
+            return retbuffer;
         } catch (Exception e) {
             Log.e("URLConnection exception", e.toString());
         }
@@ -335,7 +335,7 @@ public class Cocos2dxHttpURLConnection
     public static String combinCookies(List<String> list, String hostDomain) {
         StringBuilder sbCookies = new StringBuilder();
         String domain    = hostDomain;
-        String tailMatch = "FALSE";
+        String tailmatch = "FALSE";
         String path      = "/";
         String secure    = "FALSE";
         String key = null;
@@ -371,7 +371,7 @@ public class Cocos2dxHttpURLConnection
 
             sbCookies.append(domain);
             sbCookies.append('\t');
-            sbCookies.append(tailMatch);  //access
+            sbCookies.append(tailmatch);  //access
             sbCookies.append('\t');
             sbCookies.append(path);      //path
             sbCookies.append('\t');
@@ -390,16 +390,15 @@ public class Cocos2dxHttpURLConnection
 
     private static String str2Seconds(String strTime) {
         Calendar c = Calendar.getInstance();
-        long millisSecond = 0;
+        long milliseconds = 0;
 
         try {
             c.setTime(new SimpleDateFormat("EEE, dd-MMM-yy hh:mm:ss zzz", Locale.US).parse(strTime));
-            millisSecond = c.getTimeInMillis()/1000;
+            milliseconds = c.getTimeInMillis() / 1000;
         } catch (ParseException e) {
             Log.e("URLConnection exception", e.toString());
         }
 
-        return Long.toString(millisSecond);
+        return Long.toString(milliseconds);
     }
 }
-

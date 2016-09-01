@@ -70,19 +70,16 @@ public:
     /// Overrides
     virtual bool checkAvailable() override;
     virtual EventListenerCustom* clone() override;
-
-    const std::string& getEventName() { return _eventName; }
-
+    
 CC_CONSTRUCTOR_ACCESS:
     /** Constructor */
     EventListenerCustom();
 
     /** Initializes event with type and callback function */
-    bool init(const std::string& eventName, const std::function<void(EventCustom*)>& callback);
+    bool init(const ListenerID& listenerId, const std::function<void(EventCustom*)>& callback);
 
 protected:
     std::function<void(EventCustom*)> _onCustomEvent;
-    std::string _eventName;
 
     friend class LuaEventListenerCustom;
 };
@@ -93,4 +90,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__cocos2d_libs__CCCustomEventListener__) */
-

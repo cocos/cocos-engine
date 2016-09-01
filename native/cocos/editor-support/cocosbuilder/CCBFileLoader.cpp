@@ -1,4 +1,4 @@
-#include "CCBFileLoader.h"
+#include "editor-support/cocosbuilder/CCBFileLoader.h"
 
 using namespace cocos2d;
 
@@ -16,4 +16,3 @@ void CCBFileLoader::onHandlePropTypeCCBFile(Node * pNode, Node * pParent, const 
 }
 
 }
-

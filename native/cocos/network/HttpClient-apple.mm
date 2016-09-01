@@ -27,7 +27,7 @@
 #include "platform/CCPlatformConfig.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
-#include "HttpClient.h"
+#include "network/HttpClient.h"
 
 #include <queue>
 #include <errno.h>
@@ -50,7 +50,7 @@ void HttpClient::networkThread()
 {
     increaseThreadCount();
 
-    while (true) {
+    while (true) @autoreleasepool {
         HttpRequest *request;
 
         // step 1: send http request if the requestQueue isn't empty
@@ -66,21 +66,23 @@ void HttpClient::networkThread()
         if (request == _requestSentinel) {
             break;
         }
-
-        if (Director::DirectorInstance && !Director::isPurgeDirectorInNextLoop())
+        
+        // Create a HttpResponse object, the default setting is http access failed
+        HttpResponse *response = new (std::nothrow) HttpResponse(request);
+        
+        processResponse(response, _responseMessage);
+        
+        // add response packet into queue
+        _responseQueueMutex.lock();
+        _responseQueue.pushBack(response);
+        _responseQueueMutex.unlock();
+        
+        _schedulerMutex.lock();
+        if (nullptr != _scheduler)
         {
-            // Create a HttpResponse object, the default setting is http access failed
-            HttpResponse *response = new (std::nothrow) HttpResponse(request);
-            
-            processResponse(response, _responseMessage);
-            
-            // add response packet into queue
-            _responseQueueMutex.lock();
-            _responseQueue.pushBack(response);
-            _responseQueueMutex.unlock();
-            
-            Director::DirectorInstance->getScheduler()->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this));
+            _scheduler->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this));
         }
+        _schedulerMutex.unlock();
     }
 
     // cleanup: if worker thread received quit signal, clean up un-completed request queue
@@ -102,10 +104,11 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
 
     char responseMessage[RESPONSE_BUFFER_SIZE] = { 0 };
     processResponse(response, responseMessage);
-
-    if (Director::DirectorInstance && !Director::isPurgeDirectorInNextLoop())
+    
+    _schedulerMutex.lock();
+    if (nullptr != _scheduler)
     {
-        Director::DirectorInstance->getScheduler()->performFunctionInCocosThread([this, response, request]{
+        _scheduler->performFunctionInCocosThread([this, response, request]{
             const ccHttpRequestCallback& callback = request->getCallback();
             Ref* pTarget = request->getTarget();
             SEL_HttpResponse pSelector = request->getSelector();
@@ -123,6 +126,7 @@ void HttpClient::networkThreadAlone(HttpRequest* request, HttpResponse* response
             request->release();
         });
     }
+    _schedulerMutex.unlock();
     decreaseThreadCountAndMayDeleteThis();
 }
 
@@ -151,7 +155,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
     if(!headers.empty())
     {
         /* append custom headers one by one */
-        for (auto it = headers.begin(); it != headers.end(); ++it)
+        for (std::vector<std::string>::iterator it = headers.begin(); it != headers.end(); ++it)
         {
             unsigned long i = it->find(':', 0);
             unsigned long length = it->size();
@@ -174,7 +178,7 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
         }
     }
 
-    //read cookie propertities from file and set cookie
+    //read cookie properties from file and set cookie
     std::string cookieFilename = client->getCookieFilename();
     if(!cookieFilename.empty() && nullptr != client->getCookie())
     {
@@ -277,13 +281,13 @@ static int processTask(HttpClient* client, HttpRequest* request, NSString* reque
         [header deleteCharactersInRange:range];
     }
     NSData *headerData = [header dataUsingEncoding:NSUTF8StringEncoding];
-    auto headerBuffer = (std::vector<char>*)headerStream;
+    std::vector<char> *headerBuffer = (std::vector<char>*)headerStream;
     const void* headerptr = [headerData bytes];
     long headerlen = [headerData length];
     headerBuffer->insert(headerBuffer->end(), (char*)headerptr, (char*)headerptr+headerlen);
 
     //handle response data
-    auto recvBuffer = (std::vector<char>*)stream;
+    std::vector<char> *recvBuffer = (std::vector<char>*)stream;
     const void* ptr = [httpAsynConn.responseData bytes];
     long len = [httpAsynConn.responseData length];
     recvBuffer->insert(recvBuffer->end(), (char*)ptr, (char*)ptr+len);
@@ -314,9 +318,12 @@ void HttpClient::destroyInstance()
 
     auto thiz = _httpClient;
     _httpClient = nullptr;
-
-    Director::DirectorInstance->getScheduler()->unscheduleAllForTarget(thiz);
-
+    
+    thiz->_scheduler->unscheduleAllForTarget(thiz);
+    thiz->_schedulerMutex.lock();
+    thiz->_scheduler = nullptr;
+    thiz->_schedulerMutex.unlock();
+    
     thiz->_requestQueueMutex.lock();
     thiz->_requestQueue.pushBack(thiz->_requestSentinel);
     thiz->_requestQueueMutex.unlock();
@@ -365,6 +372,7 @@ HttpClient::HttpClient()
 {
     CCLOG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
+    _scheduler = Director::getInstance()->getScheduler();
     increaseThreadCount();
 }
 

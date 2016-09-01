@@ -22,11 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCSkinNode.h"
+#include "editor-support/cocostudio/ActionTimeline/CCSkinNode.h"
 using namespace cocos2d;
 
 
 NS_TIMELINE_BEGIN
 
 NS_TIMELINE_END
-

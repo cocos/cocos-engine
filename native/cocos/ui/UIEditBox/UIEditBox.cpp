@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "UIEditBox.h"
-#include "UIEditBoxImpl.h"
+#include "ui/UIEditBox/UIEditBox.h"
+#include "ui/UIEditBox/UIEditBoxImpl.h"
 
 NS_CC_BEGIN
 
@@ -32,7 +32,7 @@ namespace ui {
 
 static const float CHECK_EDITBOX_POSITION_INTERVAL = 0.1f;
 
-EditBox::EditBox()
+EditBox::EditBox(void)
 : _editBoxImpl(nullptr)
 , _delegate(nullptr)
 , _editBoxInputMode(EditBox::InputMode::SINGLE_LINE)
@@ -51,7 +51,7 @@ EditBox::EditBox()
 {
 }
 
-EditBox::~EditBox()
+EditBox::~EditBox(void)
 {
     CC_SAFE_DELETE(_editBoxImpl);
 #if CC_ENABLE_SCRIPT_BINDING
@@ -108,8 +108,8 @@ bool EditBox::initWithSizeAndBackgroundSprite(const cocos2d::Size &size, cocos2d
     {
         _editBoxImpl = __createSystemEditBox(this);
         _editBoxImpl->initWithSize(size);
-        _editBoxImpl->setInputMode(EditBox::InputMode::SINGLE_LINE);
-
+        _editBoxImpl->setInputMode(EditBox::InputMode::ANY);
+        
         _backgroundSprite = pNormal9SpriteBg;
 
         this->setContentSize(size);
@@ -189,7 +189,7 @@ void EditBox::setText(const char* pText)
     }
 }
 
-const char* EditBox::getText()
+const char* EditBox::getText(void)
 {
     if (_editBoxImpl != nullptr)
     {
@@ -307,7 +307,7 @@ void EditBox::setPlaceHolder(const char* pText)
     }
 }
 
-const char* EditBox::getPlaceHolder()
+const char* EditBox::getPlaceHolder(void)
 {
     return _placeHolder.c_str();
 }
@@ -413,7 +413,7 @@ void EditBox::draw(Renderer *renderer, const Mat4 &parentTransform, uint32_t par
     }
 }
 
-void EditBox::onEnter()
+void EditBox::onEnter(void)
 {
 #if CC_ENABLE_SCRIPT_BINDING
     if (_scriptType == kScriptTypeJavascript)
@@ -441,7 +441,7 @@ void EditBox::updatePosition(float dt)
 }
 
 
-void EditBox::onExit()
+void EditBox::onExit(void)
 {
 #if CC_ENABLE_SCRIPT_BINDING
     if (_scriptType == kScriptTypeJavascript)
@@ -516,11 +516,11 @@ void EditBox::registerScriptEditBoxHandler(int handler)
     _scriptEditBoxHandler = handler;
 }
 
-void EditBox::unregisterScriptEditBoxHandler()
+void EditBox::unregisterScriptEditBoxHandler(void)
 {
-    if (0 != _scriptEditBoxHandler && ScriptEngineManager::ShareInstance)
+    if (0 != _scriptEditBoxHandler)
     {
-        ScriptEngineManager::ShareInstance->getScriptEngine()->removeScriptHandler(_scriptEditBoxHandler);
+        ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_scriptEditBoxHandler);
         _scriptEditBoxHandler = 0;
     }
 }
@@ -529,4 +529,3 @@ void EditBox::unregisterScriptEditBoxHandler()
 }
 
 NS_CC_END
-

@@ -32,7 +32,6 @@ THE SOFTWARE.
 #include "base/ccUTF8.h"
 #include "renderer/CCTextureCache.h"
 #include "renderer/CCGLProgram.h"
-#include "base/CCString.h"
 
 NS_CC_BEGIN
 

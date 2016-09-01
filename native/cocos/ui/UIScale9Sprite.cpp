@@ -22,11 +22,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "UIScale9Sprite.h"
+#include "ui/UIScale9Sprite.h"
 #include "2d/CCSprite.h"
 #include "2d/CCSpriteFrameCache.h"
 #include "base/CCVector.h"
 #include "base/CCDirector.h"
+#include "base/ccUTF8.h"
 #include "renderer/CCGLProgram.h"
 #include "renderer/ccShaders.h"
 #include "platform/CCImage.h"
@@ -85,11 +86,11 @@ namespace ui {
         bool ret = false;
         do {
             Texture2D* texture = spriteFrame->getTexture();
-            CCASSERT(texture != nullptr, "CCTexture must be not nil");
+            CCASSERT(texture != nullptr, "Texture2D must be not null");
             if(texture == nullptr) break;
 
             Sprite *sprite = Sprite::createWithSpriteFrame(spriteFrame);
-            CCASSERT(sprite != nullptr, "sprite must be not nil");
+            CCASSERT(sprite != nullptr, "Sprite must be not null");
             if(sprite == nullptr) break;
 
             ret = this->init(sprite,
@@ -120,7 +121,7 @@ namespace ui {
             if(spriteFrameCache == nullptr) break;
 
             SpriteFrame *frame = spriteFrameCache->getSpriteFrameByName(spriteFrameName);
-            CCASSERT(frame != nullptr, "CCSpriteFrame must be non-NULL");
+            CCASSERT(frame != nullptr, StringUtils::format("CCSpriteFrame: %s must be non-NULL ", spriteFrameName.c_str()).c_str());
             if (frame == nullptr) break;
 
             ret = initWithSpriteFrame(frame, capInsets);
@@ -262,7 +263,7 @@ namespace ui {
             return ret;
         }
 
-        delete ret;
+        CC_SAFE_DELETE(ret);
         return nullptr;
     }
 
@@ -276,7 +277,7 @@ namespace ui {
             return ret;
         }
 
-        delete ret;
+        CC_SAFE_DELETE(ret);
         return nullptr;
     }
 
@@ -290,7 +291,7 @@ namespace ui {
             return ret;
         }
 
-        delete ret;
+        CC_SAFE_DELETE(ret);
         return nullptr;
     }
 
@@ -303,7 +304,7 @@ namespace ui {
             return ret;
         }
 
-        delete ret;
+        CC_SAFE_DELETE(ret);
         return nullptr;
     }
 
@@ -317,7 +318,7 @@ namespace ui {
             return ret;
         }
 
-        delete ret;
+        CC_SAFE_DELETE(ret);
         return nullptr;
     }
 
@@ -330,7 +331,7 @@ namespace ui {
             return ret;
         }
 
-        delete ret;
+        CC_SAFE_DELETE(ret);
         return nullptr;
     }
 
@@ -454,7 +455,11 @@ namespace ui {
         }
 
         applyBlendFunc();
-        this->setState(_brightState);
+        if (getGLProgramState()) {
+            _scale9Image->setGLProgramState(getGLProgramState());
+        } else {
+            this->setState(_brightState);
+        }
         if(this->_isPatch9)
         {
             size.width = size.width - 2;
@@ -519,7 +524,9 @@ namespace ui {
             auto vertices = this->calculateVertices(capInsets, originalSize, offsets);
             auto triangles = this->calculateTriangles(uv, vertices);
 
-            _scale9Image->getPolygonInfo().setTriangles(triangles);
+            auto polyInfo = _scale9Image->getPolygonInfo();
+            polyInfo.setTriangles(triangles);
+            _scale9Image->setPolygonInfo(polyInfo);
         }
     }
 
@@ -670,12 +677,12 @@ namespace ui {
             if(_insideBounds)
 #endif
             {
-                auto textureName = _scale9Image->getTexture()->getName();
+                auto texture = _scale9Image->getTexture();
                 auto programState = _scale9Image->getGLProgramState();
                 auto blendFunc = _scale9Image->getBlendFunc();
                 auto& polyInfo = _scale9Image->getPolygonInfo();
                 auto globalZOrder = _scale9Image->getGlobalZOrder();
-                _trianglesCommand.init(globalZOrder,textureName, programState, blendFunc, polyInfo.triangles, transform, flags);
+                _trianglesCommand.init(globalZOrder,texture, programState, blendFunc, polyInfo.triangles, transform, flags);
                 renderer->addCommand(&_trianglesCommand);
 
 #if CC_SPRITE_DEBUG_DRAW
@@ -720,9 +727,10 @@ namespace ui {
         // IMPORTANT:
         // To ease the migration to v3.0, we still support the Mat4 stack,
         // but it is deprecated and your code should not rely on it
-        CCASSERT(nullptr != _director, "Director is null when setting matrix stack");
-        _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-        _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+        Director* director = Director::getInstance();
+        CCASSERT(nullptr != director, "Director is null when setting matrix stack");
+        director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+        director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
         int i = 0;      // used by _children
 
@@ -758,7 +766,7 @@ namespace ui {
         for(auto it=_children.cbegin()+i; it != _children.cend(); ++it)
             (*it)->visit(renderer, _modelViewTransform, flags);
 
-        _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+        director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 
     }
 
@@ -931,6 +939,20 @@ namespace ui {
             child->updateDisplayedOpacity(255);
         }
     }
+    
+    void Scale9Sprite::setGLProgram(GLProgram *glprogram) {
+        Node::setGLProgram(glprogram);
+        if (_scale9Image) {
+            _scale9Image->setGLProgram(glprogram);
+        }
+    }
+    
+    void Scale9Sprite::setGLProgramState(GLProgramState *glProgramState) {
+        Node::setGLProgramState(glProgramState);
+        if (_scale9Image) {
+            _scale9Image->setGLProgramState(glProgramState);
+        }
+    }
 
     Sprite* Scale9Sprite::getSprite()const
     {
@@ -995,7 +1017,7 @@ namespace ui {
         float originalScale = Node::getScaleX();
         if (_flippedX)
         {
-            originalScale = originalScale * -1.0;
+            originalScale = originalScale * -1.0f;
         }
         return originalScale;
     }
@@ -1005,7 +1027,7 @@ namespace ui {
         float originalScale = Node::getScaleY();
         if (_flippedY)
         {
-            originalScale = originalScale * -1.0;
+            originalScale = originalScale * -1.0f;
         }
         return originalScale;
     }
@@ -1070,6 +1092,7 @@ namespace ui {
         if(rightWidth < 0)
         {
             centerWidth += rightWidth;
+            rightWidth = 0;
         }
 
         if(topHeight < 0)
@@ -1080,6 +1103,7 @@ namespace ui {
         if(bottomHeight < 0)
         {
             centerHeight += bottomHeight;
+            bottomHeight = 0;
         }
 
         auto textureRect = CC_RECT_POINTS_TO_PIXELS(_spriteRect);
@@ -1390,4 +1414,3 @@ namespace ui {
     }
 
 }}
-

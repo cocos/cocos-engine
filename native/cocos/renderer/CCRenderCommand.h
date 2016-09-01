@@ -72,8 +72,8 @@ public:
      @param modelViewTransform Modelview matrix when submitting the render command.
      @param flags Flag used to indicate whether the command should be draw at 3D mode or not.
      */
-    void init(float globalZOrder);
-
+    void init(float globalZOrder, const Mat4& modelViewTransform, uint32_t flags);
+    
     /** Get global Z order. */
     inline float getGlobalOrder() const { return _globalOrder; }
 
@@ -91,6 +91,10 @@ public:
     inline bool isSkipBatching() const { return _skipBatching; }
     /**Set skip batching.*/
     inline void setSkipBatching(bool value) { _skipBatching = value; }
+    /**Whether the command should be rendered at 3D mode.*/
+    inline bool is3D() const { return _is3D; }
+    /**Set the command rendered in 3D mode or not.*/
+    inline void set3D(bool value) { _is3D = value; }
     /**Get the depth by current model view matrix.*/
     inline float getDepth() const { return _depth; }
 
@@ -117,6 +121,9 @@ protected:
      */
     bool _skipBatching;
 
+    /** Is the command been rendered on 3D pass. */
+    bool _is3D;
+
     /** Depth from the model view matrix.*/
     float _depth;
 };
@@ -127,4 +134,3 @@ NS_CC_END
  @}
  */
 #endif //__CCRENDERCOMMAND_H_
-

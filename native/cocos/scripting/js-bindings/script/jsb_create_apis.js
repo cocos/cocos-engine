@@ -235,33 +235,32 @@ _p._ctor = function(normalImage, selectedImage, three, four, five) {
         callback = null,
         target = null;
 
-    if (!normalImage) {
-        //undefined || null || ''
+    if (normalImage === undefined) {
         cc.MenuItemImage.prototype.init.call(this);
     }
     else {
-        var imageIndex = 0;
-        var imageArray = new Array();
-        for (var i = 0; i < arguments.length && i < 5; ++i) {
-            if(typeof arguments[i] === 'function')
-                callback = arguments[i];
-            else if (typeof arguments[i] === 'object')
-                target = arguments[i];
-            else if (typeof arguments[i] === 'string')
-            {
-                imageArray[imageIndex] = arguments[i];
-                imageIndex += 1;
+        if (four === undefined)  {
+            callback = three;
+        }
+        else if (five === undefined) {
+            if (typeof three === 'function') {
+                callback = three;
+                target = four;
+            }
+            else {
+                disabledImage = three;
+                callback = four;
             }
         }
-
-        if(!callback)
-            callback = null;
-        else if(callback && target)
-            callback = callback.bind(target);
-
+        else if (five) {
+            disabledImage = three;
+            callback = four;
+            target = five;
+        }
+        callback = callback ? callback.bind(target) : null;
         var normalSprite = new cc.Sprite(normalImage);
-        var selectedSprite = imageArray[1] ? new cc.Sprite(imageArray[1]) : new cc.Sprite(normalImage);
-        var disabledSprite = imageArray[2] ? new cc.Sprite(imageArray[2]) : new cc.Sprite(normalImage);
+        var selectedSprite = new cc.Sprite(selectedImage);
+        var disabledSprite = disabledImage ? new cc.Sprite(disabledImage) : new cc.Sprite(normalImage);
         this.initWithNormalSprite(normalSprite, selectedSprite, disabledSprite, callback);
     }
 };
@@ -648,16 +647,11 @@ cc.BezierBy.prototype._ctor = cc.BezierTo.prototype._ctor = function(t, c) {
     c !== undefined && this.initWithDuration(t, c);
 };
 
-cc.ScaleTo.prototype._ctor = cc.ScaleBy.prototype._ctor = function(duration, sx, sy, sz) {
-    if (typeof sx === 'number') {
-        if (typeof sy === 'number') {
-            if (typeof sz === 'number')
-                this.initWithDuration(duration, sx, sy, sz);
-            else
-                this.initWithDuration(duration, sx, sy);
-        }
-        else
-            this.initWithDuration(duration, sx);
+cc.ScaleTo.prototype._ctor = cc.ScaleBy.prototype._ctor = function(duration, sx, sy) {
+    if (sx !== undefined) {
+        if (sy !== undefined)
+            this.initWithDuration(duration, sx, sy);
+        else this.initWithDuration(duration, sx);
     }
 };
 
@@ -781,20 +775,11 @@ cc.DrawNode.prototype._ctor = function() {
     cc.DrawNode.prototype.init.call(this);
 };
 
-cc.LabelAtlas.prototype._ctor = function(strText, charMapFile, itemWidth, itemHeight, startCharMap) {
-    if(startCharMap != undefined){
-        startCharMap = startCharMap.charCodeAt(0);
-        cc.LabelAtlas.prototype.initWithString.call(this, strText, charMapFile, itemWidth, itemHeight, startCharMap);
-    }else if(charMapFile != undefined){
-        this.initWithString(strText, charMapFile);
-    }
-};
-
 cc.LabelBMFont.prototype._ctor = function(str, fntFile, width, alignment, imageOffset) {
     if( fntFile ) {
         str = str || '';
         width = width || 0;
-        alignment = alignment ? alignment : cc.TEXT_ALIGNMENT_LEFT;
+        alignment = alignment === undefined ? cc.TEXT_ALIGNMENT_LEFT : alignment;
         imageOffset = imageOffset || cc.p(0, 0);
         cc.LabelBMFont.prototype.initWithString.call(this, str, fntFile, width, alignment, imageOffset);
     }
@@ -814,11 +799,10 @@ cc.LabelTTF.prototype._ctor = function(text, fontName, fontSize, dimensions, hAl
     }
     else {
         fontName = fontName || '';
-        if(!fontSize)
-            fontSize = 16;
+        fontSize = fontSize || 16;
         dimensions = dimensions || cc.size(0,0);
-        hAlignment = hAlignment ? hAlignment : cc.TEXT_ALIGNMENT_LEFT;
-        vAlignment = vAlignment ? vAlignment : cc.VERTICAL_TEXT_ALIGNMENT_TOP;
+        hAlignment = hAlignment === undefined ? cc.TEXT_ALIGNMENT_LEFT : hAlignment;
+        vAlignment = vAlignment === undefined ? cc.VERTICAL_TEXT_ALIGNMENT_TOP : vAlignment;
         this.initWithString(text, fontName, fontSize, dimensions, hAlignment, vAlignment);
     }
 };
@@ -873,72 +857,8 @@ cc.GLProgram.prototype._ctor = function(vShaderFileName, fShaderFileName) {
  * var sprite2 = cc.Sprite.create(texture, cc.rect(0,0,480,320));
  *
  */
- cc.Sprite.createWithTexture = function (texture, texture_rect, rotated) {
-    var ret = new cc.Sprite();
-    switch(arguments.length)
-    {
-        case 1:
-            ret.initWithTexture(texture);
-            break;
-        case 2:
-            ret.initWithTexture(texture,texture_rect);
-            break;
-        case 3:
-            ret.initWithTexture(texture,texture_rect, rotated);
-            break;
-        default:
-            break;
-    }
-
-    return ret;
-};
-
-cc.Sprite.createWithSpriteFrame = function (spriteFrame) {
-    var ret = new cc.Sprite();
-    if (arguments.length > 0) {
-        ret.initWithSpriteFrame(spriteFrame);
-    }
-
-    return ret;
-};
-
 cc.Sprite.create = function (fileName, rect) {
-    var sprite;
-
-    if (arguments.length == 0) {
-        sprite = cc.Sprite._create();
-        return sprite;
-    }
-
-    if (typeof(fileName) === "string") {
-        if (fileName[0] === "#") {
-            //init with a sprite frame name
-            var frameName = fileName.substr(1, fileName.length - 1);
-            var spriteFrame = cc.spriteFrameCache.getSpriteFrame(frameName);
-            sprite = cc.Sprite.createWithSpriteFrame(spriteFrame);
-        } else {
-            // Create with filename and rect
-            sprite = rect ? cc.Sprite._create(fileName, rect) : cc.Sprite._create(fileName);
-        }
-        if (sprite)
-            return sprite;
-        else return null;
-    }
-
-    if (typeof(fileName) === "object") {
-        if (fileName instanceof cc.Texture2D) {
-            //init  with texture and rect
-            sprite = rect ? cc.Sprite.createWithTexture(fileName, rect) : cc.Sprite.createWithTexture(fileName);
-        } else if (fileName instanceof cc.SpriteFrame) {
-            //init with a sprite frame
-            sprite = cc.Sprite.createWithSpriteFrame(fileName);
-        }
-        if (sprite)
-            return  sprite;
-        else return null;
-    }
-
-    return null;
+    return new cc.Sprite(fileName, rect);
 };
 
 cc.SpriteBatchNode._create = cc.SpriteBatchNode.create;
@@ -961,16 +881,10 @@ cc.SpriteBatchNode._create = cc.SpriteBatchNode.create;
  * var spriteBatchNode = cc.SpriteBatchNode.create(texture,50);
  */
 cc.SpriteBatchNode.create = function(fileName, capacity){
-    if (typeof(fileName) === "string")
-        return cc.SpriteBatchNode._create(fileName);
-    else if (fileName instanceof cc.Texture2D) {
-        return isNaN(capacity) ? cc.SpriteBatchNode.createWithTexture(fileName) :  cc.SpriteBatchNode.createWithTexture(fileName,capacity);
-    }
-    return null;
+    return new cc.SpriteBatchNode(fileName, capacity);
 };
 
 
-cc.SpriteFrame._create = cc.SpriteFrame.create;
 /**
  * <p>
  *    Create a cc.SpriteFrame with a texture filename, rect, rotated, offset and originalSize in pixels.<br/>
@@ -995,21 +909,7 @@ cc.SpriteFrame._create = cc.SpriteFrame.create;
  * var frame2 = cc.SpriteFrame.create(texture, cc.rect(0,0,90,128),false,0,cc.size(90,128));
  */
 cc.SpriteFrame.create = function(fileName, rect, rotated, offset, originalSize){
-    var spriteFrame = null;
-    switch (arguments.length) {
-        case 2:
-            if (fileName instanceof cc.Texture2D)
-                spriteFrame = cc.SpriteFrame.createWithTexture(fileName, rect);
-            else spriteFrame = cc.SpriteFrame._create(fileName, rect);
-            break;
-        case 5:
-            spriteFrame = cc.SpriteFrame._create(fileName, rect, rotated, offset, originalSize);
-            break;
-        default:
-            throw "Argument must be non-nil ";
-            break;
-    }
-    return spriteFrame;
+    return new cc.SpriteFrame(fileName, rect, rotated, offset, originalSize);
 };
 
 
@@ -1023,17 +923,10 @@ cc.ParticleSystem._create = cc.ParticleSystem.create;
  * @return {cc.ParticleSystem}
  */
 cc.ParticleSystem.create = function(plistFile){
-    var particleSystem =null;
-    if (typeof(plistFile) === "number") {
-        particleSystem = cc.ParticleSystem.createWithTotalParticles(plistFile);
-    }else if(typeof(plistFile) === "string" || typeof(plistFile) === "object"){
-        particleSystem = cc.ParticleSystem._create(plistFile);
-    }
-    return particleSystem;
+    return new cc.ParticleSystem(plistFile);
 };
 
 
-cc.ParticleBatchNode._create = cc.ParticleBatchNode.create;
 /**
  * initializes the particle system with the name of a file on disk (for a list of supported formats look at the cc.Texture2D class), a capacity of particles
  * @param {String|cc.Texture2D} fileImage
@@ -1050,16 +943,10 @@ cc.ParticleBatchNode._create = cc.ParticleBatchNode.create;
  * var particleBatchNode = cc.ParticleBatchNode.create(texture, 30);
  */
 cc.ParticleBatchNode.create = function(fileImage, capacity){
-    if (typeof(fileImage) == "string")
-        return cc.ParticleBatchNode._create(fileImage);
-    else if (fileImage instanceof cc.Texture2D) {
-        return isNaN(capacity) ? cc.ParticleBatchNode.createWithTexture(fileImage) :  cc.ParticleBatchNode.createWithTexture(fileImage, capacity);
-    }
-    return null;
+    return new cc.ParticleBatchNode(fileImage, capacity);
 };
 
 
-cc.TMXTiledMap._create = cc.TMXTiledMap.create;
 /**
  * Creates a TMX Tiled Map with a TMX file  or content string.
  * Implementation cc.TMXTiledMap
@@ -1079,12 +966,7 @@ cc.TMXTiledMap._create = cc.TMXTiledMap.create;
  * var tmxTiledMap = cc.TMXTiledMap.create(xmlStr, resources);
  */
 cc.TMXTiledMap.create = function (tmxFile, resourcePath) {
-    if(resourcePath != undefined){
-        return cc.TMXTiledMap.createWithXML(tmxFile, resourcePath);
-    } else if (tmxFile != undefined) {
-        return cc.TMXTiledMap._create(tmxFile);
-    }
-    return null;
+    return new cc.TMXTiledMap(tmxFile, resourcePath);
 };
 
 
@@ -1133,21 +1015,19 @@ cc.MenuItemToggle.create = function(/* var args */) {
 };
 
 
-// LabelAtlas
-cc.LabelAtlas.create = function( a,b,c,d,e ) {
-
-    var n = arguments.length;
-
-    if ( n == 5) {
-        return cc.LabelAtlas._create(a,b,c,d,e.charCodeAt(0));
-    } else {
-        return cc.LabelAtlas._create.apply(this, arguments);
-    }
-};
-
-
 // LayerMultiplex
-cc.LayerMultiplex.create = cc.LayerMultiplex.createWithArray;
+cc.LayerMultiplex.create = cc.LayerMultiplex.createWithArray = function (layers) {
+    var result = new cc.LayerMultiplex();
+    if(layers !== undefined){
+        if (layers instanceof Array)
+            cc.LayerMultiplex.prototype.initWithArray.call(result, layers);
+        else
+            cc.LayerMultiplex.prototype.initWithArray.call(result, Array.prototype.slice.call(arguments));
+    }else{
+        cc.LayerMultiplex.prototype.init.call(result);
+    }
+    return result;
+};
 
 /**
  * Creates an animation.
@@ -1210,6 +1090,16 @@ cc.Menu.create = function(menuItems) {
         }
     }
     return cc.Menu._create.apply(null, items);
+};
+
+cc.GLProgram.create = function (vShaderFileName, fShaderFileName) {
+    return new cc.GLProgram(vShaderFileName, fShaderFileName);
+};
+
+cc.GLProgram.createWithString = function (vShader, fShader) {
+    var program = new cc.GLProgram();
+    program.initWithByteArrays(vShader, fShader);
+    return program;
 };
 
 cc.TMXLayer.prototype.tileFlagsAt = cc.TMXLayer.prototype.getTileFlagsAt;

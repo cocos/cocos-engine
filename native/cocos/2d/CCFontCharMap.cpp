@@ -39,26 +39,26 @@ FontCharMap * FontCharMap::create(const std::string& plistFile)
         return nullptr;
     }
 
-    ValueMap dict = fileUtils->getValueMapFromFile(pathStr);
-    if (dict.empty()) {
-        return nullptr;
-    }
+    std::string relPathStr = pathStr.substr(0, pathStr.find_last_of("/"))+"/";
+
+    ValueMap dict = FileUtils::getInstance()->getValueMapFromFile(pathStr);
+
     CCASSERT(dict["version"].asInt() == 1, "Unsupported version. Upgrade cocos2d version");
 
-    std::string relPathStr = pathStr.substr(0, pathStr.find_last_of("/"))+"/";
     std::string textureFilename = relPathStr + dict["textureFilename"].asString();
-
-    Texture2D *tempTexture = Director::DirectorInstance->getTextureCache()->addImage(textureFilename);
-    if (!tempTexture)
-    {
-        return nullptr;
-    }
 
     unsigned int width = dict["itemWidth"].asInt();
     unsigned int height = dict["itemHeight"].asInt();
     unsigned int startChar = dict["firstChar"].asInt();
 
-    FontCharMap *tempFont = new (std::nothrow) FontCharMap(tempTexture,width,height,startChar);
+    Texture2D *tempTexture = Director::getInstance()->getTextureCache()->addImage(textureFilename);
+    if (!tempTexture)
+    {
+        return nullptr;
+    }
+    
+    FontCharMap *tempFont =  new FontCharMap(tempTexture,width,height,startChar);
+    
     if (!tempFont)
     {
         return nullptr;
@@ -70,7 +70,7 @@ FontCharMap * FontCharMap::create(const std::string& plistFile)
 
 FontCharMap* FontCharMap::create(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap)
 {
-    Texture2D *tempTexture = Director::DirectorInstance->getTextureCache()->addImage(charMapFile);
+    Texture2D *tempTexture = Director::getInstance()->getTextureCache()->addImage(charMapFile);
 
     if (!tempTexture)
     {

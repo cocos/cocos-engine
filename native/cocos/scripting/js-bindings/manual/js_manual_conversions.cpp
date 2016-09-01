@@ -22,11 +22,14 @@
  * THE SOFTWARE.
  */
 
-#include "ScriptingCore.h"
-#include "js_bindings_config.h"
-#include "js_manual_conversions.h"
-#include "cocos2d_specifics.hpp"
+#include "scripting/js-bindings/manual/js_manual_conversions.h"
+
+#include "base/ccUTF8.h"
+#include "editor-support/cocostudio/CocosStudioExtension.h"
 #include "math/TransformUtils.h"
+#include "scripting/js-bindings/manual/ScriptingCore.h"
+#include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
+#include "scripting/js-bindings/manual/js_bindings_config.h"
 
 USING_NS_CC;
 
@@ -86,7 +89,6 @@ void JSStringWrapper::set(JSString* str, JSContext* cx)
     {
         cx = ScriptingCore::getInstance()->getGlobalContext();
     }
-
     JS::RootedString jsstr(cx, str);
     _buffer = JS_EncodeStringToUTF8(cx, jsstr);
 }
@@ -100,21 +102,74 @@ const char* JSStringWrapper::get()
 JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval)
 : _cx(cx)
 {
-    _jsthis.construct(cx, jsthis);
-    _fval.construct(cx, fval);
+    _jsthis = jsthis;
+    _fval = fval;
+
+    JS::RootedObject root(cx);
+    get_or_create_js_obj("jsb._root", &root);
+    JS::RootedValue valRoot(cx, OBJECT_TO_JSVAL(root));
+    _owner = valRoot;
+
+    if (!valRoot.isNullOrUndefined())
+    {
+        JS::RootedValue thisVal(cx, OBJECT_TO_JSVAL(_jsthis));
+        if (!thisVal.isNullOrUndefined())
+        {
+            js_add_object_reference(valRoot, thisVal);
+        }
+        JS::RootedValue funcVal(cx, _fval);
+        if (!funcVal.isNullOrUndefined())
+        {
+            js_add_object_reference(valRoot, funcVal);
+        }
+    }
+}
+JSFunctionWrapper::JSFunctionWrapper(JSContext* cx, JS::HandleObject jsthis, JS::HandleValue fval, JS::HandleValue owner)
+: _cx(cx)
+{
+    _jsthis = jsthis;
+    _fval = fval;
+    _owner = owner;
+    JS::RootedValue ownerVal(cx, owner);
+
+    JS::RootedValue thisVal(cx, OBJECT_TO_JSVAL(jsthis));
+    if (!thisVal.isNullOrUndefined())
+    {
+        js_add_object_reference(ownerVal, thisVal);
+    }
+    JS::RootedValue funcVal(cx, _fval);
+    if (!funcVal.isNullOrUndefined())
+    {
+        js_add_object_reference(ownerVal, funcVal);
+    }
 }
 
 JSFunctionWrapper::~JSFunctionWrapper()
 {
-    _jsthis.destroyIfConstructed();
-    _fval.destroyIfConstructed();
+    JS::RootedValue ownerVal(_cx, _owner);
+
+    if (!ownerVal.isNullOrUndefined())
+    {
+        JS::RootedValue thisVal(_cx, OBJECT_TO_JSVAL(_jsthis));
+        if (!thisVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, thisVal);
+        }
+        JS::RootedValue funcVal(_cx, _fval);
+        if (!funcVal.isNullOrUndefined())
+        {
+            js_remove_object_reference(ownerVal, funcVal);
+        }
+    }
 }
 
 bool JSFunctionWrapper::invoke(unsigned int argc, jsval *argv, JS::MutableHandleValue rval)
 {
     JSB_AUTOCOMPARTMENT_WITH_GLOBAL_OBJCET
 
-    return JS_CallFunctionValue(this->_cx, _jsthis.ref(), _fval.ref(), JS::HandleValueArray::fromMarkedLocation(argc, argv), rval);
+    JS::RootedObject thisObj(_cx, _jsthis);
+    JS::RootedValue fval(_cx, _fval);
+    return JS_CallFunctionValue(_cx, thisObj, fval, JS::HandleValueArray::fromMarkedLocation(argc, argv), rval);
 }
 
 static Color3B getColorFromJSObject(JSContext *cx, JS::HandleObject colorObject)
@@ -427,7 +482,7 @@ bool jsval_to_ushort( JSContext *cx, JS::HandleValue vp, unsigned short *outval 
     double dp;
     ok &= JS::ToNumber(cx, vp, &dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-    ok &= !isnan(dp);
+    ok &= !std::isnan(dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     *outval = (unsigned short)dp;
@@ -441,7 +496,7 @@ bool jsval_to_int32( JSContext *cx, JS::HandleValue vp, int32_t *outval )
     double dp;
     ok &= JS::ToNumber(cx, vp, &dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-    ok &= !isnan(dp);
+    ok &= !std::isnan(dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     *outval = (int32_t)dp;
@@ -455,7 +510,7 @@ bool jsval_to_uint32( JSContext *cx, JS::HandleValue vp, uint32_t *outval )
     double dp;
     ok &= JS::ToNumber(cx, vp, &dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-    ok &= !isnan(dp);
+    ok &= !std::isnan(dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     *outval = (uint32_t)dp;
@@ -469,7 +524,7 @@ bool jsval_to_uint16( JSContext *cx, JS::HandleValue vp, uint16_t *outval )
     double dp;
     ok &= JS::ToNumber(cx, vp, &dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
-    ok &= !isnan(dp);
+    ok &= !std::isnan(dp);
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
     *outval = (uint16_t)dp;
@@ -624,7 +679,8 @@ bool jsval_to_quaternion( JSContext *cx, JS::HandleValue v, cocos2d::Quaternion*
         JS::ToNumber(cx, y, &yy) &&
         JS::ToNumber(cx, z, &zz) &&
         JS::ToNumber(cx, w, &ww) &&
-        !isnan(xx) && !isnan(yy) && !isnan(zz) && !isnan(ww);
+        !std::isnan(xx) && !std::isnan(yy) && !std::isnan(zz) && !std::
+isnan(ww);
 
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
@@ -641,10 +697,10 @@ bool jsval_to_TTFConfig(JSContext *cx, JS::HandleValue v, cocos2d::TTFConfig* re
     JS::RootedValue js_glyphs(cx);
     JS::RootedValue js_customGlyphs(cx);
     JS::RootedValue js_distanceFieldEnable(cx);
-    
+
     std::string fontFilePath,customGlyphs;
     double fontSize, glyphs, outlineSize;
-    
+
     JS::RootedValue jsv(cx, v);
     bool ok = jsv.isObject() && JS_ValueToObject(cx, jsv, &tmp);
     if (ok)
@@ -1038,7 +1094,6 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
         {
             JSStringWrapper valueWapper(value.toString(), cx);
             dict.insert(ValueMap::value_type(keyWrapper.get(), Value(valueWapper.get())));
-            //            CCLOG("iterate object: key = %s, value = %s", keyWrapper.get().c_str(), valueWapper.get().c_str());
         }
         else if (value.isNumber())
         {
@@ -1046,14 +1101,12 @@ bool jsval_to_ccvaluemap(JSContext* cx, JS::HandleValue v, cocos2d::ValueMap* re
             bool ok = JS::ToNumber(cx, value, &number);
             if (ok) {
                 dict.insert(ValueMap::value_type(keyWrapper.get(), Value(number)));
-                // CCLOG("iterate object: key = %s, value = %lf", keyWrapper.get().c_str(), number);
             }
         }
         else if (value.isBoolean())
         {
             bool boolVal = JS::ToBoolean(value);
             dict.insert(ValueMap::value_type(keyWrapper.get(), Value(boolVal)));
-            // CCLOG("iterate object: key = %s, value = %d", keyWrapper.get().c_str(), boolVal);
         }
         else {
             CCASSERT(false, "not supported type");
@@ -1381,7 +1434,7 @@ bool jsval_to_vector2(JSContext *cx, JS::HandleValue vp, cocos2d::Vec2* ret)
     JS_GetProperty(cx, tmp, "y", &jsy) &&
     JS::ToNumber(cx, jsx, &x) &&
     JS::ToNumber(cx, jsy, &y) &&
-    !isnan(x) && !isnan(y);
+    !std::isnan(x) && !std::isnan(y);
 
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
@@ -1405,7 +1458,7 @@ bool jsval_to_vector3(JSContext *cx, JS::HandleValue vp, cocos2d::Vec3* ret)
     JS::ToNumber(cx, jsx, &x) &&
     JS::ToNumber(cx, jsy, &y) &&
     JS::ToNumber(cx, jsz, &z) &&
-    !isnan(x) && !isnan(y) && !isnan(z);
+    !std::isnan(x) && !std::isnan(y) && !std::isnan(z);
 
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
@@ -1433,7 +1486,7 @@ bool jsval_to_vector4(JSContext *cx, JS::HandleValue vp, cocos2d::Vec4* ret)
     JS::ToNumber(cx, jsy, &y) &&
     JS::ToNumber(cx, jsz, &z) &&
     JS::ToNumber(cx, jsw, &w) &&
-    !isnan(x) && !isnan(y) && !isnan(z) && !isnan(w);
+    !std::isnan(x) && !std::isnan(y) && !std::isnan(z) && !std::isnan(w);
 
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
@@ -1500,7 +1553,7 @@ bool jsval_to_cctex2f(JSContext* cx, JS::HandleValue vp, cocos2d::Tex2F* ret)
     JS_GetProperty(cx, tmp, "y", &jsy) &&
     JS::ToNumber(cx, jsx, &x) &&
     JS::ToNumber(cx, jsy, &y) &&
-    !isnan(x) && !isnan(y);
+    !std::isnan(x) && !std::isnan(y);
 
     JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
 
@@ -1721,6 +1774,11 @@ jsval c_string_to_jsval(JSContext* cx, const char* v, size_t length /* = -1 */)
 
     jsval ret = JSVAL_NULL;
 
+#if defined(_MSC_VER) && (_MSC_VER <= 1800)
+    // NOTE: Visual Studio 2013 (Platform Toolset v120) is not fully C++11 compatible.
+    // It also doesn't provide support for char16_t and std::u16string.
+    // For more information, please see this article
+    // https://blogs.msdn.microsoft.com/vcblog/2014/11/17/c111417-features-in-vs-2015-preview/
     int utf16_size = 0;
     const jschar* strUTF16 = (jschar*)cc_utf8_to_utf16(v, (int)length, &utf16_size);
 
@@ -1731,6 +1789,17 @@ jsval c_string_to_jsval(JSContext* cx, const char* v, size_t length /* = -1 */)
         }
         delete[] strUTF16;
     }
+#else
+    std::u16string strUTF16;
+    bool ok = StringUtils::UTF8ToUTF16(std::string(v, length), strUTF16);
+
+    if (ok && !strUTF16.empty()) {
+        JSString* str = JS_NewUCStringCopyN(cx, reinterpret_cast<const jschar*>(strUTF16.data()), strUTF16.size());
+        if (str) {
+            ret = STRING_TO_JSVAL(str);
+        }
+    }
+#endif
 
     return ret;
 }
@@ -1911,35 +1980,26 @@ jsval FontDefinition_to_jsval(JSContext* cx, const FontDefinition& t)
     JS::RootedObject proto(cx);
     JS::RootedObject parent(cx);
     JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, proto, parent));
-
     JS::RootedValue prop(cx);
+
     bool ok = true;
+
     prop.set(std_string_to_jsval(cx, t._fontName));
     ok &= JS_DefineProperty(cx, tmp, "fontName", prop, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "fontSize", t._fontSize, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "textAlign", (int32_t)t._alignment, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "verticalAlign", (int32_t)t._vertAlignment, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     prop.set(cccolor3b_to_jsval(cx, t._fontFillColor));
     ok &= JS_DefineProperty(cx, tmp, "fillStyle", prop, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "boundingWidth", t._dimensions.width, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "boundingHeight", t._dimensions.height, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     // Shadow
     prop.set(BOOLEAN_TO_JSVAL(t._shadow._shadowEnabled));
     ok &= JS_DefineProperty(cx, tmp, "shadowEnabled", prop, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "shadowOffsetX", t._shadow._shadowOffset.width, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "shadowOffsetY", t._shadow._shadowOffset.height, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "shadowBlur", t._shadow._shadowBlur, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "shadowOpacity", t._shadow._shadowOpacity, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     // Stroke
@@ -1947,7 +2007,6 @@ jsval FontDefinition_to_jsval(JSContext* cx, const FontDefinition& t)
     ok &= JS_DefineProperty(cx, tmp, "strokeEnabled", prop, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     prop.set(cccolor3b_to_jsval(cx, t._stroke._strokeColor));
     ok &= JS_DefineProperty(cx, tmp, "strokeStyle", prop, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-
     ok &= JS_DefineProperty(cx, tmp, "lineWidth", t._stroke._strokeSize, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 
     if (ok) {
@@ -1965,118 +2024,199 @@ bool jsval_to_FontDefinition( JSContext *cx, JS::HandleValue vp, FontDefinition 
 
     JSB_PRECONDITION( jsobj, "Not a valid JS object");
 
-    // defaul values
-    out->_fontName = "Arial";
-    out->_fontSize = 32;
-    out->_alignment = TextHAlignment::LEFT;
-    out->_vertAlignment = TextVAlignment::TOP;
+    // default values
+    const char *            defautlFontName         = "Arial";
+    const int               defaultFontSize         = 32;
+    TextHAlignment         defaultTextAlignment    = TextHAlignment::LEFT;
+    TextVAlignment defaultTextVAlignment   = TextVAlignment::TOP;
+
+    // by default shadow and stroke are off
+    out->_shadow._shadowEnabled = false;
+    out->_stroke._strokeEnabled = false;
+
+    // white text by default
+    out->_fontFillColor = Color3B::WHITE;
 
     // font name
-    JS::RootedValue jsFontName(cx);
-    if (JS_GetProperty(cx, jsobj, "fontName", &jsFontName) && !jsFontName.isNullOrUndefined())
-        jsval_to_std_string(cx, jsFontName, &(out->_fontName));
+    JS::RootedValue jsr(cx);
+    JS_GetProperty(cx, jsobj, "fontName", &jsr);
+    JS::ToString(cx, jsr);
+    JSStringWrapper wrapper(jsr);
+    const char* fontName = wrapper.get();
+
+    if (fontName && strlen(fontName) > 0)
+    {
+        out->_fontName  = fontName;
+    }
+    else
+    {
+        out->_fontName  = defautlFontName;
+    }
 
     // font size
-    JS::RootedValue jsFontSize(cx);
-    if (JS_GetProperty(cx, jsobj, "fontSize", &jsFontSize) && !jsFontSize.isNullOrUndefined())
+    bool hasProperty, hasSecondProp;
+    JS_HasProperty(cx, jsobj, "fontSize", &hasProperty);
+    if ( hasProperty )
     {
+        JS_GetProperty(cx, jsobj, "fontSize", &jsr);
         double fontSize = 0.0;
-        JS::ToNumber(cx, jsFontSize, &fontSize);
-        out->_fontSize = fontSize;
+        JS::ToNumber(cx, jsr, &fontSize);
+        out->_fontSize  = fontSize;
+    }
+    else
+    {
+        out->_fontSize  = defaultFontSize;
     }
 
     // font alignment horizontal
-    JS::RootedValue jsTextAlign(cx);
-    if (JS_GetProperty(cx, jsobj, "textAlign", &jsTextAlign) && !jsTextAlign.isNullOrUndefined())
+    JS_HasProperty(cx, jsobj, "textAlign", &hasProperty);
+    if ( hasProperty )
     {
-        double textAlign = 0.0;
-        JS::ToNumber(cx, jsTextAlign, &textAlign);
-        out->_alignment = (TextHAlignment)(int)textAlign;
+        JS_GetProperty(cx, jsobj, "textAlign", &jsr);
+        double fontAlign = 0.0;
+        JS::ToNumber(cx, jsr, &fontAlign);
+        out->_alignment = (TextHAlignment)(int)fontAlign;
+    }
+    else
+    {
+        out->_alignment  = defaultTextAlignment;
     }
 
     // font alignment vertical
-    JS::RootedValue jsVerticalAlign(cx);
-    if (JS_GetProperty(cx, jsobj, "verticalAlign", &jsVerticalAlign) && !jsVerticalAlign.isNullOrUndefined())
+    JS_HasProperty(cx, jsobj, "verticalAlign", &hasProperty);
+    if ( hasProperty )
     {
-        double verticalAlign = 0.0;
-        JS::ToNumber(cx, jsVerticalAlign, &verticalAlign);
-        out->_vertAlignment = (TextVAlignment)(int)verticalAlign;
+        JS_GetProperty(cx, jsobj, "verticalAlign", &jsr);
+        double fontAlign = 0.0;
+        JS::ToNumber(cx, jsr, &fontAlign);
+        out->_vertAlignment = (TextVAlignment)(int)fontAlign;
+    }
+    else
+    {
+        out->_vertAlignment  = defaultTextVAlignment;
     }
 
     // font fill color
-    JS::RootedValue jsFillColor(cx);
-    if (JS_GetProperty(cx, jsobj, "fillStyle", &jsFillColor) && !jsFillColor.isNullOrUndefined())
+    JS_HasProperty(cx, jsobj, "fillStyle", &hasProperty);
+    if ( hasProperty )
     {
-        jsval_to_cccolor3b(cx, jsFillColor, &(out->_fontFillColor));
+        JS_GetProperty(cx, jsobj, "fillStyle", &jsr);
+
+        JS::RootedObject jsobjColor(cx);
+        JS::RootedValue jsvalColor(cx, jsr);
+        if (!JS_ValueToObject( cx, jsvalColor, &jsobjColor ) )
+            return false;
+
+        out->_fontFillColor = getColorFromJSObject(cx, jsobjColor);
     }
 
     // font rendering box dimensions
-    JS::RootedValue jsWidth(cx);
-    if (JS_GetProperty(cx, jsobj, "boundingWidth", &jsWidth) && !jsWidth.isNullOrUndefined())
+    JS_HasProperty(cx, jsobj, "boundingWidth", &hasProperty);
+    JS_HasProperty(cx, jsobj, "boundingHeight", &hasSecondProp);
+    if ( hasProperty && hasSecondProp )
     {
-        double boundingWidth = 0.0;
-        JS::ToNumber(cx, jsWidth, &boundingWidth);
-        out->_dimensions.width = boundingWidth;
-    }
-    JS::RootedValue jsHeight(cx);
-    if (JS_GetProperty(cx, jsobj, "boundingHeight", &jsHeight) && !jsHeight.isNullOrUndefined())
-    {
-        double boundingHeight = 0.0;
-        JS::ToNumber(cx, jsHeight, &boundingHeight);
-        out->_dimensions.height = boundingHeight;
+        JS_GetProperty(cx, jsobj, "boundingWidth", &jsr);
+        double boundingW = 0.0;
+        JS::ToNumber(cx, jsr, &boundingW);
+
+        JS_GetProperty(cx, jsobj, "boundingHeight", &jsr);
+        double boundingH = 0.0;
+        JS::ToNumber(cx, jsr, &boundingH);
+
+        Size dimension;
+        dimension.width = boundingW;
+        dimension.height = boundingH;
+        out->_dimensions = dimension;
     }
 
     // shadow
-    JS::RootedValue jsShadowEnabled(cx);
-    if (JS_GetProperty(cx, jsobj, "shadowEnabled", &jsShadowEnabled) && !jsShadowEnabled.isNullOrUndefined())
+    JS_HasProperty(cx, jsobj, "shadowEnabled", &hasProperty);
+    if ( hasProperty )
     {
-        out->_shadow._shadowEnabled = ToBoolean(jsShadowEnabled);
-        if (out->_shadow._shadowEnabled)
+        JS_GetProperty(cx, jsobj, "shadowEnabled", &jsr);
+        out->_shadow._shadowEnabled  = ToBoolean(jsr);
+
+        if ( out->_shadow._shadowEnabled )
         {
-            JS::RootedValue jsOffsetX(cx);
-            if (JS_GetProperty(cx, jsobj, "shadowOffsetX", &jsOffsetX) && !jsOffsetX.isNullOrUndefined())
+            // default shadow values
+            out->_shadow._shadowOffset  = Size(5, 5);
+            out->_shadow._shadowBlur    = 1;
+            out->_shadow._shadowOpacity = 1;
+
+            // shadow offset
+            JS_HasProperty(cx, jsobj, "shadowOffsetX", &hasProperty);
+            JS_HasProperty(cx, jsobj, "shadowOffsetY", &hasSecondProp);
+            if ( hasProperty && hasSecondProp )
             {
-                double shadowOffsetX = 0.0;
-                JS::ToNumber(cx, jsOffsetX, &shadowOffsetX);
-                out->_shadow._shadowOffset.width = shadowOffsetX;
+                JS_GetProperty(cx, jsobj, "shadowOffsetX", &jsr);
+                double offx = 0.0;
+                JS::ToNumber(cx, jsr, &offx);
+
+                JS_GetProperty(cx, jsobj, "shadowOffsetY", &jsr);
+                double offy = 0.0;
+                JS::ToNumber(cx, jsr, &offy);
+
+                Size offset;
+                offset.width = offx;
+                offset.height = offy;
+                out->_shadow._shadowOffset = offset;
             }
-            JS::RootedValue jsOffsetY(cx);
-            if (JS_GetProperty(cx, jsobj, "shadowOffsetY", &jsOffsetY) && !jsOffsetY.isNullOrUndefined())
+
+            // shadow blur
+            JS_HasProperty(cx, jsobj, "shadowBlur", &hasProperty);
+            if ( hasProperty )
             {
-                double shadowOffsetY = 0.0;
-                JS::ToNumber(cx, jsOffsetY, &shadowOffsetY);
-                out->_shadow._shadowOffset.height = shadowOffsetY;
+                JS_GetProperty(cx, jsobj, "shadowBlur", &jsr);
+                double shadowBlur = 0.0;
+                JS::ToNumber(cx, jsr, &shadowBlur);
+                out->_shadow._shadowBlur = shadowBlur;
             }
-            
-            JS::RootedValue jsOpacity(cx);
-            if (JS_GetProperty(cx, jsobj, "shadowOpacity", &jsOpacity) && !jsOpacity.isNullOrUndefined())
+
+            // shadow intensity
+            JS_HasProperty(cx, jsobj, "shadowOpacity", &hasProperty);
+            if ( hasProperty )
             {
+                JS_GetProperty(cx, jsobj, "shadowOpacity", &jsr);
                 double shadowOpacity = 0.0;
-                JS::ToNumber(cx, jsOpacity, &shadowOpacity);
+                JS::ToNumber(cx, jsr, &shadowOpacity);
                 out->_shadow._shadowOpacity = shadowOpacity;
             }
         }
     }
 
     // stroke
-    JS::RootedValue jsStrokeEnabled(cx);
-    if (JS_GetProperty(cx, jsobj, "shadowEnabled", &jsStrokeEnabled) && !jsStrokeEnabled.isNullOrUndefined())
+    JS_HasProperty(cx, jsobj, "strokeEnabled", &hasProperty);
+    if ( hasProperty )
     {
-        out->_stroke._strokeEnabled = ToBoolean(jsStrokeEnabled);
-        if (out->_stroke._strokeEnabled)
+        JS_GetProperty(cx, jsobj, "strokeEnabled", &jsr);
+        out->_stroke._strokeEnabled  = ToBoolean(jsr);
+
+        if ( out->_stroke._strokeEnabled )
         {
-            JS::RootedValue jsStrokeColor(cx);
-            if (JS_GetProperty(cx, jsobj, "strokeStyle", &jsStrokeColor) && !jsStrokeColor.isNullOrUndefined())
+            // default stroke values
+            out->_stroke._strokeSize  = 1;
+            out->_stroke._strokeColor = Color3B::BLUE;
+
+            // stroke color
+            JS_HasProperty(cx, jsobj, "strokeStyle", &hasProperty);
+            if ( hasProperty )
             {
-                jsval_to_cccolor3b(cx, jsStrokeColor, &(out->_stroke._strokeColor));
+                JS_GetProperty(cx, jsobj, "strokeStyle", &jsr);
+
+                JS::RootedObject jsobjStrokeColor(cx);
+                if (!JS_ValueToObject( cx, jsr, &jsobjStrokeColor ) )
+                    return false;
+                out->_stroke._strokeColor = getColorFromJSObject(cx, jsobjStrokeColor);
             }
-            
-            JS::RootedValue jsLineWidth(cx);
-            if (JS_GetProperty(cx, jsobj, "lineWidth", &jsLineWidth) && !jsLineWidth.isNullOrUndefined())
+
+            // stroke size
+            JS_HasProperty(cx, jsobj, "lineWidth", &hasProperty);
+            if ( hasProperty )
             {
-                double lineWidth = 0.0;
-                JS::ToNumber(cx, jsLineWidth, &lineWidth);
-                out->_stroke._strokeSize = lineWidth;
+                JS_GetProperty(cx, jsobj, "lineWidth", &jsr);
+                double strokeSize = 0.0;
+                JS::ToNumber(cx, jsr, &strokeSize);
+                out->_stroke._strokeSize = strokeSize;
             }
         }
     }
@@ -2485,3 +2625,42 @@ jsval std_map_string_string_to_jsval(JSContext* cx, const std::map<std::string, 
     return OBJECT_TO_JSVAL(jsRet);
 }
 
+bool jsval_to_resourcedata(JSContext *cx, JS::HandleValue v, ResourceData* ret) {
+    JS::RootedObject tmp(cx);
+    JS::RootedValue jstype(cx);
+    JS::RootedValue jsfile(cx);
+    JS::RootedValue jsplist(cx);
+
+    double t = 0;
+    std::string file, plist;
+    bool ok = v.isObject() &&
+        JS_ValueToObject(cx, v, &tmp) &&
+        JS_GetProperty(cx, tmp, "type", &jstype) &&
+        JS_GetProperty(cx, tmp, "name", &jsfile) &&
+        JS_GetProperty(cx, tmp, "plist", &jsplist) &&
+        JS::ToNumber(cx, jstype, &t) &&
+        jsval_to_std_string(cx, jsfile, &file) &&
+        jsval_to_std_string(cx, jsplist, &plist);
+
+    JSB_PRECONDITION3(ok, cx, false, "Error processing arguments");
+
+    ret->type = (int)t;
+    ret->file = file;
+    ret->plist = plist;
+    return true;
+}
+
+jsval resourcedata_to_jsval(JSContext* cx, const ResourceData& v)
+{
+    JS::RootedObject proto(cx);
+    JS::RootedObject parent(cx);
+    JS::RootedObject tmp(cx, JS_NewObject(cx, NULL, proto, parent));
+    if (!tmp) return JSVAL_NULL;
+    bool ok = JS_DefineProperty(cx, tmp, "type", v.type, JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "file", JS::RootedValue(cx, std_string_to_jsval(cx, v.file)), JSPROP_ENUMERATE | JSPROP_PERMANENT) &&
+        JS_DefineProperty(cx, tmp, "plist", JS::RootedValue(cx, std_string_to_jsval(cx, v.plist)), JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    if (ok) {
+        return OBJECT_TO_JSVAL(tmp);
+    }
+    return JSVAL_NULL;
+}

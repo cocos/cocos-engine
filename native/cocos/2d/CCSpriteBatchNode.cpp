@@ -29,17 +29,22 @@ THE SOFTWARE.
 #include "2d/CCSpriteBatchNode.h"
 #include "2d/CCSprite.h"
 #include "base/CCDirector.h"
+#include "base/CCProfiling.h"
+#include "base/ccUTF8.h"
 #include "renderer/CCTextureCache.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCQuadCommand.h"
-#include "base/CCString.h"
 
 NS_CC_BEGIN
 
+/*
+* creation with Texture2D
+*/
+
 SpriteBatchNode* SpriteBatchNode::createWithTexture(Texture2D* tex, ssize_t capacity/* = DEFAULT_CAPACITY*/)
 {
-    auto batchNode = new (std::nothrow) SpriteBatchNode();
-    if (batchNode && batchNode->initWithTexture(tex, capacity))
+    SpriteBatchNode *batchNode = new (std::nothrow) SpriteBatchNode();
+    if(batchNode && batchNode->initWithTexture(tex, capacity))
     {
         batchNode->autorelease();
         return batchNode;
@@ -48,11 +53,15 @@ SpriteBatchNode* SpriteBatchNode::createWithTexture(Texture2D* tex, ssize_t capa
     delete batchNode;
     return nullptr;
 }
+
+/*
+* creation with File Image
+*/
 
 SpriteBatchNode* SpriteBatchNode::create(const std::string& fileImage, ssize_t capacity/* = DEFAULT_CAPACITY*/)
 {
-    auto batchNode = new (std::nothrow) SpriteBatchNode();
-    if (batchNode && batchNode->initWithFile(fileImage, capacity))
+    SpriteBatchNode *batchNode = new (std::nothrow) SpriteBatchNode();
+    if(batchNode && batchNode->initWithFile(fileImage, capacity))
     {
         batchNode->autorelease();
         return batchNode;
@@ -62,14 +71,18 @@ SpriteBatchNode* SpriteBatchNode::create(const std::string& fileImage, ssize_t c
     return nullptr;
 }
 
+/*
+* init with Texture2D
+*/
 bool SpriteBatchNode::initWithTexture(Texture2D *tex, ssize_t capacity/* = DEFAULT_CAPACITY*/)
 {
-    CCASSERT(tex, "texture must be non null");
-    if (tex == nullptr)
+    if(tex == nullptr)
     {
         return false;
     }
-
+    
+    CCASSERT(capacity>=0, "Capacity must be >= 0");
+    
     _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
     if(!tex->hasPremultipliedAlpha())
     {
@@ -89,27 +102,24 @@ bool SpriteBatchNode::initWithTexture(Texture2D *tex, ssize_t capacity/* = DEFAU
     _children.reserve(capacity);
 
     _descendants.reserve(capacity);
-
+    
     setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR));
-
     return true;
 }
 
 bool SpriteBatchNode::init()
 {
-    auto texture = new (std::nothrow) Texture2D();
-    if (texture)
-    {
-        texture->autorelease();
-        return initWithTexture(texture, 0);
-    }
-
-    return false;
+    Texture2D * texture = new (std::nothrow) Texture2D();
+    texture->autorelease();
+    return this->initWithTexture(texture, 0);
 }
 
+/*
+* init with FileImage
+*/
 bool SpriteBatchNode::initWithFile(const std::string& fileImage, ssize_t capacity/* = DEFAULT_CAPACITY*/)
 {
-    auto texture2D = _director->getTextureCache()->addImage(fileImage);
+    Texture2D *texture2D = Director::getInstance()->getTextureCache()->addImage(fileImage);
     return initWithTexture(texture2D, capacity);
 }
 
@@ -143,13 +153,14 @@ void SpriteBatchNode::visit(Renderer *renderer, const Mat4 &parentTransform, uin
 
     sortAllChildren();
 
-    auto flags = processParentFlags(parentTransform, parentFlags);
+    uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    Director *director = Director::getInstance();
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     draw(renderer, _modelViewTransform, flags);
 
@@ -235,10 +246,7 @@ void SpriteBatchNode::removeAllChildrenWithCleanup(bool doCleanup)
     Node::removeAllChildrenWithCleanup(doCleanup);
 
     _descendants.clear();
-    if (_textureAtlas)
-    {
-        _textureAtlas->removeAllQuads();
-    }
+    if (_textureAtlas) {_textureAtlas->removeAllQuads();}
 }
 
 //override sortAllChildren
@@ -246,7 +254,7 @@ void SpriteBatchNode::sortAllChildren()
 {
     if (_reorderChildDirty)
     {
-        std::sort(std::begin(_children), std::end(_children), nodeComparisonLess);
+        sortNodes(_children);
 
         //sorted now check all children
         if (!_children.empty())
@@ -680,12 +688,11 @@ void SpriteBatchNode::updateQuadFromSprite(Sprite *sprite, ssize_t index)
 
 SpriteBatchNode* SpriteBatchNode::addSpriteWithoutQuad(Sprite*child, int z, int aTag)
 {
-    CCASSERT( child != nullptr, "Argument must be non-nullptr");
-    CCASSERT( dynamic_cast<Sprite*>(child), "CCSpriteBatchNode only supports Sprites as children");
     if (child == nullptr)
     {
         return this;
     }
+    CCASSERT( dynamic_cast<Sprite*>(child), "CCSpriteBatchNode only supports Sprites as children");
 
     // quad index is Z
     child->setAtlasIndex(z);

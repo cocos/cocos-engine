@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCFileUtils.h"
+#include "platform/CCFileUtils.h"
 
 #include <stack>
 
@@ -346,7 +346,7 @@ ValueMap FileUtils::getValueMapFromData(const char* filedata, int filesize)
 
 ValueVector FileUtils::getValueVectorFromFile(const std::string& filename)
 {
-    const std::string fullPath = fullPathForFilename(filename.c_str());
+    const std::string fullPath = fullPathForFilename(filename);
     DictMaker tMaker;
     return tMaker.arrayWithContentsOfFile(fullPath);
 }
@@ -572,18 +572,18 @@ bool FileUtils::writeStringToFile(const std::string& dataStr, const std::string&
     Data data;
     data.fastSet((unsigned char*)dataStr.c_str(), dataStr.size());
 
-    bool ret = writeDataToFile(data, fullPath);
-    data.fastSet(nullptr, 0);
+    bool rv = writeDataToFile(data, fullPath);
 
-    return ret;
+    data.fastSet(nullptr, 0);
+    return rv;
 }
 
-bool FileUtils::writeDataToFile(const Data& retData, const std::string& fullPath)
+bool FileUtils::writeDataToFile(const Data& data, const std::string& fullPath)
 {
     size_t size = 0;
     const char* mode = "wb";
 
-    CCASSERT(!fullPath.empty() && retData.getSize() != 0, "Invalid parameters.");
+    CCASSERT(!fullPath.empty() && data.getSize() != 0, "Invalid parameters.");
 
     auto fileutils = FileUtils::getInstance();
     do
@@ -591,9 +591,9 @@ bool FileUtils::writeDataToFile(const Data& retData, const std::string& fullPath
         // Read the file from hardware
         FILE *fp = fopen(fileutils->getSuitableFOpen(fullPath).c_str(), mode);
         CC_BREAK_IF(!fp);
-        size = retData.getSize();
+        size = data.getSize();
 
-        fwrite(retData.getBytes(), size, 1, fp);
+        fwrite(data.getBytes(), size, 1, fp);
 
         fclose(fp);
 
@@ -615,117 +615,72 @@ void FileUtils::purgeCachedEntries()
     _fullPathCache.clear();
 }
 
-static Data getData(const std::string& filename, bool forString)
-{
-    if (filename.empty())
-    {
-        return Data::Null;
-    }
-
-    Data ret;
-    unsigned char* buffer = nullptr;
-    size_t size = 0;
-    size_t readsize;
-    const char* mode = nullptr;
-
-    if (forString)
-        mode = "rt";
-    else
-        mode = "rb";
-
-    auto fileutils = FileUtils::getInstance();
-    do
-    {
-        // Read the file from hardware
-        std::string fullPath = fileutils->fullPathForFilename(filename);
-        if (fullPath.empty()) {
-            break;
-        }
-        FILE *fp = fopen(fileutils->getSuitableFOpen(fullPath).c_str(), mode);
-        CC_BREAK_IF(!fp);
-        fseek(fp,0,SEEK_END);
-        size = ftell(fp);
-        fseek(fp,0,SEEK_SET);
-
-        if (forString)
-        {
-            buffer = (unsigned char*)malloc(sizeof(unsigned char) * (size + 1));
-            buffer[size] = '\0';
-        }
-        else
-        {
-            buffer = (unsigned char*)malloc(sizeof(unsigned char) * size);
-        }
-
-        readsize = fread(buffer, sizeof(unsigned char), size, fp);
-        fclose(fp);
-
-        if (forString && readsize < size)
-        {
-            buffer[readsize] = '\0';
-        }
-    } while (0);
-
-    if (nullptr == buffer || 0 == readsize)
-    {
-        CCLOG("Get data from file %s failed", filename.c_str());
-        if (buffer)
-            free(buffer);
-    }
-    else
-    {
-        ret.fastSet(buffer, readsize);
-    }
-
-    return ret;
-}
-
 std::string FileUtils::getStringFromFile(const std::string& filename)
 {
-    Data data = getData(filename, true);
-    if (data.isNull())
-        return "";
-
-    std::string ret((const char*)data.getBytes());
-    return ret;
+    std::string s;
+    getContents(filename, &s);
+    return s;
 }
 
 Data FileUtils::getDataFromFile(const std::string& filename)
 {
-    return getData(filename, false);
+    Data d;
+    getContents(filename, &d);
+    return d;
+}
+
+
+FileUtils::Status FileUtils::getContents(const std::string& filename, ResizableBuffer* buffer)
+{
+    if (filename.empty())
+        return Status::NotExists;
+
+    auto fs = FileUtils::getInstance();
+
+    std::string fullPath = fs->fullPathForFilename(filename);
+    if (fullPath.empty())
+        return Status::NotExists;
+
+    FILE *fp = fopen(fs->getSuitableFOpen(fullPath).c_str(), "rb");
+    if (!fp)
+        return Status::OpenFailed;
+
+#if defined(_MSC_VER)
+    auto descriptor = _fileno(fp);
+#else
+    auto descriptor = fileno(fp);
+#endif
+    struct stat statBuf;
+    if (fstat(descriptor, &statBuf) == -1) {
+        fclose(fp);
+        return Status::ReadFailed;
+    }
+    size_t size = statBuf.st_size;
+
+    buffer->resize(size);
+    size_t readsize = fread(buffer->buffer(), 1, size, fp);
+    fclose(fp);
+
+    if (readsize < size) {
+        buffer->resize(readsize);
+        return Status::ReadFailed;
+    }
+
+    return Status::OK;
 }
 
 unsigned char* FileUtils::getFileData(const std::string& filename, const char* mode, ssize_t *size)
 {
-    unsigned char * buffer = nullptr;
     CCASSERT(!filename.empty() && size != nullptr && mode != nullptr, "Invalid parameters.");
-    if (filename.empty() || mode == nullptr || size == nullptr) {
+    (void)(mode); // mode is unused, as we do not support text mode any more...
+
+    Data d;
+    if (getContents(filename, &d) != Status::OK) {
+        *size = 0;
         return nullptr;
     }
-    *size = 0;
-    do
-    {
-        // read the file from hardware
-        const std::string fullPath = fullPathForFilename(filename);
-        FILE *fp = fopen(getSuitableFOpen(fullPath).c_str(), mode);
-        CC_BREAK_IF(!fp);
 
-        fseek(fp,0,SEEK_END);
-        *size = ftell(fp);
-        fseek(fp,0,SEEK_SET);
-        buffer = (unsigned char*)malloc(*size);
-        *size = fread(buffer,sizeof(unsigned char), *size,fp);
-        fclose(fp);
-    } while (0);
-
-    if (!buffer)
-    {
-        std::string msg = "Get data from file(";
-        msg.append(filename).append(") failed!");
-
-        CCLOG("%s", msg.c_str());
-    }
-    return buffer;
+    return d.takeBuffer(size);
 }
 
 unsigned char* FileUtils::getFileDataFromZip(const std::string& zipFilePath, const std::string& filename, ssize_t *size)
@@ -738,7 +693,7 @@ unsigned char* FileUtils::getFileDataFromZip(const std::string& zipFilePath, con
     {
         CC_BREAK_IF(zipFilePath.empty());
 
-        file = unzOpen(zipFilePath.c_str());
+        file = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zipFilePath).c_str());
         CC_BREAK_IF(!file);
 
         // FIXME: Other platforms should use upstream minizip like mingw-w64
@@ -920,35 +875,9 @@ void FileUtils::setWritablePath(const std::string& writablePath)
     _writablePath = writablePath;
 }
 
-void FileUtils::setDefaultResourceRootPath(const std::string& resRootPath)
+void FileUtils::setDefaultResourceRootPath(const std::string& path)
 {
-    if (resRootPath.empty() || _defaultResRootPath == resRootPath)
-        return;
-
-    if (!_searchPathArray.empty() && !_defaultResRootPath.empty())
-    {
-        auto tmp = _defaultResRootPath.length();
-        std::vector<std::string> newSearchPathArray;
-        for (auto& iter : _searchPathArray)
-        {
-            if (iter.find(_defaultResRootPath) == 0)
-            {
-                if (iter.length() == tmp)
-                    newSearchPathArray.push_back("");
-                else
-                    newSearchPathArray.push_back(iter.substr(tmp));
-            }
-            else
-                newSearchPathArray.push_back(iter);
-        }
-        
-        _defaultResRootPath = resRootPath;
-        setSearchPaths(newSearchPathArray);
-    }
-    else
-    {
-        _defaultResRootPath = resRootPath;
-    }
+    _defaultResRootPath = path;
 }
 
 void FileUtils::setSearchPaths(const std::vector<std::string>& searchPaths)
@@ -1088,7 +1017,7 @@ bool FileUtils::isDirectoryExist(const std::string& dirPath) const
         for (const auto& resolutionIt : _searchResolutionsOrderArray)
         {
             // searchPath + file_path + resourceDirectory
-            fullpath = searchIt + dirPath + resolutionIt;
+            fullpath = fullPathForFilename(searchIt + dirPath + resolutionIt);
             if (isDirectoryExistInternal(fullpath))
             {
                 _fullPathCache.insert(std::make_pair(dirPath, fullpath));
@@ -1230,12 +1159,6 @@ bool FileUtils::createDirectory(const std::string& path)
 
 bool FileUtils::removeDirectory(const std::string& path)
 {
-    if (!path.empty() && path[path.size() - 1] != '/')
-    {
-        CCLOGERROR("Fail to remove directory, path must terminate with '/': %s", path.c_str());
-        return false;
-    }
-
     std::string command = "rm -r ";
     // Path may include space.
     command += "\"" + path + "\"";
@@ -1351,4 +1274,3 @@ void FileUtils::valueVectorCompact(ValueVector &valueVector)
 }
 
 NS_CC_END
-

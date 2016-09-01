@@ -21,4 +21,3 @@ class CC_DLL NodeLoaderListener {
 }
 
 #endif
-

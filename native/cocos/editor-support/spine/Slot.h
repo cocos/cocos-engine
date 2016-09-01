@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -41,25 +41,25 @@ extern "C" {
 #endif
 
 typedef struct spSlot {
-    spSlotData* const data;
-    spBone* const bone;
-    float r, g, b, a;
-    spAttachment* const attachment;
+	spSlotData* const data;
+	spBone* const bone;
+	float r, g, b, a;
+	spAttachment* const attachment;
 
-    int attachmentVerticesCapacity;
-    int attachmentVerticesCount;
-    float* attachmentVertices;
+	int attachmentVerticesCapacity;
+	int attachmentVerticesCount;
+	float* attachmentVertices;
 
 #ifdef __cplusplus
-    spSlot() :
-        data(0),
-        bone(0),
-        r(0), g(0), b(0), a(0),
-        attachment(0),
-        attachmentVerticesCapacity(0),
-        attachmentVerticesCount(0),
-        attachmentVertices(0) {
-    }
+	spSlot() :
+		data(0),
+		bone(0),
+		r(0), g(0), b(0), a(0),
+		attachment(0),
+		attachmentVerticesCapacity(0),
+		attachmentVerticesCount(0),
+		attachmentVertices(0) {
+	}
 #endif
 } spSlot;
 
@@ -89,4 +89,3 @@ typedef spSlot Slot;
 #endif
 
 #endif /* SPINE_SLOT_H_ */
-

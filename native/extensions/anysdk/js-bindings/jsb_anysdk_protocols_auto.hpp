@@ -2,8 +2,8 @@
 #ifndef __anysdk_framework_h__
 #define __anysdk_framework_h__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 
 extern JSClass  *jsb_anysdk_framework_PluginProtocol_class;
 extern JSObject *jsb_anysdk_framework_PluginProtocol_prototype;

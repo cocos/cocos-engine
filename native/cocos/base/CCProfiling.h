@@ -56,24 +56,24 @@ public:
      * @js NA
      * @lua NA
      */
-    ~Profiler();
+    ~Profiler(void);
     /** display the timers
      * @js NA
      * @lua NA
      */
-    void displayTimers();
+    void displayTimers(void);
     /**
      * @js NA
      * @lua NA
      */
-    bool init();
+    bool init(void);
 
 public:
     /** returns the singleton
      * @js NA
      * @lua NA
      */
-    static Profiler* getInstance();
+    static Profiler* getInstance(void);
 
     /** Creates and adds a new timer
      * @js NA
@@ -106,7 +106,7 @@ public:
      * @js NA
      * @lua NA
      */
-    ~ProfilingTimer();
+    ~ProfilingTimer(void);
     /**
      * @js NA
      * @lua NA
@@ -121,7 +121,7 @@ public:
      * @js NA
      * @lua NA
      */
-    inline const std::chrono::high_resolution_clock::time_point& getStartTime() { return _startTime; };
+    inline const std::chrono::high_resolution_clock::time_point& getStartTime(void) { return _startTime; };
 
     /** resets the timer properties
      * @js NA
@@ -159,4 +159,3 @@ NS_CC_END
 
 /// @endcond
 #endif // __SUPPORT_CCPROFILING_H__
-

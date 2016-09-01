@@ -27,14 +27,14 @@
 
  ****************************************************************************/
 
-#include "SocketIO.h"
+#include "network/SocketIO.h"
 #include <algorithm>
 #include <sstream>
 #include <iterator>
 #include "base/CCDirector.h"
 #include "base/CCScheduler.h"
-#include "WebSocket.h"
-#include "HttpClient.h"
+#include "network/WebSocket.h"
+#include "network/HttpClient.h"
 
 #include "json/rapidjson.h"
 #include "json/document.h"
@@ -877,9 +877,8 @@ void SIOClientImpl::onMessage(WebSocket* ws, const WebSocket::Data& data)
                 break;
             case 4:
             {
-                const char second = payload.at(0);
-                int control2 = atoi(&second);
-                CCLOGINFO("Message code: [%i]", control);
+                int control2 = payload.at(0) - '0';
+                CCLOGINFO("Message code: [%i]", control2);
 
                 SocketIOPacket *packetOut = SocketIOPacket::createPacketWithType("event", _version);
                 std::string endpoint = "";
@@ -988,8 +987,8 @@ void SIOClientImpl::onClose(WebSocket* ws)
         }
         // discard this client
         _connected = false;
-        if (Director::DirectorInstance)
-            Director::DirectorInstance->getScheduler()->unscheduleAllForTarget(this);
+        if (Director::getInstance())
+            Director::getInstance()->getScheduler()->unscheduleAllForTarget(this);
         
         SocketIO::getInstance()->removeSocket(_uri);
     }
@@ -1000,7 +999,7 @@ void SIOClientImpl::onClose(WebSocket* ws)
 void SIOClientImpl::onError(WebSocket* ws, const WebSocket::ErrorCode& error)
 {
     CC_UNUSED_PARAM(ws);
-    CCLOGERROR("Websocket error received: %d", error);
+    CCLOGERROR("Websocket error received: %d", static_cast<int>(error));
 }
 
 //begin SIOClient methods

@@ -409,13 +409,13 @@ public:
 
     /**
      Update the builtin uniforms if they are different than the previous call for this same shader program.
-     */
-    void setUniformsForBuiltins();
-    /**
-     Update the builtin uniforms if they are different than the previous call for this same shader program.
      @param modelView modelView matrix applied to the built in uniform of the shader.
      */
     void setUniformsForBuiltins(const Mat4 &modelView);
+    /**
+     Update the builtin uniforms if they are different than the previous call for this same shader program.
+     */
+    void setUniformsForBuiltins();
 
     /** returns the vertexShader error log */
     std::string getVertexShaderLog() const;
@@ -441,7 +441,7 @@ protected:
     Update the uniform data in location.
     @param location The location of the uniform.
     @param data Updated data.
-    @oaram bytes Data length in bytes to update.
+    @param bytes Data length in bytes to update.
     */
     bool updateUniformLocation(GLint location, const GLvoid* data, unsigned int bytes);
     /**Get a general description of the shader.*/
@@ -488,4 +488,3 @@ NS_CC_END
  @}
  */
 #endif /* __CCGLPROGRAM_H__ */
-

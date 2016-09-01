@@ -28,7 +28,7 @@
  Works on cocos2d-iphone and cocos2d-x.
  */
 
-#include "LocalStorage.h"
+#include "storage/local-storage/LocalStorage.h"
 #include "platform/CCPlatformMacros.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
@@ -37,13 +37,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "jni.h"
-#include "jni/JniHelper.h"
-#include "base/ccUTF8.h"
+#include "platform/android/jni/JniHelper.h"
 
 USING_NS_CC;
 static int _initialized = 0;
 
-#define STORAGE_JAVA_CLASS "org/cocos2dx/lib/Cocos2dxLocalStorage"
+static std::string className = "org/cocos2dx/lib/Cocos2dxLocalStorage";
 
 static void splitFilename (std::string& str)
 {
@@ -64,7 +63,7 @@ void localStorageInit( const std::string& fullpath)
     {
         std::string strDBFilename = fullpath;
         splitFilename(strDBFilename);
-        if (JniHelper::callStaticBooleanMethod(STORAGE_JAVA_CLASS, "init", strDBFilename, "data")) {
+        if (JniHelper::callStaticBooleanMethod(className, "init", strDBFilename, "data")) {
             _initialized = 1;
         }
     }
@@ -72,8 +71,8 @@ void localStorageInit( const std::string& fullpath)
 
 void localStorageFree()
 {
-    if( _initialized ) {
-        JniHelper::callStaticVoidMethod(STORAGE_JAVA_CLASS, "destory");
+    if (_initialized) {
+        JniHelper::callStaticVoidMethod(className, "destroy");
         _initialized = 0;
     }
 }
@@ -82,7 +81,7 @@ void localStorageFree()
 void localStorageSetItem( const std::string& key, const std::string& value)
 {
     assert( _initialized );
-    JniHelper::callStaticVoidMethod(STORAGE_JAVA_CLASS, "setItem", key, value);
+    JniHelper::callStaticVoidMethod(className, "setItem", key, value);
 }
 
 /** gets an item from the LS */
@@ -93,7 +92,7 @@ bool localStorageGetItem( const std::string& key, std::string *outItem )
 
     if (JniHelper::getStaticMethodInfo(t, "org/cocos2dx/lib/Cocos2dxLocalStorage", "getItem", "(Ljava/lang/String;)Ljava/lang/String;"))
     {
-        jstring jkey = JniHelper::newStringUTFJNI(t.env, key);
+        jstring jkey = t.env->NewStringUTF(key.c_str());
         jstring jret = (jstring)t.env->CallStaticObjectMethod(t.classID, t.methodID, jkey);
         if (jret == nullptr)
         {
@@ -104,8 +103,7 @@ bool localStorageGetItem( const std::string& key, std::string *outItem )
         }
         else
         {
-            auto value = JniHelper::jstring2string(jret);
-            outItem->assign(value);
+            outItem->assign(JniHelper::jstring2string(jret));
             t.env->DeleteLocalRef(jret);
             t.env->DeleteLocalRef(jkey);
             t.env->DeleteLocalRef(t.classID);
@@ -122,16 +120,14 @@ bool localStorageGetItem( const std::string& key, std::string *outItem )
 void localStorageRemoveItem( const std::string& key )
 {
     assert( _initialized );
-    JniHelper::callStaticVoidMethod(STORAGE_JAVA_CLASS, "removeItem", key);
-
+    JniHelper::callStaticVoidMethod(className, "removeItem", key);
 }
 
 /** removes all items from the LS */
 void localStorageClear()
 {
     assert( _initialized );
-    JniHelper::callStaticVoidMethod(STORAGE_JAVA_CLASS, "clear");
+    JniHelper::callStaticVoidMethod(className, "clear");
 }
 
 #endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-

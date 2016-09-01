@@ -26,6 +26,7 @@ package org.cocos2dx.lib;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -37,7 +38,7 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
     // Constants
     // ===========================================================
 
-    private static final String TAG = "Cocos2dxTextInputWrapper";
+    private static final String TAG = Cocos2dxTextInputWrapper.class.getSimpleName();
 
     // ===========================================================
     // Fields
@@ -51,8 +52,8 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
     // Constructors
     // ===========================================================
 
-    public Cocos2dxTextInputWrapper(final Cocos2dxGLSurfaceView cocos2dxGLSurfaceView) {
-        mCocos2dxGLSurfaceView = cocos2dxGLSurfaceView;
+    public Cocos2dxTextInputWrapper(final Cocos2dxGLSurfaceView pCocos2dxGLSurfaceView) {
+        this.mCocos2dxGLSurfaceView = pCocos2dxGLSurfaceView;
     }
 
     // ===========================================================
@@ -60,13 +61,13 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
     // ===========================================================
 
     private boolean isFullScreenEdit() {
-        final TextView textField = mCocos2dxGLSurfaceView.getCocos2dxEditText();
+        final TextView textField = this.mCocos2dxGLSurfaceView.getCocos2dxEditText();
         final InputMethodManager imm = (InputMethodManager) textField.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         return imm.isFullscreenMode();
     }
 
-    public void setOriginText(final String originText) {
-        mOriginText = originText;
+    public void setOriginText(final String pOriginText) {
+        this.mOriginText = pOriginText;
     }
 
     // ===========================================================
@@ -75,55 +76,54 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
 
     @Override
     public void afterTextChanged(final Editable s) {
-        if (isFullScreenEdit()) {
+        if (this.isFullScreenEdit()) {
             return;
         }
-
         int old_i = 0;
         int new_i = 0;
-        while (old_i < mText.length() && new_i < s.length()) {
-            if (mText.charAt(old_i) != s.charAt(new_i)) {
+        while (old_i < this.mText.length() && new_i < s.length()) {
+            if (this.mText.charAt(old_i) != s.charAt(new_i)) {
                 break;
             }
             old_i += 1;
             new_i += 1;
         }
 
-        for (; old_i < mText.length(); ++old_i) {
-            mCocos2dxGLSurfaceView.deleteBackward();
+        for (; old_i < this.mText.length(); ++old_i) {
+            this.mCocos2dxGLSurfaceView.deleteBackward();
         }
 
         int nModified = s.length() - new_i;
         if (nModified > 0) {
             final String insertText = s.subSequence(new_i, s.length()).toString();
-            mCocos2dxGLSurfaceView.insertText(insertText);
+            this.mCocos2dxGLSurfaceView.insertText(insertText);
         }
 
-        mText = s.toString();
+        this.mText = s.toString();
     }
 
     @Override
-    public void beforeTextChanged(final CharSequence charSequence, final int start, final int count, final int after) {
-        mText = charSequence.toString();
+    public void beforeTextChanged(final CharSequence pCharSequence, final int start, final int count, final int after) {
+        this.mText = pCharSequence.toString();
     }
 
     @Override
-    public void onTextChanged(final CharSequence charSequence, final int start, final int before, final int count) {
+    public void onTextChanged(final CharSequence pCharSequence, final int start, final int before, final int count) {
 
     }
 
     @Override
-    public boolean onEditorAction(final TextView textView, final int actionID, final KeyEvent keyEvent) {
-        if (mCocos2dxGLSurfaceView.getCocos2dxEditText() == textView && this.isFullScreenEdit()) {
+    public boolean onEditorAction(final TextView pTextView, final int pActionID, final KeyEvent pKeyEvent) {
+        if (this.mCocos2dxGLSurfaceView.getCocos2dxEditText() == pTextView && this.isFullScreenEdit()) {
             // user press the action button, delete all old text and insert new text
             if (null != mOriginText) {
-                for (int i = mOriginText.length(); i > 0; i--) {
+                for (int i = this.mOriginText.length(); i > 0; i--) {
                     this.mCocos2dxGLSurfaceView.deleteBackward();
                 }
             }
-
-            String text = textView.getText().toString();
-
+            
+            String text = pTextView.getText().toString();
+            
             if (text != null) {
                 /* If user input nothing, translate "\n" to engine. */
                 if ( text.compareTo("") == 0) {
@@ -139,13 +139,11 @@ public class Cocos2dxTextInputWrapper implements TextWatcher, OnEditorActionList
                 mCocos2dxGLSurfaceView.insertText("");
             }
         }
-
-        if (actionID == EditorInfo.IME_ACTION_DONE) {
-            mCocos2dxGLSurfaceView.requestFocus();
+        
+        if (pActionID == EditorInfo.IME_ACTION_DONE) {
+            this.mCocos2dxGLSurfaceView.requestFocus();
         }
-
         return false;
     }
 
 }
-

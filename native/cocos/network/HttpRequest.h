@@ -237,6 +237,29 @@ public:
     }
 
     /**
+     * Set the target and related callback selector.
+     * When response come back, it would call (pTarget->*pSelector) to process something.
+     *
+     * @param pTarget the target object pointer.
+     * @param pSelector the callback function.
+     */
+    CC_DEPRECATED_ATTRIBUTE inline void setResponseCallback(Ref* pTarget, SEL_CallFuncND pSelector)
+    {
+        doSetResponseCallback(pTarget, (SEL_HttpResponse)pSelector);
+    }
+    
+    /**
+     * Set the target and related callback selector of HttpRequest object.
+     * When response come back, we would call (pTarget->*pSelector) to process response data.
+     *
+     * @param pTarget the target object pointer.
+     * @param pSelector the SEL_HttpResponse function.
+     */
+    inline void setResponseCallback(Ref* pTarget, SEL_HttpResponse pSelector)
+    {
+        doSetResponseCallback(pTarget, pSelector);
+    }
+    /**
      * Set response callback function of HttpRequest object.
      * When response come back, we would call _pCallback to process response data.
      *
@@ -244,23 +267,6 @@ public:
      */
     inline void setResponseCallback(const ccHttpRequestCallback& callback)
     {
-        _pCallback = callback;
-    }
-
-    CC_DEPRECATED_ATTRIBUTE inline void setResponseCallback(Ref* target ,const ccHttpRequestCallback& callback)
-    {
-        if(_pTarget != target)
-        {
-            if (_pTarget) {
-                _pTarget->release();
-            }
-
-            _pTarget = target;
-            if (_pTarget) {
-                _pTarget->retain();
-            }
-        }
-
         _pCallback = callback;
     }
 
@@ -331,6 +337,22 @@ public:
     inline std::vector<std::string> getHeaders() const
     {
         return _headers;
+    }
+
+private:
+    inline void doSetResponseCallback(Ref* pTarget, SEL_HttpResponse pSelector)
+    {
+        if (_pTarget)
+        {
+            _pTarget->release();
+        }
+        
+        _pTarget = pTarget;
+        _pSelector = pSelector;
+        if (_pTarget)
+        {
+            _pTarget->retain();
+        }
     }
 
 protected:

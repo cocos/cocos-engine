@@ -31,12 +31,8 @@ Component::Component()
 , _enabled(true)
 {
 #if CC_ENABLE_SCRIPT_BINDING
-    if (ScriptEngineManager::ShareInstance) {
-        auto engine = ScriptEngineManager::ShareInstance->getScriptEngine();
-        _scriptType = engine != nullptr ? engine->getScriptType() : kScriptTypeNone;
-    }
-    else
-        _scriptType = kScriptTypeNone;
+    ScriptEngineProtocol* engine = ScriptEngineManager::getInstance()->getScriptEngine();
+    _scriptType = engine != nullptr ? engine->getScriptType() : kScriptTypeNone;
 #endif
 }
 
@@ -53,27 +49,20 @@ bool Component::init()
 
 static bool sendComponentEventToJS(Component* node, int action)
 {
-    if (ScriptEngineManager::ShareInstance == nullptr) {
-        return false;
-    }
-
-    auto scriptEngine = ScriptEngineManager::ShareInstance->getScriptEngine();
-
-    if (scriptEngine)
+    auto scriptEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    
+    if (scriptEngine->isCalledFromScript())
     {
-        if (scriptEngine->isCalledFromScript())
-        {
-            scriptEngine->setCalledFromScript(false);
-        }
-        else
-        {
-            BasicScriptData data(node,(void*)&action);
-            ScriptEvent scriptEvent(kComponentEvent,(void*)&data);
-            if (scriptEngine->sendEvent(&scriptEvent))
-                return true;
-        }
+        scriptEngine->setCalledFromScript(false);
     }
-
+    else
+    {
+        BasicScriptData data(node,(void*)&action);
+        ScriptEvent scriptEvent(kComponentEvent,(void*)&data);
+        if (scriptEngine->sendEvent(&scriptEvent))
+            return true;
+    }
+    
     return false;
 }
 

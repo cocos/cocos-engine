@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -38,34 +38,42 @@
 #include <spine/EventData.h>
 #include <spine/Animation.h>
 #include <spine/IkConstraintData.h>
+#include <spine/TransformConstraintData.h>
+#include <spine/PathConstraintData.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct spSkeletonData {
-    const char* version;
-    const char* hash;
-    float width, height;
+	const char* version;
+	const char* hash;
+	float width, height;
 
-    int bonesCount;
-    spBoneData** bones;
+	int bonesCount;
+	spBoneData** bones;
 
-    int slotsCount;
-    spSlotData** slots;
+	int slotsCount;
+	spSlotData** slots;
 
-    int skinsCount;
-    spSkin** skins;
-    spSkin* defaultSkin;
+	int skinsCount;
+	spSkin** skins;
+	spSkin* defaultSkin;
 
-    int eventsCount;
-    spEventData** events;
+	int eventsCount;
+	spEventData** events;
 
-    int animationsCount;
-    spAnimation** animations;
+	int animationsCount;
+	spAnimation** animations;
 
-    int ikConstraintsCount;
-    spIkConstraintData** ikConstraints;
+	int ikConstraintsCount;
+	spIkConstraintData** ikConstraints;
+
+	int transformConstraintsCount;
+	spTransformConstraintData** transformConstraints;
+
+	int pathConstraintsCount;
+	spPathConstraintData** pathConstraints;
 } spSkeletonData;
 
 spSkeletonData* spSkeletonData_create ();
@@ -83,7 +91,11 @@ spEventData* spSkeletonData_findEvent (const spSkeletonData* self, const char* e
 
 spAnimation* spSkeletonData_findAnimation (const spSkeletonData* self, const char* animationName);
 
-spIkConstraintData* spSkeletonData_findIkConstraint (const spSkeletonData* self, const char* ikConstraintName);
+spIkConstraintData* spSkeletonData_findIkConstraint (const spSkeletonData* self, const char* constraintName);
+
+spTransformConstraintData* spSkeletonData_findTransformConstraint (const spSkeletonData* self, const char* constraintName);
+
+spPathConstraintData* spSkeletonData_findPathConstraint (const spSkeletonData* self, const char* constraintName);
 
 #ifdef SPINE_SHORT_NAMES
 typedef spSkeletonData SkeletonData;
@@ -103,4 +115,3 @@ typedef spSkeletonData SkeletonData;
 #endif
 
 #endif /* SPINE_SKELETONDATA_H_ */
-

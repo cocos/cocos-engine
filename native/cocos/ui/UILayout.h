@@ -40,6 +40,7 @@ class DrawNode;
 class LayerColor;
 class LayerGradient;
 class StencilStateManager;
+struct CC_DLL ResourceData;
 
 namespace ui {
 
@@ -451,6 +452,8 @@ public:
      */
     std::function<int(FocusDirection, Widget*)> onPassFocusToChild;
 
+    ResourceData getRenderFile();
+
 CC_CONSTRUCTOR_ACCESS:
     //override "init" method of widget.
     virtual bool init() override;
@@ -647,4 +650,3 @@ NS_CC_END
 // end of ui group
 /// @}
 #endif /* defined(__Layout__) */
-

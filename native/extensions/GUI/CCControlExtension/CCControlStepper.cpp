@@ -85,8 +85,8 @@ bool ControlStepper::initWithMinusSpriteAndPlusSprite(Sprite *minusSprite, Sprit
         _value                              = 0;
         _stepValue                          = 1;
         _wraps                              = false;
-        this->ignoreAnchorPointForPosition( false );
-
+        this->setIgnoreAnchorPointForPosition( false );
+    
         // Add the minus components
         this->setMinusSprite(minusSprite);
         _minusSprite->setPosition(minusSprite->getContentSize().width / 2, minusSprite->getContentSize().height / 2);
@@ -152,7 +152,6 @@ void ControlStepper::setMinimumValue(double minimumValue)
     if (minimumValue >= _maximumValue)
     {
         CCASSERT(0, "Must be numerically less than maximumValue.");
-        minimumValue = _maximumValue;
     }
 
     _minimumValue = minimumValue;
@@ -164,7 +163,6 @@ void ControlStepper::setMaximumValue(double maximumValue)
     if (maximumValue <= _minimumValue)
     {
         CCASSERT(0, "Must be numerically greater than minimumValue.");
-        maximumValue = _minimumValue;
     }
 
     _maximumValue = maximumValue;

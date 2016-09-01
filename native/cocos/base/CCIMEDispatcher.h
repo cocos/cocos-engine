@@ -67,6 +67,12 @@ public:
     void dispatchDeleteBackward();
 
     /**
+    * @brief Dispatches the press control key operation.
+    * @lua NA
+    */
+    void dispatchControlKey(EventKeyboard::KeyCode keyCode);
+
+    /**
      * @brief Get the content text from IMEDelegate, retrieved previously from IME.
      * @lua NA
      */
@@ -136,4 +142,3 @@ NS_CC_END
 /// @}
 
 #endif    // __CC_IME_DISPATCHER_H__
-

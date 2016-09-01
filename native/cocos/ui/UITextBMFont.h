@@ -35,6 +35,7 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 class Label;
+struct CC_DLL ResourceData;
 
 namespace ui {
 
@@ -93,6 +94,11 @@ public:
      */
     virtual std::string getDescription() const override;
 
+    ResourceData getRenderFile();
+
+    /**
+    * reset TextBMFont inner label
+    */
     void resetRender();
 protected:
     virtual void initRenderer() override;
@@ -115,4 +121,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__LabelBMFont__) */
-

@@ -20,7 +20,7 @@
  */
 
 
-#include "CCProperties.h"
+#include "base/CCProperties.h"
 
 #include <string.h>
 
@@ -32,7 +32,6 @@
 #include "math/Mat4.h"
 #include "base/ccUTF8.h"
 #include "base/CCData.h"
-#include "base/CCString.h"
 
 USING_NS_CC;
 
@@ -140,7 +139,7 @@ static bool isVariable(const char* str, char* outName, size_t outSize)
         size_t size = len - 3;
         if (size > (outSize - 1))
             size = outSize - 1;
-        strncpy(outName, str + 2, size);
+        strncpy(outName, str + 2, len - 3);
         outName[len - 3] = 0;
         return true;
     }
@@ -654,7 +653,7 @@ Properties* Properties::getNextNamespace()
         return ns;
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void Properties::rewind()
@@ -667,7 +666,7 @@ Properties* Properties::getNamespace(const char* id, bool searchNames, bool recu
 {
     CCASSERT(id, "invalid id");
 
-    for (auto it = _namespaces.begin(); it < _namespaces.end(); ++it)
+    for (std::vector<Properties*>::const_iterator it = _namespaces.begin(); it < _namespaces.end(); ++it)
     {
         Properties* p = *it;
         if (strcmp(searchNames ? p->_namespace.c_str() : p->_id.c_str(), id) == 0)
@@ -682,7 +681,7 @@ Properties* Properties::getNamespace(const char* id, bool searchNames, bool recu
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 const char* Properties::getNamespace() const
@@ -700,7 +699,7 @@ bool Properties::exists(const char* name) const
     if (name == NULL)
         return false;
 
-    for (auto itr = _properties.begin(); itr != _properties.end(); ++itr)
+    for (std::vector<Property>::const_iterator itr = _properties.begin(); itr != _properties.end(); ++itr)
     {
         if (itr->name == name)
             return true;
@@ -790,7 +789,7 @@ const char* Properties::getString(const char* name, const char* defaultValue) co
             return getVariable(variable, defaultValue);
         }
 
-        for (auto itr = _properties.begin(); itr != _properties.end(); ++itr)
+        for (std::vector<Property>::const_iterator itr = _properties.begin(); itr != _properties.end(); ++itr)
         {
             if (itr->name == name)
             {
@@ -824,7 +823,7 @@ bool Properties::setString(const char* name, const char* value)
 {
     if (name)
     {
-        for (auto itr = _properties.begin(); itr != _properties.end(); ++itr)
+        for (std::vector<Property>::iterator itr = _properties.begin(); itr != _properties.end(); ++itr)
         {
             if (itr->name == name)
             {
@@ -1154,7 +1153,7 @@ Properties* getPropertiesFromNamespacePath(Properties* properties, const std::ve
                 if (iter == NULL)
                 {
                     CCLOGWARN("Failed to load properties object from url.");
-                    return NULL;
+                    return nullptr;
                 }
 
                 if (strcmp(iter->getId(), namespacePath[i].c_str()) == 0)

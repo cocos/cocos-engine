@@ -87,18 +87,6 @@ getBlendFunc : function (
 },
 
 /**
- * @method drawSkeleton
- * @param {mat4_object} arg0
- * @param {unsigned int} arg1
- */
-drawSkeleton : function (
-mat4, 
-int 
-)
-{
-},
-
-/**
  * @method updateWorldTransform
  */
 updateWorldTransform : function (
@@ -191,15 +179,29 @@ getSkeleton : function (
 },
 
 /**
+ * @method drawDebug
+ * @param {cc.Renderer} arg0
+ * @param {mat4_object} arg1
+ * @param {unsigned int} arg2
+ */
+drawDebug : function (
+renderer, 
+mat4, 
+int 
+)
+{
+},
+
+/**
  * @method createWithFile
 * @param {String|String} str
-* @param {String|spAtlas} str
+* @param {spAtlas|String} spatlas
 * @param {float|float} float
-* @return {sp.SkeletonRenderer|sp.SkeletonRenderer}
+* @return {sp.SkeletonRenderer|sp.SkeletonRenderer|sp.SkeletonRenderer}
 */
 createWithFile : function(
 str,
-spatlas,
+str,
 float 
 )
 {
@@ -229,13 +231,15 @@ float
 sp.SkeletonAnimation = {
 
 /**
- * @method setStartListener
- * @param {function} arg0
+ * @method findAnimation
+ * @param {String} arg0
+ * @return {spAnimation}
  */
-setStartListener : function (
-func 
+findAnimation : function (
+str 
 )
 {
+    return spAnimation;
 },
 
 /**
@@ -245,46 +249,6 @@ func
  */
 setTrackEventListener : function (
 sptrackentry, 
-func 
-)
-{
-},
-
-/**
- * @method getState
- * @return {spAnimationState}
- */
-getState : function (
-)
-{
-    return spAnimationState;
-},
-
-/**
- * @method update
- * @param {float} arg0
- */
-update : function (
-float 
-)
-{
-},
-
-/**
- * @method setCompleteListener
- * @param {function} arg0
- */
-setCompleteListener : function (
-func 
-)
-{
-},
-
-/**
- * @method setEventListener
- * @param {function} arg0
- */
-setEventListener : function (
 func 
 )
 {
@@ -315,6 +279,54 @@ func
 },
 
 /**
+ * @method getState
+ * @return {spAnimationState}
+ */
+getState : function (
+)
+{
+    return spAnimationState;
+},
+
+/**
+ * @method update
+ * @param {float} arg0
+ */
+update : function (
+float 
+)
+{
+},
+
+/**
+ * @method setEventListener
+ * @param {function} arg0
+ */
+setEventListener : function (
+func 
+)
+{
+},
+
+/**
+ * @method setCompleteListener
+ * @param {function} arg0
+ */
+setCompleteListener : function (
+func 
+)
+{
+},
+
+/**
+ * @method clearTrack
+ */
+clearTrack : function (
+)
+{
+},
+
+/**
  * @method initialize
  */
 initialize : function (
@@ -331,9 +343,11 @@ clearTracks : function (
 },
 
 /**
- * @method clearTrack
+ * @method setStartListener
+ * @param {function} arg0
  */
-clearTrack : function (
+setStartListener : function (
+func 
 )
 {
 },
@@ -341,13 +355,13 @@ clearTrack : function (
 /**
  * @method createWithFile
 * @param {String|String} str
-* @param {String|spAtlas} str
+* @param {spAtlas|String} spatlas
 * @param {float|float} float
-* @return {sp.SkeletonAnimation|sp.SkeletonAnimation}
+* @return {sp.SkeletonAnimation|sp.SkeletonAnimation|sp.SkeletonAnimation}
 */
 createWithFile : function(
 str,
-spatlas,
+str,
 float 
 )
 {

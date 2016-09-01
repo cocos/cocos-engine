@@ -36,4 +36,3 @@ THE SOFTWARE.
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 
 #endif // __CCGL_H__
-

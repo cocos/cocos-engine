@@ -30,6 +30,7 @@ THE SOFTWARE.
 
 #include <stack>
 #include <thread>
+#include <chrono>
 
 #include "platform/CCPlatformMacros.h"
 #include "base/CCRef.h"
@@ -60,6 +61,10 @@ class TextureCache;
 class Renderer;
 
 class Console;
+namespace experimental
+{
+    class FrameBuffer;
+}
 
 /**
  * @brief Matrix stack type.
@@ -91,20 +96,18 @@ enum class MATRIX_STACK_TYPE
 class CC_DLL Director : public Ref
 {
 public:
-    static Director* DirectorInstance;
-
     /** Director will trigger an event when projection type is changed. */
     static const char *EVENT_PROJECTION_CHANGED;
     /** Director will trigger an event before Schedule::update() is invoked. */
     static const char* EVENT_BEFORE_UPDATE;
     /** Director will trigger an event after Schedule::update() is invoked. */
     static const char* EVENT_AFTER_UPDATE;
+    /** Director will trigger an event while resetting Director */
+    static const char* EVENT_RESET;
     /** Director will trigger an event after Scene::render() is invoked. */
     static const char* EVENT_AFTER_VISIT;
     /** Director will trigger an event after a scene is drawn, the data is sent to GPU. */
     static const char* EVENT_AFTER_DRAW;
-    /** Director will trigger an event while resetting Director */
-    static const char* EVENT_RESET;
 
     /**
      * @brief Possible OpenGL projections used by director
@@ -489,15 +492,18 @@ public:
      Useful to know if certain code is already running on the cocos2d thread
      */
     const std::thread::id& getCocos2dThreadId() const { return _cocos2d_thread_id; }
+    
+    /**
+     * returns whether purge director in next loop
+     */
+    bool isPurgeDirectorInNextLoop() const { return _purgeDirectorInNextLoop; }
 
-    static bool isPurgeDirectorInNextLoop() { return PurgeDirectorInNextLoop; }
-
-    void purgeDirector();
 protected:
     void reset();
-
-    static bool PurgeDirectorInNextLoop; // this flag will be set to true in end()
-
+    
+    void purgeDirector();
+    bool _purgeDirectorInNextLoop; // this flag will be set to true in end()
+    
     void restartDirector();
     bool _restartDirectorInNextLoop; // this flag will be set to true in restart()
 
@@ -582,7 +588,7 @@ protected:
     Vector<Scene*> _scenesStack;
 
     /* last time the main loop was updated */
-    struct timeval *_lastUpdate;
+    std::chrono::steady_clock::time_point _lastUpdate;
 
     /* whether or not the next delta time will be zero */
     bool _nextDeltaTimeZero;
@@ -601,6 +607,9 @@ protected:
 
     /* Renderer for the Director */
     Renderer *_renderer;
+
+    /* Default FrameBufferObject*/
+    experimental::FrameBuffer* _defaultFBO;
 
     /* Console for the director */
     Console *_console;
@@ -649,4 +658,3 @@ protected:
 NS_CC_END
 
 #endif // __CCDIRECTOR_H__
-

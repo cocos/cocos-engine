@@ -46,7 +46,7 @@ static long getCurrentMillSecond()
     return lLastTime;
 }
 
-Application* Application::sm_pSharedApplication = 0;
+Application* Application::sm_pSharedApplication = nullptr;
 
 Application::Application()
 : _animationInterval(1.0f/60.0f*1000.0f)
@@ -116,6 +116,14 @@ void Application::setAnimationInterval(float interval)
 Application::Platform Application::getTargetPlatform()
 {
     return Platform::OS_MAC;
+}
+
+std::string Application::getVersion() {
+    NSString* version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    if (version) {
+        return [version UTF8String];
+    }
+    return "";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +207,7 @@ void Application::setStartupScriptFilename(const std::string& startupScriptFile)
     std::replace(_startupScriptFilename.begin(), _startupScriptFilename.end(), '\\', '/');
 }
 
-const std::string& Application::getStartupScriptFilename()
+const std::string& Application::getStartupScriptFilename(void)
 {
     return _startupScriptFilename;
 }
@@ -207,4 +215,3 @@ const std::string& Application::getStartupScriptFilename()
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC
-

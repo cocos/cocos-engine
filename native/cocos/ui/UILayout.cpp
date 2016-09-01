@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include "2d/CCSprite.h"
 #include "base/CCEventFocus.h"
 #include "base/CCStencilStateManager.hpp"
+#include "editor-support/cocostudio/CocosStudioExtension.h"
 
 
 NS_CC_BEGIN
@@ -241,9 +242,10 @@ void Layout::stencilClippingVisit(Renderer *renderer, const Mat4& parentTransfor
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    CCASSERT(nullptr != _director, "Director is null when setting matrix stack");
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    Director* director = Director::getInstance();
+    CCASSERT(nullptr != director, "Director is null when setting matrix stack");
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
     //Add group command
 
     _groupCommand.init(_globalZOrder);
@@ -311,12 +313,12 @@ void Layout::stencilClippingVisit(Renderer *renderer, const Mat4& parentTransfor
 
     renderer->popGroup();
 
-    _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 void Layout::onBeforeVisitScissor()
 {
-    auto glview = Director::DirectorInstance->getOpenGLView();
+    auto glview = Director::getInstance()->getOpenGLView();
     // apply scissor test
     _scissorOldState = glview->isScissorEnabled();
     if (false == _scissorOldState)
@@ -343,7 +345,7 @@ void Layout::onAfterVisitScissor()
         // revert scissor box
         if (false == _clippingOldRect.equals(_clippingRect))
         {
-            auto glview = Director::DirectorInstance->getOpenGLView();
+            auto glview = Director::getInstance()->getOpenGLView();
             glview->setScissorInPoints(_clippingOldRect.origin.x,
                                        _clippingOldRect.origin.y,
                                        _clippingOldRect.size.width,
@@ -774,10 +776,13 @@ const Color3B& Layout::getBackGroundColor()const
 void Layout::setBackGroundColor(const Color3B &startColor, const Color3B &endColor)
 {
     _gStartColor = startColor;
-    _gEndColor = endColor;
     if (_gradientRender)
     {
         _gradientRender->setStartColor(startColor);
+    }
+    _gEndColor = endColor;
+    if (_gradientRender)
+    {
         _gradientRender->setEndColor(endColor);
     }
 }
@@ -1878,6 +1883,13 @@ Widget* Layout::findNextFocusedWidget(FocusDirection direction, Widget* current)
     }
 }
 
+ResourceData Layout::getRenderFile()
+{
+    ResourceData rData;
+    rData.type = (int)_bgImageTexType;
+    rData.file = _backGroundImageFileName;
+    return rData;
+}
+
 }
 NS_CC_END
-

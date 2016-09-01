@@ -113,12 +113,9 @@ public:
      */
     virtual void beginWithClear(float r, float g, float b, float a, float depthValue, int stencilValue);
 
-    /** End is key word of lua, use other name to export to lua.
-     * @js NA
+    /** Ends grabbing.
+     * @lua endToLua
      */
-    inline void endToLua(){ end();};
-
-    /** Ends grabbing. */
     virtual void end();
 
     /** Clears the texture with a color.
@@ -260,12 +257,8 @@ public:
      *
      * @param sprite A Sprite.
      */
-    inline void setSprite(Sprite* sprite) {
-        CC_SAFE_RETAIN(sprite);
-        CC_SAFE_RELEASE(_sprite);
-        _sprite = sprite;
-    };
-
+    void setSprite(Sprite* sprite);
+    
     // Overrides
     virtual void visit(Renderer *renderer, const Mat4 &parentTransform, uint32_t parentFlags) override;
     virtual void draw(Renderer *renderer, const Mat4 &transform, uint32_t flags) override;

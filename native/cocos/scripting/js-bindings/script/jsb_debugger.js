@@ -253,11 +253,9 @@ this.processInput = function (inputstr) {
     }
 };
 
-let globalDebuggee = null;
 this._prepareDebugger = function (global) {
 
-    globalDebuggee = global;
-    require = global.require;
+    this.globalDebuggee = global;
     cc = global.cc;
     // exports = global;
 

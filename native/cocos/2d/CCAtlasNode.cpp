@@ -25,9 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCAtlasNode.h"
+#include "2d/CCAtlasNode.h"
 #include "renderer/CCTextureAtlas.h"
-#include "base/CCDirector.h"
 #include "base/CCDirector.h"
 #include "renderer/CCTextureCache.h"
 #include "renderer/CCRenderer.h"
@@ -71,44 +70,41 @@ AtlasNode * AtlasNode::create(const std::string& tile, int tileWidth, int tileHe
 
 bool AtlasNode::initWithTileFile(const std::string& tile, int tileWidth, int tileHeight, int itemsToRender)
 {
-    CCASSERT(!tile.empty(), "file size should not be empty");
-    Texture2D *texture = _director->getTextureCache()->addImage(tile);
+    CCASSERT(tile.size() > 0, "file size should not be empty");
+    Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(tile);
     return initWithTexture(texture, tileWidth, tileHeight, itemsToRender);
 }
 
 bool AtlasNode::initWithTexture(Texture2D* texture, int tileWidth, int tileHeight, int itemsToRender)
 {
-    bool ret = false;
-    do {
-        if (texture == nullptr)
-        {
-            log("AtlasNode::initWithTexture error:texture is nullptr!!");
-            break;
-        }
+    _itemWidth  = tileWidth;
+    _itemHeight = tileHeight;
 
-        _itemWidth  = tileWidth;
-        _itemHeight = tileHeight;
-        _colorUnmodified = Color3B::WHITE;
-        _isOpacityModifyRGB = true;
-        _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
-        _textureAtlas = new (std::nothrow) TextureAtlas();
-        if (_textureAtlas == nullptr)
-        {
-            log("AtlasNode::initWithTexture error:_textureAtlas is nullptr!!");
-            break;
-        }
-        _textureAtlas->initWithTexture(texture, itemsToRender);
+    _colorUnmodified = Color3B::WHITE;
+    _isOpacityModifyRGB = true;
 
-        this->updateBlendFunc();
-        this->updateOpacityModifyRGB();
-        this->calculateMaxItems();
-        _quadsToDraw = itemsToRender;
-        // shader stuff
-        setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
-        ret = true;
-    }while(false);
+    _blendFunc = BlendFunc::ALPHA_PREMULTIPLIED;
 
-    return ret;
+    _textureAtlas = new (std::nothrow) TextureAtlas();
+    _textureAtlas->initWithTexture(texture, itemsToRender);
+
+    if (! _textureAtlas)
+    {
+        CCLOG("cocos2d: Could not initialize AtlasNode. Invalid Texture.");
+        return false;
+    }
+
+    this->updateBlendFunc();
+    this->updateOpacityModifyRGB();
+
+    this->calculateMaxItems();
+
+    _quadsToDraw = itemsToRender;
+
+    // shader stuff
+    setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
+
+    return true;
 }
 
 
@@ -135,8 +131,9 @@ void AtlasNode::updateAtlasValues()
 // AtlasNode - draw
 void AtlasNode::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
 {
-    _quadCommand.init(_globalZOrder, _textureAtlas->getTexture()->getName(), getGLProgramState(), _blendFunc, _textureAtlas->getQuads(), _quadsToDraw, transform, flags);
-
+    // ETC1 ALPHA supports.
+    _quadCommand.init(_globalZOrder, _textureAtlas->getTexture(), getGLProgramState(), _blendFunc, _textureAtlas->getQuads(), _quadsToDraw, transform, flags);
+    
     renderer->addCommand(&_quadCommand);
 
 }

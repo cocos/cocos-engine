@@ -468,4 +468,3 @@ protected:
 NS_CC_END
 
 #endif /* defined(__cocos2d_libs__CCRenderState__) */
-

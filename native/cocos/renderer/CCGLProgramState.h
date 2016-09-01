@@ -477,4 +477,3 @@ NS_CC_END
  @}
  */
 #endif /* __CCGLPROGRAMSTATE_H__ */
-

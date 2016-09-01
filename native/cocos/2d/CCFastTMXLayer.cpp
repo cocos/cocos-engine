@@ -38,7 +38,7 @@ THE SOFTWARE.
 #include "renderer/CCRenderer.h"
 #include "renderer/CCVertexIndexBuffer.h"
 #include "base/CCDirector.h"
-#include "base/CCString.h"
+#include "base/ccUTF8.h"
 
 NS_CC_BEGIN
 namespace experimental {
@@ -66,7 +66,7 @@ bool TMXLayer::initWithTilesetInfo(TMXTilesetInfo *tilesetInfo, TMXLayerInfo *la
 {
     if( tilesetInfo )
     {
-        _texture = _director->getTextureCache()->addImage(tilesetInfo->_sourceImage);
+        _texture = Director::getInstance()->getTextureCache()->addImage(tilesetInfo->_sourceImage);
         _texture->retain();
     }
 
@@ -138,7 +138,7 @@ void TMXLayer::draw(Renderer *renderer, const Mat4& transform, uint32_t flags)
 
     if( flags != 0 || _dirty || _quadsDirty )
     {
-        Size s = _director->getWinSize();
+        Size s = Director::getInstance()->getVisibleSize();
         auto rect = Rect(0, 0, s.width, s.height);
 
         Mat4 inv = transform;
@@ -316,7 +316,7 @@ void TMXLayer::setupTiles()
     // Parse cocos2d properties
     this->parseInternalProperties();
 
-    Size screenSize = _director->getWinSize();
+    Size screenSize = Director::getInstance()->getWinSize();
 
     switch (_layerOrientation)
     {

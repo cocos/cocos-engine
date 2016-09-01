@@ -55,6 +55,8 @@ namespace ui {
          */
         ~LayoutComponent();
 
+        virtual bool init()override;
+
         /**
          * Create a LayoutComponent instance with default settings.
          */
@@ -424,4 +426,3 @@ namespace ui {
 /// @}
 NS_CC_END
 #endif /* defined(__cocos2d_libs__LayoutComponent__) */
-

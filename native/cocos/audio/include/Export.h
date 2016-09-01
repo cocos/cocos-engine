@@ -49,4 +49,3 @@ THE SOFTWARE.
 #endif
 
 #endif    // end of __EXPORT_COMMON__
-

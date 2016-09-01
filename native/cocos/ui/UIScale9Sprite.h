@@ -554,8 +554,9 @@ namespace ui {
         virtual void updateDisplayedColor(const Color3B& parentColor) override;
         virtual void disableCascadeColor() override;
         virtual void disableCascadeOpacity() override;
-
-
+        virtual void setGLProgram(GLProgram *glprogram) override;
+        virtual void setGLProgramState(GLProgramState *glProgramState) override;
+        
         /**
          * @brief Get the original no 9-sliced sprite
          *
@@ -606,11 +607,11 @@ namespace ui {
         virtual void setScaleY(float scaleY) override;
         virtual void setScale(float scale) override;
         virtual void setScale(float scaleX, float scaleY) override;
-
+        using Node::setScaleZ;
         virtual float getScaleX() const override;
         virtual float getScaleY() const override;
         virtual float getScale() const override;
-
+        using Node::getScaleZ;
         virtual void setGlobalZOrder(float globalZOrder) override;
 
         /**

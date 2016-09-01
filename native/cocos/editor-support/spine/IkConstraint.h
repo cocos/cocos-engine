@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -42,24 +42,27 @@ extern "C" {
 struct spSkeleton;
 
 typedef struct spIkConstraint {
-    spIkConstraintData* const data;
+	spIkConstraintData* const data;
+	
+	int bonesCount;
+	spBone** bones;
+	
+	spBone* target;
+	int bendDirection;
+	float mix;
 
-    int bonesCount;
-    spBone** bones;
-
-    spBone* target;
-    int bendDirection;
-    float mix;
+	int level;
 
 #ifdef __cplusplus
-    spIkConstraint() :
-        data(0),
-        bonesCount(0),
-        bones(0),
-        target(0),
-        bendDirection(0),
-        mix(0) {
-    }
+	spIkConstraint() :
+		data(0),
+		bonesCount(0),
+		bones(0),
+		target(0),
+		bendDirection(0),
+		mix(0),
+		level(0) {
+	}
 #endif
 } spIkConstraint;
 
@@ -75,6 +78,9 @@ void spIkConstraint_apply2 (spBone* parent, spBone* child, float targetX, float 
 typedef spIkConstraint IkConstraint;
 #define IkConstraint_create(...) spIkConstraint_create(__VA_ARGS__)
 #define IkConstraint_dispose(...) spIkConstraint_dispose(__VA_ARGS__)
+#define IkConstraint_apply(...) spIkConstraint_apply(__VA_ARGS__)
+#define IkConstraint_apply1(...) spIkConstraint_apply1(__VA_ARGS__)
+#define IkConstraint_apply2(...) spIkConstraint_apply2(__VA_ARGS__)
 #endif
 
 #ifdef __cplusplus
@@ -82,4 +88,3 @@ typedef spIkConstraint IkConstraint;
 #endif
 
 #endif /* SPINE_IKCONSTRAINT_H_ */
-

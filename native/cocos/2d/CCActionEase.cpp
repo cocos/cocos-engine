@@ -48,7 +48,9 @@ bool ActionEase::initWithAction(ActionInterval *action)
 {
     CCASSERT(action != nullptr, "action couldn't be nullptr!");
     if (action == nullptr)
+    {
         return false;
+    }
 
     if (ActionInterval::initWithDuration(action->getDuration()))
     {
@@ -61,7 +63,7 @@ bool ActionEase::initWithAction(ActionInterval *action)
     return false;
 }
 
-ActionEase::~ActionEase()
+ActionEase::~ActionEase(void)
 {
     CC_SAFE_RELEASE(_inner);
 }
@@ -79,7 +81,7 @@ void ActionEase::startWithTarget(Node *target)
     }
 }
 
-void ActionEase::stop()
+void ActionEase::stop(void)
 {
     if (_inner)
         _inner->stop();
@@ -291,8 +293,8 @@ EaseExponentialOut* EaseExponentialOut::clone() const
 {
     // no copy constructor
     if (_inner)
-        EaseExponentialOut::create(_inner->clone());
-
+        return EaseExponentialOut::create(_inner->clone());
+    
     return nullptr;
 }
 
@@ -409,7 +411,7 @@ void EaseSineOut::update(float time)
     _inner->update(tweenfunc::sineEaseOut(time));
 }
 
-ActionEase* EaseSineOut::reverse() const
+ActionEase* EaseSineOut::reverse(void) const
 {
     return EaseSineIn::create(_inner->reverse());
 }
@@ -719,7 +721,6 @@ EaseBackIn* EaseBackIn::create(ActionInterval *action)
 
 EaseBackIn* EaseBackIn::clone() const
 {
-    // no copy constructor
     if (_inner)
         return EaseBackIn::create(_inner->clone());
 
@@ -755,7 +756,6 @@ EaseBackOut* EaseBackOut::create(ActionInterval* action)
 
 EaseBackOut* EaseBackOut::clone() const
 {
-    // no copy constructor
     if (_inner)
         return EaseBackOut::create(_inner->clone());
 
@@ -791,7 +791,6 @@ EaseBackInOut* EaseBackInOut::create(ActionInterval* action)
 
 EaseBackInOut* EaseBackInOut::clone() const
 {
-    // no copy constructor
     if (_inner)
         return EaseBackInOut::create(_inner->clone());
 
@@ -836,8 +835,9 @@ EaseBezierAction* EaseBezierAction::clone() const
     {
         auto ret = EaseBezierAction::create(_inner->clone());
         if (ret)
+        {
             ret->setBezierParamer(_p0,_p1,_p2,_p3);
-        
+        }
         return ret;
     }
 

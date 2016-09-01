@@ -66,10 +66,10 @@ public:
     // ------------------------------------------
 
     /** Iterator, can be used to loop the Map. */
-    using iterator = typename RefMap::iterator;
+    typedef typename RefMap::iterator iterator;
     /** Const iterator, can be used to loop the Map. */
-    using const_iterator = typename RefMap::const_iterator;
-
+    typedef typename RefMap::const_iterator const_iterator;
+    
     /** Return iterator to beginning. */
     iterator begin() { return _data.begin(); }
     /** Return const_iterator to beginning. */
@@ -422,4 +422,3 @@ NS_CC_END
 /// @}
 
 #endif /* __CCMAP_H__ */
-

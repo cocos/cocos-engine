@@ -131,7 +131,7 @@ Rect Grid3DAction::getGridRect() const
 
 // implementation of TiledGrid3DAction
 
-GridBase* TiledGrid3DAction::getGrid()
+GridBase* TiledGrid3DAction::getGrid(void)
 {
     return TiledGrid3D::create(_gridSize, _gridNodeTarget->getGridRect());
 }
@@ -264,7 +264,7 @@ AccelAmplitude* AccelAmplitude::clone() const
 
 AccelAmplitude::~AccelAmplitude()
 {
-    CC_SAFE_RELEASE(_other);
+    CC_SAFE_DELETE(_other);
 }
 
 void AccelAmplitude::startWithTarget(Node *target)

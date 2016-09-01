@@ -1,4 +1,4 @@
-#include "CCMenuItemLoader.h"
+#include "editor-support/cocosbuilder/CCMenuItemLoader.h"
 
 using namespace cocos2d;
 
@@ -28,4 +28,3 @@ void MenuItemLoader::onHandlePropTypeCheck(Node * pNode, Node * pParent, const c
 }
 
 }
-

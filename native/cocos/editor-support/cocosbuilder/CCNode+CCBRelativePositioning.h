@@ -1,7 +1,7 @@
 #ifndef __CCB_CCNODE_RELATIVEPOSITIONING_H__
 #define __CCB_CCNODE_RELATIVEPOSITIONING_H__
 
-#include "CCBReader.h"
+#include "editor-support/cocosbuilder/CCBReader.h"
 
 namespace cocosbuilder {
 
@@ -12,4 +12,3 @@ extern CC_DLL void setRelativeScale(cocos2d::Node *node, float scaleX, float sca
 }
 
 #endif // __CCB_CCNODE_RELATIVEPOSITIONING_H__
-

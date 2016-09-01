@@ -917,4 +917,3 @@ GLProgramState::AutoBindingResolver::~AutoBindingResolver()
 }
 
 NS_CC_END
-

@@ -36,6 +36,7 @@ NS_CC_BEGIN
 
 class Label;
 class SpriteFrame;
+struct CC_DLL ResourceData;
 
 namespace ui{
 
@@ -300,6 +301,10 @@ public:
     void resetPressedRender();
     void resetDisabledRender();
 
+    ResourceData getNormalFile();
+    ResourceData getPressedFile();
+    ResourceData getDisabledFile();
+
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;
     virtual bool init(const std::string& normalImage,
@@ -389,4 +394,3 @@ NS_CC_END
 /// @}
 
 #endif /* defined(__CocoGUI__Button__) */
-

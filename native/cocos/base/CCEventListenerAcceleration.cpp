@@ -28,6 +28,8 @@
 
 NS_CC_BEGIN
 
+const std::string EventListenerAcceleration::LISTENER_ID = "__cc_acceleration";
+
 EventListenerAcceleration::EventListenerAcceleration()
 {
 
@@ -60,7 +62,7 @@ bool EventListenerAcceleration::init(const std::function<void(Acceleration*, Eve
         this->onAccelerationEvent(&accEvent->_acc, event);
     };
 
-    if (EventListener::init(Type::ACCELERATION, listener))
+    if (EventListener::init(Type::ACCELERATION, LISTENER_ID, listener))
     {
         onAccelerationEvent = callback;
         return true;
@@ -93,4 +95,3 @@ bool EventListenerAcceleration::checkAvailable()
 }
 
 NS_CC_END
-
