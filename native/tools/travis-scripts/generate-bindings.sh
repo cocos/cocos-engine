@@ -63,16 +63,13 @@ popd
 #backup the chipmunk js bindings
 backup_dir="$JS_AUTO_GENERATED_DIR"/../backup
 echo $backup_dir
-mkdir $backup_dir
+mkdir -p $backup_dir
 cp "$JS_AUTO_GENERATED_DIR"/js_bindings_chipmunk_auto_classes.cpp "$backup_dir"/
 cp "$JS_AUTO_GENERATED_DIR"/js_bindings_chipmunk_auto_classes.h "$backup_dir"/
 cp "$JS_AUTO_GENERATED_DIR"/js_bindings_chipmunk_auto_classes_registration.h "$backup_dir"/
 cp "$JS_AUTO_GENERATED_DIR"/js_bindings_chipmunk_functions.cpp "$backup_dir"/
 cp "$JS_AUTO_GENERATED_DIR"/js_bindings_chipmunk_functions.h "$backup_dir"/
 cp "$JS_AUTO_GENERATED_DIR"/js_bindings_chipmunk_functions_registration.h "$backup_dir"/
-
-rm -rf "$LUA_AUTO_GENERATED_DIR"
-mkdir "$LUA_AUTO_GENERATED_DIR"
 
 rm -rf "$JS_AUTO_GENERATED_DIR"
 mkdir "$JS_AUTO_GENERATED_DIR"
