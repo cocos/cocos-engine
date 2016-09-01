@@ -305,7 +305,9 @@ var game = {
     },
 
     /**
-     * End game, it will close the game window
+     * !#en End game, it will close the game window
+     * !#zh 退出游戏
+     * @method end
      */
     end: function () {
         close();
