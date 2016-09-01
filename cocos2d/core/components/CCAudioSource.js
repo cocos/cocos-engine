@@ -30,8 +30,13 @@
  * @extends Component
  */
 
-var audioEngine = require('../../audio/CCAudioEngine');
-cc.audioEngine = audioEngine;
+var audioEngine;
+
+if (cc.sys.isNative) {
+    audioEngine = jsb.AudioEngine;
+} else {
+    audioEngine = require('../../audio/CCAudioEngine');
+}
 
 var AudioSource = cc.Class({
     name: 'cc.AudioSource',
@@ -183,6 +188,7 @@ var AudioSource = cc.Class({
 
     onDestroy: function () {
         this.stop();
+        audioEngine.uncache(this._clip);
     },
 
     /**
@@ -234,8 +240,7 @@ var AudioSource = cc.Class({
      */
     rewind: function(){
         if (this.audioID === undefined) return false;
-        this.stop();
-        this.play();
+        audioEngine.setCurrentTime(this.audioID, 0);
     }
 
 });

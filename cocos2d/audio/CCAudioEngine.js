@@ -78,7 +78,7 @@ var audioEngine = {
     _maxAudioInstance: 24,
 
     play: function () {
-        this.play2d.apply(this, arguments);
+        return this.play2d.apply(this, arguments);
     },
 
     play2d: function (filePath, loop, volume/*, profile*/) {
@@ -254,13 +254,124 @@ var audioEngine = {
     },
 
     // getProfile
+    getProfile: function () {},
     // preload
+    preload: function () {},
 
     // web 独占接口
     // 设置一个大小，单位为kb，超过这个大小则直接解析成 dom 节点
     // 因为 webAudio 占用内存过多，所以让用户自己手动取舍
     setMaxWebAudioSize: function (kb) {
         this._maxWebAudioSize = kb * 1024;
+    },
+
+    // deprecated
+    _musicId: -1,
+    _backgroundVolume: 1,
+    _effectsVolume: 1,
+    willPlayMusic: function () { return false; },
+    playMusic: function (url, loop) {
+        cc.log('audioEngine.playMusic is deprecated, please call audioEngine.play');
+        this._musicId = this.play(url, loop, this._backgroundVolume);
+        return this._musicId;
+    },
+    stopMusic: function () {
+        cc.log('audioEngine.stopMusic is deprecated, please call audioEngine.stop');
+        this.stop(this._musicId);
+        return this._musicId;
+    },
+    pauseMusic: function () {
+        cc.log('audioEngine.pauseMusic is deprecated, please call audioEngine.pause');
+        this.pause(this._musicId);
+        return this._musicId;
+    },
+    resumeMusic: function () {
+        cc.log('audioEngine.resumeMusic is deprecated, please call audioEngine.resume');
+        this.resume(this._musicId);
+        return this._musicId;
+    },
+    rewindMusic: function () {
+        cc.log('audioEngine.rewindMusic is deprecated, please call audioEngine.setCurrentTime');
+        this.setCurrentTime(this._musicId, 0);
+        return this._musicId;
+    },
+    getMusicVolume: function () {
+        cc.log('audioEngine.getMusicVolume is deprecated, please call audioEngine.getVolume');
+        return this._backgroundVolume;
+    },
+    setMusicVolume: function (volume) {
+        cc.log('audioEngine.setMusicVolume is deprecated, please call audioEngine.setVolume');
+        this._backgroundVolume = volume;
+        this.setVolume(this._musicId, volume);
+        return this._backgroundVolume;
+    },
+    isMusicPlaying: function () {
+        cc.log('audioEngine.isMusicPlaying is deprecated, please call audioEngine.getState');
+        return this.getState(this._musicId) === Audio.State.PLAYING;
+    },
+    playEffect: function (url, loop, volume) {
+        cc.log('audioEngine.playEffect is deprecated, please call audioEngine.play');
+        return this.play(url, loop, volume === undefined ? this._effectsVolume : volume);
+    },
+    setEffectsVolume: function (volume) {
+        cc.log('audioEngine.setEffectsVolume is deprecated, please call audioEngine.setVolume');
+        this._effectsVolume = volume;
+        for (var id in id2audio) {
+            if (id === this._musicId) continue;
+            this.setVolume(id, volume);
+        }
+    },
+    getEffectsVolume: function () {
+        cc.log('audioEngine.getEffectsVolume is deprecated, please call audioEngine.getVolume');
+        return this._effectsVolume;
+    },
+    pauseEffect: function (id) {
+        cc.log('audioEngine.pauseEffect is deprecated, please call audioEngine.pause');
+        return this.pause(id);
+    },
+    pauseAllEffects: function () {
+        cc.log('audioEngine.pauseAllEffects is deprecated, please call audioEngine.pause');
+        for (var id in id2audio) {
+            if (id === this._musicId) continue;
+            var audio = id2audio[id];
+            var state = audio.getState();
+            if (state === Audio.State.PLAYING) {
+                this._pauseIDCache.push(id);
+                audio.pause();
+            }
+        }
+        while (waitQueue.length > 0) {
+            this._pauseIDCache.push(waitQueue.pop());
+        }
+    },
+    resumeEffect: function (id) {
+        cc.log('audioEngine.resumeEffect is deprecated, please call audioEngine.resume');
+        this.resume(id);
+    },
+    resumeAllEffects: function () {
+        cc.log('audioEngine.resumeAllEffects is deprecated, please call audioEngine.resumeAll');
+        while (this._pauseIDCache.length > 0) {
+            var id = this._pauseIDCache.pop();
+            var audio = getAudioFromId(id);
+            if (audio && audio.resume)
+                audio.resume();
+        }
+    },
+    stopEffect: function (id) {
+        cc.log('audioEngine.stopEffect is deprecated, please call audioEngine.stop');
+        return this.stop(id);
+    },
+    stopAllEffects: function (id) {
+        cc.log('audioEngine.stopEffect is deprecated, please call audioEngine.stop');
+        return this.stop(id);
+    },
+    unloadEffect: function () {
+        cc.log('audioEngine.stopEffect is deprecated, please call audioEngine.stop');
+        return this.stop(id);
+    },
+    end: function () {
+        cc.log('audioEngine.end is deprecated, please call audioEngine.stopAll');
+        return this.stopAll();
     }
 };
 
