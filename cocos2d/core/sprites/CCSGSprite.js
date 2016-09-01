@@ -400,12 +400,12 @@ _ccsg.Sprite = _ccsg.Node.extend({
      * @param {Boolean} relative
      * @override
      */
-    ignoreAnchorPointForPosition:function (relative) {
+    setIgnoreAnchorPointForPosition:function (relative) {
         if(this._batchNode){
-            cc.log(cc._LogInfos.Sprite.ignoreAnchorPointForPosition);
+            cc.log(cc._LogInfos.Sprite.setIgnoreAnchorPointForPosition);
             return;
         }
-        _ccsg.Node.prototype.ignoreAnchorPointForPosition.call(this, relative);
+        _ccsg.Node.prototype.setIgnoreAnchorPointForPosition.call(this, relative);
     },
 
     /**
@@ -975,7 +975,7 @@ Object.defineProperty(spritePro, 'visible', {
 
 Object.defineProperty(spritePro, 'ignoreAnchor', {
     get: _ccsg.Node.prototype.isIgnoreAnchorPointForPosition,
-    set: spritePro.ignoreAnchorPointForPosition
+    set: spritePro.setIgnoreAnchorPointForPosition
 });
 
 Object.defineProperty(spritePro, 'opacityModifyRGB', {

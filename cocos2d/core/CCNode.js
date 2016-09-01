@@ -524,7 +524,7 @@ var Node = cc.Class({
         }
         
         // Actions
-        this.stopAllActions();
+        cc.director.getActionManager().removeAllActionsFromTarget(this);
         this._releaseAllActions();
 
         // Remove Node.currentHovered

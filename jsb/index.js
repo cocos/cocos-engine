@@ -58,9 +58,7 @@ if (_engineNumberVersion) {
 cc.initEngine = function (config, cb) {
     require('script/jsb.js');
     cc._renderType = cc.game.RENDER_TYPE_OPENGL;
-    if (config) {
-        cc._initDebugSetting(config[cc.game.CONFIG_KEY.debugMode]);
-    }
+    cc._initDebugSetting(config ? config[cc.game.CONFIG_KEY.debugMode] : 0);
     cc._engineLoaded = true;
     cc.log(cc.ENGINE_VERSION);
     if (cb) cb();
