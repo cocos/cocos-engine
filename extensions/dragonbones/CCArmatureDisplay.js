@@ -30,6 +30,7 @@ dragonBones.CCArmatureDisplay = cc.Class({
     mixins: [EventTarget],
 
     _armature : null,
+    _debugDrawer : null,
 
     _onClear : function () {
         this._armature = null;
@@ -44,19 +45,24 @@ dragonBones.CCArmatureDisplay = cc.Class({
             return;
         }
 
+        if (!this._debugDrawer) {
+            this._debugDrawer = new cc.DrawNode();
+            this.addChild(this._debugDrawer);
+            this._debugDrawer.setDrawColor(cc.color(255, 0, 0, 255));
+            this._debugDrawer.setLineWidth(1);
+        }
+
+        this._debugDrawer.clear();
         var bones = this._armature.getBones();
-        var drawingUtil = cc._drawingUtil;
         for (var i = 0, l = bones.length; i < l; ++i) {
             var bone = bones[i];
             var boneLength = Math.max(bone.length, 5);
             var startX = bone.globalTransformMatrix.tx;
-            var startY = bone.globalTransformMatrix.ty;
+            var startY = -bone.globalTransformMatrix.ty;
             var endX = startX + bone.globalTransformMatrix.a * boneLength;
-            var endY = startY + bone.globalTransformMatrix.b * boneLength;
+            var endY = startY - bone.globalTransformMatrix.b * boneLength;
 
-            drawingUtil.setDrawColor(0, 0, 255, 255);
-            drawingUtil.setLineWidth(1);
-            drawingUtil.drawLine({x: startX, y:startY}, {x:endX, y:endY});
+            this._debugDrawer.drawSegment(cc.p(startX, startY), cc.p(endX, endY));
         }
     },
 
