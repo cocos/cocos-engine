@@ -466,7 +466,15 @@ var RichText = cc.Class({
         var labelSize;
 
         for (var i = 0; i < this._textArray.length; ++i) {
-            var text = this._textArray[i].text;
+            var richTextElement = this._textArray[i];
+            var text = richTextElement.text;
+            //handle <br/> <img /> tag
+            if(text === "") {
+                if(richTextElement.style && richTextElement.style.newline) {
+                    this._updateLineInfo();
+                    continue;
+                }
+            }
             var multilineTexts = text.split("\n");
 
             for (var j = 0; j < multilineTexts.length; ++j) {
