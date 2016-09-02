@@ -167,17 +167,8 @@ var RichText = cc.Class({
     },
 
     _createSgNode: function () {
-        return new _ccsg.Node();
-    },
+        var sgNode = new _ccsg.Node();
 
-    _updateLabelSegmentTextAttributes: function() {
-        this._labelSegments.forEach(function(item) {
-            this._applyTextAttribute(item);
-        }.bind(this));
-    },
-
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
         sgNode.setCascadeOpacityEnabled(true);
 
         var self = this;
@@ -187,7 +178,16 @@ var RichText = cc.Class({
 
         sgNode._setContentSize = sgNode.setContentSize;
         sgNode.setContentSize = function () {};
+        return sgNode;
+    },
 
+    _updateLabelSegmentTextAttributes: function() {
+        this._labelSegments.forEach(function(item) {
+            this._applyTextAttribute(item);
+        }.bind(this));
+    },
+
+    _initSgNode: function () {
         this._updateRichText();
     },
 

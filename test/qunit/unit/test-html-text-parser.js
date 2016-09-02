@@ -67,7 +67,7 @@ test('Color test', function(){
               [{text: "hello world", style: {}}],
               "tag name is invalid");
 
-    var colorTestStr6 = "<color=#0xff4400>hello world";
+    var colorTestStr6 = "<color = #0xff4400>hello world";
     deepEqual(parser.parse(colorTestStr6),
               [{text: "hello world"}],
               "The close tag is missing.");
@@ -76,7 +76,7 @@ test('Color test', function(){
 });
 
 test('Size test', function() {
-    var sizeTestStr1 = "<size=20>hello world</size>";
+    var sizeTestStr1 = "<size = 20>hello world</size>";
     deepEqual(parser.parse(sizeTestStr1),
               [{text: "hello world", style: {size: 20}}],
               "Happy path 1.");
