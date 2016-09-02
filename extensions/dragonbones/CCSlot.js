@@ -199,9 +199,8 @@ dragonBones.CCSlot = cc.Class({
         if (this._renderDisplay) {
             this.global.fromMatrix(this.globalTransformMatrix);
             this._renderDisplay.setScale(this.global.scaleX, this.global.scaleY);
-            // TODO support skew
-            //this._renderDisplay.setRotationSkewX(this.global.skewX * dragonBones.DragonBones.RADIAN_TO_ANGLE);
-            //this._renderDisplay.setRotationSkewY(this.global.skewY * dragonBones.DragonBones.RADIAN_TO_ANGLE);
+            this._renderDisplay.setRotationX(this.global.skewX * dragonBones.DragonBones.RADIAN_TO_ANGLE);
+            this._renderDisplay.setRotationY(this.global.skewY * dragonBones.DragonBones.RADIAN_TO_ANGLE);
             this._renderDisplay.setPosition(this.global.x, -this.global.y);
         }
     }
