@@ -321,6 +321,6 @@ test('test br tag', function () {
                {text: "a", style: {bold: true}},
                {text: "", style: {newline: true}},
                {text: "", style: {newline: true}},
-               {text: " world"}
+               {text: "world"}
               ], "newline element test");
 });

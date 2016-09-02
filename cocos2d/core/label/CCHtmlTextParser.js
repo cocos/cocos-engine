@@ -111,6 +111,7 @@ cc.HtmlTextParser.prototype = {
             tagName = header[0].trim();
             attribute = attribute.substring(tagName.length).trim();
             if(tagName.substring(0,2) === "br" && tagName[tagName.length-1] === "/") {
+                obj.isNewLine = true;
                 this._resultObjectArray.push({text: "", style: {newline: true}});
             }
         }
@@ -194,6 +195,9 @@ cc.HtmlTextParser.prototype = {
         if (this._stack.length === 0){
             this._stack.push(obj);
         } else {
+            if(obj.isNewLine) {
+                return;
+            }
             //for nested tags
             var previousTagObj = this._stack[this._stack.length - 1];
             for (var key in previousTagObj) {
