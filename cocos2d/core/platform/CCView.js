@@ -153,8 +153,6 @@ var View = cc._Class.extend({
     _targetDensityDPI: null,
     _antiAliasEnabled: true,
 
-    _antiAliasEnabled: false,
-
     /**
      * Constructor of View
      */
