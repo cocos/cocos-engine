@@ -109,8 +109,7 @@ cc.HtmlTextParser.prototype = {
         header = attribute.match(/^(br(\s)*\/)/);
         if(header && header[0].length > 0) {
             tagName = header[0].trim();
-            attribute = attribute.substring(tagName.length).trim();
-            if(tagName.substring(0,2) === "br" && tagName[tagName.length-1] === "/") {
+            if(tagName.startsWith("br") && tagName[tagName.length-1] === "/") {
                 obj.isNewLine = true;
                 this._resultObjectArray.push({text: "", style: {newline: true}});
             }
