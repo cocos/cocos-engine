@@ -125,7 +125,7 @@ cc.Follow.prototype.update = function(dt) {
 
 cc.Show.prototype.update = function (dt) {
     var target = this.getTarget();
-    var _renderComps = target._owner.getComponentsInChildren();
+    var _renderComps = target._owner.getComponentsInChildren(cc._SGComponent);
     for (var i = 0; i < _renderComps.length; ++i) {
         var render = _renderComps[i];
         render.enabled = true;
@@ -134,7 +134,7 @@ cc.Show.prototype.update = function (dt) {
 
 cc.Hide.prototype.update = function (dt) {
     var target = this.getTarget();
-    var _renderComps = target._owner.getComponentsInChildren();
+    var _renderComps = target._owner.getComponentsInChildren(cc._SGComponent);
     for (var i = 0; i < _renderComps.length; ++i) {
         var render = _renderComps[i];
         render.enabled = false;
@@ -143,7 +143,7 @@ cc.Hide.prototype.update = function (dt) {
 
 cc.ToggleVisibility.prototype.update = function (dt) {
     var target = this.getTarget();
-    var _renderComps = target._owner.getComponentsInChildren();
+    var _renderComps = target._owner.getComponentsInChildren(cc._SGComponent);
     for (var i = 0; i < _renderComps.length; ++i) {
         var render = _renderComps[i];
         render.enabled = true;
