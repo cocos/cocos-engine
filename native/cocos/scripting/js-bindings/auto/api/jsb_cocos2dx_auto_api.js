@@ -2444,6 +2444,16 @@ pause : function (
 },
 
 /**
+ * @method isPurgeDirectorInNextLoop
+ * @return {bool}
+ */
+isPurgeDirectorInNextLoop : function (
+)
+{
+    return false;
+},
+
+/**
  * @method setEventDispatcher
  * @param {cc.EventDispatcher} arg0
  */
@@ -20410,150 +20420,6 @@ ParallaxNode : function (
 };
 
 /**
- * @class TMXObject
- */
-cc.TMXObject = {
-
-/**
- * @method setObjectName
- * @param {String} arg0
- */
-setObjectName : function (
-str 
-)
-{
-},
-
-/**
- * @method getObjectSize
- * @return {size_object}
- */
-getObjectSize : function (
-)
-{
-    return cc.Size;
-},
-
-/**
- * @method getProperty
- * @param {String} arg0
- * @return {cc.Value}
- */
-getProperty : function (
-str 
-)
-{
-    return cc.Value;
-},
-
-/**
- * @method getObjectVisible
- * @return {bool}
- */
-getObjectVisible : function (
-)
-{
-    return false;
-},
-
-/**
- * @method getGid
- * @return {unsigned int}
- */
-getGid : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getId
- * @return {int}
- */
-getId : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getObjectRotation
- * @return {float}
- */
-getObjectRotation : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method getProperties
- * @return {map_object}
- */
-getProperties : function (
-)
-{
-    return map_object;
-},
-
-/**
- * @method getOffset
- * @return {vec2_object}
- */
-getOffset : function (
-)
-{
-    return cc.Vec2;
-},
-
-/**
- * @method setProperties
- * @param {map_object} arg0
- */
-setProperties : function (
-map 
-)
-{
-},
-
-/**
- * @method getObjectName
- * @return {String}
- */
-getObjectName : function (
-)
-{
-    return ;
-},
-
-/**
- * @method TMXObject
- * @constructor
- * @param {map_object} arg0
- */
-TMXObject : function (
-map 
-)
-{
-},
-
-};
-
-/**
- * @class TMXObjectImage
- */
-cc.TMXObjectImage = {
-
-};
-
-/**
- * @class TMXObjectShape
- */
-cc.TMXObjectShape = {
-
-};
-
-/**
  * @class TMXObjectGroup
  */
 cc.TMXObjectGroup = {
@@ -20593,20 +20459,20 @@ getPositionOffset : function (
 /**
  * @method getObject
  * @param {String} arg0
- * @return {cc.TMXObject}
+ * @return {map_object}
  */
 getObject : function (
 str 
 )
 {
-    return cc.TMXObject;
+    return map_object;
 },
 
 /**
  * @method getObjects
- * @return {Array}
- */
-getObjects : function (
+* @return {Array|Array}
+*/
+getObjects : function(
 )
 {
     return new Array();
@@ -20653,14 +20519,20 @@ map
 },
 
 /**
+ * @method setObjects
+ * @param {Array} arg0
+ */
+setObjects : function (
+array 
+)
+{
+},
+
+/**
  * @method TMXObjectGroup
  * @constructor
- * @param {cc.TMXObjectGroupInfo} arg0
- * @param {cc.TMXMapInfo} arg1
  */
 TMXObjectGroup : function (
-tmxobjectgroupinfo, 
-map 
 )
 {
 },
@@ -20704,42 +20576,6 @@ TMXLayerInfo : function (
 };
 
 /**
- * @class TMXObjectGroupInfo
- */
-cc.TMXObjectGroupInfo = {
-
-/**
- * @method setProperties
- * @param {map_object} arg0
- */
-setProperties : function (
-map 
-)
-{
-},
-
-/**
- * @method getProperties
- * @return {map_object}
- */
-getProperties : function (
-)
-{
-    return map_object;
-},
-
-/**
- * @method TMXObjectGroupInfo
- * @constructor
- */
-TMXObjectGroupInfo : function (
-)
-{
-},
-
-};
-
-/**
  * @class TMXTilesetInfo
  */
 cc.TMXTilesetInfo = {
@@ -20773,13 +20609,13 @@ TMXTilesetInfo : function (
 cc.TMXMapInfo = {
 
 /**
- * @method getAllChildren
-* @return {Array|Array}
-*/
-getAllChildren : function(
+ * @method setCurrentString
+ * @param {String} arg0
+ */
+setCurrentString : function (
+str 
 )
 {
-    return new Array();
 },
 
 /**
@@ -20993,16 +20829,6 @@ getTileSize : function (
 },
 
 /**
- * @method setAllChildren
- * @param {Array} arg0
- */
-setAllChildren : function (
-array 
-)
-{
-},
-
-/**
  * @method getTileProperties
  * @return {map_object}
  */
@@ -21058,16 +20884,6 @@ getTMXFileName : function (
  */
 setStaggerIndex : function (
 int 
-)
-{
-},
-
-/**
- * @method setCurrentString
- * @param {String} arg0
- */
-setCurrentString : function (
-str 
 )
 {
 },
@@ -21503,6 +21319,16 @@ TMXLayer : function (
 cc.TMXTiledMap = {
 
 /**
+ * @method setObjectGroups
+ * @param {Array} arg0
+ */
+setObjectGroups : function (
+array 
+)
+{
+},
+
+/**
  * @method getProperty
  * @param {String} arg0
  * @return {cc.Value}
@@ -21548,9 +21374,9 @@ str
 
 /**
  * @method getObjectGroups
- * @return {Array}
- */
-getObjectGroups : function (
+* @return {Array|Array}
+*/
+getObjectGroups : function(
 )
 {
     return new Array();
