@@ -29,7 +29,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     View = require('./platform/CCView');
 }
 
-var audioEngine = cc.audioEngine = require('../../audio/CCAudioEngine');
+var audioEngine = cc.audioEngine = require('../audio/CCAudioEngine');
 
 /**
  * !#en An object to boot the game.
