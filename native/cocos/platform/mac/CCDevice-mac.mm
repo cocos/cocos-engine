@@ -355,7 +355,7 @@ Data Device::getTextureDataForText(const char * text, const FontDefinition& text
         info.width = textDefinition._dimensions.width;
         info.height = textDefinition._dimensions.height;
 
-        if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(),
+        if (! _initWithString(text, align, textDefinition._fontName.c_str(),
                               textDefinition._fontSize, &info, &textDefinition._fontFillColor,
                               textDefinition._fontAlpha, textDefinition._enableWrap, textDefinition._overflow,
                               textDefinition._enableBold))
