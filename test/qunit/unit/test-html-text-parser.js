@@ -303,4 +303,24 @@ test('test br tag', function () {
                {text: "a", style: {bold: true}},
                {text: " world"}
               ], "newline element test");
+
+    var newlineTest6 = "hello <b>a<br /><br/ ></b> world";
+
+    deepEqual(parser.parse(newlineTest6),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: "", style: {newline: true}},
+               {text: "", style: {newline: true}},
+               {text: " world"}
+              ], "newline element test");
+
+    var newlineTest7 = "hello <b>a</b><br /><br/ >world";
+
+    deepEqual(parser.parse(newlineTest7),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: "", style: {newline: true}},
+               {text: "", style: {newline: true}},
+               {text: " world"}
+              ], "newline element test");
 });
