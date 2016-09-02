@@ -43,7 +43,7 @@ public class Cocos2dxVideoHelper {
 
     private FrameLayout mLayout = null;
     private Cocos2dxActivity mActivity = null;  
-    private SparseArray<Cocos2dxVideoView> sVideoViews = null;
+    private static SparseArray<Cocos2dxVideoView> sVideoViews = null;
     static VideoHandler mVideoHandler = null;
     private static Handler sHandler = null;
     
@@ -392,7 +392,7 @@ public class Cocos2dxVideoHelper {
         Callable<Float> callable = new Callable<Float>() {
             @Override
             public Float call() throws Exception {
-                Cocos2dxVideoView video = mVideoViews.get(index);
+                Cocos2dxVideoView video = sVideoViews.get(index);
                 float currentPosition = -1;
                 if (video != null) {
                     currentPosition = video.getCurrentPosition() / 1000.0f;
@@ -414,7 +414,7 @@ public class Cocos2dxVideoHelper {
         Callable<Float> callable = new Callable<Float>() {
             @Override
             public Float call() throws Exception {
-                Cocos2dxVideoView video = mVideoViews.get(index);
+                Cocos2dxVideoView video = sVideoViews.get(index);
                 float duration = -1;
                 if (video != null) {
                     duration = video.getDuration() / 1000.0f;
@@ -436,7 +436,7 @@ public class Cocos2dxVideoHelper {
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                Cocos2dxVideoView video = mVideoViews.get(index);
+                Cocos2dxVideoView video = sVideoViews.get(index);
                 return video != null && video.isPlaying();
             }
         };

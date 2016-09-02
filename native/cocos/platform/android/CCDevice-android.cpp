@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "base/ccTypes.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/CCFileUtils.h"
+#include "base/ccUTF8.h"
 
 static const std::string helperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
 
@@ -113,9 +114,7 @@ public:
          * and data.
          * use this approach to decrease the jni call number
          */
-        int count = strlen(text);
-        jbyteArray strArray = methodInfo.env->NewByteArray(count);
-        methodInfo.env->SetByteArrayRegion(strArray, 0, count, reinterpret_cast<const jbyte*>(text));
+        auto jstrText = cocos2d::StringUtils::newStringUTFJNI(methodInfo.env, text);
         jstring jstrFont = methodInfo.env->NewStringUTF(fullPathOrFontName.c_str());
         bool ret = true;
         if(!methodInfo.env->CallStaticBooleanMethod(methodInfo.classID, methodInfo.methodID, jstrText,
@@ -132,7 +131,7 @@ public:
             return false;
         }
 
-        methodInfo.env->DeleteLocalRef(strArray);
+        methodInfo.env->DeleteLocalRef(jstrText);
         methodInfo.env->DeleteLocalRef(jstrFont);
         methodInfo.env->DeleteLocalRef(methodInfo.classID);
 
