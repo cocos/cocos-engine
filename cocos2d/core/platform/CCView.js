@@ -127,7 +127,7 @@ var View = cc._Class.extend({
     // Custom callback for resize event
     _resizeCallback: null,
 
-    _orientationChanging: false,
+    _orientationChanging: true,
 
     _scaleX: 1,
     _originalScaleX: 1,
@@ -217,7 +217,6 @@ var View = cc._Class.extend({
     _orientationChange: function () {
         this._orientationChanging = true;
         this._resizeEvent();
-        this._orientationChanging = false;
     },
 
     /**
@@ -325,6 +324,7 @@ var View = cc._Class.extend({
             cc.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
         }
+        this._orientationChanging = false;
     },
 
     // hack
