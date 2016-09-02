@@ -83,7 +83,12 @@ var jsbSkipModules = [
     '../../extensions/spine/SGSkeletonAnimation',
     '../../extensions/spine/SGSkeletonCanvasRenderCmd',
     '../../extensions/spine/SGSkeletonWebGLRenderCmd',
-    '../../extensions/spine/lib/spine'
+    '../../extensions/spine/lib/spine',
+    '../../extensions/dragonbones/lib/dragonBones',
+    '../../extensions/dragonbones/CCFactory',
+    '../../extensions/dragonbones/CCArmatureDisplay',
+    '../../extensions/dragonbones/CCSlot',
+    '../../extensions/dragonbones/CCTextureData'
 ];
 
 gulp.task('build-jsb-extends-dev', function (done) {
