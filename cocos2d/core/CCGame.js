@@ -631,6 +631,8 @@ var game = {
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
+        
+        cc._initDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;
     },
