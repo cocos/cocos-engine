@@ -273,7 +273,7 @@
 
 - (void)doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)distance
 {
-    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto view = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     [eaglview doAnimationWhenKeyboardMoveWithDuration:duration distance:distance];
@@ -290,7 +290,7 @@
 
 - (void)openKeyboard
 {
-    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto view = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     [eaglview addSubview:self.textInput];
@@ -315,7 +315,7 @@
 
 - (void)animationSelector
 {
-    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto view = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     [eaglview doAnimationWhenAnotherEditBeClicked];
@@ -328,7 +328,7 @@
     CCLOG("textFieldShouldBeginEditing...");
     _editState = YES;
 
-    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto view = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *) view->getEAGLView();
 
     if ([eaglview isKeyboardShown]) {
@@ -413,7 +413,7 @@
     CCLOG("textFieldShouldBeginEditing...");
     _editState = YES;
 
-    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
+    auto view = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     if ([eaglview isKeyboardShown]) {

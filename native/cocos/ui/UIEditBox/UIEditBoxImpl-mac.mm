@@ -29,7 +29,7 @@
 #include "ui/UIEditBox/UIEditBoxImpl-mac.h"
 #include "base/CCDirector.h"
 #include "UIEditBox.h"
-#include "base/CCString.h"
+#include "base/ccUTF8.h"
 #include "ui/UIEditBox/Mac/CCUIEditBoxMac.h"
 NS_CC_BEGIN
 
