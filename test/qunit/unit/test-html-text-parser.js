@@ -67,7 +67,7 @@ test('Color test', function(){
               [{text: "hello world", style: {}}],
               "tag name is invalid");
 
-    var colorTestStr6 = "<color=#0xff4400>hello world";
+    var colorTestStr6 = "<color = #0xff4400>hello world";
     deepEqual(parser.parse(colorTestStr6),
               [{text: "hello world"}],
               "The close tag is missing.");
@@ -76,7 +76,7 @@ test('Color test', function(){
 });
 
 test('Size test', function() {
-    var sizeTestStr1 = "<size=20>hello world</size>";
+    var sizeTestStr1 = "<size = 20>hello world</size>";
     deepEqual(parser.parse(sizeTestStr1),
               [{text: "hello world", style: {size: 20}}],
               "Happy path 1.");
@@ -269,4 +269,58 @@ test('bold/italic/underline test', function () {
 
     deepEqual(parser.parse(stringWithUnderline),
               [{text: "hello world", style: {underline: true}}], "underline test");
+});
+
+test('test br tag', function () {
+    var newlineTest = "<br/>";
+
+    deepEqual(parser.parse(newlineTest),
+              [{text: "", style: {newline: true}},], "newline element test");
+
+    var newlineTest2 = "hello <b>a< br  /></b> world";
+
+    deepEqual(parser.parse(newlineTest2),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: "", style: {newline: true}},
+               {text: " world"}
+              ], "newline element test");
+
+    var newlineTest3 = "< br />";
+
+    deepEqual(parser.parse(newlineTest3),
+              [{text: "", style: {newline: true}},], "newline element test");
+
+    var newlineTest4 = "<br></br>";
+
+    deepEqual(parser.parse(newlineTest4),
+              [], "newline element test");
+
+    var newlineTest5 = "hello <b>a<br></></b> world";
+
+    deepEqual(parser.parse(newlineTest5),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: " world"}
+              ], "newline element test");
+
+    var newlineTest6 = "hello <b>a<br /><br/ ></b> world";
+
+    deepEqual(parser.parse(newlineTest6),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: "", style: {newline: true}},
+               {text: "", style: {newline: true}},
+               {text: " world"}
+              ], "newline element test");
+
+    var newlineTest7 = "hello <b>a</b><br /><br/ >world";
+
+    deepEqual(parser.parse(newlineTest7),
+              [{text: "hello "},
+               {text: "a", style: {bold: true}},
+               {text: "", style: {newline: true}},
+               {text: "", style: {newline: true}},
+               {text: "world"}
+              ], "newline element test");
 });

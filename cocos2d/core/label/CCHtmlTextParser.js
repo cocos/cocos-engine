@@ -106,6 +106,14 @@ cc.HtmlTextParser.prototype = {
                 obj.event = eventObj;
             }
         }
+        header = attribute.match(/^(br(\s)*\/)/);
+        if(header && header[0].length > 0) {
+            tagName = header[0].trim();
+            if(tagName.startsWith("br") && tagName[tagName.length-1] === "/") {
+                obj.isNewLine = true;
+                this._resultObjectArray.push({text: "", style: {newline: true}});
+            }
+        }
 
         header = attribute.match(/^(on|u|b|i)(\s)*/);
         if(header && header[0].length > 0) {
@@ -128,6 +136,7 @@ cc.HtmlTextParser.prototype = {
             eventObj = this._processEventHandler(attribute);
             obj.event = eventObj;
         }
+
 
         return obj;
     },
@@ -185,6 +194,9 @@ cc.HtmlTextParser.prototype = {
         if (this._stack.length === 0){
             this._stack.push(obj);
         } else {
+            if(obj.isNewLine) {
+                return;
+            }
             //for nested tags
             var previousTagObj = this._stack[this._stack.length - 1];
             for (var key in previousTagObj) {
