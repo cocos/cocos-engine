@@ -860,11 +860,11 @@ void EditBoxImplWin::openKeyboard()
     _isEditing = true;
 #if CC_ENABLE_SCRIPT_BINDING
     auto editBox = this->getEditBox();
-    if (nullptr != editBox && 0 != editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
+    if (nullptr != editBox && 0 != editBox->getScriptEditBoxHandler())
     {
         CommonScriptData data(editBox->getScriptEditBoxHandler(), "began",editBox);
         ScriptEvent event(kCommonEvent,(void*)&data);
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
 #endif
 
@@ -898,19 +898,19 @@ void EditBoxImplWin::onWin32InputBoxClose(INT_PTR buttonId)
     }
 
 #if CC_ENABLE_SCRIPT_BINDING
-    if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
+    if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler())
     {
         CommonScriptData data(_editBox->getScriptEditBoxHandler(), "changed",_editBox);
         ScriptEvent event(kCommonEvent,(void*)&data);
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
         memset(data.eventName,0,sizeof(data.eventName));
         strncpy(data.eventName,"ended",sizeof(data.eventName));
         event.data = (void*)&data;
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
         memset(data.eventName,0,sizeof(data.eventName));
         strncpy(data.eventName,"return",sizeof(data.eventName));
         event.data = (void*)&data;
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
 #endif // #if CC_ENABLE_SCRIPT_BINDING
 }
@@ -931,7 +931,7 @@ void EditBoxImplWin::onWin32InputBoxTextChange(const char *pText)
     {
         CommonScriptData data(_editBox->getScriptEditBoxHandler(), "changed", _editBox);
         ScriptEvent event(kCommonEvent, (void*)&data);
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
 #endif // #if CC_ENABLE_SCRIPT_BINDING
 }
