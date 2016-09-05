@@ -173,7 +173,7 @@
     _editState = NO;
     if ( [[[notification userInfo] objectForKey:@"NSTextMovement"] intValue] == NSReturnTextMovement )
     {
-        getEditBoxImplMac()->editBoxEditingDidBegin();
+        getEditBoxImplMac()->editBoxEditingReturn();
     }
     
     getEditBoxImplMac()->editBoxEditingDidEnd([self getText]);
@@ -329,7 +329,7 @@
     }
     
     if ([replacementString isEqualToString:[NSString stringWithUTF8String:"\n"]]) {
-        getEditBoxImplMac()->editBoxEditingDidBegin();
+        getEditBoxImplMac()->editBoxEditingReturn();
     }
     
     if (affectedCharRange.length + affectedCharRange.location > textView.string.length) {

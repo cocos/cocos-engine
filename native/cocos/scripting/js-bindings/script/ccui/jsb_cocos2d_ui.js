@@ -404,20 +404,16 @@ ccui.Scale9Sprite.prototype.updateWithBatchNode = function (batchNode, originalR
 
 if (ccui.WebView)
 {
-    /**
-     * The WebView support list of events
-     * @type {{LOADING: string, LOADED: string, ERROR: string}}
-     */
     ccui.WebView.EventType = {
-        LOADING: "loading",
-        LOADED: "load",
-        ERROR: "error",
-        JS_EVALUATED: "js"
+        LOADING: 0,
+        LOADED: 1,
+        ERROR: 2,
+        JS_EVALUATED: 3
     };
 
     ccui.WebView.prototype._loadURL = ccui.WebView.prototype.loadURL;
     ccui.WebView.prototype.loadURL = function (url) {
-        if (url.indexOf("http://") >= 0)
+        if (url.indexOf("http://") >= 0 || url.indexOf("https://") >= 0)
         {
             this._loadURL(url);
         }

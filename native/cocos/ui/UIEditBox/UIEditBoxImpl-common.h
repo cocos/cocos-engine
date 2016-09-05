@@ -28,8 +28,8 @@
 #define __UIEditBoxIMPLICOMMON_H__
 
 #include "platform/CCPlatformConfig.h"
-#include "ui/UIEditBox/UIEditBoxImpl-common.h"
-#include "ui/UIEditBox/UIEditBoxImpl.h"
+
+#include "UIEditBoxImpl.h"
 
 NS_CC_BEGIN
 
@@ -66,8 +66,8 @@ public:
 
     virtual void setMaxLength(int maxLength) override;
     virtual int  getMaxLength() override;
-    
-    virtual const char* getText(void) override;
+
+    virtual const char* getText() override;
     virtual void refreshInactiveText();
 
     virtual void setContentSize(const Size& size) override;
@@ -84,7 +84,7 @@ public:
      * @js NA
      * @lua NA
      */
-    virtual void onEnter(void) override;
+    virtual void onEnter() override;
     virtual void openKeyboard() override;
     virtual void closeKeyboard() override;
 
@@ -93,7 +93,8 @@ public:
     void editBoxEditingDidBegin();
     void editBoxEditingChanged(const std::string& text);
     void editBoxEditingDidEnd(const std::string& text);
-    
+    void editBoxEditingReturn();
+
     virtual bool isEditing() override = 0;
     virtual void createNativeControl(const Rect& frame) = 0;
     virtual void setNativeFont(const char* pFontName, int fontSize) = 0;
@@ -114,11 +115,10 @@ public:
 
 
 private:
-	void			initInactiveLabels(const Size& size);
-	void			setInactiveText(const char* pText);
-    void            placeInactiveLabels();
+    void            initInactiveLabels(const Size& size);
+    void            setInactiveText(const char* pText);
+    void            placeInactiveLabels(const Size& size);
     virtual void doAnimationWhenKeyboardMove(float duration, float distance)override {};
-	
     Label* _label;
     Label* _labelPlaceHolder;
     EditBox::InputMode    _editBoxInputMode;

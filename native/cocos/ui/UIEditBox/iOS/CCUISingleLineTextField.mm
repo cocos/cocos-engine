@@ -24,8 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#import "ui/UIEditBox/iOS/CCUISingleLineTextField.h"
-#import "ui/UIEditBox/iOS/CCUITextInput.h"
+#import "CCUISingleLineTextField.h"
+#import "CCUITextInput.h"
 
 #include "base/CCDirector.h"
 
@@ -35,7 +35,7 @@
 - (CGRect)textRectForBounds:(CGRect)bounds
 {
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
-    
+
     float padding = CC_EDIT_BOX_PADDING * glview->getScaleX() / glview->getContentScaleFactor();
     return CGRectInset(bounds, padding, padding);
 }
@@ -46,3 +46,4 @@
 }
 
 @end
+

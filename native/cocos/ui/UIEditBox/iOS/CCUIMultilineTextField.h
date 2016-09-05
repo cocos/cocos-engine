@@ -25,7 +25,7 @@
  ****************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "ui/UIEditBox/iOS/UITextView+CCUITextInput.h"
+#import "UITextView+CCUITextInput.h"
 
 #pragma mark - UIMultilineTextField implementation
 
@@ -35,3 +35,4 @@
 @property (nonatomic, retain) UILabel *placeHolderLabel;
 
 @end
+

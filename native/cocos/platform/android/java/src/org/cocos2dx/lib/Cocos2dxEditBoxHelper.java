@@ -67,6 +67,10 @@ public class Cocos2dxEditBoxHelper {
         editBoxEditingDidEnd(index, text);
     }
 
+    private static native void editBoxEditingReturn(int index);
+    public static void __editBoxEditingReturn(int index) {
+        editBoxEditingReturn(index);
+    }
 
     public Cocos2dxEditBoxHelper(ResizeLayout layout) {
         Cocos2dxEditBoxHelper.mFrameLayout = layout;
@@ -124,7 +128,7 @@ public class Cocos2dxEditBoxHelper {
                 lParams.gravity = Gravity.TOP | Gravity.LEFT;
 
                 mFrameLayout.addView(editBox, lParams);
-
+                editBox.setTag(false);
                 editBox.addTextChangedListener(new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -132,23 +136,20 @@ public class Cocos2dxEditBoxHelper {
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        //The optimization can't be turn on due to unknown keyboard hide in some custom keyboard
-//                        mFrameLayout.setEnableForceDoLayout(false);
 
-                        // Note that we must to copy a string to prevent string content is modified
-                        // on UI thread while 's.toString' is invoked at the same time.
-                        final String text = new String(s.toString());
-                        mCocos2dxActivity.runOnGLThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Cocos2dxEditBoxHelper.__editBoxEditingChanged(index, text);
-                            }
-                        });
                     }
 
+                    //http://stackoverflow.com/questions/21713246/addtextchangedlistener-and-ontextchanged-are-always-called-when-android-fragment
                     @Override
-                    public void afterTextChanged(Editable s) {
-
+                    public void afterTextChanged(final Editable s) {
+                        if(!s.toString().equals("") && (Boolean)editBox.getTag()) {
+                            mCocos2dxActivity.runOnGLThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Cocos2dxEditBoxHelper.__editBoxEditingChanged(index, s.toString());
+                                    }
+                                });
+                        }
                     }
                 });
 
@@ -157,6 +158,7 @@ public class Cocos2dxEditBoxHelper {
 
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
+                        editBox.setTag(true);
                         if (hasFocus) {
                             mCocos2dxActivity.runOnGLThread(new Runnable() {
                                 @Override
@@ -193,8 +195,11 @@ public class Cocos2dxEditBoxHelper {
                                 (keyCode == KeyEvent.KEYCODE_ENTER)) {
                             //if editbox doesn't support multiline, just hide the keyboard
                             if ((editBox.getInputType() & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != InputType.TYPE_TEXT_FLAG_MULTI_LINE) {
+                                Cocos2dxEditBoxHelper.runEditBoxEditingReturnInGLThread(index);
                                 Cocos2dxEditBoxHelper.closeKeyboardOnUiThread(index);
                                 return true;
+                            } else {
+                                Cocos2dxEditBoxHelper.runEditBoxEditingReturnInGLThread(index);
                             }
                         }
                         return false;
@@ -216,6 +221,15 @@ public class Cocos2dxEditBoxHelper {
             }
         });
         return mViewTag++;
+    }
+
+    private static  void runEditBoxEditingReturnInGLThread(final int index) {
+        mCocos2dxActivity.runOnGLThread(new Runnable() {
+            @Override
+            public void run() {
+                Cocos2dxEditBoxHelper.__editBoxEditingReturn(index);
+            }
+        });
     }
 
     public static void removeEditBox(final int index) {

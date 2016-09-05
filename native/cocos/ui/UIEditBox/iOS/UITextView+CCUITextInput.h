@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "ui/UIEditBox/iOS/CCUITextInput.h"
+#import "CCUITextInput.h"
 
 
 @interface UITextView (CCUITextInput) <CCUITextInput>
@@ -34,3 +34,4 @@
  *  http://stackoverflow.com/questions/2567498/objective-c-categories-in-static-library
  */
 extern void LoadUITextViewCCUITextInputCategory();
+

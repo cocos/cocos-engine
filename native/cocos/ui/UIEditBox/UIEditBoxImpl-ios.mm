@@ -23,13 +23,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "ui/UIEditBox/UIEditBoxImpl-ios.h"
+#include "UIEditBoxImpl-ios.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
 #define kLabelZOrder  9999
 
-#include "ui/UIEditBox/UIEditBox.h"
+#include "UIEditBox.h"
 #include "base/CCDirector.h"
 #include "2d/CCLabel.h"
 #import "platform/ios/CCEAGLView-ios.h"
@@ -37,7 +37,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "ui/UIEditBox/iOS/CCUIEditBoxIOS.h"
+#import "iOS/CCUIEditBoxIOS.h"
 
 #define getEditBoxImplIOS() ((cocos2d::ui::EditBoxImplIOS *)_editBox)
 
@@ -142,7 +142,7 @@ NSString* removeSiriString(NSString* str)
     return [str stringByReplacingOccurrencesOfString:siriString withString:@""];
 }
 
-const char* EditBoxImplIOS::getText(void)
+const char* EditBoxImplIOS::getText()
 {
     return [removeSiriString(_systemControl.text) UTF8String];
 }
@@ -209,7 +209,7 @@ UIFont* EditBoxImplIOS::constructFont(const char *fontName, int fontSize)
     float retinaFactor = eaglview.contentScaleFactor;
     NSString * fntName = [NSString stringWithUTF8String:fontName];
     fntName = [[fntName lastPathComponent] stringByDeletingPathExtension];
-    
+
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     float scaleFactor = glview->getScaleX();
 

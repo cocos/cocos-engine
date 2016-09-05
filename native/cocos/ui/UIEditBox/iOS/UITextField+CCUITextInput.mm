@@ -22,7 +22,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#import "ui/UIEditBox/iOS/UITextField+CCUITextInput.h"
+#import "UITextField+CCUITextInput.h"
 
 @implementation UITextField (CCUITextInput)
 
@@ -87,3 +87,4 @@
 void LoadUITextFieldCCUITextInputCategory() {
     // noop
 }
+
