@@ -103,7 +103,13 @@ var EventType = cc.Enum({
      * !#zh 滚动视图滚动滚动结束的时候发出的事件
      * @property {Number} AUTOSCROLL_ENDED
      */
-    AUTOSCROLL_ENDED : 9
+    AUTOSCROLL_ENDED : 9,
+    /**
+     * !#en The event emmitted when user release the touch
+     * !#zh 当用户松手的时候会发出一个事件
+     * @property {Number} TOUCH_UP
+     */
+    TOUCH_UP : 10
 });
 
 /**
@@ -698,6 +704,8 @@ var ScrollView = cc.Class({
     },
 
     _onMouseWheel: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var deltaMove = cc.p(0, 0);
         var wheelPrecision = 1.0 / 40;
         if(CC_JSB) {
@@ -847,6 +855,8 @@ var ScrollView = cc.Class({
 
     // touch event handler
     _onTouchBegan: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var touch = event.touch;
         if (this.content) {
             this._handlePressLogic(touch);
@@ -855,6 +865,8 @@ var ScrollView = cc.Class({
     },
 
     _onTouchMoved: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var touch = event.touch;
         if (this.content) {
             this._handleMoveLogic(touch);
@@ -881,15 +893,20 @@ var ScrollView = cc.Class({
     },
 
     _onTouchEnded: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         var touch = event.touch;
         if (this.content) {
             this._handleReleaseLogic(touch);
         }
+        this._dispatchEvent(EventType.TOUCH_UP);
         if (this._touchMoved) {
             event.stopPropagation();
         }
     },
     _onTouchCancelled: function(event) {
+        if (!this.enabledInHierarchy) return;
+
         // Filte touch cancel event send from self
         if (!event.simulate) {
             var touch = event.touch;

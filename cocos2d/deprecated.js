@@ -378,7 +378,6 @@ if (CC_DEV && typeof eruda === 'undefined') {
         'onEnterTransitionDidFinish',
         'onExitTransitionDidStart',
         'onExit',
-        'getNumberOfRunningActions',
         'scheduleUpdate',
         'scheduleUpdateWithPriority',
         'unscheduleUpdate',
