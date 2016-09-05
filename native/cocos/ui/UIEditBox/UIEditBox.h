@@ -78,8 +78,8 @@ namespace ui {
          * This method is called when the return button was pressed or the outside area of keyboard was touched.
          * @param editBox The edit box object that generated the event.
          */
-        virtual void editBoxReturn(EditBox* editBox) = 0;
-            
+        virtual void editBoxEditingReturn(EditBox* editBox) = 0;
+
     };
 
     /**
@@ -215,15 +215,15 @@ namespace ui {
          * @js ctor
          * @lua new
          */
-        EditBox(void);
-            
+        EditBox();
+
         /**
          * Destructor.
          * @js NA
          * @lua NA
          */
-        virtual ~EditBox(void);
-            
+        virtual ~EditBox();
+
         /**
          * Init edit box with specified size. This method should be invoked right after constructor.
          * @param size The size of edit box.
@@ -290,14 +290,14 @@ namespace ui {
          * @js NA
          * @lua NA
          */
-        void unregisterScriptEditBoxHandler(void);
+        void unregisterScriptEditBoxHandler();
         /**
          * get a script Handler
          * @js NA
          * @lua NA
          */
-        int  getScriptEditBoxHandler(void){ return _scriptEditBoxHandler ;}
-            
+        int  getScriptEditBoxHandler(){ return _scriptEditBoxHandler ;}
+
 #endif // #if CC_ENABLE_SCRIPT_BINDING
 
         /**
@@ -310,8 +310,8 @@ namespace ui {
          * Get the text entered in the edit box.
          * @return The text entered in the edit box.
          */
-        const char* getText(void);
-            
+        const char* getText();
+
         /**
          * Set the font. Only system font is allowed.
          * @param pFontName The font name.
@@ -377,8 +377,8 @@ namespace ui {
          * Get a text in the edit box that acts as a placeholder when an
          * edit box is empty.
          */
-        const char* getPlaceHolder(void);
-            
+        const char* getPlaceHolder();
+
         /**
          * Set the input mode of the edit box.
          * @param inputMode One of the EditBox::InputMode constants.
@@ -433,12 +433,12 @@ namespace ui {
          * @js NA
          * @lua NA
          */
-        virtual void onEnter(void) override;
+        virtual void onEnter() override;
         /**
          * @js NA
          * @lua NA
          */
-        virtual void onExit(void) override;
+        virtual void onExit() override;
         /**
          * @js NA
          * @lua NA

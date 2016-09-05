@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "ui/UIEditBox/UIEditBoxImpl-win32.h"
+#include "UIEditBoxImpl-win32.h"
 
 #include "platform/CCPlatformConfig.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 
-#include "ui/UIEditBox/UIEditBox.h"
+#include "UIEditBox.h"
 #include <windows.h>
 #include <tchar.h>
 #include <stdio.h>
@@ -487,7 +487,7 @@ void CWin32InputBox::InitDialog()
     default:
         break;
     }
-	CCASSERT(_getMsgHook == nullptr, "Windows Message hook already set");
+    CCASSERT(_getMsgHook == NULL, "Windows Message hook already set");
 
     // To make the enter key work, here need a Windows Message hook.
     // Please refer to https://support.microsoft.com/en-us/kb/187988
@@ -803,7 +803,7 @@ void EditBoxImplWin::setText(const char* pText)
     }
 }
 
-const char*  EditBoxImplWin::getText(void)
+const char*  EditBoxImplWin::getText()
 {
     return _text.c_str();
 }
@@ -860,11 +860,11 @@ void EditBoxImplWin::openKeyboard()
     _isEditing = true;
 #if CC_ENABLE_SCRIPT_BINDING
     auto editBox = this->getEditBox();
-    if (nullptr != editBox && 0 != editBox->getScriptEditBoxHandler())
+    if (nullptr != editBox && 0 != editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
     {
-        CommonScriptData data(editBox->getScriptEditBoxHandler(), "began", editBox);
-        ScriptEvent event(kCommonEvent, (void*)&data);
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+        CommonScriptData data(editBox->getScriptEditBoxHandler(), "began",editBox);
+        ScriptEvent event(kCommonEvent,(void*)&data);
+        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
     }
 #endif
 
@@ -894,23 +894,23 @@ void EditBoxImplWin::onWin32InputBoxClose(INT_PTR buttonId)
     {
         _delegate->editBoxTextChanged(_editBox, getText());
         _delegate->editBoxEditingDidEnd(_editBox);
-        _delegate->editBoxReturn(_editBox);
+        _delegate->editBoxEditingReturn(_editBox);
     }
 
 #if CC_ENABLE_SCRIPT_BINDING
-    if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler())
+    if (nullptr != _editBox && 0 != _editBox->getScriptEditBoxHandler() && ScriptEngineManager::ShareInstance)
     {
         CommonScriptData data(_editBox->getScriptEditBoxHandler(), "changed",_editBox);
         ScriptEvent event(kCommonEvent,(void*)&data);
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
         memset(data.eventName,0,sizeof(data.eventName));
         strncpy(data.eventName,"ended",sizeof(data.eventName));
         event.data = (void*)&data;
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
         memset(data.eventName,0,sizeof(data.eventName));
         strncpy(data.eventName,"return",sizeof(data.eventName));
         event.data = (void*)&data;
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
     }
 #endif // #if CC_ENABLE_SCRIPT_BINDING
 }
@@ -931,7 +931,7 @@ void EditBoxImplWin::onWin32InputBoxTextChange(const char *pText)
     {
         CommonScriptData data(_editBox->getScriptEditBoxHandler(), "changed", _editBox);
         ScriptEvent event(kCommonEvent, (void*)&data);
-        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
     }
 #endif // #if CC_ENABLE_SCRIPT_BINDING
 }
@@ -947,7 +947,7 @@ void EditBoxImplWin::closeKeyboard()
     }
 }
 
-void EditBoxImplWin::onEnter(void)
+void EditBoxImplWin::onEnter()
 {
 }
 

@@ -28,7 +28,7 @@
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
 
-#include "ui/UIEditBox/UIEditBoxImpl-common.h"
+#include "UIEditBoxImpl-common.h"
 
 
 
@@ -72,7 +72,7 @@ public:
     virtual void nativeCloseKeyboard() override;
 
     //need to remove siri text
-    virtual const char* getText(void)override;
+    virtual const char* getText()override;
 
     virtual void doAnimationWhenKeyboardMove(float duration, float distance) override;
 private:

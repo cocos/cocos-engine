@@ -25,9 +25,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#import "ui/UIEditBox/iOS/CCUIEditBoxIOS.h"
-#import "ui/UIEditBox/iOS/CCUISingleLineTextField.h"
-#import "ui/UIEditBox/iOS/CCUIMultilineTextField.h"
+#import "CCUIEditBoxIOS.h"
+#import "CCUISingleLineTextField.h"
+#import "CCUIMultilineTextField.h"
 
 #import "platform/ios/CCEAGLView-ios.h"
 #include "base/CCDirector.h"
@@ -204,6 +204,7 @@
 
         case cocos2d::ui::EditBox::InputFlag::SENSITIVE:
             self.textInput.autocorrectionType = UITextAutocorrectionTypeNo;
+            self.textInput.autocapitalizationType = UITextAutocapitalizationTypeNone;
             break;
             
         case cocos2d::ui::EditBox::InputFlag::LOWERCASE_ALL_CHARACTERS:
@@ -272,7 +273,7 @@
 
 - (void)doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)distance
 {
-    auto view = cocos2d::Director::getInstance()->getOpenGLView();
+    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     [eaglview doAnimationWhenKeyboardMoveWithDuration:duration distance:distance];
@@ -289,7 +290,7 @@
 
 - (void)openKeyboard
 {
-    auto view = cocos2d::Director::getInstance()->getOpenGLView();
+    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     [eaglview addSubview:self.textInput];
@@ -304,6 +305,7 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)sender
 {
+    getEditBoxImplIOS()->editBoxEditingReturn();
     if (sender == self.textInput) {
         [sender resignFirstResponder];
     }
@@ -313,7 +315,7 @@
 
 - (void)animationSelector
 {
-    auto view = cocos2d::Director::getInstance()->getOpenGLView();
+    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     [eaglview doAnimationWhenAnotherEditBeClicked];
@@ -325,8 +327,8 @@
 {
     CCLOG("textFieldShouldBeginEditing...");
     _editState = YES;
-    
-    auto view = cocos2d::Director::getInstance()->getOpenGLView();
+
+    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *) view->getEAGLView();
 
     if ([eaglview isKeyboardShown]) {
@@ -357,6 +359,10 @@
         return YES;
     }
     
+    if ([text isEqualToString:[NSString stringWithUTF8String:"\n"]]) {
+        getEditBoxImplIOS()->editBoxEditingReturn();
+    }
+
     // Prevent crashing undo bug http://stackoverflow.com/questions/433337/set-the-maximum-character-length-of-a-uitextfield
     if (range.length + range.location > textView.text.length) {
         return NO;
@@ -406,8 +412,8 @@
 {
     CCLOG("textFieldShouldBeginEditing...");
     _editState = YES;
-    
-    auto view = cocos2d::Director::getInstance()->getOpenGLView();
+
+    auto view = cocos2d::Director::DirectorInstance->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *)view->getEAGLView();
 
     if ([eaglview isKeyboardShown]) {
@@ -458,3 +464,4 @@
 }
 
 @end
+

@@ -30,7 +30,7 @@
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 
-#include "ui/UIEditBox/UIEditBoxImpl.h"
+#include "UIEditBoxImpl.h"
 
 NS_CC_BEGIN
 
@@ -64,7 +64,7 @@ public:
     virtual bool isEditing();
 
     virtual void setText(const char* pText);
-    virtual const char* getText(void);
+    virtual const char* getText();
     virtual void setPlaceHolder(const char* pText);
     virtual void setPosition(const Vec2& pos);
     virtual void setVisible(bool visible);
@@ -82,7 +82,7 @@ public:
      * @js NA
      * @lua NA
      */
-    virtual void onEnter(void);
+    virtual void onEnter();
 private:
 
     Label* _label;
