@@ -30,13 +30,6 @@
  * @extends Component
  */
 
-var audioEngine;
-
-if (cc.sys.isNative) {
-    audioEngine = jsb.AudioEngine;
-} else {
-    audioEngine = require('../../audio/CCAudioEngine');
-}
 
 var AudioSource = cc.Class({
     name: 'cc.AudioSource',
@@ -48,7 +41,7 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audioID = 0;
+        this.audio = new cc.Audio(this._clip);
     },
 
     properties: {
@@ -74,9 +67,9 @@ var AudioSource = cc.Class({
          */
         isPlaying: {
             get: function () {
-                if (!this.audioID) return false;
-                var state = audioEngine.getState(this.audioID);
-                return state === audioEngine.AudioState.PLAYING;
+                if (!this.audio) return false;
+                var state = this.audio.getState();
+                return state === cc.Audio.State.PLAYING;
             },
             visible: false
         },
@@ -94,6 +87,10 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._clip = value;
+                this.audio.src = this._clip;
+                if (this.audio.startLoad) {
+                    this.audio.startLoad();
+                }
             },
             url: cc.AudioClip,
             tooltip: 'i18n:COMPONENT.audio.clip',
@@ -113,8 +110,9 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._volume = value;
-                if (!this.audioID) return value;
-                audioEngine.setVolume(value);
+                if (this.audio && !this._mute) {
+                    this.audio.setVolume(value);
+                }
                 return value;
             },
             tooltip: 'i18n:COMPONENT.audio.volume'
@@ -133,8 +131,9 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._mute = value;
-                if (!this.audioID) return value;
-                audioEngine.setVolume(0);
+                if (this.audio) {
+                    this.audio.setVolume(value ? 0 : this._volume);
+                }
                 return value;
             },
             animatable: false,
@@ -154,8 +153,9 @@ var AudioSource = cc.Class({
             },
             set: function (value) {
                 this._loop = value;
-                if (!this.audioID) return value;
-                audioEngine.setLoop(value);
+                if (this.audio) {
+                    this.audio.setLoop(value);
+                }
                 return value;
             },
             animatable: false,
@@ -199,7 +199,9 @@ var AudioSource = cc.Class({
     play: function () {
         if ( this._clip ) {
             var volume = this._mute ? 0 : this._volume;
-            this.audioID = audioEngine.play2d(this._clip, this._loop, volume);
+            this.audio.setLoop(this._loop);
+            this.audio.setVolume(volume);
+            this.audio.play();
         }
     },
 
@@ -209,8 +211,9 @@ var AudioSource = cc.Class({
      * @method stop
      */
     stop: function () {
-        if (this.audioID === undefined) return false;
-        audioEngine.stop(this.audioID);
+        if (this.audio) {
+            this.audio.stop();
+        }
     },
 
     /**
@@ -219,8 +222,9 @@ var AudioSource = cc.Class({
      * @method pause
      */
     pause: function () {
-        if (this.audioID === undefined) return false;
-        audioEngine.pause(this.audioID);
+        if (this.audio) {
+            this.audio.pause();
+        }
     },
 
     /**
@@ -229,8 +233,9 @@ var AudioSource = cc.Class({
      * @method resume
      */
     resume: function () {
-        if (this.audioID === undefined) return false;
-        audioEngine.resume(this.audioID);
+        if (this.audio) {
+            this.audio.resume();
+        }
     },
 
     /**
@@ -239,8 +244,9 @@ var AudioSource = cc.Class({
      * @method rewind
      */
     rewind: function(){
-        if (this.audioID === undefined) return false;
-        audioEngine.setCurrentTime(this.audioID, 0);
+        if (this.audio) {
+            this.audio.setCurrentTime(0);
+        }
     }
 
 });

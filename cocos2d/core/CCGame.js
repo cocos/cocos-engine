@@ -30,6 +30,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 var audioEngine = cc.audioEngine = require('../audio/CCAudioEngine');
+var isMusicPlaying = false;
 
 /**
  * !#en An object to boot the game.
@@ -253,7 +254,10 @@ var game = {
         if (this._paused) return;
         this._paused = true;
         // Pause audio engine
-        audioEngine && audioEngine.pauseAll();
+        if (audioEngine) {
+            isMusicPlaying = true;
+            audioEngine.pauseAll();
+        }
         // Pause main loop
         if (this._intervalId)
             window.cancelAnimationFrame(this._intervalId);
@@ -270,7 +274,10 @@ var game = {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        audioEngine && audioEngine.resumeAll();
+        if (audioEngine && isMusicPlaying) {
+            isMusicPlaying = false;
+            audioEngine.resumeAll();
+        }
         // Resume main loop
         this._runMainLoop();
     },

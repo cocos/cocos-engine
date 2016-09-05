@@ -29,12 +29,14 @@ var touchPlayList = [
     //{ offset: 0, audio: audio }
 ];
 
-var Audio = function () {
+var Audio = function (src) {
+    this._src = src;
     this._audioType = Audio.Type.UNKNOWN;
     this._element = null;
 
     this._eventList = {};
     this._state = Audio.State.ERROR;
+    this._loaded = false;
 };
 
 Audio.Type = {
@@ -51,6 +53,25 @@ Audio.State = {
 };
 
 (function (proto) {
+
+    proto.startLoad = function () {
+        var src = this._src,
+            audio = this;
+        var item = cc.loader.getItem(src);
+
+        // If the resource does not exist
+        if (!item) {
+            return cc.loader.load(src, function (error) {
+                if (!error) {
+                    var item = cc.loader.getItem(src);
+                    audio.mount(item.element || item.buffer);
+                    audio.emit('load');
+                }
+            });
+        }
+        audio.mount(item.element || item.buffer);
+        audio.emit('load');
+    };
 
     proto.on = function (event, callback) {
         var list = this._eventList[event];
@@ -99,6 +120,7 @@ Audio.State = {
             };
         }
         this._state = Audio.State.INITIALZING;
+        this._loaded = true;
     };
 
     proto.play = function () {
@@ -141,7 +163,9 @@ Audio.State = {
     proto.stop = function () {
         if (!this._element) return;
         this._element.pause();
-        this._element.currentTime = 0;
+        try {
+            this._element.currentTime = 0;
+        } catch (error) {}
         this.emit('pause');
         this._state = Audio.State.PAUSED;
     };
@@ -186,7 +210,7 @@ Audio.State = {
 
 })(Audio.prototype);
 
-// 将 webAudio 封装出 dom 的接口，方便统一调用
+// Encapsulated WebAudio interface
 var webAudioElement = function (buffer) {
     this._context = cc.sys.__audioSupport.context;
     this._buffer = buffer;

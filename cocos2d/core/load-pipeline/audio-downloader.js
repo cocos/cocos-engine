@@ -97,11 +97,11 @@ function downloadAudio (item, callback) {
     item.content = item.url;
 
     if (!__audioSupport.WEB_AUDIO) {
-        // 不支持 webAudio 就直接使用 dom 方式加载
+        // If WebAudio is not supported, load using DOM mode
         return loadDomAudio(item, callback);
     }
 
-    // 获取一次头文件
+    // Get a header
     // check audio size
     var request = Pipeline.getXMLHttpRequest();
     request.open("HEAD", item.url, true);

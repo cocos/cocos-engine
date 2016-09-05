@@ -38,7 +38,7 @@ var getAudioFromPath = function (path) {
     }
     var audio;
     if (audioEngine._maxAudioInstance > list.length) {
-        audio = new Audio();
+        audio = new Audio(path);
         id2audio[id] = audio;
     } else {
         var oldId = list.shift();
@@ -55,21 +55,6 @@ var getAudioFromId = function (id) {
     return id2audio[id];
 };
 
-// Wait for playing queue
-var waitQueue = [];
-var addWaitQueue = function (id) {
-    var index = waitQueue.indexOf(id);
-    if (index !== -1) return false;
-    waitQueue.push(id);
-    return true;
-};
-var removeWaitQueue = function (id) {
-    var index = waitQueue.indexOf(id);
-    if (index === -1) return false;
-    waitQueue.splice(index, 1);
-    return true;
-};
-
 var audioEngine = {
 
     AudioState: Audio.State,
@@ -77,38 +62,43 @@ var audioEngine = {
     _maxWebAudioSize: 307200, // 300kb * 1024
     _maxAudioInstance: 24,
 
-    play: function () {
-        return this.play2d.apply(this, arguments);
-    },
+    _id2audio: id2audio,
 
-    play2d: function (filePath, loop, volume/*, profile*/) {
-        var item = cc.loader.getItem(filePath);
-
+    /**
+     * !#en Play audio.
+     * !#zh 播放音频
+     * @method play
+     * @param {String} filePath - The path of the audio file without filename extension.
+     * @param {Boolean} loop - Whether the music loop or not.
+     * @param {Number} volume - Volume size.
+     * @return {Number} audioId
+     * @example
+     * //example
+     * cc.audioEngine.(path, false, 0.5);
+     */
+    play: function (filePath, loop, volume/*, profile*/) {
         var audio = getAudioFromPath(filePath);
+        var callback = function () {
+            audio.setLoop(loop || false);
+            audio.setVolume(volume || 1);
+            audio.play();
+        };
+        audio.on('load', callback);
+        audio.startLoad();
 
-        // If the resource does not exist
-        if (!item) {
-            addWaitQueue(audio.instanceId);
-            cc.loader.load(filePath, function (error) {
-                if (!error) {
-                    var item = cc.loader.getItem(filePath);
-                    audio.mount(item.element || item.buffer);
-                    audio.setLoop(loop || false);
-                    audio.setVolume(volume || 1);
-                    if (removeWaitQueue(audio.instanceId)) {
-                        audio.play();
-                    }
-                }
-            });
-            return audio.instanceId;
-        }
-
-        audio.mount(item.element || item.buffer);
-        audio.setLoop(loop || false);
-        audio.setVolume(volume || 1);
-        audio.play();
         return audio.instanceId;
     },
+
+    /**
+     * !#en Set audio loop.
+     * !#zh 设置音频是否循环。
+     * @method setLoop
+     * @param {Number} audioID - audio id.
+     * @param {Boolean} loop - Whether cycle.
+     * @example
+     * //example
+     * cc.audioEngine.setLoop(id, true);
+     */
     setLoop: function (audioID, loop) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.setLoop)
@@ -116,32 +106,87 @@ var audioEngine = {
         audio.setLoop(loop);
         return loop;
     },
+
+    /**
+     * !#en Get audio cycle state.
+     * !#zh 获取音频的循环状态。
+     * @method isLoop
+     * @param {Number} audioID - audio id.
+     * @return {Boolean} Whether cycle.
+     * @example
+     * //example
+     * cc.audioEngine.isLoop(id);
+     */
     isLoop: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.isLoop)
             return false;
         return audio.isLoop();
     },
+
+    /**
+     * !#en Set the volume of audio.
+     * !#zh 设置音量（0.0 ~ 1.0）。
+     * @method setVolume
+     * @param {Number} audioID audio id.
+     * @param {Number} volume Volume must be in 0.0~1.0 .
+     * @example
+     * //example
+     * cc.audioEngine.setVolume(0.5);
+     */
     setVolume: function (audioID, volume) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.setVolume)
-            return volume;
+            return;
         audio.setVolume(volume);
-        return volume;
     },
+
+    /**
+     * !#en The volume of the music max value is 1.0,the min value is 0.0 .
+     * !#zh 获取音量（0.0 ~ 1.0）。
+     * @method getVolume
+     * @param {Number} audioID audio id.
+     * @return {Boolean}
+     * @example
+     * //example
+     * var volume = cc.audioEngine.getVolume(id);
+     */
     getVolume: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.getVolume)
             return 1;
         return audio.getVolume();
     },
+
+    /**
+     * !#en Set current time
+     * !#zh 设置当前的音频时间。
+     * @method setCurrentTime
+     * @param {Number} audioID audio id.
+     * @param {Number} sec current time.
+     * @return {Boolean}
+     * @example
+     * //example
+     * cc.audioEngine.setCurrentTime(id, 2);
+     */
     setCurrentTime: function (audioID, sec) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.setCurrentTime)
-            return sec;
+            return false;
         audio.setCurrentTime(sec);
-        return sec;
+        return true;
     },
+
+    /**
+     * !#en Get current time
+     * !#zh 获取当前的音频播放时间。
+     * @method getCurrentTime
+     * @param {Number} audioID audio id.
+     * @return {Number} audio current time.
+     * @example
+     * //example
+     * var time = cc.audioEngine.getCurrentTime(id);
+     */
     getCurrentTime: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.getCurrentTime)
@@ -149,12 +194,33 @@ var audioEngine = {
         return audio.getCurrentTime();
     },
 
+    /**
+     * !#en Get audio duration
+     * !#zh 获取音频总时长。
+     * @method getDuration
+     * @param {Number} audioID audio id.
+     * @return {Number} audio duration.
+     * @example
+     * //example
+     * var time = cc.audioEngine.getDuration(id);
+     */
     getDuration: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.getDuration)
             return 0;
         return audio.getDuration();
     },
+
+    /**
+     * !#en Get audio state
+     * !#zh 获取音频状态。
+     * @method getState
+     * @param {Number} audioID audio id.
+     * @return {cc.audioEngine.AudioState} audio duration.
+     * @example
+     * //example
+     * var state = cc.audioEngine.getState(id);
+     */
     getState: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.getState)
@@ -162,6 +228,17 @@ var audioEngine = {
         return audio.getState();
     },
 
+    /**
+     * !#en Get audio state
+     * !#zh 获取音频状态。
+     * @method getState
+     * @param {Number} audioID audio id.
+     * @param {Function} callback loaded callback.
+     * @return {Boolean} Whether set successfully.
+     * @example
+     * //example
+     * cc.audioEngine.setFinishCallback(id, function () {});
+     */
     setFinishCallback: function (audioID, callback) {
         var audio = getAudioFromId(audioID);
         if (!audio)
@@ -169,17 +246,34 @@ var audioEngine = {
 
         audio.off('ended');
         audio.on('ended', callback);
+        return true;
     },
 
+    /**
+     * !#en Pause playing audio.
+     * !#zh 暂停正在播放音频。
+     * @method pause
+     * @example
+     * //example
+     * cc.audioEngine.pause(id);
+     */
     pause: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.pause)
             return false;
         audio.pause();
-        removeWaitQueue(audioID);
         return true;
     },
     _pauseIDCache: [],
+
+    /**
+     * !#en Pause all playing audio
+     * !#zh 暂停现在正在播放的所有音频。
+     * @method pauseAll
+     * @example
+     * //example
+     * cc.audioEngine.pauseAll();
+     */
     pauseAll: function () {
         for (var id in id2audio) {
             var audio = id2audio[id];
@@ -189,10 +283,16 @@ var audioEngine = {
                 audio.pause();
             }
         }
-        while (waitQueue.length > 0) {
-            this._pauseIDCache.push(waitQueue.pop());
-        }
     },
+
+    /**
+     * !#en Resume playing audio.
+     * !#zh 恢复播放指定的音频。
+     * @method resume
+     * @param {Number} audioID - The return value of function play.
+     * //example
+     * cc.audioEngine.resume(audioID);
+     */
     resume: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.resume)
@@ -203,6 +303,15 @@ var audioEngine = {
             audio.resume();
         }
     },
+
+    /**
+     * !#en Resume all playing audio.
+     * !#zh 恢复播放所有之前暂停的所有音频。
+     * @method resumeAll
+     * @example
+     * //example
+     * cc.audioEngine.resumeAll();
+     */
     resumeAll: function () {
         while (this._pauseIDCache.length > 0) {
             var id = this._pauseIDCache.pop();
@@ -211,14 +320,32 @@ var audioEngine = {
                 audio.resume();
         }
     },
+
+    /**
+     * !#en Stop playing audio.
+     * !#zh 停止播放指定音频。
+     * @method stop
+     * @param {Number} audioID - The return value of function play.
+     * @example
+     * //example
+     * cc.audioEngine.stop(audioID);
+     */
     stop: function (audioID) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.stop)
             return false;
         audio.stop();
-        removeWaitQueue(audioID);
         return true;
     },
+
+    /**
+     * !#en Stop all playing audio.
+     * !#zh 停止正在播放的所有音频。
+     * @method stopAll
+     * @example
+     * //example
+     * cc.audioEngine.stopAll();
+     */
     stopAll: function () {
         for (var id in id2audio) {
             var audio = id2audio[id];
@@ -226,15 +353,41 @@ var audioEngine = {
                 audio.stop();
             }
         }
-        waitQueue = [];
     },
 
+    /**
+     * !#en Set up an audio can generate a few examples.
+     * !#zh 设置一个音频可以设置几个实例
+     * @method setMaxAudioInstance
+     * @example
+     * //example
+     * cc.audioEngine.setMaxAudioInstance(20);
+     */
     setMaxAudioInstance: function (num) {
         return this._maxAudioInstance = num;
     },
+
+    /**
+     * !#en Getting audio can produce several examples.
+     * !#zh 获取一个音频可以设置几个实例
+     * @method getMaxAudioInstance
+     * @example
+     * //example
+     * cc.audioEngine.getMaxAudioInstance();
+     */
     getMaxAudioInstance: function () {
         return this._maxAudioInstance;
     },
+
+    /**
+     * !#en Unload the preloaded audio from internal buffer.
+     * !#zh 卸载预加载的音频。
+     * @method uncache
+     * @param {String} filePath
+     * @example
+     * //example
+     * cc.audioEngine.uncache(filePath);
+     */
     uncache: function (filePath) {
         var list = url2id[filePath];
         if (!list) return;
@@ -247,132 +400,60 @@ var audioEngine = {
             }
         }
     },
+
+    /**
+     * !#en Unload all audio from internal buffer.
+     * !#zh 卸载所有音频。
+     * @method uncacheAll
+     * @example
+     * //example
+     * cc.audioEngine.uncacheAll();
+     */
     uncacheAll: function () {
         this.stopAll();
         id2audio = {};
         url2id = {};
     },
 
-    // getProfile
-    getProfile: function () {},
-    // preload
-    preload: function () {},
+    /**
+     * !#en Gets an audio profile by name.
+     *
+     * @param profileName A name of audio profile.
+     * @return The audio profile.
+     */
+    getProfile: function (profileName) {},
 
-    // web 独占接口
-    // 设置一个大小，单位为kb，超过这个大小则直接解析成 dom 节点
-    // 因为 webAudio 占用内存过多，所以让用户自己手动取舍
+    /**
+     * !#en Preload audio file.
+     * !#zh 预加载一个音频
+     * @param filePath The file path of an audio.
+     * @param callback The callback of an audio.
+     * @method preload
+     * @example
+     * //example
+     * cc.audioEngine.preload(path);
+     */
+    preload: function (filePath, callback) {
+        cc.loader.load(filePath, function (error) {
+            if (!error) {
+                callback();
+            }
+        });
+    },
+
+    /**
+     * !#en Set a size, the unit is KB，Over this size is directly resolved into DOM nodes
+     * !#zh 设置一个以kb为单位的尺寸，大于这个尺寸的音频在加载的时候会强制使用 dom 方式加载
+     * @param kb The file path of an audio.
+     * @method setMaxWebAudioSize
+     * @example
+     * //example
+     * cc.audioEngine.setMaxWebAudioSize(300);
+     */
+    // Because webAudio takes up too much memory，So allow users to manually choose
     setMaxWebAudioSize: function (kb) {
         this._maxWebAudioSize = kb * 1024;
-    },
-
-    // deprecated
-    _musicId: -1,
-    _backgroundVolume: 1,
-    _effectsVolume: 1,
-    willPlayMusic: function () { return false; },
-    playMusic: function (url, loop) {
-        cc.log('audioEngine.playMusic is deprecated, please call audioEngine.play');
-        this._musicId = this.play(url, loop, this._backgroundVolume);
-        return this._musicId;
-    },
-    stopMusic: function () {
-        cc.log('audioEngine.stopMusic is deprecated, please call audioEngine.stop');
-        this.stop(this._musicId);
-        return this._musicId;
-    },
-    pauseMusic: function () {
-        cc.log('audioEngine.pauseMusic is deprecated, please call audioEngine.pause');
-        this.pause(this._musicId);
-        return this._musicId;
-    },
-    resumeMusic: function () {
-        cc.log('audioEngine.resumeMusic is deprecated, please call audioEngine.resume');
-        this.resume(this._musicId);
-        return this._musicId;
-    },
-    rewindMusic: function () {
-        cc.log('audioEngine.rewindMusic is deprecated, please call audioEngine.setCurrentTime');
-        this.setCurrentTime(this._musicId, 0);
-        return this._musicId;
-    },
-    getMusicVolume: function () {
-        cc.log('audioEngine.getMusicVolume is deprecated, please call audioEngine.getVolume');
-        return this._backgroundVolume;
-    },
-    setMusicVolume: function (volume) {
-        cc.log('audioEngine.setMusicVolume is deprecated, please call audioEngine.setVolume');
-        this._backgroundVolume = volume;
-        this.setVolume(this._musicId, volume);
-        return this._backgroundVolume;
-    },
-    isMusicPlaying: function () {
-        cc.log('audioEngine.isMusicPlaying is deprecated, please call audioEngine.getState');
-        return this.getState(this._musicId) === Audio.State.PLAYING;
-    },
-    playEffect: function (url, loop, volume) {
-        cc.log('audioEngine.playEffect is deprecated, please call audioEngine.play');
-        return this.play(url, loop, volume === undefined ? this._effectsVolume : volume);
-    },
-    setEffectsVolume: function (volume) {
-        cc.log('audioEngine.setEffectsVolume is deprecated, please call audioEngine.setVolume');
-        this._effectsVolume = volume;
-        for (var id in id2audio) {
-            if (id === this._musicId) continue;
-            this.setVolume(id, volume);
-        }
-    },
-    getEffectsVolume: function () {
-        cc.log('audioEngine.getEffectsVolume is deprecated, please call audioEngine.getVolume');
-        return this._effectsVolume;
-    },
-    pauseEffect: function (id) {
-        cc.log('audioEngine.pauseEffect is deprecated, please call audioEngine.pause');
-        return this.pause(id);
-    },
-    pauseAllEffects: function () {
-        cc.log('audioEngine.pauseAllEffects is deprecated, please call audioEngine.pause');
-        for (var id in id2audio) {
-            if (id === this._musicId) continue;
-            var audio = id2audio[id];
-            var state = audio.getState();
-            if (state === Audio.State.PLAYING) {
-                this._pauseIDCache.push(id);
-                audio.pause();
-            }
-        }
-        while (waitQueue.length > 0) {
-            this._pauseIDCache.push(waitQueue.pop());
-        }
-    },
-    resumeEffect: function (id) {
-        cc.log('audioEngine.resumeEffect is deprecated, please call audioEngine.resume');
-        this.resume(id);
-    },
-    resumeAllEffects: function () {
-        cc.log('audioEngine.resumeAllEffects is deprecated, please call audioEngine.resumeAll');
-        while (this._pauseIDCache.length > 0) {
-            var id = this._pauseIDCache.pop();
-            var audio = getAudioFromId(id);
-            if (audio && audio.resume)
-                audio.resume();
-        }
-    },
-    stopEffect: function (id) {
-        cc.log('audioEngine.stopEffect is deprecated, please call audioEngine.stop');
-        return this.stop(id);
-    },
-    stopAllEffects: function (id) {
-        cc.log('audioEngine.stopEffect is deprecated, please call audioEngine.stop');
-        return this.stop(id);
-    },
-    unloadEffect: function () {
-        cc.log('audioEngine.stopEffect is deprecated, please call audioEngine.stop');
-        return this.stop(id);
-    },
-    end: function () {
-        cc.log('audioEngine.end is deprecated, please call audioEngine.stopAll');
-        return this.stopAll();
     }
 };
 
-module.exports = audioEngine;
+module.exports = cc.audioEngine = audioEngine;

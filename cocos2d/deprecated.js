@@ -655,4 +655,126 @@ if (CC_DEV && typeof eruda === 'undefined') {
             }
         },
     });
+
+    (function (audioEngine) {
+        if (typeof audioEngine === 'undefined') return;
+        markAsRemoved(audioEngine, ['willPlayMusic']);
+        var musicId = -1;
+        var musicVolume = 1;
+        var effectsVolume = 1;
+        var pauseIDCache = [];
+        js.get(audioEngine, 'playMusic', function (url, loop) {
+            cc.warn(INFO, 'audioEngine.playMusic', 'audioEngine.play');
+            musicId = this.play(url, loop, musicVolume);
+            return musicId;
+        });
+        js.get(audioEngine, 'stopMusic', function () {
+            cc.warn(INFO, 'audioEngine.stopMusic', 'audioEngine.stop');
+            this.stop(musicId);
+            return musicId;
+        });
+        js.get(audioEngine, 'pauseMusic', function () {
+            cc.warn(INFO, 'audioEngine.pauseMusic', 'audioEngine.pause');
+            this.pause(musicId);
+            return musicId;
+        });
+        js.get(audioEngine, 'resumeMusic', function () {
+            cc.warn(INFO, 'audioEngine.resumeMusic', 'audioEngine.resume');
+            this.resume(musicId);
+            return musicId;
+        });
+        js.get(audioEngine, 'rewindMusic', function () {
+            cc.warn(INFO, 'audioEngine.rewindMusic', 'audioEngine.setCurrentTime');
+            this.setCurrentTime(musicId, 0);
+            return musicId;
+        });
+        js.get(audioEngine, 'getMusicVolume', function () {
+            cc.warn(INFO, 'audioEngine.getMusicVolume', 'audioEngine.getVolume');
+            return musicVolume;
+        });
+        js.get(audioEngine, 'setMusicVolume', function (volume) {
+            cc.warn(INFO, 'audioEngine.setMusicVolume', 'audioEngine.setVolume');
+            musicVolume = volume;
+            this.setVolume(musicId, musicVolume);
+            return musicVolume;
+        });
+        js.get(audioEngine, 'isMusicPlaying', function () {
+            cc.warn(INFO, 'audioEngine.isMusicPlaying', 'audioEngine.getState');
+            return this.getState(musicId) === this.AudioState.PLAYING;
+        });
+        js.get(audioEngine, 'playEffect', function (url, loop, volume) {
+            cc.warn(INFO, 'audioEngine.playEffect', 'audioEngine.play');
+            return this.play(url, loop, volume === undefined ? effectsVolume : volume);
+        });
+        js.get(audioEngine, 'setEffectsVolume', function (volume) {
+            cc.warn(INFO, 'audioEngine.setEffectsVolume', 'audioEngine.setVolume');
+            effectsVolume = volume;
+            var id2audio = this._id2audio;
+            for (var id in id2audio) {
+                if (id === musicId) continue;
+                this.setVolume(id, volume);
+            }
+        });
+        js.get(audioEngine, 'getEffectsVolume', function () {
+            cc.warn(INFO, 'audioEngine.getEffectsVolume', 'audioEngine.getVolume');
+            return effectsVolume;
+        });
+        js.get(audioEngine, 'pauseEffect', function (id) {
+            cc.warn(INFO, 'audioEngine.pauseEffect', 'audioEngine.pause');
+            return this.pause(id);
+        });
+        js.get(audioEngine, 'pauseAllEffects', function () {
+            cc.warn(INFO, 'audioEngine.pauseAllEffects', 'audioEngine.pauseAll');
+            var id2audio = this._id2audio;
+            for (var id in id2audio) {
+                if (id === musicId) continue;
+                var audio = id2audio[id];
+                var state = audio.getState();
+                if (state === this.AudioState.PLAYING) {
+                    pauseIDCache.push(id);
+                    audio.pause();
+                }
+            }
+        });
+        js.get(audioEngine, 'resumeEffect', function (id) {
+            cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
+            this.resume(id);
+        });
+        js.get(audioEngine, 'resumeAllEffects', function () {
+            cc.warn(INFO, 'audioEngine.resumeEffect', 'audioEngine.resume');
+            var id2audio = this._id2audio;
+            while (pauseIDCache.length > 0) {
+                var id = pauseIDCache.pop();
+                var audio = id2audio[id];
+                if (audio && audio.resume)
+                    audio.resume();
+            }
+        });
+        js.get(audioEngine, 'stopEffect', function (id) {
+            cc.warn(INFO, 'audioEngine.stopEffect', 'audioEngine.stop');
+            return this.stop(id);
+        });
+        js.get(audioEngine, 'stopAllEffects', function () {
+            cc.warn(INFO, 'audioEngine.stopAllEffects', 'audioEngine.stopAll');
+            var id2audio = this._id2audio;
+            for (var id in id2audio) {
+                if (id === musicId) continue;
+                var audio = id2audio[id];
+                var state = audio.getState();
+                if (state === this.AudioState.PLAYING) {
+                    audio.stop();
+                }
+            }
+        });
+        js.get(audioEngine, 'unloadEffect', function (id) {
+            cc.warn(INFO, 'audioEngine.unloadEffect', 'audioEngine.stop');
+            return this.stop(id);
+        });
+        js.get(audioEngine, 'end', function () {
+            cc.warn(INFO, 'audioEngine.end', 'audioEngine.stopAll');
+            return this.stopAll();
+        });
+
+    })(cc.audioEngine);
+
 }
