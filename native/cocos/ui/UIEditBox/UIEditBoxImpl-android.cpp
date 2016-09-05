@@ -55,12 +55,12 @@ extern "C"{
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBoxHelper_editBoxEditingChanged(JNIEnv *env, jclass, jint index, jstring text) {
-        std::string textString = cocos2d::JniHelper::getStringUTFCharsJNI(env,text);
+        std::string textString = StringUtils::getStringUTFCharsJNI(env,text);
         editBoxEditingDidChanged(index, textString);
     }
 
     JNIEXPORT void JNICALL Java_org_cocos2dx_lib_Cocos2dxEditBoxHelper_editBoxEditingDidEnd(JNIEnv *env, jclass, jint index, jstring text) {
-        std::string textString = cocos2d::JniHelper::getStringUTFCharsJNI(env,text);
+        std::string textString = StringUtils::getStringUTFCharsJNI(env,text);
         editBoxEditingDidEnd(index, textString);
     }
 
