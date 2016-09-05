@@ -112,6 +112,16 @@ for (var i = 0; i < actionArr.length; ++i) {
     }
 }
 
+cc.targetedAction = function (target, action) {
+    return new cc.TargetedAction(target, action);
+};
+
+cc.TargetedAction.prototype._ctor = function(target, action) {
+    var node = target._sgNode || target;
+    node._owner = target;
+    action && this.initWithTarget(node, action);
+};
+
 cc.follow = function (followedNode, rect) {
     return new cc.Follow(followedNode._sgNode, rect);
 };
@@ -123,31 +133,25 @@ cc.Follow.prototype.update = function(dt) {
     }
 };
 
-cc.Show.prototype.update = function (dt) {
-    var target = this.getTarget();
-    var _renderComps = target._owner.getComponentsInChildren();
+function setRendererVisibility (sgNode, toggleVisible, visible) {
+    if (!sgNode) { return; }
+    var _renderComps = sgNode._owner.getComponentsInChildren(cc._SGComponent);
     for (var i = 0; i < _renderComps.length; ++i) {
         var render = _renderComps[i];
-        render.enabled = true;
+        render.enabled = toggleVisible ? !render.enabled : visible;
     }
+}
+
+cc.Show.prototype.update = function (dt) {
+    setRendererVisibility(this.getTarget(), false, true);
 };
 
 cc.Hide.prototype.update = function (dt) {
-    var target = this.getTarget();
-    var _renderComps = target._owner.getComponentsInChildren();
-    for (var i = 0; i < _renderComps.length; ++i) {
-        var render = _renderComps[i];
-        render.enabled = false;
-    }
+    setRendererVisibility(this.getTarget(), false, false);
 };
 
 cc.ToggleVisibility.prototype.update = function (dt) {
-    var target = this.getTarget();
-    var _renderComps = target._owner.getComponentsInChildren();
-    for (var i = 0; i < _renderComps.length; ++i) {
-        var render = _renderComps[i];
-        render.enabled = true;
-    }
+    setRendererVisibility(this.getTarget(), true);
 };
 
 // Special call func
@@ -343,9 +347,7 @@ function syncColorUpdate (dt) {
 // Sub classes must be registered before their super class.
 // Otherwise, JSB there will be internal Error: "too much recursion".
 var actionUpdate = {
-    'MoveTo': syncPositionUpdate,
     'MoveBy': syncPositionUpdate,
-    'JumpTo': syncPositionUpdate,
     'JumpBy': syncPositionUpdate,
     'Place': syncPositionUpdate,
     'CardinalSplineTo': syncPositionUpdate,

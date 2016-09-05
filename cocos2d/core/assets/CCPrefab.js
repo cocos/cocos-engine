@@ -55,10 +55,14 @@ var Prefab = cc.Class({
     },
 
     _instantiate: function () {
+        // prefab asset is always synced
+        this.data._prefab._synced = true;
+
         // instantiate
         var node = cc.instantiate(this.data);
 
         if (CC_EDITOR || CC_TEST) {
+            // This operation is not necessary, but some old prefab asset may not contain complete data.
             _Scene.PrefabUtils.linkPrefab(this, node);
         }
 

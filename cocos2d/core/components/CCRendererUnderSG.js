@@ -93,7 +93,7 @@ var RendererUnderSG = cc.Class({
         }
 
         sgNode.setAnchorPoint(node._anchorPoint);
-        sgNode.ignoreAnchorPointForPosition(node.__ignoreAnchor);
+        sgNode.setIgnoreAnchorPointForPosition(node.__ignoreAnchor);
 
         sgNode.setOpacityModifyRGB(node._opacityModifyRGB);
 

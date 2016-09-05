@@ -378,7 +378,6 @@ if (CC_DEV && typeof eruda === 'undefined') {
         'onEnterTransitionDidFinish',
         'onExitTransitionDidStart',
         'onExit',
-        'getNumberOfRunningActions',
         'scheduleUpdate',
         'scheduleUpdateWithPriority',
         'unscheduleUpdate',
@@ -398,6 +397,8 @@ if (CC_DEV && typeof eruda === 'undefined') {
         'transform',
         'getCamera',
         'grid',
+        'getOrderOfArrival',
+        'setOrderOfArrival',
         'getGrid',
         'setGrid',
         'getShaderProgram',
@@ -428,8 +429,6 @@ if (CC_DEV && typeof eruda === 'undefined') {
         _detachChild: 'removeChild',
         getZOrder: 'getLocalZOrder',
         setZOrder: 'setLocalZOrder',
-        getOrderOfArrival: 'getSiblingIndex',
-        setOrderOfArrival: 'setSiblingIndex',
         boundingBox: 'getBoundingBox',
         removeFromParentAndCleanup: 'removeFromParent',
         removeAllChildrenWithCleanup: 'removeAllChildren',
@@ -573,6 +572,7 @@ if (CC_DEV && typeof eruda === 'undefined') {
         'setCameraMask',
         'getCameraMask'
     ], '_ccsg.Node');
+    js.obsolete(_ccsg.Node.prototype, '_ccsg.Node.ignoreAnchorPointForPosition', 'setIgnoreAnchorPointForPosition');
 
     js.obsoletes(cc.Scale9Sprite.prototype, 'cc.Scale9Sprite', {
         setPreferredSize: 'setContentSize',
