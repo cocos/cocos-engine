@@ -1980,6 +1980,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 
         sgNode.setGlobalZOrder(self._globalZOrder);
 
+        if (CC_JSB) {
+            // fix tintTo and tintBy action for jsb displays err for fireball/issues/4137
+            sgNode.setColor(this._color);
+        }
         sgNode.setOpacity(self._opacity);
         sgNode.setOpacityModifyRGB(self._opacityModifyRGB);
         sgNode.setCascadeOpacityEnabled(self._cascadeOpacityEnabled);
