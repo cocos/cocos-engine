@@ -54,14 +54,12 @@ var DragonBonesAtlasAsset = cc.Class({
     ctor: function () {
     },
 
-    createNode: function (callback) {
-        // TODO create node with dragonbones atlas asset
-        return callback(new Error('it is not supported now'));
-        //var node = new cc.Node(this.name);
-        //var skeleton = node.addComponent(sp.Skeleton);
-        //skeleton.skeletonData = this;
-        //
-        //return callback(null, node);
+    createNode: CC_EDITOR &&  function (callback) {
+        var node = new cc.Node(this.name);
+        var armatureDisplay = node.addComponent(dragonBones.ArmatureDisplay);
+        armatureDisplay.dragonAtlasAsset = this;
+
+        return callback(null, node);
     },
 });
 

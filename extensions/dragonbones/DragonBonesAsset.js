@@ -43,14 +43,12 @@ var DragonBonesAsset = cc.Class({
         }
     },
 
-    createNode: function (callback) {
-        // TODO create node with dragonbones asset
-        return callback(new Error('it is not supported now'));
-        //var node = new cc.Node(this.name);
-        //var skeleton = node.addComponent(sp.Skeleton);
-        //skeleton.skeletonData = this;
-        //
-        //return callback(null, node);
+    createNode: CC_EDITOR &&  function (callback) {
+        var node = new cc.Node(this.name);
+        var armatureDisplay = node.addComponent(dragonBones.ArmatureDisplay);
+        armatureDisplay.dragonAsset = this;
+
+        return callback(null, node);
     },
 
     reset : function() {
@@ -62,10 +60,11 @@ var DragonBonesAsset = cc.Class({
 
     // EDITOR
 
-    getRuntimeData: CC_EDITOR && function () {
+    getRuntimeData: function () {
         if (!this._dragonBonesDataCache) {
-            var factory = new dragonBones.CCFactory();
-            this._dragonBonesDataCache = factory.parseDragonBonesData(this._dragonBonesJson);
+            var factory = dragonBones.getFactory();
+            var jsonObj = JSON.parse(this._dragonBonesJson);
+            this._dragonBonesDataCache = factory.parseDragonBonesData(jsonObj);
         }
 
         return this._dragonBonesDataCache;
@@ -102,6 +101,7 @@ var DragonBonesAsset = cc.Class({
             for (var animName in anims) {
                 if (anims.hasOwnProperty(animName)) {
                     enumDef[animName] = i + 1;
+                    i++;
                 }
             }
             return cc.Enum(enumDef);

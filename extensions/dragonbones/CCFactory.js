@@ -91,10 +91,6 @@ dragonBones.CCFactory = cc.Class({
 
                     if (cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
                         // TODO mesh support
-                        //if (!slot._meshDisplay) {
-                        //    slot._meshDisplay = new egret.Mesh();
-                        //}
-                        //
                         displayList.push(slot._meshDisplay);
                     } else {
                         displayList.push(slot._rawDisplay);

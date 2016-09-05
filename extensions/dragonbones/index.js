@@ -55,8 +55,21 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
         require('./CCArmatureDisplay');
     }
 
-    // TODO require the component for dragonbones
+    // require the component for dragonbones
+    require('./DragonBonesAsset');
+    require('./DragonBonesAtlasAsset');
+    require('./ArmatureDisplay')
+} else {
+    require('./DragonBonesAsset');
+    require('./DragonBonesAtlasAsset');
 }
 
-require('./DragonBonesAsset');
-require('./DragonBonesAtlasAsset');
+dragonBones.factory = null;
+
+dragonBones.getFactory = function () {
+    if (!dragonBones.factory) {
+        dragonBones.factory = new dragonBones.CCFactory();
+    }
+
+    return dragonBones.factory;
+};
