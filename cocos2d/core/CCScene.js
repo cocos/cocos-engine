@@ -87,7 +87,18 @@ cc.Scene = cc.Class({
 
     _load: function () {
         if ( ! this._inited) {
-            this._onBatchCreated();
+
+            this._updateDummySgNode();
+
+            // deactivate ActionManager and EventManager by default
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+
+            var children = this._children;
+            for (var i = 0, len = children.length; i < len; i++) {
+                children[i]._onBatchCreated();
+            }
+
             this._inited = true;
         }
     },

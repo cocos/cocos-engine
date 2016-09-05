@@ -2008,29 +2008,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    /*
-     * The deserializer for sgNode which will be called before components onLoad
-     * @param {Boolean} [skipChildrenInEditor=false]
-     */
-    _onBatchCreated: function () {
-        this._updateDummySgNode();
-
-        if (this._parent) {
-            this._parent._sgNode.addChild(this._sgNode);
-        }
-
-        if ( !this._activeInHierarchy ) {
-            // deactivate ActionManager and EventManager by default
-            cc.director.getActionManager().pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
-        }
-
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchCreated();
-        }
-    },
-
     onRestore: CC_EDITOR && function () {
         this._updateDummySgNode();
 

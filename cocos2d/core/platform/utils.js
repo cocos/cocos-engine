@@ -24,12 +24,17 @@
  ****************************************************************************/
 
 module.exports = {
-    isDomNode: typeof window === 'object' && function (obj) {
-        return (
-            typeof Node === "object" ? obj instanceof Node :
-            obj && typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName === "string"
-        );
-    },
+    isDomNode: typeof window === 'object' && (typeof Node === 'function' ?
+        function (obj) {
+            return obj instanceof Node;
+        } :
+        function (obj) {
+            return obj &&
+                   typeof obj === 'object' &&
+                   typeof obj.nodeType === 'number' &&
+                   typeof obj.nodeName === 'string';
+        }
+    ),
 
     callInNextTick: CC_EDITOR ?
         function (callback, p1, p2) {
