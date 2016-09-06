@@ -350,4 +350,4 @@ var webAudioElement = function (buffer) {
 
 })(webAudioElement.prototype);
 
-module.exports = Audio;
+module.exports = cc.Audio =  Audio;
