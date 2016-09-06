@@ -55,8 +55,10 @@ var Prefab = cc.Class({
     },
 
     _instantiate: function () {
-        // prefab asset is always synced
-        this.data._prefab._synced = true;
+        //if (this.data._prefab) {
+            // prefab asset is always synced
+            this.data._prefab._synced = true;
+        //}
 
         // instantiate
         var node = cc.instantiate(this.data);
