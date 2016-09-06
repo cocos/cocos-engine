@@ -29,60 +29,116 @@ cc.Audio = function (src) {
     this.loop = false;
 
     this.id = -1;
+    this._eventList = {};
+
+    this.type = cc.Audio.Type.NATIVE;
 };
 
-(function (prototype, audioEngine) {
+cc.Audio.Type = {
+    DOM: 'AUDIO',
+    WEBAUDIO: 'WEBAUDIO',
+    NATIVE: 'NATIVE',
+    UNKNOWN: 'UNKNOWN'
+};
 
-    prototype.State = audioEngine.AudioState;
+(function (proto, audioEngine) {
 
-    prototype.play = function () {
+    // Using the new audioEngine
+    cc.audioEngine = audioEngine;
+    audioEngine.play = audioEngine.play2d;
+
+    proto.State = audioEngine.AudioState;
+
+    proto.play = function () {
         this.id = audioEngine.play2d(this.src, this.loop, this.volume);
     };
 
-    prototype.pause = function () {
+    proto.pause = function () {
         audioEngine.pause(this.id);
     };
 
-    prototype.resume = function () {
+    proto.resume = function () {
         audioEngine.resume(this.id);
     };
 
-    prototype.stop = function () {
+    proto.stop = function () {
         audioEngine.stop(this.id);
     };
 
-    prototype.setLoop = function (loop) {
+    proto.setLoop = function (loop) {
         this.loop = loop;
         audioEngine.setLoop(this.id, loop)
     };
 
-    prototype.getLoop = function () {
+    proto.getLoop = function () {
         return audioEngine.getLoop(this.id)
     };
 
-    prototype.setVolume = function (volume) {
+    proto.setVolume = function (volume) {
         this.volume = volume;
         return audioEngine.setVolume(this.id, volume)
     };
 
-    prototype.getVolume = function () {
+    proto.getVolume = function () {
         return audioEngine.getVolume(this.id)
     };
 
-    prototype.setCurrentTime = function (time) {
+    proto.setCurrentTime = function (time) {
         audioEngine.setCurrentTime(this.id, time);
     };
 
-    prototype.getCurrentTime = function () {
+    proto.getCurrentTime = function () {
         return audioEngine.getCurrentTime(this.id)
     };
 
-    prototype.getDuration = function () {
+    proto.getDuration = function () {
         return audioEngine.getDuration(this.id)
     };
 
-    prototype.getState = function () {
+    proto.getState = function () {
         return audioEngine.getState(this.id)
+    };
+
+    proto.preload = function () {
+        this.emit('load');
+    };
+
+    proto.on = function (event, callback) {
+        var list = this._eventList[event];
+        if (!list) {
+            list = this._eventList[event] = [];
+        }
+        list.push(callback);
+    };
+    proto.once = function (event, callback) {
+        var onceCallback = function (elem) {
+            callback.call(this, elem);
+            this.off(event, onceCallback);
+        };
+        this.on(event, onceCallback);
+    };
+    proto.emit = function (event) {
+        var list = this._eventList[event];
+        if (!list) return;
+        for (var i=0; i<list.length; i++) {
+            list[i].call(this, this);
+        }
+    };
+    proto.off = function (event, callback) {
+        var list = this._eventList[event];
+        if (!list) return false;
+        if (!callback) {
+            this._eventList[event] = [];
+            return true;
+        }
+
+        for (var i=0; i<list.length; i++) {
+            if (list[i] === callback) {
+                list.splice(i, 1);
+                break;
+            }
+        }
+        return true;
     };
 
 })(cc.Audio.prototype, jsb.AudioEngine);

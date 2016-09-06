@@ -41,7 +41,7 @@ var AudioSource = cc.Class({
     },
 
     ctor: function () {
-        this.audio = new cc.Audio(this._clip);
+        this.audio = new cc.Audio();
     },
 
     properties: {
@@ -88,8 +88,8 @@ var AudioSource = cc.Class({
             set: function (value) {
                 this._clip = value;
                 this.audio.src = this._clip;
-                if (this.audio.startLoad) {
-                    this.audio.startLoad();
+                if (this.audio.preload) {
+                    this.audio.preload();
                 }
             },
             url: cc.AudioClip,
@@ -197,12 +197,17 @@ var AudioSource = cc.Class({
      * @method play
      */
     play: function () {
-        if ( this._clip ) {
-            var volume = this._mute ? 0 : this._volume;
-            this.audio.setLoop(this._loop);
-            this.audio.setVolume(volume);
-            this.audio.play();
-        }
+        if ( !this._clip ) return;
+
+        var volume = this._mute ? 0 : this._volume;
+        var audio = this.audio;
+        audio.src = this._clip;
+        audio.setLoop(this._loop);
+        audio.setVolume(volume);
+        audio.once('load', function () {
+            audio.play();
+        });
+        audio.preload();
     },
 
     /**

@@ -30,7 +30,6 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 }
 
 var audioEngine = cc.audioEngine = require('../audio/CCAudioEngine');
-var isMusicPlaying = false;
 
 /**
  * !#en An object to boot the game.
@@ -255,7 +254,6 @@ var game = {
         this._paused = true;
         // Pause audio engine
         if (audioEngine) {
-            isMusicPlaying = true;
             audioEngine.pauseAll();
         }
         // Pause main loop
@@ -274,8 +272,7 @@ var game = {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        if (audioEngine && isMusicPlaying) {
-            isMusicPlaying = false;
+        if (audioEngine) {
             audioEngine.resumeAll();
         }
         // Resume main loop

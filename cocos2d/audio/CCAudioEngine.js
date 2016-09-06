@@ -84,7 +84,7 @@ var audioEngine = {
             audio.play();
         };
         audio.on('load', callback);
-        audio.startLoad();
+        audio.preload();
 
         return audio.instanceId;
     },
@@ -102,9 +102,8 @@ var audioEngine = {
     setLoop: function (audioID, loop) {
         var audio = getAudioFromId(audioID);
         if (!audio || !audio.setLoop)
-            return loop;
+            return;
         audio.setLoop(loop);
-        return loop;
     },
 
     /**
@@ -234,7 +233,6 @@ var audioEngine = {
      * @method getState
      * @param {Number} audioID audio id.
      * @param {Function} callback loaded callback.
-     * @return {Boolean} Whether set successfully.
      * @example
      * //example
      * cc.audioEngine.setFinishCallback(id, function () {});
@@ -242,11 +240,10 @@ var audioEngine = {
     setFinishCallback: function (audioID, callback) {
         var audio = getAudioFromId(audioID);
         if (!audio)
-            return false;
+            return;
 
         audio.off('ended');
         audio.on('ended', callback);
-        return true;
     },
 
     /**

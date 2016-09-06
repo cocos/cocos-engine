@@ -30,7 +30,7 @@ var touchPlayList = [
 ];
 
 var Audio = function (src) {
-    this._src = src;
+    this.src = src;
     this._audioType = Audio.Type.UNKNOWN;
     this._element = null;
 
@@ -42,6 +42,7 @@ var Audio = function (src) {
 Audio.Type = {
     DOM: 'AUDIO',
     WEBAUDIO: 'WEBAUDIO',
+    NATIVE: 'NATIVE',
     UNKNOWN: 'UNKNOWN'
 };
 
@@ -54,8 +55,8 @@ Audio.State = {
 
 (function (proto) {
 
-    proto.startLoad = function () {
-        var src = this._src,
+    proto.preload = function () {
+        var src = this.src,
             audio = this;
         var item = cc.loader.getItem(src);
 
@@ -79,6 +80,13 @@ Audio.State = {
             list = this._eventList[event] = [];
         }
         list.push(callback);
+    };
+    proto.once = function (event, callback) {
+        var onceCallback = function (elem) {
+            callback.call(this, elem);
+            this.off(event, onceCallback);
+        };
+        this.on(event, onceCallback);
     };
     proto.emit = function (event) {
         var list = this._eventList[event];
@@ -113,7 +121,7 @@ Audio.State = {
                 this.emit('ended', this);
             }, this);
         } else {
-            this._element = new webAudioElement(elem);
+            this._element = new WebAudioElement(elem);
             this._audioType = Audio.Type.WEBAUDIO;
             elem.onended = function () {
                 this.emit('ended', this);
@@ -211,7 +219,7 @@ Audio.State = {
 })(Audio.prototype);
 
 // Encapsulated WebAudio interface
-var webAudioElement = function (buffer) {
+var WebAudioElement = function (buffer) {
     this._context = cc.sys.__audioSupport.context;
     this._buffer = buffer;
     this._volume = this._context['createGain']();
@@ -348,6 +356,6 @@ var webAudioElement = function (buffer) {
         return num;
     });
 
-})(webAudioElement.prototype);
+})(WebAudioElement.prototype);
 
 module.exports = cc.Audio =  Audio;
