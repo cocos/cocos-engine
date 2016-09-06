@@ -124,3 +124,13 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
 else {
     require('./SkeletonData');
 }
+
+/**
+ * !#en
+ * `spine` is the namespace for official Spine Runtime, which officially implemented and maintained by Spine.<br>
+ * Please refer to the official documentation for its detailed usage: [http://en.esotericsoftware.com/spine-using-runtimes](http://en.esotericsoftware.com/spine-using-runtimes)
+ * !#zh
+ * spine 模块是 Spine 官方运行库的 API 入口，由 Spine 官方统一实现和维护，具体用法请参考：[http://zh.esotericsoftware.com/spine-using-runtimes](http://zh.esotericsoftware.com/spine-using-runtimes)
+ * @module spine
+ * @main spine
+ */
