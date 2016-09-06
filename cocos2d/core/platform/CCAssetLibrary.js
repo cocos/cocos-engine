@@ -120,7 +120,7 @@ var AssetLibrary = {
                     }
                 }
                 else {
-                    callback(new Error('Can not get asset url by uuid ' + uuid));
+                    callback(new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.'));
                 }
             });
         }
