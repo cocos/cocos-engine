@@ -252,8 +252,9 @@ cc.js.mixin(cc.game, {
         // Scene parser
         this._sceneInfos = config[CONFIG_KEY.scenes] || [];
 
-        cc.director.setDisplayStats(this.config[CONFIG_KEY.showFPS]);
-        cc.director.setAnimationInterval(1.0/this.config[CONFIG_KEY.frameRate]);
+        cc.director.setDisplayStats(config[CONFIG_KEY.showFPS]);
+        cc.director.setAnimationInterval(1.0/config[CONFIG_KEY.frameRate]);
+        cc._initDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;
     }
