@@ -63,13 +63,3 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./DragonBonesAsset');
     require('./DragonBonesAtlasAsset');
 }
-
-dragonBones.factory = null;
-
-dragonBones.getFactory = function () {
-    if (!dragonBones.factory) {
-        dragonBones.factory = new dragonBones.CCFactory();
-    }
-
-    return dragonBones.factory;
-};

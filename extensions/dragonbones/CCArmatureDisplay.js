@@ -98,5 +98,16 @@ dragonBones.CCArmatureDisplay = cc.Class({
 
     animation : function () {
         return this._armature.animation;
+    },
+
+    setDebugBones : function (debug) {
+        dragonBones.DragonBones.debugDraw = debug;
+        if (debug) {
+            this.armature().advanceTime(0);
+        } else {
+            if (this._debugDrawer) {
+                this._debugDrawer.clear();
+            }
+        }
     }
 });

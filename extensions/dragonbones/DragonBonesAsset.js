@@ -60,9 +60,9 @@ var DragonBonesAsset = cc.Class({
 
     // EDITOR
 
-    getRuntimeData: function () {
+    getRuntimeData: CC_EDITOR && function () {
         if (!this._dragonBonesDataCache) {
-            var factory = dragonBones.getFactory();
+            var factory = new dragonBones.CCFactory();
             var jsonObj = JSON.parse(this._dragonBonesJson);
             this._dragonBonesDataCache = factory.parseDragonBonesData(jsonObj);
         }
@@ -76,7 +76,7 @@ var DragonBonesAsset = cc.Class({
         }
         var data = this.getRuntimeData();
         if (data) {
-            var armatureNames = data._armatureNames;
+            var armatureNames = data.armatureNames;
             var enumDef = {};
             for (var i = 0; i < armatureNames.length; i++) {
                 var name = armatureNames[i];

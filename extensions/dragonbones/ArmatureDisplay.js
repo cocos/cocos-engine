@@ -42,6 +42,19 @@ dragonBones.ArmatureDisplay = cc.Class({
     },
 
     properties: {
+        _factory: {
+            default: null,
+            type: dragonBones.CCFactory,
+            serializable: false,
+        },
+
+
+        _dragonBonesData: {
+            default: null,
+            type: dragonBones.DragonBonesData,
+            serializable: false,
+        },
+
         dragonAsset : {
             default: null,
             type : dragonBones.DragonBonesAsset,
@@ -68,37 +81,38 @@ dragonBones.ArmatureDisplay = cc.Class({
             tooltip: 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
 
+        _armatureName : '',
         /**
          * !#en The name of default armature.
          * !#zh 默认的 Armature 名称。
-         * @property {String} defaultArmature
+         * @property {String} armatureName
          */
-        defaultArmature: {
-            default: '',
+        armatureName: {
+            get : function () {
+                return this._armatureName;
+            },
+            set : function (value) {
+                this._armatureName = value;
+                var animNames = this.getAnimationNames(this._armatureName);
+                this.animationName = animNames[0];
+                this._refresh();
+            },
             visible: false
         },
 
+        _animationName : '',
         /**
          * !#en The name of current playing animation.
          * !#zh 当前播放的动画名称。
-         * @property {String} animation
+         * @property {String} animationName
          */
-        animation: {
-            //get: function () {
-            //    var entry = this.getCurrent(0);
-            //    return (entry && entry.animation.name) || "";
-            //},
-            //set: function (value) {
-            //    this.defaultAnimation = value;
-            //    if (value) {
-            //        this.setAnimation(0, value, this.loop);
-            //    }
-            //    else {
-            //        this.clearTrack(0);
-            //        this.setToSetupPose();
-            //    }
-            //},
-            default: '',
+        animationName: {
+            get : function () {
+                return this._animationName;
+            },
+            set : function (value) {
+                this._animationName = value;
+            },
             visible: false
         },
 
@@ -122,10 +136,7 @@ dragonBones.ArmatureDisplay = cc.Class({
                 }
 
                 if (armatureName !== undefined) {
-                    this.defaultArmature = armatureName;
-                    if (CC_EDITOR && !cc.engine.isPlaying) {
-                        this._refresh();
-                    }
+                    this.armatureName = armatureName;
                 }
                 else {
                     cc.error('Failed to set _defaultArmatureIndex for "%s" because the index is out of range.', this.name);
@@ -143,13 +154,13 @@ dragonBones.ArmatureDisplay = cc.Class({
             default: 0,
             notify: function () {
                 if (this._animationIndex === 0) {
-                    this.animation = '';
+                    this.animationName = '';
                     return;
                 }
 
                 var animsEnum;
                 if (this.dragonAsset) {
-                    animsEnum = this.dragonAsset.getAnimsEnum(this.defaultArmature);
+                    animsEnum = this.dragonAsset.getAnimsEnum(this.armatureName);
                 }
 
                 if ( !animsEnum ) {
@@ -158,7 +169,7 @@ dragonBones.ArmatureDisplay = cc.Class({
 
                 var animName = animsEnum[this._animationIndex];
                 if (animName !== undefined) {
-                    this.animation = animName;
+                    this.animationName = animName;
                 }
                 else {
                     cc.error('Failed to set _animationIndex for "%s" because the index is out of range.', this.name);
@@ -170,55 +181,97 @@ dragonBones.ArmatureDisplay = cc.Class({
             serializable: false,
             displayName: 'Animation'
         },
+
+        /**
+         * !#en The time scale of this armature.
+         * !#zh 当前骨骼中所有动画的时间缩放率。
+         * @property {Number} timeScale
+         * @default 1
+         */
+        timeScale: {
+            default: 1,
+            notify: function () {
+                if (this._sgNode) {
+                    this._sgNode.animation().timeScale = this.timeScale;
+                }
+            }
+        },
+
+        /**
+         * !#en The play times of the default animation.
+         *      -1 means using the value of config file;
+         *      0 means repeat for ever
+         *      >0 means repeat times
+         * !#zh 播放默认动画的循环次数
+         *      -1 表示使用配置文件中的默认值;
+         *      0 表示无限循环
+         *      >0 表示循环次数
+         * @property {Number} playTimes
+         * @default -1
+         */
+        playTimes: {
+            default: -1
+        },
+
+        /**
+         * !#en Indicates whether open debug bones.
+         * !#zh 是否显示 bone 的 debug 信息。
+         * @property {Boolean} debugBones
+         * @default false
+         */
+        debugBones: {
+            default: false,
+            notify: function () {
+                if (this._sgNode) {
+                    this._sgNode.setDebugBones(this.debugBones);
+                }
+            },
+            editorOnly: true
+        },
     },
 
-    __preload: function () {
+    ctor : function () {
+        this._factory = new dragonBones.CCFactory();
+    },
+
+    onDestroy : function () {
+        // TODO destroy the factory??
+    },
+
+    __preload : function () {
         this._parseDragonAsset();
         this._parseDragonAtlasAsset();
         this._refresh();
     },
 
     _createSgNode: function () {
-        if (this.dragonAsset && this.dragonAtlasAsset && this.defaultArmature) {
-            return dragonBones.getFactory().buildArmatureDisplay(this.defaultArmature);
+        if (this.dragonAsset && this.dragonAtlasAsset && this.armatureName) {
+            return this._factory.buildArmatureDisplay(this.armatureName);
         }
         return null;
     },
 
     _initSgNode: function () {
-        //var sgNode = this._sgNode;
-        //sgNode.setTimeScale(this.timeScale);
-        //
-        //var self = this;
-        //sgNode.onEnter = function () {
-        //    _ccsg.Node.prototype.onEnter.call(this);
-        //    if (self._paused) {
-        //        this.pause();
-        //    }
-        //};
-        //
-        //if (this.defaultSkin) {
-        //    try {
-        //        sgNode.setSkin(this.defaultSkin);
-        //    }
-        //    catch (e) {
-        //        cc._throw(e);
-        //    }
-        //}
-        //this.animation = this.defaultAnimation;
-        //if (CC_EDITOR) {
-        //    sgNode.setDebugSlotsEnabled(this.debugSlots);
-        //    sgNode.setDebugBonesEnabled(this.debugBones);
-        //}
+        // set the time scale
+        var sgNode = this._sgNode;
+        sgNode.animation().timeScale = this.timeScale;
+
+        if (this.animationName) {
+            this.playAnimation(this.animationName, this.playTimes);
+        }
+
+        if (CC_EDITOR) {
+            sgNode.setDebugBones(this.debugBones);
+        }
     },
 
     _parseDragonAsset : function() {
         if (this.dragonAsset) {
             if (CC_JSB) {
-                dragonBones.getFactory().parseDragonBonesData(this.dragonAsset.dragonBonesJson);
+                this._dragonBonesData = this._factory.parseDragonBonesData(this.dragonAsset.dragonBonesJson);
             } else {
                 var jsonObj = JSON.parse(this.dragonAsset.dragonBonesJson);
-                dragonBones.getFactory().parseDragonBonesData(jsonObj);
+                this._dragonBonesData = this._factory.parseDragonBonesData(jsonObj);
             }
         }
     },
@@ -227,11 +280,11 @@ dragonBones.ArmatureDisplay = cc.Class({
         if (this.dragonAtlasAsset) {
             if (CC_JSB) {
                 // TODO parse the texture atlas data from json string & texture path
-                //dragonBones.getFactory().parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
+                //this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
             } else {
                 var atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
                 var texture = cc.loader.getRes(this.dragonAtlasAsset.texture);
-                dragonBones.getFactory().parseTextureAtlasData(atlasJsonObj, texture);
+                this._factory.parseTextureAtlasData(atlasJsonObj, texture);
             }
         }
     },
@@ -279,7 +332,7 @@ dragonBones.ArmatureDisplay = cc.Class({
     _updateAnimEnum: CC_EDITOR && function () {
         var animEnum;
         if (this.dragonAsset) {
-            animEnum = this.dragonAsset.getAnimsEnum(this.defaultArmature);
+            animEnum = this.dragonAsset.getAnimsEnum(this.armatureName);
         }
         // change enum
         setEnumAttr(this, '_animationIndex', animEnum || DefaultAnimsEnum);
@@ -314,4 +367,35 @@ dragonBones.ArmatureDisplay = cc.Class({
             }
         }
     },
+
+    playAnimation: function(animName, playTimes) {
+        if (this._sgNode) {
+            this.animationName = animName;
+            this._sgNode.animation().play(animName, playTimes);
+        }
+    },
+
+    getArmatureNames : function () {
+        if (this._dragonBonesData) {
+            return this._dragonBonesData.armatureNames;
+        }
+
+        return [];
+    },
+
+    getAnimationNames : function (armatureName) {
+        var ret = [];
+        if (this._dragonBonesData) {
+            var armatureData = this._dragonBonesData.getArmature(armatureName);
+            if (armatureData) {
+                for (var animName in armatureData.animations) {
+                    if (armatureData.animations.hasOwnProperty(animName)) {
+                        ret.push(animName);
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
 });
