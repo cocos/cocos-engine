@@ -397,5 +397,17 @@ dragonBones.ArmatureDisplay = cc.Class({
         }
 
         return ret;
+    },
+
+    addEventListener : function (eventType, listener, target) {
+        if (this._sgNode) {
+            this._sgNode.addEvent(eventType, listener, target);
+        }
+    },
+
+    removeEventListener : function (eventType, listener, target) {
+        if (this._sgNode) {
+            this._sgNode.removeEvent(eventType, listener, target);
+        }
     }
 });
