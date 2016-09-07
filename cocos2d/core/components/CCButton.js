@@ -116,7 +116,6 @@ var Button = cc.Class({
         this._transitionFinished = true;
         this._fromScale = 1.0;
         this._toScale = 1.0;
-        this._originalScale = 1.0;
 
         this._sprite = null;
 
@@ -244,6 +243,9 @@ var Button = cc.Class({
             tooltip: 'i18n:COMPONENT.button.duration',
         },
 
+        /**
+         * !#en
+         */
         zoomScale: {
             default: 0.1,
             tooltip: 'i18n:COMPONENT.button.zoomScale'
@@ -387,8 +389,12 @@ var Button = cc.Class({
             || !target || this._transitionFinished) return;
 
         this.time += dt;
-        var ratio = this.time / this.duration;
-        if (ratio > 1) {
+        var ratio = 1.0;
+        if(this.duration > 0) {
+            ratio = this.time / this.duration;
+        }
+
+        if (ratio >= 1) {
             ratio = 1;
             this._transitionFinished = true;
         }
@@ -437,16 +443,24 @@ var Button = cc.Class({
         // so we have to do hit test when touch moving
         var touch = event.touch;
         var hit = this.node._hitTest(touch.getLocation());
-        var state;
-        if (hit) {
-            state = 'pressed';
-        } else {
-            state = 'normal';
-        }
-        var color  = this[state + 'Color'];
-        var sprite = this[state + 'Sprite'];
 
-        this._applyTransition(color, sprite);
+        if(this.transition === Transition.SCALE && this.target) {
+            if(hit) {
+                this.target.scale = 1.0 + this.zoomScale;
+            } else {
+                this.target.scale = 1.0;
+            }
+        } else {
+            var state;
+            if (hit) {
+                state = 'pressed';
+            } else {
+                state = 'normal';
+            }
+            var color  = this[state + 'Color'];
+            var sprite = this[state + 'Sprite'];
+            this._applyTransition(color, sprite);
+        }
         event.stopPropagation();
     },
 
@@ -465,22 +479,23 @@ var Button = cc.Class({
     _zoomUp: function () {
         if(!this.target) return;
 
-        this._originalScale = this.target.scale;
-        this._fromScale = this._originalScale;
-        this._toScale = this._originalScale + this.zoomScale;
+        this._fromScale = 1.0;
+        this._toScale = 1.0 + this.zoomScale;
     },
 
     _zoomBack: function () {
-        this._fromScale = this._originalScale + this.zoomScale;
-        this._toScale = this._originalScale;
+        this._fromScale = 1.0 + this.zoomScale;
+        this._toScale = 1.0;
     },
 
     _onTouchCancel: function () {
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = false;
-        this._zoomBack();
-        this._updateState();
+
+        if(this.transition !== Transition.SCALE) {
+            this._updateState();
+        }
     },
 
     _onMouseMoveIn: function () {
