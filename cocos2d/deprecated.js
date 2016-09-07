@@ -1,5 +1,5 @@
 
-if (CC_DEV && typeof eruda === 'undefined') {
+if (CC_DEV) {
 
     var js = cc.js;
 
