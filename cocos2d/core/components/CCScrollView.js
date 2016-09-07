@@ -707,9 +707,9 @@ var ScrollView = cc.Class({
         if (!this.enabledInHierarchy) return;
 
         var deltaMove = cc.p(0, 0);
-        var wheelPrecision = 1.0 / 40;
+        var wheelPrecision = -0.1;
         if(CC_JSB) {
-            wheelPrecision = 7;
+            wheelPrecision = -7;
         }
         if(this.vertical) {
             deltaMove = cc.p(0, event.getScrollY() * wheelPrecision);
