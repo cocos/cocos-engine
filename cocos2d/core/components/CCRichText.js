@@ -356,12 +356,12 @@ var RichText = cc.Class({
         if (this._lineOffsetX > 0 && fragmentWidth + this._lineOffsetX > this.maxWidth) {
             //concat previous line
             var checkStartIndex = 0;
-            while (this._lineOffsetX < this.maxWidth) {
+            while (this._lineOffsetX <= this.maxWidth) {
                 var checkEndIndex = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
                 var checkString = labelString.substr(checkStartIndex, checkEndIndex);
                 var checkStringWidth = this._measureText(checkString, styleIndex);
 
-                if(this._lineOffsetX + checkStringWidth < this.maxWidth) {
+                if(this._lineOffsetX + checkStringWidth <= this.maxWidth) {
                     this._lineOffsetX += checkStringWidth;
                     checkStartIndex += checkEndIndex;
                 } else {
