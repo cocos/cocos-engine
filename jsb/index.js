@@ -54,21 +54,19 @@ if (_engineNumberVersion) {
     }
 }
 
+var originLog = console.log;
+
 // cc.initEngine
 cc.initEngine = function (config, cb) {
     require('script/jsb.js');
     cc._renderType = cc.game.RENDER_TYPE_OPENGL;
-    if (config) {
-        cc._initDebugSetting(config[cc.game.CONFIG_KEY.debugMode]);
-    }
     cc._engineLoaded = true;
-    cc.log(cc.ENGINE_VERSION);
+    originLog(cc.ENGINE_VERSION);
     if (cb) cb();
 };
 
 // overwrite original console.log
 try {
-    var originLog = console.log;
     console.log = function () {
         originLog.call(console, cc.js.formatStr.apply(null, arguments));
     };

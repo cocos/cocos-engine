@@ -688,8 +688,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         /**
-         * !#en Indicate whether node's opacity value affect its child nodes, default value is false.
-         * !#zh 节点的不透明度值是否影响其子节点，默认值为 false。
+         * !#en Indicate whether node's opacity value affect its child nodes, default value is true.
+         * !#zh 节点的不透明度值是否影响其子节点，默认值为 true。
          * @property cascadeOpacity
          * @type {Boolean}
          * @example
