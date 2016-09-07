@@ -75,6 +75,8 @@ extern CC_DLL const GLchar * ccLabelOutline_frag;
 
 extern CC_DLL const GLchar * ccLabel_vert;
 
+extern CC_DLL const GLchar * ccSprite_Distortion_frag;
+
 extern CC_DLL const GLchar * cc3D_PositionTex_vert;
 extern CC_DLL const GLchar * cc3D_SkinPositionTex_vert;
 extern CC_DLL const GLchar * cc3D_ColorTex_frag;

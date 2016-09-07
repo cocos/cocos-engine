@@ -53,6 +53,7 @@ enum {
     kShaderType_LabelDistanceFieldNormal,
     kShaderType_LabelDistanceFieldGlow,
     kShaderType_UIGrayScale,
+    kShaderType_SpriteDistortion,
     kShaderType_LabelNormal,
     kShaderType_LabelOutline,
     kShaderType_CameraClear,
@@ -194,6 +195,10 @@ void GLProgramCache::loadDefaultGLPrograms()
     _programs.insert(std::make_pair(GLProgram::SHADER_NAME_POSITION_GRAYSCALE, p));
 
     p = new (std::nothrow) GLProgram();
+    loadDefaultGLProgram(p, kShaderType_SpriteDistortion);
+    _programs.insert(std::make_pair(GLProgram::SHADER_NAME_SPRITE_DISTORTION, p));
+
+    p = new (std::nothrow) GLProgram();
     loadDefaultGLProgram(p, kShaderType_LabelNormal);
     _programs.insert( std::make_pair(GLProgram::SHADER_NAME_LABEL_NORMAL, p) );
 
@@ -305,6 +310,10 @@ void GLProgramCache::reloadDefaultGLPrograms()
     p = getGLProgram(GLProgram::SHADER_NAME_POSITION_GRAYSCALE);
     p->reset();
     loadDefaultGLProgram(p, kShaderType_UIGrayScale);
+
+    p = getGLProgram(GLProgram::SHADER_NAME_SPRITE_DISTORTION);
+    p->reset();
+    loadDefaultGLProgram(p, kShaderType_SpriteDistortion);
 }
 
 void GLProgramCache::reloadDefaultGLProgramsRelativeToLights()
@@ -360,6 +369,9 @@ void GLProgramCache::loadDefaultGLProgram(GLProgram *p, int type)
         case kShaderType_UIGrayScale:
             p->initWithByteArrays(ccPositionTextureColor_noMVP_vert,
                                   ccPositionTexture_GrayScale_frag);
+            break;
+        case kShaderType_SpriteDistortion:
+            p->initWithByteArrays(ccPositionTextureColor_noMVP_vert, ccSprite_Distortion_frag);
             break;
         case kShaderType_LabelNormal:
             p->initWithByteArrays(ccLabel_vert, ccLabelNormal_frag);

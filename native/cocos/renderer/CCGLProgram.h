@@ -192,6 +192,7 @@ public:
 
     /**Built in shader for ui effects */
     static const char* SHADER_NAME_POSITION_GRAYSCALE;
+    static const char* SHADER_NAME_SPRITE_DISTORTION;
     /** @{
         Built in shader for label and label with effects.
     */

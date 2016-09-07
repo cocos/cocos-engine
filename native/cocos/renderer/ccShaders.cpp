@@ -69,6 +69,7 @@ NS_CC_BEGIN
 #include "renderer/ccShader_PositionColorLengthTexture.vert"
 
 #include "renderer/ccShader_UI_Gray.frag"
+#include "renderer/ccShader_SpriteDistortion.frag"
 //
 #include "renderer/ccShader_Label.vert"
 #include "renderer/ccShader_Label_df.frag"

@@ -1848,6 +1848,8 @@
 		299CF1FA19A434BC00C378C1 /* ccRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ccRandom.h; path = ../base/ccRandom.h; sourceTree = "<group>"; };
 		29CB8F4A1929D1BB00C841D6 /* UILayoutManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UILayoutManager.cpp; sourceTree = "<group>"; };
 		29CB8F4B1929D1BB00C841D6 /* UILayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UILayoutManager.h; sourceTree = "<group>"; };
+		29D57CFC1D7FE03C001735C5 /* ccShader_UI_Gray.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ccShader_UI_Gray.frag; sourceTree = "<group>"; };
+		29D57CFF1D7FEC1C001735C5 /* ccShader_SpriteDistortion.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ccShader_SpriteDistortion.frag; sourceTree = "<group>"; };
 		29E99D1C1957BA7000046604 /* CocoLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CocoLoader.cpp; sourceTree = "<group>"; };
 		29E99D1D1957BA7000046604 /* CocoLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoLoader.h; sourceTree = "<group>"; };
 		38ACD1FA1A27111900C3093D /* WidgetCallBackHandlerProtocol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WidgetCallBackHandlerProtocol.cpp; sourceTree = "<group>"; };
@@ -3582,6 +3584,8 @@
 		5034CA5D191D591900CE6051 /* shaders */ = {
 			isa = PBXGroup;
 			children = (
+				29D57CFF1D7FEC1C001735C5 /* ccShader_SpriteDistortion.frag */,
+				29D57CFC1D7FE03C001735C5 /* ccShader_UI_Gray.frag */,
 				B241A6E21AFB0BE700C5623C /* ccShader_CameraClear.frag */,
 				B241A6E31AFB0BE700C5623C /* ccShader_CameraClear.vert */,
 				B20564AA1A6E5744001C1B6E /* ccShader_PositionColorTextureAsPointsize.vert */,
