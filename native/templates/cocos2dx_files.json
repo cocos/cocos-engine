@@ -855,6 +855,7 @@
         "cocos/renderer/ccShader_Position_uColor.frag", 
         "cocos/renderer/ccShader_Position_uColor.vert", 
         "cocos/renderer/ccShader_Position_uColor_wp81.vert", 
+        "cocos/renderer/ccShader_SpriteDistortion.frag", 
         "cocos/renderer/ccShader_UI_Gray.frag", 
         "cocos/renderer/ccShaders.cpp", 
         "cocos/renderer/ccShaders.h", 
