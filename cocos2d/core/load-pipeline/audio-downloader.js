@@ -26,63 +26,36 @@
 var Path = require('../utils/CCPath');
 var Sys = require('../platform/CCSys');
 var Pipeline = require('./pipeline');
-require('../../audio/CCAudio');
+var audioEngine = require('../../audio/CCAudioEngine');
 
 var __audioSupport = Sys.__audioSupport;
 var formatSupport = __audioSupport.format;
 var context = __audioSupport.context;
 
-function loadAudioFromExtList (url, typeList, audio, cb){
-    if(typeList.length === 0){
-        var ERRSTR = 'can not found the resource of audio! Last match url is : ';
-        ERRSTR += url.replace(/\.(.*)?$/, '(');
-        formatSupport.forEach(function(ext){
-            ERRSTR += ext + '|';
-        });
-        ERRSTR = ERRSTR.replace(/\|$/, ')');
-        return cb({status: 520, errorMessage: ERRSTR}, null);
-    }
-
-    if (__audioSupport.WEB_AUDIO && cc.Audio.useWebAudio) {
-        loadWebAudio(url, typeList, audio, cb);
-    } else {
-        loadDomAudio(url, typeList, audio, cb);
-    }
-}
-
-function loadDomAudio (url, typeList, audio, cb) {
-    var num = __audioSupport.ONE_SOURCE ? 1 : typeList.length;
-
-    // 加载统一使用dom
+function loadDomAudio (item, callback) {
     var dom = document.createElement('audio');
-    for (var i=0; i<num; i++) {
-        var source = document.createElement('source');
-        source.src = cc.path.changeExtname(url, typeList[i]);
-        dom.appendChild(source);
-    }
-
-    audio.setElement(dom);
-
-    var timer = setTimeout(function(){
-        if (dom.readyState === 0) {
-            failure();
-        } else {
-            success();
-        }
-    }, 8000);
-
-    var success = function () {
+    dom.src = item.url;
+    var clearEvent = function () {
+        clearTimeout(timer);
         dom.removeEventListener("canplaythrough", success, false);
         dom.removeEventListener("error", failure, false);
-        dom.removeEventListener("emptied", success, false);
-        if (__audioSupport.USE_LOADER_EVENT)
+        if(__audioSupport.USE_LOADER_EVENT)
             dom.removeEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
-        clearTimeout(timer);
-        cb(null, url);
+    };
+    var timer = setTimeout(function () {
+        if (dom.readyState === 0)
+            failure();
+        else
+            success();
+    }, 8000);
+    var success = function () {
+        clearEvent();
+        item.element = dom;
+        callback(null, item.url);
     };
     var failure = function () {
-        cc.log('load audio failure - ' + url);
-        success();
+        clearEvent();
+        cc.log('load audio failure - ' + item.url);
     };
     dom.addEventListener("canplaythrough", success, false);
     dom.addEventListener("error", failure, false);
@@ -90,27 +63,27 @@ function loadDomAudio (url, typeList, audio, cb) {
         dom.addEventListener(__audioSupport.USE_LOADER_EVENT, success, false);
 }
 
-function loadWebAudio (url, typeList, audio, cb) {
+function loadWebAudio (item, callback) {
     if (!context) return;
 
     var request = Pipeline.getXMLHttpRequest();
-    request.open("GET", url, true);
+    request.open("GET", item.url, true);
     request.responseType = "arraybuffer";
 
     // Our asynchronous callback
     request.onload = function () {
         context["decodeAudioData"](request.response, function(buffer){
             //success
-            audio.setBuffer(buffer);
-            cb(null, url);
+            item.buffer = buffer;
+            callback(null, item.url);
         }, function(){
             //error
-            cb('decode error - ' + url, url);
+            callback('decode error - ' + item.url, null);
         });
     };
 
     request.onerror = function(){
-        cb('request error - ' + url, url);
+        callback('request error - ' + item.url, null);
     };
 
     request.send();
@@ -121,25 +94,30 @@ function downloadAudio (item, callback) {
         return callback( new Error('Audio Downloader: audio not supported on this browser!') );
     }
 
-    var url = item.url,
-        extname = Path.extname(url),
-        typeList = [extname],
-        i, audio;
+    item.content = item.url;
 
-    // Generate all types
-    for (i = 0; i < formatSupport.length; i++) {
-        if (extname !== formatSupport[i]) {
-            typeList.push(formatSupport[i]);
-        }
+    if (!__audioSupport.WEB_AUDIO) {
+        // If WebAudio is not supported, load using DOM mode
+        return loadDomAudio(item, callback);
     }
 
-    audio = new cc.Audio(url);
-
-    // hack for audio to be found before loaded
-    item.content = url;
-    item.audio = audio;
-    loadAudioFromExtList(url, typeList, audio, callback);
+    // Get a header
+    // check audio size
+    var request = Pipeline.getXMLHttpRequest();
+    request.open("HEAD", item.url, true);
+    // Our asynchronous callback
+    request.onload = function () {
+        var bit = this.getResponseHeader('Content-Length');
+        if (bit > audioEngine._maxWebAudioSize) {
+            return loadDomAudio(item, callback);
+        }
+        return loadWebAudio(item, callback);
+    };
+    request.onerror = function () {
+        var ERRSTR = 'can not found the resource of audio! Last match url is : ' + item.url;
+        return callback({status: 520, errorMessage: ERRSTR}, null);
+    };
+    request.send();
 }
-
 
 module.exports = downloadAudio;
