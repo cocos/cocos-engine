@@ -224,6 +224,7 @@
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
 
+        node._fontSize = node._drawFontsize;
         var fontDesc = this._constructFontDesc();
         this._labelContext.font = fontDesc;
 
@@ -305,6 +306,7 @@
 
                 node._fontSize = (this._drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
                 fontDesc = this._constructFontDesc();
+                this._labelContext.font = fontDesc;
             }
         }
 
