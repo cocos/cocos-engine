@@ -459,10 +459,14 @@ _ccsg.Label = _ccsg.Node.extend({
             _divStyle.top = "-100px";
             doc.body.appendChild(preloadDiv);
             this._preloadDiv = preloadDiv;
-            self.scheduleOnce(function () {
-                self._notifyLabelSkinDirty();
-                self.emit("load");
-            }, 2);
+            fontStyle.onload = function() {
+                fontStyle.onload = null;
+                self.scheduleOnce(function() {
+                    self._notifyLabelSkinDirty();
+                    self.emit("load");
+                },0.1);
+            };
+
         }
 
         return fontFamilyName;
