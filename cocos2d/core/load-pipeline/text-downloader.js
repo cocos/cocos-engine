@@ -12,12 +12,11 @@ if (CC_JSB) {
     }
 }
 else {
-    var Pipeline = require('./pipeline');
     var urlAppendTimestamp = require('./utils').urlAppendTimestamp;
 
     module.exports = function (item, callback) {
         var url = item.url,
-            xhr = Pipeline.getXMLHttpRequest(),
+            xhr = cc.loader.getXMLHttpRequest(),
             errInfo = 'Load ' + url + ' failed!',
             navigator = window.navigator;
 

@@ -1453,7 +1453,8 @@ cc.DisplayLinkDirector = cc.Director.extend(/** @lends cc.Director# */{
     },
 
     /**
-     * Sets animation interval
+     * Sets animation interval, this doesn't control the main loop.
+     * To control the game's frame rate overall, please use {{#crossLink "Game.setFrameRate"}}cc.game.setFrameRate{{/crossLink}}
      * @param {Number} value - The animation interval desired.
      */
     setAnimationInterval: function (value) {

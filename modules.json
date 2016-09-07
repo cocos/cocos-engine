@@ -45,7 +45,7 @@
   {
     "name": "ParticleSystem",
     "entries": [
-      "./cocos2d/particle.CCParticleSystem.js"
+      "./cocos2d/particle/CCParticleSystem.js"
     ]
   },
   {
