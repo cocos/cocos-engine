@@ -441,7 +441,7 @@ _ccsg.Label = _ccsg.Node.extend({
             doc.body.appendChild(preloadDiv);
             this._preloadDiv = preloadDiv;
             fontStyle.onload = function() {
-
+                fontStyle.onload = null;
                 self.scheduleOnce(function() {
                     self._notifyLabelSkinDirty();
                     self.emit("load");
