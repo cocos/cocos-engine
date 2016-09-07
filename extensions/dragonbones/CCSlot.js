@@ -82,10 +82,10 @@ dragonBones.CCSlot = cc.Class({
             case 1: // BlendMode Add
                 var texture = this._renderDisplay.getTexture();
                 if (texture && texture.hasPremultipliedAlpha()) {
-                    this._renderDisplay.setBlendFunc(BlendFactor.ONE, BlendFactor.ONE);
+                    this._renderDisplay.setBlendFunc(cc.BlendFunc.BlendFactor.ONE, cc.BlendFunc.BlendFactor.ONE);
                 }
                 else {
-                    this._renderDisplay.setBlendFunc(BlendFactor.SRC_ALPHA, BlendFactor.ONE);
+                    this._renderDisplay.setBlendFunc(cc.BlendFunc.BlendFactor.SRC_ALPHA, cc.BlendFunc.BlendFactor.ONE);
                 }
                 break;
             default:

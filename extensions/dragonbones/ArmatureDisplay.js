@@ -409,5 +409,21 @@ dragonBones.ArmatureDisplay = cc.Class({
         if (this._sgNode) {
             this._sgNode.removeEvent(eventType, listener, target);
         }
+    },
+
+    buildArmature : function (armatureName) {
+        if (this._factory) {
+            return this._factory.buildArmature(armatureName);
+        }
+
+        return null;
+    },
+
+    armature : function () {
+        if (this._sgNode) {
+            return this._sgNode.armature();
+        }
+
+        return null;
     }
 });
