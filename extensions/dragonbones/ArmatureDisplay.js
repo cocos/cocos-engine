@@ -33,6 +33,24 @@ function setEnumAttr (obj, propName, enumDef) {
     });
 }
 
+/**
+ * !#en
+ * The Armature Display of DragonBones <br/>
+ * <br/>
+ * (Armature Display has a reference to a DragonBonesAsset and stores the state for ArmatureDisplay instance,
+ * which consists of the current pose's bone SRT, slot colors, and which slot attachments are visible. <br/>
+ * Multiple Armature Display can use the same DragonBonesAsset which includes all animations, skins, and attachments.) <br/>
+ * !#zh
+ * DragonBones 骨骼动画 <br/>
+ * <br/>
+ * (Armature Display 具有对骨骼数据的引用并且存储了骨骼实例的状态，
+ * 它由当前的骨骼动作，slot 颜色，和可见的 slot attachments 组成。<br/>
+ * 多个 Armature Display 可以使用相同的骨骼数据，其中包括所有的动画，皮肤和 attachments。)<br/>
+ *
+ * @class ArmatureDisplay
+ * @extends cc._RendererUnderSG
+ * @constructor
+ */
 dragonBones.ArmatureDisplay = cc.Class({
     name: 'dragonBones.ArmatureDisplay',
     extends: cc._RendererUnderSG,
@@ -48,13 +66,23 @@ dragonBones.ArmatureDisplay = cc.Class({
             serializable: false,
         },
 
-
         _dragonBonesData: {
             default: null,
             type: dragonBones.DragonBonesData,
             serializable: false,
         },
 
+        /**
+         * !#en
+         * The DragonBones data contains the armatures information (bind pose bones, slots, draw order,
+         * attachments, skins, etc) and animations but does not hold any state.<br/>
+         * Multiple ArmatureDisplay can share the same DragonBones data.
+         * !#zh
+         * 骨骼数据包含了骨骼信息（绑定骨骼动作，slots，渲染顺序，
+         * attachments，皮肤等等）和动画但不持有任何状态。<br/>
+         * 多个 ArmatureDisplay 可以共用相同的骨骼数据。
+         * @property {DragonBonesAsset} dragonAsset
+         */
         dragonAsset : {
             default: null,
             type : dragonBones.DragonBonesAsset,
@@ -69,6 +97,13 @@ dragonBones.ArmatureDisplay = cc.Class({
             tooltip: 'i18n:COMPONENT.dragon_bones.dragon_bones_asset'
         },
 
+        /**
+         * !#en
+         * The atlas asset for the DragonBones.
+         * !#zh
+         * 骨骼数据所需的 Atlas Texture 数据。
+         * @property {DragonBonesAtlasAsset} dragonAtlasAsset
+         */
         dragonAtlasAsset : {
             default: null,
             type: dragonBones.DragonBonesAtlasAsset,
@@ -230,6 +265,7 @@ dragonBones.ArmatureDisplay = cc.Class({
         },
     },
 
+    // IMPLEMENT
     ctor : function () {
         this._factory = new dragonBones.CCFactory();
     },
@@ -368,6 +404,25 @@ dragonBones.ArmatureDisplay = cc.Class({
         }
     },
 
+    /**
+     * !#en
+     * Play the specified animation.
+     * Parameter animName specify the animation name.
+     * Parameter playTimes specify the repeat times of the animation.
+     * -1 means use the value of the config file.
+     * 0 means play the animation for ever.
+     * >0 means repeat times.
+     * !#zh
+     * 播放指定的动画.
+     * animName 指定播放动画的名称。
+     * playTimes 指定播放动画的次数。
+     * -1 为使用配置文件中的次数。
+     * 0 为无限循环播放。
+     * >0 为动画的重复次数。
+     * @method playAnimation
+     * @param {String} animName
+     * @param {Number} playTimes
+     */
     playAnimation: function(animName, playTimes) {
         if (this._sgNode) {
             this.animationName = animName;
@@ -375,6 +430,14 @@ dragonBones.ArmatureDisplay = cc.Class({
         }
     },
 
+    /**
+     * !#en
+     * Get the all armature names in the DragonBones Data.
+     * !#zh
+     * 获取 DragonBones 数据中所有的 armature 名称
+     * @method getArmatureNames
+     * @returns {Array}
+     */
     getArmatureNames : function () {
         if (this._dragonBonesData) {
             return this._dragonBonesData.armatureNames;
@@ -383,6 +446,15 @@ dragonBones.ArmatureDisplay = cc.Class({
         return [];
     },
 
+    /**
+     * !#en
+     * Get the all animation names of specified armature.
+     * !#zh
+     * 获取指定的 armature 的所有动画名称。
+     * @method getAnimationNames
+     * @param {String} armatureName
+     * @returns {Array}
+     */
     getAnimationNames : function (armatureName) {
         var ret = [];
         if (this._dragonBonesData) {
@@ -399,18 +471,47 @@ dragonBones.ArmatureDisplay = cc.Class({
         return ret;
     },
 
+    /**
+     * !#en
+     * Add event listener for the DragonBones Event.
+     * !#zh
+     * 添加 DragonBones 事件监听器。
+     * @method addEventListener
+     * @param {dragonBones.EventObject} eventType
+     * @param {function} listener
+     * @param {Object} target
+     */
     addEventListener : function (eventType, listener, target) {
         if (this._sgNode) {
             this._sgNode.addEvent(eventType, listener, target);
         }
     },
 
+    /**
+     * !#en
+     * Remove the event listener for the DragonBones Event.
+     * !#zh
+     * 移除 DragonBones 事件监听器。
+     * @method removeEventListener
+     * @param {dragonBones.EventObject} eventType
+     * @param {function} listener
+     * @param {Object} target
+     */
     removeEventListener : function (eventType, listener, target) {
         if (this._sgNode) {
             this._sgNode.removeEvent(eventType, listener, target);
         }
     },
 
+    /**
+     * !#en
+     * Build the armature for specified name.
+     * !#zh
+     * 构建指定名称的 armature 对象
+     * @method buildArmature
+     * @param {String} armatureName
+     * @return {dragonBones.Armature}
+     */
     buildArmature : function (armatureName) {
         if (this._factory) {
             return this._factory.buildArmature(armatureName);
@@ -419,6 +520,14 @@ dragonBones.ArmatureDisplay = cc.Class({
         return null;
     },
 
+    /**
+     * !#en
+     * Get the current armature object of the ArmatureDisplay.
+     * !#zh
+     * 获取 ArmatureDisplay 当前使用的 Armature 对象
+     * @method armature
+     * @returns {Object}
+     */
     armature : function () {
         if (this._sgNode) {
             return this._sgNode.armature();
