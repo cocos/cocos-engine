@@ -118,8 +118,8 @@ dragonBones.ArmatureDisplay = cc.Class({
 
         _armatureName : '',
         /**
-         * !#en The name of default armature.
-         * !#zh 默认的 Armature 名称。
+         * !#en The name of current armature.
+         * !#zh 当前的 Armature 名称。
          * @property {String} armatureName
          */
         armatureName: {
@@ -181,7 +181,8 @@ dragonBones.ArmatureDisplay = cc.Class({
             visible: true,
             editorOnly: true,
             serializable: false,
-            displayName: "Default Armature"
+            displayName: "Armature",
+            tooltip: 'i18n:COMPONENT.dragon_bones.armature_name'
         },
 
         // value of 0 represents no animation
@@ -214,7 +215,8 @@ dragonBones.ArmatureDisplay = cc.Class({
             visible: true,
             editorOnly: true,
             serializable: false,
-            displayName: 'Animation'
+            displayName: 'Animation',
+            tooltip: 'i18n:COMPONENT.dragon_bones.animation_name'
         },
 
         /**
@@ -229,7 +231,8 @@ dragonBones.ArmatureDisplay = cc.Class({
                 if (this._sgNode) {
                     this._sgNode.animation().timeScale = this.timeScale;
                 }
-            }
+            },
+            tooltip: 'i18n:COMPONENT.dragon_bones.time_scale'
         },
 
         /**
@@ -245,7 +248,8 @@ dragonBones.ArmatureDisplay = cc.Class({
          * @default -1
          */
         playTimes: {
-            default: -1
+            default: -1,
+            tooltip: 'i18n:COMPONENT.dragon_bones.play_times'
         },
 
         /**
@@ -261,7 +265,8 @@ dragonBones.ArmatureDisplay = cc.Class({
                     this._sgNode.setDebugBones(this.debugBones);
                 }
             },
-            editorOnly: true
+            editorOnly: true,
+            tooltip: 'i18n:COMPONENT.dragon_bones.debug_bones'
         },
     },
 
