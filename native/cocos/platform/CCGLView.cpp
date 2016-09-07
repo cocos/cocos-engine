@@ -101,6 +101,7 @@ GLContextAttrs GLView::getGLContextAttrs()
 GLView::GLView()
 : _scaleX(1.0f)
 , _scaleY(1.0f)
+, _antiAliasEnabled(true)
 , _resolutionPolicy(ResolutionPolicy::UNKNOWN)
 {
 }
@@ -463,6 +464,32 @@ void GLView::renderScene(Scene* scene, Renderer* renderer)
     CCASSERT(renderer, "Invalid Renderer");
 
     scene->render(renderer, Mat4::IDENTITY, nullptr);
+}
+
+bool GLView::isAntiAliasEnabled() const
+{
+    return _antiAliasEnabled;
+}
+
+void GLView::enableAntiAlias(bool enabled)
+{
+    if (_antiAliasEnabled == enabled) {
+        return;
+    }
+    _antiAliasEnabled = enabled;
+
+    cocos2d::Vector<Texture2D*> list = Director::getInstance()->getTextureCache()->getAllTextures();
+    for (size_t i = 0; i < list.size(); i++) {
+        Texture2D* tex = list.at(i);
+        if (tex) {
+            if (enabled) {
+                tex->setAntiAliasTexParameters();
+            }
+            else {
+                tex->setAliasTexParameters();
+            }
+        }
+    }
 }
 
 NS_CC_END

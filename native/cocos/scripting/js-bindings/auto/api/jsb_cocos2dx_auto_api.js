@@ -2163,6 +2163,16 @@ bool
 },
 
 /**
+ * @method isAntiAliasEnabled
+ * @return {bool}
+ */
+isAntiAliasEnabled : function (
+)
+{
+    return false;
+},
+
+/**
  * @method setScissorInPoints
  * @param {float} arg0
  * @param {float} arg1
@@ -2358,6 +2368,16 @@ getScissorRect : function (
 )
 {
     return cc.Rect;
+},
+
+/**
+ * @method enableAntiAlias
+ * @param {bool} arg0
+ */
+enableAntiAlias : function (
+bool 
+)
+{
 },
 
 /**
@@ -19364,6 +19384,16 @@ str,
 func 
 )
 {
+},
+
+/**
+ * @method getAllTextures
+ * @return {Array}
+ */
+getAllTextures : function (
+)
+{
+    return new Array();
 },
 
 /**

@@ -214,7 +214,7 @@ void GraphicsNode::arc(float cx, float cy, float r, float startAngle, float endA
 
     // Clamp angles
     da = endAngle - startAngle;
-    if (!counterclockwise) {
+    if (counterclockwise) {
         if (absf(da) >= PI_2) {
             da = PI_2;
         } else {
@@ -233,7 +233,7 @@ void GraphicsNode::arc(float cx, float cy, float r, float startAngle, float endA
     hda = (da / (float)ndivs) / 2.0f;
     kappa = absf(4.0f / 3.0f * (1.0f - cosf(hda)) / sinf(hda));
 
-    if (counterclockwise) {
+    if (!counterclockwise) {
         kappa = -kappa;
     }
 

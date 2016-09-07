@@ -457,6 +457,15 @@ bool TextureCache::reloadTexture(const std::string& fileName)
     return ret;
 }
 
+cocos2d::Vector<Texture2D*> TextureCache::getAllTextures() const
+{
+    cocos2d::Vector<Texture2D*> result;
+    for( auto it=_textures.begin(); it!=_textures.end(); ++it ) {
+        result.pushBack(it->second);
+    }
+    return result;
+}
+
 // TextureCache - Remove
 
 void TextureCache::removeAllTextures()
