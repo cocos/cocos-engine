@@ -395,10 +395,7 @@ var Node = cc.Class({
          * @type {PrefabInfo}
          * @private
          */
-        _prefab: {
-            default: null,
-            editorOnly: true
-        },
+        _prefab: null,
 
         /**
          * If true, the node is an persist node which won't be destroyed during scene transition.

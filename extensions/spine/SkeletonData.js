@@ -187,8 +187,10 @@ var SkeletonData = cc.Class({
     },
 
     /**
-     * !#en Get the included SkeletonData used in spine runtime.
-     * !#zh 获取 Spine Runtime 使用的 SkeletonData。
+     * !#en Get the included SkeletonData used in spine runtime.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.SkeletonData object.
+     * !#zh 获取 Spine Runtime 使用的 SkeletonData。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.SkeletonData 对象。
      * @method getRuntimeData
      * @param {Boolean} [quiet=false]
      * @return {spine.SkeletonData}
