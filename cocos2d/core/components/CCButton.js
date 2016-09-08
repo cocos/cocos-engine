@@ -432,8 +432,11 @@ var Button = cc.Class({
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = true;
-        this._zoomUp();
-        this._updateState();
+        if(this.transition === Transition.SCALE) {
+            this._zoomUp();
+        } else {
+            this._updateState();
+        }
         event.stopPropagation();
     },
 
@@ -471,21 +474,26 @@ var Button = cc.Class({
             cc.Component.EventHandler.emitEvents(this.clickEvents, event);
         }
         this._pressed = false;
-        this._zoomBack();
-        this._updateState();
+        if(this.transition === Transition.SCALE) {
+            this._zoomBack();
+        } else {
+            this._updateState();
+        }
         event.stopPropagation();
     },
 
     _zoomUp: function () {
-        if(!this.target) return;
-
         this._fromScale = 1.0;
         this._toScale = 1.0 + this.zoomScale;
+        this.time = 0;
+        this._transitionFinished = false;
     },
 
     _zoomBack: function () {
         this._fromScale = 1.0 + this.zoomScale;
         this._toScale = 1.0;
+        this.time = 0;
+        this._transitionFinished = false;
     },
 
     _onTouchCancel: function () {
@@ -493,9 +501,7 @@ var Button = cc.Class({
 
         this._pressed = false;
 
-        if(this.transition !== Transition.SCALE) {
-            this._updateState();
-        }
+        this._updateState();
     },
 
     _onMouseMoveIn: function () {
@@ -503,45 +509,36 @@ var Button = cc.Class({
 
         if (!this._hovered) {
             this._hovered = true;
-            if(this.transition !== Transition.SCALE) {
-                this._updateState();
-            }
+            this._updateState();
         }
     },
 
     _onMouseMoveOut: function(){
         if (this._hovered) {
             this._hovered = false;
-            if(this.transition !== Transition.SCALE) {
-                this._updateState();
-            }
+            this._updateState();
         }
     },
 
     // state handler
     _updateState: function () {
-        if (this.transition === Transition.SCALE) {
-            this.time = 0;
-            this._transitionFinished = false;
-        } else {
-            var state;
-            if (!this.interactable) {
-                state = 'disabled';
-            }
-            else if (this._pressed) {
-                state = 'pressed';
-            }
-            else if (this._hovered) {
-                state = 'hover';
-            }
-            else {
-                state = 'normal';
-            }
-            var color  = this[state + 'Color'];
-            var sprite = this[state + 'Sprite'];
-
-            this._applyTransition(color, sprite);
+        var state;
+        if (!this.interactable) {
+            state = 'disabled';
         }
+        else if (this._pressed) {
+            state = 'pressed';
+        }
+        else if (this._hovered) {
+            state = 'hover';
+        }
+        else {
+            state = 'normal';
+        }
+        var color  = this[state + 'Color'];
+        var sprite = this[state + 'Sprite'];
+
+        this._applyTransition(color, sprite);
     },
 
     onDisable: function() {
