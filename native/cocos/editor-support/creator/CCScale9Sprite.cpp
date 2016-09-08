@@ -32,6 +32,7 @@
 #include "renderer/ccShaders.h"
 
 namespace creator {
+    using namespace cocos2d;
     
 class simpleQuadGenerator
 {
@@ -894,8 +895,8 @@ _fillStart(0),
 _fillRange(0),
 _needRebuildRenderCommand(true)
 {
-    this->setAnchorPoint(cocos2d::Vec2::ANCHOR_MIDDLE);
-    this->setGLProgramState(cocos2d::GLProgramState::getOrCreateWithGLProgramName(cocos2d::GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
+    this->setAnchorPoint(Vec2::ANCHOR_MIDDLE);
+    this->setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
 }
 
 Scale9SpriteV2::~Scale9SpriteV2() {
@@ -962,57 +963,16 @@ void Scale9SpriteV2::enableTrimmedContentSize(bool isTrimmed) {
 
 void Scale9SpriteV2::setState(State state) {
     this->_brightState = state;
-    auto programCache = cocos2d::GLProgramCache::getInstance();
-    if(!programCache) return;
-    if(Scale9SpriteV2::State::DISTORTION == state) {
-        cocos2d::GLProgram* distortionProgram(nullptr);
-            distortionProgram = programCache->getGLProgram(distortionProgramKey);
-            if(!distortionProgram) {
-                //TODO: add implementation;
-                std::string fShader = "";
-                fShader = fShader
-                + "varying vec4 v_fragmentColor; \n"
-                + "varying vec2 v_texCoord; \n"
-                + "uniform vec2 u_offset; \n"
-                + "uniform vec2 u_offset_tiling; \n"
-                + "const float PI = 3.14159265359;\n"
-                + "void main() \n"
-                + "{ \n"
-                + "float halfPI = 0.5 * PI;\n"
-                + "float maxFactor = sin(halfPI);\n"
-                + "vec2 uv = v_texCoord;\n"
-                + "vec2 xy = 2.0 * uv.xy - 1.0;\n"
-                + "float d = length(xy);\n"
-                + "if (d < (2.0-maxFactor)) {\n"
-                + "d = length(xy * maxFactor);\n"
-                + "float z = sqrt(1.0 - d * d);\n"
-                + " float r = atan(d, z) / PI;\n"
-                + "float phi = atan(xy.y, xy.x);\n"
-                + "uv.x = r * cos(phi) + 0.5;\n"
-                + "uv.y = r * sin(phi) + 0.5;\n"
-                + "} else {\n"
-                + "discard;\n"
-                + "}\n"
-                + "uv = uv * u_offset_tiling + u_offset;\n"
-                + "uv = fract(uv); \n"
-                + "gl_FragColor = v_fragmentColor * texture2D(CC_Texture0, uv);\n"
-                + "}";
-                
-                distortionProgram = cocos2d::GLProgram::createWithByteArrays(cocos2d::ccPositionTextureColor_noMVP_vert, fShader.c_str());
-                
-                distortionProgram->link();
-                programCache->addGLProgram(distortionProgram, distortionProgramKey);
-        }
-        
-        if(distortionProgram) {
-            auto glProgramState = cocos2d::GLProgramState::create(distortionProgram);
-            glProgramState->setUniformVec2("u_offset", this->_distortionOffset);
-            glProgramState->setUniformVec2("u_offset_tiling", this->_distortionTiling);
-            this->setGLProgramState(glProgramState);
-        }
+    
+    if(State::DISTORTION == state) {
+        auto glProgramState = GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_SPRITE_DISTORTION);
+        glProgramState->setUniformVec2("u_offset", this->_distortionOffset);
+        glProgramState->setUniformVec2("u_offset_tiling", this->_distortionTiling);
+        this->setGLProgramState(glProgramState);
+    } else if (State::GRAY == state) {
+        this->setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_GRAYSCALE));
     } else {
-        auto program = programCache->getGLProgram(cocos2d::GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP);
-        this->setGLProgram(program);
+        this->setGLProgramState(GLProgramState::getOrCreateWithGLProgramName(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP));
     }
     
 
@@ -1179,16 +1139,16 @@ void Scale9SpriteV2::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &tran
         
     }
 
-	if (!_indices.empty() && !_verts.empty()) {
-		cocos2d::TrianglesCommand::Triangles triangles;
-		triangles.indices = &this->_indices[0];
-		triangles.verts = &this->_verts[0];
-		triangles.vertCount = this->_verts.size();
-		triangles.indexCount = this->_indices.size();
-		auto texture = this->_spriteFrame->getTexture();
-		this->_renderCommand.init(_globalZOrder, texture->getName(), _glProgramState, _blendFunc, triangles, transform, 0);
-		renderer->addCommand(&this->_renderCommand);
-	}
+    if (!_indices.empty() && !_verts.empty()) {
+        cocos2d::TrianglesCommand::Triangles triangles;
+        triangles.indices = &this->_indices[0];
+        triangles.verts = &this->_verts[0];
+        triangles.vertCount = (int)this->_verts.size();
+        triangles.indexCount = (int)this->_indices.size();
+        auto texture = this->_spriteFrame->getTexture();
+        this->_renderCommand.init(_globalZOrder, texture->getName(), _glProgramState, _blendFunc, triangles, transform, 0);
+        renderer->addCommand(&this->_renderCommand);
+    }
 
 }
     

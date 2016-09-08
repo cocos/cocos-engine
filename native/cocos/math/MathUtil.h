@@ -26,7 +26,7 @@
 #include <xmmintrin.h>
 #endif
 
-#include "CCMathBase.h"
+#include "math/CCMathBase.h"
 
 /**
  * @addtogroup base
@@ -139,4 +139,3 @@ NS_CC_MATH_END
 #define MATRIX_SIZE ( sizeof(float) * 16)
 
 #endif
-

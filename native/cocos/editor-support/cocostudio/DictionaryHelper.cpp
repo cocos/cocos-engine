@@ -23,7 +23,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "platform/CCPlatformMacros.h"
-#include "cocostudio/DictionaryHelper.h"
+#include "editor-support/cocostudio/DictionaryHelper.h"
 
 namespace cocostudio {
 
@@ -231,4 +231,3 @@ bool DictionaryHelper::checkObjectExist_json(const rapidjson::Value &root, int i
 }
 
 }
-

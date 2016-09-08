@@ -22,7 +22,7 @@
  $Id$
  */
 
-#import "CocosDenshion.h"
+#import "audio/mac/CocosDenshion.h"
 
 ALvoid  alBufferDataStaticProc(const ALint bid, ALenum format, ALvoid* data, ALsizei size, ALsizei freq);
 ALvoid  alcMacOSXMixerOutputRateProc(const ALdouble value);
@@ -616,7 +616,7 @@ static BOOL _mixerRateSet = NO;
         CDLOGINFO(@"Denshion::CDSoundEngine - validateBufferId buffer outside range %i",soundId);
         return NO;
     } else if (_buffers[soundId].bufferState != CD_BS_LOADED) {
-        CDLOGINFO(@"Denshion::CDSoundEngine - validateBufferId invalide buffer state %i",soundId);
+        CDLOGINFO(@"Denshion::CDSoundEngine - validateBufferId invalid buffer state %i", soundId);
         return NO;
     } else {
         return YES;
@@ -1411,9 +1411,9 @@ static BOOL _mixerRateSet = NO;
 
             case kIT_SCurve:
                 //Cubic s curve t^2 * (3 - 2t)
-                return ((float)(t * t * (3.0 - (2.0 * t))) * (end - start)) + start;
-
-            case kIT_Exponential:
+                return ((t * t * (3.0f - (2.0f * t))) * (end - start)) + start;
+                
+            case kIT_Exponential:    
                 //Formulas taken from EaseAction
                 if (end > start) {
                     //Fade in
@@ -1486,7 +1486,7 @@ static BOOL _mixerRateSet = NO;
 }
 
 -(void) modify:(float) t {
-    if (t < 1.0) {
+    if (t < 1.0f) {
         [self _setTargetProperty:[interpolator interpolate:t]];
     } else {
         //At the end

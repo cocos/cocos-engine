@@ -169,7 +169,7 @@ public:
     /** Creates an animation.
      * @since v0.99.5
      */
-    static Animation* create();
+    static Animation* create(void);
 
     /* Creates an animation with an array of SpriteFrame and a delay between frames in seconds.
      * The frames will be added with one "delay unit".
@@ -180,7 +180,7 @@ public:
      */
     static Animation* createWithSpriteFrames(const Vector<SpriteFrame*>& arrayOfSpriteFrameNames, float delay = 0.0f, unsigned int loops = 1);
 
-    /* Creates an animation with an array of AnimationFrame, the delay per units in seconds and and how many times it should be executed.
+    /* Creates an animation with an array of AnimationFrame, the delay per units in seconds and how many times it should be executed.
      * @since v2.0
      * @param arrayOfAnimationFrameNames An animation with an array of AnimationFrame.
      * @param delayPerUnit The delay per units in seconds and how many times it should be executed.
@@ -278,7 +278,7 @@ public:
 
 CC_CONSTRUCTOR_ACCESS:
     Animation();
-    virtual ~Animation();
+    virtual ~Animation(void);
 
     /** Initializes a Animation. */
     bool init();

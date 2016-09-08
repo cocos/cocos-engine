@@ -73,6 +73,11 @@ public:
      @brief Get target platform
      */
     virtual Platform getTargetPlatform();
+    
+    /**
+    @brief Get application version
+    */
+    virtual std::string getVersion() override;
 
     /**
      @brief Open url in default browser
@@ -92,6 +97,7 @@ protected:
     HINSTANCE           _instance;
     HACCEL              _accelTable;
     LARGE_INTEGER       _animationInterval;
+    std::string         _resourceRootPath;
     std::string         _startupScriptFilename;
 
     static Application * sm_pSharedApplication;
@@ -102,4 +108,3 @@ NS_CC_END
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 
 #endif    // __CC_APPLICATION_WIN32_H__
-

@@ -22,8 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocostudio/CCComRender.h"
-#include "cocostudio/CocoStudio.h"
+#include "editor-support/cocostudio/CCComRender.h"
+#include "editor-support/cocostudio/CocoStudio.h"
+
 #include "platform/CCFileUtils.h"
 #include "2d/CCTMXTiledMap.h"
 #include "2d/CCParticleSystemQuad.h"
@@ -193,6 +194,110 @@ bool ComRender::serialize(void* r)
 
                 ret = true;
             }
+            else if(strcmp(className, "CCArmature") == 0)
+            {
+                std::string fileExtension = FileUtils::getInstance()->getFileExtension(filePath);
+                if (fileExtension == ".json" || fileExtension == ".exportjson")
+                {
+                    rapidjson::Document doc;
+                    if(!readJson(filePath, doc))
+                    {
+                        log("read json file[%s] error!\n", filePath.c_str());
+                        continue;
+                    }
+                    const rapidjson::Value &subData = DICTOOL->getDictionaryFromArray_json(doc, "armature_data", 0);
+                    const char *name = DICTOOL->getStringValue_json(subData, "name");
+                    ArmatureDataManager::getInstance()->addArmatureFileInfo(filePath);
+                    Armature *pAr = Armature::create(name);
+                    _render = pAr;
+                    _render->retain();
+                    const char *actionName = nullptr;
+                    if (cocoNode != nullptr)
+                    {
+                        actionName = cocoNode[6].GetValue(cocoLoader);//DICTOOL->getStringValue_json(*v, "selectedactionname");
+                    }
+                    else
+                    {
+                        actionName = DICTOOL->getStringValue_json(*v, "selectedactionname");
+                    }
+                    if (actionName != nullptr && pAr->getAnimation() != nullptr)
+                    {
+                        pAr->getAnimation()->play(actionName);
+                    }
+                    ret = true;
+                }
+                else if (fileExtension == ".csb")
+                {
+                    std::string binaryFilePath = FileUtils::getInstance()->fullPathForFilename(filePath);
+                    auto fileData = FileUtils::getInstance()->getDataFromFile(binaryFilePath);
+                    auto fileDataBytes = fileData.getBytes();
+                    CC_BREAK_IF(fileData.isNull());
+                    CocoLoader tCocoLoader;
+                    if (tCocoLoader.ReadCocoBinBuff((char*)fileDataBytes))
+                    {
+                        stExpCocoNode *tpRootCocoNode = tCocoLoader.GetRootCocoNode();
+                        rapidjson::Type tType = tpRootCocoNode->GetType(&tCocoLoader);
+                        if (rapidjson::kObjectType  == tType)
+                        {
+                            int count = tpRootCocoNode->GetChildNum();
+                            stExpCocoNode *tpChildArray = tpRootCocoNode->GetChildArray(&tCocoLoader);
+                            for (int i = 0; i < count; ++i)
+                            {
+                                std::string key = tpChildArray[i].GetName(&tCocoLoader);
+                                if (key.compare("armature_data") == 0)
+                                {
+                                    int length = tpChildArray[i].GetChildNum();
+                                    stExpCocoNode *armature_dataArray = tpChildArray[i].GetChildArray(&tCocoLoader);
+                                    if (length < 1)
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    length = armature_dataArray[0].GetChildNum();
+                                    stExpCocoNode *armature_data = armature_dataArray[0].GetChildArray(&tCocoLoader);
+                                    for (int j = 0; j < length; ++j)
+                                    {
+                                        std::string key1 = armature_data[j].GetName(&tCocoLoader);
+                                        const char *str1 = armature_data[j].GetValue(&tCocoLoader);
+                                        if (key.compare("name") == 0)
+                                        {
+                                            if (str1 != nullptr)
+                                            {
+                                                ArmatureDataManager::getInstance()->addArmatureFileInfo(filePath);
+                                                Armature *pAr = Armature::create(str1);
+                                                _render = pAr;
+                                                _render->retain();
+                                                const char *actionName = nullptr;
+                                                if (cocoNode != nullptr)
+                                                {
+                                                    actionName = cocoNode[6].GetValue(&tCocoLoader);
+                                                }
+                                                else
+                                                {
+                                                    actionName = DICTOOL->getStringValue_json(*v, "selectedactionname");
+                                                }
+                                                if (actionName != nullptr && pAr->getAnimation() != nullptr)
+                                                {
+                                                    pAr->getAnimation()->play(actionName);
+                                                }
+                                                ret = true;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    continue;
+                }
+            }
             else if(strcmp(className, "GUIComponent") == 0)
             {
                 /*std::string fileExtension = FileUtils::getInstance()->getFileExtension(filePath);
@@ -290,9 +395,7 @@ bool ComRender::readJson(const std::string &fileName, rapidjson::Document &doc)
         CC_BREAK_IF(doc.HasParseError());
         ret = true;
     } while (0);
-
     return ret;
 }
 
 }
-

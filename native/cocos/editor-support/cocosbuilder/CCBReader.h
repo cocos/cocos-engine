@@ -7,9 +7,9 @@
 #include "2d/CCNode.h"
 #include "base/CCData.h"
 #include "base/CCMap.h"
-#include "CCBSequence.h"
+#include "editor-support/cocosbuilder/CCBSequence.h"
 #include "extensions/GUI/CCControlExtension/CCControl.h"
-#include "cocosbuilder/CCBAnimationManager.h"
+#include "editor-support/cocosbuilder/CCBAnimationManager.h"
 
 #define CCB_STATIC_NEW_AUTORELEASE_OBJECT_METHOD(T, METHOD) static T * METHOD() { \
     T * ptr = new (std::nothrow) T(); \
@@ -403,4 +403,3 @@ private:
 }
 
 #endif
-

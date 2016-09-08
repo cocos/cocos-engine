@@ -103,7 +103,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\Debug\*.*" "$(OutDir)"</Comm
       <ImportLibrary>$(TargetDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <ModuleDefinitionFile>cocos2d.def</ModuleDefinitionFile>
-      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -135,7 +135,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
 </Command>
     </PreLinkEvent>
     <Link>
-      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>sqlite3.lib;libcurl_imp.lib;websockets.lib;libmpg123.lib;libogg.lib;libvorbis.lib;libvorbisfile.lib;OpenAL32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).dll</OutputFile>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMTD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -173,12 +173,18 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\..\extensions\GUI\CCScrollView\CCTableViewCell.cpp" />
     <ClCompile Include="..\..\extensions\physics-nodes\CCPhysicsDebugNode.cpp" />
     <ClCompile Include="..\..\extensions\physics-nodes\CCPhysicsSprite.cpp" />
+    <ClCompile Include="..\..\external\sources\clipper\clipper.cpp" />
     <ClCompile Include="..\..\external\sources\ConvertUTF\ConvertUTF.c" />
     <ClCompile Include="..\..\external\sources\ConvertUTF\ConvertUTFWrapper.cpp" />
     <ClCompile Include="..\..\external\sources\edtaa3func\edtaa3func.cpp" />
+    <ClCompile Include="..\..\external\sources\poly2tri\common\shapes.cc" />
+    <ClCompile Include="..\..\external\sources\poly2tri\sweep\advancing_front.cc" />
+    <ClCompile Include="..\..\external\sources\poly2tri\sweep\cdt.cc" />
+    <ClCompile Include="..\..\external\sources\poly2tri\sweep\sweep.cc" />
+    <ClCompile Include="..\..\external\sources\poly2tri\sweep\sweep_context.cc" />
     <ClCompile Include="..\..\external\sources\tinyxml2\tinyxml2.cpp" />
-    <ClCompile Include="..\..\external\sources\unzip\ioapi.cpp" />
     <ClCompile Include="..\..\external\sources\unzip\ioapi_mem.cpp" />
+    <ClCompile Include="..\..\external\sources\unzip\ioapi.cpp" />
     <ClCompile Include="..\..\external\sources\unzip\unzip.cpp" />
     <ClCompile Include="..\..\external\sources\xxhash\xxhash.c" />
     <ClCompile Include="..\audio\AudioEngine.cpp" />
@@ -213,6 +219,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\base\ccFPSImages.c" />
     <ClCompile Include="..\base\CCIMEDispatcher.cpp" />
     <ClCompile Include="..\base\CCNinePatchImageParser.cpp" />
+    <ClCompile Include="..\base\CCStencilStateManager.cpp" />
     <ClCompile Include="..\base\CCNS.cpp" />
     <ClCompile Include="..\base\CCProfiling.cpp" />
     <ClCompile Include="..\base\CCProperties.cpp" />
@@ -220,8 +227,6 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\base\CCRef.cpp" />
     <ClCompile Include="..\base\CCScheduler.cpp" />
     <ClCompile Include="..\base\CCScriptSupport.cpp" />
-    <ClCompile Include="..\base\CCStencilStateManager.cpp" />
-    <ClCompile Include="..\base\CCString.cpp" />
     <ClCompile Include="..\base\CCTouch.cpp" />
     <ClCompile Include="..\base\ccTypes.cpp" />
     <ClCompile Include="..\base\CCUserDefault.cpp" />
@@ -263,35 +268,36 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\editor-support\cocostudio\ActionTimeline\CCSkeletonNode.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\ActionTimeline\CCSkinNode.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\ActionTimeline\CCTimeLine.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmature.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmatureAnimation.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmatureDataManager.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCArmatureDefine.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCBatchNode.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCBone.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCColliderDetector.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDataReaderHelper.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDatas.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDecorativeDisplay.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDisplayFactory.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCDisplayManager.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCProcessBase.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCSkin.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCSpriteFrameCacheHelper.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCTransformHelp.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCTween.cpp" />
-    <ClCompile Include="..\editor-support\cocostudio\Armature\CCUtilMath.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCActionFrame.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCActionFrameEasing.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCActionManagerEx.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCActionNode.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCActionObject.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCArmature.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCArmatureAnimation.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCArmatureDataManager.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCArmatureDefine.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCBatchNode.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCBone.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCColliderDetector.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCComAttribute.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCComAudio.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCComController.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCComRender.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCDataReaderHelper.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCDatas.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCDecorativeDisplay.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCDisplayFactory.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCDisplayManager.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCInputDelegate.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CCComExtensionData.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCProcessBase.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCSkin.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCSpriteFrameCacheHelper.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCTransformHelp.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCTween.cpp" />
+    <ClCompile Include="..\editor-support\cocostudio\CCUtilMath.cpp" />
+
     <ClCompile Include="..\editor-support\cocostudio\CocoLoader.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\CocoStudio.cpp" />
     <ClCompile Include="..\editor-support\cocostudio\DictionaryHelper.cpp" />
@@ -325,14 +331,19 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\platform\win32\CCDevice-win32.cpp" />
     <ClCompile Include="..\platform\win32\CCFileUtils-win32.cpp" />
     <ClCompile Include="..\platform\win32\CCStdC-win32.cpp" />
+    <ClCompile Include="..\platform\win32\CCUtils-win32.cpp" />
     <ClCompile Include="..\renderer\CCBatchCommand.cpp" />
     <ClCompile Include="..\renderer\CCCustomCommand.cpp" />
+    <ClCompile Include="..\renderer\CCFrameBuffer.cpp" />
     <ClCompile Include="..\renderer\CCGLProgram.cpp" />
     <ClCompile Include="..\renderer\CCGLProgramCache.cpp" />
     <ClCompile Include="..\renderer\CCGLProgramState.cpp" />
     <ClCompile Include="..\renderer\CCGLProgramStateCache.cpp" />
     <ClCompile Include="..\renderer\ccGLStateCache.cpp" />
     <ClCompile Include="..\renderer\CCGroupCommand.cpp" />
+    <ClCompile Include="..\renderer\CCMaterial.cpp" />
+    <ClCompile Include="..\renderer\CCMeshCommand.cpp" />
+    <ClCompile Include="..\renderer\CCPass.cpp" />
     <ClCompile Include="..\renderer\CCPrimitive.cpp" />
     <ClCompile Include="..\renderer\CCPrimitiveCommand.cpp" />
     <ClCompile Include="..\renderer\CCQuadCommand.cpp" />
@@ -340,6 +351,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\renderer\CCRenderer.cpp" />
     <ClCompile Include="..\renderer\CCRenderState.cpp" />
     <ClCompile Include="..\renderer\ccShaders.cpp" />
+    <ClCompile Include="..\renderer\CCTechnique.cpp" />
     <ClCompile Include="..\renderer\CCTexture2D.cpp" />
     <ClCompile Include="..\renderer\CCTextureAtlas.cpp" />
     <ClCompile Include="..\renderer\CCTextureCache.cpp" />
@@ -352,7 +364,6 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\ui\UIButton.cpp" />
     <ClCompile Include="..\ui\UIAbstractCheckButton.cpp" />
     <ClCompile Include="..\ui\UICheckBox.cpp" />
-    <ClCompile Include="..\ui\UIPageViewIndicator.cpp" />
     <ClCompile Include="..\ui\UIRadioButton.cpp" />
     <ClCompile Include="..\ui\UIEditBox\UIEditBox.cpp" />
     <ClCompile Include="..\ui\UIEditBox\UIEditBoxImpl-win32.cpp" />
@@ -366,12 +377,14 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="..\ui\UIListView.cpp" />
     <ClCompile Include="..\ui\UILoadingBar.cpp" />
     <ClCompile Include="..\ui\UIPageView.cpp" />
+    <ClCompile Include="..\ui\UIPageViewIndicator.cpp" />
     <ClCompile Include="..\ui\UIRelativeBox.cpp" />
     <ClCompile Include="..\ui\UIRichText.cpp" />
     <ClCompile Include="..\ui\UIScale9Sprite.cpp" />
     <ClCompile Include="..\ui\UIScrollView.cpp" />
     <ClCompile Include="..\ui\UIScrollViewBar.cpp" />
     <ClCompile Include="..\ui\UISlider.cpp" />
+    <ClCompile Include="..\ui\UITabControl.cpp" />
     <ClCompile Include="..\ui\UIText.cpp" />
     <ClCompile Include="..\ui\UITextAtlas.cpp" />
     <ClCompile Include="..\ui\UITextBMFont.cpp" />
@@ -415,6 +428,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClCompile Include="CCLabel.cpp" />
     <ClCompile Include="CCLabelAtlas.cpp" />
     <ClCompile Include="CCLabelTextFormatter.cpp" />
+    <ClCompile Include="CCLabelTTF.cpp" />
     <ClCompile Include="CCLayer.cpp" />
     <ClCompile Include="CCMenu.cpp" />
     <ClCompile Include="CCMenuItem.cpp" />
@@ -470,8 +484,26 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\..\extensions\GUI\CCScrollView\CCTableViewCell.h" />
     <ClInclude Include="..\..\extensions\physics-nodes\CCPhysicsDebugNode.h" />
     <ClInclude Include="..\..\extensions\physics-nodes\CCPhysicsSprite.h" />
+    <ClInclude Include="..\..\external\sources\clipper\clipper.hpp" />
     <ClInclude Include="..\..\external\sources\ConvertUTF\ConvertUTF.h" />
     <ClInclude Include="..\..\external\sources\edtaa3func\edtaa3func.h" />
+    <ClInclude Include="..\..\external\sources\json\document.h" />
+    <ClInclude Include="..\..\external\sources\json\filestream.h" />
+    <ClInclude Include="..\..\external\sources\json\internal\pow10.h" />
+    <ClInclude Include="..\..\external\sources\json\internal\stack.h" />
+    <ClInclude Include="..\..\external\sources\json\internal\strfunc.h" />
+    <ClInclude Include="..\..\external\sources\json\prettywriter.h" />
+    <ClInclude Include="..\..\external\sources\json\rapidjson.h" />
+    <ClInclude Include="..\..\external\sources\json\reader.h" />
+    <ClInclude Include="..\..\external\sources\json\stringbuffer.h" />
+    <ClInclude Include="..\..\external\sources\json\writer.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\common\shapes.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\common\utils.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\poly2tri.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\advancing_front.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\cdt.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\sweep.h" />
+    <ClInclude Include="..\..\external\sources\poly2tri\sweep\sweep_context.h" />
     <ClInclude Include="..\..\external\sources\tinyxml2\tinyxml2.h" />
     <ClInclude Include="..\..\external\sources\unzip\crypt.h" />
     <ClInclude Include="..\..\external\sources\unzip\ioapi.h" />
@@ -516,6 +548,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\base\ccMacros.h" />
     <ClInclude Include="..\base\CCMap.h" />
     <ClInclude Include="..\base\CCNinePatchImageParser.h" />
+    <ClInclude Include="..\base\CCStencilStateManager.h" />
     <ClInclude Include="..\base\CCNS.h" />
     <ClInclude Include="..\base\CCProfiling.h" />
     <ClInclude Include="..\base\CCProperties.h" />
@@ -525,8 +558,6 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\base\CCRefPtr.h" />
     <ClInclude Include="..\base\CCScheduler.h" />
     <ClInclude Include="..\base\CCScriptSupport.h" />
-    <ClInclude Include="..\base\CCStencilStateManager.hpp" />
-    <ClInclude Include="..\base\CCString.h" />
     <ClInclude Include="..\base\CCTouch.h" />
     <ClInclude Include="..\base\ccTypes.h" />
     <ClInclude Include="..\base\CCUserDefault.h" />
@@ -578,36 +609,36 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\editor-support\cocostudio\ActionTimeline\CCSkinNode.h" />
     <ClInclude Include="..\editor-support\cocostudio\ActionTimeline\CCTimeLine.h" />
     <ClInclude Include="..\editor-support\cocostudio\ActionTimeline\CCTimelineMacro.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCArmature.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCArmatureAnimation.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCArmatureDataManager.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCArmatureDefine.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCBatchNode.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCBone.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCColliderDetector.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCDataReaderHelper.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCDatas.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCDecorativeDisplay.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCDisplayFactory.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCDisplayManager.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCProcessBase.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCSkin.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCSpriteFrameCacheHelper.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCTransformHelp.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCTween.h" />
-    <ClInclude Include="..\editor-support\cocostudio\Armature\CCUtilMath.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCActionFrame.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCActionFrameEasing.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCActionManagerEx.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCActionNode.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCActionObject.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCArmature.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCArmatureAnimation.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCArmatureDataManager.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCArmatureDefine.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCBatchNode.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCBone.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCColliderDetector.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCComAttribute.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCComAudio.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCComBase.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCComController.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCComRender.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCDataReaderHelper.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCDatas.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCDecorativeDisplay.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCDisplayFactory.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCDisplayManager.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCInputDelegate.h" />
     <ClInclude Include="..\editor-support\cocostudio\CCComExtensionData.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCProcessBase.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCSkin.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCSpriteFrameCacheHelper.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCTransformHelp.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCTween.h" />
+    <ClInclude Include="..\editor-support\cocostudio\CCUtilMath.h" />
     <ClInclude Include="..\editor-support\cocostudio\CocoLoader.h" />
     <ClInclude Include="..\editor-support\cocostudio\CocosStudioExport.h" />
     <ClInclude Include="..\editor-support\cocostudio\CocoStudio.h" />
@@ -655,15 +686,20 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\platform\win32\CCGL-win32.h" />
     <ClInclude Include="..\platform\win32\CCPlatformDefine-win32.h" />
     <ClInclude Include="..\platform\win32\CCStdC-win32.h" />
+    <ClInclude Include="..\platform\win32\CCUtils-win32.h" />
     <ClInclude Include="..\platform\win32\compat\stdint.h" />
     <ClInclude Include="..\renderer\CCBatchCommand.h" />
     <ClInclude Include="..\renderer\CCCustomCommand.h" />
+    <ClInclude Include="..\renderer\CCFrameBuffer.h" />
     <ClInclude Include="..\renderer\CCGLProgram.h" />
     <ClInclude Include="..\renderer\CCGLProgramCache.h" />
     <ClInclude Include="..\renderer\CCGLProgramState.h" />
     <ClInclude Include="..\renderer\CCGLProgramStateCache.h" />
     <ClInclude Include="..\renderer\ccGLStateCache.h" />
     <ClInclude Include="..\renderer\CCGroupCommand.h" />
+    <ClInclude Include="..\renderer\CCMaterial.h" />
+    <ClInclude Include="..\renderer\CCMeshCommand.h" />
+    <ClInclude Include="..\renderer\CCPass.h" />
     <ClInclude Include="..\renderer\CCPrimitive.h" />
     <ClInclude Include="..\renderer\CCPrimitiveCommand.h" />
     <ClInclude Include="..\renderer\CCQuadCommand.h" />
@@ -672,6 +708,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\renderer\CCRenderer.h" />
     <ClInclude Include="..\renderer\CCRenderState.h" />
     <ClInclude Include="..\renderer\ccShaders.h" />
+    <ClInclude Include="..\renderer\CCTechnique.h" />
     <ClInclude Include="..\renderer\CCTexture2D.h" />
     <ClInclude Include="..\renderer\CCTextureAtlas.h" />
     <ClInclude Include="..\renderer\CCTextureCache.h" />
@@ -682,6 +719,7 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\storage\local-storage\LocalStorage.h" />
     <ClInclude Include="..\ui\CocosGUI.h" />
     <ClInclude Include="..\ui\GUIExport.h" />
+    <ClInclude Include="..\ui\UIAbstractCheckButton.h" />
     <ClInclude Include="..\ui\UIButton.h" />
     <ClInclude Include="..\ui\UICheckBox.h" />
     <ClInclude Include="..\ui\UIEditBox\UIEditBox.h" />
@@ -697,12 +735,12 @@ xcopy /Y /Q "$(ProjectDir)..\..\external\win32\libs\*.*" "$(OutDir)"
     <ClInclude Include="..\ui\UIListView.h" />
     <ClInclude Include="..\ui\UILoadingBar.h" />
     <ClInclude Include="..\ui\UIPageView.h" />
-    <ClInclude Include="..\ui\UIPageViewIndicator.h" />
     <ClInclude Include="..\ui\UIRelativeBox.h" />
     <ClInclude Include="..\ui\UIRichText.h" />
     <ClInclude Include="..\ui\UIScale9Sprite.h" />
     <ClInclude Include="..\ui\UIScrollView.h" />
     <ClInclude Include="..\ui\UISlider.h" />
+    <ClInclude Include="..\ui\UITabControl.h" />
     <ClInclude Include="..\ui\UIText.h" />
     <ClInclude Include="..\ui\UITextAtlas.h" />
     <ClInclude Include="..\ui\UITextBMFont.h" />

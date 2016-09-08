@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformMacros.h"
 #include "platform/CCPlatformDefine.h"
+#include "platform/CCFileUtils.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 #include "platform/android/CCFileUtils-android.h"
@@ -197,7 +198,7 @@ typedef struct unz_file_info_s unz_file_info;
         static void setPvrEncryptionKey(unsigned int keyPart1, unsigned int keyPart2, unsigned int keyPart3, unsigned int keyPart4);
 
     private:
-        static int inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t *outLength, ssize_t outLenghtHint);
+        static int inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t *outLength, ssize_t outLengthHint);
         static inline void decodeEncodedPvr (unsigned int *data, ssize_t len);
         static inline unsigned int checksumPvr(const unsigned int *data, ssize_t len);
 
@@ -265,6 +266,14 @@ typedef struct unz_file_info_s unz_file_info;
         */
         unsigned char *getFileData(const std::string &fileName, ssize_t *size);
 
+        /**
+        * Get resource file data from a zip file.
+        * @param fileName File name
+        * @param[out] buffer If the file read operation succeeds, if will contain the file data.
+        * @return True if successful.
+        */
+        bool getFileData(const std::string &fileName, ResizableBuffer* buffer);
+
         std::string getFirstFilename();
         std::string getNextFilename();
 
@@ -287,4 +296,3 @@ typedef struct unz_file_info_s unz_file_info;
 
 /// @endcond
 #endif // __SUPPORT_ZIPUTILS_H__
-

@@ -96,11 +96,11 @@ public:
 
     /** Called after the transition finishes.
      */
-    void finish();
+    void finish(void);
 
     /** Used by some transitions to hide the outer scene.
      */
-    void hideOutShowIn();
+    void hideOutShowIn(void);
 
     Scene* getInScene() const{ return _inScene; }
     float getDuration() const { return _duration; }
@@ -239,7 +239,7 @@ public:
      *
      * @return The action that will be performed.
      */
-    virtual ActionInterval* action();
+    virtual ActionInterval* action(void);
 
     virtual ActionInterval* easeActionWithAction(ActionInterval * action) override;
 
@@ -359,7 +359,7 @@ public:
      *
      * @return The action that will be performed by the incoming and outgoing scene.
      */
-    virtual ActionInterval* action();
+    virtual ActionInterval* action(void);
 
     //
     // Overrides
@@ -372,7 +372,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     /** initializes the scenes */
-    virtual void initScenes();
+    virtual void initScenes(void);
 
     virtual void sceneOrder() override;
 
@@ -396,7 +396,7 @@ public:
     static TransitionSlideInR* create(float t, Scene* scene);
 
     /** Returns the action that will be performed by the incoming and outgoing scene. */
-    virtual ActionInterval* action() override;
+    virtual ActionInterval* action(void) override;
 
 CC_CONSTRUCTOR_ACCESS:
     TransitionSlideInR();
@@ -404,7 +404,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     /** initializes the scenes */
-    virtual void initScenes() override;
+    virtual void initScenes(void) override;
 
     virtual void sceneOrder() override;
 
@@ -428,7 +428,7 @@ public:
     static TransitionSlideInB* create(float t, Scene* scene);
 
     /** returns the action that will be performed by the incoming and outgoing scene */
-    virtual ActionInterval* action() override;
+    virtual ActionInterval* action(void) override;
 
 CC_CONSTRUCTOR_ACCESS:
     TransitionSlideInB();
@@ -460,7 +460,7 @@ public:
     static TransitionSlideInT* create(float t, Scene* scene);
 
     /** returns the action that will be performed by the incoming and outgoing scene */
-    virtual ActionInterval* action() override;
+    virtual ActionInterval* action(void) override;
 
 CC_CONSTRUCTOR_ACCESS:
     TransitionSlideInT();
@@ -468,7 +468,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     /** initializes the scenes */
-    virtual void initScenes() override;
+    virtual void initScenes(void) override;
 
     virtual void sceneOrder() override;
 
@@ -941,7 +941,7 @@ public:
     //
     // Overrides
     //
-    virtual ActionInterval* action() override;
+    virtual ActionInterval* action(void) override;
 
 CC_CONSTRUCTOR_ACCESS:
     TransitionSplitRows();

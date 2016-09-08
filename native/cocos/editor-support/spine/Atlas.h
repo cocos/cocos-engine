@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -39,41 +39,45 @@ extern "C" {
 typedef struct spAtlas spAtlas;
 
 typedef enum {
-    SP_ATLAS_ALPHA,
-    SP_ATLAS_INTENSITY,
-    SP_ATLAS_LUMINANCE_ALPHA,
-    SP_ATLAS_RGB565,
-    SP_ATLAS_RGBA4444,
-    SP_ATLAS_RGB888,
-    SP_ATLAS_RGBA8888
+	SP_ATLAS_UNKNOWN_FORMAT,
+	SP_ATLAS_ALPHA,
+	SP_ATLAS_INTENSITY,
+	SP_ATLAS_LUMINANCE_ALPHA,
+	SP_ATLAS_RGB565,
+	SP_ATLAS_RGBA4444,
+	SP_ATLAS_RGB888,
+	SP_ATLAS_RGBA8888
 } spAtlasFormat;
 
 typedef enum {
-    SP_ATLAS_NEAREST,
-    SP_ATLAS_LINEAR,
-    SP_ATLAS_MIPMAP,
-    SP_ATLAS_MIPMAP_NEAREST_NEAREST,
-    SP_ATLAS_MIPMAP_LINEAR_NEAREST,
-    SP_ATLAS_MIPMAP_NEAREST_LINEAR,
-    SP_ATLAS_MIPMAP_LINEAR_LINEAR
+	SP_ATLAS_UNKNOWN_FILTER,
+	SP_ATLAS_NEAREST,
+	SP_ATLAS_LINEAR,
+	SP_ATLAS_MIPMAP,
+	SP_ATLAS_MIPMAP_NEAREST_NEAREST,
+	SP_ATLAS_MIPMAP_LINEAR_NEAREST,
+	SP_ATLAS_MIPMAP_NEAREST_LINEAR,
+	SP_ATLAS_MIPMAP_LINEAR_LINEAR
 } spAtlasFilter;
 
 typedef enum {
-    SP_ATLAS_MIRROREDREPEAT, SP_ATLAS_CLAMPTOEDGE, SP_ATLAS_REPEAT
+	SP_ATLAS_MIRROREDREPEAT,
+	SP_ATLAS_CLAMPTOEDGE,
+	SP_ATLAS_REPEAT
 } spAtlasWrap;
 
 typedef struct spAtlasPage spAtlasPage;
 struct spAtlasPage {
-    const spAtlas* atlas;
-    const char* name;
-    spAtlasFormat format;
-    spAtlasFilter minFilter, magFilter;
-    spAtlasWrap uWrap, vWrap;
+	const spAtlas* atlas;
+	const char* name;
+	spAtlasFormat format;
+	spAtlasFilter minFilter, magFilter;
+	spAtlasWrap uWrap, vWrap;
 
-    void* rendererObject;
-    int width, height;
+	void* rendererObject;
+	int width, height;
 
-    spAtlasPage* next;
+	spAtlasPage* next;
 };
 
 spAtlasPage* spAtlasPage_create (spAtlas* atlas, const char* name);
@@ -81,6 +85,7 @@ void spAtlasPage_dispose (spAtlasPage* self);
 
 #ifdef SPINE_SHORT_NAMES
 typedef spAtlasFormat AtlasFormat;
+#define ATLAS_UNKNOWN_FORMAT SP_ATLAS_UNKNOWN_FORMAT
 #define ATLAS_ALPHA SP_ATLAS_ALPHA
 #define ATLAS_INTENSITY SP_ATLAS_INTENSITY
 #define ATLAS_LUMINANCE_ALPHA SP_ATLAS_LUMINANCE_ALPHA
@@ -89,6 +94,7 @@ typedef spAtlasFormat AtlasFormat;
 #define ATLAS_RGB888 SP_ATLAS_RGB888
 #define ATLAS_RGBA8888 SP_ATLAS_RGBA8888
 typedef spAtlasFilter AtlasFilter;
+#define ATLAS_UNKNOWN_FILTER SP_ATLAS_UNKNOWN_FILTER
 #define ATLAS_NEAREST SP_ATLAS_NEAREST
 #define ATLAS_LINEAR SP_ATLAS_LINEAR
 #define ATLAS_MIPMAP SP_ATLAS_MIPMAP
@@ -109,20 +115,20 @@ typedef spAtlasPage AtlasPage;
 
 typedef struct spAtlasRegion spAtlasRegion;
 struct spAtlasRegion {
-    const char* name;
-    int x, y, width, height;
-    float u, v, u2, v2;
-    int offsetX, offsetY;
-    int originalWidth, originalHeight;
-    int index;
-    int/*bool*/rotate;
-    int/*bool*/flip;
-    int* splits;
-    int* pads;
+	const char* name;
+	int x, y, width, height;
+	float u, v, u2, v2;
+	int offsetX, offsetY;
+	int originalWidth, originalHeight;
+	int index;
+	int/*bool*/rotate;
+	int/*bool*/flip;
+	int* splits;
+	int* pads;
 
-    spAtlasPage* page;
+	spAtlasPage* page;
 
-    spAtlasRegion* next;
+	spAtlasRegion* next;
 };
 
 spAtlasRegion* spAtlasRegion_create ();
@@ -137,10 +143,10 @@ typedef spAtlasRegion AtlasRegion;
 /**/
 
 struct spAtlas {
-    spAtlasPage* pages;
-    spAtlasRegion* regions;
+	spAtlasPage* pages;
+	spAtlasRegion* regions;
 
-    void* rendererObject;
+	void* rendererObject;
 };
 
 /* Image files referenced in the atlas file will be prefixed with dir. */
@@ -165,4 +171,3 @@ typedef spAtlas Atlas;
 #endif
 
 #endif /* SPINE_ATLAS_H_ */
-

@@ -2,8 +2,8 @@
 #ifndef __creator_h__
 #define __creator_h__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 
 extern JSClass  *jsb_creator_Scale9SpriteV2_class;
 extern JSObject *jsb_creator_Scale9SpriteV2_prototype;

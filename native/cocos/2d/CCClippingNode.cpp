@@ -198,9 +198,10 @@ void ClippingNode::visit(Renderer *renderer, const Mat4 &parentTransform, uint32
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    CCASSERT(nullptr != _director, "Director is null when setting matrix stack");
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    Director* director = Director::getInstance();
+    CCASSERT(nullptr != director, "Director is null when setting matrix stack");
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     //Add group command
 
@@ -283,7 +284,18 @@ void ClippingNode::setStencil(Node *stencil)
     //early out if the stencil is already set
     if (_stencil == stencil)
         return;
-
+    
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        if (_stencil)
+            sEngine->releaseScriptObject(this, _stencil);
+        if (stencil)
+            sEngine->retainScriptObject(this, stencil);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    
     //cleanup current stencil
     if(_stencil != nullptr && _stencil->isRunning())
     {
@@ -307,7 +319,7 @@ void ClippingNode::setStencil(Node *stencil)
 
 bool ClippingNode::hasContent() const
 {
-    return !_children.empty();
+    return _children.size() > 0;
 }
 
 GLfloat ClippingNode::getAlphaThreshold() const

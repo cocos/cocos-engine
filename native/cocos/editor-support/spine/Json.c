@@ -48,7 +48,7 @@
 
 static const char* ep;
 
-const char* Json_getError () {
+const char* Json_getError (void) {
 	return ep;
 }
 
@@ -68,12 +68,12 @@ static int Json_strcasecmp (const char* s1, const char* s2) {
 		else if (s1 == s2)
 			return 0; /* both are null */
 		else
-			return 1; /* s2 is null s1 is not */
+			return 1; /* s2 is nul	s1 is not */
 	}
 }
 
 /* Internal constructor. */
-static Json *Json_new () {
+static Json *Json_new (void) {
 	return (Json*)CALLOC(Json, 1);
 }
 
@@ -424,4 +424,3 @@ int Json_getInt (Json* value, const char* name, int defaultValue) {
 	value = Json_getItem(value, name);
 	return value ? value->valueInt : defaultValue;
 }
-

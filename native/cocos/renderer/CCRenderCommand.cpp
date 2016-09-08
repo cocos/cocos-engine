@@ -41,9 +41,11 @@ RenderCommand::~RenderCommand()
 {
 }
 
-void RenderCommand::init(float globalZOrder)
+void RenderCommand::init(float globalZOrder, const cocos2d::Mat4 &transform, uint32_t flags)
 {
     _globalOrder = globalZOrder;
+    set3D(false);
+    _depth = 0;
 }
 
 void RenderCommand::printID()
@@ -52,4 +54,3 @@ void RenderCommand::printID()
 }
 
 NS_CC_END
-

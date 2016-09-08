@@ -263,7 +263,9 @@ void ActionManager::removeActionByTag(int tag, Node *target)
     CCASSERT(tag != Action::INVALID_TAG, "Invalid tag value!");
     CCASSERT(target != nullptr, "target can't be nullptr!");
     if (target == nullptr)
+    {
         return;
+    }
 
     tHashElement *element = nullptr;
     HASH_FIND_PTR(_targets, &target, element);
@@ -289,7 +291,9 @@ void ActionManager::removeAllActionsByTag(int tag, Node *target)
     CCASSERT(tag != Action::INVALID_TAG, "Invalid tag value!");
     CCASSERT(target != nullptr, "target can't be nullptr!");
     if (target == nullptr)
+    {
         return;
+    }
 
     tHashElement *element = nullptr;
     HASH_FIND_PTR(_targets, &target, element);
@@ -322,7 +326,9 @@ void ActionManager::removeActionsByFlags(unsigned int flags, Node *target)
     }
     CCASSERT(target != nullptr, "target can't be nullptr!");
     if (target == nullptr)
+    {
         return;
+    }
 
     tHashElement *element = nullptr;
     HASH_FIND_PTR(_targets, &target, element);
@@ -446,8 +452,8 @@ void ActionManager::update(float dt)
         {
             deleteHashElement(_currentTarget);
         }
-        ////if some node refrence 'target', it's refrence count >= 2 (issues #14050)
-        else if(_currentTarget->target->getReferenceCount() == 1)
+        //if some node reference 'target', it's reference count >= 2 (issues #14050)
+        else if (_currentTarget->target->getReferenceCount() == 1)
         {
             deleteHashElement(_currentTarget);
         }
@@ -458,4 +464,3 @@ void ActionManager::update(float dt)
 }
 
 NS_CC_END
-

@@ -334,6 +334,28 @@ public:
      */
     virtual void execute();
 
+    /** Get the selector target.
+     *
+     * @return The selector target.
+     */
+    inline Ref* getTargetCallback()
+    {
+        return _selectorTarget;
+    }
+
+    /** Set the selector target.
+     *
+     * @param sel The selector target.
+     */
+    inline void setTargetCallback(Ref* sel)
+    {
+        if (sel != _selectorTarget)
+        {
+            CC_SAFE_RETAIN(sel);
+            CC_SAFE_RELEASE(_selectorTarget);
+            _selectorTarget = sel;
+        }
+    }
     //
     // Overrides
     //
@@ -346,7 +368,8 @@ public:
 
 CC_CONSTRUCTOR_ACCESS:
     CallFunc()
-    : _callFunc(nullptr)
+    : _selectorTarget(nullptr)
+    , _callFunc(nullptr)
     , _function(nullptr)
     {
     }
@@ -358,6 +381,9 @@ CC_CONSTRUCTOR_ACCESS:
     bool initWithFunction(const std::function<void()>& func);
 
 protected:
+    /** Target that will be called */
+    Ref*   _selectorTarget;
+
     union
     {
         SEL_CallFunc    _callFunc;

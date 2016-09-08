@@ -11,20 +11,9 @@ class Label;
 class CC_DLL LabelTTF : public Node
 {
 public:
-    LabelTTF()
-    : _renderLabel(nullptr)
-    {
-        setAnchorPoint(Vec2::ANCHOR_MIDDLE);
-        setCascadeColorEnabled(true);
-        setCascadeOpacityEnabled(true);
-        _renderLabel = Label::create();
-        _renderLabel->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
-        addChild(_renderLabel);
-    }
+    LabelTTF();
 
-    Label* getRenderLabel() const {
-        return _renderLabel;
-    }
+    Label* getRenderLabel() const;
 
 protected:
     Label* _renderLabel;

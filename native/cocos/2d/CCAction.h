@@ -156,7 +156,7 @@ public:
     inline unsigned int getFlags() const { return _flags; }
     /** Changes the flag field that is used to group the actions easily.
      *
-     * @param tag Used to identify the action easily.
+     * @param flags Used to group the actions easily.
      */
     inline void setFlags(unsigned int flags) { _flags = flags; }
 
@@ -183,10 +183,6 @@ protected:
 #endif
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Action);
-
-protected:
-	void sendUpdateEventToScript(float dt, Action *actionObject);
-
 };
 
 /** @class FiniteTimeAction
@@ -260,7 +256,7 @@ public:
      *
      * @return The action speed.
      */
-    inline float getSpeed() const { return _speed; }
+    inline float getSpeed(void) const { return _speed; }
     /** Alter the speed of the inner function in runtime.
      *
      * @param speed Alter the speed of the inner function in runtime.
@@ -297,7 +293,7 @@ public:
 
 CC_CONSTRUCTOR_ACCESS:
     Speed();
-    virtual ~Speed();
+    virtual ~Speed(void);
     /** Initializes the action. */
     bool initWithAction(ActionInterval *action, float speed);
 
@@ -329,6 +325,24 @@ public:
      *              with no boundary.
      */
     static Follow* create(Node *followedNode, const Rect& rect = Rect::ZERO);
+    
+    /**
+     * Creates the action with a set boundary or with no boundary with offsets.
+     *
+     * @param followedNode  The node to be followed.
+     * @param rect  The boundary. If \p rect is equal to Rect::ZERO, it'll work
+     *              with no boundary.
+     * @param xOffset The horizontal offset from the center of the screen from which the
+     *               node  is to be followed.It can be positive,negative or zero.If
+     *               set to zero the node will be horizontally centered followed.
+     *  @param yOffset The vertical offset from the center of the screen from which the
+     *                 node is to be followed.It can be positive,negative or zero.
+     *                 If set to zero the node will be vertically centered followed.
+     *   If both xOffset and yOffset are set to zero,then the node will be horizontally and vertically centered followed.
+     */
+
+    static Follow* createWithOffset(Node* followedNode,float xOffset,float yOffset,const Rect& rect = Rect::ZERO);
+    
     /** Return boundarySet.
      *
      * @return Return boundarySet.
@@ -365,6 +379,8 @@ CC_CONSTRUCTOR_ACCESS:
     , _rightBoundary(0.0)
     , _topBoundary(0.0)
     , _bottomBoundary(0.0)
+    , _offsetX(0.0)
+    , _offsetY(0.0)
     , _worldRect(Rect::ZERO)
     {}
     /**
@@ -381,6 +397,24 @@ CC_CONSTRUCTOR_ACCESS:
      *              with no boundary.
      */
     bool initWithTarget(Node *followedNode, const Rect& rect = Rect::ZERO);
+    
+    
+    /**
+     * Initializes the action with a set boundary or with no boundary with offsets.
+     *
+     * @param followedNode  The node to be followed.
+     * @param rect  The boundary. If \p rect is equal to Rect::ZERO, it'll work
+     *              with no boundary.
+     * @param xOffset The horizontal offset from the center of the screen from which the
+     *                node  is to be followed.It can be positive,negative or zero.If
+     *                set to zero the node will be horizontally centered followed.
+     * @param yOffset The vertical offset from the center of the screen from which the
+     *                node is to be followed.It can be positive,negative or zero.
+     *                If set to zero the node will be vertically centered followed.
+     *   If both xOffset and yOffset are set to zero,then the node will be horizontally and vertically centered followed.
+
+     */
+    bool initWithTargetAndOffset(Node *followedNode,float xOffset,float yOffset,const Rect& rect = Rect::ZERO);
 
 protected:
     /** Node to follow. */
@@ -401,6 +435,11 @@ protected:
     float _rightBoundary;
     float _topBoundary;
     float _bottomBoundary;
+    
+    /** Horizontal (x) and vertical (y) offset values. */
+    float _offsetX;
+    float _offsetY;
+    
     Rect _worldRect;
 
 private:

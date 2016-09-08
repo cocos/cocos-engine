@@ -1,4 +1,4 @@
-#include "CCBKeyframe.h"
+#include "editor-support/cocosbuilder/CCBKeyframe.h"
 
 using namespace cocos2d;
 
@@ -69,4 +69,3 @@ void CCBKeyframe::setEasingOpt(float fEasingOpt)
 }
 
 }
-

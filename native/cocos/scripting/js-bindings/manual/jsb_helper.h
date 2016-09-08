@@ -23,8 +23,8 @@
 #ifndef __XMLHTTPHELPER_H__
 #define __XMLHTTPHELPER_H__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 
 #include <typeinfo>
 #include <string>
@@ -142,4 +142,3 @@ out = (uint32_t)tmp; \
 } while (0)
 
 #endif /* __XMLHTTPHELPER_H__ */
-

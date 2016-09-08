@@ -260,16 +260,12 @@ public:
      */
     void setupTileSprite(Sprite* sprite, const Vec2& pos, int gid);
 
-    //Unsupported
-    void releaseMap() {}
     //
     // Override
     //
     virtual std::string getDescription() const override;
     virtual void draw(Renderer *renderer, const Mat4& transform, uint32_t flags) override;
     void removeChild(Node* child, bool cleanup = true) override;
-
-    Texture2D* getTexture() const { return _texture; }
 
 CC_CONSTRUCTOR_ACCESS:
     bool initWithTilesetInfo(TMXTilesetInfo *tilesetInfo, TMXLayerInfo *layerInfo, TMXMapInfo *mapInfo);

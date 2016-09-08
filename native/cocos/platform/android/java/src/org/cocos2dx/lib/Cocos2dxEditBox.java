@@ -248,8 +248,9 @@ public class Cocos2dxEditBox extends EditText {
     public boolean onKeyDown(final int pKeyCode, final KeyEvent pKeyEvent) {
         switch (pKeyCode) {
             case KeyEvent.KEYCODE_BACK:
+                Cocos2dxActivity activity = (Cocos2dxActivity)this.getContext();
                 //To prevent program from going to background
-                Cocos2dxActivity.COCOS_ACTIVITY.getGLSurfaceView().requestFocus();
+                activity.getGLSurfaceView().requestFocus();
                 return true;
             default:
                 return super.onKeyDown(pKeyCode, pKeyEvent);
@@ -291,4 +292,3 @@ public class Cocos2dxEditBox extends EditText {
         this.setInputType(this.mInputFlagConstraints | this.mInputModeConstraints);
     }
 }
-

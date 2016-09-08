@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -40,9 +40,9 @@ extern "C" {
 #endif
 
 typedef struct spPolygon {
-    float* const vertices;
-    int count;
-    int capacity;
+	float* const vertices;
+	int count;
+	int capacity;
 } spPolygon;
 
 spPolygon* spPolygon_create (int capacity);
@@ -62,11 +62,11 @@ typedef spPolygon Polygon;
 /**/
 
 typedef struct spSkeletonBounds {
-    int count;
-    spBoundingBoxAttachment** boundingBoxes;
-    spPolygon** polygons;
+	int count;
+	spBoundingBoxAttachment** boundingBoxes;
+	spPolygon** polygons;
 
-    float minX, minY, maxX, maxY;
+	float minX, minY, maxX, maxY;
 } spSkeletonBounds;
 
 spSkeletonBounds* spSkeletonBounds_create ();
@@ -111,4 +111,3 @@ typedef spSkeletonBounds SkeletonBounds;
 #endif
 
 #endif /* SPINE_SKELETONBOUNDS_H_ */
-

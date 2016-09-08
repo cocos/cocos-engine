@@ -1,10 +1,6 @@
 
-#include "CocoStudio.h"
-#include "Armature/CCArmatureDataManager.h"
-#include "Armature/CCDataReaderHelper.h"
-#include "Armature/CCSpriteFrameCacheHelper.h"
-#include "CCActionManagerEx.h"
-#include "DictionaryHelper.h"
+#include "editor-support/cocostudio/CocoStudio.h"
+
 
 namespace cocostudio
 {

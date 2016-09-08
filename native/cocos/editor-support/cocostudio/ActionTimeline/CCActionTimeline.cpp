@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCActionTimeline.h"
+#include "editor-support/cocostudio/ActionTimeline/CCActionTimeline.h"
 
-#include "cocostudio/CCComExtensionData.h"
+#include "editor-support/cocostudio/CCComExtensionData.h"
 
 USING_NS_CC;
 
@@ -37,11 +37,12 @@ ActionTimelineData* ActionTimelineData::create(int actionTag)
     if (ret && ret->init(actionTag))
     {
         ret->autorelease();
-        return ret;
     }
-    
-    delete ret;
-    return nullptr;
+    else
+    {
+        CC_SAFE_DELETE(ret);
+    }
+    return ret;
 }
 
 ActionTimelineData::ActionTimelineData()
@@ -65,8 +66,7 @@ ActionTimeline* ActionTimeline::create()
         object->autorelease();
         return object;
     }
-    
-    delete object;
+    CC_SAFE_DELETE(object);
     return nullptr;
 }
 
@@ -231,7 +231,8 @@ void ActionTimeline::step(float delta)
     }
 }
 
-static void foreachNodeDescendant(Node* parent, std::function<void(Node*)> callback)
+typedef std::function<void(Node*)> tCallBack;
+void foreachNodeDescendant(Node* parent, tCallBack callback)
 {
     callback(parent);
 
@@ -440,5 +441,13 @@ void ActionTimeline::stepToFrame(int frameIndex)
     }
 }
 
-NS_TIMELINE_END
+void ActionTimeline::start()
+{
+    gotoFrameAndPlay(0);
+}
 
+void ActionTimeline::stop()
+{
+    pause();
+}
+NS_TIMELINE_END

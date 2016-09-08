@@ -27,15 +27,14 @@ THE SOFTWARE.
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 
 #include "platform/android/jni/JniHelper.h"
-#include "CCApplication.h"
+#include "platform/CCApplication.h"
 #include "base/CCDirector.h"
 #include <android/log.h>
 #include <jni.h>
 #include <cstring>
 
 #define  LOG_TAG    "CCApplication_android Debug"
-#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-#define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
 // FIXME: using ndk-r10c will cause the next function could not be found. It may be a bug of ndk-r10c.
 // Here is the workaround method to fix the problem.
@@ -45,7 +44,7 @@ extern "C" size_t __ctype_get_mb_cur_max(void) {
 }
 #endif
 
-#define HELPER_JAVA_CLASS "org/cocos2dx/lib/Cocos2dxHelper"
+static const std::string helperClassName = "org/cocos2dx/lib/Cocos2dxHelper";
 
 NS_CC_BEGIN
 
@@ -60,6 +59,7 @@ Application::Application()
 
 Application::~Application()
 {
+    CCAssert(this == sm_pSharedApplication, "");
     sm_pSharedApplication = nullptr;
 }
 
@@ -99,7 +99,7 @@ void Application::destroyInstance()
 const char * Application::getCurrentLanguageCode()
 {
     static char code[3]={0};
-    std::string language = JniHelper::callStaticStringMethod(HELPER_JAVA_CLASS, "getCurrentLanguage");
+    std::string language = JniHelper::callStaticStringMethod(helperClassName, "getCurrentLanguage");
     strncpy(code, language.c_str(), 2);
     code[2]='\0';
     return code;
@@ -107,7 +107,7 @@ const char * Application::getCurrentLanguageCode()
 
 LanguageType Application::getCurrentLanguage()
 {
-    std::string languageName = JniHelper::callStaticStringMethod(HELPER_JAVA_CLASS, "getCurrentLanguage");
+    std::string languageName = JniHelper::callStaticStringMethod(helperClassName, "getCurrentLanguage");
     const char* pLanguageName = languageName.c_str();
     LanguageType ret = LanguageType::ENGLISH;
 
@@ -195,9 +195,14 @@ Application::Platform Application::getTargetPlatform()
     return Platform::OS_ANDROID;
 }
 
+std::string Application::getVersion()
+{
+    return JniHelper::callStaticStringMethod(helperClassName, "getVersion");
+}
+
 bool Application::openURL(const std::string &url)
 {
-    return JniHelper::callStaticBooleanMethod(HELPER_JAVA_CLASS, "openURL", url);
+    return JniHelper::callStaticBooleanMethod(helperClassName, "openURL", url);
 }
 
 void Application::applicationScreenSizeChanged(int newWidth, int newHeight) {
@@ -207,4 +212,3 @@ void Application::applicationScreenSizeChanged(int newWidth, int newHeight) {
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-

@@ -48,6 +48,7 @@ THE SOFTWARE.
 #include "renderer/ccGLStateCache.h"
 #include "renderer/CCRenderer.h"
 #include "renderer/CCRenderState.h"
+#include "renderer/CCFrameBuffer.h"
 #include "base/CCUserDefault.h"
 #include "base/ccFPSImages.h"
 #include "base/CCScheduler.h"
@@ -61,7 +62,7 @@ THE SOFTWARE.
 #include "platform/CCApplication.h"
 
 #if CC_ENABLE_SCRIPT_BINDING
-#include "CCScriptSupport.h"
+#include "base/CCScriptSupport.h"
 #endif
 
 /**
@@ -78,11 +79,11 @@ using namespace std;
 NS_CC_BEGIN
 // FIXME: it should be a Director ivar. Move it there once support for multiple directors is added
 
-#define kDefaultFPS        60  // 60 frames per second
-extern const char* cocos2dVersion();
+// singleton stuff
+static DisplayLinkDirector *s_SharedDirector = nullptr;
 
-Director* Director::DirectorInstance = nullptr;
-bool Director::PurgeDirectorInNextLoop = false;
+#define kDefaultFPS        60  // 60 frames per second
+extern const char* cocos2dVersion(void);
 
 const char *Director::EVENT_PROJECTION_CHANGED = "director_projection_changed";
 const char *Director::EVENT_AFTER_DRAW = "director_after_draw";
@@ -93,14 +94,14 @@ const char *Director::EVENT_RESET = "director_reset";
 
 Director* Director::getInstance()
 {
-    if (!DirectorInstance)
+    if (!s_SharedDirector)
     {
-        DirectorInstance = new (std::nothrow) DisplayLinkDirector();
-        CCASSERT(DirectorInstance, "FATAL: Not enough memory");
-        DirectorInstance->init();
+        s_SharedDirector = new (std::nothrow) DisplayLinkDirector();
+        CCASSERT(s_SharedDirector, "FATAL: Not enough memory");
+        s_SharedDirector->init();
     }
 
-    return DirectorInstance;
+    return s_SharedDirector;
 }
 
 Director::Director()
@@ -108,7 +109,7 @@ Director::Director()
 {
 }
 
-bool Director::init()
+bool Director::init(void)
 {
     setDefaultValues();
 
@@ -125,22 +126,23 @@ bool Director::init()
     _frameRate = 0.0f;
     _FPSLabel = _drawnBatchesLabel = _drawnVerticesLabel = nullptr;
     _totalFrames = 0;
-    _lastUpdate = new (std::nothrow) struct timeval;
+    _lastUpdate = std::chrono::steady_clock::now();
     _secondsPerFrame = 1.0f;
 
     // paused ?
     _paused = false;
 
     // purge ?
-    PurgeDirectorInNextLoop = false;
-
+    _purgeDirectorInNextLoop = false;
+    
     // restart ?
     _restartDirectorInNextLoop = false;
 
     _winSizeInPoints = Size::ZERO;
 
     _openGLView = nullptr;
-
+    _defaultFBO = nullptr;
+    
     _contentScaleFactor = 1.0f;
 
     _console = new (std::nothrow) Console;
@@ -173,7 +175,7 @@ bool Director::init()
     return true;
 }
 
-Director::~Director()
+Director::~Director(void)
 {
     CCLOGINFO("deallocing Director: %p", this);
 
@@ -183,9 +185,9 @@ Director::~Director()
 
     CC_SAFE_RELEASE(_runningScene);
     CC_SAFE_RELEASE(_notificationNode);
-    
     CC_SAFE_RELEASE(_scheduler);
     CC_SAFE_RELEASE(_actionManager);
+    CC_SAFE_DELETE(_defaultFBO);
 
     delete _eventBeforeUpdate;
     delete _eventAfterUpdate;
@@ -200,15 +202,12 @@ Director::~Director()
     
     CC_SAFE_RELEASE(_eventDispatcher);
     
-    // delete _lastUpdate
-    CC_SAFE_DELETE(_lastUpdate);
-
     Configuration::destroyInstance();
 
-    DirectorInstance = nullptr;
+    s_SharedDirector = nullptr;
 }
 
-void Director::setDefaultValues()
+void Director::setDefaultValues(void)
 {
     Configuration *conf = Configuration::getInstance();
 
@@ -274,6 +273,7 @@ void Director::drawScene()
     }
 
     _renderer->clear();
+    experimental::FrameBuffer::clearAllFBOs();
     /* to avoid flickr, nextScene MUST be here: after tick and before draw.
      * FIXME: Which bug is this one. It seems that it can't be reproduced with v0.9
      */
@@ -290,7 +290,7 @@ void Director::drawScene()
         _renderer->clearDrawStats();
 
         //render the scene
-        _runningScene->visit(_renderer, Mat4::IDENTITY, false);
+        _openGLView->renderScene(_runningScene, _renderer);
 
         _eventDispatcher->dispatchEvent(_eventAfterVisit);
     }
@@ -301,13 +301,11 @@ void Director::drawScene()
         _notificationNode->visit(_renderer, Mat4::IDENTITY, 0);
     }
 
-    _renderer->render();
-    
     if (_displayStats)
     {
         showStats();
-        _renderer->render();
     }
+    _renderer->render();
 
     _eventDispatcher->dispatchEvent(_eventAfterDraw);
 
@@ -329,14 +327,7 @@ void Director::drawScene()
 
 void Director::calculateDeltaTime()
 {
-    struct timeval now;
-
-    if (gettimeofday(&now, nullptr) != 0)
-    {
-        CCLOG("error in gettimeofday");
-        _deltaTime = 0;
-        return;
-    }
+    auto now = std::chrono::steady_clock::now();
 
     // new delta time. Re-fixed issue #1277
     if (_nextDeltaTimeZero)
@@ -346,7 +337,7 @@ void Director::calculateDeltaTime()
     }
     else
     {
-        _deltaTime = (now.tv_sec - _lastUpdate->tv_sec) + (now.tv_usec - _lastUpdate->tv_usec) / 1000000.0f;
+        _deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - _lastUpdate).count() / 1000000.0f;
         _deltaTime = MAX(0, _deltaTime);
     }
 
@@ -358,9 +349,8 @@ void Director::calculateDeltaTime()
     }
 #endif
 
-    *_lastUpdate = now;
+    _lastUpdate = now;
 }
-
 float Director::getDeltaTime() const
 {
     return _deltaTime;
@@ -399,6 +389,9 @@ void Director::setOpenGLView(GLView *openGLView)
         {
             _eventDispatcher->setEnabled(true);
         }
+        
+        _defaultFBO = experimental::FrameBuffer::getOrCreateDefaultFBO(_openGLView);
+        _defaultFBO->retain();
     }
 }
 
@@ -483,7 +476,7 @@ void Director::popMatrix(MATRIX_STACK_TYPE type)
     }
     else
     {
-        CCASSERT(false, "unknow matrix stack type");
+        CCASSERT(false, "unknown matrix stack type");
     }
 }
 
@@ -503,7 +496,7 @@ void Director::loadIdentityMatrix(MATRIX_STACK_TYPE type)
     }
     else
     {
-        CCASSERT(false, "unknow matrix stack type");
+        CCASSERT(false, "unknown matrix stack type");
     }
 }
 
@@ -523,7 +516,7 @@ void Director::loadMatrix(MATRIX_STACK_TYPE type, const Mat4& mat)
     }
     else
     {
-        CCASSERT(false, "unknow matrix stack type");
+        CCASSERT(false, "unknown matrix stack type");
     }
 }
 
@@ -543,7 +536,7 @@ void Director::multiplyMatrix(MATRIX_STACK_TYPE type, const Mat4& mat)
     }
     else
     {
-        CCASSERT(false, "unknow matrix stack type");
+        CCASSERT(false, "unknown matrix stack type");
     }
 }
 
@@ -563,7 +556,7 @@ void Director::pushMatrix(MATRIX_STACK_TYPE type)
     }
     else
     {
-        CCASSERT(false, "unknow matrix stack type");
+        CCASSERT(false, "unknown matrix stack type");
     }
 }
 
@@ -582,7 +575,7 @@ const Mat4& Director::getMatrix(MATRIX_STACK_TYPE type) const
         return _textureMatrixStack.top();
     }
 
-    CCASSERT(false, "unknow matrix stack type, will return modelview matrix instead");
+    CCASSERT(false, "unknown matrix stack type, will return modelview matrix instead");
     return  _modelViewMatrixStack.top();
 }
 
@@ -590,17 +583,21 @@ void Director::setProjection(Projection projection)
 {
     Size size = _winSizeInPoints;
 
+    if (size.width == 0 || size.height == 0)
+    {
+        CCLOGERROR("cocos2d: warning, Director::setProjection() failed because size is 0");
+        return;
+    }
+
     setViewport();
 
     switch (projection)
     {
         case Projection::_2D:
         {
-            loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-
             Mat4 orthoMatrix;
             Mat4::createOrthographicOffCenter(0, size.width, 0, size.height, -1024, 1024, &orthoMatrix);
-            multiplyMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, orthoMatrix);
+            loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, orthoMatrix);
             loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
             break;
         }
@@ -611,17 +608,14 @@ void Director::setProjection(Projection projection)
 
             Mat4 matrixPerspective, matrixLookup;
 
-            loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-
             // issue #1334
             Mat4::createPerspective(60, (GLfloat)size.width/size.height, 10, zeye+size.height/2, &matrixPerspective);
 
-            multiplyMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, matrixPerspective);
-
             Vec3 eye(size.width/2, size.height/2, zeye), center(size.width/2, size.height/2, 0.0f), up(0.0f, 1.0f, 0.0f);
             Mat4::createLookAt(eye, center, up, &matrixLookup);
-            multiplyMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, matrixLookup);
+            Mat4 proj3d = matrixPerspective * matrixLookup;
 
+            loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, proj3d);
             loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
             break;
         }
@@ -642,12 +636,12 @@ void Director::setProjection(Projection projection)
     _eventDispatcher->dispatchEvent(_eventProjectionChanged);
 }
 
-void Director::purgeCachedData()
+void Director::purgeCachedData(void)
 {
     FontFNT::purgeCachedData();
     FontAtlasCache::purgeCachedData();
 
-    if (DirectorInstance->getOpenGLView())
+    if (s_SharedDirector->getOpenGLView())
     {
         SpriteFrameCache::getInstance()->removeUnusedSpriteFrames();
         _textureCache->removeUnusedTextures();
@@ -659,7 +653,7 @@ void Director::purgeCachedData()
     FileUtils::getInstance()->purgeCachedEntries();
 }
 
-float Director::getZEye() const
+float Director::getZEye(void) const
 {
     return (_winSizeInPoints.height / 1.1566f);
 }
@@ -686,13 +680,16 @@ void Director::setDepthTest(bool on)
 void Director::setClearColor(const Color4F& clearColor)
 {
     _renderer->setClearColor(clearColor);
+    auto defaultFBO = experimental::FrameBuffer::getOrCreateDefaultFBO(_openGLView);
+    
+    if(defaultFBO) defaultFBO->setClearColor(clearColor);
 }
 
 static void GLToClipTransform(Mat4 *transformOut)
 {
     if(nullptr == transformOut) return;
 
-    Director* director = Director::DirectorInstance;
+    Director* director = Director::getInstance();
     CCASSERT(nullptr != director, "Director is null when setting matrix stack");
 
     auto projection = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
@@ -716,7 +713,7 @@ Vec2 Director::convertToGL(const Vec2& uiPoint)
     Vec4 glCoord;
     //transformInv.transformPoint(clipCoord, &glCoord);
     transformInv.transformVector(clipCoord, &glCoord);
-    float factor = 1.0/glCoord.w;
+    float factor = 1.0f / glCoord.w;
     return Vec2(glCoord.x * factor, glCoord.y * factor);
 }
 
@@ -743,11 +740,11 @@ Vec2 Director::convertToUI(const Vec2& glPoint)
     clipCoord.z = clipCoord.z / clipCoord.w;
 
     Size glSize = _openGLView->getDesignResolutionSize();
-    float factor = 1.0/glCoord.w;
-    return Vec2(glSize.width*(clipCoord.x*0.5 + 0.5) * factor, glSize.height*(-clipCoord.y*0.5 + 0.5) * factor);
+    float factor = 1.0f / glCoord.w;
+    return Vec2(glSize.width * (clipCoord.x * 0.5f + 0.5f) * factor, glSize.height * (-clipCoord.y * 0.5f + 0.5f) * factor);
 }
 
-const Size& Director::getWinSize() const
+const Size& Director::getWinSize(void) const
 {
     return _winSizeInPoints;
 }
@@ -818,6 +815,14 @@ void Director::replaceScene(Scene *scene)
     ssize_t index = _scenesStack.size() - 1;
 
     _sendCleanupToScene = true;
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, scene);
+        sEngine->releaseScriptObject(this, _scenesStack.at(index));
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _scenesStack.replace(index, scene);
 
     _nextScene = scene;
@@ -826,42 +831,46 @@ void Director::replaceScene(Scene *scene)
 void Director::pushScene(Scene *scene)
 {
     CCASSERT(scene, "the scene should not null");
-    if (scene == nullptr)
-    {
-        log("Director::pushScene error:the scene is null!");
-        return;
-    }
 
     _sendCleanupToScene = false;
 
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, scene);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _scenesStack.pushBack(scene);
     _nextScene = scene;
 }
 
-void Director::popScene()
+void Director::popScene(void)
 {
     CCASSERT(_runningScene != nullptr, "running scene should not null");
-    if (_runningScene == nullptr)
+    
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
     {
-        log("Director::popScene error:running scene is null!");
-        return;
+        sEngine->releaseScriptObject(this, _scenesStack.back());
     }
-
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    _scenesStack.popBack();
     ssize_t c = _scenesStack.size();
 
-    if (c <= 1)
+    if (c == 0)
     {
         end();
     }
     else
     {
-        _scenesStack.popBack();
         _sendCleanupToScene = true;
-        _nextScene = _scenesStack.at(c - 2);
+        _nextScene = _scenesStack.at(c - 1);
     }
 }
 
-void Director::popToRootScene()
+void Director::popToRootScene(void)
 {
     popToSceneStackLevel(1);
 }
@@ -882,9 +891,16 @@ void Director::popToSceneStackLevel(int level)
     if (level >= c)
         return;
 
-    auto fisrtOnStackScene = _scenesStack.back();
-    if (fisrtOnStackScene == _runningScene)
+    auto firstOnStackScene = _scenesStack.back();
+    if (firstOnStackScene == _runningScene)
     {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, _scenesStack.back());
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         _scenesStack.popBack();
         --c;
     }
@@ -900,6 +916,13 @@ void Director::popToSceneStackLevel(int level)
         }
 
         current->cleanup();
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, _scenesStack.back());
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         _scenesStack.popBack();
         --c;
     }
@@ -912,7 +935,7 @@ void Director::popToSceneStackLevel(int level)
 
 void Director::end()
 {
-    PurgeDirectorInNextLoop = true;
+    _purgeDirectorInNextLoop = true;
 }
 
 void Director::restart()
@@ -922,8 +945,18 @@ void Director::restart()
 
 void Director::reset()
 {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    
     if (_runningScene)
     {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, _runningScene);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         _runningScene->onExit();
         _runningScene->cleanup();
         _runningScene->release();
@@ -945,6 +978,16 @@ void Director::reset()
 
     // remove all objects, but don't release it.
     // runWithScene might be executed after 'end'.
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    if (sEngine)
+    {
+        for (const auto &scene : _scenesStack)
+        {
+            if (scene)
+                sEngine->releaseScriptObject(this, scene);
+        }
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _scenesStack.clear();
 
     stopAnimation();
@@ -981,8 +1024,8 @@ void Director::reset()
     GLProgramCache::destroyInstance();
     GLProgramStateCache::destroyInstance();
     FileUtils::destroyInstance();
-    AsyncTaskPool::destoryInstance();
-
+    AsyncTaskPool::destroyInstance();
+    
     // cocos2d-x specific data structures
     UserDefault::destroyInstance();
 
@@ -1026,12 +1069,13 @@ void Director::restartDirector()
     // release the objects
     PoolManager::getInstance()->getCurrentPool()->clear();
 
+    // Restart animation
+    startAnimation();
+    
     // Real restart in script level
 #if CC_ENABLE_SCRIPT_BINDING
-    if (ScriptEngineManager::ShareInstance) {
-        ScriptEvent scriptEvent(kRestartGame, NULL);
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&scriptEvent);
-    }
+    ScriptEvent scriptEvent(kRestartGame, nullptr);
+    ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&scriptEvent);
 #endif
 }
 
@@ -1162,10 +1206,9 @@ void Director::calculateMPF()
     static float prevSecondsPerFrame = 0;
     static const float MPF_FILTER = 0.10f;
 
-    struct timeval now;
-    gettimeofday(&now, nullptr);
+    auto now = std::chrono::steady_clock::now();
 
-    _secondsPerFrame = (now.tv_sec - _lastUpdate->tv_sec) + (now.tv_usec - _lastUpdate->tv_usec) / 1000000.0f;
+    _secondsPerFrame = std::chrono::duration_cast<std::chrono::microseconds>(now - _lastUpdate).count() / 1000000.0f;
 
     _secondsPerFrame = _secondsPerFrame * MPF_FILTER + (1-MPF_FILTER) * prevSecondsPerFrame;
     prevSecondsPerFrame = _secondsPerFrame;
@@ -1316,10 +1359,7 @@ void Director::setEventDispatcher(EventDispatcher* dispatcher)
 // so we now only support DisplayLinkDirector
 void DisplayLinkDirector::startAnimation()
 {
-    if (gettimeofday(_lastUpdate, nullptr) != 0)
-    {
-        CCLOG("cocos2d: DisplayLinkDirector: Error on gettimeofday");
-    }
+    _lastUpdate = std::chrono::steady_clock::now();
 
     _invalid = false;
 
@@ -1333,10 +1373,10 @@ void DisplayLinkDirector::startAnimation()
 
 void DisplayLinkDirector::mainLoop()
 {
-    if (PurgeDirectorInNextLoop)
+    if (_purgeDirectorInNextLoop)
     {
+        _purgeDirectorInNextLoop = false;
         purgeDirector();
-        PurgeDirectorInNextLoop = false;
     }
     else if (_restartDirectorInNextLoop)
     {

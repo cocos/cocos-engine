@@ -220,11 +220,11 @@ bool TimerScriptHandler::initWithScriptHandler(int handler, float seconds)
 
 void TimerScriptHandler::trigger(float dt)
 {
-    if (0 != _scriptHandler && ScriptEngineManager::ShareInstance)
+    if (0 != _scriptHandler)
     {
         SchedulerScriptData data(_scriptHandler,dt);
         ScriptEvent event(kScheduleEvent,&data);
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
 }
 
@@ -243,7 +243,7 @@ const int Scheduler::PRIORITY_SYSTEM = INT_MIN;
 // Minimum priority level for user scheduling.
 const int Scheduler::PRIORITY_NON_SYSTEM_MIN = PRIORITY_SYSTEM + 1;
 
-Scheduler::Scheduler()
+Scheduler::Scheduler(void)
 : _timeScale(1.0f)
 , _updatesNegList(nullptr)
 , _updates0List(nullptr)
@@ -261,7 +261,7 @@ Scheduler::Scheduler()
     _functionsToPerform.reserve(30);
 }
 
-Scheduler::~Scheduler()
+Scheduler::~Scheduler(void)
 {
     unscheduleAll();
 }
@@ -579,7 +579,7 @@ void Scheduler::unscheduleUpdate(void *target)
     }
 }
 
-void Scheduler::unscheduleAll()
+void Scheduler::unscheduleAll(void)
 {
     unscheduleAllWithMinPriority(PRIORITY_SYSTEM);
 }
@@ -1123,4 +1123,3 @@ void Scheduler::unschedule(SEL_SCHEDULE selector, Ref *target)
 }
 
 NS_CC_END
-

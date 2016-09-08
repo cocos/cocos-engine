@@ -26,13 +26,13 @@
 #include "platform/CCPlatformConfig.h"
 #if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
 
-#import "CCDirectorCaller-ios.h"
+#import "platform/ios/CCDirectorCaller-ios.h"
 
 #import <Foundation/Foundation.h>
 #import <OpenGLES/EAGL.h>
 
 #import "base/CCDirector.h"
-#import "CCEAGLView-ios.h"
+#import "platform/ios/CCEAGLView-ios.h"
 
 static id s_sharedDirectorCaller;
 
@@ -82,6 +82,13 @@ static id s_sharedDirectorCaller;
     return self;
 }
 
+-(void) dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [displayLink release];
+    [super dealloc];
+}
+
 - (void)appDidBecomeActive
 {
     isAppActive = YES;
@@ -90,13 +97,6 @@ static id s_sharedDirectorCaller;
 - (void)appDidBecomeInactive
 {
     isAppActive = NO;
-}
-
--(void) dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [displayLink release];
-    [super dealloc];
 }
 
 -(void) startMainLoop
@@ -129,7 +129,7 @@ static id s_sharedDirectorCaller;
 
 -(void) doCaller: (id) sender
 {
-    auto director = cocos2d::Director::DirectorInstance;
+    cocos2d::Director* director = cocos2d::Director::getInstance();
     if (isAppActive && director) {
         //引擎是在下一帧才做结束的清理，而runtime版本在下一帧时EAGLView已经从superview移除
         if (!director->isPurgeDirectorInNextLoop() && director->getOpenGLView()) {

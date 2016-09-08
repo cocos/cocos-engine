@@ -23,17 +23,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "JniHelper.h"
+#include "platform/android/jni/JniHelper.h"
+#include <string.h>
+#include "base/CCDirector.h"
+#include "platform/CCApplication.h"
+#include "platform/CCFileUtils.h"
+#include "base/ccUTF8.h"
 
-#define BITMAP_JAVA_CLASS "org/cocos2dx/lib/Cocos2dxBitmap"
+static const std::string className = "org/cocos2dx/lib/Cocos2dxBitmap";
 
 using namespace cocos2d;
 
 int getFontSizeAccordingHeightJni(int height) {
-    return JniHelper::callStaticIntMethod(BITMAP_JAVA_CLASS, "getFontSizeAccordingHeight", height);
+    return JniHelper::callStaticIntMethod(className, "getFontSizeAccordingHeight", height);
 }
 
 std::string getStringWithEllipsisJni(const char* text, float width, float fontSize) {
-    return JniHelper::callStaticStringMethod(BITMAP_JAVA_CLASS, "getStringWithEllipsis", text, width, fontSize);
+    return JniHelper::callStaticStringMethod(className, "getStringWithEllipsis", text, width, fontSize);
 }
 

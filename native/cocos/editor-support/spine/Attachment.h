@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -36,21 +36,28 @@
 extern "C" {
 #endif
 
+struct spAttachmentLoader;
+
 typedef enum {
-    SP_ATTACHMENT_REGION, SP_ATTACHMENT_BOUNDING_BOX, SP_ATTACHMENT_MESH, SP_ATTACHMENT_SKINNED_MESH
+	SP_ATTACHMENT_REGION,
+	SP_ATTACHMENT_BOUNDING_BOX,
+	SP_ATTACHMENT_MESH,
+	SP_ATTACHMENT_LINKED_MESH,
+	SP_ATTACHMENT_PATH
 } spAttachmentType;
 
 typedef struct spAttachment {
-    const char* const name;
-    const spAttachmentType type;
-    const void* const vtable;
+	const char* const name;
+	const spAttachmentType type;
+	const void* const vtable;
+	struct spAttachmentLoader* attachmentLoader;
 
 #ifdef __cplusplus
-    spAttachment() :
-        name(0),
-        type(SP_ATTACHMENT_REGION),
-        vtable(0) {
-    }
+	spAttachment() :
+		name(0),
+		type(SP_ATTACHMENT_REGION),
+		vtable(0) {
+	}
 #endif
 } spAttachment;
 
@@ -61,7 +68,7 @@ typedef spAttachmentType AttachmentType;
 #define ATTACHMENT_REGION SP_ATTACHMENT_REGION
 #define ATTACHMENT_BOUNDING_BOX SP_ATTACHMENT_BOUNDING_BOX
 #define ATTACHMENT_MESH SP_ATTACHMENT_MESH
-#define ATTACHMENT_SKINNED_MESH SP_ATTACHMENT_SKINNED_MESH
+#define ATTACHMENT_LINKED_MESH SP_ATTACHMENT_LINKED_MESH
 typedef spAttachment Attachment;
 #define Attachment_dispose(...) spAttachment_dispose(__VA_ARGS__)
 #endif
@@ -71,4 +78,3 @@ typedef spAttachment Attachment;
 #endif
 
 #endif /* SPINE_ATTACHMENT_H_ */
-

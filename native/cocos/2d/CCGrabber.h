@@ -38,7 +38,7 @@ class Texture2D;
  * @{
  */
 
-/** FBO class that grabs the the contents of the screen */
+/** FBO class that grabs the contents of the screen */
 class Grabber : public Ref
 {
 public:
@@ -46,13 +46,13 @@ public:
     Constructor.
      * @js ctor
      */
-    Grabber();
+    Grabber(void);
     /**
     Destructor.
      * @js NA
      * @lua NA
      */
-    ~Grabber();
+    ~Grabber(void);
     /**Init the grab structure, will set the texture as the FBO color attachment.*/
     void grab(Texture2D *texture);
     /**Begin capture the screen, which will save the old FBO, clear color, and set the new FBO, clear the background.*/

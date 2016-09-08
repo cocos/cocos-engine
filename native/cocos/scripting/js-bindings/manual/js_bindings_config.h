@@ -28,7 +28,7 @@
 
 /** @def JSB_ASSERT_ON_FAIL
  Whether or not to assert when the arguments or conversions are incorrect.
- It is recommened to turn it off in Release mode.
+ It is recommended to turn it off in Release mode.
  */
 #ifndef JSB_ASSERT_ON_FAIL
 #define JSB_ASSERT_ON_FAIL 0
@@ -41,21 +41,23 @@
 #define ASSERT( condition, error_msg) do { NSCAssert( condition, [NSString stringWithUTF8String:error_msg] ); } while(0)
 
 #else
-#define JSB_PRECONDITION( condition, error_msg) do {                          \
+#define JSB_PRECONDITION( condition, ...) do {                          \
     if( ! (condition) ) {                                                       \
-        cocos2d::log("jsb ERROR: File %s: Line: %d, Function: %s\n%s", __FILE__, __LINE__, __FUNCTION__, error_msg);         \
+        cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ );         \
+        cocos2d::log(__VA_ARGS__);                                        \
         JSContext* globalContext = ScriptingCore::getInstance()->getGlobalContext();    \
         if( ! JS_IsExceptionPending( globalContext ) ) {                        \
-            JS_ReportError( globalContext, error_msg );                           \
+            JS_ReportError( globalContext, __VA_ARGS__ );                           \
         }                                                                       \
         return false;                                                       \
     }                                                                           \
 } while(0)
-#define JSB_PRECONDITION2( condition, context, ret_value, error_msg) do {             \
+#define JSB_PRECONDITION2( condition, context, ret_value, ...) do {             \
     if( ! (condition) ) {                                                       \
-        cocos2d::log("jsb ERROR: File %s: Line: %d, Function: %s\n%s", __FILE__, __LINE__, __FUNCTION__, error_msg);         \
+        cocos2d::log("jsb: ERROR: File %s: Line: %d, Function: %s", __FILE__, __LINE__, __FUNCTION__ );         \
+        cocos2d::log(__VA_ARGS__);                                        \
         if( ! JS_IsExceptionPending( context ) ) {                          \
-            JS_ReportError( context, error_msg );                             \
+            JS_ReportError( context, __VA_ARGS__ );                             \
         }                                                                       \
         return ret_value;                                                       \
     }                                                                           \
@@ -75,8 +77,8 @@
 
 /** @def JSB_REPRESENT_LONGLONG_AS_STR
  When JSB_REPRESENT_LONGLONG_AS_STR is defined, the long long will be represented as JS strings.
- Otherwise they will be represented as an array of two intengers.
- It is needed to to use an special representation since there are no 64-bit integers in JS.
+ Otherwise they will be represented as an array of two integers.
+ It is needed to use an special representation since there are no 64-bit integers in JS.
  Representing the long long as string could be a bit slower, but it is easier to debug from JS.
  Enabled by default.
  */
@@ -144,4 +146,3 @@ JSAutoCompartment __jsb_ac(ScriptingCore::getInstance()->getGlobalContext(), Scr
 #endif // JSB_MAX_STACK_QUOTA
 
 #endif // __JS_BINDINGS_CONFIG_H
-

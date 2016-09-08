@@ -1,10 +1,10 @@
 /******************************************************************************
  * Spine Runtimes Software License
  * Version 2.3
- *
+ * 
  * Copyright (c) 2013-2015, Esoteric Software
  * All rights reserved.
- *
+ * 
  * You are granted a perpetual, non-exclusive, non-sublicensable and
  * non-transferable license to use, install, execute and perform the Spine
  * Runtimes Software (the "Software") and derivative works solely for personal
@@ -16,7 +16,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -62,6 +62,14 @@ void spSkeletonData_dispose (spSkeletonData* self) {
 	for (i = 0; i < self->ikConstraintsCount; ++i)
 		spIkConstraintData_dispose(self->ikConstraints[i]);
 	FREE(self->ikConstraints);
+
+	for (i = 0; i < self->transformConstraintsCount; ++i)
+		spTransformConstraintData_dispose(self->transformConstraints[i]);
+	FREE(self->transformConstraints);
+
+	for (i = 0; i < self->pathConstraintsCount; i++)
+		spPathConstraintData_dispose(self->pathConstraints[i]);
+	FREE(self->pathConstraints);
 
 	FREE(self->hash);
 	FREE(self->version);
@@ -118,10 +126,23 @@ spAnimation* spSkeletonData_findAnimation (const spSkeletonData* self, const cha
 	return 0;
 }
 
-spIkConstraintData* spSkeletonData_findIkConstraint (const spSkeletonData* self, const char* ikConstraintName) {
+spIkConstraintData* spSkeletonData_findIkConstraint (const spSkeletonData* self, const char* constraintName) {
 	int i;
 	for (i = 0; i < self->ikConstraintsCount; ++i)
-		if (strcmp(self->ikConstraints[i]->name, ikConstraintName) == 0) return self->ikConstraints[i];
+		if (strcmp(self->ikConstraints[i]->name, constraintName) == 0) return self->ikConstraints[i];
 	return 0;
 }
 
+spTransformConstraintData* spSkeletonData_findTransformConstraint (const spSkeletonData* self, const char* constraintName) {
+	int i;
+	for (i = 0; i < self->transformConstraintsCount; ++i)
+		if (strcmp(self->transformConstraints[i]->name, constraintName) == 0) return self->transformConstraints[i];
+	return 0;
+}
+
+spPathConstraintData* spSkeletonData_findPathConstraint (const spSkeletonData* self, const char* constraintName) {
+	int i;
+	for (i = 0; i < self->pathConstraintsCount; ++i)
+		if (strcmp(self->pathConstraints[i]->name, constraintName) == 0) return self->pathConstraints[i];
+	return 0;
+}

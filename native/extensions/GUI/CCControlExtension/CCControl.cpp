@@ -73,7 +73,7 @@ bool Control::init()
         setSelected(false);
         setHighlighted(false);
 
-        auto dispatcher = _director->getEventDispatcher();
+        auto dispatcher = Director::getInstance()->getEventDispatcher();
         auto touchListener = EventListenerTouchOneByOne::create();
         touchListener->setSwallowTouches(true);
         touchListener->onTouchBegan = CC_CALLBACK_2(Control::onTouchBegan, this);
@@ -119,11 +119,11 @@ void Control::sendActionsForControlEvents(EventType controlEvents)
 
 #if CC_ENABLE_SCRIPT_BINDING
             //Call ScriptFunc
-            if (kScriptTypeLua == _scriptType && cocos2d::ScriptEngineManager::ShareInstance)
+            if (kScriptTypeLua == _scriptType)
             {
                 cocos2d::BasicScriptData data(this,(void*)&controlEvents);
                 cocos2d::ScriptEvent event(cocos2d::kControlEvent,(void*)&data);
-                cocos2d::ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+                cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
             }
 #endif
         }

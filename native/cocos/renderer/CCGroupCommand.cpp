@@ -59,7 +59,7 @@ int GroupCommandManager::getGroupID()
 
     //Create new ID
 //    int newID = _groupMapping.size();
-    int newID = Director::DirectorInstance->getRenderer()->createRenderQueue();
+    int newID = Director::getInstance()->getRenderer()->createRenderQueue();
     _groupMapping[newID] = true;
 
     return newID;
@@ -74,22 +74,20 @@ void GroupCommandManager::releaseGroupID(int groupID)
 GroupCommand::GroupCommand()
 {
     _type = RenderCommand::Type::GROUP_COMMAND;
-    _renderQueueID = Director::DirectorInstance->getRenderer()->getGroupCommandManager()->getGroupID();
+    _renderQueueID = Director::getInstance()->getRenderer()->getGroupCommandManager()->getGroupID();
 }
 
 void GroupCommand::init(float globalOrder)
 {
     _globalOrder = globalOrder;
-    auto manager = Director::DirectorInstance->getRenderer()->getGroupCommandManager();
+    auto manager = Director::getInstance()->getRenderer()->getGroupCommandManager();
     manager->releaseGroupID(_renderQueueID);
     _renderQueueID = manager->getGroupID();
 }
 
 GroupCommand::~GroupCommand()
 {
-    if(Director::DirectorInstance)
-        Director::DirectorInstance->getRenderer()->getGroupCommandManager()->releaseGroupID(_renderQueueID);
+    Director::getInstance()->getRenderer()->getGroupCommandManager()->releaseGroupID(_renderQueueID);
 }
 
 NS_CC_END
-

@@ -125,10 +125,10 @@
     <ClCompile Include="..\manual\js_module_register.cpp">
       <Filter>manual</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_auto_classes.cpp">
+    <ClCompile Include="..\auto\chipmunk\js_bindings_chipmunk_auto_classes.cpp">
       <Filter>manual\chipmunk</Filter>
     </ClCompile>
-    <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_functions.cpp">
+    <ClCompile Include="..\auto\chipmunk\js_bindings_chipmunk_functions.cpp">
       <Filter>manual\chipmunk</Filter>
     </ClCompile>
     <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_manual.cpp">
@@ -244,17 +244,17 @@
     <ClInclude Include="..\manual\js_module_register.h">
       <Filter>manual</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_auto_classes.h">
-      <Filter>manual\chipmunk</Filter>
+    <ClInclude Include="..\auto\js_bindings_chipmunk_auto_classes.h">
+      <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_auto_classes_registration.h">
-      <Filter>manual\chipmunk</Filter>
+    <ClInclude Include="..\auto\js_bindings_chipmunk_auto_classes_registration.h">
+      <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_functions.h">
-      <Filter>manual\chipmunk</Filter>
+    <ClInclude Include="..\auto\js_bindings_chipmunk_functions.h">
+      <Filter>auto</Filter>
     </ClInclude>
-    <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_functions_registration.h">
-      <Filter>manual\chipmunk</Filter>
+    <ClInclude Include="..\auto\js_bindings_chipmunk_functions_registration.h">
+      <Filter>auto</Filter>
     </ClInclude>
     <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_manual.h">
       <Filter>manual\chipmunk</Filter>

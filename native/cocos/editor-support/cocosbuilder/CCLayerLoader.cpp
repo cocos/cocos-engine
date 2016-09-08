@@ -1,4 +1,4 @@
-#include "CCLayerLoader.h"
+#include "editor-support/cocosbuilder/CCLayerLoader.h"
 
 
 using namespace cocos2d;
@@ -43,4 +43,3 @@ void LayerLoader::onHandlePropTypeCheck(Node * pNode, Node * pParent, const char
 #elif _MSC_VER >= 1400 //vs 2005 or higher
 #pragma warning (pop)
 #endif
-

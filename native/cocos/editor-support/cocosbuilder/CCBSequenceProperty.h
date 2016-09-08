@@ -3,7 +3,7 @@
 
 #include "base/CCRef.h"
 #include "base/CCVector.h"
-#include "CCBKeyframe.h"
+#include "editor-support/cocosbuilder/CCBKeyframe.h"
 
 namespace cocosbuilder {
 
@@ -39,4 +39,3 @@ private:
 }
 
 #endif // __CCB_SEQUENCE_PROPERTY_H__
-

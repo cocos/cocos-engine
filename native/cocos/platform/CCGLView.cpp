@@ -101,6 +101,7 @@ GLContextAttrs GLView::getGLContextAttrs()
 GLView::GLView()
 : _scaleX(1.0f)
 , _scaleY(1.0f)
+, _antiAliasEnabled(true)
 , _resolutionPolicy(ResolutionPolicy::UNKNOWN)
 {
 }
@@ -149,7 +150,7 @@ void GLView::updateDesignResolutionSize()
         _viewPortRect.setRect((_screenSize.width - viewPortW) / 2, (_screenSize.height - viewPortH) / 2, viewPortW, viewPortH);
 
         // reset director's member variables to fit visible rect
-        auto director = Director::DirectorInstance;
+        auto director = Director::getInstance();
         director->_winSizeInPoints = getDesignResolutionSize();
         director->_isStatusLabelUpdated = true;
         director->setProjection(director->getProjection());
@@ -183,7 +184,7 @@ const Size& GLView::getFrameSize() const
 
 void GLView::setFrameSize(float width, float height)
 {
-    _designResolutionSize = _screenSize = Size(width, height);
+    _screenSize = Size(width, height);
 }
 
 Rect GLView::getVisibleRect() const
@@ -306,7 +307,7 @@ void GLView::handleTouchesBegin(int num, intptr_t ids[], float xs[], float ys[])
     }
 
     touchEvent._eventCode = EventTouch::EventCode::BEGAN;
-    auto dispatcher = Director::DirectorInstance->getEventDispatcher();
+    auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(&touchEvent);
 }
 
@@ -363,7 +364,7 @@ void GLView::handleTouchesMove(int num, intptr_t ids[], float xs[], float ys[], 
     }
 
     touchEvent._eventCode = EventTouch::EventCode::MOVED;
-    auto dispatcher = Director::DirectorInstance->getEventDispatcher();
+    auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(&touchEvent);
 }
 
@@ -417,7 +418,7 @@ void GLView::handleTouchesOfEndOrCancel(EventTouch::EventCode eventCode, int num
     }
 
     touchEvent._eventCode = eventCode;
-    auto dispatcher = Director::DirectorInstance->getEventDispatcher();
+    auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->dispatchEvent(&touchEvent);
 
     for (auto& touch : touchEvent._touches)
@@ -457,5 +458,38 @@ float GLView::getScaleY() const
     return _scaleY;
 }
 
-NS_CC_END
+void GLView::renderScene(Scene* scene, Renderer* renderer)
+{
+    CCASSERT(scene, "Invalid Scene");
+    CCASSERT(renderer, "Invalid Renderer");
 
+    scene->render(renderer, Mat4::IDENTITY, nullptr);
+}
+
+bool GLView::isAntiAliasEnabled() const
+{
+    return _antiAliasEnabled;
+}
+
+void GLView::enableAntiAlias(bool enabled)
+{
+    if (_antiAliasEnabled == enabled) {
+        return;
+    }
+    _antiAliasEnabled = enabled;
+
+    cocos2d::Vector<Texture2D*> list = Director::getInstance()->getTextureCache()->getAllTextures();
+    for (size_t i = 0; i < list.size(); i++) {
+        Texture2D* tex = list.at(i);
+        if (tex) {
+            if (enabled) {
+                tex->setAntiAliasTexParameters();
+            }
+            else {
+                tex->setAliasTexParameters();
+            }
+        }
+    }
+}
+
+NS_CC_END

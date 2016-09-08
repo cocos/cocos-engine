@@ -242,7 +242,16 @@ public:
      *
      * @return The object groups.
      */
-    Vector<TMXObjectGroup*> getObjectGroups();
+    inline const Vector<TMXObjectGroup*>& getObjectGroups() const { return _objectGroups; };
+    inline Vector<TMXObjectGroup*>& getObjectGroups() { return _objectGroups; };
+    
+    /** Set the object groups. 
+     *
+     * @param groups The object groups.
+     */
+    inline void setObjectGroups(const Vector<TMXObjectGroup*>& groups) {
+        _objectGroups = groups;
+    };
     
     /** Properties. 
      *
@@ -294,6 +303,8 @@ protected:
     Size _tileSize;
     /** map orientation */
     int _mapOrientation;
+    /** object groups */
+    Vector<TMXObjectGroup*> _objectGroups;
     /** properties */
     ValueMap _properties;
     

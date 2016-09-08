@@ -71,7 +71,7 @@ public:
     /**
      * Destroys the async task pool.
      */
-    static void destoryInstance();
+    static void destroyInstance();
 
     /**
      * Stop tasks.
@@ -218,4 +218,3 @@ NS_CC_END
 // end group
 /// @}
 #endif //__CCSYNC_TASK_POOL_H_
-

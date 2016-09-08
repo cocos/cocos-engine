@@ -25,10 +25,10 @@ THE SOFTWARE.
 #ifndef __CC_EXTENTIONS_CCCOMATTRIBUTE_H__
 #define __CC_EXTENTIONS_CCCOMATTRIBUTE_H__
 
-#include "CCComBase.h"
+#include "editor-support/cocostudio/CCComBase.h"
 #include "2d/CCComponent.h"
 #include "base/CCValue.h"
-#include "cocostudio/CocosStudioExport.h"
+#include "editor-support/cocostudio/CocosStudioExport.h"
 
 namespace cocostudio {
 
@@ -39,17 +39,17 @@ public:
     /**
      * @js ctor
      */
-    ComAttribute();
+    ComAttribute(void);
     /**
      * @js NA
      * @lua NA
      */
-    virtual ~ComAttribute();
+    virtual ~ComAttribute(void);
 
 public:
     const static std::string COMPONENT_NAME;
 
-    static ComAttribute* create();
+    static ComAttribute* create(void);
     virtual bool init() override;
     virtual bool serialize(void* r) override;
 
@@ -69,5 +69,4 @@ private:
 
 }
 
-#endif  // __FUNDATION__CCCOMPONENT_H__
-
+#endif  // __CC_EXTENTIONS_CCCOMATTRIBUTE_H__

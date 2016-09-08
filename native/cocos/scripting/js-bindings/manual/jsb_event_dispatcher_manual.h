@@ -23,8 +23,8 @@
 #ifndef __cocos2d_js_bindings__jsb_event_dispatcher__
 #define __cocos2d_js_bindings__jsb_event_dispatcher__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
 
 bool js_EventListenerTouchOneByOne_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_EventListenerTouchAllAtOnce_create(JSContext *cx, uint32_t argc, jsval *vp);
@@ -33,4 +33,3 @@ bool js_EventListenerMouse_create(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_EventListenerFocus_create(JSContext *cx, uint32_t argc, jsval *vp);
 
 #endif /* defined(__cocos2d_js_bindings__jsb_event_dispatcher__) */
-

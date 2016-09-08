@@ -20,8 +20,6 @@ jni/Java_org_cocos2dx_lib_Cocos2dxRenderer.cpp \
 jni/JniHelper.cpp \
 jni/TouchesJni.cpp
 
-LOCAL_WHOLE_STATIC_LIBRARIES := cpufeatures
-
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \

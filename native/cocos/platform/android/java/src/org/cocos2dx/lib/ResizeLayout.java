@@ -26,20 +26,14 @@ package org.cocos2dx.lib;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Message;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
-import java.lang.ref.WeakReference;
-
 public class ResizeLayout extends FrameLayout {
     private  boolean mEnableForceDoLayout = false;
-    private MyLayoutHandler myLayoutHandler = null;
 
     public ResizeLayout(Context context){
         super(context);
-
-        myLayoutHandler = new MyLayoutHandler(this);
     }
 
     public ResizeLayout(Context context, AttributeSet attrs) {
@@ -50,29 +44,6 @@ public class ResizeLayout extends FrameLayout {
         mEnableForceDoLayout = flag;
     }
 
-    static class MyLayoutHandler extends Handler {
-        WeakReference<ResizeLayout> mReference;
-
-        MyLayoutHandler(ResizeLayout layout)
-        {
-            mReference = new WeakReference<ResizeLayout>(layout);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 1024: {
-                    ResizeLayout layout = mReference.get();
-                    layout.requestLayout();
-                    layout.invalidate();
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-    }
-
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
@@ -81,8 +52,16 @@ public class ResizeLayout extends FrameLayout {
             * is paned.  We refresh the layout in 24 frames per seconds.
             * When the editBox is lose focus or when user begin to type, the do layout is disabled.
             */
-            myLayoutHandler.sendEmptyMessageDelayed(1024, 1000 / 24);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    //Do something after 100ms
+                    requestLayout();
+                    invalidate();
+                }
+            }, 1000 / 24);
+
         }
     }
 }
-

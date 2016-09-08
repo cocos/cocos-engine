@@ -136,10 +136,16 @@ static NSSize _calculateRealSizeForString(NSAttributedString **str, id font, NSS
             NSMutableAttributedString *mutableString = [[*str mutableCopy] autorelease];
             *str = __attributedStringWithFontSize(mutableString, fontSize);
 
-            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( CGFLOAT_MAX, CGFLOAT_MAX)
-                                            options:NSStringDrawingUsesLineFragmentOrigin
-                                            context:nil].size;
-            
+#ifdef __MAC_10_11
+    #if __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_11
+            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
+    #else
+            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin].size;
+    #endif
+#else
+            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin].size;
+#endif
+
             if(fitSize.width == 0 || fitSize.height == 0) continue;
             actualSize.size = fitSize;
 
@@ -165,10 +171,16 @@ static NSSize _calculateRealSizeForString(NSAttributedString **str, id font, NSS
             }
             NSMutableAttributedString *mutableString = [[*str mutableCopy] autorelease];
             *str = __attributedStringWithFontSize(mutableString, fontSize);
-            
-            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( constrainSize.width, CGFLOAT_MAX)
-                                                     options:NSStringDrawingUsesLineFragmentOrigin
-                                                     context:nil].size;
+
+#ifdef __MAC_10_11
+    #if __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_10_11
+            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( constrainSize.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin context:nil].size;
+    #else
+            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( constrainSize.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin].size;
+    #endif
+#else
+            CGSize fitSize = [*str boundingRectWithSize:CGSizeMake( constrainSize.width, CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin].size;
+#endif
             
             if(fitSize.width == 0 || fitSize.height == 0) continue;
             actualSize.size = fitSize;
@@ -232,7 +244,6 @@ static CGFloat _calculateTextDrawStartHeight(cocos2d::Device::TextAlign align, C
     return startH;
 }
 
-
 static bool _initWithString(const char * text, Device::TextAlign align, const char * fontName, int size, tImageInfo* info, const Color3B* fontColor, int fontAlpha, bool enableWrap, int overflow, bool enableBold)
 {
     bool ret = false;
@@ -242,6 +253,7 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
     
     do {
         NSString * string  = [NSString stringWithUTF8String:text];
+        CC_BREAK_IF(!string);
         
         id font = _createSystemFont(fontName, size, enableBold);
         CC_BREAK_IF(!font);
@@ -335,7 +347,7 @@ static bool _initWithString(const char * text, Device::TextAlign align, const ch
     return ret;
 }
 
-Data Device::getTextureDataForText(const std::string& text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
+Data Device::getTextureDataForText(const char * text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
 {
     Data ret;
     do {
@@ -343,15 +355,15 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
         info.width = textDefinition._dimensions.width;
         info.height = textDefinition._dimensions.height;
 
-        if (! _initWithString(text.c_str(), align, textDefinition._fontName.c_str(),
+        if (! _initWithString(text, align, textDefinition._fontName.c_str(),
                               textDefinition._fontSize, &info, &textDefinition._fontFillColor,
                               textDefinition._fontAlpha, textDefinition._enableWrap, textDefinition._overflow,
                               textDefinition._enableBold))
         {
             break;
         }
-        height = info.height;
-        width = info.width;
+        height = (short)info.height;
+        width = (short)info.width;
         ret.fastSet(info.data,width * height * 4);
         hasPremultipliedAlpha = true;
     } while (0);
@@ -372,4 +384,3 @@ void Device::vibrate(float duration)
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC
-

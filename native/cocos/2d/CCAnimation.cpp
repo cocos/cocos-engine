@@ -37,11 +37,12 @@ AnimationFrame* AnimationFrame::create(SpriteFrame* spriteFrame, float delayUnit
     if (ret && ret->initWithSpriteFrame(spriteFrame, delayUnits, userInfo))
     {
         ret->autorelease();
-        return ret;
     }
-    
-    delete ret;
-    return nullptr;
+    else
+    {
+        CC_SAFE_DELETE(ret);
+    }
+    return ret;
 }
 
 AnimationFrame::AnimationFrame()
@@ -70,9 +71,13 @@ AnimationFrame::~AnimationFrame()
 AnimationFrame* AnimationFrame::clone() const
 {
     // no copy constructor
-    return AnimationFrame::create(_spriteFrame->clone(),
-                                  _delayUnits,
-                                  _userInfo);
+    auto frame = new (std::nothrow) AnimationFrame();
+    frame->initWithSpriteFrame(_spriteFrame->clone(),
+                               _delayUnits,
+                               _userInfo);
+
+    frame->autorelease();
+    return frame;
 }
 
 // implementation of Animation
@@ -150,7 +155,7 @@ Animation::Animation()
 
 }
 
-Animation::~Animation()
+Animation::~Animation(void)
 {
     CCLOGINFO("deallocing Animation: %p", this);
 }
@@ -166,17 +171,11 @@ void Animation::addSpriteFrame(SpriteFrame* spriteFrame)
 
 void Animation::addSpriteFrameWithFile(const std::string& filename)
 {
-    Texture2D *texture = Director::DirectorInstance->getTextureCache()->addImage(filename);
+    Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(filename);
     Rect rect = Rect::ZERO;
-    CCASSERT(texture, "Animation::addSpriteFrameWithFile texture should not null");
-    if (texture)
-    {
-        rect.size = texture->getContentSize();
-        SpriteFrame *frame = SpriteFrame::createWithTexture(texture, rect);
-        addSpriteFrame(frame);
-    }
-    else
-        log("Animation::addSpriteFrameWithFile error: faile to add SpriteFrame(%s)", filename.c_str());
+    rect.size = texture->getContentSize();
+    SpriteFrame *frame = SpriteFrame::createWithTexture(texture, rect);
+    addSpriteFrame(frame);
 }
 
 void Animation::addSpriteFrameWithTexture(Texture2D *pobTexture, const Rect& rect)
@@ -185,7 +184,7 @@ void Animation::addSpriteFrameWithTexture(Texture2D *pobTexture, const Rect& rec
     addSpriteFrame(frame);
 }
 
-float Animation::getDuration() const
+float Animation::getDuration(void) const
 {
     return _totalDelayUnits * _delayPerUnit;
 }

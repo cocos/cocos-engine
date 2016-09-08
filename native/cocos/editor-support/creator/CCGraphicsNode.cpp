@@ -214,7 +214,7 @@ void GraphicsNode::arc(float cx, float cy, float r, float startAngle, float endA
 
     // Clamp angles
     da = endAngle - startAngle;
-    if (!counterclockwise) {
+    if (counterclockwise) {
         if (absf(da) >= PI_2) {
             da = PI_2;
         } else {
@@ -233,7 +233,7 @@ void GraphicsNode::arc(float cx, float cy, float r, float startAngle, float endA
     hda = (da / (float)ndivs) / 2.0f;
     kappa = absf(4.0f / 3.0f * (1.0f - cosf(hda)) / sinf(hda));
 
-    if (counterclockwise) {
+    if (!counterclockwise) {
         kappa = -kappa;
     }
 
@@ -371,13 +371,13 @@ void GraphicsNode::fill()
 void GraphicsNode::clear(bool clean)
 {
     if (clean) {
-        for (int i = _paths.size() - 1; i >= 0; i--) {
+        for (int i = (int)_paths.size() - 1; i >= 0; i--) {
             Path* path = _paths[i];
             _paths.pop_back();
             delete path;
         }
         
-        for (int i = _points.size() - 1; i >=0; i--) {
+        for (int i = (int)_points.size() - 1; i >=0; i--) {
             VecPoint* p = _points[i];
             _points.pop_back();
             delete p;
@@ -567,7 +567,7 @@ void GraphicsNode::expandStroke(float w, int lineCap, int lineJoin, float miterL
     cverts = 0;
     for (i = _pathOffset; i < _nPath; i++) {
         Path* path = _paths[i];
-        int pathSize = path->points.size();
+        int pathSize = (int)path->points.size();
 
         int loop = (path->closed == 0) ? 0 : 1;
         if (lineJoin == JOIN_ROUND)
@@ -594,7 +594,7 @@ void GraphicsNode::expandStroke(float w, int lineCap, int lineJoin, float miterL
         Path* path = _paths[i];
 
         VecPointVector& pts = path->points;
-        int pathSize = path->points.size();
+        int pathSize = (int)path->points.size();
 
         VecPoint* p0;
         VecPoint* p1;
@@ -690,7 +690,7 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
     cverts = 0;
     for (i = _pathOffset; i < _nPath; i++) {
         Path* path = _paths[i];
-        int pathSize = path->points.size();
+        int pathSize = (int)path->points.size();
 
         cverts += pathSize;// + path->nbevel + 1;
         if (fringe) {
@@ -710,7 +710,7 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
         int offset = _vertsOffset;
         
         VecPointVector& pts = path->points;
-        int pathSize = pts.size();
+        int pathSize = (int)pts.size();
 
         VecPoint* p0;
         VecPoint* p1;
@@ -763,7 +763,7 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
             // indices
             std::vector<int> indices;
             Triangulate::process(verts, 0, _vertsOffset - offset, indices);
-            int nIndices = indices.size();
+            int nIndices = (int)indices.size();
             
             allocIndices(nIndices);
             
@@ -826,8 +826,8 @@ void GraphicsNode::expandFill(float w, int lineJoin, float miterLimit)
             vset(verts[1].x, verts[1].y, ru,1);
             
             // fill stroke indices
-            int nVerts = _vertsOffset - offset;
-            int indicesOffset = _indicesOffset;
+            nVerts = _vertsOffset - offset;
+            indicesOffset = _indicesOffset;
             
             allocIndices((nVerts - 2) * 3);
             
@@ -862,7 +862,7 @@ void GraphicsNode::flattenPaths()
             p0 = pts.back();
         }
 
-        for (int j = 0, size = pts.size(); j < size; j++) {
+        for (int j = 0, size = (int)pts.size(); j < size; j++) {
             // Calculate segment direction and length
             p0->dx = p1->x - p0->x;
             p0->dy = p1->y - p0->y;
@@ -897,7 +897,7 @@ void GraphicsNode::calculateJoins(float w, int lineJoin, float miterLimit)
 
         path->nbevel = 0;
 
-        for (j = 0, jj = pts.size(); j < jj; j++) {
+        for (j = 0, jj = (int)pts.size(); j < jj; j++) {
             float dlx0, dly0, dlx1, dly1, dmr2, cross, limit;
             dlx0 = p0->dy;
             dly0 = -p0->dx;

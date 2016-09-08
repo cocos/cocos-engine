@@ -99,7 +99,7 @@ public:
 
     }
 
-    bool setFont(const char * pFontName = nullptr, int nSize = 0)
+    bool setFont(const char * pFontName = nullptr, int nSize = 0, bool enableBold = false)
     {
         bool bRet = false;
         do
@@ -110,7 +110,7 @@ public:
             LOGFONTA    tNewFont = {0};
             LOGFONTA    tOldFont = {0};
             GetObjectA(hDefFont, sizeof(tNewFont), &tNewFont);
-            if (fontName.c_str())
+            if (!fontName.empty())
             {
                 // create font from ttf file
                 if (FileUtils::getInstance()->getFileExtension(fontName) == ".ttf")
@@ -139,16 +139,27 @@ public:
                 tNewFont.lfCharSet = DEFAULT_CHARSET;
                 strcpy_s(tNewFont.lfFaceName, LF_FACESIZE, fontName.c_str());
             }
+
             if (nSize)
             {
                 tNewFont.lfHeight = -nSize;
             }
-            GetObjectA(_font,  sizeof(tOldFont), &tOldFont);
+
+            if (enableBold)
+            {
+                tNewFont.lfWeight = FW_BOLD;
+            }
+            else
+            {
+                tNewFont.lfWeight = FW_NORMAL;
+            }
+
+            GetObjectA(_font, sizeof(tOldFont), &tOldFont);
 
             if (tOldFont.lfHeight == tNewFont.lfHeight
+                && tOldFont.lfWeight == tNewFont.lfWeight
                 && 0 == strcmp(tOldFont.lfFaceName, tNewFont.lfFaceName))
             {
-                // already has the font
                 bRet = true;
                 break;
             }
@@ -175,7 +186,7 @@ public:
 
             // disable Cleartype
             tNewFont.lfQuality = ANTIALIASED_QUALITY;
-
+		
             // create new font
             _font = CreateFontIndirectA(&tNewFont);
             if (! _font)
@@ -243,7 +254,7 @@ public:
     int drawText(const char * pszText, SIZE& tSize, Device::TextAlign eAlign)
     {
         int nRet = 0;
-        wchar_t * pwszBuffer = 0;
+        wchar_t * pwszBuffer = nullptr;
         wchar_t* fixedText = nullptr;
         do
         {
@@ -431,14 +442,14 @@ static BitmapDC& sharedBitmapDC()
     return s_BmpDC;
 }
 
-Data Device::getTextureDataForText(const std::string& text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
+Data Device::getTextureDataForText(const char * text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha)
 {
     Data ret;
     do
     {
         BitmapDC& dc = sharedBitmapDC();
 
-        if (! dc.setFont(textDefinition._fontName.c_str(), textDefinition._fontSize))
+        if (! dc.setFont(textDefinition._fontName.c_str(), textDefinition._fontSize, textDefinition._enableBold))
         {
             log("Can't found font(%s), use system default", textDefinition._fontName.c_str());
         }
@@ -446,7 +457,7 @@ Data Device::getTextureDataForText(const std::string& text, const FontDefinition
         // draw text
         // does changing to SIZE here affects the font size by rounding from float?
         SIZE size = {(LONG) textDefinition._dimensions.width,(LONG) textDefinition._dimensions.height};
-        CC_BREAK_IF(! dc.drawText(text.c_str(), size, align));
+        CC_BREAK_IF(! dc.drawText(text, size, align));
 
         int dataLen = size.cx * size.cy * 4;
         unsigned char* dataBuf = (unsigned char*)malloc(sizeof(unsigned char) * dataLen);
@@ -504,4 +515,3 @@ void Device::vibrate(float duration)
 NS_CC_END
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-

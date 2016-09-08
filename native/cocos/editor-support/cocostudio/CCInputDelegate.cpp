@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocostudio/CCInputDelegate.h"
+#include "editor-support/cocostudio/CCInputDelegate.h"
 #include "base/CCDirector.h"
 #include "platform/CCDevice.h"
 #include "base/CCEventListenerTouch.h"
@@ -34,7 +34,7 @@ using namespace cocos2d;
 
 namespace cocostudio {
 
-InputDelegate::InputDelegate()
+InputDelegate::InputDelegate(void)
 : _touchEnabled(false)
 , _touchListener(nullptr)
 , _accelerometerEnabled(false)
@@ -47,7 +47,7 @@ InputDelegate::InputDelegate()
 
 }
 
-InputDelegate::~InputDelegate()
+InputDelegate::~InputDelegate(void)
 {
     auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->removeEventListener(_touchListener);
@@ -242,4 +242,3 @@ void InputDelegate::setKeypadEnabled(bool enabled)
 
 
 }
-

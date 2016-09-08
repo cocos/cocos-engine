@@ -27,8 +27,9 @@ THE SOFTWARE.
 #include <map>
 #include <cstdlib>
 
-#include "MciPlayer.h"
-#include "cocos2d.h"
+#include "audio/win32/MciPlayer.h"
+#include "platform/CCFileUtils.h"
+
 USING_NS_CC;
 
 using namespace std;
@@ -81,7 +82,7 @@ void SimpleAudioEngine::end()
     while (p != sharedList().end())
     {
         delete p->second;
-        p->second = NULL;
+        p->second = nullptr;
         p++;
     }
     sharedList().clear();
@@ -250,7 +251,7 @@ void SimpleAudioEngine::unloadEffect(const char* pszFilePath)
     if (p != sharedList().end())
     {
         delete p->second;
-        p->second = NULL;
+        p->second = nullptr;
         sharedList().erase(nID);
     }
 }
@@ -301,4 +302,3 @@ unsigned int _Hash(const char *key)
 }
 
 } // end of namespace CocosDenshion
-

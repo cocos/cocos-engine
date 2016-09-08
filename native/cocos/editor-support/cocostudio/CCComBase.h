@@ -26,19 +26,19 @@ THE SOFTWARE.
 #define __CC_EXTENTIONS_CCCOMBASE_H__
 
 #include <string>
-#include "DictionaryHelper.h"
-#include "cocostudio/CocosStudioExport.h"
+#include "editor-support/cocostudio/DictionaryHelper.h"
+#include "editor-support/cocostudio/CocosStudioExport.h"
 #include "base/ObjectFactory.h"
-#include "CocoLoader.h"
+#include "editor-support/cocostudio/CocoLoader.h"
 
 
 #define DECLARE_CLASS_COMPONENT_INFO \
     public: \
         static cocos2d::ObjectFactory::TInfo Type; \
-        static cocos2d::Ref* createInstance(); \
+        static cocos2d::Ref* createInstance(void); \
 
 #define IMPLEMENT_CLASS_COMPONENT_INFO(className) \
-        cocos2d::Ref* className::createInstance() \
+        cocos2d::Ref* className::createInstance(void) \
         { \
             return className::create(); \
         } \
@@ -62,4 +62,3 @@ struct CC_STUDIO_DLL SerData
 };
 
 #endif
-

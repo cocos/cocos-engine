@@ -1,9 +1,9 @@
 
-#include "CCClippingRectangleNode.h"
+#include "2d/CCClippingRectangleNode.h"
 #include "base/CCDirector.h"
 #include "renderer/CCRenderer.h"
 #include "math/Vec2.h"
-#include "CCGLView.h"
+#include "platform/CCGLView.h"
 
 NS_CC_BEGIN
 
@@ -52,7 +52,7 @@ void ClippingRectangleNode::onBeforeVisitScissor()
         }
 
         const Point pos = convertToWorldSpace(Point(_clippingRegion.origin.x, _clippingRegion.origin.y));
-        GLView* glView = _director->getOpenGLView();
+        GLView* glView = Director::getInstance()->getOpenGLView();
         glView->setScissorInPoints(pos.x,
                                    pos.y,
                                    _clippingRegion.size.width * scaleX,

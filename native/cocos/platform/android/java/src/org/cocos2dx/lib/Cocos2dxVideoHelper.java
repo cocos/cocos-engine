@@ -40,16 +40,20 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 public class Cocos2dxVideoHelper {
-    static VideoHandler sVideoHandler = null;
 
-    private static SparseArray<Cocos2dxVideoView> mVideoViews = null;
+    private FrameLayout mLayout = null;
+    private Cocos2dxActivity mActivity = null;  
+    private static SparseArray<Cocos2dxVideoView> sVideoViews = null;
+    static VideoHandler mVideoHandler = null;
     private static Handler sHandler = null;
-
-
-    Cocos2dxVideoHelper()
+    
+    Cocos2dxVideoHelper(Cocos2dxActivity activity,FrameLayout layout)
     {
-        sVideoHandler = new VideoHandler(this);
-        mVideoViews = new SparseArray<Cocos2dxVideoView>();
+        mActivity = activity;
+        mLayout = layout;
+        
+        mVideoHandler = new VideoHandler(this);
+        sVideoViews = new SparseArray<Cocos2dxVideoView>();
         sHandler = new Handler(Looper.myLooper());
     }
 
@@ -180,57 +184,57 @@ public class Cocos2dxVideoHelper {
 
         @Override
         public void onVideoEvent(int tag,int event) {
-            Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new VideoEventRunnable(tag, event));
+            mActivity.runOnGLThread(new VideoEventRunnable(tag, event));
         }
     };
 
     public static int createVideoWidget() {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskCreate;
         msg.arg1 = videoTag;
-        sVideoHandler.sendMessageDelayed(msg, 0);
-
+        mVideoHandler.sendMessage(msg);
+        
         return videoTag++;
     }
 
     private void _createVideoView(int index) {
-        Cocos2dxVideoView videoView = new Cocos2dxVideoView(Cocos2dxActivity.COCOS_ACTIVITY,index);
-        mVideoViews.put(index, videoView);
+        Cocos2dxVideoView videoView = new Cocos2dxVideoView(mActivity,index);
+        sVideoViews.put(index, videoView);
         FrameLayout.LayoutParams lParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
-        Cocos2dxActivity.ROOT_LAYOUT.addView(videoView, lParams);
+        mLayout.addView(videoView, lParams);
         videoView.setZOrderOnTop(true);
         videoView.setOnCompletionListener(videoEventListener);
     }
 
     public static void removeVideoWidget(int index){
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskRemove;
         msg.arg1 = index;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _removeVideoView(int index) {
-        Cocos2dxVideoView view = mVideoViews.get(index);
+        Cocos2dxVideoView view = sVideoViews.get(index);
         if (view != null) {
             view.stopPlayback();
-            mVideoViews.remove(index);
-            Cocos2dxActivity.ROOT_LAYOUT.removeView(view);
+            sVideoViews.remove(index);
+            mLayout.removeView(view);
         }
     }
 
     public static void setVideoUrl(int index, int videoSource, String videoUrl) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskSetSource;
         msg.arg1 = index;
         msg.arg2 = videoSource;
         msg.obj = videoUrl;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _setVideoURL(int index, int videoSource, String videoUrl) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             switch (videoSource) {
             case 0:
@@ -246,22 +250,22 @@ public class Cocos2dxVideoHelper {
     }
 
     public static void setVideoRect(int index, int left, int top, int maxWidth, int maxHeight) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskSetRect;
         msg.arg1 = index;
         msg.obj = new Rect(left, top, maxWidth, maxHeight);
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _setVideoRect(int index, int left, int top, int maxWidth, int maxHeight) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.setVideoRect(left,top,maxWidth,maxHeight);
         }
     }
 
     public static void setFullScreenEnabled(int index, boolean enabled, int width, int height) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskFullScreen;
         msg.arg1 = index;
         if (enabled) {
@@ -270,108 +274,108 @@ public class Cocos2dxVideoHelper {
             msg.arg2 = 0;
         }
         msg.obj = new Rect(0, 0, width, height);
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _setFullScreenEnabled(int index, boolean enabled, int width,int height) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.setFullScreenEnabled(enabled, width, height);
         }
     }
 
     private void onBackKeyEvent() {
-        int viewCount = mVideoViews.size();
+        int viewCount = sVideoViews.size();
         for (int i = 0; i < viewCount; i++) {
-            int key = mVideoViews.keyAt(i);
-            Cocos2dxVideoView videoView = mVideoViews.get(key);
+            int key = sVideoViews.keyAt(i);
+            Cocos2dxVideoView videoView = sVideoViews.get(key);
             if (videoView != null) {
                 videoView.setFullScreenEnabled(false, 0, 0);
-                Cocos2dxActivity.COCOS_ACTIVITY.runOnGLThread(new VideoEventRunnable(key, KeyEventBack));
+                mActivity.runOnGLThread(new VideoEventRunnable(key, KeyEventBack));
             }
         }
     }
 
     public static void startVideo(int index) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskStart;
         msg.arg1 = index;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _startVideo(int index) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.start();
         }
     }
 
     public static void pauseVideo(int index) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskPause;
         msg.arg1 = index;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _pauseVideo(int index) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.pause();
         }
     }
 
     public static void resumeVideo(int index) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskResume;
         msg.arg1 = index;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _resumeVideo(int index) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.resume();
         }
     }
 
     public static void stopVideo(int index) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskStop;
         msg.arg1 = index;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _stopVideo(int index) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.stop();
         }
     }
 
     public static void restartVideo(int index) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskRestart;
         msg.arg1 = index;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _restartVideo(int index) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.restart();
         }
     }
 
     public static void seekVideoTo(int index,int msec) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskSeek;
         msg.arg1 = index;
         msg.arg2 = msec;
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _seekVideoTo(int index,int msec) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.seekTo(msec);
         }
@@ -388,7 +392,7 @@ public class Cocos2dxVideoHelper {
         Callable<Float> callable = new Callable<Float>() {
             @Override
             public Float call() throws Exception {
-                Cocos2dxVideoView video = mVideoViews.get(index);
+                Cocos2dxVideoView video = sVideoViews.get(index);
                 float currentPosition = -1;
                 if (video != null) {
                     currentPosition = video.getCurrentPosition() / 1000.0f;
@@ -410,7 +414,7 @@ public class Cocos2dxVideoHelper {
         Callable<Float> callable = new Callable<Float>() {
             @Override
             public Float call() throws Exception {
-                Cocos2dxVideoView video = mVideoViews.get(index);
+                Cocos2dxVideoView video = sVideoViews.get(index);
                 float duration = -1;
                 if (video != null) {
                     duration = video.getDuration() / 1000.0f;
@@ -432,7 +436,7 @@ public class Cocos2dxVideoHelper {
         Callable<Boolean> callable = new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                Cocos2dxVideoView video = mVideoViews.get(index);
+                Cocos2dxVideoView video = sVideoViews.get(index);
                 return video != null && video.isPlaying();
             }
         };
@@ -448,7 +452,7 @@ public class Cocos2dxVideoHelper {
 
 
     public static void setVideoVisible(int index, boolean visible) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskSetVisible;
         msg.arg1 = index;
         if (visible) {
@@ -456,12 +460,12 @@ public class Cocos2dxVideoHelper {
         } else {
             msg.arg2 = 0;
         }
-
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _setVideoVisible(int index, boolean visible) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             if (visible) {
                 videoView.fixSize();
@@ -473,7 +477,7 @@ public class Cocos2dxVideoHelper {
     }
 
     public static void setVideoKeepRatioEnabled(int index, boolean enable) {
-        Message msg = Message.obtain();
+        Message msg = new Message();
         msg.what = VideoTaskKeepRatio;
         msg.arg1 = index;
         if (enable) {
@@ -481,14 +485,13 @@ public class Cocos2dxVideoHelper {
         } else {
             msg.arg2 = 0;
         }
-        sVideoHandler.sendMessageDelayed(msg, 0);
+        mVideoHandler.sendMessage(msg);
     }
 
     private void _setVideoKeepRatio(int index, boolean enable) {
-        Cocos2dxVideoView videoView = mVideoViews.get(index);
+        Cocos2dxVideoView videoView = sVideoViews.get(index);
         if (videoView != null) {
             videoView.setKeepRatio(enable);
         }
     }
 }
-

@@ -29,6 +29,12 @@
 #include "2d/CCNode.h"
 #include "2d/CCSprite.h"
 
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif _MSC_VER >= 1400 //vs 2005 or higher
+#pragma warning (push)
+#pragma warning (disable: 4996)
+#endif
 
 NS_CC_BEGIN
 //
@@ -182,7 +188,7 @@ void RemoveSelf::update(float time)
     _target->removeFromParentAndCleanup(_isNeedCleanUp);
 }
 
-RemoveSelf* RemoveSelf::reverse() const
+RemoveSelf *RemoveSelf::reverse() const
 {
     return RemoveSelf::create(_isNeedCleanUp);
 }
@@ -330,7 +336,7 @@ CallFunc * CallFunc::create(const std::function<void()> &func)
         return ret;
     }
 
-    delete ret;
+    CC_SAFE_DELETE(ret);
     return nullptr;
 }
 
@@ -342,6 +348,7 @@ bool CallFunc::initWithFunction(const std::function<void()> &func)
 
 CallFunc::~CallFunc()
 {
+    CC_SAFE_RELEASE(_selectorTarget);
 }
 
 CallFunc* CallFunc::clone() const
@@ -383,7 +390,7 @@ CallFuncN * CallFuncN::create(const std::function<void(Node*)> &func)
         return ret;
     }
 
-    delete ret;
+    CC_SAFE_DELETE(ret);
     return nullptr;
 }
 

@@ -81,4 +81,3 @@ NS_CC_END
  @}
  */
 #endif //_CC_BATCHCOMMAND_H_
-

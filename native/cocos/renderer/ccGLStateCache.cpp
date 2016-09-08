@@ -62,7 +62,7 @@ namespace GL {
 
 void invalidateStateCache( void )
 {
-    Director::DirectorInstance->resetMatrixStack();
+    Director::getInstance()->resetMatrixStack();
     s_currentProjectionMatrix = -1;
     s_attributeFlags = 0;
 
@@ -137,7 +137,7 @@ void blendFunc(GLenum sfactor, GLenum dfactor)
 #endif // CC_ENABLE_GL_STATE_CACHE
 }
 
-void blendResetToCache()
+void blendResetToCache(void)
 {
     glBlendEquation(GL_FUNC_ADD);
 #if CC_ENABLE_GL_STATE_CACHE
@@ -150,6 +150,15 @@ void blendResetToCache()
 void bindTexture2D(GLuint textureId)
 {
     GL::bindTexture2DN(0, textureId);
+}
+
+void bindTexture2D(Texture2D* texture)
+{
+    GL::bindTexture2DN(0, texture->getName());
+    auto alphaTexID = texture->getAlphaTextureName();
+    if (alphaTexID > 0) {
+        GL::bindTexture2DN(1, alphaTexID);
+    }
 }
 
 void bindTexture2DN(GLuint textureUnit, GLuint textureId)
@@ -268,4 +277,3 @@ void setProjectionMatrixDirty( void )
 } // Namespace GL
 
 NS_CC_END
-

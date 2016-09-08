@@ -91,10 +91,7 @@ protected:
     /** Sets current target */
     inline void setCurrentTarget(Node* target) { _currentTarget = target; };
 
-    inline long getTypeKey() const { return _typeKey; }
-
-    Type _type;     ///< Event type
-    long _typeKey;
+	Type _type;     ///< Event type
 
     bool _isStopped;       ///< whether the event has been stopped.
     Node* _currentTarget;  ///< Current target
@@ -108,4 +105,3 @@ NS_CC_END
 /// @}
 
 #endif // __CCEVENT_H__
-

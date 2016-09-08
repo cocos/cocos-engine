@@ -126,7 +126,7 @@ bool ControlSlider::initWithSprites(Sprite * backgroundSprite, Sprite* progressS
              return false;
          }
 
-        ignoreAnchorPointForPosition(false);
+        setIgnoreAnchorPointForPosition(false);
 
         this->setBackgroundSprite(backgroundSprite);
         this->setProgressSprite(progressSprite);

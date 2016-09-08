@@ -27,7 +27,7 @@
 #include "platform/CCPlatformConfig.h"
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 
-#include "HttpClient.h"
+#include "network/HttpClient.h"
 
 #include <queue>
 #include <sstream>
@@ -383,7 +383,7 @@ public:
         return header;
     }
 
-    const std::string getCookieFileName()
+    const std::string& getCookieFileName() const
     {
         return _cookieFileName;
     }
@@ -585,7 +585,7 @@ private:
             return nullptr;
         }
         char *ret = nullptr;
-        std::string strValue = JniHelper::getStringUTFCharsJNI(env, jstr);
+        std::string strValue = cocos2d::StringUtils::getStringUTFCharsJNI(env, jstr);
         ret = strdup(strValue.c_str());
         return ret;
     }
@@ -608,7 +608,7 @@ private:
         return len;
     }
 
-    const std::string getCookieString()
+    const std::string& getCookieString() const
     {
         return _responseCookies;
     }
@@ -1054,4 +1054,3 @@ const std::string& HttpClient::getSSLVerification()
 NS_CC_END
 
 #endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
-

@@ -80,6 +80,8 @@ public:
 
     virtual void setVisible(bool visible);
 
+    void setBounces(bool bounces);
+
 private:
     UIWebViewWrapper *_uiWebViewWrapper;
     WebView *_webView;
@@ -91,4 +93,3 @@ private:
 
 /// @endcond
 #endif /* __COCOS2D_UI_WEBVIEWIMPL_IOS_H_ */
-

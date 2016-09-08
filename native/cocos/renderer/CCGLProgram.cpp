@@ -33,8 +33,8 @@ THE SOFTWARE.
 #endif
 
 #include "base/CCDirector.h"
+#include "base/ccUTF8.h"
 #include "base/uthash.h"
-#include "base/CCString.h"
 #include "renderer/ccGLStateCache.h"
 #include "platform/CCFileUtils.h"
 
@@ -88,6 +88,7 @@ const char* GLProgram::SHADER_NAME_POSITION_TEXTURE_A8_COLOR = "ShaderPositionTe
 const char* GLProgram::SHADER_NAME_POSITION_U_COLOR = "ShaderPosition_uColor";
 const char* GLProgram::SHADER_NAME_POSITION_LENGTH_TEXTURE_COLOR = "ShaderPositionLengthTextureColor";
 const char* GLProgram::SHADER_NAME_POSITION_GRAYSCALE = "ShaderUIGrayScale";
+const char* GLProgram::SHADER_NAME_SPRITE_DISTORTION = "ShaderSpriteDistortion";
 const char* GLProgram::SHADER_NAME_LABEL_DISTANCEFIELD_NORMAL = "ShaderLabelDFNormal";
 const char* GLProgram::SHADER_NAME_LABEL_DISTANCEFIELD_GLOW = "ShaderLabelDFGlow";
 const char* GLProgram::SHADER_NAME_LABEL_NORMAL = "ShaderLabelNormal";
@@ -179,14 +180,13 @@ GLProgram* GLProgram::createWithFilenames(const std::string& vShaderFilename, co
     return nullptr;
 }
 
-
 GLProgram::GLProgram()
 : _program(0)
 , _vertShader(0)
 , _fragShader(0)
 , _flags()
 {
-    _director = Director::DirectorInstance;
+    _director = Director::getInstance();
     CCASSERT(nullptr != _director, "Director is null when init a GLProgram");
     memset(_builtInUniforms, 0, sizeof(_builtInUniforms));
 }
@@ -219,7 +219,7 @@ bool GLProgram::initWithByteArrays(const GLchar* vShaderByteArray, const GLchar*
     _program = glCreateProgram();
     CHECK_GL_ERROR_DEBUG();
 
-    // convert defines here. If we do it in "compileShader" we will do it it twice.
+    // convert defines here. If we do it in "compileShader" we will do it twice.
     // a cache for the defines could be useful, but seems like overkill at this point
     std::string replacedDefines = "";
     replaceDefines(compileTimeDefines, replacedDefines);
@@ -271,8 +271,8 @@ bool GLProgram::initWithFilenames(const std::string& vShaderFilename, const std:
 bool GLProgram::initWithFilenames(const std::string& vShaderFilename, const std::string& fShaderFilename, const std::string& compileTimeDefines)
 {
     auto fileUtils = FileUtils::getInstance();
-    std::string vertexSource = fileUtils->getStringFromFile(vShaderFilename);
-    std::string fragmentSource = fileUtils->getStringFromFile(fShaderFilename);
+    std::string vertexSource = fileUtils->getStringFromFile(FileUtils::getInstance()->fullPathForFilename(vShaderFilename));
+    std::string fragmentSource = fileUtils->getStringFromFile(FileUtils::getInstance()->fullPathForFilename(fShaderFilename));
 
     if (vertexSource.empty() || fragmentSource.empty()) {
         return false;
@@ -337,7 +337,7 @@ void GLProgram::parseVertexAttribs()
     else
     {
         GLchar ErrorLog[1024];
-        glGetProgramInfoLog(_program, sizeof(ErrorLog), NULL, ErrorLog);
+        glGetProgramInfoLog(_program, sizeof(ErrorLog), nullptr, ErrorLog);
         CCLOG("Error linking shader program: '%s'\n", ErrorLog);
     }
 }
@@ -383,7 +383,7 @@ void GLProgram::parseUniforms()
                     GLenum __gl_error_code = glGetError();
                     if (__gl_error_code != GL_NO_ERROR)
                     {
-                        CCLOG("error: 0x%x uniformName:%s", (int)__gl_error_code, uniformName);
+                        CCLOG("error: 0x%x  uniformName: %s", (int)__gl_error_code, uniformName);
                     }
                     assert(__gl_error_code == GL_NO_ERROR);
 
@@ -395,7 +395,7 @@ void GLProgram::parseUniforms()
     else
     {
         GLchar ErrorLog[1024];
-        glGetProgramInfoLog(_program, sizeof(ErrorLog), NULL, ErrorLog);
+        glGetProgramInfoLog(_program, sizeof(ErrorLog), nullptr, ErrorLog);
         CCLOG("Error linking shader program: '%s'\n", ErrorLog);
 
     }
@@ -548,12 +548,11 @@ bool GLProgram::link()
 
     glLinkProgram(_program);
 
-    parseVertexAttribs();
-    parseUniforms();
-
-    clearShader();
-
-#if DEBUG || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+    // Calling glGetProgramiv(...GL_LINK_STATUS...) will force linking of the program at this moment.
+    // Otherwise, they might be linked when they are used for the first time. (I guess this depends on the driver implementation)
+    // So it might slow down the "booting" process on certain devices. But, on the other hand it is important to know if the shader
+    // linked succesfully. Some shaders might be downloaded in runtime so, release version should have this check.
+    // For more info, see Github issue #16231
     glGetProgramiv(_program, GL_LINK_STATUS, &status);
 
     if (status == GL_FALSE)
@@ -562,7 +561,13 @@ bool GLProgram::link()
         GL::deleteProgram(_program);
         _program = 0;
     }
-#endif
+    else
+    {
+        parseVertexAttribs();
+        parseUniforms();
+
+        clearShader();
+    }
 
     return (status == GL_TRUE);
 }
@@ -574,39 +579,33 @@ void GLProgram::use()
 
 static std::string logForOpenGLShader(GLuint shader)
 {
-    GLint logLength = 0, charsWritten = 0;
+    GLint logLength = 0;
 
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength < 1)
         return "";
 
-    char *logBytes = (char*)malloc(logLength + 1);
-    glGetShaderInfoLog(shader, logLength, &charsWritten, logBytes);
-    logBytes[logLength] = '\0';
-
+    char *logBytes = (char*)malloc(sizeof(char) * logLength);
+    glGetShaderInfoLog(shader, logLength, nullptr, logBytes);
     std::string ret(logBytes);
 
     free(logBytes);
-
     return ret;
 }
 
 static std::string logForOpenGLProgram(GLuint program)
 {
-    GLint logLength = 0, charsWritten = 0;
+    GLint logLength = 0;
 
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength < 1)
         return "";
 
-    char *logBytes = (char*)malloc(logLength + 1);
-    glGetProgramInfoLog(program, logLength, &charsWritten, logBytes);
-    logBytes[logLength] = '\0';
-
+    char *logBytes = (char*)malloc(sizeof(char) * logLength);
+    glGetProgramInfoLog(program, logLength, nullptr, logBytes);
     std::string ret(logBytes);
 
     free(logBytes);
-
     return ret;
 }
 
@@ -645,17 +644,17 @@ bool GLProgram::updateUniformLocation(GLint location, const GLvoid* data, unsign
     }
     else
     {
-        if (memcmp(element->second.first, data, bytes) == 0)
+        if (element->second.second < bytes)
         {
-            updated = false;
+            GLvoid* value = realloc(element->second.first, bytes);
+            memcpy(value, data, bytes);
+            _hashForUniforms[location] = std::make_pair(value, bytes);
         }
         else
         {
-            if (element->second.second < bytes)
+            if (memcmp(element->second.first, data, bytes) == 0)
             {
-                GLvoid* value = realloc(element->second.first, bytes);
-                memcpy(value, data, bytes );
-                _hashForUniforms[location] = std::make_pair(value, bytes);
+                updated = false;
             }
             else
                 memcpy(element->second.first, data, bytes);
@@ -899,9 +898,9 @@ void GLProgram::setUniformsForBuiltins(const Mat4 &matrixMV)
         // Getting Mach time per frame per shader using time could be extremely expensive.
         float time = _director->getTotalFrames() * _director->getAnimationInterval();
 
-        setUniformLocationWith4f(_builtInUniforms[GLProgram::UNIFORM_TIME], time/10.0, time, time*2, time*4);
-        setUniformLocationWith4f(_builtInUniforms[GLProgram::UNIFORM_SIN_TIME], time/8.0, time/4.0, time/2.0, sinf(time));
-        setUniformLocationWith4f(_builtInUniforms[GLProgram::UNIFORM_COS_TIME], time/8.0, time/4.0, time/2.0, cosf(time));
+        setUniformLocationWith4f(_builtInUniforms[GLProgram::UNIFORM_TIME], time/10.0f, time, time*2, time*4);
+        setUniformLocationWith4f(_builtInUniforms[GLProgram::UNIFORM_SIN_TIME], time/8.0f, time/4.0f, time/2.0f, sinf(time));
+        setUniformLocationWith4f(_builtInUniforms[GLProgram::UNIFORM_COS_TIME], time/8.0f, time/4.0f, time/2.0f, cosf(time));
     }
 
     if (_flags.usesRandom)
@@ -926,7 +925,7 @@ void GLProgram::reset()
     _hashForUniforms.clear();
 }
 
-void GLProgram::clearShader()
+inline void GLProgram::clearShader()
 {
     if (_vertShader)
     {

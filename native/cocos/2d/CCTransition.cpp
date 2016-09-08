@@ -78,9 +78,16 @@ bool TransitionScene::initWithDuration(float t, Scene *scene)
         _duration = t;
 
         // retain
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->retainScriptObject(this, scene);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         _inScene = scene;
         _inScene->retain();
-        _outScene = _director->getRunningScene();
+        _outScene = Director::getInstance()->getRunningScene();
         if (_outScene == nullptr)
         {
             _outScene = Scene::create();
@@ -143,10 +150,18 @@ void TransitionScene::setNewScene(float dt)
     this->unschedule(CC_SCHEDULE_SELECTOR(TransitionScene::setNewScene));
 
     // Before replacing, save the "send cleanup to scene"
-    _isSendCleanupToScene = _director->isSendCleanupToScene();
-
-    _director->replaceScene(_inScene);
-
+    Director *director = Director::getInstance();
+    _isSendCleanupToScene = director->isSendCleanupToScene();
+    
+    director->replaceScene(_inScene);
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->releaseScriptObject(this, _inScene);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    
     // issue #267
     _outScene->setVisible(true);
 }
@@ -201,6 +216,11 @@ void TransitionScene::onExit()
     // _inScene should not receive the onEnter callback
     // only the onEnterTransitionDidFinish
     _inScene->onEnterTransitionDidFinish();
+
+#if CC_ENABLE_SCRIPT_BINDING
+    if (ScriptEngineManager::getInstance()->getScriptEngine())
+        ScriptEngineManager::getInstance()->getScriptEngine()->garbageCollect();
+#endif // CC_ENABLE_SCRIPT_BINDING
 }
 
 // custom cleanup
@@ -331,7 +351,7 @@ TransitionJumpZoom* TransitionJumpZoom::create(float t, Scene* scene)
 void TransitionJumpZoom::onEnter()
 {
     TransitionScene::onEnter();
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
 
     _inScene->setScale(0.5f);
     _inScene->setPosition(s.width, 0);
@@ -414,7 +434,7 @@ ActionInterval* TransitionMoveInL::easeActionWithAction(ActionInterval* action)
 
 void TransitionMoveInL::initScenes()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(-s.width,0);
 }
 
@@ -442,7 +462,7 @@ TransitionMoveInR* TransitionMoveInR::create(float t, Scene* scene)
 
 void TransitionMoveInR::initScenes()
 {
-    Size s = Director::DirectorInstance->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(s.width,0);
 }
 
@@ -470,7 +490,7 @@ TransitionMoveInT* TransitionMoveInT::create(float t, Scene* scene)
 
 void TransitionMoveInT::initScenes()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(0,s.height);
 }
 
@@ -498,7 +518,7 @@ TransitionMoveInB* TransitionMoveInB::create(float t, Scene* scene)
 
 void TransitionMoveInB::initScenes()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(0,-s.height);
 }
 
@@ -546,13 +566,13 @@ void TransitionSlideInL::sceneOrder()
 
 void TransitionSlideInL:: initScenes()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(-(s.width-ADJUST_FACTOR),0);
 }
 
 ActionInterval* TransitionSlideInL::action()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     return MoveBy::create(_duration, Vec2(s.width-ADJUST_FACTOR,0));
 }
 
@@ -602,14 +622,14 @@ void TransitionSlideInR::sceneOrder()
 
 void TransitionSlideInR::initScenes()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(s.width-ADJUST_FACTOR,0);
 }
 
 
 ActionInterval* TransitionSlideInR:: action()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     return MoveBy::create(_duration, Vec2(-(s.width-ADJUST_FACTOR),0));
 }
 
@@ -643,14 +663,14 @@ void TransitionSlideInT::sceneOrder()
 
 void TransitionSlideInT::initScenes()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(0,s.height-ADJUST_FACTOR);
 }
 
 
 ActionInterval* TransitionSlideInT::action()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     return MoveBy::create(_duration, Vec2(0,-(s.height-ADJUST_FACTOR)));
 }
 
@@ -683,14 +703,14 @@ void TransitionSlideInB::sceneOrder()
 
 void TransitionSlideInB:: initScenes()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     _inScene->setPosition(0,-(s.height-ADJUST_FACTOR));
 }
 
 
 ActionInterval* TransitionSlideInB:: action()
 {
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     return MoveBy::create(_duration, Vec2(0,s.height-ADJUST_FACTOR));
 }
 
@@ -1297,7 +1317,7 @@ void TransitionCrossFade::onEnter()
     // create a transparent color layer
     // in which we are going to add our rendertextures
     Color4B  color(0,0,0,0);
-    Size size = _director->getWinSize();
+    Size size = Director::getInstance()->getWinSize();
     LayerColor* layer = LayerColor::create(color);
 
     // create the first render texture for inScene
@@ -1408,7 +1428,7 @@ void TransitionTurnOffTiles::onEnter()
     _outSceneProxy->setTarget(_outScene);
     _outSceneProxy->onEnter();
 
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     float aspect = s.width / s.height;
     int x = (int)(12 * aspect);
     int y = 12;
@@ -1604,7 +1624,7 @@ void TransitionFadeTR::onEnter()
     _outSceneProxy->setTarget(_outScene);
     _outSceneProxy->onEnter();
 
-    Size s = _director->getWinSize();
+    Size s = Director::getInstance()->getWinSize();
     float aspect = s.width / s.height;
     int x = (int)(12 * aspect);
     int y = 12;

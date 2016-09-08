@@ -29,6 +29,10 @@
 
 NS_CC_BEGIN
 
+
+const std::string EventListenerFocus::LISTENER_ID = "__cc_focus_event";
+
+
 EventListenerFocus::EventListenerFocus()
 :onFocusChanged(nullptr)
 {
@@ -72,7 +76,7 @@ bool EventListenerFocus::init()
         auto focusEvent = static_cast<EventFocus*>(event);
         onFocusChanged(focusEvent->_widgetLoseFocus, focusEvent->_widgetGetFocus);
     };
-    if (EventListener::init(Type::FOCUS, listener)) {
+    if (EventListener::init(Type::FOCUS, LISTENER_ID, listener)) {
         return true;
     }
     return false;
@@ -92,4 +96,3 @@ bool EventListenerFocus::checkAvailable()
 
 
 NS_CC_END
-

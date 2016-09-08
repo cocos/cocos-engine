@@ -34,8 +34,6 @@ namespace ui {
 UICCTextField::UICCTextField()
 : _maxLengthEnabled(false)
 , _maxLength(0)
-, _passwordEnabled(false)
-, _passwordStyleText("*")
 , _attachWithIME(false)
 , _detachWithIME(false)
 , _insertText(false)
@@ -86,7 +84,7 @@ bool UICCTextField::onTextFieldInsertText(TextFieldTTF *pSender, const char *tex
     setInsertText(true);
     if (_maxLengthEnabled)
     {
-        if (TextFieldTTF::getCharCount() >= _maxLength)
+        if (static_cast<int>(TextFieldTTF::getCharCount()) >= _maxLength)
         {
             return true;
         }
@@ -119,7 +117,7 @@ void UICCTextField::insertText(const char*  text, size_t len)
             if (text_count >= _maxLength)
             {
                 // password
-                if (_passwordEnabled)
+                if (this->isSecureTextEntry())
                 {
                     setPasswordText(getString());
                 }
@@ -141,7 +139,7 @@ void UICCTextField::insertText(const char*  text, size_t len)
     TextFieldTTF::insertText(input_text.c_str(), len);
 
     // password
-    if (_passwordEnabled)
+    if (this->isSecureTextEntry())
     {
         if (TextFieldTTF::getCharCount() > 0)
         {
@@ -157,7 +155,7 @@ void UICCTextField::deleteBackward()
     if (TextFieldTTF::getCharCount() > 0)
     {
         // password
-        if (_passwordEnabled)
+        if (this->isSecureTextEntry())
         {
             setPasswordText(_inputText);
         }
@@ -194,36 +192,24 @@ int UICCTextField::getMaxLength()const
     return _maxLength;
 }
 
-int UICCTextField::getCharCount()const
+std::size_t UICCTextField::getCharCount()const
 {
     return TextFieldTTF::getCharCount();
 }
 
 void UICCTextField::setPasswordEnabled(bool enable)
 {
-    _passwordEnabled = enable;
-    if (enable) {
-        setPasswordStyleText(_passwordStyleText);
-    }
+    this->setSecureTextEntry(enable);
 }
 
 bool UICCTextField::isPasswordEnabled()const
 {
-    return _passwordEnabled;
+    return this->isSecureTextEntry();
 }
 
 void UICCTextField::setPasswordStyleText(const std::string& styleText)
 {
-    if (styleText.length() > 1)
-    {
-        return;
-    }
-    char value = styleText[0];
-    if (value < 33 || value > 126)
-    {
-        return;
-    }
-    _passwordStyleText = styleText;
+    this->setPasswordTextStyle(styleText);
 }
 
 void UICCTextField::setPasswordText(const std::string& text)
@@ -301,7 +287,6 @@ _useTouchArea(false),
 _textFieldEventListener(nullptr),
 _textFieldEventSelector(nullptr),
 _eventCallback(nullptr),
-_passwordStyleText("*"),
 _textFieldRendererAdaptDirty(true),
 _fontName("Thonburi"),
 _fontSize(10),
@@ -368,7 +353,7 @@ void TextField::onEnter()
 
 void TextField::initRenderer()
 {
-    _textFieldRenderer = UICCTextField::create("", "Thonburi", 20);
+    _textFieldRenderer = UICCTextField::create("input words here", "Thonburi", 20);
     addProtectedChild(_textFieldRenderer, TEXTFIELD_RENDERER_Z, -1);
 }
 
@@ -544,6 +529,11 @@ bool TextField::onTouchBegan(Touch *touch, Event *unusedEvent)
     bool pass = Widget::onTouchBegan(touch, unusedEvent);
     if (_hitted)
     {
+        if (isFocusEnabled())
+        {
+            requestFocus();
+        }
+
         _textFieldRenderer->attachWithIME();
     }
     else
@@ -588,14 +578,13 @@ bool TextField::isPasswordEnabled()const
 void TextField::setPasswordStyleText(const char *styleText)
 {
     _textFieldRenderer->setPasswordStyleText(styleText);
-    _passwordStyleText = styleText;
-
+    
     setString(getString());
 }
 
 const char* TextField::getPasswordStyleText()const
 {
-    return _passwordStyleText.c_str();
+    return _textFieldRenderer->getPasswordTextStyle().c_str();
 }
 
 void TextField::update(float dt)
@@ -743,10 +732,10 @@ void TextField::deleteBackwardEvent()
     this->release();
 }
 
-void TextField::addEventListenerTextField(Ref *target, SEL_TextFieldEvent selecor)
+void TextField::addEventListenerTextField(Ref *target, SEL_TextFieldEvent selector)
 {
     _textFieldEventListener = target;
-    _textFieldEventSelector = selecor;
+    _textFieldEventSelector = selector;
 }
 
 void TextField::addEventListener(const ccTextFieldCallback& callback)
@@ -828,7 +817,7 @@ void TextField::copySpecialProperties(Widget *widget)
         setMaxLengthEnabled(textField->isMaxLengthEnabled());
         setMaxLength(textField->getMaxLength());
         setPasswordEnabled(textField->isPasswordEnabled());
-        setPasswordStyleText(textField->_passwordStyleText.c_str());
+        setPasswordStyleText(textField->getPasswordStyleText());
         setAttachWithIME(textField->getAttachWithIME());
         setDetachWithIME(textField->getDetachWithIME());
         setInsertText(textField->getInsertText());
@@ -864,8 +853,28 @@ TextVAlignment TextField::getTextVerticalAlignment() const
 {
     return _textFieldRenderer->getVerticalAlignment();
 }
+    
+void TextField::setCursorEnabled(bool enabled)
+{
+    _textFieldRenderer->setCursorEnabled(enabled);
+}
+    
+void TextField::setCursorChar(char cursor)
+{
+    _textFieldRenderer->setCursorChar(cursor);
+}
+
+void TextField::setCursorPosition(std::size_t cursorPosition)
+{
+    _textFieldRenderer->setCursorPosition(cursorPosition);
+}
+
+void TextField::setCursorFromPoint(const Vec2 &point)
+{
+    _textFieldRenderer->setCursorFromPoint(point);
+}
+
 
 }
 
 NS_CC_END
-

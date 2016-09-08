@@ -85,7 +85,7 @@ bool GridBase::initWithSize(const Size& gridSize)
 
 bool GridBase::initWithSize(const cocos2d::Size &gridSize, const cocos2d::Rect &rect)
 {
-    Director *director = Director::DirectorInstance;
+    Director *director = Director::getInstance();
     Size s = director->getWinSizeInPixels();
 
     auto POTWide = ccNextPOT((unsigned int)s.width);
@@ -96,7 +96,7 @@ bool GridBase::initWithSize(const cocos2d::Size &gridSize, const cocos2d::Rect &
 
     auto dataLen = POTWide * POTHigh * 4;
     void *data = calloc(dataLen, 1);
-    if (data == nullptr)
+    if (! data)
     {
         CCLOG("cocos2d: Grid: not enough memory.");
         this->release();
@@ -104,16 +104,16 @@ bool GridBase::initWithSize(const cocos2d::Size &gridSize, const cocos2d::Rect &
     }
 
     Texture2D *texture = new (std::nothrow) Texture2D();
-    if (texture == nullptr)
+    texture->initWithData(data, dataLen,  format, POTWide, POTHigh, s);
+    
+    free(data);
+    
+    if (! texture)
     {
         CCLOG("cocos2d: Grid: error creating texture");
-        free(data);
         return false;
     }
     
-    texture->initWithData(data, dataLen,  format, POTWide, POTHigh, s);
-    free(data);
-
     initWithSize(gridSize, texture, false, rect);
 
     texture->release();
@@ -164,7 +164,7 @@ bool GridBase::initWithSize(const Size& gridSize, Texture2D *texture, bool flipp
     return ret;
 }
 
-GridBase::~GridBase()
+GridBase::~GridBase(void)
 {
     CCLOGINFO("deallocing GridBase: %p", this);
 
@@ -179,7 +179,7 @@ void GridBase::setActive(bool active)
     _active = active;
     if (! active)
     {
-        Director *pDirector = Director::DirectorInstance;
+        Director *pDirector = Director::getInstance();
         Director::Projection proj = pDirector->getProjection();
         pDirector->setProjection(proj);
     }
@@ -196,9 +196,10 @@ void GridBase::setTextureFlipped(bool flipped)
 
 void GridBase::set2DProjection()
 {
-    Director *director = Director::DirectorInstance;
+    Director *director = Director::getInstance();
     Size    size = director->getWinSizeInPixels();
     glViewport(0, 0, (GLsizei)(size.width), (GLsizei)(size.height) );
+    
     director->loadIdentityMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
 
     Mat4 orthoMatrix;
@@ -215,10 +216,10 @@ void GridBase::setGridRect(const cocos2d::Rect &rect)
     _gridRect = rect;
 }
 
-void GridBase::beforeDraw()
+void GridBase::beforeDraw(void)
 {
     // save projection
-    Director *director = Director::DirectorInstance;
+    Director *director = Director::getInstance();
     _directorProjection = director->getProjection();
 
     // 2d projection
@@ -235,8 +236,22 @@ void GridBase::afterDraw(cocos2d::Node *target)
     _grabber->afterRender(_texture);
 
     // restore projection
-    Director *director = Director::DirectorInstance;
+    Director *director = Director::getInstance();
     director->setProjection(_directorProjection);
+    
+    Size size = director->getWinSizeInPixels();
+    glViewport(0, 0, (GLsizei)(size.width), (GLsizei)(size.height) );
+//    if (target->getCamera()->isDirty())
+//    {
+//        Vec2 offset = target->getAnchorPointInPoints();
+//
+//        //
+//        // FIXME: Camera should be applied in the AnchorPoint
+//        //
+//        kmGLTranslatef(offset.x, offset.y, 0);
+//        target->getCamera()->locate();
+//        kmGLTranslatef(-offset.x, -offset.y, 0);
+//    }
 
     GL::bindTexture2D(_texture->getName());
 
@@ -248,17 +263,17 @@ void GridBase::afterDraw(cocos2d::Node *target)
     afterBlit();
 }
 
-void GridBase::blit()
+void GridBase::blit(void)
 {
     CCASSERT(0, "Subclass should implement it.");
 }
 
-void GridBase::reuse()
+void GridBase::reuse(void)
 {
     CCASSERT(0, "Subclass should implement it!");
 }
 
-void GridBase::calculateVertexPoints()
+void GridBase::calculateVertexPoints(void)
 {
     CCASSERT(0, "Subclass should implement it.");
 }
@@ -356,7 +371,7 @@ Grid3D::Grid3D()
 
 }
 
-Grid3D::~Grid3D()
+Grid3D::~Grid3D(void)
 {
     CC_SAFE_FREE(_texCoordinates);
     CC_SAFE_FREE(_vertices);
@@ -397,7 +412,7 @@ void Grid3D::afterBlit()
     }
 }
 
-void Grid3D::blit()
+void Grid3D::blit(void)
 {
     int n = _gridSize.width * _gridSize.height;
 
@@ -418,7 +433,7 @@ void Grid3D::blit()
     glDrawElements(GL_TRIANGLES, (GLsizei) n*6, GL_UNSIGNED_SHORT, _indices);
 }
 
-void Grid3D::calculateVertexPoints()
+void Grid3D::calculateVertexPoints(void)
 {
     float width = (float)_texture->getPixelsWide();
     float height = (float)_texture->getPixelsHigh();
@@ -528,7 +543,7 @@ void Grid3D::setVertex(const Vec2& pos, const Vec3& vertex)
     vertArray[index+2] = vertex.z;
 }
 
-void Grid3D::reuse()
+void Grid3D::reuse(void)
 {
     if (_reuseGrid > 0)
     {
@@ -548,7 +563,7 @@ TiledGrid3D::TiledGrid3D()
 
 }
 
-TiledGrid3D::~TiledGrid3D()
+TiledGrid3D::~TiledGrid3D(void)
 {
     CC_SAFE_FREE(_texCoordinates);
     CC_SAFE_FREE(_vertices);
@@ -636,7 +651,7 @@ TiledGrid3D* TiledGrid3D::create(const Size& gridSize, Texture2D *texture, bool 
     return ret;
 }
 
-void TiledGrid3D::blit()
+void TiledGrid3D::blit(void)
 {
     int n = _gridSize.width * _gridSize.height;
 
@@ -660,7 +675,7 @@ void TiledGrid3D::blit()
     CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,n*6);
 }
 
-void TiledGrid3D::calculateVertexPoints()
+void TiledGrid3D::calculateVertexPoints(void)
 {
     float width = (float)_texture->getPixelsWide();
     float height = (float)_texture->getPixelsHigh();
@@ -771,7 +786,7 @@ Quad3 TiledGrid3D::getTile(const Vec2& pos) const
     return ret;
 }
 
-void TiledGrid3D::reuse()
+void TiledGrid3D::reuse(void)
 {
     if (_reuseGrid > 0)
     {

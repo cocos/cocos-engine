@@ -119,18 +119,8 @@ PoolManager* PoolManager::getInstance()
 
 void PoolManager::destroyInstance()
 {
-    if (s_singleInstance) {
-        auto& releasePoolStack = s_singleInstance->_releasePoolStack;
-        AutoreleasePool* pool = nullptr;
-        while (!releasePoolStack.empty())
-        {
-            pool = releasePoolStack.back();
-            delete pool;
-        }
-
-        delete s_singleInstance;
-        s_singleInstance = nullptr;
-    }
+    delete s_singleInstance;
+    s_singleInstance = nullptr;
 }
 
 PoolManager::PoolManager()
@@ -141,6 +131,13 @@ PoolManager::PoolManager()
 PoolManager::~PoolManager()
 {
     CCLOGINFO("deallocing PoolManager: %p", this);
+
+    while (!_releasePoolStack.empty())
+    {
+        AutoreleasePool* pool = _releasePoolStack.back();
+        
+        delete pool;
+    }
 }
 
 
@@ -171,4 +168,3 @@ void PoolManager::pop()
 }
 
 NS_CC_END
-

@@ -24,10 +24,9 @@
 #ifndef __jsb_cocos2dx_extension_manual__
 #define __jsb_cocos2dx_extension_manual__
 
-#include "spidermonkey/jsapi.h"
-#include "spidermonkey/jsfriendapi.h"
-#include "spidermonkey/mozilla/Maybe.h"
-#include "cocos/network/CCDownloader.h"
+#include "jsapi.h"
+#include "jsfriendapi.h"
+#include "network/CCDownloader.h"
 #include "renderer/CCTexture2D.h"
 
 class __JSDownloaderDelegator : cocos2d::Ref
@@ -50,11 +49,10 @@ private:
     std::shared_ptr<cocos2d::network::Downloader> _downloader;
     std::string _url;
     JSContext *_cx;
-    mozilla::Maybe<JS::PersistentRootedObject> _jsCallback;
-    mozilla::Maybe<JS::PersistentRootedObject> _obj;
+    JS::Heap<JSObject*> _jsCallback;
+    JS::Heap<JSObject*> _obj;
 };
 
 void register_all_cocos2dx_extension_manual(JSContext* cx, JS::HandleObject global);
 
 #endif /* defined(__jsb_cocos2dx_extension_manual__) */
-

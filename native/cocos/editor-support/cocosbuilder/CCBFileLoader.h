@@ -1,7 +1,7 @@
 #ifndef _CCB_CCBFILELOADER_H_
 #define _CCB_CCBFILELOADER_H_
 
-#include "CCNodeLoader.h"
+#include "editor-support/cocosbuilder/CCNodeLoader.h"
 
 namespace cocosbuilder {
 
@@ -30,4 +30,3 @@ class CC_DLL CCBFileLoader : public NodeLoader {
 }
 
 #endif
-

@@ -95,7 +95,7 @@ public:
     /**
      * Gets texture data for text.
      */
-    static Data getTextureDataForText(const std::string& text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha);
+    static Data getTextureDataForText(const char * text, const FontDefinition& textDefinition, TextAlign align, int &width, int &height, bool& hasPremultipliedAlpha);
 
 private:
     CC_DISALLOW_IMPLICIT_CONSTRUCTORS(Device);
@@ -107,4 +107,3 @@ private:
 NS_CC_END
 
 #endif /* __CCDEVICE_H__ */
-

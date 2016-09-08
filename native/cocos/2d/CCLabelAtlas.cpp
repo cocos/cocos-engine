@@ -28,12 +28,11 @@ THE SOFTWARE.
 #include "renderer/CCTextureAtlas.h"
 #include "platform/CCFileUtils.h"
 #include "base/CCDirector.h"
+#include "base/ccUTF8.h"
 #include "renderer/CCTextureCache.h"
-#include "base/CCString.h"
 
 #if CC_LABELATLAS_DEBUG_DRAW
 #include "renderer/CCRenderer.h"
-#include "base/CCDirector.h"
 #endif
 
 NS_CC_BEGIN
@@ -69,7 +68,7 @@ LabelAtlas* LabelAtlas::create(const std::string& string, const std::string& cha
 
 bool LabelAtlas::initWithString(const std::string& string, const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap)
 {
-    Texture2D *texture = _director->getTextureCache()->addImage(charMapFile);
+    Texture2D *texture = Director::getInstance()->getTextureCache()->addImage(charMapFile);
     return initWithString(string, texture, itemWidth, itemHeight, startCharMap);
 }
 
@@ -104,17 +103,13 @@ LabelAtlas* LabelAtlas::create(const std::string& string, const std::string& fnt
 
 bool LabelAtlas::initWithString(const std::string& theString, const std::string& fntFile)
 {
-    auto fileUtils = FileUtils::getInstance();
-    std::string pathStr = fileUtils->fullPathForFilename(fntFile);
-    ValueMap dict = fileUtils->getValueMapFromFile(pathStr);
-    if (dict.empty()) {
-        log("LabelAtlas::initWithString error:%s not exist!",fntFile.c_str());
-        return false;
-    }
+    std::string pathStr = FileUtils::getInstance()->fullPathForFilename(fntFile);
+    std::string relPathStr = pathStr.substr(0, pathStr.find_last_of("/"))+"/";
+    
+    ValueMap dict = FileUtils::getInstance()->getValueMapFromFile(pathStr);
 
     CCASSERT(dict["version"].asInt() == 1, "Unsupported version. Upgrade cocos2d version");
 
-    std::string relPathStr = pathStr.substr(0, pathStr.find_last_of("/"))+"/";
     std::string textureFilename = relPathStr + dict["textureFilename"].asString();
 
     unsigned int width = dict["itemWidth"].asInt() / CC_CONTENT_SCALE_FACTOR();
@@ -225,7 +220,7 @@ void LabelAtlas::setString(const std::string &label)
     _quadsToDraw = len;
 }
 
-const std::string& LabelAtlas::getString() const
+const std::string& LabelAtlas::getString(void) const
 {
     return _string;
 }

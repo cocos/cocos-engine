@@ -53,7 +53,9 @@ GridBase* PageTurn3D::getGrid()
 {
     auto result = Grid3D::create(_gridSize, _gridNodeTarget->getGridRect());
     if (result)
+    {
         result->setNeedDepthTestForBlit(true);
+    }
 
     return result;
 }
@@ -69,8 +71,8 @@ void PageTurn3D::update(float time)
     float ay = -100 - deltaAy;
 
     float deltaTheta = sqrtf(time);
-    float theta = deltaTheta>0.5?(float)M_PI_2*deltaTheta:(float)M_PI_2*(1-deltaTheta);
-
+    float theta = deltaTheta > 0.5f ? (float)M_PI_2*deltaTheta : (float)M_PI_2*(1-deltaTheta);
+    
     float rotateByYAxis = (2-time)* M_PI;
 
     float sinTheta = sinf(theta);

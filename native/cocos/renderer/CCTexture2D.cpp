@@ -32,7 +32,6 @@ THE SOFTWARE.
 */
 
 #include "renderer/CCTexture2D.h"
-#include <unordered_set>
 
 #include "platform/CCGL.h"
 #include "platform/CCImage.h"
@@ -40,6 +39,7 @@ THE SOFTWARE.
 #include "platform/CCDevice.h"
 #include "base/ccConfig.h"
 #include "base/ccMacros.h"
+#include "base/ccUTF8.h"
 #include "base/CCConfiguration.h"
 #include "platform/CCPlatformMacros.h"
 #include "base/CCDirector.h"
@@ -47,11 +47,12 @@ THE SOFTWARE.
 #include "renderer/ccGLStateCache.h"
 #include "renderer/CCGLProgramCache.h"
 #include "base/CCNinePatchImageParser.h"
-#include "base/CCString.h"
 
 #if CC_ENABLE_CACHE_TEXTURE_DATA
     #include "renderer/CCTextureCache.h"
 #endif
+
+#include <unordered_set>
 
 NS_CC_BEGIN
 
@@ -320,6 +321,15 @@ void Texture2D::convertRGBA8888ToRGB565(const unsigned char* data, ssize_t dataL
     }
 }
 
+// RRRRRRRRGGGGGGGGBBBBBBBB -> AAAAAAAA
+void Texture2D::convertRGB888ToA8(const unsigned char* data, ssize_t dataLen, unsigned char* outData)
+{
+    for (ssize_t i = 0, l = dataLen - 2; i < l; i += 3)
+    {
+        *outData++ = (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114 + 500) / 1000;  //A =  (R*299 + G*587 + B*114 + 500) / 1000
+    }
+}
+
 // RRRRRRRRGGGGGGGGBBBBBBBB -> IIIIIIII
 void Texture2D::convertRGB888ToI8(const unsigned char* data, ssize_t dataLen, unsigned char* outData)
 {
@@ -423,7 +433,7 @@ void Texture2D::convertRGBA8888ToRGB5A1(const unsigned char* data, ssize_t dataL
 //////////////////////////////////////////////////////////////////////////
 static std::unordered_set<Texture2D*> s_allGLTexture2D;
 
-void Texture2D::fouceDeleteALLTexture2D()
+void Texture2D::forceDeleteALLTexture2D()
 {
     auto copyMap = s_allGLTexture2D;
     for (auto&& it: copyMap) {
@@ -444,8 +454,11 @@ Texture2D::Texture2D()
 , _shaderProgram(nullptr)
 , _antialiasEnabled(true)
 , _ninePatchInfo(nullptr)
+, _valid(true)
+, _alphaTexture(nullptr)
 {
     s_allGLTexture2D.insert(this);
+    _antialiasEnabled = Director::getInstance()->getOpenGLView()->isAntiAliasEnabled();
 }
 
 Texture2D::~Texture2D()
@@ -495,6 +508,11 @@ int Texture2D::getPixelsHigh() const
 GLuint Texture2D::getName() const
 {
     return _name;
+}
+
+GLuint Texture2D::getAlphaTextureName() const
+{
+    return _alphaTexture == nullptr ? 0 : _alphaTexture->getName();
 }
 
 Size Texture2D::getContentSize() const
@@ -653,7 +671,7 @@ bool Texture2D::initWithMipmaps(MipmapInfo* mipmaps, int mipmapsNum, PixelFormat
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        cocos2d::log("OpenGL error 0x%04X in %s line:%d\n", err, __FUNCTION__, __LINE__);
+        cocos2d::log("OpenGL error 0x%04X in %s %s %d\n", err, __FILE__, __FUNCTION__, __LINE__);
     }
 
     // Specify OpenGL texture image
@@ -739,7 +757,7 @@ bool Texture2D::initWithImage(Image *image, PixelFormat format)
 
     int imageWidth = image->getWidth();
     int imageHeight = image->getHeight();
-
+    this->_filePath = image->getFilePath();
     Configuration *conf = Configuration::getInstance();
 
     int maxTextureSize = conf->getMaxTextureSize();
@@ -772,10 +790,12 @@ bool Texture2D::initWithImage(Image *image, PixelFormat format)
     {
         if (pixelFormat != image->getRenderFormat())
         {
-            CCLOG("cocos2d: WARNING: This image is compressed and we cann't convert it for now");
+            CCLOG("cocos2d: WARNING: This image is compressed and we can't convert it for now");
         }
 
         initWithData(tempData, tempDataLen, image->getRenderFormat(), imageWidth, imageHeight, imageSize);
+
+        // set the premultiplied tag
         _hasPremultipliedAlpha = image->hasPremultipliedAlpha();
 
         return true;
@@ -839,7 +859,7 @@ Texture2D::PixelFormat Texture2D::convertI8ToFormat(const unsigned char* data, s
         // unsupported conversion or don't need to convert
         if (format != PixelFormat::AUTO && format != PixelFormat::I8)
         {
-            CCLOG("Can not convert image format PixelFormat::I8 to format ID:%d, we will use it's origin format PixelFormat::I8", format);
+            CCLOG("Can not convert image format PixelFormat::I8 to format ID:%d, we will use it's origin format PixelFormat::I8", static_cast<int>(format));
         }
 
         *outData = (unsigned char*)data;
@@ -893,7 +913,7 @@ Texture2D::PixelFormat Texture2D::convertAI88ToFormat(const unsigned char* data,
         // unsupported conversion or don't need to convert
         if (format != PixelFormat::AUTO && format != PixelFormat::AI88)
         {
-            CCLOG("Can not convert image format PixelFormat::AI88 to format ID:%d, we will use it's origin format PixelFormat::AI88", format);
+            CCLOG("Can not convert image format PixelFormat::AI88 to format ID:%d, we will use it's origin format PixelFormat::AI88", static_cast<int>(format));
         }
 
         *outData = (unsigned char*)data;
@@ -919,6 +939,11 @@ Texture2D::PixelFormat Texture2D::convertRGB888ToFormat(const unsigned char* dat
         *outData = (unsigned char*)malloc(sizeof(unsigned char) * (*outDataLen));
         convertRGB888ToRGB565(data, dataLen, *outData);
         break;
+    case PixelFormat::A8:
+        *outDataLen = dataLen/3;
+        *outData = (unsigned char*)malloc(sizeof(unsigned char) * (*outDataLen));
+        convertRGB888ToA8(data, dataLen, *outData);
+        break;
     case PixelFormat::I8:
         *outDataLen = dataLen/3;
         *outData = (unsigned char*)malloc(sizeof(unsigned char) * (*outDataLen));
@@ -943,7 +968,7 @@ Texture2D::PixelFormat Texture2D::convertRGB888ToFormat(const unsigned char* dat
         // unsupported conversion or don't need to convert
         if (format != PixelFormat::AUTO && format != PixelFormat::RGB888)
         {
-            CCLOG("Can not convert image format PixelFormat::RGB888 to format ID:%d, we will use it's origin format PixelFormat::RGB888", format);
+            CCLOG("Can not convert image format PixelFormat::RGB888 to format ID:%d, we will use it's origin format PixelFormat::RGB888", static_cast<int>(format));
         }
 
         *outData = (unsigned char*)data;
@@ -997,7 +1022,7 @@ Texture2D::PixelFormat Texture2D::convertRGBA8888ToFormat(const unsigned char* d
         // unsupported conversion or don't need to convert
         if (format != PixelFormat::AUTO && format != PixelFormat::RGBA8888)
         {
-            CCLOG("Can not convert image format PixelFormat::RGBA8888 to format ID:%d, we will use it's origin format PixelFormat::RGBA8888", format);
+            CCLOG("Can not convert image format PixelFormat::RGBA8888 to format ID:%d, we will use it's origin format PixelFormat::RGBA8888", static_cast<int>(format));
         }
 
         *outData = (unsigned char*)data;
@@ -1046,7 +1071,7 @@ Texture2D::PixelFormat Texture2D::convertDataToFormat(const unsigned char* data,
     case PixelFormat::RGBA8888:
         return convertRGBA8888ToFormat(data, dataLen, format, outData, outDataLen);
     default:
-        CCLOG("unsupported conversion from format %d to format %d", originFormat, format);
+        CCLOG("unsupported conversion from format %d to format %d", static_cast<int>(originFormat), static_cast<int>(format));
         *outData = (unsigned char*)data;
         *outDataLen = dataLen;
         return originFormat;
@@ -1076,6 +1101,11 @@ bool Texture2D::initWithString(const std::string& text, const std::string& fontN
 
 bool Texture2D::initWithString(const std::string& text, const FontDefinition& textDefinition)
 {
+    if(text.empty())
+    {
+        return false;
+    }
+
 #if CC_ENABLE_CACHE_TEXTURE_DATA
     // cache the texture data
     VolatileTextureMgr::addStringTexture(this, text, textDefinition);
@@ -1124,7 +1154,7 @@ bool Texture2D::initWithString(const std::string& text, const FontDefinition& te
     textDef._shadow._shadowEnabled = false;
 
     bool hasPremultipliedAlpha;
-    Data outData = Device::getTextureDataForText(text, textDef, align, imageWidth, imageHeight, hasPremultipliedAlpha);
+    Data outData = Device::getTextureDataForText(text.c_str(), textDef, align, imageWidth, imageHeight, hasPremultipliedAlpha);
     if(outData.isNull())
     {
         return false;
@@ -1436,5 +1466,13 @@ void Texture2D::removeSpriteFrameCapInset(SpriteFrame* spriteFrame)
     }
 }
 
+/// halx99 spec, ANDROID ETC1 ALPHA supports.
+void Texture2D::setAlphaTexture(Texture2D* alphaTexture)
+{
+    if (alphaTexture != nullptr) {
+        this->_alphaTexture = alphaTexture;
+        this->_alphaTexture->retain();
+        this->_hasPremultipliedAlpha = true; // PremultipliedAlpha shoud be true.
+    }
+}
 NS_CC_END
-

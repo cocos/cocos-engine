@@ -86,6 +86,9 @@ struct GLContextAttrs
 
 NS_CC_BEGIN
 
+class Scene;
+class Renderer;
+
 /**
  * @addtogroup platform
  * @{
@@ -371,6 +374,19 @@ public:
      */
     ResolutionPolicy getResolutionPolicy() const { return _resolutionPolicy; }
 
+    /** Returns whether the current enable on anti-alias.
+     *
+     * @return The antiAlias enabled.
+     */
+    bool isAntiAliasEnabled() const;
+
+    /** Whether to Enable on anti-alias.
+     *
+     * @param enabled The Enable or not anti-alias.
+     */
+    void enableAntiAlias(bool enabled);
+
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
     virtual HWND getWin32Window() = 0;
 #endif /* (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) */
@@ -379,6 +395,11 @@ public:
     virtual id getCocoaWindow() = 0;
 #endif /* (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) */
 
+    /**
+     * Renders a Scene with a Renderer
+     * This method is called directly by the Director
+     */
+    void renderScene(Scene* scene, Renderer* renderer);
 protected:
     void updateDesignResolutionSize();
 
@@ -392,6 +413,8 @@ protected:
     Rect _viewPortRect;
     // the view name
     std::string _viewName;
+    // anti alias state
+    bool _antiAliasEnabled;
 
     float _scaleX;
     float _scaleY;

@@ -1,4 +1,4 @@
-#include "CCBSequenceProperty.h"
+#include "editor-support/cocosbuilder/CCBSequenceProperty.h"
 
 using namespace cocos2d;
 using namespace std;
@@ -47,4 +47,3 @@ cocos2d::Vector<CCBKeyframe*>& CCBSequenceProperty::getKeyframes()
 }
 
 }
-

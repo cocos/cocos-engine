@@ -28,8 +28,8 @@ THE SOFTWARE.
 #include "renderer/CCGLProgram.h"
 #include "renderer/CCGLProgramState.h"
 
-#include "CCBoneNode.h"
-#include "CCSkeletonNode.h"
+#include "editor-support/cocostudio/ActionTimeline/CCBoneNode.h"
+#include "editor-support/cocostudio/ActionTimeline/CCSkeletonNode.h"
 
 NS_TIMELINE_BEGIN
 
@@ -380,7 +380,7 @@ void BoneNode::visit(cocos2d::Renderer *renderer, const cocos2d::Mat4& parentTra
 
 void BoneNode::draw(cocos2d::Renderer *renderer, const cocos2d::Mat4 &transform, uint32_t flags)
 {
-    _customCommand.init(_globalZOrder);
+    _customCommand.init(_globalZOrder, transform, flags);
     _customCommand.func = CC_CALLBACK_0(BoneNode::onDraw, this, transform, flags);
     renderer->addCommand(&_customCommand);
 
@@ -544,8 +544,8 @@ void BoneNode::sortAllChildren()
 {
     if (_reorderChildDirty)
     {
-        std::sort(_childBones.begin(), _childBones.end(), cocos2d::nodeComparisonLess);
-        std::sort(_boneSkins.begin(), _boneSkins.end(), cocos2d::nodeComparisonLess);
+        sortNodes(_childBones);
+        sortNodes(_boneSkins);
         Node::sortAllChildren();
     }
 }
@@ -722,4 +722,3 @@ void BoneNode::setAnchorPoint(const cocos2d::Vec2& anchorPoint)
 }
 
 NS_TIMELINE_END
-

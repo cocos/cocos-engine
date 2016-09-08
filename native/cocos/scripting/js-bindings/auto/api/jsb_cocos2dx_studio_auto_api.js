@@ -219,6 +219,16 @@ char
 },
 
 /**
+ * @method getStudioVersionNumber
+ * @return {int}
+ */
+getStudioVersionNumber : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method playActionByName
 * @param {char|char} char
 * @param {char|char} char
@@ -2160,6 +2170,16 @@ getBlendFunc : function (
 },
 
 /**
+ * @method setArmatureData
+ * @param {ccs.ArmatureData} arg0
+ */
+setArmatureData : function (
+armaturedata 
+)
+{
+},
+
+/**
  * @method addBone
  * @param {ccs.Bone} arg0
  * @param {String} arg1
@@ -2169,6 +2189,16 @@ bone,
 str 
 )
 {
+},
+
+/**
+ * @method getArmatureData
+ * @return {ccs.ArmatureData}
+ */
+getArmatureData : function (
+)
+{
+    return ccs.ArmatureData;
 },
 
 /**
@@ -2558,6 +2588,14 @@ end : function (
 },
 
 /**
+ * @method start
+ */
+start : function (
+)
+{
+},
+
+/**
  * @method stopBackgroundMusic
 * @param {bool} bool
 */
@@ -2629,6 +2667,14 @@ char
 playBackgroundMusic : function(
 char,
 bool 
+)
+{
+},
+
+/**
+ * @method stop
+ */
+stop : function (
 )
 {
 },
@@ -4177,6 +4223,14 @@ getStartFrame : function (
  * @method pause
  */
 pause : function (
+)
+{
+},
+
+/**
+ * @method start
+ */
+start : function (
 )
 {
 },

@@ -27,7 +27,7 @@
 #if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32 && CC_TARGET_PLATFORM != CC_PLATFORM_WINRT && CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID
 #include <iconv.h>
 #elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-#include "android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
+#include "platform/android/jni/Java_org_cocos2dx_lib_Cocos2dxHelper.h"
 #endif
 #include "2d/CCFontFreeType.h"
 #include "base/ccUTF8.h"
@@ -148,8 +148,7 @@ void FontAtlas::purgeTexturesAtlas()
     if (_fontFreeType)
     {
         reset();
-
-        auto eventDispatcher = Director::DirectorInstance->getEventDispatcher();
+        auto eventDispatcher = Director::getInstance()->getEventDispatcher();
         eventDispatcher->dispatchCustomEvent(CMD_PURGE_FONTATLAS,this);
         eventDispatcher->dispatchCustomEvent(CMD_RESET_FONTATLAS,this);
     }
@@ -266,7 +265,20 @@ void FontAtlas::findNewCharacters(const std::u16string& u16Text, std::unordered_
     //find new characters
     if (_letterDefinitions.empty())
     {
-        newChars = u16Text;
+        // fixed #16169: new android project crash in android 5.0.2 device (Nexus 7) when use 3.12.
+        // While using clang compiler with gnustl_static on android, the copy assignment operator of `std::u16string`
+        // will affect the memory validity, it means after `newChars` is destroyed, the memory of `u16Text` holds
+        // will be a dead region. `u16text` represents the variable in `Label::_utf16Text`, when somewhere
+        // allocates memory by `malloc, realloc, new, new[]`, the generated memory address may be the same
+        // as `Label::_utf16Text` holds. If doing a `memset` or other memory operations, the orignal `Label::_utf16Text`
+        // will be in an unknown state. Meanwhile, a bunch lots of logic which depends on `Label::_utf16Text`
+        // will be broken.
+        
+        // newChars = u16Text;
+        
+        // Using `append` method is a workaround for this issue. So please be carefuly while using the assignment operator
+        // of `std::u16string`.
+        newChars.append(u16Text);
     }
     else
     {
@@ -324,6 +336,7 @@ bool FontAtlas::prepareLetterDefinitions(const std::u16string& utf16Text)
     int adjustForExtend = _letterEdgeExtend / 2;
     long bitmapWidth;
     long bitmapHeight;
+    int glyphHeight;
     Rect tempRect;
     FontLetterDefinition tempDef;
 
@@ -331,8 +344,7 @@ bool FontAtlas::prepareLetterDefinitions(const std::u16string& utf16Text)
     auto  pixelFormat = _fontFreeType->getOutlineSize() > 0 ? Texture2D::PixelFormat::AI88 : Texture2D::PixelFormat::A8;
 
     float startY = _currentPageOrigY;
-    int newLineHeight;
-    auto maxLineHeight = _lineHeight + _letterPadding + _letterEdgeExtend;
+
     for (auto&& it : codeMapOfNewChar)
     {
         auto bitmap = _fontFreeType->getGlyphBitmap(it.second, bitmapWidth, bitmapHeight, tempRect, tempDef.xAdvance);
@@ -349,7 +361,7 @@ bool FontAtlas::prepareLetterDefinitions(const std::u16string& utf16Text)
                 _currentPageOrigY += _currLineHeight;
                 _currLineHeight = 0;
                 _currentPageOrigX = 0;
-                if (_currentPageOrigY + maxLineHeight >= CacheTextureHeight)
+                if (_currentPageOrigY + _lineHeight + _letterPadding + _letterEdgeExtend >= CacheTextureHeight)
                 {
                     unsigned char *data = nullptr;
                     if (pixelFormat == Texture2D::PixelFormat::AI88)
@@ -383,10 +395,10 @@ bool FontAtlas::prepareLetterDefinitions(const std::u16string& utf16Text)
                     tex->release();
                 }
             }
-            newLineHeight = static_cast<int>(bitmapHeight) + _letterPadding + _letterEdgeExtend;
-            if (newLineHeight > _currLineHeight)
+            glyphHeight = static_cast<int>(bitmapHeight) + _letterPadding + _letterEdgeExtend;
+            if (glyphHeight > _currLineHeight)
             {
-                _currLineHeight = newLineHeight;
+                _currLineHeight = glyphHeight;
             }
             _fontFreeType->renderCharAt(_currentPageData, _currentPageOrigX + adjustForExtend, _currentPageOrigY + adjustForExtend, bitmap, bitmapWidth, bitmapHeight);
 

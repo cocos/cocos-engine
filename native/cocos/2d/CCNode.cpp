@@ -1,5 +1,3 @@
-
-
 /****************************************************************************
 Copyright (c) 2008-2010 Ricardo Quesada
 Copyright (c) 2009      Valentin Milea
@@ -37,13 +35,15 @@ THE SOFTWARE.
 #include "base/CCDirector.h"
 #include "base/CCScheduler.h"
 #include "base/CCEventDispatcher.h"
+#include "base/ccUTF8.h"
 #include "2d/CCActionManager.h"
 #include "2d/CCScene.h"
 #include "2d/CCComponent.h"
 #include "renderer/CCGLProgram.h"
 #include "renderer/CCGLProgramState.h"
+#include "renderer/CCMaterial.h"
 #include "math/TransformUtils.h"
-#include "base/CCString.h"
+
 
 #if CC_NODE_RENDER_SUBPIXEL
 #define RENDER_IN_SUBPIXEL
@@ -54,15 +54,8 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-bool nodeComparisonLess(Node* n1, Node* n2)
-{
-    return( n1->getLocalZOrder() < n2->getLocalZOrder() ||
-           ( n1->getLocalZOrder() == n2->getLocalZOrder() && n1->getOrderOfArrival() < n2->getOrderOfArrival() )
-           );
-}
-
-// FIXME:: Yes, nodes might have a sort problem once every 15 days if the game runs at 60 FPS and each frame sprites are reordered.
-int Node::s_globalOrderOfArrival = 1;
+// FIXME:: Yes, nodes might have a sort problem once every 30 days if the game runs at 60 FPS and each frame sprites are reordered.
+unsigned int Node::s_globalOrderOfArrival = 0;
 
 // MARK: Constructor, Destructor, Init
 
@@ -83,10 +76,12 @@ Node::Node()
 , _contentSizeDirty(true)
 , _transformDirty(true)
 , _inverseDirty(true)
-, _useAdditionalTransform(false)
+, _additionalTransform(nullptr)
+, _additionalTransformDirty(false)
 , _transformUpdated(true)
 // children (lazy allocs)
 // lazy alloc
+, _localZOrderAndArrival(0)
 , _localZOrder(0)
 , _globalZOrder(0)
 , _parent(nullptr)
@@ -98,7 +93,6 @@ Node::Node()
 , _userData(nullptr)
 , _userObject(nullptr)
 , _glProgramState(nullptr)
-, _orderOfArrival(0)
 , _running(false)
 , _visible(true)
 , _ignoreAnchorPointForPosition(false)
@@ -126,14 +120,10 @@ Node::Node()
     _eventDispatcher->retain();
 
 #if CC_ENABLE_SCRIPT_BINDING
-    if (ScriptEngineManager::ShareInstance) {
-        auto engine = ScriptEngineManager::ShareInstance->getScriptEngine();
-        _scriptType = engine != nullptr ? engine->getScriptType() : kScriptTypeNone;
-    }
-    else
-        _scriptType = kScriptTypeNone;
+    ScriptEngineProtocol* engine = ScriptEngineManager::getInstance()->getScriptEngine();
+    _scriptType = engine != nullptr ? engine->getScriptType() : kScriptTypeNone;
 #endif
-    _transform = _inverse = _additionalTransform = Mat4::IDENTITY;
+    _transform = _inverse = Mat4::IDENTITY;
 }
 
 Node * Node::create()
@@ -155,9 +145,9 @@ Node::~Node()
     CCLOGINFO( "deallocing Node: %p - tag: %i", this, _tag );
 
 #if CC_ENABLE_SCRIPT_BINDING
-    if (_updateScriptHandler && ScriptEngineManager::ShareInstance)
+    if (_updateScriptHandler)
     {
-        ScriptEngineManager::ShareInstance->getScriptEngine()->removeScriptHandler(_updateScriptHandler);
+        ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_updateScriptHandler);
     }
 #endif
 
@@ -188,10 +178,10 @@ Node::~Node()
     _eventDispatcher->debugCheckNodeHasNoEventListenersOnDestruction(this);
 #endif
 
-    if (_running) {
-        CCLOG("Node still marked as running on node destruction! Was base class onExit() called in derived class onExit() implementations?");
-    }
+    CCASSERT(!_running, "Node still marked as running on node destruction! Was base class onExit() called in derived class onExit() implementations?");
     CC_SAFE_RELEASE(_eventDispatcher);
+
+    delete[] _additionalTransform;
 }
 
 bool Node::init()
@@ -215,9 +205,9 @@ void Node::cleanup()
 
     // actions
     this->stopAllActions();
-    this->unscheduleAllCallbacks();
-
     // timers
+    this->unscheduleAllCallbacks();
+    
     for( const auto &child: _children)
         child->cleanup();
 }
@@ -259,16 +249,29 @@ void Node::setSkewY(float skewY)
 
 void Node::setLocalZOrder(int z)
 {
-    if (_localZOrder == z)
+    if (getLocalZOrder() == z)
         return;
-
-    _localZOrder = z;
+    
+    _setLocalZOrder(z);
     if (_parent)
     {
         _parent->reorderChild(this, z);
     }
 
     _eventDispatcher->setDirtyForNode(this);
+}
+
+/// zOrder setter : private method
+/// used internally to alter the zOrder variable. DON'T call this method manually
+void Node::_setLocalZOrder(int z)
+{
+    _localZOrderAndArrival = (static_cast<std::int64_t>(z) << 32) | (_localZOrderAndArrival & 0xffffffff);
+    _localZOrder = z;
+}
+
+void Node::updateOrderOfArrival()
+{
+    _localZOrderAndArrival = (_localZOrderAndArrival & 0xffffffff00000000) | (++s_globalOrderOfArrival);
 }
 
 void Node::setGlobalZOrder(float globalZOrder)
@@ -359,9 +362,9 @@ void Node::setRotationSkewY(float rotationY)
 }
 
 /// scale getter
-float Node::getScale() const
+float Node::getScale(void) const
 {
-    CCASSERT( fabs(_scaleX - _scaleY) <= FLT_EPSILON, "CCNode#scale. ScaleX != ScaleY. Don't know which one to return");
+    CCASSERT( _scaleX == _scaleY, "CCNode#scale. ScaleX != ScaleY. Don't know which one to return");
     return _scaleX;
 }
 
@@ -594,7 +597,7 @@ bool Node::isIgnoreAnchorPointForPosition() const
     return _ignoreAnchorPointForPosition;
 }
 /// isRelativeAnchorPoint setter
-void Node::ignoreAnchorPointForPosition(bool newValue)
+void Node::setIgnoreAnchorPointForPosition(bool newValue)
 {
     if (newValue != _ignoreAnchorPointForPosition)
     {
@@ -633,19 +636,18 @@ void Node::setUserData(void *userData)
     _userData = userData;
 }
 
-int Node::getOrderOfArrival() const
-{
-    return _orderOfArrival;
-}
-
-void Node::setOrderOfArrival(int orderOfArrival)
-{
-    CCASSERT(orderOfArrival >=0, "Invalid orderOfArrival");
-    _orderOfArrival = orderOfArrival;
-}
-
 void Node::setUserObject(Ref* userObject)
 {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        if (userObject)
+            sEngine->retainScriptObject(this, userObject);
+        if (_userObject)
+            sEngine->releaseScriptObject(this, _userObject);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     CC_SAFE_RETAIN(userObject);
     CC_SAFE_RELEASE(_userObject);
     _userObject = userObject;
@@ -729,7 +731,6 @@ Node* Node::getChildByTag(int tag) const
 
 Node* Node::getChildByName(const std::string& name) const
 {
-    CCASSERT(!name.empty(), "Invalid name");
     if (name.empty())
         return nullptr;
 
@@ -835,7 +836,7 @@ bool Node::doEnumerate(std::string name, std::function<bool (Node *)> callback) 
     }
 
     bool ret = false;
-    for (const auto& child : _children)
+    for (const auto& child : getChildren())
     {
         if (std::regex_match(child->_name, std::regex(searchName)))
         {
@@ -903,7 +904,7 @@ void Node::addChildHelper(Node* child, int localZOrder, int tag, const std::stri
         child->setName(name);
 
     child->setParent(this);
-    child->setOrderOfArrival(s_globalOrderOfArrival++);
+    child->updateOrderOfArrival();
 
     if( _running )
     {
@@ -928,7 +929,6 @@ void Node::addChildHelper(Node* child, int localZOrder, int tag, const std::stri
 
 void Node::addChild(Node *child, int zOrder)
 {
-    CCASSERT( child != nullptr, "Argument must be non-nil");
     if (child) {
         addChild(child, zOrder, child->_name);
     }
@@ -936,9 +936,8 @@ void Node::addChild(Node *child, int zOrder)
 
 void Node::addChild(Node *child)
 {
-    CCASSERT( child != nullptr, "Argument must be non-nil");
     if (child) {
-        addChild(child, child->_localZOrder, child->_name);
+        addChild(child, child->getLocalZOrder(), child->_name);
     }
 }
 
@@ -990,7 +989,6 @@ void Node::removeChildByTag(int tag, bool cleanup/* = true */)
 
 void Node::removeChildByName(const std::string &name, bool cleanup)
 {
-    CCASSERT(!name.empty(), "Invalid name");
     if (name.empty()) {
         return;
     }
@@ -1030,6 +1028,13 @@ void Node::removeAllChildrenWithCleanup(bool cleanup)
         {
             child->cleanup();
         }
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+        auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+        if (sEngine)
+        {
+            sEngine->releaseScriptObject(this, child);
+        }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
         // set parent nil at the end
         child->setParent(nullptr);
     }
@@ -1054,7 +1059,14 @@ void Node::detachChild(Node *child, ssize_t childIndex, bool doCleanup)
     {
         child->cleanup();
     }
-
+    
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->releaseScriptObject(this, child);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     // set parent nil at the end
     child->setParent(nullptr);
 
@@ -1065,25 +1077,32 @@ void Node::detachChild(Node *child, ssize_t childIndex, bool doCleanup)
 // helper used by reorderChild & add
 void Node::insertChild(Node* child, int z)
 {
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        sEngine->retainScriptObject(this, child);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
     _transformUpdated = true;
     _reorderChildDirty = true;
     _children.pushBack(child);
-    child->_localZOrder = z;
+    child->_setLocalZOrder(z);
 }
 
 void Node::reorderChild(Node *child, int zOrder)
 {
     CCASSERT( child != nullptr, "Child must be non-nil");
     _reorderChildDirty = true;
-    child->setOrderOfArrival(s_globalOrderOfArrival++);
-    child->_localZOrder = zOrder;
+    child->updateOrderOfArrival();
+    child->_setLocalZOrder(zOrder);
 }
 
 void Node::sortAllChildren()
 {
     if (_reorderChildDirty)
     {
-        std::sort(std::begin(_children), std::end(_children), nodeComparisonLess);
+        sortNodes(_children);
         _reorderChildDirty = false;
     }
 }
@@ -1430,9 +1449,9 @@ void Node::unscheduleUpdate()
     _scheduler->unscheduleUpdate(this);
 
 #if CC_ENABLE_SCRIPT_BINDING
-    if (_updateScriptHandler && ScriptEngineManager::ShareInstance)
+    if (_updateScriptHandler)
     {
-        ScriptEngineManager::ShareInstance->getScriptEngine()->removeScriptHandler(_updateScriptHandler);
+        ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_updateScriptHandler);
         _updateScriptHandler = 0;
     }
 #endif
@@ -1518,12 +1537,12 @@ void Node::pause()
 void Node::update(float fDelta)
 {
 #if CC_ENABLE_SCRIPT_BINDING
-    if (0 != _updateScriptHandler && ScriptEngineManager::ShareInstance)
+    if (0 != _updateScriptHandler)
     {
         //only lua use
         SchedulerScriptData data(_updateScriptHandler,fDelta);
         ScriptEvent event(kScheduleEvent,&data);
-        ScriptEngineManager::ShareInstance->getScriptEngine()->sendEvent(&event);
+        ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
 #endif
 
@@ -1657,14 +1676,24 @@ const Mat4& Node::getNodeToParentTransform() const
                 _transform.m[13] += _transform.m[1] * -_anchorPointInPoints.x + _transform.m[5] * -_anchorPointInPoints.y;
             }
         }
-
-        if (_useAdditionalTransform)
-        {
-            _transform = _transform * _additionalTransform;
-        }
-
-        _transformDirty = false;
     }
+
+    if (_additionalTransform)
+    {
+        // This is needed to support both Node::setNodeToParentTransform() and Node::setAdditionalTransform()
+        // at the same time. The scenario is this:
+        // at some point setNodeToParentTransform() is called.
+        // and later setAdditionalTransform() is called every time. And since _transform
+        // is being overwritten everyframe, _additionalTransform[1] is used to have a copy
+        // of the last "_transform without _additionalTransform"
+        if (_transformDirty)
+            _additionalTransform[1] = _transform;
+
+        if (_transformUpdated)
+            _transform = _additionalTransform[1] * _additionalTransform[0];
+    }
+
+    _transformDirty = _additionalTransformDirty = false;
 
     return _transform;
 }
@@ -1674,6 +1703,10 @@ void Node::setNodeToParentTransform(const Mat4& transform)
     _transform = transform;
     _transformDirty = false;
     _transformUpdated = true;
+
+    if (_additionalTransform)
+        // _additionalTransform[1] has a copy of lastest transform
+        _additionalTransform[1] = transform;
 }
 
 void Node::setAdditionalTransform(const AffineTransform& additionalTransform)
@@ -1683,18 +1716,25 @@ void Node::setAdditionalTransform(const AffineTransform& additionalTransform)
     setAdditionalTransform(&tmp);
 }
 
-void Node::setAdditionalTransform(Mat4* additionalTransform)
+void Node::setAdditionalTransform(const Mat4* additionalTransform)
 {
     if (additionalTransform == nullptr)
     {
-        _useAdditionalTransform = false;
+        delete[] _additionalTransform;
+        _additionalTransform = nullptr;
     }
     else
     {
-        _additionalTransform = *additionalTransform;
-        _useAdditionalTransform = true;
+        if (!_additionalTransform) {
+            _additionalTransform = new Mat4[2];
+
+            // _additionalTransform[1] is used as a backup for _transform
+            _additionalTransform[1] = _transform;
+        }
+
+        _additionalTransform[0] = *additionalTransform;
     }
-    _transformUpdated = _transformDirty = _inverseDirty = true;
+    _transformUpdated = _additionalTransformDirty = _inverseDirty = true;
 }
 
 
@@ -1842,7 +1882,7 @@ void Node::removeAllComponents()
 
 // MARK: Opacity and Color
 
-GLubyte Node::getOpacity() const
+GLubyte Node::getOpacity(void) const
 {
     return _realOpacity;
 }
@@ -1873,7 +1913,7 @@ void Node::updateDisplayedOpacity(GLubyte parentOpacity)
     }
 }
 
-bool Node::isCascadeOpacityEnabled() const
+bool Node::isCascadeOpacityEnabled(void) const
 {
     return _cascadeOpacityEnabled;
 }
@@ -1919,7 +1959,7 @@ void Node::disableCascadeOpacity()
     }
 }
 
-const Color3B& Node::getColor() const
+const Color3B& Node::getColor(void) const
 {
     return _realColor;
 }
@@ -1952,7 +1992,7 @@ void Node::updateDisplayedColor(const Color3B& parentColor)
     }
 }
 
-bool Node::isCascadeColorEnabled() const
+bool Node::isCascadeColorEnabled(void) const
 {
     return _cascadeColorEnabled;
 }

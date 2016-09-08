@@ -323,8 +323,8 @@ bool RenderTexture::initWithWidthAndHeight(int w, int h, Texture2D::PixelFormat 
 
         glBindRenderbuffer(GL_RENDERBUFFER, oldRBO);
         glBindFramebuffer(GL_FRAMEBUFFER, _oldFBO);
-
-        // Diabled by default.
+        
+        // Disabled by default.
         _autoDraw = false;
 
         // add sprite for backward compatibility
@@ -336,6 +336,23 @@ bool RenderTexture::initWithWidthAndHeight(int w, int h, Texture2D::PixelFormat 
     CC_SAFE_FREE(data);
 
     return ret;
+}
+
+void RenderTexture::setSprite(Sprite* sprite)
+{
+#if CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    auto sEngine = ScriptEngineManager::getInstance()->getScriptEngine();
+    if (sEngine)
+    {
+        if (sprite)
+            sEngine->retainScriptObject(this, sprite);
+        if (_sprite)
+            sEngine->releaseScriptObject(this, _sprite);
+    }
+#endif // CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+    CC_SAFE_RETAIN(sprite);
+    CC_SAFE_RELEASE(_sprite);
+    _sprite = sprite;
 }
 
 void RenderTexture::setKeepMatrix(bool keepMatrix)
@@ -383,7 +400,7 @@ void RenderTexture::beginWithClear(float r, float g, float b, float a, float dep
     //clear screen
     _beginWithClearCommand.init(_globalZOrder);
     _beginWithClearCommand.func = CC_CALLBACK_0(RenderTexture::onClear, this);
-    _director->getRenderer()->addCommand(&_beginWithClearCommand);
+    Director::getInstance()->getRenderer()->addCommand(&_beginWithClearCommand);
 }
 
 //TODO: find a better way to clear the screen, there is no need to rebind render buffer there.
@@ -402,7 +419,7 @@ void RenderTexture::clearDepth(float depthValue)
     _clearDepthCommand.init(_globalZOrder);
     _clearDepthCommand.func = CC_CALLBACK_0(RenderTexture::onClearDepth, this);
 
-    _director->getRenderer()->addCommand(&_clearDepthCommand);
+    Director::getInstance()->getRenderer()->addCommand(&_clearDepthCommand);
 
     this->end();
 }
@@ -431,16 +448,17 @@ void RenderTexture::visit(Renderer *renderer, const Mat4 &parentTransform, uint3
 
     uint32_t flags = processParentFlags(parentTransform, parentFlags);
 
+    Director* director = Director::getInstance();
     // IMPORTANT:
     // To ease the migration to v3.0, we still support the Mat4 stack,
     // but it is deprecated and your code should not rely on it
-    _director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
+    director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _modelViewTransform);
 
     _sprite->visit(renderer, _modelViewTransform, flags);
     draw(renderer, _modelViewTransform, flags);
 
-    _director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->popMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
 }
 
 bool RenderTexture::saveToFile(const std::string& filename, bool isRGBA, std::function<void (RenderTexture*, const std::string&)> callback)
@@ -476,8 +494,8 @@ bool RenderTexture::saveToFile(const std::string& fileName, Image::Format format
     std::string fullpath = FileUtils::getInstance()->getWritablePath() + fileName;
     _saveToFileCommand.init(_globalZOrder);
     _saveToFileCommand.func = CC_CALLBACK_0(RenderTexture::onSaveToFile, this, fullpath, isRGBA);
-
-    _director->getRenderer()->addCommand(&_saveToFileCommand);
+    
+    Director::getInstance()->getRenderer()->addCommand(&_saveToFileCommand);
     return true;
 }
 
@@ -574,25 +592,27 @@ Image* RenderTexture::newImage(bool fliimage)
 
 void RenderTexture::onBegin()
 {
-    _oldProjMatrix = _director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, _projectionMatrix);
-
-    _oldTransMatrix = _director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _transformMatrix);
-
+    Director *director = Director::getInstance();
+    
+    _oldProjMatrix = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, _projectionMatrix);
+    
+    _oldTransMatrix = director->getMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _transformMatrix);
+    
     if(!_keepMatrix)
     {
-        _director->setProjection(_director->getProjection());
+        director->setProjection(director->getProjection());
         const Size& texSize = _texture->getContentSizeInPixels();
 
         // Calculate the adjustment ratios based on the old and new projections
-        Size size = _director->getWinSizeInPixels();
+        Size size = director->getWinSizeInPixels();
         float widthRatio = size.width / texSize.width;
         float heightRatio = size.height / texSize.height;
 
         Mat4 orthoMatrix;
         Mat4::createOrthographicOffCenter((float)-1.0 / widthRatio, (float)1.0 / widthRatio, (float)-1.0 / heightRatio, (float)1.0 / heightRatio, -1, 1, &orthoMatrix);
-        _director->multiplyMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, orthoMatrix);
+        director->multiplyMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, orthoMatrix);
     }
 
     //calculate viewport
@@ -628,13 +648,18 @@ void RenderTexture::onBegin()
 
 void RenderTexture::onEnd()
 {
+    Director *director = Director::getInstance();
+
     glBindFramebuffer(GL_FRAMEBUFFER, _oldFBO);
 
     // restore viewport
-    _director->setViewport();
+    director->setViewport();
+    Size size = director->getWinSizeInPixels();
+    glViewport(0, 0, (GLsizei)(size.width), (GLsizei)(size.height) );
     //
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, _oldProjMatrix);
-    _director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _oldTransMatrix);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION, _oldProjMatrix);
+    director->loadMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_MODELVIEW, _oldTransMatrix);
+
 }
 
 void RenderTexture::onClear()
@@ -722,7 +747,7 @@ void RenderTexture::draw(Renderer *renderer, const Mat4 &transform, uint32_t fla
 
 void RenderTexture::begin()
 {
-    Director* director = Director::DirectorInstance;
+    Director* director = Director::getInstance();
     CCASSERT(nullptr != director, "Director is null when setting matrix stack");
 
     director->pushMatrix(MATRIX_STACK_TYPE::MATRIX_STACK_PROJECTION);
@@ -750,14 +775,14 @@ void RenderTexture::begin()
 
     _groupCommand.init(_globalZOrder);
 
-    Renderer *renderer =  director->getRenderer();
+    Renderer *renderer =  Director::getInstance()->getRenderer();
     renderer->addCommand(&_groupCommand);
     renderer->pushGroup(_groupCommand.getRenderQueueID());
 
     _beginCommand.init(_globalZOrder);
     _beginCommand.func = CC_CALLBACK_0(RenderTexture::onBegin, this);
 
-    director->getRenderer()->addCommand(&_beginCommand);
+    Director::getInstance()->getRenderer()->addCommand(&_beginCommand);
 }
 
 void RenderTexture::end()
@@ -765,7 +790,7 @@ void RenderTexture::end()
     _endCommand.init(_globalZOrder);
     _endCommand.func = CC_CALLBACK_0(RenderTexture::onEnd, this);
 
-    Director* director = Director::DirectorInstance;
+    Director* director = Director::getInstance();
     CCASSERT(nullptr != director, "Director is null when setting matrix stack");
 
     Renderer *renderer = director->getRenderer();

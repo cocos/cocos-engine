@@ -41,6 +41,7 @@ NS_CC_BEGIN
  */
 
 class GLProgram;
+class Texture2D;
 
 namespace GL {
 
@@ -64,7 +65,7 @@ enum {
  * If CC_ENABLE_GL_STATE_CACHE it will reset the GL state cache.
  * @since v2.0.0
  */
-void CC_DLL invalidateStateCache();
+void CC_DLL invalidateStateCache(void);
 
 /**
  * Uses the GL program in case program is different than the current one.
@@ -96,13 +97,13 @@ void CC_DLL blendFunc(GLenum sfactor, GLenum dfactor);
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will just set the default blending mode using GL_FUNC_ADD.
  * @since v2.0.0
  */
-void CC_DLL blendResetToCache();
+void CC_DLL blendResetToCache(void);
 
 /**
  * Sets the projection matrix as dirty.
  * @since v2.0.0
  */
-void CC_DLL setProjectionMatrixDirty();
+void CC_DLL setProjectionMatrixDirty(void);
 
 /**
  * Will enable the vertex attribs that are passed as flags.
@@ -125,6 +126,16 @@ void CC_DLL enableVertexAttribs(uint32_t flags);
  * @since v2.0.0
  */
 void CC_DLL bindTexture2D(GLuint textureId);
+
+/**
+ * If the texture is not already bound to texture unit 0, it binds it.
+ *
+ * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glBindTexture() directly.
+ *
+ * @remark: It will bind alpha texture to support ETC1 alpha channel.
+ * @since v3.13
+ */
+void CC_DLL bindTexture2D(Texture2D* texture);
 
 /**
  * If the texture is not already bound to a given unit, it binds it.
@@ -172,4 +183,3 @@ NS_CC_END
 
 
 #endif /* __CCGLSTATE_H__ */
-

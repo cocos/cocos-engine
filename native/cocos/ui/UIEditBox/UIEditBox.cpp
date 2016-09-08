@@ -518,9 +518,9 @@ void EditBox::registerScriptEditBoxHandler(int handler)
 
 void EditBox::unregisterScriptEditBoxHandler()
 {
-    if (0 != _scriptEditBoxHandler && ScriptEngineManager::ShareInstance)
+    if (0 != _scriptEditBoxHandler)
     {
-        ScriptEngineManager::ShareInstance->getScriptEngine()->removeScriptHandler(_scriptEditBoxHandler);
+        ScriptEngineManager::getInstance()->getScriptEngine()->removeScriptHandler(_scriptEditBoxHandler);
         _scriptEditBoxHandler = 0;
     }
 }
