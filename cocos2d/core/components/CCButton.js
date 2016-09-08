@@ -168,6 +168,25 @@ var Button = cc.Class({
             animatable: false
         },
 
+        _resizeToTarget: {
+            serializable: false,
+            visible: false,
+            animatable: false,
+            set: function (value) {
+                if(value) {
+                    this._resizeNodeToTargetNode();
+                }
+            }
+        },
+
+        enableAutoGrayEffect: {
+            default: true,
+            tooltip: 'i18n:COMPONENT.button.auto_gray_effect',
+            notify: function () {
+                this._updateDisabledState();
+            }
+        },
+
         /**
          * !#en Transition type
          * !#zh 按钮状态改变时过渡方式。
@@ -382,7 +401,7 @@ var Button = cc.Class({
         }
     },
 
-    start: function () {
+    onLoad: function () {
         this._applyTarget();
         this._updateState();
     },
@@ -544,6 +563,7 @@ var Button = cc.Class({
         var sprite = this[state + 'Sprite'];
 
         this._applyTransition(color, sprite);
+        this._updateDisabledState();
     },
 
     onDisable: function() {
@@ -583,6 +603,25 @@ var Button = cc.Class({
             this._sprite.spriteFrame = sprite;
         }
     },
+
+    _resizeNodeToTargetNode: CC_EDITOR && function () {
+        if(this.target) {
+            this.node.setContentSize(this.target.getContentSize());
+        }
+    },
+
+    _updateDisabledState: function () {
+        if(this._sprite) {
+            this._sprite._sgNode.setState(0);
+        }
+        if(this.enableAutoGrayEffect) {
+            if(! (this.transition === Transition.SPRITE && this.disabledSprite)) {
+                if(this._sprite && !this.interactable) {
+                    this._sprite._sgNode.setState(1);
+                }
+            }
+        }
+    }
 
 });
 
