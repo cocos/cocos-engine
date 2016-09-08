@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "base/CCTouch.h"
 #include "base/CCDirector.h"
+#include "renderer/CCTextureCache.h"
 #include "base/CCEventDispatcher.h"
 
 NS_CC_BEGIN
