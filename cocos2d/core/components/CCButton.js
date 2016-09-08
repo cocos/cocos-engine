@@ -116,6 +116,7 @@ var Button = cc.Class({
         this._transitionFinished = true;
         this._fromScale = 1.0;
         this._toScale = 1.0;
+        this._originalScale = 1.0;
 
         this._sprite = null;
 
@@ -244,11 +245,14 @@ var Button = cc.Class({
         },
 
         /**
-         * !#en
+         * !#en  When user press the button, the button will zoom to a scale.
+         * The final scale of the button  equals (button original scale + zoomScale), zoomScale could be negative value.
+         * !#zh 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button原始 scale + zoomScale, zoomScale 可以为负数
+         * @property {Number} zoomScale
          */
         zoomScale: {
             default: 0.1,
-            tooltip: 'i18n:COMPONENT.button.zoomScale'
+            tooltip: 'i18n:COMPONENT.button.zoom_scale'
         },
 
         // sprite transition
@@ -421,6 +425,7 @@ var Button = cc.Class({
         var target = this.target;
         if (target) {
             this._sprite = target.getComponent(cc.Sprite);
+            this._originalScale = target.scale;
         }
         else {
             this._sprite = null;
@@ -449,9 +454,9 @@ var Button = cc.Class({
 
         if(this.transition === Transition.SCALE && this.target) {
             if(hit) {
-                this.target.scale = 1.0 + this.zoomScale;
+                this.target.scale = this._originalScale + this.zoomScale;
             } else {
-                this.target.scale = 1.0;
+                this.target.scale = this._originalScale;
             }
         } else {
             var state;
@@ -483,15 +488,15 @@ var Button = cc.Class({
     },
 
     _zoomUp: function () {
-        this._fromScale = 1.0;
-        this._toScale = 1.0 + this.zoomScale;
+        this._fromScale = this._originalScale;
+        this._toScale = this._originalScale + this.zoomScale;
         this.time = 0;
         this._transitionFinished = false;
     },
 
     _zoomBack: function () {
-        this._fromScale = 1.0 + this.zoomScale;
-        this._toScale = 1.0;
+        this._fromScale = this._originalScale + this.zoomScale;
+        this._toScale = this._originalScale;
         this.time = 0;
         this._transitionFinished = false;
     },
