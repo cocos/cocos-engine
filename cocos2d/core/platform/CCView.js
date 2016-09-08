@@ -127,7 +127,7 @@ var View = cc._Class.extend({
     // Custom callback for resize event
     _resizeCallback: null,
 
-    _orientationChanging: false,
+    _orientationChanging: true,
 
     _scaleX: 1,
     _originalScaleX: 1,
@@ -184,6 +184,7 @@ var View = cc._Class.extend({
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
+        _t.enableAntiAlias(true);
     },
 
     // Resize helper functions
@@ -216,7 +217,6 @@ var View = cc._Class.extend({
     _orientationChange: function () {
         cc.view._orientationChanging = true;
         cc.view._resizeEvent();
-        cc.view._orientationChanging = false;
     },
 
     /**
@@ -324,6 +324,7 @@ var View = cc._Class.extend({
             cc.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
         }
+        this._orientationChanging = false;
     },
 
     // hack
@@ -426,7 +427,7 @@ var View = cc._Class.extend({
 
     /**
      * !#en Whether to Enable on anti-alias
-     * !#zh 是否开启抗锯齿
+     * !#zh 控制抗锯齿是否开启
      * @method enableAntiAlias
      * @param {Boolean} enabled - Enable or not anti-alias
      */
@@ -473,7 +474,6 @@ var View = cc._Class.extend({
     isAntiAliasEnabled: function () {
         return this._antiAliasEnabled;
     },
-    
     /**
      * If enabled, the application will try automatically to enter full screen mode on mobile devices<br/>
      * You can pass true as parameter to enable it and disable it by passing false.<br/>
