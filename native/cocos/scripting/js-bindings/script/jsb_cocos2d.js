@@ -3144,13 +3144,3 @@ cc.GLProgram.prototype.setUniformLocationWithMatrix4fv = function(){
     this.setUniformLocationWithMatrixfvUnion.apply(this, tempArray);
 };
 
-var jsbSetUniformCallback = cc.GLProgramState.prototype.setUniformCallback;
-cc.GLProgramState.prototype.setUniformCallback = function (uniform, callback) {
-    if (!jsb._root) {
-        jsb._root = {};
-    }
-    var owner = jsb._root;
-    jsb.addRoot(owner, callback);
-    jsbSetUniformCallback.call(this, uniform, callback);
-};
-

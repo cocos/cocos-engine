@@ -108,7 +108,7 @@ cc.AsyncPool = function(srcObj, limit, iterator, onEnd, target){
         }
         for(var i = 0; i < self._limit; i++)
             self._handleItem();
-    }
+    };
 };
 
 /**
