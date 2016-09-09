@@ -902,7 +902,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 objectProp["x"] = (selObj.getAttribute('x') || 0) / getContentScaleFactor;
                 objectProp["y"] = (selObj.getAttribute('y') || 0) / getContentScaleFactor;
 
-                objectProp["rotation"] = parseInt(selObj.getAttribute('rotation')) || 0;
+                objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
 
                 var docObjProps = selObj.querySelectorAll("properties > property");
                 if (docObjProps) {
