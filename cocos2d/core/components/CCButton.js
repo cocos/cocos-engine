@@ -169,8 +169,6 @@ var Button = cc.Class({
         },
 
         _resizeToTarget: {
-            serializable: false,
-            visible: false,
             animatable: false,
             set: function (value) {
                 if(value) {
@@ -179,6 +177,11 @@ var Button = cc.Class({
             }
         },
 
+        /**
+         * !#en When this flag is true, Button target sprite will turn gray when interactable is false.
+         * !#zh 如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰
+         * @property {Boolean} enableAutoGrayEffect
+         */
         enableAutoGrayEffect: {
             default: true,
             tooltip: 'i18n:COMPONENT.button.auto_gray_effect',
@@ -254,7 +257,7 @@ var Button = cc.Class({
 
         /**
          * !#en Color and Scale transition duration
-         * !#zh 颜色过渡和绽放过渡时所需时间
+         * !#zh 颜色过渡和缩放过渡时所需时间
          * @property {Number} duration
          */
         duration: {
@@ -265,8 +268,8 @@ var Button = cc.Class({
 
         /**
          * !#en  When user press the button, the button will zoom to a scale.
-         * The final scale of the button  equals (button original scale + zoomScale), zoomScale could be negative value.
-         * !#zh 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button原始 scale + zoomScale, zoomScale 可以为负数
+         * The final scale of the button  equals (button original scale * zoomScale)
+         * !#zh 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale
          * @property {Number} zoomScale
          */
         zoomScale: {
@@ -473,7 +476,7 @@ var Button = cc.Class({
 
         if(this.transition === Transition.SCALE && this.target) {
             if(hit) {
-                this.target.scale = this._originalScale + this.zoomScale;
+                this.target.scale = this._originalScale * this.zoomScale;
             } else {
                 this.target.scale = this._originalScale;
             }
@@ -508,13 +511,13 @@ var Button = cc.Class({
 
     _zoomUp: function () {
         this._fromScale = this._originalScale;
-        this._toScale = this._originalScale + this.zoomScale;
+        this._toScale = this._originalScale * this.zoomScale;
         this.time = 0;
         this._transitionFinished = false;
     },
 
     _zoomBack: function () {
-        this._fromScale = this._originalScale + this.zoomScale;
+        this._fromScale = this._originalScale * this.zoomScale;
         this._toScale = this._originalScale;
         this.time = 0;
         this._transitionFinished = false;
