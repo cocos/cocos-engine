@@ -36,7 +36,6 @@ cc._PrefabInfo = cc.Class({
         root: null,
 
         // 所属的 prefab 资源对象 (cc.Prefab)
-        // （这个属性在场景中是会保存的，但是不会保存在 prefab 里面，因为创建 prefab 时还不知道自己的 uuid 是多少。）
         asset: null,
 
         // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
@@ -57,12 +56,26 @@ cc._PrefabInfo = cc.Class({
 module.exports = {
     // update node to make it sync with prefab
     syncWithPrefab: function (node) {
+        var _prefab = node._prefab;
+        // non-reentrant
+        _prefab._synced = true;
+        //
+        if (!_prefab.asset) {
+            if (CC_EDITOR) {
+                cc.warn(Editor.T('MESSAGE.prefab.missing_prefab', { node: _Scene.NodeUtils.getNodePath(node) }));
+                node.name += _Scene.PrefabUtils.MISSING_PREFAB_SUFFIX;
+            }
+            else {
+                cc.error('Failed to load prefab asset for node "%s"', node.name);
+            }
+            node._prefab = null;
+            return;
+        }
 
-        // save preserved props to avoid overwritten by prefabRoot
+        // save root's preserved props to avoid overwritten by prefab
         var _objFlags = node._objFlags;
         var _parent = node._parent;
         var _id = node._id;
-        var _prefab = node._prefab;
         var _name = node._name;
         var _active = node._active;
         var _position = node._position;
@@ -71,12 +84,8 @@ module.exports = {
         var _localZOrder = node._localZOrder;
         var _globalZOrder = node._globalZOrder;
 
-        // non-reentrant
-        _prefab._synced = true;
-
+        // root in prefab asset is always synced
         var prefabRoot = _prefab.asset.data;
-
-        // prefab asset is always synced
         prefabRoot._prefab._synced = true;
 
         // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
