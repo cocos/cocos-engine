@@ -5,11 +5,11 @@
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
-  worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
+ worldwide, royalty-free, non-assignable, revocable and  non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
-  not use Cocos Creator software for developing other software or tools that's
-  used for developing games. You are not granted to publish, distribute,
-  sublicense, and/or sell copies of Cocos Creator.
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
  The software or tools in this License Agreement are licensed, not sold.
  Chukong Aipu reserves all rights not expressly granted to you.
@@ -22,10 +22,33 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- 
-require('./CCPath');
-if (!CC_EDITOR && !CC_JSB) {
-    require('./CCProfiler');
+
+/**
+ * @example
+ * var array = [0, 1, 2, 3, 4];
+ * var iterator = new cc.js.array.MutableForwardIterator(array);
+ * for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+ *     var item = array[iterator.i];
+ *     ...
+ * }
+ */
+function MutableForwardIterator (array) {
+    this.i = 0;
+    this.array = array;
 }
-require('./find');
-require('./mutable-forward-iterator');
+
+var proto = MutableForwardIterator.prototype;
+
+proto.removeAt = function (i) {
+    this.array.splice(i, 1);
+    if (i <= this.i) {
+        --this.i;
+    }
+};
+
+proto.push = function (item) {
+    this.array.push(item);
+};
+
+var js = require('../platform/js');
+js.array.MutableForwardIterator = module.exports = MutableForwardIterator;
