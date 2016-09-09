@@ -286,6 +286,28 @@ sp.Skeleton = cc.Class({
             tooltip: 'i18n:COMPONENT.skeleton.loop'
         },
 
+        /**
+         * !#en Indicates whether to enable premultiplied alpha.
+         * You should disable this option when image's transparent area appears to have opaque pixels,
+         * or enable this option when image's half transparent area appears to be darken.
+         * !#zh 是否启用贴图预乘。
+         * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
+         * @property {Boolean} premultipliedAlpha
+         * @default true
+         */
+        _premultipliedAlpha: true,
+        premultipliedAlpha: {
+            get: function () {
+                return this._premultipliedAlpha;
+            },
+            set: function (value) {
+                this._premultipliedAlpha = value;
+                if (this._sgNode) {
+                    this._sgNode.setPremultipliedAlpha(value);
+                }
+            },
+            tooltip: 'i18n:COMPONENT.skeleton.premultipliedAlpha'
+        },
 
         /**
          * !#en The time scale of this skeleton.
@@ -417,6 +439,9 @@ sp.Skeleton = cc.Class({
                 cc._throw(e);
             }
         }
+
+        sgNode.setPremultipliedAlpha(this._premultipliedAlpha);
+
         this.animation = this.defaultAnimation;
         if (CC_EDITOR) {
             sgNode.setDebugSlotsEnabled(this.debugSlots);
