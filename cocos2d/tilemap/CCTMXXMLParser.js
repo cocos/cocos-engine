@@ -222,7 +222,6 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     // tile properties
     _tileProperties:null,
     _resources:"",
-    _currentFirstGID:0,
 
     // hex map values
     _staggerAxis: null,
@@ -244,8 +243,6 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         this._objectGroups = [];
         this.properties = [];
         this._tileProperties = {};
-
-        this._currentFirstGID = 0;
 
         if (resourcePath !== undefined) {
             this.initWithXML(tmxFile,resourcePath);
@@ -529,9 +526,10 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
     /** Initalises parsing of an XML file, either a tmx (Map) file or tsx (Tileset) file
      * @param {String} tmxFile
      * @param {boolean} [isXmlString=false]
+     * @param {Number} tilesetFirstGid
      * @return {Element}
      */
-    parseXMLFile:function (tmxFile, isXmlString) {
+    parseXMLFile:function (tmxFile, isXmlString, tilesetFirstGid) {
         isXmlString = isXmlString || false;
 	    var xmlStr = isXmlString ? tmxFile : cc.loader.getRes(tmxFile);
         if(!xmlStr) throw new Error("Please load the resource first : " + tmxFile);
@@ -612,19 +610,17 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
             // If this is an external tileset then start parsing that
             var tsxName = selTileset.getAttribute('source');
             if (tsxName) {
-                //this._currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
+                var currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
                 var tsxPath = isXmlString ? cc.path.join(this._resources, tsxName) : cc.path.changeBasename(tmxFile, tsxName);
-                this.parseXMLFile(tsxPath);
+                this.parseXMLFile(tsxPath, false, currentFirstGID);
             } else {
                 var tileset = new cc.TMXTilesetInfo();
                 tileset.name = selTileset.getAttribute('name') || "";
-                //TODO need fix
-                //if(this._currentFirstGID === 0){
-                tileset.firstGid = parseInt(selTileset.getAttribute('firstgid')) || 0;
-                //}else{
-                //    tileset.firstGid = this._currentFirstGID;
-                //    this._currentFirstGID = 0;
-                //}
+                if (tilesetFirstGid) {
+                    tileset.firstGid = tilesetFirstGid;
+                } else {
+                    tileset.firstGid = parseInt(selTileset.getAttribute('firstgid')) || 0;
+                }
 
                 tileset.spacing = parseInt(selTileset.getAttribute('spacing')) || 0;
                 tileset.margin = parseInt(selTileset.getAttribute('margin')) || 0;
@@ -928,7 +924,6 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         this.storingCharacters = false;
         this.layerAttrs = cc.TMXLayerInfo.ATTRIB_NONE;
         this.parentElement = cc.TiledMap.NONE;
-        this._currentFirstGID = 0;
     }
 });
 
