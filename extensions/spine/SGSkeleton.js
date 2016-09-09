@@ -208,7 +208,8 @@ sp._SGSkeleton = _ccsg.Node.extend({
     },
 
     /**
-     * Finds a bone by name. This does a string comparison for every bone.
+     * Finds a bone by name. This does a string comparison for every bone.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Bone object.
      * @param {String} boneName
      * @returns {spine.Bone}
      */
@@ -217,7 +218,9 @@ sp._SGSkeleton = _ccsg.Node.extend({
     },
 
     /**
-     * Finds a slot by name. This does a string comparison for every slot.
+     * Finds a slot by name. This does a string comparison for every slot.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Slot object.
+     *
      * @param {String} slotName
      * @returns {spine.Slot}
      */
@@ -226,7 +229,9 @@ sp._SGSkeleton = _ccsg.Node.extend({
     },
 
     /**
-     * Finds a skin by name and makes it the active skin. This does a string comparison for every skin. Note that setting the skin does not change which attachments are visible.
+     * Finds a skin by name and makes it the active skin. This does a string comparison for every skin. Note that setting the skin does not change which attachments are visible.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Skin object.
+     *
      * @param {string} skinName
      * @returns {spine.Skin}
      */
@@ -235,10 +240,12 @@ sp._SGSkeleton = _ccsg.Node.extend({
     },
 
     /**
-     * Returns the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * Returns the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Attachment object.
+     *
      * @param {String} slotName
      * @param {String} attachmentName
-     * @returns {spine.RegionAttachment|spine.BoundingBoxAttachment}
+     * @returns {spine.Attachment}
      */
     getAttachment: function (slotName, attachmentName) {
         return this._skeleton.getAttachmentBySlotName(slotName, attachmentName);

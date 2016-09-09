@@ -167,17 +167,8 @@ var RichText = cc.Class({
     },
 
     _createSgNode: function () {
-        return new _ccsg.Node();
-    },
+        var sgNode = new _ccsg.Node();
 
-    _updateLabelSegmentTextAttributes: function() {
-        this._labelSegments.forEach(function(item) {
-            this._applyTextAttribute(item);
-        }.bind(this));
-    },
-
-    _initSgNode: function () {
-        var sgNode = this._sgNode;
         sgNode.setCascadeOpacityEnabled(true);
 
         var self = this;
@@ -187,7 +178,16 @@ var RichText = cc.Class({
 
         sgNode._setContentSize = sgNode.setContentSize;
         sgNode.setContentSize = function () {};
+        return sgNode;
+    },
 
+    _updateLabelSegmentTextAttributes: function() {
+        this._labelSegments.forEach(function(item) {
+            this._applyTextAttribute(item);
+        }.bind(this));
+    },
+
+    _initSgNode: function () {
         this._updateRichText();
     },
 
@@ -356,12 +356,12 @@ var RichText = cc.Class({
         if (this._lineOffsetX > 0 && fragmentWidth + this._lineOffsetX > this.maxWidth) {
             //concat previous line
             var checkStartIndex = 0;
-            while (this._lineOffsetX < this.maxWidth) {
+            while (this._lineOffsetX <= this.maxWidth) {
                 var checkEndIndex = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
                 var checkString = labelString.substr(checkStartIndex, checkEndIndex);
                 var checkStringWidth = this._measureText(checkString, styleIndex);
 
-                if(this._lineOffsetX + checkStringWidth < this.maxWidth) {
+                if(this._lineOffsetX + checkStringWidth <= this.maxWidth) {
                     this._lineOffsetX += checkStringWidth;
                     checkStartIndex += checkEndIndex;
                 } else {
@@ -466,7 +466,15 @@ var RichText = cc.Class({
         var labelSize;
 
         for (var i = 0; i < this._textArray.length; ++i) {
-            var text = this._textArray[i].text;
+            var richTextElement = this._textArray[i];
+            var text = richTextElement.text;
+            //handle <br/> <img /> tag
+            if(text === "") {
+                if(richTextElement.style && richTextElement.style.newline) {
+                    this._updateLineInfo();
+                    continue;
+                }
+            }
             var multilineTexts = text.split("\n");
 
             for (var j = 0; j < multilineTexts.length; ++j) {

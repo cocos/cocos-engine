@@ -236,9 +236,10 @@ var Component = cc.Class({
     name: 'cc.Component',
     extends: cc.Object,
 
-    ctor: (CC_EDITOR && window._Scene && _Scene.AssetsWatcher) ? function () {
-        _Scene.AssetsWatcher.initComponent(this);
-
+    ctor: CC_EDITOR ? function () {
+        if (window._Scene && _Scene.AssetsWatcher) {
+            _Scene.AssetsWatcher.initComponent(this);
+        }
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
     } : function () {

@@ -29,7 +29,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     View = require('./platform/CCView');
 }
 
-var _isMusicPlaying = false;
+var audioEngine = cc.audioEngine = require('../audio/CCAudioEngine');
 
 /**
  * !#en An object to boot the game.
@@ -253,10 +253,8 @@ var game = {
         if (this._paused) return;
         this._paused = true;
         // Pause audio engine
-        if (cc.audioEngine) {
-            _isMusicPlaying = cc.audioEngine.isMusicPlaying();
-            cc.audioEngine.stopAllEffects();
-            cc.audioEngine.pauseMusic();
+        if (audioEngine) {
+            audioEngine.pauseAll();
         }
         // Pause main loop
         if (this._intervalId)
@@ -274,8 +272,8 @@ var game = {
         if (!this._paused) return;
         this._paused = false;
         // Resume audio engine
-        if (cc.audioEngine && _isMusicPlaying) {
-            cc.audioEngine.resumeMusic();
+        if (audioEngine) {
+            audioEngine.resumeAll();
         }
         // Resume main loop
         this._runMainLoop();
@@ -299,7 +297,7 @@ var game = {
     restart: function () {
         cc.director.popToSceneStackLevel(0);
         // Clean up audio
-        cc.audioEngine && cc.audioEngine.end();
+        audioEngine && audioEngine.end();
 
         game.onStart();
     },
@@ -631,6 +629,8 @@ var game = {
         // Collide Map and Group List
         this.collisionMatrix = config.collisionMatrix || [];
         this.groupList = config.groupList || [];
+        
+        cc._initDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;
     },

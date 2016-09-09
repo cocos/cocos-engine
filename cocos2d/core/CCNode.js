@@ -25,6 +25,7 @@
 'use strict';
 
 var EventTarget = require('./event/event-target');
+var PrefabHelper = require('./utils/prefab-helper');
 
 var JS = cc.js;
 var Flags = cc.Object.Flags;
@@ -394,10 +395,7 @@ var Node = cc.Class({
          * @type {PrefabInfo}
          * @private
          */
-        _prefab: {
-            default: null,
-            editorOnly: true
-        },
+        _prefab: null,
 
         /**
          * If true, the node is an persist node which won't be destroyed during scene transition.
@@ -791,13 +789,14 @@ var Node = cc.Class({
                 return;
             }
         }
-        if (ctor._requireComponent) {
+        var ReqComp = ctor._requireComponent;
+        if (ReqComp && !this.getComponent(ReqComp)) {
             if (index === this._components.length) {
                 // If comp should be last component, increase the index because required component added
                 ++index;
             }
-            var depend = this.addComponent(ctor._requireComponent);
-            if (!depend) {
+            var depended = this.addComponent(ReqComp);
+            if (!depended) {
                 // depend conflicts
                 return null;
             }
@@ -896,6 +895,33 @@ var Node = cc.Class({
         for (var i = 0, len = children.length; i < len; ++i) {
             var child = children[i];
             child._registerIfAttached(register);
+        }
+    },
+
+    /*
+     * The initializer for Node which will be called before all components onLoad
+     */
+    _onBatchCreated: function () {
+        var prefabInfo = this._prefab;
+        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
+            PrefabHelper.syncWithPrefab(this);
+        }
+
+        this._updateDummySgNode();
+
+        if (this._parent) {
+            this._parent._sgNode.addChild(this._sgNode);
+        }
+
+        if ( !this._activeInHierarchy ) {
+            // deactivate ActionManager and EventManager by default
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+        }
+
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchCreated();
         }
     },
 
@@ -1063,10 +1089,20 @@ var Node = cc.Class({
         var clone = cc.instantiate._clone(this, this);
         clone._parent = null;
 
-        // init
-        if (CC_EDITOR && cc.engine._isPlaying) {
+        var thisPrefabInfo = this._prefab;
+        var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
+        if (syncing) {
+            // copy non-serialized property
+            clone._prefab._synced = thisPrefabInfo._synced;
+            //if (thisPrefabInfo._synced) {
+            //    return clone;
+            //}
+        }
+        else if (CC_EDITOR && cc.engine._isPlaying) {
             this._name += ' (Clone)';
         }
+
+        // init
         clone._onBatchCreated();
 
         return clone;

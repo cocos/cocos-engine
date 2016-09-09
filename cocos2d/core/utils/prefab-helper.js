@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 // 保存编辑器下用到的 prefab 相关信息
-var PrefabInfo = cc.Class({
+cc._PrefabInfo = cc.Class({
     name: 'cc.PrefabInfo',
     properties: {
         //// the serialized version
@@ -42,9 +42,62 @@ var PrefabInfo = cc.Class({
         // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行
         fileId: '',
 
-        //// Indicates whether this node should always synchronize with the prefab asset.
-        //sync: false,
+        // Indicates whether this node should always synchronize with the prefab asset, only available in the root node
+        sync: false,
+
+        // Indicates whether this node is synchronized, only available in the root node
+        _synced: {
+            default: false,
+            serializable: false
+        },
     }
 });
 
-cc._PrefabInfo = module.exports = PrefabInfo;
+// prefab helper function
+module.exports = {
+    // update node to make it sync with prefab
+    syncWithPrefab: function (node) {
+
+        // save preserved props to avoid overwritten by prefabRoot
+        var _objFlags = node._objFlags;
+        var _parent = node._parent;
+        var _id = node._id;
+        var _prefab = node._prefab;
+        var _name = node._name;
+        var _active = node._active;
+        var _position = node._position;
+        var _rotationX = node._rotationX;
+        var _rotationY = node._rotationY;
+        var _localZOrder = node._localZOrder;
+        var _globalZOrder = node._globalZOrder;
+
+        // non-reentrant
+        _prefab._synced = true;
+
+        var prefabRoot = _prefab.asset.data;
+
+        // prefab asset is always synced
+        prefabRoot._prefab._synced = true;
+
+        // use node as the instantiated prefabRoot to make references to prefabRoot in prefab redirect to node
+        prefabRoot._iN$t = node;
+
+        // instantiate prefab and apply to node
+        cc.game._isCloning = true;
+        cc.instantiate._clone(prefabRoot, prefabRoot);
+        cc.game._isCloning = false;
+
+        // restore preserved props
+        node._objFlags = _objFlags;
+        node._parent = _parent;
+        node._id = _id;
+        node._prefab = _prefab;
+        node._name = _name;
+        node._active = _active;
+        node._position = _position;
+        node._rotationX = _rotationX;
+        node._rotationY = _rotationY;
+        node._localZOrder = _localZOrder;
+        node._globalZOrder = _globalZOrder;
+    }
+};
