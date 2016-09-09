@@ -151,51 +151,66 @@ TextureAtlasData* CCFactory::loadTextureAtlasData(const std::string& filePath, c
         textureAtlasData->imagePath = basePath + textureAtlasData->imagePath;
     }
     
+    _initTextureAtlasData(textureAtlasData);
+
+    return textureAtlasData;
+}
+
+TextureAtlasData* CCFactory::parseTextueAtlasData(const std::string& atlasData, const std::string& texturePath, const std::string& dragonBonesName, float scale)
+{
+    const auto textureAtlasData = static_cast<CCTextureAtlasData*>(parseTextureAtlasData(atlasData.c_str(), nullptr, dragonBonesName, scale));
+    textureAtlasData->imagePath = texturePath;
+    _initTextureAtlasData(textureAtlasData);
+    
+    return textureAtlasData;
+
+}
+
+void CCFactory::_initTextureAtlasData(TextureAtlasData* atlasData)
+{
     const auto textureCache = cocos2d::Director::getInstance()->getTextureCache();
-    auto texture = textureCache->getTextureForKey(textureAtlasData->imagePath);
+    auto texture = textureCache->getTextureForKey(atlasData->imagePath);
     if (!texture)
     {
         const auto defaultPixelFormat = cocos2d::Texture2D::getDefaultAlphaPixelFormat();
         auto pixelFormat = defaultPixelFormat;
-        switch (textureAtlasData->format)
+        switch (atlasData->format)
         {
             case TextureFormat::RGBA8888:
                 pixelFormat = cocos2d::Texture2D::PixelFormat::RGBA8888;
                 break;
-
+                
             case TextureFormat::BGRA8888:
                 pixelFormat = cocos2d::Texture2D::PixelFormat::BGRA8888;
                 break;
-
+                
             case TextureFormat::RGBA4444:
                 pixelFormat = cocos2d::Texture2D::PixelFormat::RGBA4444;
                 break;
-
+                
             case TextureFormat::RGB888:
                 pixelFormat = cocos2d::Texture2D::PixelFormat::RGB888;
                 break;
-
+                
             case TextureFormat::RGB565:
                 pixelFormat = cocos2d::Texture2D::PixelFormat::RGB565;
                 break;
-
+                
             case TextureFormat::RGBA5551:
                 pixelFormat = cocos2d::Texture2D::PixelFormat::RGB5A1;
                 break;
-
+                
             case TextureFormat::DEFAULT:
             default:
                 break;
         }
-
+        
         cocos2d::Texture2D::setDefaultAlphaPixelFormat(pixelFormat);
-        texture = textureCache->addImage(textureAtlasData->imagePath);
+        texture = textureCache->addImage(atlasData->imagePath);
         cocos2d::Texture2D::setDefaultAlphaPixelFormat(defaultPixelFormat);
     }
-
-    textureAtlasData->texture = texture;
-
-    return textureAtlasData;
+    
+    static_cast<CCTextureAtlasData*>(atlasData)->texture = texture;
 }
 
 CCArmatureDisplay * CCFactory::buildArmatureDisplay(const std::string& armatureName, const std::string& dragonBonesName, const std::string& skinName) const

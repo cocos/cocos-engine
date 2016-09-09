@@ -157,6 +157,7 @@ def main():
                     'cocos2dx_ui.ini' : ('cocos2dx_ui', 'jsb_cocos2dx_ui_auto'), \
                     'cocos2dx_studio.ini' : ('cocos2dx_studio', 'jsb_cocos2dx_studio_auto'), \
                     'cocos2dx_spine.ini' : ('cocos2dx_spine', 'jsb_cocos2dx_spine_auto'), \
+                    'cocos2dx_dragonbones.ini' : ('cocos2dx_dragonbones', 'jsb_cocos2dx_dragonbones_auto'), \
                     'cocos2dx_experimental_webView.ini' : ('cocos2dx_experimental_webView', 'jsb_cocos2dx_experimental_webView_auto'), \
                     'cocos2dx_experimental_video.ini' : ('cocos2dx_experimental_video', 'jsb_cocos2dx_experimental_video_auto'), \
                     'creator.ini': ('creator', 'jsb_creator_auto'),
