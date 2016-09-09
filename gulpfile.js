@@ -49,7 +49,9 @@ gulp.task('build-cut-modular', function (done) {
     Modular.buildModular('modular-cocos2d-cut.js', './bin', [], done);
 });
 
-gulp.task('build-modular-cocos2d', ['build-all-modular', 'build-cut-modular']);
+gulp.task('build-modular-cocos2d', ['build-all-modular', 'build-cut-modular'], function (done) {
+    Del(['./bin/cocos2d-js.js', './bin/cocos2d-js-min.js', './bin/.cache'], done);
+});
 
 
 /////////////
@@ -140,12 +142,12 @@ gulp.task('test-no-build', function (done) {
 // global //
 ////////////
 
-gulp.task('build-dev', ['build-preview', 'build-jsb-extends-dev'], function (done) {
+gulp.task('build-dev', ['build-preview', 'build-jsb'], function (done) {
     // make dist version dirty
-    Del(['./bin/cocos2d-js.js', './bin/cocos2d-js-min.js', './bin/jsb_polyfill.js', './bin/.cache'], done);
+    Del(['./bin/.cache'], done);
 });
 
-gulp.task('build', ['build-html5', 'build-preview', 'build-jsb-extends-min', 'build-jsb-extends-dev'], function (done) {
+gulp.task('build', ['build-html5', 'build-preview', 'build-jsb'], function (done) {
     Del(['./bin/.cache'], done);
 });
 

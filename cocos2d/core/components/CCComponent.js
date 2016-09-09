@@ -25,7 +25,7 @@
 
 require('../platform/CCObject');
 require('../CCNode');
-var IdGenerater = require('../platform/id-generater');
+var idGenerater = new (require('../platform/id-generater'))('Comp');
 var Misc = require('../utils/misc');
 
 var Flags = cc.Object.Flags;
@@ -52,6 +52,48 @@ var callOnFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_
 var callOnLostFocusInTryCatch = CC_EDITOR && eval(ExecInTryCatchTmpl.replace(/_FUNC_/g, 'onLostFocusInEditor'));
 
 function callOnEnable (self, enable) {
+    
+    if (!CC_EDITOR || (cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
+        var enableCalled = self._objFlags & IsOnEnableCalled;
+        if (enable) {
+            if (!enableCalled) {
+                if (self.onEnable) {
+                    if (CC_EDITOR) {
+                        callOnEnableInTryCatch(self);
+                    }
+                    else {
+                        self.onEnable();
+                    }
+                }
+
+                var deactivatedDuringOnEnable = !self.node._activeInHierarchy;
+                if (deactivatedDuringOnEnable) {
+                    return;
+                }
+
+                cc.director.getScheduler().resumeTarget(self);
+                _registerEvent(self, true);
+
+                self._objFlags |= IsOnEnableCalled;
+            }
+        }
+        else if (enableCalled) {
+            if (self.onDisable) {
+                if (CC_EDITOR) {
+                    callOnDisableInTryCatch(self);
+                }
+                else {
+                    self.onDisable();
+                }
+            }
+
+            cc.director.getScheduler().pauseTarget(self);
+            _registerEvent(self, false);
+
+            self._objFlags &= ~IsOnEnableCalled;
+        }
+    }
+
     if (CC_EDITOR) {
         if (enable) {
             if ( !(self._objFlags & IsEditorOnEnableCalled) ) {
@@ -65,47 +107,6 @@ function callOnEnable (self, enable) {
                 self._objFlags &= ~IsEditorOnEnableCalled;
             }
         }
-        if ( !(cc.engine.isPlaying || self.constructor._executeInEditMode) ) {
-            return;
-        }
-    }
-    var enableCalled = self._objFlags & IsOnEnableCalled;
-    if (enable) {
-        if (!enableCalled) {
-            if (self.onEnable) {
-                if (CC_EDITOR) {
-                    callOnEnableInTryCatch(self);
-                }
-                else {
-                    self.onEnable();
-                }
-            }
-
-            var deactivatedDuringOnEnable = !self.node._activeInHierarchy;
-            if (deactivatedDuringOnEnable) {
-                return;
-            }
-
-            cc.director.getScheduler().resumeTarget(self);
-            _registerEvent(self, true);
-
-            self._objFlags |= IsOnEnableCalled;
-        }
-    }
-    else if (enableCalled) {
-        if (self.onDisable) {
-            if (CC_EDITOR) {
-                callOnDisableInTryCatch(self);
-            }
-            else {
-                self.onDisable();
-            }
-        }
-
-        cc.director.getScheduler().pauseTarget(self);
-        _registerEvent(self, false);
-
-        self._objFlags &= ~IsOnEnableCalled;
     }
 }
 
@@ -216,8 +217,6 @@ function _callPreloadOnComponent (component) {
     }
 }
 
-var idGenerater = new IdGenerater('Comp');
-
 /**
  * !#en
  * Base class for everything attached to Node(Entity).<br/>
@@ -237,11 +236,13 @@ var Component = cc.Class({
     name: 'cc.Component',
     extends: cc.Object,
 
-    ctor: function () {
-        if (CC_EDITOR && !CC_TEST && window._Scene) {
+    ctor: CC_EDITOR ? function () {
+        if (window._Scene && _Scene.AssetsWatcher) {
             _Scene.AssetsWatcher.initComponent(this);
         }
-
+        // Support for Scheduler
+        this.__instanceId = cc.ClassManager.getNewInstanceId();
+    } : function () {
         // Support for Scheduler
         this.__instanceId = cc.ClassManager.getNewInstanceId();
     },
@@ -374,7 +375,7 @@ var Component = cc.Class({
          */
         enabledInHierarchy: {
             get: function () {
-                return this._objFlags & IsOnEnableCalled;
+                return (this._objFlags & IsOnEnableCalled) > 0;
             },
             visible: false
         },
@@ -550,8 +551,8 @@ var Component = cc.Class({
     },
 
     /**
-     * !#en Returns the components of supplied type in any of its children using depth first search.
-     * !#zh 递归查找所有子节点中指定类型的组件。
+     * !#en Returns the components of supplied type in self or any of its children using depth first search.
+     * !#zh 递归查找自身或所有子节点中指定类型的组件
      *
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName

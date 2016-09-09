@@ -57,3 +57,7 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./extensions/ccpool/CCNodePool.js');
     require('./extensions/ccpool/CCPool.js');
 }
+
+if (!CC_EDITOR || !Editor.isMainProcess) {
+    require('./cocos2d/deprecated');
+}

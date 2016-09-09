@@ -80,6 +80,7 @@ cc.Component.EventHandler = cc.Class({
         /**
          * @method emitEvents
          * @param {Component.EventHandler[]} events
+         * @param {any} ...params
          * @statics
          */
         emitEvents: function(events) {
@@ -88,7 +89,7 @@ cc.Component.EventHandler = cc.Class({
                 var event = events[i];
                 if (! event instanceof cc.Component.EventHandler) continue;
 
-                event.emit(Array.prototype.slice.call(arguments,1));
+                event.emit(Array.prototype.slice.call(arguments, 1));
             }
         }
     },

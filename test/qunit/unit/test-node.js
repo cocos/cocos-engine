@@ -183,7 +183,7 @@ test('get self components', function () {
 
     ok(obj.getComponents(MyComponent).length === 3, 'getComponents: can get my component array');
     ok(obj.getComponentInChildren(MyComponent) === comp, 'getComponentInChildren: can get my component in children');
-    ok(obj.getComponentsInChildren(MyComponent).length === 2, 'getComponentsInChildren: can get my components in children');
+    ok(obj.getComponentsInChildren(MyComponent).length === 5, 'getComponentsInChildren: can get my components in children and self');
 
     cc.js.unregisterClass(MyComponent);
 });
@@ -205,7 +205,26 @@ test('should not include self component', function () {
     obj1.parent = obj;
 
     ok(obj.getComponentInChildren(MyComponent) === null, 'getComponentInChildren should not include self component');
-    ok(obj.getComponentsInChildren(MyComponent).length === 0, 'getComponentsInChildren should not include self component');
+
+    cc.js.unregisterClass(MyComponent);
+});
+
+test('should include self component', function () {
+    var MyComponent = cc.Class({
+        name: 'MyComponent',
+        extends: cc.Component
+    });
+
+    var obj = new cc.Node("New Node");
+    cc.director.getScene().addChild(obj);
+    obj.addComponent(MyComponent);
+    obj.addComponent(MyComponent);
+    obj.addComponent(MyComponent);
+
+    var obj1 = new cc.Node("New Node 1");
+    obj1.parent = obj;
+
+    ok(obj.getComponentsInChildren(MyComponent).length === 3, 'getComponentsInChildren should include self component');
 
     cc.js.unregisterClass(MyComponent);
 });

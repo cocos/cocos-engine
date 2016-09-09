@@ -59,7 +59,7 @@ var SpriteAtlas = cc.Class({
      * Returns the sprite frame correspond to the given key in sprite atlas.
      * @method getSpriteFrame
      * @param {String} key
-     * @returns {cc.SpriteFrame}
+     * @returns {SpriteFrame}
      */
     getSpriteFrame: function (key) {
         return this._spriteFrames[key];
@@ -68,7 +68,7 @@ var SpriteAtlas = cc.Class({
     /**
      * Returns the sprite frames in sprite atlas.
      * @method getSpriteFrames
-     * @returns {[cc.SpriteFrame]}
+     * @returns {[SpriteFrame]}
      */
     getSpriteFrames: function () {
         var frames = [];

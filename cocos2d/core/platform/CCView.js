@@ -127,6 +127,8 @@ var View = cc._Class.extend({
     // Custom callback for resize event
     _resizeCallback: null,
 
+    _orientationChanging: true,
+
     _scaleX: 1,
     _originalScaleX: 1,
     _scaleY: 1,
@@ -149,12 +151,13 @@ var View = cc._Class.extend({
     __resizeWithBrowserSize: false,
     _isAdjustViewPort: true,
     _targetDensityDPI: null,
+    _antiAliasEnabled: true,
 
     /**
      * Constructor of View
      */
     ctor: function () {
-        var _t = this, d = document, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
+        var _t = this, _strategyer = cc.ContainerStrategy, _strategy = cc.ContentStrategy;
 
         __BrowserGetter.init(this);
 
@@ -171,7 +174,6 @@ var View = cc._Class.extend({
 
         var sys = cc.sys;
         _t.enableRetina(sys.os === sys.OS_IOS || sys.os === sys.OS_OSX);
-        _t.enableAutoFullScreen(sys.isMobile && sys.browserType !== sys.BROWSER_TYPE_BAIDU);
         cc.visibleRect && cc.visibleRect.init(_t._visibleRect);
 
         // Setup system default resolution policies
@@ -182,6 +184,7 @@ var View = cc._Class.extend({
         _t._rpFixedWidth = new cc.ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
 
         _t._targetDensityDPI = cc.macro.DENSITYDPI_HIGH;
+        _t.enableAntiAlias(true);
     },
 
     // Resize helper functions
@@ -209,6 +212,11 @@ var View = cc._Class.extend({
         if (view._resizeCallback) {
             view._resizeCallback.call();
         }
+    },
+
+    _orientationChange: function () {
+        this._orientationChanging = true;
+        this._resizeEvent();
     },
 
     /**
@@ -250,14 +258,14 @@ var View = cc._Class.extend({
             if (!this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = true;
                 window.addEventListener('resize', this._resizeEvent);
-                window.addEventListener('orientationchange', this._resizeEvent);
+                window.addEventListener('orientationchange', this._orientationChange);
             }
         } else {
             //disable
             if (this.__resizeWithBrowserSize) {
                 this.__resizeWithBrowserSize = false;
                 window.removeEventListener('resize', this._resizeEvent);
-                window.removeEventListener('orientationchange', this._resizeEvent);
+                window.removeEventListener('orientationchange', this._orientationChange);
             }
         }
     },
@@ -298,7 +306,7 @@ var View = cc._Class.extend({
         var h = __BrowserGetter.availHeight(cc.game.frame);
         var isLandscape = w >= h;
 
-        if (CC_EDITOR || !cc.sys.isMobile ||
+        if (CC_EDITOR || !this._orientationChanging || !cc.sys.isMobile ||
             (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) || 
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
@@ -316,6 +324,7 @@ var View = cc._Class.extend({
             cc.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
         }
+        this._orientationChanging = false;
     },
 
     // hack
@@ -416,6 +425,55 @@ var View = cc._Class.extend({
         return this._retinaEnabled;
     },
 
+    /**
+     * !#en Whether to Enable on anti-alias
+     * !#zh 控制抗锯齿是否开启
+     * @method enableAntiAlias
+     * @param {Boolean} enabled - Enable or not anti-alias
+     */
+    enableAntiAlias: function (enabled) {
+        if (this._antiAliasEnabled === enabled) {
+            return;
+        }
+        this._antiAliasEnabled = enabled;
+        if(cc._renderType === cc.game.RENDER_TYPE_WEBGL) {
+            var map = cc.loader._items.map;
+            for (var key in map) {
+                var item = map[key];
+                var tex = item && item.content instanceof cc.Texture2D ? item.content : null;
+                if (tex) {
+                    if (enabled) {
+                        tex.setAntiAliasTexParameters();
+                    }
+                    else {
+                        tex.setAliasTexParameters();
+                    }
+                }
+            }
+        }
+        else if(cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            var ctx = cc._canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = enabled;
+            ctx.mozImageSmoothingEnabled = enabled;
+            // refresh canvas
+            var dirtyRegion = cc.rendererCanvas._dirtyRegion;
+            if (dirtyRegion) {
+                var oldRegion = new cc.Region();
+                oldRegion.setTo(0, 0, cc.visibleRect.width, cc.visibleRect.height);
+                dirtyRegion.addRegion(oldRegion);
+            }
+        }
+    },
+
+    /**
+     * !#en Returns whether the current enable on anti-alias
+     * !#zh 返回当前是否抗锯齿
+     * @method isAntiAliasEnabled
+     * @return {Boolean}
+     */
+    isAntiAliasEnabled: function () {
+        return this._antiAliasEnabled;
+    },
     /**
      * If enabled, the application will try automatically to enter full screen mode on mobile devices<br/>
      * You can pass true as parameter to enable it and disable it by passing false.<br/>
@@ -704,6 +762,9 @@ var View = cc._Class.extend({
             // reset director's member variables to fit visible rect
             director.setGLDefaultValues();
         }
+        else if (cc._renderType === cc.game.RENDER_TYPE_CANVAS) {
+            cc.renderer._allNeedDraw = true;
+        }
 
         this._originalScaleX = this._scaleX;
         this._originalScaleY = this._scaleY;
@@ -875,32 +936,30 @@ var View = cc._Class.extend({
         return this._isRotated ? {x: this._viewPortRect.width - y, y: x} : {x: x, y: y};
     },
 
-    _convertMouseToLocationInView: function(point, relatedPos) {
-        var locViewPortRect = this._viewPortRect, _t = this;
-        point.x = ((_t._devicePixelRatio * (point.x - relatedPos.left)) - locViewPortRect.x) / _t._scaleX;
-        point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - point.y) - locViewPortRect.y) / _t._scaleY;
+    _convertMouseToLocationInView: function (point, relatedPos) {
+        var viewport = this._viewPortRect, _t = this;
+        point.x = ((_t._devicePixelRatio * (point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
+        point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - point.y) - viewport.y) / _t._scaleY;
     },
 
-    _convertTouchesWithScale: function(touches){
-        var locViewPortRect = this._viewPortRect, locScaleX = this._scaleX, locScaleY = this._scaleY,
-            selTouch, selPoint, selPrePoint, selStartPoint;
-        for( var i = 0; i < touches.length; i ++){
+    _convertPointWithScale: function (point) {
+        var viewport = this._viewPortRect;
+        point.x = (point.x - viewport.x) / this._scaleX;
+        point.y = (point.y - viewport.y) / this._scaleY;
+    },
+
+    _convertTouchesWithScale: function (touches) {
+        var viewport = this._viewPortRect, scaleX = this._scaleX, scaleY = this._scaleY,
+            selTouch, selPoint, selPrePoint;
+        for( var i = 0; i < touches.length; i++){
             selTouch = touches[i];
-            hasStartPoint = selTouch._startPointCaptured;
             selPoint = selTouch._point;
             selPrePoint = selTouch._prevPoint;
 
-            selPoint.x = (selPoint.x - locViewPortRect.x) / locScaleX;
-            selPoint.y = (selPoint.y - locViewPortRect.y) / locScaleY;
-            selPrePoint.x = (selPrePoint.x - locViewPortRect.x) / locScaleX;
-            selPrePoint.y = (selPrePoint.y - locViewPortRect.y) / locScaleY;
-
-            if (!hasStartPoint) {
-                selStartPoint = selTouch._startPoint;
-                selStartPoint.x = selPoint.x;
-                selStartPoint.y = selPoint.y;
-                selTouch._startPointCaptured = true;
-            }
+            selPoint.x = (selPoint.x - viewport.x) / scaleX;
+            selPoint.y = (selPoint.y - viewport.y) / scaleY;
+            selPrePoint.x = (selPrePoint.x - viewport.x) / scaleX;
+            selPrePoint.y = (selPrePoint.y - viewport.y) / scaleY;
         }
     }
 });
@@ -1058,7 +1117,15 @@ cc.ContentStrategy = cc._Class.extend(/** @lends cc.ContentStrategy# */{
      */
     var EqualToFrame = cc.ContainerStrategy.extend({
         apply: function (view) {
+            var frameH = view._frameSize.height, containerStyle = cc.container.style;
             this._setupContainer(view, view._frameSize.width, view._frameSize.height);
+            // Setup container's margin and padding
+            if (view._isRotated) {
+                containerStyle.marginLeft = frameH + 'px';
+            }
+            else {
+                containerStyle.margin = '0px';
+            }
         }
     });
 

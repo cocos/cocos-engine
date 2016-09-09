@@ -23,6 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var Base = require('./CCRendererUnderSG');
+
 /**
  * !#en Enum for sprite type.
  * !#zh Sprite 类型
@@ -113,7 +115,7 @@ var SizeMode = cc.Enum({
  */
 var Sprite = cc.Class({
     name: 'cc.Sprite',
-    extends: require('./CCRendererUnderSG'),
+    extends: Base,
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Sprite',
@@ -161,10 +163,17 @@ var Sprite = cc.Class({
                 return this._spriteFrame;
             },
             set: function (value, force) {
-                if (this._spriteFrame === value) {
-                    return;
-                }
                 var lastSprite = this._spriteFrame;
+                if (CC_EDITOR) {
+                    if (!force && ((lastSprite && lastSprite._uuid) === (value && value._uuid))) {
+                        return;
+                    }
+                }
+                else {
+                    if (lastSprite === value) {
+                        return;
+                    }
+                }
                 this._spriteFrame = value;
                 this._applySpriteFrame(lastSprite);
                 if (CC_EDITOR) {
@@ -379,15 +388,6 @@ var Sprite = cc.Class({
         SizeMode: SizeMode,
     },
 
-    /**
-     * !#en Sets whether the sprite is visible or not.
-     * !#zh 设置精灵是否可见
-     * @method setVisible
-     * @param {Boolean} visible
-     * @override
-     * @example
-     * sprite.setVisible(false);
-     */
     setVisible: function (visible) {
         this.enabled = visible;
     },
@@ -492,22 +492,12 @@ var Sprite = cc.Class({
         return this._sgNode.getInsetBottom();
     },
 
-    __preload: CC_EDITOR && function () {
-        this._super();
-        this.node.on('size-changed', this._resized, this);
-    },
-
     onEnable: function () {
         if (this._sgNode) {
             if (this._spriteFrame && this._spriteFrame.textureLoaded()) {
                 this._sgNode.setVisible(true);
             }
         }
-    },
-
-    onDestroy: CC_EDITOR && function () {
-        this._super();
-        this.node.off('size-changed', this._resized, this);
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
@@ -631,6 +621,21 @@ var Sprite = cc.Class({
         }
     },
 });
+
+if (CC_EDITOR) {
+    // override __preload
+    Sprite.prototype.__superPreload = Base.prototype.__preload;
+    Sprite.prototype.__preload = function () {
+        this.__superPreload();
+        this.node.on('size-changed', this._resized, this);
+    };
+    // override onDestroy
+    Sprite.prototype.__superOnDestroy = Base.prototype.onDestroy;
+    Sprite.prototype.onDestroy = function () {
+        this.__superOnDestroy();
+        this.node.off('size-changed', this._resized, this);
+    };
+}
 
 var misc = require('../utils/misc');
 var SameNameGetSets = ['atlas', 'capInsets', 'insetLeft', 'insetTop', 'insetRight', 'insetBottom'];

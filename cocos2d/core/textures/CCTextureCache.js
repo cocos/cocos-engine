@@ -85,7 +85,7 @@ var textureCache = /** @lends cc.textureCache# */{
         return this._textures[textureKeyName];
     },
 
-    /**
+    /*
      * @method getKeyByTexture
      * @param {Image} texture
      * @return {String|Null}
@@ -123,6 +123,21 @@ var textureCache = /** @lends cc.textureCache# */{
         if (!this._textureColorsCache[key])
             this._textureColorsCache[key] = texture._generateTextureCacheForColor();
         return this._textureColorsCache[key];
+    },
+
+    /**
+     * #en get all textures
+     * #zh 获取所有贴图
+     * @method getAllTextures
+     * @return {Texture2D[]}
+     */
+    getAllTextures: function () {
+        var texs = [];
+        for (var key in this._textures) {
+            var item = this._textures[key];
+            texs.push(item);
+        }
+        return texs;
     },
 
     /**

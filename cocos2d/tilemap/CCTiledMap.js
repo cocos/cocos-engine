@@ -814,6 +814,9 @@ var TiledMap = cc.Class({
 
             var ret = sgNode.initWithXML(file.tmxXmlStr, resPath);
             if (ret) {
+                // Asset is changed, the layers are recreated.
+                // The layers of pre asset should be cleaned.
+                self._detachedLayers.length = 0;
                 self._onMapLoaded();
             }
         } else {

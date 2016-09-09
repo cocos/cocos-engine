@@ -250,15 +250,22 @@ cc.js.mixin(cc.game, {
         this.collisionMatrix = config.collisionMatrix || [];
 
         // Scene parser
-        this._sceneInfos = this._sceneInfos.concat(config[CONFIG_KEY.scenes]);
+        this._sceneInfos = config[CONFIG_KEY.scenes] || [];
 
-        cc.director.setDisplayStats(this.config[CONFIG_KEY.showFPS]);
-        cc.director.setAnimationInterval(1.0/this.config[CONFIG_KEY.frameRate]);
+        cc.director.setDisplayStats(config[CONFIG_KEY.showFPS]);
+        cc.director.setAnimationInterval(1.0/config[CONFIG_KEY.frameRate]);
+        cc._initDebugSetting(config[CONFIG_KEY.debugMode]);
 
         this.config = config;
     }
 });
 
-
 cc.EventTarget.call(cc.game);
 cc.js.addon(cc.game, cc.EventTarget.prototype);
+
+cc.eventManager.addCustomListener(cc.game.EVENT_HIDE, function () {
+    cc.game.emit(cc.game.EVENT_HIDE, cc.game);
+});
+cc.eventManager.addCustomListener(cc.game.EVENT_SHOW, function () {
+    cc.game.emit(cc.game.EVENT_SHOW, cc.game);
+});

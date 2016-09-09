@@ -75,7 +75,11 @@ cc.ActionInstant = cc.FiniteTimeAction.extend({
 cc.Show = cc.ActionInstant.extend({
 
     update:function (dt) {
-        this.target.visible = true;
+        var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
+        for (var i = 0; i < _renderComps.length; ++i) {
+            var render = _renderComps[i];
+            render.enabled = true;
+        }
     },
 
     reverse:function () {
@@ -108,7 +112,11 @@ cc.show = function () {
 cc.Hide = cc.ActionInstant.extend({
 
     update:function (dt) {
-        this.target.visible = false;
+        var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
+        for (var i = 0; i < _renderComps.length; ++i) {
+            var render = _renderComps[i];
+            render.enabled = false;
+        }
     },
 
     reverse:function () {
@@ -141,7 +149,11 @@ cc.hide = function () {
 cc.ToggleVisibility = cc.ActionInstant.extend({
 
     update:function (dt) {
-        this.target.visible = !this.target.visible;
+        var _renderComps = this.target.getComponentsInChildren(cc._SGComponent);
+        for (var i = 0; i < _renderComps.length; ++i) {
+            var render = _renderComps[i];
+            render.enabled = !render.enabled;
+        }
     },
 
     reverse:function () {

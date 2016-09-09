@@ -114,7 +114,6 @@ var Overflow = _ccsg.Label.Overflow;
  * !#zh 系统字体
  * @property {Number} SystemFont
  */
-var LabelType = _ccsg.Label.Type;
 
 
 // Returns a function, that, as long as it continues to be invoked, will not
@@ -134,7 +133,7 @@ function debounce(func, wait, immediate) {
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(context, args);
     };
-};
+}
 
 
 /**

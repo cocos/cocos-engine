@@ -162,6 +162,7 @@ proto._createSprite = function(slot, attachment){
 
 proto._updateChild = function(){
     var locSkeleton = this._node._skeleton, slots = locSkeleton.slots;
+    var color = this._displayedColor, opacity = this._displayedOpacity;
     var i, n, selSprite, ax, ay;
 
     var slot, attachment, slotNode;
@@ -218,8 +219,8 @@ proto._updateChild = function(){
             }
 
             //hack for sprite
-            selSprite._renderCmd._displayedOpacity = 0 | (this._node.getOpacity() * locSkeleton.a * slot.a);
-            var r = 0 | (locSkeleton.r * slot.r * 255), g = 0 | (locSkeleton.g * slot.g * 255), b = 0 | (locSkeleton.b * slot.b * 255);
+            selSprite._renderCmd._displayedOpacity = 0 | (opacity * slot.a);
+            var r = 0 | (color.r * slot.r), g = 0 | (color.g * slot.g), b = 0 | (color.b * slot.b);
             selSprite.setColor(cc.color(r,g,b));
             selSprite._renderCmd._updateColor();
         } else if (type === spine.AttachmentType.skinnedmesh) {

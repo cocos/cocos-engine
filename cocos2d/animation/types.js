@@ -79,7 +79,6 @@ cc.WrapMode = WrapMode;
  * @class AnimationNodeBase
  * @constructor
  * @extends Playable
- * @private
  */
 var AnimationNodeBase = function () {
     Playable.call(this);
@@ -94,7 +93,7 @@ JS.extend(AnimationNodeBase, Playable);
 AnimationNodeBase.prototype.update = function (deltaTime) {};
 
 
-/*
+/**
  * !#en The collection and instance of playing animations.
  * !#zh 动画曲线的集合，根据当前时间计算出每条曲线的状态。
  * @class AnimationNode
@@ -167,8 +166,12 @@ function AnimationNode (animator, curves, timingInput) {
     this.speed = 1;
 
     /**
-     * !#en Wrapping mode of the playing animation.
-     * !#zh 动画循环方式。
+     * !#en 
+     * Wrapping mode of the playing animation.
+     * Notice : dynamic change wrapMode will reset time and repeatCount property
+     * !#zh 
+     * 动画循环方式。
+     * 需要注意的是，动态修改 wrapMode 时，会重置 time 以及 repeatCount
      *
      * @property wrapMode
      * @type {WrapMode}
@@ -262,10 +265,32 @@ JS.mixin(AnimationNode.prototype, {
         }
 
         // sample
+        var info = this.sample();
 
-        if (this.sample()) {
+        if (!this._lastWrappedInfo) {
+            this._lastWrappedInfo = info;
+        }
+
+        var anotherIteration = (info.iterations | 0) > (this._lastWrappedInfo.iterations | 0);
+        if (this.repeatCount > 1 && anotherIteration) {
+            if ((this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
+                if (this._lastWrappedInfo.direction < 0) {
+                    this.emit('lastframe', this);
+                }
+            }
+            else {
+                if (this._lastWrappedInfo.direction > 0) {
+                    this.emit('lastframe', this);
+                }
+            }
+        }
+
+        if (info.stopped) {
+            this.emit('finished', this);
             this.stop();
         }
+
+        this._lastWrappedInfo = info;
     },
 
     _needRevers: function (currentIterations) {
@@ -337,7 +362,7 @@ JS.mixin(AnimationNode.prototype, {
             direction: direction,
             stopped: stopped,
             iterations: currentIterations
-        }
+        };
     },
 
     sample: function () {
@@ -352,9 +377,48 @@ JS.mixin(AnimationNode.prototype, {
             curve.sample(info.time, info.ratio, this);
         }
 
-        return info.stopped;
+        return info;
+    },
+
+    onStop: function () {
+        this.emit('stop', this);
+    },
+
+    onPlay: function () {
+        this.emit('play', this);
+    },
+
+    onPause: function () {
+        this.emit('pause', this);
+    },
+
+    onResume: function () {
+        this.emit('resume', this);
     }
 });
+
+cc.defineGetterSetter(AnimationNode.prototype, 'wrapMode',
+    function () {
+        return this._wrapMode;
+    }, 
+    function (value) {
+        this._wrapMode = value;
+
+        if (CC_EDITOR) return;
+
+        // dynamic change wrapMode will need reset time to 0
+        this.time = 0;
+
+        if (value & WrapModeMask.Loop) {
+            this.repeatCount = Infinity;
+        }
+        else {
+            this.repeatCount = 1;
+        }
+    }
+);
+
+cc.js.mixin(AnimationNode.prototype, cc.EventTarget.prototype);
 
 cc.AnimationNode = AnimationNode;
 

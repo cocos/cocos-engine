@@ -11,6 +11,7 @@
     "test": "gulp test"
   },
   "devDependencies": {
+    "async": "1.5.2",
     "browserify": "13.0.0",
     "chalk": "1.1.0",
     "del": "1.2.0",
@@ -19,7 +20,7 @@
     "gulp": "3.9.0",
     "gulp-cached": "1.1.0",
     "gulp-concat": "2.6.0",
-    "gulp-fb": "0.5.0",
+    "gulp-fb": "0.5.1",
     "gulp-header": "1.2.2",
     "gulp-jshint": "1.11.2",
     "gulp-mirror": "0.4.0",

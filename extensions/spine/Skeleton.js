@@ -286,6 +286,28 @@ sp.Skeleton = cc.Class({
             tooltip: 'i18n:COMPONENT.skeleton.loop'
         },
 
+        /**
+         * !#en Indicates whether to enable premultiplied alpha.
+         * You should disable this option when image's transparent area appears to have opaque pixels,
+         * or enable this option when image's half transparent area appears to be darken.
+         * !#zh 是否启用贴图预乘。
+         * 当图片的透明区域出现色块时需要关闭该选项，当图片的半透明区域颜色变黑时需要启用该选项。
+         * @property {Boolean} premultipliedAlpha
+         * @default true
+         */
+        _premultipliedAlpha: true,
+        premultipliedAlpha: {
+            get: function () {
+                return this._premultipliedAlpha;
+            },
+            set: function (value) {
+                this._premultipliedAlpha = value;
+                if (this._sgNode) {
+                    this._sgNode.setPremultipliedAlpha(value);
+                }
+            },
+            tooltip: 'i18n:COMPONENT.skeleton.premultipliedAlpha'
+        },
 
         /**
          * !#en The time scale of this skeleton.
@@ -417,6 +439,9 @@ sp.Skeleton = cc.Class({
                 cc._throw(e);
             }
         }
+
+        sgNode.setPremultipliedAlpha(this._premultipliedAlpha);
+
         this.animation = this.defaultAnimation;
         if (CC_EDITOR) {
             sgNode.setDebugSlotsEnabled(this.debugSlots);
@@ -504,10 +529,13 @@ sp.Skeleton = cc.Class({
     /**
      * !#en
      * Finds a bone by name.
-     * This does a string comparison for every bone.
+     * This does a string comparison for every bone.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Bone object.
      * !#zh
      * 通过名称查找 bone。
-     * 这里对每个 bone 的名称进行了对比。
+     * 这里对每个 bone 的名称进行了对比。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Bone 对象。
+     *
      * @method findBone
      * @param {String} boneName
      * @return {spine.Bone}
@@ -521,11 +549,12 @@ sp.Skeleton = cc.Class({
 
     /**
      * !#en
-     * Finds a slot by name.
-     * This does a string comparison for every slot.
+     * Finds a slot by name. This does a string comparison for every slot.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Slot object.
      * !#zh
-     * 通过名称查找 slot。
-     * 这里对每个 slot 的名称进行了比较。
+     * 通过名称查找 slot。这里对每个 slot 的名称进行了比较。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Slot 对象。
+     *
      * @method findSlot
      * @param {String} slotName
      * @return {spine.Slot}
@@ -540,12 +569,14 @@ sp.Skeleton = cc.Class({
     /**
      * !#en
      * Finds a skin by name and makes it the active skin.
-     * This does a string comparison for every skin.
-     * Note that setting the skin does not change which attachments are visible.
+     * This does a string comparison for every skin.<br>
+     * Note that setting the skin does not change which attachments are visible.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Skin object.
      * !#zh
-     * 按名称查找皮肤，激活该皮肤。
-     * 这里对每个皮肤的名称进行了比较。
-     * 注意：设置皮肤不会改变 attachment 的可见性。。
+     * 按名称查找皮肤，激活该皮肤。这里对每个皮肤的名称进行了比较。<br>
+     * 注意：设置皮肤不会改变 attachment 的可见性。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Skin 对象。
+     *
      * @method setSkin
      * @param {String} skinName
      * @return {spine.Skin}
@@ -560,14 +591,16 @@ sp.Skeleton = cc.Class({
     /**
      * !#en
      * Returns the attachment for the slot and attachment name.
-     * The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * The skeleton looks first in its skin, then in the skeleton data’s default skin.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Attachment object.
      * !#zh
-     * 通过 slot 和 attachment 的名称获取 attachment。
-     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
+     * 通过 slot 和 attachment 的名称获取 attachment。Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Attachment 对象。
+     *
      * @method getAttachment
      * @param {String} slotName
      * @param {String} attachmentName
-     * @return {spine.RegionAttachment|sp.spine.BoundingBoxAttachment}
+     * @return {spine.Attachment}
      */
     getAttachment: function (slotName, attachmentName) {
         if (this._sgNode) {
@@ -609,7 +642,7 @@ sp.Skeleton = cc.Class({
     ///**
     // * Return the renderer of attachment.
     // * @method getTextureAtlas
-    // * @param {spine.RegionAttachment|sp.spine.BoundingBoxAttachment} regionAttachment
+    // * @param {spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
     // * @return {_ccsg.Node}
     // */
     //getTextureAtlas: function (regionAttachment) {
@@ -621,8 +654,10 @@ sp.Skeleton = cc.Class({
     // ANIMATION
 
     /**
-     * !#en Sets animation state data.
-     * !#zh 设置动画状态数据。
+     * !#en Sets animation state data.<br>
+     * The parameter type is {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.AnimationStateData.
+     * !#zh 设置动画状态数据。<br>
+     * 参数是 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.AnimationStateData。
      * @method setAnimationStateData
      * @param {spine.AnimationStateData} stateData
      */
@@ -662,8 +697,10 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Set the current animation. Any queued animations are cleared.
-     * !#zh 设置当前动画。队列中的任何的动画将被清除。
+     * !#en Set the current animation. Any queued animations are cleared.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.TrackEntry object.
+     * !#zh 设置当前动画。队列中的任何的动画将被清除。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.TrackEntry 对象。
      * @method setAnimation
      * @param {Number} trackIndex
      * @param {String} name
@@ -689,8 +726,10 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Adds an animation to be played delay seconds after the current or last queued animation.
-     * !#zh 添加一个动画到动画队列尾部，还可以延迟指定的秒数。
+     * !#en Adds an animation to be played delay seconds after the current or last queued animation.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.TrackEntry object.
+     * !#zh 添加一个动画到动画队列尾部，还可以延迟指定的秒数。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.TrackEntry 对象。
      * @method addAnimation
      * @param {Number} trackIndex
      * @param {String} name
@@ -706,8 +745,10 @@ sp.Skeleton = cc.Class({
     },
 
     /**
-     * !#en Returns track entry by trackIndex.
-     * !#zh 通过 track 索引获取 TrackEntry。
+     * !#en Returns track entry by trackIndex.<br>
+     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.TrackEntry object.
+     * !#zh 通过 track 索引获取 TrackEntry。<br>
+     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.TrackEntry 对象。
      * @method getCurrent
      * @param trackIndex
      * @return {spine.TrackEntry}

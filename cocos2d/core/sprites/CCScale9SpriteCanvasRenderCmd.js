@@ -83,8 +83,8 @@ proto.rendering = function (ctx, scaleX, scaleY) {
         }
         var sx,sy,sw,sh;
         var x, y, w,h;
-        var textureWidth = this._textureToRender.getPixelWidth();
-        var textureHeight = this._textureToRender.getPixelHeight();
+        var textureWidth = this._textureToRender._pixelWidth;
+        var textureHeight = this._textureToRender._pixelHeight;
         var image = this._textureToRender._htmlElementObj;
         var vertices = node._vertices;
         var uvs = node._uvs;

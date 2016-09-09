@@ -54,21 +54,19 @@ if (_engineNumberVersion) {
     }
 }
 
+var originLog = console.log;
+
 // cc.initEngine
 cc.initEngine = function (config, cb) {
     require('script/jsb.js');
     cc._renderType = cc.game.RENDER_TYPE_OPENGL;
-    if (config) {
-        cc._initDebugSetting(config[cc.game.CONFIG_KEY.debugMode]);
-    }
     cc._engineLoaded = true;
-    cc.log(cc.ENGINE_VERSION);
+    originLog(cc.ENGINE_VERSION);
     if (cb) cb();
 };
 
 // overwrite original console.log
 try {
-    var originLog = console.log;
     console.log = function () {
         originLog.call(console, cc.js.formatStr.apply(null, arguments));
     };
@@ -98,12 +96,14 @@ require('./jsb-scale9sprite');
 require('./jsb-label');
 require('./jsb-editbox');
 require('./jsb-videoplayer');
+require('./jsb-webview.js');
 require('./jsb-particle');
 require('./jsb-spine');
 require('./jsb-enums');
 require('./jsb-event');
 require('./jsb-action');
 require('./jsb-etc');
+require('./jsb-audio');
 
 if (cc.runtime) {
     require('./versions/jsb-polyfill-runtime');

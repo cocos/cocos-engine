@@ -58,7 +58,7 @@ _p = null;
  * @name cc.ENGINE_VERSION
  */
 var engineVersion;
-engineVersion = '1.2.0-beta.1';
+engineVersion = '1.3.0-beta.2';
 window['CocosEngine'] = cc.ENGINE_VERSION = engineVersion;
 
 /**
@@ -86,8 +86,6 @@ cc._canvas = null;
  */
 cc.container = null;
 cc._gameDiv = null;
-
-cc.isEditor = typeof Editor !== 'undefined';
 
 require('./cocos2d/core/utils');
 require('./cocos2d/core/platform/CCSys');
@@ -154,20 +152,18 @@ function _getJsListOfModule(moduleMap, moduleName, dir) {
     return jsList;
 }
 
-function _afterEngineLoaded(config) {
-    cc._initDebugSetting(config[cc.game.CONFIG_KEY.debugMode]);
+function _afterEngineLoaded() {
     cc._engineLoaded = true;
-    cc.log(cc.ENGINE_VERSION);
+    console.log(cc.ENGINE_VERSION);
     if (_engineLoadedCallback) _engineLoadedCallback();
 }
 
 function _load(config) {
-    var self = this;
     var CONFIG_KEY = cc.game.CONFIG_KEY, engineDir = config[CONFIG_KEY.engineDir], loader = cc.loader;
 
     if (cc._Class) {
         // Single file loaded
-        _afterEngineLoaded(config);
+        _afterEngineLoaded();
     } else {
         // Load cocos modules
         var ccModulesPath = cc.path.join(engineDir, "moduleConfig.json");
@@ -184,7 +180,7 @@ function _load(config) {
             }
             loader.load(jsList, function (err) {
                 if (err) throw new Error(JSON.stringify(err));
-                _afterEngineLoaded(config);
+                _afterEngineLoaded();
             });
         });
     }

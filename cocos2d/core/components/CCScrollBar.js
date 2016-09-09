@@ -333,7 +333,7 @@ var Scrollbar = cc.Class({
     },
 
     show: function() {
-        this._autoHideRemainingTime = 0;
+        this._autoHideRemainingTime = this.autoHideTime;
         this._setOpacity(this._opacity);
     },
 

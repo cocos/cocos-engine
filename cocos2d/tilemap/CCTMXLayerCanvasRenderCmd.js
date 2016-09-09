@@ -46,13 +46,16 @@ proto.constructor = _ccsg.TMXLayer.CanvasRenderCmd;
 
 proto.visit = function (parentCmd) {
     var node = this._node, renderer = cc.renderer;
+
+    parentCmd = parentCmd || this.getParentRenderCmd();
+    if (parentCmd) {
+        this._curLevel = parentCmd._curLevel + 1;
+    }
+    this._propagateFlagsDown(parentCmd);
+
     // quick return if not visible
     if (!node._visible)
         return;
-
-    parentCmd = parentCmd || this.getParentRenderCmd();
-    if (parentCmd)
-        this._curLevel = parentCmd._curLevel + 1;
 
     if (isNaN(node._customZ)) {
         node._vertexZ = renderer.assignedZ;
@@ -62,7 +65,7 @@ proto.visit = function (parentCmd) {
     this._syncStatus(parentCmd);
 
     // Visit children
-    var children = node._children, child, cmd,
+    var children = node._children, child,
         spTiles = node._spriteTiles,
         i, len = children.length;
     if (len > 0) {
@@ -71,8 +74,7 @@ proto.visit = function (parentCmd) {
         for (i = 0; i < len; i++) {
             child = children[i];
             if (child._localZOrder < 0) {
-                cmd = child._renderCmd;
-                cmd.visit(this);
+                child._renderCmd.visit(this);
             }
             else {
                 break;
@@ -87,7 +89,7 @@ proto.visit = function (parentCmd) {
                     child._vertexZ = renderer.assignedZ;
                     renderer.assignedZ += renderer.assignedZStep;
                 }
-                child._renderCmd.updateStatus(this, true);
+                child._renderCmd.updateStatus();
                 continue;
             }
             child._renderCmd.visit(this);
@@ -167,14 +169,16 @@ proto.rendering = function (ctx, scaleX, scaleY) {
     wrapper.setTransform(wt, scaleX, scaleY);
     wrapper.setGlobalAlpha(alpha);
 
+    var axis, tileOffset, odd_even, diffX1, diffY1;
+
     if (layerOrientation === Orientation.HEX) {
-        var axis = node._staggerAxis,
-            index = node._staggerIndex,
-            hexSideLength = node._hexSideLength,
-            tileOffset = node.tileset.tileOffset;
-        var odd_even = (index === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
-        var diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
-        var diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
+        var index = node._staggerIndex,
+            hexSideLength = node._hexSideLength;
+        axis = node._staggerAxis;
+        tileOffset = node.tileset.tileOffset;
+        odd_even = (index === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
+        diffX1 = (axis === StaggerAxis.STAGGERAXIS_X) ? ((maptw - hexSideLength)/2) : 0;
+        diffY1 = (axis === StaggerAxis.STAGGERAXIS_Y) ? ((mapth - hexSideLength)/2) : 0;
     }
 
     for (row = startRow; row < maxRow; ++row) {

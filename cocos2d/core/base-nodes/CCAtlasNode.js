@@ -286,7 +286,7 @@ cc.js.addon(_p, EventTarget.prototype);
 /**
  * Creates a cc.AtlasNode with an Atlas file the width and height of each item and the quantity of items to render
  * @deprecated since v3.0, please use new construction instead
- * @function
+ * @method create
  * @static
  * @param {String} tile
  * @param {Number} tileWidth

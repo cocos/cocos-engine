@@ -400,7 +400,7 @@ cc.js.getset(CollisionManager.prototype, 'enabledDebugDraw',
         }
         else if (!value && this._enabledDebugDraw) {
             this._debugDrawer.clear();
-            cc.director.getScene()._sgNode.removeChild(this._debugDrawer);
+            this._debugDrawer.removeFromParent(false);
             cc.director.off(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneLaunched, this);
         }
 

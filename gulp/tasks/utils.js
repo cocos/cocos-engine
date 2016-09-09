@@ -26,8 +26,8 @@ exports.uglifyOptions = function (minify, global_defs) {
             //dead_code: true,  // discard unreachable code
             drop_debugger: false,  // discard “debugger” statements
             unsafe: false, // some unsafe optimizations (see below)
-            conditionals: false,  // optimize if-s and conditional expressions
-            comparisons: false,  // optimize comparisons
+            //conditionals: false,  // optimize if-s and conditional expressions
+            //comparisons: false,  // optimize comparisons
             //evaluate: true,  // evaluate constant expressions
             booleans: false,  // optimize boolean expressions
             loops: false,  // optimize loops

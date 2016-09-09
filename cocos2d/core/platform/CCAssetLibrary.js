@@ -27,6 +27,7 @@ var Asset = require('../assets/CCAsset');
 var callInNextTick = require('./utils').callInNextTick;
 var Loader = require('../load-pipeline/CCLoader');
 var PackDownloader = require('../load-pipeline/pack-downloader');
+var AutoReleaseUtils = require('../load-pipeline/auto-release-utils');
 
 /**
  * The asset library which managing loading/unloading assets in project.
@@ -67,6 +68,9 @@ var AssetLibrary = {
      * @private
      */
     loadAsset: function (uuid, callback, options) {
+        if (typeof uuid !== 'string') {
+            return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
+        }
         // var readMainCache = typeof (options && options.readMainCache) !== 'undefined' ? readMainCache : true;
         // var writeMainCache = typeof (options && options.writeMainCache) !== 'undefined' ? writeMainCache : true;
         var item = {
@@ -79,7 +83,22 @@ var AssetLibrary = {
         if (options && options.existingAsset) {
             item.existingAsset = options.existingAsset;
         }
-        this._loadAssetByUuid(item, callback);
+        Loader.load(item, function (error, asset) {
+            if (error || !asset) {
+                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
+            }
+            else {
+                if (asset.constructor === cc.SceneAsset) {
+                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(uuid);
+                }
+                if (CC_EDITOR || isScene(asset)) {
+                    Loader.removeItem(uuid);
+                }
+            }
+            if (callback) {
+                callback(error, asset);
+            }
+        });
     },
 
     getImportedDir: function (uuid) {
@@ -171,36 +190,6 @@ var AssetLibrary = {
     },
 
     /**
-     * !#zh uuid加载流程：
-     * 1. 查找_uuidToAsset，如果已经加载过，直接返回
-     * 2. 查找_uuidToCallbacks，如果已经在加载，则注册回调，直接返回
-     * 3. 如果没有url，则将uuid直接作为路径
-     * 4. 递归加载Asset及其引用到的其它Asset
-     *
-     * @method _loadAssetByUuid
-     * @param {Object} item - loading item including uuid, type and extra infos
-     * @param {loadCallback} callback - the callback to receive the asset, can be null
-     * @private
-     */
-    _loadAssetByUuid: function (item, callback) {
-        var uuid = item.id;
-        if (typeof uuid !== 'string') {
-            return callInNextTick(callback, new Error('[AssetLibrary] uuid must be string'), null);
-        }
-        Loader.load(item, function (error, asset) {
-            if (error || !asset) {
-                error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
-            }
-            else if (CC_EDITOR || isScene(asset)) {
-                Loader.removeItem(uuid);
-            }
-            if (callback) {
-                callback(error, asset);
-            }
-        });
-    },
-
-    /**
      * @method loadJson
      * @param {String} json
      * @param {loadCallback} callback
@@ -219,8 +208,13 @@ var AssetLibrary = {
             if (error) {
                 error = new Error('[AssetLibrary] loading JSON or dependencies failed: ' + error.message);
             }
-            else if (CC_EDITOR || isScene(asset)) {
-                Loader.removeItem(randomUuid);
+            else {
+                if (asset.constructor === cc.SceneAsset) {
+                    asset.scene.dependAssets = AutoReleaseUtils.getDependsRecursively(randomUuid);
+                }
+                if (CC_EDITOR || isScene(asset)) {
+                    Loader.removeItem(randomUuid);
+                }
             }
             asset._uuid = '';
             if (callback) {

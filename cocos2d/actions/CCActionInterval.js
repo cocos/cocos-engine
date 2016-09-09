@@ -705,8 +705,8 @@ cc.RepeatForever = cc.ActionInterval.extend({
 });
 
 /**
- * !#en Create a acton which repeat forever
- * !#zh 永远地重复一个动作，有限次数内重复一个动作请使用 repeat 动作。
+ * !#en Create a acton which repeat forever, as it runs forever, it can't be added into cc.sequence and cc.spawn.
+ * !#zh 永远地重复一个动作，有限次数内重复一个动作请使用 repeat 动作，由于这个动作不会停止，所以不能被添加到 cc.sequence 或 cc.spawn 中。
  * @method repeatForever
  * @param {FiniteTimeAction} action
  * @return {ActionInterval}

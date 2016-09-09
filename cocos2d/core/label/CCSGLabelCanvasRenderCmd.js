@@ -1,3 +1,5 @@
+/*global dirtyFlags */
+
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
@@ -38,6 +40,11 @@
             this._updateDisplayColor();
         if (opacityDirty)
             this._updateDisplayOpacity();
+
+        if(locFlag & dirtyFlags.contentDirty) {
+            this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
+            this._dirtyFlag &= ~dirtyFlags.contentDirty;
+        }
 
         if (colorDirty || opacityDirty || (locFlag & flags.textDirty)) {
             this._notifyRegionStatus && this._notifyRegionStatus(_ccsg.Node.CanvasRenderCmd.RegionStatus.Dirty);
@@ -112,10 +119,11 @@
         maxWidth -= 2 * this._getMargin();
         var wrappedWords = [];
         //fast return if strArr is empty
-        if(strArr.length === 0) {
+        if(strArr.length === 0 || maxWidth < 0) {
             wrappedWords.push('');
             return wrappedWords;
         }
+
         var text = strArr;
         var allWidth = ctx.measureText(text).width;
         while (allWidth > maxWidth && text.length > 1) {
@@ -195,14 +203,29 @@
         return wrappedWords;
     };
 
+    proto._constructFontDesc = function () {
+        var node = this._node;
+        var fontDesc = node._fontSize.toString() + 'px ';
+        var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
+        fontDesc = fontDesc + fontFamily;
+        if(node._isBold) {
+            fontDesc = "bold " + fontDesc;
+        }
+
+        if(node._isItalic) {
+            fontDesc = "italic " + fontDesc;
+        }
+
+        return fontDesc;
+    };
+
 
     proto._calculateLabelFont = function() {
         var node = this._node;
         var paragraphedStrings = node._string.split('\n');
 
-        var fontDesc = this._drawFontsize.toString() + 'px ';
-        var fontFamily = node._fontHandle.length === 0 ? 'serif' : node._fontHandle;
-        fontDesc = fontDesc + fontFamily;
+        node._fontSize = node._drawFontsize;
+        var fontDesc = this._constructFontDesc();
         this._labelContext.font = fontDesc;
 
         var paragraphLength = this._calculateParagraphLength(paragraphedStrings, this._labelContext);
@@ -217,6 +240,11 @@
 
                 var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
                 var canvasHeightNoMargin = this._canvasSize.height - 2 * this._getMargin();
+                if(canvasWidthNoMargin < 0 || canvasHeightNoMargin < 0) {
+                    fontDesc = this._constructFontDesc();
+                    this._labelContext.font = fontDesc;
+                    return fontDesc;
+                }
                 totalHeight = canvasHeightNoMargin + 1;
                 maxLength = canvasWidthNoMargin + 1;
                 var actualFontSize = this._drawFontsize + 1;
@@ -236,7 +264,7 @@
                         break;
                     }
                     node._fontSize = actualFontSize;
-                    fontDesc = actualFontSize.toString() + 'px ' + fontFamily;
+                    fontDesc = this._constructFontDesc();
                     this._labelContext.font = fontDesc;
 
                     this._splitedStrings = [];
@@ -246,7 +274,6 @@
                         textFragment = this._fragmentText(paragraphedStrings[i],
                                                           canvasWidthNoMargin,
                                                           this._labelContext);
-                        var isBiggerSize = false;
                         while(j < textFragment.length) {
                             var measureWidth = this._labelContext.measureText(textFragment[j]).width;
                             maxLength = measureWidth;
@@ -278,7 +305,8 @@
                 var scaleY = this._canvasSize.height / totalHeight;
 
                 node._fontSize = (this._drawFontsize * Math.min(1, scaleX, scaleY)) | 0;
-                fontDesc = node._fontSize.toString() + 'px ' + fontFamily;
+                fontDesc = this._constructFontDesc();
+                this._labelContext.font = fontDesc;
             }
         }
 
@@ -435,9 +463,28 @@
 
     };
 
-    // proto._updateColor = function() {
-    //     this._rebuildLabelSkin();
-    // };
+
+    proto._calculateUnderlineStartPosition = function () {
+        var node = this._node;
+        var lineHeight = this._getLineHeight();
+        var lineCount = this._splitedStrings.length;
+        var labelX;
+        var firstLinelabelY;
+
+        labelX = 0 + this._getMargin();
+
+        if (cc.VerticalTextAlignment.TOP === node._vAlign) {
+            firstLinelabelY = node._fontSize;
+        }
+        else if (cc.VerticalTextAlignment.CENTER === node._vAlign) {
+            firstLinelabelY = this._canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2 + node._fontSize / 2;
+        }
+        else {
+            firstLinelabelY = this._canvasSize.height - lineHeight * (lineCount - 1);
+        }
+
+        return cc.p(labelX, firstLinelabelY);
+    };
 
     proto._updateTexture = function() {
         this._labelContext.clearRect(0, 0, this._labelCanvas.width, this._labelCanvas.height);
@@ -450,6 +497,7 @@
         this._labelContext.lineJoin = 'round';
         var color = this._displayedColor;
         this._labelContext.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+        var underlineStartPosition;
 
         //do real rendering
         for (var i = 0; i < this._splitedStrings.length; ++i) {
@@ -463,10 +511,21 @@
                                               startPosition.x, startPosition.y + i * lineHeight);
             }
             this._labelContext.fillText(this._splitedStrings[i], startPosition.x, startPosition.y + i * lineHeight);
+            if(this._node._isUnderline) {
+                underlineStartPosition = this._calculateUnderlineStartPosition();
+                this._labelContext.save();
+                this._labelContext.beginPath();
+                this._labelContext.lineWidth = this._node._fontSize / 8;
+                this._labelContext.strokeStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+                this._labelContext.moveTo(underlineStartPosition.x, underlineStartPosition.y + i * lineHeight - 1);
+                this._labelContext.lineTo(underlineStartPosition.x + this._labelCanvas.width, underlineStartPosition.y + i * lineHeight - 1);
+                this._labelContext.stroke();
+                this._labelContext.restore();
+            }
         }
 
         this._texture._textureLoaded = false;
-        this._texture.handleLoadedTexture();
+        this._texture.handleLoadedTexture(true);
     };
 
     proto._rebuildLabelSkin = function () {

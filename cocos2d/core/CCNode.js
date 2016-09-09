@@ -25,6 +25,7 @@
 'use strict';
 
 var EventTarget = require('./event/event-target');
+var PrefabHelper = require('./utils/prefab-helper');
 
 var JS = cc.js;
 var Flags = cc.Object.Flags;
@@ -140,7 +141,7 @@ var _mouseEvents = [
     EventType.MOUSE_WHEEL,
 ];
 
-var currentHovered = null;
+var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
     var pos = touch.getLocation();
@@ -194,12 +195,12 @@ var _mouseMoveHandler = function (event) {
         event.stopPropagation();
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
-            if (currentHovered) {
+            if (_currentHovered) {
                 event.type = EventType.MOUSE_LEAVE;
-                currentHovered.owner.dispatchEvent(event);
-                currentHovered._previousIn = false;
+                _currentHovered.dispatchEvent(event);
+                _currentHovered._mouseListener._previousIn = false;
             }
-            currentHovered = this;
+            _currentHovered = this.owner;
             event.type = EventType.MOUSE_ENTER;
             node.dispatchEvent(event);
             this._previousIn = true;
@@ -211,7 +212,7 @@ var _mouseMoveHandler = function (event) {
         event.type = EventType.MOUSE_LEAVE;
         node.dispatchEvent(event);
         this._previousIn = false;
-        currentHovered = null;
+        _currentHovered = null;
     }
 };
 var _mouseUpHandler = function (event) {
@@ -394,10 +395,7 @@ var Node = cc.Class({
          * @type {PrefabInfo}
          * @private
          */
-        _prefab: {
-            default: null,
-            editorOnly: true
-        },
+        _prefab: null,
 
         /**
          * If true, the node is an persist node which won't be destroyed during scene transition.
@@ -524,16 +522,25 @@ var Node = cc.Class({
         }
         
         // Actions
-        this.stopAllActions();
+        cc.director.getActionManager().removeAllActionsFromTarget(this);
         this._releaseAllActions();
+
+        // Remove Node.currentHovered
+        if (_currentHovered === this) {
+            _currentHovered = null;
+        }
 
         // Remove all listeners
         if (CC_JSB && this._touchListener) {
             this._touchListener.release();
+            this._touchListener.owner = null;
+            this._touchListener.mask = null;
             this._touchListener = null;
         }
         if (CC_JSB && this._mouseListener) {
             this._mouseListener.release();
+            this._mouseListener.owner = null;
+            this._mouseListener.mask = null;
             this._mouseListener = null;
         }
         cc.eventManager.removeListeners(this);
@@ -566,6 +573,7 @@ var Node = cc.Class({
         }
         else if (CC_JSB) {
             this._sgNode.release();
+            this._sgNode._entity = null;
             this._sgNode = null;
         }
     },
@@ -633,8 +641,8 @@ var Node = cc.Class({
     },
 
     /**
-     * !#en Returns all components of supplied type in any of its children.
-     * !#zh 递归查找所有子节点中指定类型的组件。
+     * !#en Returns all components of supplied type in self or any of its children.
+     * !#zh 递归查找自身或所有子节点中指定类型的组件
      * @method getComponentsInChildren
      * @param {Function|String} typeOrClassName
      * @return {Component[]}
@@ -645,6 +653,7 @@ var Node = cc.Class({
     getComponentsInChildren: function (typeOrClassName) {
         var constructor = getConstructor(typeOrClassName), components = [];
         if (constructor) {
+            findComponents(this, constructor, components);
             findChildComponents(this._children, constructor, components);
         }
         return components;
@@ -780,13 +789,14 @@ var Node = cc.Class({
                 return;
             }
         }
-        if (ctor._requireComponent) {
+        var ReqComp = ctor._requireComponent;
+        if (ReqComp && !this.getComponent(ReqComp)) {
             if (index === this._components.length) {
                 // If comp should be last component, increase the index because required component added
                 ++index;
             }
-            var depend = this.addComponent(ctor._requireComponent);
-            if (!depend) {
+            var depended = this.addComponent(ReqComp);
+            if (!depended) {
                 // depend conflicts
                 return null;
             }
@@ -888,6 +898,33 @@ var Node = cc.Class({
         }
     },
 
+    /*
+     * The initializer for Node which will be called before all components onLoad
+     */
+    _onBatchCreated: function () {
+        var prefabInfo = this._prefab;
+        if (prefabInfo && prefabInfo.sync && !prefabInfo._synced) {
+            PrefabHelper.syncWithPrefab(this);
+        }
+
+        this._updateDummySgNode();
+
+        if (this._parent) {
+            this._parent._sgNode.addChild(this._sgNode);
+        }
+
+        if ( !this._activeInHierarchy ) {
+            // deactivate ActionManager and EventManager by default
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+        }
+
+        var children = this._children;
+        for (var i = 0, len = children.length; i < len; i++) {
+            children[i]._onBatchCreated();
+        }
+    },
+
     _activeRecursively: function (newActive) {
         var cancelActivation = false;
         if (this._objFlags & Activating) {
@@ -958,6 +995,12 @@ var Node = cc.Class({
             // activate
             cc.director.getActionManager().resumeTarget(this);
             cc.eventManager.resumeTarget(this);
+            if (this._touchListener) {
+                this._touchListener.mask = _searchMaskParent(this);
+            }
+            if (this._mouseListener) {
+                this._mouseListener.mask = _searchMaskParent(this);
+            }
         }
         else {
             // deactivate
@@ -1046,10 +1089,20 @@ var Node = cc.Class({
         var clone = cc.instantiate._clone(this, this);
         clone._parent = null;
 
-        // init
-        if (CC_EDITOR && cc.engine._isPlaying) {
+        var thisPrefabInfo = this._prefab;
+        var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
+        if (syncing) {
+            // copy non-serialized property
+            clone._prefab._synced = thisPrefabInfo._synced;
+            //if (thisPrefabInfo._synced) {
+            //    return clone;
+            //}
+        }
+        else if (CC_EDITOR && cc.engine._isPlaying) {
             this._name += ' (Clone)';
         }
+
+        // init
         clone._onBatchCreated();
 
         return clone;
@@ -1086,6 +1139,7 @@ var Node = cc.Class({
      * node.on(cc.Node.EventType.TOUCH_CANCEL, callback, this.node);
      */
     on: function (type, callback, target, useCapture) {
+        var newAdded = false;
         if (_touchEvents.indexOf(type) !== -1) {
             if (!this._touchListener) {
                 this._touchListener = cc.EventListener.create({
@@ -1101,6 +1155,7 @@ var Node = cc.Class({
                     this._touchListener.retain();
                 }
                 cc.eventManager.addListener(this._touchListener, this);
+                newAdded = true;
             }
         }
         else if (_mouseEvents.indexOf(type) !== -1) {
@@ -1119,8 +1174,17 @@ var Node = cc.Class({
                     this._mouseListener.retain();
                 }
                 cc.eventManager.addListener(this._mouseListener, this);
+                newAdded = true;
             }
         }
+        if (newAdded && !this._activeInHierarchy) {
+            cc.director.getScheduler().schedule(function() {
+                if (!this._activeInHierarchy) {
+                    cc.eventManager.pauseTarget(this);
+                }
+            }, this, 0, 0, 0, false);
+        }
+
         this._EventTargetOn(type, callback, target, useCapture);
     },
 
@@ -1188,6 +1252,10 @@ var Node = cc.Class({
                 }
             }
 
+            if (_currentHovered === this) {
+                _currentHovered = null;
+            }
+
             cc.eventManager.removeListener(this._mouseListener);
             this._mouseListener = null;
         }
@@ -1211,7 +1279,7 @@ var Node = cc.Class({
                 // find mask parent, should hit test it
                 if (parent === mask.node) {
                     var comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? parent._hitTest(point) : true;
+                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(point) : true;
                 }
                 // mask parent no longer exists
                 else {
@@ -1258,17 +1326,22 @@ var Node = cc.Class({
     /**
      * !#en
      * Executes an action, and returns the action that is executed.<br/>
-     * The node becomes the action's target. Refer to cc.Action's getTarget()<br/>
-     * Calling runAction while the node is not active won't have any effect.
+     * The node becomes the action's target. Refer to cc.Action's getTarget() <br/>
+     * Calling runAction while the node is not active won't have any effect. <br/>
+     * Note：You shouldn't modify the action after runAction, that won't take any effect.<br/>
+     * if you want to modify, when you define action plus.
      * !#zh
      * 执行并返回该执行的动作。该节点将会变成动作的目标。<br/>
-     * 调用 runAction 时，节点自身处于不激活状态将不会有任何效果。
+     * 调用 runAction 时，节点自身处于不激活状态将不会有任何效果。<br/>
+     * 注意：你不应该修改 runAction 后的动作，将无法发挥作用，如果想进行修改，请在定义 action 时加入。
      * @method runAction
      * @param {Action} action
      * @return {Action} An Action pointer
      * @example
      * var action = cc.scaleTo(0.2, 1, 0.6);
      * node.runAction(action);
+     * node.runAction(action).repeatForever(); // fail
+     * node.runAction(action.repeatForever()); // right
      */
     runAction: function (action) {
         if (!this.active)

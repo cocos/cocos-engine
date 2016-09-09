@@ -38,6 +38,7 @@ var _batchedInfo = {
         shader: null
     },
 
+    _batchBroken = false,
     _indexBuffer = null,
     _vertexBuffer = null,
     // Total vertex size
@@ -302,6 +303,10 @@ cc.rendererWebGL = {
         _batchingSize += increment;
     },
 
+    _breakBatch: function () {
+        _batchBroken = true;
+    },
+
     _uploadBufferData: function (cmd) {
         if (_batchingSize >= _maxVertexSize) {
             this._batchRendering();
@@ -313,7 +318,8 @@ cc.rendererWebGL = {
         var blendSrc = cmd._node._blendFunc.src;
         var blendDst = cmd._node._blendFunc.dst;
         var shader = cmd._shaderProgram;
-        if (_batchedInfo.texture !== texture ||
+        if (_batchBroken ||
+            _batchedInfo.texture !== texture ||
             _batchedInfo.blendSrc !== blendSrc ||
             _batchedInfo.blendDst !== blendDst ||
             _batchedInfo.shader !== shader) {
@@ -324,6 +330,7 @@ cc.rendererWebGL = {
             _batchedInfo.blendSrc = blendSrc;
             _batchedInfo.blendDst = blendDst;
             _batchedInfo.shader = shader;
+            _batchBroken = false;
         }
 
         // Upload vertex data

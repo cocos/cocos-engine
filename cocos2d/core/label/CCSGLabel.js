@@ -131,6 +131,10 @@ _ccsg.Label = _ccsg.Node.extend({
     _className: "Label",
     //used for left and right margin
     _margin : 0,
+    //bold,italic, underline
+    _isBold: false,
+    _isItalic: false,
+    _isUnderline: false,
 
     //fontHandle it is a system font name, ttf file path or bmfont file path.
     ctor: function(string, fontHandle, textureUrl) {
@@ -231,6 +235,21 @@ _ccsg.Label = _ccsg.Node.extend({
         this._isWrapText = enabled;
         this._rescaleWithOriginalFontSize();
 
+        this._notifyLabelSkinDirty();
+    },
+
+    enableItalics: function (enabled) {
+        this._isItalic = enabled;
+        this._notifyLabelSkinDirty();
+    },
+
+    enableBold: function (enabled) {
+        this._isBold = enabled;
+        this._notifyLabelSkinDirty();
+    },
+
+    enableUnderline: function (enabled) {
+        this._isUnderline = enabled;
         this._notifyLabelSkinDirty();
     },
 
@@ -358,6 +377,8 @@ _ccsg.Label = _ccsg.Node.extend({
         if (!extName) {
             this._fontHandle = fontHandle;
             this._labelType = _ccsg.Label.Type.SystemFont;
+            this._blendFunc = cc.BlendFunc._alphaPremultiplied();
+            this._renderCmd._needDraw = true;
             this._notifyLabelSkinDirty();
             this.emit('load');
             return;
@@ -365,13 +386,34 @@ _ccsg.Label = _ccsg.Node.extend({
 
         if (extName === ".ttf") {
             this._labelType = _ccsg.Label.Type.TTF;
+            this._blendFunc = cc.BlendFunc._alphaPremultiplied();
+            this._renderCmd._needDraw = true;
             this._fontHandle = this._loadTTFFont(fontHandle);
         } else if (extName === ".fnt") {
             //todo add bmfont here
             this._labelType = _ccsg.Label.Type.BMFont;
+            this._blendFunc = cc.BlendFunc._alphaNonPremultiplied();
+            this._renderCmd._needDraw = false;
             this._initBMFontWithString(this._string, fontHandle, textureUrl);
         }
         this._notifyLabelSkinDirty();
+    },
+
+    cleanup: function () {
+        this._super();
+
+        //remove the created DIV and style due to loading @font-face
+        if(this._fontFaceStyle) {
+            if(document.body.contains(this._fontFaceStyle)) {
+                document.body.removeChild(this._fontFaceStyle);
+            }
+        }
+
+        if(this._preloadDiv) {
+            if(document.body.contains(this._preloadDiv)) {
+                document.body.removeChild(this._preloadDiv);
+            }
+        }
     },
 
     _loadTTFFont: function(fontHandle) {
@@ -395,6 +437,7 @@ _ccsg.Label = _ccsg.Node.extend({
                 fontStyle = document.createElement("style");
             fontStyle.type = "text/css";
             doc.body.appendChild(fontStyle);
+            this._fontFaceStyle = fontStyle;
 
             var fontStr = "";
             if (isNaN(fontFamilyName - 0))
@@ -415,10 +458,15 @@ _ccsg.Label = _ccsg.Node.extend({
             _divStyle.left = "-100px";
             _divStyle.top = "-100px";
             doc.body.appendChild(preloadDiv);
-            self.scheduleOnce(function () {
-                self._notifyLabelSkinDirty();
-                self.emit("load");
-            }, 2);
+            this._preloadDiv = preloadDiv;
+            fontStyle.onload = function() {
+                fontStyle.onload = null;
+                self.scheduleOnce(function() {
+                    self._notifyLabelSkinDirty();
+                    self.emit("load");
+                },0.1);
+            };
+
         }
 
         return fontFamilyName;
@@ -484,7 +532,7 @@ _ccsg.Label = _ccsg.Node.extend({
         if (CC_EDITOR) {
             this._updateLabel();
         } else {
-            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty);
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty|_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
     _createRenderCmd: function() {
@@ -1114,7 +1162,7 @@ cc.BMFontHelper = {
         }
     },
 
-    _computeHorizontalKerningForText: function(text) {
+    _computeHorizontalKerningForText: function() {
         var stringLen = this.getStringLength();
         var locKerningDict = this._config.kerningDict;
 
@@ -1149,7 +1197,7 @@ cc.BMFontHelper = {
                     var locIsLoaded = texture.isLoaded();
                     self._textureLoaded = locIsLoaded;
                     if (!locIsLoaded) {
-                        texture.once("load", function(event) {
+                        texture.once("load", function() {
                             var self = this;
 
                             if (!self._spriteBatchNode) {

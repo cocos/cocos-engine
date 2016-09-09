@@ -44,6 +44,11 @@ cc.rendererCanvas = {
 
     //max dirty Region count, default is 10
     _dirtyRegionCountThreshold: 10,
+    init: function() {
+        if(cc.sys.browserType === cc.sys.BROWSER_TYPE_IE || cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+            this.enableDirtyRegion(false);
+        }
+    },
 
     getRenderCmd: function (renderableObject) {
         //TODO Add renderCmd pool here
@@ -390,14 +395,7 @@ cc.rendererCanvas = {
     };
 
     proto.setFillStyle = function(fillStyle){
-        if (this._saveCount > 0) {
-            this._context.fillStyle = fillStyle;
-        } else {
-            if (this._currentFillStyle !== fillStyle) {
-                this._currentFillStyle = fillStyle;
-                this._context.fillStyle = fillStyle;
-            }
-        }
+        this._context.fillStyle = fillStyle;
     };
 
     proto.setStrokeStyle = function(strokeStyle){

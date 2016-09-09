@@ -688,8 +688,8 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         },
 
         /**
-         * !#en Indicate whether node's opacity value affect its child nodes, default value is false.
-         * !#zh 节点的不透明度值是否影响其子节点，默认值为 false。
+         * !#en Indicate whether node's opacity value affect its child nodes, default value is true.
+         * !#zh 节点的不透明度值是否影响其子节点，默认值为 true。
          * @property cascadeOpacity
          * @type {Boolean}
          * @example
@@ -755,10 +755,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         var sgNode = this._sgNode = new _ccsg.Node();
         if (CC_JSB) {
             sgNode.retain();
-            var entity = this;
+            sgNode._entity = this;
             sgNode.onEnter = function () {
                 _ccsg.Node.prototype.onEnter.call(this);
-                if (!entity._active) {
+                if (this._entity && !this._entity._active) {
                     cc.director.getActionManager().pauseTarget(this);
                     cc.eventManager.pauseTarget(this);
                 }
@@ -797,6 +797,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
     _onPreDestroy: function () {
         if (CC_JSB) {
             this._sgNode.release();
+            this._sgNode._entity = null;
             this._sgNode = null;
         }
         cc.eventManager.removeListeners(this);
@@ -843,7 +844,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         }
     },
 
-    /**
+    /*
      * !#en
      * Defines the oder in which the nodes are renderer.
      * Nodes that have a Global Z Order lower, are renderer first.
@@ -880,7 +881,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         this._sgNode.setGlobalZOrder(globalZOrder);
     },
 
-    /**
+    /*
      * !#en Return the Node's Global Z Order.
      * !#zh 获取节点的全局 Z 顺序。
      * @method getGlobalZOrder
@@ -1609,7 +1610,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
      * treating the returned/received node point as anchor relative.
      * !#zh
      * 将一个点转换到世界空间坐标系。结果以 Vec2 为单位。<br/>
-     * 返回值将基于节点坐标。
+     * 返回值将基于世界坐标。
      * @method convertToWorldSpaceAR
      * @param {Vec2} nodePoint
      * @return {Vec2}
@@ -1885,7 +1886,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                     sibling.setLocalZOrder(zOrder);
                 }
                 else {
-                    sibling.arrivalOrder = i;
+                    sibling._arrivalOrder = i;
                     cc.eventManager._setDirtyForNode(siblings[i]);
                 }
             }
@@ -1942,7 +1943,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
                         if (child._localZOrder < _children[j]._localZOrder) {
                             _children[j+1] = _children[j];
                         } else if (child._localZOrder === _children[j]._localZOrder &&
-                                   child._sgNode.arrivalOrder < _children[j]._sgNode.arrivalOrder) {
+                                   child._sgNode._arrivalOrder < _children[j]._sgNode._arrivalOrder) {
                             _children[j+1] = _children[j];
                         } else {
                             break;
@@ -1971,14 +1972,18 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         sgNode.setScale(self._scaleX, self._scaleY);
         sgNode.setSkewX(self._skewX);
         sgNode.setSkewY(self._skewY);
-        sgNode.ignoreAnchorPointForPosition(self.__ignoreAnchor);
+        sgNode.setIgnoreAnchorPointForPosition(self.__ignoreAnchor);
 
-        var arrivalOrder = sgNode.arrivalOrder;
+        var arrivalOrder = sgNode._arrivalOrder;
         sgNode.setLocalZOrder(self._localZOrder);
-        sgNode.arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
+        sgNode._arrivalOrder = arrivalOrder;     // revert arrivalOrder changed in setLocalZOrder
 
         sgNode.setGlobalZOrder(self._globalZOrder);
 
+        if (CC_JSB) {
+            // fix tintTo and tintBy action for jsb displays err for fireball/issues/4137
+            sgNode.setColor(this._color);
+        }
         sgNode.setOpacity(self._opacity);
         sgNode.setOpacityModifyRGB(self._opacityModifyRGB);
         sgNode.setCascadeOpacityEnabled(self._cascadeOpacityEnabled);
@@ -2000,29 +2005,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
         else {
             cc.director.getActionManager().pauseTarget(this);
             cc.eventManager.pauseTarget(this);
-        }
-    },
-
-    /*
-     * The deserializer for sgNode which will be called before components onLoad
-     * @param {Boolean} [skipChildrenInEditor=false]
-     */
-    _onBatchCreated: function () {
-        this._updateDummySgNode();
-
-        if (this._parent) {
-            this._parent._sgNode.addChild(this._sgNode);
-        }
-
-        if ( !this._activeInHierarchy ) {
-            // deactivate ActionManager and EventManager by default
-            cc.director.getActionManager().pauseTarget(this);
-            cc.eventManager.pauseTarget(this);
-        }
-
-        var children = this._children;
-        for (var i = 0, len = children.length; i < len; i++) {
-            children[i]._onBatchCreated();
         }
     },
 
@@ -2053,6 +2035,13 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             if (sgParent) {
                 sgParent.addChild(this._sgNode);
             }
+        }
+
+        // check activity state
+        var shouldActiveInHierarchy = (this._parent && this._parent._activeInHierarchy && this._active);
+        if (shouldActiveInHierarchy !== this._activeInHierarchy) {
+            this._onActivatedInHierarchy(shouldActiveInHierarchy);
+            this.emit('active-in-hierarchy-changed', this);
         }
 
         if (this._activeInHierarchy) {

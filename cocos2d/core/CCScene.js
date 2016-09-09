@@ -38,15 +38,17 @@ cc.Scene = cc.Class({
     name: 'cc.Scene',
     extends: require('./utils/base-node'),
 
-    //properties: {
-    //    /**
-    //     * !#en Indicates the raw assets of this scene can be load after scene launched.
-    //     * !#zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
-    //     * @property {Boolean} _asyncLoadAssets
-    //     * @default false
-    //     */
-    //    _asyncLoadAssets: false
-    //},
+    properties: {
+
+        /**
+         * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
+         * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
+         * @property {Boolean} autoReleaseAssets
+         * @default false
+         */
+        autoReleaseAssets: undefined,
+
+    },
 
     ctor: function () {
         var sgNode = this._sgNode = new _ccsg.Scene();
@@ -59,6 +61,9 @@ cc.Scene = cc.Class({
 
         this._activeInHierarchy = false;
         this._inited = !cc.game._isCloning;
+
+        // cache all depend assets for auto release
+        this.dependAssets = null;
     },
 
     destroy: function () {
@@ -82,7 +87,18 @@ cc.Scene = cc.Class({
 
     _load: function () {
         if ( ! this._inited) {
-            this._onBatchCreated();
+
+            this._updateDummySgNode();
+
+            // deactivate ActionManager and EventManager by default
+            cc.director.getActionManager().pauseTarget(this);
+            cc.eventManager.pauseTarget(this);
+
+            var children = this._children;
+            for (var i = 0, len = children.length; i < len; i++) {
+                children[i]._onBatchCreated();
+            }
+
             this._inited = true;
         }
     },
@@ -112,40 +128,3 @@ cc.Scene = cc.Class({
 });
 
 module.exports = cc.Scene;
-
-if (CC_DEV) {
-    var ERR = '"%s" is not defined in the Scene, it is only defined in child nodes.';
-    Object.defineProperties(cc.Scene.prototype, {
-        active: {
-            get: function () {
-                cc.error(ERR, 'active');
-                return true;
-            },
-            set: function () {
-                cc.error(ERR, 'active');
-            }
-        },
-        activeInHierarchy: {
-            get: function () {
-                cc.error(ERR, 'activeInHierarchy');
-                return true;
-            },
-        },
-        getComponent: {
-            get: function () {
-                cc.error(ERR, 'getComponent');
-                return function () {
-                    return null;
-                };
-            }
-        },
-        addComponent: {
-            get: function () {
-                cc.error(ERR, 'addComponent');
-                return function () {
-                    return null;
-                };
-            }
-        },
-    });
-}

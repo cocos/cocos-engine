@@ -53,7 +53,7 @@ cc.Event = function(type, bubbles) {
      * @property bubbles
      * @type {Boolean}
      */
-    this.bubbles = bubbles || false;
+    this.bubbles = !!bubbles;
 
     /**
      * !#en A reference to the target to which the event was originally dispatched.

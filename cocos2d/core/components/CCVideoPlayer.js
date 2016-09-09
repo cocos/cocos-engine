@@ -21,6 +21,31 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Video event type
+ * !#zh 视频事件类型
+ * @enum VideoPlayer.EventType
+ */
+/**
+ * !#en play
+ * !#zh 播放
+ * @property {Number} PLAYING
+ */
+/**
+ * !#en pause
+ * !#zh 暂停
+ * @property {Number} PAUSED
+ */
+/**
+ * !#en stop
+ * !#zh 停止
+ * @property {Number} STOPPED
+ */
+/**
+ * !#en play end
+ * !#zh 播放结束
+ * @property {Number} COMPLETED
+ */
 var EventType = _ccsg.VideoPlayer.EventType;
 
 
@@ -106,7 +131,7 @@ var VideoPlayer = cc.Class({
         /**
          * !#en The local video full path.
          * !#zh 本地视频的 URL
-         * @property {String} video
+         * @property {String} clip
          */
         clip: {
             tooltip: 'i18n:COMPONENT.videoplayer.video',
@@ -122,21 +147,24 @@ var VideoPlayer = cc.Class({
             url: cc.RawAsset
         },
 
-        _time: 0,
         /**
-         * !#en The current time when video start to play.
-         * !#zh  从当前时间点开始播放视频
-         * @property {Float} currentTime
+         * !#en The current playback time of the now playing item in seconds, you could also change the start playback time.
+         * !#zh 指定视频从什么时间点开始播放，单位是秒，也可以用来获取当前视频播放的时间进度。
+         * @property {Number} currentTime
          */
         currentTime: {
             tooltip: 'i18n:COMPONENT.videoplayer.currentTime',
             type: cc.Float,
             set: function ( time ) {
-                this._time = time;
-                this._sgNode.seekTo(time);
+                if(this._sgNode) {
+                    this._sgNode.seekTo(time);
+                }
             },
             get: function () {
-                return this._time;
+                if(this._sgNode) {
+                    return this._sgNode.currentTime();
+                }
+                return -1;
             }
         },
 
@@ -185,7 +213,6 @@ var VideoPlayer = cc.Class({
     },
 
     onLoad: function() {
-
         if(CC_JSB) {
             if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
                 this.enabled = false;
@@ -292,6 +319,28 @@ var VideoPlayer = cc.Class({
             this._sgNode.stop();
         }
     },
+
+    /**
+     * !#en Gets the duration of the video
+     * !#zh 获取视频文件的播放总时长
+     */
+    getDuration: function() {
+        if(this._sgNode) {
+            return this._sgNode.duration();
+        }
+        return -1;
+    },
+
+    /**
+     * !#en Determine whether video is playing or not.
+     * !#zh 判断当前视频是否处于播放状态
+     */
+    isPlaying: function() {
+        if(this._sgNode) {
+            return this._sgNode.isPlaying();
+        }
+        return false;
+    }
 
 });
 

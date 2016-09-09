@@ -112,6 +112,16 @@ for (var i = 0; i < actionArr.length; ++i) {
     }
 }
 
+cc.targetedAction = function (target, action) {
+    return new cc.TargetedAction(target, action);
+};
+
+cc.TargetedAction.prototype._ctor = function(target, action) {
+    var node = target._sgNode || target;
+    node._owner = target;
+    action && this.initWithTarget(node, action);
+};
+
 cc.follow = function (followedNode, rect) {
     return new cc.Follow(followedNode._sgNode, rect);
 };
@@ -121,6 +131,27 @@ cc.Follow.prototype.update = function(dt) {
     if (target._owner) {
         target._owner.setPosition(target.getPosition());
     }
+};
+
+function setRendererVisibility (sgNode, toggleVisible, visible) {
+    if (!sgNode) { return; }
+    var _renderComps = sgNode._owner.getComponentsInChildren(cc._SGComponent);
+    for (var i = 0; i < _renderComps.length; ++i) {
+        var render = _renderComps[i];
+        render.enabled = toggleVisible ? !render.enabled : visible;
+    }
+}
+
+cc.Show.prototype.update = function (dt) {
+    setRendererVisibility(this.getTarget(), false, true);
+};
+
+cc.Hide.prototype.update = function (dt) {
+    setRendererVisibility(this.getTarget(), false, false);
+};
+
+cc.ToggleVisibility.prototype.update = function (dt) {
+    setRendererVisibility(this.getTarget(), true);
 };
 
 // Special call func
@@ -178,6 +209,7 @@ cc.Node.prototype.runAction = function (action) {
         action.release();
         action._retained = false;
     }
+    return action;
 };
 
 function getSGTarget (target) {
@@ -315,24 +347,22 @@ function syncColorUpdate (dt) {
 // Sub classes must be registered before their super class.
 // Otherwise, JSB there will be internal Error: "too much recursion".
 var actionUpdate = {
-    'MoveTo': syncPositionUpdate,
     'MoveBy': syncPositionUpdate,
-    'JumpTo': syncPositionUpdate,
     'JumpBy': syncPositionUpdate,
     'Place': syncPositionUpdate,
+    'CardinalSplineTo': syncPositionUpdate,
     'RotateTo': syncRotationUpdate,
     'RotateBy': syncRotationUpdate,
     'ScaleTo': syncScaleUpdate,
-    'ScaleBy': syncScaleUpdate,
     'RemoveSelf': syncRemoveSelfUpdate,
     'SkewTo': syncSkewUpdate,
-    'SkewBy': syncSkewUpdate,
     'Blink': syncOpacityUpdate,
     'FadeIn': syncOpacityUpdate,
     'FadeOut': syncOpacityUpdate,
     'FadeTo': syncOpacityUpdate,
     'TintTo': syncColorUpdate,
-    'TintBy': syncColorUpdate
+    'TintBy': syncColorUpdate,
+    'BezierBy': syncPositionUpdate
 };
 
 for (var key in actionUpdate) {

@@ -108,7 +108,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, callback, 
             var raw = rawSize.size;
             var zipped = zippedSize.size;
             var percent = ((zipped / raw) * 100).toFixed(2);
-            console.log(`Size of ${outputFile}: minimized: ${Chalk.cyan(raw + 'B')} zipped: ${Chalk.cyan(zipped + 'B')}, compression ratio: ${percent}%`);
+            console.log(`Size of ${outputFile}: minimized: ${Chalk.cyan(raw)}B zipped: ${Chalk.cyan(zipped)}B, compression ratio: ${percent}%`);
             this.emit('end');
         }));
     }
