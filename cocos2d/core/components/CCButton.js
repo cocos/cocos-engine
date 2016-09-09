@@ -47,7 +47,13 @@ var Transition = cc.Enum({
      * !#zh 精灵过渡
      * @property {Number} SPRITE
      */
-    SPRITE: 2
+    SPRITE: 2,
+    /**
+     * !#en The scale type
+     * !#zh 缩放过渡
+     * @property {Number} SCALE
+     */
+    SCALE: 3
 });
 
 /**
@@ -108,6 +114,9 @@ var Button = cc.Class({
         this._toColor = null;
         this._time = 0;
         this._transitionFinished = true;
+        this._fromScale = 1.0;
+        this._toScale = 1.0;
+        this._originalScale = 1.0;
 
         this._sprite = null;
 
@@ -157,6 +166,28 @@ var Button = cc.Class({
                 }
             },
             animatable: false
+        },
+
+        _resizeToTarget: {
+            animatable: false,
+            set: function (value) {
+                if(value) {
+                    this._resizeNodeToTargetNode();
+                }
+            }
+        },
+
+        /**
+         * !#en When this flag is true, Button target sprite will turn gray when interactable is false.
+         * !#zh 如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰
+         * @property {Boolean} enableAutoGrayEffect
+         */
+        enableAutoGrayEffect: {
+            default: true,
+            tooltip: 'i18n:COMPONENT.button.auto_gray_effect',
+            notify: function () {
+                this._updateDisabledState();
+            }
         },
 
         /**
@@ -225,14 +256,25 @@ var Button = cc.Class({
         },
 
         /**
-         * !#en Color transition duration
-         * !#zh 颜色过渡时所需时间
+         * !#en Color and Scale transition duration
+         * !#zh 颜色过渡和缩放过渡时所需时间
          * @property {Number} duration
          */
         duration: {
             default: 0.1,
             range: [0, 10],
             tooltip: 'i18n:COMPONENT.button.duration',
+        },
+
+        /**
+         * !#en  When user press the button, the button will zoom to a scale.
+         * The final scale of the button  equals (button original scale * zoomScale)
+         * !#zh 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale
+         * @property {Number} zoomScale
+         */
+        zoomScale: {
+            default: 0.1,
+            tooltip: 'i18n:COMPONENT.button.zoom_scale'
         },
 
         // sprite transition
@@ -362,23 +404,33 @@ var Button = cc.Class({
         }
     },
 
-    start: function () {
+    onLoad: function () {
         this._applyTarget();
         this._updateState();
     },
 
     update: function (dt) {
         var target = this.target;
-        if (!this.transition === Transition.COLOR || !target || this._transitionFinished) return;
+        if (this.transition !== Transition.COLOR || this.transition !== Transition.SCALE
+            || !target || this._transitionFinished) return;
 
         this.time += dt;
-        var ratio = this.time / this.duration;
-        if (ratio > 1) {
+        var ratio = 1.0;
+        if(this.duration > 0) {
+            ratio = this.time / this.duration;
+        }
+
+        if (ratio >= 1) {
             ratio = 1;
             this._transitionFinished = true;
         }
 
-        target.color = this._fromColor.lerp(this._toColor, ratio);
+        if(this.transition === Transition.COLOR) {
+            target.color = this._fromColor.lerp(this._toColor, ratio);
+        } else if (this.transition === Transition.SCALE) {
+            target.scale = cc.lerp(this._fromScale, this._toScale, ratio);
+        }
+
     },
 
     _registerEvent: function () {
@@ -395,6 +447,7 @@ var Button = cc.Class({
         var target = this.target;
         if (target) {
             this._sprite = target.getComponent(cc.Sprite);
+            this._originalScale = target.scale;
         }
         else {
             this._sprite = null;
@@ -406,7 +459,11 @@ var Button = cc.Class({
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = true;
-        this._updateState();
+        if(this.transition === Transition.SCALE) {
+            this._zoomUp();
+        } else {
+            this._updateState();
+        }
         event.stopPropagation();
     },
 
@@ -416,16 +473,24 @@ var Button = cc.Class({
         // so we have to do hit test when touch moving
         var touch = event.touch;
         var hit = this.node._hitTest(touch.getLocation());
-        var state;
-        if (hit) {
-            state = 'pressed';
-        } else {
-            state = 'normal';
-        }
-        var color  = this[state + 'Color'];
-        var sprite = this[state + 'Sprite'];
 
-        this._applyTransition(color, sprite);
+        if(this.transition === Transition.SCALE && this.target) {
+            if(hit) {
+                this.target.scale = this._originalScale * this.zoomScale;
+            } else {
+                this.target.scale = this._originalScale;
+            }
+        } else {
+            var state;
+            if (hit) {
+                state = 'pressed';
+            } else {
+                state = 'normal';
+            }
+            var color  = this[state + 'Color'];
+            var sprite = this[state + 'Sprite'];
+            this._applyTransition(color, sprite);
+        }
         event.stopPropagation();
     },
 
@@ -436,14 +501,33 @@ var Button = cc.Class({
             cc.Component.EventHandler.emitEvents(this.clickEvents, event);
         }
         this._pressed = false;
-        this._updateState();
+        if(this.transition === Transition.SCALE) {
+            this._zoomBack();
+        } else {
+            this._updateState();
+        }
         event.stopPropagation();
+    },
+
+    _zoomUp: function () {
+        this._fromScale = this._originalScale;
+        this._toScale = this._originalScale * this.zoomScale;
+        this.time = 0;
+        this._transitionFinished = false;
+    },
+
+    _zoomBack: function () {
+        this._fromScale = this._originalScale * this.zoomScale;
+        this._toScale = this._originalScale;
+        this.time = 0;
+        this._transitionFinished = false;
     },
 
     _onTouchCancel: function () {
         if (!this.interactable || !this.enabledInHierarchy) return;
 
         this._pressed = false;
+
         this._updateState();
     },
 
@@ -482,6 +566,7 @@ var Button = cc.Class({
         var sprite = this[state + 'Sprite'];
 
         this._applyTransition(color, sprite);
+        this._updateDisabledState();
     },
 
     onDisable: function() {
@@ -521,6 +606,25 @@ var Button = cc.Class({
             this._sprite.spriteFrame = sprite;
         }
     },
+
+    _resizeNodeToTargetNode: CC_EDITOR && function () {
+        if(this.target) {
+            this.node.setContentSize(this.target.getContentSize());
+        }
+    },
+
+    _updateDisabledState: function () {
+        if(this._sprite) {
+            this._sprite._sgNode.setState(0);
+        }
+        if(this.enableAutoGrayEffect) {
+            if(! (this.transition === Transition.SPRITE && this.disabledSprite)) {
+                if(this._sprite && !this.interactable) {
+                    this._sprite._sgNode.setState(1);
+                }
+            }
+        }
+    }
 
 });
 
