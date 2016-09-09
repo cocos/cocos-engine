@@ -61,17 +61,4 @@ test('foreach mutable array', function () {
     iterator.i = 0;
     removeOperation(1);
     strictEqual(iterator.i, 0, 'should not decrease the index if remove subsequent item');
-
-    //var assertId = 0;
-    //for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-    //    var item = array[iterator.i];
-    //    switch (assertId) {
-    //        case 0:
-    //            ++assertId;
-    //            break;
-    //        case 1:
-    //            break;
-    //    }
-    //}
-
 });
