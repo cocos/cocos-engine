@@ -193,6 +193,14 @@ var StaggerIndex = cc.Enum({
     STAGGERINDEX_EVEN : 1
 });
 
+var TMXObjectType = cc.Enum ({
+    RECT : 0,
+    ELLIPSE : 1,
+    POLYGON : 2,
+    POLYLINE : 3,
+    IMAGE : 4
+});
+
 /**
  * !#en Renders a TMX Tile Map in the scene.
  * !#zh 在场景中渲染一个 tmx 格式的 Tile Map。
@@ -213,6 +221,7 @@ var TiledMap = cc.Class({
         TileFlag: TileFlag,
         StaggerAxis: StaggerAxis,
         StaggerIndex: StaggerIndex,
+        TMXObjectType: TMXObjectType
     },
 
     properties: {
@@ -816,7 +825,7 @@ var TiledMap = cc.Class({
             if (ret) {
                 // Asset is changed, the layers are recreated.
                 // The layers of pre asset should be cleaned.
-                self._detachedLayers.length = 0;
+                self._detachedChildren.length = 0;
                 self._onMapLoaded();
             }
         } else {

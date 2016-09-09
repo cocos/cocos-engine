@@ -74,9 +74,28 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
         }
         this.setAnchorPoint(cc.p(0, 0));
         this.setPosition(this._positionOffset.x, -this._positionOffset.y);
-        this.setObjects(groupInfo._objects);
-
         this.setVisible(groupInfo.visible);
+
+        if (groupInfo._objects instanceof Array) {
+            this._objects = groupInfo._objects;
+        } else {
+            this._objects = [];
+        }
+
+        // add objects
+        for (var i = 0, n = this._objects.length; i < n; i++) {
+            var objInfo = this._objects[i];
+            var object;
+            if (objInfo.type === cc.TiledMap.TMXObjectType.IMAGE) {
+                object = new _ccsg.TMXObjectImage(objInfo, this._mapInfo);
+            } else {
+                object = new _ccsg.TMXObjectShape(objInfo, this._mapInfo);
+            }
+
+            object.setOpacity(groupInfo._opacity);
+            // TODO addChild in order with property cc.TMXObjectGroupInfo._draworder
+            this.addChild(object, i, i);
+        }
     },
 
     /**
@@ -213,45 +232,5 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
             }
         }
         return retArr;
-    },
-
-    /**
-     * !#en Set the objects.
-     * !#zh 设置对象数组。
-     * @method setObjects
-     * @param {Object} objects
-     * @example
-     * tMXObjectGroup.setObjects(objects);
-     */
-    setObjects:function (objects) {
-        if (objects instanceof Array) {
-            this._objects = objects;
-        } else {
-            this._objects = [];
-        }
-
-        // remove the objects added before
-        var locChildren = this.getChildren();
-        var i, n;
-        for (i = 0, n = locChildren.length; i < n; i++) {
-            var child = locChildren[i];
-            if (child && child.isTmxObject) {
-                this.removeChild(child);
-            }
-        }
-
-        // add objects
-        for (i = 0, n = objects.length; i < n; i++) {
-            var objInfo = objects[i];
-            var object;
-            if (objInfo.type === 'image') {
-                object = new _ccsg.TMXObjectImage(objInfo, this._mapInfo);
-            } else {
-                object = new _ccsg.TMXObjectShape(objInfo, this._mapInfo);
-            }
-
-            // TODO addChild in order with property cc.TMXObjectGroupInfo._draworder
-            this.addChild(object, i, i);
-        }
     }
 });

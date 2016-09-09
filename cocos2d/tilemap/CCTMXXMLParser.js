@@ -890,8 +890,6 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 objectProp["name"] = selObj.getAttribute('name') || "";
 
                 // Assign all the attributes as key/name pairs in the properties dictionary
-                objectProp["type"] = selObj.getAttribute('type') || "";
-
                 objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;
                 objectProp["height"] = parseFloat(selObj.getAttribute('height')) || 0;
 
@@ -914,19 +912,19 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 var gid = selObj.getAttribute('gid');
                 if (gid) {
                     objectProp['gid'] = parseInt(gid);
-                    objectProp['type'] = 'image';
+                    objectProp['type'] = cc.TiledMap.TMXObjectType.IMAGE;
                 }
 
                 // ellipse
                 var ellipse = selObj.querySelectorAll('ellipse');
                 if (ellipse && ellipse.length > 0) {
-                    objectProp['type'] = 'ellipse';
+                    objectProp['type'] = cc.TiledMap.TMXObjectType.ELLIPSE;
                 }
 
                 //polygon
                 var polygonProps = selObj.querySelectorAll("polygon");
                 if(polygonProps && polygonProps.length > 0) {
-                    objectProp['type'] = 'polygon';
+                    objectProp['type'] = cc.TiledMap.TMXObjectType.POLYGON;
                     var selPgPointStr = polygonProps[0].getAttribute('points');
                     if(selPgPointStr)
                         objectProp["points"] = this._parsePointsString(selPgPointStr);
@@ -935,14 +933,14 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
                 //polyline
                 var polylineProps = selObj.querySelectorAll("polyline");
                 if(polylineProps && polylineProps.length > 0) {
-                    objectProp['type'] = 'polyline';
+                    objectProp['type'] = cc.TiledMap.TMXObjectType.POLYLINE;
                     var selPlPointStr = polylineProps[0].getAttribute('points');
                     if(selPlPointStr)
                         objectProp["polylinePoints"] = this._parsePointsString(selPlPointStr);
                 }
 
                 if (!objectProp['type']) {
-                    objectProp['type'] = 'rect';
+                    objectProp['type'] = cc.TiledMap.TMXObjectType.RECT;
                 }
 
                 // Add the object to the objectGroup
