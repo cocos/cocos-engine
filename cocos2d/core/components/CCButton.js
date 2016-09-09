@@ -411,7 +411,7 @@ var Button = cc.Class({
 
     update: function (dt) {
         var target = this.target;
-        if (!this.transition === Transition.COLOR || !this.transition === Transition.SCALE
+        if (this.transition !== Transition.COLOR || this.transition !== Transition.SCALE
             || !target || this._transitionFinished) return;
 
         this.time += dt;
