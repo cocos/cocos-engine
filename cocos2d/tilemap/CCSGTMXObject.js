@@ -3,8 +3,11 @@
  */
 
 _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
-    ctor:function (objInfo, mapInfo) {
+    _groupSize : cc.size(0,0),
+
+    ctor:function (objInfo, mapInfo, groupSize) {
         _ccsg.Sprite.prototype.ctor.call(this);
+        this._groupSize = groupSize;
         this._initWithObjectInfo(objInfo);
         this.initWithMapInfo(mapInfo);
     },
@@ -73,8 +76,9 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
         var mapOri = mapInfo.getOrientation();
         switch(mapOri) {
         case cc.TiledMap.Orientation.ORTHO:
+        case cc.TiledMap.Orientation.HEX:
             this.setAnchorPoint(cc.p(0, 0));
-            this.setPosition(this.offset.x, mapInfo._mapSize.height * mapInfo._tileSize.height - this.offset.y);
+            this.setPosition(this.offset.x, this._groupSize.height - this.offset.y);
             break;
         case cc.TiledMap.Orientation.ISO:
             this.setAnchorPoint(cc.p(0.5, 0));
@@ -83,29 +87,243 @@ _ccsg.TMXObjectImage = _ccsg.Sprite.extend(/** @lends cc.TMXObjectImage# */{
                            mapInfo._tileSize.height / 2 * ( mapInfo._mapSize.height * 2 - posIdx.x - posIdx.y));
             this.setPosition(pos);
             break;
-        case cc.TiledMap.Orientation.HEX:
-            this.setAnchorPoint(cc.p(0, 0));
-            var x = this.offset.x;
-            var y = 0;
-            if (mapInfo.getStaggerAxis() === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
-                y = mapInfo._tileSize.height * (mapInfo._mapSize.height + 0.5) - this.offset.y;
-            }
-            else if (mapInfo.getStaggerAxis() === cc.TiledMap.StaggerAxis.STAGGERAXIS_Y) {
-                y = (mapInfo._tileSize.height + mapInfo.getHexSideLength()) * Math.floor(mapInfo._mapSize.height / 2) + mapInfo._tileSize.height * (mapInfo._mapSize.height % 2) - this.offset.y;
-            }
-            this.setPosition(cc.p(x, y));
-            break;
         default:
             break;
         }
     }
 });
 
-// TODO Add _ccsg.TMXObjectShape for draw the shape object
-_ccsg.TMXObjectShape = _ccsg.Node.extend(/** @lends cc.TMXObjectShape# */{
-    ctor:function (objInfo, mapInfo) {
-        _ccsg.Node.prototype.ctor.call(this);
+_ccsg.TMXObjectShape = cc.DrawNode.extend(/** @lends cc.TMXObjectShape# */{
+    _groupSize : cc.size(0,0),
+    _color : cc.Color.WHITE,
+    _mapOrientation : 0,
+    _mapInfo : null,
+
+    ctor:function (objInfo, mapInfo, groupSize, color) {
+        cc.DrawNode.prototype.ctor.call(this);
+        this.setLineWidth(1);
+        this._groupSize = groupSize;
+        this._color = color;
+        this._mapInfo = mapInfo;
+        this._mapOrientation = mapInfo.getOrientation();
         this._initWithObjectInfo(objInfo);
+        this._initShape(objInfo);
+    },
+
+    _initShape : function (objInfo) {
+        var originPos;
+        if (cc.TiledMap.Orientation.ISO !== this._mapOrientation) {
+            var startPos = cc.p(0, this._groupSize.height);
+            originPos = cc.p(startPos.x + this.offset.x, startPos.y - this.offset.y);
+        } else {
+            originPos = this._getPosByOffset(cc.p(0, 0));
+        }
+        this.setPosition(originPos);
+        this.setRotation(this.objectRotation);
+
+        switch (this.type) {
+            case cc.TiledMap.TMXObjectType.RECT:
+                this._drawRect();
+                break;
+            case cc.TiledMap.TMXObjectType.ELLIPSE:
+                this._drawEllipse();
+                break;
+            case cc.TiledMap.TMXObjectType.POLYGON:
+                this._drawPoly(objInfo, originPos, true);
+                break;
+            case cc.TiledMap.TMXObjectType.POLYLINE:
+                this._drawPoly(objInfo, originPos, false);
+                break;
+            default:
+                break;
+        }
+        this.setVisible(this.objectVisible);
+    },
+
+    _getPosByOffset : function(offset)
+    {
+        var mapSize = this._mapInfo.getMapSize();
+        var tileSize = this._mapInfo.getTileSize();
+        var posIdx = cc.p((this.offset.x + offset.x) / tileSize.width * 2, (this.offset.y + offset.y) / tileSize.height);
+        return cc.p(tileSize.width / 2 * (mapSize.width + posIdx.x - posIdx.y),
+                    tileSize.height / 2 * (mapSize.height * 2 - posIdx.x - posIdx.y));
+    },
+
+    _drawRect : function () {
+        if (cc.TiledMap.Orientation.ISO !== this._mapOrientation) {
+            var objSize = this.objectSize;
+            if (objSize.equals(cc.Size.ZERO)) {
+                objSize = cc.size(20, 20);
+                this.setAnchorPoint(cc.p(0.5, 0.5));
+            } else {
+                this.setAnchorPoint(cc.p(0, 1));
+            }
+            var bl = cc.p(0, 0);
+            var tr = cc.p(objSize.width, objSize.height);
+            this.drawRect(bl, tr, null, this.getLineWidth(), this._color);
+
+            this.setContentSize(objSize);
+        } else {
+            if (this.objectSize.equals(cc.Size.ZERO)) {
+                return;
+            }
+
+            var pos1 = this._getPosByOffset(cc.p(0, 0));
+            var pos2 = this._getPosByOffset(cc.p(this.objectSize.width, 0));
+            var pos3 = this._getPosByOffset(cc.p(this.objectSize.width, this.objectSize.height));
+            var pos4 = this._getPosByOffset(cc.p(0, this.objectSize.height));
+
+            var width = pos2.x - pos4.x, height = pos1.y - pos3.y;
+            this.setContentSize(cc.size(width, height));
+            this.setAnchorPoint(cc.p((pos1.x - pos4.x) / width, 1));
+
+            var origin = cc.p(pos4.x, pos3.y);
+            pos1.subSelf(origin);
+            pos2.subSelf(origin);
+            pos3.subSelf(origin);
+            pos4.subSelf(origin);
+            if (this.objectSize.width > 0) {
+                this.drawSegment(pos1, pos2, this.getLineWidth(), this._color);
+                this.drawSegment(pos3, pos4, this.getLineWidth(), this._color);
+            }
+
+            if (this.objectSize.height > 0) {
+                this.drawSegment(pos1, pos4, this.getLineWidth(), this._color);
+                this.drawSegment(pos3, pos2, this.getLineWidth(), this._color);
+            }
+        }
+    },
+
+    _drawEllipse : function() {
+        var scaleX = 1.0, scaleY = 1.0, radius = 0.0;
+        var center = cc.p(0, 0);
+        var ellipseNode = null;
+        if (cc.TiledMap.Orientation.ISO !== this._mapOrientation) {
+            var objSize = this.objectSize;
+            if (objSize.equals(cc.Size.ZERO)) {
+                objSize = cc.size(20, 20);
+                this.setAnchorPoint(cc.p(0.5, 0.5));
+            } else {
+                this.setAnchorPoint(cc.p(0, 1));
+            }
+
+            center = cc.p(objSize.width / 2, objSize.height / 2);
+            if (objSize.width > objSize.height) {
+                scaleX = objSize.width / objSize.height;
+                radius = objSize.height / 2;
+            } else {
+                scaleY = objSize.height / objSize.width;
+                radius = objSize.width / 2;
+            }
+            ellipseNode = this;
+
+            this.setContentSize(objSize);
+        } else {
+            if (this.objectSize.equals(cc.Size.ZERO)) {
+                return;
+            }
+
+            // draw the rect
+            var pos1 = this._getPosByOffset(cc.p(0, 0));
+            var pos2 = this._getPosByOffset(cc.p(this.objectSize.width, 0));
+            var pos3 = this._getPosByOffset(cc.p(this.objectSize.width, this.objectSize.height));
+            var pos4 = this._getPosByOffset(cc.p(0, this.objectSize.height));
+
+            var width = pos2.x - pos4.x, height = pos1.y - pos3.y;
+            this.setContentSize(cc.size(width, height));
+            this.setAnchorPoint(cc.p((pos1.x - pos4.x) / width, 1));
+
+            var origin = cc.p(pos4.x, pos3.y);
+            pos1.subSelf(origin);
+            pos2.subSelf(origin);
+            pos3.subSelf(origin);
+            pos4.subSelf(origin);
+            if (this.objectSize.width > 0) {
+                this.drawSegment(pos1, pos2, this.getLineWidth(), this._color);
+                this.drawSegment(pos3, pos4, this.getLineWidth(), this._color);
+            }
+
+            if (this.objectSize.height > 0) {
+                this.drawSegment(pos1, pos4, this.getLineWidth(), this._color);
+                this.drawSegment(pos3, pos2, this.getLineWidth(), this._color);
+            }
+
+            // add a drawnode to draw the ellipse
+            center = this._getPosByOffset(cc.p(this.objectSize.width / 2, this.objectSize.height / 2));
+            center.subSelf(origin);
+
+            ellipseNode = new cc.DrawNode();
+            ellipseNode.setLineWidth(this.getLineWidth());
+            ellipseNode.setContentSize(cc.size(width, height));
+            ellipseNode.setAnchorPoint(cc.p(0.5, 0.5));
+            ellipseNode.setPosition(center);
+            this.addChild(ellipseNode);
+
+            if (this.objectSize.width > this.objectSize.height) {
+                scaleX = this.objectSize.width / this.objectSize.height;
+                radius = this.objectSize.height / 2;
+            } else {
+                scaleY = this.objectSize.height / this.objectSize.width;
+                radius = this.objectSize.width / 2;
+            }
+            var tileSize = this._mapInfo.getTileSize();
+            var rotateDegree = Math.atan(tileSize.width / tileSize.height);
+            radius /= Math.sin(rotateDegree);
+
+            // should rotate the ellipse
+            ellipseNode.setRotationX(cc.radiansToDegrees(rotateDegree));
+            ellipseNode.setRotationY(90 - cc.radiansToDegrees(rotateDegree));
+        }
+        ellipseNode.drawCircle(center, radius, 0, 50, false, this.getLineWidth(), this._color);
+        ellipseNode.setScaleX(scaleX);
+        ellipseNode.setScaleY(scaleY);
+    },
+
+    _drawPoly : function (objectInfo, originPos, isPolygon) {
+        // parse the data
+        var pointsData;
+        if (isPolygon)
+            pointsData = objectInfo.points;
+        else
+            pointsData = objectInfo.polylinePoints;
+
+        var points = [];
+        var minX = 0, minY = 0, maxX = 0, maxY = 0;
+        for (var i = 0, n = pointsData.length; i < n; i++) {
+            var pointData = pointsData[i];
+            points.push(cc.p(pointData.x, pointData.y));
+            minX = Math.min(minX, pointData.x);
+            minY = Math.min(minY, pointData.y);
+            maxX = Math.max(maxX, pointData.x);
+            maxY = Math.max(maxY, pointData.y);
+        }
+
+        var width = 0, height = 0;
+        if (cc.TiledMap.Orientation.ISO !== this._mapOrientation) {
+            // set the content size & anchor point
+            width = maxX - minX, height = maxY - minY;
+            this.setAnchorPoint(cc.p(-minX / width, maxY / height));
+
+            // correct the points data
+            for (var j = 0; j < points.length; j++) {
+                points[j] = cc.p(points[j].x - minX, -points[j].y + maxY);
+            }
+        } else {
+            var bl = this._getPosByOffset(cc.p(minX, maxY));
+            var tr = this._getPosByOffset(cc.p(maxX, minY));
+            var origin = this._getPosByOffset(cc.p(0 ,0));
+            width = tr.x - bl.x, height = tr.y - bl.y;
+            this.setAnchorPoint(cc.p((origin.x - bl.x) / width, (origin.y - bl.y) / height));
+
+            // correct the points data
+            for (var idx = 0; idx < points.length; idx++) {
+                var tempPoint = this._getPosByOffset(points[idx]);
+                points[idx] = cc.p(tempPoint.x - bl.x, tempPoint.y - bl.y);
+            }
+        }
+        this.setContentSize(cc.size(width, height));
+
+        this.drawPoly(points, null, this.getLineWidth(), this._color, !isPolygon);
     }
 });
 

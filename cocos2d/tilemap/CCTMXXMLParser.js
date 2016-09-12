@@ -958,7 +958,7 @@ cc.TMXMapInfo = cc.SAXParser.extend(/** @lends cc.TMXMapInfo# */{
         var pointsStr = pointsString.split(' ');
         for(var i = 0; i < pointsStr.length; i++){
             var selPointStr = pointsStr[i].split(',');
-            points.push({'x':selPointStr[0], 'y':selPointStr[1]});
+            points.push({'x':parseFloat(selPointStr[0]), 'y':parseFloat(selPointStr[1])});
         }
         return points;
     },

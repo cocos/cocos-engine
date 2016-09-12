@@ -87,9 +87,9 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
             var objInfo = this._objects[i];
             var object;
             if (objInfo.type === cc.TiledMap.TMXObjectType.IMAGE) {
-                object = new _ccsg.TMXObjectImage(objInfo, this._mapInfo);
+                object = new _ccsg.TMXObjectImage(objInfo, this._mapInfo, this.getContentSize());
             } else {
-                object = new _ccsg.TMXObjectShape(objInfo, this._mapInfo);
+                object = new _ccsg.TMXObjectShape(objInfo, this._mapInfo, this.getContentSize(), groupInfo._color);
             }
 
             object.setOpacity(groupInfo._opacity);
