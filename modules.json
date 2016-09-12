@@ -91,6 +91,18 @@
     ]
   },
   {
+    "name": "PageView",
+    "entries": [
+      "./cocos2d/core/components/CCPageView.js"
+    ]
+  },
+  {
+    "name": "PageViewIndicator",
+    "entries": [
+      "./cocos2d/core/components/CCPageViewIndicator.js"
+    ]
+  },
+  {
     "name": "Layout",
     "entries": [
       "./cocos2d/core/components/CCLayout.js"

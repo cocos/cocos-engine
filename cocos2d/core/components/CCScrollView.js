@@ -216,7 +216,8 @@ var ScrollView = cc.Class({
             default: 0.5,
             type: 'Float',
             range: [0, 1, 0.1],
-            animatable: false
+            animatable: false,
+            tooltip: 'i18n:COMPONENT.scrollview.brake',
         },
 
         /**
@@ -226,7 +227,8 @@ var ScrollView = cc.Class({
          */
         elastic: {
             default: true,
-            animatable: false
+            animatable: false,
+            tooltip: 'i18n:COMPONENT.scrollview.elastic',
         },
 
         /**
@@ -237,7 +239,8 @@ var ScrollView = cc.Class({
         bounceDuration: {
             default: 1,
             range: [0, 10],
-            animatable: false
+            animatable: false,
+            tooltip: 'i18n:COMPONENT.scrollview.bounceDuration',
         },
 
         /**
@@ -283,19 +286,21 @@ var ScrollView = cc.Class({
          */
         scrollEvents: {
             default: [],
-            type: cc.Component.EventHandler
+            type: cc.Component.EventHandler,
+            tooltip: 'i18n:COMPONENT.scrollview.scrollEvents'
         },
 
         /**
-         * !#en If cancelInnerEvents is set to true, the scroll behavior will cancel touch events on inner content nodes of the scroll view
+         * !#en If cancelInnerEvents is set to true, the scroll behavior will cancel touch events on inner content nodes
          * It's set to true by default.
-         * !#zh 如果这个属性被设置为 true，那么滚动行为会取消 ScrollView 的子节点上注册的触摸事件，默认被设置为 true。
+         * !#zh 如果这个属性被设置为 true，那么滚动行为会取消子节点上注册的触摸事件，默认被设置为 true。
          * 注意，子节点上的 touchstart 事件仍然会触发，触点移动距离非常短的情况下 touchmove 和 touchend 也不会受影响。
          * @property {Boolean} cancelInnerEvents
          */
         cancelInnerEvents: {
             default: true,
             animatable: false,
+            tooltip: 'i18n:COMPONENT.scrollview.cancelInnerEvents'
         }
     },
 
@@ -1055,8 +1060,7 @@ var ScrollView = cc.Class({
     _handleReleaseLogic: function(touch) {
         var delta = touch.getDelta();
         this._gatherTouchMove(delta);
-
-       this._processInertiaScroll();
+        this._processInertiaScroll();
     },
 
     _isOutOfBoundary: function() {
@@ -1292,7 +1296,7 @@ var ScrollView = cc.Class({
             this._outOfBoundaryAmountDirty = false;
         }
 
-        outOfBoundaryAmount = this._clampDelta(outOfBoundaryAmount);
+        //outOfBoundaryAmount = this._clampDelta(outOfBoundaryAmount);
 
         return outOfBoundaryAmount;
     },
