@@ -63,6 +63,7 @@ var RichText = cc.Class({
 
     ctor: function() {
         this._textArray = null;
+        this._labelSegmentsCache = [];
 
         this._resetState();
 
@@ -192,7 +193,14 @@ var RichText = cc.Class({
     },
 
     _measureText: function (string, styleIndex) {
-        var label = new _ccsg.Label(string);
+        var label;
+        if(this._labelSegmentsCache.length === 0) {
+            label = new _ccsg.Label(string);
+            this._labelSegmentsCache.push(label);
+        } else {
+            label = this._labelSegmentsCache[0];
+            label.setString(string);
+        }
         label._styleIndex = styleIndex;
         this._applyTextAttribute(label);
         var labelSize = label.getContentSize();
@@ -321,6 +329,7 @@ var RichText = cc.Class({
         }
 
         this._labelSegments = [];
+        this._labelSegmentsCache = [];
         this._linesWidth = [];
         this._lineOffsetX = 0;
         this._lineCount = 1;
@@ -330,7 +339,13 @@ var RichText = cc.Class({
     },
 
     _addLabelSegment: function(stringToken, styleIndex) {
-        var labelSegment = new _ccsg.Label(stringToken);
+        var labelSegment;
+        if(this._labelSegmentsCache.length === 0) {
+            labelSegment = new _ccsg.Label(stringToken);
+        } else {
+            labelSegment = this._labelSegmentsCache.pop();
+            labelSegment.setString(stringToken);
+        }
         labelSegment._styleIndex = styleIndex;
         labelSegment._lineCount = this._lineCount;
 
