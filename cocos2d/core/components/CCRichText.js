@@ -429,17 +429,18 @@ var RichText = cc.Class({
             } else {
                 if (oldItem.style) {
                     if (newItem.style) {
-                        if(oldItem.style.size != newItem.style.size) {
+                        if(oldItem.style.size != newItem.style.size
+                           || oldItem.style.italic !== newItem.style.italic) {
                             return true;
                         }
                     } else {
-                        if(oldItem.style.size) {
+                        if(oldItem.style.size || oldItem.style.italic) {
                             return true;
                         }
                     }
                 } else {
                     if (newItem.style) {
-                        if(newItem.style.size) {
+                        if(newItem.style.size || newItem.style.italic) {
                             return true;
                         }
                     }
