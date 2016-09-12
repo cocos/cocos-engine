@@ -476,8 +476,7 @@ _ccsg.Node.RenderCmd.prototype = {
         var locFlag = this._dirtyFlag;
 
         var colorDirty = locFlag & dirtyFlags.colorDirty,
-            opacityDirty = locFlag & dirtyFlags.opacityDirty,
-            transformDirty = locFlag & dirtyFlags.transformDirty;
+            opacityDirty = locFlag & dirtyFlags.opacityDirty;
 
         if (colorDirty)
             //update the color
@@ -490,7 +489,7 @@ _ccsg.Node.RenderCmd.prototype = {
         if (colorDirty || opacityDirty)
             this._updateColor();
 
-        if (transformDirty)
+        if (locFlag & dirtyFlags.transformDirty)
             //update the transform
             this.transform(parentCmd);
     },
