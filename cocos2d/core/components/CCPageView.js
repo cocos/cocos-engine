@@ -151,7 +151,7 @@ var PageView = cc.Class({
     __preload: function () {
         this._super();
         this.node.on('size-changed', this._updateAllPagesSize, this);
-
+        // add _dispatchPageTurningEvent for scrollEvents
         var pageTurningEvent = new cc.Component.EventHandler();
         pageTurningEvent.target = this.node;
         pageTurningEvent.component = "cc.PageView";
@@ -160,9 +160,6 @@ var PageView = cc.Class({
     },
 
     onLoad: function () {
-        if (this.content) {
-            this._contentInitPos = this.content.position;
-        }
         this._initPages();
         if (this.indicator) {
             this.indicator.setPageView(this);
@@ -172,7 +169,6 @@ var PageView = cc.Class({
     onDestroy: function() {
         this._super();
         this.node.off('size-changed', this._updateAllPagesSize, this);
-        this.node.off(cc.ScrollView.EventType.AUTOSCROLL_ENDED, this._dispatchPageTurningEvent, this);
     },
 
     /**
@@ -186,9 +182,9 @@ var PageView = cc.Class({
     },
 
     /**
-     * !#en Returns current page index
-     * !#zh 返回当前页面索引
-     * @method setCurrentPaegIndex
+     * !#en Set current page index
+     * !#zh 设置当前页面索引
+     * @method setCurrentPageIndex
      * @param {Number} index
      */
     setCurrentPageIndex: function (index) {
@@ -206,8 +202,8 @@ var PageView = cc.Class({
     },
 
     /**
-     * !#en Adds a page to PageView.
-     * !#zh 添加页面到视图中
+     * !#en At the end of the current page view to insert a new view
+     * !#zh 在当前页面视图的尾部插入一个新视图
      * @method addPage
      * @param {Node} page
      */
@@ -220,7 +216,7 @@ var PageView = cc.Class({
     },
 
     /**
-     * !#en Inserts a page in the specified location.
+     * !#en Inserts a page in the specified location
      * !#zh 将页面插入指定位置中
      * @method insertPage
      * @param {Node} page
@@ -286,7 +282,7 @@ var PageView = cc.Class({
     },
 
     /**
-     * !#en scroll PageView to index.
+     * !#en Scroll PageView to index.
      * !#zh 滚动到指定页面
      * @method scrollToPage
      * @param {Number} idx index of page.
