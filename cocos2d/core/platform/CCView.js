@@ -215,8 +215,8 @@ var View = cc._Class.extend({
     },
 
     _orientationChange: function () {
-        this._orientationChanging = true;
-        this._resizeEvent();
+        cc.view._orientationChanging = true;
+        cc.view._resizeEvent();
     },
 
     /**

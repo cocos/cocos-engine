@@ -64,6 +64,7 @@ var idGenerater = new IdGenerater('Node');
  * @private
  */
 var BaseNode = cc.Class(/** @lends cc.Node# */{
+    name: 'cc._BaseNode',
     extends: cc.Object,
     mixins: [cc.EventTarget],
 
@@ -2061,16 +2062,14 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
 // Define public getter and setter methods to ensure api compatibility.
 
 var SameNameGetSets = ['name', 'skewX', 'skewY', 'position', 'rotation', 'rotationX', 'rotationY',
-                       'scale', 'scaleX', 'scaleY', 'children', 'childrenCount', 'parent', 'running',
-                       /*'actionManager',*/ 'scheduler', /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
+                       'scale', 'scaleX', 'scaleY', 'children', 'childrenCount', 'parent',
+                       /*'shaderProgram',*/ 'opacity', 'color', 'tag'];
 var DiffNameGetSets = {
     x: ['getPositionX', 'setPositionX'],
     y: ['getPositionY', 'setPositionY'],
     zIndex: ['getLocalZOrder', 'setLocalZOrder'],
-    //running: ['isRunning'],
     opacityModifyRGB: ['isOpacityModifyRGB'],
     cascadeOpacity: ['isCascadeOpacityEnabled', 'setCascadeOpacityEnabled'],
-    cascadeColor: ['isCascadeColorEnabled', 'setCascadeColorEnabled'],
     //// privates
     //width: ['_getWidth', '_setWidth'],
     //height: ['_getHeight', '_setHeight'],

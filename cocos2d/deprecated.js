@@ -1,5 +1,5 @@
 
-if (CC_DEV && typeof eruda === 'undefined') {
+if (CC_DEV) {
 
     var js = cc.js;
 
@@ -415,6 +415,8 @@ if (CC_DEV && typeof eruda === 'undefined') {
         'userObject',
         '_cascadeColorEnabled',
         'cascadeColor',
+        'isCascadeColorEnabled',
+        'setCascadeColorEnabled',
         'ignoreAnchor',
         'isIgnoreAnchorPointForPosition',
         'ignoreAnchorPointForPosition'
@@ -424,6 +426,7 @@ if (CC_DEV && typeof eruda === 'undefined') {
         _visible: '_activeInHierarchy, active',
         _running: '_activeInHierarchy, active',
         running: 'activeInHierarchy, active',
+        isRunning: 'activeInHierarchy, active',
         _realOpacity: '_opacity, _opacity',
         _realColor: '_color, _color',
         _insertChild: 'addChild',

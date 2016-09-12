@@ -115,9 +115,14 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
             item = items[dependSrc];
             if (item) {
                 if (item.complete) {
-                    var value = item.isRawAsset ? item.url : item.content;
-                    dependObj[dependProp] = value;
-                    dependKeys.push(item.isRawAsset ? item.url : dependSrc);
+                    if (item.error) {
+                        cc._throw(item.error);
+                    }
+                    else {
+                        var value = item.isRawAsset ? item.url : item.content;
+                        dependObj[dependProp] = value;
+                        dependKeys.push(item.isRawAsset ? item.url : dependSrc);
+                    }
                 }
                 else {
                     // item was removed from cache, but ready in pipeline actually
