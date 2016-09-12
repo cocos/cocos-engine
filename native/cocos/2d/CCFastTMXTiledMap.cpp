@@ -160,8 +160,6 @@ void TMXTiledMap::buildWithMapInfo(TMXMapInfo* mapInfo)
     _tileSize = mapInfo->getTileSize();
     _mapOrientation = mapInfo->getOrientation();
 
-    _objectGroups = mapInfo->getObjectGroups();
-
     _properties = mapInfo->getProperties();
 
     _tileProperties = mapInfo->getTileProperties();
@@ -217,17 +215,20 @@ TMXLayer * TMXTiledMap::getLayer(const std::string& layerName) const
 
 TMXObjectGroup * TMXTiledMap::getObjectGroup(const std::string& groupName) const
 {
-    CCASSERT(groupName.size() > 0, "Invalid group name!");
-
-    if (_objectGroups.size()>0)
+    CCASSERT(!groupName.empty(), "Invalid group name!");
+    
+    if (groupName.empty()) {
+        return nullptr;
+    }
+    
+    for (auto& child : _children)
     {
-        TMXObjectGroup* objectGroup = nullptr;
-        for (auto iter = _objectGroups.cbegin(); iter != _objectGroups.cend(); ++iter)
+        TMXObjectGroup* group = dynamic_cast<TMXObjectGroup*>(child);
+        if(group)
         {
-            objectGroup = *iter;
-            if (objectGroup && objectGroup->getGroupName() == groupName)
+            if(groupName.compare( group->getGroupName()) == 0)
             {
-                return objectGroup;
+                return group;
             }
         }
     }
@@ -236,6 +237,19 @@ TMXObjectGroup * TMXTiledMap::getObjectGroup(const std::string& groupName) const
     return nullptr;
 }
 
+Vector<TMXObjectGroup*> TMXTiledMap::getObjectGroups()
+{
+    Vector<TMXObjectGroup*> groups;
+    for (auto& child : _children)
+    {
+        TMXObjectGroup* group = dynamic_cast<TMXObjectGroup*>(child);
+        if(group)
+        {
+            groups.pushBack(group);
+        }
+    }
+    return groups;
+}
 Value TMXTiledMap::getProperty(const std::string& propertyName) const
 {
     if (_properties.find(propertyName) != _properties.end())
