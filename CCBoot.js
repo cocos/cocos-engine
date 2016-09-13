@@ -154,7 +154,12 @@ function _getJsListOfModule(moduleMap, moduleName, dir) {
 
 function _afterEngineLoaded() {
     cc._engineLoaded = true;
-    console.log(cc.ENGINE_VERSION);
+    if (CC_EDITOR) {
+        Editor.log(cc.ENGINE_VERSION);
+    }
+    else {
+        console.log(cc.ENGINE_VERSION);
+    }
     if (_engineLoadedCallback) _engineLoadedCallback();
 }
 

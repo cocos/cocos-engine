@@ -1318,6 +1318,7 @@ var Node = cc.Class({
         }
     },
 
+    // for event manager
     isRunning: function () {
         return this._activeInHierarchy;
     },
