@@ -565,11 +565,6 @@ var TiledMap = cc.Class({
             if (tmxLayer) {
                 tmxLayer.enabled = enabled;
             }
-
-            var tmxGroup = child.getComponent(cc.TiledObjectGroup);
-            if (tmxGroup) {
-                tmxGroup.enabled = enabled;
-            }
         }
     },
 

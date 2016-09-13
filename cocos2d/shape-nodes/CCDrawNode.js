@@ -431,6 +431,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
              * @param {cc.Color} fillColor
              * @param {Number} lineWidth
              * @param {cc.Color} color
+             * @param {Boolean} notClosePoly
              */
             drawPoly: function (verts, fillColor, lineWidth, color, notClosePoly) {
                 var vertsCopy = [];

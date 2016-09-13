@@ -39,6 +39,7 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
 
     _positionOffset: null,
     _mapInfo: null,
+    _objects : [],
 
     /**
      * <p>The _ccsg.TMXObjectGroup's constructor. <br/>
@@ -76,25 +77,22 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
         this.setPosition(this._positionOffset.x, -this._positionOffset.y);
         this.setVisible(groupInfo.visible);
 
+        var objects = [];
         if (groupInfo._objects instanceof Array) {
-            this._objects = groupInfo._objects;
-        } else {
-            this._objects = [];
+            objects = groupInfo._objects;
         }
 
         // add objects
-        for (var i = 0, n = this._objects.length; i < n; i++) {
-            var objInfo = this._objects[i];
-            var object;
-            if (objInfo.type === cc.TiledMap.TMXObjectType.IMAGE) {
-                object = new _ccsg.TMXObjectImage(objInfo, this._mapInfo, this.getContentSize());
-            } else {
-                object = new _ccsg.TMXObjectShape(objInfo, this._mapInfo, this.getContentSize(), groupInfo._color);
+        for (var i = 0, n = objects.length; i < n; i++) {
+            var objInfo = objects[i];
+            var object = new _ccsg.TMXObject();
+            object.initWithInfo(objInfo, mapInfo, this.getContentSize(), groupInfo._color);
+            this._objects.push(object);
+            if (object.sgNode) {
+                object.sgNode.setOpacity(groupInfo._opacity);
+                // TODO addChild in order with property cc.TMXObjectGroupInfo._draworder
+                this.addChild(object.sgNode, i, i);
             }
-
-            object.setOpacity(groupInfo._opacity);
-            // TODO addChild in order with property cc.TMXObjectGroupInfo._draworder
-            this.addChild(object, i, i);
         }
     },
 
@@ -203,11 +201,10 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
      * var object = tMXObjectGroup.getObject("Group");
      */
     getObject: function(objectName){
-        var locChildren = this.getChildren();
-        for (var i = 0, len = locChildren.length; i < len; i++) {
-            var child = locChildren[i];
-            if (child && child.isTmxObject && child.getObjectName() === objectName) {
-                return child;
+        for (var i = 0, len = this._objects.length; i < len; i++) {
+            var obj = this._objects[i];
+            if (obj && obj.getObjectName() === objectName) {
+                return obj;
             }
         }
         // object not found
@@ -223,14 +220,6 @@ _ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
      * var objects = tMXObjectGroup.getObjects();
      */
     getObjects:function () {
-        var retArr = [];
-        var locChildren = this.getChildren();
-        for (var i = 0, len = locChildren.length; i < len; i++) {
-            var child = locChildren[i];
-            if (child && child.isTmxObject) {
-                retArr.push(child);
-            }
-        }
-        return retArr;
+        return this._objects;
     }
 });
