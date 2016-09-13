@@ -259,7 +259,7 @@ cc.FlipX = cc.ActionInstant.extend({
     },
 
     update:function (dt) {
-        this.target.scaleX = Math.abs(this.target.scaleX) * (this._flippedX ? 1 : -1);
+        this.target.scaleX = Math.abs(this.target.scaleX) * (this._flippedX ? -1 : 1);
     },
 
     reverse:function () {
@@ -315,7 +315,7 @@ cc.FlipY = cc.ActionInstant.extend({
     },
 
     update:function (dt) {
-        this.target.scaleY = Math.abs(this.target.scaleY) * (this._flippedX ? 1 : -1);
+        this.target.scaleY = Math.abs(this.target.scaleY) * (this._flippedY ? -1 : 1);
     },
 
     reverse:function () {
