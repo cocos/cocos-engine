@@ -133,6 +133,70 @@ cc.Follow.prototype.update = function(dt) {
     }
 };
 
+var _FlipX = cc.FlipX;
+cc.FlipX = _FlipX.extend({
+    _flippedX:false,
+
+    ctor:function(flip){
+        _FlipX.prototype.ctor.call(this);
+        this.initWithFlipX(flip);
+    },
+
+    initWithFlipX:function (flip) {
+        this._flippedX = !!flip;
+        return true;
+    },
+
+    update:function (dt) {
+        var target = this.getTarget();
+        target.scaleX = Math.abs(target.scaleX) * (this._flippedX ? -1 : 1);
+    },
+
+    reverse:function () {
+        return new cc.FlipX(!this._flippedX);
+    },
+
+    clone:function(){
+        return new cc.FlipX(this._flippedX);
+    }
+});
+
+cc.flipX = function (flip) {
+    return new cc.FlipX(flip);
+};
+
+var _FlipY = cc.FlipY;
+cc.FlipY = _FlipY.extend({
+    _flippedY:false,
+
+    ctor: function(flip){
+        _FlipY.prototype.ctor.call(this);
+        this.initWithFlipY(flip);
+    },
+
+    initWithFlipY:function (flip) {
+        this._flippedY = !!flip;
+        return true;
+    },
+
+    update:function (dt) {
+        var target = this.getTarget();
+        target.scaleY = Math.abs(target.scaleY) * (this._flippedY ? -1 : 1);
+    },
+
+    reverse:function () {
+        return new cc.FlipY(!this._flippedY);
+    },
+
+    clone:function(){
+        return new cc.FlipY(this._flippedY);
+    }
+});
+
+cc.flipY = function (flip) {
+    return new cc.FlipY(flip);
+};
+
 function setRendererVisibility (sgNode, toggleVisible, visible) {
     if (!sgNode) { return; }
     var _renderComps = sgNode._owner.getComponentsInChildren(cc._SGComponent);
