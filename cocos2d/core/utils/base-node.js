@@ -1570,8 +1570,10 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             // ensure transform computed
             cc.director._visitScene();
         }
-        var worldPositionIgnoreAnchorPoint = this._sgNode.convertToWorldSpace(nodePoint);
-        return cc.pSub(worldPositionIgnoreAnchorPoint, cc.p(this._anchorPoint.x * this._contentSize.width, this._anchorPoint.y * this._contentSize.height));
+        var x = nodePoint.x - this._anchorPoint.x * this._contentSize.width;
+        var y = nodePoint.y - this._anchorPoint.y * this._contentSize.height;
+        var worldPositionIgnoreAnchorPoint = this._sgNode.convertToWorldSpace(cc.v2(x, y));
+        return worldPositionIgnoreAnchorPoint;
     },
 
     /**
