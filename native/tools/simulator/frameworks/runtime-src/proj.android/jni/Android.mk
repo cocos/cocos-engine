@@ -2,9 +2,9 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := cocos2dlua_shared
+LOCAL_MODULE := cocos2djs_shared
 
-LOCAL_MODULE_FILENAME := libcocos2dlua
+LOCAL_MODULE_FILENAME := libcocos2djs
 
 ifeq ($(COCOS_SIMULATOR_BUILD),1)
 LOCAL_ARM_MODE := arm
