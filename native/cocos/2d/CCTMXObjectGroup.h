@@ -222,7 +222,7 @@ public:
      *
      * @return The array of the objects.
      */
-    inline const Vector<TMXObject*> getObjects() { return _objects; };
+    inline const Vector<TMXObject*>& getObjects() { return _objects; };
 
 protected:
     void _initGroup(TMXObjectGroupInfo* groupInfo, TMXMapInfo* mapInfo);
