@@ -266,6 +266,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
         if (this._runningScene) {
             var renderer = cc.renderer;
             if (renderer.childrenOrderDirty) {
+                // update the whole scene
                 renderer.clearRenderCommands();
                 cc.renderer.assignedZ = 0;
                 this._runningScene._renderCmd._curLevel = 0; //level start from 0;
@@ -273,6 +274,7 @@ cc.Director = Class.extend(/** @lends cc.Director# */{
                 renderer.resetFlag();
             }
             else if (renderer.transformDirty()) {
+                // only need to update transformPool
                 renderer.transform();
             }
         }
