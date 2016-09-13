@@ -133,6 +133,81 @@ cc.Follow.prototype.update = function(dt) {
     }
 };
 
+var _FlipX = cc.FlipX;
+cc.FlipX = _FlipX.extend({
+    _flippedX:false,
+
+    ctor:function(flip){
+        _FlipX.prototype.ctor.call(this);
+        this._flippedX = false;
+        flip !== undefined && this.initWithFlipX(flip);
+    },
+
+    /*
+     * initializes the action with a set flipX.
+     * @param {Boolean} flip
+     * @return {Boolean}
+     */
+    initWithFlipX:function (flip) {
+        this._flippedX = flip;
+        return true;
+    },
+
+    update:function (dt) {
+        var target = this.getTarget();
+        target.scaleX = Math.abs(target.scaleX) * (this._flippedX ? -1 : 1);
+    },
+
+    reverse:function () {
+        return new cc.FlipX(!this._flippedX);
+    },
+
+    clone:function(){
+        var action = new cc.FlipX();
+        action.initWithFlipX(this._flippedX);
+        return action;
+    }
+});
+
+cc.flipX = function (flip) {
+    return new cc.FlipX(flip);
+};
+
+var _FlipY = cc.FlipY;
+cc.FlipY = _FlipY.extend({
+    _flippedY:false,
+
+    ctor: function(flip){
+        _FlipY.prototype.ctor.call(this);
+        this._flippedY = false;
+        flip !== undefined && this.initWithFlipY(flip);
+    },
+
+    initWithFlipY:function (flip) {
+        this._flippedY = flip;
+        return true;
+    },
+
+    update:function (dt) {
+        var target = this.getTarget();
+        target.scaleY = Math.abs(target.scaleY) * (this._flippedY ? -1 : 1);
+    },
+
+    reverse:function () {
+        return new cc.FlipY(!this._flippedY);
+    },
+
+    clone:function(){
+        var action = new cc.FlipY();
+        action.initWithFlipY(this._flippedY);
+        return action;
+    }
+});
+
+cc.flipY = function (flip) {
+    return new cc.FlipY(flip);
+};
+
 function setRendererVisibility (sgNode, toggleVisible, visible) {
     if (!sgNode) { return; }
     var _renderComps = sgNode._owner.getComponentsInChildren(cc._SGComponent);
