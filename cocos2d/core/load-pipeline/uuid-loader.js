@@ -148,9 +148,6 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
         }
         asset._uuid = uuid;
         callback(null, asset);
-        if (CC_EDITOR) {
-            cc.loader.removeItem(uuid);
-        }
     });
 }
 
