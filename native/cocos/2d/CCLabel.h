@@ -771,6 +771,7 @@ protected:
     float _originalFontSize;
 
     bool _boldEnabled;
+    bool _italicsEnabled;
     DrawNode* _underlineNode;
     bool _strikethroughEnabled;
 private:

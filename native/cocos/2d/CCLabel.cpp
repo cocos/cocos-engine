@@ -372,6 +372,7 @@ Label::Label(TextHAlignment hAlignment /* = TextHAlignment::LEFT */,
 , _reusedLetter(nullptr)
 , _horizontalKernings(nullptr)
 , _boldEnabled(false)
+, _italicsEnabled(false)
 , _underlineNode(nullptr)
 , _strikethroughEnabled(false)
 {
@@ -1126,6 +1127,7 @@ void Label::enableShadow(const Color4B& shadowColor /* = Color4B::BLACK */,const
 void Label::enableItalics()
 {
     setRotationSkewX(12);
+    _italicsEnabled = true;
 }
 
 void Label::enableBold()
@@ -1200,6 +1202,7 @@ void Label::disableEffect(LabelEffect effect)
             break;
         case cocos2d::LabelEffect::ITALICS:
             setRotationSkewX(0);
+            _italicsEnabled = false;
             break;
         case cocos2d::LabelEffect::BOLD:
             _boldEnabled = false;
@@ -1413,6 +1416,10 @@ void Label::updateContent()
 
     if(updateFinished){
         _contentDirty = false;
+    }
+    
+    if (_italicsEnabled) {
+        _contentSize.width += this->_originalFontSize * tan(6 * 0.0174532925);
     }
 
 #if CC_LABEL_DEBUG_DRAW
