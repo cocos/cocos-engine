@@ -426,7 +426,6 @@ if (CC_DEV) {
         _visible: '_activeInHierarchy, active',
         _running: '_activeInHierarchy, active',
         running: 'activeInHierarchy, active',
-        isRunning: 'activeInHierarchy, active',
         _realOpacity: '_opacity, _opacity',
         _realColor: '_color, _color',
         _insertChild: 'addChild',

@@ -616,10 +616,6 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
             },
         },
 
-        //running: {
-        //    get:
-        //},
-
         /**
          * Indicate whether ignore the anchor point property for positioning.
          * @property _ignoreAnchor
