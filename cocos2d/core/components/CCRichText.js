@@ -105,7 +105,9 @@ var RichText = cc.Class({
             type: HorizontalAlign,
             tooltip: 'i18n:COMPONENT.richtext.horizontal_align',
             animatable: false,
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.horizontalAlign === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
@@ -119,7 +121,9 @@ var RichText = cc.Class({
         fontSize: {
             default: 40,
             tooltip: 'i18n:COMPONENT.richtext.font_size',
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.fontSize === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
@@ -133,7 +137,9 @@ var RichText = cc.Class({
         maxWidth: {
             default: 0,
             tooltip: 'i18n:COMPONENT.richtext.max_width',
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.maxWidth === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
@@ -147,7 +153,9 @@ var RichText = cc.Class({
         lineHeight: {
             default: 40,
             tooltip: 'i18n:COMPONENT.richtext.line_height',
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.lineHeight === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
