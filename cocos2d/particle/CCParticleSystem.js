@@ -186,6 +186,10 @@ var properties = {
         set: function (value) {
             this._texture = value;
             this._sgNode.texture = value ? cc.textureCache.addImage( value ) : null;
+            if (!value && this._file) {
+                // fallback to plist
+                this._applyFile();
+            }
         },
         url: cc.Texture2D
     },
