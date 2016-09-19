@@ -6,7 +6,7 @@
 
 DRAGONBONES_NAMESPACE_BEGIN
 
-class CCArmatureDisplay : public IArmatureDisplay, public cocos2d::Node
+class CCArmatureDisplay : public cocos2d::Node, public virtual IArmatureDisplay
 {
 public:
     /** @private */

@@ -35,7 +35,7 @@ Armature * CCFactory::_generateArmature(const BuildArmaturePackage & dataPackage
     armature->_armatureData = dataPackage.armature;
     armature->_skinData = dataPackage.skin;
     armature->_animation = BaseObject::borrowObject<Animation>();
-    armature->_display = armatureDisplay;
+    armature->_display = dynamic_cast<IArmatureDisplay*>(armatureDisplay);
 
     armatureDisplay->retain();
     armatureDisplay->setCascadeOpacityEnabled(true);
@@ -156,9 +156,9 @@ TextureAtlasData* CCFactory::loadTextureAtlasData(const std::string& filePath, c
     return textureAtlasData;
 }
 
-TextureAtlasData* CCFactory::parseTextueAtlasData(const std::string& atlasData, const std::string& texturePath, const std::string& dragonBonesName, float scale)
+TextureAtlasData* CCFactory::parseTextureAtlasData(const std::string& atlasData, const std::string& texturePath, const std::string& dragonBonesName, float scale)
 {
-    const auto textureAtlasData = static_cast<CCTextureAtlasData*>(parseTextureAtlasData(atlasData.c_str(), nullptr, dragonBonesName, scale));
+    const auto textureAtlasData = static_cast<CCTextureAtlasData*>(BaseFactory::parseTextureAtlasData(atlasData.c_str(), nullptr, dragonBonesName, scale));
     textureAtlasData->imagePath = texturePath;
     _initTextureAtlasData(textureAtlasData);
     
@@ -216,7 +216,7 @@ void CCFactory::_initTextureAtlasData(TextureAtlasData* atlasData)
 CCArmatureDisplay * CCFactory::buildArmatureDisplay(const std::string& armatureName, const std::string& dragonBonesName, const std::string& skinName) const
 {
     const auto armature = this->buildArmature(armatureName, dragonBonesName, skinName);
-    const auto armatureDisplay = armature ? static_cast<CCArmatureDisplay*>(armature->_display) : nullptr;
+    const auto armatureDisplay = armature ? dynamic_cast<CCArmatureDisplay*>(armature->_display) : nullptr;
     if (armatureDisplay)
     {
         armatureDisplay->advanceTimeBySelf(true);

@@ -20,18 +20,28 @@
  * THE SOFTWARE.
  */
 
-#ifndef __jsb_cocos2dx_dragonbones_manual__
-#define __jsb_cocos2dx_dragonbones_manual__
+var proto = dragonBones.CCArmatureDisplay.prototype;
 
-#include "jsapi.h"
+proto.animation = proto.getAnimation;
 
-void register_all_cocos2dx_dragonbones_manual(JSContext* cx, JS::HandleObject global);
+proto.addEvent = function(type, listener) {
+    this.getEventDispatcher().addCustomListener(type, listener);
+};
 
-bool js_cocos2dx_dragonbones_Armature_getAnimation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_Armature_getDisplay(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_AnimationState_getClip(JSContext *cx, uint32_t argc, jsval *vp);
+proto.removeEvent = function(type) {
+    this.getEventDispatcher().removeCustomEventListeners(type);
+};
 
-bool js_cocos2dx_dragonbones_WorldClock_getClock(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp);
+var slotProto = dragonBones.Slot.prototype;
+cc.defineGetterSetter(slotProto, 'childArmature', slotProto.getChildArmature, slotProto.setChildArmature);
 
-#endif /* defined(__jsb_cocos2dx_dragonbones_manual__) */
+var armatureProto = dragonBones.Armature.prototype;
+cc.defineGetterSetter(armatureProto, 'animation', armatureProto.getAnimation, null);
+
+armatureProto.addEventListener = function (type, listener) {
+    this.getDisplay().addEvent(type, listener);
+};
+
+armatureProto.removeEventListener = function (type) {
+    this.getDisplay().removeEvent(type);
+};

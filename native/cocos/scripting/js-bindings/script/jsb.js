@@ -89,6 +89,10 @@ if (window.sp) {
     require('script/jsb_spine.js');
 }
 
+if (window.dragonBones) {
+    require('script/jsb_dragonbones.js');
+}
+
 require("script/jsb_audioengine.js");
 
 require('script/jsb_loaders.js');
