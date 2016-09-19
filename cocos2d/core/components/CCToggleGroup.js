@@ -39,7 +39,7 @@ var ToggleGroup = cc.Class({
     },
 
     properties: {
-        _toggleItem: {
+        _toggleItems: {
             default: [],
             type: cc.Toggle,
             serializable: false
@@ -61,7 +61,7 @@ var ToggleGroup = cc.Class({
     updateToggles: function (toggle) {
         if(!this.enabledInHierarchy) return;
 
-        this._toggleItem.forEach(function (item){
+        this._toggleItems.forEach(function (item){
             if(toggle.isChecked) {
                 if (item !== toggle && item.isChecked && item.enabled) {
                     item.isChecked = false;
@@ -71,21 +71,21 @@ var ToggleGroup = cc.Class({
     },
 
     addToggle: function (toggle) {
-        var index = this._toggleItem.indexOf(toggle);
+        var index = this._toggleItems.indexOf(toggle);
         if (index > -1) {
             cc.warn('Toggle alreay in ToggleGroup.'
                     + 'Something bad happened,' +
                     ' please report this issue to the Creator developer, thanks.');
         } else {
-            this._toggleItem.push(toggle);
+            this._toggleItems.push(toggle);
         }
         this._allowOnlyOneToggleChecked();
     },
 
     removeToggle: function (toggle) {
-        var index = this._toggleItem.indexOf(toggle);
+        var index = this._toggleItems.indexOf(toggle);
         if(index > -1) {
-            this._toggleItem.splice(index, 1);
+            this._toggleItems.splice(index, 1);
         } else {
             cc.warn('Toggle is not in ToggleGroup.'
                     + 'Something bad happened,' +
@@ -96,7 +96,7 @@ var ToggleGroup = cc.Class({
 
     _allowOnlyOneToggleChecked: function () {
         var isChecked = false;
-        this._toggleItem.forEach(function (item) {
+        this._toggleItems.forEach(function (item) {
             if(isChecked && item.enabled) {
                 item.isChecked = false;
             }
@@ -107,8 +107,8 @@ var ToggleGroup = cc.Class({
         });
 
         if(!isChecked && !this.allowSwitchOff) {
-            if(this._toggleItem.length > 0) {
-                this._toggleItem[0].isChecked = true;
+            if(this._toggleItems.length > 0) {
+                this._toggleItems[0].isChecked = true;
             }
         }
 
