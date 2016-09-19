@@ -3656,17 +3656,19 @@ bool js_cocos2dx_TMXObject_constructor(JSContext *cx, uint32_t argc, jsval *vp);
 void js_cocos2dx_TMXObject_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_TMXObject(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_setObjectName(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getObjectSize(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getProperty(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getObjectVisible(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_TMXObject_getGid(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_TMXObject_getType(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getId(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getObjectRotation(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getProperties(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getOffset(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_setProperties(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_getObjectName(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_cocos2dx_TMXObject_getNode(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_TMXObject_TMXObject(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_TMXObjectImage_class;
@@ -3676,6 +3678,7 @@ bool js_cocos2dx_TMXObjectImage_constructor(JSContext *cx, uint32_t argc, jsval 
 void js_cocos2dx_TMXObjectImage_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_TMXObjectImage(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_TMXObjectImage_TMXObjectImage(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_TMXObjectShape_class;
 extern JSObject *jsb_cocos2d_TMXObjectShape_prototype;
@@ -3684,6 +3687,7 @@ bool js_cocos2dx_TMXObjectShape_constructor(JSContext *cx, uint32_t argc, jsval 
 void js_cocos2dx_TMXObjectShape_finalize(JSContext *cx, JSObject *obj);
 void js_register_cocos2dx_TMXObjectShape(JSContext *cx, JS::HandleObject global);
 void register_all_cocos2dx(JSContext* cx, JS::HandleObject obj);
+bool js_cocos2dx_TMXObjectShape_TMXObjectShape(JSContext *cx, uint32_t argc, jsval *vp);
 
 extern JSClass  *jsb_cocos2d_TMXObjectGroup_class;
 extern JSObject *jsb_cocos2d_TMXObjectGroup_prototype;
