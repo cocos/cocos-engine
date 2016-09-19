@@ -24,7 +24,10 @@
  ****************************************************************************/
 
 /**
- * !#en
+ * !#en ToggleGroup is not a visiable UI component but a way to modify the behavior of a set of Toggles.
+ * Toggles that belong to the same group could only have one of them to be switched on at a time.
+ * !#zh ToggleGroup 不是一个可见的 UI 组件，它可以用来修改一组 Toggle  组件的行为。当一组 Toggle 属于同一个 ToggleGroup 的时候，
+ * 任何时候只能有一个 Toggle 处于选中状态。
  */
 var ToggleGroup = cc.Class({
     name: 'cc.ToggleGroup',
@@ -43,9 +46,14 @@ var ToggleGroup = cc.Class({
         },
 
         /**
-         * !#en
+         * !#en If this setting is true, a toggle could be switched off and on when pressed.
+         * If it is false, it will make sure there is always only one toggle could be switched on
+         * and the already switched on toggle can't be switched off.
+         * !#zh 如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。
+         * @property {Boolean} allowSwitchOff
          */
         allowSwitchOff: {
+            tooltip: 'i18n:COMPONENT.toggle_group.isChecked',
             default: false
         }
     },
@@ -66,7 +74,7 @@ var ToggleGroup = cc.Class({
         var index = this._toggleItem.indexOf(toggle);
         if (index > -1) {
             cc.warn('Toggle alreay in ToggleGroup.'
-                    + 'Sometine bad happened,' +
+                    + 'Something bad happened,' +
                     ' please report this issue to the Creator developer, thanks.');
         } else {
             this._toggleItem.push(toggle);
@@ -79,8 +87,8 @@ var ToggleGroup = cc.Class({
         if(index > -1) {
             this._toggleItem.splice(index, 1);
         } else {
-            cc.warn('Toggle alreay in ToggleGroup.'
-                    + 'Sometine bad happened,' +
+            cc.warn('Toggle is not in ToggleGroup.'
+                    + 'Something bad happened,' +
                     ' please report this issue to the Creator developer, thanks.');
         }
         this._allowOnlyOneToggleChecked();

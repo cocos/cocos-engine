@@ -23,14 +23,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en The toggle component is a CheckBox, when it used together with a ToggleGroup, it
+ * could be treated as a RadioButton.
+ * !#zh Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
+ */
 var Toggle = cc.Class({
     name: 'cc.Toggle',
-    extends: cc.Button,
+    extends: require('./CCButton.js'),
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/Toggle',
         help: 'i18n:COMPONENT.help_url.toggle',
         inspector: 'packages://inspector/inspectors/comps/toggle.js',
-        executeInEditMode: true
     },
 
     ctor: function () {
@@ -38,21 +42,42 @@ var Toggle = cc.Class({
     },
 
     properties: {
+        /**
+         * !#en When this value is true, the check mark target will be active, otherwise
+         * the check mark target will be inactive.
+         * !#zh 如果这个设置为 true，则 check mark 节点会处于 active 状态，否则处于 inactive 状态。
+         * @property {Boolean} isChecked
+         */
         isChecked: {
             default: true,
+            tooltip: 'i18n:COMPONENT.toggle.isChecked',
             notify: function() {
                 this._updateCheckMark();
             }
         },
 
+        /**
+         * !#en The toggle group which the toggle belongs to, when it is null, the toggle is a CheckBox.
+         * Otherwise, the toggle is a RadioButton.
+         * !#zh Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，
+         * 否则，Toggle 是一个 RadioButton。
+         * @property {cc.ToggleGroup} toggleGroup
+         */
         toggleGroup: {
             default: null,
+            tooltip: 'i18n:COMPONENT.toggle.toggleGroup',
             type: cc.ToggleGroup
         },
 
+        /**
+         * !#en The image node used for the checkmark.
+         * !#zh Toggle 处于选中状态时显示的图片, 这里需要一个包含该图片的节点。
+         * @property {cc.Node} checkMark
+         */
         checkMark: {
             default: null,
             type: cc.Node,
+            tooltip: 'i18n:COMPONENT.toggle.checkMark',
             notify: function () {
                 this._applyCheckmarkTarget();
             }
@@ -65,6 +90,7 @@ var Toggle = cc.Class({
          */
         checkEvents: {
             default: [],
+            tooltip: 'i18n:COMPONENT.toggle.checkEvents',
             type: cc.Component.EventHandler
         },
 
@@ -82,6 +108,7 @@ var Toggle = cc.Class({
     __preload: function () {
         this._super();
         this._applyCheckmarkTarget();
+        this._registerToggleEvent();
     },
 
     onEnable: function () {
@@ -98,22 +125,13 @@ var Toggle = cc.Class({
         }
     },
 
-    onLoad: function () {
-        this._super();
-        this._registerToggleEvent();
-    },
-
     _applyCheckmarkTarget: function () {
         this._checkmarkSprite = this._getTargetSprite(this.checkMark);
     },
 
     _updateCheckMark: function () {
         if(this.checkMark && this.enabledInHierarchy) {
-            if(this.isChecked) {
-                this.checkMark.active = true;
-            } else {
-                this.checkMark.active = false;
-            }
+            this.checkMark.active = !!this.isChecked;
         }
     },
 
@@ -134,33 +152,39 @@ var Toggle = cc.Class({
         var event = new cc.Component.EventHandler();
         event.target = this.node;
         event.component = 'cc.Toggle';
-        event.handler = 'toggleToggleStatus';
-        this.clickEvents = [event];
+        event.handler = 'toggle';
+        this.clickEvents.push(event);
 
     },
 
-    toggleToggleStatus: function (event) {
+    toggle: function (event) {
         if(this.toggleGroup && this.isChecked) {
             if(!this.toggleGroup.allowSwitchOff) {
                 return;
             }
         }
         this.isChecked = !this.isChecked;
+
         this._updateCheckMark();
 
-        this.node.emit('toggle-event', this);
-        if(this.checkEvents) {
-            cc.Component.EventHandler.emitEvents(this.checkEvents, event, this);
-        }
+        this._emitToggleEvents(event);
 
         if(this.toggleGroup) {
             this.toggleGroup.updateToggles(this);
         }
     },
 
+    _emitToggleEvents: function (event) {
+        this.node.emit('toggle-event', this);
+        if(this.checkEvents) {
+            cc.Component.EventHandler.emitEvents(this.checkEvents, event, this);
+        }
+    },
+
     /**
      * !#en Make the toggle button checked.
      * !#zh 使 toggle 按钮处于选中状态
+     * @method check
      */
     check: function () {
         if(this.toggleGroup && this.isChecked) {
@@ -170,6 +194,8 @@ var Toggle = cc.Class({
         }
 
         this.isChecked = true;
+        this.node.emit('toggle-event', this);
+
         if(this.toggleGroup) {
             this.toggleGroup.updateToggles(this);
         }
@@ -178,6 +204,7 @@ var Toggle = cc.Class({
     /**
      * !#en Make the toggle button unchecked.
      * !#zh 使 toggle 按钮处于未选中状态
+     * @method uncheck
      */
     uncheck: function () {
         if(this.toggleGroup && this.isChecked) {
@@ -187,6 +214,8 @@ var Toggle = cc.Class({
         }
 
         this.isChecked = false;
+
+        this.node.emit('toggle-event', this);
     }
 
 

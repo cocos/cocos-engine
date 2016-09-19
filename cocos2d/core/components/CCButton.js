@@ -58,11 +58,12 @@ var Transition = cc.Enum({
 
 /**
  * !#en
- * Button has 3 Transition types
+ * Button has 4 Transition types
  * When Button state changed:
  *  If Transition type is Button.Transition.NONE, Button will do nothing
  *  If Transition type is Button.Transition.COLOR, Button will change target's color
  *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite
+ *  If Transition type is Button.Transition.SCALE, Button will change target node's scale
  *
  * Button will trigger 5 events:
  *  Button.EVENT_TOUCH_DOWN
@@ -78,6 +79,7 @@ var Transition = cc.Enum({
  *   -Button.Transition.NONE   // 不做任何过渡</br>
  *   -Button.Transition.COLOR  // 进行颜色之间过渡</br>
  *   -Button.Transition.SPRITE // 进行精灵之间过渡</br>
+ *   -Button.Transition.SCALE // 进行缩放过渡</br>
  *
  * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：</br>
  *   // 以下事件可以在全平台上都触发</br>
