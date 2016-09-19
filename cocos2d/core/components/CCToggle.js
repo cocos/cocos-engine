@@ -33,136 +33,157 @@ var Toggle = cc.Class({
         executeInEditMode: true
     },
 
+    ctor: function () {
+        this._checkmarkSprite = null;
+    },
+
     properties: {
         isChecked: {
             default: true,
             notify: function() {
-                this._updateSprites();
+                this._updateCheckMark();
             }
         },
 
-        _toggleGroup: null,
-
-        inActiveNormalSprite: {
+        toggleGroup: {
             default: null,
-            type: cc.SpriteFrame,
-            displayName: 'Inactive Normal Sprite',
-            notify: function() {
-                this._updateSprites();
-            }
+            type: cc.ToggleGroup
         },
 
-        activeNormalSprite: {
+        checkMark: {
             default: null,
-            type: cc.SpriteFrame,
+            type: cc.Node,
             notify: function () {
-                this._updateSprites();
+                this._applyCheckmarkTarget();
             }
         },
 
-        activePressedSprite: {
-            default: null,
-            type: cc.SpriteFrame,
-            notify: function () {
-                this._updateSprites();
-            }
-        },
-
-        inActivePressedSprite: {
-            default: null,
-            type: cc.SpriteFrame,
-            displayName: 'Inactive Pressed Sprite',
-            notify: function () {
-                this._updateSprites();
-            }
-        },
-
-        activeDisabledSprite: {
-            default: null,
-            type: cc.SpriteFrame,
-            notify: function () {
-                this._updateSprites();
-            }
-        },
-
-        inActiveDisabledSprite: {
-            default: null,
-            type: cc.SpriteFrame,
-            displayName: 'Inactive Disabled Sprite',
-            notify: function () {
-                this._updateSprites();
-            }
-        },
-
+        /**
+         * !#en If Toggle is clicked, it will trigger event's handler
+         * !#zh Toggle 按钮的点击事件列表。
+         * @property {Component.EventHandler[]} checkEvents
+         */
         checkEvents: {
             default: [],
             type: cc.Component.EventHandler
+        },
+
+        _resizeToTarget: {
+            animatable: false,
+            set: function (value) {
+                if(value) {
+                    this._resizeNodeToTargetNode();
+                }
+            }
+        },
+
+    },
+
+    __preload: function () {
+        this._super();
+        this._applyCheckmarkTarget();
+    },
+
+    onEnable: function () {
+        this._super();
+        if(this.toggleGroup) {
+            this.toggleGroup.addToggle(this);
         }
     },
 
-    _updateSprites: function () {
-        if(this.isChecked) {
-            this.normalSprite = this.activeNormalSprite;
-            this.pressedSprite = this.activePressedSprite;
-            this.disabledSprite = this.activeDisabledSprite;
-        } else {
-            this.normalSprite = this.inActiveNormalSprite;
-            this.pressedSprite = this.inActivePressedSprite;
-            this.disabledSprite = this.inActiveDisabledSprite;
+    onDisable: function () {
+        this._super();
+        if(this.toggleGroup) {
+            this.toggleGroup.removeToggle(this);
         }
     },
 
     onLoad: function () {
         this._super();
-
-        this.transition = cc.Button.Transition.SPRITE;
-
-        this._updateSprites();
-
         this._registerToggleEvent();
     },
 
+    _applyCheckmarkTarget: function () {
+        this._checkmarkSprite = this._getTargetSprite(this.checkMark);
+    },
+
+    _updateCheckMark: function () {
+        if(this.checkMark && this.enabledInHierarchy) {
+            if(this.isChecked) {
+                this.checkMark.active = true;
+            } else {
+                this.checkMark.active = false;
+            }
+        }
+    },
+
+    _updateDisabledState: function () {
+        this._super();
+
+        if(this._checkmarkSprite) {
+            this._checkmarkSprite._sgNode.setState(0);
+        }
+        if(this.enableAutoGrayEffect) {
+            if(this._checkmarkSprite && !this.interactable) {
+                this._checkmarkSprite._sgNode.setState(1);
+            }
+        }
+    },
+
     _registerToggleEvent: function () {
-        //register checkbox specific event
         var event = new cc.Component.EventHandler();
         event.target = this.node;
-        event.component = 'Toggle';
+        event.component = 'cc.Toggle';
         event.handler = 'toggleToggleStatus';
         this.clickEvents = [event];
 
     },
 
-    toggleToggleStatus: function () {
-        if(this._toggleGroup && this.isChecked) {
-            return;
+    toggleToggleStatus: function (event) {
+        if(this.toggleGroup && this.isChecked) {
+            if(!this.toggleGroup.allowSwitchOff) {
+                return;
+            }
         }
         this.isChecked = !this.isChecked;
+        this._updateCheckMark();
 
-
-        this.node.emit('check-event', this);
+        this.node.emit('toggle-event', this);
         if(this.checkEvents) {
-            cc.Component.EventHandler.emitEvents(this.checkEvents, this);
+            cc.Component.EventHandler.emitEvents(this.checkEvents, event, this);
         }
 
-        if(this._toggleGroup) {
-            this._toggleGroup.updateToggles(this);
+        if(this.toggleGroup) {
+            this.toggleGroup.updateToggles(this);
         }
     },
 
+    /**
+     * !#en Make the toggle button checked.
+     * !#zh 使 toggle 按钮处于选中状态
+     */
     check: function () {
-        if(this._toggleGroup && this.isChecked) {
-            return;
+        if(this.toggleGroup && this.isChecked) {
+            if(!this.toggleGroup.allowSwitchOff) {
+                return;
+            }
         }
 
         this.isChecked = true;
-        if(this._toggleGroup) {
-            this._toggleGroup.updateToggles(this);
+        if(this.toggleGroup) {
+            this.toggleGroup.updateToggles(this);
         }
     },
 
+    /**
+     * !#en Make the toggle button unchecked.
+     * !#zh 使 toggle 按钮处于未选中状态
+     */
     uncheck: function () {
-        if(this._toggleGroup && this.isChecked) {
-            return;
+        if(this.toggleGroup && this.isChecked) {
+            if(!this.toggleGroup.allowSwitchOff) {
+                return;
+            }
         }
 
         this.isChecked = false;

@@ -273,7 +273,7 @@ var Button = cc.Class({
          * @property {Number} zoomScale
          */
         zoomScale: {
-            default: 0.1,
+            default: 1.2,
             tooltip: 'i18n:COMPONENT.button.zoom_scale'
         },
 
@@ -411,7 +411,7 @@ var Button = cc.Class({
 
     update: function (dt) {
         var target = this.target;
-        if (this.transition !== Transition.COLOR || this.transition !== Transition.SCALE
+        if ((this.transition !== Transition.COLOR && this.transition !== Transition.SCALE)
             || !target || this._transitionFinished) return;
 
         this.time += dt;
@@ -443,14 +443,18 @@ var Button = cc.Class({
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     },
 
-    _applyTarget: function () {
-        var target = this.target;
+    _getTargetSprite: function (target) {
+        var sprite = null;
         if (target) {
-            this._sprite = target.getComponent(cc.Sprite);
-            this._originalScale = target.scale;
+            sprite = target.getComponent(cc.Sprite);
         }
-        else {
-            this._sprite = null;
+        return sprite;
+    },
+
+    _applyTarget: function () {
+        this._sprite = this._getTargetSprite(this.target);
+        if(this.target) {
+            this._originalScale = this.target.scale;
         }
     },
 
