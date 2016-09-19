@@ -68,9 +68,11 @@ Js.mixin(_p, {
     _lineCap: LineCap.BUTT,
     _lineJoin: LineJoin.MITER,
 
+    _miterLimit: 10,
+
     setStrokeColor: function (v) {
         this._strokeColor = v;
-        this._renderCmd.strokeColor = v;
+        this._renderCmd.setStrokeColor(v);
     },
     getStrokeColor: function () {
         return this._strokeColor;
@@ -78,7 +80,7 @@ Js.mixin(_p, {
 
     setFillColor: function (v) {
         this._fillColor = v;
-        this._renderCmd.fillColor = v;
+        this._renderCmd.setFillColor(v);
     },
     getFillColor: function () {
         return this._fillColor;
@@ -86,7 +88,7 @@ Js.mixin(_p, {
 
     setLineWidth: function (v) {
         this._lineWidth = v;
-        this._renderCmd.lineWidth = v;
+        this._renderCmd.setLineWidth(v);
     },
     getLineWidth: function () {
         return this._lineWidth;
@@ -94,7 +96,7 @@ Js.mixin(_p, {
 
     setLineCap: function (v) {
         this._lineCap = v;
-        this._renderCmd.lineCap = v;
+        this._renderCmd.setLineCap(v);
     },
     getLineCap: function () {
         return this._lineCap;
@@ -102,10 +104,18 @@ Js.mixin(_p, {
 
     setLineJoin: function (v) {
         this._lineJoin = v;
-        this._renderCmd.lineJoin = v;
+        this._renderCmd.setLineJoin(v);
     },
     getLineJoin: function () {
         return this._lineJoin;
+    },
+
+    setMiterLimit: function (v) {
+        this._miterLimit = v;
+        this._renderCmd.setMiterLimit(v);
+    },
+    getMiterLimit: function () {
+        return this._miterLimit;
     },
 
     // draw functions
