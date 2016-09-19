@@ -212,10 +212,6 @@
             fontDesc = "bold " + fontDesc;
         }
 
-        if(node._isItalic) {
-            fontDesc = "italic " + fontDesc;
-        }
-
         return fontDesc;
     };
 
@@ -381,6 +377,10 @@
 
             this._canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * this._getMargin();
             this._canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
+            if(node._isItalic) {
+                //0.0174532925 = 3.141592653 / 180
+                this._canvasSize.width += node._drawFontsize * Math.tan(12 * 0.0174532925);
+            }
             _ccsg.Node.prototype.setContentSize.call(node, this._canvasSize);
         }
 

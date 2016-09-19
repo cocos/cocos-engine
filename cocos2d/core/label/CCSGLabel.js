@@ -240,7 +240,11 @@ _ccsg.Label = _ccsg.Node.extend({
 
     enableItalics: function (enabled) {
         this._isItalic = enabled;
-        this._notifyLabelSkinDirty();
+        if(enabled) {
+            this.setSkewX(12);
+        } else {
+            this.setSkewX(0);
+        }
     },
 
     enableBold: function (enabled) {

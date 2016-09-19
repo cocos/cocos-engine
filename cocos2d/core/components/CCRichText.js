@@ -63,6 +63,7 @@ var RichText = cc.Class({
 
     ctor: function() {
         this._textArray = null;
+        this._labelSegmentsCache = [];
 
         this._resetState();
 
@@ -104,7 +105,9 @@ var RichText = cc.Class({
             type: HorizontalAlign,
             tooltip: 'i18n:COMPONENT.richtext.horizontal_align',
             animatable: false,
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.horizontalAlign === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
@@ -118,7 +121,9 @@ var RichText = cc.Class({
         fontSize: {
             default: 40,
             tooltip: 'i18n:COMPONENT.richtext.font_size',
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.fontSize === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
@@ -132,7 +137,9 @@ var RichText = cc.Class({
         maxWidth: {
             default: 0,
             tooltip: 'i18n:COMPONENT.richtext.max_width',
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.maxWidth === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
@@ -146,7 +153,9 @@ var RichText = cc.Class({
         lineHeight: {
             default: 40,
             tooltip: 'i18n:COMPONENT.richtext.line_height',
-            notify: function () {
+            notify: function (oldValue) {
+                if(this.lineHeight === oldValue) return;
+
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
@@ -192,7 +201,14 @@ var RichText = cc.Class({
     },
 
     _measureText: function (string, styleIndex) {
-        var label = new _ccsg.Label(string);
+        var label;
+        if(this._labelSegmentsCache.length === 0) {
+            label = new _ccsg.Label(string);
+            this._labelSegmentsCache.push(label);
+        } else {
+            label = this._labelSegmentsCache[0];
+            label.setString(string);
+        }
         label._styleIndex = styleIndex;
         this._applyTextAttribute(label);
         var labelSize = label.getContentSize();
@@ -321,6 +337,7 @@ var RichText = cc.Class({
         }
 
         this._labelSegments = [];
+        this._labelSegmentsCache = [];
         this._linesWidth = [];
         this._lineOffsetX = 0;
         this._lineCount = 1;
@@ -330,7 +347,13 @@ var RichText = cc.Class({
     },
 
     _addLabelSegment: function(stringToken, styleIndex) {
-        var labelSegment = new _ccsg.Label(stringToken);
+        var labelSegment;
+        if(this._labelSegmentsCache.length === 0) {
+            labelSegment = new _ccsg.Label(stringToken);
+        } else {
+            labelSegment = this._labelSegmentsCache.pop();
+            labelSegment.setString(stringToken);
+        }
         labelSegment._styleIndex = styleIndex;
         labelSegment._lineCount = this._lineCount;
 
@@ -429,17 +452,18 @@ var RichText = cc.Class({
             } else {
                 if (oldItem.style) {
                     if (newItem.style) {
-                        if(oldItem.style.size != newItem.style.size) {
+                        if(oldItem.style.size != newItem.style.size
+                           || oldItem.style.italic !== newItem.style.italic) {
                             return true;
                         }
                     } else {
-                        if(oldItem.style.size) {
+                        if(oldItem.style.size || oldItem.style.italic) {
                             return true;
                         }
                     }
                 } else {
                     if (newItem.style) {
-                        if(newItem.style.size) {
+                        if(newItem.style.size || newItem.style.italic) {
                             return true;
                         }
                     }
@@ -450,6 +474,8 @@ var RichText = cc.Class({
     },
 
     _updateRichText: function () {
+        if (!this.enabled) return;
+
         var newTextArray = cc.htmlTextParser.parse(this.string);
         if(!this._needsUpdateTextLayout(newTextArray)) {
             this._textArray = newTextArray;
