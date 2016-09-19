@@ -35,7 +35,7 @@ else {
 
 if (GraphicsNode) {
     var misc = require('../utils/misc');
-    misc.propertyDefine(GraphicsNode, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'deviceRatio', 'strokeColor', 'fillColor'], {});
+    misc.propertyDefine(GraphicsNode, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'strokeColor', 'fillColor'], {});
 }
 
 require('./graphics');

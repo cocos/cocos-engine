@@ -198,7 +198,4 @@ Js.mixin(_p, {
     }
 });
 
-var misc = require('../utils/misc');
-misc.propertyDefine(CanvasRenderCmd, ['lineWidth', 'lineCap', 'lineJoin', 'miterLimit', 'strokeColor', 'fillColor'], {});
-
 module.exports = CanvasRenderCmd;
