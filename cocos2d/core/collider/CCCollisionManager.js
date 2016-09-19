@@ -84,9 +84,6 @@ var CollisionManager = cc.Class({
         this._contacts = [];
         this._colliders = [];
 
-        this._updating = false;
-        this._removeList = [];
-
         this._debugDrawer = null;
         this._enabledDebugDraw = false;
     },
@@ -96,8 +93,6 @@ var CollisionManager = cc.Class({
             return;
         }
 
-        this._updating = true;
-        
         var i, l;
 
         // update collider
@@ -108,31 +103,25 @@ var CollisionManager = cc.Class({
 
         // do collide
         var contacts = this._contacts;
+        var results = [];
         
         for (i = 0, l = contacts.length; i < l; i++) {
-            this.collide(contacts[i]);
+            var collisionType = contacts[i].updateState();
+            if (collisionType === CollisionType.None) {
+                continue;
+            }
+
+            results.push([collisionType, contacts[i]]);
         }
 
-        this._updating = false;
-
-        // do remove collider
-        var removeList = this._removeList;
-        for (i = 0, l = removeList.length; i < l; i++) {
-            this.removeCollider( removeList[i] );
+        // handle collide results, emit message
+        for (i = 0, l = results.length; i < l; i++) {
+            var result = results[i];
+            this._doCollide(result[0], result[1]);
         }
-        removeList.length = 0;
 
         // draw colliders
         this.drawColliders();
-    },
-
-    collide: function (contact) {
-        var collisionType = contact.updateState();
-        if (collisionType === CollisionType.None) {
-            return;
-        }
-
-        this._doCollide(collisionType, contact);        
     },
 
     _doCollide: function (collisionType, contact) {
@@ -291,11 +280,6 @@ var CollisionManager = cc.Class({
             this.initCollider(collider);
         }
 
-        index = this._removeList.indexOf(collider);
-        if (index !== -1) {
-            this._removeList.splice(index, 1);
-        }
-
         collider.node.on('group-changed', this.onNodeGroupChanged, this);
     },
 
@@ -303,25 +287,17 @@ var CollisionManager = cc.Class({
         var colliders = this._colliders;
         var index = colliders.indexOf(collider);
         if (index >= 0) {
-            if (this._updating) {
-                var removeList = this._removeList;
-                if (removeList.indexOf(collider) === -1) {
-                    removeList.push(collider);
-                }
-            }
-            else {
-                colliders.splice(index, 1);
+            colliders.splice(index, 1);
 
-                var contacts = this._contacts;
-                for (var i = contacts.length - 1; i >= 0; i--) {
-                    var contact = contacts[i];
-                    if (contact.collider1 === collider || contact.collider2 === collider) {
-                        if (contact.touching) {
-                            this._doCollide(CollisionType.CollisionExit, contact);
-                        }
-
-                        contacts.splice(i, 1);
+            var contacts = this._contacts;
+            for (var i = contacts.length - 1; i >= 0; i--) {
+                var contact = contacts[i];
+                if (contact.collider1 === collider || contact.collider2 === collider) {
+                    if (contact.touching) {
+                        this._doCollide(CollisionType.CollisionExit, contact);
                     }
+
+                    contacts.splice(i, 1);
                 }
             }
 
