@@ -216,6 +216,10 @@ window._ccsg = {
     VideoPlayer: cc.VideoPlayer,
     WebView: cc.WebView,
     TMXTiledMap: cc.TMXTiledMap,
+    TMXObjectGroup: cc.TMXObjectGroup,
+    TMXObject: cc.TMXObject,
+    TMXObjectImage: cc.TMXObjetImage,
+    TMXObjectShape: cc.TMXObjectShape,
     TMXLayer: cc.TMXLayer,
     MotionStreak: cc.MotionStreak
 };

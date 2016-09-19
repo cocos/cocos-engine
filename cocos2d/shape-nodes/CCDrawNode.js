@@ -406,7 +406,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
              * @param {Number} lineWidth
              * @param {cc.Color} color
              */
-            drawPoly_: function (verts, fillColor, lineWidth, color) {
+            drawPoly_: function (verts, fillColor, lineWidth, color, notClosePoly) {
                 lineWidth = (lineWidth == null ) ? this._lineWidth : lineWidth;
                 color = color || this.getDrawColor();
                 if (color.a == null)
@@ -417,7 +417,7 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
                 element.fillColor = fillColor;
                 element.lineWidth = lineWidth;
                 element.lineColor = color;
-                element.isClosePolygon = true;
+                element.isClosePolygon = !notClosePoly;
                 element.isStroke = true;
                 element.lineCap = "round";
                 if (fillColor)
@@ -431,13 +431,14 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
              * @param {cc.Color} fillColor
              * @param {Number} lineWidth
              * @param {cc.Color} color
+             * @param {Boolean} notClosePoly
              */
-            drawPoly: function (verts, fillColor, lineWidth, color) {
+            drawPoly: function (verts, fillColor, lineWidth, color, notClosePoly) {
                 var vertsCopy = [];
                 for (var i=0; i < verts.length; i++) {
                     vertsCopy.push(cc.p(verts[i].x, verts[i].y));
                 }
-                return this.drawPoly_(vertsCopy, fillColor, lineWidth, color);     
+                return this.drawPoly_(vertsCopy, fillColor, lineWidth, color, notClosePoly);
             },
 
             /**
@@ -714,9 +715,9 @@ cc.game.once(cc.game.EVENT_RENDERER_INITED, function () {
                 this._dirty = true;
             },
 
-            drawPoly:function (verts, fillColor, borderWidth, borderColor) {
+            drawPoly:function (verts, fillColor, borderWidth, borderColor, notClosePoly) {
                 if(fillColor == null){
-                    this._drawSegments(verts, borderWidth, borderColor, true);
+                    this._drawSegments(verts, borderWidth, borderColor, !notClosePoly);
                     return;
                 }
                 if (fillColor.a == null)

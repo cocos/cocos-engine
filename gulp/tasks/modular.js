@@ -96,7 +96,8 @@ var modules = {
     'TiledMap': [
         './cocos2d/tilemap/CCSGTMXTiledMap.js',
         './cocos2d/tilemap/CCTMXXMLParser.js',
-        './cocos2d/tilemap/CCTMXObjectGroup.js',
+        './cocos2d/tilemap/CCSGTMXObjectGroup.js',
+        './cocos2d/tilemap/CCSGTMXObject.js',
         './cocos2d/tilemap/CCSGTMXLayer.js',
         './cocos2d/tilemap/CCTMXLayerCanvasRenderCmd.js',
         './cocos2d/tilemap/CCTMXLayerWebGLRenderCmd.js'

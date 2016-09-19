@@ -104,6 +104,7 @@ require('./jsb-event');
 require('./jsb-action');
 require('./jsb-etc');
 require('./jsb-audio');
+require('./jsb-tiledmap');
 
 if (cc.runtime) {
     require('./versions/jsb-polyfill-runtime');

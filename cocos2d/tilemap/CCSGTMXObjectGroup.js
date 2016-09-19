@@ -25,41 +25,75 @@
  ****************************************************************************/
 
 /**
- * !#en cc.TMXObjectGroup represents the TMX object group.
+ * !#en _ccsg.TMXObjectGroup represents the TMX object group.
  * !#zh TMXObjectGroup 用来表示 TMX 对象组。
  * @class TMXObjectGroup
- * @extends cc._Class
+ * @extends _ccsg.Node
+ *
+ * @property {Array}    properties  - Properties from the group. They can be added using tilemap editors
+ * @property {String}   groupName   - Name of the group
  */
-
-/**
- * Properties from the group. They can be added using tilemap editors.
- * @property properties
- * @type {Array}
- */
-
-/**
- * Name of the group
- * @property groupName
- * @type {String}
- */
-cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
-	properties: null,
+_ccsg.TMXObjectGroup = _ccsg.Node.extend(/** @lends cc.TMXObjectGroup# */{
+	  properties: null,
     groupName: "",
 
     _positionOffset: null,
-    _objects: null,
+    _mapInfo: null,
+    _objects : [],
 
     /**
-     * <p>The cc.TMXObjectGroup's constructor. <br/>
+     * <p>The _ccsg.TMXObjectGroup's constructor. <br/>
      * This function will automatically be invoked when you create a node using new construction: "var node = new cc.TMXObjectGroup()".<br/>
      * Override it to extend its behavior, remember to call "this._super()" in the extended "ctor" function.</p>
      * @method ctor
      */
-    ctor:function () {
-        this.groupName = "";
-        this._positionOffset = cc.p(0,0);
-        this.properties = [];
-        this._objects = [];
+    ctor:function (groupInfo, mapInfo) {
+        _ccsg.Node.prototype.ctor.call(this);
+        this._initGroup(groupInfo, mapInfo);
+    },
+
+    _initGroup: function (groupInfo, mapInfo) {
+        this.groupName = groupInfo.name;
+        this._positionOffset = groupInfo.offset;
+        this._mapInfo = mapInfo;
+        this.properties = groupInfo.getProperties();
+
+        var mapSize = mapInfo._mapSize;
+        var tileSize = mapInfo._tileSize;
+        if (mapInfo.orientation === cc.TiledMap.Orientation.HEX) {
+            var width = 0, height = 0;
+            if (mapInfo.getStaggerAxis() === cc.TiledMap.StaggerAxis.STAGGERAXIS_X) {
+                height = tileSize.height * (mapSize.height + 0.5);
+                width = (tileSize.width + mapInfo.getHexSideLength()) * Math.floor(mapSize.width / 2) + tileSize.width * (mapSize.width % 2);
+            } else {
+                width = tileSize.width * (mapSize.width + 0.5);
+                height = (tileSize.height + mapInfo.getHexSideLength()) * Math.floor(mapSize.height / 2) + tileSize.height * (mapSize.height % 2);
+            }
+            this.setContentSize(width, height);
+        } else {
+            this.setContentSize(mapSize.width * tileSize.width, mapSize.height * tileSize.height);
+        }
+        this.setAnchorPoint(cc.p(0, 0));
+        this.setPosition(this._positionOffset.x, -this._positionOffset.y);
+        this.setVisible(groupInfo.visible);
+
+        var objects = [];
+        if (groupInfo._objects instanceof Array) {
+            objects = groupInfo._objects;
+        }
+
+        // add objects
+        for (var i = 0, n = objects.length; i < n; i++) {
+            var objInfo = objects[i];
+            var object = new _ccsg.TMXObject();
+            object.initWithInfo(objInfo, mapInfo, this.getContentSize(), groupInfo._color);
+            this._objects.push(object);
+            if (object.sgNode) {
+                object.sgNode.setOpacity(groupInfo._opacity);
+                // TODO addChild in order with property cc.TMXObjectGroupInfo._draworder
+                this.addChild(object.sgNode, i, i);
+            }
+        }
     },
 
     /**
@@ -108,7 +142,7 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * tMXObjectGroup.setProperties(obj);
      */
     setProperties:function (Var) {
-        this.properties.push(Var);
+        this.properties = Var;
     },
 
     /**
@@ -117,10 +151,10 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * @method getGroupName
      * @return {String}
      * @example
-     * var groupName = tMXObjectGroup.getGroupName;
+     * var groupName = tMXObjectGroup.getGroupName();
      */
     getGroupName:function () {
-        return this.groupName.toString();
+        return this.groupName;
     },
 
     /**
@@ -167,12 +201,10 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      * var object = tMXObjectGroup.getObject("Group");
      */
     getObject: function(objectName){
-        if (this._objects && this._objects.length > 0) {
-            var locObjects = this._objects;
-            for (var i = 0, len = locObjects.length; i < len; i++) {
-                var name = locObjects[i]["name"];
-                if (name && name === objectName)
-                    return locObjects[i];
+        for (var i = 0, len = this._objects.length; i < len; i++) {
+            var obj = this._objects[i];
+            if (obj && obj.getObjectName() === objectName) {
+                return obj;
             }
         }
         // object not found
@@ -189,17 +221,5 @@ cc.TMXObjectGroup = cc._Class.extend(/** @lends cc.TMXObjectGroup# */{
      */
     getObjects:function () {
         return this._objects;
-    },
-
-    /**
-     * !#en Set the objects.
-     * !#zh 设置对象数组。
-     * @method setObjects
-     * @param {Object} objects
-     * @example
-     * tMXObjectGroup.setObjects(objects);
-     */
-    setObjects:function (objects) {
-        this._objects.push(objects);
     }
 });
