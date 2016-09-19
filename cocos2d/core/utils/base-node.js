@@ -461,7 +461,7 @@ var BaseNode = cc.Class(/** @lends cc.Node# */{
          * @readOnly
          * @example
          * var children = node.children;
-         * for (var i = 0; i < children.lenght; ++i) {
+         * for (var i = 0; i < children.length; ++i) {
          *     cc.log("Node: " + children[i]);
          * }
          */
