@@ -1185,7 +1185,7 @@ var Node = cc.Class({
             }, this, 0, 0, 0, false);
         }
 
-        this._EventTargetOn(type, callback, target, useCapture);
+        return this._EventTargetOn(type, callback, target, useCapture);
     },
 
     /**
@@ -1318,6 +1318,7 @@ var Node = cc.Class({
         }
     },
 
+    // for event manager
     isRunning: function () {
         return this._activeInHierarchy;
     },

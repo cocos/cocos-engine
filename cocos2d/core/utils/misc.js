@@ -23,34 +23,37 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var JS = cc.js;
-
 var misc = {};
 
 misc.propertyDefine = function (ctor, sameNameGetSets, diffNameGetSets) {
+    function define (np, propName, getter, setter) {
+        var pd = Object.getOwnPropertyDescriptor(np, propName);
+        if (pd) {
+            if (pd.get) np[getter] = pd.get;
+            if (pd.set && setter) np[setter] = pd.set;
+        }
+        else {
+            var getterFunc = np[getter];
+            if (CC_DEV && !getterFunc) {
+                var clsName = (cc.Class._isCCClass(ctor) && cc.js.getClassName(ctor)) ||
+                              ctor.name ||
+                              '(anonymous class)';
+                cc.warn('no %s or %s on %s', propName, getter, clsName);
+            }
+            else {
+                cc.js.getset(np, propName, getterFunc, np[setter]);
+            }
+        }
+    }
     var propName, np = ctor.prototype;
     for (var i = 0; i < sameNameGetSets.length; i++) {
         propName = sameNameGetSets[i];
         var suffix = propName[0].toUpperCase() + propName.slice(1);
-        var pd = Object.getOwnPropertyDescriptor(np, propName);
-        if (pd) {
-            if (pd.get) np['get' + suffix] = pd.get;
-            if (pd.set) np['set' + suffix] = pd.set;
-        }
-        else {
-            JS.getset(np, propName, np['get' + suffix], np['set' + suffix]);
-        }
+        define(np, propName, 'get' + suffix, 'set' + suffix);
     }
     for (propName in diffNameGetSets) {
         var getset = diffNameGetSets[propName];
-        var pd = Object.getOwnPropertyDescriptor(np, propName);
-        if (pd) {
-            np[getset[0]] = pd.get;
-            if (getset[1]) np[getset[1]] = pd.set;
-        }
-        else {
-            JS.getset(np, propName, np[getset[0]], np[getset[1]]);
-        }
+        define(np, propName, getset[0], getset[1]);
     }
 };
 

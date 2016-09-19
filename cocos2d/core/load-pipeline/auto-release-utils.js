@@ -37,19 +37,21 @@ function release (loader, key, nextSceneAssets) {
 module.exports = {
 
     // get asset url or uuid
-    getKey: function (loader, assetOrUrl) {
-        if (assetOrUrl) {
-            if (typeof assetOrUrl === 'string') {
-                return assetOrUrl;
+    getKey: function (loader, assetOrUrlOrUuid) {
+        if (assetOrUrlOrUuid) {
+            if (typeof assetOrUrlOrUuid === 'string') {
+                // try to convert uuid to url
+                var item = cc.loader.getItem(assetOrUrlOrUuid);
+                return (item && item.url) || assetOrUrlOrUuid;
             }
-            else if (assetOrUrl instanceof cc.Asset) {
-                return assetOrUrl._uuid;
+            else if (assetOrUrlOrUuid instanceof cc.Asset) {
+                return assetOrUrlOrUuid._uuid;
             }
-            else if (assetOrUrl instanceof cc.Texture2D) {
-                return assetOrUrl.url;
+            else if (assetOrUrlOrUuid instanceof cc.Texture2D) {
+                return assetOrUrlOrUuid.url;
             }
-            else if (!CC_JSB && cc.Audio && assetOrUrl instanceof cc.Audio) {
-                return assetOrUrl.src;
+            else if (!CC_JSB && cc.Audio && assetOrUrlOrUuid instanceof cc.Audio) {
+                return assetOrUrlOrUuid.src;
             }
             else if (CC_DEV) {
                 cc.warn('unknown asset type');

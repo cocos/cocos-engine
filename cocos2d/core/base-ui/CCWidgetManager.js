@@ -162,7 +162,7 @@ function visitNode (node) {
             widget.enabled = false;
         }
         else {
-            widgetManager._nodesWithWidget.push(node);
+            activeWidgets.push(widget);
         }
     }
     var children = node._children;
@@ -206,19 +206,19 @@ function refreshScene () {
     if (scene) {
         widgetManager.isAligning = true;
         if (widgetManager._nodesOrderDirty) {
-            widgetManager._nodesWithWidget.length = 0;
+            activeWidgets.length = 0;
             visitNode(scene);
             widgetManager._nodesOrderDirty = false;
         }
         else {
-            var i, node, nodes = widgetManager._nodesWithWidget, len = nodes.length;
+            var i, widget, iterator = widgetManager._activeWidgetsIterator;
             if (CC_EDITOR && window._Scene && _Scene.AnimUtils && _Scene.AnimUtils.curAnimState) {
                 var editingNode = _Scene.AnimUtils.curRootNode;
-                for (i = len - 1; i >= 0; i--) {
-                    node = nodes[i];
-                    var widget = node._widget;
+                for (i = activeWidgets.length - 1; i >= 0; i--) {
+                    widget = activeWidgets[i];
+                    var node = widget.node;
                     if (widget.isAlignOnce && animationState.animatedSinceLastFrame && node.isChildOf(editingNode)) {
-                        // widget contains in _nodesWithWidget should aligned at least once
+                        // widget contains in activeWidgets should aligned at least once
                         widget.enabled = false;
                     }
                     else {
@@ -227,9 +227,11 @@ function refreshScene () {
                 }
             }
             else {
-                for (i = 0; i < len; i++) {
-                    node = nodes[i];
-                    alignToParent(node, node._widget);
+                // loop reversely will not help to prevent out of sync
+                // because user may remove more than one item during a step.
+                for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
+                    widget = activeWidgets[iterator.i];
+                    alignToParent(widget.node, widget);
                 }
             }
         }
@@ -317,6 +319,7 @@ var adjustWidgetToAllowResizingInEditor = CC_EDITOR && function (event) {
     }
 };
 
+var activeWidgets = [];
 
 var widgetManager = cc._widgetManager = module.exports = {
     _AlignFlags: {
@@ -329,7 +332,8 @@ var widgetManager = cc._widgetManager = module.exports = {
     },
     isAligning: false,
     _nodesOrderDirty: false,
-    _nodesWithWidget: [],
+    _activeWidgetsIterator: new cc.js.array.MutableForwardIterator(activeWidgets),
+
     init: function (director) {
         director.on(cc.Director.EVENT_BEFORE_VISIT, refreshScene);
     },
@@ -343,9 +347,9 @@ var widgetManager = cc._widgetManager = module.exports = {
     },
     remove: function (widget) {
         widget.node._widget = null;
-        var index = this._nodesWithWidget.indexOf(widget.node);
+        var index = activeWidgets.indexOf(widget.node);
         if (index > -1) {
-            this._nodesWithWidget.splice(index, 1);
+            this._activeWidgetsIterator.removeAt(index);
         }
         if (CC_EDITOR && !cc.engine.isPlaying) {
             widget.node.off('position-changed', adjustWidgetToAllowMovingInEditor, widget);

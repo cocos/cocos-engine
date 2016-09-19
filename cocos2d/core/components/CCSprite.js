@@ -638,7 +638,7 @@ if (CC_EDITOR) {
 }
 
 var misc = require('../utils/misc');
-var SameNameGetSets = ['atlas', 'capInsets', 'insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
+var SameNameGetSets = ['insetLeft', 'insetTop', 'insetRight', 'insetBottom'];
 var DiffNameGetSets = {
     type: [null, 'setRenderingType']
 };

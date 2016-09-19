@@ -411,6 +411,8 @@ if (CC_DEV) {
         'userObject',
         '_cascadeColorEnabled',
         'cascadeColor',
+        'isCascadeColorEnabled',
+        'setCascadeColorEnabled',
         'ignoreAnchor',
         'isIgnoreAnchorPointForPosition',
         'ignoreAnchorPointForPosition'
