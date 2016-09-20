@@ -371,7 +371,7 @@ var EventAnimCurve = cc.Class({
 
                 lastIndex += direction;
 
-                this._fireEvent(lastIndex);
+                cc.director.getAnimationManager().pushDelayEvent(this, '_fireEvent', [lastIndex]);
             } while (lastIndex !== currentIndex && lastIndex > -1 && lastIndex < length);
         }
     },

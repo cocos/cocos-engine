@@ -48,12 +48,6 @@ p.addAnimation = function (anim) {
 };
 
 p.removeAnimation = function (anim) {
-    var listeners = this.animation._listeners;
-    for (var i = 0, l = listeners.length; i < l; i++) {
-        var listener = listeners[i];
-        anim.off(listener[0], listener[1], listener[2], listener[3]);
-    }
-    
     Animator.prototype.removeAnimation.call(this, anim);
 
     anim.animator = null;
@@ -187,8 +181,6 @@ function initClipData (root, state) {
     }
 
     function createPropCurve (target, propPath, keyframes) {
-        var curve;
-
         var isMotionPathProp = (target instanceof cc.Node) && (propPath === 'position');
         var motionPaths = [];
         var curve;
