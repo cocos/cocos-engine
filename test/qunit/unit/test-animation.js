@@ -603,6 +603,8 @@ test('SampledAnimCurve', function () {
 test('EventAnimCurve', function () {
     var initClipData = cc._Test.initClipData;
 
+    var manager = cc.director.getAnimationManager();
+
     var calls = [];
     var state;
 
@@ -635,6 +637,8 @@ test('EventAnimCurve', function () {
     var entity = new cc.Node();
     entity.addComponent(MyComp);
 
+    var animation = entity.addComponent(cc.Animation);
+
     var clip = new cc.AnimationClip();
     clip._duration = 2;
     clip._name = 'test';
@@ -649,16 +653,16 @@ test('EventAnimCurve', function () {
         {frame: 1.8, func: 'func1', params: ['Frame 5 Event triggered']}
     ];
 
-    state = new cc.AnimationState(clip);
-    initClipData(entity, state);
+    animation.addClip(clip);
+    state = animation.getAnimationState('test');
 
-    state.play();
+    animation.play('test');
     // play best first frame
-    state.update(0);
-    state.update(0.1);
+    manager.update(0);
+    manager.update(0.1);
     deepEqual(calls, [], 'should not triggered events');
 
-    state.update(0.1);
+    manager.update(0.1);
     deepEqual(calls, [{
         func: 'func1',
         args: ['Frame 0 Event triggered']
@@ -666,11 +670,11 @@ test('EventAnimCurve', function () {
 
 
     calls = [];
-    state.update(0.1);
+    manager.update(0.1);
     deepEqual(calls, [], 'next event should not be triggered');
 
-    state.update(0.2);
-    state.update(0.2);
+    manager.update(0.2);
+    manager.update(0.2);
     deepEqual(calls, [
         {
             func: 'func2',
@@ -684,7 +688,7 @@ test('EventAnimCurve', function () {
 
 
     calls = [];
-    state.update(1);
+    manager.update(1);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -702,7 +706,7 @@ test('EventAnimCurve', function () {
 
 
     calls = [];
-    state.update(10);
+    manager.update(10);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -711,13 +715,13 @@ test('EventAnimCurve', function () {
     ], 'should triggered last event once');
 
 
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
-    state.update(1.7);
+    manager.update(1.7);
     calls = [];
-    state.update(0.3);
+    manager.update(0.3);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -726,17 +730,17 @@ test('EventAnimCurve', function () {
     ], 'should only triggered last event if wrapMode is Loop');
 
     calls = [];
-    state.update(0.1);
+    manager.update(0.1);
     deepEqual(calls, [], 'should not triggered event');
 
 
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
-    state.update(1.7);
+    manager.update(1.7);
     calls = [];
-    state.update(0.5);
+    manager.update(0.5);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -749,16 +753,16 @@ test('EventAnimCurve', function () {
     ], 'should triggered last and first event if wrapMode is Loop');
 
 
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.wrapMode = cc.WrapMode.Reverse;
     state.repeatCount = 1;
     calls = [];
-    state.update(0.1);
+    manager.update(0.1);
     deepEqual(calls, [], 'should triggered no events if wrapMode is Reverse');
 
     calls = [];
-    state.update(0.1);
+    manager.update(0.1);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -767,11 +771,11 @@ test('EventAnimCurve', function () {
     ], 'should triggered last event if wrapMode is Reverse');
 
     calls = [];
-    state.update(0.1);
+    manager.update(0.1);
     deepEqual(calls, [], 'should triggered no events if wrapMode is Reverse');
 
     calls = [];
-    state.update(1);
+    manager.update(1);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -788,7 +792,7 @@ test('EventAnimCurve', function () {
     ], 'should triggered no events if wrapMode is Reverse');
 
     calls = [];
-    state.update(10);
+    manager.update(10);
     deepEqual(calls, [
         {
             func: 'func2',
@@ -805,13 +809,13 @@ test('EventAnimCurve', function () {
     ], 'should triggered no events if wrapMode is Reverse');
 
 
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.wrapMode = cc.WrapMode.PingPong;
     state.repeatCount = Infinity;
-    state.update(1.7);
+    manager.update(1.7);
     calls = [];
-    state.update(0.5);
+    manager.update(0.5);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -820,11 +824,11 @@ test('EventAnimCurve', function () {
     ], 'should triggered frame 5 event once if wrapMode is PingPong');
 
     calls = [];
-    state.update(0.2);
+    manager.update(0.2);
     deepEqual(calls, [], 'should triggered no events if wrapMode is PingPong');
 
     calls = [];
-    state.update(0.3);
+    manager.update(0.3);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -832,13 +836,13 @@ test('EventAnimCurve', function () {
         }
     ], 'should triggered frame 4 event once if wrapMode is PingPong');
 
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.wrapMode = cc.WrapMode.PingPongReverse;
     state.repeatCount = Infinity;
-    state.update(1.7);
+    manager.update(1.7);
     calls = [];
-    state.update(0.5);
+    manager.update(0.5);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -846,13 +850,13 @@ test('EventAnimCurve', function () {
         }
     ], 'should triggered frame 0 event once if wrapMode is PingPongReverse');
 
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.speed = -1;
     state.wrapMode = cc.WrapMode.Normal;
     state.repeatCount = Infinity;
     calls = [];
-    state.update(0.5);
+    manager.update(0.5);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -862,14 +866,14 @@ test('EventAnimCurve', function () {
 
 
 
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.speed = -1;
     state.wrapMode = cc.WrapMode.PingPongReverse;
     state.repeatCount = Infinity;
-    state.update(1.7);
+    manager.update(1.7);
     calls = [];
-    state.update(0.5);
+    manager.update(0.5);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -887,18 +891,18 @@ test('EventAnimCurve', function () {
         {frame: 2, func: 'func1', params: ['Frame 0 Event triggered']},
     ];
 
-    state = new cc.AnimationState(clip);
-    initClipData(entity, state);
+    animation.addClip(clip);
+    state = animation.getAnimationState('test');
 
     // loop and single frame at last
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
-    state.play();
-    state.update(0);
+    animation.play('test');
+    manager.update(0);
 
     calls = [];
-    state.update(1);
-    state.update(2);
+    manager.update(1);
+    manager.update(2);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -907,13 +911,13 @@ test('EventAnimCurve', function () {
     ]);
 
     // pingpong and single frame at last
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.wrapMode = cc.WrapMode.PingPong;
     state.setTime(0);
     calls = [];
-    state.update(1);
-    state.update(2);
+    manager.update(1);
+    manager.update(2);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -922,17 +926,17 @@ test('EventAnimCurve', function () {
     ]);
 
     calls = [];
-    state.update(2);
+    manager.update(2);
     deepEqual(calls, [
     ]);
 
     // loop reverse and single frame at last
-    state.stop();
-    state.play();
+    animation.stop('test');
+    animation.play('test');
     state.wrapMode = cc.WrapMode.LoopReverse;
     state.setTime(0);
     calls = [];
-    state.update(2);
+    manager.update(2);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -941,7 +945,7 @@ test('EventAnimCurve', function () {
     ]);
 
     calls = [];
-    state.update(2);
+    manager.update(2);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -959,18 +963,18 @@ test('EventAnimCurve', function () {
         {frame: 0, func: 'func1', params: ['Frame 0 Event triggered']},
     ];
 
-    state = new cc.AnimationState(clip);
-    initClipData(entity, state);
+    animation.addClip(clip);
+    state = animation.getAnimationState('test');
 
     // loop and single frame at 0
     state.wrapMode = cc.WrapMode.Loop;
     state.repeatCount = Infinity;
-    state.play();
-    state.update(0);
-    state.update(0.5);
+    animation.play('test');
+    manager.update(0);
+    manager.update(0.5);
 
     calls = [];
-    state.update(1);
+    manager.update(1);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -979,7 +983,7 @@ test('EventAnimCurve', function () {
     ]);
 
     calls = [];
-    state.update(1);
+    manager.update(1);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -998,23 +1002,23 @@ test('EventAnimCurve', function () {
         {frame: 1, func: 'func1', params: ['Frame 1 Event triggered']},
     ];
 
-    state = new cc.AnimationState(clip);
-    initClipData(entity, state);
+    animation.addClip(clip);
+    state = animation.getAnimationState('test');
 
     // loop and single frame at 0
     state.wrapMode = cc.WrapMode.PingPong;
     state.repeatCount = Infinity;
-    state.play();
-    state.update(0);
+    animation.play('test');
+    manager.update(0);
 
     calls = [];
-    state.update(0.4);
-    state.update(0.4);
-    state.update(0.4);
-    state.update(0.4);
-    state.update(0.4);
-    state.update(0.4);
-    state.update(0.4);
+    manager.update(0.4);
+    manager.update(0.4);
+    manager.update(0.4);
+    manager.update(0.4);
+    manager.update(0.4);
+    manager.update(0.4);
+    manager.update(0.4);
     deepEqual(calls, [
         {
             func: 'func1',
@@ -1238,6 +1242,8 @@ test('animation callback', function () {
         type = event.type;
     }
 
+    var manager = cc.director.getAnimationManager();
+
     var entity = new cc.Node();
     var animation = entity.addComponent(cc.Animation);
 
@@ -1259,41 +1265,47 @@ test('animation callback', function () {
     animation.on('play', callback);
     animation.on('pause', callback);
     animation.on('resume', callback);
-    animation.on('finished', callback);
+    animation.on('stop', callback);
 
     animation.play('move');
+    manager.update(0);
     strictEqual(type === 'play', true, 'should trigger play callback');
 
     animation.pause('move');
+    manager.update(0);
     strictEqual(type === 'pause', true, 'should trigger pause callback');
 
     animation.resume('move');
+    manager.update(0);
     strictEqual(type === 'resume', true, 'should trigger resume callback');
 
-    state.update(0);
-    state.update(1);
-    strictEqual(type === 'finished', true, 'should trigger finished callback');
+    manager.update(0);
+    manager.update(1);
+    strictEqual(type === 'stop', true, 'should trigger stop callback');
 
     type = '';
 
     animation.off('play', callback);
 
     animation.play('move');
+    manager.update(0);
     strictEqual(type === '', true, 'should not trigger callback');
 
     animation.off('pause', callback);
     animation.off('resume', callback);
 
     animation.pause('move');
+    manager.update(0);
     strictEqual(type === 'pause', false, 'should not trigger pause callback');
 
     animation.on('resume', callback);
     animation.resume('move');
+    manager.update(0);
     strictEqual(type === 'resume', true, 'should trigger resume callback');
 
-    animation.on('stop', callback);
-    state.update(1);
-    strictEqual(type === 'stop', true, 'should trigger stop callback');
+    animation.on('finished', callback);
+    manager.update(1);
+    strictEqual(type === 'finished', true, 'should trigger finished callback');
 
 
     clip = new cc.AnimationClip();
@@ -1315,12 +1327,15 @@ test('animation callback', function () {
     }
 
     animation.play('move');
+    manager.update(0);
 
     animation.on('play', callback2);
     animation.on('stop', callback2);
 
     animation.play('move2');
-
+    manager.update(0);
     deepEqual(list, [['move2', 'play'], ['move', 'stop']]);
+
+    entity.parent = null;
 });
 

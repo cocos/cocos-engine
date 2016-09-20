@@ -7,6 +7,8 @@ var AnimationManager = cc.Class({
 
         this._updating = false;
         this._removeList = [];
+
+        this._delayEvents = [];
     },
 
     // for manager
@@ -30,6 +32,13 @@ var AnimationManager = cc.Class({
             this.removeAnimator( removeList[i] );
         }
         removeList.length = 0;
+
+        var events = this._delayEvents;
+        for (i = 0, l = events.length; i < l; i++) {
+            var event = events[i];
+            event.target[event.func].apply(event.target, event.args);
+        }
+        events.length = 0;
     },
 
     destruct: function () {},
@@ -70,6 +79,14 @@ var AnimationManager = cc.Class({
         else {
             cc.error('animator not added or already removed');
         }
+    },
+
+    pushDelayEvent: function (target, func, args) {
+        this._delayEvents.push({
+            target: target,
+            func: func,
+            args: args
+        });
     }
 });
 

@@ -286,8 +286,8 @@ JS.mixin(AnimationNode.prototype, {
         }
 
         if (info.stopped) {
-            this.emit('finished', this);
             this.stop();
+            this.emit('finished', this);
         }
 
         this._lastWrappedInfo = info;

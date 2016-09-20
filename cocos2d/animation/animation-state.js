@@ -25,6 +25,11 @@ function AnimationState (clip, name) {
         duration: clip.length
     });
 
+    this._emit = this.emit;
+    this.emit = function () {
+        cc.director.getAnimationManager().pushDelayEvent(this, '_emit', arguments);
+    };
+
     this._clip = clip;
     this._name = name || clip.name;
 }
