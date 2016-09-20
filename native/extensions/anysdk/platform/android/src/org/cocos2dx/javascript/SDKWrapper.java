@@ -113,6 +113,56 @@ public class SDKWrapper {
 			}
 		}
 	}
+
+	public void onBackPressed() {
+		if (PACKAGE_AS) {
+			try {
+				mClass.getMethod("onBackPressed").invoke(mClass);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void onConfigurationChanged(Configuration newConfig) {
+		if (PACKAGE_AS) {
+			try {
+				mClass.getMethod("onConfigurationChanged", Configuration.class).invoke(mClass, newConfig);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+			if (PACKAGE_AS) {
+			try {
+				mClass.getMethod("onRestoreInstanceState", Bundle.class).invoke(mClass, savedInstanceState);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void onSaveInstanceState(Bundle outState) {
+			if (PACKAGE_AS) {
+			try {
+				mClass.getMethod("onSaveInstanceState", Bundle.class).invoke(mClass, outState);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void onStart() {
+		if (PACKAGE_AS) {
+			try {
+				mClass.getMethod("onStart").invoke(mClass);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	private static native void nativeLoadAllPlugins();
 }
