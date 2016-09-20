@@ -180,7 +180,6 @@ dragonBones.ArmatureDisplay = cc.Class({
             type: DefaultArmaturesEnum,
             visible: true,
             editorOnly: true,
-            serializable: false,
             displayName: "Armature",
             tooltip: 'i18n:COMPONENT.dragon_bones.armature_name'
         },
@@ -214,7 +213,6 @@ dragonBones.ArmatureDisplay = cc.Class({
             type: DefaultAnimsEnum,
             visible: true,
             editorOnly: true,
-            serializable: false,
             displayName: 'Animation',
             tooltip: 'i18n:COMPONENT.dragon_bones.animation_name'
         },
@@ -321,10 +319,10 @@ dragonBones.ArmatureDisplay = cc.Class({
         if (this.dragonAtlasAsset) {
             if (CC_JSB) {
                 // TODO parse the texture atlas data from json string & texture path
-                //this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
+                this._factory.parseTextureAtlasData(this.dragonAtlasAsset.atlasJson, this.dragonAtlasAsset.texture);
             } else {
                 var atlasJsonObj = JSON.parse(this.dragonAtlasAsset.atlasJson);
-                var texture = cc.loader.getRes(this.dragonAtlasAsset.texture);
+                var texture = cc.textureCache.getTextureForKey(this.dragonAtlasAsset.texture);
                 this._factory.parseTextureAtlasData(atlasJsonObj, texture);
             }
         }
@@ -427,12 +425,15 @@ dragonBones.ArmatureDisplay = cc.Class({
      * @method playAnimation
      * @param {String} animName
      * @param {Number} playTimes
+     * @return {dragonBones.AnimationState}
      */
     playAnimation: function(animName, playTimes) {
         if (this._sgNode) {
             this.animationName = animName;
-            this._sgNode.animation().play(animName, playTimes);
+            return this._sgNode.animation().play(animName, playTimes);
         }
+
+        return null;
     },
 
     /**
