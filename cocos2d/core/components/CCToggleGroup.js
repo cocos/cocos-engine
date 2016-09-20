@@ -36,8 +36,7 @@ var ToggleGroup = cc.Class({
     extends: cc.Component,
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ToggleGroup',
-        help: 'i18n:COMPONENT.help_url.toggle_group',
-        executeInEditMode: true
+        help: 'i18n:COMPONENT.help_url.toggle_group'
     },
 
     properties: {
