@@ -28,6 +28,8 @@
  * Toggles that belong to the same group could only have one of them to be switched on at a time.
  * !#zh ToggleGroup 不是一个可见的 UI 组件，它可以用来修改一组 Toggle  组件的行为。当一组 Toggle 属于同一个 ToggleGroup 的时候，
  * 任何时候只能有一个 Toggle 处于选中状态。
+ * @class ToggleGroup
+ * @extends Component
  */
 var ToggleGroup = cc.Class({
     name: 'cc.ToggleGroup',

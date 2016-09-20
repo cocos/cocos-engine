@@ -27,6 +27,8 @@
  * !#en The toggle component is a CheckBox, when it used together with a ToggleGroup, it
  * could be treated as a RadioButton.
  * !#zh Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
+ * @class Toggle
+ * @extends Button
  */
 var Toggle = cc.Class({
     name: 'cc.Toggle',
