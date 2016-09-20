@@ -179,7 +179,7 @@ cc.rendererWebGL = {
         }
 
         var locIDs = this._cacheInstanceIds;
-        cc.arrayRemoveObject(locIDs, instanceID);
+        cc.js.array.remove(locIDs, instanceID);
     },
 
     /**
