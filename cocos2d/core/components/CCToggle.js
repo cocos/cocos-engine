@@ -41,9 +41,9 @@ var Toggle = cc.Class({
 
     properties: {
         /**
-         * !#en When this value is true, the check mark target will be active, otherwise
-         * the check mark target will be inactive.
-         * !#zh 如果这个设置为 true，则 check mark 节点会处于 active 状态，否则处于 inactive 状态。
+         * !#en When this value is true, the check mark component will be enabled, otherwise
+         * the check mark component will be disabled.
+         * !#zh 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
          * @property {Boolean} isChecked
          */
         isChecked: {
@@ -85,7 +85,6 @@ var Toggle = cc.Class({
          */
         checkEvents: {
             default: [],
-            tooltip: 'i18n:COMPONENT.toggle.checkEvents',
             type: cc.Component.EventHandler
         },
 
