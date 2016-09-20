@@ -39,10 +39,6 @@ var Toggle = cc.Class({
         inspector: 'packages://inspector/inspectors/comps/toggle.js',
     },
 
-    ctor: function () {
-        this._checkmarkSprite = null;
-    },
-
     properties: {
         /**
          * !#en When this value is true, the check mark target will be active, otherwise
@@ -72,17 +68,14 @@ var Toggle = cc.Class({
         },
 
         /**
-         * !#en The image node used for the checkmark.
-         * !#zh Toggle 处于选中状态时显示的图片, 这里需要一个包含该图片的节点。
-         * @property {cc.Node} checkMark
+         * !#en The image used for the checkmark.
+         * !#zh Toggle 处于选中状态时显示的图片
+         * @property {cc.Sprite} checkMark
          */
         checkMark: {
             default: null,
-            type: cc.Node,
-            tooltip: 'i18n:COMPONENT.toggle.checkMark',
-            notify: function () {
-                this._applyCheckmarkTarget();
-            }
+            type: cc.Sprite,
+            tooltip: 'i18n:COMPONENT.toggle.checkMark'
         },
 
         /**
@@ -109,7 +102,6 @@ var Toggle = cc.Class({
 
     __preload: function () {
         this._super();
-        this._applyCheckmarkTarget();
         this._registerToggleEvent();
     },
 
@@ -127,25 +119,21 @@ var Toggle = cc.Class({
         }
     },
 
-    _applyCheckmarkTarget: function () {
-        this._checkmarkSprite = this._getTargetSprite(this.checkMark);
-    },
-
     _updateCheckMark: function () {
-        if(this.checkMark && this.enabledInHierarchy) {
-            this.checkMark.active = !!this.isChecked;
+        if(this.checkMark) {
+            this.checkMark.enabled = !!this.isChecked;
         }
     },
 
     _updateDisabledState: function () {
         this._super();
 
-        if(this._checkmarkSprite) {
-            this._checkmarkSprite._sgNode.setState(0);
+        if(this.checkMark) {
+            this.checkMark._sgNode.setState(0);
         }
         if(this.enableAutoGrayEffect) {
-            if(this._checkmarkSprite && !this.interactable) {
-                this._checkmarkSprite._sgNode.setState(1);
+            if(this.checkMark && !this.interactable) {
+                this.checkMark._sgNode.setState(1);
             }
         }
     },
@@ -155,7 +143,7 @@ var Toggle = cc.Class({
         event.target = this.node;
         event.component = 'cc.Toggle';
         event.handler = 'toggle';
-        this.clickEvents.push(event);
+        this.clickEvents = [event];
 
     },
 
