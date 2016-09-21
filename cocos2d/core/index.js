@@ -34,7 +34,6 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./CCNode');
     require('./CCScene');
 
-    require('./label/CCHtmlTextParser.js');
     require('./components');
     require('./graphics');
     require('./collider');

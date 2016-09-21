@@ -141,6 +141,7 @@
   {
     "name": "RichText",
     "entries": [
+      "./cocos2d/core/label/CCHtmlTextParser.js",
       "./cocos2d/core/components/CCRichText.js"
     ]
   },
