@@ -46,6 +46,37 @@ dragonBones.DisplayType = {
     Mesh : 2
 };
 
+dragonBones.ArmatureType = {
+    Armature : 0,
+    MovieClip : 1,
+    Stage : 2
+};
+
+dragonBones.ExtensionType = {
+    FFD : 0,
+    AdjustColor : 10,
+    BevelFilter : 11,
+    BlurFilter : 12,
+    DropShadowFilter : 13,
+    GlowFilter : 14,
+    GradientBevelFilter : 15,
+    GradientGlowFilter : 16
+};
+
+dragonBones.EventType = {
+    Frame : 0,
+    Sound : 1
+};
+
+dragonBones.ActionType = {
+    Play : 0,
+    Stop : 1,
+    GotoAndPlay : 2,
+    GotoAndStop : 3,
+    FadeIn : 4,
+    FadeOut : 5
+};
+
 if (!CC_EDITOR || !Editor.isMainProcess) {
 
     if (!CC_JSB) {
