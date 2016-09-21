@@ -58,11 +58,12 @@ var Transition = cc.Enum({
 
 /**
  * !#en
- * Button has 3 Transition types
+ * Button has 4 Transition types
  * When Button state changed:
  *  If Transition type is Button.Transition.NONE, Button will do nothing
  *  If Transition type is Button.Transition.COLOR, Button will change target's color
  *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite
+ *  If Transition type is Button.Transition.SCALE, Button will change target node's scale
  *
  * Button will trigger 5 events:
  *  Button.EVENT_TOUCH_DOWN
@@ -78,6 +79,7 @@ var Transition = cc.Enum({
  *   -Button.Transition.NONE   // 不做任何过渡</br>
  *   -Button.Transition.COLOR  // 进行颜色之间过渡</br>
  *   -Button.Transition.SPRITE // 进行精灵之间过渡</br>
+ *   -Button.Transition.SCALE // 进行缩放过渡</br>
  *
  * 按钮可以绑定事件（但是必须要在按钮的 Node 上才能绑定事件）：</br>
  *   // 以下事件可以在全平台上都触发</br>
@@ -273,7 +275,7 @@ var Button = cc.Class({
          * @property {Number} zoomScale
          */
         zoomScale: {
-            default: 0.1,
+            default: 1.2,
             tooltip: 'i18n:COMPONENT.button.zoom_scale'
         },
 
@@ -411,7 +413,7 @@ var Button = cc.Class({
 
     update: function (dt) {
         var target = this.target;
-        if (this.transition !== Transition.COLOR || this.transition !== Transition.SCALE
+        if ((this.transition !== Transition.COLOR && this.transition !== Transition.SCALE)
             || !target || this._transitionFinished) return;
 
         this.time += dt;
@@ -443,14 +445,18 @@ var Button = cc.Class({
         this.node.on(cc.Node.EventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     },
 
-    _applyTarget: function () {
-        var target = this.target;
+    _getTargetSprite: function (target) {
+        var sprite = null;
         if (target) {
-            this._sprite = target.getComponent(cc.Sprite);
-            this._originalScale = target.scale;
+            sprite = target.getComponent(cc.Sprite);
         }
-        else {
-            this._sprite = null;
+        return sprite;
+    },
+
+    _applyTarget: function () {
+        this._sprite = this._getTargetSprite(this.target);
+        if(this.target) {
+            this._originalScale = this.target.scale;
         }
     },
 
