@@ -324,7 +324,9 @@ var View = cc._Class.extend({
             cc.container.style.transformOrigin = '0px 0px 0px';
             this._isRotated = true;
         }
-        this._orientationChanging = false;
+        setTimeout(function () {
+            cc.view._orientationChanging = false;
+        }, 1000);
     },
 
     // hack
