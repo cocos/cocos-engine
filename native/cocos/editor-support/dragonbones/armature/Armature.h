@@ -13,7 +13,7 @@ class Bone;
 class Slot;
 class Animation;
 
-class Armature : public BaseObject, public IAnimateble
+class Armature : public virtual IAnimateble, public virtual BaseObject
 {
     BIND_CLASS_TYPE(Armature);
 

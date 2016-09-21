@@ -35,7 +35,7 @@ Armature * CCFactory::_generateArmature(const BuildArmaturePackage & dataPackage
     armature->_armatureData = dataPackage.armature;
     armature->_skinData = dataPackage.skin;
     armature->_animation = BaseObject::borrowObject<Animation>();
-    armature->_display = dynamic_cast<IArmatureDisplay*>(armatureDisplay);
+    armature->_display = armatureDisplay;
 
     armatureDisplay->retain();
     armatureDisplay->setCascadeOpacityEnabled(true);

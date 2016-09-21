@@ -24,12 +24,14 @@ var proto = dragonBones.CCArmatureDisplay.prototype;
 
 proto.animation = proto.getAnimation;
 
-proto.addEvent = function(type, listener) {
-    this.getEventDispatcher().addCustomListener(type, listener);
+proto.addEvent = function(type, listener, target) {
+    this.addEventListener(type, function(event) {
+        listener.call(target, { type : event.type, detail: event });
+    });
 };
 
 proto.removeEvent = function(type) {
-    this.getEventDispatcher().removeCustomEventListeners(type);
+    this.removeEventListener(type);
 };
 
 var slotProto = dragonBones.Slot.prototype;
@@ -45,3 +47,16 @@ armatureProto.addEventListener = function (type, listener) {
 armatureProto.removeEventListener = function (type) {
     this.getDisplay().removeEvent(type);
 };
+
+var animationStateProto = dragonBones.AnimationState.prototype;
+cc.defineGetterSetter(animationStateProto, 'name', animationStateProto.getName);
+
+dragonBones.EventObject.START = "start";
+dragonBones.EventObject.LOOP_COMPLETE = "loopComplete";
+dragonBones.EventObject.COMPLETE = "complete";
+dragonBones.EventObject.FADE_IN = "fadeIn";
+dragonBones.EventObject.FADE_IN_COMPLETE = "fadeInComplete";
+dragonBones.EventObject.FADE_OUT = "fadeOut";
+dragonBones.EventObject.FADE_OUT_COMPLETE = "fadeOutComplete";
+dragonBones.EventObject.FRAME_EVENT = "frameEvent";
+dragonBones.EventObject.SOUND_EVENT = "soundEvent";

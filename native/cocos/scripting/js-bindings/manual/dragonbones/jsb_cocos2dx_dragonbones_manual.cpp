@@ -111,9 +111,40 @@ bool js_cocos2dx_dragonbones_WorldClock_getClock(JSContext *cx, JS::HandleObject
     return true;
 }
 
+bool js_cocos2dx_dragonbones_TransformObject_getGlobal(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp)
+{
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getGlobal : Invalid Native Object");
+    jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->global));
+    vp.set(jsret);
+    return true;
+}
+
+bool js_cocos2dx_dragonbones_TransformObject_getOrigin(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp)
+{
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getGlobal : Invalid Native Object");
+    jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->origin));
+    vp.set(jsret);
+    return true;
+}
+
+bool js_cocos2dx_dragonbones_TransformObject_getOffset(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp)
+{
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getGlobal : Invalid Native Object");
+    jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->offset));
+    vp.set(jsret);
+    return true;
+}
+
 extern JSObject *jsb_dragonBones_Armature_prototype;
 extern JSObject *jsb_dragonBones_CCArmatureDisplay_prototype;
 extern JSObject *jsb_dragonBones_AnimationState_prototype;
+extern JSObject *jsb_dragonBones_TransformObject_prototype;
 
 void register_all_cocos2dx_dragonbones_manual(JSContext* cx, JS::HandleObject global)
 {
@@ -131,4 +162,9 @@ void register_all_cocos2dx_dragonbones_manual(JSContext* cx, JS::HandleObject gl
     get_or_create_js_obj(cx, global, "dragonBones", &tmpObj);
     get_or_create_js_obj(cx, tmpObj, "WorldClock", &tmpObj);
     JS_DefineProperty(cx, tmpObj, "clock", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_WorldClock_getClock);
+    
+    JS::RootedObject transformObject(cx, jsb_dragonBones_TransformObject_prototype);
+    JS_DefineProperty(cx, transformObject, "global", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_TransformObject_getGlobal);
+    JS_DefineProperty(cx, transformObject, "origin", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_TransformObject_getOrigin);
+    JS_DefineProperty(cx, transformObject, "offset", JS::UndefinedHandleValue, JSPROP_ENUMERATE | JSPROP_PERMANENT, js_cocos2dx_dragonbones_TransformObject_getOffset);
 }
