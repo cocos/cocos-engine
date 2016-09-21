@@ -44,7 +44,7 @@ var TextUtils = {
         return ((ch >= 9 && ch <= 13) || ch === 32 || ch === 133 || ch === 160 || ch === 5760 || (ch >= 8192 && ch <= 8202) || ch === 8232 || ch === 8233 || ch === 8239 || ch === 8287 || ch === 12288);
     },
 
-    fragmentText: function (stringToken, allWidth, maxWidth, styleIndex, measureText) {
+    fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
         //check the first character
         var wrappedWords = [];
         //fast return if strArr is empty
@@ -58,7 +58,7 @@ var TextUtils = {
 
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
             var tmpText = text.substr(fuzzyLen);
-            var width = allWidth - measureText(tmpText, styleIndex);
+            var width = allWidth - measureText(tmpText);
             var sLine = tmpText;
             var pushNum = 0;
 
@@ -70,7 +70,7 @@ var TextUtils = {
                 fuzzyLen *= maxWidth / width;
                 fuzzyLen = fuzzyLen | 0;
                 tmpText = text.substr(fuzzyLen);
-                width = allWidth - measureText(tmpText, styleIndex);
+                width = allWidth - measureText(tmpText);
             }
 
             checkWhile = 0;
@@ -85,7 +85,7 @@ var TextUtils = {
 
                 fuzzyLen = fuzzyLen + pushNum;
                 tmpText = text.substr(fuzzyLen);
-                width = allWidth - measureText(tmpText, styleIndex);
+                width = allWidth - measureText(tmpText);
             }
 
             fuzzyLen -= pushNum;
@@ -121,7 +121,7 @@ var TextUtils = {
                 wrappedWords.push(sText);
             }
             text = sLine || tmpText;
-            allWidth = measureText(text, styleIndex);
+            allWidth = measureText(text);
         }
         if (text.length > 0) {
             wrappedWords.push(text);

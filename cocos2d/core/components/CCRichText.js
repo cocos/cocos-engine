@@ -197,19 +197,27 @@ var RichText = cc.Class({
         this._updateRichText();
     },
 
-    _measureText: function (string, styleIndex) {
-        var label;
-        if(this._labelSegmentsCache.length === 0) {
-            label = new _ccsg.Label(string);
-            this._labelSegmentsCache.push(label);
+    _measureText: function (styleIndex, string) {
+        var self = this;
+        var func = function (string) {
+            var label;
+            if(self._labelSegmentsCache.length === 0) {
+                label = new _ccsg.Label(string);
+                self._labelSegmentsCache.push(label);
+            } else {
+                label = self._labelSegmentsCache[0];
+                label.setString(string);
+            }
+            label._styleIndex = styleIndex;
+            self._applyTextAttribute(label);
+            var labelSize = label.getContentSize();
+            return labelSize.width;
+        };
+        if(string) {
+            return func(string);
         } else {
-            label = this._labelSegmentsCache[0];
-            label.setString(string);
+            return func;
         }
-        label._styleIndex = styleIndex;
-        this._applyTextAttribute(label);
-        var labelSize = label.getContentSize();
-        return labelSize.width;
     },
 
 
@@ -293,7 +301,7 @@ var RichText = cc.Class({
             while (this._lineOffsetX <= this.maxWidth) {
                 var checkEndIndex = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
                 var checkString = labelString.substr(checkStartIndex, checkEndIndex);
-                var checkStringWidth = this._measureText(checkString, styleIndex);
+                var checkStringWidth = this._measureText(styleIndex, checkString);
 
                 if(this._lineOffsetX + checkStringWidth <= this.maxWidth) {
                     this._lineOffsetX += checkStringWidth;
@@ -306,7 +314,7 @@ var RichText = cc.Class({
                         this._addLabelSegment(remainingString, styleIndex);
 
                         labelString = labelString.substr(checkStartIndex, labelString.length);
-                        fragmentWidth = this._measureText(labelString, styleIndex);
+                        fragmentWidth = this._measureText(styleIndex, labelString);
                     }
                     this._updateLineInfo();
                     break;
@@ -314,8 +322,7 @@ var RichText = cc.Class({
             }
         }
         if(fragmentWidth > this.maxWidth) {
-            var fragments = cc.TextUtils.fragmentText(labelString, fragmentWidth,
-                                                      this.maxWidth, styleIndex, this._measureText.bind(this));
+            var fragments = cc.TextUtils.fragmentText(labelString, fragmentWidth, this.maxWidth, this._measureText(styleIndex));
             for(var k = 0; k < fragments.length; ++k) {
                 var splitString = fragments[k];
 
@@ -429,7 +436,7 @@ var RichText = cc.Class({
                 lastEmptyLine = false;
 
                 if(this.maxWidth > 0) {
-                    var labelWidth = this._measureText(labelString, i);
+                    var labelWidth = this._measureText(i, labelString);
                     this._updateRichTextWithMaxWidth(labelString, labelWidth, i);
 
                     if(multilineTexts.length > 1 && j < multilineTexts.length - 1) {
