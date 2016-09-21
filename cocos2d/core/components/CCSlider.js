@@ -170,7 +170,6 @@ var Slider = cc.Class({
 
     _handleSliderLogic: function (touch) {
         this._updateProgress(touch);
-        this._updateHandlePosition();
         this._emitSldeEvent();
     },
 
