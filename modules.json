@@ -91,6 +91,18 @@
     ]
   },
   {
+    "name": "Toggle",
+    "entries": [
+      "./cocos2d/core/components/CCToggle.js"
+    ]
+  },
+  {
+    "name": "ToggleGroup",
+    "entries": [
+      "./cocos2d/core/components/CCToggleGroup.js"
+    ]
+  },
+  {
     "name": "PageView",
     "entries": [
       "./cocos2d/core/components/CCPageView.js"
