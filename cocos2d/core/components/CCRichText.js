@@ -23,16 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 require('../label/CCHtmlTextParser.js');
+require('../label/CCTextUtils.js');
 
 var HorizontalAlign = cc.TextAlignment;
 var VerticalAlign = cc.VerticalTextAlignment;
 
-var label_wrapinspection = true;
-var label_wordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)/;
-var label_symbolRex = /^[!,.:;}\]%\?>、‘“》？。，！]/;
-var label_lastWordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)$/;
-var label_lastEnglish = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+$/;
-var label_firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
@@ -246,92 +241,6 @@ var RichText = cc.Class({
         this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
     },
 
-    _fragmentText: function (stringToken, allWidth, styleIndex) {
-        //check the first character
-        var wrappedWords = [];
-        //fast return if strArr is empty
-        if(stringToken.length === 0 || this.maxWidth < 0) {
-            wrappedWords.push('');
-            return wrappedWords;
-        }
-
-        var text = stringToken;
-        while (allWidth > this.maxWidth && text.length > 1) {
-
-            var fuzzyLen = text.length * ( this.maxWidth / allWidth ) | 0;
-            var tmpText = text.substr(fuzzyLen);
-            var width = allWidth - this._measureText(tmpText, styleIndex);
-            var sLine = tmpText;
-            var pushNum = 0;
-
-            var checkWhile = 0;
-            var checkCount = 10;
-
-            //Exceeded the size
-            while (width > this.maxWidth && checkWhile++ < checkCount) {
-                fuzzyLen *= this.maxWidth / width;
-                fuzzyLen = fuzzyLen | 0;
-                tmpText = text.substr(fuzzyLen);
-                width = allWidth - this._measureText(tmpText, styleIndex);
-            }
-
-            checkWhile = 0;
-
-            //Find the truncation point
-            while (width < this.maxWidth && checkWhile++ < checkCount) {
-                if (tmpText) {
-                    var exec = label_wordRex.exec(tmpText);
-                    pushNum = exec ? exec[0].length : 1;
-                    sLine = tmpText;
-                }
-
-                fuzzyLen = fuzzyLen + pushNum;
-                tmpText = text.substr(fuzzyLen);
-                width = allWidth - this._measureText(tmpText, styleIndex);
-            }
-
-            fuzzyLen -= pushNum;
-            if (fuzzyLen === 0) {
-                fuzzyLen = 1;
-                sLine = sLine.substr(1);
-            }
-
-            var sText = text.substr(0, fuzzyLen), result;
-
-            //symbol in the first
-            if (label_wrapinspection) {
-                if (label_symbolRex.test(sLine || tmpText)) {
-                    result = label_lastWordRex.exec(sText);
-                    fuzzyLen -= result ? result[0].length : 0;
-                    if (fuzzyLen === 0) fuzzyLen = 1;
-
-                    sLine = text.substr(fuzzyLen);
-                    sText = text.substr(0, fuzzyLen);
-                }
-            }
-
-            //To judge whether a English words are truncated
-            if (label_firsrEnglish.test(sLine)) {
-                result = label_lastEnglish.exec(sText);
-                if (result && sText !== result[0]) {
-                    fuzzyLen -= result[0].length;
-                    sLine = text.substr(fuzzyLen);
-                    sText = text.substr(0, fuzzyLen);
-                }
-            }
-            if (sText.trim().length > 0) {
-                wrappedWords.push(sText);
-            }
-            text = sLine || tmpText;
-            allWidth = this._measureText(text, styleIndex);
-        }
-        if (text.length > 0) {
-            wrappedWords.push(text);
-        }
-
-        return wrappedWords;
-    },
-
     _resetState: function () {
         var sgNode = this._sgNode;
         if(sgNode) {
@@ -405,7 +314,8 @@ var RichText = cc.Class({
             }
         }
         if(fragmentWidth > this.maxWidth) {
-            var fragments = this._fragmentText(labelString, fragmentWidth, styleIndex);
+            var fragments = cc.TextUtils.fragmentText(labelString, fragmentWidth,
+                                                      this.maxWidth, styleIndex, this._measureText.bind(this));
             for(var k = 0; k < fragments.length; ++k) {
                 var splitString = fragments[k];
 
@@ -555,29 +465,17 @@ var RichText = cc.Class({
         this._layoutDirty = false;
     },
 
-    _isCJK_unicode: function(ch) {
-        var __CHINESE_REG = /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/;
-        var __JAPANESE_REG = /[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g;
-        var __KOREAN_REG = /^[\u1100-\u11FF]|[\u3130-\u318F]|[\uA960-\uA97F]|[\uAC00-\uD7AF]|[\uD7B0-\uD7FF]+$/;
-        return __CHINESE_REG.test(ch) || __JAPANESE_REG.test(ch) || __KOREAN_REG.test(ch);
-    },
-
-    //Checking whether the character is a whitespace
-    _isspace_unicode: function(ch) {
-        ch = ch.charCodeAt(0);
-        return ((ch >= 9 && ch <= 13) || ch === 32 || ch === 133 || ch === 160 || ch === 5760 || (ch >= 8192 && ch <= 8202) || ch === 8232 || ch === 8233 || ch === 8239 || ch === 8287 || ch === 12288);
-    },
 
     _getFirstWordLen: function(text, startIndex, textLen) {
         var character = text.charAt(startIndex);
-        if (this._isCJK_unicode(character) || this._isspace_unicode(character)) {
+        if (cc.TextUtils._isCJK_unicode(character) || cc.TextUtils._isspace_unicode(character)) {
             return 1;
         }
 
         var len = 1;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            if (this._isspace_unicode(character) || this._isCJK_unicode(character)) {
+            if (cc.TextUtils._isspace_unicode(character) || cc.TextUtils._isCJK_unicode(character)) {
                 break;
             }
             len++;

@@ -70,6 +70,7 @@ var modules = {
     ],
 
     'Label': [
+        './cocos2d/core/label/CCTextUtils.js',
         './cocos2d/core/label/CCSGLabel.js',
         './cocos2d/core/label/CCSGLabelCanvasRenderCmd.js',
         './cocos2d/core/label/CCSGLabelWebGLRenderCmd.js'
