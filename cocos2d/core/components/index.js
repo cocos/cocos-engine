@@ -43,6 +43,7 @@ module.exports = [
     require('./CCScrollView'),
     require('./CCPageViewIndicator'),
     require('./CCPageView'),
+    require('./CCSlider'),
     require('./CCLayout'),
     require('./CCEditBox'),
     require('./CCVideoPlayer'),

@@ -103,6 +103,12 @@
     ]
   },
   {
+    "name": "Slider",
+    "entries": [
+      "./cocos2d/core/components/CCSlider.js"
+    ]
+  },
+  {
     "name": "Layout",
     "entries": [
       "./cocos2d/core/components/CCLayout.js"
