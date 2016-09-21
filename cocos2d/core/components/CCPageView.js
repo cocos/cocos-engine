@@ -41,7 +41,7 @@ var Direction = cc.Enum({
     /**
      * !#en Vertical scroll.
      * !#zh 垂直滚动
-     * @property {Number} Horizontal
+     * @property {Number} Vertical
      */
     Vertical: 1
 });
