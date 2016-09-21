@@ -34,18 +34,15 @@
 var ToggleGroup = cc.Class({
     name: 'cc.ToggleGroup',
     extends: cc.Component,
+    ctor: function () {
+        this._toggleItems = [];
+    },
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/ToggleGroup',
         help: 'i18n:COMPONENT.help_url.toggle_group'
     },
 
     properties: {
-        _toggleItems: {
-            default: [],
-            type: cc.Toggle,
-            serializable: false
-        },
-
         /**
          * !#en If this setting is true, a toggle could be switched off and on when pressed.
          * If it is false, it will make sure there is always only one toggle could be switched on
