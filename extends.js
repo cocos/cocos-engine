@@ -48,6 +48,8 @@ if (!(CC_EDITOR && Editor.isMainProcess)) {
 
 require('./extensions/spine');
 
+require('./extensions/dragonbones');
+
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     if (!CC_JSB) {
         require('./cocos2d/actions');
