@@ -481,16 +481,16 @@ var RichText = cc.Class({
 
     _getFirstWordLen: function(text, startIndex, textLen) {
         var character = text.charAt(startIndex);
-        if (cc.TextUtils.isCJK_unicode(character)
-            || cc.TextUtils.isspace_unicode(character)) {
+        if (cc.TextUtils.isUnicodeCJK(character)
+            || cc.TextUtils.isUnicodeSpace(character)) {
             return 1;
         }
 
         var len = 1;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            if (cc.TextUtils.isspace_unicode(character)
-                || cc.TextUtils.isCJK_unicode(character)) {
+            if (cc.TextUtils.isUnicodeSpace(character)
+                || cc.TextUtils.isUnicodeCJK(character)) {
                 break;
             }
             len++;

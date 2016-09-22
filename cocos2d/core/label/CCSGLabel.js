@@ -811,7 +811,7 @@ cc.BMFontHelper = {
                     && this._maxLineWidth > 0
                     && nextTokenX > 0
                     && letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
-                    && !cc.TextUtils.isspace_unicode(character)) {
+                    && !cc.TextUtils.isUnicodeSpace(character)) {
                     this._linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
@@ -1042,9 +1042,9 @@ cc.BMFontHelper = {
 
     _getFirstWordLen: function(text, startIndex, textLen) {
         var character = text.charAt(startIndex);
-        if (cc.TextUtils.isCJK_unicode(character)
+        if (cc.TextUtils.isUnicodeCJK(character)
             || character === "\n"
-            || cc.TextUtils.isspace_unicode(character)) {
+            || cc.TextUtils.isUnicodeSpace(character)) {
             return 1;
         }
 
@@ -1063,7 +1063,7 @@ cc.BMFontHelper = {
             letterX = nextLetterX + letterDef._offsetX * this._bmfontScale;
 
             if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
-               && !cc.TextUtils.isspace_unicode(character)
+               && !cc.TextUtils.isUnicodeSpace(character)
                && this._maxLineWidth > 0) {
                 if(len >= 2) {
                     return len - 1;
@@ -1071,8 +1071,8 @@ cc.BMFontHelper = {
             }
             nextLetterX += letterDef._xAdvance * this._bmfontScale + this._additionalKerning;
             if (character === "\n"
-                || cc.TextUtils.isspace_unicode(character)
-                || cc.TextUtils.isCJK_unicode(character)) {
+                || cc.TextUtils.isUnicodeSpace(character)
+                || cc.TextUtils.isUnicodeCJK(character)) {
                 break;
             }
             len++;

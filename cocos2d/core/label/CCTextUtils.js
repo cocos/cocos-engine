@@ -31,7 +31,7 @@ var TextUtils = {
     label_firsrEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]/,
     label_wrapinspection : true,
 
-    isCJK_unicode: function(ch) {
+    isUnicodeCJK: function(ch) {
         var __CHINESE_REG = /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/;
         var __JAPANESE_REG = /[\u3000-\u303F]|[\u3040-\u309F]|[\u30A0-\u30FF]|[\uFF00-\uFFEF]|[\u4E00-\u9FAF]|[\u2605-\u2606]|[\u2190-\u2195]|\u203B/g;
         var __KOREAN_REG = /^[\u1100-\u11FF]|[\u3130-\u318F]|[\uA960-\uA97F]|[\uAC00-\uD7AF]|[\uD7B0-\uD7FF]+$/;
@@ -39,7 +39,7 @@ var TextUtils = {
     },
 
     //Checking whether the character is a whitespace
-    isspace_unicode: function(ch) {
+    isUnicodeSpace: function(ch) {
         ch = ch.charCodeAt(0);
         return ((ch >= 9 && ch <= 13) || ch === 32 || ch === 133 || ch === 160 || ch === 5760 || (ch >= 8192 && ch <= 8202) || ch === 8232 || ch === 8233 || ch === 8239 || ch === 8287 || ch === 12288);
     },
