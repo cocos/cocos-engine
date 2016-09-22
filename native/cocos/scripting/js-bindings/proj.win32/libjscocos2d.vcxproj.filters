@@ -33,6 +33,9 @@
     <Filter Include="manual\chipmunk">
       <UniqueIdentifier>{5fc8adbd-1cb4-4aed-8dbd-bbcc6d1681ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="manual\dragonbones">
+      <UniqueIdentifier>{36372247-74fd-4169-8120-06c8c0596530}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\auto\jsb_cocos2dx_auto.cpp">
@@ -125,17 +128,23 @@
     <ClCompile Include="..\manual\js_module_register.cpp">
       <Filter>manual</Filter>
     </ClCompile>
-    <ClCompile Include="..\auto\chipmunk\js_bindings_chipmunk_auto_classes.cpp">
-      <Filter>manual\chipmunk</Filter>
-    </ClCompile>
-    <ClCompile Include="..\auto\chipmunk\js_bindings_chipmunk_functions.cpp">
-      <Filter>manual\chipmunk</Filter>
-    </ClCompile>
     <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_manual.cpp">
       <Filter>manual\chipmunk</Filter>
     </ClCompile>
     <ClCompile Include="..\manual\chipmunk\js_bindings_chipmunk_registration.cpp">
       <Filter>manual\chipmunk</Filter>
+    </ClCompile>
+    <ClCompile Include="..\auto\js_bindings_chipmunk_auto_classes.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\auto\js_bindings_chipmunk_functions.cpp">
+      <Filter>manual</Filter>
+    </ClCompile>
+    <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp">
+      <Filter>auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.cpp">
+      <Filter>manual\dragonbones</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -261,6 +270,12 @@
     </ClInclude>
     <ClInclude Include="..\manual\chipmunk\js_bindings_chipmunk_registration.h">
       <Filter>manual\chipmunk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp">
+      <Filter>auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.h">
+      <Filter>manual\dragonbones</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

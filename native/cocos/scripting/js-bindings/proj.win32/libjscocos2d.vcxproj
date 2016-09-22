@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -14,6 +14,7 @@
     <ClCompile Include="..\auto\jsb_cocos2dx_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_audioengine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_builder_auto.cpp" />
+    <ClCompile Include="..\auto\jsb_cocos2dx_dragonbones_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_extension_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_spine_auto.cpp" />
     <ClCompile Include="..\auto\jsb_cocos2dx_studio_auto.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.cpp" />
     <ClCompile Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.cpp" />
     <ClCompile Include="..\manual\component\CCComponentJS.cpp" />
+    <ClCompile Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.cpp" />
     <ClCompile Include="..\manual\extension\jsb_cocos2dx_extension_manual.cpp" />
     <ClCompile Include="..\manual\jsb_event_dispatcher_manual.cpp" />
     <ClCompile Include="..\manual\jsb_opengl_functions.cpp" />
@@ -50,6 +52,7 @@
     <ClInclude Include="..\auto\jsb_cocos2dx_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_audioengine_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_builder_auto.hpp" />
+    <ClInclude Include="..\auto\jsb_cocos2dx_dragonbones_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_extension_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_spine_auto.hpp" />
     <ClInclude Include="..\auto\jsb_cocos2dx_studio_auto.hpp" />
@@ -67,6 +70,7 @@
     <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_conversions.h" />
     <ClInclude Include="..\manual\cocostudio\jsb_cocos2dx_studio_manual.h" />
     <ClInclude Include="..\manual\component\CCComponentJS.h" />
+    <ClInclude Include="..\manual\dragonbones\jsb_cocos2dx_dragonbones_manual.h" />
     <ClInclude Include="..\manual\extension\jsb_cocos2dx_extension_manual.h" />
     <ClInclude Include="..\manual\jsb_event_dispatcher_manual.h" />
     <ClInclude Include="..\manual\jsb_helper.h" />
@@ -92,6 +96,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\2d\libcocos2d.vcxproj">
       <Project>{98a51ba8-fc3a-415b-ac8f-8c7bd464e93e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\editor-support\dragonbones\proj.win32\libDragonBones.vcxproj">
+      <Project>{6b494955-1e66-40da-830d-0d31b8d301ef}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\..\..\editor-support\spine\proj.win32\libSpine.vcxproj">
       <Project>{b7c2a162-dec9-4418-972e-240ab3cbfcae}</Project>
