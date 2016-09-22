@@ -36,7 +36,7 @@ bool js_cocos2dx_dragonbones_Armature_getAnimation(JSContext *cx, uint32_t argc,
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Armature_getAnimation : Invalid Native Object");
     if (argc == 0) {
         dragonBones::Animation& ret = cobj->getAnimation();
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Animation>(cx, (dragonBones::Animation*)&ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Animation>(cx, (dragonBones::Animation*)&ret)));
         args.rval().set(jsret);
         return true;
     }
@@ -54,7 +54,7 @@ bool js_cocos2dx_dragonbones_Armature_getDisplay(JSContext *cx, uint32_t argc, j
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Armature_getDisplay : Invalid Native Object");
     if (argc == 0) {
         dragonBones::CCArmatureDisplay* ret = dynamic_cast<CCArmatureDisplay*>(cobj->getDisplay());
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         if (ret) {
             jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::CCArmatureDisplay>(cx, ret));
         } else {
@@ -77,7 +77,7 @@ bool js_cocos2dx_dragonbones_CCArmatureDisplay_getAnimation(JSContext *cx, uint3
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_Armature_getAnimation : Invalid Native Object");
     if (argc == 0) {
         dragonBones::Animation& ret = cobj->getAnimation();
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Animation>(cx, (dragonBones::Animation*)&ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Animation>(cx, (dragonBones::Animation*)&ret)));
         args.rval().set(jsret);
         return true;
     }
@@ -95,7 +95,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getClip(JSContext *cx, uint32_t argc
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_AnimationState_getClip : Invalid Native Object");
     if (argc == 0) {
         const dragonBones::AnimationData& ret = cobj->getClip();
-        jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::AnimationData>(cx, (dragonBones::AnimationData*)&ret));
+        JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::AnimationData>(cx, (dragonBones::AnimationData*)&ret)));
         args.rval().set(jsret);
         return true;
     }
@@ -106,7 +106,7 @@ bool js_cocos2dx_dragonbones_AnimationState_getClip(JSContext *cx, uint32_t argc
 
 bool js_cocos2dx_dragonbones_WorldClock_getClock(JSContext *cx, JS::HandleObject obj, JS::HandleId id, JS::MutableHandleValue vp)
 {
-    jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::WorldClock>(cx, &dragonBones::WorldClock::clock));
+    JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::WorldClock>(cx, &dragonBones::WorldClock::clock)));
     vp.set(jsret);
     return true;
 }
@@ -116,7 +116,7 @@ bool js_cocos2dx_dragonbones_TransformObject_getGlobal(JSContext *cx, JS::Handle
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getGlobal : Invalid Native Object");
-    jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->global));
+    JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->global)));
     vp.set(jsret);
     return true;
 }
@@ -125,8 +125,8 @@ bool js_cocos2dx_dragonbones_TransformObject_getOrigin(JSContext *cx, JS::Handle
 {
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getGlobal : Invalid Native Object");
-    jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->origin));
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getOrigin : Invalid Native Object");
+    JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->origin)));
     vp.set(jsret);
     return true;
 }
@@ -135,8 +135,8 @@ bool js_cocos2dx_dragonbones_TransformObject_getOffset(JSContext *cx, JS::Handle
 {
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     dragonBones::TransformObject* cobj = (dragonBones::TransformObject *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getGlobal : Invalid Native Object");
-    jsval jsret = OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->offset));
+    JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_dragonbones_TransformObject_getOffset : Invalid Native Object");
+    JS::RootedValue jsret(cx, OBJECT_TO_JSVAL(js_get_or_create_jsobject<dragonBones::Transform>(cx, &cobj->offset)));
     vp.set(jsret);
     return true;
 }

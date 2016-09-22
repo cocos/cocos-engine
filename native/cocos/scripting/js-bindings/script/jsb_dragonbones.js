@@ -39,13 +39,19 @@ cc.defineGetterSetter(slotProto, 'childArmature', slotProto.getChildArmature, sl
 
 var armatureProto = dragonBones.Armature.prototype;
 cc.defineGetterSetter(armatureProto, 'animation', armatureProto.getAnimation, null);
+cc.defineGetterSetter(armatureProto, 'display', armatureProto.getDisplay, null);
+cc.defineGetterSetter(armatureProto, 'name', armatureProto.getName, null);
 
-armatureProto.addEventListener = function (type, listener) {
-    this.getDisplay().addEvent(type, listener);
+armatureProto.addEventListener = function (type, listener, target) {
+    var display = this.display;
+    jsb.registerNativeRef(this, display);
+    display.addEvent(type, listener, target);
 };
 
 armatureProto.removeEventListener = function (type) {
-    this.getDisplay().removeEvent(type);
+    var display = this.display;
+    jsb.unregisterNativeRef(this, display);
+    display.removeEvent(type);
 };
 
 var animationStateProto = dragonBones.AnimationState.prototype;
@@ -60,3 +66,8 @@ dragonBones.EventObject.FADE_OUT = "fadeOut";
 dragonBones.EventObject.FADE_OUT_COMPLETE = "fadeOutComplete";
 dragonBones.EventObject.FRAME_EVENT = "frameEvent";
 dragonBones.EventObject.SOUND_EVENT = "soundEvent";
+
+dragonBones.DragonBones = {
+    ANGLE_TO_RADIAN : Math.PI / 180,
+    RADIAN_TO_ANGLE : 180 / Math.PI
+};

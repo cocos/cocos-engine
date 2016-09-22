@@ -24,16 +24,11 @@ CCArmatureDisplay::CCArmatureDisplay() :
 {
     _dispatcher = new cocos2d::EventDispatcher();
     _dispatcher->setEnabled(true);
-    this->setEventDispatcher(_dispatcher);
 }
 CCArmatureDisplay::~CCArmatureDisplay() {}
 
 void CCArmatureDisplay::_onClear()
 {
-    //_dispatcher->removeAllEventListeners();
-
-    this->setEventDispatcher(cocos2d::Director::getInstance()->getEventDispatcher());
-
     _armature = nullptr;
     CC_SAFE_RELEASE(_dispatcher);
     this->release();
