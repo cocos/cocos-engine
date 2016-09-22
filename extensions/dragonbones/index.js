@@ -77,6 +77,14 @@ dragonBones.ActionType = {
     FadeOut : 5
 };
 
+dragonBones.AnimationFadeOutMode = {
+    None : 0,
+    SameLayer : 1,
+    SameGroup : 2,
+    SameLayerAndGroup : 3,
+    All : 4
+};
+
 if (!CC_EDITOR || !Editor.isMainProcess) {
 
     if (!CC_JSB) {
