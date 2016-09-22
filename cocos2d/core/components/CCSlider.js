@@ -127,12 +127,24 @@ var Slider = cc.Class({
         this._updateHandlePosition();
     },
 
+    onDestroy: function() {
+        this.node.off(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
+        this.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        if (this.handle) {
+            this.handle.node.off(cc.Node.EventType.TOUCH_START, this._onHandleDragStart, this);
+            this.handle.node.off(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
+            this.handle.node.off(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        }
+    },
+
     // 注册事件
     _registerEvent: function () {
-        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
-        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.on(cc.Node.EventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this);
         if (this.handle) {
             this.handle.node.on(cc.Node.EventType.TOUCH_START, this._onHandleDragStart, this);
             this.handle.node.on(cc.Node.EventType.TOUCH_MOVE, this._onTouchMoved, this);
@@ -140,7 +152,7 @@ var Slider = cc.Class({
         }
     },
 
-    _onHandleDragStart: function () {
+    _onHandleDragStart: function (event) {
         this._dragging = true;
         event.stopPropagation();
     },
