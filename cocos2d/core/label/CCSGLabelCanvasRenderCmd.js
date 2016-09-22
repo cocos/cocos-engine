@@ -103,106 +103,6 @@
         return lineHeight;
     };
 
-    var label_wrapinspection = true;
-
-    //Support: English French German
-    //Other as Oriental Language
-    var label_wordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)/;
-    var label_symbolRex = /^[!,.:;}\]%\?>、‘“》？。，！]/;
-    var label_lastWordRex = /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)$/;
-    var label_lastEnglish = /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+$/;
-    var label_firsrEnglish = /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/;
-
-    //Note: Here the maxWidth is the label's content width.
-    proto._fragmentText = function (strArr, maxWidth, ctx) {
-        //check the first character
-        maxWidth -= 2 * this._getMargin();
-        var wrappedWords = [];
-        //fast return if strArr is empty
-        if(strArr.length === 0 || maxWidth < 0) {
-            wrappedWords.push('');
-            return wrappedWords;
-        }
-
-        var text = strArr;
-        var allWidth = ctx.measureText(text).width;
-        while (allWidth > maxWidth && text.length > 1) {
-
-            var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-            var tmpText = text.substr(fuzzyLen);
-            var width = allWidth - ctx.measureText(tmpText).width;
-            var sLine = tmpText;
-            var pushNum = 0;
-
-            //Increased while cycle maximum ceiling. default 100 time
-            var checkWhile = 0;
-            var checkCount = 10;
-
-            //Exceeded the size
-            while (width > maxWidth && checkWhile++ < checkCount) {
-                fuzzyLen *= maxWidth / width;
-                fuzzyLen = fuzzyLen | 0;
-                tmpText = text.substr(fuzzyLen);
-                width = allWidth - ctx.measureText(tmpText).width;
-            }
-
-            checkWhile = 0;
-
-            //Find the truncation point
-            while (width < maxWidth && checkWhile++ < checkCount) {
-                if (tmpText) {
-                    var exec = label_wordRex.exec(tmpText);
-                    pushNum = exec ? exec[0].length : 1;
-                    sLine = tmpText;
-                }
-
-                fuzzyLen = fuzzyLen + pushNum;
-                tmpText = text.substr(fuzzyLen);
-                width = allWidth - ctx.measureText(tmpText).width;
-            }
-
-            fuzzyLen -= pushNum;
-            if (fuzzyLen === 0) {
-                fuzzyLen = 1;
-                sLine = sLine.substr(1);
-            }
-
-            var sText = text.substr(0, fuzzyLen), result;
-
-            //symbol in the first
-            if (label_wrapinspection) {
-                if (label_symbolRex.test(sLine || tmpText)) {
-                    result = label_lastWordRex.exec(sText);
-                    fuzzyLen -= result ? result[0].length : 0;
-                    if (fuzzyLen === 0) fuzzyLen = 1;
-
-                    sLine = text.substr(fuzzyLen);
-                    sText = text.substr(0, fuzzyLen);
-                }
-            }
-
-            //To judge whether a English words are truncated
-            if (label_firsrEnglish.test(sLine)) {
-                result = label_lastEnglish.exec(sText);
-                if (result && sText !== result[0]) {
-                    fuzzyLen -= result[0].length;
-                    sLine = text.substr(fuzzyLen);
-                    sText = text.substr(0, fuzzyLen);
-                }
-            }
-            if (sText.trim().length > 0) {
-                wrappedWords.push(sText);
-            }
-            text = sLine || tmpText;
-            allWidth = ctx.measureText(text).width;
-        }
-        if (text.length > 0) {
-            wrappedWords.push(text);
-        }
-
-        return wrappedWords;
-    };
-
     proto._constructFontDesc = function () {
         var node = this._node;
         var fontDesc = node._fontSize.toString() + 'px ';
@@ -213,6 +113,12 @@
         }
 
         return fontDesc;
+    };
+
+    proto._measureText = function (ctx) {
+        return function(string) {
+            return ctx.measureText(string).width;
+        };
     };
 
 
@@ -267,9 +173,11 @@
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         var j = 0;
-                        textFragment = this._fragmentText(paragraphedStrings[i],
-                                                          canvasWidthNoMargin,
-                                                          this._labelContext);
+                        var allWidth = this._labelContext.measureText(paragraphedStrings[i]).width;
+                        textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
+                                                                 allWidth,
+                                                                 canvasWidthNoMargin,
+                                                                 this._measureText(this._labelContext));
                         while(j < textFragment.length) {
                             var measureWidth = this._labelContext.measureText(textFragment[j]).width;
                             maxLength = measureWidth;
@@ -342,10 +250,13 @@
         var i;
         if (node._isWrapText) {
             this._splitedStrings = [];
+            var canvasWidthNoMargin = this._canvasSize.width - 2 * this._getMargin();
             for (i = 0; i < paragraphedStrings.length; ++i) {
-                var textFragment = this._fragmentText(paragraphedStrings[i],
-                                                      this._canvasSize.width,
-                                                      this._labelContext);
+                var allWidth = this._labelContext.measureText(paragraphedStrings[i]).width;
+                var textFragment = cc.TextUtils.fragmentText(paragraphedStrings[i],
+                                                             allWidth,
+                                                             canvasWidthNoMargin,
+                                                             this._measureText(this._labelContext));
                 this._splitedStrings = this._splitedStrings.concat(textFragment);
             }
         }
