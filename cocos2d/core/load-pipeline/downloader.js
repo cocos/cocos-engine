@@ -355,6 +355,11 @@ JS.mixin(Downloader.prototype, {
                 callback && callback(err, result);
             });
         }
+        else if (item.ignoreMaxConcurrency) {
+            downloadFunc.call(this, item, function (err, result) {
+                callback && callback(err, result);
+            });
+        }
         else {
             this._loadQueue.push({
                 item: item,

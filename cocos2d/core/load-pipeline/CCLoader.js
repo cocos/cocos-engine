@@ -314,7 +314,7 @@ JS.mixin(CCLoader.prototype, {
                 function (err, asset) {
                     if (asset) {
                         // should not release these assets, even if they are static referenced in the scene.
-                        self.setAutoReleaseRecursively(asset, false);
+                        self.setAutoReleaseRecursively(uuid, false);
                     }
                     if (completeCallback) {
                         completeCallback(err, asset);
@@ -398,8 +398,8 @@ JS.mixin(CCLoader.prototype, {
                 results.push(res);
                 --remain;
                 if (remain === 0) {
-                    for (var i = 0; i < results.length; i++) {
-                        self.setAutoReleaseRecursively(results[i], false);
+                    for (var i = 0; i < uuids.length; i++) {
+                        self.setAutoReleaseRecursively(uuids[i], false);
                     }
                     if (completeCallback) {
                         completeCallback(null, results);
@@ -557,11 +557,11 @@ JS.mixin(CCLoader.prototype, {
      * cc.loader.setAutoRelease(audioUrl, false);
      *
      * @method setAutoRelease
-     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
-    setAutoRelease: function (assetOrUrl, autoRelease) {
-        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+    setAutoRelease: function (assetOrUrlOrUuid, autoRelease) {
+        var key = AutoReleaseUtils.getKey(this, assetOrUrlOrUuid);
         if (key) {
             this._autoReleaseSetting[key] = !!autoRelease;
         }
@@ -597,12 +597,12 @@ JS.mixin(CCLoader.prototype, {
      * cc.loader.setAutoReleaseRecursively(prefab, false);
      *
      * @method setAutoReleaseRecursively
-     * @param {Asset|String} assetOrUrl - asset object or the raw asset's url
+     * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
      */
-    setAutoReleaseRecursively: function (assetOrUrl, autoRelease) {
+    setAutoReleaseRecursively: function (assetOrUrlOrUuid, autoRelease) {
         autoRelease = !!autoRelease;
-        var key = AutoReleaseUtils.getKey(this, assetOrUrl);
+        var key = AutoReleaseUtils.getKey(this, assetOrUrlOrUuid);
         if (key) {
             this._autoReleaseSetting[key] = autoRelease;
 

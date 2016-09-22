@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 var JsonUnpacker = require('./json-unpacker');
-var downloadText = require('./text-downloader');
 
 // {assetUuid: packUuid}
 var uuidToPack = {};
@@ -56,7 +55,7 @@ module.exports = {
 
     _loadNewPack: function (uuid, packUuid, callback) {
         var packUrl = cc.AssetLibrary.getImportedDir(packUuid) + '/' + packUuid + '.json';
-        downloadText({ url: packUrl }, function (err, packJson) {
+        cc.loader.load({id: packUrl, ignoreMaxConcurrency: true}, function (err, packJson) {
             if (err) {
                 cc.error('Failed to download package for ' + uuid);
                 return callback(err);
