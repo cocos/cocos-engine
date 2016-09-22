@@ -24,11 +24,11 @@
  ****************************************************************************/
 
 var TextUtils = {
-    label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)/,
+    label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/,
     label_symbolRex : /^[!,.:;}\]%\?>、‘“》？。，！]/,
-    label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+|\S)$/,
-    label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]+$/,
-    label_firsrEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôû]/,
+    label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)$/,
+    label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+$/,
+    label_firsrEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]/,
     label_wrapinspection : true,
 
     isCJK_unicode: function(ch) {
