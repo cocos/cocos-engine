@@ -36,7 +36,9 @@ THE SOFTWARE.
 NS_CC_BEGIN
 
 //implementation TMXObject
-TMXObject::TMXObject(ValueMap objectInfo)
+TMXObject::TMXObject(ValueMap objectInfo, TMXMapInfo* mapInfo, const Size& groupSize, const Color3B& color)
+: _node(nullptr)
+, _groupSize(groupSize)
 {
     _objectName = objectInfo["name"].asString();
     _type = static_cast<TMXObjectType>(objectInfo["type"].asInt());
@@ -47,11 +49,21 @@ TMXObject::TMXObject(ValueMap objectInfo)
     _objectVisible = objectInfo["visible"].asBool();
     _objectRotation = objectInfo["rotation"].asFloat();
     setProperties(objectInfo);
+    
+    if (TMXObjectType::IMAGE == _type)
+    {
+        _node = new TMXObjectImage(this, mapInfo);
+    }
+    else
+    {
+        _node = new TMXObjectShape(this, mapInfo, color);
+    }
 }
 
 TMXObject::~TMXObject()
 {
     CCLOGINFO("deallocing TMXObject: %p", this);
+    CC_SAFE_RELEASE(_node);
 }
 
 Value TMXObject::getProperty(const std::string& propertyName) const
@@ -63,9 +75,8 @@ Value TMXObject::getProperty(const std::string& propertyName) const
 }
 
 //implementation TMXObjectImage
-TMXObjectImage::TMXObjectImage(const ValueMap& objectInfo, TMXMapInfo* mapInfo, const Size& groupSize)
-: TMXObject(objectInfo)
-, _groupSize(groupSize)
+TMXObjectImage::TMXObjectImage(TMXObject* container, TMXMapInfo* mapInfo)
+: _container(container)
 {
     _initWithMapInfo(mapInfo);
 }
@@ -77,7 +88,7 @@ TMXObjectImage::~TMXObjectImage()
 
 bool TMXObjectImage::_initWithMapInfo(TMXMapInfo* mapInfo)
 {
-    if (_gid == 0) {
+    if (_container->getGid() == 0) {
         return false;
     }
     
@@ -89,7 +100,7 @@ bool TMXObjectImage::_initWithMapInfo(TMXMapInfo* mapInfo)
         for (auto iter = tilesets.crbegin(); iter != tilesets.crend(); ++iter)
         {
             tileset = *iter;
-            if( (_gid & kTMXFlippedMask) >= tileset->_firstGid ) {
+            if( (_container->getGid() & kTMXFlippedMask) >= tileset->_firstGid ) {
                 useTileset = tileset;
                 break;
             }
@@ -100,24 +111,24 @@ bool TMXObjectImage::_initWithMapInfo(TMXMapInfo* mapInfo)
         return false;
     }
     
-    setVisible(_objectVisible);
+    setVisible(_container->getObjectVisible());
     auto texture = Director::getInstance()->getTextureCache()->addImage(useTileset->_sourceImage);
     if (texture == nullptr)
     {
         return false;
     }
-    auto rect = useTileset->getRectForGID(_gid);
+    auto rect = useTileset->getRectForGID(_container->getGid());
     initWithTexture(texture, CC_RECT_PIXELS_TO_POINTS(rect));
-    setScale(_objectSize.width / rect.size.width, _objectSize.height / rect.size.height);
-    setRotation(_objectRotation);
+    setScale(_container->getObjectSize().width / rect.size.width, _container->getObjectSize().height / rect.size.height);
+    setRotation(_container->getObjectRotation());
 
     setFlippedX(false);
-    if (_gid & kTMXTileHorizontalFlag) {
+    if (_container->getGid() & kTMXTileHorizontalFlag) {
         setFlippedX(true);
     }
     
     setFlippedY(false);
-    if (_gid & kTMXTileVerticalFlag) {
+    if (_container->getGid() & kTMXTileVerticalFlag) {
         setFlippedY(true);
     }
     
@@ -136,15 +147,15 @@ void TMXObjectImage::_initPosWithMapInfo(TMXMapInfo* mapInfo)
         case TMXOrientationHex:
         case TMXOrientationStaggered:
             {
-                Vec2 offsetInPoints = CC_POINT_PIXELS_TO_POINTS(_offset);
+                Vec2 offsetInPoints = CC_POINT_PIXELS_TO_POINTS(_container->getOffset());
                 setAnchorPoint(Vec2(0, 0));
-                setPosition(Vec2(offsetInPoints.x, _groupSize.height - offsetInPoints.y));
+                setPosition(Vec2(offsetInPoints.x, _container->getGroupSize().height - offsetInPoints.y));
             }
             break;
         case TMXOrientationIso:
             {
                 setAnchorPoint(Vec2(0.5, 0));
-                auto posIdx = Vec2(_offset.x / tileSize.width * 2, _offset.y / tileSize.height);
+                auto posIdx = Vec2(_container->getOffset().x / tileSize.width * 2, _container->getOffset().y / tileSize.height);
                 auto pos = Vec2(tileSize.width / 2 * (mapSize.width + posIdx.x - posIdx.y),
                                 tileSize.height / 2 * (mapSize.height * 2 - posIdx.x - posIdx.y));
                 setPosition(CC_POINT_PIXELS_TO_POINTS(pos));
@@ -156,37 +167,36 @@ void TMXObjectImage::_initPosWithMapInfo(TMXMapInfo* mapInfo)
 }
 
 //implementation TMXObjectShape
-TMXObjectShape::TMXObjectShape(const ValueMap& objectInfo, TMXMapInfo* mapInfo, const Size& groupSize, const Color3B& color)
-: TMXObject(objectInfo)
-, DrawNode(1)
+TMXObjectShape::TMXObjectShape(TMXObject* container, TMXMapInfo* mapInfo, const Color3B& color)
+: DrawNode(1)
+, _container(container)
 {
     _mapInfo = mapInfo;
     _mapOrientation = mapInfo->getOrientation();
-    _groupSize = groupSize;
     _groupColor = Color4F((float) color.r / 255, (float) color.g / 255, (float) color.b / 255, 1.0);
-    _initShape(objectInfo);
+    _initShape();
 }
 
 TMXObjectShape::~TMXObjectShape() {
     CCLOGINFO("deallocing TMXObjectShape: %p", this);
 }
 
-void TMXObjectShape::_initShape(const ValueMap& objectInfo)
+void TMXObjectShape::_initShape()
 {
     DrawNode::init();
-    
+
     Vec2 originPos;
     if (TMXOrientationIso != _mapOrientation) {
-        Vec2 startPos = Vec2(0, _groupSize.height);
-        Vec2 offsetInPoints = CC_POINT_PIXELS_TO_POINTS(_offset);
+        Vec2 startPos = Vec2(0, _container->getGroupSize().height);
+        Vec2 offsetInPoints = CC_POINT_PIXELS_TO_POINTS(_container->getOffset());
         originPos = Vec2(startPos.x + offsetInPoints.x, startPos.y - offsetInPoints.y);
     } else {
         originPos = _getPosByOffset(Vec2(0, 0));
     }
     setPosition(originPos);
-    setRotation(_objectRotation);
+    setRotation(_container->getObjectRotation());
 
-    switch (_type) {
+    switch (_container->getType()) {
         case TMXObjectType::RECT:
             _drawRect();
             break;
@@ -194,22 +204,22 @@ void TMXObjectShape::_initShape(const ValueMap& objectInfo)
             _drawEllipse();
             break;
         case TMXObjectType::POLYGON:
-            _drawPoly(objectInfo, originPos, true);
+            _drawPoly(originPos, true);
             break;
         case TMXObjectType::POLYLINE:
-            _drawPoly(objectInfo, originPos, false);
+            _drawPoly(originPos, false);
             break;
         default:
             break;
     }
-    setVisible(_objectVisible);
+    setVisible(_container->getObjectVisible());
 }
 
 Vec2 TMXObjectShape::_getPosByOffset(const Vec2& offset)
 {
     auto mapSize = _mapInfo->getMapSize();
     auto tileSize = _mapInfo->getTileSize();
-    auto posIdx = Vec2((_offset.x + offset.x) / tileSize.width * 2, (_offset.y + offset.y) / tileSize.height);
+    auto posIdx = Vec2((_container->getOffset().x + offset.x) / tileSize.width * 2, (_container->getOffset().y + offset.y) / tileSize.height);
     return CC_POINT_PIXELS_TO_POINTS(Vec2(tileSize.width / 2 * (mapSize.width + posIdx.x - posIdx.y),
                                      tileSize.height / 2 * (mapSize.height * 2 - posIdx.x - posIdx.y)));
 }
@@ -217,7 +227,7 @@ Vec2 TMXObjectShape::_getPosByOffset(const Vec2& offset)
 void TMXObjectShape::_drawRect()
 {
     if (TMXOrientationIso != _mapOrientation) {
-        auto objSize = _objectSize;
+        auto objSize = _container->getObjectSize();
         if (objSize.equals(Size::ZERO)) {
             objSize = Size(20, 20);
             setAnchorPoint(Vec2(0.5, 0.5));
@@ -231,14 +241,15 @@ void TMXObjectShape::_drawRect()
         
         setContentSize(objSizeInPoints);
     } else {
-        if (_objectSize.equals(Size::ZERO)) {
+        auto objSize = _container->getObjectSize();
+        if (objSize.equals(Size::ZERO)) {
             return;
         }
 
         auto pos1 = _getPosByOffset(Vec2(0, 0));
-        auto pos2 = _getPosByOffset(Vec2(_objectSize.width, 0));
-        auto pos3 = _getPosByOffset(Vec2(_objectSize.width, _objectSize.height));
-        auto pos4 = _getPosByOffset(Vec2(0, _objectSize.height));
+        auto pos2 = _getPosByOffset(Vec2(objSize.width, 0));
+        auto pos3 = _getPosByOffset(Vec2(objSize.width, objSize.height));
+        auto pos4 = _getPosByOffset(Vec2(0, objSize.height));
         
         float width = pos2.x - pos4.x, height = pos1.y - pos3.y;
         setContentSize(Size(width, height));
@@ -249,12 +260,12 @@ void TMXObjectShape::_drawRect()
         pos2.subtract(origin);
         pos3.subtract(origin);
         pos4.subtract(origin);
-        if (_objectSize.width > 0) {
+        if (objSize.width > 0) {
             drawLine(pos1, pos2, _groupColor);
             drawLine(pos3, pos4, _groupColor);
         }
         
-        if (_objectSize.height > 0) {
+        if (objSize.height > 0) {
             drawLine(pos1, pos4, _groupColor);
             drawLine(pos3, pos2, _groupColor);
         }
@@ -264,7 +275,7 @@ void TMXObjectShape::_drawRect()
 void TMXObjectShape::_drawEllipse()
 {
     if (TMXOrientationIso != _mapOrientation) {
-        auto objSize = _objectSize;
+        auto objSize = _container->getObjectSize();
         if (objSize.equals(Size::ZERO)) {
             objSize = Size(20, 20);
             setAnchorPoint(Vec2(0.5, 0.5));
@@ -286,15 +297,16 @@ void TMXObjectShape::_drawEllipse()
         
         setContentSize(objSizeInPoints);
     } else {
-        if (_objectSize.equals(Size::ZERO)) {
+        auto objSize = _container->getObjectSize();
+        if (objSize.equals(Size::ZERO)) {
             return;
         }
 
         // draw the rect
         auto pos1 = _getPosByOffset(Vec2(0, 0));
-        auto pos2 = _getPosByOffset(Vec2(_objectSize.width, 0));
-        auto pos3 = _getPosByOffset(Vec2(_objectSize.width, _objectSize.height));
-        auto pos4 = _getPosByOffset(Vec2(0, _objectSize.height));
+        auto pos2 = _getPosByOffset(Vec2(objSize.width, 0));
+        auto pos3 = _getPosByOffset(Vec2(objSize.width, objSize.height));
+        auto pos4 = _getPosByOffset(Vec2(0, objSize.height));
         
         float width = pos2.x - pos4.x, height = pos1.y - pos3.y;
         setContentSize(Size(width, height));
@@ -305,19 +317,19 @@ void TMXObjectShape::_drawEllipse()
         pos2.subtract(origin);
         pos3.subtract(origin);
         pos4.subtract(origin);
-        if (_objectSize.width > 0) {
+        if (objSize.width > 0) {
             drawLine(pos1, pos2, _groupColor);
             drawLine(pos3, pos4, _groupColor);
         }
         
-        if (_objectSize.height > 0) {
+        if (objSize.height > 0) {
             drawLine(pos1, pos4, _groupColor);
             drawLine(pos3, pos2, _groupColor);
         }
 
         // add a drawnode to draw the ellipse
-        Size objSizeInPoints = CC_SIZE_PIXELS_TO_POINTS(_objectSize);
-        Vec2 center = _getPosByOffset(Vec2(_objectSize.width / 2, _objectSize.height / 2));
+        Size objSizeInPoints = CC_SIZE_PIXELS_TO_POINTS(objSize);
+        Vec2 center = _getPosByOffset(Vec2(objSize.width / 2, objSize.height / 2));
         center.subtract(origin);
 
         auto ellipseNode = DrawNode::create(_lineWidth);
@@ -345,9 +357,10 @@ void TMXObjectShape::_drawEllipse()
     }
 }
 
-void TMXObjectShape::_drawPoly(const ValueMap& objectInfo, const Vec2& originPos, bool isPolygon)
+void TMXObjectShape::_drawPoly(const Vec2& originPos, bool isPolygon)
 {
     // parse the data
+    auto objectInfo = _container->getProperties();
     ValueVector pointsData;
     if (isPolygon)
         pointsData = objectInfo.at("points").asValueVector();
@@ -413,36 +426,18 @@ TMXObjectGroup::~TMXObjectGroup()
 
 TMXObject* TMXObjectGroup::getObject(const std::string& objectName)
 {
-    CCASSERT(objectName.size() > 0, "Invalid object name!");
-    for (auto& child : _children)
+    CCASSERT(!objectName.empty(), "Invalid object name!");
+    
+    for (auto& obj : _objects)
     {
-        TMXObject* object = dynamic_cast<TMXObject*>(child);
-        if(object)
+        if(obj && objectName.compare(obj->getObjectName()) == 0)
         {
-            if(objectName.compare( object->getObjectName()) == 0)
-            {
-                return object;
-            }
+            return obj;
         }
     }
-
+    
     // object not found
     return nullptr;
-}
-
-Vector<TMXObject*> TMXObjectGroup::getObjects()
-{
-    Vector<TMXObject*> objects;
-    for (auto& child : _children)
-    {
-        TMXObject* object = dynamic_cast<TMXObject*>(child);
-        if(object)
-        {
-            objects.pushBack(object);
-        }
-    }
-
-    return objects;
 }
 
 Value TMXObjectGroup::getProperty(const std::string& propertyName) const
@@ -495,18 +490,20 @@ void TMXObjectGroup::_initGroup(TMXObjectGroupInfo* groupInfo, TMXMapInfo* mapIn
     int idx = 0;
     for (auto& object : objects) {
         auto objectInfo = object.asValueMap();
-        Node* obj = nullptr;
-        if (objectInfo["type"].asInt() == static_cast<int>(TMXObjectType::IMAGE)) {
-            obj = new TMXObjectImage(objectInfo, mapInfo, getContentSize());
-        } else {
-            obj = new TMXObjectShape(objectInfo, mapInfo, getContentSize(), groupInfo->_color);
+        auto obj = new TMXObject(objectInfo, mapInfo, getContentSize(), groupInfo->_color);
+        
+        // record the object
+        this->_objects.pushBack(obj);
+        obj->release();
+        auto objNode = obj->getNode();
+        if (objNode)
+        {
+            // add the node of object if existed
+            addChild(objNode, idx, idx);
+            objNode->setOpacity(groupInfo->_opacity);
+            idx++;
         }
-        obj->autorelease();
-        obj->setOpacity(groupInfo->_opacity);
-        addChild(obj, idx, idx);
-        idx++;
     }
 }
 
 NS_CC_END
-

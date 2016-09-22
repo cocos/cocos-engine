@@ -44,7 +44,8 @@ void SDKManager::loadAllPlugins()
     std::string privateKey = "PRIVATE_KEY";
     
     AgentManager* pAgent = AgentManager::getInstance();
-    pAgent->init(appKey,appSecret,privateKey,oauthLoginServer);
+    //Need to invoke init inteface in JS code
+    //pAgent->init(appKey,appSecret,privateKey,oauthLoginServer);
     
     //Initialize plug-ins, including SDKs.
     pAgent->loadAllPlugins();

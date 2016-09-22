@@ -114,4 +114,34 @@ public class AppActivity extends Cocos2dxActivity {
         super.onStop();
         SDKWrapper.getInstance().onStop();
     }
+        
+    @Override
+    public void onBackPressed() {
+        SDKWrapper.getInstance().onBackPressed();
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        SDKWrapper.getInstance().onConfigurationChanged(newConfig);
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        SDKWrapper.getInstance().onRestoreInstanceState(savedInstanceState);
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        SDKWrapper.getInstance().onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onStart() {
+        SDKWrapper.getInstance().onStart();
+        super.onStart();
+    }
 }

@@ -20455,6 +20455,16 @@ ParallaxNode : function (
 cc.TMXObject = {
 
 /**
+ * @method getGid
+ * @return {unsigned int}
+ */
+getGid : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method setObjectName
  * @param {String} arg0
  */
@@ -20497,10 +20507,10 @@ getObjectVisible : function (
 },
 
 /**
- * @method getGid
- * @return {unsigned int}
+ * @method getType
+ * @return {cc.TMXObjectType}
  */
-getGid : function (
+getType : function (
 )
 {
     return 0;
@@ -20567,12 +20577,28 @@ getObjectName : function (
 },
 
 /**
+ * @method getNode
+ * @return {cc.Node}
+ */
+getNode : function (
+)
+{
+    return cc.Node;
+},
+
+/**
  * @method TMXObject
  * @constructor
  * @param {map_object} arg0
+ * @param {cc.TMXMapInfo} arg1
+ * @param {size_object} arg2
+ * @param {color3b_object} arg3
  */
 TMXObject : function (
-map 
+map, 
+map, 
+size, 
+color3b 
 )
 {
 },
@@ -20584,12 +20610,40 @@ map
  */
 cc.TMXObjectImage = {
 
+/**
+ * @method TMXObjectImage
+ * @constructor
+ * @param {cc.TMXObject} arg0
+ * @param {cc.TMXMapInfo} arg1
+ */
+TMXObjectImage : function (
+tmxobject, 
+map 
+)
+{
+},
+
 };
 
 /**
  * @class TMXObjectShape
  */
 cc.TMXObjectShape = {
+
+/**
+ * @method TMXObjectShape
+ * @constructor
+ * @param {cc.TMXObject} arg0
+ * @param {cc.TMXMapInfo} arg1
+ * @param {color3b_object} arg2
+ */
+TMXObjectShape : function (
+tmxobject, 
+map, 
+color3b 
+)
+{
+},
 
 };
 

@@ -420,7 +420,7 @@ void TMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
             }
             // Android NDK 10 doesn't support std::stoi a/ std::stoul
 #if CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID
-            int num = std::stoi(colorStr);
+            int num = std::stoi(colorStr, nullptr, 16);
 #else
             int num = atoi(colorStr.c_str());
 #endif

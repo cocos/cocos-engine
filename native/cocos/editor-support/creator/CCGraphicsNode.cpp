@@ -571,7 +571,8 @@ void GraphicsNode::expandStroke(float w, int lineCap, int lineJoin, float miterL
 
         int loop = (path->closed == 0) ? 0 : 1;
         if (lineJoin == JOIN_ROUND)
-            cverts += (pathSize + path->nbevel*(ncap+2) + 1) * 2; // plus one for loop
+//            cverts += (pathSize + path->nbevel*(ncap+2) + 1) * 2;
+            cverts += (pathSize*(ncap+2) + 1) * 2; // plus one for loop
         else
             cverts += (pathSize + path->nbevel*5 + 1) * 2; // plus one for loop
         if (loop == 0) {
