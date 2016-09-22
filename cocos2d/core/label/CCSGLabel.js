@@ -536,7 +536,8 @@ _ccsg.Label = _ccsg.Node.extend({
         if (CC_EDITOR) {
             this._updateLabel();
         } else {
-            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty|_ccsg.Node._dirtyFlags.contentDirty);
+            this._renderCmd.setDirtyFlag(_ccsg.Node._dirtyFlags.textDirty
+                                         |_ccsg.Node._dirtyFlags.contentDirty);
         }
     },
     _createRenderCmd: function() {
@@ -627,7 +628,6 @@ cc.BMFontHelper = {
         var ret = true;
 
         this._spriteBatchNode.removeAllChildren();
-        var letterClamp = false;
         for (var ctr = 0; ctr < this._string.length; ++ctr) {
             if (this._lettersInfo[ctr]._valid) {
                 var letterDef = this._fontAtlas._letterDefinitions[this._lettersInfo[ctr]._char];
@@ -662,7 +662,6 @@ cc.BMFontHelper = {
                             this._reusedRect.width = 0;
                         } else if (this._overFlow === _ccsg.Label.Overflow.SHRINK) {
                             if (this._contentSize.width > letterDef._width) {
-                                letterClamp = true;
                                 ret = false;
                                 break;
                             } else {
@@ -694,7 +693,6 @@ cc.BMFontHelper = {
 
                     this._updateLetterSpriteScale(fontChar);
 
-                    // this._spriteBatchNode.insertQuadFromSprite(this._reusedLetter, index);
                     this._spriteBatchNode.addChild(fontChar);
 
                 }
@@ -813,7 +811,7 @@ cc.BMFontHelper = {
                     && this._maxLineWidth > 0
                     && nextTokenX > 0
                     && letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
-                    && !this._isspace_unicode(character)) {
+                    && !cc.TextUtils.isspace_unicode(character)) {
                     this._linesWidth.push(letterRight);
                     letterRight = 0;
                     lineIndex++;
@@ -1038,7 +1036,7 @@ cc.BMFontHelper = {
         }
     },
 
-    _getFirstCharLen: function(text, startIndex, textLen) {
+    _getFirstCharLen: function() {
         return 1;
     },
 
@@ -1064,7 +1062,9 @@ cc.BMFontHelper = {
             }
             letterX = nextLetterX + letterDef._offsetX * this._bmfontScale;
 
-            if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth && !this._isspace_unicode(character) && this._maxLineWidth > 0) {
+            if(letterX + letterDef._width * this._bmfontScale > this._maxLineWidth
+               && !cc.TextUtils.isspace_unicode(character)
+               && this._maxLineWidth > 0) {
                 if(len >= 2) {
                     return len - 1;
                 }
