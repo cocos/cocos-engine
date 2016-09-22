@@ -299,7 +299,9 @@ var RichText = cc.Class({
             //concat previous line
             var checkStartIndex = 0;
             while (this._lineOffsetX <= this.maxWidth) {
-                var checkEndIndex = this._getFirstWordLen(labelString, checkStartIndex, labelString.length);
+                var checkEndIndex = this._getFirstWordLen(labelString,
+                                                          checkStartIndex,
+                                                          labelString.length);
                 var checkString = labelString.substr(checkStartIndex, checkEndIndex);
                 var checkStringWidth = this._measureText(styleIndex, checkString);
 
@@ -322,7 +324,10 @@ var RichText = cc.Class({
             }
         }
         if(fragmentWidth > this.maxWidth) {
-            var fragments = cc.TextUtils.fragmentText(labelString, fragmentWidth, this.maxWidth, this._measureText(styleIndex));
+            var fragments = cc.TextUtils.fragmentText(labelString,
+                                                      fragmentWidth,
+                                                      this.maxWidth,
+                                                      this._measureText(styleIndex));
             for(var k = 0; k < fragments.length; ++k) {
                 var splitString = fragments[k];
 
@@ -426,7 +431,8 @@ var RichText = cc.Class({
                 var labelString = multilineTexts[j];
                 if(labelString === "") {
                     //for continues \n
-                    if(this._isLastComponentCR(text) && j == multilineTexts.length - 1) {
+                    if(this._isLastComponentCR(text)
+                       && j == multilineTexts.length - 1) {
                         continue;
                     }
                     this._updateLineInfo();
@@ -475,14 +481,16 @@ var RichText = cc.Class({
 
     _getFirstWordLen: function(text, startIndex, textLen) {
         var character = text.charAt(startIndex);
-        if (cc.TextUtils._isCJK_unicode(character) || cc.TextUtils._isspace_unicode(character)) {
+        if (cc.TextUtils._isCJK_unicode(character)
+            || cc.TextUtils._isspace_unicode(character)) {
             return 1;
         }
 
         var len = 1;
         for (var index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
-            if (cc.TextUtils._isspace_unicode(character) || cc.TextUtils._isCJK_unicode(character)) {
+            if (cc.TextUtils._isspace_unicode(character)
+                || cc.TextUtils._isCJK_unicode(character)) {
                 break;
             }
             len++;
