@@ -176,7 +176,7 @@ JS.mixin(CCLoader.prototype, {
             }
         }
 
-        LoadingItems.create(this, progressCallback, function (errors, items) {
+        LoadingItems.create(this, resources, progressCallback, function (errors, items) {
             callInNextTick(function () {
                 if (!completeCallback)
                     return;
@@ -196,10 +196,13 @@ JS.mixin(CCLoader.prototype, {
                     self.clear();
                 }
             });
-        }, resources);
+        });
     },
 
-    flowInDeps: function (urlList, callback) {
+    flowInDeps: function (owner, urlList, callback) {
+        if (!owner.deps) {
+            owner.deps = [];
+        }
         for (var i = 0; i < urlList.length; ++i) {
             var url = urlList[i].id || urlList[i];
             if (typeof url !== 'string')
@@ -207,14 +210,19 @@ JS.mixin(CCLoader.prototype, {
             var item = this.getItem(url);
             if (item) {
                 urlList[i] = item;
+                // Collect deps to avoid circle reference
+                owner.deps.push(item);
             }
         }
 
-        var deps = LoadingItems.create(this, null, function (errors, items) {
+        var queue = LoadingItems.create(this, function (errors, items) {
+            // Clear deps because it's already done
+            // Each item will only flowInDeps once, so it's still safe here
+            owner.deps.length = 0;
             callback(errors, items);
             items.destroy();
         });
-        return deps.append(urlList);
+        return queue.append(urlList, owner);
     },
 
     _resources: resources,

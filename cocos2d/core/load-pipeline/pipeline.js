@@ -281,18 +281,19 @@ JS.mixin(Pipeline.prototype, {
      * @param {Function} callback
      * @return {Array} Items accepted by the pipeline
      */
-    flowInDeps: function (urlList, callback) {
-        var deps = LoadingItems.create(this, null, function (errors, items) {
+    flowInDeps: function (owner, urlList, callback) {
+        var deps = LoadingItems.create(this, function (errors, items) {
             callback(errors, items);
             items.destroy();
         });
-        return deps.append(urlList);
+        return deps.append(urlList, owner);
     },
 
     flowOut: function (item) {
         if (!this._cache[item.id]) {
             this._cache[item.id] = item;
         }
+        item.complete = true;
         LoadingItems.itemComplete(item);
     },
 

@@ -75,18 +75,15 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     else {
         objList = JS.array.copy(tdInfo.uuidObjList);
         propList = JS.array.copy(tdInfo.uuidPropList);
-        depends = [];
+        depends = new Array(uuidList.length);
         // declare depends assets
         for (i = 0; i < uuidList.length; i++) {
             dependUuid = uuidList[i];
-            if (dependUuid === uuid) {
-                continue;
-            }
-            depends.push({
+            depends[i] = {
                 id: dependUuid,
                 type: 'uuid',
                 uuid: dependUuid
-            });
+            };
         }
     }
     // declare raw
@@ -104,7 +101,9 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     // cache dependencies for auto release
     var dependKeys = item.dependKeys = [];
 
-    pipeline.flowInDeps(depends, function (errors, items) {
+    // Predefine content for dependencies usage
+    // item.content = asset;
+    pipeline.flowInDeps(item, depends, function (errors, items) {
         var item;
         for (var src in items.map) {
             item = items.map[src];
@@ -118,7 +117,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
             var dependProp = propList[i];
             item = items.map[dependSrc];
             if (item) {
-                if (item.complete) {
+                if (item.complete || item.content) {
                     if (item.error) {
                         cc._throw(item.error);
                     }

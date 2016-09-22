@@ -54,7 +54,8 @@ function createItem (id, queueId) {
             error: null,
             content: null,
             complete: false,
-            states: {}
+            states: {},
+            deps: null
         };
         JS.mixin(result, id);
     }
@@ -67,7 +68,8 @@ function createItem (id, queueId) {
             error: null,
             content: null,
             complete: false,
-            states: {}
+            states: {},
+            deps: null
         };
     }
 
@@ -79,6 +81,24 @@ function createItem (id, queueId) {
     }
 
     return result;
+}
+
+function checkCircleReference(owner, item) {
+    if (!item.deps) {
+        return false;
+    }
+    
+    var i, deps = item.deps, subDep;
+    for (var i = 0; i < deps.length; i++) {
+        subDep = deps[i];
+        if (subDep.id === owner.id) {
+            return true;
+        }
+        else if (subDep.deps && checkCircleReference(owner, subDep)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -112,7 +132,7 @@ function createItem (id, queueId) {
  * @class LoadingItems
  * @extends CallbacksInvoker
  */
-var LoadingItems = function (pipeline, onProgress, onComplete, urlList) {
+var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
     CallbacksInvoker.call(this);
 
     this._id = ++_qid;
@@ -122,6 +142,8 @@ var LoadingItems = function (pipeline, onProgress, onComplete, urlList) {
     this._pipeline = pipeline;
 
     this._errorUrls = [];
+
+    this._appending = false;
 
     this.onProgress = onProgress;
 
@@ -179,7 +201,16 @@ var LoadingItems = function (pipeline, onProgress, onComplete, urlList) {
 
 LoadingItems.ItemState = new cc.Enum(ItemState);
 
-LoadingItems.create = function (pipeline, onProgress, onComplete, urlList) {
+LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
+    if (onProgress === undefined) {
+        onComplete = urlList;
+        urlList = onProgress = null;
+    }
+    else if (onComplete === undefined) {
+        onComplete = onProgress;
+        onProgress = null;
+    }
+
     var queue = _pool.pop();
     if (queue) {
         queue._pipeline = pipeline;
@@ -194,8 +225,9 @@ LoadingItems.create = function (pipeline, onProgress, onComplete, urlList) {
         }
     }
     else {
-        queue = new LoadingItems(pipeline, onProgress, onComplete, urlList);
+        queue = new LoadingItems(pipeline, urlList, onProgress, onComplete);
     }
+
     return queue;
 };
 
@@ -212,11 +244,12 @@ LoadingItems.itemComplete = function (item) {
 };
 
 JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
-    append: function (urlList) {
+    append: function (urlList, owner) {
         if (!this.active) {
             return [];
         }
 
+        this._appending = true;
         var accepted = [], i, url, item;
         for (i = 0; i < urlList.length; ++i) {
             url = urlList[i];
@@ -224,10 +257,10 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             // Already queued in another items queue, url is actually the item
             if (url.queueId && !this.map[url.id]) {
                 this.map[url.id] = url;
-                // Queued and has a alias, consider as completed
-                if (true) {//url.complete) {
+                // Queued and completed or Owner circle referenced by dependency
+                if (url.complete || checkCircleReference(owner, url)) {
                     this.totalCount++;
-                    console.log('----- Completed already ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
+                    console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
                     this.itemComplete(url.id);
                     continue;
                 }
@@ -260,6 +293,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                 }
             }
         }
+        this._appending = false;
 
         // Manually complete
         if (this.completedCount === this.totalCount) {
@@ -441,14 +475,13 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             this._errorUrls.splice(errorListId, 1);
         }
 
-        item.complete = true;
         this.completed[id] = item;
         this.completedCount++;
 
         this.onProgress && this.onProgress(this.completedCount, this.totalCount, item);
 
         // All completed
-        if (this.completedCount >= this.totalCount) {
+        if (!this._appending && this.completedCount >= this.totalCount) {
             console.log('===== All Completed ');
             this.allComplete();
         }
@@ -458,23 +491,20 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
     destroy: function () {
         this.active = false;
+        this._appending = false;
         this._pipeline = null;
         this._errorUrls.length = 0;
         this.onProgress = null;
         this.onComplete = null;
 
-        // Reinitialize CallbacksInvoker, generate three new objects, could be improved
-        CallbacksInvoker.call(this);
-
-        for (var key in this.map) {
-            delete this.map[key];
-        }
-        for (key in this.completed) {
-            delete this.completed[key];
-        }
+        this.map = {};
+        this.completed = {};
 
         this.totalCount = 0;
         this.completedCount = 0;
+
+        // Reinitialize CallbacksInvoker, generate three new objects, could be improved
+        CallbacksInvoker.call(this);
 
         _queues[this._id] = null;
         if (_pool.indexOf(this) === -1 && _pool.length < _POOL_MAX_LENGTH) {
