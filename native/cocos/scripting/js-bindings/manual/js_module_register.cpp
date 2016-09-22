@@ -5,12 +5,14 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_studio_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_builder_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_spine_auto.hpp"
+#include "scripting/js-bindings/auto/jsb_cocos2dx_dragonbones_auto.hpp"
 #include "jsb_creator_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "scripting/js-bindings/manual/ui/jsb_cocos2dx_ui_manual.h"
 #include "scripting/js-bindings/manual/cocostudio/jsb_cocos2dx_studio_manual.h"
 #include "scripting/js-bindings/manual/cocosbuilder/js_bindings_ccbreader.h"
 #include "scripting/js-bindings/manual/spine/jsb_cocos2dx_spine_manual.h"
+#include "scripting/js-bindings/manual/dragonbones/jsb_cocos2dx_dragonbones_manual.h"
 #include "scripting/js-bindings/manual/extension/jsb_cocos2dx_extension_manual.h"
 #include "scripting/js-bindings/manual/localstorage/js_bindings_system_registration.h"
 #include "scripting/js-bindings/manual/chipmunk/js_bindings_chipmunk_registration.h"
@@ -68,6 +70,10 @@ int js_module_register()
     // spine can be commented out to reduce the package
     sc->addRegisterCallback(register_all_cocos2dx_spine);
     sc->addRegisterCallback(register_all_cocos2dx_spine_manual);
+
+    // dragonbones can be commented out to reduce the package
+    sc->addRegisterCallback(register_all_cocos2dx_dragonbones);
+    sc->addRegisterCallback(register_all_cocos2dx_dragonbones_manual);
 
     // register creator
     sc->addRegisterCallback(register_all_creator);

@@ -32,7 +32,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getFileName(JSContext *cx, uint3
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_getFileName : Invalid Native Object");
     if (argc == 0) {
         const std::string& ret = cobj->getFileName();
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         jsret = std_string_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -50,7 +50,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_getURL(JSContext *cx, uint32_t a
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_getURL : Invalid Native Object");
     if (argc == 0) {
         const std::string& ret = cobj->getURL();
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         jsret = std_string_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
@@ -104,7 +104,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_currentTime(JSContext *cx, uint3
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_currentTime : Invalid Native Object");
     if (argc == 0) {
         double ret = cobj->currentTime();
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         jsret = DOUBLE_TO_JSVAL(ret);
         args.rval().set(jsret);
         return true;
@@ -198,7 +198,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled(JSConte
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_isKeepAspectRatioEnabled : Invalid Native Object");
     if (argc == 0) {
         bool ret = cobj->isKeepAspectRatioEnabled();
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         jsret = BOOLEAN_TO_JSVAL(ret);
         args.rval().set(jsret);
         return true;
@@ -236,7 +236,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled(JSContext *c
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_isFullScreenEnabled : Invalid Native Object");
     if (argc == 0) {
         bool ret = cobj->isFullScreenEnabled();
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         jsret = BOOLEAN_TO_JSVAL(ret);
         args.rval().set(jsret);
         return true;
@@ -254,7 +254,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_duration(JSContext *cx, uint32_t
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_duration : Invalid Native Object");
     if (argc == 0) {
         double ret = cobj->duration();
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         jsret = DOUBLE_TO_JSVAL(ret);
         args.rval().set(jsret);
         return true;
@@ -272,7 +272,7 @@ bool js_cocos2dx_experimental_video_VideoPlayer_isPlaying(JSContext *cx, uint32_
     JSB_PRECONDITION2( cobj, cx, false, "js_cocos2dx_experimental_video_VideoPlayer_isPlaying : Invalid Native Object");
     if (argc == 0) {
         bool ret = cobj->isPlaying();
-        jsval jsret = JSVAL_NULL;
+        JS::RootedValue jsret(cx);
         jsret = BOOLEAN_TO_JSVAL(ret);
         args.rval().set(jsret);
         return true;
