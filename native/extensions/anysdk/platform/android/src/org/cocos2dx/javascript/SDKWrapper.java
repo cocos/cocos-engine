@@ -2,7 +2,9 @@ package org.cocos2dx.javascript;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.opengl.GLSurfaceView;
+import android.os.Bundle;
 
 public class SDKWrapper {
 	private final static boolean PACKAGE_AS = true;
