@@ -35,6 +35,7 @@ import org.cocos2dx.javascript.SDKWrapper;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 
 public class AppActivity extends Cocos2dxActivity {
 
