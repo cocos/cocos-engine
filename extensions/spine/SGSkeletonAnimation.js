@@ -103,7 +103,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
 
     /**
      * Sets animation state data to sp._SGSkeletonAnimation.
-     * @param {spine.AnimationStateData} stateData
+     * @param {sp.spine.AnimationStateData} stateData
      */
     setAnimationStateData: function (stateData) {
         var state = new spine.AnimationState(stateData);
@@ -140,7 +140,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
      * @param {Number} trackIndex
      * @param {String} name
      * @param {Boolean} loop
-     * @returns {spine.TrackEntry|null}
+     * @returns {sp.spine.TrackEntry|null}
      */
     setAnimation: function (trackIndex, name, loop) {
         var animation = this._skeleton.data.findAnimation(name);
@@ -157,7 +157,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
      * @param {String} name
      * @param {Boolean} loop
      * @param {Number} [delay=0]
-     * @returns {spine.TrackEntry|null}
+     * @returns {sp.spine.TrackEntry|null}
      */
     addAnimation: function (trackIndex, name, loop, delay) {
         delay = delay == null ? 0 : delay;
@@ -172,7 +172,7 @@ sp._SGSkeletonAnimation = sp._SGSkeleton.extend({
     /**
      * Returns track entry by trackIndex.
      * @param trackIndex
-     * @returns {spine.TrackEntry|null}
+     * @returns {sp.spine.TrackEntry|null}
      */
     getCurrent: function (trackIndex) {
         return this._state.getCurrent(trackIndex);

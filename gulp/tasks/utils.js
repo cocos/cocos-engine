@@ -19,7 +19,7 @@ exports.uglifyOptions = function (minify, global_defs) {
             bracketize: true
         },
         compress: {
-            // http://lisperator.net/uglifyjs/compress
+            // https://github.com/mishoo/UglifyJS2#compressor-options
             global_defs: global_defs,
             sequences: false,  // join consecutive statements with the “comma operator”
             properties: false,  // optimize property access: a["foo"] → a.foo
@@ -37,8 +37,15 @@ exports.uglifyOptions = function (minify, global_defs) {
             if_return: false,  // optimize if-s followed by return/continue
             join_vars: false,  // join var declarations
             cascade: false,  // try to cascade `right` into `left` in sequences
+            collapse_vars: false,
+            //warnings: true,
+            negate_iife: false,
+            pure_getters: false,
+            pure_funcs: null,
+            drop_console: false,
+            keep_fargs: true,
+            keep_fnames: true,
             side_effects: false  // drop side-effect-free statements
-            //warnings: true  // warn about potentially dangerous optimizations/code
         }
     };
 };
