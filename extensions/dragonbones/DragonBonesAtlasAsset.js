@@ -51,9 +51,6 @@ var DragonBonesAtlasAsset = cc.Class({
         },
     },
 
-    ctor: function () {
-    },
-
     createNode: CC_EDITOR &&  function (callback) {
         var node = new cc.Node(this.name);
         var armatureDisplay = node.addComponent(dragonBones.ArmatureDisplay);

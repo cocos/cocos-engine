@@ -273,10 +273,6 @@ dragonBones.ArmatureDisplay = cc.Class({
         this._factory = new dragonBones.CCFactory();
     },
 
-    onDestroy : function () {
-        // TODO destroy the factory??
-    },
-
     __preload : function () {
         this._parseDragonAsset();
         this._parseDragonAtlasAsset();
@@ -363,7 +359,7 @@ dragonBones.ArmatureDisplay = cc.Class({
             // update inspector
             this._updateArmatureEnum();
             this._updateAnimEnum();
-            this._refreshInspector();
+            Editor.Utils.refreshSelectedInspector('node', this.node.uuid);
         }
     },
 
@@ -385,26 +381,6 @@ dragonBones.ArmatureDisplay = cc.Class({
         }
         // change enum
         setEnumAttr(this, '_defaultArmatureIndex', armatureEnum || DefaultArmaturesEnum);
-    },
-
-    // force refresh inspector
-    _refreshInspector: CC_EDITOR && function () {
-        var ga = Editor.Selection.curGlobalActivate();
-        var inspecting = (ga && ga.id === this.node.uuid && ga.type === 'node');
-        if (inspecting) {
-            Editor.Selection.unselect('node', this.node.uuid);
-            ga = Editor.Selection.curGlobalActivate();
-            var id = this.node.uuid;
-            var inspectOther = (ga && ga.type === 'node' && ga.id);
-            if (inspectOther) {
-                setTimeout(function () {
-                    Editor.Selection.select('node', id, false);
-                }, 200);
-            }
-            else {
-                Editor.Selection.select('node', id, false);
-            }
-        }
     },
 
     /**

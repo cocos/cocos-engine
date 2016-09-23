@@ -27,9 +27,6 @@ var DragonBonesAsset = cc.Class({
     name: 'dragonBones.DragonBonesAsset',
     extends: cc.Asset,
 
-    ctor: function () {
-    },
-
     properties: {
         _dragonBonesJson : '',
         dragonBonesJson : {
