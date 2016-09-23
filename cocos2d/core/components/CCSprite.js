@@ -611,8 +611,6 @@ var Sprite = cc.Class({
                 expectedW = rect.width;
                 expectedH = rect.height;
 
-            } else {
-
             }
 
             if (expectedW !== actualSize.width || expectedH !== actualSize.height) {

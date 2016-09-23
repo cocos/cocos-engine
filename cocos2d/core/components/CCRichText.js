@@ -61,6 +61,7 @@ var RichText = cc.Class({
     ctor: function() {
         this._textArray = null;
         this._labelSegmentsCache = [];
+        this._spritesMap = {};
 
         this._resetState();
 
@@ -152,6 +153,18 @@ var RichText = cc.Class({
             tooltip: 'i18n:COMPONENT.richtext.line_height',
             notify: function (oldValue) {
                 if(this.lineHeight === oldValue) return;
+
+                this._layoutDirty = true;
+                this._updateRichTextStatus();
+            }
+        },
+
+        imageAtlas: {
+            default: null,
+            type: cc.SpriteAtlas,
+            tooltip: 'i18n:COMPONENT.richtext.image_atlas',
+            notify: function(oldValue) {
+                if(this.imageAtlas === oldValue) return;
 
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
@@ -376,18 +389,24 @@ var RichText = cc.Class({
             } else {
                 if (oldItem.style) {
                     if (newItem.style) {
-                        if(oldItem.style.size != newItem.style.size
-                           || oldItem.style.italic !== newItem.style.italic) {
+                        if(oldItem.style.size !== newItem.style.size
+                           || oldItem.style.italic !== newItem.style.italic
+                           || oldItem.style.isImage !== newItem.style.isImage) {
                             return true;
                         }
+                        if(oldItem.style.isImage === newItem.style.isImage) {
+                            if(oldItem.style.src !== newItem.style.src) {
+                                return true;
+                            }
+                        }
                     } else {
-                        if(oldItem.style.size || oldItem.style.italic) {
+                        if(oldItem.style.size || oldItem.style.italic || oldItem.style.isImage) {
                             return true;
                         }
                     }
                 } else {
                     if (newItem.style) {
-                        if(newItem.style.size || newItem.style.italic) {
+                        if(newItem.style.size || newItem.style.italic || newItem.style.isImage) {
                             return true;
                         }
                     }
@@ -395,6 +414,29 @@ var RichText = cc.Class({
             }
         }
         return false;
+    },
+
+    _onSpriteFrameLoaded: function (event, spriteFrame) {
+        var newSpriteFrame;
+        if(spriteFrame) {
+            newSpriteFrame = spriteFrame;
+        } else {
+            newSpriteFrame = event.target;
+        }
+        var sprite = newSpriteFrame.__sprite;
+        sprite.setSpriteFrame(newSpriteFrame);
+    },
+
+    _applySpriteFrame: function (spriteFrame) {
+        if(spriteFrame) {
+            if(spriteFrame.textureLoaded()) {
+                this._onSpriteFrameLoaded(null, spriteFrame);
+            } else {
+                spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+                spriteFrame.ensureLoadTexture();
+            }
+        }
+
     },
 
     _updateRichText: function () {
@@ -422,6 +464,41 @@ var RichText = cc.Class({
             if(text === "") {
                 if(richTextElement.style && richTextElement.style.newline) {
                     this._updateLineInfo();
+                    continue;
+                }
+                if(richTextElement.style && richTextElement.style.isImage && this.imageAtlas) {
+                    var spriteFrameName = richTextElement.style.src;
+                    var spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
+                    var sprite = new cc.Scale9Sprite();
+                    sprite.setAnchorPoint(cc.p(0, 0));
+                    spriteFrame.__sprite = sprite;
+                    this._sgNode.addChild(sprite);
+                    this._labelSegments.push(sprite);
+                    if(spriteFrame) {
+                        var spriteRect = spriteFrame.getRect();
+                        var scaleFactor = 1;
+                        if(spriteRect.height > this.lineHeight) {
+                            scaleFactor = this.lineHeight / spriteRect.height;
+                        }
+                        if(this.maxWidth > 0) {
+                            if(this._lineOffsetX + spriteRect.width * scaleFactor > this.maxWidth) {
+                                this._updateLineInfo();
+                            }
+                            this._lineOffsetX += spriteRect.width * scaleFactor;
+
+                        } else {
+                            this._lineOffsetX += spriteRect.width * scaleFactor;
+                            if(this._lineOffsetX > this._labelWidth) {
+                                this._labelWidth = this._lineOffsetX;
+                            }
+                        }
+                        this._applySpriteFrame(spriteFrame);
+                        sprite.setContentSize(cc.size(spriteRect.width * scaleFactor,
+                                                      spriteRect.height * scaleFactor));
+                        sprite._lineCount = this._lineCount;
+                        //todo add event handler to image
+                    }
+
                     continue;
                 }
             }
@@ -531,6 +608,10 @@ var RichText = cc.Class({
 
             var positionY = (totalLineCount - lineCount) * this.lineHeight;
 
+            if(label instanceof cc.Scale9Sprite) {
+                positionY += (this.lineHeight - label.getContentSize().height) / 2;
+            }
+
             label.setPositionY(positionY);
 
             if (lineCount === nextLineIndex) {
@@ -541,6 +622,8 @@ var RichText = cc.Class({
     },
 
     _applyTextAttribute: function (label) {
+        if(label instanceof cc.Scale9Sprite) return;
+
         var index = label._styleIndex;
         label.setLineHeight(this.lineHeight);
         label.setVerticalAlign(VerticalAlign.CENTER);
