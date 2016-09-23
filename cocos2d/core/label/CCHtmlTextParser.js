@@ -105,6 +105,7 @@ cc.HtmlTextParser.prototype = {
                 eventObj = this._processEventHandler(eventHanlderString);
                 obj.event = eventObj;
             }
+            return obj;
         }
         header = attribute.match(/^(br(\s)*\/)/);
         if(header && header[0].length > 0) {
@@ -112,6 +113,22 @@ cc.HtmlTextParser.prototype = {
             if(tagName.startsWith("br") && tagName[tagName.length-1] === "/") {
                 obj.isNewLine = true;
                 this._resultObjectArray.push({text: "", style: {newline: true}});
+                return obj;
+            }
+        }
+
+        header = attribute.match(/^(img(\s)*src(\s)*=[^>]+\/)/);
+        if(header && header[0].length > 0) {
+            tagName = header[0].trim();
+            if(tagName.startsWith("img") && tagName[tagName.length-1] === "/") {
+                var srcBegin = tagName.indexOf('=');
+                var srcEnd = tagName.indexOf('/');
+                var imageSrc = tagName.substring(srcBegin + 1, srcEnd);
+                //remove quote
+                imageSrc = imageSrc.trim().substring(1, imageSrc.length - 2);
+                obj.isImage = true;
+                obj.src = imageSrc;
+                return obj;
             }
         }
 
