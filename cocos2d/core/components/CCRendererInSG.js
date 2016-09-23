@@ -71,6 +71,11 @@ var RendererInSG = cc.Class({
     },
 
     onEnable: function () {
+        if (CC_JSB && cc.director.getActionManager().getNumberOfRunningActionsInTarget(this.node) > 0) {
+            cc.log('The node "%s" has a component inherited from "cc._RendererInSG"', this.node.name);
+            cc.log('JSB environment is not support invoke node.runAction before the "cc._RendererInSG" component enabled.');
+            cc.log('Please use runAction in the method "start" instead.');
+        }
         this._replaceSgNode(this._sgNode);
     },
 

@@ -268,11 +268,11 @@ cc.ActionManager = cc._Class.extend(/** @lends cc.ActionManager# */{
      *  - 如果您正在运行 7 个动作组成的序列动作（Sequence），这个函数将返回 1。<br/>
      *  - 如果你正在运行 2 个序列动作（Sequence）和 5 个普通动作，这个函数将返回 7。<br/>
      *
-     * @method numberOfRunningActionsInTarget
+     * @method getNumberOfRunningActionsInTarget
      * @param {Object} target
      * @return {Number}
      */
-    numberOfRunningActionsInTarget:function (target) {
+    getNumberOfRunningActionsInTarget:function (target) {
         var element = this._hashTargets[target.__instanceId];
         if (element)
             return (element.actions) ? element.actions.length : 0;

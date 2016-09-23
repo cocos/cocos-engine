@@ -318,7 +318,7 @@ var targetRelatedFuncs = [
     ['removeAllActionsFromTarget', 0],
     ['removeActionByTag', 1],
     ['getActionByTag', 1],
-    ['numberOfRunningActionsInTarget', 0],
+    ['getNumberOfRunningActionsInTarget', 0],
     ['pauseTarget', 0],
     ['resumeTarget', 0]
 ];
