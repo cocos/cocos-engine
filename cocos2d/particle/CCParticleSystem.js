@@ -897,6 +897,9 @@ var ParticleSystem = cc.Class({
                 if (err || !content) {
                     throw err || new Error('Unkown error');
                 }
+                if (!self.isValid) {
+                    return;
+                }
 
                 sgNode.particleCount = 0;
 

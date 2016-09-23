@@ -107,7 +107,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Initializes sp._SGSkeleton with Data.
-     * @param {spine.SkeletonData|String} skeletonDataFile
+     * @param {sp.spine.SkeletonData|String} skeletonDataFile
      * @param {String|spine.Atlas|spine.SkeletonData} atlasFile atlas filename or atlas data or owns SkeletonData
      * @param {Number} [scale] scale can be specified on the JSON or binary loader which will scale the bone positions, image sizes, and animation translations.
      */
@@ -209,9 +209,9 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Finds a bone by name. This does a string comparison for every bone.<br>
-     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Bone object.
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Bone object.
      * @param {String} boneName
-     * @returns {spine.Bone}
+     * @returns {sp.spine.Bone}
      */
     findBone: function (boneName) {
         return this._skeleton.findBone(boneName);
@@ -219,10 +219,10 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Finds a slot by name. This does a string comparison for every slot.<br>
-     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Slot object.
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Slot object.
      *
      * @param {String} slotName
-     * @returns {spine.Slot}
+     * @returns {sp.spine.Slot}
      */
     findSlot: function (slotName) {
         return this._skeleton.findSlot(slotName);
@@ -230,10 +230,10 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Finds a skin by name and makes it the active skin. This does a string comparison for every skin. Note that setting the skin does not change which attachments are visible.<br>
-     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Skin object.
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Skin object.
      *
      * @param {string} skinName
-     * @returns {spine.Skin}
+     * @returns {sp.spine.Skin}
      */
     setSkin: function (skinName) {
         return this._skeleton.setSkinByName(skinName);
@@ -241,11 +241,11 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Returns the attachment for the slot and attachment name. The skeleton looks first in its skin, then in the skeleton data’s default skin.<br>
-     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.Attachment object.
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment object.
      *
      * @param {String} slotName
      * @param {String} attachmentName
-     * @returns {spine.Attachment}
+     * @returns {sp.spine.Attachment}
      */
     getAttachment: function (slotName, attachmentName) {
         return this._skeleton.getAttachmentBySlotName(slotName, attachmentName);
@@ -278,8 +278,8 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Sets skeleton data to sp._SGSkeleton.
-     * @param {spine.SkeletonData} skeletonData
-     * @param {spine.SkeletonData} ownsSkeletonData
+     * @param {sp.spine.SkeletonData} skeletonData
+     * @param {sp.spine.SkeletonData} ownsSkeletonData
      */
     setSkeletonData: function (skeletonData, ownsSkeletonData) {
         if(skeletonData.width != null && skeletonData.height != null)
@@ -295,7 +295,7 @@ sp._SGSkeleton = _ccsg.Node.extend({
 
     /**
      * Return the renderer of attachment.
-     * @param {spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
+     * @param {sp.spine.RegionAttachment|spine.BoundingBoxAttachment} regionAttachment
      * @returns {_ccsg.Node}
      */
     getTextureAtlas: function (regionAttachment) {

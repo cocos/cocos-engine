@@ -171,12 +171,12 @@ var SkeletonData = cc.Class({
 
     reset: function () {
         /**
-         * @property {spine.SkeletonData} _skeletonData
+         * @property {sp.spine.SkeletonData} _skeletonData
          * @private
          */
         this._skeletonCache = null;
         /**
-         * @property {spine.Atlas} _atlasCache
+         * @property {sp.spine.Atlas} _atlasCache
          * @private
          */
         this._atlasCache = null;
@@ -188,12 +188,12 @@ var SkeletonData = cc.Class({
 
     /**
      * !#en Get the included SkeletonData used in spine runtime.<br>
-     * Returns a {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.SkeletonData object.
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData object.
      * !#zh 获取 Spine Runtime 使用的 SkeletonData。<br>
-     * 返回一个 {{#crossLinkModule "spine"}}spine{{/crossLinkModule}}.SkeletonData 对象。
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData 对象。
      * @method getRuntimeData
      * @param {Boolean} [quiet=false]
-     * @return {spine.SkeletonData}
+     * @return {sp.spine.SkeletonData}
      */
     getRuntimeData: !CC_JSB && function (quiet) {
         if (this._skeletonCache) {
@@ -264,7 +264,7 @@ var SkeletonData = cc.Class({
     /**
      * @method _getAtlas
      * @param {boolean} [quiet=false]
-     * @return {spine.Atlas}
+     * @return {sp.spine.Atlas}
      * @private
      */
     _getAtlas: !CC_JSB && function (quiet) {

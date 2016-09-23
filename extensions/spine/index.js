@@ -101,15 +101,6 @@ sp.AnimationEventType = cc.Enum({
 if (!CC_EDITOR || !Editor.isMainProcess) {
     
     if (!CC_JSB) {
-        /**
-         * !#en
-         * The official spine runtime.<br/>
-         * See http://en.esotericsoftware.com/spine-using-runtimes
-         * !#zh
-         * 官方 Spine Runtime。<br/>
-         * 可查看 Spine 官方文档 http://en.esotericsoftware.com/spine-using-runtimes
-         * @property {object} spine
-         */
         sp.spine = require('./lib/spine');
     
         require('./SGSkeleton');
@@ -127,10 +118,10 @@ else {
 
 /**
  * !#en
- * `spine` is the namespace for official Spine Runtime, which officially implemented and maintained by Spine.<br>
+ * `sp.spine` is the namespace for official Spine Runtime, which officially implemented and maintained by Spine.<br>
  * Please refer to the official documentation for its detailed usage: [http://en.esotericsoftware.com/spine-using-runtimes](http://en.esotericsoftware.com/spine-using-runtimes)
  * !#zh
- * spine 模块是 Spine 官方运行库的 API 入口，由 Spine 官方统一实现和维护，具体用法请参考：[http://zh.esotericsoftware.com/spine-using-runtimes](http://zh.esotericsoftware.com/spine-using-runtimes)
- * @module spine
- * @main spine
+ * sp.spine 模块是 Spine 官方运行库的 API 入口，由 Spine 官方统一实现和维护，具体用法请参考：[http://zh.esotericsoftware.com/spine-using-runtimes](http://zh.esotericsoftware.com/spine-using-runtimes)
+ * @module sp.spine
+ * @main sp.spine
  */

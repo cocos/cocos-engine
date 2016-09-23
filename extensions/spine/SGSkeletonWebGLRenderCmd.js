@@ -197,7 +197,7 @@ proto._createChildFormSkeletonData = function(){};
 proto._updateChild = function(){};
 
 proto._updateRegionAttachmentQuad = function(attachment, slot, quad, premultipliedAlpha) {
-    var vertices = {};
+    var vertices = new Array(8);
     attachment.computeVertices(slot.bone.skeleton.x, slot.bone.skeleton.y, slot.bone, vertices);
     var r = slot.bone.skeleton.r * slot.r * 255;
     var g = slot.bone.skeleton.g * slot.g * 255;
