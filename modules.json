@@ -189,5 +189,11 @@
     "entries": [
       "./cocos2d/core/graphics/index.js"
     ]
+  },
+  {
+    "name": "DragonBones",
+    "entries": [
+      "./extensions/dragonbones/index.js"
+    ]
   }
 ]
