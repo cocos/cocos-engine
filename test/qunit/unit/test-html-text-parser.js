@@ -332,41 +332,47 @@ test('test image tag', function () {
               [
                   {text: "",
                    style: {isImage: true, src: "weapon"}}
+              ], "image element test 1");
+
+    var imageTest2 = '<img src = "weapon"/>';
+
+    deepEqual(parser.parse(imageTest2),
+              [
+                  {text: "", style: {isImage: true, src: "weapon"}}
+              ], "image element test 2");
+
+    var imageTest3 = "hello, <b>world<img src='nihao' /></>";
+
+    deepEqual(parser.parse(imageTest3),
+              [
+                  {text: "hello, "},
+                  {text: "world", style : {bold: true}},
+                  {text: "", style: {isImage: true, src: "nihao"}}
               ], "image element test");
 
-    // var imageTest2 = '<img src = "weapon"/>';
+    var imageTest4 = "hello, <b>world<img src=nihao /  ></>";
+    deepEqual(parser.parse(imageTest4),
+              [
+                  {text: "hello, "},
+                  {text: "world", style : {bold: true}},
+              ], "image element test");
 
-    // deepEqual(parser.parse(imageTest2),
-    //           [
-    //               {text: "",
-    //                style: {isImage: true, src: "weapon"}}
-    //           ], "image element test");
+    var imageTest5 = "hello, <b>world<on click='handler'><img src=nihao /  ></on></b>";
+    deepEqual(parser.parse(imageTest5),
+              [
+                  {text: "hello, "},
+                  {text: "world", style : {bold: true}},
+              ], "image element event test");
 
-    // var imageTest3 = "hello, <b>world<img src='nihao' /></>";
+    var imageTest6 = "hello, <b>world<img src='head' click='handler' /></b>";
+    deepEqual(parser.parse(imageTest6),
+              [
+                  {text: "hello, "},
+                  {text: "world", style : {bold: true}},
+                  {text: "", style: {isImage: true, src: "head",
+                                     event: {click: "handler"}}}
+              ], "image element event test");
 
-    // deepEqual(parser.parse(imageTest3),
-    //           [
-    //               {text: "hello, "},
-    //               {text: "world", style : {bold: true}},
-    //               {text: "", style: {isImage: true, src: "nihao"}}
-    //           ], "image element test");
-
-    // var imageTest4 = "hello, <b>world<img src=nihao /  ></>";
-    // deepEqual(parser.parse(imageTest4),
-    //           [
-    //               {text: "hello, "},
-    //               {text: "world", style : {bold: true}},
-    //               {text: "", style: {isImage: true, src: "iha"}}
-    //           ], "image element test");
-
-    // var imageTest5 = "hello, <b>world<on click='handler'><img src=nihao /  ></on></b>";
-    // deepEqual(parser.parse(imageTest5),
-    //           [
-    //               {text: "hello, "},
-    //               {text: "world", style : {bold: true}},
-    //               {text: "", style: {isImage: true, src: "iha",
-    //                                  event: {click: 'handler'}}}
-    //           ], "image element event test");
 
     var invalidImageTest1 = "<img src='hello'></img>";
     deepEqual(parser.parse(invalidImageTest1),
@@ -381,4 +387,8 @@ test('test image tag', function () {
               [], "image element invalid test");
 
 
+    var invalidImageTest4 = "<b><u><img src='world' click='handler' /></b></u>";
+    deepEqual(parser.parse(invalidImageTest4),
+              [{text: "", style: {isImage: true, src: 'world',
+                                  event: {click: 'handler'}}}], "image element invalid test");
 });
