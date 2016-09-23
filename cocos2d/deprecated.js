@@ -586,6 +586,10 @@ if (CC_DEV) {
         getPreferredSize: 'getContentSize',
     });
 
+    js.obsoletes(cc.ActionManager.prototype, 'cc.ActionManager', {
+        'numberOfRunningActionsInTarget' : 'getNumberOfRunningActionsInTarget'
+    });
+
     //ui
     if (cc.Layout) {
         js.obsolete(cc.Layout.prototype, 'cc.Layout.layoutType', 'type');
