@@ -29,7 +29,7 @@ asyncTest('Load', function () {
         ok(items.isCompleted(), 'be able to load all resources');
 
         loader.releaseAll();
-        strictEqual(Object.keys(this.getItems().map).length, 0, 'should clear loading items after releaseAll called');
+        strictEqual(Object.keys(loader._cache).length, 0, 'should clear loading items after releaseAll called');
 
         clearTimeout(timeoutId);
         start();
@@ -83,7 +83,7 @@ asyncTest('Load with dependencies', function () {
             dep2,
             dep3
         ];
-        this.pipeline.flowInDeps(resources, function (deps) {
+        this.pipeline.flowInDeps(null, resources, function (deps) {
             callback(null, result);
         });
     }
@@ -106,19 +106,13 @@ asyncTest('Load with dependencies', function () {
 
     var total = resources.length;
 
-    var items = loader.getItems();
-
     var progressCallback = new Callback(function (completedCount, totalCount, item) {
         if (item.id === json1.id) {
-            var depsLoaded = items.isItemCompleted(dep1) &&
-                             items.isItemCompleted(dep2) &&
-                             items.isItemCompleted(dep3);
-            ok(depsLoaded, 'should load all dependencies before complete parent resources');
-            var dep = this.getRes(dep1);
+            var dep = loader.getRes(dep1);
             ok(dep instanceof cc.Texture2D, 'should correctly load dependent image1');
-            dep = this.getRes(dep2);
+            dep = loader.getRes(dep2);
             strictEqual(dep.width, 89, 'should correctly load dependent JSON');
-            dep = this.getRes(dep3);
+            dep = loader.getRes(dep3);
             ok(dep instanceof cc.Texture2D, 'should correctly load dependent image2');
 
             strictEqual(item.content.__type__, 'TestTexture', 'should give correct js object as result of deps type');

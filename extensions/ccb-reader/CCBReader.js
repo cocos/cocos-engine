@@ -215,7 +215,7 @@ cc.BuilderReader = cc._Class.extend({
 
     _loadBinarySync : function(url){
         var self = this;
-        var req = this.getXMLHttpRequest();
+        var req = cc.loader.getXMLHttpRequest();
         var errInfo = "load " + url + " failed!";
         req.open('GET', url, false);
         var arrayInfo = null;

@@ -1,7 +1,7 @@
 if (!isPhantomJS) {
     largeModule('AudioScource');
 
-    test('basic test', function () {
+    asyncTest('basic test', function () {
         var node = new cc.Node();
         cc.director.getScene().addChild(node);
 
@@ -11,7 +11,15 @@ if (!isPhantomJS) {
 
         audioSource.play();
 
-        strictEqual(audioSource.isPlaying, true, 'audio scource default play state true');
+        audioSource.audio.on('load', function () {
+            strictEqual(audioSource.isPlaying, true, 'audio scource play state true after preload');
+            start();
+        });
+
+        var timerId = setTimeout(function () {
+            ok(false, 'time out!');
+            start();
+        }, 10000);
 
         //audioSource.volume = 0.5;
         //strictEqual(audioSource.audio.volume, 0.5, 'audio scource volume true');

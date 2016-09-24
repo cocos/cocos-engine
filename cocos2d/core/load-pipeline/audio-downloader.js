@@ -66,7 +66,7 @@ function loadDomAudio (item, callback) {
 function loadWebAudio (item, callback) {
     if (!context) return;
 
-    var request = Pipeline.getXMLHttpRequest();
+    var request = cc.loader.getXMLHttpRequest();
     request.open("GET", item.url, true);
     request.responseType = "arraybuffer";
 
@@ -103,7 +103,7 @@ function downloadAudio (item, callback) {
 
     // Get a header
     // check audio size
-    var request = Pipeline.getXMLHttpRequest();
+    var request = cc.loader.getXMLHttpRequest();
     request.open("HEAD", item.url, true);
     // Our asynchronous callback
     request.onload = function () {

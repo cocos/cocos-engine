@@ -38,6 +38,8 @@ function getXMLHttpRequest () {
     return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
 }
 
+var _sharedList = [];
+
 /**
  * Loader for resource loading process. It's a singleton object.
  * @class loader
@@ -200,29 +202,27 @@ JS.mixin(CCLoader.prototype, {
     },
 
     flowInDeps: function (owner, urlList, callback) {
-        if (!owner.deps) {
-            owner.deps = [];
-        }
+        _sharedList.length = 0;
         for (var i = 0; i < urlList.length; ++i) {
             var url = urlList[i].id || urlList[i];
             if (typeof url !== 'string')
                 continue;
             var item = this.getItem(url);
             if (item) {
-                urlList[i] = item;
-                // Collect deps to avoid circle reference
-                owner.deps.push(item);
+                _sharedList.push(item);
+            }
+            else {
+                _sharedList.push(urlList[i]);
             }
         }
 
         var queue = LoadingItems.create(this, function (errors, items) {
-            // Clear deps because it's already done
-            // Each item will only flowInDeps once, so it's still safe here
-            owner.deps.length = 0;
             callback(errors, items);
             items.destroy();
         });
-        return queue.append(urlList, owner);
+        var accepted = queue.append(_sharedList, owner);
+        _sharedList.length = 0;
+        return accepted;
     },
 
     _resources: resources,
@@ -361,7 +361,6 @@ JS.mixin(CCLoader.prototype, {
         var remain = uuids.length;
         if (remain > 0) {
             var res = [];
-            var results = [];
             for (var i = 0, len = remain; i < len; ++i) {
                 var uuid = uuids[i];
                 res.push({
@@ -370,11 +369,12 @@ JS.mixin(CCLoader.prototype, {
                     uuid: uuid
                 });
             }
-            this.load(res, function (item) {
-                results.push(item.content);
-            }, function (errors, items) {
-                for (var i = 0; i < results.length; i++) {
-                    self.setAutoReleaseRecursively(results[i], false);
+            this.load(res, function (errors, items) {
+                var results = [];
+                for (var key in items.map) {
+                    var item = items.getContent(key);
+                    self.setAutoReleaseRecursively(item, false);
+                    results.push(item);
                 }
                 if (completeCallback) {
                     completeCallback(errors, results);
@@ -402,11 +402,14 @@ JS.mixin(CCLoader.prototype, {
      */
     getRes: function (url) {
         var item = this._cache[url];
+        if (item.alias) {
+            item = this._cache[item.alias];
+        }
         if (!item) {
             var uuid = this._getResUuid(url);
             item = this._cache[uuid];
         }
-        return item;
+        return item ? item.content : null;
     },
 
     /**

@@ -203,8 +203,10 @@ LoadingItems.ItemState = new cc.Enum(ItemState);
 
 LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
     if (onProgress === undefined) {
-        onComplete = urlList;
-        urlList = onProgress = null;
+        if (typeof urlList === 'function') {
+            onComplete = urlList;
+            urlList = onProgress = null;
+        }
     }
     else if (onComplete === undefined) {
         onComplete = onProgress;
@@ -220,7 +222,7 @@ LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
         if (queue._pipeline) {
             queue.active = true;
         }
-        if (urlList && urlList.length > 0) {
+        if (urlList) {
             queue.append(urlList);
         }
     }
@@ -238,7 +240,7 @@ LoadingItems.getQueue = function (id) {
 LoadingItems.itemComplete = function (item) {
     var queue = _queues[item.queueId];
     if (queue) {
-        console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
+        // console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
         queue.itemComplete(item.id);
     }
 };
@@ -257,28 +259,10 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
             // Already queued in another items queue, url is actually the item
             if (url.queueId && !this.map[url.id]) {
                 this.map[url.id] = url;
-                // Queued and completed or Owner circle referenced by dependency
-                if (url.complete || checkCircleReference(owner, url)) {
-                    this.totalCount++;
-                    console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
-                    this.itemComplete(url.id);
-                    continue;
-                }
-                // Not completed yet, should wait it
-                else {
-                    var self = this;
-                    var queue = _queues[url.queueId];
-                    if (queue) {
-                        this.totalCount++;
-                        console.log('+++++ Waited ' + url.id);
-                        queue.addListener(url.id, function (item) {
-                            console.log('----- Completed by waiting ' + item.id + ', rest: ' + (self.totalCount - self.completedCount-1));
-                            self.itemComplete(item.id);
-                        });
-                        continue;
-                    }
-                    // if queue not found and it's not completed, then requeue it.
-                }
+                this.totalCount++;
+                // console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
+                this.itemComplete(url.id);
+                continue;
             }
             // Queue new items
             if (isIdValid(url)) {
@@ -289,7 +273,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
                     this.map[item.id] = item;
                     this.totalCount++;
                     accepted.push(item);
-                    console.log('+++++ Appended ' + item.id);
+                    // console.log('+++++ Appended ' + item.id);
                 }
             }
         }
@@ -482,7 +466,7 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
 
         // All completed
         if (!this._appending && this.completedCount >= this.totalCount) {
-            console.log('===== All Completed ');
+            // console.log('===== All Completed ');
             this.allComplete();
         }
 
@@ -513,4 +497,4 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
     }
 });
 
-module.exports = LoadingItems;
+cc.LoadingItems = module.exports = LoadingItems;

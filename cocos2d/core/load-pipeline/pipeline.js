@@ -290,7 +290,10 @@ JS.mixin(Pipeline.prototype, {
     },
 
     flowOut: function (item) {
-        if (!this._cache[item.id]) {
+        if (item.error) {
+            delete this._cache[item.id];
+        }
+        else if (!this._cache[item.id]) {
             this._cache[item.id] = item;
         }
         item.complete = true;

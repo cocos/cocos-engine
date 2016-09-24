@@ -102,7 +102,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     var dependKeys = item.dependKeys = [];
 
     // Predefine content for dependencies usage
-    // item.content = asset;
+    item.content = asset;
     pipeline.flowInDeps(item, depends, function (errors, items) {
         var item;
         for (var src in items.map) {

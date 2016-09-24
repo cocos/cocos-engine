@@ -337,15 +337,6 @@ JS.mixin(Downloader.prototype, {
         var self = this;
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
         if (this._curConcurrent < this.maxConcurrent) {
-            if (CC_EDITOR) {
-                // raw assets are not cached in the CC_EDITOR fix fireball/issues/4158
-                self.pipeline._items.addListener(item.id, function (item) {
-                    if (item.isRawAsset) {
-                        cc.loader.removeItem(item.url);
-                    }
-                    cc.loader.removeItem(item.id);
-                });
-            }
             this._curConcurrent++;
             downloadFunc.call(this, item, function (err, result) {
                 // Concurrent logic

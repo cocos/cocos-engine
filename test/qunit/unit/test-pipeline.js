@@ -37,7 +37,7 @@ test('construction', function () {
 });
 
 test('items', function () {
-    pipeline.flowIn([
+    var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
             id: 'res/scene.json',
@@ -46,31 +46,31 @@ test('items', function () {
         }
     ]);
 
-    var items = pipeline._items.map;
-    var background = items['res/Background.png'];
-    var scene = items['res/scene.json'];
+    var map = items.map;
+    var background = map['res/Background.png'];
+    var scene = map['res/scene.json'];
 
     ok(background, 'should have background image');
     ok(scene, 'should have scene');
     strictEqual(background.type, 'png', 'should extract extension as type');
     strictEqual(scene.type, 'scene', 'should use custom type if specified');
 
-    pipeline.flowIn([
+    items.append([
         'res/scene.json',
         'res/role.plist',
         'res/role.png'
     ]);
 
-    var scene2 = items['res/scene.json'];
-    var role = items['res/role.plist'];
+    var scene2 = map['res/scene.json'];
+    var role = map['res/role.plist'];
 
     ok(role, 'can append items');
     strictEqual(scene2, scene, 'shouldn\'t add new item for existing url');
     strictEqual(scene2.name, 'scene', 'should be able to set custom property of item');
-    strictEqual(pipeline._items.totalCount, 4, 'should now hold 4 items in total');
+    strictEqual(items.totalCount, 4, 'should now hold 4 items in total');
 
     pipeline.clear();
-    strictEqual(pipeline._items.totalCount, 0, 'should hold 0 item after clear');
+    strictEqual(Object.keys(pipeline._cache).length, 0, 'should hold 0 item after clear');
 });
 
 test('pipeline flow', function () {
@@ -104,13 +104,11 @@ test('pipeline flow', function () {
         ok(items.getError('res/role') !== null, 'should set error property in errored item.');
     }).enable();
     var onProgress = new Callback().enable();
-    pipeline.onComplete = onComplete;
-    pipeline.onProgress = onProgress;
 
     download.enable();
     load.enable();
 
-    pipeline.flowIn([
+    var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
             id: 'res/scene.json',
@@ -119,12 +117,12 @@ test('pipeline flow', function () {
         },
         'res/role.plist',
         'res/role'
-    ]);
+    ], onProgress, onComplete);
 
-    strictEqual(pipeline._items.totalCount, 3, 'should now hold 3 items in total');
-    strictEqual(pipeline._items.completedCount, 3, 'should complete all 3 items');
-    strictEqual(pipeline._items.isCompleted(), true, 'should be completed');
-    strictEqual(pipeline.isFlowing(), false, 'should not be flowing now');
+    strictEqual(items.totalCount, 4, 'should hold 4 items in total');
+    strictEqual(items.completedCount, 4, 'should complete all 4 items');
+    strictEqual(items.isCompleted(), true, 'should be completed');
+    strictEqual(Object.keys(pipeline._cache).length, 3, 'should hold all 3 succeed items in pipeline cache');
     download.expect(4, 'should call download for each item');
     load.expect(3, 'should call load for each item successfully passed from download');
     onComplete.expect(1, 'should call onComplete callback');
@@ -138,10 +136,8 @@ test('flow empty array', function () {
         strictEqual(items.completedCount, 0, 'should contains zero completed item');
     }).enable();
     var onProgress = new Callback().enable();
-    pipeline.onComplete = onComplete;
-    pipeline.onProgress = onProgress;
 
-    pipeline.flowIn([]);
+    var items = cc.LoadingItems.create(pipeline, [], onProgress, onComplete);
 
     onComplete.expect(1, 'should call onComplete after flowIn empty array');
     onProgress.expect(0, 'shouldn\'t call onProgress after flowIn empty array');
@@ -182,11 +178,10 @@ asyncTest('content manipulation', function () {
         }
     ]);
 
-    pipeline.onComplete = function (error, items) {
+    var onComplete = function (error, items) {
         ok(true, 'should call onComplete at the end');
         strictEqual(items.completedCount, 4, 'should complete all 4 items');
         strictEqual(items.isCompleted(), true, 'should be completed');
-        strictEqual(pipeline.isFlowing(), false, 'should not be flowing now');
 
         for (var url in items.map) {
             var item = items.map[url];
@@ -207,7 +202,7 @@ asyncTest('content manipulation', function () {
         'res/role': 0
     };
     var count = 0;
-    pipeline.onProgress = function (completed, total, item) {
+    var onProgress = function (completed, total, item) {
         var url = item.id;
         urls[url]++;
         if (url === 'res/role') {
@@ -224,7 +219,7 @@ asyncTest('content manipulation', function () {
         strictEqual(completed, count, 'should increase completed count by one');
     };
 
-    pipeline.flowIn([
+    var items = cc.LoadingItems.create(pipeline, [
         'res/Background.png',
         {
             id: 'res/scene.json',
@@ -232,7 +227,7 @@ asyncTest('content manipulation', function () {
         },
         'res/role.plist',
         'res/role'
-    ]);
+    ], onProgress, onComplete);
 
     var timeoutId = setTimeout(function () {
         ok(false, 'time out!');
