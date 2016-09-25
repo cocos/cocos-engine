@@ -43,6 +43,8 @@ var Audio = function (src) {
     this._loaded = false;
 };
 
+cc.js.extend(Audio, EventTarget);
+
 Audio.Type = {
     DOM: 'AUDIO',
     WEBAUDIO: 'WEBAUDIO',
@@ -79,11 +81,6 @@ Audio.State = {
             audio.emit('load');
         }
     };
-
-    proto.on = EventTarget.prototype.on;
-    proto.once = EventTarget.prototype.once;
-    proto.emit = EventTarget.prototype.emit;
-    proto.off = EventTarget.prototype.off;
 
     proto.mount = function (elem) {
         if (elem instanceof HTMLElement) {
