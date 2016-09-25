@@ -555,7 +555,7 @@ JS.get(Vec2, 'ZERO', function () {
 /**
  * !#en return a Vec2 object with x = 0 and y = 1.
  * !#zh 返回 x = 0 和 y = 1 的 Vec2 对象。
- * @property up
+ * @property UP
  * @type Vec2
  * @static
  */
