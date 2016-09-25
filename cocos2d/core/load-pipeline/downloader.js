@@ -210,7 +210,7 @@ function downloadUuid (item, callback) {
                     return;
                 }
                 ext = ext.substr(1);
-                var queue = LoadingItems.getQueue(item.queueId);
+                var queue = LoadingItems.getQueue(item);
                 reusedArray[0] = {
                     queueId: item.queueId,
                     id: url,

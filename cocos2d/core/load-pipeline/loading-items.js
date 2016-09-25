@@ -83,27 +83,10 @@ function createItem (id, queueId) {
     return result;
 }
 
-function checkCircleReference(owner, item) {
-    if (!item.deps) {
-        return false;
-    }
-    
-    var i, deps = item.deps, subDep;
-    for (var i = 0; i < deps.length; i++) {
-        subDep = deps[i];
-        if (subDep.id === owner.id) {
-            return true;
-        }
-        else if (subDep.deps && checkCircleReference(owner, subDep)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 /**
  * !#en
- * LoadingItems is the manager of items in pipeline.</br>
+ * LoadingItems is the queue of items which can flow them into the loading pipeline.</br>
+ * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.</br>
  * It hold a map of items, each entry in the map is a url to object key value pair.</br>
  * Each item always contains the following property:</br>
  * - id: The identification of the item, usually it's identical to url</br>
@@ -114,9 +97,12 @@ function checkCircleReference(owner, item) {
  * - complete: The flag indicate whether the item is completed by the pipeline.</br>
  * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
  * </br>
- * Item can hold other custom properties.
+ * Item can hold other custom properties.</br>
+ * Each LoadingItems object will be destroyed for recycle after onComplete callback</br>
+ * So please don't hold its reference for later usage, you can copy properties in it though.
  * !#zh
- * LoadingItems 负责管理 pipeline 中的对象</br>
+ * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。</br>
+ * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
  * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。</br>
  * 每个对象都会包含下列属性：</br>
  * - id：该对象的标识，通常与 url 相同。</br>
@@ -127,7 +113,8 @@ function checkCircleReference(owner, item) {
  * - complete：该标志表明该对象是否通过 pipeline 完成。</br>
  * - states：该对象存储每个管道中对象经历的状态，状态可以是 Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
  * </br>
- * 对象可容纳其他自定义属性。
+ * 对象可容纳其他自定义属性。</br>
+ * 每个 LoadingItems 对象都会在 onComplete 回调之后被销毁，所以请不要持有它的引用并在结束回调之后依赖它的内容执行任何逻辑，有这种需求的话你可以提前复制它的内容。
  *
  * @class LoadingItems
  * @extends CallbacksInvoker
@@ -145,8 +132,37 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
 
     this._appending = false;
 
+    /**
+     * !#en This is a callback which will be invoked while an item flow out the pipeline.
+     * You can pass the callback function in LoadingItems.create or set it later.
+     * !#zh 这个回调函数将在 item 加载结束后被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+     * @method onProgress
+     * @param {Number} completedCount The number of the items that are already completed.
+     * @param {Number} totalCount The total number of the items.
+     * @param {Object} item The latest item which flow out the pipeline.
+     * @example
+     *  loadingItems.onProgress = function (completedCount, totalCount, item) {
+     *      var progress = (100 * completedCount / totalCount).toFixed(2);
+     *      cc.log(progress + '%');
+     *  }
+     */
     this.onProgress = onProgress;
-
+    
+    /**
+     * !#en This is a callback which will be invoked while all items is completed,
+     * You can pass the callback function in LoadingItems.create or set it later.
+     * !#zh 该函数将在加载队列全部完成时被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+     * @method onComplete
+     * @param {Array} errors All errored urls will be stored in this array, if no error happened, then it will be null
+     * @param {LoadingItems} items All items.
+     * @example
+     *  loadingItems.onComplete = function (errors, items) {
+     *      if (error)
+     *          cc.log('Completed with ' + errors.length + ' errors');
+     *      else
+     *          cc.log('Completed ' + items.totalCount + ' items');
+     *  }
+     */
     this.onComplete = onComplete;
 
     /**
@@ -199,8 +215,42 @@ var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
     }
 };
 
+/**
+ * !#en The item states of the LoadingItems, its value could be LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
+ * !#zh LoadingItems 队列中的加载项状态，状态的值可能是 LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
+ * @enum LoadingItems.ItemState
+ * @static
+ */
 LoadingItems.ItemState = new cc.Enum(ItemState);
 
+/**
+ * !#en The constructor function of LoadingItems, this will use recycled LoadingItems in the internal pool if possible.
+ * You can pass onProgress and onComplete callbacks to visualize the loading process.
+ * !#zh LoadingItems 的构造函数，这种构造方式会重用内部对象缓冲池中的 LoadingItems 队列，以尽量避免对象创建。
+ * 你可以传递 onProgress 和 onComplete 回调函数来获知加载进度信息。
+ * @method create
+ * @static
+ * @param {Pipeline} pipeline The pipeline to process the queue.
+ * @param {Array} urlList The items array.
+ * @param {Function} onProgress The progression callback, refer to {{#crossLink "LoadingItems.onProgress"}}{{/crossLink}}
+ * @param {Function} onComplete The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
+ * @return {LoadingItems} The LoadingItems queue obejct
+ * @example
+ *  LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
+ *      var progress = (100 * completedCount / totalCount).toFixed(2);
+ *      cc.log(progress + '%');
+ *  }, function (errors, items) {
+ *      if (errors) {
+ *          for (var i = 0; i < errors.length; ++i) {
+ *              cc.log('Error url: ' + errors[i] + ', error: ' + items.getError(errors[i]));
+ *          }
+ *      }
+ *      else {
+ *          var result_a = items.getContent('a.png');
+ *          // ...
+ *      }
+ *  })
+ */
 LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
     if (onProgress === undefined) {
         if (typeof urlList === 'function') {
@@ -233,10 +283,25 @@ LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
     return queue;
 };
 
-LoadingItems.getQueue = function (id) {
-    return _queues[id];
+/**
+ * !#en Retrieve the LoadingItems queue object for an item.
+ * !#zh 通过 item 对象获取它的 LoadingItems 队列。
+ * @method getQueue
+ * @static
+ * @param {Object} item The item to query
+ * @return {LoadingItems} The LoadingItems queue obejct
+ */
+LoadingItems.getQueue = function (item) {
+    return item.queueId ? _queues[item.queueId] : null;
 };
 
+/**
+ * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
+ * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
+ * @method itemComplete
+ * @static
+ * @param {Object} item The item which has completed
+ */
 LoadingItems.itemComplete = function (item) {
     var queue = _queues[item.queueId];
     if (queue) {
@@ -246,6 +311,13 @@ LoadingItems.itemComplete = function (item) {
 };
 
 JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
+    /**
+     * !#en Add urls to the LoadingItems queue.
+     * !#zh 向一个 LoadingItems 队列添加加载项。
+     * @method append
+     * @param {Array} urlList The url list to be appended, the url can be object or string
+     * @return {Array} The accepted url list, some invalid items could be refused.
+     */
     append: function (urlList, owner) {
         if (!this.active) {
             return [];
@@ -289,6 +361,11 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         return accepted;
     },
 
+    /**
+     * !#en Complete a LoadingItems queue, please do not call this method unless you know what's happening.
+     * !#zh 完成一个 LoadingItems 队列，请不要调用这个函数，除非你知道自己在做什么。
+     * @method allComplete
+     */
     allComplete: function () {
         var errors = this._errorUrls.length === 0 ? null : this._errorUrls;
         if (this.onComplete) {
@@ -444,6 +521,12 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         this.totalCount--;
     },
 
+    /**
+     * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
+     * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
+     * @method itemComplete
+     * @param {id} item The item id
+     */
     itemComplete: function (id) {
         var item = this.map[id];
         if (!item) {
@@ -473,6 +556,11 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         this.invokeAndRemove(id, item);
     },
 
+    /**
+     * !#en Destroy the LoadingItems queue, the queue object won't be garbage collected, it will be recycled, so every after destroy is not reliable.
+     * !#zh 销毁一个 LoadingItems 队列，这个队列对象会被内部缓冲池回收，所以销毁后的所有内部信息都是不可依赖的。
+     * @method destroy
+     */
     destroy: function () {
         this.active = false;
         this._appending = false;

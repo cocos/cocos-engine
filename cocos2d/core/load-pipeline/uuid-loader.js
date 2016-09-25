@@ -139,7 +139,7 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                         prop: dependProp
                     };
                     // Hack to get a better behavior
-                    var queue = LoadingItems.getQueue(item.queueId);
+                    var queue = LoadingItems.getQueue(item);
                     var list = queue._callbackTable[dependSrc];
                     if (list) {
                         list.unshift(loadCallback, target);

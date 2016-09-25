@@ -401,39 +401,7 @@ JS.mixin(Pipeline.prototype, {
                 this.flowOut(item);
             }
         }
-    },
-
-    /**
-     * !#en This is a callback which will be invoked while an item flow out the pipeline, you should overwrite this function.
-     * !#zh 这个回调函数将在 item 流出 pipeline 时被调用，你应该重写该函数。
-     * @method onProgress
-     * @param {Number} completedCount The number of the items that are already completed.
-     * @param {Number} totalCount The total number of the items.
-     * @param {Object} item The latest item which flow out the pipeline.
-     * @example
-     *  pipeline.onProgress = function (completedCount, totalCount, item) {
-     *      var progress = (100 * completedCount / totalCount).toFixed(2);
-     *      cc.log(progress + '%');
-     *  }
-     */
-    onProgress: null,
-
-    /**
-     * !#en This is a callback which will be invoked while all items flow out the pipeline,
-     * you should overwirte this function.
-     * !#zh 该函数将在所有 item 流出 pipeline 时被调用，你应该重写该函数。
-     * @method onComplete
-     * @param {Array} error All errored urls will be stored in this array, if no error happened, then it will be null
-     * @param {LoadingItems} items All items.
-     * @example
-     *  pipeline.onComplete = function (error, items) {
-     *      if (error)
-     *          cc.log('Completed with ' + error.length + ' errors');
-     *      else
-     *          cc.log('Completed ' + items.totalCount + ' items');
-     *  }
-     */
-    onComplete: null
+    }
 });
 
 cc.Pipeline = module.exports = Pipeline;
