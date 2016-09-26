@@ -61,7 +61,6 @@ var RichText = cc.Class({
     ctor: function() {
         this._textArray = null;
         this._labelSegmentsCache = [];
-        this._spritesMap = {};
 
         this._resetState();
 
@@ -436,7 +435,48 @@ var RichText = cc.Class({
                 spriteFrame.ensureLoadTexture();
             }
         }
+    },
 
+    _addRichTextImageElement: function (richTextElement) {
+        var spriteFrameName = richTextElement.style.src;
+        var spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
+        if(spriteFrame) {
+            var sprite = new cc.Scale9Sprite();
+            sprite.setAnchorPoint(cc.p(0, 0));
+            spriteFrame.__sprite = sprite;
+            this._sgNode.addChild(sprite);
+            this._labelSegments.push(sprite);
+
+            var spriteRect = spriteFrame.getRect();
+            var scaleFactor = 1;
+            if(spriteRect.height > this.lineHeight) {
+                scaleFactor = this.lineHeight / spriteRect.height;
+            }
+            if(this.maxWidth > 0) {
+                if(this._lineOffsetX + spriteRect.width * scaleFactor > this.maxWidth) {
+                    this._updateLineInfo();
+                }
+                this._lineOffsetX += spriteRect.width * scaleFactor;
+
+            } else {
+                this._lineOffsetX += spriteRect.width * scaleFactor;
+                if(this._lineOffsetX > this._labelWidth) {
+                    this._labelWidth = this._lineOffsetX;
+                }
+            }
+            this._applySpriteFrame(spriteFrame);
+            sprite.setContentSize(cc.size(spriteRect.width * scaleFactor,
+                                          spriteRect.height * scaleFactor));
+            sprite._lineCount = this._lineCount;
+
+            if(richTextElement.style.event) {
+                if(richTextElement.style.event.click) {
+                    sprite._clickHandler = richTextElement.style.event.click;
+                }
+            }
+        } else {
+            cc.warn('Invalid RichText img tag! The sprite frame name can\'t be found in the ImageAtlas!');
+        }
     },
 
     _updateRichText: function () {
@@ -467,38 +507,7 @@ var RichText = cc.Class({
                     continue;
                 }
                 if(richTextElement.style && richTextElement.style.isImage && this.imageAtlas) {
-                    var spriteFrameName = richTextElement.style.src;
-                    var spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
-                    var sprite = new cc.Scale9Sprite();
-                    sprite.setAnchorPoint(cc.p(0, 0));
-                    spriteFrame.__sprite = sprite;
-                    this._sgNode.addChild(sprite);
-                    this._labelSegments.push(sprite);
-                    if(spriteFrame) {
-                        var spriteRect = spriteFrame.getRect();
-                        var scaleFactor = 1;
-                        if(spriteRect.height > this.lineHeight) {
-                            scaleFactor = this.lineHeight / spriteRect.height;
-                        }
-                        if(this.maxWidth > 0) {
-                            if(this._lineOffsetX + spriteRect.width * scaleFactor > this.maxWidth) {
-                                this._updateLineInfo();
-                            }
-                            this._lineOffsetX += spriteRect.width * scaleFactor;
-
-                        } else {
-                            this._lineOffsetX += spriteRect.width * scaleFactor;
-                            if(this._lineOffsetX > this._labelWidth) {
-                                this._labelWidth = this._lineOffsetX;
-                            }
-                        }
-                        this._applySpriteFrame(spriteFrame);
-                        sprite.setContentSize(cc.size(spriteRect.width * scaleFactor,
-                                                      spriteRect.height * scaleFactor));
-                        sprite._lineCount = this._lineCount;
-                        //todo add event handler to image
-                    }
-
+                    this._addRichTextImageElement(richTextElement);
                     continue;
                 }
             }
