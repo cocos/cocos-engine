@@ -29,6 +29,10 @@ var DragonBonesAsset = cc.Class({
 
     properties: {
         _dragonBonesJson : '',
+
+        /**
+         * @property {string} dragonBonesJson
+         */
         dragonBonesJson : {
             get: function () {
                 return this._dragonBonesJson;
