@@ -79,6 +79,7 @@ cc.HtmlTextParser.prototype = {
         var tagName;
         var nextSpace;
         var eventObj;
+        var eventHanlderString;
         if (header) {
             tagName = header[0];
             attribute = attribute.substring(tagName.length).trim();
@@ -101,17 +102,63 @@ cc.HtmlTextParser.prototype = {
 
             //tag has event arguments
             if(nextSpace > -1) {
-                var eventHanlderString = attribute.substring(nextSpace+1).trim();
+                eventHanlderString = attribute.substring(nextSpace+1).trim();
                 eventObj = this._processEventHandler(eventHanlderString);
                 obj.event = eventObj;
             }
+            return obj;
         }
+
         header = attribute.match(/^(br(\s)*\/)/);
         if(header && header[0].length > 0) {
             tagName = header[0].trim();
             if(tagName.startsWith("br") && tagName[tagName.length-1] === "/") {
                 obj.isNewLine = true;
                 this._resultObjectArray.push({text: "", style: {newline: true}});
+                return obj;
+            }
+        }
+
+        header = attribute.match(/^(img(\s)*src(\s)*=[^>]+\/)/);
+        if(header && header[0].length > 0) {
+            tagName = header[0].trim();
+            if(tagName.startsWith("img") && tagName[tagName.length-1] === "/") {
+                var srcBegin = tagName.indexOf('=');
+                var remainingArgument = tagName.substring(srcBegin+1).trim();
+                var imageSrc;
+                var endQuotIndex = -1;
+                var isValidImageTag = false;
+                switch(remainingArgument[0]){
+                  case "'":
+                      endQuotIndex = remainingArgument.indexOf("'", 1);
+                      if(endQuotIndex > -1) {
+                          imageSrc = remainingArgument.substring(1, endQuotIndex);
+                          isValidImageTag = true;
+                      }
+                      break;
+                  case "\"":
+                      endQuotIndex = remainingArgument.indexOf("\"", 1);
+                      if(endQuotIndex > -1) {
+                          imageSrc = remainingArgument.substring(1, endQuotIndex);
+                          isValidImageTag = true;
+                      }
+                      break;
+                  default:
+                      //invalid tag
+                      break;
+                }
+                if(isValidImageTag) {
+                    obj.isImage = true;
+                    obj.src = imageSrc;
+                    eventHanlderString = remainingArgument.substring(endQuotIndex+1).trim();
+                    if(eventHanlderString.match(eventRegx)){
+                        eventObj = this._processEventHandler(eventHanlderString);
+                        obj.event = eventObj;
+                    }
+                    this._resultObjectArray.push({text: "", style: obj});
+                }
+
+                return {};
             }
         }
 
@@ -194,7 +241,7 @@ cc.HtmlTextParser.prototype = {
         if (this._stack.length === 0){
             this._stack.push(obj);
         } else {
-            if(obj.isNewLine) {
+            if(obj.isNewLine || obj.isImage) {
                 return;
             }
             //for nested tags
