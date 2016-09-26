@@ -86,7 +86,7 @@ if (_IEFilter) {
 
 function downloadBinary (url, callback) {
     var self = this;
-    var xhr = this.getXMLHttpRequest(),
+    var xhr = cc.loader.getXMLHttpRequest(),
         errInfo = 'Load ' + url + ' failed!';
     xhr.open('GET', url, true);
     if (_IEFilter) {

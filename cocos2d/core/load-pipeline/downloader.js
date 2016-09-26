@@ -25,6 +25,7 @@
 var JS = require('../platform/js');
 var Path = require('../utils/CCPath');
 var Pipeline = require('./pipeline');
+var LoadingItems = require('./loading-items');
 var PackDownloader = require('./pack-downloader');
 // var downloadBinary = require('./binary-downloader');
 var downloadText = require('./text-downloader');
@@ -64,7 +65,7 @@ function downloadScript (item, callback, isAsync) {
 
 function downloadTextSync (item) {
     var url = item.url;
-    var xhr = Pipeline.getXMLHttpRequest();
+    var xhr = cc.loader.getXMLHttpRequest();
     xhr.open('GET', url, false);
     if (/msie/i.test(window.navigator.userAgent) && !/opera/i.test(window.navigator.userAgent)) {
         // IE-specific logic here
@@ -190,6 +191,8 @@ function downloadFont (item, callback) {
     }
 }
 
+var reusedArray = [];
+
 function downloadUuid (item, callback) {
     var uuid = item.id;
     var self = this;
@@ -207,7 +210,9 @@ function downloadUuid (item, callback) {
                     return;
                 }
                 ext = ext.substr(1);
-                self.pipeline._items.map[url] = {
+                var queue = LoadingItems.getQueue(item);
+                reusedArray[0] = {
+                    queueId: item.queueId,
                     id: url,
                     url: url,
                     type: ext,
@@ -215,6 +220,7 @@ function downloadUuid (item, callback) {
                     alias: item.id,
                     complete: true
                 };
+                queue.append(reusedArray);
                 // Dispatch to other raw type downloader
                 var downloadFunc = self.extMap[ext] || self.extMap['default'];
                 item.type = ext;
@@ -331,15 +337,6 @@ JS.mixin(Downloader.prototype, {
         var self = this;
         var downloadFunc = this.extMap[item.type] || this.extMap['default'];
         if (this._curConcurrent < this.maxConcurrent) {
-            if (CC_EDITOR) {
-                // raw assets are not cached in the CC_EDITOR fix fireball/issues/4158
-                self.pipeline._items.addListener(item.id, function (item) {
-                    if (item.isRawAsset) {
-                        cc.loader.removeItem(item.url);
-                    }
-                    cc.loader.removeItem(item.id);
-                });
-            }
             this._curConcurrent++;
             downloadFunc.call(this, item, function (err, result) {
                 // Concurrent logic

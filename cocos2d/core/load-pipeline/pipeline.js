@@ -24,14 +24,8 @@
  ****************************************************************************/
 
 var JS = require('../platform/js');
-var Path = require('../utils/CCPath');
 var LoadingItems = require('./loading-items');
-
-var ItemState = {
-    WORKING: 1,
-    COMPLETE: 2,
-    ERROR: 3
-};
+var ItemState = LoadingItems.ItemState;
 
 function asyncFlow (item) {
     var pipeId = this.id;
@@ -114,51 +108,6 @@ function syncFlow (item) {
     }
 }
 
-function isIdValid (id) {
-    var realId = id.id || id;
-    return (typeof realId === 'string');
-}
-function createItem (id) {
-    var result;
-    if (typeof id === 'object' && id.id) {
-        if (!id.type) {
-            id.type = Path.extname(id.id).toLowerCase().substr(1);
-        }
-        result = {
-            url: id.url || id.id,
-            error: null,
-            content: null,
-            complete: false,
-            states: {}
-        };
-        JS.mixin(result, id);
-    }
-    else if (typeof id === 'string') {
-        result = {
-            id: id,
-            url: id,
-            type: Path.extname(id).toLowerCase().substr(1),
-            error: null,
-            content: null,
-            complete: false,
-            states: {}
-        };
-    }
-
-    if (result.skips) {
-        for (var i = 0, l = result.skips.length; i < l; i++) {
-            var skip = result.skips[i];
-            result.states[skip] = ItemState.COMPLETE;
-        }
-    }
-
-    return result;
-}
-
-function getXMLHttpRequest () {
-    return window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('MSXML2.XMLHTTP');
-}
-
 /**
  * !#en
  * A pipeline describes a sequence of manipulations, each manipulation is called a pipe.</br>
@@ -201,9 +150,7 @@ function getXMLHttpRequest () {
  */
 var Pipeline = function (pipes) {
     this._pipes = pipes;
-    this._items = new LoadingItems();
-    this._errorUrls = [];
-    this._flowing = false;
+    this._cache = {};
 
     for (var i = 0; i < pipes.length; ++i) {
         var pipe = pipes[i];
@@ -218,8 +165,7 @@ var Pipeline = function (pipes) {
     }
 };
 
-Pipeline.ItemState = new cc.Enum(ItemState);
-Pipeline.getXMLHttpRequest = getXMLHttpRequest;
+Pipeline.ItemState = ItemState;
 
 JS.mixin(Pipeline.prototype, {
     /**
@@ -289,8 +235,7 @@ JS.mixin(Pipeline.prototype, {
      * 也通过添加一个 包含 ‘skips’ 属性的 item 对象，你就可以跳过 skips 中包含的 pipe。</br>
      * 该对象可以包含任何附加属性。
      * @method flowIn
-     * @param {Array} urlList
-     * @return {Array} Items accepted by the pipeline
+     * @param {Array} items
      * @example
      *  pipeline.flowIn([
      *      'res/Background.png',
@@ -302,36 +247,20 @@ JS.mixin(Pipeline.prototype, {
      *      }
      *  ]);
      */
-    flowIn: function (urlList) {
-        var items = [], i, url, item;
-        for (i = 0; i < urlList.length; ++i) {
-            url = urlList[i];
-            if (isIdValid(url)) {
-                item = createItem(url);
-                items.push(item);
-            }
-            else {
-                throw new Error('Pipeline flowIn: Invalid url: ' + (url.id || url));
-            }
-        }
-        var acceptedItems = this._items.append(items);
-
-        // Manually complete
-        if (this._pipes.length === 0 || acceptedItems.length === 0) {
-            this.complete();
-            return acceptedItems;
-        }
-        
-        this._flowing = true;
-        
-        // Flow in after appended to loading items
-        var pipe = this._pipes[0];
+    flowIn: function (items) {
+        var i, pipe = this._pipes[0], item;
         if (pipe) {
-            for (i = 0; i < acceptedItems.length; i++) {
-                pipe.flowIn(acceptedItems[i]);
+            for (i = 0; i < items.length; i++) {
+                item = items[i];
+                this._cache[item.id] = item;
+                pipe.flowIn(item);
             }
         }
-        return acceptedItems;
+        else {
+            for (i = 0; i < items.length; i++) {
+                this.flowOut(items[i]);
+            }
+        }
     },
 
     /**
@@ -347,93 +276,28 @@ JS.mixin(Pipeline.prototype, {
      * 例如：</br>
      * 我们需要加载一个场景配置的 JSON 文件，该场景会将所有的依赖项全部都加载完毕以后，进行回调表示加载完毕。
      * @method flowInDeps
+     * @deprecated since v1.3
      * @param {Array} urlList
      * @param {Function} callback
      * @return {Array} Items accepted by the pipeline
      */
-    flowInDeps: function (urlList, callback) {
-        var checker = {};
-
-        var items = this._items;
-        function loadedCheck (item) {
-            checker[item.id] = item;
-
-            for (var url in checker) {
-                // Not done yet
-                if (!checker[url]) {
-                    return;
-                }
-            }
-            // All url completed
-            callback && callback.call(this, checker);
-            callback = null;
-        }
-        // Add loaded listeners
-        for (var i = 0; i < urlList.length; ++i) {
-            var url = urlList[i].id || urlList[i];
-            if (typeof url !== 'string' || checker[url]) {
-                continue;
-            }
-            var item = items.map[url];
-            if ( !item ) {
-                items.addListener(url, loadedCheck);
-                checker[url] = null;
-            }
-            else {
-                checker[url] = item;
-            }
-        }
-        var accepted = this.flowIn(urlList);
-        // No new resources, complete directly
-        if (accepted.length === 0) {
-            callback && callback.call(this, checker);
-            callback = null;
-        }
-        return accepted;
-    },
-
-    complete: function () {
-        // All completed
-        if (this._items.isCompleted()) {
-            this._flowing = false;
-            var error = this._errorUrls.length === 0 ? null : this._errorUrls;
-            if (this.onComplete) {
-                this.onComplete(error, this._items);
-            }
-            // Remove all errored items, so that they can be flowed in again
-            for (var i = 0; i < this._errorUrls.length; ++i) {
-                var id = this._errorUrls[i];
-                this._items.removeItem(id);
-            }
-            this._errorUrls = [];
-        }
+    flowInDeps: function (owner, urlList, callback) {
+        var deps = LoadingItems.create(this, function (errors, items) {
+            callback(errors, items);
+            items.destroy();
+        });
+        return deps.append(urlList, owner);
     },
 
     flowOut: function (item) {
-        var id = item.id;
-        var items = this._items;
-        var exists = items.map[id];
-        // Not exist or already completed
-        if (!exists || exists.complete) {
-            return;
+        if (item.error) {
+            delete this._cache[item.id];
         }
-
-        // Register or unregister errors
-        var errorListId = this._errorUrls.indexOf(id);
-        if (item.error && errorListId === -1) {
-            this._errorUrls.push(id);
+        else if (!this._cache[item.id]) {
+            this._cache[item.id] = item;
         }
-        else if (!item.error && errorListId !== -1) {
-            this._errorUrls.splice(errorListId, 1);
-        }
-
-        items.complete(item.id);
-
-        this.onProgress && this.onProgress(items.completedCount, items.totalCount, item);
-
-        this.complete();
-
-        items.invokeAndRemove(id, item);
+        item.complete = true;
+        LoadingItems.itemComplete(item);
     },
 
     /**
@@ -470,9 +334,10 @@ JS.mixin(Pipeline.prototype, {
      * !#zh 获取 pipeline 当前是否正在处理中。
      * @method isFlowing
      * @return {Boolean}
+     * @deprecated since v1.3
      */
     isFlowing: function () {
-        return this._flowing;
+        return true;
     },
 
     /**
@@ -480,40 +345,46 @@ JS.mixin(Pipeline.prototype, {
      * !#zh 获取 pipeline 中的所有 items。
      * @method getItems
      * @return {LoadingItems}
+     * @deprecated since v1.3
      */
     getItems: function () {
-        return this._items;
+        return null;
     },
 
     /**
      * !#en Returns an item in pipeline.
-     * !#zh 获取指定 item。
+     * !#zh 根据 id 获取一个 item
      * @method getItem
-     * @return {LoadingItems}
+     * @param {Object} id The id of the item
+     * @return {Object}
      */
-    getItem: function (url) {
-        return this._items.map[url];
+    getItem: function (id) {
+        var item = this._cache[id];
+
+        if (!item)
+            return item;
+
+        if (item.alias)
+            item = this._cache[item.alias];
+
+        return item;
     },
 
     /**
      * !#en Removes an item in pipeline, no matter it's in progress or completed.
      * !#zh 移除指定 item，无论是进行时还是已完成。
      * @method removeItem
+     * @param {Object} id The id of the item
      * @return {Boolean} succeed or not
      */
-    removeItem: function (url) {
-        var item = this._items.map[url];
-        if (item) {
-            if (!item.complete) {
-                item.error = new Error('Canceled manually');
-                this.flowOut(item);
-            }
-            this._items.removeItem(url);
-            return true;
+    removeItem: function (id) {
+        var removed = this._cache[id];
+        delete this._cache[id];
+        if (removed && !removed.complete) {
+            removed.error = new Error('Canceled manually');
+            this.flowOut(removed);
         }
-        else {
-            return false;
-        }
+        return removed;
     },
 
     /**
@@ -522,53 +393,15 @@ JS.mixin(Pipeline.prototype, {
      * @method clear
      */
     clear: function () {
-        if (this._flowing) {
-            var items = this._items.map;
-            for (var url in items) {
-                var item = items[url];
-                if (!item.complete) {
-                    item.error = new Error('Canceled manually');
-                    this.flowOut(item);
-                }
+        for (var id in this._cache) {
+            var item = this._cache[id];
+            delete this._cache[id];
+            if (!item.complete) {
+                item.error = new Error('Canceled manually');
+                this.flowOut(item);
             }
         }
-
-        this._items = new LoadingItems();
-        this._errorUrls = [];
-        this._flowing = false;
-    },
-
-    /**
-     * !#en This is a callback which will be invoked while an item flow out the pipeline, you should overwrite this function.
-     * !#zh 这个回调函数将在 item 流出 pipeline 时被调用，你应该重写该函数。
-     * @method onProgress
-     * @param {Number} completedCount The number of the items that are already completed.
-     * @param {Number} totalCount The total number of the items.
-     * @param {Object} item The latest item which flow out the pipeline.
-     * @example
-     *  pipeline.onProgress = function (completedCount, totalCount, item) {
-     *      var progress = (100 * completedCount / totalCount).toFixed(2);
-     *      cc.log(progress + '%');
-     *  }
-     */
-    onProgress: null,
-
-    /**
-     * !#en This is a callback which will be invoked while all items flow out the pipeline,
-     * you should overwirte this function.
-     * !#zh 该函数将在所有 item 流出 pipeline 时被调用，你应该重写该函数。
-     * @method onComplete
-     * @param {Array} error All errored urls will be stored in this array, if no error happened, then it will be null
-     * @param {LoadingItems} items All items.
-     * @example
-     *  pipeline.onComplete = function (error, items) {
-     *      if (error)
-     *          cc.log('Completed with ' + error.length + ' errors');
-     *      else
-     *          cc.log('Completed ' + items.totalCount + ' items');
-     *  }
-     */
-    onComplete: null
+    }
 });
 
 cc.Pipeline = module.exports = Pipeline;

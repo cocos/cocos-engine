@@ -24,12 +24,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+var EventTarget = require('../core/event/event-target');
+
 var touchBinded = false;
 var touchPlayList = [
     //{ offset: 0, audio: audio }
 ];
 
 var Audio = function (src) {
+    EventTarget.call(this);
+
     this.src = src;
     this._audioType = Audio.Type.UNKNOWN;
     this._element = null;
@@ -38,6 +42,8 @@ var Audio = function (src) {
     this._state = Audio.State.ERROR;
     this._loaded = false;
 };
+
+cc.js.extend(Audio, EventTarget);
 
 Audio.Type = {
     DOM: 'AUDIO',
@@ -70,46 +76,10 @@ Audio.State = {
                 }
             });
         }
-        audio.mount(item.element || item.buffer);
-        audio.emit('load');
-    };
-
-    proto.on = function (event, callback) {
-        var list = this._eventList[event];
-        if (!list) {
-            list = this._eventList[event] = [];
+        else if (item.complete) {
+            audio.mount(item.element || item.buffer);
+            audio.emit('load');
         }
-        list.push(callback);
-    };
-    proto.once = function (event, callback) {
-        var onceCallback = function (elem) {
-            callback.call(this, elem);
-            this.off(event, onceCallback);
-        };
-        this.on(event, onceCallback);
-    };
-    proto.emit = function (event) {
-        var list = this._eventList[event];
-        if (!list) return;
-        for (var i=0; i<list.length; i++) {
-            list[i].call(this, this);
-        }
-    };
-    proto.off = function (event, callback) {
-        var list = this._eventList[event];
-        if (!list) return false;
-        if (!callback) {
-            this._eventList[event] = [];
-            return true;
-        }
-
-        for (var i=0; i<list.length; i++) {
-            if (list[i] === callback) {
-                list.splice(i, 1);
-                break;
-            }
-        }
-        return true;
     };
 
     proto.mount = function (elem) {

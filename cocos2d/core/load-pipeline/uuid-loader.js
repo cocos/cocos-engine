@@ -25,6 +25,7 @@
 
 var JS = require('../platform/js');
 require('../platform/deserialize');
+var LoadingItems = require('./loading-items');
 
 // temp deserialize info
 var _tdInfo = new cc.deserialize.Details();
@@ -100,10 +101,12 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
     // cache dependencies for auto release
     var dependKeys = item.dependKeys = [];
 
-    pipeline.flowInDeps(depends, function (items) {
+    // Predefine content for dependencies usage
+    item.content = asset;
+    pipeline.flowInDeps(item, depends, function (errors, items) {
         var item;
-        for (var src in items) {
-            item = items[src];
+        for (var src in items.map) {
+            item = items.map[src];
             if (item.uuid && item.content) {
                 item.content._uuid = item.uuid;
             }
@@ -112,9 +115,9 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
             var dependSrc = depends[i].uuid;
             var dependObj = objList[i];
             var dependProp = propList[i];
-            item = items[dependSrc];
+            item = items.map[dependSrc];
             if (item) {
-                if (item.complete) {
+                if (item.complete || item.content) {
                     if (item.error) {
                         cc._throw(item.error);
                     }
@@ -136,12 +139,13 @@ function loadDepends (pipeline, item, asset, tdInfo, deferredLoadRawAssetsInRunt
                         prop: dependProp
                     };
                     // Hack to get a better behavior
-                    var list = pipeline.getItems()._callbackTable[dependSrc];
+                    var queue = LoadingItems.getQueue(item);
+                    var list = queue._callbackTable[dependSrc];
                     if (list) {
                         list.unshift(loadCallback, target);
                     }
                     else {
-                        pipeline.getItems().add(dependSrc, loadCallback, target);
+                        queue.addListener(dependSrc, loadCallback, target);
                     }
                 }
             }

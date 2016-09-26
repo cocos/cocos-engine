@@ -24,11 +24,69 @@
  ****************************************************************************/
 
 var CallbacksInvoker = require('../platform/callbacks-invoker');
+var Path = require('../utils/CCPath');
 var JS = require('../platform/js');
+
+var _qid = (0|(Math.random()*998));
+var _queues = {};
+var _pool = [];
+var _POOL_MAX_LENGTH = 10;
+
+var ItemState = {
+    WORKING: 1,
+    COMPLETE: 2,
+    ERROR: 3
+};
+
+function isIdValid (id) {
+    var realId = id.id || id;
+    return (typeof realId === 'string');
+}
+function createItem (id, queueId) {
+    var result;
+    if (typeof id === 'object' && id.id) {
+        if (!id.type) {
+            id.type = Path.extname(id.id).toLowerCase().substr(1);
+        }
+        result = {
+            queueId: queueId,
+            url: id.url || id.id,
+            error: null,
+            content: null,
+            complete: false,
+            states: {},
+            deps: null
+        };
+        JS.mixin(result, id);
+    }
+    else if (typeof id === 'string') {
+        result = {
+            queueId: queueId,
+            id: id,
+            url: id,
+            type: Path.extname(id).toLowerCase().substr(1),
+            error: null,
+            content: null,
+            complete: false,
+            states: {},
+            deps: null
+        };
+    }
+
+    if (result.skips) {
+        for (var i = 0, l = result.skips.length; i < l; i++) {
+            var skip = result.skips[i];
+            result.states[skip] = ItemState.COMPLETE;
+        }
+    }
+
+    return result;
+}
 
 /**
  * !#en
- * LoadingItems is the manager of items in pipeline.</br>
+ * LoadingItems is the queue of items which can flow them into the loading pipeline.</br>
+ * Please don't construct it directly, use {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} instead, because we use an internal pool to recycle the queues.</br>
  * It hold a map of items, each entry in the map is a url to object key value pair.</br>
  * Each item always contains the following property:</br>
  * - id: The identification of the item, usually it's identical to url</br>
@@ -39,26 +97,73 @@ var JS = require('../platform/js');
  * - complete: The flag indicate whether the item is completed by the pipeline.</br>
  * - states: An object stores the states of each pipe the item go through, the state can be: Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
  * </br>
- * Item can hold other custom properties.
+ * Item can hold other custom properties.</br>
+ * Each LoadingItems object will be destroyed for recycle after onComplete callback</br>
+ * So please don't hold its reference for later usage, you can copy properties in it though.
  * !#zh
- * LoadingItems 负责管理 pipeline 中的对象</br>
+ * LoadingItems 是一个加载对象队列，可以用来输送加载对象到加载管线中。</br>
+ * 请不要直接使用 new 构造这个类的对象，你可以使用 {{#crossLink "LoadingItems.create"}}LoadingItems.create{{/crossLink}} 来创建一个新的加载队列，这样可以允许我们的内部对象池回收并重利用加载队列。
  * 它有一个 map 属性用来存放加载项，在 map 对象中已 url 为 key 值。</br>
  * 每个对象都会包含下列属性：</br>
  * - id：该对象的标识，通常与 url 相同。</br>
  * - url：路径 </br>
  * - type: 类型，它这是默认的 URL 的扩展名，可以手动指定赋值。</br>
  * - error：pipeline 中发生的错误将被保存在这个属性中。</br>
- * - content: pipeline 中处理的内容时，最终的结果也将被存储在这个属性中。</br>
+ * - content: pipeline 中处理的临时结果，最终的结果也将被存储在这个属性中。</br>
  * - complete：该标志表明该对象是否通过 pipeline 完成。</br>
  * - states：该对象存储每个管道中对象经历的状态，状态可以是 Pipeline.ItemState.WORKING | Pipeline.ItemState.ERROR | Pipeline.ItemState.COMPLETE</br>
  * </br>
- * 对象可容纳其他自定义属性。
+ * 对象可容纳其他自定义属性。</br>
+ * 每个 LoadingItems 对象都会在 onComplete 回调之后被销毁，所以请不要持有它的引用并在结束回调之后依赖它的内容执行任何逻辑，有这种需求的话你可以提前复制它的内容。
  *
  * @class LoadingItems
  * @extends CallbacksInvoker
  */
-var LoadingItems = function () {
+var LoadingItems = function (pipeline, urlList, onProgress, onComplete) {
     CallbacksInvoker.call(this);
+
+    this._id = ++_qid;
+
+    _queues[this._id] = this;
+
+    this._pipeline = pipeline;
+
+    this._errorUrls = [];
+
+    this._appending = false;
+
+    /**
+     * !#en This is a callback which will be invoked while an item flow out the pipeline.
+     * You can pass the callback function in LoadingItems.create or set it later.
+     * !#zh 这个回调函数将在 item 加载结束后被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+     * @method onProgress
+     * @param {Number} completedCount The number of the items that are already completed.
+     * @param {Number} totalCount The total number of the items.
+     * @param {Object} item The latest item which flow out the pipeline.
+     * @example
+     *  loadingItems.onProgress = function (completedCount, totalCount, item) {
+     *      var progress = (100 * completedCount / totalCount).toFixed(2);
+     *      cc.log(progress + '%');
+     *  }
+     */
+    this.onProgress = onProgress;
+    
+    /**
+     * !#en This is a callback which will be invoked while all items is completed,
+     * You can pass the callback function in LoadingItems.create or set it later.
+     * !#zh 该函数将在加载队列全部完成时被调用。你可以在构造时传递这个回调函数或者是在构造之后直接设置。
+     * @method onComplete
+     * @param {Array} errors All errored urls will be stored in this array, if no error happened, then it will be null
+     * @param {LoadingItems} items All items.
+     * @example
+     *  loadingItems.onComplete = function (errors, items) {
+     *      if (error)
+     *          cc.log('Completed with ' + errors.length + ' errors');
+     *      else
+     *          cc.log('Completed ' + items.totalCount + ' items');
+     *  }
+     */
+    this.onComplete = onComplete;
 
     /**
      * !#en The map of all items.
@@ -91,22 +196,181 @@ var LoadingItems = function () {
      * @type {Number}
      */
     this.completedCount = 0;
+
+    /**
+     * !#en Activated or not.
+     * !#zh 是否启用。
+     * @property active
+     * @type {Boolean}
+     */
+    if (this._pipeline) {
+        this.active = true;
+    }
+    else {
+        this.active = false;
+    }
+
+    if (urlList && urlList.length > 0) {
+        this.append(urlList);
+    }
+};
+
+/**
+ * !#en The item states of the LoadingItems, its value could be LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
+ * !#zh LoadingItems 队列中的加载项状态，状态的值可能是 LoadingItems.ItemState.WORKING | LoadingItems.ItemState.COMPLETET | LoadingItems.ItemState.ERROR
+ * @enum LoadingItems.ItemState
+ * @static
+ */
+LoadingItems.ItemState = new cc.Enum(ItemState);
+
+/**
+ * !#en The constructor function of LoadingItems, this will use recycled LoadingItems in the internal pool if possible.
+ * You can pass onProgress and onComplete callbacks to visualize the loading process.
+ * !#zh LoadingItems 的构造函数，这种构造方式会重用内部对象缓冲池中的 LoadingItems 队列，以尽量避免对象创建。
+ * 你可以传递 onProgress 和 onComplete 回调函数来获知加载进度信息。
+ * @method create
+ * @static
+ * @param {Pipeline} pipeline The pipeline to process the queue.
+ * @param {Array} urlList The items array.
+ * @param {Function} onProgress The progression callback, refer to {{#crossLink "LoadingItems.onProgress"}}{{/crossLink}}
+ * @param {Function} onComplete The completion callback, refer to {{#crossLink "LoadingItems.onComplete"}}{{/crossLink}}
+ * @return {LoadingItems} The LoadingItems queue obejct
+ * @example
+ *  LoadingItems.create(cc.loader, ['a.png', 'b.plist'], function (completedCount, totalCount, item) {
+ *      var progress = (100 * completedCount / totalCount).toFixed(2);
+ *      cc.log(progress + '%');
+ *  }, function (errors, items) {
+ *      if (errors) {
+ *          for (var i = 0; i < errors.length; ++i) {
+ *              cc.log('Error url: ' + errors[i] + ', error: ' + items.getError(errors[i]));
+ *          }
+ *      }
+ *      else {
+ *          var result_a = items.getContent('a.png');
+ *          // ...
+ *      }
+ *  })
+ */
+LoadingItems.create = function (pipeline, urlList, onProgress, onComplete) {
+    if (onProgress === undefined) {
+        if (typeof urlList === 'function') {
+            onComplete = urlList;
+            urlList = onProgress = null;
+        }
+    }
+    else if (onComplete === undefined) {
+        onComplete = onProgress;
+        onProgress = null;
+    }
+
+    var queue = _pool.pop();
+    if (queue) {
+        queue._pipeline = pipeline;
+        queue.onProgress = onProgress;
+        queue.onComplete = onComplete;
+        _queues[queue._id] = queue;
+        if (queue._pipeline) {
+            queue.active = true;
+        }
+        if (urlList) {
+            queue.append(urlList);
+        }
+    }
+    else {
+        queue = new LoadingItems(pipeline, urlList, onProgress, onComplete);
+    }
+
+    return queue;
+};
+
+/**
+ * !#en Retrieve the LoadingItems queue object for an item.
+ * !#zh 通过 item 对象获取它的 LoadingItems 队列。
+ * @method getQueue
+ * @static
+ * @param {Object} item The item to query
+ * @return {LoadingItems} The LoadingItems queue obejct
+ */
+LoadingItems.getQueue = function (item) {
+    return item.queueId ? _queues[item.queueId] : null;
+};
+
+/**
+ * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
+ * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
+ * @method itemComplete
+ * @static
+ * @param {Object} item The item which has completed
+ */
+LoadingItems.itemComplete = function (item) {
+    var queue = _queues[item.queueId];
+    if (queue) {
+        // console.log('----- Completed by pipeline ' + item.id + ', rest: ' + (queue.totalCount - queue.completedCount-1));
+        queue.itemComplete(item.id);
+    }
 };
 
 JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
-    append: function (items) {
-        var list = [];
-        for (var i = 0; i < items.length; ++i) {
-            var item = items[i];
-            var id = item.id;
-            // No duplicated url
-            if (!this.map[id]) {
-                this.map[item.id] = item;
-                list.push(item);
+    /**
+     * !#en Add urls to the LoadingItems queue.
+     * !#zh 向一个 LoadingItems 队列添加加载项。
+     * @method append
+     * @param {Array} urlList The url list to be appended, the url can be object or string
+     * @return {Array} The accepted url list, some invalid items could be refused.
+     */
+    append: function (urlList, owner) {
+        if (!this.active) {
+            return [];
+        }
+
+        this._appending = true;
+        var accepted = [], i, url, item;
+        for (i = 0; i < urlList.length; ++i) {
+            url = urlList[i];
+
+            // Already queued in another items queue, url is actually the item
+            if (url.queueId && !this.map[url.id]) {
+                this.map[url.id] = url;
+                this.totalCount++;
+                // console.log('----- Completed already or circle referenced ' + url.id + ', rest: ' + (this.totalCount - this.completedCount-1));
+                this.itemComplete(url.id);
+                continue;
+            }
+            // Queue new items
+            if (isIdValid(url)) {
+                item = createItem(url, this._id);
+                var id = item.id;
+                // No duplicated url
+                if (!this.map[id]) {
+                    this.map[item.id] = item;
+                    this.totalCount++;
+                    accepted.push(item);
+                    // console.log('+++++ Appended ' + item.id);
+                }
             }
         }
-        this.totalCount += list.length;
-        return list;
+        this._appending = false;
+
+        // Manually complete
+        if (this.completedCount === this.totalCount) {
+            this.allComplete();
+        }
+        else {
+            this._pipeline.flowIn(accepted);
+        }
+        return accepted;
+    },
+
+    /**
+     * !#en Complete a LoadingItems queue, please do not call this method unless you know what's happening.
+     * !#zh 完成一个 LoadingItems 队列，请不要调用这个函数，除非你知道自己在做什么。
+     * @method allComplete
+     */
+    allComplete: function () {
+        var errors = this._errorUrls.length === 0 ? null : this._errorUrls;
+        if (this.onComplete) {
+            this.onComplete(errors, this);
+        }
     },
 
     /**
@@ -257,31 +521,68 @@ JS.mixin(LoadingItems.prototype, CallbacksInvoker.prototype, {
         this.totalCount--;
     },
 
-    complete: function (url) {
-        if (this.map[url] && !this.completed[url]) {
-            var item = this.map[url];
-            item.complete = true;
-            this.completed[url] = item;
-            this.completedCount++;
+    /**
+     * !#en Complete an item in the LoadingItems queue, please do not call this method unless you know what's happening.
+     * !#zh 通知 LoadingItems 队列一个 item 对象已完成，请不要调用这个函数，除非你知道自己在做什么。
+     * @method itemComplete
+     * @param {id} item The item id
+     */
+    itemComplete: function (id) {
+        var item = this.map[id];
+        if (!item) {
+            return;
+        }
+
+        // Register or unregister errors
+        var errorListId = this._errorUrls.indexOf(id);
+        if (item.error && errorListId === -1) {
+            this._errorUrls.push(id);
+        }
+        else if (!item.error && errorListId !== -1) {
+            this._errorUrls.splice(errorListId, 1);
+        }
+
+        this.completed[id] = item;
+        this.completedCount++;
+
+        this.onProgress && this.onProgress(this.completedCount, this.totalCount, item);
+
+        // All completed
+        if (!this._appending && this.completedCount >= this.totalCount) {
+            // console.log('===== All Completed ');
+            this.allComplete();
+        }
+
+        this.invokeAndRemove(id, item);
+    },
+
+    /**
+     * !#en Destroy the LoadingItems queue, the queue object won't be garbage collected, it will be recycled, so every after destroy is not reliable.
+     * !#zh 销毁一个 LoadingItems 队列，这个队列对象会被内部缓冲池回收，所以销毁后的所有内部信息都是不可依赖的。
+     * @method destroy
+     */
+    destroy: function () {
+        this.active = false;
+        this._appending = false;
+        this._pipeline = null;
+        this._errorUrls.length = 0;
+        this.onProgress = null;
+        this.onComplete = null;
+
+        this.map = {};
+        this.completed = {};
+
+        this.totalCount = 0;
+        this.completedCount = 0;
+
+        // Reinitialize CallbacksInvoker, generate three new objects, could be improved
+        CallbacksInvoker.call(this);
+
+        _queues[this._id] = null;
+        if (_pool.indexOf(this) === -1 && _pool.length < _POOL_MAX_LENGTH) {
+            _pool.push(this);
         }
     }
 });
 
-if (CC_EDITOR) {
-    LoadingItems.prototype.refreshItemUrl = function (id, oldUrl, newUrl) {
-        var item = this.map[id];
-        if (item) {
-            item.url = newUrl;
-        }
-
-        item = this.map[oldUrl];
-        if (item) {
-            item.id = newUrl;
-            item.url = newUrl;
-            this.map[newUrl] = item;
-            delete this.map[oldUrl];
-        }
-    };
-}
-
-module.exports = LoadingItems;
+cc.LoadingItems = module.exports = LoadingItems;
