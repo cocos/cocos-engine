@@ -55,6 +55,19 @@ var getAudioFromId = function (id) {
     return id2audio[id];
 };
 
+/**
+ * !#en cc.audioEngine is the singleton object, it provide simple audio APIs.
+ * !#zh
+ * cc.audioengine是单例对象。<br/>
+ * 主要用来播放音频，播放的时候会返回一个 audioID，之后都可以通过这个 audioID 来操作这个音频对象。<br/>
+ * 不使用的时候，请使用 cc.audioEngine.uncache(filePath); 进行资源释放 <br/>
+ * 注意：<br/>
+ * 在 Android 系统浏览器上，不同浏览器，不同版本的效果不尽相同。<br/>
+ * 比如说：大多数浏览器都需要用户物理交互才可以开始播放音效，有一些不支持 WebAudio，<br/>
+ * 有一些不支持多音轨播放。总之如果对音乐依赖比较强，请做尽可能多的测试。
+ * @class audioEngine
+ * @static
+ */
 var audioEngine = {
 
     AudioState: Audio.State,
@@ -74,7 +87,7 @@ var audioEngine = {
      * @return {Number} audioId
      * @example
      * //example
-     * cc.audioEngine.(path, false, 0.5);
+     * var audioID = cc.audioEngine.play(path, false, 0.5);
      */
     play: function (filePath, loop, volume/*, profile*/) {
         var audio = getAudioFromPath(filePath);
@@ -250,9 +263,10 @@ var audioEngine = {
      * !#en Pause playing audio.
      * !#zh 暂停正在播放音频。
      * @method pause
+     * @param {Number} audioID - The return value of function play.
      * @example
      * //example
-     * cc.audioEngine.pause(id);
+     * cc.audioEngine.pause(audioID);
      */
     pause: function (audioID) {
         var audio = getAudioFromId(audioID);
@@ -356,6 +370,7 @@ var audioEngine = {
      * !#en Set up an audio can generate a few examples.
      * !#zh 设置一个音频可以设置几个实例
      * @method setMaxAudioInstance
+     * @param {Number} num a number of instances to be created from within an audio
      * @example
      * //example
      * cc.audioEngine.setMaxAudioInstance(20);
@@ -368,6 +383,7 @@ var audioEngine = {
      * !#en Getting audio can produce several examples.
      * !#zh 获取一个音频可以设置几个实例
      * @method getMaxAudioInstance
+     * @return {Number} a number of instances to be created from within an audio
      * @example
      * //example
      * cc.audioEngine.getMaxAudioInstance();
