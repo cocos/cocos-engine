@@ -156,6 +156,23 @@ var RichText = cc.Class({
                 this._layoutDirty = true;
                 this._updateRichTextStatus();
             }
+        },
+
+        /**
+         * !#en The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.
+         * !#zh 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
+         * @property {cc.SpriteAtlas} imageAtlas
+         */
+        imageAtlas: {
+            default: null,
+            type: cc.SpriteAtlas,
+            tooltip: 'i18n:COMPONENT.richtext.image_atlas',
+            notify: function(oldValue) {
+                if(this.imageAtlas === oldValue) return;
+
+                this._layoutDirty = true;
+                this._updateRichTextStatus();
+            }
         }
     },
 
@@ -376,18 +393,24 @@ var RichText = cc.Class({
             } else {
                 if (oldItem.style) {
                     if (newItem.style) {
-                        if(oldItem.style.size != newItem.style.size
-                           || oldItem.style.italic !== newItem.style.italic) {
+                        if(oldItem.style.size !== newItem.style.size
+                           || oldItem.style.italic !== newItem.style.italic
+                           || oldItem.style.isImage !== newItem.style.isImage) {
                             return true;
                         }
+                        if(oldItem.style.isImage === newItem.style.isImage) {
+                            if(oldItem.style.src !== newItem.style.src) {
+                                return true;
+                            }
+                        }
                     } else {
-                        if(oldItem.style.size || oldItem.style.italic) {
+                        if(oldItem.style.size || oldItem.style.italic || oldItem.style.isImage) {
                             return true;
                         }
                     }
                 } else {
                     if (newItem.style) {
-                        if(newItem.style.size || newItem.style.italic) {
+                        if(newItem.style.size || newItem.style.italic || newItem.style.isImage) {
                             return true;
                         }
                     }
@@ -395,6 +418,70 @@ var RichText = cc.Class({
             }
         }
         return false;
+    },
+
+    _onSpriteFrameLoaded: function (event, spriteFrame) {
+        var newSpriteFrame;
+        if(spriteFrame) {
+            newSpriteFrame = spriteFrame;
+        } else {
+            newSpriteFrame = event.target;
+        }
+        var sprite = newSpriteFrame.__sprite;
+        sprite.setSpriteFrame(newSpriteFrame);
+    },
+
+    _applySpriteFrame: function (spriteFrame) {
+        if(spriteFrame) {
+            if(spriteFrame.textureLoaded()) {
+                this._onSpriteFrameLoaded(null, spriteFrame);
+            } else {
+                spriteFrame.once('load', this._onSpriteFrameLoaded, this);
+                spriteFrame.ensureLoadTexture();
+            }
+        }
+    },
+
+    _addRichTextImageElement: function (richTextElement) {
+        var spriteFrameName = richTextElement.style.src;
+        var spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
+        if(spriteFrame) {
+            var sprite = new cc.Scale9Sprite();
+            sprite.setAnchorPoint(cc.p(0, 0));
+            spriteFrame.__sprite = sprite;
+            this._sgNode.addChild(sprite);
+            this._labelSegments.push(sprite);
+
+            var spriteRect = spriteFrame.getRect();
+            var scaleFactor = 1;
+            if(spriteRect.height > this.lineHeight) {
+                scaleFactor = this.lineHeight / spriteRect.height;
+            }
+            if(this.maxWidth > 0) {
+                if(this._lineOffsetX + spriteRect.width * scaleFactor > this.maxWidth) {
+                    this._updateLineInfo();
+                }
+                this._lineOffsetX += spriteRect.width * scaleFactor;
+
+            } else {
+                this._lineOffsetX += spriteRect.width * scaleFactor;
+                if(this._lineOffsetX > this._labelWidth) {
+                    this._labelWidth = this._lineOffsetX;
+                }
+            }
+            this._applySpriteFrame(spriteFrame);
+            sprite.setContentSize(cc.size(spriteRect.width * scaleFactor,
+                                          spriteRect.height * scaleFactor));
+            sprite._lineCount = this._lineCount;
+
+            if(richTextElement.style.event) {
+                if(richTextElement.style.event.click) {
+                    sprite._clickHandler = richTextElement.style.event.click;
+                }
+            }
+        } else {
+            cc.warn('Invalid RichText img tag! The sprite frame name can\'t be found in the ImageAtlas!');
+        }
     },
 
     _updateRichText: function () {
@@ -422,6 +509,10 @@ var RichText = cc.Class({
             if(text === "") {
                 if(richTextElement.style && richTextElement.style.newline) {
                     this._updateLineInfo();
+                    continue;
+                }
+                if(richTextElement.style && richTextElement.style.isImage && this.imageAtlas) {
+                    this._addRichTextImageElement(richTextElement);
                     continue;
                 }
             }
@@ -531,6 +622,10 @@ var RichText = cc.Class({
 
             var positionY = (totalLineCount - lineCount) * this.lineHeight;
 
+            if(label instanceof cc.Scale9Sprite) {
+                positionY += (this.lineHeight - label.getContentSize().height) / 2;
+            }
+
             label.setPositionY(positionY);
 
             if (lineCount === nextLineIndex) {
@@ -541,6 +636,8 @@ var RichText = cc.Class({
     },
 
     _applyTextAttribute: function (label) {
+        if(label instanceof cc.Scale9Sprite) return;
+
         var index = label._styleIndex;
         label.setLineHeight(this.lineHeight);
         label.setVerticalAlign(VerticalAlign.CENTER);

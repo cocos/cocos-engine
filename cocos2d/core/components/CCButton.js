@@ -623,8 +623,8 @@ var Button = cc.Class({
         if(this._sprite) {
             this._sprite._sgNode.setState(0);
         }
-        if(this.enableAutoGrayEffect) {
-            if(! (this.transition === Transition.SPRITE && this.disabledSprite)) {
+        if(this.enableAutoGrayEffect && this.transition !== Transition.COLOR) {
+            if(!(this.transition === Transition.SPRITE && this.disabledSprite)) {
                 if(this._sprite && !this.interactable) {
                     this._sprite._sgNode.setState(1);
                 }
