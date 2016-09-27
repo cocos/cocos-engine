@@ -205,8 +205,6 @@ void js_register_cocos2dx_dragonbones_WorldClock(JSContext *cx, JS::HandleObject
 void register_all_cocos2dx_dragonbones(JSContext* cx, JS::HandleObject obj);
 bool js_cocos2dx_dragonbones_WorldClock_clear(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_WorldClock_contains(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_WorldClock_remove(JSContext *cx, uint32_t argc, jsval *vp);
-bool js_cocos2dx_dragonbones_WorldClock_add(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_WorldClock_advanceTime(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_cocos2dx_dragonbones_WorldClock_WorldClock(JSContext *cx, uint32_t argc, jsval *vp);
 

@@ -1069,26 +1069,6 @@ ianimateble
 },
 
 /**
- * @method remove
- * @param {dragonBones::IAnimateble} arg0
- */
-remove : function (
-ianimateble 
-)
-{
-},
-
-/**
- * @method add
- * @param {dragonBones::IAnimateble} arg0
- */
-add : function (
-ianimateble 
-)
-{
-},
-
-/**
  * @method advanceTime
  * @param {float} arg0
  */
