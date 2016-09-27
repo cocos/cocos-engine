@@ -194,8 +194,9 @@ JS.mixin(CCLoader.prototype, {
                 items.destroy();
 
                 if (CC_EDITOR) {
-                    // raw assets are not cached in the CC_EDITOR fix fireball/issues/4158
-                    self.clear();
+                    for (var i = 0; i < resources.length; i++) {
+                        self.removeItem(resources[i].id || resources[i]);
+                    }
                 }
             });
         });
