@@ -4,10 +4,12 @@
 #if _MSC_VER > 1800
 #pragma comment(lib,"libcocos2d_2015.lib")
 #pragma comment(lib,"libSpine_2015.lib")
+#pragma comment(lib,"libDragonBones_2015.lib")
 #pragma comment(lib,"libjscocos2d_2015")
 #else
 #pragma comment(lib,"libcocos2d_2013.lib")
 #pragma comment(lib,"libSpine_2013.lib")
+#pragma comment(lib,"libDragonBones_2013.lib")
 #pragma comment(lib,"libjscocos2d_2013")
 #endif
 
