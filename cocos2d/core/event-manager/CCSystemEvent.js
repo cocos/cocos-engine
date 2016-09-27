@@ -123,12 +123,12 @@ var SystemEvent = cc.Class({
 
     off: function (type, callback, target, useCapture) {
         this._super(type, callback, target, useCapture);
-        
+
         // Keyboard
         if (keyboardListener && (type === EventType.KEY_DOWN || type === EventType.KEY_UP)) {
-            var hasKeyDownEventListener = cc.eventManager.hasEventListener(EventType.KEY_DOWN);
-            var hasKeyUpEventListener = cc.eventManager.hasEventListener(EventType.KEY_UP);
-            if (!hasKeyDownEventListener && !hasKeyDownEventListener) {
+            var hasKeyDownEventListener = this.hasEventListener(EventType.KEY_DOWN);
+            var hasKeyUpEventListener = this.hasEventListener(EventType.KEY_UP);
+            if (!hasKeyDownEventListener && !hasKeyUpEventListener) {
                 cc.eventManager.removeListener(keyboardListener);
             }
         }
