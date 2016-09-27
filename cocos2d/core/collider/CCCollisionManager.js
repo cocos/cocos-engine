@@ -331,7 +331,7 @@ var CollisionManager = cc.Class({
             var collider = colliders[i];
 
             if (collider instanceof cc.BoxCollider || collider instanceof cc.PolygonCollider) {
-                this._debugDrawer.drawPoly(collider.world.points);
+                this._debugDrawer.drawPoly(collider.world.points.concat(), null, 1, cc.Color.WHITE);
             }
             else if (collider instanceof cc.CircleCollider) {
                 this._debugDrawer.drawCircle(collider.world.position, collider.world.radius, 0, 30);
