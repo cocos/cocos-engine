@@ -108,28 +108,41 @@ CallbacksHandler.prototype.add = function (key, callback, target) {
  */
 CallbacksHandler.prototype.has = function (key, callback, target) {
     var list = this._callbackTable[key], callbackTarget, index;
-    if (list && list.length > 0) {
-        // callback not given, but key found
-        if (!callback) 
-            return true;
-        // wrong callback type, can't found anything
-        else if (typeof callback !== 'function')
-            return false;
-        // Search callback, target pair in the list
-        index = list.indexOf(callback);
-        while (index !== -1) {
-            callbackTarget = list[index+1];
-            if (typeof callbackTarget !== 'object') {
-                callbackTarget = undefined;
-            }
-            if (callbackTarget === target) {
-                return true;
-            }
-            index = cc.js.array.indexOf.call(list, callback, index + 1);
-        }
-        // callback given but not found
+
+    if (!list) {
         return false;
     }
+
+    var empty = true;
+    for (var i = 0; i < list.length; ++i) {
+        if (list[i] && list[i] !== REMOVE_PLACEHOLDER) {
+            empty = false;
+            break;
+        }
+    }
+    if (empty) {
+        return false;
+    }
+
+    // callback not given, but key found
+    if (!callback) 
+        return true;
+    // wrong callback type, can't found anything
+    else if (typeof callback !== 'function')
+        return false;
+    // Search callback, target pair in the list
+    index = list.indexOf(callback);
+    while (index !== -1) {
+        callbackTarget = list[index+1];
+        if (typeof callbackTarget !== 'object') {
+            callbackTarget = undefined;
+        }
+        if (callbackTarget === target) {
+            return true;
+        }
+        index = cc.js.array.indexOf.call(list, callback, index + 1);
+    }
+    // callback given but not found
     return false;
 };
 
