@@ -24,6 +24,7 @@
  ****************************************************************************/
  
 require('./CCTouch');
-require('./CCSystemEvent');
 require('./CCEventListener');
 require('./CCEventManager');
+require('./CCEvent');
+require('./CCSystemEvent');

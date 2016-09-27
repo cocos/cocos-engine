@@ -540,7 +540,7 @@ cc._EventListenerAcceleration = cc.EventListener.extend({
         this._onAccelerationEvent = callback;
         var selfPointer = this;
         var listener = function (event) {
-            selfPointer._onAccelerationEvent(event._acc, event);
+            selfPointer._onAccelerationEvent(event.acc, event);
         };
         cc.EventListener.prototype.ctor.call(this, cc.EventListener.ACCELERATION, cc._EventListenerAcceleration.LISTENER_ID, listener);
     },
@@ -568,12 +568,12 @@ cc._EventListenerKeyboard = cc.EventListener.extend({
     ctor: function () {
         var selfPointer = this;
         var listener = function (event) {
-            if (event._isPressed) {
+            if (event.isPressed) {
                 if (selfPointer.onKeyPressed)
-                    selfPointer.onKeyPressed(event._keyCode, event);
+                    selfPointer.onKeyPressed(event.keyCode, event);
             } else {
                 if (selfPointer.onKeyReleased)
-                    selfPointer.onKeyReleased(event._keyCode, event);
+                    selfPointer.onKeyReleased(event.keyCode, event);
             }
         };
         cc.EventListener.prototype.ctor.call(this, cc.EventListener.KEYBOARD, cc._EventListenerKeyboard.LISTENER_ID, listener);
