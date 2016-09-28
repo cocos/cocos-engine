@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcocos2d", "..\..\cocos2d
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjscocos2d", "..\..\cocos2d-x\cocos\scripting\js-bindings\proj.win32\libjscocos2d.vcxproj", "{39379840-825A-45A0-B363-C09FFEF864BD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libDragonBones", "..\..\cocos2d-x\cocos\editor-support\dragonbones\proj.win32\libDragonBones.vcxproj", "{6B494955-1E66-40DA-830D-0D31B8D301EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,11 +41,16 @@ Global
 		{39379840-825A-45A0-B363-C09FFEF864BD}.Debug|Win32.Build.0 = Debug|Win32
 		{39379840-825A-45A0-B363-C09FFEF864BD}.Release|Win32.ActiveCfg = Release|Win32
 		{39379840-825A-45A0-B363-C09FFEF864BD}.Release|Win32.Build.0 = Release|Win32
+		{6B494955-1E66-40DA-830D-0D31B8D301EF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6B494955-1E66-40DA-830D-0D31B8D301EF}.Debug|Win32.Build.0 = Debug|Win32
+		{6B494955-1E66-40DA-830D-0D31B8D301EF}.Release|Win32.ActiveCfg = Release|Win32
+		{6B494955-1E66-40DA-830D-0D31B8D301EF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B7C2A162-DEC9-4418-972E-240AB3CBFCAE} = {8C6B0381-B325-4D7F-B1BB-474ABACE46AC}
+		{6B494955-1E66-40DA-830D-0D31B8D301EF} = {8C6B0381-B325-4D7F-B1BB-474ABACE46AC}
 	EndGlobalSection
 EndGlobal
